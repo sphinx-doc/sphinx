@@ -5,7 +5,7 @@
 
     Tests the C++ Domain
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -73,6 +73,30 @@ def test_type_definitions():
     assert unicode(parse('function', x)) == x
 
     x = 'int get_value() const noexcept'
+    assert unicode(parse('function', x)) == x
+
+    x = 'int get_value() const noexcept = delete'
+    assert unicode(parse('function', x)) == x
+
+    x = 'MyClass::MyClass(MyClass::MyClass&&) = default'
+    assert unicode(parse('function', x)) == x
+
+    x = 'MyClass::a_virtual_function() const override'
+    assert unicode(parse('function', x)) == x
+
+    x = 'MyClass::a_member_function() volatile'
+    assert unicode(parse('function', x)) == x
+
+    x = 'MyClass::a_member_function() const volatile'
+    assert unicode(parse('function', x)) == x
+
+    x = 'MyClass::a_member_function() &&'
+    assert unicode(parse('function', x)) == x
+
+    x = 'MyClass::a_member_function() &'
+    assert unicode(parse('function', x)) == x
+
+    x = 'MyClass::a_member_function() const &'
     assert unicode(parse('function', x)) == x
 
     x = 'int main(int argc, char* argv[][])'

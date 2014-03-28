@@ -5,7 +5,7 @@
 
     Test various Sphinx-specific markup extensions.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -132,7 +132,7 @@ def test_latex_escaping():
     # in verbatim code fragments
     yield (verify, u'::\n\n @Γ\\∞${}', None,
            u'\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n'
-           u'@\\(\\Gamma\\)\\PYGZbs{}\\(\\infty\\)\\$\\PYGZob{}\\PYGZcb{}\n'
+           u'@\\(\\Gamma\\)\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
            u'\\end{Verbatim}')
     # in URIs
     yield (verify_re, u'`test <http://example.com/~me/>`_', None,

@@ -5,7 +5,7 @@
 
     Build configuration file handling.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -72,7 +72,7 @@ class Config(object):
         primary_domain = ('py', 'env'),
         needs_sphinx = (None, None),
         nitpicky = (False, 'env'),
-        nitpick_ignore = ([], 'env'),
+        nitpick_ignore = ([], 'html'),
 
         # HTML options
         html_theme = ('default', 'html'),
@@ -86,6 +86,7 @@ class Config(object):
         html_logo = (None, 'html'),
         html_favicon = (None, 'html'),
         html_static_path = ([], 'html'),
+        html_extra_path = ([], 'html'),
         # the real default is locale-dependent
         html_last_updated_fmt = (None, 'html'),
         html_use_smartypants = (True, 'html'),
@@ -213,6 +214,8 @@ class Config(object):
         self.overrides = overrides
         self.values = Config.config_values.copy()
         config = {}
+        if "extensions" in overrides:
+            config["extensions"] = overrides["extensions"]
         if dirname is not None:
             config_file = path.join(dirname, filename)
             config['__file__'] = config_file

@@ -5,7 +5,7 @@
 
     The Sphinx documentation toolchain.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,8 +15,12 @@
 import sys
 from os import path
 
-__version__  = '1.2b1'
-__released__ = '1.2b1'  # used when Sphinx builds its own docs
+__version__  = '1.2.2+'
+__released__ = '1.2.2'  # used when Sphinx builds its own docs
+# version info for better programmatic use
+# possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
+# 'final' has 0 as the last element
+version_info = (1, 2, 2, 'final', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 
@@ -74,6 +78,12 @@ def main(argv=sys.argv):
                              'Docutils 0.10 for Python 3.3 and above.\n')
             return 1
     return cmdline.main(argv)
+
+
+def make_main(argv=sys.argv):
+    """Sphinx build "make mode" entry."""
+    from sphinx import make_mode
+    return make_mode.run_make_mode(argv[2:])
 
 
 if __name__ == '__main__':

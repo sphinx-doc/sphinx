@@ -140,7 +140,8 @@ The :program:`sphinx-build` script has several options:
 .. option:: -n
 
    Run in nit-picky mode.  Currently, this generates warnings for all missing
-   references.
+   references.  See the config value :confval:`nitpick_ignore` for a way to
+   exclude some references as "known missing".
 
 .. option:: -N
 
@@ -149,8 +150,8 @@ The :program:`sphinx-build` script has several options:
 
 .. option:: -v
 
-   Increase verbosity.  This option can be given up to three times to get more
-   debug output.  It implies :option:`-T`.
+   Increase verbosity (loglevel).  This option can be given up to three times
+   to get more debug logging output.  It implies :option:`-T`.
 
    .. versionadded:: 1.2
 
@@ -237,6 +238,16 @@ where *packagedir* is the path to the package to document, and *outputdir* is
 the directory where the generated sources are placed.  Any *pathnames* given
 are paths to be excluded ignored during generation.
 
+.. warning::
+
+   ``sphinx-apidoc`` generates reST files that use :mod:`sphinx.ext.autodoc` to
+   document all found modules.  If any modules have side effects on import,
+   these will be executed by ``autodoc`` when ``sphinx-build`` is run.
+
+   If you document scripts (as opposed to library modules), make sure their main
+   routine is protected by a ``if __name__ == '__main__'`` condition.
+
+
 The :program:`sphinx-apidoc` script has several options:
 
 .. program:: sphinx-apidoc
@@ -269,7 +280,7 @@ The :program:`sphinx-apidoc` script has several options:
    filesystem to discover packages and modules. You may need it if you want
    to generate documentation from a source directory managed by
    `collective.recipe.omelette
-   <http://pypi.python.org/pypi/collective.recipe.omelette/>`_.
+   <https://pypi.python.org/pypi/collective.recipe.omelette/>`_.
    By default, symbolic links are skipped.
 
    .. versionadded:: 1.2

@@ -1,5 +1,6 @@
 <p class="logo">A <a href="http://pocoo.org/">
-  <img src="{{ pathto("_static/pocoo.png", 1) }}" /></a> {%trans%}project{%endtrans%}</a></p>
+  <img src="{{ pathto("_static/pocoo.png", 1) }}" alt="Pocoo" /></a>
+  {%trans%}project{%endtrans%}</p>
 
 <h3>Download</h3>
 {% if version.endswith('(hg)') %}
@@ -27,6 +28,6 @@ are also available.{%endtrans%}</p>
          onfocus="$(this).val('');"/>
   <input type="submit" name="sub" value="Subscribe" style="font-size: 90%; width: 70px"/>
 </form>
-<p>{%trans%}or come to the <tt>#pocoo</tt> channel on FreeNode.{%endtrans%}</p>
+<p>{%trans%}or come to the <tt>#sphinx-doc</tt> channel on FreeNode.{%endtrans%}</p>
 <p>{%trans%}You can also open an issue at the
   <a href="http://www.bitbucket.org/birkenfeld/sphinx/issues/">tracker</a>.{%endtrans%}</p>

@@ -8,17 +8,20 @@
 
     :author: Sebastian Wiesner
     :contact: basti.wiesner@gmx.net
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import sys
 import os
+import types
 from StringIO import StringIO
 from distutils.cmd import Command
+from distutils.errors import DistutilsOptionError
 
 from sphinx.application import Sphinx
 from sphinx.util.console import darkred, nocolor, color_terminal
+from sphinx.util.osutil import abspath
 
 
 class BuildDoc(Command):
@@ -97,6 +100,19 @@ class BuildDoc(Command):
                     return root
         return None
 
+    # Overriding distutils' Command._ensure_stringlike which doesn't support
+    # unicode, causing finalize_options to fail if invoked again. Workaround
+    # for http://bugs.python.org/issue19570
+    def _ensure_stringlike(self, option, what, default=None):
+        val = getattr(self, option)
+        if val is None:
+            setattr(self, option, default)
+            return default
+        elif not isinstance(val, types.StringTypes):
+            raise DistutilsOptionError("'%s' must be a %s (got `%s`)"
+                                       % (option, what, val))
+        return val
+
     def finalize_options(self):
         if self.source_dir is None:
             self.source_dir = self._guess_source_dir()
@@ -104,14 +120,16 @@ class BuildDoc(Command):
         self.ensure_dirname('source_dir')
         if self.source_dir is None:
             self.source_dir = os.curdir
-        self.source_dir = os.path.abspath(self.source_dir)
+        self.source_dir = abspath(self.source_dir)
         if self.config_dir is None:
             self.config_dir = self.source_dir
+        self.config_dir = abspath(self.config_dir)
 
         if self.build_dir is None:
             build = self.get_finalized_command('build')
-            self.build_dir = os.path.join(build.build_base, 'sphinx')
+            self.build_dir = os.path.join(abspath(build.build_base), 'sphinx')
             self.mkpath(self.build_dir)
+        self.build_dir = abspath(self.build_dir)
         self.doctree_dir = os.path.join(self.build_dir, 'doctrees')
         self.mkpath(self.doctree_dir)
         self.builder_target_dir = os.path.join(self.build_dir, self.builder)

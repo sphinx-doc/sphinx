@@ -5,7 +5,7 @@
 
     Docutils node-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -58,8 +58,9 @@ def extract_messages(doctree):
         # this issue was filed to Docutils tracker:
         # sf.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
         # sourceforge.net/p/docutils/patches/108/
-        if isinstance(node, (nodes.caption, nodes.title)) and not node.source:
-            node.source = node.parent.source
+        if isinstance(node, (nodes.caption, nodes.title, nodes.rubric)) \
+           and not node.source:
+            node.source = find_source_node(node)
             node.line = 0  #need fix docutils to get `node.line`
 
         if not node.source:
@@ -75,6 +76,18 @@ def extract_messages(doctree):
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
             yield node, msg
+
+
+def find_source_node(node):
+    for pnode in traverse_parent(node):
+        if pnode.source:
+            return pnode.source
+
+
+def traverse_parent(node):
+    while node:
+        yield node
+        node = node.parent
 
 
 def traverse_translatable_index(doctree):

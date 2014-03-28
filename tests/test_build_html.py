@@ -5,7 +5,7 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -42,6 +42,8 @@ http://www.python.org/logo.png
 reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 :encoding: option\\n?
 %(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
+%(root)s/markup.txt:\\d+: WARNING: Malformed :option: u'Python c option', does \
+not contain option marker - or -- or /
 %(root)s/objects.txt:\\d*: WARNING: using old C markup; please migrate to \
 new-style markup \(e.g. c:function instead of cfunction\), see \
 http://sphinx-doc.org/domains.html
@@ -184,18 +186,29 @@ HTML_XPATH = {
         (".//a[@href='#userdesc-myobj'][@class='reference internal']", ''),
         # C references
         (".//span[@class='pre']", 'CFunction()'),
-        (".//a[@href='#Sphinx_DoSomething']", ''),
-        (".//a[@href='#SphinxStruct.member']", ''),
-        (".//a[@href='#SPHINX_USE_PYTHON']", ''),
-        (".//a[@href='#SphinxType']", ''),
-        (".//a[@href='#sphinx_global']", ''),
+        (".//a[@href='#c.Sphinx_DoSomething']", ''),
+        (".//a[@href='#c.SphinxStruct.member']", ''),
+        (".//a[@href='#c.SPHINX_USE_PYTHON']", ''),
+        (".//a[@href='#c.SphinxType']", ''),
+        (".//a[@href='#c.sphinx_global']", ''),
         # reference from old C markup extension
-        (".//a[@href='#Sphinx_Func']", ''),
+        (".//a[@href='#c.Sphinx_Func']", ''),
         # test global TOC created by toctree()
         (".//ul[@class='current']/li[@class='toctree-l1 current']/a[@href='']",
             'Testing object descriptions'),
         (".//li[@class='toctree-l1']/a[@href='markup.html']",
             'Testing various markup'),
+        # test unknown field names
+        (".//th[@class='field-name']", 'Field_name:'),
+        (".//th[@class='field-name']", 'Field_name all lower:'),
+        (".//th[@class='field-name']", 'FIELD_NAME:'),
+        (".//th[@class='field-name']", 'FIELD_NAME ALL CAPS:'),
+        (".//th[@class='field-name']", 'Field_Name:'),
+        (".//th[@class='field-name']", 'Field_Name All Word Caps:'),
+        (".//th[@class='field-name']", 'Field_name:'),
+        (".//th[@class='field-name']", 'Field_name First word cap:'),
+        (".//th[@class='field-name']", 'FIELd_name:'),
+        (".//th[@class='field-name']", 'FIELd_name PARTial caps:'),
         # custom sidebar
         (".//h4", 'Custom sidebar'),
         # docfields
@@ -320,6 +333,9 @@ def check_static_entries(outdir):
     # a file from _static, but matches exclude_patterns
     assert not (staticdir / 'excluded.css').exists()
 
+def check_extra_entries(outdir):
+    assert (outdir / 'robots.txt').isfile()
+
 @gen_with_app(buildername='html', warning=html_warnfile, cleanenv=True,
               confoverrides={'html_context.hckey_co': 'hcval_co'},
               tags=['testtag'])
@@ -345,12 +361,13 @@ def test_html(app):
             yield check_xpath, etree, fname, path, check
 
     check_static_entries(app.builder.outdir)
+    check_extra_entries(app.builder.outdir)
 
 @with_app(buildername='html', srcdir='(empty)',
           confoverrides={'html_sidebars': {'*': ['globaltoc.html']}},
           )
 def test_html_with_globaltoc_and_hidden_toctree(app):
-    # issue #1157: combination of 'globaltoc.html' and hidden toctree cause 
+    # issue #1157: combination of 'globaltoc.html' and hidden toctree cause
     # exception.
     (app.srcdir / 'contents.rst').write_text(
             '\n.. toctree::'
@@ -359,4 +376,3 @@ def test_html_with_globaltoc_and_hidden_toctree(app):
             '\n   :hidden:'
             '\n')
     app.builder.build_all()
-

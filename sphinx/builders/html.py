@@ -5,7 +5,7 @@
 
     Several HTML builders.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -480,6 +480,7 @@ class StandaloneHTMLBuilder(Builder):
         self.copy_image_files()
         self.copy_download_files()
         self.copy_static_files()
+        self.copy_extra_files()
         self.write_buildinfo()
 
         # dump the search index
@@ -596,15 +597,31 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.html_logo:
             logobase = path.basename(self.config.html_logo)
             logotarget = path.join(self.outdir, '_static', logobase)
-            if not path.isfile(logotarget):
+            if not path.isfile(path.join(self.confdir, self.config.html_logo)):
+                self.warn('logo file %r does not exist' % self.config.html_logo)
+            elif not path.isfile(logotarget):
                 copyfile(path.join(self.confdir, self.config.html_logo),
                          logotarget)
         if self.config.html_favicon:
             iconbase = path.basename(self.config.html_favicon)
             icontarget = path.join(self.outdir, '_static', iconbase)
-            if not path.isfile(icontarget):
+            if not path.isfile(path.join(self.confdir, self.config.html_favicon)):
+                self.warn('favicon file %r does not exist' % self.config.html_favicon)
+            elif not path.isfile(icontarget):
                 copyfile(path.join(self.confdir, self.config.html_favicon),
                          icontarget)
+        self.info('done')
+
+    def copy_extra_files(self):
+        # copy html_extra_path files
+        self.info(bold('copying extra files... '), nonl=True)
+        extraentries = [path.join(self.confdir, epath)
+                        for epath in self.config.html_extra_path]
+        for entry in extraentries:
+            if not path.exists(entry):
+                self.warn('html_extra_path entry %r does not exist' % entry)
+                continue
+            copy_static_entry(entry, self.outdir, self)
         self.info('done')
 
     def write_buildinfo(self):
@@ -962,6 +979,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         self.copy_image_files()
         self.copy_download_files()
         self.copy_static_files()
+        self.copy_extra_files()
         self.write_buildinfo()
         self.dump_inventory()
 

@@ -49,7 +49,7 @@
     resolved to a Python object, and otherwise it becomes simple emphasis.
     This can be used as the default role to make links 'smart'.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -199,15 +199,12 @@ class Autosummary(Directive):
         nodes = self.get_table(items)
 
         if 'toctree' in self.options:
-            suffix = env.config.source_suffix
             dirname = posixpath.dirname(env.docname)
 
             tree_prefix = self.options['toctree'].strip()
             docnames = []
             for name, sig, summary, real_name in items:
                 docname = posixpath.join(tree_prefix, real_name)
-                if docname.endswith(suffix):
-                    docname = docname[:-len(suffix)]
                 docname = posixpath.normpath(posixpath.join(dirname, docname))
                 if docname not in env.found_docs:
                     self.warn('toctree references unknown document %r'
@@ -278,7 +275,17 @@ class Autosummary(Directive):
 
             while doc and not doc[0].strip():
                 doc.pop(0)
-            m = re.search(r"^([A-Z][^A-Z]*?\.\s)", " ".join(doc).strip())
+
+            # If there's a blank line, then we can assume the first sentence /
+            # paragraph has ended, so anything after shouldn't be part of the
+            # summary
+            for i, piece in enumerate(doc):
+                if not piece.strip():
+                    doc = doc[:i]
+                    break
+
+            # Try to find the "first sentence", which may span multiple lines
+            m = re.search(r"^([A-Z].*?\.)(?:\s|$)", " ".join(doc).strip())
             if m:
                 summary = m.group(1).strip()
             elif doc:

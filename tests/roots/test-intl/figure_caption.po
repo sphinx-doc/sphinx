@@ -27,3 +27,9 @@ msgstr "MY DESCRIPTION PARAGRAPH1 OF THE FIGURE."
 
 msgid "My description paragraph2 of the figure."
 msgstr "MY DESCRIPTION PARAGRAPH2 OF THE FIGURE."
+
+msgid "figure in the block"
+msgstr "FIGURE IN THE BLOCK"
+
+msgid "block"
+msgstr "BLOCK"

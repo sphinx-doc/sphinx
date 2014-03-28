@@ -60,10 +60,11 @@ installed) and handled in a smart way:
     certain well-recognizable languages)
   * ``rest``
   * ``c``
-  * ... and any other lexer name that Pygments supports.
+  * ... and any other `lexer alias that Pygments supports
+    <http://pygments.org/docs/lexers/>`_.
 
-* If highlighting with the selected language fails, the block is not highlighted
-  in any way.
+* If highlighting with the selected language fails (i.e. Pygments emits an
+  "Error" token), the block is not highlighted in any way.
 
 Line numbers
 ^^^^^^^^^^^^

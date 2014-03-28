@@ -6,7 +6,7 @@
     "Doc fields" are reST field lists in object descriptions that will
     be domain-specifically transformed to a more appealing presentation.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -67,7 +67,7 @@ class Field(object):
             fieldname += nodes.Text(' ')
             fieldname += self.make_xref(self.rolename, domain,
                                         fieldarg, nodes.Text)
-        fieldbody = nodes.field_body('', nodes.paragraph('', '', content))
+        fieldbody = nodes.field_body('', nodes.paragraph('', '', *content))
         return nodes.field('', fieldname, fieldbody)
 
 
@@ -219,7 +219,9 @@ class DocFieldTransformer(object):
             if typedesc is None or typedesc.has_arg != bool(fieldarg):
                 # either the field name is unknown, or the argument doesn't
                 # match the spec; capitalize field name and be done with it
-                new_fieldname = fieldtype.capitalize() + ' ' + fieldarg
+                new_fieldname = fieldtype[0:1].upper() + fieldtype[1:]
+                if fieldarg:
+                     new_fieldname += ' ' + fieldarg
                 fieldname[0] = nodes.Text(new_fieldname)
                 entries.append(field)
                 continue
@@ -270,10 +272,10 @@ class DocFieldTransformer(object):
                     groupindices[typename] = len(entries)
                     group = [typedesc, []]
                     entries.append(group)
-                entry = typedesc.make_entry(fieldarg, translatable_content)
+                entry = typedesc.make_entry(fieldarg, [translatable_content])
                 group[1].append(entry)
             else:
-                entry = typedesc.make_entry(fieldarg, translatable_content)
+                entry = typedesc.make_entry(fieldarg, [translatable_content])
                 entries.append([typedesc, entry])
 
         # step 2: all entries are collected, construct the new field list

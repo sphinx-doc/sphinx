@@ -14,7 +14,7 @@
        generate:
                sphinx-autogen -o source/generated source/*.rst
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -32,6 +32,21 @@ from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.util.osutil import ensuredir
 from sphinx.util.inspect import safe_getattr
+
+# Add documenters to AutoDirective registry
+from sphinx.ext.autodoc import add_documenter, \
+    ModuleDocumenter, ClassDocumenter, ExceptionDocumenter, DataDocumenter, \
+    FunctionDocumenter, MethodDocumenter, AttributeDocumenter, \
+    InstanceAttributeDocumenter
+add_documenter(ModuleDocumenter)
+add_documenter(ClassDocumenter)
+add_documenter(ExceptionDocumenter)
+add_documenter(DataDocumenter)
+add_documenter(FunctionDocumenter)
+add_documenter(MethodDocumenter)
+add_documenter(AttributeDocumenter)
+add_documenter(InstanceAttributeDocumenter)
+
 
 def main(argv=sys.argv):
     usage = """%prog [OPTIONS] SOURCEFILE ..."""
@@ -101,7 +116,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
     new_files = []
 
     # write
-    for name, path, template_name in sorted(items):
+    for name, path, template_name in sorted(items, key=str):
         if path is None:
             # The corresponding autosummary:: directive did not have
             # a :toctree: option

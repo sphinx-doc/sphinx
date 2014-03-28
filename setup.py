@@ -2,8 +2,8 @@
 try:
     from setuptools import setup, find_packages
 except ImportError:
-    import distribute_setup
-    distribute_setup.use_setuptools()
+    import ez_setup
+    ez_setup.use_setuptools()
     from setuptools import setup, find_packages
 
 import os
@@ -39,9 +39,6 @@ Among its features are the following:
 * Various extensions are available, e.g. for automatic testing of snippets
   and inclusion of appropriately formatted docstrings
 * Setuptools integration
-
-A development egg can be found `here
-<http://bitbucket.org/birkenfeld/sphinx/get/tip.gz#egg=Sphinx-dev>`_.
 '''
 
 requires = ['Pygments>=1.2', 'docutils>=0.7']
@@ -139,7 +136,7 @@ else:
 
                 jscatalog = {}
                 for message in catalog:
-                    if any(x[0].endswith('.js') for x in message.locations):
+                    if any(x[0].endswith(('.js', '.js_t', '.html')) for x in message.locations):
                         msgid = message.id
                         if isinstance(msgid, (list, tuple)):
                             msgid = msgid[0]

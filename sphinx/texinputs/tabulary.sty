@@ -8,13 +8,13 @@
 %% DRAFT VERSION
 %%
 %% File `tabulary.dtx'.
-%% Copyright (C) 1995 1996 2003 David Carlisle
+%% Copyright (C) 1995 1996 2003 2008 David Carlisle
 %% This file may be distributed under the terms of the LPPL.
 %% See 00readme.txt for details.
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{tabulary}
-          [2007/10/02 v0.9 tabulary package (DPC)]
+          [2008/12/01 v0.9 tabulary package (DPC)]
 \RequirePackage{array}
 \catcode`\Z=14
 \DeclareOption{debugshow}{\catcode`\Z=9\relax}
@@ -109,8 +109,6 @@ Z        \string\tymax: \the\tymax^^J}%
   \global\advance\TY@linewidth-#1\relax}
 \def\endtabulary{%
   \gdef\@halignto{}%
-  \let\TY@footnote\footnote%
-  \def\footnote{}% prevent footnotes from doing anything
   \expandafter\TY@tab\the\toks@
   \crcr\omit
   {\xdef\TY@save@row{}%
@@ -174,7 +172,6 @@ Z        \message{> tymin}%
     \TY@checkmin
     \TY@count\z@
     \let\TY@box\TY@box@v
-    \let\footnote\TY@footnote % restore footnotes
   {\expandafter\TY@final\the\toks@\endTY@final}%
   \count@\z@
   \@tempswatrue
@@ -195,7 +192,7 @@ Z        \message{> tymin}%
   \let\TY@checkmin\relax
 \ifdim\TY@tablewidth>\z@
   \Gscale@div\TY@ratio\TY@linewidth\TY@tablewidth
- \ifdim\TY@tablewidth <\linewidth
+ \ifdim\TY@tablewidth <\TY@linewidth
    \def\TY@ratio{1}%
  \fi
 \else

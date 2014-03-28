@@ -2,38 +2,7 @@
 host = https://www.transifex.com
 
 [sphinx-1.sphinx-pot]
+file_filter = <lang>/LC_MESSAGES/sphinx.po
 source_file = sphinx.pot
 source_lang = en
-trans.bn = bn/LC_MESSAGES/sphinx.po
-trans.ca = ca/LC_MESSAGES/sphinx.po
-trans.cs = cs/LC_MESSAGES/sphinx.po
-trans.da = da/LC_MESSAGES/sphinx.po
-trans.de = de/LC_MESSAGES/sphinx.po
-trans.es = es/LC_MESSAGES/sphinx.po
-trans.et = et/LC_MESSAGES/sphinx.po
-trans.eu = eu/LC_MESSAGES/sphinx.po
-trans.fa = fa/LC_MESSAGES/sphinx.po
-trans.fi = fi/LC_MESSAGES/sphinx.po
-trans.fr = fr/LC_MESSAGES/sphinx.po
-trans.he = he/LC_MESSAGES/sphinx.po
-trans.hr = hr/LC_MESSAGES/sphinx.po
-trans.hu = hu/LC_MESSAGES/sphinx.po
-trans.it = it/LC_MESSAGES/sphinx.po
-trans.ja = ja/LC_MESSAGES/sphinx.po
-trans.ko = ko/LC_MESSAGES/sphinx.po
-trans.lt = lt/LC_MESSAGES/sphinx.po
-trans.lv = lv/LC_MESSAGES/sphinx.po
-trans.nb_NO = nb_NO/LC_MESSAGES/sphinx.po
-trans.ne = ne/LC_MESSAGES/sphinx.po
-trans.nl = nl/LC_MESSAGES/sphinx.po
-trans.pl = pl/LC_MESSAGES/sphinx.po
-trans.pt_BR = pt_BR/LC_MESSAGES/sphinx.po
-trans.ru = ru/LC_MESSAGES/sphinx.po
-trans.sk = sk/LC_MESSAGES/sphinx.po
-trans.sl = sl/LC_MESSAGES/sphinx.po
-trans.sv = sv/LC_MESSAGES/sphinx.po
-trans.tr = tr/LC_MESSAGES/sphinx.po
-trans.uk_UA = uk_UA/LC_MESSAGES/sphinx.po
-trans.zh_CN = zh_CN/LC_MESSAGES/sphinx.po
-trans.zh_TW = zh_TW/LC_MESSAGES/sphinx.po
 

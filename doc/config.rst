@@ -40,6 +40,8 @@ Important points to note:
   delete them from the namespace with ``del`` if appropriate.  Modules are
   removed automatically, so you don't need to ``del`` your imports after use.
 
+.. _conf-tags:
+
 * There is a special object named ``tags`` available in the config file.
   It can be used to query and change the tags (see :ref:`tags`).  Use
   ``tags.has('tag')`` to query, ``tags.add('tag')`` and ``tags.remove('tag')``
@@ -236,7 +238,8 @@ General configuration
 
    A list of ``(type, target)`` tuples (by default empty) that should be ignored
    when generating warnings in "nitpicky mode".  Note that ``type`` should
-   include the domain name.  An example entry would be ``('py:func', 'int')``.
+   include the domain name if present.  Example entries would be ``('py:func',
+   'int')`` or ``('envvar', 'LD_LIBRARY_PATH')``.
 
    .. versionadded:: 1.1
 
@@ -379,17 +382,20 @@ documentation on :ref:`intl` for details.
    * ``fr`` -- French
    * ``hr`` -- Croatian
    * ``hu`` -- Hungarian
+   * ``id`` -- Indonesian
    * ``it`` -- Italian
    * ``ja`` -- Japanese
    * ``ko`` -- Korean
    * ``lt`` -- Lithuanian
    * ``lv`` -- Latvian
+   * ``mk`` -- Macedonian
    * ``nb_NO`` -- Norwegian Bokmal
    * ``ne`` -- Nepali
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
    * ``pt_BR`` -- Brazilian Portuguese
    * ``ru`` -- Russian
+   * ``si`` -- Sinhala
    * ``sk`` -- Slovak
    * ``sl`` -- Slovenian
    * ``sv`` -- Swedish
@@ -469,8 +475,8 @@ that use Sphinx' HTMLWriter class.
    The "title" for HTML documentation generated with Sphinx' own templates.
    This is appended to the ``<title>`` tag of individual pages, and used in the
    navigation bar as the "topmost" element.  It defaults to :samp:`'{<project>}
-   v{<revision>} documentation'`, where the placeholders are replaced by the
-   config values of the same name.
+   v{<revision>} documentation'` (with the values coming from the config
+   values).
 
 .. confval:: html_short_title
 
@@ -490,29 +496,33 @@ that use Sphinx' HTMLWriter class.
 
 .. confval:: html_logo
 
-   If given, this must be the name of an image file that is the logo of the
-   docs.  It is placed at the top of the sidebar; its width should therefore not
-   exceed 200 pixels.  Default: ``None``.
+   If given, this must be the name of an image file (path relative to the
+   :term:`configuration directory`) that is the logo of the docs.  It is placed
+   at the top of the sidebar; its width should therefore not exceed 200 pixels.
+   Default: ``None``.
 
    .. versionadded:: 0.4.1
       The image file will be copied to the ``_static`` directory of the output
-      HTML, so an already existing file with that name will be overwritten.
+      HTML, but only if the file does not already exist there.
 
 .. confval:: html_favicon
 
-   If given, this must be the name of an image file (within the static path, see
-   below) that is the favicon of the docs.  Modern browsers use this as icon for
-   tabs, windows and bookmarks.  It should be a Windows-style icon file
-   (``.ico``), which is 16x16 or 32x32 pixels large.  Default: ``None``.
+   If given, this must be the name of an image file (path relative to the
+   :term:`configuration directory`) that is the favicon of the docs.  Modern browsers use this
+   as icon for tabs, windows and bookmarks.  It should be a Windows-style icon
+   file (``.ico``), which is 16x16 or 32x32 pixels large.  Default: ``None``.
 
    .. versionadded:: 0.4
+      The image file will be copied to the ``_static`` directory of the output
+      HTML, but only if the file does not already exist there.
 
 .. confval:: html_static_path
 
-   A list of paths that contain custom static files (such as style sheets or
-   script files).  Relative paths are taken as relative to the configuration
-   directory.  They are copied to the output directory after the theme's static
-   files, so a file named :file:`default.css` will overwrite the theme's
+   A list of paths that contain custom static files (such as style
+   sheets or script files).  Relative paths are taken as relative to
+   the configuration directory.  They are copied to the output's
+   :file:`_static` directory after the theme's static files, so a file
+   named :file:`default.css` will overwrite the theme's
    :file:`default.css`.
 
    .. versionchanged:: 0.4
@@ -520,6 +530,19 @@ that use Sphinx' HTMLWriter class.
 
    .. versionchanged:: 1.0
       The entries in :confval:`html_static_path` can now be single files.
+
+.. confval:: html_extra_path
+
+   A list of paths that contain extra files not directly related to
+   the documentation, such as :file:`robots.txt` or :file:`.htaccess`.
+   Relative paths are taken as relative to the configuration
+   directory.  They are copied to the output directory.  They will
+   overwrite any existing file of the same name.
+
+   As these files are not meant to be built, they are automatically added to
+   :confval:`exclude_patterns`.
+
+   .. versionadded:: 1.2
 
 .. confval:: html_last_updated_fmt
 
@@ -999,10 +1022,16 @@ These options influence LaTeX output.
      "sphinx" package in order to define Sphinx' custom LaTeX commands.
      "howto" documents will not get appendices.  Also, howtos will have a simpler
      title page.
+
    * *toctree_only*: Must be ``True`` or ``False``.  If ``True``, the *startdoc*
      document itself is not included in the output, only the documents
      referenced by it via TOC trees.  With this option, you can put extra stuff
      in the master document that shows up in the HTML, but not the LaTeX output.
+
+   .. versionadded:: 1.2
+      In the past including your own document class required you to prepend the
+      document class name with the string "sphinx". This is not necessary
+      anymore.
 
    .. versionadded:: 0.3
       The 6th item ``toctree_only``.  Tuples with 5 items are still accepted.

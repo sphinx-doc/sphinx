@@ -6,7 +6,7 @@
     Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -49,8 +49,10 @@ def setup_test():
         undoc_members = False,
         private_members = False,
         special_members = False,
+        imported_members = False,
         show_inheritance = False,
         noindex = False,
+        annotation = None,
         synopsis = '',
         platform = '',
         deprecated = False,
@@ -298,6 +300,69 @@ def test_get_doc():
     # Indentation is normalized for 'both'
     assert getdocl('class', D) == ['Class docstring', '', 'Init docstring',
                                    '', 'Other', ' lines']
+
+    #__init__ have signature at first line of docstring
+    class E:
+        """Class docstring"""
+        def __init__(self, *args, **kw):
+            """
+            __init__(a1, a2, kw1=True, kw2=False)
+
+            Init docstring
+            """
+
+    # signature line in the docstring will be kept when
+    # autodoc_docstring_signature == False
+    directive.env.config.autodoc_docstring_signature = False
+    directive.env.config.autoclass_content = 'class'
+    assert getdocl('class', E) == ['Class docstring']
+    directive.env.config.autoclass_content = 'init'
+    assert getdocl('class', E) == ['__init__(a1, a2, kw1=True, kw2=False)',
+                                   '', 'Init docstring']
+    directive.env.config.autoclass_content = 'both'
+    assert getdocl('class', E) == ['Class docstring', '',
+                                   '__init__(a1, a2, kw1=True, kw2=False)',
+                                   '', 'Init docstring']
+
+    # signature line in the docstring will be removed when
+    # autodoc_docstring_signature == True
+    directive.env.config.autodoc_docstring_signature = True  #default
+    directive.env.config.autoclass_content = 'class'
+    assert getdocl('class', E) == ['Class docstring']
+    directive.env.config.autoclass_content = 'init'
+    assert getdocl('class', E) == ['Init docstring']
+    directive.env.config.autoclass_content = 'both'
+    assert getdocl('class', E) == ['Class docstring', '', 'Init docstring']
+
+    # class does not have __init__ method
+    class F(object):
+        """Class docstring"""
+
+    # docstring in the __init__ method of base class will be discard
+    for f in (False, True):
+        directive.env.config.autodoc_docstring_signature = f
+        directive.env.config.autoclass_content = 'class'
+        assert getdocl('class', F) == ['Class docstring']
+        directive.env.config.autoclass_content = 'init'
+        assert getdocl('class', F) == ['Class docstring']
+        directive.env.config.autoclass_content = 'both'
+        assert getdocl('class', F) == ['Class docstring']
+
+    # class has __init__ method with no docstring
+    class G(object):
+        """Class docstring"""
+        def __init__(self):
+            pass
+
+    # docstring in the __init__ method of base class will not be used
+    for f in (False, True):
+        directive.env.config.autodoc_docstring_signature = f
+        directive.env.config.autoclass_content = 'class'
+        assert getdocl('class', G) == ['Class docstring']
+        directive.env.config.autoclass_content = 'init'
+        assert getdocl('class', G) == ['Class docstring']
+        directive.env.config.autoclass_content = 'both'
+        assert getdocl('class', G) == ['Class docstring']
 
 
 @with_setup(setup_test)

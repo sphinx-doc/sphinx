@@ -5,7 +5,7 @@
 
     The standard domain.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -27,8 +27,7 @@ from sphinx.util.compat import Directive
 
 
 # RE for option descriptions
-option_desc_re = re.compile(
-    r'((?:/|-|--)[-_a-zA-Z0-9]+)(\s*.*?)(?=,\s+(?:/|-|--)|$)')
+option_desc_re = re.compile(r'((?:/|-|--)?[-_a-zA-Z0-9]+)(\s*.*)')
 
 
 class GenericObject(ObjectDescription):
@@ -130,14 +129,23 @@ class Target(Directive):
 
 class Cmdoption(ObjectDescription):
     """
-    Description of a command-line option (.. cmdoption).
+    Description of a command-line option (.. option).
     """
 
     def handle_signature(self, sig, signode):
         """Transform an option description into RST nodes."""
         count = 0
         firstname = ''
-        for m in option_desc_re.finditer(sig):
+        for potential_option in sig.split(', '):
+            potential_option = potential_option.strip()
+            m = option_desc_re.match(potential_option)
+            if not m:
+                self.env.warn(
+                    self.env.docname,
+                    'Malformed option description %r, should '
+                    'look like "opt", "-opt args", "--opt args" or '
+                    '"/opt args"' % potential_option, self.lineno)
+                continue
             optname, args = m.groups()
             if count:
                 signode += addnodes.desc_addname(', ', ', ')
@@ -145,25 +153,33 @@ class Cmdoption(ObjectDescription):
             signode += addnodes.desc_addname(args, args)
             if not count:
                 firstname = optname
+                signode['allnames'] = [optname]
+            else:
+                signode['allnames'].append(optname)
             count += 1
         if not firstname:
             raise ValueError
         return firstname
 
-    def add_target_and_index(self, name, sig, signode):
-        targetname = name.replace('/', '-')
+    def add_target_and_index(self, firstname, sig, signode):
         currprogram = self.env.temp_data.get('std:program')
-        if currprogram:
-            targetname = '-' + currprogram + targetname
-        targetname = 'cmdoption' + targetname
-        signode['ids'].append(targetname)
-        self.state.document.note_explicit_target(signode)
-        self.indexnode['entries'].append(
-            ('pair', _('%scommand line option; %s') %
-             ((currprogram and currprogram + ' ' or ''), sig),
-             targetname, ''))
-        self.env.domaindata['std']['progoptions'][currprogram, name] = \
-            self.env.docname, targetname
+        for optname in signode.get('allnames', []):
+            targetname = optname.replace('/', '-')
+            if not targetname.startswith('-'):
+                targetname = '-arg-' + targetname
+            if currprogram:
+                targetname = '-' + currprogram + targetname
+            targetname = 'cmdoption' + targetname
+            signode['ids'].append(targetname)
+            self.state.document.note_explicit_target(signode)
+            self.env.domaindata['std']['progoptions'][currprogram, optname] = \
+                self.env.docname, targetname
+            # create only one index entry for the whole option
+            if optname == firstname:
+                self.indexnode['entries'].append(
+                    ('pair', _('%scommand line option; %s') %
+                     ((currprogram and currprogram + ' ' or ''), sig),
+                     targetname, ''))
 
 
 class Program(Directive):
@@ -190,17 +206,26 @@ class Program(Directive):
 class OptionXRefRole(XRefRole):
     innernodeclass = addnodes.literal_emphasis
 
+    def _split(self, text, refnode, env):
+        try:
+            program, target = re.split(' (?=-|--|/)', text, 1)
+        except ValueError:
+            env.warn_node('Malformed :option: %r, does not contain option '
+                          'marker - or -- or /' % text, refnode)
+            return None, text
+        else:
+            program = ws_re.sub('-', program)
+            return program, target
+
     def process_link(self, env, refnode, has_explicit_title, title, target):
         program = env.temp_data.get('std:program')
         if not has_explicit_title:
             if ' ' in title and not (title.startswith('/') or
                                      title.startswith('-')):
-                program, target = re.split(' (?=-|--|/)', title, 1)
-                program = ws_re.sub('-', program)
+                program, target = self._split(title, refnode, env)
                 target = target.strip()
         elif ' ' in target:
-            program, target = re.split(' (?=-|--|/)', target, 1)
-            program = ws_re.sub('-', program)
+            program, target = self._split(target, refnode, env)
         refnode['refprogram'] = program
         return title, target
 
@@ -603,6 +628,11 @@ class StandardDomain(Domain):
                    self.object_types[type].attrs['searchprio'])
         for name, info in self.data['labels'].iteritems():
             yield (name, info[2], 'label', info[0], info[1], -1)
+        # add anonymous-only labels as well
+        non_anon_labels = set(self.data['labels'])
+        for name, info in self.data['anonlabels'].iteritems():
+            if name not in non_anon_labels:
+                yield (name, name, 'label', info[0], info[1], -1)
 
     def get_type_name(self, type, primary=False):
         # never prepend "Default"

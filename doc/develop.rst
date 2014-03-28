@@ -6,16 +6,20 @@ Sphinx development
 Sphinx is a maintained by a group of volunteers.  We value every contribution!
 
 * The code can be found in a Mercurial repository, at
-  http://bitbucket.org/birkenfeld/sphinx/.
+  https://bitbucket.org/birkenfeld/sphinx/.
 * Issues and feature requests should be raised in the `tracker
-  <http://bitbucket.org/birkenfeld/sphinx/issues/>`_.
+  <https://bitbucket.org/birkenfeld/sphinx/issues/>`_.
 * The mailing list for development is at `Google Groups
-  <http://groups.google.com/group/sphinx-dev/>`_.
+  <https://groups.google.com/group/sphinx-dev/>`_.
+* There is also the #sphinx-doc IRC channel on `freenode
+  <http://freenode.net/>`_.
 
 For more about our development process and methods, see the :doc:`devguide`.
 
 Extensions
 ==========
+
+To learn how to write your own extension, see :ref:`dev-extensions`.
 
 The `sphinx-contrib <http://bitbucket.org/birkenfeld/sphinx-contrib/>`_
 repository contains many contributed extensions.  Some of them have their own
@@ -23,30 +27,40 @@ releases on PyPI, others you can install from a checkout.
 
 This is the current list of contributed extensions in that repository:
 
-- aafig: render embeded ASCII art as nice images using aafigure_.
+- aafig: render embedded ASCII art as nice images using aafigure_.
 - actdiag: embed activity diagrams by using actdiag_
 - adadomain: an extension for Ada support (Sphinx 1.0 needed)
 - ansi: parse ANSI color sequences inside documents
-- autorun: Execute code in a runblock directive.
+- autorun: Execute code in a ``runblock`` directive.
 - blockdiag: embed block diagrams by using blockdiag_
 - cheeseshop: easily link to PyPI packages
 - clearquest: create tables from ClearQuest_ queries.
+- cmakedomain_: a domain for CMake_
 - coffeedomain: a domain for (auto)documenting CoffeeScript source code.
 - context: a builder for ConTeXt.
 - doxylink: Link to external Doxygen-generated HTML documentation
+- domaintools_: A tool for easy domain creation.
 - email: obfuscate email addresses
 - erlangdomain: an extension for Erlang support (Sphinx 1.0 needed)
 - exceltable: embed Excel spreadsheets into documents using exceltable_
 - feed: an extension for creating syndication feeds and time-based overviews
   from your site content
+- findanything_: an extension to add Sublime Text 2-like findanything panels
+  to your documentation to find pages, sections and index entries while typing
 - gnuplot: produces images using gnuplot_ language.
-- googleanalytics: track html visitors statistics
+- googleanalytics: track web visitor statistics by using `Google Analytics`_
 - googlechart: embed charts by using `Google Chart`_
 - googlemaps: embed maps by using `Google Maps`_
 - httpdomain: a domain for documenting RESTful HTTP APIs.
 - hyphenator: client-side hyphenation of HTML using hyphenator_
+- inlinesyntaxhighlight_: inline syntax highlighting
+- lassodomain: a domain for documenting Lasso_ source code
 - lilypond: an extension inserting music scripts from Lilypond_ in PNG format.
+- makedomain_: a domain for `GNU Make`_
+- matlabdomain: document MATLAB_ code.
+- mockautodoc: mock imports.
 - mscgen: embed mscgen-formatted MSC (Message Sequence Chart)s.
+- napoleon: supports `Google style`_ and `NumPy style`_ docstrings.
 - nicoviceo: embed videos from nicovideo
 - nwdiag: embed network diagrams by using nwdiag_
 - omegat: support tools to collaborate with OmegaT_ (Sphinx 1.1 needed)
@@ -54,16 +68,18 @@ This is the current list of contributed extensions in that repository:
 - paverutils: an alternate integration of Sphinx with Paver_.
 - phpdomain: an extension for PHP support
 - plantuml: embed UML diagram by using PlantUML_
+- py_directive: Execute python code in a ``py`` directive and return a math node.
 - rawfiles: copy raw files, like a CNAME.
 - requirements: declare requirements wherever you need (e.g. in test
   docstrings), mark statuses and collect them in a single list
+- restbuilder: a builder for reST (reStructuredText) files.
 - rubydomain: an extension for Ruby support (Sphinx 1.0 needed)
 - sadisplay: display SqlAlchemy model sadisplay_
-- sdedit: an extension inserting sequence diagram by using Quick Sequence.
+- sdedit: an extension inserting sequence diagram by using Quick Sequence
   Diagram Editor (sdedit_)
 - seqdiag: embed sequence diagrams by using seqdiag_
 - slide: embed presentation slides on slideshare_ and other sites.
-- swf: embed flash files
+- swf_: embed flash files
 - sword: an extension inserting Bible verses from Sword_.
 - tikz: draw pictures with the `TikZ/PGF LaTeX package`_.
 - traclinks: create TracLinks_ to a Trac_ instance from within Sphinx
@@ -80,24 +96,38 @@ own extensions.
 .. _gnuplot: http://www.gnuplot.info/
 .. _paver: http://www.blueskyonmars.com/projects/paver/
 .. _Sword: http://www.crosswire.org/sword/
-.. _Lilypond: http://lilypond.org/web/
+.. _Lilypond: http://lilypond.org/
 .. _sdedit: http://sdedit.sourceforge.net/
 .. _Trac: http://trac.edgewall.org
 .. _TracLinks: http://trac.edgewall.org/wiki/TracLinks
 .. _OmegaT: http://www.omegat.org/
 .. _PlantUML: http://plantuml.sourceforge.net/
 .. _PyEnchant: http://www.rfk.id.au/software/pyenchant/
-.. _sadisplay: http://bitbucket.org/estin/sadisplay/wiki/Home
-.. _blockdiag: http://blockdiag.com/
-.. _seqdiag: http://blockdiag.com/
-.. _actdiag: http://blockdiag.com/
-.. _nwdiag: http://blockdiag.com/
-.. _Google Chart: http://code.google.com/intl/ja/apis/chart/
-.. _Google Maps: http://maps.google.com/
+.. _sadisplay: https://bitbucket.org/estin/sadisplay/wiki/Home
+.. _blockdiag: http://blockdiag.com/en/
+.. _seqdiag: http://blockdiag.com/en/
+.. _actdiag: http://blockdiag.com/en/
+.. _nwdiag: http://blockdiag.com/en/
+.. _Google Analytics: http://www.google.com/analytics/
+.. _Google Chart: https://developers.google.com/chart/
+.. _Google Maps: https://maps.google.com/
+.. _Google style: http://google-styleguide.googlecode.com/svn/trunk/pyguide.html
+.. _NumPy style: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 .. _hyphenator: http://code.google.com/p/hyphenator/
-.. _exceltable: http://packages.python.org/sphinxcontrib-exceltable/
+.. _exceltable: http://pythonhosted.org/sphinxcontrib-exceltable/
 .. _YouTube: http://www.youtube.com/
-.. _ClearQuest: http://www-01.ibm.com/software/awdtools/clearquest/
+.. _ClearQuest: http://www-03.ibm.com/software/products/en/clearquest
 .. _Zope interfaces: http://docs.zope.org/zope.interface/README.html
 .. _slideshare: http://www.slideshare.net/
 .. _TikZ/PGF LaTeX package: http://sourceforge.net/projects/pgf/
+.. _MATLAB: http://www.mathworks.com/products/matlab/
+.. _swf: http://bitbucket.org/klorenz/sphinxcontrib-swf
+.. _findanything: http://bitbucket.org/klorenz/sphinxcontrib-findanything
+.. _cmakedomain: http://bitbucket.org/klorenz/sphinxcontrib-cmakedomain
+.. _GNU Make: http://www.gnu.org/software/make/
+.. _makedomain: http://bitbucket.org/klorenz/sphinxcontrib-makedomain
+.. _inlinesyntaxhighlight: http://sphinxcontrib-inlinesyntaxhighlight.readthedocs.org
+.. _CMake: http://cmake.org
+.. _domaintools: http://bitbucket.org/klorenz/sphinxcontrib-domaintools
+.. _restbuilder: https://pypi.python.org/pypi/sphinxcontrib-restbuilder
+.. _Lasso: http://www.lassosoft.com/

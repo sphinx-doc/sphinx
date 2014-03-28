@@ -5,11 +5,11 @@
 
     Test all builders that have no special checks.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from util import with_app, test_root, path
+from util import with_app, test_root, path, SkipTest
 from textwrap import dedent
 
 
@@ -73,10 +73,17 @@ def test_pseudoxml(app):
     app.builder.build_all()
 
 @with_app(buildername='html', srcdir='(temp)')
-def test_multibyte_path(app):
+def test_nonascii_path(app):
     srcdir = path(app.srcdir)
     mb_name = u'\u65e5\u672c\u8a9e'
-    (srcdir / mb_name).makedirs()
+    try:
+        (srcdir / mb_name).makedirs()
+    except UnicodeEncodeError:
+        from path import FILESYSTEMENCODING
+        raise SkipTest(
+            'nonascii filename not supported on this filesystem encoding: '
+            '%s', FILESYSTEMENCODING)
+
     (srcdir / mb_name / (mb_name + '.txt')).write_text(dedent("""
         multi byte file name page
         ==========================

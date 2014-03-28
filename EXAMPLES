@@ -4,7 +4,7 @@ Projects using Sphinx
 This is an (incomplete) alphabetic list of projects that use Sphinx or
 are experimenting with using it for their documentation.  If you like to
 be included, please mail to `the Google group
-<http://groups.google.com/group/sphinx-users>`_.
+<https://groups.google.com/group/sphinx-users>`_.
 
 I've grouped the list into sections to make it easier to find
 interesting examples.
@@ -15,12 +15,12 @@ Documentation using the default theme
 * APSW: http://apidoc.apsw.googlecode.com/hg/index.html
 * ASE: https://wiki.fysik.dtu.dk/ase/
 * boostmpi: http://documen.tician.de/boostmpi/
-* Calibre: http://calibre-ebook.com/user_manual/
+* Calibre: http://manual.calibre-ebook.com/
 * CodePy: http://documen.tician.de/codepy/
 * Cython: http://docs.cython.org/
 * C\\C++ Python language binding project: http://language-binding.net/index.html
 * Cormoran: http://cormoran.nhopkg.org/docs/
-* Director: http://packages.python.org/director/
+* Director: http://pythonhosted.org/director/
 * Dirigible: http://www.projectdirigible.com/documentation/
 * Elemental: http://elemental.googlecode.com/hg/doc/build/html/index.html
 * F2py: http://f2py.sourceforge.net/docs/
@@ -42,6 +42,7 @@ Documentation using the default theme
 * openWNS: http://docs.openwns.org/
 * Paste: http://pythonpaste.org/script/
 * Paver: http://paver.github.com/paver/
+* Pioneers and Prominent Men of Utah: http://pioneers.rstebbing.com/
 * Pyccuracy: https://github.com/heynemann/pyccuracy/wiki/
 * PyCuda: http://documen.tician.de/pycuda/
 * Pyevolve: http://pyevolve.sourceforge.net/
@@ -88,6 +89,7 @@ Documentation using a customized version of the default theme
 * simuPOP: http://simupop.sourceforge.net/manual_release/build/userGuide.html
 * Sprox: http://sprox.org/
 * TurboGears: http://turbogears.org/2.0/docs/
+* Varnish: https://www.varnish-cache.org/docs/
 * Zentyal: http://doc.zentyal.org/
 * Zope: http://docs.zope.org/zope2/index.html
 * zc.async: http://packages.python.org/zc.async/1.5.0/
@@ -126,6 +128,7 @@ Documentation using another builtin theme
 * Distribute: http://packages.python.org/distribute/ (nature)
 * Jinja: http://jinja.pocoo.org/ (scrolls)
 * jsFiddle: http://doc.jsfiddle.net/ (nature)
+* libLAS: http://liblas.org/ (nature)
 * MPipe: http://vmlaker.github.io/mpipe/ (sphinx13)
 * pip: http://pip.openplans.org/ (nature)
 * Programmieren mit PyGTK und Glade (German):
@@ -135,7 +138,7 @@ Documentation using another builtin theme
 * sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html
   (agogo)
 * Sylli: http://sylli.sourceforge.net/ (nature)
-* libLAS: http://liblas.org/ (nature)
+* Tuleap Open ALM: https://tuleap.net/doc/en/ (nature)
 * Valence: http://docs.valence.desire2learn.com/ (haiku)
 
 
@@ -144,6 +147,7 @@ Documentation using a custom theme/integrated in a site
 
 * Blender: http://www.blender.org/documentation/250PythonDoc/
 * Blinker: http://discorporate.us/projects/Blinker/docs/
+* Ceph: http://ceph.com/docs/master/
 * Classy: http://classy.pocoo.org/
 * DEAP: http://deap.gel.ulaval.ca/doc/0.8/index.html
 * Django: http://docs.djangoproject.com/
@@ -164,11 +168,12 @@ Documentation using a custom theme/integrated in a site
 * OpenCV: http://docs.opencv.org/
 * OpenLayers: http://docs.openlayers.org/
 * PyEphem: http://rhodesmill.org/pyephem/
-* German Plone 4.0 user manual: http://www.hasecke.com/plone-benutzerhandbuch/4.0/
+* German Plone user manual: http://www.hasecke.com/plone-benutzerhandbuch/
 * PSI4: http://sirius.chem.vt.edu/psi4manual/latest/index.html
 * Pylons: http://pylonshq.com/docs/en/0.9.7/
 * PyMOTW: http://www.doughellmann.com/PyMOTW/
 * pypol: http://pypol.altervista.org/ (celery)
+* QGIS: http://qgis.org/
 * qooxdoo: http://manual.qooxdoo.org/current
 * Roundup: http://www.roundup-tracker.org/
 * Selenium: http://seleniumhq.org/docs/
@@ -177,7 +182,7 @@ Documentation using a custom theme/integrated in a site
 * SQLAlchemy: http://www.sqlalchemy.org/docs/
 * tinyTiM: http://tinytim.sourceforge.net/docs/2.0/
 * tipfy: http://www.tipfy.org/docs/
-* Ubuntu packaging guide: http://developer.ubuntu.com/packaging/html/
+* Ubuntu packaging guide: http://packaging.ubuntu.com/html/
 * Werkzeug: http://werkzeug.pocoo.org/docs/
 * WFront: http://discorporate.us/projects/WFront/
 
@@ -191,6 +196,7 @@ Homepages and other non-documentation sites
 * lunarsite: http://lunaryorn.de/
 * Red Hot Chili Python: http://redhotchilipython.com/
 * The Wine Cellar Book: http://www.thewinecellarbook.com/doc/en/
+* Uni. Berkeley Advanced Control Systems course: http://www.me.berkeley.edu/ME233/sp14/
 * VOR: http://www.vor-cycling.be/
 
 
@@ -210,6 +216,12 @@ Books produced using Sphinx
   http://www.amazon.co.jp/dp/4048689525/
 * "Python Professional Programming" (in Japanese):
   http://www.amazon.co.jp/dp/4798032948/
+* "Die Wahrheit des Sehens. Der DEKALOG von Krzysztof Kieślowski":
+  http://www.hasecke.eu/Dekalog/
+* The "Varnish Book":
+  https://www.varnish-software.com/static/book/
+* "Learning Sphinx" (in Japanese):
+  http://www.oreilly.co.jp/books/9784873116488/
 
 
 Thesis using Sphinx
@@ -218,4 +230,3 @@ Thesis using Sphinx
 * "A Web-Based System for Comparative Analysis of OpenStreetMap Data
   by the Use of CouchDB":
   http://gisforge.no-ip.org/files/MasterThesis_MarkusMayr_0542042.pdf
-

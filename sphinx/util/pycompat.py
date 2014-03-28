@@ -5,7 +5,7 @@
 
     Stuff for Python version compatibility.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -30,6 +30,9 @@ if sys.version_info >= (3, 0):
     # safely encode a string for printing to the terminal
     def terminal_safe(s):
         return s.encode('ascii', 'backslashreplace').decode('ascii')
+    # some kind of default system encoding; should be used with a lenient
+    # error handler
+    sys_encoding = sys.getdefaultencoding()
     # support for running 2to3 over config files
     def convert_with_2to3(filepath):
         from lib2to3.refactor import RefactoringTool, get_fixers_from_package
@@ -45,6 +48,8 @@ if sys.version_info >= (3, 0):
             # try to match ParseError details with SyntaxError details
             raise SyntaxError(err.msg, (filepath, lineno, offset, err.value))
         return unicode(tree)
+    from itertools import zip_longest  # Python 3 name
+    import builtins
 
 else:
     # Python 2
@@ -62,6 +67,13 @@ else:
     # safely encode a string for printing to the terminal
     def terminal_safe(s):
         return s.encode('ascii', 'backslashreplace')
+    # some kind of default system encoding; should be used with a lenient
+    # error handler
+    import locale
+    sys_encoding = locale.getpreferredencoding()
+    # use Python 3 name
+    from itertools import izip_longest as zip_longest
+    import __builtin__ as builtins
 
 
 def execfile_(filepath, _globals):

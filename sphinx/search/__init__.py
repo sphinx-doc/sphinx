@@ -5,15 +5,14 @@
 
     Create a full-text search index for offline search.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import with_statement
 import re
-import itertools
 import cPickle as pickle
 
-from docutils.nodes import comment, title, Text, NodeVisitor, SkipNode
+from docutils.nodes import raw, comment, title, Text, NodeVisitor, SkipNode
 
 from sphinx.util import jsdump, rpartition
 
@@ -146,7 +145,16 @@ class WordCollector(NodeVisitor):
     def dispatch_visit(self, node):
         if node.__class__ is comment:
             raise SkipNode
-        elif node.__class__ is Text:
+        if node.__class__ is raw:
+            # Some people might put content in raw HTML that should be searched,
+            # so we just amateurishly strip HTML tags and index the remaining
+            # content
+            nodetext = re.sub(r'(?is)<style.*?</style>', '', node.astext())
+            nodetext = re.sub(r'(?is)<script.*?</script>', '', nodetext)
+            nodetext = re.sub(r'<[^<]+?>', '', nodetext)
+            self.found_words.extend(self.lang.split(nodetext))
+            raise SkipNode
+        if node.__class__ is Text:
             self.found_words.extend(self.lang.split(node.astext()))
         elif node.__class__ is title:
             self.found_title_words.extend(self.lang.split(node.astext()))
@@ -306,8 +314,7 @@ class IndexBuilder(object):
                 return self._stem_cache[word]
         _filter =  self.lang.word_filter
 
-        for word in itertools.chain(visitor.found_title_words,
-                                    self.lang.split(title)):
+        for word in visitor.found_title_words:
             word = stem(word)
             if _filter(word):
                 self._title_mapping.setdefault(word, set()).add(filename)

@@ -5,7 +5,7 @@
 
     Test our handling of metadata in files with bibliographic metadata.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,7 +14,7 @@
 
 from util import TestApp
 
-from nose.tools import assert_equals
+from nose.tools import assert_equal
 
 
 app = env = None
@@ -64,6 +64,6 @@ def test_docinfo():
     }
     # I like this way of comparing dicts - easier to see the error.
     for key in exampledocinfo:
-        yield assert_equals, exampledocinfo.get(key), expecteddocinfo.get(key)
+        yield assert_equal, exampledocinfo.get(key), expecteddocinfo.get(key)
     # but then we still have to check for missing keys
-    yield assert_equals, set(expecteddocinfo.keys()), set(exampledocinfo.keys())
+    yield assert_equal, set(expecteddocinfo.keys()), set(exampledocinfo.keys())

@@ -20,13 +20,10 @@ sphinx-users <sphinx-users@googlegroups.com>
 sphinx-dev <sphinx-dev@googlegroups.com>
     Mailing list for development related discussions.
 
-#pocoo on irc.freenode.net
+#sphinx-doc on irc.freenode.net
     IRC channel for development questions and user support.
 
-    This channel is shared with other Pocoo projects.  Archived logs are
-    available `here <http://dev.pocoo.org/irclogs/>`_.
-
-.. _`BitBucket`: http://bitbucket.org
+.. _`BitBucket`: https://bitbucket.org/
 .. _`Mercurial`: http://mercurial.selenic.com/
 
 
@@ -46,7 +43,7 @@ Including or providing a link to the source files involved may help us fix the
 issue.  If possible, try to create a minimal project that produces the error
 and post that instead.
 
-.. _`issue tracker`: http://bitbucket.org/birkenfeld/sphinx/issues
+.. _`issue tracker`: https://bitbucket.org/birkenfeld/sphinx/issues
 
 
 Contributing to Sphinx
@@ -83,7 +80,7 @@ These are the basic steps needed to start developing on Sphinx.
    For new features or other substantial changes that should wait until the
    next major release, use the ``default`` branch.
 
-#. Setup your Python environment. ::
+#. Optional: setup a virtual environment. ::
 
        virtualenv ~/sphinxenv
        . ~/sphinxenv/bin/activate
@@ -93,32 +90,33 @@ These are the basic steps needed to start developing on Sphinx.
 
    For tips on working with the code, see the `Coding Guide`_.
 
-#. Test, test, test.
+#. Test, test, test.  Possible steps:
 
-   Run the unit tests::
+   * Run the unit tests::
 
-       pip install nose
+       pip install nose mock
        make test
 
-   Build the documentation and check the output for different builders::
+   * Build the documentation and check the output for different builders::
 
-       cd docs
-       make clean html text man info latexpdf
+       cd doc
+       make clean html latexpdf
 
-   Run the unit tests under different Python environments using
-   :program:`tox`::
+   * Run the unit tests under different Python environments using
+     :program:`tox`::
 
        pip install tox
        tox -v
 
-   Add a new unit test in the ``tests`` directory if you can.
+   * Add a new unit test in the ``tests`` directory if you can.
 
-   For bug fixes, first add a test that fails without your changes and passes
-   after they are applied.
+   * For bug fixes, first add a test that fails without your changes and passes
+     after they are applied.
 
-#. Commit your changes. ::
+#. Please add a bullet point to :file:`CHANGES` if the fix or feature is not trivial
+   (small doc updates, typo fixes).  Then commit::
 
-       hg commit -m 'Add useful new feature that does this.'
+       hg commit -m '#42: Add useful new feature that does this.'
 
    BitBucket recognizes `certain phrases`__ that can be used to automatically
    update the issue tracker.
@@ -129,7 +127,7 @@ These are the basic steps needed to start developing on Sphinx.
 
    would close issue #42.
 
-   __ https://confluence.atlassian.com/display/BITBUCKET/Automatically+Resolving+Issues+when+Users+Push+Code
+   __ https://confluence.atlassian.com/display/BITBUCKET/Resolve+issues+automatically+when+users+push+code
 
 #. Push changes to your forked repository on BitBucket. ::
 
@@ -193,7 +191,7 @@ identifier and put ``sphinx.po`` in there.  Don't forget to update the possible
 values for :confval:`language` in ``doc/config.rst``.
 
 The Sphinx core messages can also be translated on `Transifex
-<http://transifex.com>`_.  There exists a client tool named ``tx`` in the Python
+<https://www.transifex.com/>`_.  There exists a client tool named ``tx`` in the Python
 package "transifex_client", which can be used to pull translations in ``.po``
 format from Transifex.  To do this, go to ``sphinx/locale`` and then run
 ``tx pull -f -l LANG`` where LANG is an existing language identifier.  It is
@@ -217,7 +215,7 @@ Coding Guide
   generated output.
 
 * When adding a new configuration variable, be sure to document it and update
-  :file:`sphinx/quickstart.py`.
+  :file:`sphinx/quickstart.py` if it's important enough.
 
 * Use the included :program:`utils/check_sources.py` script to check for
   common formatting issues (trailing whitespace, lengthy lines, etc).

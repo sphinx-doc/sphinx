@@ -168,28 +168,27 @@ The following directives are provided for module and class contents:
    Describes an exception class.  The signature can, but need not include
    parentheses with constructor arguments.
 
-.. rst:directive:: .. py:function:: name(signature)
+.. rst:directive:: .. py:function:: name(parameters)
 
    Describes a module-level function.  The signature should include the
-   parameters, enclosing optional parameters in brackets.  Default values can be
-   given if it enhances clarity; see :ref:`signatures`.  For example::
+   parameters as given in the Python function definition, see :ref:`signatures`.
+   For example::
 
-      .. py:function:: Timer.repeat([repeat=3[, number=1000000]])
+      .. py:function:: Timer.repeat(repeat=3, number=1000000)
 
-   Object methods are not documented using this directive. Bound object methods
-   placed in the module namespace as part of the public interface of the module
-   are documented using this, as they are equivalent to normal functions for
-   most purposes.
+   For methods you should use :rst:dir:`py:method`.
 
    The description should include information about the parameters required and
    how they are used (especially whether mutable objects passed as parameters
-   are modified), side effects, and possible exceptions.  A small example may be
-   provided.
+   are modified), side effects, and possible exceptions.  This information can
+   optionally be given in a structured form, see :ref:`info-field-lists`.  A
+   small example may be provided.
 
-.. rst:directive:: .. py:class:: name[(signature)]
+.. rst:directive:: .. py:class:: name
+                   .. py:class:: name(parameters)
 
-   Describes a class.  The signature can include parentheses with parameters
-   which will be shown as the constructor arguments.  See also
+   Describes a class.  The signature can optionally include parentheses with
+   parameters which will be shown as the constructor arguments.  See also
    :ref:`signatures`.
 
    Methods and attributes belonging to the class should be placed in this
@@ -197,6 +196,7 @@ The following directives are provided for module and class contents:
    contain the class name so that cross-references still work.  Example::
 
       .. py:class:: Foo
+
          .. py:method:: quux()
 
       -- or --
@@ -213,30 +213,30 @@ The following directives are provided for module and class contents:
    information about the type of the data to be expected and whether it may be
    changed directly.
 
-.. rst:directive:: .. py:method:: name(signature)
+.. rst:directive:: .. py:method:: name(parameters)
 
    Describes an object method.  The parameters should not include the ``self``
    parameter.  The description should include similar information to that
-   described for ``function``.  See also :ref:`signatures`.
+   described for ``function``.  See also :ref:`signatures` and
+   :ref:`info-field-lists`.
 
-.. rst:directive:: .. py:staticmethod:: name(signature)
+.. rst:directive:: .. py:staticmethod:: name(parameters)
 
    Like :rst:dir:`py:method`, but indicates that the method is a static method.
 
    .. versionadded:: 0.4
 
-.. rst:directive:: .. py:classmethod:: name(signature)
+.. rst:directive:: .. py:classmethod:: name(parameters)
 
    Like :rst:dir:`py:method`, but indicates that the method is a class method.
 
    .. versionadded:: 0.6
 
 .. rst:directive:: .. py:decorator:: name
-                   .. py:decorator:: name(signature)
+                   .. py:decorator:: name(parameters)
 
-   Describes a decorator function.  The signature should *not* represent the
-   signature of the actual function, but the usage as a decorator.  For example,
-   given the functions
+   Describes a decorator function.  The signature should represent the usage as
+   a decorator.  For example, given the functions
 
    .. code-block:: python
 
@@ -260,6 +260,8 @@ The following directives are provided for module and class contents:
 
          Set name of the decorated function to *name*.
 
+   (as opposed to ``.. py:decorator:: removename(func)``.)
+
    There is no ``py:deco`` role to link to a decorator that is marked up with
    this directive; rather, use the :rst:role:`py:func` role.
 
@@ -277,23 +279,24 @@ Python Signatures
 ~~~~~~~~~~~~~~~~~
 
 Signatures of functions, methods and class constructors can be given like they
-would be written in Python, with the exception that optional parameters can be
-indicated by brackets::
-
-   .. py:function:: compile(source[, filename[, symbol]])
-
-It is customary to put the opening bracket before the comma.  In addition to
-this "nested" bracket style, a "flat" style can also be used, due to the fact
-that most optional parameters can be given independently::
-
-   .. py:function:: compile(source[, filename, symbol])
+would be written in Python.
 
 Default values for optional arguments can be given (but if they contain commas,
 they will confuse the signature parser).  Python 3-style argument annotations
 can also be given as well as return type annotations::
 
-   .. py:function:: compile(source : string[, filename, symbol]) -> ast object
+   .. py:function:: compile(source : string, filename, symbol='file') -> ast object
 
+For functions with optional parameters that don't have default values (typically
+functions implemented in C extension modules without keyword argument support),
+you can use brackets to specify the optional parts:
+
+   .. py:function:: compile(source[, filename[, symbol]])
+
+It is customary to put the opening bracket before the comma.
+
+
+.. _info-field-lists:
 
 Info field lists
 ~~~~~~~~~~~~~~~~
@@ -316,35 +319,41 @@ The field names must consist of one of these keywords and an argument (except
 for ``returns`` and ``rtype``, which do not need an argument).  This is best
 explained by an example::
 
-   .. py:function:: format_exception(etype, value, tb[, limit=None])
+   .. py:function:: send_message(sender, recipient, message_body, [priority=1])
 
-      Format the exception with a traceback.
+      Send a message to a recipient
 
-      :param etype: exception type
-      :param value: exception value
-      :param tb: traceback object
-      :param limit: maximum number of stack frames to show
-      :type limit: integer or None
-      :rtype: list of strings
+      :param str sender: The person sending the message
+      :param str recipient: The recipient of the message
+      :param str message_body: The body of the message
+      :param priority: The priority of the message, can be a number 1-5
+      :type priority: integer or None
+      :return: the message id
+      :rtype: int
+      :raises ValueError: if the message_body exceeds 160 characters
+      :raises TypeError: if the message_body is not a basestring
 
 This will render like this:
 
-   .. py:function:: format_exception(etype, value, tb[, limit=None])
+   .. py:function:: send_message(sender, recipient, message_body, [priority=1])
       :noindex:
 
-      Format the exception with a traceback.
+      Send a message to a recipient
 
-      :param etype: exception type
-      :param value: exception value
-      :param tb: traceback object
-      :param limit: maximum number of stack frames to show
-      :type limit: integer or None
-      :rtype: list of strings
+      :param str sender: The person sending the message
+      :param str recipient: The recipient of the message
+      :param str message_body: The body of the message
+      :param priority: The priority of the message, can be a number 1-5
+      :type priority: integer or None
+      :return: the message id
+      :rtype: int
+      :raises ValueError: if the message_body exceeds 160 characters
+      :raises TypeError: if the message_body is not a basestring
 
 It is also possible to combine parameter type and description, if the type is a
 single word, like this::
 
-   :param integer limit: maximum number of stack frames to show
+   :param int priority: The priority of the message, can be a number 1-5
 
 
 .. _python-roles:
@@ -373,8 +382,8 @@ a matching identifier is found:
 
 .. rst:role:: py:const
 
-   Reference a "defined" constant.  This may be a C-language ``#define`` or a
-   Python variable that is not intended to be changed.
+   Reference a "defined" constant.  This may be a Python variable that is not
+   intended to be changed.
 
 .. rst:role:: py:class
 
@@ -462,8 +471,8 @@ The C domain (name **c**) is suited for documentation of C API.
 
    Describes a "simple" C macro.  Simple macros are macros which are used for
    code expansion, but which do not take arguments so cannot be described as
-   functions.  This is not to be used for simple constant definitions.  Examples
-   of its use in the Python documentation include :c:macro:`PyObject_HEAD` and
+   functions.  This is a simple C-language ``#define``.  Examples of its use in
+   the Python documentation include :c:macro:`PyObject_HEAD` and
    :c:macro:`Py_BEGIN_ALLOW_THREADS`.
 
 .. rst:directive:: .. c:type:: name
@@ -623,16 +632,20 @@ There is a set of directives allowing documenting command-line programs:
 
 .. rst:directive:: .. option:: name args, name args, ...
 
-   Describes a command line option or switch.  Option argument names should be
-   enclosed in angle brackets.  Example::
+   Describes a command line argument or switch.  Option argument names should be
+   enclosed in angle brackets.  Examples::
+
+      .. option:: dest_dir
+
+         Destination directory.
 
       .. option:: -m <module>, --module <module>
 
          Run a module as a script.
 
-   The directive will create a cross-reference target named after the *first*
-   option, referencable by :rst:role:`option` (in the example case, you'd use
-   something like ``:option:`-m```).
+   The directive will create cross-reference targets for the given options,
+   referencable by :rst:role:`option` (in the example case, you'd use something
+   like ``:option:`dest_dir```, ``:option:`-m```, or ``:option:`--module```).
 
 .. rst:directive:: .. envvar:: name
 
@@ -703,24 +716,24 @@ The JavaScript domain (name **js**) provides the following directives:
       .. js:function:: $.getJSON(href, callback[, errback])
 
          :param string href: An URI to the location of the resource.
-         :param callback: Get's called with the object.
+         :param callback: Gets called with the object.
          :param errback:
-             Get's called in case the request fails. And a lot of other
-             text so we need multiple lines
+             Gets called in case the request fails. And a lot of other
+             text so we need multiple lines.
          :throws SomeError: For whatever reason in that case.
-         :returns: Something
+         :returns: Something.
 
    This is rendered as:
 
       .. js:function:: $.getJSON(href, callback[, errback])
 
         :param string href: An URI to the location of the resource.
-        :param callback: Get's called with the object.
+        :param callback: Gets called with the object.
         :param errback:
-            Get's called in case the request fails. And a lot of other
+            Gets called in case the request fails. And a lot of other
             text so we need multiple lines.
         :throws SomeError: For whatever reason in that case.
-        :returns: Something
+        :returns: Something.
 
 .. rst:directive:: .. js:class:: name
 
@@ -812,15 +825,24 @@ More domains
 ------------
 
 The sphinx-contrib_ repository contains more domains available as extensions;
-currently Ada, CoffeeScript_, Erlang_, HTTP_, Jinja_, PHP_, Ruby, and Scala_
-domains.
+currently Ada_, CoffeeScript_, Erlang_, HTTP_, Lasso_, MATLAB_, PHP_, and Ruby_
+domains. Also available are domains for `Common Lisp`_, dqn_, Go_, Jinja_,
+Operation_, and Scala_.
 
 
 .. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/
 
-.. _CoffeeScript: http://pypi.python.org/pypi/sphinxcontrib-coffee
-.. _Erlang: http://pypi.python.org/pypi/sphinxcontrib-erlangdomain
-.. _HTTP: http://pypi.python.org/pypi/sphinxcontrib-httpdomain
-.. _Jinja: http://pypi.python.org/pypi/sphinxcontrib-jinjadomain
-.. _Scala: http://pypi.python.org/pypi/sphinxcontrib-scaladomain
-.. _PHP: http://pypi.python.org/pypi/sphinxcontrib-phpdomain
+.. _Ada: https://pypi.python.org/pypi/sphinxcontrib-adadomain
+.. _CoffeeScript: https://pypi.python.org/pypi/sphinxcontrib-coffee
+.. _Common Lisp: https://pypi.python.org/pypi/sphinxcontrib-cldomain
+.. _dqn: https://pypi.python.org/pypi/sphinxcontrib-dqndomain
+.. _Erlang: https://pypi.python.org/pypi/sphinxcontrib-erlangdomain
+.. _Go: https://pypi.python.org/pypi/sphinxcontrib-golangdomain
+.. _HTTP: https://pypi.python.org/pypi/sphinxcontrib-httpdomain
+.. _Jinja: https://pypi.python.org/pypi/sphinxcontrib-jinjadomain
+.. _Lasso: https://pypi.python.org/pypi/sphinxcontrib-lassodomain
+.. _MATLAB: https://pypi.python.org/pypi/sphinxcontrib-matlabdomain
+.. _Operation: https://pypi.python.org/pypi/sphinxcontrib-operationdomain
+.. _PHP: https://pypi.python.org/pypi/sphinxcontrib-phpdomain
+.. _Ruby: https://bitbucket.org/birkenfeld/sphinx-contrib/src/default/rubydomain
+.. _Scala: https://pypi.python.org/pypi/sphinxcontrib-scaladomain

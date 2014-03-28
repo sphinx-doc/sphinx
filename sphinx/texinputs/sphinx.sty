@@ -30,6 +30,10 @@
 \RequirePackage{wrapfig}
 % Separate paragraphs by space by default.
 \RequirePackage{parskip}
+% For parsed-literal blocks.
+\RequirePackage{alltt}
+% Display "real" single quotes in literal blocks.
+\RequirePackage{upquote}
 
 % Redefine these colors to your liking in the preamble.
 \definecolor{TitleColor}{rgb}{0.126,0.263,0.361}
@@ -238,9 +242,11 @@
   \def\productioncont##1{\\& &\code{##1}}
   \parindent=2em
   \indent
-  \begin{tabular}{lcl}
+  \setlength{\LTpre}{0pt}
+  \setlength{\LTpost}{0pt}
+  \begin{longtable}[l]{lcl}
 }{%
-  \end{tabular}
+  \end{longtable}
 }
 
 % Notices / Admonitions
@@ -508,13 +514,11 @@
   }
 \fi
 
-% do not use \@chappos in Appendix in pTeX
+% disable \@chappos in Appendix in pTeX
 \ifx\kanjiskip\undefined\else
-  \renewcommand{\appendix}{\par
-    \setcounter{chapter}{0}
-      \setcounter{section}{0}
-      \gdef\@chapapp{\appendixname}
-      \gdef\@chappos{}
-      \gdef\thechapter{\@Alph\c@chapter}
+  \let\py@OldAppendix=\appendix
+  \renewcommand{\appendix}{
+    \py@OldAppendix
+    \gdef\@chappos{}
   }
 \fi

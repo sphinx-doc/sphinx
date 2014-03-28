@@ -20,7 +20,7 @@
       also be specified individually, e.g. if the docs should be buildable
       without Internet access.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -33,6 +33,7 @@ from os import path
 import re
 
 from docutils import nodes
+from docutils.utils import relative_path
 
 from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
@@ -106,6 +107,12 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
         if not m:
             continue
         name, type, prio, location, dispname = m.groups()
+        if type == 'py:module' and type in invdata and \
+            name in invdata[type]:  # due to a bug in 1.1 and below,
+                                    # two inventory entries are created
+                                    # for Python modules, and the first
+                                    # one is correct
+            continue
         if location.endswith(u'$'):
             location = location[:-1] + name
         location = join(uri, location)
@@ -230,6 +237,9 @@ def missing_reference(app, env, node, contnode):
             if objtype not in inventory or target not in inventory[objtype]:
                 continue
             proj, version, uri, dispname = inventory[objtype][target]
+            if '://' not in uri and node.get('refdoc'):
+                # get correct path in case of subdirectories
+                uri = path.join(relative_path(node['refdoc'], env.srcdir), uri)
             newnode = nodes.reference('', '', internal=False, refuri=uri,
                           reftitle=_('(in %s v%s)') % (proj, version))
             if node.get('refexplicit'):

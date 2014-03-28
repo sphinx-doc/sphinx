@@ -1,14 +1,27 @@
 .. highlight:: rest
 
-Extension API
-=============
+Application API
+===============
 
-.. currentmodule:: sphinx.application
+.. module:: sphinx.application
+   :synopsis: Application class and extensibility interface.
+
 
 Each Sphinx extension is a Python module with at least a :func:`setup` function.
 This function is called at initialization time with one argument, the
-application object representing the Sphinx process.  This application object has
-the following public API:
+application object representing the Sphinx process.
+
+.. class:: Sphinx
+
+   This application object has the public API described in the following.
+
+Extension setup
+---------------
+
+These methods are usually called in an extension's ``setup()`` function.
+
+Examples of using the Sphinx extension API can be seen in the :mod:`sphinx.ext`
+package.
 
 .. method:: Sphinx.setup_extension(name)
 
@@ -293,6 +306,14 @@ the following public API:
 
    .. versionadded:: 1.1
 
+.. method:: Sphinx.require_sphinx(version)
+
+   Compare *version* (which must be a ``major.minor`` version string,
+   e.g. ``'1.1'``) with the version of the running Sphinx, and abort the build
+   when it is too old.
+
+   .. versionadded:: 1.0
+
 .. method:: Sphinx.connect(event, callback)
 
    Register *callback* to be called when *event* is emitted.  For details on
@@ -305,6 +326,16 @@ the following public API:
 .. method:: Sphinx.disconnect(listener_id)
 
    Unregister callback *listener_id*.
+
+
+.. exception:: ExtensionError
+
+   All these methods raise this exception if something went wrong with the
+   extension API.
+
+
+Emitting events
+---------------
 
 .. method:: Sphinx.emit(event, *arguments)
 
@@ -319,22 +350,27 @@ the following public API:
 
    .. versionadded:: 0.5
 
-.. method:: Sphinx.require_sphinx(version)
 
-   Compare *version* (which must be a ``major.minor`` version string,
-   e.g. ``'1.1'``) with the version of the running Sphinx, and abort the build
-   when it is too old.
+Producing messages / logging
+----------------------------
 
-   .. versionadded:: 1.0
+The application object also provides support for emitting leveled messages.
 
+.. note::
 
-.. exception:: ExtensionError
+   There is no "error" call: in Sphinx, errors are defined as things that stop
+   the build; just raise an exception (:exc:`sphinx.errors.SphinxError` or a
+   custom subclass) to do that.
 
-   All these functions raise this exception if something went wrong with the
-   extension API.
+.. automethod:: Sphinx.warn
 
-Examples of using the Sphinx extension API can be seen in the :mod:`sphinx.ext`
-package.
+.. automethod:: Sphinx.info
+
+.. automethod:: Sphinx.verbose
+
+.. automethod:: Sphinx.debug
+
+.. automethod:: Sphinx.debug2
 
 
 .. _events:
@@ -343,7 +379,18 @@ Sphinx core events
 ------------------
 
 These events are known to the core.  The arguments shown are given to the
-registered event handlers.
+registered event handlers.  Use :meth:`.connect` in an extension's ``setup``
+function (note that ``conf.py`` can also have a ``setup`` function) to connect
+handlers to the events.  Example:
+
+.. code-block:: python
+
+   def source_read_handler(app, docname, source):
+       print('do something here...')
+
+   def setup(app):
+       app.connect('source-read', source_read_handler)
+
 
 .. event:: builder-inited (app)
 
@@ -462,26 +509,87 @@ registered event handlers.
    .. versionadded:: 0.5
 
 
+Checking the Sphinx version
+---------------------------
+
+.. currentmodule:: sphinx
+
+Use this to adapt your extension to API changes in Sphinx.
+
+.. data:: version_info
+
+   A tuple of five elements; for Sphinx version 1.2.1 beta 3 this would be
+   ``(1, 2, 1, 'beta', 3)``.
+
+   .. versionadded:: 1.2
+      Before version 1.2, check the string ``sphinx.__version__``.
+
+
+The Config object
+-----------------
+
+.. module:: sphinx.config
+
+.. class:: Config
+
+   The config object makes the values of all config values available as
+   attributes.
+
+   It is available as the ``config`` attribute on the application and
+   environment objects.  For example, to get the value of :confval:`language`,
+   use either ``app.config.language`` or ``env.config.language``.
+
+
 .. _template-bridge:
 
 The template bridge
 -------------------
 
+.. currentmodule:: sphinx.application
+
 .. autoclass:: TemplateBridge
    :members:
 
 
-.. _domain-api:
+.. _exceptions:
 
-Domain API
+Exceptions
 ----------
 
-.. module:: sphinx.domains
+.. module:: sphinx.errors
 
-.. autoclass:: Domain
-   :members:
+.. exception:: SphinxError
 
-.. autoclass:: ObjType
+   This is the base class for "nice" exceptions.  When such an exception is
+   raised, Sphinx will abort the build and present the exception category and
+   message to the user.
 
-.. autoclass:: Index
-   :members:
+   Extensions are encouraged to derive from this exception for their custom
+   errors.
+
+   Exceptions *not* derived from :exc:`SphinxError` are treated as unexpected
+   and shown to the user with a part of the traceback (and the full traceback
+   saved in a temporary file).
+
+   .. attribute:: category
+
+      Description of the exception "category", used in converting the exception
+      to a string ("category: message").  Should be set accordingly in
+      subclasses.
+
+.. exception:: ConfigError
+
+   Used for erroneous values or nonsensical combinations of configuration
+   values.
+
+.. exception:: ExtensionError
+
+   Used for errors in setting up extensions.
+
+.. exception:: ThemeError
+
+   Used for errors to do with themes.
+
+.. exception:: VersionRequirementError
+
+   Raised when the docs require a higher Sphinx version than the current one.

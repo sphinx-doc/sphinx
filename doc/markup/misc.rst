@@ -176,14 +176,18 @@ Including content based on tags
       .. only:: html and draft
 
    Undefined tags are false, defined tags (via the ``-t`` command-line option or
-   within :file:`conf.py`) are true.  Boolean expressions, also using
-   parentheses (like ``html and (latex or draft)``) are supported.
+   within :file:`conf.py`, see :ref:`here <conf-tags>`) are true.  Boolean
+   expressions, also using parentheses (like ``html and (latex or draft)``) are
+   supported.
 
    The *format* and the *name* of the current builder (``html``, ``latex`` or
    ``text``) are always set as a tag [#]_.  To make the distinction between
    format and name explicit, they are also added with the prefix ``format_`` and
    ``builder_``, e.g. the epub builder defines the tags  ``html``, ``epub``,
    ``format_html`` and ``builder_epub``.
+
+   These standard tags are set *after* the configuration file is read, so they
+   are not available there.
 
    .. versionadded:: 0.6
    .. versionchanged:: 1.2
@@ -212,9 +216,9 @@ following directive exists:
    ``p{width}`` construct, or tabulary's automatic specifiers:
 
    +-----+------------------------------------------+
-   |``L``| ragged-left column with automatic width  |
+   |``L``| flush left column with automatic width   |
    +-----+------------------------------------------+
-   |``R``| ragged-right column with automatic width |
+   |``R``| flush right column with automatic width  |
    +-----+------------------------------------------+
    |``C``| centered column with automatic width     |
    +-----+------------------------------------------+

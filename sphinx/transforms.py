@@ -5,7 +5,7 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -163,7 +163,8 @@ class Locale(Transform):
         settings, source = self.document.settings, self.document['source']
         # XXX check if this is reliable
         assert source.startswith(env.srcdir)
-        docname = path.splitext(relative_path(env.srcdir, source))[0]
+        docname = path.splitext(relative_path(path.join(env.srcdir, 'dummy'),
+                                              source))[0]
         textdomain = find_catalog(docname,
                                   self.document.settings.gettext_compact)
 
@@ -181,7 +182,8 @@ class Locale(Transform):
         for node, msg in extract_messages(self.document):
             msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
-            if not msgstr or msgstr == msg: # as-of-yet untranslated
+            if not msgstr or msgstr == msg or not msgstr.strip():
+                # as-of-yet untranslated
                 continue
 
             # Avoid "Literal block expected; none found." warnings.
@@ -195,7 +197,10 @@ class Locale(Transform):
             patch = new_document(source, settings)
             CustomLocaleReporter(node.source, node.line).set_reporter(patch)
             parser.parse(msgstr, patch)
-            patch = patch[0]
+            try:
+                patch = patch[0]
+            except IndexError:  # empty node
+                pass
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
                 continue # skip for now
@@ -238,8 +243,14 @@ class Locale(Transform):
                         self.document.ids.pop(_id, None)
 
                     # re-entry with new named section node.
-                    self.document.note_implicit_target(
-                            section_node, section_node)
+                    self.document.note_implicit_target(section_node)
+
+                    # replace target's refname to new target name
+                    def is_named_target(node):
+                        return isinstance(node, nodes.target) and  \
+                            node.get('refname') == old_name
+                    for old_target in self.document.traverse(is_named_target):
+                        old_target['refname'] = new_name
 
                     processed = True
 
@@ -291,7 +302,10 @@ class Locale(Transform):
             patch = new_document(source, settings)
             CustomLocaleReporter(node.source, node.line).set_reporter(patch)
             parser.parse(msgstr, patch)
-            patch = patch[0]
+            try:
+                patch = patch[0]
+            except IndexError:  # empty node
+                pass
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
                 continue # skip for now
@@ -402,11 +416,17 @@ class Locale(Transform):
             for old in old_refs:
                 key = get_ref_key(old)
                 if key:
-                    xref_reftarget_map[key] = old["reftarget"]
+                    xref_reftarget_map[key] = old.attributes
             for new in new_refs:
                 key = get_ref_key(new)
-                if key in xref_reftarget_map:
-                    new['reftarget'] = xref_reftarget_map[key]
+                # Copy attributes to keep original node behavior. Especially
+                # copying 'reftarget', 'py:module', 'py:class' are needed.
+                for k, v in xref_reftarget_map.get(key, {}).items():
+                    # Note: This implementation overwrite all attributes.
+                    # if some attributes `k` should not be overwritten,
+                    # you should provide exclude list as:
+                    # `if k not in EXCLUDE_LIST: new[k] = v`
+                    new[k] = v
 
             # update leaves
             for child in patch.children:

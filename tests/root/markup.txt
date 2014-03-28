@@ -79,6 +79,10 @@ Body directives
 
    b
 
+.. parsed-literal::
+
+   with some *markup* inside
+
 
 .. _admonition-section:
 
@@ -139,6 +143,7 @@ Adding \n to test unescaping.
 * :doc:`subdir/includes`
 * ``:download:`` is tested in includes.txt
 * :option:`Python -c option <python -c>`
+* This used to crash: :option:`Python c option`
 
 Test :abbr:`abbr (abbreviation)` and another :abbr:`abbr (abbreviation)`.
 

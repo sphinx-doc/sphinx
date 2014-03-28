@@ -6,7 +6,7 @@
     Build HTML help support files.
     Parts adapted from Python's Doc/tools/prechm.py.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -173,7 +173,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     embedded = True
 
     lcid = 0x409
-    encoding = 'iso8859_1'
+    encoding = 'cp1252'
 
     def init(self):
         StandaloneHTMLBuilder.init(self)

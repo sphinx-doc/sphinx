@@ -1,0 +1,21 @@
+Release checklist
+=================
+
+* Check hg status
+* Make check
+* Update version info in sphinx/__init__.py
+* Update release date in CHANGES
+* hg commit
+* make clean
+* python setup.py release bdist_wheel sdist upload
+* For all other versions: pythonX.Y setup.py release bdist_wheel upload
+  (remove build/ before each one)
+* Check PyPI release page for obvious errors
+* hg tag
+* Merge default into stable if final major release
+* Update homepage (release info), regenerate docs (+printable!)
+* Add new version/milestone to tracker categories
+* Write announcement and send to mailing list/python-announce
+* Update version info, add new CHANGES entry for next version
+* hg commit
+* hg push

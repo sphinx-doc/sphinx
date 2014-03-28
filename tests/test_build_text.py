@@ -5,7 +5,7 @@
 
     Test the build process with Text builder with the test root.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -86,7 +86,7 @@ def test_lineblock(app):
 
 
 @with_text_app()
-def test_multibyte_title_line(app):
+def test_nonascii_title_line(app):
     title = u'\u65e5\u672c\u8a9e'
     underline = u'=' * column_width(title)
     content = u'\n'.join((title, underline, u''))
@@ -101,7 +101,7 @@ def test_multibyte_title_line(app):
 
 
 @with_text_app()
-def test_multibyte_table(app):
+def test_nonascii_table(app):
     text = u'\u65e5\u672c\u8a9e'
     contents = (u"\n.. list-table::"
                  "\n"
@@ -122,7 +122,7 @@ def test_multibyte_table(app):
 
 
 @with_text_app()
-def test_multibyte_maxwidth(app):
+def test_nonascii_maxwidth(app):
     sb_text = u'abc'  #length=3
     mb_text = u'\u65e5\u672c\u8a9e'  #length=3
 

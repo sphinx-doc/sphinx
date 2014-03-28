@@ -5,7 +5,7 @@
 
     Quickly setup documentation source to work with Sphinx.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -171,6 +171,11 @@ html_theme = 'default'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['%(dot)sstatic']
 
+# Add any extra paths that contain custom files (such as robots.txt or
+# .htaccess) here, relative to this directory. These files are copied
+# directly to the root of the documentation.
+#html_extra_path = []
+
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
 #html_last_updated_fmt = '%%b %%d, %%Y'
@@ -231,7 +236,7 @@ latex_elements = {
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
-#  author, documentclass [howto/manual]).
+#  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   ('%(master_str)s', '%(project_fn)s.tex', u'%(project_doc_texescaped_str)s',
    u'%(author_texescaped_str)s', 'manual'),
@@ -305,6 +310,15 @@ epub_author = u'%(author_str)s'
 epub_publisher = u'%(author_str)s'
 epub_copyright = u'%(copyright_str)s'
 
+# The basename for the epub file. It defaults to the project name.
+#epub_basename = u'%(project_str)s'
+
+# The HTML theme for the epub output. Since the default themes are not optimized
+# for small screen space, using the same theme for HTML and epub output is
+# usually not wise. This defaults to 'epub', a theme designed to save visual
+# space.
+#epub_theme = 'epub'
+
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
 #epub_language = ''
@@ -334,7 +348,7 @@ epub_copyright = u'%(copyright_str)s'
 #epub_post_files = []
 
 # A list of files that should not be packed into the epub file.
-#epub_exclude_files = []
+epub_exclude_files = ['search.html']
 
 # The depth of the table of contents in toc.ncx.
 #epub_tocdepth = 3
@@ -823,6 +837,76 @@ if "%%1" == "pseudoxml" (
 :end
 '''
 
+# This will become the Makefile template for Sphinx 1.5.
+MAKEFILE_NEW = u'''\
+# Minimal makefile for Sphinx documentation
+#
+
+# You can set these variables from the command line.
+SPHINXOPTS    =
+SPHINXBUILD   = sphinx-build
+SPHINXPROJ    = %(project_fn)s
+SOURCEDIR     = %(rsrcdir)s
+BUILDDIR      = %(rbuilddir)s
+
+# User-friendly check for sphinx-build.
+ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)
+$(error \
+The '$(SPHINXBUILD)' command was not found. Make sure you have Sphinx \
+installed, then set the SPHINXBUILD environment variable to point \
+to the full path of the '$(SPHINXBUILD)' executable. Alternatively you \
+can add the directory with the executable to your PATH. \
+If you don't have Sphinx installed, grab it from http://sphinx-doc.org/)
+endif
+
+# Has to be explicit, otherwise we don't get "make" without targets right.
+help:
+\t@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+# You can add custom targets here.
+
+# Catch-all target: route all unknown targets to Sphinx using the new
+# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
+%:
+\t@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+'''
+
+# This will become the make.bat template for Sphinx 1.5.
+BATCHFILE_NEW = u'''\
+@ECHO OFF
+
+REM Command file for Sphinx documentation
+
+if "%%SPHINXBUILD%%" == "" (
+\tset SPHINXBUILD=sphinx-build
+)
+set BUILDDIR=%(rbuilddir)s
+set SPHINXPROJ=%(project_fn)s
+
+if "%%1" == "" goto help
+
+%%SPHINXBUILD%% 2> nul
+if errorlevel 9009 (
+\techo.
+\techo.The 'sphinx-build' command was not found. Make sure you have Sphinx
+\techo.installed, then set the SPHINXBUILD environment variable to point
+\techo.to the full path of the 'sphinx-build' executable. Alternatively you
+\techo.may add the Sphinx directory to PATH.
+\techo.
+\techo.If you don't have Sphinx installed, grab it from
+\techo.http://sphinx-doc.org/
+\texit /b 1
+)
+
+%%SPHINXBUILD%% -M %%1 %%BUILDDIR%% %%SPHINXOPTS%%
+goto end
+
+:help
+%%SPHINXBUILD%% -M help %%BUILDDIR%% %%SPHINXOPTS%%
+
+:end
+'''
+
 
 def mkdir_p(dir):
     if path.isdir(dir):
@@ -972,7 +1056,7 @@ Enter the root path for documentation.'''
 You have two options for placing the build directory for Sphinx output.
 Either, you use a directory "_build" within the root path, or you separate
 "source" and "build" directories within the root path.'''
-        do_prompt(d, 'sep', 'Separate source and build directories (y/N)', 'n',
+        do_prompt(d, 'sep', 'Separate source and build directories (y/n)', 'n',
                   boolean)
 
     if 'dot' not in d:
@@ -1028,50 +1112,51 @@ document is a custom template, you can also set this to another filename.'''
     if 'epub' not in d:
         print '''
 Sphinx can also add configuration for epub output:'''
-        do_prompt(d, 'epub', 'Do you want to use the epub builder (y/N)',
+        do_prompt(d, 'epub', 'Do you want to use the epub builder (y/n)',
                   'n', boolean)
 
     if 'ext_autodoc' not in d:
         print '''
 Please indicate if you want to use one of the following Sphinx extensions:'''
         do_prompt(d, 'ext_autodoc', 'autodoc: automatically insert docstrings '
-                  'from modules (y/N)', 'n', boolean)
+                  'from modules (y/n)', 'n', boolean)
     if 'ext_doctest' not in d:
         do_prompt(d, 'ext_doctest', 'doctest: automatically test code snippets '
-                  'in doctest blocks (y/N)', 'n', boolean)
+                  'in doctest blocks (y/n)', 'n', boolean)
     if 'ext_intersphinx' not in d:
         do_prompt(d, 'ext_intersphinx', 'intersphinx: link between Sphinx '
-                  'documentation of different projects (y/N)', 'n', boolean)
+                  'documentation of different projects (y/n)', 'n', boolean)
     if 'ext_todo' not in d:
         do_prompt(d, 'ext_todo', 'todo: write "todo" entries '
-                  'that can be shown or hidden on build (y/N)', 'n', boolean)
+                  'that can be shown or hidden on build (y/n)', 'n', boolean)
     if 'ext_coverage' not in d:
         do_prompt(d, 'ext_coverage', 'coverage: checks for documentation '
-                  'coverage (y/N)', 'n', boolean)
+                  'coverage (y/n)', 'n', boolean)
     if 'ext_pngmath' not in d:
         do_prompt(d, 'ext_pngmath', 'pngmath: include math, rendered '
-                  'as PNG images (y/N)', 'n', boolean)
+                  'as PNG images (y/n)', 'n', boolean)
     if 'ext_mathjax' not in d:
         do_prompt(d, 'ext_mathjax', 'mathjax: include math, rendered in the '
-                  'browser by MathJax (y/N)', 'n', boolean)
+                  'browser by MathJax (y/n)', 'n', boolean)
     if d['ext_pngmath'] and d['ext_mathjax']:
         print '''Note: pngmath and mathjax cannot be enabled at the same time.
 pngmath has been deselected.'''
+        d['ext_pngmath'] = False
     if 'ext_ifconfig' not in d:
         do_prompt(d, 'ext_ifconfig', 'ifconfig: conditional inclusion of '
-                  'content based on config values (y/N)', 'n', boolean)
+                  'content based on config values (y/n)', 'n', boolean)
     if 'ext_viewcode' not in d:
         do_prompt(d, 'ext_viewcode', 'viewcode: include links to the source '
-                  'code of documented Python objects (y/N)', 'n', boolean)
+                  'code of documented Python objects (y/n)', 'n', boolean)
 
     if 'makefile' not in d:
         print '''
 A Makefile and a Windows command file can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
 directly.'''
-        do_prompt(d, 'makefile', 'Create Makefile? (Y/n)', 'y', boolean)
+        do_prompt(d, 'makefile', 'Create Makefile? (y/n)', 'y', boolean)
     if 'batchfile' not in d:
-        do_prompt(d, 'batchfile', 'Create Windows command file? (Y/n)',
+        do_prompt(d, 'batchfile', 'Create Windows command file? (y/n)',
                   'y', boolean)
     print
 

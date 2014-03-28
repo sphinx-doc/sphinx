@@ -5,7 +5,7 @@
 
     Test the sphinx.quickstart module.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,7 +14,7 @@ import time
 from StringIO import StringIO
 import tempfile
 
-from util import raises, with_tempdir, with_app
+from util import raises, with_tempdir, with_app, SkipTest
 
 from sphinx import application
 from sphinx import quickstart as qs
@@ -108,13 +108,18 @@ def test_do_prompt():
     raises(AssertionError, qs.do_prompt, d, 'k6', 'Q6', validator=qs.boolean)
 
 
-def test_do_prompt_with_multibyte():
+def test_do_prompt_with_nonascii():
     d = {}
     answers = {
         'Q1': u'\u30c9\u30a4\u30c4',
     }
     qs.term_input = mock_raw_input(answers)
-    qs.do_prompt(d, 'k1', 'Q1', default=u'\u65e5\u672c')
+    try:
+        qs.do_prompt(d, 'k1', 'Q1', default=u'\u65e5\u672c')
+    except UnicodeEncodeError:
+        raise SkipTest(
+            'non-ASCII console input not supported on this encoding: %s',
+            qs.TERM_ENCODING)
     assert d['k1'] == u'\u30c9\u30a4\u30c4'
 
 

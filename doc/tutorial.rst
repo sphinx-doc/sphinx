@@ -245,14 +245,52 @@ autodoc needs to import your modules in order to extract the docstrings.
 Therefore, you must add the appropriate path to :py:data:`sys.path` in your
 :file:`conf.py`.
 
+.. warning::
+
+   :mod:`~sphinx.ext.autodoc` **imports** the modules to be documented.  If any
+   modules have side effects on import, these will be executed by ``autodoc``
+   when ``sphinx-build`` is run.
+
+   If you document scripts (as opposed to library modules), make sure their main
+   routine is protected by a ``if __name__ == '__main__'`` condition.
+
 |more| See :mod:`sphinx.ext.autodoc` for the complete description of the
 features of autodoc.
+
+Intersphinx
+-----------
+
+Many Sphinx documents including the `Python documentation`_ are published on the
+internet.  When you want to make links to such documents from your
+documentation, you can do it with :mod:`sphinx.ext.intersphinx`.
+
+.. _Python documentation: http://docs.python.org/3
+
+In order to use intersphinx, you need to activate it in :file:`conf.py` by
+putting the string ``'sphinx.ext.intersphinx'`` into the :confval:`extensions`
+list and set up the :confval:`intersphinx_mapping` config value.
+
+For example, to link to ``io.open()`` in the Python library manual, you need to
+setup your :confval:`intersphinx_mapping` like::
+
+   intersphinx_mapping = {'python': ('http://docs.python.org/3', None)}
+
+And now, you can write a cross-reference like ``:py:func:`io.open```.  Any
+cross-reference that has no matching target in the current documentation set,
+will be looked up in the documentation sets configured in
+:confval:`intersphinx_mapping` (this needs access to the URL in order to
+download the list of valid targets).  Intersphinx also works for some other
+:ref:`domains' <domains>` roles including ``:ref:``, however it doesn't work for
+``:doc:`` as that is non-domain role.
+
+|more| See :mod:`sphinx.ext.intersphinx` for the complete description of the
+features of intersphinx.
 
 
 More topics to be covered
 -------------------------
 
-- Other extensions (math, intersphinx, viewcode, doctest)
+- Other extensions (math, viewcode, doctest)
 - Static files
 - Selecting a theme
 - Templating

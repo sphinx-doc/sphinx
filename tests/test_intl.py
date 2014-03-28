@@ -6,7 +6,7 @@
     Test message patching for internationalization purposes.  Runs the text
     builder in the test root.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -204,6 +204,20 @@ def test_i18n_footnote_backlink(app):
         ids = footnote.attrib.get('ids')
         backrefs = footnote.attrib.get('backrefs')
         assert refid2id[ids] == backrefs
+
+
+@with_intl_app(buildername='xml', warning=warnfile)
+def test_i18n_refs_python_domain(app):
+    app.builder.build(['refs_python_domain'])
+    et = ElementTree.parse(app.outdir / 'refs_python_domain.xml')
+    secs = et.findall('section')
+
+    # regression test for fix #1363
+    para0 = secs[0].findall('paragraph')
+    assert_elem(
+        para0[0],
+        texts=['SEE THIS DECORATOR:', 'sensitive_variables()', '.'],
+        refs=['sensitive.sensitive_variables'])
 
 
 @with_intl_app(buildername='text', warning=warnfile, cleanenv=True)
@@ -420,7 +434,7 @@ def test_i18n_role_xref(app):
 
 @with_intl_app(buildername='xml', warning=warnfile)
 def test_i18n_label_target(app):
-    # regression test for #1193
+    # regression test for #1193, #1265
     app.builder.build(['label_target'])
     et = ElementTree.parse(app.outdir / 'label_target.xml')
     secs = et.findall('section')
@@ -454,6 +468,23 @@ def test_i18n_label_target(app):
             para2_0[0],
             texts=['`X DUPLICATED SUB SECTION`_', 'IS BROKEN LINK.'],
             refs=[])
+
+    para3 = secs[3].findall('paragraph')
+    assert_elem(
+            para3[0],
+            texts=['X', 'bridge label',
+                   'IS NOT TRANSLATABLE BUT LINKED TO TRANSLATED ' +
+                   'SECTION TITLE.'],
+            refs=['label-bridged-target-section'])
+    assert_elem(
+            para3[1],
+            texts=['X', 'bridge label', 'POINT TO',
+                   'LABEL BRIDGED TARGET SECTION', 'AND', 'bridge label2',
+                   'POINT TO', 'SECTION AND LABEL', '. THE SECOND APPEARED',
+                   'bridge label2', 'POINT TO CORRECT TARGET.'],
+            refs=['label-bridged-target-section',
+                  'section-and-label',
+                  'section-and-label'])
 
 
 @with_intl_app(buildername='text', warning=warnfile)
@@ -497,7 +528,31 @@ def test_i18n_figure_caption(app):
               u"\n************************\n"
               u"\n   [image]MY CAPTION OF THE FIGURE\n"
               u"\n   MY DESCRIPTION PARAGRAPH1 OF THE FIGURE.\n"
-              u"\n   MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n")
+              u"\n   MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n"
+              u"\n"
+              u"\nFIGURE IN THE BLOCK"
+              u"\n===================\n"
+              u"\nBLOCK\n"
+              u"\n      [image]MY CAPTION OF THE FIGURE\n"
+              u"\n      MY DESCRIPTION PARAGRAPH1 OF THE FIGURE.\n"
+              u"\n      MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n")
+
+    assert result == expect
+
+
+@with_intl_app(buildername='text')
+def test_i18n_rubric(app):
+    # regression test for pull request #190
+    app.builder.build(['rubric'])
+    result = (app.outdir / 'rubric.txt').text(encoding='utf-8')
+    expect = (u"\nI18N WITH RUBRIC"
+              u"\n****************\n"
+              u"\n-[ RUBRIC TITLE ]-\n"
+              u"\n"
+              u"\nRUBRIC IN THE BLOCK"
+              u"\n===================\n"
+              u"\nBLOCK\n"
+              u"\n   -[ RUBRIC TITLE ]-\n")
 
     assert result == expect
 
@@ -548,20 +603,20 @@ def test_versionchange(app):
             return ''
 
     expect1 = (
-        u"""<p><span>Deprecated since version 1.0: </span>"""
+        u"""<p><span class="versionmodified">Deprecated since version 1.0: </span>"""
         u"""THIS IS THE <em>FIRST</em> PARAGRAPH OF DEPRECATED.</p>\n"""
         u"""<p>THIS IS THE <em>SECOND</em> PARAGRAPH OF DEPRECATED.</p>\n""")
     matched_content = get_content(result, "deprecated")
     assert expect1 == matched_content
 
     expect2 = (
-        u"""<p><span>New in version 1.0: </span>"""
+        u"""<p><span class="versionmodified">New in version 1.0: </span>"""
         u"""THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONADDED.</p>\n""")
     matched_content = get_content(result, "versionadded")
     assert expect2 == matched_content
 
     expect3 = (
-        u"""<p><span>Changed in version 1.0: </span>"""
+        u"""<p><span class="versionmodified">Changed in version 1.0: </span>"""
         u"""THIS IS THE <em>FIRST</em> PARAGRAPH OF VERSIONCHANGED.</p>\n""")
     matched_content = get_content(result, "versionchanged")
     assert expect3 == matched_content

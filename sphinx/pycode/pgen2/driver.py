@@ -18,7 +18,8 @@ __all__ = ["Driver", "load_grammar"]
 # Python imports
 import os
 import logging
-import sys
+
+import sphinx
 
 # Pgen imports
 from sphinx.pycode.pgen2 import grammar, parse, token, tokenize, pgen
@@ -120,7 +121,9 @@ def load_grammar(gt="Grammar.txt", gp=None,
         head, tail = os.path.splitext(gt)
         if tail == ".txt":
             tail = ""
-        gp = head + tail + ".".join(map(str, sys.version_info[:2])) + ".pickle"
+        # embed Sphinx major version for the case we ever change the grammar...
+        gp = head + tail + "-sphinx" + \
+             ".".join(map(str, sphinx.version_info[:2])) + ".pickle"
     if force or not _newer(gp, gt):
         logger.info("Generating grammar tables from %s", gt)
         g = pgen.generate_grammar(gt)

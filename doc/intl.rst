@@ -71,7 +71,7 @@ Translating with sphinx-intl
 ----------------------------
 
 Quick guide
-^^^^^^^^^^^^
+^^^^^^^^^^^
 
 `sphinx-intl`_ is a useful tool to work with Sphinx translation flow.
 This section describe a easy way to translate with sphinx-intl.
@@ -81,8 +81,8 @@ This section describe a easy way to translate with sphinx-intl.
 
 #. Add configurations to your `conf.py`::
 
-      locale_dirs = ['locale/']   #path is example but recommended.
-      gettext_compact = False     #optional.
+      locale_dirs = ['locale/']   # path is example but recommended.
+      gettext_compact = False     # optional.
 
    This case-study assumes that :confval:`locale_dirs` is set to 'locale/' and
    :confval:`gettext_compact` is set to `False` (the Sphinx document is
@@ -108,19 +108,18 @@ This section describe a easy way to translate with sphinx-intl.
 
 #. Build mo files and make translated document.
 
-   You need :confval:`language` parameter in ``conf.py`` or you may also
+   You need a :confval:`language` parameter in ``conf.py`` or you may also
    specify the parameter on the command line::
 
       $ sphinx-intl build
       $ make -e SPHINXOPTS="-D language='de'" html
 
-
-Congratulations!! You got the translated document in ``_build/html``
+Congratulations! You got the translated documentation in the ``_build/html``
 directory.
 
 
 Translating
-^^^^^^^^^^^^
+^^^^^^^^^^^
 
 Translate po file under ``./locale/de/LC_MESSAGES`` directory.
 The case of builders.po file for sphinx document:
@@ -146,16 +145,17 @@ syntax:
    "FILL HERE BY TARGET LANGUAGE FILL HERE BY TARGET LANGUAGE FILL HERE "
    "BY TARGET LANGUAGE :ref:`EXTENSIONS <extensions>` FILL HERE."
 
-Please be careful not to break reST notation.
+Please be careful not to break reST notation.  Most po-editors will help you
+with that.
 
 
 Update your po files by new pot files
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If the document is updated, it is necessary to generate updated pot files
+If a document is updated, it is necessary to generate updated pot files
 and to apply differences to translated po files.
 In order to apply the updating difference of a pot file to po file,
-using :command:`sphinx-intl update` command.
+use the :command:`sphinx-intl update` command.
 
 .. code-block:: bash
 
@@ -164,6 +164,10 @@ using :command:`sphinx-intl update` command.
 
 Using Transifex service for team translation
 --------------------------------------------
+
+Transifex_ is one of several services that allow collaborative translation via a
+web interface.  It has a nifty Python-based command line client that makes it
+easy to fetch and push translations.
 
 .. TODO: why use transifex?
 
@@ -181,9 +185,9 @@ Using Transifex service for team translation
 
 #. Create your transifex_ account and create new project for your document
 
-   Currently, transifex does not allow for a translation project to
-   have more than one version of document, so you'd better include a
-   version number in your project name.
+   Currently, transifex does not allow for a translation project to have more
+   than one version of the document, so you'd better include a version number in
+   your project name.
 
    For example:
 
@@ -193,8 +197,8 @@ Using Transifex service for team translation
 
 #. Create config files for tx command
 
-   This process will create ``.tx/config`` in the current directory, as
-   well as ``~/.transifexrc`` file that includes auth information.
+   This process will create ``.tx/config`` in the current directory, as well as
+   a ``~/.transifexrc`` file that includes auth information.
 
    .. code-block:: bash
 
@@ -253,11 +257,11 @@ Using Transifex service for team translation
 That's all!
 
 
-.. tip:: Translating on local and Transifex
+.. tip:: Translating locally and on Transifex
 
    If you want to push all language's po files, you can be done by using
    :command:`tx push -t` command.
-   Watch out! this operation overwrites translations in transifex.
+   Watch out! This operation overwrites translations in transifex.
 
    In other words, if you have updated each in the service and local po files,
    it would take much time and effort to integrate them.
@@ -270,7 +274,7 @@ Contributing to Sphinx reference translation
 The recommended way for new contributors to translate Sphinx reference
 is to join the translation team on Transifex.
 
-There is `sphinx translation page`_ for Sphinx-1.2 document.
+There is `sphinx translation page`_ for Sphinx-1.2 documentation.
 
 1. Login to transifex_ service.
 2. Go to `sphinx translation page`_.
@@ -290,5 +294,5 @@ There is `sphinx translation page`_ for Sphinx-1.2 document.
 .. _`transifex-client`: https://pypi.python.org/pypi/transifex-client
 .. _`sphinx-intl`: https://pypi.python.org/pypi/sphinx-intl
 .. _Transifex: https://www.transifex.com/
-.. _`sphinx translation page`: https://www.transifex.com/projects/p/sphinx-doc-1_2_0/ 
+.. _`sphinx translation page`: https://www.transifex.com/projects/p/sphinx-doc-1_2_0/
 .. _`Transifex Client v0.8 &mdash; Transifex documentation`: http://help.transifex.com/features/client/index.html

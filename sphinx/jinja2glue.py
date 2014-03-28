@@ -5,7 +5,7 @@
 
     Glue code for the jinja2 templating engine.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -91,25 +91,29 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         # create a chain of paths to search
         if theme:
             # the theme's own dir and its bases' dirs
-            chain = theme.get_dirchain()
+            pathchain = theme.get_dirchain()
             # then the theme parent paths
-            chain.extend(theme.themepath)
+            loaderchain = pathchain + theme.themepath
         elif dirs:
-            chain = list(dirs)
+            pathchain = list(dirs)
+            loaderchain = list(dirs)
         else:
-            chain = []
+            pathchain = []
+            loaderchain = []
 
         # prepend explicit template paths
         self.templatepathlen = len(builder.config.templates_path)
         if builder.config.templates_path:
-            chain[0:0] = [path.join(builder.confdir, tp)
-                          for tp in builder.config.templates_path]
+            cfg_templates_path = [path.join(builder.confdir, tp)
+                                  for tp in builder.config.templates_path]
+            pathchain[0:0] = cfg_templates_path
+            loaderchain[0:0] = cfg_templates_path
 
         # store it for use in newest_template_mtime
-        self.pathchain = chain
+        self.pathchain = pathchain
 
         # make the paths into loaders
-        self.loaders = map(SphinxFileSystemLoader, chain)
+        self.loaders = map(SphinxFileSystemLoader, loaderchain)
 
         use_i18n = builder.app.translator is not None
         extensions = use_i18n and ['jinja2.ext.i18n'] or []

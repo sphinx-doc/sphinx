@@ -5,7 +5,7 @@
 
     Japanese search language: includes routine to split words.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -236,7 +236,7 @@ class TinySegmenter(object):
             score += self.ts_(self.TQ4__, p3 + c2 + c3 + c4)
             p = u'O'
             if score > 0:
-                result.append(word)
+                result.append(word.strip())
                 word = u''
                 p = u'B'
             p1 = p2
@@ -244,7 +244,7 @@ class TinySegmenter(object):
             p3 = p
             word += seg[i]
 
-        result.append(word)
+        result.append(word.strip())
         return result
 
 

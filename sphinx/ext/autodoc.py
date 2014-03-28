@@ -7,7 +7,7 @@
     the doctree, thus avoiding duplication between docstrings and documentation
     for those who like elaborate docstrings.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,7 +28,7 @@ from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
-     safe_getattr, safe_repr
+     safe_getattr, safe_repr, is_builtin_class_method
 from sphinx.util.pycompat import base_exception, class_types
 from sphinx.util.docstrings import prepare_docstring
 
@@ -84,6 +84,15 @@ def members_set_option(arg):
     if arg is None:
         return ALL
     return set(x.strip() for x in arg.split(','))
+
+SUPPRESS = object()
+
+def annotation_option(arg):
+    if arg is None:
+        # suppress showing the representation of the object
+        return SUPPRESS
+    else:
+        return arg
 
 def bool_option(arg):
     """Used to convert flag options to auto directives.  (Instead of
@@ -364,6 +373,9 @@ class Documenter(object):
         """Check if *self.object* is really defined in the module given by
         *self.modname*.
         """
+        if self.options.imported_members:
+            return True
+
         modname = self.get_attr(self.object, '__module__', None)
         if modname and modname != self.modname:
             return False
@@ -438,9 +450,10 @@ class Documenter(object):
         # into lines
         if isinstance(docstring, unicode):
             return [prepare_docstring(docstring, ignore)]
-        elif docstring:
+        elif isinstance(docstring, str):  # this will not trigger on Py3
             return [prepare_docstring(force_decode(docstring, encoding),
                                       ignore)]
+        # ... else it is something strange, let's ignore it
         return []
 
     def process_doc(self, docstrings):
@@ -770,6 +783,7 @@ class ModuleDocumenter(Documenter):
         'platform': identity, 'deprecated': bool_option,
         'member-order': identity, 'exclude-members': members_set_option,
         'private-members': bool_option, 'special-members': members_option,
+        'imported-members': bool_option,
     }
 
     @classmethod
@@ -958,6 +972,10 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
         try:
             argspec = getargspec(self.object)
         except TypeError:
+            if (is_builtin_class_method(self.object, '__new__') and
+               is_builtin_class_method(self.object, '__init__')):
+                raise TypeError('%r is a builtin class' % self.object)
+
             # if a class should be documented as function (yay duck
             # typing) we try to use the constructor signature as function
             # signature without the first argument.
@@ -1010,8 +1028,9 @@ class ClassDocumenter(ModuleLevelDocumenter):
         initmeth = self.get_attr(self.object, '__init__', None)
         # classes without __init__ method, default __init__ or
         # __init__ written in C?
-        if initmeth is None or initmeth is object.__init__ or not \
-               (inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
+        if initmeth is None or \
+               is_builtin_class_method(self.object, '__init__') or \
+               not(inspect.ismethod(initmeth) or inspect.isfunction(initmeth)):
             return None
         try:
             argspec = getargspec(initmeth)
@@ -1048,7 +1067,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
         # add inheritance info, if wanted
         if not self.doc_as_attr and self.options.show_inheritance:
             self.add_line(u'', '<autodoc>')
-            if len(self.object.__bases__):
+            if hasattr(self.object, '__bases__') and len(self.object.__bases__):
                 bases = [b.__module__ == '__builtin__' and
                          u':class:`%s`' % b.__name__ or
                          u':class:`%s.%s`' % (b.__module__, b.__name__)
@@ -1067,10 +1086,22 @@ class ClassDocumenter(ModuleLevelDocumenter):
         # for classes, what the "docstring" is can be controlled via a
         # config value; the default is only the class docstring
         if content in ('both', 'init'):
-            initdocstring = self.get_attr(
-                self.get_attr(self.object, '__init__', None), '__doc__')
+            # get __init__ method document from __init__.__doc__
+            if self.env.config.autodoc_docstring_signature:
+                # only act if the feature is enabled
+                init_doc = MethodDocumenter(self.directive, '__init__')
+                init_doc.object = self.get_attr(self.object, '__init__', None)
+                init_doc.objpath = ['__init__']
+                init_doc._find_signature()  # this effects to get_doc() result
+                initdocstring = '\n'.join(
+                    ['\n'.join(l) for l in init_doc.get_doc(encoding)])
+            else:
+                initdocstring = self.get_attr(
+                    self.get_attr(self.object, '__init__', None), '__doc__')
             # for new-style classes, no __init__ means default __init__
-            if initdocstring == object.__init__.__doc__:
+            if (initdocstring is not None and
+                (initdocstring == object.__init__.__doc__ or  # for pypy
+                 initdocstring.strip() == object.__init__.__doc__)):  #for !pypy
                 initdocstring = None
             if initdocstring:
                 if content == 'init':
@@ -1124,6 +1155,8 @@ class DataDocumenter(ModuleLevelDocumenter):
     objtype = 'data'
     member_order = 40
     priority = -10
+    option_spec = dict(ModuleLevelDocumenter.option_spec)
+    option_spec["annotation"] = annotation_option
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
@@ -1131,12 +1164,18 @@ class DataDocumenter(ModuleLevelDocumenter):
 
     def add_directive_header(self, sig):
         ModuleLevelDocumenter.add_directive_header(self, sig)
-        try:
-            objrepr = safe_repr(self.object)
-        except ValueError:
+        if not self.options.annotation:
+            try:
+                objrepr = safe_repr(self.object)
+            except ValueError:
+                pass
+            else:
+                self.add_line(u'   :annotation: = ' + objrepr, '<autodoc>')
+        elif self.options.annotation is SUPPRESS:
             pass
         else:
-            self.add_line(u'   :annotation: = ' + objrepr, '<autodoc>')
+            self.add_line(u'   :annotation: %s' % self.options.annotation,
+                          '<autodoc>')
 
     def document_members(self, all_members=False):
         pass
@@ -1208,6 +1247,8 @@ class AttributeDocumenter(DocstringStripSignatureMixin,ClassLevelDocumenter):
     """
     objtype = 'attribute'
     member_order = 60
+    option_spec = dict(ModuleLevelDocumenter.option_spec)
+    option_spec["annotation"] = annotation_option
 
     # must be higher than the MethodDocumenter, else it will recognize
     # some non-data descriptors as methods
@@ -1219,7 +1260,8 @@ class AttributeDocumenter(DocstringStripSignatureMixin,ClassLevelDocumenter):
     def can_document_member(cls, member, membername, isattr, parent):
         isdatadesc = isdescriptor(member) and not \
                      isinstance(member, cls.method_types) and not \
-                     type(member).__name__ in ("type", "method_descriptor")
+                     type(member).__name__ in ("type", "method_descriptor",
+                                               "instancemethod")
         return isdatadesc or (not isinstance(parent, ModuleDocumenter)
                               and not inspect.isroutine(member)
                               and not isinstance(member, class_types))
@@ -1243,13 +1285,19 @@ class AttributeDocumenter(DocstringStripSignatureMixin,ClassLevelDocumenter):
 
     def add_directive_header(self, sig):
         ClassLevelDocumenter.add_directive_header(self, sig)
-        if not self._datadescriptor:
-            try:
-                objrepr = safe_repr(self.object)
-            except ValueError:
-                pass
-            else:
-                self.add_line(u'   :annotation: = ' + objrepr, '<autodoc>')
+        if not self.options.annotation:
+            if not self._datadescriptor:
+                try:
+                    objrepr = safe_repr(self.object)
+                except ValueError:
+                    pass
+                else:
+                    self.add_line(u'   :annotation: = ' + objrepr, '<autodoc>')
+        elif self.options.annotation is SUPPRESS:
+            pass
+        else:
+            self.add_line(u'   :annotation: %s' % self.options.annotation,
+                          '<autodoc>')
 
     def add_content(self, more_content, no_docstring=False):
         if not self._datadescriptor:
@@ -1353,8 +1401,15 @@ class AutoDirective(Directive):
                not negated:
                 self.options[flag] = None
         # process the options with the selected documenter's option_spec
-        self.genopt = Options(assemble_option_dict(
-            self.options.items(), doc_class.option_spec))
+        try:
+            self.genopt = Options(assemble_option_dict(
+                self.options.items(), doc_class.option_spec))
+        except (KeyError, ValueError, TypeError), err:
+            # an option is either unknown or has a wrong type
+            msg = self.reporter.error('An option to %s is either unknown or '
+                                      'has an invalid value: %s' % (self.name, err),
+                                      line=self.lineno)
+            return [msg]
         # generate the output
         documenter = doc_class(self, self.arguments[0])
         documenter.generate(more_content=self.content)

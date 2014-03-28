@@ -3,7 +3,7 @@
     sphinx.directives.other
     ~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -208,9 +208,11 @@ class VersionChange(Directive):
                 content.line = node[0].line
                 content += node[0].children
                 node[0].replace_self(nodes.paragraph('', '', content))
-            node[0].insert(0, nodes.inline('', '%s: ' % text))
+            node[0].insert(0, nodes.inline('', '%s: ' % text,
+                                           classes=['versionmodified']))
         else:
-            para = nodes.paragraph('', '', nodes.inline('', '%s.' % text))
+            para = nodes.paragraph('', '',
+                nodes.inline('', '%s.' % text, classes=['versionmodified']))
             node.append(para)
         env = self.state.document.settings.env
         # XXX should record node.source as well

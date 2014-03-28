@@ -5,7 +5,7 @@
 
     Set up math support in source files and LaTeX/text output.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -30,11 +30,15 @@ def wrap_displaymath(math, label):
     parts = math.split('\n\n')
     ret = []
     for i, part in enumerate(parts):
+        if not part.strip():
+            continue
         if label is not None and i == 0:
             ret.append('\\begin{split}%s\\end{split}' % part +
                        (label and '\\label{'+label+'}' or ''))
         else:
             ret.append('\\begin{split}%s\\end{split}\\notag' % part)
+    if not ret:
+        return ''
     return '\\begin{gather}\n' + '\\\\'.join(ret) + '\n\\end{gather}'
 
 
@@ -84,7 +88,7 @@ class MathDirective(Directive):
 
 
 def latex_visit_math(self, node):
-    self.body.append('$' + node['latex'] + '$')
+    self.body.append('\\(' + node['latex'] + '\\)')
     raise nodes.SkipNode
 
 def latex_visit_displaymath(self, node):

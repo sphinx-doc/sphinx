@@ -50,3 +50,17 @@ msgid ""
 msgstr ""
 "`X DUPLICATED SUB SECTION`_ IS BROKEN LINK."
 
+msgid "label bridged target section"
+msgstr "X LABEL BRIDGED TARGET SECTION"
+
+msgid "`bridge label`_ is not translatable but linked to translated section title."
+msgstr "X `bridge label`_ IS NOT TRANSLATABLE BUT LINKED TO TRANSLATED SECTION TITLE."
+
+msgid ""
+"`bridge label2`_ point to ``section and label`` and `bridge label`_ point to "
+"``label bridged target section``. The second appeared `bridge label2`_ point "
+"to correct target."
+msgstr ""
+"X `bridge label`_ POINT TO ``LABEL BRIDGED TARGET SECTION`` AND "
+"`bridge label2`_ POINT TO ``SECTION AND LABEL``. THE SECOND APPEARED "
+"`bridge label2`_ POINT TO CORRECT TARGET."

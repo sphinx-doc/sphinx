@@ -5,7 +5,7 @@
 
     Manual page writer, extended for Sphinx custom nodes.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -152,11 +152,6 @@ class ManualPageTranslator(BaseTranslator):
     def depart_desc_content(self, node):
         self.depart_definition(node)
 
-    def visit_refcount(self, node):
-        self.body.append(self.defs['emphasis'][0])
-    def depart_refcount(self, node):
-        self.body.append(self.defs['emphasis'][1])
-
     def visit_versionmodified(self, node):
         self.visit_paragraph(node)
     def depart_versionmodified(self, node):
@@ -202,6 +197,7 @@ class ManualPageTranslator(BaseTranslator):
         for production in node:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
+        lastname = None
         for production in node:
             if production['tokenname']:
                 lastname = production['tokenname'].ljust(maxlen)
@@ -209,7 +205,7 @@ class ManualPageTranslator(BaseTranslator):
                 self.body.append(self.deunicode(lastname))
                 self.body.append(self.defs['strong'][1])
                 self.body.append(' ::= ')
-            else:
+            elif lastname is not None:
                 self.body.append('%s     ' % (' '*len(lastname)))
             production.walkabout(self)
             self.body.append('\n')
@@ -232,7 +228,9 @@ class ManualPageTranslator(BaseTranslator):
     # overwritten -- don't visit inner marked up nodes
     def visit_reference(self, node):
         self.body.append(self.defs['reference'][0])
-        self.body.append(node.astext())
+        self.visit_Text(node)  # avoid repeating escaping code... fine since
+                               # visit_Text calls astext() and only works
+                               # on that afterwards
         self.body.append(self.defs['reference'][1])
 
         uri = node.get('refuri', '')
@@ -343,6 +341,14 @@ class ManualPageTranslator(BaseTranslator):
         pass
     def depart_inline(self, node):
         pass
+
+    def visit_math(self, node):
+        self.builder.warn('using "math" markup without a Sphinx math extension '
+                          'active, please use one of the math extensions '
+                          'described at http://sphinx-doc.org/ext/math.html')
+        raise nodes.SkipNode
+
+    visit_math_block = visit_math
 
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

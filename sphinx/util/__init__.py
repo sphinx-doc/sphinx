@@ -5,7 +5,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,6 +17,7 @@ import fnmatch
 import tempfile
 import posixpath
 import traceback
+import unicodedata
 from os import path
 from codecs import open, BOM_UTF8
 from collections import deque
@@ -50,6 +51,14 @@ def docname_join(basedocname, docname):
         posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
+def path_stabilize(filepath):
+    "normalize path separater and unicode string"
+    newpath = filepath.replace(os.path.sep, SEP)
+    if isinstance(newpath, unicode):
+        newpath = unicodedata.normalize('NFC', newpath)
+    return newpath
+
+
 def get_matching_files(dirname, exclude_matchers=()):
     """Get all file names in a directory, recursively.
 
@@ -62,9 +71,9 @@ def get_matching_files(dirname, exclude_matchers=()):
     for root, dirs, files in walk(dirname, followlinks=True):
         relativeroot = root[dirlen:]
 
-        qdirs = enumerate(path.join(relativeroot, dn).replace(os.path.sep, SEP)
+        qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
                           for dn in dirs)
-        qfiles = enumerate(path.join(relativeroot, fn).replace(os.path.sep, SEP)
+        qfiles = enumerate(path_stabilize(path.join(relativeroot, fn))
                            for fn in files)
         for matcher in exclude_matchers:
             qdirs = [entry for entry in qdirs if not matcher(entry[1])]
@@ -133,7 +142,7 @@ def copy_static_entry(source, targetdir, builder, context={},
     Handles all possible cases of files, directories and subdirectories.
     """
     if exclude_matchers:
-        relpath = relative_path(builder.srcdir, source)
+        relpath = relative_path(path.join(builder.srcdir, 'dummy'), source)
         for matcher in exclude_matchers:
             if matcher(relpath):
                 return
@@ -149,18 +158,17 @@ def copy_static_entry(source, targetdir, builder, context={},
         else:
             copyfile(source, target)
     elif path.isdir(source):
-        if level == 0:
-            for entry in os.listdir(source):
-                if entry.startswith('.'):
-                    continue
-                copy_static_entry(path.join(source, entry), targetdir,
-                                  builder, context, level=1,
-                                  exclude_matchers=exclude_matchers)
-        else:
-            target = path.join(targetdir, path.basename(source))
-            if path.exists(target):
-                shutil.rmtree(target)
-            shutil.copytree(source, target)
+        if not path.isdir(targetdir):
+            os.mkdir(targetdir)
+        for entry in os.listdir(source):
+            if entry.startswith('.'):
+                continue
+            newtarget = targetdir
+            if path.isdir(path.join(source, entry)):
+                newtarget = path.join(targetdir, entry)
+            copy_static_entry(path.join(source, entry), newtarget,
+                              builder, context, level=level+1,
+                              exclude_matchers=exclude_matchers)
 
 
 _DEBUG_HEADER = '''\
@@ -168,9 +176,10 @@ _DEBUG_HEADER = '''\
 # Python version: %s
 # Docutils version: %s %s
 # Jinja2 version: %s
+# Loaded extensions:
 '''
 
-def save_traceback():
+def save_traceback(app):
     """Save the current exception's traceback in a temporary file."""
     import platform
     exc = traceback.format_exc()
@@ -180,6 +189,11 @@ def save_traceback():
                    platform.python_version(),
                    docutils.__version__, docutils.__version_details__,
                    jinja2.__version__)).encode('utf-8'))
+    if app is not None:
+        for extname, extmod in app._extensions.iteritems():
+            os.write(fd, ('#   %s from %s\n' % (
+                extname, getattr(extmod, '__file__', 'unknown'))
+                ).encode('utf-8'))
     os.write(fd, exc.encode('utf-8'))
     os.close(fd)
     return path
@@ -323,15 +337,15 @@ def parselinenos(spec, total):
 def force_decode(string, encoding):
     """Forcibly get a unicode string out of a bytestring."""
     if isinstance(string, bytes):
-        if encoding:
-            string = string.decode(encoding)
-        else:
-            try:
+        try:
+            if encoding:
+                string = string.decode(encoding)
+            else:
                 # try decoding with utf-8, should only work for real UTF-8
                 string = string.decode('utf-8')
-            except UnicodeError:
-                # last resort -- can't fail
-                string = string.decode('latin1')
+        except UnicodeError:
+            # last resort -- can't fail
+            string = string.decode('latin1')
     return string
 
 

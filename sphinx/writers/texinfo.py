@@ -5,7 +5,7 @@
 
     Custom docutils writer for Texinfo.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -1190,7 +1190,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
                 for id in production.get('ids'):
                     self.add_anchor(id, production)
                 s = production['tokenname'].ljust(maxlen) + ' ::='
-                ##lastname = production['tokenname']
             else:
                 s = '%s    ' % (' '*maxlen)
             self.body.append(self.escape(s))
@@ -1218,11 +1217,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
             typ, text, tid, text2 = entry
             text = self.escape_menu(text)
             self.body.append('@geindex %s\n' % text)
-
-    def visit_refcount(self, node):
-        self.body.append('\n')
-    def depart_refcount(self, node):
-        self.body.append('\n')
 
     def visit_versionmodified(self, node):
         self.body.append('\n')
@@ -1399,3 +1393,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
         pass
     def depart_pending_xref(self, node):
         pass
+
+    def visit_math(self, node):
+        self.builder.warn('using "math" markup without a Sphinx math extension '
+                          'active, please use one of the math extensions '
+                          'described at http://sphinx-doc.org/ext/math.html')
+        raise nodes.SkipNode
+
+    visit_math_block = visit_math

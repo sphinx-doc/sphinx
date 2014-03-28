@@ -5,7 +5,7 @@
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -177,9 +177,6 @@ class BuildEnvironment:
         # this is to invalidate old pickles
         self.version = ENV_VERSION
 
-        # make this a set for faster testing
-        self._nitpick_ignore = set(self.config.nitpick_ignore)
-
         # All "docnames" here are /-separated and relative and exclude
         # the source suffix.
 
@@ -249,10 +246,17 @@ class BuildEnvironment:
         self.versioning_condition = condition
 
     def warn(self, docname, msg, lineno=None):
+        """Emit a warning.
+
+        This differs from using ``app.warn()`` in that the warning may not
+        be emitted instantly, but collected for emitting all warnings after
+        the update of the environment.
+        """
         # strange argument order is due to backwards compatibility
         self._warnfunc(msg, (docname, lineno))
 
     def warn_node(self, msg, node):
+        """Like :meth:`warn`, but with source information taken from *node*."""
         self._warnfunc(msg, '%s:%s' % get_source_line(node))
 
     def clear_doc(self, docname):
@@ -335,6 +339,7 @@ class BuildEnvironment:
         """
         matchers = compile_matchers(
             config.exclude_patterns[:] +
+            config.html_extra_path +
             config.exclude_trees +
             [d + config.source_suffix for d in config.unused_docs] +
             ['**/' + d for d in config.exclude_dirnames] +
@@ -438,6 +443,9 @@ class BuildEnvironment:
         self.doctreedir = doctreedir
         self.find_files(config)
         self.config = config
+
+        # this cache also needs to be updated every time
+        self._nitpick_ignore = set(self.config.nitpick_ignore)
 
         added, changed, removed = self.get_outdated_files(config_changed)
 
@@ -613,11 +621,8 @@ class BuildEnvironment:
         pub.process_programmatic_settings(None, self.settings, None)
         pub.set_source(None, src_path.encode(fs_encoding))
         pub.set_destination(None, None)
-        try:
-            pub.publish()
-            doctree = pub.document
-        except UnicodeError, err:
-            raise SphinxError(str(err))
+        pub.publish()
+        doctree = pub.document
 
         # post-processing
         self.filter_messages(doctree)
@@ -695,7 +700,7 @@ class BuildEnvironment:
 
     @property
     def docname(self):
-        """Backwards compatible alias."""
+        """Returns the docname of the document currently being parsed."""
         return self.temp_data['docname']
 
     @property
@@ -709,16 +714,28 @@ class BuildEnvironment:
         return self.temp_data.get('py:class')
 
     def new_serialno(self, category=''):
-        """Return a serial number, e.g. for index entry targets."""
+        """Return a serial number, e.g. for index entry targets.
+
+        The number is guaranteed to be unique in the current document.
+        """
         key = category + 'serialno'
         cur = self.temp_data.get(key, 0)
         self.temp_data[key] = cur + 1
         return cur
 
     def note_dependency(self, filename):
+        """Add *filename* as a dependency of the current document.
+
+        This means that the document will be rebuilt if this file changes.
+
+        *filename* should be absolute or relative to the source directory.
+        """
         self.dependencies.setdefault(self.docname, set()).add(filename)
 
     def note_reread(self):
+        """Add the current document to the list of documents that will
+        automatically be re-read at the next build.
+        """
         self.reread_always.add(self.docname)
 
     def note_versionchange(self, type, version, node, lineno):
@@ -736,7 +753,6 @@ class BuildEnvironment:
             if node['level'] < filterlevel:
                 self.app.debug('%s [filtered system message]', node.astext())
                 node.parent.remove(node)
-
 
     def process_dependencies(self, docname, doctree):
         """Process docutils-generated dependency info."""
@@ -783,7 +799,8 @@ class BuildEnvironment:
             node['uri'] = rel_imgpath
             if rel_imgpath.endswith(os.extsep + '*'):
                 for filename in glob(full_imgpath):
-                    new_imgpath = relative_path(self.srcdir, filename)
+                    new_imgpath = relative_path(path.join(self.srcdir, 'dummy'),
+                                                filename)
                     if filename.lower().endswith('.pdf'):
                         candidates['application/pdf'] = new_imgpath
                     elif filename.lower().endswith('.svg'):
@@ -1384,6 +1401,9 @@ class BuildEnvironment:
                 dtype = domain and '%s:%s' % (domain.name, typ) or typ
                 if (dtype, target) in self._nitpick_ignore:
                     warn = False
+                # for "std" types also try without domain name
+                if domain.name == 'std' and (typ, target) in self._nitpick_ignore:
+                    warn = False
         if not warn:
             return
         if domain and typ in domain.dangling_warnings:
@@ -1488,6 +1508,10 @@ class BuildEnvironment:
         new = {}
 
         def add_entry(word, subword, link=True, dic=new):
+            # Force the word to be unicode if it's a ASCII bytestring.
+            # This will solve problems with unicode normalization later.
+            # For instance the RFC role will add bytestrings at the moment
+            word = unicode(word)
             entry = dic.get(word)
             if not entry:
                 dic[word] = entry = [[], {}]

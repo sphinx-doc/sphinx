@@ -1,22 +1,23 @@
-# Ukrainian (Ukraine) translations for Sphinx.
-# Copyright (C) 2009 ORGANIZATION
+# Translations template for Sphinx.
+# Copyright (C) 2013 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# Petro Sasnyk <petro@sasnyk.name>, 2009.
-#
+# 
+# Translators:
+# Petro Sasnyk <petro@sasnyk.name>, 2009
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 0.6\n"
+"Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2013-04-02 10:33+0200\n"
-"PO-Revision-Date: 2011-09-21 10:15+0200\n"
-"Last-Translator: Petro Sasnyk <petro@sasnyk.name>\n"
-"Language-Team: uk_UA <LL@li.org>\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"PO-Revision-Date: 2013-04-02 15:39+0000\n"
+"Last-Translator: birkenfeld <g.brandl@gmx.net>\n"
+"Language-Team: Ukrainian (Ukraine) (http://www.transifex.com/projects/p/sphinx-1/language/uk_UA/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Language: uk_UA\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: sphinx/config.py:81
 #, python-format
@@ -29,9 +30,9 @@ msgid "see %s"
 msgstr ""
 
 #: sphinx/environment.py:1513
-#, fuzzy, python-format
+#, python-format
 msgid "see also %s"
-msgstr "дивись також %s"
+msgstr ""
 
 #: sphinx/environment.py:1570
 msgid "Symbols"
@@ -90,9 +91,8 @@ msgid "Module author: "
 msgstr "Автор модуля: "
 
 #: sphinx/directives/other.py:142
-#, fuzzy
 msgid "Code author: "
-msgstr "Автор модуля: "
+msgstr ""
 
 #: sphinx/directives/other.py:144
 msgid "Author: "
@@ -103,7 +103,8 @@ msgstr "Автор: "
 msgid "%s %s"
 msgstr ""
 
-#: sphinx/domains/c.py:51 sphinx/domains/cpp.py:939 sphinx/domains/python.py:95
+#: sphinx/domains/c.py:51 sphinx/domains/cpp.py:939
+#: sphinx/domains/python.py:95
 msgid "Parameters"
 msgstr "Параметри"
 
@@ -160,9 +161,8 @@ msgid "type"
 msgstr "тип"
 
 #: sphinx/domains/c.py:207
-#, fuzzy
 msgid "variable"
-msgstr "Змінна"
+msgstr ""
 
 #: sphinx/domains/cpp.py:942 sphinx/domains/javascript.py:125
 msgid "Throws"
@@ -219,9 +219,8 @@ msgid "%s (%s attribute)"
 msgstr "%s (%s атрибут)"
 
 #: sphinx/domains/javascript.py:122
-#, fuzzy
 msgid "Arguments"
-msgstr "Параметри"
+msgstr ""
 
 #: sphinx/domains/javascript.py:166 sphinx/domains/python.py:561
 msgid "data"
@@ -232,9 +231,8 @@ msgid "attribute"
 msgstr "атрибут"
 
 #: sphinx/domains/python.py:100
-#, fuzzy
 msgid "Variables"
-msgstr "Змінна"
+msgstr ""
 
 #: sphinx/domains/python.py:104
 msgid "Raises"
@@ -282,14 +280,14 @@ msgid "%s() (%s static method)"
 msgstr "%s() (%s статичний метод)"
 
 #: sphinx/domains/python.py:340
-#, fuzzy, python-format
+#, python-format
 msgid "%s() (%s.%s class method)"
-msgstr "%s() (%s.%s метод)"
+msgstr ""
 
 #: sphinx/domains/python.py:343
-#, fuzzy, python-format
+#, python-format
 msgid "%s() (%s class method)"
-msgstr "%s() (%s метод)"
+msgstr ""
 
 #: sphinx/domains/python.py:353
 #, python-format
@@ -302,9 +300,8 @@ msgid "%s (module)"
 msgstr "%s (модуль)"
 
 #: sphinx/domains/python.py:491
-#, fuzzy
 msgid "Python Module Index"
-msgstr "Індекс модулів"
+msgstr ""
 
 #: sphinx/domains/python.py:492
 msgid "modules"
@@ -449,9 +446,9 @@ msgid "Todo"
 msgstr "Доробити"
 
 #: sphinx/ext/todo.py:110
-#, fuzzy, python-format
+#, python-format
 msgid "(The <<original entry>> is located in  %s, line %d.)"
-msgstr "(Початкове входження знаходиться в %s, рядок %d.)"
+msgstr ""
 
 #: sphinx/ext/todo.py:119
 msgid "original entry"
@@ -462,9 +459,8 @@ msgid "[docs]"
 msgstr ""
 
 #: sphinx/ext/viewcode.py:131
-#, fuzzy
 msgid "Module code"
-msgstr "модуль"
+msgstr ""
 
 #: sphinx/ext/viewcode.py:137
 #, python-format
@@ -586,9 +582,8 @@ msgid "Welcome! This is"
 msgstr ""
 
 #: sphinx/themes/basic/defindex.html:16
-#, fuzzy
 msgid "the documentation for"
-msgstr "шукати цю документацію"
+msgstr ""
 
 #: sphinx/themes/basic/defindex.html:17
 msgid "last updated"
@@ -679,9 +674,7 @@ msgstr "Востаннє оновлено %(last_updated)s."
 msgid ""
 "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
-msgstr ""
-"Створено з використанням <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
-"%(sphinx_version)s."
+msgstr "Створено з використанням <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s."
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
@@ -708,10 +701,7 @@ msgstr "наступний розділ"
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
-msgstr ""
-"Будь-ласка вімкніть підтримку JavaScript, щоб ввікнути\n"
-"\"\n"
-"\"    пошук."
+msgstr "Будь-ласка вімкніть підтримку JavaScript, щоб ввікнути\n\"\n\"    пошук."
 
 #: sphinx/themes/basic/search.html:32
 msgid ""
@@ -719,26 +709,25 @@ msgid ""
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
-msgstr ""
-"Звідси ви можете шукати ці документи. Введіть ваші пошукові\n"
-"    слова в поле нижче та натисніть \"пошук\". Зауважте що функція\n"
-"    пошуку автоматично шукатиме за всіма словами. Сторінки\n"
-"    що містять менше слів не з'являться в результуючому списку."
+msgstr "Звідси ви можете шукати ці документи. Введіть ваші пошукові\n    слова в поле нижче та натисніть \"пошук\". Зауважте що функція\n    пошуку автоматично шукатиме за всіма словами. Сторінки\n    що містять менше слів не з'являться в результуючому списку."
 
-#: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
+#: sphinx/themes/basic/search.html:39
+#: sphinx/themes/basic/searchresults.html:17
 msgid "search"
 msgstr "пошук"
 
-#: sphinx/themes/basic/search.html:43 sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/search.html:43
+#: sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js_t:281
 msgid "Search Results"
 msgstr "Результати пошуку"
 
-#: sphinx/themes/basic/search.html:45 sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/search.html:45
+#: sphinx/themes/basic/searchresults.html:23
 #: sphinx/themes/basic/static/searchtools.js_t:283
 msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
 msgstr ""
 
 #: sphinx/themes/basic/searchbox.html:12
@@ -791,9 +780,8 @@ msgid "Hide Search Matches"
 msgstr "Приховати співпадіння пошуку"
 
 #: sphinx/themes/basic/static/searchtools.js_t:119
-#, fuzzy
 msgid "Searching"
-msgstr "пошук"
+msgstr ""
 
 #: sphinx/themes/basic/static/searchtools.js_t:124
 msgid "Preparing search..."
@@ -835,9 +823,8 @@ msgid "continued from previous page"
 msgstr ""
 
 #: sphinx/writers/latex.py:710
-#, fuzzy
 msgid "Continued on next page"
-msgstr "Повний індекс на одній сторінці"
+msgstr ""
 
 #: sphinx/writers/manpage.py:226 sphinx/writers/text.py:541
 #, python-format
@@ -847,4 +834,3 @@ msgstr ""
 #: sphinx/writers/manpage.py:227 sphinx/writers/text.py:542
 msgid "[image]"
 msgstr ""
-

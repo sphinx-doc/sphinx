@@ -5,7 +5,7 @@
 
     Locale utilities.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -215,7 +215,7 @@ def init(locale_dirs, language, catalog='sphinx'):
         except Exception:
             # Language couldn't be found in the specified path
             pass
-    # guarantee translations[catalog] exists
+    # guarantee translators[catalog] exists
     if translator is None:
         translator = gettext.NullTranslations()
         has_translation = False

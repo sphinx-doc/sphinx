@@ -5,7 +5,7 @@
 
     Add links to module code in Python object descriptions.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -24,17 +24,17 @@ def doctree_read(app, doctree):
 
     def has_tag(modname, fullname, docname):
         entry = env._viewcode_modules.get(modname, None)
-        if entry is None:
-            try:
-                analyzer = ModuleAnalyzer.for_module(modname)
-            except Exception:
-                env._viewcode_modules[modname] = False
-                return
+        try:
+            analyzer = ModuleAnalyzer.for_module(modname)
+        except Exception:
+            env._viewcode_modules[modname] = False
+            return
+        if not isinstance(analyzer.code, unicode):
+            code = analyzer.code.decode(analyzer.encoding)
+        else:
+            code = analyzer.code
+        if entry is None or entry[0] != code:
             analyzer.find_tags()
-            if not isinstance(analyzer.code, unicode):
-                code = analyzer.code.decode(analyzer.encoding)
-            else:
-                code = analyzer.code
             entry = code, analyzer.tags, {}
             env._viewcode_modules[modname] = entry
         elif entry is False:
@@ -142,7 +142,7 @@ def collect_pages(app):
     if not modnames:
         return
 
-    app.builder.info(' _modules/index')
+    app.builder.info(' _modules/index', nonl=True)
     html = ['\n']
     # the stack logic is needed for using nested lists for submodules
     stack = ['']

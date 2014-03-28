@@ -5,7 +5,7 @@
 
     Theming support for HTML builders.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,6 +15,11 @@ import zipfile
 import tempfile
 import ConfigParser
 from os import path
+
+try:
+    import pkg_resources
+except ImportError:
+    pkg_resources = False
 
 from sphinx import package_dir
 from sphinx.errors import ThemeError
@@ -59,10 +64,22 @@ class Theme(object):
                     tinfo = None
                 cls.themes[tname] = (path.join(themedir, theme), tinfo)
 
+    @classmethod
+    def load_extra_themes(cls):
+        for themedir in load_theme_plugins():
+            if not path.isdir(themedir):
+                continue
+            for theme in os.listdir(themedir):
+                if not path.isfile(path.join(themedir, theme, THEMECONF)):
+                    continue
+                cls.themes[theme] = (path.join(themedir, theme), None)
+
     def __init__(self, name):
         if name not in self.themes:
-            raise ThemeError('no theme named %r found '
-                             '(missing theme.conf?)' % name)
+            self.load_extra_themes()
+            if name not in self.themes:
+                raise ThemeError('no theme named %r found '
+                                 '(missing theme.conf?)' % name)
         self.name = name
 
         tdir, tinfo = self.themes[name]
@@ -152,3 +169,29 @@ class Theme(object):
                 pass
         if self.base:
             self.base.cleanup()
+
+
+def load_theme_plugins():
+    """load plugins by using``sphinx_themes`` section in setuptools entry_points.
+    This API will return list of directory that contain some theme directory.
+    """
+
+    if not pkg_resources:
+        return []
+
+    theme_paths = []
+
+    for plugin in pkg_resources.iter_entry_points('sphinx_themes'):
+        func_or_path = plugin.load()
+        try:
+            path = func_or_path()
+        except:
+            path = func_or_path
+
+        if isinstance(path, basestring):
+            theme_paths.append(path)
+        else:
+            raise ThemeError('Plugin %r does not response correctly.' %
+                             plugin.module_name)
+
+    return theme_paths

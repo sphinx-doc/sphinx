@@ -5,7 +5,7 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -77,7 +77,14 @@ def walk(top, topdown=True, followlinks=False):
 
     dirs, nondirs = [], []
     for name in names:
-        if path.isdir(path.join(top, name)):
+        try:
+            fullpath = path.join(top, name)
+        except UnicodeError:
+            print >>sys.stderr, (
+                '%s:: ERROR: non-ASCII filename not supported on this '
+                'filesystem encoding %r, skipped.' % (name, fs_encoding))
+            continue
+        if path.isdir(fullpath):
             dirs.append(name)
         else:
             nondirs.append(name)
@@ -176,3 +183,16 @@ def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
 
 
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
+
+
+if sys.version_info < (3, 0):
+    bytes = str
+else:
+    bytes = bytes
+
+
+def abspath(pathdir):
+    pathdir = path.abspath(pathdir)
+    if isinstance(pathdir, bytes):
+        pathdir = pathdir.decode(fs_encoding)
+    return pathdir

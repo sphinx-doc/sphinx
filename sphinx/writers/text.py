@@ -5,7 +5,7 @@
 
     Custom docutils writer for plain text.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
@@ -152,6 +152,7 @@ class TextTranslator(nodes.NodeVisitor):
 
     def __init__(self, document, builder):
         nodes.NodeVisitor.__init__(self, document)
+        self.builder = builder
 
         newlines = builder.config.text_newlines
         if newlines == 'windows':
@@ -334,11 +335,6 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_desc_annotation(self, node):
         pass
 
-    def visit_refcount(self, node):
-        pass
-    def depart_refcount(self, node):
-        pass
-
     def visit_desc_content(self, node):
         self.new_state()
         self.add_text(self.nl)
@@ -361,11 +357,12 @@ class TextTranslator(nodes.NodeVisitor):
         for production in node:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
+        lastname = None
         for production in node:
             if production['tokenname']:
                 self.add_text(production['tokenname'].ljust(maxlen) + ' ::=')
                 lastname = production['tokenname']
-            else:
+            elif lastname is not None:
                 self.add_text('%s    ' % (' '*len(lastname)))
             self.add_text(production.astext() + self.nl)
         self.end_state(wrap=False)
@@ -732,6 +729,9 @@ class TextTranslator(nodes.NodeVisitor):
     def visit_index(self, node):
         raise nodes.SkipNode
 
+    def visit_toctree(self, node):
+        raise nodes.SkipNode
+
     def visit_substitution_definition(self, node):
         raise nodes.SkipNode
 
@@ -841,6 +841,15 @@ class TextTranslator(nodes.NodeVisitor):
         if 'text' in node.get('format', '').split():
             self.body.append(node.astext())
         raise nodes.SkipNode
+
+    def visit_math(self, node):
+        self.builder.warn('using "math" markup without a Sphinx math extension '
+                          'active, please use one of the math extensions '
+                          'described at http://sphinx-doc.org/ext/math.html',
+                          (self.builder.current_docname, node.line))
+        raise nodes.SkipNode
+
+    visit_math_block = visit_math
 
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

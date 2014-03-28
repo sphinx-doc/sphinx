@@ -5,7 +5,7 @@
 
     The CheckExternalLinksBuilder class.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,17 +15,30 @@ import Queue
 import socket
 import threading
 from os import path
-from urllib2 import build_opener, unquote, Request
+from urllib2 import build_opener, unquote, Request, \
+    HTTPError, HTTPRedirectHandler
 from HTMLParser import HTMLParser, HTMLParseError
 
 from docutils import nodes
 
 from sphinx.builders import Builder
-from sphinx.util.console import purple, red, darkgreen, darkgray
+from sphinx.util.console import purple, red, darkgreen, darkgray, \
+    darkred, turquoise
+
+
+class RedirectHandler(HTTPRedirectHandler):
+    """A RedirectHandler that records the redirect code we got."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        new_req = HTTPRedirectHandler.redirect_request(self, req, fp, code,
+                                                       msg, headers, newurl)
+        req.redirect_code = code
+        return new_req
 
 # create an opener that will simulate a browser user-agent
-opener = build_opener()
-opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+opener = build_opener(RedirectHandler)
+opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) '
+                      'Gecko/20100101 Firefox/25.0')]
 
 
 class HeadRequest(Request):
@@ -104,18 +117,18 @@ class CheckExternalLinksBuilder(Builder):
             # check for various conditions without bothering the network
             if len(uri) == 0 or uri[0] == '#' or \
                uri[0:7] == 'mailto:' or uri[0:4] == 'ftp:':
-                return 'unchecked', ''
+                return 'unchecked', '', 0
             elif not (uri[0:5] == 'http:' or uri[0:6] == 'https:'):
-                return 'local', ''
+                return 'local', '', 0
             elif uri in self.good:
-                return 'working', ''
+                return 'working', '', 0
             elif uri in self.broken:
-                return 'broken', self.broken[uri]
+                return 'broken', self.broken[uri], 0
             elif uri in self.redirected:
-                return 'redirected', self.redirected[uri]
+                return 'redirected', self.redirected[uri][0], self.redirected[uri][1]
             for rex in self.to_ignore:
                 if rex.match(uri):
-                    return 'ignored', ''
+                    return 'ignored', '', 0
 
             if '#' in uri:
                 req_url, hash = uri.split('#', 1)
@@ -127,61 +140,82 @@ class CheckExternalLinksBuilder(Builder):
             try:
                 if hash and self.app.config.linkcheck_anchors:
                     # Read the whole document and see if #hash exists
-                    f = opener.open(Request(req_url), **kwargs)
+                    req = Request(req_url)
+                    f = opener.open(req, **kwargs)
                     found = check_anchor(f, unquote(hash))
                     f.close()
 
                     if not found:
                         raise Exception("Anchor '%s' not found" % hash)
                 else:
-                    f = opener.open(HeadRequest(req_url), **kwargs)
-                    f.close()
+                    try:
+                        # try a HEAD request, which should be easier on
+                        # the server and the network
+                        req = HeadRequest(req_url)
+                        f = opener.open(req, **kwargs)
+                        f.close()
+                    except HTTPError, err:
+                        if err.code != 405:
+                            raise
+                        # retry with GET if that fails, some servers
+                        # don't like HEAD requests and reply with 405
+                        req = Request(req_url)
+                        f = opener.open(req, **kwargs)
+                        f.close()
 
             except Exception, err:
                 self.broken[uri] = str(err)
-                return 'broken', str(err)
+                return 'broken', str(err), 0
             if f.url.rstrip('/') == req_url.rstrip('/'):
                 self.good.add(uri)
-                return 'working', 'new'
+                return 'working', 'new', 0
             else:
                 new_url = f.url
                 if hash:
                     new_url += '#' + hash
-
-                self.redirected[uri] = new_url
-                return 'redirected', new_url
+                code = getattr(req, 'redirect_code', 0)
+                self.redirected[uri] = (new_url, code)
+                return 'redirected', new_url, code
 
         while True:
             uri, docname, lineno = self.wqueue.get()
             if uri is None:
                 break
-            status, info = check()
-            self.rqueue.put((uri, docname, lineno, status, info))
+            status, info, code = check()
+            self.rqueue.put((uri, docname, lineno, status, info, code))
 
     def process_result(self, result):
-        uri, docname, lineno, status, info = result
+        uri, docname, lineno, status, info, code = result
         if status == 'unchecked':
             return
         if status == 'working' and info != 'new':
             return
         if lineno:
-            self.info('(line %3d) ' % lineno, nonl=1)
+            self.info('(line %4d) ' % lineno, nonl=1)
         if status == 'ignored':
-            self.info(uri + ' - ' + darkgray('ignored'))
+            self.info(darkgray('-ignored- ') + uri)
         elif status == 'local':
-            self.info(uri + ' - ' + darkgray('local'))
+            self.info(darkgray('-local-   ') + uri)
             self.write_entry('local', docname, lineno, uri)
         elif status == 'working':
-            self.info(uri + ' - ' + darkgreen('working'))
+            self.info(darkgreen('ok        ')  + uri)
         elif status == 'broken':
-            self.info(uri + ' - ' + red('broken: ') + info)
+            self.info(red('broken    ') + uri + red(' - ' + info))
             self.write_entry('broken', docname, lineno, uri + ': ' + info)
             if self.app.quiet:
                 self.warn('broken link: %s' % uri,
                           '%s:%s' % (self.env.doc2path(docname), lineno))
         elif status == 'redirected':
-            self.info(uri + ' - ' + purple('redirected') + ' to ' + info)
-            self.write_entry('redirected', docname, lineno, uri + ' to ' + info)
+            text, color = {
+                301: ('permanently', darkred),
+                302: ('with Found', purple),
+                303: ('with See Other', purple),
+                307: ('temporarily', turquoise),
+                0:   ('with unknown code', purple),
+            }[code]
+            self.write_entry('redirected ' + text, docname, lineno,
+                             uri + ' to ' + info)
+            self.info(color('redirect  ') + uri + color(' - ' + text + ' to '  + info))
 
     def get_target_uri(self, docname, typ=None):
         return ''

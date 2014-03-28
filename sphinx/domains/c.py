@@ -5,7 +5,7 @@
 
     The C language domain.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -59,7 +59,12 @@ class CObject(ObjectDescription):
 
     # These C types aren't described anywhere, so don't try to create
     # a cross-reference to them
-    stopwords = set(('const', 'void', 'char', 'int', 'long', 'FILE', 'struct'))
+    stopwords = set((
+        'const', 'void', 'char', 'wchar_t', 'int', 'short',
+        'long', 'float', 'double', 'unsigned', 'signed', 'FILE',
+        'clock_t', 'time_t', 'ptrdiff_t', 'size_t', 'ssize_t',
+        'struct', '_Bool',
+    ))
 
     def _parse_type(self, node, ctype):
         # add cross-ref nodes for all words
@@ -151,10 +156,12 @@ class CObject(ObjectDescription):
             return ''
 
     def add_target_and_index(self, name, sig, signode):
-        # note target
-        if name not in self.state.document.ids:
-            signode['names'].append(name)
-            signode['ids'].append(name)
+        # for C API items we add a prefix since names are usually not qualified
+        # by a module name and so easily clash with e.g. section titles
+        targetname = 'c.' + name
+        if targetname not in self.state.document.ids:
+            signode['names'].append(targetname)
+            signode['ids'].append(targetname)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
             inv = self.env.domaindata['c']['objects']
@@ -167,7 +174,8 @@ class CObject(ObjectDescription):
 
         indextext = self.get_index_text(name)
         if indextext:
-            self.indexnode['entries'].append(('single', indextext, name, ''))
+            self.indexnode['entries'].append(('single', indextext,
+                                              targetname, ''))
 
     def before_content(self):
         self.typename_set = False
@@ -237,9 +245,9 @@ class CDomain(Domain):
         if target not in self.data['objects']:
             return None
         obj = self.data['objects'][target]
-        return make_refnode(builder, fromdocname, obj[0], target,
+        return make_refnode(builder, fromdocname, obj[0], 'c.' + target,
                             contnode, target)
 
     def get_objects(self):
         for refname, (docname, type) in self.data['objects'].iteritems():
-            yield (refname, refname, type, docname, refname, 1)
+            yield (refname, refname, type, docname, 'c.' + refname, 1)

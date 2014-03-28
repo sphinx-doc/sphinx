@@ -5,14 +5,13 @@
 
     Handlers for additional ReST directives.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 
 from docutils.parsers.rst import Directive, directives
-from docutils.parsers.rst.directives import images
 
 from sphinx import addnodes
 from sphinx.util.docfields import DocFieldTransformer
@@ -20,15 +19,6 @@ from sphinx.util.docfields import DocFieldTransformer
 # import and register directives
 from sphinx.directives.code import *
 from sphinx.directives.other import *
-
-
-# allow units for the figure's "figwidth"
-try:
-    images.Figure.option_spec['figwidth'] = \
-        directives.length_or_percentage_or_unitless
-except AttributeError:
-    images.figure.options['figwidth'] = \
-        directives.length_or_percentage_or_unitless
 
 
 # RE to strip backslash escapes
@@ -149,11 +139,12 @@ class ObjectDescription(Directive):
                 signode.clear()
                 signode += addnodes.desc_name(sig, sig)
                 continue  # we don't want an index entry here
-            if not noindex and name not in self.names:
-                # only add target and index entry if this is the first
-                # description of the object with this name in this desc block
+            if name not in self.names:
                 self.names.append(name)
-                self.add_target_and_index(name, sig, signode)
+                if not noindex:
+                    # only add target and index entry if this is the first
+                    # description of the object with this name in this desc block
+                    self.add_target_and_index(name, sig, signode)
 
         contentnode = addnodes.desc_content()
         node.append(contentnode)

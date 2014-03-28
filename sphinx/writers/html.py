@@ -5,7 +5,7 @@
 
     docutils writers handling Sphinx' custom nodes.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -79,6 +79,7 @@ class HTMLTranslator(BaseTranslator):
         self.permalink_text = self.encode(self.permalink_text)
         self.secnumber_suffix = builder.config.html_secnumber_suffix
         self.param_separator = ''
+        self.optional_param_level = 0
         self._table_row_index = 0
 
     def visit_start_of_file(self, node):
@@ -131,24 +132,40 @@ class HTMLTranslator(BaseTranslator):
     def visit_desc_parameterlist(self, node):
         self.body.append('<big>(</big>')
         self.first_param = 1
+        self.optional_param_level = 0
+        # How many required parameters are left.
+        self.required_params_left = sum([isinstance(c, addnodes.desc_parameter)
+                                         for c in node.children])
         self.param_separator = node.child_text_separator
     def depart_desc_parameterlist(self, node):
         self.body.append('<big>)</big>')
 
+    # If required parameters are still to come, then put the comma after
+    # the parameter.  Otherwise, put the comma before.  This ensures that
+    # signatures like the following render correctly (see issue #1001):
+    #
+    #     foo([a, ]b, c[, d])
+    #
     def visit_desc_parameter(self, node):
-        if not self.first_param:
-            self.body.append(self.param_separator)
-        else:
+        if self.first_param:
             self.first_param = 0
+        elif not self.required_params_left:
+            self.body.append(self.param_separator)
+        if self.optional_param_level == 0:
+            self.required_params_left -= 1
         if not node.hasattr('noemph'):
             self.body.append('<em>')
     def depart_desc_parameter(self, node):
         if not node.hasattr('noemph'):
             self.body.append('</em>')
+        if self.required_params_left:
+            self.body.append(self.param_separator)
 
     def visit_desc_optional(self, node):
+        self.optional_param_level += 1
         self.body.append('<span class="optional">[</span>')
     def depart_desc_optional(self, node):
+        self.optional_param_level -= 1
         self.body.append('<span class="optional">]</span>')
 
     def visit_desc_annotation(self, node):
@@ -160,11 +177,6 @@ class HTMLTranslator(BaseTranslator):
         self.body.append(self.starttag(node, 'dd', ''))
     def depart_desc_content(self, node):
         self.body.append('</dd>')
-
-    def visit_refcount(self, node):
-        self.body.append(self.starttag(node, 'em', '', CLASS='refcount'))
-    def depart_refcount(self, node):
-        self.body.append('</em>')
 
     def visit_versionmodified(self, node):
         self.body.append(self.starttag(node, 'div', CLASS=node['type']))
@@ -229,6 +241,12 @@ class HTMLTranslator(BaseTranslator):
                 self.body.append('.'.join(map(str, numbers)) +
                                  self.secnumber_suffix)
 
+    # overwritten to avoid emitting empty <ul></ul>
+    def visit_bullet_list(self, node):
+        if len(node) == 1 and node[0].tagname == 'toctree':
+            raise nodes.SkipNode
+        BaseTranslator.visit_bullet_list(self, node)
+
     # overwritten
     def visit_title(self, node):
         BaseTranslator.visit_title(self, node)
@@ -283,12 +301,13 @@ class HTMLTranslator(BaseTranslator):
         for production in node:
             names.append(production['tokenname'])
         maxlen = max(len(name) for name in names)
+        lastname = None
         for production in node:
             if production['tokenname']:
                 lastname = production['tokenname'].ljust(maxlen)
                 self.body.append(self.starttag(production, 'strong', ''))
                 self.body.append(lastname + '</strong> ::= ')
-            else:
+            elif lastname is not None:
                 self.body.append('%s     ' % (' '*len(lastname)))
             production.walkabout(self)
             self.body.append('\n')
@@ -383,7 +402,10 @@ class HTMLTranslator(BaseTranslator):
                         node['width'] = str(im.size[0])
                     if not node.has_key('height'):
                         node['height'] = str(im.size[1])
-                    del im
+                    try:
+                        im.fp.close()
+                    except Exception:
+                        pass
         BaseTranslator.visit_image(self, node)
 
     def visit_toctree(self, node):
@@ -554,6 +576,13 @@ class HTMLTranslator(BaseTranslator):
         else:
             node['classes'].append('field-odd')
         self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
+
+    def visit_math(self, node, math_env=''):
+        self.builder.warn('using "math" markup without a Sphinx math extension '
+                          'active, please use one of the math extensions '
+                          'described at http://sphinx-doc.org/ext/math.html',
+                          (self.builder.current_docname, node.line))
+        raise nodes.SkipNode
 
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

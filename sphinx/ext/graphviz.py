@@ -6,7 +6,7 @@
     Allow graphviz-formatted graphs to be included in Sphinx-generated
     documents inline.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -177,6 +177,9 @@ def render_dot(self, code, options, format, prefix='graphviz'):
         p.wait()
     if p.returncode != 0:
         raise GraphvizError('dot exited with error:\n[stderr]\n%s\n'
+                            '[stdout]\n%s' % (stderr, stdout))
+    if not path.isfile(outfn):
+        raise GraphvizError('dot did not produce an output file:\n[stderr]\n%s\n'
                             '[stdout]\n%s' % (stderr, stdout))
     return relfn, outfn
 

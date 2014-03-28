@@ -5,7 +5,7 @@
 
     sphinx-build command-line handling.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -22,15 +22,8 @@ from sphinx.errors import SphinxError
 from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal
-from sphinx.util.osutil import fs_encoding
+from sphinx.util.osutil import abspath, fs_encoding
 from sphinx.util.pycompat import terminal_safe, bytes
-
-
-def abspath(pathdir):
-    pathdir = path.abspath(pathdir)
-    if isinstance(pathdir, bytes):
-        pathdir = pathdir.decode(fs_encoding)
-    return pathdir
 
 
 def usage(argv, msg=None):
@@ -49,6 +42,7 @@ General options
 -d <path>     path for the cached environment and doctree files
                 (default: outdir/.doctrees)
 -j <N>        build in parallel with N processes where possible
+-M <builder>  "make" mode -- used by Makefile, like "sphinx-build -M html"
 
 Build configuration options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -89,19 +83,28 @@ def main(argv):
         # Windows' poor cmd box doesn't understand ANSI sequences
         nocolor()
 
+    # parse options
     try:
         opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:nNEqQWw:PThvj:',
                                    ['help', 'version'])
-        allopts = set(opt[0] for opt in opts)
-        if '-h' in allopts or '--help' in allopts:
-            usage(argv)
-            print >>sys.stderr
-            print >>sys.stderr, 'For more information, see '\
-                '<http://sphinx-doc.org/>.'
-            return 0
-        if '--version' in allopts:
-            print 'Sphinx (sphinx-build) %s' %  __version__
-            return 0
+    except getopt.error, err:
+        usage(argv, 'Error: %s' % err)
+        return 1
+
+    # handle basic options
+    allopts = set(opt[0] for opt in opts)
+    # help and version options
+    if '-h' in allopts or '--help' in allopts:
+        usage(argv)
+        print >>sys.stderr
+        print >>sys.stderr, 'For more information, see <http://sphinx-doc.org/>.'
+        return 0
+    if '--version' in allopts:
+        print 'Sphinx (sphinx-build) %s' %  __version__
+        return 0
+
+    # get paths (first and second positional argument)
+    try:
         srcdir = confdir = abspath(args[0])
         if not path.isdir(srcdir):
             print >>sys.stderr, 'Error: Cannot find source directory `%s\'.' % (
@@ -110,16 +113,19 @@ def main(argv):
         if not path.isfile(path.join(srcdir, 'conf.py')) and \
                '-c' not in allopts and '-C' not in allopts:
             print >>sys.stderr, ('Error: Source directory doesn\'t '
-                                 'contain conf.py file.')
+                                 'contain a conf.py file.')
             return 1
         outdir = abspath(args[1])
-    except getopt.error, err:
-        usage(argv, 'Error: %s' % err)
-        return 1
     except IndexError:
         usage(argv, 'Error: Insufficient arguments.')
         return 1
+    except UnicodeError:
+        print >>sys.stderr, (
+            'Error: Multibyte filename not supported on this filesystem '
+            'encoding (%r).' % fs_encoding)
+        return 1
 
+    # handle remaining filename arguments
     filenames = args[2:]
     err = 0
     for filename in filenames:
@@ -240,6 +246,7 @@ def main(argv):
             print >>status, 'Making output directory...'
         os.makedirs(outdir)
 
+    app = None
     try:
         app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
                      confoverrides, status, warning, freshenv,
@@ -266,10 +273,17 @@ def main(argv):
             elif isinstance(err, SphinxError):
                 print >>error, red('%s:' % err.category)
                 print >>error, terminal_safe(unicode(err))
+            elif isinstance(err, UnicodeError):
+                print >>error, red('Encoding error:')
+                print >>error, terminal_safe(unicode(err))
+                tbpath = save_traceback(app)
+                print >>error, red('The full traceback has been saved '
+                                   'in %s, if you want to report the '
+                                   'issue to the developers.' % tbpath)
             else:
                 print >>error, red('Exception occurred:')
                 print >>error, format_exception_cut_frames().rstrip()
-                tbpath = save_traceback()
+                tbpath = save_traceback(app)
                 print >>error, red('The full traceback has been saved '
                                    'in %s, if you want to report the '
                                    'issue to the developers.' % tbpath)
@@ -277,8 +291,6 @@ def main(argv):
                                 'error, so that a better error message '
                                 'can be provided next time.')
                 print >>error, (
-                    'Either send bugs to the mailing list at '
-                    '<http://groups.google.com/group/sphinx-users/>,\n'
-                    'or report them in the tracker at '
-                    '<http://bitbucket.org/birkenfeld/sphinx/issues/>. Thanks!')
+                    'A bug report can be filed in the tracker at '
+                    '<https://bitbucket.org/birkenfeld/sphinx/issues/>. Thanks!')
             return 1

@@ -5,9 +5,11 @@
 
     The MessageCatalogBuilder class.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+from __future__ import with_statement
 
 from os import path, walk
 from codecs import open
@@ -53,6 +55,10 @@ class Catalog(object):
         self.metadata = {}  # msgid -> file, line, uid
 
     def add(self, msg, origin):
+        if not hasattr(origin, 'uid'):
+            # Nodes that are replicated like todo don't have a uid,
+            # however i18n is also unnecessary.
+            return
         if msg not in self.metadata:  # faster lookup in hash
             self.messages.append(msg)
             self.metadata[msg] = []
@@ -108,14 +114,15 @@ class I18nBuilder(Builder):
                     catalog.add(m, node)
 
 
+# determine tzoffset once to remain unaffected by DST change during build
 timestamp = time()
+tzdelta = datetime.fromtimestamp(timestamp) - \
+    datetime.utcfromtimestamp(timestamp)
 
 class LocalTimeZone(tzinfo):
 
     def __init__(self, *args, **kw):
         super(LocalTimeZone, self).__init__(*args, **kw)
-        tzdelta = datetime.fromtimestamp(timestamp) - \
-                  datetime.utcfromtimestamp(timestamp)
         self.tzdelta = tzdelta
 
     def utcoffset(self, dt):
@@ -159,7 +166,8 @@ class MessageCatalogBuilder(I18nBuilder):
 
         for template in self.status_iterator(files,
                 'reading templates... ', purple, len(files)):
-            context = open(template, 'r', encoding='utf-8').read()
+            with open(template, 'r', encoding='utf-8') as f:
+                context = f.read()
             for line, meth, msg in extract_translations(context):
                 origin = MsgOrigin(template, line)
                 self.catalogs['sphinx'].add(msg, origin)

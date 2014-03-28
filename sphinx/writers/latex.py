@@ -8,7 +8,7 @@
     Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
     docutils sandbox.
 
-    :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -167,6 +167,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'transition':      '\n\n\\bigskip\\hrule{}\\bigskip\n\n',
     }
 
+    # sphinx specific document classes
+    docclasses = ('howto', 'manual')
+
     def __init__(self, document, builder):
         nodes.NodeVisitor.__init__(self, document)
         self.builder = builder
@@ -179,7 +182,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
         self.elements = self.default_elements.copy()
         self.elements.update({
-            'wrapperclass': 'sphinx' + document.settings.docclass,
+            'wrapperclass': self.format_docclass(document.settings.docclass),
             'papersize':    papersize,
             'pointsize':    builder.config.latex_font_size,
             # if empty, the title is set to the first section title
@@ -261,7 +264,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.next_figure_ids = set()
         self.next_table_ids = set()
         # flags
-        self.verbatim = None
         self.in_title = 0
         self.in_production_list = 0
         self.in_footnote = 0
@@ -275,6 +277,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.previous_spanning_row = 0
         self.previous_spanning_column = 0
         self.remember_multirow = {}
+
+    def format_docclass(self, docclass):
+        """ prepends prefix to sphinx document classes
+        """
+        if docclass in self.docclasses:
+            docclass = 'sphinx' + docclass
+        return docclass
 
     def astext(self):
         return (HEADER % self.elements +
@@ -369,7 +378,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     widest_label = bi[0]
             self.body.append(u'\n\\begin{thebibliography}{%s}\n' % widest_label)
             for bi in self.bibitems:
-                target = self.hypertarget(bi[2] + ':' + bi[0].lower(),
+                target = self.hypertarget(bi[2] + ':' + bi[3],
                                           withdoc=False)
                 self.body.append(u'\\bibitem[%s]{%s}{%s %s}\n' %
                     (bi[0], self.idescape(bi[0]), target, bi[1]))
@@ -605,11 +614,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_desc_content(self, node):
         pass
 
-    def visit_refcount(self, node):
-        self.body.append("\\emph{")
-    def depart_refcount(self, node):
-        self.body.append("}\\\\")
-
     def visit_seealso(self, node):
         self.body.append(u'\n\n\\strong{%s:}\n\n' % admonitionlabels['seealso'])
     def depart_seealso(self, node):
@@ -638,6 +642,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if isinstance(node.parent, nodes.citation):
             self.bibitems[-1][0] = node.astext()
             self.bibitems[-1][2] = self.curfilestack[-1]
+            self.bibitems[-1][3] = node.parent['ids'][0]
         raise nodes.SkipNode
 
     def visit_tabular_col_spec(self, node):
@@ -700,16 +705,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.extend(self.tableheaders)
             self.body.append('\\endfirsthead\n\n')
             self.body.append('\\multicolumn{%s}{c}%%\n' % self.table.colcount)
-            self.body.append(r'{{\bfseries \tablename\ \thetable{} -- %s}} \\'
+            self.body.append(r'{{\textsf{\tablename\ \thetable{} -- %s}}} \\'
                              % _('continued from previous page'))
             self.body.append('\n\\hline\n')
             self.body.extend(self.tableheaders)
             self.body.append('\\endhead\n\n')
-            self.body.append(ur'\hline \multicolumn{%s}{|r|}{{%s}} \\ \hline'
+            self.body.append(ur'\hline \multicolumn{%s}{|r|}{{\textsf{%s}}} \\ \hline'
                              % (self.table.colcount,
                                 _('Continued on next page')))
             self.body.append('\n\\endfoot\n\n')
-            self.body.append('\\hline\n')
             self.body.append('\\endlastfoot\n\n')
         else:
             self.body.append('\\hline\n')
@@ -739,23 +743,21 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # Redirect head output until header is finished. see visit_tbody.
         self.body = self.tableheaders
     def depart_thead(self, node):
-        pass
+        self.body.append('\\hline')
 
     def visit_tbody(self, node):
         if not self.table.had_head:
             self.visit_thead(node)
         self.body = self.tablebody
     def depart_tbody(self, node):
-        pass
+        self.body.append('\\hline')
 
     def visit_row(self, node):
         self.table.col = 0
     def depart_row(self, node):
         if self.previous_spanning_row == 1:
             self.previous_spanning_row = 0
-            self.body.append('\\\\\n')
-        else:
-            self.body.append('\\\\\\hline\n')
+        self.body.append('\\\\\n')
         self.table.rowcount += 1
 
     def visit_entry(self, node):
@@ -782,7 +784,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('}{l|}{')
             context += '}'
         if isinstance(node.parent.parent, nodes.thead):
-            self.body.append('\\textbf{\\relax ')
+            self.body.append('\\textsf{\\relax ')
             context += '}'
         if self.remember_multirow.get(self.table.col + 1, 0) > 1:
             self.remember_multirow[self.table.col + 1] -= 1
@@ -1188,7 +1190,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             id = self.curfilestack[-1] + ':' + uri[1:]
             self.body.append(self.hyperlink(id))
             if self.builder.config.latex_show_pagerefs and not \
-                    self.in_productionlist:
+                    self.in_production_list:
                 self.context.append('}} (%s)' % self.hyperpageref(id))
             else:
                 self.context.append('}}')
@@ -1264,7 +1266,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_citation(self, node):
         # TODO maybe use cite bibitems
-        self.bibitems.append(['', '', ''])  # [citeid, citetext, docname]
+        # bibitem: [citelabel, citetext, docname, citeid]
+        self.bibitems.append(['', '', '', ''])
         self.context.append(len(self.body))
     def depart_citation(self, node):
         size = self.context.pop()
@@ -1314,36 +1317,40 @@ class LaTeXTranslator(nodes.NodeVisitor):
             raise UnsupportedError('%s:%s: literal blocks in footnotes are '
                                    'not supported by LaTeX' %
                                    (self.curfilestack[-1], node.line))
-        self.verbatim = ''
+        if node.rawsource != node.astext():
+            # most probably a parsed-literal block -- don't highlight
+            self.body.append('\\begin{alltt}\n')
+        else:
+            code = node.astext().rstrip('\n')
+            lang = self.hlsettingstack[-1][0]
+            linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
+            highlight_args = node.get('highlight_args', {})
+            if 'language' in node:
+                # code-block directives
+                lang = node['language']
+                highlight_args['force'] = True
+            if 'linenos' in node:
+                linenos = node['linenos']
+            def warner(msg):
+                self.builder.warn(msg, (self.curfilestack[-1], node.line))
+            hlcode = self.highlighter.highlight_block(code, lang, warn=warner,
+                    linenos=linenos, **highlight_args)
+            # workaround for Unicode issue
+            hlcode = hlcode.replace(u'€', u'@texteuro[]')
+            # must use original Verbatim environment and "tabular" environment
+            if self.table:
+                hlcode = hlcode.replace('\\begin{Verbatim}',
+                                        '\\begin{OriginalVerbatim}')
+                self.table.has_problematic = True
+                self.table.has_verbatim = True
+            # get consistent trailer
+            hlcode = hlcode.rstrip()[:-14] # strip \end{Verbatim}
+            hlcode = hlcode.rstrip() + '\n'
+            self.body.append('\n' + hlcode + '\\end{%sVerbatim}\n' %
+                             (self.table and 'Original' or ''))
+            raise nodes.SkipNode
     def depart_literal_block(self, node):
-        code = self.verbatim.rstrip('\n')
-        lang = self.hlsettingstack[-1][0]
-        linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
-        highlight_args = node.get('highlight_args', {})
-        if 'language' in node:
-            # code-block directives
-            lang = node['language']
-            highlight_args['force'] = True
-        if 'linenos' in node:
-            linenos = node['linenos']
-        def warner(msg):
-            self.builder.warn(msg, (self.curfilestack[-1], node.line))
-        hlcode = self.highlighter.highlight_block(code, lang, warn=warner,
-                linenos=linenos, **highlight_args)
-        # workaround for Unicode issue
-        hlcode = hlcode.replace(u'€', u'@texteuro[]')
-        # must use original Verbatim environment and "tabular" environment
-        if self.table:
-            hlcode = hlcode.replace('\\begin{Verbatim}',
-                                    '\\begin{OriginalVerbatim}')
-            self.table.has_problematic = True
-            self.table.has_verbatim = True
-        # get consistent trailer
-        hlcode = hlcode.rstrip()[:-14] # strip \end{Verbatim}
-        hlcode = hlcode.rstrip() + '\n'
-        self.body.append('\n' + hlcode + '\\end{%sVerbatim}\n' %
-                         (self.table and 'Original' or ''))
-        self.verbatim = None
+        self.body.append('\n\\end{alltt}\n')
     visit_doctest_block = visit_literal_block
     depart_doctest_block = depart_literal_block
 
@@ -1506,13 +1513,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return self.encode(text).replace('\\textasciitilde{}', '~')
 
     def visit_Text(self, node):
-        if self.verbatim is not None:
-            self.verbatim += node.astext()
-        else:
-            text = self.encode(node.astext())
-            if not self.no_contractions:
-                text = educate_quotes_latex(text)
-            self.body.append(text)
+        text = self.encode(node.astext())
+        if not self.no_contractions:
+            text = educate_quotes_latex(text)
+        self.body.append(text)
     def depart_Text(self, node):
         pass
 
@@ -1527,6 +1531,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
     def depart_system_message(self, node):
         self.body.append('\n')
+
+    def visit_math(self, node):
+        self.builder.warn('using "math" markup without a Sphinx math extension '
+                          'active, please use one of the math extensions '
+                          'described at http://sphinx-doc.org/ext/math.html',
+                          (self.curfilestack[-1], node.line))
+        raise nodes.SkipNode
+
+    visit_math_block = visit_math
 
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
