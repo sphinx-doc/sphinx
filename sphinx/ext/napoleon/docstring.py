@@ -569,6 +569,7 @@ class GoogleDocstring(object):
                 lines.extend(self._format_block(':returns: ', field))
                 if _type and use_rtype:
                     lines.append(':rtype: %s' % _type)
+                    lines.append('')
         return lines
 
     def _parse_see_also_section(self, section):
