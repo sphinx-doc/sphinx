@@ -45,7 +45,7 @@ extension.  These are:
    parsed documents into an output format, or otherwise process them (e.g. check
    external links).
 
-   If you have the application object, the environment is available as
+   If you have the application object, the builder is available as
    ``app.builder``.
 
 **Config**
