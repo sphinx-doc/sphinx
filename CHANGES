@@ -9,7 +9,7 @@ Bugs fixed
   from '.js_t' and '.html'. The issue was introduced from Sphinx-1.1
 * #1363: Fix i18n: missing python domain's cross-references with currentmodule
   directive or currentclass directive.
-
+* #1444: autosummary does not create the description from attributes docstring.
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================

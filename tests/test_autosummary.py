@@ -96,7 +96,35 @@ def test_get_items_summary():
         'withSentence': 'I have a sentence which spans multiple lines.',
         'noSentence': "this doesn't start with a",
         'emptyLine': "This is the real summary",
+        'module_attr': 'This is a module attribute',
+        'C.class_attr': 'This is a class attribute',
+        'C.prop_attr1': 'This is a function docstring',
+        'C.prop_attr2': 'This is a attribute docstring',
     }
     for key, expected in expected_values.iteritems():
         assert autosummary_items[key][2] == expected, 'Summary for %s was %r -'\
             ' expected %r' % (key, autosummary_items[key], expected)
+
+
+@with_app(confoverrides={'extensions': ['sphinx.ext.autosummary'],
+                         'autosummary_generate': True,
+                         'source_suffix': '.rst'},
+          buildername='html', srcdir=(test_roots / 'test-autosummary'))
+def test_process_doc_event(app):
+    app.builddir.rmtree(True)
+
+    # Now, modify the python path...
+    srcdir = test_roots / 'test-autosummary'
+    sys.path.insert(0, srcdir)
+    try:
+        def handler(app, what, name, obj, options, lines):
+            assert isinstance(lines, list)
+        app.connect('autodoc-process-docstring', handler)
+        app.builder.build_all()
+    finally:
+        if srcdir in sys.path:
+            sys.path.remove(srcdir)
+        # remove the auto-generated dummy_module.rst
+        dummy_rst = srcdir / 'dummy_module.rst'
+        if dummy_rst.isfile():
+            dummy_rst.unlink()
