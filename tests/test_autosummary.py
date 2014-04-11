@@ -9,10 +9,45 @@
     :license: BSD, see LICENSE for details.
 """
 import sys
+from functools import wraps
 
 from sphinx.ext.autosummary import mangle_signature
 
-from util import with_app, test_roots
+from util import test_roots, TestApp
+
+
+def with_autosummary_app(*args, **kw):
+    default_kw = {
+        'srcdir': (test_roots / 'test-autosummary'),
+        'confoverrides': {
+            'extensions': ['sphinx.ext.autosummary'],
+            'autosummary_generate': True,
+            'source_suffix': '.rst'
+        }
+    }
+    default_kw.update(kw)
+    def generator(func):
+        @wraps(func)
+        def deco(*args2, **kwargs2):
+            # Now, modify the python path...
+            srcdir = default_kw['srcdir']
+            sys.path.insert(0, srcdir)
+            try:
+                app = TestApp(*args, **default_kw)
+                func(app, *args2, **kwargs2)
+            finally:
+                if srcdir in sys.path:
+                    sys.path.remove(srcdir)
+                # remove the auto-generated dummy_module.rst
+                dummy_rst = srcdir / 'dummy_module.rst'
+                if dummy_rst.isfile():
+                    dummy_rst.unlink()
+
+            # don't execute cleanup if test failed
+            app.cleanup()
+        return deco
+    return generator
+
 
 def test_mangle_signature():
     TEST = """
@@ -40,28 +75,10 @@ def test_mangle_signature():
         assert res == outp, (u"'%s' -> '%s' != '%s'" % (inp, res, outp))
 
 
-# I can't just run this directly, because I need to monkey-patch Autosummary and
-# modify the python path BEFORE creating the app... so I use
-# _do_test_get_items_summary func just as a handy way to build the app, and
-# test_get_items_summary will do the "setup", and is what is actually discovered
-# / run by nose...
+@with_autosummary_app(buildername='html')
+def test_get_items_summary(app):
+    app.builddir.rmtree(True)
 
-@with_app(confoverrides={'extensions': ['sphinx.ext.autosummary'],
-                         'autosummary_generate': True,
-                         'source_suffix': '.rst'},
-          buildername='html', srcdir=(test_roots / 'test-autosummary'))
-def _do_test_get_items_summary(app):
-    (app.srcdir / 'contents.rst').write_text(
-            '\n.. autosummary::'
-            '\n   :nosignatures:'
-            '\n   :toctree:'
-            '\n   '
-            '\n   dummy_module'
-            '\n')
-
-    app.builder.build_all()
-
-def test_get_items_summary():
     # monkey-patch Autosummary.get_items so we can easily get access to it's
     # results..
     import sphinx.ext.autosummary
@@ -77,18 +94,7 @@ def test_get_items_summary():
 
     sphinx.ext.autosummary.Autosummary.get_items = new_get_items
     try:
-        # Now, modify the python path...
-        srcdir = test_roots / 'test-autosummary'
-        sys.path.insert(0, srcdir)
-        try:
-            _do_test_get_items_summary()
-        finally:
-            if srcdir in sys.path:
-                sys.path.remove(srcdir)
-            # remove the auto-generated dummy_module.rst
-            dummy_rst = srcdir / 'dummy_module.rst'
-            if dummy_rst.isfile():
-                dummy_rst.unlink()
+        app.builder.build_all()
     finally:
         sphinx.ext.autosummary.Autosummary.get_items = orig_get_items
 
@@ -106,25 +112,11 @@ def test_get_items_summary():
             ' expected %r' % (key, autosummary_items[key], expected)
 
 
-@with_app(confoverrides={'extensions': ['sphinx.ext.autosummary'],
-                         'autosummary_generate': True,
-                         'source_suffix': '.rst'},
-          buildername='html', srcdir=(test_roots / 'test-autosummary'))
+@with_autosummary_app(buildername='html')
 def test_process_doc_event(app):
     app.builddir.rmtree(True)
 
-    # Now, modify the python path...
-    srcdir = test_roots / 'test-autosummary'
-    sys.path.insert(0, srcdir)
-    try:
-        def handler(app, what, name, obj, options, lines):
-            assert isinstance(lines, list)
-        app.connect('autodoc-process-docstring', handler)
-        app.builder.build_all()
-    finally:
-        if srcdir in sys.path:
-            sys.path.remove(srcdir)
-        # remove the auto-generated dummy_module.rst
-        dummy_rst = srcdir / 'dummy_module.rst'
-        if dummy_rst.isfile():
-            dummy_rst.unlink()
+    def handler(app, what, name, obj, options, lines):
+        assert isinstance(lines, list)
+    app.connect('autodoc-process-docstring', handler)
+    app.builder.build_all()
