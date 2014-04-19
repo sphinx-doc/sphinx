@@ -131,7 +131,7 @@ class Comment(Base):
     proposal_diff = Column(Text)
     path = Column(String(256), index=True)
 
-    node_id = Column(String, ForeignKey(db_prefix + 'nodes.id'))
+    node_id = Column(String(32), ForeignKey(db_prefix + 'nodes.id'))
     node = relation(Node, backref="comments")
 
     votes = relation(CommentVote, backref="comment",
