@@ -15,6 +15,7 @@ try:
     from unittest.mock import Mock
 except ImportError:
     from mock import Mock
+from collections import namedtuple
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon import (_process_docstring, _skip_member, Config,
                                  setup)
@@ -69,6 +70,8 @@ class SampleError(Exception):
 
     def __special_undoc__(self):
         pass
+
+SampleNamedTuple = namedtuple('SampleNamedTuple', 'user_id block_type def_id')
 
 
 class ProcessDocstringTest(TestCase):
@@ -136,6 +139,11 @@ class SkipMemberTest(TestCase):
         setattr(app.config, config_name, False)
         self.assertEqual(skip, _skip_member(app, what, member, obj, skip,
                                             Mock()))
+
+    def test_namedtuple(self):
+        self.assertSkip('class', '_asdict',
+                        SampleNamedTuple._asdict, False,
+                        'napoleon_include_private_with_doc')
 
     def test_class_private_doc(self):
         self.assertSkip('class', '_private_doc',
