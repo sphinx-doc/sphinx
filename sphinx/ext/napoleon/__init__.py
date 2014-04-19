@@ -355,13 +355,21 @@ def _skip_member(app, what, name, obj, skip, options):
                 qualname = getattr(obj, '__qualname__', '')
                 cls_path, _, _ = qualname.rpartition('.')
                 if cls_path:
-                    import importlib
-                    import functools
+                    try:
+                        if '.' in cls_path:
+                            import importlib
+                            import functools
 
-                    mod = importlib.import_module(obj.__module__)
-                    cls = functools.reduce(getattr, cls_path.split('.'), mod)
-                    cls_is_owner = (cls and hasattr(cls, name) and
-                                    name in cls.__dict__)
+                            mod = importlib.import_module(obj.__module__)
+                            mod_path = cls_path.split('.')
+                            cls = functools.reduce(getattr, mod_path, mod)
+                        else:
+                            cls = obj.__globals__[cls_path]
+                    except:
+                        cls_is_owner = False
+                    else:
+                        cls_is_owner = (cls and hasattr(cls, name) and
+                                        name in cls.__dict__)
                 else:
                     cls_is_owner = False
             else:
