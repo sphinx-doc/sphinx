@@ -96,6 +96,9 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs):
     """Build the text of the file and write the file."""
     text = format_heading(1, '%s package' % makename(master_package, subroot))
 
+    if opts.modulefirst:
+        text += format_directive(subroot, master_package)
+
     # build a list of directories that are szvpackages (contain an INITPY file)
     subs = [sub for sub in subs if path.isfile(path.join(root, sub, INITPY))]
     # if there are some package directories, add a TOC for theses subpackages
@@ -135,8 +138,9 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs):
                 text += '\n'
         text += '\n'
 
-    text += format_heading(2, 'Module contents')
-    text += format_directive(subroot, master_package)
+    if not opts.modulefirst:
+        text += format_heading(2, 'Module contents')
+        text += format_directive(subroot, master_package)
 
     write_file(makename(master_package, subroot), text, opts)
 
@@ -288,6 +292,10 @@ Note: By default this script will not overwrite already created files.""")
                       help='Don\'t create headings for the module/package '
                            'packages (e.g. when the docstrings already contain '
                            'them)')
+    parser.add_option('-M', '--module-first', action='store_true',
+                      dest='modulefirst',
+                      help='Put module documentation before submodule '
+                      'documentation')
     parser.add_option('-s', '--suffix', action='store', dest='suffix',
                       help='file suffix (default: rst)', default='rst')
     parser.add_option('-F', '--full', action='store_true', dest='full',
