@@ -38,9 +38,14 @@ according to the `Google Python Style Guide`_::
 
 Much more legible, no?
 
-Napoleon is a Sphinx extension that allows you to write readable API
-documentation in your source code. Napoleon understands both `NumPy`_ and
-`Google`_ style docstrings - the style recommended by `Khan Academy`_.
+Napoleon is a `Sphinx extension`_ that enables Sphinx to parse both `NumPy`_
+and `Google`_ style docstrings - the style recommended by `Khan Academy`_.
+
+Napoleon is a pre-processor that parses `NumPy`_ and `Google`_ style
+docstrings and converts them to reStructuredText before Sphinx attempts to
+parse them. This happens in an intermediate step while Sphinx is processing
+the documentation, so it doesn't modify any of the docstrings in your actual
+source code files.
 
 .. _ReStructuredText: http://docutils.sourceforge.net/rst.html
 .. _docstrings: http://www.python.org/dev/peps/pep-0287/
