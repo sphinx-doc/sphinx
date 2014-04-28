@@ -11,7 +11,7 @@
 """
 import sys
 
-from util import TestApp, with_app, with_tempdir, raises, raises_msg, write_file
+from util import TestApp, with_app, with_tempdir, raises, raises_msg
 
 from sphinx.config import Config
 from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
@@ -87,12 +87,13 @@ def test_extension_values(app):
 @with_tempdir
 def test_errors_warnings(dir):
     # test the error for syntax errors in the config file
-    write_file(dir / 'conf.py', u'project = \n', 'ascii')
+    (dir / 'conf.py').write_text(u'project = \n', encoding='ascii')
     raises_msg(ConfigError, 'conf.py', Config, dir, 'conf.py', {}, None)
 
     # test the automatic conversion of 2.x only code in configs
-    write_file(dir / 'conf.py', u'# -*- coding: utf-8\n\n'
-               u'project = u"Jägermeister"\n', 'utf-8')
+    (dir / 'conf.py').write_text(
+        u'# -*- coding: utf-8\n\nproject = u"Jägermeister"\n',
+        encoding='utf-8')
     cfg = Config(dir, 'conf.py', {}, None)
     cfg.init_values(lambda warning: 1/0)
     assert cfg.project == u'Jägermeister'
@@ -102,8 +103,8 @@ def test_errors_warnings(dir):
     # skip the test there
     if sys.version_info >= (3, 0):
         return
-    write_file(dir / 'conf.py', u'# -*- coding: latin-1\nproject = "fooä"\n',
-            'latin-1')
+    (dir / 'conf.py').write_text(
+        u'# -*- coding: latin-1\nproject = "fooä"\n', encoding='latin-1')
     cfg = Config(dir, 'conf.py', {}, None)
     warned = [False]
     def warn(msg):

@@ -22,7 +22,7 @@ from sphinx import addnodes
 from sphinx.ext.intersphinx import read_inventory_v1, read_inventory_v2, \
      load_mappings, missing_reference
 
-from util import with_app, with_tempdir, write_file
+from util import with_app, with_tempdir
 
 
 inventory_v1 = '''\
@@ -85,7 +85,7 @@ def test_read_inventory_v2():
 @with_tempdir
 def test_missing_reference(tempdir, app):
     inv_file = tempdir / 'inventory'
-    write_file(inv_file, inventory_v2)
+    inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_mapping = {
         'http://docs.python.org/': inv_file,
         'py3k': ('http://docs.python.org/py3k/', inv_file),
@@ -165,7 +165,7 @@ def test_load_mappings_warnings(tempdir, app):
     identifiers are not alphanumeric
     """
     inv_file = tempdir / 'inventory'
-    write_file(inv_file, inventory_v2)
+    inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_mapping = {
         'http://docs.python.org/': inv_file,
         'py3k': ('http://docs.python.org/py3k/', inv_file),

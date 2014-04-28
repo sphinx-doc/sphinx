@@ -12,7 +12,6 @@ import StringIO
 import tempfile
 import shutil
 import re
-from codecs import open
 from functools import wraps
 
 from sphinx import application
@@ -28,7 +27,7 @@ __all__ = [
     'test_root', 'test_roots', 'raises', 'raises_msg',
     'skip_if', 'skip_unless', 'skip_unless_importable', 'Struct',
     'ListOutput', 'TestApp', 'with_app', 'gen_with_app',
-    'path', 'with_tempdir', 'write_file',
+    'path', 'with_tempdir',
     'sprint', 'remove_unicode_literals',
 ]
 
@@ -222,18 +221,6 @@ def with_tempdir(func):
         tempdir.rmtree()
     new_func.__name__ = func.__name__
     return new_func
-
-
-def write_file(name, contents, encoding=None):
-    if encoding is None:
-        mode = 'wb'
-        if isinstance(contents, unicode):
-            contents = contents.encode('ascii')
-    else:
-        mode = 'w'
-    f = open(str(name), mode, encoding=encoding)
-    f.write(contents)
-    f.close()
 
 
 def sprint(*args):
