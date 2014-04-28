@@ -38,7 +38,7 @@ according to the `Google Python Style Guide`_::
 
 Much more legible, no?
 
-Napoleon is a `Sphinx extension`_ that enables Sphinx to parse both `NumPy`_
+Napoleon is a :doc:`../extensions` that enables Sphinx to parse both `NumPy`_
 and `Google`_ style docstrings - the style recommended by `Khan Academy`_.
 
 Napoleon is a pre-processor that parses `NumPy`_ and `Google`_ style
@@ -61,7 +61,7 @@ source code files.
 Getting Started
 ---------------
 
-1. After `setting up Sphinx`_ to build your docs, enable napoleon in the
+1. After :doc:`setting up Sphinx <../tutorial>` to build your docs, enable napoleon in the
    Sphinx `conf.py` file::
 
        # conf.py
@@ -73,7 +73,6 @@ Getting Started
 
        $ sphinx-apidoc -f -o docs/source projectdir
 
-.. _setting up Sphinx: http://sphinx-doc.org/tutorial.html
 
 Docstrings
 ----------
