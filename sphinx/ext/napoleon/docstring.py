@@ -19,6 +19,7 @@ import six
 from six.moves import range
 
 from sphinx.ext.napoleon.iterators import modify_iter
+from sphinx.util.pycompat import UnicodeMixin
 
 
 _directive_regex = re.compile(r'\.\. \S+::')
@@ -26,7 +27,7 @@ _google_untyped_arg_regex = re.compile(r'\s*(\w+)\s*:\s*(.*)')
 _google_typed_arg_regex = re.compile(r'\s*(\w+)\s*\(\s*(.+?)\s*\)\s*:\s*(.*)')
 
 
-class GoogleDocstring(object):
+class GoogleDocstring(UnicodeMixin):
     """Parse Google style docstrings.
 
     Convert Google style docstrings to reStructuredText.
@@ -148,20 +149,6 @@ class GoogleDocstring(object):
                 'yields': self._parse_yields_section,
             }
         self._parse()
-
-    def __str__(self):
-        """Return the parsed docstring in reStructuredText format.
-
-        Returns
-        -------
-        str
-            UTF-8 encoded version of the docstring.
-
-        """
-        if six.PY3:
-            return self.__unicode__()
-        else:
-            return self.__unicode__().encode('utf8')
 
     def __unicode__(self):
         """Return the parsed docstring in reStructuredText format.

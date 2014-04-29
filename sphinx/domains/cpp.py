@@ -22,6 +22,7 @@ from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
 from sphinx.util.nodes import make_refnode
 from sphinx.util.compat import Directive
+from sphinx.util.pycompat import UnicodeMixin
 from sphinx.util.docfields import Field, GroupedField
 
 
@@ -104,19 +105,16 @@ _id_shortwords = {
 }
 
 
-class DefinitionError(Exception):
+class DefinitionError(UnicodeMixin, Exception):
 
     def __init__(self, description):
         self.description = description
-
-    def __str__(self):
-        return text_type(self).encode('utf-8')
 
     def __unicode__(self):
         return self.description
 
 
-class DefExpr(object):
+class DefExpr(UnicodeMixin):
 
     def __eq__(self, other):
         if type(self) is not type(other):
@@ -161,9 +159,6 @@ class DefExpr(object):
     def prefix(self, prefix):
         """Prefix a name node (a node returned by :meth:`get_name`)."""
         raise NotImplementedError()
-
-    def __str__(self):
-        return text_type(self).encode('utf-8')
 
     def __unicode__(self):
         raise NotImplementedError()
@@ -225,7 +220,7 @@ class PathDefExpr(PrimaryDefExpr):
         return u'::'.join(map(text_type, self.path))
 
 
-class ArrayTypeSuffixDefExpr(object):
+class ArrayTypeSuffixDefExpr(UnicodeMixin):
 
     def __init__(self, size_hint=None):
         self.size_hint = size_hint

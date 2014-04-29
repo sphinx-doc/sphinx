@@ -48,6 +48,13 @@ if six.PY3:
         return six.text_type(tree)
     from html import escape as htmlescape  # >= Python 3.2
 
+    class UnicodeMixin:
+      """Mixin class to handle defining the proper __str__/__unicode__
+      methods in Python 2 or 3."""
+
+      def __str__(self):
+          return self.__unicode__()
+
 else:
     # Python 2
     b = str
@@ -64,6 +71,13 @@ else:
     sys_encoding = __import__('locale').getpreferredencoding()
     # use Python 3 name
     from cgi import escape as htmlescape  # 2.6, 2.7
+
+    class UnicodeMixin(object):
+        """Mixin class to handle defining the proper __str__/__unicode__
+        methods in Python 2 or 3."""
+
+        def __str__(self):
+            return self.__unicode__().encode('utf8')
 
 
 def execfile_(filepath, _globals):
