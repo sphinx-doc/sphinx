@@ -11,18 +11,19 @@
 
 import os
 import re
-import sys
 from os import path
+
+import six
 
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
 from sphinx.util.osutil import make_filename
-from sphinx.util.pycompat import bytes, b, execfile_
+from sphinx.util.pycompat import b, execfile_
 
 nonascii_re = re.compile(b(r'[\x80-\xff]'))
 
 CONFIG_SYNTAX_ERROR = "There is a syntax error in your configuration file: %s"
-if sys.version_info >= (3, 0):
+if six.PY3:
     CONFIG_SYNTAX_ERROR += "\nDid you change the syntax from 2.x to 3.x?"
 
 class Config(object):
@@ -243,7 +244,7 @@ class Config(object):
         # check all string values for non-ASCII characters in bytestrings,
         # since that can result in UnicodeErrors all over the place
         for name, value in self._raw_config.iteritems():
-            if isinstance(value, bytes) and nonascii_re.search(value):
+            if isinstance(value, six.binary_type) and nonascii_re.search(value):
                 warn('the config value %r is set to a string with non-ASCII '
                      'characters; this can lead to Unicode errors occurring. '
                      'Please use Unicode strings, e.g. %r.' % (name, u'Content')

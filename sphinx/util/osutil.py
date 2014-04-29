@@ -20,6 +20,8 @@ import shutil
 import gettext
 from os import path
 
+import six
+
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)
 ENOENT = getattr(errno, 'ENOENT', 0)
@@ -147,7 +149,7 @@ no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
 def make_filename(string):
     return no_fn_re.sub('', string) or 'sphinx'
 
-if sys.version_info < (3, 0):
+if six.PY2:
     # strftime for unicode strings
     def ustrftime(format, *args):
         # if a locale is set, the time strings are encoded in the encoding
@@ -187,7 +189,7 @@ def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
-if sys.version_info < (3, 0):
+if six.PY2:
     bytes = str
 else:
     bytes = bytes

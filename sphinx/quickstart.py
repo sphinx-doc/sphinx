@@ -16,6 +16,8 @@ from io import open
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
+import six
+
 #try to import readline, unix specific enhancement
 try:
     import readline
@@ -44,7 +46,7 @@ except NameError:
 
 PROMPT_PREFIX = '> '
 
-if sys.version_info >= (3, 0):
+if six.PY3:
     # prevents that the file is checked for being written in Python 2.x syntax
     QUICKSTART_CONF = u'#!/usr/bin/env python3\n'
 else:
@@ -997,7 +999,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
             prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)
         else:
             prompt = PROMPT_PREFIX + text + ': '
-        if sys.version_info < (3, 0):
+        if six.PY2:
             # for Python 2.x, try to get a Unicode string out of it
             if prompt.encode('ascii', 'replace').decode('ascii', 'replace') \
                     != prompt:
@@ -1037,7 +1039,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
     d[key] = x
 
 
-if sys.version_info >= (3, 0):
+if six.PY3:
     # remove Unicode literal prefixes
     def _convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
         return rex.sub('\\1', source)

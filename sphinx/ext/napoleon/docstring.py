@@ -14,11 +14,13 @@
 import collections
 import inspect
 import re
-import sys
+
+import six
+
 from sphinx.ext.napoleon.iterators import modify_iter
 
 
-if sys.version_info[0] >= 3:
+if six.PY3:
     basestring = str
     xrange = range
 
@@ -160,7 +162,7 @@ class GoogleDocstring(object):
             UTF-8 encoded version of the docstring.
 
         """
-        if sys.version_info[0] >= 3:
+        if six.PY3:
             return self.__unicode__()
         else:
             return self.__unicode__().encode('utf8')

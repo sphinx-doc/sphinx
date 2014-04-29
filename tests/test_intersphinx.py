@@ -11,11 +11,8 @@
 
 import zlib
 import posixpath
-try:
-    from io import BytesIO
-except ImportError:
-    from cStringIO import StringIO as BytesIO
 
+import six
 from docutils import nodes
 
 from sphinx import addnodes
@@ -48,7 +45,7 @@ a term std:term -1 glossary.html#term-a-term -
 
 
 def test_read_inventory_v1():
-    f = BytesIO(inventory_v1)
+    f = six.BytesIO(inventory_v1)
     f.readline()
     invdata = read_inventory_v1(f, '/util', posixpath.join)
     assert invdata['py:module']['module'] == \
@@ -58,12 +55,12 @@ def test_read_inventory_v1():
 
 
 def test_read_inventory_v2():
-    f = BytesIO(inventory_v2)
+    f = six.BytesIO(inventory_v2)
     f.readline()
     invdata1 = read_inventory_v2(f, '/util', posixpath.join)
 
     # try again with a small buffer size to test the chunking algorithm
-    f = BytesIO(inventory_v2)
+    f = six.BytesIO(inventory_v2)
     f.readline()
     invdata2 = read_inventory_v2(f, '/util', posixpath.join, bufsize=5)
 

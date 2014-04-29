@@ -17,6 +17,7 @@ import inspect
 import traceback
 from types import FunctionType, BuiltinFunctionType, MethodType
 
+import six
 from docutils import nodes
 from docutils.utils import assemble_option_dict
 from docutils.statemachine import ViewList
@@ -29,7 +30,6 @@ from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
      safe_getattr, safe_repr, is_builtin_class_method
-from sphinx.util.pycompat import class_types
 from sphinx.util.docstrings import prepare_docstring
 
 
@@ -1028,7 +1028,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isinstance(member, class_types)
+        return isinstance(member, six.class_types)
 
     def import_object(self):
         ret = ModuleLevelDocumenter.import_object(self)
@@ -1162,7 +1162,7 @@ class ExceptionDocumenter(ClassDocumenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isinstance(member, class_types) and \
+        return isinstance(member, six.class_types) and \
                issubclass(member, BaseException)
 
 
@@ -1212,7 +1212,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
         return inspect.isroutine(member) and \
                not isinstance(parent, ModuleDocumenter)
 
-    if sys.version_info >= (3, 0):
+    if six.PY3:
         def import_object(self):
             ret = ClassLevelDocumenter.import_object(self)
             obj_from_parent = self.parent.__dict__.get(self.object_name)
@@ -1282,7 +1282,7 @@ class AttributeDocumenter(ClassLevelDocumenter):
                                                "instancemethod")
         return isdatadesc or (not isinstance(parent, ModuleDocumenter)
                               and not inspect.isroutine(member)
-                              and not isinstance(member, class_types))
+                              and not isinstance(member, six.class_types))
 
     def document_members(self, all_members=False):
         pass

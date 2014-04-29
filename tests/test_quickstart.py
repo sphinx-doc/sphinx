@@ -11,8 +11,8 @@
 
 import sys
 import time
-from StringIO import StringIO
-import tempfile
+
+import six
 
 from util import raises, with_tempdir, with_app, SkipTest
 
@@ -22,7 +22,7 @@ from sphinx.util.console import nocolor, coloron
 from sphinx.util.pycompat import execfile_
 
 
-warnfile = StringIO()
+warnfile = six.StringIO()
 
 
 def setup_module():
@@ -35,7 +35,7 @@ def mock_raw_input(answers, needanswer=False):
             raise AssertionError('answer for %r missing and no default '
                                  'present' % prompt)
         called.add(prompt)
-        if sys.version_info < (3, 0):
+        if six.PY2:
             prompt = str(prompt)  # Python2.x raw_input emulation
             # `raw_input` encode `prompt` by default encoding to print.
         else:
@@ -264,7 +264,7 @@ def test_quickstart_and_build(tempdir):
             (tempdir / '_build' / 'html'),  #outdir
             (tempdir / '_build' / '.doctree'),  #doctreedir
             'html',  #buildername
-            status=StringIO(),
+            status=six.StringIO(),
             warning=warnfile)
     app.builder.build_all()
     warnings = warnfile.getvalue()

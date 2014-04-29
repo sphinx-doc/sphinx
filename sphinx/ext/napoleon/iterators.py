@@ -12,10 +12,11 @@
 """
 
 import collections
-import sys
+
+import six
 
 
-if sys.version_info[0] >= 3:
+if six.PY3:
     callable = lambda o: hasattr(o, '__call__')
 
 

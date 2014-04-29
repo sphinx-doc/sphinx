@@ -12,7 +12,6 @@
 import os
 import re
 import sys
-import shutil
 import fnmatch
 import tempfile
 import posixpath
@@ -22,6 +21,7 @@ from os import path
 from codecs import open, BOM_UTF8
 from collections import deque
 
+import six
 import docutils
 from docutils.utils import relative_path
 
@@ -29,7 +29,6 @@ import jinja2
 
 import sphinx
 from sphinx.errors import PycodeError
-from sphinx.util.pycompat import bytes
 
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
@@ -336,7 +335,7 @@ def parselinenos(spec, total):
 
 def force_decode(string, encoding):
     """Forcibly get a unicode string out of a bytestring."""
-    if isinstance(string, bytes):
+    if isinstance(string, six.binary_type):
         try:
             if encoding:
                 string = string.decode(encoding)

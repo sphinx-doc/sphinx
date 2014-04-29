@@ -10,6 +10,9 @@
 """
 
 import sys
+
+import six
+
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 
 
@@ -346,12 +349,12 @@ def _skip_member(app, what, name, obj, skip, options):
     if name != '__weakref__' and name != '__init__' and has_doc and is_member:
         cls_is_owner = False
         if what == 'class' or what == 'exception':
-            if sys.version_info[0] < 3:
+            if six.PY2:
                 cls = getattr(obj, 'im_class', getattr(obj, '__objclass__',
                               None))
                 cls_is_owner = (cls and hasattr(cls, name) and
                                 name in cls.__dict__)
-            elif sys.version_info[1] >= 3:
+            elif sys.version_info >= (3, 3):
                 qualname = getattr(obj, '__qualname__', '')
                 cls_path, _, _ = qualname.rpartition('.')
                 if cls_path:

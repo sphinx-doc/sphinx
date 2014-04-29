@@ -16,9 +16,10 @@ from __future__ import print_function
 import sys
 import os
 import types
-from StringIO import StringIO
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError
+
+import six
 
 from sphinx.application import Sphinx
 from sphinx.util.console import darkred, nocolor, color_terminal
@@ -141,7 +142,7 @@ class BuildDoc(Command):
             # Windows' poor cmd box doesn't understand ANSI sequences
             nocolor()
         if not self.verbose:
-            status_stream = StringIO()
+            status_stream = six.StringIO()
         else:
             status_stream = sys.stdout
         confoverrides = {}

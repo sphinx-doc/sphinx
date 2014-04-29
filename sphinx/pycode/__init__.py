@@ -13,12 +13,14 @@ from __future__ import print_function
 import sys
 from os import path
 
+import six
+
 from sphinx import package_dir
 from sphinx.errors import PycodeError
 from sphinx.pycode import nodes
 from sphinx.pycode.pgen2 import driver, token, tokenize, parse, literals
 from sphinx.util import get_module_source, detect_encoding
-from sphinx.util.pycompat import StringIO, BytesIO, TextIOWrapper
+from sphinx.util.pycompat import TextIOWrapper
 from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
 
@@ -174,8 +176,8 @@ class ModuleAnalyzer(object):
     @classmethod
     def for_string(cls, string, modname, srcname='<string>'):
         if isinstance(string, bytes):
-            return cls(BytesIO(string), modname, srcname)
-        return cls(StringIO(string), modname, srcname, decoded=True)
+            return cls(six.BytesIO(string), modname, srcname)
+        return cls(six.StringIO(string), modname, srcname, decoded=True)
 
     @classmethod
     def for_file(cls, filename, modname):

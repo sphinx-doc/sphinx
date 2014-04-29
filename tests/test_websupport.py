@@ -10,8 +10,9 @@
 """
 
 import os
-from StringIO import StringIO
 from functools import wraps
+
+import six
 
 from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import DocumentNotFoundError, \
@@ -30,8 +31,8 @@ from util import test_root, raises, skip_if
 
 
 default_settings = {'builddir': os.path.join(test_root, 'websupport'),
-                    'status': StringIO(),
-                    'warning': StringIO()}
+                    'status': six.StringIO(),
+                    'warning': six.StringIO()}
 
 def teardown_module():
     (test_root / 'generated').rmtree(True)

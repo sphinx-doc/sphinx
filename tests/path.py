@@ -12,6 +12,8 @@ import sys
 import shutil
 from codecs import open
 
+import six
+
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
@@ -20,7 +22,7 @@ class path(unicode):
     """
     Represents a path which behaves like a string.
     """
-    if sys.version_info < (3, 0):
+    if six.PY2:
         def __new__(cls, s, encoding=FILESYSTEMENCODING, errors='strict'):
             if isinstance(s, str):
                 s = s.decode(encoding, errors)

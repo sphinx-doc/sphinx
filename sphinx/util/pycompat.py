@@ -12,20 +12,19 @@
 import sys
 import codecs
 
+import six
+
 # ------------------------------------------------------------------------------
 # Python 2/3 compatibility
 
-if sys.version_info >= (3, 0):
+if six.PY3:
     # Python 3
-    class_types = (type,)
     # the ubiquitous "bytes" helper functions
     def b(s):
         return s.encode('utf-8')
-    bytes = bytes
     # prefix for Unicode strings
     u = ''
-    # StringIO/BytesIO classes
-    from io import StringIO, BytesIO, TextIOWrapper
+    from io import TextIOWrapper
     # safely encode a string for printing to the terminal
     def terminal_safe(s):
         return s.encode('ascii', 'backslashreplace').decode('ascii')
@@ -47,18 +46,12 @@ if sys.version_info >= (3, 0):
             # try to match ParseError details with SyntaxError details
             raise SyntaxError(err.msg, (filepath, lineno, offset, err.value))
         return unicode(tree)
-    from itertools import zip_longest  # Python 3 name
-    import builtins
+    from html import escape as htmlescape  # >= Python 3.2
 
 else:
     # Python 2
-    from types import ClassType
-    class_types = (type, ClassType)
     b = str
-    bytes = str
     u = 'u'
-    from StringIO import StringIO
-    BytesIO = StringIO
     # no need to refactor on 2.x versions
     convert_with_2to3 = None
     def TextIOWrapper(stream, encoding):
@@ -68,11 +61,9 @@ else:
         return s.encode('ascii', 'backslashreplace')
     # some kind of default system encoding; should be used with a lenient
     # error handler
-    import locale
-    sys_encoding = locale.getpreferredencoding()
+    sys_encoding = __import__('locale').getpreferredencoding()
     # use Python 3 name
-    from itertools import izip_longest as zip_longest
-    import __builtin__ as builtins
+    from cgi import escape as htmlescape  # 2.6, 2.7
 
 
 def execfile_(filepath, _globals):
@@ -101,10 +92,4 @@ def execfile_(filepath, _globals):
             code = compile(source, filepath_enc, 'exec')
         else:
             raise
-    exec code in _globals
-
-
-if sys.version_info >= (3, 2):
-    from html import escape as htmlescape  # >= Python 3.2
-else:  # 2.6, 2.7, 3.1
-    from cgi import escape as htmlescape
+    six.exec_(code, _globals)

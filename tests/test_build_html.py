@@ -11,9 +11,9 @@
 
 import os
 import re
-import sys
 import htmlentitydefs
-from StringIO import StringIO
+
+import six
 
 try:
     import pygments
@@ -29,7 +29,7 @@ def teardown_module():
     (test_root / '_build').rmtree(True)
 
 
-html_warnfile = StringIO()
+html_warnfile = six.StringIO()
 
 ENV_WARNINGS = """\
 %(root)s/autodoc_fodder.py:docstring of autodoc_fodder\\.MarkupError:2: \
@@ -54,7 +54,7 @@ None:\\d+: WARNING: citation not found: missing
 %(root)s/markup.txt:: WARNING: invalid pair index entry u'keyword; '
 """
 
-if sys.version_info >= (3, 0):
+if six.PY3:
     ENV_WARNINGS = remove_unicode_literals(ENV_WARNINGS)
     HTML_WARNINGS = remove_unicode_literals(HTML_WARNINGS)
 

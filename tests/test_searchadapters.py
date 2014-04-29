@@ -10,7 +10,8 @@
 """
 
 import os
-from StringIO import StringIO
+
+import six
 
 from sphinx.websupport import WebSupport
 
@@ -31,8 +32,8 @@ def search_adapter_helper(adapter):
     clear_builddir()
 
     settings = {'builddir': os.path.join(test_root, 'websupport'),
-                'status': StringIO(),
-                'warning': StringIO()}
+                'status': six.StringIO(),
+                'warning': six.StringIO()}
     settings.update({'srcdir': test_root,
                      'search': adapter})
     support = WebSupport(**settings)

@@ -15,6 +15,9 @@ import sys
 from os import path, chdir, listdir, environ
 import shutil
 
+import six
+
+
 testroot = path.dirname(__file__) or '.'
 if 'BUILD_TEST_PATH' in environ:
     # for tox testing
@@ -26,7 +29,7 @@ else:
 
 shutil.rmtree(newroot, ignore_errors=True)
 
-if sys.version_info >= (3, 0):
+if six.PY3:
     print('Copying and converting sources to build/lib/tests...')
     from distutils.util import copydir_run_2to3
     copydir_run_2to3(testroot, newroot)

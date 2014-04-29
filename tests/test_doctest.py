@@ -11,12 +11,13 @@
 from __future__ import print_function
 
 import sys
-import StringIO
+
+import six
 
 from util import with_app
 
 
-status = StringIO.StringIO()
+status = six.StringIO()
 cleanup_called = 0
 
 @with_app(buildername='doctest', status=status)

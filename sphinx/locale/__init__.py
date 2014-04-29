@@ -9,9 +9,10 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
 import gettext
 import UserString
+
+import six
 
 
 class _TranslationProxy(UserString.UserString, object):
@@ -183,7 +184,7 @@ pairindextypes = {
 
 translators = {}
 
-if sys.version_info >= (3, 0):
+if six.PY3:
     def _(message):
         return translators['sphinx'].gettext(message)
 else:

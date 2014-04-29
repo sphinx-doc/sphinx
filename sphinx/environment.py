@@ -23,6 +23,7 @@ from os import path
 from glob import glob
 from itertools import izip, groupby
 
+import six
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
@@ -39,7 +40,6 @@ from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream
 from sphinx.util.osutil import SEP, fs_encoding, find_catalog_files
 from sphinx.util.matching import compile_matchers
-from sphinx.util.pycompat import class_types
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
@@ -140,7 +140,7 @@ class BuildEnvironment:
             if key.startswith('_') or \
                    isinstance(val, types.ModuleType) or \
                    isinstance(val, types.FunctionType) or \
-                   isinstance(val, class_types):
+                   isinstance(val, six.class_types):
                 del self.config[key]
         try:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)

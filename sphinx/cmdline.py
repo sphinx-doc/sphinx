@@ -16,6 +16,7 @@ import getopt
 import traceback
 from os import path
 
+import six
 from docutils.utils import SystemMessage
 
 from sphinx import __version__
@@ -24,7 +25,7 @@ from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal
 from sphinx.util.osutil import abspath, fs_encoding
-from sphinx.util.pycompat import terminal_safe, bytes
+from sphinx.util.pycompat import terminal_safe
 
 
 def usage(argv, msg=None):
@@ -183,7 +184,7 @@ def main(argv):
                 print('Error: -D option argument must be in the form name=value.',
                       file=sys.stderr)
                 return 1
-            if likely_encoding and isinstance(val, bytes):
+            if likely_encoding and isinstance(val, six.binary_type):
                 try:
                     val = val.decode(likely_encoding)
                 except UnicodeError:
@@ -199,7 +200,7 @@ def main(argv):
             try:
                 val = int(val)
             except ValueError:
-                if likely_encoding and isinstance(val, bytes):
+                if likely_encoding and isinstance(val, six.binary_type):
                     try:
                         val = val.decode(likely_encoding)
                     except UnicodeError:

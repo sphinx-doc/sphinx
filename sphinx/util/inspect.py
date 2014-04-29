@@ -9,17 +9,16 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
-
 # this imports the standard library inspect module without resorting to
 # relatively import this module
 inspect = __import__('inspect')
 
+import six
+
 from sphinx.util import force_decode
-from sphinx.util.pycompat import bytes, builtins
 
 
-if sys.version_info >= (3, 0):
+if six.PY3:
     from functools import partial
     def getargspec(func):
         """Like inspect.getargspec but supports functools.partial as well."""
@@ -129,7 +128,7 @@ def safe_repr(object):
         s = repr(object)
     except Exception:
         raise ValueError
-    if isinstance(s, bytes):
+    if isinstance(s, six.binary_type):
         return force_decode(s, None).replace('\n', ' ')
     return s.replace('\n', ' ')
 
@@ -146,6 +145,6 @@ def is_builtin_class_method(obj, attr_name):
     classes = [c for c in inspect.getmro(obj) if attr_name in c.__dict__]
     cls = classes[0] if classes else object
 
-    if not hasattr(builtins, safe_getattr(cls, '__name__', '')):
+    if not hasattr(six.moves.builtins, safe_getattr(cls, '__name__', '')):
         return False
-    return getattr(builtins, safe_getattr(cls, '__name__', '')) is cls
+    return getattr(six.moves.builtins, safe_getattr(cls, '__name__', '')) is cls

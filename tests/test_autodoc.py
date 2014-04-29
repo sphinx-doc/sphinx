@@ -10,13 +10,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
-from StringIO import StringIO
-
 # "raises" imported for usage by autodoc
 from util import TestApp, Struct, raises
 from nose.tools import with_setup
 
+import six
 from docutils.statemachine import ViewList
 
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
@@ -811,7 +809,7 @@ class Class(Base):
     u"""should be documented as well - süß"""
 
     # initialized to any class imported from another module
-    mdocattr = StringIO()
+    mdocattr = six.StringIO()
     """should be documented as well - süß"""
 
     roger = _funky_classmethod("roger", 2, 3, 4)

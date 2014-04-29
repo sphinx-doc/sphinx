@@ -12,9 +12,9 @@ from __future__ import print_function
 
 import os
 import re
-import sys
-from StringIO import StringIO
 from subprocess import Popen, PIPE
+
+import six
 
 from sphinx.writers.latex import LaTeXTranslator
 
@@ -26,7 +26,7 @@ def teardown_module():
     (test_root / '_build').rmtree(True)
 
 
-latex_warnfile = StringIO()
+latex_warnfile = six.StringIO()
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
 None:None: WARNING: citation not found: missing
@@ -35,7 +35,7 @@ WARNING: invalid pair index entry u''
 WARNING: invalid pair index entry u'keyword; '
 """
 
-if sys.version_info >= (3, 0):
+if six.PY3:
     LATEX_WARNINGS = remove_unicode_literals(LATEX_WARNINGS)
 
 

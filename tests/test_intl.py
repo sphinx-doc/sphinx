@@ -13,14 +13,15 @@ from __future__ import print_function
 
 import os
 import re
-from StringIO import StringIO
 from subprocess import Popen, PIPE
 from xml.etree import ElementTree
+
+import six
 
 from util import test_roots, path, with_app, SkipTest
 
 
-warnfile = StringIO()
+warnfile = six.StringIO()
 root = test_roots / 'test-intl'
 doctreedir = root / '_build' / 'doctree'
 
