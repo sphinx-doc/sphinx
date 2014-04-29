@@ -13,6 +13,7 @@ import re
 import textwrap
 from os import path
 
+from six import itervalues
 from six.moves import range
 from docutils import nodes, writers
 
@@ -457,7 +458,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
         indices_config = self.builder.config.texinfo_domain_indices
         if indices_config:
-            for domain in self.builder.env.domains.itervalues():
+            for domain in itervalues(self.builder.env.domains):
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
                     if isinstance(indices_config, list):

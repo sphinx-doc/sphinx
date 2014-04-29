@@ -16,6 +16,7 @@ import tempfile
 from os import path
 
 import six
+from six import iteritems
 from six.moves import configparser
 
 try:
@@ -145,7 +146,7 @@ class Theme(object):
                 options.update(conf.items('options'))
             except configparser.NoSectionError:
                 pass
-        for option, value in overrides.iteritems():
+        for option, value in iteritems(overrides):
             if option not in options:
                 raise ThemeError('unsupported theme option %r given' % option)
             options[option] = value

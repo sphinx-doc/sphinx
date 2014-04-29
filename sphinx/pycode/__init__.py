@@ -14,6 +14,7 @@ import sys
 from os import path
 
 import six
+from six import iteritems
 
 from sphinx import package_dir
 from sphinx.errors import PycodeError
@@ -32,9 +33,9 @@ pydriver = driver.Driver(pygrammar, convert=nodes.convert)
 
 # an object with attributes corresponding to token and symbol names
 class sym: pass
-for k, v in pygrammar.symbol2number.iteritems():
+for k, v in iteritems(pygrammar.symbol2number):
     setattr(sym, k, v)
-for k, v in token.tok_name.iteritems():
+for k, v in iteritems(token.tok_name):
     setattr(sym, v, k)
 
 # a dict mapping terminal and nonterminal numbers to their names
@@ -341,7 +342,7 @@ if __name__ == '__main__':
     x1 = time.time()
     ma.parse()
     x2 = time.time()
-    #for (ns, name), doc in ma.find_attr_docs().iteritems():
+    #for (ns, name), doc in iteritems(ma.find_attr_docs()):
     #    print '>>', ns, name
     #    print '\n'.join(doc)
     pprint.pprint(ma.find_tags())

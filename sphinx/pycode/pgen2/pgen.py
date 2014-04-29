@@ -3,6 +3,8 @@
 
 from __future__ import print_function
 
+from six import iteritems
+
 # Pgen imports
 
 from sphinx.pycode.pgen2 import grammar, token, tokenize
@@ -42,7 +44,7 @@ class ParserGenerator(object):
             states = []
             for state in dfa:
                 arcs = []
-                for label, next in state.arcs.iteritems():
+                for label, next in iteritems(state.arcs):
                     arcs.append((self.make_label(c, label), dfa.index(next)))
                 if state.isfinal:
                     arcs.append((0, dfa.index(state)))
@@ -121,7 +123,7 @@ class ParserGenerator(object):
         state = dfa[0]
         totalset = {}
         overlapcheck = {}
-        for label, next in state.arcs.iteritems():
+        for label, next in iteritems(state.arcs):
             if label in self.dfas:
                 if label in self.first:
                     fset = self.first[label]
@@ -136,7 +138,7 @@ class ParserGenerator(object):
                 totalset[label] = 1
                 overlapcheck[label] = {label: 1}
         inverse = {}
-        for label, itsfirst in overlapcheck.iteritems():
+        for label, itsfirst in iteritems(overlapcheck):
             for symbol in itsfirst:
                 if symbol in inverse:
                     raise ValueError("rule %s is ambiguous; %s is in the"
@@ -195,7 +197,7 @@ class ParserGenerator(object):
                 for label, next in nfastate.arcs:
                     if label is not None:
                         addclosure(next, arcs.setdefault(label, {}))
-            for label, nfaset in arcs.iteritems():
+            for label, nfaset in iteritems(arcs):
                 for st in states:
                     if st.nfaset == nfaset:
                         break
@@ -225,7 +227,7 @@ class ParserGenerator(object):
         print("Dump of DFA for", name)
         for i, state in enumerate(dfa):
             print("  State", i, state.isfinal and "(final)" or "")
-            for label, next in state.arcs.iteritems():
+            for label, next in iteritems(state.arcs):
                 print("    %s -> %d" % (label, dfa.index(next)))
 
     def simplify_dfa(self, dfa):
@@ -364,7 +366,7 @@ class DFAState(object):
         self.arcs[label] = next
 
     def unifystate(self, old, new):
-        for label, next in self.arcs.iteritems():
+        for label, next in iteritems(self.arcs):
             if next is old:
                 self.arcs[label] = new
 
@@ -377,7 +379,7 @@ class DFAState(object):
         # would invoke this method recursively, with cycles...
         if len(self.arcs) != len(other.arcs):
             return False
-        for label, next in self.arcs.iteritems():
+        for label, next in iteritems(self.arcs):
             if next is not other.arcs.get(label):
                 return False
         return True

@@ -19,6 +19,7 @@ from os import path
 doctest = __import__('doctest')
 
 import six
+from six import itervalues
 from docutils import nodes
 from docutils.parsers.rst import directives
 
@@ -311,24 +312,24 @@ Doctest summary
                     groups[groupname] = TestGroup(groupname)
                 groups[groupname].add_code(code)
         for code in add_to_all_groups:
-            for group in groups.itervalues():
+            for group in itervalues(groups):
                 group.add_code(code)
         if self.config.doctest_global_setup:
             code = TestCode(self.config.doctest_global_setup,
                             'testsetup', lineno=0)
-            for group in groups.itervalues():
+            for group in itervalues(groups):
                 group.add_code(code, prepend=True)
         if self.config.doctest_global_cleanup:
             code = TestCode(self.config.doctest_global_cleanup,
                             'testcleanup', lineno=0)
-            for group in groups.itervalues():
+            for group in itervalues(groups):
                 group.add_code(code)
         if not groups:
             return
 
         self._out('\nDocument: %s\n----------%s\n' %
                   (docname, '-'*len(docname)))
-        for group in groups.itervalues():
+        for group in itervalues(groups):
             self.test_group(group, self.env.doc2path(docname, base=None))
         # Separately count results from setup code
         res_f, res_t = self.setup_runner.summarize(self._out, verbose=False)

@@ -11,6 +11,7 @@
 
 import re
 
+from six import itervalues
 from docutils.parsers.rst import Directive, directives
 
 from sphinx import addnodes
@@ -178,7 +179,7 @@ class DefaultDomain(Directive):
         domain_name = self.arguments[0].lower()
         # if domain_name not in env.domains:
         #     # try searching by label
-        #     for domain in env.domains.itervalues():
+        #     for domain in itervalues(env.domains):
         #         if domain.label.lower() == domain_name:
         #             domain_name = domain.name
         #             break

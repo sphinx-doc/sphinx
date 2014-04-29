@@ -12,6 +12,7 @@
 import re
 import string
 
+from six import iteritems
 from docutils import nodes
 
 from sphinx import addnodes
@@ -249,5 +250,5 @@ class CDomain(Domain):
                             contnode, target)
 
     def get_objects(self):
-        for refname, (docname, type) in self.data['objects'].iteritems():
+        for refname, (docname, type) in iteritems(self.data['objects']):
             yield (refname, refname, type, docname, 'c.' + refname, 1)

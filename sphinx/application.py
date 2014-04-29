@@ -20,6 +20,7 @@ import traceback
 from os import path
 
 import six
+from six import iteritems, itervalues
 from docutils import nodes
 from docutils.parsers.rst import convert_directive_function, \
      directives, roles
@@ -388,7 +389,7 @@ class Sphinx(object):
 
     def disconnect(self, listener_id):
         self.debug('[app] disconnecting event: [id=%s]', listener_id)
-        for event in self._listeners.itervalues():
+        for event in itervalues(self._listeners):
             event.pop(listener_id, None)
 
     def emit(self, event, *args):
@@ -399,7 +400,7 @@ class Sphinx(object):
             pass
         results = []
         if event in self._listeners:
-            for _, callback in self._listeners[event].iteritems():
+            for _, callback in iteritems(self._listeners[event]):
                 results.append(callback(self, *args))
         return results
 
@@ -443,7 +444,7 @@ class Sphinx(object):
     def add_node(self, node, **kwds):
         self.debug('[app] adding node: %r', (node, kwds))
         nodes._add_node_class_names([node.__name__])
-        for key, val in kwds.iteritems():
+        for key, val in iteritems(kwds):
             try:
                 visit, depart = val
             except ValueError:

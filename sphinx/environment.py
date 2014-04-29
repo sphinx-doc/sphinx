@@ -23,6 +23,7 @@ from glob import glob
 from itertools import groupby
 
 import six
+from six import iteritems, itervalues
 from six.moves import cPickle as pickle, zip
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
@@ -421,7 +422,7 @@ class BuildEnvironment:
         else:
             # check if a config value was changed that affects how
             # doctrees are read
-            for key, descr in config.values.iteritems():
+            for key, descr in iteritems(config.values):
                 if descr[1] != 'env':
                     continue
                 if self.config[key] != config[key]:
@@ -632,7 +633,7 @@ class BuildEnvironment:
         self.note_indexentries_from(docname, doctree)
         self.note_citations_from(docname, doctree)
         self.build_toc_from(docname, doctree)
-        for domain in self.domains.itervalues():
+        for domain in itervalues(self.domains):
             domain.process_doc(self, docname, doctree)
 
         # allow extension-specific post-processing
@@ -818,7 +819,7 @@ class BuildEnvironment:
                 candidates['*'] = rel_imgpath
             # map image paths to unique image names (so that they can be put
             # into a single directory)
-            for imgpath in candidates.itervalues():
+            for imgpath in itervalues(candidates):
                 self.dependencies.setdefault(docname, set()).add(imgpath)
                 if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
                     self.warn_node('image file not readable: %s' % imgpath,
@@ -1522,7 +1523,7 @@ class BuildEnvironment:
                 else:
                     entry[0].append((main, uri))
 
-        for fn, entries in self.indexentries.iteritems():
+        for fn, entries in iteritems(self.indexentries):
             # new entry types must be listed in directives/other.py!
             for type, value, tid, main in entries:
                 try:
@@ -1597,7 +1598,7 @@ class BuildEnvironment:
         def keyfunc2(item, letters=string.ascii_uppercase + '_'):
             # hack: mutating the subitems dicts to a list in the keyfunc
             k, v = item
-            v[1] = sorted((si, se) for (si, (se, void)) in v[1].iteritems())
+            v[1] = sorted((si, se) for (si, (se, void)) in iteritems(v[1]))
             # now calculate the key
             letter = unicodedata.normalize('NFD', k[0])[0].upper()
             if letter in letters:

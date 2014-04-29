@@ -18,6 +18,8 @@ from datetime import datetime, tzinfo, timedelta
 from collections import defaultdict
 from uuid import uuid4
 
+from six import iteritems
+
 from sphinx.builders import Builder
 from sphinx.util import split_index_msg
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
@@ -186,7 +188,7 @@ class MessageCatalogBuilder(I18nBuilder):
                 timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
         )
         for textdomain, catalog in self.status_iterator(
-                self.catalogs.iteritems(), "writing message catalogs... ",
+                iteritems(self.catalogs), "writing message catalogs... ",
                 darkgreen, len(self.catalogs),
                 lambda textdomain__: textdomain__[0]):
             # noop if config.gettext_compact is set

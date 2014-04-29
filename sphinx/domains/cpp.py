@@ -12,6 +12,7 @@
 import re
 from copy import deepcopy
 
+from six import iteritems
 from docutils import nodes
 
 from sphinx import addnodes
@@ -121,7 +122,7 @@ class DefExpr(object):
         if type(self) is not type(other):
             return False
         try:
-            for key, value in self.__dict__.iteritems():
+            for key, value in iteritems(self.__dict__):
                 if value != getattr(other, key):
                     return False
         except AttributeError:
@@ -1313,5 +1314,5 @@ class CPPDomain(Domain):
         return _create_refnode(expr.prefix(parent))
 
     def get_objects(self):
-        for refname, (docname, type, theid) in self.data['objects'].iteritems():
+        for refname, (docname, type, theid) in iteritems(self.data['objects']):
             yield (refname, refname, type, docname, refname, 1)

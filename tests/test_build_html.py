@@ -14,6 +14,7 @@ import re
 import htmlentitydefs
 
 import six
+from six import iteritems
 
 try:
     import pygments
@@ -344,7 +345,7 @@ def test_html(app):
            '--- Expected (regex):\n' + html_warnings_exp + \
            '--- Got:\n' + html_warnings
 
-    for fname, paths in HTML_XPATH.iteritems():
+    for fname, paths in iteritems(HTML_XPATH):
         parser = NslessParser()
         parser.entity.update(htmlentitydefs.entitydefs)
         fp = open(os.path.join(app.outdir, fname), 'rb')

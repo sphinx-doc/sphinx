@@ -10,6 +10,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from six import iteritems
+
 from sphinx.errors import SphinxError
 from sphinx.locale import _
 
@@ -153,7 +155,7 @@ class Domain(object):
         self._role_cache = {}
         self._directive_cache = {}
         self._role2type = {}
-        for name, obj in self.object_types.iteritems():
+        for name, obj in iteritems(self.object_types):
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
         self.objtypes_for_role = self._role2type.get

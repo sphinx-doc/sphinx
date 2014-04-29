@@ -10,6 +10,8 @@
 """
 import sys
 
+from six import iteritems
+
 from sphinx.ext.autosummary import mangle_signature
 
 from util import with_app, test_roots
@@ -97,6 +99,6 @@ def test_get_items_summary():
         'noSentence': "this doesn't start with a",
         'emptyLine': "This is the real summary",
     }
-    for key, expected in expected_values.iteritems():
+    for key, expected in iteritems(expected_values):
         assert autosummary_items[key][2] == expected, 'Summary for %s was %r -'\
             ' expected %r' % (key, autosummary_items[key], expected)

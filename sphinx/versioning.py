@@ -13,6 +13,7 @@ from uuid import uuid4
 from operator import itemgetter
 from itertools import product
 
+from six import iteritems
 from six.moves import range, zip_longest
 
 
@@ -81,7 +82,7 @@ def merge_doctrees(old, new, condition):
     # choose the old node with the best ratio for each new node and set the uid
     # as long as the ratio is under a certain value, in which case we consider
     # them not changed but different
-    ratios = sorted(ratios.iteritems(), key=itemgetter(1))
+    ratios = sorted(iteritems(ratios), key=itemgetter(1))
     for (old_node, new_node), ratio in ratios:
         if new_node in seen:
             continue

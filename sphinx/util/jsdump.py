@@ -13,6 +13,7 @@
 import re
 
 import six
+from six import iteritems
 
 from sphinx.util.pycompat import u
 
@@ -92,7 +93,7 @@ def dumps(obj, key=False):
         return '{%s}' % ','.join('%s:%s' % (
             dumps(key, True),
             dumps(value)
-        ) for key, value in obj.iteritems())
+        ) for key, value in iteritems(obj))
     elif isinstance(obj, (tuple, list, set)):
         return '[%s]' % ','.join(dumps(x) for x in obj)
     elif isinstance(obj, six.string_types):

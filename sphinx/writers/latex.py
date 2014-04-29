@@ -16,6 +16,7 @@ import re
 import sys
 from os import path
 
+from six import itervalues
 from docutils import nodes, writers
 from docutils.writers.latex2e import Babel
 
@@ -335,7 +336,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # latex_domain_indices can be False/True or a list of index names
         indices_config = self.builder.config.latex_domain_indices
         if indices_config:
-            for domain in self.builder.env.domains.itervalues():
+            for domain in itervalues(self.builder.env.domains):
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
                     if isinstance(indices_config, list):

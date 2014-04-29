@@ -14,6 +14,7 @@ import re
 from os import path
 
 import six
+from six import iteritems
 
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
@@ -243,7 +244,7 @@ class Config(object):
     def check_unicode(self, warn):
         # check all string values for non-ASCII characters in bytestrings,
         # since that can result in UnicodeErrors all over the place
-        for name, value in self._raw_config.iteritems():
+        for name, value in iteritems(self._raw_config):
             if isinstance(value, six.binary_type) and nonascii_re.search(value):
                 warn('the config value %r is set to a string with non-ASCII '
                      'characters; this can lead to Unicode errors occurring. '
@@ -252,7 +253,7 @@ class Config(object):
 
     def init_values(self, warn):
         config = self._raw_config
-        for valname, value in self.overrides.iteritems():
+        for valname, value in iteritems(self.overrides):
             if '.' in valname:
                 realvalname, key = valname.split('.', 1)
                 config.setdefault(realvalname, {})[key] = value

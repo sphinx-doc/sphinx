@@ -11,6 +11,7 @@
 
 import re
 
+from six import iteritems
 from docutils import nodes
 from docutils.parsers.rst import directives
 
@@ -514,7 +515,7 @@ class PythonModuleIndex(Index):
         ignores = self.domain.env.config['modindex_common_prefix']
         ignores = sorted(ignores, key=len, reverse=True)
         # list of all modules, sorted by module name
-        modules = sorted(self.domain.data['modules'].iteritems(),
+        modules = sorted(iteritems(self.domain.data['modules']),
                          key=lambda x: x[0].lower())
         # sort out collapsable modules
         prev_modname = ''
@@ -564,7 +565,7 @@ class PythonModuleIndex(Index):
         collapse = len(modules) - num_toplevels < num_toplevels
 
         # sort by first letter
-        content = sorted(content.iteritems())
+        content = sorted(iteritems(content))
 
         return content, collapse
 
@@ -720,8 +721,8 @@ class PythonDomain(Domain):
                                 contnode, name)
 
     def get_objects(self):
-        for modname, info in self.data['modules'].iteritems():
+        for modname, info in iteritems(self.data['modules']):
             yield (modname, modname, 'module', info[0], 'module-' + modname, 0)
-        for refname, (docname, type) in self.data['objects'].iteritems():
+        for refname, (docname, type) in iteritems(self.data['objects']):
             if type != 'module':  # modules are already handled
                 yield (refname, refname, type, docname, refname, 1)

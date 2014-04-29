@@ -18,6 +18,7 @@ import traceback
 from types import FunctionType, BuiltinFunctionType, MethodType
 
 import six
+from six import iteritems, itervalues
 from docutils import nodes
 from docutils.utils import assemble_option_dict
 from docutils.statemachine import ViewList
@@ -264,7 +265,7 @@ class Documenter(object):
     @staticmethod
     def get_attr(obj, name, *defargs):
         """getattr() override for types such as Zope interfaces."""
-        for typ, func in AutoDirective._special_attrgetters.iteritems():
+        for typ, func in iteritems(AutoDirective._special_attrgetters):
             if isinstance(obj, typ):
                 return func(obj, name, *defargs)
         return safe_getattr(obj, name, *defargs)
@@ -550,7 +551,7 @@ class Documenter(object):
         if self.analyzer:
             attr_docs = self.analyzer.find_attr_docs()
             namespace = '.'.join(self.objpath)
-            for item in attr_docs.iteritems():
+            for item in iteritems(attr_docs):
                 if item[0][0] == namespace:
                     analyzed_member_names.add(item[0][1])
         if not want_all:
@@ -691,7 +692,7 @@ class Documenter(object):
         # document non-skipped members
         memberdocumenters = []
         for (mname, member, isattr) in self.filter_members(members, want_all):
-            classes = [cls for cls in AutoDirective._registry.itervalues()
+            classes = [cls for cls in itervalues(AutoDirective._registry)
                        if cls.can_document_member(member, mname, isattr, self)]
             if not classes:
                 # don't know how to document this member
