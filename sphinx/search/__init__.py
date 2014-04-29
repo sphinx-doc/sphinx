@@ -11,8 +11,9 @@
 from __future__ import with_statement
 
 import re
-import cPickle as pickle
 
+import six
+from six.moves import cPickle as pickle
 from docutils.nodes import raw, comment, title, Text, NodeVisitor, SkipNode
 
 from sphinx.util import jsdump, rpartition
@@ -237,7 +238,7 @@ class IndexBuilder(object):
 
     def load(self, stream, format):
         """Reconstruct from frozen data."""
-        if isinstance(format, basestring):
+        if isinstance(format, six.string_types):
             format = self.formats[format]
         frozen = format.load(stream)
         # if an old index is present, we treat it as not existing.
@@ -262,7 +263,7 @@ class IndexBuilder(object):
 
     def dump(self, stream, format):
         """Dump the frozen index to a stream."""
-        if isinstance(format, basestring):
+        if isinstance(format, six.string_types):
             format = self.formats[format]
         format.dump(self.freeze(), stream)
 

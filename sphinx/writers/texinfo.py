@@ -10,10 +10,10 @@
 """
 
 import re
-import string
 import textwrap
 from os import path
 
+from six.moves import range
 from docutils import nodes, writers
 
 from sphinx import addnodes, __version__
@@ -974,7 +974,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append('\n%s\n' % self.entry_sep)
         self.entry_sep = '@tab'
     def depart_entry(self, node):
-        for i in xrange(node.get('morecols', 0)):
+        for i in range(node.get('morecols', 0)):
             self.body.append('\n@tab\n')
 
     ## Field Lists

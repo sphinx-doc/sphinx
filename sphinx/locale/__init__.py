@@ -10,12 +10,12 @@
 """
 
 import gettext
-import UserString
 
 import six
+from six.moves import UserString
 
 
-class _TranslationProxy(UserString.UserString, object):
+class _TranslationProxy(UserString, object):
     """
     Class for proxy strings from gettext translations.  This is a helper for the
     lazy_* functions from this module.

@@ -269,7 +269,7 @@ class Config(object):
                     continue
                 elif isinstance(defvalue, list):
                     config[valname] = value.split(',')
-                elif isinstance(defvalue, (int, long)):
+                elif isinstance(defvalue, six.integer_types):
                     try:
                         config[valname] = int(value)
                     except ValueError:

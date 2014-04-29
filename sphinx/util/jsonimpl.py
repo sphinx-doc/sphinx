@@ -9,14 +9,15 @@
     :license: BSD, see LICENSE for details.
 """
 
-import UserString
 import json
+
+from six.moves import UserString
 
 
 class SphinxJSONEncoder(json.JSONEncoder):
     """JSONEncoder subclass that forces translation proxies."""
     def default(self, obj):
-        if isinstance(obj, UserString.UserString):
+        if isinstance(obj, UserString):
             return unicode(obj)
         return json.JSONEncoder.default(self, obj)
 

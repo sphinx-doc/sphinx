@@ -18,12 +18,12 @@ import codecs
 import imghdr
 import string
 import unicodedata
-import cPickle as pickle
 from os import path
 from glob import glob
-from itertools import izip, groupby
+from itertools import groupby
 
 import six
+from six.moves import cPickle as pickle, zip
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
@@ -1649,7 +1649,7 @@ class BuildEnvironment:
                 # else it will stay None
             # same for children
             if includes:
-                for subindex, args in enumerate(izip(includes,
+                for subindex, args in enumerate(zip(includes,
                                                      [None] + includes,
                                                      includes[1:] + [None])):
                     collect([(docname, subindex)] + parents,

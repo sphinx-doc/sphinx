@@ -22,6 +22,7 @@ from codecs import open, BOM_UTF8
 from collections import deque
 
 import six
+from six.moves import range
 import docutils
 from docutils.utils import relative_path
 
@@ -327,7 +328,7 @@ def parselinenos(spec, total):
             else:
                 start = (begend[0] == '') and 0 or int(begend[0])-1
                 end = (begend[1] == '') and total or int(begend[1])
-                items.extend(xrange(start, end))
+                items.extend(range(start, end))
         except Exception:
             raise ValueError('invalid line number spec: %r' % spec)
     return items

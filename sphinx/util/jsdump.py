@@ -12,6 +12,8 @@
 
 import re
 
+import six
+
 from sphinx.util.pycompat import u
 
 _str_re  = re.compile(r'"(\\\\|\\"|[^"])*"')
@@ -74,7 +76,7 @@ double   in   super""".split())
 
 def dumps(obj, key=False):
     if key:
-        if not isinstance(obj, basestring):
+        if not isinstance(obj, six.string_types):
             obj = str(obj)
         if _nameonly_re.match(obj) and obj not in reswords:
             return obj  # return it as a bare word
@@ -93,7 +95,7 @@ def dumps(obj, key=False):
         ) for key, value in obj.iteritems())
     elif isinstance(obj, (tuple, list, set)):
         return '[%s]' % ','.join(dumps(x) for x in obj)
-    elif isinstance(obj, basestring):
+    elif isinstance(obj, six.string_types):
         return encode_string(obj)
     raise TypeError(type(obj))
 

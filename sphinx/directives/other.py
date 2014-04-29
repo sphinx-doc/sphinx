@@ -7,6 +7,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+from six.moves import range
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
@@ -368,7 +369,7 @@ class Only(Directive):
             # be placed in the doctree.
             n_sects_to_raise = current_depth - nested_depth + 1
             parent = self.state.parent
-            for i in xrange(n_sects_to_raise):
+            for i in range(n_sects_to_raise):
                 if parent.parent:
                     parent = parent.parent
             parent.append(node)

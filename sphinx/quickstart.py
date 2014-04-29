@@ -16,8 +16,6 @@ from io import open
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
-import six
-
 #try to import readline, unix specific enhancement
 try:
     import readline
@@ -28,6 +26,8 @@ try:
 except ImportError:
     pass
 
+import six
+from six.moves import input
 from docutils.utils import column_width
 
 from sphinx import __version__
@@ -37,11 +37,7 @@ from sphinx.util.console import purple, bold, red, turquoise, \
 from sphinx.util import texescape
 
 # function to get input from terminal -- overridden by the test suite
-try:
-    # this raw_input is not converted by 2to3
-    term_input = raw_input
-except NameError:
-    term_input = input
+term_input = input
 
 
 PROMPT_PREFIX = '> '

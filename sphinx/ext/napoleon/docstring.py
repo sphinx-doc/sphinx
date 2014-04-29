@@ -16,13 +16,9 @@ import inspect
 import re
 
 import six
+from six.moves import range
 
 from sphinx.ext.napoleon.iterators import modify_iter
-
-
-if six.PY3:
-    basestring = str
-    xrange = range
 
 
 _directive_regex = re.compile(r'\.\. \S+::')
@@ -118,7 +114,7 @@ class GoogleDocstring(object):
         self._name = name
         self._obj = obj
         self._opt = options
-        if isinstance(docstring, basestring):
+        if isinstance(docstring, six.string_types):
             docstring = docstring.splitlines()
         self._lines = docstring
         self._line_iter = modify_iter(docstring, modifier=lambda s: s.rstrip())
@@ -599,7 +595,7 @@ class GoogleDocstring(object):
             if start == -1:
                 lines = []
             end = -1
-            for i in reversed(xrange(len(lines))):
+            for i in reversed(range(len(lines))):
                 line = lines[i]
                 if line:
                     end = i
@@ -747,7 +743,7 @@ class NumpyDocstring(GoogleDocstring):
     def _is_section_header(self):
         section, underline = self._line_iter.peek(2)
         section = section.lower()
-        if section in self._sections and isinstance(underline, basestring):
+        if section in self._sections and isinstance(underline, six.string_types):
             pattern = r'[=\-`:\'"~^_*+#<>]{' + str(len(section)) + r'}$'
             return bool(re.match(pattern, underline))
         elif self._directive_sections:

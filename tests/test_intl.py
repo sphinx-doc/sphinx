@@ -77,7 +77,7 @@ def elem_gettexts(elem):
         # this function copied from Python-2.7 'ElementTree.itertext'.
         # for compatibility to Python-2.6
         tag = self.tag
-        if not isinstance(tag, basestring) and tag is not None:
+        if not isinstance(tag, six.string_types) and tag is not None:
             return
         if self.text:
             yield self.text

@@ -10,7 +10,6 @@
 """
 
 import re
-import Queue
 import socket
 import threading
 from os import path
@@ -18,6 +17,7 @@ from urllib2 import build_opener, unquote, Request, \
     HTTPError, HTTPRedirectHandler
 from HTMLParser import HTMLParser, HTMLParseError
 
+from six.moves import queue
 from docutils import nodes
 
 from sphinx.builders import Builder
@@ -98,8 +98,8 @@ class CheckExternalLinksBuilder(Builder):
         open(path.join(self.outdir, 'output.txt'), 'w').close()
 
         # create queues and worker threads
-        self.wqueue = Queue.Queue()
-        self.rqueue = Queue.Queue()
+        self.wqueue = queue.Queue()
+        self.rqueue = queue.Queue()
         self.workers = []
         for i in range(self.app.config.linkcheck_workers):
             thread = threading.Thread(target=self.check_thread)

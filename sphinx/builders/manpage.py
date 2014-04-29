@@ -11,11 +11,11 @@
 
 from os import path
 
+import six
 from docutils.io import FileOutput
 from docutils.frontend import OptionParser
 
 from sphinx import addnodes
-from sphinx.errors import SphinxError
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util.nodes import inline_all_toctrees
@@ -55,7 +55,7 @@ class ManualPageBuilder(Builder):
 
         for info in self.config.man_pages:
             docname, name, description, authors, section = info
-            if isinstance(authors, basestring):
+            if isinstance(authors, six.string_types):
                 if authors:
                     authors = [authors]
                 else:

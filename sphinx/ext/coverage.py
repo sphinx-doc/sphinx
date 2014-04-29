@@ -13,8 +13,9 @@
 import re
 import glob
 import inspect
-import cPickle as pickle
 from os import path
+
+from six.moves import cPickle as pickle
 
 from sphinx.builders import Builder
 
