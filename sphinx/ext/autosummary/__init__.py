@@ -59,6 +59,7 @@ import sys
 import inspect
 import posixpath
 
+from six import text_type
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 from docutils import nodes
@@ -116,7 +117,7 @@ def autosummary_table_visit_html(self, node):
             par = col1_entry[0]
             for j, subnode in enumerate(list(par)):
                 if isinstance(subnode, nodes.Text):
-                    new_text = unicode(subnode.astext())
+                    new_text = text_type(subnode.astext())
                     new_text = new_text.replace(u" ", u"\u00a0")
                     par[j] = nodes.Text(new_text)
     except IndexError:

@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six import iteritems
+from six import iteritems, text_type
 from docutils import nodes
 
 from sphinx import addnodes
@@ -30,7 +30,7 @@ def doctree_read(app, doctree):
         except Exception:
             env._viewcode_modules[modname] = False
             return
-        if not isinstance(analyzer.code, unicode):
+        if not isinstance(analyzer.code, text_type):
             code = analyzer.code.decode(analyzer.encoding)
         else:
             code = analyzer.code

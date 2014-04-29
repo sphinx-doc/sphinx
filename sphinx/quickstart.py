@@ -27,6 +27,7 @@ except ImportError:
     pass
 
 import six
+from six import text_type
 from six.moves import input
 from docutils.utils import column_width
 
@@ -1013,7 +1014,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
         x = term_input(prompt).strip()
         if default and not x:
             x = default
-        if not isinstance(x, unicode):
+        if not isinstance(x, text_type):
             # for Python 2.x, try to get a Unicode string out of it
             if x.decode('ascii', 'replace').encode('ascii', 'replace') != x:
                 if TERM_ENCODING:
@@ -1239,10 +1240,10 @@ def generate(d, overwrite=True, silent=False):
     else:
         d['extensions'] = extensions
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
-    d['author_texescaped'] = unicode(d['author']).\
+    d['author_texescaped'] = text_type(d['author']).\
                              translate(texescape.tex_escape_map)
     d['project_doc'] = d['project'] + ' Documentation'
-    d['project_doc_texescaped'] = unicode(d['project'] + ' Documentation').\
+    d['project_doc_texescaped'] = text_type(d['project'] + ' Documentation').\
                                   translate(texescape.tex_escape_map)
 
     # escape backslashes and single quotes in strings that are put into

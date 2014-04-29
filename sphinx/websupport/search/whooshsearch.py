@@ -14,6 +14,8 @@ from whoosh.fields import Schema, ID, TEXT
 from whoosh.qparser import QueryParser
 from whoosh.analysis import StemmingAnalyzer
 
+from six import text_type
+
 from sphinx.util.osutil import ensuredir
 from sphinx.websupport.search import BaseSearch
 
@@ -43,7 +45,7 @@ class WhooshSearch(BaseSearch):
         self.index_writer.commit()
 
     def add_document(self, pagename, title, text):
-        self.index_writer.add_document(path=unicode(pagename),
+        self.index_writer.add_document(path=text_type(pagename),
                                        title=title,
                                        text=text)
 

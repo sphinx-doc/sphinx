@@ -45,7 +45,7 @@ if six.PY3:
             lineno, offset = err.context[1]
             # try to match ParseError details with SyntaxError details
             raise SyntaxError(err.msg, (filepath, lineno, offset, err.value))
-        return unicode(tree)
+        return six.text_type(tree)
     from html import escape as htmlescape  # >= Python 3.2
 
 else:

@@ -11,6 +11,7 @@
 
 import json
 
+from six import text_type
 from six.moves import UserString
 
 
@@ -18,7 +19,7 @@ class SphinxJSONEncoder(json.JSONEncoder):
     """JSONEncoder subclass that forces translation proxies."""
     def default(self, obj):
         if isinstance(obj, UserString):
-            return unicode(obj)
+            return text_type(obj)
         return json.JSONEncoder.default(self, obj)
 
 

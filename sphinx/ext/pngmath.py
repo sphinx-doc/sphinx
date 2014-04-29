@@ -21,6 +21,7 @@ try:
 except ImportError:
     from sha import sha
 
+from six import text_type
 from docutils import nodes
 
 from sphinx.errors import SphinxError
@@ -191,7 +192,7 @@ def html_visit_math(self, node):
     try:
         fname, depth = render_math(self, '$'+node['latex']+'$')
     except MathExtError as exc:
-        msg = unicode(exc)
+        msg = text_type(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node['latex'])
         sm.walkabout(self)

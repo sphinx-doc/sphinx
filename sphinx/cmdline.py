@@ -17,6 +17,7 @@ import traceback
 from os import path
 
 import six
+from six import text_type
 from docutils.utils import SystemMessage
 
 from sphinx import __version__
@@ -272,10 +273,10 @@ def main(argv):
                 print(terminal_safe(err.args[0]), file=error)
             elif isinstance(err, SphinxError):
                 print(red('%s:' % err.category), file=error)
-                print(terminal_safe(unicode(err)), file=error)
+                print(terminal_safe(text_type(err)), file=error)
             elif isinstance(err, UnicodeError):
                 print(red('Encoding error:'), file=error)
-                print(terminal_safe(unicode(err)), file=error)
+                print(terminal_safe(text_type(err)), file=error)
                 tbpath = save_traceback(app)
                 print(red('The full traceback has been saved in %s, if you want '
                           'to report the issue to the developers.' % tbpath),

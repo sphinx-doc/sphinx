@@ -18,7 +18,7 @@ from os import path
 from hashlib import md5
 
 import six
-from six import iteritems, itervalues
+from six import iteritems, itervalues, text_type
 from six.moves import cPickle as pickle
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
@@ -60,7 +60,7 @@ def get_stable_hash(obj):
         return get_stable_hash(list(obj.items()))
     elif isinstance(obj, (list, tuple)):
         obj = sorted(get_stable_hash(o) for o in obj)
-    return md5(unicode(obj).encode('utf8')).hexdigest()
+    return md5(text_type(obj).encode('utf8')).hexdigest()
 
 
 class StandaloneHTMLBuilder(Builder):

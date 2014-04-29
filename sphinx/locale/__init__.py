@@ -12,6 +12,7 @@
 import gettext
 
 import six
+from six import text_type
 from six.moves import UserString
 
 
@@ -33,7 +34,7 @@ class _TranslationProxy(UserString, object):
     def __new__(cls, func, *args):
         if not args:
             # not called with "function" and "arguments", but a plain string
-            return unicode(func)
+            return text_type(func)
         return object.__new__(cls)
 
     def __getnewargs__(self):
@@ -64,7 +65,7 @@ class _TranslationProxy(UserString, object):
         return bool(self.data)
 
     def __dir__(self):
-        return dir(unicode)
+        return dir(text_type)
 
     def __iter__(self):
         return iter(self.data)
@@ -76,7 +77,7 @@ class _TranslationProxy(UserString, object):
         return str(self.data)
 
     def __unicode__(self):
-        return unicode(self.data)
+        return text_type(self.data)
 
     def __add__(self, other):
         return self.data + other
@@ -133,7 +134,7 @@ class _TranslationProxy(UserString, object):
 
     def __repr__(self):
         try:
-            return 'i' + repr(unicode(self.data))
+            return 'i' + repr(text_type(self.data))
         except:
             return '<%s broken>' % self.__class__.__name__
 

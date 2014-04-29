@@ -22,7 +22,7 @@ from codecs import open, BOM_UTF8
 from collections import deque
 
 import six
-from six import iteritems
+from six import iteritems, text_type
 from six.moves import range
 import docutils
 from docutils.utils import relative_path
@@ -55,7 +55,7 @@ def docname_join(basedocname, docname):
 def path_stabilize(filepath):
     "normalize path separater and unicode string"
     newpath = filepath.replace(os.path.sep, SEP)
-    if isinstance(newpath, unicode):
+    if isinstance(newpath, text_type):
         newpath = unicodedata.normalize('NFC', newpath)
     return newpath
 

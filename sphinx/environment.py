@@ -23,7 +23,7 @@ from glob import glob
 from itertools import groupby
 
 import six
-from six import iteritems, itervalues
+from six import iteritems, itervalues, text_type
 from six.moves import cPickle as pickle, zip
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
@@ -594,7 +594,7 @@ class BuildEnvironment:
                 FileInput.__init__(self_, *args, **kwds)
 
             def decode(self_, data):
-                if isinstance(data, unicode):
+                if isinstance(data, text_type):
                     return data
                 return data.decode(self_.encoding, 'sphinx')
 
@@ -1509,7 +1509,7 @@ class BuildEnvironment:
             # Force the word to be unicode if it's a ASCII bytestring.
             # This will solve problems with unicode normalization later.
             # For instance the RFC role will add bytestrings at the moment
-            word = unicode(word)
+            word = text_type(word)
             entry = dic.get(word)
             if not entry:
                 dic[word] = entry = [[], {}]

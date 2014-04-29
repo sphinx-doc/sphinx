@@ -13,7 +13,7 @@ from __future__ import with_statement
 import re
 
 import six
-from six import iteritems, itervalues
+from six import iteritems, itervalues, text_type
 from six.moves import cPickle as pickle
 from docutils.nodes import raw, comment, title, Text, NodeVisitor, SkipNode
 
@@ -291,7 +291,7 @@ class IndexBuilder(object):
                     if otype:
                         # use unicode() to fire translation proxies
                         onames[typeindex] = (domainname, type,
-                            unicode(domain.get_type_name(otype)))
+                            text_type(domain.get_type_name(otype)))
                     else:
                         onames[typeindex] = (domainname, type, type)
                 if anchor == fullname:

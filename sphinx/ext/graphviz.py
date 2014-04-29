@@ -20,6 +20,7 @@ try:
 except ImportError:
     from sha import sha
 
+from six import text_type
 from docutils import nodes
 from docutils.parsers.rst import directives
 
@@ -145,7 +146,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     ensuredir(path.dirname(outfn))
 
     # graphviz expects UTF-8 by default
-    if isinstance(code, unicode):
+    if isinstance(code, text_type):
         code = code.encode('utf-8')
 
     dot_args = [self.builder.config.graphviz_dot]

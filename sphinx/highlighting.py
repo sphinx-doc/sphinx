@@ -19,6 +19,7 @@ except ImportError:
     parser = None
 
 import six
+from six import text_type
 
 from sphinx.util.pycompat import htmlescape
 from sphinx.util.texescape import tex_hl_escape_map_new
@@ -132,7 +133,7 @@ class PygmentsBridge(object):
         # lines beginning with "..." are probably placeholders for suite
         src = re.sub(r"(?m)^(\s*)" + mark + "(.)", r"\1"+ mark + r"# \2", src)
 
-        if six.PY2 and isinstance(src, unicode):
+        if six.PY2 and isinstance(src, text_type):
             # Non-ASCII chars will only occur in string literals
             # and comments.  If we wanted to give them to the parser
             # correctly, we'd have to find out the correct source
@@ -151,7 +152,7 @@ class PygmentsBridge(object):
             return True
 
     def highlight_block(self, source, lang, warn=None, force=False, **kwargs):
-        if not isinstance(source, unicode):
+        if not isinstance(source, text_type):
             source = source.decode()
         if not pygments:
             return self.unhighlighted(source)
@@ -208,7 +209,7 @@ class PygmentsBridge(object):
         if self.dest == 'html':
             return hlsource
         else:
-            if not isinstance(hlsource, unicode):  # Py2 / Pygments < 1.6
+            if not isinstance(hlsource, text_type):  # Py2 / Pygments < 1.6
                 hlsource = hlsource.decode()
             return hlsource.translate(tex_hl_escape_map_new)
 

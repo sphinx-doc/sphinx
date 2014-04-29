@@ -14,7 +14,7 @@ import re
 from os import path
 
 import six
-from six import iteritems
+from six import iteritems, string_types
 
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
@@ -215,7 +215,7 @@ class Config(object):
         self.values = Config.config_values.copy()
         config = {}
         if 'extensions' in overrides:
-            if isinstance(overrides['extensions'], (str, unicode)):
+            if isinstance(overrides['extensions'], string_types):
                 config['extensions'] = overrides.pop('extensions').split(',')
             else:
                 config['extensions'] = overrides.pop('extensions')
@@ -262,7 +262,7 @@ class Config(object):
                 warn('unknown config value %r in override, ignoring' % valname)
                 continue
             defvalue = self.values[valname][0]
-            if isinstance(value, (str, unicode)):
+            if isinstance(value, string_types):
                 if isinstance(defvalue, dict):
                     warn('cannot override dictionary config setting %r, '
                          'ignoring (use %r to set individual elements)' %
@@ -276,7 +276,7 @@ class Config(object):
                     except ValueError:
                         warn('invalid number %r for config value %r, ignoring'
                              % (value, valname))
-                elif defvalue is not None and not isinstance(defvalue, (str, unicode)):
+                elif defvalue is not None and not isinstance(defvalue, string_types):
                     warn('cannot override config setting %r with unsupported type, '
                          'ignoring' % valname)
                 else:

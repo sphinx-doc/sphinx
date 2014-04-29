@@ -21,6 +21,7 @@ import gettext
 from os import path
 
 import six
+from six import text_type
 
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)
@@ -155,7 +156,7 @@ if six.PY2:
         # if a locale is set, the time strings are encoded in the encoding
         # given by LC_TIME; if that is available, use it
         enc = locale.getlocale(locale.LC_TIME)[1] or 'utf-8'
-        return time.strftime(unicode(format).encode(enc), *args).decode(enc)
+        return time.strftime(text_type(format).encode(enc), *args).decode(enc)
 else:
     ustrftime = time.strftime
 

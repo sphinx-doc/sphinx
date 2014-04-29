@@ -18,7 +18,7 @@ import traceback
 from types import FunctionType, BuiltinFunctionType, MethodType
 
 import six
-from six import iteritems, itervalues
+from six import iteritems, itervalues, text_type
 from docutils import nodes
 from docutils.utils import assemble_option_dict
 from docutils.statemachine import ViewList
@@ -481,7 +481,7 @@ class Documenter(object):
         docstring = self.get_attr(self.object, '__doc__', None)
         # make sure we have Unicode docstrings, then sanitize and split
         # into lines
-        if isinstance(docstring, unicode):
+        if isinstance(docstring, text_type):
             return [prepare_docstring(docstring, ignore)]
         elif isinstance(docstring, str):  # this will not trigger on Py3
             return [prepare_docstring(force_decode(docstring, encoding),
@@ -505,9 +505,9 @@ class Documenter(object):
         # set sourcename and add content from attribute documentation
         if self.analyzer:
             # prevent encoding errors when the file name is non-ASCII
-            if not isinstance(self.analyzer.srcname, unicode):
-                filename = unicode(self.analyzer.srcname,
-                                   sys.getfilesystemencoding(), 'replace')
+            if not isinstance(self.analyzer.srcname, text_type):
+                filename = text_type(self.analyzer.srcname,
+                                     sys.getfilesystemencoding(), 'replace')
             else:
                 filename = self.analyzer.srcname
             sourcename = u'%s:docstring of %s' % (filename, self.fullname)
@@ -1129,7 +1129,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
                     docstrings.append(initdocstring)
         doc = []
         for docstring in docstrings:
-            if not isinstance(docstring, unicode):
+            if not isinstance(docstring, text_type):
                 docstring = force_decode(docstring, encoding)
             doc.append(prepare_docstring(docstring))
         return doc

@@ -11,6 +11,8 @@
 
 import re
 
+from six import text_type
+
 
 class BaseSearch(object):
     def __init__(self, path):
@@ -109,7 +111,7 @@ class BaseSearch(object):
                            context_end < len(text) and '...' or ''])
 
         try:
-            return unicode(context, errors='ignore')
+            return text_type(context, errors='ignore')
         except TypeError:
             return context
 

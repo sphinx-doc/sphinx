@@ -14,7 +14,7 @@ import sys
 from os import path
 
 import six
-from six import iteritems
+from six import iteritems, text_type
 
 from sphinx import package_dir
 from sphinx.errors import PycodeError
@@ -101,7 +101,7 @@ class AttrDocVisitor(nodes.NodeVisitor):
                 continue  # skip over semicolon
             if parent[idx].type == sym.NEWLINE:
                 prefix = parent[idx].get_prefix()
-                if not isinstance(prefix, unicode):
+                if not isinstance(prefix, text_type):
                     prefix = prefix.decode(self.encoding)
                 docstring = prepare_commentdoc(prefix)
                 if docstring:
@@ -119,7 +119,7 @@ class AttrDocVisitor(nodes.NodeVisitor):
             if not pnode or pnode.type not in (token.INDENT, token.DEDENT):
                 break
             prefix = pnode.get_prefix()
-        if not isinstance(prefix, unicode):
+        if not isinstance(prefix, text_type):
             prefix = prefix.decode(self.encoding)
         docstring = prepare_commentdoc(prefix)
         self.add_docstring(node, docstring)
