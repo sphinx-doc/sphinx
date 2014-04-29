@@ -56,9 +56,9 @@ UTF8StreamReader = codecs.lookup('utf-8')[2]
 def read_inventory_v1(f, uri, join):
     f = UTF8StreamReader(f)
     invdata = {}
-    line = f.next()
+    line = next(f)
     projname = line.rstrip()[11:]
-    line = f.next()
+    line = next(f)
     version = line.rstrip()[11:]
     for line in f:
         name, type, location = line.rstrip().split(None, 2)

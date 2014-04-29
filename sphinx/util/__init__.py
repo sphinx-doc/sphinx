@@ -421,11 +421,13 @@ class PeekableIterator(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         """Return the next item from the iterator."""
         if self.remaining:
             return self.remaining.popleft()
-        return self._iterator.next()
+        return next(self._iterator)
+
+    next = __next__  # Python 2 compatibility
 
     def push(self, item):
         """Push the `item` on the internal stack, it will be returned on the
@@ -435,6 +437,6 @@ class PeekableIterator(object):
 
     def peek(self):
         """Return the next item without changing the state of the iterator."""
-        item = self.next()
+        item = next(self)
         self.push(item)
         return item

@@ -1187,7 +1187,7 @@ class _IterParseIterator(object):
                     append((event, None))
                 parser.EndNamespaceDeclHandler = handler
 
-    def next(self):
+    def __next__(self):
         while 1:
             try:
                 item = self._events[self._index]
@@ -1207,6 +1207,8 @@ class _IterParseIterator(object):
             else:
                 self._index = self._index + 1
                 return item
+
+    next = __next__  # Python 2 compatibility
 
     def __iter__(self):
         return self

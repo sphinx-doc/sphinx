@@ -35,9 +35,9 @@ class BooleanParser(Parser):
                 node = nodes.Const(None, lineno=token.lineno)
             else:
                 node = nodes.Name(token.value, 'load', lineno=token.lineno)
-            self.stream.next()
+            next(self.stream)
         elif token.type == 'lparen':
-            self.stream.next()
+            next(self.stream)
             node = self.parse_expression()
             self.stream.expect('rparen')
         else:

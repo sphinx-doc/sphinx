@@ -190,7 +190,7 @@ class GoogleDocstring(object):
         line = self._line_iter.peek()
         while(not self._is_section_break()
               and (not line or self._is_indented(line, indent))):
-            lines.append(self._line_iter.next())
+            lines.append(next(self._line_iter))
             line = self._line_iter.peek()
         return lines
 
@@ -199,19 +199,19 @@ class GoogleDocstring(object):
         while (self._line_iter.has_next()
                and self._line_iter.peek()
                and not self._is_section_header()):
-            lines.append(self._line_iter.next())
+            lines.append(next(self._line_iter))
         return lines
 
     def _consume_empty(self):
         lines = []
         line = self._line_iter.peek()
         while self._line_iter.has_next() and not line:
-            lines.append(self._line_iter.next())
+            lines.append(next(self._line_iter))
             line = self._line_iter.peek()
         return lines
 
     def _consume_field(self, parse_type=True, prefer_type=False):
-        line = self._line_iter.next()
+        line = next(self._line_iter)
 
         match = None
         _name, _type, _desc = line.strip(), '', ''
@@ -268,7 +268,7 @@ class GoogleDocstring(object):
             return []
 
     def _consume_section_header(self):
-        section = self._line_iter.next()
+        section = next(self._line_iter)
         stripped_section = section.strip(':')
         if stripped_section.lower() in self._sections:
             section = stripped_section
@@ -278,7 +278,7 @@ class GoogleDocstring(object):
         self._consume_empty()
         lines = []
         while not self._is_section_break():
-            lines.append(self._line_iter.next())
+            lines.append(next(self._line_iter))
         return lines + self._consume_empty()
 
     def _dedent(self, lines, full=False):
@@ -708,7 +708,7 @@ class NumpyDocstring(GoogleDocstring):
                                              name, obj, options)
 
     def _consume_field(self, parse_type=True, prefer_type=False):
-        line = self._line_iter.next()
+        line = next(self._line_iter)
         if parse_type:
             _name, _, _type = line.partition(':')
         else:
@@ -725,10 +725,10 @@ class NumpyDocstring(GoogleDocstring):
         return self._consume_fields(prefer_type=True)
 
     def _consume_section_header(self):
-        section = self._line_iter.next()
+        section = next(self._line_iter)
         if not _directive_regex.match(section):
             # Consume the header underline
-            self._line_iter.next()
+            next(self._line_iter)
         return section
 
     def _is_section_break(self):

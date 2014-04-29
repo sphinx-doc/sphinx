@@ -76,7 +76,7 @@ class peek_iter(object):
             n = 1
         try:
             while len(self._cache) < n:
-                self._cache.append(self._iterable.next())
+                self._cache.append(next(self._iterable))
         except StopIteration:
             while len(self._cache) < n:
                 self._cache.append(self.sentinel)
@@ -239,7 +239,7 @@ class modify_iter(peek_iter):
             n = 1
         try:
             while len(self._cache) < n:
-                self._cache.append(self.modifier(self._iterable.next()))
+                self._cache.append(self.modifier(next(self._iterable)))
         except StopIteration:
             while len(self._cache) < n:
                 self._cache.append(self.sentinel)

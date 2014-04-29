@@ -324,9 +324,9 @@ class ParserGenerator(object):
         return value
 
     def gettoken(self):
-        tup = self.generator.next()
+        tup = next(self.generator)
         while tup[0] in (tokenize.COMMENT, tokenize.NL):
-            tup = self.generator.next()
+            tup = next(self.generator)
         self.type, self.value, self.begin, self.end, self.line = tup
         #print token.tok_name[self.type], repr(self.value)
 
