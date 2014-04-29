@@ -31,7 +31,7 @@ class ParserGenerator(object):
 
     def make_grammar(self):
         c = PgenGrammar()
-        names = self.dfas.keys()
+        names = list(self.dfas.keys())
         names.sort()
         names.remove(self.startsymbol)
         names.insert(0, self.startsymbol)
@@ -110,7 +110,7 @@ class ParserGenerator(object):
                     return ilabel
 
     def addfirstsets(self):
-        names = self.dfas.keys()
+        names = list(self.dfas.keys())
         names.sort()
         for name in names:
             if name not in self.first:

@@ -123,7 +123,7 @@ class FilenameUniqDict(dict):
         return uniquename
 
     def purge_doc(self, docname):
-        for filename, (docs, unique) in self.items():
+        for filename, (docs, unique) in list(self.items()):
             docs.discard(docname)
             if not docs:
                 del self[filename]

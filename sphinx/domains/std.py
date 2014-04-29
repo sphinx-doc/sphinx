@@ -509,16 +509,16 @@ class StandardDomain(Domain):
     }
 
     def clear_doc(self, docname):
-        for key, (fn, _) in self.data['progoptions'].items():
+        for key, (fn, _) in list(self.data['progoptions'].items()):
             if fn == docname:
                 del self.data['progoptions'][key]
-        for key, (fn, _) in self.data['objects'].items():
+        for key, (fn, _) in list(self.data['objects'].items()):
             if fn == docname:
                 del self.data['objects'][key]
-        for key, (fn, _, _) in self.data['labels'].items():
+        for key, (fn, _, _) in list(self.data['labels'].items()):
             if fn == docname:
                 del self.data['labels'][key]
-        for key, (fn, _) in self.data['anonlabels'].items():
+        for key, (fn, _) in list(self.data['anonlabels'].items()):
             if fn == docname:
                 del self.data['anonlabels'][key]
 

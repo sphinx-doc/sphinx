@@ -119,7 +119,7 @@ class ReSTDomain(Domain):
     }
 
     def clear_doc(self, docname):
-        for (typ, name), doc in self.data['objects'].items():
+        for (typ, name), doc in list(self.data['objects'].items()):
             if doc == docname:
                 del self.data['objects'][typ, name]
 

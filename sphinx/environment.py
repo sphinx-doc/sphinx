@@ -137,7 +137,7 @@ class BuildEnvironment:
         del self.domains
         picklefile = open(filename, 'wb')
         # remove potentially pickling-problematic values from config
-        for key, val in vars(self.config).items():
+        for key, val in list(vars(self.config).items()):
             if key.startswith('_') or \
                    isinstance(val, types.ModuleType) or \
                    isinstance(val, types.FunctionType) or \
@@ -279,11 +279,11 @@ class BuildEnvironment:
             self.images.purge_doc(docname)
             self.dlfiles.purge_doc(docname)
 
-            for subfn, fnset in self.files_to_rebuild.items():
+            for subfn, fnset in list(self.files_to_rebuild.items()):
                 fnset.discard(docname)
                 if not fnset:
                     del self.files_to_rebuild[subfn]
-            for key, (fn, _) in self.citations.items():
+            for key, (fn, _) in list(self.citations.items()):
                 if fn == docname:
                     del self.citations[key]
             for version, changes in self.versionchanges.items():

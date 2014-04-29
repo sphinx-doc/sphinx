@@ -235,7 +235,7 @@ class CDomain(Domain):
     }
 
     def clear_doc(self, docname):
-        for fullname, (fn, _) in self.data['objects'].items():
+        for fullname, (fn, _) in list(self.data['objects'].items()):
             if fn == docname:
                 del self.data['objects'][fullname]
 
@@ -250,5 +250,5 @@ class CDomain(Domain):
                             contnode, target)
 
     def get_objects(self):
-        for refname, (docname, type) in iteritems(self.data['objects']):
+        for refname, (docname, type) in list(self.data['objects'].items()):
             yield (refname, refname, type, docname, 'c.' + refname, 1)
