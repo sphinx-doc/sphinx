@@ -12,12 +12,12 @@
 import sys
 import codecs
 
-import six
+from six import PY3, text_type, exec_
 
 # ------------------------------------------------------------------------------
 # Python 2/3 compatibility
 
-if six.PY3:
+if PY3:
     # Python 3
     # the ubiquitous "bytes" helper functions
     def b(s):
@@ -45,7 +45,7 @@ if six.PY3:
             lineno, offset = err.context[1]
             # try to match ParseError details with SyntaxError details
             raise SyntaxError(err.msg, (filepath, lineno, offset, err.value))
-        return six.text_type(tree)
+        return text_type(tree)
     from html import escape as htmlescape  # >= Python 3.2
 
     class UnicodeMixin:
@@ -106,4 +106,4 @@ def execfile_(filepath, _globals):
             code = compile(source, filepath_enc, 'exec')
         else:
             raise
-    six.exec_(code, _globals)
+    exec_(code, _globals)

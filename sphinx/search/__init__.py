@@ -12,8 +12,7 @@ from __future__ import with_statement
 
 import re
 
-import six
-from six import iteritems, itervalues, text_type
+from six import iteritems, itervalues, text_type, string_types
 from six.moves import cPickle as pickle
 from docutils.nodes import raw, comment, title, Text, NodeVisitor, SkipNode
 
@@ -239,7 +238,7 @@ class IndexBuilder(object):
 
     def load(self, stream, format):
         """Reconstruct from frozen data."""
-        if isinstance(format, six.string_types):
+        if isinstance(format, string_types):
             format = self.formats[format]
         frozen = format.load(stream)
         # if an old index is present, we treat it as not existing.
@@ -264,7 +263,7 @@ class IndexBuilder(object):
 
     def dump(self, stream, format):
         """Dump the frozen index to a stream."""
-        if isinstance(format, six.string_types):
+        if isinstance(format, string_types):
             format = self.formats[format]
         format.dump(self.freeze(), stream)
 

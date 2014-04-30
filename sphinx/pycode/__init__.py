@@ -13,8 +13,7 @@ from __future__ import print_function
 import sys
 from os import path
 
-import six
-from six import iteritems, text_type
+from six import iteritems, text_type, BytesIO, StringIO
 
 from sphinx import package_dir
 from sphinx.errors import PycodeError
@@ -177,8 +176,8 @@ class ModuleAnalyzer(object):
     @classmethod
     def for_string(cls, string, modname, srcname='<string>'):
         if isinstance(string, bytes):
-            return cls(six.BytesIO(string), modname, srcname)
-        return cls(six.StringIO(string), modname, srcname, decoded=True)
+            return cls(BytesIO(string), modname, srcname)
+        return cls(StringIO(string), modname, srcname, decoded=True)
 
     @classmethod
     def for_file(cls, filename, modname):

@@ -11,8 +11,7 @@
 
 import gettext
 
-import six
-from six import text_type
+from six import PY3, text_type
 from six.moves import UserString
 
 
@@ -185,7 +184,7 @@ pairindextypes = {
 
 translators = {}
 
-if six.PY3:
+if PY3:
     def _(message):
         return translators['sphinx'].gettext(message)
 else:

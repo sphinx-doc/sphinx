@@ -15,7 +15,7 @@ import collections
 import inspect
 import re
 
-import six
+from six import string_types
 from six.moves import range
 
 from sphinx.ext.napoleon.iterators import modify_iter
@@ -115,7 +115,7 @@ class GoogleDocstring(UnicodeMixin):
         self._name = name
         self._obj = obj
         self._opt = options
-        if isinstance(docstring, six.string_types):
+        if isinstance(docstring, string_types):
             docstring = docstring.splitlines()
         self._lines = docstring
         self._line_iter = modify_iter(docstring, modifier=lambda s: s.rstrip())
@@ -730,7 +730,7 @@ class NumpyDocstring(GoogleDocstring):
     def _is_section_header(self):
         section, underline = self._line_iter.peek(2)
         section = section.lower()
-        if section in self._sections and isinstance(underline, six.string_types):
+        if section in self._sections and isinstance(underline, string_types):
             pattern = r'[=\-`:\'"~^_*+#<>]{' + str(len(section)) + r'}$'
             return bool(re.match(pattern, underline))
         elif self._directive_sections:

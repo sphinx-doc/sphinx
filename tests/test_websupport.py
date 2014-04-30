@@ -12,7 +12,7 @@
 import os
 from functools import wraps
 
-import six
+from six import StringIO
 
 from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import DocumentNotFoundError, \
@@ -31,8 +31,8 @@ from util import test_root, raises, skip_if
 
 
 default_settings = {'builddir': os.path.join(test_root, 'websupport'),
-                    'status': six.StringIO(),
-                    'warning': six.StringIO()}
+                    'status': StringIO(),
+                    'warning': StringIO()}
 
 def teardown_module():
     (test_root / 'generated').rmtree(True)

@@ -19,8 +19,8 @@ import posixpath
 import traceback
 from os import path
 
-import six
 from six import iteritems, itervalues
+from six.moves import cStringIO
 from docutils import nodes
 from docutils.parsers.rst import convert_directive_function, \
      directives, roles
@@ -85,14 +85,14 @@ class Sphinx(object):
         self.parallel = parallel
 
         if status is None:
-            self._status = six.cStringIO()
+            self._status = cStringIO()
             self.quiet = True
         else:
             self._status = status
             self.quiet = False
 
         if warning is None:
-            self._warning = six.cStringIO()
+            self._warning = cStringIO()
         else:
             self._warning = warning
         self._warncount = 0

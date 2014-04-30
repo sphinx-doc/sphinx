@@ -17,8 +17,7 @@ import posixpath
 from os import path
 from hashlib import md5
 
-import six
-from six import iteritems, itervalues, text_type
+from six import iteritems, itervalues, text_type, string_types
 from six.moves import cPickle as pickle
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
@@ -297,7 +296,7 @@ class StandaloneHTMLBuilder(Builder):
         if favicon and os.path.splitext(favicon)[1] != '.ico':
             self.warn('html_favicon is not an .ico file')
 
-        if not isinstance(self.config.html_use_opensearch, six.string_types):
+        if not isinstance(self.config.html_use_opensearch, string_types):
             self.warn('html_use_opensearch config value must now be a string')
 
         self.relations = self.env.collect_relations()
@@ -715,7 +714,7 @@ class StandaloneHTMLBuilder(Builder):
         if sidebars is None:
             # keep defaults
             pass
-        elif isinstance(sidebars, six.string_types):
+        elif isinstance(sidebars, string_types):
             # 0.x compatible mode: insert custom sidebar before searchbox
             customsidebar = sidebars
             sidebars = None

@@ -12,8 +12,7 @@
 import os
 import re
 
-import six
-from six import iteritems
+from six import PY3, iteritems, StringIO
 from six.moves import html_entities
 
 try:
@@ -30,7 +29,7 @@ def teardown_module():
     (test_root / '_build').rmtree(True)
 
 
-html_warnfile = six.StringIO()
+html_warnfile = StringIO()
 
 ENV_WARNINGS = """\
 %(root)s/autodoc_fodder.py:docstring of autodoc_fodder\\.MarkupError:2: \
@@ -55,7 +54,7 @@ None:\\d+: WARNING: citation not found: missing
 %(root)s/markup.txt:: WARNING: invalid pair index entry u'keyword; '
 """
 
-if six.PY3:
+if PY3:
     ENV_WARNINGS = remove_unicode_literals(ENV_WARNINGS)
     HTML_WARNINGS = remove_unicode_literals(HTML_WARNINGS)
 

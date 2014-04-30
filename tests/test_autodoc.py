@@ -14,7 +14,7 @@
 from util import TestApp, Struct, raises
 from nose.tools import with_setup
 
-import six
+from six import StringIO
 from docutils.statemachine import ViewList
 
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
@@ -809,7 +809,7 @@ class Class(Base):
     u"""should be documented as well - süß"""
 
     # initialized to any class imported from another module
-    mdocattr = six.StringIO()
+    mdocattr = StringIO()
     """should be documented as well - süß"""
 
     roger = _funky_classmethod("roger", 2, 3, 4)

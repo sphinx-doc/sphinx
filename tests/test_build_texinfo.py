@@ -14,7 +14,7 @@ import os
 import re
 from subprocess import Popen, PIPE
 
-import six
+from six import PY3, StringIO
 
 from sphinx.writers.texinfo import TexinfoTranslator
 
@@ -26,7 +26,7 @@ def teardown_module():
     (test_root / '_build').rmtree(True)
 
 
-texinfo_warnfile = six.StringIO()
+texinfo_warnfile = StringIO()
 
 TEXINFO_WARNINGS = ENV_WARNINGS + """\
 None:None: WARNING: citation not found: missing
@@ -34,7 +34,7 @@ None:None: WARNING: no matching candidate for image URI u'foo.\\*'
 None:None: WARNING: no matching candidate for image URI u'svgimg.\\*'
 """
 
-if six.PY3:
+if PY3:
     TEXINFO_WARNINGS = remove_unicode_literals(TEXINFO_WARNINGS)
 
 

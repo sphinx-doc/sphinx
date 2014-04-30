@@ -13,7 +13,7 @@ import shutil
 import re
 from functools import wraps
 
-import six
+from six import StringIO
 
 from sphinx import application
 from sphinx.theming import Theme
@@ -163,7 +163,7 @@ class TestApp(application.Sphinx):
         if confoverrides is None:
             confoverrides = {}
         if status is None:
-            status = six.StringIO()
+            status = StringIO()
         if warning is None:
             warning = ListOutput('stderr')
         if freshenv is None:

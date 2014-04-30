@@ -13,10 +13,10 @@
 
 import collections
 
-import six
+from six import PY3
 
 
-if six.PY3:
+if PY3:
     callable = lambda o: hasattr(o, '__call__')
 
 

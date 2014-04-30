@@ -72,7 +72,7 @@ import token
 import zipimport
 from socket import gethostname
 
-import six
+from six import string_types
 
 
 # 2. IMPLEMENTATION
@@ -841,7 +841,7 @@ class coverage:
         # On windows, the shell doesn't expand wildcards.  Do it here.
         globbed = []
         for morf in morfs:
-            if isinstance(morf, six.string_types):
+            if isinstance(morf, string_types):
                 globbed.extend(glob.glob(morf))
             else:
                 globbed.append(morf)

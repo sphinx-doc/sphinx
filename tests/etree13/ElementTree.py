@@ -81,7 +81,7 @@
 from __future__ import generators
 from __future__ import absolute_import
 
-import six
+from six import string_types
 
 
 __all__ = [
@@ -831,7 +831,7 @@ def _namespaces(elem, encoding, default_namespace=None):
         tag = elem.tag
         if isinstance(tag, QName) and tag.text not in qnames:
             add_qname(tag.text)
-        elif isinstance(tag, six.string_types):
+        elif isinstance(tag, string_types):
             if tag not in qnames:
                 add_qname(tag)
         elif tag is not None and tag is not Comment and tag is not PI:

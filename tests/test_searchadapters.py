@@ -11,7 +11,7 @@
 
 import os
 
-import six
+from six import StringIO
 
 from sphinx.websupport import WebSupport
 
@@ -32,8 +32,8 @@ def search_adapter_helper(adapter):
     clear_builddir()
 
     settings = {'builddir': os.path.join(test_root, 'websupport'),
-                'status': six.StringIO(),
-                'warning': six.StringIO()}
+                'status': StringIO(),
+                'warning': StringIO()}
     settings.update({'srcdir': test_root,
                      'search': adapter})
     support = WebSupport(**settings)

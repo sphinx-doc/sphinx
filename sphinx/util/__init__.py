@@ -21,8 +21,7 @@ from os import path
 from codecs import open, BOM_UTF8
 from collections import deque
 
-import six
-from six import iteritems, text_type
+from six import iteritems, text_type, binary_type
 from six.moves import range
 import docutils
 from docutils.utils import relative_path
@@ -337,7 +336,7 @@ def parselinenos(spec, total):
 
 def force_decode(string, encoding):
     """Forcibly get a unicode string out of a bytestring."""
-    if isinstance(string, six.binary_type):
+    if isinstance(string, binary_type):
         try:
             if encoding:
                 string = string.decode(encoding)

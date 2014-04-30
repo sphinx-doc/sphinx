@@ -17,8 +17,7 @@ import inspect
 import traceback
 from types import FunctionType, BuiltinFunctionType, MethodType
 
-import six
-from six import iteritems, itervalues, text_type
+from six import PY3, iteritems, itervalues, text_type, class_types
 from docutils import nodes
 from docutils.utils import assemble_option_dict
 from docutils.statemachine import ViewList
@@ -1029,7 +1028,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isinstance(member, six.class_types)
+        return isinstance(member, class_types)
 
     def import_object(self):
         ret = ModuleLevelDocumenter.import_object(self)
@@ -1163,7 +1162,7 @@ class ExceptionDocumenter(ClassDocumenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isinstance(member, six.class_types) and \
+        return isinstance(member, class_types) and \
                issubclass(member, BaseException)
 
 
@@ -1213,7 +1212,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
         return inspect.isroutine(member) and \
                not isinstance(parent, ModuleDocumenter)
 
-    if six.PY3:
+    if PY3:
         def import_object(self):
             ret = ClassLevelDocumenter.import_object(self)
             obj_from_parent = self.parent.__dict__.get(self.object_name)
@@ -1283,7 +1282,7 @@ class AttributeDocumenter(ClassLevelDocumenter):
                                                "instancemethod")
         return isdatadesc or (not isinstance(parent, ModuleDocumenter)
                               and not inspect.isroutine(member)
-                              and not isinstance(member, six.class_types))
+                              and not isinstance(member, class_types))
 
     def document_members(self, all_members=False):
         pass

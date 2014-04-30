@@ -12,7 +12,7 @@
 from os import path
 from pprint import pformat
 
-import six
+from six import string_types
 from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
      contextfunction
 from jinja2.utils import open_if_exists
@@ -23,7 +23,7 @@ from sphinx.util.osutil import mtimes_of_files
 
 
 def _tobool(val):
-    if isinstance(val, six.string_types):
+    if isinstance(val, string_types):
         return val.lower() in ('true', '1', 'yes', 'on')
     return bool(val)
 

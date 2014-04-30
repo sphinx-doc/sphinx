@@ -9,7 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import six
+from six import StringIO
 from docutils import nodes
 
 from sphinx.application import ExtensionError
@@ -49,7 +49,7 @@ def test_emit_with_nonascii_name_node(app):
 
 
 def test_output():
-    status, warnings = six.StringIO(), six.StringIO()
+    status, warnings = StringIO(), StringIO()
     app = TestApp(status=status, warning=warnings)
     try:
         status.truncate(0) # __init__ writes to status
@@ -70,7 +70,7 @@ def test_output():
 
 
 def test_extensions():
-    status, warnings = six.StringIO(), six.StringIO()
+    status, warnings = StringIO(), StringIO()
     app = TestApp(status=status, warning=warnings)
     try:
         app.setup_extension('shutil')
@@ -85,7 +85,7 @@ def test_domain_override():
         name = 'foo'
     class C(Domain):
         name = 'foo'
-    status, warnings = six.StringIO(), six.StringIO()
+    status, warnings = StringIO(), StringIO()
     app = TestApp(status=status, warning=warnings)
     try:
         # No domain know named foo.

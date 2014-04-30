@@ -16,8 +16,7 @@ import getopt
 import traceback
 from os import path
 
-import six
-from six import text_type
+from six import text_type, binary_type
 from docutils.utils import SystemMessage
 
 from sphinx import __version__
@@ -185,7 +184,7 @@ def main(argv):
                 print('Error: -D option argument must be in the form name=value.',
                       file=sys.stderr)
                 return 1
-            if likely_encoding and isinstance(val, six.binary_type):
+            if likely_encoding and isinstance(val, binary_type):
                 try:
                     val = val.decode(likely_encoding)
                 except UnicodeError:
@@ -201,7 +200,7 @@ def main(argv):
             try:
                 val = int(val)
             except ValueError:
-                if likely_encoding and isinstance(val, six.binary_type):
+                if likely_encoding and isinstance(val, binary_type):
                     try:
                         val = val.decode(likely_encoding)
                     except UnicodeError:

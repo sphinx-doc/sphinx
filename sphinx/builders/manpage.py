@@ -11,7 +11,7 @@
 
 from os import path
 
-import six
+from six import string_types
 from docutils.io import FileOutput
 from docutils.frontend import OptionParser
 
@@ -55,7 +55,7 @@ class ManualPageBuilder(Builder):
 
         for info in self.config.man_pages:
             docname, name, description, authors, section = info
-            if isinstance(authors, six.string_types):
+            if isinstance(authors, string_types):
                 if authors:
                     authors = [authors]
                 else:

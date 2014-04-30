@@ -26,8 +26,7 @@ try:
 except ImportError:
     pass
 
-import six
-from six import text_type
+from six import PY2, PY3, text_type
 from six.moves import input
 from docutils.utils import column_width
 
@@ -43,7 +42,7 @@ term_input = input
 
 PROMPT_PREFIX = '> '
 
-if six.PY3:
+if PY3:
     # prevents that the file is checked for being written in Python 2.x syntax
     QUICKSTART_CONF = u'#!/usr/bin/env python3\n'
 else:
@@ -996,7 +995,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
             prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)
         else:
             prompt = PROMPT_PREFIX + text + ': '
-        if six.PY2:
+        if PY2:
             # for Python 2.x, try to get a Unicode string out of it
             if prompt.encode('ascii', 'replace').decode('ascii', 'replace') \
                     != prompt:
@@ -1036,7 +1035,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
     d[key] = x
 
 
-if six.PY3:
+if PY3:
     # remove Unicode literal prefixes
     def _convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
         return rex.sub('\\1', source)

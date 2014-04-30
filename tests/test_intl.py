@@ -16,12 +16,12 @@ import re
 from subprocess import Popen, PIPE
 from xml.etree import ElementTree
 
-import six
+from six import StringIO, string_types
 
 from util import test_roots, path, with_app, SkipTest
 
 
-warnfile = six.StringIO()
+warnfile = StringIO()
 root = test_roots / 'test-intl'
 doctreedir = root / '_build' / 'doctree'
 
@@ -77,7 +77,7 @@ def elem_gettexts(elem):
         # this function copied from Python-2.7 'ElementTree.itertext'.
         # for compatibility to Python-2.6
         tag = self.tag
-        if not isinstance(tag, six.string_types) and tag is not None:
+        if not isinstance(tag, string_types) and tag is not None:
             return
         if self.text:
             yield self.text

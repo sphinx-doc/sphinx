@@ -22,8 +22,7 @@ from os import path
 from glob import glob
 from itertools import groupby
 
-import six
-from six import iteritems, itervalues, text_type
+from six import iteritems, itervalues, text_type, class_types
 from six.moves import cPickle as pickle, zip
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
@@ -141,7 +140,7 @@ class BuildEnvironment:
             if key.startswith('_') or \
                    isinstance(val, types.ModuleType) or \
                    isinstance(val, types.FunctionType) or \
-                   isinstance(val, six.class_types):
+                   isinstance(val, class_types):
                 del self.config[key]
         try:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)

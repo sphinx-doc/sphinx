@@ -18,8 +18,7 @@ from os import path
 # circumvent relative import
 doctest = __import__('doctest')
 
-import six
-from six import itervalues
+from six import itervalues, StringIO, binary_type
 from docutils import nodes
 from docutils.parsers.rst import directives
 
@@ -158,7 +157,7 @@ class TestCode(object):
 
 class SphinxDocTestRunner(doctest.DocTestRunner):
     def summarize(self, out, verbose=None):
-        string_io = six.StringIO()
+        string_io = StringIO()
         old_stdout = sys.stdout
         sys.stdout = string_io
         try:
@@ -233,7 +232,7 @@ Results of doctest builder run on %s
         self.info(text, nonl=True)
         if self.app.quiet:
             self.warn(text)
-        if isinstance(text, six.binary_type):
+        if isinstance(text, binary_type):
             text = force_decode(text, None)
         self.outfile.write(text)
 

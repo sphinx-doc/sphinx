@@ -12,8 +12,8 @@
 import sys
 import time
 
-import six
-from six import text_type
+from six import PY2, text_type, StringIO
+from six.moves import input
 
 from util import raises, with_tempdir, SkipTest
 
@@ -23,7 +23,7 @@ from sphinx.util.console import nocolor, coloron
 from sphinx.util.pycompat import execfile_
 
 
-warnfile = six.StringIO()
+warnfile = StringIO()
 
 
 def setup_module():
@@ -31,12 +31,12 @@ def setup_module():
 
 def mock_input(answers, needanswer=False):
     called = set()
-    def input(prompt):
+    def input_(prompt):
         if prompt in called:
             raise AssertionError('answer for %r missing and no default '
                                  'present' % prompt)
         called.add(prompt)
-        if six.PY2:
+        if PY2:
             prompt = str(prompt)  # Python2.x raw_input emulation
             # `raw_input` encode `prompt` by default encoding to print.
         else:
@@ -48,9 +48,9 @@ def mock_input(answers, needanswer=False):
         if needanswer:
             raise AssertionError('answer for %r missing' % prompt)
         return ''
-    return input
+    return input_
 
-real_input = six.moves.input
+real_input = input
 
 def teardown_module():
     qs.term_input = real_input
@@ -262,7 +262,7 @@ def test_quickstart_and_build(tempdir):
             (tempdir / '_build' / 'html'),  #outdir
             (tempdir / '_build' / '.doctree'),  #doctreedir
             'html',  #buildername
-            status=six.StringIO(),
+            status=StringIO(),
             warning=warnfile)
     app.builder.build_all()
     warnings = warnfile.getvalue()

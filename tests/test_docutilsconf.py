@@ -13,12 +13,12 @@ import os
 import re
 from functools import wraps
 
-import six
+from six import StringIO
 
 from util import test_roots, TestApp
 
 
-html_warnfile = six.StringIO()
+html_warnfile = StringIO()
 root = test_roots / 'test-docutilsconf'
 
 

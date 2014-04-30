@@ -15,8 +15,7 @@ import zipfile
 import tempfile
 from os import path
 
-import six
-from six import iteritems
+from six import string_types, iteritems
 from six.moves import configparser
 
 try:
@@ -191,7 +190,7 @@ def load_theme_plugins():
         except:
             path = func_or_path
 
-        if isinstance(path, six.string_types):
+        if isinstance(path, string_types):
             theme_paths.append(path)
         else:
             raise ThemeError('Plugin %r does not response correctly.' %

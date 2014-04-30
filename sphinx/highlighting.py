@@ -18,8 +18,7 @@ except ImportError:
     # parser is not available on Jython
     parser = None
 
-import six
-from six import text_type
+from six import PY2, text_type
 
 from sphinx.util.pycompat import htmlescape
 from sphinx.util.texescape import tex_hl_escape_map_new
@@ -133,7 +132,7 @@ class PygmentsBridge(object):
         # lines beginning with "..." are probably placeholders for suite
         src = re.sub(r"(?m)^(\s*)" + mark + "(.)", r"\1"+ mark + r"# \2", src)
 
-        if six.PY2 and isinstance(src, text_type):
+        if PY2 and isinstance(src, text_type):
             # Non-ASCII chars will only occur in string literals
             # and comments.  If we wanted to give them to the parser
             # correctly, we'd have to find out the correct source

@@ -11,8 +11,7 @@
 
 import sys
 
-import six
-from six import iteritems
+from six import PY2, iteritems
 
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 
@@ -350,7 +349,7 @@ def _skip_member(app, what, name, obj, skip, options):
     if name != '__weakref__' and name != '__init__' and has_doc and is_member:
         cls_is_owner = False
         if what == 'class' or what == 'exception':
-            if six.PY2:
+            if PY2:
                 cls = getattr(obj, 'im_class', getattr(obj, '__objclass__',
                               None))
                 cls_is_owner = (cls and hasattr(cls, name) and

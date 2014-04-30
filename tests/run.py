@@ -15,7 +15,7 @@ import sys
 from os import path, chdir, listdir, environ
 import shutil
 
-import six
+from six import PY3
 
 
 testroot = path.dirname(__file__) or '.'
@@ -29,7 +29,7 @@ else:
 
 shutil.rmtree(newroot, ignore_errors=True)
 
-if six.PY3:
+if PY3:
     print('Copying and converting sources to build/lib/tests...')
     from distutils.util import copydir_run_2to3
     copydir_run_2to3(testroot, newroot)
