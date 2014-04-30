@@ -35,7 +35,7 @@ def test_mangle_signature():
     (a=1, b=<SomeClass: a, b, c>, c=3) :: ([a, b, c])
     """
 
-    TEST = [map(lambda x: x.strip(), x.split("::")) for x in TEST.split("\n")
+    TEST = [[y.strip() for y in x.split("::")] for x in TEST.split("\n")
             if '::' in x]
     for inp, outp in TEST:
         res = mangle_signature(inp).strip().replace(u"\u00a0", " ")

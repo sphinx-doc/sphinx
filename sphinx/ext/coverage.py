@@ -213,7 +213,7 @@ class CoverageBuilder(Builder):
         try:
             if self.config.coverage_write_headline:
                 write_header(op, 'Undocumented Python objects', '=')
-            keys = self.py_undoc.keys()
+            keys = list(self.py_undoc.keys())
             keys.sort()
             for name in keys:
                 undoc = self.py_undoc[name]

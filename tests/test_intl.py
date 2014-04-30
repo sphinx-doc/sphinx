@@ -98,7 +98,7 @@ def assert_elem(elem, texts=None, refs=None, names=None):
         _texts = elem_gettexts(elem)
         assert _texts == texts
     if refs is not None:
-        _refs = map(elem_getref, elem.findall('reference'))
+        _refs = [elem_getref(x) for x in elem.findall('reference')]
         assert _refs == refs
     if names is not None:
         _names = elem.attrib.get('names').split()

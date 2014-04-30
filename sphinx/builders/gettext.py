@@ -110,7 +110,7 @@ class I18nBuilder(Builder):
         for node, entries in traverse_translatable_index(doctree):
             for typ, msg, tid, main in entries:
                 for m in split_index_msg(typ, msg):
-                    if typ == 'pair' and m in pairindextypes.values():
+                    if typ == 'pair' and m in list(pairindextypes.values()):
                         # avoid built-in translated message was incorporated
                         # in 'sphinx.util.nodes.process_index_entry'
                         continue

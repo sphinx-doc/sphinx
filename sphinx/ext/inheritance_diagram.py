@@ -143,7 +143,7 @@ class InheritanceGraph(object):
         displayed node names.
         """
         all_classes = {}
-        builtins = vars(__builtin__).values()
+        builtins = list(vars(__builtin__).values())
 
         def recurse(cls):
             if not show_builtins and cls in builtins:

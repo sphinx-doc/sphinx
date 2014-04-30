@@ -864,7 +864,7 @@ def _serialize_xml(write, elem, encoding, qnames, namespaces):
                 _serialize_xml(write, e, encoding, qnames, None)
         else:
             write("<" + tag)
-            items = elem.items()
+            items = list(elem.items())
             if items or namespaces:
                 items.sort() # lexical order
                 for k, v in items:
@@ -876,7 +876,7 @@ def _serialize_xml(write, elem, encoding, qnames, namespaces):
                         v = _escape_attrib(v, encoding)
                     write(" %s=\"%s\"" % (qnames[k], v))
                 if namespaces:
-                    items = namespaces.items()
+                    items = list(namespaces.items())
                     items.sort(key=lambda x: x[1]) # sort on prefix
                     for v, k in items:
                         if k:
@@ -921,7 +921,7 @@ def _serialize_html(write, elem, encoding, qnames, namespaces):
                 _serialize_html(write, e, encoding, qnames, None)
         else:
             write("<" + tag)
-            items = elem.items()
+            items = list(elem.items())
             if items or namespaces:
                 items.sort() # lexical order
                 for k, v in items:
@@ -934,7 +934,7 @@ def _serialize_html(write, elem, encoding, qnames, namespaces):
                     # FIXME: handle boolean attributes
                     write(" %s=\"%s\"" % (qnames[k], v))
                 if namespaces:
-                    items = namespaces.items()
+                    items = list(namespaces.items())
                     items.sort(key=lambda x: x[1]) # sort on prefix
                     for v, k in items:
                         if k:

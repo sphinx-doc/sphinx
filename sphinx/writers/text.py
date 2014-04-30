@@ -488,7 +488,7 @@ class TextTranslator(nodes.NodeVisitor):
                 for i, cell in enumerate(line):
                     par = my_wrap(cell, width=colwidths[i])
                     if par:
-                        maxwidth = max(map(column_width, par))
+                        maxwidth = max(column_width(x) for x in par)
                     else:
                         maxwidth = 0
                     realwidths[i] = max(realwidths[i], maxwidth)

@@ -114,7 +114,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.pathchain = pathchain
 
         # make the paths into loaders
-        self.loaders = map(SphinxFileSystemLoader, loaderchain)
+        self.loaders = [SphinxFileSystemLoader(x) for x in loaderchain]
 
         use_i18n = builder.app.translator is not None
         extensions = use_i18n and ['jinja2.ext.i18n'] or []

@@ -190,7 +190,7 @@ class path(text_type):
         """
         Joins the path with the argument given and returns the result.
         """
-        return self.__class__(os.path.join(self, *map(self.__class__, args)))
+        return self.__class__(os.path.join(self, *list(map(self.__class__, args))))
 
     __div__ = __truediv__ = joinpath
 

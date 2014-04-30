@@ -89,7 +89,7 @@ class CheckExternalLinksBuilder(Builder):
     name = 'linkcheck'
 
     def init(self):
-        self.to_ignore = map(re.compile, self.app.config.linkcheck_ignore)
+        self.to_ignore = [re.compile(x) for x in self.app.config.linkcheck_ignore]
         self.good = set()
         self.broken = {}
         self.redirected = {}

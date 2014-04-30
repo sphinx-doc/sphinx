@@ -350,7 +350,7 @@ class coverage:
             '-o:': 'omit=',
             }
         short_opts = string.join(map(lambda o: o[1:], optmap.keys()), '')
-        long_opts = optmap.values()
+        long_opts = list(optmap.values())
         options, args = getopt.getopt(argv, short_opts, long_opts)
         for o, a in options:
             if o in optmap:
@@ -401,7 +401,7 @@ class coverage:
         if settings.get('collect'):
             self.collect()
         if not args:
-            args = self.cexecuted.keys()
+            args = list(self.cexecuted.keys())
 
         ignore_errors = settings.get('ignore-errors')
         show_missing = settings.get('show-missing')
@@ -743,9 +743,9 @@ class coverage:
         visitor = StatementFindingAstVisitor(statements, excluded, suite_spots)
         compiler.walk(ast, visitor, walker=visitor)
 
-        lines = statements.keys()
+        lines = list(statements.keys())
         lines.sort()
-        excluded_lines = excluded.keys()
+        excluded_lines = list(excluded.keys())
         excluded_lines.sort()
         return lines, excluded_lines, suite_spots
 
@@ -850,7 +850,7 @@ class coverage:
         morfs = self.filter_by_prefix(morfs, omit_prefixes)
         morfs.sort(self.morf_name_compare)
 
-        max_name = max([5,] + map(len, map(self.morf_name, morfs)))
+        max_name = max([5,] + list(map(len, map(self.morf_name, morfs))))
         fmt_name = "%%- %ds  " % max_name
         fmt_err = fmt_name + "%s: %s"
         header = fmt_name % "Name" + " Stmts   Exec  Cover"

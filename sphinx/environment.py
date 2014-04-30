@@ -1560,7 +1560,7 @@ class BuildEnvironment:
             if lckey[0:1] in lcletters:
                 return chr(127) + lckey
             return lckey
-        newlist = new.items()
+        newlist = list(new.items())
         newlist.sort(key=keyfunc)
 
         if group_entries:
