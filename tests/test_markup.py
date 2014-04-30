@@ -128,7 +128,7 @@ def test_inline():
 def test_latex_escaping():
     # correct escaping in normal mode
     yield (verify, u'Γ\\\\∞$', None,
-           ur'\(\Gamma\)\textbackslash{}\(\infty\)\$')
+           r'\(\Gamma\)\textbackslash{}\(\infty\)\$')
     # in verbatim code fragments
     yield (verify, u'::\n\n @Γ\\∞${}', None,
            u'\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n'
@@ -136,4 +136,4 @@ def test_latex_escaping():
            u'\\end{Verbatim}')
     # in URIs
     yield (verify_re, u'`test <http://example.com/~me/>`_', None,
-           ur'\\href{http://example.com/~me/}{test}.*')
+           r'\\href{http://example.com/~me/}{test}.*')

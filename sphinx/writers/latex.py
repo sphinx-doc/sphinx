@@ -711,7 +711,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\n\\hline\n')
             self.body.extend(self.tableheaders)
             self.body.append('\\endhead\n\n')
-            self.body.append(ur'\hline \multicolumn{%s}{|r|}{{\textsf{%s}}} \\ \hline'
+            self.body.append(r'\hline \multicolumn{%s}{|r|}{{\textsf{%s}}} \\ \hline'
                              % (self.table.colcount,
                                 _('Continued on next page')))
             self.body.append('\n\\endfoot\n\n')

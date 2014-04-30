@@ -266,7 +266,7 @@ if pygments:
         (".//div[@class='inc-lines highlight-text']//pre",
             r'^class Foo:\n    pass\nclass Bar:\n$'),
         (".//div[@class='inc-startend highlight-text']//pre",
-            ur'^foo = "Including Unicode characters: üöä"\n$'),
+            u'^foo = "Including Unicode characters: üöä"\\n$'),
         (".//div[@class='inc-preappend highlight-text']//pre",
             r'(?m)^START CODE$'),
         (".//div[@class='inc-pyobj-dedent highlight-python']//span",
