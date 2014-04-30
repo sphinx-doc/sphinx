@@ -15,11 +15,10 @@ from __future__ import print_function
 
 import sys
 import os
-import types
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError
 
-from six import StringIO
+from six import StringIO, string_types
 
 from sphinx.application import Sphinx
 from sphinx.util.console import darkred, nocolor, color_terminal
@@ -110,7 +109,7 @@ class BuildDoc(Command):
         if val is None:
             setattr(self, option, default)
             return default
-        elif not isinstance(val, types.StringTypes):
+        elif not isinstance(val, string_types):
             raise DistutilsOptionError("'%s' must be a %s (got `%s`)"
                                        % (option, what, val))
         return val
