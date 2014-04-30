@@ -13,7 +13,7 @@
 import re
 
 import six
-from six import iteritems
+from six import iteritems, integer_types
 
 from sphinx.util.pycompat import u
 
@@ -87,7 +87,7 @@ def dumps(obj, key=False):
         return 'null'
     elif obj is True or obj is False:
         return obj and 'true' or 'false'
-    elif isinstance(obj, (int, long, float)):
+    elif isinstance(obj, integer_types + (float,)):
         return str(obj)
     elif isinstance(obj, dict):
         return '{%s}' % ','.join('%s:%s' % (

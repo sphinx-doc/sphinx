@@ -27,12 +27,12 @@
 import time
 import zlib
 import codecs
-import urllib2
 import posixpath
 from os import path
 import re
 
 from six import iteritems
+from six.moves.urllib import request
 from docutils import nodes
 from docutils.utils import relative_path
 
@@ -41,14 +41,14 @@ from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.util.pycompat import b
 
 
-handlers = [urllib2.ProxyHandler(), urllib2.HTTPRedirectHandler(),
-            urllib2.HTTPHandler()]
+handlers = [request.ProxyHandler(), request.HTTPRedirectHandler(),
+            request.HTTPHandler()]
 try:
-    handlers.append(urllib2.HTTPSHandler)
+    handlers.append(request.HTTPSHandler)
 except AttributeError:
     pass
 
-urllib2.install_opener(urllib2.build_opener(*handlers))
+request.install_opener(request.build_opener(*handlers))
 
 UTF8StreamReader = codecs.lookup('utf-8')[2]
 
@@ -130,7 +130,7 @@ def fetch_inventory(app, uri, inv):
     join = localuri and path.join or posixpath.join
     try:
         if inv.find('://') != -1:
-            f = urllib2.urlopen(inv)
+            f = request.urlopen(inv)
         else:
             f = open(path.join(app.srcdir, inv), 'rb')
     except Exception as err:

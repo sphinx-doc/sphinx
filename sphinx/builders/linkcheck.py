@@ -13,11 +13,12 @@ import re
 import socket
 import threading
 from os import path
-from urllib2 import build_opener, unquote, Request, \
-    HTTPError, HTTPRedirectHandler
-from HTMLParser import HTMLParser, HTMLParseError
 
 from six.moves import queue
+from six.moves.urllib.request import build_opener, Request, HTTPRedirectHandler
+from six.moves.urllib.parse import unquote
+from six.moves.urllib.error import HTTPError
+from six.moves.html_parser import HTMLParser, HTMLParseError
 from docutils import nodes
 
 from sphinx.builders import Builder

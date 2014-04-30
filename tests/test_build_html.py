@@ -11,10 +11,10 @@
 
 import os
 import re
-import htmlentitydefs
 
 import six
 from six import iteritems
+from six.moves import html_entities
 
 try:
     import pygments
@@ -347,7 +347,7 @@ def test_html(app):
 
     for fname, paths in iteritems(HTML_XPATH):
         parser = NslessParser()
-        parser.entity.update(htmlentitydefs.entitydefs)
+        parser.entity.update(html_entities.entitydefs)
         fp = open(os.path.join(app.outdir, fname), 'rb')
         try:
             etree = ET.parse(fp, parser)
