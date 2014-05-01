@@ -89,7 +89,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:nNEqQWw:PThvj:',
                                    ['help', 'version'])
-    except getopt.error, err:
+    except getopt.error as err:
         usage(argv, 'Error: %s' % err)
         return 1
 
