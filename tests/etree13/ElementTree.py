@@ -246,7 +246,7 @@ class Element(object):
     def __len__(self):
         return len(self._children)
 
-    def __nonzero__(self):
+    def __bool__(self):
         import warnings
         warnings.warn(
             "The behavior of this method will change in future versions. "
@@ -254,6 +254,7 @@ class Element(object):
             FutureWarning
             )
         return len(self._children) != 0 # emulate old behaviour
+    __nonzero__ = __bool__  # for python2 compatibility
 
     ##
     # Returns the given subelement.

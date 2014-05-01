@@ -54,9 +54,10 @@ class DefDict(dict):
             return dict.__getitem__(self, key)
         except KeyError:
             return self.default
-    def __nonzero__(self):
+    def __bool__(self):
         # docutils check "if option_spec"
         return True
+    __nonzero__ = __bool__  # for python2 compatibility
 
 identity = lambda x: x
 
