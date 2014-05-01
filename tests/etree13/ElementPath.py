@@ -177,7 +177,7 @@ class _SelectorContext:
 
 def find(elem, path):
     try:
-        return findall(elem, path).next()
+        return next(findall(elem, path))
     except StopIteration:
         return None
 
@@ -194,17 +194,17 @@ def findall(elem, path):
         if path[:1] == "/":
             raise SyntaxError("cannot use absolute path on element")
         stream = iter(xpath_tokenizer(path))
-        next = stream.next; token = next()
+        next_ = lambda: next(stream); token = next_()
         selector = []
         while 1:
             try:
-                selector.append(ops[token[0]](next, token))
+                selector.append(ops[token[0]](next_, token))
             except StopIteration:
                 raise SyntaxError("invalid path")
             try:
-                token = next()
+                token = next_()
                 if token[0] == "/":
-                    token = next()
+                    token = next_()
             except StopIteration:
                 break
         _cache[path] = selector
@@ -220,7 +220,7 @@ def findall(elem, path):
 
 def findtext(elem, path, default=None):
     try:
-        elem = findall(elem, path).next()
+        elem = next(findall(elem, path))
         return elem.text
     except StopIteration:
         return default
