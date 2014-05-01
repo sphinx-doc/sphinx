@@ -52,14 +52,6 @@ if (3, 0) <= sys.version_info < (3, 3):
 else:  # 2.6, 2.7, 3.3 or later
     requires.append('Jinja2>=2.3')
 
-# tell distribute to use 2to3 with our own fixers
-extra = {}
-if sys.version_info >= (3, 0):
-    extra.update(
-        use_2to3=True,
-        use_2to3_fixers=['custom_fixers']
-    )
-
 # Provide a "compile_catalog" command that also creates the translated
 # JavaScript files if Babel is available.
 
@@ -196,5 +188,4 @@ setup(
     },
     install_requires=requires,
     cmdclass=cmdclass,
-    **extra
 )
