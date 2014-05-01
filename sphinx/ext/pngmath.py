@@ -27,7 +27,7 @@ from docutils import nodes
 from sphinx.errors import SphinxError
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.osutil import ensuredir, ENOENT
-from sphinx.util.pycompat import b, sys_encoding
+from sphinx.util.pycompat import sys_encoding
 from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
 
 class MathExtError(SphinxError):
@@ -67,7 +67,7 @@ DOC_BODY_PREVIEW = r'''
 \end{document}
 '''
 
-depth_re = re.compile(b(r'\[\d+ depth=(-?\d+)\]'))
+depth_re = re.compile(br'\[\d+ depth=(-?\d+)\]')
 
 def render_math(self, math):
     """Render the LaTeX math expression *math* using latex and dvipng.

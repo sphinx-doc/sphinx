@@ -19,9 +19,6 @@ from six import PY3, text_type, exec_
 
 if PY3:
     # Python 3
-    # the ubiquitous "bytes" helper functions
-    def b(s):
-        return s.encode('utf-8')
     # prefix for Unicode strings
     u = ''
     from io import TextIOWrapper
@@ -57,7 +54,6 @@ if PY3:
 
 else:
     # Python 2
-    b = str
     u = 'u'
     # no need to refactor on 2.x versions
     convert_with_2to3 = None
@@ -92,7 +88,7 @@ def execfile_(filepath, _globals):
 
     # py26 accept only LF eol instead of CRLF
     if sys.version_info[:2] == (2, 6):
-        source = source.replace(b('\r\n'), b('\n'))
+        source = source.replace(b'\r\n', b'\n')
 
     # compile to a code object, handle syntax errors
     filepath_enc = filepath.encode(fs_encoding)

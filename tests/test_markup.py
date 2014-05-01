@@ -15,7 +15,6 @@ from docutils import frontend, utils, nodes
 from docutils.parsers import rst
 
 from sphinx.util import texescape
-from sphinx.util.pycompat import b
 from sphinx.writers.html import HTMLWriter, SmartyPantsHTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
 
@@ -54,7 +53,7 @@ class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
 
 
 def verify_re(rst, html_expected, latex_expected):
-    document = utils.new_document(b('test data'), settings)
+    document = utils.new_document(b'test data', settings)
     document['file'] = 'dummy'
     parser.parse(rst, document)
     for msg in document.traverse(nodes.system_message):

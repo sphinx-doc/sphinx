@@ -12,14 +12,13 @@
 import struct
 import binascii
 
-from sphinx.util.pycompat import b
 
 LEN_IEND = 12
 LEN_DEPTH = 22
 
 DEPTH_CHUNK_LEN = struct.pack('!i', 10)
-DEPTH_CHUNK_START = b('tEXtDepth\x00')
-IEND_CHUNK = b('\x00\x00\x00\x00IEND\xAE\x42\x60\x82')
+DEPTH_CHUNK_START = b'tEXtDepth\x00'
+IEND_CHUNK = b'\x00\x00\x00\x00IEND\xAE\x42\x60\x82'
 
 
 def read_png_depth(filename):

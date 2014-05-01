@@ -15,7 +15,6 @@ from util import TestApp, with_app, with_tempdir, raises, raises_msg
 
 from sphinx.config import Config
 from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
-from sphinx.util.pycompat import b
 
 
 @with_app(confoverrides={'master_doc': 'master', 'nonexisting_value': 'True',
@@ -122,8 +121,8 @@ def test_needs_sphinx():
 def test_config_eol(tmpdir):
     # test config file's eol patterns: LF, CRLF
     configfile = tmpdir / 'conf.py'
-    for eol in ('\n', '\r\n'):
-        configfile.write_bytes(b('project = "spam"' + eol))
+    for eol in (b'\n', b'\r\n'):
+        configfile.write_bytes(b'project = "spam"' + eol)
         cfg = Config(tmpdir, 'conf.py', {}, None)
         cfg.init_values(lambda warning: 1/0)
         assert cfg.project == u'spam'
