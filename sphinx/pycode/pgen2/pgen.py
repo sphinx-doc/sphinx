@@ -353,7 +353,7 @@ class DFAState(object):
 
     def __init__(self, nfaset, final):
         assert isinstance(nfaset, dict)
-        assert isinstance(iter(nfaset).next(), NFAState)
+        assert isinstance(next(iter(nfaset)), NFAState)
         assert isinstance(final, NFAState)
         self.nfaset = nfaset
         self.isfinal = final in nfaset
