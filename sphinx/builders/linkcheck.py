@@ -24,6 +24,7 @@ from docutils import nodes
 from sphinx.builders import Builder
 from sphinx.util.console import purple, red, darkgreen, darkgray, \
     darkred, turquoise
+from sphinx.util.pycompat import TextIOWrapper
 
 
 class RedirectHandler(HTTPRedirectHandler):
@@ -142,7 +143,10 @@ class CheckExternalLinksBuilder(Builder):
                     # Read the whole document and see if #hash exists
                     req = Request(req_url)
                     f = opener.open(req, **kwargs)
-                    found = check_anchor(f, unquote(hash))
+                    encoding = 'utf-8'
+                    if hasattr(f.headers, 'get_content_charset'):
+                        encoding = f.headers.get_content_charset() or encoding
+                    found = check_anchor(TextIOWrapper(f, encoding), unquote(hash))
                     f.close()
 
                     if not found:

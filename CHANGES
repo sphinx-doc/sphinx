@@ -10,6 +10,9 @@ Bugs fixed
 * #1363: Fix i18n: missing python domain's cross-references with currentmodule
   directive or currentclass directive.
 * #1444: autosummary does not create the description from attributes docstring.
+* #1457: In python3 environment, make linkcheck cause "Can't convert 'bytes'
+  object to str implicitly" error when link target url has a hash part.
+  Thanks to Jorge_C.
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================
