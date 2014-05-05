@@ -140,6 +140,8 @@ Bugs fixed
 * #1419: Generated i18n sphinx.js files are missing message catalog entries
   from '.js_t' and '.html'. The issue was introduced in Sphinx 1.1.
 * #636: Keep straight single quotes in literal blocks in the LaTeX build.
+* PR#235: comment db schema of websupport lacked a length of the node_id field.
+  Thanks to solos.
 
 Documentation
 -------------
