@@ -98,6 +98,7 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs):
 
     if opts.modulefirst:
         text += format_directive(subroot, master_package)
+        text += '\n'
 
     # build a list of directories that are szvpackages (contain an INITPY file)
     subs = [sub for sub in subs if path.isfile(path.join(root, sub, INITPY))]
