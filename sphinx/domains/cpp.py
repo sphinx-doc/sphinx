@@ -347,11 +347,12 @@ class CastOpDefExpr(PrimaryDefExpr):
 
 class ArgumentDefExpr(DefExpr):
 
-    def __init__(self, type, name, type_suffixes, default=None):
+    def __init__(self, type, name, type_suffixes, default=None, param_pack=False):
         self.name = name
         self.type = type
         self.type_suffixes = type_suffixes
         self.default = default
+        self.param_pack = param_pack
 
     def get_name(self):
         return self.name.get_name()
@@ -364,7 +365,11 @@ class ArgumentDefExpr(DefExpr):
         return u''.join(buf)
 
     def __unicode__(self):
-        buf = [(u'%s %s' % (self.type or u'', self.name or u'')).strip()]
+        buf = [(u'%s%s %s' % (
+            self.type or u'',
+            '...' if self.param_pack else u'',
+            self.name or u'')
+        ).strip()]
         if self.default is not None:
             buf.append('=%s' % self.default)
         for suffix in self.type_suffixes:
@@ -838,6 +843,9 @@ class DefinitionParser(object):
             argname = default = None
             argtype = self._parse_type()
             self.skip_ws()
+            param_pack = self.skip_string('...')
+            if param_pack:
+                self.skip_ws()
             type_suffixes = self._try_parse_type_suffixes()
             if self.skip_string('='):
                 default = self._parse_default_expr()
@@ -852,7 +860,7 @@ class DefinitionParser(object):
                 argtype = None
 
             args.append(ArgumentDefExpr(argtype, argname,
-                                        type_suffixes, default))
+                                        type_suffixes, default, param_pack))
         self.skip_ws()
         attributes = dict(
             signature=args,
