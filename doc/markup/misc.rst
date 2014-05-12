@@ -189,6 +189,14 @@ Including content based on tags
    These standard tags are set *after* the configuration file is read, so they
    are not available there.
 
+   All tags must follow the standard Python identifier syntax as set out in
+   the `Identifiers and keywords
+   <https://docs.python.org/reference/lexical_analysis.html#identifiers>`_
+   documentation.  That is, a tag expression may only consist of tags that
+   conform to the syntax of Python variables.  In ASCII, this consists of the
+   uppercase and lowercase letters ``A`` through ``Z``, the underscore ``_``
+   and, except for the first character, the digits ``0`` through ``9``.
+
    .. versionadded:: 0.6
    .. versionchanged:: 1.2
       Added the name of the builder and the prefixes.

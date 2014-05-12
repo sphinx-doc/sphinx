@@ -142,6 +142,7 @@ Bugs fixed
 Documentation
 -------------
 
+* Add clarification about the syntax of tags. (:file:`doc/markup/misc.rst`)
 * #1325: Added a "Intersphinx" tutorial section. (:file:`doc/tutorial.rst`)
 * Extended the :ref:`documentation about building extensions <dev-extensions>`.
 
