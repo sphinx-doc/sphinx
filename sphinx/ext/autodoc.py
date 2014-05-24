@@ -17,6 +17,7 @@ import inspect
 import traceback
 from types import FunctionType, BuiltinFunctionType, MethodType
 
+from six import PY3, iteritems, itervalues, text_type, class_types
 from docutils import nodes
 from docutils.utils import assemble_option_dict
 from docutils.statemachine import ViewList
@@ -29,7 +30,6 @@ from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
      safe_getattr, safe_repr, is_builtin_class_method
-from sphinx.util.pycompat import class_types
 from sphinx.util.docstrings import prepare_docstring
 
 
@@ -264,7 +264,7 @@ class Documenter(object):
     @staticmethod
     def get_attr(obj, name, *defargs):
         """getattr() override for types such as Zope interfaces."""
-        for typ, func in AutoDirective._special_attrgetters.iteritems():
+        for typ, func in iteritems(AutoDirective._special_attrgetters):
             if isinstance(obj, typ):
                 return func(obj, name, *defargs)
         return safe_getattr(obj, name, *defargs)
@@ -480,7 +480,7 @@ class Documenter(object):
         docstring = self.get_attr(self.object, '__doc__', None)
         # make sure we have Unicode docstrings, then sanitize and split
         # into lines
-        if isinstance(docstring, unicode):
+        if isinstance(docstring, text_type):
             return [prepare_docstring(docstring, ignore)]
         elif isinstance(docstring, str):  # this will not trigger on Py3
             return [prepare_docstring(force_decode(docstring, encoding),
@@ -504,9 +504,9 @@ class Documenter(object):
         # set sourcename and add content from attribute documentation
         if self.analyzer:
             # prevent encoding errors when the file name is non-ASCII
-            if not isinstance(self.analyzer.srcname, unicode):
-                filename = unicode(self.analyzer.srcname,
-                                   sys.getfilesystemencoding(), 'replace')
+            if not isinstance(self.analyzer.srcname, text_type):
+                filename = text_type(self.analyzer.srcname,
+                                     sys.getfilesystemencoding(), 'replace')
             else:
                 filename = self.analyzer.srcname
             sourcename = u'%s:docstring of %s' % (filename, self.fullname)
@@ -550,7 +550,7 @@ class Documenter(object):
         if self.analyzer:
             attr_docs = self.analyzer.find_attr_docs()
             namespace = '.'.join(self.objpath)
-            for item in attr_docs.iteritems():
+            for item in iteritems(attr_docs):
                 if item[0][0] == namespace:
                     analyzed_member_names.add(item[0][1])
         if not want_all:
@@ -691,7 +691,7 @@ class Documenter(object):
         # document non-skipped members
         memberdocumenters = []
         for (mname, member, isattr) in self.filter_members(members, want_all):
-            classes = [cls for cls in AutoDirective._registry.itervalues()
+            classes = [cls for cls in itervalues(AutoDirective._registry)
                        if cls.can_document_member(member, mname, isattr, self)]
             if not classes:
                 # don't know how to document this member
@@ -1128,7 +1128,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
                     docstrings.append(initdocstring)
         doc = []
         for docstring in docstrings:
-            if not isinstance(docstring, unicode):
+            if not isinstance(docstring, text_type):
                 docstring = force_decode(docstring, encoding)
             doc.append(prepare_docstring(docstring))
         return doc
@@ -1212,7 +1212,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
         return inspect.isroutine(member) and \
                not isinstance(parent, ModuleDocumenter)
 
-    if sys.version_info >= (3, 0):
+    if PY3:
         def import_object(self):
             ret = ClassLevelDocumenter.import_object(self)
             obj_from_parent = self.parent.__dict__.get(self.object_name)

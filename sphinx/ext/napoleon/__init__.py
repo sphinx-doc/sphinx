@@ -10,6 +10,9 @@
 """
 
 import sys
+
+from six import PY2, iteritems
+
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 
 
@@ -214,9 +217,9 @@ class Config(object):
     }
 
     def __init__(self, **settings):
-        for name, (default, rebuild) in self._config_values.iteritems():
+        for name, (default, rebuild) in iteritems(self._config_values):
             setattr(self, name, default)
-        for name, value in settings.iteritems():
+        for name, value in iteritems(settings):
             setattr(self, name, value)
 
 
@@ -249,7 +252,7 @@ def setup(app):
     app.connect('autodoc-process-docstring', _process_docstring)
     app.connect('autodoc-skip-member', _skip_member)
 
-    for name, (default, rebuild) in Config._config_values.iteritems():
+    for name, (default, rebuild) in iteritems(Config._config_values):
         app.add_config_value(name, default, rebuild)
 
 
@@ -346,12 +349,12 @@ def _skip_member(app, what, name, obj, skip, options):
     if name != '__weakref__' and name != '__init__' and has_doc and is_member:
         cls_is_owner = False
         if what == 'class' or what == 'exception':
-            if sys.version_info[0] < 3:
+            if PY2:
                 cls = getattr(obj, 'im_class', getattr(obj, '__objclass__',
                               None))
                 cls_is_owner = (cls and hasattr(cls, name) and
                                 name in cls.__dict__)
-            elif sys.version_info[1] >= 3:
+            elif sys.version_info >= (3, 3):
                 qualname = getattr(obj, '__qualname__', '')
                 cls_path, _, _ = qualname.rpartition('.')
                 if cls_path:

@@ -10,12 +10,11 @@
 """
 
 import sys
-import cPickle as pickle
 import posixpath
 from os import path
 
+from six.moves import cPickle as pickle
 from jinja2 import Environment, FileSystemLoader
-
 from docutils.core import publish_parts
 
 from sphinx.application import Sphinx

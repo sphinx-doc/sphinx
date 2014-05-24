@@ -16,6 +16,7 @@ import re
 import sys
 from os import path
 
+from six import itervalues, text_type
 from docutils import nodes, writers
 from docutils.writers.latex2e import Babel
 
@@ -306,7 +307,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return '\\autopageref*{%s}' % self.idescape(id)
 
     def idescape(self, id):
-        return unicode(id).translate(tex_replace_map).\
+        return text_type(id).translate(tex_replace_map).\
             encode('ascii', 'backslashreplace').decode('ascii').\
             replace('\\', '_')
 
@@ -319,7 +320,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 if i > 0:
                     ret.append('\\indexspace\n')
                 ret.append('\\bigletter{%s}\n' %
-                           unicode(letter).translate(tex_escape_map))
+                           text_type(letter).translate(tex_escape_map))
                 for entry in entries:
                     if not entry[3]:
                         continue
@@ -335,7 +336,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # latex_domain_indices can be False/True or a list of index names
         indices_config = self.builder.config.latex_domain_indices
         if indices_config:
-            for domain in self.builder.env.domains.itervalues():
+            for domain in itervalues(self.builder.env.domains):
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
                     if isinstance(indices_config, list):
@@ -1512,7 +1513,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     # text handling
 
     def encode(self, text):
-        text = unicode(text).translate(tex_escape_map)
+        text = text_type(text).translate(tex_escape_map)
         if self.literal_whitespace:
             # Insert a blank before the newline, to avoid
             # ! LaTeX Error: There's no line here to end.

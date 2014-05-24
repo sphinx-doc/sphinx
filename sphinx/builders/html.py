@@ -14,10 +14,11 @@ import sys
 import zlib
 import codecs
 import posixpath
-import cPickle as pickle
 from os import path
 from hashlib import md5
 
+from six import iteritems, itervalues, text_type, string_types
+from six.moves import cPickle as pickle
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
 from docutils.core import Publisher
@@ -58,7 +59,7 @@ def get_stable_hash(obj):
         return get_stable_hash(list(obj.items()))
     elif isinstance(obj, (list, tuple)):
         obj = sorted(get_stable_hash(o) for o in obj)
-    return md5(unicode(obj).encode('utf8')).hexdigest()
+    return md5(text_type(obj).encode('utf8')).hexdigest()
 
 
 class StandaloneHTMLBuilder(Builder):
@@ -163,7 +164,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def get_outdated_docs(self):
         cfgdict = dict((name, self.config[name])
-                       for (name, desc) in self.config.values.iteritems()
+                       for (name, desc) in iteritems(self.config.values)
                        if desc[1] == 'html')
         self.config_hash = get_stable_hash(cfgdict)
         self.tags_hash = get_stable_hash(sorted(self.tags))
@@ -264,7 +265,7 @@ class StandaloneHTMLBuilder(Builder):
         # html_domain_indices can be False/True or a list of index names
         indices_config = self.config.html_domain_indices
         if indices_config:
-            for domain in self.env.domains.itervalues():
+            for domain in itervalues(self.env.domains):
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
                     if isinstance(indices_config, list):
@@ -295,7 +296,7 @@ class StandaloneHTMLBuilder(Builder):
         if favicon and os.path.splitext(favicon)[1] != '.ico':
             self.warn('html_favicon is not an .ico file')
 
-        if not isinstance(self.config.html_use_opensearch, basestring):
+        if not isinstance(self.config.html_use_opensearch, string_types):
             self.warn('html_use_opensearch config value must now be a string')
 
         self.relations = self.env.collect_relations()
@@ -345,7 +346,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.theme:
             self.globalcontext.update(
                 ('theme_' + key, val) for (key, val) in
-                self.theme.get_options(self.theme_options).iteritems())
+                iteritems(self.theme.get_options(self.theme_options)))
         self.globalcontext.update(self.config.html_context)
 
     def get_doc_context(self, docname, body, metatags):
@@ -696,7 +697,7 @@ class StandaloneHTMLBuilder(Builder):
         sidebars = None
         matched = None
         customsidebar = None
-        for pattern, patsidebars in self.config.html_sidebars.iteritems():
+        for pattern, patsidebars in iteritems(self.config.html_sidebars):
             if patmatch(pagename, pattern):
                 if matched:
                     if has_wildcard(pattern):
@@ -713,7 +714,7 @@ class StandaloneHTMLBuilder(Builder):
         if sidebars is None:
             # keep defaults
             pass
-        elif isinstance(sidebars, basestring):
+        elif isinstance(sidebars, string_types):
             # 0.x compatible mode: insert custom sidebar before searchbox
             customsidebar = sidebars
             sidebars = None
@@ -798,7 +799,7 @@ class StandaloneHTMLBuilder(Builder):
                      % (self.config.project, self.config.version)
                     ).encode('utf-8'))
             compressor = zlib.compressobj(9)
-            for domainname, domain in self.env.domains.iteritems():
+            for domainname, domain in iteritems(self.env.domains):
                 for name, dispname, type, docname, anchor, prio in \
                         domain.get_objects():
                     if anchor.endswith(name):

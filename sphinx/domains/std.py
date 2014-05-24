@@ -12,6 +12,7 @@
 import re
 import unicodedata
 
+from six import iteritems
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
@@ -508,22 +509,22 @@ class StandardDomain(Domain):
     }
 
     def clear_doc(self, docname):
-        for key, (fn, _) in self.data['progoptions'].items():
+        for key, (fn, _) in list(self.data['progoptions'].items()):
             if fn == docname:
                 del self.data['progoptions'][key]
-        for key, (fn, _) in self.data['objects'].items():
+        for key, (fn, _) in list(self.data['objects'].items()):
             if fn == docname:
                 del self.data['objects'][key]
-        for key, (fn, _, _) in self.data['labels'].items():
+        for key, (fn, _, _) in list(self.data['labels'].items()):
             if fn == docname:
                 del self.data['labels'][key]
-        for key, (fn, _) in self.data['anonlabels'].items():
+        for key, (fn, _) in list(self.data['anonlabels'].items()):
             if fn == docname:
                 del self.data['anonlabels'][key]
 
     def process_doc(self, env, docname, document):
         labels, anonlabels = self.data['labels'], self.data['anonlabels']
-        for name, explicit in document.nametypes.iteritems():
+        for name, explicit in iteritems(document.nametypes):
             if not explicit:
                 continue
             labelid = document.nameids[name]
@@ -621,16 +622,16 @@ class StandardDomain(Domain):
                                 labelid, contnode)
 
     def get_objects(self):
-        for (prog, option), info in self.data['progoptions'].iteritems():
+        for (prog, option), info in iteritems(self.data['progoptions']):
             yield (option, option, 'option', info[0], info[1], 1)
-        for (type, name), info in self.data['objects'].iteritems():
+        for (type, name), info in iteritems(self.data['objects']):
             yield (name, name, type, info[0], info[1],
                    self.object_types[type].attrs['searchprio'])
-        for name, info in self.data['labels'].iteritems():
+        for name, info in iteritems(self.data['labels']):
             yield (name, info[2], 'label', info[0], info[1], -1)
         # add anonymous-only labels as well
         non_anon_labels = set(self.data['labels'])
-        for name, info in self.data['anonlabels'].iteritems():
+        for name, info in iteritems(self.data['anonlabels']):
             if name not in non_anon_labels:
                 yield (name, name, 'label', info[0], info[1], -1)
 

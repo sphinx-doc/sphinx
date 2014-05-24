@@ -14,11 +14,11 @@ import re
 import sys
 import time
 import codecs
-import StringIO
 from os import path
 # circumvent relative import
 doctest = __import__('doctest')
 
+from six import itervalues, StringIO, binary_type
 from docutils import nodes
 from docutils.parsers.rst import directives
 
@@ -27,7 +27,6 @@ from sphinx.util import force_decode
 from sphinx.util.nodes import set_source_info
 from sphinx.util.compat import Directive
 from sphinx.util.console import bold
-from sphinx.util.pycompat import bytes
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
 doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
@@ -158,7 +157,7 @@ class TestCode(object):
 
 class SphinxDocTestRunner(doctest.DocTestRunner):
     def summarize(self, out, verbose=None):
-        string_io = StringIO.StringIO()
+        string_io = StringIO()
         old_stdout = sys.stdout
         sys.stdout = string_io
         try:
@@ -233,7 +232,7 @@ Results of doctest builder run on %s
         self.info(text, nonl=True)
         if self.app.quiet:
             self.warn(text)
-        if isinstance(text, bytes):
+        if isinstance(text, binary_type):
             text = force_decode(text, None)
         self.outfile.write(text)
 
@@ -312,24 +311,24 @@ Doctest summary
                     groups[groupname] = TestGroup(groupname)
                 groups[groupname].add_code(code)
         for code in add_to_all_groups:
-            for group in groups.itervalues():
+            for group in itervalues(groups):
                 group.add_code(code)
         if self.config.doctest_global_setup:
             code = TestCode(self.config.doctest_global_setup,
                             'testsetup', lineno=0)
-            for group in groups.itervalues():
+            for group in itervalues(groups):
                 group.add_code(code, prepend=True)
         if self.config.doctest_global_cleanup:
             code = TestCode(self.config.doctest_global_cleanup,
                             'testcleanup', lineno=0)
-            for group in groups.itervalues():
+            for group in itervalues(groups):
                 group.add_code(code)
         if not groups:
             return
 
         self._out('\nDocument: %s\n----------%s\n' %
                   (docname, '-'*len(docname)))
-        for group in groups.itervalues():
+        for group in itervalues(groups):
             self.test_group(group, self.env.doc2path(docname, base=None))
         # Separately count results from setup code
         res_f, res_t = self.setup_runner.summarize(self._out, verbose=False)

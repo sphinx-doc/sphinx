@@ -12,7 +12,6 @@
 import os
 import re
 import sys
-import shutil
 import fnmatch
 import tempfile
 import posixpath
@@ -22,6 +21,8 @@ from os import path
 from codecs import open, BOM_UTF8
 from collections import deque
 
+from six import iteritems, text_type, binary_type
+from six.moves import range
 import docutils
 from docutils.utils import relative_path
 
@@ -29,7 +30,6 @@ import jinja2
 
 import sphinx
 from sphinx.errors import PycodeError
-from sphinx.util.pycompat import bytes
 
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
@@ -54,7 +54,7 @@ def docname_join(basedocname, docname):
 def path_stabilize(filepath):
     "normalize path separater and unicode string"
     newpath = filepath.replace(os.path.sep, SEP)
-    if isinstance(newpath, unicode):
+    if isinstance(newpath, text_type):
         newpath = unicodedata.normalize('NFC', newpath)
     return newpath
 
@@ -122,7 +122,7 @@ class FilenameUniqDict(dict):
         return uniquename
 
     def purge_doc(self, docname):
-        for filename, (docs, unique) in self.items():
+        for filename, (docs, unique) in list(self.items()):
             docs.discard(docname)
             if not docs:
                 del self[filename]
@@ -190,7 +190,7 @@ def save_traceback(app):
                    docutils.__version__, docutils.__version_details__,
                    jinja2.__version__)).encode('utf-8'))
     if app is not None:
-        for extname, extmod in app._extensions.iteritems():
+        for extname, extmod in iteritems(app._extensions):
             os.write(fd, ('#   %s from %s\n' % (
                 extname, getattr(extmod, '__file__', 'unknown'))
                 ).encode('utf-8'))
@@ -328,7 +328,7 @@ def parselinenos(spec, total):
             else:
                 start = (begend[0] == '') and 0 or int(begend[0])-1
                 end = (begend[1] == '') and total or int(begend[1])
-                items.extend(xrange(start, end))
+                items.extend(range(start, end))
         except Exception:
             raise ValueError('invalid line number spec: %r' % spec)
     return items
@@ -336,7 +336,7 @@ def parselinenos(spec, total):
 
 def force_decode(string, encoding):
     """Forcibly get a unicode string out of a bytestring."""
-    if isinstance(string, bytes):
+    if isinstance(string, binary_type):
         try:
             if encoding:
                 string = string.decode(encoding)
@@ -420,11 +420,13 @@ class PeekableIterator(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         """Return the next item from the iterator."""
         if self.remaining:
             return self.remaining.popleft()
-        return self._iterator.next()
+        return next(self._iterator)
+
+    next = __next__  # Python 2 compatibility
 
     def push(self, item):
         """Push the `item` on the internal stack, it will be returned on the
@@ -434,6 +436,6 @@ class PeekableIterator(object):
 
     def peek(self):
         """Return the next item without changing the state of the iterator."""
-        item = self.next()
+        item = next(self)
         self.push(item)
         return item

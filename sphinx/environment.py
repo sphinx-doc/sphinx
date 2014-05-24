@@ -18,11 +18,12 @@ import codecs
 import imghdr
 import string
 import unicodedata
-import cPickle as pickle
 from os import path
 from glob import glob
-from itertools import izip, groupby
+from itertools import groupby
 
+from six import iteritems, itervalues, text_type, class_types
+from six.moves import cPickle as pickle, zip
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
@@ -39,7 +40,6 @@ from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream
 from sphinx.util.osutil import SEP, fs_encoding, find_catalog_files
 from sphinx.util.matching import compile_matchers
-from sphinx.util.pycompat import class_types
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
@@ -136,7 +136,7 @@ class BuildEnvironment:
         del self.domains
         picklefile = open(filename, 'wb')
         # remove potentially pickling-problematic values from config
-        for key, val in vars(self.config).items():
+        for key, val in list(vars(self.config).items()):
             if key.startswith('_') or \
                    isinstance(val, types.ModuleType) or \
                    isinstance(val, types.FunctionType) or \
@@ -278,11 +278,11 @@ class BuildEnvironment:
             self.images.purge_doc(docname)
             self.dlfiles.purge_doc(docname)
 
-            for subfn, fnset in self.files_to_rebuild.items():
+            for subfn, fnset in list(self.files_to_rebuild.items()):
                 fnset.discard(docname)
                 if not fnset:
                     del self.files_to_rebuild[subfn]
-            for key, (fn, _) in self.citations.items():
+            for key, (fn, _) in list(self.citations.items()):
                 if fn == docname:
                     del self.citations[key]
             for version, changes in self.versionchanges.items():
@@ -421,7 +421,7 @@ class BuildEnvironment:
         else:
             # check if a config value was changed that affects how
             # doctrees are read
-            for key, descr in config.values.iteritems():
+            for key, descr in iteritems(config.values):
                 if descr[1] != 'env':
                     continue
                 if self.config[key] != config[key]:
@@ -593,7 +593,7 @@ class BuildEnvironment:
                 FileInput.__init__(self_, *args, **kwds)
 
             def decode(self_, data):
-                if isinstance(data, unicode):
+                if isinstance(data, text_type):
                     return data
                 return data.decode(self_.encoding, 'sphinx')
 
@@ -632,7 +632,7 @@ class BuildEnvironment:
         self.note_indexentries_from(docname, doctree)
         self.note_citations_from(docname, doctree)
         self.build_toc_from(docname, doctree)
-        for domain in self.domains.itervalues():
+        for domain in itervalues(self.domains):
             domain.process_doc(self, docname, doctree)
 
         # allow extension-specific post-processing
@@ -818,7 +818,7 @@ class BuildEnvironment:
                 candidates['*'] = rel_imgpath
             # map image paths to unique image names (so that they can be put
             # into a single directory)
-            for imgpath in candidates.itervalues():
+            for imgpath in itervalues(candidates):
                 self.dependencies.setdefault(docname, set()).add(imgpath)
                 if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
                     self.warn_node('image file not readable: %s' % imgpath,
@@ -1508,7 +1508,7 @@ class BuildEnvironment:
             # Force the word to be unicode if it's a ASCII bytestring.
             # This will solve problems with unicode normalization later.
             # For instance the RFC role will add bytestrings at the moment
-            word = unicode(word)
+            word = text_type(word)
             entry = dic.get(word)
             if not entry:
                 dic[word] = entry = [[], {}]
@@ -1522,7 +1522,7 @@ class BuildEnvironment:
                 else:
                     entry[0].append((main, uri))
 
-        for fn, entries in self.indexentries.iteritems():
+        for fn, entries in iteritems(self.indexentries):
             # new entry types must be listed in directives/other.py!
             for type, value, tid, main in entries:
                 try:
@@ -1597,7 +1597,7 @@ class BuildEnvironment:
         def keyfunc2(item, letters=string.ascii_uppercase + '_'):
             # hack: mutating the subitems dicts to a list in the keyfunc
             k, v = item
-            v[1] = sorted((si, se) for (si, (se, void)) in v[1].iteritems())
+            v[1] = sorted((si, se) for (si, (se, void)) in iteritems(v[1]))
             # now calculate the key
             letter = unicodedata.normalize('NFD', k[0])[0].upper()
             if letter in letters:
@@ -1649,7 +1649,7 @@ class BuildEnvironment:
                 # else it will stay None
             # same for children
             if includes:
-                for subindex, args in enumerate(izip(includes,
+                for subindex, args in enumerate(zip(includes,
                                                      [None] + includes,
                                                      includes[1:] + [None])):
                     collect([(docname, subindex)] + parents,

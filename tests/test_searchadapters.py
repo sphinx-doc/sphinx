@@ -10,7 +10,8 @@
 """
 
 import os
-from StringIO import StringIO
+
+from six import StringIO
 
 from sphinx.websupport import WebSupport
 

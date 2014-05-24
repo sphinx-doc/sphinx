@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+from six import iteritems, text_type
 from docutils import nodes
 
 from sphinx import addnodes
@@ -29,7 +30,7 @@ def doctree_read(app, doctree):
         except Exception:
             env._viewcode_modules[modname] = False
             return
-        if not isinstance(analyzer.code, unicode):
+        if not isinstance(analyzer.code, text_type):
             code = analyzer.code.decode(analyzer.encoding)
         else:
             code = analyzer.code
@@ -91,7 +92,7 @@ def collect_pages(app):
     app.builder.info(' (%d module code pages)' %
                      len(env._viewcode_modules), nonl=1)
 
-    for modname, entry in env._viewcode_modules.iteritems():
+    for modname, entry in iteritems(env._viewcode_modules):
         if not entry:
             continue
         code, tags, used = entry
@@ -109,7 +110,7 @@ def collect_pages(app):
         # the collected tags (HACK: this only works if the tag boundaries are
         # properly nested!)
         maxindex = len(lines) - 1
-        for name, docname in used.iteritems():
+        for name, docname in iteritems(used):
             type, start, end = tags[name]
             backlink = urito(pagename, docname) + '#' + modname + '.' + name
             lines[start] = (

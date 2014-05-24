@@ -9,7 +9,7 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import sys
+from six import PY3
 
 from util import TestApp, with_app, with_tempdir, raises, raises_msg
 
@@ -101,7 +101,7 @@ def test_errors_warnings(dir):
     # test the warning for bytestrings with non-ascii content
     # bytestrings with non-ascii content are a syntax error in python3 so we
     # skip the test there
-    if sys.version_info >= (3, 0):
+    if PY3:
         return
     (dir / 'conf.py').write_text(
         u'# -*- coding: latin-1\nproject = "fooä"\n', encoding='latin-1')

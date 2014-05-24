@@ -13,8 +13,10 @@ import os
 import shutil
 import zipfile
 import tempfile
-import ConfigParser
 from os import path
+
+from six import string_types, iteritems
+from six.moves import configparser
 
 try:
     import pkg_resources
@@ -100,12 +102,12 @@ class Theme(object):
                 fp.write(tinfo.read(name))
                 fp.close()
 
-        self.themeconf = ConfigParser.RawConfigParser()
+        self.themeconf = configparser.RawConfigParser()
         self.themeconf.read(path.join(self.themedir, THEMECONF))
 
         try:
             inherit = self.themeconf.get('theme', 'inherit')
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             raise ThemeError('theme %r doesn\'t have "inherit" setting' % name)
         if inherit == 'none':
             self.base = None
@@ -121,7 +123,7 @@ class Theme(object):
         """
         try:
             return self.themeconf.get(section, name)
-        except (ConfigParser.NoOptionError, ConfigParser.NoSectionError):
+        except (configparser.NoOptionError, configparser.NoSectionError):
             if self.base is not None:
                 return self.base.get_confstr(section, name, default)
             if default is NODEFAULT:
@@ -141,9 +143,9 @@ class Theme(object):
         for conf in reversed(chain):
             try:
                 options.update(conf.items('options'))
-            except ConfigParser.NoSectionError:
+            except configparser.NoSectionError:
                 pass
-        for option, value in overrides.iteritems():
+        for option, value in iteritems(overrides):
             if option not in options:
                 raise ThemeError('unsupported theme option %r given' % option)
             options[option] = value
@@ -188,7 +190,7 @@ def load_theme_plugins():
         except:
             path = func_or_path
 
-        if isinstance(path, basestring):
+        if isinstance(path, string_types):
             theme_paths.append(path)
         else:
             raise ThemeError('Plugin %r does not response correctly.' %

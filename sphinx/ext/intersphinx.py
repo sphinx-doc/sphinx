@@ -27,11 +27,12 @@
 import time
 import zlib
 import codecs
-import urllib2
 import posixpath
 from os import path
 import re
 
+from six import iteritems
+from six.moves.urllib import request
 from docutils import nodes
 from docutils.utils import relative_path
 
@@ -40,14 +41,14 @@ from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.util.pycompat import b
 
 
-handlers = [urllib2.ProxyHandler(), urllib2.HTTPRedirectHandler(),
-            urllib2.HTTPHandler()]
+handlers = [request.ProxyHandler(), request.HTTPRedirectHandler(),
+            request.HTTPHandler()]
 try:
-    handlers.append(urllib2.HTTPSHandler)
+    handlers.append(request.HTTPSHandler)
 except AttributeError:
     pass
 
-urllib2.install_opener(urllib2.build_opener(*handlers))
+request.install_opener(request.build_opener(*handlers))
 
 UTF8StreamReader = codecs.lookup('utf-8')[2]
 
@@ -55,9 +56,9 @@ UTF8StreamReader = codecs.lookup('utf-8')[2]
 def read_inventory_v1(f, uri, join):
     f = UTF8StreamReader(f)
     invdata = {}
-    line = f.next()
+    line = next(f)
     projname = line.rstrip()[11:]
-    line = f.next()
+    line = next(f)
     version = line.rstrip()[11:]
     for line in f:
         name, type, location = line.rstrip().split(None, 2)
@@ -129,7 +130,7 @@ def fetch_inventory(app, uri, inv):
     join = localuri and path.join or posixpath.join
     try:
         if inv.find('://') != -1:
-            f = urllib2.urlopen(inv)
+            f = request.urlopen(inv)
         else:
             f = open(path.join(app.srcdir, inv), 'rb')
     except Exception as err:
@@ -167,7 +168,7 @@ def load_mappings(app):
         env.intersphinx_named_inventory = {}
     cache = env.intersphinx_cache
     update = False
-    for key, value in app.config.intersphinx_mapping.iteritems():
+    for key, value in iteritems(app.config.intersphinx_mapping):
         if isinstance(value, tuple):
             # new format
             name, (uri, inv) = key, value
@@ -202,13 +203,13 @@ def load_mappings(app):
         # add the unnamed inventories last.  This means that the
         # unnamed inventories will shadow the named ones but the named
         # ones can still be accessed when the name is specified.
-        cached_vals = list(cache.itervalues())
+        cached_vals = list(cache.values())
         named_vals = sorted(v for v in cached_vals if v[0])
         unnamed_vals = [v for v in cached_vals if not v[0]]
         for name, _, invdata in named_vals + unnamed_vals:
             if name:
                 env.intersphinx_named_inventory[name] = invdata
-            for type, objects in invdata.iteritems():
+            for type, objects in iteritems(invdata):
                 env.intersphinx_inventory.setdefault(
                     type, {}).update(objects)
 

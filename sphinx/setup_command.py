@@ -16,9 +16,10 @@ from __future__ import print_function
 import sys
 import os
 import types
-from StringIO import StringIO
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError
+
+from six import StringIO
 
 from sphinx.application import Sphinx
 from sphinx.util.console import darkred, nocolor, color_terminal

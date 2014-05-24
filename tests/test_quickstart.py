@@ -11,10 +11,11 @@
 
 import sys
 import time
-from StringIO import StringIO
-import tempfile
 
-from util import raises, with_tempdir, with_app, SkipTest
+from six import PY2, text_type, StringIO
+from six.moves import input
+
+from util import raises, with_tempdir, SkipTest
 
 from sphinx import application
 from sphinx import quickstart as qs
@@ -28,18 +29,18 @@ warnfile = StringIO()
 def setup_module():
     nocolor()
 
-def mock_raw_input(answers, needanswer=False):
+def mock_input(answers, needanswer=False):
     called = set()
-    def raw_input(prompt):
+    def input_(prompt):
         if prompt in called:
             raise AssertionError('answer for %r missing and no default '
                                  'present' % prompt)
         called.add(prompt)
-        if sys.version_info < (3, 0):
+        if PY2:
             prompt = str(prompt)  # Python2.x raw_input emulation
             # `raw_input` encode `prompt` by default encoding to print.
         else:
-            prompt = unicode(prompt)  # Python3.x input emulation
+            prompt = text_type(prompt)  # Python3.x input emulation
             # `input` decode prompt by default encoding before print.
         for question in answers:
             if prompt.startswith(qs.PROMPT_PREFIX + question):
@@ -47,15 +48,12 @@ def mock_raw_input(answers, needanswer=False):
         if needanswer:
             raise AssertionError('answer for %r missing' % prompt)
         return ''
-    return raw_input
+    return input_
 
-try:
-    real_raw_input = raw_input
-except NameError:
-    real_raw_input = input
+real_input = input
 
 def teardown_module():
-    qs.term_input = real_raw_input
+    qs.term_input = real_input
     qs.TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
     coloron()
 
@@ -68,7 +66,7 @@ def test_quickstart_inputstrip():
         'Q3': 'N',
         'Q4': 'N ',
     }
-    qs.term_input = mock_raw_input(answers)
+    qs.term_input = mock_input(answers)
     qs.do_prompt(d, 'k1', 'Q1')
     assert d['k1'] == 'Y'
     qs.do_prompt(d, 'k2', 'Q2')
@@ -88,7 +86,7 @@ def test_do_prompt():
         'Q5': 'no',
         'Q6': 'foo',
     }
-    qs.term_input = mock_raw_input(answers)
+    qs.term_input = mock_input(answers)
     try:
         qs.do_prompt(d, 'k1', 'Q1')
     except AssertionError:
@@ -113,7 +111,7 @@ def test_do_prompt_with_nonascii():
     answers = {
         'Q1': u'\u30c9\u30a4\u30c4',
     }
-    qs.term_input = mock_raw_input(answers)
+    qs.term_input = mock_input(answers)
     try:
         qs.do_prompt(d, 'k1', 'Q1', default=u'\u65e5\u672c')
     except UnicodeEncodeError:
@@ -131,7 +129,7 @@ def test_quickstart_defaults(tempdir):
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
     }
-    qs.term_input = mock_raw_input(answers)
+    qs.term_input = mock_input(answers)
     d = {}
     qs.ask_user(d)
     qs.generate(d)
@@ -186,7 +184,7 @@ def test_quickstart_all_answers(tempdir):
         'Create Windows command file': 'no',
         'Do you want to use the epub builder': 'yes',
     }
-    qs.term_input = mock_raw_input(answers, needanswer=True)
+    qs.term_input = mock_input(answers, needanswer=True)
     qs.TERM_ENCODING = 'utf-8'
     d = {}
     qs.ask_user(d)
@@ -232,7 +230,7 @@ def test_generated_files_eol(tempdir):
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
     }
-    qs.term_input = mock_raw_input(answers)
+    qs.term_input = mock_input(answers)
     d = {}
     qs.ask_user(d)
     qs.generate(d)
@@ -253,7 +251,7 @@ def test_quickstart_and_build(tempdir):
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
     }
-    qs.term_input = mock_raw_input(answers)
+    qs.term_input = mock_input(answers)
     d = {}
     qs.ask_user(d)
     qs.generate(d)
@@ -279,7 +277,7 @@ def test_default_filename(tempdir):
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
     }
-    qs.term_input = mock_raw_input(answers)
+    qs.term_input = mock_input(answers)
     d = {}
     qs.ask_user(d)
     qs.generate(d)

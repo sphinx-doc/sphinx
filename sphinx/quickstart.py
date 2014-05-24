@@ -26,6 +26,8 @@ try:
 except ImportError:
     pass
 
+from six import PY2, PY3, text_type
+from six.moves import input
 from docutils.utils import column_width
 
 from sphinx import __version__
@@ -35,16 +37,12 @@ from sphinx.util.console import purple, bold, red, turquoise, \
 from sphinx.util import texescape
 
 # function to get input from terminal -- overridden by the test suite
-try:
-    # this raw_input is not converted by 2to3
-    term_input = raw_input
-except NameError:
-    term_input = input
+term_input = input
 
 
 PROMPT_PREFIX = '> '
 
-if sys.version_info >= (3, 0):
+if PY3:
     # prevents that the file is checked for being written in Python 2.x syntax
     QUICKSTART_CONF = u'#!/usr/bin/env python3\n'
 else:
@@ -997,7 +995,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
             prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)
         else:
             prompt = PROMPT_PREFIX + text + ': '
-        if sys.version_info < (3, 0):
+        if PY2:
             # for Python 2.x, try to get a Unicode string out of it
             if prompt.encode('ascii', 'replace').decode('ascii', 'replace') \
                     != prompt:
@@ -1015,7 +1013,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
         x = term_input(prompt).strip()
         if default and not x:
             x = default
-        if not isinstance(x, unicode):
+        if not isinstance(x, text_type):
             # for Python 2.x, try to get a Unicode string out of it
             if x.decode('ascii', 'replace').encode('ascii', 'replace') != x:
                 if TERM_ENCODING:
@@ -1037,7 +1035,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
     d[key] = x
 
 
-if sys.version_info >= (3, 0):
+if PY3:
     # remove Unicode literal prefixes
     def _convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
         return rex.sub('\\1', source)
@@ -1241,10 +1239,10 @@ def generate(d, overwrite=True, silent=False):
     else:
         d['extensions'] = extensions
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
-    d['author_texescaped'] = unicode(d['author']).\
+    d['author_texescaped'] = text_type(d['author']).\
                              translate(texescape.tex_escape_map)
     d['project_doc'] = d['project'] + ' Documentation'
-    d['project_doc_texescaped'] = unicode(d['project'] + ' Documentation').\
+    d['project_doc_texescaped'] = text_type(d['project'] + ' Documentation').\
                                   translate(texescape.tex_escape_map)
 
     # escape backslashes and single quotes in strings that are put into

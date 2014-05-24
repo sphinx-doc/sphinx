@@ -11,6 +11,7 @@
 
 from os import path
 
+from six import iteritems
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.utils import new_document
@@ -207,7 +208,7 @@ class TexinfoBuilder(Builder):
         # copy image files
         if self.images:
             self.info(bold('copying images...'), nonl=1)
-            for src, dest in self.images.iteritems():
+            for src, dest in iteritems(self.images):
                 self.info(' '+src, nonl=1)
                 copyfile(path.join(self.srcdir, src),
                          path.join(self.outdir, dest))

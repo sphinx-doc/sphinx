@@ -11,6 +11,7 @@
 
 import re
 
+from six import iteritems
 from docutils import nodes, utils
 from docutils.parsers.rst import roles
 
@@ -34,7 +35,7 @@ generic_docroles = {
     'regexp' : nodes.literal,
 }
 
-for rolename, nodeclass in generic_docroles.iteritems():
+for rolename, nodeclass in iteritems(generic_docroles):
     generic = roles.GenericRole(rolename, nodeclass)
     role = roles.CustomRole(rolename, generic, {'classes': [rolename]})
     roles.register_local_role(rolename, role)
@@ -313,5 +314,5 @@ specific_docroles = {
     'index': index_role,
 }
 
-for rolename, func in specific_docroles.iteritems():
+for rolename, func in iteritems(specific_docroles):
     roles.register_local_role(rolename, func)

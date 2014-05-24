@@ -11,8 +11,9 @@
 
 import os
 import re
-from StringIO import StringIO
 from functools import wraps
+
+from six import StringIO
 
 from util import test_roots, TestApp
 

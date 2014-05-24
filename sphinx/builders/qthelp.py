@@ -15,6 +15,7 @@ import codecs
 import posixpath
 from os import path
 
+from six import text_type
 from docutils import nodes
 
 from sphinx import addnodes
@@ -136,7 +137,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         # they are all unicode strings before joining them
         new_sections = []
         for section in sections:
-            if not isinstance(section, unicode):
+            if not isinstance(section, text_type):
                 new_sections.append(force_decode(section, None))
             else:
                 new_sections.append(section)

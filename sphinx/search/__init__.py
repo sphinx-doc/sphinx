@@ -11,8 +11,9 @@
 from __future__ import with_statement
 
 import re
-import cPickle as pickle
 
+from six import iteritems, itervalues, text_type, string_types
+from six.moves import cPickle as pickle
 from docutils.nodes import raw, comment, title, Text, NodeVisitor, SkipNode
 
 from sphinx.util import jsdump, rpartition
@@ -237,7 +238,7 @@ class IndexBuilder(object):
 
     def load(self, stream, format):
         """Reconstruct from frozen data."""
-        if isinstance(format, basestring):
+        if isinstance(format, string_types):
             format = self.formats[format]
         frozen = format.load(stream)
         # if an old index is present, we treat it as not existing.
@@ -249,7 +250,7 @@ class IndexBuilder(object):
 
         def load_terms(mapping):
             rv = {}
-            for k, v in mapping.iteritems():
+            for k, v in iteritems(mapping):
                 if isinstance(v, int):
                     rv[k] = set([index2fn[v]])
                 else:
@@ -262,7 +263,7 @@ class IndexBuilder(object):
 
     def dump(self, stream, format):
         """Dump the frozen index to a stream."""
-        if isinstance(format, basestring):
+        if isinstance(format, string_types):
             format = self.formats[format]
         format.dump(self.freeze(), stream)
 
@@ -270,7 +271,7 @@ class IndexBuilder(object):
         rv = {}
         otypes = self._objtypes
         onames = self._objnames
-        for domainname, domain in self.env.domains.iteritems():
+        for domainname, domain in iteritems(self.env.domains):
             for fullname, dispname, type, docname, anchor, prio in \
                     domain.get_objects():
                 # XXX use dispname?
@@ -289,7 +290,7 @@ class IndexBuilder(object):
                     if otype:
                         # use unicode() to fire translation proxies
                         onames[typeindex] = (domainname, type,
-                            unicode(domain.get_type_name(otype)))
+                            text_type(domain.get_type_name(otype)))
                     else:
                         onames[typeindex] = (domainname, type, type)
                 if anchor == fullname:
@@ -304,7 +305,7 @@ class IndexBuilder(object):
     def get_terms(self, fn2index):
         rvs = {}, {}
         for rv, mapping in zip(rvs, (self._mapping, self._title_mapping)):
-            for k, v in mapping.iteritems():
+            for k, v in iteritems(mapping):
                 if len(v) == 1:
                     fn, = v
                     if fn in fn2index:
@@ -322,7 +323,7 @@ class IndexBuilder(object):
 
         objects = self.get_objects(fn2index)  # populates _objtypes
         objtypes = dict((v, k[0] + ':' + k[1])
-                        for (k, v) in self._objtypes.iteritems())
+                        for (k, v) in iteritems(self._objtypes))
         objnames = self._objnames
         return dict(filenames=filenames, titles=titles, terms=terms,
                     objects=objects, objtypes=objtypes, objnames=objnames,
@@ -338,9 +339,9 @@ class IndexBuilder(object):
             if filename in self._titles:
                 new_titles[filename] = self._titles[filename]
         self._titles = new_titles
-        for wordnames in self._mapping.itervalues():
+        for wordnames in itervalues(self._mapping):
             wordnames.intersection_update(filenames)
-        for wordnames in self._title_mapping.itervalues():
+        for wordnames in itervalues(self._title_mapping):
             wordnames.intersection_update(filenames)
 
     def feed(self, filename, title, doctree):

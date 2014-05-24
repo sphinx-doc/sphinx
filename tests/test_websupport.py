@@ -10,8 +10,9 @@
 """
 
 import os
-from StringIO import StringIO
 from functools import wraps
+
+from six import StringIO
 
 from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import DocumentNotFoundError, \

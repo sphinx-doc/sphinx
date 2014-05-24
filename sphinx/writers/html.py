@@ -14,6 +14,7 @@ import posixpath
 import os
 import copy
 
+from six import string_types
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
@@ -74,7 +75,7 @@ class HTMLTranslator(BaseTranslator):
         self.protect_literal_text = 0
         self.permalink_text = builder.config.html_add_permalinks
         # support backwards-compatible setting to a bool
-        if not isinstance(self.permalink_text, basestring):
+        if not isinstance(self.permalink_text, string_types):
             self.permalink_text = self.permalink_text and u'\u00B6' or ''
         self.permalink_text = self.encode(self.permalink_text)
         self.secnumber_suffix = builder.config.html_secnumber_suffix

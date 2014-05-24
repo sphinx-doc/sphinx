@@ -12,6 +12,8 @@
 import codecs
 from os import path
 
+from six import iteritems
+
 from sphinx import package_dir
 from sphinx.util import copy_static_entry
 from sphinx.locale import _
@@ -93,9 +95,9 @@ class ChangesBuilder(Builder):
             'version': version,
             'docstitle': self.config.html_title,
             'shorttitle': self.config.html_short_title,
-            'libchanges': sorted(libchanges.iteritems()),
+            'libchanges': sorted(iteritems(libchanges)),
             'apichanges': sorted(apichanges),
-            'otherchanges': sorted(otherchanges.iteritems()),
+            'otherchanges': sorted(iteritems(otherchanges)),
             'show_copyright': self.config.html_show_copyright,
             'show_sphinx': self.config.html_show_sphinx,
         }
@@ -142,7 +144,7 @@ class ChangesBuilder(Builder):
             finally:
                 f.close()
         themectx = dict(('theme_' + key, val) for (key, val) in
-                        self.theme.get_options({}).iteritems())
+                        iteritems(self.theme.get_options({})))
         copy_static_entry(path.join(package_dir, 'themes', 'default',
                                     'static', 'default.css_t'),
                           self.outdir, self, themectx)

@@ -81,6 +81,9 @@
 from __future__ import generators
 from __future__ import absolute_import
 
+from six import string_types
+
+
 __all__ = [
     # public symbols
     "Comment",
@@ -828,7 +831,7 @@ def _namespaces(elem, encoding, default_namespace=None):
         tag = elem.tag
         if isinstance(tag, QName) and tag.text not in qnames:
             add_qname(tag.text)
-        elif isinstance(tag, basestring):
+        elif isinstance(tag, string_types):
             if tag not in qnames:
                 add_qname(tag)
         elif tag is not None and tag is not Comment and tag is not PI:
@@ -1184,7 +1187,7 @@ class _IterParseIterator(object):
                     append((event, None))
                 parser.EndNamespaceDeclHandler = handler
 
-    def next(self):
+    def __next__(self):
         while 1:
             try:
                 item = self._events[self._index]
@@ -1204,6 +1207,8 @@ class _IterParseIterator(object):
             else:
                 self._index = self._index + 1
                 return item
+
+    next = __next__  # Python 2 compatibility
 
     def __iter__(self):
         return self

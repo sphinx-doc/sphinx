@@ -11,11 +11,8 @@
 
 import zlib
 import posixpath
-try:
-    from io import BytesIO
-except ImportError:
-    from cStringIO import StringIO as BytesIO
 
+from six import BytesIO
 from docutils import nodes
 
 from sphinx import addnodes

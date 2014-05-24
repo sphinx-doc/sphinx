@@ -24,6 +24,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+from six import iteritems
 from docutils import nodes, utils
 
 from sphinx.util.nodes import split_explicit_title
@@ -51,7 +52,7 @@ def make_link_role(base_url, prefix):
     return role
 
 def setup_link_roles(app):
-    for name, (base_url, prefix) in app.config.extlinks.iteritems():
+    for name, (base_url, prefix) in iteritems(app.config.extlinks):
         app.add_role(name, make_link_role(base_url, prefix))
 
 def setup(app):

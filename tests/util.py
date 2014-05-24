@@ -8,11 +8,12 @@
 """
 
 import sys
-import StringIO
 import tempfile
 import shutil
 import re
 from functools import wraps
+
+from six import StringIO
 
 from sphinx import application
 from sphinx.theming import Theme
@@ -162,7 +163,7 @@ class TestApp(application.Sphinx):
         if confoverrides is None:
             confoverrides = {}
         if status is None:
-            status = StringIO.StringIO()
+            status = StringIO()
         if warning is None:
             warning = ListOutput('stderr')
         if freshenv is None:

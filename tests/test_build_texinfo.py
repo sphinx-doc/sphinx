@@ -12,9 +12,9 @@ from __future__ import print_function
 
 import os
 import re
-import sys
-from StringIO import StringIO
 from subprocess import Popen, PIPE
+
+from six import PY3, StringIO
 
 from sphinx.writers.texinfo import TexinfoTranslator
 
@@ -34,7 +34,7 @@ None:None: WARNING: no matching candidate for image URI u'foo.\\*'
 None:None: WARNING: no matching candidate for image URI u'svgimg.\\*'
 """
 
-if sys.version_info >= (3, 0):
+if PY3:
     TEXINFO_WARNINGS = remove_unicode_literals(TEXINFO_WARNINGS)
 
 

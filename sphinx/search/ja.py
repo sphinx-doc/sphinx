@@ -21,6 +21,8 @@ import os
 import re
 import sys
 
+from six import iteritems
+
 try:
     import MeCab
     native_module = True
@@ -91,14 +93,14 @@ class MecabBinder(object):
 
 
 class TinySegmenter(object):
-    patterns_ = dict([(re.compile(pattern), value) for pattern, value in {
+    patterns_ = dict([(re.compile(pattern), value) for pattern, value in iteritems({
         u'[一二三四五六七八九十百千万億兆]': u'M',
         u'[一-龠々〆ヵヶ]': u'H',
         u'[ぁ-ん]': u'I',
         u'[ァ-ヴーｱ-ﾝﾞｰ]': u'K',
         u'[a-zA-Zａ-ｚＡ-Ｚ]': u'A',
         u'[0-9０-９]': u'N',
-    }.iteritems()])
+    })])
     BIAS__ = -332
     BC1__ = {u'HH':6,u'II':2461,u'KH':406,u'OH':-1378}
     BC2__ = {u'AA':-3267,u'AI':2744,u'AN':-878,u'HH':-4070,u'HM':-1711,u'HN':4012,u'HO':3761,u'IA':1327,u'IH':-1184,u'II':-1332,u'IK':1721,u'IO':5492,u'KI':3831,u'KK':-8741,u'MH':-3132,u'MK':3334,u'OO':-2920}
@@ -145,7 +147,7 @@ class TinySegmenter(object):
 
     # ctype_
     def ctype_(self, char):
-        for pattern, value in self.patterns_.iteritems():
+        for pattern, value in iteritems(self.patterns_):
             if pattern.match(char):
                 return value
         return u'O'

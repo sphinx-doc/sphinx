@@ -12,9 +12,9 @@ from __future__ import print_function
 
 import os
 import re
-import sys
-from StringIO import StringIO
 from subprocess import Popen, PIPE
+
+from six import PY3, StringIO
 
 from sphinx.writers.latex import LaTeXTranslator
 
@@ -35,7 +35,7 @@ WARNING: invalid pair index entry u''
 WARNING: invalid pair index entry u'keyword; '
 """
 
-if sys.version_info >= (3, 0):
+if PY3:
     LATEX_WARNINGS = remove_unicode_literals(LATEX_WARNINGS)
 
 

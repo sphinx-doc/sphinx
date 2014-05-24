@@ -9,17 +9,17 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
-
 # this imports the standard library inspect module without resorting to
 # relatively import this module
 inspect = __import__('inspect')
 
+from six import PY3, binary_type
+from six.moves import builtins
+
 from sphinx.util import force_decode
-from sphinx.util.pycompat import bytes, builtins
 
 
-if sys.version_info >= (3, 0):
+if PY3:
     from functools import partial
     def getargspec(func):
         """Like inspect.getargspec but supports functools.partial as well."""
@@ -129,7 +129,7 @@ def safe_repr(object):
         s = repr(object)
     except Exception:
         raise ValueError
-    if isinstance(s, bytes):
+    if isinstance(s, binary_type):
         return force_decode(s, None).replace('\n', ' ')
     return s.replace('\n', ' ')
 

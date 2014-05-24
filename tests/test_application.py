@@ -9,9 +9,9 @@
     :license: BSD, see LICENSE for details.
 """
 
-from StringIO import StringIO
-
+from six import StringIO
 from docutils import nodes
+
 from sphinx.application import ExtensionError
 from sphinx.domains import Domain
 

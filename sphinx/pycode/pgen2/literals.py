@@ -8,6 +8,9 @@ from __future__ import print_function
 
 import re
 
+from six import text_type
+
+
 simple_escapes = {"a": "\a",
                   "b": "\b",
                   "f": "\f",
@@ -67,7 +70,7 @@ uni_escape_re = re.compile(r"\\(\'|\"|\\|[abfnrtv]|x.{0,2}|[0-7]{1,3}|"
 def evalString(s, encoding=None):
     regex = escape_re
     repl = escape
-    if encoding and not isinstance(s, unicode):
+    if encoding and not isinstance(s, text_type):
         s = s.decode(encoding)
     if s.startswith('u') or s.startswith('U'):
         regex = uni_escape_re

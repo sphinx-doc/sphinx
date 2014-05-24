@@ -11,9 +11,9 @@
 
 import os
 import re
-import sys
-import htmlentitydefs
-from StringIO import StringIO
+
+from six import PY3, iteritems, StringIO
+from six.moves import html_entities
 
 try:
     import pygments
@@ -54,7 +54,7 @@ None:\\d+: WARNING: citation not found: missing
 %(root)s/markup.txt:: WARNING: invalid pair index entry u'keyword; '
 """
 
-if sys.version_info >= (3, 0):
+if PY3:
     ENV_WARNINGS = remove_unicode_literals(ENV_WARNINGS)
     HTML_WARNINGS = remove_unicode_literals(HTML_WARNINGS)
 
@@ -344,9 +344,9 @@ def test_html(app):
            '--- Expected (regex):\n' + html_warnings_exp + \
            '--- Got:\n' + html_warnings
 
-    for fname, paths in HTML_XPATH.iteritems():
+    for fname, paths in iteritems(HTML_XPATH):
         parser = NslessParser()
-        parser.entity.update(htmlentitydefs.entitydefs)
+        parser.entity.update(html_entities.entitydefs)
         fp = open(os.path.join(app.outdir, fname), 'rb')
         try:
             etree = ET.parse(fp, parser)

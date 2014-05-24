@@ -13,9 +13,10 @@ from __future__ import print_function
 
 import os
 import re
-from StringIO import StringIO
 from subprocess import Popen, PIPE
 from xml.etree import ElementTree
+
+from six import StringIO, string_types
 
 from util import test_roots, path, with_app, SkipTest
 
@@ -76,7 +77,7 @@ def elem_gettexts(elem):
         # this function copied from Python-2.7 'ElementTree.itertext'.
         # for compatibility to Python-2.6
         tag = self.tag
-        if not isinstance(tag, basestring) and tag is not None:
+        if not isinstance(tag, string_types) and tag is not None:
             return
         if self.text:
             yield self.text

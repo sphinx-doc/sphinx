@@ -8,7 +8,7 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import sys
+from six import PY3
 
 from util import TestApp, remove_unicode_literals, path
 
@@ -57,7 +57,7 @@ def test_images():
     htmlbuilder.imgpath = 'dummy'
     htmlbuilder.post_process_images(tree)
     image_uri_message = "no matching candidate for image URI u'foo.*'"
-    if sys.version_info >= (3, 0):
+    if PY3:
         image_uri_message = remove_unicode_literals(image_uri_message)
     assert image_uri_message in app._warning.content[-1]
     assert set(htmlbuilder.images.keys()) == \

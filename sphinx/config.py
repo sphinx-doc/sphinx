@@ -11,18 +11,19 @@
 
 import os
 import re
-import sys
 from os import path
+
+from six import PY3, iteritems, string_types, binary_type, integer_types
 
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
 from sphinx.util.osutil import make_filename
-from sphinx.util.pycompat import bytes, b, execfile_
+from sphinx.util.pycompat import b, execfile_
 
 nonascii_re = re.compile(b(r'[\x80-\xff]'))
 
 CONFIG_SYNTAX_ERROR = "There is a syntax error in your configuration file: %s"
-if sys.version_info >= (3, 0):
+if PY3:
     CONFIG_SYNTAX_ERROR += "\nDid you change the syntax from 2.x to 3.x?"
 
 class Config(object):
@@ -213,7 +214,7 @@ class Config(object):
         self.values = Config.config_values.copy()
         config = {}
         if 'extensions' in overrides:
-            if isinstance(overrides['extensions'], (str, unicode)):
+            if isinstance(overrides['extensions'], string_types):
                 config['extensions'] = overrides.pop('extensions').split(',')
             else:
                 config['extensions'] = overrides.pop('extensions')
@@ -242,8 +243,8 @@ class Config(object):
     def check_unicode(self, warn):
         # check all string values for non-ASCII characters in bytestrings,
         # since that can result in UnicodeErrors all over the place
-        for name, value in self._raw_config.iteritems():
-            if isinstance(value, bytes) and nonascii_re.search(value):
+        for name, value in iteritems(self._raw_config):
+            if isinstance(value, binary_type) and nonascii_re.search(value):
                 warn('the config value %r is set to a string with non-ASCII '
                      'characters; this can lead to Unicode errors occurring. '
                      'Please use Unicode strings, e.g. %r.' % (name, u'Content')
@@ -251,7 +252,7 @@ class Config(object):
 
     def init_values(self, warn):
         config = self._raw_config
-        for valname, value in self.overrides.iteritems():
+        for valname, value in iteritems(self.overrides):
             if '.' in valname:
                 realvalname, key = valname.split('.', 1)
                 config.setdefault(realvalname, {})[key] = value
@@ -260,7 +261,7 @@ class Config(object):
                 warn('unknown config value %r in override, ignoring' % valname)
                 continue
             defvalue = self.values[valname][0]
-            if isinstance(value, (str, unicode)):
+            if isinstance(value, string_types):
                 if isinstance(defvalue, dict):
                     warn('cannot override dictionary config setting %r, '
                          'ignoring (use %r to set individual elements)' %
@@ -268,13 +269,13 @@ class Config(object):
                     continue
                 elif isinstance(defvalue, list):
                     config[valname] = value.split(',')
-                elif isinstance(defvalue, (int, long)):
+                elif isinstance(defvalue, integer_types):
                     try:
                         config[valname] = int(value)
                     except ValueError:
                         warn('invalid number %r for config value %r, ignoring'
                              % (value, valname))
-                elif defvalue is not None and not isinstance(defvalue, (str, unicode)):
+                elif defvalue is not None and not isinstance(defvalue, string_types):
                     warn('cannot override config setting %r with unsupported type, '
                          'ignoring' % valname)
                 else:

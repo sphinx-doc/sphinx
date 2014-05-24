@@ -13,12 +13,14 @@ from __future__ import print_function
 import sys
 from os import path
 
+from six import iteritems, text_type, BytesIO, StringIO
+
 from sphinx import package_dir
 from sphinx.errors import PycodeError
 from sphinx.pycode import nodes
 from sphinx.pycode.pgen2 import driver, token, tokenize, parse, literals
 from sphinx.util import get_module_source, detect_encoding
-from sphinx.util.pycompat import StringIO, BytesIO, TextIOWrapper
+from sphinx.util.pycompat import TextIOWrapper
 from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
 
@@ -30,9 +32,9 @@ pydriver = driver.Driver(pygrammar, convert=nodes.convert)
 
 # an object with attributes corresponding to token and symbol names
 class sym: pass
-for k, v in pygrammar.symbol2number.iteritems():
+for k, v in iteritems(pygrammar.symbol2number):
     setattr(sym, k, v)
-for k, v in token.tok_name.iteritems():
+for k, v in iteritems(token.tok_name):
     setattr(sym, v, k)
 
 # a dict mapping terminal and nonterminal numbers to their names
@@ -98,7 +100,7 @@ class AttrDocVisitor(nodes.NodeVisitor):
                 continue  # skip over semicolon
             if parent[idx].type == sym.NEWLINE:
                 prefix = parent[idx].get_prefix()
-                if not isinstance(prefix, unicode):
+                if not isinstance(prefix, text_type):
                     prefix = prefix.decode(self.encoding)
                 docstring = prepare_commentdoc(prefix)
                 if docstring:
@@ -116,7 +118,7 @@ class AttrDocVisitor(nodes.NodeVisitor):
             if not pnode or pnode.type not in (token.INDENT, token.DEDENT):
                 break
             prefix = pnode.get_prefix()
-        if not isinstance(prefix, unicode):
+        if not isinstance(prefix, text_type):
             prefix = prefix.decode(self.encoding)
         docstring = prepare_commentdoc(prefix)
         self.add_docstring(node, docstring)
@@ -339,7 +341,7 @@ if __name__ == '__main__':
     x1 = time.time()
     ma.parse()
     x2 = time.time()
-    #for (ns, name), doc in ma.find_attr_docs().iteritems():
+    #for (ns, name), doc in iteritems(ma.find_attr_docs()):
     #    print '>>', ns, name
     #    print '\n'.join(doc)
     pprint.pprint(ma.find_tags())

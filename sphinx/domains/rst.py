@@ -11,6 +11,8 @@
 
 import re
 
+from six import iteritems
+
 from sphinx import addnodes
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import l_, _
@@ -117,7 +119,7 @@ class ReSTDomain(Domain):
     }
 
     def clear_doc(self, docname):
-        for (typ, name), doc in self.data['objects'].items():
+        for (typ, name), doc in list(self.data['objects'].items()):
             if doc == docname:
                 del self.data['objects'][typ, name]
 
@@ -133,5 +135,5 @@ class ReSTDomain(Domain):
                                     contnode, target + ' ' + objtype)
 
     def get_objects(self):
-        for (typ, name), docname in self.data['objects'].iteritems():
+        for (typ, name), docname in iteritems(self.data['objects']):
             yield name, name, typ, docname, typ + '-' + name, 1

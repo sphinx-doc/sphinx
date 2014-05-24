@@ -10,13 +10,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
-from StringIO import StringIO
-
 # "raises" imported for usage by autodoc
 from util import TestApp, Struct, raises
 from nose.tools import with_setup
 
+from six import StringIO
 from docutils.statemachine import ViewList
 
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
