@@ -865,9 +865,9 @@ def _serialize_xml(write, elem, encoding, qnames, namespaces):
                 _serialize_xml(write, e, encoding, qnames, None)
         else:
             write("<" + tag)
-            items = list(elem.items())
+            items = elem.items()
             if items or namespaces:
-                items.sort() # lexical order
+                items = sorted(items) # lexical order
                 for k, v in items:
                     if isinstance(k, QName):
                         k = k.text
@@ -877,8 +877,8 @@ def _serialize_xml(write, elem, encoding, qnames, namespaces):
                         v = _escape_attrib(v, encoding)
                     write(" %s=\"%s\"" % (qnames[k], v))
                 if namespaces:
-                    items = list(namespaces.items())
-                    items.sort(key=lambda x: x[1]) # sort on prefix
+                    items = namespaces.items()
+                    items = sorted(items, key=lambda x: x[1]) # sort on prefix
                     for v, k in items:
                         if k:
                             k = ":" + k
@@ -922,9 +922,9 @@ def _serialize_html(write, elem, encoding, qnames, namespaces):
                 _serialize_html(write, e, encoding, qnames, None)
         else:
             write("<" + tag)
-            items = list(elem.items())
+            items = elem.items()
             if items or namespaces:
-                items.sort() # lexical order
+                items = sorted(items) # lexical order
                 for k, v in items:
                     if isinstance(k, QName):
                         k = k.text
@@ -935,8 +935,8 @@ def _serialize_html(write, elem, encoding, qnames, namespaces):
                     # FIXME: handle boolean attributes
                     write(" %s=\"%s\"" % (qnames[k], v))
                 if namespaces:
-                    items = list(namespaces.items())
-                    items.sort(key=lambda x: x[1]) # sort on prefix
+                    items = namespaces.items()
+                    items = sorted(items, key=lambda x: x[1]) # sort on prefix
                     for v, k in items:
                         if k:
                             k = ":" + k

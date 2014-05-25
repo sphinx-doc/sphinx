@@ -350,7 +350,7 @@ class coverage:
             '-o:': 'omit=',
             }
         short_opts = string.join(map(lambda o: o[1:], optmap.keys()), '')
-        long_opts = list(optmap.values())
+        long_opts = optmap.values()
         options, args = getopt.getopt(argv, short_opts, long_opts)
         for o, a in options:
             if o in optmap:
@@ -743,10 +743,8 @@ class coverage:
         visitor = StatementFindingAstVisitor(statements, excluded, suite_spots)
         compiler.walk(ast, visitor, walker=visitor)
 
-        lines = list(statements.keys())
-        lines.sort()
-        excluded_lines = list(excluded.keys())
-        excluded_lines.sort()
+        lines = sorted(statements.keys())
+        excluded_lines = sorted(excluded.keys())
         return lines, excluded_lines, suite_spots
 
     # format_lines(statements, lines).  Format a list of line numbers
@@ -850,7 +848,7 @@ class coverage:
         morfs = self.filter_by_prefix(morfs, omit_prefixes)
         morfs.sort(self.morf_name_compare)
 
-        max_name = max([5,] + list(map(len, map(self.morf_name, morfs))))
+        max_name = max(5, *map(len, map(self.morf_name, morfs)))
         fmt_name = "%%- %ds  " % max_name
         fmt_err = fmt_name + "%s: %s"
         header = fmt_name % "Name" + " Stmts   Exec  Cover"
