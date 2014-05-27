@@ -15,7 +15,6 @@ from docutils import frontend, utils, nodes
 from docutils.parsers import rst
 
 from sphinx.util import texescape
-from sphinx.util.pycompat import b
 from sphinx.writers.html import HTMLWriter, SmartyPantsHTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
 
@@ -54,7 +53,7 @@ class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
 
 
 def verify_re(rst, html_expected, latex_expected):
-    document = utils.new_document(b('test data'), settings)
+    document = utils.new_document(b'test data', settings)
     document['file'] = 'dummy'
     parser.parse(rst, document)
     for msg in document.traverse(nodes.system_message):
@@ -128,7 +127,7 @@ def test_inline():
 def test_latex_escaping():
     # correct escaping in normal mode
     yield (verify, u'Γ\\\\∞$', None,
-           ur'\(\Gamma\)\textbackslash{}\(\infty\)\$')
+           r'\(\Gamma\)\textbackslash{}\(\infty\)\$')
     # in verbatim code fragments
     yield (verify, u'::\n\n @Γ\\∞${}', None,
            u'\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n'
@@ -136,4 +135,4 @@ def test_latex_escaping():
            u'\\end{Verbatim}')
     # in URIs
     yield (verify_re, u'`test <http://example.com/~me/>`_', None,
-           ur'\\href{http://example.com/~me/}{test}.*')
+           r'\\href{http://example.com/~me/}{test}.*')

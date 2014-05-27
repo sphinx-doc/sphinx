@@ -15,8 +15,6 @@ import sys
 from os import path, chdir, listdir, environ
 import shutil
 
-from six import PY3
-
 
 testroot = path.dirname(__file__) or '.'
 if 'BUILD_TEST_PATH' in environ:
@@ -28,15 +26,9 @@ else:
     newroot = path.join(newroot, listdir(newroot)[0], 'tests')
 
 shutil.rmtree(newroot, ignore_errors=True)
-
-if PY3:
-    print('Copying and converting sources to build/lib/tests...')
-    from distutils.util import copydir_run_2to3
-    copydir_run_2to3(testroot, newroot)
-else:
-    # just copying test directory to parallel testing
-    print('Copying sources to build/lib/tests...')
-    shutil.copytree(testroot, newroot)
+# just copying test directory to parallel testing
+print('Copying sources to build/lib/tests...')
+shutil.copytree(testroot, newroot)
 
 # always test the sphinx package from build/lib/
 sys.path.insert(0, path.abspath(path.join(newroot, path.pardir)))

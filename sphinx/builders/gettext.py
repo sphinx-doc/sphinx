@@ -10,6 +10,7 @@
 """
 
 from __future__ import with_statement
+from __future__ import unicode_literals
 
 from os import path, walk
 from codecs import open
@@ -27,7 +28,7 @@ from sphinx.util.osutil import safe_relpath, ensuredir, find_catalog, SEP
 from sphinx.util.console import darkgreen, purple, bold
 from sphinx.locale import pairindextypes
 
-POHEADER = ur"""
+POHEADER = r"""
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) %(copyright)s
 # This file is distributed under the same license as the %(project)s package.
@@ -204,19 +205,19 @@ class MessageCatalogBuilder(I18nBuilder):
 
                     if self.config.gettext_location:
                         # generate "#: file1:line1\n#: file2:line2 ..."
-                        pofile.write(u"#: %s\n" % "\n#: ".join("%s:%s" %
+                        pofile.write("#: %s\n" % "\n#: ".join("%s:%s" %
                             (safe_relpath(source, self.outdir), line)
                             for source, line, _ in positions))
                     if self.config.gettext_uuid:
                         # generate "# uuid1\n# uuid2\n ..."
-                        pofile.write(u"# %s\n" % "\n# ".join(
+                        pofile.write("# %s\n" % "\n# ".join(
                             uid for _, _, uid in positions))
 
                     # message contains *one* line of text ready for translation
-                    message = message.replace(u'\\', ur'\\'). \
-                                      replace(u'"', ur'\"'). \
-                                      replace(u'\n', u'\\n"\n"')
-                    pofile.write(u'msgid "%s"\nmsgstr ""\n\n' % message)
+                    message = message.replace('\\', r'\\'). \
+                                      replace('"', r'\"'). \
+                                      replace('\n', '\\n"\n"')
+                    pofile.write('msgid "%s"\nmsgstr ""\n\n' % message)
 
             finally:
                 pofile.close()

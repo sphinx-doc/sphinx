@@ -335,7 +335,7 @@ class ParserGenerator(object):
             try:
                 msg = msg % args
             except:
-                msg = " ".join([msg] + map(str, args))
+                msg = " ".join([msg] + [str(x) for x in args])
         raise SyntaxError(msg, (self.filename, self.end[0],
                                 self.end[1], self.line))
 
@@ -353,7 +353,7 @@ class DFAState(object):
 
     def __init__(self, nfaset, final):
         assert isinstance(nfaset, dict)
-        assert isinstance(iter(nfaset).next(), NFAState)
+        assert isinstance(next(iter(nfaset)), NFAState)
         assert isinstance(final, NFAState)
         self.nfaset = nfaset
         self.isfinal = final in nfaset

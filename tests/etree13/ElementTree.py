@@ -246,7 +246,7 @@ class Element(object):
     def __len__(self):
         return len(self._children)
 
-    def __nonzero__(self):
+    def __bool__(self):
         import warnings
         warnings.warn(
             "The behavior of this method will change in future versions. "
@@ -254,6 +254,7 @@ class Element(object):
             FutureWarning
             )
         return len(self._children) != 0 # emulate old behaviour
+    __nonzero__ = __bool__  # for python2 compatibility
 
     ##
     # Returns the given subelement.
@@ -866,7 +867,7 @@ def _serialize_xml(write, elem, encoding, qnames, namespaces):
             write("<" + tag)
             items = elem.items()
             if items or namespaces:
-                items.sort() # lexical order
+                items = sorted(items) # lexical order
                 for k, v in items:
                     if isinstance(k, QName):
                         k = k.text
@@ -877,7 +878,7 @@ def _serialize_xml(write, elem, encoding, qnames, namespaces):
                     write(" %s=\"%s\"" % (qnames[k], v))
                 if namespaces:
                     items = namespaces.items()
-                    items.sort(key=lambda x: x[1]) # sort on prefix
+                    items = sorted(items, key=lambda x: x[1]) # sort on prefix
                     for v, k in items:
                         if k:
                             k = ":" + k
@@ -923,7 +924,7 @@ def _serialize_html(write, elem, encoding, qnames, namespaces):
             write("<" + tag)
             items = elem.items()
             if items or namespaces:
-                items.sort() # lexical order
+                items = sorted(items) # lexical order
                 for k, v in items:
                     if isinstance(k, QName):
                         k = k.text
@@ -935,7 +936,7 @@ def _serialize_html(write, elem, encoding, qnames, namespaces):
                     write(" %s=\"%s\"" % (qnames[k], v))
                 if namespaces:
                     items = namespaces.items()
-                    items.sort(key=lambda x: x[1]) # sort on prefix
+                    items = sorted(items, key=lambda x: x[1]) # sort on prefix
                     for v, k in items:
                         if k:
                             k = ":" + k

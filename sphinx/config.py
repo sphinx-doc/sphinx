@@ -18,9 +18,9 @@ from six import PY3, iteritems, string_types, binary_type, integer_types
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
 from sphinx.util.osutil import make_filename
-from sphinx.util.pycompat import b, execfile_
+from sphinx.util.pycompat import execfile_
 
-nonascii_re = re.compile(b(r'[\x80-\xff]'))
+nonascii_re = re.compile(br'[\x80-\xff]')
 
 CONFIG_SYNTAX_ERROR = "There is a syntax error in your configuration file: %s"
 if PY3:

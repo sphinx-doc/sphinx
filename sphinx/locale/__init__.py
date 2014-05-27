@@ -60,8 +60,9 @@ class _TranslationProxy(UserString, object):
     def __contains__(self, key):
         return key in self.data
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.data)
+    __nonzero__ = __bool__  # for python2 compatibility
 
     def __dir__(self):
         return dir(text_type)

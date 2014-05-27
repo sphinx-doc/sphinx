@@ -38,7 +38,6 @@ from docutils.utils import relative_path
 
 from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
-from sphinx.util.pycompat import b
 
 
 handlers = [request.ProxyHandler(), request.HTTPRedirectHandler(),
@@ -86,19 +85,19 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
 
     def read_chunks():
         decompressor = zlib.decompressobj()
-        for chunk in iter(lambda: f.read(bufsize), b('')):
+        for chunk in iter(lambda: f.read(bufsize), b''):
             yield decompressor.decompress(chunk)
         yield decompressor.flush()
 
     def split_lines(iter):
-        buf = b('')
+        buf = b''
         for chunk in iter:
             buf += chunk
-            lineend = buf.find(b('\n'))
+            lineend = buf.find(b'\n')
             while lineend != -1:
                 yield buf[:lineend].decode('utf-8')
                 buf = buf[lineend+1:]
-                lineend = buf.find(b('\n'))
+                lineend = buf.find(b'\n')
         assert not buf
 
     for line in split_lines(read_chunks()):

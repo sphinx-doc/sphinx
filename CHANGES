@@ -16,6 +16,7 @@ Incompatible changes
 New features
 ------------
 
+* Add support for Python 3.4.
 * Added ``sphinx.ext.napoleon`` extension for NumPy and Google style docstring
   support.
 * PR#214: Added stemming support for 14 languages, so that the built-in document

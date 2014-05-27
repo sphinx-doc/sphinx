@@ -110,14 +110,11 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
     # read
     items = find_autosummary_in_files(sources)
 
-    # remove possible duplicates
-    items = dict([(item, True) for item in items]).keys()
-
     # keep track of new files
     new_files = []
 
     # write
-    for name, path, template_name in sorted(items, key=str):
+    for name, path, template_name in sorted(set(items), key=str):
         if path is None:
             # The corresponding autosummary:: directive did not have
             # a :toctree: option

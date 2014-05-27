@@ -401,7 +401,7 @@ class coverage:
         if settings.get('collect'):
             self.collect()
         if not args:
-            args = self.cexecuted.keys()
+            args = list(self.cexecuted.keys())
 
         ignore_errors = settings.get('ignore-errors')
         show_missing = settings.get('show-missing')
@@ -743,10 +743,8 @@ class coverage:
         visitor = StatementFindingAstVisitor(statements, excluded, suite_spots)
         compiler.walk(ast, visitor, walker=visitor)
 
-        lines = statements.keys()
-        lines.sort()
-        excluded_lines = excluded.keys()
-        excluded_lines.sort()
+        lines = sorted(statements.keys())
+        excluded_lines = sorted(excluded.keys())
         return lines, excluded_lines, suite_spots
 
     # format_lines(statements, lines).  Format a list of line numbers
@@ -850,7 +848,7 @@ class coverage:
         morfs = self.filter_by_prefix(morfs, omit_prefixes)
         morfs.sort(self.morf_name_compare)
 
-        max_name = max([5,] + map(len, map(self.morf_name, morfs)))
+        max_name = max(5, *map(len, map(self.morf_name, morfs)))
         fmt_name = "%%- %ds  " % max_name
         fmt_err = fmt_name + "%s: %s"
         header = fmt_name % "Name" + " Stmts   Exec  Cover"

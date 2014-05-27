@@ -32,7 +32,6 @@ from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
      movefile, ustrftime, copyfile
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.matching import patmatch, compile_matchers
-from sphinx.util.pycompat import b
 from sphinx.locale import _
 from sphinx.search import js_index
 from sphinx.theming import Theme
@@ -221,7 +220,7 @@ class StandaloneHTMLBuilder(Builder):
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
-        doc = new_document(b('<partial node>'))
+        doc = new_document(b'<partial node>')
         doc.append(node)
 
         if self._publisher is None:
