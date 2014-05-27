@@ -126,6 +126,8 @@ def test_type_definitions():
     x = 'int foo(D d=x(a'
     raises(DefinitionError, parse, 'function', x)
 
+    x = 'int foo(const A&... a)'
+    assert unicode(parse('function', x)) == x
 
 def test_bases():
     x = 'A'
