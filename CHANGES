@@ -143,6 +143,8 @@ Bugs fixed
 * #636: Keep straight single quotes in literal blocks in the LaTeX build.
 * PR#235: comment db schema of websupport lacked a length of the node_id field.
   Thanks to solos.
+* #1466,PR#241: Fix failure of the cpp domain parser to parse C+11
+  "variadic templates" declarations. Thanks to Victor Zverovich.
 
 Documentation
 -------------
