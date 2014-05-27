@@ -61,8 +61,8 @@ def teardown_module():
 def test_quickstart_inputstrip():
     d = {}
     answers = {
-        'Q1': 'Y\r',  # input() return with '\r' on Python-3.2.0 for Windows
-        'Q2': ' Yes \r',
+        'Q1': 'Y',
+        'Q2': ' Yes ',
         'Q3': 'N',
         'Q4': 'N ',
     }

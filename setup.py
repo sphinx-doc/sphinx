@@ -41,16 +41,13 @@ Among its features are the following:
 * Setuptools integration
 '''
 
-if sys.version_info < (2, 6) or (3, 0) <= sys.version_info < (3, 2):
-    print('ERROR: Sphinx requires at least Python 2.6 or 3.2 to run.')
+if sys.version_info < (2, 6) or (3, 0) <= sys.version_info < (3, 3):
+    print('ERROR: Sphinx requires at least Python 2.6 or 3.3 to run.')
     sys.exit(1)
 
-requires = ['six', 'Pygments>=1.2', 'docutils>=0.10', 'snowballstemmer>=1.1']
-
-if (3, 0) <= sys.version_info < (3, 3):
-    requires.append('Jinja2>=2.3,<2.7')
-else:  # 2.6, 2.7, 3.3 or later
-    requires.append('Jinja2>=2.3')
+requires = [
+    'six', 'Jinja2>=2.3', 'Pygments>=1.2', 'docutils>=0.10', 'snowballstemmer>=1.1'
+]
 
 # Provide a "compile_catalog" command that also creates the translated
 # JavaScript files if Babel is available.
