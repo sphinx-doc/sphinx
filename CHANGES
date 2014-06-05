@@ -145,6 +145,8 @@ Bugs fixed
   Thanks to solos.
 * #1466,PR#241: Fix failure of the cpp domain parser to parse C+11
   "variadic templates" declarations. Thanks to Victor Zverovich.
+* #1459,PR#244: Fix default mathjax js path point to `http://` that cause
+  mixed-content error on HTTPS server. Thanks to sbrandtb.
 
 Documentation
 -------------
