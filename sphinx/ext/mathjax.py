@@ -61,7 +61,7 @@ def builder_inited(app):
 def setup(app):
     mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
     app.add_config_value('mathjax_path',
-                         'http://cdn.mathjax.org/mathjax/latest/MathJax.js?'
+                         'https://cdn.mathjax.org/mathjax/latest/MathJax.js?'
                          'config=TeX-AMS-MML_HTMLorMML', False)
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
