@@ -37,6 +37,8 @@ New features
   generated gettext catalogs.
 * PR#236, #1456: apidoc: Add a -M option to put module documentation before
   submodule documentation. Thanks to Wes Turner and Luc Saffre.
+* #1434: Provide non-minified JS files for jquery.js and underscore.js to
+  clarify the source of the minified files.
 
 Bugs fixed
 ----------

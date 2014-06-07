@@ -55,3 +55,26 @@ def test_theme_api(app):
     # cleanup temp directories
     theme.cleanup()
     assert not os.path.exists(themedir)
+
+@with_app(buildername='html')
+def test_js_source(app):
+    # Now sphinx provides non-minified JS files for jquery.js and underscore.js
+    # to clarify the source of the minified files. see also #1434.
+    # If you update the version of the JS file, please update the source of the
+    # JS file and version number in this test.
+
+    app.builder.build_all()
+
+    v = '1.8.3'
+    msg = 'jquery.js version does not match to {v}'.format(v=v)
+    jquery_min = (app.outdir / '_static' / 'jquery.js').text()
+    assert 'jQuery v{v}'.format(v=v) in jquery_min, msg
+    jquery_src = (app.outdir / '_static' / 'jquery-{v}.js'.format(v=v)).text()
+    assert 'jQuery JavaScript Library v{v}'.format(v=v) in jquery_src, msg
+
+    v = '1.3.1'
+    msg = 'underscore.js version does not match to {v}'.format(v=v)
+    underscore_min = (app.outdir / '_static' / 'underscore.js').text()
+    assert 'Underscore.js {v}'.format(v=v) in underscore_min, msg
+    underscore_src = (app.outdir / '_static' / 'underscore-{v}.js'.format(v=v)).text()
+    assert 'Underscore.js {v}'.format(v=v) in underscore_src, msg
