@@ -166,6 +166,8 @@ Documentation using a custom theme/integrated in a site
 * ObjectListView: http://objectlistview.sourceforge.net/python
 * Open ERP: http://doc.openerp.com/
 * OpenCV: http://docs.opencv.org/
+* Open Dylan: http://opendylan.org/documentation/ and also provides
+  `dylan domain <https://github.com/dylan-lang/sphinx-extensions/blob/master/dylandomain/reference.rst>`__
 * OpenLayers: http://docs.openlayers.org/
 * PyEphem: http://rhodesmill.org/pyephem/
 * German Plone user manual: http://www.hasecke.com/plone-benutzerhandbuch/
