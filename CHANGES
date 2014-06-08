@@ -13,6 +13,7 @@ Bugs fixed
 * #1457: In python3 environment, make linkcheck cause "Can't convert 'bytes'
   object to str implicitly" error when link target url has a hash part.
   Thanks to Jorge_C.
+* #1467: Exception on Python3 if nonexistent method is specified by automethod
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================
