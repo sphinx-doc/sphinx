@@ -17,7 +17,7 @@ import inspect
 import traceback
 from types import FunctionType, BuiltinFunctionType, MethodType
 
-from six import PY3, iteritems, itervalues, text_type, class_types
+from six import iteritems, itervalues, text_type, class_types
 from docutils import nodes
 from docutils.utils import assemble_option_dict
 from docutils.statemachine import ViewList
