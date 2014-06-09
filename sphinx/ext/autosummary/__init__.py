@@ -66,6 +66,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.util.compat import Directive
+from sphinx.pycode import ModuleAnalyzer, PycodeError
 
 
 # -- autosummary_toc node ------------------------------------------------------
@@ -193,6 +194,7 @@ class Autosummary(Directive):
         self.env = env = self.state.document.settings.env
         self.genopt = {}
         self.warnings = []
+        self.result = ViewList()
 
         names = [x.strip().split()[0] for x in self.content
                  if x.strip() and re.search(r'^[~a-zA-Z_]', x.strip()[0])]
@@ -250,6 +252,7 @@ class Autosummary(Directive):
 
             # NB. using real_name here is important, since Documenters
             #     handle module prefixes slightly differently
+            self.result = ViewList()  # initialize for each documenter
             documenter = get_documenter(obj, parent)(self, real_name)
             if not documenter.parse_name():
                 self.warn('failed to parse name %s' % real_name)
@@ -259,6 +262,17 @@ class Autosummary(Directive):
                 self.warn('failed to import object %s' % real_name)
                 items.append((display_name, '', '', real_name))
                 continue
+
+            # try to also get a source code analyzer for attribute docs
+            try:
+                documenter.analyzer = ModuleAnalyzer.for_module(documenter.get_real_modname())
+                # parse right now, to get PycodeErrors on parsing (results will
+                # be cached anyway)
+                documenter.analyzer.find_attr_docs()
+            except PycodeError as err:
+                documenter.env.app.debug('[autodoc] module analyzer failed: %s', err)
+                # no source file -- e.g. for builtin and C modules
+                documenter.analyzer = None
 
             # -- Grab the signature
 
@@ -272,7 +286,8 @@ class Autosummary(Directive):
 
             # -- Grab the summary
 
-            doc = list(documenter.process_doc(documenter.get_doc()))
+            documenter.add_content(None)
+            doc = list(documenter.process_doc([self.result.data]))
 
             while doc and not doc[0].strip():
                 doc.pop(0)

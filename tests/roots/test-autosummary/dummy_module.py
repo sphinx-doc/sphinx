@@ -1,3 +1,11 @@
+"""
+.. autosummary::
+
+   module_attr
+   C.class_attr
+   C.prop_attr1
+   C.prop_attr2
+"""
 
 def withSentence():
     '''I have a sentence which
@@ -19,3 +27,39 @@ def emptyLine():
     However, it did't end with a period.
     '''
     pass
+
+
+#: This is a module attribute
+#:
+#: value is integer.
+module_attr = 1
+
+
+class C:
+    '''
+    My C class
+
+    with class_attr attribute
+    '''
+
+    #: This is a class attribute
+    #:
+    #: value is integer.
+    class_attr = 42
+
+    def _prop_attr_get(self):
+        """
+        This is a function docstring
+
+        return value is string.
+        """
+        return 'spam egg'
+
+    prop_attr1 = property(_prop_attr_get)
+
+    prop_attr2 = property(_prop_attr_get)
+    """
+    This is a attribute docstring
+
+    value is string.
+    """

@@ -245,8 +245,8 @@ class Make(object):
             opts.extend(['-D', 'latex_paper_size=' + papersize])
         if doctreedir is None:
             doctreedir = self.builddir_join('doctrees')
-        return call([sys.executable, sys.argv[0], '-b', builder,
-                     '-d', doctreedir, self.srcdir, self.builddir_join(builder)] + opts)
+        return call([sys.executable, sys.argv[0], '-b', builder] + opts +
+                    ['-d', doctreedir, self.srcdir, self.builddir_join(builder)])
 
 
 def run_make_mode(args):

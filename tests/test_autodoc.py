@@ -540,6 +540,9 @@ def test_generate():
     # attributes missing
     assert_warns("failed to import function 'foobar' from module 'util'",
                  'function', 'util.foobar', more_content=None)
+    # method missing
+    assert_warns("failed to import method 'Class.foobar' from module 'test_autodoc';",
+                 'method', 'test_autodoc.Class.foobar', more_content=None)
 
     # test auto and given content mixing
     directive.env.temp_data['py:module'] = 'test_autodoc'

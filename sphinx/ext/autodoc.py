@@ -1216,6 +1216,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
     if PY3:
         def import_object(self):
             ret = ClassLevelDocumenter.import_object(self)
+            if not ret:
+                return ret
             obj_from_parent = self.parent.__dict__.get(self.object_name)
             if isinstance(obj_from_parent, classmethod):
                 self.directivetype = 'classmethod'
@@ -1229,6 +1231,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
     else:
         def import_object(self):
             ret = ClassLevelDocumenter.import_object(self)
+            if not ret:
+                return ret
             if isinstance(self.object, classmethod) or \
                    (isinstance(self.object, MethodType) and
                     self.object.__self__ is not None):

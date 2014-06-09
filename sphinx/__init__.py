@@ -41,6 +41,13 @@ if '+' in __version__ or 'pre' in __version__:
 
 
 def main(argv=sys.argv):
+    if sys.argv[1:2] == ['-M']:
+        sys.exit(make_main(argv))
+    else:
+        sys.exit(build_main(argv))
+
+
+def build_main(argv=sys.argv):
     """Sphinx build "main" command-line entry."""
     if (sys.version_info[:3] < (2, 6, 0) or
        (3, 0, 0) <= sys.version_info[:3] < (3, 3, 0)):
