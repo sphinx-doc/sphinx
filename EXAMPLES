@@ -159,6 +159,7 @@ Documentation using a custom theme/integrated in a site
 * GeoServer: http://docs.geoserver.org/
 * Glashammer: http://glashammer.org/
 * Istihza (Turkish Python documentation project): http://www.istihza.com/py2/icindekiler_python.html
+* Lasso: http://lassoguide.com/
 * MathJax: http://docs.mathjax.org/en/latest/
 * MirrorBrain: http://mirrorbrain.org/docs/
 * nose: http://somethingaboutorange.com/mrl/projects/nose/
@@ -224,6 +225,8 @@ Books produced using Sphinx
   https://www.varnish-software.com/static/book/
 * "Learning Sphinx" (in Japanese):
   http://www.oreilly.co.jp/books/9784873116488/
+* "LassoGuide":
+  http://www.lassosoft.com/Lasso-Documentation
 
 
 Thesis using Sphinx
