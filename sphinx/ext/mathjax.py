@@ -60,8 +60,10 @@ def builder_inited(app):
 
 def setup(app):
     mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
+    # more information for mathjax secure url is here:
+    # http://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
     app.add_config_value('mathjax_path',
-                         'https://cdn.mathjax.org/mathjax/latest/MathJax.js?'
+                         'https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?'
                          'config=TeX-AMS-MML_HTMLorMML', False)
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
