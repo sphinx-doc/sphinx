@@ -131,6 +131,7 @@ Documentation using another builtin theme
 * libLAS: http://liblas.org/ (nature)
 * MPipe: http://vmlaker.github.io/mpipe/ (sphinx13)
 * pip: http://pip.openplans.org/ (nature)
+* Pyramid web framework: http://docs.pylonsproject.org/projects/pyramid/en/latest/ (pyramid)
 * Programmieren mit PyGTK und Glade (German):
   http://www.florian-diesch.de/doc/python-und-glade/online/ (agogo)
 * Spring Python: http://springpython.webfactional.com/current/sphinx/index.html
@@ -173,7 +174,7 @@ Documentation using a custom theme/integrated in a site
 * PyEphem: http://rhodesmill.org/pyephem/
 * German Plone user manual: http://www.hasecke.com/plone-benutzerhandbuch/
 * PSI4: http://sirius.chem.vt.edu/psi4manual/latest/index.html
-* Pylons: http://pylonshq.com/docs/en/0.9.7/
+* Pylons: http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/
 * PyMOTW: http://www.doughellmann.com/PyMOTW/
 * pypol: http://pypol.altervista.org/ (celery)
 * QGIS: http://qgis.org/
@@ -181,6 +182,7 @@ Documentation using a custom theme/integrated in a site
 * Roundup: http://www.roundup-tracker.org/
 * Selenium: http://seleniumhq.org/docs/
 * Self: http://selflanguage.org/
+* Substance D: http://docs.pylonsproject.org/projects/substanced/en/latest/
 * Tablib: http://tablib.org/
 * SQLAlchemy: http://www.sqlalchemy.org/docs/
 * tinyTiM: http://tinytim.sourceforge.net/docs/2.0/
