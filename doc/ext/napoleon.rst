@@ -324,7 +324,8 @@ enabled in `conf.py`::
    **If False**::
 
        .. attribute:: attr1
-          :annotation: int
+
+          *int*
 
           Description of `attr1`
 

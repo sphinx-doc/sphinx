@@ -205,6 +205,37 @@ This class should only be used by runtimes.
 """
         self.assertEqual(expected, actual)
 
+    def test_attributes_with_class_reference(self):
+        docstring = """\
+Attributes:
+    in_attr(:class:`numpy.ndarray`): super-dooper attribute
+"""
+
+        actual = str(GoogleDocstring(docstring))
+        expected = """\
+.. attribute:: in_attr
+
+   :class:`numpy.ndarray`
+
+   super-dooper attribute
+"""
+        self.assertEqual(expected, actual)
+
+        docstring = """\
+Attributes:
+    in_attr(numpy.ndarray): super-dooper attribute
+"""
+
+        actual = str(GoogleDocstring(docstring))
+        expected = """\
+.. attribute:: in_attr
+
+   *numpy.ndarray*
+
+   super-dooper attribute
+"""
+        self.assertEqual(expected, actual)
+
 
 class NumpyDocstringTest(BaseDocstringTest):
     docstrings = [(
