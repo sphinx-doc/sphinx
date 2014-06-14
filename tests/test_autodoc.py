@@ -416,6 +416,39 @@ def test_docstring_processing():
 
 
 @with_setup(setup_test)
+def test_docstring_property_processing():
+    def genarate_docstring(objtype, name, **kw):
+        del processed_docstrings[:]
+        del processed_signatures[:]
+        inst = AutoDirective._registry[objtype](directive, name)
+        inst.generate(**kw)
+        results = list(directive.result)
+        docstrings = inst.get_doc()[0]
+        del directive.result[:]
+        return results, docstrings
+
+    directive.env.config.autodoc_docstring_signature = False
+    results, docstrings = genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop1')
+    assert '.. py:attribute:: DocstringSig.prop1' in results
+    assert 'First line of docstring' in docstrings
+    assert 'DocstringSig.prop1(self)' in docstrings
+    results, docstrings = genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop2')
+    assert '.. py:attribute:: DocstringSig.prop2' in results
+    assert 'First line of docstring' in docstrings
+    assert 'Second line of docstring' in docstrings
+
+    directive.env.config.autodoc_docstring_signature = True
+    results, docstrings = genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop1')
+    assert '.. py:attribute:: DocstringSig.prop1' in results
+    assert 'First line of docstring' in docstrings
+    assert 'DocstringSig.prop1(self)' not in docstrings
+    results, docstrings = genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop2')
+    assert '.. py:attribute:: DocstringSig.prop2' in results
+    assert 'First line of docstring' in docstrings
+    assert 'Second line of docstring' in docstrings
+
+
+@with_setup(setup_test)
 def test_new_documenter():
     class MyDocumenter(ModuleLevelDocumenter):
         objtype = 'integer'
@@ -872,6 +905,20 @@ First line of docstring
 
             indented line
         """
+
+    @property
+    def prop1(self):
+        """DocstringSig.prop1(self)
+        First line of docstring
+        """
+        return 123
+
+    @property
+    def prop2(self):
+        """First line of docstring
+        Second line of docstring
+        """
+        return 456
 
 class StrRepr(str):
     def __repr__(self):

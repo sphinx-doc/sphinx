@@ -982,7 +982,10 @@ class DocstringStripSignatureMixin(DocstringSignatureMixin):
             # the feature is enabled
             result = self._find_signature()
             if result is not None:
-                self.retann = result[1]
+                # Discarding _args is a only difference with
+                # DocstringSignatureMixin.format_signature.
+                # Documenter.format_signature use self.args value to format.
+                _args, self.retann = result
         return Documenter.format_signature(self)
     
 

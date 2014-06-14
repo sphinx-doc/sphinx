@@ -149,6 +149,8 @@ Bugs fixed
   "variadic templates" declarations. Thanks to Victor Zverovich.
 * #1459,PR#244: Fix default mathjax js path point to `http://` that cause
   mixed-content error on HTTPS server. Thanks to sbrandtb and robo9k.
+* PR#157: autodoc remove spurious signatures from @property decorated
+  attributes. Thanks to David Ham.
 
 Documentation
 -------------
