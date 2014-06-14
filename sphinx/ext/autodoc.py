@@ -971,6 +971,20 @@ class DocstringSignatureMixin(object):
                 self.args, self.retann = result
         return Documenter.format_signature(self)
 
+class DocstringStripSignatureMixin(DocstringSignatureMixin):
+    """
+    Mixin for AttributeDocumenter to provide the
+    feature of stripping any function signature from the docstring.
+    """
+    def format_signature(self):
+        if self.args is None and self.env.config.autodoc_docstring_signature:
+            # only act if a signature is not explicitly given already, and if
+            # the feature is enabled
+            result = self._find_signature()
+            if result is not None:
+                self.retann = result[1]
+        return Documenter.format_signature(self)
+    
 
 class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
     """
@@ -1264,7 +1278,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
         pass
 
 
-class AttributeDocumenter(ClassLevelDocumenter):
+class AttributeDocumenter(DocstringStripSignatureMixin,ClassLevelDocumenter):
     """
     Specialized Documenter subclass for attributes.
     """
