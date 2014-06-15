@@ -22,7 +22,6 @@ from sphinx.locale import _, init as init_locale
 from sphinx.util import split_index_msg
 from sphinx.util.nodes import traverse_translatable_index, extract_messages
 from sphinx.util.osutil import ustrftime, find_catalog
-from sphinx.util.compat import docutils_version
 from sphinx.domains.std import (
     make_term_from_paragraph_node,
     make_termnodes_from_paragraph_node,

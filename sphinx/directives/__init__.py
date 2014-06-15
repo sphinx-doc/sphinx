@@ -11,7 +11,6 @@
 
 import re
 
-from six import itervalues
 from docutils.parsers.rst import Directive, directives
 
 from sphinx import addnodes

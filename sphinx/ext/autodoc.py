@@ -987,7 +987,7 @@ class DocstringStripSignatureMixin(DocstringSignatureMixin):
                 # Documenter.format_signature use self.args value to format.
                 _args, self.retann = result
         return Documenter.format_signature(self)
-    
+
 
 class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
     """

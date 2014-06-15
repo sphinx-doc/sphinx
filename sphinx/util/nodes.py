@@ -10,7 +10,6 @@
 """
 
 import re
-import sys
 
 from docutils import nodes
 

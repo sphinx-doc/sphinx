@@ -12,7 +12,6 @@
 import re
 import string
 
-from six import iteritems
 from docutils import nodes
 
 from sphinx import addnodes

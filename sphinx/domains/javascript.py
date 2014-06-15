@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six import iteritems
-
 from sphinx import addnodes
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import l_, _

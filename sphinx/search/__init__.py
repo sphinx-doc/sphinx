@@ -92,9 +92,12 @@ var Stemmer = function() {
         Return true if the target word should be registered in the search index.
         This method is called after stemming.
         """
-        return len(word) == 0 or not (((len(word) < 3) and (12353 < ord(word[0]) < 12436)) or
-            (ord(word[0]) < 256 and (len(word) < 3 or word in self.stopwords or
-                                     word.isdigit())))
+        return (
+            len(word) == 0 or not (
+                ((len(word) < 3) and (12353 < ord(word[0]) < 12436)) or
+                (ord(word[0]) < 256 and (
+                    len(word) < 3 or word in self.stopwords or word.isdigit()
+                ))))
 
 
 # SearchEnglish imported after SearchLanguage is defined due to circular import
