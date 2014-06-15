@@ -17,7 +17,7 @@ import inspect
 import traceback
 from types import FunctionType, BuiltinFunctionType, MethodType
 
-from six import PY3, iteritems, itervalues, text_type, class_types
+from six import iteritems, itervalues, text_type, class_types
 from docutils import nodes
 from docutils.utils import assemble_option_dict
 from docutils.statemachine import ViewList
@@ -1230,42 +1230,25 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
         return inspect.isroutine(member) and \
                not isinstance(parent, ModuleDocumenter)
 
-    if PY3:
-        def import_object(self):
-            ret = ClassLevelDocumenter.import_object(self)
-            if not ret:
-                return ret
-            obj_from_parent = self.parent.__dict__.get(self.object_name)
-            if isinstance(obj_from_parent, classmethod):
-                self.directivetype = 'classmethod'
-                self.member_order = self.member_order - 1
-            elif isinstance(obj_from_parent, staticmethod):
-                self.directivetype = 'staticmethod'
-                self.member_order = self.member_order - 1
-            else:
-                self.directivetype = 'method'
+    def import_object(self):
+        ret = ClassLevelDocumenter.import_object(self)
+        if not ret:
             return ret
-    else:
-        def import_object(self):
-            ret = ClassLevelDocumenter.import_object(self)
-            if not ret:
-                return ret
-            if isinstance(self.object, classmethod) or \
-                   (isinstance(self.object, MethodType) and
-                    self.object.__self__ is not None):
-                self.directivetype = 'classmethod'
-                # document class and static members before ordinary ones
-                self.member_order = self.member_order - 1
-            elif isinstance(self.object, FunctionType) or \
-                 (isinstance(self.object, BuiltinFunctionType) and
-                  hasattr(self.object, '__self__') and
-                  self.object.__self__ is not None):
-                self.directivetype = 'staticmethod'
-                # document class and static members before ordinary ones
-                self.member_order = self.member_order - 1
-            else:
-                self.directivetype = 'method'
-            return ret
+
+        # to distinguish classmethod/staticmethod
+        obj = self.parent.__dict__.get(self.object_name)
+
+        if isinstance(obj, classmethod):
+            self.directivetype = 'classmethod'
+            # document class and static members before ordinary ones
+            self.member_order = self.member_order - 1
+        elif isinstance(obj, staticmethod):
+            self.directivetype = 'staticmethod'
+            # document class and static members before ordinary ones
+            self.member_order = self.member_order - 1
+        else:
+            self.directivetype = 'method'
+        return ret
 
     def format_args(self):
         if inspect.isbuiltin(self.object) or \
