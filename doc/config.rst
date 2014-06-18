@@ -308,8 +308,8 @@ Project information
    If true, doctest flags (comments looking like ``# doctest: FLAG, ...``) at
    the ends of lines and ``<BLANKLINE>`` markers are removed for all code
    blocks showing interactive Python sessions (i.e. doctests).  Default is
-   true.  See the extension :mod:`~sphinx.ext.doctest` for more possibilities
-   of including doctests.
+   ``True``.  See the extension :mod:`~sphinx.ext.doctest` for more
+   possibilities of including doctests.
 
    .. versionadded:: 1.0
    .. versionchanged:: 1.1
@@ -404,7 +404,7 @@ documentation on :ref:`intl` for details.
    If true, Sphinx generates uuid information for version tracking in message
    catalogs.
 
-   The default is ``true``.
+   The default is ``True``.
 
    .. versionadded:: 1.3
 
@@ -413,7 +413,7 @@ documentation on :ref:`intl` for details.
    If true, Sphinx generates location information for messages in message
    catalogs.
 
-   The default is ``true``.
+   The default is ``True``.
 
    .. versionadded:: 1.3
 
@@ -1040,7 +1040,7 @@ These options influence LaTeX output.
      documents will not get appendices.  Also, howtos will have a simpler title
      page.
 
-   * *toctree_only*: Must be ``True`` or ``False``.  If ``True``, the *startdoc*
+   * *toctree_only*: Must be ``True`` or ``False``.  If true, the *startdoc*
      document itself is not included in the output, only the documents
      referenced by it via TOC trees.  With this option, you can put extra stuff
      in the master document that shows up in the HTML, but not the LaTeX output.
@@ -1343,7 +1343,7 @@ These options influence Texinfo output.
      file.
    * *category*: Specifies the section which this entry will appear in the
      top-level ``DIR`` menu file.
-   * *toctree_only*: Must be ``True`` or ``False``.  If ``True``, the *startdoc*
+   * *toctree_only*: Must be ``True`` or ``False``.  If true, the *startdoc*
      document itself is not included in the output, only the documents
      referenced by it via TOC trees.  With this option, you can put extra stuff
      in the master document that shows up in the HTML, but not the Texinfo
@@ -1452,9 +1452,9 @@ Options for the linkcheck builder
 
 .. confval:: linkcheck_anchors
 
-   True or false, whether to check the validity of ``#anchor``\ s in links.
-   Since this requires downloading the whole document, it's considerably slower
-   when enabled.  Default is ``True``.
+   If true, check the validity of ``#anchor``\ s in links. Since this requires
+   downloading the whole document, it's considerably slower when enabled. 
+   Default is ``True``.
 
    .. versionadded:: 1.2
 
@@ -1464,7 +1464,7 @@ Options for the XML builder
 
 .. confval:: xml_pretty
 
-   If True, pretty-print the XML.  Default is ``True``.
+   If true, pretty-print the XML.  Default is ``True``.
 
    .. versionadded:: 1.2
 

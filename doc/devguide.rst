@@ -235,10 +235,10 @@ Debugging Tips
 * Use ``node.pformat()`` and ``node.asdom().toxml()`` to generate a printable
   representation of the document structure.
 
-* Set the configuration variable :confval:`keep_warnings` to True so warnings
-  will be displayed in the generated output.
+* Set the configuration variable :confval:`keep_warnings` to ``True`` so
+  warnings will be displayed in the generated output.
 
-* Set the configuration variable :confval:`nitpicky` to True so that Sphinx
+* Set the configuration variable :confval:`nitpicky` to ``True`` so that Sphinx
   will complain about references without a known target.
 
 * Set the debugging options in the `Docutils configuration file

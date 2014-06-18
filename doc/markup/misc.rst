@@ -52,7 +52,7 @@ Meta-information markup
 
    By default, this markup isn't reflected in the output in any way (it helps
    keep track of contributions), but you can set the configuration value
-   :confval:`show_authors` to True to make them produce a paragraph in the
+   :confval:`show_authors` to ``True`` to make them produce a paragraph in the
    output.
 
 
@@ -61,7 +61,7 @@ Meta-information markup
    The :rst:dir:`codeauthor` directive, which can appear multiple times, names
    the authors of the described code, just like :rst:dir:`sectionauthor` names
    the author(s) of a piece of documentation.  It too only produces output if
-   the :confval:`show_authors` configuration value is True.
+   the :confval:`show_authors` configuration value is ``True``.
 
 
 Index-generating markup

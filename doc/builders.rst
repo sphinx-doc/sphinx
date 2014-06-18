@@ -247,8 +247,8 @@ for details.
 .. class:: ChangesBuilder
 
    This builder produces an HTML overview of all :rst:dir:`versionadded`,
-   :rst:dir:`versionchanged` and :rst:dir:`deprecated` directives for the current
-   :confval:`version`.  This is useful to generate a ChangeLog file, for
+   :rst:dir:`versionchanged` and :rst:dir:`deprecated` directives for the
+   current :confval:`version`.  This is useful to generate a ChangeLog file, for
    example.
 
    Its name is ``changes``.

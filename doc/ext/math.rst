@@ -169,8 +169,8 @@ built:
 
 .. confval:: pngmath_add_tooltips
 
-   Default: true.  If false, do not add the LaTeX code as an "alt" attribute for
-   math images.
+   Default: ``True``.  If false, do not add the LaTeX code as an "alt" attribute
+   for math images.
 
    .. versionadded:: 1.1
 

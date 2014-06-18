@@ -376,7 +376,7 @@ a matching identifier is found:
    Reference a Python function; dotted names may be used.  The role text needs
    not include trailing parentheses to enhance readability; they will be added
    automatically by Sphinx if the :confval:`add_function_parentheses` config
-   value is true (the default).
+   value is ``True`` (the default).
 
 .. rst:role:: py:data
 

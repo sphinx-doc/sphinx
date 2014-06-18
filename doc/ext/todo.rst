@@ -13,13 +13,14 @@ There are two additional directives when using this extension:
 
    Use this directive like, for example, :rst:dir:`note`.
 
-   It will only show up in the output if :confval:`todo_include_todos` is true.
+   It will only show up in the output if :confval:`todo_include_todos` is
+   ``True``.
 
 
 .. rst:directive:: todolist
 
    This directive is replaced by a list of all todo directives in the whole
-   documentation, if :confval:`todo_include_todos` is true.
+   documentation, if :confval:`todo_include_todos` is ``True``.
 
 
 There is also an additional config value:

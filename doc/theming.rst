@@ -122,7 +122,7 @@ These themes are:
   these options (which are inherited by the other themes):
 
   - **nosidebar** (true or false): Don't include the sidebar.  Defaults to
-    false.
+    ``False``.
 
   - **sidebarwidth** (an integer): Width of the sidebar in pixels.  (Do not
     include ``px`` in the value.)  Defaults to 230 pixels.
@@ -132,18 +132,18 @@ These themes are:
   options:
 
   - **rightsidebar** (true or false): Put the sidebar on the right side.
-    Defaults to false.
+    Defaults to ``False``.
 
   - **stickysidebar** (true or false): Make the sidebar "fixed" so that it
     doesn't scroll out of view for long body content.  This may not work well
-    with all browsers.  Defaults to false.
+    with all browsers.  Defaults to ``False``.
 
   - **collapsiblesidebar** (true or false): Add an *experimental* JavaScript
     snippet that makes the sidebar collapsible via a button on its side.
-    *Doesn't work with "stickysidebar".* Defaults to false.
+    *Doesn't work with "stickysidebar".* Defaults to ``False``.
 
   - **externalrefs** (true or false): Display external links differently from
-    internal links.  Defaults to false.
+    internal links.  Defaults to ``False``.
 
   There are also various color and font options that can change the color scheme
   without having to write a custom stylesheet:
@@ -152,7 +152,7 @@ These themes are:
   - **footertextcolor** (CSS color): Text color for the footer line.
   - **sidebarbgcolor** (CSS color): Background color for the sidebar.
   - **sidebarbtncolor** (CSS color): Background color for the sidebar collapse
-    button (used when *collapsiblesidebar* is true).
+    button (used when *collapsiblesidebar* is ``True``).
   - **sidebartextcolor** (CSS color): Text color for the sidebar.
   - **sidebarlinkcolor** (CSS color): Link color for the sidebar.
   - **relbarbgcolor** (CSS color): Background color for the relation bar.
@@ -218,10 +218,10 @@ These themes are:
   <http://www.haiku-os.org/docs/userguide/en/contents.html>`_.  The following
   options are supported:
 
-  - **full_logo** (true or false, default false): If this is true, the header
-    will only show the :confval:`html_logo`.  Use this for large logos.  If this
-    is false, the logo (if present) will be shown floating right, and the
-    documentation title will be put in the header.
+  - **full_logo** (true or false, default ``False``): If this is true, the
+    header will only show the :confval:`html_logo`.  Use this for large logos.
+    If this is false, the logo (if present) will be shown floating right, and
+    the documentation title will be put in the header.
   - **textcolor**, **headingcolor**, **linkcolor**, **visitedlinkcolor**,
     **hoverlinkcolor** (CSS colors): Colors for various body elements.
 
@@ -232,9 +232,9 @@ These themes are:
   space which is a sparse resource on ebook readers.  The following options
   are supported:
 
-  - **relbar1** (true or false, default true): If this is true, the
+  - **relbar1** (true or false, default ``True``): If this is true, the
     `relbar1` block is inserted in the epub output, otherwise it is omitted.
-  - **footer**  (true or false, default true): If this is true, the
+  - **footer**  (true or false, default ``True``): If this is true, the
     `footer` block is inserted in the epub output, otherwise it is omitted.
 
 Creating themes

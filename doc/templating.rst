@@ -273,7 +273,7 @@ in the future.
 .. data:: has_source
 
    True if the reST document sources are copied (if :confval:`html_copy_source`
-   is true).
+   is ``True``).
 
 .. data:: last_updated
 
@@ -333,7 +333,7 @@ in the future.
 
 .. data:: show_source
 
-   True if :confval:`html_show_sourcelink` is true.
+   True if :confval:`html_show_sourcelink` is ``True``.
 
 .. data:: sphinx_version
 
@@ -372,7 +372,7 @@ are in HTML form), these variables are also available:
 .. data:: sourcename
 
    The name of the copied source file for the current document.  This is only
-   nonempty if the :confval:`html_copy_source` value is true.
+   nonempty if the :confval:`html_copy_source` value is ``True``.
 
 .. data:: toc
 
@@ -384,14 +384,14 @@ are in HTML form), these variables are also available:
    A callable yielding the global TOC tree containing the current page, rendered
    as HTML bullet lists.  Optional keyword arguments:
 
-   * ``collapse`` (true by default): if true, all TOC entries that are not
+   * ``collapse`` (``True`` by default): if true, all TOC entries that are not
      ancestors of the current page are collapsed
 
    * ``maxdepth`` (defaults to the max depth selected in the toctree directive):
      the maximum depth of the tree; set it to ``-1`` to allow unlimited depth
 
-   * ``titles_only`` (false by default): if true, put only toplevel document
+   * ``titles_only`` (``False`` by default): if true, put only toplevel document
      titles in the tree
 
-   * ``includehidden`` (false by default): if true, the TOC tree will also
+   * ``includehidden`` (``False`` by default): if true, the TOC tree will also
      contain hidden entries.
