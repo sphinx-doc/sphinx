@@ -484,5 +484,6 @@ There are some problems one commonly runs into while authoring reST documents:
 
 .. rubric:: Footnotes
 
-.. [1] When the default domain contains a :rst:dir:`class` directive, this directive
-       will be shadowed.  Therefore, Sphinx re-exports it as :rst:dir:`rst-class`.
+.. [1] When the default domain contains a :rst:dir:`class` directive, this
+       directive will be shadowed.  Therefore, Sphinx re-exports it as
+       :rst:dir:`rst-class`.

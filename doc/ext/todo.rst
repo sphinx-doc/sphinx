@@ -26,5 +26,5 @@ There is also an additional config value:
 
 .. confval:: todo_include_todos
 
-   If this is ``True``, :rst:dir:`todo` and :rst:dir:`todolist` produce output, else
-   they produce nothing.  The default is ``False``.
+   If this is ``True``, :rst:dir:`todo` and :rst:dir:`todolist` produce output,
+   else they produce nothing.  The default is ``False``.

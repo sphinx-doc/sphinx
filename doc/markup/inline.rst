@@ -102,9 +102,10 @@ Cross-referencing arbitrary locations
      to, but you must give the link an explicit title, using this syntax:
      ``:ref:`Link title <label-name>```.
 
-   Using :rst:role:`ref` is advised over standard reStructuredText links to sections
-   (like ```Section title`_``) because it works across files, when section
-   headings are changed, and for all builders that support cross-references.
+   Using :rst:role:`ref` is advised over standard reStructuredText links to
+   sections (like ```Section title`_``) because it works across files, when
+   section headings are changed, and for all builders that support
+   cross-references.
 
 
 Cross-referencing documents
@@ -349,8 +350,8 @@ the standard reST markup for that purpose.
 Substitutions
 ~~~~~~~~~~~~~
 
-The documentation system provides three substitutions that are defined by default.
-They are set in the build configuration file.
+The documentation system provides three substitutions that are defined by
+default. They are set in the build configuration file.
 
 .. describe:: |release|
 

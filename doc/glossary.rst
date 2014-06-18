@@ -37,11 +37,11 @@ Glossary
    document name
       Since reST source files can have different extensions (some people like
       ``.txt``, some like ``.rst`` -- the extension can be configured with
-      :confval:`source_suffix`) and different OSes have different path separators,
-      Sphinx abstracts them: :dfn:`document names` are always relative to the
-      :term:`source directory`, the extension is stripped, and path separators
-      are converted to slashes.  All values, parameters and such referring to
-      "documents" expect such document names.
+      :confval:`source_suffix`) and different OSes have different path
+      separators, Sphinx abstracts them: :dfn:`document names` are always
+      relative to the :term:`source directory`, the extension is stripped, and
+      path separators are converted to slashes.  All values, parameters and such
+      referring to "documents" expect such document names.
 
       Examples for document names are ``index``, ``library/zipfile``, or
       ``reference/datamodel/types``.  Note that there is no leading or trailing
@@ -70,8 +70,8 @@ Glossary
 
    object
       The basic building block of Sphinx documentation.  Every "object
-      directive" (e.g. :rst:dir:`function` or :rst:dir:`object`) creates such a block;
-      and most objects can be cross-referenced to.
+      directive" (e.g. :rst:dir:`function` or :rst:dir:`object`) creates such a
+      block; and most objects can be cross-referenced to.
 
    role
       A reStructuredText markup element that allows marking a piece of text.

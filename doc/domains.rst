@@ -127,7 +127,8 @@ declarations:
 
    This directive marks the beginning of the description of a module (or package
    submodule, in which case the name should be fully qualified, including the
-   package name).  It does not create content (like e.g. :rst:dir:`py:class` does).
+   package name).  It does not create content (like e.g. :rst:dir:`py:class`
+   does).
 
    This directive will also cause an entry in the global module index.
 
@@ -655,9 +656,9 @@ There is a set of directives allowing documenting command-line programs:
 
 .. rst:directive:: .. program:: name
 
-   Like :rst:dir:`py:currentmodule`, this directive produces no output.  Instead, it
-   serves to notify Sphinx that all following :rst:dir:`option` directives
-   document options for the program called *name*.
+   Like :rst:dir:`py:currentmodule`, this directive produces no output.
+   Instead, it serves to notify Sphinx that all following :rst:dir:`option`
+   directives document options for the program called *name*.
 
    If you use :rst:dir:`program`, you have to qualify the references in your
    :rst:role:`option` roles by the program name, so if you have the following

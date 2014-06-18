@@ -70,12 +70,12 @@ units as well as normal text:
    external documents.  These lists are created using the :rst:dir:`seealso`
    directive.
 
-   The :rst:dir:`seealso` directive is typically placed in a section just before any
-   sub-sections.  For the HTML output, it is shown boxed off from the main flow
-   of the text.
+   The :rst:dir:`seealso` directive is typically placed in a section just before
+   any subsections.  For the HTML output, it is shown boxed off from the main
+   flow of the text.
 
-   The content of the :rst:dir:`seealso` directive should be a reST definition list.
-   Example::
+   The content of the :rst:dir:`seealso` directive should be a reST definition
+   list. Example::
 
       .. seealso::
 
@@ -206,8 +206,8 @@ the definition of the symbol.  There is this directive:
    continuation line must begin with a colon placed at the same column as in the
    first line.
 
-   The argument to :rst:dir:`productionlist` serves to distinguish different sets of
-   production lists that belong to different grammars.
+   The argument to :rst:dir:`productionlist` serves to distinguish different
+   sets of production lists that belong to different grammars.
 
    Blank lines are not allowed within ``productionlist`` directive arguments.
 

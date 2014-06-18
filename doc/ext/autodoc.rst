@@ -274,13 +274,14 @@ inserting them into the page source under a suitable :rst:dir:`py:module`,
               """Docstring for instance attribute spam."""
 
    .. versionchanged:: 0.6
-      :rst:dir:`autodata` and :rst:dir:`autoattribute` can now extract docstrings.
+      :rst:dir:`autodata` and :rst:dir:`autoattribute` can now extract
+      docstrings.
    .. versionchanged:: 1.1
       Comment docs are now allowed on the same line after an assignment.
 
    .. versionchanged:: 1.2
-      :rst:dir:`autodata` and :rst:dir:`autoattribute` have
-      an ``annotation`` option
+      :rst:dir:`autodata` and :rst:dir:`autoattribute` have an ``annotation``
+      option.
 
    .. note::
 
@@ -413,8 +414,8 @@ autodoc provides the following additional events:
       ``noindex`` that are true if the flag option of same name was given to the
       auto directive
    :param signature: function signature, as a string of the form
-      ``"(parameter_1, parameter_2)"``, or ``None`` if introspection didn't succeed
-      and signature wasn't specified in the directive.
+      ``"(parameter_1, parameter_2)"``, or ``None`` if introspection didn't
+      succeed and signature wasn't specified in the directive.
    :param return_annotation: function return annotation as a string of the form
       ``" -> annotation"``, or ``None`` if there is no return annotation
 
@@ -445,8 +446,8 @@ member should be included in the documentation by using the following event:
       ``"attribute"``)
    :param name: the fully qualified name of the object
    :param obj: the object itself
-   :param skip: a boolean indicating if autodoc will skip this member if the user
-      handler does not override the decision
+   :param skip: a boolean indicating if autodoc will skip this member if the
+      user handler does not override the decision
    :param options: the options given to the directive: an object with attributes
       ``inherited_members``, ``undoc_members``, ``show_inheritance`` and
       ``noindex`` that are true if the flag option of same name was given to the

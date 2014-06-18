@@ -58,10 +58,10 @@ Meta-information markup
 
 .. rst:directive:: .. codeauthor:: name <email>
 
-   The :rst:dir:`codeauthor` directive, which can appear multiple times, names the
-   authors of the described code, just like :rst:dir:`sectionauthor` names the
-   author(s) of a piece of documentation.  It too only produces output if the
-   :confval:`show_authors` configuration value is True.
+   The :rst:dir:`codeauthor` directive, which can appear multiple times, names
+   the authors of the described code, just like :rst:dir:`sectionauthor` names
+   the author(s) of a piece of documentation.  It too only produces output if
+   the :confval:`show_authors` configuration value is True.
 
 
 Index-generating markup

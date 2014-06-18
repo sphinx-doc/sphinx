@@ -38,9 +38,9 @@ task to split up paragraphs which are too large as there is no sane automated
 way to do that.
 
 After Sphinx successfully ran the
-:class:`~sphinx.builders.gettext.MessageCatalogBuilder` you will find a collection
-of ``.pot`` files in your output directory.  These are **catalog templates**
-and contain messages in your original language *only*.
+:class:`~sphinx.builders.gettext.MessageCatalogBuilder` you will find a
+collection of ``.pot`` files in your output directory.  These are **catalog
+templates** and contain messages in your original language *only*.
 
 They can be delivered to translators which will transform them to ``.po`` files
 --- so called **message catalogs** --- containing a mapping from the original

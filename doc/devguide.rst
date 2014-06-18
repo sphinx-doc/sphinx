@@ -113,8 +113,8 @@ These are the basic steps needed to start developing on Sphinx.
    * For bug fixes, first add a test that fails without your changes and passes
      after they are applied.
 
-#. Please add a bullet point to :file:`CHANGES` if the fix or feature is not trivial
-   (small doc updates, typo fixes).  Then commit::
+#. Please add a bullet point to :file:`CHANGES` if the fix or feature is not
+   trivial (small doc updates, typo fixes).  Then commit::
 
        hg commit -m '#42: Add useful new feature that does this.'
 
@@ -191,9 +191,9 @@ identifier and put ``sphinx.po`` in there.  Don't forget to update the possible
 values for :confval:`language` in ``doc/config.rst``.
 
 The Sphinx core messages can also be translated on `Transifex
-<https://www.transifex.com/>`_.  There exists a client tool named ``tx`` in the Python
-package "transifex_client", which can be used to pull translations in ``.po``
-format from Transifex.  To do this, go to ``sphinx/locale`` and then run
+<https://www.transifex.com/>`_.  There exists a client tool named ``tx`` in the
+Python package "transifex_client", which can be used to pull translations in
+``.po`` format from Transifex.  To do this, go to ``sphinx/locale`` and then run
 ``tx pull -f -l LANG`` where LANG is an existing language identifier.  It is
 good practice to run ``python setup.py update_catalog`` afterwards to make sure
 the ``.po`` file has the canonical Babel formatting.

@@ -31,7 +31,8 @@ function that returns an URL based on the object.
    - ``py``: ``module`` (name of the module), ``fullname`` (name of the object)
    - ``c``: ``names`` (list of names for the object)
    - ``cpp``: ``names`` (list of names for the object)
-   - ``javascript``: ``object`` (name of the object), ``fullname`` (name of the item)
+   - ``javascript``: ``object`` (name of the object), ``fullname``
+     (name of the item)
 
    Example:
 

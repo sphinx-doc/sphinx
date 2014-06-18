@@ -10,9 +10,9 @@ How do I...
 -----------
 
 ... create PDF files without LaTeX?
-   You can use `rst2pdf <http://rst2pdf.googlecode.com>`_ version 0.12 or greater
-   which comes with built-in Sphinx integration.  See the :ref:`builders`
-   section for details.
+   You can use `rst2pdf <http://rst2pdf.googlecode.com>`_ version 0.12 or
+   greater which comes with built-in Sphinx integration.  See the
+   :ref:`builders` section for details.
 
 ... get section numbers?
    They are automatic in LaTeX output; for HTML, give a ``:numbered:`` option to
@@ -32,9 +32,9 @@ How do I...
    See the :ref:`extension tutorial <exttut>`.
 
 ... convert from my existing docs using MoinMoin markup?
-   The easiest way is to convert to xhtml, then convert `xhtml to reST`_.  You'll
-   still need to mark up classes and such, but the headings and code examples
-   come through cleanly.
+   The easiest way is to convert to xhtml, then convert `xhtml to reST`_.
+   You'll still need to mark up classes and such, but the headings and code
+   examples come through cleanly.
 
 ... create HTML slides from Sphinx documents?
    See the "Hieroglyph" package at https://github.com/nyergler/hieroglyph.
@@ -50,10 +50,11 @@ Using Sphinx with...
 --------------------
 
 Read the Docs
-    https://readthedocs.org is a documentation hosting service based around Sphinx.
-    They will host sphinx documentation, along with supporting a number of other
-    features including version support, PDF generation, and more. The `Getting
-    Started <http://read-the-docs.readthedocs.org/en/latest/getting_started.html>`_
+    https://readthedocs.org is a documentation hosting service based around
+    Sphinx. They will host sphinx documentation, along with supporting a number
+    of other features including version support, PDF generation, and more. The
+    `Getting Started
+    <http://read-the-docs.readthedocs.org/en/latest/getting_started.html>`_
     guide is a good place to start.
 
 Epydoc
@@ -70,8 +71,8 @@ SCons
 
 PyPI
    Jannis Leidel wrote a `setuptools command
-   <https://pypi.python.org/pypi/Sphinx-PyPI-upload>`_ that automatically uploads
-   Sphinx documentation to the PyPI package documentation area at
+   <https://pypi.python.org/pypi/Sphinx-PyPI-upload>`_ that automatically
+   uploads Sphinx documentation to the PyPI package documentation area at
    http://pythonhosted.org/.
 
 GitHub Pages

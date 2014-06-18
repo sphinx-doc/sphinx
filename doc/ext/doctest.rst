@@ -142,8 +142,8 @@ names.
 
 
 The following is an example for the usage of the directives.  The test via
-:rst:dir:`doctest` and the test via :rst:dir:`testcode` and :rst:dir:`testoutput` are
-equivalent. ::
+:rst:dir:`doctest` and the test via :rst:dir:`testcode` and
+:rst:dir:`testoutput` are equivalent. ::
 
    The parrot module
    =================
@@ -236,5 +236,5 @@ There are also these config values for customizing the doctest extension:
    Note though that you can't have blank lines in reST doctest blocks.  They
    will be interpreted as one block ending and another one starting.  Also,
    removal of ``<BLANKLINE>`` and ``# doctest:`` options only works in
-   :rst:dir:`doctest` blocks, though you may set :confval:`trim_doctest_flags` to
-   achieve that in all code blocks with Python console content.
+   :rst:dir:`doctest` blocks, though you may set :confval:`trim_doctest_flags`
+   to achieve that in all code blocks with Python console content.

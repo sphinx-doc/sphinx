@@ -99,8 +99,8 @@ linking:
 
    This will read the inventory from :file:`python-inv.txt` in the source
    directory, but still generate links to the pages under
-   ``http://docs.python.org/3.2``.  It is up to you to update the inventory file as
-   new objects are added to the Python documentation.
+   ``http://docs.python.org/3.2``.  It is up to you to update the inventory file
+   as new objects are added to the Python documentation.
 
 .. confval:: intersphinx_cache_limit
 

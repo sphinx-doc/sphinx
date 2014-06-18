@@ -15,15 +15,15 @@ one of them on a separate page makes them easier to read.
 
 The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
-1. There is an :rst:dir:`autosummary` directive for generating summary listings that
-   contain links to the documented items, and short summary blurbs extracted
-   from their docstrings.
+1. There is an :rst:dir:`autosummary` directive for generating summary listings
+   that contain links to the documented items, and short summary blurbs
+   extracted from their docstrings.
 
 2. Optionally, the convenience script :program:`sphinx-autogen` or the new
    :confval:`autosummary_generate` config value can be used to generate short
    "stub" files for the entries listed in the :rst:dir:`autosummary` directives.
-   These files by default contain only the corresponding :mod:`sphinx.ext.autodoc`
-   directive, but can be customized with templates.
+   These files by default contain only the corresponding
+   :mod:`sphinx.ext.autodoc` directive, but can be customized with templates.
 
 
 .. rst:directive:: autosummary
@@ -62,8 +62,8 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
 
    **Options**
 
-   * If you want the :rst:dir:`autosummary` table to also serve as a :rst:dir:`toctree`
-     entry, use the ``toctree`` option, for example::
+   * If you want the :rst:dir:`autosummary` table to also serve as a
+     :rst:dir:`toctree` entry, use the ``toctree`` option, for example::
 
          .. autosummary::
             :toctree: DIRNAME
@@ -78,8 +78,8 @@ The :mod:`sphinx.ext.autosummary` extension does this in two parts:
      directory. If no argument is given, output is placed in the same directory
      as the file that contains the directive.
 
-   * If you don't want the :rst:dir:`autosummary` to show function signatures in the
-     listing, include the ``nosignatures`` option::
+   * If you don't want the :rst:dir:`autosummary` to show function signatures in
+     the listing, include the ``nosignatures`` option::
 
          .. autosummary::
             :nosignatures:
@@ -112,8 +112,8 @@ For example, the command ::
 
     $ sphinx-autogen -o generated *.rst
 
-will read all :rst:dir:`autosummary` tables in the :file:`*.rst` files that have the
-``:toctree:`` option set, and output corresponding stub pages in directory
+will read all :rst:dir:`autosummary` tables in the :file:`*.rst` files that have
+the ``:toctree:`` option set, and output corresponding stub pages in directory
 ``generated`` for all documented items.  The generated pages by default contain
 text of the form::
 

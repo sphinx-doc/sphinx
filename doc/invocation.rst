@@ -83,8 +83,8 @@ The :program:`sphinx-build` script has several options:
 
 .. option:: -t tag
 
-   Define the tag *tag*.  This is relevant for :rst:dir:`only` directives that only
-   include their content if this tag is set.
+   Define the tag *tag*.  This is relevant for :rst:dir:`only` directives that
+   only include their content if this tag is set.
 
    .. versionadded:: 0.6
 

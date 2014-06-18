@@ -495,9 +495,10 @@ that use Sphinx' HTMLWriter class.
 .. confval:: html_favicon
 
    If given, this must be the name of an image file (path relative to the
-   :term:`configuration directory`) that is the favicon of the docs.  Modern browsers use this
-   as icon for tabs, windows and bookmarks.  It should be a Windows-style icon
-   file (``.ico``), which is 16x16 or 32x32 pixels large.  Default: ``None``.
+   :term:`configuration directory`) that is the favicon of the docs.  Modern
+   browsers use this as the icon for tabs, windows and bookmarks.  It should
+   be a Windows-style icon file (``.ico``), which is 16x16 or 32x32
+   pixels large.  Default: ``None``.
 
    .. versionadded:: 0.4
       The image file will be copied to the ``_static`` directory of the output
@@ -582,7 +583,8 @@ that use Sphinx' HTMLWriter class.
 
    Builtin sidebar templates that can be rendered are:
 
-   * **localtoc.html** -- a fine-grained table of contents of the current document
+   * **localtoc.html** -- a fine-grained table of contents of the current
+     document
    * **globaltoc.html** -- a coarse-grained table of contents for the whole
      documentation set, collapsed
    * **relations.html** -- two links to the previous and next documents
@@ -699,13 +701,14 @@ that use Sphinx' HTMLWriter class.
 .. confval:: html_translator_class
 
    A string with the fully-qualified name of a HTML Translator class, that is, a
-   subclass of Sphinx' :class:`~sphinx.writers.html.HTMLTranslator`, that is used
-   to translate document trees to HTML.  Default is ``None`` (use the builtin
-   translator).
+   subclass of Sphinx' :class:`~sphinx.writers.html.HTMLTranslator`, that is
+   used to translate document trees to HTML.  Default is ``None`` (use the
+   builtin translator).
 
 .. confval:: html_show_copyright
 
-   If true, "(C) Copyright ..." is shown in the HTML footer. Default is ``True``.
+   If true, "(C) Copyright ..." is shown in the HTML footer. Default is
+   ``True``.
 
    .. versionadded:: 1.0
 
@@ -1033,9 +1036,9 @@ These options influence LaTeX output.
      ``'John \and Sarah'``.
    * *documentclass*: Normally, one of ``'manual'`` or ``'howto'`` (provided by
      Sphinx).  Other document classes can be given, but they must include the
-     "sphinx" package in order to define Sphinx' custom LaTeX commands.
-     "howto" documents will not get appendices.  Also, howtos will have a simpler
-     title page.
+     "sphinx" package in order to define Sphinx' custom LaTeX commands. "howto"
+     documents will not get appendices.  Also, howtos will have a simpler title
+     page.
 
    * *toctree_only*: Must be ``True`` or ``False``.  If ``True``, the *startdoc*
      document itself is not included in the output, only the documents
@@ -1182,7 +1185,8 @@ These options influence LaTeX output.
         ``'\\printindex'``.  Override if you want to generate the index
         differently or append some content after the index.
 
-   * Keys that are set by other options and therefore should not be overridden are:
+   * Keys that are set by other options and therefore should not be overridden
+     are:
 
      ``'docclass'``
      ``'classoptions'``

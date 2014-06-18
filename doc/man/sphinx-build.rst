@@ -102,12 +102,14 @@ Options
                       Configuration can only be set with the -D option.
 -D <setting=value>    Override a setting from the configuration file.
 -t <tag>              Define *tag* for use in "only" blocks.
--A <name=value>       Pass a value into the HTML templates (only for HTML builders).
+-A <name=value>       Pass a value into the HTML templates (only for HTML
+                      builders).
 -n                    Run in nit-picky mode, warn about all missing references.
 -v                    Increase verbosity (can be repeated).
 -N                    Prevent colored output.
 -q                    Quiet operation, just print warnings and errors on stderr.
--Q                    Very quiet operation, don't print anything except for errors.
+-Q                    Very quiet operation, don't print anything except for
+                      errors.
 -w <file>             Write warnings and errors into the given file, in addition
                       to stderr.
 -W                    Turn warnings into errors.

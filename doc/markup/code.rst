@@ -79,8 +79,8 @@ option::
 
 This will produce line numbers for all code blocks longer than five lines.
 
-For :rst:dir:`code-block` blocks, a ``linenos`` flag option can be given to switch
-on line numbers for the individual block::
+For :rst:dir:`code-block` blocks, a ``linenos`` flag option can be given to
+switch on line numbers for the individual block::
 
    .. code-block:: ruby
       :linenos:
@@ -119,10 +119,10 @@ Includes
 
 .. rst:directive:: .. literalinclude:: filename
 
-   Longer displays of verbatim text may be included by storing the example text in
-   an external file containing only plain text.  The file may be included using the
-   ``literalinclude`` directive. [1]_ For example, to include the Python source file
-   :file:`example.py`, use::
+   Longer displays of verbatim text may be included by storing the example text
+   in an external file containing only plain text.  The file may be included
+   using the ``literalinclude`` directive. [1]_ For example, to include the
+   Python source file :file:`example.py`, use::
 
       .. literalinclude:: example.py
 

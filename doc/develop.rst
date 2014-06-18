@@ -68,7 +68,8 @@ This is the current list of contributed extensions in that repository:
 - paverutils: an alternate integration of Sphinx with Paver_.
 - phpdomain: an extension for PHP support
 - plantuml: embed UML diagram by using PlantUML_
-- py_directive: Execute python code in a ``py`` directive and return a math node.
+- py_directive: Execute python code in a ``py`` directive and return a math
+  node.
 - rawfiles: copy raw files, like a CNAME.
 - requirements: declare requirements wherever you need (e.g. in test
   docstrings), mark statuses and collect them in a single list

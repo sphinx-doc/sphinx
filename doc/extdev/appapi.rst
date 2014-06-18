@@ -131,8 +131,8 @@ package.
      The directive class must inherit from the class
      ``docutils.parsers.rst.Directive``.
 
-   For example, the (already existing) :rst:dir:`literalinclude` directive would be
-   added like this:
+   For example, the (already existing) :rst:dir:`literalinclude` directive would
+   be added like this:
 
    .. code-block:: python
 
@@ -232,8 +232,8 @@ package.
    directive it generates must be empty, and will produce no output.
 
    That means that you can add semantic targets to your sources, and refer to
-   them using custom roles instead of generic ones (like :rst:role:`ref`).  Example
-   call::
+   them using custom roles instead of generic ones (like :rst:role:`ref`).
+   Example call::
 
       app.add_crossref_type('topic', 'topic', 'single: %s', docutils.nodes.emphasis)
 
