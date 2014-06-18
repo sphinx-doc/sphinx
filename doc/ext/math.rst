@@ -197,7 +197,7 @@ Sphinx.
 
    The default is the ``http://`` URL that loads the JS files from the `MathJax
    CDN <http://docs.mathjax.org/en/latest/start.html>`_.  If you want MathJax to
-   be available offline, you have to donwload it and set this value to a
+   be available offline, you have to download it and set this value to a
    different path.
 
    The path can be absolute or relative; if it is relative, it is relative to

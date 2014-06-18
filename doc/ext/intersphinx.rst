@@ -88,7 +88,7 @@ linking:
 
    This will download the corresponding :file:`objects.inv` file from the
    Internet and generate links to the pages under the given URI.  The downloaded
-   inventory is cached in the Sphinx environment, so it must be redownloaded
+   inventory is cached in the Sphinx environment, so it must be re-downloaded
    whenever you do a full rebuild.
 
    A second example, showing the meaning of a non-``None`` value of the second

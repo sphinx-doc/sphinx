@@ -909,7 +909,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    the optional guide information. See the OPF documentation
    at `<http://idpf.org/epub>`_ for details. If possible, default entries
    for the *cover* and *toc* types are automatically inserted. However,
-   the types can be explicitely overwritten if the default entries are not
+   the types can be explicitly overwritten if the default entries are not
    appropriate. Example::
 
       epub_guide = (('cover', 'cover.html', u'Cover Page'),)
@@ -949,8 +949,8 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 .. confval:: epub_tocdup
 
    This flag determines if a toc entry is inserted again at the beginning of
-   it's nested toc listing.  This allows easier navitation to the top of
-   a chapter, but can be confusing because it mixes entries of differnet
+   it's nested toc listing.  This allows easier navigation to the top of
+   a chapter, but can be confusing because it mixes entries of different
    depth in one list.  The default value is ``True``.
 
 .. confval:: epub_tocscope
@@ -1146,8 +1146,8 @@ These options influence LaTeX output.
         Additional preamble content, default empty.
      ``'figure_align'``
         Latex figure float alignment, default 'htbp' (here, top, bottom, page).
-        Whenever an image doesn't fit into the current page, it wil be
-        'floated' into the next page but may be preceeded by any other text.
+        Whenever an image doesn't fit into the current page, it will be
+        'floated' into the next page but may be preceded by any other text.
         If you don't like this behavior, use 'H' which will disable floating
         and position figures strictly in the order they appear in the source.
      ``'footer'``
@@ -1415,7 +1415,6 @@ These options influence Texinfo output.
      ``'project'``
      ``'release'``
      ``'title'``
-     ``'direntry'``
 
    .. versionadded:: 1.1
 

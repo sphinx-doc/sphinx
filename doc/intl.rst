@@ -285,7 +285,7 @@ There is `sphinx translation page`_ for Sphinx-1.2 documentation.
 
 .. rubric:: Footnotes
 
-.. [1] See the `GNU gettext utilites
+.. [1] See the `GNU gettext utilities
        <http://www.gnu.org/software/gettext/manual/gettext.html#Introduction>`_
        for details on that software suite.
 .. [2] Because nobody expects the Spanish Inquisition!

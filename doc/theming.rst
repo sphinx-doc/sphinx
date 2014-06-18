@@ -235,7 +235,7 @@ These themes are:
   - **relbar1** (true or false, default true): If this is true, the
     `relbar1` block is inserted in the epub output, otherwise it is omitted.
   - **footer**  (true or false, default true): If this is true, the
-    `footer` block is inserted in the epub output, otherwise it is ommitted.
+    `footer` block is inserted in the epub output, otherwise it is omitted.
 
 Creating themes
 ---------------

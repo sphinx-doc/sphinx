@@ -109,7 +109,7 @@ must update the websupport package's data::
    support.update_username(old_username, new_username)
 
 *username* should be a unique string which identifies a user, and *moderator*
-should be a boolean representing whether the user has moderation privilieges.
+should be a boolean representing whether the user has moderation privileges.
 The default value for *moderator* is *False*.
 
 An example `Flask <http://flask.pocoo.org/>`_ function that checks whether a

@@ -300,7 +300,7 @@ More topics to be covered
 
 .. rubric:: Footnotes
 
-.. [#] This is the usual lay-out.  However, :file:`conf.py` can also live in
+.. [#] This is the usual layout.  However, :file:`conf.py` can also live in
        another directory, the :term:`configuration directory`.  See
        :ref:`invocation`.
 
