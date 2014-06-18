@@ -45,7 +45,7 @@ by creating a :class:`~.WebSupport` object for your application::
                         search='xapian')
 
 You'll only need one of these for each set of documentation you will be working
-with.  You can then call it's :meth:`~.WebSupport.get_document` method to access
+with.  You can then call its :meth:`~.WebSupport.get_document` method to access
 individual documents::
 
    contents = support.get_document('contents')

@@ -952,7 +952,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 .. confval:: epub_tocdup
 
    This flag determines if a toc entry is inserted again at the beginning of
-   it's nested toc listing.  This allows easier navigation to the top of
+   its nested toc listing.  This allows easier navigation to the top of
    a chapter, but can be confusing because it mixes entries of different
    depth in one list.  The default value is ``True``.
 

@@ -200,7 +200,7 @@ Earlier we mentioned that the :file:`conf.py` file controls how Sphinx processes
 your documents.  In that file, which is executed as a Python source file, you
 assign configuration values.  For advanced users: since it is executed by
 Sphinx, you can do non-trivial tasks in it, like extending :data:`sys.path` or
-importing a module to find out the version your are documenting.
+importing a module to find out the version you are documenting.
 
 The config values that you probably want to change are already put into the
 :file:`conf.py` by :program:`sphinx-quickstart` and initially commented out
