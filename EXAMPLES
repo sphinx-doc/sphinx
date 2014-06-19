@@ -22,18 +22,19 @@ Documentation using the default theme
 * Cormoran: http://cormoran.nhopkg.org/docs/
 * Director: http://pythonhosted.org/director/
 * Dirigible: http://www.projectdirigible.com/documentation/
-* Elemental: http://elemental.googlecode.com/hg/doc/build/html/index.html
 * F2py: http://f2py.sourceforge.net/docs/
 * GeoDjango: http://geodjango.org/docs/
-* Genomedata: http://noble.gs.washington.edu/proj/genomedata/doc/1.2.2/genomedata.html
+* Genomedata:
+  http://noble.gs.washington.edu/proj/genomedata/doc/1.2.2/genomedata.html
 * gevent: http://www.gevent.org/
-* Google Wave API: http://wave-robot-python-client.googlecode.com/svn/trunk/pydocs/index.html
+* Google Wave API:
+  http://wave-robot-python-client.googlecode.com/svn/trunk/pydocs/index.html
 * GSL Shell: http://www.nongnu.org/gsl-shell/
 * Heapkeeper: http://heapkeeper.org/
-* Hands-on Python Tutorial: http://anh.cs.luc.edu/python/hands-on/3.1/handsonHtml/
+* Hands-on Python Tutorial:
+  http://anh.cs.luc.edu/python/hands-on/3.1/handsonHtml/
 * Hedge: http://documen.tician.de/hedge/
-* Kaa: http://doc.freevo.org/api/kaa/
-* Leo: http://webpages.charter.net/edreamleo/front.html
+* Leo: http://leoeditor.com/
 * Lino: http://lino.saffre-rumma.net/
 * MeshPy: http://documen.tician.de/meshpy/
 * mpmath: http://mpmath.googlecode.com/svn/trunk/doc/build/index.html
@@ -41,13 +42,13 @@ Documentation using the default theme
 * OpenGDA: http://www.opengda.org/gdadoc/html/
 * openWNS: http://docs.openwns.org/
 * Paste: http://pythonpaste.org/script/
-* Paver: http://paver.github.com/paver/
+* Paver: http://paver.github.io/paver/
 * Pioneers and Prominent Men of Utah: http://pioneers.rstebbing.com/
 * Pyccuracy: https://github.com/heynemann/pyccuracy/wiki/
 * PyCuda: http://documen.tician.de/pycuda/
 * Pyevolve: http://pyevolve.sourceforge.net/
 * Pylo: http://documen.tician.de/pylo/
-* PyMQI: http://packages.python.org/pymqi/
+* PyMQI: http://pythonhosted.org/pymqi/
 * PyPubSub: http://pubsub.sourceforge.net/
 * pyrticle: http://documen.tician.de/pyrticle/
 * Python: http://docs.python.org/
@@ -59,7 +60,7 @@ Documentation using the default theme
 * SimPy: http://simpy.sourceforge.net/SimPyDocs/index.html
 * SymPy: http://docs.sympy.org/
 * WTForms: http://wtforms.simplecodes.com/docs/
-* z3c: http://docs.carduner.net/z3c-tutorial/
+* z3c: http://www.ibiblio.org/paulcarduner/z3ctutorial/
 
 
 Documentation using a customized version of the default theme
@@ -69,16 +70,18 @@ Documentation using a customized version of the default theme
   http://xoomer.virgilio.it/infinity77/AGW_Docs/index.html
 * Bazaar: http://doc.bazaar.canonical.com/en/
 * CakePHP: http://book.cakephp.org/2.0/en/index.html
-* Chaco: http://code.enthought.com/projects/chaco/docs/html/
+* Chaco: http://docs.enthought.com/chaco/
 * Chef: http://docs.opscode.com/
 * Djagios: http://djagios.org/
 * GetFEM++: http://home.gna.org/getfem/
-* Google or-tools: https://or-tools.googlecode.com/svn/trunk/documentation/user_manual/index.html
+* Google or-tools:
+  https://or-tools.googlecode.com/svn/trunk/documentation/user_manual/index.html
 * GPAW: https://wiki.fysik.dtu.dk/gpaw/
 * Grok: http://grok.zope.org/doc/current/
 * IFM: http://fluffybunny.memebot.com/ifm-docs/index.html
+* Kaa: http://api.freevo.org/kaa-base/
 * LEPL: http://www.acooke.org/lepl/
-* Mayavi: http://code.enthought.com/projects/mayavi/docs/development/html/mayavi
+* Mayavi: http://docs.enthought.com/mayavi/mayavi/
 * NICOS: http://trac.frm2.tum.de/nicos/doc/nicos-master/index.html
 * NOC: http://redmine.nocproject.org/projects/noc
 * NumPy: http://docs.scipy.org/doc/numpy/reference/
@@ -93,7 +96,7 @@ Documentation using a customized version of the default theme
 * Varnish: https://www.varnish-cache.org/docs/
 * Zentyal: http://doc.zentyal.org/
 * Zope: http://docs.zope.org/zope2/index.html
-* zc.async: http://packages.python.org/zc.async/1.5.0/
+* zc.async: http://pythonhosted.org/zc.async/1.5.0/
 
 
 Documentation using the sphinxdoc theme
@@ -101,19 +104,16 @@ Documentation using the sphinxdoc theme
 
 * Fityk: http://fityk.nieto.pl/
 * MapServer: http://mapserver.org/
-* Matplotlib: http://matplotlib.sourceforge.net/
-* Music21: http://mit.edu/music21/doc/html/contents.html
-* MyHDL: http://www.myhdl.org/doc/0.6/
-* NetworkX: http://networkx.lanl.gov/
+* Matplotlib: http://matplotlib.org/
+* Music21: http://web.mit.edu/music21/doc/index.html
+* NetworkX: http://networkx.github.io/
 * Pweave: http://mpastell.com/pweave/
 * Pyre: http://docs.danse.us/pyre/sphinx/
 * Pysparse: http://pysparse.sourceforge.net/
 * PyTango:
   http://www.tango-controls.org/static/PyTango/latest/doc/html/index.html
-* Python Wild Magic:
-  http://python-wild-magic.googlecode.com/svn/doc/html/index.html
+* Python Wild Magic: http://vmlaker.github.io/pythonwildmagic/
 * Reteisi: http://www.reteisi.org/contents.html
-* Satchmo: http://www.satchmoproject.com/docs/dev/
 * Sqlkit: http://sqlkit.argolinux.org/
 * Tau: http://www.tango-controls.org/static/tau/latest/doc/html/index.html
 * Total Open Station: http://tops.berlios.de/
@@ -125,17 +125,17 @@ Documentation using another builtin theme
 -----------------------------------------
 
 * C/C++ Development with Eclipse: http://eclipsebook.in/ (agogo)
-* Distribute: http://packages.python.org/distribute/ (nature)
 * Jinja: http://jinja.pocoo.org/ (scrolls)
 * jsFiddle: http://doc.jsfiddle.net/ (nature)
-* libLAS: http://liblas.org/ (nature)
+* libLAS: http://www.liblas.org/ (nature)
 * MPipe: http://vmlaker.github.io/mpipe/ (sphinx13)
 * pip: http://pip.openplans.org/ (nature)
-* Pyramid web framework: http://docs.pylonsproject.org/projects/pyramid/en/latest/ (pyramid)
+* Pyramid web framework:
+  http://docs.pylonsproject.org/projects/pyramid/en/latest/ (pyramid)
 * Programmieren mit PyGTK und Glade (German):
   http://www.florian-diesch.de/doc/python-und-glade/online/ (agogo)
-* Spring Python: http://springpython.webfactional.com/current/sphinx/index.html
-  (nature)
+* Setuptools: http://pythonhosted.org/setuptools/ (nature)
+* Spring Python: http://docs.spring.io/spring-python/1.2.x/sphinx/html/ (nature)
 * sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html
   (agogo)
 * Sylli: http://sylli.sourceforge.net/ (nature)
@@ -152,35 +152,40 @@ Documentation using a custom theme/integrated in a site
 * Classy: http://classy.pocoo.org/
 * DEAP: http://deap.gel.ulaval.ca/doc/0.8/index.html
 * Django: http://docs.djangoproject.com/
-* Enterprise Toolkit for Acrobat products: http://www.adobe.com/devnet-docs/acrobatetk/
+* Elemental: http://libelemental.org/documentation/dev/index.html
+* Enterprise Toolkit for Acrobat products:
+  http://www.adobe.com/devnet-docs/acrobatetk/
 * e-cidadania: http://e-cidadania.readthedocs.org/en/latest/
 * Flask: http://flask.pocoo.org/docs/
-* Flask-OpenID: http://packages.python.org/Flask-OpenID/
+* Flask-OpenID: http://pythonhosted.org/Flask-OpenID/
 * Gameduino: http://excamera.com/sphinx/gameduino/
 * GeoServer: http://docs.geoserver.org/
 * Glashammer: http://glashammer.org/
-* Istihza (Turkish Python documentation project): http://www.istihza.com/py2/icindekiler_python.html
+* Istihza (Turkish Python documentation project):
+  http://www.istihza.com/py2/icindekiler_python.html
 * Lasso: http://lassoguide.com/
 * MathJax: http://docs.mathjax.org/en/latest/
 * MirrorBrain: http://mirrorbrain.org/docs/
-* nose: http://somethingaboutorange.com/mrl/projects/nose/
+* MyHDL: http://docs.myhdl.org/en/latest/
+* nose: http://nose.readthedocs.org/en/latest/
 * NoTex: https://notex.ch/overview/
-* ObjectListView: http://objectlistview.sourceforge.net/python
+* ObjectListView: http://objectlistview.sourceforge.net/python/
 * Open ERP: http://doc.openerp.com/
 * OpenCV: http://docs.opencv.org/
-* Open Dylan: http://opendylan.org/documentation/ and also provides
+* Open Dylan: http://opendylan.org/documentation/ and also provides a
   `dylan domain <https://github.com/dylan-lang/sphinx-extensions/blob/master/dylandomain/reference.rst>`__
 * OpenLayers: http://docs.openlayers.org/
 * PyEphem: http://rhodesmill.org/pyephem/
 * German Plone user manual: http://www.hasecke.com/plone-benutzerhandbuch/
 * PSI4: http://sirius.chem.vt.edu/psi4manual/latest/index.html
 * Pylons: http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/
-* PyMOTW: http://www.doughellmann.com/PyMOTW/
+* PyMOTW: http://pymotw.com/2/
 * pypol: http://pypol.altervista.org/ (celery)
-* QGIS: http://qgis.org/
-* qooxdoo: http://manual.qooxdoo.org/current
+* QGIS: http://qgis.org/en/docs/index.html
+* qooxdoo: http://manual.qooxdoo.org/current/
 * Roundup: http://www.roundup-tracker.org/
-* Selenium: http://seleniumhq.org/docs/
+* Satchmo: http://docs.satchmoproject.com/en/latest/
+* Selenium: http://docs.seleniumhq.org/docs/
 * Self: http://selflanguage.org/
 * Substance D: http://docs.pylonsproject.org/projects/substanced/en/latest/
 * Tablib: http://tablib.org/
@@ -201,7 +206,8 @@ Homepages and other non-documentation sites
 * lunarsite: http://lunaryorn.de/
 * Red Hot Chili Python: http://redhotchilipython.com/
 * The Wine Cellar Book: http://www.thewinecellarbook.com/doc/en/
-* Uni. Berkeley Advanced Control Systems course: http://www.me.berkeley.edu/ME233/sp14/
+* UC Berkeley Advanced Control Systems course:
+  http://www.me.berkeley.edu/ME233/sp14/
 * VOR: http://www.vor-cycling.be/
 
 
