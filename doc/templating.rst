@@ -11,8 +11,8 @@ anyone having used Django will already be familiar with it.  It also has
 excellent documentation for those who need to make themselves familiar with it.
 
 
-Do I need to use Sphinx' templates to produce HTML?
----------------------------------------------------
+Do I need to use Sphinx's templates to produce HTML?
+----------------------------------------------------
 
 No.  You have several other options:
 
@@ -50,7 +50,7 @@ A template contains **variables**, which are replaced with values when the
 template is evaluated, **tags**, which control the logic of the template and
 **blocks** which are used for template inheritance.
 
-Sphinx' *basic* theme provides base templates with a couple of blocks it will
+Sphinx's *basic* theme provides base templates with a couple of blocks it will
 fill with data.  These are located in the :file:`themes/basic` subdirectory of
 the Sphinx installation directory, and used by all builtin Sphinx themes.
 Templates with the same name in the :confval:`templates_path` override templates

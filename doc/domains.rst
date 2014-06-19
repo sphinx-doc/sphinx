@@ -603,7 +603,7 @@ These roles link to the given object types:
 
    .. note::
 
-      Sphinx' syntax to give references a custom title can interfere with
+      Sphinx's syntax to give references a custom title can interfere with
       linking to template classes, if nothing follows the closing angle
       bracket, i.e. if the link looks like this: ``:cpp:class:`MyClass<T>```.
       This is interpreted as a link to ``T`` with a title of ``MyClass``.

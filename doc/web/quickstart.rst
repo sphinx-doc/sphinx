@@ -56,8 +56,8 @@ This will return a dictionary containing the following items:
 * **sidebar**: The sidebar of the document as HTML
 * **relbar**: A div containing links to related documents
 * **title**: The title of the document
-* **css**: Links to css files used by Sphinx
-* **js**: Javascript containing comment options
+* **css**: Links to CSS files used by Sphinx
+* **js**: JavaScript containing comment options
 
 This dict can then be used as context for templates.  The goal is to be easy to
 integrate with your existing templating system.  An example using `Jinja2
@@ -110,7 +110,7 @@ must update the websupport package's data::
 
 *username* should be a unique string which identifies a user, and *moderator*
 should be a boolean representing whether the user has moderation privileges.
-The default value for *moderator* is *False*.
+The default value for *moderator* is ``False``.
 
 An example `Flask <http://flask.pocoo.org/>`_ function that checks whether a
 user is logged in and then retrieves a document is::

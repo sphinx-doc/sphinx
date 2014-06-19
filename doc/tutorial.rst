@@ -138,7 +138,7 @@ an argument to see which targets are available.
 Documenting objects
 -------------------
 
-One of Sphinx' main objectives is easy documentation of :dfn:`objects` (in a
+One of Sphinx's main objectives is easy documentation of :dfn:`objects` (in a
 very general sense) in any :dfn:`domain`.  A domain is a collection of object
 types that belong together, complete with markup to create and reference
 descriptions of these objects.

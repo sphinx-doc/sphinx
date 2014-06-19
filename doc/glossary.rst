@@ -12,7 +12,7 @@ Glossary
       use the builder builders that e.g. check for broken links in the
       documentation, or build coverage information.
 
-      See :ref:`builders` for an overview over Sphinx' built-in builders.
+      See :ref:`builders` for an overview over Sphinx's built-in builders.
 
    configuration directory
       The directory containing :file:`conf.py`.  By default, this is the same as

@@ -321,7 +321,7 @@ Project information
 Options for internationalization
 --------------------------------
 
-These options influence Sphinx' *Native Language Support*.  See the
+These options influence Sphinx's *Native Language Support*.  See the
 documentation on :ref:`intl` for details.
 
 .. confval:: language
@@ -424,7 +424,7 @@ Options for HTML output
 -----------------------
 
 These options influence HTML as well as HTML Help output, and other builders
-that use Sphinx' HTMLWriter class.
+that use Sphinx's HTMLWriter class.
 
 .. confval:: html_theme
 
@@ -452,14 +452,14 @@ that use Sphinx' HTMLWriter class.
 .. confval:: html_style
 
    The style sheet to use for HTML pages.  A file of that name must exist either
-   in Sphinx' :file:`static/` path, or in one of the custom paths given in
+   in Sphinx's :file:`static/` path, or in one of the custom paths given in
    :confval:`html_static_path`.  Default is the stylesheet given by the selected
    theme.  If you only want to add or override a few things compared to the
    theme's stylesheet, use CSS ``@import`` to import the theme's stylesheet.
 
 .. confval:: html_title
 
-   The "title" for HTML documentation generated with Sphinx' own templates.
+   The "title" for HTML documentation generated with Sphinx's own templates.
    This is appended to the ``<title>`` tag of individual pages, and used in the
    navigation bar as the "topmost" element.  It defaults to :samp:`'{<project>}
    v{<revision>} documentation'` (with the values coming from the config
@@ -540,8 +540,9 @@ that use Sphinx' HTMLWriter class.
 
 .. confval:: html_use_smartypants
 
-   If true, *SmartyPants* will be used to convert quotes and dashes to
-   typographically correct entities.  Default: ``True``.
+   If true, `SmartyPants <http://daringfireball.net/projects/smartypants/>`_
+   will be used to convert quotes and dashes to typographically correct
+   entities.  Default: ``True``.
 
 .. confval:: html_add_permalinks
 
@@ -701,7 +702,7 @@ that use Sphinx' HTMLWriter class.
 .. confval:: html_translator_class
 
    A string with the fully-qualified name of a HTML Translator class, that is, a
-   subclass of Sphinx' :class:`~sphinx.writers.html.HTMLTranslator`, that is
+   subclass of Sphinx's :class:`~sphinx.writers.html.HTMLTranslator`, that is
    used to translate document trees to HTML.  Default is ``None`` (use the
    builtin translator).
 
@@ -768,7 +769,7 @@ that use Sphinx' HTMLWriter class.
    * ``sv`` -- Swedish
    * ``tr`` -- Turkish
 
-   .. admonition:: Accelerate build speed
+   .. admonition:: Accelerating build speed
 
       Each language (except Japanese) provides its own stemming algorithm.
       Sphinx uses a Python implementation by default.  You can use a C
@@ -803,7 +804,7 @@ that use Sphinx' HTMLWriter class.
 
 .. confval:: html_search_scorer
 
-   The name of a javascript file (relative to the configuration directory) that
+   The name of a JavaScript file (relative to the configuration directory) that
    implements a search results scorer.  If empty, the default will be used.
 
    .. XXX describe interface for scorer here
@@ -1036,7 +1037,7 @@ These options influence LaTeX output.
      ``'John \and Sarah'``.
    * *documentclass*: Normally, one of ``'manual'`` or ``'howto'`` (provided by
      Sphinx).  Other document classes can be given, but they must include the
-     "sphinx" package in order to define Sphinx' custom LaTeX commands. "howto"
+     "sphinx" package in order to define Sphinx's custom LaTeX commands. "howto"
      documents will not get appendices.  Also, howtos will have a simpler title
      page.
 
@@ -1453,7 +1454,7 @@ Options for the linkcheck builder
 .. confval:: linkcheck_anchors
 
    If true, check the validity of ``#anchor``\ s in links. Since this requires
-   downloading the whole document, it's considerably slower when enabled. 
+   downloading the whole document, it's considerably slower when enabled.
    Default is ``True``.
 
    .. versionadded:: 1.2

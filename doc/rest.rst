@@ -312,7 +312,7 @@ Docutils supports the following directives:
   - :dudir:`default-role` (set a new default role)
   - :dudir:`role` (create a new role)
 
-  Since these are only per-file, better use Sphinx' facilities for setting the
+  Since these are only per-file, better use Sphinx's facilities for setting the
   :confval:`default_role`.
 
 Do *not* use the directives :dudir:`sectnum`, :dudir:`header` and
