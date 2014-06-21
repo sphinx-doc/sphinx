@@ -243,16 +243,21 @@ class Autosummary(Directive):
                 display_name = name.split('.')[-1]
 
             try:
-                real_name, obj, parent = import_by_name(name, prefixes=prefixes)
+                real_name, obj, parent, modname = import_by_name(name, prefixes=prefixes)
             except ImportError:
                 self.warn('failed to import %s' % name)
                 items.append((name, '', '', name))
                 continue
 
-            # NB. using real_name here is important, since Documenters
-            #     handle module prefixes slightly differently
             self.result = ViewList()  # initialize for each documenter
-            documenter = get_documenter(obj, parent)(self, real_name)
+            full_name = real_name
+            if full_name.startswith(modname + '.'):
+                # give explicitly separated module name, so that members
+                # of inner classes can be documented
+                full_name = modname + '::' + full_name[len(modname)+1:]
+            # NB. using full_name here is important, since Documenters
+            #     handle module prefixes slightly differently
+            documenter = get_documenter(obj, parent)(self, full_name)
             if not documenter.parse_name():
                 self.warn('failed to parse name %s' % real_name)
                 items.append((display_name, '', '', real_name))
@@ -447,8 +452,8 @@ def import_by_name(name, prefixes=[None]):
                 prefixed_name = '.'.join([prefix, name])
             else:
                 prefixed_name = name
-            obj, parent = _import_by_name(prefixed_name)
-            return prefixed_name, obj, parent
+            obj, parent, modname = _import_by_name(prefixed_name)
+            return prefixed_name, obj, parent, modname
         except ImportError:
             tried.append(prefixed_name)
     raise ImportError('no module named %s' % ' or '.join(tried))
@@ -464,7 +469,7 @@ def _import_by_name(name):
             try:
                 __import__(modname)
                 mod = sys.modules[modname]
-                return getattr(mod, name_parts[-1]), mod
+                return getattr(mod, name_parts[-1]), mod, modname
             except (ImportError, IndexError, AttributeError):
                 pass
 
@@ -487,9 +492,9 @@ def _import_by_name(name):
             for obj_name in name_parts[last_j:]:
                 parent = obj
                 obj = getattr(obj, obj_name)
-            return obj, parent
+            return obj, parent, modname
         else:
-            return sys.modules[modname], None
+            return sys.modules[modname], None, modname
     except (ValueError, ImportError, AttributeError, KeyError), e:
         raise ImportError(*e.args)
 
@@ -510,7 +515,7 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
 
     prefixes = get_import_prefixes_from_env(env)
     try:
-        name, obj, parent = import_by_name(pnode['reftarget'], prefixes)
+        name, obj, parent, modname = import_by_name(pnode['reftarget'], prefixes)
     except ImportError:
         content = pnode[0]
         r[0][0] = nodes.emphasis(rawtext, content[0].astext(),
