@@ -27,7 +27,7 @@ from sphinx import package_dir, locale
 from sphinx.roles import XRefRole
 from sphinx.config import Config
 from sphinx.errors import SphinxError, SphinxWarning, ExtensionError, \
-     VersionRequirementError
+     VersionRequirementError, ConfigError
 from sphinx.domains import ObjType, BUILTIN_DOMAINS
 from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.builders import BUILTIN_BUILDERS
@@ -119,7 +119,15 @@ class Sphinx(object):
             self.setup_extension(extension)
         # the config file itself can be an extension
         if self.config.setup:
-            self.config.setup(self)
+            # py31 doesn't have 'callable' function for bellow check
+            if hasattr(self.config.setup, '__call__'):
+                self.config.setup(self)
+            else:
+                raise ConfigError(
+                    "'setup' that is specified in the conf.py has not been " +
+                    "callable. Please provide a callable `setup` function " +
+                    "in order to behave as a sphinx extension conf.py itself."
+                )
 
         # now that we know all config values, collect them from conf.py
         self.config.init_values()

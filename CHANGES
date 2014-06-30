@@ -15,6 +15,8 @@ Bugs fixed
   Thanks to Jorge_C.
 * #1467: Exception on Python3 if nonexistent method is specified by automethod
 * #1441: autosummary can't handle nested classes correctly.
+* #1499: With non-callable `setup` in a conf.py, now sphinx-build emits
+  user-friendly error message.
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================
