@@ -163,10 +163,13 @@ def test_format_signature():
     # test for functions
     def f(a, b, c=1, **d):
         pass
+    def g(a='\n'):
+        pass
     assert formatsig('function', 'f', f, None, None) == '(a, b, c=1, **d)'
     assert formatsig('function', 'f', f, 'a, b, c, d', None) == '(a, b, c, d)'
     assert formatsig('function', 'f', f, None, 'None') == \
            '(a, b, c=1, **d) -> None'
+    assert formatsig('function', 'g', g, None, None) == r"(a='\\n')"
 
     # test for classes
     class D:
@@ -206,9 +209,12 @@ def test_format_signature():
             pass
         def foo2(b, *c):
             pass
+        def foo3(self, d='\n'):
+            pass
     assert formatsig('method', 'H.foo', H.foo1, None, None) == '(b, *c)'
     assert formatsig('method', 'H.foo', H.foo1, 'a', None) == '(a)'
     assert formatsig('method', 'H.foo', H.foo2, None, None) == '(b, *c)'
+    assert formatsig('method', 'H.foo', H.foo3, None, None) == r"(d='\\n')"
 
     # test exception handling (exception is caught and args is '')
     assert formatsig('function', 'int', int, None, None) == ''

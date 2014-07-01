@@ -1225,7 +1225,10 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
         argspec = getargspec(self.object)
         if argspec[0] and argspec[0][0] in ('cls', 'self'):
             del argspec[0][0]
-        return inspect.formatargspec(*argspec)
+        args = inspect.formatargspec(*argspec)
+        # escape backslashes for reST
+        args = args.replace('\\', '\\\\')
+        return args
 
     def document_members(self, all_members=False):
         pass

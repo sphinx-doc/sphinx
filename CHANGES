@@ -17,6 +17,7 @@ Bugs fixed
 * #1441: autosummary can't handle nested classes correctly.
 * #1499: With non-callable `setup` in a conf.py, now sphinx-build emits
   user-friendly error message.
+* #1502: In autodoc, fix display of parameter defaults containing backslashes.
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================
