@@ -55,7 +55,12 @@ def color_terminal():
 
 
 def nocolor():
-    codes.clear()
+    # check if colorama is installed to support color on Windows
+    try:
+        import colorama
+        colorama.init()
+    except ImportError:
+        codes.clear()
 
 def coloron():
     codes.update(_orig_codes)
