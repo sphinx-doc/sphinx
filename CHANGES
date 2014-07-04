@@ -39,6 +39,7 @@ New features
   submodule documentation. Thanks to Wes Turner and Luc Saffre.
 * #1434: Provide non-minified JS files for jquery.js and underscore.js to
   clarify the source of the minified files.
+* PR#252: Windows color console support. Thanks to meu31.
 
 Bugs fixed
 ----------

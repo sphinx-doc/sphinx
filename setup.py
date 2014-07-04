@@ -49,6 +49,9 @@ requires = [
     'six', 'Jinja2>=2.3', 'Pygments>=1.2', 'docutils>=0.10', 'snowballstemmer>=1.1'
 ]
 
+if sys.platform == 'win32':
+    requires.append('colorama')
+
 # Provide a "compile_catalog" command that also creates the translated
 # JavaScript files if Babel is available.
 

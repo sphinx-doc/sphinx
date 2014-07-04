@@ -13,6 +13,12 @@ import os
 import sys
 import re
 
+try:
+    # check if colorama is installed to support color on Windows
+    import colorama
+except ImportError:
+    colorama = None
+
 _ansi_re = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
 codes = {}
 
@@ -42,6 +48,9 @@ def term_width_line(text):
         return text.ljust(_tw + len(text) - len(_ansi_re.sub('', text))) + '\r'
 
 def color_terminal():
+    if sys.platform == 'win32' and colorama is not None:
+        colorama.init()
+        return True
     if not hasattr(sys.stdout, 'isatty'):
         return False
     if not sys.stdout.isatty():
@@ -55,12 +64,7 @@ def color_terminal():
 
 
 def nocolor():
-    # check if colorama is installed to support color on Windows
-    try:
-        import colorama
-        colorama.init()
-    except ImportError:
-        codes.clear()
+    codes.clear()
 
 def coloron():
     codes.update(_orig_codes)
