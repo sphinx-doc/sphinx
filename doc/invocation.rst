@@ -154,8 +154,7 @@ The :program:`sphinx-build` script has several options:
 
 .. option:: -N
 
-   Do not emit colored output.  (On Windows, colored output is disabled in any
-   case.)
+   Do not emit colored output.
 
 .. option:: -v
 

@@ -82,7 +82,6 @@ Standard options
 
 def main(argv):
     if not color_terminal():
-        # Windows' poor cmd box doesn't understand ANSI sequences
         nocolor()
 
     # parse options

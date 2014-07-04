@@ -64,6 +64,8 @@ def color_terminal():
 
 
 def nocolor():
+    if sys.platform == 'win32' and colorama is not None:
+        colorama.deinit()
     codes.clear()
 
 def coloron():
