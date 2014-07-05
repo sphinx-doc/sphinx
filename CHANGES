@@ -152,6 +152,8 @@ Bugs fixed
   mixed-content error on HTTPS server. Thanks to sbrandtb and robo9k.
 * PR#157: autodoc remove spurious signatures from @property decorated
   attributes. Thanks to David Ham.
+* PR#159: Add coverage targets to quickstart generated Makefile and make.bat.
+  Thanks to Matthias Troffaes.
 
 Documentation
 -------------

@@ -487,7 +487,7 @@ help:
 \t@echo "  linkcheck  to check all external links for integrity"
 \t@echo "  doctest    to run all doctests embedded in the documentation \
 (if enabled)"
-\t@echo "  coverage   to check coverage of the documentation if enabled"
+\t@echo "  coverage   to run coverage check of the documentation (if enabled)"
 
 clean:
 \trm -rf $(BUILDDIR)/*
@@ -612,7 +612,7 @@ doctest:
 
 coverage:
 \t$(SPHINXBUILD) -b coverage $(ALLSPHINXOPTS) $(BUILDDIR)/coverage
-\t@echo "Documentation coverage is finished, look at the " \\
+\t@echo "Testing of coverage in the sources finished, look at the " \\
 \t      "results in $(BUILDDIR)/coverage/python.txt."
 
 xml:
@@ -666,7 +666,7 @@ if "%%1" == "help" (
 \techo.  pseudoxml  to make pseudoxml-XML files for display purposes
 \techo.  linkcheck  to check all external links for integrity
 \techo.  doctest    to run all doctests embedded in the documentation if enabled
-\techo.  coverage   to check coverage of the documentation if enabled
+\techo.  coverage   to run coverage check of the documentation if enabled
 \tgoto end
 )
 
@@ -868,7 +868,7 @@ if "%%1" == "coverage" (
 \t%%SPHINXBUILD%% -b coverage %%ALLSPHINXOPTS%% %%BUILDDIR%%/coverage
 \tif errorlevel 1 exit /b 1
 \techo.
-\techo.Documentation coverage is finished, look at the ^
+\techo.Testing of coverage in the sources finished, look at the ^
 results in %%BUILDDIR%%/coverage/python.txt.
 \tgoto end
 )
