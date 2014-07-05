@@ -460,7 +460,7 @@ $(SPHINXOPTS) %(rsrcdir)s
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) %(rsrcdir)s
 
 .PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp \
-epub latex latexpdf text man changes linkcheck doctest gettext
+epub latex latexpdf text man changes linkcheck doctest coverage gettext
 
 help:
 \t@echo "Please use \\`make <target>' where <target> is one of"
@@ -487,6 +487,7 @@ help:
 \t@echo "  linkcheck  to check all external links for integrity"
 \t@echo "  doctest    to run all doctests embedded in the documentation \
 (if enabled)"
+\t@echo "  coverage   to check coverage of the documentation if enabled"
 
 clean:
 \trm -rf $(BUILDDIR)/*
@@ -609,6 +610,11 @@ doctest:
 \t@echo "Testing of doctests in the sources finished, look at the " \\
 \t      "results in $(BUILDDIR)/doctest/output.txt."
 
+coverage:
+\t$(SPHINXBUILD) -b coverage $(ALLSPHINXOPTS) $(BUILDDIR)/coverage
+\t@echo "Documentation coverage is finished, look at the " \\
+\t      "results in $(BUILDDIR)/coverage/python.txt."
+
 xml:
 \t$(SPHINXBUILD) -b xml $(ALLSPHINXOPTS) $(BUILDDIR)/xml
 \t@echo
@@ -660,6 +666,7 @@ if "%%1" == "help" (
 \techo.  pseudoxml  to make pseudoxml-XML files for display purposes
 \techo.  linkcheck  to check all external links for integrity
 \techo.  doctest    to run all doctests embedded in the documentation if enabled
+\techo.  coverage   to check coverage of the documentation if enabled
 \tgoto end
 )
 
@@ -854,6 +861,15 @@ if "%%1" == "doctest" (
 \techo.
 \techo.Testing of doctests in the sources finished, look at the ^
 results in %%BUILDDIR%%/doctest/output.txt.
+\tgoto end
+)
+
+if "%%1" == "coverage" (
+\t%%SPHINXBUILD%% -b coverage %%ALLSPHINXOPTS%% %%BUILDDIR%%/coverage
+\tif errorlevel 1 exit /b 1
+\techo.
+\techo.Documentation coverage is finished, look at the ^
+results in %%BUILDDIR%%/coverage/python.txt.
 \tgoto end
 )
 
