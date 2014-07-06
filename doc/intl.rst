@@ -203,7 +203,6 @@ easy to fetch and push translations.
    .. code-block:: bash
 
       $ tx init
-      --user=<transifex-username> --pass=<transifex-password>
       Creating .tx folder...
       Transifex instance [https://www.transifex.com]:
       ...
