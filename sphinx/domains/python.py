@@ -54,7 +54,7 @@ def _pseudo_parse_arglist(signode, arglist):
             while argument.startswith(']'):
                 stack.pop()
                 argument = argument[1:].strip()
-            while argument.endswith(']'):
+            while argument.endswith(']') and not argument.endswith('[]'):
                 ends_close += 1
                 argument = argument[:-1].strip()
             while argument.endswith('['):

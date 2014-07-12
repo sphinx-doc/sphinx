@@ -21,6 +21,8 @@ Bugs fixed
 * #1226: autodoc, autosummary: importing setup.py by automodule will invoke
   setup process and execute `sys.exit()`. Now sphinx avoids SystemExit
   exception and emits warnings without unexpected termination.
+* #1503: py:function directive generate incorrectly signature when specifying
+  a default parameter with an empty list `[]`. Thanks to Geert Jansen.
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================
