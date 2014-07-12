@@ -186,6 +186,9 @@ class TestApp(application.Sphinx):
         for tree in self.cleanup_trees:
             shutil.rmtree(tree, True)
 
+    def __repr__(self):
+        return '<%s buildername=%r>' % (self.__class__.__name__, self.builder.name)
+
 
 def with_app(*args, **kwargs):
     """
