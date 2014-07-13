@@ -5,6 +5,7 @@
    C.class_attr
    C.prop_attr1
    C.prop_attr2
+   C.C2
 """
 
 def withSentence():
@@ -63,3 +64,8 @@ class C:
 
     value is string.
     """
+
+    class C2:
+        '''
+        This is a nested inner class docstring
+        '''

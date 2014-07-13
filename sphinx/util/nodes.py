@@ -11,6 +11,7 @@
 
 import re
 
+from six import text_type
 from docutils import nodes
 
 from sphinx import addnodes
@@ -185,7 +186,7 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc):
     tree = tree.deepcopy()
     for toctreenode in tree.traverse(addnodes.toctree):
         newnodes = []
-        includefiles = map(str, toctreenode['includefiles'])
+        includefiles = map(text_type, toctreenode['includefiles'])
         for includefile in includefiles:
             try:
                 builder.info(colorfunc(includefile) + " ", nonl=1)

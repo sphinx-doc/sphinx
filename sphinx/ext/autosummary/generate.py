@@ -124,7 +124,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
         ensuredir(path)
 
         try:
-            name, obj, parent = import_by_name(name)
+            name, obj, parent, mod_name = import_by_name(name)
         except ImportError as e:
             warn('[autosummary] failed to import %r: %s' % (name, e))
             continue
@@ -233,13 +233,16 @@ def find_autosummary_in_docstring(name, module=None, filename=None):
     See `find_autosummary_in_lines`.
     """
     try:
-        real_name, obj, parent = import_by_name(name)
+        real_name, obj, parent, modname = import_by_name(name)
         lines = pydoc.getdoc(obj).splitlines()
         return find_autosummary_in_lines(lines, module=name, filename=filename)
     except AttributeError:
         pass
     except ImportError as e:
         print("Failed to import '%s': %s" % (name, e))
+    except SystemExit as e:
+        print("Failed to import '%s'; the module executes module level "
+              "statement and it might call sys.exit()." % name)
     return []
 
 def find_autosummary_in_lines(lines, module=None, filename=None):

@@ -112,6 +112,13 @@ def test_errors_warnings(dir):
     assert warned[0]
 
 
+@with_tempdir
+def test_errors_if_setup_is_not_callable(dir):
+    # test the error to call setup() in the config file
+    (dir / 'conf.py').write_text(u'setup = 1')
+    raises_msg(ConfigError, 'callable', TestApp, srcdir=dir)
+
+
 def test_needs_sphinx():
     raises(VersionRequirementError, TestApp,
            confoverrides={'needs_sphinx': '9.9'})

@@ -11,11 +11,13 @@
 import sys
 from functools import wraps
 
-from six import iteritems
+from six import iteritems, StringIO
 
 from sphinx.ext.autosummary import mangle_signature
 
 from util import test_roots, TestApp
+
+html_warnfile = StringIO()
 
 
 def with_autosummary_app(*args, **kw):
@@ -77,7 +79,7 @@ def test_mangle_signature():
         assert res == outp, (u"'%s' -> '%s' != '%s'" % (inp, res, outp))
 
 
-@with_autosummary_app(buildername='html')
+@with_autosummary_app(buildername='html', warning=html_warnfile)
 def test_get_items_summary(app):
     app.builddir.rmtree(True)
 
@@ -100,6 +102,9 @@ def test_get_items_summary(app):
     finally:
         sphinx.ext.autosummary.Autosummary.get_items = orig_get_items
 
+    html_warnings = html_warnfile.getvalue()
+    assert html_warnings == ''
+
     expected_values = {
         'withSentence': 'I have a sentence which spans multiple lines.',
         'noSentence': "this doesn't start with a",
@@ -108,6 +113,7 @@ def test_get_items_summary(app):
         'C.class_attr': 'This is a class attribute',
         'C.prop_attr1': 'This is a function docstring',
         'C.prop_attr2': 'This is a attribute docstring',
+        'C.C2': 'This is a nested inner class docstring',
     }
     for key, expected in iteritems(expected_values):
         assert autosummary_items[key][2] == expected, 'Summary for %s was %r -'\
