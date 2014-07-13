@@ -18,16 +18,14 @@ except ImportError:
     ManWriter = None
 
 
-builder_names = ['pickle', 'json', 'linkcheck', 'text', 'htmlhelp', 'qthelp',
-                 'epub', 'changes', 'singlehtml', 'xml', 'pseudoxml']
-
-
 def teardown_module():
     (test_root / '_build').rmtree(True)
 
 
 def test_build():
-    for buildername in builder_names:
+    for buildername in ('pickle', 'json', 'linkcheck', 'text', 'htmlhelp',
+                        'qthelp', 'epub', 'changes', 'singlehtml', 'xml',
+                        'pseudoxml'):
         app = TestApp(buildername=buildername)
         yield lambda app: app.builder.build_all(), app
         app.cleanup()
@@ -41,8 +39,7 @@ def test_man(app):
     assert (app.outdir / 'SphinxTests.1').exists()
 
 
-@with_app(buildername='html', srcdir='(temp)')
-def test_nonascii_path(app):
+def _test_nonascii_path(app):
     srcdir = path(app.srcdir)
     mb_name = u'\u65e5\u672c\u8a9e'
     try:
@@ -63,6 +60,22 @@ def test_nonascii_path(app):
             .. toctree::
 
                %(mb_name)s/%(mb_name)s
-            """ % locals())
+            """ % {'mb_name': mb_name})
     ).encode('utf-8'))
     app.builder.build_all()
+
+
+def test_nonascii_path():
+    (test_root / '_build').rmtree(True) #keep this to build first gettext
+
+    builder_names = ['gettext', 'html', 'dirhtml', 'singlehtml', 'latex',
+                     'texinfo', 'pickle', 'json', 'linkcheck', 'text',
+                     'htmlhelp', 'qthelp', 'epub', 'changes', 'xml',
+                     'pseudoxml']
+    if ManWriter is not None:
+        builder_names.append('man')
+
+    for buildername in builder_names:
+        app = TestApp(buildername=buildername, srcdir='(temp)')
+        yield _test_nonascii_path, app
+        app.cleanup()

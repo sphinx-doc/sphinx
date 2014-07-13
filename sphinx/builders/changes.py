@@ -124,14 +124,15 @@ class ChangesBuilder(Builder):
 
         self.info(bold('copying source files...'))
         for docname in self.env.all_docs:
-            f = codecs.open(self.env.doc2path(docname), 'r', 'latin1')
+            f = codecs.open(self.env.doc2path(docname), 'r',
+                            self.env.config.source_encoding)
             try:
                 lines = f.readlines()
             finally:
                 f.close()
             targetfn = path.join(self.outdir, 'rst', os_path(docname)) + '.html'
             ensuredir(path.dirname(targetfn))
-            f = codecs.open(targetfn, 'w', 'latin1')
+            f = codecs.open(targetfn, 'w', 'utf-8')
             try:
                 text = ''.join(hl(i+1, line) for (i, line) in enumerate(lines))
                 ctx = {

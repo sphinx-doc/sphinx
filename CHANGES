@@ -23,6 +23,8 @@ Bugs fixed
   exception and emits warnings without unexpected termination.
 * #1503: py:function directive generate incorrectly signature when specifying
   a default parameter with an empty list `[]`. Thanks to Geert Jansen.
+* #1508: Non-ASCII filename raise exception on make singlehtml, latex, man,
+  texinfo and changes.
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================
