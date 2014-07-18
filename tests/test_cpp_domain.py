@@ -129,6 +129,10 @@ def test_type_definitions():
     x = 'int foo(const A&... a)'
     assert text_type(parse('function', x)) == x
 
+    x = 'virtual void f()'
+    assert text_type(parse('function', x)) == x
+
+
 def test_bases():
     x = 'A'
     assert text_type(parse('class', x)) == x

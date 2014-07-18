@@ -448,11 +448,12 @@ class MemberObjDefExpr(NamedDefExpr):
 
 class FuncDefExpr(NamedDefExpr):
 
-    def __init__(self, name, visibility, static, explicit, constexpr, rv,
+    def __init__(self, name, visibility, static, virtual, explicit, constexpr, rv,
                  signature, **kwargs):
         NamedDefExpr.__init__(self, name, visibility, static)
         self.rv = rv
         self.signature = signature
+        self.virtual = virtual
         self.explicit = explicit
         self.constexpr = constexpr
         self.const = kwargs.get('const', False)
@@ -461,7 +462,7 @@ class FuncDefExpr(NamedDefExpr):
         self.override = kwargs.get('override', False)
         self.rvalue_this = kwargs.get('rvalue_this', False)
         self.lvalue_this = kwargs.get('lvalue_this', False)
-        self.pure_virtual = kwargs.get('pure_virtual', False)
+        self.pure = kwargs.get('pure', False)
         self.delete = kwargs.get('delete', False)
         self.default = kwargs.get('default', False)
 
@@ -476,6 +477,8 @@ class FuncDefExpr(NamedDefExpr):
 
     def __unicode__(self):
         buf = self.get_modifiers()
+        if self.virtual:
+            buf.append(u'virtual')
         if self.explicit:
             buf.append(u'explicit')
         if self.constexpr:
@@ -496,7 +499,7 @@ class FuncDefExpr(NamedDefExpr):
             buf.append(u'noexcept')
         if self.override:
             buf.append(u'override')
-        if self.pure_virtual:
+        if self.pure:
             buf.append(u'= 0')
         if self.default:
             buf.append(u'= default')
@@ -881,11 +884,8 @@ class DefinitionParser(object):
 
         if self.skip_string('='):
             self.skip_ws()
-            if self.skip_string('0'):
-                attributes['pure_virtual'] = True
-                return attributes
-            if self.skip_word('NULL') or self.skip_word('nullptr'):
-                attributes['pure_virtual'] = True
+            if self.skip_string('0') or self.skip_word('NULL') or self.skip_word('nullptr'):
+                attributes['pure'] = True
                 return attributes
             if self.skip_word('delete'):
                 attributes['delete'] = True
@@ -937,6 +937,7 @@ class DefinitionParser(object):
 
     def parse_function(self):
         visibility, static = self._parse_visibility_static()
+        virtual = self.skip_word_and_ws('virtual')
         explicit = self.skip_word_and_ws('explicit')
         constexpr = self.skip_word_and_ws('constexpr')
 
@@ -948,7 +949,7 @@ class DefinitionParser(object):
             rv = None
         else:
             name = self._parse_type()
-        return FuncDefExpr(name, visibility, static, explicit, constexpr, rv,
+        return FuncDefExpr(name, visibility, static, virtual, explicit, constexpr, rv,
                            **self._parse_signature())
 
     def parse_class(self):
