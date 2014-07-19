@@ -867,7 +867,7 @@ class DefinitionParser(object):
             volatile=self.skip_word_and_ws('volatile'),
             noexcept=self.skip_word_and_ws('noexcept'),
             override=self.skip_word_and_ws('override'),
-            pure_virtual=False,
+            pure=False,
             lvalue_this=False,
             rvalue_this=False,
             delete=False,
@@ -1180,7 +1180,7 @@ class CPPFunctionObject(CPPObject):
             node += addnodes.desc_addname(' const', ' const')
         if func.noexcept:
             node += addnodes.desc_addname(' noexcept', ' noexcept')
-        if func.pure_virtual:
+        if func.pure:
             node += addnodes.desc_addname(' = 0', ' = 0')
 
     def get_index_text(self, name):
@@ -1193,6 +1193,9 @@ class CPPFunctionObject(CPPObject):
         self.attach_modifiers(signode, func)
         if func.explicit:
             signode += addnodes.desc_annotation('explicit', 'explicit')
+            signode += nodes.Text(' ')
+        if func.virtual:
+            signode += addnodes.desc_annotation('virtual', 'virtual')
             signode += nodes.Text(' ')
         # return value is None for things with a reverse return value
         # such as casting operator definitions or constructors
