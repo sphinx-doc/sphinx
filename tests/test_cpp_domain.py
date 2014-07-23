@@ -15,151 +15,105 @@ from util import raises
 
 from sphinx.domains.cpp import DefinitionParser, DefinitionError
 
-
 def parse(name, string):
-    return getattr(DefinitionParser(string), 'parse_' + name)()
+    parser = DefinitionParser(string)
+    res = getattr(parser, "parse_" + name + "_object")()
+    if not parser.eof:
+        print("Parsing stopped at", parser.pos)
+        print(string)
+        print('-'*parser.pos + '^')
+        raise DefinitionError("")
+    return res
 
+def check(name, input, output=None):
+    # first a simple check of the AST
+    if output == None: output = input
+    ast = parse(name, input)
+    res = text_type(ast)
+    if res != output:
+        print("Input: ", text_type(input))
+        print("Result:", res)
+        raise DefinitionError("")
+    # now check describe_signature
+    ast.describe_signature([], 'lastIsName', None)
 
 def test_type_definitions():
-    rv = parse('member_object', '  const  std::string  &  name = 42')
-    assert text_type(rv) == 'const std::string& name = 42'
+    check("type", "public bool b", "bool b")
+    check("type", "bool A::b")
+    check("type", "bool *b")
+    check("type", "bool *const b")
+    check("type", "bool *volatile const b")
+    check("type", "bool *volatile const b")
+    check("type", "bool *volatile const *b")
+    check("type", "bool &b")
+    check("type", "bool b[]") 
+    check("type", "std::pair<int, int> coord")
+    check("type", "long long int foo")
+    check("type", 'std::vector<std::pair<std::string, long long>> module::blah')
+    check("type", "std::function<void()> F")
+    check("type", "std::function<R(A1, A2, A3)> F")
+    check("type", "std::function<R(A1, A2, A3, As...)> F")
+    
+    check('member', '  const  std::string  &  name = 42', 'const std::string &name = 42')
+    check('member', '  const  std::string  &  name', 'const std::string &name')
+    check('member', '  const  std::string  &  name [ n ]', 'const std::string &name[n]')
+    check('member', 'const std::vector< unsigned int, long> &name', 'const std::vector<unsigned int, long> &name')
+    check('member', 'module::myclass foo[n]')
 
-    rv = parse('member_object', '  const  std::string  &  name leftover')
-    assert text_type(rv) == 'const std::string& name'
+    x = 'std::vector<std::pair<std::string, int>> &module::test(register ' \
+        'foo, bar, std::string baz = "foobar, blah, bleh") const = 0'
+    check('function', x)
+    check('function', 'explicit module::myclass::foo::foo()')
+    check('function', 'module::myclass::foo::~foo()')
+    check('function', 'int printf(const char *fmt, ...)')
+    check('function', 'int foo(const unsigned int j)')
+    check('function', 'int foo(const int *const ptr)')
+    check('function', 'module::myclass::operator std::vector<std::string>()')
+    check('function', 'void operator()(const boost::array<VertexID, 2> &v) const')
+    check('function', 'void operator()(const boost::array<VertexID, 2, "foo,  bar"> &v) const')
+    check('function', 'MyClass::MyClass(MyClass::MyClass&&)')
+    check('function', 'constexpr int get_value()')
+    check('function', 'static constexpr int get_value()')
+    check('function', 'int get_value() const noexcept')
+    check('function', 'int get_value() const noexcept = delete')
+    check('function', 'MyClass::MyClass(MyClass::MyClass&&) = default')
+    check('function', 'MyClass::a_virtual_function() const override')
+    check('function', 'A B() override')
+    check('function', 'A B() final')
+    check('function', 'A B() final override')
+    check('function', 'A B() override final', 'A B() final override')
+    check('function', 'MyClass::a_member_function() volatile')
+    check('function', 'MyClass::a_member_function() volatile const')
+    check('function', 'MyClass::a_member_function() &&')
+    check('function', 'MyClass::a_member_function() &')
+    check('function', 'MyClass::a_member_function() const &')
+    check('function', 'int main(int argc, char *argv[][])')
+    check('function', 'MyClass &MyClass::operator++()')
+    check('function', 'MyClass::pointer MyClass::operator->()')
 
-    rv = parse('member_object', '  const  std::string  &  name [n] leftover')
-    assert text_type(rv) == 'const std::string& name[n]'
-
-    rv = parse('member_object', 'const std::vector< unsigned int, long> &name')
-    assert text_type(rv) == 'const std::vector<unsigned int, long>& name'
-
-    x = 'std::vector<std::pair<std::string, int>>& module::test(register ' \
-        'foo, bar, std::string baz="foobar, blah, bleh") const = 0'
-    assert text_type(parse('function', x)) == x
-
-    x = 'module::myclass::operator std::vector<std::string>()'
-    assert text_type(parse('function', x)) == x
-    x = 'explicit module::myclass::foo::foo()'
-    assert text_type(parse('function', x)) == x
-
-    x = 'int printf(const char* fmt, ...)'
-    assert text_type(parse('function', x)) == x
-
-    x = 'int foo(const unsigned int j)'
-    assert text_type(parse('function', x)) == x
-
-    x = 'int foo(const unsigned int const j)'
-    assert text_type(parse('function', x)) == x
-
-    x = 'int foo(const int* const ptr)'
-    assert text_type(parse('function', x)) == x
-
-    x = 'std::vector<std::pair<std::string, long long>> module::blah'
-    assert text_type(parse('type_object', x)) == x
-
-    assert text_type(parse('type_object', 'long long int foo')) == 'long long foo'
-
-    x = 'void operator()(const boost::array<VertexID, 2>& v) const'
-    assert text_type(parse('function', x)) == x
-
-    x = 'void operator()(const boost::array<VertexID, 2, "foo,  bar">& v) const'
-    assert text_type(parse('function', x)) == x
-
-    x = 'MyClass::MyClass(MyClass::MyClass&&)'
-    assert text_type(parse('function', x)) == x
-
-    x = 'constexpr int get_value()'
-    assert text_type(parse('function', x)) == x
-
-    x = 'static constexpr int get_value()'
-    assert text_type(parse('function', x)) == x
-
-    x = 'int get_value() const noexcept'
-    assert text_type(parse('function', x)) == x
-
-    x = 'int get_value() const noexcept = delete'
-    assert text_type(parse('function', x)) == x
-
-    x = 'MyClass::MyClass(MyClass::MyClass&&) = default'
-    assert text_type(parse('function', x)) == x
-
-    x = 'MyClass::a_virtual_function() const override'
-    assert text_type(parse('function', x)) == x
-
-    x = 'MyClass::a_member_function() volatile'
-    assert text_type(parse('function', x)) == x
-
-    x = 'MyClass::a_member_function() const volatile'
-    assert text_type(parse('function', x)) == x
-
-    x = 'MyClass::a_member_function() &&'
-    assert text_type(parse('function', x)) == x
-
-    x = 'MyClass::a_member_function() &'
-    assert text_type(parse('function', x)) == x
-
-    x = 'MyClass::a_member_function() const &'
-    assert text_type(parse('function', x)) == x
-
-    x = 'int main(int argc, char* argv[][])'
-    assert text_type(parse('function', x)) == x
-
-    x = 'std::vector<std::pair<std::string, int>>& module::test(register ' \
-        'foo, bar[n], std::string baz="foobar, blah, bleh") const = 0'
-    assert text_type(parse('function', x)) == x
-
-    x = 'module::myclass foo[n]'
-    assert text_type(parse('member_object', x)) == x
-
-    x = 'int foo(Foo f=Foo(double(), std::make_pair(int(2), double(3.4))))'
-    assert text_type(parse('function', x)) == x
-
-    x = 'int foo(A a=x(a))'
-    assert text_type(parse('function', x)) == x
-
-    x = 'int foo(B b=x(a)'
-    raises(DefinitionError, parse, 'function', x)
-
-    x = 'int foo)C c=x(a))'
-    raises(DefinitionError, parse, 'function', x)
-
-    x = 'int foo(D d=x(a'
-    raises(DefinitionError, parse, 'function', x)
-
-    x = 'int foo(const A&... a)'
-    assert text_type(parse('function', x)) == x
-
-    x = 'virtual void f()'
-    assert text_type(parse('function', x)) == x
-
+    x = 'std::vector<std::pair<std::string, int>> &module::test(register ' \
+        'foo, bar[n], std::string baz = "foobar, blah, bleh") const = 0'
+    check('function', x)
+    check('function', 'int foo(Foo f = Foo(double(), std::make_pair(int(2), double(3.4))))')
+    check('function', 'int foo(A a = x(a))')
+    raises(DefinitionError, parse, 'function', 'int foo(B b=x(a)')
+    raises(DefinitionError, parse, 'function', 'int foo)C c=x(a))')
+    raises(DefinitionError, parse, 'function', 'int foo(D d=x(a')
+    check('function', 'int foo(const A&... a)')
+    check('function', 'virtual void f()')
 
 def test_bases():
-    x = 'A'
-    assert text_type(parse('class', x)) == x
-
-    x = 'A : B'
-    assert text_type(parse('class', x)) == x
-
-    x = 'A : private B'
-    assert text_type(parse('class', x)) == 'A : B'
-
-    x = 'A : public B'
-    assert text_type(parse('class', x)) == x
-
-    x = 'A : B, C'
-    assert text_type(parse('class', x)) == x
-
-    x = 'A : B, protected C, D'
-    assert text_type(parse('class', x)) == x
+    check('class', 'A')
+    check('class', 'A::B::C')
+    check('class', 'A : B')
+    check('class', 'A : private B', 'A : B')
+    check('class', 'A : public B')
+    check('class', 'A : B, C')
+    check('class', 'A : B, protected C, D')
 
 
 def test_operators():
-    x = parse('function', 'void operator new [  ] ()')
-    assert text_type(x) == 'void operator new[]()'
-
-    x = parse('function', 'void operator delete ()')
-    assert text_type(x) == 'void operator delete()'
-
+    check('function', 'void operator new [  ] ()', 'void operator new[]()')
+    check('function', 'void operator delete ()', 'void operator delete()')
     for op in '*-+=/%!':
-        x = parse('function', 'void operator %s ()' % op)
-        assert text_type(x) == 'void operator%s()' % op
+        check('function', 'void operator %s ()' % op, 'void operator%s()' % op)

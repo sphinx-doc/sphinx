@@ -66,7 +66,7 @@ class CObject(ObjectDescription):
         'struct', '_Bool',
     ))
 
-    def _parse_type(self, node, ctype):
+    def _parse_type_old(self, node, ctype):
         # add cross-ref nodes for all words
         for part in [_f for _f in wsplit_re.split(ctype) if _f]:
             tnode = nodes.Text(part, part)
@@ -91,7 +91,7 @@ class CObject(ObjectDescription):
         rettype, name, arglist, const = m.groups()
 
         signode += addnodes.desc_type('', '')
-        self._parse_type(signode[-1], rettype)
+        self._parse_type_old(signode[-1], rettype)
         try:
             classname, funcname = name.split('::', 1)
             classname += '::'
@@ -130,9 +130,9 @@ class CObject(ObjectDescription):
                 ctype, argname = arg.rsplit(' ', 1)
             except ValueError:
                 # no argument name given, only the type
-                self._parse_type(param, arg)
+                self._parse_type_old(param, arg)
             else:
-                self._parse_type(param, ctype)
+                self._parse_type_old(param, ctype)
                 # separate by non-breaking space in the output
                 param += nodes.emphasis(' '+argname, u'\xa0'+argname)
             paramlist += param
