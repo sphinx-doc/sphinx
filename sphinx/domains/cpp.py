@@ -257,15 +257,7 @@ class ASTBase(UnicodeMixin):
         """
         raise NotImplementedError(repr(self))
 
-    def split_owner(self):
-        """Nodes returned by :meth:`get_name` can split off their
-        owning parent.  This function returns the owner and the
-        name as a tuple of two items.  If a node does not support
-        it, it returns None as owner and self as name.
-        """
-        raise NotImplementedError(repr(self))
-
-    def prefix(self, prefix):
+    def prefix_nested_name(self, prefix):
         """Prefix a name node (a node returned by :meth:`get_name`)."""
         raise NotImplementedError(repr(self))
 
@@ -276,10 +268,12 @@ class ASTBase(UnicodeMixin):
         return '<%s %s>' % (self.__class__.__name__, self)
 
 def _verify_parsing_context(context):
-    assert context in {'typeObject', 'functionObject', 'memberObject', 'classObject', 'namespaceObject', 'xrefObject', 'abstractDecl', 'functionObjectArgument', 'baseClass'}
+    if not context in {'typeObject', 'functionObject', 'memberObject', 'classObject', 'namespaceObject', 'xrefObject', 'abstractDecl', 'functionObjectArgument', 'baseClass'}:
+        raise Exception("Parsing context '%s' is invalid." % context)
     
 def _verify_description_mod(mode):
-    assert mode in {'lastIsName', 'allIsName', 'noneIsName', 'markType'}
+    if not mode in {'lastIsName', 'allIsName', 'noneIsName', 'markType'}:
+        raise Exception("Description mode '%s' is invalid." % mode)
 
 class ASTOperatorBuildIn(ASTBase):
     
@@ -371,10 +365,11 @@ class ASTNestedName(ASTBase):
     def name(self):
         return self
     
-    def prefix(self, prefix):
+    def prefix_nested_name(self, prefix):
         if self.names[0] == '':
-            raise DefinitionError('Can not prefix nested name rooted in outer-most namespace.')
-        names = [prefix]
+            return self # it's defined at global namespace, don't tuch it
+        assert isinstance(prefix, ASTNestedName)
+        names = prefix.names[:]
         names.extend(self.names)
         return ASTNestedName(names)
     
@@ -669,10 +664,12 @@ class ASTType(ASTBase):
     
     def get_id(self):
         res = ['___']
-        res.append(text_type(self.name))
+        res.append(text_type(self.prefixedName))
         if self.objectType == 'function':
             res.append('___')
             res.append(self.decl.get_param_id())
+        elif self.objectType == 'type':
+            pass
         else:
             print(self.objectType)
             assert False
@@ -711,7 +708,7 @@ class ASTTypeWithInit(ASTBase):
     
     def get_id(self):
         if self.objectType == 'member':
-            return text_type(self.name)
+            return "___" + text_type(self.prefixedName)
         else:
             raise NotImplementedError("Should this happen? %s, %s" % (self.objectType, text_type(self.name)))
         
@@ -1133,12 +1130,12 @@ class DefinitionParser(object):
         
         if context == 'abstractDecl':
             declId = None
-        elif context == 'functionObjectArgument' \
-                or context == 'functionObject':
+        elif context in {'functionObjectArgument', 'functionObject', 'typeObject'}:
             # Function arguments don't need to have a name.
             # Some functions (constructors/destructors) don't ahve return type,
             # so the name has been parsed in the declSpecs.
             # Also conversion operators (e.g., "A::operator std::string()" will have no declId at this point
+            # For types we want to allow the plain declaration that there is a type, i.e., "MyContainer::const_iterator"
             pos = self.pos
             try:
                 declId = self._parse_nested_name(context)
@@ -1291,22 +1288,11 @@ class CPPObject(ObjectDescription):
             self.state.document.note_explicit_target(signode)
             if not name in objects:
                 objects.setdefault(name, (self.env.docname, ast.objectType, theid))
+            self.env.temp_data['cpp:lastname'] = ast.prefixedName
 
         indextext = self.get_index_text(name)
         if indextext:
             self.indexnode['entries'].append(('single', indextext, theid, ''))
-
-    def before_content(self):
-        lastname = self.names and self.names[-1]
-        if lastname and not self.env.temp_data.get('cpp:parent'):
-            self.env.temp_data['cpp:parent'] = lastname.name
-            self.parentname_set = True
-        else:
-            self.parentname_set = False
-
-    def after_content(self):
-        if self.parentname_set:
-            self.env.temp_data['cpp:parent'] = None
 
     def parse_definition(self, parser):
         raise NotImplementedError()
@@ -1325,9 +1311,9 @@ class CPPObject(ObjectDescription):
         self.describe_signature(signode, ast)
 
         parent = self.env.temp_data.get('cpp:parent')
-        if parent is not None:
+        if parent and len(parent) > 0:
             ast = ast.clone()
-            ast.prefixedName = ast.name.prefix(parent)
+            ast.prefixedName = ast.name.prefix_nested_name(parent[-1])
         else:
             ast.prefixedName = ast.name
         return ast
@@ -1342,7 +1328,7 @@ class CPPTypeObject(CPPObject):
     
     def describe_signature(self, signode, ast):
         signode += addnodes.desc_annotation('type ', 'type ')
-        ast.describe_signature(signode, 'typeObject', self.env)
+        ast.describe_signature(signode, 'lastIsName', self.env)
         
 class CPPMemberObject(CPPObject):
 
@@ -1371,6 +1357,14 @@ class CPPClassObject(CPPObject):
     def get_index_text(self, name):
         return _('%s (C++ class)') % name
 
+    def before_content(self):
+        lastname = self.env.temp_data['cpp:lastname']
+        assert lastname
+        self.env.temp_data['cpp:parent'].append(lastname)
+
+    def after_content(self):
+        self.env.temp_data['cpp:parent'].pop()
+
     def parse_definition(self, parser):
         return parser.parse_class_object()
 
@@ -1393,7 +1387,7 @@ class CPPNamespaceObject(Directive):
     def run(self):
         env = self.state.document.settings.env
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
-            env.temp_data['cpp:parent'] = None
+            env.temp_data['cpp:parent'] = []
         else:
             parser = DefinitionParser(self.arguments[0])
             try:
@@ -1402,13 +1396,15 @@ class CPPNamespaceObject(Directive):
             except DefinitionError as e:
                 self.state_machine.reporter.warning(e.description,line=self.lineno)
             else:
-                env.temp_data['cpp:parent'] = prefix
+                env.temp_data['cpp:parent'] = [prefix]
         return []
 
 class CPPXRefRole(XRefRole):
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        refnode['cpp:parent'] = env.temp_data.get('cpp:parent')
+        parent = env.temp_data.get('cpp:parent')
+        if parent:
+            refnode['cpp:parent'] = parent[:]
         if not has_explicit_title:
             target = target.lstrip('~')  # only has a meaning for the title
             # if the first character is a tilde, don't display the module/class
@@ -1477,8 +1473,9 @@ class CPPDomain(Domain):
         
         # try qualifying it with the parent
         parent = node.get('cpp:parent', None)
-        if not parent: return None
-        else: return _create_refnode(nameAst.prefix(parent))
+        if parent and len(parent) > 0:
+            return _create_refnode(nameAst.prefix_nested_name(parent[-1]))
+        else: return None
 
     def get_objects(self):
         for refname, (docname, type, theid) in iteritems(self.data['objects']):

@@ -53,6 +53,7 @@ def test_type_definitions():
     check("type", "std::function<void()> F")
     check("type", "std::function<R(A1, A2, A3)> F")
     check("type", "std::function<R(A1, A2, A3, As...)> F")
+    check("type", "MyContainer::const_iterator")
     
     check('member', '  const  std::string  &  name = 42', 'const std::string &name = 42')
     check('member', '  const  std::string  &  name', 'const std::string &name')
