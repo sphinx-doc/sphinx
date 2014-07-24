@@ -283,6 +283,9 @@ class ASTOperatorBuildIn(ASTBase):
     def __unicode__(self):
         return u''.join(['operator', self.op])
     
+    def get_name_no_template(self):
+        return text_type(self)
+    
     def describe_signature(self, signode, mode):
         _verify_description_mod(mode)
         identifier = text_type(self)
@@ -332,17 +335,19 @@ class ASTNestedNameElement(ASTBase):
             res.append('>')
         return u''.join(res)
     
+    def get_name_no_template(self):
+        return text_type(self.identifier)
+    
     def describe_signature(self, signode, mode, env, prefix):
         _verify_description_mod(mode)
         if mode == 'markType':
-            identifier = text_type(self.identifier)
-            targetText = prefix + identifier
+            targetText = prefix + text_type(self)
             pnode = addnodes.pending_xref(
                 '', refdomain='cpp', reftype='type',
                 reftarget=targetText, modname=None, classname=None)
             if env: # during testing we don't have an env, do we?
                 pnode['cpp:parent'] = env.temp_data.get('cpp:parent')
-            pnode += nodes.Text(identifier)
+            pnode += nodes.Text(text_type(self.identifier))
             signode += pnode
             if self.templateArgs:
                 signode += nodes.Text('<')
@@ -364,6 +369,12 @@ class ASTNestedName(ASTBase):
     @property
     def name(self):
         return self
+    
+    def get_name_no_last_template(self):
+        res = u'::'.join([text_type(n) for n in self.names[:-1]])
+        if len(self.names) > 1: res += '::'
+        res += self.names[-1].get_name_no_template()
+        return res
     
     def prefix_nested_name(self, prefix):
         if self.names[0] == '':
@@ -1288,6 +1299,11 @@ class CPPObject(ObjectDescription):
             self.state.document.note_explicit_target(signode)
             if not name in objects:
                 objects.setdefault(name, (self.env.docname, ast.objectType, theid))
+                # add the uninstantiated template if it doesn't exist
+                uninstantiated = ast.prefixedName.get_name_no_last_template()
+                if uninstantiated != name and uninstantiated not in objects:
+                    signode['names'].append(uninstantiated)
+                    objects.setdefault(uninstantiated, (self.env.docname, ast.objectType, theid))
             self.env.temp_data['cpp:lastname'] = ast.prefixedName
 
         indextext = self.get_index_text(name)
@@ -1451,10 +1467,13 @@ class CPPDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
-        def _create_refnode(name):
-            name = text_type(name)
+        def _create_refnode(nameAst):
+            name = text_type(nameAst)
             if name not in self.data['objects']:
-                return None
+                # try dropping the last template
+                name = nameAst.get_name_no_last_template()
+                if name not in self.data['objects']:
+                    return None
             docname, objectType, id = self.data['objects'][name]
             return make_refnode(builder, fromdocname, docname, id, contnode, name)
 
