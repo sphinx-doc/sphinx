@@ -20,6 +20,7 @@ import optparse
 from os import path
 
 from sphinx.util.osutil import walk
+from sphinx import __version__
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
@@ -300,8 +301,14 @@ Note: By default this script will not overwrite already created files.""")
     parser.add_option('-R', '--doc-release', action='store', dest='release',
                       help='Project release, used when --full is given, '
                       'defaults to --doc-version')
+    parser.add_option('--version', action='store_true', dest='show_version',
+                      help='Show version information and exit')
 
     (opts, args) = parser.parse_args(argv[1:])
+
+    if opts.show_version:
+        print 'Sphinx (sphinx-apidoc) %s' %  __version__
+        return 0
 
     if not args:
         parser.error('A package path is required.')

@@ -1,6 +1,12 @@
 Release 1.2.3 (in development)
 ==============================
 
+Features added
+--------------
+
+* #1518: `sphinx-apidoc` command now have a `--version` option to show version
+  information and exit
+
 Bugs fixed
 ----------
 
