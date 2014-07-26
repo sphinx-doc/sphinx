@@ -13,8 +13,8 @@ Incompatible changes
   should appear literally (i.e. no smart quotes) in strong font.  Custom writers
   will have to be adapted to handle this node.
 
-New features
-------------
+Features added
+--------------
 
 * Add support for Python 3.4.
 * Added ``sphinx.ext.napoleon`` extension for NumPy and Google style docstring
