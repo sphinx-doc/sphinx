@@ -272,7 +272,7 @@ def _verify_parsing_context(context):
         raise Exception("Parsing context '%s' is invalid." % context)
     
 def _verify_description_mod(mode):
-    if not mode in {'lastIsName', 'allIsName', 'noneIsName', 'markType'}:
+    if not mode in {'lastIsName', 'noneIsName', 'markType', 'param'}:
         raise Exception("Description mode '%s' is invalid." % mode)
 
 class ASTOperatorBuildIn(ASTBase):
@@ -286,10 +286,13 @@ class ASTOperatorBuildIn(ASTBase):
     def get_name_no_template(self):
         return text_type(self)
     
-    def describe_signature(self, signode, mode):
+    def describe_signature(self, signode, mode, env, prefix):
         _verify_description_mod(mode)
         identifier = text_type(self)
-        signode += addnodes.desc_addname(identifier, identifier)
+        if mode == 'lastIsName':
+            signode += addnodes.desc_name(identifier, identifier)
+        else:
+            signode += addnodes.desc_addname(identifier, identifier)
         
 class ASTOperatorType(ASTBase):
     
@@ -299,10 +302,13 @@ class ASTOperatorType(ASTBase):
     def __unicode__(self):
         return u''.join(['operator ', text_type(self.type)])
     
-    def describe_signature(self, signode, mode):
+    def describe_signature(self, signode, mode, env, prefix):
         _verify_description_mod(mode)
         identifier = text_type(self)
-        signode += addnodes.desc_addname(identifier, identifier)
+        if mode == 'lastIsName':
+            signode += addnodes.desc_name(identifier, identifier)
+        else:
+            signode += addnodes.desc_addname(identifier, identifier)
             
 class ASTTemplateArgConstant(ASTBase):
     
@@ -349,16 +355,19 @@ class ASTNestedNameElement(ASTBase):
                 pnode['cpp:parent'] = env.temp_data.get('cpp:parent')
             pnode += nodes.Text(text_type(self.identifier))
             signode += pnode
-            if self.templateArgs:
-                signode += nodes.Text('<')
-                first = True
-                for a in self.templateArgs:
-                    if not first: signode += nodes.Text(', ')
-                    first = False
-                    a.describe_signature(signode, mode, env)
-                signode += nodes.Text('>')
+        elif mode == 'lastIsName':
+            name = text_type(self.identifier)
+            signode += addnodes.desc_name(name, name)
         else:
             raise Exception('Unknown description mode: %s' % mode)
+        if self.templateArgs:
+            signode += nodes.Text('<')
+            first = True
+            for a in self.templateArgs:
+                if not first: signode += nodes.Text(', ')
+                first = False
+                a.describe_signature(signode, 'markType', env)
+            signode += nodes.Text('>')
 
 class ASTNestedName(ASTBase):
     
@@ -394,13 +403,13 @@ class ASTNestedName(ASTBase):
             if len(self.names) > 1: addname += u'::'
             name = text_type(self.names[-1])
             signode += addnodes.desc_addname(addname, addname)
-            signode += addnodes.desc_name(name, name)        
-        elif mode == 'allIsName':
-            name = text_type(self)
-            signode += addnodes.desc_name(name, name)
+            self.names[-1].describe_signature(signode, mode, env, '')
         elif mode == 'noneIsName':
             name = text_type(self)
             signode += nodes.Text(name)
+        elif mode == 'param':
+            name = text_type(self)
+            signode += nodes.emphasis(name, name)
         elif mode == 'markType':
             # each element should be a pending xref targeting the complete prefix
             # however, only the identifier part should be a link, such that template args can be a link as well
@@ -468,7 +477,7 @@ class ASTFunctinoParameter(ASTBase):
     
     def describe_signature(self, signode, mode, env):
         _verify_description_mod(mode)
-        if self.ellipsis: signode += nodes.emphasis('...')
+        if self.ellipsis: signode += nodes.Text('...')
         else: self.arg.describe_signature(signode, mode, env)
 
 class ASTParametersQualifiers(ASTBase):
@@ -525,7 +534,9 @@ class ASTParametersQualifiers(ASTBase):
         paramlist = addnodes.desc_parameterlist()
         for arg in self.args:
             param = addnodes.desc_parameter('', '', noemph=True)
-            arg.describe_signature(param, 'markType', env)
+            if mode == 'lastIsName': # i.e., outer-function params
+                arg.describe_signature(param, 'param', env)
+            else:arg.describe_signature(param, 'markType', env) 
             paramlist += param
         signode += paramlist
         def _add_anno(signode, text):
@@ -645,7 +656,9 @@ class ASTDeclerator(ASTBase):
     
     def describe_signature(self, signode, mode, env):
         _verify_description_mod(mode)
-        for op in self.ptrOps: signode += nodes.Text(text_type(op))
+        for op in self.ptrOps:
+            signode += nodes.Text(text_type(op))
+            if op == '...' and self.declId: signode += nodes.Text(' ')
         if self.declId: self.declId.describe_signature(signode, mode, env)
         for op in self.suffixOps: op.describe_signature(signode, mode, env)
     
@@ -1386,7 +1399,7 @@ class CPPClassObject(CPPObject):
 
     def describe_signature(self, signode, ast):
         signode += addnodes.desc_annotation('class ', 'class ')
-        ast.describe_signature(signode, 'allIsName', self.env)
+        ast.describe_signature(signode, 'lastIsName', self.env)
         
 class CPPNamespaceObject(Directive):
     """
