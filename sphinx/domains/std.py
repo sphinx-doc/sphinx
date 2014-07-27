@@ -549,6 +549,13 @@ class StandardDomain(Domain):
                         break
                 else:
                     continue
+            elif node.tagname == 'image' and node.parent.tagname == 'figure':
+                for n in node.parent:
+                    if n.tagname == 'caption':
+                        sectname = clean_astext(n)
+                        break
+                else:
+                    continue
             elif node.tagname == 'table':
                 for n in node:
                     if n.tagname == 'title':
