@@ -103,6 +103,7 @@ class LiteralInclude(Directive):
     optional_arguments = 0
     final_argument_whitespace = True
     option_spec = {
+	'dedent': int,
         'linenos': directives.flag,
         'lineno-start': int,
         'tab-width': int,
@@ -138,6 +139,12 @@ class LiteralInclude(Directive):
             f = codecs.StreamReaderWriter(open(filename, 'rb'),
                     codec_info[2], codec_info[3], 'strict')
             lines = f.readlines()
+            if 'dedent' in self.options:
+                for i in range(0, len(lines)):
+                    if len(lines[i]) <= self.options['dedent']:
+                        lines[i] = lines[i][len(lines[i]) - 1:]
+                    else:
+                        lines[i] = lines[i][self.options['dedent']:]
         except (IOError, OSError):
             return [document.reporter.warning(
                 'Include file %r not found or reading it failed' % filename,
