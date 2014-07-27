@@ -536,7 +536,7 @@ The following directives are available:
 
       .. cpp:function:: bool namespaced::theclass::method(arg1, arg2)
 
-         Describes a method without types.
+         Describes a method with unnamed parameters.
 
       .. cpp:function:: const T &array<T>::operator[]() const
 
@@ -554,7 +554,13 @@ The following directives are available:
 
       .. cpp:member:: std::string theclass::name[N][M]
 
+      .. cpp::type:: std::vector<int> MyList
+
+         A typedef-like declaration of a type.
+
       .. cpp:type:: theclass::const_iterator
+
+         Declaration of a type alias with unspecified type.
 
    Will be rendered like this:
 
@@ -564,7 +570,7 @@ The following directives are available:
 
       .. cpp:function:: bool namespaced::theclass::method(arg1, arg2)
 
-         Describes a method without types.
+         Describes a method with unnamed parameters.
 
       .. cpp:function:: const T &array<T>::operator[]() const
 
@@ -582,12 +588,19 @@ The following directives are available:
 
       .. cpp:member:: std::string theclass::name[N][M]
 
+      .. cpp::type:: std::vector<int> MyList
+
+         A typedef-like declaration of a type.
+
       .. cpp:type:: theclass::const_iterator
+
+         Declaration of a type alias with unspecified type.
 
 .. rst:directive:: .. cpp:namespace:: namespace
 
-   Select the current C++ namespace for the following objects.
-
+   Select the current namespace for the following objects. Note that the namespace
+   does not need to correspond to C++ namespaces, but can end in names of classes.
+   (e.g., ``Namespace1::Namespace2::SomeClass::AnInnerClass``)
 
 .. _cpp-roles:
 
