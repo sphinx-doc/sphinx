@@ -120,6 +120,7 @@
 """
 
 import re
+import traceback
 from copy import deepcopy
 
 from six import iteritems, text_type
@@ -266,12 +267,8 @@ class ASTBase(UnicodeMixin):
 
     def __repr__(self):
         return '<%s %s>' % (self.__class__.__name__, self)
-
-def _verify_parsing_context(context):
-    if not context in {'typeObject', 'functionObject', 'memberObject', 'classObject', 'namespaceObject', 'xrefObject', 'abstractDecl', 'functionObjectArgument', 'baseClass'}:
-        raise Exception("Parsing context '%s' is invalid." % context)
     
-def _verify_description_mod(mode):
+def _verify_description_mode(mode):
     if not mode in {'lastIsName', 'noneIsName', 'markType', 'param'}:
         raise Exception("Description mode '%s' is invalid." % mode)
 
@@ -287,7 +284,7 @@ class ASTOperatorBuildIn(ASTBase):
         return text_type(self)
     
     def describe_signature(self, signode, mode, env, prefix):
-        _verify_description_mod(mode)
+        _verify_description_mode(mode)
         identifier = text_type(self)
         if mode == 'lastIsName':
             signode += addnodes.desc_name(identifier, identifier)
@@ -302,8 +299,11 @@ class ASTOperatorType(ASTBase):
     def __unicode__(self):
         return u''.join(['operator ', text_type(self.type)])
     
+    def get_name_no_template(self):
+        return text_type(self)
+    
     def describe_signature(self, signode, mode, env, prefix):
-        _verify_description_mod(mode)
+        _verify_description_mode(mode)
         identifier = text_type(self)
         if mode == 'lastIsName':
             signode += addnodes.desc_name(identifier, identifier)
@@ -319,7 +319,7 @@ class ASTTemplateArgConstant(ASTBase):
         return text_type(self.value)
     
     def describe_signature(self, signode, mode, env):
-        _verify_description_mod(mode)
+        _verify_description_mode(mode)
         signode += nodes.Text(text_type(self))
 
 class ASTNestedNameElement(ASTBase):
@@ -345,7 +345,7 @@ class ASTNestedNameElement(ASTBase):
         return text_type(self.identifier)
     
     def describe_signature(self, signode, mode, env, prefix):
-        _verify_description_mod(mode)
+        _verify_description_mode(mode)
         if mode == 'markType':
             targetText = prefix + text_type(self)
             pnode = addnodes.pending_xref(
@@ -397,7 +397,7 @@ class ASTNestedName(ASTBase):
         return u'::'.join([text_type(n) for n in self.names])
     
     def describe_signature(self, signode, mode, env):
-        _verify_description_mod(mode)
+        _verify_description_mode(mode)
         if mode == 'lastIsName':
             addname = u'::'.join([text_type(n) for n in self.names[:-1]])
             if len(self.names) > 1: addname += u'::'
@@ -476,7 +476,7 @@ class ASTFunctinoParameter(ASTBase):
         else: return text_type(self.arg)
     
     def describe_signature(self, signode, mode, env):
-        _verify_description_mod(mode)
+        _verify_description_mode(mode)
         if self.ellipsis: signode += nodes.Text('...')
         else: self.arg.describe_signature(signode, mode, env)
 
@@ -530,7 +530,7 @@ class ASTParametersQualifiers(ASTBase):
         return u''.join(res)
     
     def describe_signature(self, signode, mode, env):
-        _verify_description_mod(mode)
+        _verify_description_mode(mode)
         paramlist = addnodes.desc_parameterlist()
         for arg in self.args:
             param = addnodes.desc_parameter('', '', noemph=True)
@@ -554,8 +554,8 @@ class ASTParametersQualifiers(ASTBase):
 
 class ASTDeclSpecs(ASTBase):
     
-    def __init__(self, context, visibility, storage, inline, virtual, explicit, constexpr, volatile, const, trailing):
-        self.context = context
+    def __init__(self, outer, visibility, storage, inline, virtual, explicit, constexpr, volatile, const, trailing):
+        self.outer = outer
         self.visibility = visibility
         self.storage = storage
         self.inline = inline
@@ -574,39 +574,41 @@ class ASTDeclSpecs(ASTBase):
         return text_type(self)
         
     def _print_visibility(self):
-        return self.visibility and not (self.context in {'typeObject', 'memberObject', 'functionObject'} and self.visibility == 'public')
+        return self.visibility and not (self.outer in {'type', 'member', 'function'} and self.visibility == 'public')
         
     def __unicode__(self):
         res = []
-        if self._print_visibility():
-            res.append(self.visibility)
-            res.append(' ')
-        if self.storage:
-            res.append(self.storage)
-            res.append(' ')
-        if self.inline: res.append('inline ')
-        if self.virtual: res.append('virtual ')
-        if self.explicit: res.append('explicit ')
-        if self.constexpr: res.append('constexpr ')
-        if self.volatile: res.append('volatile ')
-        if self.const: res.append('const ')
-        res.append(text_type(self.trailingTypeSpec))
-        return u''.join(res)
+        if self._print_visibility(): res.append(self.visibility)
+        if self.storage: res.append(self.storage)
+        if self.inline: res.append('inline')
+        if self.virtual: res.append('virtual')
+        if self.explicit: res.append('explicit')
+        if self.constexpr: res.append('constexpr')
+        if self.volatile: res.append('volatile')
+        if self.const: res.append('const')
+        if self.trailingTypeSpec: res.append(text_type(self.trailingTypeSpec))
+        return u' '.join(res)
     
     def describe_signature(self, signode, mode, env):
-        _verify_description_mod(mode)
-        def _add(signode, text):
-            signode += addnodes.desc_annotation(text, text)
-            signode += nodes.Text(' ')
-        if self._print_visibility(): _add(signode, self.visibility)
-        if self.storage: _add(signode, self.storage)
-        if self.inline: _add(signode, 'inline')
-        if self.virtual: _add(signode, 'virtual')
-        if self.explicit: _add(signode, 'explicit')
-        if self.constexpr: _add(signode, 'constexpr')
-        if self.volatile: _add(signode, 'volatile')
-        if self.const: _add(signode, 'const')
-        self.trailingTypeSpec.describe_signature(signode, mode, env)
+        _verify_description_mode(mode)
+        modifiers = []
+        def _add(modifiers, text):
+            if len(modifiers) > 0:
+                modifiers.append(nodes.Text(' '))
+            modifiers.append(addnodes.desc_annotation(text, text))
+        if self._print_visibility(): _add(modifiers, self.visibility)
+        if self.storage: _add(modifiers, self.storage)
+        if self.inline: _add(modifiers, 'inline')
+        if self.virtual: _add(modifiers, 'virtual')
+        if self.explicit: _add(modifiers, 'explicit')
+        if self.constexpr: _add(modifiers, 'constexpr')
+        if self.volatile: _add(modifiers, 'volatile')
+        if self.const: _add(modifiers, 'const')
+        for m in modifiers: signode += m
+        if self.trailingTypeSpec:
+            if len(modifiers) > 0:
+                signode += nodes.Text(' ')
+            self.trailingTypeSpec.describe_signature(signode, mode, env)
     
 class ASTArray(ASTBase):
     
@@ -617,7 +619,7 @@ class ASTArray(ASTBase):
         return u''.join(['[', text_type(self.size), ']'])
     
     def describe_signature(self, signode, mode, env):
-        _verify_description_mod(mode)
+        _verify_description_mode(mode)
         signode += nodes.Text(text_type(self))
     
 class ASTDeclerator(ASTBase):
@@ -642,7 +644,7 @@ class ASTDeclerator(ASTBase):
     
     def require_start_space(self):
         if '...' in self.ptrOps: return False
-        return not not self.declId
+        else: return self.declId != None
         
     def __unicode__(self):
         res = []
@@ -655,7 +657,7 @@ class ASTDeclerator(ASTBase):
         return u''.join(res)
     
     def describe_signature(self, signode, mode, env):
-        _verify_description_mod(mode)
+        _verify_description_mode(mode)
         for op in self.ptrOps:
             signode += nodes.Text(text_type(op))
             if op == '...' and self.declId: signode += nodes.Text(' ')
@@ -671,7 +673,7 @@ class ASTInitializer(ASTBase):
         return u''.join([' = ', text_type(self.value)])
     
     def describe_signature(self, signode, mode):
-        _verify_description_mod(mode)
+        _verify_description_mode(mode)
         signode += nodes.Text(text_type(self))
 
 class ASTType(ASTBase):
@@ -704,19 +706,17 @@ class ASTType(ASTBase):
         
     def __unicode__(self):
         res = []
-        res.append(text_type(self.declSpecs))
-        if self.decl.require_start_space():
+        declSpecs = text_type(self.declSpecs) 
+        res.append(declSpecs)
+        if self.decl.require_start_space() and len(declSpecs) > 0:
             res.append(u' ')
         res.append(text_type(self.decl))
         return u''.join(res)
     
     def describe_signature(self, signode, mode, env):
-        _verify_description_mod(mode)
-        if self.decl.name:
-            self.declSpecs.describe_signature(signode, 'markType', env)
-        else:
-            self.declSpecs.describe_signature(signode, mode, env)
-        if self.decl.require_start_space():
+        _verify_description_mode(mode)
+        self.declSpecs.describe_signature(signode, 'markType', env)
+        if self.decl.require_start_space() and len(text_type(self.declSpecs)) > 0:
             signode += nodes.Text(' ')
         self.decl.describe_signature(signode, mode, env)
     
@@ -746,7 +746,7 @@ class ASTTypeWithInit(ASTBase):
         return u''.join(res)
     
     def describe_signature(self, signode, mode, env):
-        _verify_description_mod(mode)
+        _verify_description_mode(mode)
         self.type.describe_signature(signode, mode, env)
         if self.init: self.init.describe_signature(signode, mode)
 
@@ -765,7 +765,7 @@ class ASTBaseClass(ASTBase):
         return u''.join(res)
     
     def describe_signature(self, signode, mode, env):
-        _verify_description_mod(mode)
+        _verify_description_mode(mode)
         if self.visibility != 'private':
             signode += addnodes.desc_annotation(self.visibility, self.visibility)
             signode += nodes.Text(' ')
@@ -793,7 +793,7 @@ class ASTClass(ASTBase):
         return u''.join(res)
     
     def describe_signature(self, signode, mode, env):
-        _verify_description_mod(mode)
+        _verify_description_mode(mode)
         self.name.describe_signature(signode, mode, env)
         if len(self.bases) > 0:
             signode += nodes.Text(' : ')
@@ -882,7 +882,7 @@ class DefinitionParser(object):
             self.fail('expected end of definition, got %r' % 
                       self.definition[self.pos:])
             
-    def _parse_operator(self, context):
+    def _parse_operator(self):
         self.skip_ws()
         # adapted from the old code
         # thank god, a regular operator definition
@@ -890,25 +890,23 @@ class DefinitionParser(object):
             return ASTOperatorBuildIn(self.matched_text)
         
         # new/delete operator?
-        if False:
-            for allocop in 'new', 'delete':
-                if not self.skip_word(allocop):
-                    continue
+        for op in 'new', 'delete':
+            if not self.skip_word(op):
+                continue
+            self.skip_ws()
+            if self.skip_string('['):
                 self.skip_ws()
-                if self.skip_string('['):
-                    self.skip_ws()
-                    if not self.skip_string(']'):
-                        self.fail('expected "]" for ' + allocop)
-                    allocop += '[]'
-                return NameDefExpr('operator ' + allocop)
+                if not self.skip_string(']'):
+                    self.fail('Expected "]" after  "operator ' + op + '["')
+                op += '[]'
+            return ASTOperatorBuildIn(' ' + op)
         
         # oh well, looks like a cast operator definition.
         # In that case, eat another type.
-        type = self._parse_type('abstractDecl')
+        type = self._parse_type()
         return ASTOperatorType(type)
         
-    def _parse_nested_name(self, context):
-        _verify_parsing_context(context)
+    def _parse_nested_name(self):
         names = []
         
         self.skip_ws()
@@ -920,7 +918,7 @@ class DefinitionParser(object):
                 self.fail("expected identifier")
             identifier = self.matched_text
             if identifier == 'operator':
-                op = self._parse_operator(context)
+                op = self._parse_operator()
                 names.append(op)
             else:
                 templateArgs = None
@@ -930,7 +928,7 @@ class DefinitionParser(object):
                     while 1:
                         pos = self.pos                    
                         try:
-                            type = self._parse_type('abstractDecl')
+                            type = self._parse_type(allowParams=True)
                             templateArgs.append(type)
                         except DefinitionError:
                             self.pos = pos
@@ -960,9 +958,7 @@ class DefinitionParser(object):
             if not self.skip_string('::'): break
         return ASTNestedName(names)
         
-    def _parse_trailing_type_spec(self, context):
-        _verify_parsing_context(context)
-        
+    def _parse_trailing_type_spec(self):        
         # fundemental types
         self.skip_ws()
         for t in self._simple_fundemental_types:
@@ -994,15 +990,13 @@ class DefinitionParser(object):
                 prefix = k
                 break
         
-        nestedName = self._parse_nested_name(context)
+        nestedName = self._parse_nested_name()
         return ASTTrailingTypeSpecName(prefix, nestedName)
     
-    def _parse_parameters_and_qualifiers(self, context):
-        _verify_parsing_context(context)
-        
+    def _parse_parameters_and_qualifiers(self, paramMode):
         self.skip_ws()
         if not self.skip_string('('):
-            if context == 'functionObject':
+            if paramMode == 'function':
                 self.fail('Expecting "(" in parameters_and_qualifiers.')
             else: return None
         args = []
@@ -1016,10 +1010,10 @@ class DefinitionParser(object):
                     if not self.skip_string(')'):
                         self.fail('Expected ")" after "..." in parameters_and_qualifiers.')
                     break
-                if context == 'functionObjectArgument':
-                    arg = self._parse_type_with_init(context)
+                if paramMode == 'function':
+                    arg = self._parse_type_with_init(named='maybe')
                 else:
-                    arg = self._parse_type(context)
+                    arg = self._parse_type()
                 # TODO: parse default parameters
                 args.append(ASTFunctinoParameter(arg))
                 
@@ -1027,6 +1021,9 @@ class DefinitionParser(object):
                 if self.skip_string(','): continue
                 elif self.skip_string(')'): break
                 else: self.fail('Expecting "," or ")" in parameters_and_qualifiers, got "%s".' % self.current_char)
+        
+        if paramMode != 'function':
+            return ASTParametersQualifiers(args, None, None, None, None, None, None, None)
         
         self.skip_ws()
         const = self.skip_word_and_ws('const')
@@ -1042,40 +1039,38 @@ class DefinitionParser(object):
         override = None
         final = None
         initializer = None
-        if context == 'functionObjectArgument':    
+        self.skip_ws()
+        if self.skip_string('noexcept'):
+            exceptionSpec = 'noexcept'
             self.skip_ws()
-            if self.skip_string('noexcept'):
-                exceptionSpec = 'noexcept'
-                self.skip_ws()
-                if self.skip_string('('):
-                    self.fail('Parameterised "noexcept" not implemented.')
+            if self.skip_string('('):
+                self.fail('Parameterised "noexcept" not implemented.')
                     
-            self.skip_ws()
-            override = self.skip_word_and_ws('override')
-            final = self.skip_word_and_ws('final')
-            if not override: override = self.skip_word_and_ws('override') # they can be permuted
+        self.skip_ws()
+        override = self.skip_word_and_ws('override')
+        final = self.skip_word_and_ws('final')
+        if not override: override = self.skip_word_and_ws('override') # they can be permuted
                     
+        self.skip_ws()
+        if self.skip_string('='):
             self.skip_ws()
-            if self.skip_string('='):
-                self.skip_ws()
-                valid = {'0', 'delete', 'default'}
-                for w in valid:
-                    if self.skip_word_and_ws(w):
-                        initializer = w
-                        break
-                if not initializer:
-                    self.fail('Expected "%s" in initializer-specifier.' % u'" or "'.join(valid))
+            valid = {'0', 'delete', 'default'}
+            for w in valid:
+                if self.skip_word_and_ws(w):
+                    initializer = w
+                    break
+            if not initializer:
+                self.fail('Expected "%s" in initializer-specifier.' % u'" or "'.join(valid))
         
         return ASTParametersQualifiers(args, volatile, const, refQual, exceptionSpec, override, final, initializer)
         
-    def _parse_decl_specs(self, context):
+    def _parse_decl_specs(self, outer, typed=True):
         """
         visibility storage-class-specifier function-specifier "constexpr" "volatile" "const" trailing-type-specifier
         storage-class-specifier -> "static" (only for member_object and function_object)
         function-specifier -> "inline" | "virtual" | "explicit" (only for function_object)
         "constexpr" (only for member_object and function_object)
         """
-        _verify_parsing_context(context)
         visibility = None
         storage = None
         inline = None
@@ -1085,30 +1080,28 @@ class DefinitionParser(object):
         volatile = None
         const = None
         
-        # visibility
-        if context in {'typeObject', 'memberObject', 'functionObject'}:
+        if outer:
             self.skip_ws()
-            visibility = 'public'
             if self.match(_visibility_re):
                 visibility = self.matched_text
         
         while 1: # accept any permutation of a subset of some decl-specs
             self.skip_ws()
             if not storage:
-                if context in {'memberObject', 'functionObject'}:
+                if outer in {'member', 'function'}:
                     if self.skip_word('static'):
                         storage = 'static'
                         continue
-                if context == 'memberObject':
+                if outer == 'member':
                     if self.skip_word('mutable'):
                         storage = 'mutable'
                         continue
-                if context == 'functionObject': # TODO: maybe in more contexts, missing test cases
+                if outer == 'fuction': # TODO: maybe in more contexts, missing test cases
                     if self.skip_word('register'):
                         storage = 'register'
                         continue
             
-            if context == 'functionObject':
+            if outer == 'function':
                 # function-specifiers
                 if not inline:
                     inline = self.skip_word('inline')
@@ -1120,25 +1113,28 @@ class DefinitionParser(object):
                     explicit = self.skip_word('explicit')
                     if explicit: continue
                 
-            if not constexpr and context in {'memberObject', 'functionObject'}:
+            if not constexpr and outer in {'member', 'function'}:
                 constexpr = self.skip_word("constexpr")
                 if constexpr: continue
-            if not volatile:
+            if not volatile and typed:
                 volatile = self.skip_word('volatile')
                 if volatile: continue
-            if not const:
+            if not const and typed:
                 const = self.skip_word('const')
                 if const: continue
             break
         
-        trailing = self._parse_trailing_type_spec(context)
-        return ASTDeclSpecs(context, visibility, storage, inline, virtual, explicit, constexpr, volatile, const, trailing)
+        if typed: trailing = self._parse_trailing_type_spec()
+        else: trailing = None
+        return ASTDeclSpecs(outer, visibility, storage, inline, virtual, explicit, constexpr, volatile, const, trailing)
     
-    def _parse_declerator(self, context):
-        _verify_parsing_context(context)
-        
+    def _parse_declerator(self, named, paramMode=None, typed=True):
+        if paramMode:
+            if not paramMode in {'type', 'function'}:
+                raise Exception("Internal error, unknown paramMode '%s'." % paramMode)
         ptrOps = []
         while 1:
+            if not typed: break
             self.skip_ws()
             if self.skip_string('*'):
                 op = '*'
@@ -1152,27 +1148,20 @@ class DefinitionParser(object):
                 break
             else: break
         
-        if context == 'abstractDecl':
-            declId = None
-        elif context in {'functionObjectArgument', 'functionObject', 'typeObject'}:
-            # Function arguments don't need to have a name.
-            # Some functions (constructors/destructors) don't ahve return type,
-            # so the name has been parsed in the declSpecs.
-            # Also conversion operators (e.g., "A::operator std::string()" will have no declId at this point
-            # For types we want to allow the plain declaration that there is a type, i.e., "MyContainer::const_iterator"
-            pos = self.pos
+        if named == 'maybe':
             try:
-                declId = self._parse_nested_name(context)
+                declId = self._parse_nested_name()
             except DefinitionError:
-                self.pos = pos
                 declId = None
+        elif named:
+            declId = self._parse_nested_name()
         else:
-            declId = self._parse_nested_name(context)
+            declId = None
         
         suffixOpts = []
         while 1:
             self.skip_ws()
-            if self.skip_string('['):
+            if typed and self.skip_string('['):
                 startPos = self.pos - 1
                 openCount = 1
                 while not self.eof:
@@ -1187,25 +1176,22 @@ class DefinitionParser(object):
                 self.pos += 1
                 suffixOpts.append(ASTArray(self.definition[startPos+1:self.pos-1].strip()))
                 continue
-            if context == 'functionObject':
-                paramQual = self._parse_parameters_and_qualifiers('functionObjectArgument')
-            else:
-                paramQual = self._parse_parameters_and_qualifiers(context)
-            if paramQual: suffixOpts.append(paramQual)
+            if paramMode:
+                paramQual = self._parse_parameters_and_qualifiers(paramMode)
+                if paramQual: suffixOpts.append(paramQual)
             break
         
         return ASTDeclerator(ptrOps, declId, suffixOpts)
     
-    def _parse_initializer(self, context):
-        _verify_parsing_context(context)
+    def _parse_initializer(self, outer=None):
         self.skip_ws()
         # TODO: support paren and brace initialization for memberObject
         if not self.skip_string('='): return None
         else:
-            if context == 'memberObject':
+            if outer == 'member':
                 value = self.read_rest().strip()
                 return ASTInitializer(value)
-            elif context == 'functionObjectArgument':
+            elif outer == None: # function parameter
                 symbols = []
                 startPos = self.pos
                 self.skip_ws()
@@ -1224,22 +1210,57 @@ class DefinitionParser(object):
                 value = self.definition[startPos:self.pos].strip()
                 return ASTInitializer(value)
             else:
-                self.fail("Initializer for context '%s' not implemented." % context)
+                self.fail("Internal error, initializer for outer '%s' not implemented." % outer)
     
-    def _parse_type(self, context):
-        _verify_parsing_context(context)
-        declSpecs = self._parse_decl_specs(context)
-        decl = self._parse_declerator(context)
+    def _parse_type(self, outer=None, named=False, allowParams=False):
+        """
+            named=False|'maybe'|True: 'maybe' is e.g., for function objects which doesn't need to name the arguments
+        """
+        if outer: # always named
+            if not outer in {'type', 'member', 'function'}:
+                raise Exception('Internal error, unknown outer "%s".' % outer)
+            assert not named
+        
+        if outer in {'type', 'function'}:
+            # We allow type objects to just be a name.
+            # Some functions don't have normal return types: constructors, destrutors, cast operators
+            startPos = self.pos
+            # first try without the type
+            try:
+                declSpecs = self._parse_decl_specs(outer=outer, typed=False)
+                decl = self._parse_declerator(named=True, paramMode=outer, typed=False)
+                self.assert_end()
+            except DefinitionError as exUntyped:
+                self.pos = startPos
+                try:
+                    declSpecs = self._parse_decl_specs(outer=outer)
+                    decl = self._parse_declerator(named=True, paramMode=outer)
+                except DefinitionError as exTyped:
+                    if outer == 'type':
+                        raise DefinitionError('Type must be either just a name or a typedef-like declaration.\nJust a name error: %s\nTypedef-like expression error: %s' 
+                                          % (exUntyped.description, exTyped.description))
+                    else: # do it again to get the proper traceback (how do you relieable save a traceback when an exception is constructed?)
+                        self.pos = startPos
+                        declSpecs = self._parse_decl_specs(outer=outer)
+                        decl = self._parse_declerator(named=True, paramMode=outer)
+        else:
+            if outer:
+                named = True
+                allowParams = True
+            if allowParams: paramMode = 'type'
+            else: paramMode = None
+            declSpecs = self._parse_decl_specs(outer=outer)
+            decl = self._parse_declerator(named=named, paramMode=paramMode)
         return ASTType(declSpecs, decl)
     
-    def _parse_type_with_init(self, context):
-        _verify_parsing_context(context)
-        type = self._parse_type(context)
-        init = self._parse_initializer(context)
+    def _parse_type_with_init(self, outer=None, named=False):
+        if outer: assert outer in {'type', 'member', 'function'}
+        type = self._parse_type(outer=outer, named=named)
+        init = self._parse_initializer(outer=outer)
         return ASTTypeWithInit(type, init)
     
-    def _parse_class(self, context):
-        name = self._parse_nested_name(context)
+    def _parse_class(self):
+        name = self._parse_nested_name()
         bases = []
         self.skip_ws()
         if self.skip_string(':'):
@@ -1248,7 +1269,7 @@ class DefinitionParser(object):
                 visibility = 'private'
                 if self.match(_visibility_re):
                     visibility = self.matched_text
-                baseName = self._parse_nested_name('baseClass')
+                baseName = self._parse_nested_name()
                 bases.append(ASTBaseClass(baseName, visibility))
                 self.skip_ws()
                 if self.skip_string(','): continue
@@ -1256,32 +1277,32 @@ class DefinitionParser(object):
         return ASTClass(name, bases)
     
     def parse_type_object(self):
-        res = self._parse_type('typeObject')
+        res = self._parse_type(outer='type')
         res.objectType = 'type'
         return res
     
     def parse_member_object(self):
-        res = self._parse_type_with_init('memberObject')
+        res = self._parse_type_with_init(outer='member')
         res.objectType = 'member'
         return res
     
     def parse_function_object(self):
-        res = self._parse_type('functionObject')
+        res = self._parse_type(outer='function')
         res.objectType = 'function'
         return res
     
     def parse_class_object(self):
-        res = self._parse_class('classObject')
+        res = self._parse_class()
         res.objectType = 'class'
         return res
     
     def parse_namespace_object(self):
-        res = self._parse_nested_name('namespaceObject')
+        res = self._parse_nested_name()
         res.objectType = 'namespace'
         return res
     
     def parse_xref_object(self):
-        res = self._parse_nested_name('xrefObject')
+        res = self._parse_nested_name()
         res.objectType = 'xref'
         return res
 
