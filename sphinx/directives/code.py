@@ -56,6 +56,7 @@ class CodeBlock(Directive):
     final_argument_whitespace = False
     option_spec = {
         'linenos': directives.flag,
+        'dedent': int,
         'lineno-start': int,
         'emphasize-lines': directives.unchanged_required,
         'filename': directives.unchanged_required,
@@ -74,6 +75,15 @@ class CodeBlock(Directive):
                 return [document.reporter.warning(str(err), line=self.lineno)]
         else:
             hl_lines = None
+        
+        if 'dedent' in self.options:
+            linesArray = code.split('\n')
+            for i in range(0, len(linesArray)):
+                if len(linesArray[i]) <= self.options['dedent']:
+                    linesArray[i] = linesArray[i][len(linesArray[i]) - 1:]
+                else:
+                    linesArray[i] = linesArray[i][self.options['dedent']:]
+            code = '\n'.join(linesArray)
 
         literal = nodes.literal_block(code, code)
         literal['language'] = self.arguments[0]
