@@ -46,7 +46,7 @@ if sys.version_info < (2, 6) or (3, 0) <= sys.version_info < (3, 3):
     sys.exit(1)
 
 requires = [
-    'six', 'Jinja2>=2.3', 'Pygments>=1.2', 'docutils>=0.10', 'snowballstemmer>=1.1'
+    'six>=1.4', 'Jinja2>=2.3', 'Pygments>=1.2', 'docutils>=0.10', 'snowballstemmer>=1.1'
 ]
 
 if sys.platform == 'win32':
