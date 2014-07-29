@@ -493,14 +493,14 @@ class BuildEnvironment:
 
     def warn_and_replace(self, error):
         """Custom decoding error handler that warns and replaces."""
-        linestart = error.object.rfind('\n', 0, error.start)
-        lineend = error.object.find('\n', error.start)
+        linestart = error.object.rfind(b'\n', 0, error.start)
+        lineend = error.object.find(b'\n', error.start)
         if lineend == -1: lineend = len(error.object)
-        lineno = error.object.count('\n', 0, error.start) + 1
+        lineno = error.object.count(b'\n', 0, error.start) + 1
         self.warn(self.docname, 'undecodable source characters, '
                   'replacing with "?": %r' %
-                  (error.object[linestart+1:error.start] + '>>>' +
-                   error.object[error.start:error.end] + '<<<' +
+                  (error.object[linestart+1:error.start] + b'>>>' +
+                   error.object[error.start:error.end] + b'<<<' +
                    error.object[error.end:lineend]), lineno)
         return (u'?', error.end)
 
@@ -590,12 +590,13 @@ class BuildEnvironment:
             def __init__(self_, *args, **kwds):
                 # don't call sys.exit() on IOErrors
                 kwds['handle_io_errors'] = False
+                kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
                 FileInput.__init__(self_, *args, **kwds)
 
             def decode(self_, data):
-                if isinstance(data, text_type):
+                if isinstance(data, text_type):  # py3: `data` already decoded.
                     return data
-                return data.decode(self_.encoding, 'sphinx')
+                return data.decode(self_.encoding, 'sphinx')  # py2: decoding
 
             def read(self_):
                 data = FileInput.read(self_)
