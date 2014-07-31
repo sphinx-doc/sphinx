@@ -43,3 +43,4 @@ References
 ==========
 
 .. [Ref1] Reference target.
+.. [Ref_1] Reference target 2.
