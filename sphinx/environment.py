@@ -469,7 +469,14 @@ class BuildEnvironment:
                 self.clear_doc(docname)
 
             # read all new and changed files
-            for docname in sorted(added | changed):
+            docnames = sorted(added | changed)
+            if app:
+                new_docnames = []
+                for mod_docnames in app.emit('env-read-docs', self, docnames):
+                    new_docnames.extend(mod_docnames)
+                if new_docnames:
+                    docnames = new_docnames
+            for docname in docnames:
                 yield docname
                 self.read_doc(docname, app=app)
 
