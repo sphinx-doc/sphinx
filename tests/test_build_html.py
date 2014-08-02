@@ -21,7 +21,7 @@ except ImportError:
     pygments = None
 
 from sphinx import __version__
-from util import test_root, remove_unicode_literals, gen_with_app, with_app
+from util import test_root, test_roots, remove_unicode_literals, gen_with_app, with_app
 from etree13 import ElementTree as ET
 
 
@@ -296,7 +296,7 @@ class NslessParser(ET.XMLParser):
             return name
 
 
-def check_xpath(etree, fname, path, check):
+def check_xpath(etree, fname, path, check, be_found=True):
     nodes = list(etree.findall(path))
     assert nodes != [], ('did not find any node matching xpath '
                          '%r in file %s' % (path, fname))
@@ -308,7 +308,7 @@ def check_xpath(etree, fname, path, check):
     else:
         rex = re.compile(check)
         for node in nodes:
-            if node.text and rex.search(node.text):
+            if node.text and (bool(rex.search(node.text)) ^ (not be_found)):
                 break
         else:
             assert False, ('%r not found in any node matching '
@@ -371,3 +371,44 @@ def test_html_with_globaltoc_and_hidden_toctree(app):
             '\n   :hidden:'
             '\n')
     app.builder.build_all()
+
+
+@gen_with_app(buildername='html', srcdir=(test_roots / 'test-tocdepth'))
+def test_tocdepth(app):
+    # issue #1251
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
+            (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
+            (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
+            (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
+            ],
+        'foo.html': [
+            (".//h1", '1. Foo', True),
+            (".//h2", '1.1. Foo A', True),
+            (".//h3", '1.1.1. Foo A1', True),
+            (".//h2", '1.2. Foo B', True),
+            (".//h3", '1.2.1. Foo B1', True),
+            ],
+        'bar.html': [
+            (".//h1", '2. Bar', True),
+            (".//h2", '2.1. Bar A', True),
+            (".//h3", '2.1.1. Bar A1', True),
+            (".//h2", '2.2. Bar B', True),
+            (".//h3", '2.2.1. Bar B1', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        fp = open(os.path.join(app.outdir, fname), 'rb')
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found

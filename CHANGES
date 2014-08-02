@@ -154,6 +154,8 @@ Bugs fixed
   attributes. Thanks to David Ham.
 * PR#159: Add coverage targets to quickstart generated Makefile and make.bat.
   Thanks to Matthias Troffaes.
+* #1251: When specifying toctree :numbered: option and :tocdepth: metadata,
+  sub section number that is larger depth than `:tocdepth:` is shrinked.
 
 Documentation
 -------------

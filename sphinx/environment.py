@@ -976,7 +976,6 @@ class BuildEnvironment:
     def build_toc_from(self, docname, document):
         """Build a TOC from the doctree and store it in the inventory."""
         numentries = [0] # nonlocal again...
-        maxdepth = self.metadata[docname].get('tocdepth', 0)
 
         def traverse_in_section(node, cls):
             """Like traverse(), but stay within the same section."""
@@ -1030,8 +1029,7 @@ class BuildEnvironment:
                 para = addnodes.compact_paragraph('', '', reference)
                 item = nodes.list_item('', para)
                 sub_item = build_toc(sectionnode, depth + 1)
-                if maxdepth == 0 or depth < maxdepth:
-                    item += sub_item
+                item += sub_item
                 entries.append(item)
             if entries:
                 return nodes.bullet_list('', *entries)
@@ -1247,6 +1245,8 @@ class BuildEnvironment:
                             continue
                         refdoc = ref
                         toc = self.tocs[ref].deepcopy()
+                        maxdepth = self.metadata[ref].get('tocdepth', 0)
+                        _toctree_prune(toc, 2, maxdepth)
                         self.process_only_nodes(toc, builder, ref)
                         if title and toc.children and len(toc.children) == 1:
                             child = toc.children[0]
