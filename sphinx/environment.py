@@ -850,6 +850,14 @@ class BuildEnvironment:
             else:
                 name, body = node
                 md[name.astext()] = body.astext()
+        for name, value in md.items():
+            if name in ('tocdepth',):
+                try:
+                    value = int(value)
+                except ValueError:
+                    value = 0
+                md[name] = value
+
         del doctree[0]
 
     def process_refonly_bullet_lists(self, docname, doctree):
@@ -968,11 +976,7 @@ class BuildEnvironment:
     def build_toc_from(self, docname, document):
         """Build a TOC from the doctree and store it in the inventory."""
         numentries = [0] # nonlocal again...
-
-        try:
-            maxdepth = int(self.metadata[docname].get('tocdepth', 0))
-        except ValueError:
-            maxdepth = 0
+        maxdepth = self.metadata[docname].get('tocdepth', 0)
 
         def traverse_in_section(node, cls):
             """Like traverse(), but stay within the same section."""
