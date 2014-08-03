@@ -20,7 +20,8 @@ except ImportError:
 
 from docutils import nodes
 
-from sphinx.util.osutil import SEP, relative_uri
+from sphinx.util import i18n, path_stabilize
+from sphinx.util.osutil import SEP, relative_uri, find_catalog
 from sphinx.util.console import bold, purple, darkgreen, term_width_line
 
 # side effect: registers roles and directives
@@ -169,6 +170,46 @@ class Builder(object):
                 # non-existing URI; let it alone
                 continue
             self.images[candidate] = self.env.images[candidate][1]
+
+    # compile po methods
+
+    def compile_catalogs(self, catalogs, message):
+        if not self.config.gettext_auto_build:
+            return
+        self.info(bold('building [mo]: '), nonl=1)
+        self.info(message)
+        for catalog in self.status_iterator(
+                catalogs, 'writing output... ', darkgreen, len(catalogs),
+                lambda c: c.mo_path):
+            catalog.write_mo(self.config.language)
+
+    def compile_all_catalogs(self):
+        catalogs = i18n.get_catalogs(
+            [path.join(self.srcdir, x) for x in self.config.locale_dirs],
+            self.config.language, True)
+        message = 'all of %d po files' % len(catalogs)
+        self.compile_catalogs(catalogs, message)
+
+    def compile_specific_catalogs(self, specified_files):
+        def to_domain(fpath):
+            docname, _ = path.splitext(path_stabilize(fpath))
+            dom = find_catalog(docname, self.config.gettext_compact)
+            return dom
+
+        specified_domains = set(map(to_domain, specified_files))
+        catalogs = i18n.get_catalogs(
+            [path.join(self.srcdir, x) for x in self.config.locale_dirs],
+            self.config.language, True)
+        catalogs = [f for f in catalogs if f.domain in specified_domains]
+        message = 'targets for %d po files that are specified' % len(catalogs)
+        self.compile_catalogs(catalogs, message)
+
+    def compile_update_catalogs(self):
+        catalogs = i18n.get_catalogs(
+            [path.join(self.srcdir, x) for x in self.config.locale_dirs],
+            self.config.language)
+        message = 'targets for %d po files that are out of date' % len(catalogs)
+        self.compile_catalogs(catalogs, message)
 
     # build methods
 

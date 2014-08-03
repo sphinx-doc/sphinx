@@ -99,6 +99,9 @@ class I18nBuilder(Builder):
     def prepare_writing(self, docnames):
         return
 
+    def compile_catalogs(self, catalogs, message):
+        return
+
     def write_doc(self, docname, doctree):
         catalog = self.catalogs[find_catalog(docname,
                                              self.config.gettext_compact)]

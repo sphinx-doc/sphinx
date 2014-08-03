@@ -40,6 +40,9 @@ Features added
 * #1434: Provide non-minified JS files for jquery.js and underscore.js to
   clarify the source of the minified files.
 * PR#252, #1291: Windows color console support. Thanks to meu31.
+* Automatically compile ``*.mo`` files from ``*.po`` files when
+  :confval:`gettext_auto_build` is True (default) and ``*.po`` is newer than
+  ``*.mo`` file.
 
 Bugs fixed
 ----------

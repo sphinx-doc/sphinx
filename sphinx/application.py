@@ -216,10 +216,13 @@ class Sphinx(object):
     def build(self, force_all=False, filenames=None):
         try:
             if force_all:
+                self.builder.compile_all_catalogs()
                 self.builder.build_all()
             elif filenames:
+                self.builder.compile_specific_catalogs(filenames)
                 self.builder.build_specific(filenames)
             else:
+                self.builder.compile_update_catalogs()
                 self.builder.build_update()
         except Exception as err:
             # delete the saved env to force a fresh build next time

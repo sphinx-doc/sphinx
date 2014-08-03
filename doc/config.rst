@@ -417,6 +417,14 @@ documentation on :ref:`intl` for details.
 
    .. versionadded:: 1.3
 
+.. confval:: gettext_auto_build
+
+   If true, Sphinx builds mo file for each translation catalog files.
+
+   The default is ``True``.
+
+   .. versionadded:: 1.3
+
 
 .. _html-options:
 
