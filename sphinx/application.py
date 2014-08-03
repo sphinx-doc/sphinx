@@ -39,11 +39,6 @@ from sphinx.util import pycompat  # imported for side-effects
 from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT
 from sphinx.util.console import bold, lightgray, darkgray
-from sphinx.writers.html import HTMLTranslator
-from sphinx.writers.latex import LaTeXTranslator
-from sphinx.writers.text import TextTranslator
-from sphinx.writers.manpage import ManualPageTranslator
-from sphinx.writers.texinfo import TexinfoTranslator
 
 if hasattr(sys, 'intern'):
     intern = sys.intern
@@ -62,15 +57,6 @@ events = {
     'html-page-context': 'pagename, context, doctree or None',
     'build-finished': 'exception',
 }
-
-TRANSLATORS = {
-    'html': HTMLTranslator,
-    'latex': LaTeXTranslator,
-    'text:': TextTranslator,
-    'man': ManualPageTranslator,
-    'texinfo': TexinfoTranslator
-}
-
 
 CONFIG_FILENAME = 'conf.py'
 ENV_PICKLE_FILENAME = 'environment.pickle'
@@ -113,6 +99,8 @@ class Sphinx(object):
         self.warningiserror = warningiserror
 
         self._events = events.copy()
+        self._translators = dict.fromkeys([
+            'html', 'latex', 'text', 'man', 'texinfo'])
 
         # say hello to the world
         self.info(bold('Running Sphinx v%s' % sphinx.__version__))
@@ -464,10 +452,10 @@ class Sphinx(object):
         self._events[name] = ''
 
     def add_translator(self, name, translator_class):
-        if name in TRANSLATORS:
+        if name in self._translators:
             raise ExtensionError('A Translator by the name '
                                  '%s is already registered.' % name)
-        TRANSLATORS[name] = translator_class
+        self._translators[name] = translator_class
 
     def add_node(self, node, **kwds):
         self.debug('[app] adding node: %r', (node, kwds))
@@ -478,9 +466,23 @@ class Sphinx(object):
             except ValueError:
                 raise ExtensionError('Value for key %r must be a '
                                      '(visit, depart) function tuple' % key)
-            translator = TRANSLATORS.get(key)
-            # ignore invalid keys for compatibility
-            if not translator:
+            translator = self._translators.get(key)
+            if translator is not None:
+                pass
+            elif key == 'html':
+                from sphinx.writers.html import HTMLTranslator as translator
+            elif key == 'latex':
+                from sphinx.writers.latex import LaTeXTranslator as translator
+            elif key == 'text':
+                from sphinx.writers.text import TextTranslator as translator
+            elif key == 'man':
+                from sphinx.writers.manpage import ManualPageTranslator \
+                    as translator
+            elif key == 'texinfo':
+                from sphinx.writers.texinfo import TexinfoTranslator \
+                    as translator
+            else:
+                # ignore invalid keys for compatibility
                 continue
             setattr(translator, 'visit_'+node.__name__, visit)
             if depart:

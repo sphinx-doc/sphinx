@@ -90,6 +90,8 @@ package.
    clashes with an existing translator an
    :exc:`sphinx.errors.ExtensionError` will be raised.
 
+   .. versionadded:: 1.3
+
 .. method:: Sphinx.add_node(node, **kwds)
 
    Register a Docutils node class.  This is necessary for Docutils internals.

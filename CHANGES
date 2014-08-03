@@ -42,6 +42,7 @@ Features added
 * PR#252, #1291: Windows color console support. Thanks to meu31.
 * PR#255: When generating latex references, also insert latex target/anchor
   for the ids defined on the node. Thanks to Olivier Heurtier.
+* PR#229: Allow registration of other translators. Thanks to Russell Sim.
 
 Bugs fixed
 ----------
