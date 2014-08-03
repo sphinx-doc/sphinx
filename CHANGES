@@ -40,6 +40,8 @@ Features added
 * #1434: Provide non-minified JS files for jquery.js and underscore.js to
   clarify the source of the minified files.
 * PR#252, #1291: Windows color console support. Thanks to meu31.
+* PR#255: When generating latex references, also insert latex target/anchor
+  for the ids defined on the node. Thanks to Olivier Heurtier.
 
 Bugs fixed
 ----------
