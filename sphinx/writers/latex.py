@@ -382,7 +382,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 target = self.hypertarget(bi[2] + ':' + bi[3],
                                           withdoc=False)
                 self.body.append(u'\\bibitem[%s]{%s}{%s %s}\n' %
-                    (bi[0], self.idescape(bi[0]), target, bi[1]))
+                    (self.encode(bi[0]), self.idescape(bi[0]), target, bi[1]))
             self.body.append(u'\\end{thebibliography}\n')
             self.bibitems = []
 
