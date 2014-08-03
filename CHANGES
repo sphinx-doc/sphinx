@@ -158,6 +158,8 @@ Bugs fixed
   Thanks to Matthias Troffaes.
 * #1251: When specifying toctree :numbered: option and :tocdepth: metadata,
   sub section number that is larger depth than `:tocdepth:` is shrinked.
+* PR#260: Encode underscore in citation labels for latex export. Thanks to
+  Lennart Fricke.
 
 Documentation
 -------------
