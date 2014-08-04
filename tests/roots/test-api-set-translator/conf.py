@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-
-import os
-import sys
+## set this by test
+# import os
+# import sys
+# sys.path.insert(0, os.path.abspath('.'))
 
 from sphinx.writers.html import HTMLTranslator
 from sphinx.writers.latex import LaTeXTranslator
@@ -10,9 +11,6 @@ from sphinx.writers.texinfo import TexinfoTranslator
 from sphinx.writers.text import TextTranslator
 from sphinx.writers.websupport import WebSupportTranslator
 from docutils.writers.docutils_xml import XMLTranslator
-
-
-sys.path.insert(0, os.path.abspath('.'))
 
 
 project = 'test'
