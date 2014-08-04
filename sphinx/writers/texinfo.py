@@ -120,9 +120,12 @@ class TexinfoWriter(writers.Writer):
     def __init__(self, builder):
         writers.Writer.__init__(self)
         self.builder = builder
+        self.translator_class = (
+            self.builder.translator_class or TexinfoTranslator)
 
     def translate(self):
-        self.visitor = visitor = TexinfoTranslator(self.document, self.builder)
+        self.visitor = visitor = self.translator_class(
+            self.document, self.builder)
         self.document.walkabout(visitor)
         visitor.finish()
         for attr in self.visitor_attributes:

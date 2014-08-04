@@ -65,6 +65,9 @@ class Builder(object):
         # images that need to be copied over (source -> dest)
         self.images = {}
 
+        # load default translator class
+        self.translator_class = app._translators.get(self.name)
+
         self.init()
 
     # helper methods

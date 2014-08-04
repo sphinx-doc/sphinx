@@ -18,6 +18,8 @@ class XMLWriter(BaseXMLWriter):
     def __init__(self, builder):
         BaseXMLWriter.__init__(self)
         self.builder = builder
+        if self.builder.translator_class:
+            self.translator_class = self.builder.translator_class
 
     def translate(self, *args, **kwargs):
         self.document.settings.newlines = \

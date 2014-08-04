@@ -89,9 +89,11 @@ class LaTeXWriter(writers.Writer):
     def __init__(self, builder):
         writers.Writer.__init__(self)
         self.builder = builder
+        self.translator_class = (
+            self.builder.translator_class or LaTeXTranslator)
 
     def translate(self):
-        visitor = LaTeXTranslator(self.document, self.builder)
+        visitor = self.translator_class(self.document, self.builder)
         self.document.walkabout(visitor)
         self.output = visitor.astext()
 

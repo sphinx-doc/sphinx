@@ -99,8 +99,7 @@ class Sphinx(object):
         self.warningiserror = warningiserror
 
         self._events = events.copy()
-        self._translators = dict.fromkeys([
-            'html', 'latex', 'text', 'man', 'texinfo'])
+        self._translators = {}
 
         # say hello to the world
         self.info(bold('Running Sphinx v%s' % sphinx.__version__))
@@ -451,10 +450,8 @@ class Sphinx(object):
             raise ExtensionError('Event %r already present' % name)
         self._events[name] = ''
 
-    def add_translator(self, name, translator_class):
-        if name in self._translators:
-            raise ExtensionError('A Translator by the name '
-                                 '%s is already registered.' % name)
+    def set_translator(self, name, translator_class):
+        self.info(bold('A Translator for the %s builder is changed.' % name))
         self._translators[name] = translator_class
 
     def add_node(self, node, **kwds):

@@ -26,9 +26,11 @@ class ManualPageWriter(Writer):
     def __init__(self, builder):
         Writer.__init__(self)
         self.builder = builder
+        self.translator_class = (
+            self.builder.translator_class or ManualPageTranslator)
 
     def translate(self):
-        visitor = ManualPageTranslator(self.builder, self.document)
+        visitor = self.translator_class(self.builder, self.document)
         self.visitor = visitor
         self.document.walkabout(visitor)
         self.output = visitor.astext()
