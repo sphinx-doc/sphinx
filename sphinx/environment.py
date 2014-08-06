@@ -493,14 +493,14 @@ class BuildEnvironment:
 
     def warn_and_replace(self, error):
         """Custom decoding error handler that warns and replaces."""
-        linestart = error.object.rfind('\n', 0, error.start)
-        lineend = error.object.find('\n', error.start)
+        linestart = error.object.rfind(b'\n', 0, error.start)
+        lineend = error.object.find(b'\n', error.start)
         if lineend == -1: lineend = len(error.object)
-        lineno = error.object.count('\n', 0, error.start) + 1
+        lineno = error.object.count(b'\n', 0, error.start) + 1
         self.warn(self.docname, 'undecodable source characters, '
                   'replacing with "?": %r' %
-                  (error.object[linestart+1:error.start] + '>>>' +
-                   error.object[error.start:error.end] + '<<<' +
+                  (error.object[linestart+1:error.start] + b'>>>' +
+                   error.object[error.start:error.end] + b'<<<' +
                    error.object[error.end:lineend]), lineno)
         return (u'?', error.end)
 
@@ -590,12 +590,13 @@ class BuildEnvironment:
             def __init__(self_, *args, **kwds):
                 # don't call sys.exit() on IOErrors
                 kwds['handle_io_errors'] = False
+                kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
                 FileInput.__init__(self_, *args, **kwds)
 
             def decode(self_, data):
-                if isinstance(data, text_type):
+                if isinstance(data, text_type):  # py3: `data` already decoded.
                     return data
-                return data.decode(self_.encoding, 'sphinx')
+                return data.decode(self_.encoding, 'sphinx')  # py2: decoding
 
             def read(self_):
                 data = FileInput.read(self_)
@@ -849,6 +850,14 @@ class BuildEnvironment:
             else:
                 name, body = node
                 md[name.astext()] = body.astext()
+        for name, value in md.items():
+            if name in ('tocdepth',):
+                try:
+                    value = int(value)
+                except ValueError:
+                    value = 0
+                md[name] = value
+
         del doctree[0]
 
     def process_refonly_bullet_lists(self, docname, doctree):
@@ -968,11 +977,6 @@ class BuildEnvironment:
         """Build a TOC from the doctree and store it in the inventory."""
         numentries = [0] # nonlocal again...
 
-        try:
-            maxdepth = int(self.metadata[docname].get('tocdepth', 0))
-        except ValueError:
-            maxdepth = 0
-
         def traverse_in_section(node, cls):
             """Like traverse(), but stay within the same section."""
             result = []
@@ -1025,8 +1029,7 @@ class BuildEnvironment:
                 para = addnodes.compact_paragraph('', '', reference)
                 item = nodes.list_item('', para)
                 sub_item = build_toc(sectionnode, depth + 1)
-                if maxdepth == 0 or depth < maxdepth:
-                    item += sub_item
+                item += sub_item
                 entries.append(item)
             if entries:
                 return nodes.bullet_list('', *entries)
@@ -1242,6 +1245,8 @@ class BuildEnvironment:
                             continue
                         refdoc = ref
                         toc = self.tocs[ref].deepcopy()
+                        maxdepth = self.metadata[ref].get('tocdepth', 0)
+                        _toctree_prune(toc, 2, maxdepth)
                         self.process_only_nodes(toc, builder, ref)
                         if title and toc.children and len(toc.children) == 1:
                             child = toc.children[0]

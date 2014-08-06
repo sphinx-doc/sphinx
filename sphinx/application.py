@@ -99,6 +99,7 @@ class Sphinx(object):
         self.warningiserror = warningiserror
 
         self._events = events.copy()
+        self._translators = {}
 
         # say hello to the world
         self.info(bold('Running Sphinx v%s' % sphinx.__version__))
@@ -449,6 +450,10 @@ class Sphinx(object):
             raise ExtensionError('Event %r already present' % name)
         self._events[name] = ''
 
+    def set_translator(self, name, translator_class):
+        self.info(bold('A Translator for the %s builder is changed.' % name))
+        self._translators[name] = translator_class
+
     def add_node(self, node, **kwds):
         self.debug('[app] adding node: %r', (node, kwds))
         nodes._add_node_class_names([node.__name__])
@@ -458,7 +463,10 @@ class Sphinx(object):
             except ValueError:
                 raise ExtensionError('Value for key %r must be a '
                                      '(visit, depart) function tuple' % key)
-            if key == 'html':
+            translator = self._translators.get(key)
+            if translator is not None:
+                pass
+            elif key == 'html':
                 from sphinx.writers.html import HTMLTranslator as translator
             elif key == 'latex':
                 from sphinx.writers.latex import LaTeXTranslator as translator

@@ -10,7 +10,7 @@
 """
 from six import PY3
 
-from util import TestApp, remove_unicode_literals, path
+from util import TestApp, remove_unicode_literals, path, with_app
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
@@ -94,6 +94,20 @@ def test_second_update():
     assert docnames == set(['contents', 'new', 'includes', 'images'])
     assert 'autodoc' not in env.all_docs
     assert 'autodoc' not in env.found_docs
+
+
+@with_app(srcdir='(empty)')
+def test_undecodable_source_reading_emit_warnings(app):
+    # issue #1524
+    warnings[:] = []
+    app.env.set_warnfunc(lambda *args: warnings.append(args))
+    (app.srcdir / 'contents.rst').write_bytes(b'1\xbb2')
+    _, _, it = app.env.update(app.config, app.srcdir, app.doctreedir, app)
+    list(it)  # the generator does all the work
+    assert warning_emitted(
+        'contents', 'undecodable source characters, replacing with "?":'
+    )
+
 
 def test_object_inventory():
     refs = env.domaindata['py']['objects']

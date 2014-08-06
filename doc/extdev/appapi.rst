@@ -82,16 +82,31 @@ package.
 
    Register an event called *name*.  This is needed to be able to emit it.
 
+.. method:: Sphinx.set_translator(name, translator_class)
+               
+   Register or override a Docutils translator class. This is used to register
+   a custom output translator or to replace a builtin translator.
+   This allows extensions to use custom translator and define custom
+   nodes for the translator (see :meth:`add_node`).
+
+   This is a API version of :confval:`html_translator_class` for all other
+   builders. Note that if :confval:`html_translator_class` is specified and
+   this API is called for html related builders, API overriding takes
+   precedence.
+
+   .. versionadded:: 1.3
+
 .. method:: Sphinx.add_node(node, **kwds)
 
    Register a Docutils node class.  This is necessary for Docutils internals.
    It may also be used in the future to validate nodes in the parsed documents.
 
    Node visitor functions for the Sphinx HTML, LaTeX, text and manpage writers
-   can be given as keyword arguments: the keyword must be one or more of
-   ``'html'``, ``'latex'``, ``'text'``, ``'man'``, ``'texinfo'``, the value a
-   2-tuple of ``(visit, depart)`` methods.  ``depart`` can be ``None`` if the
-   ``visit`` function raises :exc:`docutils.nodes.SkipNode`.  Example:
+   can be given as keyword arguments: the keyword should be one or more of
+   ``'html'``, ``'latex'``, ``'text'``, ``'man'``, ``'texinfo'`` or any other
+   supported translators, the value a 2-tuple of ``(visit, depart)`` methods.
+   ``depart`` can be ``None`` if the ``visit`` function raises
+   :exc:`docutils.nodes.SkipNode`.  Example:
 
    .. code-block:: python
 

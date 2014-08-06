@@ -152,7 +152,9 @@ class StandaloneHTMLBuilder(Builder):
                                           self.config.trim_doctest_flags)
 
     def init_translator_class(self):
-        if self.config.html_translator_class:
+        if self.translator_class is not None:
+            pass
+        elif self.config.html_translator_class:
             self.translator_class = self.app.import_object(
                 self.config.html_translator_class,
                 'html_translator_class setting')

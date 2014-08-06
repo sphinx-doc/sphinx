@@ -32,6 +32,10 @@
     language, containing examples of all basic reStructuredText
     constructs and many advanced constructs.
 
+:nocomments:
+:orphan:
+:tocdepth: 1
+
 .. meta::
    :keywords: reStructuredText, demonstration, demo, parser
    :description lang=en: A demonstration of the reStructuredText

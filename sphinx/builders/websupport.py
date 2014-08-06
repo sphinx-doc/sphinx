@@ -46,7 +46,8 @@ class WebSupportBuilder(PickleHTMLBuilder):
         self.storage = storage
 
     def init_translator_class(self):
-        self.translator_class = WebSupportTranslator
+        if self.translator_class is None:
+            self.translator_class = WebSupportTranslator
 
     def prepare_writing(self, docnames):
         PickleHTMLBuilder.prepare_writing(self, docnames)

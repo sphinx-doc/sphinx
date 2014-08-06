@@ -89,9 +89,11 @@ class LaTeXWriter(writers.Writer):
     def __init__(self, builder):
         writers.Writer.__init__(self)
         self.builder = builder
+        self.translator_class = (
+            self.builder.translator_class or LaTeXTranslator)
 
     def translate(self):
-        visitor = LaTeXTranslator(self.document, self.builder)
+        visitor = self.translator_class(self.document, self.builder)
         self.document.walkabout(visitor)
         self.output = visitor.astext()
 
@@ -382,7 +384,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 target = self.hypertarget(bi[2] + ':' + bi[3],
                                           withdoc=False)
                 self.body.append(u'\\bibitem[%s]{%s}{%s %s}\n' %
-                    (bi[0], self.idescape(bi[0]), target, bi[1]))
+                    (self.encode(bi[0]), self.idescape(bi[0]), target, bi[1]))
             self.body.append(u'\\end{thebibliography}\n')
             self.bibitems = []
 
@@ -1166,6 +1168,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_reference(self, node):
+        for id in node.get('ids'):
+            self.body += self.hypertarget(id, anchor=True)
         uri = node.get('refuri', '')
         if not uri and node.get('refid'):
             uri = '%' + self.curfilestack[-1] + '#' + node['refid']

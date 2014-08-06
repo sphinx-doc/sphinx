@@ -61,6 +61,9 @@ def test_docinfo():
         'date': u'2006-05-21',
         'organization': u'humankind',
         'revision': u'4564',
+        'tocdepth': 1,
+        'orphan': u'',
+        'nocomments': u'',
     }
     # I like this way of comparing dicts - easier to see the error.
     for key in exampledocinfo:

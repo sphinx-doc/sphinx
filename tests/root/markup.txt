@@ -240,6 +240,7 @@ Misc stuff
 Stuff [#]_
 
 Reference lookup: [Ref1]_ (defined in another file).
+Reference lookup underscore: [Ref_1]_
 
 .. seealso:: something, something else, something more
 
