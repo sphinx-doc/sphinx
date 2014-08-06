@@ -31,11 +31,13 @@ def check(name, input, output=None):
     ast = parse(name, input)
     res = text_type(ast)
     if res != output:
-        print("Input: ", text_type(input))
-        print("Result:", res)
+        print "Input:    ", text_type(input)
+        print "Result:   ", res
+        print "Expected: ", output
         raise DefinitionError("")
-    # now check describe_signature
     ast.describe_signature([], 'lastIsName', None)
+    ast.prefixedName = ast.name # otherwise the get_id fails, it would be set in handle_signarue
+    ast.get_id()
     #print ".. %s:: %s" % (name, input)
 
 def test_type_definitions():
@@ -92,7 +94,7 @@ def test_type_definitions():
     check('function', 'MyClass::a_member_function() &&')
     check('function', 'MyClass::a_member_function() &')
     check('function', 'MyClass::a_member_function() const &')
-    check('function', 'int main(int argc, char *argv[][])')
+    check('function', 'int main(int argc, char *argv[])')
     check('function', 'MyClass &MyClass::operator++()')
     check('function', 'MyClass::pointer MyClass::operator->()')
 
