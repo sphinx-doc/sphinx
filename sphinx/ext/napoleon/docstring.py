@@ -197,12 +197,12 @@ class GoogleDocstring(UnicodeMixin):
             line = self._line_iter.peek()
         return lines
 
-    def _consume_field(self, parse_type_old=True, prefer_type=False):
+    def _consume_field(self, parse_type=True, prefer_type=False):
         line = next(self._line_iter)
 
         match = None
         _name, _type, _desc = line.strip(), '', ''
-        if parse_type_old:
+        if parse_type:
             match = _google_typed_arg_regex.match(line)
             if match:
                 _name = match.group(1)
@@ -222,11 +222,11 @@ class GoogleDocstring(UnicodeMixin):
         _desc = self.__class__(_desc, self._config).lines()
         return _name, _type, _desc
 
-    def _consume_fields(self, parse_type_old=True, prefer_type=False):
+    def _consume_fields(self, parse_type=True, prefer_type=False):
         self._consume_empty()
         fields = []
         while not self._is_section_break():
-            _name, _type, _desc = self._consume_field(parse_type_old, prefer_type)
+            _name, _type, _desc = self._consume_field(parse_type, prefer_type)
             if _name or _type or _desc:
                 fields.append((_name, _type, _desc,))
         return fields
@@ -462,7 +462,7 @@ class GoogleDocstring(UnicodeMixin):
 
     def _parse_methods_section(self, section):
         lines = []
-        for _name, _, _desc in self._consume_fields(parse_type_old=False):
+        for _name, _, _desc in self._consume_fields(parse_type=False):
             lines.append('.. method:: %s' % _name)
             if _desc:
                 lines.extend([''] + self._indent(_desc, 3))
@@ -698,9 +698,9 @@ class NumpyDocstring(GoogleDocstring):
         super(NumpyDocstring, self).__init__(docstring, config, app, what,
                                              name, obj, options)
 
-    def _consume_field(self, parse_type_old=True, prefer_type=False):
+    def _consume_field(self, parse_type=True, prefer_type=False):
         line = next(self._line_iter)
-        if parse_type_old:
+        if parse_type:
             _name, _, _type = line.partition(':')
         else:
             _name, _type = line, ''
