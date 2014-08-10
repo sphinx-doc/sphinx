@@ -130,7 +130,9 @@ class TestApp(application.Sphinx):
                  buildername='html', confoverrides=None,
                  status=None, warning=None, freshenv=None,
                  warningiserror=None, tags=None,
-                 confname='conf.py', cleanenv=False):
+                 confname='conf.py', cleanenv=False,
+                 _copy_to_temp=False,
+                 ):
 
         application.CONFIG_FILENAME = confname
 
@@ -138,12 +140,6 @@ class TestApp(application.Sphinx):
 
         if srcdir is None:
             srcdir = test_root
-        if srcdir == '(temp)':
-            tempdir = path(tempfile.mkdtemp())
-            self.cleanup_trees.append(tempdir)
-            temproot = tempdir / 'root'
-            test_root.copytree(temproot)
-            srcdir = temproot
         elif srcdir == '(empty)':
             tempdir = path(tempfile.mkdtemp())
             self.cleanup_trees.append(tempdir)
@@ -153,6 +149,14 @@ class TestApp(application.Sphinx):
             srcdir = temproot
         else:
             srcdir = path(srcdir)
+
+        if _copy_to_temp:
+            tempdir = path(tempfile.mkdtemp())
+            self.cleanup_trees.append(tempdir)
+            temproot = tempdir / srcdir.basename()
+            srcdir.copytree(temproot)
+            srcdir = temproot
+
         self.builddir = srcdir.joinpath('_build')
         if confdir is None:
             confdir = srcdir

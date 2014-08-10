@@ -23,7 +23,7 @@ warnings = []
 def setup_module():
     # Is there a better way of generating this doctree than manually iterating?
     global app, env
-    app = TestApp(srcdir='(temp)')
+    app = TestApp(_copy_to_temp=True)
     env = app.env
     msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
     for docname in it:

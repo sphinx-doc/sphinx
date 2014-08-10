@@ -36,6 +36,9 @@ class path(text_type):
         """
         return self.__class__(os.path.dirname(self))
 
+    def basename(self):
+        return os.path.basename(self)
+
     def abspath(self):
         """
         Returns the absolute path.

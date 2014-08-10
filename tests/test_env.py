@@ -20,7 +20,7 @@ warnings = []
 
 def setup_module():
     global app, env
-    app = TestApp(srcdir='(temp)', freshenv=True)
+    app = TestApp(freshenv=True, _copy_to_temp=True)
     env = app.env
     env.set_warnfunc(lambda *args: warnings.append(args))
 

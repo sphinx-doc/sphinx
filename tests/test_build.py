@@ -76,6 +76,6 @@ def test_nonascii_path():
         builder_names.append('man')
 
     for buildername in builder_names:
-        app = TestApp(buildername=buildername, srcdir='(temp)')
+        app = TestApp(buildername=buildername, _copy_to_temp=True)
         yield _test_nonascii_path, app
         app.cleanup()

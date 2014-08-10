@@ -13,7 +13,7 @@ import os
 from util import with_app
 
 
-@with_app(srcdir='(temp)', buildername='html', tags=['test_linkcode'])
+@with_app(buildername='html', tags=['test_linkcode'], _copy_to_temp=True)
 def test_html(app):
     app.builder.build_all()
 
