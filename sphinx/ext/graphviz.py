@@ -42,6 +42,20 @@ class graphviz(nodes.General, nodes.Element):
     pass
 
 
+def figure_wrapper(directive, node, caption):
+    figure_node = nodes.figure('', node)
+
+    parsed = nodes.Element()
+    directive.state.nested_parse(ViewList([caption], source=''),
+                                 directive.content_offset, parsed)
+    caption_node = nodes.caption(parsed[0].rawsource, '',
+                                 *parsed[0].children)
+    caption_node.source = parsed[0].source
+    caption_node.line = parsed[0].line
+    figure_node += caption_node
+    return figure_node
+
+
 class Graphviz(Directive):
     """
     Directive to insert arbitrary dot markup.
@@ -91,17 +105,7 @@ class Graphviz(Directive):
 
         caption = self.options.get('caption')
         if caption and not node['inline']:
-            figure_node = nodes.figure('', node)
-
-            parsed = nodes.Element()
-            self.state.nested_parse(ViewList([caption], source=''),
-                                    self.content_offset, parsed)
-            caption_node = nodes.caption(parsed[0].rawsource, '',
-                                         *parsed[0].children)
-            caption_node.source = parsed[0].source
-            caption_node.line = parsed[0].line
-            figure_node += caption_node
-            node = figure_node
+            node = figure_wrapper(self, node, caption)
 
         return [node]
 
@@ -131,17 +135,7 @@ class GraphvizSimple(Directive):
 
         caption = self.options.get('caption')
         if caption and not node['inline']:
-            figure_node = nodes.figure('', node)
-
-            parsed = nodes.Element()
-            self.state.nested_parse(ViewList([caption], source=''),
-                                    self.content_offset, parsed)
-            caption_node = nodes.caption(parsed[0].rawsource, '',
-                                         *parsed[0].children)
-            caption_node.source = parsed[0].source
-            caption_node.line = parsed[0].line
-            figure_node += caption_node
-            node = figure_node
+            node = figure_wrapper(self, node, caption)
 
         return [node]
 

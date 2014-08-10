@@ -165,6 +165,8 @@ Bugs fixed
   Lennart Fricke.
 * PR#264: Fix could not resolve xref for figure node with :name: option.
   Thanks to Takeshi Komiya.
+* PR#265: Fix could not capture caption of graphviz node by xref. Thanks to
+  Takeshi Komiya.
 
 Documentation
 -------------
