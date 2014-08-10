@@ -1,4 +1,4 @@
-test-only-directive
+test-directive-only
 ===================
 
 .. toctree::

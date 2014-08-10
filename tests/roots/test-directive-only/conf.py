@@ -1,0 +1,2 @@
+
+project = 'test-directive-only'

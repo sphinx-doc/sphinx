@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    test_cpp_domain
+    test_domain_cpp
     ~~~~~~~~~~~~~~~
 
     Tests the C++ Domain

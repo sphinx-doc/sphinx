@@ -1,2 +1,0 @@
-
-project = 'test-only-directive'

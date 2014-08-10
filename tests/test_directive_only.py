@@ -17,10 +17,10 @@ from util import with_app, test_roots
 
 
 def teardown_module():
-    (test_roots / 'test-only-directive' / '_build').rmtree(True)
+    (test_roots / 'test-directive-only' / '_build').rmtree(True)
 
 
-@with_app(buildername='text', srcdir=(test_roots / 'test-only-directive'))
+@with_app(buildername='text', srcdir=(test_roots / 'test-directive-only'))
 def test_sectioning(app):
 
     def getsects(section):

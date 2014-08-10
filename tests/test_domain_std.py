@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    test_std_domain
+    test_domain_std
     ~~~~~~~~~~~~~~~
 
     Tests the std domain
