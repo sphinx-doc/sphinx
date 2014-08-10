@@ -543,24 +543,21 @@ class StandardDomain(Domain):
             if node.tagname == 'section':
                 sectname = clean_astext(node[0]) # node[0] == title node
             elif node.tagname == 'figure':
-                for n in node:
-                    if n.tagname == 'caption':
-                        sectname = clean_astext(n)
-                        break
+                for n in node.traverse(nodes.caption):
+                    sectname = clean_astext(n)
+                    break
                 else:
                     continue
             elif node.tagname == 'image' and node.parent.tagname == 'figure':
-                for n in node.parent:
-                    if n.tagname == 'caption':
-                        sectname = clean_astext(n)
-                        break
+                for n in node.parent.traverse(nodes.caption):
+                    sectname = clean_astext(n)
+                    break
                 else:
                     continue
             elif node.tagname == 'table':
-                for n in node:
-                    if n.tagname == 'title':
-                        sectname = clean_astext(n)
-                        break
+                for n in node.traverse(nodes.title):
+                    sectname = clean_astext(n)
+                    break
                 else:
                     continue
             else:

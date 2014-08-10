@@ -23,6 +23,12 @@ from path import path
 
 from nose import tools, SkipTest
 
+try:
+    # Python >=3.3
+    from unittest import mock
+except ImportError:
+    import mock
+
 
 __all__ = [
     'test_root', 'test_roots', 'raises', 'raises_msg',
@@ -30,6 +36,7 @@ __all__ = [
     'ListOutput', 'TestApp', 'with_app', 'gen_with_app',
     'path', 'with_tempdir',
     'sprint', 'remove_unicode_literals',
+    'mock',
 ]
 
 

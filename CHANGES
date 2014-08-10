@@ -163,6 +163,8 @@ Bugs fixed
   sub section number that is larger depth than `:tocdepth:` is shrinked.
 * PR#260: Encode underscore in citation labels for latex export. Thanks to
   Lennart Fricke.
+* PR#264: Fix could not resolve xref for figure node with :name: option.
+  Thanks to Takeshi Komiya.
 
 Documentation
 -------------
