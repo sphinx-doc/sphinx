@@ -167,6 +167,23 @@ Bugs fixed
   Thanks to Takeshi Komiya.
 * PR#265: Fix could not capture caption of graphviz node by xref. Thanks to
   Takeshi Komiya.
+* PR#263, #1013, #1103: Rewrite of C++ domain. Thanks to Jakob Lykke Andersen.
+
+  * Hyperlinks to all found nested names and template arguments (#1103).
+  * Support for function types everywhere, e.g., in
+    std::function<bool(int, int)> (#1013).
+  * Support for virtual functions.
+  * Changed interpretation of function arguments to following standard
+    prototype declarations, i.e., void f(arg) means that arg is the type of the
+    argument, instead of it being the name.
+  * Updated tests.
+  * Updated documentation with elaborate description of what declarations are
+    supported and how the namespace declarations influence declaration and
+    cross-reference lookup.
+  * Index names may be different now. Elements are indexed by their fully
+    qualified name. It should be rather easy to change this behaviour and
+    potentially index by namespaces/classes as well.
+
 
 Documentation
 -------------
