@@ -16,10 +16,7 @@ import tempfile
 import posixpath
 from os import path, getcwd, chdir
 from subprocess import Popen, PIPE
-try:
-    from hashlib import sha1 as sha
-except ImportError:
-    from sha import sha
+from hashlib import sha1
 
 from six import text_type
 from docutils import nodes
@@ -86,7 +83,7 @@ def render_math(self, math):
     latex = DOC_HEAD + self.builder.config.pngmath_latex_preamble
     latex += (use_preview and DOC_BODY_PREVIEW or DOC_BODY) % math
 
-    shasum = "%s.png" % sha(latex.encode('utf-8')).hexdigest()
+    shasum = "%s.png" % sha1(latex.encode('utf-8')).hexdigest()
     relfn = posixpath.join(self.builder.imgpath, 'math', shasum)
     outfn = path.join(self.builder.outdir, '_images', 'math', shasum)
     if path.isfile(outfn):

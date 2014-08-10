@@ -15,10 +15,7 @@ import codecs
 import posixpath
 from os import path
 from subprocess import Popen, PIPE
-try:
-    from hashlib import sha1 as sha
-except ImportError:
-    from sha import sha
+from hashlib import sha1
 
 from six import text_type
 from docutils import nodes
@@ -147,7 +144,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
               str(self.builder.config.graphviz_dot_args)
               ).encode('utf-8')
 
-    fname = '%s-%s.%s' % (prefix, sha(hashkey).hexdigest(), format)
+    fname = '%s-%s.%s' % (prefix, sha1(hashkey).hexdigest(), format)
     if hasattr(self.builder, 'imgpath'):
         # HTML
         relfn = posixpath.join(self.builder.imgpath, fname)
