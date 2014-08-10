@@ -157,24 +157,24 @@ _operator_re = re.compile(r'''(?x)
 _id_prefix = '_CPP'
 _id_fundamental = { # not all of these are actually parsed as fundamental types, TODO: do that
     'void' : 'v',
-    'wchar_t' : 'w',
     'bool' : 'b',
     'char' : 'c',
     'signed char' : 'a',
     'unsigned char' : 'h',
-    'short' : 's',
-    'unsigned short' : 't',
-    'int' : 'i',
-    'unsigned int' : 'j',
-    'long' : 'l',
-    'unsigned long' : 'm',
-    'long long' : 'x',
-    'unsigned long long' : 'y',
+    'wchar_t' : 'w',
+    'char32_t' : 'Di',
+    'char16_t' : 'Ds',
+    'short' : 's', 'short int' : 's', 'signed short' : 's', 'signed short int' : 's',  
+    'unsigned short' : 't', 'unsigned short int' : 't',
+    'int' : 'i', 'signed' : 'i', 'signed int' : 'i',
+    'unsigned' : 'j', 'unsigned int' : 'j',
+    'long' : 'l', 'long int' : 'l', 'signed long' : 'l', 'signed long int' : 'l',
+    'unsigned long' : 'm', 'unsigned long int' : 'm',
+    'long long' : 'x', 'long long int' : 'x', 'signed long long' : 'x', 'signed long long int' : 'x',
+    'unsigned long long' : 'y', 'unsigned long long int' : 'y',
     'float' : 'f',
     'double' : 'd',
     'long double' : 'e',
-    'char32_t' : 'Di',
-    'char16_t' : 'Ds',
     'auto' : 'Da',
     'decltype(auto)' : 'Dc',
     'std::nullptr_t' : 'Dn'
@@ -1519,7 +1519,10 @@ class CPPClassObject(CPPObject):
     def before_content(self):
         lastname = self.env.temp_data['cpp:lastname']
         assert lastname
-        self.env.temp_data['cpp:parent'].append(lastname)
+        if 'cpp:parent' in self.env.temp_data:
+            self.env.temp_data['cpp:parent'].append(lastname)
+        else:
+            self.env.temp_data['cpp:parent'] = [lastname]
 
     def after_content(self):
         self.env.temp_data['cpp:parent'].pop()
