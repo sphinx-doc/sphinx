@@ -11,15 +11,11 @@
 """
 
 import textwrap
-from sphinx.ext.napoleon import Config
-from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from unittest import TestCase
 
-try:
-    # Python >=3.3
-    from unittest.mock import Mock
-except ImportError:
-    from mock import Mock
+from sphinx.ext.napoleon import Config
+from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
+from util import mock
 
 
 class BaseDocstringTest(TestCase):
@@ -430,7 +426,7 @@ otherfunc : relationship
 """
 
         config = Config()
-        app = Mock()
+        app = mock.Mock()
         actual = str(NumpyDocstring(docstring, config, app, "method"))
 
         expected = """\
