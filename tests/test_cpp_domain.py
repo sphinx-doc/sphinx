@@ -31,9 +31,9 @@ def check(name, input, output=None):
     ast = parse(name, input)
     res = text_type(ast)
     if res != output:
-        print "Input:    ", text_type(input)
-        print "Result:   ", res
-        print "Expected: ", output
+        print("Input:    ", text_type(input))
+        print("Result:   ", res)
+        print("Expected: ", output)
         raise DefinitionError("")
     ast.describe_signature([], 'lastIsName', None)
     ast.prefixedName = ast.name # otherwise the get_id fails, it would be set in handle_signarue
