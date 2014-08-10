@@ -23,6 +23,7 @@ except ImportError:
 from six import text_type
 from docutils import nodes
 from docutils.parsers.rst import directives
+from docutils.statemachine import ViewList
 
 from sphinx.errors import SphinxError
 from sphinx.locale import _
@@ -86,9 +87,22 @@ class Graphviz(Directive):
         node['options'] = []
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
-        if 'caption' in self.options:
-            node['caption'] = self.options['caption']
         node['inline'] = 'inline' in self.options
+
+        caption = self.options.get('caption')
+        if caption and not node['inline']:
+            figure_node = nodes.figure('', node)
+
+            parsed = nodes.Element()
+            self.state.nested_parse(ViewList([caption], source=''),
+                                    self.content_offset, parsed)
+            caption_node = nodes.caption(parsed[0].rawsource, '',
+                                         *parsed[0].children)
+            caption_node.source = parsed[0].source
+            caption_node.line = parsed[0].line
+            figure_node += caption_node
+            node = figure_node
+
         return [node]
 
 
@@ -113,9 +127,22 @@ class GraphvizSimple(Directive):
         node['options'] = []
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
-        if 'caption' in self.options:
-            node['caption'] = self.options['caption']
         node['inline'] = 'inline' in self.options
+
+        caption = self.options.get('caption')
+        if caption and not node['inline']:
+            figure_node = nodes.figure('', node)
+
+            parsed = nodes.Element()
+            self.state.nested_parse(ViewList([caption], source=''),
+                                    self.content_offset, parsed)
+            caption_node = nodes.caption(parsed[0].rawsource, '',
+                                         *parsed[0].children)
+            caption_node.source = parsed[0].source
+            caption_node.line = parsed[0].line
+            figure_node += caption_node
+            node = figure_node
+
         return [node]
 
 
@@ -229,9 +256,6 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
                 self.body.append('<img src="%s" alt="%s" usemap="#%s" %s/>\n' %
                                  (fname, alt, mapname, imgcss))
                 self.body.extend([item.decode('utf-8') for item in imgmap])
-        if node.get('caption') and not inline:
-            self.body.append('</p>\n<p class="caption">')
-            self.body.append(self.encode(node['caption']))
 
     self.body.append('</%s>\n' % wrapper)
     raise nodes.SkipNode
@@ -255,18 +279,8 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
         para_separator = '\n'
 
     if fname is not None:
-        caption = node.get('caption')
-        # XXX add ids from previous target node
-        if caption and not inline:
-            self.body.append('\n\\begin{figure}[h!]')
-            self.body.append('\n\\begin{center}')
-            self.body.append('\n\\caption{%s}' % self.encode(caption))
-            self.body.append('\n\\includegraphics{%s}' % fname)
-            self.body.append('\n\\end{center}')
-            self.body.append('\n\\end{figure}\n')
-        else:
-            self.body.append('%s\\includegraphics{%s}%s' %
-                             (para_separator, fname, para_separator))
+        self.body.append('%s\\includegraphics{%s}%s' %
+                         (para_separator, fname, para_separator))
     raise nodes.SkipNode
 
 
@@ -281,12 +295,7 @@ def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
     if fname is not None:
-        self.body.append('\n\n@float\n')
-        caption = node.get('caption')
-        if caption:
-            self.body.append('@caption{%s}\n' % self.escape_arg(caption))
-        self.body.append('@image{%s,,,[graphviz],png}\n'
-                         '@end float\n\n' % fname[:-4])
+        self.body.append('@image{%s,,,[graphviz],png}\n' % fname[:-4])
     raise nodes.SkipNode
 
 def texinfo_visit_graphviz(self, node):
