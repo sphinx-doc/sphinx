@@ -520,23 +520,26 @@ The C++ Domain
 
 The C++ domain (name **cpp**) supports documenting C++ projects.
 
-The following directives are available:
+The following directives are available. All declarations can start with a visibility statement
+(``public``, ``private`` or ``protected``).
 
-.. rst:directive:: .. cpp:class:: signatures
-               .. cpp:function:: signatures
-               .. cpp:member:: signatures
-               .. cpp:type:: signatures
+.. rst:directive:: .. cpp:class:: class speicifer
 
-   Describe a C++ object.  Full signature specification is supported -- give the
-   signature as you would in the declaration.  Here some examples::
+   Describe a class/struct, possibly with specification of inheritance, e.g.,::
+   
+      .. cpp:class:: SomeName::SomeClass : public MyBase, MyOtherBase
+
+.. rst:directive:: .. cpp:function:: (member-)function prototype
+
+   Describe a function or member function, e.g.,::
 
       .. cpp:function:: bool namespaced::theclass::method(int arg1, std::string arg2)
 
          Describes a method with parameters and types.
 
-      .. cpp:function:: bool namespaced::theclass::method(arg1, arg2)
+      .. cpp:function:: bool namespaced::theclass::method(T1, T2)
 
-         Describes a method without types.
+         Describes a method with unnamed parameters.
 
       .. cpp:function:: const T &array<T>::operator[]() const
 
@@ -550,43 +553,41 @@ The following directives are available:
 
          Describe a constexpr function here.
 
-      .. cpp:member:: std::string theclass::name
+      .. cpp:function:: MyClass::MyClass(const MyClass&) = default
 
-      .. cpp:member:: std::string theclass::name[N][M]
+         Describe a copy constructor with default implementation.
 
-      .. cpp:type:: theclass::const_iterator
+.. rst:directive:: .. cpp:member:: variable or member declaration
 
-   Will be rendered like this:
-
-      .. cpp:function:: bool namespaced::theclass::method(int arg1, std::string arg2)
-
-         Describes a method with parameters and types.
-
-      .. cpp:function:: bool namespaced::theclass::method(arg1, arg2)
-
-         Describes a method without types.
-
-      .. cpp:function:: const T &array<T>::operator[]() const
-
-         Describes the constant indexing operator of a templated array.
-
-      .. cpp:function:: operator bool() const
-
-         Describe a casting operator here.
-
-      .. cpp:function:: constexpr void foo(std::string &bar[2]) noexcept
-
-         Describe a constexpr function here.
+   Describe a varible or member variable, e.g.,::
 
       .. cpp:member:: std::string theclass::name
 
       .. cpp:member:: std::string theclass::name[N][M]
 
+.. rst:directive:: .. cpp:type:: typedef-like declaration
+                   .. cpp:type:: name
+
+   Describe a type as in a typedef declaration, or the name of a type with unspecified type, e.g.,::
+
+      .. cpp:type:: std::vector<int> MyList
+
+         A typedef-like declaration of a type.
+
       .. cpp:type:: theclass::const_iterator
+
+         Declaration of a type alias with unspecified type.
 
 .. rst:directive:: .. cpp:namespace:: namespace
 
-   Select the current C++ namespace for the following objects.
+   Select the current namespace for the following objects. Note that the namespace
+   does not need to correspond to C++ namespaces, but can end in names of classes, e.g.,::
+
+      .. cpp:namespace:: Namespace1::Namespace2::SomeClass::AnInnerClass
+
+   All following objects will be defined as if their name were declared with the namespace
+   prepended. The following cross-references will be search for by both their specified name
+   and with the namespace prepended.
 
 
 .. _cpp-roles:
@@ -598,7 +599,7 @@ These roles link to the given object types:
           cpp:member
           cpp:type
 
-   Reference a C++ object.  You can give the full signature (and need to, for
+   Reference a C++ object.  You can give the full specification (and need to, for
    overloaded functions.)
 
    .. note::
@@ -618,6 +619,12 @@ These roles link to the given object types:
    data for comparison we don't want to select a bad syntax to reference a
    specific overload.  Currently Sphinx will link to the first overloaded
    version of the method / function.
+
+.. admonition:: Note on Template Delcarations
+
+   The C++ domain currently does not support template classes/functions/aliases/variables
+   (e.g., ``template<typename T> MyClass``), only template instantiations
+   (e.g., ``MyClass<T>``).
 
 
 The Standard Domain
