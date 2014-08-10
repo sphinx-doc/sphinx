@@ -208,6 +208,22 @@ additional feature that if you leave the value empty, the shown filename will be
 exactly the one given as an argument.
 
 
+Dedent
+^^^^^^
+
+.. versionadded:: 1.3
+
+A ``dedent`` option can be given to strip a precedence characters from the code
+block. For example::
+
+   .. literalinclude:: example.rb
+      :language: ruby
+      :dedent: 4
+      :lines: 10-15
+
+:rst:dir:`code-block` also supports the ``dedent`` option.
+
+
 .. rubric:: Footnotes
 
 .. [1] There is a standard ``.. include`` directive, but it raises errors if the

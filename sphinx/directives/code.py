@@ -44,6 +44,21 @@ class Highlight(Directive):
                                        linenothreshold=linenothreshold)]
 
 
+
+def dedent_lines(lines, dedent):
+    if not dedent:
+        return lines
+
+    new_lines = []
+    for line in lines:
+        new_line = line[dedent:]
+        if line.endswith('\n') and not new_line:
+            new_line = '\n'  # keep CRLF
+        new_lines.append(new_line)
+
+    return new_lines
+
+
 class CodeBlock(Directive):
     """
     Directive for a code block with special highlighting or line numbering
@@ -77,13 +92,9 @@ class CodeBlock(Directive):
             hl_lines = None
         
         if 'dedent' in self.options:
-            linesArray = code.split('\n')
-            for i in range(0, len(linesArray)):
-                if len(linesArray[i]) <= self.options['dedent']:
-                    linesArray[i] = linesArray[i][len(linesArray[i]) - 1:]
-                else:
-                    linesArray[i] = linesArray[i][self.options['dedent']:]
-            code = '\n'.join(linesArray)
+            lines = code.split('\n')
+            lines = dedent_lines(lines, self.options['dedent'])
+            code = '\n'.join(lines)
 
         literal = nodes.literal_block(code, code)
         literal['language'] = self.arguments[0]
@@ -113,7 +124,7 @@ class LiteralInclude(Directive):
     optional_arguments = 0
     final_argument_whitespace = True
     option_spec = {
-	'dedent': int,
+        'dedent': int,
         'linenos': directives.flag,
         'lineno-start': int,
         'tab-width': int,
@@ -149,12 +160,7 @@ class LiteralInclude(Directive):
             f = codecs.StreamReaderWriter(open(filename, 'rb'),
                     codec_info[2], codec_info[3], 'strict')
             lines = f.readlines()
-            if 'dedent' in self.options:
-                for i in range(0, len(lines)):
-                    if len(lines[i]) <= self.options['dedent']:
-                        lines[i] = lines[i][len(lines[i]) - 1:]
-                    else:
-                        lines[i] = lines[i][self.options['dedent']:]
+            lines = dedent_lines(lines, self.options.get('dedent'))
         except (IOError, OSError):
             return [document.reporter.warning(
                 'Include file %r not found or reading it failed' % filename,

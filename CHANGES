@@ -184,6 +184,8 @@ Bugs fixed
     qualified name. It should be rather easy to change this behaviour and
     potentially index by namespaces/classes as well.
 
+* PR#258: Add dedent option for :rst:dir:`code-block` and
+  :rst:dir:`literal-include`. Thanks to Zafar Siddiqui.
 
 Documentation
 -------------
