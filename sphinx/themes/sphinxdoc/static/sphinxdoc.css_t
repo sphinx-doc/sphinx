@@ -338,7 +338,7 @@ div.viewcode-block:target {
     border-bottom: 1px solid #ac9;
 }
 
-div.code-block-filename {
+div.code-block-caption {
     background-color: #ddd;
     color: #222;
     border: 1px solid #ccc;

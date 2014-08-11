@@ -309,7 +309,7 @@ div.viewcode-block:target {
     border-bottom: 1px solid #ac9;
 }
 
-div.code-block-filename {
+div.code-block-caption {
     color: #efefef;
     background-color: #1c4e63;
 }

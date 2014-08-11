@@ -1345,11 +1345,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 highlight_args['force'] = True
             if 'linenos' in node:
                 linenos = node['linenos']
-            filename = node.get('filename')
-            if filename:
+            caption = node.get('caption')
+            if caption:
                 self.body.append('\n{\\colorbox[rgb]{0.9,0.9,0.9}'
                                  '{\\makebox[\\textwidth][l]'
-                                 '{\\small\\texttt{%s}}}}\n' % (filename,))
+                                 '{\\small\\texttt{%s}}}}\n' % (caption,))
             def warner(msg):
                 self.builder.warn(msg, (self.curfilestack[-1], node.line))
             hlcode = self.highlighter.highlight_block(code, lang, warn=warner,

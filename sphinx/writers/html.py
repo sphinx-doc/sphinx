@@ -275,9 +275,9 @@ class HTMLTranslator(BaseTranslator):
             **highlight_args)
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s' % lang)
-        if 'filename' in node:
-            starttag += '<div class="code-block-filename"><tt>%s</tt></div>' % (
-                node['filename'],)
+        if 'caption' in node:
+            starttag += '<div class="code-block-caption"><tt>%s</tt></div>' % (
+                node['caption'],)
         self.body.append(starttag + highlighted + '</div>\n')
         raise nodes.SkipNode
 

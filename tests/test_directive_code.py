@@ -77,6 +77,27 @@ def test_code_block_dedent(app):
     assert actual == '\n\n'
 
 
+@with_app(buildername='html',
+          srcdir=(test_roots / 'test-directive-code'),
+          _copy_to_temp=True)
+def test_code_block_caption_html(app):
+    app.builder.build('index')
+    html = (app.outdir / 'caption.html').text()
+    caption = '<div class="code-block-caption"><tt>caption-test.rb</tt></div>'
+    assert caption in html
+
+
+@with_app(buildername='latex',
+          srcdir=(test_roots / 'test-directive-code'),
+          _copy_to_temp=True)
+def test_code_block_caption_latex(app):
+    app.builder.build('index')
+    latex = (app.outdir / 'Python.tex').text()
+    caption = ('{\\colorbox[rgb]{0.9,0.9,0.9}{\\makebox[\\textwidth][l]'
+               '{\\small\\texttt{caption-test.rb}}}}')
+    assert caption in latex
+
+
 @with_app(buildername='xml',
           srcdir=(test_roots / 'test-directive-code'),
           _copy_to_temp=True)
@@ -129,3 +150,24 @@ def test_literal_include_dedent(app):
 
     actual = get_dedent_actual(1000)
     assert actual == '\n\n'
+
+
+@with_app(buildername='html',
+          srcdir=(test_roots / 'test-directive-code'),
+          _copy_to_temp=True)
+def test_literalinclude_caption_html(app):
+    app.builder.build('index')
+    html = (app.outdir / 'caption.html').text()
+    caption = '<div class="code-block-caption"><tt>caption-test.py</tt></div>'
+    assert caption in html
+
+
+@with_app(buildername='latex',
+          srcdir=(test_roots / 'test-directive-code'),
+          _copy_to_temp=True)
+def test_literalinclude_caption_latex(app):
+    app.builder.build('index')
+    latex = (app.outdir / 'Python.tex').text()
+    caption = ('{\\colorbox[rgb]{0.9,0.9,0.9}{\\makebox[\\textwidth][l]'
+               '{\\small\\texttt{caption-test.py}}}}')
+    assert caption in latex

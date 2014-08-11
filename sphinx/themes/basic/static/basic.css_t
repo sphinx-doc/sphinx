@@ -475,17 +475,17 @@ table.highlighttable td {
     padding: 0 0.5em 0 0.5em;
 }
 
-div.code-block-filename {
+div.code-block-caption {
     padding: 2px 5px;
     font-size: small;
 }
 
-div.code-block-filename tt {
+div.code-block-caption tt {
     background-color: transparent;
 }
 
-div.code-block-filename + pre,
-div.code-block-filename + div.highlight > pre {
+div.code-block-caption + pre,
+div.code-block-caption + div.highlight > pre {
     margin-top: 0;
 }
 
