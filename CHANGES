@@ -198,6 +198,13 @@ Documentation
 Release 1.2.3 (in development)
 ==============================
 
+Features added
+--------------
+
+* #1518: `sphinx-apidoc` command now have a `--version` option to show version
+  information and exit
+* New locales: Hebrew, European Portuguese, Vietnamese.
+
 Bugs fixed
 ----------
 
@@ -222,6 +229,8 @@ Bugs fixed
   a default parameter with an empty list `[]`. Thanks to Geert Jansen.
 * #1508: Non-ASCII filename raise exception on make singlehtml, latex, man,
   texinfo and changes.
+* #1531: On Python3 environment, docutils.conf with 'source_link=true' in the
+  general section cause type error.
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================

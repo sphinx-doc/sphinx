@@ -617,7 +617,7 @@ class BuildEnvironment:
                         destination_class=NullOutput)
         pub.set_components(None, 'restructuredtext', None)
         pub.process_programmatic_settings(None, self.settings, None)
-        pub.set_source(None, src_path.encode(fs_encoding))
+        pub.set_source(None, src_path)
         pub.set_destination(None, None)
         pub.publish()
         doctree = pub.document
