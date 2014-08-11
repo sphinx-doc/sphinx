@@ -25,7 +25,7 @@ def teardown_module():
 def test_code_block(app):
     app.builder.build('index')
     et = ElementTree.parse(app.outdir / 'index.xml')
-    secs = et.findall('/section/section')
+    secs = et.findall('./section/section')
     code_block = secs[0].findall('literal_block')
     assert len(code_block) > 0
     actual = code_block[0].text
@@ -56,7 +56,7 @@ def test_code_block_dedent(app):
         app.builder.build(['dedent'], method='specific')
 
         et = ElementTree.parse(app.outdir / 'dedent.xml')
-        secs = et.findall('/section/section')
+        secs = et.findall('./section/section')
         code_block = secs[0].findall('literal_block')
 
         assert len(code_block) > 0
@@ -83,7 +83,7 @@ def test_code_block_dedent(app):
 def test_literal_include(app):
     app.builder.build('index')
     et = ElementTree.parse(app.outdir / 'index.xml')
-    secs = et.findall('/section/section')
+    secs = et.findall('./section/section')
     literal_include = secs[1].findall('literal_block')
     literal_src = (app.srcdir / 'literal.inc').text(encoding='utf-8')
     assert len(literal_include) > 0
@@ -112,7 +112,7 @@ def test_literal_include_dedent(app):
         app.builder.build(['dedent'])
 
         et = ElementTree.parse(app.outdir / 'dedent.xml')
-        secs = et.findall('/section/section')
+        secs = et.findall('./section/section')
         literal_include = secs[1].findall('literal_block')
 
         assert len(literal_include) > 0
