@@ -40,6 +40,7 @@ from sphinx.util.nodes import clean_astext, make_refnode, WarningStream
 from sphinx.util.osutil import SEP, fs_encoding, find_catalog_files
 from sphinx.util.matching import compile_matchers
 from sphinx.util.pycompat import class_types
+from sphinx.util.compat import docutils_version
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
@@ -619,7 +620,10 @@ class BuildEnvironment:
                         destination_class=NullOutput)
         pub.set_components(None, 'restructuredtext', None)
         pub.process_programmatic_settings(None, self.settings, None)
-        pub.set_source(None, src_path.encode(fs_encoding))
+        if docutils_version < (0, 8):  #1531
+            pub.set_source(None, src_path.encode(fs_encoding))
+        else:
+            pub.set_source(None, src_path)
         pub.set_destination(None, None)
         pub.publish()
         doctree = pub.document
