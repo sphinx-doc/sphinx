@@ -138,6 +138,7 @@ class LiteralInclude(Directive):
         'append': directives.unchanged_required,
         'emphasize-lines': directives.unchanged_required,
         'filename': directives.unchanged,
+        'diff': directives.unchanged_required,
     }
 
     def run(self):
@@ -173,6 +174,17 @@ class LiteralInclude(Directive):
         finally:
             if f is not None:
                 f.close()
+
+        diffsource = self.options.get('diff')
+        if diffsource is not None:
+            from difflib import unified_diff
+            diff = unified_diff(
+                open(diffsource).readlines(),
+                lines,
+                diffsource,
+                rel_filename)
+            lines = list(diff)
+            print(lines)
 
         objectname = self.options.get('pyobject')
         if objectname is not None:
@@ -236,6 +248,8 @@ class LiteralInclude(Directive):
             text = text.expandtabs(self.options['tab-width'])
         retnode = nodes.literal_block(text, text, source=filename)
         set_source_info(self, retnode)
+        if diffsource is not None:  # if diff is set, set udiff
+            retnode['language'] = 'udiff'
         if self.options.get('language', ''):
             retnode['language'] = self.options['language']
         retnode['linenos'] = 'linenos' in self.options or \
