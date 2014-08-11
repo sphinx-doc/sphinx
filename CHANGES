@@ -31,6 +31,7 @@ Bugs fixed
   a default parameter with an empty list `[]`. Thanks to Geert Jansen.
 * #1508: Non-ASCII filename raise exception on make singlehtml, latex, man,
   texinfo and changes.
+* New locales: Hebrew, European Portuguese, Vietnamese.
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================

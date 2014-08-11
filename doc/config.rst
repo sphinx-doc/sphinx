@@ -380,6 +380,7 @@ documentation on :ref:`intl` for details.
    * ``fa`` -- Iranian
    * ``fi`` -- Finnish
    * ``fr`` -- French
+   * ``he`` -- Hebrew
    * ``hr`` -- Croatian
    * ``hu`` -- Hungarian
    * ``id`` -- Indonesian
@@ -394,6 +395,7 @@ documentation on :ref:`intl` for details.
    * ``nl`` -- Dutch
    * ``pl`` -- Polish
    * ``pt_BR`` -- Brazilian Portuguese
+   * ``pt_PT`` -- European Portuguese
    * ``ru`` -- Russian
    * ``si`` -- Sinhala
    * ``sk`` -- Slovak
@@ -401,6 +403,7 @@ documentation on :ref:`intl` for details.
    * ``sv`` -- Swedish
    * ``tr`` -- Turkish
    * ``uk_UA`` -- Ukrainian
+   * ``vi`` -- Vietnamese
    * ``zh_CN`` -- Simplified Chinese
    * ``zh_TW`` -- Traditional Chinese
 
