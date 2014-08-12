@@ -234,9 +234,17 @@ class HTMLTranslator(BaseTranslator):
             self.body.append('.'.join(map(str, node['secnumber'])) +
                              self.secnumber_suffix)
         elif isinstance(node.parent, nodes.section):
-            anchorname = '#' + node.parent['ids'][0]
-            if anchorname not in self.builder.secnumbers:
-                anchorname = ''  # try first heading which has no anchor
+            if self.builder.name == 'singlehtml':
+                docname = node.parent.get('docname')
+                anchorname = '#' + node.parent['ids'][0]
+                if (docname, anchorname) not in self.builder.secnumbers:
+                    anchorname = (docname, '')  # try first heading which has no anchor
+                else:
+                    anchorname = (docname, anchorname)
+            else:
+                anchorname = '#' + node.parent['ids'][0]
+                if anchorname not in self.builder.secnumbers:
+                    anchorname = ''  # try first heading which has no anchor
             if self.builder.secnumbers.get(anchorname):
                 numbers = self.builder.secnumbers[anchorname]
                 self.body.append('.'.join(map(str, numbers)) +

@@ -915,6 +915,15 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         self.fix_refuris(tree)
         return tree
 
+    def assemble_toc_secnumbers(self):
+        # adhoc fix for issue #743; IDs are still conflict in singlehtml mode.
+        new_secnumbers = {}
+        for docname, secnums in iteritems(self.env.toc_secnumbers):
+            for id, secnum in iteritems(secnums):
+                new_secnumbers[(docname, id)] = secnum
+
+        return {'index': new_secnumbers}
+
     def get_doc_context(self, docname, body, metatags):
         # no relation links...
         toc = self.env.get_toctree_for(self.config.master_doc, self, False)
@@ -950,6 +959,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
         self.info(bold('assembling single document... '), nonl=True)
         doctree = self.assemble_doctree()
+        self.env.toc_secnumbers = self.assemble_toc_secnumbers()
         self.info()
         self.info(bold('writing... '), nonl=True)
         self.write_doc_serialized(self.config.master_doc, doctree)
