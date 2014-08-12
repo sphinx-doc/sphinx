@@ -58,6 +58,9 @@ Literalinclude options
 .. literalinclude:: literal.inc
    :end-before: class Foo
 
+.. literalinclude:: literal.inc
+   :diff: literal.inc.orig
+
 .. cssclass:: inc-tab3
 .. literalinclude:: tabs.inc
    :tab-width: 3
