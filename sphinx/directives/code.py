@@ -141,6 +141,27 @@ class LiteralInclude(Directive):
         'diff': directives.unchanged_required,
     }
 
+    def read_with_encoding(self, filename, document, codec_info, encoding):
+        f = None
+        try:
+            f = codecs.StreamReaderWriter(open(filename, 'rb'),
+                                          codec_info[2], codec_info[3], 'strict')
+            lines = f.readlines()
+            lines = dedent_lines(lines, self.options.get('dedent'))
+            return lines
+        except (IOError, OSError):
+            return [document.reporter.warning(
+                'Include file %r not found or reading it failed' % filename,
+                line=self.lineno)]
+        except UnicodeError:
+            return [document.reporter.warning(
+                'Encoding %r used for reading included file %r seems to '
+                'be wrong, try giving an :encoding: option' %
+                (encoding, filename))]
+        finally:
+            if f is not None:
+                f.close()
+
     def run(self):
         document = self.state.document
         if not document.settings.file_insertion_enabled:
@@ -156,35 +177,27 @@ class LiteralInclude(Directive):
 
         encoding = self.options.get('encoding', env.config.source_encoding)
         codec_info = codecs.lookup(encoding)
-        f = None
-        try:
-            f = codecs.StreamReaderWriter(open(filename, 'rb'),
-                    codec_info[2], codec_info[3], 'strict')
-            lines = f.readlines()
-            lines = dedent_lines(lines, self.options.get('dedent'))
-        except (IOError, OSError):
-            return [document.reporter.warning(
-                'Include file %r not found or reading it failed' % filename,
-                line=self.lineno)]
-        except UnicodeError:
-            return [document.reporter.warning(
-                'Encoding %r used for reading included file %r seems to '
-                'be wrong, try giving an :encoding: option' %
-                (encoding, filename))]
-        finally:
-            if f is not None:
-                f.close()
+
+        lines = self.read_with_encoding(filename, document,
+                                        codec_info, encoding)
+        if isinstance(lines[0], basestring) is False:
+            return lines
 
         diffsource = self.options.get('diff')
         if diffsource is not None:
             from difflib import unified_diff
+            tmp, fulldiffsource = env.relfn2path(diffsource)
+
+            difflines = self.read_with_encoding(fulldiffsource, document,
+                                           codec_info, encoding)
+            if isinstance(difflines[0], basestring) is False:
+                return difflines
             diff = unified_diff(
-                open(diffsource).readlines(),
+                difflines,
                 lines,
                 diffsource,
-                rel_filename)
+                self.arguments[0])
             lines = list(diff)
-            print(lines)
 
         objectname = self.options.get('pyobject')
         if objectname is not None:
