@@ -204,20 +204,20 @@ a.headerlink:hover {
     color: white!important;
 }
 
-cite, code, tt {
+cite, code, code {
     font-family: 'Consolas', 'Deja Vu Sans Mono',
                  'Bitstream Vera Sans Mono', monospace;
     font-size: 0.95em;
     letter-spacing: 0.01em;
 }
 
-tt {
+code {
     background-color: #f2f2f2;
     border-bottom: 1px solid #ddd;
     color: #333;
 }
 
-tt.descname, tt.descclassname, tt.xref {
+code.descname, code.descclassname, code.xref {
     border: 0;
 }
 
@@ -226,12 +226,12 @@ hr {
     margin: 2em;
 }
 
-a tt {
+a code {
     border: 0;
     color: #CA7900;
 }
 
-a tt:hover {
+a code:hover {
     color: #2491CF;
 }
 
