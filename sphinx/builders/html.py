@@ -916,7 +916,15 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         return tree
 
     def assemble_toc_secnumbers(self):
-        # adhoc fix for issue #743; IDs are still conflict in singlehtml mode.
+        # Assemble toc_secnumbers to resolve section numbers on SingleHTML.
+        # Merge all secnumbers to single secnumber.
+        #
+        # Note: current Sphinx has refid confliction in singlehtml mode.
+        #       To avoid the problem, it replaces key of secnumbers to
+        #       tuple of docname and refid.
+        #
+        #       There are related codes in inline_all_toctres() and
+        #       HTMLTranslter#add_secnumber().
         new_secnumbers = {}
         for docname, secnums in iteritems(self.env.toc_secnumbers):
             for id, secnum in iteritems(secnums):
