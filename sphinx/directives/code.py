@@ -14,7 +14,7 @@ from difflib import unified_diff
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 
-from six import text_type
+from six import string_types
 
 from sphinx import addnodes
 from sphinx.util import parselinenos
@@ -183,7 +183,7 @@ class LiteralInclude(Directive):
 
         lines = self.read_with_encoding(filename, document,
                                         codec_info, encoding)
-        if not isinstance(lines[0], six.text_type):
+        if not isinstance(lines[0], string_types):
             return lines
 
         diffsource = self.options.get('diff')
@@ -192,7 +192,7 @@ class LiteralInclude(Directive):
 
             difflines = self.read_with_encoding(fulldiffsource, document,
                                            codec_info, encoding)
-            if not isinstance(difflines[0], six.text_type):
+            if not isinstance(difflines[0], string_types):
                 return difflines
             diff = unified_diff(
                 difflines,
