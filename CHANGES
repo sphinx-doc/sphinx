@@ -46,6 +46,8 @@ Features added
 * PR#229: Allow registration of other translators. Thanks to Russell Sim.
 * Add app.set_translator() API to register or override a Docutils translator
   class like :confval:`html_translator_class`.
+* PR#267, #1134: add 'diff' parameter to literalinclude. Thanks to Richard Wall
+  and WAKAYAMA shirou.
 
 Bugs fixed
 ----------
