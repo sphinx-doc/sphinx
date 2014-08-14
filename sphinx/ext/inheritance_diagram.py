@@ -52,7 +52,6 @@ from sphinx.ext.graphviz import render_dot_html, render_dot_latex, \
     render_dot_texinfo
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util.compat import Directive
-from sphinx.util import get_module_source
 
 
 class_sig_re = re.compile(r'''^([\w.]*\.)?    # module names
