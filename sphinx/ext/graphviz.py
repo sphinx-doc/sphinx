@@ -139,6 +139,11 @@ class GraphvizSimple(Directive):
 
 def render_dot(self, code, options, format, prefix='graphviz'):
     """Render graphviz code into a PNG or PDF output file."""
+
+    # if code is not unicode, convert to unicode. it is expected utf-8
+    if not isinstance(code, text_type):
+        code = code.decode('utf-8')
+
     hashkey = (code + str(options) + \
               str(self.builder.config.graphviz_dot) + \
               str(self.builder.config.graphviz_dot_args)
