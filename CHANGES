@@ -34,6 +34,8 @@ Bugs fixed
   texinfo and changes.
 * #1531: On Python3 environment, docutils.conf with 'source_link=true' in the
   general section cause type error.
+* PR#270, #1533: Non-ASCII docstring cause UnicodeDecodeError when uses with
+  inheritance-diagram directive. Thanks to WAKAYAMA shirou.
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================
