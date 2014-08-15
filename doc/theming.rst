@@ -248,6 +248,9 @@ These themes are:
   - **rightsidebar** (true or false): Put the sidebar on the right side.
     Defaults to ``False``.
 
+.. versionadded:: 1.3
+   'bizstyle' theme.
+
 
 Creating themes
 ---------------
