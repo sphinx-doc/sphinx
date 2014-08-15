@@ -51,6 +51,7 @@ from docutils.parsers.rst import directives
 from sphinx.ext.graphviz import render_dot_html, render_dot_latex, \
     render_dot_texinfo
 from sphinx.pycode import ModuleAnalyzer
+from sphinx.util import force_decode
 from sphinx.util.compat import Directive
 
 
@@ -161,7 +162,8 @@ class InheritanceGraph(object):
                 if cls.__doc__:
                     enc = ModuleAnalyzer.for_module(cls.__module__).encoding
                     doc = cls.__doc__.strip().split("\n")[0]
-                    doc = doc.decode(enc)
+                    if not isinstance(doc, unicode):
+                        doc = force_decode(doc, enc)
                     if doc:
                         tooltip = '"%s"' % doc.replace('"', '\\"')
             except Exception:  # might raise AttributeError for strange classes
