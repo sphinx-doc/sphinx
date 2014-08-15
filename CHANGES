@@ -48,6 +48,7 @@ Features added
   class like :confval:`html_translator_class`.
 * PR#267, #1134: add 'diff' parameter to literalinclude. Thanks to Richard Wall
   and WAKAYAMA shirou.
+* PR#272: Added 'bizstyle' theme. Thanks to Shoji KUMAGAI.
 
 Bugs fixed
 ----------
