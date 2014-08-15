@@ -102,6 +102,10 @@ Builtin themes
 |                    |                    |
 | *haiku*            | *pyramid*          |
 +--------------------+--------------------+
+| |bizstyle|         |                    |
+|                    |                    |
+| *bizstyle*         |                    |
++--------------------+--------------------+
 
 .. |default|     image:: themes/default.png
 .. |sphinxdoc|   image:: themes/sphinxdoc.png
@@ -111,6 +115,7 @@ Builtin themes
 .. |nature|      image:: themes/nature.png
 .. |haiku|       image:: themes/haiku.png
 .. |pyramid|     image:: themes/pyramid.png
+.. |bizstyle|    image:: themes/bizstyle.png
 
 Sphinx comes with a selection of themes to choose from.
 
@@ -237,6 +242,13 @@ These themes are:
   - **footer**  (true or false, default ``True``): If this is true, the
     `footer` block is inserted in the epub output, otherwise it is omitted.
 
+- **bizstyle** -- A simple bluish theme. The following options are supported
+  beyond *nosidebar* and *sidebarwidth*:
+
+  - **rightsidebar** (true or false): Put the sidebar on the right side.
+    Defaults to ``False``.
+
+
 Creating themes
 ---------------
 
@@ -318,4 +330,3 @@ is built with the default theme, the output directory will contain a
 .. [1] It is not an executable Python file, as opposed to :file:`conf.py`,
        because that would pose an unnecessary security risk if themes are
        shared.
-
