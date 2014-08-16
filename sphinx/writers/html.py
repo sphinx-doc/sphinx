@@ -251,13 +251,12 @@ class HTMLTranslator(BaseTranslator):
                                  self.secnumber_suffix)
 
     def add_fignumber(self, node):
-        if node.get('fignumber'):
-            self.body.append('Fig.' + '.'.join(map(str, node['fignumber'])))
-        elif isinstance(node.parent, nodes.figure):
+        if isinstance(node.parent, nodes.figure):
             figure_id = node.parent['ids'][0]
             if self.builder.fignumbers.get(figure_id):
+                prefix = self.builder.config.numfig_prefix.get('figure')
                 numbers = self.builder.fignumbers[figure_id]
-                self.body.append('Fig.' + '.'.join(map(str, numbers)))
+                self.body.append(prefix + '.'.join(map(str, numbers)) + " ")
 
     # overwritten to avoid emitting empty <ul></ul>
     def visit_bullet_list(self, node):

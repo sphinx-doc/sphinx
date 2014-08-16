@@ -1714,7 +1714,7 @@ class BuildEnvironment:
             return secnum or tuple()
 
         def get_next_figure_number(secnum):
-            secnum = secnum[:1]
+            secnum = secnum[:self.config.numfig_secnum_depth]
             fignum_counter[secnum] = fignum_counter.get(secnum, 0) + 1
             return secnum + (fignum_counter[secnum],)
 
@@ -1744,10 +1744,11 @@ class BuildEnvironment:
             doctree = self.get_doctree(docname)
             _walk_doctree(docname, doctree, secnum)
 
-        _walk_doc(self.config.master_doc, tuple())
-        for docname, fignums in iteritems(self.toc_fignumbers):
-            if fignums != old_fignumbers.get(docname):
-                rewrite_needed.append(docname)
+        if self.config.numfig:
+            _walk_doc(self.config.master_doc, tuple())
+            for docname, fignums in iteritems(self.toc_fignumbers):
+                if fignums != old_fignumbers.get(docname):
+                    rewrite_needed.append(docname)
 
         return rewrite_needed
 

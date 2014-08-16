@@ -70,6 +70,9 @@ class Config(object):
         needs_extensions = ({}, None),
         nitpicky = (False, 'env'),
         nitpick_ignore = ([], 'html'),
+        numfig = (False, 'env'),
+        numfig_secnum_depth = (1, 'env'),
+        numfig_prefix = ({'figure': 'Fig.'}, 'env'),
 
         # HTML options
         html_theme = ('default', 'html'),
