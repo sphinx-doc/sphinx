@@ -11,10 +11,9 @@ Bar A
 
 should be 2.1
 
-Bar A1
-------
+.. toctree::
 
-should be 2.1.1
+   baz
 
 Bar B
 =====

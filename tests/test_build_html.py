@@ -395,9 +395,56 @@ def test_tocdepth(app):
         'bar.html': [
             (".//h1", '2. Bar', True),
             (".//h2", '2.1. Bar A', True),
-            (".//h3", '2.1.1. Bar A1', True),
             (".//h2", '2.2. Bar B', True),
             (".//h3", '2.2.1. Bar B1', True),
+        ],
+        'baz.html': [
+            (".//h1", '2.1.1. Baz A', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        fp = open(os.path.join(app.outdir, fname), 'rb')
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@gen_with_app(buildername='singlehtml', srcdir=(test_roots / 'test-tocdepth'))
+def test_tocdepth_singlehtml(app):
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
+            (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
+            (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
+            (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
+
+            # index.rst
+            (".//h1", 'test-tocdepth', True),
+
+            # foo.rst
+            (".//h2", '1. Foo', True),
+            (".//h3", '1.1. Foo A', True),
+            (".//h4", '1.1.1. Foo A1', True),
+            (".//h3", '1.2. Foo B', True),
+            (".//h4", '1.2.1. Foo B1', True),
+
+            # bar.rst
+            (".//h2", '2. Bar', True),
+            (".//h3", '2.1. Bar A', True),
+            (".//h3", '2.2. Bar B', True),
+            (".//h4", '2.2.1. Bar B1', True),
+
+            # baz.rst
+            (".//h4", '2.1.1. Baz A', True),
         ],
     }
 
