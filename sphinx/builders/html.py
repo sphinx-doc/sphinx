@@ -930,7 +930,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             for id, secnum in iteritems(secnums):
                 new_secnumbers[(docname, id)] = secnum
 
-        return {'index': new_secnumbers}
+        return {self.config.master_doc: new_secnumbers}
 
     def get_doc_context(self, docname, body, metatags):
         # no relation links...
