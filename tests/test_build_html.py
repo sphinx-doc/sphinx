@@ -395,9 +395,11 @@ def test_tocdepth(app):
         'bar.html': [
             (".//h1", '2. Bar', True),
             (".//h2", '2.1. Bar A', True),
-            (".//h3", '2.1.1. Bar A1', True),
             (".//h2", '2.2. Bar B', True),
             (".//h3", '2.2.1. Bar B1', True),
+        ],
+        'baz.html': [
+            (".//h1", '2.1.1. Baz A', True),
         ],
     }
 
@@ -438,9 +440,11 @@ def test_tocdepth_singlehtml(app):
             # bar.rst
             (".//h2", '2. Bar', True),
             (".//h3", '2.1. Bar A', True),
-            (".//h4", '2.1.1. Bar A1', True),
             (".//h3", '2.2. Bar B', True),
             (".//h4", '2.2.1. Bar B1', True),
+
+            # baz.rst
+            (".//h4", '2.1.1. Baz A', True),
         ],
     }
 

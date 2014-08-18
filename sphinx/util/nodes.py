@@ -201,7 +201,8 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc):
                 sof = addnodes.start_of_file(docname=includefile)
                 sof.children = subtree.children
                 for sectionnode in sof.traverse(nodes.section):
-                    sectionnode['docname'] = includefile
+                    if 'docname' not in sectionnode:
+                        sectionnode['docname'] = includefile
                 newnodes.append(sof)
         toctreenode.parent.replace(toctreenode, newnodes)
     return tree
