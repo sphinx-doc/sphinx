@@ -49,6 +49,9 @@ Features added
 * PR#267, #1134: add 'diff' parameter to literalinclude. Thanks to Richard Wall
   and WAKAYAMA shirou.
 * PR#272: Added 'bizstyle' theme. Thanks to Shoji KUMAGAI.
+* Automatically compile ``*.mo`` files from ``*.po`` files when
+  :confval:`gettext_auto_build` is True (default) and ``*.po`` is newer than
+  ``*.mo`` file.
 
 Bugs fixed
 ----------
