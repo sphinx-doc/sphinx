@@ -45,8 +45,9 @@ class CatalogInfo(LocaleFileInfoBase):
             path.getmtime(self.mo_path) < path.getmtime(self.po_path))
 
     def write_mo(self, locale):
-        with open(self.po_path, 'rt') as p, open(self.mo_path, 'wb') as m:
-            write_mo(m, read_po(p, locale))
+        with open(self.po_path, 'rt') as po:
+            with open(self.mo_path, 'wb') as mo:
+                write_mo(mo, read_po(po, locale))
 
 
 def get_catalogs(locale_dirs, locale, gettext_compact=False, force_all=False):
