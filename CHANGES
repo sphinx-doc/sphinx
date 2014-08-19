@@ -196,6 +196,8 @@ Bugs fixed
 * PR#268: Fix numbering section does not work at singlehtml mode. It still
   ad-hoc fix because there is a issue that section IDs are conflicted.
   Thanks to Takeshi Komiya.
+* PR#273, #1536: Fix RuntimeError with numbered circular toctree. Thanks to
+  Takeshi Komiya.
 
 Documentation
 -------------
