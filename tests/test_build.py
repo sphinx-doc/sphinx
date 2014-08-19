@@ -79,3 +79,38 @@ def test_nonascii_path():
         app = TestApp(buildername=buildername, _copy_to_temp=True)
         yield _test_nonascii_path, app
         app.cleanup()
+
+
+@with_app(buildername='text', srcdir='(empty)')
+def test_circular_toctree(app):
+    contents = (".. toctree::\n"
+                "\n"
+                "   sub\n")
+    (app.srcdir / 'contents.rst').write_text(contents, encoding='utf-8')
+
+    contents = (".. toctree::\n"
+                "\n"
+                "   contents\n")
+    (app.srcdir / 'sub.rst').write_text(contents, encoding='utf-8')
+    app.builder.build_all()
+    warnings = "".join(app._warning.content)
+    assert 'circular toctree references detected, ignoring: sub <- contents <- sub' in warnings
+    assert 'circular toctree references detected, ignoring: contents <- sub <- contents' in warnings
+
+
+@with_app(buildername='text', srcdir='(empty)')
+def test_numbered_circular_toctree(app):
+    contents = (".. toctree::\n"
+                "   :numbered:\n"
+                "\n"
+                "   sub\n")
+    (app.srcdir / 'contents.rst').write_text(contents, encoding='utf-8')
+
+    contents = (".. toctree::\n"
+                "\n"
+                "   contents\n")
+    (app.srcdir / 'sub.rst').write_text(contents, encoding='utf-8')
+    app.builder.build_all()
+    warnings = "\n".join(app._warning.content)
+    assert 'circular toctree references detected, ignoring: sub <- contents <- sub' in warnings
+    assert 'circular toctree references detected, ignoring: contents <- sub <- contents' in warnings

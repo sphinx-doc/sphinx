@@ -1444,6 +1444,7 @@ class BuildEnvironment:
         # a list of all docnames whose section numbers changed
         rewrite_needed = []
 
+        assigned = []
         old_secnumbers = self.toc_secnumbers
         self.toc_secnumbers = {}
 
@@ -1483,11 +1484,12 @@ class BuildEnvironment:
             if depth == 0:
                 return
             for (title, ref) in toctreenode['entries']:
-                if url_re.match(ref) or ref == 'self':
+                if url_re.match(ref) or ref == 'self' or ref in assigned:
                     # don't mess with those
                     continue
                 if ref in self.tocs:
                     secnums = self.toc_secnumbers[ref] = {}
+                    assigned.append(ref)
                     _walk_toc(self.tocs[ref], secnums, depth,
                               self.titles.get(ref))
                     if secnums != old_secnumbers.get(ref):
