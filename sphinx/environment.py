@@ -1217,6 +1217,8 @@ class BuildEnvironment:
                 try:
                     refdoc = None
                     if url_re.match(ref):
+                        if title is None:
+                            title = ref
                         reference = nodes.reference('', '', internal=False,
                                                     refuri=ref, anchorname='',
                                                     *[nodes.Text(title)])

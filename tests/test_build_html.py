@@ -459,3 +459,18 @@ def test_tocdepth_singlehtml(app):
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@with_app(buildername='html', srcdir='(empty)')
+def test_url_in_toctree(app):
+    contents = (".. toctree::\n"
+                "\n"
+                "   http://sphinx-doc.org/\n"
+                "   Latest reference <http://sphinx-doc.org/latest/>\n")
+
+    (app.srcdir / 'contents.rst').write_text(contents, encoding='utf-8')
+    app.builder.build_all()
+
+    result = (app.outdir / 'contents.html').text(encoding='utf-8')
+    assert '<a class="reference external" href="http://sphinx-doc.org/">http://sphinx-doc.org/</a>' in result
+    assert '<a class="reference external" href="http://sphinx-doc.org/latest/">Latest reference</a>' in result
