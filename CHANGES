@@ -12,6 +12,9 @@ Incompatible changes
 * A new node, ``sphinx.addnodes.literal_strong``, has been added, for text that
   should appear literally (i.e. no smart quotes) in strong font.  Custom writers
   will have to be adapted to handle this node.
+* PR#269, #1476: replace `<tt>` tag by `<code>`. User customized stylesheets
+  should be updated If the css contain some styles for `<tt>` tag.
+  Thanks to Takeshi Komiya.
 
 Features added
 --------------
