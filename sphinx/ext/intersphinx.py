@@ -195,7 +195,7 @@ def load_mappings(app):
                 invdata = fetch_inventory(app, uri, inv)
                 if invdata:
                     cache[uri] = (name, now, invdata)
-        update = True
+                    update = True
 
     if update:
         env.intersphinx_inventory = {}
