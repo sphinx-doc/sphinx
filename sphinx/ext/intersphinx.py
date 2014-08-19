@@ -179,19 +179,24 @@ def load_mappings(app):
         # we can safely assume that the uri<->inv mapping is not changed
         # during partial rebuilds since a changed intersphinx_mapping
         # setting will cause a full environment reread
-        if not inv:
-            inv = posixpath.join(uri, INVENTORY_FILENAME)
-        # decide whether the inventory must be read: always read local
-        # files; remote ones only if the cache time is expired
-        if '://' not in inv or uri not in cache \
-               or cache[uri][1] < cache_time:
-            app.info('loading intersphinx inventory from %s...' % inv)
-            invdata = fetch_inventory(app, uri, inv)
-            if invdata:
-                cache[uri] = (name, now, invdata)
-            else:
-                cache.pop(uri, None)
-            update = True
+        if not isinstance(inv, tuple):
+            invs = (inv, )
+        else:
+            invs = inv
+
+        for inv in invs:
+            if not inv:
+                inv = posixpath.join(uri, INVENTORY_FILENAME)
+            # decide whether the inventory must be read: always read local
+            # files; remote ones only if the cache time is expired
+            if '://' not in inv or uri not in cache \
+                    or cache[uri][1] < cache_time:
+                app.info('loading intersphinx inventory from %s...' % inv)
+                invdata = fetch_inventory(app, uri, inv)
+                if invdata:
+                    cache[uri] = (name, now, invdata)
+        update = True
+
     if update:
         env.intersphinx_inventory = {}
         env.intersphinx_named_inventory = {}
