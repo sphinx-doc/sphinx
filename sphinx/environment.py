@@ -1496,6 +1496,7 @@ class BuildEnvironment:
                         rewrite_needed.append(ref)
 
         for docname in self.numbered_toctrees:
+            assigned.append(docname)
             doctree = self.get_doctree(docname)
             for toctreenode in doctree.traverse(addnodes.toctree):
                 depth = toctreenode.get('numbered', 0)
