@@ -111,9 +111,9 @@ class HTMLTranslator(BaseTranslator):
         self.body.append('</dt>\n')
 
     def visit_desc_addname(self, node):
-        self.body.append(self.starttag(node, 'tt', '', CLASS='descclassname'))
+        self.body.append(self.starttag(node, 'code', '', CLASS='descclassname'))
     def depart_desc_addname(self, node):
-        self.body.append('</tt>')
+        self.body.append('</code>')
 
     def visit_desc_type(self, node):
         pass
@@ -126,9 +126,9 @@ class HTMLTranslator(BaseTranslator):
         pass
 
     def visit_desc_name(self, node):
-        self.body.append(self.starttag(node, 'tt', '', CLASS='descname'))
+        self.body.append(self.starttag(node, 'code', '', CLASS='descname'))
     def depart_desc_name(self, node):
-        self.body.append('</tt>')
+        self.body.append('</code>')
 
     def visit_desc_parameterlist(self, node):
         self.body.append('<span class="sig-paren">(</span>')
@@ -284,7 +284,7 @@ class HTMLTranslator(BaseTranslator):
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s' % lang)
         if 'filename' in node:
-            starttag += '<div class="code-block-filename"><tt>%s</tt></div>' % (
+            starttag += '<div class="code-block-filename"><code>%s</code></div>' % (
                 node['filename'],)
         self.body.append(starttag + highlighted + '</div>\n')
         raise nodes.SkipNode
@@ -300,12 +300,12 @@ class HTMLTranslator(BaseTranslator):
 
     # overwritten
     def visit_literal(self, node):
-        self.body.append(self.starttag(node, 'tt', '',
+        self.body.append(self.starttag(node, 'code', '',
                                        CLASS='docutils literal'))
         self.protect_literal_text += 1
     def depart_literal(self, node):
         self.protect_literal_text -= 1
-        self.body.append('</tt>')
+        self.body.append('</code>')
 
     def visit_productionlist(self, node):
         self.body.append(self.starttag(node, 'pre'))

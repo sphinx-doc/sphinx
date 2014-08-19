@@ -700,8 +700,8 @@
         (<a href="#" class="comment-markup" id="ab<%id%>">markup</a>):</p>\
       <div class="comment-markup-box" id="mb<%id%>">\
         reStructured text markup: <i>*emph*</i>, <b>**strong**</b>, \
-        <tt>``code``</tt>, \
-        code blocks: <tt>::</tt> and an indented block after blank line</div>\
+        <code>``code``</code>, \
+        code blocks: <code>::</code> and an indented block after blank line</div>\
       <form method="post" id="cf<%id%>" class="comment-form" action="">\
         <textarea name="comment" cols="80"></textarea>\
         <p class="propose-button">\

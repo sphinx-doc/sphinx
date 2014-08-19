@@ -195,7 +195,7 @@ pre {
     font-family: 'Bitstream Vera Sans Mono', 'Monaco', monospace;
 }
 
-tt {
+code {
     font-size: 13px;
     font-family: 'Bitstream Vera Sans Mono', 'Monaco', monospace;
     color: black;
@@ -204,7 +204,7 @@ tt {
     border-bottom: 1px solid #eee;
 }
 
-a.reference:hover tt {
+a.reference:hover code {
     border-bottom-color: #aaa;
 }
 

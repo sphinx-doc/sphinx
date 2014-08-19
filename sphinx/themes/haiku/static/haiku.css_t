@@ -307,7 +307,7 @@ td {
     vertical-align: top;
 }
 
-tt {
+code {
     background-color: #e2e2e2;
     font-size: 1.0em;
     font-family: monospace;

@@ -83,16 +83,16 @@ def verify(rst, html_expected, latex_expected):
 
 def test_inline():
     # correct interpretation of code with whitespace
-    _html = ('<p><tt class="(samp )?docutils literal"><span class="pre">'
-             'code</span>&nbsp;&nbsp; <span class="pre">sample</span></tt></p>')
+    _html = ('<p><code class="(samp )?docutils literal"><span class="pre">'
+             'code</span>&nbsp;&nbsp; <span class="pre">sample</span></code></p>')
     yield verify_re, '``code   sample``', _html, r'\\code{code   sample}'
     yield verify_re, ':samp:`code   sample`', _html, r'\\code{code   sample}'
 
     # interpolation of braces in samp and file roles (HTML only)
     yield (verify, ':samp:`a{b}c`',
-           '<p><tt class="samp docutils literal"><span class="pre">a</span>'
+           '<p><code class="samp docutils literal"><span class="pre">a</span>'
            '<em><span class="pre">b</span></em>'
-           '<span class="pre">c</span></tt></p>',
+           '<span class="pre">c</span></code></p>',
            '\\code{a\\emph{b}c}')
 
     # interpolation of arrows in menuselection
@@ -115,8 +115,8 @@ def test_inline():
     yield verify, '"John"', '<p>&#8220;John&#8221;</p>', "``John''"
     # ... but not in literal text
     yield (verify, '``"John"``',
-           '<p><tt class="docutils literal"><span class="pre">'
-           '&quot;John&quot;</span></tt></p>',
+           '<p><code class="docutils literal"><span class="pre">'
+           '&quot;John&quot;</span></code></p>',
            '\\code{"John"}')
 
     # verify classes for inline roles
