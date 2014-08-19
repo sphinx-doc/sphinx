@@ -198,6 +198,8 @@ Bugs fixed
   Thanks to Takeshi Komiya.
 * PR#273, #1536: Fix RuntimeError with numbered circular toctree. Thanks to
   Takeshi Komiya.
+* PR#274: Set its URL as a default title value if URL appears in toctree.
+  Thanks to Takeshi Komiya.
 
 Documentation
 -------------
