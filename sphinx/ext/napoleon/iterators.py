@@ -13,12 +13,6 @@
 
 import collections
 
-from six import PY3
-
-
-if PY3:
-    callable = lambda o: hasattr(o, '__call__')
-
 
 class peek_iter(object):
     """An iterator object that supports peeking ahead.
