@@ -122,21 +122,21 @@ HTML_XPATH = {
         (".//li/strong", r'^command\\n$'),
         (".//li/strong", r'^program\\n$'),
         (".//li/em", r'^dfn\\n$'),
-        (".//li/tt/span[@class='pre']", r'^kbd\\n$'),
+        (".//li/code/span[@class='pre']", r'^kbd\\n$'),
         (".//li/em", u'File \N{TRIANGULAR BULLET} Close'),
-        (".//li/tt/span[@class='pre']", '^a/$'),
-        (".//li/tt/em/span[@class='pre']", '^varpart$'),
-        (".//li/tt/em/span[@class='pre']", '^i$'),
+        (".//li/code/span[@class='pre']", '^a/$'),
+        (".//li/code/em/span[@class='pre']", '^varpart$'),
+        (".//li/code/em/span[@class='pre']", '^i$'),
         (".//a[@href='http://www.python.org/dev/peps/pep-0008']"
             "[@class='pep reference external']/strong", 'PEP 8'),
         (".//a[@href='http://tools.ietf.org/html/rfc1.html']"
             "[@class='rfc reference external']/strong", 'RFC 1'),
         (".//a[@href='objects.html#envvar-HOME']"
-            "[@class='reference internal']/tt/span[@class='pre']", 'HOME'),
+            "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
         (".//a[@href='#with']"
-            "[@class='reference internal']/tt/span[@class='pre']", '^with$'),
+            "[@class='reference internal']/code/span[@class='pre']", '^with$'),
         (".//a[@href='#grammar-token-try_stmt']"
-            "[@class='reference internal']/tt/span", '^statement$'),
+            "[@class='reference internal']/code/span", '^statement$'),
         (".//a[@href='subdir/includes.html']"
             "[@class='reference internal']/em", 'Including in subdir'),
         (".//a[@href='objects.html#cmdoption-python-c']"
@@ -165,7 +165,7 @@ HTML_XPATH = {
         (".//dl/dt[@id='term-boson']", 'boson'),
         # a production list
         (".//pre/strong", 'try_stmt'),
-        (".//pre/a[@href='#grammar-token-try1_stmt']/tt/span", 'try1_stmt'),
+        (".//pre/a[@href='#grammar-token-try1_stmt']/code/span", 'try1_stmt'),
         # tests for ``only`` directive
         (".//p", 'A global substitution.'),
         (".//p", 'In HTML.'),
@@ -175,8 +175,8 @@ HTML_XPATH = {
     'objects.html': [
         (".//dt[@id='mod.Cls.meth1']", ''),
         (".//dt[@id='errmod.Error']", ''),
-        (".//dt/tt", r'long\(parameter,\s* list\)'),
-        (".//dt/tt", 'another one'),
+        (".//dt/code", r'long\(parameter,\s* list\)'),
+        (".//dt/code", 'another one'),
         (".//a[@href='#mod.Cls'][@class='reference internal']", ''),
         (".//dl[@class='userdesc']", ''),
         (".//dt[@id='userdesc-myobj']", ''),
@@ -395,9 +395,11 @@ def test_tocdepth(app):
         'bar.html': [
             (".//h1", '2. Bar', True),
             (".//h2", '2.1. Bar A', True),
-            (".//h3", '2.1.1. Bar A1', True),
             (".//h2", '2.2. Bar B', True),
             (".//h3", '2.2.1. Bar B1', True),
+        ],
+        'baz.html': [
+            (".//h1", '2.1.1. Baz A', True),
         ],
     }
 
@@ -412,3 +414,63 @@ def test_tocdepth(app):
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@gen_with_app(buildername='singlehtml', srcdir=(test_roots / 'test-tocdepth'))
+def test_tocdepth_singlehtml(app):
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
+            (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
+            (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
+            (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
+
+            # index.rst
+            (".//h1", 'test-tocdepth', True),
+
+            # foo.rst
+            (".//h2", '1. Foo', True),
+            (".//h3", '1.1. Foo A', True),
+            (".//h4", '1.1.1. Foo A1', True),
+            (".//h3", '1.2. Foo B', True),
+            (".//h4", '1.2.1. Foo B1', True),
+
+            # bar.rst
+            (".//h2", '2. Bar', True),
+            (".//h3", '2.1. Bar A', True),
+            (".//h3", '2.2. Bar B', True),
+            (".//h4", '2.2.1. Bar B1', True),
+
+            # baz.rst
+            (".//h4", '2.1.1. Baz A', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        fp = open(os.path.join(app.outdir, fname), 'rb')
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@with_app(buildername='html', srcdir='(empty)')
+def test_url_in_toctree(app):
+    contents = (".. toctree::\n"
+                "\n"
+                "   http://sphinx-doc.org/\n"
+                "   Latest reference <http://sphinx-doc.org/latest/>\n")
+
+    (app.srcdir / 'contents.rst').write_text(contents, encoding='utf-8')
+    app.builder.build_all()
+
+    result = (app.outdir / 'contents.html').text(encoding='utf-8')
+    assert '<a class="reference external" href="http://sphinx-doc.org/">http://sphinx-doc.org/</a>' in result
+    assert '<a class="reference external" href="http://sphinx-doc.org/latest/">Latest reference</a>' in result

@@ -9,9 +9,12 @@
 
 import sys
 import codecs
+from difflib import unified_diff
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
+
+from six import string_types
 
 from sphinx import addnodes
 from sphinx.util import parselinenos
@@ -138,7 +141,29 @@ class LiteralInclude(Directive):
         'append': directives.unchanged_required,
         'emphasize-lines': directives.unchanged_required,
         'caption': directives.unchanged,
+        'diff': directives.unchanged_required,
     }
+
+    def read_with_encoding(self, filename, document, codec_info, encoding):
+        f = None
+        try:
+            f = codecs.StreamReaderWriter(open(filename, 'rb'),
+                                          codec_info[2], codec_info[3], 'strict')
+            lines = f.readlines()
+            lines = dedent_lines(lines, self.options.get('dedent'))
+            return lines
+        except (IOError, OSError):
+            return [document.reporter.warning(
+                'Include file %r not found or reading it failed' % filename,
+                line=self.lineno)]
+        except UnicodeError:
+            return [document.reporter.warning(
+                'Encoding %r used for reading included file %r seems to '
+                'be wrong, try giving an :encoding: option' %
+                (encoding, filename))]
+        finally:
+            if f is not None:
+                f.close()
 
     def run(self):
         document = self.state.document
@@ -155,24 +180,26 @@ class LiteralInclude(Directive):
 
         encoding = self.options.get('encoding', env.config.source_encoding)
         codec_info = codecs.lookup(encoding)
-        f = None
-        try:
-            f = codecs.StreamReaderWriter(open(filename, 'rb'),
-                    codec_info[2], codec_info[3], 'strict')
-            lines = f.readlines()
-            lines = dedent_lines(lines, self.options.get('dedent'))
-        except (IOError, OSError):
-            return [document.reporter.warning(
-                'Include file %r not found or reading it failed' % filename,
-                line=self.lineno)]
-        except UnicodeError:
-            return [document.reporter.warning(
-                'Encoding %r used for reading included file %r seems to '
-                'be wrong, try giving an :encoding: option' %
-                (encoding, filename))]
-        finally:
-            if f is not None:
-                f.close()
+
+        lines = self.read_with_encoding(filename, document,
+                                        codec_info, encoding)
+        if not isinstance(lines[0], string_types):
+            return lines
+
+        diffsource = self.options.get('diff')
+        if diffsource is not None:
+            tmp, fulldiffsource = env.relfn2path(diffsource)
+
+            difflines = self.read_with_encoding(fulldiffsource, document,
+                                           codec_info, encoding)
+            if not isinstance(difflines[0], string_types):
+                return difflines
+            diff = unified_diff(
+                difflines,
+                lines,
+                diffsource,
+                self.arguments[0])
+            lines = list(diff)
 
         objectname = self.options.get('pyobject')
         if objectname is not None:
@@ -236,6 +263,8 @@ class LiteralInclude(Directive):
             text = text.expandtabs(self.options['tab-width'])
         retnode = nodes.literal_block(text, text, source=filename)
         set_source_info(self, retnode)
+        if diffsource is not None:  # if diff is set, set udiff
+            retnode['language'] = 'udiff'
         if self.options.get('language', ''):
             retnode['language'] = self.options['language']
         retnode['linenos'] = 'linenos' in self.options or \

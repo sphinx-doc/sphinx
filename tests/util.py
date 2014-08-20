@@ -7,6 +7,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
 import sys
 import tempfile
 import shutil
@@ -244,3 +245,11 @@ def sprint(*args):
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 def remove_unicode_literals(s):
     return _unicode_literals_re.sub(lambda x: x.group(1) or x.group(2), s)
+
+
+def find_files(root, suffix=None):
+    for dirpath, dirs, files in os.walk(root, followlinks=True):
+        dirpath = path(dirpath)
+        for f in [f for f in files if not suffix or f.endswith(suffix)]:
+            fpath = dirpath / f
+            yield os.path.relpath(fpath, root)

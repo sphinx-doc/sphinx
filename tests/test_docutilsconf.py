@@ -15,7 +15,7 @@ from functools import wraps
 
 from six import StringIO
 
-from util import test_roots, TestApp
+from util import test_roots, TestApp, path, SkipTest
 
 
 html_warnfile = StringIO()
@@ -99,4 +99,31 @@ def test_man(app):
 @with_conf_app(buildername='texinfo', warning=html_warnfile)
 def test_texinfo(app):
     app.builder.build(['contents'])
-    assert html_warnfile.getvalue() == ''
+
+
+@with_conf_app(buildername='html', srcdir='(empty)',
+               docutilsconf='[general]\nsource_link=true\n')
+def test_docutils_source_link(app):
+    srcdir = path(app.srcdir)
+    (srcdir / 'conf.py').write_text('')
+    (srcdir / 'contents.rst').write_text('')
+    app.builder.build_all()
+
+
+@with_conf_app(buildername='html', srcdir='(empty)',
+               docutilsconf='[general]\nsource_link=true\n')
+def test_docutils_source_link_with_nonascii_file(app):
+    srcdir = path(app.srcdir)
+    mb_name = u'\u65e5\u672c\u8a9e'
+    try:
+        (srcdir / (mb_name + '.txt')).write_text('')
+    except UnicodeEncodeError:
+        from path import FILESYSTEMENCODING
+        raise SkipTest(
+            'nonascii filename not supported on this filesystem encoding: '
+            '%s', FILESYSTEMENCODING)
+
+    (srcdir / 'conf.py').write_text('')
+    (srcdir / 'contents.rst').write_text('')
+
+    app.builder.build_all()

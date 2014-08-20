@@ -111,9 +111,9 @@ class HTMLTranslator(BaseTranslator):
         self.body.append('</dt>\n')
 
     def visit_desc_addname(self, node):
-        self.body.append(self.starttag(node, 'tt', '', CLASS='descclassname'))
+        self.body.append(self.starttag(node, 'code', '', CLASS='descclassname'))
     def depart_desc_addname(self, node):
-        self.body.append('</tt>')
+        self.body.append('</code>')
 
     def visit_desc_type(self, node):
         pass
@@ -126,9 +126,9 @@ class HTMLTranslator(BaseTranslator):
         pass
 
     def visit_desc_name(self, node):
-        self.body.append(self.starttag(node, 'tt', '', CLASS='descname'))
+        self.body.append(self.starttag(node, 'code', '', CLASS='descname'))
     def depart_desc_name(self, node):
-        self.body.append('</tt>')
+        self.body.append('</code>')
 
     def visit_desc_parameterlist(self, node):
         self.body.append('<span class="sig-paren">(</span>')
@@ -234,9 +234,17 @@ class HTMLTranslator(BaseTranslator):
             self.body.append('.'.join(map(str, node['secnumber'])) +
                              self.secnumber_suffix)
         elif isinstance(node.parent, nodes.section):
-            anchorname = '#' + node.parent['ids'][0]
-            if anchorname not in self.builder.secnumbers:
-                anchorname = ''  # try first heading which has no anchor
+            if self.builder.name == 'singlehtml':
+                docname = node.parent.get('docname')
+                anchorname = '#' + node.parent['ids'][0]
+                if (docname, anchorname) not in self.builder.secnumbers:
+                    anchorname = (docname, '')  # try first heading which has no anchor
+                else:
+                    anchorname = (docname, anchorname)
+            else:
+                anchorname = '#' + node.parent['ids'][0]
+                if anchorname not in self.builder.secnumbers:
+                    anchorname = ''  # try first heading which has no anchor
             if self.builder.secnumbers.get(anchorname):
                 numbers = self.builder.secnumbers[anchorname]
                 self.body.append('.'.join(map(str, numbers)) +
@@ -276,7 +284,7 @@ class HTMLTranslator(BaseTranslator):
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s' % lang)
         if 'caption' in node:
-            starttag += '<div class="code-block-caption"><tt>%s</tt></div>' % (
+            starttag += '<div class="code-block-caption"><code>%s</code></div>' % (
                 node['caption'],)
         self.body.append(starttag + highlighted + '</div>\n')
         raise nodes.SkipNode
@@ -292,12 +300,12 @@ class HTMLTranslator(BaseTranslator):
 
     # overwritten
     def visit_literal(self, node):
-        self.body.append(self.starttag(node, 'tt', '',
+        self.body.append(self.starttag(node, 'code', '',
                                        CLASS='docutils literal'))
         self.protect_literal_text += 1
     def depart_literal(self, node):
         self.protect_literal_text -= 1
-        self.body.append('</tt>')
+        self.body.append('</code>')
 
     def visit_productionlist(self, node):
         self.body.append(self.starttag(node, 'pre'))

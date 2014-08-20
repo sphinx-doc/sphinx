@@ -318,7 +318,7 @@ div#comments div.comment h4 {
 }
 
 div#comments div.comment pre,
-div#comments div.comment tt {
+div#comments div.comment code {
     background-color: #ddd;
     color: #111;
     border: none;
@@ -616,23 +616,23 @@ pre {
     border-right: none;
 }
 
-tt {
+code {
     font-family: monospace;
     background-color: #ecf0f3;
     padding: 0 1px 0 1px;
 }
 
-tt.descname {
+code.descname {
     background-color: transparent;
     font-weight: bold;
     font-size: 1.2em;
 }
 
-tt.descclassname {
+code.descclassname {
     background-color: transparent;
 }
 
-tt.xref, a tt {
+code.xref, a code {
     background-color: transparent;
     font-weight: bold;
 }
@@ -651,7 +651,7 @@ tt.xref, a tt {
     margin-left: 1.5em;
 }
 
-h1 tt, h2 tt, h3 tt, h4 tt, h5 tt, h6 tt {
+h1 code, h2 code, h3 code, h4 code, h5 code, h6 code {
     background-color: transparent;
 }
 

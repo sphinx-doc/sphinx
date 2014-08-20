@@ -180,6 +180,16 @@ Includes
    ``prepend`` and ``append`` option, respectively.  This is useful e.g. for
    highlighting PHP code that doesn't include the ``<?php``/``?>`` markers.
 
+
+   If you want to show the diff of the code, you can specify the old
+   file by giving a ``diff`` option::
+
+      .. literalinclude:: example.py
+         :diff: example.py.orig
+
+   This shows the diff between example.py and example.py.orig with unified diff format.
+
+
    .. versionadded:: 0.4.3
       The ``encoding`` option.
    .. versionadded:: 0.6
@@ -187,6 +197,8 @@ Includes
       as well as support for absolute filenames.
    .. versionadded:: 1.0
       The ``prepend`` and ``append`` options, as well as ``tab-width``.
+   .. versionadded:: 1.3
+      The ``diff`` option.
 
 
 Showing a file name

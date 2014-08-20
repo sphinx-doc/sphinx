@@ -12,11 +12,15 @@ Incompatible changes
 * A new node, ``sphinx.addnodes.literal_strong``, has been added, for text that
   should appear literally (i.e. no smart quotes) in strong font.  Custom writers
   will have to be adapted to handle this node.
+* PR#269, #1476: replace `<tt>` tag by `<code>`. User customized stylesheets
+  should be updated If the css contain some styles for `<tt>` tag.
+  Thanks to Takeshi Komiya.
 
 Features added
 --------------
 
 * Add support for Python 3.4.
+* Add support for docutils 0.12
 * Added ``sphinx.ext.napoleon`` extension for NumPy and Google style docstring
   support.
 * PR#214: Added stemming support for 14 languages, so that the built-in document
@@ -45,6 +49,12 @@ Features added
 * PR#229: Allow registration of other translators. Thanks to Russell Sim.
 * Add app.set_translator() API to register or override a Docutils translator
   class like :confval:`html_translator_class`.
+* PR#267, #1134: add 'diff' parameter to literalinclude. Thanks to Richard Wall
+  and WAKAYAMA shirou.
+* PR#272: Added 'bizstyle' theme. Thanks to Shoji KUMAGAI.
+* Automatically compile ``*.mo`` files from ``*.po`` files when
+  :confval:`gettext_auto_build` is True (default) and ``*.po`` is newer than
+  ``*.mo`` file.
 
 Bugs fixed
 ----------
@@ -186,6 +196,13 @@ Bugs fixed
 
 * PR#258: Add dedent option for :rst:dir:`code-block` and
   :rst:dir:`literal-include`. Thanks to Zafar Siddiqui.
+* PR#268: Fix numbering section does not work at singlehtml mode. It still
+  ad-hoc fix because there is a issue that section IDs are conflicted.
+  Thanks to Takeshi Komiya.
+* PR#273, #1536: Fix RuntimeError with numbered circular toctree. Thanks to
+  Takeshi Komiya.
+* PR#274: Set its URL as a default title value if URL appears in toctree.
+  Thanks to Takeshi Komiya.
 
 Documentation
 -------------
@@ -197,6 +214,13 @@ Documentation
 
 Release 1.2.3 (in development)
 ==============================
+
+Features added
+--------------
+
+* #1518: `sphinx-apidoc` command now have a `--version` option to show version
+  information and exit
+* New locales: Hebrew, European Portuguese, Vietnamese.
 
 Bugs fixed
 ----------
@@ -222,6 +246,10 @@ Bugs fixed
   a default parameter with an empty list `[]`. Thanks to Geert Jansen.
 * #1508: Non-ASCII filename raise exception on make singlehtml, latex, man,
   texinfo and changes.
+* #1531: On Python3 environment, docutils.conf with 'source_link=true' in the
+  general section cause type error.
+* PR#270, #1533: Non-ASCII docstring cause UnicodeDecodeError when uses with
+  inheritance-diagram directive. Thanks to WAKAYAMA shirou.
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================

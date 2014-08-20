@@ -295,7 +295,7 @@ pre {
     border-left-style: none;
 }
  
-tt {
+code {
     background-color: transparent;
     color: #222;
     font-size: 1.1em;
@@ -336,7 +336,7 @@ a:hover em.std-term {
     font-style: normal;
 }
 
-tt.xref {
+code.xref {
     font-weight: normal;
     font-style: normal;
 }
