@@ -203,6 +203,8 @@ Bugs fixed
   Takeshi Komiya.
 * PR#274: Set its URL as a default title value if URL appears in toctree.
   Thanks to Takeshi Komiya.
+* PR#276, #1381: :rst:role:`rfc` and :rst:role:`pep` roles support custom link
+  text. Thanks to Takeshi Komiya.
 
 Documentation
 -------------
