@@ -132,9 +132,7 @@ Adding \n to test unescaping.
 *Linking inline markup*
 
 * :pep:`8`
-* :pep:`Python Enhancement Proposal #8 <8>`
 * :rfc:`1`
-* :rfc:`Request for Comments #1 <1>`
 * :envvar:`HOME`
 * :keyword:`with`
 * :token:`try statement <try_stmt>`
