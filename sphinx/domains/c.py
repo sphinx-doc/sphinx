@@ -39,6 +39,11 @@ c_funcptr_sig_re = re.compile(
         \( (.*) \)         # arguments
         (\s+const)? $      # const specifier
     ''', re.VERBOSE)
+c_funcptr_arg_sig_re = re.compile(
+    r'''^\s*([^(,]+?)       # return type
+        \( ([^()]+) \) \s* # name in parentheses
+        \( (.*) \)         # arguments
+    ''', re.VERBOSE)
 c_funcptr_name_re = re.compile(r'^\(\s*\*\s*(.*?)\s*\)$')
 
 
@@ -79,6 +84,24 @@ class CObject(ObjectDescription):
                 node += pnode
             else:
                 node += tnode
+
+    def _parse_arglist(self, arglist):
+        while True:
+            m = c_funcptr_arg_sig_re.match(arglist)
+            if m:
+                yield m.group()
+                arglist = c_funcptr_arg_sig_re.sub('', arglist)
+                if ',' in arglist:
+                    _, arglist = arglist.split(',', 1)
+                else:
+                    break
+            else:
+                if ',' in arglist:
+                    arg, arglist = arglist.split(',', 1)
+                    yield arg
+                else:
+                    yield arglist
+                    break
 
     def handle_signature(self, sig, signode):
         """Transform a C signature into RST nodes."""
@@ -122,19 +145,23 @@ class CObject(ObjectDescription):
         paramlist = addnodes.desc_parameterlist()
         arglist = arglist.replace('`', '').replace('\\ ', '') # remove markup
         # this messes up function pointer types, but not too badly ;)
-        args = arglist.split(',')
-        for arg in args:
+        for arg in self._parse_arglist(arglist):
             arg = arg.strip()
             param = addnodes.desc_parameter('', '', noemph=True)
             try:
-                ctype, argname = arg.rsplit(' ', 1)
+                m = c_funcptr_arg_sig_re.match(arg)
+                if m:
+                    self._parse_type(param, m.group(1) + '(')
+                    param += nodes.emphasis(m.group(2), m.group(2))
+                    self._parse_type(param, ')(' + m.group(3) + ')')
+                else:
+                    ctype, argname = arg.rsplit(' ', 1)
+                    self._parse_type(param, ctype)
+                    # separate by non-breaking space in the output
+                    param += nodes.emphasis(' '+argname, u'\xa0'+argname)
             except ValueError:
                 # no argument name given, only the type
                 self._parse_type(param, arg)
-            else:
-                self._parse_type(param, ctype)
-                # separate by non-breaking space in the output
-                param += nodes.emphasis(' '+argname, u'\xa0'+argname)
             paramlist += param
         signode += paramlist
         if const:
