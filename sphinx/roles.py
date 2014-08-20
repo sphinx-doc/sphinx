@@ -158,7 +158,7 @@ class XRefRole(object):
         return [node], []
 
 
-def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
+def indexmarkup_role(typ, rawtext, text, lineno, inliner,
                      options={}, content=[]):
     """Role for PEP/RFC references that generate an index entry."""
     env = inliner.document.settings.env
@@ -166,47 +166,53 @@ def indexmarkup_role(typ, rawtext, etext, lineno, inliner,
         typ = env.config.default_role
     else:
         typ = typ.lower()
-    text = utils.unescape(etext)
+    has_explicit_title, title, target = split_explicit_title(text)
+    title = utils.unescape(title)
+    target = utils.unescape(target)
     targetid = 'index-%s' % env.new_serialno('index')
     indexnode = addnodes.index()
     targetnode = nodes.target('', '', ids=[targetid])
     inliner.document.note_explicit_target(targetnode)
     if typ == 'pep':
         indexnode['entries'] = [
-            ('single', _('Python Enhancement Proposals; PEP %s') % text,
+            ('single', _('Python Enhancement Proposals; PEP %s') % target,
              targetid, '')]
         anchor = ''
-        anchorindex = text.find('#')
+        anchorindex = target.find('#')
         if anchorindex > 0:
-            text, anchor = text[:anchorindex], text[anchorindex:]
+            target, anchor = target[:anchorindex], target[anchorindex:]
+        if not has_explicit_title:
+            title = "PEP " + utils.unescape(title)
         try:
-            pepnum = int(text)
+            pepnum = int(target)
         except ValueError:
-            msg = inliner.reporter.error('invalid PEP number %s' % text,
+            msg = inliner.reporter.error('invalid PEP number %s' % target,
                                          line=lineno)
             prb = inliner.problematic(rawtext, rawtext, msg)
             return [prb], [msg]
         ref = inliner.document.settings.pep_base_url + 'pep-%04d' % pepnum
-        sn = nodes.strong('PEP '+text, 'PEP '+text)
+        sn = nodes.strong(title, title)
         rn = nodes.reference('', '', internal=False, refuri=ref+anchor,
                              classes=[typ])
         rn += sn
         return [indexnode, targetnode, rn], []
     elif typ == 'rfc':
-        indexnode['entries'] = [('single', 'RFC; RFC %s' % text, targetid, '')]
+        indexnode['entries'] = [('single', 'RFC; RFC %s' % target, targetid, '')]
         anchor = ''
-        anchorindex = text.find('#')
+        anchorindex = target.find('#')
         if anchorindex > 0:
-            text, anchor = text[:anchorindex], text[anchorindex:]
+            target, anchor = target[:anchorindex], target[anchorindex:]
+        if not has_explicit_title:
+            title = "RFC " + utils.unescape(title)
         try:
-            rfcnum = int(text)
+            rfcnum = int(target)
         except ValueError:
-            msg = inliner.reporter.error('invalid RFC number %s' % text,
+            msg = inliner.reporter.error('invalid RFC number %s' % target,
                                          line=lineno)
             prb = inliner.problematic(rawtext, rawtext, msg)
             return [prb], [msg]
         ref = inliner.document.settings.rfc_base_url + inliner.rfc_url % rfcnum
-        sn = nodes.strong('RFC '+text, 'RFC '+text)
+        sn = nodes.strong(title, title)
         rn = nodes.reference('', '', internal=False, refuri=ref+anchor,
                              classes=[typ])
         rn += sn
