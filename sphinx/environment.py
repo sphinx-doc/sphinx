@@ -1730,6 +1730,10 @@ class BuildEnvironment:
                     continue
                 elif isinstance(subnode, addnodes.toctree):
                     for title, subdocname in subnode['entries']:
+                        if url_re.match(subdocname) or subdocname == 'self':
+                            # don't mess with those
+                            continue
+
                         _walk_doc(subdocname, secnum)
 
                     continue
