@@ -1000,6 +1000,7 @@ class BuildEnvironment:
                     if blist:
                         onlynode += blist.children
                         entries.append(onlynode)
+                    continue
                 if not isinstance(sectionnode, nodes.section):
                     for toctreenode in traverse_in_section(sectionnode,
                                                            addnodes.toctree):
