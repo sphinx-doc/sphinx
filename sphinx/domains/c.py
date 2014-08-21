@@ -40,9 +40,11 @@ c_funcptr_sig_re = re.compile(
         (\s+const)? $      # const specifier
     ''', re.VERBOSE)
 c_funcptr_arg_sig_re = re.compile(
-    r'''^\s*([^(,]+?)       # return type
+    r'''^\s*([^(,]+?)      # return type
         \( ([^()]+) \) \s* # name in parentheses
         \( (.*) \)         # arguments
+        (\s+const)?        # const specifier
+        \s*(?=$|,)         # end with comma or end of string
     ''', re.VERBOSE)
 c_funcptr_name_re = re.compile(r'^\(\s*\*\s*(.*?)\s*\)$')
 
@@ -154,6 +156,8 @@ class CObject(ObjectDescription):
                     self._parse_type(param, m.group(1) + '(')
                     param += nodes.emphasis(m.group(2), m.group(2))
                     self._parse_type(param, ')(' + m.group(3) + ')')
+                    if m.group(4):
+                        param += addnodes.desc_addname(m.group(4), m.group(4))
                 else:
                     ctype, argname = arg.rsplit(' ', 1)
                     self._parse_type(param, ctype)
