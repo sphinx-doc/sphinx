@@ -102,6 +102,18 @@ linking:
    ``http://docs.python.org/3.2``.  It is up to you to update the inventory file
    as new objects are added to the Python documentation.
 
+   .. versionadded:: 1.3
+
+   Alternative files can be specified for each inventory. One can give a
+   tuple for the second inventory tuple item as shown in the following
+   example. This will read the inventory iterating through the (second)
+   tuple items until the first successful fetch. The primary use case for
+   this to specify mirror sites for server downtime of the primary
+   inventory::
+
+      intersphinx_mapping = {'python': ('http://docs.python.org/3.2',
+                                        (None, 'python-inv.txt')}
+
 .. confval:: intersphinx_cache_limit
 
    The maximum number of days to cache remote inventories.  The default is
