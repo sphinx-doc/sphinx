@@ -112,7 +112,7 @@ linking:
    inventory::
 
       intersphinx_mapping = {'python': ('http://docs.python.org/3.2',
-                                        (None, 'python-inv.txt')}
+                                        (None, 'python-inv.txt'))}
 
 .. confval:: intersphinx_cache_limit
 
