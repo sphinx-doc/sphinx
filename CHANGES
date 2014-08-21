@@ -205,6 +205,8 @@ Bugs fixed
   Thanks to Takeshi Komiya.
 * PR#276, #1381: :rst:role:`rfc` and :rst:role:`pep` roles support custom link
   text. Thanks to Takeshi Komiya.
+* PR#277, #1513: highlights for function pointers in argument list of
+  :rst:dir:`c:function`. Thanks to Takeshi Komiya.
 
 Documentation
 -------------
