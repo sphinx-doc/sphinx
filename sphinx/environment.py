@@ -1699,6 +1699,7 @@ class BuildEnvironment:
 
         rewrite_needed = []
 
+        assigned = set()
         old_fignumbers = self.toc_fignumbers
         self.toc_fignumbers = {}
         fignum_counter = {}
@@ -1745,8 +1746,10 @@ class BuildEnvironment:
                 _walk_doctree(docname, subnode, secnum)
 
         def _walk_doc(docname, secnum):
-            doctree = self.get_doctree(docname)
-            _walk_doctree(docname, doctree, secnum)
+            if docname not in assigned:
+                assigned.add(docname)
+                doctree = self.get_doctree(docname)
+                _walk_doctree(docname, doctree, secnum)
 
         if self.config.numfig:
             _walk_doc(self.config.master_doc, tuple())
