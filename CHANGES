@@ -55,6 +55,7 @@ Features added
 * Automatically compile ``*.mo`` files from ``*.po`` files when
   :confval:`gettext_auto_build` is True (default) and ``*.po`` is newer than
   ``*.mo`` file.
+* #623: :mod:`~sphinx.ext.viewcode` support imported function/class aliases.
 
 Bugs fixed
 ----------

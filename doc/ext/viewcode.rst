@@ -18,3 +18,23 @@ from the source to the description will also be inserted.
 There are currently no configuration values for this extension; you just need to
 add ``'sphinx.ext.viewcode'`` to your :confval:`extensions` value for it to
 work.
+
+There is also an additional config value:
+
+.. confval:: viewcode_import
+
+   If this is ``True``, viewcode extension will follow alias objects that
+   imported from another module such as functions, classes and attributes.
+   As side effects, this option
+   else they produce nothing.  The default is ``True``.
+
+   .. warning::
+
+      :confval:`viewcode_import` **imports** the modules to be followed real
+      location.  If any modules have side effects on import, these will be
+      executed by ``viewcode`` when ``sphinx-build`` is run.
+
+      If you document scripts (as opposed to library modules), make sure their
+      main routine is protected by a ``if __name__ == '__main__'`` condition.
+
+   .. versionadded:: 1.3

@@ -238,6 +238,20 @@ def get_module_source(modname):
     return 'file', filename
 
 
+def get_full_modname(modname, attribute):
+    __import__(modname)
+    module = sys.modules[modname]
+
+    # Allow an attribute to have multiple parts and incidentially allow
+    # repeated .s in the attribute.
+    value = module
+    for attr in attribute.split('.'):
+        if attr:
+            value = getattr(value, attr)
+
+    return getattr(value, '__module__', None)
+
+
 # a regex to recognize coding cookies
 _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 

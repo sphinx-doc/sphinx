@@ -9,13 +9,35 @@
     :license: BSD, see LICENSE for details.
 """
 
+import traceback
+
 from six import iteritems, text_type
 from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer
+from sphinx.util import get_full_modname
 from sphinx.util.nodes import make_refnode
+
+
+def _get_full_modname(app, modname, attribute):
+    try:
+        return get_full_modname(modname, attribute)
+    except AttributeError:
+        # sphinx.ext.viewcode can't follow class instance attribute
+        # then AttributeError logging output only verbose mode.
+        app.verbose('Didn\'t find %s in %s' % (attribute, modname))
+        return None
+    except Exception as e:
+        # sphinx.ext.viewcode follow python domain directives.
+        # because of that, if there are no real modules exists that specified
+        # by py:function or other directives, viewcode emits a lot of warnings.
+        # It should be displayed only verbose mode.
+        app.verbose(traceback.format_exc().rstrip())
+        app.verbose('viewcode can\'t import %s, failed with error "%s"' %
+                 (modname, e))
+        return None
 
 
 def doctree_read(app, doctree):
@@ -23,7 +45,7 @@ def doctree_read(app, doctree):
     if not hasattr(env, '_viewcode_modules'):
         env._viewcode_modules = {}
 
-    def has_tag(modname, fullname, docname):
+    def has_tag(modname, fullname, docname, refname):
         entry = env._viewcode_modules.get(modname, None)
         try:
             analyzer = ModuleAnalyzer.for_module(modname)
@@ -36,11 +58,11 @@ def doctree_read(app, doctree):
             code = analyzer.code
         if entry is None or entry[0] != code:
             analyzer.find_tags()
-            entry = code, analyzer.tags, {}
+            entry = code, analyzer.tags, {}, refname
             env._viewcode_modules[modname] = entry
         elif entry is False:
             return
-        code, tags, used = entry
+        _, tags, used, _ = entry
         if fullname in tags:
             used[fullname] = docname
             return True
@@ -53,10 +75,14 @@ def doctree_read(app, doctree):
             if not isinstance(signode, addnodes.desc_signature):
                 continue
             modname = signode.get('module')
+            fullname = signode.get('fullname')
+            refname = modname
+            if env.config.viewcode_import:
+                modname = _get_full_modname(app, modname, fullname)
             if not modname:
                 continue
             fullname = signode.get('fullname')
-            if not has_tag(modname, fullname, env.docname):
+            if not has_tag(modname, fullname, env.docname, refname):
                 continue
             if fullname in names:
                 # only one link per name, please
@@ -95,7 +121,7 @@ def collect_pages(app):
     for modname, entry in iteritems(env._viewcode_modules):
         if not entry:
             continue
-        code, tags, used = entry
+        code, tags, used, refname = entry
         # construct a page name for the highlighted source
         pagename = '_modules/' + modname.replace('.', '/')
         # highlight the source using the builder's highlighter
@@ -112,7 +138,7 @@ def collect_pages(app):
         maxindex = len(lines) - 1
         for name, docname in iteritems(used):
             type, start, end = tags[name]
-            backlink = urito(pagename, docname) + '#' + modname + '.' + name
+            backlink = urito(pagename, docname) + '#' + refname + '.' + name
             lines[start] = (
                 '<div class="viewcode-block" id="%s"><a class="viewcode-back" '
                 'href="%s">%s</a>' % (name, backlink, _('[docs]'))
@@ -171,6 +197,7 @@ def collect_pages(app):
 
 
 def setup(app):
+    app.add_config_value('viewcode_import', True, False)
     app.connect('doctree-read', doctree_read)
     app.connect('html-collect-pages', collect_pages)
     app.connect('missing-reference', missing_reference)
