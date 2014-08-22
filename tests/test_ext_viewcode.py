@@ -10,7 +10,8 @@
 """
 
 import re
-from StringIO import StringIO
+
+from six import StringIO
 
 from util import test_roots, with_app
 
