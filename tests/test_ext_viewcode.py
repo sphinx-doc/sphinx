@@ -39,3 +39,5 @@ def test_simple(app):
     result = (app.outdir / 'index.html').text(encoding='utf-8')
     assert result.count('href="_modules/spam/mod1.html#func1"') == 2
     assert result.count('href="_modules/spam/mod2.html#func2"') == 2
+    assert result.count('href="_modules/spam/mod1.html#Class1"') == 2
+    assert result.count('href="_modules/spam/mod2.html#Class2"') == 2
