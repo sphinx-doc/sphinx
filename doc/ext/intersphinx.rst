@@ -102,6 +102,8 @@ linking:
    ``http://docs.python.org/3.2``.  It is up to you to update the inventory file
    as new objects are added to the Python documentation.
 
+   **Multiple target for the inventory**
+
    .. versionadded:: 1.3
 
    Alternative files can be specified for each inventory. One can give a
