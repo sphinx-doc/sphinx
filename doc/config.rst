@@ -120,6 +120,10 @@ General configuration
    builtin/theme-specific templates).  Relative paths are taken as relative to
    the configuration directory.
 
+   .. versionchanged:: 1.3
+      As these files are not meant to be built, they are automatically added to
+      :confval:`exclude_patterns`.
+
 .. confval:: template_bridge
 
    A string with the fully-qualified name of a callable (or simply a class) that

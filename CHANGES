@@ -15,6 +15,9 @@ Incompatible changes
 * PR#269, #1476: replace `<tt>` tag by `<code>`. User customized stylesheets
   should be updated If the css contain some styles for `<tt>` tag.
   Thanks to Takeshi Komiya.
+* #1543: :confval:`templates_path` is automatically added to
+  :confval:`exclude_patterns` to avoid reading autosummary rst templates in the
+  templates directory.
 
 Features added
 --------------

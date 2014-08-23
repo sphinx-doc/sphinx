@@ -339,6 +339,7 @@ class BuildEnvironment:
         """
         matchers = compile_matchers(
             config.exclude_patterns[:] +
+            config.templates_path +
             config.html_extra_path +
             ['**/_sources', '.#*']
         )
