@@ -77,7 +77,7 @@ class CodeBlock(Directive):
         'dedent': int,
         'lineno-start': int,
         'emphasize-lines': directives.unchanged_required,
-        'filename': directives.unchanged_required,
+        'caption': directives.unchanged_required,
     }
 
     def run(self):
@@ -101,9 +101,9 @@ class CodeBlock(Directive):
 
         literal = nodes.literal_block(code, code)
         literal['language'] = self.arguments[0]
-        filename = self.options.get('filename')
-        if filename:
-            literal['filename'] = filename
+        caption = self.options.get('caption')
+        if caption:
+            literal['caption'] = caption
         literal['linenos'] = 'linenos' in self.options or \
                              'lineno-start' in self.options
         extra_args = literal['highlight_args'] = {}
@@ -140,7 +140,7 @@ class LiteralInclude(Directive):
         'prepend': directives.unchanged_required,
         'append': directives.unchanged_required,
         'emphasize-lines': directives.unchanged_required,
-        'filename': directives.unchanged,
+        'caption': directives.unchanged,
         'diff': directives.unchanged_required,
     }
 
@@ -269,11 +269,11 @@ class LiteralInclude(Directive):
             retnode['language'] = self.options['language']
         retnode['linenos'] = 'linenos' in self.options or \
                              'lineno-start' in self.options
-        filename = self.options.get('filename')
-        if filename is not None:
-            if not filename:
-                filename = self.arguments[0]
-            retnode['filename'] = filename
+        caption = self.options.get('caption')
+        if caption is not None:
+            if not caption:
+                caption = self.arguments[0]
+            retnode['caption'] = caption
         extra_args = retnode['highlight_args'] = {}
         if hl_lines is not None:
             extra_args['hl_lines'] = hl_lines

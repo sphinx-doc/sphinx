@@ -341,7 +341,7 @@ code.xref {
     font-style: normal;
 }
 
-div.code-block-filename {
+div.code-block-caption {
     background-color: #ddd;
     color: #222;
 }

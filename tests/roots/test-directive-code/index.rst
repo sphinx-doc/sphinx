@@ -2,6 +2,7 @@ test-directive-code
 ===================
 
 .. toctree::
+   :glob:
 
    *
 

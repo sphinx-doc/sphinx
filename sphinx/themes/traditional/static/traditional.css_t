@@ -703,6 +703,6 @@ div.viewcode-block:target {
     padding: 0 10px;
 }
 
-div.code-block-filename {
+div.code-block-caption {
     background-color: #cceeff;
 }
