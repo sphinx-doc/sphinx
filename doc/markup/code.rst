@@ -206,16 +206,16 @@ Showing a file name
 
 .. versionadded:: 1.3
 
-A ``filename`` option can be given to show that name before the code block.  For
+A ``caption`` option can be given to show that name before the code block.  For
 example::
 
    .. code-block:: python
-      :filename: this.py
+      :caption: this.py
 
       print 'Explicit is better than implicit.'
 
 
-:rst:dir:`literalinclude` also supports the ``filename`` option, with the
+:rst:dir:`literalinclude` also supports the ``caption`` option, with the
 additional feature that if you leave the value empty, the shown filename will be
 exactly the one given as an argument.
 

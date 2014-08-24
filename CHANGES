@@ -36,9 +36,9 @@ Features added
   like ``-D key=val1,val2``.
 * #668: Allow line numbering of ``code-block`` and ``literalinclude`` directives
   to start at an arbitrary line number, with a new ``lineno-start`` option.
-* PR#172: The :rst:dir:`code-block` and :rst:dir:`literalinclude` directives now
-  can have a ``filename`` option that shows a filename before the code in the
-  output.
+* PR#172, PR#266: The :rst:dir:`code-block` and :rst:dir:`literalinclude`
+  directives now can have a ``caption`` option that shows a filename before the
+  code in the output. Thanks to Nasimul Haque, Takeshi Komiya.
 * Prompt for the document language in sphinx-quickstart.
 * PR#217: Added config values to suppress UUID and location information in
   generated gettext catalogs.
