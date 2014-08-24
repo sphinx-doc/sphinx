@@ -36,8 +36,8 @@ Bugs fixed
   general section cause type error.
 * PR#270, #1533: Non-ASCII docstring cause UnicodeDecodeError when uses with
   inheritance-diagram directive. Thanks to WAKAYAMA shirou.
-* PR#281, #1509: TODO extension not compatible with websupport. Thanks to
-  Takeshi Komiya.
+* PR#281, PR#282, #1509: TODO extension not compatible with websupport. Thanks
+  to Takeshi Komiya.
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================
