@@ -563,6 +563,11 @@ class StandardDomain(Domain):
                         break
                 else:
                     continue
+            elif node.tagname == 'literal_block':
+                if 'caption' in node:
+                    sectname = node['caption']
+                else:
+                    continue
             else:
                 # anonymous-only labels
                 continue

@@ -142,6 +142,7 @@ Adding \n to test unescaping.
 * :ref:`here <some-label>`
 * :ref:`my-figure`
 * :ref:`my-table`
+* :ref:`my-code-block`
 * :doc:`subdir/includes`
 * ``:download:`` is tested in includes.txt
 * :option:`Python -c option <python -c>`
@@ -228,8 +229,11 @@ Version markup
 Code blocks
 -----------
 
+.. _my-code-block:
+
 .. code-block:: ruby
    :linenos:
+   :caption: my ruby code
 
    def ruby?
        false
