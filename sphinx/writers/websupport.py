@@ -23,7 +23,7 @@ class WebSupportTranslator(HTMLTranslator):
         self.comment_class = 'sphinx-has-comment'
 
     def dispatch_visit(self, node):
-        if is_commentable(node):
+        if is_commentable(node) and hasattr(node, 'uid'):
             self.handle_visit_commentable(node)
         HTMLTranslator.dispatch_visit(self, node)
 
