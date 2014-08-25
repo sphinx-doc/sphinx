@@ -19,7 +19,6 @@ recursive-include sphinx/locale *
 recursive-include sphinx/ext/autosummary/templates *
 recursive-include tests *
 recursive-include utils *
-recursive-include custom_fixers *
 include sphinx/pycode/Grammar-py2.txt
 include sphinx/pycode/Grammar-py3.txt
 
