@@ -38,6 +38,7 @@ Bugs fixed
   inheritance-diagram directive. Thanks to WAKAYAMA shirou.
 * PR#281, PR#282, #1509: TODO extension not compatible with websupport. Thanks
   to Takeshi Komiya.
+* #1477: gettext does not extract nodes.line in a table or list.
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================
