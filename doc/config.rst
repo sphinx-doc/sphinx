@@ -46,6 +46,8 @@ Important points to note:
   It can be used to query and change the tags (see :ref:`tags`).  Use
   ``tags.has('tag')`` to query, ``tags.add('tag')`` and ``tags.remove('tag')``
   to change.
+  Note that the current builder tag is not available in ``conf.py``, as it is
+  created *after* the builder is initialized.
 
 
 General configuration
