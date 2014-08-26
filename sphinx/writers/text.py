@@ -11,7 +11,7 @@
 import os
 import re
 import textwrap
-from itertools import groupby
+from itertools import groupby, izip_longest
 
 from docutils import nodes, writers
 from docutils.utils import column_width
@@ -503,7 +503,7 @@ class TextTranslator(nodes.NodeVisitor):
             self.add_text(''.join(out) + self.nl)
 
         def writerow(row):
-            lines = zip(*row)
+            lines = izip_longest(*row)
             for line in lines:
                 out = ['|']
                 for i, cell in enumerate(line):
