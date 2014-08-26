@@ -200,7 +200,7 @@ Bugs fixed
     qualified name. It should be rather easy to change this behaviour and
     potentially index by namespaces/classes as well.
 
-* PR#258: Add dedent option for :rst:dir:`code-block` and
+* PR#258, #939: Add dedent option for :rst:dir:`code-block` and
   :rst:dir:`literal-include`. Thanks to Zafar Siddiqui.
 * PR#268: Fix numbering section does not work at singlehtml mode. It still
   ad-hoc fix because there is a issue that section IDs are conflicted.
