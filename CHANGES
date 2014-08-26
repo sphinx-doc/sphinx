@@ -40,6 +40,8 @@ Bugs fixed
   to Takeshi Komiya.
 * #1477: gettext does not extract nodes.line in a table or list.
 * #1544: `make text` generate wrong table when it has empty table cells.
+* #1522: Footnotes from table get displayed twice in LaTeX. This problem has
+  been appeared from Sphinx-1.2.1 by #949.
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================
