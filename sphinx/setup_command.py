@@ -17,7 +17,7 @@ import os
 import types
 from StringIO import StringIO
 from distutils.cmd import Command
-from distutils.errors import DistutilsOptionError
+from distutils.errors import DistutilsOptionError, DistutilsExecError
 
 from sphinx.application import Sphinx
 from sphinx.util.console import darkred, nocolor, color_terminal
@@ -159,6 +159,9 @@ class BuildDoc(Command):
 
         try:
             app.build(force_all=self.all_files)
+            if app.statuscode:
+                raise DistutilsExecError(
+                    'caused by %s builder.' % app.builder.name)
         except Exception, err:
             from docutils.utils import SystemMessage
             if isinstance(err, SystemMessage):

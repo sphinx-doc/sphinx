@@ -42,6 +42,9 @@ Bugs fixed
 * #1544: `make text` generate wrong table when it has empty table cells.
 * #1522: Footnotes from table get displayed twice in LaTeX. This problem has
   been appeared from Sphinx-1.2.1 by #949.
+* #508: Sphinx every time exit with zero when is invoked from setup.py command.
+  ex. `python setup.py build_sphinx -b doctest` return zero even if doctest
+  failed.
 
 Release 1.2.2 (released Mar 2, 2014)
 ====================================

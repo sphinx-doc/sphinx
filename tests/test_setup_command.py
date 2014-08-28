@@ -47,7 +47,7 @@ def with_setup_command(root, *args, **kwds):
                     env=dict(os.environ, PYTHONPATH=pythonpath),
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
-                func(pkgrootdir, proc, *args, **kwds)
+                func(pkgrootdir, proc)
             finally:
                 tempdir.rmtree(ignore_errors=True)
                 os.chdir(cwd)
@@ -92,3 +92,14 @@ def test_build_sphinx_with_nonascii_path(pkgroot, proc):
     print(out)
     print(err)
     assert proc.returncode == 0
+
+
+@with_setup_command(root, '-b', 'linkcheck')
+def test_build_sphinx_return_nonzero_status(pkgroot, proc):
+    srcdir = (pkgroot / 'doc')
+    (srcdir / 'contents.txt').write_text(
+        'http://localhost.unexistentdomain/index.html')
+    out, err = proc.communicate()
+    print(out)
+    print(err)
+    assert proc.returncode != 0, 'expect non-zero status for setup.py'
