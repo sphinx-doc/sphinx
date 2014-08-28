@@ -215,6 +215,7 @@ Bugs fixed
   :rst:dir:`c:function`. Thanks to Takeshi Komiya.
 * PR#278: Fix section entries were shown twice if toctree has been put under
   only directive. Thanks to Takeshi Komiya.
+* #1547: pgen2 tokenizer doesn't recognize `...` literal (Ellipsis for py3).
 
 Documentation
 -------------

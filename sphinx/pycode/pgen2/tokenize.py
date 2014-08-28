@@ -33,6 +33,7 @@ __credits__ = \
     'GvR, ESR, Tim Peters, Thomas Wouters, Fred Drake, Skip Montanaro'
 
 import string, re
+from six import PY3
 from sphinx.pycode.pgen2.token import *
 from sphinx.pycode.pgen2 import token
 
@@ -84,6 +85,9 @@ Operator = group(r"\*\*=?", r">>=?", r"<<=?", r"<>", r"!=",
 
 Bracket = '[][(){}]'
 Special = group(r'\r?\n', r'[:;.,`@]')
+if PY3:
+    Ellipsis_ = r'\.{3}'
+    Special = group(Ellipsis_, Special)
 Funny = group(Operator, Bracket, Special)
 
 PlainToken = group(Number, Funny, String, Name)
@@ -356,8 +360,9 @@ def generate_tokens(readline):
                 spos, epos, pos = (lnum, start), (lnum, end), end
                 token, initial = line[start:end], line[start]
 
-                if initial in numchars or \
-                   (initial == '.' and token != '.'):      # ordinary number
+                if initial in numchars or (
+                   initial == '.' and token not in ('.', '...')
+                   ):                                      # ordinary number
                     yield (NUMBER, token, spos, epos, line)
                 elif initial in '\r\n':
                     newline = NEWLINE
@@ -392,6 +397,8 @@ def generate_tokens(readline):
                     else:                                  # ordinary string
                         yield (STRING, token, spos, epos, line)
                 elif initial in namechars:                 # ordinary name
+                    yield (NAME, token, spos, epos, line)
+                elif token in ('...',):                    # ordinary name
                     yield (NAME, token, spos, epos, line)
                 elif initial == '\\':                      # continued stmt
                     # This yield is new; needed for better idempotency:
