@@ -372,6 +372,7 @@ their type.  Each builder then chooses the best image out of these candidates.
 For instance, if the file name ``gnu.*`` was given and two files :file:`gnu.pdf`
 and :file:`gnu.png` existed in the source tree, the LaTeX builder would choose
 the former, while the HTML builder would prefer the latter.
+Supported image types and choosing priority are defined at :ref:`builders`.
 
 Note that image file names should not contain spaces.
 

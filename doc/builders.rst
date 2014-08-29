@@ -21,7 +21,9 @@ The builder's "name" must be given to the **-b** command-line option of
    quite a few configuration values that customize the output of this builder,
    see the chapter :ref:`html-options` for details.
 
-   Its name is ``html``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
 .. class:: DirectoryHTMLBuilder
 
@@ -32,7 +34,9 @@ The builder's "name" must be given to the **-b** command-line option of
    but ``markup/rest/index.html``.  When generating links between pages, the
    ``index.html`` is omitted, so that the URL would look like ``markup/rest/``.
 
-   Its name is ``dirhtml``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
    .. versionadded:: 0.6
 
@@ -42,7 +46,9 @@ The builder's "name" must be given to the **-b** command-line option of
    (Obviously this only works with smaller projects.)  The file is named like
    the master document.  No indices will be generated.
 
-   Its name is ``singlehtml``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
    .. versionadded:: 1.0
 
@@ -53,7 +59,9 @@ The builder's "name" must be given to the **-b** command-line option of
    also generates HTML Help support files that allow the Microsoft HTML Help
    Workshop to compile them into a CHM file.
 
-   Its name is ``htmlhelp``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
 .. module:: sphinx.builders.qthelp
 .. class:: QtHelpBuilder
@@ -62,7 +70,9 @@ The builder's "name" must be given to the **-b** command-line option of
    also generates `Qt help`_ collection support files that allow
    the Qt collection generator to compile them.
 
-   Its name is ``qthelp``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
    .. _Qt help: http://qt-project.org/doc/qt-4.8/qthelp-framework.html
 
@@ -73,7 +83,9 @@ The builder's "name" must be given to the **-b** command-line option of
    also generates `GNOME Devhelp <https://wiki.gnome.org/Apps/Devhelp>`__
    support file that allows the GNOME Devhelp reader to view them.
 
-   Its name is ``devhelp``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
 .. module:: sphinx.builders.epub
 .. class:: EpubBuilder
@@ -84,7 +96,9 @@ The builder's "name" must be given to the **-b** command-line option of
    `<http://idpf.org/epub>`_ or `<http://en.wikipedia.org/wiki/EPUB>`_.
    The builder creates *EPUB 2* files.
 
-   Its name is ``epub``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
 .. module:: sphinx.builders.latex
 .. class:: LaTeXBuilder
@@ -105,7 +119,9 @@ The builder's "name" must be given to the **-b** command-line option of
       * latex-extra
       * fonts-recommended
 
-   Its name is ``latex``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
 Note that a direct PDF builder using ReportLab is available in `rst2pdf
 <http://rst2pdf.googlecode.com>`_ version 0.12 or greater.  You need to add
@@ -120,7 +136,9 @@ for details.
    same as the reST source, but with much of the markup stripped for better
    readability.
 
-   Its name is ``text``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
    .. versionadded:: 0.4
 
@@ -131,7 +149,9 @@ for details.
    which documents are to be included in which manual pages via the
    :confval:`man_pages` configuration value.
 
-   Its name is ``man``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
    .. note::
 
@@ -155,7 +175,9 @@ for details.
    GNU project.  More information on Texinfo can be found at
    `<http://www.gnu.org/software/texinfo/>`_.
 
-   Its name is ``texinfo``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
    .. versionadded:: 1.1
 
@@ -216,7 +238,11 @@ for details.
 
    See :ref:`serialization-details` for details about the output format.
 
-   Its name is ``pickle``.  (The old name ``web`` still works as well.)
+   .. autoattribute:: name
+
+      The old name ``web`` still works as well.
+
+   .. autoattribute:: supported_image_types
 
    The file suffix is ``.fpickle``.  The global context is called
    ``globalcontext.pickle``, the search index ``searchindex.pickle``.
@@ -229,7 +255,9 @@ for details.
 
    See :ref:`serialization-details` for details about the output format.
 
-   Its name is ``json``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
    The file suffix is ``.fjson``.  The global context is called
    ``globalcontext.json``, the search index ``searchindex.json``.
@@ -244,7 +272,9 @@ for details.
 
    See the documentation on :ref:`intl` for further reference.
 
-   Its name is ``gettext``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
    .. versionadded:: 1.1
 
@@ -256,7 +286,9 @@ for details.
    :confval:`version`.  This is useful to generate a ChangeLog file, for
    example.
 
-   Its name is ``changes``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
 .. module:: sphinx.builders.linkcheck
 .. class:: CheckExternalLinksBuilder
@@ -265,7 +297,9 @@ for details.
    :mod:`urllib2`, and writes an overview which ones are broken and redirected
    to standard output and to :file:`output.txt` in the output directory.
 
-   Its name is ``linkcheck``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
 .. module:: sphinx.builders.xml
 .. class:: XMLBuilder
@@ -274,7 +308,9 @@ for details.
    transformed with standard XML tools such as XSLT processors into arbitrary
    final forms.
 
-   Its name is ``xml``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
    .. versionadded:: 1.2
 
@@ -286,7 +322,9 @@ for details.
    attributes for all elements are output, and internal attributes for any
    leftover "pending" elements are also given.
 
-   Its name is ``pseudoxml``.
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
 
    .. versionadded:: 1.2
 
