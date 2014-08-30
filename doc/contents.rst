@@ -26,6 +26,7 @@ Sphinx documentation contents
    devguide
    changes
    examples
+   authors
 
 
 Indices and tables

@@ -3,6 +3,21 @@ Sphinx is written and maintained by Georg Brandl <georg@python.org>.
 Substantial parts of the templates were written by Armin Ronacher
 <armin.ronacher@active-4.com>.
 
+Other co-maintainers, listed alphabetically, are:
+
+* Daniel Neuhäuser <@DasIch>
+* Dag Odenhall <@dag>
+* Ervin Hegedüs <@airween>
+* jacobmason <@jacobmason>
+* Jon Waltman <@jonwaltman>
+* Kevin Hunter <@hunteke>
+* La Min Ko <@lminko>
+* Nikolaj van Omme <@nvanomme>
+* Rob Ruana <@RelentlessIdiot>
+* Robert Lehmann <@lehmannro>
+* Roland Meister <@rolmei>
+* Takayuki Shimizukawa <@shimizukawa>
+
 Other contributors, listed alphabetically, are:
 
 * Andi Albrecht -- agogo theme
