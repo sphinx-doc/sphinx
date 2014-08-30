@@ -4,197 +4,186 @@ Release 1.3 (in development)
 Incompatible changes
 --------------------
 
-* Dropped support for Python 2.5, 3.1 and 3.2. [shimizukawa]
-* Dropped support for docutils versions up to 0.9. [shimizukawa]
-* Removed the ``sphinx.ext.oldcmarkup`` extension. [birkenfeld]
+* Dropped support for Python 2.5, 3.1 and 3.2.
+* Dropped support for docutils versions up to 0.9.
+* Removed the ``sphinx.ext.oldcmarkup`` extension.
 * The deprecated config values ``exclude_trees``, ``exclude_dirnames`` and
-  ``unused_docs`` have been removed. [birkenfeld]
+  ``unused_docs`` have been removed.
 * A new node, ``sphinx.addnodes.literal_strong``, has been added, for text that
   should appear literally (i.e. no smart quotes) in strong font.  Custom writers
-  will have to be adapted to handle this node. [birkenfeld]
+  will have to be adapted to handle this node.
 * PR#269, #1476: replace `<tt>` tag by `<code>`. User customized stylesheets
-  should be updated If the css contain some styles for `<tt>` tag. [tk0miya]
+  should be updated If the css contain some styles for `<tt>` tag.
+  Thanks to Takeshi Komiya.
 * #1543: :confval:`templates_path` is automatically added to
   :confval:`exclude_patterns` to avoid reading autosummary rst templates in the
-  templates directory. [shimizukawa]
+  templates directory.
 
 Features added
 --------------
 
-* Add support for Python 3.4. [shimizukawa]
-* Add support for docutils 0.12. [shimizukawa]
+* Add support for Python 3.4.
+* Add support for docutils 0.12
 * Added ``sphinx.ext.napoleon`` extension for NumPy and Google style docstring
-  support. [RelentlessIdiot]
+  support.
 * PR#214: Added stemming support for 14 languages, so that the built-in document
-  search can now handle these. [shibu]
+  search can now handle these.  Thanks to Shibukawa Yoshiki.
 * PR#202: Allow "." and "~" prefixed references in ``:param:`` doc fields
-  for Python. [birkenfeld]
+  for Python.
 * PR#184: Add :confval:`autodoc_mock_imports`, allowing to mock imports of
-  external modules that need not be present when autodocumenting. [birkenfeld]
+  external modules that need not be present when autodocumenting.
 * #925: Allow list-typed config values to be provided on the command line,
-  like ``-D key=val1,val2``. [birkenfeld]
+  like ``-D key=val1,val2``.
 * #668: Allow line numbering of ``code-block`` and ``literalinclude`` directives
   to start at an arbitrary line number, with a new ``lineno-start`` option.
-  [birkenfeld]
 * PR#172, PR#266: The :rst:dir:`code-block` and :rst:dir:`literalinclude`
   directives now can have a ``caption`` option that shows a filename before the
-  code in the output. [nsmgr8, tk0miya]
-* Prompt for the document language in sphinx-quickstart. [birkenfeld]
+  code in the output. Thanks to Nasimul Haque, Takeshi Komiya.
+* Prompt for the document language in sphinx-quickstart.
 * PR#217: Added config values to suppress UUID and location information in
-  generated gettext catalogs. [kenhys]
+  generated gettext catalogs.
 * PR#236, #1456: apidoc: Add a -M option to put module documentation before
-  submodule documentation. [westurner, Luc Saffre]
+  submodule documentation. Thanks to Wes Turner and Luc Saffre.
 * #1434: Provide non-minified JS files for jquery.js and underscore.js to
-  clarify the source of the minified files. [shimizukawa]
-* PR#252, #1291: Windows color console support. [meu31]
+  clarify the source of the minified files.
+* PR#252, #1291: Windows color console support. Thanks to meu31.
 * PR#255: When generating latex references, also insert latex target/anchor
-  for the ids defined on the node. [olivier-heurtier]
-* PR#229: Allow registration of other translators. [russell, shimizukawa]
+  for the ids defined on the node. Thanks to Olivier Heurtier.
+* PR#229: Allow registration of other translators. Thanks to Russell Sim.
 * Add app.set_translator() API to register or override a Docutils translator
-  class like :confval:`html_translator_class`. [shimizukawa]
-* PR#267, #1134: add 'diff' parameter to literalinclude. [wallr, r_rudi]
-* PR#272: Added 'bizstyle' theme. [shkumagai]
+  class like :confval:`html_translator_class`.
+* PR#267, #1134: add 'diff' parameter to literalinclude. Thanks to Richard Wall
+  and WAKAYAMA shirou.
+* PR#272: Added 'bizstyle' theme. Thanks to Shoji KUMAGAI.
 * Automatically compile ``*.mo`` files from ``*.po`` files when
   :confval:`gettext_auto_build` is True (default) and ``*.po`` is newer than
-  ``*.mo`` file. [shimizukawa]
+  ``*.mo`` file.
 * #623: :mod:`~sphinx.ext.viewcode` supports imported function/class aliases.
-  [shimizukawa]
 * PR#275: :mod:`~sphinx.ext.intersphinx` supports multiple target for the
-  inventory. [bsipocz]
+  inventory. Thanks to Brigitta Sipocz.
 
 Bugs fixed
 ----------
 
 * #1174: Fix smart quotes being applied inside roles like :rst:role:`program` or
-  :rst:role:`makevar`. [birkenfeld]
+  :rst:role:`makevar`.
 * #1335: Fix autosummary template overloading with exclamation prefix like
   ``{% extends "!autosummary/class.rst" %}`` cause infinite recursive function
-  call. This was caused by PR#181. [shimizukawa]
+  call. This was caused by PR#181.
 * #1337: Fix autodoc with ``autoclass_content="both"`` uses useless
   ``object.__init__`` docstring when class does not have ``__init__``.
-  This was caused by a change for #1138. [shimizukawa]
+  This was caused by a change for #1138.
 * #1340: Can't search alphabetical words on the HTML quick search generated
-  with language='ja'. [shimizukawa]
+  with language='ja'.
 * #1319: Do not crash if the :confval:`html_logo` file does not exist.
-  [birkenfeld]
 * #603: Do not use the HTML-ized title for building the search index (that
   resulted in "literal" being found on every page with a literal in the
-  title). [birkenfeld]
+  title).
 * #751: Allow production lists longer than a page in LaTeX by using longtable.
-  [birkenfeld]
-* #764: Always look for stopwords lowercased in JS search. [birkenfeld]
+* #764: Always look for stopwords lowercased in JS search.
 * #814: autodoc: Guard against strange type objects that don't have
-  ``__bases__``. [birkenfeld]
-* #932: autodoc: Do not crash if ``__doc__`` is not a string. [birkenfeld]
+  ``__bases__``.
+* #932: autodoc: Do not crash if ``__doc__`` is not a string.
 * #933: Do not crash if an :rst:role:`option` value is malformed (contains
-  spaces but no option name). [birkenfeld]
+  spaces but no option name).
 * #908: On Python 3, handle error messages from LaTeX correctly in the pngmath
-  extension. [birkenfeld]
+  extension.
 * #943: In autosummary, recognize "first sentences" to pull from the docstring
-  if they contain uppercase letters. [birkenfeld]
+  if they contain uppercase letters.
 * #923: Take the entire LaTeX document into account when caching
   pngmath-generated images.  This rebuilds them correctly when
-  :confval:`pngmath_latex_preamble` changes. [birkenfeld]
+  :confval:`pngmath_latex_preamble` changes.
 * #901: Emit a warning when using docutils' new "math" markup without a Sphinx
-  math extension active. [birkenfeld]
+  math extension active.
 * #845: In code blocks, when the selected lexer fails, display line numbers
-  nevertheless if configured. [birkenfeld]
-* #929: Support parsed-literal blocks in LaTeX output correctly. [birkenfeld]
-* #949: Update the tabulary.sty packed with Sphinx. [birkenfeld]
+  nevertheless if configured.
+* #929: Support parsed-literal blocks in LaTeX output correctly.
+* #949: Update the tabulary.sty packed with Sphinx.
 * #1050: Add anonymous labels into ``objects.inv`` to be referenced via
-  :mod:`~sphinx.ext.intersphinx`. [birkenfeld]
+  :mod:`~sphinx.ext.intersphinx`.
 * #1095: Fix print-media stylesheet being included always in the "scrolls"
-  theme. [birkenfeld]
+  theme.
 * #1085: Fix current classname not getting set if class description has
-  ``:noindex:`` set. [birkenfeld]
+  ``:noindex:`` set.
 * #1181: Report option errors in autodoc directives more gracefully.
-  [birkenfeld]
 * #1155: Fix autodocumenting C-defined methods as attributes in Python 3.
-  [birkenfeld]
 * #1233: Allow finding both Python classes and exceptions with the "class" and
-  "exc" roles in intersphinx. [birkenfeld]
+  "exc" roles in intersphinx.
 * #1198: Allow "image" for the "figwidth" option of the :rst:dir:`figure`
-  directive as documented by docutils. [birkenfeld]
+  directive as documented by docutils.
 * #1152: Fix pycode parsing errors of Python 3 code by including two grammar
   versions for Python 2 and 3, and loading the appropriate version for the
-  running Python version. [birkenfeld]
+  running Python version.
 * #1017: Be helpful and tell the user when the argument to :rst:dir:`option`
-  does not match the required format. [birkenfeld]
+  does not match the required format.
 * #1345: Fix two bugs with :confval:`nitpick_ignore`; now you don't have to
-  remove the store environment for changes to have effect. [birkenfeld]
+  remove the store environment for changes to have effect.
 * #1072: In the JS search, fix issues searching for upper-cased words by
-  lowercasing words before stemming. [birkenfeld]
+  lowercasing words before stemming.
 * #1299: Make behavior of the :rst:dir:`math` directive more consistent and
-  avoid producing empty environments in LaTeX output. [birkenfeld]
+  avoid producing empty environments in LaTeX output.
 * #1308: Strip HTML tags from the content of "raw" nodes before feeding it
-  to the search indexer. [birkenfeld]
-* #1249: Fix duplicate LaTeX page numbering for manual documents. [birkenfeld]
+  to the search indexer.
+* #1249: Fix duplicate LaTeX page numbering for manual documents.
 * #1292: In the linkchecker, retry HEAD requests when denied by HTTP 405.
   Also make the redirect code apparent and tweak the output a bit to be
-  more obvious. [birkenfeld]
+  more obvious.
 * #1285: Avoid name clashes between C domain objects and section titles.
-  [birkenfeld]
 * #848: Always take the newest code in incremental rebuilds with the
-  :mod:`sphinx.ext.viewcode` extension. [birkenfeld]
-* #979, #1266: Fix exclude handling in ``sphinx-apidoc``. [birkenfeld]
+  :mod:`sphinx.ext.viewcode` extension.
+* #979, #1266: Fix exclude handling in ``sphinx-apidoc``.
 * #1302: Fix regression in :mod:`sphinx.ext.inheritance_diagram` when
-  documenting classes that can't be pickled. [birkenfeld]
+  documenting classes that can't be pickled.
 * #1316: Remove hard-coded ``font-face`` resources from epub theme.
-  [birkenfeld]
-* #1329: Fix traceback with empty translation msgstr in .po files. [birkenfeld]
+* #1329: Fix traceback with empty translation msgstr in .po files.
 * #1300: Fix references not working in translated documents in some instances.
-  [birkenfeld]
 * #1283: Fix a bug in the detection of changed files that would try to access
-  doctrees of deleted documents. [birkenfeld]
+  doctrees of deleted documents.
 * #1330: Fix :confval:`exclude_patterns` behavior with subdirectories in the
-  :confval:`html_static_path`. [birkenfeld]
+  :confval:`html_static_path`.
 * #1323: Fix emitting empty ``<ul>`` tags in the HTML writer, which is not
-  valid HTML. [birkenfeld]
+  valid HTML.
 * #1147: Don't emit a sidebar search box in the "singlehtml" builder.
-  [birkenfeld]
 * PR#211: When checking for existence of the :confval:`html_logo` file, check
-  the full relative path and not the basename. [ViktorHaag]
+  the full relative path and not the basename.
 * #1357: Option names documented by :rst:dir:`option` are now again allowed to
   not start with a dash or slash, and referencing them will work correctly.
-  [birkenfeld]
 * #1358: Fix handling of image paths outside of the source directory when using
-  the "wildcard" style reference. [shimizukawa]
+  the "wildcard" style reference.
 * #1374: Fix for autosummary generating overly-long summaries if first line
-  doesn't end with a period. [birkenfeld]
+  doesn't end with a period.
 * #1391: Actually prevent using "pngmath" and "mathjax" extensions at the same
-  time in sphinx-quickstart. [birkenfeld]
+  time in sphinx-quickstart.
 * #1386: Fix bug preventing more than one theme being added by the entry point
-  mechanism. [birkenfeld]
-* #1370: Ignore "toctree" nodes in text writer, instead of raising. [birkenfeld]
+  mechanism.
+* #1370: Ignore "toctree" nodes in text writer, instead of raising.
 * #1364: Fix 'make gettext' fails when the '.. todolist::' directive is present.
-  [shimizukawa]
 * #1367: Fix a change of PR#96 that break sphinx.util.docfields.Field.make_field
-  interface/behavior for `item` argument usage. [shimizukawa]
+  interface/behavior for `item` argument usage.
 * #1363: Fix i18n: missing python domain's cross-references with currentmodule
-  directive or currentclass directive. [shimizukawa]
+  directive or currentclass directive.
 * #1419: Generated i18n sphinx.js files are missing message catalog entries
   from '.js_t' and '.html'. The issue was introduced in Sphinx 1.1.
-  [shimizukawa]
 * #636: Keep straight single quotes in literal blocks in the LaTeX build.
-  [birkenfeld]
 * PR#235: comment db schema of websupport lacked a length of the node_id field.
-  [solos]
+  Thanks to solos.
 * #1466,PR#241: Fix failure of the cpp domain parser to parse C+11
-  "variadic templates" declarations. [vitaut]
+  "variadic templates" declarations. Thanks to Victor Zverovich.
 * #1459,PR#244: Fix default mathjax js path point to `http://` that cause
-  mixed-content error on HTTPS server. [sbrandtb, robo9k].
+  mixed-content error on HTTPS server. Thanks to sbrandtb and robo9k.
 * PR#157: autodoc remove spurious signatures from @property decorated
-  attributes. [David_Ham]
+  attributes. Thanks to David Ham.
 * PR#159: Add coverage targets to quickstart generated Makefile and make.bat.
-  [mcmtroffaes]
+  Thanks to Matthias Troffaes.
 * #1251: When specifying toctree :numbered: option and :tocdepth: metadata,
   sub section number that is larger depth than `:tocdepth:` is shrinked.
-  [shimizukawa]
-* PR#260: Encode underscore in citation labels for latex export. [lennart0901]
+* PR#260: Encode underscore in citation labels for latex export. Thanks to
+  Lennart Fricke.
 * PR#264: Fix could not resolve xref for figure node with :name: option.
-  [tk0miya]
-* PR#265: Fix could not capture caption of graphviz node by xref. [tk0miya]
-* PR#263, #1013, #1103: Rewrite of C++ domain. [jakobla]
+  Thanks to Takeshi Komiya.
+* PR#265: Fix could not capture caption of graphviz node by xref. Thanks to
+  Takeshi Komiya.
+* PR#263, #1013, #1103: Rewrite of C++ domain. Thanks to Jakob Lykke Andersen.
 
   * Hyperlinks to all found nested names and template arguments (#1103).
   * Support for function types everywhere, e.g., in
@@ -212,31 +201,28 @@ Bugs fixed
     potentially index by namespaces/classes as well.
 
 * PR#258, #939: Add dedent option for :rst:dir:`code-block` and
-  :rst:dir:`literal-include`. [zsiddiqui2]
+  :rst:dir:`literal-include`. Thanks to Zafar Siddiqui.
 * PR#268: Fix numbering section does not work at singlehtml mode. It still
   ad-hoc fix because there is a issue that section IDs are conflicted.
-  [tk0miya]
-* PR#273, #1536: Fix RuntimeError with numbered circular toctree. [tk0miya]
+  Thanks to Takeshi Komiya.
+* PR#273, #1536: Fix RuntimeError with numbered circular toctree. Thanks to
+  Takeshi Komiya.
 * PR#274: Set its URL as a default title value if URL appears in toctree.
-  [tk0miya]
+  Thanks to Takeshi Komiya.
 * PR#276, #1381: :rst:role:`rfc` and :rst:role:`pep` roles support custom link
-  text. [tk0miya]
+  text. Thanks to Takeshi Komiya.
 * PR#277, #1513: highlights for function pointers in argument list of
-  :rst:dir:`c:function`. [tk0miya]
+  :rst:dir:`c:function`. Thanks to Takeshi Komiya.
 * PR#278: Fix section entries were shown twice if toctree has been put under
-  only directive. [tk0miya]
+  only directive. Thanks to Takeshi Komiya.
 * #1547: pgen2 tokenizer doesn't recognize `...` literal (Ellipsis for py3).
-  [shimizukawa]
 
 Documentation
 -------------
 
 * Add clarification about the syntax of tags. (:file:`doc/markup/misc.rst`)
-  [davidjb]
 * #1325: Added a "Intersphinx" tutorial section. (:file:`doc/tutorial.rst`)
-  [birkenfeld]
 * Extended the :ref:`documentation about building extensions <dev-extensions>`.
-  [birkenfeld]
 
 
 Release 1.2.3 (in development)
