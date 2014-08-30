@@ -64,7 +64,7 @@ of the core developers before it is merged into the main repository.
 #. Write a test which shows that the bug was fixed or that the feature works
    as expected.
 #. Send a pull request and bug the maintainer until it gets merged and
-   published. :) Make sure to add yourself to AUTHORS_ and the change to
+   published. Make sure to add yourself to AUTHORS_ and the change to
    CHANGES_.
 
 .. _`the repository`: https://bitbucket.org/birkenfeld/sphinx
