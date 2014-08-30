@@ -238,6 +238,12 @@ class Locale(Transform):
                         self.document.ids.pop(_id, None)
 
                     # re-entry with new named section node.
+                    #
+                    # Note: msgnode that is a second parameter of the
+                    # `note_implicit_target` is not necessary here because
+                    # section_node has been noted previously on rst parsing by
+                    # `docutils.parsers.rst.states.RSTState.new_subsection()`
+                    # and already has `system_message` if needed.
                     self.document.note_implicit_target(section_node)
 
                     # replace target's refname to new target name

@@ -261,3 +261,7 @@ following directive exists:
 .. [#] For most builders name and format are the same. At the moment only
        builders derived from the html builder distinguish between the builder
        format and the builder name.
+
+       Note that the current builder tag is not available in ``conf.py``, it is
+       only available after the builder is intialized.
+

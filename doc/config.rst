@@ -47,6 +47,8 @@ Important points to note:
   ``tags.has('tag')`` to query, ``tags.add('tag')`` and ``tags.remove('tag')``
   to change. Only tags set via the ``-t`` command-line option or via
   ``tags.add('tag')`` can be queried using ``tags.has('tag')``.
+  Note that the current builder tag is not available in ``conf.py``, as it is
+  created *after* the builder is initialized.
 
 
 General configuration

@@ -16,7 +16,7 @@ from __future__ import print_function
 import sys
 import os
 from distutils.cmd import Command
-from distutils.errors import DistutilsOptionError
+from distutils.errors import DistutilsOptionError, DistutilsExecError
 
 from six import StringIO, string_types
 
@@ -159,6 +159,9 @@ class BuildDoc(Command):
 
         try:
             app.build(force_all=self.all_files)
+            if app.statuscode:
+                raise DistutilsExecError(
+                    'caused by %s builder.' % app.builder.name)
         except Exception as err:
             from docutils.utils import SystemMessage
             if isinstance(err, SystemMessage):

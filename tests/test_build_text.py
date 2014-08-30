@@ -139,3 +139,29 @@ def test_nonascii_maxwidth(app):
     lines = [line.strip() for line in result.splitlines() if line.strip()]
     line_widths = [column_width(line) for line in lines]
     assert max(line_widths) < MAXWIDTH
+
+
+@with_text_app()
+def test_table_with_empty_cell(app):
+    contents = (u"""
+        +-----+-----+
+        | XXX | XXX |
+        +-----+-----+
+        |     | XXX |
+        +-----+-----+
+        | XXX |     |
+        +-----+-----+
+    """)
+
+    (app.srcdir / 'contents.rst').write_text(contents, encoding='utf-8')
+    app.builder.build_all()
+    result = (app.outdir / 'contents.txt').text(encoding='utf-8')
+
+    lines = [line.strip() for line in result.splitlines() if line.strip()]
+    assert lines[0] == "+-------+-------+"
+    assert lines[1] == "| XXX   | XXX   |"
+    assert lines[2] == "+-------+-------+"
+    assert lines[3] == "|       | XXX   |"
+    assert lines[4] == "+-------+-------+"
+    assert lines[5] == "| XXX   |       |"
+    assert lines[6] == "+-------+-------+"

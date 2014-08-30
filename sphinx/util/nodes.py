@@ -34,6 +34,38 @@ class WarningStream(object):
 explicit_title_re = re.compile(r'^(.+?)\s*(?<!\x00)<(.*?)>$', re.DOTALL)
 caption_ref_re = explicit_title_re  # b/w compat alias
 
+
+def apply_source_workaround(node):
+    if node.source:
+        return
+
+    # workaround: nodes.term doesn't have source, line and rawsource
+    # (fixed in Docutils r7495)
+    if isinstance(node, nodes.term):
+        definition_list_item = node.parent
+        if definition_list_item.line is not None:
+            node.source = definition_list_item.source
+            node.line = definition_list_item.line - 1
+            node.rawsource = definition_list_item. \
+                rawsource.split("\n", 2)[0]
+            return
+
+    # workaround: docutils-0.10.0 or older's nodes.caption for nodes.figure
+    # and nodes.title for nodes.admonition doesn't have source, line.
+    # this issue was filed to Docutils tracker:
+    # sf.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
+    # sourceforge.net/p/docutils/patches/108/
+    if (isinstance(node, (
+            nodes.caption,
+            nodes.title,
+            nodes.rubric,
+            nodes.line,
+    ))):
+        node.source = find_source_node(node)
+        node.line = 0  # need fix docutils to get `node.line`
+        return
+
+
 IGNORED_NODES = (
     nodes.Invisible,
     nodes.Inline,
@@ -44,24 +76,7 @@ IGNORED_NODES = (
 def extract_messages(doctree):
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(nodes.TextElement):
-        # workaround: nodes.term doesn't have source, line and rawsource
-        # (fixed in Docutils r7495)
-        if isinstance(node, nodes.term) and not node.source:
-            definition_list_item = node.parent
-            if definition_list_item.line is not None:
-                node.source = definition_list_item.source
-                node.line = definition_list_item.line - 1
-                node.rawsource = definition_list_item.\
-                                 rawsource.split("\n", 2)[0]
-        # workaround: docutils-0.10.0 or older's nodes.caption for nodes.figure
-        # and nodes.title for nodes.admonition doesn't have source, line.
-        # this issue was filed to Docutils tracker:
-        # sf.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
-        # sourceforge.net/p/docutils/patches/108/
-        if isinstance(node, (nodes.caption, nodes.title, nodes.rubric)) \
-           and not node.source:
-            node.source = find_source_node(node)
-            node.line = 0  #need fix docutils to get `node.line`
+        apply_source_workaround(node)
 
         if not node.source:
             continue # built-in message
