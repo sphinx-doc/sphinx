@@ -269,12 +269,14 @@ class Autosummary(Directive):
 
             # try to also get a source code analyzer for attribute docs
             try:
-                documenter.analyzer = ModuleAnalyzer.for_module(documenter.get_real_modname())
+                documenter.analyzer = ModuleAnalyzer.for_module(
+                    documenter.get_real_modname())
                 # parse right now, to get PycodeErrors on parsing (results will
                 # be cached anyway)
                 documenter.analyzer.find_attr_docs()
             except PycodeError, err:
-                documenter.env.app.debug('[autodoc] module analyzer failed: %s', err)
+                documenter.env.app.debug(
+                    '[autodoc] module analyzer failed: %s', err)
                 # no source file -- e.g. for builtin and C modules
                 documenter.analyzer = None
 
