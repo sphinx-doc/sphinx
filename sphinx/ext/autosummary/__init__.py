@@ -276,7 +276,8 @@ class Autosummary(Directive):
                 # be cached anyway)
                 documenter.analyzer.find_attr_docs()
             except PycodeError as err:
-                documenter.env.app.debug('[autodoc] module analyzer failed: %s', err)
+                documenter.env.app.debug(
+                    '[autodoc] module analyzer failed: %s', err)
                 # no source file -- e.g. for builtin and C modules
                 documenter.analyzer = None
 
