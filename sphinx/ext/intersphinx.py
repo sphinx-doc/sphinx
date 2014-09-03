@@ -36,6 +36,7 @@ from six.moves.urllib import request
 from docutils import nodes
 from docutils.utils import relative_path
 
+import sphinx
 from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
 
@@ -275,3 +276,4 @@ def setup(app):
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.connect('missing-reference', missing_reference)
     app.connect('builder-inited', load_mappings)
+    return sphinx.__version__

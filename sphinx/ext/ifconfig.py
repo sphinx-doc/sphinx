@@ -22,6 +22,7 @@
 
 from docutils import nodes
 
+import sphinx
 from sphinx.util.nodes import set_source_info
 from sphinx.util.compat import Directive
 
@@ -72,3 +73,4 @@ def setup(app):
     app.add_node(ifconfig)
     app.add_directive('ifconfig', IfConfig)
     app.connect('doctree-resolved', process_ifconfig_nodes)
+    return sphinx.__version__

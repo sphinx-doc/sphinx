@@ -12,6 +12,7 @@
 
 from docutils import nodes
 
+import sphinx
 from sphinx.application import ExtensionError
 from sphinx.ext.mathbase import setup_math as mathbase_setup
 
@@ -56,3 +57,4 @@ def setup(app):
     mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
     app.add_config_value('jsmath_path', '', False)
     app.connect('builder-inited', builder_inited)
+    return sphinx.__version__

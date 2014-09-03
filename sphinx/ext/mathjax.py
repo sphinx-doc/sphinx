@@ -13,6 +13,7 @@
 
 from docutils import nodes
 
+import sphinx
 from sphinx.application import ExtensionError
 from sphinx.ext.mathbase import setup_math as mathbase_setup
 
@@ -68,3 +69,4 @@ def setup(app):
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
     app.connect('builder-inited', builder_inited)
+    return sphinx.__version__

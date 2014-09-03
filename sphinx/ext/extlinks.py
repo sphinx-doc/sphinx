@@ -27,6 +27,7 @@
 from six import iteritems
 from docutils import nodes, utils
 
+import sphinx
 from sphinx.util.nodes import split_explicit_title
 
 
@@ -58,3 +59,4 @@ def setup_link_roles(app):
 def setup(app):
     app.add_config_value('extlinks', {}, 'env')
     app.connect('builder-inited', setup_link_roles)
+    return sphinx.__version__

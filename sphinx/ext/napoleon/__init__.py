@@ -13,6 +13,7 @@ import sys
 
 from six import PY2, iteritems
 
+import sphinx
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 
 
@@ -255,6 +256,7 @@ def setup(app):
 
     for name, (default, rebuild) in iteritems(Config._config_values):
         app.add_config_value(name, default, rebuild)
+    return sphinx.__version__
 
 
 def _process_docstring(app, what, name, obj, options, lines):

@@ -14,6 +14,7 @@
 
 from docutils import nodes
 
+import sphinx
 from sphinx.locale import _
 from sphinx.environment import NoUri
 from sphinx.util.nodes import set_source_info
@@ -171,3 +172,4 @@ def setup(app):
     app.connect('doctree-read', process_todos)
     app.connect('doctree-resolved', process_todo_nodes)
     app.connect('env-purge-doc', purge_todos)
+    return sphinx.__version__

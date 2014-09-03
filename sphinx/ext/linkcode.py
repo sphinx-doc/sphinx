@@ -11,6 +11,7 @@
 
 from docutils import nodes
 
+import sphinx
 from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.errors import SphinxError
@@ -70,3 +71,4 @@ def doctree_read(app, doctree):
 def setup(app):
     app.connect('doctree-read', doctree_read)
     app.add_config_value('linkcode_resolve', None, '')
+    return sphinx.__version__

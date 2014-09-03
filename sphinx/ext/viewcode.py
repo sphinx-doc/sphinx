@@ -14,6 +14,7 @@ import traceback
 from six import iteritems, text_type
 from docutils import nodes
 
+import sphinx
 from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer
@@ -203,3 +204,4 @@ def setup(app):
     app.connect('missing-reference', missing_reference)
     #app.add_config_value('viewcode_include_modules', [], 'env')
     #app.add_config_value('viewcode_exclude_modules', [], 'env')
+    return sphinx.__version__

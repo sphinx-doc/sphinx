@@ -21,6 +21,7 @@ from hashlib import sha1
 from six import text_type
 from docutils import nodes
 
+import sphinx
 from sphinx.errors import SphinxError
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.osutil import ensuredir, ENOENT
@@ -245,3 +246,4 @@ def setup(app):
     app.add_config_value('pngmath_latex_preamble', '', 'html')
     app.add_config_value('pngmath_add_tooltips', True, 'html')
     app.connect('build-finished', cleanup_tempdir)
+    return sphinx.__version__

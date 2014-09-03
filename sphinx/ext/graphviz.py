@@ -22,6 +22,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 
+import sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _
 from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
@@ -322,3 +323,4 @@ def setup(app):
     app.add_config_value('graphviz_dot', 'dot', 'html')
     app.add_config_value('graphviz_dot_args', [], 'html')
     app.add_config_value('graphviz_output_format', 'png', 'html')
+    return sphinx.__version__

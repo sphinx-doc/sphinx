@@ -49,6 +49,7 @@ from six import text_type
 from docutils import nodes
 from docutils.parsers.rst import directives
 
+import sphinx
 from sphinx.ext.graphviz import render_dot_html, render_dot_latex, \
     render_dot_texinfo
 from sphinx.pycode import ModuleAnalyzer
@@ -406,3 +407,4 @@ def setup(app):
     app.add_config_value('inheritance_graph_attrs', {}, False),
     app.add_config_value('inheritance_node_attrs', {}, False),
     app.add_config_value('inheritance_edge_attrs', {}, False),
+    return sphinx.__version__

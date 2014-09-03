@@ -22,6 +22,7 @@ from six import itervalues, StringIO, binary_type
 from docutils import nodes
 from docutils.parsers.rst import directives
 
+import sphinx
 from sphinx.builders import Builder
 from sphinx.util import force_decode
 from sphinx.util.nodes import set_source_info
@@ -434,3 +435,4 @@ def setup(app):
     app.add_config_value('doctest_test_doctest_blocks', 'default', False)
     app.add_config_value('doctest_global_setup', '', False)
     app.add_config_value('doctest_global_cleanup', '', False)
+    return sphinx.__version__
