@@ -191,8 +191,9 @@ def save_traceback(app):
                    jinja2.__version__)).encode('utf-8'))
     if app is not None:
         for extname, extmod in iteritems(app._extensions):
-            os.write(fd, ('#   %s from %s\n' % (
-                extname, getattr(extmod, '__file__', 'unknown'))
+            os.write(fd, ('#   %s (%s) from %s\n' % (
+                extname, app._extension_versions[extname],
+                getattr(extmod, '__file__', 'unknown'))
                 ).encode('utf-8'))
     os.write(fd, exc.encode('utf-8'))
     os.close(fd)

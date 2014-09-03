@@ -71,6 +71,7 @@ class Sphinx(object):
         self.verbosity = verbosity
         self.next_listener_id = 0
         self._extensions = {}
+        self._extension_versions = {}
         self._listeners = {}
         self.domains = BUILTIN_DOMAINS.copy()
         self.builderclasses = BUILTIN_BUILDERS.copy()
@@ -345,16 +346,20 @@ class Sphinx(object):
         if not hasattr(mod, 'setup'):
             self.warn('extension %r has no setup() function; is it really '
                       'a Sphinx extension module?' % extension)
+            version = None
         else:
             try:
-                mod.setup(self)
+                version = mod.setup(self)
             except VersionRequirementError as err:
                 # add the extension name to the version required
                 raise VersionRequirementError(
                     'The %s extension used by this project needs at least '
                     'Sphinx v%s; it therefore cannot be built with this '
                     'version.' % (extension, err))
+        if version is None:
+            version = 'unknown version'
         self._extensions[extension] = mod
+        self._extension_versions[extension] = version
 
     def require_sphinx(self, version):
         # check the Sphinx version if requested

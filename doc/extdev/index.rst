@@ -18,6 +18,11 @@ imports this module and executes its ``setup()`` function, which in turn
 notifies Sphinx of everything the extension offers -- see the extension tutorial
 for examples.
 
+.. versionadded:: 1.3
+   The ``setup()`` function can return a string, this is treated by Sphinx as
+   the version of the extension and used for informational purposes such as the
+   traceback file when an exception occurs.
+
 The configuration file itself can be treated as an extension if it contains a
 ``setup()`` function.  All other extensions to load must be listed in the
 :confval:`extensions` configuration value.
