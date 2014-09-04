@@ -27,8 +27,9 @@ Features added
 * Added ``sphinx.ext.napoleon`` extension for NumPy and Google style docstring
   support.
 * Added support for extension versions (a string returned by ``setup()``, these
-  can be shown in the traceback log files).  In the future this might also be
-  used for version checking.
+  can be shown in the traceback log files).  Version requirements for extensions
+  can be specified in projects using the new :confval:`needs_extensions` config
+  value.
 * PR#214: Added stemming support for 14 languages, so that the built-in document
   search can now handle these.  Thanks to Shibukawa Yoshiki.
 * PR#202: Allow "." and "~" prefixed references in ``:param:`` doc fields

@@ -201,6 +201,19 @@ General configuration
 
    .. versionadded:: 1.0
 
+.. confval:: needs_extensions
+
+   This value can be a dictionary specifying version requirements for extensions
+   in :confval:`extensions`, e.g. ``needs_extensions =
+   {'sphinxcontrib.something': '1.5'}``.  The version strings should be in the
+   form ``major.minor``.  Requirements do not have to be specified for all
+   extensions, only for those you want to check.
+
+   This requires that the extension specifies its version to Sphinx (see
+   :ref:`dev-extensions` for how to do that).
+
+   .. versionadded:: 1.3
+
 .. confval:: nitpicky
 
    If true, Sphinx will warn about *all* references where the target cannot be

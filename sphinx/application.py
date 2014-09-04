@@ -144,6 +144,21 @@ class Sphinx(object):
                 'This project needs at least Sphinx v%s and therefore cannot '
                 'be built with this version.' % self.config.needs_sphinx)
 
+        # check extension versions if requested
+        if self.config.needs_extensions:
+            for extname, needs_ver in self.config.needs_extensions.items():
+                if extname not in self._extensions:
+                    self.warn('needs_extensions config value specifies a '
+                              'version requirement for extension %s, but it is '
+                              'not loaded' % extname)
+                    continue
+                has_ver = self._extension_versions[extname]
+                if has_ver == 'unknown version' or needs_ver > has_ver:
+                    raise VersionRequirementError(
+                        'This project needs the extension %s at least in '
+                        'version %s and therefore cannot be built with the '
+                        'loaded version (%s).' % (extname, needs_ver, has_ver))
+
         # set up translation infrastructure
         self._init_i18n()
         # set up the build environment

@@ -68,6 +68,7 @@ class Config(object):
         trim_doctest_flags = (True, 'env'),
         primary_domain = ('py', 'env'),
         needs_sphinx = (None, None),
+        needs_extensions = ({}, None),
         nitpicky = (False, 'env'),
         nitpick_ignore = ([], 'html'),
 
