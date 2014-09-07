@@ -59,7 +59,7 @@ Literalinclude options
    :end-before: class Foo
 
 .. literalinclude:: literal.inc
-   :diff: literal.inc.orig
+   :diff: literal_orig.inc
 
 .. cssclass:: inc-tab3
 .. literalinclude:: tabs.inc
