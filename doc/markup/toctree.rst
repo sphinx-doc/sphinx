@@ -199,14 +199,14 @@ The special document names (and pages generated for them) are:
 
 .. warning::
 
-  Be careful with unusual characters in filenames.  Some formats may interpret
-  these characters in unexpected ways:
+   Be careful with unusual characters in filenames.  Some formats may interpret
+   these characters in unexpected ways:
 
-  * Do not user the colon ``:`` for HTML based formats.  Links to other parts
-    may not work.
+   * Do not use the colon ``:`` for HTML based formats.  Links to other parts
+     may not work.
 
-  * Do not use the plus ``+`` for the ePub format.  Some resources may not be
-    found.
+   * Do not use the plus ``+`` for the ePub format.  Some resources may not be
+     found.
 
 .. rubric:: Footnotes
 
