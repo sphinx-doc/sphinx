@@ -1,6 +1,12 @@
 Release 1.2.4 (in development)
 ==============================
 
+Bugs fixed
+----------
+
+* #1563: :meth:`~sphinx.application.Sphinx.add_search_language` raises
+  AssertionError for correct type of argument. Thanks to rikoman.
+
 
 Release 1.2.3 (released Sep 1, 2014)
 ====================================

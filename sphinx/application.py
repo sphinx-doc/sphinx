@@ -615,7 +615,7 @@ class Sphinx(object):
     def add_search_language(self, cls):
         self.debug('[app] adding search language: %r', cls)
         from sphinx.search import languages, SearchLanguage
-        assert isinstance(cls, SearchLanguage)
+        assert issubclass(cls, SearchLanguage)
         languages[cls.lang] = cls
 
 
