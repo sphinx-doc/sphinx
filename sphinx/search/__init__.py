@@ -143,9 +143,10 @@ class WordCollector(NodeVisitor):
         self.lang = lang
 
     def dispatch_visit(self, node):
-        if node.__class__ is comment:
+        nodetype = type(node)
+        if issubclass(nodetype, comment):
             raise SkipNode
-        if node.__class__ is raw:
+        if issubclass(nodetype, raw):
             # Some people might put content in raw HTML that should be searched,
             # so we just amateurishly strip HTML tags and index the remaining
             # content
@@ -154,9 +155,9 @@ class WordCollector(NodeVisitor):
             nodetext = re.sub(r'<[^<]+?>', '', nodetext)
             self.found_words.extend(self.lang.split(nodetext))
             raise SkipNode
-        if node.__class__ is Text:
+        if issubclass(nodetype, Text):
             self.found_words.extend(self.lang.split(node.astext()))
-        elif node.__class__ is title:
+        elif issubclass(nodetype, title):
             self.found_title_words.extend(self.lang.split(node.astext()))
 
 
