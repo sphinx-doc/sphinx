@@ -9,12 +9,15 @@ while using Sphinx.
 The green arrows designate "more info" links leading to advanced sections about
 the described task.
 
+
 Install Sphinx
 --------------
 
-Install Sphinx from `PyPI <https://pypi.python.org/pypi/Sphinx>`_ ::
+Install Sphinx, either from a distribution package or from
+`PyPI <https://pypi.python.org/pypi/Sphinx>`_ with ::
 
    $ pip install Sphinx
+
 
 Setting up the documentation sources
 ------------------------------------
