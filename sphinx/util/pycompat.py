@@ -25,6 +25,8 @@ if sys.version_info >= (3, 0):
     bytes = bytes
     # prefix for Unicode strings
     u = ''
+    # getcwd function
+    from os import getcwd
     # StringIO/BytesIO classes
     from io import StringIO, BytesIO, TextIOWrapper
     # safely encode a string for printing to the terminal
@@ -58,6 +60,7 @@ else:
     b = str
     bytes = str
     u = 'u'
+    from os import getcwdu as getcwd
     from StringIO import StringIO
     BytesIO = StringIO
     # no need to refactor on 2.x versions

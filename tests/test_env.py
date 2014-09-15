@@ -8,9 +8,11 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import os
 import sys
+import tempfile
 
-from util import TestApp, remove_unicode_literals, path
+from util import TestApp, test_root, remove_unicode_literals, path
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
@@ -94,6 +96,29 @@ def test_second_update():
     assert docnames == set(['contents', 'new', 'includes', 'images'])
     assert 'autodoc' not in env.all_docs
     assert 'autodoc' not in env.found_docs
+
+
+def test_record_dependency_on_multibyte_directory():
+    app = None
+    olddir = os.getcwd()
+    try:
+        tmproot = path(os.path.abspath(tempfile.mkdtemp()))
+        tmpdir = tmproot / u'テスト'
+        test_root.copytree(tmpdir)
+        os.chdir(tmpdir)
+        tmpdir = path(os.getcwd())  # for MacOSX; tmpdir is based on symlinks
+
+        app = TestApp(srcdir=tmpdir, freshenv=True)
+        (app.srcdir / 'test.txt').write_text('.. include:: test.inc')
+        (app.srcdir / 'test.inc').write_text('hello sphinx')
+        _, _, it = app.env.update(app.config, app.srcdir, app.doctreedir, app)
+        list(it)  # take all from iterator
+    finally:
+        tmproot.rmtree(ignore_errors=True)
+        os.chdir(olddir)
+        if app:
+            app.cleanup()
+
 
 def test_object_inventory():
     refs = env.domaindata['py']['objects']

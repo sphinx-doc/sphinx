@@ -39,7 +39,7 @@ from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream
 from sphinx.util.osutil import SEP, fs_encoding, find_catalog_files
 from sphinx.util.matching import compile_matchers
-from sphinx.util.pycompat import class_types
+from sphinx.util.pycompat import class_types, getcwd
 from sphinx.util.compat import docutils_version
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
@@ -760,7 +760,7 @@ class BuildEnvironment:
 
     def process_dependencies(self, docname, doctree):
         """Process docutils-generated dependency info."""
-        cwd = os.getcwd()
+        cwd = getcwd()
         frompath = path.join(path.normpath(self.srcdir), 'dummy')
         deps = doctree.settings.record_dependencies
         if not deps:
