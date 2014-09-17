@@ -1,6 +1,11 @@
 Release 1.2.4 (in development)
 ==============================
 
+Features added
+--------------
+
+* Exception logs now contain the last 10 messages emitted by Sphinx.
+
 Bugs fixed
 ----------
 

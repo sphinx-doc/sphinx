@@ -63,6 +63,9 @@ def coloron():
 def colorize(name, text):
     return codes.get(name, '') + text + codes.get('reset', '')
 
+def strip_colors(s):
+    return re.compile('\x1b.*?m').sub('', s)
+
 def create_color_func(name):
     def inner(text):
         return colorize(name, text)
