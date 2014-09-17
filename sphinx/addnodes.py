@@ -107,7 +107,7 @@ class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
     *entrytype* is one of "single", "pair", "double", "triple".
     """
 
-class centered(nodes.Part, nodes.Element):
+class centered(nodes.Part, nodes.TextElement):
     """Deprecated."""
 
 class acks(nodes.Element):

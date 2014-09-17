@@ -11,6 +11,7 @@ Bugs fixed
 
 * #1563: :meth:`~sphinx.application.Sphinx.add_search_language` raises
   AssertionError for correct type of argument. Thanks to rikoman.
+* #1568: fix a crash when a "centered" directive contains a reference.  
 
 
 Release 1.2.3 (released Sep 1, 2014)
