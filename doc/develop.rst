@@ -55,6 +55,7 @@ This is the current list of contributed extensions in that repository:
 - hyphenator: client-side hyphenation of HTML using hyphenator_
 - inlinesyntaxhighlight_: inline syntax highlighting
 - lassodomain: a domain for documenting Lasso_ source code
+- libreoffice: an extension to include any drawing supported by LibreOffice (e.g. odg, vsd...).
 - lilypond: an extension inserting music scripts from Lilypond_ in PNG format.
 - makedomain_: a domain for `GNU Make`_
 - matlabdomain: document MATLAB_ code.
