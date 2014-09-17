@@ -277,8 +277,8 @@ class Builder(object):
 
         # finish (write static files etc.)
         self.finish()
-        status = (self.app.statuscode == 0 and 'succeeded'
-                                           or 'finished with problems')
+        status = (self.app.statuscode == 0
+                  and 'succeeded' or 'finished with problems')
         if self.app._warncount:
             self.info(bold('build %s, %s warning%s.' %
                            (status, self.app._warncount,
@@ -387,7 +387,7 @@ class Builder(object):
             threads.append(t)
 
         # make sure all threads have finished
-        self.info(bold('waiting for workers... '))#, nonl=True)
+        self.info(bold('waiting for workers... '))
         for t in threads:
             t.join()
 

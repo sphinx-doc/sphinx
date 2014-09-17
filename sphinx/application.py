@@ -17,17 +17,18 @@ import types
 import posixpath
 from os import path
 from cStringIO import StringIO
+from collections import deque
 
 from docutils import nodes
 from docutils.parsers.rst import convert_directive_function, \
-     directives, roles
+    directives, roles
 
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.roles import XRefRole
 from sphinx.config import Config
 from sphinx.errors import SphinxError, SphinxWarning, ExtensionError, \
-     VersionRequirementError, ConfigError
+    VersionRequirementError, ConfigError
 from sphinx.domains import ObjType, BUILTIN_DOMAINS
 from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.builders import BUILTIN_BUILDERS
@@ -94,6 +95,9 @@ class Sphinx(object):
         self.warningiserror = warningiserror
 
         self._events = events.copy()
+
+        # keep last few messages for traceback
+        self.messagelog = deque(maxlen=10)
 
         # say hello to the world
         self.info(bold('Running Sphinx v%s' % sphinx.__version__))
@@ -241,6 +245,7 @@ class Sphinx(object):
             wfile.write('\n')
         if hasattr(wfile, 'flush'):
             wfile.flush()
+        self.messagelog.append(message)
 
     def warn(self, message, location=None, prefix='WARNING: '):
         """Emit a warning.
