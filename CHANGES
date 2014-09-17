@@ -70,6 +70,7 @@ Features added
 Bugs fixed
 ----------
 
+* #1568: fix a crash when a "centered" directive contains a reference.
 * #1563: :meth:`~sphinx.application.Sphinx.add_search_language` raises
   AssertionError for correct type of argument. Thanks to rikoman.
 * #1174: Fix smart quotes being applied inside roles like :rst:role:`program` or
