@@ -26,6 +26,7 @@ Features added
 * Add support for docutils 0.12
 * Added ``sphinx.ext.napoleon`` extension for NumPy and Google style docstring
   support.
+* Exception logs now contain the last 10 messages emitted by Sphinx.
 * Added support for extension versions (a string returned by ``setup()``, these
   can be shown in the traceback log files).  Version requirements for extensions
   can be specified in projects using the new :confval:`needs_extensions` config
@@ -69,6 +70,8 @@ Features added
 Bugs fixed
 ----------
 
+* #1563: :meth:`~sphinx.application.Sphinx.add_search_language` raises
+  AssertionError for correct type of argument. Thanks to rikoman.
 * #1174: Fix smart quotes being applied inside roles like :rst:role:`program` or
   :rst:role:`makevar`.
 * #1335: Fix autosummary template overloading with exclamation prefix like

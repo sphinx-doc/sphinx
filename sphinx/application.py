@@ -18,19 +18,20 @@ import types
 import posixpath
 import traceback
 from os import path
+from collections import deque
 
 from six import iteritems, itervalues
 from six.moves import cStringIO
 from docutils import nodes
 from docutils.parsers.rst import convert_directive_function, \
-     directives, roles
+    directives, roles
 
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.roles import XRefRole
 from sphinx.config import Config
 from sphinx.errors import SphinxError, SphinxWarning, ExtensionError, \
-     VersionRequirementError, ConfigError
+    VersionRequirementError, ConfigError
 from sphinx.domains import ObjType, BUILTIN_DOMAINS
 from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.builders import BUILTIN_BUILDERS
@@ -101,6 +102,9 @@ class Sphinx(object):
 
         self._events = events.copy()
         self._translators = {}
+
+        # keep last few messages for traceback
+        self.messagelog = deque(maxlen=10)
 
         # say hello to the world
         self.info(bold('Running Sphinx v%s' % sphinx.__version__))
@@ -264,6 +268,7 @@ class Sphinx(object):
             wfile.write('\n')
         if hasattr(wfile, 'flush'):
             wfile.flush()
+        self.messagelog.append(message)
 
     def warn(self, message, location=None, prefix='WARNING: '):
         """Emit a warning.
@@ -650,7 +655,7 @@ class Sphinx(object):
     def add_search_language(self, cls):
         self.debug('[app] adding search language: %r', cls)
         from sphinx.search import languages, SearchLanguage
-        assert isinstance(cls, SearchLanguage)
+        assert issubclass(cls, SearchLanguage)
         languages[cls.lang] = cls
 
 

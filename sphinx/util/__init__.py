@@ -30,6 +30,7 @@ import jinja2
 
 import sphinx
 from sphinx.errors import PycodeError
+from sphinx.util.console import strip_colors
 
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
@@ -176,6 +177,8 @@ _DEBUG_HEADER = '''\
 # Python version: %s
 # Docutils version: %s %s
 # Jinja2 version: %s
+# Last messages:
+%s
 # Loaded extensions:
 '''
 
@@ -184,11 +187,17 @@ def save_traceback(app):
     import platform
     exc = traceback.format_exc()
     fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
+    last_msgs = ''
+    if app is not None:
+        last_msgs = '\n'.join(
+            '#   %s' % strip_colors(force_decode(s, 'utf-8')).strip()
+            for s in app.messagelog)
     os.write(fd, (_DEBUG_HEADER %
                   (sphinx.__version__,
                    platform.python_version(),
                    docutils.__version__, docutils.__version_details__,
-                   jinja2.__version__)).encode('utf-8'))
+                   jinja2.__version__,
+                   last_msgs)).encode('utf-8'))
     if app is not None:
         for extname, extmod in iteritems(app._extensions):
             os.write(fd, ('#   %s (%s) from %s\n' % (
