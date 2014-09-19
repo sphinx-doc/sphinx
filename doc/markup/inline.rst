@@ -86,6 +86,10 @@ Cross-referencing anything
    Python module (usually ``:py:mod:`signal``` or ``:mod:`signal```) and a
    section (usually ``:ref:`about-signals```).
 
+   The :rst:role:`any` role also works together with the
+   :mod:`~sphinx.ext.intersphinx` extension: when no local cross-reference is
+   found, all object types of intersphinx inventories are also searched.
+
 
 Cross-referencing objects
 -------------------------
