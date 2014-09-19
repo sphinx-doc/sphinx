@@ -1349,49 +1349,21 @@ class BuildEnvironment:
                         domain = self.domains[node['refdomain']]
                     except KeyError:
                         raise NoUri
-                    newnode = domain.resolve_xref(self, fromdocname, builder,
+                    newnode = domain.resolve_xref(self, refdoc, builder,
                                                   typ, target, node, contnode)
                 # really hardwired reference types
                 elif typ == 'doc':
-                    # directly reference to document by source name;
-                    # can be absolute or relative
-                    docname = docname_join(refdoc, target)
-                    if docname in self.all_docs:
-                        if node['refexplicit']:
-                            # reference with explicit title
-                            caption = node.astext()
-                        else:
-                            caption = clean_astext(self.titles[docname])
-                        innernode = nodes.emphasis(caption, caption)
-                        newnode = nodes.reference('', '', internal=True)
-                        newnode['refuri'] = builder.get_relative_uri(
-                            fromdocname, docname)
-                        newnode.append(innernode)
+                    newnode = self._resolve_doc_reference(builder, node, contnode)
                 elif typ == 'citation':
-                    docname, labelid = self.citations.get(target, ('', ''))
-                    if docname:
-                        try:
-                            newnode = make_refnode(builder, fromdocname,
-                                                   docname, labelid, contnode)
-                        except NoUri:
-                            # remove the ids we added in the CitationReferences
-                            # transform since they can't be transfered to
-                            # the contnode (if it's a Text node)
-                            if not isinstance(contnode, nodes.Element):
-                                del node['ids'][:]
-                            raise
-                    elif 'ids' in node:
-                        # remove ids attribute that annotated at
-                        # transforms.CitationReference.apply.
-                        del node['ids'][:]
+                    newnode = self._resolve_citation(builder, node, contnode)
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(
                         'missing-reference', self, node, contnode)
-                    # still not found? warn if in nit-picky mode
+                    # still not found? warn if node wishes to be warned about or
+                    # we are in nit-picky mode
                     if newnode is None:
-                        self._warn_missing_reference(
-                            fromdocname, typ, target, node, domain)
+                        self._warn_missing_reference(refdoc, typ, target, node, domain)
             except NoUri:
                 newnode = contnode
             node.replace_self(newnode or contnode)
@@ -1402,7 +1374,7 @@ class BuildEnvironment:
         # allow custom references to be resolved
         builder.app.emit('doctree-resolved', doctree, fromdocname)
 
-    def _warn_missing_reference(self, fromdoc, typ, target, node, domain):
+    def _warn_missing_reference(self, refdoc, typ, target, node, domain):
         warn = node.get('refwarn')
         if self.config.nitpicky:
             warn = True
@@ -1421,12 +1393,47 @@ class BuildEnvironment:
             msg = 'unknown document: %(target)s'
         elif typ == 'citation':
             msg = 'citation not found: %(target)s'
-        elif node.get('refdomain', 'std') != 'std':
+        elif node.get('refdomain', 'std') not in ('', 'std'):
             msg = '%s:%s reference target not found: %%(target)s' % \
                   (node['refdomain'], typ)
         else:
-            msg = '%s reference target not found: %%(target)s' % typ
+            msg = '%r reference target not found: %%(target)s' % typ
         self.warn_node(msg % {'target': target}, node)
+
+    def _resolve_doc_reference(self, builder, node, contnode):
+        # directly reference to document by source name;
+        # can be absolute or relative
+        docname = docname_join(node['refdoc'], node['reftarget'])
+        if docname in self.all_docs:
+            if node['refexplicit']:
+                # reference with explicit title
+                caption = node.astext()
+            else:
+                caption = clean_astext(self.titles[docname])
+            innernode = nodes.emphasis(caption, caption)
+            newnode = nodes.reference('', '', internal=True)
+            newnode['refuri'] = builder.get_relative_uri(node['refdoc'], docname)
+            newnode.append(innernode)
+            return newnode
+
+    def _resolve_citation(self, builder, node, contnode):
+        docname, labelid = self.citations.get(node['reftarget'], ('', ''))
+        if docname:
+            try:
+                newnode = make_refnode(builder, node['refdoc'],
+                                       docname, labelid, contnode)
+                return newnode
+            except NoUri:
+                # remove the ids we added in the CitationReferences
+                # transform since they can't be transfered to
+                # the contnode (if it's a Text node)
+                if not isinstance(contnode, nodes.Element):
+                    del node['ids'][:]
+                raise
+        elif 'ids' in node:
+            # remove ids attribute that annotated at
+            # transforms.CitationReference.apply.
+            del node['ids'][:]
 
     def process_only_nodes(self, doctree, builder, fromdocname=None):
         # A comment on the comment() nodes being inserted: replacing by [] would
