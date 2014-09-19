@@ -82,104 +82,6 @@ Bugs fixed
   AssertionError for correct type of argument. Thanks to rikoman.
 * #1174: Fix smart quotes being applied inside roles like :rst:role:`program` or
   `makevar`.
-* #1335: Fix autosummary template overloading with exclamation prefix like
-  ``{% extends "!autosummary/class.rst" %}`` cause infinite recursive function
-  call. This was caused by PR#181.
-* #1337: Fix autodoc with ``autoclass_content="both"`` uses useless
-  ``object.__init__`` docstring when class does not have ``__init__``.
-  This was caused by a change for #1138.
-* #1340: Can't search alphabetical words on the HTML quick search generated
-  with language='ja'.
-* #1319: Do not crash if the `html_logo` file does not exist.
-* #603: Do not use the HTML-ized title for building the search index (that
-  resulted in "literal" being found on every page with a literal in the
-  title).
-* #751: Allow production lists longer than a page in LaTeX by using longtable.
-* #764: Always look for stopwords lowercased in JS search.
-* #814: autodoc: Guard against strange type objects that don't have
-  ``__bases__``.
-* #932: autodoc: Do not crash if ``__doc__`` is not a string.
-* #933: Do not crash if an :rst:role:`option` value is malformed (contains
-  spaces but no option name).
-* #908: On Python 3, handle error messages from LaTeX correctly in the pngmath
-  extension.
-* #943: In autosummary, recognize "first sentences" to pull from the docstring
-  if they contain uppercase letters.
-* #923: Take the entire LaTeX document into account when caching
-  pngmath-generated images.  This rebuilds them correctly when
-  `pngmath_latex_preamble` changes.
-* #901: Emit a warning when using docutils' new "math" markup without a Sphinx
-  math extension active.
-* #845: In code blocks, when the selected lexer fails, display line numbers
-  nevertheless if configured.
-* #929: Support parsed-literal blocks in LaTeX output correctly.
-* #949: Update the tabulary.sty packed with Sphinx.
-* #1050: Add anonymous labels into ``objects.inv`` to be referenced via
-  :mod:`~sphinx.ext.intersphinx`.
-* #1095: Fix print-media stylesheet being included always in the "scrolls"
-  theme.
-* #1085: Fix current classname not getting set if class description has
-  ``:noindex:`` set.
-* #1181: Report option errors in autodoc directives more gracefully.
-* #1155: Fix autodocumenting C-defined methods as attributes in Python 3.
-* #1233: Allow finding both Python classes and exceptions with the "class" and
-  "exc" roles in intersphinx.
-* #1198: Allow "image" for the "figwidth" option of the :dudir:`figure`
-  directive as documented by docutils.
-* #1152: Fix pycode parsing errors of Python 3 code by including two grammar
-  versions for Python 2 and 3, and loading the appropriate version for the
-  running Python version.
-* #1017: Be helpful and tell the user when the argument to :rst:dir:`option`
-  does not match the required format.
-* #1345: Fix two bugs with `nitpick_ignore`; now you don't have to
-  remove the store environment for changes to have effect.
-* #1072: In the JS search, fix issues searching for upper-cased words by
-  lowercasing words before stemming.
-* #1299: Make behavior of the :rst:dir:`math` directive more consistent and
-  avoid producing empty environments in LaTeX output.
-* #1308: Strip HTML tags from the content of "raw" nodes before feeding it
-  to the search indexer.
-* #1249: Fix duplicate LaTeX page numbering for manual documents.
-* #1292: In the linkchecker, retry HEAD requests when denied by HTTP 405.
-  Also make the redirect code apparent and tweak the output a bit to be
-  more obvious.
-* #1285: Avoid name clashes between C domain objects and section titles.
-* #848: Always take the newest code in incremental rebuilds with the
-  :mod:`sphinx.ext.viewcode` extension.
-* #979, #1266: Fix exclude handling in ``sphinx-apidoc``.
-* #1302: Fix regression in :mod:`sphinx.ext.inheritance_diagram` when
-  documenting classes that can't be pickled.
-* #1316: Remove hard-coded ``font-face`` resources from epub theme.
-* #1329: Fix traceback with empty translation msgstr in .po files.
-* #1300: Fix references not working in translated documents in some instances.
-* #1283: Fix a bug in the detection of changed files that would try to access
-  doctrees of deleted documents.
-* #1330: Fix `exclude_patterns` behavior with subdirectories in the
-  `html_static_path`.
-* #1323: Fix emitting empty ``<ul>`` tags in the HTML writer, which is not
-  valid HTML.
-* #1147: Don't emit a sidebar search box in the "singlehtml" builder.
-* PR#211: When checking for existence of the `html_logo` file, check
-  the full relative path and not the basename.
-* #1357: Option names documented by :rst:dir:`option` are now again allowed to
-  not start with a dash or slash, and referencing them will work correctly.
-* #1358: Fix handling of image paths outside of the source directory when using
-  the "wildcard" style reference.
-* #1374: Fix for autosummary generating overly-long summaries if first line
-  doesn't end with a period.
-* #1391: Actually prevent using "pngmath" and "mathjax" extensions at the same
-  time in sphinx-quickstart.
-* #1386: Fix bug preventing more than one theme being added by the entry point
-  mechanism.
-* #1370: Ignore "toctree" nodes in text writer, instead of raising.
-* #1364: Fix 'make gettext' fails when the '.. todolist::' directive is present.
-* #1367: Fix a change of PR#96 that break sphinx.util.docfields.Field.make_field
-  interface/behavior for *item* argument usage.
-* #1363: Fix i18n: missing python domain's cross-references with currentmodule
-  directive or currentclass directive.
-* #1419: Generated i18n sphinx.js files are missing message catalog entries
-  from '.js_t' and '.html'. The issue was introduced in Sphinx 1.1.
-* #636: Keep straight single quotes in literal blocks in the LaTeX build.
 * PR#235: comment db schema of websupport lacked a length of the node_id field.
   Thanks to solos.
 * #1466,PR#241: Fix failure of the cpp domain parser to parse C+11
@@ -236,8 +138,6 @@ Documentation
 -------------
 
 * Add clarification about the syntax of tags. (:file:`doc/markup/misc.rst`)
-* #1325: Added a "Intersphinx" tutorial section. (:file:`doc/tutorial.rst`)
-* Extended the :ref:`documentation about building extensions <dev-extensions>`.
 
 
 Release 1.2.3 (released Sep 1, 2014)
