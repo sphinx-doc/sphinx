@@ -7,11 +7,11 @@
 
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
-    
+
     See http://www.nongnu.org/hcb/ for the grammar.
     See http://mentorembedded.github.io/cxx-abi/abi.html#mangling for the
     inspiration for the id generation.
-    
+
     common grammar things:
            simple-declaration
         -> attribute-specifier-seq[opt] decl-specifier-seq[opt]
@@ -20,7 +20,7 @@
         # Use at most 1 init-declerator.
         -> decl-specifier-seq init-declerator
         -> decl-specifier-seq declerator initializer
-        
+
         decl-specifier ->
               storage-class-specifier -> "static" (only for member_object and
               function_object)
@@ -76,8 +76,8 @@
               constant-expression
             | type-specifier-seq abstract-declerator
             | id-expression
-        
-        
+
+
         declerator ->
               ptr-declerator
             | noptr-declarator parameters-and-qualifiers trailing-return-type
@@ -108,11 +108,11 @@
         memberFunctionInit -> "=" "0"
         # (note: only "0" is allowed as the value, according to the standard,
         # right?)
-         
-    
+
+
     We additionally add the possibility for specifying the visibility as the
     first thing.
-    
+
     type_object:
         goal:
             either a single type (e.g., "MyClass:Something_T" or a typedef-like
@@ -126,14 +126,14 @@
             -> decl-specifier-seq abstract-declarator[opt]
         grammar, typedef-like: no initilizer
             decl-specifier-seq declerator
-        
-        
+
+
     member_object:
         goal: as a type_object which must have a declerator, and optionally
         with a initializer
         grammar:
             decl-specifier-seq declerator initializer
-        
+
     function_object:
         goal: a function declaration, TODO: what about templates? for now: skip
         grammar: no initializer
