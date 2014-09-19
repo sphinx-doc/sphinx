@@ -204,29 +204,29 @@ class Program(Directive):
         return []
 
 
+def _split_option(text, refnode, env):
+    try:
+        program, target = re.split(' (?=-|--|/)', text, 1)
+    except ValueError:
+        env.warn_node('Malformed :option: %r, does not contain option '
+                      'marker - or -- or /' % text, refnode)
+        return None, text
+    else:
+        program = ws_re.sub('-', program)
+        return program, target
+
 class OptionXRefRole(XRefRole):
     innernodeclass = addnodes.literal_emphasis
-
-    def _split(self, text, refnode, env):
-        try:
-            program, target = re.split(' (?=-|--|/)', text, 1)
-        except ValueError:
-            env.warn_node('Malformed :option: %r, does not contain option '
-                          'marker - or -- or /' % text, refnode)
-            return None, text
-        else:
-            program = ws_re.sub('-', program)
-            return program, target
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
         program = env.temp_data.get('std:program')
         if not has_explicit_title:
             if ' ' in title and not (title.startswith('/') or
                                      title.startswith('-')):
-                program, target = self._split(title, refnode, env)
+                program, target = _split_option(title, refnode, env)
                 target = target.strip()
         elif ' ' in target:
-            program, target = self._split(target, refnode, env)
+            program, target = _split_option(target, refnode, env)
         refnode['refprogram'] = program
         return title, target
 
@@ -608,7 +608,13 @@ class StandardDomain(Domain):
             return make_refnode(builder, fromdocname, docname,
                                 labelid, contnode)
         elif typ == 'option':
-            progname = node.get('refprogram', '')
+            if 'refprogram' in node:
+                progname = node['refprogram']
+            elif ' -' in target or ' /' in target:
+                # maybe an "any" directive, split it ourselves
+                progname, target = _split_option(target, node, env)
+            else:
+                return None
             docname, labelid = self.data['progoptions'].get((progname, target),
                                                             ('', ''))
             if not docname:
@@ -632,8 +638,8 @@ class StandardDomain(Domain):
                          node, contnode):
         results = []
         for role in ('ref', 'option'):  # do not try "keyword"
-            res = self.resolve_xref(env, fromdocname, builder, target,
-                                    role, node, contnode)
+            res = self.resolve_xref(env, fromdocname, builder, role, target,
+                                    node, contnode)
             if res:
                 results.append(('std:ref', res))
         # all others

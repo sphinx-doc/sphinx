@@ -1357,7 +1357,7 @@ class BuildEnvironment:
                 elif typ == 'doc':
                     newnode = self._resolve_doc_reference(builder, node, contnode)
                 elif typ == 'citation':
-                    newnode = self._resolve_citation(builder, node, contnode)
+                    newnode = self._resolve_citation(builder, refdoc, node, contnode)
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(
@@ -1418,11 +1418,11 @@ class BuildEnvironment:
             newnode.append(innernode)
             return newnode
 
-    def _resolve_citation(self, builder, node, contnode):
+    def _resolve_citation(self, builder, fromdocname, node, contnode):
         docname, labelid = self.citations.get(node['reftarget'], ('', ''))
         if docname:
             try:
-                newnode = make_refnode(builder, node['refdoc'],
+                newnode = make_refnode(builder, fromdocname,
                                        docname, labelid, contnode)
                 return newnode
             except NoUri:

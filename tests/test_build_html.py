@@ -175,6 +175,9 @@ HTML_XPATH = {
         (".//p", 'In HTML.'),
         (".//p", 'In both.'),
         (".//p", 'Always present'),
+        # tests for ``any`` role
+        (".//a[@href='#with']/em", 'headings'),
+        (".//a[@href='objects.html#func_without_body']/code/span", 'objects'),
     ],
     'objects.html': [
         (".//dt[@id='mod.Cls.meth1']", ''),

@@ -356,6 +356,25 @@ Only directive
    Always present, because set through conf.py/command line.
 
 
+Any role
+--------
+
+.. default-role:: any
+
+Test referencing to `headings <with>` and `objects <func_without_body>`.
+Also `modules <mod>` and `classes <Time>`.
+
+More domains:
+
+* `JS <bar.baz>`
+* `C <SphinxType>`
+* `myobj` (user markup)
+* `n::Array`
+* `perl -c`
+
+.. default-role::
+
+
 .. rubric:: Footnotes
 
 .. [#] Like footnotes.
