@@ -36,21 +36,29 @@ installed) and handled in a smart way:
   highlighted as Python).
 
 * The highlighting language can be changed using the ``highlight`` directive,
-  used as follows::
+  used as follows:
 
-     .. highlight:: c
+  .. rst:directive:: .. highlight:: language
 
-  This language is used until the next ``highlight`` directive is encountered.
+     Example::
+
+        .. highlight:: c
+
+     This language is used until the next ``highlight`` directive is encountered.
 
 * For documents that have to show snippets in different languages, there's also
   a :rst:dir:`code-block` directive that is given the highlighting language
-  directly::
+  directly:
 
-     .. code-block:: ruby
+  .. rst:directive:: .. code-block:: language
 
-        Some Ruby code.
+     Use it like this::
 
-  The directive's alias name :rst:dir:`sourcecode` works as well.
+        .. code-block:: ruby
+
+           Some Ruby code.
+
+     The directive's alias name :rst:dir:`sourcecode` works as well.
 
 * The valid values for the highlighting language are:
 
