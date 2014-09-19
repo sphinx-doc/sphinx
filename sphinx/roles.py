@@ -17,6 +17,7 @@ from docutils.parsers.rst import roles
 
 from sphinx import addnodes
 from sphinx.locale import _
+from sphinx.errors import SphinxError
 from sphinx.util import ws_re
 from sphinx.util.nodes import split_explicit_title, process_index_entry, \
      set_role_source_info
@@ -96,7 +97,11 @@ class XRefRole(object):
                  options={}, content=[]):
         env = inliner.document.settings.env
         if not typ:
-            typ = env.config.default_role
+            typ = env.temp_data.get('default_role')
+            if not typ:
+                typ = env.config.default_role
+            if not typ:
+                raise SphinxError('cannot determine default role!')
         else:
             typ = typ.lower()
         if ':' not in typ:

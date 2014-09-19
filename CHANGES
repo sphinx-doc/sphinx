@@ -31,6 +31,8 @@ Features added
   can be shown in the traceback log files).  Version requirements for extensions
   can be specified in projects using the new :confval:`needs_extensions` config
   value.
+* Changing the default role within a document with the :rst:dir:`default-role`
+  directive is now supported.
 * PR#214: Added stemming support for 14 languages, so that the built-in document
   search can now handle these.  Thanks to Shibukawa Yoshiki.
 * PR#202: Allow "." and "~" prefixed references in ``:param:`` doc fields

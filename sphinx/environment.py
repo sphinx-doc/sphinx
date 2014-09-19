@@ -681,6 +681,7 @@ class BuildEnvironment:
 
         # cleanup
         self.temp_data.clear()
+        roles._roles.pop('', None)  # if a document has set a local default role
 
         if save_parsed:
             # save the parsed doctree
