@@ -12,8 +12,8 @@ Incompatible changes
 * A new node, ``sphinx.addnodes.literal_strong``, has been added, for text that
   should appear literally (i.e. no smart quotes) in strong font.  Custom writers
   will have to be adapted to handle this node.
-* PR#269, #1476: replace `<tt>` tag by `<code>`. User customized stylesheets
-  should be updated If the css contain some styles for `<tt>` tag.
+* PR#269, #1476: replace ``<tt>`` tag by ``<code>``. User customized stylesheets
+  should be updated If the css contain some styles for ``tt>`` tag.
   Thanks to Takeshi Komiya.
 * #1543: :confval:`templates_path` is automatically added to
   :confval:`exclude_patterns` to avoid reading autosummary rst templates in the
@@ -169,7 +169,7 @@ Bugs fixed
 * #1370: Ignore "toctree" nodes in text writer, instead of raising.
 * #1364: Fix 'make gettext' fails when the '.. todolist::' directive is present.
 * #1367: Fix a change of PR#96 that break sphinx.util.docfields.Field.make_field
-  interface/behavior for `item` argument usage.
+  interface/behavior for *item* argument usage.
 * #1363: Fix i18n: missing python domain's cross-references with currentmodule
   directive or currentclass directive.
 * #1419: Generated i18n sphinx.js files are missing message catalog entries
@@ -179,14 +179,14 @@ Bugs fixed
   Thanks to solos.
 * #1466,PR#241: Fix failure of the cpp domain parser to parse C+11
   "variadic templates" declarations. Thanks to Victor Zverovich.
-* #1459,PR#244: Fix default mathjax js path point to `http://` that cause
+* #1459,PR#244: Fix default mathjax js path point to ``http://`` that cause
   mixed-content error on HTTPS server. Thanks to sbrandtb and robo9k.
 * PR#157: autodoc remove spurious signatures from @property decorated
   attributes. Thanks to David Ham.
 * PR#159: Add coverage targets to quickstart generated Makefile and make.bat.
   Thanks to Matthias Troffaes.
 * #1251: When specifying toctree :numbered: option and :tocdepth: metadata,
-  sub section number that is larger depth than `:tocdepth:` is shrinked.
+  sub section number that is larger depth than ``:tocdepth:`` is shrunk.
 * PR#260: Encode underscore in citation labels for latex export. Thanks to
   Lennart Fricke.
 * PR#264: Fix could not resolve xref for figure node with :name: option.
@@ -225,7 +225,7 @@ Bugs fixed
   :rst:dir:`c:function`. Thanks to Takeshi Komiya.
 * PR#278: Fix section entries were shown twice if toctree has been put under
   only directive. Thanks to Takeshi Komiya.
-* #1547: pgen2 tokenizer doesn't recognize `...` literal (Ellipsis for py3).
+* #1547: pgen2 tokenizer doesn't recognize ``...`` literal (Ellipsis for py3).
 
 Documentation
 -------------
@@ -241,7 +241,7 @@ Release 1.2.3 (released Sep 1, 2014)
 Features added
 --------------
 
-* #1518: `sphinx-apidoc` command now have a `--version` option to show version
+* #1518: ``sphinx-apidoc`` command now has a ``--version`` option to show version
   information and exit
 * New locales: Hebrew, European Portuguese, Vietnamese.
 
@@ -259,14 +259,14 @@ Bugs fixed
   Thanks to Jorge_C.
 * #1467: Exception on Python3 if nonexistent method is specified by automethod
 * #1441: autosummary can't handle nested classes correctly.
-* #1499: With non-callable `setup` in a conf.py, now sphinx-build emits
-  user-friendly error message.
+* #1499: With non-callable ``setup`` in a conf.py, now sphinx-build emits
+  a user-friendly error message.
 * #1502: In autodoc, fix display of parameter defaults containing backslashes.
 * #1226: autodoc, autosummary: importing setup.py by automodule will invoke
-  setup process and execute `sys.exit()`. Now sphinx avoids SystemExit
+  setup process and execute ``sys.exit()``. Now sphinx avoids SystemExit
   exception and emits warnings without unexpected termination.
 * #1503: py:function directive generate incorrectly signature when specifying
-  a default parameter with an empty list `[]`. Thanks to Geert Jansen.
+  a default parameter with an empty list ``[]``. Thanks to Geert Jansen.
 * #1508: Non-ASCII filename raise exception on make singlehtml, latex, man,
   texinfo and changes.
 * #1531: On Python3 environment, docutils.conf with 'source_link=true' in the
@@ -276,11 +276,11 @@ Bugs fixed
 * PR#281, PR#282, #1509: TODO extension not compatible with websupport. Thanks
   to Takeshi Komiya.
 * #1477: gettext does not extract nodes.line in a table or list.
-* #1544: `make text` generate wrong table when it has empty table cells.
+* #1544: ``make text`` generates wrong table when it has empty table cells.
 * #1522: Footnotes from table get displayed twice in LaTeX. This problem has
   been appeared from Sphinx-1.2.1 by #949.
 * #508: Sphinx every time exit with zero when is invoked from setup.py command.
-  ex. `python setup.py build_sphinx -b doctest` return zero even if doctest
+  ex. ``python setup.py build_sphinx -b doctest`` return zero even if doctest
   failed.
 
 Release 1.2.2 (released Mar 2, 2014)
@@ -307,7 +307,7 @@ Bugs fixed
 * #1370: Ignore "toctree" nodes in text writer, instead of raising.
 * #1364: Fix 'make gettext' fails when the '.. todolist::' directive is present.
 * #1367: Fix a change of PR#96 that break sphinx.util.docfields.Field.make_field
-  interface/behavior for `item` argument usage.
+  interface/behavior for ``item`` argument usage.
 
 Documentation
 -------------
@@ -426,7 +426,7 @@ Bugs fixed
 * Restore ``versionmodified`` CSS class for versionadded/changed and deprecated
   directives.
 
-* PR#181: Fix `html_theme_path=['.']` is a trigger of rebuild all documents
+* PR#181: Fix ``html_theme_path = ['.']`` is a trigger of rebuild all documents
   always (This change keeps the current "theme changes cause a rebuild"
   feature).
 
