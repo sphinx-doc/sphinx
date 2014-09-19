@@ -11,6 +11,7 @@
 ^Sphinx.egg-info/
 ^doc/_build/
 ^TAGS
+^\.tags
 ^\.ropeproject/
 ^env/
 \.DS_Store$
