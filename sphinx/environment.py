@@ -36,23 +36,25 @@ from docutils.writers import UnfilteredWriter
 
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
-     FilenameUniqDict
+    FilenameUniqDict
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream
-from sphinx.util.osutil import SEP, fs_encoding, find_catalog_files
+from sphinx.util.osutil import SEP, find_catalog_files
 from sphinx.util.matching import compile_matchers
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.transforms import DefaultSubstitutions, MoveModuleTargets, \
-     HandleCodeBlocks, SortIds, CitationReferences, Locale, \
-     RemoveTranslatableInline, SphinxContentsFilter
+    HandleCodeBlocks, SortIds, CitationReferences, Locale, \
+    RemoveTranslatableInline, SphinxContentsFilter
 
 
 orig_role_function = roles.role
 orig_directive_function = directives.directive
 
-class ElementLookupError(Exception): pass
+
+class ElementLookupError(Exception):
+    pass
 
 
 default_settings = {
@@ -138,9 +140,9 @@ class BuildEnvironment:
         # remove potentially pickling-problematic values from config
         for key, val in list(vars(self.config).items()):
             if key.startswith('_') or \
-                   isinstance(val, types.ModuleType) or \
-                   isinstance(val, types.FunctionType) or \
-                   isinstance(val, class_types):
+               isinstance(val, types.ModuleType) or \
+               isinstance(val, types.FunctionType) or \
+               isinstance(val, class_types):
                 del self.config[key]
         try:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
@@ -646,7 +648,7 @@ class BuildEnvironment:
         # therefore time.time() can be older than filesystem's timestamp.
         # For example, FAT32 has 2sec timestamp resolution.)
         self.all_docs[docname] = max(
-                time.time(), path.getmtime(self.doc2path(docname)))
+            time.time(), path.getmtime(self.doc2path(docname)))
 
         if self.versioning_condition:
             # get old doctree
@@ -846,7 +848,7 @@ class BuildEnvironment:
             # nodes are multiply inherited...
             if isinstance(node, nodes.authors):
                 md['authors'] = [author.astext() for author in node]
-            elif isinstance(node, nodes.TextElement): # e.g. author
+            elif isinstance(node, nodes.TextElement):  # e.g. author
                 md[node.__class__.__name__] = node.astext()
             else:
                 name, body = node
@@ -976,7 +978,7 @@ class BuildEnvironment:
 
     def build_toc_from(self, docname, document):
         """Build a TOC from the doctree and store it in the inventory."""
-        numentries = [0] # nonlocal again...
+        numentries = [0]  # nonlocal again...
 
         def traverse_in_section(node, cls):
             """Like traverse(), but stay within the same section."""
@@ -1102,7 +1104,6 @@ class BuildEnvironment:
                                     stream=WarningStream(self._warnfunc))
         return doctree
 
-
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
                                 prune_toctrees=True, includehidden=False):
         """Read the doctree from the pickle, resolve cross-references and
@@ -1117,7 +1118,8 @@ class BuildEnvironment:
         # now, resolve all toctree nodes
         for toctreenode in doctree.traverse(addnodes.toctree):
             result = self.resolve_toctree(docname, builder, toctreenode,
-                          prune=prune_toctrees, includehidden=includehidden)
+                                          prune=prune_toctrees,
+                                          includehidden=includehidden)
             if result is None:
                 toctreenode.replace_self([])
             else:
@@ -1174,7 +1176,7 @@ class BuildEnvironment:
                     else:
                         # cull sub-entries whose parents aren't 'current'
                         if (collapse and depth > 1 and
-                            'iscurrent' not in subnode.parent):
+                                'iscurrent' not in subnode.parent):
                             subnode.parent.remove(subnode)
                         else:
                             # recurse on visible children
@@ -1256,7 +1258,7 @@ class BuildEnvironment:
                             child = toc.children[0]
                             for refnode in child.traverse(nodes.reference):
                                 if refnode['refuri'] == ref and \
-                                       not refnode['anchorname']:
+                                   not refnode['anchorname']:
                                     refnode.children = [nodes.Text(title)]
                     if not toc.children:
                         # empty toc means: no titles will show up in the toctree
@@ -1595,7 +1597,7 @@ class BuildEnvironment:
                             # prefixes match: add entry as subitem of the
                             # previous entry
                             oldsubitems.setdefault(m.group(2), [[], {}])[0].\
-                                        extend(targets)
+                                extend(targets)
                             del newlist[i]
                             continue
                         oldkey = m.group(1)
@@ -1622,6 +1624,7 @@ class BuildEnvironment:
     def collect_relations(self):
         relations = {}
         getinc = self.toctree_includes.get
+
         def collect(parents, parents_set, docname, previous, next):
             # circular relationship?
             if docname in parents_set:
@@ -1661,8 +1664,8 @@ class BuildEnvironment:
             # same for children
             if includes:
                 for subindex, args in enumerate(zip(includes,
-                                                     [None] + includes,
-                                                     includes[1:] + [None])):
+                                                    [None] + includes,
+                                                    includes[1:] + [None])):
                     collect([(docname, subindex)] + parents,
                             parents_set.union([docname]), *args)
             relations[docname] = [parents[0][0], previous, next]
