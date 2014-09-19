@@ -283,11 +283,20 @@ class HTMLTranslator(BaseTranslator):
             **highlight_args)
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s' % lang)
-        if 'caption' in node:
-            starttag += '<div class="code-block-caption"><code>%s</code></div>' % (
-                node['caption'],)
         self.body.append(starttag + highlighted + '</div>\n')
         raise nodes.SkipNode
+
+    def visit_caption(self, node):
+        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+            self.body.append(self.starttag(node, 'div', '', CLASS='code-block-caption'))
+        else:
+            BaseTranslator.visit_caption(self, node)
+
+    def depart_caption(self, node):
+        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+            self.body.append('</div>\n')
+        else:
+            BaseTranslator.depart_caption(self, node)
 
     def visit_doctest_block(self, node):
         self.visit_literal_block(node)

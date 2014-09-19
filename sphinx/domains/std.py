@@ -563,6 +563,11 @@ class StandardDomain(Domain):
                         break
                 else:
                     continue
+            elif node.tagname == 'container' and node.get('literal_block'):
+                for n in node:
+                    if n.tagname == 'caption':
+                        sectname = clean_astext(n)
+                        break
             else:
                 # anonymous-only labels
                 continue

@@ -484,8 +484,7 @@ div.code-block-filename code {
     background-color: transparent;
 }
 
-div.code-block-caption + pre,
-div.code-block-caption + div.highlight > pre {
+div.code-block-caption + div > div.highlight > pre {
     margin-top: 0;
 }
 
