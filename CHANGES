@@ -18,6 +18,8 @@ Incompatible changes
 * #1543: :confval:`templates_path` is automatically added to
   :confval:`exclude_patterns` to avoid reading autosummary rst templates in the
   templates directory.
+* Custom domains should implement the new :meth:`~Domain.resolve_any_xref`
+  method to make the :rst:role:`any` role work properly.
 
 Features added
 --------------
@@ -26,6 +28,9 @@ Features added
 * Add support for docutils 0.12
 * Added ``sphinx.ext.napoleon`` extension for NumPy and Google style docstring
   support.
+* Added the :rst:role:`any` role that can be used to find a cross-reference of
+  *any* type in *any* domain.  Custom domains should implement the new
+  :meth:`~Domain.resolve_any_xref` method to make this work properly.
 * Exception logs now contain the last 10 messages emitted by Sphinx.
 * Added support for extension versions (a string returned by ``setup()``, these
   can be shown in the traceback log files).  Version requirements for extensions

@@ -643,7 +643,10 @@ class PythonDomain(Domain):
 
         newname = None
         if searchmode == 1:
-            objtypes = self.objtypes_for_role(type)
+            if type is None:
+                objtypes = list(self.object_types)
+            else:
+                objtypes = self.objtypes_for_role(type)
             if objtypes is not None:
                 if modname and classname:
                     fullname = modname + '.' + classname + '.' + name
@@ -704,21 +707,43 @@ class PythonDomain(Domain):
         name, obj = matches[0]
 
         if obj[1] == 'module':
-            # get additional info for modules
-            docname, synopsis, platform, deprecated = self.data['modules'][name]
-            assert docname == obj[0]
-            title = name
-            if synopsis:
-                title += ': ' + synopsis
-            if deprecated:
-                title += _(' (deprecated)')
-            if platform:
-                title += ' (' + platform + ')'
-            return make_refnode(builder, fromdocname, docname,
-                                'module-' + name, contnode, title)
+            return self._make_module_refnode(builder, fromdocname, name,
+                                             contnode)
         else:
             return make_refnode(builder, fromdocname, obj[0], name,
                                 contnode, name)
+
+    def resolve_any_xref(self, env, fromdocname, builder, target,
+                         node, contnode):
+        modname = node.get('py:module')   # it is not likely we have these
+        clsname = node.get('py:class')
+        results = []
+
+        # always search in "refspecific" mode with the :any: role
+        matches = self.find_obj(env, modname, clsname, target, None, 1)
+        for name, obj in matches:
+            if obj[1] == 'module':
+                results.append(('py:mod',
+                                self._make_module_refnode(builder, fromdocname,
+                                                          name, contnode)))
+            else:
+                results.append(('py:' + self.role_for_objtype(obj[1]),
+                                make_refnode(builder, fromdocname, obj[0], name,
+                                             contnode, name)))
+        return results
+
+    def _make_module_refnode(self, builder, fromdocname, name, contnode):
+        # get additional info for modules
+        docname, synopsis, platform, deprecated = self.data['modules'][name]
+        title = name
+        if synopsis:
+            title += ': ' + synopsis
+        if deprecated:
+            title += _(' (deprecated)')
+        if platform:
+            title += ' (' + platform + ')'
+        return make_refnode(builder, fromdocname, docname,
+                            'module-' + name, contnode, title)
 
     def get_objects(self):
         for modname, info in iteritems(self.data['modules']):

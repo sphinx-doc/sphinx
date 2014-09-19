@@ -134,6 +134,19 @@ class ReSTDomain(Domain):
                                     objtype + '-' + target,
                                     contnode, target + ' ' + objtype)
 
+    def resolve_any_xref(self, env, fromdocname, builder, target,
+                         node, contnode):
+        objects = self.data['objects']
+        results = []
+        for objtype in self.object_types:
+            if (objtype, target) in self.data['objects']:
+                results.append(('rst:' + self.role_for_objtype(objtype),
+                                make_refnode(builder, fromdocname,
+                                             objects[objtype, target],
+                                             objtype + '-' + target,
+                                             contnode, target + ' ' + objtype)))
+        return results
+
     def get_objects(self):
         for (typ, name), docname in iteritems(self.data['objects']):
             yield name, name, typ, docname, typ + '-' + name, 1

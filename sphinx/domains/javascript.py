@@ -179,7 +179,7 @@ class JavaScriptDomain(Domain):
         'attr':  JSXRefRole(),
     }
     initial_data = {
-        'objects': {}, # fullname -> docname, objtype
+        'objects': {},  # fullname -> docname, objtype
     }
 
     def clear_doc(self, docname):
@@ -213,6 +213,16 @@ class JavaScriptDomain(Domain):
             return None
         return make_refnode(builder, fromdocname, obj[0],
                             name.replace('$', '_S_'), contnode, name)
+
+    def resolve_any_xref(self, env, fromdocname, builder, target, node,
+                         contnode):
+        objectname = node.get('js:object')  # not likely
+        name, obj = self.find_obj(env, objectname, target, None, 1)
+        if not obj:
+            return []
+        return [('js:' + self.role_for_objtype(obj[1]),
+                 make_refnode(builder, fromdocname, obj[0],
+                              name.replace('$', '_S_'), contnode, name))]
 
     def get_objects(self):
         for refname, (docname, type) in list(self.data['objects'].items()):

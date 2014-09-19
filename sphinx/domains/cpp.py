@@ -1838,18 +1838,18 @@ class CPPDomain(Domain):
             if data[0] == docname:
                 del self.data['objects'][fullname]
 
-    def resolve_xref(self, env, fromdocname, builder,
-                     typ, target, node, contnode):
+    def _resolve_xref_inner(self, env, fromdocname, builder,
+                            target, node, contnode, warn=True):
         def _create_refnode(nameAst):
             name = text_type(nameAst)
             if name not in self.data['objects']:
                 # try dropping the last template
                 name = nameAst.get_name_no_last_template()
                 if name not in self.data['objects']:
-                    return None
+                    return None, None
             docname, objectType, id = self.data['objects'][name]
             return make_refnode(builder, fromdocname, docname, id, contnode,
-                                name)
+                                name), objectType
 
         parser = DefinitionParser(target)
         try:
@@ -1858,20 +1858,34 @@ class CPPDomain(Domain):
             if not parser.eof:
                 raise DefinitionError('')
         except DefinitionError:
-            env.warn_node('unparseable C++ definition: %r' % target, node)
-            return None
+            if warn:
+                env.warn_node('unparseable C++ definition: %r' % target, node)
+            return None, None
 
         # try as is the name is fully qualified
-        refNode = _create_refnode(nameAst)
-        if refNode:
-            return refNode
+        res = _create_refnode(nameAst)
+        if res[0]:
+            return res
 
         # try qualifying it with the parent
         parent = node.get('cpp:parent', None)
         if parent and len(parent) > 0:
             return _create_refnode(nameAst.prefix_nested_name(parent[-1]))
         else:
-            return None
+            return None, None
+
+    def resolve_xref(self, env, fromdocname, builder,
+                     typ, target, node, contnode):
+        return self._resolve_xref_inner(env, fromdocname, builder, target, node,
+                                        contnode)[0]
+
+    def resolve_any_xref(self, env, fromdocname, builder, target,
+                         node, contnode):
+        node, objtype = self._resolve_xref_inner(env, fromdocname, builder,
+                                                 target, node, contnode, warn=False)
+        if node:
+            return [('cpp:' + self.role_for_objtype(objtype), node)]
+        return []
 
     def get_objects(self):
         for refname, (docname, type, theid) in iteritems(self.data['objects']):

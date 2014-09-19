@@ -628,6 +628,23 @@ class StandardDomain(Domain):
             return make_refnode(builder, fromdocname, docname,
                                 labelid, contnode)
 
+    def resolve_any_xref(self, env, fromdocname, builder, target,
+                         node, contnode):
+        results = []
+        for role in ('ref', 'option'):  # do not try "keyword"
+            res = self.resolve_xref(env, fromdocname, builder, target,
+                                    role, node, contnode)
+            if res:
+                results.append(('std:ref', res))
+        # all others
+        for objtype in self.object_types:
+            if (objtype, target) in self.data['objects']:
+                docname, labelid = self.data['objects'][objtype, target]
+                results.append(('std:' + self.role_for_objtype(objtype),
+                                make_refnode(builder, fromdocname, docname,
+                                             labelid, contnode)))
+        return results
+
     def get_objects(self):
         for (prog, option), info in iteritems(self.data['progoptions']):
             yield (option, option, 'option', info[0], info[1], 1)

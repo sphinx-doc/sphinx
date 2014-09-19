@@ -279,6 +279,17 @@ class CDomain(Domain):
         return make_refnode(builder, fromdocname, obj[0], 'c.' + target,
                             contnode, target)
 
+    def resolve_any_xref(self, env, fromdocname, builder, target,
+                         node, contnode):
+        # strip pointer asterisk
+        target = target.rstrip(' *')
+        if target not in self.data['objects']:
+            return []
+        obj = self.data['objects'][target]
+        return [('c:' + self.role_for_objtype(obj[1]),
+                 make_refnode(builder, fromdocname, obj[0], 'c.' + target,
+                              contnode, target))]
+
     def get_objects(self):
         for refname, (docname, type) in list(self.data['objects'].items()):
             yield (refname, refname, type, docname, 'c.' + refname, 1)
