@@ -93,8 +93,7 @@ def test_code_block_caption_html(app):
 def test_code_block_caption_latex(app):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text()
-    caption = ('{\\colorbox[rgb]{0.9,0.9,0.9}{\\makebox[\\textwidth][l]'
-               '{\\small\\texttt{caption-test.rb}}}}')
+    caption = '\\caption{caption-test.rb}'
     assert caption in latex
 
 
@@ -168,6 +167,5 @@ def test_literalinclude_caption_html(app):
 def test_literalinclude_caption_latex(app):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text()
-    caption = ('{\\colorbox[rgb]{0.9,0.9,0.9}{\\makebox[\\textwidth][l]'
-               '{\\small\\texttt{caption-test.py}}}}')
+    caption = '\\caption{caption-test.py}'
     assert caption in latex

@@ -522,3 +522,9 @@
     \gdef\@chappos{}
   }
 \fi
+
+% Define literal-block environment
+\RequirePackage{float}
+\floatstyle{plaintop}
+\newfloat{literal-block}{htbp}{loc}[chapter]
+\floatname{literal-block}{List}
