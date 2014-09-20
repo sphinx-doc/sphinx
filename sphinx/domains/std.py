@@ -29,6 +29,8 @@ from sphinx.util.compat import Directive
 
 # RE for option descriptions
 option_desc_re = re.compile(r'((?:/|--|-|\+)?[-?@#_a-zA-Z0-9]+)(=?\s*.*)')
+# RE for grammar tokens
+token_re = re.compile('`(\w+)`', re.U)
 
 
 class GenericObject(ObjectDescription):
@@ -311,7 +313,7 @@ class Glossary(Directive):
                     else:
                         messages.append(self.state.reporter.system_message(
                             2, 'glossary seems to be misformatted, check '
-                        'indentation', source=source, line=lineno))
+                            'indentation', source=source, line=lineno))
             else:
                 if not in_definition:
                     # first line of definition, determines indentation
@@ -322,7 +324,7 @@ class Glossary(Directive):
                 else:
                     messages.append(self.state.reporter.system_message(
                         2, 'glossary seems to be misformatted, check '
-                    'indentation', source=source, line=lineno))
+                        'indentation', source=source, line=lineno))
             was_empty = False
 
         # now, parse all the entries into a big definition list
@@ -343,7 +345,7 @@ class Glossary(Directive):
                 tmp.source = source
                 tmp.line = lineno
                 new_id, termtext, new_termnodes = \
-                        make_termnodes_from_paragraph_node(env, tmp)
+                    make_termnodes_from_paragraph_node(env, tmp)
                 ids.append(new_id)
                 termtexts.append(termtext)
                 termnodes.extend(new_termnodes)
@@ -369,8 +371,6 @@ class Glossary(Directive):
         node += dlist
         return messages + [node]
 
-
-token_re = re.compile('`(\w+)`', re.U)
 
 def token_xrefs(text):
     retnodes = []
@@ -516,7 +516,7 @@ class StandardDomain(Domain):
                 continue
             node = document.ids[labelid]
             if name.isdigit() or 'refuri' in node or \
-                   node.tagname.startswith('desc_'):
+               node.tagname.startswith('desc_'):
                 # ignore footnote labels, labels automatically generated from a
                 # link and object descriptions
                 continue
@@ -525,7 +525,7 @@ class StandardDomain(Domain):
                               'in ' + env.doc2path(labels[name][0]), node)
             anonlabels[name] = docname, labelid
             if node.tagname == 'section':
-                sectname = clean_astext(node[0]) # node[0] == title node
+                sectname = clean_astext(node[0])  # node[0] == title node
             elif node.tagname == 'figure':
                 for n in node:
                     if n.tagname == 'caption':
@@ -558,13 +558,13 @@ class StandardDomain(Domain):
             if node['refexplicit']:
                 # reference to anonymous label; the reference uses
                 # the supplied link caption
-                docname, labelid = self.data['anonlabels'].get(target, ('',''))
+                docname, labelid = self.data['anonlabels'].get(target, ('', ''))
                 sectname = node.astext()
             else:
                 # reference to named label; the final node will
                 # contain the section name after the label
                 docname, labelid, sectname = self.data['labels'].get(target,
-                                                                     ('','',''))
+                                                                     ('', '', ''))
             if not docname:
                 return None
             newnode = nodes.reference('', '', internal=True)
@@ -586,7 +586,7 @@ class StandardDomain(Domain):
             return newnode
         elif typ == 'keyword':
             # keywords are oddballs: they are referenced by named labels
-            docname, labelid, _ = self.data['labels'].get(target, ('','',''))
+            docname, labelid, _ = self.data['labels'].get(target, ('', '', ''))
             if not docname:
                 return None
             return make_refnode(builder, fromdocname, docname,
