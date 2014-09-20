@@ -39,13 +39,14 @@ r"""
 import re
 import sys
 import inspect
-import __builtin__ as __builtin__ # as __builtin__ is for lib2to3 compatibility
 try:
     from hashlib import md5
 except ImportError:
     from md5 import md5
 
 from six import text_type
+from six.moves import builtins
+
 from docutils import nodes
 from docutils.parsers.rst import directives
 
@@ -147,10 +148,10 @@ class InheritanceGraph(object):
         displayed node names.
         """
         all_classes = {}
-        builtins = vars(__builtin__).values()
+        py_builtins = vars(builtins).values()
 
         def recurse(cls):
-            if not show_builtins and cls in builtins:
+            if not show_builtins and cls in py_builtins:
                 return
             if not private_bases and cls.__name__.startswith('_'):
                 return
@@ -174,7 +175,7 @@ class InheritanceGraph(object):
             baselist = []
             all_classes[cls] = (nodename, fullname, baselist, tooltip)
             for base in cls.__bases__:
-                if not show_builtins and base in builtins:
+                if not show_builtins and base in py_builtins:
                     continue
                 if not private_bases and base.__name__.startswith('_'):
                     continue
