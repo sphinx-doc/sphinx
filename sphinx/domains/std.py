@@ -28,7 +28,7 @@ from sphinx.util.compat import Directive
 
 
 # RE for option descriptions
-option_desc_re = re.compile(r'((?:/|-|--)?[-_a-zA-Z0-9]+)(\s*.*)')
+option_desc_re = re.compile(r'((?:/|--|-|\+)?[-?@#_a-zA-Z0-9]+)(=?\s*.*)')
 
 
 class GenericObject(ObjectDescription):
@@ -144,8 +144,9 @@ class Cmdoption(ObjectDescription):
                 self.env.warn(
                     self.env.docname,
                     'Malformed option description %r, should '
-                    'look like "opt", "-opt args", "--opt args" or '
-                    '"/opt args"' % potential_option, self.lineno)
+                    'look like "opt", "-opt args", "--opt args", '
+                    '"/opt args" or "+opt args"' % potential_option,
+                    self.lineno)
                 continue
             optname, args = m.groups()
             if count:
@@ -204,30 +205,13 @@ class Program(Directive):
         return []
 
 
-def _split_option(text, refnode, env):
-    try:
-        program, target = re.split(' (?=-|--|/)', text, 1)
-    except ValueError:
-        env.warn_node('Malformed :option: %r, does not contain option '
-                      'marker - or -- or /' % text, refnode)
-        return None, text
-    else:
-        program = ws_re.sub('-', program)
-        return program, target
-
 class OptionXRefRole(XRefRole):
-    innernodeclass = addnodes.literal_emphasis
-
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        program = env.ref_context.get('std:program')
-        if not has_explicit_title:
-            if ' ' in title and not (title.startswith('/') or
-                                     title.startswith('-')):
-                program, target = _split_option(title, refnode, env)
-                target = target.strip()
-        elif ' ' in target:
-            program, target = _split_option(target, refnode, env)
-        refnode['std:program'] = program
+        # validate content
+        if not re.match('(.+ )?[-/+]', target):
+            env.warn_node('Malformed :option: %r, does not contain option '
+                          'marker - or -- or / or +' % target, refnode)
+        refnode['std:program'] = env.ref_context.get('std:program')
         return title, target
 
 
@@ -472,7 +456,7 @@ class StandardDomain(Domain):
         'productionlist': ProductionList,
     }
     roles = {
-        'option':  OptionXRefRole(innernodeclass=addnodes.literal_emphasis),
+        'option':  OptionXRefRole(),
         'envvar':  EnvVarXRefRole(),
         # links to tokens in grammar productions
         'token':   XRefRole(),
@@ -608,13 +592,16 @@ class StandardDomain(Domain):
             return make_refnode(builder, fromdocname, docname,
                                 labelid, contnode)
         elif typ == 'option':
-            if 'std:program' in node:
-                progname = node['std:program']
-            elif ' -' in target or ' /' in target:
-                # maybe an "any" directive, split it ourselves
-                progname, target = _split_option(target, node, env)
+            target = target.strip()
+            # most obvious thing: we are a flag option without program
+            if target.startswith(('-', '/', '+')):
+                progname = node.get('std:program')
             else:
-                progname = None
+                try:
+                    progname, target = re.split(r' (?=-|--|/|\+)', target, 1)
+                except ValueError:
+                    return None
+                progname = ws_re.sub('-', progname.strip())
             docname, labelid = self.data['progoptions'].get((progname, target),
                                                             ('', ''))
             if not docname:

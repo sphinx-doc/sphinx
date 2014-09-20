@@ -170,6 +170,10 @@ Others
 
 .. cmdoption:: -c
 
+.. option:: +p
+
+Link to :option:`perl +p`.
+
 
 User markup
 ===========
