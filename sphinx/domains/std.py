@@ -614,7 +614,7 @@ class StandardDomain(Domain):
                 # maybe an "any" directive, split it ourselves
                 progname, target = _split_option(target, node, env)
             else:
-                return None
+                progname = None
             docname, labelid = self.data['progoptions'].get((progname, target),
                                                             ('', ''))
             if not docname:
