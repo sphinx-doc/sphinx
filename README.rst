@@ -2,6 +2,9 @@
 README for Sphinx
 =================
 
+This is the Sphinx documentation generator, see http://sphinx-doc.org/.
+
+
 Installing
 ==========
 
@@ -17,7 +20,7 @@ Reading the docs
 After installing::
 
    cd doc
-   sphinx-build . _build/html
+   make html
 
 Then, direct your browser to ``_build/html/index.html``.
 
