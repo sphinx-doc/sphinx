@@ -195,7 +195,7 @@ class InheritanceGraph(object):
         completely general.
         """
         module = cls.__module__
-        if module == '__builtin__':
+        if module in ('__builtin__', 'builtins'):
             fullname = cls.__name__
         else:
             fullname = '%s.%s' % (module, cls.__name__)

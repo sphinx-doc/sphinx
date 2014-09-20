@@ -1109,7 +1109,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
         if not self.doc_as_attr and self.options.show_inheritance:
             self.add_line(u'', '<autodoc>')
             if hasattr(self.object, '__bases__') and len(self.object.__bases__):
-                bases = [b.__module__ == '__builtin__' and
+                bases = [b.__module__ in ('__builtin__', 'builtins') and
                          u':class:`%s`' % b.__name__ or
                          u':class:`%s.%s`' % (b.__module__, b.__name__)
                          for b in self.object.__bases__]
