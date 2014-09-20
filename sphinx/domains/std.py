@@ -643,7 +643,7 @@ class StandardDomain(Domain):
                                     ltarget if role == 'ref' else target,
                                     node, contnode)
             if res:
-                results.append(('std:ref', res))
+                results.append(('std:' + role, res))
         # all others
         for objtype in self.object_types:
             key = (objtype, target)
