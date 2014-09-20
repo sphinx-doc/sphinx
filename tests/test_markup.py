@@ -108,8 +108,9 @@ def test_inline():
 
     # non-interpolation of dashes in option role
     yield (verify_re, ':option:`--with-option`',
-           '<p><em( class="xref std std-option")?>--with-option</em></p>$',
-           r'\\emph{\\texttt{-{-}with-option}}$')
+           '<p><code( class="xref std std-option docutils literal")?>'
+           '<span class="pre">--with-option</span></code></p>$',
+           r'\\code{-{-}with-option}$')
 
     # verify smarty-pants quotes
     yield verify, '"John"', '<p>&#8220;John&#8221;</p>', "``John''"

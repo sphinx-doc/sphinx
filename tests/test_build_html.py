@@ -43,7 +43,7 @@ reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 :encoding: option\\n?
 %(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
 %(root)s/markup.txt:\\d+: WARNING: Malformed :option: u'Python c option', does \
-not contain option marker - or -- or /
+not contain option marker - or -- or / or \\+
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
@@ -144,7 +144,7 @@ HTML_XPATH = {
         (".//a[@href='subdir/includes.html']"
             "[@class='reference internal']/em", 'Including in subdir'),
         (".//a[@href='objects.html#cmdoption-python-c']"
-            "[@class='reference internal']/em", 'Python -c option'),
+            "[@class='reference internal']/code/span[@class='pre']", '-c'),
         # abbreviations
         (".//abbr[@title='abbreviation']", '^abbr$'),
         # version stuff
