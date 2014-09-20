@@ -156,8 +156,8 @@ class PyObject(ObjectDescription):
 
         # determine module and class name (if applicable), as well as full name
         modname = self.options.get(
-            'module', self.env.temp_data.get('py:module'))
-        classname = self.env.temp_data.get('py:class')
+            'module', self.env.ref_context.get('py:module'))
+        classname = self.env.ref_context.get('py:class')
         if classname:
             add_module = False
             if name_prefix and name_prefix.startswith(classname):
@@ -194,7 +194,7 @@ class PyObject(ObjectDescription):
         # 'exceptions' module.
         elif add_module and self.env.config.add_module_names:
             modname = self.options.get(
-                'module', self.env.temp_data.get('py:module'))
+                'module', self.env.ref_context.get('py:module'))
             if modname and modname != 'exceptions':
                 nodetext = modname + '.'
                 signode += addnodes.desc_addname(nodetext, nodetext)
@@ -225,7 +225,7 @@ class PyObject(ObjectDescription):
 
     def add_target_and_index(self, name_cls, sig, signode):
         modname = self.options.get(
-            'module', self.env.temp_data.get('py:module'))
+            'module', self.env.ref_context.get('py:module'))
         fullname = (modname and modname + '.' or '') + name_cls[0]
         # note target
         if fullname not in self.state.document.ids:
@@ -254,7 +254,7 @@ class PyObject(ObjectDescription):
 
     def after_content(self):
         if self.clsname_set:
-            self.env.temp_data['py:class'] = None
+            self.env.ref_context.pop('py:class', None)
 
 
 class PyModulelevel(PyObject):
@@ -299,7 +299,7 @@ class PyClasslike(PyObject):
     def before_content(self):
         PyObject.before_content(self)
         if self.names:
-            self.env.temp_data['py:class'] = self.names[0][0]
+            self.env.ref_context['py:class'] = self.names[0][0]
             self.clsname_set = True
 
 
@@ -377,8 +377,8 @@ class PyClassmember(PyObject):
     def before_content(self):
         PyObject.before_content(self)
         lastname = self.names and self.names[-1][1]
-        if lastname and not self.env.temp_data.get('py:class'):
-            self.env.temp_data['py:class'] = lastname.strip('.')
+        if lastname and not self.env.ref_context.get('py:class'):
+            self.env.ref_context['py:class'] = lastname.strip('.')
             self.clsname_set = True
 
 
@@ -434,7 +434,7 @@ class PyModule(Directive):
         env = self.state.document.settings.env
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
-        env.temp_data['py:module'] = modname
+        env.ref_context['py:module'] = modname
         ret = []
         if not noindex:
             env.domaindata['py']['modules'][modname] = \
@@ -472,16 +472,16 @@ class PyCurrentModule(Directive):
         env = self.state.document.settings.env
         modname = self.arguments[0].strip()
         if modname == 'None':
-            env.temp_data['py:module'] = None
+            env.ref_context.pop('py:module', None)
         else:
-            env.temp_data['py:module'] = modname
+            env.ref_context['py:module'] = modname
         return []
 
 
 class PyXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        refnode['py:module'] = env.temp_data.get('py:module')
-        refnode['py:class'] = env.temp_data.get('py:class')
+        refnode['py:module'] = env.ref_context.get('py:module')
+        refnode['py:class'] = env.ref_context.get('py:class')
         if not has_explicit_title:
             title = title.lstrip('.')   # only has a meaning for the target
             target = target.lstrip('~') # only has a meaning for the title

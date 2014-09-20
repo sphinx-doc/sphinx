@@ -45,7 +45,7 @@ class JSObject(ObjectDescription):
             nameprefix = None
             name = prefix
 
-        objectname = self.env.temp_data.get('js:object')
+        objectname = self.env.ref_context.get('js:object')
         if nameprefix:
             if objectname:
                 # someone documenting the method of an attribute of the current
@@ -77,7 +77,7 @@ class JSObject(ObjectDescription):
 
     def add_target_and_index(self, name_obj, sig, signode):
         objectname = self.options.get(
-            'object', self.env.temp_data.get('js:object'))
+            'object', self.env.ref_context.get('js:object'))
         fullname = name_obj[0]
         if fullname not in self.state.document.ids:
             signode['names'].append(fullname)
@@ -140,7 +140,7 @@ class JSConstructor(JSCallable):
 class JSXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
         # basically what sphinx.domains.python.PyXRefRole does
-        refnode['js:object'] = env.temp_data.get('js:object')
+        refnode['js:object'] = env.ref_context.get('js:object')
         if not has_explicit_title:
             title = title.lstrip('.')
             target = target.lstrip('~')
@@ -216,7 +216,7 @@ class JavaScriptDomain(Domain):
 
     def resolve_any_xref(self, env, fromdocname, builder, target, node,
                          contnode):
-        objectname = node.get('js:object')  # not likely
+        objectname = node.get('js:object')
         name, obj = self.find_obj(env, objectname, target, None, 1)
         if not obj:
             return []

@@ -432,11 +432,11 @@ def get_import_prefixes_from_env(env):
     """
     prefixes = [None]
 
-    currmodule = env.temp_data.get('py:module')
+    currmodule = env.ref_context.get('py:module')
     if currmodule:
         prefixes.insert(0, currmodule)
 
-    currclass = env.temp_data.get('py:class')
+    currclass = env.ref_context.get('py:class')
     if currclass:
         if currmodule:
             prefixes.insert(0, currmodule + "." + currclass)

@@ -225,6 +225,10 @@ class BuildEnvironment:
 
         # temporary data storage while reading a document
         self.temp_data = {}
+        # context for cross-references (e.g. current module or class)
+        # this is similar to temp_data, but will for example be copied to
+        # attributes of "any" cross references
+        self.ref_context = {}
 
     def set_warnfunc(self, func):
         self._warnfunc = func
@@ -681,6 +685,7 @@ class BuildEnvironment:
 
         # cleanup
         self.temp_data.clear()
+        self.ref_context.clear()
         roles._roles.pop('', None)  # if a document has set a local default role
 
         if save_parsed:
@@ -747,7 +752,7 @@ class BuildEnvironment:
     def note_versionchange(self, type, version, node, lineno):
         self.versionchanges.setdefault(version, []).append(
             (type, self.temp_data['docname'], lineno,
-             self.temp_data.get('py:module'),
+             self.ref_context.get('py:module'),
              self.temp_data.get('object'), node.astext()))
 
     # post-processing of read doctrees

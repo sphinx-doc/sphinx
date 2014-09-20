@@ -434,7 +434,7 @@ class ASTNestedNameElement(ASTBase):
                 '', refdomain='cpp', reftype='type',
                 reftarget=targetText, modname=None, classname=None)
             if env:  # during testing we don't have an env, do we?
-                pnode['cpp:parent'] = env.temp_data.get('cpp:parent')
+                pnode['cpp:parent'] = env.ref_context.get('cpp:parent')
             pnode += nodes.Text(text_type(self.identifier))
             signode += pnode
         elif mode == 'lastIsName':
@@ -1666,7 +1666,7 @@ class CPPObject(ObjectDescription):
                     signode['names'].append(uninstantiated)
                     objects.setdefault(uninstantiated, (
                     self.env.docname, ast.objectType, theid))
-            self.env.temp_data['cpp:lastname'] = ast.prefixedName
+            self.env.ref_context['cpp:lastname'] = ast.prefixedName
 
         indextext = self.get_index_text(name)
         if not re.compile(r'^[a-zA-Z0-9_]*$').match(theid):
@@ -1693,7 +1693,7 @@ class CPPObject(ObjectDescription):
             raise ValueError
         self.describe_signature(signode, ast)
 
-        parent = self.env.temp_data.get('cpp:parent')
+        parent = self.env.ref_context.get('cpp:parent')
         if parent and len(parent) > 0:
             ast = ast.clone()
             ast.prefixedName = ast.name.prefix_nested_name(parent[-1])
@@ -1741,15 +1741,15 @@ class CPPClassObject(CPPObject):
         return _('%s (C++ class)') % name
 
     def before_content(self):
-        lastname = self.env.temp_data['cpp:lastname']
+        lastname = self.env.ref_context['cpp:lastname']
         assert lastname
-        if 'cpp:parent' in self.env.temp_data:
-            self.env.temp_data['cpp:parent'].append(lastname)
+        if 'cpp:parent' in self.env.ref_context:
+            self.env.ref_context['cpp:parent'].append(lastname)
         else:
-            self.env.temp_data['cpp:parent'] = [lastname]
+            self.env.ref_context['cpp:parent'] = [lastname]
 
     def after_content(self):
-        self.env.temp_data['cpp:parent'].pop()
+        self.env.ref_context['cpp:parent'].pop()
 
     def parse_definition(self, parser):
         return parser.parse_class_object()
@@ -1774,7 +1774,7 @@ class CPPNamespaceObject(Directive):
     def run(self):
         env = self.state.document.settings.env
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
-            env.temp_data['cpp:parent'] = []
+            env.ref_context['cpp:parent'] = []
         else:
             parser = DefinitionParser(self.arguments[0])
             try:
@@ -1784,13 +1784,13 @@ class CPPNamespaceObject(Directive):
                 self.state_machine.reporter.warning(e.description,
                                                     line=self.lineno)
             else:
-                env.temp_data['cpp:parent'] = [prefix]
+                env.ref_context['cpp:parent'] = [prefix]
         return []
 
 
 class CPPXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        parent = env.temp_data.get('cpp:parent')
+        parent = env.ref_context.get('cpp:parent')
         if parent:
             refnode['cpp:parent'] = parent[:]
         if not has_explicit_title:

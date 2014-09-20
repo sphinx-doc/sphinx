@@ -163,7 +163,7 @@ class Cmdoption(ObjectDescription):
         return firstname
 
     def add_target_and_index(self, firstname, sig, signode):
-        currprogram = self.env.temp_data.get('std:program')
+        currprogram = self.env.ref_context.get('std:program')
         for optname in signode.get('allnames', []):
             targetname = optname.replace('/', '-')
             if not targetname.startswith('-'):
@@ -198,9 +198,9 @@ class Program(Directive):
         env = self.state.document.settings.env
         program = ws_re.sub('-', self.arguments[0].strip())
         if program == 'None':
-            env.temp_data['std:program'] = None
+            env.ref_context.pop('std:program', None)
         else:
-            env.temp_data['std:program'] = program
+            env.ref_context['std:program'] = program
         return []
 
 
@@ -219,7 +219,7 @@ class OptionXRefRole(XRefRole):
     innernodeclass = addnodes.literal_emphasis
 
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        program = env.temp_data.get('std:program')
+        program = env.ref_context.get('std:program')
         if not has_explicit_title:
             if ' ' in title and not (title.startswith('/') or
                                      title.startswith('-')):

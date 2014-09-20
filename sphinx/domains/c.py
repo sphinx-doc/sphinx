@@ -130,7 +130,7 @@ class CObject(ObjectDescription):
         if m:
             name = m.group(1)
 
-        typename = self.env.temp_data.get('c:type')
+        typename = self.env.ref_context.get('c:type')
         if self.name == 'c:member' and typename:
             fullname = typename + '.' + name
         else:
@@ -212,12 +212,12 @@ class CObject(ObjectDescription):
         self.typename_set = False
         if self.name == 'c:type':
             if self.names:
-                self.env.temp_data['c:type'] = self.names[0]
+                self.env.ref_context['c:type'] = self.names[0]
                 self.typename_set = True
 
     def after_content(self):
         if self.typename_set:
-            self.env.temp_data['c:type'] = None
+            self.env.ref_context.pop('c:type', None)
 
 
 class CXRefRole(XRefRole):

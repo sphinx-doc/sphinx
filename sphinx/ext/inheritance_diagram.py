@@ -310,7 +310,7 @@ class InheritanceDiagram(Directive):
         # Create a graph starting with the list of classes
         try:
             graph = InheritanceGraph(
-                class_names, env.temp_data.get('py:module'),
+                class_names, env.ref_context.get('py:module'),
                 parts=node['parts'],
                 private_bases='private-bases' in self.options)
         except InheritanceException as err:
