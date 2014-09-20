@@ -20,26 +20,27 @@ from sphinx.locale import _
 from sphinx.errors import SphinxError
 from sphinx.util import ws_re
 from sphinx.util.nodes import split_explicit_title, process_index_entry, \
-     set_role_source_info
+    set_role_source_info
 
 
 generic_docroles = {
-    'command' : addnodes.literal_strong,
-    'dfn' : nodes.emphasis,
-    'kbd' : nodes.literal,
-    'mailheader' : addnodes.literal_emphasis,
-    'makevar' : addnodes.literal_strong,
-    'manpage' : addnodes.literal_emphasis,
-    'mimetype' : addnodes.literal_emphasis,
-    'newsgroup' : addnodes.literal_emphasis,
-    'program' : addnodes.literal_strong,  # XXX should be an x-ref
-    'regexp' : nodes.literal,
+    'command': addnodes.literal_strong,
+    'dfn': nodes.emphasis,
+    'kbd': nodes.literal,
+    'mailheader': addnodes.literal_emphasis,
+    'makevar': addnodes.literal_strong,
+    'manpage': addnodes.literal_emphasis,
+    'mimetype': addnodes.literal_emphasis,
+    'newsgroup': addnodes.literal_emphasis,
+    'program': addnodes.literal_strong,  # XXX should be an x-ref
+    'regexp': nodes.literal,
 }
 
 for rolename, nodeclass in iteritems(generic_docroles):
     generic = roles.GenericRole(rolename, nodeclass)
     role = roles.CustomRole(rolename, generic, {'classes': [rolename]})
     roles.register_local_role(rolename, role)
+
 
 # -- generic cross-reference role ----------------------------------------------
 
@@ -250,6 +251,7 @@ def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 
     node['classes'].append(typ)
     return [node], []
+
 
 _litvar_re = re.compile('{([^}]+)}')
 
