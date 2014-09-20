@@ -35,6 +35,11 @@ If you want to use a different interpreter, e.g. ``python3``, use::
 
     PYTHON=python3 make test
 
+Continuous testing runs on drone.io:
+
+.. image:: https://drone.io/bitbucket.org/birkenfeld/sphinx/status.png
+   :target: https://drone.io/bitbucket.org/birkenfeld/sphinx/
+
 
 Contributing
 ============
