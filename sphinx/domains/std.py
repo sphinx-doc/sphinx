@@ -227,7 +227,7 @@ class OptionXRefRole(XRefRole):
                 target = target.strip()
         elif ' ' in target:
             program, target = _split_option(target, refnode, env)
-        refnode['refprogram'] = program
+        refnode['std:program'] = program
         return title, target
 
 
@@ -608,8 +608,8 @@ class StandardDomain(Domain):
             return make_refnode(builder, fromdocname, docname,
                                 labelid, contnode)
         elif typ == 'option':
-            if 'refprogram' in node:
-                progname = node['refprogram']
+            if 'std:program' in node:
+                progname = node['std:program']
             elif ' -' in target or ' /' in target:
                 # maybe an "any" directive, split it ourselves
                 progname, target = _split_option(target, node, env)

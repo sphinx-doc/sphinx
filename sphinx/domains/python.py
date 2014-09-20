@@ -715,7 +715,7 @@ class PythonDomain(Domain):
 
     def resolve_any_xref(self, env, fromdocname, builder, target,
                          node, contnode):
-        modname = node.get('py:module')   # it is not likely we have these
+        modname = node.get('py:module')
         clsname = node.get('py:class')
         results = []
 

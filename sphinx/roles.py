@@ -164,6 +164,15 @@ class XRefRole(object):
         return [node], []
 
 
+class AnyXRefRole(XRefRole):
+    def process_link(self, env, refnode, has_explicit_title, title, target):
+        result = XRefRole.process_link(self, env, refnode, has_explicit_title,
+                                       title, target)
+        # add all possible context info (i.e. std:program, py:module etc.)
+        refnode.attributes.update(env.ref_context)
+        return result
+
+
 def indexmarkup_role(typ, rawtext, text, lineno, inliner,
                      options={}, content=[]):
     """Role for PEP/RFC references that generate an index entry."""
@@ -319,7 +328,7 @@ specific_docroles = {
     # links to documents
     'doc': XRefRole(warn_dangling=True),
     # links to anything
-    'any': XRefRole(warn_dangling=True),
+    'any': AnyXRefRole(warn_dangling=True),
 
     'pep': indexmarkup_role,
     'rfc': indexmarkup_role,
