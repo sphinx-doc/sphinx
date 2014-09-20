@@ -637,15 +637,20 @@ class StandardDomain(Domain):
     def resolve_any_xref(self, env, fromdocname, builder, target,
                          node, contnode):
         results = []
+        ltarget = target.lower()  # :ref: lowercases its target automatically
         for role in ('ref', 'option'):  # do not try "keyword"
-            res = self.resolve_xref(env, fromdocname, builder, role, target,
+            res = self.resolve_xref(env, fromdocname, builder, role,
+                                    ltarget if role == 'ref' else target,
                                     node, contnode)
             if res:
                 results.append(('std:ref', res))
         # all others
         for objtype in self.object_types:
-            if (objtype, target) in self.data['objects']:
-                docname, labelid = self.data['objects'][objtype, target]
+            key = (objtype, target)
+            if objtype == 'term':
+                key = (objtype, ltarget)
+            if key in self.data['objects']:
+                docname, labelid = self.data['objects'][key]
                 results.append(('std:' + self.role_for_objtype(objtype),
                                 make_refnode(builder, fromdocname, docname,
                                              labelid, contnode)))
