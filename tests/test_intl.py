@@ -16,7 +16,7 @@ import re
 from subprocess import Popen, PIPE
 from xml.etree import ElementTree
 
-from nose.tools import assert_equal, assert_in, assert_not_in
+from nose.tools import assert_equal
 from six import string_types
 
 from util import tempdir, rootdir, path, gen_with_app, SkipTest
@@ -38,6 +38,16 @@ def not_re_search(regex, text, flags=0):
 def startswith(thing, prefix):
     if not thing.startswith(prefix):
         assert False, '%r does not start with %r' % (thing, prefix)
+
+
+def assert_in(x, thing):
+    if x not in thing:
+        assert False, '%r is not in %r' % (x, thing)
+
+
+def assert_not_in(x, thing):
+    if x in thing:
+        assert False, '%r is in %r' % (x, thing)
 
 
 def gen_with_intl_app(*args, **kw):
@@ -297,7 +307,6 @@ def test_text_builder(app, status, warning):
     for d in directives:
         yield assert_in, d.upper() + " TITLE", result
         yield assert_in, d.upper() + " BODY", result
-
 
 
 @gen_with_intl_app('html', freshenv=True)
