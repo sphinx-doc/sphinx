@@ -57,7 +57,7 @@ def test_theme_api(app, status, warning):
     assert not os.path.exists(themedir)
 
 
-@with_app()
+@with_app(testroot='tocdepth')  # a minimal root
 def test_js_source(app, status, warning):
     # Now sphinx provides non-minified JS files for jquery.js and underscore.js
     # to clarify the source of the minified files. see also #1434.
