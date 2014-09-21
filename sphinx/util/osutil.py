@@ -194,3 +194,9 @@ def abspath(pathdir):
     if isinstance(pathdir, bytes):
         pathdir = pathdir.decode(fs_encoding)
     return pathdir
+
+
+def getcwd():
+    if hasattr(os, 'getcwdu'):
+        return os.getcwdu()
+    return os.getcwd()

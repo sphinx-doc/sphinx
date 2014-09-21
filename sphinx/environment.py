@@ -39,7 +39,7 @@ from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
     FilenameUniqDict
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream
-from sphinx.util.osutil import SEP, find_catalog_files
+from sphinx.util.osutil import SEP, find_catalog_files, getcwd, fs_encoding
 from sphinx.util.matching import compile_matchers
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
@@ -774,7 +774,7 @@ class BuildEnvironment:
 
     def process_dependencies(self, docname, doctree):
         """Process docutils-generated dependency info."""
-        cwd = os.getcwd()
+        cwd = getcwd()
         frompath = path.join(path.normpath(self.srcdir), 'dummy')
         deps = doctree.settings.record_dependencies
         if not deps:
@@ -782,6 +782,8 @@ class BuildEnvironment:
         for dep in deps.list:
             # the dependency path is relative to the working dir, so get
             # one relative to the srcdir
+            if isinstance(dep, bytes):
+                dep = dep.decode(fs_encoding)
             relpath = relative_path(frompath,
                                     path.normpath(path.join(cwd, dep)))
             self.dependencies.setdefault(docname, set()).add(relpath)

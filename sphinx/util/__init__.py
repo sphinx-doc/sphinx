@@ -31,13 +31,14 @@ import jinja2
 import sphinx
 from sphinx.errors import PycodeError
 from sphinx.util.console import strip_colors
+from sphinx.util.osutil import fs_encoding
 
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, walk, \
-     mtimes_of_files, movefile, copyfile, copytimes, make_filename, ustrftime
+    mtimes_of_files, movefile, copyfile, copytimes, make_filename, ustrftime
 from sphinx.util.nodes import nested_parse_with_titles, split_explicit_title, \
-     explicit_title_re, caption_ref_re
+    explicit_title_re, caption_ref_re
 from sphinx.util.matching import patfilter
 
 # Generally useful regular expressions.
@@ -200,10 +201,12 @@ def save_traceback(app):
                    last_msgs)).encode('utf-8'))
     if app is not None:
         for extname, extmod in iteritems(app._extensions):
+            modfile = getattr(extmod, '__file__', 'unknown')
+            if isinstance(modfile, bytes):
+                modfile = modfile.decode(fs_encoding, 'replace')
             os.write(fd, ('#   %s (%s) from %s\n' % (
                 extname, app._extension_versions[extname],
-                getattr(extmod, '__file__', 'unknown'))
-                ).encode('utf-8'))
+                modfile)).encode('utf-8'))
     os.write(fd, exc.encode('utf-8'))
     os.close(fd)
     return path
