@@ -10,41 +10,30 @@
 """
 from __future__ import print_function
 
-import gettext
 import os
 import re
+import gettext
 from subprocess import Popen, PIPE
 
-from util import with_app, SkipTest
+from nose.tools import assert_true, assert_in, assert_equal
+
+from util import with_app, gen_with_app, SkipTest
 
 
-@with_app('gettext')
+@gen_with_app('gettext')
 def test_all(app, status, warning):
     # Generic build; should fail only when the builder is horribly broken.
     app.builder.build_all()
 
-
-@with_app('gettext')
-def test_build(app, status, warning):
     # Do messages end up in the correct location?
-    app.builder.build(['extapi', 'subdir/includes'])
     # top-level documents end up in a message catalog
-    assert (app.outdir / 'extapi.pot').isfile()
+    yield assert_true, (app.outdir / 'extapi.pot').isfile()
     # directory items are grouped into sections
-    assert (app.outdir / 'subdir.pot').isfile()
+    yield assert_true, (app.outdir / 'subdir.pot').isfile()
 
-
-@with_app('gettext')
-def test_seealso(app, status, warning):
     # regression test for issue #960
-    app.builder.build(['markup'])
     catalog = (app.outdir / 'markup.pot').text(encoding='utf-8')
-    assert 'msgid "something, something else, something more"' in catalog
-
-
-@with_app('gettext')
-def test_gettext(app, status, warning):
-    app.builder.build(['markup'])
+    yield assert_in, 'msgid "something, something else, something more"', catalog
 
     (app.outdir / 'en' / 'LC_MESSAGES').makedirs()
     cwd = os.getcwd()
@@ -63,7 +52,7 @@ def test_gettext(app, status, warning):
                 print(stderr)
                 assert False, 'msginit exited with return code %s' % \
                     p.returncode
-        assert (app.outdir / 'en_US.po').isfile(), 'msginit failed'
+        yield assert_true, (app.outdir / 'en_US.po').isfile(), 'msginit failed'
         try:
             p = Popen(['msgfmt', 'en_US.po', '-o',
                        os.path.join('en', 'LC_MESSAGES', 'test_root.mo')],
@@ -77,13 +66,13 @@ def test_gettext(app, status, warning):
                 print(stderr)
                 assert False, 'msgfmt exited with return code %s' % \
                     p.returncode
-        assert (app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo').isfile(), \
+        yield assert_true, (app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo').isfile(), \
             'msgfmt failed'
     finally:
         os.chdir(cwd)
 
     _ = gettext.translation('test_root', app.outdir, languages=['en']).gettext
-    assert _("Testing various markup") == u"Testing various markup"
+    yield assert_equal, _("Testing various markup"), u"Testing various markup"
 
 
 @with_app('gettext', testroot='intl',
