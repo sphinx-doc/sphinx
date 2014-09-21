@@ -24,7 +24,7 @@ def setup_module():
 def test_default_docnames_order():
     """By default, docnames are read in alphanumeric order"""
     def on_env_read_docs(app, env, docnames):
-        return docnames
+        pass
 
     app = TestApp(srcdir='(temp)', freshenv=True)
     env = app.env
@@ -38,7 +38,6 @@ def test_inverse_docnames_order():
     """By default, docnames are read in alphanumeric order"""
     def on_env_read_docs(app, env, docnames):
         docnames.reverse()
-        return docnames
 
     app = TestApp(srcdir='(temp)', freshenv=True)
     env = app.env
@@ -46,8 +45,7 @@ def test_inverse_docnames_order():
 
     msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
     read_docnames = [docname for docname in it]
-    reversed_read_docnames = sorted(read_docnames)[:]
-    reversed_read_docnames.reverse()
+    reversed_read_docnames = sorted(read_docnames, reverse=True)
     assert len(read_docnames) > 1 and read_docnames == reversed_read_docnames
 
 def teardown_module():

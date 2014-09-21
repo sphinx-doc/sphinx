@@ -471,11 +471,7 @@ class BuildEnvironment:
             # read all new and changed files
             docnames = sorted(added | changed)
             if app:
-                new_docnames = []
-                for mod_docnames in app.emit('env-read-docs', self, docnames):
-                    new_docnames.extend(mod_docnames)
-                if new_docnames:
-                    docnames = new_docnames
+                app.emit('env-read-docs', self, docnames)
             for docname in docnames:
                 yield docname
                 self.read_doc(docname, app=app)
