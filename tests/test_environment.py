@@ -24,7 +24,7 @@ warnings = []
 
 def setup_module():
     global app, env
-    app = TestApp(srcdir='env-test')
+    app = TestApp(srcdir='root-envtest')
     env = app.env
     env.set_warnfunc(lambda *args: warnings.append(args))
 

@@ -20,7 +20,7 @@ from nose.tools import assert_true, assert_in, assert_equal
 from util import with_app, gen_with_app, SkipTest
 
 
-@gen_with_app('gettext')
+@gen_with_app('gettext', srcdir='root-gettext')
 def test_all(app, status, warning):
     # Generic build; should fail only when the builder is horribly broken.
     app.builder.build_all()
