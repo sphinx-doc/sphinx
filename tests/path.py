@@ -123,6 +123,9 @@ class path(text_type):
         """
         os.unlink(self)
 
+    def utime(self, arg):
+        os.utime(self, arg)
+
     def write_text(self, text, **kwargs):
         """
         Writes the given `text` to the file.
