@@ -15,7 +15,7 @@ from util import with_app
 
 
 @with_app(buildername='coverage')
-def test_build(app):
+def test_build(app, status, warning):
     app.builder.build_all()
 
     py_undoc = (app.outdir / 'python.txt').text()

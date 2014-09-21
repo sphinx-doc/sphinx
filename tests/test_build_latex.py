@@ -14,19 +14,13 @@ import os
 import re
 from subprocess import Popen, PIPE
 
-from six import PY3, StringIO
+from six import PY3
 
 from sphinx.writers.latex import LaTeXTranslator
 
-from util import test_root, SkipTest, remove_unicode_literals, with_app
+from util import SkipTest, remove_unicode_literals, with_app
 from test_build_html import ENV_WARNINGS
 
-
-def teardown_module():
-    (test_root / '_build').rmtree(True)
-
-
-latex_warnfile = StringIO()
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
 None:None: WARNING: citation not found: missing
@@ -39,17 +33,17 @@ if PY3:
     LATEX_WARNINGS = remove_unicode_literals(LATEX_WARNINGS)
 
 
-@with_app(buildername='latex', warning=latex_warnfile, cleanenv=True)
-def test_latex(app):
+@with_app(buildername='latex', freshenv=True)
+def test_latex(app, status, warning):
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
-    latex_warnings = latex_warnfile.getvalue().replace(os.sep, '/')
+    latex_warnings = warning.getvalue().replace(os.sep, '/')
     latex_warnings_exp = LATEX_WARNINGS % {
-            'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(latex_warnings_exp + '$', latex_warnings), \
-           'Warnings don\'t match:\n' + \
-           '--- Expected (regex):\n' + latex_warnings_exp + \
-           '--- Got:\n' + latex_warnings
+        'Warnings don\'t match:\n' + \
+        '--- Expected (regex):\n' + latex_warnings_exp + \
+        '--- Got:\n' + latex_warnings
 
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').isfile()

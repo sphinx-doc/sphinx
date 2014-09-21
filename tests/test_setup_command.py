@@ -16,11 +16,16 @@ from functools import wraps
 import tempfile
 import sphinx
 
-from util import with_tempdir, test_roots, SkipTest
+from util import rootdir, tempdir, SkipTest
 from path import path
 from textwrap import dedent
 
-root = test_roots / 'test-setup'
+root = tempdir / 'test-setup'
+
+
+def setup_module():
+    if not root.exists():
+        (rootdir / 'roots' / 'test-setup').copytree(root)
 
 
 def with_setup_command(root, *args, **kwds):

@@ -3,11 +3,9 @@
 import sys, os
 
 sys.path.append(os.path.abspath('.'))
-sys.path.append(os.path.abspath('..'))
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.jsmath', 'sphinx.ext.todo',
-              'sphinx.ext.coverage', 'sphinx.ext.autosummary',
-              'sphinx.ext.doctest', 'sphinx.ext.extlinks',
+              'sphinx.ext.coverage', 'sphinx.ext.doctest', 'sphinx.ext.extlinks',
               'sphinx.ext.viewcode', 'ext']
 
 jsmath_path = 'dummy.js'
@@ -18,7 +16,7 @@ master_doc = 'contents'
 source_suffix = '.txt'
 
 project = 'Sphinx <Tests>'
-copyright = '2010, Georg Brandl & Team'
+copyright = '2010-2014, Georg Brandl & Team'
 # If this is changed, remember to update the versionchanges!
 version = '0.6'
 release = '0.6alpha1'
@@ -34,7 +32,8 @@ html_theme = 'testtheme'
 html_theme_path = ['.']
 html_theme_options = {'testopt': 'testoverride'}
 html_sidebars = {'**': 'customsb.html',
-                 'contents': ['contentssb.html', 'localtoc.html'] }
+                 'contents': ['contentssb.html', 'localtoc.html',
+                              'globaltoc.html']}
 html_style = 'default.css'
 html_static_path = ['_static', 'templated.css_t']
 html_extra_path = ['robots.txt']
@@ -64,8 +63,6 @@ value_from_conf_py = 84
 
 coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'function': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
-
-autosummary_generate = ['autosummary']
 
 extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue '),
             'pyurl': ('http://python.org/%s', None)}

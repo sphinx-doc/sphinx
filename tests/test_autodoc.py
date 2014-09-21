@@ -18,7 +18,7 @@ from six import StringIO
 from docutils.statemachine import ViewList
 
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
-     ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
+    ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
 
 app = None
 

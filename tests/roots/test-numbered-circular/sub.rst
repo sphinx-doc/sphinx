@@ -1,0 +1,3 @@
+.. toctree::
+
+   contents

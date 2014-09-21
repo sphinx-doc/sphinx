@@ -15,22 +15,17 @@ import os
 import re
 from subprocess import Popen, PIPE
 
-from util import test_root, test_roots, with_app, SkipTest
+from util import with_app, SkipTest
 
 
-def teardown_module():
-    (test_root / '_build').rmtree(True)
-    (test_roots / 'test-intl' / '_build').rmtree(True),
-
-
-@with_app(buildername='gettext')
-def test_all(app):
+@with_app('gettext')
+def test_all(app, status, warning):
     # Generic build; should fail only when the builder is horribly broken.
     app.builder.build_all()
 
 
-@with_app(buildername='gettext')
-def test_build(app):
+@with_app('gettext')
+def test_build(app, status, warning):
     # Do messages end up in the correct location?
     app.builder.build(['extapi', 'subdir/includes'])
     # top-level documents end up in a message catalog
@@ -39,16 +34,16 @@ def test_build(app):
     assert (app.outdir / 'subdir.pot').isfile()
 
 
-@with_app(buildername='gettext')
-def test_seealso(app):
+@with_app('gettext')
+def test_seealso(app, status, warning):
     # regression test for issue #960
     app.builder.build(['markup'])
     catalog = (app.outdir / 'markup.pot').text(encoding='utf-8')
     assert 'msgid "something, something else, something more"' in catalog
 
 
-@with_app(buildername='gettext')
-def test_gettext(app):
+@with_app('gettext')
+def test_gettext(app, status, warning):
     app.builder.build(['markup'])
 
     (app.outdir / 'en' / 'LC_MESSAGES').makedirs()
@@ -58,7 +53,7 @@ def test_gettext(app):
         try:
             p = Popen(['msginit', '--no-translator', '-i', 'markup.pot',
                        '--locale', 'en_US'],
-                        stdout=PIPE, stderr=PIPE)
+                      stdout=PIPE, stderr=PIPE)
         except OSError:
             raise SkipTest  # most likely msginit was not found
         else:
@@ -67,12 +62,12 @@ def test_gettext(app):
                 print(stdout)
                 print(stderr)
                 assert False, 'msginit exited with return code %s' % \
-                        p.returncode
+                    p.returncode
         assert (app.outdir / 'en_US.po').isfile(), 'msginit failed'
         try:
             p = Popen(['msgfmt', 'en_US.po', '-o',
-                os.path.join('en', 'LC_MESSAGES', 'test_root.mo')],
-                stdout=PIPE, stderr=PIPE)
+                       os.path.join('en', 'LC_MESSAGES', 'test_root.mo')],
+                      stdout=PIPE, stderr=PIPE)
         except OSError:
             raise SkipTest  # most likely msgfmt was not found
         else:
@@ -81,9 +76,9 @@ def test_gettext(app):
                 print(stdout)
                 print(stderr)
                 assert False, 'msgfmt exited with return code %s' % \
-                        p.returncode
+                    p.returncode
         assert (app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo').isfile(), \
-                'msgfmt failed'
+            'msgfmt failed'
     finally:
         os.chdir(cwd)
 
@@ -91,15 +86,14 @@ def test_gettext(app):
     assert _("Testing various markup") == u"Testing various markup"
 
 
-@with_app(buildername='gettext',
-          srcdir=(test_roots / 'test-intl'),
-          doctreedir=(test_roots / 'test-intl' / '_build' / 'doctree'),
+@with_app('gettext', testroot='intl',
           confoverrides={'gettext_compact': False})
-def test_gettext_index_entries(app):
+def test_gettext_index_entries(app, status, warning):
     # regression test for #976
     app.builder.build(['index_entries'])
 
     _msgid_getter = re.compile(r'msgid "(.*)"').search
+
     def msgid_getter(msgid):
         m = _msgid_getter(msgid)
         if m:
@@ -139,10 +133,8 @@ def test_gettext_index_entries(app):
     assert msgids == []
 
 
-@with_app(buildername='gettext',
-          srcdir=(test_roots / 'test-intl'),
-          doctreedir=(test_roots / 'test-intl' / '_build' / 'doctree'))
-def test_gettext_template(app):
+@with_app(buildername='gettext', testroot='intl')
+def test_gettext_template(app, status, warning):
     app.builder.build_all()
     assert (app.outdir / 'sphinx.pot').isfile()
 

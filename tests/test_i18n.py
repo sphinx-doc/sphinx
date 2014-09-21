@@ -13,5 +13,5 @@ from util import with_app
 
 
 @with_app(confoverrides={'language': 'de'})
-def test_i18n(app):
+def test_i18n(app, status, warning):
     app.builder.build_all()

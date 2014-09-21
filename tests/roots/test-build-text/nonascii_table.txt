@@ -1,0 +1,7 @@
+.. list-table::
+
+   - - spam
+     - egg
+
+   - - 日本語
+     - 日本語

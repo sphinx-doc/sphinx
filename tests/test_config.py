@@ -20,7 +20,7 @@ from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
 @with_app(confoverrides={'master_doc': 'master', 'nonexisting_value': 'True',
                          'latex_elements.docclass': 'scrartcl',
                          'modindex_common_prefix': 'path1,path2'})
-def test_core_config(app):
+def test_core_config(app, status, warning):
     cfg = app.config
 
     # simple values
@@ -36,7 +36,7 @@ def test_core_config(app):
     # simple default values
     assert 'locale_dirs' not in cfg.__dict__
     assert cfg.locale_dirs == []
-    assert cfg.trim_footnote_reference_space == False
+    assert cfg.trim_footnote_reference_space is False
 
     # complex default values
     assert 'html_title' not in cfg.__dict__
@@ -68,7 +68,7 @@ def test_core_config(app):
 
 
 @with_app()
-def test_extension_values(app):
+def test_extension_values(app, status, warning):
     cfg = app.config
 
     # default value

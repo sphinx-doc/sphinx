@@ -11,25 +11,14 @@
 
 import re
 
-from six import StringIO
-
-from util import test_roots, with_app
+from util import with_app
 
 
-warnfile = StringIO()
-root = test_roots / 'test-ext-viewcode'
-doctreedir = root / '_build' / 'doctree'
-
-
-def teardown_module():
-    (root / '_build').rmtree(True)
-
-
-@with_app(srcdir=root, warning=warnfile)
-def test_simple(app):
+@with_app(testroot='ext-viewcode')
+def test_simple(app, status, warning):
     app.builder.build_all()
 
-    warnings = re.sub(r'\\+', '/', warnfile.getvalue())
+    warnings = re.sub(r'\\+', '/', warning.getvalue())
     assert re.findall(
         r"index.rst:\d+: WARNING: Object named 'func1' not found in include " +
         r"file .*/spam/__init__.py'",

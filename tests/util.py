@@ -8,21 +8,21 @@
 """
 
 import os
+import re
 import sys
 import tempfile
-import shutil
-import re
 from functools import wraps
 
 from six import StringIO
 
+from nose import tools, SkipTest
+
 from sphinx import application
 from sphinx.theming import Theme
 from sphinx.ext.autodoc import AutoDirective
+from sphinx.pycode import ModuleAnalyzer
 
 from path import path
-
-from nose import tools, SkipTest
 
 try:
     # Python >=3.3
@@ -32,7 +32,7 @@ except ImportError:
 
 
 __all__ = [
-    'test_root', 'test_roots', 'raises', 'raises_msg',
+    'rootdir', 'tempdir', 'raises', 'raises_msg',
     'skip_if', 'skip_unless', 'skip_unless_importable', 'Struct',
     'ListOutput', 'TestApp', 'with_app', 'gen_with_app',
     'path', 'with_tempdir',
@@ -41,8 +41,8 @@ __all__ = [
 ]
 
 
-test_root = path(__file__).parent.joinpath('root').abspath()
-test_roots = path(__file__).parent.joinpath('roots').abspath()
+rootdir = path(os.path.dirname(__file__) or '.').abspath()
+tempdir = path(os.environ['SPHINX_TEST_TEMPDIR']).abspath()
 
 
 def _excstr(exc):
@@ -50,11 +50,9 @@ def _excstr(exc):
         return str(tuple(map(_excstr, exc)))
     return exc.__name__
 
+
 def raises(exc, func, *args, **kwds):
-    """
-    Raise :exc:`AssertionError` if ``func(*args, **kwds)`` does not
-    raise *exc*.
-    """
+    """Raise AssertionError if ``func(*args, **kwds)`` does not raise *exc*."""
     try:
         func(*args, **kwds)
     except exc:
@@ -63,10 +61,10 @@ def raises(exc, func, *args, **kwds):
         raise AssertionError('%s did not raise %s' %
                              (func.__name__, _excstr(exc)))
 
+
 def raises_msg(exc, msg, func, *args, **kwds):
-    """
-    Raise :exc:`AssertionError` if ``func(*args, **kwds)`` does not
-    raise *exc*, and check if the message contains *msg*.
+    """Raise AssertionError if ``func(*args, **kwds)`` does not raise *exc*,
+    and check if the message contains *msg*.
     """
     try:
         func(*args, **kwds)
@@ -75,6 +73,7 @@ def raises_msg(exc, msg, func, *args, **kwds):
     else:
         raise AssertionError('%s did not raise %s' %
                              (func.__name__, _excstr(exc)))
+
 
 def skip_if(condition, msg=None):
     """Decorator to skip test if condition is true."""
@@ -87,9 +86,11 @@ def skip_if(condition, msg=None):
         return skipper
     return deco
 
+
 def skip_unless(condition, msg=None):
     """Decorator to skip test if condition is false."""
     return skip_if(not condition, msg)
+
 
 def skip_unless_importable(module, msg=None):
     """Decorator to skip test if module is not importable."""
@@ -127,61 +128,47 @@ class TestApp(application.Sphinx):
     better default values for the initialization parameters.
     """
 
-    def __init__(self, srcdir=None, confdir=None, outdir=None, doctreedir=None,
-                 buildername='html', confoverrides=None,
-                 status=None, warning=None, freshenv=None,
-                 warningiserror=None, tags=None,
-                 confname='conf.py', cleanenv=False,
-                 _copy_to_temp=False,
-                 ):
-
-        application.CONFIG_FILENAME = confname
-
-        self.cleanup_trees = [test_root / 'generated']
-
-        if srcdir is None:
-            srcdir = test_root
-        elif srcdir == '(empty)':
-            tempdir = path(tempfile.mkdtemp())
-            self.cleanup_trees.append(tempdir)
-            temproot = tempdir / 'root'
-            temproot.makedirs()
-            (temproot / 'conf.py').write_text('')
-            srcdir = temproot
+    def __init__(self, buildername='html', testroot=None, srcdir=None,
+                 freshenv=False, confoverrides=None, status=None, warning=None,
+                 tags=None, docutilsconf=None):
+        if testroot is None:
+            defaultsrcdir = 'root'
+            testroot = rootdir / 'root'
         else:
-            srcdir = path(srcdir)
+            defaultsrcdir = 'test-' + testroot
+            testroot = rootdir / 'roots' / ('test-' + testroot)
+        if srcdir is None:
+            srcdir = tempdir / defaultsrcdir
+        else:
+            srcdir = tempdir / srcdir
 
-        if _copy_to_temp:
-            tempdir = path(tempfile.mkdtemp())
-            self.cleanup_trees.append(tempdir)
-            temproot = tempdir / srcdir.basename()
-            srcdir.copytree(temproot)
-            srcdir = temproot
+        if not srcdir.exists():
+            testroot.copytree(srcdir)
 
-        self.builddir = srcdir.joinpath('_build')
-        if confdir is None:
-            confdir = srcdir
-        if outdir is None:
-            outdir = srcdir.joinpath(self.builddir, buildername)
-            if not outdir.isdir():
-                outdir.makedirs()
-            self.cleanup_trees.insert(0, outdir)
-        if doctreedir is None:
-            doctreedir = srcdir.joinpath(srcdir, self.builddir, 'doctrees')
-            if not doctreedir.isdir():
-                doctreedir.makedirs()
-            if cleanenv:
-                self.cleanup_trees.insert(0, doctreedir)
+        if docutilsconf is not None:
+            (srcdir / 'docutils.conf').write_text(docutilsconf)
+
+        builddir = srcdir / '_build'
+#        if confdir is None:
+        confdir = srcdir
+#        if outdir is None:
+        outdir = builddir.joinpath(buildername)
+        if not outdir.isdir():
+            outdir.makedirs()
+#        if doctreedir is None:
+        doctreedir = builddir.joinpath('doctrees')
+        if not doctreedir.isdir():
+            doctreedir.makedirs()
         if confoverrides is None:
             confoverrides = {}
         if status is None:
             status = StringIO()
         if warning is None:
             warning = ListOutput('stderr')
-        if freshenv is None:
-            freshenv = False
-        if warningiserror is None:
-            warningiserror = False
+#        if warningiserror is None:
+        warningiserror = False
+
+        self._saved_path = sys.path[:]
 
         application.Sphinx.__init__(self, srcdir, confdir, outdir, doctreedir,
                                     buildername, confoverrides, status, warning,
@@ -190,8 +177,9 @@ class TestApp(application.Sphinx):
     def cleanup(self, doctrees=False):
         Theme.themes.clear()
         AutoDirective._registry.clear()
-        for tree in self.cleanup_trees:
-            shutil.rmtree(tree, True)
+        ModuleAnalyzer.cache.clear()
+        sys.path[:] = self._saved_path
+        sys.modules.pop('autodoc_fodder', None)
 
     def __repr__(self):
         return '<%s buildername=%r>' % (self.__class__.__name__, self.builder.name)
@@ -205,10 +193,14 @@ def with_app(*args, **kwargs):
     def generator(func):
         @wraps(func)
         def deco(*args2, **kwargs2):
+            status, warning = StringIO(), StringIO()
+            kwargs['status'] = status
+            kwargs['warning'] = warning
             app = TestApp(*args, **kwargs)
-            func(app, *args2, **kwargs2)
-            # don't execute cleanup if test failed
-            app.cleanup()
+            try:
+                func(app, status, warning, *args2, **kwargs2)
+            finally:
+                app.cleanup()
         return deco
     return generator
 
@@ -221,20 +213,24 @@ def gen_with_app(*args, **kwargs):
     def generator(func):
         @wraps(func)
         def deco(*args2, **kwargs2):
+            status, warning = StringIO(), StringIO()
+            kwargs['status'] = status
+            kwargs['warning'] = warning
             app = TestApp(*args, **kwargs)
-            for item in func(app, *args2, **kwargs2):
-                yield item
-            # don't execute cleanup if test failed
-            app.cleanup()
+            try:
+                for item in func(app, status, warning, *args2, **kwargs2):
+                    yield item
+            finally:
+                app.cleanup()
         return deco
     return generator
 
 
 def with_tempdir(func):
     def new_func(*args, **kwds):
-        tempdir = path(tempfile.mkdtemp())
-        func(tempdir, *args, **kwds)
-        tempdir.rmtree()
+        new_tempdir = path(tempfile.mkdtemp(dir=tempdir))
+        func(new_tempdir, *args, **kwds)
+        new_tempdir.rmtree()  # not when test fails...
     new_func.__name__ = func.__name__
     return new_func
 
@@ -242,7 +238,10 @@ def with_tempdir(func):
 def sprint(*args):
     sys.stderr.write(' '.join(map(str, args)) + '\n')
 
+
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
+
+
 def remove_unicode_literals(s):
     return _unicode_literals_re.sub(lambda x: x.group(1) or x.group(2), s)
 

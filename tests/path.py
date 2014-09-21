@@ -195,6 +195,9 @@ class path(text_type):
         """
         return self.__class__(os.path.join(self, *map(self.__class__, args)))
 
+    def listdir(self):
+        return os.listdir(self)
+
     __div__ = __truediv__ = joinpath
 
     def __repr__(self):

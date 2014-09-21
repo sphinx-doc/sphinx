@@ -9,13 +9,12 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
 from util import with_app
 
 
-@with_app(buildername='html', tags=['test_linkcode'], _copy_to_temp=True)
-def test_html(app):
-    app.builder.build_all()
+@with_app('html', tags=['test_linkcode'])
+def test_html(app, status, warning):
+    app.builder.build(['objects'])
 
     stuff = (app.outdir / 'objects.html').text(encoding='utf-8')
 
