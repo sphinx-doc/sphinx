@@ -10,13 +10,16 @@
 """
 from __future__ import print_function
 
-import sys, os, time, re
+import re
+import os
+import sys
+import time
 from os import path
 from io import open
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
-#try to import readline, unix specific enhancement
+# try to import readline, unix specific enhancement
 try:
     import readline
     if readline.__doc__ and 'libedit' in readline.__doc__:
@@ -33,7 +36,7 @@ from docutils.utils import column_width
 from sphinx import __version__
 from sphinx.util.osutil import make_filename
 from sphinx.util.console import purple, bold, red, turquoise, \
-     nocolor, color_terminal
+    nocolor, color_terminal
 from sphinx.util import texescape
 
 # function to get input from terminal -- overridden by the test suite
@@ -972,16 +975,19 @@ def mkdir_p(dir):
 class ValidationError(Exception):
     """Raised for validation errors."""
 
+
 def is_path(x):
     x = path.expanduser(x)
     if path.exists(x) and not path.isdir(x):
         raise ValidationError("Please enter a valid path name.")
     return x
 
+
 def nonempty(x):
     if not x:
         raise ValidationError("Please enter some text.")
     return x
+
 
 def choice(*l):
     def val(x):
@@ -990,16 +996,19 @@ def choice(*l):
         return x
     return val
 
+
 def boolean(x):
     if x.upper() not in ('Y', 'YES', 'N', 'NO'):
         raise ValidationError("Please enter either 'y' or 'n'.")
     return x.upper() in ('Y', 'YES')
+
 
 def suffix(x):
     if not (x[0:1] == '.' and len(x) > 1):
         raise ValidationError("Please enter a file suffix, "
                               "e.g. '.rst' or '.txt'.")
     return x
+
 
 def ok(x):
     return x
@@ -1097,7 +1106,7 @@ Enter the root path for documentation.''')
         do_prompt(d, 'path', 'Root path for the documentation', '.', is_path)
 
     while path.isfile(path.join(d['path'], 'conf.py')) or \
-          path.isfile(path.join(d['path'], 'source', 'conf.py')):
+            path.isfile(path.join(d['path'], 'source', 'conf.py')):
         print()
         print(bold('Error: an existing conf.py has been found in the '
                    'selected root path.'))
@@ -1169,7 +1178,7 @@ document is a custom template, you can also set this to another filename.''')
                   'index')
 
     while path.isfile(path.join(d['path'], d['master']+d['suffix'])) or \
-          path.isfile(path.join(d['path'], 'source', d['master']+d['suffix'])):
+            path.isfile(path.join(d['path'], 'source', d['master']+d['suffix'])):
         print()
         print(bold('Error: the master file %s has already been found in the '
                    'selected root path.' % (d['master']+d['suffix'])))
@@ -1256,10 +1265,10 @@ def generate(d, overwrite=True, silent=False):
         d['extensions'] = extensions
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
     d['author_texescaped'] = text_type(d['author']).\
-                             translate(texescape.tex_escape_map)
+        translate(texescape.tex_escape_map)
     d['project_doc'] = d['project'] + ' Documentation'
     d['project_doc_texescaped'] = text_type(d['project'] + ' Documentation').\
-                                  translate(texescape.tex_escape_map)
+        translate(texescape.tex_escape_map)
 
     # escape backslashes and single quotes in strings that are put into
     # a Python string literal

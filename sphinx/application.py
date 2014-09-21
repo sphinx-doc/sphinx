@@ -200,8 +200,8 @@ class Sphinx(object):
         else:
             try:
                 self.info(bold('loading pickled environment... '), nonl=True)
-                self.env = BuildEnvironment.frompickle(self.config,
-                    path.join(self.doctreedir, ENV_PICKLE_FILENAME))
+                self.env = BuildEnvironment.frompickle(
+                    self.config, path.join(self.doctreedir, ENV_PICKLE_FILENAME))
                 self.env.domains = {}
                 for domain in self.domains.keys():
                     # this can raise if the data version doesn't fit
@@ -291,7 +291,7 @@ class Sphinx(object):
             else:
                 location = None
         warntext = location and '%s: %s%s\n' % (location, prefix, message) or \
-                   '%s%s\n' % (prefix, message)
+            '%s%s\n' % (prefix, message)
         if self.warningiserror:
             raise SphinxWarning(warntext)
         self._warncount += 1
@@ -461,7 +461,7 @@ class Sphinx(object):
             else:
                 raise ExtensionError(
                     'Builder %r already exists (in module %s)' % (
-                    builder.name, self.builderclasses[builder.name].__module__))
+                        builder.name, self.builderclasses[builder.name].__module__))
         self.builderclasses[builder.name] = builder
 
     def add_config_value(self, name, default, rebuild):

@@ -236,6 +236,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner,
 
 _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
+
 def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     text = utils.unescape(text)
     if typ == 'menuselection':
@@ -264,6 +265,7 @@ def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
 
 _litvar_re = re.compile('{([^}]+)}')
 
+
 def emph_literal_role(typ, rawtext, text, lineno, inliner,
                       options={}, content=[]):
     text = utils.unescape(text)
@@ -281,6 +283,7 @@ def emph_literal_role(typ, rawtext, text, lineno, inliner,
 
 
 _abbr_re = re.compile('\((.*)\)$', re.S)
+
 
 def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     text = utils.unescape(text)
