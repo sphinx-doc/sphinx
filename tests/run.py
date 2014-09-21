@@ -45,5 +45,7 @@ if tempdir.exists():
 tempdir.makedirs()
 
 print('Running Sphinx test suite...')
+sys.stdout.flush()
+
 import nose
 nose.main()
