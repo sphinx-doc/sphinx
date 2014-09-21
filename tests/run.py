@@ -27,6 +27,8 @@ for modname in ('nose', 'mock', 'six', 'docutils', 'jinja2', 'pygments',
     try:
         __import__(modname)
     except ImportError as err:
+        if modname == 'mock' and sys.version_info[0] == 3:
+            continue
         traceback.print_exc()
         print('The %r package is needed to run the Sphinx test suite.' % modname)
         sys.exit(1)
