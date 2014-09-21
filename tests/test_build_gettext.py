@@ -15,9 +15,9 @@ import re
 import gettext
 from subprocess import Popen, PIPE
 
-from nose.tools import assert_true, assert_in, assert_equal
+from nose.tools import assert_true, assert_equal
 
-from util import with_app, gen_with_app, SkipTest
+from util import with_app, gen_with_app, SkipTest, assert_in
 
 
 @gen_with_app('gettext', srcdir='root-gettext')

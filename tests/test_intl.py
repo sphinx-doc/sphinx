@@ -19,35 +19,12 @@ from xml.etree import ElementTree
 from nose.tools import assert_equal
 from six import string_types
 
-from util import tempdir, rootdir, path, gen_with_app, SkipTest
+from util import tempdir, rootdir, path, gen_with_app, SkipTest, \
+    assert_re_search, assert_not_re_search, assert_in, assert_not_in, \
+    assert_startswith
 
 
 root = tempdir / 'test-intl'
-
-
-def re_search(regex, text, flags=0):
-    if not re.search(regex, text, flags):
-        assert False, '%r did not match %r' % (regex, text)
-
-
-def not_re_search(regex, text, flags=0):
-    if re.search(regex, text, flags):
-        assert False, '%r did match %r' % (regex, text)
-
-
-def startswith(thing, prefix):
-    if not thing.startswith(prefix):
-        assert False, '%r does not start with %r' % (thing, prefix)
-
-
-def assert_in(x, thing):
-    if x not in thing:
-        assert False, '%r is not in %r' % (x, thing)
-
-
-def assert_not_in(x, thing):
-    if x in thing:
-        assert False, '%r is in %r' % (x, thing)
 
 
 def gen_with_intl_app(*args, **kw):
@@ -132,7 +109,7 @@ def test_text_builder(app, status, warning):
     warnings = warning.getvalue().replace(os.sep, '/')
     warning_expr = u'.*/warnings.txt:4: ' \
                    u'WARNING: Inline literal start-string without end-string.\n'
-    yield re_search, warning_expr, warnings
+    yield assert_re_search, warning_expr, warnings
 
     result = (app.outdir / 'warnings.txt').text(encoding='utf-8')
     expect = (u"\nI18N WITH REST WARNINGS"
@@ -151,7 +128,7 @@ def test_text_builder(app, status, warning):
     # --- check translation in subdirs
 
     result = (app.outdir / 'subdir' / 'contents.txt').text(encoding='utf-8')
-    yield startswith, result, u"\nsubdir contents\n***************\n"
+    yield assert_startswith, result, u"\nsubdir contents\n***************\n"
 
     # --- check warnings for inconsistency in number of references
 
@@ -173,7 +150,7 @@ def test_text_builder(app, status, warning):
         warning_fmt % 'footnote references' +
         warning_fmt % 'references' +
         warning_fmt % 'references')
-    yield re_search, expected_warning_expr, warnings
+    yield assert_re_search, expected_warning_expr, warnings
 
     # --- check warning for literal block
 
@@ -185,12 +162,12 @@ def test_text_builder(app, status, warning):
               u"\n   literal block\n"
               u"\nMISSING LITERAL BLOCK:\n"
               u"\n<SYSTEM MESSAGE:")
-    yield startswith, result, expect
+    yield assert_startswith, result, expect
 
     warnings = warning.getvalue().replace(os.sep, '/')
     expected_warning_expr = u'.*/literalblock.txt:\\d+: ' \
                             u'WARNING: Literal block expected; none found.'
-    yield re_search, expected_warning_expr, warnings
+    yield assert_re_search, expected_warning_expr, warnings
 
     # --- definition terms: regression test for #975
 
@@ -229,7 +206,7 @@ def test_text_builder(app, status, warning):
     expected_warning_expr = (
         u'.*/glossary_terms_inconsistency.txt:\\d+: '
         u'WARNING: inconsistent term references in translated message\n')
-    yield re_search, expected_warning_expr, warnings
+    yield assert_re_search, expected_warning_expr, warnings
 
     # --- seealso
 
@@ -362,7 +339,7 @@ def test_html_builder(app, status, warning):
         wrap('a', 'BUILTIN'),
     ]
     for expr in expected_exprs:
-        yield re_search, expr, result, re.M
+        yield assert_re_search, expr, result, re.M
 
     # --- versionchanges
 
@@ -459,7 +436,7 @@ def test_xml_builder(app, status, warning):
 
     warnings = warning.getvalue().replace(os.sep, '/')
     warning_expr = u'.*/footnote.xml:\\d*: SEVERE: Duplicate ID: ".*".\n'
-    yield not_re_search, warning_expr, warnings
+    yield assert_not_re_search, warning_expr, warnings
 
     # --- footnote backlinks: i18n test for #1058
 

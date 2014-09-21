@@ -75,6 +75,31 @@ def raises_msg(exc, msg, func, *args, **kwds):
                              (func.__name__, _excstr(exc)))
 
 
+def assert_re_search(regex, text, flags=0):
+    if not re.search(regex, text, flags):
+        assert False, '%r did not match %r' % (regex, text)
+
+
+def assert_not_re_search(regex, text, flags=0):
+    if re.search(regex, text, flags):
+        assert False, '%r did match %r' % (regex, text)
+
+
+def assert_startswith(thing, prefix):
+    if not thing.startswith(prefix):
+        assert False, '%r does not start with %r' % (thing, prefix)
+
+
+def assert_in(x, thing):
+    if x not in thing:
+        assert False, '%r is not in %r' % (x, thing)
+
+
+def assert_not_in(x, thing):
+    if x in thing:
+        assert False, '%r is in %r' % (x, thing)
+
+
 def skip_if(condition, msg=None):
     """Decorator to skip test if condition is true."""
     def deco(test):
