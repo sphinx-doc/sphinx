@@ -12,7 +12,7 @@
 import os
 import re
 
-from six import PY3, iteritems, StringIO
+from six import PY3, iteritems
 from six.moves import html_entities
 
 from sphinx import __version__

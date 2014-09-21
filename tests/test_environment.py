@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import sys
-
 from six import PY3
 
 from util import TestApp, remove_unicode_literals, path

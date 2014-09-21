@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import re
 from xml.etree import ElementTree
 
 from util import with_app
