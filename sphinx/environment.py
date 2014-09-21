@@ -33,6 +33,7 @@ from docutils.parsers.rst import roles, directives
 from docutils.parsers.rst.languages import en as english
 from docutils.parsers.rst.directives.html import MetaBody
 from docutils.writers import UnfilteredWriter
+from docutils.frontend import OptionParser
 
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
@@ -581,6 +582,12 @@ class BuildEnvironment:
         self.settings['gettext_compact'] = self.config.gettext_compact
 
         self.patch_lookup_functions()
+
+        docutilsconf = path.join(self.srcdir, 'docutils.conf')
+        # read docutils.conf from source dir, not from current dir
+        OptionParser.standard_config_files[1] = docutilsconf
+        if path.isfile(docutilsconf):
+            self.note_dependency(docutilsconf)
 
         if self.config.default_role:
             role_fn, messages = roles.role(self.config.default_role, english,
