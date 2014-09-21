@@ -8,12 +8,8 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import print_function
-
-import sys
 
 from util import with_app
-
 
 cleanup_called = 0
 

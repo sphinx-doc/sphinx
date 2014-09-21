@@ -15,7 +15,7 @@ from util import with_app
 
 
 @with_app(testroot='ext-viewcode')
-def test_simple(app, status, warning):
+def test_viewcode(app, status, warning):
     app.builder.build_all()
 
     warnings = re.sub(r'\\+', '/', warning.getvalue())
@@ -30,3 +30,15 @@ def test_simple(app, status, warning):
     assert result.count('href="_modules/spam/mod2.html#func2"') == 2
     assert result.count('href="_modules/spam/mod1.html#Class1"') == 2
     assert result.count('href="_modules/spam/mod2.html#Class2"') == 2
+
+
+@with_app(testroot='ext-viewcode', tags=['test_linkcode'])
+def test_linkcode(app, status, warning):
+    app.builder.build(['objects'])
+
+    stuff = (app.outdir / 'objects.html').text(encoding='utf-8')
+
+    assert 'http://foobar/source/foolib.py' in stuff
+    assert 'http://foobar/js/' in stuff
+    assert 'http://foobar/c/' in stuff
+    assert 'http://foobar/cpp/' in stuff
