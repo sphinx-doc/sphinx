@@ -33,7 +33,7 @@ if PY3:
     LATEX_WARNINGS = remove_unicode_literals(LATEX_WARNINGS)
 
 
-@with_app(buildername='latex', freshenv=True)
+@with_app(buildername='latex')
 def test_latex(app, status, warning):
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()

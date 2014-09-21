@@ -21,21 +21,21 @@ from etree13 import ElementTree as ET
 
 
 ENV_WARNINGS = """\
-%(root)s/autodoc_fodder.py:docstring of autodoc_fodder\\.MarkupError:2: \
+(%(root)s/autodoc_fodder.py:docstring of autodoc_fodder\\.MarkupError:2: \
 WARNING: Explicit markup ends without a blank line; unexpected \
 unindent\\.\\n?
-%(root)s/images.txt:9: WARNING: image file not readable: foo.png
+)?%(root)s/images.txt:9: WARNING: image file not readable: foo.png
 %(root)s/images.txt:23: WARNING: nonlocal image URI found: \
 http://www.python.org/logo.png
 %(root)s/includes.txt:\\d*: WARNING: Encoding 'utf-8-sig' used for \
 reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 :encoding: option\\n?
 %(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
-%(root)s/markup.txt:\\d+: WARNING: Malformed :option: u'Python c option', does \
+(%(root)s/markup.txt:\\d+: WARNING: Malformed :option: u'Python c option', does \
 not contain option marker - or -- or / or \\+
 %(root)s/undecodable.txt:3: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>\\\\xbb<<<'
-"""
+)?"""
 
 HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
@@ -341,7 +341,7 @@ def check_extra_entries(outdir):
     assert (outdir / 'robots.txt').isfile()
 
 
-@gen_with_app(buildername='html', freshenv=True,
+@gen_with_app(buildername='html',
               confoverrides={'html_context.hckey_co': 'hcval_co'},
               tags=['testtag'])
 def test_html_output(app, status, warning):
