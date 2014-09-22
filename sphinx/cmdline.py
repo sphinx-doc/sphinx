@@ -107,7 +107,7 @@ def main(argv):
                      help='nit-picky mode, warn about all missing references')
 
     group = parser.add_option_group('Console output options')
-    group.add_option('-v', action='count', dest='verbosity',
+    group.add_option('-v', action='count', dest='verbosity', default=0,
                      help='increase verbosity (can be repeated)')
     group.add_option('-q', action='store_true', dest='quiet',
                      help='no output on stdout, just warnings on stderr')

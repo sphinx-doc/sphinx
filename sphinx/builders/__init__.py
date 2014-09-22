@@ -237,8 +237,7 @@ class Builder(object):
         First updates the environment, and then calls :meth:`write`.
         """
         if summary:
-            self.info(bold('building [%s]: ' % self.name), nonl=1)
-            self.info(summary)
+            self.info(bold('building [%s]' % self.name) + ': ' + summary)
 
         updated_docnames = set()
         # while reading, collect all warnings from docutils
