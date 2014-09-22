@@ -115,6 +115,10 @@ class Sphinx(object):
         # status code for command-line application
         self.statuscode = 0
 
+        if not path.isdir(outdir):
+            self.info('making output directory...')
+            os.makedirs(outdir)
+
         # read config
         self.tags = Tags(tags)
         self.config = Config(confdir, CONFIG_FILENAME,
