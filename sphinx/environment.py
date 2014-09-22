@@ -42,7 +42,7 @@ from sphinx.util.nodes import clean_astext, make_refnode, WarningStream
 from sphinx.util.osutil import SEP, find_catalog_files, getcwd, fs_encoding
 from sphinx.util.console import bold, purple
 from sphinx.util.matching import compile_matchers
-from sphinx.util.parallel import ParallelChunked, parallel_available
+from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
@@ -619,17 +619,17 @@ class BuildEnvironment:
             warnings.extend(otherenv.warnings)
             self.merge_info_from(docs, otherenv, app)
 
-        proc = ParallelChunked(read_process, merge, nproc)
-        proc.set_arguments(docnames)
+        tasks = ParallelTasks(nproc)
+        chunks = make_chunks(docnames, nproc)
 
         warnings = []
         for chunk in app.status_iterator(
-                proc.iter_chunks(), 'reading sources... ', purple, proc.nchunks):
-            pass  # spawning in the iterator
+                chunks, 'reading sources... ', purple, len(chunks)):
+            tasks.add_task(read_process, chunk, merge)
 
         # make sure all threads have finished
         app.info(bold('waiting for workers...'))
-        proc.join()
+        tasks.join()
 
         for warning in warnings:
             self._warnfunc(*warning)

@@ -23,7 +23,7 @@ from docutils import nodes
 from sphinx.util import i18n, path_stabilize
 from sphinx.util.osutil import SEP, relative_uri, find_catalog
 from sphinx.util.console import bold, darkgreen
-from sphinx.util.parallel import ParallelChunked, ParallelTasks, SerialTasks, \
+from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
     parallel_available
 
 # side effect: registers roles and directives
@@ -358,7 +358,7 @@ class Builder(object):
                 self.write_doc(docname, doctree)
             return warnings
 
-        def process_warnings(docs, wlist):
+        def add_warnings(docs, wlist):
             warnings.extend(wlist)
 
         # warm up caches/compile templates using the first document
@@ -367,19 +367,21 @@ class Builder(object):
         self.write_doc_serialized(firstname, doctree)
         self.write_doc(firstname, doctree)
 
-        proc = ParallelChunked(write_process, process_warnings, nproc)
-        proc.set_arguments(docnames)
+        tasks = ParallelTasks(nproc)
+        chunks = make_chunks(docnames, nproc)
 
         for chunk in self.app.status_iterator(
-                proc.iter_chunks(), 'writing output... ', darkgreen, proc.nchunks):
+                chunks, 'writing output... ', darkgreen, len(chunks)):
+            arg = []
             for i, docname in enumerate(chunk):
                 doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.write_doc_serialized(docname, doctree)
-                chunk[i] = (docname, doctree)
+                arg.append((docname, doctree))
+            tasks.add_task(write_process, arg, add_warnings)
 
         # make sure all threads have finished
         self.info(bold('waiting for workers...'))
-        proc.join()
+        tasks.join()
 
     def prepare_writing(self, docnames):
         """A place where you can add logic before :meth:`write_doc` is run"""
