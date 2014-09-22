@@ -20,6 +20,7 @@ from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import get_full_modname
 from sphinx.util.nodes import make_refnode
+from sphinx.util.console import blue
 
 
 def _get_full_modname(app, modname, attribute):
@@ -37,7 +38,7 @@ def _get_full_modname(app, modname, attribute):
         # It should be displayed only verbose mode.
         app.verbose(traceback.format_exc().rstrip())
         app.verbose('viewcode can\'t import %s, failed with error "%s"' %
-                 (modname, e))
+                    (modname, e))
         return None
 
 
@@ -100,6 +101,16 @@ def doctree_read(app, doctree):
             signode += onlynode
 
 
+def env_merge_info(app, env, docnames, other):
+    if not hasattr(other, '_viewcode_modules'):
+        return
+    # create a _viewcode_modules dict on the main environment
+    if not hasattr(env, '_viewcode_modules'):
+        env._viewcode_modules = {}
+    # now merge in the information from the subprocess
+    env._viewcode_modules.update(other._viewcode_modules)
+
+
 def missing_reference(app, env, node, contnode):
     # resolve our "viewcode" reference nodes -- they need special treatment
     if node['reftype'] == 'viewcode':
@@ -116,10 +127,12 @@ def collect_pages(app):
 
     modnames = set(env._viewcode_modules)
 
-    app.builder.info(' (%d module code pages)' %
-                     len(env._viewcode_modules), nonl=1)
+#    app.builder.info(' (%d module code pages)' %
+#                     len(env._viewcode_modules), nonl=1)
 
-    for modname, entry in iteritems(env._viewcode_modules):
+    for modname, entry in app.status_iterator(
+            iteritems(env._viewcode_modules), 'highlighting module code... ',
+            blue, len(env._viewcode_modules), lambda x: x[0]):
         if not entry:
             continue
         code, tags, used, refname = entry
@@ -162,15 +175,14 @@ def collect_pages(app):
         context = {
             'parents': parents,
             'title': modname,
-            'body': _('<h1>Source code for %s</h1>') % modname + \
-                    '\n'.join(lines)
+            'body': (_('<h1>Source code for %s</h1>') % modname +
+                     '\n'.join(lines)),
         }
         yield (pagename, context, 'page.html')
 
     if not modnames:
         return
 
-    app.builder.info(' _modules/index', nonl=True)
     html = ['\n']
     # the stack logic is needed for using nested lists for submodules
     stack = ['']
@@ -190,8 +202,8 @@ def collect_pages(app):
     html.append('</ul>' * (len(stack) - 1))
     context = {
         'title': _('Overview: module code'),
-        'body': _('<h1>All modules for which code is available</h1>') + \
-            ''.join(html),
+        'body': (_('<h1>All modules for which code is available</h1>') +
+                 ''.join(html)),
     }
 
     yield ('_modules/index', context, 'page.html')
@@ -200,8 +212,9 @@ def collect_pages(app):
 def setup(app):
     app.add_config_value('viewcode_import', True, False)
     app.connect('doctree-read', doctree_read)
+    app.connect('env-merge-info', env_merge_info)
     app.connect('html-collect-pages', collect_pages)
     app.connect('missing-reference', missing_reference)
-    #app.add_config_value('viewcode_include_modules', [], 'env')
-    #app.add_config_value('viewcode_exclude_modules', [], 'env')
-    return {'version': sphinx.__version__, 'parallel_read_safe': False}
+    # app.add_config_value('viewcode_include_modules', [], 'env')
+    # app.add_config_value('viewcode_exclude_modules', [], 'env')
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}

@@ -507,7 +507,9 @@ handlers to the events.  Example:
    that have been read in the subprocess.
 
    For a sample of how to deal with this event, look at the standard
-   ``sphinx.ext.viewcode`` extension.
+   ``sphinx.ext.todo`` extension.  The implementation is often similar to that
+   of :event:`env-purge-doc`, only that information is not removed, but added to
+   the main environment from the other environment.
 
    .. versionadded:: 1.3
 

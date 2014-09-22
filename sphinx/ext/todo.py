@@ -150,6 +150,14 @@ def purge_todos(app, env, docname):
                           if todo['docname'] != docname]
 
 
+def merge_info(app, env, docnames, other):
+    if not hasattr(other, 'todo_all_todos'):
+        return
+    if not hasattr(env, 'todo_all_todos'):
+        env.todo_all_todos = []
+    env.todo_all_todos.extend(other.todo_all_todos)
+
+
 def visit_todo_node(self, node):
     self.visit_admonition(node)
 
@@ -172,4 +180,5 @@ def setup(app):
     app.connect('doctree-read', process_todos)
     app.connect('doctree-resolved', process_todo_nodes)
     app.connect('env-purge-doc', purge_todos)
-    return {'version': sphinx.__version__, 'parallel_read_safe': False}
+    app.connect('env-merge-info', merge_info)
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}

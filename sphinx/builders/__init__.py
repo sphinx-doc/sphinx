@@ -153,8 +153,7 @@ class Builder(object):
     def compile_catalogs(self, catalogs, message):
         if not self.config.gettext_auto_build:
             return
-        self.info(bold('building [mo]: '), nonl=1)
-        self.info(message)
+        self.info(bold('building [mo]: ') + message)
         for catalog in self.app.status_iterator(
                 catalogs, 'writing output... ', darkgreen, len(catalogs),
                 lambda c: c.mo_path):

@@ -467,12 +467,12 @@ class StandaloneHTMLBuilder(Builder):
         self.info()
 
     def gen_additional_pages(self):
-        self.info(bold('writing additional pages...'), nonl=1)
-
         # pages from extensions
         for pagelist in self.app.emit('html-collect-pages'):
             for pagename, context, template in pagelist:
                 self.handle_page(pagename, context, template)
+
+        self.info(bold('writing additional pages...'), nonl=1)
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
