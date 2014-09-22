@@ -20,7 +20,7 @@ import traceback
 from os import path
 from collections import deque
 
-from six import iteritems, itervalues
+from six import iteritems, itervalues, text_type
 from six.moves import cStringIO
 from docutils import nodes
 from docutils.parsers.rst import convert_directive_function, \
@@ -356,9 +356,9 @@ class Sphinx(object):
     def _display_chunk(chunk):
         if isinstance(chunk, (list, tuple)):
             if len(chunk) == 1:
-                return str(chunk[0])
+                return text_type(chunk[0])
             return '%s .. %s' % (chunk[0], chunk[-1])
-        return str(chunk)
+        return text_type(chunk)
 
     def old_status_iterator(self, iterable, summary, colorfunc=darkgreen,
                             stringify_func=_display_chunk):

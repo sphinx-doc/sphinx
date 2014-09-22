@@ -42,12 +42,8 @@ def warning_emitted(file, text):
 # afford to not run update() in the setup but in its own test
 
 def test_first_update():
-    msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
-    assert msg.endswith('%d added, 0 changed, 0 removed' % len(env.found_docs))
-    docnames = set()
-    for docname in it:  # the generator does all the work
-        docnames.add(docname)
-    assert docnames == env.found_docs == set(env.all_docs)
+    updated = env.update(app.config, app.srcdir, app.doctreedir, app)
+    assert set(updated) == env.found_docs == set(env.all_docs)
     # test if exclude_patterns works ok
     assert 'subdir/excluded' not in env.found_docs
 
@@ -90,15 +86,11 @@ def test_second_update():
     # the contents.txt toctree; otherwise section numbers would shift
     (root / 'autodoc.txt').unlink()
     (root / 'new.txt').write_text('New file\n========\n')
-    msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
-    assert '1 added, 3 changed, 1 removed' in msg
-    docnames = set()
-    for docname in it:
-        docnames.add(docname)
+    updated = env.update(app.config, app.srcdir, app.doctreedir, app)
     # "includes" and "images" are in there because they contain references
     # to nonexisting downloadable or image files, which are given another
     # chance to exist
-    assert docnames == set(['contents', 'new', 'includes', 'images'])
+    assert set(updated) == set(['contents', 'new', 'includes', 'images'])
     assert 'autodoc' not in env.all_docs
     assert 'autodoc' not in env.found_docs
 
@@ -110,8 +102,7 @@ def test_env_read_docs():
 
     app.connect('env-before-read-docs', on_env_read_docs_1)
 
-    msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
-    read_docnames = [docname for docname in it]
+    read_docnames = env.update(app.config, app.srcdir, app.doctreedir, app)
     assert len(read_docnames) > 2 and read_docnames == sorted(read_docnames)
 
     def on_env_read_docs_2(app, env, docnames):
@@ -119,8 +110,7 @@ def test_env_read_docs():
 
     app.connect('env-before-read-docs', on_env_read_docs_2)
 
-    msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
-    read_docnames = [docname for docname in it]
+    read_docnames = env.update(app.config, app.srcdir, app.doctreedir, app)
     reversed_read_docnames = sorted(read_docnames, reverse=True)
     assert len(read_docnames) > 2 and read_docnames == reversed_read_docnames
 

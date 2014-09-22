@@ -386,12 +386,12 @@ def test_html_builder(app, status, warning):
     # --- rebuild by .mo mtime
 
     app.builder.build_update()
-    _, count, _ = app.env.update(app.config, app.srcdir, app.doctreedir, app)
-    yield assert_equal, count, 0
+    updated = app.env.update(app.config, app.srcdir, app.doctreedir, app)
+    yield assert_equal, len(updated), 0
 
     (app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime(None)
-    _, count, _ = app.env.update(app.config, app.srcdir, app.doctreedir, app)
-    yield assert_equal, count, 1
+    updated = app.env.update(app.config, app.srcdir, app.doctreedir, app)
+    yield assert_equal, len(updated), 1
 
 
 @gen_with_intl_app('xml', freshenv=True)
