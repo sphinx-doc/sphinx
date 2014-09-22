@@ -141,7 +141,6 @@
 """
 
 import re
-import traceback
 from copy import deepcopy
 
 from six import iteritems, text_type
@@ -222,9 +221,9 @@ _id_operator = {
     'delete[]': 'da',
     # the arguments will make the difference between unary and binary
     # '+(unary)' : 'ps',
-    #'-(unary)' : 'ng',
-    #'&(unary)' : 'ad',
-    #'*(unary)' : 'de',
+    # '-(unary)' : 'ng',
+    # '&(unary)' : 'ad',
+    # '*(unary)' : 'de',
     '~': 'co',
     '+': 'pl',
     '-': 'mi',
@@ -319,7 +318,7 @@ class ASTBase(UnicodeMixin):
 
 
 def _verify_description_mode(mode):
-    if not mode in ('lastIsName', 'noneIsName', 'markType', 'param'):
+    if mode not in ('lastIsName', 'noneIsName', 'markType', 'param'):
         raise Exception("Description mode '%s' is invalid." % mode)
 
 
@@ -328,7 +327,7 @@ class ASTOperatorBuildIn(ASTBase):
         self.op = op
 
     def get_id(self):
-        if not self.op in _id_operator:
+        if self.op not in _id_operator:
             raise Exception('Internal error: Build-in operator "%s" can not '
                             'be mapped to an id.' % self.op)
         return _id_operator[self.op]
@@ -532,7 +531,7 @@ class ASTTrailingTypeSpecFundamental(ASTBase):
         return self.name
 
     def get_id(self):
-        if not self.name in _id_fundamental:
+        if self.name not in _id_fundamental:
             raise Exception(
                 'Semi-internal error: Fundamental type "%s" can not be mapped '
                 'to an id. Is it a true fundamental type? If not so, the '
@@ -866,7 +865,7 @@ class ASTDeclerator(ASTBase):
                 isinstance(self.ptrOps[-1], ASTPtrOpParamPack)):
             return False
         else:
-            return self.declId != None
+            return self.declId is not None
 
     def __unicode__(self):
         res = []
@@ -949,7 +948,7 @@ class ASTType(ASTBase):
         _verify_description_mode(mode)
         self.declSpecs.describe_signature(signode, 'markType', env)
         if (self.decl.require_start_space() and
-                    len(text_type(self.declSpecs)) > 0):
+                len(text_type(self.declSpecs)) > 0):
             signode += nodes.Text(' ')
         self.decl.describe_signature(signode, mode, env)
 
@@ -1178,7 +1177,7 @@ class DefinitionParser(object):
                             else:
                                 while not self.eof:
                                     if (len(symbols) == 0 and
-                                                self.current_char in (
+                                            self.current_char in (
                                             ',', '>')):
                                         break
                                     # TODO: actually implement nice handling
@@ -1190,8 +1189,7 @@ class DefinitionParser(object):
                                     self.fail(
                                         'Could not find end of constant '
                                         'template argument.')
-                                value = self.definition[
-                                        startPos:self.pos].strip()
+                                value = self.definition[startPos:self.pos].strip()
                             templateArgs.append(ASTTemplateArgConstant(value))
                         self.skip_ws()
                         if self.skip_string('>'):
@@ -1422,7 +1420,7 @@ class DefinitionParser(object):
 
     def _parse_declerator(self, named, paramMode=None, typed=True):
         if paramMode:
-            if not paramMode in ('type', 'function'):
+            if paramMode not in ('type', 'function'):
                 raise Exception(
                     "Internal error, unknown paramMode '%s'." % paramMode)
         ptrOps = []
@@ -1493,7 +1491,7 @@ class DefinitionParser(object):
             if outer == 'member':
                 value = self.read_rest().strip()
                 return ASTInitializer(value)
-            elif outer == None:  # function parameter
+            elif outer is None:  # function parameter
                 symbols = []
                 startPos = self.pos
                 self.skip_ws()
@@ -1528,7 +1526,7 @@ class DefinitionParser(object):
         doesn't need to name the arguments
         """
         if outer:  # always named
-            if not outer in ('type', 'member', 'function'):
+            if outer not in ('type', 'member', 'function'):
                 raise Exception('Internal error, unknown outer "%s".' % outer)
             assert not named
 
@@ -1652,12 +1650,12 @@ class CPPObject(ObjectDescription):
         if theid not in self.state.document.ids:
             # the name is not unique, the first one will win
             objects = self.env.domaindata['cpp']['objects']
-            if not name in objects:
+            if name not in objects:
                 signode['names'].append(name)
             signode['ids'].append(theid)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
-            if not name in objects:
+            if name not in objects:
                 objects.setdefault(name,
                                    (self.env.docname, ast.objectType, theid))
                 # add the uninstantiated template if it doesn't exist
@@ -1665,7 +1663,7 @@ class CPPObject(ObjectDescription):
                 if uninstantiated != name and uninstantiated not in objects:
                     signode['names'].append(uninstantiated)
                     objects.setdefault(uninstantiated, (
-                    self.env.docname, ast.objectType, theid))
+                        self.env.docname, ast.objectType, theid))
             self.env.ref_context['cpp:lastname'] = ast.prefixedName
 
         indextext = self.get_index_text(name)
