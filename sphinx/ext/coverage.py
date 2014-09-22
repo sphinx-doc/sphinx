@@ -265,4 +265,4 @@ def setup(app):
     app.add_config_value('coverage_ignore_c_items', {}, False)
     app.add_config_value('coverage_write_headline', True, False)
     app.add_config_value('coverage_skip_undoc_in_source', False, False)
-    return sphinx.__version__
+    return {'version': sphinx.__version__}

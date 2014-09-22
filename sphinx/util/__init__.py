@@ -205,7 +205,7 @@ def save_traceback(app):
             if isinstance(modfile, bytes):
                 modfile = modfile.decode(fs_encoding, 'replace')
             os.write(fd, ('#   %s (%s) from %s\n' % (
-                extname, app._extension_versions[extname],
+                extname, app._extension_metadata[extname]['version'],
                 modfile)).encode('utf-8'))
     os.write(fd, exc.encode('utf-8'))
     os.close(fd)

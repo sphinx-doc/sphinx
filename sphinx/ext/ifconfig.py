@@ -73,4 +73,4 @@ def setup(app):
     app.add_node(ifconfig)
     app.add_directive('ifconfig', IfConfig)
     app.connect('doctree-resolved', process_ifconfig_nodes)
-    return sphinx.__version__
+    return {'version': sphinx.__version__}

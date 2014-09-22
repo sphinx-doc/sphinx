@@ -18,14 +18,24 @@ imports this module and executes its ``setup()`` function, which in turn
 notifies Sphinx of everything the extension offers -- see the extension tutorial
 for examples.
 
-.. versionadded:: 1.3
-   The ``setup()`` function can return a string, this is treated by Sphinx as
-   the version of the extension and used for informational purposes such as the
-   traceback file when an exception occurs.
-
 The configuration file itself can be treated as an extension if it contains a
 ``setup()`` function.  All other extensions to load must be listed in the
 :confval:`extensions` configuration value.
+
+Extension metadata
+------------------
+
+.. versionadded:: 1.3
+
+The ``setup()`` function can return a dictionary.  This is treated by Sphinx
+as metadata of the extension.  Metadata keys currently recognized are:
+
+* ``'version'``: a string that identifies the extension version.  It is used for
+  extension version requirement checking (see :confval:`needs_extensions`) and
+  informational purposes.  If not given, ``"unknown version"`` is substituted.
+
+APIs used for writing extensions
+--------------------------------
 
 .. toctree::
 

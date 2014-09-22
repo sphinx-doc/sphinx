@@ -73,7 +73,7 @@ class Sphinx(object):
         self.verbosity = verbosity
         self.next_listener_id = 0
         self._extensions = {}
-        self._extension_versions = {}
+        self._extension_metadata = {}
         self._listeners = {}
         self.domains = BUILTIN_DOMAINS.copy()
         self.builderclasses = BUILTIN_BUILDERS.copy()
@@ -129,7 +129,7 @@ class Sphinx(object):
             self.setup_extension(extension)
         # the config file itself can be an extension
         if self.config.setup:
-            # py31 doesn't have 'callable' function for bellow check
+            # py31 doesn't have 'callable' function for below check
             if hasattr(self.config.setup, '__call__'):
                 self.config.setup(self)
             else:
@@ -157,7 +157,7 @@ class Sphinx(object):
                               'version requirement for extension %s, but it is '
                               'not loaded' % extname)
                     continue
-                has_ver = self._extension_versions[extname]
+                has_ver = self._extension_metadata[extname]['version']
                 if has_ver == 'unknown version' or needs_ver > has_ver:
                     raise VersionRequirementError(
                         'This project needs the extension %s at least in '
@@ -367,20 +367,22 @@ class Sphinx(object):
         if not hasattr(mod, 'setup'):
             self.warn('extension %r has no setup() function; is it really '
                       'a Sphinx extension module?' % extension)
-            version = None
+            ext_meta = None
         else:
             try:
-                version = mod.setup(self)
+                ext_meta = mod.setup(self)
             except VersionRequirementError as err:
                 # add the extension name to the version required
                 raise VersionRequirementError(
                     'The %s extension used by this project needs at least '
                     'Sphinx v%s; it therefore cannot be built with this '
                     'version.' % (extension, err))
-        if version is None:
-            version = 'unknown version'
+        if ext_meta is None:
+            ext_meta = {}
+        if not ext_meta.get('version'):
+            ext_meta['version'] = 'unknown version'
         self._extensions[extension] = mod
-        self._extension_versions[extension] = version
+        self._extension_metadata[extension] = ext_meta
 
     def require_sphinx(self, version):
         # check the Sphinx version if requested
