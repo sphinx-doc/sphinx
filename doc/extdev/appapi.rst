@@ -493,6 +493,24 @@ handlers to the events.  Example:
    Here is the place to replace custom nodes that don't have visitor methods in
    the writers, so that they don't cause errors when the writers encounter them.
 
+.. event:: env-merge-info (env, docnames, other)
+
+   This event is only emitted when parallel reading of documents is enabled.  It
+   is emitted once for every subprocess that has read some documents.
+
+   You must handle this event in an extension that stores data in the
+   environment in a custom location.  Otherwise the environment in the main
+   process will not be aware of the information stored in the subprocess.
+
+   *other* is the environment object from the subprocess, *env* is the
+   environment from the main process.  *docnames* is a set of document names
+   that have been read in the subprocess.
+
+   For a sample of how to deal with this event, look at the standard
+   ``sphinx.ext.viewcode`` extension.
+
+   .. versionadded:: 1.3
+
 .. event:: env-updated (app, env)
 
    Emitted when the :meth:`update` method of the build environment has

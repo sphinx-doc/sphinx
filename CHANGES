@@ -28,6 +28,10 @@ Features added
 * Add support for docutils 0.12
 * Added ``sphinx.ext.napoleon`` extension for NumPy and Google style docstring
   support.
+* Added support for parallel reading (parsing) of source files with the
+  `sphinx-build -j` option.  Third-party extensions will need to be checked for
+  compatibility and may need to be adapted if they store information in the
+  build environment object.  See `env-merge-info`.
 * Added the `any` role that can be used to find a cross-reference of
   *any* type in *any* domain.  Custom domains should implement the new
   `Domain.resolve_any_xref` method to make this work properly.

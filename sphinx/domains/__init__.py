@@ -204,7 +204,7 @@ class Domain(object):
 
     def merge_domaindata(self, docnames, otherdata):
         """Merge in data regarding *docnames* from a different domaindata
-        inventory.
+        inventory (coming from a subprocess in parallel builds).
         """
         raise NotImplementedError('merge_domaindata must be implemented in %s '
                                   'to be able to do parallel builds!' %
