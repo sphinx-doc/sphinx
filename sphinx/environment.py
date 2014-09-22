@@ -110,6 +110,33 @@ class SphinxDummyWriter(UnfilteredWriter):
         pass
 
 
+class SphinxFileInput(FileInput):
+    def __init__(self, app, env, *args, **kwds):
+        self.app = app
+        self.env = env
+        # don't call sys.exit() on IOErrors
+        kwds['handle_io_errors'] = False
+        kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
+        FileInput.__init__(self, *args, **kwds)
+
+    def decode(self, data):
+        if isinstance(data, text_type):  # py3: `data` already decoded.
+            return data
+        return data.decode(self.encoding, 'sphinx')  # py2: decoding
+
+    def read(self):
+        data = FileInput.read(self)
+        if self.app:
+            arg = [data]
+            self.app.emit('source-read', self.env.docname, arg)
+            data = arg[0]
+        if self.env.config.rst_epilog:
+            data = data + '\n' + self.env.config.rst_epilog + '\n'
+        if self.env.config.rst_prolog:
+            data = self.env.config.rst_prolog + '\n' + data
+        return data
+
+
 class BuildEnvironment:
     """
     The environment in which the ReST files are translated.
@@ -606,38 +633,16 @@ class BuildEnvironment:
 
         codecs.register_error('sphinx', self.warn_and_replace)
 
-        class SphinxSourceClass(FileInput):
-            def __init__(self_, *args, **kwds):
-                # don't call sys.exit() on IOErrors
-                kwds['handle_io_errors'] = False
-                kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
-                FileInput.__init__(self_, *args, **kwds)
-
-            def decode(self_, data):
-                if isinstance(data, text_type):  # py3: `data` already decoded.
-                    return data
-                return data.decode(self_.encoding, 'sphinx')  # py2: decoding
-
-            def read(self_):
-                data = FileInput.read(self_)
-                if app:
-                    arg = [data]
-                    app.emit('source-read', docname, arg)
-                    data = arg[0]
-                if self.config.rst_epilog:
-                    data = data + '\n' + self.config.rst_epilog + '\n'
-                if self.config.rst_prolog:
-                    data = self.config.rst_prolog + '\n' + data
-                return data
-
         # publish manually
         pub = Publisher(reader=SphinxStandaloneReader(),
                         writer=SphinxDummyWriter(),
-                        source_class=SphinxSourceClass,
                         destination_class=NullOutput)
         pub.set_components(None, 'restructuredtext', None)
         pub.process_programmatic_settings(None, self.settings, None)
-        pub.set_source(None, src_path)
+        source = SphinxFileInput(app, self, source=None, source_path=src_path,
+                                 encoding=self.config.source_encoding)
+        pub.source = source
+        pub.settings._source = src_path
         pub.set_destination(None, None)
         pub.publish()
         doctree = pub.document
