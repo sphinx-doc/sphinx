@@ -170,8 +170,8 @@ class MessageCatalogBuilder(I18nBuilder):
 
         extract_translations = self.templates.environment.extract_translations
 
-        for template in self.status_iterator(files,
-                'reading templates... ', purple, len(files)):
+        for template in self.app.status_iterator(
+                files, 'reading templates... ', purple, len(files)):
             with open(template, 'r', encoding='utf-8') as f:
                 context = f.read()
             for line, meth, msg in extract_translations(context):
@@ -191,7 +191,7 @@ class MessageCatalogBuilder(I18nBuilder):
             ctime = datetime.fromtimestamp(
                 timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
         )
-        for textdomain, catalog in self.status_iterator(
+        for textdomain, catalog in self.app.status_iterator(
                 iteritems(self.catalogs), "writing message catalogs... ",
                 darkgreen, len(self.catalogs),
                 lambda textdomain__: textdomain__[0]):

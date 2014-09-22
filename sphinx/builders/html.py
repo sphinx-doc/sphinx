@@ -526,8 +526,8 @@ class StandaloneHTMLBuilder(Builder):
         # copy image files
         if self.images:
             ensuredir(path.join(self.outdir, '_images'))
-            for src in self.status_iterator(self.images, 'copying images... ',
-                                            brown, len(self.images)):
+            for src in self.app.status_iterator(self.images, 'copying images... ',
+                                                brown, len(self.images)):
                 dest = self.images[src]
                 try:
                     copyfile(path.join(self.srcdir, src),
@@ -540,9 +540,9 @@ class StandaloneHTMLBuilder(Builder):
         # copy downloadable files
         if self.env.dlfiles:
             ensuredir(path.join(self.outdir, '_downloads'))
-            for src in self.status_iterator(self.env.dlfiles,
-                                            'copying downloadable files... ',
-                                            brown, len(self.env.dlfiles)):
+            for src in self.app.status_iterator(self.env.dlfiles,
+                                                'copying downloadable files... ',
+                                                brown, len(self.env.dlfiles)):
                 dest = self.env.dlfiles[src][1]
                 try:
                     copyfile(path.join(self.srcdir, src),

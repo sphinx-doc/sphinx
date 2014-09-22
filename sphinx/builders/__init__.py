@@ -22,7 +22,7 @@ from docutils import nodes
 
 from sphinx.util import i18n, path_stabilize
 from sphinx.util.osutil import SEP, relative_uri, find_catalog
-from sphinx.util.console import bold, purple, darkgreen, term_width_line
+from sphinx.util.console import bold, purple, darkgreen
 
 # side effect: registers roles and directives
 from sphinx import roles
@@ -62,6 +62,9 @@ class Builder(object):
         self.tags.add(self.name)
         self.tags.add("format_%s" % self.format)
         self.tags.add("builder_%s" % self.name)
+        # compatibility aliases
+        self.status_iterator = app.status_iterator
+        self.old_status_iterator = app.old_status_iterator
 
         # images that need to be copied over (source -> dest)
         self.images = {}
@@ -113,41 +116,6 @@ class Builder(object):
         """
         raise NotImplementedError
 
-    def old_status_iterator(self, iterable, summary, colorfunc=darkgreen,
-                            stringify_func=lambda x: x):
-        l = 0
-        for item in iterable:
-            if l == 0:
-                self.info(bold(summary), nonl=1)
-                l = 1
-            self.info(colorfunc(stringify_func(item)) + ' ', nonl=1)
-            yield item
-        if l == 1:
-            self.info()
-
-    # new version with progress info
-    def status_iterator(self, iterable, summary, colorfunc=darkgreen, length=0,
-                        stringify_func=lambda x: x):
-        if length == 0:
-            for item in self.old_status_iterator(iterable, summary, colorfunc,
-                                                 stringify_func):
-                yield item
-            return
-        l = 0
-        summary = bold(summary)
-        for item in iterable:
-            l += 1
-            s = '%s[%3d%%] %s' % (summary, 100*l/length,
-                                  colorfunc(stringify_func(item)))
-            if self.app.verbosity:
-                s += '\n'
-            else:
-                s = term_width_line(s)
-            self.info(s, nonl=1)
-            yield item
-        if l > 0:
-            self.info()
-
     supported_image_types = []
 
     def post_process_images(self, doctree):
@@ -181,7 +149,7 @@ class Builder(object):
             return
         self.info(bold('building [mo]: '), nonl=1)
         self.info(message)
-        for catalog in self.status_iterator(
+        for catalog in self.app.status_iterator(
                 catalogs, 'writing output... ', darkgreen, len(catalogs),
                 lambda c: c.mo_path):
             catalog.write_mo(self.config.language)
@@ -370,7 +338,7 @@ class Builder(object):
         self.env.set_warnfunc(self.warn)
 
     def _write_serial(self, docnames, warnings):
-        for docname in self.status_iterator(
+        for docname in self.app.status_iterator(
                 docnames, 'writing output... ', darkgreen, len(docnames)):
             doctree = self.env.get_and_resolve_doctree(docname, self)
             self.write_doc_serialized(docname, doctree)
@@ -415,9 +383,8 @@ class Builder(object):
             nchunks += 1
         # partition documents in "chunks" that will be written by one Process
         chunks = [docnames[i*chunksize:(i+1)*chunksize] for i in range(nchunks)]
-        for docnames in self.status_iterator(
-                chunks, 'writing output... ', darkgreen, len(chunks),
-                lambda chk: '%s .. %s' % (chk[0], chk[-1])):
+        for docnames in self.app.status_iterator(
+                chunks, 'writing output... ', darkgreen, len(chunks)):
             docs = []
             for docname in docnames:
                 doctree = self.env.get_and_resolve_doctree(docname, self)

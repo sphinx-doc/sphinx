@@ -39,7 +39,8 @@ from sphinx.environment import BuildEnvironment, SphinxStandaloneReader
 from sphinx.util import pycompat  # imported for side-effects
 from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT
-from sphinx.util.console import bold, lightgray, darkgray
+from sphinx.util.console import bold, lightgray, darkgray, darkgreen, \
+    term_width_line
 
 if hasattr(sys, 'intern'):
     intern = sys.intern
@@ -350,6 +351,48 @@ class Sphinx(object):
         if args or kwargs:
             message = message % (args or kwargs)
         self._log(lightgray(message), self._status)
+
+    def _display_chunk(chunk):
+        if isinstance(chunk, (list, tuple)):
+            if len(chunk) == 1:
+                return str(chunk[0])
+            return '%s .. %s' % (chunk[0], chunk[-1])
+        return str(chunk)
+
+    def old_status_iterator(self, iterable, summary, colorfunc=darkgreen,
+                            stringify_func=_display_chunk):
+        l = 0
+        for item in iterable:
+            if l == 0:
+                self.info(bold(summary), nonl=1)
+                l = 1
+            self.info(colorfunc(stringify_func(item)) + ' ', nonl=1)
+            yield item
+        if l == 1:
+            self.info()
+
+    # new version with progress info
+    def status_iterator(self, iterable, summary, colorfunc=darkgreen, length=0,
+                        stringify_func=_display_chunk):
+        if length == 0:
+            for item in self.old_status_iterator(iterable, summary, colorfunc,
+                                                 stringify_func):
+                yield item
+            return
+        l = 0
+        summary = bold(summary)
+        for item in iterable:
+            l += 1
+            s = '%s[%3d%%] %s' % (summary, 100*l/length,
+                                  colorfunc(stringify_func(item)))
+            if self.verbosity:
+                s += '\n'
+            else:
+                s = term_width_line(s)
+            self.info(s, nonl=1)
+            yield item
+        if l > 0:
+            self.info()
 
     # ---- general extensibility interface -------------------------------------
 
