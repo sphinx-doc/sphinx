@@ -72,7 +72,9 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 42 + (sys.version_info[0] - 2)
+#
+# NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
+ENV_VERSION = 44 + (sys.version_info[0] - 2)
 
 
 dummy_reporter = Reporter('', 4, 4)
@@ -125,7 +127,7 @@ class BuildEnvironment:
         finally:
             picklefile.close()
         if env.version != ENV_VERSION:
-            raise IOError('env version not current')
+            raise IOError('build environment version not current')
         env.config.values = config.values
         return env
 
