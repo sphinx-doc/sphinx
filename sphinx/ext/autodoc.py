@@ -1515,7 +1515,7 @@ def setup(app):
     app.add_event('autodoc-process-signature')
     app.add_event('autodoc-skip-member')
 
-    return {'version': sphinx.__version__}
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}
 
 
 class testcls:

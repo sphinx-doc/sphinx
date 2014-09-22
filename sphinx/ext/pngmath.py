@@ -246,4 +246,4 @@ def setup(app):
     app.add_config_value('pngmath_latex_preamble', '', 'html')
     app.add_config_value('pngmath_add_tooltips', True, 'html')
     app.connect('build-finished', cleanup_tempdir)
-    return {'version': sphinx.__version__}
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}

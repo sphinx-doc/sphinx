@@ -506,6 +506,21 @@ class StandardDomain(Domain):
             if fn == docname:
                 del self.data['anonlabels'][key]
 
+    def merge_domaindata(self, docnames, otherdata):
+        # XXX duplicates?
+        for key, data in otherdata['progoptions'].items():
+            if data[0] in docnames:
+                self.data['progoptions'][key] = data
+        for key, data in otherdata['objects'].items():
+            if data[0] in docnames:
+                self.data['objects'][key] = data
+        for key, data in otherdata['labels'].items():
+            if data[0] in docnames:
+                self.data['labels'][key] = data
+        for key, data in otherdata['anonlabels'].items():
+            if data[0] in docnames:
+                self.data['anonlabels'][key] = data
+
     def process_doc(self, env, docname, document):
         labels, anonlabels = self.data['labels'], self.data['anonlabels']
         for name, explicit in iteritems(document.nametypes):

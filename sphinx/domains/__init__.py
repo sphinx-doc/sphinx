@@ -202,6 +202,14 @@ class Domain(object):
         """Remove traces of a document in the domain-specific inventories."""
         pass
 
+    def merge_domaindata(self, docnames, otherdata):
+        """Merge in data regarding *docnames* from a different domaindata
+        inventory.
+        """
+        raise NotImplementedError('merge_domaindata must be implemented in %s '
+                                  'to be able to do parallel builds!' %
+                                  self.__class__)
+
     def process_doc(self, env, docname, document):
         """Process a document after it is read by the environment."""
         pass

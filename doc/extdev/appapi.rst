@@ -442,7 +442,8 @@ handlers to the events.  Example:
    Emitted after the environment has determined the list of all added and
    changed files and just before it reads them.  It allows extension authors to
    reorder the list of docnames (*inplace*) before processing, or add more
-   docnames that Sphinx did not consider changed.
+   docnames that Sphinx did not consider changed (but never add any docnames
+   that are not in ``env.found_docs``).
 
    You can also remove document names; do this with caution since it will make
    Sphinx treat changed files as unchanged.

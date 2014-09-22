@@ -269,6 +269,12 @@ class CDomain(Domain):
             if fn == docname:
                 del self.data['objects'][fullname]
 
+    def merge_domaindata(self, docnames, otherdata):
+        # XXX check duplicates
+        for fullname, (fn, objtype) in otherdata['objects'].items():
+            if fn in docnames:
+                self.data['objects'][fullname] = (fn, objtype)
+
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
         # strip pointer asterisk

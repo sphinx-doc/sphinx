@@ -33,6 +33,13 @@ as metadata of the extension.  Metadata keys currently recognized are:
 * ``'version'``: a string that identifies the extension version.  It is used for
   extension version requirement checking (see :confval:`needs_extensions`) and
   informational purposes.  If not given, ``"unknown version"`` is substituted.
+* ``'parallel_read_safe'``: a boolean that specifies if parallel reading of
+  source files can be used when the extension is loaded.  It defaults to
+  ``False``, i.e. you have to explicitly specify your extension to be
+  parallel-read-safe after checking that it is.
+* ``'parallel_write_safe'``: a boolean that specifies if parallel writing of
+  output files can be used when the extension is loaded.  Since extensions
+  usually don't negatively influence the process, this defaults to ``True``.
 
 APIs used for writing extensions
 --------------------------------

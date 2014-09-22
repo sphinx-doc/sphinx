@@ -187,6 +187,12 @@ class JavaScriptDomain(Domain):
             if fn == docname:
                 del self.data['objects'][fullname]
 
+    def merge_domaindata(self, docnames, otherdata):
+        # XXX check duplicates
+        for fullname, (fn, objtype) in otherdata['objects'].items():
+            if fn in docnames:
+                self.data['objects'][fullname] = (fn, objtype)
+
     def find_obj(self, env, obj, name, typ, searchorder=0):
         if name[-2:] == '()':
             name = name[:-2]

@@ -256,7 +256,7 @@ def setup(app):
 
     for name, (default, rebuild) in iteritems(Config._config_values):
         app.add_config_value(name, default, rebuild)
-    return {'version': sphinx.__version__}
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}
 
 
 def _process_docstring(app, what, name, obj, options, lines):

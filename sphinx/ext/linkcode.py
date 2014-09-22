@@ -16,8 +16,10 @@ from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.errors import SphinxError
 
+
 class LinkcodeError(SphinxError):
     category = "linkcode error"
+
 
 def doctree_read(app, doctree):
     env = app.builder.env
@@ -68,7 +70,8 @@ def doctree_read(app, doctree):
                                         classes=['viewcode-link'])
             signode += onlynode
 
+
 def setup(app):
     app.connect('doctree-read', doctree_read)
     app.add_config_value('linkcode_resolve', None, '')
-    return {'version': sphinx.__version__}
+    return {'version': sphinx.__version__, 'parallel_read_safe': False}

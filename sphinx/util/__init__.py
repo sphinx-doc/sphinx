@@ -130,6 +130,11 @@ class FilenameUniqDict(dict):
                 del self[filename]
                 self._existing.discard(unique)
 
+    def merge_other(self, docnames, other):
+        for filename, (docs, unique) in other.items():
+            for doc in docs & docnames:
+                self.add_file(doc, filename)
+
     def __getstate__(self):
         return self._existing
 

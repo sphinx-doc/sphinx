@@ -238,18 +238,11 @@ class Builder(object):
         # while reading, collect all warnings from docutils
         warnings = []
         self.env.set_warnfunc(lambda *args: warnings.append(args))
-        self.info(bold('updating environment: '), nonl=1)
-        msg, length, iterator = self.env.update(self.config, self.srcdir,
-                                                self.doctreedir, self.app)
-        self.info(msg)
-        for docname in self.status_iterator(iterator, 'reading sources... ',
-                                            purple, length):
-            updated_docnames.add(docname)
-            # nothing further to do, the environment has already
-            # done the reading
+        updated_docnames = self.env.update(self.config, self.srcdir,
+                                           self.doctreedir, self.app)
+        self.env.set_warnfunc(self.warn)
         for warning in warnings:
             self.warn(*warning)
-        self.env.set_warnfunc(self.warn)
 
         doccount = len(updated_docnames)
         self.info(bold('looking for now-outdated files... '), nonl=1)
@@ -325,16 +318,24 @@ class Builder(object):
         # check for prerequisites to parallel build
         # (parallel only works on POSIX, because the forking impl of
         # multiprocessing is required)
-        if not (multiprocessing and
+        if (multiprocessing and
                 self.app.parallel > 1 and
                 self.allow_parallel and
                 os.name == 'posix'):
-            self._write_serial(sorted(docnames), warnings)
-        else:
-            # number of subprocesses is parallel-1 because the main process
-            # is busy loading doctrees and doing write_doc_serialized()
-            self._write_parallel(sorted(docnames), warnings,
-                                 nproc=self.app.parallel - 1)
+            for extname, md in self.app._extension_metadata.items():
+                par_ok = md.get('parallel_write_safe', True)
+                if not par_ok:
+                    self.app.warn('the %s extension is not safe for parallel '
+                                  'writing, doing serial read' % extname)
+                    break
+            else:  # means no break, means everything is safe
+                # number of subprocesses is parallel-1 because the main process
+                # is busy loading doctrees and doing write_doc_serialized()
+                self._write_parallel(sorted(docnames), warnings,
+                                     nproc=self.app.parallel - 1)
+                self.env.set_warnfunc(self.warn)
+                return
+        self._write_serial(sorted(docnames), warnings)
         self.env.set_warnfunc(self.warn)
 
     def _write_serial(self, docnames, warnings):

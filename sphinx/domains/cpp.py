@@ -1836,6 +1836,12 @@ class CPPDomain(Domain):
             if data[0] == docname:
                 del self.data['objects'][fullname]
 
+    def merge_domaindata(self, docnames, otherdata):
+        # XXX check duplicates
+        for fullname, data in otherdata['objects'].items():
+            if data[0] in docnames:
+                self.data['objects'][fullname] = data
+
     def _resolve_xref_inner(self, env, fromdocname, builder,
                             target, node, contnode, warn=True):
         def _create_refnode(nameAst):

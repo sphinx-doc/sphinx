@@ -627,6 +627,15 @@ class PythonDomain(Domain):
             if fn == docname:
                 del self.data['modules'][modname]
 
+    def merge_domaindata(self, docnames, otherdata):
+        # XXX check duplicates?
+        for fullname, (fn, objtype) in otherdata['objects'].items():
+            if fn in docnames:
+                self.data['objects'][fullname] = (fn, objtype)
+        for modname, data in otherdata['modules'].items():
+            if data[0] in docnames:
+                self.data['modules'][modname] = data
+
     def find_obj(self, env, modname, classname, name, type, searchmode=0):
         """Find a Python object for "name", perhaps using the given module
         and/or classname.  Returns a list of (name, object entry) tuples.

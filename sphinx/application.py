@@ -53,6 +53,7 @@ events = {
     'env-before-read-docs': 'env, docnames',
     'source-read': 'docname, source text',
     'doctree-read': 'the doctree before being pickled',
+    'env-merge-info': 'env, read docnames, other env instance',
     'missing-reference': 'env, node, contnode',
     'doctree-resolved': 'doctree, docname',
     'env-updated': 'env',
