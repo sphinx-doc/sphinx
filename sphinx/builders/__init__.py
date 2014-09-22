@@ -22,7 +22,8 @@ from docutils import nodes
 
 from sphinx.util import i18n, path_stabilize
 from sphinx.util.osutil import SEP, relative_uri, find_catalog
-from sphinx.util.console import bold, purple, darkgreen
+from sphinx.util.console import bold, darkgreen
+from sphinx.util.parallel import ParallelProcess, parallel_available
 
 # side effect: registers roles and directives
 from sphinx import roles
@@ -318,10 +319,8 @@ class Builder(object):
         # check for prerequisites to parallel build
         # (parallel only works on POSIX, because the forking impl of
         # multiprocessing is required)
-        if (multiprocessing and
-                self.app.parallel > 1 and
-                self.allow_parallel and
-                os.name == 'posix'):
+        if parallel_available and len(docnames) > 5 and self.app.parallel > 1 \
+           and self.allow_parallel:
             for extname, md in self.app._extension_metadata.items():
                 par_ok = md.get('parallel_write_safe', True)
                 if not par_ok:
@@ -349,59 +348,32 @@ class Builder(object):
 
     def _write_parallel(self, docnames, warnings, nproc):
         def write_process(docs):
-            try:
-                for docname, doctree in docs:
-                    self.write_doc(docname, doctree)
-            except KeyboardInterrupt:
-                pass  # do not print a traceback on Ctrl-C
-            finally:
-                for warning in warnings:
-                    self.warn(*warning)
+            for docname, doctree in docs:
+                self.write_doc(docname, doctree)
+            return warnings
 
-        def process_thread(docs):
-            p = multiprocessing.Process(target=write_process, args=(docs,))
-            p.start()
-            p.join()
-            semaphore.release()
-
-        # allow only "nproc" worker processes at once
-        semaphore = threading.Semaphore(nproc)
-        # list of threads to join when waiting for completion
-        threads = []
+        def process_warnings(docs, wlist):
+            warnings.extend(wlist)
 
         # warm up caches/compile templates using the first document
         firstname, docnames = docnames[0], docnames[1:]
         doctree = self.env.get_and_resolve_doctree(firstname, self)
         self.write_doc_serialized(firstname, doctree)
         self.write_doc(firstname, doctree)
-        # for the rest, determine how many documents to write in one go
-        ndocs = len(docnames)
-        chunksize = min(ndocs // nproc, 10)
-        if chunksize == 0:
-            chunksize = 1
-        nchunks, rest = divmod(ndocs, chunksize)
-        if rest:
-            nchunks += 1
-        # partition documents in "chunks" that will be written by one Process
-        chunks = [docnames[i*chunksize:(i+1)*chunksize] for i in range(nchunks)]
-        for docnames in self.app.status_iterator(
-                chunks, 'writing output... ', darkgreen, len(chunks)):
-            docs = []
-            for docname in docnames:
+
+        proc = ParallelProcess(write_process, process_warnings, nproc)
+        proc.set_arguments(docnames)
+
+        for chunk in self.app.status_iterator(proc.spawn(), 'writing output... ',
+                                              darkgreen, proc.nchunks):
+            for i, docname in enumerate(chunk):
                 doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.write_doc_serialized(docname, doctree)
-                docs.append((docname, doctree))
-            # start a new thread to oversee the completion of this chunk
-            semaphore.acquire()
-            t = threading.Thread(target=process_thread, args=(docs,))
-            t.setDaemon(True)
-            t.start()
-            threads.append(t)
+                chunk[i] = (docname, doctree)
 
         # make sure all threads have finished
         self.info(bold('waiting for workers... '))
-        for t in threads:
-            t.join()
+        proc.join()
 
     def prepare_writing(self, docnames):
         """A place where you can add logic before :meth:`write_doc` is run"""

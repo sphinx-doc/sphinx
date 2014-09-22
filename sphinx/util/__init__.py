@@ -29,7 +29,7 @@ from docutils.utils import relative_path
 import jinja2
 
 import sphinx
-from sphinx.errors import PycodeError
+from sphinx.errors import PycodeError, SphinxParallelError
 from sphinx.util.console import strip_colors
 from sphinx.util.osutil import fs_encoding
 
@@ -191,7 +191,11 @@ _DEBUG_HEADER = '''\
 def save_traceback(app):
     """Save the current exception's traceback in a temporary file."""
     import platform
-    exc = traceback.format_exc()
+    exc = sys.exc_info()[1]
+    if isinstance(exc, SphinxParallelError):
+        exc_format = '(Error in parallel process)\n' + exc.traceback
+    else:
+        exc_format = traceback.format_exc()
     fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
     last_msgs = ''
     if app is not None:
@@ -212,7 +216,7 @@ def save_traceback(app):
             os.write(fd, ('#   %s (%s) from %s\n' % (
                 extname, app._extension_metadata[extname]['version'],
                 modfile)).encode('utf-8'))
-    os.write(fd, exc.encode('utf-8'))
+    os.write(fd, exc_format.encode('utf-8'))
     os.close(fd)
     return path
 

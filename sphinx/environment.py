@@ -22,14 +22,8 @@ from os import path
 from glob import glob
 from itertools import groupby
 
-try:
-    import multiprocessing
-    import threading
-except ImportError:
-    multiprocessing = threading = None
-
 from six import iteritems, itervalues, text_type, class_types
-from six.moves import cPickle as pickle, zip, queue
+from six.moves import cPickle as pickle, zip
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
@@ -48,6 +42,7 @@ from sphinx.util.nodes import clean_astext, make_refnode, WarningStream
 from sphinx.util.osutil import SEP, find_catalog_files, getcwd, fs_encoding
 from sphinx.util.console import bold, purple
 from sphinx.util.matching import compile_matchers
+from sphinx.util.parallel import ParallelProcess, parallel_available
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
@@ -562,10 +557,7 @@ class BuildEnvironment:
 
         # check if we should do parallel or serial read
         par_ok = False
-        if (len(added | changed) > 5 and
-                multiprocessing and
-                app.parallel > 1 and
-                os.name == 'posix'):
+        if parallel_available and len(docnames) > 5 and app.parallel > 1:
             par_ok = True
             for extname, md in app._extension_metadata.items():
                 ext_ok = md.get('parallel_read_safe')
@@ -604,87 +596,43 @@ class BuildEnvironment:
             self.read_doc(docname, app)
 
     def _read_parallel(self, docnames, app, nproc):
-        def read_process(docs, pipe):
-            self.app = app
-            self.warnings = []
-            self.set_warnfunc(lambda *args: self.warnings.append(args))
-            try:
-                for docname in docs:
-                    self.read_doc(docname, app)
-            except KeyboardInterrupt:
-                # XXX return None?
-                pass  # do not print a traceback on Ctrl-C
-            self.set_warnfunc(None)
-            del self.app
-            del self.domains
-            del self.config.values
-            del self.config
-            pipe.send(self)
-
-        def process_thread(docs):
-            precv, psend = multiprocessing.Pipe(False)
-            p = multiprocessing.Process(target=read_process, args=(docs, psend))
-            p.start()
-            # XXX error handling
-            new_env = precv.recv()
-            merge_queue.put((docs, new_env))
-            p.join()
-            semaphore.release()
-
-        # allow only "nproc" worker processes at once
-        semaphore = threading.Semaphore(nproc)
-        # list of threads to join when waiting for completion
-        threads = []
-        # queue of other env objects to merge
-        merge_queue = queue.Queue()
-
         # clear all outdated docs at once
         for docname in docnames:
             app.emit('env-purge-doc', self, docname)
             self.clear_doc(docname)
 
-        # determine how many documents to read in one go
-        ndocs = len(docnames)
-        chunksize = min(ndocs // nproc, 10)
-        if chunksize == 0:
-            chunksize = 1
-        nchunks, rest = divmod(ndocs, chunksize)
-        if rest:
-            nchunks += 1
-        # partition documents in "chunks" that will be written by one Process
-        chunks = [docnames[i*chunksize:(i+1)*chunksize] for i in range(nchunks)]
+        def read_process(docs):
+            self.app = app
+            self.warnings = []
+            self.set_warnfunc(lambda *args: self.warnings.append(args))
+            for docname in docs:
+                self.read_doc(docname, app)
+            # allow pickling self to send it back
+            self.set_warnfunc(None)
+            del self.app
+            del self.domains
+            del self.config.values
+            del self.config
+            return self
+
+        def merge(docs, otherenv):
+            warnings.extend(otherenv.warnings)
+            self.merge_info_from(docs, otherenv, app)
+
+        proc = ParallelProcess(read_process, merge, nproc)
+        proc.set_arguments(docnames)
 
         warnings = []
-        merged = 0
-        for chunk in app.status_iterator(chunks, 'reading sources... ',
-                                         purple, len(chunks)):
-            semaphore.acquire()
-            t = threading.Thread(target=process_thread, args=(chunk,))
-            t.setDaemon(True)
-            t.start()
-            threads.append(t)
-            try:
-                docs, other = merge_queue.get(False)
-            except queue.Empty:
-                pass
-            else:
-                warnings.extend(other.warnings)
-                self.merge_info_from(docs, other, app)
-                merged += 1
-
-        while merged < len(chunks):
-            docs, other = merge_queue.get()
-            warnings.extend(other.warnings)
-            self.merge_info_from(docs, other, app)
-            merged += 1
-
-        for warning in warnings:
-            self._warnfunc(*warning)
+        for chunk in app.status_iterator(proc.spawn(), 'reading sources... ',
+                                         purple, proc.nchunks):
+            pass  # spawning in the iterator
 
         # make sure all threads have finished
         app.info(bold('waiting for workers... '))
-        for t in threads:
-            t.join()
+        proc.join()
+
+        for warning in warnings:
+            self._warnfunc(*warning)
 
     def check_dependents(self, already):
         to_rewrite = self.assign_section_numbers()
