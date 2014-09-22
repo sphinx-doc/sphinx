@@ -23,7 +23,8 @@ from docutils import nodes
 from sphinx.util import i18n, path_stabilize
 from sphinx.util.osutil import SEP, relative_uri, find_catalog
 from sphinx.util.console import bold, darkgreen
-from sphinx.util.parallel import ParallelChunked, parallel_available
+from sphinx.util.parallel import ParallelChunked, ParallelTasks, SerialTasks, \
+    parallel_available
 
 # side effect: registers roles and directives
 from sphinx import roles
@@ -69,6 +70,10 @@ class Builder(object):
 
         # images that need to be copied over (source -> dest)
         self.images = {}
+
+        # these get set later
+        self.parallel_ok = False
+        self.finish_tasks = None
 
         # load default translator class
         self.translator_class = app._translators.get(self.name)
@@ -277,20 +282,33 @@ class Builder(object):
         if docnames and docnames != ['__all__']:
             docnames = set(docnames) & self.env.found_docs
 
-        # another indirection to support builders that don't build
-        # files individually
+        # determine if we can write in parallel
+        self.parallel_ok = False
+        if parallel_available and self.app.parallel > 1 and self.allow_parallel:
+            self.parallel_ok = True
+            for extname, md in self.app._extension_metadata.items():
+                par_ok = md.get('parallel_write_safe', True)
+                if not par_ok:
+                    self.app.warn('the %s extension is not safe for parallel '
+                                  'writing, doing serial read' % extname)
+                    self.parallel_ok = False
+                    break
+
+        #  create a task executor to use for misc. "finish-up" tasks
+        # if self.parallel_ok:
+        #     self.finish_tasks = ParallelTasks(self.app.parallel)
+        # else:
+        # for now, just execute them serially
+        self.finish_tasks = SerialTasks()
+
+        # write all "normal" documents (or everything for some builders)
         self.write(docnames, list(updated_docnames), method)
 
         # finish (write static files etc.)
         self.finish()
-        status = (self.app.statuscode == 0
-                  and 'succeeded' or 'finished with problems')
-        if self.app._warncount:
-            self.info(bold('build %s, %s warning%s.' %
-                           (status, self.app._warncount,
-                            self.app._warncount != 1 and 's' or '')))
-        else:
-            self.info(bold('build %s.' % status))
+
+        # wait for all tasks
+        self.finish_tasks.join()
 
     def write(self, build_docnames, updated_docnames, method='update'):
         if build_docnames is None or build_docnames == ['__all__']:
@@ -316,25 +334,13 @@ class Builder(object):
 
         warnings = []
         self.env.set_warnfunc(lambda *args: warnings.append(args))
-        # check for prerequisites to parallel build
-        # (parallel only works on POSIX, because the forking impl of
-        # multiprocessing is required)
-        if parallel_available and len(docnames) > 5 and self.app.parallel > 1 \
-           and self.allow_parallel:
-            for extname, md in self.app._extension_metadata.items():
-                par_ok = md.get('parallel_write_safe', True)
-                if not par_ok:
-                    self.app.warn('the %s extension is not safe for parallel '
-                                  'writing, doing serial read' % extname)
-                    break
-            else:  # means no break, means everything is safe
-                # number of subprocesses is parallel-1 because the main process
-                # is busy loading doctrees and doing write_doc_serialized()
-                self._write_parallel(sorted(docnames), warnings,
-                                     nproc=self.app.parallel - 1)
-                self.env.set_warnfunc(self.warn)
-                return
-        self._write_serial(sorted(docnames), warnings)
+        if self.parallel_ok:
+            # number of subprocesses is parallel-1 because the main process
+            # is busy loading doctrees and doing write_doc_serialized()
+            self._write_parallel(sorted(docnames), warnings,
+                                 nproc=self.app.parallel - 1)
+        else:
+            self._write_serial(sorted(docnames), warnings)
         self.env.set_warnfunc(self.warn)
 
     def _write_serial(self, docnames, warnings):

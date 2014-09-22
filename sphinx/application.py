@@ -248,6 +248,15 @@ class Sphinx(object):
             else:
                 self.builder.compile_update_catalogs()
                 self.builder.build_update()
+
+            status = (self.statuscode == 0
+                      and 'succeeded' or 'finished with problems')
+            if self._warncount:
+                self.info(bold('build %s, %s warning%s.' %
+                               (status, self._warncount,
+                                self._warncount != 1 and 's' or '')))
+            else:
+                self.info(bold('build %s.' % status))
         except Exception as err:
             # delete the saved env to force a fresh build next time
             envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)

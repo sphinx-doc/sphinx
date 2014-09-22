@@ -443,12 +443,19 @@ class StandaloneHTMLBuilder(Builder):
         self.index_page(docname, doctree, title)
 
     def finish(self):
-        self.info(bold('writing additional files...'), nonl=1)
+        self.finish_tasks.add_task(self.gen_indices)
+        self.finish_tasks.add_task(self.gen_additional_pages)
+        self.finish_tasks.add_task(self.copy_image_files)
+        self.finish_tasks.add_task(self.copy_download_files)
+        self.finish_tasks.add_task(self.copy_static_files)
+        self.finish_tasks.add_task(self.copy_extra_files)
+        self.finish_tasks.add_task(self.write_buildinfo)
 
-        # pages from extensions
-        for pagelist in self.app.emit('html-collect-pages'):
-            for pagename, context, template in pagelist:
-                self.handle_page(pagename, context, template)
+        # dump the search index
+        self.handle_finish()
+
+    def gen_indices(self):
+        self.info(bold('generating indices...'), nonl=1)
 
         # the global general index
         if self.get_builder_config('use_index', 'html'):
@@ -457,31 +464,33 @@ class StandaloneHTMLBuilder(Builder):
         # the global domain-specific indices
         self.write_domain_indices()
 
-        # the search page
-        if self.name != 'htmlhelp':
-            self.info(' search', nonl=1)
-            self.handle_page('search', {}, 'search.html')
+        self.info()
+
+    def gen_additional_pages(self):
+        self.info(bold('writing additional pages...'), nonl=1)
+
+        # pages from extensions
+        for pagelist in self.app.emit('html-collect-pages'):
+            for pagename, context, template in pagelist:
+                self.handle_page(pagename, context, template)
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
             self.info(' '+pagename, nonl=1)
             self.handle_page(pagename, {}, template)
 
+        # the search page
+        if self.name != 'htmlhelp':
+            self.info(' search', nonl=1)
+            self.handle_page('search', {}, 'search.html')
+
+        # the opensearch xml file
         if self.config.html_use_opensearch and self.name != 'htmlhelp':
             self.info(' opensearch', nonl=1)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
         self.info()
-
-        self.copy_image_files()
-        self.copy_download_files()
-        self.copy_static_files()
-        self.copy_extra_files()
-        self.write_buildinfo()
-
-        # dump the search index
-        self.handle_finish()
 
     def write_genindex(self):
         # the total count of lines for each index letter, used to distribute
@@ -786,8 +795,8 @@ class StandaloneHTMLBuilder(Builder):
             copyfile(self.env.doc2path(pagename), source_name)
 
     def handle_finish(self):
-        self.dump_search_index()
-        self.dump_inventory()
+        self.finish_tasks.add_task(self.dump_search_index)
+        self.finish_tasks.add_task(self.dump_inventory)
 
     def dump_inventory(self):
         self.info(bold('dumping object inventory... '), nonl=True)
