@@ -29,7 +29,7 @@ from docutils.readers.doctree import Reader as DoctreeReader
 from sphinx import package_dir, __version__
 from sphinx.util import jsonimpl, copy_static_entry
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
-     movefile, ustrftime, copyfile
+    movefile, ustrftime, copyfile
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.matching import patmatch, compile_matchers
 from sphinx.locale import _
@@ -40,7 +40,7 @@ from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.highlighting import PygmentsBridge
 from sphinx.util.console import bold, darkgreen, brown
 from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
-     SmartyPantsHTMLTranslator
+    SmartyPantsHTMLTranslator
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'

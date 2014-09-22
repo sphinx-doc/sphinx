@@ -23,7 +23,7 @@ from docutils import nodes
 from sphinx.util import i18n, path_stabilize
 from sphinx.util.osutil import SEP, relative_uri, find_catalog
 from sphinx.util.console import bold, darkgreen
-from sphinx.util.parallel import ParallelProcess, parallel_available
+from sphinx.util.parallel import ParallelChunked, parallel_available
 
 # side effect: registers roles and directives
 from sphinx import roles
@@ -361,18 +361,18 @@ class Builder(object):
         self.write_doc_serialized(firstname, doctree)
         self.write_doc(firstname, doctree)
 
-        proc = ParallelProcess(write_process, process_warnings, nproc)
+        proc = ParallelChunked(write_process, process_warnings, nproc)
         proc.set_arguments(docnames)
 
-        for chunk in self.app.status_iterator(proc.spawn(), 'writing output... ',
-                                              darkgreen, proc.nchunks):
+        for chunk in self.app.status_iterator(
+                proc.iter_chunks(), 'writing output... ', darkgreen, proc.nchunks):
             for i, docname in enumerate(chunk):
                 doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.write_doc_serialized(docname, doctree)
                 chunk[i] = (docname, doctree)
 
         # make sure all threads have finished
-        self.info(bold('waiting for workers... '))
+        self.info(bold('waiting for workers...'))
         proc.join()
 
     def prepare_writing(self, docnames):
