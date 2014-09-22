@@ -437,6 +437,14 @@ handlers to the events.  Example:
 
    .. versionadded:: 0.5
 
+.. event:: env-read-docs (app, env, docnames)
+
+   Emited after get the list of all added and changed files and just before
+   read them. It allow extension author modify docnames list before processing;
+   reordering, append and remove.
+
+   .. versionadded:: 1.3.0
+
 .. event:: source-read (app, docname, source)
 
    Emitted when a source file has been read.  The *source* argument is a list
