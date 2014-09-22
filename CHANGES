@@ -73,6 +73,8 @@ Features added
 * #623: `sphinx.ext.viewcode` supports imported function/class aliases.
 * PR#275: `sphinx.ext.intersphinx` supports multiple target for the
   inventory. Thanks to Brigitta Sipocz.
+* PR#261: Added the `env-before-read-docs` event that can be connected to modify
+  the order of documents before they are read by the environment.
 * #1284: Program options documented with :rst:dir:`option` can now start with
   ``+``.
 

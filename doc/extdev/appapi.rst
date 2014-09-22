@@ -437,13 +437,17 @@ handlers to the events.  Example:
 
    .. versionadded:: 0.5
 
-.. event:: env-read-docs (app, env, docnames)
+.. event:: env-before-read-docs (app, env, docnames)
 
-   Emited after get the list of all added and changed files and just before
-   read them. It allow extension author modify docnames list before processing;
-   reordering, append and remove.
+   Emitted after the environment has determined the list of all added and
+   changed files and just before it reads them.  It allows extension authors to
+   reorder the list of docnames (*inplace*) before processing, or add more
+   docnames that Sphinx did not consider changed.
 
-   .. versionadded:: 1.3.0
+   You can also remove document names; do this with caution since it will make
+   Sphinx treat changed files as unchanged.
+
+   .. versionadded:: 1.3
 
 .. event:: source-read (app, docname, source)
 

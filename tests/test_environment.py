@@ -103,6 +103,28 @@ def test_second_update():
     assert 'autodoc' not in env.found_docs
 
 
+def test_env_read_docs():
+    """By default, docnames are read in alphanumeric order"""
+    def on_env_read_docs_1(app, env, docnames):
+        pass
+
+    app.connect('env-before-read-docs', on_env_read_docs_1)
+
+    msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
+    read_docnames = [docname for docname in it]
+    assert len(read_docnames) > 2 and read_docnames == sorted(read_docnames)
+
+    def on_env_read_docs_2(app, env, docnames):
+        docnames.reverse()
+
+    app.connect('env-before-read-docs', on_env_read_docs_2)
+
+    msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
+    read_docnames = [docname for docname in it]
+    reversed_read_docnames = sorted(read_docnames, reverse=True)
+    assert len(read_docnames) > 2 and read_docnames == reversed_read_docnames
+
+
 def test_object_inventory():
     refs = env.domaindata['py']['objects']
 

@@ -49,7 +49,7 @@ events = {
     'builder-inited': '',
     'env-get-outdated': 'env, added, changed, removed',
     'env-purge-doc': 'env, docname',
-    'env-read-docs': 'env, docnames',
+    'env-before-read-docs': 'env, docnames',
     'source-read': 'docname, source text',
     'doctree-read': 'the doctree before being pickled',
     'missing-reference': 'env, node, contnode',
