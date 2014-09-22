@@ -213,8 +213,8 @@ class BuildEnvironment:
         # the source suffix.
 
         self.found_docs = set()     # contains all existing docnames
-        self.all_docs = {}          # docname -> mtime at the time of build
-                                    # contains all built docnames
+        self.all_docs = {}          # docname -> mtime at the time of reading
+                                    # contains all read docnames
         self.dependencies = {}      # docname -> set of dependent file
                                     # names, relative to documentation root
         self.reread_always = set()  # docnames to re-read unconditionally on
@@ -665,7 +665,7 @@ class BuildEnvironment:
         if app:
             app.emit('doctree-read', doctree)
 
-        # store time of build, for outdated files detection
+        # store time of reading, for outdated files detection
         # (Some filesystems have coarse timestamp resolution;
         # therefore time.time() can be older than filesystem's timestamp.
         # For example, FAT32 has 2sec timestamp resolution.)
