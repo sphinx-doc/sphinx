@@ -18,14 +18,31 @@ imports this module and executes its ``setup()`` function, which in turn
 notifies Sphinx of everything the extension offers -- see the extension tutorial
 for examples.
 
-.. versionadded:: 1.3
-   The ``setup()`` function can return a string, this is treated by Sphinx as
-   the version of the extension and used for informational purposes such as the
-   traceback file when an exception occurs.
-
 The configuration file itself can be treated as an extension if it contains a
 ``setup()`` function.  All other extensions to load must be listed in the
 :confval:`extensions` configuration value.
+
+Extension metadata
+------------------
+
+.. versionadded:: 1.3
+
+The ``setup()`` function can return a dictionary.  This is treated by Sphinx
+as metadata of the extension.  Metadata keys currently recognized are:
+
+* ``'version'``: a string that identifies the extension version.  It is used for
+  extension version requirement checking (see :confval:`needs_extensions`) and
+  informational purposes.  If not given, ``"unknown version"`` is substituted.
+* ``'parallel_read_safe'``: a boolean that specifies if parallel reading of
+  source files can be used when the extension is loaded.  It defaults to
+  ``False``, i.e. you have to explicitly specify your extension to be
+  parallel-read-safe after checking that it is.
+* ``'parallel_write_safe'``: a boolean that specifies if parallel writing of
+  output files can be used when the extension is loaded.  Since extensions
+  usually don't negatively influence the process, this defaults to ``True``.
+
+APIs used for writing extensions
+--------------------------------
 
 .. toctree::
 

@@ -28,7 +28,9 @@ from sphinx.util.compat import Directive
 
 
 # RE for option descriptions
-option_desc_re = re.compile(r'((?:/|-|--)?[-_a-zA-Z0-9]+)(\s*.*)')
+option_desc_re = re.compile(r'((?:/|--|-|\+)?[-?@#_a-zA-Z0-9]+)(=?\s*.*)')
+# RE for grammar tokens
+token_re = re.compile('`(\w+)`', re.U)
 
 
 class GenericObject(ObjectDescription):
@@ -144,8 +146,9 @@ class Cmdoption(ObjectDescription):
                 self.env.warn(
                     self.env.docname,
                     'Malformed option description %r, should '
-                    'look like "opt", "-opt args", "--opt args" or '
-                    '"/opt args"' % potential_option, self.lineno)
+                    'look like "opt", "-opt args", "--opt args", '
+                    '"/opt args" or "+opt args"' % potential_option,
+                    self.lineno)
                 continue
             optname, args = m.groups()
             if count:
@@ -163,7 +166,7 @@ class Cmdoption(ObjectDescription):
         return firstname
 
     def add_target_and_index(self, firstname, sig, signode):
-        currprogram = self.env.temp_data.get('std:program')
+        currprogram = self.env.ref_context.get('std:program')
         for optname in signode.get('allnames', []):
             targetname = optname.replace('/', '-')
             if not targetname.startswith('-'):
@@ -198,36 +201,19 @@ class Program(Directive):
         env = self.state.document.settings.env
         program = ws_re.sub('-', self.arguments[0].strip())
         if program == 'None':
-            env.temp_data['std:program'] = None
+            env.ref_context.pop('std:program', None)
         else:
-            env.temp_data['std:program'] = program
+            env.ref_context['std:program'] = program
         return []
 
 
 class OptionXRefRole(XRefRole):
-    innernodeclass = addnodes.literal_emphasis
-
-    def _split(self, text, refnode, env):
-        try:
-            program, target = re.split(' (?=-|--|/)', text, 1)
-        except ValueError:
-            env.warn_node('Malformed :option: %r, does not contain option '
-                          'marker - or -- or /' % text, refnode)
-            return None, text
-        else:
-            program = ws_re.sub('-', program)
-            return program, target
-
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        program = env.temp_data.get('std:program')
-        if not has_explicit_title:
-            if ' ' in title and not (title.startswith('/') or
-                                     title.startswith('-')):
-                program, target = self._split(title, refnode, env)
-                target = target.strip()
-        elif ' ' in target:
-            program, target = self._split(target, refnode, env)
-        refnode['refprogram'] = program
+        # validate content
+        if not re.match('(.+ )?[-/+]', target):
+            env.warn_node('Malformed :option: %r, does not contain option '
+                          'marker - or -- or / or +' % target, refnode)
+        refnode['std:program'] = env.ref_context.get('std:program')
         return title, target
 
 
@@ -327,7 +313,7 @@ class Glossary(Directive):
                     else:
                         messages.append(self.state.reporter.system_message(
                             2, 'glossary seems to be misformatted, check '
-                        'indentation', source=source, line=lineno))
+                            'indentation', source=source, line=lineno))
             else:
                 if not in_definition:
                     # first line of definition, determines indentation
@@ -338,7 +324,7 @@ class Glossary(Directive):
                 else:
                     messages.append(self.state.reporter.system_message(
                         2, 'glossary seems to be misformatted, check '
-                    'indentation', source=source, line=lineno))
+                        'indentation', source=source, line=lineno))
             was_empty = False
 
         # now, parse all the entries into a big definition list
@@ -359,7 +345,7 @@ class Glossary(Directive):
                 tmp.source = source
                 tmp.line = lineno
                 new_id, termtext, new_termnodes = \
-                        make_termnodes_from_paragraph_node(env, tmp)
+                    make_termnodes_from_paragraph_node(env, tmp)
                 ids.append(new_id)
                 termtexts.append(termtext)
                 termnodes.extend(new_termnodes)
@@ -385,8 +371,6 @@ class Glossary(Directive):
         node += dlist
         return messages + [node]
 
-
-token_re = re.compile('`(\w+)`', re.U)
 
 def token_xrefs(text):
     retnodes = []
@@ -472,7 +456,7 @@ class StandardDomain(Domain):
         'productionlist': ProductionList,
     }
     roles = {
-        'option':  OptionXRefRole(innernodeclass=addnodes.literal_emphasis),
+        'option':  OptionXRefRole(),
         'envvar':  EnvVarXRefRole(),
         # links to tokens in grammar productions
         'token':   XRefRole(),
@@ -522,6 +506,21 @@ class StandardDomain(Domain):
             if fn == docname:
                 del self.data['anonlabels'][key]
 
+    def merge_domaindata(self, docnames, otherdata):
+        # XXX duplicates?
+        for key, data in otherdata['progoptions'].items():
+            if data[0] in docnames:
+                self.data['progoptions'][key] = data
+        for key, data in otherdata['objects'].items():
+            if data[0] in docnames:
+                self.data['objects'][key] = data
+        for key, data in otherdata['labels'].items():
+            if data[0] in docnames:
+                self.data['labels'][key] = data
+        for key, data in otherdata['anonlabels'].items():
+            if data[0] in docnames:
+                self.data['anonlabels'][key] = data
+
     def process_doc(self, env, docname, document):
         labels, anonlabels = self.data['labels'], self.data['anonlabels']
         for name, explicit in iteritems(document.nametypes):
@@ -532,7 +531,7 @@ class StandardDomain(Domain):
                 continue
             node = document.ids[labelid]
             if name.isdigit() or 'refuri' in node or \
-                   node.tagname.startswith('desc_'):
+               node.tagname.startswith('desc_'):
                 # ignore footnote labels, labels automatically generated from a
                 # link and object descriptions
                 continue
@@ -541,7 +540,7 @@ class StandardDomain(Domain):
                               'in ' + env.doc2path(labels[name][0]), node)
             anonlabels[name] = docname, labelid
             if node.tagname == 'section':
-                sectname = clean_astext(node[0]) # node[0] == title node
+                sectname = clean_astext(node[0])  # node[0] == title node
             elif node.tagname == 'figure':
                 for n in node:
                     if n.tagname == 'caption':
@@ -579,13 +578,13 @@ class StandardDomain(Domain):
             if node['refexplicit']:
                 # reference to anonymous label; the reference uses
                 # the supplied link caption
-                docname, labelid = self.data['anonlabels'].get(target, ('',''))
+                docname, labelid = self.data['anonlabels'].get(target, ('', ''))
                 sectname = node.astext()
             else:
                 # reference to named label; the final node will
                 # contain the section name after the label
                 docname, labelid, sectname = self.data['labels'].get(target,
-                                                                     ('','',''))
+                                                                     ('', '', ''))
             if not docname:
                 return None
             newnode = nodes.reference('', '', internal=True)
@@ -607,13 +606,22 @@ class StandardDomain(Domain):
             return newnode
         elif typ == 'keyword':
             # keywords are oddballs: they are referenced by named labels
-            docname, labelid, _ = self.data['labels'].get(target, ('','',''))
+            docname, labelid, _ = self.data['labels'].get(target, ('', '', ''))
             if not docname:
                 return None
             return make_refnode(builder, fromdocname, docname,
                                 labelid, contnode)
         elif typ == 'option':
-            progname = node['refprogram']
+            target = target.strip()
+            # most obvious thing: we are a flag option without program
+            if target.startswith(('-', '/', '+')):
+                progname = node.get('std:program')
+            else:
+                try:
+                    progname, target = re.split(r' (?=-|--|/|\+)', target, 1)
+                except ValueError:
+                    return None
+                progname = ws_re.sub('-', progname.strip())
             docname, labelid = self.data['progoptions'].get((progname, target),
                                                             ('', ''))
             if not docname:
@@ -632,6 +640,28 @@ class StandardDomain(Domain):
                 return None
             return make_refnode(builder, fromdocname, docname,
                                 labelid, contnode)
+
+    def resolve_any_xref(self, env, fromdocname, builder, target,
+                         node, contnode):
+        results = []
+        ltarget = target.lower()  # :ref: lowercases its target automatically
+        for role in ('ref', 'option'):  # do not try "keyword"
+            res = self.resolve_xref(env, fromdocname, builder, role,
+                                    ltarget if role == 'ref' else target,
+                                    node, contnode)
+            if res:
+                results.append(('std:' + role, res))
+        # all others
+        for objtype in self.object_types:
+            key = (objtype, target)
+            if objtype == 'term':
+                key = (objtype, ltarget)
+            if key in self.data['objects']:
+                docname, labelid = self.data['objects'][key]
+                results.append(('std:' + self.role_for_objtype(objtype),
+                                make_refnode(builder, fromdocname, docname,
+                                             labelid, contnode)))
+        return results
 
     def get_objects(self):
         for (prog, option), info in iteritems(self.data['progoptions']):

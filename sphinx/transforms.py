@@ -34,6 +34,7 @@ default_substitutions = set([
     'today',
 ])
 
+
 class DefaultSubstitutions(Transform):
     """
     Replace some substitutions if they aren't defined in the document.
@@ -69,9 +70,9 @@ class MoveModuleTargets(Transform):
             if not node['ids']:
                 continue
             if ('ismod' in node and
-                node.parent.__class__ is nodes.section and
-                # index 0 is the section title node
-                node.parent.index(node) == 1):
+                    node.parent.__class__ is nodes.section and
+                    # index 0 is the section title node
+                    node.parent.index(node) == 1):
                 node.parent['ids'][0:0] = node['ids']
                 node.parent.remove(node)
 
@@ -86,10 +87,10 @@ class HandleCodeBlocks(Transform):
         # move doctest blocks out of blockquotes
         for node in self.document.traverse(nodes.block_quote):
             if all(isinstance(child, nodes.doctest_block) for child
-                     in node.children):
+                   in node.children):
                 node.replace_self(node.children)
         # combine successive doctest blocks
-        #for node in self.document.traverse(nodes.doctest_block):
+        # for node in self.document.traverse(nodes.doctest_block):
         #    if node not in node.parent.children:
         #        continue
         #    parindex = node.parent.index(node)
@@ -173,7 +174,7 @@ class Locale(Transform):
 
         parser = RSTParser()
 
-        #phase1: replace reference ids with translated names
+        # phase1: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
             msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
@@ -198,7 +199,7 @@ class Locale(Transform):
                 pass
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
-                continue # skip for now
+                continue  # skip for now
 
             processed = False  # skip flag
 
@@ -281,15 +282,14 @@ class Locale(Transform):
                 node.children = patch.children
                 node['translated'] = True
 
-
-        #phase2: translation
+        # phase2: translation
         for node, msg in extract_messages(self.document):
             if node.get('translated', False):
                 continue
 
             msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
-            if not msgstr or msgstr == msg: # as-of-yet untranslated
+            if not msgstr or msgstr == msg:  # as-of-yet untranslated
                 continue
 
             # Avoid "Literal block expected; none found." warnings.
@@ -309,12 +309,13 @@ class Locale(Transform):
                 pass
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
-                continue # skip for now
+                continue  # skip for now
 
             # auto-numbered foot note reference should use original 'ids'.
             def is_autonumber_footnote_ref(node):
                 return isinstance(node, nodes.footnote_reference) and \
                     node.get('auto') == 1
+
             def list_replace_or_append(lst, old, new):
                 if old in lst:
                     lst[lst.index(old)] = new
@@ -339,7 +340,7 @@ class Locale(Transform):
                 for id in new['ids']:
                     self.document.ids[id] = new
                 list_replace_or_append(
-                        self.document.autofootnote_refs, old, new)
+                    self.document.autofootnote_refs, old, new)
                 if refname:
                     list_replace_or_append(
                         self.document.footnote_refs.setdefault(refname, []),
@@ -404,6 +405,7 @@ class Locale(Transform):
             if len(old_refs) != len(new_refs):
                 env.warn_node('inconsistent term references in '
                               'translated message', node)
+
             def get_ref_key(node):
                 case = node["refdomain"], node["reftype"]
                 if case == ('std', 'term'):

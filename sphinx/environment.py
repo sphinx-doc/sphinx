@@ -33,26 +33,31 @@ from docutils.parsers.rst import roles, directives
 from docutils.parsers.rst.languages import en as english
 from docutils.parsers.rst.directives.html import MetaBody
 from docutils.writers import UnfilteredWriter
+from docutils.frontend import OptionParser
 
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
-     FilenameUniqDict
+    FilenameUniqDict
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream
-from sphinx.util.osutil import SEP, fs_encoding, find_catalog_files
+from sphinx.util.osutil import SEP, find_catalog_files, getcwd, fs_encoding
+from sphinx.util.console import bold, purple
 from sphinx.util.matching import compile_matchers
+from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.transforms import DefaultSubstitutions, MoveModuleTargets, \
-     HandleCodeBlocks, SortIds, CitationReferences, Locale, \
-     RemoveTranslatableInline, SphinxContentsFilter
+    HandleCodeBlocks, SortIds, CitationReferences, Locale, \
+    RemoveTranslatableInline, SphinxContentsFilter
 
 
 orig_role_function = roles.role
 orig_directive_function = directives.directive
 
-class ElementLookupError(Exception): pass
+
+class ElementLookupError(Exception):
+    pass
 
 
 default_settings = {
@@ -69,7 +74,9 @@ default_settings = {
 
 # This is increased every time an environment attribute is added
 # or changed to properly invalidate pickle files.
-ENV_VERSION = 42 + (sys.version_info[0] - 2)
+#
+# NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
+ENV_VERSION = 44 + (sys.version_info[0] - 2)
 
 
 dummy_reporter = Reporter('', 4, 4)
@@ -105,6 +112,33 @@ class SphinxDummyWriter(UnfilteredWriter):
         pass
 
 
+class SphinxFileInput(FileInput):
+    def __init__(self, app, env, *args, **kwds):
+        self.app = app
+        self.env = env
+        # don't call sys.exit() on IOErrors
+        kwds['handle_io_errors'] = False
+        kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
+        FileInput.__init__(self, *args, **kwds)
+
+    def decode(self, data):
+        if isinstance(data, text_type):  # py3: `data` already decoded.
+            return data
+        return data.decode(self.encoding, 'sphinx')  # py2: decoding
+
+    def read(self):
+        data = FileInput.read(self)
+        if self.app:
+            arg = [data]
+            self.app.emit('source-read', self.env.docname, arg)
+            data = arg[0]
+        if self.env.config.rst_epilog:
+            data = data + '\n' + self.env.config.rst_epilog + '\n'
+        if self.env.config.rst_prolog:
+            data = self.env.config.rst_prolog + '\n' + data
+        return data
+
+
 class BuildEnvironment:
     """
     The environment in which the ReST files are translated.
@@ -122,7 +156,7 @@ class BuildEnvironment:
         finally:
             picklefile.close()
         if env.version != ENV_VERSION:
-            raise IOError('env version not current')
+            raise IOError('build environment version not current')
         env.config.values = config.values
         return env
 
@@ -138,9 +172,9 @@ class BuildEnvironment:
         # remove potentially pickling-problematic values from config
         for key, val in list(vars(self.config).items()):
             if key.startswith('_') or \
-                   isinstance(val, types.ModuleType) or \
-                   isinstance(val, types.FunctionType) or \
-                   isinstance(val, class_types):
+               isinstance(val, types.ModuleType) or \
+               isinstance(val, types.FunctionType) or \
+               isinstance(val, class_types):
                 del self.config[key]
         try:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
@@ -181,8 +215,8 @@ class BuildEnvironment:
         # the source suffix.
 
         self.found_docs = set()     # contains all existing docnames
-        self.all_docs = {}          # docname -> mtime at the time of build
-                                    # contains all built docnames
+        self.all_docs = {}          # docname -> mtime at the time of reading
+                                    # contains all read docnames
         self.dependencies = {}      # docname -> set of dependent file
                                     # names, relative to documentation root
         self.reread_always = set()  # docnames to re-read unconditionally on
@@ -223,6 +257,10 @@ class BuildEnvironment:
 
         # temporary data storage while reading a document
         self.temp_data = {}
+        # context for cross-references (e.g. current module or class)
+        # this is similar to temp_data, but will for example be copied to
+        # attributes of "any" cross references
+        self.ref_context = {}
 
     def set_warnfunc(self, func):
         self._warnfunc = func
@@ -291,6 +329,50 @@ class BuildEnvironment:
 
         for domain in self.domains.values():
             domain.clear_doc(docname)
+
+    def merge_info_from(self, docnames, other, app):
+        """Merge global information gathered about *docnames* while reading them
+        from the *other* environment.
+
+        This possibly comes from a parallel build process.
+        """
+        docnames = set(docnames)
+        for docname in docnames:
+            self.all_docs[docname] = other.all_docs[docname]
+            if docname in other.reread_always:
+                self.reread_always.add(docname)
+            self.metadata[docname] = other.metadata[docname]
+            if docname in other.dependencies:
+                self.dependencies[docname] = other.dependencies[docname]
+            self.titles[docname] = other.titles[docname]
+            self.longtitles[docname] = other.longtitles[docname]
+            self.tocs[docname] = other.tocs[docname]
+            self.toc_num_entries[docname] = other.toc_num_entries[docname]
+            # toc_secnumbers is not assigned during read
+            if docname in other.toctree_includes:
+                self.toctree_includes[docname] = other.toctree_includes[docname]
+            self.indexentries[docname] = other.indexentries[docname]
+            if docname in other.glob_toctrees:
+                self.glob_toctrees.add(docname)
+            if docname in other.numbered_toctrees:
+                self.numbered_toctrees.add(docname)
+
+        self.images.merge_other(docnames, other.images)
+        self.dlfiles.merge_other(docnames, other.dlfiles)
+
+        for subfn, fnset in other.files_to_rebuild.items():
+            self.files_to_rebuild.setdefault(subfn, set()).update(fnset & docnames)
+        for key, data in other.citations.items():
+            # XXX duplicates?
+            if data[0] in docnames:
+                self.citations[key] = data
+        for version, changes in other.versionchanges.items():
+            self.versionchanges.setdefault(version, []).extend(
+                change for change in changes if change[1] in docnames)
+
+        for domainname, domain in self.domains.items():
+            domain.merge_domaindata(docnames, other.domaindata[domainname])
+        app.emit('env-merge-info', self, docnames, other)
 
     def doc2path(self, docname, base=True, suffix=None):
         """Return the filename for the document name.
@@ -407,13 +489,11 @@ class BuildEnvironment:
 
         return added, changed, removed
 
-    def update(self, config, srcdir, doctreedir, app=None):
+    def update(self, config, srcdir, doctreedir, app):
         """(Re-)read all files new or changed since last update.
 
-        Returns a summary, the total count of documents to reread and an
-        iterator that yields docnames as it processes them.  Store all
-        environment docnames in the canonical format (ie using SEP as a
-        separator in place of os.path.sep).
+        Store all environment docnames in the canonical format (ie using SEP as
+        a separator in place of os.path.sep).
         """
         config_changed = False
         if self.config is None:
@@ -445,6 +525,8 @@ class BuildEnvironment:
         # this cache also needs to be updated every time
         self._nitpick_ignore = set(self.config.nitpick_ignore)
 
+        app.info(bold('updating environment: '), nonl=1)
+
         added, changed, removed = self.get_outdated_files(config_changed)
 
         # allow user intervention as well
@@ -459,30 +541,98 @@ class BuildEnvironment:
 
         msg += '%s added, %s changed, %s removed' % (len(added), len(changed),
                                                      len(removed))
+        app.info(msg)
 
-        def update_generator():
+        self.app = app
+
+        # clear all files no longer present
+        for docname in removed:
+            app.emit('env-purge-doc', self, docname)
+            self.clear_doc(docname)
+
+        # read all new and changed files
+        docnames = sorted(added | changed)
+        # allow changing and reordering the list of docs to read
+        app.emit('env-before-read-docs', self, docnames)
+
+        # check if we should do parallel or serial read
+        par_ok = False
+        if parallel_available and len(docnames) > 5 and app.parallel > 1:
+            par_ok = True
+            for extname, md in app._extension_metadata.items():
+                ext_ok = md.get('parallel_read_safe')
+                if ext_ok:
+                    continue
+                if ext_ok is None:
+                    app.warn('the %s extension does not declare if it '
+                             'is safe for parallel reading, assuming it '
+                             'isn\'t - please ask the extension author to '
+                             'check and make it explicit' % extname)
+                    app.warn('doing serial read')
+                else:
+                    app.warn('the %s extension is not safe for parallel '
+                             'reading, doing serial read' % extname)
+                par_ok = False
+                break
+        if par_ok:
+            self._read_parallel(docnames, app, nproc=app.parallel)
+        else:
+            self._read_serial(docnames, app)
+
+        if config.master_doc not in self.all_docs:
+            self.warn(None, 'master file %s not found' %
+                      self.doc2path(config.master_doc))
+
+        self.app = None
+        app.emit('env-updated', self)
+        return docnames
+
+    def _read_serial(self, docnames, app):
+        for docname in app.status_iterator(docnames, 'reading sources... ',
+                                           purple, len(docnames)):
+            # remove all inventory entries for that file
+            app.emit('env-purge-doc', self, docname)
+            self.clear_doc(docname)
+            self.read_doc(docname, app)
+
+    def _read_parallel(self, docnames, app, nproc):
+        # clear all outdated docs at once
+        for docname in docnames:
+            app.emit('env-purge-doc', self, docname)
+            self.clear_doc(docname)
+
+        def read_process(docs):
             self.app = app
+            self.warnings = []
+            self.set_warnfunc(lambda *args: self.warnings.append(args))
+            for docname in docs:
+                self.read_doc(docname, app)
+            # allow pickling self to send it back
+            self.set_warnfunc(None)
+            del self.app
+            del self.domains
+            del self.config.values
+            del self.config
+            return self
 
-            # clear all files no longer present
-            for docname in removed:
-                if app:
-                    app.emit('env-purge-doc', self, docname)
-                self.clear_doc(docname)
+        def merge(docs, otherenv):
+            warnings.extend(otherenv.warnings)
+            self.merge_info_from(docs, otherenv, app)
 
-            # read all new and changed files
-            for docname in sorted(added | changed):
-                yield docname
-                self.read_doc(docname, app=app)
+        tasks = ParallelTasks(nproc)
+        chunks = make_chunks(docnames, nproc)
 
-            if config.master_doc not in self.all_docs:
-                self.warn(None, 'master file %s not found' %
-                          self.doc2path(config.master_doc))
+        warnings = []
+        for chunk in app.status_iterator(
+                chunks, 'reading sources... ', purple, len(chunks)):
+            tasks.add_task(read_process, chunk, merge)
 
-            self.app = None
-            if app:
-                app.emit('env-updated', self)
+        # make sure all threads have finished
+        app.info(bold('waiting for workers...'))
+        tasks.join()
 
-        return msg, len(added | changed), update_generator()
+        for warning in warnings:
+            self._warnfunc(*warning)
 
     def check_dependents(self, already):
         to_rewrite = self.assign_section_numbers()
@@ -496,7 +646,8 @@ class BuildEnvironment:
         """Custom decoding error handler that warns and replaces."""
         linestart = error.object.rfind(b'\n', 0, error.start)
         lineend = error.object.find(b'\n', error.start)
-        if lineend == -1: lineend = len(error.object)
+        if lineend == -1:
+            lineend = len(error.object)
         lineno = error.object.count(b'\n', 0, error.start) + 1
         self.warn(self.docname, 'undecodable source characters, '
                   'replacing with "?": %r' %
@@ -550,19 +701,8 @@ class BuildEnvironment:
         directives.directive = directive
         roles.role = role
 
-    def read_doc(self, docname, src_path=None, save_parsed=True, app=None):
-        """Parse a file and add/update inventory entries for the doctree.
-
-        If srcpath is given, read from a different source file.
-        """
-        # remove all inventory entries for that file
-        if app:
-            app.emit('env-purge-doc', self, docname)
-
-        self.clear_doc(docname)
-
-        if src_path is None:
-            src_path = self.doc2path(docname)
+    def read_doc(self, docname, app=None):
+        """Parse a file and add/update inventory entries for the doctree."""
 
         self.temp_data['docname'] = docname
         # defaults to the global default, but can be re-set in a document
@@ -576,6 +716,12 @@ class BuildEnvironment:
 
         self.patch_lookup_functions()
 
+        docutilsconf = path.join(self.srcdir, 'docutils.conf')
+        # read docutils.conf from source dir, not from current dir
+        OptionParser.standard_config_files[1] = docutilsconf
+        if path.isfile(docutilsconf):
+            self.note_dependency(docutilsconf)
+
         if self.config.default_role:
             role_fn, messages = roles.role(self.config.default_role, english,
                                            0, dummy_reporter)
@@ -587,38 +733,17 @@ class BuildEnvironment:
 
         codecs.register_error('sphinx', self.warn_and_replace)
 
-        class SphinxSourceClass(FileInput):
-            def __init__(self_, *args, **kwds):
-                # don't call sys.exit() on IOErrors
-                kwds['handle_io_errors'] = False
-                kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
-                FileInput.__init__(self_, *args, **kwds)
-
-            def decode(self_, data):
-                if isinstance(data, text_type):  # py3: `data` already decoded.
-                    return data
-                return data.decode(self_.encoding, 'sphinx')  # py2: decoding
-
-            def read(self_):
-                data = FileInput.read(self_)
-                if app:
-                    arg = [data]
-                    app.emit('source-read', docname, arg)
-                    data = arg[0]
-                if self.config.rst_epilog:
-                    data = data + '\n' + self.config.rst_epilog + '\n'
-                if self.config.rst_prolog:
-                    data = self.config.rst_prolog + '\n' + data
-                return data
-
         # publish manually
         pub = Publisher(reader=SphinxStandaloneReader(),
                         writer=SphinxDummyWriter(),
-                        source_class=SphinxSourceClass,
                         destination_class=NullOutput)
         pub.set_components(None, 'restructuredtext', None)
         pub.process_programmatic_settings(None, self.settings, None)
-        pub.set_source(None, src_path)
+        src_path = self.doc2path(docname)
+        source = SphinxFileInput(app, self, source=None, source_path=src_path,
+                                 encoding=self.config.source_encoding)
+        pub.source = source
+        pub.settings._source = src_path
         pub.set_destination(None, None)
         pub.publish()
         doctree = pub.document
@@ -641,12 +766,12 @@ class BuildEnvironment:
         if app:
             app.emit('doctree-read', doctree)
 
-        # store time of build, for outdated files detection
+        # store time of reading, for outdated files detection
         # (Some filesystems have coarse timestamp resolution;
         # therefore time.time() can be older than filesystem's timestamp.
         # For example, FAT32 has 2sec timestamp resolution.)
         self.all_docs[docname] = max(
-                time.time(), path.getmtime(self.doc2path(docname)))
+            time.time(), path.getmtime(self.doc2path(docname)))
 
         if self.versioning_condition:
             # get old doctree
@@ -679,21 +804,20 @@ class BuildEnvironment:
 
         # cleanup
         self.temp_data.clear()
+        self.ref_context.clear()
+        roles._roles.pop('', None)  # if a document has set a local default role
 
-        if save_parsed:
-            # save the parsed doctree
-            doctree_filename = self.doc2path(docname, self.doctreedir,
-                                             '.doctree')
-            dirname = path.dirname(doctree_filename)
-            if not path.isdir(dirname):
-                os.makedirs(dirname)
-            f = open(doctree_filename, 'wb')
-            try:
-                pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
-            finally:
-                f.close()
-        else:
-            return doctree
+        # save the parsed doctree
+        doctree_filename = self.doc2path(docname, self.doctreedir,
+                                         '.doctree')
+        dirname = path.dirname(doctree_filename)
+        if not path.isdir(dirname):
+            os.makedirs(dirname)
+        f = open(doctree_filename, 'wb')
+        try:
+            pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
+        finally:
+            f.close()
 
     # utilities to use while reading a document
 
@@ -704,13 +828,17 @@ class BuildEnvironment:
 
     @property
     def currmodule(self):
-        """Backwards compatible alias."""
-        return self.temp_data.get('py:module')
+        """Backwards compatible alias.  Will be removed."""
+        self.warn(self.docname, 'env.currmodule is being referenced by an '
+                  'extension; this API will be removed in the future')
+        return self.ref_context.get('py:module')
 
     @property
     def currclass(self):
-        """Backwards compatible alias."""
-        return self.temp_data.get('py:class')
+        """Backwards compatible alias.  Will be removed."""
+        self.warn(self.docname, 'env.currclass is being referenced by an '
+                  'extension; this API will be removed in the future')
+        return self.ref_context.get('py:class')
 
     def new_serialno(self, category=''):
         """Return a serial number, e.g. for index entry targets.
@@ -740,7 +868,7 @@ class BuildEnvironment:
     def note_versionchange(self, type, version, node, lineno):
         self.versionchanges.setdefault(version, []).append(
             (type, self.temp_data['docname'], lineno,
-             self.temp_data.get('py:module'),
+             self.ref_context.get('py:module'),
              self.temp_data.get('object'), node.astext()))
 
     # post-processing of read doctrees
@@ -755,7 +883,7 @@ class BuildEnvironment:
 
     def process_dependencies(self, docname, doctree):
         """Process docutils-generated dependency info."""
-        cwd = os.getcwd()
+        cwd = getcwd()
         frompath = path.join(path.normpath(self.srcdir), 'dummy')
         deps = doctree.settings.record_dependencies
         if not deps:
@@ -763,6 +891,8 @@ class BuildEnvironment:
         for dep in deps.list:
             # the dependency path is relative to the working dir, so get
             # one relative to the srcdir
+            if isinstance(dep, bytes):
+                dep = dep.decode(fs_encoding)
             relpath = relative_path(frompath,
                                     path.normpath(path.join(cwd, dep)))
             self.dependencies.setdefault(docname, set()).add(relpath)
@@ -846,7 +976,7 @@ class BuildEnvironment:
             # nodes are multiply inherited...
             if isinstance(node, nodes.authors):
                 md['authors'] = [author.astext() for author in node]
-            elif isinstance(node, nodes.TextElement): # e.g. author
+            elif isinstance(node, nodes.TextElement):  # e.g. author
                 md[node.__class__.__name__] = node.astext()
             else:
                 name, body = node
@@ -976,7 +1106,7 @@ class BuildEnvironment:
 
     def build_toc_from(self, docname, document):
         """Build a TOC from the doctree and store it in the inventory."""
-        numentries = [0] # nonlocal again...
+        numentries = [0]  # nonlocal again...
 
         def traverse_in_section(node, cls):
             """Like traverse(), but stay within the same section."""
@@ -1102,7 +1232,6 @@ class BuildEnvironment:
                                     stream=WarningStream(self._warnfunc))
         return doctree
 
-
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
                                 prune_toctrees=True, includehidden=False):
         """Read the doctree from the pickle, resolve cross-references and
@@ -1117,7 +1246,8 @@ class BuildEnvironment:
         # now, resolve all toctree nodes
         for toctreenode in doctree.traverse(addnodes.toctree):
             result = self.resolve_toctree(docname, builder, toctreenode,
-                          prune=prune_toctrees, includehidden=includehidden)
+                                          prune=prune_toctrees,
+                                          includehidden=includehidden)
             if result is None:
                 toctreenode.replace_self([])
             else:
@@ -1174,7 +1304,7 @@ class BuildEnvironment:
                     else:
                         # cull sub-entries whose parents aren't 'current'
                         if (collapse and depth > 1 and
-                            'iscurrent' not in subnode.parent):
+                                'iscurrent' not in subnode.parent):
                             subnode.parent.remove(subnode)
                         else:
                             # recurse on visible children
@@ -1256,7 +1386,7 @@ class BuildEnvironment:
                             child = toc.children[0]
                             for refnode in child.traverse(nodes.reference):
                                 if refnode['refuri'] == ref and \
-                                       not refnode['anchorname']:
+                                   not refnode['anchorname']:
                                     refnode.children = [nodes.Text(title)]
                     if not toc.children:
                         # empty toc means: no titles will show up in the toctree
@@ -1346,49 +1476,23 @@ class BuildEnvironment:
                         domain = self.domains[node['refdomain']]
                     except KeyError:
                         raise NoUri
-                    newnode = domain.resolve_xref(self, fromdocname, builder,
+                    newnode = domain.resolve_xref(self, refdoc, builder,
                                                   typ, target, node, contnode)
                 # really hardwired reference types
+                elif typ == 'any':
+                    newnode = self._resolve_any_reference(builder, node, contnode)
                 elif typ == 'doc':
-                    # directly reference to document by source name;
-                    # can be absolute or relative
-                    docname = docname_join(refdoc, target)
-                    if docname in self.all_docs:
-                        if node['refexplicit']:
-                            # reference with explicit title
-                            caption = node.astext()
-                        else:
-                            caption = clean_astext(self.titles[docname])
-                        innernode = nodes.emphasis(caption, caption)
-                        newnode = nodes.reference('', '', internal=True)
-                        newnode['refuri'] = builder.get_relative_uri(
-                            fromdocname, docname)
-                        newnode.append(innernode)
+                    newnode = self._resolve_doc_reference(builder, node, contnode)
                 elif typ == 'citation':
-                    docname, labelid = self.citations.get(target, ('', ''))
-                    if docname:
-                        try:
-                            newnode = make_refnode(builder, fromdocname,
-                                                   docname, labelid, contnode)
-                        except NoUri:
-                            # remove the ids we added in the CitationReferences
-                            # transform since they can't be transfered to
-                            # the contnode (if it's a Text node)
-                            if not isinstance(contnode, nodes.Element):
-                                del node['ids'][:]
-                            raise
-                    elif 'ids' in node:
-                        # remove ids attribute that annotated at
-                        # transforms.CitationReference.apply.
-                        del node['ids'][:]
+                    newnode = self._resolve_citation(builder, refdoc, node, contnode)
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(
                         'missing-reference', self, node, contnode)
-                    # still not found? warn if in nit-picky mode
+                    # still not found? warn if node wishes to be warned about or
+                    # we are in nit-picky mode
                     if newnode is None:
-                        self._warn_missing_reference(
-                            fromdocname, typ, target, node, domain)
+                        self._warn_missing_reference(refdoc, typ, target, node, domain)
             except NoUri:
                 newnode = contnode
             node.replace_self(newnode or contnode)
@@ -1399,7 +1503,7 @@ class BuildEnvironment:
         # allow custom references to be resolved
         builder.app.emit('doctree-resolved', doctree, fromdocname)
 
-    def _warn_missing_reference(self, fromdoc, typ, target, node, domain):
+    def _warn_missing_reference(self, refdoc, typ, target, node, domain):
         warn = node.get('refwarn')
         if self.config.nitpicky:
             warn = True
@@ -1418,12 +1522,90 @@ class BuildEnvironment:
             msg = 'unknown document: %(target)s'
         elif typ == 'citation':
             msg = 'citation not found: %(target)s'
-        elif node.get('refdomain', 'std') != 'std':
+        elif node.get('refdomain', 'std') not in ('', 'std'):
             msg = '%s:%s reference target not found: %%(target)s' % \
                   (node['refdomain'], typ)
         else:
-            msg = '%s reference target not found: %%(target)s' % typ
+            msg = '%r reference target not found: %%(target)s' % typ
         self.warn_node(msg % {'target': target}, node)
+
+    def _resolve_doc_reference(self, builder, node, contnode):
+        # directly reference to document by source name;
+        # can be absolute or relative
+        docname = docname_join(node['refdoc'], node['reftarget'])
+        if docname in self.all_docs:
+            if node['refexplicit']:
+                # reference with explicit title
+                caption = node.astext()
+            else:
+                caption = clean_astext(self.titles[docname])
+            innernode = nodes.emphasis(caption, caption)
+            newnode = nodes.reference('', '', internal=True)
+            newnode['refuri'] = builder.get_relative_uri(node['refdoc'], docname)
+            newnode.append(innernode)
+            return newnode
+
+    def _resolve_citation(self, builder, fromdocname, node, contnode):
+        docname, labelid = self.citations.get(node['reftarget'], ('', ''))
+        if docname:
+            try:
+                newnode = make_refnode(builder, fromdocname,
+                                       docname, labelid, contnode)
+                return newnode
+            except NoUri:
+                # remove the ids we added in the CitationReferences
+                # transform since they can't be transfered to
+                # the contnode (if it's a Text node)
+                if not isinstance(contnode, nodes.Element):
+                    del node['ids'][:]
+                raise
+        elif 'ids' in node:
+            # remove ids attribute that annotated at
+            # transforms.CitationReference.apply.
+            del node['ids'][:]
+
+    def _resolve_any_reference(self, builder, node, contnode):
+        """Resolve reference generated by the "any" role."""
+        refdoc = node['refdoc']
+        target = node['reftarget']
+        results = []
+        # first, try resolving as :doc:
+        doc_ref = self._resolve_doc_reference(builder, node, contnode)
+        if doc_ref:
+            results.append(('doc', doc_ref))
+        # next, do the standard domain (makes this a priority)
+        results.extend(self.domains['std'].resolve_any_xref(
+            self, refdoc, builder, target, node, contnode))
+        for domain in self.domains.values():
+            if domain.name == 'std':
+                continue  # we did this one already
+            try:
+                results.extend(domain.resolve_any_xref(self, refdoc, builder,
+                                                       target, node, contnode))
+            except NotImplementedError:
+                # the domain doesn't yet support the new interface
+                # we have to manually collect possible references (SLOW)
+                for role in domain.roles:
+                    res = domain.resolve_xref(self, refdoc, builder, role, target,
+                                              node, contnode)
+                    if res:
+                        results.append(('%s:%s' % (domain.name, role), res))
+        # now, see how many matches we got...
+        if not results:
+            return None
+        if len(results) > 1:
+            nice_results = ' or '.join(':%s:' % r[0] for r in results)
+            self.warn_node('more than one target found for \'any\' cross-'
+                           'reference %r: could be %s' % (target, nice_results),
+                           node)
+        res_role, newnode = results[0]
+        # Override "any" class with the actual role type to get the styling
+        # approximately correct.
+        res_domain = res_role.split(':')[0]
+        if newnode and newnode[0].get('classes'):
+            newnode[0]['classes'].append(res_domain)
+            newnode[0]['classes'].append(res_role.replace(':', '-'))
+        return newnode
 
     def process_only_nodes(self, doctree, builder, fromdocname=None):
         # A comment on the comment() nodes being inserted: replacing by [] would
@@ -1595,7 +1777,7 @@ class BuildEnvironment:
                             # prefixes match: add entry as subitem of the
                             # previous entry
                             oldsubitems.setdefault(m.group(2), [[], {}])[0].\
-                                        extend(targets)
+                                extend(targets)
                             del newlist[i]
                             continue
                         oldkey = m.group(1)
@@ -1622,6 +1804,7 @@ class BuildEnvironment:
     def collect_relations(self):
         relations = {}
         getinc = self.toctree_includes.get
+
         def collect(parents, parents_set, docname, previous, next):
             # circular relationship?
             if docname in parents_set:
@@ -1661,8 +1844,8 @@ class BuildEnvironment:
             # same for children
             if includes:
                 for subindex, args in enumerate(zip(includes,
-                                                     [None] + includes,
-                                                     includes[1:] + [None])):
+                                                    [None] + includes,
+                                                    includes[1:] + [None])):
                     collect([(docname, subindex)] + parents,
                             parents_set.union([docname]), *args)
             relations[docname] = [parents[0][0], previous, next]

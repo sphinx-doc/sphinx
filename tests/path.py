@@ -123,6 +123,9 @@ class path(text_type):
         """
         os.unlink(self)
 
+    def utime(self, arg):
+        os.utime(self, arg)
+
     def write_text(self, text, **kwargs):
         """
         Writes the given `text` to the file.
@@ -194,6 +197,9 @@ class path(text_type):
         Joins the path with the argument given and returns the result.
         """
         return self.__class__(os.path.join(self, *map(self.__class__, args)))
+
+    def listdir(self):
+        return os.listdir(self)
 
     __div__ = __truediv__ = joinpath
 

@@ -4,3 +4,4 @@
    :toctree:
    
    dummy_module
+   sphinx

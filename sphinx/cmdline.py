@@ -12,7 +12,7 @@ from __future__ import print_function
 
 import os
 import sys
-import getopt
+import optparse
 import traceback
 from os import path
 
@@ -32,89 +32,121 @@ def usage(argv, msg=None):
     if msg:
         print(msg, file=sys.stderr)
         print(file=sys.stderr)
-    print("""\
+
+USAGE = """\
 Sphinx v%s
-Usage: %s [options] sourcedir outdir [filenames...]
+Usage: %%prog [options] sourcedir outdir [filenames...]
 
-General options
-^^^^^^^^^^^^^^^
--b <builder>  builder to use; default is html
--a            write all files; default is to only write new and changed files
--E            don't use a saved environment, always read all files
--d <path>     path for the cached environment and doctree files
-                (default: outdir/.doctrees)
--j <N>        build in parallel with N processes where possible
--M <builder>  "make" mode -- used by Makefile, like "sphinx-build -M html"
+Filename arguments:
+  without -a and without filenames, write new and changed files.
+  with -a, write all files.
+  with filenames, write these.
+""" % __version__
 
-Build configuration options
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
--c <path>           path where configuration file (conf.py) is located
-                      (default: same as sourcedir)
--C                  use no config file at all, only -D options
--D <setting=value>  override a setting in configuration file
--t <tag>            define tag: include "only" blocks with <tag>
--A <name=value>     pass a value into the templates, for HTML builder
--n                  nit-picky mode, warn about all missing references
+EPILOG = """\
+For more information, visit <http://sphinx-doc.org/>.
+"""
 
-Console output options
-^^^^^^^^^^^^^^^^^^^^^^
--v         increase verbosity (can be repeated)
--q         no output on stdout, just warnings on stderr
--Q         no output at all, not even warnings
--w <file>  write warnings (and errors) to given file
--W         turn warnings into errors
--T         show full traceback on exception
--N         do not emit colored output
--P         run Pdb on exception
 
-Filename arguments
-^^^^^^^^^^^^^^^^^^
-* without -a and without filenames, write new and changed files.
-* with -a, write all files.
-* with filenames, write these.
+class MyFormatter(optparse.IndentedHelpFormatter):
+    def format_usage(self, usage):
+        return usage
 
-Standard options
-^^^^^^^^^^^^^^^^
--h, --help  show this help and exit
---version   show version information and exit
-""" % (__version__, argv[0]), file=sys.stderr)
+    def format_help(self, formatter):
+        result = []
+        if self.description:
+            result.append(self.format_description(formatter))
+        if self.option_list:
+            result.append(self.format_option_help(formatter))
+        return "\n".join(result)
 
 
 def main(argv):
     if not color_terminal():
         nocolor()
 
+    parser = optparse.OptionParser(USAGE, epilog=EPILOG, formatter=MyFormatter())
+    parser.add_option('--version', action='store_true', dest='version',
+                      help='show version information and exit')
+
+    group = parser.add_option_group('General options')
+    group.add_option('-b', metavar='BUILDER', dest='builder', default='html',
+                     help='builder to use; default is html')
+    group.add_option('-a', action='store_true', dest='force_all',
+                     help='write all files; default is to only write new and '
+                     'changed files')
+    group.add_option('-E', action='store_true', dest='freshenv',
+                     help='don\'t use a saved environment, always read '
+                     'all files')
+    group.add_option('-d', metavar='PATH', default=None, dest='doctreedir',
+                     help='path for the cached environment and doctree files '
+                     '(default: outdir/.doctrees)')
+    group.add_option('-j', metavar='N', default=1, type='int', dest='jobs',
+                     help='build in parallel with N processes where possible')
+    # this option never gets through to this point (it is intercepted earlier)
+    # group.add_option('-M', metavar='BUILDER', dest='make_mode',
+    #                 help='"make" mode -- as used by Makefile, like '
+    #                 '"sphinx-build -M html"')
+
+    group = parser.add_option_group('Build configuration options')
+    group.add_option('-c', metavar='PATH', dest='confdir',
+                     help='path where configuration file (conf.py) is located '
+                     '(default: same as sourcedir)')
+    group.add_option('-C', action='store_true', dest='noconfig',
+                     help='use no config file at all, only -D options')
+    group.add_option('-D', metavar='setting=value', action='append',
+                     dest='define', default=[],
+                     help='override a setting in configuration file')
+    group.add_option('-A', metavar='name=value', action='append',
+                     dest='htmldefine', default=[],
+                     help='pass a value into HTML templates')
+    group.add_option('-t', metavar='TAG', action='append',
+                     dest='tags', default=[],
+                     help='define tag: include "only" blocks with TAG')
+    group.add_option('-n', action='store_true', dest='nitpicky',
+                     help='nit-picky mode, warn about all missing references')
+
+    group = parser.add_option_group('Console output options')
+    group.add_option('-v', action='count', dest='verbosity', default=0,
+                     help='increase verbosity (can be repeated)')
+    group.add_option('-q', action='store_true', dest='quiet',
+                     help='no output on stdout, just warnings on stderr')
+    group.add_option('-Q', action='store_true', dest='really_quiet',
+                     help='no output at all, not even warnings')
+    group.add_option('-N', action='store_true', dest='nocolor',
+                     help='do not emit colored output')
+    group.add_option('-w', metavar='FILE', dest='warnfile',
+                     help='write warnings (and errors) to given file')
+    group.add_option('-W', action='store_true', dest='warningiserror',
+                     help='turn warnings into errors')
+    group.add_option('-T', action='store_true', dest='traceback',
+                     help='show full traceback on exception')
+    group.add_option('-P', action='store_true', dest='pdb',
+                     help='run Pdb on exception')
+
     # parse options
     try:
-        opts, args = getopt.getopt(argv[1:], 'ab:t:d:c:CD:A:nNEqQWw:PThvj:',
-                                   ['help', 'version'])
-    except getopt.error as err:
-        usage(argv, 'Error: %s' % err)
-        return 1
+        opts, args = parser.parse_args()
+    except SystemExit as err:
+        return err.code
 
     # handle basic options
-    allopts = set(opt[0] for opt in opts)
-    # help and version options
-    if '-h' in allopts or '--help' in allopts:
-        usage(argv)
-        print(file=sys.stderr)
-        print('For more information, see <http://sphinx-doc.org/>.',
-              file=sys.stderr)
-        return 0
-    if '--version' in allopts:
-        print('Sphinx (sphinx-build) %s' %  __version__)
+    if opts.version:
+        print('Sphinx (sphinx-build) %s' % __version__)
         return 0
 
     # get paths (first and second positional argument)
     try:
-        srcdir = confdir = abspath(args[0])
+        srcdir = abspath(args[0])
+        confdir = abspath(opts.confdir or srcdir)
+        if opts.noconfig:
+            confdir = None
         if not path.isdir(srcdir):
             print('Error: Cannot find source directory `%s\'.' % srcdir,
                   file=sys.stderr)
             return 1
-        if not path.isfile(path.join(srcdir, 'conf.py')) and \
-               '-c' not in allopts and '-C' not in allopts:
-            print('Error: Source directory doesn\'t contain a conf.py file.',
+        if not opts.noconfig and not path.isfile(path.join(confdir, 'conf.py')):
+            print('Error: Config directory doesn\'t contain a conf.py file.',
                   file=sys.stderr)
             return 1
         outdir = abspath(args[1])
@@ -144,116 +176,77 @@ def main(argv):
     except Exception:
         likely_encoding = None
 
-    buildername = None
-    force_all = freshenv = warningiserror = use_pdb = False
-    show_traceback = False
-    verbosity = 0
-    parallel = 0
+    if opts.force_all and filenames:
+        print('Error: Cannot combine -a option and filenames.', file=sys.stderr)
+        return 1
+
+    if opts.nocolor:
+        nocolor()
+
+    doctreedir = abspath(opts.doctreedir or path.join(outdir, '.doctrees'))
+
     status = sys.stdout
     warning = sys.stderr
     error = sys.stderr
-    warnfile = None
+
+    if opts.quiet:
+        status = None
+    if opts.really_quiet:
+        status = warning = None
+    if warning and opts.warnfile:
+        try:
+            warnfp = open(opts.warnfile, 'w')
+        except Exception as exc:
+            print('Error: Cannot open warning file %r: %s' %
+                  (opts.warnfile, exc), file=sys.stderr)
+            sys.exit(1)
+        warning = Tee(warning, warnfp)
+        error = warning
+
     confoverrides = {}
-    tags = []
-    doctreedir = path.join(outdir, '.doctrees')
-    for opt, val in opts:
-        if opt == '-b':
-            buildername = val
-        elif opt == '-a':
-            if filenames:
-                usage(argv, 'Error: Cannot combine -a option and filenames.')
-                return 1
-            force_all = True
-        elif opt == '-t':
-            tags.append(val)
-        elif opt == '-d':
-            doctreedir = abspath(val)
-        elif opt == '-c':
-            confdir = abspath(val)
-            if not path.isfile(path.join(confdir, 'conf.py')):
-                print('Error: Configuration directory doesn\'t contain conf.py file.',
-                      file=sys.stderr)
-                return 1
-        elif opt == '-C':
-            confdir = None
-        elif opt == '-D':
+    for val in opts.define:
+        try:
+            key, val = val.split('=')
+        except ValueError:
+            print('Error: -D option argument must be in the form name=value.',
+                  file=sys.stderr)
+            return 1
+        if likely_encoding and isinstance(val, binary_type):
             try:
-                key, val = val.split('=')
-            except ValueError:
-                print('Error: -D option argument must be in the form name=value.',
-                      file=sys.stderr)
-                return 1
+                val = val.decode(likely_encoding)
+            except UnicodeError:
+                pass
+        confoverrides[key] = val
+
+    for val in opts.htmldefine:
+        try:
+            key, val = val.split('=')
+        except ValueError:
+            print('Error: -A option argument must be in the form name=value.',
+                  file=sys.stderr)
+            return 1
+        try:
+            val = int(val)
+        except ValueError:
             if likely_encoding and isinstance(val, binary_type):
                 try:
                     val = val.decode(likely_encoding)
                 except UnicodeError:
                     pass
-            confoverrides[key] = val
-        elif opt == '-A':
-            try:
-                key, val = val.split('=')
-            except ValueError:
-                print('Error: -A option argument must be in the form name=value.',
-                      file=sys.stderr)
-                return 1
-            try:
-                val = int(val)
-            except ValueError:
-                if likely_encoding and isinstance(val, binary_type):
-                    try:
-                        val = val.decode(likely_encoding)
-                    except UnicodeError:
-                        pass
-            confoverrides['html_context.%s' % key] = val
-        elif opt == '-n':
-            confoverrides['nitpicky'] = True
-        elif opt == '-N':
-            nocolor()
-        elif opt == '-E':
-            freshenv = True
-        elif opt == '-q':
-            status = None
-        elif opt == '-Q':
-            status = None
-            warning = None
-        elif opt == '-W':
-            warningiserror = True
-        elif opt == '-w':
-            warnfile = val
-        elif opt == '-P':
-            use_pdb = True
-        elif opt == '-T':
-            show_traceback = True
-        elif opt == '-v':
-            verbosity += 1
-            show_traceback = True
-        elif opt == '-j':
-            try:
-                parallel = int(val)
-            except ValueError:
-                print('Error: -j option argument must be an integer.',
-                      file=sys.stderr)
-                return 1
+        confoverrides['html_context.%s' % key] = val
 
-    if warning and warnfile:
-        warnfp = open(warnfile, 'w')
-        warning = Tee(warning, warnfp)
-        error = warning
-
-    if not path.isdir(outdir):
-        if status:
-            print('Making output directory...', file=status)
-        os.makedirs(outdir)
+    if opts.nitpicky:
+        confoverrides['nitpicky'] = True
 
     app = None
     try:
-        app = Sphinx(srcdir, confdir, outdir, doctreedir, buildername,
-                     confoverrides, status, warning, freshenv,
-                     warningiserror, tags, verbosity, parallel)
-        app.build(force_all, filenames)
+        app = Sphinx(srcdir, confdir, outdir, doctreedir, opts.builder,
+                     confoverrides, status, warning, opts.freshenv,
+                     opts.warningiserror, opts.tags, opts.verbosity, opts.jobs)
+        app.build(opts.force_all, filenames)
         return app.statuscode
     except (Exception, KeyboardInterrupt) as err:
-        if use_pdb:
+        if opts.pdb:
             import pdb
             print(red('Exception occurred while building, starting debugger:'),
                   file=error)
@@ -261,7 +254,7 @@ def main(argv):
             pdb.post_mortem(sys.exc_info()[2])
         else:
             print(file=error)
-            if show_traceback:
+            if opts.verbosity or opts.traceback:
                 traceback.print_exc(None, error)
                 print(file=error)
             if isinstance(err, KeyboardInterrupt):

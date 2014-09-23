@@ -108,7 +108,7 @@ class CodeBlock(Directive):
                 return [document.reporter.warning(str(err), line=self.lineno)]
         else:
             hl_lines = None
-        
+
         if 'dedent' in self.options:
             lines = code.split('\n')
             lines = dedent_lines(lines, self.options['dedent'])

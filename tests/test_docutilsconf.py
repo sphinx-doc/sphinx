@@ -9,50 +9,17 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
 import re
-from functools import wraps
 
-from six import StringIO
-
-from util import test_roots, TestApp, path, SkipTest
-
-
-html_warnfile = StringIO()
-root = test_roots / 'test-docutilsconf'
-
-
-# need cleanenv to rebuild everytime.
-# docutils.conf change did not effect to rebuild.
-def with_conf_app(docutilsconf='', *args, **kwargs):
-    default_kw = {
-        'srcdir': root,
-        'cleanenv': True,
-    }
-    default_kw.update(kwargs)
-    def generator(func):
-        @wraps(func)
-        def deco(*args2, **kwargs2):
-            app = TestApp(*args, **default_kw)
-            (app.srcdir / 'docutils.conf').write_text(docutilsconf)
-            try:
-                cwd = os.getcwd()
-                os.chdir(app.srcdir)
-                func(app, *args2, **kwargs2)
-            finally:
-                os.chdir(cwd)
-            # don't execute cleanup if test failed
-            app.cleanup()
-        return deco
-    return generator
+from util import with_app, path, SkipTest
 
 
 def regex_count(expr, result):
     return len(re.findall(expr, result))
 
 
-@with_conf_app(buildername='html')
-def test_html_with_default_docutilsconf(app):
+@with_app('html', testroot='docutilsconf', freshenv=True, docutilsconf='')
+def test_html_with_default_docutilsconf(app, status, warning):
     app.builder.build(['contents'])
     result = (app.outdir / 'contents.html').text(encoding='utf-8')
 
@@ -62,13 +29,13 @@ def test_html_with_default_docutilsconf(app):
     assert regex_count(r'<td class="option-group" colspan="2">', result) == 1
 
 
-@with_conf_app(buildername='html', docutilsconf=(
+@with_app('html', testroot='docutilsconf', freshenv=True, docutilsconf=(
     '\n[html4css1 writer]'
     '\noption-limit:1'
     '\nfield-name-limit:1'
     '\n')
 )
-def test_html_with_docutilsconf(app):
+def test_html_with_docutilsconf(app, status, warning):
     app.builder.build(['contents'])
     result = (app.outdir / 'contents.html').text(encoding='utf-8')
 
@@ -78,41 +45,32 @@ def test_html_with_docutilsconf(app):
     assert regex_count(r'<td class="option-group" colspan="2">', result) == 2
 
 
-@with_conf_app(buildername='html', warning=html_warnfile)
-def test_html(app):
+@with_app('html', testroot='docutilsconf')
+def test_html(app, status, warning):
     app.builder.build(['contents'])
-    assert html_warnfile.getvalue() == ''
+    assert warning.getvalue() == ''
 
 
-@with_conf_app(buildername='latex', warning=html_warnfile)
-def test_latex(app):
+@with_app('latex', testroot='docutilsconf')
+def test_latex(app, status, warning):
     app.builder.build(['contents'])
-    assert html_warnfile.getvalue() == ''
+    assert warning.getvalue() == ''
 
 
-@with_conf_app(buildername='man', warning=html_warnfile)
-def test_man(app):
+@with_app('man', testroot='docutilsconf')
+def test_man(app, status, warning):
     app.builder.build(['contents'])
-    assert html_warnfile.getvalue() == ''
+    assert warning.getvalue() == ''
 
 
-@with_conf_app(buildername='texinfo', warning=html_warnfile)
-def test_texinfo(app):
+@with_app('texinfo', testroot='docutilsconf')
+def test_texinfo(app, status, warning):
     app.builder.build(['contents'])
 
 
-@with_conf_app(buildername='html', srcdir='(empty)',
-               docutilsconf='[general]\nsource_link=true\n')
-def test_docutils_source_link(app):
-    srcdir = path(app.srcdir)
-    (srcdir / 'conf.py').write_text('')
-    (srcdir / 'contents.rst').write_text('')
-    app.builder.build_all()
-
-
-@with_conf_app(buildername='html', srcdir='(empty)',
-               docutilsconf='[general]\nsource_link=true\n')
-def test_docutils_source_link_with_nonascii_file(app):
+@with_app('html', testroot='docutilsconf',
+          docutilsconf='[general]\nsource_link=true\n')
+def test_docutils_source_link_with_nonascii_file(app, status, warning):
     srcdir = path(app.srcdir)
     mb_name = u'\u65e5\u672c\u8a9e'
     try:
@@ -122,8 +80,5 @@ def test_docutils_source_link_with_nonascii_file(app):
         raise SkipTest(
             'nonascii filename not supported on this filesystem encoding: '
             '%s', FILESYSTEMENCODING)
-
-    (srcdir / 'conf.py').write_text('')
-    (srcdir / 'contents.rst').write_text('')
 
     app.builder.build_all()

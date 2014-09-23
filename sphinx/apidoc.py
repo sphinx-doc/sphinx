@@ -88,7 +88,7 @@ def create_module_file(package, module, opts):
         text = format_heading(1, '%s module' % module)
     else:
         text = ''
-    #text += format_heading(2, ':mod:`%s` Module' % module)
+    # text += format_heading(2, ':mod:`%s` Module' % module)
     text += format_directive(module, package)
     write_file(makename(package, module), text, opts)
 
@@ -173,7 +173,7 @@ def shall_skip(module, opts):
     # skip if it has a "private" name and this is selected
     filename = path.basename(module)
     if filename != '__init__.py' and filename.startswith('_') and \
-        not opts.includeprivate:
+       not opts.includeprivate:
         return True
     return False
 
@@ -218,7 +218,7 @@ def recurse_tree(rootpath, excludes, opts):
         if is_pkg:
             # we are in a package with something to document
             if subs or len(py_files) > 1 or not \
-                shall_skip(path.join(root, INITPY), opts):
+               shall_skip(path.join(root, INITPY), opts):
                 subpackage = root[len(rootpath):].lstrip(path.sep).\
                     replace(path.sep, '.')
                 create_package_file(root, root_package, subpackage,
@@ -318,7 +318,7 @@ Note: By default this script will not overwrite already created files.""")
     (opts, args) = parser.parse_args(argv[1:])
 
     if opts.show_version:
-        print('Sphinx (sphinx-apidoc) %s' %  __version__)
+        print('Sphinx (sphinx-apidoc) %s' % __version__)
         return 0
 
     if not args:

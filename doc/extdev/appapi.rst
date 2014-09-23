@@ -437,6 +437,19 @@ handlers to the events.  Example:
 
    .. versionadded:: 0.5
 
+.. event:: env-before-read-docs (app, env, docnames)
+
+   Emitted after the environment has determined the list of all added and
+   changed files and just before it reads them.  It allows extension authors to
+   reorder the list of docnames (*inplace*) before processing, or add more
+   docnames that Sphinx did not consider changed (but never add any docnames
+   that are not in ``env.found_docs``).
+
+   You can also remove document names; do this with caution since it will make
+   Sphinx treat changed files as unchanged.
+
+   .. versionadded:: 1.3
+
 .. event:: source-read (app, docname, source)
 
    Emitted when a source file has been read.  The *source* argument is a list
@@ -479,6 +492,26 @@ handlers to the events.  Example:
 
    Here is the place to replace custom nodes that don't have visitor methods in
    the writers, so that they don't cause errors when the writers encounter them.
+
+.. event:: env-merge-info (env, docnames, other)
+
+   This event is only emitted when parallel reading of documents is enabled.  It
+   is emitted once for every subprocess that has read some documents.
+
+   You must handle this event in an extension that stores data in the
+   environment in a custom location.  Otherwise the environment in the main
+   process will not be aware of the information stored in the subprocess.
+
+   *other* is the environment object from the subprocess, *env* is the
+   environment from the main process.  *docnames* is a set of document names
+   that have been read in the subprocess.
+
+   For a sample of how to deal with this event, look at the standard
+   ``sphinx.ext.todo`` extension.  The implementation is often similar to that
+   of :event:`env-purge-doc`, only that information is not removed, but added to
+   the main environment from the other environment.
+
+   .. versionadded:: 1.3
 
 .. event:: env-updated (app, env)
 

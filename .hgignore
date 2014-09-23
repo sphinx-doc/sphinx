@@ -7,15 +7,15 @@
 ^build/
 ^dist/
 ^tests/.coverage
+^tests/build/
 ^sphinx/pycode/Grammar.*pickle
 ^Sphinx.egg-info/
 ^doc/_build/
 ^TAGS
+^\.tags
 ^\.ropeproject/
 ^env/
 \.DS_Store$
 ~$
 ^utils/.*3\.py$
 ^distribute-
-^tests/root/_build/*
-^tests/root/generated/*

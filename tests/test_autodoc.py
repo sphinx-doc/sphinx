@@ -18,7 +18,7 @@ from six import StringIO
 from docutils.statemachine import ViewList
 
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
-     ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
+    ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
 
 app = None
 
@@ -123,24 +123,24 @@ def test_parse_name():
     directive.env.temp_data['autodoc:module'] = 'util'
     verify('function', 'raises', ('util', ['raises'], None, None))
     del directive.env.temp_data['autodoc:module']
-    directive.env.temp_data['py:module'] = 'util'
+    directive.env.ref_context['py:module'] = 'util'
     verify('function', 'raises', ('util', ['raises'], None, None))
     verify('class', 'TestApp', ('util', ['TestApp'], None, None))
 
     # for members
-    directive.env.temp_data['py:module'] = 'foo'
+    directive.env.ref_context['py:module'] = 'foo'
     verify('method', 'util.TestApp.cleanup',
            ('util', ['TestApp', 'cleanup'], None, None))
-    directive.env.temp_data['py:module'] = 'util'
-    directive.env.temp_data['py:class'] = 'Foo'
+    directive.env.ref_context['py:module'] = 'util'
+    directive.env.ref_context['py:class'] = 'Foo'
     directive.env.temp_data['autodoc:class'] = 'TestApp'
     verify('method', 'cleanup', ('util', ['TestApp', 'cleanup'], None, None))
     verify('method', 'TestApp.cleanup',
            ('util', ['TestApp', 'cleanup'], None, None))
 
     # and clean up
-    del directive.env.temp_data['py:module']
-    del directive.env.temp_data['py:class']
+    del directive.env.ref_context['py:module']
+    del directive.env.ref_context['py:class']
     del directive.env.temp_data['autodoc:class']
 
 
@@ -584,7 +584,7 @@ def test_generate():
                  'method', 'test_autodoc.Class.foobar', more_content=None)
 
     # test auto and given content mixing
-    directive.env.temp_data['py:module'] = 'test_autodoc'
+    directive.env.ref_context['py:module'] = 'test_autodoc'
     assert_result_contains('   Function.', 'method', 'Class.meth')
     add_content = ViewList()
     add_content.append('Content.', '', 0)
@@ -682,12 +682,12 @@ def test_generate():
                            'attribute', 'test_autodoc.Class.descr')
 
     # test generation for C modules (which have no source file)
-    directive.env.temp_data['py:module'] = 'time'
+    directive.env.ref_context['py:module'] = 'time'
     assert_processes([('function', 'time.asctime')], 'function', 'asctime')
     assert_processes([('function', 'time.asctime')], 'function', 'asctime')
 
     # test autodoc_member_order == 'source'
-    directive.env.temp_data['py:module'] = 'test_autodoc'
+    directive.env.ref_context['py:module'] = 'test_autodoc'
     assert_order(['.. py:class:: Class(arg)',
                   '   .. py:attribute:: Class.descr',
                   '   .. py:method:: Class.meth()',
@@ -704,7 +704,7 @@ def test_generate():
                   '   .. py:method:: Class.inheritedmeth()',
                   ],
                  'class', 'Class', member_order='bysource', all_members=True)
-    del directive.env.temp_data['py:module']
+    del directive.env.ref_context['py:module']
 
     # test attribute initialized to class instance from other module
     directive.env.temp_data['autodoc:class'] = 'test_autodoc.Class'
@@ -729,7 +729,7 @@ def test_generate():
         'test_autodoc.Class.moore')
 
     # test new attribute documenter behavior
-    directive.env.temp_data['py:module'] = 'test_autodoc'
+    directive.env.ref_context['py:module'] = 'test_autodoc'
     options.undoc_members = True
     assert_processes([('class', 'test_autodoc.AttCls'),
                       ('attribute', 'test_autodoc.AttCls.a1'),
@@ -743,7 +743,7 @@ def test_generate():
     # test explicit members with instance attributes
     del directive.env.temp_data['autodoc:class']
     del directive.env.temp_data['autodoc:module']
-    directive.env.temp_data['py:module'] = 'test_autodoc'
+    directive.env.ref_context['py:module'] = 'test_autodoc'
     options.inherited_members = False
     options.undoc_members = False
     options.members = ALL
@@ -765,7 +765,7 @@ def test_generate():
     ], 'class', 'InstAttCls')
     del directive.env.temp_data['autodoc:class']
     del directive.env.temp_data['autodoc:module']
-    del directive.env.temp_data['py:module']
+    del directive.env.ref_context['py:module']
 
     # test descriptor class documentation
     options.members = ['CustomDataDescriptor']

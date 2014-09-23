@@ -125,5 +125,5 @@ Special directives
 
 .. testcleanup:: *
 
-   import test_doctest
-   test_doctest.cleanup_call()
+   import test_ext_doctest
+   test_ext_doctest.cleanup_call()

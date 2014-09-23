@@ -130,6 +130,11 @@ These are the basic steps needed to start developing on Sphinx.
    * For bug fixes, first add a test that fails without your changes and passes
      after they are applied.
 
+   * Tests that need a sphinx-build run should be integrated in one of the
+     existing test modules if possible.  New tests that to ``@with_app`` and
+     then ``build_all`` for a few assertions are not good since *the test suite
+     should not take more than a minute to run*.
+
 #. Please add a bullet point to :file:`CHANGES` if the fix or feature is not
    trivial (small doc updates, typo fixes).  Then commit::
 

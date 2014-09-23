@@ -7,11 +7,11 @@
 
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
-    
+
     See http://www.nongnu.org/hcb/ for the grammar.
     See http://mentorembedded.github.io/cxx-abi/abi.html#mangling for the
     inspiration for the id generation.
-    
+
     common grammar things:
            simple-declaration
         -> attribute-specifier-seq[opt] decl-specifier-seq[opt]
@@ -20,7 +20,7 @@
         # Use at most 1 init-declerator.
         -> decl-specifier-seq init-declerator
         -> decl-specifier-seq declerator initializer
-        
+
         decl-specifier ->
               storage-class-specifier -> "static" (only for member_object and
               function_object)
@@ -76,8 +76,8 @@
               constant-expression
             | type-specifier-seq abstract-declerator
             | id-expression
-        
-        
+
+
         declerator ->
               ptr-declerator
             | noptr-declarator parameters-and-qualifiers trailing-return-type
@@ -108,11 +108,11 @@
         memberFunctionInit -> "=" "0"
         # (note: only "0" is allowed as the value, according to the standard,
         # right?)
-         
-    
+
+
     We additionally add the possibility for specifying the visibility as the
     first thing.
-    
+
     type_object:
         goal:
             either a single type (e.g., "MyClass:Something_T" or a typedef-like
@@ -126,14 +126,14 @@
             -> decl-specifier-seq abstract-declarator[opt]
         grammar, typedef-like: no initilizer
             decl-specifier-seq declerator
-        
-        
+
+
     member_object:
         goal: as a type_object which must have a declerator, and optionally
         with a initializer
         grammar:
             decl-specifier-seq declerator initializer
-        
+
     function_object:
         goal: a function declaration, TODO: what about templates? for now: skip
         grammar: no initializer
@@ -141,7 +141,6 @@
 """
 
 import re
-import traceback
 from copy import deepcopy
 
 from six import iteritems, text_type
@@ -222,9 +221,9 @@ _id_operator = {
     'delete[]': 'da',
     # the arguments will make the difference between unary and binary
     # '+(unary)' : 'ps',
-    #'-(unary)' : 'ng',
-    #'&(unary)' : 'ad',
-    #'*(unary)' : 'de',
+    # '-(unary)' : 'ng',
+    # '&(unary)' : 'ad',
+    # '*(unary)' : 'de',
     '~': 'co',
     '+': 'pl',
     '-': 'mi',
@@ -319,7 +318,7 @@ class ASTBase(UnicodeMixin):
 
 
 def _verify_description_mode(mode):
-    if not mode in ('lastIsName', 'noneIsName', 'markType', 'param'):
+    if mode not in ('lastIsName', 'noneIsName', 'markType', 'param'):
         raise Exception("Description mode '%s' is invalid." % mode)
 
 
@@ -328,7 +327,7 @@ class ASTOperatorBuildIn(ASTBase):
         self.op = op
 
     def get_id(self):
-        if not self.op in _id_operator:
+        if self.op not in _id_operator:
             raise Exception('Internal error: Build-in operator "%s" can not '
                             'be mapped to an id.' % self.op)
         return _id_operator[self.op]
@@ -434,7 +433,7 @@ class ASTNestedNameElement(ASTBase):
                 '', refdomain='cpp', reftype='type',
                 reftarget=targetText, modname=None, classname=None)
             if env:  # during testing we don't have an env, do we?
-                pnode['cpp:parent'] = env.temp_data.get('cpp:parent')
+                pnode['cpp:parent'] = env.ref_context.get('cpp:parent')
             pnode += nodes.Text(text_type(self.identifier))
             signode += pnode
         elif mode == 'lastIsName':
@@ -532,7 +531,7 @@ class ASTTrailingTypeSpecFundamental(ASTBase):
         return self.name
 
     def get_id(self):
-        if not self.name in _id_fundamental:
+        if self.name not in _id_fundamental:
             raise Exception(
                 'Semi-internal error: Fundamental type "%s" can not be mapped '
                 'to an id. Is it a true fundamental type? If not so, the '
@@ -866,7 +865,7 @@ class ASTDeclerator(ASTBase):
                 isinstance(self.ptrOps[-1], ASTPtrOpParamPack)):
             return False
         else:
-            return self.declId != None
+            return self.declId is not None
 
     def __unicode__(self):
         res = []
@@ -949,7 +948,7 @@ class ASTType(ASTBase):
         _verify_description_mode(mode)
         self.declSpecs.describe_signature(signode, 'markType', env)
         if (self.decl.require_start_space() and
-                    len(text_type(self.declSpecs)) > 0):
+                len(text_type(self.declSpecs)) > 0):
             signode += nodes.Text(' ')
         self.decl.describe_signature(signode, mode, env)
 
@@ -1178,7 +1177,7 @@ class DefinitionParser(object):
                             else:
                                 while not self.eof:
                                     if (len(symbols) == 0 and
-                                                self.current_char in (
+                                            self.current_char in (
                                             ',', '>')):
                                         break
                                     # TODO: actually implement nice handling
@@ -1190,8 +1189,7 @@ class DefinitionParser(object):
                                     self.fail(
                                         'Could not find end of constant '
                                         'template argument.')
-                                value = self.definition[
-                                        startPos:self.pos].strip()
+                                value = self.definition[startPos:self.pos].strip()
                             templateArgs.append(ASTTemplateArgConstant(value))
                         self.skip_ws()
                         if self.skip_string('>'):
@@ -1422,7 +1420,7 @@ class DefinitionParser(object):
 
     def _parse_declerator(self, named, paramMode=None, typed=True):
         if paramMode:
-            if not paramMode in ('type', 'function'):
+            if paramMode not in ('type', 'function'):
                 raise Exception(
                     "Internal error, unknown paramMode '%s'." % paramMode)
         ptrOps = []
@@ -1493,7 +1491,7 @@ class DefinitionParser(object):
             if outer == 'member':
                 value = self.read_rest().strip()
                 return ASTInitializer(value)
-            elif outer == None:  # function parameter
+            elif outer is None:  # function parameter
                 symbols = []
                 startPos = self.pos
                 self.skip_ws()
@@ -1528,7 +1526,7 @@ class DefinitionParser(object):
         doesn't need to name the arguments
         """
         if outer:  # always named
-            if not outer in ('type', 'member', 'function'):
+            if outer not in ('type', 'member', 'function'):
                 raise Exception('Internal error, unknown outer "%s".' % outer)
             assert not named
 
@@ -1652,12 +1650,12 @@ class CPPObject(ObjectDescription):
         if theid not in self.state.document.ids:
             # the name is not unique, the first one will win
             objects = self.env.domaindata['cpp']['objects']
-            if not name in objects:
+            if name not in objects:
                 signode['names'].append(name)
             signode['ids'].append(theid)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
-            if not name in objects:
+            if name not in objects:
                 objects.setdefault(name,
                                    (self.env.docname, ast.objectType, theid))
                 # add the uninstantiated template if it doesn't exist
@@ -1665,8 +1663,8 @@ class CPPObject(ObjectDescription):
                 if uninstantiated != name and uninstantiated not in objects:
                     signode['names'].append(uninstantiated)
                     objects.setdefault(uninstantiated, (
-                    self.env.docname, ast.objectType, theid))
-            self.env.temp_data['cpp:lastname'] = ast.prefixedName
+                        self.env.docname, ast.objectType, theid))
+            self.env.ref_context['cpp:lastname'] = ast.prefixedName
 
         indextext = self.get_index_text(name)
         if not re.compile(r'^[a-zA-Z0-9_]*$').match(theid):
@@ -1693,7 +1691,7 @@ class CPPObject(ObjectDescription):
             raise ValueError
         self.describe_signature(signode, ast)
 
-        parent = self.env.temp_data.get('cpp:parent')
+        parent = self.env.ref_context.get('cpp:parent')
         if parent and len(parent) > 0:
             ast = ast.clone()
             ast.prefixedName = ast.name.prefix_nested_name(parent[-1])
@@ -1741,15 +1739,15 @@ class CPPClassObject(CPPObject):
         return _('%s (C++ class)') % name
 
     def before_content(self):
-        lastname = self.env.temp_data['cpp:lastname']
+        lastname = self.env.ref_context['cpp:lastname']
         assert lastname
-        if 'cpp:parent' in self.env.temp_data:
-            self.env.temp_data['cpp:parent'].append(lastname)
+        if 'cpp:parent' in self.env.ref_context:
+            self.env.ref_context['cpp:parent'].append(lastname)
         else:
-            self.env.temp_data['cpp:parent'] = [lastname]
+            self.env.ref_context['cpp:parent'] = [lastname]
 
     def after_content(self):
-        self.env.temp_data['cpp:parent'].pop()
+        self.env.ref_context['cpp:parent'].pop()
 
     def parse_definition(self, parser):
         return parser.parse_class_object()
@@ -1774,7 +1772,7 @@ class CPPNamespaceObject(Directive):
     def run(self):
         env = self.state.document.settings.env
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
-            env.temp_data['cpp:parent'] = []
+            env.ref_context['cpp:parent'] = []
         else:
             parser = DefinitionParser(self.arguments[0])
             try:
@@ -1784,13 +1782,13 @@ class CPPNamespaceObject(Directive):
                 self.state_machine.reporter.warning(e.description,
                                                     line=self.lineno)
             else:
-                env.temp_data['cpp:parent'] = [prefix]
+                env.ref_context['cpp:parent'] = [prefix]
         return []
 
 
 class CPPXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        parent = env.temp_data.get('cpp:parent')
+        parent = env.ref_context.get('cpp:parent')
         if parent:
             refnode['cpp:parent'] = parent[:]
         if not has_explicit_title:
@@ -1838,18 +1836,24 @@ class CPPDomain(Domain):
             if data[0] == docname:
                 del self.data['objects'][fullname]
 
-    def resolve_xref(self, env, fromdocname, builder,
-                     typ, target, node, contnode):
+    def merge_domaindata(self, docnames, otherdata):
+        # XXX check duplicates
+        for fullname, data in otherdata['objects'].items():
+            if data[0] in docnames:
+                self.data['objects'][fullname] = data
+
+    def _resolve_xref_inner(self, env, fromdocname, builder,
+                            target, node, contnode, warn=True):
         def _create_refnode(nameAst):
             name = text_type(nameAst)
             if name not in self.data['objects']:
                 # try dropping the last template
                 name = nameAst.get_name_no_last_template()
                 if name not in self.data['objects']:
-                    return None
+                    return None, None
             docname, objectType, id = self.data['objects'][name]
             return make_refnode(builder, fromdocname, docname, id, contnode,
-                                name)
+                                name), objectType
 
         parser = DefinitionParser(target)
         try:
@@ -1858,20 +1862,34 @@ class CPPDomain(Domain):
             if not parser.eof:
                 raise DefinitionError('')
         except DefinitionError:
-            env.warn_node('unparseable C++ definition: %r' % target, node)
-            return None
+            if warn:
+                env.warn_node('unparseable C++ definition: %r' % target, node)
+            return None, None
 
         # try as is the name is fully qualified
-        refNode = _create_refnode(nameAst)
-        if refNode:
-            return refNode
+        res = _create_refnode(nameAst)
+        if res[0]:
+            return res
 
         # try qualifying it with the parent
         parent = node.get('cpp:parent', None)
         if parent and len(parent) > 0:
             return _create_refnode(nameAst.prefix_nested_name(parent[-1]))
         else:
-            return None
+            return None, None
+
+    def resolve_xref(self, env, fromdocname, builder,
+                     typ, target, node, contnode):
+        return self._resolve_xref_inner(env, fromdocname, builder, target, node,
+                                        contnode)[0]
+
+    def resolve_any_xref(self, env, fromdocname, builder, target,
+                         node, contnode):
+        node, objtype = self._resolve_xref_inner(env, fromdocname, builder,
+                                                 target, node, contnode, warn=False)
+        if node:
+            return [('cpp:' + self.role_for_objtype(objtype), node)]
+        return []
 
     def get_objects(self):
         for refname, (docname, type, theid) in iteritems(self.data['objects']):

@@ -10,6 +10,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+import traceback
+
+
 class SphinxError(Exception):
     """
     Base class for Sphinx errors that are shown to the user in a nicer
@@ -62,3 +65,13 @@ class PycodeError(Exception):
         if len(self.args) > 1:
             res += ' (exception was: %r)' % self.args[1]
         return res
+
+
+class SphinxParallelError(Exception):
+    def __init__(self, orig_exc, traceback):
+        self.orig_exc = orig_exc
+        self.traceback = traceback
+
+    def __str__(self):
+        return traceback.format_exception_only(
+            self.orig_exc.__class__, self.orig_exc)[0].strip()

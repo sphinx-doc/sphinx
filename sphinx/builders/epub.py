@@ -405,8 +405,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         converting the format and resizing the image if necessary/possible.
         """
         ensuredir(path.join(self.outdir, '_images'))
-        for src in self.status_iterator(self.images, 'copying images... ',
-                                        brown, len(self.images)):
+        for src in self.app.status_iterator(self.images, 'copying images... ',
+                                            brown, len(self.images)):
             dest = self.images[src]
             try:
                 img = Image.open(path.join(self.srcdir, src))

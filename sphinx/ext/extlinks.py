@@ -59,4 +59,4 @@ def setup_link_roles(app):
 def setup(app):
     app.add_config_value('extlinks', {}, 'env')
     app.connect('builder-inited', setup_link_roles)
-    return sphinx.__version__
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}
