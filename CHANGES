@@ -143,6 +143,8 @@ Bugs fixed
 * PR#278: Fix section entries were shown twice if toctree has been put under
   only directive. Thanks to Takeshi Komiya.
 * #1547: pgen2 tokenizer doesn't recognize ``...`` literal (Ellipsis for py3).
+* PR#294: On LaTeX builder, wrap float environment on writing literal_block
+  to avoid separation of caption and body. Thanks to Takeshi Komiya.
 
 Documentation
 -------------
