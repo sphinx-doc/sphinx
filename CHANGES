@@ -15,6 +15,8 @@ Bugs fixed
 * PR#288, #1512: env.record_dependency crashes on non-ASCII directories that
   relates to dependency files management like :rst:dir:`include` or
   :rst:dir:`csv-table`. Thanks to Takeshi Komiya.
+* PR#285: Test for subclasses of docutils node types when screening
+  searchindex. Thanks to Nathan Goldbaum.
 
 
 Release 1.2.3 (released Sep 1, 2014)
