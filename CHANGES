@@ -11,7 +11,10 @@ Bugs fixed
 
 * #1563: :meth:`~sphinx.application.Sphinx.add_search_language` raises
   AssertionError for correct type of argument. Thanks to rikoman.
-* #1568: fix a crash when a "centered" directive contains a reference.  
+* #1568: fix a crash when a "centered" directive contains a reference.
+* PR#288, #1512: env.record_dependency crashes on non-ASCII directories that
+  relates to dependency files management like :rst:dir:`include` or
+  :rst:dir:`csv-table`. Thanks to Takeshi Komiya.
 
 
 Release 1.2.3 (released Sep 1, 2014)
