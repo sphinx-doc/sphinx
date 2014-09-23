@@ -1054,9 +1054,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_container(self, node):
-        pass
+        if node.get('literal_block'):
+            self.body.append('\n\n@float LiteralBlock\n')
     def depart_container(self, node):
-        pass
+        if node.get('literal_block'):
+            self.body.append('\n@end float\n\n')
 
     def visit_decoration(self, node):
         pass
@@ -1095,13 +1097,15 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append('\n@end float\n\n')
 
     def visit_caption(self, node):
-        if not isinstance(node.parent, nodes.figure):
+        if (isinstance(node.parent, nodes.figure) or
+           (isinstance(node.parent, nodes.container) and node.parent.get('literal_block'))):
+            self.body.append('\n@caption{')
+        else:
             self.builder.warn('caption not inside a figure.',
                               (self.curfilestack[-1], node.line))
-            return
-        self.body.append('\n@caption{')
     def depart_caption(self, node):
-        if isinstance(node.parent, nodes.figure):
+        if (isinstance(node.parent, nodes.figure) or
+           (isinstance(node.parent, nodes.container) and node.parent.get('literal_block'))):
             self.body.append('}\n')
 
     def visit_image(self, node):
