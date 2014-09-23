@@ -34,7 +34,7 @@ reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 (%(root)s/markup.txt:\\d+: WARNING: Malformed :option: u'Python c option', does \
 not contain option marker - or -- or / or \\+
 %(root)s/undecodable.txt:3: WARNING: undecodable source characters, replacing \
-with "\\?": b?'here: >>>\\\\xbb<<<'
+with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
 )?"""
 
 HTML_WARNINGS = ENV_WARNINGS + """\
