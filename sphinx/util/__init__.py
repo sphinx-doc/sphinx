@@ -29,15 +29,16 @@ from docutils.utils import relative_path
 import jinja2
 
 import sphinx
-from sphinx.errors import PycodeError
+from sphinx.errors import PycodeError, SphinxParallelError
 from sphinx.util.console import strip_colors
+from sphinx.util.osutil import fs_encoding
 
 # import other utilities; partly for backwards compatibility, so don't
 # prune unused ones indiscriminately
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, walk, \
-     mtimes_of_files, movefile, copyfile, copytimes, make_filename, ustrftime
+    mtimes_of_files, movefile, copyfile, copytimes, make_filename, ustrftime
 from sphinx.util.nodes import nested_parse_with_titles, split_explicit_title, \
-     explicit_title_re, caption_ref_re
+    explicit_title_re, caption_ref_re
 from sphinx.util.matching import patfilter
 
 # Generally useful regular expressions.
@@ -129,6 +130,11 @@ class FilenameUniqDict(dict):
                 del self[filename]
                 self._existing.discard(unique)
 
+    def merge_other(self, docnames, other):
+        for filename, (docs, unique) in other.items():
+            for doc in docs & docnames:
+                self.add_file(doc, filename)
+
     def __getstate__(self):
         return self._existing
 
@@ -185,7 +191,11 @@ _DEBUG_HEADER = '''\
 def save_traceback(app):
     """Save the current exception's traceback in a temporary file."""
     import platform
-    exc = traceback.format_exc()
+    exc = sys.exc_info()[1]
+    if isinstance(exc, SphinxParallelError):
+        exc_format = '(Error in parallel process)\n' + exc.traceback
+    else:
+        exc_format = traceback.format_exc()
     fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
     last_msgs = ''
     if app is not None:
@@ -200,11 +210,13 @@ def save_traceback(app):
                    last_msgs)).encode('utf-8'))
     if app is not None:
         for extname, extmod in iteritems(app._extensions):
+            modfile = getattr(extmod, '__file__', 'unknown')
+            if isinstance(modfile, bytes):
+                modfile = modfile.decode(fs_encoding, 'replace')
             os.write(fd, ('#   %s (%s) from %s\n' % (
-                extname, app._extension_versions[extname],
-                getattr(extmod, '__file__', 'unknown'))
-                ).encode('utf-8'))
-    os.write(fd, exc.encode('utf-8'))
+                extname, app._extension_metadata[extname]['version'],
+                modfile)).encode('utf-8'))
+    os.write(fd, exc_format.encode('utf-8'))
     os.close(fd)
     return path
 

@@ -9,33 +9,24 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
-
 from six import StringIO
 
 from sphinx.websupport import WebSupport
 
 from test_websupport import sqlalchemy_missing
-from util import test_root, skip_if, skip_unless_importable
-
-
-def clear_builddir():
-    (test_root / 'websupport').rmtree(True)
+from util import rootdir, tempdir, skip_if, skip_unless_importable
 
 
 def teardown_module():
-    (test_root / 'generated').rmtree(True)
-    clear_builddir()
+    (tempdir / 'websupport').rmtree(True)
 
 
 def search_adapter_helper(adapter):
-    clear_builddir()
-
-    settings = {'builddir': os.path.join(test_root, 'websupport'),
+    settings = {'srcdir': rootdir / 'root',
+                'builddir': tempdir / 'websupport',
                 'status': StringIO(),
-                'warning': StringIO()}
-    settings.update({'srcdir': test_root,
-                     'search': adapter})
+                'warning': StringIO(),
+                'search': adapter}
     support = WebSupport(**settings)
     support.build()
 
@@ -63,7 +54,7 @@ def search_adapter_helper(adapter):
         '%s search adapter returned %s search result(s), should have been 1'\
         % (adapter, len(results))
     # Make sure it works through the WebSupport API
-    html = support.get_search_results(u'SomeLongRandomWord')
+    support.get_search_results(u'SomeLongRandomWord')
 
 
 @skip_unless_importable('xapian', 'needs xapian bindings installed')

@@ -155,10 +155,13 @@ class Domain(object):
         self._role_cache = {}
         self._directive_cache = {}
         self._role2type = {}
+        self._type2role = {}
         for name, obj in iteritems(self.object_types):
             for rolename in obj.roles:
                 self._role2type.setdefault(rolename, []).append(name)
+            self._type2role[name] = obj.roles[0] if obj.roles else ''
         self.objtypes_for_role = self._role2type.get
+        self.role_for_objtype = self._type2role.get
 
     def role(self, name):
         """Return a role adapter function that always gives the registered
@@ -199,6 +202,14 @@ class Domain(object):
         """Remove traces of a document in the domain-specific inventories."""
         pass
 
+    def merge_domaindata(self, docnames, otherdata):
+        """Merge in data regarding *docnames* from a different domaindata
+        inventory (coming from a subprocess in parallel builds).
+        """
+        raise NotImplementedError('merge_domaindata must be implemented in %s '
+                                  'to be able to do parallel builds!' %
+                                  self.__class__)
+
     def process_doc(self, env, docname, document):
         """Process a document after it is read by the environment."""
         pass
@@ -219,6 +230,22 @@ class Domain(object):
         the 'missing-reference' event being emitted.
         """
         pass
+
+    def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
+        """Resolve the pending_xref *node* with the given *target*.
+
+        The reference comes from an "any" or similar role, which means that we
+        don't know the type.  Otherwise, the arguments are the same as for
+        :meth:`resolve_xref`.
+
+        The method must return a list (potentially empty) of tuples
+        ``('domain:role', newnode)``, where ``'domain:role'`` is the name of a
+        role that could have created the same reference, e.g. ``'py:func'``.
+        ``newnode`` is what :meth:`resolve_xref` would return.
+
+        .. versionadded:: 1.3
+        """
+        raise NotImplementedError
 
     def get_objects(self):
         """Return an iterable of "object descriptions", which are tuples with

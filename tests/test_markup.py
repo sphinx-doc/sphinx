@@ -23,10 +23,11 @@ from util import TestApp
 
 app = settings = parser = None
 
+
 def setup_module():
     global app, settings, parser
     texescape.init()  # otherwise done by the latex builder
-    app = TestApp(cleanenv=True)
+    app = TestApp()
     optparser = frontend.OptionParser(
         components=(rst.Parser, HTMLWriter, LaTeXWriter))
     settings = optparser.get_default_values()
@@ -35,6 +36,7 @@ def setup_module():
     settings.env.temp_data['docname'] = 'dummy'
     parser = rst.Parser()
 
+
 def teardown_module():
     app.cleanup()
 
@@ -42,11 +44,14 @@ def teardown_module():
 class ForgivingTranslator:
     def visit_pending_xref(self, node):
         pass
+
     def depart_pending_xref(self, node):
         pass
 
+
 class ForgivingHTMLTranslator(SmartyPantsHTMLTranslator, ForgivingTranslator):
     pass
+
 
 class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
     pass
@@ -108,8 +113,9 @@ def test_inline():
 
     # non-interpolation of dashes in option role
     yield (verify_re, ':option:`--with-option`',
-           '<p><em( class="xref std std-option")?>--with-option</em></p>$',
-           r'\\emph{\\texttt{-{-}with-option}}$')
+           '<p><code( class="xref std std-option docutils literal")?>'
+           '<span class="pre">--with-option</span></code></p>$',
+           r'\\code{-{-}with-option}$')
 
     # verify smarty-pants quotes
     yield verify, '"John"', '<p>&#8220;John&#8221;</p>', "``John''"

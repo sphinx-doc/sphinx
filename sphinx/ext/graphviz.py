@@ -323,4 +323,4 @@ def setup(app):
     app.add_config_value('graphviz_dot', 'dot', 'html')
     app.add_config_value('graphviz_dot_args', [], 'html')
     app.add_config_value('graphviz_output_format', 'png', 'html')
-    return sphinx.__version__
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}

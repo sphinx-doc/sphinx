@@ -10,46 +10,30 @@
 """
 from __future__ import print_function
 
-import gettext
 import os
 import re
+import gettext
 from subprocess import Popen, PIPE
 
-from util import test_root, test_roots, with_app, SkipTest
+from nose.tools import assert_true, assert_equal
+
+from util import with_app, gen_with_app, SkipTest, assert_in
 
 
-def teardown_module():
-    (test_root / '_build').rmtree(True)
-    (test_roots / 'test-intl' / '_build').rmtree(True),
-
-
-@with_app(buildername='gettext')
-def test_all(app):
+@gen_with_app('gettext', srcdir='root-gettext')
+def test_all(app, status, warning):
     # Generic build; should fail only when the builder is horribly broken.
     app.builder.build_all()
 
-
-@with_app(buildername='gettext')
-def test_build(app):
     # Do messages end up in the correct location?
-    app.builder.build(['extapi', 'subdir/includes'])
     # top-level documents end up in a message catalog
-    assert (app.outdir / 'extapi.pot').isfile()
+    yield assert_true, (app.outdir / 'extapi.pot').isfile()
     # directory items are grouped into sections
-    assert (app.outdir / 'subdir.pot').isfile()
+    yield assert_true, (app.outdir / 'subdir.pot').isfile()
 
-
-@with_app(buildername='gettext')
-def test_seealso(app):
     # regression test for issue #960
-    app.builder.build(['markup'])
     catalog = (app.outdir / 'markup.pot').text(encoding='utf-8')
-    assert 'msgid "something, something else, something more"' in catalog
-
-
-@with_app(buildername='gettext')
-def test_gettext(app):
-    app.builder.build(['markup'])
+    yield assert_in, 'msgid "something, something else, something more"', catalog
 
     (app.outdir / 'en' / 'LC_MESSAGES').makedirs()
     cwd = os.getcwd()
@@ -58,7 +42,7 @@ def test_gettext(app):
         try:
             p = Popen(['msginit', '--no-translator', '-i', 'markup.pot',
                        '--locale', 'en_US'],
-                        stdout=PIPE, stderr=PIPE)
+                      stdout=PIPE, stderr=PIPE)
         except OSError:
             raise SkipTest  # most likely msginit was not found
         else:
@@ -67,12 +51,12 @@ def test_gettext(app):
                 print(stdout)
                 print(stderr)
                 assert False, 'msginit exited with return code %s' % \
-                        p.returncode
-        assert (app.outdir / 'en_US.po').isfile(), 'msginit failed'
+                    p.returncode
+        yield assert_true, (app.outdir / 'en_US.po').isfile(), 'msginit failed'
         try:
             p = Popen(['msgfmt', 'en_US.po', '-o',
-                os.path.join('en', 'LC_MESSAGES', 'test_root.mo')],
-                stdout=PIPE, stderr=PIPE)
+                       os.path.join('en', 'LC_MESSAGES', 'test_root.mo')],
+                      stdout=PIPE, stderr=PIPE)
         except OSError:
             raise SkipTest  # most likely msgfmt was not found
         else:
@@ -81,25 +65,24 @@ def test_gettext(app):
                 print(stdout)
                 print(stderr)
                 assert False, 'msgfmt exited with return code %s' % \
-                        p.returncode
-        assert (app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo').isfile(), \
-                'msgfmt failed'
+                    p.returncode
+        yield assert_true, (app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo').isfile(), \
+            'msgfmt failed'
     finally:
         os.chdir(cwd)
 
     _ = gettext.translation('test_root', app.outdir, languages=['en']).gettext
-    assert _("Testing various markup") == u"Testing various markup"
+    yield assert_equal, _("Testing various markup"), u"Testing various markup"
 
 
-@with_app(buildername='gettext',
-          srcdir=(test_roots / 'test-intl'),
-          doctreedir=(test_roots / 'test-intl' / '_build' / 'doctree'),
+@with_app('gettext', testroot='intl',
           confoverrides={'gettext_compact': False})
-def test_gettext_index_entries(app):
+def test_gettext_index_entries(app, status, warning):
     # regression test for #976
     app.builder.build(['index_entries'])
 
     _msgid_getter = re.compile(r'msgid "(.*)"').search
+
     def msgid_getter(msgid):
         m = _msgid_getter(msgid)
         if m:
@@ -139,10 +122,8 @@ def test_gettext_index_entries(app):
     assert msgids == []
 
 
-@with_app(buildername='gettext',
-          srcdir=(test_roots / 'test-intl'),
-          doctreedir=(test_roots / 'test-intl' / '_build' / 'doctree'))
-def test_gettext_template(app):
+@with_app(buildername='gettext', testroot='intl')
+def test_gettext_template(app, status, warning):
     app.builder.build_all()
     assert (app.outdir / 'sphinx.pot').isfile()
 

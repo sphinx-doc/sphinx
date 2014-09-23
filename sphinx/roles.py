@@ -17,28 +17,30 @@ from docutils.parsers.rst import roles
 
 from sphinx import addnodes
 from sphinx.locale import _
+from sphinx.errors import SphinxError
 from sphinx.util import ws_re
 from sphinx.util.nodes import split_explicit_title, process_index_entry, \
-     set_role_source_info
+    set_role_source_info
 
 
 generic_docroles = {
-    'command' : addnodes.literal_strong,
-    'dfn' : nodes.emphasis,
-    'kbd' : nodes.literal,
-    'mailheader' : addnodes.literal_emphasis,
-    'makevar' : addnodes.literal_strong,
-    'manpage' : addnodes.literal_emphasis,
-    'mimetype' : addnodes.literal_emphasis,
-    'newsgroup' : addnodes.literal_emphasis,
-    'program' : addnodes.literal_strong,  # XXX should be an x-ref
-    'regexp' : nodes.literal,
+    'command': addnodes.literal_strong,
+    'dfn': nodes.emphasis,
+    'kbd': nodes.literal,
+    'mailheader': addnodes.literal_emphasis,
+    'makevar': addnodes.literal_strong,
+    'manpage': addnodes.literal_emphasis,
+    'mimetype': addnodes.literal_emphasis,
+    'newsgroup': addnodes.literal_emphasis,
+    'program': addnodes.literal_strong,  # XXX should be an x-ref
+    'regexp': nodes.literal,
 }
 
 for rolename, nodeclass in iteritems(generic_docroles):
     generic = roles.GenericRole(rolename, nodeclass)
     role = roles.CustomRole(rolename, generic, {'classes': [rolename]})
     roles.register_local_role(rolename, role)
+
 
 # -- generic cross-reference role ----------------------------------------------
 
@@ -96,7 +98,11 @@ class XRefRole(object):
                  options={}, content=[]):
         env = inliner.document.settings.env
         if not typ:
-            typ = env.config.default_role
+            typ = env.temp_data.get('default_role')
+            if not typ:
+                typ = env.config.default_role
+            if not typ:
+                raise SphinxError('cannot determine default role!')
         else:
             typ = typ.lower()
         if ':' not in typ:
@@ -156,6 +162,15 @@ class XRefRole(object):
         tuple (the usual return value of a role function).
         """
         return [node], []
+
+
+class AnyXRefRole(XRefRole):
+    def process_link(self, env, refnode, has_explicit_title, title, target):
+        result = XRefRole.process_link(self, env, refnode, has_explicit_title,
+                                       title, target)
+        # add all possible context info (i.e. std:program, py:module etc.)
+        refnode.attributes.update(env.ref_context)
+        return result
 
 
 def indexmarkup_role(typ, rawtext, text, lineno, inliner,
@@ -221,6 +236,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner,
 
 _amp_re = re.compile(r'(?<!&)&(?![&\s])')
 
+
 def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     text = utils.unescape(text)
     if typ == 'menuselection':
@@ -246,7 +262,9 @@ def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     node['classes'].append(typ)
     return [node], []
 
+
 _litvar_re = re.compile('{([^}]+)}')
+
 
 def emph_literal_role(typ, rawtext, text, lineno, inliner,
                       options={}, content=[]):
@@ -265,6 +283,7 @@ def emph_literal_role(typ, rawtext, text, lineno, inliner,
 
 
 _abbr_re = re.compile('\((.*)\)$', re.S)
+
 
 def abbr_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     text = utils.unescape(text)
@@ -311,6 +330,8 @@ specific_docroles = {
     'download': XRefRole(nodeclass=addnodes.download_reference),
     # links to documents
     'doc': XRefRole(warn_dangling=True),
+    # links to anything
+    'any': AnyXRefRole(warn_dangling=True),
 
     'pep': indexmarkup_role,
     'rfc': indexmarkup_role,

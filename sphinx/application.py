@@ -20,7 +20,7 @@ import traceback
 from os import path
 from collections import deque
 
-from six import iteritems, itervalues
+from six import iteritems, itervalues, text_type
 from six.moves import cStringIO
 from docutils import nodes
 from docutils.parsers.rst import convert_directive_function, \
@@ -39,7 +39,8 @@ from sphinx.environment import BuildEnvironment, SphinxStandaloneReader
 from sphinx.util import pycompat  # imported for side-effects
 from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT
-from sphinx.util.console import bold, lightgray, darkgray
+from sphinx.util.console import bold, lightgray, darkgray, darkgreen, \
+    term_width_line
 
 if hasattr(sys, 'intern'):
     intern = sys.intern
@@ -49,8 +50,10 @@ events = {
     'builder-inited': '',
     'env-get-outdated': 'env, added, changed, removed',
     'env-purge-doc': 'env, docname',
+    'env-before-read-docs': 'env, docnames',
     'source-read': 'docname, source text',
     'doctree-read': 'the doctree before being pickled',
+    'env-merge-info': 'env, read docnames, other env instance',
     'missing-reference': 'env, node, contnode',
     'doctree-resolved': 'doctree, docname',
     'env-updated': 'env',
@@ -72,7 +75,7 @@ class Sphinx(object):
         self.verbosity = verbosity
         self.next_listener_id = 0
         self._extensions = {}
-        self._extension_versions = {}
+        self._extension_metadata = {}
         self._listeners = {}
         self.domains = BUILTIN_DOMAINS.copy()
         self.builderclasses = BUILTIN_BUILDERS.copy()
@@ -112,6 +115,10 @@ class Sphinx(object):
         # status code for command-line application
         self.statuscode = 0
 
+        if not path.isdir(outdir):
+            self.info('making output directory...')
+            os.makedirs(outdir)
+
         # read config
         self.tags = Tags(tags)
         self.config = Config(confdir, CONFIG_FILENAME,
@@ -128,7 +135,7 @@ class Sphinx(object):
             self.setup_extension(extension)
         # the config file itself can be an extension
         if self.config.setup:
-            # py31 doesn't have 'callable' function for bellow check
+            # py31 doesn't have 'callable' function for below check
             if hasattr(self.config.setup, '__call__'):
                 self.config.setup(self)
             else:
@@ -156,7 +163,7 @@ class Sphinx(object):
                               'version requirement for extension %s, but it is '
                               'not loaded' % extname)
                     continue
-                has_ver = self._extension_versions[extname]
+                has_ver = self._extension_metadata[extname]['version']
                 if has_ver == 'unknown version' or needs_ver > has_ver:
                     raise VersionRequirementError(
                         'This project needs the extension %s at least in '
@@ -200,8 +207,8 @@ class Sphinx(object):
         else:
             try:
                 self.info(bold('loading pickled environment... '), nonl=True)
-                self.env = BuildEnvironment.frompickle(self.config,
-                    path.join(self.doctreedir, ENV_PICKLE_FILENAME))
+                self.env = BuildEnvironment.frompickle(
+                    self.config, path.join(self.doctreedir, ENV_PICKLE_FILENAME))
                 self.env.domains = {}
                 for domain in self.domains.keys():
                     # this can raise if the data version doesn't fit
@@ -245,6 +252,15 @@ class Sphinx(object):
             else:
                 self.builder.compile_update_catalogs()
                 self.builder.build_update()
+
+            status = (self.statuscode == 0
+                      and 'succeeded' or 'finished with problems')
+            if self._warncount:
+                self.info(bold('build %s, %s warning%s.' %
+                               (status, self._warncount,
+                                self._warncount != 1 and 's' or '')))
+            else:
+                self.info(bold('build %s.' % status))
         except Exception as err:
             # delete the saved env to force a fresh build next time
             envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
@@ -291,7 +307,7 @@ class Sphinx(object):
             else:
                 location = None
         warntext = location and '%s: %s%s\n' % (location, prefix, message) or \
-                   '%s%s\n' % (prefix, message)
+            '%s%s\n' % (prefix, message)
         if self.warningiserror:
             raise SphinxWarning(warntext)
         self._warncount += 1
@@ -350,6 +366,48 @@ class Sphinx(object):
             message = message % (args or kwargs)
         self._log(lightgray(message), self._status)
 
+    def _display_chunk(chunk):
+        if isinstance(chunk, (list, tuple)):
+            if len(chunk) == 1:
+                return text_type(chunk[0])
+            return '%s .. %s' % (chunk[0], chunk[-1])
+        return text_type(chunk)
+
+    def old_status_iterator(self, iterable, summary, colorfunc=darkgreen,
+                            stringify_func=_display_chunk):
+        l = 0
+        for item in iterable:
+            if l == 0:
+                self.info(bold(summary), nonl=1)
+                l = 1
+            self.info(colorfunc(stringify_func(item)) + ' ', nonl=1)
+            yield item
+        if l == 1:
+            self.info()
+
+    # new version with progress info
+    def status_iterator(self, iterable, summary, colorfunc=darkgreen, length=0,
+                        stringify_func=_display_chunk):
+        if length == 0:
+            for item in self.old_status_iterator(iterable, summary, colorfunc,
+                                                 stringify_func):
+                yield item
+            return
+        l = 0
+        summary = bold(summary)
+        for item in iterable:
+            l += 1
+            s = '%s[%3d%%] %s' % (summary, 100*l/length,
+                                  colorfunc(stringify_func(item)))
+            if self.verbosity:
+                s += '\n'
+            else:
+                s = term_width_line(s)
+            self.info(s, nonl=1)
+            yield item
+        if l > 0:
+            self.info()
+
     # ---- general extensibility interface -------------------------------------
 
     def setup_extension(self, extension):
@@ -366,20 +424,22 @@ class Sphinx(object):
         if not hasattr(mod, 'setup'):
             self.warn('extension %r has no setup() function; is it really '
                       'a Sphinx extension module?' % extension)
-            version = None
+            ext_meta = None
         else:
             try:
-                version = mod.setup(self)
+                ext_meta = mod.setup(self)
             except VersionRequirementError as err:
                 # add the extension name to the version required
                 raise VersionRequirementError(
                     'The %s extension used by this project needs at least '
                     'Sphinx v%s; it therefore cannot be built with this '
                     'version.' % (extension, err))
-        if version is None:
-            version = 'unknown version'
+        if ext_meta is None:
+            ext_meta = {}
+        if not ext_meta.get('version'):
+            ext_meta['version'] = 'unknown version'
         self._extensions[extension] = mod
-        self._extension_versions[extension] = version
+        self._extension_metadata[extension] = ext_meta
 
     def require_sphinx(self, version):
         # check the Sphinx version if requested
@@ -461,7 +521,7 @@ class Sphinx(object):
             else:
                 raise ExtensionError(
                     'Builder %r already exists (in module %s)' % (
-                    builder.name, self.builderclasses[builder.name].__module__))
+                        builder.name, self.builderclasses[builder.name].__module__))
         self.builderclasses[builder.name] = builder
 
     def add_config_value(self, name, default, rebuild):

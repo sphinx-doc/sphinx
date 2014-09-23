@@ -2,6 +2,9 @@
 README for Sphinx
 =================
 
+This is the Sphinx documentation generator, see http://sphinx-doc.org/.
+
+
 Installing
 ==========
 
@@ -17,7 +20,7 @@ Reading the docs
 After installing::
 
    cd doc
-   sphinx-build . _build/html
+   make html
 
 Then, direct your browser to ``_build/html/index.html``.
 
@@ -34,6 +37,11 @@ To run the tests with the interpreter available as ``python``, use::
 If you want to use a different interpreter, e.g. ``python3``, use::
 
     PYTHON=python3 make test
+
+Continuous testing runs on drone.io:
+
+.. image:: https://drone.io/bitbucket.org/birkenfeld/sphinx/status.png
+   :target: https://drone.io/bitbucket.org/birkenfeld/sphinx/
 
 
 Contributing

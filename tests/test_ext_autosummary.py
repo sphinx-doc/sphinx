@@ -8,49 +8,24 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import sys
-from functools import wraps
 
 from six import iteritems, StringIO
 
 from sphinx.ext.autosummary import mangle_signature
 
-from util import test_roots, TestApp
+from util import with_app
 
 html_warnfile = StringIO()
 
 
-def with_autosummary_app(*args, **kw):
-    default_kw = {
-        'srcdir': (test_roots / 'test-autosummary'),
-        'confoverrides': {
-            'extensions': ['sphinx.ext.autosummary'],
-            'autosummary_generate': True,
-            'source_suffix': '.rst'
-        }
+default_kw = {
+    'testroot': 'autosummary',
+    'confoverrides': {
+        'extensions': ['sphinx.ext.autosummary'],
+        'autosummary_generate': True,
+        'source_suffix': '.rst'
     }
-    default_kw.update(kw)
-    def generator(func):
-        @wraps(func)
-        def deco(*args2, **kwargs2):
-            # Now, modify the python path...
-            srcdir = default_kw['srcdir']
-            sys.path.insert(0, srcdir)
-            try:
-                app = TestApp(*args, **default_kw)
-                func(app, *args2, **kwargs2)
-            finally:
-                if srcdir in sys.path:
-                    sys.path.remove(srcdir)
-                # remove the auto-generated dummy_module.rst
-                dummy_rst = srcdir / 'dummy_module.rst'
-                if dummy_rst.isfile():
-                    dummy_rst.unlink()
-
-            # don't execute cleanup if test failed
-            app.cleanup()
-        return deco
-    return generator
+}
 
 
 def test_mangle_signature():
@@ -79,10 +54,8 @@ def test_mangle_signature():
         assert res == outp, (u"'%s' -> '%s' != '%s'" % (inp, res, outp))
 
 
-@with_autosummary_app(buildername='html', warning=html_warnfile)
-def test_get_items_summary(app):
-    app.builddir.rmtree(True)
-
+@with_app(buildername='html', **default_kw)
+def test_get_items_summary(app, status, warning):
     # monkey-patch Autosummary.get_items so we can easily get access to it's
     # results..
     import sphinx.ext.autosummary
@@ -96,13 +69,17 @@ def test_get_items_summary(app):
             autosummary_items[name] = result
         return results
 
+    def handler(app, what, name, obj, options, lines):
+        assert isinstance(lines, list)
+    app.connect('autodoc-process-docstring', handler)
+
     sphinx.ext.autosummary.Autosummary.get_items = new_get_items
     try:
         app.builder.build_all()
     finally:
         sphinx.ext.autosummary.Autosummary.get_items = orig_get_items
 
-    html_warnings = html_warnfile.getvalue()
+    html_warnings = warning.getvalue()
     assert html_warnings == ''
 
     expected_values = {
@@ -118,13 +95,3 @@ def test_get_items_summary(app):
     for key, expected in iteritems(expected_values):
         assert autosummary_items[key][2] == expected, 'Summary for %s was %r -'\
             ' expected %r' % (key, autosummary_items[key], expected)
-
-
-@with_autosummary_app(buildername='html')
-def test_process_doc_event(app):
-    app.builddir.rmtree(True)
-
-    def handler(app, what, name, obj, options, lines):
-        assert isinstance(lines, list)
-    app.connect('autodoc-process-docstring', handler)
-    app.builder.build_all()

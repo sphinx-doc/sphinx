@@ -12,27 +12,13 @@
 # adapted from an example of bibliographic metadata at
 # http://docutils.sourceforge.net/docs/user/rst/demo.txt
 
-from util import TestApp
+from util import with_app
 
 from nose.tools import assert_equal
 
 
-app = env = None
-warnings = []
-
-def setup_module():
-    # Is there a better way of generating this doctree than manually iterating?
-    global app, env
-    app = TestApp(_copy_to_temp=True)
-    env = app.env
-    msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
-    for docname in it:
-        pass
-
-def teardown_module():
-    app.cleanup()
-
-def test_docinfo():
+@with_app('pseudoxml')
+def test_docinfo(app, status, warning):
     """
     Inspect the 'docinfo' metadata stored in the first node of the document.
     Note this doesn't give us access to data stored in subsequence blocks
@@ -40,6 +26,8 @@ def test_docinfo():
     'dedication' blocks, or the 'meta' role. Doing otherwise is probably more
     messing with the internals of sphinx than this rare use case merits.
     """
+    app.builder.build(['metadata'])
+    env = app.env
     exampledocinfo = env.metadata['metadata']
     expecteddocinfo = {
         'author': u'David Goodger',

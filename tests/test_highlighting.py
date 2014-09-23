@@ -15,12 +15,7 @@ from pygments.formatters.html import HtmlFormatter
 
 from sphinx.highlighting import PygmentsBridge
 
-from util import with_app, SkipTest
-
-try:
-    import pygments
-except ImportError:
-    raise SkipTest('pygments not available')
+from util import with_app
 
 
 class MyLexer(RegexLexer):
@@ -46,12 +41,13 @@ class ComplainOnUnhighlighted(PygmentsBridge):
 
 
 @with_app()
-def test_add_lexer(app):
+def test_add_lexer(app, status, warning):
     app.add_lexer('test', MyLexer())
 
     bridge = PygmentsBridge('html')
     ret = bridge.highlight_block('ab', 'test')
     assert '<span class="n">a</span>b' in ret
+
 
 def test_detect_interactive():
     bridge = ComplainOnUnhighlighted('html')
@@ -60,10 +56,11 @@ def test_detect_interactive():
         >>> testing()
         True
         """,
-        ]
+    ]
     for block in blocks:
         ret = bridge.highlight_block(block.lstrip(), 'python')
         assert ret.startswith("<div class=\"highlight\">")
+
 
 def test_set_formatter():
     PygmentsBridge.html_formatter = MyFormatter
@@ -73,6 +70,7 @@ def test_set_formatter():
         assert ret == 'foo\n'
     finally:
         PygmentsBridge.html_formatter = HtmlFormatter
+
 
 def test_trim_doctest_flags():
     PygmentsBridge.html_formatter = MyFormatter

@@ -48,10 +48,10 @@ reindent:
 	@$(PYTHON) utils/reindent.py -r -n .
 endif
 
-test: build
+test:
 	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' $(TEST)
 
-covertest: build
+covertest:
 	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' --with-coverage \
 		--cover-package=sphinx $(TEST)
 
