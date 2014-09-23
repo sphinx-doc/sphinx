@@ -81,6 +81,8 @@ Features added
   the order of documents before they are read by the environment.
 * #1284: Program options documented with :rst:dir:`option` can now start with
   ``+``.
+* PR#291: The caption of :rst:dir:`code-block` is recognised as a title of ref
+  target. Thanks to Takeshi Komiya.
 
 Bugs fixed
 ----------
