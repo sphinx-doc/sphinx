@@ -1279,16 +1279,16 @@ class BuildEnvironment:
                                 subtrees = toplevel.traverse(addnodes.toctree)
                                 toplevel[1][:] = subtrees
                     # resolve all sub-toctrees
-                    for toctreenode in toc.traverse(addnodes.toctree):
-                        if not (toctreenode.get('hidden', False)
+                    for subtocnode in toc.traverse(addnodes.toctree):
+                        if not (subtocnode.get('hidden', False)
                                 and not includehidden):
-                            i = toctreenode.parent.index(toctreenode) + 1
+                            i = subtocnode.parent.index(subtocnode) + 1
                             for item in _entries_from_toctree(
-                                    toctreenode, [refdoc] + parents,
+                                    subtocnode, [refdoc] + parents,
                                     subtree=True):
-                                toctreenode.parent.insert(i, item)
+                                subtocnode.parent.insert(i, item)
                                 i += 1
-                            toctreenode.parent.remove(toctreenode)
+                            subtocnode.parent.remove(subtocnode)
                     if separate:
                         entries.append(toc)
                     else:

@@ -17,6 +17,8 @@ Bugs fixed
   :rst:dir:`csv-table`. Thanks to Takeshi Komiya.
 * PR#285: Test for subclasses of docutils node types when screening
   searchindex. Thanks to Nathan Goldbaum.
+* #1576: Special toctree entry "self" located after another entry that also has
+  a toctree was replaced with wrong title and link.
 
 
 Release 1.2.3 (released Sep 1, 2014)
