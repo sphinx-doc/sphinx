@@ -380,6 +380,10 @@ def test_tocdepth(app, status, warning):
             (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
             (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
             (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.2$', True),
         ],
         'foo.html': [
             (".//h1", '1. Foo', True),
@@ -387,15 +391,231 @@ def test_tocdepth(app, status, warning):
             (".//h3", '1.1.1. Foo A1', True),
             (".//h2", '1.2. Foo B', True),
             (".//h3", '1.2.1. Foo B1', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.1.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.1.2$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.1.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.1.4$', True),
         ],
         'bar.html': [
             (".//h1", '2. Bar', True),
             (".//h2", '2.1. Bar A', True),
             (".//h2", '2.2. Bar B', True),
             (".//h3", '2.2.1. Bar B1', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.2.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.2.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.2.4$', True),
         ],
         'baz.html': [
             (".//h1", '2.1.1. Baz A', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.2.2$', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        fp = open(os.path.join(app.outdir, fname), 'rb')
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@gen_with_app(buildername='html', testroot='tocdepth',
+              confoverrides={'numfig': True})
+def test_unnumbered_toctree_with_numfig(app, status, warning):
+    # remove :numbered: option
+    index = (app.srcdir / 'index.rst').text()
+    index = re.sub(':numbered:.*', '', index, re.MULTILINE)
+    (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.9 should be Fig.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.10 should be Fig.2$', True),
+            ],
+        'foo.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1 should be Fig.1.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2 should be Fig.1.2$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.3 should be Fig.1.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.4 should be Fig.1.4$', True),
+            ],
+        'bar.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.5 should be Fig.2.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.7 should be Fig.2.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.8 should be Fig.2.4$', True),
+        ],
+        'baz.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.6 should be Fig.2.2$', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        fp = open(os.path.join(app.outdir, fname), 'rb')
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@gen_with_app(buildername='html', testroot='tocdepth',
+              confoverrides={'numfig': True})
+def test_numbered_toctree_with_numfig(app, status, warning):
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1 should be Fig.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2 should be Fig.2$', True),
+            ],
+        'foo.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.1 should be Fig.1.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.2 should be Fig.1.2$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.3 should be Fig.1.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.4 should be Fig.1.4$', True),
+            ],
+        'bar.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.1 should be Fig.2.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.3 should be Fig.2.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.4 should be Fig.2.4$', True),
+        ],
+        'baz.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.2 should be Fig.2.2$', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        fp = open(os.path.join(app.outdir, fname), 'rb')
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@gen_with_app(buildername='html', testroot='tocdepth',
+              confoverrides={'numfig': True, 'numfig_prefix': {'figure': 'Figure:'}})
+def test_numbered_toctree_with_numfig_prefix(app, status, warning):
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:1 should be Fig.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:2 should be Fig.2$', True),
+            ],
+        'foo.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:1.1 should be Fig.1.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:1.2 should be Fig.1.2$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:1.3 should be Fig.1.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:1.4 should be Fig.1.4$', True),
+            ],
+        'bar.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:2.1 should be Fig.2.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:2.3 should be Fig.2.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:2.4 should be Fig.2.4$', True),
+        ],
+        'baz.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:2.2 should be Fig.2.2$', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        fp = open(os.path.join(app.outdir, fname), 'rb')
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@gen_with_app(buildername='html', testroot='tocdepth',
+              confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
+def test_numbered_toctree_with_numfig_secnum_depth(app, status, warning):
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1 should be Fig.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2 should be Fig.2$', True),
+            ],
+        'foo.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.1 should be Fig.1.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.1.1 should be Fig.1.2$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.1.2 should be Fig.1.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.2.1 should be Fig.1.4$', True),
+            ],
+        'bar.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.1.1 should be Fig.2.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.1.3 should be Fig.2.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.2.1 should be Fig.2.4$', True),
+        ],
+        'baz.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.1.2 should be Fig.2.2$', True),
         ],
     }
 

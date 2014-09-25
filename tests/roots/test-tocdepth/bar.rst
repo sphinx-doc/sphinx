@@ -11,9 +11,17 @@ Bar A
 
 should be 2.1
 
+.. figure:: rimg.png
+
+   should be Fig.2.1
+
 .. toctree::
 
    baz
+
+.. figure:: rimg.png
+
+   should be Fig.2.3
 
 Bar B
 =====
@@ -25,3 +33,6 @@ Bar B1
 
 should be 2.2.1
 
+.. figure:: rimg.png
+
+   should be Fig.2.4

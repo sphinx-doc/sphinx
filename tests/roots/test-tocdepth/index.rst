@@ -6,3 +6,11 @@ test-tocdepth
 
    foo
    bar
+
+.. figure:: rimg.png
+
+   should be Fig.1
+
+.. figure:: rimg.png
+
+   should be Fig.2
