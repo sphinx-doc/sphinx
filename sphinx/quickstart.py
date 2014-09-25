@@ -637,7 +637,7 @@ REM Command file for Sphinx documentation
 if "%%SPHINXBUILD%%" == "" (
 \tset SPHINXBUILD=sphinx-build
 )
-set BUILDDIR=%(rbuilddir)s
+set BUILDDIR=%%~dp0%(rbuilddir)s
 set ALLSPHINXOPTS=-d %%BUILDDIR%%/doctrees %%SPHINXOPTS%% %(rsrcdir)s
 set I18NSPHINXOPTS=%%SPHINXOPTS%% %(rsrcdir)s
 if NOT "%%PAPER%%" == "" (
