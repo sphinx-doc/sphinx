@@ -8,8 +8,6 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import with_statement
-
 import re
 
 from six import iteritems, itervalues, text_type, string_types
