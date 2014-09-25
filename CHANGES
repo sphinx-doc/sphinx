@@ -145,6 +145,8 @@ Bugs fixed
 * #1547: pgen2 tokenizer doesn't recognize ``...`` literal (Ellipsis for py3).
 * PR#294: On LaTeX builder, wrap float environment on writing literal_block
   to avoid separation of caption and body. Thanks to Takeshi Komiya.
+* PR#295, #1520: ``make.bat latexpdf`` mechanism to ``cd`` back to the current
+  directory. Thanks to Peter Suter.
 
 Documentation
 -------------

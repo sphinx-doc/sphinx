@@ -637,7 +637,7 @@ REM Command file for Sphinx documentation
 if "%%SPHINXBUILD%%" == "" (
 \tset SPHINXBUILD=sphinx-build
 )
-set BUILDDIR=%%~dp0%(rbuilddir)s
+set BUILDDIR=%(rbuilddir)s
 set ALLSPHINXOPTS=-d %%BUILDDIR%%/doctrees %%SPHINXOPTS%% %(rsrcdir)s
 set I18NSPHINXOPTS=%%SPHINXOPTS%% %(rsrcdir)s
 if NOT "%%PAPER%%" == "" (
@@ -793,7 +793,7 @@ if "%%1" == "latexpdf" (
 \t%%SPHINXBUILD%% -b latex %%ALLSPHINXOPTS%% %%BUILDDIR%%/latex
 \tcd %%BUILDDIR%%/latex
 \tmake all-pdf
-\tcd %%BUILDDIR%%/..
+\tcd %%~dp0
 \techo.
 \techo.Build finished; the PDF files are in %%BUILDDIR%%/latex.
 \tgoto end
@@ -803,7 +803,7 @@ if "%%1" == "latexpdfja" (
 \t%%SPHINXBUILD%% -b latex %%ALLSPHINXOPTS%% %%BUILDDIR%%/latex
 \tcd %%BUILDDIR%%/latex
 \tmake all-pdf-ja
-\tcd %%BUILDDIR%%/..
+\tcd %%~dp0
 \techo.
 \techo.Build finished; the PDF files are in %%BUILDDIR%%/latex.
 \tgoto end
