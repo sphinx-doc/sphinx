@@ -11,13 +11,14 @@
 import os
 import re
 import textwrap
-from itertools import groupby, izip_longest
+from itertools import groupby
 
 from docutils import nodes, writers
 from docutils.utils import column_width
 
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
+from sphinx.util.pycompat import zip_longest
 
 
 class TextWrapper(textwrap.TextWrapper):
@@ -503,7 +504,7 @@ class TextTranslator(nodes.NodeVisitor):
             self.add_text(''.join(out) + self.nl)
 
         def writerow(row):
-            lines = izip_longest(*row)
+            lines = zip_longest(*row)
             for line in lines:
                 out = ['|']
                 for i, cell in enumerate(line):

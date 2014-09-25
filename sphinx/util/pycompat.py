@@ -75,7 +75,6 @@ else:
     import locale
     sys_encoding = locale.getpreferredencoding()
     # use Python 3 name
-    from itertools import izip_longest as zip_longest
     import __builtin__ as builtins
 
 
@@ -198,6 +197,9 @@ else:
             f.write = MethodType(write, f)
         return f
 
+    from collections import deque as _deque
+    def deque(maxlen):
+        return _deque()
 
 # ------------------------------------------------------------------------------
 # Missing builtins and codecs in Python < 2.5

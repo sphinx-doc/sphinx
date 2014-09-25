@@ -17,7 +17,6 @@ import types
 import posixpath
 from os import path
 from cStringIO import StringIO
-from collections import deque
 
 from docutils import nodes
 from docutils.parsers.rst import convert_directive_function, \
@@ -34,6 +33,7 @@ from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.environment import BuildEnvironment, SphinxStandaloneReader
 from sphinx.util import pycompat  # imported for side-effects
+from sphinx.util.pycompat import deque
 from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT
 from sphinx.util.console import bold, lightgray, darkgray
