@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
 import re
 from os import path
 
@@ -17,7 +16,7 @@ from six import PY3, iteritems, string_types, binary_type, integer_types
 
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
-from sphinx.util.osutil import make_filename
+from sphinx.util.osutil import make_filename, cd
 from sphinx.util.pycompat import execfile_
 
 nonascii_re = re.compile(br'[\x80-\xff]')
@@ -224,17 +223,13 @@ class Config(object):
             config_file = path.join(dirname, filename)
             config['__file__'] = config_file
             config['tags'] = tags
-            olddir = os.getcwd()
-            try:
+            with cd(dirname):
                 # we promise to have the config dir as current dir while the
                 # config file is executed
-                os.chdir(dirname)
                 try:
                     execfile_(filename, config)
                 except SyntaxError as err:
                     raise ConfigError(CONFIG_SYNTAX_ERROR % err)
-            finally:
-                os.chdir(olddir)
 
         self._raw_config = config
         # these two must be preinitialized because extensions can add their

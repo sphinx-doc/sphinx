@@ -19,6 +19,7 @@ import locale
 import shutil
 import gettext
 from os import path
+import contextlib
 
 from six import PY2, text_type
 
@@ -200,3 +201,13 @@ def getcwd():
     if hasattr(os, 'getcwdu'):
         return os.getcwdu()
     return os.getcwd()
+
+
+@contextlib.contextmanager
+def cd(target_dir):
+    cwd = getcwd()
+    try:
+        os.chdir(target_dir)
+        yield
+    finally:
+        os.chdir(cwd)
