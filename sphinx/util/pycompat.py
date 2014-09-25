@@ -132,6 +132,8 @@ if sys.version_info >= (2, 6):
     import io
     open = io.open
 
+    from collections import deque
+
 else:
     # Python < 2.6
     from itertools import izip, repeat, chain
