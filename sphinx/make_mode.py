@@ -14,6 +14,7 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import with_statement
 
 import os
 import sys
@@ -23,7 +24,7 @@ from subprocess import call
 
 import sphinx
 from sphinx.util.console import bold, blue
-from sphinx.util.pycompat import getcwd
+from sphinx.util.osutil import cd
 
 proj_name = os.getenv('SPHINXPROJ', '<project>')
 
@@ -160,22 +161,14 @@ class Make(object):
     def build_latexpdf(self):
         if self.run_generic_build('latex') > 0:
             return 1
-        cwd = getcwd()
-        try:
-            os.chdir(self.builddir_join('latex'))
+        with cd(self.builddir_join('latex')):
             os.system('make all-pdf')
-        finally:
-            os.chdir(cwd)
 
     def build_latexpdfja(self):
         if self.run_generic_build('latex') > 0:
             return 1
-        cwd = getcwd()
-        try:
-            os.chdir(self.builddir_join('latex'))
+        with cd(self.builddir_join('latex')):
             os.system('make all-pdf-ja')
-        finally:
-            os.chdir(cwd)
 
     def build_text(self):
         if self.run_generic_build('text') > 0:
@@ -195,12 +188,8 @@ class Make(object):
     def build_info(self):
         if self.run_generic_build('texinfo') > 0:
             return 1
-        cwd = getcwd()
-        try:
-            os.chdir(self.builddir_join('texinfo'))
+        with cd(self.builddir_join('texinfo')):
             os.system('make info')
-        finally:
-            os.chdir(cwd)
 
     def build_gettext(self):
         dtdir = self.builddir_join('gettext', '.doctrees')

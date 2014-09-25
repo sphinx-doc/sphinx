@@ -8,13 +8,14 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import with_statement
 
 import re
 import codecs
 import shutil
 import tempfile
 import posixpath
-from os import path, getcwd, chdir
+from os import path
 from subprocess import Popen, PIPE
 try:
     from hashlib import sha1 as sha
@@ -25,7 +26,7 @@ from docutils import nodes
 
 from sphinx.errors import SphinxError
 from sphinx.util.png import read_png_depth, write_png_depth
-from sphinx.util.osutil import ensuredir, ENOENT
+from sphinx.util.osutil import ensuredir, ENOENT, cd
 from sphinx.util.pycompat import b, sys_encoding
 from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
 
@@ -117,10 +118,7 @@ def render_math(self, math):
     ltx_args.extend(self.builder.config.pngmath_latex_args)
     ltx_args.append('math.tex')
 
-    curdir = getcwd()
-    chdir(tempdir)
-
-    try:
+    with cd(tempdir):
         try:
             p = Popen(ltx_args, stdout=PIPE, stderr=PIPE)
         except OSError, err:
@@ -131,8 +129,6 @@ def render_math(self, math):
                               self.builder.config.pngmath_latex)
             self.builder._mathpng_warned_latex = True
             return None, None
-    finally:
-        chdir(curdir)
 
     stdout, stderr = p.communicate()
     if p.returncode != 0:

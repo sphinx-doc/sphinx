@@ -18,6 +18,7 @@ import locale
 import shutil
 import gettext
 from os import path
+import contextlib
 
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)
@@ -196,3 +197,14 @@ def abspath(pathdir):
     if isinstance(pathdir, bytes):
         pathdir = pathdir.decode(fs_encoding)
     return pathdir
+
+
+@contextlib.contextmanager
+def cd(target_dir):
+    from sphinx.util.pycompat import getcwd
+    cwd = getcwd()
+    try:
+        os.chdir(target_dir)
+        yield
+    finally:
+        os.chdir(cwd)
