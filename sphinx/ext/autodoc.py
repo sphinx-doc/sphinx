@@ -347,7 +347,7 @@ class Documenter(object):
             return True
         # this used to only catch SyntaxError, ImportError and AttributeError,
         # but importing modules with side effects can raise all kinds of errors
-        except (Exception, SystemExit) as e:
+        except (Exception, SystemExit), e:
             if self.objpath:
                 errmsg = 'autodoc: failed to import %s %r from module %r' % \
                          (self.objtype, '.'.join(self.objpath), self.modname)
