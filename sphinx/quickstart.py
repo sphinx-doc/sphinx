@@ -880,6 +880,7 @@ REM Command file for Sphinx documentation
 if "%%SPHINXBUILD%%" == "" (
 \tset SPHINXBUILD=sphinx-build
 )
+set SOURCEDIR=%(rsrcdir)s
 set BUILDDIR=%(rbuilddir)s
 set SPHINXPROJ=%(project_fn)s
 
@@ -898,11 +899,11 @@ if errorlevel 9009 (
 \texit /b 1
 )
 
-%%SPHINXBUILD%% -M %%1 %%BUILDDIR%% %%SPHINXOPTS%%
+%%SPHINXBUILD%% -M %%1 %%SOURCEDIR%% %%BUILDDIR%% %%SPHINXOPTS%%
 goto end
 
 :help
-%%SPHINXBUILD%% -M help %%BUILDDIR%% %%SPHINXOPTS%%
+%%SPHINXBUILD%% -M help %%SOURCEDIR%% %%BUILDDIR%% %%SPHINXOPTS%%
 
 :end
 '''
