@@ -48,7 +48,7 @@ from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.transforms import DefaultSubstitutions, MoveModuleTargets, \
-    HandleCodeBlocks, SortIds, CitationReferences, Locale, \
+    HandleCodeBlocks, AutoNumbering, SortIds, CitationReferences, Locale, \
     RemoveTranslatableInline, SphinxContentsFilter
 
 
@@ -98,7 +98,7 @@ class SphinxStandaloneReader(standalone.Reader):
     Add our own transforms.
     """
     transforms = [Locale, CitationReferences, DefaultSubstitutions,
-                  MoveModuleTargets, HandleCodeBlocks, SortIds,
+                  MoveModuleTargets, HandleCodeBlocks, AutoNumbering, SortIds,
                   RemoveTranslatableInline]
 
     def get_transforms(self):
@@ -234,6 +234,7 @@ class BuildEnvironment:
         # used to determine when to show the TOC
         # in a sidebar (don't show if it's only one item)
         self.toc_secnumbers = {}    # docname -> dict of sectionid -> number
+        self.toc_fignumbers = {}    # docname -> dict of figureid -> number
 
         self.toctree_includes = {}  # docname -> list of toctree includefiles
         self.files_to_rebuild = {}  # docname -> set of files
@@ -635,8 +636,8 @@ class BuildEnvironment:
             self._warnfunc(*warning)
 
     def check_dependents(self, already):
-        to_rewrite = self.assign_section_numbers()
-        for docname in to_rewrite:
+        to_rewrite = self.assign_section_numbers() + self.assign_figure_numbers()
+        for docname in set(to_rewrite):
             if docname not in already:
                 yield docname
 
@@ -1690,6 +1691,63 @@ class BuildEnvironment:
                     # every numbered toctree gets new numbering
                     numstack = [0]
                     _walk_toctree(toctreenode, depth)
+
+        return rewrite_needed
+
+    def assign_figure_numbers(self):
+        """Assign a figure number to each figure under a numbered toctree."""
+
+        rewrite_needed = []
+
+        old_fignumbers = self.toc_fignumbers
+        self.toc_fignumbers = {}
+        fignum_counter = {}
+
+        def get_section_number(docname, section):
+            anchorname = '#' + section['ids'][0]
+            secnumbers = self.toc_secnumbers.get(docname, {})
+            if anchorname in secnumbers:
+                secnum = secnumbers.get(anchorname)
+            else:
+                secnum = secnumbers.get('')
+
+            return secnum or tuple()
+
+        def get_next_figure_number(secnum):
+            secnum = secnum[:1]
+            fignum_counter[secnum] = fignum_counter.get(secnum, 0) + 1
+            return secnum + (fignum_counter[secnum],)
+
+        def _walk_doctree(docname, doctree, secnum):
+            fignums = self.toc_fignumbers.setdefault(docname, {})
+            for subnode in doctree.children:
+                if isinstance(subnode, nodes.section):
+                    next_secnum = get_section_number(docname, subnode)
+                    if next_secnum:
+                        _walk_doctree(docname, subnode, next_secnum)
+                    else:
+                        _walk_doctree(docname, subnode, secnum)
+                    continue
+                elif isinstance(subnode, addnodes.toctree):
+                    for title, subdocname in subnode['entries']:
+                        _walk_doc(subdocname, secnum)
+
+                    continue
+
+                if isinstance(subnode, nodes.figure):
+                    figure_id = subnode['ids'][0]
+                    fignums[figure_id] = get_next_figure_number(secnum)
+
+                _walk_doctree(docname, subnode, secnum)
+
+        def _walk_doc(docname, secnum):
+            doctree = self.get_doctree(docname)
+            _walk_doctree(docname, doctree, secnum)
+
+        _walk_doc(self.config.master_doc, tuple())
+        for docname, fignums in iteritems(self.toc_fignumbers):
+            if fignums != old_fignumbers.get(docname):
+                rewrite_needed.append(docname)
 
         return rewrite_needed
 

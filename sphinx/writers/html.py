@@ -250,6 +250,15 @@ class HTMLTranslator(BaseTranslator):
                 self.body.append('.'.join(map(str, numbers)) +
                                  self.secnumber_suffix)
 
+    def add_fignumber(self, node):
+        if node.get('fignumber'):
+            self.body.append('Fig.' + '.'.join(map(str, node['fignumber'])))
+        elif isinstance(node.parent, nodes.figure):
+            figure_id = node.parent['ids'][0]
+            if self.builder.fignumbers.get(figure_id):
+                numbers = self.builder.fignumbers[figure_id]
+                self.body.append('Fig.' + '.'.join(map(str, numbers)))
+
     # overwritten to avoid emitting empty <ul></ul>
     def visit_bullet_list(self, node):
         if len(node) == 1 and node[0].tagname == 'toctree':
@@ -291,6 +300,7 @@ class HTMLTranslator(BaseTranslator):
             self.body.append(self.starttag(node, 'div', '', CLASS='code-block-caption'))
         else:
             BaseTranslator.visit_caption(self, node)
+        self.add_fignumber(node)
 
     def depart_caption(self, node):
         if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
