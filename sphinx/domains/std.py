@@ -567,6 +567,8 @@ class StandardDomain(Domain):
                     if n.tagname == 'caption':
                         sectname = clean_astext(n)
                         break
+                else:
+                    continue
             else:
                 # anonymous-only labels
                 continue

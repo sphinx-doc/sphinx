@@ -1500,7 +1500,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             ids = ''
             for id in self.next_literal_ids:
                 ids += self.hypertarget(id, anchor=False)
-            self.next_figure_ids.clear()
+            self.next_literal_ids.clear()
             self.body.append('\n\\begin{literal-block}' + ids)
 
     def depart_container(self, node):
