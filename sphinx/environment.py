@@ -234,7 +234,8 @@ class BuildEnvironment:
         # used to determine when to show the TOC
         # in a sidebar (don't show if it's only one item)
         self.toc_secnumbers = {}    # docname -> dict of sectionid -> number
-        self.toc_fignumbers = {}    # docname -> dict of figureid -> number
+        self.toc_fignumbers = {}    # docname -> dict of figtype ->
+                                    # dict of figureid -> number
 
         self.toctree_includes = {}  # docname -> list of toctree includefiles
         self.files_to_rebuild = {}  # docname -> set of files
@@ -1704,6 +1705,13 @@ class BuildEnvironment:
         self.toc_fignumbers = {}
         fignum_counter = {}
 
+        def has_child(node, cls):
+            for child in node:
+                if isinstance(child, cls):
+                    return True
+
+            return False
+
         def get_section_number(docname, section):
             anchorname = '#' + section['ids'][0]
             secnumbers = self.toc_secnumbers.get(docname, {})
@@ -1714,13 +1722,19 @@ class BuildEnvironment:
 
             return secnum or tuple()
 
-        def get_next_figure_number(secnum):
+        def get_next_fignumber(figtype, secnum):
+            counter = fignum_counter.setdefault(figtype, {})
+
             secnum = secnum[:self.config.numfig_secnum_depth]
-            fignum_counter[secnum] = fignum_counter.get(secnum, 0) + 1
-            return secnum + (fignum_counter[secnum],)
+            counter[secnum] = counter.get(secnum, 0) + 1
+            return secnum + (counter[secnum],)
+
+        def register_fignumber(docname, secnum, figtype, figure_id):
+            self.toc_fignumbers.setdefault(docname, {})
+            fignumbers = self.toc_fignumbers[docname].setdefault(figtype, {})
+            fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
 
         def _walk_doctree(docname, doctree, secnum):
-            fignums = self.toc_fignumbers.setdefault(docname, {})
             for subnode in doctree.children:
                 if isinstance(subnode, nodes.section):
                     next_secnum = get_section_number(docname, subnode)
@@ -1741,7 +1755,14 @@ class BuildEnvironment:
 
                 if isinstance(subnode, nodes.figure):
                     figure_id = subnode['ids'][0]
-                    fignums[figure_id] = get_next_figure_number(secnum)
+                    register_fignumber(docname, secnum, 'figure', figure_id)
+                elif isinstance(subnode, nodes.table):
+                    table_id = subnode['ids'][0]
+                    register_fignumber(docname, secnum, 'table', table_id)
+                elif isinstance(subnode, nodes.container):
+                    if has_child(subnode, nodes.literal_block):
+                        code_block_id = subnode['ids'][0]
+                        register_fignumber(docname, secnum, 'code-block', code_block_id)
 
                 _walk_doctree(docname, subnode, secnum)
 
