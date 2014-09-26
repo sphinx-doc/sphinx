@@ -1701,7 +1701,7 @@ class BuildEnvironment:
         rewrite_needed = []
 
         assigned = set()
-        old_fignumbers = self.toc_fignumbers
+        old_fignumbers = getattr(self, 'toc_fignumbers', {})  # compatible with old envs
         self.toc_fignumbers = {}
         fignum_counter = {}
 
