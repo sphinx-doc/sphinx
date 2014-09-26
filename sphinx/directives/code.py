@@ -13,6 +13,7 @@ from difflib import unified_diff
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
+from docutils.statemachine import ViewList
 
 from six import string_types
 
@@ -61,6 +62,17 @@ def dedent_lines(lines, dedent):
     return new_lines
 
 
+def container_wrapper(directive, literal_node, caption):
+    caption_node = nodes.caption()
+    directive.state.nested_parse(ViewList([caption], source=''),
+                                 directive.content_offset, caption_node)
+
+    container_node = nodes.container('', literal_block=True)
+    container_node += caption_node
+    container_node += literal_node
+    return container_node
+
+
 class CodeBlock(Directive):
     """
     Directive for a code block with special highlighting or line numbering
@@ -100,9 +112,6 @@ class CodeBlock(Directive):
 
         literal = nodes.literal_block(code, code)
         literal['language'] = self.arguments[0]
-        caption = self.options.get('caption')
-        if caption:
-            literal['caption'] = caption
         literal['linenos'] = 'linenos' in self.options or \
                              'lineno-start' in self.options
         extra_args = literal['highlight_args'] = {}
@@ -111,6 +120,11 @@ class CodeBlock(Directive):
         if 'lineno-start' in self.options:
             extra_args['linenostart'] = self.options['lineno-start']
         set_source_info(self, literal)
+
+        caption = self.options.get('caption')
+        if caption:
+            literal = container_wrapper(self, literal, caption)
+
         return [literal]
 
 
@@ -268,17 +282,20 @@ class LiteralInclude(Directive):
             retnode['language'] = self.options['language']
         retnode['linenos'] = 'linenos' in self.options or \
                              'lineno-start' in self.options
-        caption = self.options.get('caption')
-        if caption is not None:
-            if not caption:
-                caption = self.arguments[0]
-            retnode['caption'] = caption
         extra_args = retnode['highlight_args'] = {}
         if hl_lines is not None:
             extra_args['hl_lines'] = hl_lines
         if 'lineno-start' in self.options:
             extra_args['linenostart'] = self.options['lineno-start']
         env.note_dependency(rel_filename)
+
+        caption = self.options.get('caption')
+        if caption is not None:
+            if caption:
+                retnode = container_wrapper(self, retnode, caption)
+            else:
+                retnode = container_wrapper(self, retnode, self.arguments[0])
+
         return [retnode]
 
 

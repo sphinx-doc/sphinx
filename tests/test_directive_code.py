@@ -53,7 +53,7 @@ def test_code_block_dedent(app, status, warning):
 def test_code_block_caption_html(app, status, warning):
     app.builder.build(['caption'])
     html = (app.outdir / 'caption.html').text()
-    caption = '<div class="code-block-caption"><code>caption-test.rb</code></div>'
+    caption = '<div class="code-block-caption">caption <em>test</em> rb</div>'
     assert caption in html
 
 
@@ -61,7 +61,7 @@ def test_code_block_caption_html(app, status, warning):
 def test_code_block_caption_latex(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text()
-    caption = '\\caption{caption-test.rb}'
+    caption = '\\caption{\ncaption \\emph{test} rb\n}'
     assert caption in latex
 
 
@@ -99,7 +99,7 @@ def test_literal_include_dedent(app, status, warning):
 def test_literalinclude_caption_html(app, status, warning):
     app.builder.build('index')
     html = (app.outdir / 'caption.html').text()
-    caption = '<div class="code-block-caption"><code>caption-test.py</code></div>'
+    caption = '<div class="code-block-caption">caption <strong>test</strong> py</div>'
     assert caption in html
 
 
@@ -107,5 +107,5 @@ def test_literalinclude_caption_html(app, status, warning):
 def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text()
-    caption = '\\caption{caption-test.py}'
+    caption = '\\caption{\ncaption \\textbf{test} py\n}'
     assert caption in latex

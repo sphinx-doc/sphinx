@@ -5,7 +5,7 @@ Code blocks
 -----------
 
 .. code-block:: ruby
-   :caption: caption-test.rb
+   :caption: caption *test* rb
 
    def ruby?
        false
@@ -17,5 +17,5 @@ Literal Include
 
 .. literalinclude:: literal.inc
    :language: python
-   :caption: caption-test.py
+   :caption: caption **test** py
    :lines: 10-11

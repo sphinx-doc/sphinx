@@ -266,6 +266,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.next_section_ids = set()
         self.next_figure_ids = set()
         self.next_table_ids = set()
+        self.next_literal_ids = set()
         # flags
         self.in_title = 0
         self.in_production_list = 0
@@ -1109,6 +1110,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
                             self.next_table_ids.add(node['refid'])
                         self.next_table_ids.update(node['ids'])
                         return
+            elif isinstance(next, nodes.container) and next.get('literal_block'):
+                # same for literal_block, but only if they have a caption
+                if node.get('refid'):
+                    self.next_literal_ids.add(node['refid'])
+                self.next_literal_ids.update(node['ids'])
+                return
         except IndexError:
             pass
         if 'refuri' in node:
@@ -1345,10 +1352,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 highlight_args['force'] = True
             if 'linenos' in node:
                 linenos = node['linenos']
-            caption = node.get('caption')
-            if caption:
-                self.body.append('\n\\begin{literal-block}\caption{%s}\n' %
-                                 (caption,))
             def warner(msg):
                 self.builder.warn(msg, (self.curfilestack[-1], node.line))
             hlcode = self.highlighter.highlight_block(code, lang, warn=warner,
@@ -1366,8 +1369,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             hlcode = hlcode.rstrip() + '\n'
             self.body.append('\n' + hlcode + '\\end{%sVerbatim}\n' %
                              (self.table and 'Original' or ''))
-            if caption:
-                self.body.append('\n\\end{literal-block}\n')
             raise nodes.SkipNode
     def depart_literal_block(self, node):
         self.body.append('\n\\end{alltt}\n')
@@ -1495,9 +1496,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_container(self, node):
-        pass
+        if node.get('literal_block'):
+            ids = ''
+            for id in self.next_literal_ids:
+                ids += self.hypertarget(id, anchor=False)
+            self.next_literal_ids.clear()
+            self.body.append('\n\\begin{literal-block}' + ids)
+
     def depart_container(self, node):
-        pass
+        if node.get('literal_block'):
+            self.body.append('\\end{literal-block}\n')
 
     def visit_decoration(self, node):
         pass
