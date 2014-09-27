@@ -380,6 +380,90 @@ def test_tocdepth(app, status, warning):
             (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
             (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
             (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
+        ],
+        'foo.html': [
+            (".//h1", '1. Foo', True),
+            (".//h2", '1.1. Foo A', True),
+            (".//h3", '1.1.1. Foo A1', True),
+            (".//h2", '1.2. Foo B', True),
+            (".//h3", '1.2.1. Foo B1', True),
+        ],
+        'bar.html': [
+            (".//h1", '2. Bar', True),
+            (".//h2", '2.1. Bar A', True),
+            (".//h2", '2.2. Bar B', True),
+            (".//h3", '2.2.1. Bar B1', True),
+        ],
+        'baz.html': [
+            (".//h1", '2.1.1. Baz A', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        fp = open(os.path.join(app.outdir, fname), 'rb')
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@gen_with_app(buildername='singlehtml', testroot='tocdepth')
+def test_tocdepth_singlehtml(app, status, warning):
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
+            (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
+            (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
+            (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
+
+            # index.rst
+            (".//h1", 'test-tocdepth', True),
+
+            # foo.rst
+            (".//h2", '1. Foo', True),
+            (".//h3", '1.1. Foo A', True),
+            (".//h4", '1.1.1. Foo A1', True),
+            (".//h3", '1.2. Foo B', True),
+            (".//h4", '1.2.1. Foo B1', True),
+
+            # bar.rst
+            (".//h2", '2. Bar', True),
+            (".//h3", '2.1. Bar A', True),
+            (".//h3", '2.2. Bar B', True),
+            (".//h4", '2.2.1. Bar B1', True),
+
+            # baz.rst
+            (".//h4", '2.1.1. Baz A', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        fp = open(os.path.join(app.outdir, fname), 'rb')
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@gen_with_app(buildername='html', testroot='numfig')
+def test_numfig(app, status, warning):
+    # issue #1251
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
             (".//div[@class='figure']/p[@class='caption']",
                 '^should be Fig.1$', True),
             (".//div[@class='figure']/p[@class='caption']",
@@ -392,11 +476,6 @@ def test_tocdepth(app, status, warning):
                 '^should be List 2$', True),
         ],
         'foo.html': [
-            (".//h1", '1. Foo', True),
-            (".//h2", '1.1. Foo A', True),
-            (".//h3", '1.1.1. Foo A1', True),
-            (".//h2", '1.2. Foo B', True),
-            (".//h3", '1.2.1. Foo B1', True),
             (".//div[@class='figure']/p[@class='caption']",
                 '^should be Fig.1.1$', True),
             (".//div[@class='figure']/p[@class='caption']",
@@ -419,10 +498,6 @@ def test_tocdepth(app, status, warning):
                 '^should be List 1.4$', True),
         ],
         'bar.html': [
-            (".//h1", '2. Bar', True),
-            (".//h2", '2.1. Bar A', True),
-            (".//h2", '2.2. Bar B', True),
-            (".//h3", '2.2.1. Bar B1', True),
             (".//div[@class='figure']/p[@class='caption']",
                 '^should be Fig.2.1$', True),
             (".//div[@class='figure']/p[@class='caption']",
@@ -440,7 +515,6 @@ def test_tocdepth(app, status, warning):
                 '^should be List 2.4$', True),
         ],
         'baz.html': [
-            (".//h1", '2.1.1. Baz A', True),
             (".//div[@class='figure']/p[@class='caption']",
                 '^should be Fig.2.2$', True),
             (".//table/caption", '^should be Table 2.2$', True),
@@ -462,9 +536,9 @@ def test_tocdepth(app, status, warning):
             yield check_xpath, etree, fname, xpath, check, be_found
 
 
-@gen_with_app(buildername='html', testroot='tocdepth',
+@gen_with_app(buildername='html', testroot='numfig',
               confoverrides={'numfig': True})
-def test_unnumbered_toctree_with_numfig(app, status, warning):
+def test_numfig_without_numbered_toctree(app, status, warning):
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').text()
     index = re.sub(':numbered:.*', '', index, re.MULTILINE)
@@ -545,9 +619,9 @@ def test_unnumbered_toctree_with_numfig(app, status, warning):
             yield check_xpath, etree, fname, xpath, check, be_found
 
 
-@gen_with_app(buildername='html', testroot='tocdepth',
+@gen_with_app(buildername='html', testroot='numfig',
               confoverrides={'numfig': True})
-def test_numbered_toctree_with_numfig(app, status, warning):
+def test_numfig_with_numbered_toctree(app, status, warning):
     app.builder.build_all()
 
     expects = {
@@ -624,9 +698,9 @@ def test_numbered_toctree_with_numfig(app, status, warning):
             yield check_xpath, etree, fname, xpath, check, be_found
 
 
-@gen_with_app(buildername='html', testroot='tocdepth',
+@gen_with_app(buildername='html', testroot='numfig',
               confoverrides={'numfig': True, 'numfig_prefix': {'figure': 'Figure:', 'table': 'Tab_', 'code-block': 'Code-'}})
-def test_numbered_toctree_with_numfig_prefix(app, status, warning):
+def test_numfig_with_prefix(app, status, warning):
     app.builder.build_all()
 
     expects = {
@@ -703,9 +777,9 @@ def test_numbered_toctree_with_numfig_prefix(app, status, warning):
             yield check_xpath, etree, fname, xpath, check, be_found
 
 
-@gen_with_app(buildername='html', testroot='tocdepth',
+@gen_with_app(buildername='html', testroot='numfig',
               confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
-def test_numbered_toctree_with_numfig_secnum_depth(app, status, warning):
+def test_numfig_with_secnum_depth(app, status, warning):
     app.builder.build_all()
 
     expects = {
@@ -766,51 +840,6 @@ def test_numbered_toctree_with_numfig_secnum_depth(app, status, warning):
             (".//table/caption", '^Table 2.1.2 should be Table 2.2$', True),
             (".//div[@class='code-block-caption']",
                 '^List 2.1.2 should be List 2.2$', True),
-        ],
-    }
-
-    for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
-        fp = open(os.path.join(app.outdir, fname), 'rb')
-        try:
-            etree = ET.parse(fp, parser)
-        finally:
-            fp.close()
-
-        for xpath, check, be_found in paths:
-            yield check_xpath, etree, fname, xpath, check, be_found
-
-
-@gen_with_app(buildername='singlehtml', testroot='tocdepth')
-def test_tocdepth_singlehtml(app, status, warning):
-    app.builder.build_all()
-
-    expects = {
-        'index.html': [
-            (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
-            (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
-            (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
-            (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
-
-            # index.rst
-            (".//h1", 'test-tocdepth', True),
-
-            # foo.rst
-            (".//h2", '1. Foo', True),
-            (".//h3", '1.1. Foo A', True),
-            (".//h4", '1.1.1. Foo A1', True),
-            (".//h3", '1.2. Foo B', True),
-            (".//h4", '1.2.1. Foo B1', True),
-
-            # bar.rst
-            (".//h2", '2. Bar', True),
-            (".//h3", '2.1. Bar A', True),
-            (".//h3", '2.2. Bar B', True),
-            (".//h4", '2.2.1. Bar B1', True),
-
-            # baz.rst
-            (".//h4", '2.1.1. Baz A', True),
         ],
     }
 
