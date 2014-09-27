@@ -86,7 +86,7 @@ def render_math(self, math):
 
     shasum = "%s.png" % sha1(latex.encode('utf-8')).hexdigest()
     relfn = posixpath.join(self.builder.imgpath, 'math', shasum)
-    outfn = path.join(self.builder.outdir, '_images', 'math', shasum)
+    outfn = path.join(self.builder.outdir, self.builder.imagedir, 'math', shasum)
     if path.isfile(outfn):
         depth = read_png_depth(outfn)
         return relfn, depth

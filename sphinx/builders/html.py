@@ -73,6 +73,7 @@ class StandaloneHTMLBuilder(Builder):
     link_suffix = '.html'  # defaults to matching out_suffix
     indexer_format = js_index
     indexer_dumps_unicode = True
+    imagedir = '_images'
     supported_image_types = ['image/svg+xml', 'image/png',
                              'image/gif', 'image/jpeg']
     searchindex_filename = 'searchindex.js'
@@ -424,7 +425,7 @@ class StandaloneHTMLBuilder(Builder):
         doctree.settings = self.docsettings
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
-        self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
+        self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
         self.current_docname = docname
         self.docwriter.write(doctree, destination)
@@ -436,7 +437,7 @@ class StandaloneHTMLBuilder(Builder):
         self.handle_page(docname, ctx, event_arg=doctree)
 
     def write_doc_serialized(self, docname, doctree):
-        self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
+        self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.post_process_images(doctree)
         title = self.env.longtitles.get(docname)
         title = title and self.render_partial(title)['title'] or ''
@@ -534,13 +535,13 @@ class StandaloneHTMLBuilder(Builder):
     def copy_image_files(self):
         # copy image files
         if self.images:
-            ensuredir(path.join(self.outdir, '_images'))
+            ensuredir(path.join(self.outdir, self.imagedir))
             for src in self.app.status_iterator(self.images, 'copying images... ',
                                                 brown, len(self.images)):
                 dest = self.images[src]
                 try:
                     copyfile(path.join(self.srcdir, src),
-                             path.join(self.outdir, '_images', dest))
+                             path.join(self.outdir, self.imagedir, dest))
                 except Exception as err:
                     self.warn('cannot copy image file %r: %s' %
                               (path.join(self.srcdir, src), err))

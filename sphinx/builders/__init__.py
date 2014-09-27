@@ -44,6 +44,10 @@ class Builder(object):
     versioning_method = 'none'
     # allow parallel write_doc() calls
     allow_parallel = False
+    # basename of images directory
+    imagedir = ""
+    # relative path to image directory from current docname (used at writing docs)
+    imgpath = ""
 
     def __init__(self, app):
         self.env = app.env
