@@ -1706,11 +1706,7 @@ class BuildEnvironment:
         fignum_counter = {}
 
         def has_child(node, cls):
-            for child in node:
-                if isinstance(child, cls):
-                    return True
-
-            return False
+            return any(isinstance(child, cls) for child in node)
 
         def get_section_number(docname, section):
             anchorname = '#' + section['ids'][0]

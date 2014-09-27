@@ -109,11 +109,7 @@ class AutoNumbering(Transform):
 
     def apply(self):
         def has_child(node, cls):
-            for child in node:
-                if isinstance(child, cls):
-                    return True
-
-            return False
+            return any(isinstance(child, cls) for child in node)
 
         for node in self.document.traverse(nodes.Element):
             if isinstance(node, nodes.figure):
