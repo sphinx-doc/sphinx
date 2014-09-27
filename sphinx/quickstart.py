@@ -13,6 +13,7 @@ from __future__ import print_function
 import re
 import os
 import sys
+import optparse
 import time
 from os import path
 from io import open
@@ -1344,16 +1345,117 @@ where "builder" is one of the supported builders, e.g. html, latex or linkcheck.
 ''')
 
 
+def usage(argv, msg=None):
+    if msg:
+        print(msg, file=sys.stderr)
+        print(file=sys.stderr)
+
+USAGE = """\
+Sphinx v%s
+Usage: %%prog [options] folder
+""" % __version__
+
+EPILOG = """\
+For more information, visit <http://sphinx-doc.org/>.
+"""
+
+
+class MyFormatter(optparse.IndentedHelpFormatter):
+    def format_usage(self, usage):
+        return usage
+
+    def format_help(self, formatter):
+        result = []
+        if self.description:
+            result.append(self.format_description(formatter))
+        if self.option_list:
+            result.append(self.format_option_help(formatter))
+        return "\n".join(result)
+
+
 def main(argv=sys.argv):
     if not color_terminal():
         nocolor()
 
-    d = {}
-    if len(argv) > 3:
-        print('Usage: sphinx-quickstart [root]')
-        sys.exit(1)
-    elif len(argv) == 2:
-        d['path'] = argv[1]
+    parser = optparse.OptionParser(USAGE, epilog=EPILOG,
+                                   formatter=MyFormatter())
+    parser.add_option('--version', action='store_true', dest='version',
+                      help='show version information and exit')
+    parser.add_option('-q', action='store_true', dest='quiet',
+                      default=False,
+                      help='quiet mode')
+
+    group = parser.add_option_group('Structure options')
+    group.add_option('--sep', action='store_true', dest='sep',
+                     help='if specified, separate source and build dirs')
+    group.add_option('--dot', metavar='DOT', dest='dot',
+                     help='replacement for dot in _templates etc.')
+
+    group = parser.add_option_group('Project basic options')
+    group.add_option('-p', metavar='PROJECT', dest='project',
+                     help='project name')
+    group.add_option('-a', metavar='AUTHOR', dest='author',
+                     help='author names')
+    group.add_option('-v', metavar='VERSION', dest='version',
+                     help='version of project')
+    group.add_option('-r', metavar='RELEASE', dest='version',
+                     help='release of project')
+    group.add_option('-l', metavar='LANGUAGE', dest='language',
+                     help='document language')
+    group.add_option('--suffix', metavar='SUFFIX', dest='suffix',
+                     help='source file suffix')
+    group.add_option('--master', metavar='MASTER', dest='master',
+                     help='master document name')
+    group.add_option('--epub', action='store_true', dest='epub',
+                     default=False,
+                     help='use epub')
+
+    group = parser.add_option_group('Extensions')
+    group.add_option('--ext_autodoc', action='store_true', dest='ext_autodoc',
+                     default=None,
+                     help='add autodoc extention')
+    group.add_option('--ext_doctest', action='store_true', dest='ext_doctest',
+                     default=False,
+                     help='add doctest extention')
+    group.add_option('--ext_intersphinx', action='store_true', dest='ext_intersphinx',
+                     default=False,
+                     help='add intersphinx extention')
+    group.add_option('--ext_todo', action='store_true', dest='ext_todo',
+                     default=False,
+                     help='add todo extention')
+    group.add_option('--ext_coverage', action='store_true', dest='ext_coverage',
+                     default=False,
+                     help='add coverage extention')
+    group.add_option('--ext_pngmath', action='store_true', dest='ext_pngmath',
+                     default=False,
+                     help='add pngmath extention')
+    group.add_option('--ext_mathjax', action='store_true', dest='ext_mathjax',
+                     default=False,
+                     help='add mathjax extention')
+
+    group = parser.add_option_group('Makefile and Batchfile creation')
+    group.add_option('--makefile', action='store_true', dest='makefile',
+                     default=False,
+                     help='makefile')
+    group.add_option('--batchfile', action='store_true', dest='batchfile',
+                     default=False,
+                     help='create batchfile')
+
+    # parse options
+    try:
+        opts, args = parser.parse_args()
+    except SystemExit as err:
+        return err.code
+
+    if len(args) > 0:
+        opts.ensure_value('path', args[0])
+
+    d = vars(opts)
+    for k, v in d.items():
+        # delete None or False value
+        if v is None or v is False:
+            del d[k]
+
     try:
         ask_user(d)
     except (KeyboardInterrupt, EOFError):
@@ -1361,7 +1463,6 @@ def main(argv=sys.argv):
         print('[Interrupted.]')
         return
     generate(d)
-
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
