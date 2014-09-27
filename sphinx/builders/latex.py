@@ -37,6 +37,7 @@ class LaTeXBuilder(Builder):
     format = 'latex'
     supported_image_types = ['application/pdf', 'image/png',
                              'image/gif', 'image/jpeg']
+    usepackages = []
 
     def init(self):
         self.docnames = []
