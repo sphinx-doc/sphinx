@@ -73,7 +73,6 @@ class StandaloneHTMLBuilder(Builder):
     link_suffix = '.html'  # defaults to matching out_suffix
     indexer_format = js_index
     indexer_dumps_unicode = True
-    imagedir = '_images'
     supported_image_types = ['image/svg+xml', 'image/png',
                              'image/gif', 'image/jpeg']
     searchindex_filename = 'searchindex.js'
@@ -96,6 +95,8 @@ class StandaloneHTMLBuilder(Builder):
         # a hash of all config values that, if changed, cause a full rebuild
         self.config_hash = ''
         self.tags_hash = ''
+        # basename of images directory
+        self.imagedir = '_images'
         # section numbers for headings in the currently visited document
         self.secnumbers = {}
         # currently written docname
@@ -1030,6 +1031,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     def init(self):
         self.config_hash = ''
         self.tags_hash = ''
+        self.imagedir = '_images'
         self.theme = None       # no theme necessary
         self.templates = None   # no template bridge necessary
         self.init_translator_class()
