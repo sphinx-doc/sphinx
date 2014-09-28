@@ -91,3 +91,10 @@ def test_latex(app, status, warning):
                 assert False, 'latex exited with return code %s' % p.returncode
     finally:
         os.chdir(cwd)
+
+
+@with_app(buildername='latex')
+def test_latex_add_latex_package(app, status, warning):
+    app.add_latex_package('foo')
+    app.builder.build_all()
+    assert '\\usepackage{foo}' in (app.outdir / 'SphinxTests.tex').text()

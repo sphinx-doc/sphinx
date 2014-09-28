@@ -694,6 +694,11 @@ class Sphinx(object):
             StandaloneHTMLBuilder.css_files.append(
                 posixpath.join('_static', filename))
 
+    def add_latex_package(self, packagename):
+        self.debug('[app] adding latex package: %r', packagename)
+        from sphinx.builders.latex import LaTeXBuilder
+        LaTeXBuilder.usepackages.append(packagename)
+
     def add_lexer(self, alias, lexer):
         self.debug('[app] adding lexer: %r', (alias, lexer))
         from sphinx.highlighting import lexers
