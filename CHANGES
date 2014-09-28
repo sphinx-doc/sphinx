@@ -155,6 +155,8 @@ Bugs fixed
   to avoid separation of caption and body. Thanks to Takeshi Komiya.
 * PR#295, #1520: ``make.bat latexpdf`` mechanism to ``cd`` back to the current
   directory. Thanks to Peter Suter.
+* PR#297, #1571: Add imgpath property to all builders. It make easier to
+  develop builder extensions. Thanks to Takeshi Komiya.
 
 Documentation
 -------------
