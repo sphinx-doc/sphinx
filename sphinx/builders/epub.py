@@ -404,7 +404,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         The method tries to read and write the files with the PIL,
         converting the format and resizing the image if necessary/possible.
         """
-        ensuredir(path.join(self.outdir, '_images'))
+        ensuredir(path.join(self.outdir, self.imagedir))
         for src in self.app.status_iterator(self.images, 'copying images... ',
                                             brown, len(self.images)):
             dest = self.images[src]
@@ -416,7 +416,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                               (path.join(self.srcdir, src), ))
                 try:
                     copyfile(path.join(self.srcdir, src),
-                             path.join(self.outdir, '_images', dest))
+                             path.join(self.outdir, self.imagedir, dest))
                 except (IOError, OSError) as err:
                     self.warn('cannot copy image file %r: %s' %
                               (path.join(self.srcdir, src), err))
@@ -432,7 +432,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     nh = (height * nw) / width
                     img = img.resize((nw, nh), Image.BICUBIC)
             try:
-                img.save(path.join(self.outdir, '_images', dest))
+                img.save(path.join(self.outdir, self.imagedir, dest))
             except (IOError, OSError) as err:
                 self.warn('cannot write image file %r: %s' %
                           (path.join(self.srcdir, src), err))
