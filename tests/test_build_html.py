@@ -455,3 +455,402 @@ def test_tocdepth_singlehtml(app, status, warning):
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@gen_with_app(buildername='html', testroot='numfig')
+def test_numfig(app, status, warning):
+    # issue #1251
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.2$', True),
+            (".//table/caption", '^should be Table 1$', True),
+            (".//table/caption", '^should be Table 2$', True),
+            (".//div[@class='code-block-caption']",
+                '^should be List 1$', True),
+            (".//div[@class='code-block-caption']",
+                '^should be List 2$', True),
+        ],
+        'foo.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.1.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.1.2$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.1.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.1.4$', True),
+            (".//table/caption", '^should be Table 1.1$', True),
+            (".//table/caption", '^should be Table 1.2$', True),
+            (".//table/caption", '^should be Table 1.3$', True),
+            (".//table/caption", '^should be Table 1.4$', True),
+            (".//div[@class='code-block-caption']",
+                '^should be List 1.1$', True),
+            (".//div[@class='code-block-caption']",
+                '^should be List 1.2$', True),
+            (".//div[@class='code-block-caption']",
+                '^should be List 1.3$', True),
+            (".//div[@class='code-block-caption']",
+                '^should be List 1.4$', True),
+        ],
+        'bar.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.2.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.2.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.2.4$', True),
+            (".//table/caption", '^should be Table 2.1$', True),
+            (".//table/caption", '^should be Table 2.3$', True),
+            (".//table/caption", '^should be Table 2.4$', True),
+            (".//div[@class='code-block-caption']",
+                '^should be List 2.1$', True),
+            (".//div[@class='code-block-caption']",
+                '^should be List 2.3$', True),
+            (".//div[@class='code-block-caption']",
+                '^should be List 2.4$', True),
+        ],
+        'baz.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^should be Fig.2.2$', True),
+            (".//table/caption", '^should be Table 2.2$', True),
+            (".//div[@class='code-block-caption']",
+                '^should be List 2.2$', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        fp = open(os.path.join(app.outdir, fname), 'rb')
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@gen_with_app(buildername='html', testroot='numfig',
+              confoverrides={'numfig': True})
+def test_numfig_without_numbered_toctree(app, status, warning):
+    # remove :numbered: option
+    index = (app.srcdir / 'index.rst').text()
+    index = re.sub(':numbered:.*', '', index, re.MULTILINE)
+    (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.9 should be Fig.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.10 should be Fig.2$', True),
+            (".//table/caption", '^Table 9 should be Table 1$', True),
+            (".//table/caption", '^Table 10 should be Table 2$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 9 should be List 1$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 10 should be List 2$', True),
+            ],
+        'foo.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1 should be Fig.1.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2 should be Fig.1.2$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.3 should be Fig.1.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.4 should be Fig.1.4$', True),
+            (".//table/caption", '^Table 1 should be Table 1.1$', True),
+            (".//table/caption", '^Table 2 should be Table 1.2$', True),
+            (".//table/caption", '^Table 3 should be Table 1.3$', True),
+            (".//table/caption", '^Table 4 should be Table 1.4$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 1 should be List 1.1$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 2 should be List 1.2$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 3 should be List 1.3$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 4 should be List 1.4$', True),
+            ],
+        'bar.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.5 should be Fig.2.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.7 should be Fig.2.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.8 should be Fig.2.4$', True),
+            (".//table/caption", '^Table 5 should be Table 2.1$', True),
+            (".//table/caption", '^Table 7 should be Table 2.3$', True),
+            (".//table/caption", '^Table 8 should be Table 2.4$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 5 should be List 2.1$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 7 should be List 2.3$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 8 should be List 2.4$', True),
+        ],
+        'baz.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.6 should be Fig.2.2$', True),
+            (".//table/caption", '^Table 6 should be Table 2.2$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 6 should be List 2.2$', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        fp = open(os.path.join(app.outdir, fname), 'rb')
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@gen_with_app(buildername='html', testroot='numfig',
+              confoverrides={'numfig': True})
+def test_numfig_with_numbered_toctree(app, status, warning):
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1 should be Fig.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2 should be Fig.2$', True),
+            (".//table/caption", '^Table 1 should be Table 1$', True),
+            (".//table/caption", '^Table 2 should be Table 2$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 1 should be List 1$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 2 should be List 2$', True),
+            ],
+        'foo.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.1 should be Fig.1.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.2 should be Fig.1.2$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.3 should be Fig.1.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.4 should be Fig.1.4$', True),
+            (".//table/caption", '^Table 1.1 should be Table 1.1$', True),
+            (".//table/caption", '^Table 1.2 should be Table 1.2$', True),
+            (".//table/caption", '^Table 1.3 should be Table 1.3$', True),
+            (".//table/caption", '^Table 1.4 should be Table 1.4$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 1.1 should be List 1.1$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 1.2 should be List 1.2$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 1.3 should be List 1.3$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 1.4 should be List 1.4$', True),
+            ],
+        'bar.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.1 should be Fig.2.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.3 should be Fig.2.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.4 should be Fig.2.4$', True),
+            (".//table/caption", '^Table 2.1 should be Table 2.1$', True),
+            (".//table/caption", '^Table 2.3 should be Table 2.3$', True),
+            (".//table/caption", '^Table 2.4 should be Table 2.4$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 2.1 should be List 2.1$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 2.3 should be List 2.3$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 2.4 should be List 2.4$', True),
+        ],
+        'baz.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.2 should be Fig.2.2$', True),
+            (".//table/caption", '^Table 2.2 should be Table 2.2$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 2.2 should be List 2.2$', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        fp = open(os.path.join(app.outdir, fname), 'rb')
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@gen_with_app(buildername='html', testroot='numfig',
+              confoverrides={'numfig': True, 'numfig_prefix': {'figure': 'Figure:', 'table': 'Tab_', 'code-block': 'Code-'}})
+def test_numfig_with_prefix(app, status, warning):
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:1 should be Fig.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:2 should be Fig.2$', True),
+            (".//table/caption", '^Tab_1 should be Table 1$', True),
+            (".//table/caption", '^Tab_2 should be Table 2$', True),
+            (".//div[@class='code-block-caption']",
+                '^Code-1 should be List 1$', True),
+            (".//div[@class='code-block-caption']",
+                '^Code-2 should be List 2$', True),
+            ],
+        'foo.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:1.1 should be Fig.1.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:1.2 should be Fig.1.2$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:1.3 should be Fig.1.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:1.4 should be Fig.1.4$', True),
+            (".//table/caption", '^Tab_1.1 should be Table 1.1$', True),
+            (".//table/caption", '^Tab_1.2 should be Table 1.2$', True),
+            (".//table/caption", '^Tab_1.3 should be Table 1.3$', True),
+            (".//table/caption", '^Tab_1.4 should be Table 1.4$', True),
+            (".//div[@class='code-block-caption']",
+                '^Code-1.1 should be List 1.1$', True),
+            (".//div[@class='code-block-caption']",
+                '^Code-1.2 should be List 1.2$', True),
+            (".//div[@class='code-block-caption']",
+                '^Code-1.3 should be List 1.3$', True),
+            (".//div[@class='code-block-caption']",
+                '^Code-1.4 should be List 1.4$', True),
+            ],
+        'bar.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:2.1 should be Fig.2.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:2.3 should be Fig.2.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:2.4 should be Fig.2.4$', True),
+            (".//table/caption", '^Tab_2.1 should be Table 2.1$', True),
+            (".//table/caption", '^Tab_2.3 should be Table 2.3$', True),
+            (".//table/caption", '^Tab_2.4 should be Table 2.4$', True),
+            (".//div[@class='code-block-caption']",
+                '^Code-2.1 should be List 2.1$', True),
+            (".//div[@class='code-block-caption']",
+                '^Code-2.3 should be List 2.3$', True),
+            (".//div[@class='code-block-caption']",
+                '^Code-2.4 should be List 2.4$', True),
+        ],
+        'baz.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Figure:2.2 should be Fig.2.2$', True),
+            (".//table/caption", '^Tab_2.2 should be Table 2.2$', True),
+            (".//div[@class='code-block-caption']",
+                '^Code-2.2 should be List 2.2$', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        fp = open(os.path.join(app.outdir, fname), 'rb')
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@gen_with_app(buildername='html', testroot='numfig',
+              confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
+def test_numfig_with_secnum_depth(app, status, warning):
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1 should be Fig.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2 should be Fig.2$', True),
+            (".//table/caption", '^Table 1 should be Table 1$', True),
+            (".//table/caption", '^Table 2 should be Table 2$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 1 should be List 1$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 2 should be List 2$', True),
+            ],
+        'foo.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.1 should be Fig.1.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.1.1 should be Fig.1.2$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.1.2 should be Fig.1.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.1.2.1 should be Fig.1.4$', True),
+            (".//table/caption", '^Table 1.1 should be Table 1.1$', True),
+            (".//table/caption", '^Table 1.1.1 should be Table 1.2$', True),
+            (".//table/caption", '^Table 1.1.2 should be Table 1.3$', True),
+            (".//table/caption", '^Table 1.2.1 should be Table 1.4$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 1.1 should be List 1.1$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 1.1.1 should be List 1.2$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 1.1.2 should be List 1.3$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 1.2.1 should be List 1.4$', True),
+            ],
+        'bar.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.1.1 should be Fig.2.1$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.1.3 should be Fig.2.3$', True),
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.2.1 should be Fig.2.4$', True),
+            (".//table/caption", '^Table 2.1.1 should be Table 2.1$', True),
+            (".//table/caption", '^Table 2.1.3 should be Table 2.3$', True),
+            (".//table/caption", '^Table 2.2.1 should be Table 2.4$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 2.1.1 should be List 2.1$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 2.1.3 should be List 2.3$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 2.2.1 should be List 2.4$', True),
+        ],
+        'baz.html': [
+            (".//div[@class='figure']/p[@class='caption']",
+                '^Fig.2.1.2 should be Fig.2.2$', True),
+            (".//table/caption", '^Table 2.1.2 should be Table 2.2$', True),
+            (".//div[@class='code-block-caption']",
+                '^List 2.1.2 should be List 2.2$', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        fp = open(os.path.join(app.outdir, fname), 'rb')
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found

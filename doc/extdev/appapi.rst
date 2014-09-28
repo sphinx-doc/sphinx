@@ -288,6 +288,12 @@ package.
 
    .. versionadded:: 1.0
 
+.. method:: Sphinx.add_latex_package(packagename)
+
+   Add *packagename* to the list of packages that LaTeX source code will include.
+
+   .. versionadded:: 1.3
+
 .. method:: Sphinx.add_lexer(alias, lexer)
 
    Use *lexer*, which must be an instance of a Pygments lexer class, to

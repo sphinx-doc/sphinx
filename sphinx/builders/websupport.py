@@ -58,6 +58,7 @@ class WebSupportBuilder(PickleHTMLBuilder):
         doctree.settings = self.docsettings
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
+        self.fignumbers = self.env.toc_fignumbers.get(docname, {})
         self.imgpath = '/' + posixpath.join(self.virtual_staticdir, self.imagedir)
         self.dlpath = '/' + posixpath.join(self.virtual_staticdir, '_downloads')
         self.current_docname = docname

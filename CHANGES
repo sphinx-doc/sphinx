@@ -44,6 +44,8 @@ Features added
   directive is now supported.
 * PR#214: Added stemming support for 14 languages, so that the built-in document
   search can now handle these.  Thanks to Shibukawa Yoshiki.
+* PR#296: numfig feature: Assign numbers to figures, tables and code-blocks.
+  Thanks to Takeshi Komiya.
 * PR#202: Allow "." and "~" prefixed references in ``:param:`` doc fields
   for Python.
 * PR#184: Add `autodoc_mock_imports`, allowing to mock imports of
@@ -83,6 +85,8 @@ Features added
   ``+``.
 * PR#291: The caption of :rst:dir:`code-block` is recognised as a title of ref
   target. Thanks to Takeshi Komiya.
+* PR#298: Add new API: :meth:`~sphinx.application.Sphinx.add_latex_package`.
+  Thanks to Takeshi Komiya.
 
 Bugs fixed
 ----------

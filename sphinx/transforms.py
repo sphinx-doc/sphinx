@@ -101,6 +101,31 @@ class HandleCodeBlocks(Transform):
         #        del node.parent[parindex+1]
 
 
+class AutoNumbering(Transform):
+    """
+    Register IDs of tables, figures and literal_blocks to assign numbers.
+    """
+    default_priority = 210
+
+    def apply(self):
+        def has_child(node, cls):
+            return any(isinstance(child, cls) for child in node)
+
+        for node in self.document.traverse(nodes.Element):
+            if isinstance(node, nodes.figure):
+                if has_child(node, nodes.caption):
+                    self.document.note_implicit_target(node)
+            elif isinstance(node, nodes.image):
+                if has_child(node.parent, nodes.caption):
+                    self.document.note_implicit_target(node.parent)
+            elif isinstance(node, nodes.table):
+                if has_child(node, nodes.title):
+                    self.document.note_implicit_target(node)
+            elif isinstance(node, nodes.literal_block):
+                if has_child(node.parent, nodes.caption):
+                    self.document.note_implicit_target(node.parent)
+
+
 class SortIds(Transform):
     """
     Sort secion IDs so that the "id[0-9]+" one comes last.
