@@ -96,5 +96,7 @@ def test_latex(app, status, warning):
 @with_app(buildername='latex')
 def test_latex_add_latex_package(app, status, warning):
     app.add_latex_package('foo')
+    app.add_latex_package('bar', 'baz')
     app.builder.build_all()
     assert '\\usepackage{foo}' in (app.outdir / 'SphinxTests.tex').text()
+    assert '\\usepackage[baz]{bar}' in (app.outdir / 'SphinxTests.tex').text()

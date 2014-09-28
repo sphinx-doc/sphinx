@@ -237,7 +237,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
         else:
             self.elements['classoptions'] += ',english'
         if getattr(builder, 'usepackages', None):
-            usepackages = ('\\usepackage{%s}' % p for p in builder.usepackages)
+            def declare_package(packagename, options=None):
+                if options:
+                    return '\\usepackage[%s]{%s}' % (options, packagename)
+                else:
+                    return '\\usepackage{%s}' % (packagename,)
+            usepackages = (declare_package(*p) for p in builder.usepackages)
             self.elements['usepackages'] += "\n".join(usepackages)
         # allow the user to override them all
         self.elements.update(builder.config.latex_elements)
