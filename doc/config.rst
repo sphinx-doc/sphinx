@@ -447,6 +447,16 @@ documentation on :ref:`intl` for details.
 
    .. versionadded:: 1.3
 
+.. confval:: gettext_enables
+
+   To specify names to enable gettext extracting and translation applying for
+   i18n. You can specify below names:
+
+   :index: index terms
+
+   The default is ``[]``.
+
+   .. versionadded:: 1.3
 
 .. _html-options:
 

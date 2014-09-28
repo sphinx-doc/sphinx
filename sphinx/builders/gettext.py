@@ -108,15 +108,16 @@ class I18nBuilder(Builder):
         for node, msg in extract_messages(doctree):
             catalog.add(msg, node)
 
-        # Extract translatable messages from index entries.
-        for node, entries in traverse_translatable_index(doctree):
-            for typ, msg, tid, main in entries:
-                for m in split_index_msg(typ, msg):
-                    if typ == 'pair' and m in pairindextypes.values():
-                        # avoid built-in translated message was incorporated
-                        # in 'sphinx.util.nodes.process_index_entry'
-                        continue
-                    catalog.add(m, node)
+        if 'index' in self.env.config.gettext_enables:
+            # Extract translatable messages from index entries.
+            for node, entries in traverse_translatable_index(doctree):
+                for typ, msg, tid, main in entries:
+                    for m in split_index_msg(typ, msg):
+                        if typ == 'pair' and m in pairindextypes.values():
+                            # avoid built-in translated message was incorporated
+                            # in 'sphinx.util.nodes.process_index_entry'
+                            continue
+                        catalog.add(m, node)
 
 
 # determine tzoffset once to remain unaffected by DST change during build

@@ -462,22 +462,23 @@ class Locale(Transform):
             node.children = patch.children
             node['translated'] = True
 
-        # Extract and translate messages for index entries.
-        for node, entries in traverse_translatable_index(self.document):
-            new_entries = []
-            for type, msg, tid, main in entries:
-                msg_parts = split_index_msg(type, msg)
-                msgstr_parts = []
-                for part in msg_parts:
-                    msgstr = catalog.gettext(part)
-                    if not msgstr:
-                        msgstr = part
-                    msgstr_parts.append(msgstr)
+        if 'index' in env.config.gettext_enables:
+            # Extract and translate messages for index entries.
+            for node, entries in traverse_translatable_index(self.document):
+                new_entries = []
+                for type, msg, tid, main in entries:
+                    msg_parts = split_index_msg(type, msg)
+                    msgstr_parts = []
+                    for part in msg_parts:
+                        msgstr = catalog.gettext(part)
+                        if not msgstr:
+                            msgstr = part
+                        msgstr_parts.append(msgstr)
 
-                new_entries.append((type, ';'.join(msgstr_parts), tid, main))
+                    new_entries.append((type, ';'.join(msgstr_parts), tid, main))
 
-            node['raw_entries'] = entries
-            node['entries'] = new_entries
+                node['raw_entries'] = entries
+                node['entries'] = new_entries
 
 
 class RemoveTranslatableInline(Transform):

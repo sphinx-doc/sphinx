@@ -20,6 +20,8 @@ Incompatible changes
   templates directory.
 * Custom domains should implement the new `Domain.resolve_any_xref`
   method to make the `any` role work properly.
+* gettext builder: disable extracting/apply 'index' node by default. Please set
+  'index' to :confval:`gettext_enables` to enable extracting index entries.
 
 Features added
 --------------
@@ -87,6 +89,8 @@ Features added
   target. Thanks to Takeshi Komiya.
 * PR#298: Add new API: :meth:`~sphinx.application.Sphinx.add_latex_package`.
   Thanks to Takeshi Komiya.
+* #1344: add :confval:`gettext_enables` to enable extracting 'index' to gettext
+  catalog output / applying translation catalog to generated documentation.
 
 Bugs fixed
 ----------

@@ -211,6 +211,7 @@ class Config(object):
         gettext_location = (True, 'gettext'),
         gettext_uuid = (True, 'gettext'),
         gettext_auto_build = (True, 'env'),
+        gettext_enables = ([], 'env'),
 
         # XML options
         xml_pretty = (True, 'env'),

@@ -113,6 +113,38 @@ def test_gettext_index_entries(app, status, warning):
         "Exception",
         "Statement",
         "Builtin",
+        ]
+    for expect in expected_msgids:
+        assert expect in msgids
+        msgids.remove(expect)
+
+    # unexpected msgid existent
+    assert msgids == []
+
+
+@with_app('gettext', testroot='intl',
+          confoverrides={'gettext_compact': False, 'gettext_enables': []})
+def test_gettext_disable_index_entries(app, status, warning):
+    # regression test for #976
+    app.builder.build(['index_entries'])
+
+    _msgid_getter = re.compile(r'msgid "(.*)"').search
+
+    def msgid_getter(msgid):
+        m = _msgid_getter(msgid)
+        if m:
+            return m.groups()[0]
+        return None
+
+    pot = (app.outdir / 'index_entries.pot').text(encoding='utf-8')
+    msgids = [_f for _f in map(msgid_getter, pot.splitlines()) if _f]
+
+    expected_msgids = [
+        "i18n with index entries",
+        "index target section",
+        "this is :index:`Newsletter` target paragraph.",
+        "various index entries",
+        "That's all.",
     ]
     for expect in expected_msgids:
         assert expect in msgids
