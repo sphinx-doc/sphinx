@@ -59,7 +59,6 @@ class WebSupportBuilder(PickleHTMLBuilder):
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
         self.imgpath = '/' + posixpath.join(self.virtual_staticdir, self.imagedir)
-        print self.imgpath
         self.dlpath = '/' + posixpath.join(self.virtual_staticdir, '_downloads')
         self.current_docname = docname
         self.docwriter.write(doctree, destination)
@@ -72,7 +71,6 @@ class WebSupportBuilder(PickleHTMLBuilder):
 
     def write_doc_serialized(self, docname, doctree):
         self.imgpath = '/' + posixpath.join(self.virtual_staticdir, self.imagedir)
-        print self.imgpath
         self.post_process_images(doctree)
         title = self.env.longtitles.get(docname)
         title = title and self.render_partial(title)['title'] or ''
@@ -151,7 +149,6 @@ class WebSupportBuilder(PickleHTMLBuilder):
 
         # move static stuff over to separate directory
         directories = [self.imagedir, '_static']
-        print directories
         for directory in directories:
             src = path.join(self.outdir, directory)
             dst = path.join(self.staticdir, directory)
