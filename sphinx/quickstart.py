@@ -43,6 +43,22 @@ from sphinx.util import texescape
 # function to get input from terminal -- overridden by the test suite
 term_input = input
 
+DEFAULT_VALUE = {
+    'path': '.',
+    'sep': False,
+    'dot': '_',
+    'language': None,
+    'suffix': '.rst',
+    'master': 'index',
+    'epub': False,
+    'ext_autodoc': False,
+    'ext_doctest': False,
+    'makefile': True,
+    'batchfile': True,
+    }
+
+EXTENSIONS = ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
+              'pngmath', 'mathjax', 'ifconfig', 'viewcode')
 
 PROMPT_PREFIX = '> '
 
@@ -1229,13 +1245,17 @@ pngmath has been deselected.''')
         do_prompt(d, 'ext_viewcode', 'viewcode: include links to the source '
                   'code of documented Python objects (y/n)', 'n', boolean)
 
-    if 'makefile' not in d:
+    if 'no_makefile' in d:
+        d['makefile'] = False
+    elif 'makefile' not in d:
         print('''
 A Makefile and a Windows command file can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
 directly.''')
         do_prompt(d, 'makefile', 'Create Makefile? (y/n)', 'y', boolean)
-    if 'batchfile' not in d:
+    if 'no_batchfile' in d:
+        d['batchfile'] = False
+    elif 'batchfile' not in d:
         do_prompt(d, 'batchfile', 'Create Windows command file? (y/n)',
                   'y', boolean)
     print()
@@ -1258,8 +1278,7 @@ def generate(d, overwrite=True, silent=False):
     d['project_underline'] = column_width(d['project']) * '='
     extensions = (',\n' + indent).join(
         repr('sphinx.ext.' + name)
-        for name in ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
-                     'pngmath', 'mathjax', 'ifconfig', 'viewcode')
+        for name in EXTENSIONS
         if d.get('ext_' + name))
     if extensions:
         d['extensions'] = '\n' + indent + extensions + ',\n'
@@ -1317,13 +1336,13 @@ def generate(d, overwrite=True, silent=False):
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
     write_file(masterfile, MASTER_FILE % d)
 
-    if d['makefile']:
+    if d['makefile'] is True:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         # use binary mode, to avoid writing \r\n on Windows
         write_file(path.join(d['path'], 'Makefile'), MAKEFILE % d, u'\n')
 
-    if d['batchfile']:
+    if d['batchfile'] is True:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         write_file(path.join(d['path'], 'make.bat'), BATCHFILE % d, u'\r\n')
@@ -1381,7 +1400,7 @@ def main(argv=sys.argv):
                                    formatter=MyFormatter())
     parser.add_option('--version', action='store_true', dest='version',
                       help='show version information and exit')
-    parser.add_option('-q', action='store_true', dest='quiet',
+    parser.add_option('-q', '--quiet', action='store_true', dest='quiet',
                       default=False,
                       help='quiet mode')
 
@@ -1392,15 +1411,15 @@ def main(argv=sys.argv):
                      help='replacement for dot in _templates etc.')
 
     group = parser.add_option_group('Project basic options')
-    group.add_option('-p', metavar='PROJECT', dest='project',
+    group.add_option('-p', '--project', metavar='PROJECT', dest='project',
                      help='project name')
-    group.add_option('-a', metavar='AUTHOR', dest='author',
+    group.add_option('-a', '--author', metavar='AUTHOR', dest='author',
                      help='author names')
     group.add_option('-v', metavar='VERSION', dest='version',
                      help='version of project')
-    group.add_option('-r', metavar='RELEASE', dest='version',
+    group.add_option('-r', '--release', metavar='RELEASE', dest='release',
                      help='release of project')
-    group.add_option('-l', metavar='LANGUAGE', dest='language',
+    group.add_option('-l', '--language', metavar='LANGUAGE', dest='language',
                      help='document language')
     group.add_option('--suffix', metavar='SUFFIX', dest='suffix',
                      help='source file suffix')
@@ -1411,35 +1430,24 @@ def main(argv=sys.argv):
                      help='use epub')
 
     group = parser.add_option_group('Extensions')
-    group.add_option('--ext_autodoc', action='store_true', dest='ext_autodoc',
-                     default=None,
-                     help='add autodoc extention')
-    group.add_option('--ext_doctest', action='store_true', dest='ext_doctest',
-                     default=False,
-                     help='add doctest extention')
-    group.add_option('--ext_intersphinx', action='store_true', dest='ext_intersphinx',
-                     default=False,
-                     help='add intersphinx extention')
-    group.add_option('--ext_todo', action='store_true', dest='ext_todo',
-                     default=False,
-                     help='add todo extention')
-    group.add_option('--ext_coverage', action='store_true', dest='ext_coverage',
-                     default=False,
-                     help='add coverage extention')
-    group.add_option('--ext_pngmath', action='store_true', dest='ext_pngmath',
-                     default=False,
-                     help='add pngmath extention')
-    group.add_option('--ext_mathjax', action='store_true', dest='ext_mathjax',
-                     default=False,
-                     help='add mathjax extention')
+    for ext in EXTENSIONS:
+        group.add_option('--ext-' + ext, action='store_true',
+                         dest='ext_' + ext, default=False,
+                         help='add %s extention' % ext)
 
     group = parser.add_option_group('Makefile and Batchfile creation')
     group.add_option('--makefile', action='store_true', dest='makefile',
                      default=False,
                      help='makefile')
+    group.add_option('--no-makefile', action='store_true', dest='no_makefile',
+                     default=False,
+                     help='not create makefile')
     group.add_option('--batchfile', action='store_true', dest='batchfile',
                      default=False,
                      help='create batchfile')
+    group.add_option('--no-batchfile', action='store_true', dest='no_batchfile',
+                     default=False,
+                     help='not create batchfile')
 
     # parse options
     try:
@@ -1457,7 +1465,16 @@ def main(argv=sys.argv):
             del d[k]
 
     try:
-        ask_user(d)
+        if all(['quiet' in d, 'project' in d, 'author' in d,
+                'version' in d]):
+            # quiet mode with all required params satisfied, use default
+            for k, v in DEFAULT_VALUE.items():
+                d[k] = v
+            for ext in EXTENSIONS:
+                d["ext_"+ext] = False
+            d['release'] = d['version']
+        else:
+            ask_user(d)
     except (KeyboardInterrupt, EOFError):
         print()
         print('[Interrupted.]')
