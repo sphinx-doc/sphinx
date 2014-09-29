@@ -71,6 +71,22 @@ Literalinclude options
    :tab-width: 8
    :language: python
 
+.. cssclass:: inc-pyobj-lines-match
+.. literalinclude:: literal.inc
+   :pyobject: Foo
+   :lineno-match:
+
+.. cssclass:: inc-lines-match
+.. literalinclude:: literal.inc
+   :lines: 6-7,9
+   :lineno-match:
+
+.. cssclass:: inc-startend-match
+.. literalinclude:: literal.inc
+   :start-after: coding: utf-8
+   :end-before: class Foo
+   :lineno-match:
+
 Test if dedenting before parsing works.
 
 .. highlight:: python

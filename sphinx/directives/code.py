@@ -143,6 +143,7 @@ class LiteralInclude(Directive):
         'dedent': int,
         'linenos': directives.flag,
         'lineno-start': int,
+        'lineno-match': directives.flag,
         'tab-width': int,
         'language': directives.unchanged_required,
         'encoding': directives.encoding,
@@ -191,6 +192,11 @@ class LiteralInclude(Directive):
                 'Cannot use both "pyobject" and "lines" options',
                 line=self.lineno)]
 
+        if 'lineno-match' in self.options and 'lineno-start' in self.options:
+            return [document.reporter.warning(
+                'Cannot use both "lineno-match" and "lineno-start"',
+                line=self.lineno)]
+
         encoding = self.options.get('encoding', env.config.source_encoding)
         codec_info = codecs.lookup(encoding)
 
@@ -214,6 +220,7 @@ class LiteralInclude(Directive):
                 self.arguments[0])
             lines = list(diff)
 
+        linenostart = self.options.get('lineno-start', None)
         objectname = self.options.get('pyobject')
         if objectname is not None:
             from sphinx.pycode import ModuleAnalyzer
@@ -224,12 +231,15 @@ class LiteralInclude(Directive):
                     'Object named %r not found in include file %r' %
                     (objectname, filename), line=self.lineno)]
             else:
-                lines = lines[tags[objectname][1]-1 : tags[objectname][2]-1]
+                linenostart = tags[objectname][1]
+                lines = lines[linenostart-1: tags[objectname][2]-1]
 
         linespec = self.options.get('lines')
         if linespec is not None:
             try:
                 linelist = parselinenos(linespec, len(lines))
+                if 'lineno-match' in self.options:
+                    linenostart = linelist[0] + 1
             except ValueError as err:
                 return [document.reporter.warning(str(err), line=self.lineno)]
             # just ignore nonexisting lines
@@ -249,15 +259,17 @@ class LiteralInclude(Directive):
         else:
             hl_lines = None
 
-        startafter = self.options.get('start-after')
-        endbefore  = self.options.get('end-before')
-        prepend    = self.options.get('prepend')
-        append     = self.options.get('append')
+        startafter  = self.options.get('start-after')
+        endbefore   = self.options.get('end-before')
+        prepend     = self.options.get('prepend')
+        append      = self.options.get('append')
         if startafter is not None or endbefore is not None:
             use = not startafter
             res = []
-            for line in lines:
+            for line_number, line in enumerate(lines):
                 if not use and startafter and startafter in line:
+                    if 'lineno-match' in self.options:
+                        linenostart = line_number + 2
                     use = True
                 elif use and endbefore and endbefore in line:
                     use = False
@@ -267,9 +279,9 @@ class LiteralInclude(Directive):
             lines = res
 
         if prepend:
-           lines.insert(0, prepend + '\n')
+            lines.insert(0, prepend + '\n')
         if append:
-           lines.append(append + '\n')
+            lines.append(append + '\n')
 
         text = ''.join(lines)
         if self.options.get('tab-width'):
@@ -281,12 +293,13 @@ class LiteralInclude(Directive):
         if self.options.get('language', ''):
             retnode['language'] = self.options['language']
         retnode['linenos'] = 'linenos' in self.options or \
-                             'lineno-start' in self.options
+                             'lineno-start' in self.options or \
+                             'lineno-match' in self.options
         extra_args = retnode['highlight_args'] = {}
         if hl_lines is not None:
             extra_args['hl_lines'] = hl_lines
-        if 'lineno-start' in self.options:
-            extra_args['linenostart'] = self.options['lineno-start']
+        if linenostart is not None:
+            extra_args['linenostart'] = linenostart
         env.note_dependency(rel_filename)
 
         caption = self.options.get('caption')
