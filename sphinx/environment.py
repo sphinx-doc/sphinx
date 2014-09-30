@@ -37,7 +37,7 @@ from docutils.frontend import OptionParser
 
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
-    FilenameUniqDict
+    FilenameUniqDict, get_figtype
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream
 from sphinx.util.osutil import SEP, find_catalog_files, getcwd, fs_encoding
 from sphinx.util.console import bold, purple
@@ -1705,9 +1705,6 @@ class BuildEnvironment:
         self.toc_fignumbers = {}
         fignum_counter = {}
 
-        def has_child(node, cls):
-            return any(isinstance(child, cls) for child in node)
-
         def get_section_number(docname, section):
             anchorname = '#' + section['ids'][0]
             secnumbers = self.toc_secnumbers.get(docname, {})
@@ -1749,16 +1746,10 @@ class BuildEnvironment:
 
                     continue
 
-                if isinstance(subnode, nodes.figure):
-                    figure_id = subnode['ids'][0]
-                    register_fignumber(docname, secnum, 'figure', figure_id)
-                elif isinstance(subnode, nodes.table):
-                    table_id = subnode['ids'][0]
-                    register_fignumber(docname, secnum, 'table', table_id)
-                elif isinstance(subnode, nodes.container):
-                    if has_child(subnode, nodes.literal_block):
-                        code_block_id = subnode['ids'][0]
-                        register_fignumber(docname, secnum, 'code-block', code_block_id)
+                figtype = get_figtype(subnode)
+                if figtype:
+                    register_fignumber(docname, secnum,
+                                       figtype, subnode['ids'][0])
 
                 _walk_doctree(docname, subnode, secnum)
 
