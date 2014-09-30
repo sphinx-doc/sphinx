@@ -1468,11 +1468,11 @@ def main(argv=sys.argv):
         if all(['quiet' in d, 'project' in d, 'author' in d,
                 'version' in d]):
             # quiet mode with all required params satisfied, use default
-            for k, v in DEFAULT_VALUE.items():
-                d[k] = v
-            for ext in EXTENSIONS:
-                d["ext_"+ext] = False
-            d['release'] = d['version']
+            d.setdefault('release', d['version'])
+            d2 = DEFAULT_VALUE.copy()
+            d2.update(dict(("ext_"+ext, False) for ext in EXTENSIONS))
+            d2.update(d)
+            d = d2
         else:
             ask_user(d)
     except (KeyboardInterrupt, EOFError):
