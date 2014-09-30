@@ -1465,6 +1465,13 @@ def main(argv=sys.argv):
             del d[k]
 
     try:
+        if 'quiet' in d:
+            if 'project' not in d or 'author' not in d or \
+               'version' not in d:
+                print('''"quiet" is specified, but any of "project", \
+"author" or "version" is not specified.''')
+                return
+
         if all(['quiet' in d, 'project' in d, 'author' in d,
                 'version' in d]):
             # quiet mode with all required params satisfied, use default
