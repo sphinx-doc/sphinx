@@ -139,7 +139,7 @@
     {%- if hasdoc('copyright') %}
     <link rel="copyright" title="{{ _('Copyright') }}" href="{{ pathto('copyright') }}" />
     {%- endif %}
-    <link rel="top" title="{{ docstitle|e }}" href="{{ pathto('index') }}" />
+    <link rel="top" title="{{ docstitle|e }}" href="{{ pathto(master_doc) }}" />
     {%- if parents %}
     <link rel="up" title="{{ parents[-1].title|striptags|e }}" href="{{ parents[-1].link|e }}" />
     {%- endif %}
