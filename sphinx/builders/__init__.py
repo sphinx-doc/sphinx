@@ -71,9 +71,9 @@ class Builder(object):
         # images that need to be copied over (source -> dest)
         self.images = {}
         # basename of images directory
-        imagedir = ""
+        self.imagedir = ""
         # relative path to image directory from current docname (used at writing docs)
-        imgpath = ""
+        self.imgpath = ""
 
         # these get set later
         self.parallel_ok = False
