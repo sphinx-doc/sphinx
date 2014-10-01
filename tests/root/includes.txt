@@ -78,7 +78,7 @@ Literalinclude options
 
 .. cssclass:: inc-lines-match
 .. literalinclude:: literal.inc
-   :lines: 6-7,9
+   :lines: 6-7,8
    :lineno-match:
 
 .. cssclass:: inc-startend-match
