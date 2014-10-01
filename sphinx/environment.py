@@ -1747,7 +1747,7 @@ class BuildEnvironment:
                     continue
 
                 figtype = get_figtype(subnode)
-                if figtype:
+                if figtype and subnode['ids']:
                     register_fignumber(docname, secnum,
                                        figtype, subnode['ids'][0])
 
