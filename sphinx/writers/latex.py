@@ -1244,6 +1244,18 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_reference(self, node):
         self.body.append(self.context.pop())
 
+    def visit_number_reference(self, node):
+        if node.get('refid'):
+            id = self.curfilestack[-1] + ':' + node['refid']
+        else:
+            id = node.get('refuri', '')[1:].replace('#', ':')
+
+        ref = '\\ref{%s}' % self.idescape(id)
+        title = node.get('title', '#')
+        self.body.append(title.replace('#', ref))
+
+        raise nodes.SkipNode
+
     def visit_download_reference(self, node):
         pass
     def depart_download_reference(self, node):

@@ -579,8 +579,10 @@ class StandardDomain(Domain):
             labels[name] = docname, labelid, sectname
 
     def build_reference_node(self, fromdocname, builder,
-                             docname, labelid, sectname):
-        newnode = nodes.reference('', '', internal=True)
+                             docname, labelid, sectname,
+                             **options):
+        nodeclass = options.pop('nodeclass', nodes.reference)
+        newnode = nodeclass('', '', internal=True, **options)
         innernode = nodes.emphasis(sectname, sectname)
         if docname == fromdocname:
             newnode['refid'] = labelid
@@ -636,12 +638,15 @@ class StandardDomain(Domain):
             title = contnode.astext()
             if labelid == title:
                 prefix = env.config.numfig_prefix.get(figtype, '')
-                title = prefix + '.'.join(map(str, fignumber))
+                title = "%s#" % prefix
+                newtitle = prefix + '.'.join(map(str, fignumber))
             else:
-                title = title.replace('#', '.'.join(map(str, fignumber)))
+                newtitle = title.replace('#', '.'.join(map(str, fignumber)))
 
             return self.build_reference_node(fromdocname, builder,
-                                             docname, labelid, title)
+                                             docname, labelid, newtitle,
+                                             nodeclass=addnodes.number_reference,
+                                             title=title)
         elif typ == 'keyword':
             # keywords are oddballs: they are referenced by named labels
             docname, labelid, _ = self.data['labels'].get(target, ('', '', ''))

@@ -184,6 +184,10 @@ class pending_xref(nodes.Inline, nodes.Element):
     """
 
 
+class number_reference(nodes.reference):
+    """Node for number references, similar to pending_xref."""
+
+
 class download_reference(nodes.reference):
     """Node for download references, similar to pending_xref."""
 
