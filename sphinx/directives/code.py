@@ -161,8 +161,8 @@ class LiteralInclude(Directive):
     def read_with_encoding(self, filename, document, codec_info, encoding):
         f = None
         try:
-            f = codecs.StreamReaderWriter(open(filename, 'rb'),
-                                          codec_info[2], codec_info[3], 'strict')
+            f = codecs.StreamReaderWriter(open(filename, 'rb'), codec_info[2],
+                                          codec_info[3], 'strict')
             lines = f.readlines()
             lines = dedent_lines(lines, self.options.get('dedent'))
             return lines
@@ -210,7 +210,7 @@ class LiteralInclude(Directive):
             tmp, fulldiffsource = env.relfn2path(diffsource)
 
             difflines = self.read_with_encoding(fulldiffsource, document,
-                                           codec_info, encoding)
+                                                codec_info, encoding)
             if not isinstance(difflines[0], string_types):
                 return difflines
             diff = unified_diff(
@@ -259,10 +259,10 @@ class LiteralInclude(Directive):
         else:
             hl_lines = None
 
-        startafter  = self.options.get('start-after')
-        endbefore   = self.options.get('end-before')
-        prepend     = self.options.get('prepend')
-        append      = self.options.get('append')
+        startafter = self.options.get('start-after')
+        endbefore = self.options.get('end-before')
+        prepend = self.options.get('prepend')
+        append = self.options.get('append')
         if startafter is not None or endbefore is not None:
             use = not startafter
             res = []
@@ -313,7 +313,7 @@ class LiteralInclude(Directive):
 
 
 directives.register_directive('highlight', Highlight)
-directives.register_directive('highlightlang', Highlight) # old
+directives.register_directive('highlightlang', Highlight)  # old
 directives.register_directive('code-block', CodeBlock)
 directives.register_directive('sourcecode', CodeBlock)
 directives.register_directive('literalinclude', LiteralInclude)
