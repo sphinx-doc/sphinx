@@ -1480,6 +1480,10 @@ def main(argv=sys.argv):
             d2.update(dict(("ext_"+ext, False) for ext in EXTENSIONS))
             d2.update(d)
             d = d2
+            if 'no_makefile' in d:
+                d['makefile'] = False
+            if 'no_batchfile' in d:
+                d['batchfile'] = False
         else:
             ask_user(d)
     except (KeyboardInterrupt, EOFError):
