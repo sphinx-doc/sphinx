@@ -48,7 +48,7 @@ from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.transforms import DefaultSubstitutions, MoveModuleTargets, \
-    HandleCodeBlocks, SortIds, CitationReferences, Locale, \
+    HandleCodeBlocks, AutoNumbering, SortIds, CitationReferences, Locale, \
     RemoveTranslatableInline, SphinxContentsFilter
 
 
@@ -98,7 +98,7 @@ class SphinxStandaloneReader(standalone.Reader):
     Add our own transforms.
     """
     transforms = [Locale, CitationReferences, DefaultSubstitutions,
-                  MoveModuleTargets, HandleCodeBlocks, SortIds,
+                  MoveModuleTargets, HandleCodeBlocks, AutoNumbering, SortIds,
                   RemoveTranslatableInline]
 
     def get_transforms(self):
@@ -234,6 +234,8 @@ class BuildEnvironment:
         # used to determine when to show the TOC
         # in a sidebar (don't show if it's only one item)
         self.toc_secnumbers = {}    # docname -> dict of sectionid -> number
+        self.toc_fignumbers = {}    # docname -> dict of figtype ->
+                                    # dict of figureid -> number
 
         self.toctree_includes = {}  # docname -> list of toctree includefiles
         self.files_to_rebuild = {}  # docname -> set of files
@@ -635,8 +637,8 @@ class BuildEnvironment:
             self._warnfunc(*warning)
 
     def check_dependents(self, already):
-        to_rewrite = self.assign_section_numbers()
-        for docname in to_rewrite:
+        to_rewrite = self.assign_section_numbers() + self.assign_figure_numbers()
+        for docname in set(to_rewrite):
             if docname not in already:
                 yield docname
 
@@ -1690,6 +1692,87 @@ class BuildEnvironment:
                     # every numbered toctree gets new numbering
                     numstack = [0]
                     _walk_toctree(toctreenode, depth)
+
+        return rewrite_needed
+
+    def assign_figure_numbers(self):
+        """Assign a figure number to each figure under a numbered toctree."""
+
+        rewrite_needed = []
+
+        assigned = set()
+        old_fignumbers = getattr(self, 'toc_fignumbers', {})  # compatible with old envs
+        self.toc_fignumbers = {}
+        fignum_counter = {}
+
+        def has_child(node, cls):
+            return any(isinstance(child, cls) for child in node)
+
+        def get_section_number(docname, section):
+            anchorname = '#' + section['ids'][0]
+            secnumbers = self.toc_secnumbers.get(docname, {})
+            if anchorname in secnumbers:
+                secnum = secnumbers.get(anchorname)
+            else:
+                secnum = secnumbers.get('')
+
+            return secnum or tuple()
+
+        def get_next_fignumber(figtype, secnum):
+            counter = fignum_counter.setdefault(figtype, {})
+
+            secnum = secnum[:self.config.numfig_secnum_depth]
+            counter[secnum] = counter.get(secnum, 0) + 1
+            return secnum + (counter[secnum],)
+
+        def register_fignumber(docname, secnum, figtype, figure_id):
+            self.toc_fignumbers.setdefault(docname, {})
+            fignumbers = self.toc_fignumbers[docname].setdefault(figtype, {})
+            fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
+
+        def _walk_doctree(docname, doctree, secnum):
+            for subnode in doctree.children:
+                if isinstance(subnode, nodes.section):
+                    next_secnum = get_section_number(docname, subnode)
+                    if next_secnum:
+                        _walk_doctree(docname, subnode, next_secnum)
+                    else:
+                        _walk_doctree(docname, subnode, secnum)
+                    continue
+                elif isinstance(subnode, addnodes.toctree):
+                    for title, subdocname in subnode['entries']:
+                        if url_re.match(subdocname) or subdocname == 'self':
+                            # don't mess with those
+                            continue
+
+                        _walk_doc(subdocname, secnum)
+
+                    continue
+
+                if isinstance(subnode, nodes.figure):
+                    figure_id = subnode['ids'][0]
+                    register_fignumber(docname, secnum, 'figure', figure_id)
+                elif isinstance(subnode, nodes.table):
+                    table_id = subnode['ids'][0]
+                    register_fignumber(docname, secnum, 'table', table_id)
+                elif isinstance(subnode, nodes.container):
+                    if has_child(subnode, nodes.literal_block):
+                        code_block_id = subnode['ids'][0]
+                        register_fignumber(docname, secnum, 'code-block', code_block_id)
+
+                _walk_doctree(docname, subnode, secnum)
+
+        def _walk_doc(docname, secnum):
+            if docname not in assigned:
+                assigned.add(docname)
+                doctree = self.get_doctree(docname)
+                _walk_doctree(docname, doctree, secnum)
+
+        if self.config.numfig:
+            _walk_doc(self.config.master_doc, tuple())
+            for docname, fignums in iteritems(self.toc_fignumbers):
+                if fignums != old_fignumbers.get(docname):
+                    rewrite_needed.append(docname)
 
         return rewrite_needed
 

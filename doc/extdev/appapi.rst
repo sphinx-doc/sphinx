@@ -288,6 +288,18 @@ package.
 
    .. versionadded:: 1.0
 
+.. method:: Sphinx.add_latex_package(packagename, options=None)
+
+   Add *packagename* to the list of packages that LaTeX source code will include.
+   If you provide *options*, it will be taken to `\usepackage` declaration.
+
+   .. code-block:: python
+
+      app.add_latex_package('mypackage')             # => \usepackage{mypackage}
+      app.add_latex_package('mypackage', 'foo,bar')  # => \usepackage[foo,bar]{mypackage}
+
+   .. versionadded:: 1.3
+
 .. method:: Sphinx.add_lexer(alias, lexer)
 
    Use *lexer*, which must be an instance of a Pygments lexer class, to

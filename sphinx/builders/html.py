@@ -95,6 +95,8 @@ class StandaloneHTMLBuilder(Builder):
         # a hash of all config values that, if changed, cause a full rebuild
         self.config_hash = ''
         self.tags_hash = ''
+        # basename of images directory
+        self.imagedir = '_images'
         # section numbers for headings in the currently visited document
         self.secnumbers = {}
         # currently written docname
@@ -424,6 +426,7 @@ class StandaloneHTMLBuilder(Builder):
         doctree.settings = self.docsettings
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
+        self.fignumbers = self.env.toc_fignumbers.get(docname, {})
         self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
         self.dlpath = relative_uri(self.get_target_uri(docname), '_downloads')
         self.current_docname = docname
@@ -436,7 +439,7 @@ class StandaloneHTMLBuilder(Builder):
         self.handle_page(docname, ctx, event_arg=doctree)
 
     def write_doc_serialized(self, docname, doctree):
-        self.imgpath = relative_uri(self.get_target_uri(docname), '_images')
+        self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.post_process_images(doctree)
         title = self.env.longtitles.get(docname)
         title = title and self.render_partial(title)['title'] or ''
@@ -534,13 +537,13 @@ class StandaloneHTMLBuilder(Builder):
     def copy_image_files(self):
         # copy image files
         if self.images:
-            ensuredir(path.join(self.outdir, '_images'))
+            ensuredir(path.join(self.outdir, self.imagedir))
             for src in self.app.status_iterator(self.images, 'copying images... ',
                                                 brown, len(self.images)):
                 dest = self.images[src]
                 try:
                     copyfile(path.join(self.srcdir, src),
-                             path.join(self.outdir, '_images', dest))
+                             path.join(self.outdir, self.imagedir, dest))
                 except Exception as err:
                     self.warn('cannot copy image file %r: %s' %
                               (path.join(self.srcdir, src), err))
@@ -1028,6 +1031,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     def init(self):
         self.config_hash = ''
         self.tags_hash = ''
+        self.imagedir = '_images'
         self.theme = None       # no theme necessary
         self.templates = None   # no template bridge necessary
         self.init_translator_class()

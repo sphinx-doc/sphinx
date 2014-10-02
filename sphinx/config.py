@@ -70,6 +70,12 @@ class Config(object):
         needs_extensions = ({}, None),
         nitpicky = (False, 'env'),
         nitpick_ignore = ([], 'html'),
+        numfig = (False, 'env'),
+        numfig_secnum_depth = (1, 'env'),
+        numfig_prefix = ({'figure': l_('Fig.'),
+                          'table': l_('Table '),
+                          'code-block': l_('List ')},
+                         'env'),
 
         # HTML options
         html_theme = ('default', 'html'),
@@ -205,6 +211,7 @@ class Config(object):
         gettext_location = (True, 'gettext'),
         gettext_uuid = (True, 'gettext'),
         gettext_auto_build = (True, 'env'),
+        gettext_enables = ([], 'env'),
 
         # XML options
         xml_pretty = (True, 'env'),

@@ -20,6 +20,8 @@ Incompatible changes
   templates directory.
 * Custom domains should implement the new `Domain.resolve_any_xref`
   method to make the `any` role work properly.
+* gettext builder: disable extracting/apply 'index' node by default. Please set
+  'index' to :confval:`gettext_enables` to enable extracting index entries.
 
 Features added
 --------------
@@ -44,6 +46,8 @@ Features added
   directive is now supported.
 * PR#214: Added stemming support for 14 languages, so that the built-in document
   search can now handle these.  Thanks to Shibukawa Yoshiki.
+* PR#296: numfig feature: Assign numbers to figures, tables and code-blocks.
+  Thanks to Takeshi Komiya.
 * PR#202: Allow "." and "~" prefixed references in ``:param:`` doc fields
   for Python.
 * PR#184: Add `autodoc_mock_imports`, allowing to mock imports of
@@ -83,6 +87,10 @@ Features added
   ``+``.
 * PR#291: The caption of :rst:dir:`code-block` is recognised as a title of ref
   target. Thanks to Takeshi Komiya.
+* PR#298: Add new API: :meth:`~sphinx.application.Sphinx.add_latex_package`.
+  Thanks to Takeshi Komiya.
+* #1344: add :confval:`gettext_enables` to enable extracting 'index' to gettext
+  catalog output / applying translation catalog to generated documentation.
 
 Bugs fixed
 ----------
@@ -147,6 +155,9 @@ Bugs fixed
   to avoid separation of caption and body. Thanks to Takeshi Komiya.
 * PR#295, #1520: ``make.bat latexpdf`` mechanism to ``cd`` back to the current
   directory. Thanks to Peter Suter.
+* PR#297, #1571: Add imgpath property to all builders. It make easier to
+  develop builder extensions. Thanks to Takeshi Komiya.
+* #1584: Point to master doc in HTML "top" link.
 
 Documentation
 -------------

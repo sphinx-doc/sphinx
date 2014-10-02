@@ -157,7 +157,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         olen = len(outdir)
         projectfiles = []
         staticdir = path.join(outdir, '_static')
-        imagesdir = path.join(outdir, '_images')
+        imagesdir = path.join(outdir, self.imagedir)
         for root, dirs, files in os.walk(outdir):
             resourcedir = root.startswith(staticdir) or \
                           root.startswith(imagesdir)
