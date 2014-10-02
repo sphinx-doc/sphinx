@@ -722,6 +722,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def depart_reference(self, node):
         pass
 
+    def visit_number_reference(self, node):
+        text = nodes.Text(node.get('title', '#'))
+        self.visit_Text(text)
+        raise nodes.SkipNode
+
     def visit_title_reference(self, node):
         text = node.astext()
         self.body.append('@cite{%s}' % self.escape_arg(text))
