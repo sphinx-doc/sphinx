@@ -93,6 +93,22 @@ def test_latex(app, status, warning):
         os.chdir(cwd)
 
 
+@with_app(buildername='latex', testroot='numfig',
+          confoverrides={'numfig': True})
+def test_numref(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\ref{index:fig1}' in result
+    assert '\\ref{baz:fig22}' in result
+    assert '\\ref{index:table1}' in result
+    assert '\\ref{baz:table22}' in result
+    assert '\\ref{index:code1}' in result
+    assert '\\ref{baz:code22}' in result
+
+
 @with_app(buildername='latex')
 def test_latex_add_latex_package(app, status, warning):
     app.add_latex_package('foo')
