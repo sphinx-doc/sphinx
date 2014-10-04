@@ -1371,7 +1371,7 @@ def usage(argv, msg=None):
 
 USAGE = """\
 Sphinx v%s
-Usage: %%prog [options] folder
+Usage: %%prog [options] [projectdir]
 """ % __version__
 
 EPILOG = """\
@@ -1397,9 +1397,8 @@ def main(argv=sys.argv):
         nocolor()
 
     parser = optparse.OptionParser(USAGE, epilog=EPILOG,
+                                   version='Sphinx v%s' % __version__,
                                    formatter=MyFormatter())
-    parser.add_option('--version', action='store_true', dest='version',
-                      help='show version information and exit')
     parser.add_option('-q', '--quiet', action='store_true', dest='quiet',
                       default=False,
                       help='quiet mode')
@@ -1429,16 +1428,16 @@ def main(argv=sys.argv):
                      default=False,
                      help='use epub')
 
-    group = parser.add_option_group('Extensions')
+    group = parser.add_option_group('Extension options')
     for ext in EXTENSIONS:
         group.add_option('--ext-' + ext, action='store_true',
                          dest='ext_' + ext, default=False,
-                         help='add %s extention' % ext)
+                         help='enable %s extension' % ext)
 
     group = parser.add_option_group('Makefile and Batchfile creation')
     group.add_option('--makefile', action='store_true', dest='makefile',
                      default=False,
-                     help='makefile')
+                     help='create makefile')
     group.add_option('--no-makefile', action='store_true', dest='no_makefile',
                      default=False,
                      help='not create makefile')
