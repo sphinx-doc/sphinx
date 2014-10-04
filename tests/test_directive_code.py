@@ -96,10 +96,86 @@ def test_literal_include_dedent(app, status, warning):
 
 
 @with_app('html', testroot='directive-code')
+def test_literal_include_linenos(app, status, warning):
+    app.builder.build(['linenos'])
+    html = (app.outdir / 'linenos.html').text()
+    linenos = (
+        '<td class="linenos"><div class="linenodiv"><pre>'
+        ' 1\n'
+        ' 2\n'
+        ' 3\n'
+        ' 4\n'
+        ' 5\n'
+        ' 6\n'
+        ' 7\n'
+        ' 8\n'
+        ' 9\n'
+        '10\n'
+        '11\n'
+        '12\n'
+        '13</pre></div></td>')
+    assert linenos in html
+
+
+@with_app('html', testroot='directive-code')
+def test_literal_include_lineno_start(app, status, warning):
+    app.builder.build(['lineno_start'])
+    html = (app.outdir / 'lineno_start.html').text()
+    linenos = (
+        '<td class="linenos"><div class="linenodiv"><pre>'
+        '200\n'
+        '201\n'
+        '202\n'
+        '203\n'
+        '204\n'
+        '205\n'
+        '206\n'
+        '207\n'
+        '208\n'
+        '209\n'
+        '210\n'
+        '211\n'
+        '212</pre></div></td>')
+    assert linenos in html
+
+
+@with_app('html', testroot='directive-code')
+def test_literal_include_lineno_match(app, status, warning):
+    app.builder.build(['lineno_match'])
+    html = (app.outdir / 'lineno_match.html').text()
+    pyobject = (
+        '<td class="linenos"><div class="linenodiv"><pre>'
+        ' 9\n'
+        '10\n'
+        '11</pre></div></td>')
+
+    assert pyobject in html
+
+    lines = (
+        '<td class="linenos"><div class="linenodiv"><pre>'
+        '6\n'
+        '7\n'
+        '8\n'
+        '9</pre></div></td>')
+    assert lines in html
+
+    start_after = (
+        '<td class="linenos"><div class="linenodiv"><pre>'
+        ' 9\n'
+        '10\n'
+        '11\n'
+        '12\n'
+        '13</pre></div></td>')
+    assert start_after in html
+
+
+@with_app('html', testroot='directive-code')
 def test_literalinclude_caption_html(app, status, warning):
     app.builder.build('index')
     html = (app.outdir / 'caption.html').text()
-    caption = '<div class="code-block-caption">caption <strong>test</strong> py</div>'
+    caption = ('<div class="code-block-caption">'
+               'caption <strong>test</strong> py'
+               '</div>')
     assert caption in html
 
 
