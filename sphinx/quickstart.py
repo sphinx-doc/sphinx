@@ -1483,6 +1483,15 @@ def main(argv=sys.argv):
                 d['makefile'] = False
             if 'no_batchfile' in d:
                 d['batchfile'] = False
+
+            if path.exists(d['path']) and (
+                    not path.isdir(d['path']) or os.listdir(d['path'])):
+                print()
+                print(bold('Error: specified path is not a directory, or not a'
+                           ' empty directory.'))
+                print('sphinx-quickstart only generate into a empty directory.'
+                      ' Please specify a new root path.')
+                return
         else:
             ask_user(d)
     except (KeyboardInterrupt, EOFError):
