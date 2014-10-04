@@ -58,6 +58,7 @@ import re
 import sys
 import inspect
 import posixpath
+from types import ModuleType
 
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
@@ -251,7 +252,7 @@ class Autosummary(Directive):
 
             self.result = ViewList()  # initialize for each documenter
             full_name = real_name
-            if full_name.startswith(modname + '.'):
+            if not isinstance(obj, ModuleType):
                 # give explicitly separated module name, so that members
                 # of inner classes can be documented
                 full_name = modname + '::' + full_name[len(modname)+1:]

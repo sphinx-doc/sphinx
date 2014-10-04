@@ -21,6 +21,7 @@ Bugs fixed
 * #1576: Special toctree entry "self" located after another entry that also has
   a toctree was replaced with wrong title and link.
 * #1584: Point to master doc in HTML "top" link.
+* #1585: Autosummary of modules broken in Sphinx-1.2.3.
 
 
 Release 1.2.3 (released Sep 1, 2014)
