@@ -430,6 +430,10 @@ documentation on :ref:`intl` for details.
    * Calculate similarity between new msgids and previously saved old msgids.
      This calculation take many time.
 
+   If you need a speed for the calculation, you can use ``python-levenshtein``
+   3rd-party package written in C by using
+   :command:`pip install python-levenshtein`.
+
    The default is ``False``.
 
    .. versionadded:: 1.3
