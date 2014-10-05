@@ -309,6 +309,20 @@ class HTMLTranslator(BaseTranslator):
         self.add_fignumber(node)
 
     def depart_caption(self, node):
+        if node.parent['ids'] and self.permalink_text and self.builder.add_permalinks:
+            if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+                figtype = 'code'
+            elif isinstance(node.parent, nodes.figure):
+                figtype = 'image'
+            else:
+                figtype = 'caption'
+
+            self.body.append(u'<a class="headerlink" href="#%s" '
+                             % node.parent['ids'][0] +
+                             u'title="%s">%s</a>' % (
+                             _('Permalink to this %s' % figtype),
+                             self.permalink_text))
+
         if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
             self.body.append('</div>\n')
         else:
@@ -588,6 +602,11 @@ class HTMLTranslator(BaseTranslator):
                                  aname +
                                  u'title="%s">%s' % (
                                  _('Permalink to this headline'),
+                                 self.permalink_text))
+            elif close_tag.startswith('</caption>'):
+                self.body.append(u'<a class="headerlink" href="#%s" ' % aname +
+                                 u'title="%s">%s</a>' % (
+                                 _('Permalink to this table'),
                                  self.permalink_text))
 
         BaseTranslator.depart_title(self, node)
