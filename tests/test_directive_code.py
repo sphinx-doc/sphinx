@@ -61,7 +61,7 @@ def test_code_block_caption_html(app, status, warning):
 def test_code_block_caption_latex(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text()
-    caption = '\\caption{\ncaption \\emph{test} rb\n}'
+    caption = '\\caption{caption \\emph{test} rb}'
     assert caption in latex
 
 
@@ -107,5 +107,5 @@ def test_literalinclude_caption_html(app, status, warning):
 def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text()
-    caption = '\\caption{\ncaption \\textbf{test} py\n}'
+    caption = '\\caption{caption \\textbf{test} py}'
     assert caption in latex
