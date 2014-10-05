@@ -84,6 +84,11 @@ class I18nBuilder(Builder):
     """
     name = 'i18n'
     versioning_method = 'text'
+    versioning_compare = None  # be set by `gettext_uuid`
+
+    def __init__(self, app):
+        self.versioning_compare = app.env.config.gettext_uuid
+        super(I18nBuilder, self).__init__(app)
 
     def init(self):
         Builder.init(self)

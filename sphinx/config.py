@@ -209,7 +209,7 @@ class Config(object):
         # gettext options
         gettext_compact = (True, 'gettext'),
         gettext_location = (True, 'gettext'),
-        gettext_uuid = (True, 'gettext'),
+        gettext_uuid = (False, 'gettext'),
         gettext_auto_build = (True, 'env'),
         gettext_enables = ([], 'env'),
 

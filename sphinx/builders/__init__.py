@@ -42,12 +42,14 @@ class Builder(object):
     format = ''
     # doctree versioning method
     versioning_method = 'none'
+    versioning_compare = False
     # allow parallel write_doc() calls
     allow_parallel = False
 
     def __init__(self, app):
         self.env = app.env
-        self.env.set_versioning_method(self.versioning_method)
+        self.env.set_versioning_method(self.versioning_method,
+                                       self.versioning_compare)
         self.srcdir = app.srcdir
         self.confdir = app.confdir
         self.outdir = app.outdir

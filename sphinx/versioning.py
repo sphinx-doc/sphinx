@@ -57,6 +57,9 @@ def merge_doctrees(old, new, condition):
         if old_node is None:
             new_nodes.append(new_node)
             continue
+        if not getattr(old_node, 'uid', None):
+            # maybe config.gettext_uuid has been changed.
+            old_node.uid = uuid4().hex
         if new_node is None:
             old_nodes.append(old_node)
             continue

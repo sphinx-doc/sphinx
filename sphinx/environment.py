@@ -194,6 +194,7 @@ class BuildEnvironment:
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition = None
+        self.versioning_compare = None
 
         # the application object; only set while update() runs
         self.app = None
@@ -268,7 +269,7 @@ class BuildEnvironment:
         self._warnfunc = func
         self.settings['warning_stream'] = WarningStream(func)
 
-    def set_versioning_method(self, method):
+    def set_versioning_method(self, method, compare):
         """This sets the doctree versioning method for this environment.
 
         Versioning methods are a builder property; only builders with the same
@@ -284,6 +285,7 @@ class BuildEnvironment:
                               'selected builder, please choose another '
                               'doctree directory.')
         self.versioning_condition = condition
+        self.versioning_compare = compare
 
     def warn(self, docname, msg, lineno=None):
         """Emit a warning.
@@ -776,19 +778,21 @@ class BuildEnvironment:
             time.time(), path.getmtime(self.doc2path(docname)))
 
         if self.versioning_condition:
-            # get old doctree
-            try:
-                f = open(self.doc2path(docname,
-                                       self.doctreedir, '.doctree'), 'rb')
+            old_doctree = None
+            if self.versioning_compare:
+                # get old doctree
                 try:
-                    old_doctree = pickle.load(f)
-                finally:
-                    f.close()
-            except EnvironmentError:
-                old_doctree = None
+                    f = open(self.doc2path(docname,
+                                           self.doctreedir, '.doctree'), 'rb')
+                    try:
+                        old_doctree = pickle.load(f)
+                    finally:
+                        f.close()
+                except EnvironmentError:
+                    pass
 
             # add uids for versioning
-            if old_doctree is None:
+            if not self.versioning_compare or old_doctree is None:
                 list(add_uids(doctree, self.versioning_condition))
             else:
                 list(merge_doctrees(
