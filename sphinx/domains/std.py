@@ -632,7 +632,7 @@ class StandardDomain(Domain):
                 figtype = get_figtype(target)
                 figure_id = target['ids'][0]
                 fignumber = env.toc_fignumbers[docname][figtype][figure_id]
-            except IndexError:
+            except (KeyError, IndexError):
                 return None
 
             title = contnode.astext()
