@@ -1526,11 +1526,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             for id in self.next_literal_ids:
                 ids += self.hypertarget(id, anchor=False)
             self.next_literal_ids.clear()
-            self.body.append('\n\\begin{literal-block}' + ids)
+            self.body.append('\n\\begin{literal-block}\n')
+            self.context.append(ids + '\n\\end{literal-block}\n')
 
     def depart_container(self, node):
         if node.get('literal_block'):
-            self.body.append('\\end{literal-block}\n')
+            self.body.append(self.context.pop())
 
     def visit_decoration(self, node):
         pass
