@@ -682,6 +682,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if not self.table.longtable and self.table.caption is not None:
             self.body.append(u'\n\n\\begin{threeparttable}\n'
                              u'\\capstart\\caption{%s}\n' % self.table.caption)
+            for id in self.next_table_ids:
+                self.body.append(self.hypertarget(id, anchor=False))
+            self.next_table_ids.clear()
         if self.table.longtable:
             self.body.append('\n\\begin{longtable}')
             endmacro = '\\end{longtable}\n\n'
@@ -709,11 +712,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
         if self.table.longtable and self.table.caption is not None:
-            self.body.append(u'\\caption{%s} \\\\\n' % self.table.caption)
-        if self.table.caption is not None:
+            self.body.append(u'\\caption{%s}' % self.table.caption)
             for id in self.next_table_ids:
                 self.body.append(self.hypertarget(id, anchor=False))
             self.next_table_ids.clear()
+            self.body.append(u'\\\\\n')
         if self.table.longtable:
             self.body.append('\\hline\n')
             self.body.extend(self.tableheaders)
@@ -1114,7 +1117,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 return
             elif isinstance(next, nodes.table):
                 # same for tables, but only if they have a caption
-                for n in node:
+                for n in next:
                     if isinstance(n, nodes.title):
                         if node.get('refid'):
                             self.next_table_ids.add(node['refid'])
