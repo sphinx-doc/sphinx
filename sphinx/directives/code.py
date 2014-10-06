@@ -9,6 +9,7 @@
 
 import sys
 import codecs
+import os
 from difflib import unified_diff
 
 from docutils import nodes
@@ -286,7 +287,7 @@ class LiteralInclude(Directive):
             for line_number, line in enumerate(lines):
                 if not use and startafter and startafter in line:
                     if 'lineno-match' in self.options:
-                        linenostart += line_number + 2
+                        linenostart += line_number + 1
                     use = True
                 elif use and endbefore and endbefore in line:
                     break
@@ -296,8 +297,8 @@ class LiteralInclude(Directive):
 
         if 'lineno-match' in self.options:
             # handle that preceding, empty lines ('\n') are removed.
-            for line in lines[linenostart-1:]:
-                if line != '\n':
+            for line in lines:
+                if line != os.linesep:
                     break
                 linenostart += 1
 

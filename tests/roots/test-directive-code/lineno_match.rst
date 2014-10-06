@@ -8,7 +8,7 @@ Literal Includes with Line Numbers Matching
 
 .. literalinclude:: literal.inc
    :language: python
-   :lines: 6,7,8-9
+   :lines: 5-6,7,8-9
    :lineno-match:
 
 .. literalinclude:: literal.inc
