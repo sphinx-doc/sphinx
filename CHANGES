@@ -93,6 +93,8 @@ Features added
   catalog output / applying translation catalog to generated documentation.
 * #1583: Allow the line numbering of the directive `literalinclude` to match
   that of the included file, using a new ``lineno-match`` option.
+* PR#299: add various options to sphinx-quickstart. Quiet mode option
+  ``--quiet`` will skips wizard mode. Thanks to WAKAYAMA shirou.
 
 Bugs fixed
 ----------
@@ -159,6 +161,7 @@ Bugs fixed
   directory. Thanks to Peter Suter.
 * PR#297, #1571: Add imgpath property to all builders. It make easier to
   develop builder extensions. Thanks to Takeshi Komiya.
+* #1584: Point to master doc in HTML "top" link.
 
 Documentation
 -------------
