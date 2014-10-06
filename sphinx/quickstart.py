@@ -13,6 +13,7 @@ from __future__ import print_function
 import re
 import os
 import sys
+import optparse
 import time
 from os import path
 from io import open
@@ -42,6 +43,22 @@ from sphinx.util import texescape
 # function to get input from terminal -- overridden by the test suite
 term_input = input
 
+DEFAULT_VALUE = {
+    'path': '.',
+    'sep': False,
+    'dot': '_',
+    'language': None,
+    'suffix': '.rst',
+    'master': 'index',
+    'epub': False,
+    'ext_autodoc': False,
+    'ext_doctest': False,
+    'makefile': True,
+    'batchfile': True,
+    }
+
+EXTENSIONS = ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
+              'pngmath', 'mathjax', 'ifconfig', 'viewcode')
 
 PROMPT_PREFIX = '> '
 
@@ -1228,13 +1245,17 @@ pngmath has been deselected.''')
         do_prompt(d, 'ext_viewcode', 'viewcode: include links to the source '
                   'code of documented Python objects (y/n)', 'n', boolean)
 
-    if 'makefile' not in d:
+    if 'no_makefile' in d:
+        d['makefile'] = False
+    elif 'makefile' not in d:
         print('''
 A Makefile and a Windows command file can be generated for you so that you
 only have to run e.g. `make html' instead of invoking sphinx-build
 directly.''')
         do_prompt(d, 'makefile', 'Create Makefile? (y/n)', 'y', boolean)
-    if 'batchfile' not in d:
+    if 'no_batchfile' in d:
+        d['batchfile'] = False
+    elif 'batchfile' not in d:
         do_prompt(d, 'batchfile', 'Create Windows command file? (y/n)',
                   'y', boolean)
     print()
@@ -1257,8 +1278,7 @@ def generate(d, overwrite=True, silent=False):
     d['project_underline'] = column_width(d['project']) * '='
     extensions = (',\n' + indent).join(
         repr('sphinx.ext.' + name)
-        for name in ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
-                     'pngmath', 'mathjax', 'ifconfig', 'viewcode')
+        for name in EXTENSIONS
         if d.get('ext_' + name))
     if extensions:
         d['extensions'] = '\n' + indent + extensions + ',\n'
@@ -1316,13 +1336,13 @@ def generate(d, overwrite=True, silent=False):
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
     write_file(masterfile, MASTER_FILE % d)
 
-    if d['makefile']:
+    if d['makefile'] is True:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         # use binary mode, to avoid writing \r\n on Windows
         write_file(path.join(d['path'], 'Makefile'), MAKEFILE % d, u'\n')
 
-    if d['batchfile']:
+    if d['batchfile'] is True:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         write_file(path.join(d['path'], 'make.bat'), BATCHFILE % d, u'\r\n')
@@ -1344,24 +1364,141 @@ where "builder" is one of the supported builders, e.g. html, latex or linkcheck.
 ''')
 
 
+def usage(argv, msg=None):
+    if msg:
+        print(msg, file=sys.stderr)
+        print(file=sys.stderr)
+
+USAGE = """\
+Sphinx v%s
+Usage: %%prog [options] [projectdir]
+""" % __version__
+
+EPILOG = """\
+For more information, visit <http://sphinx-doc.org/>.
+"""
+
+
+class MyFormatter(optparse.IndentedHelpFormatter):
+    def format_usage(self, usage):
+        return usage
+
+    def format_help(self, formatter):
+        result = []
+        if self.description:
+            result.append(self.format_description(formatter))
+        if self.option_list:
+            result.append(self.format_option_help(formatter))
+        return "\n".join(result)
+
+
 def main(argv=sys.argv):
     if not color_terminal():
         nocolor()
 
-    d = {}
-    if len(argv) > 3:
-        print('Usage: sphinx-quickstart [root]')
-        sys.exit(1)
-    elif len(argv) == 2:
-        d['path'] = argv[1]
+    parser = optparse.OptionParser(USAGE, epilog=EPILOG,
+                                   version='Sphinx v%s' % __version__,
+                                   formatter=MyFormatter())
+    parser.add_option('-q', '--quiet', action='store_true', dest='quiet',
+                      default=False,
+                      help='quiet mode')
+
+    group = parser.add_option_group('Structure options')
+    group.add_option('--sep', action='store_true', dest='sep',
+                     help='if specified, separate source and build dirs')
+    group.add_option('--dot', metavar='DOT', dest='dot',
+                     help='replacement for dot in _templates etc.')
+
+    group = parser.add_option_group('Project basic options')
+    group.add_option('-p', '--project', metavar='PROJECT', dest='project',
+                     help='project name')
+    group.add_option('-a', '--author', metavar='AUTHOR', dest='author',
+                     help='author names')
+    group.add_option('-v', metavar='VERSION', dest='version',
+                     help='version of project')
+    group.add_option('-r', '--release', metavar='RELEASE', dest='release',
+                     help='release of project')
+    group.add_option('-l', '--language', metavar='LANGUAGE', dest='language',
+                     help='document language')
+    group.add_option('--suffix', metavar='SUFFIX', dest='suffix',
+                     help='source file suffix')
+    group.add_option('--master', metavar='MASTER', dest='master',
+                     help='master document name')
+    group.add_option('--epub', action='store_true', dest='epub',
+                     default=False,
+                     help='use epub')
+
+    group = parser.add_option_group('Extension options')
+    for ext in EXTENSIONS:
+        group.add_option('--ext-' + ext, action='store_true',
+                         dest='ext_' + ext, default=False,
+                         help='enable %s extension' % ext)
+
+    group = parser.add_option_group('Makefile and Batchfile creation')
+    group.add_option('--makefile', action='store_true', dest='makefile',
+                     default=False,
+                     help='create makefile')
+    group.add_option('--no-makefile', action='store_true', dest='no_makefile',
+                     default=False,
+                     help='not create makefile')
+    group.add_option('--batchfile', action='store_true', dest='batchfile',
+                     default=False,
+                     help='create batchfile')
+    group.add_option('--no-batchfile', action='store_true', dest='no_batchfile',
+                     default=False,
+                     help='not create batchfile')
+
+    # parse options
     try:
-        ask_user(d)
+        opts, args = parser.parse_args()
+    except SystemExit as err:
+        return err.code
+
+    if len(args) > 0:
+        opts.ensure_value('path', args[0])
+
+    d = vars(opts)
+    for k, v in d.items():
+        # delete None or False value
+        if v is None or v is False:
+            del d[k]
+
+    try:
+        if 'quiet' in d:
+            if 'project' not in d or 'author' not in d or \
+               'version' not in d:
+                print('''"quiet" is specified, but any of "project", \
+"author" or "version" is not specified.''')
+                return
+
+        if all(['quiet' in d, 'project' in d, 'author' in d,
+                'version' in d]):
+            # quiet mode with all required params satisfied, use default
+            d.setdefault('release', d['version'])
+            d2 = DEFAULT_VALUE.copy()
+            d2.update(dict(("ext_"+ext, False) for ext in EXTENSIONS))
+            d2.update(d)
+            d = d2
+            if 'no_makefile' in d:
+                d['makefile'] = False
+            if 'no_batchfile' in d:
+                d['batchfile'] = False
+
+            if path.exists(d['path']) and (
+                    not path.isdir(d['path']) or os.listdir(d['path'])):
+                print()
+                print(bold('Error: specified path is not a directory, or not a'
+                           ' empty directory.'))
+                print('sphinx-quickstart only generate into a empty directory.'
+                      ' Please specify a new root path.')
+                return
+        else:
+            ask_user(d)
     except (KeyboardInterrupt, EOFError):
         print()
         print('[Interrupted.]')
         return
     generate(d)
-
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))

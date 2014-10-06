@@ -102,12 +102,7 @@ class HTMLTranslator(BaseTranslator):
                and node['ids'] and node['first']:
             self.body.append('<!--[%s]-->' % node['ids'][0])
     def depart_desc_signature(self, node):
-        if node['ids'] and self.permalink_text and self.builder.add_permalinks:
-            self.body.append(u'<a class="headerlink" href="#%s" '
-                             % node['ids'][0] +
-                             u'title="%s">%s</a>' % (
-                             _('Permalink to this definition'),
-                             self.permalink_text))
+        self.add_permalink_ref(node, 'definition')
         self.body.append('</dt>\n')
 
     def visit_desc_addname(self, node):
@@ -259,9 +254,11 @@ class HTMLTranslator(BaseTranslator):
     def add_fignumber(self, node):
         def append_fignumber(figtype, figure_id):
             if figure_id in self.builder.fignumbers.get(figtype, {}):
+                self.body.append(self.starttag(node, 'span', '', CLASS='caption-number'))
                 prefix = self.builder.config.numfig_prefix.get(figtype, '')
                 numbers = self.builder.fignumbers[figtype][figure_id]
-                self.body.append(prefix + '.'.join(map(str, numbers)) + " ")
+                self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
+                self.body.append('</span>')
 
         if isinstance(node.parent, nodes.figure):
             append_fignumber('figure', node.parent['ids'][0])
@@ -269,6 +266,12 @@ class HTMLTranslator(BaseTranslator):
             append_fignumber('table', node.parent['ids'][0])
         elif isinstance(node.parent, nodes.container):
             append_fignumber('code-block', node.parent['ids'][0])
+
+    def add_permalink_ref(self, node, typename):
+        if node['ids'] and self.permalink_text and self.builder.add_permalinks:
+            title = _('Permalink to this %s' % typename)
+            format = u'<a class="headerlink" href="#%s" title="%s">%s</a>'
+            self.body.append(format % (node['ids'][0], title, self.permalink_text))
 
     # overwritten to avoid emitting empty <ul></ul>
     def visit_bullet_list(self, node):
@@ -281,6 +284,8 @@ class HTMLTranslator(BaseTranslator):
         BaseTranslator.visit_title(self, node)
         self.add_secnumber(node)
         self.add_fignumber(node)
+        if isinstance(node.parent, nodes.table):
+            self.body.append(self.starttag(node, 'span', '', CLASS='caption-text'))
 
     # overwritten
     def visit_literal_block(self, node):
@@ -313,8 +318,17 @@ class HTMLTranslator(BaseTranslator):
         else:
             BaseTranslator.visit_caption(self, node)
         self.add_fignumber(node)
+        self.body.append(self.starttag(node, 'span', '', CLASS='caption-text'))
 
     def depart_caption(self, node):
+        self.body.append('</span>')
+
+        # append permalink if available
+        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+            self.add_permalink_ref(node.parent, 'code')
+        elif isinstance(node.parent, nodes.figure):
+            self.add_permalink_ref(node.parent, 'image')
+
         if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
             self.body.append('</div>\n')
         else:
@@ -581,20 +595,19 @@ class HTMLTranslator(BaseTranslator):
     def depart_title(self, node):
         close_tag = self.context[-1]
         if (self.permalink_text and self.builder.add_permalinks and
-            node.parent.hasattr('ids') and node.parent['ids']):
-            aname = node.parent['ids'][0]
+           node.parent.hasattr('ids') and node.parent['ids']):
             # add permalink anchor
             if close_tag.startswith('</h'):
-                self.body.append(u'<a class="headerlink" href="#%s" ' % aname +
-                                 u'title="%s">%s</a>' % (
-                                 _('Permalink to this headline'),
-                                 self.permalink_text))
+                self.add_permalink_ref(node.parent, 'headline')
             elif close_tag.startswith('</a></h'):
                 self.body.append(u'</a><a class="headerlink" href="#%s" ' %
-                                 aname +
+                                 node.parent['ids'][0] +
                                  u'title="%s">%s' % (
                                  _('Permalink to this headline'),
                                  self.permalink_text))
+            elif isinstance(node.parent, nodes.table):
+                self.body.append('</span>')
+                self.add_permalink_ref(node.parent, 'table')
 
         BaseTranslator.depart_title(self, node)
 

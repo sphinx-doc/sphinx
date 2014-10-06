@@ -76,7 +76,7 @@ default_settings = {
 # or changed to properly invalidate pickle files.
 #
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
-ENV_VERSION = 44 + (sys.version_info[0] - 2)
+ENV_VERSION = 46 + (sys.version_info[0] - 2)
 
 
 dummy_reporter = Reporter('', 4, 4)
@@ -310,6 +310,7 @@ class BuildEnvironment:
             self.longtitles.pop(docname, None)
             self.tocs.pop(docname, None)
             self.toc_secnumbers.pop(docname, None)
+            self.toc_fignumbers.pop(docname, None)
             self.toc_num_entries.pop(docname, None)
             self.toctree_includes.pop(docname, None)
             self.indexentries.pop(docname, None)
@@ -350,7 +351,7 @@ class BuildEnvironment:
             self.longtitles[docname] = other.longtitles[docname]
             self.tocs[docname] = other.tocs[docname]
             self.toc_num_entries[docname] = other.toc_num_entries[docname]
-            # toc_secnumbers is not assigned during read
+            # toc_secnumbers and toc_fignumbers are not assigned during read
             if docname in other.toctree_includes:
                 self.toctree_includes[docname] = other.toctree_includes[docname]
             self.indexentries[docname] = other.indexentries[docname]
@@ -1701,7 +1702,7 @@ class BuildEnvironment:
         rewrite_needed = []
 
         assigned = set()
-        old_fignumbers = getattr(self, 'toc_fignumbers', {})  # compatible with old envs
+        old_fignumbers = self.toc_fignumbers
         self.toc_fignumbers = {}
         fignum_counter = {}
 
