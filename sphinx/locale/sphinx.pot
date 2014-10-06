@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 1.3a0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-10-06 15:20+0200\n"
+"POT-Creation-Date: 2014-10-06 15:34+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,15 +18,18 @@ msgstr ""
 "Generated-By: Babel 1.3\n"
 
 #: sphinx/config.py:75
-msgid "Fig. "
+#, python-format
+msgid "Fig. %s"
 msgstr ""
 
 #: sphinx/config.py:76
-msgid "Table "
+#, python-format
+msgid "Table %s"
 msgstr ""
 
 #: sphinx/config.py:77
-msgid "Listing "
+#, python-format
+msgid "Listing %s"
 msgstr ""
 
 #: sphinx/config.py:84
@@ -34,17 +37,17 @@ msgstr ""
 msgid "%s %s documentation"
 msgstr ""
 
-#: sphinx/environment.py:1824
+#: sphinx/environment.py:1825
 #, python-format
 msgid "see %s"
 msgstr ""
 
-#: sphinx/environment.py:1827
+#: sphinx/environment.py:1828
 #, python-format
 msgid "see also %s"
 msgstr ""
 
-#: sphinx/environment.py:1883
+#: sphinx/environment.py:1884
 msgid "Symbols"
 msgstr ""
 
