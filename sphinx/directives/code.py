@@ -9,7 +9,6 @@
 
 import sys
 import codecs
-import os
 from difflib import unified_diff
 
 from docutils import nodes
@@ -296,9 +295,11 @@ class LiteralInclude(Directive):
             lines = res
 
         if 'lineno-match' in self.options:
-            # handle that preceding, empty lines ('\n') are removed.
+            # handle that docutils remove preceding lines which only contains
+            # line separation.
             for line in lines:
-                if line != os.linesep:
+                # check if line contains anything else than line separation.
+                if line and line.splitlines()[0]:
                     break
                 linenostart += 1
 
