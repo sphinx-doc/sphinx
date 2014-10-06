@@ -305,8 +305,13 @@ class NslessParser(ET.XMLParser):
 
 def check_xpath(etree, fname, path, check, be_found=True):
     nodes = list(etree.findall(path))
-    assert nodes != [], ('did not find any node matching xpath '
-                         '%r in file %s' % (path, fname))
+    if check is None:
+        assert nodes == [], ('found any nodes matching xpath '
+                             '%r in file %s' % (path, fname))
+        return
+    else:
+        assert nodes != [], ('did not find any node matching xpath '
+                             '%r in file %s' % (path, fname))
     if hasattr(check, '__call__'):
         check(nodes)
     elif not check:
@@ -464,62 +469,32 @@ def test_numfig(app, status, warning):
 
     expects = {
         'index.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^should be Fig.1$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^should be Fig.2$', True),
-            (".//table/caption", '^should be Table 1$', True),
-            (".//table/caption", '^should be Table 2$', True),
-            (".//div[@class='code-block-caption']",
-                '^should be List 1$', True),
-            (".//div[@class='code-block-caption']",
-                '^should be List 2$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", None, True),
+            (".//table/caption/span[@class='caption-number']", None, True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", None, True),
         ],
         'foo.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^should be Fig.1.1$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^should be Fig.1.2$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^should be Fig.1.3$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^should be Fig.1.4$', True),
-            (".//table/caption", '^should be Table 1.1$', True),
-            (".//table/caption", '^should be Table 1.2$', True),
-            (".//table/caption", '^should be Table 1.3$', True),
-            (".//table/caption", '^should be Table 1.4$', True),
-            (".//div[@class='code-block-caption']",
-                '^should be List 1.1$', True),
-            (".//div[@class='code-block-caption']",
-                '^should be List 1.2$', True),
-            (".//div[@class='code-block-caption']",
-                '^should be List 1.3$', True),
-            (".//div[@class='code-block-caption']",
-                '^should be List 1.4$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", None, True),
+            (".//table/caption/span[@class='caption-number']", None, True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", None, True),
         ],
         'bar.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^should be Fig.2.1$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^should be Fig.2.3$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^should be Fig.2.4$', True),
-            (".//table/caption", '^should be Table 2.1$', True),
-            (".//table/caption", '^should be Table 2.3$', True),
-            (".//table/caption", '^should be Table 2.4$', True),
-            (".//div[@class='code-block-caption']",
-                '^should be List 2.1$', True),
-            (".//div[@class='code-block-caption']",
-                '^should be List 2.3$', True),
-            (".//div[@class='code-block-caption']",
-                '^should be List 2.4$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", None, True),
+            (".//table/caption/span[@class='caption-number']", None, True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", None, True),
         ],
         'baz.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^should be Fig.2.2$', True),
-            (".//table/caption", '^should be Table 2.2$', True),
-            (".//div[@class='code-block-caption']",
-                '^should be List 2.2$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", None, True),
+            (".//table/caption/span[@class='caption-number']", None, True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", None, True),
         ],
     }
 
@@ -547,62 +522,72 @@ def test_numfig_without_numbered_toctree(app, status, warning):
 
     expects = {
         'index.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.9 should be Fig.1$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.10 should be Fig.2$', True),
-            (".//table/caption", '^Table 9 should be Table 1$', True),
-            (".//table/caption", '^Table 10 should be Table 2$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 9 should be List 1$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 10 should be List 2$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.9 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.10 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 9 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 10 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 9 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 10 $', True),
             ],
         'foo.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.1 should be Fig.1.1$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.2 should be Fig.1.2$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.3 should be Fig.1.3$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.4 should be Fig.1.4$', True),
-            (".//table/caption", '^Table 1 should be Table 1.1$', True),
-            (".//table/caption", '^Table 2 should be Table 1.2$', True),
-            (".//table/caption", '^Table 3 should be Table 1.3$', True),
-            (".//table/caption", '^Table 4 should be Table 1.4$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 1 should be List 1.1$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 2 should be List 1.2$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 3 should be List 1.3$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 4 should be List 1.4$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.1 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.2 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.3 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.4 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 3 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 4 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 2 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 3 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 4 $', True),
             ],
         'bar.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.5 should be Fig.2.1$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.7 should be Fig.2.3$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.8 should be Fig.2.4$', True),
-            (".//table/caption", '^Table 5 should be Table 2.1$', True),
-            (".//table/caption", '^Table 7 should be Table 2.3$', True),
-            (".//table/caption", '^Table 8 should be Table 2.4$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 5 should be List 2.1$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 7 should be List 2.3$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 8 should be List 2.4$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.5 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.7 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.8 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 5 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 7 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 8 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 5 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 7 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 8 $', True),
         ],
         'baz.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.6 should be Fig.2.2$', True),
-            (".//table/caption", '^Table 6 should be Table 2.2$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 6 should be List 2.2$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.6 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 6 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 6 $', True),
         ],
     }
 
@@ -626,62 +611,72 @@ def test_numfig_with_numbered_toctree(app, status, warning):
 
     expects = {
         'index.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.1 should be Fig.1$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.2 should be Fig.2$', True),
-            (".//table/caption", '^Table 1 should be Table 1$', True),
-            (".//table/caption", '^Table 2 should be Table 2$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 1 should be List 1$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 2 should be List 2$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.1 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.2 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 2 $', True),
             ],
         'foo.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.1.1 should be Fig.1.1$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.1.2 should be Fig.1.2$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.1.3 should be Fig.1.3$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.1.4 should be Fig.1.4$', True),
-            (".//table/caption", '^Table 1.1 should be Table 1.1$', True),
-            (".//table/caption", '^Table 1.2 should be Table 1.2$', True),
-            (".//table/caption", '^Table 1.3 should be Table 1.3$', True),
-            (".//table/caption", '^Table 1.4 should be Table 1.4$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 1.1 should be List 1.1$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 1.2 should be List 1.2$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 1.3 should be List 1.3$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 1.4 should be List 1.4$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.1.1 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.1.2 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.1.3 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.1.4 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1.1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1.2 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1.3 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1.4 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 1.1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 1.2 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 1.3 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 1.4 $', True),
             ],
         'bar.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.2.1 should be Fig.2.1$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.2.3 should be Fig.2.3$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.2.4 should be Fig.2.4$', True),
-            (".//table/caption", '^Table 2.1 should be Table 2.1$', True),
-            (".//table/caption", '^Table 2.3 should be Table 2.3$', True),
-            (".//table/caption", '^Table 2.4 should be Table 2.4$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 2.1 should be List 2.1$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 2.3 should be List 2.3$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 2.4 should be List 2.4$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.2.1 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.2.3 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.2.4 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2.1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2.3 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2.4 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 2.1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 2.3 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 2.4 $', True),
         ],
         'baz.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.2.2 should be Fig.2.2$', True),
-            (".//table/caption", '^Table 2.2 should be Table 2.2$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 2.2 should be List 2.2$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.2.2 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2.2 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 2.2 $', True),
         ],
     }
 
@@ -699,68 +694,81 @@ def test_numfig_with_numbered_toctree(app, status, warning):
 
 
 @gen_with_app(buildername='html', testroot='numfig',
-              confoverrides={'numfig': True, 'numfig_prefix': {'figure': 'Figure:', 'table': 'Tab_', 'code-block': 'Code-'}})
+              confoverrides={'numfig': True,
+                             'numfig_prefix': {'figure': 'Figure:',
+                                               'table': 'Tab_',
+                                               'code-block': 'Code-'}})
 def test_numfig_with_prefix(app, status, warning):
     app.builder.build_all()
 
     expects = {
         'index.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Figure:1 should be Fig.1$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Figure:2 should be Fig.2$', True),
-            (".//table/caption", '^Tab_1 should be Table 1$', True),
-            (".//table/caption", '^Tab_2 should be Table 2$', True),
-            (".//div[@class='code-block-caption']",
-                '^Code-1 should be List 1$', True),
-            (".//div[@class='code-block-caption']",
-                '^Code-2 should be List 2$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Figure:1 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Figure:2 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Tab_1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Tab_2 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Code-1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Code-2 $', True),
             ],
         'foo.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Figure:1.1 should be Fig.1.1$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Figure:1.2 should be Fig.1.2$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Figure:1.3 should be Fig.1.3$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Figure:1.4 should be Fig.1.4$', True),
-            (".//table/caption", '^Tab_1.1 should be Table 1.1$', True),
-            (".//table/caption", '^Tab_1.2 should be Table 1.2$', True),
-            (".//table/caption", '^Tab_1.3 should be Table 1.3$', True),
-            (".//table/caption", '^Tab_1.4 should be Table 1.4$', True),
-            (".//div[@class='code-block-caption']",
-                '^Code-1.1 should be List 1.1$', True),
-            (".//div[@class='code-block-caption']",
-                '^Code-1.2 should be List 1.2$', True),
-            (".//div[@class='code-block-caption']",
-                '^Code-1.3 should be List 1.3$', True),
-            (".//div[@class='code-block-caption']",
-                '^Code-1.4 should be List 1.4$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Figure:1.1 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Figure:1.2 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Figure:1.3 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Figure:1.4 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Tab_1.1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Tab_1.2 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Tab_1.3 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Tab_1.4 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Code-1.1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Code-1.2 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Code-1.3 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Code-1.4 $', True),
             ],
         'bar.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Figure:2.1 should be Fig.2.1$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Figure:2.3 should be Fig.2.3$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Figure:2.4 should be Fig.2.4$', True),
-            (".//table/caption", '^Tab_2.1 should be Table 2.1$', True),
-            (".//table/caption", '^Tab_2.3 should be Table 2.3$', True),
-            (".//table/caption", '^Tab_2.4 should be Table 2.4$', True),
-            (".//div[@class='code-block-caption']",
-                '^Code-2.1 should be List 2.1$', True),
-            (".//div[@class='code-block-caption']",
-                '^Code-2.3 should be List 2.3$', True),
-            (".//div[@class='code-block-caption']",
-                '^Code-2.4 should be List 2.4$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Figure:2.1 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Figure:2.3 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Figure:2.4 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Tab_2.1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Tab_2.3 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Tab_2.4 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Code-2.1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Code-2.3 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Code-2.4 $', True),
         ],
         'baz.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Figure:2.2 should be Fig.2.2$', True),
-            (".//table/caption", '^Tab_2.2 should be Table 2.2$', True),
-            (".//div[@class='code-block-caption']",
-                '^Code-2.2 should be List 2.2$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Figure:2.2 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Tab_2.2 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Code-2.2 $', True),
         ],
     }
 
@@ -784,62 +792,72 @@ def test_numfig_with_secnum_depth(app, status, warning):
 
     expects = {
         'index.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.1 should be Fig.1$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.2 should be Fig.2$', True),
-            (".//table/caption", '^Table 1 should be Table 1$', True),
-            (".//table/caption", '^Table 2 should be Table 2$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 1 should be List 1$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 2 should be List 2$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.1 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.2 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 2 $', True),
             ],
         'foo.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.1.1 should be Fig.1.1$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.1.1.1 should be Fig.1.2$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.1.1.2 should be Fig.1.3$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.1.2.1 should be Fig.1.4$', True),
-            (".//table/caption", '^Table 1.1 should be Table 1.1$', True),
-            (".//table/caption", '^Table 1.1.1 should be Table 1.2$', True),
-            (".//table/caption", '^Table 1.1.2 should be Table 1.3$', True),
-            (".//table/caption", '^Table 1.2.1 should be Table 1.4$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 1.1 should be List 1.1$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 1.1.1 should be List 1.2$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 1.1.2 should be List 1.3$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 1.2.1 should be List 1.4$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.1.1 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.1.1.1 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.1.1.2 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.1.2.1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1.1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1.1.1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1.1.2 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1.2.1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 1.1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 1.1.1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 1.1.2 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 1.2.1 $', True),
             ],
         'bar.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.2.1.1 should be Fig.2.1$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.2.1.3 should be Fig.2.3$', True),
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.2.2.1 should be Fig.2.4$', True),
-            (".//table/caption", '^Table 2.1.1 should be Table 2.1$', True),
-            (".//table/caption", '^Table 2.1.3 should be Table 2.3$', True),
-            (".//table/caption", '^Table 2.2.1 should be Table 2.4$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 2.1.1 should be List 2.1$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 2.1.3 should be List 2.3$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 2.2.1 should be List 2.4$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.2.1.1 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.2.1.3 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.2.2.1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2.1.1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2.1.3 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2.2.1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 2.1.1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 2.1.3 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 2.2.1 $', True),
         ],
         'baz.html': [
-            (".//div[@class='figure']/p[@class='caption']",
-                '^Fig.2.1.2 should be Fig.2.2$', True),
-            (".//table/caption", '^Table 2.1.2 should be Table 2.2$', True),
-            (".//div[@class='code-block-caption']",
-                '^List 2.1.2 should be List 2.2$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig.2.1.2 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2.1.2 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^List 2.1.2 $', True),
         ],
     }
 
