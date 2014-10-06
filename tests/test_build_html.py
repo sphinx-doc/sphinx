@@ -695,9 +695,9 @@ def test_numfig_with_numbered_toctree(app, status, warning):
 
 @gen_with_app(buildername='html', testroot='numfig',
               confoverrides={'numfig': True,
-                             'numfig_prefix': {'figure': 'Figure:',
-                                               'table': 'Tab_',
-                                               'code-block': 'Code-'}})
+                             'numfig_prefix': {'figure': 'Figure:%s',
+                                               'table': 'Tab_%s',
+                                               'code-block': 'Code-%s'}})
 def test_numfig_with_prefix(app, status, warning):
     app.builder.build_all()
 
