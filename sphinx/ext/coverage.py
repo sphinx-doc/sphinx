@@ -84,7 +84,7 @@ class CoverageBuilder(Builder):
         # Fetch all the info from the header files
         c_objects = self.env.domaindata['c']['objects']
         for filename in self.c_sourcefiles:
-            undoc = []
+            undoc = set()
             f = open(filename, 'r')
             try:
                 for line in f:
@@ -97,7 +97,7 @@ class CoverageBuilder(Builder):
                                     if exp.match(name):
                                         break
                                 else:
-                                    undoc.append((key, name))
+                                    undoc.add((key, name))
                             continue
             finally:
                 f.close()
@@ -114,7 +114,7 @@ class CoverageBuilder(Builder):
 
             for filename, undoc in iteritems(self.c_undoc):
                 write_header(op, filename)
-                for typ, name in undoc:
+                for typ, name in sorted(undoc):
                     op.write(' * %-50s [%9s]\n' % (name, typ))
                 op.write('\n')
         finally:
