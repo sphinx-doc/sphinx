@@ -146,6 +146,7 @@ class LiteralInclude(Directive):
         'dedent': int,
         'linenos': directives.flag,
         'lineno-start': int,
+        'lineno-match': directives.flag,
         'tab-width': int,
         'language': directives.unchanged_required,
         'encoding': directives.encoding,
@@ -163,8 +164,8 @@ class LiteralInclude(Directive):
     def read_with_encoding(self, filename, document, codec_info, encoding):
         f = None
         try:
-            f = codecs.StreamReaderWriter(open(filename, 'rb'),
-                                          codec_info[2], codec_info[3], 'strict')
+            f = codecs.StreamReaderWriter(open(filename, 'rb'), codec_info[2],
+                                          codec_info[3], 'strict')
             lines = f.readlines()
             lines = dedent_lines(lines, self.options.get('dedent'))
             return lines
@@ -194,6 +195,17 @@ class LiteralInclude(Directive):
                 'Cannot use both "pyobject" and "lines" options',
                 line=self.lineno)]
 
+        if 'lineno-match' in self.options and 'lineno-start' in self.options:
+            return [document.reporter.warning(
+                'Cannot use both "lineno-match" and "lineno-start"',
+                line=self.lineno)]
+
+        if 'lineno-match' in self.options and \
+           (set(['append', 'prepend']) & set(self.options.keys())):
+            return [document.reporter.warning(
+                'Cannot use "lineno-match" and "append" or "prepend"',
+                line=self.lineno)]
+
         encoding = self.options.get('encoding', env.config.source_encoding)
         codec_info = codecs.lookup(encoding)
 
@@ -207,7 +219,7 @@ class LiteralInclude(Directive):
             tmp, fulldiffsource = env.relfn2path(diffsource)
 
             difflines = self.read_with_encoding(fulldiffsource, document,
-                                           codec_info, encoding)
+                                                codec_info, encoding)
             if not isinstance(difflines[0], string_types):
                 return difflines
             diff = unified_diff(
@@ -217,6 +229,7 @@ class LiteralInclude(Directive):
                 self.arguments[0])
             lines = list(diff)
 
+        linenostart = self.options.get('lineno-start', 1)
         objectname = self.options.get('pyobject')
         if objectname is not None:
             from sphinx.pycode import ModuleAnalyzer
@@ -227,17 +240,30 @@ class LiteralInclude(Directive):
                     'Object named %r not found in include file %r' %
                     (objectname, filename), line=self.lineno)]
             else:
-                lines = lines[tags[objectname][1]-1 : tags[objectname][2]-1]
+                lines = lines[tags[objectname][1]-1: tags[objectname][2]-1]
+                if 'lineno-match' in self.options:
+                    linenostart = tags[objectname][1]
 
         linespec = self.options.get('lines')
-        if linespec is not None:
+        if linespec:
             try:
                 linelist = parselinenos(linespec, len(lines))
             except ValueError as err:
                 return [document.reporter.warning(str(err), line=self.lineno)]
-            # just ignore nonexisting lines
-            nlines = len(lines)
-            lines = [lines[i] for i in linelist if i < nlines]
+
+            if 'lineno-match' in self.options:
+                # make sure the line list is not "disjoint".
+                previous = linelist[0]
+                for line_number in linelist[1:]:
+                    if line_number == previous + 1:
+                        previous = line_number
+                        continue
+                    return [document.reporter.warning(
+                        'Cannot use "lineno-match" with a disjoint set of '
+                        '"lines"', line=self.lineno)]
+                linenostart = linelist[0] + 1
+            # just ignore non-existing lines
+            lines = [lines[i] for i in linelist if i < len(lines)]
             if not lines:
                 return [document.reporter.warning(
                     'Line spec %r: no lines pulled from include file %r' %
@@ -253,43 +279,54 @@ class LiteralInclude(Directive):
             hl_lines = None
 
         startafter = self.options.get('start-after')
-        endbefore  = self.options.get('end-before')
-        prepend    = self.options.get('prepend')
-        append     = self.options.get('append')
+        endbefore = self.options.get('end-before')
         if startafter is not None or endbefore is not None:
             use = not startafter
             res = []
-            for line in lines:
+            for line_number, line in enumerate(lines):
                 if not use and startafter and startafter in line:
+                    if 'lineno-match' in self.options:
+                        linenostart += line_number + 1
                     use = True
                 elif use and endbefore and endbefore in line:
-                    use = False
                     break
                 elif use:
                     res.append(line)
             lines = res
 
+        if 'lineno-match' in self.options:
+            # handle that docutils remove preceding lines which only contains
+            # line separation.
+            for line in lines:
+                # check if line contains anything else than line separation.
+                if line and line.splitlines()[0]:
+                    break
+                linenostart += 1
+
+        prepend = self.options.get('prepend')
         if prepend:
-           lines.insert(0, prepend + '\n')
+            lines.insert(0, prepend + '\n')
+
+        append = self.options.get('append')
         if append:
-           lines.append(append + '\n')
+            lines.append(append + '\n')
 
         text = ''.join(lines)
         if self.options.get('tab-width'):
             text = text.expandtabs(self.options['tab-width'])
         retnode = nodes.literal_block(text, text, source=filename)
         set_source_info(self, retnode)
-        if diffsource is not None:  # if diff is set, set udiff
+        if diffsource:  # if diff is set, set udiff
             retnode['language'] = 'udiff'
-        if self.options.get('language', ''):
+        if 'language' in self.options:
             retnode['language'] = self.options['language']
         retnode['linenos'] = 'linenos' in self.options or \
-                             'lineno-start' in self.options
+                             'lineno-start' in self.options or \
+                             'lineno-match' in self.options
         extra_args = retnode['highlight_args'] = {}
         if hl_lines is not None:
             extra_args['hl_lines'] = hl_lines
-        if 'lineno-start' in self.options:
-            extra_args['linenostart'] = self.options['lineno-start']
+        extra_args['linenostart'] = linenostart
         env.note_dependency(rel_filename)
 
         caption = self.options.get('caption')
@@ -303,7 +340,7 @@ class LiteralInclude(Directive):
 
 
 directives.register_directive('highlight', Highlight)
-directives.register_directive('highlightlang', Highlight) # old
+directives.register_directive('highlightlang', Highlight)  # old
 directives.register_directive('code-block', CodeBlock)
 directives.register_directive('sourcecode', CodeBlock)
 directives.register_directive('literalinclude', LiteralInclude)

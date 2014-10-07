@@ -41,6 +41,7 @@ Other contributors, listed alphabetically, are:
 * Christopher Perkins -- autosummary integration
 * Benjamin Peterson -- unittests
 * T. Powers -- HTML output improvements
+* Jeppe Pihl -- literalinclude improvements
 * Rob Ruana -- napoleon extension
 * Stefan Seefeld -- toctree improvements
 * Shibukawa Yoshiki -- pluggable search API and Japanese search

@@ -184,6 +184,10 @@ Includes
    string option, only lines that precede the first lines containing that string
    are included.
 
+   When specifying particular parts of a file to display, it can be useful to
+   display exactly which lines are being presented.
+   This can be done using the ``lineno-match`` option.
+
    You can prepend and/or append a line to the included code, using the
    ``prepend`` and ``append`` option, respectively.  This is useful e.g. for
    highlighting PHP code that doesn't include the ``<?php``/``?>`` markers.
@@ -195,8 +199,8 @@ Includes
       .. literalinclude:: example.py
          :diff: example.py.orig
 
-   This shows the diff between example.py and example.py.orig with unified diff format.
-
+   This shows the diff between example.py and example.py.orig with unified diff
+   format.
 
    .. versionadded:: 0.4.3
       The ``encoding`` option.
@@ -207,6 +211,7 @@ Includes
       The ``prepend`` and ``append`` options, as well as ``tab-width``.
    .. versionadded:: 1.3
       The ``diff`` option.
+      The ``lineno-match`` option.
 
 
 Showing a file name
