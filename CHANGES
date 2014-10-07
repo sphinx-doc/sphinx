@@ -91,8 +91,9 @@ Features added
   Thanks to Takeshi Komiya.
 * #1344: add :confval:`gettext_enables` to enable extracting 'index' to gettext
   catalog output / applying translation catalog to generated documentation.
-* #1583: Allow the line numbering of the directive `literalinclude` to match
-  that of the included file, using a new ``lineno-match`` option.
+* PR#301, #1583: Allow the line numbering of the directive `literalinclude` to
+  match that of the included file, using a new ``lineno-match`` option. Thanks
+  to Jeppe Pihl.
 * PR#299: add various options to sphinx-quickstart. Quiet mode option
   ``--quiet`` will skips wizard mode. Thanks to WAKAYAMA shirou.
 
