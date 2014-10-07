@@ -100,6 +100,7 @@ Features added
 Bugs fixed
 ----------
 
+* #1438: Updated jQuery version from 1.8.3 to 1.11.1.
 * #1568: Fix a crash when a "centered" directive contains a reference.
 * #1563: :meth:`~sphinx.application.Sphinx.add_search_language` raises
   AssertionError for correct type of argument. Thanks to rikoman.
