@@ -248,7 +248,7 @@ class HTMLTranslator(BaseTranslator):
     def add_fignumber(self, node):
         def append_fignumber(figtype, figure_id):
             if figure_id in self.builder.fignumbers.get(figtype, {}):
-                self.body.append(self.starttag(node, 'span', '', CLASS='caption-number'))
+                self.body.append('<span class="caption-number">')
                 prefix = self.builder.config.numfig_prefix.get(figtype, '')
                 numbers = self.builder.fignumbers[figtype][figure_id]
                 self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
@@ -279,7 +279,7 @@ class HTMLTranslator(BaseTranslator):
         self.add_secnumber(node)
         self.add_fignumber(node)
         if isinstance(node.parent, nodes.table):
-            self.body.append(self.starttag(node, 'span', '', CLASS='caption-text'))
+            self.body.append('<span class="caption-text">')
 
     # overwritten
     def visit_literal_block(self, node):
@@ -308,7 +308,7 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_caption(self, node):
         if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
-            self.body.append(self.starttag(node, 'div', '', CLASS='code-block-caption'))
+            self.body.append('<div class="code-block-caption">')
         else:
             BaseTranslator.visit_caption(self, node)
         self.add_fignumber(node)
