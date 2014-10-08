@@ -424,9 +424,17 @@ documentation on :ref:`intl` for details.
 .. confval:: gettext_uuid
 
    If true, Sphinx generates uuid information for version tracking in message
-   catalogs.
+   catalogs. It is used for:
 
-   The default is ``True``.
+   * Add uid line for each msgids in .pot files.
+   * Calculate similarity between new msgids and previously saved old msgids.
+     This calculation takes a long time.
+
+   If you want to accelerate the calculation, you can use
+   ``python-levenshtein`` 3rd-party package written in C by using
+   :command:`pip install python-levenshtein`.
+
+   The default is ``False``.
 
    .. versionadded:: 1.3
 

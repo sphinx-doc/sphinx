@@ -20,6 +20,10 @@ Incompatible changes
   templates directory.
 * Custom domains should implement the new `Domain.resolve_any_xref`
   method to make the `any` role work properly.
+* gettext builder: gettext doesn't emit uuid information to generated pot files
+  by default. Please set ``True`` to `gettext_uuid` to emit uuid information.
+  Additionally, if the ``python-levenshtein`` 3rd-party package is installed,
+  it will improve the calculation time.
 * gettext builder: disable extracting/apply 'index' node by default. Please set
   'index' to :confval:`gettext_enables` to enable extracting index entries.
 

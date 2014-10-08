@@ -27,6 +27,7 @@ class WebSupportBuilder(PickleHTMLBuilder):
     """
     name = 'websupport'
     versioning_method = 'commentable'
+    versioning_compare = True  # for commentable node's uuid stability.
 
     def init(self):
         PickleHTMLBuilder.init(self)
