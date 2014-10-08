@@ -96,7 +96,7 @@ class PygmentsBridge(object):
             source = source.translate(escape_hl_chars)
             # then, escape all characters nonrepresentable in LaTeX
             source = source.translate(tex_hl_escape_map_new)
-            return '\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n' + \
+            return '\\begin{Verbatim}[frame=single,commandchars=\\\\\\{\\}]\n' + \
                    source + '\\end{Verbatim}\n'
 
     def try_parse(self, src):
@@ -190,6 +190,8 @@ class PygmentsBridge(object):
         if self.dest == 'html':
             return hlsource
         else:
+            hlsource = re.sub(r'(?<=\\begin{Verbatim}\[)(?=commandchars)',
+                              r'frame=single,', hlsource)
             if not isinstance(hlsource, text_type):  # Py2 / Pygments < 1.6
                 hlsource = hlsource.decode()
             return hlsource.translate(tex_hl_escape_map_new)
