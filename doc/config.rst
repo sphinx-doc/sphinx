@@ -231,6 +231,28 @@ General configuration
 
    .. versionadded:: 1.1
 
+.. confval:: numfig
+
+   If true, figures, tables and code-blocks are automatically numbered if they
+   has caption. Works only for the HTML builder currently. Default is ``False``.
+
+.. confval:: numfig_prefix
+
+   A dictionary mapping ``'figure'``, ``'table'`` and ``'code-block'`` to
+   strings that are used for prefix of figure numbers. Default is to use
+   ``'Fig. %s'`` for ``'figure'``, ``'Table %s'`` for ``'table'`` and
+   ``'Listing %s'`` for ``'code-block'``.
+
+   .. versionadded:: 1.3
+
+.. confval:: numfig_secnum_depth
+
+   The scope of figure numbers, that is, the numfig feature numbers figures
+   in which scope. ``0`` means "whole document". ``1`` means "in a section".
+   Sphinx numbers like x.1, x.2, x.3... ``2`` means "in a subsection". Sphinx
+   numbers like x.x.1, x.x.2, x.x.3..., and so on. Default is ``1``.
+
+   .. versionadded:: 1.3
 
 Project information
 -------------------
