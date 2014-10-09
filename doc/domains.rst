@@ -526,7 +526,7 @@ The following directives are available. All declarations can start with a visibi
 .. rst:directive:: .. cpp:class:: class speicifer
 
    Describe a class/struct, possibly with specification of inheritance, e.g.,::
-   
+
       .. cpp:class:: SomeName::SomeClass : public MyBase, MyOtherBase
 
 .. rst:directive:: .. cpp:function:: (member-)function prototype

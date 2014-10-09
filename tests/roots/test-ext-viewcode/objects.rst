@@ -46,7 +46,7 @@ Referring to :func:`nothing <>`.
 
 .. object:: long(parameter, \
               list)
-	    another one
+            another one
 
 .. class:: TimeInt
 

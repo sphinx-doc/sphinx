@@ -76,13 +76,21 @@ def test_build_all():
 def test_circular_toctree(app, status, warning):
     app.builder.build_all()
     warnings = warning.getvalue()
-    assert 'circular toctree references detected, ignoring: sub <- contents <- sub' in warnings
-    assert 'circular toctree references detected, ignoring: contents <- sub <- contents' in warnings
+    assert (
+        'circular toctree references detected, ignoring: '
+        'sub <- contents <- sub') in warnings
+    assert (
+        'circular toctree references detected, ignoring: '
+        'contents <- sub <- contents') in warnings
 
 
 @with_app(buildername='text', testroot='numbered-circular')
 def test_numbered_circular_toctree(app, status, warning):
     app.builder.build_all()
     warnings = warning.getvalue()
-    assert 'circular toctree references detected, ignoring: sub <- contents <- sub' in warnings
-    assert 'circular toctree references detected, ignoring: contents <- sub <- contents' in warnings
+    assert (
+        'circular toctree references detected, ignoring: '
+        'sub <- contents <- sub') in warnings
+    assert (
+        'circular toctree references detected, ignoring: '
+        'contents <- sub <- contents') in warnings

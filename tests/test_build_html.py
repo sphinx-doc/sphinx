@@ -141,7 +141,8 @@ HTML_XPATH = {
         (".//a[@href='http://www.python.org/dev/peps/pep-0008']"
             "[@class='pep reference external']/strong", 'PEP 8'),
         (".//a[@href='http://www.python.org/dev/peps/pep-0008']"
-            "[@class='pep reference external']/strong", 'Python Enhancement Proposal #8'),
+            "[@class='pep reference external']/strong",
+            'Python Enhancement Proposal #8'),
         (".//a[@href='http://tools.ietf.org/html/rfc1.html']"
             "[@class='rfc reference external']/strong", 'RFC 1'),
         (".//a[@href='http://tools.ietf.org/html/rfc1.html']"

@@ -83,7 +83,7 @@ package.
    Register an event called *name*.  This is needed to be able to emit it.
 
 .. method:: Sphinx.set_translator(name, translator_class)
-               
+
    Register or override a Docutils translator class. This is used to register
    a custom output translator or to replace a builtin translator.
    This allows extensions to use custom translator and define custom

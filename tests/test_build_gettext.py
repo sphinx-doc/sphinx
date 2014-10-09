@@ -66,8 +66,9 @@ def test_all(app, status, warning):
                 print(stderr)
                 assert False, 'msgfmt exited with return code %s' % \
                     p.returncode
-        yield assert_true, (app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo').isfile(), \
-            'msgfmt failed'
+        yield (assert_true,
+               (app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo').isfile(),
+               'msgfmt failed')
     finally:
         os.chdir(cwd)
 

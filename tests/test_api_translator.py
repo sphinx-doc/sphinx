@@ -58,7 +58,8 @@ def test_html_with_set_translator_for_html_(app, status, warning):
 
 @with_app('html', testroot='api-set-translator',
           confoverrides={'html_translator_class': 'ext.ExtHTMLTranslator'})
-def test_html_with_set_translator_for_html_and_html_translator_class(app, status, warning):
+def test_html_with_set_translator_for_html_and_html_translator_class(
+        app, status, warning):
     # use set_translator() and html_translator_class.
     # set_translator() is given priority over html_translator_clas.
     translator_class = app.builder.translator_class

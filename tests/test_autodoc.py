@@ -434,21 +434,25 @@ def test_docstring_property_processing():
         return results, docstrings
 
     directive.env.config.autodoc_docstring_signature = False
-    results, docstrings = genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop1')
+    results, docstrings = \
+        genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop1')
     assert '.. py:attribute:: DocstringSig.prop1' in results
     assert 'First line of docstring' in docstrings
     assert 'DocstringSig.prop1(self)' in docstrings
-    results, docstrings = genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop2')
+    results, docstrings = \
+        genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop2')
     assert '.. py:attribute:: DocstringSig.prop2' in results
     assert 'First line of docstring' in docstrings
     assert 'Second line of docstring' in docstrings
 
     directive.env.config.autodoc_docstring_signature = True
-    results, docstrings = genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop1')
+    results, docstrings = \
+        genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop1')
     assert '.. py:attribute:: DocstringSig.prop1' in results
     assert 'First line of docstring' in docstrings
     assert 'DocstringSig.prop1(self)' not in docstrings
-    results, docstrings = genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop2')
+    results, docstrings = \
+        genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop2')
     assert '.. py:attribute:: DocstringSig.prop2' in results
     assert 'First line of docstring' in docstrings
     assert 'Second line of docstring' in docstrings
