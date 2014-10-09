@@ -171,6 +171,7 @@ Bugs fixed
 * PR#297, #1571: Add imgpath property to all builders. It make easier to
   develop builder extensions. Thanks to Takeshi Komiya.
 * #1584: Point to master doc in HTML "top" link.
+* #1585: Autosummary of modules broken in Sphinx-1.2.3.
 
 Documentation
 -------------
