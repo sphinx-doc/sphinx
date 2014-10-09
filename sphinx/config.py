@@ -72,7 +72,7 @@ class Config(object):
         nitpick_ignore = ([], 'html'),
         numfig = (False, 'env'),
         numfig_secnum_depth = (1, 'env'),
-        numfig_prefix = ({'figure': l_('Fig. %s'),
+        numfig_format = ({'figure': l_('Fig. %s'),
                           'table': l_('Table %s'),
                           'code-block': l_('Listing %s')},
                          'env'),

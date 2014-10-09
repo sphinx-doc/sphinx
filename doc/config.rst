@@ -238,10 +238,10 @@ General configuration
 
    .. versionadded:: 1.3
 
-.. confval:: numfig_prefix
+.. confval:: numfig_format
 
    A dictionary mapping ``'figure'``, ``'table'`` and ``'code-block'`` to
-   strings that are used for prefix of figure numbers. Default is to use
+   strings that are used for format of figure numbers. Default is to use
    ``'Fig. %s'`` for ``'figure'``, ``'Table %s'`` for ``'table'`` and
    ``'Listing %s'`` for ``'code-block'``.
 

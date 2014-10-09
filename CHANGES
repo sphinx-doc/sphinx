@@ -53,7 +53,7 @@ Features added
   search can now handle these.  Thanks to Shibukawa Yoshiki.
 * PR#296, PR#303, #76: numfig feature: Assign numbers to figures, tables and
   code-blocks. This feature is configured with `numfig`, `numfig_secnum_depth`
-  and `numfig_prefix`. Also `numref` role is available. Thanks to Takeshi
+  and `numfig_format`. Also `numref` role is available. Thanks to Takeshi
   Komiya.
 * PR#202: Allow "." and "~" prefixed references in ``:param:`` doc fields
   for Python.

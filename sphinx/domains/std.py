@@ -637,7 +637,7 @@ class StandardDomain(Domain):
 
             title = contnode.astext()
             if labelid == title:
-                prefix = env.config.numfig_prefix.get(figtype, '')
+                prefix = env.config.numfig_format.get(figtype, '')
                 title = prefix.replace('%s', '#')
                 newtitle = prefix % '.'.join(map(str, fignumber))
             else:

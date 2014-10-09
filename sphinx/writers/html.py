@@ -255,7 +255,7 @@ class HTMLTranslator(BaseTranslator):
         def append_fignumber(figtype, figure_id):
             if figure_id in self.builder.fignumbers.get(figtype, {}):
                 self.body.append('<span class="caption-number">')
-                prefix = self.builder.config.numfig_prefix.get(figtype, '')
+                prefix = self.builder.config.numfig_format.get(figtype, '')
                 numbers = self.builder.fignumbers[figtype][figure_id]
                 self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                 self.body.append('</span>')
