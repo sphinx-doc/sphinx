@@ -8,8 +8,6 @@ Release checklist
 * hg commit
 * make clean
 * python setup.py release bdist_wheel sdist upload
-* For all other versions: pythonX.Y setup.py release bdist_wheel upload
-  (remove build/ before each one)
 * Check PyPI release page for obvious errors
 * hg tag
 * Merge default into stable if final major release
