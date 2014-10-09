@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx 1.3a0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2014-10-06 15:34+0200\n"
+"POT-Creation-Date: 2014-10-09 22:54+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,17 +37,17 @@ msgstr ""
 msgid "%s %s documentation"
 msgstr ""
 
-#: sphinx/environment.py:1825
+#: sphinx/environment.py:1820
 #, python-format
 msgid "see %s"
 msgstr ""
 
-#: sphinx/environment.py:1828
+#: sphinx/environment.py:1823
 #, python-format
 msgid "see also %s"
 msgstr ""
 
-#: sphinx/environment.py:1884
+#: sphinx/environment.py:1879
 msgid "Symbols"
 msgstr ""
 
@@ -396,7 +396,7 @@ msgstr ""
 msgid "program option"
 msgstr ""
 
-#: sphinx/domains/std.py:477 sphinx/themes/basic/genindex-single.html:32
+#: sphinx/domains/std.py:480 sphinx/themes/basic/genindex-single.html:32
 #: sphinx/themes/basic/genindex-single.html:57
 #: sphinx/themes/basic/genindex-split.html:11
 #: sphinx/themes/basic/genindex-split.html:14
@@ -406,11 +406,11 @@ msgstr ""
 msgid "Index"
 msgstr ""
 
-#: sphinx/domains/std.py:478
+#: sphinx/domains/std.py:481
 msgid "Module Index"
 msgstr ""
 
-#: sphinx/domains/std.py:479 sphinx/themes/basic/defindex.html:25
+#: sphinx/domains/std.py:482 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr ""
 
@@ -764,15 +764,16 @@ msgstr ""
 msgid "Other changes"
 msgstr ""
 
-#: sphinx/themes/basic/static/doctools.js:142 sphinx/writers/html.py:600
+#: sphinx/themes/basic/static/doctools.js:166 sphinx/writers/html.py:600
+#: sphinx/writers/html.py:605
 msgid "Permalink to this headline"
 msgstr ""
 
-#: sphinx/themes/basic/static/doctools.js:148
+#: sphinx/themes/basic/static/doctools.js:172 sphinx/writers/html.py:105
 msgid "Permalink to this definition"
 msgstr ""
 
-#: sphinx/themes/basic/static/doctools.js:180
+#: sphinx/themes/basic/static/doctools.js:205
 msgid "Hide Search Matches"
 msgstr ""
 
@@ -806,9 +807,16 @@ msgstr ""
 msgid "Contents"
 msgstr ""
 
-#: sphinx/writers/html.py:266
-#, python-format
-msgid "Permalink to this %s"
+#: sphinx/writers/html.py:327
+msgid "Permalink to this code"
+msgstr ""
+
+#: sphinx/writers/html.py:329
+msgid "Permalink to this image"
+msgstr ""
+
+#: sphinx/writers/html.py:609
+msgid "Permalink to this table"
 msgstr ""
 
 #: sphinx/writers/latex.py:197
@@ -820,11 +828,11 @@ msgstr ""
 msgid "Footnotes"
 msgstr ""
 
-#: sphinx/writers/latex.py:723
+#: sphinx/writers/latex.py:726
 msgid "continued from previous page"
 msgstr ""
 
-#: sphinx/writers/latex.py:729
+#: sphinx/writers/latex.py:732
 msgid "Continued on next page"
 msgstr ""
 
