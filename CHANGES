@@ -26,6 +26,7 @@ Incompatible changes
   it will improve the calculation time.
 * gettext builder: disable extracting/apply 'index' node by default. Please set
   'index' to :confval:`gettext_enables` to enable extracting index entries.
+* PR#307: Add frame to code-block in LaTeX. Thanks to Takeshi Komiya.
 
 Features added
 --------------
@@ -50,8 +51,10 @@ Features added
   directive is now supported.
 * PR#214: Added stemming support for 14 languages, so that the built-in document
   search can now handle these.  Thanks to Shibukawa Yoshiki.
-* PR#296: numfig feature: Assign numbers to figures, tables and code-blocks.
-  Thanks to Takeshi Komiya.
+* PR#296, PR#303, #76: numfig feature: Assign numbers to figures, tables and
+  code-blocks. This feature is configured with `numfig`, `numfig_secnum_depth`
+  and `numfig_prefix`. Also `numref` role is available. Thanks to Takeshi
+  Komiya.
 * PR#202: Allow "." and "~" prefixed references in ``:param:`` doc fields
   for Python.
 * PR#184: Add `autodoc_mock_imports`, allowing to mock imports of
