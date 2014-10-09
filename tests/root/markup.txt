@@ -143,6 +143,9 @@ Adding \n to test unescaping.
 * :ref:`my-figure`
 * :ref:`my-table`
 * :ref:`my-code-block`
+* :numref:`my-figure`
+* :numref:`my-table`
+* :numref:`my-code-block`
 * :doc:`subdir/includes`
 * ``:download:`` is tested in includes.txt
 * :option:`Python -c option <python -c>`

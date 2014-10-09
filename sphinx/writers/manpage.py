@@ -246,6 +246,11 @@ class ManualPageTranslator(BaseTranslator):
                     '>'])
         raise nodes.SkipNode
 
+    def visit_number_reference(self, node):
+        text = nodes.Text(node.get('title', '#'))
+        self.visit_Text(text)
+        raise nodes.SkipNode
+
     def visit_centered(self, node):
         self.ensure_eol()
         self.body.append('.sp\n.ce\n')

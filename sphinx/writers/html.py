@@ -207,6 +207,12 @@ class HTMLTranslator(BaseTranslator):
             self.body.append(('%s' + self.secnumber_suffix) %
                              '.'.join(map(str, node['secnumber'])))
 
+    def visit_number_reference(self, node):
+        self.visit_reference(node)
+
+    def depart_number_reference(self, node):
+        self.depart_reference(node)
+
     # overwritten -- we don't want source comments to show up in the HTML
     def visit_comment(self, node):
         raise nodes.SkipNode

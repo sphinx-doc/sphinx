@@ -682,6 +682,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if not self.table.longtable and self.table.caption is not None:
             self.body.append(u'\n\n\\begin{threeparttable}\n'
                              u'\\capstart\\caption{%s}\n' % self.table.caption)
+            for id in self.next_table_ids:
+                self.body.append(self.hypertarget(id, anchor=False))
+            self.next_table_ids.clear()
         if self.table.longtable:
             self.body.append('\n\\begin{longtable}')
             endmacro = '\\end{longtable}\n\n'
@@ -709,11 +712,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
         if self.table.longtable and self.table.caption is not None:
-            self.body.append(u'\\caption{%s} \\\\\n' % self.table.caption)
-        if self.table.caption is not None:
+            self.body.append(u'\\caption{%s}' % self.table.caption)
             for id in self.next_table_ids:
                 self.body.append(self.hypertarget(id, anchor=False))
             self.next_table_ids.clear()
+            self.body.append(u'\\\\\n')
         if self.table.longtable:
             self.body.append('\\hline\n')
             self.body.extend(self.tableheaders)
@@ -1114,7 +1117,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 return
             elif isinstance(next, nodes.table):
                 # same for tables, but only if they have a caption
-                for n in node:
+                for n in next:
                     if isinstance(n, nodes.title):
                         if node.get('refid'):
                             self.next_table_ids.add(node['refid'])
@@ -1243,6 +1246,18 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.context.append('')
     def depart_reference(self, node):
         self.body.append(self.context.pop())
+
+    def visit_number_reference(self, node):
+        if node.get('refid'):
+            id = self.curfilestack[-1] + ':' + node['refid']
+        else:
+            id = node.get('refuri', '')[1:].replace('#', ':')
+
+        ref = '\\ref{%s}' % self.idescape(id)
+        title = node.get('title', '#')
+        self.body.append(title.replace('#', ref))
+
+        raise nodes.SkipNode
 
     def visit_download_reference(self, node):
         pass
@@ -1511,11 +1526,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             for id in self.next_literal_ids:
                 ids += self.hypertarget(id, anchor=False)
             self.next_literal_ids.clear()
-            self.body.append('\n\\begin{literal-block}' + ids)
+            self.body.append('\n\\begin{literal-block}\n')
+            self.context.append(ids + '\n\\end{literal-block}\n')
 
     def depart_container(self, node):
         if node.get('literal_block'):
-            self.body.append('\\end{literal-block}\n')
+            self.body.append(self.context.pop())
 
     def visit_decoration(self, node):
         pass

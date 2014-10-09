@@ -22,7 +22,7 @@ from sphinx.roles import XRefRole
 from sphinx.locale import l_, _
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
-from sphinx.util import ws_re
+from sphinx.util import ws_re, get_figtype
 from sphinx.util.nodes import clean_astext, make_refnode
 from sphinx.util.compat import Directive
 
@@ -466,6 +466,9 @@ class StandardDomain(Domain):
         # links to headings or arbitrary labels
         'ref':     XRefRole(lowercase=True, innernodeclass=nodes.emphasis,
                             warn_dangling=True),
+        # links to labels of numbered figures, tables and code-blocks
+        'numref':  XRefRole(lowercase=True,
+                            warn_dangling=True),
         # links to labels, without a different title
         'keyword': XRefRole(warn_dangling=True),
     }
@@ -489,6 +492,7 @@ class StandardDomain(Domain):
         'term': 'term not in glossary: %(target)s',
         'ref':  'undefined label: %(target)s (if the link has no caption '
                 'the label must precede a section header)',
+        'numref':  'undefined label: %(target)s',
         'keyword': 'unknown keyword: %(target)s',
     }
 
@@ -574,6 +578,28 @@ class StandardDomain(Domain):
                 continue
             labels[name] = docname, labelid, sectname
 
+    def build_reference_node(self, fromdocname, builder,
+                             docname, labelid, sectname,
+                             **options):
+        nodeclass = options.pop('nodeclass', nodes.reference)
+        newnode = nodeclass('', '', internal=True, **options)
+        innernode = nodes.emphasis(sectname, sectname)
+        if docname == fromdocname:
+            newnode['refid'] = labelid
+        else:
+            # set more info in contnode; in case the
+            # get_relative_uri call raises NoUri,
+            # the builder will then have to resolve these
+            contnode = addnodes.pending_xref('')
+            contnode['refdocname'] = docname
+            contnode['refsectname'] = sectname
+            newnode['refuri'] = builder.get_relative_uri(
+                fromdocname, docname)
+            if labelid:
+                newnode['refuri'] += '#' + labelid
+        newnode.append(innernode)
+        return newnode
+
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
         if typ == 'ref':
@@ -589,23 +615,38 @@ class StandardDomain(Domain):
                                                                      ('', '', ''))
             if not docname:
                 return None
-            newnode = nodes.reference('', '', internal=True)
-            innernode = nodes.emphasis(sectname, sectname)
-            if docname == fromdocname:
-                newnode['refid'] = labelid
+
+            return self.build_reference_node(fromdocname, builder,
+                                             docname, labelid, sectname)
+        elif typ == 'numref':
+            docname, labelid = self.data['anonlabels'].get(target, ('', ''))
+            if not docname:
+                return None
+
+            if env.config.numfig is False:
+                env.warn(fromdocname, 'numfig is disabled. :numref: is ignored.')
+                return contnode
+
+            try:
+                target = env.get_doctree(docname).ids[labelid]
+                figtype = get_figtype(target)
+                figure_id = target['ids'][0]
+                fignumber = env.toc_fignumbers[docname][figtype][figure_id]
+            except (KeyError, IndexError):
+                return None
+
+            title = contnode.astext()
+            if labelid == title:
+                prefix = env.config.numfig_prefix.get(figtype, '')
+                title = prefix.replace('%s', '#')
+                newtitle = prefix % '.'.join(map(str, fignumber))
             else:
-                # set more info in contnode; in case the
-                # get_relative_uri call raises NoUri,
-                # the builder will then have to resolve these
-                contnode = addnodes.pending_xref('')
-                contnode['refdocname'] = docname
-                contnode['refsectname'] = sectname
-                newnode['refuri'] = builder.get_relative_uri(
-                    fromdocname, docname)
-                if labelid:
-                    newnode['refuri'] += '#' + labelid
-            newnode.append(innernode)
-            return newnode
+                newtitle = title.replace('#', '.'.join(map(str, fignumber)))
+
+            return self.build_reference_node(fromdocname, builder,
+                                             docname, labelid, newtitle,
+                                             nodeclass=addnodes.number_reference,
+                                             title=title)
         elif typ == 'keyword':
             # keywords are oddballs: they are referenced by named labels
             docname, labelid, _ = self.data['labels'].get(target, ('', '', ''))

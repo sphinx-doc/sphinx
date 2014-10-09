@@ -748,6 +748,11 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_reference(self, node):
         pass
 
+    def visit_number_reference(self, node):
+        text = nodes.Text(node.get('title', '#'))
+        self.visit_Text(text)
+        raise nodes.SkipNode
+
     def visit_download_reference(self, node):
         pass
     def depart_download_reference(self, node):

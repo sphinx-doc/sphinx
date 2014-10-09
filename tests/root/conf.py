@@ -24,6 +24,7 @@ exclude_patterns = ['_build', '**/excluded.*']
 keep_warnings = True
 pygments_style = 'sphinx'
 show_authors = True
+numfig = True
 
 rst_epilog = '.. |subst| replace:: global substitution'
 

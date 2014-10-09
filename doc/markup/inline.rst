@@ -201,6 +201,24 @@ Referencing downloadable files
    suitable link generated to it.
 
 
+Cross-referencing figures by figure number
+------------------------------------------
+
+.. versionadded:: 1.3
+
+.. rst:role:: numref
+
+   Link to the specified figures, tables and code-blocks; the standard reST
+   labels are used. When you use this role, it will insert a reference to the
+   figure with link text by its figure number like "Fig. 1.1".
+
+   If an explicit link text is given (like usual: ``:doc:`Image of Sphinx (Fig.
+   #) <my-figure>```), the link caption will be the title of the reference.
+   As a special character, `#` will be replaced to figure number.
+
+   If :confval:`numfig` is ``False``, figures are not numbered.
+   so this role inserts not a reference but labels or link text.
+
 Cross-referencing other items of interest
 -----------------------------------------
 
