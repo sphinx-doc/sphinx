@@ -438,6 +438,11 @@ The :program:`sphinx-apidoc` script has several options:
    to default values, but you can influence the most important ones using the
    following options.
 
+.. option:: -M
+
+   This option makes sphinx-apidoc put module documentation before submodule
+   documentation.
+
 .. option:: -H project
 
    Sets the project name to put in generated files (see :confval:`project`).
