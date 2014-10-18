@@ -148,6 +148,8 @@ For local tables of contents, use the standard reST :dudir:`contents directive
 <table-of-contents>`.
 
 
+.. _glossary-directive:
+
 Glossary
 --------
 

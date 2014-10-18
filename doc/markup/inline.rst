@@ -247,11 +247,12 @@ objects:
    exists.
 
 
-The following role creates a cross-reference to the term in the glossary:
+The following role creates a cross-reference to a term in a
+:ref:`glossary <glossary-directive>`:
 
 .. rst:role:: term
 
-   Reference to a term in the glossary.  The glossary is created using the
+   Reference to a term in a glossary.  A glossary is created using the
    ``glossary`` directive containing a definition list with terms and
    definitions.  It does not have to be in the same file as the ``term`` markup,
    for example the Python docs have one global glossary in the ``glossary.rst``
