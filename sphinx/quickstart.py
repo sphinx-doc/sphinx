@@ -1458,7 +1458,7 @@ def main(argv=sys.argv):
         opts.ensure_value('path', args[0])
 
     d = vars(opts)
-    for k, v in d.items():
+    for k, v in list(d.items()):
         # delete None or False value
         if v is None or v is False:
             del d[k]
