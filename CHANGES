@@ -10,6 +10,8 @@ Features added
 Bugs fixed
 ----------
 
+* PR#311: sphinx-quickstart does not work on python 3.4.
+
 
 Release 1.3b1 (released Oct 10, 2014)
 =====================================
