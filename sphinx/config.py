@@ -24,6 +24,9 @@ nonascii_re = re.compile(br'[\x80-\xff]')
 CONFIG_SYNTAX_ERROR = "There is a syntax error in your configuration file: %s"
 if PY3:
     CONFIG_SYNTAX_ERROR += "\nDid you change the syntax from 2.x to 3.x?"
+CONFIG_EXIT_ERROR = "The configuration file (or one of the modules it imports) " \
+                    "called sys.exit()"
+
 
 class Config(object):
     """
@@ -237,6 +240,8 @@ class Config(object):
                     execfile_(filename, config)
                 except SyntaxError as err:
                     raise ConfigError(CONFIG_SYNTAX_ERROR % err)
+                except SystemExit:
+                    raise ConfigError(CONFIG_EXIT_ERROR)
 
         self._raw_config = config
         # these two must be preinitialized because extensions can add their
