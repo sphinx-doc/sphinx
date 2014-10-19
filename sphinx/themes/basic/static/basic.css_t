@@ -356,6 +356,15 @@ table.citation td {
 
 /* -- figures --------------------------------------------------------------- */
 
+div.figure {
+    margin: 0.5em;
+    padding: 0.5em;
+}
+
+div.figure p.caption {
+    padding: 0.3em;
+}
+
 div.figure p.caption span.caption-number {
     font-style: italic;
 }
