@@ -269,6 +269,7 @@ a code:hover {
 }
 
 pre {
+    background-color: transparent !important;
     font-family: 'Consolas', 'Deja Vu Sans Mono',
                  'Bitstream Vera Sans Mono', monospace;
     font-size: 0.95em;
@@ -327,7 +328,11 @@ div.admonition li p {
 }
 
 div.admonition pre, div.warning pre {
-    margin: 0.4em 1em 0.4em 1em;
+    margin: 0;
+}
+
+div.highlight {
+    margin: 0.4em 1em;
 }
 
 div.admonition p.admonition-title {
@@ -440,6 +445,13 @@ th {
     text-align: left;
     padding-right: 5px;
     background-color: #82A0BE;
+}
+
+div.container div.code-block-caption {
+    background-color: #EEE;
+    border-style: solid;
+    border-color: #CCC;
+    border-width: 1px 5px;
 }
 
 /* WIDE DESKTOP STYLE */

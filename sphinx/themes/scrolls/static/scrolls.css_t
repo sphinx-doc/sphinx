@@ -204,6 +204,27 @@ code {
     border-bottom: 1px solid #eee;
 }
 
+div.code-block-caption {
+    color: #efefef;
+    background-color: #888;
+}
+
+div.code-block-caption span.caption-number {
+    padding: 0.1em 0.3em;
+    font-style: italic;
+}
+
+div.code-block-caption span.caption-text {
+}
+
+div.container {
+    padding: 1em 1em 0;
+}
+
+div.container pre {
+    margin: 0;
+}
+
 a.reference:hover code {
     border-bottom-color: #aaa;
 }
@@ -260,6 +281,13 @@ div.code-block-caption:hover > a.headerlink {
 a.headerlink:hover {
     background-color: #B4B4B4;
     color: #F0F0F0!important;
+}
+
+table caption span.caption-number {
+    font-style: italic;
+}
+
+table caption span.caption-text {
 }
 
 table.indextable {
@@ -435,4 +463,11 @@ div.viewcode-block:target {
     border-bottom: 1px solid #ac9;
     margin: -1px -5px;
     padding: 0 5px;
+}
+
+div.figure p.caption span.caption-number {
+    font-style: italic;
+}
+
+div.figure p.caption span.caption-text {
 }

@@ -563,6 +563,13 @@ table.docutils {
     border: 0;
 }
 
+table caption span.caption-number {
+    font-style: italic;
+}
+
+table caption span.caption-text {
+}
+
 table.docutils td, table.docutils th {
     padding: 0 8px 2px 0;
     border-top: 0;
@@ -705,4 +712,27 @@ div.viewcode-block:target {
 
 div.code-block-caption {
     background-color: #cceeff;
+}
+
+div.code-block-caption span.caption-number {
+    padding: 0.1em 0.3em;
+    font-style: italic;
+}
+
+div.code-block-caption span.caption-text {
+}
+
+div.container {
+    padding: 1em 1em 0;
+}
+
+div.container pre {
+    margin: 0;
+}
+
+div.figure p.caption span.caption-number {
+    font-style: italic;
+}
+
+div.figure p.caption span.caption-text {
 }

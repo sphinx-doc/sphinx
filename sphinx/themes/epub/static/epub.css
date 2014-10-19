@@ -271,6 +271,13 @@ table.docutils {
     border-collapse: collapse;
 }
 
+table caption span.caption-number {
+    font-style: italic;
+}
+
+table caption span.caption-text {
+}
+
 table.docutils td, table.docutils th {
     padding: 1px 8px 1px 5px;
     border-top: 0;
@@ -299,6 +306,15 @@ table.citation {
 
 table.citation td {
     border-bottom: none;
+}
+
+/* -- figures --------------------------------------------------------------- */
+
+div.figure p.caption span.caption-number {
+    font-style: italic;
+}
+
+div.figure p.caption span.caption-text {
 }
 
 /* -- other body styles ----------------------------------------------------- */
@@ -435,6 +451,22 @@ table.highlighttable td {
 
 code {
     font-family: monospace;
+}
+
+div.code-block-caption span.caption-number {
+    padding: 0.1em 0.3em;
+    font-style: italic;
+}
+
+div.code-block-caption span.caption-text {
+}
+
+div.container {
+    padding: 1em 1em 0;
+}
+
+div.container div.highlight {
+    margin: 0;
 }
 
 code.descname {
