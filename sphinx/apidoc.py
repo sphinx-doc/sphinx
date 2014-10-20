@@ -367,6 +367,7 @@ Note: By default this script will not overwrite already created files.""")
             batchfile = True,
             mastertocmaxdepth = opts.maxdepth,
             mastertoctree = text,
+            language = 'en',
         )
         if not opts.dryrun:
             qs.generate(d, silent=True, overwrite=opts.force)
