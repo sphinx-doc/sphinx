@@ -284,9 +284,11 @@ class Config(object):
                     except ValueError:
                         warn('invalid number %r for config value %r, ignoring'
                              % (value, valname))
+                elif hasattr(defvalue, '__call__'):
+                    config[valname] = value
                 elif defvalue is not None and not isinstance(defvalue, string_types):
-                    warn('cannot override config setting %r with unsupported type, '
-                         'ignoring' % valname)
+                    warn('cannot override config setting %r with unsupported '
+                         'type, ignoring' % valname)
                 else:
                     config[valname] = value
             else:
