@@ -105,8 +105,10 @@ class WebSupportBuilder(PickleHTMLBuilder):
         self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
 
-        self.app.emit('html-page-context', pagename, templatename,
-                      ctx, event_arg)
+        newtmpl = self.app.emit_firstresult('html-page-context', pagename,
+                                            templatename, ctx, event_arg)
+        if newtmpl:
+            templatename = newtmpl
 
         # create a dict that will be pickled and used by webapps
         doc_ctx = {

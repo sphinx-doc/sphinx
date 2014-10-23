@@ -767,8 +767,10 @@ class StandaloneHTMLBuilder(Builder):
         self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
 
-        self.app.emit('html-page-context', pagename, templatename,
-                      ctx, event_arg)
+        newtmpl = self.app.emit_firstresult('html-page-context', pagename,
+                                            templatename, ctx, event_arg)
+        if newtmpl:
+            templatename = newtmpl
 
         try:
             output = self.templates.render(templatename, ctx)
@@ -1063,8 +1065,9 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
             outfilename = path.join(self.outdir,
                                     os_path(pagename) + self.out_suffix)
 
-        self.app.emit('html-page-context', pagename, templatename,
-                      ctx, event_arg)
+        # we're not taking the return value here, since no template is
+        # actually rendered
+        self.app.emit('html-page-context', pagename, templatename, ctx, event_arg)
 
         ensuredir(path.dirname(outfilename))
         self.dump_context(ctx, outfilename)

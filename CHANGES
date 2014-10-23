@@ -7,6 +7,9 @@ Incompatible changes
 Features added
 --------------
 
+* #1597: Added possibility to return a new template name from
+  `html-page-context`.
+
 Bugs fixed
 ----------
 

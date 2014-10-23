@@ -558,7 +558,13 @@ handlers to the events.  Example:
    documents; it will be ``None`` when the page is created from an HTML template
    alone.
 
+   You can return a string from the handler, it will then replace
+   ``'page.html'`` as the HTML template for this page.
+
    .. versionadded:: 0.4
+
+   .. versionchanged:: 1.3
+      The return value can now specify a template name.
 
 .. event:: build-finished (app, exception)
 
