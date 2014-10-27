@@ -476,9 +476,9 @@ def test_numfig_disabled(app, status, warning):
              "span[@class='caption-number']", None, True),
             (".//li/code/span", '^fig1$', True),
             (".//li/code/span", '^Figure#$', True),
-            (".//li/code/span", '^table1$', True),
+            (".//li/code/span", '^table-1$', True),
             (".//li/code/span", '^Table:#$', True),
-            (".//li/code/span", '^code1$', True),
+            (".//li/code/span", '^code_1$', True),
             (".//li/code/span", '^Code-#$', True),
         ],
         'foo.html': [

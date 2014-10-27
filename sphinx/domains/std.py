@@ -628,15 +628,15 @@ class StandardDomain(Domain):
                 return contnode
 
             try:
-                target = env.get_doctree(docname).ids[labelid]
-                figtype = get_figtype(target)
-                figure_id = target['ids'][0]
+                target_node = env.get_doctree(docname).ids[labelid]
+                figtype = get_figtype(target_node)
+                figure_id = target_node['ids'][0]
                 fignumber = env.toc_fignumbers[docname][figtype][figure_id]
             except (KeyError, IndexError):
                 return None
 
             title = contnode.astext()
-            if labelid == title:
+            if target == title:
                 prefix = env.config.numfig_format.get(figtype, '')
                 title = prefix.replace('%s', '#')
                 newtitle = prefix % '.'.join(map(str, fignumber))

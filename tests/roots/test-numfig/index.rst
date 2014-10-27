@@ -17,7 +17,7 @@ test-tocdepth
 
    should be Fig.2
 
-.. _table1:
+.. _table-1:
 
 .. csv-table:: should be Table 1
    :header-rows: 0
@@ -29,7 +29,7 @@ test-tocdepth
 
    hello,world
 
-.. _code1:
+.. _code_1:
 
 .. code-block:: python
    :caption: should be List 1
@@ -44,7 +44,7 @@ test-tocdepth
 
 * Fig.1 is :numref:`fig1`
 * Fig.2.2 is :numref:`Figure# <fig22>`
-* Table.1 is :numref:`table1`
+* Table.1 is :numref:`table-1`
 * Table.2.2 is :numref:`Table:# <table22>`
-* List.1 is :numref:`code1`
+* List.1 is :numref:`code_1`
 * List.2.2 is :numref:`Code-# <code22>`

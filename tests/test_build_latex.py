@@ -103,9 +103,9 @@ def test_numref(app, status, warning):
     print(warning.getvalue())
     assert '\\ref{index:fig1}' in result
     assert '\\ref{baz:fig22}' in result
-    assert '\\ref{index:table1}' in result
+    assert '\\ref{index:table-1}' in result
     assert '\\ref{baz:table22}' in result
-    assert '\\ref{index:code1}' in result
+    assert '\\ref{index:code-1}' in result
     assert '\\ref{baz:code22}' in result
 
 
