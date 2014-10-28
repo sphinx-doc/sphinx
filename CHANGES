@@ -22,6 +22,8 @@ Bugs fixed
   a toctree was replaced with wrong title and link.
 * #1584: Point to master doc in HTML "top" link.
 * #1585: Autosummary of modules broken in Sphinx-1.2.3.
+* #1610: Sphinx cause AttributeError when MeCab search option is enabled and
+  python-mecab is not installed.
 
 
 Release 1.2.3 (released Sep 1, 2014)
