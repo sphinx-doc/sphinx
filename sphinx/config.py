@@ -14,7 +14,7 @@ from os import path
 
 from six import PY3, iteritems, string_types, binary_type, integer_types
 
-from sphinx.errors import ConfigError
+from sphinx.errors import ConfigError, ConfigWarning
 from sphinx.locale import l_
 from sphinx.util.osutil import make_filename, cd
 from sphinx.util.pycompat import execfile_
@@ -249,6 +249,30 @@ class Config(object):
         self.setup = config.get('setup', None)
         self.extensions = config.get('extensions', [])
 
+    def check_types(self, warn):
+        # check all values for deviation from the default value's type, since
+        # that can result in TypeErrors all over the place
+        # NB. since config values might use l_() we have to wait with calling
+        # this method until i18n is initialized
+        for name in self._raw_config:
+            if name not in Config.config_values:
+                continue  # we don't know a default value
+            default, dummy_rebuild = Config.config_values[name]
+            if hasattr(default, '__call__'):
+                default = default(self)  # could invoke l_()
+            if default is None:
+                continue
+            current = self[name]
+            if type(current) is type(default):
+                continue
+            common_bases = (
+                set(type(current).__bases__) & set(type(default).__bases__))
+            common_bases.discard(object)
+            if common_bases:
+                continue  # at least we share a non-trivial base class
+            warn("the config value %r has type `%s', defaults to `%s.'"
+                    % (name, type(current).__name__, type(default).__name__))
+
     def check_unicode(self, warn):
         # check all string values for non-ASCII characters in bytestrings,
         # since that can result in UnicodeErrors all over the place
@@ -296,7 +320,6 @@ class Config(object):
         for name in config:
             if name in self.values:
                 self.__dict__[name] = config[name]
-        del self._raw_config
 
     def __getattr__(self, name):
         if name.startswith('_'):

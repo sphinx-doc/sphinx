@@ -124,6 +124,7 @@ class Sphinx(object):
         self.config = Config(confdir, CONFIG_FILENAME,
                              confoverrides or {}, self.tags)
         self.config.check_unicode(self.warn)
+        # defer checking types until i18n has been initialized
 
         # set confdir to srcdir if -C given (!= no confdir); a few pieces
         # of code expect a confdir to be set
@@ -172,6 +173,8 @@ class Sphinx(object):
 
         # set up translation infrastructure
         self._init_i18n()
+        # check all configuration values for permissible types
+        self.config.check_types(self.warn)
         # set up the build environment
         self._init_env(freshenv)
         # set up the builder

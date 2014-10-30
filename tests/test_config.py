@@ -133,3 +133,11 @@ def test_config_eol(tmpdir):
         cfg = Config(tmpdir, 'conf.py', {}, None)
         cfg.init_values(lambda warning: 1/0)
         assert cfg.project == u'spam'
+
+
+@with_app(confoverrides={'master_doc': 123})
+def test_check_types(app, status, warning):
+    # WARNING: the config value 'master_doc' has type `int', defaults to `str.'
+    assert any(buf.startswith('WARNING:')
+               and 'master_doc' in buf and 'int' in buf and 'str' in buf
+               for buf in warning.buflist)
