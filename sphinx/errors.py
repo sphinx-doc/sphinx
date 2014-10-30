@@ -3,8 +3,8 @@
     sphinx.errors
     ~~~~~~~~~~~~~
 
-    Contains SphinxError, a few subclasses (in an extra module to avoid
-    circular import problems), and related classes.
+    Contains SphinxError and a few subclasses (in an extra module to avoid
+    circular import problems).
 
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -75,9 +75,3 @@ class SphinxParallelError(Exception):
     def __str__(self):
         return traceback.format_exception_only(
             self.orig_exc.__class__, self.orig_exc)[0].strip()
-
-class ConfigWarning(UserWarning):
-    """
-    Base category for warnings about dubious configuration values.
-    """
-    pass
