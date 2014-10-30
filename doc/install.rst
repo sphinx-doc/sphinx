@@ -80,7 +80,7 @@ sidebar and under "Quick Links", click "Windows Installer" to download.
 .. note::
 
    Currently, Python offers two major versions, 2.x and 3.x. Sphinx 1.3 can run
-   under Python 2.6, 2.7, 3.2, 3.3, with the recommended version being
+   under Python 2.6, 2.7, 3.3, 3.4, with the recommended version being
    2.7.  This chapter assumes you have installed Python 2.7.
 
 Follow the Windows installer for Python.
