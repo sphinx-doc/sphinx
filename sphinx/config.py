@@ -14,7 +14,7 @@ from os import path
 
 from six import PY3, iteritems, string_types, binary_type, integer_types
 
-from sphinx.errors import ConfigError, ConfigWarning
+from sphinx.errors import ConfigError
 from sphinx.locale import l_
 from sphinx.util.osutil import make_filename, cd
 from sphinx.util.pycompat import execfile_
