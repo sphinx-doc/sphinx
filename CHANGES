@@ -190,6 +190,8 @@ Bugs fixed
   develop builder extensions. Thanks to Takeshi Komiya.
 * #1584: Point to master doc in HTML "top" link.
 * #1585: Autosummary of modules broken in Sphinx-1.2.3.
+* #1610: Sphinx cause AttributeError when MeCab search option is enabled and
+  python-mecab is not installed.
 
 Documentation
 -------------
