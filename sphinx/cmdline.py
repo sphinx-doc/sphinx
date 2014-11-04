@@ -126,7 +126,7 @@ def main(argv):
 
     # parse options
     try:
-        opts, args = parser.parse_args()
+        opts, args = parser.parse_args(argv[1:])
     except SystemExit as err:
         return err.code
 
