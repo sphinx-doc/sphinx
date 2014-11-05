@@ -224,7 +224,7 @@ class Config(object):
         self.overrides = overrides
         self.values = Config.config_values.copy()
         config = {}
-        if 'extensions' in overrides:
+        if 'extensions' in overrides: #XXX do we need this?
             if isinstance(overrides['extensions'], string_types):
                 config['extensions'] = overrides.pop('extensions').split(',')
             else:
@@ -265,8 +265,8 @@ class Config(object):
             current = self[name]
             if type(current) is type(default):
                 continue
-            common_bases = (
-                set(type(current).__bases__) & set(type(default).__bases__))
+            common_bases = (set(type(current).__bases__ + (type(current),))
+                          & set(type(default).__bases__))
             common_bases.discard(object)
             if common_bases:
                 continue  # at least we share a non-trivial base class
