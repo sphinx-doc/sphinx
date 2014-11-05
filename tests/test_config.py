@@ -141,3 +141,32 @@ def test_check_types(app, status, warning):
     assert any(buf.startswith('WARNING:')
                and 'master_doc' in buf and 'int' in buf and 'str' in buf
                for buf in warning.buflist)
+
+@with_app(confoverrides={'man_pages': 123})
+def test_check_types_lambda(app, status, warning):
+    # WARNING: the config value 'man_pages' has type `int', defaults to `list.'
+    assert any(buf.startswith('WARNING:')
+               and 'man_pages' in buf and 'int' in buf and 'list' in buf
+               for buf in warning.buflist)
+
+@with_app(confoverrides={'man_pages': []})
+def test_check_types_lambda_negative(app, status, warning):
+    assert not any(buf.startswith('WARNING:') and 'man_pages' in buf
+                   for buf in warning.buflist)
+
+@with_app(confoverrides={'epub_tocdepth': True})
+def test_check_types_child(app, status, warning):
+    # WARNING: the config value 'master_doc' has type `bool', defaults to `int.'
+    assert any(buf.startswith('WARNING:')
+               and 'epub_tocdepth' in buf and 'bool' in buf and 'int' in buf
+               for buf in warning.buflist)
+
+@with_app(confoverrides={'nitpicky': 3})
+def test_check_types_parent(app, status, warning):
+    assert not any(buf.startswith('WARNING:') and 'nitpicky' in buf
+                   for buf in warning.buflist)
+
+@with_app(confoverrides={'html_add_permalinks': 'bar'})
+def test_check_types_sibling(app, status, warning):
+    assert not any(buf.startswith('WARNING:') and 'html_add_permalinks' in buf
+                   for buf in warning.buflist)
