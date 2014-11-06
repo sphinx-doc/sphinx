@@ -34,10 +34,6 @@ default_settings = {'builddir': tempdir / 'websupport',
                     'warning': StringIO()}
 
 
-def teardown_module():
-    (tempdir / 'websupport').rmtree(True)
-
-
 def with_support(*args, **kwargs):
     """Make a WebSupport object and pass it the test."""
     settings = default_settings.copy()

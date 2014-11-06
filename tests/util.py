@@ -255,7 +255,6 @@ def with_tempdir(func):
     def new_func(*args, **kwds):
         new_tempdir = path(tempfile.mkdtemp(dir=tempdir))
         func(new_tempdir, *args, **kwds)
-        new_tempdir.rmtree()  # not when test fails...
     new_func.__name__ = func.__name__
     return new_func
 
