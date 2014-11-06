@@ -1209,7 +1209,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # don't add a pageref for glossary terms
                 self.context.append('}}')
             else:
-                if self.builder.config.latex_show_pagerefs:
+                if self.builder.config.latex_show_pagerefs and not \
+                    self.in_production_list:
                     self.context.append('}} (%s)' % self.hyperpageref(id))
                 else:
                     self.context.append('}}')
