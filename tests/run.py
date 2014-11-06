@@ -44,7 +44,7 @@ if tempdir.exists():
     tempdir.rmtree()
 tempdir.makedirs()
 
-print('Running Sphinx test suite...')
+print('Running Sphinx test suite (with Python %s)...' % sys.version.split()[0])
 sys.stdout.flush()
 
 import nose
