@@ -155,7 +155,7 @@ def test_format_signature():
         inst.args = args
         inst.retann = retann
         res = inst.format_signature()
-        print res
+        print(res)
         return res
 
     # no signatures for modules
@@ -255,7 +255,7 @@ def test_get_doc():
         ds = inst.get_doc(encoding)
         # for testing purposes, concat them and strip the empty line at the end
         res = sum(ds, [])[:-1]
-        print res
+        print(res)
         return res
 
     # objects without docstring
