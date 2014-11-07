@@ -153,9 +153,12 @@ def test_format_signature():
         inst.fullname = name
         inst.doc_as_attr = False  # for class objtype
         inst.object = obj
+        inst.objpath = [name]
         inst.args = args
         inst.retann = retann
-        return inst.format_signature()
+        res = inst.format_signature()
+        print res
+        return res
 
     # no signatures for modules
     assert formatsig('module', 'test', None, None, None) == ''
@@ -188,7 +191,8 @@ def test_format_signature():
         assert formatsig('class', 'C', C, None, None) == '(a, b=None)'
     assert formatsig('class', 'C', D, 'a, b', 'X') == '(a, b) -> X'
 
-    #__init__ have signature at first line of docstring
+    # __init__ have signature at first line of docstring
+    directive.env.config.autoclass_content = 'both'
     class F2:
         '''some docstring for F2.'''
         def __init__(self, *args, **kw):
@@ -199,9 +203,11 @@ def test_format_signature():
             '''
     class G2(F2, object):
         pass
-    for C in (F2, G2):
-        assert formatsig('class', 'C', C, None, None) == \
-            '(a1, a2, kw1=True, kw2=False)'
+
+    assert formatsig('class', 'F2', F2, None, None) == \
+        '(a1, a2, kw1=True, kw2=False)'
+    assert formatsig('class', 'G2', G2, None, None) == \
+        '(a1, a2, kw1=True, kw2=False)'
 
     # test for methods
     class H:
@@ -217,6 +223,7 @@ def test_format_signature():
     assert formatsig('method', 'H.foo', H.foo3, None, None) == r"(d='\\n')"
 
     # test exception handling (exception is caught and args is '')
+    directive.env.config.autodoc_docstring_signature = False
     assert formatsig('function', 'int', int, None, None) == ''
     del _warnings[:]
 
@@ -244,9 +251,14 @@ def test_get_doc():
     def getdocl(objtype, obj, encoding=None):
         inst = AutoDirective._registry[objtype](directive, 'tmp')
         inst.object = obj
+        inst.objpath = [obj.__name__]
+        inst.doc_as_attr = False
+        inst.format_signature()  # handle docstring signatures!
         ds = inst.get_doc(encoding)
         # for testing purposes, concat them and strip the empty line at the end
-        return sum(ds, [])[:-1]
+        res = sum(ds, [])[:-1]
+        print res
+        return res
 
     # objects without docstring
     def f():
@@ -307,7 +319,7 @@ def test_get_doc():
     assert getdocl('class', D) == ['Class docstring', '', 'Init docstring',
                                    '', 'Other', ' lines']
 
-    #__init__ have signature at first line of docstring
+    # __init__ have signature at first line of docstring
     class E:
         """Class docstring"""
         def __init__(self, *args, **kw):
@@ -332,7 +344,7 @@ def test_get_doc():
 
     # signature line in the docstring will be removed when
     # autodoc_docstring_signature == True
-    directive.env.config.autodoc_docstring_signature = True  #default
+    directive.env.config.autodoc_docstring_signature = True  # default
     directive.env.config.autoclass_content = 'class'
     assert getdocl('class', E) == ['Class docstring']
     directive.env.config.autoclass_content = 'init'

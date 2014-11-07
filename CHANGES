@@ -9,7 +9,9 @@ Features added
 Bugs fixed
 ----------
 
-* Now sphinx.ext.autodoc work with python-2.5 again.
+* Now sphinx.ext.autodoc works with python-2.5 again.
+* Fix :confval:`autodoc_docstring_signature` not working with signatures
+  in class docstrings.
 * #1563: :meth:`~sphinx.application.Sphinx.add_search_language` raises
   AssertionError for correct type of argument. Thanks to rikoman.
 * #1568: fix a crash when a "centered" directive contains a reference.
