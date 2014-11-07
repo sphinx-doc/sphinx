@@ -945,36 +945,37 @@ class DocstringSignatureMixin(object):
     """
 
     def _find_signature(self, encoding=None):
-        docstrings = Documenter.get_doc(self, encoding)
-        if len(docstrings) != 1:
-            return
-        doclines = docstrings[0]
-        setattr(self, '__new_doclines', doclines)
-        if not doclines:
-            return
-        # match first line of docstring against signature RE
-        match = py_ext_sig_re.match(doclines[0])
-        if not match:
-            return
-        exmod, path, base, args, retann = match.groups()
-        # the base name must match ours
-        if not self.objpath or base != self.objpath[-1]:
-            return
-        # re-prepare docstring to ignore indentation after signature
-        docstrings = Documenter.get_doc(self, encoding, 2)
-        doclines = docstrings[0]
-        # ok, now jump over remaining empty lines and set the remaining
-        # lines as the new doclines
-        i = 1
-        while i < len(doclines) and not doclines[i].strip():
-            i += 1
-        setattr(self, '__new_doclines', doclines[i:])
-        return args, retann
+        docstrings = self.get_doc(encoding)
+        self._new_docstrings = docstrings[:]
+        result = None
+        for i, doclines in enumerate(docstrings):
+            # no lines in docstring, no match
+            if not doclines:
+                continue
+            # match first line of docstring against signature RE
+            match = py_ext_sig_re.match(doclines[0])
+            if not match:
+                continue
+            exmod, path, base, args, retann = match.groups()
+            # the base name must match ours
+            valid_names = [self.objpath[-1]]
+            if isinstance(self, ClassDocumenter):
+                valid_names.append('__init__')
+                if hasattr(self.object, '__mro__'):
+                    valid_names.extend(cls.__name__ for cls in self.object.__mro__)
+            if base not in valid_names:
+                continue
+            # re-prepare docstring to ignore more leading indentation
+            self._new_docstrings[i] = prepare_docstring('\n'.join(doclines[1:]))
+            result = args, retann
+            # don't look any further
+            break
+        return result
 
     def get_doc(self, encoding=None, ignore=1):
-        lines = getattr(self, '__new_doclines', None)
+        lines = getattr(self, '_new_docstrings', None)
         if lines is not None:
-            return [lines]
+            return lines
         return Documenter.get_doc(self, encoding, ignore)
 
     def format_signature(self):
@@ -1046,7 +1047,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
         pass
 
 
-class ClassDocumenter(ModuleLevelDocumenter):
+class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
     """
     Specialized Documenter subclass for classes.
     """
@@ -1098,18 +1099,7 @@ class ClassDocumenter(ModuleLevelDocumenter):
         if self.doc_as_attr:
             return ''
 
-        # get __init__ method signature from __init__.__doc__
-        if self.env.config.autodoc_docstring_signature:
-            # only act if the feature is enabled
-            init_doc = MethodDocumenter(self.directive, '__init__')
-            init_doc.object = self.get_attr(self.object, '__init__', None)
-            init_doc.objpath = ['__init__']
-            result = init_doc._find_signature()
-            if result is not None:
-                # use args only for Class signature
-                return '(%s)' % result[0]
-
-        return ModuleLevelDocumenter.format_signature(self)
+        return DocstringSignatureMixin.format_signature(self)
 
     def add_directive_header(self, sig):
         if self.doc_as_attr:
@@ -1128,6 +1118,10 @@ class ClassDocumenter(ModuleLevelDocumenter):
                               '<autodoc>')
 
     def get_doc(self, encoding=None, ignore=1):
+        lines = getattr(self, '_new_docstrings', None)
+        if lines is not None:
+            return lines
+
         content = self.env.config.autoclass_content
 
         docstrings = []
@@ -1138,18 +1132,8 @@ class ClassDocumenter(ModuleLevelDocumenter):
         # for classes, what the "docstring" is can be controlled via a
         # config value; the default is only the class docstring
         if content in ('both', 'init'):
-            # get __init__ method document from __init__.__doc__
-            if self.env.config.autodoc_docstring_signature:
-                # only act if the feature is enabled
-                init_doc = MethodDocumenter(self.directive, '__init__')
-                init_doc.object = self.get_attr(self.object, '__init__', None)
-                init_doc.objpath = ['__init__']
-                init_doc._find_signature()  # this effects to get_doc() result
-                initdocstring = '\n'.join(
-                    ['\n'.join(l) for l in init_doc.get_doc(encoding)])
-            else:
-                initdocstring = self.get_attr(
-                    self.get_attr(self.object, '__init__', None), '__doc__')
+            initdocstring = self.get_attr(
+                self.get_attr(self.object, '__init__', None), '__doc__')
             # for new-style classes, no __init__ means default __init__
             if (initdocstring is not None and
                 (initdocstring == object.__init__.__doc__ or  # for pypy
