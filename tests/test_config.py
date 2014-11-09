@@ -9,7 +9,7 @@
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from six import PY3
+from six import PY2, PY3, StringIO
 
 from util import TestApp, with_app, with_tempdir, raises, raises_msg
 
@@ -135,38 +135,39 @@ def test_config_eol(tmpdir):
         assert cfg.project == u'spam'
 
 
-@with_app(confoverrides={'master_doc': 123})
-def test_check_types(app, status, warning):
-    # WARNING: the config value 'master_doc' has type `int', defaults to `str.'
-    assert any(buf.startswith('WARNING:')
-               and 'master_doc' in buf and 'int' in buf and 'str' in buf
-               for buf in warning.buflist)
+TYPECHECK_OVERRIDES = [
+    # configuration key, override value, should warn, default type
+    ('master_doc', 123, True, str),
+    ('man_pages', 123, True, list),  # lambda
+    ('man_pages', [], False, list),
+    ('epub_tocdepth', True, True, int),  # child type
+    ('nitpicky', 3, False, bool),  # parent type
+    ('templates_path', (), True, list),  # other sequence, also raises
+]
+if PY2:
+    # Run a check for proper sibling detection in Python 2.  Under py3k, the
+    # default types do not have any siblings.
+    TYPECHECK_OVERRIDES.append(
+            ('html_add_permalinks', 'bar', False, unicode))
 
-@with_app(confoverrides={'man_pages': 123})
-def test_check_types_lambda(app, status, warning):
-    # WARNING: the config value 'man_pages' has type `int', defaults to `list.'
-    assert any(buf.startswith('WARNING:')
-               and 'man_pages' in buf and 'int' in buf and 'list' in buf
-               for buf in warning.buflist)
+def test_gen_check_types():
+    for key, value, should, deftype in TYPECHECK_OVERRIDES:
+        warning = StringIO()
+        try:
+            app = TestApp(confoverrides={key: value}, warning=warning)
+        except:
+            pass
+        else:
+            app.cleanup()
 
-@with_app(confoverrides={'man_pages': []})
-def test_check_types_lambda_negative(app, status, warning):
-    assert not any(buf.startswith('WARNING:') and 'man_pages' in buf
-                   for buf in warning.buflist)
+        real = type(value).__name__
+        msg = ("WARNING: the config value %r has type `%s',"
+               " defaults to `%s.'\n" % (key, real, deftype.__name__))
+        def test():
+            assert (msg in warning.buflist) == should, \
+                    "Setting %s to %r should%s raise: %s" % \
+                    (key, value, " not" if should else "", msg)
+        test.description = "test_check_type_%s_on_%s" % \
+                (real, type(Config.config_values[key][0]).__name__)
 
-@with_app(confoverrides={'epub_tocdepth': True})
-def test_check_types_child(app, status, warning):
-    # WARNING: the config value 'master_doc' has type `bool', defaults to `int.'
-    assert any(buf.startswith('WARNING:')
-               and 'epub_tocdepth' in buf and 'bool' in buf and 'int' in buf
-               for buf in warning.buflist)
-
-@with_app(confoverrides={'nitpicky': 3})
-def test_check_types_parent(app, status, warning):
-    assert not any(buf.startswith('WARNING:') and 'nitpicky' in buf
-                   for buf in warning.buflist)
-
-@with_app(confoverrides={'html_add_permalinks': 'bar'})
-def test_check_types_sibling(app, status, warning):
-    assert not any(buf.startswith('WARNING:') and 'html_add_permalinks' in buf
-                   for buf in warning.buflist)
+        yield test
