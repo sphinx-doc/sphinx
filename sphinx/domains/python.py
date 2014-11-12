@@ -84,19 +84,28 @@ def _pseudo_parse_arglist(signode, arglist):
 
 # This override allows our inline type specifiers to behave like :class: link
 # when it comes to handling "." and "~" prefixes.
-class PyTypedField(TypedField):
-    def make_xref(self, rolename, domain, target, innernode=nodes.emphasis):
-        result = super(PyTypedField, self).make_xref(rolename, domain, target,
-                                                     innernode)
+class PyXrefMixin(object):
+    def make_xref(self, rolename, domain, target, innernode=nodes.emphasis,
+                  contnode=None):
+        result = super(PyXrefMixin, self).make_xref(rolename, domain, target,
+                                                    innernode, contnode)
+        result['refspecific'] = True
         if target.startswith('.'):
             result['reftarget'] = target[1:]
-            result['refspecific'] = True
             result[0][0] = nodes.Text(target[1:])
         if target.startswith('~'):
             result['reftarget'] = target[1:]
             title = target.split('.')[-1]
             result[0][0] = nodes.Text(title)
         return result
+
+
+class PyField(PyXrefMixin, Field):
+    pass
+
+
+class PyTypedField(PyXrefMixin, TypedField):
+    pass
 
 
 class PyObject(ObjectDescription):
@@ -111,21 +120,21 @@ class PyObject(ObjectDescription):
 
     doc_field_types = [
         PyTypedField('parameter', label=l_('Parameters'),
-                   names=('param', 'parameter', 'arg', 'argument',
-                          'keyword', 'kwarg', 'kwparam'),
-                   typerolename='obj', typenames=('paramtype', 'type'),
-                   can_collapse=True),
-        TypedField('variable', label=l_('Variables'), rolename='obj',
-                   names=('var', 'ivar', 'cvar'),
-                   typerolename='obj', typenames=('vartype',),
-                   can_collapse=True),
+                     names=('param', 'parameter', 'arg', 'argument',
+                            'keyword', 'kwarg', 'kwparam'),
+                     typerolename='obj', typenames=('paramtype', 'type'),
+                     can_collapse=True),
+        PyTypedField('variable', label=l_('Variables'), rolename='obj',
+                     names=('var', 'ivar', 'cvar'),
+                     typerolename='obj', typenames=('vartype',),
+                     can_collapse=True),
         GroupedField('exceptions', label=l_('Raises'), rolename='exc',
                      names=('raises', 'raise', 'exception', 'except'),
                      can_collapse=True),
         Field('returnvalue', label=l_('Returns'), has_arg=False,
               names=('returns', 'return')),
-        Field('returntype', label=l_('Return type'), has_arg=False,
-              names=('rtype',)),
+        PyField('returntype', label=l_('Return type'), has_arg=False,
+                names=('rtype',), bodyrolename='obj'),
     ]
 
     def get_signature_prefix(self, sig):
