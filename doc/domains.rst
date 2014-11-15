@@ -310,12 +310,12 @@ are recognized and formatted nicely:
 
 * ``param``, ``parameter``, ``arg``, ``argument``, ``key``, ``keyword``:
   Description of a parameter.
-* ``type``: Type of a parameter.
+* ``type``: Type of a parameter.  Creates a link if possible.
 * ``raises``, ``raise``, ``except``, ``exception``: That (and when) a specific
   exception is raised.
 * ``var``, ``ivar``, ``cvar``: Description of a variable.
 * ``returns``, ``return``: Description of the return value.
-* ``rtype``: Return type.
+* ``rtype``: Return type.  Creates a link if possible.
 
 The field names must consist of one of these keywords and an argument (except
 for ``returns`` and ``rtype``, which do not need an argument).  This is best

@@ -200,6 +200,9 @@ HTML_XPATH = {
         (".//dl[@class='userdesc']", ''),
         (".//dt[@id='userdesc-myobj']", ''),
         (".//a[@href='#userdesc-myobj'][@class='reference internal']", ''),
+        # docfields
+        (".//a[@class='reference internal'][@href='#TimeInt']/em", 'TimeInt'),
+        (".//a[@class='reference internal'][@href='#Time']", 'Time'),
         # C references
         (".//span[@class='pre']", 'CFunction()'),
         (".//a[@href='#c.Sphinx_DoSomething']", ''),

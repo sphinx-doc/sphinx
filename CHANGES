@@ -123,6 +123,8 @@ Features added
   to Jeppe Pihl.
 * PR#299: add various options to sphinx-quickstart. Quiet mode option
   ``--quiet`` will skips wizard mode. Thanks to WAKAYAMA shirou.
+* #1623: Return types specified with ``:rtype:`` are now turned into links if
+  possible.
 
 Bugs fixed
 ----------
