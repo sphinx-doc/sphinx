@@ -130,9 +130,9 @@ HTML_XPATH = {
         (".//li/tt/span[@class='pre']", '^a/$'),
         (".//li/tt/em/span[@class='pre']", '^varpart$'),
         (".//li/tt/em/span[@class='pre']", '^i$'),
-        (".//a[@href='http://www.python.org/dev/peps/pep-0008']"
+        (".//a[@href='https://www.python.org/dev/peps/pep-0008']"
             "[@class='pep reference external']/strong", 'PEP 8'),
-        (".//a[@href='http://tools.ietf.org/html/rfc1.html']"
+        (".//a[@href='https://tools.ietf.org/html/rfc1.html']"
             "[@class='rfc reference external']/strong", 'RFC 1'),
         (".//a[@href='objects.html#envvar-HOME']"
             "[@class='reference internal']/tt/span[@class='pre']", 'HOME'),
