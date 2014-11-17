@@ -7,6 +7,7 @@
 ^build/
 ^dist/
 ^tests/.coverage
+^tests/build/
 ^sphinx/pycode/Grammar.*pickle
 ^Sphinx.egg-info/
 ^doc/_build/
