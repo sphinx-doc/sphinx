@@ -182,6 +182,8 @@ Documentation using a custom theme/integrated in a site
 * Pylons: http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/
 * PyMOTW: http://pymotw.com/2/
 * pypol: http://pypol.altervista.org/ (celery)
+* python-aspectlib: http://python-aspectlib.readthedocs.org/en/latest/
+  (`sphinx-py3doc-enhanced-theme`_)
 * QGIS: http://qgis.org/en/docs/index.html
 * qooxdoo: http://manual.qooxdoo.org/current/
 * Roundup: http://www.roundup-tracker.org/
@@ -196,6 +198,8 @@ Documentation using a custom theme/integrated in a site
 * Ubuntu packaging guide: http://packaging.ubuntu.com/html/
 * Werkzeug: http://werkzeug.pocoo.org/docs/
 * WFront: http://discorporate.us/projects/WFront/
+
+.. _sphinx-py3doc-enhanced-theme: https://pypi.python.org/pypi/sphinx_py3doc_enhanced_theme
 
 
 Homepages and other non-documentation sites
