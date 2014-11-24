@@ -526,5 +526,9 @@
 % Define literal-block environment
 \RequirePackage{float}
 \floatstyle{plaintop}
-\newfloat{literal-block}{htbp}{loc}[chapter]
+\ifx\thechapter\undefined
+  \newfloat{literal-block}{htbp}{loc}[section]
+\else
+  \newfloat{literal-block}{htbp}{loc}[chapter]
+\fi
 \floatname{literal-block}{List}

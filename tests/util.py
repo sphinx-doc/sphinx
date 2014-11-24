@@ -18,6 +18,7 @@ from six import StringIO
 from nose import tools, SkipTest
 
 from sphinx import application
+from sphinx.builders.latex import LaTeXBuilder
 from sphinx.theming import Theme
 from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
@@ -203,6 +204,7 @@ class TestApp(application.Sphinx):
         Theme.themes.clear()
         AutoDirective._registry.clear()
         ModuleAnalyzer.cache.clear()
+        LaTeXBuilder.usepackages = []
         sys.path[:] = self._saved_path
         sys.modules.pop('autodoc_fodder', None)
 

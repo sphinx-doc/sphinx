@@ -93,6 +93,71 @@ def test_latex(app, status, warning):
         os.chdir(cwd)
 
 
+@with_app(buildername='latex',
+          confoverrides={'latex_documents': [
+              ('contents', 'SphinxTests.tex', 'Sphinx Tests Documentation',
+               'Georg Brandl \\and someone else', 'howto'),
+          ]},
+          srcdir='latex_howto')
+def test_latex_howto(app, status, warning):
+    LaTeXTranslator.ignore_missing_images = True
+    app.builder.build_all()
+    latex_warnings = warning.getvalue().replace(os.sep, '/')
+    latex_warnings_exp = LATEX_WARNINGS % {
+        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+    assert re.match(latex_warnings_exp + '$', latex_warnings), \
+        'Warnings don\'t match:\n' + \
+        '--- Expected (regex):\n' + latex_warnings_exp + \
+        '--- Got:\n' + latex_warnings
+
+    # file from latex_additional_files
+    assert (app.outdir / 'svgimg.svg').isfile()
+
+    # only run latex if all needed packages are there
+    def kpsetest(filename):
+        try:
+            p = Popen(['kpsewhich', filename], stdout=PIPE)
+        except OSError:
+            # no kpsewhich... either no tex distribution is installed or it is
+            # a "strange" one -- don't bother running latex
+            return None
+        else:
+            p.communicate()
+            if p.returncode != 0:
+                # not found
+                return False
+            # found
+            return True
+
+    if kpsetest('article.sty') is None:
+        raise SkipTest('not running latex, it doesn\'t seem to be installed')
+    for filename in ['fancyhdr.sty', 'fancybox.sty', 'titlesec.sty',
+                     'amsmath.sty', 'framed.sty', 'color.sty', 'fancyvrb.sty',
+                     'threeparttable.sty']:
+        if not kpsetest(filename):
+            raise SkipTest('not running latex, the %s package doesn\'t '
+                           'seem to be installed' % filename)
+
+    # now, try to run latex over it
+    cwd = os.getcwd()
+    os.chdir(app.outdir)
+    try:
+        try:
+            p = Popen(['pdflatex', '--interaction=nonstopmode',
+                       'SphinxTests.tex'], stdout=PIPE, stderr=PIPE)
+        except OSError:
+            raise SkipTest  # most likely pdflatex was not found
+        else:
+            stdout, stderr = p.communicate()
+            if p.returncode != 0:
+                print(stdout)
+                print(stderr)
+                app.cleanup()
+                assert False, 'latex exited with return code %s' % p.returncode
+    finally:
+        os.chdir(cwd)
+
+
 @with_app(buildername='latex', testroot='numfig',
           confoverrides={'numfig': True})
 def test_numref(app, status, warning):
