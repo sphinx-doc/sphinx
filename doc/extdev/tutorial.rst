@@ -245,6 +245,7 @@ todolist directive has neither content nor arguments that need to be handled.
 The ``todo`` directive function looks like this::
 
    from sphinx.util.compat import make_admonition
+   from sphinx.locale import _
 
    class TodoDirective(Directive):
 
