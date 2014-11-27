@@ -16,6 +16,7 @@ Bugs fixed
 * PR#311: sphinx-quickstart does not work on python 3.4.
 * Fix :confval:`autodoc_docstring_signature` not working with signatures
   in class docstrings.
+* #1607: Fix a crash when building latexpdf with "howto" class
 
 
 Release 1.3b1 (released Oct 10, 2014)
