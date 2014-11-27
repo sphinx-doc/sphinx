@@ -244,7 +244,6 @@ class Builder(object):
         if summary:
             self.info(bold('building [%s]' % self.name) + ': ' + summary)
 
-        updated_docnames = set()
         # while reading, collect all warnings from docutils
         warnings = []
         self.env.set_warnfunc(lambda *args: warnings.append(args))
