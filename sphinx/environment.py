@@ -590,7 +590,7 @@ class BuildEnvironment:
 
         self.app = None
         app.emit('env-updated', self)
-        return set(docnames)
+        return docnames
 
     def _read_serial(self, docnames, app):
         for docname in app.status_iterator(docnames, 'reading sources... ',

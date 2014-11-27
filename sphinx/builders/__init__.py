@@ -247,8 +247,8 @@ class Builder(object):
         # while reading, collect all warnings from docutils
         warnings = []
         self.env.set_warnfunc(lambda *args: warnings.append(args))
-        updated_docnames = self.env.update(self.config, self.srcdir,
-                                           self.doctreedir, self.app)
+        updated_docnames = set(self.env.update(self.config, self.srcdir,
+                                               self.doctreedir, self.app))
         self.env.set_warnfunc(self.warn)
         for warning in warnings:
             self.warn(*warning)
