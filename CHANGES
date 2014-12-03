@@ -4,6 +4,9 @@ Release 1.3b2 (in development)
 Incompatible changes
 --------------------
 
+* update bundled ez_setup.py for setuptools-7.0 that requires Python 2.6 or
+  later.
+
 Features added
 --------------
 
