@@ -407,7 +407,7 @@ epub_exclude_files = ['search.html']
 # Choose between 'default' and 'includehidden'.
 #epub_tocscope = 'default'
 
-# Fix unsupported image types using the PIL.
+# Fix unsupported image types using the Pillow.
 #epub_fix_images = False
 
 # Scale large images.

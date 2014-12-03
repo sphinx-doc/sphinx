@@ -1045,9 +1045,9 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
    This flag determines if sphinx should try to fix image formats that are not
    supported by some epub readers.  At the moment palette images with a small
-   color table are upgraded.  You need the Python Image Library (PIL) installed
-   to use this option.  The default value is ``False`` because the automatic
-   conversion may lose information.
+   color table are upgraded.  You need the Python Image Library (Pillow the
+   successor of the PIL) installed to use this option.  The default value is
+   ``False`` because the automatic conversion may lose information.
 
    .. versionadded:: 1.2
 
@@ -1056,7 +1056,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    This option specifies the maximum width of images.  If it is set to a value
    greater than zero, images with a width larger than the given value are
    scaled accordingly.  If it is zero, no scaling is performed. The default
-   value is ``0``.  You need the Python Image Library (PIL) installed to use
+   value is ``0``.  You need the Python Image Library (Pillow) installed to use
    this option.
 
    .. versionadded:: 1.2
