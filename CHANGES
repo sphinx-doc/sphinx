@@ -12,6 +12,9 @@ Features added
 
 * #1597: Added possibility to return a new template name from
   `html-page-context`.
+* PR#314, #1150: Configuration values are now checked for their type.  A
+  warning is raised if the configured and the default value do not have the
+  same type and do not share a common non-trivial base class.
 
 Bugs fixed
 ----------

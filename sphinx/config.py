@@ -224,7 +224,7 @@ class Config(object):
         self.overrides = overrides
         self.values = Config.config_values.copy()
         config = {}
-        if 'extensions' in overrides:
+        if 'extensions' in overrides: #XXX do we need this?
             if isinstance(overrides['extensions'], string_types):
                 config['extensions'] = overrides.pop('extensions').split(',')
             else:
@@ -248,6 +248,30 @@ class Config(object):
         # own config values
         self.setup = config.get('setup', None)
         self.extensions = config.get('extensions', [])
+
+    def check_types(self, warn):
+        # check all values for deviation from the default value's type, since
+        # that can result in TypeErrors all over the place
+        # NB. since config values might use l_() we have to wait with calling
+        # this method until i18n is initialized
+        for name in self._raw_config:
+            if name not in Config.config_values:
+                continue  # we don't know a default value
+            default, dummy_rebuild = Config.config_values[name]
+            if hasattr(default, '__call__'):
+                default = default(self)  # could invoke l_()
+            if default is None:
+                continue
+            current = self[name]
+            if type(current) is type(default):
+                continue
+            common_bases = (set(type(current).__bases__ + (type(current),))
+                          & set(type(default).__bases__))
+            common_bases.discard(object)
+            if common_bases:
+                continue  # at least we share a non-trivial base class
+            warn("the config value %r has type `%s', defaults to `%s.'"
+                    % (name, type(current).__name__, type(default).__name__))
 
     def check_unicode(self, warn):
         # check all string values for non-ASCII characters in bytestrings,
@@ -296,7 +320,6 @@ class Config(object):
         for name in config:
             if name in self.values:
                 self.__dict__[name] = config[name]
-        del self._raw_config
 
     def __getattr__(self, name):
         if name.startswith('_'):
