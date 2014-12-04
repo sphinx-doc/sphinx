@@ -164,7 +164,8 @@ def test_gen_check_types():
         msg = ("WARNING: the config value %r has type `%s',"
                " defaults to `%s.'\n" % (key, real, deftype.__name__))
         def test():
-            assert (msg in warning.buflist) == should, \
+            warning_list = warning.getvalue()
+            assert (msg in warning_list) == should, \
                     "Setting %s to %r should%s raise: %s" % \
                     (key, value, " not" if should else "", msg)
         test.description = "test_check_type_%s_on_%s" % \
