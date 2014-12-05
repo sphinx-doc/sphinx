@@ -1182,8 +1182,10 @@ class BuildEnvironment:
 
     def get_toc_for(self, docname, builder):
         """Return a TOC nodetree -- for use on the same page only!"""
+        tocdepth = self.metadata[docname].get('tocdepth', 0)
         try:
             toc = self.tocs[docname].deepcopy()
+            self._toctree_prune(toc, 2, tocdepth)
         except KeyError:
             # the document does not exist anymore: return a dummy node that
             # renders to nothing
@@ -1262,6 +1264,27 @@ class BuildEnvironment:
 
         return doctree
 
+    def _toctree_prune(self, node, depth, maxdepth, collapse=False):
+        """Utility: Cut a TOC at a specified depth."""
+        for subnode in node.children[:]:
+            if isinstance(subnode, (addnodes.compact_paragraph,
+                                    nodes.list_item)):
+                # for <p> and <li>, just recurse
+                self._toctree_prune(subnode, depth, maxdepth, collapse)
+            elif isinstance(subnode, nodes.bullet_list):
+                # for <ul>, determine if the depth is too large or if the
+                # entry is to be collapsed
+                if maxdepth > 0 and depth > maxdepth:
+                    subnode.parent.replace(subnode, [])
+                else:
+                    # cull sub-entries whose parents aren't 'current'
+                    if (collapse and depth > 1 and
+                                'iscurrent' not in subnode.parent):
+                        subnode.parent.remove(subnode)
+                    else:
+                        # recurse on visible children
+                        self._toctree_prune(subnode, depth+1, maxdepth,  collapse)
+
     def resolve_toctree(self, docname, builder, toctree, prune=True, maxdepth=0,
                         titles_only=False, collapse=False, includehidden=False):
         """Resolve a *toctree* node into individual bullet lists with titles
@@ -1295,27 +1318,6 @@ class BuildEnvironment:
         #
         # The transformation is made in two passes in order to avoid
         # interactions between marking and pruning the tree (see bug #1046).
-
-        def _toctree_prune(node, depth, maxdepth):
-            """Utility: Cut a TOC at a specified depth."""
-            for subnode in node.children[:]:
-                if isinstance(subnode, (addnodes.compact_paragraph,
-                                        nodes.list_item)):
-                    # for <p> and <li>, just recurse
-                    _toctree_prune(subnode, depth, maxdepth)
-                elif isinstance(subnode, nodes.bullet_list):
-                    # for <ul>, determine if the depth is too large or if the
-                    # entry is to be collapsed
-                    if maxdepth > 0 and depth > maxdepth:
-                        subnode.parent.replace(subnode, [])
-                    else:
-                        # cull sub-entries whose parents aren't 'current'
-                        if (collapse and depth > 1 and
-                                'iscurrent' not in subnode.parent):
-                            subnode.parent.remove(subnode)
-                        else:
-                            # recurse on visible children
-                            _toctree_prune(subnode, depth+1, maxdepth)
 
         def _toctree_add_classes(node, depth):
             """Add 'toctree-l%d' and 'current' classes to the toctree."""
@@ -1387,7 +1389,7 @@ class BuildEnvironment:
                         refdoc = ref
                         toc = self.tocs[ref].deepcopy()
                         maxdepth = self.metadata[ref].get('tocdepth', 0)
-                        _toctree_prune(toc, 2, maxdepth)
+                        self._toctree_prune(toc, 2, maxdepth, collapse)
                         self.process_only_nodes(toc, builder, ref)
                         if title and toc.children and len(toc.children) == 1:
                             child = toc.children[0]
@@ -1456,7 +1458,7 @@ class BuildEnvironment:
 
         # prune the tree to maxdepth, also set toc depth and current classes
         _toctree_add_classes(newnode, 1)
-        _toctree_prune(newnode, 1, prune and maxdepth or 0)
+        self._toctree_prune(newnode, 1, prune and maxdepth or 0, collapse)
 
         # set the target paths in the toctrees (they are not known at TOC
         # generation time)

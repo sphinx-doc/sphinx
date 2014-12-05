@@ -24,6 +24,8 @@ Bugs fixed
   in class docstrings.
 * Rebuilding cause crash unexpectedly when source files were added.
 * #1607: Fix a crash when building latexpdf with "howto" class
+* #1251: Fix again. Sections which depth are lower than :tocdepth: should not
+  be shown on localtoc sidebar.
 
 
 Release 1.3b1 (released Oct 10, 2014)

@@ -323,13 +323,16 @@ def check_xpath(etree, fname, path, check, be_found=True):
         pass
     else:
         rex = re.compile(check)
-        for node in nodes:
-            if node.text and (bool(rex.search(node.text)) ^ (not be_found)):
-                break
+        if be_found:
+            if any(node.text and rex.search(node.text) for node in nodes):
+                return
         else:
-            assert False, ('%r not found in any node matching '
-                           'path %s in %s: %r' % (check, path, fname,
-                                                  [node.text for node in nodes]))
+            if all(node.text and not rex.search(node.text) for node in nodes):
+                return
+
+        assert False, ('%r not found in any node matching '
+                       'path %s in %s: %r' % (check, path, fname,
+                                              [node.text for node in nodes]))
 
 
 def check_static_entries(outdir):
@@ -396,12 +399,20 @@ def test_tocdepth(app, status, warning):
             (".//h3", '1.1.1. Foo A1', True),
             (".//h2", '1.2. Foo B', True),
             (".//h3", '1.2.1. Foo B1', True),
+            (".//div[@class='sphinxsidebarwrapper']//li/a", '1.1. Foo A', True),
+            (".//div[@class='sphinxsidebarwrapper']//li/a", '1.1.1. Foo A1', True),
+            (".//div[@class='sphinxsidebarwrapper']//li/a", '1.2. Foo B', True),
+            (".//div[@class='sphinxsidebarwrapper']//li/a", '1.2.1. Foo B1', True),
         ],
         'bar.html': [
             (".//h1", '2. Bar', True),
             (".//h2", '2.1. Bar A', True),
             (".//h2", '2.2. Bar B', True),
             (".//h3", '2.2.1. Bar B1', True),
+            (".//div[@class='sphinxsidebarwrapper']//li/a", '2. Bar', True),
+            (".//div[@class='sphinxsidebarwrapper']//li/a", '2.1. Bar A', True),
+            (".//div[@class='sphinxsidebarwrapper']//li/a", '2.2. Bar B', True),
+            (".//div[@class='sphinxsidebarwrapper']//li/a", '2.2.1. Bar B1', False),
         ],
         'baz.html': [
             (".//h1", '2.1.1. Baz A', True),
