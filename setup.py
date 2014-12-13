@@ -53,7 +53,14 @@ requires = [
     'snowballstemmer>=1.1',
     'babel',
 ]
+extras_require = {
+    # Environment Marker works for wheel 0.24 or later
+    ':sys_platform=="win32"': [
+        'colorama',
+    ],
+}
 
+# for sdist installation with pip-1.5.6
 if sys.platform == 'win32':
     requires.append('colorama')
 
@@ -197,5 +204,6 @@ setup(
         ],
     },
     install_requires=requires,
+    extras_require=extras_require,
     cmdclass=cmdclass,
 )
