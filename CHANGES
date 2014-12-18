@@ -39,6 +39,8 @@ Bugs fixed
 * #1607: Fix a crash when building latexpdf with "howto" class
 * #1251: Fix again. Sections which depth are lower than :tocdepth: should not
   be shown on localtoc sidebar.
+* make-mode didn't work on Win32 platform if sphinx was installed by wheel
+  package.
 
 
 Release 1.3b1 (released Oct 10, 2014)

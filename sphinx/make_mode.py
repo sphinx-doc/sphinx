@@ -249,7 +249,16 @@ class Make(object):
             opts.extend(['-D', 'latex_paper_size=' + papersize])
         if doctreedir is None:
             doctreedir = self.builddir_join('doctrees')
-        return call([sys.executable, sys.argv[0], '-b', builder] + opts +
+
+        orig_cmd = sys.argv[0]
+        if orig_cmd.endswith('.exe'):
+            cmd = [orig_cmd]
+        elif sys.platform == 'win32':
+            cmd = [orig_cmd + '.exe']
+        else:  # ex. 'sphinx-build' or 'sphinx-build.py'
+            cmd = [sys.executable, orig_cmd]
+
+        return call(cmd + ['-b', builder] + opts +
                     ['-d', doctreedir, self.srcdir, self.builddir_join(builder)])
 
 
