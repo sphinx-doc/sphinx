@@ -293,7 +293,7 @@ class Builder(object):
                 par_ok = md.get('parallel_write_safe', True)
                 if not par_ok:
                     self.app.warn('the %s extension is not safe for parallel '
-                                  'writing, doing serial read' % extname)
+                                  'writing, doing serial write' % extname)
                     self.parallel_ok = False
                     break
 
