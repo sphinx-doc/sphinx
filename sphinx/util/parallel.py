@@ -101,7 +101,9 @@ class ParallelTasks(object):
             del self._threads[tid]
             if exc:
                 raise SphinxParallelError(*result)
-            self._result_funcs.pop(tid)(arg, result)
+            result_func = self._result_funcs.pop(tid)(arg, result)
+            if result_func:
+                result_func(result)
             self._nprocessed += 1
 
     def join(self):
@@ -110,7 +112,9 @@ class ParallelTasks(object):
             del self._threads[tid]
             if exc:
                 raise SphinxParallelError(*result)
-            self._result_funcs.pop(tid)(arg, result)
+            result_func = self._result_funcs.pop(tid)(arg, result)
+            if result_func:
+                result_func(result)
             self._nprocessed += 1
 
         # there shouldn't be any threads left...

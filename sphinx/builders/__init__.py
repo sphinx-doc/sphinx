@@ -357,9 +357,11 @@ class Builder(object):
 
     def _write_parallel(self, docnames, warnings, nproc):
         def write_process(docs):
+            local_warnings = []
+            self.env.set_warnfunc(lambda *args: local_warnings.append(args))
             for docname, doctree in docs:
                 self.write_doc(docname, doctree)
-            return warnings
+            return local_warnings
 
         def add_warnings(docs, wlist):
             warnings.extend(wlist)
