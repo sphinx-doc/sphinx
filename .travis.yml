@@ -6,7 +6,6 @@ python:
   - "3.4"
   - "pypy"
 env:
-  - DOCUTILS=0.10
   - DOCUTILS=0.11
   - DOCUTILS=0.12
 install:

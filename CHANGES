@@ -4,6 +4,8 @@ Release 1.3b3 (in development)
 Incompatible changes
 --------------------
 
+* Dependency requirement updates: docutils 0.11, Pygments 2.0
+
 Features added
 --------------
 

@@ -48,8 +48,8 @@ if sys.version_info < (2, 6) or (3, 0) <= sys.version_info < (3, 3):
 requires = [
     'six>=1.4',
     'Jinja2>=2.3',
-    'Pygments>=1.2',
-    'docutils>=0.10',
+    'Pygments>=2.0',
+    'docutils>=0.11',
     'snowballstemmer>=1.1',
     'babel',
 ]
