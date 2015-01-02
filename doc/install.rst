@@ -9,11 +9,11 @@ Since Sphinx is written in the Python language, you need to install Python
 Sphinx packages are available on the `Python Package Index
 <https://pypi.python.org/pypi/Sphinx>`_.
 
-You can also download a snapshot from the Mercurial development repository:
+You can also download a snapshot from the Git repository:
 
-* as a `.tar.bz2 <https://bitbucket.org/birkenfeld/sphinx/get/default.tar.bz2>`_
+* as a `.tar.bz2 <https://github.com/sphinx-doc/sphinx/archive/master.tar.bz2>`_
   file or
-* as a `.zip <https://bitbucket.org/birkenfeld/sphinx/get/default.zip>`_ file
+* as a `.zip <https://github.com/sphinx-doc/sphinx/archive/master.zip>`_ file
 
 There are introductions for several environments:
 

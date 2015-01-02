@@ -5,10 +5,10 @@ Sphinx development
 
 Sphinx is a maintained by a group of volunteers.  We value every contribution!
 
-* The code can be found in a Mercurial repository, at
-  https://bitbucket.org/birkenfeld/sphinx/.
+* The code can be found in a Git repository, at
+  https://github.com/sphinx-doc/sphinx/.
 * Issues and feature requests should be raised in the `tracker
-  <https://bitbucket.org/birkenfeld/sphinx/issues/>`_.
+  <https://github.com/sphinx-doc/sphinx/issues>`_.
 * The mailing list for development is at `Google Groups
   <https://groups.google.com/group/sphinx-dev/>`_.
 * There is also the #sphinx-doc IRC channel on `freenode

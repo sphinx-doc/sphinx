@@ -41,14 +41,14 @@ You can find several extensions contributed by users in the `Sphinx Contrib`_
 repository.  It is open for anyone who wants to maintain an extension
 publicly; just send a short message asking for write permissions.
 
-There are also several extensions hosted elsewhere.  The `Wiki at BitBucket`_
-maintains a list of those.
+There are also several extensions hosted elsewhere.  The `Sphinx extension
+survey <http://sphinxext-survey.readthedocs.org/en/latest/>`__ contains a
+comprehensive list.
 
 If you write an extension that you think others will find useful or you think
 should be included as a part of Sphinx, please write to the project mailing
 list (`join here <https://groups.google.com/group/sphinx-dev>`_).
 
-.. _Wiki at BitBucket: https://bitbucket.org/birkenfeld/sphinx/wiki/Home
 .. _Sphinx Contrib: https://bitbucket.org/birkenfeld/sphinx-contrib
 
 

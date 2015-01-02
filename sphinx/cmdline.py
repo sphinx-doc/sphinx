@@ -283,6 +283,6 @@ def main(argv):
                       'that a better error message can be provided next time.',
                       file=error)
                 print('A bug report can be filed in the tracker at '
-                      '<https://bitbucket.org/birkenfeld/sphinx/issues/>. Thanks!',
+                      '<https://github.com/sphinx-doc/sphinx/issues>. Thanks!',
                       file=error)
             return 1
