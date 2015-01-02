@@ -48,16 +48,15 @@ Contributing
 ============
 
 #. Check for open issues or open a fresh issue to start a discussion around a
-   feature idea or a bug. There are Non Assigned issues:
-   https://bitbucket.org/birkenfeld/sphinx/issues?status=new&status=open&responsible=
+   feature idea or a bug.
 #. If you feel uncomfortable or uncertain about an issue or your changes, feel
    free to email sphinx-dev@googlegroups.com.
-#. Fork the repository on Bitbucket https://bitbucket.org/birkenfeld/sphinx
+#. Fork the repository on Bitbucket https://github.com/sphinx-doc/sphinx
    to start making your changes to the **default** branch for next major
    version, or **stable** branch for next minor version.
 #. Write a test which shows that the bug was fixed or that the feature works
    as expected.
 #. Send a pull request and bug the maintainer until it gets merged and
    published. Make sure to add yourself to AUTHORS
-   <https://bitbucket.org/birkenfeld/sphinx/src/tip/AUTHORS> and the change to
-   CHANGES <https://bitbucket.org/birkenfeld/sphinx/src/tip/CHANGES>.
+   <https://github.com/sphinx-doc/sphinx/blob/master/AUTHORS> and the change to
+   CHANGES <https://github.com/sphinx-doc/sphinx/blob/master/CHANGES>.
