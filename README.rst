@@ -38,10 +38,10 @@ If you want to use a different interpreter, e.g. ``python3``, use::
 
     PYTHON=python3 make test
 
-Continuous testing runs on drone.io:
+Continuous testing runs on travis:
 
-.. image:: https://drone.io/bitbucket.org/birkenfeld/sphinx/status.png
-   :target: https://drone.io/bitbucket.org/birkenfeld/sphinx/
+.. image:: https://travis-ci.org/sphinx-doc/sphinx.svg?branch=master
+   :target: https://travis-ci.org/sphinx-doc/sphinx
 
 
 Contributing
