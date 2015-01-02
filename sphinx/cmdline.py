@@ -292,5 +292,5 @@ def main(argv):
                                 'can be provided next time.')
                 print >>error, (
                     'A bug report can be filed in the tracker at '
-                    '<https://bitbucket.org/birkenfeld/sphinx/issues/>. Thanks!')
+                    '<https://github.com/sphinx-doc/sphinx/issues>. Thanks!')
             return 1

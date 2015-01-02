@@ -7,10 +7,9 @@ Sphinx Developer's Guide
    system used by developers to document systems used by other developers to
    develop other systems that may also be documented using Sphinx.
 
-The Sphinx source code is managed using `Mercurial`_ and is hosted on
-`BitBucket`_.
+The Sphinx source code is managed using Git and is hosted on Github.
 
-    hg clone https://bitbucket.org/birkenfeld/sphinx
+    git clone git://github.com/sphinx-doc/sphinx
 
 .. rubric:: Community
 
@@ -23,15 +22,12 @@ sphinx-dev <sphinx-dev@googlegroups.com>
 #sphinx-doc on irc.freenode.net
     IRC channel for development questions and user support.
 
-.. _`BitBucket`: https://bitbucket.org/
-.. _`Mercurial`: http://mercurial.selenic.com/
-
 
 Bug Reports and Feature Requests
 --------------------------------
 
 If you have encountered a problem with Sphinx or have an idea for a new
-feature, please submit it to the `issue tracker`_ on BitBucket or discuss it
+feature, please submit it to the `issue tracker`_ on Github or discuss it
 on the sphinx-dev mailing list.
 
 For bug reports, please include the output produced during the build process
@@ -43,16 +39,33 @@ Including or providing a link to the source files involved may help us fix the
 issue.  If possible, try to create a minimal project that produces the error
 and post that instead.
 
-.. _`issue tracker`: https://bitbucket.org/birkenfeld/sphinx/issues
+.. _`issue tracker`: https://github.com/sphinx-doc/sphinx/issues
 
 
 Contributing to Sphinx
 ----------------------
 
 The recommended way for new contributors to submit code to Sphinx is to fork
-the Mercurial repository on BitBucket and then submit a pull request after
+the repository on Github and then submit a pull request after
 committing the changes.  The pull request will then need to be approved by one
 of the core developers before it is merged into the main repository.
+
+#. Check for open issues or open a fresh issue to start a discussion around a
+   feature idea or a bug.
+#. If you feel uncomfortable or uncertain about an issue or your changes, feel
+   free to email sphinx-dev@googlegroups.com.
+#. Fork `the repository`_ on Github to start making your changes to the
+   **default** branch for next major version, or **stable** branch for next
+   minor version.
+#. Write a test which shows that the bug was fixed or that the feature works
+   as expected.
+#. Send a pull request and bug the maintainer until it gets merged and
+   published. Make sure to add yourself to AUTHORS_ and the change to
+   CHANGES_.
+
+.. _`the repository`: https://github.com/sphinx-doc/sphinx
+.. _AUTHORS: https://github.com/sphinx-doc/sphinx/blob/master/AUTHORS
+.. _CHANGES: https://github.com/sphinx-doc/sphinx/blob/master/CHANGES
 
 
 Getting Started
@@ -60,31 +73,35 @@ Getting Started
 
 These are the basic steps needed to start developing on Sphinx.
 
-#. Create an account on BitBucket.
+#. Create an account on Github.
 
-#. Fork the main Sphinx repository (`birkenfeld/sphinx
-   <https://bitbucket.org/birkenfeld/sphinx>`_) using the BitBucket interface.
+#. Fork the main Sphinx repository (`sphinx-doc/sphinx
+   <https://github.com/sphinx-doc/sphinx>`_) using the Github interface.
 
 #. Clone the forked repository to your machine. ::
 
-       hg clone https://bitbucket.org/USERNAME/sphinx-fork
-       cd sphinx-fork
+       git clone https://github.com/USERNAME/sphinx
+       cd sphinx
 
 #. Checkout the appropriate branch.
 
    For changes that should be included in the next minor release (namely bug
    fixes), use the ``stable`` branch. ::
 
-       hg checkout stable
+       git checkout stable
 
    For new features or other substantial changes that should wait until the
-   next major release, use the ``default`` branch.
+   next major release, use the ``master`` branch.
 
 #. Optional: setup a virtual environment. ::
 
        virtualenv ~/sphinxenv
        . ~/sphinxenv/bin/activate
        pip install -e .
+
+#. Create a new working branch.  Choose any name you like. ::
+
+       git checkout -b feature-xyz
 
 #. Hack, hack, hack.
 
@@ -113,28 +130,31 @@ These are the basic steps needed to start developing on Sphinx.
    * For bug fixes, first add a test that fails without your changes and passes
      after they are applied.
 
-#. Please add a bullet point to :file:`CHANGES` if the fix or feature is not trivial
-   (small doc updates, typo fixes).  Then commit::
+   * Tests that need a sphinx-build run should be integrated in one of the
+     existing test modules if possible.  New tests that to ``@with_app`` and
+     then ``build_all`` for a few assertions are not good since *the test suite
+     should not take more than a minute to run*.
 
-       hg commit -m '#42: Add useful new feature that does this.'
+#. Please add a bullet point to :file:`CHANGES` if the fix or feature is not
+   trivial (small doc updates, typo fixes).  Then commit::
 
-   BitBucket recognizes `certain phrases`__ that can be used to automatically
+       git commit -m '#42: Add useful new feature that does this.'
+
+   Github recognizes certain phrases that can be used to automatically
    update the issue tracker.
 
    For example::
 
-       hg commit -m 'Closes #42: Fix invalid markup in docstring of Foo.bar.'
+       git commit -m 'Closes #42: Fix invalid markup in docstring of Foo.bar.'
 
    would close issue #42.
 
-   __ https://confluence.atlassian.com/display/BITBUCKET/Resolve+issues+automatically+when+users+push+code
+#. Push changes in the branch to your forked repository on Github. ::
 
-#. Push changes to your forked repository on BitBucket. ::
+       git push origin feature-xyz
 
-       hg push
-
-#. Submit a pull request from your repository to ``birkenfeld/sphinx`` using
-   the BitBucket interface.
+#. Submit a pull request from your branch to the respective branch (``master``
+   or ``stable``) on ``sphinx-doc/sphinx`` using the Github interface.
 
 #. Wait for a core developer to review your changes.
 
@@ -162,9 +182,6 @@ The following are some general guidelines for core developers:
 * When committing code written by someone else, please attribute the original
   author in the commit message and any relevant :file:`CHANGES` entry.
 
-* Using Mercurial named branches other than ``default`` and ``stable`` is not
-  encouraged.
-
 
 Locale updates
 ~~~~~~~~~~~~~~
@@ -191,9 +208,9 @@ identifier and put ``sphinx.po`` in there.  Don't forget to update the possible
 values for :confval:`language` in ``doc/config.rst``.
 
 The Sphinx core messages can also be translated on `Transifex
-<https://www.transifex.com/>`_.  There exists a client tool named ``tx`` in the Python
-package "transifex_client", which can be used to pull translations in ``.po``
-format from Transifex.  To do this, go to ``sphinx/locale`` and then run
+<https://www.transifex.com/>`_.  There exists a client tool named ``tx`` in the
+Python package "transifex_client", which can be used to pull translations in
+``.po`` format from Transifex.  To do this, go to ``sphinx/locale`` and then run
 ``tx pull -f -l LANG`` where LANG is an existing language identifier.  It is
 good practice to run ``python setup.py update_catalog`` afterwards to make sure
 the ``.po`` file has the canonical Babel formatting.
@@ -235,11 +252,23 @@ Debugging Tips
 * Use ``node.pformat()`` and ``node.asdom().toxml()`` to generate a printable
   representation of the document structure.
 
-* Set the configuration variable :confval:`keep_warnings` to True so warnings
-  will be displayed in the generated output.
+* Set the configuration variable :confval:`keep_warnings` to ``True`` so
+  warnings will be displayed in the generated output.
 
-* Set the configuration variable :confval:`nitpicky` to True so that Sphinx
+* Set the configuration variable :confval:`nitpicky` to ``True`` so that Sphinx
   will complain about references without a known target.
 
 * Set the debugging options in the `Docutils configuration file
   <http://docutils.sourceforge.net/docs/user/config.html>`_.
+
+* JavaScript stemming algorithms in `sphinx/search/*.py` (except `en.py`) are
+  generated by this
+  `modified snowballcode generator <https://github.com/shibukawa/snowball>`_.
+  Generated `JSX <http://jsx.github.io/>`_ files are
+  in `this repository <https://github.com/shibukawa/snowball-stemmer.jsx>`_.
+  You can get the resulting JavaScript files using the following command:
+
+  .. code-block:: bash
+
+     $ npm install
+     $ node_modules/.bin/grunt build # -> dest/*.global.js

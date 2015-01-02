@@ -15,7 +15,7 @@ so by providing aliases to base URLs, so that you only need to give the subpage
 name when creating a link.
 
 Let's assume that you want to include many links to issues at the Sphinx
-tracker, at :samp:`http://bitbucket.org/birkenfeld/sphinx/issue/{num}`.  Typing
+tracker, at :samp:`http://github.com/sphinx-doc/sphinx/issues/{num}`.  Typing
 this URL again and again is tedious, so you can use :mod:`~sphinx.ext.extlinks`
 to avoid repeating yourself.
 
@@ -27,11 +27,11 @@ The extension adds one new config value:
    short alias names to a base URL and a *prefix*.  For example, to create an
    alias for the above mentioned issues, you would add ::
 
-      extlinks = {'issue': ('https://bitbucket.org/birkenfeld/sphinx/issue/%s',
+      extlinks = {'issue': ('https://github.com/sphinx-doc/sphinx/issues/%s',
                             'issue ')}
 
    Now, you can use the alias name as a new role, e.g. ``:issue:`123```.  This
-   then inserts a link to https://bitbucket.org/birkenfeld/sphinx/issue/123.
+   then inserts a link to https://github.com/sphinx-doc/sphinx/issues/123.
    As you can see, the target given in the role is substituted in the base URL
    in the place of ``%s``.
 
