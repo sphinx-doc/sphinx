@@ -108,6 +108,21 @@ def test_type_definitions():
     raises(DefinitionError, parse, 'function', 'int foo(D d=x(a')
     check('function', 'int foo(const A&... a)')
     check('function', 'virtual void f()')
+    
+    check('class', 'public A', 'A')
+    check('class', 'private A')
+    
+    check('enum', 'A')
+    check('enum', 'A : std::underlying_type<B>::type')
+    check('enum', 'struct A')
+    check('enum', 'struct A : unsigned int')
+    check('enum', 'class A')
+    check('enum', 'class A : unsigned int')
+    check('enum', 'class public A', 'class A')
+    check('enum', 'class private A')
+    
+    check('enumerator', 'A')
+    check('enumerator', 'A = std::numeric_limits<unsigned long>::max()')
 
 def test_bases():
     check('class', 'A')

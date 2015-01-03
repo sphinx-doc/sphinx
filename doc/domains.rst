@@ -520,8 +520,8 @@ The C++ Domain
 
 The C++ domain (name **cpp**) supports documenting C++ projects.
 
-The following directives are available. All declarations can start with a visibility statement
-(``public``, ``private`` or ``protected``).
+The following directives are available. All declarations except for enumerators
+can start with a visibility statement (``public``, ``private`` or ``protected``).
 
 .. rst:directive:: .. cpp:class:: class speicifer
 
@@ -577,6 +577,35 @@ The following directives are available. All declarations can start with a visibi
       .. cpp:type:: theclass::const_iterator
 
          Declaration of a type alias with unspecified type.
+
+.. rst:directive:: .. cpp:enum:: enum declaration
+
+   Describe a (scoped) enum, possibly with the underlying type specified. Note that for scoped
+   enums the ``struct``/``class`` keyword must come before the optional visibility specifier.
+   Any enumerators declared inside an unscoped enum will be declared both in the enum scope
+   and in the parent scope.
+   Examples:
+
+      .. cpp:enum:: MyEnum
+
+         An unscoped enum.
+
+      .. cpp:enum:: MySpecificEnum : long
+
+         An unscoped enum with specified underlying type.
+
+      .. cpp:enum:: class MyScopedEnum
+
+         A scoped enum.
+
+      .. cpp:enum:: struct protected MyScopedVisibilityEnum : std::underlying_type<MySpecificEnum>::type
+
+         A scoped enum with non-default visibility, and with a specified underlying type.
+
+.. rst:directive:: .. cpp:enumerator:: name
+                   .. cpp:enumerator:: name = constant
+
+   Describe an enumerator, optionally with its value defined.
 
 .. rst:directive:: .. cpp:namespace:: namespace
 
