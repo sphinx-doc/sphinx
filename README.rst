@@ -51,8 +51,8 @@ Contributing
    feature idea or a bug.
 #. If you feel uncomfortable or uncertain about an issue or your changes, feel
    free to email sphinx-dev@googlegroups.com.
-#. Fork the repository on Bitbucket https://github.com/sphinx-doc/sphinx
-   to start making your changes to the **default** branch for next major
+#. Fork the repository on GitHub https://github.com/sphinx-doc/sphinx
+   to start making your changes to the **master** branch for next major
    version, or **stable** branch for next minor version.
 #. Write a test which shows that the bug was fixed or that the feature works
    as expected.
