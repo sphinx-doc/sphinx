@@ -18,3 +18,5 @@ Sphinx.egg-info/
 doc/_build/
 tests/.coverage
 tests/build/
+
+*~
