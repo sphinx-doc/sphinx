@@ -11,7 +11,7 @@
     This is in its own module so that importing it is fast.  It should not
     import the main Sphinx modules (like sphinx.applications, sphinx.builders).
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import with_statement

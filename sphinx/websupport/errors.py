@@ -5,7 +5,7 @@
 
     Contains Error classes for the web support package.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 

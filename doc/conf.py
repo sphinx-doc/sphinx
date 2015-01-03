@@ -13,7 +13,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = '2007-2014, Georg Brandl and the Sphinx team'
+copyright = '2007-2015, Georg Brandl and the Sphinx team'
 version = sphinx.__released__
 release = version
 show_authors = True

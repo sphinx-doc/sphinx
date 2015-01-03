@@ -6,7 +6,7 @@
     Test the sphinx.config.Config class and its handling in the
     Application class.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import sys

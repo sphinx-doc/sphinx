@@ -7,7 +7,7 @@
     Make sure each Python file has a correct file header
     including copyright and license information.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 

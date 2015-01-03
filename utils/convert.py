@@ -8,7 +8,7 @@
 
     The Python3 version of a file foo.py will be called foo3.py.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os

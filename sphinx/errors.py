@@ -6,7 +6,7 @@
     Contains SphinxError and a few subclasses (in an extra module to avoid
     circular import problems).
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
