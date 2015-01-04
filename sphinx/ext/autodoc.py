@@ -518,9 +518,9 @@ class Documenter(object):
     def get_sourcename(self):
         if self.analyzer:
             # prevent encoding errors when the file name is non-ASCII
-            if not isinstance(self.analyzer.srcname, unicode):
-                filename = unicode(self.analyzer.srcname,
-                                   sys.getfilesystemencoding(), 'replace')
+            if not isinstance(self.analyzer.srcname, text_type):
+                filename = text_type(self.analyzer.srcname,
+                                     sys.getfilesystemencoding(), 'replace')
             else:
                 filename = self.analyzer.srcname
             return u'%s:docstring of %s' % (filename, self.fullname)
