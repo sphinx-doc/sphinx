@@ -523,7 +523,7 @@ class Documenter(object):
                                    sys.getfilesystemencoding(), 'replace')
             else:
                 filename = self.analyzer.srcname
-            return u'%s:<docstring of %s>' % (filename, self.fullname)
+            return u'%s:docstring of %s' % (filename, self.fullname)
         return u'docstring of %s' % self.fullname
 
     def add_content(self, more_content, no_docstring=False):
