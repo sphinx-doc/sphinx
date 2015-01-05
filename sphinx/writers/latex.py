@@ -288,9 +288,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.no_contractions = 0
         self.compact_list = 0
         self.first_param = 0
-        self.previous_spanning_row = 0
-        self.previous_spanning_column = 0
         self.remember_multirow = {}
+        self.remember_multirowcol = {}
 
     def format_docclass(self, docclass):
         """ prepends prefix to sphinx document classes
@@ -767,32 +766,49 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.visit_thead(node)
         self.body = self.tablebody
     def depart_tbody(self, node):
-        pass
+        self.remember_multirow = {}
+        self.remember_multirowcol = {}
 
     def visit_row(self, node):
         self.table.col = 0
+        for key,value in self.remember_multirow.items():
+            if not value and key in self.remember_multirowcol:
+                del self.remember_multirowcol[key]
     def depart_row(self, node):
-        if self.previous_spanning_row == 1:
-            self.previous_spanning_row = 0
         self.body.append('\\\\\n')
-        self.body.append('\\hline')
+        if any(self.remember_multirow.values()):
+            linestart = 1
+            for col in range(1, self.table.col + 1):
+                if self.remember_multirow.get(col):
+                    if linestart != col:
+                        linerange = str(linestart) + '-' + str(col - 1)
+                        self.body.append('\\cline{' + linerange + '}')
+                    linestart = col + 1
+                    if self.remember_multirowcol.get(col, 0):
+                        linestart += self.remember_multirowcol[col]
+            if linestart <= col:
+                linerange = str(linestart) + '-' + str(col)
+                self.body.append('\\cline{' + linerange + '}')
+        else:
+            self.body.append('\\hline')
         self.table.rowcount += 1
 
     def visit_entry(self, node):
-        if self.table.col > 0:
-            self.body.append(' & ')
-        elif self.remember_multirow.get(1, 0) > 1:
-            self.remember_multirow[1] -= 1
+        if self.table.col == 0:
+            while self.remember_multirow.get(self.table.col + 1, 0):
+                self.table.col += 1
+                self.remember_multirow[self.table.col] -= 1
+                if self.remember_multirowcol.get(self.table.col, 0):
+                    extracols = self.remember_multirowcol[self.table.col]
+                    self.body.append(' \multicolumn{')
+                    self.body.append(str(extracols + 1))
+                    self.body.append('}{|l|}{}')
+                    self.table.col += extracols
+                self.body.append(' & ')
+        else:
             self.body.append(' & ')
         self.table.col += 1
         context = ''
-        if 'morerows' in node:
-            self.body.append(' \multirow{')
-            self.previous_spanning_row = 1
-            self.body.append(str(node.get('morerows') + 1))
-            self.body.append('}{*}{')
-            context += '}'
-            self.remember_multirow[self.table.col] = node.get('morerows') + 1
         if 'morecols' in node:
             self.body.append(' \multicolumn{')
             self.body.append(str(node.get('morecols') + 1))
@@ -801,12 +817,29 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.body.append('}{l|}{')
             context += '}'
+        if 'morerows' in node:
+            self.body.append(' \multirow{')
+            self.body.append(str(node.get('morerows') + 1))
+            self.body.append('}{*}{')
+            context += '}'
+            self.remember_multirow[self.table.col] = node.get('morerows')
+        if 'morecols' in node:
+            if 'morerows' in node:
+                self.remember_multirowcol[self.table.col] = node.get('morecols')
+            self.table.col += node.get('morecols')
         if isinstance(node.parent.parent, nodes.thead):
             self.body.append('\\textsf{\\relax ')
             context += '}'
-        if self.remember_multirow.get(self.table.col + 1, 0) > 1:
-            self.remember_multirow[self.table.col + 1] -= 1
+        while self.remember_multirow.get(self.table.col + 1, 0):
+            self.table.col += 1
+            self.remember_multirow[self.table.col] -= 1
             context += ' & '
+            if self.remember_multirowcol.get(self.table.col, 0):
+                extracols = self.remember_multirowcol[self.table.col]
+                context += ' \multicolumn{'
+                context += str(extracols + 1)
+                context += '}{l|}{}'
+                self.table.col += extracols
         self.context.append(context)
     def depart_entry(self, node):
         self.body.append(self.context.pop()) # header
