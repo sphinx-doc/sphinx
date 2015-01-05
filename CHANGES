@@ -9,6 +9,8 @@ Incompatible changes
 Features added
 --------------
 
+* Added ``highlight_options`` configuration value.
+
 Bugs fixed
 ----------
 

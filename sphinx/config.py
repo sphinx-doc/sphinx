@@ -61,6 +61,7 @@ class Config(object):
         show_authors = (False, 'env'),
         pygments_style = (None, 'html'),
         highlight_language = ('python', 'env'),
+        highlight_options = ({}, 'env'),
         templates_path = ([], 'html'),
         template_bridge = (None, 'html'),
         keep_warnings = (False, 'env'),

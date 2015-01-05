@@ -134,7 +134,7 @@ class PygmentsBridge(object):
         else:
             return True
 
-    def highlight_block(self, source, lang, warn=None, force=False, **kwargs):
+    def highlight_block(self, source, lang, opts=None, warn=None, force=False, **kwargs):
         if not isinstance(source, text_type):
             source = source.decode()
 
@@ -164,7 +164,7 @@ class PygmentsBridge(object):
                 lexer = lexers[lang]
             else:
                 try:
-                    lexer = lexers[lang] = get_lexer_by_name(lang)
+                    lexer = lexers[lang] = get_lexer_by_name(lang, **opts)
                 except ClassNotFound:
                     if warn:
                         warn('Pygments lexer name %r is not known' % lang)

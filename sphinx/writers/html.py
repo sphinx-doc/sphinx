@@ -70,7 +70,9 @@ class HTMLTranslator(BaseTranslator):
         self.highlighter = builder.highlighter
         self.no_smarty = 0
         self.builder = builder
-        self.highlightlang = builder.config.highlight_language
+        self.highlightlang = self.highlightlang_base = \
+            builder.config.highlight_language
+        self.highlightopts = builder.config.highlight_options
         self.highlightlinenothreshold = sys.maxsize
         self.protect_literal_text = 0
         self.permalink_text = builder.config.html_add_permalinks
@@ -301,10 +303,15 @@ class HTMLTranslator(BaseTranslator):
             highlight_args['force'] = True
         if 'linenos' in node:
             linenos = node['linenos']
+        if lang is self.highlightlang_base:
+            # only pass highlighter options for original language
+            opts = self.highlightopts
+        else:
+            opts = {}
         def warner(msg):
             self.builder.warn(msg, (self.builder.current_docname, node.line))
         highlighted = self.highlighter.highlight_block(
-            node.rawsource, lang, warn=warner, linenos=linenos,
+            node.rawsource, lang, opts=opts, warn=warner, linenos=linenos,
             **highlight_args)
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s' % lang)
