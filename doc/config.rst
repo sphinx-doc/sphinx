@@ -314,8 +314,8 @@ Project information
 
 .. confval:: pygments_style
 
-   The style name to use for Pygments highlighting of source code.  The given
-   style is selected by the theme for HTML output, and ``'sphinx'`` otherwise.
+   The style name to use for Pygments highlighting of source code.  If not set,
+   either the theme's default style or ``'sphinx'`` is selected for HTML output.
 
    .. versionchanged:: 0.3
       If the value is a fully-qualified name of a custom Pygments style class,
