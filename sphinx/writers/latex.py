@@ -1411,10 +1411,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 highlight_args['force'] = True
             if 'linenos' in node:
                 linenos = node['linenos']
+            if lang is self.hlsettingstack[0][0]:
+                # only pass highlighter options for original language
+                opts = self.builder.config.highlight_options
+            else:
+                opts = {}
             def warner(msg):
                 self.builder.warn(msg, (self.curfilestack[-1], node.line))
-            hlcode = self.highlighter.highlight_block(code, lang, warn=warner,
-                    linenos=linenos, **highlight_args)
+            hlcode = self.highlighter.highlight_block(code, lang, opts=opts,
+                    warn=warner, linenos=linenos, **highlight_args)
             # workaround for Unicode issue
             hlcode = hlcode.replace(u'€', u'@texteuro[]')
             # must use original Verbatim environment and "tabular" environment
