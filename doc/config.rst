@@ -305,9 +305,10 @@ Project information
 
 .. confval:: highlight_options
 
-   A dictionary of options that modify the behavior of the lexer for the
-   selected language. These are lexer-specific. For the options understood by
-   each, see the `Pygments documentation <http://pygments.org/docs/lexers/>`_.
+   A dictionary of options that modify how the lexer specified by
+   :confval:`highlight_language` generates highlighted source code. These are
+   lexer-specific; for the options understood by each, see the
+   `Pygments documentation <http://pygments.org/docs/lexers/>`_.
 
    .. versionadded:: 1.3
 
