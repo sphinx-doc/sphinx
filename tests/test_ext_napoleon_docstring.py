@@ -362,7 +362,7 @@ param1 : :class:`MyClass <name.space.MyClass>` instance
         config = Config(napoleon_use_param=True)
         actual = str(NumpyDocstring(docstring, config))
         expected = """\
-
+:param param1:
 :type param1: :class:`MyClass <name.space.MyClass>` instance
 """
         self.assertEqual(expected, actual)
@@ -385,7 +385,7 @@ param1 : MyClass instance
         config = Config(napoleon_use_param=True)
         actual = str(NumpyDocstring(textwrap.dedent(docstring), config))
         expected = """\
-
+:param param1:
 :type param1: MyClass instance
 """
         self.assertEqual(expected, actual)

@@ -292,7 +292,7 @@ class GoogleDocstring(UnicodeMixin):
             result_lines = []
             for i, line in enumerate(lines):
                 if i == 0:
-                    result_lines.append(prefix + line)
+                    result_lines.append((prefix + line).rstrip())
                 elif line:
                     result_lines.append(padding + line)
                 else:
