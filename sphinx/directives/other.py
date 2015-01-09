@@ -39,6 +39,7 @@ class TocTree(Directive):
     final_argument_whitespace = False
     option_spec = {
         'maxdepth': int,
+        'name': str,
         'glob': directives.flag,
         'hidden': directives.flag,
         'includehidden': directives.flag,
@@ -50,6 +51,7 @@ class TocTree(Directive):
         env = self.state.document.settings.env
         suffix = env.config.source_suffix
         glob = 'glob' in self.options
+        name = self.options.get('name')
 
         ret = []
         # (title, ref) pairs, where ref may be a document, or an external link,
@@ -105,6 +107,7 @@ class TocTree(Directive):
         # includefiles only entries that are documents
         subnode['includefiles'] = includefiles
         subnode['maxdepth'] = self.options.get('maxdepth', -1)
+        subnode['name'] = name
         subnode['glob'] = glob
         subnode['hidden'] = 'hidden' in self.options
         subnode['includehidden'] = 'includehidden' in self.options

@@ -1353,7 +1353,15 @@ class BuildEnvironment:
                                   separate=False, subtree=False):
             """Return TOC entries for a toctree node."""
             refs = [(e[0], e[1]) for e in toctreenode['entries']]
+            name = toctreenode.attributes.get('name')
             entries = []
+            if name:
+                entries.extend(
+                        nodes.reference('', '', internal=False,
+                                                    refuri='', anchorname='',
+                                                    *[nodes.Text(name)])
+                )
+
             for (title, ref) in refs:
                 try:
                     refdoc = None
