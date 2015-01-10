@@ -10,6 +10,7 @@ Features added
 --------------
 
 * Added ``highlight_options`` configuration value.
+* The ``language`` config value is now available in the HTML templates.
 
 Bugs fixed
 ----------
