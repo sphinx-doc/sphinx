@@ -23,8 +23,9 @@ from sphinx.util.pycompat import UnicodeMixin
 
 
 _directive_regex = re.compile(r'\.\. \S+::')
-_google_untyped_arg_regex = re.compile(r'\s*(\w+)\s*:\s*(.*)')
-_google_typed_arg_regex = re.compile(r'\s*(\w+)\s*\(\s*(.+?)\s*\)\s*:\s*(.*)')
+_google_untyped_arg_regex = re.compile(r'\s*(\*?\*?\w+)\s*:\s*(.*)')
+_google_typed_arg_regex = re.compile(r'\s*(\*?\*?\w+)\s*\(\s*(.+?)\s*\)\s*:'
+                                     r'\s*(.*)')
 
 
 class GoogleDocstring(UnicodeMixin):
@@ -90,6 +91,7 @@ class GoogleDocstring(UnicodeMixin):
     <BLANKLINE>
     :returns: Description of return value.
     :rtype: str
+    <BLANKLINE>
 
     """
     def __init__(self, docstring, config=None, app=None, what='', name='',
@@ -214,6 +216,11 @@ class GoogleDocstring(UnicodeMixin):
             if match:
                 _name = match.group(1)
                 _desc = match.group(2)
+
+        if _name[:2] == '**':
+            _name = r'\*\*'+_name[2:]
+        elif _name[:1] == '*':
+            _name = r'\*'+_name[1:]
 
         if prefer_type and not _type:
             _type, _name = _name, _type
@@ -663,6 +670,7 @@ class NumpyDocstring(GoogleDocstring):
     <BLANKLINE>
     :returns: Description of return value.
     :rtype: str
+    <BLANKLINE>
 
     Methods
     -------
