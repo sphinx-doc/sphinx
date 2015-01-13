@@ -269,20 +269,26 @@ htmlhelp_basename = '%(project_fn)sdoc'
 
 # -- Options for Apple Help output ----------------------------------------
 
-# The bundle name.
+# The help file title.
+#
+# This needs to go in the CFBundleHelpBookName field in your application,
+# and is displayed in the title bar of the help viewer.
+#applehelp_title = u'%(project_str)s Help'
+
+# The name of the bundle.
 #applehelp_bundle_name = u'%(project_fn)s'
 
 # The bundle id.
 #applehelp_bundle_id = 'com.mycompany.%(project_url)s.help'
 
-# The development region.  Should be 'en_us' in most cases.
-#applehelp_dev_region = 'en_us'
+# The development region.  Should be 'en-us' in most cases.
+#applehelp_dev_region = 'en-us'
 
 # The bundle version.  
-#applehelp_bundle_version = 1
+#applehelp_bundle_version = '1'
 
 # The icon file
-#applehelp_icon = '%(project_fn)s.icns'
+#applehelp_icon = '%(project_fn)s.png'
 
 # These allow remote searching of a knowledge base on your server
 #applehelp_kb_url = "https://kb.example.com/search?p='product'&q='query'&l='lang'"

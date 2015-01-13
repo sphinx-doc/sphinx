@@ -32,6 +32,22 @@ except AttributeError:
     write_plist = plistlib.writePlist
 
 
+# False access page (used because helpd expects strict XHTML)
+access_page_template = '''\
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>%(title)s</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content="0;url=%(toc)s" />
+  </head>
+  <body>
+  </body>
+</html>
+'''
+
+
 class AppleHelpIndexerFailed(SphinxError):
     def __str__(self):
         return 'Help indexer failed'
@@ -77,20 +93,21 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             ensuredir(d)
 
         # Construct the Info.plist file
+        toc = self.config.master_doc + self.out_suffix
+        
         info_plist = {
             'CFBundleDevelopmentRegion': self.config.applehelp_dev_region,
             'CFBundleIdentifier': self.config.applehelp_bundle_id,
-            'CFBundleInfoDictionaryVersion': 6.0,
-            'CFBundleName': self.config.applehelp_bundle_name,
+            'CFBundleInfoDictionaryVersion': '6.0',
             'CFBundlePackageType': 'BNDL',
             'CFBundleShortVersionString': self.config.release,
             'CFBundleSignature': 'hbwr',
             'CFBundleVersion': self.config.applehelp_bundle_version,
-            'CFBundleHelpTOCFile': 'index.html',
-            'HPDBookAccessPath': 'index.html',
-            'HPDBookIndexPath': 'index.helpindex',
-            'HPDBookTitle': self.config.html_title,
-            'HPDBookType': 3,
+            'HPDBookAccessPath': '_access.html',
+            'HPDBookIndexPath': 'search.helpindex',
+            'HPDBookTitle': self.config.applehelp_title,
+            'HPDBookType': '3',
+            'HPDBookUsesExternalViewer': False,
         }
 
         if self.config.applehelp_icon is not None:
@@ -127,13 +144,25 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
                            err))
                 del info_plist['HPDBookIconPath']
 
+        # Build the access page
+        self.info(bold('building access page...'), nonl=True)
+        f = codecs.open(path.join(language_dir, '_access.html'), 'w')
+        try:
+            f.write(access_page_template % {
+                'toc': toc,
+                'title': self.config.applehelp_title
+            })
+        finally:
+            f.close()
+        self.info('done')
+                
         # Generate the help index
         self.info(bold('generating help index... '), nonl=True)
 
         args = [
             '/usr/bin/hiutil',
             '-Cf',
-            path.join(language_dir, 'index.helpindex'),
+            path.join(language_dir, 'search.helpindex'),
             language_dir
             ]
 
