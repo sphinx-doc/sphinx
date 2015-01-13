@@ -32,6 +32,7 @@ except ImportError:
 
 from six import PY2, PY3, text_type
 from six.moves import input
+from six.moves.urllib.parse import quote as urlquote
 from docutils.utils import column_width
 
 from sphinx import __version__
@@ -266,6 +267,43 @@ html_static_path = ['%(dot)sstatic']
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%(project_fn)sdoc'
 
+# -- Options for Apple Help output ----------------------------------------
+
+# The bundle name.
+#applehelp_bundle_name = u'%(project_fn)s'
+
+# The bundle id.
+#applehelp_bundle_id = 'com.mycompany.%(project_url)s.help'
+
+# The development region.  Should be 'en_us' in most cases.
+#applehelp_dev_region = 'en_us'
+
+# The bundle version.  
+#applehelp_bundle_version = 1
+
+# The icon file
+#applehelp_icon = '%(project_fn)s.icns'
+
+# These allow remote searching of a knowledge base on your server
+#applehelp_kb_url = "https://kb.example.com/search?p='product'&q='query'&l='lang'"
+#applehelp_kb_product = '%(project_fn)s-%(release)s'
+
+# This lets you host a remote copy of the documentation that you can update
+# without having to ship new versions of your application
+#applehelp_remote_url = 'https://help.example.com/%(project_fn)s/%(version)s/'
+
+# Whether to index anchors
+#applehelp_index_anchors = False
+
+# Minimum term length for indexing
+#applehelp_min_term_length = None
+
+# Stop words (either a language identifier, for built-in stop words, or a plist)
+#applehelp_stopwords = %(language)r
+
+# Locale for indexing
+#applehelp_locale = %(language)r
+
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
@@ -491,6 +529,7 @@ help:
 \t@echo "  json       to make JSON files"
 \t@echo "  htmlhelp   to make HTML files and a HTML help project"
 \t@echo "  qthelp     to make HTML files and a qthelp project"
+\t@echo "  applehelp  to make an Apple Help Book"
 \t@echo "  devhelp    to make HTML files and a Devhelp project"
 \t@echo "  epub       to make an epub"
 \t@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
@@ -551,6 +590,11 @@ qthelp:
 \t@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/%(project_fn)s.qhcp"
 \t@echo "To view the help file:"
 \t@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/%(project_fn)s.qhc"
+
+applehelp:
+\t$(SPHINXBUILD) -b applehelp $(ALLSPHINXOPTS) $(BUILDDIR)/applehelp
+\t@echo
+\t@echo "Build finished. The help book is in $(BUILDDIR)/applehelp."
 
 devhelp:
 \t$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) $(BUILDDIR)/devhelp
@@ -1273,6 +1317,7 @@ def generate(d, overwrite=True, silent=False):
         d['mastertocmaxdepth'] = 2
 
     d['project_fn'] = make_filename(d['project'])
+    d['project_url'] = urlquote(d['project'])
     d['project_manpage'] = d['project_fn'].lower()
     d['now'] = time.asctime()
     d['project_underline'] = column_width(d['project']) * '='

@@ -129,6 +129,24 @@ class Config(object):
         # Devhelp only options
         devhelp_basename = (lambda self: make_filename(self.project), None),
 
+        # Apple help only options
+        applehelp_bundle_name = (lambda self: make_filename(self.project),
+                                 'applehelp'),
+        applehelp_bundle_id = (lambda self: 'com.mycompany.%s.help' \
+                               % make_filename(self.project), 'applehelp'),
+        applehelp_dev_region = ('en_us', 'applehelp'),
+        applehelp_bundle_version = (1, 'applehelp'),
+        applehelp_icon = (None, 'applehelp'),
+        applehelp_kb_product = (lambda self: '%s-%s' \
+                                % (make_filename(self.project), self.release),
+                                 'applehelp'),
+        applehelp_kb_url = (None, 'applehelp'),
+        applehelp_remote_url = (None, 'applehelp'),
+        applehelp_index_anchors = (False, 'applehelp'),
+        applehelp_min_term_length = (None, 'applehelp'),
+        applehelp_stopwords = (lambda self: self.language or 'en', 'applehelp'),
+        applehelp_locale = (lambda self: self.language or 'en_us', 'applehelp'),
+        
         # Epub options
         epub_basename = (lambda self: make_filename(self.project), None),
         epub_theme = ('epub', 'html'),
