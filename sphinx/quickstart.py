@@ -1336,7 +1336,7 @@ def generate(d, overwrite=True, silent=False):
         d['mastertocmaxdepth'] = 2
 
     d['project_fn'] = make_filename(d['project'])
-    d['project_url'] = urlquote(d['project'])
+    d['project_url'] = urlquote(d['project'].encode('idna'))
     d['project_manpage'] = d['project_fn'].lower()
     d['now'] = time.asctime()
     d['project_underline'] = column_width(d['project']) * '='
