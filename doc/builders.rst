@@ -76,6 +76,22 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. _Qt help: http://qt-project.org/doc/qt-4.8/qthelp-framework.html
 
+.. module:: sphinx.builders.applehelp
+.. class:: AppleHelpBuilder
+
+   This builder produces an Apple Help Book based on the same output as the
+   standalone HTML builder.
+
+   This builder requires Mac OS X 10.6 or higher to function, as it depends on
+   the command line tools :program:`hiutil` and :program:`codesign`, neither
+   of which is Open Source.
+
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
+
+   .. versionadded:: 1.3
+
 .. module:: sphinx.builders.devhelp
 .. class:: DevhelpBuilder
 

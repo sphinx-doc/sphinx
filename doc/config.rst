@@ -899,6 +899,139 @@ that use Sphinx's HTMLWriter class.
    Output file base name for HTML help builder.  Default is ``'pydoc'``.
 
 
+.. _applehelp-options:
+
+Options for Apple Help output
+-----------------------------
+
+These options influence the Apple Help output.  This builder derives from the
+HTML builder, so the HTML options also apply where appropriate.
+
+.. note::
+
+   Apple Help output will only work on Mac OS X 10.6 and higher, as it
+   requires the :program:`hiutil` and :program:`codesign` command line tools,
+   neither of which are Open Source.
+
+.. confval:: applehelp_bundle_name
+
+   The basename for the Apple Help Book.  Defaults to the :confval:`project`
+   name.
+
+.. confval:: applehelp_bundle_id
+
+   The bundle ID for the help book bundle.  Defaults to
+   :samp:`'com.mycompany.{<project>}.help'`.
+
+.. confval:: applehelp_dev_region
+
+   The development region.  Defaults to ``'en-us'``, which is Apple’s
+   recommended setting.
+
+.. confval:: applehelp_bundle_version
+
+   The bundle version (as a string).  Defaults to ``'1'``.
+
+.. confval:: applehelp_icon
+
+   The help bundle icon file, or ``None`` for no icon.  According to Apple’s
+   documentation, this should be a 16-by-16 pixel version of the application’s
+   icon with a transparent background, saved as a PNG file.
+
+.. confval:: applehelp_kb_product
+
+   The product tag for use with :confval:`applehelp_kb_url`.  Defaults to
+   :samp:`'{<project>}-{<release>}'`.
+
+.. confval:: applehelp_kb_url
+
+   The URL for your knowledgebase server,
+   e.g. ``https://example.com/kbsearch.py?p='product'&q='query'&l='lang'``.
+   Help Viewer will replace the values ``'product'``, ``'query'`` and
+   ``'lang'`` at runtime with the contents of :confval:`applehelp_kb_product`,
+   the text entered by the user in the search box and the user’s system
+   language respectively.
+
+   Defaults to ``None`` for no remote search.
+
+.. confval:: applehelp_remote_url
+
+   The URL for remote content.  You can place a copy of your Help Book’s
+   ``Resources`` folder at this location and Help Viewer will attempt to use
+   it to fetch updated content.
+
+   e.g. if you set it to ``https://example.com/help/Foo/`` and Help Viewer
+   wants a copy of ``index.html`` for an English speaking customer, it will
+   look at ``https://example.com/help/Foo/en.lproj/index.html``.
+
+   Defaults to ``None`` for no remote content.
+
+.. confval:: applehelp_index_anchors
+
+   If ``True``, tell the help indexer to index anchors in the generated HTML.
+   This can be useful for jumping to a particular topic using the
+   ``AHLookupAnchor`` function or the ``openHelpAnchor:inBook:`` method in
+   your code.  It also allows you to use ``help:anchor`` URLs; see the Apple
+   documentation for more information on this topic.
+
+.. confval:: applehelp_min_term_length
+
+   Controls the minimum term length for the help indexer.  Defaults to
+   ``None``, which means the default will be used.
+
+.. confval:: applehelp_stopwords
+
+   Either a language specification (to use the built-in stopwords), or the
+   path to a stopwords plist, or `None` if you do not want to use stopwords.
+   The default stopwords plist can be found at
+   ``/usr/share/hiutil/Stopwords.plist`` and contains, at time of writing,
+   stopwords for the following languages:
+
+   =========  ====
+   Language   Code
+   =========  ====
+   English    en
+   German     de
+   Spanish    es
+   French     fr
+   Swedish    sv
+   Hungarian  hu
+   Italian    it
+   =========  ====
+
+   Defaults to :confval:`language`, or if that is not set, to :confval:`en`.
+
+.. confval:: applehelp_locale
+
+   Specifies the locale to generate help for.  This is used to determine
+   the name of the ``.lproj`` folder inside the Help Book’s ``Resources``, and
+   is passed to the help indexer.
+
+   Defaults to :confval:`language`, or if that is not set, to :confval:`en`.
+
+.. confval:: applehelp_title
+
+   Specifies the help book title.  Defaults to :samp:`'{<project>} Help'`.
+
+.. confval:: applehelp_codesign_identity
+
+   Specifies the identity to use for code signing, or ``None`` if code signing
+   is not to be performed.
+
+   Defaults to the value of the environment variable ``CODE_SIGN_IDENTITY``,
+   which is set by Xcode for script build phases, or ``None`` if that variable
+   is not set.
+
+.. confval:: applehelp_codesign_flags
+
+   A *list* of additional arguments to pass to ``codesign`` when signing the
+   help book.
+
+   Defaults to a list based on the value of the environment variable
+   ``OTHER_CODE_SIGN_FLAGS``, which is set by Xcode for script build phases,
+   or the empty list if that variable is not set.
+
+
 .. _epub-options:
 
 Options for epub output
