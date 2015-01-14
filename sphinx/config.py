@@ -146,7 +146,7 @@ class Config(object):
         applehelp_index_anchors = (False, 'applehelp'),
         applehelp_min_term_length = (None, 'applehelp'),
         applehelp_stopwords = (lambda self: self.language or 'en', 'applehelp'),
-        applehelp_locale = (lambda self: self.language or 'en_us', 'applehelp'),
+        applehelp_locale = (lambda self: self.language or 'en', 'applehelp'),
         applehelp_title = (lambda self: self.project + ' Help', 'applehelp'),
         applehelp_codesign_identity = (lambda self:
                                        environ.get('CODE_SIGN_IDENTITY', None),

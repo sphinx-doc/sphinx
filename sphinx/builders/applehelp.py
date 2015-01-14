@@ -89,7 +89,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         self.outdir = path.join(self.bundle_path,
                                 'Contents',
                                 'Resources',
-                                (self.config.language or 'en') + '.lproj')
+                                self.config.applehelp_locale + '.lproj')
 
     def handle_finish(self):
         super(AppleHelpBuilder, self).handle_finish()
@@ -100,7 +100,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         contents_dir = path.join(self.bundle_path, 'Contents')
         resources_dir = path.join(contents_dir, 'Resources')
         language_dir = path.join(resources_dir,
-                                 (self.config.language or 'en') + '.lproj')
+                                 self.config.applehelp_locale + '.lproj')
 
         for d in [contents_dir, resources_dir, language_dir]:
             ensuredir(d)
@@ -203,7 +203,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             self.info('done')
 
         # If we've been asked to, sign the bundle
-        if self.config.applehelp_codesign_identity is not None:
+        if self.config.applehelp_codesign_identity:
             self.info(bold('signing help book... '), nonl=True)
 
             args = [
