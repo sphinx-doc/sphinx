@@ -86,6 +86,7 @@ QUICKSTART_CONF += u'''\
 
 import sys
 import os
+import shlex
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -309,6 +310,15 @@ htmlhelp_basename = '%(project_fn)sdoc'
 
 # Locale for indexing
 #applehelp_locale = %(language)r
+
+# If you call Sphinx from Xcode, the default settings for code signing
+# will apply automatically.
+
+# The code signing identity to use (if None, the bundle is not signed)
+#applehelp_codesign_identity = os.environ.get('CODE_SIGN_IDENTITY', None)
+
+# Code signing flags to pass (as a list)
+#applehelp_codesign_flags = shlex.split(os.environ.get('OTHER_CODE_SIGN_FLAGS', ''))
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -601,6 +611,9 @@ applehelp:
 \t$(SPHINXBUILD) -b applehelp $(ALLSPHINXOPTS) $(BUILDDIR)/applehelp
 \t@echo
 \t@echo "Build finished. The help book is in $(BUILDDIR)/applehelp."
+\t@echo "N.B. You won't be able to view it unless you put it in" \\
+\t      "~/Library/Documentation/Help or install it in your application" \\
+\t      "bundle."
 
 devhelp:
 \t$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) $(BUILDDIR)/devhelp

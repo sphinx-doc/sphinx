@@ -10,7 +10,8 @@
 """
 
 import re
-from os import path
+from os import path, environ
+import shlex
 
 from six import PY3, iteritems, string_types, binary_type, integer_types
 
@@ -129,7 +130,7 @@ class Config(object):
         # Devhelp only options
         devhelp_basename = (lambda self: make_filename(self.project), None),
 
-        # Apple help only options
+        # Apple help options
         applehelp_bundle_name = (lambda self: make_filename(self.project),
                                  'applehelp'),
         applehelp_bundle_id = (lambda self: 'com.mycompany.%s.help' \
@@ -147,6 +148,14 @@ class Config(object):
         applehelp_stopwords = (lambda self: self.language or 'en', 'applehelp'),
         applehelp_locale = (lambda self: self.language or 'en_us', 'applehelp'),
         applehelp_title = (lambda self: self.project + ' Help', 'applehelp'),
+        applehelp_codesign_identity = (lambda self:
+                                       environ.get('CODE_SIGN_IDENTITY', None),
+                                       'applehelp'),
+        applehelp_codesign_flags = (lambda self:
+                                    shlex.split(
+                                        environ.get('OTHER_CODE_SIGN_FLAGS',
+                                                    '')),
+                                    'applehelp'),
         
         # Epub options
         epub_basename = (lambda self: make_filename(self.project), None),

@@ -19,6 +19,7 @@ from os import path
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util.osutil import copyfile, ensuredir, os_path
 from sphinx.util.console import bold
+from sphinx.util.pycompat import htmlescape
 from sphinx.errors import SphinxError
 
 import plistlib
@@ -49,8 +50,11 @@ access_page_template = '''\
 
 
 class AppleHelpIndexerFailed(SphinxError):
-    def __str__(self):
-        return 'Help indexer failed'
+    category = 'Help indexer failed'
+
+        
+class AppleHelpCodeSigningFailed(SphinxError):
+    category = 'Code signing failed'
 
     
 class AppleHelpBuilder(StandaloneHTMLBuilder):
@@ -84,6 +88,11 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
                                 (self.config.language or 'en') + '.lproj')
 
     def handle_finish(self):
+        super(AppleHelpBuilder, self).handle_finish()
+        
+        self.finish_tasks.add_task(self.build_helpbook)
+
+    def build_helpbook(self):
         contents_dir = path.join(self.bundle_path, 'Contents')
         resources_dir = path.join(contents_dir, 'Resources')
         language_dir = path.join(resources_dir,
@@ -149,8 +158,8 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         f = codecs.open(path.join(language_dir, '_access.html'), 'w')
         try:
             f.write(access_page_template % {
-                'toc': toc,
-                'title': self.config.applehelp_title
+                'toc': htmlescape(toc, quote=True),
+                'title': htmlescape(self.config.applehelp_title)
             })
         finally:
             f.close()
@@ -164,7 +173,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             '-Cf',
             path.join(language_dir, 'search.helpindex'),
             language_dir
-            ]
+        ]
 
         if self.config.applehelp_index_anchors is not None:
             args.append('-a')
@@ -177,11 +186,40 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
         if self.config.applehelp_locale is not None:
             args += ['-l', self.config.applehelp_locale]
-            
-        result = subprocess.call(args)
 
-        if result != 0:
-            raise AppleHelpIndexerFailed
+        p = subprocess.Popen(args,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT)
+
+        output = p.communicate()[0]
+
+        if p.returncode != 0:
+            raise AppleHelpIndexerFailed(output)
         else:
             self.info('done')
+
+        # If we've been asked to, sign the bundle
+        if self.config.applehelp_codesign_identity is not None:
+            self.info(bold('signing help book... '), nonl=True)
+
+            args = [
+                '/usr/bin/codesign',
+                '-s', self.config.applehelp_codesign_identity,
+                '-f'
+            ]
+
+            args += self.config.applehelp_codesign_flags
+
+            args.append(self.bundle_path)
+
+            p = subprocess.Popen(args,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT)
+
+            output = p.communicate()[0]
+
+            if p.returncode != 0:
+                raise AppleHelpCodeSigningFailed(output)
+            else:
+                self.info('done')
         
