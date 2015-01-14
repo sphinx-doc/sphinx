@@ -982,7 +982,7 @@ HTML builder, so the HTML options also apply where appropriate.
 .. confval:: applehelp_stopwords
 
    Either a language specification (to use the built-in stopwords), or the
-   path to a stopwords plist, or `None` if you do not want to use stopwords.
+   path to a stopwords plist, or ``None`` if you do not want to use stopwords.
    The default stopwords plist can be found at
    ``/usr/share/hiutil/Stopwords.plist`` and contains, at time of writing,
    stopwords for the following languages:
