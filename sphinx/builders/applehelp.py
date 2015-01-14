@@ -71,8 +71,12 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
     # don't add links
     add_permalinks = False
+    
     # *do* add the sidebar (Apple Help doesn't have its own)
     embedded = False
+
+    # don't generate the search index or include the search page
+    search = False
     
     def init(self):
         super(AppleHelpBuilder, self).init()
