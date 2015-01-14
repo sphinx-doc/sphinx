@@ -173,6 +173,9 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     # don't add sidebar etc.
     embedded = True
 
+    # don't generate search index or include search page
+    search = False
+
     lcid = 0x409
     encoding = 'cp1252'
 
