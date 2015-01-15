@@ -66,9 +66,10 @@ def test_build_all():
         ).encode('utf-8'))
 
     # note: no 'html' - if it's ok with dirhtml it's ok with html
-    for buildername in ['dirhtml', 'singlehtml', 'latex', 'texinfo',
-                        'pickle', 'json', 'text', 'htmlhelp', 'qthelp', 'epub',
-                        'changes', 'xml', 'pseudoxml', 'man', 'linkcheck']:
+    for buildername in ['dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle',
+                        'json', 'text', 'htmlhelp', 'qthelp', 'epub',
+                        'applehelp', 'changes', 'xml', 'pseudoxml', 'man',
+                        'linkcheck']:
         yield verify_build, buildername, srcdir
 
 
