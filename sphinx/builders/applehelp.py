@@ -13,13 +13,16 @@ from __future__ import print_function
 import os
 import codecs
 import errno
+import pipes
 
 from os import path
 
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.util import copy_static_entry
 from sphinx.util.osutil import copyfile, ensuredir, os_path
 from sphinx.util.console import bold
 from sphinx.util.pycompat import htmlescape
+from sphinx.util.matching import compile_matchers
 from sphinx.errors import SphinxError
 
 import plistlib
@@ -55,7 +58,7 @@ class AppleHelpIndexerFailed(SphinxError):
         
 class AppleHelpCodeSigningFailed(SphinxError):
     category = 'Code signing failed'
-
+    
     
 class AppleHelpBuilder(StandaloneHTMLBuilder):
     """
@@ -72,8 +75,8 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
     # don't add links
     add_permalinks = False
     
-    # *do* add the sidebar (Apple Help doesn't have its own)
-    embedded = False
+    # this is an embedded HTML format
+    embedded = True
 
     # don't generate the search index or include the search page
     search = False
@@ -82,6 +85,10 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         super(AppleHelpBuilder, self).init()
         # the output files for HTML help must be .html only
         self.out_suffix = '.html'
+
+        if self.config.applehelp_bundle_id is None:
+            raise SphinxError('You must set applehelp_bundle_id before ' \
+                              'building Apple Help output')
 
         self.bundle_path = path.join(self.outdir,
                                      self.config.applehelp_bundle_name \
@@ -93,9 +100,25 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
     def handle_finish(self):
         super(AppleHelpBuilder, self).handle_finish()
-        
-        self.finish_tasks.add_task(self.build_helpbook)
 
+        self.finish_tasks.add_task(self.copy_localized_files)
+        self.finish_tasks.add_task(self.build_helpbook)
+    
+    def copy_localized_files(self):
+        source_dir = path.join(self.confdir,
+                               self.config.applehelp_locale + '.lproj')
+        target_dir = self.outdir
+    
+        if path.isdir(source_dir):
+            self.info(bold('copying localized files... '), nonl=True)
+            
+            ctx = self.globalcontext.copy()
+            matchers = compile_matchers(self.config.exclude_patterns)
+            copy_static_entry(source_dir, target_dir, self, ctx,
+                              exclude_matchers=matchers)
+
+            self.info('done')
+        
     def build_helpbook(self):
         contents_dir = path.join(self.bundle_path, 'Contents')
         resources_dir = path.join(contents_dir, 'Resources')
@@ -168,12 +191,12 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         finally:
             f.close()
         self.info('done')
-                
+        
         # Generate the help index
         self.info(bold('generating help index... '), nonl=True)
 
         args = [
-            '/usr/bin/hiutil',
+            self.config.applehelp_indexer_path,
             '-Cf',
             path.join(language_dir, 'search.helpindex'),
             language_dir
@@ -191,23 +214,29 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         if self.config.applehelp_locale is not None:
             args += ['-l', self.config.applehelp_locale]
 
-        p = subprocess.Popen(args,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT)
+        if self.config.applehelp_disable_external_tools:
+            self.info('skipping')
 
-        output = p.communicate()[0]
-
-        if p.returncode != 0:
-            raise AppleHelpIndexerFailed(output)
+            self.warn('you will need to index this help book with:\n  %s'
+                      % (' '.join([pipes.quote(arg) for arg in args])))
         else:
-            self.info('done')
+            p = subprocess.Popen(args,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT)
+
+            output = p.communicate()[0]
+
+            if p.returncode != 0:
+                raise AppleHelpIndexerFailed(output)
+            else:
+                self.info('done')
 
         # If we've been asked to, sign the bundle
         if self.config.applehelp_codesign_identity:
             self.info(bold('signing help book... '), nonl=True)
 
             args = [
-                '/usr/bin/codesign',
+                self.config.applehelp_codesign_path,
                 '-s', self.config.applehelp_codesign_identity,
                 '-f'
             ]
@@ -216,14 +245,20 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
             args.append(self.bundle_path)
 
-            p = subprocess.Popen(args,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.STDOUT)
+            if self.config.applehelp_disable_external_tools:
+                self.info('skipping')
 
-            output = p.communicate()[0]
-
-            if p.returncode != 0:
-                raise AppleHelpCodeSigningFailed(output)
+                self.warn('you will need to sign this help book with:\n  %s'
+                          % (' '.join([pipes.quote(arg) for arg in args])))
             else:
-                self.info('done')
+                p = subprocess.Popen(args,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.STDOUT)
+
+                output = p.communicate()[0]
+
+                if p.returncode != 0:
+                    raise AppleHelpCodeSigningFailed(output)
+                else:
+                    self.info('done')
         

@@ -904,6 +904,8 @@ that use Sphinx's HTMLWriter class.
 Options for Apple Help output
 -----------------------------
 
+.. versionadded:: 1.3
+
 These options influence the Apple Help output.  This builder derives from the
 HTML builder, so the HTML options also apply where appropriate.
 
@@ -913,6 +915,11 @@ HTML builder, so the HTML options also apply where appropriate.
    requires the :program:`hiutil` and :program:`codesign` command line tools,
    neither of which are Open Source.
 
+   You can disable the use of these tools using
+   :confval:`applehelp_disable_external_tools`, but the result will not be a
+   valid help book until the indexer is run over the ``.lproj`` folders within
+   the bundle.
+
 .. confval:: applehelp_bundle_name
 
    The basename for the Apple Help Book.  Defaults to the :confval:`project`
@@ -920,8 +927,11 @@ HTML builder, so the HTML options also apply where appropriate.
 
 .. confval:: applehelp_bundle_id
 
-   The bundle ID for the help book bundle.  Defaults to
-   :samp:`'com.mycompany.{<project>}.help'`.
+   The bundle ID for the help book bundle.
+
+   .. warning::
+
+      You *must* set this value in order to generate Apple Help.
 
 .. confval:: applehelp_dev_region
 
@@ -1024,12 +1034,33 @@ HTML builder, so the HTML options also apply where appropriate.
 
 .. confval:: applehelp_codesign_flags
 
-   A *list* of additional arguments to pass to ``codesign`` when signing the
-   help book.
+   A *list* of additional arguments to pass to :program:`codesign` when
+   signing the help book.
 
    Defaults to a list based on the value of the environment variable
    ``OTHER_CODE_SIGN_FLAGS``, which is set by Xcode for script build phases,
    or the empty list if that variable is not set.
+
+.. confval:: applehelp_indexer_path
+
+   The path to the :program:`hiutil` program.  Defaults to
+   ``'/usr/bin/hiutil'``.
+
+.. confval:: applehelp_codesign_path
+
+   The path to the :program:`codesign` program.  Defaults to
+   ``'/usr/bin/codesign'``.
+
+.. confval:: applehelp_disable_external_tools
+
+   If ``True``, the builder will not run the indexer or the code signing tool,
+   no matter what other settings are specified.
+
+   This is mainly useful for testing, or where you want to run the Sphinx
+   build on a non-Mac OS X platform and then complete the final steps on OS X
+   for some reason.
+
+   Defaults to ``False``.
 
 
 .. _epub-options:

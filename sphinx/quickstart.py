@@ -268,58 +268,6 @@ html_static_path = ['%(dot)sstatic']
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%(project_fn)sdoc'
 
-# -- Options for Apple Help output ----------------------------------------
-
-# The help file title.
-#
-# This needs to go in the CFBundleHelpBookName field in your application,
-# and is displayed in the title bar of the help viewer.
-#applehelp_title = u'%(project_str)s Help'
-
-# The name of the bundle.
-#applehelp_bundle_name = u'%(project_fn)s'
-
-# The bundle id.
-#applehelp_bundle_id = 'com.mycompany.%(project_url)s.help'
-
-# The development region.  Should be 'en-us' in most cases.
-#applehelp_dev_region = 'en-us'
-
-# The bundle version.  
-#applehelp_bundle_version = '1'
-
-# The icon file
-#applehelp_icon = '%(project_fn)s.png'
-
-# These allow remote searching of a knowledge base on your server
-#applehelp_kb_url = "https://kb.example.com/search?p='product'&q='query'&l='lang'"
-#applehelp_kb_product = '%(project_fn)s-%(release)s'
-
-# This lets you host a remote copy of the documentation that you can update
-# without having to ship new versions of your application
-#applehelp_remote_url = 'https://help.example.com/%(project_fn)s/%(version)s/'
-
-# Whether to index anchors
-#applehelp_index_anchors = False
-
-# Minimum term length for indexing
-#applehelp_min_term_length = None
-
-# Stop words (either a language identifier, for built-in stop words, or a plist)
-#applehelp_stopwords = %(language)r
-
-# Locale for indexing
-#applehelp_locale = %(language)r
-
-# If you call Sphinx from Xcode, the default settings for code signing
-# will apply automatically.
-
-# The code signing identity to use (if None, the bundle is not signed)
-#applehelp_codesign_identity = os.environ.get('CODE_SIGN_IDENTITY', None)
-
-# Code signing flags to pass (as a list)
-#applehelp_codesign_flags = shlex.split(os.environ.get('OTHER_CODE_SIGN_FLAGS', ''))
-
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {

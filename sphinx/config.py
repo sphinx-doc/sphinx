@@ -14,6 +14,7 @@ from os import path, environ
 import shlex
 
 from six import PY3, iteritems, string_types, binary_type, integer_types
+from six.moves.urllib.parse import quote as urlquote
 
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
@@ -133,8 +134,7 @@ class Config(object):
         # Apple help options
         applehelp_bundle_name = (lambda self: make_filename(self.project),
                                  'applehelp'),
-        applehelp_bundle_id = (lambda self: 'com.mycompany.%s.help' \
-                               % make_filename(self.project), 'applehelp'),
+        applehelp_bundle_id = (None, 'applehelp'),
         applehelp_dev_region = ('en-us', 'applehelp'),
         applehelp_bundle_version = ('1', 'applehelp'),
         applehelp_icon = (None, 'applehelp'),
@@ -156,6 +156,9 @@ class Config(object):
                                         environ.get('OTHER_CODE_SIGN_FLAGS',
                                                     '')),
                                     'applehelp'),
+        applehelp_indexer_path = ('/usr/bin/hiutil', 'applehelp'),
+        applehelp_codesign_path = ('/usr/bin/codesign', 'applehelp'),
+        applehelp_disable_external_tools = (False, None),
         
         # Epub options
         epub_basename = (lambda self: make_filename(self.project), None),

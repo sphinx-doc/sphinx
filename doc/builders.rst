@@ -82,9 +82,17 @@ The builder's "name" must be given to the **-b** command-line option of
    This builder produces an Apple Help Book based on the same output as the
    standalone HTML builder.
 
-   This builder requires Mac OS X 10.6 or higher to function, as it depends on
-   the command line tools :program:`hiutil` and :program:`codesign`, neither
-   of which is Open Source.
+   If the source directory contains any ``.lproj`` folders, the one
+   corresponding to the selected language will have its contents merged with
+   the generated output.  These folders will be ignored by all other
+   documentation types.
+
+   In order to generate a valid help book, this builder requires the command
+   line tool :program:`hiutil`, which is only available on Mac OS X 10.6 and
+   above.  You can disable the indexing step by setting
+   :confval:`applehelp_disable_external_tools` to ``True``, in which case the
+   output will not be valid until :program:`hiutil` has been run on all of the
+   ``.lproj`` folders within the bundle.
 
    .. autoattribute:: name
 
