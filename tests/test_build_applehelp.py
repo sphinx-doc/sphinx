@@ -29,7 +29,7 @@ def check_structure(outdir):
     assert contentsdir.isdir()
     assert (contentsdir / 'Info.plist').isfile()
 
-    with open(contentsdir / 'Info.plist', 'r') as f:
+    with open(contentsdir / 'Info.plist', 'rb') as f:
         plist = read_plist(f)
     assert plist
     assert len(plist)
