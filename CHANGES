@@ -27,6 +27,7 @@ Bugs fixed
 * #1610: Sphinx cause AttributeError when MeCab search option is enabled and
   python-mecab is not installed.
 * #1674: Do not crash if a module's ``__all__`` is not a list of strings.
+* #1673: Fix crashes with :confval:`nitpick_ignore` and ``:doc:`` references.
 
 
 Release 1.2.3 (released Sep 1, 2014)
