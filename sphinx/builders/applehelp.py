@@ -158,7 +158,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             info_plist['HPDBookRemoteURL'] = self.config.applehelp_remote_url
 
         self.info(bold('writing Info.plist... '), nonl=True)
-        with open(path.join(contents_dir, 'Info.plist'), 'w') as f:
+        with open(path.join(contents_dir, 'Info.plist'), 'wb') as f:
             write_plist(info_plist, f)
         self.info('done')
 
