@@ -155,6 +155,26 @@ class GoogleDocstringTest(BaseDocstringTest):
 
         :returns: Extended
                   description of return value"""
+    ), (
+        """
+        Single line summary
+
+        Args:
+          arg1(str):Extended
+            description of arg1
+          *args: Variable length argument list.
+          **kwargs: Arbitrary keyword arguments.
+        """,
+        """
+        Single line summary
+
+        :Parameters: * **arg1** (*str*) --
+                       Extended
+                       description of arg1
+                     * **\\*args** --
+                       Variable length argument list.
+                     * **\\*\\*kwargs** --
+                       Arbitrary keyword arguments."""
     )]
 
     def test_docstrings(self):
@@ -335,6 +355,28 @@ class NumpyDocstringTest(BaseDocstringTest):
         :returns: *str* --
                   Extended
                   description of return value"""
+    ), (
+        """
+        Single line summary
+
+        Parameters
+        ----------
+        arg1:str
+             Extended description of arg1
+        *args:
+            Variable length argument list.
+        **kwargs:
+            Arbitrary keyword arguments.
+        """,
+        """
+        Single line summary
+
+        :Parameters: * **arg1** (*str*) --
+                       Extended description of arg1
+                     * ***args** --
+                       Variable length argument list.
+                     * ****kwargs** --
+                       Arbitrary keyword arguments."""
     )]
 
     def test_docstrings(self):
