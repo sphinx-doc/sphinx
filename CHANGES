@@ -16,6 +16,7 @@ Bugs fixed
 ----------
 
 * LaTeX writer now generates correct markup for cells spanning multiple rows.
+* #1674: Do not crash if a module's ``__all__`` is not a list of strings.
 
 
 Release 1.3b2 (released Dec 5, 2014)

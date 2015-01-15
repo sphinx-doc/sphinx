@@ -879,6 +879,15 @@ class ModuleDocumenter(Documenter):
                 return True, safe_getmembers(self.object)
             else:
                 memberlist = self.object.__all__
+                # Sometimes __all__ is broken...
+                if not isinstance(memberlist, (list, tuple)) or not \
+                   all(isinstance(entry, str) for entry in memberlist):
+                    self.directive.warn(
+                        '__all__ should be a list of strings, not %r '
+                        '(in module %s) -- ignoring __all__' %
+                        (memberlist, self.fullname))
+                    # fall back to all members
+                    return True, safe_getmembers(self.object)
         else:
             memberlist = self.options.members or []
         ret = []
