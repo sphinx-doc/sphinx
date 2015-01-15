@@ -1521,7 +1521,8 @@ class BuildEnvironment:
                 if (dtype, target) in self._nitpick_ignore:
                     warn = False
                 # for "std" types also try without domain name
-                if domain.name == 'std' and (typ, target) in self._nitpick_ignore:
+                if (not domain or domain.name == 'std') and \
+                   (typ, target) in self._nitpick_ignore:
                     warn = False
         if not warn:
             return
