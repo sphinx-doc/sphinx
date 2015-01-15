@@ -158,11 +158,8 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             info_plist['HPDBookRemoteURL'] = self.config.applehelp_remote_url
 
         self.info(bold('writing Info.plist... '), nonl=True)
-        f = codecs.open(path.join(contents_dir, 'Info.plist'), 'w')
-        try:
+        with open(path.join(contents_dir, 'Info.plist'), 'w') as f:
             write_plist(info_plist, f)
-        finally:
-            f.close()
         self.info('done')
 
         # Copy the icon, if one is supplied
