@@ -251,13 +251,18 @@ class Make(object):
             doctreedir = self.builddir_join('doctrees')
 
         orig_cmd = sys.argv[0]
-        if orig_cmd.endswith('.exe'):
+        if sys.platform == 'win32' and orig_cmd.endswith('.exe'):
+            # win32: 'sphinx-build.exe'
             cmd = [orig_cmd]
-        elif sys.platform == 'win32':
+        elif sys.platform == 'win32' and os.path.splitext(orig_cmd)[1] == '':
+            # win32: 'sphinx-build'  without extension
             cmd = [orig_cmd + '.exe']
-        else:  # ex. 'sphinx-build' or 'sphinx-build.py'
+        else:
+            # win32: 'sphinx-build.py'
+            # linux, mac: 'sphinx-build' or 'sphinx-build.py'
             cmd = [sys.executable, orig_cmd]
 
+        print(cmd)
         return call(cmd + ['-b', builder] + opts +
                     ['-d', doctreedir, self.srcdir, self.builddir_join(builder)])
 
