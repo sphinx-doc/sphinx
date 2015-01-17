@@ -262,7 +262,6 @@ class Make(object):
             # linux, mac: 'sphinx-build' or 'sphinx-build.py'
             cmd = [sys.executable, orig_cmd]
 
-        print(cmd)
         return call(cmd + ['-b', builder] + opts +
                     ['-d', doctreedir, self.srcdir, self.builddir_join(builder)])
 
