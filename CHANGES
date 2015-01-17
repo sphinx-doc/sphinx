@@ -28,6 +28,7 @@ Bugs fixed
   python-mecab is not installed.
 * #1674: Do not crash if a module's ``__all__`` is not a list of strings.
 * #1673: Fix crashes with :confval:`nitpick_ignore` and ``:doc:`` references.
+* #1686: ifconfig directive doesn't care about default config values.
 
 
 Release 1.2.3 (released Sep 1, 2014)
