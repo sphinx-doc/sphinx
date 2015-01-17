@@ -188,7 +188,7 @@ class Sphinx(object):
                     self.env.domains[domain] = self.domains[domain](self.env)
                 self.info('done')
             except Exception, err:
-                if type(err) is IOError and err.errno == ENOENT:
+                if isinstance(err, IOError) and err.errno == ENOENT:
                     self.info('not yet created')
                 else:
                     self.info('failed: %s' % err)
