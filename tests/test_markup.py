@@ -136,7 +136,7 @@ def test_latex_escaping():
            r'\(\Gamma\)\textbackslash{}\(\infty\)\$')
     # in verbatim code fragments
     yield (verify, u'::\n\n @Γ\\∞${}', None,
-           u'\\begin{Verbatim}[frame=single,commandchars=\\\\\\{\\}]\n'
+           u'\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n'
            u'@\\(\\Gamma\\)\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
            u'\\end{Verbatim}')
     # in URIs
