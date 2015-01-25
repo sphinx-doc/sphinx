@@ -21,6 +21,8 @@ Bugs fixed
 * On windows, make-mode didn't work on Win32 platform if sphinx was invoked as
   ``python sphinx-build.py``.
 * #1687: linkcheck now treats 401 Unauthorized responses as "working".
+* #1690: toctrees with ``glob`` option now can also contain entries for single
+  documents with explicit title.
 
 
 Release 1.3b2 (released Dec 5, 2014)

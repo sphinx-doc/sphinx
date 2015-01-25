@@ -62,7 +62,18 @@ class TocTree(Directive):
         for entry in self.content:
             if not entry:
                 continue
-            if not glob:
+            if glob and ('*' in entry or '?' in entry or '[' in entry):
+                patname = docname_join(env.docname, entry)
+                docnames = sorted(patfilter(all_docnames, patname))
+                for docname in docnames:
+                    all_docnames.remove(docname)  # don't include it again
+                    entries.append((None, docname))
+                    includefiles.append(docname)
+                if not docnames:
+                    ret.append(self.state.document.reporter.warning(
+                        'toctree glob pattern %r didn\'t match any documents'
+                        % entry, line=self.lineno))
+            else:
                 # look for explicit titles ("Some Title <document>")
                 m = explicit_title_re.match(entry)
                 if m:
@@ -85,19 +96,9 @@ class TocTree(Directive):
                         'document %r' % docname, line=self.lineno))
                     env.note_reread()
                 else:
+                    all_docnames.remove(docname)
                     entries.append((title, docname))
                     includefiles.append(docname)
-            else:
-                patname = docname_join(env.docname, entry)
-                docnames = sorted(patfilter(all_docnames, patname))
-                for docname in docnames:
-                    all_docnames.remove(docname) # don't include it again
-                    entries.append((None, docname))
-                    includefiles.append(docname)
-                if not docnames:
-                    ret.append(self.state.document.reporter.warning(
-                        'toctree glob pattern %r didn\'t match any documents'
-                        % entry, line=self.lineno))
         subnode = addnodes.toctree()
         subnode['parent'] = env.docname
         # entries contains all entries (self references, external links etc.)
