@@ -96,7 +96,7 @@ class TocTree(Directive):
                         'document %r' % docname, line=self.lineno))
                     env.note_reread()
                 else:
-                    all_docnames.remove(docname)
+                    all_docnames.discard(docname)
                     entries.append((title, docname))
                     includefiles.append(docname)
         subnode = addnodes.toctree()
