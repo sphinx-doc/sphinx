@@ -78,9 +78,6 @@ class BuildDoc(Command):
          'replacement for |today|'),
         ('link-index', 'i', 'Link index.html to the master doc'),
         ('copyright', None, 'The copyright string'),
-        ('author', None, 'The documented project\'s author'),
-        ('date', None, 'Dates of first publication and major revisions'),
-
     ]
     boolean_options = ['fresh-env', 'all-files', 'link-index']
 
@@ -96,8 +93,6 @@ class BuildDoc(Command):
         self.config_dir = None
         self.link_index = False
         self.copyright = ''
-        self.author = ''
-        self.date = ''
 
     def _guess_source_dir(self):
         for guess in ('doc', 'docs'):
@@ -142,8 +137,6 @@ class BuildDoc(Command):
         self.mkpath(self.doctree_dir)
         self.builder_target_dir = os.path.join(self.build_dir, self.builder)
         self.mkpath(self.builder_target_dir)
-        if not self.copyright and (self.author or self.date):
-            self.copyright = ", ".join((self.date, self.author))
 
     def run(self):
         if not color_terminal():
