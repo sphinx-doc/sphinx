@@ -239,6 +239,7 @@ Bugs fixed
 * #1674: Do not crash if a module's ``__all__`` is not a list of strings.
 * #1673: Fix crashes with :confval:`nitpick_ignore` and ``:doc:`` references.
 * #1686: ifconfig directive doesn't care about default config values.
+* #1642: Fix only one search result appearing in Chrome.
 
 Documentation
 -------------
