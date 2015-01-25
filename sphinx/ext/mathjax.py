@@ -64,7 +64,7 @@ def setup(app):
     # more information for mathjax secure url is here:
     # http://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
     app.add_config_value('mathjax_path',
-                         'https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?'
+                         'https://cdn.mathjax.org/mathjax/latest/MathJax.js?'
                          'config=TeX-AMS-MML_HTMLorMML', False)
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
