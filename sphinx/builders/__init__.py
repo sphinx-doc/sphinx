@@ -388,6 +388,9 @@ class Builder(object):
         self.info(bold('waiting for workers...'))
         tasks.join()
 
+        for warning in warnings:
+            self.warn(*warning)
+
     def prepare_writing(self, docnames):
         """A place where you can add logic before :meth:`write_doc` is run"""
         raise NotImplementedError
