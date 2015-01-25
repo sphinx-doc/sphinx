@@ -530,7 +530,14 @@ handlers to the events.  Example:
    Emitted when the :meth:`update` method of the build environment has
    completed, that is, the environment and all doctrees are now up-to-date.
 
+   You can return an iterable of docnames from the handler.  These documents
+   will then be considered updated, and will be (re-)written during the writing
+   phase.
+
    .. versionadded:: 0.5
+
+   .. versionchanged:: 1.3
+      The handlers' return value is now used.
 
 .. event:: html-collect-pages (app)
 

@@ -589,8 +589,12 @@ class BuildEnvironment:
                       self.doc2path(config.master_doc))
 
         self.app = None
-        app.emit('env-updated', self)
-        return docnames
+
+        for retval in app.emit('env-updated', self):
+            if retval is not None:
+                docnames.extend(retval)
+
+        return sorted(docnames)
 
     def _read_serial(self, docnames, app):
         for docname in app.status_iterator(docnames, 'reading sources... ',

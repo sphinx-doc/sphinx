@@ -11,6 +11,8 @@ Features added
 
 * Added ``highlight_options`` configuration value.
 * The ``language`` config value is now available in the HTML templates.
+* The ``env-updated`` event can now return a value, which is interpreted
+  as an iterable of additional docnames that need to be rewritten.
 
 Bugs fixed
 ----------
