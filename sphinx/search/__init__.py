@@ -313,13 +313,13 @@ class IndexBuilder(object):
                     if fn in fn2index:
                         rv[k] = fn2index[fn]
                 else:
-                    rv[k] = [fn2index[fn] for fn in v if fn in fn2index]
+                    rv[k] = sorted([fn2index[fn] for fn in v if fn in fn2index])
         return rvs
 
     def freeze(self):
         """Create a usable data structure for serializing."""
-        filenames = list(self._titles.keys())
-        titles = list(self._titles.values())
+        filenames = sorted(self._titles.keys())
+        titles = sorted(self._titles.values())
         fn2index = dict((f, i) for (i, f) in enumerate(filenames))
         terms, title_terms = self.get_terms(fn2index)
 

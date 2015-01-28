@@ -30,7 +30,7 @@ from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
-    safe_getattr, safe_repr, is_builtin_class_method
+    safe_getattr, object_description, is_builtin_class_method
 from sphinx.util.docstrings import prepare_docstring
 
 
@@ -241,6 +241,11 @@ def between(marker, what=None, keepempty=False, exclude=False):
         if lines and lines[-1]:
             lines.append('')
     return process
+
+
+def formatargspec(*argspec):
+    return inspect.formatargspec(*argspec,
+                                 formatvalue=lambda x: '=' + object_description(x))
 
 
 class Documenter(object):
@@ -1054,7 +1059,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
                 argspec = getargspec(self.object.__init__)
                 if argspec[0]:
                     del argspec[0][0]
-        args = inspect.formatargspec(*argspec)
+        args = formatargspec(*argspec)
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
         return args
@@ -1109,7 +1114,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
             return None
         if argspec[0] and argspec[0][0] in ('cls', 'self'):
             del argspec[0][0]
-        return inspect.formatargspec(*argspec)
+        return formatargspec(*argspec)
 
     def format_signature(self):
         if self.doc_as_attr:
@@ -1220,7 +1225,7 @@ class DataDocumenter(ModuleLevelDocumenter):
         sourcename = self.get_sourcename()
         if not self.options.annotation:
             try:
-                objrepr = safe_repr(self.object)
+                objrepr = object_description(self.object)
             except ValueError:
                 pass
             else:
@@ -1276,7 +1281,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
         argspec = getargspec(self.object)
         if argspec[0] and argspec[0][0] in ('cls', 'self'):
             del argspec[0][0]
-        args = inspect.formatargspec(*argspec)
+        args = formatargspec(*argspec)
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
         return args
@@ -1333,7 +1338,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):
         if not self.options.annotation:
             if not self._datadescriptor:
                 try:
-                    objrepr = safe_repr(self.object)
+                    objrepr = object_description(self.object)
                 except ValueError:
                     pass
                 else:
