@@ -186,7 +186,7 @@ class InheritanceGraph(object):
         for cls in classes:
             recurse(cls)
 
-        return all_classes.values()
+        return list(all_classes.values())
 
     def class_name(self, cls, parts=0):
         """Given a class object, return a fully-qualified name.
