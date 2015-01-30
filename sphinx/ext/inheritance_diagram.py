@@ -447,7 +447,8 @@ class InheritanceGraph(object):
         res.append('digraph %s {\n' % name)
         res.append(self._attr_format(attrs_graph_default, ";\n"))
 
-        for name, node in self.class_info.names.items():
+        for name in sorted(self.class_info.names):
+            node = self.class_info.names[name]
             bases_linked = node.names_in
             bases_actual = node.data.baselist
             cls = node.data.cls
