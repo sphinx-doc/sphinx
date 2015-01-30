@@ -108,22 +108,22 @@ class Graph(object):
             node_out.names_in.add(name)
             self.roots.discard(name_out)
 
-    def node_iterate(self, node, selector):
+    def node_iterate(self, name, selector):
         cache = set()
-        def node_iterate(node, selector):
+        def node_iterate(name, selector):
+            node = self.names[name]
             if node not in cache:
                 cache.add(node)
-                yield node
+                yield (name, node)
                 for name in selector(node):
-                    node = self.names[name]
-                    yield from node_iterate(node, selector)
-        yield from node_iterate(node, selector)
+                    yield from node_iterate(name, selector)
+        yield from node_iterate(name, selector)
 
     @staticmethod
     def node_filter(node_iter, matcher):
-        for node in node_iter:
-            if matcher(node):
-                yield(node)
+        for name, node in node_iter:
+            if matcher(name, node):
+                yield(name, node)
 
     def node_delete(self, name, preserve_links=False):
         node = self.names.pop(name)
@@ -153,19 +153,23 @@ class Graph(object):
             names = self.roots
         cache = set()
         selector = lambda v: v.names_out
-        for name in names:
-            for node in self.node_iterate(self.names[name], selector):
+        for name_root in names:
+            for name, node in self.node_iterate(name, selector):
                 if node not in cache:
                     cache.add(node)
-                    yield node
+                    yield (name, node)
+
+    @property
+    def names_data(self):
+        return\
+            { name:node
+              for name, node
+              in self.names.items()
+              if node.data is not None
+            }
 
     def __len__(self):
-        return sum\
-            ( 1
-              for n
-              in self.names.values()
-              if n.data is not None
-            )
+        return len(self.names_data)
 
 
 class_sig_re = re.compile(r'''^([\w.]*\.)?    # module names
@@ -173,7 +177,10 @@ class_sig_re = re.compile(r'''^([\w.]*\.)?    # module names
                           ''', re.VERBOSE)
 
 
-ClassInfo = collections.namedtuple("ClassInfo", ["cls", "fullname", "tooltip"])
+ClassInfo = collections.namedtuple\
+    ( "ClassInfo"
+    , ["cls", "fullname", "baselist", "tooltip"]
+    )
 
 
 class InheritanceException(Exception):
@@ -193,8 +200,6 @@ class InheritanceGraph(object):
         If *show_builtins* is True, then Python builtins will be shown
         in the graph.
         """
-        self.show_builtins = show_builtins
-        self.private_bases = private_bases
         self.class_names = class_names
         classes = self._import_classes(class_names, currmodule)
         self.class_info = self._class_info(classes, show_builtins,
@@ -288,7 +293,10 @@ class InheritanceGraph(object):
 
             baselist = [self.class_name(base, parts) for base in cls.__bases__]
 
-            graph.node_add(ClassInfo(cls, fullname, tooltip), nodename, baselist)
+            graph.node_add\
+                ( ClassInfo(cls, fullname, baselist, tooltip)
+                , nodename, baselist
+                )
 
             for base in cls.__bases__:
                 if base not in cache:
@@ -363,6 +371,9 @@ class InheritanceGraph(object):
     builtin_node_attrs = {
         'style': [ 'dashed' ],
     }
+    express_edge_attrs = {
+        'style': [ 'dotted' ],
+    }
 
     def _attr_merge(self, *args):
         merged = {}
@@ -391,7 +402,7 @@ class InheritanceGraph(object):
     def generate_dot(self, name, urls={}, env=None,
                      graph_attrs_default={},
                      node_attrs_default={}, node_attrs_builtin={},
-                     edge_attrs_default={}):
+                     edge_attrs_default={}, edge_attrs_express={}):
         """Generate a graphviz dot graph from the classes that were passed in
         to __init__.
 
@@ -425,16 +436,24 @@ class InheritanceGraph(object):
                 , node_attrs_builtin
                 , env.config.inheritance_node_attrs_builtin if env else {}
                 )
+        attrs_edge_express = self._attr_merge\
+                ( attrs_edge_default
+                , self.express_edge_attrs
+                , edge_attrs_express
+                , env.config.inheritance_edge_attrs_express if env else {}
+                )
 
         res = []
         res.append('digraph %s {\n' % name)
         res.append(self._attr_format(attrs_graph_default, ";\n"))
 
         for name, node in self.class_info.names.items():
+            bases_linked = node.names_in
+            bases_actual = node.data.baselist
             cls = node.data.cls
             fullname = node.data.fullname
             tooltip = node.data.tooltip
-            bases = node.names_in
+
             # Write the node
             if cls in py_builtins:
                 attrs_node_current = attrs_node_builtin.copy()
@@ -444,14 +463,23 @@ class InheritanceGraph(object):
                 attrs_node_current['URL'] = '"%s"' % urls[fullname]
             if tooltip:
                 attrs_node_current['tooltip'] = tooltip
-            res.append('  "%s" [%s];\n' %
-                       (name, self._attr_format(attrs_node_current)))
+            res.append('  "{}" [{}];\n'.format\
+                ( name
+                , self._attr_format(attrs_node_current)
+                ))
 
             # Write the edges
-            for base_name in bases:
-                res.append('  "%s" -> "%s" [%s];\n' %
-                           (base_name, name,
-                            self._attr_format(attrs_edge_default)))
+            for basename in bases_linked:
+                if basename in bases_actual:
+                    attrs_edge_current = attrs_edge_default
+                else:
+                    attrs_edge_current = attrs_edge_express
+                res.append('  "{}" -> "{}" [{}];\n'.format\
+                    ( basename
+                    , name
+                    , self._attr_format(attrs_edge_current)
+                    ))
+
         res.append('}\n')
         return ''.join(res)
 
@@ -587,4 +615,5 @@ def setup(app):
     app.add_config_value('inheritance_node_attrs', {}, False),
     app.add_config_value('inheritance_edge_attrs', {}, False),
     app.add_config_value('inheritance_node_attrs_builtin', {}, False),
+    app.add_config_value('inheritance_edge_attrs_express', {}, False),
     return {'version': sphinx.__version__, 'parallel_read_safe': True}
