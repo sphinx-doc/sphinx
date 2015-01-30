@@ -875,13 +875,14 @@ More domains
 
 The sphinx-contrib_ repository contains more domains available as extensions;
 currently Ada_, CoffeeScript_, Erlang_, HTTP_, Lasso_, MATLAB_, PHP_, and Ruby_
-domains. Also available are domains for `Common Lisp`_, dqn_, Go_, Jinja_,
-Operation_, and Scala_.
+domains. Also available are domains for `Chapel`_, `Common Lisp`_, dqn_, Go_,
+Jinja_, Operation_, and Scala_.
 
 
 .. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/
 
 .. _Ada: https://pypi.python.org/pypi/sphinxcontrib-adadomain
+.. _Chapel: https://pypi.python.org/pypi/sphinxcontrib-chapeldomain
 .. _CoffeeScript: https://pypi.python.org/pypi/sphinxcontrib-coffee
 .. _Common Lisp: https://pypi.python.org/pypi/sphinxcontrib-cldomain
 .. _dqn: https://pypi.python.org/pypi/sphinxcontrib-dqndomain
