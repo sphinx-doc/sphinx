@@ -39,7 +39,8 @@ def check(name, input, output=None):
     ast.describe_signature([], 'lastIsName', None)
     ast.prefixedName = ast.name  # otherwise the get_id fails, it would be set
                                  # in handle_signarue
-    ast.get_id()
+    ast.get_id_v1()
+    ast.get_id_v2()
     #print ".. %s:: %s" % (name, input)
 
 def test_type_definitions():

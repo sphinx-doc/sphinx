@@ -7,10 +7,22 @@
 
     :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
+"""
+
+"""
+    Important note on ids:
+    Multiple id generation schemes are used due to backwards compatibility.
+    - v1: 1.2.3 <= version < 1.3
+          The style used before the rewrite.
+          It is not the actual old code, but a replication of the behaviour.
+    - v2: 1.3 <= version < now
+          Standardised mangling scheme from
+          http://mentorembedded.github.io/cxx-abi/abi.html#mangling
+          though not completely implemented.
+    All versions are generated and attached to elements. The newest is used for
+    the index. All of the versions should work as permalinks.
 
     See http://www.nongnu.org/hcb/ for the grammar.
-    See http://mentorembedded.github.io/cxx-abi/abi.html#mangling for the
-    inspiration for the id generation.
 
     common grammar things:
            simple-declaration
@@ -173,8 +185,87 @@ _operator_re = re.compile(r'''(?x)
     |   [!<>=/*%+|&^~-]=?
 ''')
 
-_id_prefix = '_CPP'
-_id_fundamental = {
+#-------------------------------------------------------------------------------
+# Id v1 constants
+#-------------------------------------------------------------------------------
+
+_id_prefix_v1 = '_CPP'
+_id_fundamental_v1 = {
+    'char': 'c',
+    'signed char': 'c',
+    'unsigned char': 'C',
+    'int': 'i',
+    'signed int': 'i',
+    'unsigned int': 'U',
+    'long': 'l',
+    'signed long': 'l',
+    'unsigned long': 'L',
+    'bool': 'b'
+}
+_id_shorthands_v1 = {
+    'std::string': 'ss',
+    'std::ostream': 'os',
+    'std::istream': 'is',
+    'std::iostream': 'ios',
+    'std::vector': 'v',
+    'std::map': 'm'
+}
+_id_operator_v1 = {
+    'new': 'new-operator',
+    'new[]': 'new-array-operator',
+    'delete': 'delete-operator',
+    'delete[]': 'delete-array-operator',
+    # the arguments will make the difference between unary and binary
+    # '+(unary)' : 'ps',
+    # '-(unary)' : 'ng',
+    # '&(unary)' : 'ad',
+    # '*(unary)' : 'de',
+    '~': 'inv-operator',
+    '+': 'add-operator',
+    '-': 'sub-operator',
+    '*': 'mul-operator',
+    '/': 'div-operator',
+    '%': 'mod-operator',
+    '&': 'and-operator',
+    '|': 'or-operator',
+    '^': 'xor-operator',
+    '=': 'assign-operator',
+    '+=': 'add-assign-operator',
+    '-=': 'sub-assign-operator',
+    '*=': 'mul-assign-operator',
+    '/=': 'div-assign-operator',
+    '%=': 'mod-assign-operator',
+    '&=': 'and-assign-operator',
+    '|=': 'or-assign-operator',
+    '^=': 'xor-assign-operator',
+    '<<': 'lshift-operator',
+    '>>': 'rshift-operator',
+    '<<=': 'lshift-assign-operator',
+    '>>=': 'rshift-assign-operator',
+    '==': 'eq-operator',
+    '!=': 'neq-operator',
+    '<': 'lt-operator',
+    '>': 'gt-operator',
+    '<=': 'lte-operator',
+    '>=': 'gte-operator',
+    '!': 'not-operator',
+    '&&': 'sand-operator',
+    '||': 'sor-operator',
+    '++': 'inc-operator',
+    '--': 'dec-operator',
+    ',': 'comma-operator',
+    '->*': 'pointer-by-pointer-operator',
+    '->': 'pointer-operator',
+    '()': 'call-operator',
+    '[]': 'subscript-operator'
+}
+
+#-------------------------------------------------------------------------------
+# Id v2 constants
+#-------------------------------------------------------------------------------
+
+_id_prefix_v2 = '_CPP'
+_id_fundamental_v2 = {
     # not all of these are actually parsed as fundamental types, TODO: do that
     'void': 'v',
     'bool': 'b',
@@ -214,7 +305,7 @@ _id_fundamental = {
     'decltype(auto)': 'Dc',
     'std::nullptr_t': 'Dn'
 }
-_id_operator = {
+_id_operator_v2 = {
     'new': 'nw',
     'new[]': 'na',
     'delete': 'dl',
@@ -294,8 +385,12 @@ class ASTBase(UnicodeMixin):
         """Clone a definition expression node."""
         return deepcopy(self)
 
-    def get_id(self):
-        """Return the id for the node."""
+    def get_id_v1(self):
+        """Return the v1 id for the node."""
+        raise NotImplementedError(repr(self))
+
+    def get_id_v2(self):
+        """Return the v2 id for the node."""
         raise NotImplementedError(repr(self))
 
     def get_name(self):
@@ -326,11 +421,17 @@ class ASTOperatorBuildIn(ASTBase):
     def __init__(self, op):
         self.op = op
 
-    def get_id(self):
-        if self.op not in _id_operator:
+    def get_id_v1(self):
+        if self.op not in _id_operator_v1:
             raise Exception('Internal error: Build-in operator "%s" can not '
                             'be mapped to an id.' % self.op)
-        return _id_operator[self.op]
+        return _id_operator_v1[self.op]
+
+    def get_id_v2(self):
+        if self.op not in _id_operator_v2:
+            raise Exception('Internal error: Build-in operator "%s" can not '
+                            'be mapped to an id.' % self.op)
+        return _id_operator_v2[self.op]
 
     def __unicode__(self):
         if self.op in ('new', 'new[]', 'delete', 'delete[]'):
@@ -357,8 +458,11 @@ class ASTOperatorType(ASTBase):
     def __unicode__(self):
         return u''.join(['operator ', text_type(self.type)])
 
-    def get_id(self):
-        return u'cv' + self.type.get_id()
+    def get_id_v1(self):
+        return u'castto-%s-operator' % self.type.get_id_v1()
+
+    def get_id_v2(self):
+        return u'cv' + self.type.get_id_v2()
 
     def get_name_no_template(self):
         return text_type(self)
@@ -379,7 +483,10 @@ class ASTTemplateArgConstant(ASTBase):
     def __unicode__(self):
         return text_type(self.value)
 
-    def get_id(self):
+    def get_id_v1(self):
+        return text_type(self).replace(u' ', u'-')
+
+    def get_id_v2(self):
         # TODO: doing this properly needs parsing of expressions, let's just
         # juse it verbatim for now
         return u'X' + text_type(self) + u'E'
@@ -394,7 +501,20 @@ class ASTNestedNameElement(ASTBase):
         self.identifier = identifier
         self.templateArgs = templateArgs
 
-    def get_id(self):
+    def get_id_v1(self):
+        res = []
+        if self.identifier == 'size_t':
+            res.append('s')
+        else:
+            res.append(self.identifier)
+        if self.templateArgs:
+            res.append(':')
+            for a in self.templateArgs:
+                res.append(a.get_id_v1())
+            res.append(':')
+        return u''.join(res)
+
+    def get_id_v2(self):
         res = []
         if self.identifier == "std":
             res.append(u'St')
@@ -404,7 +524,7 @@ class ASTNestedNameElement(ASTBase):
         if self.templateArgs:
             res.append('I')
             for a in self.templateArgs:
-                res.append(a.get_id())
+                res.append(a.get_id_v2())
             res.append('E')
         return u''.join(res)
 
@@ -462,12 +582,22 @@ class ASTNestedName(ASTBase):
     def name(self):
         return self
 
-    def get_id(self):
+    def get_id_v1(self):
+        tt = text_type(self)
+        if tt in _id_shorthands_v1:
+            return _id_shorthands_v1[tt]
+        else:
+            res = []
+            for n in self.names:
+                res.append(n.get_id_v1())
+            return u'::'.join(res)
+
+    def get_id_v2(self):
         res = []
         if len(self.names) > 1:
             res.append('N')
         for n in self.names:
-            res.append(n.get_id())
+            res.append(n.get_id_v2())
         if len(self.names) > 1:
             res.append('E')
         return u''.join(res)
@@ -530,13 +660,22 @@ class ASTTrailingTypeSpecFundamental(ASTBase):
     def __unicode__(self):
         return self.name
 
-    def get_id(self):
-        if self.name not in _id_fundamental:
+    def get_id_v1(self):
+        res = []
+        for a in self.name.split(' '):
+            if a in _id_fundamental_v1:
+                res.append(_id_fundamental_v1[a])
+            else:
+                res.append(a)
+        return u'-'.join(res)
+
+    def get_id_v2(self):
+        if self.name not in _id_fundamental_v2:
             raise Exception(
                 'Semi-internal error: Fundamental type "%s" can not be mapped '
                 'to an id. Is it a true fundamental type? If not so, the '
                 'parser should have rejected it.' % self.name)
-        return _id_fundamental[self.name]
+        return _id_fundamental_v2[self.name]
 
     def describe_signature(self, signode, mode, env):
         signode += nodes.Text(text_type(self.name))
@@ -551,8 +690,11 @@ class ASTTrailingTypeSpecName(ASTBase):
     def name(self):
         return self.nestedName
 
-    def get_id(self):
-        return self.nestedName.get_id()
+    def get_id_v1(self):
+        return self.nestedName.get_id_v1()
+
+    def get_id_v2(self):
+        return self.nestedName.get_id_v2()
 
     def __unicode__(self):
         res = []
@@ -574,11 +716,17 @@ class ASTFunctinoParameter(ASTBase):
         self.arg = arg
         self.ellipsis = ellipsis
 
-    def get_id(self):
+    def get_id_v1(self):
         if self.ellipsis:
             return 'z'
         else:
-            return self.arg.get_id()
+            return self.arg.get_id_v1()
+
+    def get_id_v2(self):
+        if self.ellipsis:
+            return 'z'
+        else:
+            return self.arg.get_id_v2()
 
     def __unicode__(self):
         if self.ellipsis:
@@ -606,7 +754,29 @@ class ASTParametersQualifiers(ASTBase):
         self.final = final
         self.initializer = initializer
 
-    def get_modifiers_id(self):
+    # Id v1 ------------------------------------------------------------------
+
+    def get_modifiers_id_v1(self):
+        res = []
+        if self.volatile:
+            res.append('V')
+        if self.const:
+            res.append('C')
+        if self.refQual == '&&':
+            res.append('O')
+        elif self.refQual == '&':
+            res.append('R')
+        return u''.join(res)
+
+    def get_param_id_v1(self):
+        if len(self.args) == 0:
+            return ''
+        else:
+            return u'__' + u'.'.join(a.get_id_v1() for a in self.args)
+
+    # Id v2 ------------------------------------------------------------------
+
+    def get_modifiers_id_v2(self):
         res = []
         if self.volatile:
             res.append('V')
@@ -618,11 +788,11 @@ class ASTParametersQualifiers(ASTBase):
             res.append('R')
         return u''.join(res)
 
-    def get_param_id(self):
+    def get_param_id_v2(self):
         if len(self.args) == 0:
             return 'v'
         else:
-            return u''.join(a.get_id() for a in self.args)
+            return u''.join(a.get_id_v2() for a in self.args)
 
     def __unicode__(self):
         res = []
@@ -706,13 +876,22 @@ class ASTDeclSpecs(ASTBase):
     def name(self):
         return self.trailingTypeSpec.name
 
-    def get_id(self):
+    def get_id_v1(self):
+        res = []
+        res.append(self.trailingTypeSpec.get_id_v1())
+        if self.volatile:
+            res.append('V')
+        if self.const:
+            res.append('C')
+        return u''.join(res)
+
+    def get_id_v2(self):
         res = []
         if self.volatile:
             res.append('V')
         if self.const:
             res.append('K')
-        res.append(self.trailingTypeSpec.get_id())
+        res.append(self.trailingTypeSpec.get_id_v2())
         return u''.join(res)
 
     def _print_visibility(self):
@@ -789,7 +968,15 @@ class ASTPtrOpPtr(ASTBase):
             res.append('const ')
         return u''.join(res)
 
-    def get_id(self):
+    def get_id_v1(self):
+        res = ['P']
+        if self.volatile:
+            res.append('V')
+        if self.const:
+            res.append('C')
+        return u''.join(res)
+
+    def get_id_v2(self):
         res = ['P']
         if self.volatile:
             res.append('V')
@@ -802,7 +989,10 @@ class ASTPtrOpRef(ASTBase):
     def __unicode__(self):
         return '&'
 
-    def get_id(self):
+    def get_id_v1(self):
+        return 'R'
+
+    def get_id_v2(self):
         return 'R'
 
 
@@ -810,7 +1000,10 @@ class ASTPtrOpParamPack(ASTBase):
     def __unicode__(self):
         return '...'
 
-    def get_id(self):
+    def get_id_v1(self):
+        return 'Dp'
+
+    def get_id_v2(self):
         return 'Dp'
 
 
@@ -821,7 +1014,10 @@ class ASTArray(ASTBase):
     def __unicode__(self):
         return u''.join(['[', text_type(self.size), ']'])
 
-    def get_id(self):
+    def get_id_v1(self):
+        return u'A'
+
+    def get_id_v2(self):
         # TODO: this should maybe be done differently
         return u'A' + text_type(self.size) + u'_'
 
@@ -840,23 +1036,47 @@ class ASTDeclerator(ASTBase):
     def name(self):
         return self.declId
 
-    def get_modifiers_id(self):  # only the modifiers for a function, e.g.,
+    # Id v1 ------------------------------------------------------------------
+
+    def get_modifiers_id_v1(self):  # only the modifiers for a function, e.g.,
         # cv-qualifiers
         for op in self.suffixOps:
             if isinstance(op, ASTParametersQualifiers):
-                return op.get_modifiers_id()
+                return op.get_modifiers_id_v1()
         raise Exception(
             "This should only be called on a function: %s" % text_type(self))
 
-    def get_param_id(self):  # only the parameters (if any)
+    def get_param_id_v1(self):  # only the parameters (if any)
         for op in self.suffixOps:
             if isinstance(op, ASTParametersQualifiers):
-                return op.get_param_id()
+                return op.get_param_id_v1()
         return ''
 
-    def get_ptr_suffix_id(self):  # only the ptr ops and array specifiers
+    def get_ptr_suffix_id_v1(self):  # only the ptr ops and array specifiers
         return u''.join(
-            a.get_id()
+            a.get_id_v1()
+            for a in self.ptrOps + self.suffixOps
+            if not isinstance(a, ASTParametersQualifiers))
+
+    # Id v2 ------------------------------------------------------------------
+
+    def get_modifiers_id_v2(self):  # only the modifiers for a function, e.g.,
+        # cv-qualifiers
+        for op in self.suffixOps:
+            if isinstance(op, ASTParametersQualifiers):
+                return op.get_modifiers_id_v2()
+        raise Exception(
+            "This should only be called on a function: %s" % text_type(self))
+
+    def get_param_id_v2(self):  # only the parameters (if any)
+        for op in self.suffixOps:
+            if isinstance(op, ASTParametersQualifiers):
+                return op.get_param_id_v2()
+        return ''
+
+    def get_ptr_suffix_id_v2(self):  # only the ptr ops and array specifiers
+        return u''.join(
+            a.get_id_v2()
             for a in self.ptrOps + self.suffixOps
             if not isinstance(a, ASTParametersQualifiers))
 
@@ -916,23 +1136,41 @@ class ASTType(ASTBase):
             name = self.declSpecs.name
         return name
 
-    def get_id(self):
+    def get_id_v1(self):
         res = []
         if self.objectType:  # needs the name
-            res.append(_id_prefix)
             if self.objectType == 'function':  # also modifiers
-                res.append(self.decl.get_modifiers_id())
-                res.append(self.prefixedName.get_id())
-                res.append(self.decl.get_param_id())
+                res.append(self.name.get_id_v1())
+                res.append(self.decl.get_param_id_v1())
+                res.append(self.decl.get_modifiers_id_v1())
             elif self.objectType == 'type':  # just the name
-                res.append(self.prefixedName.get_id())
+                res.append(self.name.get_id_v1())
             else:
                 print(self.objectType)
                 assert False
         else:  # only type encoding
-            res.append(self.decl.get_ptr_suffix_id())
-            res.append(self.declSpecs.get_id())
-            res.append(self.decl.get_param_id())
+            res.append(self.declSpecs.get_id_v1())
+            res.append(self.decl.get_ptr_suffix_id_v1())
+            res.append(self.decl.get_param_id_v1())
+        return u''.join(res)
+
+    def get_id_v2(self):
+        res = []
+        if self.objectType:  # needs the name
+            res.append(_id_prefix_v2)
+            if self.objectType == 'function':  # also modifiers
+                res.append(self.decl.get_modifiers_id_v2())
+                res.append(self.prefixedName.get_id_v2())
+                res.append(self.decl.get_param_id_v2())
+            elif self.objectType == 'type':  # just the name
+                res.append(self.prefixedName.get_id_v2())
+            else:
+                print(self.objectType)
+                assert False
+        else:  # only type encoding
+            res.append(self.decl.get_ptr_suffix_id_v2())
+            res.append(self.declSpecs.get_id_v2())
+            res.append(self.decl.get_param_id_v2())
         return u''.join(res)
 
     def __unicode__(self):
@@ -963,11 +1201,17 @@ class ASTTypeWithInit(ASTBase):
     def name(self):
         return self.type.name
 
-    def get_id(self):
+    def get_id_v1(self):
         if self.objectType == 'member':
-            return _id_prefix + self.prefixedName.get_id()
+            return self.name.get_id_v1() + u'__' + self.type.get_id_v1()
         else:
-            return self.type.get_id()
+            return self.type.get_id_v1()
+
+    def get_id_v2(self):
+        if self.objectType == 'member':
+            return _id_prefix_v2 + self.prefixedName.get_id_v2()
+        else:
+            return self.type.get_id_v2()
 
     def __unicode__(self):
         res = []
@@ -1010,8 +1254,15 @@ class ASTClass(ASTBase):
         self.name = name
         self.bases = bases
 
-    def get_id(self):
-        return _id_prefix + self.prefixedName.get_id()
+    def get_id_v1(self):
+        return self.name.get_id_v1()
+        #name = _id_shortwords.get(self.name)
+        #if name is not None:
+        #    return name
+        #return self.name.replace(u' ', u'-')
+
+    def get_id_v2(self):
+        return _id_prefix_v2 + self.prefixedName.get_id_v2()
 
     def __unicode__(self):
         res = []
@@ -1645,14 +1896,22 @@ class CPPObject(ObjectDescription):
     ]
 
     def add_target_and_index(self, ast, sig, signode):
-        theid = ast.get_id()
+        ids = [ # the newest should be first
+               ast.get_id_v2(),
+               ast.get_id_v1()
+               ]
+        theid = ids[1] # TODO: change this to ids[0] when testing is done
         name = text_type(ast.prefixedName)
         if theid not in self.state.document.ids:
-            # the name is not unique, the first one will win
+            # if the name is not unique, the first one will win
             objects = self.env.domaindata['cpp']['objects']
             if name not in objects:
                 signode['names'].append(name)
-            signode['ids'].append(theid)
+            else:
+                pass
+                #print("[CPP] non-unique name:", name)
+            for id in ids:
+                signode['ids'].append(id)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
             if name not in objects:
