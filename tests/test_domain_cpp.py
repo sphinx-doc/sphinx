@@ -5,7 +5,7 @@
 
     Tests the C++ Domain
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -63,6 +63,8 @@ def test_type_definitions():
     check("type",
           "public MyContainer::const_iterator",
           "MyContainer::const_iterator")
+    # test decl specs on right
+    check("type", "bool const b")
 
     check('member',
           '  const  std::string  &  name = 42',

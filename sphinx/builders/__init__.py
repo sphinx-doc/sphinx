@@ -5,7 +5,7 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -387,6 +387,9 @@ class Builder(object):
         # make sure all threads have finished
         self.info(bold('waiting for workers...'))
         tasks.join()
+
+        for warning in warnings:
+            self.warn(*warning)
 
     def prepare_writing(self, docnames):
         """A place where you can add logic before :meth:`write_doc` is run"""

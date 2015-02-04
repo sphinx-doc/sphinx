@@ -7,7 +7,7 @@
 
     Gracefully adapted from the TextPress system by Armin.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -218,7 +218,7 @@ class Sphinx(object):
                     self.env.domains[domain] = self.domains[domain](self.env)
                 self.info('done')
             except Exception as err:
-                if type(err) is IOError and err.errno == ENOENT:
+                if isinstance(err, IOError) and err.errno == ENOENT:
                     self.info('not yet created')
                 else:
                     self.info('failed: %s' % err)

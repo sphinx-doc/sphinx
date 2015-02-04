@@ -303,10 +303,19 @@ Project information
 
    .. versionadded:: 0.5
 
+.. confval:: highlight_options
+
+   A dictionary of options that modify how the lexer specified by
+   :confval:`highlight_language` generates highlighted source code. These are
+   lexer-specific; for the options understood by each, see the
+   `Pygments documentation <http://pygments.org/docs/lexers/>`_.
+
+   .. versionadded:: 1.3
+
 .. confval:: pygments_style
 
-   The style name to use for Pygments highlighting of source code.  The default
-   style is selected by the theme for HTML output, and ``'sphinx'`` otherwise.
+   The style name to use for Pygments highlighting of source code.  If not set,
+   either the theme's default style or ``'sphinx'`` is selected for HTML output.
 
    .. versionchanged:: 0.3
       If the value is a fully-qualified name of a custom Pygments style class,

@@ -5,7 +5,7 @@
 
     Test the Pygments highlighting bridge.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -60,6 +60,12 @@ def test_detect_interactive():
     for block in blocks:
         ret = bridge.highlight_block(block.lstrip(), 'python')
         assert ret.startswith("<div class=\"highlight\">")
+
+
+def test_lexer_options():
+    bridge = PygmentsBridge('html')
+    ret = bridge.highlight_block('//comment', 'php', opts={'startinline' : True})
+    assert '<span class="c1">//comment</span>' in ret
 
 
 def test_set_formatter():

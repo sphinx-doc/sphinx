@@ -5,7 +5,7 @@
 
     The C++ language domain.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -858,11 +858,8 @@ class ASTParametersQualifiers(ASTBase):
             _add_text(signode, '= ' + text_type(self.initializer))
 
 
-class ASTDeclSpecs(ASTBase):
-    def __init__(self, outer, visibility, storage, inline, virtual, explicit,
-                 constexpr, volatile, const, trailing):
-        self.outer = outer
-        self.visibility = visibility
+class ASTDeclSpecsSimple(ASTBase):
+    def __init__(self, storage, inline, virtual, explicit, constexpr, volatile, const):
         self.storage = storage
         self.inline = inline
         self.virtual = virtual
@@ -870,40 +867,9 @@ class ASTDeclSpecs(ASTBase):
         self.constexpr = constexpr
         self.volatile = volatile
         self.const = const
-        self.trailingTypeSpec = trailing
-
-    @property
-    def name(self):
-        return self.trailingTypeSpec.name
-
-    def get_id_v1(self):
-        res = []
-        res.append(self.trailingTypeSpec.get_id_v1())
-        if self.volatile:
-            res.append('V')
-        if self.const:
-            res.append('C')
-        return u''.join(res)
-
-    def get_id_v2(self):
-        res = []
-        if self.volatile:
-            res.append('V')
-        if self.const:
-            res.append('K')
-        res.append(self.trailingTypeSpec.get_id_v2())
-        return u''.join(res)
-
-    def _print_visibility(self):
-        return (self.visibility and
-                not (
-                    self.outer in ('type', 'member', 'function') and
-                    self.visibility == 'public'))
 
     def __unicode__(self):
         res = []
-        if self._print_visibility():
-            res.append(self.visibility)
         if self.storage:
             res.append(self.storage)
         if self.inline:
@@ -918,21 +884,13 @@ class ASTDeclSpecs(ASTBase):
             res.append('volatile')
         if self.const:
             res.append('const')
-        if self.trailingTypeSpec:
-            res.append(text_type(self.trailingTypeSpec))
         return u' '.join(res)
 
-    def describe_signature(self, signode, mode, env):
-        _verify_description_mode(mode)
-        modifiers = []
-
+    def describe_signature(self, modifiers):
         def _add(modifiers, text):
             if len(modifiers) > 0:
                 modifiers.append(nodes.Text(' '))
             modifiers.append(addnodes.desc_annotation(text, text))
-
-        if self._print_visibility():
-            _add(modifiers, self.visibility)
         if self.storage:
             _add(modifiers, self.storage)
         if self.inline:
@@ -947,13 +905,87 @@ class ASTDeclSpecs(ASTBase):
             _add(modifiers, 'volatile')
         if self.const:
             _add(modifiers, 'const')
+
+class ASTDeclSpecs(ASTBase):
+    def __init__(self, outer, visibility, leftSpecs, rightSpecs, trailing):
+        self.outer = outer
+        self.visibility = visibility
+        self.leftSpecs = leftSpecs
+        self.rightSpecs = rightSpecs
+        self.trailingTypeSpec = trailing
+
+    @property
+    def name(self):
+        return self.trailingTypeSpec.name
+
+    def get_id_v1(self):
+        res = []
+        res.append(self.trailingTypeSpec.get_id_v1())
+        if self.leftSpecs.volatile or self.rightSpecs.volatile:
+            res.append('V')
+        if self.leftSpecs.const or self.rightSpecs.volatile:
+            res.append('C')
+        return u''.join(res)
+
+    def get_id_v2(self):
+        res = []
+        if self.leftSpecs.volatile or self.rightSpecs.volatile:
+            res.append('V')
+        if self.leftSpecs.const or self.rightSpecs.volatile:
+            res.append('K')
+        res.append(self.trailingTypeSpec.get_id_v2())
+        return u''.join(res)
+
+    def _print_visibility(self):
+        return (self.visibility and
+                not (self.outer in ('type', 'member', 'function') and
+                     self.visibility == 'public'))
+
+    def __unicode__(self):
+        res = []
+        if self._print_visibility():
+            res.append(self.visibility)
+        l = text_type(self.leftSpecs)
+        if len(l) > 0:
+            if len(res) > 0:
+                res.append(" ")
+            res.append(l)
+        if self.trailingTypeSpec:
+            if len(res) > 0:
+                res.append(" ")
+            res.append(text_type(self.trailingTypeSpec))
+            r = text_type(self.rightSpecs)
+            if len(r) > 0:
+                if len(res) > 0:
+                    res.append(" ")
+                res.append(r)
+        return "".join(res)
+
+    def describe_signature(self, signode, mode, env):
+        _verify_description_mode(mode)
+        modifiers = []
+
+        def _add(modifiers, text):
+            if len(modifiers) > 0:
+                modifiers.append(nodes.Text(' '))
+            modifiers.append(addnodes.desc_annotation(text, text))
+
+        if self._print_visibility():
+            _add(modifiers, self.visibility)
+        self.leftSpecs.describe_signature(modifiers)
+
         for m in modifiers:
             signode += m
         if self.trailingTypeSpec:
             if len(modifiers) > 0:
                 signode += nodes.Text(' ')
             self.trailingTypeSpec.describe_signature(signode, mode, env)
-
+            modifiers = []
+            self.rightSpecs.describe_signature(modifiers)
+            if len(modifiers) > 0:
+                signode += nodes.Text(' ')
+            for m in modifiers:
+                signode += m
 
 class ASTPtrOpPtr(ASTBase):
     def __init__(self, volatile, const):
@@ -1189,7 +1221,6 @@ class ASTType(ASTBase):
                 len(text_type(self.declSpecs)) > 0):
             signode += nodes.Text(' ')
         self.decl.describe_signature(signode, mode, env)
-
 
 class ASTTypeWithInit(ASTBase):
     def __init__(self, type, init):
@@ -1588,20 +1619,8 @@ class DefinitionParser(object):
             args, volatile, const, refQual, exceptionSpec, override, final,
             initializer)
 
-    def _parse_decl_specs(self, outer, typed=True):
-        """
-        visibility storage-class-specifier function-specifier "constexpr"
-        "volatile" "const" trailing-type-specifier
-
-        storage-class-specifier -> "static" (only for member_object and
-        function_object)
-
-        function-specifier -> "inline" | "virtual" | "explicit" (only for
-        function_object)
-
-        "constexpr" (only for member_object and function_object)
-        """
-        visibility = None
+    def _parse_decl_specs_simple(self, outer, typed):
+        """Just parse the simple ones."""
         storage = None
         inline = None
         virtual = None
@@ -1609,12 +1628,6 @@ class DefinitionParser(object):
         constexpr = None
         volatile = None
         const = None
-
-        if outer:
-            self.skip_ws()
-            if self.match(_visibility_re):
-                visibility = self.matched_text
-
         while 1:  # accept any permutation of a subset of some decl-specs
             self.skip_ws()
             if not storage:
@@ -1660,14 +1673,37 @@ class DefinitionParser(object):
                 if const:
                     continue
             break
+        return ASTDeclSpecsSimple(storage, inline, virtual, explicit, constexpr,
+            volatile, const)
+
+    def _parse_decl_specs(self, outer, typed=True):
+        """
+        visibility storage-class-specifier function-specifier "constexpr"
+        "volatile" "const" trailing-type-specifier
+
+        storage-class-specifier -> "static" (only for member_object and
+        function_object)
+
+        function-specifier -> "inline" | "virtual" | "explicit" (only for
+        function_object)
+
+        "constexpr" (only for member_object and function_object)
+        """
+        visibility = None
+        leftSepcs = None
+        rightSpecs = None
+        if outer:
+            self.skip_ws()
+            if self.match(_visibility_re):
+                visibility = self.matched_text
+        leftSpecs = self._parse_decl_specs_simple(outer, typed)
 
         if typed:
             trailing = self._parse_trailing_type_spec()
+            rightSpecs = self._parse_decl_specs_simple(outer, typed)
         else:
             trailing = None
-        return ASTDeclSpecs(
-            outer, visibility, storage, inline, virtual, explicit, constexpr,
-            volatile, const, trailing)
+        return ASTDeclSpecs(outer, visibility, leftSpecs, rightSpecs, trailing)
 
     def _parse_declerator(self, named, paramMode=None, typed=True):
         if paramMode:

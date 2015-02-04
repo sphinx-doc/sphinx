@@ -9,8 +9,22 @@ Incompatible changes
 Features added
 --------------
 
+* Added ``highlight_options`` configuration value.
+* The ``language`` config value is now available in the HTML templates.
+* The ``env-updated`` event can now return a value, which is interpreted
+  as an iterable of additional docnames that need to be rewritten.
+
 Bugs fixed
 ----------
+
+* LaTeX writer now generates correct markup for cells spanning multiple rows.
+* #1674: Do not crash if a module's ``__all__`` is not a list of strings.
+* #1629: Use VerbatimBorderColor to add frame to code-block in LaTeX
+* On windows, make-mode didn't work on Win32 platform if sphinx was invoked as
+  ``python sphinx-build.py``.
+* #1687: linkcheck now treats 401 Unauthorized responses as "working".
+* #1690: toctrees with ``glob`` option now can also contain entries for single
+  documents with explicit title.
 
 
 Release 1.3b2 (released Dec 5, 2014)
@@ -224,6 +238,10 @@ Bugs fixed
 * #1585: Autosummary of modules broken in Sphinx-1.2.3.
 * #1610: Sphinx cause AttributeError when MeCab search option is enabled and
   python-mecab is not installed.
+* #1674: Do not crash if a module's ``__all__`` is not a list of strings.
+* #1673: Fix crashes with :confval:`nitpick_ignore` and ``:doc:`` references.
+* #1686: ifconfig directive doesn't care about default config values.
+* #1642: Fix only one search result appearing in Chrome.
 
 Documentation
 -------------

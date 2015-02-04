@@ -5,7 +5,7 @@
 
     Several HTML builders.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,7 +17,7 @@ import posixpath
 from os import path
 from hashlib import md5
 
-from six import iteritems, itervalues, text_type, string_types
+from six import iteritems, text_type, string_types
 from six.moves import cPickle as pickle
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
@@ -268,7 +268,8 @@ class StandaloneHTMLBuilder(Builder):
         # html_domain_indices can be False/True or a list of index names
         indices_config = self.config.html_domain_indices
         if indices_config:
-            for domain in itervalues(self.env.domains):
+            for domain_name in sorted(self.env.domains):
+                domain = self.env.domains[domain_name]
                 for indexcls in domain.indices:
                     indexname = '%s-%s' % (domain.name, indexcls.name)
                     if isinstance(indices_config, list):
@@ -337,6 +338,7 @@ class StandaloneHTMLBuilder(Builder):
             show_source = self.config.html_show_sourcelink,
             file_suffix = self.out_suffix,
             script_files = self.script_files,
+            language = self.config.language,
             css_files = self.css_files,
             sphinx_version = __version__,
             style = stylename,
@@ -816,7 +818,7 @@ class StandaloneHTMLBuilder(Builder):
             compressor = zlib.compressobj(9)
             for domainname, domain in iteritems(self.env.domains):
                 for name, dispname, type, docname, anchor, prio in \
-                        domain.get_objects():
+                        sorted(domain.get_objects()):
                     if anchor.endswith(name):
                         # this can shorten the inventory by as much as 25%
                         anchor = anchor[:-len(name)] + '$'

@@ -5,7 +5,7 @@
 
     Test the BuildEnvironment class.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -106,13 +106,12 @@ def test_env_read_docs():
     assert len(read_docnames) > 2 and read_docnames == sorted(read_docnames)
 
     def on_env_read_docs_2(app, env, docnames):
-        docnames.reverse()
+        docnames.remove('images')
 
     app.connect('env-before-read-docs', on_env_read_docs_2)
 
     read_docnames = env.update(app.config, app.srcdir, app.doctreedir, app)
-    reversed_read_docnames = sorted(read_docnames, reverse=True)
-    assert len(read_docnames) > 2 and read_docnames == reversed_read_docnames
+    assert len(read_docnames) == 2
 
 
 def test_object_inventory():

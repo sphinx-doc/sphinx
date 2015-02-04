@@ -5,7 +5,7 @@
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,6 +14,7 @@ import os
 import sys
 import time
 import types
+import bisect
 import codecs
 import imghdr
 import string
@@ -589,8 +590,12 @@ class BuildEnvironment:
                       self.doc2path(config.master_doc))
 
         self.app = None
-        app.emit('env-updated', self)
-        return docnames
+
+        for retval in app.emit('env-updated', self):
+            if retval is not None:
+                docnames.extend(retval)
+
+        return sorted(docnames)
 
     def _read_serial(self, docnames, app):
         for docname in app.status_iterator(docnames, 'reading sources... ',
@@ -1521,7 +1526,8 @@ class BuildEnvironment:
                 if (dtype, target) in self._nitpick_ignore:
                     warn = False
                 # for "std" types also try without domain name
-                if domain.name == 'std' and (typ, target) in self._nitpick_ignore:
+                if (not domain or domain.name == 'std') and \
+                   (typ, target) in self._nitpick_ignore:
                     warn = False
         if not warn:
             return
@@ -1795,7 +1801,8 @@ class BuildEnvironment:
                 except NoUri:
                     pass
                 else:
-                    entry[0].append((main, uri))
+                    # maintain links in sorted/deterministic order
+                    bisect.insort(entry[0], (main, uri))
 
         for fn, entries in iteritems(self.indexentries):
             # new entry types must be listed in directives/other.py!
@@ -1833,8 +1840,10 @@ class BuildEnvironment:
         def keyfunc(entry, lcletters=string.ascii_lowercase + '_'):
             lckey = unicodedata.normalize('NFD', entry[0].lower())
             if lckey[0:1] in lcletters:
-                return chr(127) + lckey
-            return lckey
+                lckey = chr(127) + lckey
+            # ensure a determinstic order *within* letters by also sorting on
+            # the entry itself
+            return (lckey, entry[0])
         newlist = sorted(new.items(), key=keyfunc)
 
         if group_entries:

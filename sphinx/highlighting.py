@@ -5,7 +5,7 @@
 
     Highlight code blocks using Pygments.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -96,7 +96,7 @@ class PygmentsBridge(object):
             source = source.translate(escape_hl_chars)
             # then, escape all characters nonrepresentable in LaTeX
             source = source.translate(tex_hl_escape_map_new)
-            return '\\begin{Verbatim}[frame=single,commandchars=\\\\\\{\\}]\n' + \
+            return '\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n' + \
                    source + '\\end{Verbatim}\n'
 
     def try_parse(self, src):
@@ -134,7 +134,7 @@ class PygmentsBridge(object):
         else:
             return True
 
-    def highlight_block(self, source, lang, warn=None, force=False, **kwargs):
+    def highlight_block(self, source, lang, opts=None, warn=None, force=False, **kwargs):
         if not isinstance(source, text_type):
             source = source.decode()
 
@@ -164,7 +164,7 @@ class PygmentsBridge(object):
                 lexer = lexers[lang]
             else:
                 try:
-                    lexer = lexers[lang] = get_lexer_by_name(lang)
+                    lexer = lexers[lang] = get_lexer_by_name(lang, **opts or {})
                 except ClassNotFound:
                     if warn:
                         warn('Pygments lexer name %r is not known' % lang)
@@ -190,8 +190,6 @@ class PygmentsBridge(object):
         if self.dest == 'html':
             return hlsource
         else:
-            hlsource = re.sub(r'(?<=\\begin{Verbatim}\[)(?=commandchars)',
-                              r'frame=single,', hlsource)
             if not isinstance(hlsource, text_type):  # Py2 / Pygments < 1.6
                 hlsource = hlsource.decode()
             return hlsource.translate(tex_hl_escape_map_new)

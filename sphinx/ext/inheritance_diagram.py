@@ -32,7 +32,7 @@ r"""
     The graph is inserted as a PNG+image map into HTML and a PDF in
     LaTeX.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -186,7 +186,7 @@ class InheritanceGraph(object):
         for cls in classes:
             recurse(cls)
 
-        return all_classes.values()
+        return list(all_classes.values())
 
     def class_name(self, cls, parts=0):
         """Given a class object, return a fully-qualified name.

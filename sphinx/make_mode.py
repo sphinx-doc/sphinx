@@ -11,7 +11,7 @@
     This is in its own module so that importing it is fast.  It should not
     import the main Sphinx modules (like sphinx.applications, sphinx.builders).
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -251,11 +251,15 @@ class Make(object):
             doctreedir = self.builddir_join('doctrees')
 
         orig_cmd = sys.argv[0]
-        if orig_cmd.endswith('.exe'):
+        if sys.platform == 'win32' and orig_cmd.endswith('.exe'):
+            # win32: 'sphinx-build.exe'
             cmd = [orig_cmd]
-        elif sys.platform == 'win32':
+        elif sys.platform == 'win32' and os.path.splitext(orig_cmd)[1] == '':
+            # win32: 'sphinx-build'  without extension
             cmd = [orig_cmd + '.exe']
-        else:  # ex. 'sphinx-build' or 'sphinx-build.py'
+        else:
+            # win32: 'sphinx-build.py'
+            # linux, mac: 'sphinx-build' or 'sphinx-build.py'
             cmd = [sys.executable, orig_cmd]
 
         return call(cmd + ['-b', builder] + opts +

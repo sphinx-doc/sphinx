@@ -7,7 +7,7 @@
     Classes for docstring parsing and formatting.
 
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -23,8 +23,9 @@ from sphinx.util.pycompat import UnicodeMixin
 
 
 _directive_regex = re.compile(r'\.\. \S+::')
-_google_untyped_arg_regex = re.compile(r'\s*(\w+)\s*:\s*(.*)')
-_google_typed_arg_regex = re.compile(r'\s*(\w+)\s*\(\s*(.+?)\s*\)\s*:\s*(.*)')
+_google_untyped_arg_regex = re.compile(r'\s*(\*?\*?\w+)\s*:\s*(.*)')
+_google_typed_arg_regex = re.compile(r'\s*(\*?\*?\w+)\s*\(\s*(.+?)\s*\)\s*:'
+                                     r'\s*(.*)')
 
 
 class GoogleDocstring(UnicodeMixin):
@@ -90,6 +91,7 @@ class GoogleDocstring(UnicodeMixin):
     <BLANKLINE>
     :returns: Description of return value.
     :rtype: str
+    <BLANKLINE>
 
     """
     def __init__(self, docstring, config=None, app=None, what='', name='',
@@ -215,6 +217,11 @@ class GoogleDocstring(UnicodeMixin):
                 _name = match.group(1)
                 _desc = match.group(2)
 
+        if _name[:2] == '**':
+            _name = r'\*\*'+_name[2:]
+        elif _name[:1] == '*':
+            _name = r'\*'+_name[1:]
+
         if prefer_type and not _type:
             _type, _name = _name, _type
         indent = self._get_indent(line) + 1
@@ -254,6 +261,10 @@ class GoogleDocstring(UnicodeMixin):
         else:
             return []
 
+    def _consume_usage_section(self):
+        lines = self._dedent(self._consume_to_next_section())
+        return lines
+
     def _consume_section_header(self):
         section = next(self._line_iter)
         stripped_section = section.strip(':')
@@ -291,11 +302,10 @@ class GoogleDocstring(UnicodeMixin):
                 padding = ' ' * len(prefix)
             result_lines = []
             for i, line in enumerate(lines):
-                if line:
-                    if i == 0:
-                        result_lines.append(prefix + line)
-                    else:
-                        result_lines.append(padding + line)
+                if i == 0:
+                    result_lines.append((prefix + line).rstrip())
+                elif line:
+                    result_lines.append(padding + line)
                 else:
                     result_lines.append('')
             return result_lines
@@ -443,6 +453,13 @@ class GoogleDocstring(UnicodeMixin):
     def _parse_examples_section(self, section):
         use_admonition = self._config.napoleon_use_admonition_for_examples
         return self._parse_generic_section(section, use_admonition)
+
+    def _parse_usage_section(self, section):
+        header = ['.. rubric:: Usage:', '']
+        block = ['.. code-block:: python', '']
+        lines = self._consume_usage_section()
+        lines = self._indent(lines, 3)
+        return header + block + lines + ['']
 
     def _parse_generic_section(self, section, use_admonition):
         lines = self._strip_empty(self._consume_to_next_section())
@@ -664,6 +681,7 @@ class NumpyDocstring(GoogleDocstring):
     <BLANKLINE>
     :returns: Description of return value.
     :rtype: str
+    <BLANKLINE>
 
     Methods
     -------

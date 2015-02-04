@@ -5,7 +5,7 @@
 
     Build configuration file handling.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -61,6 +61,7 @@ class Config(object):
         show_authors = (False, 'env'),
         pygments_style = (None, 'html'),
         highlight_language = ('python', 'env'),
+        highlight_options = ({}, 'env'),
         templates_path = ([], 'html'),
         template_bridge = (None, 'html'),
         keep_warnings = (False, 'env'),

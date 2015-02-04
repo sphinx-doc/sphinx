@@ -16,7 +16,7 @@
     namespace of the project configuration (that is, all variables from
     ``conf.py`` are available.)
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -49,7 +49,8 @@ class IfConfig(Directive):
 
 
 def process_ifconfig_nodes(app, doctree, docname):
-    ns = app.config.__dict__.copy()
+    ns = {k: app.config[k] for k in app.config.values}
+    ns.update(app.config.__dict__.copy())
     ns['builder'] = app.builder.name
     for node in doctree.traverse(ifconfig):
         try:

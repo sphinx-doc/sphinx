@@ -5,9 +5,11 @@
 
     Helpers for inspecting Python modules.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+import re
 
 # this imports the standard library inspect module without resorting to
 # relatively import this module
@@ -17,6 +19,8 @@ from six import PY3, binary_type
 from six.moves import builtins
 
 from sphinx.util import force_decode
+
+memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>$)')
 
 
 if PY3:
@@ -123,14 +127,17 @@ def safe_getmembers(object, predicate=None, attr_getter=safe_getattr):
     return results
 
 
-def safe_repr(object):
+def object_description(object):
     """A repr() implementation that returns text safe to use in reST context."""
     try:
         s = repr(object)
     except Exception:
         raise ValueError
     if isinstance(s, binary_type):
-        return force_decode(s, None).replace('\n', ' ')
+        s = force_decode(s, None)
+    # Strip non-deterministic memory addresses such as
+    # ``<__main__.A at 0x7f68cb685710>``
+    s = memory_address_re.sub('', s)
     return s.replace('\n', ' ')
 
 
