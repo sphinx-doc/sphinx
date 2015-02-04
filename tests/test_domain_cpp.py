@@ -62,6 +62,8 @@ def test_type_definitions():
     check("type",
           "public MyContainer::const_iterator",
           "MyContainer::const_iterator")
+    # test decl specs on right
+    check("type", "bool const b")
 
     check('member',
           '  const  std::string  &  name = 42',
