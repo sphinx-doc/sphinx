@@ -137,9 +137,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
 
         new_files.append(fn)
 
-        f = open(fn, 'w')
-
-        try:
+        with open(fn, 'w') as f:
             doc = get_documenter(obj, parent)
 
             if template_name is not None:
@@ -201,8 +199,6 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
 
             rendered = template.render(**ns)
             f.write(rendered)
-        finally:
-            f.close()
 
     # descend recursively to new files
     if new_files:
@@ -221,11 +217,12 @@ def find_autosummary_in_files(filenames):
     """
     documented = []
     for filename in filenames:
-        f = open(filename, 'r')
-        lines = f.read().splitlines()
-        documented.extend(find_autosummary_in_lines(lines, filename=filename))
-        f.close()
+        with open(filename, 'r', encoding='utf-8') as f:
+            lines = f.read().splitlines()
+            documented.extend(find_autosummary_in_lines(lines,
+                                                        filename=filename))
     return documented
+
 
 def find_autosummary_in_docstring(name, module=None, filename=None):
     """Find out what items are documented in the given object's docstring.
@@ -244,6 +241,7 @@ def find_autosummary_in_docstring(name, module=None, filename=None):
         print("Failed to import '%s'; the module executes module level "
               "statement and it might call sys.exit()." % name)
     return []
+
 
 def find_autosummary_in_lines(lines, module=None, filename=None):
     """Find out what items appear in autosummary:: directives in the
