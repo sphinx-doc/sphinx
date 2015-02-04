@@ -261,6 +261,10 @@ class GoogleDocstring(UnicodeMixin):
         else:
             return []
 
+    def _consume_usage_section(self):
+        lines = self._dedent(self._consume_to_next_section())
+        return lines
+
     def _consume_section_header(self):
         section = next(self._line_iter)
         stripped_section = section.strip(':')
@@ -449,6 +453,13 @@ class GoogleDocstring(UnicodeMixin):
     def _parse_examples_section(self, section):
         use_admonition = self._config.napoleon_use_admonition_for_examples
         return self._parse_generic_section(section, use_admonition)
+
+    def _parse_usage_section(self, section):
+        header = ['.. rubric:: Usage:', '']
+        block = ['.. code-block:: python', '']
+        lines = self._consume_usage_section()
+        lines = self._indent(lines, 3)
+        return header + block + lines + ['']
 
     def _parse_generic_section(self, section, use_admonition):
         lines = self._strip_empty(self._consume_to_next_section())
