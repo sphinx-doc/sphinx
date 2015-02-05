@@ -83,6 +83,7 @@ def test_type_definitions():
     x = 'std::vector<std::pair<std::string, int>> &module::test(register ' \
         'foo, bar, std::string baz = "foobar, blah, bleh") const = 0'
     check('function', x)
+    check('function', 'void f(std::pair<A, B>)')
     check('function', 'explicit module::myclass::foo::foo()')
     check('function', 'module::myclass::foo::~foo()')
     check('function', 'int printf(const char *fmt, ...)')

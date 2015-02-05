@@ -509,8 +509,7 @@ class ASTNestedNameElement(ASTBase):
             res.append(self.identifier)
         if self.templateArgs:
             res.append(':')
-            for a in self.templateArgs:
-                res.append(a.get_id_v1())
+            res.append(u'.'.join(a.get_id_v1() for a in self.templateArgs))
             res.append(':')
         return u''.join(res)
 
@@ -923,7 +922,7 @@ class ASTDeclSpecs(ASTBase):
         res.append(self.trailingTypeSpec.get_id_v1())
         if self.leftSpecs.volatile or self.rightSpecs.volatile:
             res.append('V')
-        if self.leftSpecs.const or self.rightSpecs.volatile:
+        if self.leftSpecs.const or self.rightSpecs.const:
             res.append('C')
         return u''.join(res)
 
@@ -1175,6 +1174,10 @@ class ASTType(ASTBase):
                 res.append(self.name.get_id_v1())
                 res.append(self.decl.get_param_id_v1())
                 res.append(self.decl.get_modifiers_id_v1())
+                if (self.declSpecs.leftSpecs.constexpr
+                    or (self.declSpecs.rightSpecs
+                        and self.declSpecs.rightSpecs.constexpr)):
+                    res.append('CE')
             elif self.objectType == 'type':  # just the name
                 res.append(self.name.get_id_v1())
             else:
@@ -1936,7 +1939,7 @@ class CPPObject(ObjectDescription):
                ast.get_id_v2(),
                ast.get_id_v1()
                ]
-        theid = ids[1] # TODO: change this to ids[0] when testing is done
+        theid = ids[1] # TODO: change to [0] before final version
         name = text_type(ast.prefixedName)
         if theid not in self.state.document.ids:
             # if the name is not unique, the first one will win
