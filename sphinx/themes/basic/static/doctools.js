@@ -179,7 +179,7 @@ var Documentation = {
    * see: https://bugzilla.mozilla.org/show_bug.cgi?id=645075
    */
   fixFirefoxAnchorBug : function() {
-    if (document.location.hash && $.browser.mozilla)
+    if (document.location.hash)
       window.setTimeout(function() {
         document.location.href += '';
       }, 10);
