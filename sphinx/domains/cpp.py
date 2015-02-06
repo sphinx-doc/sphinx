@@ -189,7 +189,6 @@ _operator_re = re.compile(r'''(?x)
 # Id v1 constants
 #-------------------------------------------------------------------------------
 
-_id_prefix_v1 = '_CPP'
 _id_fundamental_v1 = {
     'char': 'c',
     'signed char': 'c',
@@ -264,7 +263,7 @@ _id_operator_v1 = {
 # Id v2 constants
 #-------------------------------------------------------------------------------
 
-_id_prefix_v2 = '_CPP'
+_id_prefix_v2 = '_CPPv2'
 _id_fundamental_v2 = {
     # not all of these are actually parsed as fundamental types, TODO: do that
     'void': 'v',
@@ -517,6 +516,9 @@ class ASTNestedNameElement(ASTBase):
         res = []
         if self.identifier == "std":
             res.append(u'St')
+        elif self.identifier[0] == "~":
+            # a destructor, just use an arbitrary version of dtors
+            res.append("D0")
         else:
             res.append(text_type(len(self.identifier)))
             res.append(self.identifier)
@@ -591,13 +593,14 @@ class ASTNestedName(ASTBase):
                 res.append(n.get_id_v1())
             return u'::'.join(res)
 
-    def get_id_v2(self):
+    def get_id_v2(self, modifiers=""):
         res = []
-        if len(self.names) > 1:
+        if len(self.names) > 1 or len(modifiers) > 0:
             res.append('N')
+        res.append(modifiers)
         for n in self.names:
             res.append(n.get_id_v2())
-        if len(self.names) > 1:
+        if len(self.names) > 1 or len(modifiers) > 0:
             res.append('E')
         return u''.join(res)
 
@@ -867,6 +870,17 @@ class ASTDeclSpecsSimple(ASTBase):
         self.volatile = volatile
         self.const = const
 
+    def mergeWith(self, other):
+        if not other:
+            return self
+        return ASTDeclSpecsSimple(self.storage or other.storage,
+                                  self.inline or other.inline,
+                                  self.virtual or other.virtual,
+                                  self.explicit or other.explicit,
+                                  self.constexpr or other.constexpr,
+                                  self.volatile or other.volatile,
+                                  self.const or other.const)
+
     def __unicode__(self):
         res = []
         if self.storage:
@@ -905,12 +919,16 @@ class ASTDeclSpecsSimple(ASTBase):
         if self.const:
             _add(modifiers, 'const')
 
+
 class ASTDeclSpecs(ASTBase):
     def __init__(self, outer, visibility, leftSpecs, rightSpecs, trailing):
+        # leftSpecs and rightSpecs are used for output
+        # allSpecs are used for id generation
         self.outer = outer
         self.visibility = visibility
         self.leftSpecs = leftSpecs
         self.rightSpecs = rightSpecs
+        self.allSpecs = self.leftSpecs.mergeWith(self.rightSpecs)
         self.trailingTypeSpec = trailing
 
     @property
@@ -920,9 +938,9 @@ class ASTDeclSpecs(ASTBase):
     def get_id_v1(self):
         res = []
         res.append(self.trailingTypeSpec.get_id_v1())
-        if self.leftSpecs.volatile or self.rightSpecs.volatile:
+        if self.allSpecs.volatile:
             res.append('V')
-        if self.leftSpecs.const or self.rightSpecs.const:
+        if self.allSpecs.const:
             res.append('C')
         return u''.join(res)
 
@@ -985,6 +1003,7 @@ class ASTDeclSpecs(ASTBase):
                 signode += nodes.Text(' ')
             for m in modifiers:
                 signode += m
+
 
 class ASTPtrOpPtr(ASTBase):
     def __init__(self, volatile, const):
@@ -1194,8 +1213,8 @@ class ASTType(ASTBase):
         if self.objectType:  # needs the name
             res.append(_id_prefix_v2)
             if self.objectType == 'function':  # also modifiers
-                res.append(self.decl.get_modifiers_id_v2())
-                res.append(self.prefixedName.get_id_v2())
+                modifiers = self.decl.get_modifiers_id_v2()
+                res.append(self.prefixedName.get_id_v2(modifiers))
                 res.append(self.decl.get_param_id_v2())
             elif self.objectType == 'type':  # just the name
                 res.append(self.prefixedName.get_id_v2())
@@ -1224,6 +1243,7 @@ class ASTType(ASTBase):
                 len(text_type(self.declSpecs)) > 0):
             signode += nodes.Text(' ')
         self.decl.describe_signature(signode, mode, env)
+
 
 class ASTTypeWithInit(ASTBase):
     def __init__(self, type, init):
@@ -1939,7 +1959,7 @@ class CPPObject(ObjectDescription):
                ast.get_id_v2(),
                ast.get_id_v1()
                ]
-        theid = ids[1] # TODO: change to [0] before final version
+        theid = ids[0]
         name = text_type(ast.prefixedName)
         if theid not in self.state.document.ids:
             # if the name is not unique, the first one will win

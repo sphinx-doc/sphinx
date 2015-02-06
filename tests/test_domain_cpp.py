@@ -15,6 +15,8 @@ from util import raises
 
 from sphinx.domains.cpp import DefinitionParser, DefinitionError
 
+ids = []
+
 def parse(name, string):
     parser = DefinitionParser(string)
     res = getattr(parser, "parse_" + name + "_object")()
@@ -37,10 +39,12 @@ def check(name, input, output=None):
         print("Expected: ", output)
         raise DefinitionError("")
     ast.describe_signature([], 'lastIsName', None)
-    ast.prefixedName = ast.name  # otherwise the get_id fails, it would be set
-                                 # in handle_signarue
+    # Artificially set the prefixedName, otherwise the get_id fails.
+    # It would usually have been set in handle_signarue.
+    ast.prefixedName = ast.name
     ast.get_id_v1()
     ast.get_id_v2()
+    ids.append(ast.get_id_v2())
     #print ".. %s:: %s" % (name, input)
 
 def test_type_definitions():
@@ -79,6 +83,9 @@ def test_type_definitions():
     check('member', 'module::myclass foo[n]')
 
     check('function', 'operator bool() const')
+    check('function', 'A::operator bool() const')
+    check('function', 'A::operator bool() volatile const &')
+    check('function', 'A::operator bool() volatile const &&')
     check('function', 'bool namespaced::theclass::method(arg1, arg2)')
     x = 'std::vector<std::pair<std::string, int>> &module::test(register ' \
         'foo, bar, std::string baz = "foobar, blah, bleh") const = 0'
@@ -99,6 +106,7 @@ def test_type_definitions():
     check('function', 'static constexpr int get_value()')
     check('function', 'int get_value() const noexcept')
     check('function', 'int get_value() const noexcept = delete')
+    check('function', 'int get_value() volatile const')
     check('function', 'MyClass::MyClass(MyClass::MyClass&&) = default')
     check('function', 'virtual MyClass::a_virtual_function() const override')
     check('function', 'A B() override')
@@ -142,3 +150,9 @@ def test_operators():
     check('function', 'void operator bool() const', 'void operator bool() const')
     for op in '*-+=/%!':
         check('function', 'void operator %s ()' % op, 'void operator%s()' % op)
+
+#def test_print():
+#    # used for getting all the ids out for checking
+#    for a in ids:
+#        print(a)
+#    raise DefinitionError("")
