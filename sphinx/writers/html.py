@@ -5,7 +5,7 @@
 
     docutils writers handling Sphinx' custom nodes.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -70,7 +70,9 @@ class HTMLTranslator(BaseTranslator):
         self.highlighter = builder.highlighter
         self.no_smarty = 0
         self.builder = builder
-        self.highlightlang = builder.config.highlight_language
+        self.highlightlang = self.highlightlang_base = \
+            builder.config.highlight_language
+        self.highlightopts = builder.config.highlight_options
         self.highlightlinenothreshold = sys.maxsize
         self.protect_literal_text = 0
         self.permalink_text = builder.config.html_add_permalinks
@@ -102,12 +104,7 @@ class HTMLTranslator(BaseTranslator):
                and node['ids'] and node['first']:
             self.body.append('<!--[%s]-->' % node['ids'][0])
     def depart_desc_signature(self, node):
-        if node['ids'] and self.permalink_text and self.builder.add_permalinks:
-            self.body.append(u'<a class="headerlink" href="#%s" '
-                             % node['ids'][0] +
-                             u'title="%s">%s</a>' % (
-                             _('Permalink to this definition'),
-                             self.permalink_text))
+        self.add_permalink_ref(node, _('Permalink to this definition'))
         self.body.append('</dt>\n')
 
     def visit_desc_addname(self, node):
@@ -212,6 +209,12 @@ class HTMLTranslator(BaseTranslator):
             self.body.append(('%s' + self.secnumber_suffix) %
                              '.'.join(map(str, node['secnumber'])))
 
+    def visit_number_reference(self, node):
+        self.visit_reference(node)
+
+    def depart_number_reference(self, node):
+        self.depart_reference(node)
+
     # overwritten -- we don't want source comments to show up in the HTML
     def visit_comment(self, node):
         raise nodes.SkipNode
@@ -250,6 +253,27 @@ class HTMLTranslator(BaseTranslator):
                 self.body.append('.'.join(map(str, numbers)) +
                                  self.secnumber_suffix)
 
+    def add_fignumber(self, node):
+        def append_fignumber(figtype, figure_id):
+            if figure_id in self.builder.fignumbers.get(figtype, {}):
+                self.body.append('<span class="caption-number">')
+                prefix = self.builder.config.numfig_format.get(figtype, '')
+                numbers = self.builder.fignumbers[figtype][figure_id]
+                self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
+                self.body.append('</span>')
+
+        if isinstance(node.parent, nodes.figure):
+            append_fignumber('figure', node.parent['ids'][0])
+        elif isinstance(node.parent, nodes.table):
+            append_fignumber('table', node.parent['ids'][0])
+        elif isinstance(node.parent, nodes.container):
+            append_fignumber('code-block', node.parent['ids'][0])
+
+    def add_permalink_ref(self, node, title):
+        if node['ids'] and self.permalink_text and self.builder.add_permalinks:
+            format = u'<a class="headerlink" href="#%s" title="%s">%s</a>'
+            self.body.append(format % (node['ids'][0], title, self.permalink_text))
+
     # overwritten to avoid emitting empty <ul></ul>
     def visit_bullet_list(self, node):
         if len(node) == 1 and node[0].tagname == 'toctree':
@@ -260,6 +284,9 @@ class HTMLTranslator(BaseTranslator):
     def visit_title(self, node):
         BaseTranslator.visit_title(self, node)
         self.add_secnumber(node)
+        self.add_fignumber(node)
+        if isinstance(node.parent, nodes.table):
+            self.body.append('<span class="caption-text">')
 
     # overwritten
     def visit_literal_block(self, node):
@@ -276,18 +303,42 @@ class HTMLTranslator(BaseTranslator):
             highlight_args['force'] = True
         if 'linenos' in node:
             linenos = node['linenos']
+        if lang is self.highlightlang_base:
+            # only pass highlighter options for original language
+            opts = self.highlightopts
+        else:
+            opts = {}
         def warner(msg):
             self.builder.warn(msg, (self.builder.current_docname, node.line))
         highlighted = self.highlighter.highlight_block(
-            node.rawsource, lang, warn=warner, linenos=linenos,
+            node.rawsource, lang, opts=opts, warn=warner, linenos=linenos,
             **highlight_args)
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s' % lang)
-        if 'caption' in node:
-            starttag += '<div class="code-block-caption"><code>%s</code></div>' % (
-                node['caption'],)
         self.body.append(starttag + highlighted + '</div>\n')
         raise nodes.SkipNode
+
+    def visit_caption(self, node):
+        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+            self.body.append('<div class="code-block-caption">')
+        else:
+            BaseTranslator.visit_caption(self, node)
+        self.add_fignumber(node)
+        self.body.append(self.starttag(node, 'span', '', CLASS='caption-text'))
+
+    def depart_caption(self, node):
+        self.body.append('</span>')
+
+        # append permalink if available
+        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+            self.add_permalink_ref(node.parent, _('Permalink to this code'))
+        elif isinstance(node.parent, nodes.figure):
+            self.add_permalink_ref(node.parent, _('Permalink to this image'))
+
+        if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
+            self.body.append('</div>\n')
+        else:
+            BaseTranslator.depart_caption(self, node)
 
     def visit_doctest_block(self, node):
         self.visit_literal_block(node)
@@ -550,20 +601,19 @@ class HTMLTranslator(BaseTranslator):
     def depart_title(self, node):
         close_tag = self.context[-1]
         if (self.permalink_text and self.builder.add_permalinks and
-            node.parent.hasattr('ids') and node.parent['ids']):
-            aname = node.parent['ids'][0]
+           node.parent.hasattr('ids') and node.parent['ids']):
             # add permalink anchor
             if close_tag.startswith('</h'):
-                self.body.append(u'<a class="headerlink" href="#%s" ' % aname +
-                                 u'title="%s">%s</a>' % (
-                                 _('Permalink to this headline'),
-                                 self.permalink_text))
+                self.add_permalink_ref(node.parent, _('Permalink to this headline'))
             elif close_tag.startswith('</a></h'):
                 self.body.append(u'</a><a class="headerlink" href="#%s" ' %
-                                 aname +
+                                 node.parent['ids'][0] +
                                  u'title="%s">%s' % (
                                  _('Permalink to this headline'),
                                  self.permalink_text))
+            elif isinstance(node.parent, nodes.table):
+                self.body.append('</span>')
+                self.add_permalink_ref(node.parent, _('Permalink to this table'))
 
         BaseTranslator.depart_title(self, node)
 

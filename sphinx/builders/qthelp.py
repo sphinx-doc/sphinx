@@ -5,7 +5,7 @@
 
     Build input files for the Qt collection generator.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -157,7 +157,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         olen = len(outdir)
         projectfiles = []
         staticdir = path.join(outdir, '_static')
-        imagesdir = path.join(outdir, '_images')
+        imagesdir = path.join(outdir, self.imagedir)
         for root, dirs, files in os.walk(outdir):
             resourcedir = root.startswith(staticdir) or \
                           root.startswith(imagesdir)

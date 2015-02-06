@@ -36,21 +36,29 @@ installed) and handled in a smart way:
   highlighted as Python).
 
 * The highlighting language can be changed using the ``highlight`` directive,
-  used as follows::
+  used as follows:
 
-     .. highlight:: c
+  .. rst:directive:: .. highlight:: language
 
-  This language is used until the next ``highlight`` directive is encountered.
+     Example::
+
+        .. highlight:: c
+
+     This language is used until the next ``highlight`` directive is encountered.
 
 * For documents that have to show snippets in different languages, there's also
   a :rst:dir:`code-block` directive that is given the highlighting language
-  directly::
+  directly:
 
-     .. code-block:: ruby
+  .. rst:directive:: .. code-block:: language
 
-        Some Ruby code.
+     Use it like this::
 
-  The directive's alias name :rst:dir:`sourcecode` works as well.
+        .. code-block:: ruby
+
+           Some Ruby code.
+
+     The directive's alias name :rst:dir:`sourcecode` works as well.
 
 * The valid values for the highlighting language are:
 
@@ -176,6 +184,10 @@ Includes
    string option, only lines that precede the first lines containing that string
    are included.
 
+   When specifying particular parts of a file to display, it can be useful to
+   display exactly which lines are being presented.
+   This can be done using the ``lineno-match`` option.
+
    You can prepend and/or append a line to the included code, using the
    ``prepend`` and ``append`` option, respectively.  This is useful e.g. for
    highlighting PHP code that doesn't include the ``<?php``/``?>`` markers.
@@ -187,8 +199,8 @@ Includes
       .. literalinclude:: example.py
          :diff: example.py.orig
 
-   This shows the diff between example.py and example.py.orig with unified diff format.
-
+   This shows the diff between example.py and example.py.orig with unified diff
+   format.
 
    .. versionadded:: 0.4.3
       The ``encoding`` option.
@@ -199,6 +211,7 @@ Includes
       The ``prepend`` and ``append`` options, as well as ``tab-width``.
    .. versionadded:: 1.3
       The ``diff`` option.
+      The ``lineno-match`` option.
 
 
 Showing a file name

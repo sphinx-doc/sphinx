@@ -3,14 +3,17 @@
     test_build
     ~~~~~~~~~~
 
-    Test all builders that have no special checks.
+    Test all builders.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-from util import with_app, test_root, path, SkipTest, TestApp
+from six import BytesIO
+
 from textwrap import dedent
+
+from util import with_app, rootdir, tempdir, SkipTest, TestApp
 
 try:
     from docutils.writers.manpage import Writer as ManWriter
@@ -18,99 +21,76 @@ except ImportError:
     ManWriter = None
 
 
-def teardown_module():
-    (test_root / '_build').rmtree(True)
+class MockOpener(object):
+    def open(self, req, **kwargs):
+        class result(BytesIO):
+            headers = None
+            url = req.url
+        return result()
+
+import sphinx.builders.linkcheck
+sphinx.builders.linkcheck.opener = MockOpener()
 
 
-def test_build():
-    for buildername in ('pickle', 'json', 'linkcheck', 'text', 'htmlhelp',
-                        'qthelp', 'epub', 'changes', 'singlehtml', 'xml',
-                        'pseudoxml'):
-        app = TestApp(buildername=buildername)
-        yield lambda app: app.builder.build_all(), app
-        app.cleanup()
-
-
-@with_app(buildername='man')
-def test_man(app):
-    if ManWriter is None:
+def verify_build(buildername, srcdir):
+    if buildername == 'man' and ManWriter is None:
         raise SkipTest('man writer is not available')
-    app.builder.build_all()
-    assert (app.outdir / 'SphinxTests.1').exists()
-
-
-def _test_nonascii_path(app):
-    srcdir = path(app.srcdir)
-    mb_name = u'\u65e5\u672c\u8a9e'
+    app = TestApp(buildername=buildername, srcdir=srcdir)
     try:
-        (srcdir / mb_name).makedirs()
-    except UnicodeEncodeError:
-        from path import FILESYSTEMENCODING
-        raise SkipTest(
-            'nonascii filename not supported on this filesystem encoding: '
-            '%s', FILESYSTEMENCODING)
-
-    (srcdir / mb_name / (mb_name + '.txt')).write_text(dedent("""
-        multi byte file name page
-        ==========================
-        """))
-
-    master_doc = srcdir / 'contents.txt'
-    master_doc.write_bytes((master_doc.text() + dedent("""
-            .. toctree::
-
-               %(mb_name)s/%(mb_name)s
-            """ % {'mb_name': mb_name})
-    ).encode('utf-8'))
-    app.builder.build_all()
-
-
-def test_nonascii_path():
-    (test_root / '_build').rmtree(True) #keep this to build first gettext
-
-    builder_names = ['gettext', 'html', 'dirhtml', 'singlehtml', 'latex',
-                     'texinfo', 'pickle', 'json', 'linkcheck', 'text',
-                     'htmlhelp', 'qthelp', 'epub', 'changes', 'xml',
-                     'pseudoxml']
-    if ManWriter is not None:
-        builder_names.append('man')
-
-    for buildername in builder_names:
-        app = TestApp(buildername=buildername, _copy_to_temp=True)
-        yield _test_nonascii_path, app
+        app.builder.build_all()
+    finally:
         app.cleanup()
 
 
-@with_app(buildername='text', srcdir='(empty)')
-def test_circular_toctree(app):
-    contents = (".. toctree::\n"
-                "\n"
-                "   sub\n")
-    (app.srcdir / 'contents.rst').write_text(contents, encoding='utf-8')
+def test_build_all():
+    # If supported, build in a non-ASCII source dir
+    test_name = u'\u65e5\u672c\u8a9e'
+    try:
+        srcdir = tempdir / test_name
+        (rootdir / 'root').copytree(tempdir / test_name)
+    except UnicodeEncodeError:
+        srcdir = tempdir / 'all'
+    else:
+        # add a doc with a non-ASCII file name to the source dir
+        (srcdir / (test_name + '.txt')).write_text(dedent("""
+            nonascii file name page
+            =======================
+            """))
 
-    contents = (".. toctree::\n"
-                "\n"
-                "   contents\n")
-    (app.srcdir / 'sub.rst').write_text(contents, encoding='utf-8')
+        master_doc = srcdir / 'contents.txt'
+        master_doc.write_bytes((master_doc.text() + dedent("""
+                .. toctree::
+
+                   %(test_name)s/%(test_name)s
+                """ % {'test_name': test_name})
+        ).encode('utf-8'))
+
+    # note: no 'html' - if it's ok with dirhtml it's ok with html
+    for buildername in ['dirhtml', 'singlehtml', 'latex', 'texinfo',
+                        'pickle', 'json', 'text', 'htmlhelp', 'qthelp', 'epub',
+                        'changes', 'xml', 'pseudoxml', 'man', 'linkcheck']:
+        yield verify_build, buildername, srcdir
+
+
+@with_app(buildername='text', testroot='circular')
+def test_circular_toctree(app, status, warning):
     app.builder.build_all()
-    warnings = "".join(app._warning.content)
-    assert 'circular toctree references detected, ignoring: sub <- contents <- sub' in warnings
-    assert 'circular toctree references detected, ignoring: contents <- sub <- contents' in warnings
+    warnings = warning.getvalue()
+    assert (
+        'circular toctree references detected, ignoring: '
+        'sub <- contents <- sub') in warnings
+    assert (
+        'circular toctree references detected, ignoring: '
+        'contents <- sub <- contents') in warnings
 
 
-@with_app(buildername='text', srcdir='(empty)')
-def test_numbered_circular_toctree(app):
-    contents = (".. toctree::\n"
-                "   :numbered:\n"
-                "\n"
-                "   sub\n")
-    (app.srcdir / 'contents.rst').write_text(contents, encoding='utf-8')
-
-    contents = (".. toctree::\n"
-                "\n"
-                "   contents\n")
-    (app.srcdir / 'sub.rst').write_text(contents, encoding='utf-8')
+@with_app(buildername='text', testroot='numbered-circular')
+def test_numbered_circular_toctree(app, status, warning):
     app.builder.build_all()
-    warnings = "\n".join(app._warning.content)
-    assert 'circular toctree references detected, ignoring: sub <- contents <- sub' in warnings
-    assert 'circular toctree references detected, ignoring: contents <- sub <- contents' in warnings
+    warnings = warning.getvalue()
+    assert (
+        'circular toctree references detected, ignoring: '
+        'sub <- contents <- sub') in warnings
+    assert (
+        'circular toctree references detected, ignoring: '
+        'contents <- sub <- contents') in warnings

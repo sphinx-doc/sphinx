@@ -5,7 +5,7 @@
 
     Test the coverage builder.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,7 +15,7 @@ from util import with_app
 
 
 @with_app(buildername='coverage')
-def test_build(app):
+def test_build(app, status, warning):
     app.builder.build_all()
 
     py_undoc = (app.outdir / 'python.txt').text()
@@ -38,7 +38,7 @@ def test_build(app):
     undoc_py, undoc_c = pickle.loads((app.outdir / 'undoc.pickle').bytes())
     assert len(undoc_c) == 1
     # the key is the full path to the header file, which isn't testable
-    assert list(undoc_c.values())[0] == [('function', 'Py_SphinxTest')]
+    assert list(undoc_c.values())[0] == set([('function', 'Py_SphinxTest')])
 
     assert 'test_autodoc' in undoc_py
     assert 'funcs' in undoc_py['test_autodoc']

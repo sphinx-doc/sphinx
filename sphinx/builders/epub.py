@@ -6,7 +6,7 @@
     Build epub files.
     Originally derived from qthelp.py.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -404,9 +404,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         The method tries to read and write the files with the PIL,
         converting the format and resizing the image if necessary/possible.
         """
-        ensuredir(path.join(self.outdir, '_images'))
-        for src in self.status_iterator(self.images, 'copying images... ',
-                                        brown, len(self.images)):
+        ensuredir(path.join(self.outdir, self.imagedir))
+        for src in self.app.status_iterator(self.images, 'copying images... ',
+                                            brown, len(self.images)):
             dest = self.images[src]
             try:
                 img = Image.open(path.join(self.srcdir, src))
@@ -416,7 +416,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                               (path.join(self.srcdir, src), ))
                 try:
                     copyfile(path.join(self.srcdir, src),
-                             path.join(self.outdir, '_images', dest))
+                             path.join(self.outdir, self.imagedir, dest))
                 except (IOError, OSError) as err:
                     self.warn('cannot copy image file %r: %s' %
                               (path.join(self.srcdir, src), err))
@@ -432,7 +432,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     nh = (height * nw) / width
                     img = img.resize((nw, nh), Image.BICUBIC)
             try:
-                img.save(path.join(self.outdir, '_images', dest))
+                img.save(path.join(self.outdir, self.imagedir, dest))
             except (IOError, OSError) as err:
                 self.warn('cannot write image file %r: %s' %
                           (path.join(self.srcdir, src), err))

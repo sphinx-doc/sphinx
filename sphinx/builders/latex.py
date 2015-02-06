@@ -5,7 +5,7 @@
 
     LaTeX builder.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -37,6 +37,7 @@ class LaTeXBuilder(Builder):
     format = 'latex'
     supported_image_types = ['application/pdf', 'image/png',
                              'image/gif', 'image/jpeg']
+    usepackages = []
 
     def init(self):
         self.docnames = []

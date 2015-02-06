@@ -5,7 +5,7 @@
 
     Builder for the web support package.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -27,6 +27,7 @@ class WebSupportBuilder(PickleHTMLBuilder):
     """
     name = 'websupport'
     versioning_method = 'commentable'
+    versioning_compare = True  # for commentable node's uuid stability.
 
     def init(self):
         PickleHTMLBuilder.init(self)
@@ -58,7 +59,8 @@ class WebSupportBuilder(PickleHTMLBuilder):
         doctree.settings = self.docsettings
 
         self.secnumbers = self.env.toc_secnumbers.get(docname, {})
-        self.imgpath = '/' + posixpath.join(self.virtual_staticdir, '_images')
+        self.fignumbers = self.env.toc_fignumbers.get(docname, {})
+        self.imgpath = '/' + posixpath.join(self.virtual_staticdir, self.imagedir)
         self.dlpath = '/' + posixpath.join(self.virtual_staticdir, '_downloads')
         self.current_docname = docname
         self.docwriter.write(doctree, destination)
@@ -70,7 +72,7 @@ class WebSupportBuilder(PickleHTMLBuilder):
         self.handle_page(docname, ctx, event_arg=doctree)
 
     def write_doc_serialized(self, docname, doctree):
-        self.imgpath = '/' + posixpath.join(self.virtual_staticdir, '_images')
+        self.imgpath = '/' + posixpath.join(self.virtual_staticdir, self.imagedir)
         self.post_process_images(doctree)
         title = self.env.longtitles.get(docname)
         title = title and self.render_partial(title)['title'] or ''
@@ -103,8 +105,10 @@ class WebSupportBuilder(PickleHTMLBuilder):
         self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
 
-        self.app.emit('html-page-context', pagename, templatename,
-                      ctx, event_arg)
+        newtmpl = self.app.emit_firstresult('html-page-context', pagename,
+                                            templatename, ctx, event_arg)
+        if newtmpl:
+            templatename = newtmpl
 
         # create a dict that will be pickled and used by webapps
         doc_ctx = {
@@ -148,7 +152,7 @@ class WebSupportBuilder(PickleHTMLBuilder):
         PickleHTMLBuilder.handle_finish(self)
 
         # move static stuff over to separate directory
-        directories = ['_images', '_static']
+        directories = [self.imagedir, '_static']
         for directory in directories:
             src = path.join(self.outdir, directory)
             dst = path.join(self.staticdir, directory)

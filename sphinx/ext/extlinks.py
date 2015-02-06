@@ -20,7 +20,7 @@
 
     You can also give an explicit caption, e.g. :exmpl:`Foo <foo>`.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -59,4 +59,4 @@ def setup_link_roles(app):
 def setup(app):
     app.add_config_value('extlinks', {}, 'env')
     app.connect('builder-inited', setup_link_roles)
-    return sphinx.__version__
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}

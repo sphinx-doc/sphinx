@@ -5,7 +5,7 @@
 
     The Sphinx documentation toolchain.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,12 +15,12 @@
 import sys
 from os import path
 
-__version__  = '1.3a0'
-__released__ = '1.3a0'  # used when Sphinx builds its own docs
+__version__  = '1.3b3'
+__released__ = '1.3b3'  # used when Sphinx builds its own docs
 # version info for better programmatic use
 # possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
 # 'final' has 0 as the last element
-version_info = (1, 3, 0, 'alpha', 0)
+version_info = (1, 3, 0, 'beta', 3)
 
 package_dir = path.abspath(path.dirname(__file__))
 

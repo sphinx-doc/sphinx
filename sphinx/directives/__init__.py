@@ -5,13 +5,14 @@
 
     Handlers for additional ReST directives.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 
-from docutils.parsers.rst import Directive, directives
+from docutils import nodes
+from docutils.parsers.rst import Directive, directives, roles
 
 from sphinx import addnodes
 from sphinx.util.docfields import DocFieldTransformer
@@ -162,6 +163,34 @@ class ObjectDescription(Directive):
 DescDirective = ObjectDescription
 
 
+class DefaultRole(Directive):
+    """
+    Set the default interpreted text role.  Overridden from docutils.
+    """
+
+    optional_arguments = 1
+    final_argument_whitespace = False
+
+    def run(self):
+        if not self.arguments:
+            if '' in roles._roles:
+                # restore the "default" default role
+                del roles._roles['']
+            return []
+        role_name = self.arguments[0]
+        role, messages = roles.role(role_name, self.state_machine.language,
+                                    self.lineno, self.state.reporter)
+        if role is None:
+            error = self.state.reporter.error(
+                'Unknown interpreted text role "%s".' % role_name,
+                nodes.literal_block(self.block_text, self.block_text),
+                line=self.lineno)
+            return messages + [error]
+        roles._roles[''] = role
+        self.state.document.settings.env.temp_data['default_role'] = role_name
+        return messages
+
+
 class DefaultDomain(Directive):
     """
     Directive to (re-)set the default domain for this source file.
@@ -186,6 +215,7 @@ class DefaultDomain(Directive):
         return []
 
 
+directives.register_directive('default-role', DefaultRole)
 directives.register_directive('default-domain', DefaultDomain)
 directives.register_directive('describe', ObjectDescription)
 # new, more consistent, name

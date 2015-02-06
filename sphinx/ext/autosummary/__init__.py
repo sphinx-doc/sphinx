@@ -49,7 +49,7 @@
     resolved to a Python object, and otherwise it becomes simple emphasis.
     This can be used as the default role to make links 'smart'.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -58,6 +58,7 @@ import re
 import sys
 import inspect
 import posixpath
+from types import ModuleType
 
 from six import text_type
 from docutils.parsers.rst import directives
@@ -68,6 +69,7 @@ import sphinx
 from sphinx import addnodes
 from sphinx.util.compat import Directive
 from sphinx.pycode import ModuleAnalyzer, PycodeError
+from sphinx.ext.autodoc import Options
 
 
 # -- autosummary_toc node ------------------------------------------------------
@@ -130,7 +132,7 @@ def autosummary_table_visit_html(self, node):
 
 class FakeDirective:
     env = {}
-    genopt = {}
+    genopt = Options()
 
 def get_documenter(obj, parent):
     """Get an autodoc.Documenter class suitable for documenting the given
@@ -193,7 +195,7 @@ class Autosummary(Directive):
 
     def run(self):
         self.env = env = self.state.document.settings.env
-        self.genopt = {}
+        self.genopt = Options()
         self.warnings = []
         self.result = ViewList()
 
@@ -253,7 +255,7 @@ class Autosummary(Directive):
 
             self.result = ViewList()  # initialize for each documenter
             full_name = real_name
-            if full_name.startswith(modname + '.'):
+            if not isinstance(obj, ModuleType):
                 # give explicitly separated module name, so that members
                 # of inner classes can be documented
                 full_name = modname + '::' + full_name[len(modname)+1:]
@@ -267,6 +269,8 @@ class Autosummary(Directive):
             if not documenter.import_object():
                 self.warn('failed to import object %s' % real_name)
                 items.append((display_name, '', '', real_name))
+                continue
+            if not documenter.check_module():
                 continue
 
             # try to also get a source code analyzer for attribute docs
@@ -432,11 +436,11 @@ def get_import_prefixes_from_env(env):
     """
     prefixes = [None]
 
-    currmodule = env.temp_data.get('py:module')
+    currmodule = env.ref_context.get('py:module')
     if currmodule:
         prefixes.insert(0, currmodule)
 
-    currclass = env.temp_data.get('py:class')
+    currclass = env.ref_context.get('py:class')
     if currclass:
         if currmodule:
             prefixes.insert(0, currmodule + "." + currclass)
@@ -570,4 +574,4 @@ def setup(app):
     app.connect('doctree-read', process_autosummary_toc)
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_generate', [], True)
-    return sphinx.__version__
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}

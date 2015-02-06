@@ -8,7 +8,7 @@
 
     :author: Sebastian Wiesner
     :contact: basti.wiesner@gmx.net
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -77,6 +77,7 @@ class BuildDoc(Command):
         ('today=', None, 'How to format the current date, used as the '
          'replacement for |today|'),
         ('link-index', 'i', 'Link index.html to the master doc'),
+        ('copyright', None, 'The copyright string'),
     ]
     boolean_options = ['fresh-env', 'all-files', 'link-index']
 
@@ -91,6 +92,7 @@ class BuildDoc(Command):
         self.today = ''
         self.config_dir = None
         self.link_index = False
+        self.copyright = ''
 
     def _guess_source_dir(self):
         for guess in ('doc', 'docs'):
@@ -152,6 +154,8 @@ class BuildDoc(Command):
              confoverrides['release'] = self.release
         if self.today:
              confoverrides['today'] = self.today
+        if self.copyright:
+            confoverrides['copyright'] = self.copyright
         app = Sphinx(self.source_dir, self.config_dir,
                      self.builder_target_dir, self.doctree_dir,
                      self.builder, confoverrides, status_stream,

@@ -1,4 +1,137 @@
+.. default-role:: any
+
 .. _invocation:
+
+Invocation of sphinx-quickstart
+===============================
+
+The :program:`sphinx-quickstart` script generates a Sphinx documentation set.
+It is called like this::
+
+     $ sphinx-quickstart [options] [projectdir]
+
+where *projectdir* is the Sphinx documentation set directory in which you want
+to place. If you omit *projectdir*, files are generated into current directory
+by default.
+
+The :program:`sphinx-quickstart` script has several options:
+
+.. program:: sphinx-quickstart
+
+.. option:: -q, --quiet
+
+   Quiet mode that will skips interactive wizard to specify options.
+   This option requires `-p`, `-a` and `-v` options.
+
+.. option:: -h, --help, --version
+
+   Display usage summary or Sphinx version.
+
+
+Structure options
+-----------------
+
+.. option:: --sep
+
+   If specified, separate source and build directories.
+
+.. option:: --dot=DOT
+
+   Inside the root directory, two more directories will be created;
+   "_templates" for custom HTML templates and "_static" for custom stylesheets
+   and other static files. You can enter another prefix (such as ".") to
+   replace the underscore.
+
+Project basic options
+---------------------
+
+.. option:: -p PROJECT, --project=PROJECT
+
+   Project name will be set. (see :confval:`project`).
+
+.. option:: -a AUTHOR, --author=AUTHOR
+
+   Author names. (see :confval:`copyright`).
+
+.. option:: -v VERSION
+
+   Version of project. (see :confval:`version`).
+
+.. option:: -r RELEASE, --release=RELEASE
+
+   Release of project. (see :confval:`release`).
+
+.. option:: -l LANGUAGE, --language=LANGUAGE
+
+   Document language. (see :confval:`language`).
+
+.. option:: --suffix=SUFFIX
+
+   Source file suffix. (see :confval:`source_suffix`).
+
+.. option:: --master=MASTER
+
+   Master document name. (see :confval:`master_doc`).
+
+.. option:: --epub
+
+   Use epub.
+
+Extension options
+-----------------
+
+.. option:: --ext-autodoc
+
+   Enable `sphinx.ext.autodoc` extension.
+
+.. option:: --ext-doctest
+
+   Enable `sphinx.ext.doctest` extension.
+
+.. option:: --ext-intersphinx
+
+   Enable `sphinx.ext.intersphinx` extension.
+
+.. option:: --ext-todo
+
+   Enable `sphinx.ext.todo` extension.
+
+.. option:: --ext-coverage
+
+   Enable `sphinx.ext.coverage` extension.
+
+.. option:: --ext-pngmath
+
+   Enable `sphinx.ext.pngmath` extension.
+
+.. option:: --ext-mathjax
+
+   Enable `sphinx.ext.mathjax` extension.
+
+.. option:: --ext-ifconfig
+
+   Enable `sphinx.ext.ifconfig` extension.
+
+.. option:: --ext-viewcode
+
+   Enable `sphinx.ext.viewcode` extension.
+
+
+Makefile and Batchfile creation options
+---------------------------------------
+
+.. option:: --makefile, --no-makefile
+
+   Create (or not create) makefile.
+
+.. option:: --batchfile, --no-batchfile
+
+   Create (or not create) batchfile
+
+
+.. versionadded:: 1.3
+   Add various options for sphinx-quickstart invocation.
+
 
 Invocation of sphinx-build
 ==========================
@@ -304,6 +437,11 @@ The :program:`sphinx-apidoc` script has several options:
    mechanism as :program:`sphinx-quickstart`.  Most configuration values are set
    to default values, but you can influence the most important ones using the
    following options.
+
+.. option:: -M
+
+   This option makes sphinx-apidoc put module documentation before submodule
+   documentation.
 
 .. option:: -H project
 

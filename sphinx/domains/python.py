@@ -5,7 +5,7 @@
 
     The Python domain.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -84,19 +84,28 @@ def _pseudo_parse_arglist(signode, arglist):
 
 # This override allows our inline type specifiers to behave like :class: link
 # when it comes to handling "." and "~" prefixes.
-class PyTypedField(TypedField):
-    def make_xref(self, rolename, domain, target, innernode=nodes.emphasis):
-        result = super(PyTypedField, self).make_xref(rolename, domain, target,
-                                                     innernode)
+class PyXrefMixin(object):
+    def make_xref(self, rolename, domain, target, innernode=nodes.emphasis,
+                  contnode=None):
+        result = super(PyXrefMixin, self).make_xref(rolename, domain, target,
+                                                    innernode, contnode)
+        result['refspecific'] = True
         if target.startswith('.'):
             result['reftarget'] = target[1:]
-            result['refspecific'] = True
             result[0][0] = nodes.Text(target[1:])
         if target.startswith('~'):
             result['reftarget'] = target[1:]
             title = target.split('.')[-1]
             result[0][0] = nodes.Text(title)
         return result
+
+
+class PyField(PyXrefMixin, Field):
+    pass
+
+
+class PyTypedField(PyXrefMixin, TypedField):
+    pass
 
 
 class PyObject(ObjectDescription):
@@ -111,21 +120,21 @@ class PyObject(ObjectDescription):
 
     doc_field_types = [
         PyTypedField('parameter', label=l_('Parameters'),
-                   names=('param', 'parameter', 'arg', 'argument',
-                          'keyword', 'kwarg', 'kwparam'),
-                   typerolename='obj', typenames=('paramtype', 'type'),
-                   can_collapse=True),
-        TypedField('variable', label=l_('Variables'), rolename='obj',
-                   names=('var', 'ivar', 'cvar'),
-                   typerolename='obj', typenames=('vartype',),
-                   can_collapse=True),
+                     names=('param', 'parameter', 'arg', 'argument',
+                            'keyword', 'kwarg', 'kwparam'),
+                     typerolename='obj', typenames=('paramtype', 'type'),
+                     can_collapse=True),
+        PyTypedField('variable', label=l_('Variables'), rolename='obj',
+                     names=('var', 'ivar', 'cvar'),
+                     typerolename='obj', typenames=('vartype',),
+                     can_collapse=True),
         GroupedField('exceptions', label=l_('Raises'), rolename='exc',
                      names=('raises', 'raise', 'exception', 'except'),
                      can_collapse=True),
         Field('returnvalue', label=l_('Returns'), has_arg=False,
               names=('returns', 'return')),
-        Field('returntype', label=l_('Return type'), has_arg=False,
-              names=('rtype',)),
+        PyField('returntype', label=l_('Return type'), has_arg=False,
+                names=('rtype',), bodyrolename='obj'),
     ]
 
     def get_signature_prefix(self, sig):
@@ -156,8 +165,8 @@ class PyObject(ObjectDescription):
 
         # determine module and class name (if applicable), as well as full name
         modname = self.options.get(
-            'module', self.env.temp_data.get('py:module'))
-        classname = self.env.temp_data.get('py:class')
+            'module', self.env.ref_context.get('py:module'))
+        classname = self.env.ref_context.get('py:class')
         if classname:
             add_module = False
             if name_prefix and name_prefix.startswith(classname):
@@ -194,7 +203,7 @@ class PyObject(ObjectDescription):
         # 'exceptions' module.
         elif add_module and self.env.config.add_module_names:
             modname = self.options.get(
-                'module', self.env.temp_data.get('py:module'))
+                'module', self.env.ref_context.get('py:module'))
             if modname and modname != 'exceptions':
                 nodetext = modname + '.'
                 signode += addnodes.desc_addname(nodetext, nodetext)
@@ -225,7 +234,7 @@ class PyObject(ObjectDescription):
 
     def add_target_and_index(self, name_cls, sig, signode):
         modname = self.options.get(
-            'module', self.env.temp_data.get('py:module'))
+            'module', self.env.ref_context.get('py:module'))
         fullname = (modname and modname + '.' or '') + name_cls[0]
         # note target
         if fullname not in self.state.document.ids:
@@ -254,7 +263,7 @@ class PyObject(ObjectDescription):
 
     def after_content(self):
         if self.clsname_set:
-            self.env.temp_data['py:class'] = None
+            self.env.ref_context.pop('py:class', None)
 
 
 class PyModulelevel(PyObject):
@@ -299,7 +308,7 @@ class PyClasslike(PyObject):
     def before_content(self):
         PyObject.before_content(self)
         if self.names:
-            self.env.temp_data['py:class'] = self.names[0][0]
+            self.env.ref_context['py:class'] = self.names[0][0]
             self.clsname_set = True
 
 
@@ -377,8 +386,8 @@ class PyClassmember(PyObject):
     def before_content(self):
         PyObject.before_content(self)
         lastname = self.names and self.names[-1][1]
-        if lastname and not self.env.temp_data.get('py:class'):
-            self.env.temp_data['py:class'] = lastname.strip('.')
+        if lastname and not self.env.ref_context.get('py:class'):
+            self.env.ref_context['py:class'] = lastname.strip('.')
             self.clsname_set = True
 
 
@@ -434,7 +443,7 @@ class PyModule(Directive):
         env = self.state.document.settings.env
         modname = self.arguments[0].strip()
         noindex = 'noindex' in self.options
-        env.temp_data['py:module'] = modname
+        env.ref_context['py:module'] = modname
         ret = []
         if not noindex:
             env.domaindata['py']['modules'][modname] = \
@@ -472,16 +481,16 @@ class PyCurrentModule(Directive):
         env = self.state.document.settings.env
         modname = self.arguments[0].strip()
         if modname == 'None':
-            env.temp_data['py:module'] = None
+            env.ref_context.pop('py:module', None)
         else:
-            env.temp_data['py:module'] = modname
+            env.ref_context['py:module'] = modname
         return []
 
 
 class PyXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        refnode['py:module'] = env.temp_data.get('py:module')
-        refnode['py:class'] = env.temp_data.get('py:class')
+        refnode['py:module'] = env.ref_context.get('py:module')
+        refnode['py:class'] = env.ref_context.get('py:class')
         if not has_explicit_title:
             title = title.lstrip('.')   # only has a meaning for the target
             target = target.lstrip('~') # only has a meaning for the title
@@ -627,6 +636,15 @@ class PythonDomain(Domain):
             if fn == docname:
                 del self.data['modules'][modname]
 
+    def merge_domaindata(self, docnames, otherdata):
+        # XXX check duplicates?
+        for fullname, (fn, objtype) in otherdata['objects'].items():
+            if fn in docnames:
+                self.data['objects'][fullname] = (fn, objtype)
+        for modname, data in otherdata['modules'].items():
+            if data[0] in docnames:
+                self.data['modules'][modname] = data
+
     def find_obj(self, env, modname, classname, name, type, searchmode=0):
         """Find a Python object for "name", perhaps using the given module
         and/or classname.  Returns a list of (name, object entry) tuples.
@@ -643,7 +661,10 @@ class PythonDomain(Domain):
 
         newname = None
         if searchmode == 1:
-            objtypes = self.objtypes_for_role(type)
+            if type is None:
+                objtypes = list(self.object_types)
+            else:
+                objtypes = self.objtypes_for_role(type)
             if objtypes is not None:
                 if modname and classname:
                     fullname = modname + '.' + classname + '.' + name
@@ -704,21 +725,43 @@ class PythonDomain(Domain):
         name, obj = matches[0]
 
         if obj[1] == 'module':
-            # get additional info for modules
-            docname, synopsis, platform, deprecated = self.data['modules'][name]
-            assert docname == obj[0]
-            title = name
-            if synopsis:
-                title += ': ' + synopsis
-            if deprecated:
-                title += _(' (deprecated)')
-            if platform:
-                title += ' (' + platform + ')'
-            return make_refnode(builder, fromdocname, docname,
-                                'module-' + name, contnode, title)
+            return self._make_module_refnode(builder, fromdocname, name,
+                                             contnode)
         else:
             return make_refnode(builder, fromdocname, obj[0], name,
                                 contnode, name)
+
+    def resolve_any_xref(self, env, fromdocname, builder, target,
+                         node, contnode):
+        modname = node.get('py:module')
+        clsname = node.get('py:class')
+        results = []
+
+        # always search in "refspecific" mode with the :any: role
+        matches = self.find_obj(env, modname, clsname, target, None, 1)
+        for name, obj in matches:
+            if obj[1] == 'module':
+                results.append(('py:mod',
+                                self._make_module_refnode(builder, fromdocname,
+                                                          name, contnode)))
+            else:
+                results.append(('py:' + self.role_for_objtype(obj[1]),
+                                make_refnode(builder, fromdocname, obj[0], name,
+                                             contnode, name)))
+        return results
+
+    def _make_module_refnode(self, builder, fromdocname, name, contnode):
+        # get additional info for modules
+        docname, synopsis, platform, deprecated = self.data['modules'][name]
+        title = name
+        if synopsis:
+            title += ': ' + synopsis
+        if deprecated:
+            title += _(' (deprecated)')
+        if platform:
+            title += ' (' + platform + ')'
+        return make_refnode(builder, fromdocname, docname,
+                            'module-' + name, contnode, title)
 
     def get_objects(self):
         for modname, info in iteritems(self.data['modules']):

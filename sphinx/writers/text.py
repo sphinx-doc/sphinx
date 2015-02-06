@@ -5,7 +5,7 @@
 
     Custom docutils writer for plain text.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
@@ -747,6 +747,11 @@ class TextTranslator(nodes.NodeVisitor):
         pass
     def depart_reference(self, node):
         pass
+
+    def visit_number_reference(self, node):
+        text = nodes.Text(node.get('title', '#'))
+        self.visit_Text(text)
+        raise nodes.SkipNode
 
     def visit_download_reference(self, node):
         pass

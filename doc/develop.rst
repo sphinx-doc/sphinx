@@ -5,10 +5,10 @@ Sphinx development
 
 Sphinx is a maintained by a group of volunteers.  We value every contribution!
 
-* The code can be found in a Mercurial repository, at
-  https://bitbucket.org/birkenfeld/sphinx/.
+* The code can be found in a Git repository, at
+  https://github.com/sphinx-doc/sphinx/.
 * Issues and feature requests should be raised in the `tracker
-  <https://bitbucket.org/birkenfeld/sphinx/issues/>`_.
+  <https://github.com/sphinx-doc/sphinx/issues>`_.
 * The mailing list for development is at `Google Groups
   <https://groups.google.com/group/sphinx-dev/>`_.
 * There is also the #sphinx-doc IRC channel on `freenode
@@ -55,6 +55,7 @@ This is the current list of contributed extensions in that repository:
 - hyphenator: client-side hyphenation of HTML using hyphenator_
 - inlinesyntaxhighlight_: inline syntax highlighting
 - lassodomain: a domain for documenting Lasso_ source code
+- libreoffice: an extension to include any drawing supported by LibreOffice (e.g. odg, vsd...).
 - lilypond: an extension inserting music scripts from Lilypond_ in PNG format.
 - makedomain_: a domain for `GNU Make`_
 - matlabdomain: document MATLAB_ code.

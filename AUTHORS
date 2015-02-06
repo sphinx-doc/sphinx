@@ -8,7 +8,7 @@ Other co-maintainers:
 * Takayuki Shimizukawa <shimizukawa@gmail.com>
 * Daniel Neuhäuser <@DasIch>
 * Jon Waltman <@jonwaltman>
-* Rob Ruana <@RelentlessIdiot>
+* Rob Ruana <@RobRuana>
 * Robert Lehmann <@lehmannro>
 * Roland Meister <@rolmei>
 
@@ -26,6 +26,7 @@ Other contributors, listed alphabetically, are:
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements
 * Doug Hellmann -- graphviz improvements
+* Takeshi Komiya -- numref feature
 * Dave Kuhlman -- original LaTeX writer
 * Blaise Laflamme -- pyramid theme
 * Thomas Lamb -- linkcheck builder
@@ -41,6 +42,7 @@ Other contributors, listed alphabetically, are:
 * Christopher Perkins -- autosummary integration
 * Benjamin Peterson -- unittests
 * T. Powers -- HTML output improvements
+* Jeppe Pihl -- literalinclude improvements
 * Rob Ruana -- napoleon extension
 * Stefan Seefeld -- toctree improvements
 * Shibukawa Yoshiki -- pluggable search API and Japanese search

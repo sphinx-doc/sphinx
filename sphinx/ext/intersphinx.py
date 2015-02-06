@@ -20,7 +20,7 @@
       also be specified individually, e.g. if the docs should be buildable
       without Internet access.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -222,15 +222,21 @@ def load_mappings(app):
 
 def missing_reference(app, env, node, contnode):
     """Attempt to resolve a missing reference via intersphinx references."""
-    domain = node.get('refdomain')
-    if not domain:
-        # only objects in domains are in the inventory
-        return
     target = node['reftarget']
-    objtypes = env.domains[domain].objtypes_for_role(node['reftype'])
-    if not objtypes:
-        return
-    objtypes = ['%s:%s' % (domain, objtype) for objtype in objtypes]
+    if node['reftype'] == 'any':
+        # we search anything!
+        objtypes = ['%s:%s' % (domain.name, objtype)
+                    for domain in env.domains.values()
+                    for objtype in domain.object_types]
+    else:
+        domain = node.get('refdomain')
+        if not domain:
+            # only objects in domains are in the inventory
+            return
+        objtypes = env.domains[domain].objtypes_for_role(node['reftype'])
+        if not objtypes:
+            return
+        objtypes = ['%s:%s' % (domain, objtype) for objtype in objtypes]
     to_try = [(env.intersphinx_inventory, target)]
     in_set = None
     if ':' in target:
@@ -248,7 +254,7 @@ def missing_reference(app, env, node, contnode):
                 # get correct path in case of subdirectories
                 uri = path.join(relative_path(node['refdoc'], env.srcdir), uri)
             newnode = nodes.reference('', '', internal=False, refuri=uri,
-                          reftitle=_('(in %s v%s)') % (proj, version))
+                                      reftitle=_('(in %s v%s)') % (proj, version))
             if node.get('refexplicit'):
                 # use whatever title was given
                 newnode.append(contnode)
@@ -276,4 +282,4 @@ def setup(app):
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.connect('missing-reference', missing_reference)
     app.connect('builder-inited', load_mappings)
-    return sphinx.__version__
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}

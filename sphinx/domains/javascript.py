@@ -5,7 +5,7 @@
 
     The JavaScript domain.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -45,7 +45,7 @@ class JSObject(ObjectDescription):
             nameprefix = None
             name = prefix
 
-        objectname = self.env.temp_data.get('js:object')
+        objectname = self.env.ref_context.get('js:object')
         if nameprefix:
             if objectname:
                 # someone documenting the method of an attribute of the current
@@ -77,7 +77,7 @@ class JSObject(ObjectDescription):
 
     def add_target_and_index(self, name_obj, sig, signode):
         objectname = self.options.get(
-            'object', self.env.temp_data.get('js:object'))
+            'object', self.env.ref_context.get('js:object'))
         fullname = name_obj[0]
         if fullname not in self.state.document.ids:
             signode['names'].append(fullname)
@@ -140,7 +140,7 @@ class JSConstructor(JSCallable):
 class JSXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
         # basically what sphinx.domains.python.PyXRefRole does
-        refnode['js:object'] = env.temp_data.get('js:object')
+        refnode['js:object'] = env.ref_context.get('js:object')
         if not has_explicit_title:
             title = title.lstrip('.')
             target = target.lstrip('~')
@@ -179,13 +179,19 @@ class JavaScriptDomain(Domain):
         'attr':  JSXRefRole(),
     }
     initial_data = {
-        'objects': {}, # fullname -> docname, objtype
+        'objects': {},  # fullname -> docname, objtype
     }
 
     def clear_doc(self, docname):
         for fullname, (fn, _) in list(self.data['objects'].items()):
             if fn == docname:
                 del self.data['objects'][fullname]
+
+    def merge_domaindata(self, docnames, otherdata):
+        # XXX check duplicates
+        for fullname, (fn, objtype) in otherdata['objects'].items():
+            if fn in docnames:
+                self.data['objects'][fullname] = (fn, objtype)
 
     def find_obj(self, env, obj, name, typ, searchorder=0):
         if name[-2:] == '()':
@@ -213,6 +219,16 @@ class JavaScriptDomain(Domain):
             return None
         return make_refnode(builder, fromdocname, obj[0],
                             name.replace('$', '_S_'), contnode, name)
+
+    def resolve_any_xref(self, env, fromdocname, builder, target, node,
+                         contnode):
+        objectname = node.get('js:object')
+        name, obj = self.find_obj(env, objectname, target, None, 1)
+        if not obj:
+            return []
+        return [('js:' + self.role_for_objtype(obj[1]),
+                 make_refnode(builder, fromdocname, obj[0],
+                              name.replace('$', '_S_'), contnode, name))]
 
     def get_objects(self):
         for refname, (docname, type) in list(self.data['objects'].items()):

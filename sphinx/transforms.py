@@ -5,7 +5,7 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -33,6 +33,7 @@ default_substitutions = set([
     'release',
     'today',
 ])
+
 
 class DefaultSubstitutions(Transform):
     """
@@ -69,9 +70,9 @@ class MoveModuleTargets(Transform):
             if not node['ids']:
                 continue
             if ('ismod' in node and
-                node.parent.__class__ is nodes.section and
-                # index 0 is the section title node
-                node.parent.index(node) == 1):
+                    node.parent.__class__ is nodes.section and
+                    # index 0 is the section title node
+                    node.parent.index(node) == 1):
                 node.parent['ids'][0:0] = node['ids']
                 node.parent.remove(node)
 
@@ -86,10 +87,10 @@ class HandleCodeBlocks(Transform):
         # move doctest blocks out of blockquotes
         for node in self.document.traverse(nodes.block_quote):
             if all(isinstance(child, nodes.doctest_block) for child
-                     in node.children):
+                   in node.children):
                 node.replace_self(node.children)
         # combine successive doctest blocks
-        #for node in self.document.traverse(nodes.doctest_block):
+        # for node in self.document.traverse(nodes.doctest_block):
         #    if node not in node.parent.children:
         #        continue
         #    parindex = node.parent.index(node)
@@ -98,6 +99,31 @@ class HandleCodeBlocks(Transform):
         #        node[0] = nodes.Text(node[0] + '\n\n' +
         #                             node.parent[parindex+1][0])
         #        del node.parent[parindex+1]
+
+
+class AutoNumbering(Transform):
+    """
+    Register IDs of tables, figures and literal_blocks to assign numbers.
+    """
+    default_priority = 210
+
+    def apply(self):
+        def has_child(node, cls):
+            return any(isinstance(child, cls) for child in node)
+
+        for node in self.document.traverse(nodes.Element):
+            if isinstance(node, nodes.figure):
+                if has_child(node, nodes.caption):
+                    self.document.note_implicit_target(node)
+            elif isinstance(node, nodes.image):
+                if has_child(node.parent, nodes.caption):
+                    self.document.note_implicit_target(node.parent)
+            elif isinstance(node, nodes.table):
+                if has_child(node, nodes.title):
+                    self.document.note_implicit_target(node)
+            elif isinstance(node, nodes.literal_block):
+                if has_child(node.parent, nodes.caption):
+                    self.document.note_implicit_target(node.parent)
 
 
 class SortIds(Transform):
@@ -173,7 +199,7 @@ class Locale(Transform):
 
         parser = RSTParser()
 
-        #phase1: replace reference ids with translated names
+        # phase1: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
             msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
@@ -198,7 +224,7 @@ class Locale(Transform):
                 pass
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
-                continue # skip for now
+                continue  # skip for now
 
             processed = False  # skip flag
 
@@ -281,15 +307,14 @@ class Locale(Transform):
                 node.children = patch.children
                 node['translated'] = True
 
-
-        #phase2: translation
+        # phase2: translation
         for node, msg in extract_messages(self.document):
             if node.get('translated', False):
                 continue
 
             msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
-            if not msgstr or msgstr == msg: # as-of-yet untranslated
+            if not msgstr or msgstr == msg:  # as-of-yet untranslated
                 continue
 
             # Avoid "Literal block expected; none found." warnings.
@@ -309,12 +334,13 @@ class Locale(Transform):
                 pass
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
-                continue # skip for now
+                continue  # skip for now
 
             # auto-numbered foot note reference should use original 'ids'.
             def is_autonumber_footnote_ref(node):
                 return isinstance(node, nodes.footnote_reference) and \
                     node.get('auto') == 1
+
             def list_replace_or_append(lst, old, new):
                 if old in lst:
                     lst[lst.index(old)] = new
@@ -339,7 +365,7 @@ class Locale(Transform):
                 for id in new['ids']:
                     self.document.ids[id] = new
                 list_replace_or_append(
-                        self.document.autofootnote_refs, old, new)
+                    self.document.autofootnote_refs, old, new)
                 if refname:
                     list_replace_or_append(
                         self.document.footnote_refs.setdefault(refname, []),
@@ -404,6 +430,7 @@ class Locale(Transform):
             if len(old_refs) != len(new_refs):
                 env.warn_node('inconsistent term references in '
                               'translated message', node)
+
             def get_ref_key(node):
                 case = node["refdomain"], node["reftype"]
                 if case == ('std', 'term'):
@@ -435,22 +462,23 @@ class Locale(Transform):
             node.children = patch.children
             node['translated'] = True
 
-        # Extract and translate messages for index entries.
-        for node, entries in traverse_translatable_index(self.document):
-            new_entries = []
-            for type, msg, tid, main in entries:
-                msg_parts = split_index_msg(type, msg)
-                msgstr_parts = []
-                for part in msg_parts:
-                    msgstr = catalog.gettext(part)
-                    if not msgstr:
-                        msgstr = part
-                    msgstr_parts.append(msgstr)
+        if 'index' in env.config.gettext_enables:
+            # Extract and translate messages for index entries.
+            for node, entries in traverse_translatable_index(self.document):
+                new_entries = []
+                for type, msg, tid, main in entries:
+                    msg_parts = split_index_msg(type, msg)
+                    msgstr_parts = []
+                    for part in msg_parts:
+                        msgstr = catalog.gettext(part)
+                        if not msgstr:
+                            msgstr = part
+                        msgstr_parts.append(msgstr)
 
-                new_entries.append((type, ';'.join(msgstr_parts), tid, main))
+                    new_entries.append((type, ';'.join(msgstr_parts), tid, main))
 
-            node['raw_entries'] = entries
-            node['entries'] = new_entries
+                node['raw_entries'] = entries
+                node['entries'] = new_entries
 
 
 class RemoveTranslatableInline(Transform):

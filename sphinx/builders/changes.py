@@ -5,7 +5,7 @@
 
     Changelog builder.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -130,6 +130,9 @@ class ChangesBuilder(Builder):
                             self.env.config.source_encoding)
             try:
                 lines = f.readlines()
+            except UnicodeDecodeError:
+                self.warn('could not read %r for changelog creation' % docname)
+                continue
             finally:
                 f.close()
             targetfn = path.join(self.outdir, 'rst', os_path(docname)) + '.html'

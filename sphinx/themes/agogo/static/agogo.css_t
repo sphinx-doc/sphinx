@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- agogo theme.
  *
- * :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -97,7 +97,10 @@ h3:hover > a.headerlink,
 h4:hover > a.headerlink,
 h5:hover > a.headerlink,
 h6:hover > a.headerlink,
-dt:hover > a.headerlink {
+dt:hover > a.headerlink,
+caption:hover > a.headerlink,
+p.caption:hover > a.headerlink,
+div.code-block-caption:hover > a.headerlink {
   visibility: visible;
 }
 
@@ -205,6 +208,23 @@ div.document div.highlight {
   border-bottom: 2px solid #dddddd;
   margin-top: .8em;
   margin-bottom: .8em;
+}
+
+div.document div.container {
+  margin-top: .8em;
+  margin-bottom: .8em;
+}
+
+div.document div.container div.highlight {
+  margin: 0;
+}
+
+div.document div.code-block-caption span.caption-number {
+    padding: 0.1em 0.3em;
+    font-style: italic;
+}
+
+div.document div.code-block-caption span.caption-text {
 }
 
 div.document h2 {
@@ -371,6 +391,20 @@ img.align-center, .figure.align-center, object.align-center {
 
 .align-right {
     text-align: right;
+}
+
+table caption span.caption-number {
+    font-style: italic;
+}
+
+table caption span.caption-text {
+}
+
+div.figure p.caption span.caption-number {
+    font-style: italic;
+}
+
+div.figure p.caption span.caption-text {
 }
 
 /* -- search page ----------------------------------------------------------- */

@@ -48,12 +48,19 @@ if sys.version_info < (2, 6) or (3, 0) <= sys.version_info < (3, 3):
 requires = [
     'six>=1.4',
     'Jinja2>=2.3',
-    'Pygments>=1.2',
-    'docutils>=0.10',
+    'Pygments>=2.0',
+    'docutils>=0.11',
     'snowballstemmer>=1.1',
     'babel',
 ]
+extras_require = {
+    # Environment Marker works for wheel 0.24 or later
+    ':sys_platform=="win32"': [
+        'colorama',
+    ],
+}
 
+# for sdist installation with pip-1.5.6
 if sys.platform == 'win32':
     requires.append('colorama')
 
@@ -174,12 +181,16 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
+        'Framework :: Sphinx',
+        'Framework :: Sphinx :: Extension',
+        'Framework :: Sphinx :: Theme',
         'Topic :: Documentation',
+        'Topic :: Documentation :: Sphinx',
         'Topic :: Text Processing',
         'Topic :: Utilities',
     ],
     platforms='any',
-    packages=find_packages(exclude=['test']),
+    packages=find_packages(exclude=['tests']),
     include_package_data=True,
     entry_points={
         'console_scripts': [
@@ -193,5 +204,6 @@ setup(
         ],
     },
     install_requires=requires,
+    extras_require=extras_require,
     cmdclass=cmdclass,
 )

@@ -11,7 +11,7 @@
     This is in its own module so that importing it is fast.  It should not
     import the main Sphinx modules (like sphinx.applications, sphinx.builders).
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -24,6 +24,7 @@ from subprocess import call
 
 import sphinx
 from sphinx.util.console import bold, blue
+from sphinx.util.osutil import cd
 
 proj_name = os.getenv('SPHINXPROJ', '<project>')
 
@@ -161,12 +162,14 @@ class Make(object):
     def build_latexpdf(self):
         if self.run_generic_build('latex') > 0:
             return 1
-        os.system('make -C %s all-pdf' % self.builddir_join('latex'))
+        with cd(self.builddir_join('latex')):
+            os.system('make all-pdf')
 
     def build_latexpdfja(self):
         if self.run_generic_build('latex') > 0:
             return 1
-        os.system('make -C %s all-pdf-ja' % self.builddir_join('latex'))
+        with cd(self.builddir_join('latex')):
+            os.system('make all-pdf-ja')
 
     def build_text(self):
         if self.run_generic_build('text') > 0:
@@ -186,7 +189,8 @@ class Make(object):
     def build_info(self):
         if self.run_generic_build('texinfo') > 0:
             return 1
-        os.system('make -C %s info' % self.builddir_join('texinfo'))
+        with cd(self.builddir_join('texinfo')):
+            os.system('make info')
 
     def build_gettext(self):
         dtdir = self.builddir_join('gettext', '.doctrees')
@@ -245,7 +249,20 @@ class Make(object):
             opts.extend(['-D', 'latex_paper_size=' + papersize])
         if doctreedir is None:
             doctreedir = self.builddir_join('doctrees')
-        return call([sys.executable, sys.argv[0], '-b', builder] + opts +
+
+        orig_cmd = sys.argv[0]
+        if sys.platform == 'win32' and orig_cmd.endswith('.exe'):
+            # win32: 'sphinx-build.exe'
+            cmd = [orig_cmd]
+        elif sys.platform == 'win32' and os.path.splitext(orig_cmd)[1] == '':
+            # win32: 'sphinx-build'  without extension
+            cmd = [orig_cmd + '.exe']
+        else:
+            # win32: 'sphinx-build.py'
+            # linux, mac: 'sphinx-build' or 'sphinx-build.py'
+            cmd = [sys.executable, orig_cmd]
+
+        return call(cmd + ['-b', builder] + opts +
                     ['-d', doctreedir, self.srcdir, self.builddir_join(builder)])
 
 

@@ -142,6 +142,10 @@ Adding \n to test unescaping.
 * :ref:`here <some-label>`
 * :ref:`my-figure`
 * :ref:`my-table`
+* :ref:`my-code-block`
+* :numref:`my-figure`
+* :numref:`my-table`
+* :numref:`my-code-block`
 * :doc:`subdir/includes`
 * ``:download:`` is tested in includes.txt
 * :option:`Python -c option <python -c>`
@@ -176,17 +180,17 @@ Tables
    | 2  | Empty cells:   |    |
    +----+----------------+----+
 
-Table with multicol:
+Table with multirow and multicol:
 
 .. only:: latex
 
-   +----+---------------------+
-   | 1  | test!               |
-   +----+---------+------+----+
-   | 2  | col     | col  | c  |
-   | y  +---------+------+----+
-   | x  | test                |
-   +----+---------------------+
+   +----+----------------+---------+
+   | 1  | test!          | c       |
+   +----+---------+------+         |
+   | 2  | col     | col  |         |
+   | y  +---------+------+----+----+
+   | x  | multi-column cell   | x  |
+   +----+---------------------+----+
 
 
 Figures
@@ -228,8 +232,11 @@ Version markup
 Code blocks
 -----------
 
+.. _my-code-block:
+
 .. code-block:: ruby
    :linenos:
+   :caption: my ruby code
 
    def ruby?
        false
@@ -354,6 +361,25 @@ Only directive
 .. only:: confpytag and (testtag or nonexisting_tag)
 
    Always present, because set through conf.py/command line.
+
+
+Any role
+--------
+
+.. default-role:: any
+
+Test referencing to `headings <with>` and `objects <func_without_body>`.
+Also `modules <mod>` and `classes <Time>`.
+
+More domains:
+
+* `JS <bar.baz>`
+* `C <SphinxType>`
+* `myobj` (user markup)
+* `n::Array`
+* `perl -c`
+
+.. default-role::
 
 
 .. rubric:: Footnotes

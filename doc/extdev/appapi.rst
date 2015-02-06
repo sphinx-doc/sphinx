@@ -83,7 +83,7 @@ package.
    Register an event called *name*.  This is needed to be able to emit it.
 
 .. method:: Sphinx.set_translator(name, translator_class)
-               
+
    Register or override a Docutils translator class. This is used to register
    a custom output translator or to replace a builtin translator.
    This allows extensions to use custom translator and define custom
@@ -288,6 +288,18 @@ package.
 
    .. versionadded:: 1.0
 
+.. method:: Sphinx.add_latex_package(packagename, options=None)
+
+   Add *packagename* to the list of packages that LaTeX source code will include.
+   If you provide *options*, it will be taken to `\usepackage` declaration.
+
+   .. code-block:: python
+
+      app.add_latex_package('mypackage')             # => \usepackage{mypackage}
+      app.add_latex_package('mypackage', 'foo,bar')  # => \usepackage[foo,bar]{mypackage}
+
+   .. versionadded:: 1.3
+
 .. method:: Sphinx.add_lexer(alias, lexer)
 
    Use *lexer*, which must be an instance of a Pygments lexer class, to
@@ -437,6 +449,19 @@ handlers to the events.  Example:
 
    .. versionadded:: 0.5
 
+.. event:: env-before-read-docs (app, env, docnames)
+
+   Emitted after the environment has determined the list of all added and
+   changed files and just before it reads them.  It allows extension authors to
+   reorder the list of docnames (*inplace*) before processing, or add more
+   docnames that Sphinx did not consider changed (but never add any docnames
+   that are not in ``env.found_docs``).
+
+   You can also remove document names; do this with caution since it will make
+   Sphinx treat changed files as unchanged.
+
+   .. versionadded:: 1.3
+
 .. event:: source-read (app, docname, source)
 
    Emitted when a source file has been read.  The *source* argument is a list
@@ -480,12 +505,39 @@ handlers to the events.  Example:
    Here is the place to replace custom nodes that don't have visitor methods in
    the writers, so that they don't cause errors when the writers encounter them.
 
+.. event:: env-merge-info (env, docnames, other)
+
+   This event is only emitted when parallel reading of documents is enabled.  It
+   is emitted once for every subprocess that has read some documents.
+
+   You must handle this event in an extension that stores data in the
+   environment in a custom location.  Otherwise the environment in the main
+   process will not be aware of the information stored in the subprocess.
+
+   *other* is the environment object from the subprocess, *env* is the
+   environment from the main process.  *docnames* is a set of document names
+   that have been read in the subprocess.
+
+   For a sample of how to deal with this event, look at the standard
+   ``sphinx.ext.todo`` extension.  The implementation is often similar to that
+   of :event:`env-purge-doc`, only that information is not removed, but added to
+   the main environment from the other environment.
+
+   .. versionadded:: 1.3
+
 .. event:: env-updated (app, env)
 
    Emitted when the :meth:`update` method of the build environment has
    completed, that is, the environment and all doctrees are now up-to-date.
 
+   You can return an iterable of docnames from the handler.  These documents
+   will then be considered updated, and will be (re-)written during the writing
+   phase.
+
    .. versionadded:: 0.5
+
+   .. versionchanged:: 1.3
+      The handlers' return value is now used.
 
 .. event:: html-collect-pages (app)
 
@@ -513,7 +565,13 @@ handlers to the events.  Example:
    documents; it will be ``None`` when the page is created from an HTML template
    alone.
 
+   You can return a string from the handler, it will then replace
+   ``'page.html'`` as the HTML template for this page.
+
    .. versionadded:: 0.4
+
+   .. versionchanged:: 1.3
+      The return value can now specify a template name.
 
 .. event:: build-finished (app, exception)
 

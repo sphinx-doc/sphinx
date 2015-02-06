@@ -5,7 +5,7 @@
 
     Theming support for HTML builders.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -29,6 +29,7 @@ from sphinx.errors import ThemeError
 
 NODEFAULT = object()
 THEMECONF = 'theme.conf'
+
 
 class Theme(object):
     """
@@ -94,7 +95,8 @@ class Theme(object):
             self.themedir = tempfile.mkdtemp('sxt')
             self.themedir_created = True
             for name in tinfo.namelist():
-                if name.endswith('/'): continue
+                if name.endswith('/'):
+                    continue
                 dirname = path.dirname(name)
                 if not path.isdir(path.join(self.themedir, dirname)):
                     os.makedirs(path.join(self.themedir, dirname))

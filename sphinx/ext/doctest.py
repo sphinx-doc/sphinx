@@ -6,7 +6,7 @@
     Mimic doctest by automatically executing code snippets and checking
     their results.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -31,6 +31,7 @@ from sphinx.util.console import bold
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
 doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
+
 
 # set up the necessary directives
 
@@ -79,18 +80,21 @@ class TestDirective(Directive):
             option_strings = self.options['options'].replace(',', ' ').split()
             for option in option_strings:
                 if (option[0] not in '+-' or option[1:] not in
-                    doctest.OPTIONFLAGS_BY_NAME):
+                        doctest.OPTIONFLAGS_BY_NAME):
                     # XXX warn?
                     continue
                 flag = doctest.OPTIONFLAGS_BY_NAME[option[1:]]
                 node['options'][flag] = (option[0] == '+')
         return [node]
 
+
 class TestsetupDirective(TestDirective):
     option_spec = {}
 
+
 class TestcleanupDirective(TestDirective):
     option_spec = {}
+
 
 class DoctestDirective(TestDirective):
     option_spec = {
@@ -98,10 +102,12 @@ class DoctestDirective(TestDirective):
         'options': directives.unchanged,
     }
 
+
 class TestcodeDirective(TestDirective):
     option_spec = {
         'hide': directives.flag,
     }
+
 
 class TestoutputDirective(TestDirective):
     option_spec = {
@@ -111,6 +117,7 @@ class TestoutputDirective(TestDirective):
 
 
 parser = doctest.DocTestParser()
+
 
 # helper classes
 
@@ -196,7 +203,7 @@ class DocTestBuilder(Builder):
     def init(self):
         # default options
         self.opt = doctest.DONT_ACCEPT_TRUE_FOR_1 | doctest.ELLIPSIS | \
-                   doctest.IGNORE_EXCEPTION_DETAIL
+            doctest.IGNORE_EXCEPTION_DETAIL
 
         # HACK HACK HACK
         # doctest compiles its snippets with type 'single'. That is nice
@@ -247,6 +254,10 @@ Results of doctest builder run on %s
         # write executive summary
         def s(v):
             return v != 1 and 's' or ''
+        repl = (self.total_tries, s(self.total_tries),
+                self.total_failures, s(self.total_failures),
+                self.setup_failures, s(self.setup_failures),
+                self.cleanup_failures, s(self.cleanup_failures))
         self._out('''
 Doctest summary
 ===============
@@ -254,10 +265,7 @@ Doctest summary
 %5d failure%s in tests
 %5d failure%s in setup code
 %5d failure%s in cleanup code
-''' % (self.total_tries, s(self.total_tries),
-       self.total_failures, s(self.total_failures),
-       self.setup_failures, s(self.setup_failures),
-       self.cleanup_failures, s(self.cleanup_failures)))
+''' % repl)
         self.outfile.close()
 
         if self.total_failures or self.setup_failures or self.cleanup_failures:
@@ -290,11 +298,11 @@ Doctest summary
             def condition(node):
                 return (isinstance(node, (nodes.literal_block, nodes.comment))
                         and 'testnodetype' in node) or \
-                       isinstance(node, nodes.doctest_block)
+                    isinstance(node, nodes.doctest_block)
         else:
             def condition(node):
                 return isinstance(node, (nodes.literal_block, nodes.comment)) \
-                        and 'testnodetype' in node
+                    and 'testnodetype' in node
         for node in doctree.traverse(condition):
             source = 'test' in node and node['test'] or node.astext()
             if not source:
@@ -364,7 +372,7 @@ Doctest summary
                                           filename, 0, None)
             sim_doctest.globs = ns
             old_f = runner.failures
-            self.type = 'exec' # the snippet may contain multiple statements
+            self.type = 'exec'  # the snippet may contain multiple statements
             runner.run(sim_doctest, out=self._warn_out, clear_globs=False)
             if runner.failures > old_f:
                 return False
@@ -394,7 +402,7 @@ Doctest summary
                     new_opt = code[0].options.copy()
                     new_opt.update(example.options)
                     example.options = new_opt
-                self.type = 'single' # as for ordinary doctests
+                self.type = 'single'  # as for ordinary doctests
             else:
                 # testcode and output separate
                 output = code[1] and code[1].code or ''
@@ -413,7 +421,7 @@ Doctest summary
                                           options=options)
                 test = doctest.DocTest([example], {}, group.name,
                                        filename, code[0].lineno, None)
-                self.type = 'exec' # multiple statements again
+                self.type = 'exec'  # multiple statements again
             # DocTest.__init__ copies the globs namespace, which we don't want
             test.globs = ns
             # also don't clear the globs namespace after running the doctest
@@ -435,4 +443,4 @@ def setup(app):
     app.add_config_value('doctest_test_doctest_blocks', 'default', False)
     app.add_config_value('doctest_global_setup', '', False)
     app.add_config_value('doctest_global_cleanup', '', False)
-    return sphinx.__version__
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}

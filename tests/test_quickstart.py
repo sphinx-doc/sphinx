@@ -5,7 +5,7 @@
 
     Test the sphinx.quickstart module.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -29,8 +29,10 @@ warnfile = StringIO()
 def setup_module():
     nocolor()
 
+
 def mock_input(answers, needanswer=False):
     called = set()
+
     def input_(prompt):
         if prompt in called:
             raise AssertionError('answer for %r missing and no default '
@@ -50,7 +52,9 @@ def mock_input(answers, needanswer=False):
         return ''
     return input_
 
+
 real_input = input
+
 
 def teardown_module():
     qs.term_input = real_input
@@ -200,7 +204,7 @@ def test_quickstart_all_answers(tempdir):
     assert ns['master_doc'] == 'contents'
     assert ns['project'] == u'STASI™'
     assert ns['copyright'] == u'%s, Wolfgang Schäuble & G\'Beckstein' % \
-           time.strftime('%Y')
+        time.strftime('%Y')
     assert ns['version'] == '2.0'
     assert ns['release'] == '2.0.1'
     assert ns['html_static_path'] == ['.static']
@@ -214,7 +218,7 @@ def test_quickstart_all_answers(tempdir):
     assert ns['texinfo_documents'] == [
         ('contents', 'STASI', u'STASI™ Documentation',
          u'Wolfgang Schäuble & G\'Beckstein', 'STASI',
-         'One line description of project.', 'Miscellaneous'),]
+         'One line description of project.', 'Miscellaneous')]
 
     assert (tempdir / 'build').isdir()
     assert (tempdir / 'source' / '.static').isdir()
@@ -237,7 +241,7 @@ def test_generated_files_eol(tempdir):
 
     def assert_eol(filename, eol):
         content = filename.bytes().decode('unicode-escape')
-        assert all([l[-len(eol):]==eol for l in content.splitlines(True)])
+        assert all([l[-len(eol):] == eol for l in content.splitlines(True)])
 
     assert_eol(tempdir / 'make.bat', '\r\n')
     assert_eol(tempdir / 'Makefile', '\n')
@@ -257,13 +261,13 @@ def test_quickstart_and_build(tempdir):
     qs.generate(d)
 
     app = application.Sphinx(
-            tempdir,  #srcdir
-            tempdir,  #confdir
-            (tempdir / '_build' / 'html'),  #outdir
-            (tempdir / '_build' / '.doctree'),  #doctreedir
-            'html',  #buildername
-            status=StringIO(),
-            warning=warnfile)
+        tempdir,  # srcdir
+        tempdir,  # confdir
+        (tempdir / '_build' / 'html'),  # outdir
+        (tempdir / '_build' / '.doctree'),  # doctreedir
+        'html',  # buildername
+        status=StringIO(),
+        warning=warnfile)
     app.builder.build_all()
     warnings = warnfile.getvalue()
     assert not warnings
@@ -273,7 +277,7 @@ def test_quickstart_and_build(tempdir):
 def test_default_filename(tempdir):
     answers = {
         'Root path': tempdir,
-        'Project name': u'\u30c9\u30a4\u30c4', #Fullwidth characters only
+        'Project name': u'\u30c9\u30a4\u30c4',  # Fullwidth characters only
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
     }

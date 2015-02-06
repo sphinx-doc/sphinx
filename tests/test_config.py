@@ -6,10 +6,10 @@
     Test the sphinx.config.Config class and its handling in the
     Application class.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from six import PY3
+from six import PY2, PY3, StringIO
 
 from util import TestApp, with_app, with_tempdir, raises, raises_msg
 
@@ -20,7 +20,7 @@ from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
 @with_app(confoverrides={'master_doc': 'master', 'nonexisting_value': 'True',
                          'latex_elements.docclass': 'scrartcl',
                          'modindex_common_prefix': 'path1,path2'})
-def test_core_config(app):
+def test_core_config(app, status, warning):
     cfg = app.config
 
     # simple values
@@ -36,7 +36,7 @@ def test_core_config(app):
     # simple default values
     assert 'locale_dirs' not in cfg.__dict__
     assert cfg.locale_dirs == []
-    assert cfg.trim_footnote_reference_space == False
+    assert cfg.trim_footnote_reference_space is False
 
     # complex default values
     assert 'html_title' not in cfg.__dict__
@@ -68,7 +68,7 @@ def test_core_config(app):
 
 
 @with_app()
-def test_extension_values(app):
+def test_extension_values(app, status, warning):
     cfg = app.config
 
     # default value
@@ -133,3 +133,42 @@ def test_config_eol(tmpdir):
         cfg = Config(tmpdir, 'conf.py', {}, None)
         cfg.init_values(lambda warning: 1/0)
         assert cfg.project == u'spam'
+
+
+TYPECHECK_OVERRIDES = [
+    # configuration key, override value, should warn, default type
+    ('master_doc', 123, True, str),
+    ('man_pages', 123, True, list),  # lambda
+    ('man_pages', [], False, list),
+    ('epub_tocdepth', True, True, int),  # child type
+    ('nitpicky', 3, False, bool),  # parent type
+    ('templates_path', (), True, list),  # other sequence, also raises
+]
+if PY2:
+    # Run a check for proper sibling detection in Python 2.  Under py3k, the
+    # default types do not have any siblings.
+    TYPECHECK_OVERRIDES.append(
+            ('html_add_permalinks', 'bar', False, unicode))
+
+def test_gen_check_types():
+    for key, value, should, deftype in TYPECHECK_OVERRIDES:
+        warning = StringIO()
+        try:
+            app = TestApp(confoverrides={key: value}, warning=warning)
+        except:
+            pass
+        else:
+            app.cleanup()
+
+        real = type(value).__name__
+        msg = ("WARNING: the config value %r has type `%s',"
+               " defaults to `%s.'\n" % (key, real, deftype.__name__))
+        def test():
+            warning_list = warning.getvalue()
+            assert (msg in warning_list) == should, \
+                    "Setting %s to %r should%s raise: %s" % \
+                    (key, value, " not" if should else "", msg)
+        test.description = "test_check_type_%s_on_%s" % \
+                (real, type(Config.config_values[key][0]).__name__)
+
+        yield test

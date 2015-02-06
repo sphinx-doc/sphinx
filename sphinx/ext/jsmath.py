@@ -6,7 +6,7 @@
     Set up everything for use of JSMath to display math in HTML
     via JavaScript.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -57,4 +57,4 @@ def setup(app):
     mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
     app.add_config_value('jsmath_path', '', False)
     app.connect('builder-inited', builder_inited)
-    return sphinx.__version__
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}

@@ -5,7 +5,7 @@
 
     The reStructuredText domain.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -123,6 +123,12 @@ class ReSTDomain(Domain):
             if doc == docname:
                 del self.data['objects'][typ, name]
 
+    def merge_domaindata(self, docnames, otherdata):
+        # XXX check duplicates
+        for (typ, name), doc in otherdata['objects'].items():
+            if doc in docnames:
+                self.data['objects'][typ, name] = doc
+
     def resolve_xref(self, env, fromdocname, builder, typ, target, node,
                      contnode):
         objects = self.data['objects']
@@ -133,6 +139,19 @@ class ReSTDomain(Domain):
                                     objects[objtype, target],
                                     objtype + '-' + target,
                                     contnode, target + ' ' + objtype)
+
+    def resolve_any_xref(self, env, fromdocname, builder, target,
+                         node, contnode):
+        objects = self.data['objects']
+        results = []
+        for objtype in self.object_types:
+            if (objtype, target) in self.data['objects']:
+                results.append(('rst:' + self.role_for_objtype(objtype),
+                                make_refnode(builder, fromdocname,
+                                             objects[objtype, target],
+                                             objtype + '-' + target,
+                                             contnode, target + ' ' + objtype)))
+        return results
 
     def get_objects(self):
         for (typ, name), docname in iteritems(self.data['objects']):

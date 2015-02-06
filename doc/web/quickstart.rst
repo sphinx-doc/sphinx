@@ -57,7 +57,7 @@ This will return a dictionary containing the following items:
 * **relbar**: A div containing links to related documents
 * **title**: The title of the document
 * **css**: Links to CSS files used by Sphinx
-* **js**: JavaScript containing comment options
+* **script**: JavaScript containing comment options
 
 This dict can then be used as context for templates.  The goal is to be easy to
 integrate with your existing templating system.  An example using `Jinja2
@@ -77,9 +77,9 @@ integrate with your existing templating system.  An example using `Jinja2
        <link rel="stylesheet" href="/static/websupport-custom.css" type="text/css">
    {% endblock %}
 
-   {%- block js %}
+   {%- block script %}
        {{ super() }}
-       {{ document.js|safe }}
+       {{ document.script|safe }}
    {%- endblock %}
 
    {%- block relbar %}

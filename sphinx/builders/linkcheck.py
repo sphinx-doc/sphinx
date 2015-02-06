@@ -5,7 +5,7 @@
 
     The CheckExternalLinksBuilder class.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -122,7 +122,7 @@ class CheckExternalLinksBuilder(Builder):
             elif not (uri[0:5] == 'http:' or uri[0:6] == 'https:'):
                 return 'local', '', 0
             elif uri in self.good:
-                return 'working', '', 0
+                return 'working', 'old', 0
             elif uri in self.broken:
                 return 'broken', self.broken[uri], 0
             elif uri in self.redirected:
@@ -166,13 +166,20 @@ class CheckExternalLinksBuilder(Builder):
                         req = Request(req_url)
                         f = opener.open(req, **kwargs)
                         f.close()
-
+            except HTTPError as err:
+                if err.code == 401:
+                    # We'll take "Unauthorized" as working.
+                    self.good.add(uri)
+                    return 'working', ' - unauthorized', 0
+                else:
+                    self.broken[uri] = str(err)
+                    return 'broken', str(err), 0
             except Exception as err:
                 self.broken[uri] = str(err)
                 return 'broken', str(err), 0
             if f.url.rstrip('/') == req_url.rstrip('/'):
                 self.good.add(uri)
-                return 'working', 'new', 0
+                return 'working', '', 0
             else:
                 new_url = f.url
                 if hash:
@@ -192,7 +199,7 @@ class CheckExternalLinksBuilder(Builder):
         uri, docname, lineno, status, info, code = result
         if status == 'unchecked':
             return
-        if status == 'working' and info != 'new':
+        if status == 'working' and info == 'old':
             return
         if lineno:
             self.info('(line %4d) ' % lineno, nonl=1)
@@ -202,7 +209,7 @@ class CheckExternalLinksBuilder(Builder):
             self.info(darkgray('-local-   ') + uri)
             self.write_entry('local', docname, lineno, uri)
         elif status == 'working':
-            self.info(darkgreen('ok        ')  + uri)
+            self.info(darkgreen('ok        ')  + uri + info)
         elif status == 'broken':
             self.info(red('broken    ') + uri + red(' - ' + info))
             self.write_entry('broken', docname, lineno, uri + ': ' + info)

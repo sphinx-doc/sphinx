@@ -21,15 +21,14 @@ Contents:
    bom
    math
    autodoc
-   autosummary
    metadata
    extensions
-   doctest
    extensions
-   versioning/index
    footnote
    lists
 
+   http://sphinx-doc.org/
+   Latest reference <http://sphinx-doc.org/latest/>
    Python <http://python.org/>
 
 Indices and tables
@@ -44,3 +43,13 @@ References
 
 .. [Ref1] Reference target.
 .. [Ref_1] Reference target 2.
+
+Test for issue #1157
+====================
+
+This used to crash:
+
+.. toctree::
+
+.. toctree::
+   :hidden:

@@ -5,7 +5,7 @@
 
     Test the intersphinx extension.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,7 +17,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.ext.intersphinx import read_inventory_v1, read_inventory_v2, \
-     load_mappings, missing_reference
+    load_mappings, missing_reference
 
 from util import with_app, with_tempdir
 
@@ -49,9 +49,9 @@ def test_read_inventory_v1():
     f.readline()
     invdata = read_inventory_v1(f, '/util', posixpath.join)
     assert invdata['py:module']['module'] == \
-           ('foo', '1.0', '/util/foo.html#module-module', '-')
+        ('foo', '1.0', '/util/foo.html#module-module', '-')
     assert invdata['py:class']['module.cls'] == \
-           ('foo', '1.0', '/util/foo.html#module.cls', '-')
+        ('foo', '1.0', '/util/foo.html#module.cls', '-')
 
 
 def test_read_inventory_v2():
@@ -68,19 +68,19 @@ def test_read_inventory_v2():
 
     assert len(invdata1['py:module']) == 2
     assert invdata1['py:module']['module1'] == \
-           ('foo', '2.0', '/util/foo.html#module-module1', 'Long Module desc')
+        ('foo', '2.0', '/util/foo.html#module-module1', 'Long Module desc')
     assert invdata1['py:module']['module2'] == \
-           ('foo', '2.0', '/util/foo.html#module-module2', '-')
+        ('foo', '2.0', '/util/foo.html#module-module2', '-')
     assert invdata1['py:function']['module1.func'][2] == \
-           '/util/sub/foo.html#module1.func'
+        '/util/sub/foo.html#module1.func'
     assert invdata1['c:function']['CFunc'][2] == '/util/cfunc.html#CFunc'
     assert invdata1['std:term']['a term'][2] == \
-           '/util/glossary.html#term-a-term'
+        '/util/glossary.html#term-a-term'
 
 
 @with_app()
 @with_tempdir
-def test_missing_reference(tempdir, app):
+def test_missing_reference(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_mapping = {
@@ -94,7 +94,7 @@ def test_missing_reference(tempdir, app):
     inv = app.env.intersphinx_inventory
 
     assert inv['py:module']['module2'] == \
-           ('foo', '2.0', 'http://docs.python.org/foo.html#module-module2', '-')
+        ('foo', '2.0', 'http://docs.python.org/foo.html#module-module2', '-')
 
     # create fake nodes and check referencing
 
@@ -156,7 +156,7 @@ def test_missing_reference(tempdir, app):
 
 @with_app()
 @with_tempdir
-def test_load_mappings_warnings(tempdir, app):
+def test_load_mappings_warnings(tempdir, app, status, warning):
     """
     load_mappings issues a warning if new-style mapping
     identifiers are not alphanumeric
@@ -174,4 +174,4 @@ def test_load_mappings_warnings(tempdir, app):
     app.config.intersphinx_cache_limit = 0
     # load the inventory and check if it's done correctly
     load_mappings(app)
-    assert len(app._warning.content) == 2
+    assert warning.getvalue().count('\n') == 2

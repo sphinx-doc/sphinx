@@ -6,52 +6,46 @@
 
     This script runs the Sphinx unit test suite.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
 
+import os
 import sys
-from os import path, chdir, listdir, environ
-import shutil
+import traceback
 
+from path import path
 
-testroot = path.dirname(__file__) or '.'
-if 'BUILD_TEST_PATH' in environ:
-    # for tox testing
-    newroot = environ['BUILD_TEST_PATH']
-    # tox installs the sphinx package, no need for sys.path.insert
-else:
-    newroot = path.join(testroot, path.pardir, 'build')
-    newroot = path.join(newroot, listdir(newroot)[0], 'tests')
+testroot = os.path.dirname(__file__) or '.'
+sys.path.insert(0, os.path.abspath(os.path.join(testroot, os.path.pardir)))
 
-shutil.rmtree(newroot, ignore_errors=True)
-# just copying test directory to parallel testing
-print('Copying sources to build/lib/tests...')
-shutil.copytree(testroot, newroot)
+# check dependencies before testing
+print('Checking dependencies...')
+for modname in ('nose', 'mock', 'six', 'docutils', 'jinja2', 'pygments',
+                'snowballstemmer', 'babel'):
+    try:
+        __import__(modname)
+    except ImportError as err:
+        if modname == 'mock' and sys.version_info[0] == 3:
+            continue
+        traceback.print_exc()
+        print('The %r package is needed to run the Sphinx test suite.' % modname)
+        sys.exit(1)
 
-# always test the sphinx package from build/lib/
-sys.path.insert(0, path.abspath(path.join(newroot, path.pardir)))
-# switch to the copy/converted dir so nose tests the right tests
-chdir(newroot)
+# find a temp dir for testing and clean it up now
+os.environ['SPHINX_TEST_TEMPDIR'] = \
+    os.path.abspath(os.path.join(testroot, 'build')) \
+    if 'SPHINX_TEST_TEMPDIR' not in os.environ \
+    else os.path.abspath(os.environ['SPHINX_TEST_TEMPDIR'])
+tempdir = path(os.environ['SPHINX_TEST_TEMPDIR'])
+print('Temporary files will be placed in %s.' % tempdir)
+if tempdir.exists():
+    tempdir.rmtree()
+tempdir.makedirs()
 
-try:
-    import nose
-except ImportError:
-    print('The nose package is needed to run the Sphinx test suite.')
-    sys.exit(1)
+print('Running Sphinx test suite (with Python %s)...' % sys.version.split()[0])
+sys.stdout.flush()
 
-try:
-    import docutils
-except ImportError:
-    print('Sphinx requires the docutils package to be installed.')
-    sys.exit(1)
-
-try:
-    import jinja2
-except ImportError:
-    print('Sphinx requires the jinja2 package to be installed.')
-    sys.exit(1)
-
-print('Running Sphinx test suite...')
+import nose
 nose.main()

@@ -6,7 +6,7 @@
     Check Python modules and C API for coverage.  Mostly written by Josip
     Dzolonga for the Google Highly Open Participation contest.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -84,7 +84,7 @@ class CoverageBuilder(Builder):
         # Fetch all the info from the header files
         c_objects = self.env.domaindata['c']['objects']
         for filename in self.c_sourcefiles:
-            undoc = []
+            undoc = set()
             f = open(filename, 'r')
             try:
                 for line in f:
@@ -97,7 +97,7 @@ class CoverageBuilder(Builder):
                                     if exp.match(name):
                                         break
                                 else:
-                                    undoc.append((key, name))
+                                    undoc.add((key, name))
                             continue
             finally:
                 f.close()
@@ -114,7 +114,7 @@ class CoverageBuilder(Builder):
 
             for filename, undoc in iteritems(self.c_undoc):
                 write_header(op, filename)
-                for typ, name in undoc:
+                for typ, name in sorted(undoc):
                     op.write(' * %-50s [%9s]\n' % (name, typ))
                 op.write('\n')
         finally:
@@ -265,4 +265,4 @@ def setup(app):
     app.add_config_value('coverage_ignore_c_items', {}, False)
     app.add_config_value('coverage_write_headline', True, False)
     app.add_config_value('coverage_skip_undoc_in_source', False, False)
-    return sphinx.__version__
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}

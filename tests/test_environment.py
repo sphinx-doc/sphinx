@@ -5,12 +5,13 @@
 
     Test the BuildEnvironment class.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
 from six import PY3
 
-from util import TestApp, remove_unicode_literals, path, with_app
+from util import TestApp, remove_unicode_literals, path
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
@@ -18,14 +19,17 @@ from sphinx.builders.latex import LaTeXBuilder
 app = env = None
 warnings = []
 
+
 def setup_module():
     global app, env
-    app = TestApp(freshenv=True, _copy_to_temp=True)
+    app = TestApp(srcdir='root-envtest')
     env = app.env
     env.set_warnfunc(lambda *args: warnings.append(args))
 
+
 def teardown_module():
     app.cleanup()
+
 
 def warning_emitted(file, text):
     for warning in warnings:
@@ -33,18 +37,16 @@ def warning_emitted(file, text):
             return True
     return False
 
+
 # Tests are run in the order they appear in the file, therefore we can
 # afford to not run update() in the setup but in its own test
 
 def test_first_update():
-    msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
-    assert msg.endswith('%d added, 0 changed, 0 removed' % len(env.found_docs))
-    docnames = set()
-    for docname in it:  # the generator does all the work
-        docnames.add(docname)
-    assert docnames == env.found_docs == set(env.all_docs)
+    updated = env.update(app.config, app.srcdir, app.doctreedir, app)
+    assert set(updated) == env.found_docs == set(env.all_docs)
     # test if exclude_patterns works ok
     assert 'subdir/excluded' not in env.found_docs
+
 
 def test_images():
     assert warning_emitted('images', 'image file not readable: foo.png')
@@ -75,6 +77,7 @@ def test_images():
     assert set(latexbuilder.images.values()) == \
         set(['img.pdf', 'img.png', 'img1.png', 'simg.png', 'svgimg.pdf'])
 
+
 def test_second_update():
     # delete, add and "edit" (change saved mtime) some files and update again
     env.all_docs['contents'] = 0
@@ -83,30 +86,32 @@ def test_second_update():
     # the contents.txt toctree; otherwise section numbers would shift
     (root / 'autodoc.txt').unlink()
     (root / 'new.txt').write_text('New file\n========\n')
-    msg, num, it = env.update(app.config, app.srcdir, app.doctreedir, app)
-    assert '1 added, 3 changed, 1 removed' in msg
-    docnames = set()
-    for docname in it:
-        docnames.add(docname)
+    updated = env.update(app.config, app.srcdir, app.doctreedir, app)
     # "includes" and "images" are in there because they contain references
     # to nonexisting downloadable or image files, which are given another
     # chance to exist
-    assert docnames == set(['contents', 'new', 'includes', 'images'])
+    assert set(updated) == set(['contents', 'new', 'includes', 'images'])
     assert 'autodoc' not in env.all_docs
     assert 'autodoc' not in env.found_docs
 
 
-@with_app(srcdir='(empty)')
-def test_undecodable_source_reading_emit_warnings(app):
-    # issue #1524
-    warnings[:] = []
-    app.env.set_warnfunc(lambda *args: warnings.append(args))
-    (app.srcdir / 'contents.rst').write_bytes(b'1\xbb2')
-    _, _, it = app.env.update(app.config, app.srcdir, app.doctreedir, app)
-    list(it)  # the generator does all the work
-    assert warning_emitted(
-        'contents', 'undecodable source characters, replacing with "?":'
-    )
+def test_env_read_docs():
+    """By default, docnames are read in alphanumeric order"""
+    def on_env_read_docs_1(app, env, docnames):
+        pass
+
+    app.connect('env-before-read-docs', on_env_read_docs_1)
+
+    read_docnames = env.update(app.config, app.srcdir, app.doctreedir, app)
+    assert len(read_docnames) > 2 and read_docnames == sorted(read_docnames)
+
+    def on_env_read_docs_2(app, env, docnames):
+        docnames.remove('images')
+
+    app.connect('env-before-read-docs', on_env_read_docs_2)
+
+    read_docnames = env.update(app.config, app.srcdir, app.doctreedir, app)
+    assert len(read_docnames) == 2
 
 
 def test_object_inventory():

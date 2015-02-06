@@ -5,11 +5,9 @@
 
     Create a full-text search index for offline search.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from __future__ import with_statement
-
 import re
 
 from six import iteritems, itervalues, text_type, string_types
@@ -179,9 +177,10 @@ class WordCollector(NodeVisitor):
         self.lang = lang
 
     def dispatch_visit(self, node):
-        if node.__class__ is comment:
+        nodetype = type(node)
+        if issubclass(nodetype, comment):
             raise SkipNode
-        if node.__class__ is raw:
+        if issubclass(nodetype, raw):
             # Some people might put content in raw HTML that should be searched,
             # so we just amateurishly strip HTML tags and index the remaining
             # content
@@ -190,9 +189,9 @@ class WordCollector(NodeVisitor):
             nodetext = re.sub(r'<[^<]+?>', '', nodetext)
             self.found_words.extend(self.lang.split(nodetext))
             raise SkipNode
-        if node.__class__ is Text:
+        if issubclass(nodetype, Text):
             self.found_words.extend(self.lang.split(node.astext()))
-        elif node.__class__ is title:
+        elif issubclass(nodetype, title):
             self.found_title_words.extend(self.lang.split(node.astext()))
 
 
@@ -314,13 +313,13 @@ class IndexBuilder(object):
                     if fn in fn2index:
                         rv[k] = fn2index[fn]
                 else:
-                    rv[k] = [fn2index[fn] for fn in v if fn in fn2index]
+                    rv[k] = sorted([fn2index[fn] for fn in v if fn in fn2index])
         return rvs
 
     def freeze(self):
         """Create a usable data structure for serializing."""
-        filenames = list(self._titles.keys())
-        titles = list(self._titles.values())
+        filenames = sorted(self._titles.keys())
+        titles = sorted(self._titles.values())
         fn2index = dict((f, i) for (i, f) in enumerate(filenames))
         terms, title_terms = self.get_terms(fn2index)
 

@@ -231,6 +231,30 @@ General configuration
 
    .. versionadded:: 1.1
 
+.. confval:: numfig
+
+   If true, figures, tables and code-blocks are automatically numbered if they
+   has caption. For now, it works only with the HTML builder. Default is ``False``.
+
+   .. versionadded:: 1.3
+
+.. confval:: numfig_format
+
+   A dictionary mapping ``'figure'``, ``'table'`` and ``'code-block'`` to
+   strings that are used for format of figure numbers. Default is to use
+   ``'Fig. %s'`` for ``'figure'``, ``'Table %s'`` for ``'table'`` and
+   ``'Listing %s'`` for ``'code-block'``.
+
+   .. versionadded:: 1.3
+
+.. confval:: numfig_secnum_depth
+
+   The scope of figure numbers, that is, the numfig feature numbers figures
+   in which scope. ``0`` means "whole document". ``1`` means "in a section".
+   Sphinx numbers like x.1, x.2, x.3... ``2`` means "in a subsection". Sphinx
+   numbers like x.x.1, x.x.2, x.x.3..., and so on. Default is ``1``.
+
+   .. versionadded:: 1.3
 
 Project information
 -------------------
@@ -279,10 +303,19 @@ Project information
 
    .. versionadded:: 0.5
 
+.. confval:: highlight_options
+
+   A dictionary of options that modify how the lexer specified by
+   :confval:`highlight_language` generates highlighted source code. These are
+   lexer-specific; for the options understood by each, see the
+   `Pygments documentation <http://pygments.org/docs/lexers/>`_.
+
+   .. versionadded:: 1.3
+
 .. confval:: pygments_style
 
-   The style name to use for Pygments highlighting of source code.  The default
-   style is selected by the theme for HTML output, and ``'sphinx'`` otherwise.
+   The style name to use for Pygments highlighting of source code.  If not set,
+   either the theme's default style or ``'sphinx'`` is selected for HTML output.
 
    .. versionchanged:: 0.3
       If the value is a fully-qualified name of a custom Pygments style class,
@@ -424,9 +457,17 @@ documentation on :ref:`intl` for details.
 .. confval:: gettext_uuid
 
    If true, Sphinx generates uuid information for version tracking in message
-   catalogs.
+   catalogs. It is used for:
 
-   The default is ``True``.
+   * Add uid line for each msgids in .pot files.
+   * Calculate similarity between new msgids and previously saved old msgids.
+     This calculation takes a long time.
+
+   If you want to accelerate the calculation, you can use
+   ``python-levenshtein`` 3rd-party package written in C by using
+   :command:`pip install python-levenshtein`.
+
+   The default is ``False``.
 
    .. versionadded:: 1.3
 
@@ -447,6 +488,16 @@ documentation on :ref:`intl` for details.
 
    .. versionadded:: 1.3
 
+.. confval:: gettext_enables
+
+   To specify names to enable gettext extracting and translation applying for
+   i18n. You can specify below names:
+
+   :index: index terms
+
+   The default is ``[]``.
+
+   .. versionadded:: 1.3
 
 .. _html-options:
 
@@ -707,7 +758,7 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_use_opensearch
 
-   If nonempty, an `OpenSearch <http://opensearch.org>` description file will be
+   If nonempty, an `OpenSearch <http://opensearch.org>`_ description file will be
    output, and all pages will contain a ``<link>`` tag referring to it.  Since
    OpenSearch doesn't support relative URLs for its search page location, the
    value of this option must be the base URL from which these documents are
@@ -1003,9 +1054,9 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
    This flag determines if sphinx should try to fix image formats that are not
    supported by some epub readers.  At the moment palette images with a small
-   color table are upgraded.  You need the Python Image Library (PIL) installed
-   to use this option.  The default value is ``False`` because the automatic
-   conversion may lose information.
+   color table are upgraded.  You need the Python Image Library (Pillow the
+   successor of the PIL) installed to use this option.  The default value is
+   ``False`` because the automatic conversion may lose information.
 
    .. versionadded:: 1.2
 
@@ -1014,7 +1065,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    This option specifies the maximum width of images.  If it is set to a value
    greater than zero, images with a width larger than the given value are
    scaled accordingly.  If it is zero, no scaling is performed. The default
-   value is ``0``.  You need the Python Image Library (PIL) installed to use
+   value is ``0``.  You need the Python Image Library (Pillow) installed to use
    this option.
 
    .. versionadded:: 1.2

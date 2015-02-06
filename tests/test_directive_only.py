@@ -5,7 +5,7 @@
 
     Test the only directive with the test root.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,15 +13,11 @@ import re
 
 from docutils import nodes
 
-from util import with_app, test_roots
+from util import with_app
 
 
-def teardown_module():
-    (test_roots / 'test-directive-only' / '_build').rmtree(True)
-
-
-@with_app(buildername='text', srcdir=(test_roots / 'test-directive-only'))
-def test_sectioning(app):
+@with_app('text', testroot='directive-only')
+def test_sectioning(app, status, warning):
 
     def getsects(section):
         if not isinstance(section, nodes.section):

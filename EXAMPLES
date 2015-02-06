@@ -44,6 +44,7 @@ Documentation using the default theme
 * Paste: http://pythonpaste.org/script/
 * Paver: http://paver.github.io/paver/
 * Pioneers and Prominent Men of Utah: http://pioneers.rstebbing.com/
+* PyCantonese: http://pycantonese.github.io/
 * Pyccuracy: https://github.com/heynemann/pyccuracy/wiki/
 * PyCuda: http://documen.tician.de/pycuda/
 * Pyevolve: http://pyevolve.sourceforge.net/
@@ -51,6 +52,7 @@ Documentation using the default theme
 * PyMQI: http://pythonhosted.org/pymqi/
 * PyPubSub: http://pubsub.sourceforge.net/
 * pyrticle: http://documen.tician.de/pyrticle/
+* pySPACE: http://pyspace.github.io/pyspace/
 * Python: http://docs.python.org/
 * python-apt: http://apt.alioth.debian.org/python-apt-doc/
 * PyUblas: http://documen.tician.de/pyublas/
@@ -73,6 +75,7 @@ Documentation using a customized version of the default theme
 * Chaco: http://docs.enthought.com/chaco/
 * Chef: http://docs.opscode.com/
 * Djagios: http://djagios.org/
+* EZ-Draw: http://pageperso.lif.univ-mrs.fr/~edouard.thiel/ez-draw/doc/en/html/ez-manual.html
 * GetFEM++: http://home.gna.org/getfem/
 * Google or-tools:
   https://or-tools.googlecode.com/svn/trunk/documentation/user_manual/index.html
@@ -181,6 +184,8 @@ Documentation using a custom theme/integrated in a site
 * Pylons: http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/
 * PyMOTW: http://pymotw.com/2/
 * pypol: http://pypol.altervista.org/ (celery)
+* python-aspectlib: http://python-aspectlib.readthedocs.org/en/latest/
+  (`sphinx-py3doc-enhanced-theme`_)
 * QGIS: http://qgis.org/en/docs/index.html
 * qooxdoo: http://manual.qooxdoo.org/current/
 * Roundup: http://www.roundup-tracker.org/
@@ -195,6 +200,8 @@ Documentation using a custom theme/integrated in a site
 * Ubuntu packaging guide: http://packaging.ubuntu.com/html/
 * Werkzeug: http://werkzeug.pocoo.org/docs/
 * WFront: http://discorporate.us/projects/WFront/
+
+.. _sphinx-py3doc-enhanced-theme: https://pypi.python.org/pypi/sphinx_py3doc_enhanced_theme
 
 
 Homepages and other non-documentation sites
@@ -235,6 +242,7 @@ Books produced using Sphinx
   http://www.oreilly.co.jp/books/9784873116488/
 * "LassoGuide":
   http://www.lassosoft.com/Lasso-Documentation
+* "Software-Dokumentation mit Sphinx": http://www.amazon.de/dp/1497448689/
 
 
 Thesis using Sphinx

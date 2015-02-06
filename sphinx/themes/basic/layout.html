@@ -4,7 +4,7 @@
 
     Master layout template for Sphinx themes.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- block doctype -%}
@@ -139,7 +139,7 @@
     {%- if hasdoc('copyright') %}
     <link rel="copyright" title="{{ _('Copyright') }}" href="{{ pathto('copyright') }}" />
     {%- endif %}
-    <link rel="top" title="{{ docstitle|e }}" href="{{ pathto('index') }}" />
+    <link rel="top" title="{{ docstitle|e }}" href="{{ pathto(master_doc) }}" />
     {%- if parents %}
     <link rel="up" title="{{ parents[-1].title|striptags|e }}" href="{{ parents[-1].link|e }}" />
     {%- endif %}

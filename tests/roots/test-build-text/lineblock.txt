@@ -1,0 +1,6 @@
+* one
+
+  | line-block 1
+  | line-block 2
+
+followed paragraph.

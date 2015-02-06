@@ -92,7 +92,7 @@ Referring to :func:`nothing <>`.
    :type isdst: * some complex
                 * expression
    :returns: a new :class:`Time` instance
-   :rtype: :class:`Time`
+   :rtype: Time
    :raises ValueError: if the values are out of range
    :ivar int hour: like *hour*
    :ivar minute: like *minute*
@@ -169,6 +169,10 @@ Others
 .. program:: perl
 
 .. cmdoption:: -c
+
+.. option:: +p
+
+Link to :option:`perl +p`.
 
 
 User markup

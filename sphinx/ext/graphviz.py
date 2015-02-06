@@ -6,7 +6,7 @@
     Allow graphviz-formatted graphs to be included in Sphinx-generated
     documents inline.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -146,14 +146,8 @@ def render_dot(self, code, options, format, prefix='graphviz'):
               ).encode('utf-8')
 
     fname = '%s-%s.%s' % (prefix, sha1(hashkey).hexdigest(), format)
-    if hasattr(self.builder, 'imgpath'):
-        # HTML
-        relfn = posixpath.join(self.builder.imgpath, fname)
-        outfn = path.join(self.builder.outdir, '_images', fname)
-    else:
-        # LaTeX
-        relfn = fname
-        outfn = path.join(self.builder.outdir, fname)
+    relfn = posixpath.join(self.builder.imgpath, fname)
+    outfn = path.join(self.builder.outdir, self.builder.imagedir, fname)
 
     if path.isfile(outfn):
         return relfn, outfn
@@ -323,4 +317,4 @@ def setup(app):
     app.add_config_value('graphviz_dot', 'dot', 'html')
     app.add_config_value('graphviz_dot_args', [], 'html')
     app.add_config_value('graphviz_output_format', 'png', 'html')
-    return sphinx.__version__
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}

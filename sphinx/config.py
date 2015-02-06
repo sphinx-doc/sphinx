@@ -5,11 +5,10 @@
 
     Build configuration file handling.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import os
 import re
 from os import path
 
@@ -17,7 +16,7 @@ from six import PY3, iteritems, string_types, binary_type, integer_types
 
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
-from sphinx.util.osutil import make_filename
+from sphinx.util.osutil import make_filename, cd
 from sphinx.util.pycompat import execfile_
 
 nonascii_re = re.compile(br'[\x80-\xff]')
@@ -25,6 +24,9 @@ nonascii_re = re.compile(br'[\x80-\xff]')
 CONFIG_SYNTAX_ERROR = "There is a syntax error in your configuration file: %s"
 if PY3:
     CONFIG_SYNTAX_ERROR += "\nDid you change the syntax from 2.x to 3.x?"
+CONFIG_EXIT_ERROR = "The configuration file (or one of the modules it imports) " \
+                    "called sys.exit()"
+
 
 class Config(object):
     """
@@ -59,6 +61,7 @@ class Config(object):
         show_authors = (False, 'env'),
         pygments_style = (None, 'html'),
         highlight_language = ('python', 'env'),
+        highlight_options = ({}, 'env'),
         templates_path = ([], 'html'),
         template_bridge = (None, 'html'),
         keep_warnings = (False, 'env'),
@@ -71,6 +74,12 @@ class Config(object):
         needs_extensions = ({}, None),
         nitpicky = (False, 'env'),
         nitpick_ignore = ([], 'html'),
+        numfig = (False, 'env'),
+        numfig_secnum_depth = (1, 'env'),
+        numfig_format = ({'figure': l_('Fig. %s'),
+                          'table': l_('Table %s'),
+                          'code-block': l_('Listing %s')},
+                         'env'),
 
         # HTML options
         html_theme = ('default', 'html'),
@@ -204,8 +213,9 @@ class Config(object):
         # gettext options
         gettext_compact = (True, 'gettext'),
         gettext_location = (True, 'gettext'),
-        gettext_uuid = (True, 'gettext'),
+        gettext_uuid = (False, 'gettext'),
         gettext_auto_build = (True, 'env'),
+        gettext_enables = ([], 'env'),
 
         # XML options
         xml_pretty = (True, 'env'),
@@ -215,7 +225,7 @@ class Config(object):
         self.overrides = overrides
         self.values = Config.config_values.copy()
         config = {}
-        if 'extensions' in overrides:
+        if 'extensions' in overrides: #XXX do we need this?
             if isinstance(overrides['extensions'], string_types):
                 config['extensions'] = overrides.pop('extensions').split(',')
             else:
@@ -224,23 +234,45 @@ class Config(object):
             config_file = path.join(dirname, filename)
             config['__file__'] = config_file
             config['tags'] = tags
-            olddir = os.getcwd()
-            try:
+            with cd(dirname):
                 # we promise to have the config dir as current dir while the
                 # config file is executed
-                os.chdir(dirname)
                 try:
                     execfile_(filename, config)
                 except SyntaxError as err:
                     raise ConfigError(CONFIG_SYNTAX_ERROR % err)
-            finally:
-                os.chdir(olddir)
+                except SystemExit:
+                    raise ConfigError(CONFIG_EXIT_ERROR)
 
         self._raw_config = config
         # these two must be preinitialized because extensions can add their
         # own config values
         self.setup = config.get('setup', None)
         self.extensions = config.get('extensions', [])
+
+    def check_types(self, warn):
+        # check all values for deviation from the default value's type, since
+        # that can result in TypeErrors all over the place
+        # NB. since config values might use l_() we have to wait with calling
+        # this method until i18n is initialized
+        for name in self._raw_config:
+            if name not in Config.config_values:
+                continue  # we don't know a default value
+            default, dummy_rebuild = Config.config_values[name]
+            if hasattr(default, '__call__'):
+                default = default(self)  # could invoke l_()
+            if default is None:
+                continue
+            current = self[name]
+            if type(current) is type(default):
+                continue
+            common_bases = (set(type(current).__bases__ + (type(current),))
+                          & set(type(default).__bases__))
+            common_bases.discard(object)
+            if common_bases:
+                continue  # at least we share a non-trivial base class
+            warn("the config value %r has type `%s', defaults to `%s.'"
+                    % (name, type(current).__name__, type(default).__name__))
 
     def check_unicode(self, warn):
         # check all string values for non-ASCII characters in bytestrings,
@@ -277,9 +309,11 @@ class Config(object):
                     except ValueError:
                         warn('invalid number %r for config value %r, ignoring'
                              % (value, valname))
+                elif hasattr(defvalue, '__call__'):
+                    config[valname] = value
                 elif defvalue is not None and not isinstance(defvalue, string_types):
-                    warn('cannot override config setting %r with unsupported type, '
-                         'ignoring' % valname)
+                    warn('cannot override config setting %r with unsupported '
+                         'type, ignoring' % valname)
                 else:
                     config[valname] = value
             else:
@@ -287,7 +321,6 @@ class Config(object):
         for name in config:
             if name in self.values:
                 self.__dict__[name] = config[name]
-        del self._raw_config
 
     def __getattr__(self, name):
         if name.startswith('_'):

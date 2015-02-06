@@ -39,10 +39,10 @@
 \definecolor{TitleColor}{rgb}{0.126,0.263,0.361}
 \definecolor{InnerLinkColor}{rgb}{0.208,0.374,0.486}
 \definecolor{OuterLinkColor}{rgb}{0.216,0.439,0.388}
-% Redefine these colors to something not white if you want to have colored
+% Redefine these colors to something if you want to have colored
 % background and border for code examples.
 \definecolor{VerbatimColor}{rgb}{1,1,1}
-\definecolor{VerbatimBorderColor}{rgb}{1,1,1}
+\definecolor{VerbatimBorderColor}{rgb}{0,0,0}
 
 % Uncomment these two lines to ignore the paper size and make the page 
 % size more like a typical published manual.
@@ -522,3 +522,13 @@
     \gdef\@chappos{}
   }
 \fi
+
+% Define literal-block environment
+\RequirePackage{float}
+\floatstyle{plaintop}
+\ifx\thechapter\undefined
+  \newfloat{literal-block}{htbp}{loc}[section]
+\else
+  \newfloat{literal-block}{htbp}{loc}[chapter]
+\fi
+\floatname{literal-block}{List}

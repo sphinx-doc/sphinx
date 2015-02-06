@@ -6,7 +6,7 @@
     "Doc fields" are reST field lists in object descriptions that will
     be domain-specifically transformed to a more appealing presentation.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -29,10 +29,12 @@ def _is_single_paragraph(node):
 
 
 class Field(object):
-    """
-    A doc field that is never grouped.  It can have an argument or not, the
+    """A doc field that is never grouped.  It can have an argument or not, the
     argument can be linked using a specified *rolename*.  Field should be used
     for doc fields that usually don't occur more than once.
+
+    The body can be linked using a specified *bodyrolename* if the content is
+    just a single inline or text node.
 
     Example::
 
@@ -42,19 +44,22 @@ class Field(object):
     is_grouped = False
     is_typed = False
 
-    def __init__(self, name, names=(), label=None, has_arg=True, rolename=None):
+    def __init__(self, name, names=(), label=None, has_arg=True, rolename=None,
+                 bodyrolename=None):
         self.name = name
         self.names = names
         self.label = label
         self.has_arg = has_arg
         self.rolename = rolename
+        self.bodyrolename = bodyrolename
 
-    def make_xref(self, rolename, domain, target, innernode=nodes.emphasis):
+    def make_xref(self, rolename, domain, target, innernode=nodes.emphasis,
+                  contnode=None):
         if not rolename:
-            return innernode(target, target)
+            return contnode or innernode(target, target)
         refnode = addnodes.pending_xref('', refdomain=domain, refexplicit=False,
                                         reftype=rolename, reftarget=target)
-        refnode += innernode(target, target)
+        refnode += contnode or innernode(target, target)
         return refnode
 
     def make_entry(self, fieldarg, content):
@@ -67,6 +72,12 @@ class Field(object):
             fieldname += nodes.Text(' ')
             fieldname += self.make_xref(self.rolename, domain,
                                         fieldarg, nodes.Text)
+        if len(content) == 1 and (
+                isinstance(content[0], nodes.Text) or
+                (isinstance(content[0], nodes.inline) and len(content[0]) == 1
+                 and isinstance(content[0][0], nodes.Text))):
+            content = [self.make_xref(self.bodyrolename, domain,
+                                      content[0].astext(), contnode=content[0])]
         fieldbody = nodes.field_body('', nodes.paragraph('', '', *content))
         return nodes.field('', fieldname, fieldbody)
 

@@ -5,7 +5,7 @@
 
     Test the Theme class.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,14 +19,14 @@ from util import with_app, raises
 
 @with_app(confoverrides={'html_theme': 'ziptheme',
                          'html_theme_options.testopt': 'foo'})
-def test_theme_api(app):
+def test_theme_api(app, status, warning):
     cfg = app.config
 
     # test Theme class API
     assert set(Theme.themes.keys()) == \
-           set(['basic', 'default', 'scrolls', 'agogo', 'sphinxdoc', 'haiku',
-                'traditional', 'testtheme', 'ziptheme', 'epub', 'nature',
-                'pyramid', 'bizstyle'])
+        set(['basic', 'default', 'scrolls', 'agogo', 'sphinxdoc', 'haiku',
+             'traditional', 'testtheme', 'ziptheme', 'epub', 'nature',
+             'pyramid', 'bizstyle'])
     assert Theme.themes['testtheme'][1] is None
     assert isinstance(Theme.themes['ziptheme'][1], zipfile.ZipFile)
 
@@ -56,16 +56,17 @@ def test_theme_api(app):
     theme.cleanup()
     assert not os.path.exists(themedir)
 
-@with_app(buildername='html')
-def test_js_source(app):
+
+@with_app(testroot='tocdepth')  # a minimal root
+def test_js_source(app, status, warning):
     # Now sphinx provides non-minified JS files for jquery.js and underscore.js
     # to clarify the source of the minified files. see also #1434.
     # If you update the version of the JS file, please update the source of the
     # JS file and version number in this test.
 
-    app.builder.build_all()
+    app.builder.build(['contents'])
 
-    v = '1.8.3'
+    v = '1.11.1'
     msg = 'jquery.js version does not match to {v}'.format(v=v)
     jquery_min = (app.outdir / '_static' / 'jquery.js').text()
     assert 'jQuery v{v}'.format(v=v) in jquery_min, msg

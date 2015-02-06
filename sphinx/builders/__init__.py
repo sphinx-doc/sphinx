@@ -5,7 +5,7 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -22,7 +22,9 @@ from docutils import nodes
 
 from sphinx.util import i18n, path_stabilize
 from sphinx.util.osutil import SEP, relative_uri, find_catalog
-from sphinx.util.console import bold, purple, darkgreen, term_width_line
+from sphinx.util.console import bold, darkgreen
+from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
+    parallel_available
 
 # side effect: registers roles and directives
 from sphinx import roles
@@ -40,12 +42,14 @@ class Builder(object):
     format = ''
     # doctree versioning method
     versioning_method = 'none'
+    versioning_compare = False
     # allow parallel write_doc() calls
     allow_parallel = False
 
     def __init__(self, app):
         self.env = app.env
-        self.env.set_versioning_method(self.versioning_method)
+        self.env.set_versioning_method(self.versioning_method,
+                                       self.versioning_compare)
         self.srcdir = app.srcdir
         self.confdir = app.confdir
         self.outdir = app.outdir
@@ -62,9 +66,20 @@ class Builder(object):
         self.tags.add(self.name)
         self.tags.add("format_%s" % self.format)
         self.tags.add("builder_%s" % self.name)
+        # compatibility aliases
+        self.status_iterator = app.status_iterator
+        self.old_status_iterator = app.old_status_iterator
 
         # images that need to be copied over (source -> dest)
         self.images = {}
+        # basename of images directory
+        self.imagedir = ""
+        # relative path to image directory from current docname (used at writing docs)
+        self.imgpath = ""
+
+        # these get set later
+        self.parallel_ok = False
+        self.finish_tasks = None
 
         # load default translator class
         self.translator_class = app._translators.get(self.name)
@@ -113,41 +128,6 @@ class Builder(object):
         """
         raise NotImplementedError
 
-    def old_status_iterator(self, iterable, summary, colorfunc=darkgreen,
-                            stringify_func=lambda x: x):
-        l = 0
-        for item in iterable:
-            if l == 0:
-                self.info(bold(summary), nonl=1)
-                l = 1
-            self.info(colorfunc(stringify_func(item)) + ' ', nonl=1)
-            yield item
-        if l == 1:
-            self.info()
-
-    # new version with progress info
-    def status_iterator(self, iterable, summary, colorfunc=darkgreen, length=0,
-                        stringify_func=lambda x: x):
-        if length == 0:
-            for item in self.old_status_iterator(iterable, summary, colorfunc,
-                                                 stringify_func):
-                yield item
-            return
-        l = 0
-        summary = bold(summary)
-        for item in iterable:
-            l += 1
-            s = '%s[%3d%%] %s' % (summary, 100*l/length,
-                                  colorfunc(stringify_func(item)))
-            if self.app.verbosity:
-                s += '\n'
-            else:
-                s = term_width_line(s)
-            self.info(s, nonl=1)
-            yield item
-        if l > 0:
-            self.info()
-
     supported_image_types = []
 
     def post_process_images(self, doctree):
@@ -179,9 +159,8 @@ class Builder(object):
     def compile_catalogs(self, catalogs, message):
         if not self.config.gettext_auto_build:
             return
-        self.info(bold('building [mo]: '), nonl=1)
-        self.info(message)
-        for catalog in self.status_iterator(
+        self.info(bold('building [mo]: ') + message)
+        for catalog in self.app.status_iterator(
                 catalogs, 'writing output... ', darkgreen, len(catalogs),
                 lambda c: c.mo_path):
             catalog.write_mo(self.config.language)
@@ -263,25 +242,16 @@ class Builder(object):
         First updates the environment, and then calls :meth:`write`.
         """
         if summary:
-            self.info(bold('building [%s]: ' % self.name), nonl=1)
-            self.info(summary)
+            self.info(bold('building [%s]' % self.name) + ': ' + summary)
 
-        updated_docnames = set()
         # while reading, collect all warnings from docutils
         warnings = []
         self.env.set_warnfunc(lambda *args: warnings.append(args))
-        self.info(bold('updating environment: '), nonl=1)
-        msg, length, iterator = self.env.update(self.config, self.srcdir,
-                                                self.doctreedir, self.app)
-        self.info(msg)
-        for docname in self.status_iterator(iterator, 'reading sources... ',
-                                            purple, length):
-            updated_docnames.add(docname)
-            # nothing further to do, the environment has already
-            # done the reading
+        updated_docnames = set(self.env.update(self.config, self.srcdir,
+                                               self.doctreedir, self.app))
+        self.env.set_warnfunc(self.warn)
         for warning in warnings:
             self.warn(*warning)
-        self.env.set_warnfunc(self.warn)
 
         doccount = len(updated_docnames)
         self.info(bold('looking for now-outdated files... '), nonl=1)
@@ -315,20 +285,33 @@ class Builder(object):
         if docnames and docnames != ['__all__']:
             docnames = set(docnames) & self.env.found_docs
 
-        # another indirection to support builders that don't build
-        # files individually
+        # determine if we can write in parallel
+        self.parallel_ok = False
+        if parallel_available and self.app.parallel > 1 and self.allow_parallel:
+            self.parallel_ok = True
+            for extname, md in self.app._extension_metadata.items():
+                par_ok = md.get('parallel_write_safe', True)
+                if not par_ok:
+                    self.app.warn('the %s extension is not safe for parallel '
+                                  'writing, doing serial write' % extname)
+                    self.parallel_ok = False
+                    break
+
+        #  create a task executor to use for misc. "finish-up" tasks
+        # if self.parallel_ok:
+        #     self.finish_tasks = ParallelTasks(self.app.parallel)
+        # else:
+        # for now, just execute them serially
+        self.finish_tasks = SerialTasks()
+
+        # write all "normal" documents (or everything for some builders)
         self.write(docnames, list(updated_docnames), method)
 
         # finish (write static files etc.)
         self.finish()
-        status = (self.app.statuscode == 0 and 'succeeded'
-                                           or 'finished with problems')
-        if self.app._warncount:
-            self.info(bold('build %s, %s warning%s.' %
-                           (status, self.app._warncount,
-                            self.app._warncount != 1 and 's' or '')))
-        else:
-            self.info(bold('build %s.' % status))
+
+        # wait for all tasks
+        self.finish_tasks.join()
 
     def write(self, build_docnames, updated_docnames, method='update'):
         if build_docnames is None or build_docnames == ['__all__']:
@@ -354,23 +337,17 @@ class Builder(object):
 
         warnings = []
         self.env.set_warnfunc(lambda *args: warnings.append(args))
-        # check for prerequisites to parallel build
-        # (parallel only works on POSIX, because the forking impl of
-        # multiprocessing is required)
-        if not (multiprocessing and
-                self.app.parallel > 1 and
-                self.allow_parallel and
-                os.name == 'posix'):
-            self._write_serial(sorted(docnames), warnings)
-        else:
+        if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
             # is busy loading doctrees and doing write_doc_serialized()
             self._write_parallel(sorted(docnames), warnings,
                                  nproc=self.app.parallel - 1)
+        else:
+            self._write_serial(sorted(docnames), warnings)
         self.env.set_warnfunc(self.warn)
 
     def _write_serial(self, docnames, warnings):
-        for docname in self.status_iterator(
+        for docname in self.app.status_iterator(
                 docnames, 'writing output... ', darkgreen, len(docnames)):
             doctree = self.env.get_and_resolve_doctree(docname, self)
             self.write_doc_serialized(docname, doctree)
@@ -380,60 +357,39 @@ class Builder(object):
 
     def _write_parallel(self, docnames, warnings, nproc):
         def write_process(docs):
-            try:
-                for docname, doctree in docs:
-                    self.write_doc(docname, doctree)
-            except KeyboardInterrupt:
-                pass  # do not print a traceback on Ctrl-C
-            finally:
-                for warning in warnings:
-                    self.warn(*warning)
+            local_warnings = []
+            self.env.set_warnfunc(lambda *args: local_warnings.append(args))
+            for docname, doctree in docs:
+                self.write_doc(docname, doctree)
+            return local_warnings
 
-        def process_thread(docs):
-            p = multiprocessing.Process(target=write_process, args=(docs,))
-            p.start()
-            p.join()
-            semaphore.release()
-
-        # allow only "nproc" worker processes at once
-        semaphore = threading.Semaphore(nproc)
-        # list of threads to join when waiting for completion
-        threads = []
+        def add_warnings(docs, wlist):
+            warnings.extend(wlist)
 
         # warm up caches/compile templates using the first document
         firstname, docnames = docnames[0], docnames[1:]
         doctree = self.env.get_and_resolve_doctree(firstname, self)
         self.write_doc_serialized(firstname, doctree)
         self.write_doc(firstname, doctree)
-        # for the rest, determine how many documents to write in one go
-        ndocs = len(docnames)
-        chunksize = min(ndocs // nproc, 10)
-        if chunksize == 0:
-            chunksize = 1
-        nchunks, rest = divmod(ndocs, chunksize)
-        if rest:
-            nchunks += 1
-        # partition documents in "chunks" that will be written by one Process
-        chunks = [docnames[i*chunksize:(i+1)*chunksize] for i in range(nchunks)]
-        for docnames in self.status_iterator(
-                chunks, 'writing output... ', darkgreen, len(chunks),
-                lambda chk: '%s .. %s' % (chk[0], chk[-1])):
-            docs = []
-            for docname in docnames:
+
+        tasks = ParallelTasks(nproc)
+        chunks = make_chunks(docnames, nproc)
+
+        for chunk in self.app.status_iterator(
+                chunks, 'writing output... ', darkgreen, len(chunks)):
+            arg = []
+            for i, docname in enumerate(chunk):
                 doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.write_doc_serialized(docname, doctree)
-                docs.append((docname, doctree))
-            # start a new thread to oversee the completion of this chunk
-            semaphore.acquire()
-            t = threading.Thread(target=process_thread, args=(docs,))
-            t.setDaemon(True)
-            t.start()
-            threads.append(t)
+                arg.append((docname, doctree))
+            tasks.add_task(write_process, arg, add_warnings)
 
         # make sure all threads have finished
-        self.info(bold('waiting for workers... '))#, nonl=True)
-        for t in threads:
-            t.join()
+        self.info(bold('waiting for workers...'))
+        tasks.join()
+
+        for warning in warnings:
+            self.warn(*warning)
 
     def prepare_writing(self, docnames):
         """A place where you can add logic before :meth:`write_doc` is run"""

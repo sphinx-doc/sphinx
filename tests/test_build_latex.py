@@ -5,7 +5,7 @@
 
     Test the build process with LaTeX builder with the test root.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -14,19 +14,13 @@ import os
 import re
 from subprocess import Popen, PIPE
 
-from six import PY3, StringIO
+from six import PY3
 
 from sphinx.writers.latex import LaTeXTranslator
 
-from util import test_root, SkipTest, remove_unicode_literals, with_app
+from util import SkipTest, remove_unicode_literals, with_app
 from test_build_html import ENV_WARNINGS
 
-
-def teardown_module():
-    (test_root / '_build').rmtree(True)
-
-
-latex_warnfile = StringIO()
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
 None:None: WARNING: citation not found: missing
@@ -39,17 +33,17 @@ if PY3:
     LATEX_WARNINGS = remove_unicode_literals(LATEX_WARNINGS)
 
 
-@with_app(buildername='latex', warning=latex_warnfile, cleanenv=True)
-def test_latex(app):
+@with_app(buildername='latex')
+def test_latex(app, status, warning):
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
-    latex_warnings = latex_warnfile.getvalue().replace(os.sep, '/')
+    latex_warnings = warning.getvalue().replace(os.sep, '/')
     latex_warnings_exp = LATEX_WARNINGS % {
-            'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(latex_warnings_exp + '$', latex_warnings), \
-           'Warnings don\'t match:\n' + \
-           '--- Expected (regex):\n' + latex_warnings_exp + \
-           '--- Got:\n' + latex_warnings
+        'Warnings don\'t match:\n' + \
+        '--- Expected (regex):\n' + latex_warnings_exp + \
+        '--- Got:\n' + latex_warnings
 
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').isfile()
@@ -97,3 +91,94 @@ def test_latex(app):
                 assert False, 'latex exited with return code %s' % p.returncode
     finally:
         os.chdir(cwd)
+
+
+@with_app(buildername='latex',
+          confoverrides={'latex_documents': [
+              ('contents', 'SphinxTests.tex', 'Sphinx Tests Documentation',
+               'Georg Brandl \\and someone else', 'howto'),
+          ]},
+          srcdir='latex_howto')
+def test_latex_howto(app, status, warning):
+    LaTeXTranslator.ignore_missing_images = True
+    app.builder.build_all()
+    latex_warnings = warning.getvalue().replace(os.sep, '/')
+    latex_warnings_exp = LATEX_WARNINGS % {
+        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+    assert re.match(latex_warnings_exp + '$', latex_warnings), \
+        'Warnings don\'t match:\n' + \
+        '--- Expected (regex):\n' + latex_warnings_exp + \
+        '--- Got:\n' + latex_warnings
+
+    # file from latex_additional_files
+    assert (app.outdir / 'svgimg.svg').isfile()
+
+    # only run latex if all needed packages are there
+    def kpsetest(filename):
+        try:
+            p = Popen(['kpsewhich', filename], stdout=PIPE)
+        except OSError:
+            # no kpsewhich... either no tex distribution is installed or it is
+            # a "strange" one -- don't bother running latex
+            return None
+        else:
+            p.communicate()
+            if p.returncode != 0:
+                # not found
+                return False
+            # found
+            return True
+
+    if kpsetest('article.sty') is None:
+        raise SkipTest('not running latex, it doesn\'t seem to be installed')
+    for filename in ['fancyhdr.sty', 'fancybox.sty', 'titlesec.sty',
+                     'amsmath.sty', 'framed.sty', 'color.sty', 'fancyvrb.sty',
+                     'threeparttable.sty']:
+        if not kpsetest(filename):
+            raise SkipTest('not running latex, the %s package doesn\'t '
+                           'seem to be installed' % filename)
+
+    # now, try to run latex over it
+    cwd = os.getcwd()
+    os.chdir(app.outdir)
+    try:
+        try:
+            p = Popen(['pdflatex', '--interaction=nonstopmode',
+                       'SphinxTests.tex'], stdout=PIPE, stderr=PIPE)
+        except OSError:
+            raise SkipTest  # most likely pdflatex was not found
+        else:
+            stdout, stderr = p.communicate()
+            if p.returncode != 0:
+                print(stdout)
+                print(stderr)
+                app.cleanup()
+                assert False, 'latex exited with return code %s' % p.returncode
+    finally:
+        os.chdir(cwd)
+
+
+@with_app(buildername='latex', testroot='numfig',
+          confoverrides={'numfig': True})
+def test_numref(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\ref{index:fig1}' in result
+    assert '\\ref{baz:fig22}' in result
+    assert '\\ref{index:table-1}' in result
+    assert '\\ref{baz:table22}' in result
+    assert '\\ref{index:code-1}' in result
+    assert '\\ref{baz:code22}' in result
+
+
+@with_app(buildername='latex')
+def test_latex_add_latex_package(app, status, warning):
+    app.add_latex_package('foo')
+    app.add_latex_package('bar', 'baz')
+    app.builder.build_all()
+    result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')
+    assert '\\usepackage{foo}' in result
+    assert '\\usepackage[baz]{bar}' in result

@@ -27,3 +27,8 @@ viewcode
 .. literalinclude:: spam/mod1.py
    :language: python
    :pyobject: func1
+
+
+.. toctree::
+
+   objects

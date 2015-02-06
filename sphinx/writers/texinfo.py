@@ -5,7 +5,7 @@
 
     Custom docutils writer for Texinfo.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -722,6 +722,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def depart_reference(self, node):
         pass
 
+    def visit_number_reference(self, node):
+        text = nodes.Text(node.get('title', '#'))
+        self.visit_Text(text)
+        raise nodes.SkipNode
+
     def visit_title_reference(self, node):
         text = node.astext()
         self.body.append('@cite{%s}' % self.escape_arg(text))
@@ -1054,9 +1059,11 @@ class TexinfoTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_container(self, node):
-        pass
+        if node.get('literal_block'):
+            self.body.append('\n\n@float LiteralBlock\n')
     def depart_container(self, node):
-        pass
+        if node.get('literal_block'):
+            self.body.append('\n@end float\n\n')
 
     def visit_decoration(self, node):
         pass
@@ -1095,13 +1102,17 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.body.append('\n@end float\n\n')
 
     def visit_caption(self, node):
-        if not isinstance(node.parent, nodes.figure):
+        if (isinstance(node.parent, nodes.figure) or
+           (isinstance(node.parent, nodes.container) and
+                node.parent.get('literal_block'))):
+            self.body.append('\n@caption{')
+        else:
             self.builder.warn('caption not inside a figure.',
                               (self.curfilestack[-1], node.line))
-            return
-        self.body.append('\n@caption{')
     def depart_caption(self, node):
-        if isinstance(node.parent, nodes.figure):
+        if (isinstance(node.parent, nodes.figure) or
+           (isinstance(node.parent, nodes.container) and
+                node.parent.get('literal_block'))):
             self.body.append('}\n')
 
     def visit_image(self, node):

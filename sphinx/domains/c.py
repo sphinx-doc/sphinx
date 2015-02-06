@@ -5,7 +5,7 @@
 
     The C language domain.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -130,7 +130,7 @@ class CObject(ObjectDescription):
         if m:
             name = m.group(1)
 
-        typename = self.env.temp_data.get('c:type')
+        typename = self.env.ref_context.get('c:type')
         if self.name == 'c:member' and typename:
             fullname = typename + '.' + name
         else:
@@ -212,12 +212,12 @@ class CObject(ObjectDescription):
         self.typename_set = False
         if self.name == 'c:type':
             if self.names:
-                self.env.temp_data['c:type'] = self.names[0]
+                self.env.ref_context['c:type'] = self.names[0]
                 self.typename_set = True
 
     def after_content(self):
         if self.typename_set:
-            self.env.temp_data['c:type'] = None
+            self.env.ref_context.pop('c:type', None)
 
 
 class CXRefRole(XRefRole):
@@ -269,6 +269,12 @@ class CDomain(Domain):
             if fn == docname:
                 del self.data['objects'][fullname]
 
+    def merge_domaindata(self, docnames, otherdata):
+        # XXX check duplicates
+        for fullname, (fn, objtype) in otherdata['objects'].items():
+            if fn in docnames:
+                self.data['objects'][fullname] = (fn, objtype)
+
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
         # strip pointer asterisk
@@ -278,6 +284,17 @@ class CDomain(Domain):
         obj = self.data['objects'][target]
         return make_refnode(builder, fromdocname, obj[0], 'c.' + target,
                             contnode, target)
+
+    def resolve_any_xref(self, env, fromdocname, builder, target,
+                         node, contnode):
+        # strip pointer asterisk
+        target = target.rstrip(' *')
+        if target not in self.data['objects']:
+            return []
+        obj = self.data['objects'][target]
+        return [('c:' + self.role_for_objtype(obj[1]),
+                 make_refnode(builder, fromdocname, obj[0], 'c.' + target,
+                              contnode, target))]
 
     def get_objects(self):
         for refname, (docname, type) in list(self.data['objects'].items()):

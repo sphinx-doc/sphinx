@@ -5,7 +5,7 @@
 
     Format colored console output.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -73,6 +73,9 @@ def coloron():
 
 def colorize(name, text):
     return codes.get(name, '') + text + codes.get('reset', '')
+
+def strip_colors(s):
+    return re.compile('\x1b.*?m').sub('', s)
 
 def create_color_func(name):
     def inner(text):

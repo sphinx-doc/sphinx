@@ -162,7 +162,7 @@ new Python module called :file:`todo.py` and add the setup function::
        app.connect('doctree-resolved', process_todo_nodes)
        app.connect('env-purge-doc', purge_todos)
 
-       return '0.1'   # identifies the version of our extension
+       return {'version': '0.1'}   # identifies the version of our extension
 
 The calls in this function refer to classes and functions not yet written.  What
 the individual calls do is the following:
@@ -247,6 +247,7 @@ todolist directive has neither content nor arguments that need to be handled.
 The ``todo`` directive function looks like this::
 
    from sphinx.util.compat import make_admonition
+   from sphinx.locale import _
 
    class TodoDirective(Directive):
 

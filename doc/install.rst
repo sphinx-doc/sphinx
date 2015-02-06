@@ -9,11 +9,11 @@ Since Sphinx is written in the Python language, you need to install Python
 Sphinx packages are available on the `Python Package Index
 <https://pypi.python.org/pypi/Sphinx>`_.
 
-You can also download a snapshot from the Mercurial development repository:
+You can also download a snapshot from the Git repository:
 
-* as a `.tar.bz2 <https://bitbucket.org/birkenfeld/sphinx/get/default.tar.bz2>`_
+* as a `.tar.bz2 <https://github.com/sphinx-doc/sphinx/archive/master.tar.bz2>`_
   file or
-* as a `.zip <https://bitbucket.org/birkenfeld/sphinx/get/default.zip>`_ file
+* as a `.zip <https://github.com/sphinx-doc/sphinx/archive/master.zip>`_ file
 
 There are introductions for several environments:
 
@@ -80,7 +80,7 @@ sidebar and under "Quick Links", click "Windows Installer" to download.
 .. note::
 
    Currently, Python offers two major versions, 2.x and 3.x. Sphinx 1.3 can run
-   under Python 2.6, 2.7, 3.2, 3.3, with the recommended version being
+   under Python 2.6, 2.7, 3.3, 3.4, with the recommended version being
    2.7.  This chapter assumes you have installed Python 2.7.
 
 Follow the Windows installer for Python.
@@ -101,7 +101,7 @@ as ``sphinx-build`` easily from the Command Prompt.
 
   - ``C:\Python27`` -- this folder contains the main Python executable
   - ``C:\Python27\Scripts`` -- this folder will contain executables added by
-    Python packages installed with easy_install (see below)
+    Python packages installed with pip (see below)
 
   This is for Python 2.7.  If you use another version of
   Python or installed to a non-default location, change the digits "27"
@@ -113,35 +113,39 @@ as ``sphinx-build`` easily from the Command Prompt.
   ``>>>``.  Type ``Ctrl+Z`` and Enter to quit.
 
 
-Install the easy_install command
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Install the pip command
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Python has a very useful :command:`easy_install` command which can download and
-install 3rd-party libraries with a single command.  This is provided by the
-"setuptools" project: https://pypi.python.org/pypi/setuptools.
+Python has a very useful :command:`pip` command which can download and install
+3rd-party libraries with a single command. This is provided by the
+Python Packaging Authority(PyPA):
+https://groups.google.com/forum/#!forum/pypa-dev
 
-To install setuptools, download
-https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py and
+To install pip, download https://bootstrap.pypa.io/get-pip.py and
 save it somewhere.  After download, invoke the command prompt, go to the
-directory with ez_setup.py and run this command:
+directory with ``get-pip.py`` and run this command:
 
 .. code-block:: bat
 
-   C:\> python ez_setup.py
+   C:\> python get-pip.py
 
-Now setuptools and its :command:`easy_install` command is installed.  From there
-we can go to the Sphinx install.
+Now :command:`pip` command is installed.  From there we can go to the Sphinx
+install.
+
+.. note::
+
+   ``pip`` has been contained in the Python official installation after version
+    of Python-3.4.0 or Python-2.7.9.
 
 
-Installing Sphinx with easy_install
------------------------------------
+Installing Sphinx with pip
+---------------------------
 
-If you finished the installation of setuptools, type this line in the command
-prompt:
+If you finished the installation of pip, type this line in the command prompt:
 
 .. code-block:: bat
 
-   C:\> easy_install sphinx
+   C:\> pip install sphinx
 
 After installation, type :command:`sphinx-build` on the command prompt.  If
 everything worked fine, you will get a Sphinx version number and a list of

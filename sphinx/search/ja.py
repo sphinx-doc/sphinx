@@ -5,7 +5,7 @@
 
     Japanese search language: includes routine to split words.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -48,7 +48,7 @@ class MecabBinder(object):
             result = self.native.parse(input2)
         else:
             result = self.ctypes_libmecab.mecab_sparse_tostr(
-                self.ctypes_mecab, input)
+                self.ctypes_mecab, input.encode(self.dict_encode))
         return result.decode(self.dict_encode).split(' ')
 
     def init_native(self, options):
@@ -85,7 +85,7 @@ class MecabBinder(object):
 
         self.ctypes_libmecab = ctypes.CDLL(libpath)
         self.ctypes_libmecab.mecab_sparse_tostr.restype = ctypes.c_char_p
-        self.ctypes_mecab = self.libmecab.mecab_new2(param)
+        self.ctypes_mecab = self.ctypes_libmecab.mecab_new2(param)
 
     def __del__(self):
         if self.ctypes_libmecab:
@@ -263,7 +263,6 @@ class SearchJapanese(SearchLanguage):
         if type not in ('mecab', 'default'):
             raise ValueError(("Japanese tokenizer's type should be 'mecab'"
                               " or 'default'"))
-        self.libmecab = None
         if type == 'mecab':
             self.splitter = MecabBinder(options)
         else:

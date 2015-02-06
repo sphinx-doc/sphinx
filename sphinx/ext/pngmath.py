@@ -5,7 +5,7 @@
 
     Render math in HTML via dvipng.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,7 +14,7 @@ import codecs
 import shutil
 import tempfile
 import posixpath
-from os import path, getcwd, chdir
+from os import path
 from subprocess import Popen, PIPE
 from hashlib import sha1
 
@@ -24,7 +24,7 @@ from docutils import nodes
 import sphinx
 from sphinx.errors import SphinxError
 from sphinx.util.png import read_png_depth, write_png_depth
-from sphinx.util.osutil import ensuredir, ENOENT
+from sphinx.util.osutil import ensuredir, ENOENT, cd
 from sphinx.util.pycompat import sys_encoding
 from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
 
@@ -86,7 +86,7 @@ def render_math(self, math):
 
     shasum = "%s.png" % sha1(latex.encode('utf-8')).hexdigest()
     relfn = posixpath.join(self.builder.imgpath, 'math', shasum)
-    outfn = path.join(self.builder.outdir, '_images', 'math', shasum)
+    outfn = path.join(self.builder.outdir, self.builder.imagedir, 'math', shasum)
     if path.isfile(outfn):
         depth = read_png_depth(outfn)
         return relfn, depth
@@ -116,10 +116,7 @@ def render_math(self, math):
     ltx_args.extend(self.builder.config.pngmath_latex_args)
     ltx_args.append('math.tex')
 
-    curdir = getcwd()
-    chdir(tempdir)
-
-    try:
+    with cd(tempdir):
         try:
             p = Popen(ltx_args, stdout=PIPE, stderr=PIPE)
         except OSError as err:
@@ -130,8 +127,6 @@ def render_math(self, math):
                               self.builder.config.pngmath_latex)
             self.builder._mathpng_warned_latex = True
             return None, None
-    finally:
-        chdir(curdir)
 
     stdout, stderr = p.communicate()
     if p.returncode != 0:
@@ -246,4 +241,4 @@ def setup(app):
     app.add_config_value('pngmath_latex_preamble', '', 'html')
     app.add_config_value('pngmath_add_tooltips', True, 'html')
     app.connect('build-finished', cleanup_tempdir)
-    return sphinx.__version__
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}

@@ -32,20 +32,21 @@ r"""
     The graph is inserted as a PNG+image map into HTML and a PDF in
     LaTeX.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import re
 import sys
 import inspect
-import __builtin__ as __builtin__ # as __builtin__ is for lib2to3 compatibility
 try:
     from hashlib import md5
 except ImportError:
     from md5 import md5
 
 from six import text_type
+from six.moves import builtins
+
 from docutils import nodes
 from docutils.parsers.rst import directives
 
@@ -147,10 +148,10 @@ class InheritanceGraph(object):
         displayed node names.
         """
         all_classes = {}
-        builtins = vars(__builtin__).values()
+        py_builtins = vars(builtins).values()
 
         def recurse(cls):
-            if not show_builtins and cls in builtins:
+            if not show_builtins and cls in py_builtins:
                 return
             if not private_bases and cls.__name__.startswith('_'):
                 return
@@ -174,7 +175,7 @@ class InheritanceGraph(object):
             baselist = []
             all_classes[cls] = (nodename, fullname, baselist, tooltip)
             for base in cls.__bases__:
-                if not show_builtins and base in builtins:
+                if not show_builtins and base in py_builtins:
                     continue
                 if not private_bases and base.__name__.startswith('_'):
                     continue
@@ -185,7 +186,7 @@ class InheritanceGraph(object):
         for cls in classes:
             recurse(cls)
 
-        return all_classes.values()
+        return list(all_classes.values())
 
     def class_name(self, cls, parts=0):
         """Given a class object, return a fully-qualified name.
@@ -194,7 +195,7 @@ class InheritanceGraph(object):
         completely general.
         """
         module = cls.__module__
-        if module == '__builtin__':
+        if module in ('__builtin__', 'builtins'):
             fullname = cls.__name__
         else:
             fullname = '%s.%s' % (module, cls.__name__)
@@ -310,7 +311,7 @@ class InheritanceDiagram(Directive):
         # Create a graph starting with the list of classes
         try:
             graph = InheritanceGraph(
-                class_names, env.temp_data.get('py:module'),
+                class_names, env.ref_context.get('py:module'),
                 parts=node['parts'],
                 private_bases='private-bases' in self.options)
         except InheritanceException as err:
@@ -407,4 +408,4 @@ def setup(app):
     app.add_config_value('inheritance_graph_attrs', {}, False),
     app.add_config_value('inheritance_node_attrs', {}, False),
     app.add_config_value('inheritance_edge_attrs', {}, False),
-    return sphinx.__version__
+    return {'version': sphinx.__version__, 'parallel_read_safe': True}

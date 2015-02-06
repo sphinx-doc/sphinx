@@ -3,12 +3,9 @@
 import sys, os
 
 sys.path.append(os.path.abspath('.'))
-sys.path.append(os.path.abspath('..'))
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.jsmath', 'sphinx.ext.todo',
-              'sphinx.ext.coverage', 'sphinx.ext.autosummary',
-              'sphinx.ext.doctest', 'sphinx.ext.extlinks',
-              'sphinx.ext.viewcode', 'ext']
+              'sphinx.ext.coverage', 'sphinx.ext.extlinks', 'ext']
 
 jsmath_path = 'dummy.js'
 
@@ -18,7 +15,7 @@ master_doc = 'contents'
 source_suffix = '.txt'
 
 project = 'Sphinx <Tests>'
-copyright = '2010, Georg Brandl & Team'
+copyright = '2010-2014, Georg Brandl & Team'
 # If this is changed, remember to update the versionchanges!
 version = '0.6'
 release = '0.6alpha1'
@@ -27,6 +24,7 @@ exclude_patterns = ['_build', '**/excluded.*']
 keep_warnings = True
 pygments_style = 'sphinx'
 show_authors = True
+numfig = True
 
 rst_epilog = '.. |subst| replace:: global substitution'
 
@@ -34,7 +32,8 @@ html_theme = 'testtheme'
 html_theme_path = ['.']
 html_theme_options = {'testopt': 'testoverride'}
 html_sidebars = {'**': 'customsb.html',
-                 'contents': ['contentssb.html', 'localtoc.html'] }
+                 'contents': ['contentssb.html', 'localtoc.html',
+                              'globaltoc.html']}
 html_style = 'default.css'
 html_static_path = ['_static', 'templated.css_t']
 html_extra_path = ['robots.txt']
@@ -44,15 +43,15 @@ html_context = {'hckey': 'hcval', 'hckey_co': 'wrong_hcval_co'}
 htmlhelp_basename = 'SphinxTestsdoc'
 
 latex_documents = [
-  ('contents', 'SphinxTests.tex', 'Sphinx Tests Documentation',
-   'Georg Brandl \\and someone else', 'manual'),
+    ('contents', 'SphinxTests.tex', 'Sphinx Tests Documentation',
+     'Georg Brandl \\and someone else', 'manual'),
 ]
 
 latex_additional_files = ['svgimg.svg']
 
 texinfo_documents = [
-  ('contents', 'SphinxTests', 'Sphinx Tests',
-   'Georg Brandl \\and someone else', 'Sphinx Testing', 'Miscellaneous'),
+    ('contents', 'SphinxTests', 'Sphinx Tests',
+     'Georg Brandl \\and someone else', 'Sphinx Testing', 'Miscellaneous'),
 ]
 
 man_pages = [
@@ -64,8 +63,6 @@ value_from_conf_py = 84
 
 coverage_c_path = ['special/*.h']
 coverage_c_regexes = {'function': r'^PyAPI_FUNC\(.*\)\s+([^_][\w_]+)'}
-
-autosummary_generate = ['autosummary']
 
 extlinks = {'issue': ('http://bugs.python.org/issue%s', 'issue '),
             'pyurl': ('http://python.org/%s', None)}
@@ -80,34 +77,12 @@ autodoc_mock_imports = [
 # modify tags from conf.py
 tags.add('confpytag')
 
-# -- linkcode
-
-if 'test_linkcode' in tags:
-    import glob
-
-    extensions.remove('sphinx.ext.viewcode')
-    extensions.append('sphinx.ext.linkcode')
-
-    exclude_patterns.extend(glob.glob('*.txt') + glob.glob('*/*.txt'))
-    exclude_patterns.remove('contents.txt')
-    exclude_patterns.remove('objects.txt')
-
-    def linkcode_resolve(domain, info):
-        if domain == 'py':
-            fn = info['module'].replace('.', '/')
-            return "http://foobar/source/%s.py" % fn
-        elif domain == "js":
-            return "http://foobar/js/" + info['fullname']
-        elif domain in ("c", "cpp"):
-            return "http://foobar/%s/%s" % (domain,  "".join(info['names']))
-        else:
-            raise AssertionError()
-
 # -- extension API
 
 from docutils import nodes
 from sphinx import addnodes
 from sphinx.util.compat import Directive
+
 
 def userdesc_parse(env, sig, signode):
     x, y = sig.split(':')
@@ -116,14 +91,18 @@ def userdesc_parse(env, sig, signode):
     signode[-1] += addnodes.desc_parameter(y, y)
     return x
 
+
 def functional_directive(name, arguments, options, content, lineno,
                          content_offset, block_text, state, state_machine):
     return [nodes.strong(text='from function: %s' % options['opt'])]
 
+
 class ClassDirective(Directive):
     option_spec = {'opt': lambda x: x}
+
     def run(self):
         return [nodes.strong(text='from class: %s' % self.options['opt'])]
+
 
 def setup(app):
     app.add_config_value('value_from_conf_py', 42, False)

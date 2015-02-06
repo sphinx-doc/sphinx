@@ -5,7 +5,7 @@
 
     Utilities for docstring processing.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -34,7 +34,8 @@ def prepare_docstring(s, ignore=1):
         if i < len(lines):
             lines[i] = lines[i].lstrip()
     if margin < sys.maxsize:
-        for i in range(ignore, len(lines)): lines[i] = lines[i][margin:]
+        for i in range(ignore, len(lines)):
+            lines[i] = lines[i][margin:]
     # Remove any leading blank lines.
     while lines and not lines[0]:
         lines.pop(0)

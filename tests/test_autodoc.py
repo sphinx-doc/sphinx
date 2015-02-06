@@ -6,7 +6,7 @@
     Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,7 +18,7 @@ from six import StringIO
 from docutils.statemachine import ViewList
 
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
-     ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
+    ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
 
 app = None
 
@@ -123,24 +123,24 @@ def test_parse_name():
     directive.env.temp_data['autodoc:module'] = 'util'
     verify('function', 'raises', ('util', ['raises'], None, None))
     del directive.env.temp_data['autodoc:module']
-    directive.env.temp_data['py:module'] = 'util'
+    directive.env.ref_context['py:module'] = 'util'
     verify('function', 'raises', ('util', ['raises'], None, None))
     verify('class', 'TestApp', ('util', ['TestApp'], None, None))
 
     # for members
-    directive.env.temp_data['py:module'] = 'foo'
+    directive.env.ref_context['py:module'] = 'foo'
     verify('method', 'util.TestApp.cleanup',
            ('util', ['TestApp', 'cleanup'], None, None))
-    directive.env.temp_data['py:module'] = 'util'
-    directive.env.temp_data['py:class'] = 'Foo'
+    directive.env.ref_context['py:module'] = 'util'
+    directive.env.ref_context['py:class'] = 'Foo'
     directive.env.temp_data['autodoc:class'] = 'TestApp'
     verify('method', 'cleanup', ('util', ['TestApp', 'cleanup'], None, None))
     verify('method', 'TestApp.cleanup',
            ('util', ['TestApp', 'cleanup'], None, None))
 
     # and clean up
-    del directive.env.temp_data['py:module']
-    del directive.env.temp_data['py:class']
+    del directive.env.ref_context['py:module']
+    del directive.env.ref_context['py:class']
     del directive.env.temp_data['autodoc:class']
 
 
@@ -151,9 +151,12 @@ def test_format_signature():
         inst.fullname = name
         inst.doc_as_attr = False  # for class objtype
         inst.object = obj
+        inst.objpath = [name]
         inst.args = args
         inst.retann = retann
-        return inst.format_signature()
+        res = inst.format_signature()
+        print(res)
+        return res
 
     # no signatures for modules
     assert formatsig('module', 'test', None, None, None) == ''
@@ -186,7 +189,8 @@ def test_format_signature():
         assert formatsig('class', 'C', C, None, None) == '(a, b=None)'
     assert formatsig('class', 'C', D, 'a, b', 'X') == '(a, b) -> X'
 
-    #__init__ have signature at first line of docstring
+    # __init__ have signature at first line of docstring
+    directive.env.config.autoclass_content = 'both'
     class F2:
         '''some docstring for F2.'''
         def __init__(self, *args, **kw):
@@ -197,9 +201,11 @@ def test_format_signature():
             '''
     class G2(F2, object):
         pass
-    for C in (F2, G2):
-        assert formatsig('class', 'C', C, None, None) == \
-            '(a1, a2, kw1=True, kw2=False)'
+
+    assert formatsig('class', 'F2', F2, None, None) == \
+        '(a1, a2, kw1=True, kw2=False)'
+    assert formatsig('class', 'G2', G2, None, None) == \
+        '(a1, a2, kw1=True, kw2=False)'
 
     # test for methods
     class H:
@@ -215,6 +221,7 @@ def test_format_signature():
     assert formatsig('method', 'H.foo', H.foo3, None, None) == r"(d='\\n')"
 
     # test exception handling (exception is caught and args is '')
+    directive.env.config.autodoc_docstring_signature = False
     assert formatsig('function', 'int', int, None, None) == ''
     del _warnings[:]
 
@@ -242,9 +249,14 @@ def test_get_doc():
     def getdocl(objtype, obj, encoding=None):
         inst = AutoDirective._registry[objtype](directive, 'tmp')
         inst.object = obj
+        inst.objpath = [obj.__name__]
+        inst.doc_as_attr = False
+        inst.format_signature()  # handle docstring signatures!
         ds = inst.get_doc(encoding)
         # for testing purposes, concat them and strip the empty line at the end
-        return sum(ds, [])[:-1]
+        res = sum(ds, [])[:-1]
+        print(res)
+        return res
 
     # objects without docstring
     def f():
@@ -305,7 +317,7 @@ def test_get_doc():
     assert getdocl('class', D) == ['Class docstring', '', 'Init docstring',
                                    '', 'Other', ' lines']
 
-    #__init__ have signature at first line of docstring
+    # __init__ have signature at first line of docstring
     class E:
         """Class docstring"""
         def __init__(self, *args, **kw):
@@ -330,7 +342,7 @@ def test_get_doc():
 
     # signature line in the docstring will be removed when
     # autodoc_docstring_signature == True
-    directive.env.config.autodoc_docstring_signature = True  #default
+    directive.env.config.autodoc_docstring_signature = True  # default
     directive.env.config.autoclass_content = 'class'
     assert getdocl('class', E) == ['Class docstring']
     directive.env.config.autoclass_content = 'init'
@@ -434,21 +446,25 @@ def test_docstring_property_processing():
         return results, docstrings
 
     directive.env.config.autodoc_docstring_signature = False
-    results, docstrings = genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop1')
+    results, docstrings = \
+        genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop1')
     assert '.. py:attribute:: DocstringSig.prop1' in results
     assert 'First line of docstring' in docstrings
     assert 'DocstringSig.prop1(self)' in docstrings
-    results, docstrings = genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop2')
+    results, docstrings = \
+        genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop2')
     assert '.. py:attribute:: DocstringSig.prop2' in results
     assert 'First line of docstring' in docstrings
     assert 'Second line of docstring' in docstrings
 
     directive.env.config.autodoc_docstring_signature = True
-    results, docstrings = genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop1')
+    results, docstrings = \
+        genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop1')
     assert '.. py:attribute:: DocstringSig.prop1' in results
     assert 'First line of docstring' in docstrings
     assert 'DocstringSig.prop1(self)' not in docstrings
-    results, docstrings = genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop2')
+    results, docstrings = \
+        genarate_docstring('attribute', 'test_autodoc.DocstringSig.prop2')
     assert '.. py:attribute:: DocstringSig.prop2' in results
     assert 'First line of docstring' in docstrings
     assert 'Second line of docstring' in docstrings
@@ -584,7 +600,7 @@ def test_generate():
                  'method', 'test_autodoc.Class.foobar', more_content=None)
 
     # test auto and given content mixing
-    directive.env.temp_data['py:module'] = 'test_autodoc'
+    directive.env.ref_context['py:module'] = 'test_autodoc'
     assert_result_contains('   Function.', 'method', 'Class.meth')
     add_content = ViewList()
     add_content.append('Content.', '', 0)
@@ -682,12 +698,12 @@ def test_generate():
                            'attribute', 'test_autodoc.Class.descr')
 
     # test generation for C modules (which have no source file)
-    directive.env.temp_data['py:module'] = 'time'
+    directive.env.ref_context['py:module'] = 'time'
     assert_processes([('function', 'time.asctime')], 'function', 'asctime')
     assert_processes([('function', 'time.asctime')], 'function', 'asctime')
 
     # test autodoc_member_order == 'source'
-    directive.env.temp_data['py:module'] = 'test_autodoc'
+    directive.env.ref_context['py:module'] = 'test_autodoc'
     assert_order(['.. py:class:: Class(arg)',
                   '   .. py:attribute:: Class.descr',
                   '   .. py:method:: Class.meth()',
@@ -704,7 +720,7 @@ def test_generate():
                   '   .. py:method:: Class.inheritedmeth()',
                   ],
                  'class', 'Class', member_order='bysource', all_members=True)
-    del directive.env.temp_data['py:module']
+    del directive.env.ref_context['py:module']
 
     # test attribute initialized to class instance from other module
     directive.env.temp_data['autodoc:class'] = 'test_autodoc.Class'
@@ -729,7 +745,7 @@ def test_generate():
         'test_autodoc.Class.moore')
 
     # test new attribute documenter behavior
-    directive.env.temp_data['py:module'] = 'test_autodoc'
+    directive.env.ref_context['py:module'] = 'test_autodoc'
     options.undoc_members = True
     assert_processes([('class', 'test_autodoc.AttCls'),
                       ('attribute', 'test_autodoc.AttCls.a1'),
@@ -743,7 +759,7 @@ def test_generate():
     # test explicit members with instance attributes
     del directive.env.temp_data['autodoc:class']
     del directive.env.temp_data['autodoc:module']
-    directive.env.temp_data['py:module'] = 'test_autodoc'
+    directive.env.ref_context['py:module'] = 'test_autodoc'
     options.inherited_members = False
     options.undoc_members = False
     options.members = ALL
@@ -765,7 +781,7 @@ def test_generate():
     ], 'class', 'InstAttCls')
     del directive.env.temp_data['autodoc:class']
     del directive.env.temp_data['autodoc:module']
-    del directive.env.temp_data['py:module']
+    del directive.env.ref_context['py:module']
 
     # test descriptor class documentation
     options.members = ['CustomDataDescriptor']

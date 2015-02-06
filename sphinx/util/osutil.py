@@ -5,7 +5,7 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -19,6 +19,7 @@ import locale
 import shutil
 import gettext
 from os import path
+import contextlib
 
 from six import PY2, text_type
 
@@ -194,3 +195,19 @@ def abspath(pathdir):
     if isinstance(pathdir, bytes):
         pathdir = pathdir.decode(fs_encoding)
     return pathdir
+
+
+def getcwd():
+    if hasattr(os, 'getcwdu'):
+        return os.getcwdu()
+    return os.getcwd()
+
+
+@contextlib.contextmanager
+def cd(target_dir):
+    cwd = getcwd()
+    try:
+        os.chdir(target_dir)
+        yield
+    finally:
+        os.chdir(cwd)

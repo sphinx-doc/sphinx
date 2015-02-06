@@ -5,38 +5,33 @@
 
     Test the Web Support Package
 
-    :copyright: Copyright 2007-2014 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import os
 from functools import wraps
 
 from six import StringIO
 
 from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import DocumentNotFoundError, \
-     CommentNotAllowedError, UserNotAuthorizedError
+    CommentNotAllowedError, UserNotAuthorizedError
 from sphinx.websupport.storage import StorageBackend
 from sphinx.websupport.storage.differ import CombinedHtmlDiff
 try:
     from sphinx.websupport.storage.sqlalchemystorage import Session, \
-         Comment, CommentVote
+        Comment, CommentVote
     from sphinx.websupport.storage.sqlalchemy_db import Node
     sqlalchemy_missing = False
 except ImportError:
     sqlalchemy_missing = True
 
-from util import test_root, raises, skip_if
+from util import rootdir, tempdir, raises, skip_if
 
 
-default_settings = {'builddir': os.path.join(test_root, 'websupport'),
+default_settings = {'builddir': tempdir / 'websupport',
                     'status': StringIO(),
                     'warning': StringIO()}
-
-def teardown_module():
-    (test_root / 'generated').rmtree(True)
-    (test_root / 'websupport').rmtree(True)
 
 
 def with_support(*args, **kwargs):
@@ -59,12 +54,12 @@ class NullStorage(StorageBackend):
 
 @with_support(storage=NullStorage())
 def test_no_srcdir(support):
-    """Make sure the correct exception is raised if srcdir is not given."""
+    # make sure the correct exception is raised if srcdir is not given.
     raises(RuntimeError, support.build)
 
 
 @skip_if(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support(srcdir=test_root)
+@with_support(srcdir=rootdir / 'root')
 def test_build(support):
     support.build()
 
@@ -173,9 +168,9 @@ def test_proposals(support):
     source = data['source']
     proposal = source[:5] + source[10:15] + 'asdf' + source[15:]
 
-    comment = support.add_comment('Proposal comment',
-                                  node_id=node.id,
-                                  proposal=proposal)
+    support.add_comment('Proposal comment',
+                        node_id=node.id,
+                        proposal=proposal)
 
 
 @skip_if(sqlalchemy_missing, 'needs sqlalchemy')
@@ -234,6 +229,8 @@ def test_update_username(support):
 
 
 called = False
+
+
 def moderation_callback(comment):
     global called
     called = True
@@ -251,7 +248,7 @@ def test_moderation(support):
     deleted  = support.add_comment('Comment to delete', node_id=node.id,
                                    displayed=False)
     # Make sure the moderation_callback is called.
-    assert called == True
+    assert called
     # Make sure the user must be a moderator.
     raises(UserNotAuthorizedError, support.accept_comment, accepted['id'])
     raises(UserNotAuthorizedError, support.delete_comment, deleted['id'])

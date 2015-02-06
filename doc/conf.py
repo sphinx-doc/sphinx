@@ -7,14 +7,15 @@ import sphinx
 
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
-              'sphinx.ext.autosummary', 'sphinx.ext.extlinks']
+              'sphinx.ext.autosummary', 'sphinx.ext.extlinks',
+              'sphinx.ext.viewcode']
 
 master_doc = 'contents'
 templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = '2007-2014, Georg Brandl and the Sphinx team'
+copyright = '2007-2015, Georg Brandl and the Sphinx team'
 version = sphinx.__released__
 release = version
 show_authors = True
@@ -83,7 +84,7 @@ texinfo_documents = [
 
 # We're not using intersphinx right now, but if we did, this would be part of
 # the mapping:
-intersphinx_mapping = {'python': ('http://docs.python.org/dev', None)}
+intersphinx_mapping = {'python': ('http://docs.python.org/2/', None)}
 
 # Sphinx document translation with sphinx gettext feature uses these settings:
 locale_dirs = ['locale/']
