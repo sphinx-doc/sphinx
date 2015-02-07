@@ -25,6 +25,7 @@ Bugs fixed
 * #1687: linkcheck now treats 401 Unauthorized responses as "working".
 * #1690: toctrees with ``glob`` option now can also contain entries for single
   documents with explicit title.
+* #1591: html search results for C++ elements now has correct interpage links.
 
 
 Release 1.3b2 (released Dec 5, 2014)

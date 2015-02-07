@@ -2417,4 +2417,4 @@ class CPPDomain(Domain):
 
     def get_objects(self):
         for refname, (docname, ast) in iteritems(self.data['objects']):
-            yield (refname, refname, ast.objectType, docname, refname, 1)
+            yield (refname, refname, ast.objectType, docname, ast.newestId, 1)
