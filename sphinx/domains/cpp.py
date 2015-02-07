@@ -121,19 +121,16 @@
         # (note: only "0" is allowed as the value, according to the standard,
         # right?)
 
-<<<<<<< HEAD
         enum-head ->
-            enum-key attribute-specifier-seq[opt] nested-name-specifier[opt] identifier enum-base[opt] 
+            enum-key attribute-specifier-seq[opt] nested-name-specifier[opt]
+                identifier enum-base[opt]
         enum-key -> "enum" | "enum struct" | "enum class"
         enum-base ->
             ":" type
         enumerator-definition ->
               identifier
             | identifier "=" constant-expression
-    
-=======
 
->>>>>>> master
     We additionally add the possibility for specifying the visibility as the
     first thing.
 
@@ -150,12 +147,7 @@
             -> decl-specifier-seq abstract-declarator[opt]
         grammar, typedef-like: no initilizer
             decl-specifier-seq declerator
-<<<<<<< HEAD
-        
-=======
 
-
->>>>>>> master
     member_object:
         goal: as a type_object which must have a declerator, and optionally
         with a initializer
@@ -166,22 +158,26 @@
         goal: a function declaration, TODO: what about templates? for now: skip
         grammar: no initializer
            decl-specifier-seq declerator
-           
+
     class_object:
-        goal: a class declaration, but with specification of a base class, TODO: what about templates? for now: skip
+        goal: a class declaration, but with specification of a base class
+              TODO: what about templates? for now: skip
         grammar:
               nested-name
-            | nested-name ":" 'comma-separated list of nested-name optionally with visibility'
-    
+            | nested-name ":"
+                'comma-separated list of nested-name optionally with visibility'
+
     enum_object:
-        goal: an unscoped enum or a scoped enum, optionally with the underlying type specified
+        goal: an unscoped enum or a scoped enum, optionally with the underlying
+              type specified
         grammar:
             ("class" | "struct")[opt] visibility[opt] nested-name (":" type)[opt]
     enumerator_object:
-        goal: an element in a scoped or unscoped enum. The name should be injected according to the scopedness.
+        goal: an element in a scoped or unscoped enum. The name should be
+              injected according to the scopedness.
         grammar:
             nested-name ("=" constant-expression)
-            
+
     namespace_object:
         goal: a directive to put all following declarations in a specific scope
         grammar:
@@ -1397,7 +1393,7 @@ class ASTEnum(ASTBase):
 
     def get_id_v2(self):
         return _id_prefix_v2 + self.prefixedName.get_id_v2()
-    
+
     def __unicode__(self):
         res = []
         if self.scoped:
@@ -1411,7 +1407,7 @@ class ASTEnum(ASTBase):
             res.append(' : ')
             res.append(text_type(self.underlyingType))
         return u''.join(res)
-    
+
     def describe_signature(self, signode, mode, env):
         _verify_description_mode(mode)
         # self.scoped has been done by the CPPEnumObject
@@ -1423,31 +1419,31 @@ class ASTEnum(ASTBase):
         if self.underlyingType:
             signode += nodes.Text(' : ')
             self.underlyingType.describe_signature(signode, 'noneIsName', env)
-            
+
 class ASTEnumerator(ASTBase):
     def __init__(self, name, init):
         self.name = name
         self.init = init
-        
+
     def get_id_v1(self):
         return None # did not exist at that time
-    
+
     def get_id_v2(self):
         return _id_prefix_v2 + self.prefixedName.get_id_v2()
-    
+
     def __unicode__(self):
         res = []
         res.append(text_type(self.name))
         if self.init:
             res.append(text_type(self.init))
         return u''.join(res)
-    
+
     def describe_signature(self, signode, mode, env):
         _verify_description_mode(mode)
         self.name.describe_signature(signode, mode, env)
         if self.init:
             self.init.describe_signature(signode, 'noneIsName')
-            
+
 
 class DefinitionParser(object):
     # those without signedness and size modifiers
@@ -2018,7 +2014,7 @@ class DefinitionParser(object):
                 else:
                     break
         return ASTClass(name, classVisibility, bases)
-    
+
     def _parse_enum(self):
         scoped = None
         self.skip_ws()
@@ -2036,7 +2032,7 @@ class DefinitionParser(object):
         if self.skip_string(':'):
             underlyingType = self._parse_type()
         return ASTEnum(name, visibility, scoped, underlyingType)
-    
+
     def _parse_enumerator(self):
         name = self._parse_nested_name()
         self.skip_ws()
@@ -2045,7 +2041,7 @@ class DefinitionParser(object):
             self.skip_ws()
             init = ASTInitializer(self.read_rest())
         return ASTEnumerator(name, init)
-            
+
     def parse_type_object(self):
         res = self._parse_type(outer='type')
         res.objectType = 'type'
@@ -2065,12 +2061,12 @@ class DefinitionParser(object):
         res = self._parse_class()
         res.objectType = 'class'
         return res
-    
+
     def parse_enum_object(self):
         res = self._parse_enum()
         res.objectType = 'enum'
         return res
-    
+
     def parse_enumerator_object(self):
         res = self._parse_enumerator()
         res.objectType = 'enumerator'
@@ -2126,7 +2122,9 @@ class CPPObject(ObjectDescription):
             if not name in objects:
                 objects.setdefault(name, (self.env.docname, ast))
                 if ast.objectType == 'enumerator':
-                    # find the parent, if it exists && is an enum && it's unscoped, then add the name to the parent scope
+                    # find the parent, if it exists && is an enum
+                    #                     && it's unscoped,
+                    #                  then add the name to the parent scope
                     assert len(ast.prefixedName.names) > 0
                     parentPrefixedAstName = ASTNestedName(ast.prefixedName.names[:-1])
                     parentPrefixedName = text_type(parentPrefixedAstName)
@@ -2139,7 +2137,8 @@ class CPPObject(ObjectDescription):
                             unscopedName = enumeratorName.prefix_nested_name(enumScope)
                             txtUnscopedName = text_type(unscopedName)
                             if not txtUnscopedName in objects:
-                                objects.setdefault(txtUnscopedName, (self.env.docname, ast))
+                                objects.setdefault(txtUnscopedName,
+                                                   (self.env.docname, ast))
                 # add the uninstantiated template if it doesn't exist
                 uninstantiated = ast.prefixedName.get_name_no_last_template()
                 if uninstantiated != name and uninstantiated not in objects:
@@ -2236,12 +2235,12 @@ class CPPClassObject(CPPObject):
     def describe_signature(self, signode, ast):
         signode += addnodes.desc_annotation('class ', 'class ')
         ast.describe_signature(signode, 'lastIsName', self.env)
-        
+
 
 class CPPEnumObject(CPPObject):
     def get_index_text(self, name):
         return _('%s (C++ enum)') % name
-    
+
     def before_content(self):
         lastname = self.env.ref_context['cpp:lastname']
         assert lastname
@@ -2249,13 +2248,13 @@ class CPPEnumObject(CPPObject):
             self.env.ref_context['cpp:parent'].append(lastname)
         else:
             self.env.ref_context['cpp:parent'] = [lastname]
-            
+
     def after_content(self):
         self.env.ref_context['cpp:parent'].pop()
-        
+
     def parse_definition(self, parser):
         return parser.parse_enum_object()
-    
+
     def describe_signature(self, signode, ast):
         prefix = 'enum '
         if ast.scoped:
@@ -2263,15 +2262,15 @@ class CPPEnumObject(CPPObject):
             prefix += ' '
         signode += addnodes.desc_annotation(prefix, prefix)
         ast.describe_signature(signode, 'lastIsName', self.env)
-        
+
 
 class CPPEnumeratorObject(CPPObject):
     def get_index_text(self, name):
         return _('%s (C++ enumerator)') % name
-    
+
     def parse_definition(self, parser):
         return parser.parse_enumerator_object()
-    
+
     def describe_signature(self, signode, ast):
         signode += addnodes.desc_annotation('enumerator ', 'enumerator ')
         ast.describe_signature(signode, 'lastIsName', self.env)
@@ -2379,7 +2378,7 @@ class CPPDomain(Domain):
             docname, ast = self.data['objects'][name]
             return make_refnode(builder, fromdocname, docname, ast.newestId,
                                 contnode, name), ast.objectType
-        
+
         parser = DefinitionParser(target)
         try:
             nameAst = parser.parse_xref_object().name
