@@ -1288,8 +1288,6 @@ def generate(d, overwrite=True, silent=False):
         d['extensions'] = '\n' + indent + extensions + ',\n'
     else:
         d['extensions'] = extensions
-    print(d['extensions'])
-    d['ext_todo'] = text_type(d['ext_todo'])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
     d['author_texescaped'] = text_type(d['author']).\
         translate(texescape.tex_escape_map)
