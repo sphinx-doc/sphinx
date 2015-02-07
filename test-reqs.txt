@@ -1,3 +1,5 @@
+nose
+mock
 six>=1.4
 Jinja2>=2.3
 Pygments>=2.0
