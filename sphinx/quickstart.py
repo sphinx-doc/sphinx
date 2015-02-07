@@ -116,6 +116,7 @@ master_doc = '%(master_str)s'
 # General information about the project.
 project = u'%(project_str)s'
 copyright = u'%(copyright_str)s'
+author = u'%(author_str)s'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -317,7 +318,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('%(master_str)s', '%(project_manpage)s', u'%(project_doc_str)s',
-     [u'%(author_str)s'], 1)
+     [author], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -331,7 +332,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('%(master_str)s', '%(project_fn)s', u'%(project_doc_str)s',
-   u'%(author_str)s', '%(project_fn)s', 'One line description of project.',
+   author, '%(project_fn)s', 'One line description of project.',
    'Miscellaneous'),
 ]
 
@@ -354,8 +355,8 @@ EPUB_CONFIG = u'''
 
 # Bibliographic Dublin Core info.
 epub_title = u'%(project_str)s'
-epub_author = u'%(author_str)s'
-epub_publisher = u'%(author_str)s'
+epub_author = author
+epub_publisher = author
 epub_copyright = u'%(copyright_str)s'
 
 # The basename for the epub file. It defaults to the project name.
