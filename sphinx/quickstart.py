@@ -354,13 +354,13 @@ EPUB_CONFIG = u'''
 # -- Options for Epub output ----------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'%(project_str)s'
+epub_title = project
 epub_author = author
 epub_publisher = author
-epub_copyright = u'%(copyright_str)s'
+epub_copyright = copyright
 
 # The basename for the epub file. It defaults to the project name.
-#epub_basename = u'%(project_str)s'
+#epub_basename = project
 
 # The HTML theme for the epub output. Since the default themes are not optimized
 # for small screen space, using the same theme for HTML and epub output is
