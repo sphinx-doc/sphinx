@@ -31,6 +31,7 @@ Other contributors, listed alphabetically, are:
 * Blaise Laflamme -- pyramid theme
 * Thomas Lamb -- linkcheck builder
 * Łukasz Langa -- partial support for autodoc
+* Ian Lee -- quickstart improvements
 * Robert Lehmann -- gettext builder (GSOC project)
 * Dan MacKinlay -- metadata fixes
 * Martin Mahner -- nature theme
