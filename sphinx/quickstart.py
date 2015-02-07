@@ -53,6 +53,7 @@ DEFAULT_VALUE = {
     'epub': False,
     'ext_autodoc': False,
     'ext_doctest': False,
+    'ext_todo': False,
     'makefile': True,
     'batchfile': True,
     }
@@ -166,6 +167,9 @@ pygments_style = 'sphinx'
 
 # If true, keep warnings as "system message" paragraphs in the built documents.
 #keep_warnings = False
+
+# If true, `todo` and `todoList` produce output, else they produce nothing.
+todo_include_todos = %(ext_todo)s
 
 
 # -- Options for HTML output ----------------------------------------------
@@ -1284,6 +1288,8 @@ def generate(d, overwrite=True, silent=False):
         d['extensions'] = '\n' + indent + extensions + ',\n'
     else:
         d['extensions'] = extensions
+    print(d['extensions'])
+    d['ext_todo'] = text_type(d['ext_todo'])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
     d['author_texescaped'] = text_type(d['author']).\
         translate(texescape.tex_escape_map)
