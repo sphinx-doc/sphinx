@@ -217,8 +217,14 @@ def find_autosummary_in_files(filenames):
     """
     documented = []
     for filename in filenames:
-        with open(filename, 'r', encoding='utf-8') as f:
-            lines = f.read().splitlines()
+        with open(filename, 'rb') as f:
+            lines = f.read()
+            try:
+                # sometimes this fails (e.g., Windows Py3k w/utf-8 files)
+                lines = lines.decode()
+            except Exception:
+                lines = lines.decode('utf-8')
+            lines = lines.splitlines()
             documented.extend(find_autosummary_in_lines(lines,
                                                         filename=filename))
     return documented
