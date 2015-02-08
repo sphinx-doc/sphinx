@@ -2016,12 +2016,8 @@ class DefinitionParser(object):
         return ASTClass(name, classVisibility, bases)
 
     def _parse_enum(self):
-        scoped = None
+        scoped = None # is set by CPPEnumObject
         self.skip_ws()
-        if self.skip_word_and_ws('class'):
-            scoped = 'class'
-        elif self.skip_word_and_ws('struct'):
-            scoped = 'struct'
         visibility = 'public'
         if self.match(_visibility_re):
             visibility = self.matched_text
@@ -2219,12 +2215,14 @@ class CPPClassObject(CPPObject):
         return _('%s (C++ class)') % name
 
     def before_content(self):
-        lastname = self.env.ref_context['cpp:lastname']
-        assert lastname
-        if 'cpp:parent' in self.env.ref_context:
-            self.env.ref_context['cpp:parent'].append(lastname)
-        else:
-            self.env.ref_context['cpp:parent'] = [lastname]
+        # lastname may not be set if there was an error
+        if 'cpp:lastname' in self.env.ref_context:
+            lastname = self.env.ref_context['cpp:lastname']
+            assert lastname
+            if 'cpp:parent' in self.env.ref_context:
+                self.env.ref_context['cpp:parent'].append(lastname)
+            else:
+                self.env.ref_context['cpp:parent'] = [lastname]
 
     def after_content(self):
         self.env.ref_context['cpp:parent'].pop()
@@ -2242,18 +2240,30 @@ class CPPEnumObject(CPPObject):
         return _('%s (C++ enum)') % name
 
     def before_content(self):
-        lastname = self.env.ref_context['cpp:lastname']
-        assert lastname
-        if 'cpp:parent' in self.env.ref_context:
-            self.env.ref_context['cpp:parent'].append(lastname)
-        else:
-            self.env.ref_context['cpp:parent'] = [lastname]
+        # lastname may not be set if there was an error
+        if 'cpp:lastname' in self.env.ref_context:
+            lastname = self.env.ref_context['cpp:lastname']
+            assert lastname
+            if 'cpp:parent' in self.env.ref_context:
+                self.env.ref_context['cpp:parent'].append(lastname)
+            else:
+                self.env.ref_context['cpp:parent'] = [lastname]
 
     def after_content(self):
         self.env.ref_context['cpp:parent'].pop()
 
     def parse_definition(self, parser):
-        return parser.parse_enum_object()
+        ast = parser.parse_enum_object()
+        # self.objtype is set by ObjectDescription in run()
+        if self.objtype == "enum":
+            ast.scoped = None
+        elif self.objtype == "enum-struct":
+            ast.scoped = "struct"
+        elif self.objtype == "enum-class":
+            ast.scoped = "class"
+        else:
+            assert False
+        return ast
 
     def describe_signature(self, signode, ast):
         prefix = 'enum '
@@ -2340,6 +2350,8 @@ class CPPDomain(Domain):
         'member': CPPMemberObject,
         'type': CPPTypeObject,
         'enum': CPPEnumObject,
+        'enum-struct': CPPEnumObject,
+        'enum-class': CPPEnumObject,
         'enumerator': CPPEnumeratorObject,
         'namespace': CPPNamespaceObject
     }

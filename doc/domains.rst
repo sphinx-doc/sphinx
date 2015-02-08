@@ -520,8 +520,8 @@ The C++ Domain
 
 The C++ domain (name **cpp**) supports documenting C++ projects.
 
-The following directives are available. All declarations except for enumerators
-can start with a visibility statement (``public``, ``private`` or ``protected``).
+The following directives are available. All declarations can start with
+a visibility statement (``public``, ``private`` or ``protected``).
 
 .. rst:directive:: .. cpp:class:: class speicifer
 
@@ -578,10 +578,11 @@ can start with a visibility statement (``public``, ``private`` or ``protected``)
 
          Declaration of a type alias with unspecified type.
 
-.. rst:directive:: .. cpp:enum:: enum declaration
+.. rst:directive:: .. cpp:enum:: unscoped enum declaration
+                   .. cpp:enum-struct:: scoped enum declaration
+                   .. cpp:enum-class:: scoped enum declaration
 
-   Describe a (scoped) enum, possibly with the underlying type specified. Note that for scoped
-   enums the ``struct``/``class`` keyword must come before the optional visibility specifier.
+   Describe a (scoped) enum, possibly with the underlying type specified.
    Any enumerators declared inside an unscoped enum will be declared both in the enum scope
    and in the parent scope.
    Examples:
@@ -594,11 +595,11 @@ can start with a visibility statement (``public``, ``private`` or ``protected``)
 
          An unscoped enum with specified underlying type.
 
-      .. cpp:enum:: class MyScopedEnum
+      .. cpp:enum-class:: MyScopedEnum
 
          A scoped enum.
 
-      .. cpp:enum:: struct protected MyScopedVisibilityEnum : std::underlying_type<MySpecificEnum>::type
+      .. cpp:enum-struct:: protected MyScopedVisibilityEnum : std::underlying_type<MySpecificEnum>::type
 
          A scoped enum with non-default visibility, and with a specified underlying type.
 
@@ -609,14 +610,16 @@ can start with a visibility statement (``public``, ``private`` or ``protected``)
 
 .. rst:directive:: .. cpp:namespace:: namespace
 
-   Select the current namespace for the following objects. Note that the namespace
+   Select the current namespace for the subsequent objects. Note that the namespace
    does not need to correspond to C++ namespaces, but can end in names of classes, e.g.,::
 
       .. cpp:namespace:: Namespace1::Namespace2::SomeClass::AnInnerClass
 
-   All following objects will be defined as if their name were declared with the namespace
-   prepended. The following cross-references will be search for by both their specified name
+   All subsequent objects will be defined as if their name were declared with the namespace
+   prepended. The subsequent cross-references will be searched for by both their specified name
    and with the namespace prepended.
+
+   Using ``NULL``, ``0``, or ``nullptr`` as the namespace will reset it to the global namespace.
 
 
 .. _cpp-roles:
@@ -624,12 +627,14 @@ can start with a visibility statement (``public``, ``private`` or ``protected``)
 These roles link to the given object types:
 
 .. rst:role:: cpp:class
-          cpp:func
-          cpp:member
-          cpp:type
+              cpp:func
+              cpp:member
+              cpp:type
+              cpp:enum
+              cpp:enumerator
 
-   Reference a C++ object.  You can give the full specification (and need to, for
-   overloaded functions.)
+   Reference a C++ object by name. The name must be properly qualified relative to the
+   position of the link.
 
    .. note::
 
