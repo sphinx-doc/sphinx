@@ -15,6 +15,8 @@ Features added
   as an iterable of additional docnames that need to be rewritten.
 * #772: Support for scoped and unscoped enums in C++. Enumerators in unscoped
   enums are injected into the parent scope in addition to the enum scope.
+* Add ``todo_include_todos`` config option to quickstart conf file, handled as
+  described in documentation.
 
 Bugs fixed
 ----------

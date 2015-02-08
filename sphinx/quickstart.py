@@ -53,6 +53,7 @@ DEFAULT_VALUE = {
     'epub': False,
     'ext_autodoc': False,
     'ext_doctest': False,
+    'ext_todo': False,
     'makefile': True,
     'batchfile': True,
     }
@@ -116,6 +117,7 @@ master_doc = '%(master_str)s'
 # General information about the project.
 project = u'%(project_str)s'
 copyright = u'%(copyright_str)s'
+author = u'%(author_str)s'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -166,6 +168,9 @@ pygments_style = 'sphinx'
 
 # If true, keep warnings as "system message" paragraphs in the built documents.
 #keep_warnings = False
+
+# If true, `todo` and `todoList` produce output, else they produce nothing.
+todo_include_todos = %(ext_todo)s
 
 
 # -- Options for HTML output ----------------------------------------------
@@ -286,7 +291,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('%(master_str)s', '%(project_fn)s.tex', u'%(project_doc_texescaped_str)s',
+  (master_doc, '%(project_fn)s.tex', u'%(project_doc_texescaped_str)s',
    u'%(author_texescaped_str)s', 'manual'),
 ]
 
@@ -316,8 +321,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('%(master_str)s', '%(project_manpage)s', u'%(project_doc_str)s',
-     [u'%(author_str)s'], 1)
+    (master_doc, '%(project_manpage)s', u'%(project_doc_str)s',
+     [author], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -330,8 +335,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('%(master_str)s', '%(project_fn)s', u'%(project_doc_str)s',
-   u'%(author_str)s', '%(project_fn)s', 'One line description of project.',
+  (master_doc, '%(project_fn)s', u'%(project_doc_str)s',
+   author, '%(project_fn)s', 'One line description of project.',
    'Miscellaneous'),
 ]
 
@@ -353,13 +358,13 @@ EPUB_CONFIG = u'''
 # -- Options for Epub output ----------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'%(project_str)s'
-epub_author = u'%(author_str)s'
-epub_publisher = u'%(author_str)s'
-epub_copyright = u'%(copyright_str)s'
+epub_title = project
+epub_author = author
+epub_publisher = author
+epub_copyright = copyright
 
 # The basename for the epub file. It defaults to the project name.
-#epub_basename = u'%(project_str)s'
+#epub_basename = project
 
 # The HTML theme for the epub output. Since the default themes are not optimized
 # for small screen space, using the same theme for HTML and epub output is
