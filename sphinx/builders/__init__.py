@@ -19,6 +19,7 @@ except ImportError:
     multiprocessing = threading = None
 
 from docutils import nodes
+from six import string_types
 
 from sphinx.util import i18n, path_stabilize
 from sphinx.util.osutil import SEP, relative_uri, find_catalog
@@ -205,20 +206,23 @@ class Builder(object):
         # relative to the source directory and without source_suffix.
         dirlen = len(self.srcdir) + 1
         to_write = []
-        suffix = self.config.source_suffix
+        suffixes = tuple(self.config.source_suffix)
         for filename in filenames:
             filename = path.normpath(path.abspath(filename))
             if not filename.startswith(self.srcdir):
                 self.warn('file %r given on command line is not under the '
                           'source directory, ignoring' % filename)
                 continue
-            if not (path.isfile(filename) or path.isfile(filename + suffix)):
+            if not (path.isfile(filename) or
+                    any(path.isfile(filename + suffix) for suffix in suffixes)):
                 self.warn('file %r given on command line does not exist, '
                           'ignoring' % filename)
                 continue
             filename = filename[dirlen:]
-            if filename.endswith(suffix):
-                filename = filename[:-len(suffix)]
+            for suffix in suffixes:
+                if filename.endswith(suffix):
+                    filename = filename[:-len(suffix)]
+                    break
             filename = filename.replace(path.sep, SEP)
             to_write.append(filename)
         self.build(to_write, method='specific',

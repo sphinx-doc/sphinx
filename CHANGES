@@ -15,6 +15,8 @@ Features added
   as an iterable of additional docnames that need to be rewritten.
 * Add ``todo_include_todos`` config option to quickstart conf file, handled as
   described in documentation.
+* The :confval:`source_suffix` config value can now be a list of multiple
+  suffixes.
 
 Bugs fixed
 ----------

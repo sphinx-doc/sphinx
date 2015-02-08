@@ -51,7 +51,7 @@ class Config(object):
         locale_dirs = ([], 'env'),
 
         master_doc = ('contents', 'env'),
-        source_suffix = ('.rst', 'env'),
+        source_suffix = (['.rst'], 'env'),
         source_encoding = ('utf-8-sig', 'env'),
         exclude_patterns = ([], 'env'),
         default_role = (None, 'env'),
@@ -321,6 +321,8 @@ class Config(object):
         for name in config:
             if name in self.values:
                 self.__dict__[name] = config[name]
+        if isinstance(self.source_suffix, string_types):
+            self.source_suffix = [self.source_suffix]
 
     def __getattr__(self, name):
         if name.startswith('_'):

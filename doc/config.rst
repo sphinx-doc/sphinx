@@ -78,8 +78,11 @@ General configuration
 
 .. confval:: source_suffix
 
-   The file name extension of source files.  Only files with this suffix will be
-   read as sources.  Default is ``'.rst'``.
+   The file name extension, or list of extensions, of source files.  Only files
+   with this suffix will be read as sources.  Default is ``'.rst'``.
+
+   .. versionchanged:: 1.3
+      Can now be a list of extensions.
 
 .. confval:: source_encoding
 

@@ -23,7 +23,7 @@ from os import path
 from glob import glob
 from itertools import groupby
 
-from six import iteritems, itervalues, text_type, class_types
+from six import iteritems, itervalues, text_type, class_types, string_types
 from six.moves import cPickle as pickle, zip
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
@@ -389,7 +389,15 @@ class BuildEnvironment:
         If *suffix* is not None, add it instead of config.source_suffix.
         """
         docname = docname.replace(SEP, path.sep)
-        suffix = suffix or self.config.source_suffix
+        if suffix is None:
+            for candidate_suffix in self.config.source_suffix:
+                if path.isfile(path.join(self.srcdir, docname) +
+                               candidate_suffix):
+                    suffix = candidate_suffix
+                    break
+            else:
+                # document does not exist
+                suffix = self.config.source_suffix[0]
         if base is True:
             return path.join(self.srcdir, docname) + suffix
         elif base is None:
