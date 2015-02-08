@@ -24,6 +24,7 @@ import re
 import sys
 import pydoc
 import optparse
+import codecs
 
 from jinja2 import FileSystemLoader, TemplateNotFound
 from jinja2.sandbox import SandboxedEnvironment
@@ -217,14 +218,9 @@ def find_autosummary_in_files(filenames):
     """
     documented = []
     for filename in filenames:
-        with open(filename, 'rb') as f:
-            lines = f.read()
-            try:
-                # sometimes this fails (e.g., Windows Py3k w/utf-8 files)
-                lines = lines.decode()
-            except Exception:
-                lines = lines.decode('utf-8')
-            lines = lines.splitlines()
+        with codecs.open(filename, 'r', encoding='utf-8',
+                         errors='ignore') as f:
+            lines = f.read().splitlines()
             documented.extend(find_autosummary_in_lines(lines,
                                                         filename=filename))
     return documented
