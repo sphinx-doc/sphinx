@@ -13,6 +13,8 @@ Features added
 * The ``language`` config value is now available in the HTML templates.
 * The ``env-updated`` event can now return a value, which is interpreted
   as an iterable of additional docnames that need to be rewritten.
+* #772: Support for scoped and unscoped enums in C++. Enumerators in unscoped
+  enums are injected into the parent scope in addition to the enum scope.
 
 Bugs fixed
 ----------
@@ -196,7 +198,7 @@ Bugs fixed
   Thanks to Takeshi Komiya.
 * PR#265: Fix could not capture caption of graphviz node by xref. Thanks to
   Takeshi Komiya.
-* PR#263, #1013, #1103, #772: Rewrite of C++ domain. Thanks to Jakob Lykke Andersen.
+* PR#263, #1013, #1103: Rewrite of C++ domain. Thanks to Jakob Lykke Andersen.
 
   * Hyperlinks to all found nested names and template arguments (#1103).
   * Support for function types everywhere, e.g., in
@@ -212,8 +214,6 @@ Bugs fixed
   * Index names may be different now. Elements are indexed by their fully
     qualified name. It should be rather easy to change this behaviour and
     potentially index by namespaces/classes as well.
-  * Support for scoped and unscoped enums. Enumerators in unscoped enums
-    are injected into the parent scope in addition to the enum scope.
 
 * PR#258, #939: Add dedent option for `code-block` and
   `literalinclude`. Thanks to Zafar Siddiqui.
