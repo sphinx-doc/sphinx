@@ -139,12 +139,9 @@ def test_type_definitions():
 
     check('enum', 'A')
     check('enum', 'A : std::underlying_type<B>::type')
-    check('enum', 'struct A')
-    check('enum', 'struct A : unsigned int')
-    check('enum', 'class A')
-    check('enum', 'class A : unsigned int')
-    check('enum', 'class public A', 'class A')
-    check('enum', 'class private A')
+    check('enum', 'A : unsigned int')
+    check('enum', 'public A', 'A')
+    check('enum', 'private A')
 
     check('enumerator', 'A')
     check('enumerator', 'A = std::numeric_limits<unsigned long>::max()')
