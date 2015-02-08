@@ -13,6 +13,8 @@ Features added
 * The ``language`` config value is now available in the HTML templates.
 * The ``env-updated`` event can now return a value, which is interpreted
   as an iterable of additional docnames that need to be rewritten.
+* Add ``todo_include_todos`` config option to quickstart conf file, handled as
+  described in documentation.
 
 Bugs fixed
 ----------

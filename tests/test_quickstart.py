@@ -150,6 +150,7 @@ def test_quickstart_defaults(tempdir):
     assert ns['copyright'] == '%s, Georg Brandl' % time.strftime('%Y')
     assert ns['version'] == '0.1'
     assert ns['release'] == '0.1'
+    assert ns['todo_include_todos'] is False
     assert ns['html_static_path'] == ['_static']
     assert ns['latex_documents'] == [
         ('index', 'SphinxTest.tex', 'Sphinx Test Documentation',
@@ -178,7 +179,7 @@ def test_quickstart_all_answers(tempdir):
         'autodoc': 'y',
         'doctest': 'yes',
         'intersphinx': 'no',
-        'todo': 'n',
+        'todo': 'y',
         'coverage': 'no',
         'pngmath': 'N',
         'mathjax': 'no',
@@ -198,7 +199,9 @@ def test_quickstart_all_answers(tempdir):
     assert conffile.isfile()
     ns = {}
     execfile_(conffile, ns)
-    assert ns['extensions'] == ['sphinx.ext.autodoc', 'sphinx.ext.doctest']
+    assert ns['extensions'] == [
+        'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo'
+    ]
     assert ns['templates_path'] == ['.templates']
     assert ns['source_suffix'] == '.txt'
     assert ns['master_doc'] == 'contents'
@@ -207,6 +210,7 @@ def test_quickstart_all_answers(tempdir):
         time.strftime('%Y')
     assert ns['version'] == '2.0'
     assert ns['release'] == '2.0.1'
+    assert ns['todo_include_todos'] is True
     assert ns['html_static_path'] == ['.static']
     assert ns['latex_documents'] == [
         ('contents', 'STASI.tex', u'STASI™ Documentation',

@@ -53,6 +53,7 @@ DEFAULT_VALUE = {
     'epub': False,
     'ext_autodoc': False,
     'ext_doctest': False,
+    'ext_todo': False,
     'makefile': True,
     'batchfile': True,
     }
@@ -167,6 +168,9 @@ pygments_style = 'sphinx'
 
 # If true, keep warnings as "system message" paragraphs in the built documents.
 #keep_warnings = False
+
+# If true, `todo` and `todoList` produce output, else they produce nothing.
+todo_include_todos = %(ext_todo)s
 
 
 # -- Options for HTML output ----------------------------------------------
