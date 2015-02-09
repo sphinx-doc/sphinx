@@ -121,6 +121,15 @@
         # (note: only "0" is allowed as the value, according to the standard,
         # right?)
 
+        enum-head ->
+            enum-key attribute-specifier-seq[opt] nested-name-specifier[opt]
+                identifier enum-base[opt]
+        enum-key -> "enum" | "enum struct" | "enum class"
+        enum-base ->
+            ":" type
+        enumerator-definition ->
+              identifier
+            | identifier "=" constant-expression
 
     We additionally add the possibility for specifying the visibility as the
     first thing.
@@ -139,7 +148,6 @@
         grammar, typedef-like: no initilizer
             decl-specifier-seq declerator
 
-
     member_object:
         goal: as a type_object which must have a declerator, and optionally
         with a initializer
@@ -150,6 +158,30 @@
         goal: a function declaration, TODO: what about templates? for now: skip
         grammar: no initializer
            decl-specifier-seq declerator
+
+    class_object:
+        goal: a class declaration, but with specification of a base class
+              TODO: what about templates? for now: skip
+        grammar:
+              nested-name
+            | nested-name ":"
+                'comma-separated list of nested-name optionally with visibility'
+
+    enum_object:
+        goal: an unscoped enum or a scoped enum, optionally with the underlying
+              type specified
+        grammar:
+            ("class" | "struct")[opt] visibility[opt] nested-name (":" type)[opt]
+    enumerator_object:
+        goal: an element in a scoped or unscoped enum. The name should be
+              injected according to the scopedness.
+        grammar:
+            nested-name ("=" constant-expression)
+
+    namespace_object:
+        goal: a directive to put all following declarations in a specific scope
+        grammar:
+            nested-name
 """
 
 import re
@@ -1300,12 +1332,13 @@ class ASTBaseClass(ASTBase):
             signode += addnodes.desc_annotation(
                 self.visibility, self.visibility)
             signode += nodes.Text(' ')
-            self.name.describe_signature(signode, mode, env)
+        self.name.describe_signature(signode, mode, env)
 
 
 class ASTClass(ASTBase):
-    def __init__(self, name, bases):
+    def __init__(self, name, visibility, bases):
         self.name = name
+        self.visibility = visibility
         self.bases = bases
 
     def get_id_v1(self):
@@ -1320,6 +1353,9 @@ class ASTClass(ASTBase):
 
     def __unicode__(self):
         res = []
+        if self.visibility != 'public':
+            res.append(self.visibility)
+            res.append(' ')
         res.append(text_type(self.name))
         if len(self.bases) > 0:
             res.append(' : ')
@@ -1333,6 +1369,10 @@ class ASTClass(ASTBase):
 
     def describe_signature(self, signode, mode, env):
         _verify_description_mode(mode)
+        if self.visibility != 'public':
+            signode += addnodes.desc_annotation(
+                self.visibility, self.visibility)
+            signode += nodes.Text(' ')
         self.name.describe_signature(signode, mode, env)
         if len(self.bases) > 0:
             signode += nodes.Text(' : ')
@@ -1340,6 +1380,69 @@ class ASTClass(ASTBase):
                 b.describe_signature(signode, mode, env)
                 signode += nodes.Text(', ')
             signode.pop()
+
+class ASTEnum(ASTBase):
+    def __init__(self, name, visibility, scoped, underlyingType):
+        self.name = name
+        self.visibility = visibility
+        self.scoped = scoped
+        self.underlyingType = underlyingType
+
+    def get_id_v1(self):
+        return None # did not exist at that time
+
+    def get_id_v2(self):
+        return _id_prefix_v2 + self.prefixedName.get_id_v2()
+
+    def __unicode__(self):
+        res = []
+        if self.scoped:
+            res.append(self.scoped)
+            res.append(' ')
+        if self.visibility != 'public':
+            res.append(self.visibility)
+            res.append(' ')
+        res.append(text_type(self.name))
+        if self.underlyingType:
+            res.append(' : ')
+            res.append(text_type(self.underlyingType))
+        return u''.join(res)
+
+    def describe_signature(self, signode, mode, env):
+        _verify_description_mode(mode)
+        # self.scoped has been done by the CPPEnumObject
+        if self.visibility != 'public':
+            signode += addnodes.desc_annotation(
+                self.visibility, self.visibility)
+            signode += nodes.Text(' ')
+        self.name.describe_signature(signode, mode, env)
+        if self.underlyingType:
+            signode += nodes.Text(' : ')
+            self.underlyingType.describe_signature(signode, 'noneIsName', env)
+
+class ASTEnumerator(ASTBase):
+    def __init__(self, name, init):
+        self.name = name
+        self.init = init
+
+    def get_id_v1(self):
+        return None # did not exist at that time
+
+    def get_id_v2(self):
+        return _id_prefix_v2 + self.prefixedName.get_id_v2()
+
+    def __unicode__(self):
+        res = []
+        res.append(text_type(self.name))
+        if self.init:
+            res.append(text_type(self.init))
+        return u''.join(res)
+
+    def describe_signature(self, signode, mode, env):
+        _verify_description_mode(mode)
+        self.name.describe_signature(signode, mode, env)
+        if self.init:
+            self.init.describe_signature(signode, 'noneIsName')
 
 
 class DefinitionParser(object):
@@ -1891,6 +1994,9 @@ class DefinitionParser(object):
         return ASTTypeWithInit(type, init)
 
     def _parse_class(self):
+        classVisibility = 'public'
+        if self.match(_visibility_re):
+            classVisibility = self.matched_text
         name = self._parse_nested_name()
         bases = []
         self.skip_ws()
@@ -1907,7 +2013,30 @@ class DefinitionParser(object):
                     continue
                 else:
                     break
-        return ASTClass(name, bases)
+        return ASTClass(name, classVisibility, bases)
+
+    def _parse_enum(self):
+        scoped = None # is set by CPPEnumObject
+        self.skip_ws()
+        visibility = 'public'
+        if self.match(_visibility_re):
+            visibility = self.matched_text
+        self.skip_ws()
+        name = self._parse_nested_name()
+        self.skip_ws()
+        underlyingType = None
+        if self.skip_string(':'):
+            underlyingType = self._parse_type()
+        return ASTEnum(name, visibility, scoped, underlyingType)
+
+    def _parse_enumerator(self):
+        name = self._parse_nested_name()
+        self.skip_ws()
+        init = None
+        if self.skip_string('='):
+            self.skip_ws()
+            init = ASTInitializer(self.read_rest())
+        return ASTEnumerator(name, init)
 
     def parse_type_object(self):
         res = self._parse_type(outer='type')
@@ -1927,6 +2056,16 @@ class DefinitionParser(object):
     def parse_class_object(self):
         res = self._parse_class()
         res.objectType = 'class'
+        return res
+
+    def parse_enum_object(self):
+        res = self._parse_enum()
+        res.objectType = 'enum'
+        return res
+
+    def parse_enumerator_object(self):
+        res = self._parse_enumerator()
+        res.objectType = 'enumerator'
         return res
 
     def parse_namespace_object(self):
@@ -1960,6 +2099,8 @@ class CPPObject(ObjectDescription):
                ast.get_id_v1()
                ]
         theid = ids[0]
+        ast.newestId = theid
+        assert theid # shouldn't be None
         name = text_type(ast.prefixedName)
         if theid not in self.state.document.ids:
             # if the name is not unique, the first one will win
@@ -1970,18 +2111,35 @@ class CPPObject(ObjectDescription):
                 pass
                 #print("[CPP] non-unique name:", name)
             for id in ids:
-                signode['ids'].append(id)
+                if id: # is None when the element didn't exist in that version
+                    signode['ids'].append(id)
             signode['first'] = (not self.names)
             self.state.document.note_explicit_target(signode)
-            if name not in objects:
-                objects.setdefault(name,
-                                   (self.env.docname, ast.objectType, theid))
+            if not name in objects:
+                objects.setdefault(name, (self.env.docname, ast))
+                if ast.objectType == 'enumerator':
+                    # find the parent, if it exists && is an enum
+                    #                     && it's unscoped,
+                    #                  then add the name to the parent scope
+                    assert len(ast.prefixedName.names) > 0
+                    parentPrefixedAstName = ASTNestedName(ast.prefixedName.names[:-1])
+                    parentPrefixedName = text_type(parentPrefixedAstName)
+                    if parentPrefixedName in objects:
+                        docname, parentAst = objects[parentPrefixedName]
+                        if parentAst.objectType == 'enum' and not parentAst.scoped:
+                            enumeratorName = ASTNestedName([ast.prefixedName.names[-1]])
+                            assert len(parentAst.prefixedName.names) > 0
+                            enumScope = ASTNestedName(parentAst.prefixedName.names[:-1])
+                            unscopedName = enumeratorName.prefix_nested_name(enumScope)
+                            txtUnscopedName = text_type(unscopedName)
+                            if not txtUnscopedName in objects:
+                                objects.setdefault(txtUnscopedName,
+                                                   (self.env.docname, ast))
                 # add the uninstantiated template if it doesn't exist
                 uninstantiated = ast.prefixedName.get_name_no_last_template()
                 if uninstantiated != name and uninstantiated not in objects:
                     signode['names'].append(uninstantiated)
-                    objects.setdefault(uninstantiated, (
-                        self.env.docname, ast.objectType, theid))
+                    objects.setdefault(uninstantiated, (self.env.docname, ast))
             self.env.ref_context['cpp:lastname'] = ast.prefixedName
 
         indextext = self.get_index_text(name)
@@ -2057,12 +2215,14 @@ class CPPClassObject(CPPObject):
         return _('%s (C++ class)') % name
 
     def before_content(self):
-        lastname = self.env.ref_context['cpp:lastname']
-        assert lastname
-        if 'cpp:parent' in self.env.ref_context:
-            self.env.ref_context['cpp:parent'].append(lastname)
-        else:
-            self.env.ref_context['cpp:parent'] = [lastname]
+        # lastname may not be set if there was an error
+        if 'cpp:lastname' in self.env.ref_context:
+            lastname = self.env.ref_context['cpp:lastname']
+            assert lastname
+            if 'cpp:parent' in self.env.ref_context:
+                self.env.ref_context['cpp:parent'].append(lastname)
+            else:
+                self.env.ref_context['cpp:parent'] = [lastname]
 
     def after_content(self):
         self.env.ref_context['cpp:parent'].pop()
@@ -2072,6 +2232,57 @@ class CPPClassObject(CPPObject):
 
     def describe_signature(self, signode, ast):
         signode += addnodes.desc_annotation('class ', 'class ')
+        ast.describe_signature(signode, 'lastIsName', self.env)
+
+
+class CPPEnumObject(CPPObject):
+    def get_index_text(self, name):
+        return _('%s (C++ enum)') % name
+
+    def before_content(self):
+        # lastname may not be set if there was an error
+        if 'cpp:lastname' in self.env.ref_context:
+            lastname = self.env.ref_context['cpp:lastname']
+            assert lastname
+            if 'cpp:parent' in self.env.ref_context:
+                self.env.ref_context['cpp:parent'].append(lastname)
+            else:
+                self.env.ref_context['cpp:parent'] = [lastname]
+
+    def after_content(self):
+        self.env.ref_context['cpp:parent'].pop()
+
+    def parse_definition(self, parser):
+        ast = parser.parse_enum_object()
+        # self.objtype is set by ObjectDescription in run()
+        if self.objtype == "enum":
+            ast.scoped = None
+        elif self.objtype == "enum-struct":
+            ast.scoped = "struct"
+        elif self.objtype == "enum-class":
+            ast.scoped = "class"
+        else:
+            assert False
+        return ast
+
+    def describe_signature(self, signode, ast):
+        prefix = 'enum '
+        if ast.scoped:
+            prefix += ast.scoped
+            prefix += ' '
+        signode += addnodes.desc_annotation(prefix, prefix)
+        ast.describe_signature(signode, 'lastIsName', self.env)
+
+
+class CPPEnumeratorObject(CPPObject):
+    def get_index_text(self, name):
+        return _('%s (C++ enumerator)') % name
+
+    def parse_definition(self, parser):
+        return parser.parse_enumerator_object()
+
+    def describe_signature(self, signode, ast):
+        signode += addnodes.desc_annotation('enumerator ', 'enumerator ')
         ast.describe_signature(signode, 'lastIsName', self.env)
 
 
@@ -2120,7 +2331,6 @@ class CPPXRefRole(XRefRole):
                     title = title[dcolon + 2:]
         return title, target
 
-
 class CPPDomain(Domain):
     """C++ language domain."""
     name = 'cpp'
@@ -2129,7 +2339,9 @@ class CPPDomain(Domain):
         'class': ObjType(l_('class'), 'class'),
         'function': ObjType(l_('function'), 'func'),
         'member': ObjType(l_('member'), 'member'),
-        'type': ObjType(l_('type'), 'type')
+        'type': ObjType(l_('type'), 'type'),
+        'enum': ObjType(l_('enum'), 'enum'),
+        'enumerator': ObjType(l_('enumerator'), 'enumerator')
     }
 
     directives = {
@@ -2137,16 +2349,22 @@ class CPPDomain(Domain):
         'function': CPPFunctionObject,
         'member': CPPMemberObject,
         'type': CPPTypeObject,
+        'enum': CPPEnumObject,
+        'enum-struct': CPPEnumObject,
+        'enum-class': CPPEnumObject,
+        'enumerator': CPPEnumeratorObject,
         'namespace': CPPNamespaceObject
     }
     roles = {
         'class': CPPXRefRole(),
         'func': CPPXRefRole(fix_parens=True),
         'member': CPPXRefRole(),
-        'type': CPPXRefRole()
+        'type': CPPXRefRole(),
+        'enum': CPPXRefRole(),
+        'enumerator': CPPXRefRole()
     }
     initial_data = {
-        'objects': {},  # prefixedName -> (docname, objectType, id)
+        'objects': {},  # prefixedName -> (docname, ast)
     }
 
     def clear_doc(self, docname):
@@ -2169,9 +2387,9 @@ class CPPDomain(Domain):
                 name = nameAst.get_name_no_last_template()
                 if name not in self.data['objects']:
                     return None, None
-            docname, objectType, id = self.data['objects'][name]
-            return make_refnode(builder, fromdocname, docname, id, contnode,
-                                name), objectType
+            docname, ast = self.data['objects'][name]
+            return make_refnode(builder, fromdocname, docname, ast.newestId,
+                                contnode, name), ast.objectType
 
         parser = DefinitionParser(target)
         try:
@@ -2210,5 +2428,5 @@ class CPPDomain(Domain):
         return []
 
     def get_objects(self):
-        for refname, (docname, type, theid) in iteritems(self.data['objects']):
-            yield (refname, refname, type, docname, refname, 1)
+        for refname, (docname, ast) in iteritems(self.data['objects']):
+            yield (refname, refname, ast.objectType, docname, ast.newestId, 1)

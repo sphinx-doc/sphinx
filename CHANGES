@@ -13,6 +13,8 @@ Features added
 * The ``language`` config value is now available in the HTML templates.
 * The ``env-updated`` event can now return a value, which is interpreted
   as an iterable of additional docnames that need to be rewritten.
+* #772: Support for scoped and unscoped enums in C++. Enumerators in unscoped
+  enums are injected into the parent scope in addition to the enum scope.
 * Add ``todo_include_todos`` config option to quickstart conf file, handled as
   described in documentation.
 
@@ -27,6 +29,7 @@ Bugs fixed
 * #1687: linkcheck now treats 401 Unauthorized responses as "working".
 * #1690: toctrees with ``glob`` option now can also contain entries for single
   documents with explicit title.
+* #1591: html search results for C++ elements now has correct interpage links.
 
 
 Release 1.3b2 (released Dec 5, 2014)

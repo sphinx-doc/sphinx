@@ -134,6 +134,18 @@ def test_type_definitions():
     check('function', 'int foo(const A&... a)')
     check('function', 'virtual void f()')
 
+    check('class', 'public A', 'A')
+    check('class', 'private A')
+
+    check('enum', 'A')
+    check('enum', 'A : std::underlying_type<B>::type')
+    check('enum', 'A : unsigned int')
+    check('enum', 'public A', 'A')
+    check('enum', 'private A')
+
+    check('enumerator', 'A')
+    check('enumerator', 'A = std::numeric_limits<unsigned long>::max()')
+
 def test_bases():
     check('class', 'A')
     check('class', 'A::B::C')
@@ -142,7 +154,6 @@ def test_bases():
     check('class', 'A : public B')
     check('class', 'A : B, C')
     check('class', 'A : B, protected C, D')
-
 
 def test_operators():
     check('function', 'void operator new [  ] ()', 'void operator new[]()')
