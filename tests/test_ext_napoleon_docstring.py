@@ -10,7 +10,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-import textwrap
+from collections import namedtuple
+
+# inspect.cleandoc() implements the trim() function from PEP 257
+from inspect import cleandoc
+from textwrap import dedent
 from unittest import TestCase
 
 from sphinx.ext.napoleon import Config
@@ -18,8 +22,51 @@ from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
 from util import mock
 
 
+class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
+    """Sample namedtuple subclass
+
+    Attributes
+    ----------
+    attr1 : Arbitrary type
+        Quick description of attr1
+    attr2 : Another arbitrary type
+        Quick description of attr2
+
+    """
+    # To avoid creating a dict, as a namedtuple doesn't have it:
+    __slots__ = ()
+
+    def __new__(cls, attr1, attr2=None):
+        return super(NamedtupleSubclass, cls).__new__(cls, attr1, attr2)
+
+
 class BaseDocstringTest(TestCase):
     pass
+
+
+class NamedtupleSubclassTest(BaseDocstringTest):
+    def test_attributes_docstring(self):
+        config = Config()
+        actual = str(NumpyDocstring(cleandoc(NamedtupleSubclass.__doc__),
+                     config=config, app=None, what='class',
+                     name='NamedtupleSubclass', obj=NamedtupleSubclass))
+        expected = dedent("""\
+           Sample namedtuple subclass
+
+           .. attribute:: attr1
+
+              *Arbitrary type*
+
+              Quick description of attr1
+
+           .. attribute:: attr2
+
+              *Another arbitrary type*
+
+              Quick description of attr2
+           """)
+
+        self.assertEqual(expected, actual)
 
 
 class GoogleDocstringTest(BaseDocstringTest):
@@ -180,8 +227,8 @@ class GoogleDocstringTest(BaseDocstringTest):
     def test_docstrings(self):
         config = Config(napoleon_use_param=False, napoleon_use_rtype=False)
         for docstring, expected in self.docstrings:
-            actual = str(GoogleDocstring(textwrap.dedent(docstring), config))
-            expected = textwrap.dedent(expected)
+            actual = str(GoogleDocstring(dedent(docstring), config))
+            expected = dedent(expected)
             self.assertEqual(expected, actual)
 
     def test_parameters_with_class_reference(self):
@@ -382,8 +429,8 @@ class NumpyDocstringTest(BaseDocstringTest):
     def test_docstrings(self):
         config = Config(napoleon_use_param=False, napoleon_use_rtype=False)
         for docstring, expected in self.docstrings:
-            actual = str(NumpyDocstring(textwrap.dedent(docstring), config))
-            expected = textwrap.dedent(expected)
+            actual = str(NumpyDocstring(dedent(docstring), config))
+            expected = dedent(expected)
             self.assertEqual(expected, actual)
 
     def test_parameters_with_class_reference(self):
@@ -425,7 +472,7 @@ param1 : MyClass instance
         self.assertEqual(expected, actual)
 
         config = Config(napoleon_use_param=True)
-        actual = str(NumpyDocstring(textwrap.dedent(docstring), config))
+        actual = str(NumpyDocstring(dedent(docstring), config))
         expected = """\
 :param param1:
 :type param1: MyClass instance
