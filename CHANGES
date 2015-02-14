@@ -660,7 +660,7 @@ Features added
     ``'cmappkg'`` item in `latex_elements` can be used to control this.
     Thanks to Dmitry Shachnev.
   - The ``'fontpkg'`` item in `latex_elements` now defaults to ``''``
-    when the `language` uses the Cyrillic script.  Suggested by Dmitry
+    when the :confval:`language` uses the Cyrillic script.  Suggested by Dmitry
     Shachnev.
   - The `latex_documents`, `texinfo_documents`, and
     `man_pages` configuration values will be set to default values based
