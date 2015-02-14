@@ -20,7 +20,7 @@ def make_admonition(node_class, name, arguments, options, content, lineno,
                     content_offset, block_text, state, state_machine):
     warnings.warn('make_admonition is deprecated, use '
                   'docutils.parsers.rst.directives.admonitions.BaseAdmonition '
-                  'instead', DeprecationWarning, stacklevel=1)
+                  'instead', DeprecationWarning, stacklevel=2)
     text = '\n'.join(content)
     admonition_node = node_class(text)
     if arguments:
