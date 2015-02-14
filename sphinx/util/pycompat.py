@@ -107,29 +107,32 @@ def execfile_(filepath, _globals, open=open):
 # ------------------------------------------------------------------------------
 # Internal module backwards-compatibility
 
-import functools
 import warnings
-
-def _deprecated(func):
-    @functools.wraps(func)
-    def wrapped(*args, **kwargs):
-        warnings.warn("sphinx.util.pycompat.{0.__name__} is deprecated, "
-                      "please use the standard library version.".format(func),
-                      DeprecationWarning, stacklevel=2)
-        func(*args, **kwargs)
-    return wrapped
 
 from six import class_types
 from six.moves import zip_longest
 from itertools import product
 
-zip_longest = _deprecated(zip_longest)
-product = _deprecated(product)
+class _DeprecationWrapper(object):
+    def __init__(self, mod, deprecated):
+        self._mod = mod
+        self._deprecated = deprecated
 
-all = _deprecated(all)
-any = _deprecated(any)
-next = _deprecated(next)
-open = _deprecated(open)
+    def __getattr__(self, attr):
+        if attr in self._deprecated:
+            warnings.warn("sphinx.util.pycompat.%s is deprecated, "
+                          "please use the standard library version." % attr,
+                          DeprecationWarning)
+            return self._deprecated[attr]
+        return getattr(self._mod, attr)
 
-base_exception = BaseException
-relpath = _deprecated(__import__('os').path.relpath)
+sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(
+    zip_longest = zip_longest,
+    product = product,
+    all = all,
+    any = any,
+    next = next,
+    open = open,
+    base_exception = BaseException,
+    relpath = __import__('os').path.relpath,
+))
