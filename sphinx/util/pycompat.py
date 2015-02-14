@@ -111,6 +111,7 @@ import warnings
 
 from six import class_types
 from six.moves import zip_longest
+import io
 from itertools import product
 
 class _DeprecationWrapper(object):
@@ -135,4 +136,6 @@ sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(
     open = open,
     base_exception = BaseException,
     relpath = __import__('os').path.relpath,
+    StringIO = io.StringIO,
+    BytesIO = io.BytesIO,
 ))
