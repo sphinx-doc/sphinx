@@ -17,6 +17,8 @@ Features added
   enums are injected into the parent scope in addition to the enum scope.
 * Add ``todo_include_todos`` config option to quickstart conf file, handled as
   described in documentation.
+* HTML breadcrumb items tag has class "nav-item" and "nav-item-N" (like
+  nav-item-0, 1, 2...).
 
 Bugs fixed
 ----------
@@ -30,6 +32,9 @@ Bugs fixed
 * #1690: toctrees with ``glob`` option now can also contain entries for single
   documents with explicit title.
 * #1591: html search results for C++ elements now has correct interpage links.
+* bizstyle theme: nested long title pages make long breadcrumb that breaks page layout.
+* bizstyle theme: all breadcrumb items become 'Top' on some mobile browser
+  (iPhone5s safari).
 
 
 Release 1.3b2 (released Dec 5, 2014)
