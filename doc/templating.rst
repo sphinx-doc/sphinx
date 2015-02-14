@@ -275,6 +275,10 @@ in the future.
    True if the reST document sources are copied (if :confval:`html_copy_source`
    is ``True``).
 
+.. data:: language
+
+   The value of :confval:`language`.
+
 .. data:: last_updated
 
    The build date.
