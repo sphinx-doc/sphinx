@@ -65,7 +65,8 @@ div.related {
 
 div.related ul {
     background-color: {{ theme_maincolor }};
-    height: 2em;
+    height: 100%;
+    overflow: hidden;
     border-top: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
 }
