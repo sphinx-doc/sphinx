@@ -76,7 +76,7 @@ else:
             return self.__unicode__().encode('utf8')
 
 
-def execfile_(filepath, _globals):
+def execfile_(filepath, _globals, open=open):
     from sphinx.util.osutil import fs_encoding
     # get config source -- 'b' is a no-op under 2.x, while 'U' is
     # ignored under 3.x (but 3.x compile() accepts \r\n newlines)
@@ -103,3 +103,33 @@ def execfile_(filepath, _globals):
         else:
             raise
     exec_(code, _globals)
+
+# ------------------------------------------------------------------------------
+# Internal module backwards-compatibility
+
+import functools
+import warnings
+
+def _deprecated(func):
+    @functools.wraps(func)
+    def wrapped(*args, **kwargs):
+        warnings.warn("sphinx.util.pycompat.{0.__name__} is deprecated, "
+                      "please use the standard library version.".format(func),
+                      DeprecationWarning, stacklevel=2)
+        func(*args, **kwargs)
+    return wrapped
+
+from six import class_types
+from six.moves import zip_longest
+from itertools import product
+
+zip_longest = _deprecated(zip_longest)
+product = _deprecated(product)
+
+all = _deprecated(all)
+any = _deprecated(any)
+next = _deprecated(next)
+open = _deprecated(open)
+
+base_exception = BaseException
+relpath = _deprecated(__import__('os').path.relpath)
