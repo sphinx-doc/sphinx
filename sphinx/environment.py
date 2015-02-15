@@ -1297,7 +1297,7 @@ class BuildEnvironment:
                 parent[child] = p
         ancestors = []
         d = docname
-        while d in parent:
+        while d in parent and d not in ancestors:
             ancestors.append(d)
             d = parent[d]
         return ancestors
