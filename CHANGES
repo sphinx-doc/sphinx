@@ -35,6 +35,7 @@ Bugs fixed
 * bizstyle theme: nested long title pages make long breadcrumb that breaks page layout.
 * bizstyle theme: all breadcrumb items become 'Top' on some mobile browser
   (iPhone5s safari).
+* #1722: restore ``toctree()`` template function behavior that was changed at 1.3b1.
 
 
 Release 1.3b2 (released Dec 5, 2014)

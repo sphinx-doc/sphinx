@@ -1290,6 +1290,18 @@ class BuildEnvironment:
                         # recurse on visible children
                         self._toctree_prune(subnode, depth+1, maxdepth,  collapse)
 
+    def get_toctree_ancestors(self, docname):
+        parent = {}
+        for p, children in iteritems(self.toctree_includes):
+            for child in children:
+                parent[child] = p
+        ancestors = []
+        d = docname
+        while d in parent:
+            ancestors.append(d)
+            d = parent[d]
+        return ancestors
+
     def resolve_toctree(self, docname, builder, toctree, prune=True, maxdepth=0,
                         titles_only=False, collapse=False, includehidden=False):
         """Resolve a *toctree* node into individual bullet lists with titles
@@ -1323,6 +1335,8 @@ class BuildEnvironment:
         #
         # The transformation is made in two passes in order to avoid
         # interactions between marking and pruning the tree (see bug #1046).
+
+        toctree_ancestors = self.get_toctree_ancestors(docname)
 
         def _toctree_add_classes(node, depth):
             """Add 'toctree-l%d' and 'current' classes to the toctree."""
@@ -1394,7 +1408,8 @@ class BuildEnvironment:
                         refdoc = ref
                         toc = self.tocs[ref].deepcopy()
                         maxdepth = self.metadata[ref].get('tocdepth', 0)
-                        self._toctree_prune(toc, 2, maxdepth, collapse)
+                        if ref not in toctree_ancestors or (prune and maxdepth > 0):
+                            self._toctree_prune(toc, 2, maxdepth, collapse)
                         self.process_only_nodes(toc, builder, ref)
                         if title and toc.children and len(toc.children) == 1:
                             child = toc.children[0]
