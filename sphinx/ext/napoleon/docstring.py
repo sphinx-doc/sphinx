@@ -23,9 +23,8 @@ from sphinx.util.pycompat import UnicodeMixin
 
 
 _directive_regex = re.compile(r'\.\. \S+::')
-_google_untyped_arg_regex = re.compile(r'\s*(\*?\*?\w+)\s*:\s*(.*)')
-_google_typed_arg_regex = re.compile(r'\s*(\*?\*?\w+)\s*\(\s*(.+?)\s*\)\s*:'
-                                     r'\s*(.*)')
+_google_untyped_arg_regex = re.compile(r'\s*(.+?)\s*:\s*(.*)')
+_google_typed_arg_regex = re.compile(r'\s*(.+?)\s*\(\s*(.+?)\s*\)\s*:\s*(.*)')
 
 
 class GoogleDocstring(UnicodeMixin):
@@ -178,17 +177,17 @@ class GoogleDocstring(UnicodeMixin):
     def _consume_indented_block(self, indent=1):
         lines = []
         line = self._line_iter.peek()
-        while(not self._is_section_break()
-              and (not line or self._is_indented(line, indent))):
+        while(not self._is_section_break() and
+              (not line or self._is_indented(line, indent))):
             lines.append(next(self._line_iter))
             line = self._line_iter.peek()
         return lines
 
     def _consume_contiguous(self):
         lines = []
-        while (self._line_iter.has_next()
-               and self._line_iter.peek()
-               and not self._is_section_header()):
+        while (self._line_iter.has_next() and
+               self._line_iter.peek() and
+               not self._is_section_header()):
             lines.append(next(self._line_iter))
         return lines
 
@@ -400,11 +399,11 @@ class GoogleDocstring(UnicodeMixin):
 
     def _is_section_break(self):
         line = self._line_iter.peek()
-        return (not self._line_iter.has_next()
-                or self._is_section_header()
-                or (self._is_in_section
-                    and line
-                    and not self._is_indented(line, self._section_indent)))
+        return (not self._line_iter.has_next() or
+                self._is_section_header() or
+                (self._is_in_section and
+                    line and
+                    not self._is_indented(line, self._section_indent)))
 
     def _parse(self):
         self._parsed_lines = self._consume_empty()
@@ -743,12 +742,12 @@ class NumpyDocstring(GoogleDocstring):
 
     def _is_section_break(self):
         line1, line2 = self._line_iter.peek(2)
-        return (not self._line_iter.has_next()
-                or self._is_section_header()
-                or ['', ''] == [line1, line2]
-                or (self._is_in_section
-                    and line1
-                    and not self._is_indented(line1, self._section_indent)))
+        return (not self._line_iter.has_next() or
+                self._is_section_header() or
+                ['', ''] == [line1, line2] or
+                (self._is_in_section and
+                    line1 and
+                    not self._is_indented(line1, self._section_indent)))
 
     def _is_section_header(self):
         section, underline = self._line_iter.peek(2)
