@@ -120,6 +120,10 @@ Extension options
 Makefile and Batchfile creation options
 ---------------------------------------
 
+.. option:: --use-make-mode, --no-use-make-mode
+
+   Makefile/make.bat uses (or not use) make-mode. Default is not use.
+
 .. option:: --makefile, --no-makefile
 
    Create (or not create) makefile.

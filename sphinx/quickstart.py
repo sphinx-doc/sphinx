@@ -947,7 +947,7 @@ help:
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%:
+%%:
 \t@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 '''
 
@@ -1341,16 +1341,23 @@ def generate(d, overwrite=True, silent=False):
     masterfile = path.join(srcdir, d['master'] + d['suffix'])
     write_file(masterfile, MASTER_FILE % d)
 
+    if d.get('make_mode') is True:
+        makefile_template = MAKEFILE_NEW
+        batchfile_template = BATCHFILE_NEW
+    else:
+        makefile_template = MAKEFILE
+        batchfile_template = BATCHFILE
+
     if d['makefile'] is True:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
         # use binary mode, to avoid writing \r\n on Windows
-        write_file(path.join(d['path'], 'Makefile'), MAKEFILE % d, u'\n')
+        write_file(path.join(d['path'], 'Makefile'), makefile_template % d, u'\n')
 
     if d['batchfile'] is True:
         d['rsrcdir'] = d['sep'] and 'source' or '.'
         d['rbuilddir'] = d['sep'] and 'build' or d['dot'] + 'build'
-        write_file(path.join(d['path'], 'make.bat'), BATCHFILE % d, u'\r\n')
+        write_file(path.join(d['path'], 'make.bat'), batchfile_template % d, u'\r\n')
 
     if silent:
         return
@@ -1452,6 +1459,10 @@ def main(argv=sys.argv):
     group.add_option('--no-batchfile', action='store_true', dest='no_batchfile',
                      default=False,
                      help='not create batchfile')
+    group.add_option('-M', '--no-use-make-mode', action='store_false', dest='make_mode',
+                     help='not use make-mode for Makefile/make.bat')
+    group.add_option('-m', '--use-make-mode', action='store_true', dest='make_mode',
+                     help='use make-mode for Makefile/make.bat')
 
     # parse options
     try:
