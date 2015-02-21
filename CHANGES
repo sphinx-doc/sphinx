@@ -5,6 +5,8 @@ Incompatible changes
 --------------------
 
 * Dependency requirement updates: docutils 0.11, Pygments 2.0
+* The ``gettext_enables`` config value has been renamed to
+  `gettext_additional_targets`.
 
 Features added
 --------------
@@ -101,7 +103,7 @@ Incompatible changes
   Additionally, if the ``python-levenshtein`` 3rd-party package is installed,
   it will improve the calculation time.
 * gettext builder: disable extracting/apply 'index' node by default. Please set
-  'index' to :confval:`gettext_enables` to enable extracting index entries.
+  'index' to ``gettext_enables`` to enable extracting index entries.
 * PR#307: Add frame to code-block in LaTeX. Thanks to Takeshi Komiya.
 
 Features added
@@ -172,7 +174,7 @@ Features added
   target. Thanks to Takeshi Komiya.
 * PR#298: Add new API: :meth:`~sphinx.application.Sphinx.add_latex_package`.
   Thanks to Takeshi Komiya.
-* #1344: add :confval:`gettext_enables` to enable extracting 'index' to gettext
+* #1344: add ``gettext_enables`` to enable extracting 'index' to gettext
   catalog output / applying translation catalog to generated documentation.
 * PR#301, #1583: Allow the line numbering of the directive `literalinclude` to
   match that of the included file, using a new ``lineno-match`` option. Thanks

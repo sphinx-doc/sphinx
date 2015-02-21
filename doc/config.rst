@@ -488,10 +488,10 @@ documentation on :ref:`intl` for details.
 
    .. versionadded:: 1.3
 
-.. confval:: gettext_enables
+.. confval:: gettext_additional_targets
 
    To specify names to enable gettext extracting and translation applying for
-   i18n. You can specify below names:
+   i18n additionally. You can specify below names:
 
    :index: index terms
 

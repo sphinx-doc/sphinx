@@ -468,7 +468,7 @@ class Locale(Transform):
             node.children = patch.children
             node['translated'] = True
 
-        if 'index' in env.config.gettext_enables:
+        if 'index' in env.config.gettext_additional_targets:
             # Extract and translate messages for index entries.
             for node, entries in traverse_translatable_index(self.document):
                 new_entries = []

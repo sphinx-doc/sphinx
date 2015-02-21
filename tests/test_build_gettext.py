@@ -124,7 +124,7 @@ def test_gettext_index_entries(app, status, warning):
 
 
 @with_app('gettext', testroot='intl',
-          confoverrides={'gettext_compact': False, 'gettext_enables': []})
+          confoverrides={'gettext_compact': False, 'gettext_additional_targets': []})
 def test_gettext_disable_index_entries(app, status, warning):
     # regression test for #976
     app.builder.build(['index_entries'])
