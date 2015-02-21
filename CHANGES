@@ -19,8 +19,8 @@ Features added
   described in documentation.
 * HTML breadcrumb items tag has class "nav-item" and "nav-item-N" (like
   nav-item-0, 1, 2...).
-* sphinx-quickstart now has `--use-make-mode` option for generating Makefile
-  that use sphinx make-mode.
+* New option `sphinx-quickstart --use-make-mode` for generating Makefile that
+  use sphinx-build make-mode.
 
 Bugs fixed
 ----------
