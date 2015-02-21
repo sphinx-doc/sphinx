@@ -248,29 +248,35 @@ class Locale(Transform):
                     # * if explicit: _id is label. title node need another id.
                     # * if not explicit:
                     #
-                    #   * _id is None:
+                    #   * if _id is None:
                     #
-                    #     _id is None means _id was duplicated.
-                    #     old_name entry still exists in nameids and
-                    #     nametypes for another duplicated entry.
+                    #     _id is None means:
                     #
-                    #   * _id is provided: bellow process
-                    if not explicit and _id:
-                        # _id was not duplicated.
-                        # remove old_name entry from document ids database
-                        # to reuse original _id.
-                        self.document.nameids.pop(old_name, None)
-                        self.document.nametypes.pop(old_name, None)
-                        self.document.ids.pop(_id, None)
+                    #     1. _id was not provided yet.
+                    #
+                    #     2. _id was duplicated.
+                    #
+                    #        old_name entry still exists in nameids and
+                    #        nametypes for another duplicated entry.
+                    #
+                    #   * if _id is provided: bellow process
+                    if _id:
+                        if not explicit:
+                            # _id was not duplicated.
+                            # remove old_name entry from document ids database
+                            # to reuse original _id.
+                            self.document.nameids.pop(old_name, None)
+                            self.document.nametypes.pop(old_name, None)
+                            self.document.ids.pop(_id, None)
 
-                    # re-entry with new named section node.
-                    #
-                    # Note: msgnode that is a second parameter of the
-                    # `note_implicit_target` is not necessary here because
-                    # section_node has been noted previously on rst parsing by
-                    # `docutils.parsers.rst.states.RSTState.new_subsection()`
-                    # and already has `system_message` if needed.
-                    self.document.note_implicit_target(section_node)
+                        # re-entry with new named section node.
+                        #
+                        # Note: msgnode that is a second parameter of the
+                        # `note_implicit_target` is not necessary here because
+                        # section_node has been noted previously on rst parsing by
+                        # `docutils.parsers.rst.states.RSTState.new_subsection()`
+                        # and already has `system_message` if needed.
+                        self.document.note_implicit_target(section_node)
 
                     # replace target's refname to new target name
                     def is_named_target(node):

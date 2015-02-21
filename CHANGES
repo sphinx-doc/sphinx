@@ -38,6 +38,7 @@ Bugs fixed
 * bizstyle theme: all breadcrumb items become 'Top' on some mobile browser
   (iPhone5s safari).
 * #1722: restore ``toctree()`` template function behavior that was changed at 1.3b1.
+* #1732: i18n: localized table caption raises exception.
 
 
 Release 1.3b2 (released Dec 5, 2014)
