@@ -24,3 +24,13 @@ block
 
       My description paragraph2 of the figure.
 
+
+image url and alt
+-------------------
+
+.. image:: i18n.png
+   :alt: i18n
+
+.. figure:: img.png
+   :alt: img
+

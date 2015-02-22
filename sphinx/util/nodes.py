@@ -89,6 +89,9 @@ def is_translatable(node):
             return False
         return True
 
+    if isinstance(node, nodes.image) and node.get('translatable'):
+        return True
+
     return False
 
 
@@ -97,11 +100,18 @@ LITERAL_TYPE_NODES = (
     nodes.doctest_block,
     nodes.raw,
 )
+IMAGE_TYPE_NODES = (
+    nodes.image,
+)
 def extract_messages(doctree):
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(is_translatable):
         if isinstance(node, LITERAL_TYPE_NODES):
             msg = node.rawsource
+        elif isinstance(node, IMAGE_TYPE_NODES):
+            msg = '.. image:: %s' % node['uri']
+            if node.get('alt'):
+                msg += '\n   :alt: %s' % node['alt']
         else:
             msg = node.rawsource.replace('\n', ' ').strip()
 

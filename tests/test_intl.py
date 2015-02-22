@@ -222,7 +222,7 @@ def test_text_builder(app, status, warning):
 
     # --- figure captions: regression test for #940
 
-    result = (app.outdir / 'figure_caption.txt').text(encoding='utf-8')
+    result = (app.outdir / 'figure.txt').text(encoding='utf-8')
     expect = (u"\nI18N WITH FIGURE CAPTION"
               u"\n************************\n"
               u"\n   [image]MY CAPTION OF THE FIGURE\n"
@@ -234,7 +234,16 @@ def test_text_builder(app, status, warning):
               u"\nBLOCK\n"
               u"\n      [image]MY CAPTION OF THE FIGURE\n"
               u"\n      MY DESCRIPTION PARAGRAPH1 OF THE FIGURE.\n"
-              u"\n      MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n")
+              u"\n      MY DESCRIPTION PARAGRAPH2 OF THE FIGURE.\n"
+              u"\n"
+              u"\n"
+              u"IMAGE URL AND ALT\n"
+              u"=================\n"
+              u"\n"
+              u"[image: i18n][image]\n"
+              u"\n"
+              u"   [image: img][image]\n"
+              )
     yield assert_equal, result, expect
 
     # --- rubric: regression test for pull request #190
@@ -662,6 +671,18 @@ def test_additional_targets_should_not_be_translated(app, status, warning):
     expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></div>"""
     yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
 
+    ## figure.txt
+
+    result = (app.outdir / 'figure.html').text(encoding='utf-8')
+
+    # alt and src for image block should not be translated
+    expected_expr = """<img alt="i18n" src="_images/i18n.png" />"""
+    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+
+    # alt and src for figure block should not be translated
+    expected_expr = """<img alt="img" src="_images/img.png" />"""
+    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+
 
 @gen_with_intl_app('html', freshenv=True,
                    confoverrides={
@@ -670,6 +691,7 @@ def test_additional_targets_should_not_be_translated(app, status, warning):
                            'literal-block',
                            'doctest-block',
                            'raw',
+                           'image',
                        ],
                    })
 def test_additional_targets_should_be_translated(app, status, warning):
@@ -708,3 +730,16 @@ def test_additional_targets_should_be_translated(app, status, warning):
     # raw block should be translated
     expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></div>"""
     yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+
+    ## figure.txt
+
+    result = (app.outdir / 'figure.html').text(encoding='utf-8')
+
+    # alt and src for image block should be translated
+    expected_expr = """<img alt="I18N -&gt; IMG" src="_images/img.png" />"""
+    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+
+    # alt and src for figure block should be translated
+    expected_expr = """<img alt="IMG -&gt; I18N" src="_images/i18n.png" />"""
+    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+

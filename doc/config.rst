@@ -497,6 +497,9 @@ documentation on :ref:`intl` for details.
    :literal-block: literal blocks: ``::`` and ``code-block``.
    :doctest-block: doctest block
    :raw: raw content
+   :image: image/figure uri and alt
+
+   For example: ``gettext_additional_targets = ['literal-block', 'image']``.
 
    The default is ``[]``.
 

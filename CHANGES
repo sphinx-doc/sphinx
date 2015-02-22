@@ -29,6 +29,7 @@ Features added
   - 'literal-block'
   - 'doctest-block'
   - 'raw'
+  - 'image'
 
 Bugs fixed
 ----------

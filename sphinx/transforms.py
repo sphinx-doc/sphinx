@@ -21,7 +21,7 @@ from sphinx import addnodes
 from sphinx.locale import _, init as init_locale
 from sphinx.util import split_index_msg
 from sphinx.util.nodes import (
-    traverse_translatable_index, extract_messages, LITERAL_TYPE_NODES,
+    traverse_translatable_index, extract_messages, LITERAL_TYPE_NODES, IMAGE_TYPE_NODES,
 )
 from sphinx.util.osutil import ustrftime, find_catalog
 from sphinx.util.pycompat import indent
@@ -164,6 +164,7 @@ TRANSLATABLE_NODES = {
     'doctest-block': nodes.doctest_block,
     'raw': nodes.raw,
     'index': addnodes.index,
+    'image': nodes.image,
 }
 class ExtraTranslatableNodes(Transform):
     """
@@ -377,7 +378,8 @@ class Locale(Transform):
             except IndexError:  # empty node
                 pass
             # XXX doctest and other block markup
-            if not isinstance(patch, (nodes.paragraph,) + LITERAL_TYPE_NODES):
+            if not isinstance(patch,
+                              (nodes.paragraph,) + LITERAL_TYPE_NODES + IMAGE_TYPE_NODES):
                 continue  # skip for now
 
             # auto-numbered foot note reference should use original 'ids'.
@@ -508,6 +510,9 @@ class Locale(Transform):
             # for highlighting that expects .rawsource and .astext() are same.
             if isinstance(node, LITERAL_TYPE_NODES):
                 node.rawsource = node.astext()
+
+            if isinstance(node, IMAGE_TYPE_NODES):
+                node.update_all_atts(patch)
 
             node['translated'] = True
 
