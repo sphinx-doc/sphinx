@@ -36,7 +36,7 @@ caption_ref_re = explicit_title_re  # b/w compat alias
 
 
 def apply_source_workaround(node):
-    if node.source:
+    if node.source and node.rawsource:
         return
 
     # workaround: nodes.term doesn't have source, line and rawsource
@@ -63,7 +63,9 @@ def apply_source_workaround(node):
     ))):
         node.source = find_source_node(node)
         node.line = 0  # need fix docutils to get `node.line`
-        return
+
+    if not node.rawsource:
+        node.rawsource = node.astext()
 
 
 IGNORED_NODES = (
@@ -73,6 +75,23 @@ IGNORED_NODES = (
     nodes.doctest_block,
     #XXX there are probably more
 )
+def translatable_node(node):
+    if isinstance(node, nodes.TextElement):
+        apply_source_workaround(node)
+
+        if not node.source:
+            return False # built-in message
+        if isinstance(node, IGNORED_NODES) and 'translatable' not in node:
+            return False
+        # <field_name>orphan</field_name>
+        # XXX ignore all metadata (== docinfo)
+        if isinstance(node, nodes.field_name) and node.children[0] == 'orphan':
+            return False
+        return True
+
+    return False
+
+
 LITERAL_TYPE_NODES = (
     nodes.literal_block,
     nodes.doctest_block,
@@ -80,22 +99,9 @@ LITERAL_TYPE_NODES = (
 )
 def extract_messages(doctree):
     """Extract translatable messages from a document tree."""
-    for node in doctree.traverse(nodes.TextElement):
-        apply_source_workaround(node)
-
-        if not node.source:
-            continue # built-in message
-        if isinstance(node, IGNORED_NODES) and 'translatable' not in node:
-            continue
-        # <field_name>orphan</field_name>
-        # XXX ignore all metadata (== docinfo)
-        if isinstance(node, nodes.field_name) and node.children[0] == 'orphan':
-            continue
-
+    for node in doctree.traverse(translatable_node):
         if isinstance(node, LITERAL_TYPE_NODES):
             msg = node.rawsource
-            if not msg:
-                msg = node.astext()
         else:
             msg = node.rawsource.replace('\n', ' ').strip()
 
