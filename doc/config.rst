@@ -494,6 +494,7 @@ documentation on :ref:`intl` for details.
    i18n additionally. You can specify below names:
 
    :index: index terms
+   :literal-block: literal blocks: ``::`` and ``code-block``.
 
    The default is ``[]``.
 

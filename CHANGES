@@ -23,6 +23,8 @@ Features added
   nav-item-0, 1, 2...).
 * New option `sphinx-quickstart --use-make-mode` for generating Makefile that
   use sphinx-build make-mode.
+* #1235: i18n: 'literal-block' node can be translated if 'literal-block'
+  is set to `gettext_additional_targets`.
 
 Bugs fixed
 ----------

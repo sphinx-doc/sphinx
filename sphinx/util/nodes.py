@@ -73,6 +73,9 @@ IGNORED_NODES = (
     nodes.doctest_block,
     #XXX there are probably more
 )
+LITERAL_TYPE_NODES = (
+    nodes.literal_block,
+)
 def extract_messages(doctree):
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(nodes.TextElement):
@@ -87,7 +90,11 @@ def extract_messages(doctree):
         if isinstance(node, nodes.field_name) and node.children[0] == 'orphan':
             continue
 
-        msg = node.rawsource.replace('\n', ' ').strip()
+        if isinstance(node, LITERAL_TYPE_NODES):
+            msg = node.rawsource
+        else:
+            msg = node.rawsource.replace('\n', ' ').strip()
+
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
             yield node, msg

@@ -27,7 +27,7 @@ from util import tempdir, rootdir, path, gen_with_app, SkipTest, \
 root = tempdir / 'test-intl'
 
 
-def gen_with_intl_app(*args, **kw):
+def gen_with_intl_app(builder, confoverrides={}, *args, **kw):
     default_kw = {
         'testroot': 'intl',
         'confoverrides': {
@@ -36,7 +36,8 @@ def gen_with_intl_app(*args, **kw):
         },
     }
     default_kw.update(kw)
-    return gen_with_app(*args, **default_kw)
+    default_kw['confoverrides'].update(confoverrides)
+    return gen_with_app(builder, *args, **default_kw)
 
 
 def setup_module():
@@ -621,3 +622,56 @@ def test_xml_builder(app, status, warning):
            ['label-bridged-target-section',
             'section-and-label',
             'section-and-label'])
+
+
+@gen_with_intl_app('html', freshenv=True)
+def test_additional_targets_should_not_be_translated(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
+
+    # title should be translated
+    expected_expr = 'CODE-BLOCKS'
+    yield assert_equal, len(re.findall(expected_expr, result)), 2, (expected_expr, result)
+
+    # ruby code block should not be translated but be highlighted
+    expected_expr = """<span class="s1">&#39;result&#39;</span>"""
+    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+
+    # C code block without lang should not be translated and *ruby* highlighted
+    expected_expr = """<span class="c1">#include &lt;stdlib.h&gt;</span>"""
+    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+
+    # C code block with lang should not be translated but be *C* highlighted
+    expected_expr = """<span class="cp">#include &lt;stdio.h&gt;</span>"""
+    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+
+
+@gen_with_intl_app('html', freshenv=True,
+                   confoverrides={
+                       'gettext_additional_targets': [
+                           'index',
+                           'literal-block',
+                       ],
+                   })
+def test_additional_targets_should_be_translated(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
+
+    # title should be translated
+    expected_expr = 'CODE-BLOCKS'
+    yield assert_equal, len(re.findall(expected_expr, result)), 2, (expected_expr, result)
+
+    # ruby code block should be translated and be highlighted
+    expected_expr = """<span class="s1">&#39;RESULT&#39;</span>"""
+    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+
+    # C code block without lang should be translated and *ruby* highlighted
+    expected_expr = """<span class="c1">#include &lt;STDLIB.H&gt;</span>"""
+    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+
+    # C code block with lang should be translated and be *C* highlighted
+    expected_expr = """<span class="cp">#include &lt;STDIO.H&gt;</span>"""
+    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+

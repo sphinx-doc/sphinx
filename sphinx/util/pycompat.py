@@ -52,6 +52,8 @@ if PY3:
       def __str__(self):
           return self.__unicode__()
 
+    from textwrap import indent
+
 else:
     # Python 2
     u = 'u'
@@ -74,6 +76,17 @@ else:
 
         def __str__(self):
             return self.__unicode__().encode('utf8')
+
+    # backport from python3
+    def indent(text, prefix, predicate=None):
+        if predicate is None:
+            def predicate(line):
+                return line.strip()
+
+        def prefixed_lines():
+            for line in text.splitlines(True):
+                yield (prefix + line if predicate(line) else line)
+        return ''.join(prefixed_lines())
 
 
 def execfile_(filepath, _globals):

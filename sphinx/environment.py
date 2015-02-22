@@ -50,7 +50,7 @@ from sphinx.locale import _
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.transforms import DefaultSubstitutions, MoveModuleTargets, \
     HandleCodeBlocks, AutoNumbering, SortIds, CitationReferences, Locale, \
-    RemoveTranslatableInline, SphinxContentsFilter
+    RemoveTranslatableInline, SphinxContentsFilter, ExtraTranslatableNodes
 
 
 orig_role_function = roles.role
@@ -98,9 +98,9 @@ class SphinxStandaloneReader(standalone.Reader):
     """
     Add our own transforms.
     """
-    transforms = [Locale, CitationReferences, DefaultSubstitutions,
-                  MoveModuleTargets, HandleCodeBlocks, AutoNumbering, SortIds,
-                  RemoveTranslatableInline]
+    transforms = [ExtraTranslatableNodes, Locale, CitationReferences,
+                  DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
+                  AutoNumbering, SortIds, RemoveTranslatableInline]
 
     def get_transforms(self):
         return standalone.Reader.get_transforms(self) + self.transforms

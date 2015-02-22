@@ -20,8 +20,11 @@ from docutils.transforms.parts import ContentsFilter
 from sphinx import addnodes
 from sphinx.locale import _, init as init_locale
 from sphinx.util import split_index_msg
-from sphinx.util.nodes import traverse_translatable_index, extract_messages
+from sphinx.util.nodes import (
+    traverse_translatable_index, extract_messages, LITERAL_TYPE_NODES,
+)
 from sphinx.util.osutil import ustrftime, find_catalog
+from sphinx.util.pycompat import indent
 from sphinx.domains.std import (
     make_term_from_paragraph_node,
     make_termnodes_from_paragraph_node,
@@ -156,6 +159,28 @@ class CitationReferences(Transform):
             citnode.parent.replace(citnode, refnode)
 
 
+TRANSLATABLE_NODES = {
+    'literal-block': nodes.literal_block,
+}
+class ExtraTranslatableNodes(Transform):
+    """
+    make nodes translatable
+    """
+    default_priority = 10
+
+    def apply(self):
+        targets = self.document.settings.env.config.gettext_additional_targets
+        target_nodes = [v for k, v in TRANSLATABLE_NODES.items() if k in targets]
+        if not target_nodes:
+            return
+
+        def is_translatable_node(node):
+            return isinstance(node, tuple(target_nodes))
+
+        for node in self.document.traverse(is_translatable_node):
+            node['translatable'] = True
+
+
 class CustomLocaleReporter(object):
     """
     Replacer for document.reporter.get_source_and_line method.
@@ -177,7 +202,7 @@ class Locale(Transform):
     """
     Replace translatable nodes with their translated doctree.
     """
-    default_priority = 0
+    default_priority = 20
 
     def apply(self):
         env = self.document.settings.env
@@ -331,6 +356,11 @@ class Locale(Transform):
                 msgstr += '\n\n   dummy literal'
                 # dummy literal node will discard by 'patch = patch[0]'
 
+            # literalblock need literal block notation to avoid it become
+            # paragraph.
+            if isinstance(node, LITERAL_TYPE_NODES):
+                msgstr = '::\n\n' + indent(msgstr, ' '*3)
+
             patch = new_document(source, settings)
             CustomLocaleReporter(node.source, node.line).set_reporter(patch)
             parser.parse(msgstr, patch)
@@ -339,7 +369,7 @@ class Locale(Transform):
             except IndexError:  # empty node
                 pass
             # XXX doctest and other block markup
-            if not isinstance(patch, nodes.paragraph):
+            if not isinstance(patch, (nodes.paragraph,) + LITERAL_TYPE_NODES):
                 continue  # skip for now
 
             # auto-numbered foot note reference should use original 'ids'.
@@ -466,6 +496,11 @@ class Locale(Transform):
             for child in patch.children:
                 child.parent = node
             node.children = patch.children
+
+            # for highlighting that expects .rawsource and .astext() are same.
+            if isinstance(node, LITERAL_TYPE_NODES):
+                node.rawsource = node.astext()
+
             node['translated'] = True
 
         if 'index' in env.config.gettext_additional_targets:

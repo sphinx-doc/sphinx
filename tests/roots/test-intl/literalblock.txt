@@ -11,3 +11,31 @@ Correct literal block::
 Missing literal block::
 
 That's all.
+
+code blocks
+==============
+
+.. highlight:: ruby
+
+::
+
+   def main
+      'result'
+   end
+
+::
+
+   #include <stdlib.h>
+   int main(int argc, char** argv)
+   {
+       return 0;
+   }
+
+.. code-block:: c
+
+   #include <stdio.h>
+   int main(int argc, char** argv)
+   {
+       return 0;
+   }
+
