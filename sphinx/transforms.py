@@ -161,6 +161,8 @@ class CitationReferences(Transform):
 
 TRANSLATABLE_NODES = {
     'literal-block': nodes.literal_block,
+    'doctest-block': nodes.doctest_block,
+    'raw': nodes.raw,
 }
 class ExtraTranslatableNodes(Transform):
     """

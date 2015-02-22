@@ -39,3 +39,16 @@ code blocks
        return 0;
    }
 
+
+doctest blocks
+==============
+
+.. highlight:: python
+
+>>> import sys  # sys importing
+>>> def main():  # define main function
+...     sys.stdout.write('hello')  # call write method of stdout object
+>>>
+>>> if __name__ == '__main__':  # if run this py file as python script
+...     main()  # call main
+

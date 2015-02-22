@@ -495,6 +495,8 @@ documentation on :ref:`intl` for details.
 
    :index: index terms
    :literal-block: literal blocks: ``::`` and ``code-block``.
+   :doctest-block: doctest block
+   :raw: raw content
 
    The default is ``[]``.
 

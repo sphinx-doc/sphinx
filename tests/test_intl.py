@@ -628,6 +628,7 @@ def test_xml_builder(app, status, warning):
 def test_additional_targets_should_not_be_translated(app, status, warning):
     app.builder.build_all()
 
+    ## literalblock.txt
     result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
 
     # title should be translated
@@ -646,17 +647,35 @@ def test_additional_targets_should_not_be_translated(app, status, warning):
     expected_expr = """<span class="cp">#include &lt;stdio.h&gt;</span>"""
     yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
 
+    # doctest block should not be translated but be highlighted
+    expected_expr = (
+        """<span class="gp">&gt;&gt;&gt; </span>"""
+        """<span class="kn">import</span> <span class="nn">sys</span>  """
+        """<span class="c"># sys importing</span>""")
+    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+
+    ## raw.txt
+
+    result = (app.outdir / 'raw.html').text(encoding='utf-8')
+
+    # raw block should not be translated
+    expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></div>"""
+    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+
 
 @gen_with_intl_app('html', freshenv=True,
                    confoverrides={
                        'gettext_additional_targets': [
                            'index',
                            'literal-block',
+                           'doctest-block',
+                           'raw',
                        ],
                    })
 def test_additional_targets_should_be_translated(app, status, warning):
     app.builder.build_all()
 
+    ## literalblock.txt
     result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
 
     # title should be translated
@@ -675,3 +694,17 @@ def test_additional_targets_should_be_translated(app, status, warning):
     expected_expr = """<span class="cp">#include &lt;STDIO.H&gt;</span>"""
     yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
 
+    # doctest block should not be translated but be highlighted
+    expected_expr = (
+        """<span class="gp">&gt;&gt;&gt; </span>"""
+        """<span class="kn">import</span> <span class="nn">sys</span>  """
+        """<span class="c"># SYS IMPORTING</span>""")
+    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+
+    ## raw.txt
+
+    result = (app.outdir / 'raw.html').text(encoding='utf-8')
+
+    # raw block should be translated
+    expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></div>"""
+    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)

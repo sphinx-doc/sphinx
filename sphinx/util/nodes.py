@@ -75,6 +75,8 @@ IGNORED_NODES = (
 )
 LITERAL_TYPE_NODES = (
     nodes.literal_block,
+    nodes.doctest_block,
+    nodes.raw,
 )
 def extract_messages(doctree):
     """Extract translatable messages from a document tree."""
@@ -92,6 +94,8 @@ def extract_messages(doctree):
 
         if isinstance(node, LITERAL_TYPE_NODES):
             msg = node.rawsource
+            if not msg:
+                msg = node.astext()
         else:
             msg = node.rawsource.replace('\n', ' ').strip()
 
