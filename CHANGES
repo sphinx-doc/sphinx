@@ -52,6 +52,8 @@ Bugs fixed
 * #1722: restore ``toctree()`` template function behavior that was changed at 1.3b1.
 * #1732: i18n: localized table caption raises exception.
 * #1718: ``:numref:`` does not work with capital letters in the label
+* #1630: resolve CSS conflicts, ``div.container`` css target for literal block wrapper
+  now renamed to ``div.literal-block-wrapper``.
 
 
 Release 1.3b2 (released Dec 5, 2014)

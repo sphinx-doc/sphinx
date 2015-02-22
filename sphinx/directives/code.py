@@ -63,7 +63,8 @@ def dedent_lines(lines, dedent):
 
 
 def container_wrapper(directive, literal_node, caption):
-    container_node = nodes.container('', literal_block=True)
+    container_node = nodes.container('', literal_block=True,
+                                     classes=['literal-block-wrapper'])
     parsed = nodes.Element()
     directive.state.nested_parse(ViewList([caption], source=''),
                                  directive.content_offset, parsed)

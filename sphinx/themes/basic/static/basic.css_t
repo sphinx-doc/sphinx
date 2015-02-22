@@ -525,11 +525,11 @@ div.code-block-caption span.caption-number {
 div.code-block-caption span.caption-text {
 }
 
-div.container {
+div.literal-block-wrapper {
     padding: 1em 1em 0;
 }
 
-div.container div.highlight {
+div.literal-block-wrapper div.highlight {
     margin: 0;
 }
 

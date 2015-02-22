@@ -448,7 +448,7 @@ th {
     background-color: #82A0BE;
 }
 
-div.container div.code-block-caption {
+div.literal-block-wrapper div.code-block-caption {
     background-color: #EEE;
     border-style: solid;
     border-color: #CCC;
