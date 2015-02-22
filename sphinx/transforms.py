@@ -163,6 +163,7 @@ TRANSLATABLE_NODES = {
     'literal-block': nodes.literal_block,
     'doctest-block': nodes.doctest_block,
     'raw': nodes.raw,
+    'index': addnodes.index,
 }
 class ExtraTranslatableNodes(Transform):
     """

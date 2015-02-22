@@ -75,7 +75,7 @@ IGNORED_NODES = (
     nodes.doctest_block,
     #XXX there are probably more
 )
-def translatable_node(node):
+def is_translatable(node):
     if isinstance(node, nodes.TextElement):
         apply_source_workaround(node)
 
@@ -99,7 +99,7 @@ LITERAL_TYPE_NODES = (
 )
 def extract_messages(doctree):
     """Extract translatable messages from a document tree."""
-    for node in doctree.traverse(translatable_node):
+    for node in doctree.traverse(is_translatable):
         if isinstance(node, LITERAL_TYPE_NODES):
             msg = node.rawsource
         else:

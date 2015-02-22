@@ -39,7 +39,7 @@ from docutils.frontend import OptionParser
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
     FilenameUniqDict, get_figtype
-from sphinx.util.nodes import clean_astext, make_refnode, WarningStream
+from sphinx.util.nodes import clean_astext, make_refnode, WarningStream, is_translatable
 from sphinx.util.osutil import SEP, find_catalog_files, getcwd, fs_encoding
 from sphinx.util.console import bold, purple
 from sphinx.util.matching import compile_matchers
@@ -84,7 +84,7 @@ dummy_reporter = Reporter('', 4, 4)
 
 versioning_conditions = {
     'none': False,
-    'text': nodes.TextElement,
+    'text': is_translatable,
     'commentable': is_commentable,
 }
 
