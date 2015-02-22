@@ -636,7 +636,7 @@ class StandardDomain(Domain):
                 return None
 
             title = contnode.astext()
-            if target == title:
+            if target == title.lower():
                 prefix = env.config.numfig_format.get(figtype, '')
                 title = prefix.replace('%s', '#')
                 newtitle = prefix % '.'.join(map(str, fignumber))

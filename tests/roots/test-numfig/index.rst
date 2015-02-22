@@ -29,7 +29,7 @@ test-tocdepth
 
    hello,world
 
-.. _code_1:
+.. _CODE_1:
 
 .. code-block:: python
    :caption: should be List 1
@@ -46,5 +46,5 @@ test-tocdepth
 * Fig.2.2 is :numref:`Figure# <fig22>`
 * Table.1 is :numref:`table-1`
 * Table.2.2 is :numref:`Table:# <table22>`
-* List.1 is :numref:`code_1`
-* List.2.2 is :numref:`Code-# <code22>`
+* List.1 is :numref:`CODE_1`
+* List.2.2 is :numref:`Code-# <CODE22>`

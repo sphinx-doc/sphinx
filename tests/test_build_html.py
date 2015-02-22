@@ -492,7 +492,7 @@ def test_numfig_disabled(app, status, warning):
             (".//li/code/span", '^Figure#$', True),
             (".//li/code/span", '^table-1$', True),
             (".//li/code/span", '^Table:#$', True),
-            (".//li/code/span", '^code_1$', True),
+            (".//li/code/span", '^CODE_1$', True),
             (".//li/code/span", '^Code-#$', True),
         ],
         'foo.html': [

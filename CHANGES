@@ -39,6 +39,7 @@ Bugs fixed
   (iPhone5s safari).
 * #1722: restore ``toctree()`` template function behavior that was changed at 1.3b1.
 * #1732: i18n: localized table caption raises exception.
+* #1718: ``:numref:`` does not work with capital letters in the label
 
 
 Release 1.3b2 (released Dec 5, 2014)

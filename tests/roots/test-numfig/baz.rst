@@ -14,7 +14,7 @@ Baz A
 
    hello,world
 
-.. _code22:
+.. _CODE22:
 
 .. code-block:: python
    :caption: should be List 2.2
