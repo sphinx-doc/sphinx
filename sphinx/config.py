@@ -119,6 +119,7 @@ class Config(object):
         html_search_language = (None, 'html'),
         html_search_options = ({}, 'html'),
         html_search_scorer = ('', None),
+        html_scaled_image_link = (True, 'html'),
 
         # HTML help only options
         htmlhelp_basename = (lambda self: make_filename(self.project), None),

@@ -31,6 +31,9 @@ Features added
   - 'raw'
   - 'image'
 
+* #1227: Add `html_scaled_image_link` config option to conf.py, to control
+  scaled image link.
+
 Bugs fixed
 ----------
 

@@ -654,23 +654,25 @@ class StandaloneHTMLBuilder(Builder):
         their high res version.
         """
         Builder.post_process_images(self, doctree)
-        for node in doctree.traverse(nodes.image):
-            scale_keys = ('scale', 'width', 'height')
-            if not any((key in node) for key in scale_keys) or \
-               isinstance(node.parent, nodes.reference):
-                # docutils does unfortunately not preserve the
-                # ``target`` attribute on images, so we need to check
-                # the parent node here.
-                continue
-            uri = node['uri']
-            reference = nodes.reference('', '', internal=True)
-            if uri in self.images:
-                reference['refuri'] = posixpath.join(self.imgpath,
-                                                     self.images[uri])
-            else:
-                reference['refuri'] = uri
-            node.replace_self(reference)
-            reference.append(node)
+
+        if self.config.html_scaled_image_link:
+            for node in doctree.traverse(nodes.image):
+                scale_keys = ('scale', 'width', 'height')
+                if not any((key in node) for key in scale_keys) or \
+                   isinstance(node.parent, nodes.reference):
+                    # docutils does unfortunately not preserve the
+                    # ``target`` attribute on images, so we need to check
+                    # the parent node here.
+                    continue
+                uri = node['uri']
+                reference = nodes.reference('', '', internal=True)
+                if uri in self.images:
+                    reference['refuri'] = posixpath.join(self.imgpath,
+                                                         self.images[uri])
+                else:
+                    reference['refuri'] = uri
+                node.replace_self(reference)
+                reference.append(node)
 
     def load_indexer(self, docnames):
         keep = set(self.env.all_docs) - set(docnames)

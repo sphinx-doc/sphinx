@@ -900,6 +900,14 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.2
 
+.. confval:: html_scaled_image_link
+
+   If true, images itself links to the original image if it doesn't have
+   'target' option or scale related options: 'scale', 'width', 'height'.
+   The default is ``True``.
+
+   .. versionadded:: 1.3
+
 .. confval:: htmlhelp_basename
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.
