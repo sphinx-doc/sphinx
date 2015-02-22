@@ -242,6 +242,11 @@ class Locale(Transform):
                 msgstr += '\n\n   dummy literal'
                 # dummy literal node will discard by 'patch = patch[0]'
 
+            # literalblock need literal block notation to avoid it become
+            # paragraph.
+            if isinstance(node, LITERAL_TYPE_NODES):
+                msgstr = '::\n\n' + indent(msgstr, ' '*3)
+
             patch = new_document(source, settings)
             CustomLocaleReporter(node.source, node.line).set_reporter(patch)
             parser.parse(msgstr, patch)
