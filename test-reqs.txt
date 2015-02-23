@@ -8,3 +8,5 @@ snowballstemmer>=1.1
 babel
 sqlalchemy>=0.9
 whoosh>=2.0
+alabaster
+sphinx_rtd_theme
