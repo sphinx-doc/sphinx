@@ -84,7 +84,7 @@ texinfo_documents = [
 
 # We're not using intersphinx right now, but if we did, this would be part of
 # the mapping:
-intersphinx_mapping = {'python': ('http://docs.python.org/2/', None)}
+intersphinx_mapping = {'python': ('https://docs.python.org/2/', None)}
 
 # Sphinx document translation with sphinx gettext feature uses these settings:
 locale_dirs = ['locale/']

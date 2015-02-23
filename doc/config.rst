@@ -768,7 +768,7 @@ that use Sphinx's HTMLWriter class.
    output, and all pages will contain a ``<link>`` tag referring to it.  Since
    OpenSearch doesn't support relative URLs for its search page location, the
    value of this option must be the base URL from which these documents are
-   served (without trailing slash), e.g. ``"http://docs.python.org"``.  The
+   served (without trailing slash), e.g. ``"https://docs.python.org"``.  The
    default is ``''``.
 
 .. confval:: html_file_suffix

@@ -133,7 +133,7 @@ These themes are:
     include ``px`` in the value.)  Defaults to 230 pixels.
 
 * **default** -- This is the default theme, which looks like `the Python
-  documentation <http://docs.python.org/>`_.  It can be customized via these
+  documentation <https://docs.python.org/>`_.  It can be customized via these
   options:
 
   - **rightsidebar** (true or false): Put the sidebar on the right side.

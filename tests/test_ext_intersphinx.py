@@ -84,8 +84,8 @@ def test_missing_reference(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_mapping = {
-        'http://docs.python.org/': inv_file,
-        'py3k': ('http://docs.python.org/py3k/', inv_file),
+        'https://docs.python.org/': inv_file,
+        'py3k': ('https://docs.python.org/py3k/', inv_file),
     }
     app.config.intersphinx_cache_limit = 0
 
@@ -94,7 +94,7 @@ def test_missing_reference(tempdir, app, status, warning):
     inv = app.env.intersphinx_inventory
 
     assert inv['py:module']['module2'] == \
-        ('foo', '2.0', 'http://docs.python.org/foo.html#module-module2', '-')
+        ('foo', '2.0', 'https://docs.python.org/foo.html#module-module2', '-')
 
     # create fake nodes and check referencing
 
@@ -115,7 +115,7 @@ def test_missing_reference(tempdir, app, status, warning):
     # check resolution when a target is found
     rn = reference_check('py', 'func', 'module1.func', 'foo')
     assert isinstance(rn, nodes.reference)
-    assert rn['refuri'] == 'http://docs.python.org/sub/foo.html#module1.func'
+    assert rn['refuri'] == 'https://docs.python.org/sub/foo.html#module1.func'
     assert rn['reftitle'] == '(in foo v2.0)'
     assert rn[0].astext() == 'foo'
 
@@ -164,8 +164,8 @@ def test_load_mappings_warnings(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_mapping = {
-        'http://docs.python.org/': inv_file,
-        'py3k': ('http://docs.python.org/py3k/', inv_file),
+        'https://docs.python.org/': inv_file,
+        'py3k': ('https://docs.python.org/py3k/', inv_file),
         'repoze.workflow': ('http://docs.repoze.org/workflow/', inv_file),
         'django-taggit': ('http://django-taggit.readthedocs.org/en/latest/',
                           inv_file)

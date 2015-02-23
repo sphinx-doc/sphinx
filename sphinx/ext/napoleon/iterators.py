@@ -37,7 +37,7 @@ class peek_iter(object):
     See Also
     --------
     `peek_iter` can operate as a drop in replacement for the built-in
-    `iter <http://docs.python.org/2/library/functions.html#iter>`_ function.
+    `iter <https://docs.python.org/2/library/functions.html#iter>`_ function.
 
     Attributes
     ----------

@@ -273,7 +273,7 @@ Many Sphinx documents including the `Python documentation`_ are published on the
 internet.  When you want to make links to such documents from your
 documentation, you can do it with :mod:`sphinx.ext.intersphinx`.
 
-.. _Python documentation: http://docs.python.org/3
+.. _Python documentation: https://docs.python.org/3
 
 In order to use intersphinx, you need to activate it in :file:`conf.py` by
 putting the string ``'sphinx.ext.intersphinx'`` into the :confval:`extensions`
@@ -282,7 +282,7 @@ list and set up the :confval:`intersphinx_mapping` config value.
 For example, to link to ``io.open()`` in the Python library manual, you need to
 setup your :confval:`intersphinx_mapping` like::
 
-   intersphinx_mapping = {'python': ('http://docs.python.org/3', None)}
+   intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
 
 And now, you can write a cross-reference like ``:py:func:`io.open```.  Any
 cross-reference that has no matching target in the current documentation set,

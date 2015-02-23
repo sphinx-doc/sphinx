@@ -428,7 +428,7 @@ epub_exclude_files = ['search.html']
 INTERSPHINX_CONFIG = u'''
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'http://docs.python.org/': None}
+intersphinx_mapping = {'https://docs.python.org/': None}
 '''
 
 MASTER_FILE = u'''\

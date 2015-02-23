@@ -7,6 +7,8 @@ Incompatible changes
 * Dependency requirement updates: docutils 0.11, Pygments 2.0
 * The ``gettext_enables`` config value has been renamed to
   `gettext_additional_targets`.
+* #1735: Use https://doc.python.org/ instead of ``http`` protocol.
+  It was used for `sphinx.ext.intersphinx` and some documentation.
 
 Features added
 --------------
