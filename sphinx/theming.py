@@ -103,7 +103,9 @@ class Theme(object):
 
         if name == 'default' and warn:
             warn("'default' html theme has been renamed to 'classic'. "
-                 "Please rename it to 'alabaster' new theme or 'classic'.")
+                 "Please change your html_theme setting either to "
+                 "the new 'alabaster' default theme, or to 'classic' "
+                 "to keep using the old default.")
 
         tdir, tinfo = self.themes[name]
         if tinfo is None:
