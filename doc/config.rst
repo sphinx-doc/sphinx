@@ -516,7 +516,7 @@ that use Sphinx's HTMLWriter class.
 .. confval:: html_theme
 
    The "theme" that the HTML output should use.  See the :doc:`section about
-   theming <theming>`.  The default is ``'default'``.
+   theming <theming>`.  The default is ``'alabaster'``.
 
    .. versionadded:: 0.6
 

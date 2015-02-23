@@ -26,6 +26,8 @@ except ImportError:
 from sphinx import package_dir
 from sphinx.errors import ThemeError
 
+import alabaster
+import sphinx_rtd_theme
 
 NODEFAULT = object()
 THEMECONF = 'theme.conf'
@@ -68,22 +70,40 @@ class Theme(object):
                 cls.themes[tname] = (path.join(themedir, theme), tinfo)
 
     @classmethod
-    def load_extra_themes(cls):
+    def load_extra_theme(cls, name):
+        if name == 'alabaster':
+            cls.themes[name] = (os.path.join(alabaster.get_path(), name), None)
+            # alabaster theme also requires 'alabaster' extension, it will be loaded at
+            # sphinx.******* module.
+            return
+
+        if name == 'sphinx_rtd_theme':
+            cls.themes[name] = (
+                os.path.join(sphinx_rtd_theme.get_html_theme_path(), name), None)
+            return
+
         for themedir in load_theme_plugins():
             if not path.isdir(themedir):
                 continue
             for theme in os.listdir(themedir):
+                if theme != 'name':
+                    continue
                 if not path.isfile(path.join(themedir, theme, THEMECONF)):
                     continue
                 cls.themes[theme] = (path.join(themedir, theme), None)
+                return
 
-    def __init__(self, name):
+    def __init__(self, name, warn=None):
         if name not in self.themes:
-            self.load_extra_themes()
+            self.load_extra_theme(name)
             if name not in self.themes:
                 raise ThemeError('no theme named %r found '
                                  '(missing theme.conf?)' % name)
         self.name = name
+
+        if name == 'default' and warn:
+            warn("'default' html theme has been renamed to 'classic'. "
+                 "Please rename it to 'alabaster' new theme or 'classic'.")
 
         tdir, tinfo = self.themes[name]
         if tinfo is None:
@@ -117,7 +137,7 @@ class Theme(object):
             raise ThemeError('no theme named %r found, inherited by %r' %
                              (inherit, name))
         else:
-            self.base = Theme(inherit)
+            self.base = Theme(inherit, warn=warn)
 
     def get_confstr(self, section, name, default=NODEFAULT):
         """Return the value for a theme configuration setting, searching the

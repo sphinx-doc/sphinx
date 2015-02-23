@@ -13,6 +13,14 @@ Incompatible changes
 Features added
 --------------
 
+* #1346: Add new default theme;
+
+  * Add 'alabaster' theme.
+  * Add 'sphinx_rtd_theme' theme.
+  * The 'default' html theme has been renamed to 'classic'. 'default' is still
+    available, however it will emit notice a recommendation that using new
+    'alabaster' theme.
+
 * Added ``highlight_options`` configuration value.
 * The ``language`` config value is now available in the HTML templates.
 * The ``env-updated`` event can now return a value, which is interpreted

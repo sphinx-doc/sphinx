@@ -52,6 +52,8 @@ requires = [
     'docutils>=0.11',
     'snowballstemmer>=1.1',
     'babel',
+    'alabaster',
+    'sphinx_rtd_theme',
 ]
 extras_require = {
     # Environment Marker works for wheel 0.24 or later

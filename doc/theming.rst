@@ -24,13 +24,13 @@ need to set the :confval:`html_theme` config value.  With the
 that change the look and feel.  For example, you could have the following in
 your :file:`conf.py`::
 
-    html_theme = "default"
+    html_theme = "classic"
     html_theme_options = {
         "rightsidebar": "true",
         "relbarbgcolor": "black"
     }
 
-That would give you the default theme, but with a sidebar on the right side and
+That would give you the classic theme, but with a sidebar on the right side and
 a black background for the relation bar (the bar with the navigation links at
 the page's top and bottom).
 
@@ -86,9 +86,13 @@ Builtin themes
 +--------------------+--------------------+
 | **Theme overview** |                    |
 +--------------------+--------------------+
-| |default|          | |sphinxdoc|        |
+| |alabaster|        | |sphinx_rtd_theme| |
 |                    |                    |
-| *default*          | *sphinxdoc*        |
+| *alabaster*        | *sphinx_rtd_theme* |
++--------------------+--------------------+
+| |classic|          | |sphinxdoc|        |
+|                    |                    |
+| *classic*          | *sphinxdoc*        |
 +--------------------+--------------------+
 | |scrolls|          | |agogo|            |
 |                    |                    |
@@ -107,17 +111,21 @@ Builtin themes
 | *bizstyle*         |                    |
 +--------------------+--------------------+
 
-.. |default|     image:: themes/default.png
-.. |sphinxdoc|   image:: themes/sphinxdoc.png
-.. |scrolls|     image:: themes/scrolls.png
-.. |agogo|       image:: themes/agogo.png
-.. |traditional| image:: themes/traditional.png
-.. |nature|      image:: themes/nature.png
-.. |haiku|       image:: themes/haiku.png
-.. |pyramid|     image:: themes/pyramid.png
-.. |bizstyle|    image:: themes/bizstyle.png
+.. |alabaster|        image:: themes/alabaster.png
+.. |sphinx_rtd_theme| image:: themes/sphinx_rtd_theme.png
+.. |classic|          image:: themes/classic.png
+.. |sphinxdoc|        image:: themes/sphinxdoc.png
+.. |scrolls|          image:: themes/scrolls.png
+.. |agogo|            image:: themes/agogo.png
+.. |traditional|      image:: themes/traditional.png
+.. |nature|           image:: themes/nature.png
+.. |haiku|            image:: themes/haiku.png
+.. |pyramid|          image:: themes/pyramid.png
+.. |bizstyle|         image:: themes/bizstyle.png
 
 Sphinx comes with a selection of themes to choose from.
+
+.. cssclass:: clear
 
 These themes are:
 
@@ -132,7 +140,21 @@ These themes are:
   - **sidebarwidth** (an integer): Width of the sidebar in pixels.  (Do not
     include ``px`` in the value.)  Defaults to 230 pixels.
 
-* **default** -- This is the default theme, which looks like `the Python
+* **alabaster** -- `Alabaster theme`_ is a modified "Kr" Sphinx theme from @kennethreitz
+  (especially as used in his Requests project), which was itself originally based on
+  @mitsuhiko's theme used for Flask & related projects. You can get options information
+  at `Alabaster theme`_ page.
+
+  .. _Alabaster theme: https://pypi.python.org/pypi/alabaster
+
+* **sphinx_rtd_theme** -- `Read the Docs Sphinx Theme`_.
+  This is a mobile-friendly sphinx theme that was made for readthedocs.org.
+  View a working demo over on readthedocs.org. You can get options information
+  at `Read the Docs Sphinx Theme`_ page.
+
+  .. _Read the Docs Sphinx Theme: https://pypi.python.org/pypi/sphinx_rtd_theme
+
+* **classic** -- This is the classic theme, which looks like `the Python
   documentation <https://docs.python.org/>`_.  It can be customized via these
   options:
 
@@ -249,8 +271,12 @@ These themes are:
     Defaults to ``False``.
 
 .. versionadded:: 1.3
-   'bizstyle' theme.
+   'alabaster', 'sphinx_rtd_theme' and 'bizstyle' theme.
 
+.. versionchanged:: 1.3
+   The 'default' theme has been renamed to 'classic'. 'default' is still
+   available, however it will emit notice a recommendation that using new
+   'alabaster' theme.
 
 Creating themes
 ---------------
@@ -324,10 +350,10 @@ so-called "static templates", like this:
 If the name of a file in the ``static/`` directory of a theme (or in the user's
 static path, for that matter) ends with ``_t``, it will be processed by the
 template engine.  The ``_t`` will be left from the final file name.  For
-example, the *default* theme has a file ``static/default.css_t`` which uses
+example, the *classic* theme has a file ``static/classic.css_t`` which uses
 templating to put the color options into the stylesheet.  When a documentation
-is built with the default theme, the output directory will contain a
-``_static/default.css`` file where all template tags have been processed.
+is built with the classic theme, the output directory will contain a
+``_static/classic.css`` file where all template tags have been processed.
 
 
 .. [1] It is not an executable Python file, as opposed to :file:`conf.py`,

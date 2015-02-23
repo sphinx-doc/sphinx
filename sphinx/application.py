@@ -131,6 +131,12 @@ class Sphinx(object):
         if self.confdir is None:
             self.confdir = self.srcdir
 
+        # extension loading support for alabaster theme
+        # self.config.html_theme is not set from conf.py at here
+        # for now, sphinx always load a 'alabaster' extension.
+        if 'alabaster' not in self.config.extensions:
+            self.config.extensions.append('alabaster')
+
         # load all user-given extension modules
         for extension in self.config.extensions:
             self.setup_extension(extension)

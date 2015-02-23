@@ -82,7 +82,7 @@ class Config(object):
                          'env'),
 
         # HTML options
-        html_theme = ('default', 'html'),
+        html_theme = ('alabaster', 'html'),
         html_theme_path = ([], 'html'),
         html_theme_options = ({}, 'html'),
         html_title = (lambda self: l_('%s %s documentation') %
