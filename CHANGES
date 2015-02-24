@@ -35,6 +35,8 @@ Bugs fixed
 * bizstyle theme: nested long title pages make long breadcrumb that breaks page layout.
 * bizstyle theme: all breadcrumb items become 'Top' on some mobile browser
   (iPhone5s safari).
+* ``sphinx.util.pycompat`` has been restored in its backwards-compatibility;
+  slated for removal in Sphinx 1.4.
 
 
 Release 1.3b2 (released Dec 5, 2014)
