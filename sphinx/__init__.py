@@ -30,12 +30,12 @@ if '+' in __version__ or 'pre' in __version__:
     # automatically propagated to an installed copy as well)
     try:
         import subprocess
-        p = subprocess.Popen(['hg', 'id', '-i', '-R',
+        p = subprocess.Popen(['git', 'show', '-s', '--pretty=format:%h',
                               path.join(package_dir, '..')],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = p.communicate()
         if out:
-            __version__ += '/' + out.strip()
+            __version__ += '/' + out.decode().strip()
     except Exception:
         pass
 
