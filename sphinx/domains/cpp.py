@@ -527,6 +527,22 @@ class ASTTemplateArgConstant(ASTBase):
         signode += nodes.Text(text_type(self))
 
 
+class ASTNestedNameElementEmpty(ASTBase):
+    """Used if a nested name starts with ::"""
+
+    def get_id_v1(self):
+        return u''
+
+    def get_id_v2(self):
+        return u''
+
+    def __unicode__(self):
+        return u''
+
+    def describe_signature(self, signode, mode, env, prefix):
+        pass
+
+
 class ASTNestedNameElement(ASTBase):
     def __init__(self, identifier, templateArgs):
         self.identifier = identifier
@@ -607,8 +623,6 @@ class ASTNestedNameElement(ASTBase):
 
 class ASTNestedName(ASTBase):
     def __init__(self, names):
-        """Use an empty string as the first name if it should start with '::'
-        """
         self.names = names
 
     @property
@@ -621,7 +635,10 @@ class ASTNestedName(ASTBase):
             return _id_shorthands_v1[tt]
         else:
             res = []
-            for n in self.names:
+            id = self.names[0].get_id_v1()
+            if len(id) > 0:
+                res.append(id)
+            for n in self.names[1:]:
                 res.append(n.get_id_v1())
             return u'::'.join(res)
 
@@ -1555,7 +1572,7 @@ class DefinitionParser(object):
 
         self.skip_ws()
         if self.skip_string('::'):
-            names.append(u'')
+            names.append(ASTNestedNameElementEmpty())
         while 1:
             self.skip_ws()
             # TODO: parse the "template" keyword

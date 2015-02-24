@@ -133,6 +133,8 @@ def test_type_definitions():
     raises(DefinitionError, parse, 'function', 'int foo(D d=x(a')
     check('function', 'int foo(const A&... a)')
     check('function', 'virtual void f()')
+    # test for ::nestedName, from issue 1738
+    check("function", "result(int val, ::std::error_category const &cat)")
 
     check('class', 'public A', 'A')
     check('class', 'private A')
