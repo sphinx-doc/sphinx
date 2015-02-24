@@ -101,6 +101,11 @@ def assert_elem(elem, texts=None, refs=None, names=None):
         assert _names == names
 
 
+def assert_count(expected_expr, result, count):
+    find_pair = (expected_expr, result)
+    return assert_equal, len(re.findall(*find_pair)), count, find_pair
+
+
 @gen_with_intl_app('text', freshenv=True)
 def test_text_builder(app, status, warning):
     app.builder.build_all()
@@ -642,26 +647,26 @@ def test_additional_targets_should_not_be_translated(app, status, warning):
 
     # title should be translated
     expected_expr = 'CODE-BLOCKS'
-    yield assert_equal, len(re.findall(expected_expr, result)), 2, (expected_expr, result)
+    yield assert_count(expected_expr, result, 2)
 
     # ruby code block should not be translated but be highlighted
     expected_expr = """<span class="s1">&#39;result&#39;</span>"""
-    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+    yield assert_count(expected_expr, result, 1)
 
     # C code block without lang should not be translated and *ruby* highlighted
     expected_expr = """<span class="c1">#include &lt;stdlib.h&gt;</span>"""
-    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+    yield assert_count(expected_expr, result, 1)
 
     # C code block with lang should not be translated but be *C* highlighted
     expected_expr = """<span class="cp">#include &lt;stdio.h&gt;</span>"""
-    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+    yield assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
         """<span class="kn">import</span> <span class="nn">sys</span>  """
         """<span class="c"># sys importing</span>""")
-    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+    yield assert_count(expected_expr, result, 1)
 
     ## raw.txt
 
@@ -669,7 +674,7 @@ def test_additional_targets_should_not_be_translated(app, status, warning):
 
     # raw block should not be translated
     expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></div>"""
-    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+    yield assert_count(expected_expr, result, 1)
 
     ## figure.txt
 
@@ -677,11 +682,11 @@ def test_additional_targets_should_not_be_translated(app, status, warning):
 
     # alt and src for image block should not be translated
     expected_expr = """<img alt="i18n" src="_images/i18n.png" />"""
-    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+    yield assert_count(expected_expr, result, 1)
 
     # alt and src for figure block should not be translated
     expected_expr = """<img alt="img" src="_images/img.png" />"""
-    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+    yield assert_count(expected_expr, result, 1)
 
 
 @gen_with_intl_app('html', freshenv=True,
@@ -702,26 +707,26 @@ def test_additional_targets_should_be_translated(app, status, warning):
 
     # title should be translated
     expected_expr = 'CODE-BLOCKS'
-    yield assert_equal, len(re.findall(expected_expr, result)), 2, (expected_expr, result)
+    yield assert_count(expected_expr, result, 2)
 
     # ruby code block should be translated and be highlighted
     expected_expr = """<span class="s1">&#39;RESULT&#39;</span>"""
-    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+    yield assert_count(expected_expr, result, 1)
 
     # C code block without lang should be translated and *ruby* highlighted
     expected_expr = """<span class="c1">#include &lt;STDLIB.H&gt;</span>"""
-    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+    yield assert_count(expected_expr, result, 1)
 
     # C code block with lang should be translated and be *C* highlighted
     expected_expr = """<span class="cp">#include &lt;STDIO.H&gt;</span>"""
-    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+    yield assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
         """<span class="kn">import</span> <span class="nn">sys</span>  """
         """<span class="c"># SYS IMPORTING</span>""")
-    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+    yield assert_count(expected_expr, result, 1)
 
     ## raw.txt
 
@@ -729,7 +734,7 @@ def test_additional_targets_should_be_translated(app, status, warning):
 
     # raw block should be translated
     expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></div>"""
-    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+    yield assert_count(expected_expr, result, 1)
 
     ## figure.txt
 
@@ -737,9 +742,9 @@ def test_additional_targets_should_be_translated(app, status, warning):
 
     # alt and src for image block should be translated
     expected_expr = """<img alt="I18N -&gt; IMG" src="_images/img.png" />"""
-    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+    yield assert_count(expected_expr, result, 1)
 
     # alt and src for figure block should be translated
     expected_expr = """<img alt="IMG -&gt; I18N" src="_images/i18n.png" />"""
-    yield assert_equal, len(re.findall(expected_expr, result)), 1, (expected_expr, result)
+    yield assert_count(expected_expr, result, 1)
 
