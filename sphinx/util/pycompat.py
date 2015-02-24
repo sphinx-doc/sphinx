@@ -135,6 +135,7 @@ sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(
     any = any,
     next = next,
     open = open,
+    class_types = class_types,
     base_exception = BaseException,
     relpath = __import__('os').path.relpath,
     StringIO = io.StringIO,
