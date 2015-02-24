@@ -64,6 +64,8 @@ Bugs fixed
 * #1718: ``:numref:`` does not work with capital letters in the label
 * #1630: resolve CSS conflicts, ``div.container`` css target for literal block wrapper
   now renamed to ``div.literal-block-wrapper``.
+* ``sphinx.util.pycompat`` has been restored in its backwards-compatibility;
+  slated for removal in Sphinx 1.4.
 
 
 Release 1.3b2 (released Dec 5, 2014)

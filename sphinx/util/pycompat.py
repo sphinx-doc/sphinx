@@ -89,7 +89,7 @@ else:
         return ''.join(prefixed_lines())
 
 
-def execfile_(filepath, _globals):
+def execfile_(filepath, _globals, open=open):
     from sphinx.util.osutil import fs_encoding
     # get config source -- 'b' is a no-op under 2.x, while 'U' is
     # ignored under 3.x (but 3.x compile() accepts \r\n newlines)
@@ -116,3 +116,41 @@ def execfile_(filepath, _globals):
         else:
             raise
     exec_(code, _globals)
+
+# ------------------------------------------------------------------------------
+# Internal module backwards-compatibility
+
+import warnings
+
+from six import class_types
+from six.moves import zip_longest
+import io
+from itertools import product
+
+class _DeprecationWrapper(object):
+    def __init__(self, mod, deprecated):
+        self._mod = mod
+        self._deprecated = deprecated
+
+    def __getattr__(self, attr):
+        if attr in self._deprecated:
+            warnings.warn("sphinx.util.pycompat.%s is deprecated and will be "
+                          "removed in Sphinx 1.4, please use the standard "
+                          "library version instead." % attr,
+                          DeprecationWarning, stacklevel=2)
+            return self._deprecated[attr]
+        return getattr(self._mod, attr)
+
+sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(
+    zip_longest = zip_longest,
+    product = product,
+    all = all,
+    any = any,
+    next = next,
+    open = open,
+    class_types = class_types,
+    base_exception = BaseException,
+    relpath = __import__('os').path.relpath,
+    StringIO = io.StringIO,
+    BytesIO = io.BytesIO,
+))
