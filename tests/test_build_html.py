@@ -134,7 +134,7 @@ HTML_XPATH = {
         (".//li/strong", r'^program\\n$'),
         (".//li/em", r'^dfn\\n$'),
         (".//li/code/span[@class='pre']", r'^kbd\\n$'),
-        (".//li/em", u'File \N{TRIANGULAR BULLET} Close'),
+        (".//li/span", u'File \N{TRIANGULAR BULLET} Close'),
         (".//li/code/span[@class='pre']", '^a/$'),
         (".//li/code/em/span[@class='pre']", '^varpart$'),
         (".//li/code/em/span[@class='pre']", '^i$'),
@@ -188,7 +188,7 @@ HTML_XPATH = {
         (".//p", 'In both.'),
         (".//p", 'Always present'),
         # tests for ``any`` role
-        (".//a[@href='#with']/em", 'headings'),
+        (".//a[@href='#with']/span", 'headings'),
         (".//a[@href='objects.html#func_without_body']/code/span", 'objects'),
     ],
     'objects.html': [
@@ -247,9 +247,9 @@ HTML_XPATH = {
         (".//div[@class='footer']", 'Georg Brandl & Team'),
         (".//a[@href='http://python.org/']"
             "[@class='reference external']", ''),
-        (".//li/a[@href='genindex.html']/em", 'Index'),
-        (".//li/a[@href='py-modindex.html']/em", 'Module Index'),
-        (".//li/a[@href='search.html']/em", 'Search Page'),
+        (".//li/a[@href='genindex.html']/span", 'Index'),
+        (".//li/a[@href='py-modindex.html']/span", 'Module Index'),
+        (".//li/a[@href='search.html']/span", 'Search Page'),
         # custom sidebar only for contents
         (".//h4", 'Contents sidebar'),
         # custom JavaScript
@@ -554,12 +554,12 @@ def test_numfig_without_numbered_toctree(app, status, warning):
              "span[@class='caption-number']", '^Listing 9 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Listing 10 $', True),
-            (".//li/a/em", '^Fig. 9$', True),
-            (".//li/a/em", '^Figure6$', True),
-            (".//li/a/em", '^Table 9$', True),
-            (".//li/a/em", '^Table:6$', True),
-            (".//li/a/em", '^Listing 9$', True),
-            (".//li/a/em", '^Code-6$', True),
+            (".//li/a/span", '^Fig. 9$', True),
+            (".//li/a/span", '^Figure6$', True),
+            (".//li/a/span", '^Table 9$', True),
+            (".//li/a/span", '^Table:6$', True),
+            (".//li/a/span", '^Listing 9$', True),
+            (".//li/a/span", '^Code-6$', True),
             ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -649,12 +649,12 @@ def test_numfig_with_numbered_toctree(app, status, warning):
              "span[@class='caption-number']", '^Listing 1 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Listing 2 $', True),
-            (".//li/a/em", '^Fig. 1$', True),
-            (".//li/a/em", '^Figure2.2$', True),
-            (".//li/a/em", '^Table 1$', True),
-            (".//li/a/em", '^Table:2.2$', True),
-            (".//li/a/em", '^Listing 1$', True),
-            (".//li/a/em", '^Code-2.2$', True),
+            (".//li/a/span", '^Fig. 1$', True),
+            (".//li/a/span", '^Figure2.2$', True),
+            (".//li/a/span", '^Table 1$', True),
+            (".//li/a/span", '^Table:2.2$', True),
+            (".//li/a/span", '^Listing 1$', True),
+            (".//li/a/span", '^Code-2.2$', True),
             ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -747,12 +747,12 @@ def test_numfig_with_prefix(app, status, warning):
              "span[@class='caption-number']", '^Code-1 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Code-2 $', True),
-            (".//li/a/em", '^Figure:1$', True),
-            (".//li/a/em", '^Figure2.2$', True),
-            (".//li/a/em", '^Tab_1$', True),
-            (".//li/a/em", '^Table:2.2$', True),
-            (".//li/a/em", '^Code-1$', True),
-            (".//li/a/em", '^Code-2.2$', True),
+            (".//li/a/span", '^Figure:1$', True),
+            (".//li/a/span", '^Figure2.2$', True),
+            (".//li/a/span", '^Tab_1$', True),
+            (".//li/a/span", '^Table:2.2$', True),
+            (".//li/a/span", '^Code-1$', True),
+            (".//li/a/span", '^Code-2.2$', True),
             ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -842,12 +842,12 @@ def test_numfig_with_secnum_depth(app, status, warning):
              "span[@class='caption-number']", '^Listing 1 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Listing 2 $', True),
-            (".//li/a/em", '^Fig. 1$', True),
-            (".//li/a/em", '^Figure2.1.2$', True),
-            (".//li/a/em", '^Table 1$', True),
-            (".//li/a/em", '^Table:2.1.2$', True),
-            (".//li/a/em", '^Listing 1$', True),
-            (".//li/a/em", '^Code-2.1.2$', True),
+            (".//li/a/span", '^Fig. 1$', True),
+            (".//li/a/span", '^Figure2.1.2$', True),
+            (".//li/a/span", '^Table 1$', True),
+            (".//li/a/span", '^Table:2.1.2$', True),
+            (".//li/a/span", '^Listing 1$', True),
+            (".//li/a/span", '^Code-2.1.2$', True),
             ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"

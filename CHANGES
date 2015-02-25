@@ -1,3 +1,13 @@
+Release 1.3 (in development)
+============================
+
+Incompatible changes
+--------------------
+
+* Roles ``ref``, ``term`` and ``menusel`` now don't generate :durole:`emphasis`
+  nodes anymore.  If you want to keep italic style, adapt your stylesheet.
+
+
 Release 1.3b3 (released Feb 24, 2015)
 =====================================
 

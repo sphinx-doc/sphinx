@@ -243,7 +243,7 @@ def menusel_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
         text = text.replace('-->', u'\N{TRIANGULAR BULLET}')
     spans = _amp_re.split(text)
 
-    node = nodes.emphasis(rawtext=rawtext)
+    node = nodes.inline(rawtext=rawtext)
     for i, span in enumerate(spans):
         span = span.replace('&&', '&')
         if i == 0:

@@ -462,10 +462,10 @@ class StandardDomain(Domain):
         # links to tokens in grammar productions
         'token':   XRefRole(),
         # links to terms in glossary
-        'term':    XRefRole(lowercase=True, innernodeclass=nodes.emphasis,
+        'term':    XRefRole(lowercase=True, innernodeclass=nodes.inline,
                             warn_dangling=True),
         # links to headings or arbitrary labels
-        'ref':     XRefRole(lowercase=True, innernodeclass=nodes.emphasis,
+        'ref':     XRefRole(lowercase=True, innernodeclass=nodes.inline,
                             warn_dangling=True),
         # links to labels of numbered figures, tables and code-blocks
         'numref':  XRefRole(lowercase=True,
@@ -584,7 +584,7 @@ class StandardDomain(Domain):
                              **options):
         nodeclass = options.pop('nodeclass', nodes.reference)
         newnode = nodeclass('', '', internal=True, **options)
-        innernode = nodes.emphasis(sectname, sectname)
+        innernode = nodes.inline(sectname, sectname)
         if docname == fromdocname:
             newnode['refid'] = labelid
         else:

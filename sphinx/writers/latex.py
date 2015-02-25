@@ -1249,11 +1249,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # references to labels in the same document
             id = self.curfilestack[-1] + ':' + uri[1:]
             self.body.append(self.hyperlink(id))
+            self.body.append(r'\emph{')
             if self.builder.config.latex_show_pagerefs and not \
                     self.in_production_list:
-                self.context.append('}} (%s)' % self.hyperpageref(id))
+                self.context.append('}}} (%s)' % self.hyperpageref(id))
             else:
-                self.context.append('}}')
+                self.context.append('}}}')
         elif uri.startswith('%'):
             # references to documents or labels inside documents
             hashindex = uri.find('#')
@@ -1264,16 +1265,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # reference to a label
                 id = uri[1:].replace('#', ':')
             self.body.append(self.hyperlink(id))
+            self.body.append(r'\emph{')
             if len(node) and hasattr(node[0], 'attributes') and \
                    'std-term' in node[0].get('classes', []):
                 # don't add a pageref for glossary terms
-                self.context.append('}}')
+                self.context.append('}}}')
             else:
                 if self.builder.config.latex_show_pagerefs and not \
                     self.in_production_list:
-                    self.context.append('}} (%s)' % self.hyperpageref(id))
+                    self.context.append('}}} (%s)' % self.hyperpageref(id))
                 else:
-                    self.context.append('}}')
+                    self.context.append('}}}')
         else:
             self.builder.warn('unusable reference target found: %s' % uri,
                               (self.curfilestack[-1], node.line))
@@ -1545,7 +1547,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_inline(self, node):
         classes = node.get('classes', [])
-        self.body.append(r'\DUspan{%s}{' % ','.join(classes))
+        if classes in [['menuselection'], ['guilabel']]:
+            self.body.append(r'\emph{')
+        else:
+            self.body.append(r'\DUspan{%s}{' % ','.join(classes))
     def depart_inline(self, node):
         self.body.append('}')
 

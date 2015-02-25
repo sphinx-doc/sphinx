@@ -823,9 +823,11 @@ class TextTranslator(nodes.NodeVisitor):
         pass
 
     def visit_inline(self, node):
-        pass
+        if 'xref' in node['classes'] or 'term' in node['classes']:
+            self.add_text('*')
     def depart_inline(self, node):
-        pass
+        if 'xref' in node['classes'] or 'term' in node['classes']:
+            self.add_text('*')
 
     def visit_container(self, node):
         pass
