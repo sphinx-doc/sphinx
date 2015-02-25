@@ -11,12 +11,13 @@
 
 import re
 import socket
+import codecs
 import threading
 from os import path
 
 from six.moves import queue
 from six.moves.urllib.request import build_opener, Request, HTTPRedirectHandler
-from six.moves.urllib.parse import unquote
+from six.moves.urllib.parse import unquote, urlsplit, quote
 from six.moves.urllib.error import HTTPError
 from six.moves.html_parser import HTMLParser, HTMLParseError
 from docutils import nodes
@@ -131,11 +132,26 @@ class CheckExternalLinksBuilder(Builder):
                 if rex.match(uri):
                     return 'ignored', '', 0
 
+            # split off anchor
             if '#' in uri:
                 req_url, hash = uri.split('#', 1)
             else:
                 req_url = uri
                 hash = None
+
+            # handle non-ASCII URIs
+            try:
+                req_url.encode('ascii')
+            except UnicodeError:
+                split = urlsplit(req_url)
+                req_url = (split[0].encode() + '://' +       # scheme
+                           split[1].encode('idna') +         # netloc
+                           quote(split[2].encode('utf-8')))  # path
+                if split[3]:  # query
+                    req_url += '?' + quote(split[3].encode('utf-8'))
+                # go back to Unicode strings which is required by Python 3
+                # (but now all parts are pure ascii)
+                req_url = req_url.decode('ascii')
 
             # need to actually check the URI
             try:
@@ -261,7 +277,7 @@ class CheckExternalLinksBuilder(Builder):
             self.app.statuscode = 1
 
     def write_entry(self, what, docname, line, uri):
-        output = open(path.join(self.outdir, 'output.txt'), 'a')
+        output = codecs.open(path.join(self.outdir, 'output.txt'), 'a', 'utf-8')
         output.write("%s:%s: [%s] %s\n" % (self.env.doc2path(docname, None),
                                            line, what, uri))
         output.close()
