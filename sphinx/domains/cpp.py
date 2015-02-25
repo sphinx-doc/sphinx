@@ -2157,7 +2157,6 @@ class CPPObject(ObjectDescription):
                 if uninstantiated != name and uninstantiated not in objects:
                     signode['names'].append(uninstantiated)
                     objects.setdefault(uninstantiated, (self.env.docname, ast))
-            self.env.ref_context['cpp:lastname'] = ast.prefixedName
 
         indextext = self.get_index_text(name)
         if not re.compile(r'^[a-zA-Z0-9_]*$').match(theid):
@@ -2174,6 +2173,16 @@ class CPPObject(ObjectDescription):
         raise NotImplementedError()
 
     def handle_signature(self, sig, signode):
+        def set_lastname(name):
+            parent = self.env.ref_context.get('cpp:parent')
+            if parent and len(parent) > 0:
+                res = name.prefix_nested_name(parent[-1])
+            else:
+                res = name
+            assert res
+            self.env.ref_context['cpp:lastname'] = res
+            return res
+
         parser = DefinitionParser(sig)
         try:
             ast = self.parse_definition(parser)
@@ -2181,15 +2190,17 @@ class CPPObject(ObjectDescription):
         except DefinitionError as e:
             self.state_machine.reporter.warning(e.description,
                                                 line=self.lineno)
+            # It is easier to assume some phony name than handling the error in
+            # the possibly inner declarations.
+            name = ASTNestedName([
+                ASTNestedNameElement("PhonyNameDueToError", None)
+            ])
+            set_lastname(name)
             raise ValueError
         self.describe_signature(signode, ast)
 
-        parent = self.env.ref_context.get('cpp:parent')
-        if parent and len(parent) > 0:
-            ast = ast.clone()
-            ast.prefixedName = ast.name.prefix_nested_name(parent[-1])
-        else:
-            ast.prefixedName = ast.name
+        ast.prefixedName = set_lastname(ast.name)
+        assert ast.prefixedName
         return ast
 
 
@@ -2232,14 +2243,12 @@ class CPPClassObject(CPPObject):
         return _('%s (C++ class)') % name
 
     def before_content(self):
-        # lastname may not be set if there was an error
-        if 'cpp:lastname' in self.env.ref_context:
-            lastname = self.env.ref_context['cpp:lastname']
-            assert lastname
-            if 'cpp:parent' in self.env.ref_context:
-                self.env.ref_context['cpp:parent'].append(lastname)
-            else:
-                self.env.ref_context['cpp:parent'] = [lastname]
+        lastname = self.env.ref_context['cpp:lastname']
+        assert lastname
+        if 'cpp:parent' in self.env.ref_context:
+            self.env.ref_context['cpp:parent'].append(lastname)
+        else:
+            self.env.ref_context['cpp:parent'] = [lastname]
 
     def after_content(self):
         self.env.ref_context['cpp:parent'].pop()
@@ -2257,14 +2266,12 @@ class CPPEnumObject(CPPObject):
         return _('%s (C++ enum)') % name
 
     def before_content(self):
-        # lastname may not be set if there was an error
-        if 'cpp:lastname' in self.env.ref_context:
-            lastname = self.env.ref_context['cpp:lastname']
-            assert lastname
-            if 'cpp:parent' in self.env.ref_context:
-                self.env.ref_context['cpp:parent'].append(lastname)
-            else:
-                self.env.ref_context['cpp:parent'] = [lastname]
+        lastname = self.env.ref_context['cpp:lastname']
+        assert lastname
+        if 'cpp:parent' in self.env.ref_context:
+            self.env.ref_context['cpp:parent'].append(lastname)
+        else:
+            self.env.ref_context['cpp:parent'] = [lastname]
 
     def after_content(self):
         self.env.ref_context['cpp:parent'].pop()
