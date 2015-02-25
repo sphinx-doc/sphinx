@@ -180,7 +180,7 @@ def copy_static_entry(source, targetdir, builder, context={},
 
 _DEBUG_HEADER = '''\
 # Sphinx version: %s
-# Python version: %s
+# Python version: %s (%s)
 # Docutils version: %s %s
 # Jinja2 version: %s
 # Last messages:
@@ -205,6 +205,7 @@ def save_traceback(app):
     os.write(fd, (_DEBUG_HEADER %
                   (sphinx.__version__,
                    platform.python_version(),
+                   platform.python_implementation(),
                    docutils.__version__, docutils.__version_details__,
                    jinja2.__version__,
                    last_msgs)).encode('utf-8'))
