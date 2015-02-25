@@ -378,8 +378,9 @@ class Locale(Transform):
             except IndexError:  # empty node
                 pass
             # XXX doctest and other block markup
-            if not isinstance(patch,
-                              (nodes.paragraph,) + LITERAL_TYPE_NODES + IMAGE_TYPE_NODES):
+            if not isinstance(
+                    patch,
+                    (nodes.paragraph,) + LITERAL_TYPE_NODES + IMAGE_TYPE_NODES):
                 continue  # skip for now
 
             # auto-numbered foot note reference should use original 'ids'.

@@ -15,7 +15,7 @@
 import sys
 from os import path
 
-__version__  = '1.3b3'
+__version__  = '1.3b3+'
 __released__ = '1.3b3'  # used when Sphinx builds its own docs
 # version info for better programmatic use
 # possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
@@ -30,12 +30,12 @@ if '+' in __version__ or 'pre' in __version__:
     # automatically propagated to an installed copy as well)
     try:
         import subprocess
-        p = subprocess.Popen(['hg', 'id', '-i', '-R',
+        p = subprocess.Popen(['git', 'show', '-s', '--pretty=format:%h',
                               path.join(package_dir, '..')],
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = p.communicate()
         if out:
-            __version__ += '/' + out.strip()
+            __version__ += '/' + out.decode().strip()
     except Exception:
         pass
 
