@@ -2372,6 +2372,7 @@ class CPPDomain(Domain):
         'class': CPPClassObject,
         'function': CPPFunctionObject,
         'member': CPPMemberObject,
+        'var': CPPMemberObject,
         'type': CPPTypeObject,
         'enum': CPPEnumObject,
         'enum-struct': CPPEnumObject,
@@ -2380,9 +2381,11 @@ class CPPDomain(Domain):
         'namespace': CPPNamespaceObject
     }
     roles = {
+        'any': CPPXRefRole(),
         'class': CPPXRefRole(),
         'func': CPPXRefRole(fix_parens=True),
         'member': CPPXRefRole(),
+        'var': CPPXRefRole(),
         'type': CPPXRefRole(),
         'enum': CPPXRefRole(),
         'enumerator': CPPXRefRole()

@@ -7,6 +7,13 @@ Incompatible changes
 * Roles ``ref``, ``term`` and ``menusel`` now don't generate :durole:`emphasis`
   nodes anymore.  If you want to keep italic style, adapt your stylesheet.
 
+Features added
+--------------
+
+* Add convenience directives and roles to the C++ domain:
+  directive `var` as alias for `member`, role `var`as alias for `member`,
+  and role `any` for cross-reference to any C++ declaraction. #1577, #1744
+
 
 Release 1.3b3 (released Feb 24, 2015)
 =====================================
