@@ -16,6 +16,12 @@ Features added
 * The :confval:`source_suffix` config value can now be a list of multiple
   suffixes.
 
+Bugs fixed
+----------
+
+* 1.3b3 change breaks a previous gettext output that contains duplicated
+  msgid such as "foo bar" and "version changes in 1.3: foo bar".
+
 
 Release 1.3b3 (released Feb 24, 2015)
 =====================================

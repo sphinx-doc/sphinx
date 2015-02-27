@@ -63,9 +63,7 @@ def apply_source_workaround(node):
     ))):
         node.source = find_source_node(node)
         node.line = 0  # need fix docutils to get `node.line`
-
-    if not node.rawsource:
-        node.rawsource = node.astext()
+        return
 
 
 IGNORED_NODES = (
@@ -108,6 +106,8 @@ def extract_messages(doctree):
     for node in doctree.traverse(is_translatable):
         if isinstance(node, LITERAL_TYPE_NODES):
             msg = node.rawsource
+            if not msg:
+                msg = node.astext()
         elif isinstance(node, IMAGE_TYPE_NODES):
             msg = '.. image:: %s' % node['uri']
             if node.get('alt'):
