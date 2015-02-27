@@ -144,7 +144,7 @@ def test_quickstart_defaults(tempdir):
     execfile_(conffile, ns)
     assert ns['extensions'] == []
     assert ns['templates_path'] == ['_templates']
-    assert ns['source_suffix'] == '.rst'
+    assert ns['source_suffix'] == ['.rst']
     assert ns['master_doc'] == 'index'
     assert ns['project'] == 'Sphinx Test'
     assert ns['copyright'] == '%s, Georg Brandl' % time.strftime('%Y')
@@ -203,7 +203,7 @@ def test_quickstart_all_answers(tempdir):
         'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo'
     ]
     assert ns['templates_path'] == ['.templates']
-    assert ns['source_suffix'] == '.txt'
+    assert ns['source_suffix'] == ['.txt']
     assert ns['master_doc'] == 'contents'
     assert ns['project'] == u'STASI™'
     assert ns['copyright'] == u'%s, Wolfgang Schäuble & G\'Beckstein' % \

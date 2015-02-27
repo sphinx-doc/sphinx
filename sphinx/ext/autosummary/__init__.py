@@ -60,7 +60,7 @@ import inspect
 import posixpath
 from types import ModuleType
 
-from six import text_type
+from six import text_type, string_types
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 from docutils import nodes
@@ -534,11 +534,9 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
 def process_generate_options(app):
     genfiles = app.config.autosummary_generate
 
-    ext = app.config.source_suffix
-
     if genfiles and not hasattr(genfiles, '__len__'):
         env = app.builder.env
-        genfiles = [x + ext for x in env.found_docs
+        genfiles = [env.doc2path(x, base=None) for x in env.found_docs
                     if os.path.isfile(env.doc2path(x))]
 
     if not genfiles:
@@ -546,6 +544,7 @@ def process_generate_options(app):
 
     from sphinx.ext.autosummary.generate import generate_autosummary_docs
 
+    ext = app.config.source_suffix[0]
     genfiles = [genfile + (not genfile.endswith(ext) and ext or '')
                 for genfile in genfiles]
 

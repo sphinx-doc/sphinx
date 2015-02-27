@@ -7,6 +7,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+from six import string_types
 from six.moves import range
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -48,7 +49,7 @@ class TocTree(Directive):
 
     def run(self):
         env = self.state.document.settings.env
-        suffix = env.config.source_suffix
+        suffixes = env.config.source_suffix
         glob = 'glob' in self.options
 
         ret = []
@@ -84,8 +85,10 @@ class TocTree(Directive):
                     ref = docname = entry
                     title = None
                 # remove suffixes (backwards compatibility)
-                if docname.endswith(suffix):
-                    docname = docname[:-len(suffix)]
+                for suffix in suffixes:
+                    if docname.endswith(suffix):
+                        docname = docname[:-len(suffix)]
+                        break
                 # absolutize filenames
                 docname = docname_join(env.docname, docname)
                 if url_re.match(ref) or ref == 'self':

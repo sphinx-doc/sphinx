@@ -12,10 +12,10 @@ jsmath_path = 'dummy.js'
 templates_path = ['_templates']
 
 master_doc = 'contents'
-source_suffix = '.txt'
+source_suffix = ['.txt', '.add']
 
 project = 'Sphinx <Tests>'
-copyright = '2010-2014, Georg Brandl & Team'
+copyright = '2010-2015, Georg Brandl & Team'
 # If this is changed, remember to update the versionchanges!
 version = '0.6'
 release = '0.6alpha1'

@@ -21,7 +21,7 @@ from os import path
 from codecs import open, BOM_UTF8
 from collections import deque
 
-from six import iteritems, text_type, binary_type
+from six import iteritems, text_type, binary_type, string_types
 from six.moves import range
 import docutils
 from docutils.utils import relative_path
@@ -87,17 +87,18 @@ def get_matching_files(dirname, exclude_matchers=()):
             yield filename
 
 
-def get_matching_docs(dirname, suffix, exclude_matchers=()):
-    """Get all file names (without suffix) matching a suffix in a directory,
+def get_matching_docs(dirname, suffixes, exclude_matchers=()):
+    """Get all file names (without suffixes) matching a suffix in a directory,
     recursively.
 
     Exclude files and dirs matching a pattern in *exclude_patterns*.
     """
-    suffixpattern = '*' + suffix
+    suffixpatterns = ['*' + s for s in suffixes]
     for filename in get_matching_files(dirname, exclude_matchers):
-        if not fnmatch.fnmatch(filename, suffixpattern):
-            continue
-        yield filename[:-len(suffix)]
+        for suffixpattern in suffixpatterns:
+            if fnmatch.fnmatch(filename, suffixpattern):
+                yield filename[:-len(suffixpattern)+1]
+                break
 
 
 class FilenameUniqDict(dict):
