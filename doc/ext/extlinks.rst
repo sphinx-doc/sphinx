@@ -15,7 +15,7 @@ so by providing aliases to base URLs, so that you only need to give the subpage
 name when creating a link.
 
 Let's assume that you want to include many links to issues at the Sphinx
-tracker, at :samp:`http://github.com/sphinx-doc/sphinx/issues/{num}`.  Typing
+tracker, at :samp:`https://github.com/sphinx-doc/sphinx/issues/{num}`.  Typing
 this URL again and again is tedious, so you can use :mod:`~sphinx.ext.extlinks`
 to avoid repeating yourself.
 
