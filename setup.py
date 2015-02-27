@@ -165,7 +165,7 @@ setup(
     name='Sphinx',
     version=sphinx.__version__,
     url='http://sphinx-doc.org/',
-    download_url='http://pypi.python.org/pypi/Sphinx',
+    download_url='https://pypi.python.org/pypi/Sphinx',
     license='BSD',
     author='Georg Brandl',
     author_email='georg@python.org',
