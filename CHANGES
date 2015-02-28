@@ -21,6 +21,8 @@ Bugs fixed
 
 * 1.3b3 change breaks a previous gettext output that contains duplicated
   msgid such as "foo bar" and "version changes in 1.3: foo bar".
+* #1745: latex builder cause maximum recursion depth exceeded when a
+  footnote has a footnote mark itself.
 
 
 Release 1.3b3 (released Feb 24, 2015)

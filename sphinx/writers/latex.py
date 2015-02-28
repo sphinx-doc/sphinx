@@ -1388,8 +1388,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 raise UnsupportedError('%s:%s: footnotes in float captions '
                                        'are not supported by LaTeX' %
                                        (self.curfilestack[-1], node.line))
-            footnode.walkabout(self)
             self.footnotestack[-1][num][1] = True
+            footnode.walkabout(self)
         raise nodes.SkipChildren
     def depart_footnote_reference(self, node):
         pass
