@@ -11,8 +11,9 @@ Features added
 --------------
 
 * Add convenience directives and roles to the C++ domain:
-  directive `var` as alias for `member`, role `var`as alias for `member`,
-  and role `any` for cross-reference to any C++ declaraction. #1577, #1744
+  directive ``cpp:var`` as alias for ``cpp:member``, role ``:cpp:var`` as alias
+  for ``:cpp:member``, and role `any` for cross-reference to any C++
+  declaraction. #1577, #1744
 * The :confval:`source_suffix` config value can now be a list of multiple
   suffixes.
 
