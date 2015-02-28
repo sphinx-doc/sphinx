@@ -102,6 +102,36 @@ class SphinxStandaloneReader(standalone.Reader):
                   DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
                   AutoNumbering, SortIds, RemoveTranslatableInline]
 
+    @staticmethod
+    def get_parser_class(parser_name):
+        """Return the Parser class from the `parser_name` module."""
+        try:
+            module = __import__(parser_name, globals(), locals(), ['Parser'], level=1)
+        except ImportError:
+            module = __import__(parser_name, globals(), locals(), ['Parser'], level=0)
+        return module.Parser
+
+    def __init__(self, parsers={}, *args, **kwargs):
+        standalone.Reader.__init__(self, *args, **kwargs)
+        self.parser_map = {}
+        for suffix, parser_name in parsers.items():
+            self.parser_map[suffix] = self.get_parser_class(parser_name)()
+
+    def read(self, source, parser, settings):
+        self.source = source
+
+        for suffix in self.parser_map:
+            if source.source_path.endswith(suffix):
+                self.parser = self.parser_map[suffix]
+                break
+
+        if not self.parser:
+            self.parser = parser
+        self.settings = settings
+        self.input = self.source.read()
+        self.parse()
+        return self.document
+
     def get_transforms(self):
         return standalone.Reader.get_transforms(self) + self.transforms
 
@@ -752,7 +782,8 @@ class BuildEnvironment:
         codecs.register_error('sphinx', self.warn_and_replace)
 
         # publish manually
-        pub = Publisher(reader=SphinxStandaloneReader(),
+        reader = SphinxStandaloneReader(parsers=self.config.parsers)
+        pub = Publisher(reader=reader,
                         writer=SphinxDummyWriter(),
                         destination_class=NullOutput)
         pub.set_components(None, 'restructuredtext', None)

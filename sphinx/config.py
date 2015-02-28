@@ -55,6 +55,7 @@ class Config(object):
         source_encoding = ('utf-8-sig', 'env'),
         exclude_patterns = ([], 'env'),
         default_role = (None, 'env'),
+        parsers = ({}, 'env'),
         add_function_parentheses = (True, 'env'),
         add_module_names = (True, 'env'),
         trim_footnote_reference_space = (False, 'env'),
