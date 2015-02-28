@@ -105,6 +105,9 @@ class SphinxStandaloneReader(standalone.Reader):
     @staticmethod
     def get_parser_class(parser_name):
         """Return the Parser class from the `parser_name` module."""
+        # You passed a class instead
+        if not isinstance(parser_name, string_types):
+            return parser_name
         try:
             module = __import__(parser_name, globals(), locals(), ['Parser'], level=1)
         except ImportError:
