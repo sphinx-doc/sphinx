@@ -211,7 +211,7 @@ class Program(Directive):
 class OptionXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
         # validate content
-        if not re.match('(.+ )?[-/+]', target):
+        if not re.match(r'(.+ )?[-/+\w]', target):
             env.warn_node('Malformed :option: %r, does not contain option '
                           'marker - or -- or / or +' % target, refnode)
         refnode['std:program'] = env.ref_context.get('std:program')
@@ -660,7 +660,7 @@ class StandardDomain(Domain):
             # most obvious thing: we are a flag option without program
             if target.startswith(('-', '/', '+')):
                 progname = node.get('std:program')
-            elif ' -' in target or ' /' in target:
+            elif re.search(r'[-/+]', target):
                 try:
                     progname, target = re.split(r' (?=-|--|/|\+)', target, 1)
                 except ValueError:

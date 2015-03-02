@@ -149,7 +149,7 @@ Adding \n to test unescaping.
 * :doc:`subdir/includes`
 * ``:download:`` is tested in includes.txt
 * :option:`Python -c option <python -c>`
-* This used to crash: :option:`Python c option`
+* This used to crash: :option:`&option`
 
 Test :abbr:`abbr (abbreviation)` and another :abbr:`abbr (abbreviation)`.
 

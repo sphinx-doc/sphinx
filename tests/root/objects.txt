@@ -172,7 +172,9 @@ Others
 
 .. option:: +p
 
-Link to :option:`perl +p`.
+.. option:: arg
+
+Link to :option:`perl +p` and :option:`arg`.
 
 
 User markup

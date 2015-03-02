@@ -25,6 +25,8 @@ Bugs fixed
 * #1745: latex builder cause maximum recursion depth exceeded when a
   footnote has a footnote mark itself.
 * #1748: SyntaxError in sphinx/ext/ifconfig.py with Python 2.6.
+* #1658, #1750: No link created (and warning given) if option does not
+  begin with -, / or +. Thanks to Takayuki Hirai.
 
 
 Release 1.3b3 (released Feb 24, 2015)
