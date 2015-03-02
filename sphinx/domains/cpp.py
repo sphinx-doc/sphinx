@@ -1398,6 +1398,7 @@ class ASTClass(ASTBase):
                 signode += nodes.Text(', ')
             signode.pop()
 
+
 class ASTEnum(ASTBase):
     def __init__(self, name, visibility, scoped, underlyingType):
         self.name = name
@@ -1436,6 +1437,7 @@ class ASTEnum(ASTBase):
         if self.underlyingType:
             signode += nodes.Text(' : ')
             self.underlyingType.describe_signature(signode, 'noneIsName', env)
+
 
 class ASTEnumerator(ASTBase):
     def __init__(self, name, init):
@@ -1977,13 +1979,25 @@ class DefinitionParser(object):
                     declSpecs = self._parse_decl_specs(outer=outer)
                     decl = self._parse_declerator(named=True, paramMode=outer)
                 except DefinitionError as exTyped:
-                    if outer == 'type':
+                    # Retain the else branch for easier debugging.
+                    # TODO: it would be nice to save the previous stacktrace
+                    #       and output it here.
+                    if True:
+                        if outer == 'type':
+                            desc = ('Type must be either just a name or a '
+                            'typedef-like declaration.\n'
+                            'Just a name error: %s\n'
+                            'Typedef-like expression error: %s')
+                        elif outer == 'function':
+                            desc = ('Error when parsing function declaration:\n'
+                            'Error if no return type: %s\n'
+                            'Error if return type: %s')
+                        else:
+                            assert False
                         raise DefinitionError(
-                            'Type must be either just a name or a '
-                            'typedef-like declaration.\nJust a name error: '
-                            '%s\nTypedef-like expression error: %s'
-                            % (exUntyped.description, exTyped.description))
+                            desc % (exUntyped.description, exTyped.description))
                     else:
+                        # For testing purposes.
                         # do it again to get the proper traceback (how do you
                         # relieable save a traceback when an exception is
                         # constructed?)
