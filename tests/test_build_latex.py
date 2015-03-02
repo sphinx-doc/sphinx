@@ -169,12 +169,12 @@ def test_numref(app, status, warning):
     assert '\\renewcommand{\\figurename}{Fig. }' in result
     assert '\\renewcommand{\\tablename}{Table }' in result
     assert '\\floatname{literal-block}{Listing }' in result
-    assert '\\ref{index:fig1}' in result
-    assert '\\ref{baz:fig22}' in result
-    assert '\\ref{index:table-1}' in result
-    assert '\\ref{baz:table22}' in result
-    assert '\\ref{index:code-1}' in result
-    assert '\\ref{baz:code22}' in result
+    assert '\\hyperref[index:fig1]{Fig. \\ref{index:fig1}}' in result
+    assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
+    assert '\\hyperref[index:table-1]{Table \\ref{index:table-1}}' in result
+    assert '\\hyperref[baz:table22]{Table:\\ref{baz:table22}}' in result
+    assert '\\hyperref[index:code-1]{Listing \\ref{index:code-1}}' in result
+    assert '\\hyperref[baz:code22]{Code-\\ref{baz:code22}}' in result
 
 
 @with_app(buildername='latex', testroot='numfig',
@@ -189,7 +189,7 @@ def test_numref_with_prefix1(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\renewcommand{\\figurename}{Figure:}' in result
-    assert '\\renewcommand{\\tablename}{Tab_}' in result
+    assert '\\renewcommand{\\tablename}{Tab\\_}' in result
     assert '\\floatname{literal-block}{Code-}' in result
     assert '\\ref{index:fig1}' in result
     assert '\\ref{baz:fig22}' in result
@@ -197,6 +197,12 @@ def test_numref_with_prefix1(app, status, warning):
     assert '\\ref{baz:table22}' in result
     assert '\\ref{index:code-1}' in result
     assert '\\ref{baz:code22}' in result
+    assert '\\hyperref[index:fig1]{Figure:\\ref{index:fig1}}' in result
+    assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
+    assert '\\hyperref[index:table-1]{Tab\\_\\ref{index:table-1}}' in result
+    assert '\\hyperref[baz:table22]{Table:\\ref{baz:table22}}' in result
+    assert '\\hyperref[index:code-1]{Code-\\ref{index:code-1}}' in result
+    assert '\\hyperref[baz:code22]{Code-\\ref{baz:code22}}' in result
 
 
 @with_app(buildername='latex', testroot='numfig',
@@ -212,15 +218,15 @@ def test_numref_with_prefix2(app, status, warning):
     print(warning.getvalue())
     assert '\\renewcommand{\\figurename}{Figure:}' in result
     assert '\\def\\fnum@figure{\\figurename\\thefigure.}' in result
-    assert '\\renewcommand{\\tablename}{Tab_}' in result
+    assert '\\renewcommand{\\tablename}{Tab\\_}' in result
     assert '\\def\\fnum@table{\\tablename\\thetable:}' in result
     assert '\\floatname{literal-block}{Code-}' in result
-    assert '\\ref{index:fig1}' in result
-    assert '\\ref{baz:fig22}' in result
-    assert '\\ref{index:table-1}' in result
-    assert '\\ref{baz:table22}' in result
-    assert '\\ref{index:code-1}' in result
-    assert '\\ref{baz:code22}' in result
+    assert '\\hyperref[index:fig1]{Figure:\\ref{index:fig1}.}' in result
+    assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
+    assert '\\hyperref[index:table-1]{Tab\\_\\ref{index:table-1}:}' in result
+    assert '\\hyperref[baz:table22]{Table:\\ref{baz:table22}}' in result
+    assert '\\hyperref[index:code-1]{Code-\\ref{index:code-1} \\textbar{} }' in result
+    assert '\\hyperref[baz:code22]{Code-\\ref{baz:code22}}' in result
 
 
 @with_app(buildername='latex')

@@ -331,33 +331,40 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
         figure = self.builder.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
-            ret.append(r'\def\fnum@figure{%s}' % figure[0])
+            ret.append('\\def\\fnum@figure{%s}\n' %
+                       text_type(figure[0]).translate(tex_escape_map))
         else:
-            ret.append(r'\renewcommand{\figurename}{%s}' % figure[0])
+            ret.append('\\renewcommand{\\figurename}{%s}\n' %
+                       text_type(figure[0]).translate(tex_escape_map))
             if figure[1]:
-                ret.append(r'\makeatletter')
-                ret.append(r'\def\fnum@figure{\figurename\thefigure%s}' % figure[1])
-                ret.append(r'\makeatother')
+                ret.append('\\makeatletter\n')
+                ret.append('\\def\\fnum@figure{\\figurename\\thefigure%s}\n' %
+                           text_type(figure[1]).translate(tex_escape_map))
+                ret.append('\\makeatother\n')
 
         table = self.builder.config.numfig_format['table'].split('%s', 1)
         if len(table) == 1:
-            ret.append(r'\def\fnum@table{%s}' % table[0])
+            ret.append('\\def\\fnum@table{%s}\n' %
+                       text_type(table[0]).translate(tex_escape_map))
         else:
-            ret.append(r'\renewcommand{\tablename}{%s}' % table[0])
+            ret.append('\\renewcommand{\\tablename}{%s}\n' %
+                       text_type(table[0]).translate(tex_escape_map))
             if table[1]:
-                ret.append(r'\makeatletter')
-                ret.append(r'\def\fnum@table{\tablename\thetable%s}' % table[1])
-                ret.append(r'\makeatother')
+                ret.append('\\makeatletter\n')
+                ret.append('\\def\\fnum@table{\\tablename\\thetable%s}\n' %
+                           text_type(table[1]).translate(tex_escape_map))
+                ret.append('\\makeatother\n')
 
-        code = self.builder.config.numfig_format['code-block'].split('%s', 1)
-        if len(code) == 1:
+        codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
+        if len(codeblock) == 1:
             pass  # FIXME
         else:
-            ret.append(r'\floatname{literal-block}{%s}' % code[0])
+            ret.append('\\floatname{literal-block}{%s}\n' %
+                       text_type(codeblock[0]).translate(tex_escape_map))
             if table[1]:
                 pass  # FIXME
 
-        return '\n'.join(ret)
+        return ''.join(ret)
 
     def generate_indices(self):
         def generate(content, collapsed):
@@ -1326,8 +1333,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             id = node.get('refuri', '')[1:].replace('#', ':')
 
         ref = '\\ref{%s}' % self.idescape(id)
-        title = node.get('title', '#')
-        self.body.append(title.replace('#', ref))
+        title = text_type(node.get('title', '#')).translate(tex_escape_map)
+        hyperref = '\\hyperref[%s]{%s}' % (self.idescape(id), title.replace('\\#', ref))
+        self.body.append(hyperref)
 
         raise nodes.SkipNode
 
