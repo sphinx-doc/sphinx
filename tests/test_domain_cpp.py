@@ -14,18 +14,22 @@ from six import text_type
 from util import raises
 
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
+from sphinx.domains.cpp import Symbol
 
 ids = []
 
 def parse(name, string):
-    parser = DefinitionParser(string)
-    res = getattr(parser, "parse_" + name + "_object")()
+    parser = DefinitionParser(string, None)
+    ast = parser.parse_declaration(name)
     if not parser.eof:
         print("Parsing stopped at", parser.pos)
         print(string)
         print('-'*parser.pos + '^')
         raise DefinitionError("")
-    return res
+    # The scopedness would usually have been set by CPPEnumObject
+    if name == "enum":
+        ast.scoped = None # simulate unscoped enum
+    return ast
 
 def check(name, input, idv1output=None, idv2output=None, output=None):
     # first a simple check of the AST
@@ -38,10 +42,9 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
         print("Result:   ", res)
         print("Expected: ", output)
         raise DefinitionError("")
-    ast.describe_signature([], 'lastIsName', None, parentScope=ast.name)
-    # Artificially set the prefixedName, otherwise the get_id fails.
-    # It would usually have been set in handle_signarue.
-    ast.prefixedName = ast.name
+    rootSymbol = Symbol(None, None, None, None, None)
+    symbol = rootSymbol.add_declaration(ast)
+    ast.describe_signature([], 'lastIsName', symbol)
 
     if idv2output:
         idv2output = "_CPPv2" + idv2output
@@ -61,6 +64,7 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
         print("result:   %s    %s" % (str(idv1).rjust(20), str(idv2).rjust(20)))
         print("expected: %s    %s" % (str(idv1output).rjust(20),
                                       str(idv2output).rjust(20)))
+        print(rootSymbol.dump(0))
         raise DefinitionError("")
     ids.append(ast.get_id_v2())
     #print ".. %s:: %s" % (name, input)
@@ -91,6 +95,8 @@ def test_type_definitions():
           output="MyContainer::const_iterator")
     # test decl specs on right
     check("type", "bool const b", "b", "1b")
+    # test name in global scope
+    check("type", "bool ::B::b", "B::b", "N1B1bE")
 
     check('member', '  const  std::string  &  name = 42',
           "name__ssCR", "4name", output='const std::string &name = 42')
@@ -224,6 +230,18 @@ def test_type_definitions():
     check('enumerator', 'A', None, "1A")
     check('enumerator', 'A = std::numeric_limits<unsigned long>::max()',
           None, "1A")
+
+def test_templates():
+    check('class', "A<T>", None, "IE1AI1TE", output="template<> A<T>")
+    # first just check which objects support templating
+    check('class', "template<> A", None, "IE1A")
+    check('function', "template<> void A()", None, "IE1Av")
+    check('member', "template<> A a", None, "IE1a")
+    check('type', "template<> A a", None, "IE1a")
+    raises(DefinitionError, parse, 'enum', "template<> A")
+    raises(DefinitionError, parse, 'enumerator', "template<> A")
+    # then all the real tests
+
 
 def test_bases():
     check('class', 'A', "A", "1A")
