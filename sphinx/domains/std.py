@@ -660,12 +660,14 @@ class StandardDomain(Domain):
             # most obvious thing: we are a flag option without program
             if target.startswith(('-', '/', '+')):
                 progname = node.get('std:program')
-            else:
+            elif ' -' in target or ' /' in target:
                 try:
                     progname, target = re.split(r' (?=-|--|/|\+)', target, 1)
                 except ValueError:
                     return None
                 progname = ws_re.sub('-', progname.strip())
+            else:
+                progname = None
             docname, labelid = self.data['progoptions'].get((progname, target),
                                                             ('', ''))
             if not docname:
