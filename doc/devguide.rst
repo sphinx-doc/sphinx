@@ -55,7 +55,7 @@ of the core developers before it is merged into the main repository.
 #. If you feel uncomfortable or uncertain about an issue or your changes, feel
    free to email sphinx-dev@googlegroups.com.
 #. Fork `the repository`_ on Github to start making your changes to the
-   **default** branch for next major version, or **stable** branch for next
+   **master** branch for next major version, or **stable** branch for next
    minor version.
 #. Write a test which shows that the bug was fixed or that the feature works
    as expected.
