@@ -13,7 +13,7 @@ from six import text_type
 
 from util import raises
 
-from sphinx.domains.cpp import DefinitionParser, DefinitionError
+from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
 
 ids = []
 
@@ -42,15 +42,25 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
     # Artificially set the prefixedName, otherwise the get_id fails.
     # It would usually have been set in handle_signarue.
     ast.prefixedName = ast.name
-    
+
     if idv2output:
         idv2output = "_CPPv2" + idv2output
-    idv1 = ast.get_id_v1()
-    idv2 = ast.get_id_v2()
+    try:
+        idv1 = ast.get_id_v1()
+        assert idv1 != None
+    except NoOldIdError:
+        idv1 = None
+    try:
+        idv2 = ast.get_id_v2()
+        assert idv2 != None
+    except NoOldIdError:
+        idv2 = None
     if idv1 != idv1output or idv2 != idv2output:
+        print("input:    %s" % text_type(input).rjust(20))
         print("          %s    %s" % ("Id v1".rjust(20), "Id v2".rjust(20)))
         print("result:   %s    %s" % (str(idv1).rjust(20), str(idv2).rjust(20)))
-        print("expected: %s    %s" % (str(idv1output).rjust(20), str(idv2output).rjust(20)))
+        print("expected: %s    %s" % (str(idv1output).rjust(20),
+                                      str(idv2output).rjust(20)))
         raise DefinitionError("")
     ids.append(ast.get_id_v2())
     #print ".. %s:: %s" % (name, input)
@@ -70,6 +80,7 @@ def test_type_definitions():
     check("type", 'std::vector<std::pair<std::string, long long>> module::blah',
           "module::blah", "N6module4blahE")
     check("type", "std::function<void()> F", "F", "1F")
+    check("type", "std::function<R(A1, A2)> F", "F", "1F")
     check("type", "std::function<R(A1, A2, A3)> F", "F", "1F")
     check("type", "std::function<R(A1, A2, A3, As...)> F", "F", "1F")
     check("type", "MyContainer::const_iterator",
@@ -102,10 +113,10 @@ def test_type_definitions():
     check('function', 'bool namespaced::theclass::method(arg1, arg2)',
           "namespaced::theclass::method__arg1.arg2",
           "N10namespaced8theclass6methodE4arg14arg2")
-    x = 'std::vector<std::pair<std::string, int>> &module::test(register ' \
+    x = 'std::vector<std::pair<std::string, int>> &module::test(register int ' \
         'foo, bar, std::string baz = "foobar, blah, bleh") const = 0'
-    check('function', x, "module::test__register.bar.ssC",
-          "NK6module4testE8register3barNSt6stringE")
+    check('function', x, "module::test__i.bar.ssC",
+          "NK6module4testEi3barNSt6stringE")
     check('function', 'void f(std::pair<A, B>)',
           "f__std::pair:A.B:", "1fNSt4pairI1A1BEE")
     check('function', 'explicit module::myclass::foo::foo()',
@@ -162,16 +173,16 @@ def test_type_definitions():
     check('function', 'MyClass::a_member_function() const &',
           "MyClass::a_member_functionCR", "NKR7MyClass17a_member_functionEv")
     check('function', 'int main(int argc, char *argv[])',
-          "main__i.cPA", "4mainiPA_c")
+          "main__i.cPA", "4mainiA_Pc")
     check('function', 'MyClass &MyClass::operator++()',
           "MyClass::inc-operator", "N7MyClassppEv")
     check('function', 'MyClass::pointer MyClass::operator->()',
           "MyClass::pointer-operator", "N7MyClassptEv")
 
-    x = 'std::vector<std::pair<std::string, int>> &module::test(register ' \
+    x = 'std::vector<std::pair<std::string, int>> &module::test(register int ' \
         'foo, bar[n], std::string baz = "foobar, blah, bleh") const = 0'
-    check('function', x, "module::test__register.barA.ssC",
-          "NK6module4testE8registerAn_3barNSt6stringE")
+    check('function', x, "module::test__i.barA.ssC",
+          "NK6module4testEiAn_3barNSt6stringE")
     check('function',
           'int foo(Foo f = Foo(double(), std::make_pair(int(2), double(3.4))))',
           "foo__Foo", "3foo3Foo")
@@ -179,11 +190,28 @@ def test_type_definitions():
     raises(DefinitionError, parse, 'function', 'int foo(B b=x(a)')
     raises(DefinitionError, parse, 'function', 'int foo)C c=x(a))')
     raises(DefinitionError, parse, 'function', 'int foo(D d=x(a')
-    check('function', 'int foo(const A&... a)', "foo__ACRDp", "3fooRDpK1A")
+    check('function', 'int foo(const A&... a)', "foo__ACRDp", "3fooDpRK1A")
     check('function', 'virtual void f()', "f", "1fv")
     # test for ::nestedName, from issue 1738
     check("function", "result(int val, ::std::error_category const &cat)",
           "result__i.std::error_categoryCR", "6resultiRNSt14error_categoryE")
+    check("function", "int *f()", "f", "1fv")
+    # tests derived from issue #1753 (skip to keep sanity)
+    # TODO: the v1 ids are speculative, check with older Sphinx version
+    check("function", "f(int (&array)[10])", None, "1fRA10_i")
+    check("function", "void f(int (&array)[10])", None, "1fRA10_i")
+    check("function", "void f(float *q(double))", None, "1fFPfdE")
+    check("function", "void f(float *(*q)(double))", None, "1fPFPfdE")
+    check("function", "void f(float (*q)(double))", None, "1fPFfdE")
+    check("function", "int (*f(double d))(float)", "f__double", "1fd")
+    check("function", "int (*f(bool b))[5]", "f__b", "1fb")
+    check("function", "int (*A::f(double d) const)(float)",
+          "A::f__doubleC", "NK1A1fEd")
+    check("function", "void f(std::shared_ptr<int(double)> ptr)",
+          None, "1fNSt10shared_ptrIFidEEE")
+
+    # TODO: make tests for functions in a template, e.g., Test<int&&()>
+    # such that the id generation for function type types is correct.
 
     check('class', 'public A', "A", "1A", output='A')
     check('class', 'private A', "A", "1A")
@@ -212,9 +240,9 @@ def test_operators():
           "new-array-operator", "nav", output='void operator new[]()')
     check('function', 'void operator delete ()',
           "delete-operator", "dlv", output='void operator delete()')
-    check('function', 'void operator bool() const',
-          "castto-b-operatorC", "NKcvbEv", output='void operator bool() const')
-    
+    check('function', 'operator bool() const',
+          "castto-b-operatorC", "NKcvbEv", output='operator bool() const')
+
     check('function', 'void operator * ()',
           "mul-operator", "mlv", output='void operator*()')
     check('function', 'void operator - ()',
