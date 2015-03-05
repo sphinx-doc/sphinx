@@ -1178,8 +1178,7 @@ class ASTDeclaratorPtr(ASTBase):
     def describe_signature(self, signode, mode, env):
         _verify_description_mode(mode)
         signode += nodes.Text("*")
-        # TODO: if has ParamPack and hasDeclId:
-        #    signode += nodes.Text(' ')
+        self.next.describe_signature(signode, mode, env)
 
 
 class ASTDeclaratorRef(ASTBase):
@@ -1231,8 +1230,7 @@ class ASTDeclaratorRef(ASTBase):
     def describe_signature(self, signode, mode, env):
         _verify_description_mode(mode)
         signode += nodes.Text("&")
-        # TODO: if has ParamPack and hasDeclId:
-        #    signode += nodes.Text(' ')
+        self.next.describe_signature(signode, mode, env)
 
 
 class ASTDeclaratorParamPack(ASTBase):
@@ -1289,6 +1287,7 @@ class ASTDeclaratorParamPack(ASTBase):
         signode += nodes.Text("...")
         if self.next.name:
             signode += nodes.Text(' ')
+        self.next.describe_signature(signode, mode, env)
 
 
 class ASTDeclaratorParen(ASTBase):

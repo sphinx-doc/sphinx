@@ -197,7 +197,6 @@ def test_type_definitions():
           "result__i.std::error_categoryCR", "6resultiRNSt14error_categoryE")
     check("function", "int *f()", "f", "1fv")
     # tests derived from issue #1753 (skip to keep sanity)
-    # TODO: the v1 ids are speculative, check with older Sphinx version
     check("function", "f(int (&array)[10])", None, "1fRA10_i")
     check("function", "void f(int (&array)[10])", None, "1fRA10_i")
     check("function", "void f(float *q(double))", None, "1fFPfdE")
