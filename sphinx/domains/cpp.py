@@ -34,8 +34,9 @@
         -> decl-specifier-seq declerator initializer
 
         decl-specifier ->
-              storage-class-specifier -> "static" (only for member_object and
-              function_object)
+              storage-class-specifier ->
+                    "static" (only for member_object and function_object)
+                  | "register"
             | type-specifier -> trailing-type-specifier
             | function-specifier -> "inline" | "virtual" | "explicit" (only
               for function_object)
@@ -93,7 +94,7 @@
         declerator ->
               ptr-declerator
             | noptr-declarator parameters-and-qualifiers trailing-return-type
-              (TODO: for now we don't support it)
+              (TODO: for now we don't support trailing-eturn-type)
         ptr-declerator ->
               noptr-declerator
             | ptr-operator ptr-declarator
@@ -104,7 +105,13 @@
             | noptr-declerator parameters-and-qualifiers
             | noptr-declarator "[" constant-expression[opt] "]"
               attribute-specifier-seq[opt]
-            | "(" ptr-declarator ")"  # TODO: not implemented yet
+            | "(" ptr-declarator ")"
+        ptr-operator ->
+              "*"  attribute-specifier-seq[opt] cv-qualifier-seq[opt]
+            | "&   attribute-specifier-seq[opt]
+            | "&&" attribute-specifier-seq[opt]
+            | "::"[opt] nested-name-specifier "*" attribute-specifier-seq[opt]
+                cv-qualifier-seq[opt] # TOOD: not implemented
         # function_object must use a parameters-and-qualifiers, the others may
         # use it (e.g., function poitners)
         parameters-and-qualifiers ->
@@ -206,8 +213,6 @@ _whitespace_re = re.compile(r'\s+(?u)')
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
                         r'|"([^"\\]*(?:\\.[^"\\]*)*)")', re.S)
 _visibility_re = re.compile(r'\b(public|private|protected)\b')
-_array_def_re = re.compile(r'\[\s*([^\]]+?)?\s*\]')
-_template_arg_re = re.compile(r'(%s)|([^,>]+)' % _string_re.pattern, re.S)
 _operator_re = re.compile(r'''(?x)
         \[\s*\]
     |   \(\s*\)
@@ -216,6 +221,22 @@ _operator_re = re.compile(r'''(?x)
     |   (<<|>>)=? | && | \|\|
     |   [!<>=/*%+|&^~-]=?
 ''')
+# see http://en.cppreference.com/w/cpp/keyword
+_keywords = [
+    'alignas', 'alignof', 'and', 'and_eq', 'asm', 'auto', 'bitand', 'bitor',
+    'bool', 'break', 'case', 'catch', 'char', 'char16_t', 'char32_t', 'class',
+    'compl', 'concept', 'const', 'constexpr', 'const_cast', 'continue',
+    'decltype', 'default', 'delete', 'do', 'double', 'dynamic_cast', 'else',
+    'enum', 'explicit', 'export', 'extern', 'false', 'float', 'for', 'friend',
+    'goto', 'if', 'inline', 'int', 'long', 'mutable', 'namespace', 'new',
+    'noexcept', 'not', 'not_eq', 'nullptr', 'operator', 'or', 'or_eq',
+    'private', 'protected', 'public', 'register', 'reinterpret_cast',
+    'requires', 'return', 'short', 'signed', 'sizeof', 'static',
+    'static_assert', 'static_cast', 'struct', 'switch', 'template', 'this',
+    'thread_local', 'throw', 'true', 'try', 'typedef', 'typeid', 'typename',
+    'union', 'unsigned', 'using', 'virtual', 'void', 'volatile', 'wchar_t',
+    'while', 'xor', 'xor_eq'
+]
 
 #-------------------------------------------------------------------------------
 # Id v1 constants
@@ -385,6 +406,15 @@ _id_operator_v2 = {
     '()': 'cl',
     '[]': 'ix'
 }
+
+
+class NoOldIdError(UnicodeMixin, Exception):
+    # Used to avoid implementing unneeded id generation for old id schmes.
+    def __init__(self, description=""):
+        self.description = description
+
+    def __unicode__(self):
+        return self.description
 
 
 class DefinitionError(UnicodeMixin, Exception):
@@ -1054,58 +1084,6 @@ class ASTDeclSpecs(ASTBase):
                 signode += m
 
 
-class ASTPtrOpPtr(ASTBase):
-    def __init__(self, volatile, const):
-        self.volatile = volatile
-        self.const = const
-
-    def __unicode__(self):
-        res = ['*']
-        if self.volatile:
-            res.append('volatile ')
-        if self.const:
-            res.append('const ')
-        return u''.join(res)
-
-    def get_id_v1(self):
-        res = ['P']
-        if self.volatile:
-            res.append('V')
-        if self.const:
-            res.append('C')
-        return u''.join(res)
-
-    def get_id_v2(self):
-        res = ['P']
-        if self.volatile:
-            res.append('V')
-        if self.const:
-            res.append('C')
-        return u''.join(res)
-
-
-class ASTPtrOpRef(ASTBase):
-    def __unicode__(self):
-        return '&'
-
-    def get_id_v1(self):
-        return 'R'
-
-    def get_id_v2(self):
-        return 'R'
-
-
-class ASTPtrOpParamPack(ASTBase):
-    def __unicode__(self):
-        return '...'
-
-    def get_id_v1(self):
-        return 'Dp'
-
-    def get_id_v2(self):
-        return 'Dp'
-
-
 class ASTArray(ASTBase):
     def __init__(self, size):
         self.size = size
@@ -1125,11 +1103,263 @@ class ASTArray(ASTBase):
         signode += nodes.Text(text_type(self))
 
 
-class ASTDeclerator(ASTBase):
-    def __init__(self, ptrOps, declId, suffixOps):
-        self.ptrOps = ptrOps
+class ASTDeclaratorPtr(ASTBase):
+    def __init__(self, next, volatile, const):
+        assert next
+        self.next = next
+        self.volatile = volatile
+        self.const = const
+
+    @property
+    def name(self):
+        return self.next.name
+
+    def require_space_after_declSpecs(self):
+        # TODO: if has paramPack, then False ?
+        return True
+
+    def __unicode__(self):
+        res = ['*']
+        if self.volatile:
+            res.append('volatile ')
+        if self.const:
+            res.append('const ')
+        res.append(text_type(self.next))
+        return u''.join(res)
+
+    # Id v1 ------------------------------------------------------------------
+
+    def get_modifiers_id_v1(self):
+        return self.next.get_modifiers_id_v1()
+
+    def get_param_id_v1(self):
+        return self.next.get_param_id_v1()
+
+    def get_ptr_suffix_id_v1(self):
+        res = 'P'
+        if self.volatile:
+            res += 'V'
+        if self.const:
+            res += 'C'
+        return res + self.next.get_ptr_suffix_id_v1()
+
+    # Id v2 ------------------------------------------------------------------
+
+    def get_modifiers_id_v2(self):
+        return self.next.get_modifiers_id_v2()
+
+    def get_param_id_v2(self):
+        return self.next.get_param_id_v2()
+
+    def get_ptr_suffix_id_v2(self):
+        res = [self.next.get_ptr_suffix_id_v2()]
+        res.append('P')
+        if self.volatile:
+            res.append('V')
+        if self.const:
+            res.append('C')
+        return  u''.join(res)
+
+    def get_type_id_v2(self, returnTypeId):
+        # ReturnType *next, so we are part of the return type of 'next
+        res = ['P']
+        if self.volatile:
+            res.append('V')
+        if self.const:
+            res.append('C')
+        res.append(returnTypeId)
+        return self.next.get_type_id_v2(returnTypeId=u''.join(res))
+
+    # ------------------------------------------------------------------------
+
+    def is_function_type(self):
+        return self.next.is_function_type()
+
+    def describe_signature(self, signode, mode, env):
+        _verify_description_mode(mode)
+        signode += nodes.Text("*")
+        self.next.describe_signature(signode, mode, env)
+
+
+class ASTDeclaratorRef(ASTBase):
+    def __init__(self, next):
+        assert next
+        self.next = next
+
+    @property
+    def name(self):
+        return self.next.name
+
+    def require_space_after_declSpecs(self):
+        return self.next.require_space_after_declSpecs()
+
+    def __unicode__(self):
+        return '&' + text_type(self.next)
+
+    # Id v1 ------------------------------------------------------------------
+
+    def get_modifiers_id_v1(self):
+        return self.next.get_modifiers_id_v1()
+
+    def get_param_id_v1(self): # only the parameters (if any)
+        return self.next.get_param_id_v1()
+
+    def get_ptr_suffix_id_v1(self):
+        return u'R' + self.next.get_ptr_suffix_id_v1()
+
+    # Id v2 ------------------------------------------------------------------
+
+    def get_modifiers_id_v2(self):
+        return self.next.get_modifiers_id_v2()
+
+    def get_param_id_v2(self): # only the parameters (if any)
+        return self.next.get_param_id_v2()
+
+    def get_ptr_suffix_id_v2(self):
+        return self.next.get_ptr_suffix_id_v2() + u'R'
+
+    def get_type_id_v2(self, returnTypeId):
+        # ReturnType &next, so we are part of the return type of 'next
+        return self.next.get_type_id_v2(returnTypeId=u'R' + returnTypeId)
+
+    # ------------------------------------------------------------------------
+
+    def is_function_type(self):
+        return self.next.is_function_type()
+
+    def describe_signature(self, signode, mode, env):
+        _verify_description_mode(mode)
+        signode += nodes.Text("&")
+        self.next.describe_signature(signode, mode, env)
+
+
+class ASTDeclaratorParamPack(ASTBase):
+    def __init__(self, next):
+        assert next
+        self.next = next
+
+    @property
+    def name(self):
+        return self.next.name
+
+    def require_space_after_declSpecs(self):
+        return False
+
+    def __unicode__(self):
+        res = text_type(self.next)
+        if self.next.name:
+            res = ' ' + res
+        return '...' + res
+
+    # Id v1 ------------------------------------------------------------------
+
+    def get_modifiers_id_v1(self):
+        return self.next.get_modifiers_id_v1()
+
+    def get_param_id_v1(self): # only the parameters (if any)
+        return self.next.get_param_id_v1()
+
+    def get_ptr_suffix_id_v1(self):
+        return 'Dp' + self.next.get_ptr_suffix_id_v2()
+
+    # Id v2 ------------------------------------------------------------------
+
+    def get_modifiers_id_v2(self):
+        return self.next.get_modifiers_id_v2()
+
+    def get_param_id_v2(self): # only the parameters (if any)
+        return self.next.get_param_id_v2()
+
+    def get_ptr_suffix_id_v2(self):
+        return self.next.get_ptr_suffix_id_v2() + u'Dp'
+
+    def get_type_id_v2(self, returnTypeId):
+        # ReturnType... next, so we are part of the return type of 'next
+        return self.next.get_type_id_v2(returnTypeId=u'Dp' + returnTypeId)
+
+    # ------------------------------------------------------------------------
+
+    def is_function_type(self):
+        return self.next.is_function_type()
+
+    def describe_signature(self, signode, mode, env):
+        _verify_description_mode(mode)
+        signode += nodes.Text("...")
+        if self.next.name:
+            signode += nodes.Text(' ')
+        self.next.describe_signature(signode, mode, env)
+
+
+class ASTDeclaratorParen(ASTBase):
+    def __init__(self, inner, next):
+        assert inner
+        assert next
+        self.inner = inner
+        self.next = next
+        # TODO: we assume the name, params, and qualifiers are in inner
+
+    @property
+    def name(self):
+        return self.inner.name
+
+    def require_space_after_declSpecs(self):
+        return True
+
+    def __unicode__(self):
+        res = ['(']
+        res.append(text_type(self.inner))
+        res.append(')')
+        res.append(text_type(self.next))
+        return ''.join(res)
+
+    # Id v1 ------------------------------------------------------------------
+
+    def get_modifiers_id_v1(self):
+        return self.inner.get_modifiers_id_v1()
+
+    def get_param_id_v1(self): # only the parameters (if any)
+        return self.inner.get_param_id_v1()
+
+    def get_ptr_suffix_id_v1(self):
+        raise NoOldIdError() # TODO: was this implemented before?
+        return self.next.get_ptr_suffix_id_v2() \
+             + self.inner.get_ptr_suffix_id_v2()
+
+    # Id v2 ------------------------------------------------------------------
+
+    def get_modifiers_id_v2(self):
+        return self.inner.get_modifiers_id_v2()
+
+    def get_param_id_v2(self): # only the parameters (if any)
+        return self.inner.get_param_id_v2()
+
+    def get_ptr_suffix_id_v2(self):
+        return self.inner.get_ptr_suffix_id_v2() \
+             + self.next.get_ptr_suffix_id_v2()
+
+    def get_type_id_v2(self, returnTypeId):
+        # ReturnType (inner)next, so 'inner' returns everything outside
+        nextId = self.next.get_type_id_v2(returnTypeId)
+        return self.inner.get_type_id_v2(returnTypeId=nextId)
+
+    # ------------------------------------------------------------------------
+
+    def is_function_type(self):
+        return self.inner.is_function_type()
+
+    def describe_signature(self, signode, mode, env):
+        _verify_description_mode(mode)
+        signode += nodes.Text('(')
+        self.inner.describe_signature(signode, mode, env)
+        signode += nodes.Text(')')
+        self.next.describe_signature(signode, "noneIsName", env)
+
+
+class ASTDecleratorNameParamQual(ASTBase):
+    def __init__(self, declId, arrayOps, paramQual):
         self.declId = declId
-        self.suffixOps = suffixOps
+        self.arrayOps = arrayOps
+        self.paramQual = paramQual
 
     @property
     def name(self):
@@ -1139,75 +1369,78 @@ class ASTDeclerator(ASTBase):
 
     def get_modifiers_id_v1(self):  # only the modifiers for a function, e.g.,
         # cv-qualifiers
-        for op in self.suffixOps:
-            if isinstance(op, ASTParametersQualifiers):
-                return op.get_modifiers_id_v1()
+        if self.paramQual:
+            return self.paramQual.get_modifiers_id_v1()
         raise Exception(
             "This should only be called on a function: %s" % text_type(self))
 
     def get_param_id_v1(self):  # only the parameters (if any)
-        for op in self.suffixOps:
-            if isinstance(op, ASTParametersQualifiers):
-                return op.get_param_id_v1()
-        return ''
+        if self.paramQual:
+            return self.paramQual.get_param_id_v1()
+        else:
+            return ''
 
-    def get_ptr_suffix_id_v1(self):  # only the ptr ops and array specifiers
-        return u''.join(
-            a.get_id_v1()
-            for a in self.ptrOps + self.suffixOps
-            if not isinstance(a, ASTParametersQualifiers))
+    def get_ptr_suffix_id_v1(self):  # only the array specifiers
+        return u''.join(a.get_id_v1() for a in self.arrayOps)
 
     # Id v2 ------------------------------------------------------------------
 
     def get_modifiers_id_v2(self):  # only the modifiers for a function, e.g.,
         # cv-qualifiers
-        for op in self.suffixOps:
-            if isinstance(op, ASTParametersQualifiers):
-                return op.get_modifiers_id_v2()
+        if self.paramQual:
+            return self.paramQual.get_modifiers_id_v2()
         raise Exception(
             "This should only be called on a function: %s" % text_type(self))
 
     def get_param_id_v2(self):  # only the parameters (if any)
-        for op in self.suffixOps:
-            if isinstance(op, ASTParametersQualifiers):
-                return op.get_param_id_v2()
-        return ''
-
-    def get_ptr_suffix_id_v2(self):  # only the ptr ops and array specifiers
-        return u''.join(
-            a.get_id_v2()
-            for a in self.ptrOps + self.suffixOps
-            if not isinstance(a, ASTParametersQualifiers))
-
-    def require_start_space(self):
-        if (len(self.ptrOps) > 0 and
-                isinstance(self.ptrOps[-1], ASTPtrOpParamPack)):
-            return False
+        if self.paramQual:
+            return self.paramQual.get_param_id_v2()
         else:
-            return self.declId is not None
+            return ''
+
+    def get_ptr_suffix_id_v2(self):  # only the array specifiers
+        return u''.join(a.get_id_v2() for a in self.arrayOps)
+
+    def get_type_id_v2(self, returnTypeId):
+        res = []
+        # TOOD: can we actually have both array ops and paramQual?
+        res.append(self.get_ptr_suffix_id_v2())
+        if self.paramQual:
+            res.append(self.get_modifiers_id_v2())
+            res.append('F')
+            res.append(returnTypeId)
+            res.append(self.get_param_id_v2())
+            res.append('E')
+        else:
+            res.append(returnTypeId)
+        return u''.join(res)
+
+    # ------------------------------------------------------------------------
+
+    def require_space_after_declSpecs(self):
+        return self.declId is not None
+
+    def is_function_type(self):
+        return self.paramQual != None
 
     def __unicode__(self):
         res = []
-        for op in self.ptrOps:
-            res.append(text_type(op))
-            if isinstance(op, ASTPtrOpParamPack) and self.declId:
-                res.append(' ')
         if self.declId:
             res.append(text_type(self.declId))
-        for op in self.suffixOps:
+        for op in self.arrayOps:
             res.append(text_type(op))
+        if self.paramQual:
+            res.append(text_type(self.paramQual))
         return u''.join(res)
 
     def describe_signature(self, signode, mode, env):
         _verify_description_mode(mode)
-        for op in self.ptrOps:
-            signode += nodes.Text(text_type(op))
-            if isinstance(op, ASTPtrOpParamPack) and self.declId:
-                signode += nodes.Text(' ')
         if self.declId:
             self.declId.describe_signature(signode, mode, env)
-        for op in self.suffixOps:
+        for op in self.arrayOps:
             op.describe_signature(signode, mode, env)
+        if self.paramQual:
+            self.paramQual.describe_signature(signode, mode, env)
 
 
 class ASTInitializer(ASTBase):
@@ -1252,6 +1485,8 @@ class ASTType(ASTBase):
                 print(self.objectType)
                 assert False
         else:  # only type encoding
+            if self.decl.is_function_type():
+                raise NoOldIdError()
             res.append(self.declSpecs.get_id_v1())
             res.append(self.decl.get_ptr_suffix_id_v1())
             res.append(self.decl.get_param_id_v1())
@@ -1271,16 +1506,18 @@ class ASTType(ASTBase):
                 print(self.objectType)
                 assert False
         else:  # only type encoding
-            res.append(self.decl.get_ptr_suffix_id_v2())
-            res.append(self.declSpecs.get_id_v2())
-            res.append(self.decl.get_param_id_v2())
+            # the 'returnType' of a non-function type is simply just the last
+            # type, i.e., for 'int*' it is 'int'
+            returnTypeId = self.declSpecs.get_id_v2()
+            typeId = self.decl.get_type_id_v2(returnTypeId)
+            res.append(typeId)
         return u''.join(res)
 
     def __unicode__(self):
         res = []
         declSpecs = text_type(self.declSpecs)
         res.append(declSpecs)
-        if self.decl.require_start_space() and len(declSpecs) > 0:
+        if self.decl.require_space_after_declSpecs() and len(declSpecs) > 0:
             res.append(u' ')
         res.append(text_type(self.decl))
         return u''.join(res)
@@ -1288,7 +1525,7 @@ class ASTType(ASTBase):
     def describe_signature(self, signode, mode, env):
         _verify_description_mode(mode)
         self.declSpecs.describe_signature(signode, 'markType', env)
-        if (self.decl.require_start_space() and
+        if (self.decl.require_space_after_declSpecs() and
                 len(text_type(self.declSpecs)) > 0):
             signode += nodes.Text(' ')
         self.decl.describe_signature(signode, mode, env)
@@ -1398,6 +1635,7 @@ class ASTClass(ASTBase):
                 signode += nodes.Text(', ')
             signode.pop()
 
+
 class ASTEnum(ASTBase):
     def __init__(self, name, visibility, scoped, underlyingType):
         self.name = name
@@ -1406,7 +1644,7 @@ class ASTEnum(ASTBase):
         self.underlyingType = underlyingType
 
     def get_id_v1(self):
-        return None # did not exist at that time
+        raise NoOldIdError()
 
     def get_id_v2(self):
         return _id_prefix_v2 + self.prefixedName.get_id_v2()
@@ -1437,13 +1675,14 @@ class ASTEnum(ASTBase):
             signode += nodes.Text(' : ')
             self.underlyingType.describe_signature(signode, 'noneIsName', env)
 
+
 class ASTEnumerator(ASTBase):
     def __init__(self, name, init):
         self.name = name
         self.init = init
 
     def get_id_v1(self):
-        return None # did not exist at that time
+        raise NoOldIdError()
 
     def get_id_v2(self):
         return _id_prefix_v2 + self.prefixedName.get_id_v2()
@@ -1543,6 +1782,32 @@ class DefinitionParser(object):
             self.fail('expected end of definition, got %r' %
                       self.definition[self.pos:])
 
+    def _parse_expression(self, end):
+        # Stupidly "parse" an expression.
+        # 'end' should be a list of characters which ends the expression.
+        assert end
+        self.skip_ws()
+        startPos = self.pos
+        if self.match(_string_re):
+            value = self.matched_text
+        else:
+            # TODO: add handling of more bracket-like things, and quote handling
+            brackets = {'(': ')', '[': ']'}
+            symbols = []
+            while not self.eof:
+                if (len(symbols) == 0 and self.current_char in end):
+                    break
+                if self.current_char in brackets.keys():
+                    symbols.append(brackets[self.current_char])
+                elif len(symbols) > 0 and self.current_char == symbols[-1]:
+                    symbols.pop()
+                self.pos += 1
+            if self.eof:
+                self.fail("Could not find end of expression starting at %d."
+                          % startPos)
+            value = self.definition[startPos:self.pos].strip()
+        return value.strip()
+
     def _parse_operator(self):
         self.skip_ws()
         # adapted from the old code
@@ -1564,7 +1829,7 @@ class DefinitionParser(object):
 
         # oh well, looks like a cast operator definition.
         # In that case, eat another type.
-        type = self._parse_type()
+        type = self._parse_type(named=False, outer="operatorCast")
         return ASTOperatorType(type)
 
     def _parse_nested_name(self):
@@ -1575,14 +1840,19 @@ class DefinitionParser(object):
             names.append(ASTNestedNameElementEmpty())
         while 1:
             self.skip_ws()
-            # TODO: parse the "template" keyword
-            if not self.match(_identifier_re):
-                self.fail("expected identifier")
-            identifier = self.matched_text
-            if identifier == 'operator':
+            if self.skip_word_and_ws('template'):
+                self.fail("'template' in nested name not implemented.")
+            elif self.skip_word_and_ws('operator'):
                 op = self._parse_operator()
                 names.append(op)
             else:
+                if not self.match(_identifier_re):
+                    self.fail("Expected identifier in nested name.")
+                identifier = self.matched_text
+                # make sure there isn't a keyword
+                if identifier in _keywords:
+                    self.fail("Expected identifier in nested name, "
+                              "got keyword: %s" % identifier)
                 templateArgs = None
                 self.skip_ws()
                 if self.skip_string('<'):
@@ -1590,31 +1860,14 @@ class DefinitionParser(object):
                     while 1:
                         pos = self.pos
                         try:
-                            type = self._parse_type(allowParams=True)
+                            type = self._parse_type(named=False)
                             templateArgs.append(type)
-                        except DefinitionError:
+                        except DefinitionError as exType:
                             self.pos = pos
-                            symbols = []
-                            startPos = self.pos
-                            self.skip_ws()
-                            if self.match(_string_re):
-                                value = self.matched_text
-                            else:
-                                while not self.eof:
-                                    if (len(symbols) == 0 and
-                                            self.current_char in (
-                                            ',', '>')):
-                                        break
-                                    # TODO: actually implement nice handling
-                                    # of quotes, braces, brackets, parens, and
-                                    # whatever
-                                    self.pos += 1
-                                if self.eof:
-                                    self.pos = startPos
-                                    self.fail(
-                                        'Could not find end of constant '
-                                        'template argument.')
-                                value = self.definition[startPos:self.pos].strip()
+                            try:
+                                value = self._parse_expression(end=[',', '>'])
+                            except DefinitionError as exConstant:
+                                assert False # TODO: make nice error
                             templateArgs.append(ASTTemplateArgConstant(value))
                         self.skip_ws()
                         if self.skip_string('>'):
@@ -1695,9 +1948,9 @@ class DefinitionParser(object):
                                   'parameters_and_qualifiers.')
                     break
                 if paramMode == 'function':
-                    arg = self._parse_type_with_init(named='maybe')
+                    arg = self._parse_type_with_init(outer=None, named='maybe')
                 else:
-                    arg = self._parse_type()
+                    arg = self._parse_type(named=False)
                 # TODO: parse default parameters
                 args.append(ASTFunctinoParameter(arg))
 
@@ -1782,11 +2035,9 @@ class DefinitionParser(object):
                     if self.skip_word('mutable'):
                         storage = 'mutable'
                         continue
-                if outer == 'fuction':
-                    # TODO: maybe in more contexts, missing test cases
-                    if self.skip_word('register'):
-                        storage = 'register'
-                        continue
+                if self.skip_word('register'):
+                    storage = 'register'
+                    continue
 
             if outer == 'function':
                 # function-specifiers
@@ -1820,12 +2071,16 @@ class DefinitionParser(object):
             volatile, const)
 
     def _parse_decl_specs(self, outer, typed=True):
+        if outer:
+            if outer not in ('type', 'member', 'function'):
+                raise Exception('Internal error, unknown outer "%s".' % outer)
         """
         visibility storage-class-specifier function-specifier "constexpr"
         "volatile" "const" trailing-type-specifier
 
-        storage-class-specifier -> "static" (only for member_object and
-        function_object)
+        storage-class-specifier ->
+              "static" (only for member_object and function_object)
+            | "register"
 
         function-specifier -> "inline" | "virtual" | "explicit" (only for
         function_object)
@@ -1848,29 +2103,8 @@ class DefinitionParser(object):
             trailing = None
         return ASTDeclSpecs(outer, visibility, leftSpecs, rightSpecs, trailing)
 
-    def _parse_declerator(self, named, paramMode=None, typed=True):
-        if paramMode:
-            if paramMode not in ('type', 'function'):
-                raise Exception(
-                    "Internal error, unknown paramMode '%s'." % paramMode)
-        ptrOps = []
-        while 1:
-            if not typed:
-                break
-            self.skip_ws()
-            if self.skip_string('*'):
-                self.skip_ws()
-                volatile = self.skip_word_and_ws('volatile')
-                const = self.skip_word_and_ws('const')
-                ptrOps.append(ASTPtrOpPtr(volatile=volatile, const=const))
-            elif self.skip_string('&'):
-                ptrOps.append(ASTPtrOpRef())
-            elif self.skip_string('...'):
-                ptrOps.append(ASTPtrOpParamPack())
-                break
-            else:
-                break
-
+    def _parse_declarator_name_param_qual(self, named, paramMode, typed):
+        # now we should parse the name, and then suffixes
         if named == 'maybe':
             try:
                 declId = self._parse_nested_name()
@@ -1880,37 +2114,92 @@ class DefinitionParser(object):
             declId = self._parse_nested_name()
         else:
             declId = None
+        self.skip_ws()
+        if typed and declId:
+            if self.skip_string("*"):
+                self.fail("Member pointers not implemented.")
 
-        suffixOpts = []
+        arrayOps = []
         while 1:
             self.skip_ws()
             if typed and self.skip_string('['):
-                startPos = self.pos - 1
-                openCount = 1
-                while not self.eof:
-                    c = self.current_char
-                    if c == '[':
-                        openCount += 1
-                    elif c == ']':
-                        openCount -= 1
-                    if openCount == 0:
-                        break
-                    self.pos += 1
-                if self.eof:
-                    self.pos = startPos
-                    self.fail(
-                        "Could not find closing square bracket for array.")
-                self.pos += 1
-                suffixOpts.append(ASTArray(
-                    self.definition[startPos + 1:self.pos - 1].strip()))
+                value = self._parse_expression(end=[']'])
+                res = self.skip_string(']')
+                assert res
+                arrayOps.append(ASTArray(value))
                 continue
-            if paramMode:
-                paramQual = self._parse_parameters_and_qualifiers(paramMode)
-                if paramQual:
-                    suffixOpts.append(paramQual)
-            break
+            else:
+                break
+        paramQual = self._parse_parameters_and_qualifiers(paramMode)
+        return ASTDecleratorNameParamQual(declId=declId, arrayOps=arrayOps,
+                                          paramQual=paramQual)
 
-        return ASTDeclerator(ptrOps, declId, suffixOpts)
+    def _parse_declerator(self, named, paramMode, typed=True):
+        # 'typed' here means 'parse return type stuff'
+        if paramMode not in ('type', 'function', 'operatorCast'):
+            raise Exception(
+                "Internal error, unknown paramMode '%s'." % paramMode)
+        self.skip_ws()
+        if typed and self.skip_string('*'):
+            self.skip_ws()
+            volatile = False
+            const = False
+            while 1:
+                if not volatile:
+                    volatile = self.skip_word_and_ws('volatile')
+                    if volatile:
+                        continue
+                if not const:
+                    const = self.skip_word_and_ws('const')
+                    if const:
+                        continue
+                break
+            next = self._parse_declerator(named, paramMode, typed)
+            return ASTDeclaratorPtr(next=next, volatile=volatile, const=const)
+        # TODO: shouldn't we parse an R-value ref here first?
+        elif typed and self.skip_string("&"):
+            next = self._parse_declerator(named, paramMode, typed)
+            return ASTDeclaratorRef(next=next)
+        elif typed and self.skip_string("..."):
+            next = self._parse_declerator(named, paramMode, False)
+            return ASTDeclaratorParamPack(next=next)
+        elif typed and self.current_char == '(': # note: peeking, not skipping
+            if paramMode == "operatorCast":
+                # TODO: we should be able to parse cast operators which return
+                # function pointers. For now, just hax it and ignore.
+                return ASTDecleratorNameParamQual(declId=None, arrayOps=[],
+                                                  paramQual=None)
+            # maybe this is the beginning of params and quals,try that first,
+            # otherwise assume it's noptr->declarator > ( ptr-declarator )
+            startPos = self.pos
+            try:
+                # assume this is params and quals
+                res = self._parse_declarator_name_param_qual(named, paramMode,
+                                                             typed)
+                return res
+            except DefinitionError as exParamQual:
+                self.pos = startPos
+                try:
+                    assert self.current_char == '('
+                    self.skip_string('(')
+                    # TODO: hmm, if there is a name, it must be in inner, right?
+                    # TODO: hmm, if there must be parameters, they must b
+                    # inside, right?
+                    inner = self._parse_declerator(named, paramMode, typed)
+                    if not self.skip_string(')'):
+                        self.fail("Expected ')' in \"( ptr-declarator )\"")
+                    next = self._parse_declerator(named=False,
+                                                  paramMode="type",
+                                                  typed=typed)
+                    return ASTDeclaratorParen(inner=inner, next=next)
+                except DefinitionError as exNoPtrParen:
+                    raise DefinitionError(
+                        "If declId, parameters, and qualifiers {\n%s\n"
+                        "} else If parenthesis in noptr-declarator {\n%s\n}"
+                        % (exParamQual, exNoPtrParen))
+        else:
+            return self._parse_declarator_name_param_qual(named, paramMode,
+                                                          typed)
 
     def _parse_initializer(self, outer=None):
         self.skip_ws()
@@ -1922,43 +2211,24 @@ class DefinitionParser(object):
                 value = self.read_rest().strip()
                 return ASTInitializer(value)
             elif outer is None:  # function parameter
-                symbols = []
-                startPos = self.pos
-                self.skip_ws()
-                if self.match(_string_re):
-                    value = self.matched_text
-                    return ASTInitializer(value)
-                while not self.eof:
-                    if len(symbols) == 0 and self.current_char in (',', ')'):
-                        break
-                    elif len(symbols) > 0 and self.current_char == symbols[-1]:
-                        symbols.pop()
-                    elif self.current_char == '(':
-                        symbols.append(')')
-                    # TODO: actually implement nice handling of quotes, braces,
-                    # brackets, parens, and whatever
-                    self.pos += 1
-                if self.eof:
-                    self.pos = startPos
-                    self.fail(
-                        'Could not find end of default value for function '
-                        'parameter.')
-                value = self.definition[startPos:self.pos].strip()
+                value = self._parse_expression(end=[',', ')'])
                 return ASTInitializer(value)
             else:
-                self.fail(
-                    "Internal error, initializer for outer '%s' not "
-                    "implemented." % outer)
+                self.fail("Internal error, initializer for outer '%s' not "
+                          "implemented." % outer)
 
-    def _parse_type(self, outer=None, named=False, allowParams=False):
+    def _parse_type(self, named, outer=None):
         """
         named=False|'maybe'|True: 'maybe' is e.g., for function objects which
         doesn't need to name the arguments
+
+        outer == operatorCast: annoying case, we should not take the params
         """
         if outer:  # always named
-            if outer not in ('type', 'member', 'function'):
+            if outer not in ('type', 'member', 'function', 'operatorCast'):
                 raise Exception('Internal error, unknown outer "%s".' % outer)
-            assert not named
+            if outer != 'operatorCast':
+                assert named
 
         if outer in ('type', 'function'):
             # We allow type objects to just be a name.
@@ -1977,33 +2247,44 @@ class DefinitionParser(object):
                     declSpecs = self._parse_decl_specs(outer=outer)
                     decl = self._parse_declerator(named=True, paramMode=outer)
                 except DefinitionError as exTyped:
-                    if outer == 'type':
+                    # Retain the else branch for easier debugging.
+                    # TODO: it would be nice to save the previous stacktrace
+                    #       and output it here.
+                    if True:
+                        if outer == 'type':
+                            desc = ('Type must be either just a name or a '
+                            'typedef-like declaration.\n'
+                            'Just a name error: %s\n'
+                            'Typedef-like expression error: %s')
+                        elif outer == 'function':
+                            desc = ('Error when parsing function declaration:\n'
+                            'If no return type {\n%s\n'
+                            '} else if return type {\n%s\n}')
+                        else:
+                            assert False
                         raise DefinitionError(
-                            'Type must be either just a name or a '
-                            'typedef-like declaration.\nJust a name error: '
-                            '%s\nTypedef-like expression error: %s'
-                            % (exUntyped.description, exTyped.description))
+                            desc % (exUntyped.description, exTyped.description))
                     else:
+                        # For testing purposes.
                         # do it again to get the proper traceback (how do you
                         # relieable save a traceback when an exception is
                         # constructed?)
                         self.pos = startPos
-                        declSpecs = self._parse_decl_specs(outer=outer)
-                        decl = self._parse_declerator(named=True,
-                                                      paramMode=outer)
+                        declSpecs = self._parse_decl_specs(outer=outer, typed=False)
+                        decl = self._parse_declerator(named=True, paramMode=outer,
+                                                      typed=False)
         else:
-            if outer:
+            paramMode = 'type'
+            if outer == 'member': # i.e., member
                 named = True
-                allowParams = True
-            if allowParams:
-                paramMode = 'type'
-            else:
-                paramMode = None
+            elif outer == 'operatorCast':
+                paramMode = 'operatorCast'
+                outer = None
             declSpecs = self._parse_decl_specs(outer=outer)
             decl = self._parse_declerator(named=named, paramMode=paramMode)
         return ASTType(declSpecs, decl)
 
-    def _parse_type_with_init(self, outer=None, named=False):
+    def _parse_type_with_init(self, named, outer):
         if outer:
             assert outer in ('type', 'member', 'function')
         type = self._parse_type(outer=outer, named=named)
@@ -2043,7 +2324,7 @@ class DefinitionParser(object):
         self.skip_ws()
         underlyingType = None
         if self.skip_string(':'):
-            underlyingType = self._parse_type()
+            underlyingType = self._parse_type(named=False)
         return ASTEnum(name, visibility, scoped, underlyingType)
 
     def _parse_enumerator(self):
@@ -2056,17 +2337,17 @@ class DefinitionParser(object):
         return ASTEnumerator(name, init)
 
     def parse_type_object(self):
-        res = self._parse_type(outer='type')
+        res = self._parse_type(named=True, outer='type')
         res.objectType = 'type'
         return res
 
     def parse_member_object(self):
-        res = self._parse_type_with_init(outer='member')
+        res = self._parse_type_with_init(named=True, outer='member')
         res.objectType = 'member'
         return res
 
     def parse_function_object(self):
-        res = self._parse_type(outer='function')
+        res = self._parse_type(named=True, outer='function')
         res.objectType = 'function'
         return res
 
@@ -2111,10 +2392,14 @@ class CPPObject(ObjectDescription):
     ]
 
     def add_target_and_index(self, ast, sig, signode):
-        ids = [ # the newest should be first
-               ast.get_id_v2(),
-               ast.get_id_v1()
-               ]
+        try:
+            id_v1 = ast.get_id_v1()
+        except NoOldIdError:
+            id_v1 = None
+        id_v2 = ast.get_id_v2()
+        # store them in reverse order, so the newest is first
+        ids  = [id_v2, id_v1]
+
         theid = ids[0]
         ast.newestId = theid
         assert theid # shouldn't be None
@@ -2354,6 +2639,7 @@ class CPPXRefRole(XRefRole):
                 if dcolon != -1:
                     title = title[dcolon + 2:]
         return title, target
+
 
 class CPPDomain(Domain):
     """C++ language domain."""
