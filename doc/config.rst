@@ -624,9 +624,10 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_last_updated_fmt
 
-   If this is not the empty string, a 'Last updated on:' timestamp is inserted
-   at every page bottom, using the given :func:`strftime` format.  Default is
-   ``'%b %d, %Y'`` (or a locale-dependent equivalent).
+   If this is not None, a 'Last updated on:' timestamp is inserted
+   at every page bottom, using the given :func:`strftime` format.
+   The empty string is equivalent to '%b %d, %Y' (or a
+   locale-dependent equivalent).
 
 .. confval:: html_use_smartypants
 
