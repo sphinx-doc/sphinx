@@ -55,8 +55,8 @@ Contributing
    to start making your changes to the **master** branch for next major
    version, or **stable** branch for next minor version.
 #. Write a test which shows that the bug was fixed or that the feature works
-   as expected.
+   as expected.  Use ``make test`` to run the test suite.
 #. Send a pull request and bug the maintainer until it gets merged and
-   published. Make sure to add yourself to AUTHORS
+   published.  Make sure to add yourself to AUTHORS
    <https://github.com/sphinx-doc/sphinx/blob/master/AUTHORS> and the change to
    CHANGES <https://github.com/sphinx-doc/sphinx/blob/master/CHANGES>.
