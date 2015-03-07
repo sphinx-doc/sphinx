@@ -251,7 +251,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
-        self.elements['numfig_format'] = self.generate_numfig_format()
+        self.elements['numfig_format'] = self.generate_numfig_format(builder)
 
         self.highlighter = highlighting.PygmentsBridge('latex',
             builder.config.pygments_style, builder.config.trim_doctest_flags)
@@ -326,16 +326,31 @@ class LaTeXTranslator(nodes.NodeVisitor):
             encode('ascii', 'backslashreplace').decode('ascii').\
             replace('\\', '_')
 
-    def generate_numfig_format(self):
+    def generate_numfig_format(self, builder):
         ret = []
+        if builder.config.language == 'ja':
+            babel_prefix = ''
+            babel_suffix = ''
+        else:
+            if builder.config.language:
+                language = ExtBabel(builder.config.language).get_language()
+                if language is None:
+                    language = 'english'
+            else:
+                language = 'english'
+
+            babel_prefix = '\\addto\\captions%s{' % language
+            babel_suffix = '}'
 
         figure = self.builder.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
             ret.append('\\def\\fnum@figure{%s}\n' %
                        text_type(figure[0]).translate(tex_escape_map))
         else:
-            ret.append('\\renewcommand{\\figurename}{%s}\n' %
-                       text_type(figure[0]).translate(tex_escape_map))
+            ret.append('%s\\renewcommand{\\figurename}{%s}%s\n' %
+                       (babel_prefix,
+                        text_type(figure[0]).translate(tex_escape_map),
+                        babel_suffix))
             if figure[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@figure{\\figurename\\thefigure%s}\n' %
@@ -347,8 +362,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             ret.append('\\def\\fnum@table{%s}\n' %
                        text_type(table[0]).translate(tex_escape_map))
         else:
-            ret.append('\\renewcommand{\\tablename}{%s}\n' %
-                       text_type(table[0]).translate(tex_escape_map))
+            ret.append('%s\\renewcommand{\\tablename}{%s}%s\n' %
+                       (babel_prefix,
+                        text_type(table[0]).translate(tex_escape_map),
+                        babel_suffix))
             if table[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@table{\\tablename\\thetable%s}\n' %
