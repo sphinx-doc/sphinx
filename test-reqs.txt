@@ -1,3 +1,4 @@
+flake8
 nose
 mock
 six>=1.4
