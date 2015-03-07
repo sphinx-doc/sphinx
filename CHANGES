@@ -98,6 +98,7 @@ Bugs fixed
   now renamed to ``div.literal-block-wrapper``.
 * ``sphinx.util.pycompat`` has been restored in its backwards-compatibility;
   slated for removal in Sphinx 1.4.
+* #1719: LaTeX writer does not respect ``numref_format`` option in captions
 
 
 Release 1.3b2 (released Dec 5, 2014)
