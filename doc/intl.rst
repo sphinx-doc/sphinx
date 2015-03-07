@@ -192,7 +192,7 @@ easy to fetch and push translations.
    For example:
 
    :Project ID: ``sphinx-document-test_1_0``
-   :Project URL: https://www.transifex.com/projects/p/sphinx-document-test_1_0/
+   :Project URL: ``https://www.transifex.com/projects/p/sphinx-document-test_1_0/``
 
 
 #. Create config files for tx command

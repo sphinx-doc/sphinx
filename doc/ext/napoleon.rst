@@ -56,7 +56,7 @@ source code files.
 .. _NumPy:
    https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 .. _Khan Academy:
-   https://sites.google.com/a/khanacademy.org/forge/for-developers/styleguide/python#TOC-Docstrings
+   https://github.com/Khan/style-guides/blob/master/style/python.md#docstrings
 
 Getting Started
 ---------------

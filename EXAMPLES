@@ -14,16 +14,14 @@ Documentation using the default theme
 
 * APSW: http://apidoc.apsw.googlecode.com/hg/index.html
 * ASE: https://wiki.fysik.dtu.dk/ase/
-* boostmpi: http://documen.tician.de/boostmpi/
 * Calibre: http://manual.calibre-ebook.com/
 * CodePy: http://documen.tician.de/codepy/
 * Cython: http://docs.cython.org/
-* C\\C++ Python language binding project: http://language-binding.net/index.html
 * Cormoran: http://cormoran.nhopkg.org/docs/
 * Director: http://pythonhosted.org/director/
 * Dirigible: http://www.projectdirigible.com/documentation/
 * F2py: http://f2py.sourceforge.net/docs/
-* GeoDjango: http://geodjango.org/docs/
+* GeoDjango: https://docs.djangoproject.com/en/dev/ref/contrib/gis/
 * Genomedata:
   http://noble.gs.washington.edu/proj/genomedata/doc/1.2.2/genomedata.html
 * gevent: http://www.gevent.org/
@@ -51,7 +49,6 @@ Documentation using the default theme
 * Pylo: http://documen.tician.de/pylo/
 * PyMQI: http://pythonhosted.org/pymqi/
 * PyPubSub: http://pubsub.sourceforge.net/
-* pyrticle: http://documen.tician.de/pyrticle/
 * pySPACE: http://pyspace.github.io/pyspace/
 * Python: https://docs.python.org/
 * python-apt: http://apt.alioth.debian.org/python-apt-doc/
@@ -59,7 +56,7 @@ Documentation using the default theme
 * Quex: http://quex.sourceforge.net/doc/html/main.html
 * Scapy: http://www.secdev.org/projects/scapy/doc/
 * Segway: http://noble.gs.washington.edu/proj/segway/doc/1.1.0/segway.html
-* SimPy: http://simpy.sourceforge.net/SimPyDocs/index.html
+* SimPy: http://simpy.readthedocs.org/en/latest/
 * SymPy: http://docs.sympy.org/
 * WTForms: http://wtforms.simplecodes.com/docs/
 * z3c: http://www.ibiblio.org/paulcarduner/z3ctutorial/
@@ -73,7 +70,7 @@ Documentation using a customized version of the default theme
 * Bazaar: http://doc.bazaar.canonical.com/en/
 * CakePHP: http://book.cakephp.org/2.0/en/index.html
 * Chaco: http://docs.enthought.com/chaco/
-* Chef: http://docs.opscode.com/
+* Chef: https://docs.chef.io/index.html
 * Djagios: http://djagios.org/
 * EZ-Draw: http://pageperso.lif.univ-mrs.fr/~edouard.thiel/ez-draw/doc/en/html/ez-manual.html
 * GetFEM++: http://home.gna.org/getfem/
@@ -90,7 +87,6 @@ Documentation using a customized version of the default theme
 * NumPy: http://docs.scipy.org/doc/numpy/reference/
 * OpenCV: http://docs.opencv.org/
 * Peach^3: http://peach3.nl/doc/latest/userdoc/
-* PyLit: http://pylit.berlios.de/
 * Sage: http://sagemath.org/doc/
 * SciPy: http://docs.scipy.org/doc/scipy/reference/
 * simuPOP: http://simupop.sourceforge.net/manual_release/build/userGuide.html
@@ -114,12 +110,11 @@ Documentation using the sphinxdoc theme
 * Pyre: http://docs.danse.us/pyre/sphinx/
 * Pysparse: http://pysparse.sourceforge.net/
 * PyTango:
-  http://www.tango-controls.org/static/PyTango/latest/doc/html/index.html
+  http://www.esrf.eu/computing/cs/tango/tango_doc/kernel_doc/pytango/latest/index.html
 * Python Wild Magic: http://vmlaker.github.io/pythonwildmagic/
 * Reteisi: http://www.reteisi.org/contents.html
 * Sqlkit: http://sqlkit.argolinux.org/
 * Tau: http://www.tango-controls.org/static/tau/latest/doc/html/index.html
-* Total Open Station: http://tops.berlios.de/
 * Turbulenz: http://docs.turbulenz.com/
 * WebFaction: http://docs.webfaction.com/
 
@@ -132,11 +127,12 @@ Documentation using another builtin theme
 * jsFiddle: http://doc.jsfiddle.net/ (nature)
 * libLAS: http://www.liblas.org/ (nature)
 * MPipe: http://vmlaker.github.io/mpipe/ (sphinx13)
-* pip: http://pip.openplans.org/ (nature)
+* pip: https://pip.pypa.io/en/latest/ (sphinx_rtd_theme)
 * Pyramid web framework:
   http://docs.pylonsproject.org/projects/pyramid/en/latest/ (pyramid)
 * Programmieren mit PyGTK und Glade (German):
   http://www.florian-diesch.de/doc/python-und-glade/online/ (agogo)
+* Satchmo: http://docs.satchmoproject.com/en/latest/ (sphinx_rtd_theme)
 * Setuptools: http://pythonhosted.org/setuptools/ (nature)
 * Spring Python: http://docs.spring.io/spring-python/1.2.x/sphinx/html/ (nature)
 * sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html
@@ -152,7 +148,7 @@ Documentation using a custom theme/integrated in a site
 * Blender: http://www.blender.org/documentation/250PythonDoc/
 * Blinker: http://discorporate.us/projects/Blinker/docs/
 * Ceph: http://ceph.com/docs/master/
-* Classy: http://classy.pocoo.org/
+* Classy: http://www.pocoo.org/projects/classy/
 * DEAP: http://deap.gel.ulaval.ca/doc/0.8/index.html
 * Django: http://docs.djangoproject.com/
 * Elemental: http://libelemental.org/documentation/dev/index.html
@@ -184,20 +180,17 @@ Documentation using a custom theme/integrated in a site
 * PSI4: http://sirius.chem.vt.edu/psi4manual/latest/index.html
 * Pylons: http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/
 * PyMOTW: http://pymotw.com/2/
-* pypol: http://pypol.altervista.org/ (celery)
 * python-aspectlib: http://python-aspectlib.readthedocs.org/en/latest/
   (`sphinx-py3doc-enhanced-theme`_)
 * QGIS: http://qgis.org/en/docs/index.html
 * qooxdoo: http://manual.qooxdoo.org/current/
 * Roundup: http://www.roundup-tracker.org/
-* Satchmo: http://docs.satchmoproject.com/en/latest/
 * Selenium: http://docs.seleniumhq.org/docs/
 * Self: http://selflanguage.org/
 * Substance D: http://docs.pylonsproject.org/projects/substanced/en/latest/
 * Tablib: http://tablib.org/
 * SQLAlchemy: http://www.sqlalchemy.org/docs/
 * tinyTiM: http://tinytim.sourceforge.net/docs/2.0/
-* tipfy: http://www.tipfy.org/docs/
 * Ubuntu packaging guide: http://packaging.ubuntu.com/html/
 * Werkzeug: http://werkzeug.pocoo.org/docs/
 * WFront: http://discorporate.us/projects/WFront/
@@ -251,4 +244,4 @@ Thesis using Sphinx
 
 * "A Web-Based System for Comparative Analysis of OpenStreetMap Data
   by the Use of CouchDB":
-  http://gisforge.no-ip.org/files/MasterThesis_MarkusMayr_0542042.pdf
+  https://www.yumpu.com/et/document/view/11722645/masterthesis-markusmayr-0542042
