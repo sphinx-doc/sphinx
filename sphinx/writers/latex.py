@@ -1350,7 +1350,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             id = node.get('refuri', '')[1:].replace('#', ':')
 
         ref = '\\ref{%s}' % self.idescape(id)
-        title = text_type(node.get('title', '%s')).translate(tex_escape_map).replace('\\%s', '%s')
+        title = node.get('title', '%s')
+        title = text_type(title).translate(tex_escape_map).replace('\\%s', '%s')
         hyperref = '\\hyperref[%s]{%s}' % (self.idescape(id), title % ref)
         self.body.append(hyperref)
 
