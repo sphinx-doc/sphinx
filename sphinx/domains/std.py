@@ -638,12 +638,9 @@ class StandardDomain(Domain):
 
             title = contnode.astext()
             if target == fully_normalize_name(title):
-                prefix = env.config.numfig_format.get(figtype, '')
-                title = prefix.replace('%s', '#')
-                newtitle = prefix % '.'.join(map(str, fignumber))
-            else:
-                newtitle = title.replace('#', '.'.join(map(str, fignumber)))
+                title = env.config.numfig_format.get(figtype, '')
 
+            newtitle = title % '.'.join(map(str, fignumber))
             return self.build_reference_node(fromdocname, builder,
                                              docname, labelid, newtitle,
                                              nodeclass=addnodes.number_reference,

@@ -212,9 +212,9 @@ Cross-referencing figures by figure number
    labels are used. When you use this role, it will insert a reference to the
    figure with link text by its figure number like "Fig. 1.1".
 
-   If an explicit link text is given (like usual: ``:doc:`Image of Sphinx (Fig.
-   #) <my-figure>```), the link caption will be the title of the reference.
-   As a special character, `#` will be replaced to figure number.
+   If an explicit link text is given (like usual: ``:numref:`Image of Sphinx (Fig.
+   %s) <my-figure>```), the link caption will be the title of the reference.
+   As a special character, `%s` will be replaced to figure number.
 
    If :confval:`numfig` is ``False``, figures are not numbered.
    so this role inserts not a reference but labels or link text.

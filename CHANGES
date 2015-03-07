@@ -6,6 +6,8 @@ Incompatible changes
 
 * Roles ``ref``, ``term`` and ``menusel`` now don't generate :durole:`emphasis`
   nodes anymore.  If you want to keep italic style, adapt your stylesheet.
+* Role ``numref`` uses ``%s`` as special character to indicate position of
+  figure numbers instead ``#`` symbol.
 
 Features added
 --------------

@@ -43,8 +43,8 @@ test-tocdepth
 
 
 * Fig.1 is :numref:`fig1`
-* Fig.2.2 is :numref:`Figure# <fig22>`
+* Fig.2.2 is :numref:`Figure%s <fig22>`
 * Table.1 is :numref:`table-1`
-* Table.2.2 is :numref:`Table:# <table22>`
+* Table.2.2 is :numref:`Table:%s <table22>`
 * List.1 is :numref:`CODE_1`
-* List.2.2 is :numref:`Code-# <CODE22>`
+* List.2.2 is :numref:`Code-%s <CODE22>`

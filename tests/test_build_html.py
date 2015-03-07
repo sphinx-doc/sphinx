@@ -489,11 +489,11 @@ def test_numfig_disabled(app, status, warning):
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", None, True),
             (".//li/code/span", '^fig1$', True),
-            (".//li/code/span", '^Figure#$', True),
+            (".//li/code/span", '^Figure%s$', True),
             (".//li/code/span", '^table-1$', True),
-            (".//li/code/span", '^Table:#$', True),
+            (".//li/code/span", '^Table:%s$', True),
             (".//li/code/span", '^CODE_1$', True),
-            (".//li/code/span", '^Code-#$', True),
+            (".//li/code/span", '^Code-%s$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
