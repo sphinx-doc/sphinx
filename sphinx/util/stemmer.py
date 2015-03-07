@@ -280,7 +280,7 @@ class PorterStemmer(object):
             elif self.ends("ent"): pass
             else: return
         elif self.b[self.k - 1] == 'o':
-            if self.ends("ion") and (self.b[self.j] == 's' \
+            if self.ends("ion") and (self.b[self.j] == 's'
                 or self.b[self.j] == 't'): pass
             elif self.ends("ou"): pass
             # takes care of -ous

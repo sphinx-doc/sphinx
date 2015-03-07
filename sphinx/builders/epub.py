@@ -634,7 +634,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # write the project file
         f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
         try:
-            f.write(content_tmpl % \
+            f.write(content_tmpl %
                 self.content_metadata(projectfiles, spine, guide))
         finally:
             f.close()
@@ -743,9 +743,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.info('writing %s file...' % outname)
         projectfiles = ['META-INF/container.xml', 'content.opf', 'toc.ncx'] \
             + self.files
-        epub = zipfile.ZipFile(path.join(outdir, outname), 'w', \
+        epub = zipfile.ZipFile(path.join(outdir, outname), 'w',
             zipfile.ZIP_DEFLATED)
-        epub.write(path.join(outdir, 'mimetype'), 'mimetype', \
+        epub.write(path.join(outdir, 'mimetype'), 'mimetype',
             zipfile.ZIP_STORED)
         for file in projectfiles:
             fp = path.join(outdir, file)

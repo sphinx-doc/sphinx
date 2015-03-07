@@ -140,8 +140,8 @@ class GraphvizSimple(Directive):
 
 def render_dot(self, code, options, format, prefix='graphviz'):
     """Render graphviz code into a PNG or PDF output file."""
-    hashkey = (code + str(options) + \
-              str(self.builder.config.graphviz_dot) + \
+    hashkey = (code + str(options) +
+              str(self.builder.config.graphviz_dot) +
               str(self.builder.config.graphviz_dot_args)
               ).encode('utf-8')
 
