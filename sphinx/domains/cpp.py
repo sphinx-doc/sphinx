@@ -653,6 +653,7 @@ class ASTNestedNameElement(ASTBase):
 
 class ASTNestedName(ASTBase):
     def __init__(self, names):
+        assert len(names) > 0
         self.names = names
 
     @property
@@ -2392,6 +2393,7 @@ class CPPObject(ObjectDescription):
     ]
 
     def add_target_and_index(self, ast, sig, signode):
+        # general note: name must be lstrip(':')'ed, to remove "::"
         try:
             id_v1 = ast.get_id_v1()
         except NoOldIdError:
@@ -2403,7 +2405,7 @@ class CPPObject(ObjectDescription):
         theid = ids[0]
         ast.newestId = theid
         assert theid # shouldn't be None
-        name = text_type(ast.prefixedName)
+        name = text_type(ast.prefixedName).lstrip(':')
         if theid not in self.state.document.ids:
             # if the name is not unique, the first one will win
             objects = self.env.domaindata['cpp']['objects']
@@ -2425,7 +2427,7 @@ class CPPObject(ObjectDescription):
                     #                  then add the name to the parent scope
                     assert len(ast.prefixedName.names) > 0
                     parentPrefixedAstName = ASTNestedName(ast.prefixedName.names[:-1])
-                    parentPrefixedName = text_type(parentPrefixedAstName)
+                    parentPrefixedName = text_type(parentPrefixedAstName).lstrip(':')
                     if parentPrefixedName in objects:
                         docname, parentAst = objects[parentPrefixedName]
                         if parentAst.objectType == 'enum' and not parentAst.scoped:
@@ -2433,12 +2435,12 @@ class CPPObject(ObjectDescription):
                             assert len(parentAst.prefixedName.names) > 0
                             enumScope = ASTNestedName(parentAst.prefixedName.names[:-1])
                             unscopedName = enumeratorName.prefix_nested_name(enumScope)
-                            txtUnscopedName = text_type(unscopedName)
+                            txtUnscopedName = text_type(unscopedName).lstrip(':')
                             if not txtUnscopedName in objects:
                                 objects.setdefault(txtUnscopedName,
                                                    (self.env.docname, ast))
                 # add the uninstantiated template if it doesn't exist
-                uninstantiated = ast.prefixedName.get_name_no_last_template()
+                uninstantiated = ast.prefixedName.get_name_no_last_template().lstrip(':')
                 if uninstantiated != name and uninstantiated not in objects:
                     signode['names'].append(uninstantiated)
                     objects.setdefault(uninstantiated, (self.env.docname, ast))
@@ -2694,7 +2696,7 @@ class CPPDomain(Domain):
     def _resolve_xref_inner(self, env, fromdocname, builder,
                             target, node, contnode, warn=True):
         def _create_refnode(nameAst):
-            name = text_type(nameAst)
+            name = text_type(nameAst).lstrip(':')
             if name not in self.data['objects']:
                 # try dropping the last template
                 name = nameAst.get_name_no_last_template()
@@ -2714,18 +2716,25 @@ class CPPDomain(Domain):
             if warn:
                 env.warn_node('unparseable C++ definition: %r' % target, node)
             return None, None
-
-        # try as is the name is fully qualified
-        res = _create_refnode(nameAst)
-        if res[0]:
-            return res
-
-        # try qualifying it with the parent
+        # If a name starts with ::, then it is global scope, so if
+        # parent[0] = A::B
+        # parent[1] = ::C
+        # then we should look up in ::C, and in ::
+        # Therefore, use only the last name as the basis of lookup.
         parent = node.get('cpp:parent', None)
         if parent and len(parent) > 0:
-            return _create_refnode(nameAst.prefix_nested_name(parent[-1]))
+            parentScope = parent[-1].clone()
         else:
-            return None, None
+            #env.warn_node("C++ xref has no 'parent' set: %s" %  target, node)
+            parentScope = ASTNestedName([ASTNestedNameElementEmpty()])
+        while len(parentScope.names) > 0:
+            name = nameAst.prefix_nested_name(parentScope)
+            res = _create_refnode(name)
+            if res[0]:
+                return res
+            parentScope.names.pop()
+        # finally try in global scope (we might have done that already though)
+        return _create_refnode(nameAst)
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
