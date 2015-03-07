@@ -60,6 +60,15 @@ extras_require = {
     ':sys_platform=="win32"': [
         'colorama',
     ],
+    'websupport': [
+        'sqlalchemy>=0.9',
+        'whoosh>=2.0',
+    ],
+    'test': [
+        'nose',
+        'mock',  # it would be better for 'test:python_version in "2.6,2.7"'
+        'simplejson',  # better: 'test:platform_python_implementation=="PyPy"'
+    ],
 }
 
 # for sdist installation with pip-1.5.6
