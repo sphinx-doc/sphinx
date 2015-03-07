@@ -25,7 +25,9 @@ codes = {}
 def get_terminal_width():
     """Borrowed from the py lib."""
     try:
-        import termios, fcntl, struct
+        import termios
+        import fcntl
+        import struct
         call = fcntl.ioctl(0, termios.TIOCGWINSZ,
                            struct.pack('hhhh', 0, 0, 0, 0))
         height, width = struct.unpack('hhhh', call)[:2]

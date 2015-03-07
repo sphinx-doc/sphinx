@@ -332,7 +332,8 @@ class ModuleAnalyzer(object):
 
 
 if __name__ == '__main__':
-    import time, pprint
+    import time
+    import pprint
     x0 = time.time()
     #ma = ModuleAnalyzer.for_file(__file__.rstrip('c'), 'sphinx.builders.html')
     ma = ModuleAnalyzer.for_file('sphinx/environment.py',
