@@ -32,6 +32,7 @@ except ImportError:
 
 from six import PY2, PY3, text_type
 from six.moves import input
+from six.moves.urllib.parse import quote as urlquote
 from docutils.utils import column_width
 
 from sphinx import __version__
@@ -86,6 +87,7 @@ QUICKSTART_CONF += u'''\
 
 import sys
 import os
+import shlex
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -496,6 +498,7 @@ help:
 \t@echo "  json       to make JSON files"
 \t@echo "  htmlhelp   to make HTML files and a HTML help project"
 \t@echo "  qthelp     to make HTML files and a qthelp project"
+\t@echo "  applehelp  to make an Apple Help Book"
 \t@echo "  devhelp    to make HTML files and a Devhelp project"
 \t@echo "  epub       to make an epub"
 \t@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
@@ -556,6 +559,14 @@ qthelp:
 \t@echo "# qcollectiongenerator $(BUILDDIR)/qthelp/%(project_fn)s.qhcp"
 \t@echo "To view the help file:"
 \t@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/%(project_fn)s.qhc"
+
+applehelp:
+\t$(SPHINXBUILD) -b applehelp $(ALLSPHINXOPTS) $(BUILDDIR)/applehelp
+\t@echo
+\t@echo "Build finished. The help book is in $(BUILDDIR)/applehelp."
+\t@echo "N.B. You won't be able to view it unless you put it in" \\
+\t      "~/Library/Documentation/Help or install it in your application" \\
+\t      "bundle."
 
 devhelp:
 \t$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) $(BUILDDIR)/devhelp
@@ -1278,6 +1289,7 @@ def generate(d, overwrite=True, silent=False):
         d['mastertocmaxdepth'] = 2
 
     d['project_fn'] = make_filename(d['project'])
+    d['project_url'] = urlquote(d['project'].encode('idna'))
     d['project_manpage'] = d['project_fn'].lower()
     d['now'] = time.asctime()
     d['project_underline'] = column_width(d['project']) * '='

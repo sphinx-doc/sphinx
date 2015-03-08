@@ -76,6 +76,30 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. _Qt help: http://qt-project.org/doc/qt-4.8/qthelp-framework.html
 
+.. module:: sphinx.builders.applehelp
+.. class:: AppleHelpBuilder
+
+   This builder produces an Apple Help Book based on the same output as the
+   standalone HTML builder.
+
+   If the source directory contains any ``.lproj`` folders, the one
+   corresponding to the selected language will have its contents merged with
+   the generated output.  These folders will be ignored by all other
+   documentation types.
+
+   In order to generate a valid help book, this builder requires the command
+   line tool :program:`hiutil`, which is only available on Mac OS X 10.6 and
+   above.  You can disable the indexing step by setting
+   :confval:`applehelp_disable_external_tools` to ``True``, in which case the
+   output will not be valid until :program:`hiutil` has been run on all of the
+   ``.lproj`` folders within the bundle.
+
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
+
+   .. versionadded:: 1.3
+
 .. module:: sphinx.builders.devhelp
 .. class:: DevhelpBuilder
 

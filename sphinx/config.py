@@ -10,9 +10,11 @@
 """
 
 import re
-from os import path
+from os import path, environ
+import shlex
 
 from six import PY3, iteritems, string_types, binary_type, integer_types
+from six.moves.urllib.parse import quote as urlquote
 
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
@@ -131,6 +133,35 @@ class Config(object):
         # Devhelp only options
         devhelp_basename = (lambda self: make_filename(self.project), None),
 
+        # Apple help options
+        applehelp_bundle_name = (lambda self: make_filename(self.project),
+                                 'applehelp'),
+        applehelp_bundle_id = (None, 'applehelp'),
+        applehelp_dev_region = ('en-us', 'applehelp'),
+        applehelp_bundle_version = ('1', 'applehelp'),
+        applehelp_icon = (None, 'applehelp'),
+        applehelp_kb_product = (lambda self: '%s-%s' \
+                                % (make_filename(self.project), self.release),
+                                 'applehelp'),
+        applehelp_kb_url = (None, 'applehelp'),
+        applehelp_remote_url = (None, 'applehelp'),
+        applehelp_index_anchors = (False, 'applehelp'),
+        applehelp_min_term_length = (None, 'applehelp'),
+        applehelp_stopwords = (lambda self: self.language or 'en', 'applehelp'),
+        applehelp_locale = (lambda self: self.language or 'en', 'applehelp'),
+        applehelp_title = (lambda self: self.project + ' Help', 'applehelp'),
+        applehelp_codesign_identity = (lambda self:
+                                       environ.get('CODE_SIGN_IDENTITY', None),
+                                       'applehelp'),
+        applehelp_codesign_flags = (lambda self:
+                                    shlex.split(
+                                        environ.get('OTHER_CODE_SIGN_FLAGS',
+                                                    '')),
+                                    'applehelp'),
+        applehelp_indexer_path = ('/usr/bin/hiutil', 'applehelp'),
+        applehelp_codesign_path = ('/usr/bin/codesign', 'applehelp'),
+        applehelp_disable_external_tools = (False, None),
+        
         # Epub options
         epub_basename = (lambda self: make_filename(self.project), None),
         epub_theme = ('epub', 'html'),

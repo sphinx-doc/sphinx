@@ -172,6 +172,11 @@ The :program:`sphinx-build` script has several options:
       Build HTML files with additional information for building a documentation
       collection in one of these formats.
 
+   **applehelp**
+      Build an Apple Help Book.  Requires :program:`hiutil` and
+      :program:`codesign`, which are not Open Source and presently only
+      available on Mac OS X 10.6 and higher.
+
    **latex**
       Build LaTeX sources that can be compiled to a PDF document using
       :program:`pdflatex`.

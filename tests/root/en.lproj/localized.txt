@@ -1,0 +1,2 @@
+This file should be included in the final bundle by the applehelp builder.
+It should be ignored by other builders.

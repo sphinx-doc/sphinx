@@ -20,6 +20,8 @@ Features added
   suffixes.
 * Add the ability to specify source parsers by source suffix with the
   :confval:`source_parsers` config value.
+* #1675: A new builder, AppleHelpBuilder, has been added that builds Apple
+  Help Books.
 
 Bugs fixed
 ----------
