@@ -23,8 +23,8 @@ class XMLWriter(BaseXMLWriter):
 
     def translate(self, *args, **kwargs):
         self.document.settings.newlines = \
-          self.document.settings.indents = \
-          self.builder.env.config.xml_pretty
+            self.document.settings.indents = \
+            self.builder.env.config.xml_pretty
         self.document.settings.xml_declaration = True
         self.document.settings.doctype_declaration = True
         return BaseXMLWriter.translate(self)

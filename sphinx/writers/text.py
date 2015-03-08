@@ -37,7 +37,7 @@ class TextWrapper(textwrap.TextWrapper):
         The original _wrap_chunks uses len() to calculate width.
         This method respects wide/fullwidth characters for width adjustment.
         """
-        drop_whitespace = getattr(self, 'drop_whitespace', True)  #py25 compat
+        drop_whitespace = getattr(self, 'drop_whitespace', True)  # py25 compat
         lines = []
         if self.width <= 0:
             raise ValueError("invalid width %r (must be > 0)" % self.width)
@@ -85,7 +85,7 @@ class TextWrapper(textwrap.TextWrapper):
         Break line by unicode width instead of len(word).
         """
         total = 0
-        for i,c in enumerate(word):
+        for i, c in enumerate(word):
             total += column_width(c)
             if total > space_left:
                 return word[:i-1], word[i-1:]
@@ -97,7 +97,8 @@ class TextWrapper(textwrap.TextWrapper):
         Override original method that only split by 'wordsep_re'.
         This '_split' split wide-characters into chunk by one character.
         """
-        split = lambda t: textwrap.TextWrapper._split(self, t)
+        def split(t):
+            return textwrap.TextWrapper._split(self, t)
         chunks = []
         for chunk in split(text):
             for w, g in groupby(chunk, column_width):
@@ -126,6 +127,7 @@ class TextWrapper(textwrap.TextWrapper):
 
 MAXWIDTH = 70
 STDINDENT = 3
+
 
 def my_wrap(text, width=MAXWIDTH, **kwargs):
     w = TextWrapper(width=width, **kwargs)
@@ -174,15 +176,18 @@ class TextTranslator(nodes.NodeVisitor):
 
     def add_text(self, text):
         self.states[-1].append((-1, text))
+
     def new_state(self, indent=STDINDENT):
         self.states.append([])
         self.stateindent.append(indent)
+
     def end_state(self, wrap=True, end=[''], first=None):
         content = self.states.pop()
         maxindent = sum(self.stateindent)
         indent = self.stateindent.pop()
         result = []
         toformat = []
+
         def do_format():
             if not toformat:
                 return
@@ -206,7 +211,7 @@ class TextTranslator(nodes.NodeVisitor):
             result_rest, result = result[1:], []
             if item:
                 toformat = [first + ' '.join(item)]
-                do_format()  #re-create `result` from `toformat`
+                do_format()  # re-create `result` from `toformat`
                 _dummy, new_item = result[0]
                 result.insert(0, (itemindent - indent, [new_item[0]]))
                 result[1] = (itemindent, new_item[1:])
@@ -215,6 +220,7 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_document(self, node):
         self.new_state(0)
+
     def depart_document(self, node):
         self.end_state()
         self.body = self.nl.join(line and (' '*indent + line)
@@ -228,11 +234,13 @@ class TextTranslator(nodes.NodeVisitor):
     def visit_section(self, node):
         self._title_char = self.sectionchars[self.sectionlevel]
         self.sectionlevel += 1
+
     def depart_section(self, node):
         self.sectionlevel -= 1
 
     def visit_topic(self, node):
         self.new_state(0)
+
     def depart_topic(self, node):
         self.end_state()
 
@@ -242,17 +250,20 @@ class TextTranslator(nodes.NodeVisitor):
     def visit_rubric(self, node):
         self.new_state(0)
         self.add_text('-[ ')
+
     def depart_rubric(self, node):
         self.add_text(' ]-')
         self.end_state()
 
     def visit_compound(self, node):
         pass
+
     def depart_compound(self, node):
         pass
 
     def visit_glossary(self, node):
         pass
+
     def depart_glossary(self, node):
         pass
 
@@ -261,6 +272,7 @@ class TextTranslator(nodes.NodeVisitor):
             self.add_text(node.astext()+': ')
             raise nodes.SkipNode
         self.new_state(0)
+
     def depart_title(self, node):
         if isinstance(node.parent, nodes.section):
             char = self._title_char
@@ -269,20 +281,23 @@ class TextTranslator(nodes.NodeVisitor):
         text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)
         self.stateindent.pop()
         self.states[-1].append(
-                (0, ['', text, '%s' % (char * column_width(text)), '']))
+            (0, ['', text, '%s' % (char * column_width(text)), '']))
 
     def visit_subtitle(self, node):
         pass
+
     def depart_subtitle(self, node):
         pass
 
     def visit_attribution(self, node):
         self.add_text('-- ')
+
     def depart_attribution(self, node):
         pass
 
     def visit_desc(self, node):
         pass
+
     def depart_desc(self, node):
         pass
 
@@ -290,33 +305,39 @@ class TextTranslator(nodes.NodeVisitor):
         self.new_state(0)
         if node.parent['objtype'] in ('class', 'exception'):
             self.add_text('%s ' % node.parent['objtype'])
+
     def depart_desc_signature(self, node):
         # XXX: wrap signatures in a way that makes sense
         self.end_state(wrap=False, end=None)
 
     def visit_desc_name(self, node):
         pass
+
     def depart_desc_name(self, node):
         pass
 
     def visit_desc_addname(self, node):
         pass
+
     def depart_desc_addname(self, node):
         pass
 
     def visit_desc_type(self, node):
         pass
+
     def depart_desc_type(self, node):
         pass
 
     def visit_desc_returns(self, node):
         self.add_text(' -> ')
+
     def depart_desc_returns(self, node):
         pass
 
     def visit_desc_parameterlist(self, node):
         self.add_text('(')
         self.first_param = 1
+
     def depart_desc_parameterlist(self, node):
         self.add_text(')')
 
@@ -330,27 +351,32 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_desc_optional(self, node):
         self.add_text('[')
+
     def depart_desc_optional(self, node):
         self.add_text(']')
 
     def visit_desc_annotation(self, node):
         pass
+
     def depart_desc_annotation(self, node):
         pass
 
     def visit_desc_content(self, node):
         self.new_state()
         self.add_text(self.nl)
+
     def depart_desc_content(self, node):
         self.end_state()
 
     def visit_figure(self, node):
         self.new_state()
+
     def depart_figure(self, node):
         self.end_state()
 
     def visit_caption(self, node):
         pass
+
     def depart_caption(self, node):
         pass
 
@@ -374,6 +400,7 @@ class TextTranslator(nodes.NodeVisitor):
     def visit_footnote(self, node):
         self._footnote = node.children[0].astext().strip()
         self.new_state(len(self._footnote) + 3)
+
     def depart_footnote(self, node):
         self.end_state(first='[%s] ' % self._footnote)
 
@@ -383,6 +410,7 @@ class TextTranslator(nodes.NodeVisitor):
         else:
             self._citlabel = ''
         self.new_state(len(self._citlabel) + 3)
+
     def depart_citation(self, node):
         self.end_state(first='[%s] ' % self._citlabel)
 
@@ -391,6 +419,7 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_legend(self, node):
         pass
+
     def depart_legend(self, node):
         pass
 
@@ -398,16 +427,19 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_option_list(self, node):
         pass
+
     def depart_option_list(self, node):
         pass
 
     def visit_option_list_item(self, node):
         self.new_state(0)
+
     def depart_option_list_item(self, node):
         self.end_state()
 
     def visit_option_group(self, node):
         self._firstoption = True
+
     def depart_option_group(self, node):
         self.add_text('     ')
 
@@ -416,21 +448,25 @@ class TextTranslator(nodes.NodeVisitor):
             self._firstoption = False
         else:
             self.add_text(', ')
+
     def depart_option(self, node):
         pass
 
     def visit_option_string(self, node):
         pass
+
     def depart_option_string(self, node):
         pass
 
     def visit_option_argument(self, node):
         self.add_text(node['delimiter'])
+
     def depart_option_argument(self, node):
         pass
 
     def visit_description(self, node):
         pass
+
     def depart_description(self, node):
         pass
 
@@ -443,21 +479,25 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_tgroup(self, node):
         pass
+
     def depart_tgroup(self, node):
         pass
 
     def visit_thead(self, node):
         pass
+
     def depart_thead(self, node):
         pass
 
     def visit_tbody(self, node):
         self.table.append('sep')
+
     def depart_tbody(self, node):
         pass
 
     def visit_row(self, node):
         self.table.append([])
+
     def depart_row(self, node):
         pass
 
@@ -466,6 +506,7 @@ class TextTranslator(nodes.NodeVisitor):
             raise NotImplementedError('Column or row spanning cells are '
                                       'not implemented.')
         self.new_state(0)
+
     def depart_entry(self, node):
         text = self.nl.join(self.nl.join(x[1]) for x in self.states.pop())
         self.stateindent.pop()
@@ -476,6 +517,7 @@ class TextTranslator(nodes.NodeVisitor):
             raise NotImplementedError('Nested tables are not supported.')
         self.new_state(0)
         self.table = [[]]
+
     def depart_table(self, node):
         lines = self.table[1:]
         fmted_rows = []
@@ -531,8 +573,8 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_acks(self, node):
         self.new_state(0)
-        self.add_text(', '.join(n.astext() for n in node.children[0].children)
-                      + '.')
+        self.add_text(', '.join(n.astext() for n in node.children[0].children) +
+                      '.')
         self.end_state()
         raise nodes.SkipNode
 
@@ -551,16 +593,19 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_bullet_list(self, node):
         self.list_counter.append(-1)
+
     def depart_bullet_list(self, node):
         self.list_counter.pop()
 
     def visit_enumerated_list(self, node):
         self.list_counter.append(node.get('start', 1) - 1)
+
     def depart_enumerated_list(self, node):
         self.list_counter.pop()
 
     def visit_definition_list(self, node):
         self.list_counter.append(-2)
+
     def depart_definition_list(self, node):
         self.list_counter.pop()
 
@@ -575,6 +620,7 @@ class TextTranslator(nodes.NodeVisitor):
             # enumerated list
             self.list_counter[-1] += 1
             self.new_state(len(str(self.list_counter[-1])) + 2)
+
     def depart_list_item(self, node):
         if self.list_counter[-1] == -1:
             self.end_state(first='* ')
@@ -585,12 +631,14 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_definition_list_item(self, node):
         self._li_has_classifier = len(node) >= 2 and \
-                                  isinstance(node[1], nodes.classifier)
+            isinstance(node[1], nodes.classifier)
+
     def depart_definition_list_item(self, node):
         pass
 
     def visit_term(self, node):
         self.new_state(0)
+
     def depart_term(self, node):
         if not self._li_has_classifier:
             self.end_state(end=None)
@@ -601,57 +649,68 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_classifier(self, node):
         self.add_text(' : ')
+
     def depart_classifier(self, node):
         self.end_state(end=None)
 
     def visit_definition(self, node):
         self.new_state()
+
     def depart_definition(self, node):
         self.end_state()
 
     def visit_field_list(self, node):
         pass
+
     def depart_field_list(self, node):
         pass
 
     def visit_field(self, node):
         pass
+
     def depart_field(self, node):
         pass
 
     def visit_field_name(self, node):
         self.new_state(0)
+
     def depart_field_name(self, node):
         self.add_text(':')
         self.end_state(end=None)
 
     def visit_field_body(self, node):
         self.new_state()
+
     def depart_field_body(self, node):
         self.end_state()
 
     def visit_centered(self, node):
         pass
+
     def depart_centered(self, node):
         pass
 
     def visit_hlist(self, node):
         pass
+
     def depart_hlist(self, node):
         pass
 
     def visit_hlistcol(self, node):
         pass
+
     def depart_hlistcol(self, node):
         pass
 
     def visit_admonition(self, node):
         self.new_state(0)
+
     def depart_admonition(self, node):
         self.end_state()
 
     def _visit_admonition(self, node):
         self.new_state(2)
+
     def _make_depart_admonition(name):
         def depart_admonition(self, node):
             self.end_state(first=admonitionlabels[name] + ': ')
@@ -680,22 +739,26 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_versionmodified(self, node):
         self.new_state(0)
+
     def depart_versionmodified(self, node):
         self.end_state()
 
     def visit_literal_block(self, node):
         self.new_state()
+
     def depart_literal_block(self, node):
         self.end_state(wrap=False)
 
     def visit_doctest_block(self, node):
         self.new_state(0)
+
     def depart_doctest_block(self, node):
         self.end_state(wrap=False)
 
     def visit_line_block(self, node):
         self.new_state()
         self.lineblocklevel += 1
+
     def depart_line_block(self, node):
         self.lineblocklevel -= 1
         self.end_state(wrap=False, end=None)
@@ -704,26 +767,30 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_line(self, node):
         pass
+
     def depart_line(self, node):
         self.add_text('\n')
 
     def visit_block_quote(self, node):
         self.new_state()
+
     def depart_block_quote(self, node):
         self.end_state()
 
     def visit_compact_paragraph(self, node):
         pass
+
     def depart_compact_paragraph(self, node):
         pass
 
     def visit_paragraph(self, node):
         if not isinstance(node.parent, nodes.Admonition) or \
-               isinstance(node.parent, addnodes.seealso):
+           isinstance(node.parent, addnodes.seealso):
             self.new_state(0)
+
     def depart_paragraph(self, node):
         if not isinstance(node.parent, nodes.Admonition) or \
-               isinstance(node.parent, addnodes.seealso):
+           isinstance(node.parent, addnodes.seealso):
             self.end_state()
 
     def visit_target(self, node):
@@ -740,11 +807,13 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_pending_xref(self, node):
         pass
+
     def depart_pending_xref(self, node):
         pass
 
     def visit_reference(self, node):
         pass
+
     def depart_reference(self, node):
         pass
 
@@ -755,52 +824,62 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_download_reference(self, node):
         pass
+
     def depart_download_reference(self, node):
         pass
 
     def visit_emphasis(self, node):
         self.add_text('*')
+
     def depart_emphasis(self, node):
         self.add_text('*')
 
     def visit_literal_emphasis(self, node):
         self.add_text('*')
+
     def depart_literal_emphasis(self, node):
         self.add_text('*')
 
     def visit_strong(self, node):
         self.add_text('**')
+
     def depart_strong(self, node):
         self.add_text('**')
 
     def visit_literal_strong(self, node):
         self.add_text('**')
+
     def depart_literal_strong(self, node):
         self.add_text('**')
 
     def visit_abbreviation(self, node):
         self.add_text('')
+
     def depart_abbreviation(self, node):
         if node.hasattr('explanation'):
             self.add_text(' (%s)' % node['explanation'])
 
     def visit_title_reference(self, node):
         self.add_text('*')
+
     def depart_title_reference(self, node):
         self.add_text('*')
 
     def visit_literal(self, node):
         self.add_text('"')
+
     def depart_literal(self, node):
         self.add_text('"')
 
     def visit_subscript(self, node):
         self.add_text('_')
+
     def depart_subscript(self, node):
         pass
 
     def visit_superscript(self, node):
         self.add_text('^')
+
     def depart_superscript(self, node):
         pass
 
@@ -814,28 +893,33 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_Text(self, node):
         self.add_text(node.astext())
+
     def depart_Text(self, node):
         pass
 
     def visit_generated(self, node):
         pass
+
     def depart_generated(self, node):
         pass
 
     def visit_inline(self, node):
         if 'xref' in node['classes'] or 'term' in node['classes']:
             self.add_text('*')
+
     def depart_inline(self, node):
         if 'xref' in node['classes'] or 'term' in node['classes']:
             self.add_text('*')
 
     def visit_container(self, node):
         pass
+
     def depart_container(self, node):
         pass
 
     def visit_problematic(self, node):
         self.add_text('>>')
+
     def depart_problematic(self, node):
         self.add_text('<<')
 

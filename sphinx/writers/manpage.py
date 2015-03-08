@@ -63,8 +63,8 @@ class ManualPageTranslator(BaseTranslator):
         if builder.config.today:
             self._docinfo['date'] = builder.config.today
         else:
-            self._docinfo['date'] = ustrftime(builder.config.today_fmt
-                                              or _('%B %d, %Y'))
+            self._docinfo['date'] = ustrftime(builder.config.today_fmt or
+                                              _('%B %d, %Y'))
         self._docinfo['copyright'] = builder.config.copyright
         self._docinfo['version'] = builder.config.version
         self._docinfo['manual_group'] = builder.config.project
@@ -77,7 +77,6 @@ class ManualPageTranslator(BaseTranslator):
         for label, translation in admonitionlabels.items():
             self.language.labels[label] = self.deunicode(translation)
 
-
     # overwritten -- added quotes around all .TH arguments
     def header(self):
         tmpl = (".TH \"%(title_upper)s\" \"%(manual_section)s\""
@@ -88,43 +87,51 @@ class ManualPageTranslator(BaseTranslator):
 
     def visit_start_of_file(self, node):
         pass
+
     def depart_start_of_file(self, node):
         pass
 
     def visit_desc(self, node):
         self.visit_definition_list(node)
+
     def depart_desc(self, node):
         self.depart_definition_list(node)
 
     def visit_desc_signature(self, node):
         self.visit_definition_list_item(node)
         self.visit_term(node)
+
     def depart_desc_signature(self, node):
         self.depart_term(node)
 
     def visit_desc_addname(self, node):
         pass
+
     def depart_desc_addname(self, node):
         pass
 
     def visit_desc_type(self, node):
         pass
+
     def depart_desc_type(self, node):
         pass
 
     def visit_desc_returns(self, node):
         self.body.append(' -> ')
+
     def depart_desc_returns(self, node):
         pass
 
     def visit_desc_name(self, node):
         pass
+
     def depart_desc_name(self, node):
         pass
 
     def visit_desc_parameterlist(self, node):
         self.body.append('(')
         self.first_param = 1
+
     def depart_desc_parameterlist(self, node):
         self.body.append(')')
 
@@ -133,26 +140,31 @@ class ManualPageTranslator(BaseTranslator):
             self.body.append(', ')
         else:
             self.first_param = 0
+
     def depart_desc_parameter(self, node):
         pass
 
     def visit_desc_optional(self, node):
         self.body.append('[')
+
     def depart_desc_optional(self, node):
         self.body.append(']')
 
     def visit_desc_annotation(self, node):
         pass
+
     def depart_desc_annotation(self, node):
         pass
 
     def visit_desc_content(self, node):
         self.visit_definition(node)
+
     def depart_desc_content(self, node):
         self.depart_definition(node)
 
     def visit_versionmodified(self, node):
         self.visit_paragraph(node)
+
     def depart_versionmodified(self, node):
         self.depart_paragraph(node)
 
@@ -180,11 +192,13 @@ class ManualPageTranslator(BaseTranslator):
                 raise nodes.SkipNode
         else:
             self.body.append('.sp\n')
+
     def depart_rubric(self, node):
         pass
 
     def visit_seealso(self, node):
         self.visit_admonition(node, 'seealso')
+
     def depart_seealso(self, node):
         self.depart_admonition(node)
 
@@ -214,6 +228,7 @@ class ManualPageTranslator(BaseTranslator):
 
     def visit_production(self, node):
         pass
+
     def depart_production(self, node):
         pass
 
@@ -227,17 +242,17 @@ class ManualPageTranslator(BaseTranslator):
     # overwritten -- don't visit inner marked up nodes
     def visit_reference(self, node):
         self.body.append(self.defs['reference'][0])
-        self.visit_Text(node)  # avoid repeating escaping code... fine since
-                               # visit_Text calls astext() and only works
-                               # on that afterwards
+        # avoid repeating escaping code... fine since
+        # visit_Text calls astext() and only works on that afterwards
+        self.visit_Text(node)
         self.body.append(self.defs['reference'][1])
 
         uri = node.get('refuri', '')
         if uri.startswith('mailto:') or uri.startswith('http:') or \
-                 uri.startswith('https:') or uri.startswith('ftp:'):
+           uri.startswith('https:') or uri.startswith('ftp:'):
             # if configured, put the URL after the link
             if self.builder.config.man_show_urls and \
-                   node.astext() != uri:
+               node.astext() != uri:
                 if uri.startswith('mailto:'):
                     uri = uri[7:]
                 self.body.extend([
@@ -254,21 +269,25 @@ class ManualPageTranslator(BaseTranslator):
     def visit_centered(self, node):
         self.ensure_eol()
         self.body.append('.sp\n.ce\n')
+
     def depart_centered(self, node):
         self.body.append('\n.ce 0\n')
 
     def visit_compact_paragraph(self, node):
         pass
+
     def depart_compact_paragraph(self, node):
         pass
 
     def visit_highlightlang(self, node):
         pass
+
     def depart_highlightlang(self, node):
         pass
 
     def visit_download_reference(self, node):
         pass
+
     def depart_download_reference(self, node):
         pass
 
@@ -283,6 +302,7 @@ class ManualPageTranslator(BaseTranslator):
 
     def visit_glossary(self, node):
         pass
+
     def depart_glossary(self, node):
         pass
 
@@ -295,26 +315,31 @@ class ManualPageTranslator(BaseTranslator):
 
     def visit_hlist(self, node):
         self.visit_bullet_list(node)
+
     def depart_hlist(self, node):
         self.depart_bullet_list(node)
 
     def visit_hlistcol(self, node):
         pass
+
     def depart_hlistcol(self, node):
         pass
 
     def visit_literal_emphasis(self, node):
         return self.visit_emphasis(node)
+
     def depart_literal_emphasis(self, node):
         return self.depart_emphasis(node)
 
     def visit_literal_strong(self, node):
         return self.visit_strong(node)
+
     def depart_literal_strong(self, node):
         return self.depart_strong(node)
 
     def visit_abbreviation(self, node):
         pass
+
     def depart_abbreviation(self, node):
         pass
 
@@ -332,6 +357,7 @@ class ManualPageTranslator(BaseTranslator):
                                  self.deunicode(node.astext().upper()))
                 raise nodes.SkipNode
         return BaseTranslator.visit_title(self, node)
+
     def depart_title(self, node):
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('"\n')
@@ -348,6 +374,7 @@ class ManualPageTranslator(BaseTranslator):
 
     def visit_inline(self, node):
         pass
+
     def depart_inline(self, node):
         pass
 
