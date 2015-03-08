@@ -55,7 +55,7 @@ def test_code_block_caption_html(app, status, warning):
     html = (app.outdir / 'caption.html').text(encoding='utf-8')
     caption = (u'<div class="code-block-caption">'
                u'<span class="caption-text">caption <em>test</em> rb'
-               u'</span><a class="headerlink" href="#id1" '
+               u'</span><a class="headerlink" href="#caption-test-rb" '
                u'title="Permalink to this code">\xb6</a></div>')
     assert caption in html
 
@@ -178,7 +178,7 @@ def test_literalinclude_caption_html(app, status, warning):
     html = (app.outdir / 'caption.html').text(encoding='utf-8')
     caption = (u'<div class="code-block-caption">'
                u'<span class="caption-text">caption <strong>test</strong> py'
-               u'</span><a class="headerlink" href="#id2" '
+               u'</span><a class="headerlink" href="#caption-test-py" '
                u'title="Permalink to this code">\xb6</a></div>')
     assert caption in html
 

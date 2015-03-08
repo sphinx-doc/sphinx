@@ -40,6 +40,7 @@ class TocTree(Directive):
     final_argument_whitespace = False
     option_spec = {
         'maxdepth': int,
+        'name': directives.unchanged,
         'caption': str,
         'glob': directives.flag,
         'hidden': directives.flag,
@@ -54,7 +55,7 @@ class TocTree(Directive):
         glob = 'glob' in self.options
         caption = self.options.get('caption')
         if caption:
-            self.options['name'] = nodes.fully_normalize_name(caption)
+            self.options.setdefault('name', nodes.fully_normalize_name(caption))
 
         ret = []
         # (title, ref) pairs, where ref may be a document, or an external link,

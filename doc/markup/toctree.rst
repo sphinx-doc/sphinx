@@ -85,10 +85,13 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    **Additional options**
 
-   You can use ``caption`` option to provide toctree caption::
+   You can use ``caption`` option to provide toctree caption and you can use
+   ``name`` option to provide implicit target name that can be referenced by
+   using :rst:role:`ref`::
 
       .. toctree::
          :caption: Table of Contents
+         :name: mastertoc
 
          foo
 
@@ -176,7 +179,7 @@ tables of contents.  The ``toctree`` directive is the central element.
       Added "includehidden" option.
 
    .. versionchanged:: 1.3
-      Added "caption" option.
+      Added "caption" and "name" option.
 
 Special names
 -------------
