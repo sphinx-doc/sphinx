@@ -112,8 +112,8 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs):
         text += '\n'
 
     submods = [path.splitext(sub)[0] for sub in py_files
-               if not shall_skip(path.join(root, sub), opts)
-               and sub != INITPY]
+               if not shall_skip(path.join(root, sub), opts) and
+               sub != INITPY]
     if submods:
         text += format_heading(2, 'Submodules')
         if opts.separatemodules:
@@ -212,8 +212,8 @@ def recurse_tree(rootpath, excludes, opts):
             exclude_prefixes = ('.',)
         else:
             exclude_prefixes = ('.', '_')
-        subs[:] = sorted(sub for sub in subs if not sub.startswith(exclude_prefixes)
-                         and not is_excluded(path.join(root, sub), excludes))
+        subs[:] = sorted(sub for sub in subs if not sub.startswith(exclude_prefixes) and
+                         not is_excluded(path.join(root, sub), excludes))
 
         if is_pkg:
             # we are in a package with something to document

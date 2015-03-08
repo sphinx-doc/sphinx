@@ -77,7 +77,7 @@ class PygmentsBridge(object):
         else:
             style = get_style_by_name(stylename)
         self.trim_doctest_flags = trim_doctest_flags
-        self.formatter_args = {'style' : style}
+        self.formatter_args = {'style': style}
         if dest == 'html':
             self.formatter = self.html_formatter
         else:
@@ -114,7 +114,7 @@ class PygmentsBridge(object):
         src = src.replace("...", mark)
 
         # lines beginning with "..." are probably placeholders for suite
-        src = re.sub(r"(?m)^(\s*)" + mark + "(.)", r"\1"+ mark + r"# \2", src)
+        src = re.sub(r"(?m)^(\s*)" + mark + "(.)", r"\1" + mark + r"# \2", src)
 
         if PY2 and isinstance(src, text_type):
             # Non-ASCII chars will only occur in string literals

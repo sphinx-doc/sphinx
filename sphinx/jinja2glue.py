@@ -14,7 +14,7 @@ from pprint import pformat
 
 from six import string_types
 from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
-     contextfunction
+    contextfunction
 from jinja2.utils import open_if_exists
 from jinja2.sandbox import SandboxedEnvironment
 
@@ -27,11 +27,13 @@ def _tobool(val):
         return val.lower() in ('true', '1', 'yes', 'on')
     return bool(val)
 
+
 def _toint(val):
     try:
         return int(val)
     except ValueError:
         return 0
+
 
 def accesskey(context, key):
     """Helper to output each access key only once."""
@@ -42,11 +44,14 @@ def accesskey(context, key):
         return 'accesskey="%s"' % key
     return ''
 
+
 class idgen(object):
     def __init__(self):
         self.id = 0
+
     def current(self):
         return self.id
+
     def __next__(self):
         self.id += 1
         return self.id
@@ -71,6 +76,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
                 f.close()
 
             mtime = path.getmtime(filename)
+
             def uptodate():
                 try:
                     return path.getmtime(filename) == mtime
@@ -78,7 +84,6 @@ class SphinxFileSystemLoader(FileSystemLoader):
                     return False
             return contents, filename, uptodate
         raise TemplateNotFound(template)
-
 
 
 class BuiltinTemplateLoader(TemplateBridge, BaseLoader):

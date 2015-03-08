@@ -266,7 +266,7 @@ class BuildEnvironment:
         self.files_to_rebuild = {}  # docname -> set of files
                                     # (containing its TOCs) to rebuild too
         self.glob_toctrees = set()  # docnames that have :glob: toctrees
-        self.numbered_toctrees = set() # docnames that have :numbered: toctrees
+        self.numbered_toctrees = set()  # docnames that have :numbered: toctrees
 
         # domain-specific inventories, here to be pickled
         self.domaindata = {}        # domainname -> domain-specific dict
@@ -349,7 +349,7 @@ class BuildEnvironment:
                 fnset.discard(docname)
                 if not fnset:
                     del self.files_to_rebuild[subfn]
-            for key, (fn, _) in list(self.citations.items()):
+            for key, (fn, _ignore) in list(self.citations.items()):
                 if fn == docname:
                     del self.citations[key]
             for version, changes in self.versionchanges.items():
@@ -1316,7 +1316,7 @@ class BuildEnvironment:
                 else:
                     # cull sub-entries whose parents aren't 'current'
                     if (collapse and depth > 1 and
-                                'iscurrent' not in subnode.parent):
+                            'iscurrent' not in subnode.parent):
                         subnode.parent.remove(subnode)
                     else:
                         # recurse on visible children
@@ -1473,8 +1473,8 @@ class BuildEnvironment:
                                 toplevel[1][:] = subtrees
                     # resolve all sub-toctrees
                     for subtocnode in toc.traverse(addnodes.toctree):
-                        if not (subtocnode.get('hidden', False)
-                                and not includehidden):
+                        if not (subtocnode.get('hidden', False) and
+                                not includehidden):
                             i = subtocnode.parent.index(subtocnode) + 1
                             for item in _entries_from_toctree(
                                     subtocnode, [refdoc] + parents,
@@ -1939,8 +1939,8 @@ class BuildEnvironment:
             else:
                 # get all other symbols under one heading
                 return _('Symbols')
-        return [(key, list(group))
-                for (key, group) in groupby(newlist, keyfunc2)]
+        return [(key_, list(group))
+                for (key_, group) in groupby(newlist, keyfunc2)]
 
     def collect_relations(self):
         relations = {}

@@ -263,8 +263,8 @@ class Sphinx(object):
                 self.builder.compile_update_catalogs()
                 self.builder.build_update()
 
-            status = (self.statuscode == 0
-                      and 'succeeded' or 'finished with problems')
+            status = (self.statuscode == 0 and
+                      'succeeded' or 'finished with problems')
             if self._warncount:
                 self.info(bold('build %s, %s warning%s.' %
                                (status, self._warncount,
@@ -487,8 +487,9 @@ class Sphinx(object):
     def emit(self, event, *args):
         try:
             self.debug2('[app] emitting event: %r%s', event, repr(args)[:100])
-        except Exception:  # not every object likes to be repr()'d (think
-                           # random stuff coming via autodoc)
+        except Exception:
+            # not every object likes to be repr()'d (think
+            # random stuff coming via autodoc)
             pass
         results = []
         if event in self._listeners:

@@ -18,8 +18,6 @@ import time
 from os import path
 from io import open
 
-TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
-
 # try to import readline, unix specific enhancement
 try:
     import readline
@@ -41,6 +39,8 @@ from sphinx.util.console import purple, bold, red, turquoise, \
     nocolor, color_terminal
 from sphinx.util import texescape
 
+TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
+
 # function to get input from terminal -- overridden by the test suite
 term_input = input
 
@@ -57,7 +57,7 @@ DEFAULT_VALUE = {
     'ext_todo': False,
     'makefile': True,
     'batchfile': True,
-    }
+}
 
 EXTENSIONS = ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
               'pngmath', 'mathjax', 'ifconfig', 'viewcode')

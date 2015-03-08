@@ -88,7 +88,7 @@ class Config(object):
         html_theme_path = ([], 'html'),
         html_theme_options = ({}, 'html'),
         html_title = (lambda self: l_('%s %s documentation') %
-                                   (self.project, self.release),
+                      (self.project, self.release),
                       'html'),
         html_short_title = (lambda self: self.html_title, 'html'),
         html_style = (None, 'html'),
@@ -139,9 +139,9 @@ class Config(object):
         applehelp_dev_region = ('en-us', 'applehelp'),
         applehelp_bundle_version = ('1', 'applehelp'),
         applehelp_icon = (None, 'applehelp'),
-        applehelp_kb_product = (lambda self: '%s-%s' \
-                                % (make_filename(self.project), self.release),
-                                 'applehelp'),
+        applehelp_kb_product = (lambda self: '%s-%s' %
+                                (make_filename(self.project), self.release),
+                                'applehelp'),
         applehelp_kb_url = (None, 'applehelp'),
         applehelp_remote_url = (None, 'applehelp'),
         applehelp_index_anchors = (False, 'applehelp'),
@@ -257,7 +257,7 @@ class Config(object):
         self.overrides = overrides
         self.values = Config.config_values.copy()
         config = {}
-        if 'extensions' in overrides: #XXX do we need this?
+        if 'extensions' in overrides:  # XXX do we need this?
             if isinstance(overrides['extensions'], string_types):
                 config['extensions'] = overrides.pop('extensions').split(',')
             else:
@@ -298,13 +298,13 @@ class Config(object):
             current = self[name]
             if type(current) is type(default):
                 continue
-            common_bases = (set(type(current).__bases__ + (type(current),))
-                          & set(type(default).__bases__))
+            common_bases = (set(type(current).__bases__ + (type(current),)) &
+                            set(type(default).__bases__))
             common_bases.discard(object)
             if common_bases:
                 continue  # at least we share a non-trivial base class
-            warn("the config value %r has type `%s', defaults to `%s.'"
-                    % (name, type(current).__name__, type(default).__name__))
+            warn("the config value %r has type `%s', defaults to `%s.'" %
+                 (name, type(current).__name__, type(default).__name__))
 
     def check_unicode(self, warn):
         # check all string values for non-ASCII characters in bytestrings,
@@ -313,8 +313,7 @@ class Config(object):
             if isinstance(value, binary_type) and nonascii_re.search(value):
                 warn('the config value %r is set to a string with non-ASCII '
                      'characters; this can lead to Unicode errors occurring. '
-                     'Please use Unicode strings, e.g. %r.' % (name, u'Content')
-                )
+                     'Please use Unicode strings, e.g. %r.' % (name, u'Content'))
 
     def init_values(self, warn):
         config = self._raw_config

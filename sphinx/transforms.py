@@ -166,6 +166,8 @@ TRANSLATABLE_NODES = {
     'index': addnodes.index,
     'image': nodes.image,
 }
+
+
 class ExtraTranslatableNodes(Transform):
     """
     make nodes translatable
