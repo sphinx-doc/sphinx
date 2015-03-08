@@ -33,6 +33,7 @@ except ImportError:
 # A good overview of the purpose behind these classes can be found here:
 # http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
 
+
 class HTMLWriter(Writer):
 
     # override embed-stylesheet default value to 0.
@@ -88,11 +89,13 @@ class HTMLTranslator(BaseTranslator):
     def visit_start_of_file(self, node):
         # only occurs in the single-file builder
         self.body.append('<span id="document-%s"></span>' % node['docname'])
+
     def depart_start_of_file(self, node):
         pass
 
     def visit_desc(self, node):
         self.body.append(self.starttag(node, 'dl', CLASS=node['objtype']))
+
     def depart_desc(self, node):
         self.body.append('</dl>\n\n')
 
@@ -101,29 +104,34 @@ class HTMLTranslator(BaseTranslator):
         self.body.append(self.starttag(node, 'dt'))
         # anchor for per-desc interactive data
         if node.parent['objtype'] != 'describe' \
-               and node['ids'] and node['first']:
+           and node['ids'] and node['first']:
             self.body.append('<!--[%s]-->' % node['ids'][0])
+
     def depart_desc_signature(self, node):
         self.add_permalink_ref(node, _('Permalink to this definition'))
         self.body.append('</dt>\n')
 
     def visit_desc_addname(self, node):
         self.body.append(self.starttag(node, 'code', '', CLASS='descclassname'))
+
     def depart_desc_addname(self, node):
         self.body.append('</code>')
 
     def visit_desc_type(self, node):
         pass
+
     def depart_desc_type(self, node):
         pass
 
     def visit_desc_returns(self, node):
         self.body.append(' &rarr; ')
+
     def depart_desc_returns(self, node):
         pass
 
     def visit_desc_name(self, node):
         self.body.append(self.starttag(node, 'code', '', CLASS='descname'))
+
     def depart_desc_name(self, node):
         self.body.append('</code>')
 
@@ -135,6 +143,7 @@ class HTMLTranslator(BaseTranslator):
         self.required_params_left = sum([isinstance(c, addnodes.desc_parameter)
                                          for c in node.children])
         self.param_separator = node.child_text_separator
+
     def depart_desc_parameterlist(self, node):
         self.body.append('<span class="sig-paren">)</span>')
 
@@ -153,6 +162,7 @@ class HTMLTranslator(BaseTranslator):
             self.required_params_left -= 1
         if not node.hasattr('noemph'):
             self.body.append('<em>')
+
     def depart_desc_parameter(self, node):
         if not node.hasattr('noemph'):
             self.body.append('</em>')
@@ -162,22 +172,26 @@ class HTMLTranslator(BaseTranslator):
     def visit_desc_optional(self, node):
         self.optional_param_level += 1
         self.body.append('<span class="optional">[</span>')
+
     def depart_desc_optional(self, node):
         self.optional_param_level -= 1
         self.body.append('<span class="optional">]</span>')
 
     def visit_desc_annotation(self, node):
         self.body.append(self.starttag(node, 'em', '', CLASS='property'))
+
     def depart_desc_annotation(self, node):
         self.body.append('</em>')
 
     def visit_desc_content(self, node):
         self.body.append(self.starttag(node, 'dd', ''))
+
     def depart_desc_content(self, node):
         self.body.append('</dd>')
 
     def visit_versionmodified(self, node):
         self.body.append(self.starttag(node, 'div', CLASS=node['type']))
+
     def depart_versionmodified(self, node):
         self.body.append('</div>\n')
 
@@ -229,6 +243,7 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_seealso(self, node):
         self.visit_admonition(node, 'seealso')
+
     def depart_seealso(self, node):
         self.depart_admonition(node)
 
@@ -295,7 +310,7 @@ class HTMLTranslator(BaseTranslator):
             return BaseTranslator.visit_literal_block(self, node)
         lang = self.highlightlang
         linenos = node.rawsource.count('\n') >= \
-                  self.highlightlinenothreshold - 1
+            self.highlightlinenothreshold - 1
         highlight_args = node.get('highlight_args', {})
         if 'language' in node:
             # code-block directives
@@ -308,6 +323,7 @@ class HTMLTranslator(BaseTranslator):
             opts = self.highlightopts
         else:
             opts = {}
+
         def warner(msg):
             self.builder.warn(msg, (self.builder.current_docname, node.line))
         highlighted = self.highlighter.highlight_block(
@@ -349,6 +365,7 @@ class HTMLTranslator(BaseTranslator):
     # overwritten to add the <div> (for XHTML compliance)
     def visit_block_quote(self, node):
         self.body.append(self.starttag(node, 'blockquote') + '<div>')
+
     def depart_block_quote(self, node):
         self.body.append('</div></blockquote>\n')
 
@@ -357,6 +374,7 @@ class HTMLTranslator(BaseTranslator):
         self.body.append(self.starttag(node, 'code', '',
                                        CLASS='docutils literal'))
         self.protect_literal_text += 1
+
     def depart_literal(self, node):
         self.protect_literal_text -= 1
         self.body.append('</code>')
@@ -379,17 +397,20 @@ class HTMLTranslator(BaseTranslator):
             self.body.append('\n')
         self.body.append('</pre>\n')
         raise nodes.SkipNode
+
     def depart_productionlist(self, node):
         pass
 
     def visit_production(self, node):
         pass
+
     def depart_production(self, node):
         pass
 
     def visit_centered(self, node):
-        self.body.append(self.starttag(node, 'p', CLASS="centered")
-                         + '<strong>')
+        self.body.append(self.starttag(node, 'p', CLASS="centered") +
+                         '<strong>')
+
     def depart_centered(self, node):
         self.body.append('</strong></p>')
 
@@ -406,12 +427,14 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_compact_paragraph(self, node):
         pass
+
     def depart_compact_paragraph(self, node):
         pass
 
     def visit_highlightlang(self, node):
         self.highlightlang = node['lang']
         self.highlightlinenothreshold = node['linenothreshold']
+
     def depart_highlightlang(self, node):
         pass
 
@@ -423,6 +446,7 @@ class HTMLTranslator(BaseTranslator):
             self.context.append('</a>')
         else:
             self.context.append('')
+
     def depart_download_reference(self, node):
         self.body.append(self.context.pop())
 
@@ -456,11 +480,10 @@ class HTMLTranslator(BaseTranslator):
             # Try to figure out image height and width.  Docutils does that too,
             # but it tries the final file name, which does not necessarily exist
             # yet at the time the HTML file is written.
-            if Image and not ('width' in node
-                              and 'height' in node):
+            if Image and not ('width' in node and 'height' in node):
                 try:
                     im = Image.open(os.path.join(self.builder.srcdir, olduri))
-                except (IOError, # Source image can't be found or opened
+                except (IOError,  # Source image can't be found or opened
                         UnicodeError):  # PIL doesn't like Unicode paths.
                     pass
                 else:
@@ -487,21 +510,25 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_glossary(self, node):
         pass
+
     def depart_glossary(self, node):
         pass
 
     def visit_acks(self, node):
         pass
+
     def depart_acks(self, node):
         pass
 
     def visit_hlist(self, node):
         self.body.append('<table class="hlist"><tr>')
+
     def depart_hlist(self, node):
         self.body.append('</tr></table>\n')
 
     def visit_hlistcol(self, node):
         self.body.append('<td>')
+
     def depart_hlistcol(self, node):
         self.body.append('</td>')
 
@@ -534,11 +561,13 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_note(self, node):
         self.visit_admonition(node, 'note')
+
     def depart_note(self, node):
         self.depart_admonition(node)
 
     def visit_warning(self, node):
         self.visit_admonition(node, 'warning')
+
     def depart_warning(self, node):
         self.depart_admonition(node)
 
@@ -550,42 +579,50 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_caution(self, node):
         self.visit_admonition(node, 'caution')
+
     def depart_caution(self, node):
         self.depart_admonition()
 
     def visit_danger(self, node):
         self.visit_admonition(node, 'danger')
+
     def depart_danger(self, node):
         self.depart_admonition()
 
     def visit_error(self, node):
         self.visit_admonition(node, 'error')
+
     def depart_error(self, node):
         self.depart_admonition()
 
     def visit_hint(self, node):
         self.visit_admonition(node, 'hint')
+
     def depart_hint(self, node):
         self.depart_admonition()
 
     def visit_important(self, node):
         self.visit_admonition(node, 'important')
+
     def depart_important(self, node):
         self.depart_admonition()
 
     def visit_tip(self, node):
         self.visit_admonition(node, 'tip')
+
     def depart_tip(self, node):
         self.depart_admonition()
 
     # these are only handled specially in the SmartyPantsHTMLTranslator
     def visit_literal_emphasis(self, node):
         return self.visit_emphasis(node)
+
     def depart_literal_emphasis(self, node):
         return self.depart_emphasis(node)
 
     def visit_literal_strong(self, node):
         return self.visit_strong(node)
+
     def depart_literal_strong(self, node):
         return self.depart_strong(node)
 
@@ -594,6 +631,7 @@ class HTMLTranslator(BaseTranslator):
         if node.hasattr('explanation'):
             attrs['title'] = node['explanation']
         self.body.append(self.starttag(node, 'abbr', '', **attrs))
+
     def depart_abbreviation(self, node):
         self.body.append('</abbr>')
 
@@ -612,8 +650,8 @@ class HTMLTranslator(BaseTranslator):
                 self.body.append(u'</a><a class="headerlink" href="#%s" ' %
                                  node.parent['ids'][0] +
                                  u'title="%s">%s' % (
-                                 _('Permalink to this headline'),
-                                 self.permalink_text))
+                                     _('Permalink to this headline'),
+                                     self.permalink_text))
             elif isinstance(node.parent, nodes.table):
                 self.body.append('</span>')
                 self.add_permalink_ref(node.parent, _('Permalink to this table'))
@@ -724,6 +762,7 @@ class SmartyPantsHTMLTranslator(HTMLTranslator):
     def visit_option(self, node):
         self.no_smarty += 1
         HTMLTranslator.visit_option(self, node)
+
     def depart_option(self, node):
         self.no_smarty -= 1
         HTMLTranslator.depart_option(self, node)
