@@ -41,7 +41,7 @@ class TocTree(Directive):
     option_spec = {
         'maxdepth': int,
         'name': directives.unchanged,
-        'caption': str,
+        'caption': directives.unchanged_required,
         'glob': directives.flag,
         'hidden': directives.flag,
         'includehidden': directives.flag,
