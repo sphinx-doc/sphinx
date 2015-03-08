@@ -18,6 +18,8 @@ Features added
   declaraction. #1577, #1744
 * The :confval:`source_suffix` config value can now be a list of multiple
   suffixes.
+* Add the ability to specify source parsers by source suffix with the
+  :confval:`source_parsers` config value.
 
 Bugs fixed
 ----------

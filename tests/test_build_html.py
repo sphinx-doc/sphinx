@@ -289,6 +289,9 @@ HTML_XPATH = {
         (".//a[@class='fn-backref'][@href='#id3']", r"\[3\]"),
         (".//a[@class='fn-backref'][@href='#id4']", r"\[bar\]"),
     ],
+    'otherext.html': [
+        (".//h1", "Generated section"),
+    ]
 }
 
 

@@ -60,7 +60,7 @@ import inspect
 import posixpath
 from types import ModuleType
 
-from six import text_type, string_types
+from six import text_type
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 from docutils import nodes

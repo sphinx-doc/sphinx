@@ -26,6 +26,7 @@ Contents:
    extensions
    footnote
    lists
+   otherext
 
    http://sphinx-doc.org/
    Latest reference <http://sphinx-doc.org/latest/>

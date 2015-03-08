@@ -92,6 +92,19 @@ General configuration
    .. versionadded:: 0.5
       Previously, Sphinx accepted only UTF-8 encoded sources.
 
+.. confval:: source_parsers
+
+   If given, a dictionary of parser classes for different source suffices.  The
+   keys are the suffix, the values can be either a class or a string giving a
+   fully-qualified name of a parser class.  Files with a suffix that is not in
+   the dictionary will be parsed with the default reStructuredText parser.
+
+   For example::
+
+      source_parsers = {'.md': 'some.markdown.module.Parser'}
+
+   .. versionadded:: 1.3
+
 .. confval:: master_doc
 
    The document name of the "master" document, that is, the document that

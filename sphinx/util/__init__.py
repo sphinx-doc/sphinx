@@ -29,7 +29,7 @@ from docutils.utils import relative_path
 import jinja2
 
 import sphinx
-from sphinx.errors import PycodeError, SphinxParallelError
+from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
 from sphinx.util.console import strip_colors
 from sphinx.util.osutil import fs_encoding
 
@@ -494,3 +494,22 @@ def get_figtype(node):
             return 'code-block'
 
     return None
+
+
+def import_object(objname, source=None):
+    try:
+        module, name = objname.rsplit('.', 1)
+    except ValueError as err:
+        raise ExtensionError('Invalid full object name %s' % objname +
+                             (source and ' (needed for %s)' % source or ''),
+                             err)
+    try:
+        return getattr(__import__(module, None, None, [name]), name)
+    except ImportError as err:
+        raise ExtensionError('Could not import %s' % module +
+                             (source and ' (needed for %s)' % source or ''),
+                             err)
+    except AttributeError as err:
+        raise ExtensionError('Could not find %s' % objname +
+                             (source and ' (needed for %s)' % source or ''),
+                             err)

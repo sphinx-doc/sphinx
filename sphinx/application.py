@@ -37,6 +37,7 @@ from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.environment import BuildEnvironment, SphinxStandaloneReader
 from sphinx.util import pycompat  # imported for side-effects
+from sphinx.util import import_object
 from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT
 from sphinx.util.console import bold, lightgray, darkgray, darkgreen, \
@@ -457,22 +458,7 @@ class Sphinx(object):
 
     def import_object(self, objname, source=None):
         """Import an object from a 'module.name' string."""
-        try:
-            module, name = objname.rsplit('.', 1)
-        except ValueError as err:
-            raise ExtensionError('Invalid full object name %s' % objname +
-                                 (source and ' (needed for %s)' % source or ''),
-                                 err)
-        try:
-            return getattr(__import__(module, None, None, [name]), name)
-        except ImportError as err:
-            raise ExtensionError('Could not import %s' % module +
-                                 (source and ' (needed for %s)' % source or ''),
-                                 err)
-        except AttributeError as err:
-            raise ExtensionError('Could not find %s' % objname +
-                                 (source and ' (needed for %s)' % source or ''),
-                                 err)
+        return import_object(objname, source=None)
 
     # event interface
 

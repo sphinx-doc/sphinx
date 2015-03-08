@@ -38,7 +38,7 @@ from docutils.frontend import OptionParser
 
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
-    FilenameUniqDict, get_figtype
+    FilenameUniqDict, get_figtype, import_object
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream, is_translatable
 from sphinx.util.osutil import SEP, find_catalog_files, getcwd, fs_encoding
 from sphinx.util.console import bold, purple
@@ -102,23 +102,13 @@ class SphinxStandaloneReader(standalone.Reader):
                   DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
                   AutoNumbering, SortIds, RemoveTranslatableInline]
 
-    @staticmethod
-    def get_parser_class(parser_name):
-        """Return the Parser class from the `parser_name` module."""
-        # You passed a class instead
-        if not isinstance(parser_name, string_types):
-            return parser_name
-        try:
-            module = __import__(parser_name, globals(), locals(), ['Parser'], level=1)
-        except ImportError:
-            module = __import__(parser_name, globals(), locals(), ['Parser'], level=0)
-        return module.Parser
-
     def __init__(self, parsers={}, *args, **kwargs):
         standalone.Reader.__init__(self, *args, **kwargs)
         self.parser_map = {}
-        for suffix, parser_name in parsers.items():
-            self.parser_map[suffix] = self.get_parser_class(parser_name)()
+        for suffix, parser_class in parsers.items():
+            if isinstance(parser_class, string_types):
+                parser_class = import_object(parser_class, 'source parser')
+            self.parser_map[suffix] = parser_class()
 
     def read(self, source, parser, settings):
         self.source = source
@@ -785,7 +775,7 @@ class BuildEnvironment:
         codecs.register_error('sphinx', self.warn_and_replace)
 
         # publish manually
-        reader = SphinxStandaloneReader(parsers=self.config.parsers)
+        reader = SphinxStandaloneReader(parsers=self.config.source_parsers)
         pub = Publisher(reader=reader,
                         writer=SphinxDummyWriter(),
                         destination_class=NullOutput)

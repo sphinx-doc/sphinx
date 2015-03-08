@@ -12,7 +12,8 @@ jsmath_path = 'dummy.js'
 templates_path = ['_templates']
 
 master_doc = 'contents'
-source_suffix = ['.txt', '.add']
+source_suffix = ['.txt', '.add', '.foo']
+source_parsers = {'.foo': 'parsermod.Parser'}
 
 project = 'Sphinx <Tests>'
 copyright = '2010-2015, Georg Brandl & Team'
