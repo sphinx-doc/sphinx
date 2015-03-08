@@ -14,7 +14,6 @@ from os import path, environ
 import shlex
 
 from six import PY3, iteritems, string_types, binary_type, integer_types
-from six.moves.urllib.parse import quote as urlquote
 
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
@@ -161,7 +160,7 @@ class Config(object):
         applehelp_indexer_path = ('/usr/bin/hiutil', 'applehelp'),
         applehelp_codesign_path = ('/usr/bin/codesign', 'applehelp'),
         applehelp_disable_external_tools = (False, None),
-        
+
         # Epub options
         epub_basename = (lambda self: make_filename(self.project), None),
         epub_theme = ('epub', 'html'),

@@ -10,16 +10,14 @@
 """
 from __future__ import print_function
 
-import os
 import codecs
-import errno
 import pipes
 
 from os import path
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util import copy_static_entry
-from sphinx.util.osutil import copyfile, ensuredir, os_path
+from sphinx.util.osutil import copyfile, ensuredir
 from sphinx.util.console import bold
 from sphinx.util.pycompat import htmlescape
 from sphinx.util.matching import compile_matchers
@@ -38,7 +36,8 @@ except AttributeError:
 
 # False access page (used because helpd expects strict XHTML)
 access_page_template = '''\
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"\
+ "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <title>%(title)s</title>
@@ -55,11 +54,11 @@ access_page_template = '''\
 class AppleHelpIndexerFailed(SphinxError):
     category = 'Help indexer failed'
 
-        
+
 class AppleHelpCodeSigningFailed(SphinxError):
     category = 'Code signing failed'
-    
-    
+
+
 class AppleHelpBuilder(StandaloneHTMLBuilder):
     """
     Builder that outputs an Apple help book.  Requires Mac OS X as it relies
@@ -74,25 +73,25 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
     # don't add links
     add_permalinks = False
-    
+
     # this is an embedded HTML format
     embedded = True
 
     # don't generate the search index or include the search page
     search = False
-    
+
     def init(self):
         super(AppleHelpBuilder, self).init()
         # the output files for HTML help must be .html only
         self.out_suffix = '.html'
 
         if self.config.applehelp_bundle_id is None:
-            raise SphinxError('You must set applehelp_bundle_id before ' \
+            raise SphinxError('You must set applehelp_bundle_id before '
                               'building Apple Help output')
 
         self.bundle_path = path.join(self.outdir,
-                                     self.config.applehelp_bundle_name \
-                                     + '.help')
+                                     self.config.applehelp_bundle_name +
+                                     '.help')
         self.outdir = path.join(self.bundle_path,
                                 'Contents',
                                 'Resources',
@@ -103,22 +102,22 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
         self.finish_tasks.add_task(self.copy_localized_files)
         self.finish_tasks.add_task(self.build_helpbook)
-    
+
     def copy_localized_files(self):
         source_dir = path.join(self.confdir,
                                self.config.applehelp_locale + '.lproj')
         target_dir = self.outdir
-    
+
         if path.isdir(source_dir):
             self.info(bold('copying localized files... '), nonl=True)
-            
+
             ctx = self.globalcontext.copy()
             matchers = compile_matchers(self.config.exclude_patterns)
             copy_static_entry(source_dir, target_dir, self, ctx,
                               exclude_matchers=matchers)
 
             self.info('done')
-        
+
     def build_helpbook(self):
         contents_dir = path.join(self.bundle_path, 'Contents')
         resources_dir = path.join(contents_dir, 'Resources')
@@ -130,7 +129,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
         # Construct the Info.plist file
         toc = self.config.master_doc + self.out_suffix
-        
+
         info_plist = {
             'CFBundleDevelopmentRegion': self.config.applehelp_dev_region,
             'CFBundleIdentifier': self.config.applehelp_bundle_id,
@@ -188,7 +187,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         finally:
             f.close()
         self.info('done')
-        
+
         # Generate the help index
         self.info(bold('generating help index... '), nonl=True)
 
@@ -258,4 +257,3 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
                     raise AppleHelpCodeSigningFailed(output)
                 else:
                     self.info('done')
-        

@@ -79,7 +79,7 @@ class StandaloneHTMLBuilder(Builder):
     add_permalinks = True
     embedded = False  # for things like HTML help or Qt help: suppresses sidebar
     search = True # for things like HTML help and Apple help: suppress search
-    
+
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
     script_files = ['_static/jquery.js', '_static/underscore.js',
                     '_static/doctools.js']
@@ -584,7 +584,7 @@ class StandaloneHTMLBuilder(Builder):
                                            'translations.js'))
 
         ctx = self.globalcontext.copy()
-        
+
         # add context items for search function used in searchtools.js_t
         if self.indexer is not None:
             ctx.update(self.indexer.context_for_searchtool())
