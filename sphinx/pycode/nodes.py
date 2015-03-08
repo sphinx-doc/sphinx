@@ -176,6 +176,7 @@ def nice_repr(node, number2name, prefix=False):
         else:
             return "%s(%s)" % (number2name[node.type],
                                ', '.join(map(_repr, node.children)))
+
     def _prepr(node):
         if isinstance(node, Leaf):
             return "%s(%r, %r)" % (number2name[node.type],

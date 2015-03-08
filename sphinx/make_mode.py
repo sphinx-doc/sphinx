@@ -32,7 +32,7 @@ proj_name = os.getenv('SPHINXPROJ', '<project>')
 BUILDERS = [
     ("",      "html",      "to make standalone HTML files"),
     ("",      "dirhtml",   "to make HTML files named index.html in directories"),
-    ("",      "singlehtml","to make a single large HTML file"),
+    ("",      "singlehtml", "to make a single large HTML file"),
     ("",      "pickle",    "to make pickle files"),
     ("",      "json",      "to make JSON files"),
     ("",      "htmlhelp",  "to make HTML files and a HTML help project"),
@@ -41,7 +41,7 @@ BUILDERS = [
     ("",      "epub",      "to make an epub"),
     ("",      "latex",     "to make LaTeX files, you can set PAPER=a4 or PAPER=letter"),
     ("posix", "latexpdf",  "to make LaTeX files and run them through pdflatex"),
-    ("posix", "latexpdfja","to make LaTeX files and run them through platex/dvipdfmx"),
+    ("posix", "latexpdfja", "to make LaTeX files and run them through platex/dvipdfmx"),
     ("",      "text",      "to make text files"),
     ("",      "man",       "to make manual pages"),
     ("",      "texinfo",   "to make Texinfo files"),

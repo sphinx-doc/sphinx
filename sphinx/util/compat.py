@@ -11,7 +11,7 @@
 import warnings
 
 from docutils import nodes
-from docutils.parsers.rst import Directive
+from docutils.parsers.rst import Directive  # noqa
 
 from docutils import __version__ as _du_version
 docutils_version = tuple(int(x) for x in _du_version.split('.')[:2])

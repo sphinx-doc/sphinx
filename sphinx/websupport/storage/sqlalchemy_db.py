@@ -58,7 +58,7 @@ class Node(Base):
 
         # Filter out all comments that are not moderated yet.
         if not moderator:
-            q = q.filter(Comment.displayed == True)
+            q = q.filter(Comment.displayed == True)  # noqa
 
         # Retrieve all results. Results must be ordered by Comment.path
         # so that we can easily transform them from a flat list to a tree.

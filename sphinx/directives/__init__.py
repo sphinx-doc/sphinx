@@ -18,8 +18,8 @@ from sphinx import addnodes
 from sphinx.util.docfields import DocFieldTransformer
 
 # import and register directives
-from sphinx.directives.code import *
-from sphinx.directives.other import *
+from sphinx.directives.code import *   # noqa
+from sphinx.directives.other import *  # noqa
 
 
 # RE to strip backslash escapes

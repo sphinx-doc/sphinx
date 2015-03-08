@@ -157,12 +157,12 @@ else:
 
                 outfile = open(js_file, 'wb')
                 try:
-                    outfile.write('Documentation.addTranslations(');
+                    outfile.write('Documentation.addTranslations(')
                     dump(dict(
                         messages=jscatalog,
                         plural_expr=catalog.plural_expr,
                         locale=str(catalog.locale)
-                        ), outfile)
+                    ), outfile)
                     outfile.write(');')
                 finally:
                     outfile.close()

@@ -275,12 +275,12 @@ class Domain(object):
         return _('%s %s') % (self.label, type.lname)
 
 
-from sphinx.domains.c import CDomain
-from sphinx.domains.cpp import CPPDomain
-from sphinx.domains.std import StandardDomain
-from sphinx.domains.python import PythonDomain
-from sphinx.domains.javascript import JavaScriptDomain
-from sphinx.domains.rst import ReSTDomain
+from sphinx.domains.c import CDomain                     # noqa
+from sphinx.domains.cpp import CPPDomain                 # noqa
+from sphinx.domains.std import StandardDomain            # noqa
+from sphinx.domains.python import PythonDomain           # noqa
+from sphinx.domains.javascript import JavaScriptDomain   # noqa
+from sphinx.domains.rst import ReSTDomain                # noqa
 
 BUILTIN_DOMAINS = {
     'std': StandardDomain,

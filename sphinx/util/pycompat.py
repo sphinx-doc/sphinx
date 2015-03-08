@@ -9,8 +9,14 @@
     :license: BSD, see LICENSE for details.
 """
 
+import io
 import sys
 import codecs
+import warnings
+
+from six import class_types
+from six.moves import zip_longest
+from itertools import product
 
 from six import PY3, text_type, exec_
 
@@ -45,7 +51,7 @@ if PY3:
             # try to match ParseError details with SyntaxError details
             raise SyntaxError(err.msg, (filepath, lineno, offset, err.value))
         return text_type(tree)
-    from html import escape as htmlescape  # >= Python 3.2
+    from html import escape as htmlescape  # noqa: >= Python 3.2
 
     class UnicodeMixin:
         """Mixin class to handle defining the proper __str__/__unicode__
@@ -72,7 +78,7 @@ else:
     # error handler
     sys_encoding = __import__('locale').getpreferredencoding()
     # use Python 3 name
-    from cgi import escape as htmlescape  # 2.6, 2.7
+    from cgi import escape as htmlescape  # noqa: 2.6, 2.7
 
     class UnicodeMixin(object):
         """Mixin class to handle defining the proper __str__/__unicode__
@@ -123,13 +129,6 @@ def execfile_(filepath, _globals, open=open):
 
 # ------------------------------------------------------------------------------
 # Internal module backwards-compatibility
-
-import warnings
-
-from six import class_types
-from six.moves import zip_longest
-import io
-from itertools import product
 
 
 class _DeprecationWrapper(object):

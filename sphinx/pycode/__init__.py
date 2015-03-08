@@ -30,8 +30,10 @@ _grammarfile = path.join(package_dir, 'pycode',
 pygrammar = driver.load_grammar(_grammarfile)
 pydriver = driver.Driver(pygrammar, convert=nodes.convert)
 
+
 # an object with attributes corresponding to token and symbol names
-class sym: pass
+class sym:
+    pass
 for k, v in iteritems(pygrammar.symbol2number):
     setattr(sym, k, v)
 for k, v in iteritems(token.tok_name):
@@ -132,7 +134,7 @@ class AttrDocVisitor(nodes.NodeVisitor):
         if not prev:
             return
         if prev.type == sym.simple_stmt and \
-               prev[0].type == sym.expr_stmt and _eq in prev[0].children:
+           prev[0].type == sym.expr_stmt and _eq in prev[0].children:
             # need to "eval" the string because it's returned in its
             # original form
             docstring = literals.evalString(node[0].value, self.encoding)
@@ -145,16 +147,16 @@ class AttrDocVisitor(nodes.NodeVisitor):
             target = node[i]
             if self.in_init and self.number2name[target.type] == 'power':
                 # maybe an attribute assignment -- check necessary conditions
-                if (# node must have two children
-                    len(target) != 2 or
-                    # first child must be "self"
-                    target[0].type != token.NAME or target[0].value != 'self' or
-                    # second child must be a "trailer" with two children
-                    self.number2name[target[1].type] != 'trailer' or
-                    len(target[1]) != 2 or
-                    # first child must be a dot, second child a name
-                    target[1][0].type != token.DOT or
-                    target[1][1].type != token.NAME):
+                if (  # node must have two children
+                        len(target) != 2 or
+                        # first child must be "self"
+                        target[0].type != token.NAME or target[0].value != 'self' or
+                        # second child must be a "trailer" with two children
+                        self.number2name[target[1].type] != 'trailer' or
+                        len(target[1]) != 2 or
+                        # first child must be a dot, second child a name
+                        target[1][0].type != token.DOT or
+                        target[1][1].type != token.NAME):
                     continue
                 name = target[1][1].value
             elif target.type != token.NAME:
@@ -287,6 +289,7 @@ class ModuleAnalyzer(object):
         indent = 0
         defline = False
         expect_indent = False
+
         def tokeniter(ignore = (token.COMMENT, token.NL)):
             for tokentup in self.tokens:
                 if tokentup[0] not in ignore:
@@ -335,17 +338,17 @@ if __name__ == '__main__':
     import time
     import pprint
     x0 = time.time()
-    #ma = ModuleAnalyzer.for_file(__file__.rstrip('c'), 'sphinx.builders.html')
+    # ma = ModuleAnalyzer.for_file(__file__.rstrip('c'), 'sphinx.builders.html')
     ma = ModuleAnalyzer.for_file('sphinx/environment.py',
                                  'sphinx.environment')
     ma.tokenize()
     x1 = time.time()
     ma.parse()
     x2 = time.time()
-    #for (ns, name), doc in iteritems(ma.find_attr_docs()):
-    #    print '>>', ns, name
-    #    print '\n'.join(doc)
+    # for (ns, name), doc in iteritems(ma.find_attr_docs()):
+    #     print '>>', ns, name
+    #     print '\n'.join(doc)
     pprint.pprint(ma.find_tags())
     x3 = time.time()
-    #print nodes.nice_repr(ma.parsetree, number2name)
+    # print nodes.nice_repr(ma.parsetree, number2name)
     print("tokenizing %.4f, parsing %.4f, finding %.4f" % (x1-x0, x2-x1, x3-x2))

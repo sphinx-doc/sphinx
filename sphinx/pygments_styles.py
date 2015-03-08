@@ -12,7 +12,7 @@
 from pygments.style import Style
 from pygments.styles.friendly import FriendlyStyle
 from pygments.token import Generic, Comment, Number, Whitespace, Keyword, \
-     Operator, Name, String, Error
+    Operator, Name, String, Error
 
 
 class NoneStyle(Style):

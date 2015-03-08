@@ -27,8 +27,8 @@ from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
     parallel_available
 
 # side effect: registers roles and directives
-from sphinx import roles
-from sphinx import directives
+from sphinx import roles       # noqa
+from sphinx import directives  # noqa
 
 
 class Builder(object):

@@ -201,7 +201,7 @@ def html_visit_math(self, node):
         self.body.append('<span class="math">%s</span>' %
                          self.encode(node['latex']).strip())
     else:
-        c  = ('<img class="math" src="%s"' % fname) + get_tooltip(self, node)
+        c = ('<img class="math" src="%s"' % fname) + get_tooltip(self, node)
         if depth is not None:
             c += ' style="vertical-align: %dpx"' % (-depth)
         self.body.append(c + '/>')

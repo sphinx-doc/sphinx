@@ -81,7 +81,6 @@ class BuildDoc(Command):
     ]
     boolean_options = ['fresh-env', 'all-files', 'link-index']
 
-
     def initialize_options(self):
         self.fresh_env = self.all_files = False
         self.source_dir = self.build_dir = None
@@ -147,13 +146,13 @@ class BuildDoc(Command):
             status_stream = sys.stdout
         confoverrides = {}
         if self.project:
-             confoverrides['project'] = self.project
+            confoverrides['project'] = self.project
         if self.version:
-             confoverrides['version'] = self.version
+            confoverrides['version'] = self.version
         if self.release:
-             confoverrides['release'] = self.release
+            confoverrides['release'] = self.release
         if self.today:
-             confoverrides['today'] = self.today
+            confoverrides['today'] = self.today
         if self.copyright:
             confoverrides['copyright'] = self.copyright
         app = Sphinx(self.source_dir, self.config_dir,
