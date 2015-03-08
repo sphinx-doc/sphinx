@@ -191,7 +191,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     def open_file(self, outdir, basename, mode='w'):
         # open a file with the correct encoding for the selected language
         return codecs.open(path.join(outdir, basename), mode,
-            self.encoding, 'xmlcharrefreplace')
+                           self.encoding, 'xmlcharrefreplace')
 
     def handle_finish(self):
         self.build_hhx(self.outdir, self.config.htmlhelp_basename)
@@ -220,7 +220,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 staticdir = root.startswith(path.join(outdir, '_static'))
                 for fn in files:
                     if (staticdir and not fn.endswith('.js')) or \
-                           fn.endswith('.html'):
+                       fn.endswith('.html'):
                         print(path.join(root, fn)[olen:].replace(os.sep, '\\'),
                               file=f)
         finally:
@@ -239,6 +239,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             # the TOC
             tocdoc = self.env.get_and_resolve_doctree(
                 self.config.master_doc, self, prune_toctrees=False)
+
             def write_toc(node, ullevel=0):
                 if isinstance(node, nodes.list_item):
                     f.write('<LI> ')
@@ -246,7 +247,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         write_toc(subnode, ullevel)
                 elif isinstance(node, nodes.reference):
                     link = node['refuri']
-                    title = htmlescape(node.astext()).replace('"','&quot;')
+                    title = htmlescape(node.astext()).replace('"', '&quot;')
                     f.write(object_sitemap % (title, link))
                 elif isinstance(node, nodes.bullet_list):
                     if ullevel != 0:
@@ -258,9 +259,10 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 elif isinstance(node, addnodes.compact_paragraph):
                     for subnode in node:
                         write_toc(subnode, ullevel)
+
             def istoctree(node):
                 return isinstance(node, addnodes.compact_paragraph) and \
-                       'toctree' in node
+                    'toctree' in node
             for node in tocdoc.traverse(istoctree):
                 write_toc(node)
             f.write(contents_footer)
@@ -272,6 +274,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         f = self.open_file(outdir, outname+'.hhk')
         try:
             f.write('<UL>\n')
+
             def write_index(title, refs, subitems):
                 def write_param(name, value):
                     item = '    <param name="%s" value="%s">\n' % \

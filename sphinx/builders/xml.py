@@ -19,6 +19,7 @@ from sphinx.builders import Builder
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.xml import XMLWriter, PseudoXMLWriter
 
+
 class XMLBuilder(Builder):
     """
     Builds Docutils-native XML.

@@ -45,7 +45,7 @@ class LaTeXBuilder(Builder):
         texescape.init()
 
     def get_outdated_docs(self):
-        return 'all documents' # for now
+        return 'all documents'  # for now
 
     def get_target_uri(self, docname, typ=None):
         if docname not in self.docnames:
@@ -94,9 +94,9 @@ class LaTeXBuilder(Builder):
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
             self.info("processing " + targetname + "... ", nonl=1)
-            doctree = self.assemble_doctree(docname, toctree_only,
-                appendices=((docclass != 'howto') and
-                            self.config.latex_appendices or []))
+            doctree = self.assemble_doctree(
+                docname, toctree_only,
+                appendices=((docclass != 'howto') and self.config.latex_appendices or []))
             self.post_process_images(doctree)
             self.info("writing... ", nonl=1)
             doctree.settings = docsettings

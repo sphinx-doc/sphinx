@@ -130,6 +130,7 @@ timestamp = time()
 tzdelta = datetime.fromtimestamp(timestamp) - \
     datetime.utcfromtimestamp(timestamp)
 
+
 class LocalTimeZone(tzinfo):
 
     def __init__(self, *args, **kw):
@@ -213,8 +214,8 @@ class MessageCatalogBuilder(I18nBuilder):
 
                     if self.config.gettext_location:
                         # generate "#: file1:line1\n#: file2:line2 ..."
-                        pofile.write("#: %s\n" % "\n#: ".join("%s:%s" %
-                            (safe_relpath(source, self.outdir), line)
+                        pofile.write("#: %s\n" % "\n#: ".join(
+                            "%s:%s" % (safe_relpath(source, self.outdir), line)
                             for source, line, _ in positions))
                     if self.config.gettext_uuid:
                         # generate "# uuid1\n# uuid2\n ..."
@@ -223,8 +224,8 @@ class MessageCatalogBuilder(I18nBuilder):
 
                     # message contains *one* line of text ready for translation
                     message = message.replace('\\', r'\\'). \
-                                      replace('"', r'\"'). \
-                                      replace('\n', '\\n"\n"')
+                        replace('"', r'\"'). \
+                        replace('\n', '\\n"\n"')
                     pofile.write('msgid "%s"\nmsgstr ""\n\n' % message)
 
             finally:

@@ -78,7 +78,7 @@ class StandaloneHTMLBuilder(Builder):
     searchindex_filename = 'searchindex.js'
     add_permalinks = True
     embedded = False  # for things like HTML help or Qt help: suppresses sidebar
-    search = True # for things like HTML help and Apple help: suppress search
+    search = True  # for things like HTML help and Apple help: suppress search
 
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
     script_files = ['_static/jquery.js', '_static/underscore.js',
@@ -194,7 +194,7 @@ class StandaloneHTMLBuilder(Builder):
         except Exception:
             pass
         if old_config_hash != self.config_hash or \
-               old_tags_hash != self.tags_hash:
+           old_tags_hash != self.tags_hash:
             for docname in self.env.found_docs:
                 yield docname
             return
@@ -230,8 +230,8 @@ class StandaloneHTMLBuilder(Builder):
 
         if self._publisher is None:
             self._publisher = Publisher(
-                    source_class = DocTreeInput,
-                    destination_class=StringOutput)
+                source_class = DocTreeInput,
+                destination_class=StringOutput)
             self._publisher.set_components('standalone',
                                            'restructuredtext', 'pseudoxml')
 
@@ -280,7 +280,7 @@ class StandaloneHTMLBuilder(Builder):
                             continue
                     # deprecated config value
                     if indexname == 'py-modindex' and \
-                           not self.config.html_use_modindex:
+                       not self.config.html_use_modindex:
                         continue
                     content, collapse = indexcls(domain).generate()
                     if content:
@@ -296,10 +296,10 @@ class StandaloneHTMLBuilder(Builder):
             self.last_updated = None
 
         logo = self.config.html_logo and \
-               path.basename(self.config.html_logo) or ''
+            path.basename(self.config.html_logo) or ''
 
         favicon = self.config.html_favicon and \
-                  path.basename(self.config.html_favicon) or ''
+            path.basename(self.config.html_favicon) or ''
         if favicon and os.path.splitext(favicon)[1] != '.ico':
             self.warn('html_favicon is not an .ico file')
 
@@ -394,8 +394,9 @@ class StandaloneHTMLBuilder(Builder):
                 pass
             related = self.relations.get(related[0])
         if parents:
-            parents.pop() # remove link to the master file; we have a generic
-                          # "back to index" link already
+            # remove link to the master file; we have a generic
+            # "back to index" link already
+            parents.pop()
         parents.reverse()
 
         # title rendered as HTML
@@ -505,7 +506,7 @@ class StandaloneHTMLBuilder(Builder):
         # the entries into two columns
         genindex = self.env.create_index(self)
         indexcounts = []
-        for _, entries in genindex:
+        for _k, entries in genindex:
             indexcounts.append(sum(1 + len(subitems)
                                    for _, (_, subitems) in entries))
 
@@ -821,8 +822,7 @@ class StandaloneHTMLBuilder(Builder):
                      u'# Project: %s\n'
                      u'# Version: %s\n'
                      u'# The remainder of this file is compressed using zlib.\n'
-                     % (self.config.project, self.config.version)
-                    ).encode('utf-8'))
+                     % (self.config.project, self.config.version)).encode('utf-8'))
             compressor = zlib.compressobj(9)
             for domainname, domain in iteritems(self.env.domains):
                 for name, dispname, type, docname, anchor, prio in \
@@ -835,8 +835,7 @@ class StandaloneHTMLBuilder(Builder):
                         dispname = u'-'
                     f.write(compressor.compress(
                         (u'%s %s:%s %s %s %s\n' % (name, domainname, type,
-                                                   prio, uri, dispname)
-                        ).encode('utf-8')))
+                                                   prio, uri, dispname)).encode('utf-8')))
             f.write(compressor.flush())
         finally:
             f.close()
@@ -874,13 +873,13 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
         if docname == 'index':
             return ''
         if docname.endswith(SEP + 'index'):
-            return docname[:-5] # up to sep
+            return docname[:-5]  # up to sep
         return docname + SEP
 
     def get_outfilename(self, pagename):
         if pagename == 'index' or pagename.endswith(SEP + 'index'):
-            outfilename = path.join(self.outdir, os_path(pagename)
-                                    + self.out_suffix)
+            outfilename = path.join(self.outdir, os_path(pagename) +
+                                    self.out_suffix)
         else:
             outfilename = path.join(self.outdir, os_path(pagename),
                                     'index' + self.out_suffix)
@@ -907,7 +906,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         if docname in self.env.all_docs:
             # all references are on the same page...
             return self.config.master_doc + self.out_suffix + \
-                   '#document-' + docname
+                '#document-' + docname
         else:
             # chances are this is a html_additional_page
             return docname + self.out_suffix
@@ -1053,7 +1052,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         if docname == 'index':
             return ''
         if docname.endswith(SEP + 'index'):
-            return docname[:-5] # up to sep
+            return docname[:-5]  # up to sep
         return docname + SEP
 
     def dump_context(self, context, filename):

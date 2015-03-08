@@ -111,7 +111,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         StandaloneHTMLBuilder.init(self)
         # the output files for HTML help must be .html only
         self.out_suffix = '.html'
-        #self.config.html_style = 'traditional.css'
+        # self.config.html_style = 'traditional.css'
 
     def handle_finish(self):
         self.build_qhp(self.outdir, self.config.qthelp_basename)
@@ -122,9 +122,10 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         # sections
         tocdoc = self.env.get_and_resolve_doctree(self.config.master_doc, self,
                                                   prune_toctrees=False)
-        istoctree = lambda node: (
-                        isinstance(node, addnodes.compact_paragraph)
-                            and 'toctree' in node)
+
+        def istoctree(node):
+            return isinstance(node, addnodes.compact_paragraph) and \
+                'toctree' in node
         sections = []
         for node in tocdoc.traverse(istoctree):
             sections.extend(self.write_toc(node))
@@ -160,10 +161,10 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         imagesdir = path.join(outdir, self.imagedir)
         for root, dirs, files in os.walk(outdir):
             resourcedir = root.startswith(staticdir) or \
-                          root.startswith(imagesdir)
+                root.startswith(imagesdir)
             for fn in files:
                 if (resourcedir and not fn.endswith('.js')) or \
-                       fn.endswith('.html'):
+                   fn.endswith('.html'):
                     filename = path.join(root, fn)[olen:]
                     projectfiles.append(file_template %
                                         {'filename': htmlescape(filename)})
@@ -239,7 +240,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                 parts.extend(self.write_toc(subnode, indentlevel))
         elif isinstance(node, nodes.reference):
             link = node['refuri']
-            title = htmlescape(node.astext()).replace('"','&quot;')
+            title = htmlescape(node.astext()).replace('"', '&quot;')
             item = section_template % {'title': title, 'ref': link}
             item = u' ' * 4 * indentlevel + item
             parts.append(item.encode('ascii', 'xmlcharrefreplace'))
@@ -258,7 +259,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             groupdict = matchobj.groupdict()
             shortname = groupdict['title']
             id = groupdict.get('id')
-            #descr = groupdict.get('descr')
+            # descr = groupdict.get('descr')
             if shortname.endswith('()'):
                 shortname = shortname[:-2]
             id = '%s.%s' % (id, shortname)
@@ -277,17 +278,17 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         keywords = []
 
         title = htmlescape(title)
-#        if len(refs) == 0: # XXX
-#            write_param('See Also', title)
+        # if len(refs) == 0: # XXX
+        #     write_param('See Also', title)
         if len(refs) == 1:
             keywords.append(self.keyword_item(title, refs[0]))
         elif len(refs) > 1:
             for i, ref in enumerate(refs):  # XXX
-#                item = (' '*12 +
-#                        '<keyword name="%s [%d]" ref="%s"/>' % (
-#                                                        title, i, ref))
-#                item.encode('ascii', 'xmlcharrefreplace')
-#                keywords.append(item)
+                # item = (' '*12 +
+                #         '<keyword name="%s [%d]" ref="%s"/>' % (
+                #          title, i, ref))
+                # item.encode('ascii', 'xmlcharrefreplace')
+                # keywords.append(item)
                 keywords.append(self.keyword_item(title, ref))
 
         if subitems:

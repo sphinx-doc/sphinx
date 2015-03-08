@@ -88,14 +88,14 @@ class TexinfoBuilder(Builder):
     name = 'texinfo'
     format = 'texinfo'
     supported_image_types = ['image/png', 'image/jpeg',
-                             'image/gif',]
+                             'image/gif']
 
     def init(self):
         self.docnames = []
         self.document_data = []
 
     def get_outdated_docs(self):
-        return 'all documents' # for now
+        return 'all documents'  # for now
 
     def get_target_uri(self, docname, typ=None):
         if docname not in self.docnames:
@@ -141,7 +141,8 @@ class TexinfoBuilder(Builder):
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
             self.info("processing " + targetname + "... ", nonl=1)
-            doctree = self.assemble_doctree(docname, toctree_only,
+            doctree = self.assemble_doctree(
+                docname, toctree_only,
                 appendices=(self.config.texinfo_appendices or []))
             self.info("writing... ", nonl=1)
             self.post_process_images(doctree)

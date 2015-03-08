@@ -37,7 +37,7 @@ class ManualPageBuilder(Builder):
                       'will be written')
 
     def get_outdated_docs(self):
-        return 'all manpages' # for now
+        return 'all manpages'  # for now
 
     def get_target_uri(self, docname, typ=None):
         if typ == 'token':

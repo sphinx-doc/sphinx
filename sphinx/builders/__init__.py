@@ -19,7 +19,6 @@ except ImportError:
     multiprocessing = threading = None
 
 from docutils import nodes
-from six import string_types
 
 from sphinx.util import i18n, path_stabilize
 from sphinx.util.osutil import SEP, relative_uri, find_catalog
