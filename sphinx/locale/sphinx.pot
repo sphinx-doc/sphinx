@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx 1.3b3\n"
+"Project-Id-Version: Sphinx 1.3\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-02-24 14:27+0000\n"
+"POT-Creation-Date: 2015-03-08 23:31+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,37 +17,37 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: sphinx/config.py:79
+#: sphinx/config.py:80
 #, python-format
 msgid "Fig. %s"
 msgstr ""
 
-#: sphinx/config.py:80
+#: sphinx/config.py:81
 #, python-format
 msgid "Table %s"
 msgstr ""
 
-#: sphinx/config.py:81
+#: sphinx/config.py:82
 #, python-format
 msgid "Listing %s"
 msgstr ""
 
-#: sphinx/config.py:88
+#: sphinx/config.py:89
 #, python-format
 msgid "%s %s documentation"
 msgstr ""
 
-#: sphinx/environment.py:1844
+#: sphinx/environment.py:1880
 #, python-format
 msgid "see %s"
 msgstr ""
 
-#: sphinx/environment.py:1847
+#: sphinx/environment.py:1883
 #, python-format
 msgid "see also %s"
 msgstr ""
 
-#: sphinx/environment.py:1905
+#: sphinx/environment.py:1941
 msgid "Symbols"
 msgstr ""
 
@@ -56,7 +56,7 @@ msgstr ""
 msgid "Python Enhancement Proposals; PEP %s"
 msgstr ""
 
-#: sphinx/transforms.py:58 sphinx/writers/latex.py:210
+#: sphinx/transforms.py:58 sphinx/writers/latex.py:212
 #: sphinx/writers/manpage.py:67 sphinx/writers/texinfo.py:221
 #, python-format
 msgid "%B %d, %Y"
@@ -95,19 +95,19 @@ msgstr ""
 msgid " (in "
 msgstr ""
 
-#: sphinx/directives/other.py:140
+#: sphinx/directives/other.py:150
 msgid "Section author: "
 msgstr ""
 
-#: sphinx/directives/other.py:142
+#: sphinx/directives/other.py:152
 msgid "Module author: "
 msgstr ""
 
-#: sphinx/directives/other.py:144
+#: sphinx/directives/other.py:154
 msgid "Code author: "
 msgstr ""
 
-#: sphinx/directives/other.py:146
+#: sphinx/directives/other.py:156
 msgid "Author: "
 msgstr ""
 
@@ -116,12 +116,12 @@ msgstr ""
 msgid "%s %s"
 msgstr ""
 
-#: sphinx/domains/c.py:58 sphinx/domains/cpp.py:2086
+#: sphinx/domains/c.py:58 sphinx/domains/cpp.py:2408
 #: sphinx/domains/python.py:122
 msgid "Parameters"
 msgstr ""
 
-#: sphinx/domains/c.py:61 sphinx/domains/cpp.py:2092
+#: sphinx/domains/c.py:61 sphinx/domains/cpp.py:2414
 #: sphinx/domains/javascript.py:128 sphinx/domains/python.py:134
 msgid "Returns"
 msgstr ""
@@ -156,12 +156,12 @@ msgstr ""
 msgid "%s (C variable)"
 msgstr ""
 
-#: sphinx/domains/c.py:242 sphinx/domains/cpp.py:2340
+#: sphinx/domains/c.py:242 sphinx/domains/cpp.py:2680
 #: sphinx/domains/javascript.py:164 sphinx/domains/python.py:587
 msgid "function"
 msgstr ""
 
-#: sphinx/domains/c.py:243 sphinx/domains/cpp.py:2341
+#: sphinx/domains/c.py:243 sphinx/domains/cpp.py:2681
 msgid "member"
 msgstr ""
 
@@ -169,7 +169,7 @@ msgstr ""
 msgid "macro"
 msgstr ""
 
-#: sphinx/domains/c.py:245 sphinx/domains/cpp.py:2342
+#: sphinx/domains/c.py:245 sphinx/domains/cpp.py:2682
 msgid "type"
 msgstr ""
 
@@ -177,50 +177,50 @@ msgstr ""
 msgid "variable"
 msgstr ""
 
-#: sphinx/domains/cpp.py:2089 sphinx/domains/javascript.py:125
+#: sphinx/domains/cpp.py:2411 sphinx/domains/javascript.py:125
 msgid "Throws"
 msgstr ""
 
-#: sphinx/domains/cpp.py:2181
+#: sphinx/domains/cpp.py:2518
 #, python-format
 msgid "%s (C++ type)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:2193
+#: sphinx/domains/cpp.py:2531
 #, python-format
 msgid "%s (C++ member)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:2204
+#: sphinx/domains/cpp.py:2543
 #, python-format
 msgid "%s (C++ function)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:2215
+#: sphinx/domains/cpp.py:2555
 #, python-format
 msgid "%s (C++ class)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:2240
+#: sphinx/domains/cpp.py:2579
 #, python-format
 msgid "%s (C++ enum)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:2279
+#: sphinx/domains/cpp.py:2617
 #, python-format
 msgid "%s (C++ enumerator)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:2339 sphinx/domains/javascript.py:165
+#: sphinx/domains/cpp.py:2679 sphinx/domains/javascript.py:165
 #: sphinx/domains/python.py:589
 msgid "class"
 msgstr ""
 
-#: sphinx/domains/cpp.py:2343
+#: sphinx/domains/cpp.py:2683
 msgid "enum"
 msgstr ""
 
-#: sphinx/domains/cpp.py:2344
+#: sphinx/domains/cpp.py:2684
 msgid "enumerator"
 msgstr ""
 
@@ -420,7 +420,7 @@ msgstr ""
 #: sphinx/themes/basic/genindex-split.html:14
 #: sphinx/themes/basic/genindex.html:32 sphinx/themes/basic/genindex.html:35
 #: sphinx/themes/basic/genindex.html:68 sphinx/themes/basic/layout.html:134
-#: sphinx/writers/latex.py:199 sphinx/writers/texinfo.py:479
+#: sphinx/writers/latex.py:201 sphinx/writers/texinfo.py:479
 msgid "Index"
 msgstr ""
 
@@ -782,8 +782,8 @@ msgstr ""
 msgid "Other changes"
 msgstr ""
 
-#: sphinx/themes/basic/static/doctools.js:166 sphinx/writers/html.py:607
-#: sphinx/writers/html.py:612
+#: sphinx/themes/basic/static/doctools.js:166 sphinx/writers/html.py:610
+#: sphinx/writers/html.py:615
 msgid "Permalink to this headline"
 msgstr ""
 
@@ -829,28 +829,32 @@ msgstr ""
 msgid "Permalink to this code"
 msgstr ""
 
-#: sphinx/writers/html.py:336
+#: sphinx/writers/html.py:337
 msgid "Permalink to this image"
 msgstr ""
 
-#: sphinx/writers/html.py:616
+#: sphinx/writers/html.py:339
+msgid "Permalink to this toctree"
+msgstr ""
+
+#: sphinx/writers/html.py:619
 msgid "Permalink to this table"
 msgstr ""
 
-#: sphinx/writers/latex.py:197
+#: sphinx/writers/latex.py:199
 msgid "Release"
 msgstr ""
 
-#: sphinx/writers/latex.py:637 sphinx/writers/manpage.py:177
+#: sphinx/writers/latex.py:697 sphinx/writers/manpage.py:177
 #: sphinx/writers/texinfo.py:616
 msgid "Footnotes"
 msgstr ""
 
-#: sphinx/writers/latex.py:725
+#: sphinx/writers/latex.py:785
 msgid "continued from previous page"
 msgstr ""
 
-#: sphinx/writers/latex.py:731
+#: sphinx/writers/latex.py:791
 msgid "Continued on next page"
 msgstr ""
 
