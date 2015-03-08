@@ -140,7 +140,7 @@ def traverse_translatable_index(doctree):
     """Traverse translatable index node from a document tree."""
     def is_block_index(node):
         return isinstance(node, addnodes.index) and  \
-            node.get('inline') == False
+            node.get('inline') is False
     for node in doctree.traverse(is_block_index):
         if 'raw_entries' in node:
             entries = node['raw_entries']
