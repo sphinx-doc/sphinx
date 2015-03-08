@@ -503,7 +503,7 @@ class ASTOperatorBuildIn(ASTBase):
     def get_name_no_template(self):
         return text_type(self)
 
-    def describe_signature(self, signode, mode, env, prefix):
+    def describe_signature(self, signode, mode, env, prefix, parentScope):
         _verify_description_mode(mode)
         identifier = text_type(self)
         if mode == 'lastIsName':
@@ -528,7 +528,7 @@ class ASTOperatorType(ASTBase):
     def get_name_no_template(self):
         return text_type(self)
 
-    def describe_signature(self, signode, mode, env, prefix):
+    def describe_signature(self, signode, mode, env, prefix, parentScope):
         _verify_description_mode(mode)
         identifier = text_type(self)
         if mode == 'lastIsName':
@@ -552,7 +552,7 @@ class ASTTemplateArgConstant(ASTBase):
         # juse it verbatim for now
         return u'X' + text_type(self) + u'E'
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
         signode += nodes.Text(text_type(self))
 
@@ -569,7 +569,7 @@ class ASTNestedNameElementEmpty(ASTBase):
     def __unicode__(self):
         return u''
 
-    def describe_signature(self, signode, mode, env, prefix):
+    def describe_signature(self, signode, mode, env, prefix, parentScope):
         pass
 
 
@@ -624,15 +624,14 @@ class ASTNestedNameElement(ASTBase):
     def get_name_no_template(self):
         return text_type(self.identifier)
 
-    def describe_signature(self, signode, mode, env, prefix):
+    def describe_signature(self, signode, mode, env, prefix, parentScope):
         _verify_description_mode(mode)
         if mode == 'markType':
             targetText = prefix + text_type(self)
             pnode = addnodes.pending_xref(
                 '', refdomain='cpp', reftype='type',
                 reftarget=targetText, modname=None, classname=None)
-            if env:  # during testing we don't have an env, do we?
-                pnode['cpp:parent'] = env.ref_context.get('cpp:parent')
+            pnode['cpp:parent'] = [parentScope]
             pnode += nodes.Text(text_type(self.identifier))
             signode += pnode
         elif mode == 'lastIsName':
@@ -647,7 +646,8 @@ class ASTNestedNameElement(ASTBase):
                 if not first:
                     signode += nodes.Text(', ')
                 first = False
-                a.describe_signature(signode, 'markType', env)
+                a.describe_signature(signode, 'markType', env,
+                                     parentScope=parentScope)
             signode += nodes.Text('>')
 
 
@@ -702,7 +702,7 @@ class ASTNestedName(ASTBase):
     def __unicode__(self):
         return u'::'.join([text_type(n) for n in self.names])
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
         if mode == 'lastIsName':
             addname = u'::'.join([text_type(n) for n in self.names[:-1]])
@@ -710,7 +710,8 @@ class ASTNestedName(ASTBase):
                 addname += u'::'
             name = text_type(self.names[-1])
             signode += addnodes.desc_addname(addname, addname)
-            self.names[-1].describe_signature(signode, mode, env, '')
+            self.names[-1].describe_signature(signode, mode, env, '',
+                                              parentScope=parentScope)
         elif mode == 'noneIsName':
             name = text_type(self)
             signode += nodes.Text(name)
@@ -729,7 +730,8 @@ class ASTNestedName(ASTBase):
                     prefix += '::'
                 first = False
                 if name != '':
-                    name.describe_signature(signode, mode, env, prefix)
+                    name.describe_signature(signode, mode, env, prefix,
+                                            parentScope=parentScope)
                 prefix += text_type(name)
         else:
             raise Exception('Unknown description mode: %s' % mode)
@@ -759,7 +761,7 @@ class ASTTrailingTypeSpecFundamental(ASTBase):
                 'parser should have rejected it.' % self.name)
         return _id_fundamental_v2[self.name]
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         signode += nodes.Text(text_type(self.name))
 
 
@@ -786,11 +788,12 @@ class ASTTrailingTypeSpecName(ASTBase):
         res.append(text_type(self.nestedName))
         return u''.join(res)
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         if self.prefix:
             signode += addnodes.desc_annotation(self.prefix, self.prefix)
             signode += nodes.Text(' ')
-        self.nestedName.describe_signature(signode, mode, env)
+        self.nestedName.describe_signature(signode, mode, env,
+                                           parentScope=parentScope)
 
 
 class ASTFunctinoParameter(ASTBase):
@@ -816,12 +819,13 @@ class ASTFunctinoParameter(ASTBase):
         else:
             return text_type(self.arg)
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
         if self.ellipsis:
             signode += nodes.Text('...')
         else:
-            self.arg.describe_signature(signode, mode, env)
+            self.arg.describe_signature(signode, mode, env,
+                                        parentScope=parentScope)
 
 
 class ASTParametersQualifiers(ASTBase):
@@ -905,15 +909,17 @@ class ASTParametersQualifiers(ASTBase):
             res.append(self.initializer)
         return u''.join(res)
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
         paramlist = addnodes.desc_parameterlist()
         for arg in self.args:
             param = addnodes.desc_parameter('', '', noemph=True)
             if mode == 'lastIsName':  # i.e., outer-function params
-                arg.describe_signature(param, 'param', env)
+                arg.describe_signature(param, 'param', env,
+                                       parentScope=parentScope)
             else:
-                arg.describe_signature(param, 'markType', env)
+                arg.describe_signature(param, 'markType', env,
+                                       parentScope=parentScope)
             paramlist += param
         signode += paramlist
 
@@ -1058,7 +1064,7 @@ class ASTDeclSpecs(ASTBase):
                 res.append(r)
         return "".join(res)
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
         modifiers = []
 
@@ -1076,7 +1082,8 @@ class ASTDeclSpecs(ASTBase):
         if self.trailingTypeSpec:
             if len(modifiers) > 0:
                 signode += nodes.Text(' ')
-            self.trailingTypeSpec.describe_signature(signode, mode, env)
+            self.trailingTypeSpec.describe_signature(signode, mode, env,
+                                                     parentScope=parentScope)
             modifiers = []
             self.rightSpecs.describe_signature(modifiers)
             if len(modifiers) > 0:
@@ -1176,10 +1183,11 @@ class ASTDeclaratorPtr(ASTBase):
     def is_function_type(self):
         return self.next.is_function_type()
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
         signode += nodes.Text("*")
-        self.next.describe_signature(signode, mode, env)
+        self.next.describe_signature(signode, mode, env,
+                                     parentScope=parentScope)
 
 
 class ASTDeclaratorRef(ASTBase):
@@ -1228,10 +1236,11 @@ class ASTDeclaratorRef(ASTBase):
     def is_function_type(self):
         return self.next.is_function_type()
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
         signode += nodes.Text("&")
-        self.next.describe_signature(signode, mode, env)
+        self.next.describe_signature(signode, mode, env,
+                                     parentScope=parentScope)
 
 
 class ASTDeclaratorParamPack(ASTBase):
@@ -1283,12 +1292,13 @@ class ASTDeclaratorParamPack(ASTBase):
     def is_function_type(self):
         return self.next.is_function_type()
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
         signode += nodes.Text("...")
         if self.next.name:
             signode += nodes.Text(' ')
-        self.next.describe_signature(signode, mode, env)
+        self.next.describe_signature(signode, mode, env,
+                                     parentScope=parentScope)
 
 
 class ASTDeclaratorParen(ASTBase):
@@ -1348,12 +1358,14 @@ class ASTDeclaratorParen(ASTBase):
     def is_function_type(self):
         return self.inner.is_function_type()
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
         signode += nodes.Text('(')
-        self.inner.describe_signature(signode, mode, env)
+        self.inner.describe_signature(signode, mode, env,
+                                      parentScope=parentScope)
         signode += nodes.Text(')')
-        self.next.describe_signature(signode, "noneIsName", env)
+        self.next.describe_signature(signode, "noneIsName", env,
+                                     parentScope=parentScope)
 
 
 class ASTDecleratorNameParamQual(ASTBase):
@@ -1434,14 +1446,16 @@ class ASTDecleratorNameParamQual(ASTBase):
             res.append(text_type(self.paramQual))
         return u''.join(res)
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
         if self.declId:
-            self.declId.describe_signature(signode, mode, env)
+            self.declId.describe_signature(signode, mode, env,
+                                           parentScope=parentScope)
         for op in self.arrayOps:
             op.describe_signature(signode, mode, env)
         if self.paramQual:
-            self.paramQual.describe_signature(signode, mode, env)
+            self.paramQual.describe_signature(signode, mode, env,
+                                              parentScope=parentScope)
 
 
 class ASTInitializer(ASTBase):
@@ -1523,13 +1537,15 @@ class ASTType(ASTBase):
         res.append(text_type(self.decl))
         return u''.join(res)
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
-        self.declSpecs.describe_signature(signode, 'markType', env)
+        self.declSpecs.describe_signature(signode, 'markType', env,
+                                          parentScope=parentScope)
         if (self.decl.require_space_after_declSpecs() and
                 len(text_type(self.declSpecs)) > 0):
             signode += nodes.Text(' ')
-        self.decl.describe_signature(signode, mode, env)
+        self.decl.describe_signature(signode, mode, env,
+                                     parentScope=parentScope)
 
 
 class ASTTypeWithInit(ASTBase):
@@ -1561,9 +1577,10 @@ class ASTTypeWithInit(ASTBase):
             res.append(text_type(self.init))
         return u''.join(res)
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
-        self.type.describe_signature(signode, mode, env)
+        self.type.describe_signature(signode, mode, env,
+                                     parentScope=parentScope)
         if self.init:
             self.init.describe_signature(signode, mode)
 
@@ -1581,13 +1598,14 @@ class ASTBaseClass(ASTBase):
         res.append(text_type(self.name))
         return u''.join(res)
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
         if self.visibility != 'private':
-            signode += addnodes.desc_annotation(
-                self.visibility, self.visibility)
+            signode += addnodes.desc_annotation(self.visibility,
+                                                self.visibility)
             signode += nodes.Text(' ')
-        self.name.describe_signature(signode, mode, env)
+        self.name.describe_signature(signode, mode, env,
+                                     parentScope=parentScope)
 
 
 class ASTClass(ASTBase):
@@ -1622,17 +1640,19 @@ class ASTClass(ASTBase):
                 res.append(text_type(b))
         return u''.join(res)
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
         if self.visibility != 'public':
             signode += addnodes.desc_annotation(
                 self.visibility, self.visibility)
             signode += nodes.Text(' ')
-        self.name.describe_signature(signode, mode, env)
+        self.name.describe_signature(signode, mode, env,
+                                     parentScope=parentScope)
         if len(self.bases) > 0:
             signode += nodes.Text(' : ')
             for b in self.bases:
-                b.describe_signature(signode, mode, env)
+                b.describe_signature(signode, mode, env,
+                                     parentScope=parentScope)
                 signode += nodes.Text(', ')
             signode.pop()
 
@@ -1664,17 +1684,19 @@ class ASTEnum(ASTBase):
             res.append(text_type(self.underlyingType))
         return u''.join(res)
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
         # self.scoped has been done by the CPPEnumObject
         if self.visibility != 'public':
             signode += addnodes.desc_annotation(
                 self.visibility, self.visibility)
             signode += nodes.Text(' ')
-        self.name.describe_signature(signode, mode, env)
+        self.name.describe_signature(signode, mode, env,
+                                     parentScope=parentScope)
         if self.underlyingType:
             signode += nodes.Text(' : ')
-            self.underlyingType.describe_signature(signode, 'noneIsName', env)
+            self.underlyingType.describe_signature(signode, 'noneIsName', env,
+                                                   parentScope=parentScope)
 
 
 class ASTEnumerator(ASTBase):
@@ -1695,9 +1717,10 @@ class ASTEnumerator(ASTBase):
             res.append(text_type(self.init))
         return u''.join(res)
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, parentScope):
         _verify_description_mode(mode)
-        self.name.describe_signature(signode, mode, env)
+        self.name.describe_signature(signode, mode, env,
+                                     parentScope=parentScope)
         if self.init:
             self.init.describe_signature(signode, 'noneIsName')
 
@@ -2456,7 +2479,7 @@ class CPPObject(ObjectDescription):
     def parse_definition(self, parser):
         raise NotImplementedError()
 
-    def describe_signature(self, signode, ast):
+    def describe_signature(self, signode, ast, parentScope):
         raise NotImplementedError()
 
     def handle_signature(self, sig, signode):
@@ -2484,10 +2507,9 @@ class CPPObject(ObjectDescription):
             ])
             set_lastname(name)
             raise ValueError
-        self.describe_signature(signode, ast)
-
         ast.prefixedName = set_lastname(ast.name)
         assert ast.prefixedName
+        self.describe_signature(signode, ast, parentScope=ast.prefixedName)
         return ast
 
 
@@ -2498,9 +2520,10 @@ class CPPTypeObject(CPPObject):
     def parse_definition(self, parser):
         return parser.parse_type_object()
 
-    def describe_signature(self, signode, ast):
+    def describe_signature(self, signode, ast, parentScope):
         signode += addnodes.desc_annotation('type ', 'type ')
-        ast.describe_signature(signode, 'lastIsName', self.env)
+        ast.describe_signature(signode, 'lastIsName', self.env,
+                               parentScope=parentScope)
 
 
 class CPPMemberObject(CPPObject):
@@ -2510,8 +2533,9 @@ class CPPMemberObject(CPPObject):
     def parse_definition(self, parser):
         return parser.parse_member_object()
 
-    def describe_signature(self, signode, ast):
-        ast.describe_signature(signode, 'lastIsName', self.env)
+    def describe_signature(self, signode, ast, parentScope):
+        ast.describe_signature(signode, 'lastIsName', self.env,
+                               parentScope=parentScope)
 
 
 class CPPFunctionObject(CPPObject):
@@ -2521,8 +2545,9 @@ class CPPFunctionObject(CPPObject):
     def parse_definition(self, parser):
         return parser.parse_function_object()
 
-    def describe_signature(self, signode, ast):
-        ast.describe_signature(signode, 'lastIsName', self.env)
+    def describe_signature(self, signode, ast, parentScope):
+        ast.describe_signature(signode, 'lastIsName', self.env,
+                               parentScope=parentScope)
 
 
 class CPPClassObject(CPPObject):
@@ -2543,9 +2568,10 @@ class CPPClassObject(CPPObject):
     def parse_definition(self, parser):
         return parser.parse_class_object()
 
-    def describe_signature(self, signode, ast):
+    def describe_signature(self, signode, ast, parentScope):
         signode += addnodes.desc_annotation('class ', 'class ')
-        ast.describe_signature(signode, 'lastIsName', self.env)
+        ast.describe_signature(signode, 'lastIsName', self.env,
+                               parentScope=parentScope)
 
 
 class CPPEnumObject(CPPObject):
@@ -2576,13 +2602,14 @@ class CPPEnumObject(CPPObject):
             assert False
         return ast
 
-    def describe_signature(self, signode, ast):
+    def describe_signature(self, signode, ast, parentScope):
         prefix = 'enum '
         if ast.scoped:
             prefix += ast.scoped
             prefix += ' '
         signode += addnodes.desc_annotation(prefix, prefix)
-        ast.describe_signature(signode, 'lastIsName', self.env)
+        ast.describe_signature(signode, 'lastIsName', self.env,
+                               parentScope=parentScope)
 
 
 class CPPEnumeratorObject(CPPObject):
@@ -2592,9 +2619,10 @@ class CPPEnumeratorObject(CPPObject):
     def parse_definition(self, parser):
         return parser.parse_enumerator_object()
 
-    def describe_signature(self, signode, ast):
+    def describe_signature(self, signode, ast, parentScope):
         signode += addnodes.desc_annotation('enumerator ', 'enumerator ')
-        ast.describe_signature(signode, 'lastIsName', self.env)
+        ast.describe_signature(signode, 'lastIsName', self.env,
+                               parentScope=parentScope)
 
 
 class CPPNamespaceObject(Directive):

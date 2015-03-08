@@ -38,7 +38,7 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
         print("Result:   ", res)
         print("Expected: ", output)
         raise DefinitionError("")
-    ast.describe_signature([], 'lastIsName', None)
+    ast.describe_signature([], 'lastIsName', None, parentScope=ast.name)
     # Artificially set the prefixedName, otherwise the get_id fails.
     # It would usually have been set in handle_signarue.
     ast.prefixedName = ast.name
