@@ -53,6 +53,8 @@ class TocTree(Directive):
         suffixes = env.config.source_suffix
         glob = 'glob' in self.options
         caption = self.options.get('caption')
+        if caption:
+            self.options['name'] = nodes.fully_normalize_name(caption)
 
         ret = []
         # (title, ref) pairs, where ref may be a document, or an external link,
@@ -120,6 +122,7 @@ class TocTree(Directive):
         set_source_info(self, subnode)
         wrappernode = nodes.compound(classes=['toctree-wrapper'])
         wrappernode.append(subnode)
+        self.add_name(wrappernode)
         ret.append(wrappernode)
         return ret
 

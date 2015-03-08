@@ -85,6 +85,13 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    **Additional options**
 
+   You can use ``caption`` option to provide toctree caption::
+
+      .. toctree::
+         :caption: Table of Contents
+
+         foo
+
    If you want only the titles of documents in the tree to show up, not other
    headings of the same level, you can use the ``titlesonly`` option::
 
@@ -167,6 +174,9 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    .. versionchanged:: 1.2
       Added "includehidden" option.
+
+   .. versionchanged:: 1.3
+      Added "caption" option.
 
 Special names
 -------------

@@ -1380,15 +1380,7 @@ class BuildEnvironment:
                                   separate=False, subtree=False):
             """Return TOC entries for a toctree node."""
             refs = [(e[0], e[1]) for e in toctreenode['entries']]
-            caption = toctreenode.attributes.get('caption')
             entries = []
-            if caption:
-                entries.extend(
-                        nodes.reference('', '', internal=False,
-                                                    refuri='', anchorname='',
-                                                    *[nodes.Text(caption)])
-                )
-
             for (title, ref) in refs:
                 try:
                     refdoc = None
@@ -1489,7 +1481,11 @@ class BuildEnvironment:
         if not tocentries:
             return None
 
-        newnode = addnodes.compact_paragraph('', '', *tocentries)
+        newnode = addnodes.compact_paragraph('', '')
+        caption = toctree.attributes.get('caption')
+        if caption:
+            newnode += nodes.caption(caption, '', *[nodes.Text(caption)])
+        newnode.extend(tocentries)
         newnode['toctree'] = True
 
         # prune the tree to maxdepth, also set toc depth and current classes

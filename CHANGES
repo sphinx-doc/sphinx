@@ -77,6 +77,7 @@ Features added
 
 * #1227: Add `html_scaled_image_link` config option to conf.py, to control
   scaled image link.
+* #1700: Add `:caption:` option for `toctree`.
 
 Bugs fixed
 ----------

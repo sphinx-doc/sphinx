@@ -334,6 +334,8 @@ class HTMLTranslator(BaseTranslator):
             self.add_permalink_ref(node.parent, _('Permalink to this code'))
         elif isinstance(node.parent, nodes.figure):
             self.add_permalink_ref(node.parent, _('Permalink to this image'))
+        elif node.parent.get('toctree'):
+            self.add_permalink_ref(node.parent.parent, _('Permalink to this toctree'))
 
         if isinstance(node.parent, nodes.container) and node.parent.get('literal_block'):
             self.body.append('</div>\n')
