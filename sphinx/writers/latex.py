@@ -68,8 +68,10 @@ FOOTER = r'''
 \end{document}
 '''
 
+
 class collected_footnote(nodes.footnote):
     """Footnotes that are collected are assigned this class."""
+
 
 class UnsupportedError(SphinxError):
     category = 'Markup is unsupported in LaTeX'
@@ -83,7 +85,7 @@ class LaTeXWriter(writers.Writer):
         ('Document name', ['--docname'], {'default': ''}),
         ('Document class', ['--docclass'], {'default': 'manual'}),
         ('Author', ['--author'], {'default': ''}),
-        ))
+    ))
     settings_defaults = {}
 
     output = None
@@ -113,9 +115,9 @@ class ExtBabel(Babel):
 
     def uses_cyrillic(self):
         shortlang = self.language.split('_')[0]
-        return shortlang in ('bg','bulgarian', 'kk','kazakh',
-                             'mn','mongolian', 'ru','russian',
-                             'uk','ukrainian')
+        return shortlang in ('bg', 'bulgarian', 'kk', 'kazakh',
+                             'mn', 'mongolian', 'ru', 'russian',
+                             'uk', 'ukrainian')
 
 # in latest trunk, the attribute is called Babel.language_codes and already
 # includes Slovene
@@ -184,7 +186,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
         # sort out some elements
         papersize = builder.config.latex_paper_size + 'paper'
-        if papersize == 'paper': # e.g. command line "-D latex_paper_size="
+        if papersize == 'paper':  # e.g. command line "-D latex_paper_size="
             papersize = 'letterpaper'
 
         self.elements = self.default_elements.copy()
@@ -208,8 +210,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if builder.config.today:
             self.elements['date'] = builder.config.today
         else:
-            self.elements['date'] = ustrftime(builder.config.today_fmt
-                                              or _('%B %d, %Y'))
+            self.elements['date'] = ustrftime(builder.config.today_fmt or
+                                              _('%B %d, %Y'))
         if builder.config.latex_logo:
             self.elements['logo'] = '\\includegraphics{%s}\\par' % \
                                     path.basename(builder.config.latex_logo)
@@ -253,7 +255,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                              self.elements['extraclassoptions']
         self.elements['numfig_format'] = self.generate_numfig_format(builder)
 
-        self.highlighter = highlighting.PygmentsBridge('latex',
+        self.highlighter = highlighting.PygmentsBridge(
+            'latex',
             builder.config.pygments_style, builder.config.trim_doctest_flags)
         self.context = []
         self.descstack = []
@@ -313,7 +316,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if withdoc:
             id = self.curfilestack[-1] + ':' + id
         return (anchor and '\\phantomsection' or '') + \
-               '\\label{%s}' % self.idescape(id)
+            '\\label{%s}' % self.idescape(id)
 
     def hyperlink(self, id):
         return '{\\hyperref[%s]{' % self.idescape(id)
@@ -416,7 +419,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                             continue
                     # deprecated config value
                     if indexname == 'py-modindex' and \
-                           not self.builder.config.latex_use_modindex:
+                       not self.builder.config.latex_use_modindex:
                         continue
                     content, collapsed = indexcls(domain).generate(
                         self.builder.docnames)
@@ -443,6 +446,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(self.hypertarget(':doc'))
         # "- 1" because the level is increased before the title is visited
         self.sectionlevel = self.top_sectionlevel - 1
+
     def depart_document(self, node):
         if self.bibitems:
             widest_label = ""
@@ -454,7 +458,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 target = self.hypertarget(bi[2] + ':' + bi[3],
                                           withdoc=False)
                 self.body.append(u'\\bibitem[%s]{%s}{%s %s}\n' %
-                    (self.encode(bi[0]), self.idescape(bi[0]), target, bi[1]))
+                                 (self.encode(bi[0]), self.idescape(bi[0]),
+                                  target, bi[1]))
             self.body.append(u'\\end{thebibliography}\n')
             self.bibitems = []
 
@@ -468,7 +473,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.hlsettingstack.append(self.hlsettingstack[0])
 
     def collect_footnotes(self, node):
-        fnotes = {}
         def footnotes_under(n):
             if isinstance(n, nodes.footnote):
                 yield n
@@ -478,6 +482,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                         continue
                     for k in footnotes_under(c):
                         yield k
+        fnotes = {}
         for fn in footnotes_under(node):
             num = fn.children[0].astext().strip()
             fnotes[num] = [collected_footnote(*fn.children), False]
@@ -498,18 +503,21 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\n\n')
         if node.get('ids'):
             self.next_section_ids.update(node['ids'])
+
     def depart_section(self, node):
         self.sectionlevel = max(self.sectionlevel - 1,
                                 self.top_sectionlevel - 1)
 
     def visit_problematic(self, node):
         self.body.append(r'{\color{red}\bfseries{}')
+
     def depart_problematic(self, node):
         self.body.append('}')
 
     def visit_topic(self, node):
         self.body.append('\\setbox0\\vbox{\n'
                          '\\begin{minipage}{0.95\\linewidth}\n')
+
     def depart_topic(self, node):
         self.body.append('\\end{minipage}}\n'
                          '\\begin{center}\\setlength{\\fboxsep}{5pt}'
@@ -519,12 +527,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_glossary(self, node):
         pass
+
     def depart_glossary(self, node):
         pass
 
     def visit_productionlist(self, node):
         self.body.append('\n\n\\begin{productionlist}\n')
         self.in_production_list = 1
+
     def depart_productionlist(self, node):
         self.body.append('\\end{productionlist}\n\n')
         self.in_production_list = 0
@@ -536,11 +546,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\production{%s}{' % self.encode(tn))
         else:
             self.body.append('\\productioncont{')
+
     def depart_production(self, node):
         self.body.append('}\n')
 
     def visit_transition(self, node):
         self.body.append(self.elements['transition'])
+
     def depart_transition(self, node):
         pass
 
@@ -590,6 +602,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\textbf{')
             self.context.append('}\n')
         self.in_title = 1
+
     def depart_title(self, node):
         self.in_title = 0
         self.body.append(self.context.pop())
@@ -600,6 +613,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.context.append('}\n\\smallskip\n')
         else:
             self.context.append('')
+
     def depart_subtitle(self, node):
         self.body.append(self.context.pop())
 
@@ -607,6 +621,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\n\n\\begin{fulllineitems}\n')
         if self.table:
             self.table.has_problematic = True
+
     def depart_desc(self, node):
         self.body.append('\n\\end{fulllineitems}\n\n')
 
@@ -622,23 +637,27 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 break
         else:
             self.body.append(r'\pysigline{')
+
     def depart_desc_signature(self, node):
         self.body.append('}')
 
     def visit_desc_addname(self, node):
         self.body.append(r'\code{')
         self.literal_whitespace += 1
+
     def depart_desc_addname(self, node):
         self.body.append('}')
         self.literal_whitespace -= 1
 
     def visit_desc_type(self, node):
         pass
+
     def depart_desc_type(self, node):
         pass
 
     def visit_desc_returns(self, node):
         self.body.append(r'{ $\rightarrow$ ')
+
     def depart_desc_returns(self, node):
         self.body.append(r'}')
 
@@ -646,6 +665,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(r'\bfcode{')
         self.no_contractions += 1
         self.literal_whitespace += 1
+
     def depart_desc_name(self, node):
         self.body.append('}')
         self.literal_whitespace -= 1
@@ -655,6 +675,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # close name, open parameterlist
         self.body.append('}{')
         self.first_param = 1
+
     def depart_desc_parameterlist(self, node):
         # close parameterlist, open return annotation
         self.body.append('}{')
@@ -666,17 +687,20 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.first_param = 0
         if not node.hasattr('noemph'):
             self.body.append(r'\emph{')
+
     def depart_desc_parameter(self, node):
         if not node.hasattr('noemph'):
             self.body.append('}')
 
     def visit_desc_optional(self, node):
         self.body.append(r'\optional{')
+
     def depart_desc_optional(self, node):
         self.body.append('}')
 
     def visit_desc_annotation(self, node):
         self.body.append(r'\strong{')
+
     def depart_desc_annotation(self, node):
         self.body.append('}')
 
@@ -684,20 +708,23 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if node.children and not isinstance(node.children[0], nodes.paragraph):
             # avoid empty desc environment which causes a formatting bug
             self.body.append('~')
+
     def depart_desc_content(self, node):
         pass
 
     def visit_seealso(self, node):
         self.body.append(u'\n\n\\strong{%s:}\n\n' % admonitionlabels['seealso'])
+
     def depart_seealso(self, node):
         self.body.append("\n\n")
 
     def visit_rubric(self, node):
         if len(node.children) == 1 and node.children[0].astext() in \
-               ('Footnotes', _('Footnotes')):
+           ('Footnotes', _('Footnotes')):
             raise nodes.SkipNode
         self.body.append('\\paragraph{')
         self.context.append('}\n')
+
     def depart_rubric(self, node):
         self.body.append(self.context.pop())
 
@@ -707,6 +734,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_collected_footnote(self, node):
         self.in_footnote += 1
         self.body.append('\\footnote{')
+
     def depart_collected_footnote(self, node):
         self.body.append('}')
         self.in_footnote -= 1
@@ -734,6 +762,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # Redirect body output until table is finished.
         self._body = self.body
         self.body = self.tablebody
+
     def depart_table(self, node):
         if self.table.rowcount > 30:
             self.table.longtable = True
@@ -764,7 +793,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if self.table.has_problematic:
                 colwidth = 0.95 / self.table.colcount
                 colspec = ('p{%.3f\\linewidth}|' % colwidth) * \
-                          self.table.colcount
+                    self.table.colcount
                 self.body.append('{|' + colspec + '}\n')
             elif self.table.longtable:
                 self.body.append('{|' + ('l|' * self.table.colcount) + '}\n')
@@ -803,11 +832,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_colspec(self, node):
         self.table.colcount += 1
+
     def depart_colspec(self, node):
         pass
 
     def visit_tgroup(self, node):
         pass
+
     def depart_tgroup(self, node):
         pass
 
@@ -818,6 +849,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.next_table_colspec = None
         # Redirect head output until header is finished. see visit_tbody.
         self.body = self.tableheaders
+
     def depart_thead(self, node):
         pass
 
@@ -825,15 +857,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if not self.table.had_head:
             self.visit_thead(node)
         self.body = self.tablebody
+
     def depart_tbody(self, node):
         self.remember_multirow = {}
         self.remember_multirowcol = {}
 
     def visit_row(self, node):
         self.table.col = 0
-        for key,value in self.remember_multirow.items():
+        for key, value in self.remember_multirow.items():
             if not value and key in self.remember_multirowcol:
                 del self.remember_multirowcol[key]
+
     def depart_row(self, node):
         self.body.append('\\\\\n')
         if any(self.remember_multirow.values()):
@@ -901,8 +935,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 context += '}{l|}{}'
                 self.table.col += extracols
         self.context.append(context)
+
     def depart_entry(self, node):
-        self.body.append(self.context.pop()) # header
+        self.body.append(self.context.pop())  # header
 
     def visit_acks(self, node):
         # this is a list in the source, but should be rendered as a
@@ -915,26 +950,29 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_bullet_list(self, node):
         if not self.compact_list:
-            self.body.append('\\begin{itemize}\n' )
+            self.body.append('\\begin{itemize}\n')
         if self.table:
             self.table.has_problematic = True
+
     def depart_bullet_list(self, node):
         if not self.compact_list:
-            self.body.append('\\end{itemize}\n' )
+            self.body.append('\\end{itemize}\n')
 
     def visit_enumerated_list(self, node):
-        self.body.append('\\begin{enumerate}\n' )
+        self.body.append('\\begin{enumerate}\n')
         if 'start' in node:
             self.body.append('\\setcounter{enumi}{%d}\n' % (node['start'] - 1))
         if self.table:
             self.table.has_problematic = True
+
     def depart_enumerated_list(self, node):
-        self.body.append('\\end{enumerate}\n' )
+        self.body.append('\\end{enumerate}\n')
 
     def visit_list_item(self, node):
         # Append "{}" in case the next character is "[", which would break
         # LaTeX's list environment (no numbering and the "[" is not printed).
         self.body.append(r'\item {} ')
+
     def depart_list_item(self, node):
         self.body.append('\n')
 
@@ -942,11 +980,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\\begin{description}\n')
         if self.table:
             self.table.has_problematic = True
+
     def depart_definition_list(self, node):
         self.body.append('\\end{description}\n')
 
     def visit_definition_list_item(self, node):
         pass
+
     def depart_definition_list_item(self, node):
         pass
 
@@ -956,6 +996,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             ctx += self.hypertarget(node['ids'][0])
         self.body.append('\\item[{')
         self.context.append(ctx)
+
     def depart_term(self, node):
         self.body.append(self.context.pop())
 
@@ -965,11 +1006,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_classifier(self, node):
         self.body.append('{[}')
+
     def depart_classifier(self, node):
         self.body.append('{]}')
 
     def visit_definition(self, node):
         pass
+
     def depart_definition(self, node):
         self.body.append('\n')
 
@@ -977,11 +1020,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\\begin{quote}\\begin{description}\n')
         if self.table:
             self.table.has_problematic = True
+
     def depart_field_list(self, node):
         self.body.append('\\end{description}\\end{quote}\n')
 
     def visit_field(self, node):
         pass
+
     def depart_field(self, node):
         pass
 
@@ -993,6 +1038,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_paragraph(self, node):
         self.body.append('\n')
+
     def depart_paragraph(self, node):
         self.body.append('\n')
 
@@ -1000,6 +1046,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\n\\begin{center}')
         if self.table:
             self.table.has_problematic = True
+
     def depart_centered(self, node):
         self.body.append('\n\\end{center}')
 
@@ -1011,12 +1058,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                          '\\setlength{\\parskip}{0pt}\n')
         if self.table:
             self.table.has_problematic = True
+
     def depart_hlist(self, node):
         self.compact_list -= 1
         self.body.append('\\end{itemize}\n')
 
     def visit_hlistcol(self, node):
         pass
+
     def depart_hlistcol(self, node):
         pass
 
@@ -1068,7 +1117,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # be floated alongside the paragraph.  See
                 # http://www.w3.org/TR/html4/struct/objects.html#adef-align-IMG
                 (0, 'left'): ('{', '\\hfill}'),
-                (0, 'right'): ('{\\hfill', '}'),}
+                (0, 'right'): ('{\\hfill', '}'),
+            }
             try:
                 pre.append(align_prepost[is_inline, attrs['align']][0])
                 post.append(align_prepost[is_inline, attrs['align']][1])
@@ -1094,6 +1144,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             options = '[%s]' % ','.join(include_graphics_options)
         self.body.append('\\includegraphics%s{%s}' % (options, uri))
         self.body.extend(post)
+
     def depart_image(self, node):
         pass
 
@@ -1108,8 +1159,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                               node['width']))
             self.context.append(ids + '\\end{wrapfigure}\n')
         else:
-            if (not 'align' in node.attributes or
-                node.attributes['align'] == 'center'):
+            if ('align' not in node.attributes or
+                    node.attributes['align'] == 'center'):
                 # centering does not add vertical space like center.
                 align = '\n\\centering'
                 align_end = ''
@@ -1122,23 +1173,27 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart\n')
             self.context.append(ids + align_end + '\\end{figure}\n')
+
     def depart_figure(self, node):
         self.body.append(self.context.pop())
 
     def visit_caption(self, node):
         self.in_caption += 1
         self.body.append('\\caption{')
+
     def depart_caption(self, node):
         self.body.append('}')
         self.in_caption -= 1
 
     def visit_legend(self, node):
         self.body.append('{\\small ')
+
     def depart_legend(self, node):
         self.body.append('}')
 
     def visit_admonition(self, node):
         self.body.append('\n\\begin{notice}{note}')
+
     def depart_admonition(self, node):
         self.body.append('\\end{notice}\n')
 
@@ -1147,6 +1202,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(u'\n\\begin{notice}{%s}{%s:}' %
                              (name, admonitionlabels[name]))
         return visit_admonition
+
     def _depart_named_admonition(self, node):
         self.body.append('\\end{notice}\n')
 
@@ -1171,6 +1227,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_versionmodified(self, node):
         pass
+
     def depart_versionmodified(self, node):
         pass
 
@@ -1230,12 +1287,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
             add_target(node['refid'])
         for id in node['ids']:
             add_target(id)
+
     def depart_target(self, node):
         pass
 
     def visit_attribution(self, node):
         self.body.append('\n\\begin{flushright}\n')
         self.body.append('---')
+
     def depart_attribution(self, node):
         self.body.append('\n\\end{flushright}\n')
 
@@ -1289,7 +1348,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.in_title or not uri:
             self.context.append('')
         elif uri.startswith('mailto:') or uri.startswith('http:') or \
-                 uri.startswith('https:') or uri.startswith('ftp:'):
+                uri.startswith('https:') or uri.startswith('ftp:'):
             self.body.append('\\href{%s}{' % self.encode_uri(uri))
             # if configured, put the URL after the link
             show_urls = self.builder.config.latex_show_urls
@@ -1327,12 +1386,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(self.hyperlink(id))
             self.body.append(r'\emph{')
             if len(node) and hasattr(node[0], 'attributes') and \
-                   'std-term' in node[0].get('classes', []):
+               'std-term' in node[0].get('classes', []):
                 # don't add a pageref for glossary terms
                 self.context.append('}}}')
             else:
                 if self.builder.config.latex_show_pagerefs and not \
-                    self.in_production_list:
+                   self.in_production_list:
                     self.context.append('}}} (%s)' % self.hyperpageref(id))
                 else:
                     self.context.append('}}}')
@@ -1340,6 +1399,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.builder.warn('unusable reference target found: %s' % uri,
                               (self.curfilestack[-1], node.line))
             self.context.append('')
+
     def depart_reference(self, node):
         self.body.append(self.context.pop())
 
@@ -1359,34 +1419,40 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_download_reference(self, node):
         pass
+
     def depart_download_reference(self, node):
         pass
 
     def visit_pending_xref(self, node):
         pass
+
     def depart_pending_xref(self, node):
         pass
 
     def visit_emphasis(self, node):
         self.body.append(r'\emph{')
+
     def depart_emphasis(self, node):
         self.body.append('}')
 
     def visit_literal_emphasis(self, node):
         self.body.append(r'\emph{\texttt{')
         self.no_contractions += 1
+
     def depart_literal_emphasis(self, node):
         self.body.append('}}')
         self.no_contractions -= 1
 
     def visit_strong(self, node):
         self.body.append(r'\textbf{')
+
     def depart_strong(self, node):
         self.body.append('}')
 
     def visit_literal_strong(self, node):
         self.body.append(r'\textbf{\texttt{')
         self.no_contractions += 1
+
     def depart_literal_strong(self, node):
         self.body.append('}}')
         self.no_contractions -= 1
@@ -1400,11 +1466,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.handled_abbrs.add(abbr)
         else:
             self.context.append('}')
+
     def depart_abbreviation(self, node):
         self.body.append(self.context.pop())
 
     def visit_title_reference(self, node):
         self.body.append(r'\emph{')
+
     def depart_title_reference(self, node):
         self.body.append('}')
 
@@ -1413,6 +1481,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # bibitem: [citelabel, citetext, docname, citeid]
         self.bibitems.append(['', '', '', ''])
         self.context.append(len(self.body))
+
     def depart_citation(self, node):
         size = self.context.pop()
         text = ''.join(self.body[size:])
@@ -1431,6 +1500,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(r'\texttt{')
         else:
             self.body.append(r'\code{')
+
     def depart_literal(self, node):
         self.no_contractions -= 1
         self.body.append('}')
@@ -1453,6 +1523,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.footnotestack[-1][num][1] = True
             footnode.walkabout(self)
         raise nodes.SkipChildren
+
     def depart_footnote_reference(self, node):
         pass
 
@@ -1480,10 +1551,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 opts = self.builder.config.highlight_options
             else:
                 opts = {}
+
             def warner(msg):
                 self.builder.warn(msg, (self.curfilestack[-1], node.line))
             hlcode = self.highlighter.highlight_block(code, lang, opts=opts,
-                    warn=warner, linenos=linenos, **highlight_args)
+                                                      warn=warner, linenos=linenos,
+                                                      **highlight_args)
             # workaround for Unicode issue
             hlcode = hlcode.replace(u'€', u'@texteuro[]')
             # must use original Verbatim environment and "tabular" environment
@@ -1493,11 +1566,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.table.has_problematic = True
                 self.table.has_verbatim = True
             # get consistent trailer
-            hlcode = hlcode.rstrip()[:-14] # strip \end{Verbatim}
+            hlcode = hlcode.rstrip()[:-14]  # strip \end{Verbatim}
             hlcode = hlcode.rstrip() + '\n'
             self.body.append('\n' + hlcode + '\\end{%sVerbatim}\n' %
                              (self.table and 'Original' or ''))
             raise nodes.SkipNode
+
     def depart_literal_block(self, node):
         self.body.append('\n\\end{alltt}\n')
     visit_doctest_block = visit_literal_block
@@ -1505,6 +1579,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_line(self, node):
         self.body.append('\item[] ')
+
     def depart_line(self, node):
         self.body.append('\n')
 
@@ -1516,6 +1591,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\n\\begin{DUlineblock}{0em}\n')
         if self.table:
             self.table.has_problematic = True
+
     def depart_line_block(self, node):
         self.body.append('\\end{DUlineblock}\n')
 
@@ -1533,6 +1609,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\begin{quote}\n')
             if self.table:
                 self.table.has_problematic = True
+
     def depart_block_quote(self, node):
         done = 0
         if len(node.children) == 1:
@@ -1549,6 +1626,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.context[-1]:
             # this is not the first option
             self.body.append(', ')
+
     def depart_option(self, node):
         # flag that the first option is done.
         self.context[-1] += 1
@@ -1556,6 +1634,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_option_argument(self, node):
         """The delimiter betweeen an option and its argument."""
         self.body.append(node.get('delimiter', ' '))
+
     def depart_option_argument(self, node):
         pass
 
@@ -1563,19 +1642,22 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\\item [')
         # flag for first option
         self.context.append(0)
+
     def depart_option_group(self, node):
-        self.context.pop() # the flag
+        self.context.pop()  # the flag
         self.body.append('] ')
 
     def visit_option_list(self, node):
         self.body.append('\\begin{optionlist}{3cm}\n')
         if self.table:
             self.table.has_problematic = True
+
     def depart_option_list(self, node):
         self.body.append('\\end{optionlist}\n')
 
     def visit_option_list_item(self, node):
         pass
+
     def depart_option_list_item(self, node):
         pass
 
@@ -1588,16 +1670,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_description(self, node):
         self.body.append(' ')
+
     def depart_description(self, node):
         pass
 
     def visit_superscript(self, node):
         self.body.append('$^{\\text{')
+
     def depart_superscript(self, node):
         self.body.append('}}$')
 
     def visit_subscript(self, node):
         self.body.append('$_{\\text{')
+
     def depart_subscript(self, node):
         self.body.append('}}$')
 
@@ -1613,16 +1698,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(r'\emph{')
         else:
             self.body.append(r'\DUspan{%s}{' % ','.join(classes))
+
     def depart_inline(self, node):
         self.body.append('}')
 
     def visit_generated(self, node):
         pass
+
     def depart_generated(self, node):
         pass
 
     def visit_compound(self, node):
         pass
+
     def depart_compound(self, node):
         pass
 
@@ -1641,6 +1729,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_decoration(self, node):
         pass
+
     def depart_decoration(self, node):
         pass
 
@@ -1677,6 +1766,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if not self.no_contractions:
             text = educate_quotes_latex(text)
         self.body.append(text)
+
     def depart_Text(self, node):
         pass
 
@@ -1689,6 +1779,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_system_message(self, node):
         pass
+
     def depart_system_message(self, node):
         self.body.append('\n')
 
