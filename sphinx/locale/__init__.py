@@ -138,16 +138,18 @@ class _TranslationProxy(UserString, object):
         except:
             return '<%s broken>' % self.__class__.__name__
 
+
 def mygettext(string):
     """Used instead of _ when creating TranslationProxies, because _ is
     not bound yet at that time.
     """
     return _(string)
 
+
 def lazy_gettext(string):
     """A lazy version of `gettext`."""
-    #if isinstance(string, _TranslationProxy):
-    #    return string
+    # if isinstance(string, _TranslationProxy):
+    #     return string
     return _TranslationProxy(mygettext, string)
 
 l_ = lazy_gettext
@@ -209,7 +211,7 @@ def init(locale_dirs, language, catalog='sphinx'):
     for dir_ in locale_dirs:
         try:
             trans = gettext.translation(catalog, localedir=dir_,
-                    languages=[language])
+                                        languages=[language])
             if translator is None:
                 translator = trans
             else:

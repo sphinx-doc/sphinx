@@ -78,7 +78,7 @@ class CObject(ObjectDescription):
         for part in [_f for _f in wsplit_re.split(ctype) if _f]:
             tnode = nodes.Text(part, part)
             if part[0] in string.ascii_letters+'_' and \
-                   part not in self.stopwords:
+               part not in self.stopwords:
                 pnode = addnodes.pending_xref(
                     '', refdomain='c', reftype='type', reftarget=part,
                     modname=None, classname=None)
@@ -145,7 +145,7 @@ class CObject(ObjectDescription):
             return fullname
 
         paramlist = addnodes.desc_parameterlist()
-        arglist = arglist.replace('`', '').replace('\\ ', '') # remove markup
+        arglist = arglist.replace('`', '').replace('\\ ', '')  # remove markup
         # this messes up function pointer types, but not too badly ;)
         for arg in self._parse_arglist(arglist):
             arg = arg.strip()
@@ -223,7 +223,7 @@ class CObject(ObjectDescription):
 class CXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
         if not has_explicit_title:
-            target = target.lstrip('~') # only has a meaning for the title
+            target = target.lstrip('~')  # only has a meaning for the title
             # if the first character is a tilde, don't display the module/class
             # parts of the contents
             if title[0:1] == '~':
@@ -254,7 +254,7 @@ class CDomain(Domain):
         'var':      CObject,
     }
     roles = {
-        'func' :  CXRefRole(fix_parens=True),
+        'func':   CXRefRole(fix_parens=True),
         'member': CXRefRole(),
         'macro':  CXRefRole(),
         'data':   CXRefRole(),
@@ -265,7 +265,7 @@ class CDomain(Domain):
     }
 
     def clear_doc(self, docname):
-        for fullname, (fn, _) in list(self.data['objects'].items()):
+        for fullname, (fn, _l) in list(self.data['objects'].items()):
             if fn == docname:
                 del self.data['objects'][fullname]
 

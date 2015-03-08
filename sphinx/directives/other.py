@@ -7,7 +7,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six import string_types
 from six.moves import range
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -224,7 +223,8 @@ class VersionChange(Directive):
                                            classes=['versionmodified']))
         else:
             para = nodes.paragraph('', '',
-                nodes.inline('', '%s.' % text, classes=['versionmodified']))
+                                   nodes.inline('', '%s.' % text,
+                                                classes=['versionmodified']))
             node.append(para)
         env = self.state.document.settings.env
         # XXX should record node.source as well
@@ -359,10 +359,10 @@ class Only(Directive):
             self.state.nested_parse(self.content, self.content_offset,
                                     node, match_titles=1)
             title_styles = self.state.memo.title_styles
-            if (not surrounding_title_styles
-                or not title_styles
-                or title_styles[0] not in surrounding_title_styles
-                or not self.state.parent):
+            if (not surrounding_title_styles or
+                    not title_styles or
+                    title_styles[0] not in surrounding_title_styles or
+                    not self.state.parent):
                 # No nested sections so no special handling needed.
                 return [node]
             # Calculate the depths of the current and nested sections.

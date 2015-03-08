@@ -172,6 +172,7 @@ class Domain(object):
         if name not in self.roles:
             return None
         fullname = '%s:%s' % (self.name, name)
+
         def role_adapter(typ, rawtext, text, lineno, inliner,
                          options={}, content=[]):
             return self.roles[name](fullname, rawtext, text, lineno,
@@ -189,6 +190,7 @@ class Domain(object):
             return None
         fullname = '%s:%s' % (self.name, name)
         BaseDirective = self.directives[name]
+
         class DirectiveAdapter(BaseDirective):
             def run(self):
                 self.name = fullname

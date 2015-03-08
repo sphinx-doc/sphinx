@@ -183,7 +183,7 @@ class JavaScriptDomain(Domain):
     }
 
     def clear_doc(self, docname):
-        for fullname, (fn, _) in list(self.data['objects'].items()):
+        for fullname, (fn, _l) in list(self.data['objects'].items()):
             if fn == docname:
                 del self.data['objects'][fullname]
 
@@ -233,4 +233,4 @@ class JavaScriptDomain(Domain):
     def get_objects(self):
         for refname, (docname, type) in list(self.data['objects'].items()):
             yield refname, refname, type, docname, \
-                  refname.replace('$', '_S_'), 1
+                refname.replace('$', '_S_'), 1
