@@ -10,6 +10,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
    :numbered:
+   :caption: Table of Contents
+   :name: mastertoc
 
    extapi
    images
@@ -54,3 +56,9 @@ This used to crash:
 
 .. toctree::
    :hidden:
+
+Test for issue #1700
+====================
+
+:ref:`mastertoc`
+

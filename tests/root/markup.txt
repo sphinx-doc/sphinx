@@ -141,11 +141,17 @@ Adding \n to test unescaping.
 * :ref:`admonition-section`
 * :ref:`here <some-label>`
 * :ref:`my-figure`
+* :ref:`my-figure-name`
 * :ref:`my-table`
+* :ref:`my-table-name`
 * :ref:`my-code-block`
+* :ref:`my-code-block-name`
 * :numref:`my-figure`
+* :numref:`my-figure-name`
 * :numref:`my-table`
+* :numref:`my-table-name`
 * :numref:`my-code-block`
+* :numref:`my-code-block-name`
 * :doc:`subdir/includes`
 * ``:download:`` is tested in includes.txt
 * :option:`Python -c option <python -c>`
@@ -172,6 +178,7 @@ Tables
 .. _my-table:
 
 .. table:: my table
+   :name: my-table-name
 
    +----+----------------+----+
    | 1  | * Block elems  |  x |
@@ -199,6 +206,7 @@ Figures
 .. _my-figure:
 
 .. figure:: img.png
+   :name: my-figure-name
 
    My caption of the figure
 
@@ -237,6 +245,7 @@ Code blocks
 .. code-block:: ruby
    :linenos:
    :caption: my ruby code
+   :name: my-code-block-name
 
    def ruby?
        false

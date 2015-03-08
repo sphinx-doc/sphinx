@@ -574,6 +574,12 @@ class StandardDomain(Domain):
                         break
                 else:
                     continue
+            elif node.traverse(addnodes.toctree):
+                n = node.traverse(addnodes.toctree)[0]
+                if n.get('caption'):
+                    sectname = n['caption']
+                else:
+                    continue
             else:
                 # anonymous-only labels
                 continue
