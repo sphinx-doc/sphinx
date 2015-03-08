@@ -214,23 +214,26 @@ Includes
       The ``lineno-match`` option.
 
 
-Showing a file name
-^^^^^^^^^^^^^^^^^^^
+Caption and name
+^^^^^^^^^^^^^^^^
 
 .. versionadded:: 1.3
 
-A ``caption`` option can be given to show that name before the code block.  For
-example::
+A ``caption`` option can be given to show that name before the code block.
+A ``name`` option can be provided implicit target name that can be referenced
+by using :rst:role:`ref`.
+For example::
 
    .. code-block:: python
       :caption: this.py
+      :name: this-py
 
       print 'Explicit is better than implicit.'
 
 
-:rst:dir:`literalinclude` also supports the ``caption`` option, with the
-additional feature that if you leave the value empty, the shown filename will be
-exactly the one given as an argument.
+:rst:dir:`literalinclude` also supports the ``caption`` and ``name`` option.
+``caption`` has a additional feature that if you leave the value empty, the shown
+filename will be exactly the one given as an argument.
 
 
 Dedent

@@ -35,6 +35,8 @@ Bugs fixed
   begin with -, / or +. Thanks to Takayuki Hirai.
 * #1753: C++, added missing support for more complex declarations.
 * #1700: Add ``:caption:`` option for :rst:dir:`toctree`.
+* #1742: ``:name:`` option is provided for :rst:dir:`toctree`, :rst:dir:`code-block` and
+  :rst:dir:`literalinclude` dirctives.
 
 
 Release 1.3b3 (released Feb 24, 2015)

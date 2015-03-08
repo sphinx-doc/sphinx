@@ -256,8 +256,8 @@ def test_numref_with_language_ja(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\renewcommand{\\figurename}{Fig. }\n' in result
-    assert '\\renewcommand{\\tablename}{Table }\n' in result
+    assert '\\renewcommand{\\figurename}{Fig. }' in result
+    assert '\\renewcommand{\\tablename}{Table }' in result
     assert '\\floatname{literal-block}{Listing }' in result
     assert '\\hyperref[index:fig1]{Fig. \\ref{index:fig1}}' in result
     assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
