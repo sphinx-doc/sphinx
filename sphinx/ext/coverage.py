@@ -27,6 +27,7 @@ def write_header(f, text, char='-'):
     f.write(text + '\n')
     f.write(char * len(text) + '\n')
 
+
 def compile_regex_list(name, exps, warnfunc):
     lst = []
     for exp in exps:
@@ -231,7 +232,7 @@ class CoverageBuilder(Builder):
                     if undoc['classes']:
                         op.write('Classes:\n')
                         for name, methods in sorted(
-                                                 iteritems(undoc['classes'])):
+                                iteritems(undoc['classes'])):
                             if not methods:
                                 op.write(' * %s\n' % name)
                             else:

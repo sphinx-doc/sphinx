@@ -62,7 +62,9 @@ class DefDict(dict):
         return True
     __nonzero__ = __bool__  # for python2 compatibility
 
-identity = lambda x: x
+
+def identity(x):
+    return x
 
 
 class Options(dict):
@@ -1311,9 +1313,9 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):
             isinstance(member, cls.method_types) and not \
             type(member).__name__ in ("type", "method_descriptor",
                                       "instancemethod")
-        return isdatadesc or (not isinstance(parent, ModuleDocumenter)
-                              and not inspect.isroutine(member)
-                              and not isinstance(member, class_types))
+        return isdatadesc or (not isinstance(parent, ModuleDocumenter) and
+                              not inspect.isroutine(member) and
+                              not isinstance(member, class_types))
 
     def document_members(self, all_members=False):
         pass

@@ -77,18 +77,20 @@ from sphinx.ext.autodoc import Options
 class autosummary_toc(nodes.comment):
     pass
 
+
 def process_autosummary_toc(app, doctree):
     """Insert items described in autosummary:: to the TOC tree, but do
     not generate the toctree:: list.
     """
     env = app.builder.env
     crawled = {}
+
     def crawl_toc(node, depth=1):
         crawled[node] = True
         for j, subnode in enumerate(node):
             try:
-                if (isinstance(subnode, autosummary_toc)
-                    and isinstance(subnode[0], addnodes.toctree)):
+                if (isinstance(subnode, autosummary_toc) and
+                        isinstance(subnode[0], addnodes.toctree)):
                     env.note_toctree(env.docname, subnode[0])
                     continue
             except IndexError:
@@ -99,9 +101,11 @@ def process_autosummary_toc(app, doctree):
                 crawl_toc(subnode, depth+1)
     crawl_toc(doctree)
 
+
 def autosummary_toc_visit_html(self, node):
     """Hide autosummary toctree list in HTML output."""
     raise nodes.SkipNode
+
 
 def autosummary_noop(self, node):
     pass
@@ -111,6 +115,7 @@ def autosummary_noop(self, node):
 
 class autosummary_table(nodes.comment):
     pass
+
 
 def autosummary_table_visit_html(self, node):
     """Make the first column of the table non-breaking."""
@@ -134,6 +139,7 @@ class FakeDirective:
     env = {}
     genopt = Options()
 
+
 def get_documenter(obj, parent):
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
@@ -143,7 +149,7 @@ def get_documenter(obj, parent):
     belongs to.
     """
     from sphinx.ext.autodoc import AutoDirective, DataDocumenter, \
-         ModuleDocumenter
+        ModuleDocumenter
 
     if inspect.ismodule(obj):
         # ModuleDocumenter.can_document_member always returns False
@@ -219,7 +225,7 @@ class Autosummary(Directive):
 
             tocnode = addnodes.toctree()
             tocnode['includefiles'] = docnames
-            tocnode['entries'] = [(None, docname) for docname in docnames]
+            tocnode['entries'] = [(None, docn) for docn in docnames]
             tocnode['maxdepth'] = -1
             tocnode['glob'] = None
 
@@ -276,7 +282,7 @@ class Autosummary(Directive):
             # try to also get a source code analyzer for attribute docs
             try:
                 documenter.analyzer = ModuleAnalyzer.for_module(
-                                            documenter.get_real_modname())
+                    documenter.get_real_modname())
                 # parse right now, to get PycodeErrors on parsing (results will
                 # be cached anyway)
                 documenter.analyzer.find_attr_docs()
@@ -369,6 +375,7 @@ class Autosummary(Directive):
 
         return [table_spec, table]
 
+
 def mangle_signature(sig, max_chars=30):
     """Reformat a function signature to a more compact form."""
     s = re.sub(r"^\((.*)\)$", r"\1", sig).strip()
@@ -404,6 +411,7 @@ def mangle_signature(sig, max_chars=30):
 
     return u"(%s)" % sig
 
+
 def limited_join(sep, items, max_chars=30, overflow_marker="..."):
     """Join a number of strings to one, limiting the length to *max_chars*.
 
@@ -427,6 +435,7 @@ def limited_join(sep, items, max_chars=30, overflow_marker="..."):
 
     return sep.join(list(items[:n_items]) + [overflow_marker])
 
+
 # -- Importing items -----------------------------------------------------------
 
 def get_import_prefixes_from_env(env):
@@ -449,6 +458,7 @@ def get_import_prefixes_from_env(env):
 
     return prefixes
 
+
 def import_by_name(name, prefixes=[None]):
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
@@ -465,6 +475,7 @@ def import_by_name(name, prefixes=[None]):
         except ImportError:
             tried.append(prefixed_name)
     raise ImportError('no module named %s' % ' or '.join(tried))
+
 
 def _import_by_name(name):
     """Import a Python object given its full name."""

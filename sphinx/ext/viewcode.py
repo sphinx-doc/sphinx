@@ -155,8 +155,8 @@ def collect_pages(app):
             backlink = urito(pagename, docname) + '#' + refname + '.' + name
             lines[start] = (
                 '<div class="viewcode-block" id="%s"><a class="viewcode-back" '
-                'href="%s">%s</a>' % (name, backlink, _('[docs]'))
-                + lines[start])
+                'href="%s">%s</a>' % (name, backlink, _('[docs]')) +
+                lines[start])
             lines[min(end - 1, maxindex)] += '</div>'
         # try to find parents (for submodules)
         parents = []

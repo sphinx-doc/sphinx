@@ -15,8 +15,6 @@ import sys
 import time
 import codecs
 from os import path
-# circumvent relative import
-doctest = __import__('doctest')
 
 from six import itervalues, StringIO, binary_type
 from docutils import nodes
@@ -28,6 +26,9 @@ from sphinx.util import force_decode
 from sphinx.util.nodes import set_source_info
 from sphinx.util.compat import Directive
 from sphinx.util.console import bold
+
+# circumvent relative import
+doctest = __import__('doctest')
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
 doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
@@ -296,8 +297,8 @@ Doctest summary
 
         if self.config.doctest_test_doctest_blocks:
             def condition(node):
-                return (isinstance(node, (nodes.literal_block, nodes.comment))
-                        and 'testnodetype' in node) or \
+                return (isinstance(node, (nodes.literal_block, nodes.comment)) and
+                        'testnodetype' in node) or \
                     isinstance(node, nodes.doctest_block)
         else:
             def condition(node):

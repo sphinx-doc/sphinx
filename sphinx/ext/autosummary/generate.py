@@ -71,11 +71,14 @@ def main(argv=sys.argv):
                               "." + options.suffix,
                               template_dir=options.templates)
 
+
 def _simple_info(msg):
     print(msg)
 
+
 def _simple_warn(msg):
     print('WARNING: ' + msg, file=sys.stderr)
+
 
 # -- Generating output ---------------------------------------------------------
 
@@ -169,17 +172,17 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             if doc.objtype == 'module':
                 ns['members'] = dir(obj)
                 ns['functions'], ns['all_functions'] = \
-                                   get_members(obj, 'function')
+                    get_members(obj, 'function')
                 ns['classes'], ns['all_classes'] = \
-                                 get_members(obj, 'class')
+                    get_members(obj, 'class')
                 ns['exceptions'], ns['all_exceptions'] = \
-                                   get_members(obj, 'exception')
+                    get_members(obj, 'exception')
             elif doc.objtype == 'class':
                 ns['members'] = dir(obj)
                 ns['methods'], ns['all_methods'] = \
-                                 get_members(obj, 'method', ['__init__'])
+                    get_members(obj, 'method', ['__init__'])
                 ns['attributes'], ns['all_attributes'] = \
-                                 get_members(obj, 'attribute')
+                    get_members(obj, 'attribute')
 
             parts = name.split('.')
             if doc.objtype in ('method', 'attribute'):
@@ -289,7 +292,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
                 continue
 
             if line.strip().startswith(':'):
-                continue # skip options
+                continue  # skip options
 
             m = autosummary_item_re.match(line)
             if m:
@@ -297,7 +300,7 @@ def find_autosummary_in_lines(lines, module=None, filename=None):
                 if name.startswith('~'):
                     name = name[1:]
                 if current_module and \
-                       not name.startswith(current_module + '.'):
+                   not name.startswith(current_module + '.'):
                     name = "%s.%s" % (current_module, name)
                 documented.append((name, toctree, template))
                 continue

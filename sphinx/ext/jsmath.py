@@ -22,6 +22,7 @@ def html_visit_math(self, node):
     self.body.append(self.encode(node['latex']) + '</span>')
     raise nodes.SkipNode
 
+
 def html_visit_displaymath(self, node):
     if node['nowrap']:
         self.body.append(self.starttag(node, 'div', CLASS='math'))
@@ -45,6 +46,7 @@ def html_visit_displaymath(self, node):
             self.body.append(part)
         self.body.append('</div>\n')
     raise nodes.SkipNode
+
 
 def builder_inited(app):
     if not app.config.jsmath_path:

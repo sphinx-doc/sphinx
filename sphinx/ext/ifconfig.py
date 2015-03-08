@@ -27,7 +27,8 @@ from sphinx.util.nodes import set_source_info
 from sphinx.util.compat import Directive
 
 
-class ifconfig(nodes.Element): pass
+class ifconfig(nodes.Element):
+    pass
 
 
 class IfConfig(Directive):

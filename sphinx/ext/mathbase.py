@@ -19,8 +19,10 @@ from sphinx.util.compat import Directive
 class math(nodes.Inline, nodes.TextElement):
     pass
 
+
 class displaymath(nodes.Part, nodes.Element):
     pass
+
 
 class eqref(nodes.Inline, nodes.TextElement):
     pass
@@ -45,6 +47,7 @@ def wrap_displaymath(math, label):
 def math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
     latex = utils.unescape(text, restore_backslashes=True)
     return [math(latex=latex)], []
+
 
 def eq_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
     text = utils.unescape(text)
@@ -91,6 +94,7 @@ def latex_visit_math(self, node):
     self.body.append('\\(' + node['latex'] + '\\)')
     raise nodes.SkipNode
 
+
 def latex_visit_displaymath(self, node):
     if node['nowrap']:
         self.body.append(node['latex'])
@@ -98,6 +102,7 @@ def latex_visit_displaymath(self, node):
         label = node['label'] and node['docname'] + '-' + node['label'] or None
         self.body.append(wrap_displaymath(node['latex'], label))
     raise nodes.SkipNode
+
 
 def latex_visit_eqref(self, node):
     self.body.append('\\eqref{%s-%s}' % (node['docname'], node['target']))
@@ -108,11 +113,13 @@ def text_visit_math(self, node):
     self.add_text(node['latex'])
     raise nodes.SkipNode
 
+
 def text_visit_displaymath(self, node):
     self.new_state()
     self.add_text(node['latex'])
     self.end_state()
     raise nodes.SkipNode
+
 
 def text_visit_eqref(self, node):
     self.add_text(node['target'])
@@ -123,10 +130,14 @@ def man_visit_math(self, node):
     self.body.append(node['latex'])
     raise nodes.SkipNode
 
+
 def man_visit_displaymath(self, node):
     self.visit_centered(node)
+
+
 def man_depart_displaymath(self, node):
     self.depart_centered(node)
+
 
 def man_visit_eqref(self, node):
     self.body.append(node['target'])
@@ -137,13 +148,17 @@ def texinfo_visit_math(self, node):
     self.body.append('@math{' + self.escape_arg(node['latex']) + '}')
     raise nodes.SkipNode
 
+
 def texinfo_visit_displaymath(self, node):
     if node.get('label'):
         self.add_anchor(node['label'], node)
     self.body.append('\n\n@example\n%s\n@end example\n\n' %
                      self.escape_arg(node['latex']))
+
+
 def texinfo_depart_displaymath(self, node):
     pass
+
 
 def texinfo_visit_eqref(self, node):
     self.add_xref(node['docname'] + ':' + node['target'],
@@ -153,6 +168,7 @@ def texinfo_visit_eqref(self, node):
 
 def html_visit_eqref(self, node):
     self.body.append('<a href="#equation-%s">' % node['target'])
+
 
 def html_depart_eqref(self, node):
     self.body.append('</a>')
@@ -177,23 +193,23 @@ def number_equations(app, doctree, docname):
 
 def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     app.add_node(math,
-        latex=(latex_visit_math, None),
-        text=(text_visit_math, None),
-        man=(man_visit_math, None),
-        texinfo=(texinfo_visit_math, None),
-        html=htmlinlinevisitors)
+                 latex=(latex_visit_math, None),
+                 text=(text_visit_math, None),
+                 man=(man_visit_math, None),
+                 texinfo=(texinfo_visit_math, None),
+                 html=htmlinlinevisitors)
     app.add_node(displaymath,
-        latex=(latex_visit_displaymath, None),
-        text=(text_visit_displaymath, None),
-        man=(man_visit_displaymath, man_depart_displaymath),
-        texinfo=(texinfo_visit_displaymath, texinfo_depart_displaymath),
-        html=htmldisplayvisitors)
+                 latex=(latex_visit_displaymath, None),
+                 text=(text_visit_displaymath, None),
+                 man=(man_visit_displaymath, man_depart_displaymath),
+                 texinfo=(texinfo_visit_displaymath, texinfo_depart_displaymath),
+                 html=htmldisplayvisitors)
     app.add_node(eqref,
-        latex=(latex_visit_eqref, None),
-        text=(text_visit_eqref, None),
-        man=(man_visit_eqref, None),
-        texinfo=(texinfo_visit_eqref, None),
-        html=(html_visit_eqref, html_depart_eqref))
+                 latex=(latex_visit_eqref, None),
+                 text=(text_visit_eqref, None),
+                 man=(man_visit_eqref, None),
+                 texinfo=(texinfo_visit_eqref, None),
+                 html=(html_visit_eqref, html_depart_eqref))
     app.add_role('math', math_role)
     app.add_role('eq', eq_role)
     app.add_directive('math', MathDirective)

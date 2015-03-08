@@ -20,8 +20,13 @@ from sphinx.environment import NoUri
 from sphinx.util.nodes import set_source_info
 from sphinx.util.compat import Directive, make_admonition
 
-class todo_node(nodes.Admonition, nodes.Element): pass
-class todolist(nodes.General, nodes.Element): pass
+
+class todo_node(nodes.Admonition, nodes.Element):
+    pass
+
+
+class todolist(nodes.General, nodes.Element):
+    pass
 
 
 class Todo(Directive):
@@ -112,7 +117,7 @@ def process_todo_nodes(app, doctree, fromdocname):
             para = nodes.paragraph(classes=['todo-source'])
             description = _('(The <<original entry>> is located in '
                             ' %s, line %d.)') % \
-                          (todo_info['source'], todo_info['lineno'])
+                (todo_info['source'], todo_info['lineno'])
             desc1 = description[:description.find('<<')]
             desc2 = description[description.find('>>')+2:]
             para += nodes.Text(desc1, desc1)
@@ -161,8 +166,10 @@ def merge_info(app, env, docnames, other):
 def visit_todo_node(self, node):
     self.visit_admonition(node)
 
+
 def depart_todo_node(self, node):
     self.depart_admonition(node)
+
 
 def setup(app):
     app.add_config_value('todo_include_todos', False, 'html')
