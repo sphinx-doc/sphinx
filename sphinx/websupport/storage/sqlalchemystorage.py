@@ -15,16 +15,16 @@ import sqlalchemy
 from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func
 
-if sqlalchemy.__version__[:3] < '0.5':
-    raise ImportError('SQLAlchemy version 0.5 or greater is required for this '
-        'storage backend; you have version %s' % sqlalchemy.__version__)
-
 from sphinx.websupport.errors import CommentNotAllowedError, \
-     UserNotAuthorizedError
+    UserNotAuthorizedError
 from sphinx.websupport.storage import StorageBackend
 from sphinx.websupport.storage.sqlalchemy_db import Base, Node, \
-     Comment, CommentVote, Session
+    Comment, CommentVote, Session
 from sphinx.websupport.storage.differ import CombinedHtmlDiff
+
+if sqlalchemy.__version__[:3] < '0.5':
+    raise ImportError('SQLAlchemy version 0.5 or greater is required for this '
+                      'storage backend; you have version %s' % sqlalchemy.__version__)
 
 
 class SQLAlchemyStorage(StorageBackend):
@@ -120,8 +120,8 @@ class SQLAlchemyStorage(StorageBackend):
             func.count('*').label('comment_count')).group_by(
             Comment.node_id).subquery()
         nodes = session.query(Node.id, subquery.c.comment_count).outerjoin(
-            (subquery, Node.id==subquery.c.node_id)).filter(
-            Node.document==docname)
+            (subquery, Node.id == subquery.c.node_id)).filter(
+            Node.document == docname)
         session.close()
         session.commit()
         return dict([(k, v or 0) for k, v in nodes])

@@ -32,13 +32,13 @@ class WebSupport(object):
     with the web support package should occur through this class.
     """
     def __init__(self,
-                 srcdir=None,     # only required for building
-                 builddir='',     # the dir with data/static/doctrees subdirs
-                 datadir=None,    # defaults to builddir/data
-                 staticdir=None,  # defaults to builddir/static
-                 doctreedir=None, # defaults to builddir/doctrees
-                 search=None,     # defaults to no search
-                 storage=None,    # defaults to SQLite in datadir
+                 srcdir=None,      # only required for building
+                 builddir='',      # the dir with data/static/doctrees subdirs
+                 datadir=None,     # defaults to builddir/data
+                 staticdir=None,   # defaults to builddir/static
+                 doctreedir=None,  # defaults to builddir/doctrees
+                 search=None,      # defaults to no search
+                 storage=None,     # defaults to SQLite in datadir
                  status=sys.stdout,
                  warning=sys.stderr,
                  moderation_callback=None,
@@ -216,7 +216,7 @@ class WebSupport(object):
             'q': q,
             'search_performed': True,
             'search_results': results,
-            'docroot': '../', # XXX
+            'docroot': '../',  # XXX
             '_': _,
         }
         document = {

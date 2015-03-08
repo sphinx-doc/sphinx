@@ -13,7 +13,7 @@
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, Text, String, Boolean, \
-     ForeignKey, DateTime
+    ForeignKey, DateTime
 from sqlalchemy.orm import relation, sessionmaker, aliased
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -160,7 +160,7 @@ class Comment(Base):
                 filter(Comment.id == parent_id).one().path
             session.close()
             self.node_id = parent_path.split('.')[0]
-            self.path = '%s.%s' %  (parent_path, self.id)
+            self.path = '%s.%s' % (parent_path, self.id)
 
     def serializable(self, vote=0):
         """Creates a serializable representation of the comment. This is

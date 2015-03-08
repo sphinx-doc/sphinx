@@ -76,6 +76,6 @@ class XapianSearch(BaseSearch):
             context = self.extract_context(m.document.get_data())
             results.append((m.document.get_value(self.DOC_PATH),
                             m.document.get_value(self.DOC_TITLE),
-                            ''.join(context) ))
+                            ''.join(context)))
 
         return results

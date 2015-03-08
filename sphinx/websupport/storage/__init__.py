@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+
 class StorageBackend(object):
     def pre_build(self):
         """Called immediately before the build process begins. Use this
