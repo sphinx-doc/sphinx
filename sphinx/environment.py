@@ -1380,13 +1380,13 @@ class BuildEnvironment:
                                   separate=False, subtree=False):
             """Return TOC entries for a toctree node."""
             refs = [(e[0], e[1]) for e in toctreenode['entries']]
-            name = toctreenode.attributes.get('name')
+            caption = toctreenode.attributes.get('caption')
             entries = []
-            if name:
+            if caption:
                 entries.extend(
                         nodes.reference('', '', internal=False,
                                                     refuri='', anchorname='',
-                                                    *[nodes.Text(name)])
+                                                    *[nodes.Text(caption)])
                 )
 
             for (title, ref) in refs:
