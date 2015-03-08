@@ -71,14 +71,16 @@ IGNORED_NODES = (
     nodes.Inline,
     nodes.literal_block,
     nodes.doctest_block,
-    #XXX there are probably more
+    # XXX there are probably more
 )
+
+
 def is_translatable(node):
     if isinstance(node, nodes.TextElement):
         apply_source_workaround(node)
 
         if not node.source:
-            return False # built-in message
+            return False  # built-in message
         if isinstance(node, IGNORED_NODES) and 'translatable' not in node:
             return False
         # <field_name>orphan</field_name>
@@ -101,6 +103,8 @@ LITERAL_TYPE_NODES = (
 IMAGE_TYPE_NODES = (
     nodes.image,
 )
+
+
 def extract_messages(doctree):
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(is_translatable):
@@ -184,6 +188,7 @@ indextypes = [
     'single', 'pair', 'double', 'triple', 'see', 'seealso',
 ]
 
+
 def process_index_entry(entry, targetid):
     indexentries = []
     entry = entry.strip()
@@ -233,7 +238,8 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc):
             try:
                 builder.info(colorfunc(includefile) + " ", nonl=1)
                 subtree = inline_all_toctrees(builder, docnameset, includefile,
-                    builder.env.get_doctree(includefile), colorfunc)
+                                              builder.env.get_doctree(includefile),
+                                              colorfunc)
                 docnameset.add(includefile)
             except Exception:
                 builder.warn('toctree contains ref to nonexisting '
@@ -256,8 +262,8 @@ def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
     if fromdocname == todocname:
         node['refid'] = targetid
     else:
-        node['refuri'] = (builder.get_relative_uri(fromdocname, todocname)
-                          + '#' + targetid)
+        node['refuri'] = (builder.get_relative_uri(fromdocname, todocname) +
+                          '#' + targetid)
     if title:
         node['reftitle'] = title
     node.append(child)
@@ -268,8 +274,10 @@ def set_source_info(directive, node):
     node.source, node.line = \
         directive.state_machine.get_source_and_line(directive.lineno)
 
+
 def set_role_source_info(inliner, lineno, node):
     node.source, node.line = inliner.reporter.get_source_and_line(lineno)
+
 
 # monkey-patch Element.copy to copy the rawsource
 

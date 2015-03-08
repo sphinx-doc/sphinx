@@ -27,12 +27,15 @@ def dump(obj, fp, *args, **kwds):
     kwds['cls'] = SphinxJSONEncoder
     return json.dump(obj, fp, *args, **kwds)
 
+
 def dumps(obj, *args, **kwds):
     kwds['cls'] = SphinxJSONEncoder
     return json.dumps(obj, *args, **kwds)
 
+
 def load(*args, **kwds):
     return json.load(*args, **kwds)
+
 
 def loads(*args, **kwds):
     return json.loads(*args, **kwds)

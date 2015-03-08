@@ -22,12 +22,14 @@ if PY3:
     # prefix for Unicode strings
     u = ''
     from io import TextIOWrapper
+
     # safely encode a string for printing to the terminal
     def terminal_safe(s):
         return s.encode('ascii', 'backslashreplace').decode('ascii')
     # some kind of default system encoding; should be used with a lenient
     # error handler
     sys_encoding = sys.getdefaultencoding()
+
     # support for running 2to3 over config files
     def convert_with_2to3(filepath):
         from lib2to3.refactor import RefactoringTool, get_fixers_from_package
@@ -46,11 +48,11 @@ if PY3:
     from html import escape as htmlescape  # >= Python 3.2
 
     class UnicodeMixin:
-      """Mixin class to handle defining the proper __str__/__unicode__
-      methods in Python 2 or 3."""
+        """Mixin class to handle defining the proper __str__/__unicode__
+        methods in Python 2 or 3."""
 
-      def __str__(self):
-          return self.__unicode__()
+        def __str__(self):
+            return self.__unicode__()
 
     from textwrap import indent
 
@@ -59,8 +61,10 @@ else:
     u = 'u'
     # no need to refactor on 2.x versions
     convert_with_2to3 = None
+
     def TextIOWrapper(stream, encoding):
         return codecs.lookup(encoding or 'ascii')[2](stream)
+
     # safely encode a string for printing to the terminal
     def terminal_safe(s):
         return s.encode('ascii', 'backslashreplace')
@@ -126,6 +130,7 @@ from six import class_types
 from six.moves import zip_longest
 import io
 from itertools import product
+
 
 class _DeprecationWrapper(object):
     def __init__(self, mod, deprecated):

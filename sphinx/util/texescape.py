@@ -23,7 +23,7 @@ tex_replacements = [
     ('[', r'{[}'),
     (']', r'{]}'),
     ('`', r'{}`'),
-    ('\\',r'\textbackslash{}'),
+    ('\\', r'\textbackslash{}'),
     ('~', r'\textasciitilde{}'),
     ('<', r'\textless{}'),
     ('>', r'\textgreater{}'),
@@ -104,11 +104,13 @@ tex_escape_map = {}
 tex_replace_map = {}
 tex_hl_escape_map_new = {}
 
+
 def init():
     for a, b in tex_replacements:
         tex_escape_map[ord(a)] = b
         tex_replace_map[ord(a)] = '_'
 
     for a, b in tex_replacements:
-        if a in '[]{}\\': continue
+        if a in '[]{}\\':
+            continue
         tex_hl_escape_map_new[ord(a)] = b

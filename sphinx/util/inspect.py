@@ -11,20 +11,21 @@
 
 import re
 
-# this imports the standard library inspect module without resorting to
-# relatively import this module
-inspect = __import__('inspect')
-
 from six import PY3, binary_type
 from six.moves import builtins
 
 from sphinx.util import force_decode
+
+# this imports the standard library inspect module without resorting to
+# relatively import this module
+inspect = __import__('inspect')
 
 memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>$)')
 
 
 if PY3:
     from functools import partial
+
     def getargspec(func):
         """Like inspect.getargspec but supports functools.partial as well."""
         if inspect.ismethod(func):
@@ -61,6 +62,7 @@ if PY3:
 
 else:  # 2.6, 2.7
     from functools import partial
+
     def getargspec(func):
         """Like inspect.getargspec but supports functools.partial as well."""
         if inspect.ismethod(func):

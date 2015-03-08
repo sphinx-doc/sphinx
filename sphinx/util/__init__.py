@@ -21,7 +21,7 @@ from os import path
 from codecs import open, BOM_UTF8
 from collections import deque
 
-from six import iteritems, text_type, binary_type, string_types
+from six import iteritems, text_type, binary_type
 from six.moves import range
 import docutils
 from docutils.utils import relative_path
@@ -189,6 +189,7 @@ _DEBUG_HEADER = '''\
 # Loaded extensions:
 '''
 
+
 def save_traceback(app):
     """Save the current exception's traceback in a temporary file."""
     import platform
@@ -278,6 +279,7 @@ def get_full_modname(modname, attribute):
 
 # a regex to recognize coding cookies
 _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
+
 
 def detect_encoding(readline):
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
@@ -390,8 +392,10 @@ def force_decode(string, encoding):
 class attrdict(dict):
     def __getattr__(self, key):
         return self[key]
+
     def __setattr__(self, key, val):
         self[key] = val
+
     def __delattr__(self, key):
         del self[key]
 
@@ -438,7 +442,7 @@ def split_index_msg(type, value):
 def format_exception_cut_frames(x=1):
     """Format an exception with traceback, but only the last x frames."""
     typ, val, tb = sys.exc_info()
-    #res = ['Traceback (most recent call last):\n']
+    # res = ['Traceback (most recent call last):\n']
     res = []
     tbres = traceback.format_tb(tb)
     res += tbres[-x:]

@@ -153,6 +153,7 @@ closing_single_quotes_regex_2 = re.compile(r"""
                 (\s | s\b)
                 """ % (close_class,), re.VERBOSE)
 
+
 def educate_quotes(s):
     """
     Parameter:  String.
@@ -232,7 +233,7 @@ def educate_quotes_latex(s, dquotes=("``", "''")):
 
     # Finally, replace all helpers with quotes.
     return s.replace("\x01", dquotes[0]).replace("\x02", dquotes[1]).\
-           replace("\x03", "`").replace("\x04", "'")
+        replace("\x03", "`").replace("\x04", "'")
 
 
 def educate_backticks(s):

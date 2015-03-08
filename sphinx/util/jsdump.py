@@ -53,6 +53,7 @@ def encode_string(s):
                 return '\\u%04x\\u%04x' % (s1, s2)
     return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'
 
+
 def decode_string(s):
     return ESCAPED.sub(lambda m: eval(u + '"' + m.group() + '"'), s)
 
@@ -73,6 +74,7 @@ default   if   return   volatile
 delete   implements   short   while
 do   import   static   with
 double   in   super""".split())
+
 
 def dumps(obj, key=False):
     if key:
@@ -100,6 +102,7 @@ def dumps(obj, key=False):
     elif isinstance(obj, string_types):
         return encode_string(obj)
     raise TypeError(type(obj))
+
 
 def dump(obj, f):
     f.write(dumps(obj))
@@ -194,6 +197,7 @@ def loads(x):
     if obj is nothing:
         raise ValueError("nothing loaded from string")
     return obj
+
 
 def load(f):
     return loads(f.read())

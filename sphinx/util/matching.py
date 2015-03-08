@@ -57,17 +57,20 @@ def _translate_pattern(pat):
             res += re.escape(c)
     return res + '$'
 
+
 def compile_matchers(patterns):
     return [re.compile(_translate_pattern(pat)).match for pat in patterns]
 
 
 _pat_cache = {}
 
+
 def patmatch(name, pat):
     """Return if name matches pat.  Adapted from fnmatch module."""
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
     return _pat_cache[pat].match(name)
+
 
 def patfilter(names, pat):
     """Return the subset of the list NAMES that match PAT.

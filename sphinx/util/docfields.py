@@ -74,8 +74,8 @@ class Field(object):
                                         fieldarg, nodes.Text)
         if len(content) == 1 and (
                 isinstance(content[0], nodes.Text) or
-                (isinstance(content[0], nodes.inline) and len(content[0]) == 1
-                 and isinstance(content[0][0], nodes.Text))):
+                (isinstance(content[0], nodes.inline) and len(content[0]) == 1 and
+                 isinstance(content[0][0], nodes.Text))):
             content = [self.make_xref(self.bodyrolename, domain,
                                       content[0].astext(), contnode=content[0])]
         fieldbody = nodes.field_body('', nodes.paragraph('', '', *content))
@@ -234,7 +234,7 @@ class DocFieldTransformer(object):
                 # match the spec; capitalize field name and be done with it
                 new_fieldname = fieldtype[0:1].upper() + fieldtype[1:]
                 if fieldarg:
-                     new_fieldname += ' ' + fieldarg
+                    new_fieldname += ' ' + fieldarg
                 fieldname[0] = nodes.Text(new_fieldname)
                 entries.append(field)
                 continue
@@ -265,7 +265,7 @@ class DocFieldTransformer(object):
                     pass
                 else:
                     types.setdefault(typename, {})[argname] = \
-                                               [nodes.Text(argtype)]
+                        [nodes.Text(argtype)]
                     fieldarg = argname
 
             translatable_content = nodes.inline(fieldbody.rawsource,

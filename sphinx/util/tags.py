@@ -7,11 +7,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
-# jinja2.sandbox imports the sets module on purpose
-warnings.filterwarnings('ignore', 'the sets module', DeprecationWarning,
-                        module='jinja2.sandbox')
-
 # (ab)use the Jinja parser for parsing our boolean expressions
 from jinja2 import nodes
 from jinja2.parser import Parser

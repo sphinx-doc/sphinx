@@ -36,6 +36,7 @@ EINVAL = getattr(errno, 'EINVAL', 0)
 # hangover from more *nix-oriented origins.
 SEP = "/"
 
+
 def os_path(canonicalpath):
     return canonicalpath.replace(SEP, path.sep)
 
@@ -59,7 +60,7 @@ def relative_uri(base, to):
     if len(b2) == 1 and t2 == ['']:
         # Special case: relative_uri('f/index.html','f/') should
         # return './', not ''
-        return '.' +  SEP
+        return '.' + SEP
     return ('..' + SEP) * (len(b2)-1) + SEP.join(t2)
 
 
@@ -147,6 +148,7 @@ def copyfile(source, dest):
 
 no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
 
+
 def make_filename(string):
     return no_fn_re.sub('', string) or 'sphinx'
 
@@ -166,6 +168,7 @@ def safe_relpath(path, start=None):
         return os.path.relpath(path, start)
     except ValueError:
         return path
+
 
 def find_catalog(docname, compaction):
     if compaction:

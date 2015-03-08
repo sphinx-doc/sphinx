@@ -11,6 +11,7 @@
 import warnings
 
 from docutils import nodes
+from docutils.parsers.rst import Directive
 
 from docutils import __version__ as _du_version
 docutils_version = tuple(int(x) for x in _du_version.split('.')[:2])
@@ -35,5 +36,3 @@ def make_admonition(node_class, name, arguments, options, content, lineno,
         admonition_node['classes'] += classes
     state.nested_parse(content, content_offset, admonition_node)
     return [admonition_node]
-
-from docutils.parsers.rst import Directive
