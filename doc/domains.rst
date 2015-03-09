@@ -314,6 +314,7 @@ are recognized and formatted nicely:
 * ``raises``, ``raise``, ``except``, ``exception``: That (and when) a specific
   exception is raised.
 * ``var``, ``ivar``, ``cvar``: Description of a variable.
+* ``vartype``: Type of a variable.  Creates a link if possible.
 * ``returns``, ``return``: Description of the return value.
 * ``rtype``: Return type.  Creates a link if possible.
 

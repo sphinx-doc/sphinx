@@ -39,6 +39,10 @@ Bugs fixed
   :rst:dir:`literalinclude` dirctives.
 * #1756: Incorrect section titles in search that was introduced from 1.3b3.
 
+Documentation
+-------------
+
+* #1651: Add ``vartype`` field descritpion for python domain.
 
 Release 1.3b3 (released Feb 24, 2015)
 =====================================
