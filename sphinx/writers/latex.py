@@ -772,6 +772,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                              u'\\capstart\\caption{%s}\n' % self.table.caption)
             for id in self.next_table_ids:
                 self.body.append(self.hypertarget(id, anchor=False))
+            if node['ids']:
+                self.body.append(self.hypertarget(node['ids'][0], anchor=False))
             self.next_table_ids.clear()
         if self.table.longtable:
             self.body.append('\n\\begin{longtable}')
@@ -1153,6 +1155,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         for id in self.next_figure_ids:
             ids += self.hypertarget(id, anchor=False)
         self.next_figure_ids.clear()
+        if (len(node.children) and
+           isinstance(node.children[0], nodes.image) and
+           node.children[0]['ids']):
+            ids += self.hypertarget(node.children[0]['ids'][0], anchor=False)
         if 'width' in node and node.get('align', '') in ('left', 'right'):
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
                              (node['align'] == 'right' and 'r' or 'l',
@@ -1719,6 +1725,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             ids = ''
             for id in self.next_literal_ids:
                 ids += self.hypertarget(id, anchor=False)
+            if node['ids']:
+                ids += self.hypertarget(node['ids'][0])
             self.next_literal_ids.clear()
             self.body.append('\n\\begin{literal-block}\n')
             self.context.append(ids + '\n\\end{literal-block}\n')

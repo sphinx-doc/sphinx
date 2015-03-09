@@ -1786,10 +1786,17 @@ class BuildEnvironment:
             counter[secnum] = counter.get(secnum, 0) + 1
             return secnum + (counter[secnum],)
 
-        def register_fignumber(docname, secnum, figtype, figure_id):
+        def register_fignumber(docname, secnum, figtype, fignode):
             self.toc_fignumbers.setdefault(docname, {})
             fignumbers = self.toc_fignumbers[docname].setdefault(figtype, {})
-            fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
+            figure_id = fignode['ids'][0]
+
+            if (isinstance(fignode, nodes.image) and
+               isinstance(fignode.parent, nodes.figure) and
+               fignode.parent['ids']):
+                fignumbers[figure_id] = fignumbers[fignode.parent['ids'][0]]
+            else:
+                fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
 
         def _walk_doctree(docname, doctree, secnum):
             for subnode in doctree.children:
@@ -1812,8 +1819,7 @@ class BuildEnvironment:
 
                 figtype = get_figtype(subnode)
                 if figtype and subnode['ids']:
-                    register_fignumber(docname, secnum,
-                                       figtype, subnode['ids'][0])
+                    register_fignumber(docname, secnum, figtype, subnode)
 
                 _walk_doctree(docname, subnode, secnum)
 
