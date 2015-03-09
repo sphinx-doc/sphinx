@@ -256,14 +256,14 @@ def test_numref_with_language_ja(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\renewcommand{\\figurename}{Fig. }' in result
-    assert '\\renewcommand{\\tablename}{Table }' in result
-    assert '\\floatname{literal-block}{Listing }' in result
-    assert '\\hyperref[index:fig1]{Fig. \\ref{index:fig1}}' in result
+    assert u'\\renewcommand{\\figurename}{\u56f3 }' in result
+    assert '\\renewcommand{\\tablename}{TABLE }' in result
+    assert '\\floatname{literal-block}{LIST }' in result
+    assert u'\\hyperref[index:fig1]{\u56f3 \\ref{index:fig1}}' in result
     assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
-    assert '\\hyperref[index:table-1]{Table \\ref{index:table-1}}' in result
+    assert '\\hyperref[index:table-1]{TABLE \\ref{index:table-1}}' in result
     assert '\\hyperref[baz:table22]{Table:\\ref{baz:table22}}' in result
-    assert '\\hyperref[index:code-1]{Listing \\ref{index:code-1}}' in result
+    assert '\\hyperref[index:code-1]{LIST \\ref{index:code-1}}' in result
     assert '\\hyperref[baz:code22]{Code-\\ref{baz:code22}}' in result
 
 
