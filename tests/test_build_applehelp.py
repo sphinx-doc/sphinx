@@ -38,12 +38,12 @@ def check_structure(outdir):
     assert (contentsdir / 'Resources').isdir()
     assert (contentsdir / 'Resources' / 'en.lproj').isdir()
 
-    
+
 def check_localization(outdir):
     lprojdir = outdir / 'Contents' / 'Resources' / 'en.lproj'
     assert (lprojdir / 'localized.txt').isfile()
 
-    
+
 @with_app(buildername='applehelp')
 def test_applehelp_output(app, status, warning):
     app.builder.build_all()
