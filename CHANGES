@@ -37,6 +37,7 @@ Bugs fixed
 * #1700: Add ``:caption:`` option for :rst:dir:`toctree`.
 * #1742: ``:name:`` option is provided for :rst:dir:`toctree`, :rst:dir:`code-block` and
   :rst:dir:`literalinclude` dirctives.
+* #1756: Incorrect section titles in search that was introduced from 1.3b3.
 
 
 Release 1.3b3 (released Feb 24, 2015)

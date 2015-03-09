@@ -318,8 +318,7 @@ class IndexBuilder(object):
 
     def freeze(self):
         """Create a usable data structure for serializing."""
-        filenames = sorted(self._titles.keys())
-        titles = sorted(self._titles.values())
+        filenames, titles = zip(*sorted(self._titles.items()))
         fn2index = dict((f, i) for (i, f) in enumerate(filenames))
         terms, title_terms = self.get_terms(fn2index)
 
