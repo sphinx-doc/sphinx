@@ -39,6 +39,7 @@ Bugs fixed
   :rst:dir:`literalinclude` dirctives.
 * #1756: Incorrect section titles in search that was introduced from 1.3b3.
 * #1746: C++, fixed name lookup procedure, and added missing lookups in declarations.
+* #1765: C++, fix old id generation to use fully qualified names.
 
 Documentation
 -------------
