@@ -1487,7 +1487,7 @@ class ASTType(ASTBase):
         res = []
         if self.objectType:  # needs the name
             if self.objectType == 'function':  # also modifiers
-                res.append(self.name.get_id_v1())
+                res.append(self.prefixedName.get_id_v1())
                 res.append(self.decl.get_param_id_v1())
                 res.append(self.decl.get_modifiers_id_v1())
                 if (self.declSpecs.leftSpecs.constexpr or
@@ -1495,7 +1495,7 @@ class ASTType(ASTBase):
                          self.declSpecs.rightSpecs.constexpr)):
                     res.append('CE')
             elif self.objectType == 'type':  # just the name
-                res.append(self.name.get_id_v1())
+                res.append(self.prefixedName.get_id_v1())
             else:
                 print(self.objectType)
                 assert False
@@ -1560,7 +1560,7 @@ class ASTTypeWithInit(ASTBase):
 
     def get_id_v1(self):
         if self.objectType == 'member':
-            return self.name.get_id_v1() + u'__' + self.type.get_id_v1()
+            return self.prefixedName.get_id_v1() + u'__' + self.type.get_id_v1()
         else:
             return self.type.get_id_v1()
 
@@ -1615,7 +1615,7 @@ class ASTClass(ASTBase):
         self.bases = bases
 
     def get_id_v1(self):
-        return self.name.get_id_v1()
+        return self.prefixedName.get_id_v1()
         # name = _id_shortwords.get(self.name)
         # if name is not None:
         #     return name
