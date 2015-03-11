@@ -103,7 +103,25 @@
     <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" />
     <link rel="stylesheet" href="{{ pathto('_static/pygments.css', 1) }}" type="text/css" />
     {%- for cssfile in css_files %}
-    <link rel="stylesheet" href="{{ pathto(cssfile, 1) }}" type="text/css" />
+        {%- if cssfile.filename is defined %}
+            {%- set filename = cssfile.filename %}
+        {%- else %}
+            {%- set filename = cssfile %}
+        {%- endif %}
+        {%- if cssfile.rel is defined %}
+            {%- set rel = cssfile.rel %}
+        {%- endif %}
+        {%- if cssfile.title is defined and cssfile.title is string %}
+            {%- if cssfile.rel is not defined %}
+                {%- set rel = "alternate stylesheet" %}
+            {%- endif %}
+    <link rel="{{ rel }}" href="{{ pathto(filename, 1) }}" type="text/css" title="{{ cssfile.title }}" />
+        {%- else %}
+            {%- if cssfile.rel is not defined %}
+                {%- set rel = "stylesheet" %}
+            {%- endif %}
+    <link rel="{{ rel }}" href="{{ pathto(filename, 1) }}" type="text/css" />
+        {%- endif %}
     {%- endfor %}
 {%- endmacro %}
 

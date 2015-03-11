@@ -681,14 +681,17 @@ class Sphinx(object):
             StandaloneHTMLBuilder.script_files.append(
                 posixpath.join('_static', filename))
 
-    def add_stylesheet(self, filename):
+    def add_stylesheet(self, filename, rel=None, title=None):
         self.debug('[app] adding stylesheet: %r', filename)
         from sphinx.builders.html import StandaloneHTMLBuilder
+        item = {}
+        if rel is not None: item['rel'] = rel
+        if title is not None: item['title'] = title
         if '://' in filename:
-            StandaloneHTMLBuilder.css_files.append(filename)
+            item['filename'] = filename
         else:
-            StandaloneHTMLBuilder.css_files.append(
-                posixpath.join('_static', filename))
+            item['filename'] = posixpath.join('_static', filename)
+        StandaloneHTMLBuilder.css_files.append(item)
 
     def add_latex_package(self, packagename, options=None):
         self.debug('[app] adding latex package: %r', packagename)

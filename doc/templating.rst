@@ -202,8 +202,19 @@ Overriding works like this::
 
 .. data:: css_files
 
-   Similar to :data:`script_files`, for CSS files.
+   Similar to :data:`script_files`, for CSS files::
 
+      {% set css_files = css_files + ["_static/mystyle.css"] %}
+
+   .. versionchanged:: 1.4
+      Optionally, ``rel`` and/or ``title`` attributes can be provided by supplying
+      a Python dictionary, in which case the filename is given in the ``filename``
+      key::
+
+         {% set css_files = css_files + [{"filename":"_static/mystyle.css", "rel":"stylesheet", "title":"Default"}] %}
+
+      The default is no title and ``rel='stylesheet'``, but if only ``title``
+      is given, the default is ``rel='alternate stylesheet'``.
 
 Helper Functions
 ~~~~~~~~~~~~~~~~
