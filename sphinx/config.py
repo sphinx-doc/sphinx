@@ -282,7 +282,7 @@ class Config(object):
         self.setup = config.get('setup', None)
         self.extensions = config.get('extensions', [])
 
-    def check_types(self, warn):
+    def check_types(self, warn=False):
         # check all values for deviation from the default value's type, since
         # that can result in TypeErrors all over the place
         # NB. since config values might use l_() we have to wait with calling
@@ -306,7 +306,7 @@ class Config(object):
             warn("the config value %r has type `%s', defaults to `%s.'" %
                  (name, type(current).__name__, type(default).__name__))
 
-    def check_unicode(self, warn):
+    def check_unicode(self, warn=False):
         # check all string values for non-ASCII characters in bytestrings,
         # since that can result in UnicodeErrors all over the place
         for name, value in iteritems(self._raw_config):
@@ -315,7 +315,7 @@ class Config(object):
                      'characters; this can lead to Unicode errors occurring. '
                      'Please use Unicode strings, e.g. %r.' % (name, u'Content'))
 
-    def init_values(self, warn):
+    def init_values(self, warn=False):
         config = self._raw_config
         for valname, value in iteritems(self.overrides):
             if '.' in valname:
