@@ -685,8 +685,10 @@ class Sphinx(object):
         self.debug('[app] adding stylesheet: %r', filename)
         from sphinx.builders.html import StandaloneHTMLBuilder
         item = {}
-        if rel is not None: item['rel'] = rel
-        if title is not None: item['title'] = title
+        if rel is not None:
+            item['rel'] = rel
+        if title is not None:
+            item['title'] = title
         if '://' in filename:
             item['filename'] = filename
         else:
