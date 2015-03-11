@@ -15,12 +15,12 @@
 import sys
 from os import path
 
-__version__  = '1.3'
-__released__ = '1.3'  # used when Sphinx builds its own docs
+__version__  = '1.4a0+'
+__released__ = '1.4a0'  # used when Sphinx builds its own docs
 # version info for better programmatic use
 # possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
 # 'final' has 0 as the last element
-version_info = (1, 3, 0, 'final', 0)
+version_info = (1, 4, 0, 'alpha', 0)
 
 package_dir = path.abspath(path.dirname(__file__))
 
