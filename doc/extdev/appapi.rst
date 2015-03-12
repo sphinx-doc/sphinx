@@ -280,7 +280,7 @@ package.
 
    .. versionadded:: 0.5
 
-.. method:: Sphinx.add_stylesheet(filename, rel=None, title=None)
+.. method:: Sphinx.add_stylesheet(filename, alternate=None, title=None)
 
    Add *filename* to the list of CSS files that the default HTML template will
    include.  Like for :meth:`add_javascript`, the filename must be relative to
@@ -289,8 +289,8 @@ package.
    .. versionadded:: 1.0
 
    .. versionchanged:: 1.4
-      Optional ``rel`` and/or ``title`` attributes can be supplied with the *rel*
-      and *title* arguments.
+      Optional ``alternate`` and/or ``title`` attributes can be supplied with
+      the *alternate* (of boolean type) and *title* (a string) arguments.
 
 .. method:: Sphinx.add_latex_package(packagename, options=None)
 

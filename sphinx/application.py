@@ -681,12 +681,12 @@ class Sphinx(object):
             StandaloneHTMLBuilder.script_files.append(
                 posixpath.join('_static', filename))
 
-    def add_stylesheet(self, filename, rel=None, title=None):
+    def add_stylesheet(self, filename, alternate=None, title=None):
         self.debug('[app] adding stylesheet: %r', filename)
         from sphinx.builders.html import StandaloneHTMLBuilder
         item = {}
-        if rel is not None:
-            item['rel'] = rel
+        if alternate is not None:
+            item['alternate'] = bool(alternate)
         if title is not None:
             item['title'] = title
         if '://' in filename:

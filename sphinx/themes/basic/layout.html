@@ -108,19 +108,19 @@
         {%- else %}
             {%- set filename = cssfile %}
         {%- endif %}
-        {%- if cssfile.rel is defined %}
-            {%- set rel = cssfile.rel %}
+        {%- if cssfile.alternate is defined %}
+            {%- set alt = cssfile.alternate %}
         {%- endif %}
         {%- if cssfile.title is defined and cssfile.title is string %}
-            {%- if cssfile.rel is not defined %}
-                {%- set rel = "alternate stylesheet" %}
+            {%- if cssfile.alternate is not defined %}
+                {%- set alt = True %}
             {%- endif %}
-    <link rel="{{ rel }}" href="{{ pathto(filename, 1) }}" type="text/css" title="{{ cssfile.title }}" />
+    <link rel="{% if alt %}alternate {% endif %}stylesheet" href="{{ pathto(filename, 1) }}" type="text/css" title="{{ cssfile.title }}" />
         {%- else %}
-            {%- if cssfile.rel is not defined %}
-                {%- set rel = "stylesheet" %}
+            {%- if cssfile.alternate is not defined %}
+                {%- set alt = False %}
             {%- endif %}
-    <link rel="{{ rel }}" href="{{ pathto(filename, 1) }}" type="text/css" />
+    <link rel="{% if alt %}alternate {% endif %}stylesheet" href="{{ pathto(filename, 1) }}" type="text/css" />
         {%- endif %}
     {%- endfor %}
 {%- endmacro %}
