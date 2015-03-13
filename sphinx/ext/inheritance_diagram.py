@@ -57,10 +57,130 @@ from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import force_decode
 from sphinx.util.compat import Directive
 
+import collections
+import collections.abc
+
+
+class GraphNode(object):
+    def __init__(self, data=None, names_in=None, names_out=None):
+        self.data = data
+        self.names_in = set(names_in or [])
+        self.names_out = set(names_out or [])
+
+    def empty(self):
+        return\
+            (   self.data is None
+            and not node.names_in
+            and not node.names_out
+            )
+
+    def __str__(self):
+        return "<{}|..|{}>".format(self.names_in, self.names_out)
+
+
+class Graph(object):
+    """
+    Simple structure representing arbitrary connections
+    """
+
+    def __init__(self):
+        self.names = dict()
+        self.roots = set()
+
+    def node_add(self, data, name, names_in=None, names_out=None):
+        if name in self.names:
+            node = self.names[name]
+            node.names_in |= set(names_in or [])
+            node.names_out |= set(names_out or [])
+            node.data = data
+        else:
+            node = GraphNode(data, names_in, names_out)
+            self.names[name] = node
+        if not node.names_in:
+            self.roots.add(name)
+        for name_in in node.names_in:
+            node_in = self.names.setdefault(name_in, GraphNode())
+            node_in.names_out.add(name)
+            if not node_in.names_in:
+                self.roots.add(name_in)
+        for name_out in node.names_out:
+            node_out = self.names.setdefault(name_out, GraphNode())
+            node_out.names_in.add(name)
+            self.roots.discard(name_out)
+
+    def node_iterate(self, name, selector):
+        cache = set()
+        def node_iterate(name, selector):
+            node = self.names[name]
+            if node not in cache:
+                cache.add(node)
+                yield (name, node)
+                for name in selector(node):
+                    yield from node_iterate(name, selector)
+        yield from node_iterate(name, selector)
+
+    @staticmethod
+    def node_filter(node_iter, matcher):
+        for name, node in node_iter:
+            if matcher(name, node):
+                yield(name, node)
+
+    def node_delete(self, name, preserve_links=False):
+        node = self.names.pop(name)
+        self.roots.discard(name)
+        # unlink
+        for name_in in node.names_in:
+            self.names[name_in].names_out.remove(name)
+        for name_out in node.names_out:
+            self.names[name_out].names_in.remove(name)
+        # relink
+        if preserve_links:
+            for name_in in node.names_in:
+                for name_out in node.names_out:
+                    self.names[name_out].names_in.add(name_in)
+                    self.names[name_in].names_out.add(name_out)
+        # delete empty placeholders
+        for name in node.names_in | node.names_out:
+            if self.names[name].empty():
+                self.node_delete(name)
+        # recreate roots
+        for name_out in node.names_out:
+            if not self.names[name_out].names_in:
+                self.roots.add(name_out)
+
+    def children(self, *names):
+        if not names:
+            names = self.roots
+        cache = set()
+        selector = lambda v: v.names_out
+        for name_root in names:
+            for name, node in self.node_iterate(name, selector):
+                if node not in cache:
+                    cache.add(node)
+                    yield (name, node)
+
+    @property
+    def names_data(self):
+        return\
+            { name:node
+              for name, node
+              in self.names.items()
+              if node.data is not None
+            }
+
+    def __len__(self):
+        return len(self.names_data)
+
 
 class_sig_re = re.compile(r'''^([\w.]*\.)?    # module names
                           (\w+)  \s* $        # class/final module name
                           ''', re.VERBOSE)
+
+
+ClassInfo = collections.namedtuple\
+    ( "ClassInfo"
+    , ["cls", "fullname", "baselist", "tooltip"]
+    )
 
 
 class InheritanceException(Exception):
@@ -147,14 +267,13 @@ class InheritanceGraph(object):
         *parts* gives the number of dotted name parts that is removed from the
         displayed node names.
         """
-        all_classes = {}
         py_builtins = vars(builtins).values()
+        graph = Graph()
+        cache = set()
+        marks = list()
 
         def recurse(cls):
-            if not show_builtins and cls in py_builtins:
-                return
-            if not private_bases and cls.__name__.startswith('_'):
-                return
+            cache.add(cls)
 
             nodename = self.class_name(cls, parts)
             fullname = self.class_name(cls, 0)
@@ -172,21 +291,40 @@ class InheritanceGraph(object):
             except Exception:  # might raise AttributeError for strange classes
                 pass
 
-            baselist = []
-            all_classes[cls] = (nodename, fullname, baselist, tooltip)
+            baselist = [self.class_name(base, parts) for base in cls.__bases__]
+
+            graph.node_add\
+                ( ClassInfo(cls, fullname, baselist, tooltip)
+                , nodename, baselist
+                )
+
             for base in cls.__bases__:
-                if not show_builtins and base in py_builtins:
-                    continue
-                if not private_bases and base.__name__.startswith('_'):
-                    continue
-                baselist.append(self.class_name(base, parts))
-                if base not in all_classes:
+                if base not in cache:
                     recurse(base)
 
         for cls in classes:
             recurse(cls)
 
-        return list(all_classes.values())
+        for name, node in graph.names.items():
+            if not node.data:
+                marks.append(name)
+                continue
+            if  (   (   node.data.cls in py_builtins
+                    and node.data.cls not in classes
+                    and not show_builtins
+                    )
+                or  (   node.data.cls.__name__.startswith("_")
+                    and node.data.cls not in classes
+                    and not private_bases
+                    )
+                ):
+                marks.append(name)
+
+        for name in marks:
+            if name in graph.names:
+                graph.node_delete(name, preserve_links=True)
+
+        return graph
 
     def class_name(self, cls, parts=0):
         """Given a class object, return a fully-qualified name.
@@ -206,7 +344,12 @@ class InheritanceGraph(object):
 
     def get_all_class_names(self):
         """Get all of the class names involved in the graph."""
-        return [fullname for (_, fullname, _, _) in self.class_info]
+        return\
+            [ node.data.fullname
+              for node
+              in self.class_info.names.values()
+              if node.data is not None
+            ]
 
     # These are the default attrs for graphviz
     default_graph_attrs = {
@@ -219,21 +362,47 @@ class InheritanceGraph(object):
         'height': 0.25,
         'fontname': '"Vera Sans, DejaVu Sans, Liberation Sans, '
                     'Arial, Helvetica, sans"',
-        'style': '"setlinewidth(0.5)"',
+        'style': [ 'setlinewidth(0.5)' ],
     }
     default_edge_attrs = {
         'arrowsize': 0.5,
-        'style': '"setlinewidth(0.5)"',
+        'style': [ 'setlinewidth(0.5)' ],
+    }
+    builtin_node_attrs = {
+        'style': [ 'dashed' ],
+    }
+    express_edge_attrs = {
+        'style': [ 'dotted' ],
     }
 
-    def _format_node_attrs(self, attrs):
-        return ','.join(['%s=%s' % x for x in attrs.items()])
+    def _attr_merge(self, *args):
+        merged = {}
+        for attribute in args:
+            for k,v in attribute.items():
+                if  (   k in merged
+                    and all(    (   isinstance(i, collections.abc.Iterable)
+                                and not isinstance(i, str)
+                                )
+                                for i
+                                in (v, merged[k])
+                            )
+                    ):
+                    v = list(merged[k]) + list(v)
+                merged[k] = v
+        return merged
 
-    def _format_graph_attrs(self, attrs):
-        return ''.join(['%s=%s;\n' % x for x in attrs.items()])
+    def _attr_format(self, attrs, sep=","):
+        formatted = []
+        for k,v in attrs.items():
+            if isinstance(v, collections.abc.Iterable) and not isinstance(v, str):
+                v = "\"" + ",".join(v) + "\""
+            formatted.append("{}={}".format(k,v))
+        return sep.join(formatted)
 
     def generate_dot(self, name, urls={}, env=None,
-                     graph_attrs={}, node_attrs={}, edge_attrs={}):
+                     graph_attrs_default={},
+                     node_attrs_default={}, node_attrs_builtin={},
+                     edge_attrs_default={}, edge_attrs_express={}):
         """Generate a graphviz dot graph from the classes that were passed in
         to __init__.
 
@@ -244,36 +413,74 @@ class InheritanceGraph(object):
         *graph_attrs*, *node_attrs*, *edge_attrs* are dictionaries containing
         key/value pairs to pass on as graphviz properties.
         """
-        g_attrs = self.default_graph_attrs.copy()
-        n_attrs = self.default_node_attrs.copy()
-        e_attrs = self.default_edge_attrs.copy()
-        g_attrs.update(graph_attrs)
-        n_attrs.update(node_attrs)
-        e_attrs.update(edge_attrs)
-        if env:
-            g_attrs.update(env.config.inheritance_graph_attrs)
-            n_attrs.update(env.config.inheritance_node_attrs)
-            e_attrs.update(env.config.inheritance_edge_attrs)
+        py_builtins = vars(builtins).values()
+
+        attrs_graph_default = self._attr_merge\
+                ( self.default_graph_attrs
+                , graph_attrs_default
+                , env.config.inheritance_graph_attrs if env else {}
+                )
+        attrs_node_default = self._attr_merge\
+                ( self.default_node_attrs
+                , node_attrs_default
+                , env.config.inheritance_node_attrs if env else {}
+                )
+        attrs_edge_default = self._attr_merge\
+                ( self.default_edge_attrs
+                , edge_attrs_default
+                , env.config.inheritance_edge_attrs if env else {}
+                )
+        attrs_node_builtin = self._attr_merge\
+                ( attrs_node_default
+                , self.builtin_node_attrs
+                , node_attrs_builtin
+                , env.config.inheritance_node_attrs_builtin if env else {}
+                )
+        attrs_edge_express = self._attr_merge\
+                ( attrs_edge_default
+                , self.express_edge_attrs
+                , edge_attrs_express
+                , env.config.inheritance_edge_attrs_express if env else {}
+                )
 
         res = []
         res.append('digraph %s {\n' % name)
-        res.append(self._format_graph_attrs(g_attrs))
+        res.append(self._attr_format(attrs_graph_default, ";\n"))
 
-        for name, fullname, bases, tooltip in sorted(self.class_info):
+        for name in sorted(self.class_info.names):
+            node = self.class_info.names[name]
+            bases_linked = node.names_in
+            bases_actual = node.data.baselist
+            cls = node.data.cls
+            fullname = node.data.fullname
+            tooltip = node.data.tooltip
+
             # Write the node
-            this_node_attrs = n_attrs.copy()
+            if cls in py_builtins:
+                attrs_node_current = attrs_node_builtin.copy()
+            else:
+                attrs_node_current = attrs_node_default.copy()
             if fullname in urls:
-                this_node_attrs['URL'] = '"%s"' % urls[fullname]
+                attrs_node_current['URL'] = '"%s"' % urls[fullname]
             if tooltip:
-                this_node_attrs['tooltip'] = tooltip
-            res.append('  "%s" [%s];\n' %
-                       (name, self._format_node_attrs(this_node_attrs)))
+                attrs_node_current['tooltip'] = tooltip
+            res.append('  "{}" [{}];\n'.format\
+                ( name
+                , self._attr_format(attrs_node_current)
+                ))
 
             # Write the edges
-            for base_name in bases:
-                res.append('  "%s" -> "%s" [%s];\n' %
-                           (base_name, name,
-                            self._format_node_attrs(e_attrs)))
+            for basename in bases_linked:
+                if basename in bases_actual:
+                    attrs_edge_current = attrs_edge_default
+                else:
+                    attrs_edge_current = attrs_edge_express
+                res.append('  "{}" -> "{}" [{}];\n'.format\
+                    ( basename
+                    , name
+                    , self._attr_format(attrs_edge_current)
+                    ))
+
         res.append('}\n')
         return ''.join(res)
 
@@ -371,7 +578,7 @@ def latex_visit_inheritance_diagram(self, node):
     name = 'inheritance%s' % graph_hash
 
     dotcode = graph.generate_dot(name, env=self.builder.env,
-                                 graph_attrs={'size': '"6.0,6.0"'})
+                                 graph_attrs_default={'size': '"6.0,6.0"'})
     render_dot_latex(self, node, dotcode, [], 'inheritance')
     raise nodes.SkipNode
 
@@ -386,7 +593,7 @@ def texinfo_visit_inheritance_diagram(self, node):
     name = 'inheritance%s' % graph_hash
 
     dotcode = graph.generate_dot(name, env=self.builder.env,
-                                 graph_attrs={'size': '"6.0,6.0"'})
+                                 graph_attrs_default={'size': '"6.0,6.0"'})
     render_dot_texinfo(self, node, dotcode, [], 'inheritance')
     raise nodes.SkipNode
 
@@ -408,4 +615,6 @@ def setup(app):
     app.add_config_value('inheritance_graph_attrs', {}, False),
     app.add_config_value('inheritance_node_attrs', {}, False),
     app.add_config_value('inheritance_edge_attrs', {}, False),
+    app.add_config_value('inheritance_node_attrs_builtin', {}, False),
+    app.add_config_value('inheritance_edge_attrs_express', {}, False),
     return {'version': sphinx.__version__, 'parallel_read_safe': True}
