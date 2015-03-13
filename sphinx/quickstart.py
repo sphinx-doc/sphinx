@@ -1403,6 +1403,32 @@ For more information, visit <http://sphinx-doc.org/>.
 """
 
 
+def valid_dir(d):
+    dir = d['path']
+    if not path.exists(dir):
+        return True
+    if not path.isdir(dir):
+        return False
+
+    invalid_dirs = ['Makefile', 'make.bat']
+    if set(invalid_dirs) & set(os.listdir(dir)):
+        return False
+
+    master = d['master']
+    suffix = d['suffix']
+    source = ['_static', '_templates', 'conf.py', master+suffix]
+    if d['sep']:
+        dir = os.path.join('source', dir)
+        if not path.exists(dir):
+            return True
+        if not path.isdir(dir):
+            return False
+    if set(source) & set(os.listdir(dir)):
+        return False
+
+    return True
+
+
 class MyFormatter(optparse.IndentedHelpFormatter):
     def format_usage(self, usage):
         return usage
@@ -1512,11 +1538,10 @@ def main(argv=sys.argv):
             if 'no_batchfile' in d:
                 d['batchfile'] = False
 
-            if path.exists(d['path']) and (
-                    not path.isdir(d['path']) or os.listdir(d['path'])):
+            if not valid_dir(d):
                 print()
-                print(bold('Error: specified path is not a directory, or not a'
-                           ' empty directory.'))
+                print(bold('Error: specified path is not a directory, or sphinx'
+                           ' files already exist.'))
                 print('sphinx-quickstart only generate into a empty directory.'
                       ' Please specify a new root path.')
                 return
