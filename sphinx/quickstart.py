@@ -1409,15 +1409,23 @@ def valid_dir(d):
         return True
     if not path.isdir(dir):
         return False
-    for f in os.listdir(dir):
-        invalid_dirs = ['Makefile', 'make.bat', 'conf.py'
-                        '_static', '_templates', 'source']
-        if f in invalid_dirs:
+
+    invalid_dirs = ['Makefile', 'make.bat']
+    if set(invalid_dirs) & set(os.listdir(dir)):
+        return False
+
+    master = d['master']
+    suffix = d['suffix']
+    source = ['_static', '_templates', 'conf.py', master+suffix]
+    if d['sep']:
+        dir = os.path.join('source', dir)
+        if not path.exists(dir):
+            return True
+        if not path.isdir(dir):
             return False
-        master = d['master']
-        ext = d['suffix']
-        if f == master + ext:
-            return False
+    if set(source) & set(os.listdir(dir)):
+        return False
+
     return True
 
 
