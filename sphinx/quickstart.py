@@ -1403,13 +1403,20 @@ For more information, visit <http://sphinx-doc.org/>.
 """
 
 
-def valid_dir(dir):
+def valid_dir(d):
+    dir = d['path']
     if not path.exists(dir):
         return True
     if not path.isdir(dir):
         return False
     for f in os.listdir(dir):
-        if f in ['Makefile', 'index.rst', 'conf.py', 'make.bat']:
+        invalid_dirs = ['Makefile', 'make.bat', 'conf.py'
+                        '_static', '_templates', 'source']
+        if f in invalid_dirs:
+            return False
+        master = d['master']
+        ext = d['suffix']
+        if f == master + ext:
             return False
     return True
 
@@ -1523,7 +1530,7 @@ def main(argv=sys.argv):
             if 'no_batchfile' in d:
                 d['batchfile'] = False
 
-            if not valid_dir(d['path']):
+            if not valid_dir(d):
                 print()
                 print(bold('Error: specified path is not a directory, or sphinx'
                            ' files already exist.'))
