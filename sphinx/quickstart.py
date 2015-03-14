@@ -33,7 +33,7 @@ from six.moves import input
 from six.moves.urllib.parse import quote as urlquote
 from docutils.utils import column_width
 
-from sphinx import __version__
+from sphinx import __display_version__
 from sphinx.util.osutil import make_filename
 from sphinx.util.console import purple, bold, red, turquoise, \
     nocolor, color_terminal
@@ -1135,7 +1135,7 @@ def ask_user(d):
     * batchfile: make command file
     """
 
-    print(bold('Welcome to the Sphinx %s quickstart utility.') % __version__)
+    print(bold('Welcome to the Sphinx %s quickstart utility.') % __display_version__)
     print('''
 Please enter values for the following settings (just press Enter to
 accept a default value, if one is given in brackets).''')
@@ -1405,7 +1405,7 @@ def usage(argv, msg=None):
 USAGE = """\
 Sphinx v%s
 Usage: %%prog [options] [projectdir]
-""" % __version__
+""" % __display_version__
 
 EPILOG = """\
 For more information, visit <http://sphinx-doc.org/>.
@@ -1459,7 +1459,7 @@ def main(argv=sys.argv):
         nocolor()
 
     parser = optparse.OptionParser(USAGE, epilog=EPILOG,
-                                   version='Sphinx v%s' % __version__,
+                                   version='Sphinx v%s' % __display_version__,
                                    formatter=MyFormatter())
     parser.add_option('-q', '--quiet', action='store_true', dest='quiet',
                       default=False,

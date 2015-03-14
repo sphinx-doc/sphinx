@@ -18,7 +18,7 @@ from os import path
 from six import text_type, binary_type
 from docutils.utils import SystemMessage
 
-from sphinx import __version__
+from sphinx import __display_version__
 from sphinx.errors import SphinxError
 from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
@@ -40,7 +40,7 @@ Filename arguments:
   without -a and without filenames, write new and changed files.
   with -a, write all files.
   with filenames, write these.
-""" % __version__
+""" % __display_version__
 
 EPILOG = """\
 For more information, visit <http://sphinx-doc.org/>.
@@ -131,7 +131,7 @@ def main(argv):
 
     # handle basic options
     if opts.version:
-        print('Sphinx (sphinx-build) %s' % __version__)
+        print('Sphinx (sphinx-build) %s' % __display_version__)
         return 0
 
     # get paths (first and second positional argument)

@@ -15,7 +15,7 @@ import re
 from six import PY3, iteritems
 from six.moves import html_entities
 
-from sphinx import __version__
+from sphinx import __display_version__
 from util import remove_unicode_literals, gen_with_app
 from etree13 import ElementTree as ET
 
@@ -347,7 +347,7 @@ def check_static_entries(outdir):
     assert (staticdir / 'subdir' / 'foo.css').isfile()
     # a file from a file entry in html_static_path
     assert (staticdir / 'templated.css').isfile()
-    assert (staticdir / 'templated.css').text().splitlines()[1] == __version__
+    assert (staticdir / 'templated.css').text().splitlines()[1] == __display_version__
     # a file from _static, but matches exclude_patterns
     assert not (staticdir / 'excluded.css').exists()
 

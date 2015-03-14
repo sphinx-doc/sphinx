@@ -8,10 +8,29 @@ This is the Sphinx documentation generator, see http://sphinx-doc.org/.
 Installing
 ==========
 
-Use ``setup.py``::
+Install from PyPI to use stable version::
 
-   python setup.py build
-   sudo python setup.py install
+   pip install -U sphinx
+
+Install from PyPI to use beta version::
+
+   pip install -U --pre sphinx
+
+Install from newest dev version in stable branch::
+
+   pip install git+https://github.com/sphinx-doc/sphinx@stable
+
+Install from newest dev version in master branch::
+
+   pip install git+https://github.com/sphinx-doc/sphinx
+
+Install from cloned source::
+
+   pip install .
+
+Install from cloned source as editable::
+
+   pip install -e .
 
 
 Reading the docs
