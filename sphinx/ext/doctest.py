@@ -444,4 +444,4 @@ def setup(app):
     app.add_config_value('doctest_test_doctest_blocks', 'default', False)
     app.add_config_value('doctest_global_setup', '', False)
     app.add_config_value('doctest_global_cleanup', '', False)
-    return {'version': sphinx.__version__, 'parallel_read_safe': True}
+    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

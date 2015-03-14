@@ -59,4 +59,4 @@ def setup(app):
     mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
     app.add_config_value('jsmath_path', '', False)
     app.connect('builder-inited', builder_inited)
-    return {'version': sphinx.__version__, 'parallel_read_safe': True}
+    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

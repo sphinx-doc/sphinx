@@ -111,7 +111,7 @@ class Sphinx(object):
         self.messagelog = deque(maxlen=10)
 
         # say hello to the world
-        self.info(bold('Running Sphinx v%s' % sphinx.__version__))
+        self.info(bold('Running Sphinx v%s' % sphinx.__display_version__))
 
         # status code for command-line application
         self.statuscode = 0
@@ -158,7 +158,7 @@ class Sphinx(object):
 
         # check the Sphinx version if requested
         if self.config.needs_sphinx and \
-           self.config.needs_sphinx > sphinx.__version__[:3]:
+           self.config.needs_sphinx > sphinx.__display_version__[:3]:
             raise VersionRequirementError(
                 'This project needs at least Sphinx v%s and therefore cannot '
                 'be built with this version.' % self.config.needs_sphinx)
@@ -453,7 +453,7 @@ class Sphinx(object):
 
     def require_sphinx(self, version):
         # check the Sphinx version if requested
-        if version > sphinx.__version__[:3]:
+        if version > sphinx.__display_version__[:3]:
             raise VersionRequirementError(version)
 
     def import_object(self, objname, source=None):

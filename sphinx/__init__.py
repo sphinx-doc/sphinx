@@ -15,19 +15,23 @@
 import sys
 from os import path
 
-__version__  = '1.4a0+'
-__released__ = '1.4a0'  # used when Sphinx builds its own docs
+__version__  = '1.3+'
+__released__ = '1.3+'  # used when Sphinx builds its own docs
+
 # version info for better programmatic use
 # possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
 # 'final' has 0 as the last element
-version_info = (1, 4, 0, 'alpha', 0)
+version_info = (1, 3, 1, 'beta', 1)
 
 package_dir = path.abspath(path.dirname(__file__))
 
-if '+' in __version__ or 'pre' in __version__:
+__display_version__ = __version__  # used for command line version
+if __version__.endswith('+'):
     # try to find out the changeset hash if checked out from hg, and append
     # it to __version__ (since we use this value from setup.py, it gets
     # automatically propagated to an installed copy as well)
+    __display_version__ = __version__
+    __version__ = __version__[:-1]  # remove '+' for PEP-440 version spec.
     try:
         import subprocess
         p = subprocess.Popen(['git', 'show', '-s', '--pretty=format:%h',
@@ -35,7 +39,7 @@ if '+' in __version__ or 'pre' in __version__:
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = p.communicate()
         if out:
-            __version__ += '/' + out.decode().strip()
+            __display_version__ += '/' + out.decode().strip()
     except Exception:
         pass
 

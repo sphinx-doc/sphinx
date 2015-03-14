@@ -22,7 +22,7 @@ import optparse
 from os import path
 
 from sphinx.util.osutil import walk
-from sphinx import __version__
+from sphinx import __display_version__
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
@@ -318,7 +318,7 @@ Note: By default this script will not overwrite already created files.""")
     (opts, args) = parser.parse_args(argv[1:])
 
     if opts.show_version:
-        print('Sphinx (sphinx-apidoc) %s' % __version__)
+        print('Sphinx (sphinx-apidoc) %s' % __display_version__)
         return 0
 
     if not args:
