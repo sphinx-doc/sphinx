@@ -219,7 +219,7 @@ class LiteralInclude(Directive):
 
         lines = self.read_with_encoding(filename, document,
                                         codec_info, encoding)
-        if not isinstance(lines[0], string_types):
+        if lines and not isinstance(lines[0], string_types):
             return lines
 
         diffsource = self.options.get('diff')
