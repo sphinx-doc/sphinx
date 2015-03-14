@@ -6,6 +6,7 @@ Bugs fixed
 
 * #1769: allows generating quickstart files/dirs for destination dir that
   doesn't overwrite existent files/dirs. Thanks to WAKAYAMA shirou.
+* #1773: sphinx-quickstart doesn't accept non-ASCII character as a option argument.
 
 
 Release 1.3 (released Mar 10, 2015)

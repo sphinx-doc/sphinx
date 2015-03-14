@@ -28,7 +28,7 @@ try:
 except ImportError:
     pass
 
-from six import PY2, PY3, text_type
+from six import PY2, PY3, text_type, binary_type
 from six.moves import input
 from six.moves.urllib.parse import quote as urlquote
 from docutils.utils import column_width
@@ -1048,6 +1048,27 @@ def ok(x):
     return x
 
 
+def term_decode(text):
+    if isinstance(text, text_type):
+        return text
+
+    # for Python 2.x, try to get a Unicode string out of it
+    if text.decode('ascii', 'replace').encode('ascii', 'replace') == text:
+        return text
+
+    if TERM_ENCODING:
+        text = text.decode(TERM_ENCODING)
+    else:
+        print(turquoise('* Note: non-ASCII characters entered '
+                        'and terminal encoding unknown -- assuming '
+                        'UTF-8 or Latin-1.'))
+        try:
+            text = text.decode('utf-8')
+        except UnicodeDecodeError:
+            text = text.decode('latin1')
+    return text
+
+
 def do_prompt(d, key, text, default=None, validator=nonempty):
     while True:
         if default:
@@ -1072,19 +1093,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
         x = term_input(prompt).strip()
         if default and not x:
             x = default
-        if not isinstance(x, text_type):
-            # for Python 2.x, try to get a Unicode string out of it
-            if x.decode('ascii', 'replace').encode('ascii', 'replace') != x:
-                if TERM_ENCODING:
-                    x = x.decode(TERM_ENCODING)
-                else:
-                    print(turquoise('* Note: non-ASCII characters entered '
-                                    'and terminal encoding unknown -- assuming '
-                                    'UTF-8 or Latin-1.'))
-                    try:
-                        x = x.decode('utf-8')
-                    except UnicodeDecodeError:
-                        x = x.decode('latin1')
+        x = term_decode(x)
         try:
             x = validator(x)
         except ValidationError as err:
@@ -1551,6 +1560,12 @@ def main(argv=sys.argv):
         print()
         print('[Interrupted.]')
         return
+
+    # decode values in d if value is a Python string literal
+    for key, value in d.items():
+        if isinstance(value, binary_type):
+            d[key] = term_decode(value)
+
     generate(d)
 
 if __name__ == '__main__':
