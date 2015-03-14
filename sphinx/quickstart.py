@@ -1419,20 +1419,23 @@ def valid_dir(d):
     if not path.isdir(dir):
         return False
 
-    invalid_dirs = ['Makefile', 'make.bat']
-    if set(invalid_dirs) & set(os.listdir(dir)):
+    if set(['Makefile', 'make.bat']) & set(os.listdir(dir)):
         return False
 
-    master = d['master']
-    suffix = d['suffix']
-    source = ['_static', '_templates', 'conf.py', master+suffix]
     if d['sep']:
         dir = os.path.join('source', dir)
         if not path.exists(dir):
             return True
         if not path.isdir(dir):
             return False
-    if set(source) & set(os.listdir(dir)):
+
+    reserved_names = [
+        'conf.py',
+        d['dot'] + 'static',
+        d['dot'] + 'templates',
+        d['master'] + d['suffix'],
+    ]
+    if set(reserved_names) & set(os.listdir(dir)):
         return False
 
     return True
@@ -1521,21 +1524,17 @@ def main(argv=sys.argv):
         opts.ensure_value('path', args[0])
 
     d = vars(opts)
-    for k, v in list(d.items()):
-        # delete None or False value
-        if v is None or v is False:
-            del d[k]
+    # delete None or False value
+    d = dict((k, v) for k, v in d.items() if not (v is None or v is False))
 
     try:
         if 'quiet' in d:
-            if 'project' not in d or 'author' not in d or \
-               'version' not in d:
+            if not set(['project', 'author', 'version']).issubset(d):
                 print('''"quiet" is specified, but any of "project", \
 "author" or "version" is not specified.''')
                 return
 
-        if all(['quiet' in d, 'project' in d, 'author' in d,
-                'version' in d]):
+        if set(['quiet', 'project', 'author', 'version']).issubset(d):
             # quiet mode with all required params satisfied, use default
             d.setdefault('release', d['version'])
             d2 = DEFAULT_VALUE.copy()
