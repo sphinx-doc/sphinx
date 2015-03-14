@@ -7,6 +7,7 @@ Bugs fixed
 * #1769: allows generating quickstart files/dirs for destination dir that
   doesn't overwrite existent files/dirs. Thanks to WAKAYAMA shirou.
 * #1773: sphinx-quickstart doesn't accept non-ASCII character as a option argument.
+* #1766: the message "least Python 2.6 to run" is at best misleading.
 
 
 Release 1.3 (released Mar 10, 2015)
