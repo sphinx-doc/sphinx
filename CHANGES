@@ -9,6 +9,9 @@ Bugs fixed
 * #1773: sphinx-quickstart doesn't accept non-ASCII character as a option argument.
 * #1766: the message "least Python 2.6 to run" is at best misleading.
 * #1772: cross reference in docstrings like ``:param .write:`` breaks building.
+* #1770, #1774: ``literalinclude`` with empty file occurs exception. Thanks to
+  Takayuki Hirai.
+* #1777: Sphinx 1.3 can't load extra theme. Thanks to tell-k.
 
 
 Release 1.3 (released Mar 10, 2015)
