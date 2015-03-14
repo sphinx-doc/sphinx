@@ -86,7 +86,7 @@ class Theme(object):
             if not path.isdir(themedir):
                 continue
             for theme in os.listdir(themedir):
-                if theme != 'name':
+                if theme != name:
                     continue
                 if not path.isfile(path.join(themedir, theme, THEMECONF)):
                     continue
