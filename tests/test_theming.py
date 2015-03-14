@@ -13,7 +13,6 @@ import os
 import zipfile
 import sys
 import subprocess
-from functools import wraps
 import tempfile
 from path import path
 
@@ -21,34 +20,6 @@ from sphinx.theming import Theme, ThemeError
 from sphinx.util.osutil import cd
 
 from util import with_app, raises, TestApp, rootdir
-
-
-def with_theme_setup(root, *args, **kwds):
-    """
-    Run `setup.py build_sphinx` with args and kwargs,
-    pass it to the test and clean up properly.
-    """
-    def generator(func):
-        @wraps(func)
-        def deco(*args2, **kwargs2):
-            tempdir = path(tempfile.mkdtemp())
-            testrootdir = rootdir / 'roots' / ('test-' + root)
-            pkgdir = tempdir / root
-            testrootdir.copytree(pkgdir)
-            with cd(pkgdir):
-                command = [sys.executable, 'setup.py', 'install']
-                command.extend(args)
-                try:
-                    proc = subprocess.Popen(
-                        command,
-                        env=os.environ,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.PIPE)
-                    func(pkgdir, proc)
-                finally:
-                    tempdir.rmtree(ignore_errors=True)
-        return deco
-    return generator
 
 
 @with_app(confoverrides={'html_theme': 'ziptheme',
@@ -115,14 +86,36 @@ def test_js_source(app, status, warning):
     assert 'Underscore.js {v}'.format(v=v) in underscore_src, msg
 
 
-@with_theme_setup('theming')
-def test_theme_plugin(pkgroot, proc):
-    out, err = proc.communicate()
-    print(out)
-    print(err)
-    assert proc.returncode == 0, 'expect zero status for setup.py'
-    app = TestApp(testroot='theming')
-    try:
-        assert 'test-theme' in Theme.themes
-    finally:
-        app.cleanup()
+def test_theme_plugin():
+    tempdir = path(tempfile.mkdtemp())
+    testrootdir = rootdir / 'roots' / ('test-theming')
+    pkgdir = tempdir / 'theming'
+    testrootdir.copytree(pkgdir)
+    with cd(pkgdir):
+        command = [sys.executable, 'setup.py', 'install']
+        try:
+            proc = subprocess.Popen(
+                command,
+                env=os.environ,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+            out, err = proc.communicate()
+            print(out)
+            print(err)
+            assert proc.returncode == 0, 'expect zero status for setup.py'
+        finally:
+            pass
+
+        command = ['sphinx-build', '.', '_build/html']
+        try:
+            proc = subprocess.Popen(
+                command,
+                env=os.environ,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+            out, err = proc.communicate()
+            print(out)
+            print(err)
+            assert proc.returncode == 0, 'expect zero status for setup.py'
+        finally:
+            tempdir.rmtree(ignore_errors=True)
