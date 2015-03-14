@@ -169,7 +169,9 @@ class Config(object):
         epub_theme = ('epub', 'html'),
         epub_theme_options = ({}, 'html'),
         epub_title = (lambda self: self.html_title, 'html'),
+        epub3_description = ('', 'epub3', [str]),
         epub_author = ('unknown', 'html'),
+        epub3_contributor = ('unknown', 'epub3', [str]),
         epub_language = (lambda self: self.language or 'en', 'html'),
         epub_publisher = ('unknown', 'html'),
         epub_copyright = (lambda self: self.copyright, 'html'),
@@ -188,6 +190,7 @@ class Config(object):
         epub_max_image_width = (0, 'env'),
         epub_show_urls = ('inline', 'html'),
         epub_use_index = (lambda self: self.html_use_index, 'html'),
+        epub3_page_progression_direction = ('ltr', 'epub3', [str]),
 
         # LaTeX options
         latex_documents = (lambda self: [(self.master_doc,

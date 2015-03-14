@@ -462,6 +462,7 @@ BUILTIN_BUILDERS = {
     'qthelp':     ('qthelp', 'QtHelpBuilder'),
     'applehelp':  ('applehelp', 'AppleHelpBuilder'),
     'epub':       ('epub', 'EpubBuilder'),
+    'epub3':      ('epub3', 'Epub3Builder'),
     'latex':      ('latex', 'LaTeXBuilder'),
     'text':       ('text', 'TextBuilder'),
     'man':        ('manpage', 'ManualPageBuilder'),

@@ -503,6 +503,7 @@ help:
 \t@echo "  applehelp  to make an Apple Help Book"
 \t@echo "  devhelp    to make HTML files and a Devhelp project"
 \t@echo "  epub       to make an epub"
+\t@echo "  epub3      to make an epub3"
 \t@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
 \t@echo "  latexpdfja to make LaTeX files and run them through platex/dvipdfmx"
@@ -595,6 +596,12 @@ epub:
 \t$(SPHINXBUILD) -b epub $(ALLSPHINXOPTS) $(BUILDDIR)/epub
 \t@echo
 \t@echo "Build finished. The epub file is in $(BUILDDIR)/epub."
+
+.PHONY: epub3
+epub3:
+\t$(SPHINXBUILD) -b epub3 $(ALLSPHINXOPTS) $(BUILDDIR)/epub3
+\t@echo
+\t@echo "Build finished. The epub3 file is in $(BUILDDIR)/epub3."
 
 .PHONY: latex
 latex:
@@ -719,6 +726,7 @@ if "%%1" == "help" (
 \techo.  qthelp     to make HTML files and a qthelp project
 \techo.  devhelp    to make HTML files and a Devhelp project
 \techo.  epub       to make an epub
+\techo.  epub3      to make an epub3
 \techo.  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter
 \techo.  text       to make text files
 \techo.  man        to make manual pages
@@ -838,6 +846,14 @@ if "%%1" == "epub" (
 \tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The epub file is in %%BUILDDIR%%/epub.
+\tgoto end
+)
+
+if "%%1" == "epub3" (
+\t%%SPHINXBUILD%% -b epub3 %%ALLSPHINXOPTS%% %%BUILDDIR%%/epub3
+\tif errorlevel 1 exit /b 1
+\techo.
+\techo.Build finished. The epub3 file is in %%BUILDDIR%%/epub3.
 \tgoto end
 )
 
