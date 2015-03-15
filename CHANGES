@@ -12,6 +12,7 @@ Bugs fixed
 * #1770, #1774: ``literalinclude`` with empty file occurs exception. Thanks to
   Takayuki Hirai.
 * #1777: Sphinx 1.3 can't load extra theme. Thanks to tell-k.
+* #1776: ``source_suffix = ['.rst']`` cause unfriendly error on prior version.
 
 
 Release 1.3 (released Mar 10, 2015)
