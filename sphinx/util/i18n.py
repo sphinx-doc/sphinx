@@ -8,7 +8,7 @@
     :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
+import gettext
 from os import path
 from collections import namedtuple
 
@@ -49,6 +49,26 @@ class CatalogInfo(LocaleFileInfoBase):
         with open(self.po_path, 'rt') as po:
             with open(self.mo_path, 'wb') as mo:
                 write_mo(mo, read_po(po, locale))
+
+
+def find_catalog(docname, compaction):
+    if compaction:
+        ret = docname.split(SEP, 1)[0]
+    else:
+        ret = docname
+
+    return ret
+
+
+def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
+    if not(lang and locale_dirs):
+        return []
+
+    domain = find_catalog(docname, compaction)
+    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])
+             for dir_ in locale_dirs]
+    files = [path.relpath(f, srcdir) for f in files if f]
+    return files
 
 
 def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact=False,

@@ -21,7 +21,8 @@ except ImportError:
 from docutils import nodes
 
 from sphinx.util import i18n, path_stabilize
-from sphinx.util.osutil import SEP, relative_uri, find_catalog
+from sphinx.util.osutil import SEP, relative_uri
+from sphinx.util.i18n import find_catalog
 from sphinx.util.console import bold, darkgreen
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
     parallel_available

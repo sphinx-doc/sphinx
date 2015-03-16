@@ -23,7 +23,8 @@ from sphinx.util import split_index_msg
 from sphinx.util.nodes import (
     traverse_translatable_index, extract_messages, LITERAL_TYPE_NODES, IMAGE_TYPE_NODES,
 )
-from sphinx.util.osutil import ustrftime, find_catalog
+from sphinx.util.osutil import ustrftime
+from sphinx.util.i18n import find_catalog
 from sphinx.util.pycompat import indent
 from sphinx.domains.std import (
     make_term_from_paragraph_node,
