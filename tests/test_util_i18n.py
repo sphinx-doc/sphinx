@@ -77,8 +77,8 @@ def test_get_catalogs_for_xx(dir):
     assert domains == set([
         'test1',
         'test2',
-        path.normpath('sub/test4'),
-        path.normpath('sub/test5'),
+        'sub/test4',
+        'sub/test5',
     ])
 
 
@@ -131,8 +131,8 @@ def test_get_catalogs_for_xx_without_outdated(dir):
     assert domains == set([
         'test1',
         'test2',
-        path.normpath('sub/test4'),
-        path.normpath('sub/test5'),
+        'sub/test4',
+        'sub/test5',
     ])
 
 

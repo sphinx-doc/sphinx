@@ -55,10 +55,13 @@ def test_compile_all_catalogs(app, status, warning):
 @with_app(buildername='html',  testroot='intl',
           confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
 def test_compile_specific_catalogs(app, status, warning):
-    app.builder.compile_specific_catalogs(['admonitions'])
-
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
-    actual = set(find_files(catalog_dir, '.mo'))
+    def get_actual():
+        return set(find_files(catalog_dir, '.mo'))
+
+    actual_on_boot = get_actual()  # sphinx.mo might be included
+    app.builder.compile_specific_catalogs(['admonitions'])
+    actual = get_actual() - actual_on_boot
     assert actual == set(['admonitions.mo'])
 
 
