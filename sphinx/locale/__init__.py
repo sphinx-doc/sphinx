@@ -211,9 +211,8 @@ def init(locale_dirs, language, catalog='sphinx'):
 
     # compile mo files if po file is updated
     # TODO: remove circular importing
-    from sphinx.util.i18n import get_catalogs
-    for catinfo in get_catalogs(locale_dirs, language, domains=[catalog],
-                                force_all=False):
+    from sphinx.util.i18n import find_catalog_source_files
+    for catinfo in find_catalog_source_files(locale_dirs, language, domains=[catalog]):
         catinfo.write_mo(language)
 
     # loading

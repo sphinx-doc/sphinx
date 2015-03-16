@@ -51,8 +51,8 @@ class CatalogInfo(LocaleFileInfoBase):
                 write_mo(mo, read_po(po, locale))
 
 
-def get_catalogs(locale_dirs, locale, domains=None,
-                 gettext_compact=False, force_all=False):
+def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact=False,
+                              force_all=False):
     """
     :param list locale_dirs:
        list of path as `['locale_dir1', 'locale_dir2', ...]` to find

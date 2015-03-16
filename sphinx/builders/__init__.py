@@ -166,7 +166,7 @@ class Builder(object):
             catalog.write_mo(self.config.language)
 
     def compile_all_catalogs(self):
-        catalogs = i18n.get_catalogs(
+        catalogs = i18n.find_catalog_source_files(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,
             gettext_compact=self.config.gettext_compact,
@@ -181,7 +181,7 @@ class Builder(object):
             return dom
 
         specified_domains = set(map(to_domain, specified_files))
-        catalogs = i18n.get_catalogs(
+        catalogs = i18n.find_catalog_source_files(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,
             domains=list(specified_domains),
@@ -190,7 +190,7 @@ class Builder(object):
         self.compile_catalogs(catalogs, message)
 
     def compile_update_catalogs(self):
-        catalogs = i18n.get_catalogs(
+        catalogs = i18n.find_catalog_source_files(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,
             gettext_compact=self.config.gettext_compact)
