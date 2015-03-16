@@ -263,5 +263,5 @@ following directive exists:
        format and the builder name.
 
        Note that the current builder tag is not available in ``conf.py``, it is
-       only available after the builder is intialized.
+       only available after the builder is initialized.
 
