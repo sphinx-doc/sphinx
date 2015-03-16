@@ -17,7 +17,7 @@ import inspect
 import traceback
 from types import FunctionType, BuiltinFunctionType, MethodType
 
-from six import iteritems, itervalues, text_type, class_types
+from six import iteritems, itervalues, text_type, class_types, string_types
 from docutils import nodes
 from docutils.utils import assemble_option_dict
 from docutils.statemachine import ViewList
@@ -888,7 +888,7 @@ class ModuleDocumenter(Documenter):
                 memberlist = self.object.__all__
                 # Sometimes __all__ is broken...
                 if not isinstance(memberlist, (list, tuple)) or not \
-                   all(isinstance(entry, str) for entry in memberlist):
+                   all(isinstance(entry, string_types) for entry in memberlist):
                     self.directive.warn(
                         '__all__ should be a list of strings, not %r '
                         '(in module %s) -- ignoring __all__' %
