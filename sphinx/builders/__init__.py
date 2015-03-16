@@ -168,7 +168,7 @@ class Builder(object):
     def compile_all_catalogs(self):
         catalogs = i18n.get_catalogs(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
-            self.config.language, True)
+            self.config.language, self.config.gettext_compact, True)
         message = 'all of %d po files' % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
@@ -181,7 +181,7 @@ class Builder(object):
         specified_domains = set(map(to_domain, specified_files))
         catalogs = i18n.get_catalogs(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
-            self.config.language, True)
+            self.config.language, self.config.gettext_compact, True)
         catalogs = [f for f in catalogs if f.domain in specified_domains]
         message = 'targets for %d po files that are specified' % len(catalogs)
         self.compile_catalogs(catalogs, message)
@@ -189,7 +189,7 @@ class Builder(object):
     def compile_update_catalogs(self):
         catalogs = i18n.get_catalogs(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
-            self.config.language)
+            self.config.language, self.config.gettext_compact)
         message = 'targets for %d po files that are out of date' % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
