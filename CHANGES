@@ -14,7 +14,8 @@ Bugs fixed
 * #1777: Sphinx 1.3 can't load extra theme. Thanks to tell-k.
 * #1776: ``source_suffix = ['.rst']`` cause unfriendly error on prior version.
 * #1771: automated .mo building doesn't work properly.
-
+* #1783: Autodoc: Python2 Allow unicode string in __all__.
+  Thanks to Jens Hedegaard Nielsen.
 
 Release 1.3 (released Mar 10, 2015)
 ===================================
