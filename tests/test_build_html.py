@@ -919,3 +919,46 @@ def test_numfig_with_secnum_depth(app, status, warning):
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
+
+@gen_with_app(buildername='html', testroot='stylesheets')
+def test_alternate_stylesheets(app, status, warning):
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//link[@href='_static/persistent.css']"
+                    "[@rel='stylesheet']", '', True),
+            (".//link[@href='_static/default.css']"
+                    "[@rel='stylesheet']"
+                    "[@title='Default']", '', True),
+            (".//link[@href='_static/alternate1.css']"
+                    "[@rel='alternate stylesheet']"
+                    "[@title='Alternate']", '', True),
+            (".//link[@href='_static/alternate2.css']"
+                    "[@rel='alternate stylesheet']", '', True),
+            (".//link[@href='_static/more_persistent.css']"
+                    "[@rel='stylesheet']", '', True),
+            (".//link[@href='_static/more_persistent2.css']"
+                    "[@rel='stylesheet']", '', True),
+            (".//link[@href='_static/more_default.css']"
+                    "[@rel='stylesheet']"
+                    "[@title='Default']", '', True),
+            (".//link[@href='_static/more_alternate1.css']"
+                    "[@rel='alternate stylesheet']"
+                    "[@title='Alternate']", '', True),
+            (".//link[@href='_static/more_alternate2.css']"
+                    "[@rel='alternate stylesheet']", '', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        fp = open(os.path.join(app.outdir, fname), 'rb')
+        try:
+            etree = ET.parse(fp, parser)
+        finally:
+            fp.close()
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
