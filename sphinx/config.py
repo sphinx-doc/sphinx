@@ -28,6 +28,10 @@ if PY3:
 CONFIG_EXIT_ERROR = "The configuration file (or one of the modules it imports) " \
                     "called sys.exit()"
 
+IGNORE_CONFIG_TYPE_CHECKS = (
+    'html_domain_indices', 'latex_domain_indices', 'texinfo_domain_indices'
+)
+
 
 class Config(object):
     """
@@ -288,6 +292,8 @@ class Config(object):
         # NB. since config values might use l_() we have to wait with calling
         # this method until i18n is initialized
         for name in self._raw_config:
+            if name in IGNORE_CONFIG_TYPE_CHECKS:
+                continue  # for a while, ignore multiple types config value. see #1781
             if name not in Config.config_values:
                 continue  # we don't know a default value
             default, dummy_rebuild = Config.config_values[name]

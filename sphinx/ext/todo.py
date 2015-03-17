@@ -188,4 +188,4 @@ def setup(app):
     app.connect('doctree-resolved', process_todo_nodes)
     app.connect('env-purge-doc', purge_todos)
     app.connect('env-merge-info', merge_info)
-    return {'version': sphinx.__version__, 'parallel_read_safe': True}
+    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

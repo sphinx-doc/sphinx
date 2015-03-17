@@ -282,4 +282,4 @@ def setup(app):
     app.add_config_value('intersphinx_cache_limit', 5, False)
     app.connect('missing-reference', missing_reference)
     app.connect('builder-inited', load_mappings)
-    return {'version': sphinx.__version__, 'parallel_read_safe': True}
+    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

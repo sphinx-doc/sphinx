@@ -584,4 +584,4 @@ def setup(app):
     app.connect('doctree-read', process_autosummary_toc)
     app.connect('builder-inited', process_generate_options)
     app.add_config_value('autosummary_generate', [], True)
-    return {'version': sphinx.__version__, 'parallel_read_safe': True}
+    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

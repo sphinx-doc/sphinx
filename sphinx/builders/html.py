@@ -26,7 +26,7 @@ from docutils.utils import new_document
 from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
-from sphinx import package_dir, __version__
+from sphinx import package_dir, __display_version__
 from sphinx.util import jsonimpl, copy_static_entry
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, ustrftime, copyfile
@@ -343,7 +343,7 @@ class StandaloneHTMLBuilder(Builder):
             script_files = self.script_files,
             language = self.config.language,
             css_files = self.css_files,
-            sphinx_version = __version__,
+            sphinx_version = __display_version__,
             style = stylename,
             rellinks = rellinks,
             builder = self.name,

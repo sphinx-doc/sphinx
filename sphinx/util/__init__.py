@@ -207,7 +207,7 @@ def save_traceback(app):
             '#   %s' % strip_colors(force_decode(s, 'utf-8')).strip()
             for s in app.messagelog)
     os.write(fd, (_DEBUG_HEADER %
-                  (sphinx.__version__,
+                  (sphinx.__display_version__,
                    platform.python_version(),
                    platform.python_implementation(),
                    docutils.__version__, docutils.__version_details__,

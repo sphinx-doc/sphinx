@@ -21,7 +21,8 @@ except ImportError:
 from docutils import nodes
 
 from sphinx.util import i18n, path_stabilize
-from sphinx.util.osutil import SEP, relative_uri, find_catalog
+from sphinx.util.osutil import SEP, relative_uri
+from sphinx.util.i18n import find_catalog
 from sphinx.util.console import bold, darkgreen
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
     parallel_available
@@ -166,9 +167,11 @@ class Builder(object):
             catalog.write_mo(self.config.language)
 
     def compile_all_catalogs(self):
-        catalogs = i18n.get_catalogs(
+        catalogs = i18n.find_catalog_source_files(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
-            self.config.language, True)
+            self.config.language,
+            gettext_compact=self.config.gettext_compact,
+            force_all=True)
         message = 'all of %d po files' % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
@@ -179,17 +182,19 @@ class Builder(object):
             return dom
 
         specified_domains = set(map(to_domain, specified_files))
-        catalogs = i18n.get_catalogs(
+        catalogs = i18n.find_catalog_source_files(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
-            self.config.language, True)
-        catalogs = [f for f in catalogs if f.domain in specified_domains]
+            self.config.language,
+            domains=list(specified_domains),
+            gettext_compact=self.config.gettext_compact)
         message = 'targets for %d po files that are specified' % len(catalogs)
         self.compile_catalogs(catalogs, message)
 
     def compile_update_catalogs(self):
-        catalogs = i18n.get_catalogs(
+        catalogs = i18n.find_catalog_source_files(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
-            self.config.language)
+            self.config.language,
+            gettext_compact=self.config.gettext_compact)
         message = 'targets for %d po files that are out of date' % len(catalogs)
         self.compile_catalogs(catalogs, message)
 

@@ -408,4 +408,4 @@ def setup(app):
     app.add_config_value('inheritance_graph_attrs', {}, False),
     app.add_config_value('inheritance_node_attrs', {}, False),
     app.add_config_value('inheritance_edge_attrs', {}, False),
-    return {'version': sphinx.__version__, 'parallel_read_safe': True}
+    return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

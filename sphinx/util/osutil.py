@@ -17,7 +17,6 @@ import time
 import errno
 import locale
 import shutil
-import gettext
 from os import path
 import contextlib
 
@@ -168,26 +167,6 @@ def safe_relpath(path, start=None):
         return os.path.relpath(path, start)
     except ValueError:
         return path
-
-
-def find_catalog(docname, compaction):
-    if compaction:
-        ret = docname.split(SEP, 1)[0]
-    else:
-        ret = docname
-
-    return ret
-
-
-def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
-    if not(lang and locale_dirs):
-        return []
-
-    domain = find_catalog(docname, compaction)
-    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])
-             for dir_ in locale_dirs]
-    files = [path.relpath(f, srcdir) for f in files if f]
-    return files
 
 
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()

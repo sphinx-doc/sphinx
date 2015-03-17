@@ -78,7 +78,7 @@ class Make(object):
             shutil.rmtree(self.builddir_join(item))
 
     def build_help(self):
-        print(bold("Sphinx v%s" % sphinx.__version__))
+        print(bold("Sphinx v%s" % sphinx.__display_version__))
         print("Please use `make %s' where %s is one of" % ((blue('target'),)*2))
         for osname, bname, description in BUILDERS:
             if not osname or os.name == osname:
