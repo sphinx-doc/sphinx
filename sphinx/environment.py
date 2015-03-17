@@ -40,7 +40,8 @@ from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
     FilenameUniqDict, get_figtype, import_object
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream, is_translatable
-from sphinx.util.osutil import SEP, find_catalog_files, getcwd, fs_encoding
+from sphinx.util.osutil import SEP, getcwd, fs_encoding
+from sphinx.util.i18n import find_catalog_files
 from sphinx.util.console import bold, purple
 from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks

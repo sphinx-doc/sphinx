@@ -90,13 +90,15 @@ class PyXrefMixin(object):
         result = super(PyXrefMixin, self).make_xref(rolename, domain, target,
                                                     innernode, contnode)
         result['refspecific'] = True
-        if target.startswith('.'):
-            result['reftarget'] = target[1:]
-            result[0][0] = nodes.Text(target[1:])
-        if target.startswith('~'):
-            result['reftarget'] = target[1:]
-            title = target.split('.')[-1]
-            result[0][0] = nodes.Text(title)
+        if target.startswith(('.', '~')):
+            prefix, result['reftarget'] = target[0], target[1:]
+            if prefix == '.':
+                text = target[1:]
+            elif prefix == '~':
+                text = target.split('.')[-1]
+            for node in result.traverse(nodes.Text):
+                node.parent[node.parent.index(node)] = nodes.Text(text)
+                break
         return result
 
 

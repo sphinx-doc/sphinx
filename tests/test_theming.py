@@ -14,7 +14,7 @@ import zipfile
 
 from sphinx.theming import Theme, ThemeError
 
-from util import with_app, raises
+from util import with_app, raises, TestApp
 
 
 @with_app(confoverrides={'html_theme': 'ziptheme',

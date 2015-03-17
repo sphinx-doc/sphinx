@@ -208,6 +208,14 @@ def init(locale_dirs, language, catalog='sphinx'):
         translator = None
     # the None entry is the system's default locale path
     has_translation = True
+
+    # compile mo files if po file is updated
+    # TODO: remove circular importing
+    from sphinx.util.i18n import find_catalog_source_files
+    for catinfo in find_catalog_source_files(locale_dirs, language, domains=[catalog]):
+        catinfo.write_mo(language)
+
+    # loading
     for dir_ in locale_dirs:
         try:
             trans = gettext.translation(catalog, localedir=dir_,
