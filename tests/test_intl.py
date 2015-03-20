@@ -21,7 +21,7 @@ from six import string_types
 
 from util import tempdir, rootdir, path, gen_with_app, SkipTest, \
     assert_re_search, assert_not_re_search, assert_in, assert_not_in, \
-    assert_startswith
+    assert_startswith, repr_as
 
 
 root = tempdir / 'test-intl'
@@ -112,7 +112,7 @@ def test_text_builder(app, status, warning):
 
     # --- warnings in translation
 
-    warnings = warning.getvalue().replace(os.sep, '/')
+    warnings = getwarning(warning)
     warning_expr = u'.*/warnings.txt:4: ' \
                    u'WARNING: Inline literal start-string without end-string.\n'
     yield assert_re_search, warning_expr, warnings
@@ -149,7 +149,7 @@ def test_text_builder(app, status, warning):
               u"\n[100] THIS IS A NUMBERED FOOTNOTE.\n")
     yield assert_equal, result, expect
 
-    warnings = warning.getvalue().replace(os.sep, '/')
+    warnings = getwarning(warning)
     warning_fmt = u'.*/refs_inconsistency.txt:\\d+: ' \
                   u'WARNING: inconsistent %s in translated message\n'
     expected_warning_expr = (
@@ -170,7 +170,7 @@ def test_text_builder(app, status, warning):
               u"\n<SYSTEM MESSAGE:")
     yield assert_startswith, result, expect
 
-    warnings = warning.getvalue().replace(os.sep, '/')
+    warnings = getwarning(warning)
     expected_warning_expr = u'.*/literalblock.txt:\\d+: ' \
                             u'WARNING: Literal block expected; none found.'
     yield assert_re_search, expected_warning_expr, warnings
@@ -197,7 +197,7 @@ def test_text_builder(app, status, warning):
               u"\n   THE CORRESPONDING GLOSSARY #2\n"
               u"\nLINK TO *SOME NEW TERM*.\n")
     yield assert_equal, result, expect
-    warnings = warning.getvalue().replace(os.sep, '/')
+    warnings = getwarning(warning)
     yield assert_not_in, 'term not in glossary', warnings
 
     # --- glossary term inconsistencies: regression test for #1090
@@ -208,7 +208,7 @@ def test_text_builder(app, status, warning):
               u"\n1. LINK TO *SOME NEW TERM*.\n")
     yield assert_equal, result, expect
 
-    warnings = warning.getvalue().replace(os.sep, '/')
+    warnings = getwarning(warning)
     expected_warning_expr = (
         u'.*/glossary_terms_inconsistency.txt:\\d+: '
         u'WARNING: inconsistent term references in translated message\n')
@@ -449,7 +449,7 @@ def test_xml_builder(app, status, warning):
            None,
            ['ref'])
 
-    warnings = warning.getvalue().replace(os.sep, '/')
+    warnings = getwarning(warning)
     warning_expr = u'.*/footnote.xml:\\d*: SEVERE: Duplicate ID: ".*".\n'
     yield assert_not_re_search, warning_expr, warnings
 
@@ -580,7 +580,7 @@ def test_xml_builder(app, status, warning):
            ['same-type-links', 'i18n-role-xref'])
 
     # warnings
-    warnings = warning.getvalue().replace(os.sep, '/')
+    warnings = getwarning(warning)
     yield assert_not_in, 'term not in glossary', warnings
     yield assert_not_in, 'undefined label', warnings
     yield assert_not_in, 'unknown document', warnings
@@ -748,3 +748,6 @@ def test_additional_targets_should_be_translated(app, status, warning):
     expected_expr = """<img alt="IMG -&gt; I18N" src="_images/i18n.png" />"""
     yield assert_count(expected_expr, result, 1)
 
+
+def getwarning(warnings):
+    return repr_as(warnings.getvalue().replace(os.sep, '/'), '<warnings>')
