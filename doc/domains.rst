@@ -524,7 +524,7 @@ The C++ domain (name **cpp**) supports documenting C++ projects.
 The following directives are available. All declarations can start with
 a visibility statement (``public``, ``private`` or ``protected``).
 
-.. rst:directive:: .. cpp:class:: class speicifer
+.. rst:directive:: .. cpp:class:: class specifier
 
    Describe a class/struct, possibly with specification of inheritance, e.g.,::
 
