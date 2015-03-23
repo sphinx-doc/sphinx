@@ -37,8 +37,8 @@ from docutils.writers import UnfilteredWriter
 from docutils.frontend import OptionParser
 
 from sphinx import addnodes
-from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
-    FilenameUniqDict, get_figtype, import_object
+from sphinx.util import url_re, inline_link_re, get_matching_docs, docname_join, \
+    split_into, FilenameUniqDict, get_figtype, import_object
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream, is_translatable
 from sphinx.util.osutil import SEP, getcwd, fs_encoding
 from sphinx.util.i18n import find_catalog_files
@@ -1410,6 +1410,18 @@ class BuildEnvironment:
                 try:
                     refdoc = None
                     if url_re.match(ref):
+                        if title is None:
+                            title = ref
+                        reference = nodes.reference('', '', internal=False,
+                                                    refuri=ref, anchorname='',
+                                                    *[nodes.Text(title)])
+                        para = addnodes.compact_paragraph('', '', reference)
+                        item = nodes.list_item('', para)
+                        toc = nodes.bullet_list('', item)
+                    elif inline_link_re.match(ref):
+                        # get link from inline web link `Title <link>`_
+                        lm = inline_link_re.match(ref)
+                        ref = lm.group(2)
                         if title is None:
                             title = ref
                         reference = nodes.reference('', '', internal=False,

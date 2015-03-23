@@ -46,9 +46,10 @@ from sphinx.util.matching import patfilter  # noqa
 # Generally useful regular expressions.
 ws_re = re.compile(r'\s+')
 url_re = re.compile(r'(?P<schema>.+)://.*')
-
+inline_link_re = re.compile(r'^`(.*?)\s*<(.*)>`_$')
 
 # High-level utility functions.
+
 
 def docname_join(basedocname, docname):
     return posixpath.normpath(
