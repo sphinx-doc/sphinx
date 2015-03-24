@@ -52,6 +52,7 @@ div.sphinxsidebar {
     width: {{ theme_sidebarwidth|toint }}px;
     margin-left: -100%;
     font-size: 90%;
+    word-wrap: break-word;
 }
 
 div.sphinxsidebar ul {
