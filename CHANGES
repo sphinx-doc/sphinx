@@ -39,6 +39,7 @@ Bugs fixed
 * #1580: Fix paragraphs in longtable don't work in Latex output
 * #1366: Fix centered image not centered in latex
 * #1860: Fix man page using ``:samp:`` with braces - font doesn't reset
+* #1610 Sphinx crashes in japanese indexing in some systems.
 
 Release 1.3.3 (released Dec 2, 2015)
 ====================================
