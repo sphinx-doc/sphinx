@@ -10,6 +10,8 @@ Features added
 Bugs fixed
 ----------
 
+* #1610 Sphinx crashes in japanese indexing in some systems.
+
 Documentation
 -------------
 

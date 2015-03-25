@@ -82,10 +82,15 @@ class MecabBinder(object):
         dict = options.get('dict')
         if dict:
             param += ' -d %s' % dict
+        
+        fs_enc = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
         self.ctypes_libmecab = ctypes.CDLL(libpath)
+        self.ctypes_libmecab.mecab_new2.argtypes = (ctypes.c_char_p,)
+        self.ctypes_libmecab.mecab_new2.restype = ctypes.c_void_p
+        self.ctypes_libmecab.mecab_sparse_tostr.argtypes = (ctypes.c_void_p, ctypes.c_char_p)
         self.ctypes_libmecab.mecab_sparse_tostr.restype = ctypes.c_char_p
-        self.ctypes_mecab = self.ctypes_libmecab.mecab_new2(param)
+        self.ctypes_mecab = ctypes.c_void_p(self.ctypes_libmecab.mecab_new2(param.encode(fs_enc)))
 
     def __del__(self):
         if self.ctypes_libmecab:
