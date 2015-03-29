@@ -10,4 +10,5 @@ class Bar:
     def baz():
         pass
 
+# comment after Bar class definition
 def bar(): pass

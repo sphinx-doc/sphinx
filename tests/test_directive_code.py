@@ -116,7 +116,8 @@ def test_literal_include_linenos(app, status, warning):
         '10\n'
         '11\n'
         '12\n'
-        '13</pre></div></td>')
+        '13\n'
+        '14</pre></div></td>')
     assert linenos in html
 
 
@@ -138,7 +139,8 @@ def test_literal_include_lineno_start(app, status, warning):
         '209\n'
         '210\n'
         '211\n'
-        '212</pre></div></td>')
+        '212\n'
+        '213</pre></div></td>')
     assert linenos in html
 
 
@@ -168,7 +170,8 @@ def test_literal_include_lineno_match(app, status, warning):
         '10\n'
         '11\n'
         '12\n'
-        '13</pre></div></td>')
+        '13\n'
+        '14</pre></div></td>')
     assert start_after in html
 
 

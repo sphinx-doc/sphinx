@@ -10,6 +10,9 @@ Features added
 Bugs fixed
 ----------
 
+* #1789: ``:pyobject:`` option of ``literalinclude`` directive includes following
+  lines after class definitions
+
 Documentation
 -------------
 
