@@ -10,6 +10,7 @@
 """
 from __future__ import print_function
 
+import re
 import sys
 from os import path
 
@@ -44,6 +45,8 @@ number2name = pygrammar.number2symbol.copy()
 number2name.update(token.tok_name)
 
 _eq = nodes.Leaf(token.EQUAL, '=')
+
+emptyline_re = re.compile('^\s*(#.*)?$')
 
 
 class AttrDocVisitor(nodes.NodeVisitor):
@@ -289,8 +292,9 @@ class ModuleAnalyzer(object):
         indent = 0
         defline = False
         expect_indent = False
+        emptylines = 0
 
-        def tokeniter(ignore = (token.COMMENT, token.NL)):
+        def tokeniter(ignore = (token.COMMENT,)):
             for tokentup in self.tokens:
                 if tokentup[0] not in ignore:
                     yield tokentup
@@ -303,7 +307,7 @@ class ModuleAnalyzer(object):
                     dtype, fullname, startline, _ = stack.pop()
                     endline = epos[0]
                     namespace.pop()
-                    result[fullname] = (dtype, startline, endline)
+                    result[fullname] = (dtype, startline, endline - emptylines)
                 expect_indent = False
             if tok in ('def', 'class'):
                 name = next(tokeniter)[1]
@@ -322,7 +326,7 @@ class ModuleAnalyzer(object):
                     dtype, fullname, startline, _ = stack.pop()
                     endline = spos[0]
                     namespace.pop()
-                    result[fullname] = (dtype, startline, endline)
+                    result[fullname] = (dtype, startline, endline - emptylines)
             elif type == token.NEWLINE:
                 # if this line contained a definition, expect an INDENT
                 # to start the suite; if there is no such INDENT
@@ -330,6 +334,13 @@ class ModuleAnalyzer(object):
                 if defline:
                     defline = False
                     expect_indent = True
+                emptylines = 0
+            elif type == token.NL:
+                # count up if line is empty or comment only
+                if emptyline_re.match(line):
+                    emptylines += 1
+                else:
+                    emptylines = 0
         self.tags = result
         return result
 

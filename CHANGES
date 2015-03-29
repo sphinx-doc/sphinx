@@ -5,6 +5,8 @@ Bugs fixed
 ----------
 
 * #1788: graphviz extension raises exception when caption option is present.
+* #1789: ``:pyobject:`` option of ``literalinclude`` directive includes following
+  lines after class definitions
 
 
 Release 1.3.1 (released Mar 17, 2015)
