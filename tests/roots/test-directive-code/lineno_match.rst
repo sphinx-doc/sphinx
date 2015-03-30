@@ -15,3 +15,6 @@ Literal Includes with Line Numbers Matching
    :language: python
    :start-after: pass
    :lineno-match:
+
+.. literalinclude:: empty.inc
+   :lineno-match:

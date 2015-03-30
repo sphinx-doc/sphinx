@@ -1542,7 +1542,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # most probably a parsed-literal block -- don't highlight
             self.body.append('\\begin{alltt}\n')
         else:
-            code = node.astext().rstrip('\n')
+            code = node.astext()
             lang = self.hlsettingstack[-1][0]
             linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
             highlight_args = node.get('highlight_args', {})
@@ -1573,7 +1573,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.table.has_verbatim = True
             # get consistent trailer
             hlcode = hlcode.rstrip()[:-14]  # strip \end{Verbatim}
-            hlcode = hlcode.rstrip() + '\n'
             self.body.append('\n' + hlcode + '\\end{%sVerbatim}\n' %
                              (self.table and 'Original' or ''))
             raise nodes.SkipNode
