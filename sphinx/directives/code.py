@@ -302,15 +302,6 @@ class LiteralInclude(Directive):
                     res.append(line)
             lines = res
 
-        if 'lineno-match' in self.options:
-            # handle that docutils remove preceding lines which only contains
-            # line separation.
-            for line in lines:
-                # check if line contains anything else than line separation.
-                if line and line.splitlines()[0]:
-                    break
-                linenostart += 1
-
         prepend = self.options.get('prepend')
         if prepend:
             lines.insert(0, prepend + '\n')

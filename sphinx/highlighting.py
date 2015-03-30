@@ -35,12 +35,12 @@ from pygments.util import ClassNotFound
 from sphinx.pygments_styles import SphinxStyle, NoneStyle
 
 lexers = dict(
-    none = TextLexer(),
-    python = PythonLexer(),
-    pycon = PythonConsoleLexer(),
-    pycon3 = PythonConsoleLexer(python3=True),
-    rest = RstLexer(),
-    c = CLexer(),
+    none = TextLexer(stripnl=False),
+    python = PythonLexer(stripnl=False),
+    pycon = PythonConsoleLexer(stripnl=False),
+    pycon3 = PythonConsoleLexer(python3=True, stripnl=False),
+    rest = RstLexer(stripnl=False),
+    c = CLexer(stripnl=False),
 )
 for _lexer in lexers.values():
     _lexer.add_filter('raiseonerror')

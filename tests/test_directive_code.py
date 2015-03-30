@@ -158,6 +158,7 @@ def test_literal_include_lineno_match(app, status, warning):
 
     lines = (
         '<td class="linenos"><div class="linenodiv"><pre>'
+        '5\n'
         '6\n'
         '7\n'
         '8\n'
@@ -166,6 +167,7 @@ def test_literal_include_lineno_match(app, status, warning):
 
     start_after = (
         '<td class="linenos"><div class="linenodiv"><pre>'
+        ' 8\n'
         ' 9\n'
         '10\n'
         '11\n'
@@ -173,6 +175,19 @@ def test_literal_include_lineno_match(app, status, warning):
         '13\n'
         '14</pre></div></td>')
     assert start_after in html
+
+
+@with_app('latex', testroot='directive-code')
+def test_literalinclude_file_whole_of_emptyline(app, status, warning):
+    app.builder.build_all()
+    latex = (app.outdir / 'Python.tex').text()
+    includes = (
+        '\\begin{Verbatim}[commandchars=\\\\\\{\\},numbers=left,firstnumber=1,stepnumber=1]\n'
+        '\n'
+        '\n'
+        '\n'
+        '\\end{Verbatim}\n')
+    assert includes in latex
 
 
 @with_app('html', testroot='directive-code')
