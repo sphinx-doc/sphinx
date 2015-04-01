@@ -32,6 +32,7 @@ These extensions are built in and can be activated by respective entries in the
    ext/viewcode
    ext/linkcode
    ext/napoleon
+   ext/asyncio
 
 
 Third-party extensions
