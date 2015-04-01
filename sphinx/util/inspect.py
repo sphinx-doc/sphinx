@@ -13,6 +13,7 @@ import re
 
 from six import PY3, binary_type
 from six.moves import builtins
+from functools import partial
 
 from sphinx.util import force_decode
 
@@ -23,8 +24,16 @@ inspect = __import__('inspect')
 memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>$)')
 
 
+def isgeneratorfunction(func):
+    """Like inspect.isgeneratorfunction but supports functools.partial."""
+    try:
+        if type(func) is partial:
+            func = func.func
+        return inspect.isgeneratorfunction(func)
+    except AttributeError:
+        return False
+
 if PY3:
-    from functools import partial
 
     def getargspec(func):
         """Like inspect.getargspec but supports functools.partial as well."""
@@ -61,7 +70,6 @@ if PY3:
         return inspect.getfullargspec(func)
 
 else:  # 2.6, 2.7
-    from functools import partial
 
     def getargspec(func):
         """Like inspect.getargspec but supports functools.partial as well."""
