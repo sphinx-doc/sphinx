@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import logging
 import re
 
 from six import PY3, binary_type
@@ -27,10 +28,13 @@ memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>$)')
 def isgeneratorfunction(func):
     """Like inspect.isgeneratorfunction but supports functools.partial."""
     try:
+        if inspect.ismethod(func):
+            func = func.__func__
         if type(func) is partial:
             func = func.func
         return inspect.isgeneratorfunction(func)
     except AttributeError:
+        logging.warn('This fail is weird, is %r a generator?', func)
         return False
 
 if PY3:

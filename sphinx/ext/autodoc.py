@@ -30,7 +30,8 @@ from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
-    safe_getattr, object_description, is_builtin_class_method
+    safe_getattr, object_description, is_builtin_class_method, \
+    isgeneratorfunction
 from sphinx.util.docstrings import prepare_docstring
 
 
@@ -1040,6 +1041,20 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
     def can_document_member(cls, member, membername, isattr, parent):
         return isinstance(member, (FunctionType, BuiltinFunctionType))
 
+    def import_object(self):
+        ret = ModuleLevelDocumenter.import_object(self)
+        if not ret:
+            return ret
+
+        # to distinguish classmethod/staticmethod
+        obj = self.parent.__dict__.get(self.object_name)
+
+        if isgeneratorfunction(obj):
+            self.directivetype = 'generator'
+            # document generators after ordinary ones
+            self.member_order = self.member_order + 1
+        return ret
+
     def format_args(self):
         if inspect.isbuiltin(self.object) or \
                 inspect.ismethoddescriptor(self.object):
@@ -1263,7 +1278,11 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
         # to distinguish classmethod/staticmethod
         obj = self.parent.__dict__.get(self.object_name)
 
-        if isinstance(obj, classmethod):
+        if isgeneratorfunction(obj):
+            self.directivetype = 'generatormethod'
+            # document generator members after ordinary ones
+            self.member_order = self.member_order + 1
+        elif isinstance(obj, classmethod):
             self.directivetype = 'classmethod'
             # document class and static members before ordinary ones
             self.member_order = self.member_order - 1

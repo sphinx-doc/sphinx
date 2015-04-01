@@ -581,22 +581,22 @@ class PythonModuleIndex(Index):
         return content, collapse
 
 
-class PyCoroutineMixin(object):
+class PyGeneratorMixin(object):
     """
-    Mixin for coroutine directives.
+    Mixin for generator directives.
     """
     def handle_signature(self, sig, signode):
-        ret = super(PyCoroutineMixin, self).handle_signature(sig, signode)
-        signode.insert(0, addnodes.desc_addname('@', '@'))
+        ret = super(PyGeneratorMixin, self).handle_signature(sig, signode)
+        signode.insert(0, addnodes.desc_addname('generator ', 'generator '))
         return ret
 
     def needs_arglist(self):
         return False
 
 
-class PyCoroutineFunction(PyCoroutineMixin, PyModulelevel):
+class PyGeneratorFunction(PyGeneratorMixin, PyModulelevel):
     """
-    Directive to mark coroutines.
+    Directive to mark generators.
     """
     def run(self):
         # a decorator function is a function after all
@@ -604,9 +604,9 @@ class PyCoroutineFunction(PyCoroutineMixin, PyModulelevel):
         return PyModulelevel.run(self)
 
 
-class PyCoroutineMethod(PyCoroutineMixin, PyClassmember):
+class PyGeneratorMethod(PyGeneratorMixin, PyClassmember):
     """
-    Directive to mark coroutine methods.
+    Directive to mark generator methods.
     """
     def run(self):
         self.name = 'py:method'
@@ -642,8 +642,8 @@ class PythonDomain(Domain):
         'currentmodule':   PyCurrentModule,
         'decorator':       PyDecoratorFunction,
         'decoratormethod': PyDecoratorMethod,
-        'coroutine':       PyCoroutineFunction,
-        'coroutinemethod': PyCoroutineMethod,
+        'generator':       PyGeneratorFunction,
+        'generatormethod': PyGeneratorMethod,
     }
     roles = {
         'data':  PyXRefRole(),

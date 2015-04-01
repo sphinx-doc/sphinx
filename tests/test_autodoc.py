@@ -581,7 +581,7 @@ def test_generate():
                     break
             else:  # ran out of items!
                 assert False, 'item %r not found in result or not in the ' \
-                       ' correct order' % item
+                       ' correct order'
         del directive.result[:]
 
     options.members = []
@@ -635,6 +635,7 @@ def test_generate():
                    ('attribute', 'test_autodoc.Class.inst_attr_inline'),
                    ('attribute', 'test_autodoc.Class.inst_attr_string'),
                    ('method', 'test_autodoc.Class.moore'),
+                   ('method', 'test_autodoc.Class.yodele'),
                    ])
     options.members = ALL
     assert_processes(should, 'class', 'Class')
@@ -717,6 +718,7 @@ def test_generate():
                   '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
                   '   .. py:attribute:: Class.inst_attr_comment',
                   '   .. py:attribute:: Class.inst_attr_string',
+                  '   .. py:generatormethod:: Class.yodele()',
                   '   .. py:method:: Class.inheritedmeth()',
                   ],
                  'class', 'Class', member_order='bysource', all_members=True)
@@ -789,6 +791,13 @@ def test_generate():
                            'module', 'test_autodoc')
     assert_result_contains('   .. py:method:: CustomDataDescriptor.meth()',
                            'module', 'test_autodoc')
+
+    # test generator function
+    directive.env.ref_context['py:module'] = 'test_autodoc'
+    assert_processes([('function', 'test_autodoc.yolo')], 'function', 'yolo')
+    assert_order(['.. py:generator:: yolo()'], 'function', 'yolo',
+                 member_order='bysource')
+
 
 # --- generate fodder ------------
 
@@ -889,6 +898,10 @@ class Class(Base):
         # undocumented special method
         pass
 
+    def yodele(self):
+        """returns something"""
+        yield 'something'
+
 
 class CustomDict(dict):
     """Docstring."""
@@ -968,3 +981,8 @@ class InstAttCls(object):
 
         self.ia2 = 'e'
         """Docstring for instance attribute InstAttCls.ia2."""
+
+
+def yolo():
+    """Yields something"""
+    yield 'something'

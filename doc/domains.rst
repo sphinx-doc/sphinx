@@ -175,6 +175,12 @@ The following directives are provided for module and class contents:
    This information can (in any ``py`` directive) optionally be given in a
    structured form, see :ref:`info-field-lists`.
 
+.. rst:directive:: .. py:generator:: name(parameters)
+
+   Like :rst:dir:`py:function`, but for generator.
+
+   .. versionadded:: 1.4
+
 .. rst:directive:: .. py:data:: name
 
    Describes global data in a module, including both variables and values used
@@ -233,6 +239,12 @@ The following directives are provided for module and class contents:
    Like :rst:dir:`py:method`, but indicates that the method is a class method.
 
    .. versionadded:: 0.6
+
+.. rst:directive:: .. py:generatormethod:: name(parameters)
+
+   Like :rst:dir:`py:method`, but indicates that the method is a generator.
+
+   .. versionadded:: 1.4
 
 .. rst:directive:: .. py:decorator:: name
                    .. py:decorator:: name(parameters)
