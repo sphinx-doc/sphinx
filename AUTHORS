@@ -57,6 +57,7 @@ Other contributors, listed alphabetically, are:
 * Barry Warsaw -- setup command improvements
 * Sebastian Wiesner -- image handling, distutils support
 * Joel Wurtz -- cellspanning support in LaTeX
+* Xavier Barbosa -- generator and asyncio directives
 
 Many thanks for all contributions!
 

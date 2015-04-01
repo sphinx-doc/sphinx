@@ -7,6 +7,11 @@ Incompatible changes
 Features added
 --------------
 
+Features added
+--------------
+
+* Added generator and asyncio directives.
+
 Bugs fixed
 ----------
 
