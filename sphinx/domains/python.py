@@ -581,6 +581,38 @@ class PythonModuleIndex(Index):
         return content, collapse
 
 
+class PyCoroutineMixin(object):
+    """
+    Mixin for coroutine directives.
+    """
+    def handle_signature(self, sig, signode):
+        ret = super(PyCoroutineMixin, self).handle_signature(sig, signode)
+        signode.insert(0, addnodes.desc_addname('@', '@'))
+        return ret
+
+    def needs_arglist(self):
+        return False
+
+
+class PyCoroutineFunction(PyCoroutineMixin, PyModulelevel):
+    """
+    Directive to mark coroutines.
+    """
+    def run(self):
+        # a decorator function is a function after all
+        self.name = 'py:function'
+        return PyModulelevel.run(self)
+
+
+class PyCoroutineMethod(PyCoroutineMixin, PyClassmember):
+    """
+    Directive to mark coroutine methods.
+    """
+    def run(self):
+        self.name = 'py:method'
+        return PyClassmember.run(self)
+
+
 class PythonDomain(Domain):
     """Python language domain."""
     name = 'py'
@@ -610,6 +642,8 @@ class PythonDomain(Domain):
         'currentmodule':   PyCurrentModule,
         'decorator':       PyDecoratorFunction,
         'decoratormethod': PyDecoratorMethod,
+        'coroutine':       PyCoroutineFunction,
+        'coroutinemethod': PyCoroutineMethod,
     }
     roles = {
         'data':  PyXRefRole(),
