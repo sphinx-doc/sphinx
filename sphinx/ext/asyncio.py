@@ -21,23 +21,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-import logging
+
 from sphinx import addnodes
 from sphinx.domains.python import PyModulelevel, PyClassmember
 from sphinx.ext.autodoc import FunctionDocumenter, MethodDocumenter
-
-try:
-    from asyncio import iscoroutinefunction
-    supported = True
-except ImportError:
-    try:
-        from trollius import iscoroutinefunction
-        supported = True
-    except ImportError:
-        supported = False
-
-        def iscoroutinefunction(func):
-            raise RuntimeError('asyncio is not supported')
+from sphinx.util.inspect import iscoroutinefunction
 
 
 class FunctionDocumenter(FunctionDocumenter):
@@ -97,8 +85,5 @@ def setup(app):
     app.add_directive_to_domain('py', 'coroutine', PyCoroutineFunction)
     app.add_directive_to_domain('py', 'coroutinemethod', PyCoroutineMethod)
 
-    if not supported:
-        logging.warn('autodoc is disable, because asyncio is not supported')
-    else:
-        app.add_autodocumenter(FunctionDocumenter)
-        app.add_autodocumenter(MethodDocumenter)
+    app.add_autodocumenter(FunctionDocumenter)
+    app.add_autodocumenter(MethodDocumenter)

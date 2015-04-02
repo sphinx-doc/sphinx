@@ -22,5 +22,5 @@ Adds directives for :py:class:`asyncio`:
 
 .. note::
 
-   asyncio or trollius must be installed in order to use
+   asyncio or trollius should be installed in order to use
    :mod:`sphinx.ext.autodoc`.

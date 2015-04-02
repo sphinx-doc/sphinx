@@ -37,6 +37,12 @@ def isgeneratorfunction(func):
         logging.warn('This fail is weird, is %r a generator?', func)
         return False
 
+
+def iscoroutinefunction(func):
+    """Check if function is an asyncio.coroutine."""
+    return getattr(func, '_is_coroutine', False)
+
+
 if PY3:
 
     def getargspec(func):
