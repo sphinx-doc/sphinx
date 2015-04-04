@@ -720,6 +720,8 @@ class NumpyDocstring(GoogleDocstring):
         line = next(self._line_iter)
         if parse_type:
             _name, _, _type = line.partition(':')
+            if not _name:
+                _type = line
         else:
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()

@@ -326,6 +326,24 @@ Attributes:
 """
         self.assertEqual(expected, actual)
 
+    def test_code_block_in_returns_section(self):
+        docstring = """
+Returns:
+    foobar: foo::
+
+        codecode
+        codecode
+"""
+        expected = """
+:returns: foo::
+
+              codecode
+              codecode
+:rtype: foobar
+"""
+        actual = str(GoogleDocstring(docstring))
+        self.assertEqual(expected, actual)
+
 
 class NumpyDocstringTest(BaseDocstringTest):
     docstrings = [(
@@ -587,4 +605,47 @@ numpy.multivariate_normal(mean, cov, shape=None, spam=None)
    :meth:`otherfunc`
        relationship
 """
+        self.assertEqual(expected, actual)
+
+    def test_colon_in_return_type(self):
+        docstring = """
+Summary
+
+Returns
+-------
+:py:class:`~my_mod.my_class`
+    an instance of :py:class:`~my_mod.my_class`
+"""
+
+        expected = """
+Summary
+
+:returns: an instance of :py:class:`~my_mod.my_class`
+:rtype: :py:class:`~my_mod.my_class`
+"""
+
+        config = Config()
+        app = mock.Mock()
+        actual = str(NumpyDocstring(docstring, config, app, "method"))
+
+        self.assertEqual(expected, actual)
+
+    def test_underscore_in_attribute(self):
+        docstring = """
+Attributes
+----------
+
+arg_ : type
+    some description
+"""
+
+        expected = """
+:ivar arg_: some description
+:vartype arg_: type
+"""
+
+        config = Config(napoleon_use_ivar=True)
+        app = mock.Mock()
+        actual = str(NumpyDocstring(docstring, config, app, "class"))
+
         self.assertEqual(expected, actual)
