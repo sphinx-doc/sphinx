@@ -8,6 +8,9 @@ Bugs fixed
 * #1789: ``:pyobject:`` option of ``literalinclude`` directive includes following
   lines after class definitions
 * #1790: ``literalinclude`` strips empty lines at the head and tail
+* #1802: load plugin themes automatically when theme.conf use it as 'inherit'. Thanks to
+  Takayuki Hirai.
+* #1794: custom theme extended from alabaster or sphinx_rtd_theme can't find base theme.
 
 
 Release 1.3.1 (released Mar 17, 2015)
