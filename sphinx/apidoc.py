@@ -328,7 +328,7 @@ Note: By default this script will not overwrite already created files.""")
     if not opts.destdir:
         parser.error('An output directory is required.')
     if opts.header is None:
-        opts.header = path.normpath(rootpath).split(path.sep)[-1]
+        opts.header = path.normpath(path.abspath(rootpath)).split(path.sep)[-1]
     if opts.suffix.startswith('.'):
         opts.suffix = opts.suffix[1:]
     if not path.isdir(rootpath):
