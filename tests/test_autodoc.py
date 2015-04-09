@@ -14,7 +14,7 @@
 from util import TestApp, Struct, raises
 from nose.tools import with_setup
 
-from six import StringIO
+from six import StringIO, add_metaclass
 from docutils.statemachine import ViewList
 
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
@@ -784,10 +784,12 @@ def test_generate():
     del directive.env.ref_context['py:module']
 
     # test descriptor class documentation
-    options.members = ['CustomDataDescriptor']
+    options.members = ['CustomDataDescriptor', 'CustomDataDescriptor2']
     assert_result_contains('.. py:class:: CustomDataDescriptor(doc)',
                            'module', 'test_autodoc')
     assert_result_contains('   .. py:method:: CustomDataDescriptor.meth()',
+                           'module', 'test_autodoc')
+    assert_result_contains('.. py:class:: CustomDataDescriptor2(doc)',
                            'module', 'test_autodoc')
 
 # --- generate fodder ------------
@@ -817,6 +819,15 @@ class CustomDataDescriptor(object):
     def meth(self):
         """Function."""
         return "The Answer"
+
+
+class CustomDataDescriptorMeta(type):
+    """Descriptor metaclass docstring."""
+
+@add_metaclass(CustomDataDescriptorMeta)
+class CustomDataDescriptor2(CustomDataDescriptor):
+    """Descriptor class with custom metaclass docstring."""
+
 
 def _funky_classmethod(name, b, c, d, docstring=None):
     """Generates a classmethod for a class from a template by filling out
