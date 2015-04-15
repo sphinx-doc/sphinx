@@ -168,6 +168,10 @@ class ManualPageTranslator(BaseTranslator):
     def depart_versionmodified(self, node):
         self.depart_paragraph(node)
 
+    # overwritten -- remove implicit bold
+    def visit_term(self, node):
+        self.body.append("\n")
+
     def visit_termsep(self, node):
         self.body.append(', ')
         raise nodes.SkipNode
