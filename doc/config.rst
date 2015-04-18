@@ -907,6 +907,8 @@ that use Sphinx's HTMLWriter class.
    * ``user_dic`` -- the user dictionary file path for Janome
    * ``user_dic_enc`` -- the encoding for the user dictionary file specified by ``user_dic`` option (default is 'utf8')
 
+   `Janome <https://pypi.python.org/pypi/Janome>`_ is required to use type ``'janome'``.
+
    .. versionadded:: 1.1
 
 .. confval:: html_search_scorer
