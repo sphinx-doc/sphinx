@@ -898,12 +898,14 @@ that use Sphinx's HTMLWriter class.
 
    The Japanese support has these options:
 
-   * ``type`` -- ``'mecab'`` or ``'default'`` (selects either MeCab or
+   * ``type`` -- ``'mecab'`` or ``'janome'`` or ``'default'`` (selects either MeCab or Janome or
      TinySegmenter word splitter algorithm)
    * ``dic_enc`` -- the encoding for the MeCab algorithm
    * ``dict`` -- the dictionary to use for the MeCab algorithm
    * ``lib`` -- the library name for finding the MeCab library via ctypes if the
      Python binding is not installed
+   * ``user_dic`` -- the user dictionary file path for Janome
+   * ``user_dic_enc`` -- the encoding for the user dictionary file specified by ``user_dic`` option (default is 'utf8')
 
    .. versionadded:: 1.1
 
