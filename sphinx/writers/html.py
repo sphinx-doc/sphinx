@@ -277,7 +277,9 @@ class HTMLTranslator(BaseTranslator):
                 self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                 self.body.append('</span>')
 
-        if isinstance(node.parent, nodes.figure):
+        if 'figtype' in node.parent:
+            append_fignumber(node.parent['figtype'], node.parent['ids'][0])
+        elif isinstance(node.parent, nodes.figure):
             append_fignumber('figure', node.parent['ids'][0])
         elif isinstance(node.parent, nodes.table):
             append_fignumber('table', node.parent['ids'][0])

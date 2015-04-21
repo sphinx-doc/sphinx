@@ -283,6 +283,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.next_figure_ids = set()
         self.next_table_ids = set()
         self.next_literal_ids = set()
+        self.next_float_ids = set()
         # flags
         self.in_title = 0
         self.in_production_list = 0
@@ -1264,6 +1265,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 if node.get('refid'):
                     self.next_section_ids.add(node['refid'])
                 self.next_section_ids.update(node['ids'])
+                return
+            elif 'figtype' in next:
+                if node.get('refid'):
+                    self.next_float_ids.add(node['refid'])
+                self.next_float_ids.update(node['ids'])
                 return
             elif isinstance(next, nodes.figure):
                 # labels for figures go in the figure body, not before
