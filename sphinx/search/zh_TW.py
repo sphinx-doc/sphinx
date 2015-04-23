@@ -286,6 +286,3 @@ class SearchChinese(SearchLanguage):
     def stem(self, word):
         return self.stemmer.stem(word)
 
-def setup(app):
-    app.add_search_language(SearchChinese)
-
