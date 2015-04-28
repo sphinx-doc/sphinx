@@ -158,3 +158,16 @@ def is_builtin_class_method(obj, attr_name):
     if not hasattr(builtins, safe_getattr(cls, '__name__', '')):
         return False
     return getattr(builtins, safe_getattr(cls, '__name__', '')) is cls
+
+
+def dumb_signature(functional_object):
+    src = inspect.getsourcelines(functional_object)
+    for l in src[0]:
+        if 'def' in l:
+            src = l
+            break
+    r = re.compile(r'\((.*)\)')
+    s = r.findall(src)[0]
+    for d in [r'^self,', r'^self', r'^cls,', r'^cls']:
+        s = re.sub(d,'',s)
+    return '(' + s + ')'

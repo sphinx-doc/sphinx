@@ -30,7 +30,7 @@ from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
-    safe_getattr, object_description, is_builtin_class_method
+    safe_getattr, object_description, is_builtin_class_method, dumb_signature
 from sphinx.util.docstrings import prepare_docstring
 
 
@@ -1064,6 +1064,8 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
         args = formatargspec(*argspec)
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
+        if self.env.config.autodoc_dumb_docstring:
+            args = dumb_signature(self.object)
         return args
 
     def document_members(self, all_members=False):
@@ -1116,7 +1118,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
             return None
         if argspec[0] and argspec[0][0] in ('cls', 'self'):
             del argspec[0][0]
-        return formatargspec(*argspec)
+
+        if self.env.config.autodoc_dumb_docstring:
+            return dumb_signature(initmeth)
+        else:
+            return formatargspec(*argspec)
 
     def format_signature(self):
         if self.doc_as_attr:
@@ -1286,6 +1292,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
         args = formatargspec(*argspec)
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
+        if self.env.config.autodoc_dumb_docstring:
+            args = dumb_signature(self.object)
         return args
 
     def document_members(self, all_members=False):
@@ -1520,6 +1528,7 @@ def setup(app):
     app.add_config_value('autodoc_member_order', 'alphabetic', True)
     app.add_config_value('autodoc_default_flags', [], True)
     app.add_config_value('autodoc_docstring_signature', True, True)
+    app.add_config_value('autodoc_dumb_docstring', False, True)
     app.add_config_value('autodoc_mock_imports', [], True)
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
