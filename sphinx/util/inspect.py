@@ -161,13 +161,23 @@ def is_builtin_class_method(obj, attr_name):
 
 
 def dumb_signature(functional_object):
-    src = inspect.getsourcelines(functional_object)
-    for l in src[0]:
+    src = inspect.getsourcelines(functional_object)[0]
+
+    for i, l in enumerate(src):
         if 'def' in l:
-            src = l
             break
+    acc = ''
+    for l in src[i:]:
+        acc += l.strip()
+        if '):' in acc:
+            break
+
     r = re.compile(r'\((.*)\)')
-    s = r.findall(src)[0]
+    s = r.findall(acc)
+    if not s:
+        return '()'
+    s = s[0]
     for d in [r'^self,', r'^self', r'^cls,', r'^cls']:
-        s = re.sub(d,'',s)
+        s = re.sub(d, '', s)
+        s = s.strip()
     return '(' + s + ')'
