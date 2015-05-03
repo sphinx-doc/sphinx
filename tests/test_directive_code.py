@@ -63,7 +63,7 @@ def test_code_block_caption_html(app, status, warning):
 @with_app('latex', testroot='directive-code')
 def test_code_block_caption_latex(app, status, warning):
     app.builder.build_all()
-    latex = (app.outdir / 'Python.tex').text()
+    latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
     caption = '\\caption{caption \\emph{test} rb}'
     assert caption in latex
 
@@ -101,7 +101,7 @@ def test_literal_include_dedent(app, status, warning):
 @with_app('html', testroot='directive-code')
 def test_literal_include_linenos(app, status, warning):
     app.builder.build(['linenos'])
-    html = (app.outdir / 'linenos.html').text()
+    html = (app.outdir / 'linenos.html').text(encoding='utf-8')
     linenos = (
         '<td class="linenos"><div class="linenodiv"><pre>'
         ' 1\n'
@@ -124,7 +124,7 @@ def test_literal_include_linenos(app, status, warning):
 @with_app('html', testroot='directive-code')
 def test_literal_include_lineno_start(app, status, warning):
     app.builder.build(['lineno_start'])
-    html = (app.outdir / 'lineno_start.html').text()
+    html = (app.outdir / 'lineno_start.html').text(encoding='utf-8')
     linenos = (
         '<td class="linenos"><div class="linenodiv"><pre>'
         '200\n'
@@ -147,7 +147,7 @@ def test_literal_include_lineno_start(app, status, warning):
 @with_app('html', testroot='directive-code')
 def test_literal_include_lineno_match(app, status, warning):
     app.builder.build(['lineno_match'])
-    html = (app.outdir / 'lineno_match.html').text()
+    html = (app.outdir / 'lineno_match.html').text(encoding='utf-8')
     pyobject = (
         '<td class="linenos"><div class="linenodiv"><pre>'
         ' 9\n'
@@ -204,6 +204,6 @@ def test_literalinclude_caption_html(app, status, warning):
 @with_app('latex', testroot='directive-code')
 def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
-    latex = (app.outdir / 'Python.tex').text()
+    latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
     caption = '\\caption{caption \\textbf{test} py}'
     assert caption in latex
