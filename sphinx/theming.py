@@ -70,7 +70,7 @@ class Theme(object):
                 cls.themes[tname] = (path.join(themedir, theme), tinfo)
 
     @classmethod
-    def load_extra_theme(cls):
+    def load_extra_theme(cls, warn=None):
         # find ALL plug-in themes, to make the themes enable to inherit
         # another themes. The themes include default theme 'alabaster'
         # and 'sphinx_rtd_theme'
@@ -86,14 +86,14 @@ class Theme(object):
                             continue
                         if warn:
                             warn('overwriting theme %s found at %s.'
-                                 % (eachdir, joinedpath))
+                                 % (dirname, joinedpath))
                     cls.themes[dirname] = (joinedpath, None)
                     if themedir not in cls.themepath:
                         cls.themepath.append(themedir)
 
     def __init__(self, name, warn=None):
         if name not in self.themes:
-            self.load_extra_theme()
+            self.load_extra_theme(warn)
             if name not in self.themes:
                 raise ThemeError('no theme named %r found '
                                  '(missing theme.conf?)' % name)
@@ -135,7 +135,7 @@ class Theme(object):
         if inherit == 'none':
             self.base = None
         elif inherit not in self.themes:
-            self.load_extra_theme()
+            self.load_extra_theme(warn)
             if inherit not in self.themes:
                 raise ThemeError('no theme named %r found, inherited by %r' %
                                  (inherit, name))
