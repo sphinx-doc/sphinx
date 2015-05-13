@@ -10,6 +10,10 @@ Features added
 Bugs fixed
 ----------
 
+* #1789: ``:pyobject:`` option of ``literalinclude`` directive includes following
+  lines after class definitions
+* #1790: ``literalinclude`` strips empty lines at the head and tail
+
 Documentation
 -------------
 
