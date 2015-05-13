@@ -23,8 +23,8 @@ from sphinx.util.pycompat import UnicodeMixin
 
 
 _directive_regex = re.compile(r'\.\. \S+::')
-_google_untyped_arg_regex = re.compile(r'\s*(.+?)\s*:\s*(.*)')
-_google_typed_arg_regex = re.compile(r'\s*(.+?)\s*\(\s*(.+?)\s*\)\s*:\s*(.*)')
+_google_untyped_arg_regex = re.compile(r'(.+)\s*(?<!:):(?!:)\s*(.*)')
+_google_typed_arg_regex = re.compile(r'(.+)\((.+)\)\s*(?<!:):(?!:)\s*(.*)')
 
 
 class GoogleDocstring(UnicodeMixin):
@@ -207,15 +207,15 @@ class GoogleDocstring(UnicodeMixin):
         if parse_type:
             match = _google_typed_arg_regex.match(line)
             if match:
-                _name = match.group(1)
-                _type = match.group(2)
-                _desc = match.group(3)
+                _name = match.group(1).strip()
+                _type = match.group(2).strip()
+                _desc = match.group(3).strip()
 
         if not match:
             match = _google_untyped_arg_regex.match(line)
             if match:
-                _name = match.group(1)
-                _desc = match.group(2)
+                _name = match.group(1).strip()
+                _desc = match.group(2).strip()
 
         if _name[:2] == '**':
             _name = r'\*\*'+_name[2:]
@@ -244,14 +244,14 @@ class GoogleDocstring(UnicodeMixin):
             _name, _type, _desc = '', '', lines
             match = _google_typed_arg_regex.match(lines[0])
             if match:
-                _name = match.group(1)
-                _type = match.group(2)
-                _desc = match.group(3)
+                _name = match.group(1).strip()
+                _type = match.group(2).strip()
+                _desc = match.group(3).strip()
             else:
                 match = _google_untyped_arg_regex.match(lines[0])
                 if match:
-                    _type = match.group(1)
-                    _desc = match.group(2)
+                    _type = match.group(1).strip()
+                    _desc = match.group(2).strip()
             if match:
                 lines[0] = _desc
                 _desc = lines

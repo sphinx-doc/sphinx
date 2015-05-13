@@ -344,6 +344,53 @@ Returns:
         actual = str(GoogleDocstring(docstring))
         self.assertEqual(expected, actual)
 
+    def test_colon_in_return_type(self):
+        docstring = """Example property.
+
+Returns:
+    :py:class:`~.module.submodule.SomeClass`: an example instance
+    if available, None if not available.
+"""
+        expected = """Example property.
+
+:returns: an example instance
+          if available, None if not available.
+:rtype: :py:class:`~.module.submodule.SomeClass`
+"""
+        actual = str(GoogleDocstring(docstring))
+        self.assertEqual(expected, actual)
+
+    def test_kwargs_in_arguments(self):
+        docstring = """Allows to create attributes binded to this device.
+
+Some other paragraph.
+
+Code sample for usage::
+
+  dev.bind(loopback=Loopback)
+  dev.loopback.configure()
+
+Arguments:
+  **kwargs: name/class pairs that will create resource-managers
+    bound as instance attributes to this instance. See code
+    example above.
+"""
+        expected = """Allows to create attributes binded to this device.
+
+Some other paragraph.
+
+Code sample for usage::
+
+  dev.bind(loopback=Loopback)
+  dev.loopback.configure()
+
+:param \\*\\*kwargs: name/class pairs that will create resource-managers
+                   bound as instance attributes to this instance. See code
+                   example above.
+"""
+        actual = str(GoogleDocstring(docstring))
+        self.assertEqual(expected, actual)
+
 
 class NumpyDocstringTest(BaseDocstringTest):
     docstrings = [(
