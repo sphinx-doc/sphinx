@@ -4,11 +4,11 @@ Tutorial: Writing a simple extension
 ====================================
 
 This section is intended as a walkthrough for the creation of custom extensions.
-It covers the basics of writing and activating an extensions, as well as
+It covers the basics of writing and activating an extension, as well as
 commonly used features of extensions.
 
 As an example, we will cover a "todo" extension that adds capabilities to
-include todo entries in the documentation, and collecting these in a central
+include todo entries in the documentation, and to collect these in a central
 place.  (A similar "todo" extension is distributed with Sphinx.)
 
 
@@ -20,7 +20,7 @@ extension.  These are:
 
 **Application**
    The application object (usually called ``app``) is an instance of
-   :class:`.Sphinx`.  It controls the most high-level functionality, such as the
+   :class:`.Sphinx`.  It controls most high-level functionality, such as the
    setup of extensions, event dispatching and producing output (logging).
 
    If you have the environment object, the application is available as
@@ -29,8 +29,8 @@ extension.  These are:
 **Environment**
    The build environment object (usually called ``env``) is an instance of
    :class:`.BuildEnvironment`.  It is responsible for parsing the source
-   documents stores all metadata about the document collection and is serialized
-   after each build.
+   documents, stores all metadata about the document collection and is
+   serialized to disk after each build.
 
    Its API provides methods to do with access to metadata, resolving references,
    etc.  It can also be used by extensions to cache information that should
@@ -64,7 +64,7 @@ in which a Sphinx project is built: this works in several phases.
 
 **Phase 0: Initialization**
 
-   In this phase, almost nothing interesting for us happens.  The source
+   In this phase, almost nothing of interest to us happens.  The source
    directory is searched for source files, and extensions are initialized.
    Should a stored build environment exist, it is loaded, otherwise a new one is
    created.
@@ -73,8 +73,8 @@ in which a Sphinx project is built: this works in several phases.
 
    In Phase 1, all source files (and on subsequent builds, those that are new or
    changed) are read and parsed.  This is the phase where directives and roles
-   are encountered by the docutils, and the corresponding code is executed.  The
-   output of this phase is a *doctree* for each source files, that is a tree of
+   are encountered by docutils, and the corresponding code is executed.  The
+   output of this phase is a *doctree* for each source file; that is a tree of
    docutils nodes.  For document elements that aren't fully known until all
    existing files are read, temporary nodes are created.
 
@@ -229,8 +229,8 @@ The Directive Classes
 A directive class is a class deriving usually from
 :class:`docutils.parsers.rst.Directive`.  The directive interface is also
 covered in detail in the `docutils documentation`_; the important thing is that
-the class has attributes that configure the allowed markup and a method ``run``
-that returns a list of nodes.
+the class should have attributes that configure the allowed markup,
+and a ``run`` method that returns a list of nodes.
 
 The ``todolist`` directive is quite simple::
 
