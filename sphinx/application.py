@@ -446,8 +446,11 @@ class Sphinx(object):
                     'version.' % (extension, err))
         if ext_meta is None:
             ext_meta = {}
-        if not ext_meta.get('version'):
-            ext_meta['version'] = 'unknown version'
+        try:
+            if not ext_meta.get('version'):
+                ext_meta['version'] = 'unknown version'
+        except:
+            ext_meta = {}
         self._extensions[extension] = mod
         self._extension_metadata[extension] = ext_meta
 
