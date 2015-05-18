@@ -71,27 +71,27 @@ class Theme(object):
 
     @classmethod
     def load_extra_theme(cls, name):
-        if name == 'alabaster':
-            cls.themes[name] = (os.path.join(alabaster.get_path(), name), None)
-            # alabaster theme also requires 'alabaster' extension, it will be loaded at
-            # sphinx.******* module.
-            return
+        if name in ('alabaster', 'sphinx_rtd_theme'):
+            if name == 'alabaster':
+                themedir = alabaster.get_path()
+                # alabaster theme also requires 'alabaster' extension, it will be loaded
+                # at sphinx.application module.
+            elif name == 'sphinx_rtd_theme':
+                themedir = sphinx_rtd_theme.get_html_theme_path()
+            else:
+                raise NotImplementedError('Programming Error')
 
-        if name == 'sphinx_rtd_theme':
-            cls.themes[name] = (
-                os.path.join(sphinx_rtd_theme.get_html_theme_path(), name), None)
-            return
-
-        for themedir in load_theme_plugins():
-            if not path.isdir(themedir):
-                continue
-            for theme in os.listdir(themedir):
-                if theme != name:
-                    continue
-                if not path.isfile(path.join(themedir, theme, THEMECONF)):
-                    continue
-                cls.themes[theme] = (path.join(themedir, theme), None)
+        else:
+            for themedir in load_theme_plugins():
+                if path.isfile(path.join(themedir, name, THEMECONF)):
+                    break
+            else:
+                # specified theme is not found
                 return
+
+        cls.themepath.append(themedir)
+        cls.themes[name] = (path.join(themedir, name), None)
+        return
 
     def __init__(self, name, warn=None):
         if name not in self.themes:
@@ -101,11 +101,13 @@ class Theme(object):
                                  '(missing theme.conf?)' % name)
         self.name = name
 
-        if name == 'default' and warn:
-            warn("'default' html theme has been renamed to 'classic'. "
-                 "Please change your html_theme setting either to "
-                 "the new 'alabaster' default theme, or to 'classic' "
-                 "to keep using the old default.")
+        # Do not warn yet -- to be compatible with old Sphinxes, people *have*
+        # to use "default".
+        # if name == 'default' and warn:
+        #     warn("'default' html theme has been renamed to 'classic'. "
+        #          "Please change your html_theme setting either to "
+        #          "the new 'alabaster' default theme, or to 'classic' "
+        #          "to keep using the old default.")
 
         tdir, tinfo = self.themes[name]
         if tinfo is None:
@@ -133,6 +135,11 @@ class Theme(object):
             inherit = self.themeconf.get('theme', 'inherit')
         except configparser.NoOptionError:
             raise ThemeError('theme %r doesn\'t have "inherit" setting' % name)
+
+        if inherit in ['alabaster', 'sphinx_rtd_theme']:
+            # include 'alabaster' or 'sphinx_themes' automatically #1794
+            self.load_extra_theme(inherit)
+
         if inherit == 'none':
             self.base = None
         elif inherit not in self.themes:

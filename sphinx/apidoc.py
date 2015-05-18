@@ -238,7 +238,7 @@ def recurse_tree(rootpath, excludes, opts):
 
 def normalize_excludes(rootpath, excludes):
     """Normalize the excluded directory list."""
-    return [path.normpath(path.abspath(exclude)) for exclude in excludes]
+    return [path.abspath(exclude) for exclude in excludes]
 
 
 def is_excluded(root, excludes):
@@ -247,7 +247,6 @@ def is_excluded(root, excludes):
     Note: by having trailing slashes, we avoid common prefix issues, like
           e.g. an exlude "foo" also accidentally excluding "foobar".
     """
-    root = path.normpath(root)
     for exclude in excludes:
         if root == exclude:
             return True
@@ -328,7 +327,7 @@ Note: By default this script will not overwrite already created files.""")
     if not opts.destdir:
         parser.error('An output directory is required.')
     if opts.header is None:
-        opts.header = path.normpath(rootpath).split(path.sep)[-1]
+        opts.header = path.abspath(rootpath).split(path.sep)[-1]
     if opts.suffix.startswith('.'):
         opts.suffix = opts.suffix[1:]
     if not path.isdir(rootpath):
@@ -337,7 +336,7 @@ Note: By default this script will not overwrite already created files.""")
     if not path.isdir(opts.destdir):
         if not opts.dryrun:
             os.makedirs(opts.destdir)
-    rootpath = path.normpath(path.abspath(rootpath))
+    rootpath = path.abspath(rootpath)
     excludes = normalize_excludes(rootpath, excludes)
     modules = recurse_tree(rootpath, excludes, opts)
     if opts.full:
