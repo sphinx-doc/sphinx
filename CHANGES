@@ -4,6 +4,7 @@ Release 1.3.2 (in development)
 Bugs fixed
 ----------
 
+* Add a "default.css" stylesheet (which imports "classic.css") for compatibility.
 * #1788: graphviz extension raises exception when caption option is present.
 * #1789: ``:pyobject:`` option of ``literalinclude`` directive includes following
   lines after class definitions
@@ -15,7 +16,7 @@ Bugs fixed
   docutils.io.FileInput cause TypeError.
 * #1823: '.' as <module_path> for sphinx-apidoc cause an unfriendly error. Now '.'
   is converted to absolute path automatically.
-* Fix a crash when setting up extensions which do not support metadata
+* Fix a crash when setting up extensions which do not support metadata.
 
 
 Release 1.3.1 (released Mar 17, 2015)
