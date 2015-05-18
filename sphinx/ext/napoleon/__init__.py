@@ -371,7 +371,7 @@ def _skip_member(app, what, name, obj, skip, options):
                             cls = functools.reduce(getattr, mod_path, mod)
                         else:
                             cls = obj.__globals__[cls_path]
-                    except:
+                    except Exception:
                         cls_is_owner = False
                     else:
                         cls_is_owner = (cls and hasattr(cls, name) and
