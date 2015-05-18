@@ -101,11 +101,13 @@ class Theme(object):
                                  '(missing theme.conf?)' % name)
         self.name = name
 
-        if name == 'default' and warn:
-            warn("'default' html theme has been renamed to 'classic'. "
-                 "Please change your html_theme setting either to "
-                 "the new 'alabaster' default theme, or to 'classic' "
-                 "to keep using the old default.")
+        # Do not warn yet -- to be compatible with old Sphinxes, people *have*
+        # to use "default".
+        # if name == 'default' and warn:
+        #     warn("'default' html theme has been renamed to 'classic'. "
+        #          "Please change your html_theme setting either to "
+        #          "the new 'alabaster' default theme, or to 'classic' "
+        #          "to keep using the old default.")
 
         tdir, tinfo = self.themes[name]
         if tinfo is None:
