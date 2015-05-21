@@ -17,9 +17,8 @@ original_function = None
 
 def patched_function():
     list_ = original_function()
-    p = path(__file__ or '.')
-    tpath = p.joinpath('../roots/test-inherit-plugin-theme/base_themes_dir')
-    tpath = tpath.abspath()
+    p = path(__file__ or '.').abspath().parent
+    tpath = p.joinpath('roots/test-inherit-plugin-theme/base_themes_dir')
     list_.append(tpath)
     return list_
 
