@@ -18,8 +18,9 @@ original_function = None
 def patched_function():
     list_ = original_function()
     p = path(__file__ or '.')
-    themes_path = p.joinpath('../roots/test-inherit-plugin-theme/base_themes_dir')
-    list_.append(themes_path)
+    tpath = p.joinpath('../roots/test-inherit-plugin-theme/base_themes_dir')
+    tpath = tpath.abspath()
+    list_.append(tpath)
     return list_
 
 def setup_module():
@@ -27,9 +28,6 @@ def setup_module():
     original_function = sphinx.theming.load_theme_plugins
     sphinx.theming.load_theme_plugins = patched_function
 
-def teardown_module():
-    pass
-
 @with_app(testroot='inherit-plugin-theme')
 def test_inherit_plugin_theme(app, status, warning):
-    pass
+    app.builder.build_all()
