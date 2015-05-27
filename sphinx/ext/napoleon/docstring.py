@@ -23,8 +23,8 @@ from sphinx.util.pycompat import UnicodeMixin
 
 
 _directive_regex = re.compile(r'\.\. \S+::')
-_google_untyped_arg_regex = re.compile(r'(.+)\s*(?<!:):(?!:)\s*(.*)')
-_google_typed_arg_regex = re.compile(r'(.+)\((.+)\)\s*(?<!:):(?!:)\s*(.*)')
+_google_typed_arg_regex = re.compile(r'\s*(.+?)\s*\(\s*(.+?)\s*\)')
+_xref_regex = re.compile(r'(:\w+:\S+:`.+?`|:\S+:`.+?`|`.+?`)')
 
 
 class GoogleDocstring(UnicodeMixin):
@@ -202,20 +202,14 @@ class GoogleDocstring(UnicodeMixin):
     def _consume_field(self, parse_type=True, prefer_type=False):
         line = next(self._line_iter)
 
-        match = None
-        _name, _type, _desc = line.strip(), '', ''
-        if parse_type:
-            match = _google_typed_arg_regex.match(line)
-            if match:
-                _name = match.group(1).strip()
-                _type = match.group(2).strip()
-                _desc = match.group(3).strip()
+        before, colon, after = self._partition_field_on_colon(line)
+        _name, _type, _desc = before, '', after
 
-        if not match:
-            match = _google_untyped_arg_regex.match(line)
+        if parse_type:
+            match = _google_typed_arg_regex.match(before)
             if match:
-                _name = match.group(1).strip()
-                _desc = match.group(2).strip()
+                _name = match.group(1)
+                _type = match.group(2)
 
         if _name[:2] == '**':
             _name = r'\*\*'+_name[2:]
@@ -241,20 +235,21 @@ class GoogleDocstring(UnicodeMixin):
     def _consume_returns_section(self):
         lines = self._dedent(self._consume_to_next_section())
         if lines:
+            before, colon, after = self._partition_field_on_colon(lines[0])
             _name, _type, _desc = '', '', lines
-            match = _google_typed_arg_regex.match(lines[0])
-            if match:
-                _name = match.group(1).strip()
-                _type = match.group(2).strip()
-                _desc = match.group(3).strip()
-            else:
-                match = _google_untyped_arg_regex.match(lines[0])
+
+            if colon:
+                if after:
+                    _desc = [after] + lines[1:]
+                else:
+                    _desc = lines[1:]
+
+                match = _google_typed_arg_regex.match(before)
                 if match:
-                    _type = match.group(1).strip()
-                    _desc = match.group(2).strip()
-            if match:
-                lines[0] = _desc
-                _desc = lines
+                    _name = match.group(1)
+                    _type = match.group(2)
+                else:
+                    _type = before
 
             _desc = self.__class__(_desc, self._config).lines()
             return [(_name, _type, _desc,)]
@@ -593,6 +588,27 @@ class GoogleDocstring(UnicodeMixin):
         fields = self._consume_returns_section()
         return self._format_fields('Yields', fields)
 
+    def _partition_field_on_colon(self, line):
+        before_colon = []
+        after_colon = []
+        colon = ''
+        found_colon = False
+        for i, source in enumerate(_xref_regex.split(line)):
+            if found_colon:
+                after_colon.append(source)
+            else:
+                if (i % 2) == 0 and ":" in source:
+                    found_colon = True
+                    before, colon, after = source.partition(":")
+                    before_colon.append(before)
+                    after_colon.append(after)
+                else:
+                    before_colon.append(source)
+
+        return ("".join(before_colon).strip(),
+                colon,
+                "".join(after_colon).strip())
+
     def _strip_empty(self, lines):
         if lines:
             start = -1
@@ -719,7 +735,7 @@ class NumpyDocstring(GoogleDocstring):
     def _consume_field(self, parse_type=True, prefer_type=False):
         line = next(self._line_iter)
         if parse_type:
-            _name, _, _type = line.partition(':')
+            _name, _, _type = self._partition_field_on_colon(line)
             if not _name:
                 _type = line
         else:

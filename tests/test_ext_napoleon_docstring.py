@@ -360,6 +360,22 @@ Returns:
         actual = str(GoogleDocstring(docstring))
         self.assertEqual(expected, actual)
 
+    def test_xrefs_in_return_type(self):
+        docstring = """Example Function
+
+Returns:
+    :class:`numpy.ndarray`: A :math:`n \\times 2` array containing
+    a bunch of math items
+"""
+        expected = """Example Function
+
+:returns: A :math:`n \\times 2` array containing
+          a bunch of math items
+:rtype: :class:`numpy.ndarray`
+"""
+        actual = str(GoogleDocstring(docstring))
+        self.assertEqual(expected, actual)
+
     def test_kwargs_in_arguments(self):
         docstring = """Allows to create attributes binded to this device.
 
@@ -695,4 +711,26 @@ arg_ : type
         app = mock.Mock()
         actual = str(NumpyDocstring(docstring, config, app, "class"))
 
+        self.assertEqual(expected, actual)
+
+    def test_xrefs_in_return_type(self):
+        docstring = """
+Example Function
+
+Returns
+-------
+:class:`numpy.ndarray`
+    A :math:`n \\times 2` array containing
+    a bunch of math items
+"""
+        expected = """
+Example Function
+
+:returns: A :math:`n \\times 2` array containing
+          a bunch of math items
+:rtype: :class:`numpy.ndarray`
+"""
+        config = Config()
+        app = mock.Mock()
+        actual = str(NumpyDocstring(docstring, config, app, "method"))
         self.assertEqual(expected, actual)
