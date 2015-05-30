@@ -2415,6 +2415,43 @@ class CPPObject(ObjectDescription):
               names=('returns', 'return')),
     ]
 
+    def _add_enumerator_to_parent(self, ast, objects):
+        assert ast.objectType == 'enumerator'
+        # find the parent, if it exists && is an enum
+        #                     && it's unscoped,
+        #                  then add the name to the parent scope
+        assert len(ast.prefixedName.names) > 0
+        if len(ast.prefixedName.names) == 1:
+            # TODO: we could warn, but it is somewhat equivalent to unscoped
+            # enums, without the enum
+            return # no parent
+        parentPrefixedAstName = ASTNestedName(ast.prefixedName.names[:-1])
+        parentPrefixedName = text_type(parentPrefixedAstName).lstrip(':')
+        if parentPrefixedName not in objects:
+            # the parent is not explicitly declared
+            # TODO: we could warn, but it could be a style to just assume
+            # enumerator parnets to be scoped
+            return
+        docname, parentAst = objects[parentPrefixedName]
+        if parentAst.objectType != 'enum':
+            # TODO: maybe issue a warning, enumerators in non-enums is weird,
+            # but it is somewhat equivalent to unscoped enums, without the enum
+            return
+        if parentAst.scoped:
+            return
+        enumeratorName = ASTNestedName([ast.prefixedName.names[-1]])
+        assert len(parentAst.prefixedName.names) > 0
+        if len(parentAst.prefixedName.names) == 1:
+            # the enum is in global scope
+            unscopedName = enumeratorName
+        else:
+            enumScope = ASTNestedName(parentAst.prefixedName.names[:-1])
+            unscopedName = enumeratorName.prefix_nested_name(enumScope)
+        txtUnscopedName = text_type(unscopedName).lstrip(':')
+        if txtUnscopedName not in objects:
+            objects.setdefault(txtUnscopedName,
+                               (self.env.docname, ast))
+
     def add_target_and_index(self, ast, sig, signode):
         # general note: name must be lstrip(':')'ed, to remove "::"
         try:
@@ -2445,23 +2482,7 @@ class CPPObject(ObjectDescription):
             if name not in objects:
                 objects.setdefault(name, (self.env.docname, ast))
                 if ast.objectType == 'enumerator':
-                    # find the parent, if it exists && is an enum
-                    #                     && it's unscoped,
-                    #                  then add the name to the parent scope
-                    assert len(ast.prefixedName.names) > 0
-                    parentPrefixedAstName = ASTNestedName(ast.prefixedName.names[:-1])
-                    parentPrefixedName = text_type(parentPrefixedAstName).lstrip(':')
-                    if parentPrefixedName in objects:
-                        docname, parentAst = objects[parentPrefixedName]
-                        if parentAst.objectType == 'enum' and not parentAst.scoped:
-                            enumeratorName = ASTNestedName([ast.prefixedName.names[-1]])
-                            assert len(parentAst.prefixedName.names) > 0
-                            enumScope = ASTNestedName(parentAst.prefixedName.names[:-1])
-                            unscopedName = enumeratorName.prefix_nested_name(enumScope)
-                            txtUnscopedName = text_type(unscopedName).lstrip(':')
-                            if txtUnscopedName not in objects:
-                                objects.setdefault(txtUnscopedName,
-                                                   (self.env.docname, ast))
+                    self._add_enumerator_to_parent(ast, objects)
                 # add the uninstantiated template if it doesn't exist
                 uninstantiated = ast.prefixedName.get_name_no_last_template().lstrip(':')
                 if uninstantiated != name and uninstantiated not in objects:
