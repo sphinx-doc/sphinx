@@ -48,6 +48,7 @@ Other contributors, listed alphabetically, are:
 * Jeppe Pihl -- literalinclude improvements
 * Rob Ruana -- napoleon extension
 * Stefan Seefeld -- toctree improvements
+* Gregory Szorc -- performance improvements
 * Shibukawa Yoshiki -- pluggable search API and Japanese search
 * Antonio Valentino -- qthelp builder
 * Pauli Virtanen -- autodoc improvements, autosummary extension

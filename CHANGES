@@ -7,6 +7,10 @@ Incompatible changes
 Features added
 --------------
 
+* apidoc now avoids invalidating cached files by not writing to files whose
+  content doesn't change. This can lead to significant performance wins if
+  apidoc is run frequently.
+
 Bugs fixed
 ----------
 

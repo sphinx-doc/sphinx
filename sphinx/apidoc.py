@@ -21,7 +21,7 @@ import sys
 import optparse
 from os import path
 
-from sphinx.util.osutil import walk
+from sphinx.util.osutil import FileAvoidWrite, walk
 from sphinx import __display_version__
 
 # automodule options
@@ -61,11 +61,8 @@ def write_file(name, text, opts):
         print('File %s already exists, skipping.' % fname)
     else:
         print('Creating file %s.' % fname)
-        f = open(fname, 'w')
-        try:
+        with FileAvoidWrite(fname) as f:
             f.write(text)
-        finally:
-            f.close()
 
 
 def format_heading(level, text):
