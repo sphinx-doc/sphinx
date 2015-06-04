@@ -2424,7 +2424,7 @@ class CPPObject(ObjectDescription):
         if len(ast.prefixedName.names) == 1:
             # TODO: we could warn, but it is somewhat equivalent to unscoped
             # enums, without the enum
-            return # no parent
+            return  # no parent
         parentPrefixedAstName = ASTNestedName(ast.prefixedName.names[:-1])
         parentPrefixedName = text_type(parentPrefixedAstName).lstrip(':')
         if parentPrefixedName not in objects:
