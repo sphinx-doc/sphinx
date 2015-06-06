@@ -399,3 +399,8 @@ are in HTML form), these variables are also available:
 
    * ``includehidden`` (``False`` by default): if true, the TOC tree will also
      contain hidden entries.
+
+.. data:: page_source_suffix
+
+   The suffix of the file that was rendered. Since we support a list of :confval:`source_suffix`,
+   this will allow you to properly link to the original source file.
