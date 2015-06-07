@@ -147,7 +147,7 @@ If you finished the installation of pip, type this line in the command prompt:
 
    C:\> pip install sphinx
 
-After installation, type :command:`sphinx-build` on the command prompt.  If
+After installation, type :command:`sphinx-build -h` on the command prompt.  If
 everything worked fine, you will get a Sphinx version number and a list of
 options for this command.
 
