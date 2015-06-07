@@ -408,6 +408,9 @@ class StandaloneHTMLBuilder(Builder):
         # metadata for the document
         meta = self.env.metadata.get(docname)
 
+        # Suffix for the document
+        source_suffix = '.' + self.env.doc2path(docname).split('.')[-1]
+
         # local TOC and global TOC tree
         self_toc = self.env.get_toc_for(docname, self)
         toc = self.render_partial(self_toc)['fragment']
@@ -425,6 +428,7 @@ class StandaloneHTMLBuilder(Builder):
             toc = toc,
             # only display a TOC if there's more than one item to show
             display_toc = (self.env.toc_num_entries[docname] > 1),
+            page_source_suffix = source_suffix,
         )
 
     def write_doc(self, docname, doctree):
