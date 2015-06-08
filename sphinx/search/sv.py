@@ -140,6 +140,7 @@ var Stemmer = JSX.require("src/swedish-stemmer.jsx").SwedishStemmer;
 class SearchSwedish(SearchLanguage):
     lang = 'sv'
     language_name = 'Swedish'
+    js_stemmer_rawcode = 'swedish-stemmer.js'
     js_stemmer_code = js_stemmer
     stopwords = swedish_stopwords
 

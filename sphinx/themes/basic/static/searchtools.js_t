@@ -9,6 +9,8 @@
  *
  */
 
+{% if search_language_stemming_code %}
+/* Non-minified version JS is _stemmer.js if file is provided */ {% endif -%}
 {{ search_language_stemming_code|safe }}
 
 {% if search_scorer_tool %}

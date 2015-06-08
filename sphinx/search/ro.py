@@ -22,6 +22,7 @@ var Stemmer = JSX.require("src/romanian-stemmer.jsx").RomanianStemmer;
 class SearchRomanian(SearchLanguage):
     lang = 'ro'
     language_name = 'Romanian'
+    js_stemmer_rawcode = 'romanian-stemmer.js'
     js_stemmer_code = js_stemmer
     stopwords = []
 

@@ -199,6 +199,7 @@ var Stemmer = JSX.require("src/french-stemmer.jsx").FrenchStemmer;
 class SearchFrench(SearchLanguage):
     lang = 'fr'
     language_name = 'French'
+    js_stemmer_rawcode = 'french-stemmer.js'
     js_stemmer_code = js_stemmer
     stopwords = french_stopwords
 

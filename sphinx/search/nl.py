@@ -120,6 +120,7 @@ var Stemmer = JSX.require("src/dutch-stemmer.jsx").DutchStemmer;
 class SearchDutch(SearchLanguage):
     lang = 'nl'
     language_name = 'Dutch'
+    js_stemmer_rawcode = 'dutch-stemmer.js'
     js_stemmer_code = js_stemmer
     stopwords = danish_stopwords
 

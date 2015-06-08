@@ -251,6 +251,7 @@ var Stemmer = JSX.require("src/russian-stemmer.jsx").RussianStemmer;
 class SearchRussian(SearchLanguage):
     lang = 'ru'
     language_name = 'Russian'
+    js_stemmer_rawcode = 'russian-stemmer.js'
     js_stemmer_code = js_stemmer
     stopwords = russian_stopwords
 
