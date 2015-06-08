@@ -882,9 +882,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     linestart = col + 1
                     if self.remember_multirowcol.get(col, 0):
                         linestart += self.remember_multirowcol[col]
-            if linestart <= col:
-                linerange = str(linestart) + '-' + str(col)
-                self.body.append('\\cline{' + linerange + '}')
+                if linestart <= col:
+                    linerange = str(linestart) + '-' + str(col)
+                    self.body.append('\\cline{' + linerange + '}')
         else:
             self.body.append('\\hline')
         self.table.rowcount += 1
