@@ -50,11 +50,9 @@ def translate_figures(app, docname, source):
         l10n_imgpath = '-'.join([root, app.config.language]) + ext
         if os.path.exists(l10n_imgpath):
             # Replace the image path with our one
-            print "Using [%s] version for %s" % (app.config.language, imguri)
+            app.info("Using [%s] version for %s" % (app.config.language, imguri))
             root, ext = os.path.splitext(imguri)
             updates.append((m.span(1), '-'.join([root, app.config.language]) + ext))
-        elif 'not' not in l10n_imgpath:
-            raise ValueError(l10n_imgpath)
 
     source[0] = ''.join(s for s in replace_spans(source[0], updates))
 
