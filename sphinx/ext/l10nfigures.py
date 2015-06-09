@@ -61,5 +61,3 @@ def translate_figures(app, docname, source):
 
 def setup(app):
     app.connect('source-read', translate_figures)
-
-
