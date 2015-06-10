@@ -276,8 +276,6 @@ class Autosummary(Directive):
                 self.warn('failed to import object %s' % real_name)
                 items.append((display_name, '', '', real_name))
                 continue
-            if not documenter.check_module():
-                continue
 
             # try to also get a source code analyzer for attribute docs
             try:
