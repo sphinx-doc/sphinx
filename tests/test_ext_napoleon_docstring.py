@@ -31,6 +31,9 @@ class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
         Quick description of attr1
     attr2 : Another arbitrary type
         Quick description of attr2
+    attr3 : Type
+
+        Adds a newline after the type
 
     """
     # To avoid creating a dict, as a namedtuple doesn't have it:
@@ -50,21 +53,25 @@ class NamedtupleSubclassTest(BaseDocstringTest):
         actual = str(NumpyDocstring(cleandoc(NamedtupleSubclass.__doc__),
                      config=config, app=None, what='class',
                      name='NamedtupleSubclass', obj=NamedtupleSubclass))
-        expected = dedent("""\
-           Sample namedtuple subclass
+        expected = """\
+Sample namedtuple subclass
 
-           .. attribute:: attr1
+.. attribute:: attr1
 
-              *Arbitrary type*
+   *Arbitrary type* --
+   Quick description of attr1
 
-              Quick description of attr1
+.. attribute:: attr2
 
-           .. attribute:: attr2
+   *Another arbitrary type* --
+   Quick description of attr2
 
-              *Another arbitrary type*
+.. attribute:: attr3
 
-              Quick description of attr2
-           """)
+   *Type*
+   """"""
+   Adds a newline after the type
+"""
 
         self.assertEqual(expected, actual)
 
@@ -305,8 +312,7 @@ Attributes:
         expected = """\
 .. attribute:: in_attr
 
-   :class:`numpy.ndarray`
-
+   :class:`numpy.ndarray` --
    super-dooper attribute
 """
         self.assertEqual(expected, actual)
@@ -320,8 +326,7 @@ Attributes:
         expected = """\
 .. attribute:: in_attr
 
-   *numpy.ndarray*
-
+   *numpy.ndarray* --
    super-dooper attribute
 """
         self.assertEqual(expected, actual)

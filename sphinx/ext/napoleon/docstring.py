@@ -28,16 +28,14 @@ _xref_regex = re.compile(r'(:\w+:\S+:`.+?`|:\S+:`.+?`|`.+?`)')
 
 
 class GoogleDocstring(UnicodeMixin):
-    """Parse Google style docstrings.
-
-    Convert Google style docstrings to reStructuredText.
+    """Convert Google style docstrings to reStructuredText.
 
     Parameters
     ----------
-    docstring : str or list of str
+    docstring : str or List[str]
         The docstring to parse, given either as a string or split into
         individual lines.
-    config : sphinx.ext.napoleon.Config or sphinx.config.Config, optional
+    config : Optional[sphinx.ext.napoleon.Config or sphinx.config.Config]
         The configuration settings to use. If not given, defaults to the
         config object on `app`; or if `app` is not given defaults to the
         a new `sphinx.ext.napoleon.Config` object.
@@ -48,17 +46,17 @@ class GoogleDocstring(UnicodeMixin):
 
     Other Parameters
     ----------------
-    app : sphinx.application.Sphinx, optional
+    app : Optional[sphinx.application.Sphinx]
         Application object representing the Sphinx process.
-    what : str, optional
+    what : Optional[str]
         A string specifying the type of the object to which the docstring
         belongs. Valid values: "module", "class", "exception", "function",
         "method", "attribute".
-    name : str, optional
+    name : Optional[str]
         The fully qualified name of the object.
     obj : module, class, exception, function, method, or attribute
         The object to which the docstring belongs.
-    options : sphinx.ext.autodoc.Options, optional
+    options : Optional[sphinx.ext.autodoc.Options]
         The options given to the directive: an object with attributes
         inherited_members, undoc_members, show_inheritance and noindex that
         are True if the flag option of same name was given to the auto
@@ -168,7 +166,7 @@ class GoogleDocstring(UnicodeMixin):
 
         Returns
         -------
-        list of str
+        List[str]
             The lines of the docstring in a list.
 
         """
@@ -232,6 +230,15 @@ class GoogleDocstring(UnicodeMixin):
                 fields.append((_name, _type, _desc,))
         return fields
 
+    def _consume_inline_attribute(self):
+        line = next(self._line_iter)
+        _type, colon, _desc = self._partition_field_on_colon(line)
+        if not colon:
+            _type, _desc = _desc, _type
+        _desc = [_desc] + self._dedent(self._consume_to_end())
+        _desc = self.__class__(_desc, self._config).lines()
+        return _type, _desc
+
     def _consume_returns_section(self):
         lines = self._dedent(self._consume_to_next_section())
         if lines:
@@ -266,6 +273,12 @@ class GoogleDocstring(UnicodeMixin):
         if stripped_section.lower() in self._sections:
             section = stripped_section
         return section
+
+    def _consume_to_end(self):
+        lines = []
+        while self._line_iter.has_next():
+            lines.append(next(self._line_iter))
+        return lines
 
     def _consume_to_next_section(self):
         self._consume_empty()
@@ -308,7 +321,7 @@ class GoogleDocstring(UnicodeMixin):
             return [prefix]
 
     def _format_field(self, _name, _type, _desc):
-        separator = any([s for s in _desc]) and ' --' or ''
+        separator = (_desc and _desc[0]) and ' --' or ''
         if _name:
             if _type:
                 if '`' in _type:
@@ -402,6 +415,11 @@ class GoogleDocstring(UnicodeMixin):
 
     def _parse(self):
         self._parsed_lines = self._consume_empty()
+
+        if self._name and (self._what == 'attribute' or self._what == 'data'):
+            self._parsed_lines.extend(self._parse_attribute_docstring())
+            return
+
         while self._line_iter.has_next():
             if self._is_section_header():
                 try:
@@ -422,6 +440,10 @@ class GoogleDocstring(UnicodeMixin):
                     lines = self._consume_to_next_section()
             self._parsed_lines.extend(lines)
 
+    def _parse_attribute_docstring(self):
+        _type, _desc = self._consume_inline_attribute()
+        return self._format_field('', _type, _desc)
+
     def _parse_attributes_section(self, section):
         lines = []
         for _name, _type, _desc in self._consume_fields():
@@ -431,15 +453,9 @@ class GoogleDocstring(UnicodeMixin):
                 if _type:
                     lines.append(':vartype %s: %s' % (_name, _type))
             else:
-                lines.append('.. attribute:: ' + _name)
-                if _type:
-                    lines.append('')
-                    if '`' in _type:
-                        lines.append('   %s' % _type)
-                    else:
-                        lines.append('   *%s*' % _type)
-                if _desc:
-                    lines.extend([''] + self._indent(_desc, 3))
+                lines.extend(['.. attribute:: ' + _name, ''])
+                field = self._format_field('', _type, _desc)
+                lines.extend(self._indent(field, 3))
                 lines.append('')
         if self._config.napoleon_use_ivar:
             lines.append('')
@@ -630,16 +646,14 @@ class GoogleDocstring(UnicodeMixin):
 
 
 class NumpyDocstring(GoogleDocstring):
-    """Parse NumPy style docstrings.
-
-    Convert NumPy style docstrings to reStructuredText.
+    """Convert NumPy style docstrings to reStructuredText.
 
     Parameters
     ----------
-    docstring : str or list of str
+    docstring : str or List[str]
         The docstring to parse, given either as a string or split into
         individual lines.
-    config : sphinx.ext.napoleon.Config or sphinx.config.Config, optional
+    config : Optional[sphinx.ext.napoleon.Config or sphinx.config.Config]
         The configuration settings to use. If not given, defaults to the
         config object on `app`; or if `app` is not given defaults to the
         a new `sphinx.ext.napoleon.Config` object.
@@ -650,17 +664,17 @@ class NumpyDocstring(GoogleDocstring):
 
     Other Parameters
     ----------------
-    app : sphinx.application.Sphinx, optional
+    app : Optional[sphinx.application.Sphinx]
         Application object representing the Sphinx process.
-    what : str, optional
+    what : Optional[str]
         A string specifying the type of the object to which the docstring
         belongs. Valid values: "module", "class", "exception", "function",
         "method", "attribute".
-    name : str, optional
+    name : Optional[str]
         The fully qualified name of the object.
     obj : module, class, exception, function, method, or attribute
         The object to which the docstring belongs.
-    options : sphinx.ext.autodoc.Options, optional
+    options : Optional[sphinx.ext.autodoc.Options]
         The options given to the directive: an object with attributes
         inherited_members, undoc_members, show_inheritance and noindex that
         are True if the flag option of same name was given to the auto
@@ -722,7 +736,7 @@ class NumpyDocstring(GoogleDocstring):
 
         Returns
         -------
-        list of str
+        List[str]
             The lines of the docstring in a list.
 
     """
