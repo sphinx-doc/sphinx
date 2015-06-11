@@ -454,6 +454,9 @@ class Sphinx(object):
             if not ext_meta.get('version'):
                 ext_meta['version'] = 'unknown version'
         except Exception:
+            self.warn('extension %r returned an unsupported object from '
+                      'its setup() function; it should return None or a '
+                      'metadata dictionary' % extension)
             ext_meta = {'version': 'unknown version'}
         self._extensions[extension] = mod
         self._extension_metadata[extension] = ext_meta
