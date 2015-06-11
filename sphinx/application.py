@@ -79,6 +79,7 @@ class Sphinx(object):
         self._extension_metadata = {}
         self._listeners = {}
         self.domains = BUILTIN_DOMAINS.copy()
+        self.buildername = buildername
         self.builderclasses = BUILTIN_BUILDERS.copy()
         self.builder = None
         self.env = None
@@ -185,7 +186,7 @@ class Sphinx(object):
         # set up the build environment
         self._init_env(freshenv)
         # set up the builder
-        self._init_builder(buildername)
+        self._init_builder(self.buildername)
 
     def _init_i18n(self):
         """Load translated strings from the configured localedirs if enabled in
@@ -453,6 +454,9 @@ class Sphinx(object):
             if not ext_meta.get('version'):
                 ext_meta['version'] = 'unknown version'
         except Exception:
+            self.warn('extension %r returned an unsupported object from '
+                      'its setup() function; it should return None or a '
+                      'metadata dictionary' % extension)
             ext_meta = {'version': 'unknown version'}
         self._extensions[extension] = mod
         self._extension_metadata[extension] = ext_meta

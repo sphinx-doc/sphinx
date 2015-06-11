@@ -22,6 +22,7 @@ var Stemmer = JSX.require("src/turkish-stemmer.jsx").TurkishStemmer;
 class SearchTurkish(SearchLanguage):
     lang = 'tr'
     language_name = 'Turkish'
+    js_stemmer_rawcode = 'turkish-stemmer.js'
     js_stemmer_code = js_stemmer
     stopwords = []
 

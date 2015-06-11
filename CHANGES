@@ -39,6 +39,7 @@ Bugs fixed
   Thanks to Jens Hedegaard Nielsen.
 * #1781: Setting `html_domain_indices` to a list raises a type check warnings.
 
+
 Release 1.3 (released Mar 10, 2015)
 ===================================
 
@@ -86,6 +87,7 @@ Documentation
 -------------
 
 * #1651: Add ``vartype`` field descritpion for python domain.
+
 
 Release 1.3b3 (released Feb 24, 2015)
 =====================================

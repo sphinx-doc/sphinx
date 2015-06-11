@@ -588,6 +588,12 @@ class StandaloneHTMLBuilder(Builder):
                 copyfile(jsfile, path.join(self.outdir, '_static',
                                            'translations.js'))
 
+        # copy non-minified stemmer JavaScript file
+        if self.indexer is not None:
+            jsfile = self.indexer.get_js_stemmer_rawcode()
+            if jsfile:
+                copyfile(jsfile, path.join(self.outdir, '_static', '_stemmer.js'))
+
         ctx = self.globalcontext.copy()
 
         # add context items for search function used in searchtools.js_t
