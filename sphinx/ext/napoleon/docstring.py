@@ -522,33 +522,31 @@ class GoogleDocstring(UnicodeMixin):
             return self._format_fields('Parameters', fields)
 
     def _parse_raises_section(self, section):
-        fields = self._consume_fields()
+        fields = self._consume_fields(parse_type=False, prefer_type=True)
         field_type = ':raises:'
         padding = ' ' * len(field_type)
         multi = len(fields) > 1
         lines = []
-        for _name, _type, _desc in fields:
-            sep = _desc and ' -- ' or ''
-            if _name:
-                if ' ' in _name:
-                    _name = '**%s**' % _name
+        for _, _type, _desc in fields:
+            has_desc = any(_desc)
+            sep = (_desc and _desc[0]) and ' -- ' or ''
+            if _type:
+                has_refs = '`' in _type or ':' in _type
+                has_space = any(c in ' \t\n\v\f ' for c in _type)
+
+                if not has_refs and not has_space:
+                    _type = ':exc:`%s`%s' % (_type, sep)
+                elif has_desc and has_space:
+                    _type = '*%s*%s' % (_type, sep)
                 else:
-                    _name = ':exc:`%s`' % _name
-                if _type:
-                    if '`' in _type:
-                        field = ['%s (%s)%s' % (_name, _type, sep)]
-                    else:
-                        field = ['%s (*%s*)%s' % (_name, _type, sep)]
+                    _type = '%s%s' % (_type, sep)
+
+                if has_desc:
+                    field = [_type] + _desc
                 else:
-                    field = ['%s%s' % (_name, sep)]
-            elif _type:
-                if '`' in _type:
-                    field = ['%s%s' % (_type, sep)]
-                else:
-                    field = ['*%s*%s' % (_type, sep)]
+                    field = [_type]
             else:
-                field = []
-            field = field + _desc
+                field = _desc
             if multi:
                 if lines:
                     lines.extend(self._format_block(padding + ' * ', field))
@@ -556,6 +554,8 @@ class GoogleDocstring(UnicodeMixin):
                     lines.extend(self._format_block(field_type + ' * ', field))
             else:
                 lines.extend(self._format_block(field_type + ' ', field))
+        if lines and lines[-1]:
+            lines.append('')
         return lines
 
     def _parse_references_section(self, section):
@@ -750,8 +750,6 @@ class NumpyDocstring(GoogleDocstring):
         line = next(self._line_iter)
         if parse_type:
             _name, _, _type = self._partition_field_on_colon(line)
-            if not _name:
-                _type = line
         else:
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()

@@ -381,6 +381,175 @@ Returns:
         actual = str(GoogleDocstring(docstring))
         self.assertEqual(expected, actual)
 
+    def test_raises_types(self):
+        docstrings = [("""
+Example Function
+
+Raises:
+    RuntimeError:
+        A setting wasn't specified, or was invalid.
+    ValueError:
+        Something something value error.
+
+""", """
+Example Function
+
+:raises: * :exc:`RuntimeError`
+
+           A setting wasn't specified, or was invalid.
+         * :exc:`ValueError`
+
+           Something something value error.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises:
+    InvalidDimensionsError
+
+""", """
+Example Function
+
+:raises: :exc:`InvalidDimensionsError`
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises:
+    Invalid Dimensions Error
+
+""", """
+Example Function
+
+:raises: Invalid Dimensions Error
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises:
+    Invalid Dimensions Error: With description
+
+""", """
+Example Function
+
+:raises: *Invalid Dimensions Error* --
+         With description
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises:
+    InvalidDimensionsError: If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises: :exc:`InvalidDimensionsError` --
+         If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises:
+    Invalid Dimensions Error: If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises: *Invalid Dimensions Error* --
+         If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises:
+    If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises: If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises:
+    :class:`exc.InvalidDimensionsError`
+
+""", """
+Example Function
+
+:raises: :class:`exc.InvalidDimensionsError`
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises:
+    :class:`exc.InvalidDimensionsError`: If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises: :class:`exc.InvalidDimensionsError` --
+         If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises:
+    :class:`exc.InvalidDimensionsError`: If the dimensions couldn't be parsed,
+       then a :class:`exc.InvalidDimensionsError` will be raised.
+
+""", """
+Example Function
+
+:raises: :class:`exc.InvalidDimensionsError` --
+         If the dimensions couldn't be parsed,
+         then a :class:`exc.InvalidDimensionsError` will be raised.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises:
+    :class:`exc.InvalidDimensionsError`: If the dimensions couldn't be parsed.
+    :class:`exc.InvalidArgumentsError`: If the arguments are invalid.
+
+""", """
+Example Function
+
+:raises: * :class:`exc.InvalidDimensionsError` --
+           If the dimensions couldn't be parsed.
+         * :class:`exc.InvalidArgumentsError` --
+           If the arguments are invalid.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises:
+    :class:`exc.InvalidDimensionsError`
+    :class:`exc.InvalidArgumentsError`
+
+""", """
+Example Function
+
+:raises: * :class:`exc.InvalidDimensionsError`
+         * :class:`exc.InvalidArgumentsError`
+""")]
+        for docstring, expected in docstrings:
+            actual = str(GoogleDocstring(docstring))
+            self.assertEqual(expected, actual)
+
     def test_kwargs_in_arguments(self):
         docstring = """Allows to create attributes binded to this device.
 
@@ -569,7 +738,7 @@ class NumpyDocstringTest(BaseDocstringTest):
         :Yields: *str* --
                  Extended
                  description of yielded value"""
-     )]
+    )]
 
     def test_docstrings(self):
         config = Config(napoleon_use_param=False, napoleon_use_rtype=False)
@@ -717,6 +886,198 @@ arg_ : type
         actual = str(NumpyDocstring(docstring, config, app, "class"))
 
         self.assertEqual(expected, actual)
+
+    def test_raises_types(self):
+        docstrings = [("""
+Example Function
+
+Raises
+------
+  RuntimeError
+
+      A setting wasn't specified, or was invalid.
+  ValueError
+
+      Something something value error.
+
+""", """
+Example Function
+
+:raises: * :exc:`RuntimeError`
+
+           A setting wasn't specified, or was invalid.
+         * :exc:`ValueError`
+
+           Something something value error.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
+InvalidDimensionsError
+
+""", """
+Example Function
+
+:raises: :exc:`InvalidDimensionsError`
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
+Invalid Dimensions Error
+
+""", """
+Example Function
+
+:raises: Invalid Dimensions Error
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
+Invalid Dimensions Error
+    With description
+
+""", """
+Example Function
+
+:raises: *Invalid Dimensions Error* --
+         With description
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
+InvalidDimensionsError
+    If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises: :exc:`InvalidDimensionsError` --
+         If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
+Invalid Dimensions Error
+    If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises: *Invalid Dimensions Error* --
+         If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
+If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises: If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
+:class:`exc.InvalidDimensionsError`
+
+""", """
+Example Function
+
+:raises: :class:`exc.InvalidDimensionsError`
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
+:class:`exc.InvalidDimensionsError`
+    If the dimensions couldn't be parsed.
+
+""", """
+Example Function
+
+:raises: :class:`exc.InvalidDimensionsError` --
+         If the dimensions couldn't be parsed.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
+:class:`exc.InvalidDimensionsError`
+    If the dimensions couldn't be parsed,
+    then a :class:`exc.InvalidDimensionsError` will be raised.
+
+""", """
+Example Function
+
+:raises: :class:`exc.InvalidDimensionsError` --
+         If the dimensions couldn't be parsed,
+         then a :class:`exc.InvalidDimensionsError` will be raised.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
+:class:`exc.InvalidDimensionsError`
+    If the dimensions couldn't be parsed.
+:class:`exc.InvalidArgumentsError`
+    If the arguments are invalid.
+
+""", """
+Example Function
+
+:raises: * :class:`exc.InvalidDimensionsError` --
+           If the dimensions couldn't be parsed.
+         * :class:`exc.InvalidArgumentsError` --
+           If the arguments are invalid.
+"""),
+                      ################################
+                      ("""
+Example Function
+
+Raises
+------
+:class:`exc.InvalidDimensionsError`
+:class:`exc.InvalidArgumentsError`
+
+""", """
+Example Function
+
+:raises: * :class:`exc.InvalidDimensionsError`
+         * :class:`exc.InvalidArgumentsError`
+""")]
+        for docstring, expected in docstrings:
+            config = Config()
+            app = mock.Mock()
+            actual = str(NumpyDocstring(docstring, config, app, "method"))
+            self.assertEqual(expected, actual)
 
     def test_xrefs_in_return_type(self):
         docstring = """
