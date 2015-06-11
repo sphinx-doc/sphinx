@@ -321,23 +321,29 @@ class GoogleDocstring(UnicodeMixin):
             return [prefix]
 
     def _format_field(self, _name, _type, _desc):
-        separator = (_desc and _desc[0]) and ' --' or ''
+        _desc = self._strip_empty(_desc)
+        has_desc = any(_desc)
+        separator = has_desc and ' -- ' or ''
         if _name:
             if _type:
                 if '`' in _type:
-                    field = ['**%s** (%s)%s' % (_name, _type, separator)]
+                    field = '**%s** (%s)%s' % (_name, _type, separator)
                 else:
-                    field = ['**%s** (*%s*)%s' % (_name, _type, separator)]
+                    field = '**%s** (*%s*)%s' % (_name, _type, separator)
             else:
-                field = ['**%s**%s' % (_name, separator)]
+                field = '**%s**%s' % (_name, separator)
         elif _type:
             if '`' in _type:
-                field = ['%s%s' % (_type, separator)]
+                field = '%s%s' % (_type, separator)
             else:
-                field = ['*%s*%s' % (_type, separator)]
+                field = '*%s*%s' % (_type, separator)
         else:
-            field = []
-        return field + _desc
+            field = ''
+
+        if has_desc:
+            return [field + _desc[0]] + _desc[1:]
+        else:
+            return [field]
 
     def _format_fields(self, field_type, fields):
         field_type = ':%s:' % field_type.strip()
@@ -353,6 +359,8 @@ class GoogleDocstring(UnicodeMixin):
                     lines.extend(self._format_block(field_type + ' * ', field))
             else:
                 lines.extend(self._format_block(field_type + ' ', field))
+        if lines and lines[-1]:
+            lines.append('')
         return lines
 
     def _get_current_indent(self, peek_ahead=0):
@@ -528,21 +536,22 @@ class GoogleDocstring(UnicodeMixin):
         multi = len(fields) > 1
         lines = []
         for _, _type, _desc in fields:
+            _desc = self._strip_empty(_desc)
             has_desc = any(_desc)
-            sep = (_desc and _desc[0]) and ' -- ' or ''
+            separator = has_desc and ' -- ' or ''
             if _type:
                 has_refs = '`' in _type or ':' in _type
                 has_space = any(c in ' \t\n\v\f ' for c in _type)
 
                 if not has_refs and not has_space:
-                    _type = ':exc:`%s`%s' % (_type, sep)
+                    _type = ':exc:`%s`%s' % (_type, separator)
                 elif has_desc and has_space:
-                    _type = '*%s*%s' % (_type, sep)
+                    _type = '*%s*%s' % (_type, separator)
                 else:
-                    _type = '%s%s' % (_type, sep)
+                    _type = '%s%s' % (_type, separator)
 
                 if has_desc:
-                    field = [_type] + _desc
+                    field = [_type + _desc[0]] + _desc[1:]
                 else:
                     field = [_type]
             else:
@@ -585,8 +594,9 @@ class GoogleDocstring(UnicodeMixin):
             else:
                 lines.extend(self._format_block(':returns: ', field))
                 if _type and use_rtype:
-                    lines.append(':rtype: %s' % _type)
-                    lines.append('')
+                    lines.extend([':rtype: %s' % _type, ''])
+        if lines and lines[-1]:
+            lines.append('')
         return lines
 
     def _parse_see_also_section(self, section):
