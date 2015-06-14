@@ -50,7 +50,7 @@ def module_level_function(param1, param2=None, *args, **kwargs):
     `PEP 484`_, though `PEP 484`_ conformance isn't required or enforced.
 
     If \*args or \*\*kwargs are accepted,
-    they should be listed as \*args and \*\*kwargs.
+    they should be listed as ``*args`` and ``**kwargs``.
 
     The format for a parameter is::
 
@@ -104,16 +104,16 @@ def example_generator(n):
     """Generators have a ``Yields`` section instead of a ``Returns`` section.
 
     Args:
-        n (int): The upper limit of the range to generate, from 0 to `n` - 1
+        n (int): The upper limit of the range to generate, from 0 to `n` - 1.
 
     Yields:
-        int: The next number in the range of 0 to `n` - 1
+        int: The next number in the range of 0 to `n` - 1.
 
     Examples:
         Examples should be written in doctest format, and should illustrate how
         to use the function.
 
-        >>> print [i for i in example_generator(4)]
+        >>> print([i for i in example_generator(4)])
         [0, 1, 2, 3]
 
     """
@@ -142,6 +142,7 @@ class ExampleError(Exception):
         code (int): Exception error code.
 
     """
+
     def __init__(self, msg, code):
         self.msg = msg
         self.code = code
@@ -170,6 +171,7 @@ class ExampleClass(object):
        https://www.python.org/dev/peps/pep-0484/
 
     """
+
     def __init__(self, param1, param2, param3):
         """Example of docstring on the __init__ method.
 
@@ -197,11 +199,11 @@ class ExampleClass(object):
         self.attr4 = ['attr4']
 
         self.attr5 = None
-        """Optional[str]: Docstring *after* attribute, with type specified"""
+        """Optional[str]: Docstring *after* attribute, with type specified."""
 
     @property
     def readonly_property(self):
-        """str: Properties should be documented in their getter method"""
+        """str: Properties should be documented in their getter method."""
         return 'readonly_property'
 
     @property
