@@ -67,6 +67,24 @@ def test_core_config(app, status, warning):
     assert cfg['project'] == cfg.project == 'Sphinx Tests'
 
 
+@with_tempdir
+def test_extensions_override(dir):
+    # test the error for syntax errors in the config file
+    (dir / 'conf.py').write_text(u'extensions = ["a", "b"]\n', encoding='ascii')
+
+    cfg = Config(dir, 'conf.py', {}, None)
+    assert cfg.extensions == ['a', 'b']
+
+    cfg = Config(dir, 'conf.py', {'extensions': 'c'}, None)
+    assert cfg.extensions == ['a', 'b']
+
+    cfg = Config(dir, 'conf.py', {'extensions': 'c,d'}, None)
+    assert cfg.extensions == ['a', 'b']
+
+    cfg = Config(dir, 'conf.py', {'extensions': ['c', 'd']}, None)
+    assert cfg.extensions == ['a', 'b']
+
+
 @with_app()
 def test_extension_values(app, status, warning):
     cfg = app.config
