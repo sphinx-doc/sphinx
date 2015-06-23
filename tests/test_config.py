@@ -76,13 +76,13 @@ def test_extensions_override(dir):
     assert cfg.extensions == ['a', 'b']
 
     cfg = Config(dir, 'conf.py', {'extensions': 'c'}, None)
-    assert cfg.extensions == ['a', 'b']
+    assert cfg.extensions == ['a', 'b', 'c']
 
     cfg = Config(dir, 'conf.py', {'extensions': 'c,d'}, None)
-    assert cfg.extensions == ['a', 'b']
+    assert cfg.extensions == ['a', 'b', 'c', 'd']
 
     cfg = Config(dir, 'conf.py', {'extensions': ['c', 'd']}, None)
-    assert cfg.extensions == ['a', 'b']
+    assert cfg.extensions == ['a', 'b', 'c', 'd']
 
 
 @with_app()

@@ -261,11 +261,6 @@ class Config(object):
         self.overrides = overrides
         self.values = Config.config_values.copy()
         config = {}
-        if 'extensions' in overrides:  # XXX do we need this?
-            if isinstance(overrides['extensions'], string_types):
-                config['extensions'] = overrides.pop('extensions').split(',')
-            else:
-                config['extensions'] = overrides.pop('extensions')
         if dirname is not None:
             config_file = path.join(dirname, filename)
             config['__file__'] = config_file
@@ -285,6 +280,12 @@ class Config(object):
         # own config values
         self.setup = config.get('setup', None)
         self.extensions = config.get('extensions', [])
+
+        if 'extensions' in overrides:
+            extensions = overrides.pop('extensions')
+            if isinstance(extensions, string_types):
+                extensions = extensions.split(',')
+            config['extensions'].extend(extensions)
 
     def check_types(self, warn):
         # check all values for deviation from the default value's type, since
