@@ -24,6 +24,7 @@ Other contributors, listed alphabetically, are:
 * Charles Duffy -- original graphviz extension
 * Kevin Dunn -- MathJax extension
 * Josip Dzolonga -- coverage builder
+* Buck Evan -- dummy builder
 * Hernan Grecco -- search improvements
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements

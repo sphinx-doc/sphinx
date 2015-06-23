@@ -6,6 +6,7 @@ Incompatible changes
 
 Features added
 --------------
+* Added the ``dummy`` builder: syntax check without output.
 
 Bugs fixed
 ----------

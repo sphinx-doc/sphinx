@@ -309,6 +309,18 @@ for details.
 
    .. autoattribute:: supported_image_types
 
+.. module:: sphinx.builders.dummy
+.. class:: DummyBuilder
+
+   This builder produces no output.  The input is only parsed and checked for
+   consistency.  This is useful for linting purposes.
+
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
+
+   .. versionadded:: 1.4
+
 .. module:: sphinx.builders.linkcheck
 .. class:: CheckExternalLinksBuilder
 
