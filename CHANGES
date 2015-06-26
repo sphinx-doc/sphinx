@@ -1,6 +1,11 @@
 Release 1.3.2 (in development)
 ==============================
 
+Features added
+--------------
+
+* #1935: Make "numfig_format" overridable in latex_elements.
+
 Bugs fixed
 ----------
 
