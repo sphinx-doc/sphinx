@@ -202,6 +202,7 @@ var Stemmer = JSX.require("src/norwegian-stemmer.jsx").NorwegianStemmer;
 class SearchNorwegian(SearchLanguage):
     lang = 'no'
     language_name = 'Norwegian'
+    js_stemmer_rawcode = 'norwegian-stemmer.js'
     js_stemmer_code = js_stemmer
     stopwords = norwegian_stopwords
 

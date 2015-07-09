@@ -303,6 +303,7 @@ var Stemmer = JSX.require("src/german-stemmer.jsx").GermanStemmer;
 class SearchGerman(SearchLanguage):
     lang = 'de'
     language_name = 'German'
+    js_stemmer_rawcode = 'german-stemmer.js'
     js_stemmer_code = js_stemmer
     stopwords = german_stopwords
 

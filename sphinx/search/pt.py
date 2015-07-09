@@ -262,6 +262,7 @@ var Stemmer = JSX.require("src/portuguese-stemmer.jsx").PortugueseStemmer;
 class SearchPortuguese(SearchLanguage):
     lang = 'pt'
     language_name = 'Portuguese'
+    js_stemmer_rawcode = 'portuguese-stemmer.js'
     js_stemmer_code = js_stemmer
     stopwords = portuguese_stopwords
 

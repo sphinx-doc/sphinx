@@ -33,9 +33,7 @@ def get_terminal_width():
                            struct.pack('hhhh', 0, 0, 0, 0))
         height, width = struct.unpack('hhhh', call)[:2]
         terminal_width = width
-    except (SystemExit, KeyboardInterrupt):
-        raise
-    except:
+    except Exception:
         # FALLBACK
         terminal_width = int(os.environ.get('COLUMNS', 80)) - 1
     return terminal_width

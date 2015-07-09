@@ -119,6 +119,10 @@ class BaseSearch(object):
         """Required by the HTML builder."""
         return {}
 
+    def get_js_stemmer_rawcode(self):
+        """Required by the HTML builder."""
+        return None
+
 
 # The built-in search adapters.
 SEARCH_ADAPTERS = {

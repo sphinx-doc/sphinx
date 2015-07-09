@@ -23,12 +23,12 @@ Notes
     This is an example of an indented section. It's like any other section,
     but the body is indented to help it stand out from surrounding text.
 
-If a section is indented, then a section break is created simply by
+If a section is indented, then a section break is created by
 resuming unindented text.
 
 Attributes
 ----------
-module_level_variable : int
+module_level_variable1 : int
     Module level variables may be documented in either the ``Attributes``
     section of the module docstring, or in an inline docstring immediately
     following the variable.
@@ -42,7 +42,14 @@ module_level_variable : int
 
 """
 
-module_level_variable = 12345
+module_level_variable1 = 12345
+
+module_level_variable2 = 98765
+"""int: Module level variable documented inline.
+
+The docstring may span multiple lines. The type may optionally be specified
+on the first line, separated by a colon.
+"""
 
 
 def module_level_function(param1, param2=None, *args, **kwargs):
@@ -52,9 +59,11 @@ def module_level_function(param1, param2=None, *args, **kwargs):
     The name of each parameter is required. The type and description of each
     parameter is optional, but should be included if not obvious.
 
-    If the parameter itself is optional, it should be noted by adding
-    ", optional" to the type. If \*args or \*\*kwargs are accepted, they
-    should be listed as \*args and \*\*kwargs.
+    Parameter types -- if given -- should be specified according to
+    `PEP 484`_, though `PEP 484`_ conformance isn't required or enforced.
+
+    If \*args or \*\*kwargs are accepted,
+    they should be listed as ``*args`` and ``**kwargs``.
 
     The format for a parameter is::
 
@@ -63,6 +72,7 @@ def module_level_function(param1, param2=None, *args, **kwargs):
 
             The description may span multiple lines. Following lines
             should be indented to match the first line of the description.
+            The ": type" is optional.
 
             Multiple paragraphs are supported in parameter
             descriptions.
@@ -71,8 +81,8 @@ def module_level_function(param1, param2=None, *args, **kwargs):
     ----------
     param1 : int
         The first parameter.
-    param2 : str, optional
-        The second parameter, defaults to None.
+    param2 : Optional[str]
+        The second parameter.
     *args
         Variable length argument list.
     **kwargs
@@ -103,6 +113,10 @@ def module_level_function(param1, param2=None, *args, **kwargs):
     ValueError
         If `param2` is equal to `param1`.
 
+
+    .. _PEP 484:
+       https://www.python.org/dev/peps/pep-0484/
+
     """
     if param1 == param2:
         raise ValueError('param1 may not be equal to param2')
@@ -115,19 +129,19 @@ def example_generator(n):
     Parameters
     ----------
     n : int
-        The upper limit of the range to generate, from 0 to `n` - 1
+        The upper limit of the range to generate, from 0 to `n` - 1.
 
     Yields
     ------
     int
-        The next number in the range of 0 to `n` - 1
+        The next number in the range of 0 to `n` - 1.
 
     Examples
     --------
     Examples should be written in doctest format, and should illustrate how
     to use the function.
 
-    >>> print [i for i in example_generator(4)]
+    >>> print([i for i in example_generator(4)])
     [0, 1, 2, 3]
 
     """
@@ -152,18 +166,19 @@ class ExampleError(Exception):
     ----------
     msg : str
         Human readable string describing the exception.
-    code : int, optional
-        Error code, defaults to 2.
+    code : Optional[int]
+        Numeric error code.
 
     Attributes
     ----------
     msg : str
         Human readable string describing the exception.
     code : int
-        Exception error code.
+        Numeric error code.
 
     """
-    def __init__(self, msg, code=2):
+
+    def __init__(self, msg, code):
         self.msg = msg
         self.code = code
 
@@ -171,21 +186,31 @@ class ExampleError(Exception):
 class ExampleClass(object):
     """The summary line for a class docstring should fit on one line.
 
-    If the class has public attributes, they should be documented here
+    If the class has public attributes, they may be documented here
     in an ``Attributes`` section and follow the same formatting as a
-    function's ``Parameters`` section.
+    function's ``Args`` section. Alternatively, attributes may be documented
+    inline with the attribute's declaration (see __init__ method below).
+
+    Properties created with the ``@property`` decorator should be documented
+    in the property's getter method.
+
+    Attribute and property types -- if given -- should be specified according
+    to `PEP 484`_, though `PEP 484`_ conformance isn't required or enforced.
 
     Attributes
     ----------
     attr1 : str
         Description of `attr1`.
-    attr2 : list of str
+    attr2 : Optional[int]
         Description of `attr2`.
-    attr3 : int
-        Description of `attr3`.
+
+
+    .. _PEP 484:
+       https://www.python.org/dev/peps/pep-0484/
 
     """
-    def __init__(self, param1, param2, param3=0):
+
+    def __init__(self, param1, param2, param3):
         """Example of docstring on the __init__ method.
 
         The __init__ method may be documented in either the class level
@@ -202,16 +227,41 @@ class ExampleClass(object):
         ----------
         param1 : str
             Description of `param1`.
-        param2 : list of str
+        param2 : List[str]
             Description of `param2`. Multiple
             lines are supported.
-        param3 : int, optional
-            Description of `param3`, defaults to 0.
+        param3 : Optional[int]
+            Description of `param3`.
 
         """
         self.attr1 = param1
         self.attr2 = param2
-        self.attr3 = param3
+        self.attr3 = param3  #: Doc comment *inline* with attribute
+
+        #: List[str]: Doc comment *before* attribute, with type specified
+        self.attr4 = ["attr4"]
+
+        self.attr5 = None
+        """Optional[str]: Docstring *after* attribute, with type specified."""
+
+    @property
+    def readonly_property(self):
+        """str: Properties should be documented in their getter method."""
+        return "readonly_property"
+
+    @property
+    def readwrite_property(self):
+        """List[str]: Properties with both a getter and setter should only
+        be documented in their getter method.
+
+        If the setter method contains notable behavior, it should be
+        mentioned here.
+        """
+        return ["readwrite_property"]
+
+    @readwrite_property.setter
+    def readwrite_property(self, value):
+        value
 
     def example_method(self, param1, param2):
         """Class methods are similar to regular functions.

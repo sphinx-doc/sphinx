@@ -316,6 +316,7 @@ var Stemmer = JSX.require("src/italian-stemmer.jsx").ItalianStemmer;
 class SearchItalian(SearchLanguage):
     lang = 'it'
     language_name = 'Italian'
+    js_stemmer_rawcode = 'italian-stemmer.js'
     js_stemmer_code = js_stemmer
     stopwords = italian_stopwords
 

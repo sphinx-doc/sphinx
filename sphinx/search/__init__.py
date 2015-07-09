@@ -13,6 +13,7 @@ import re
 from six import iteritems, itervalues, text_type, string_types
 from six.moves import cPickle as pickle
 from docutils.nodes import raw, comment, title, Text, NodeVisitor, SkipNode
+from os import path
 
 from sphinx.util import jsdump, rpartition
 
@@ -42,6 +43,7 @@ class SearchLanguage(object):
     lang = None
     language_name = None
     stopwords = set()
+    js_stemmer_rawcode = None
     js_stemmer_code = """
 /**
  * Dummy stemmer for languages without stemming rules.
@@ -377,3 +379,11 @@ class IndexBuilder(object):
             search_language_stop_words = jsdump.dumps(sorted(self.lang.stopwords)),
             search_scorer_tool = self.js_scorer_code,
         )
+
+    def get_js_stemmer_rawcode(self):
+        if self.lang.js_stemmer_rawcode:
+            return path.join(
+                path.dirname(path.abspath(__file__)),
+                'non-minified-js',
+                self.lang.js_stemmer_rawcode
+            )
