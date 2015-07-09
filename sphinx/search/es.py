@@ -363,6 +363,7 @@ var Stemmer = JSX.require("src/spanish-stemmer.jsx").SpanishStemmer;
 class SearchSpanish(SearchLanguage):
     lang = 'es'
     language_name = 'Spanish'
+    js_stemmer_rawcode = 'spanish-stemmer.js'
     js_stemmer_code = js_stemmer
     stopwords = spanish_stopwords
 
