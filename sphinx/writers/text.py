@@ -711,6 +711,9 @@ class TextTranslator(nodes.NodeVisitor):
     def _visit_admonition(self, node):
         self.new_state(2)
 
+        if isinstance(node.children[0], nodes.Sequential):
+            self.add_text(self.nl)
+
     def _make_depart_admonition(name):
         def depart_admonition(self, node):
             self.end_state(first=admonitionlabels[name] + ': ')
