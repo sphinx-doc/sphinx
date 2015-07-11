@@ -25,6 +25,7 @@ Bugs fixed
 * #1784: Provide non-minified JS code in ``sphinx/search/*.py``
 * #1822, #1892: Fix regression for #1061. autosummary can't generate doc for imported
   members since sphinx-1.3b3. Thanks to Eric Larson.
+* #1793, #1819: "see also" misses a linebreak in text output. Thanks to Takayuki Hirai.
 
 
 Release 1.3.1 (released Mar 17, 2015)
