@@ -250,7 +250,7 @@ General configuration
 .. confval:: numfig
 
    If true, figures, tables and code-blocks are automatically numbered if they
-   has caption. For now, it works only with the HTML builder. Default is ``False``.
+   have a caption. For now, it works only with the HTML builder. Default is ``False``.
 
    .. versionadded:: 1.3
 
