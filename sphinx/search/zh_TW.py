@@ -286,3 +286,4 @@ class SearchChinese(SearchLanguage):
     def stem(self, word):
         return self.stemmer.stem(word)
 
+
