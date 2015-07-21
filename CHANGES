@@ -7,12 +7,15 @@ Incompatible changes
 Features added
 --------------
 
+* #1962: when adding directives, roles or nodes from an extension, warn if such
+  an element is already present (built-in or added by another extension).
+
 Bugs fixed
 ----------
 
 * #1789: ``:pyobject:`` option of ``literalinclude`` directive includes following
-  lines after class definitions
-* #1790: ``literalinclude`` strips empty lines at the head and tail
+  lines after class definitions.
+* #1790: ``literalinclude`` strips empty lines at the head and tail.
 * #1913: C++, fix assert bug for enumerators in next-to-global and global scope.
 
 Documentation
