@@ -153,12 +153,8 @@ if PY2:
 def test_gen_check_types():
     for key, value, should, deftype in TYPECHECK_OVERRIDES:
         warning = StringIO()
-        try:
-            app = TestApp(confoverrides={key: value}, warning=warning)
-        except:
-            pass
-        else:
-            app.cleanup()
+        app = TestApp(confoverrides={key: value}, warning=warning)
+        app.cleanup()
 
         real = type(value).__name__
         msg = ("WARNING: the config value %r has type `%s',"

@@ -78,7 +78,7 @@ class Sphinx(object):
         self._extensions = {}
         self._extension_metadata = {}
         self._listeners = {}
-        self._setting_up_extension = '?'
+        self._setting_up_extension = ['?']
         self.domains = BUILTIN_DOMAINS.copy()
         self.buildername = buildername
         self.builderclasses = BUILTIN_BUILDERS.copy()
@@ -145,7 +145,7 @@ class Sphinx(object):
             self.setup_extension(extension)
         # the config file itself can be an extension
         if self.config.setup:
-            self._setting_up_extension = 'conf.py'
+            self._setting_up_extension = ['conf.py']
             # py31 doesn't have 'callable' function for below check
             if hasattr(self.config.setup, '__call__'):
                 self.config.setup(self)
@@ -428,7 +428,7 @@ class Sphinx(object):
         self.debug('[app] setting up extension: %r', extension)
         if extension in self._extensions:
             return
-        self._setting_up_extension = extension
+        self._setting_up_extension.append(extension)
         try:
             mod = __import__(extension, None, None, ['setup'])
         except ImportError as err:
@@ -463,7 +463,7 @@ class Sphinx(object):
             ext_meta = {'version': 'unknown version'}
         self._extensions[extension] = mod
         self._extension_metadata[extension] = ext_meta
-        self._setting_up_extension = '?'
+        self._setting_up_extension.pop()
 
     def require_sphinx(self, version):
         # check the Sphinx version if requested
@@ -554,7 +554,8 @@ class Sphinx(object):
 
     def add_node(self, node, **kwds):
         self.debug('[app] adding node: %r', (node, kwds))
-        if hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
+        if not kwds.pop('override', False) and \
+           hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
             self.warn('while setting up extension %s: node class %r is '
                       'already registered, its visitors will be overridden' %
                       (self._setting_up_extension, node.__name__))
@@ -605,7 +606,7 @@ class Sphinx(object):
         if name in directives._directives:
             self.warn('while setting up extension %s: directive %r is '
                       'already registered, it will be overridden' %
-                      (self._setting_up_extension, name))
+                      (self._setting_up_extension[-1], name))
         directives.register_directive(
             name, self._directive_helper(obj, content, arguments, **options))
 
@@ -614,7 +615,7 @@ class Sphinx(object):
         if name in roles._roles:
             self.warn('while setting up extension %s: role %r is '
                       'already registered, it will be overridden' %
-                      (self._setting_up_extension, name))
+                      (self._setting_up_extension[-1], name))
         roles.register_local_role(name, role)
 
     def add_generic_role(self, name, nodeclass):
@@ -624,7 +625,7 @@ class Sphinx(object):
         if name in roles._roles:
             self.warn('while setting up extension %s: role %r is '
                       'already registered, it will be overridden' %
-                      (self._setting_up_extension, name))
+                      (self._setting_up_extension[-1], name))
         role = roles.GenericRole(name, nodeclass)
         roles.register_local_role(name, role)
 
