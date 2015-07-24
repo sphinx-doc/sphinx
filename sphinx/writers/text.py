@@ -303,8 +303,6 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_desc_signature(self, node):
         self.new_state(0)
-        if node.parent['objtype'] in ('class', 'exception'):
-            self.add_text('%s ' % node.parent['objtype'])
 
     def depart_desc_signature(self, node):
         # XXX: wrap signatures in a way that makes sense
@@ -710,6 +708,9 @@ class TextTranslator(nodes.NodeVisitor):
 
     def _visit_admonition(self, node):
         self.new_state(2)
+
+        if isinstance(node.children[0], nodes.Sequential):
+            self.add_text(self.nl)
 
     def _make_depart_admonition(name):
         def depart_admonition(self, node):

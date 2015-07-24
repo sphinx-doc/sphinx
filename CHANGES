@@ -10,6 +10,11 @@ Features added
 * #1962: when adding directives, roles or nodes from an extension, warn if such
   an element is already present (built-in or added by another extension).
 
+Features added
+--------------
+
+* #1935: Make "numfig_format" overridable in latex_elements.
+
 Bugs fixed
 ----------
 
