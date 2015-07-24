@@ -874,6 +874,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\\\\\n')
         if any(self.remember_multirow.values()):
             linestart = 1
+            col = self.table.colcount
             for col in range(1, self.table.col + 1):
                 if self.remember_multirow.get(col):
                     if linestart != col:
