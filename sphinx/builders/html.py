@@ -22,7 +22,7 @@ from six.moves import cPickle as pickle
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
 from docutils.core import Publisher
-from docutils.utils import new_document
+from docutils.utils import new_document, relative_path
 from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
@@ -559,12 +559,15 @@ class StandaloneHTMLBuilder(Builder):
                               (path.join(self.srcdir, src), err))
 
     def copy_download_files(self):
+        def to_relpath(f):
+            return relative_path(self.srcdir, f)
         # copy downloadable files
         if self.env.dlfiles:
             ensuredir(path.join(self.outdir, '_downloads'))
             for src in self.app.status_iterator(self.env.dlfiles,
                                                 'copying downloadable files... ',
-                                                brown, len(self.env.dlfiles)):
+                                                brown, len(self.env.dlfiles),
+                                                stringify_func=to_relpath):
                 dest = self.env.dlfiles[src][1]
                 try:
                     copyfile(path.join(self.srcdir, src),
