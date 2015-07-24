@@ -187,7 +187,7 @@ Tables
    | 2  | Empty cells:   |    |
    +----+----------------+----+
 
-Table with multirow and multicol:
+Tables with multirow and multicol:
 
 .. only:: latex
 
@@ -198,6 +198,12 @@ Table with multirow and multicol:
    | y  +---------+------+----+----+
    | x  | multi-column cell   | x  |
    +----+---------------------+----+
+
+   +----+
+   | 1  |
+   +    +
+   |    |
+   +----+
 
 
 Figures
