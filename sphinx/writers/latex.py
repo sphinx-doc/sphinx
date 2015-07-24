@@ -896,7 +896,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.remember_multirow[self.table.col] -= 1
                 if self.remember_multirowcol.get(self.table.col, 0):
                     extracols = self.remember_multirowcol[self.table.col]
-                    self.body.append(' \multicolumn{')
+                    self.body.append(' \\multicolumn{')
                     self.body.append(str(extracols + 1))
                     self.body.append('}{|l|}{}')
                     self.table.col += extracols
@@ -906,7 +906,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.table.col += 1
         context = ''
         if 'morecols' in node:
-            self.body.append(' \multicolumn{')
+            self.body.append(' \\multicolumn{')
             self.body.append(str(node.get('morecols') + 1))
             if self.table.col == 1:
                 self.body.append('}{|l|}{')
@@ -914,7 +914,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('}{l|}{')
             context += '}'
         if 'morerows' in node:
-            self.body.append(' \multirow{')
+            self.body.append(' \\multirow{')
             self.body.append(str(node.get('morerows') + 1))
             self.body.append('}{*}{')
             context += '}'
@@ -932,7 +932,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             context += ' & '
             if self.remember_multirowcol.get(self.table.col, 0):
                 extracols = self.remember_multirowcol[self.table.col]
-                context += ' \multicolumn{'
+                context += ' \\multicolumn{'
                 context += str(extracols + 1)
                 context += '}{l|}{}'
                 self.table.col += extracols
