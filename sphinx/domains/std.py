@@ -224,7 +224,7 @@ def make_termnodes_from_paragraph_node(env, node, new_id=None):
 
     termtext = node.astext()
     if new_id is None:
-        new_id = 'term-' + nodes.make_id(termtext)
+        new_id = nodes.make_id('term-' + termtext)
     if new_id in gloss_entries:
         new_id = 'term-' + str(len(gloss_entries))
     gloss_entries.add(new_id)

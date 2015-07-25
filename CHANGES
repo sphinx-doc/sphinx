@@ -36,6 +36,7 @@ Bugs fixed
 * #1796: On py3, automated .mo building caused UnicodeDecodeError.
 * #1923: Use babel features only if the babel latex element is nonempty.
 * #1942: Fix a KeyError in websupport.
+* #1903: Fix strange id generation for glossary terms.
 
 
 Release 1.3.1 (released Mar 17, 2015)
