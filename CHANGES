@@ -32,6 +32,7 @@ Bugs fixed
 * Work around the lack of the HTMLParserError exception in Python 3.5.
 * #1949: Use ``safe_getattr`` in the coverage builder to avoid aborting with
   descriptors that have custom behavior.
+* #1915: Do not generate smart quotes in doc field type annotations.
 
 
 Release 1.3.1 (released Mar 17, 2015)
