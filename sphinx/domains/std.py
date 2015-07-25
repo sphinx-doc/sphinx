@@ -585,12 +585,14 @@ class StandardDomain(Domain):
                 continue
             labels[name] = docname, labelid, sectname
 
-    def build_reference_node(self, fromdocname, builder,
-                             docname, labelid, sectname,
-                             **options):
+    def build_reference_node(self, fromdocname, builder, docname, labelid,
+                             sectname, rolename, **options):
         nodeclass = options.pop('nodeclass', nodes.reference)
         newnode = nodeclass('', '', internal=True, **options)
         innernode = nodes.inline(sectname, sectname)
+        if innernode.get('classes') is not None:
+            innernode['classes'].append('std')
+            innernode['classes'].append('std-' + rolename)
         if docname == fromdocname:
             newnode['refid'] = labelid
         else:
@@ -624,7 +626,7 @@ class StandardDomain(Domain):
                 return None
 
             return self.build_reference_node(fromdocname, builder,
-                                             docname, labelid, sectname)
+                                             docname, labelid, sectname, 'ref')
         elif typ == 'numref':
             docname, labelid = self.data['anonlabels'].get(target, ('', ''))
             if not docname:
@@ -648,7 +650,7 @@ class StandardDomain(Domain):
 
             newtitle = title % '.'.join(map(str, fignumber))
             return self.build_reference_node(fromdocname, builder,
-                                             docname, labelid, newtitle,
+                                             docname, labelid, newtitle, 'numref',
                                              nodeclass=addnodes.number_reference,
                                              title=title)
         elif typ == 'keyword':

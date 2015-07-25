@@ -1604,7 +1604,8 @@ class BuildEnvironment:
                 caption = node.astext()
             else:
                 caption = clean_astext(self.titles[docname])
-            innernode = nodes.emphasis(caption, caption)
+            innernode = nodes.inline(caption, caption)
+            innernode['classes'].append('doc')
             newnode = nodes.reference('', '', internal=True)
             newnode['refuri'] = builder.get_relative_uri(node['refdoc'], docname)
             newnode.append(innernode)
