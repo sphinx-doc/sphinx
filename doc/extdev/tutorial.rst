@@ -149,7 +149,7 @@ The new elements are added in the extension's setup function.  Let us create a
 new Python module called :file:`todo.py` and add the setup function::
 
    def setup(app):
-       app.add_config_value('todo_include_todos', False, False)
+       app.add_config_value('todo_include_todos', False, 'html')
 
        app.add_node(todolist)
        app.add_node(todo,
@@ -171,7 +171,7 @@ the individual calls do is the following:
   new *config value* ``todo_include_todos``, whose default value should be
   ``False`` (this also tells Sphinx that it is a boolean value).
 
-  If the third argument was ``True``, all documents would be re-read if the
+  If the third argument was ``'html'``, HTML documents would be full rebuild if the
   config value changed its value.  This is needed for config values that
   influence reading (build phase 1).
 
