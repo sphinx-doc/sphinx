@@ -20,7 +20,7 @@ from util import with_tempdir
 
 
 def test_catalog_info_for_file_and_path():
-    cat = i18n.CatalogInfo('path', 'domain')
+    cat = i18n.CatalogInfo('path', 'domain', 'utf-8')
     assert cat.po_file == 'domain.po'
     assert cat.mo_file == 'domain.mo'
     assert cat.po_path == path.join('path', 'domain.po')
@@ -28,7 +28,7 @@ def test_catalog_info_for_file_and_path():
 
 
 def test_catalog_info_for_sub_domain_file_and_path():
-    cat = i18n.CatalogInfo('path', 'sub/domain')
+    cat = i18n.CatalogInfo('path', 'sub/domain', 'utf-8')
     assert cat.po_file == 'sub/domain.po'
     assert cat.mo_file == 'sub/domain.mo'
     assert cat.po_path == path.join('path', 'sub/domain.po')
@@ -38,7 +38,7 @@ def test_catalog_info_for_sub_domain_file_and_path():
 @with_tempdir
 def test_catalog_outdated(dir):
     (dir / 'test.po').write_text('#')
-    cat = i18n.CatalogInfo(dir, 'test')
+    cat = i18n.CatalogInfo(dir, 'test', 'utf-8')
     assert cat.is_outdated()  # if mo is not exist
 
     mo_file = (dir / 'test.mo')
@@ -52,7 +52,7 @@ def test_catalog_outdated(dir):
 @with_tempdir
 def test_catalog_write_mo(dir):
     (dir / 'test.po').write_text('#')
-    cat = i18n.CatalogInfo(dir, 'test')
+    cat = i18n.CatalogInfo(dir, 'test', 'utf-8')
     cat.write_mo('en')
     assert path.exists(cat.mo_path)
     assert read_mo(open(cat.mo_path, 'rb')) is not None

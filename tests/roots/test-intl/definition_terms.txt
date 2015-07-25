@@ -9,3 +9,6 @@ Some term
 Some other term
    The corresponding definition #2
 
+Some term with : classifier1  : classifier2
+   The corresponding definition
+

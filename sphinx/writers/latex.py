@@ -342,8 +342,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 language = 'english'
 
-            babel_prefix = '\\addto\\captions%s{' % language
-            babel_suffix = '}'
+            if self.elements['babel']:
+                babel_prefix = '\\addto\\captions%s{' % language
+                babel_suffix = '}'
+            else:
+                babel_prefix = ''
+                babel_suffix = ''
 
         figure = self.builder.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:

@@ -195,7 +195,7 @@ else:
         return translators['sphinx'].ugettext(message)
 
 
-def init(locale_dirs, language, catalog='sphinx'):
+def init(locale_dirs, language, catalog='sphinx', charset='utf-8'):
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`.  If called multiple
     times or if several ``.mo`` files are found, their contents are merged
@@ -212,7 +212,8 @@ def init(locale_dirs, language, catalog='sphinx'):
     # compile mo files if po file is updated
     # TODO: remove circular importing
     from sphinx.util.i18n import find_catalog_source_files
-    for catinfo in find_catalog_source_files(locale_dirs, language, domains=[catalog]):
+    for catinfo in find_catalog_source_files(locale_dirs, language, domains=[catalog],
+                                             charset=charset):
         catinfo.write_mo(language)
 
     # loading
