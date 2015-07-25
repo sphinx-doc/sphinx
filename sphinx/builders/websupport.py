@@ -114,6 +114,8 @@ class WebSupportBuilder(PickleHTMLBuilder):
         doc_ctx = {
             'body': ctx.get('body', ''),
             'title': ctx.get('title', ''),
+            'css': ctx.get('css', ''),
+            'script': ctx.get('script', ''),
         }
         # partially render the html template to get at interesting macros
         template = self.templates.environment.get_template(templatename)
