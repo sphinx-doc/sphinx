@@ -43,8 +43,15 @@ Bugs fixed
 * #1923: Use babel features only if the babel latex element is nonempty.
 * #1942: Fix a KeyError in websupport.
 * #1903: Fix strange id generation for glossary terms.
-* Fix: ``make text`` will crash if a definition list item has more than 1 classifiers.
+* #1796, On py3, automated .mo building cause UnicodeDecodeError
+* Fix: ``make text`` will crush if a definition list item has more than 1 classifiers as:
+* #1796: On py3, automated .mo building cause UnicodeDecodeError
+* ``make text`` will crush if a definition list item has more than 1 classifiers as:
+* Fixed #1855: make gettext generates broken po file for definition lists with classifier.
+  ``term : classifier1 : classifier2``.
 * #1855: make gettext generates broken po file for definition lists with classifier.
+* #1869: Fix problems when dealing with files containing non-ASCII characters. Thanks to
+  Marvin Schmidt.
 * #1798: Fix building LaTeX with references in titles.
 
 Documentation
