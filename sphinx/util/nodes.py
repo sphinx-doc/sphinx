@@ -36,6 +36,20 @@ caption_ref_re = explicit_title_re  # b/w compat alias
 
 
 def apply_source_workaround(node):
+    # workaround: nodes.term have wrong rawsource if classifier is specified.
+    # The behavior of docutils-0.11, 0.12 is:
+    # * when ``term text : classifier1 : classifier2`` is specified,
+    # * rawsource of term node will have: ``term text : classifier1 : classifier2``
+    # * rawsource of classifier node will be None
+    if isinstance(node, nodes.classifier) and not node.rawsource:
+        definition_list_item = node.parent
+        node.source = definition_list_item.source
+        node.line = definition_list_item.line - 1
+        node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
+    if isinstance(node, nodes.term):
+        # overwrite: ``term : classifier1 : classifier2`` -> ``term text``
+        node.rawsource = node.astext()
+
     if node.source and node.rawsource:
         return
 

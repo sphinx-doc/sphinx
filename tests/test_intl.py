@@ -183,7 +183,10 @@ def test_text_builder(app, status, warning):
               u"\nSOME TERM"
               u"\n   THE CORRESPONDING DEFINITION\n"
               u"\nSOME OTHER TERM"
-              u"\n   THE CORRESPONDING DEFINITION #2\n")
+              u"\n   THE CORRESPONDING DEFINITION #2\n"
+              u"\nSOME TERM WITH : CLASSIFIER1 : CLASSIFIER2"
+              u"\n   THE CORRESPONDING DEFINITION\n"
+              )
     yield assert_equal, result, expect
 
     # --- glossary terms: regression test for #1090

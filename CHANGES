@@ -39,7 +39,11 @@ Bugs fixed
 * #1903: Fix strange id generation for glossary terms.
 * #1796, On py3, automated .mo building cause UnicodeDecodeError
 * Fix: ``make text`` will crush if a definition list item has more than 1 classifiers as:
+* #1796: On py3, automated .mo building cause UnicodeDecodeError
+* ``make text`` will crush if a definition list item has more than 1 classifiers as:
+* Fixed #1855: make gettext generates broken po file for definition lists with classifier.
   ``term : classifier1 : classifier2``.
+* #1855: make gettext generates broken po file for definition lists with classifier.
 
 
 Release 1.3.1 (released Mar 17, 2015)

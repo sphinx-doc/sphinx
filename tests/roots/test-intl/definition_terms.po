@@ -30,3 +30,13 @@ msgstr "SOME OTHER TERM"
 
 msgid "The corresponding definition #2"
 msgstr "THE CORRESPONDING DEFINITION #2"
+
+msgid "Some term with"
+msgstr "SOME TERM WITH"
+
+msgid "classifier1"
+msgstr "CLASSIFIER1"
+
+msgid "classifier2"
+msgstr "CLASSIFIER2"
+
