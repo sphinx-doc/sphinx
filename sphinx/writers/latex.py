@@ -1706,11 +1706,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         classes = node.get('classes', [])
         if classes in [['menuselection'], ['guilabel']]:
             self.body.append(r'\emph{')
+            self.context.append('}')
+        elif classes and not self.in_title:
+            self.body.append(r'\DUspan{%s}{' % classes)
+            self.context.append('}')
         else:
-            self.body.append(r'\DUspan{%s}{' % ','.join(classes))
+            self.context.append('')
 
     def depart_inline(self, node):
-        self.body.append('}')
+        self.body.append(self.context.pop())
 
     def visit_generated(self, node):
         pass
