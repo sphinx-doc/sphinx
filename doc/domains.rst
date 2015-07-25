@@ -696,6 +696,8 @@ There is a set of directives allowing documenting command-line programs:
    referencable by :rst:role:`option` (in the example case, you'd use something
    like ``:option:`dest_dir```, ``:option:`-m```, or ``:option:`--module```).
 
+   ``cmdoption`` directive is a deprecated alias for the ``option`` directive.
+
 .. rst:directive:: .. envvar:: name
 
    Describes an environment variable that the documented code or program uses or
