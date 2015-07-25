@@ -1708,7 +1708,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(r'\emph{')
             self.context.append('}')
         elif classes and not self.in_title:
-            self.body.append(r'\DUspan{%s}{' % classes)
+            self.body.append(r'\DUspan{%s}{' % ','.join(classes))
             self.context.append('}')
         else:
             self.context.append('')
