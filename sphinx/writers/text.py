@@ -628,8 +628,7 @@ class TextTranslator(nodes.NodeVisitor):
             self.end_state(first='%s. ' % self.list_counter[-1])
 
     def visit_definition_list_item(self, node):
-        self._li_has_classifier = len(node) >= 2 and \
-            isinstance(node[1], nodes.classifier)
+        self._classifier_count_in_li = len(node.traverse(nodes.classifier))
 
     def depart_definition_list_item(self, node):
         pass
@@ -638,7 +637,7 @@ class TextTranslator(nodes.NodeVisitor):
         self.new_state(0)
 
     def depart_term(self, node):
-        if not self._li_has_classifier:
+        if not self._classifier_count_in_li:
             self.end_state(end=None)
 
     def visit_termsep(self, node):
@@ -649,7 +648,9 @@ class TextTranslator(nodes.NodeVisitor):
         self.add_text(' : ')
 
     def depart_classifier(self, node):
-        self.end_state(end=None)
+        self._classifier_count_in_li -= 1
+        if not self._classifier_count_in_li:
+            self.end_state(end=None)
 
     def visit_definition(self, node):
         self.new_state()
