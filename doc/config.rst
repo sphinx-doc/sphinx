@@ -1448,6 +1448,9 @@ These options influence LaTeX output.
      ``'maketitle'``
         "maketitle" call, default ``'\\maketitle'``.  Override if you want to
         generate a differently-styled title page.
+     ``'releasename'``
+        value that prefixes ``'release'`` element on title page, default
+        ``'Release'``.
      ``'tableofcontents'``
         "tableofcontents" call, default ``'\\tableofcontents'``.  Override if
         you want to generate a different table of contents or put content
@@ -1473,7 +1476,6 @@ These options influence LaTeX output.
      ``'release'``
      ``'author'``
      ``'logo'``
-     ``'releasename'``
      ``'makeindex'``
      ``'shorthandoff'``
 
