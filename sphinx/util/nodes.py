@@ -39,17 +39,6 @@ def apply_source_workaround(node):
     if node.source and node.rawsource:
         return
 
-    # workaround: nodes.term doesn't have source, line and rawsource
-    # (fixed in Docutils r7495)
-    if isinstance(node, nodes.term):
-        definition_list_item = node.parent
-        if definition_list_item.line is not None:
-            node.source = definition_list_item.source
-            node.line = definition_list_item.line - 1
-            node.rawsource = definition_list_item. \
-                rawsource.split("\n", 2)[0]
-            return
-
     # workaround: docutils-0.10.0 or older's nodes.caption for nodes.figure
     # and nodes.title for nodes.admonition doesn't have source, line.
     # this issue was filed to Docutils tracker:
