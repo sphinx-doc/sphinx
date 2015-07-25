@@ -713,6 +713,9 @@ class StandardDomain(Domain):
         return results
 
     def get_objects(self):
+        # handle the special 'doc' reference here
+        for doc in self.env.all_docs:
+            yield (doc, clean_astext(self.env.titles[doc]), 'doc', doc, '', -1)
         for (prog, option), info in iteritems(self.data['progoptions']):
             yield (option, option, 'option', info[0], info[1], 1)
         for (type, name), info in iteritems(self.data['objects']):
