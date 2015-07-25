@@ -209,6 +209,17 @@ General configuration
 
    .. versionadded:: 0.5
 
+.. confval:: ignore_warnings
+
+   A list containing tuples of a glob-style pattern, relative to source
+   directory, that matches files and directories and a substring matched against
+   the warning message which should be ignored for the corresponding files, e.g.
+   ``ignore_warnings = [('3rdparty/*', 'nonlocal image URI found')]``.
+
+   The default is ``[]`` which means that no warnings will be ignored.
+
+   .. versionadded:: 1.4
+
 .. confval:: needs_sphinx
 
    If set to a ``major.minor`` version string like ``'1.1'``, Sphinx will

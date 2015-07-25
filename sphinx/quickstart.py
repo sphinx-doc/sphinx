@@ -172,6 +172,11 @@ pygments_style = 'sphinx'
 # If true, keep warnings as "system message" paragraphs in the built documents.
 #keep_warnings = False
 
+# A list containing tuples of a pattern, relative to source directory, that
+# matches files and directories and a substring matched against the warning
+# message which should be ignored for the corresponding files.
+#ignore_warnings = [('3rdparty/*', 'nonlocal image URI found')]
+
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = %(ext_todo)s
 
