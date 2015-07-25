@@ -200,7 +200,8 @@ class Sphinx(object):
         else:
             locale_dirs = []
         self.translator, has_translation = locale.init(locale_dirs,
-                                                       self.config.language)
+                                                       self.config.language,
+                                                       charset=self.config.source_encoding)
         if self.config.language is not None:
             if has_translation or self.config.language == 'en':
                 # "en" never needs to be translated

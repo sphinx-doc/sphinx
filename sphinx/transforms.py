@@ -225,7 +225,8 @@ class Locale(Transform):
         dirs = [path.join(env.srcdir, directory)
                 for directory in env.config.locale_dirs]
         catalog, has_catalog = init_locale(dirs, env.config.language,
-                                           textdomain)
+                                           textdomain,
+                                           charset=env.config.source_encoding)
         if not has_catalog:
             return
 

@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 import gettext
+import io
 from os import path
 from collections import namedtuple
 
@@ -19,7 +20,7 @@ from sphinx.util.osutil import walk
 from sphinx.util import SEP
 
 
-LocaleFileInfoBase = namedtuple('CatalogInfo', 'base_dir,domain')
+LocaleFileInfoBase = namedtuple('CatalogInfo', 'base_dir,domain,charset')
 
 
 class CatalogInfo(LocaleFileInfoBase):
@@ -46,8 +47,8 @@ class CatalogInfo(LocaleFileInfoBase):
             path.getmtime(self.mo_path) < path.getmtime(self.po_path))
 
     def write_mo(self, locale):
-        with open(self.po_path, 'rt') as po:
-            with open(self.mo_path, 'wb') as mo:
+        with io.open(self.po_path, 'rt', encoding=self.charset) as po:
+            with io.open(self.mo_path, 'wb') as mo:
                 write_mo(mo, read_po(po, locale))
 
 
@@ -72,7 +73,7 @@ def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
 
 
 def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact=False,
-                              force_all=False):
+                              charset='utf-8', force_all=False):
     """
     :param list locale_dirs:
        list of path as `['locale_dir1', 'locale_dir2', ...]` to find
@@ -112,7 +113,7 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
                 domain = domain.replace(path.sep, SEP)
                 if domains and domain not in domains:
                     continue
-                cat = CatalogInfo(base_dir, domain)
+                cat = CatalogInfo(base_dir, domain, charset)
                 if force_all or cat.is_outdated():
                     catalogs.add(cat)
 
