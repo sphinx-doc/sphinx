@@ -44,6 +44,8 @@ Bugs fixed
 * Fixed #1855: make gettext generates broken po file for definition lists with classifier.
   ``term : classifier1 : classifier2``.
 * #1855: make gettext generates broken po file for definition lists with classifier.
+* #1869: Fix problems when dealing with files containing non-ASCII characters. Thanks to
+  Marvin Schmidt.
 
 
 Release 1.3.1 (released Mar 17, 2015)
