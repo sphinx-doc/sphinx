@@ -24,6 +24,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from __future__ import print_function
+
 import time
 import zlib
 import codecs
@@ -286,3 +288,23 @@ def setup(app):
     app.connect('missing-reference', missing_reference)
     app.connect('builder-inited', load_mappings)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+
+
+if __name__ == '__main__':
+    # debug functionality to print out an inventory
+    import sys
+
+    class MockApp(object):
+        srcdir = ''
+
+        def warn(self, msg):
+            print(msg, file=sys.stderr)
+
+    filename = sys.argv[1]
+    invdata = fetch_inventory(MockApp(), '', filename)
+    for key in sorted(invdata or {}):
+        print(key)
+        for entry, einfo in sorted(invdata[key].items()):
+            print('\t%-40s %s%s' % (entry,
+                                    einfo[3] != '-' and '%-40s: ' % einfo[3] or '',
+                                    einfo[2]))
