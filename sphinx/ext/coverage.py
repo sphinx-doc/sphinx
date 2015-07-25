@@ -20,6 +20,7 @@ from six.moves import cPickle as pickle
 
 import sphinx
 from sphinx.builders import Builder
+from sphinx.util.inspect import safe_getattr
 
 
 # utility
@@ -187,7 +188,10 @@ class CoverageBuilder(Builder):
                         for attr_name in dir(obj):
                             if attr_name not in obj.__dict__:
                                 continue
-                            attr = getattr(obj, attr_name)
+                            try:
+                                attr = safe_getattr(obj, attr_name)
+                            except AttributeError:
+                                continue
                             if not (inspect.ismethod(attr) or
                                     inspect.isfunction(attr)):
                                 continue
