@@ -11,8 +11,7 @@
 """
 
 # "raises" imported for usage by autodoc
-from unittest import SkipTest
-from util import TestApp, Struct, raises
+from util import TestApp, Struct, raises, SkipTest
 from nose.tools import with_setup, eq_
 
 from six import StringIO
@@ -978,7 +977,7 @@ def test_type_hints():
     try:
         from typing_test_data import f0, f1, f2, f3, f4, f5, f6, f7, f8
     except ImportError:
-        raise SkipTest
+        raise SkipTest('Cannot import Python code with function annotations')
 
     def verify_arg_spec(f, expected):
         eq_(formatargspec(f, *getargspec(f)), expected)
