@@ -976,7 +976,7 @@ def test_type_hints():
 
     try:
         from typing_test_data import f0, f1, f2, f3, f4, f5, f6, f7, f8
-    except ImportError:
+    except (ImportError, SyntaxError):
         raise SkipTest('Cannot import Python code with function annotations')
 
     def verify_arg_spec(f, expected):
