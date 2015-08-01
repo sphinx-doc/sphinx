@@ -47,6 +47,8 @@ Bugs fixed
 * #1869: Fix problems when dealing with files containing non-ASCII characters. Thanks to
   Marvin Schmidt.
 * #1798: Fix building LaTeX with references in titles.
+* #1725: On py2 environment, doctest with using non-ASCII characters causes
+  ``'ascii' codec can't decode byte`` exception.
 
 
 Release 1.3.1 (released Mar 17, 2015)
