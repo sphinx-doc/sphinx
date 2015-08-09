@@ -124,7 +124,7 @@ class LaTeXBuilder(Builder):
                 new_sect += node
             tree = new_tree
         largetree = inline_all_toctrees(self, self.docnames, indexfile, tree,
-                                        darkgreen)
+                                        darkgreen, [indexfile])
         largetree['docname'] = indexfile
         for docname in appendices:
             appendix = self.env.get_doctree(docname)
