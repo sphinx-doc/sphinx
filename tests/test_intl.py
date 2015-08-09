@@ -751,3 +751,11 @@ def test_additional_targets_should_be_translated(app, status, warning):
     expected_expr = """<img alt="IMG -&gt; I18N" src="_images/i18n.png" />"""
     yield assert_count(expected_expr, result, 1)
 
+
+@gen_with_intl_app('text', freshenv=True)
+def test_references(app, status, warning):
+    app.builder.build_specific([app.srcdir / 'refs.txt'])
+
+    warnings = warning.getvalue().replace(os.sep, '/')
+    warning_expr = u'refs.txt:\\d+: ERROR: Unknown target name:'
+    yield assert_count(warning_expr, warnings, 0)

@@ -1,0 +1,47 @@
+References
+===========
+
+Translation Tips
+-----------------
+
+.. _download Sphinx: https://pypi.python.org/pypi/sphinx
+.. _Docutils site: http://docutils.sourceforge.net/
+.. _Sphinx site: http://sphinx-doc.org/
+
+
+A-1. Here's how you can `download Sphinx`_.
+
+A-2. Here's how you can `download Sphinx`_.
+
+A-3. Here's how you can `download Sphinx`_.
+
+B-1. `Docutils site`_ and `Sphinx site`_.
+
+B-2. `Docutils site`_ and `Sphinx site`_.
+
+B-3. `Docutils site`_ and `Sphinx site`_.
+
+B-4. `Docutils site`_ and `Sphinx site`_.
+
+C-1. Link to `Translation Tips`_ section.
+
+C-2. Link to `Translation Tips`_ section.
+
+C-3. Link to `Translation Tips`_ section.
+
+C-4. Link to `Translation Tips`_ section.
+
+C-5. Link to `Translation Tips`_ section.
+
+D-1. Link to `Translation Tips`_ and `Next Section`_ section.
+
+D-2. Link to `Translation Tips`_ and `Next Section`_ section.
+
+D-3. Link to `Translation Tips`_ and `Next Section`_ section.
+
+D-4. Link to `Translation Tips`_ and `Next Section`_ section.
+
+D-5. Link to `Translation Tips`_ and `Next Section`_ section.
+
+Next Section
+-------------

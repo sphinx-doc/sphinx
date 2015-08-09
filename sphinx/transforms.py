@@ -277,8 +277,10 @@ class Locale(Transform):
                     # document nameids mapping with new name.
                     names = section_node.setdefault('names', [])
                     names.append(new_name)
-                    if old_name in names:
-                        names.remove(old_name)
+                    # Original section name (reference target name) should be kept to refer
+                    # from other nodes which is still not translated or uses explicit target
+                    # name like "`text to display <explicit target name_>`_"..
+                    # So, `old_name` is still exist in `names`.
 
                     _id = self.document.nameids.get(old_name, None)
                     explicit = self.document.nametypes.get(old_name, None)
