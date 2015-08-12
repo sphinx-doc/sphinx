@@ -121,6 +121,8 @@ def extract_messages(doctree):
                 msg += '\n   :alt: %s' % node['alt']
         else:
             msg = node.rawsource.replace('\n', ' ').strip()
+            if not msg:
+                msg = node.astext()
 
         # XXX nodes rendering empty are likely a bug in sphinx.addnodes
         if msg:
