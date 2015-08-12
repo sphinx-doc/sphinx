@@ -721,8 +721,9 @@ class StandaloneHTMLBuilder(Builder):
     def _get_local_toctree(self, docname, collapse=True, **kwds):
         if 'includehidden' not in kwds:
             kwds['includehidden'] = False
-        return self.render_partial(self.env.get_toctree_for(
-            docname, self, collapse, **kwds))['fragment']
+        toc = self.env.get_toctree_for(docname, self, collapse, **kwds)
+        self.fix_refuris(toc)    
+        return self.render_partial(toc)['fragment']
 
     def get_outfilename(self, pagename):
         return path.join(self.outdir, os_path(pagename) + self.out_suffix)
