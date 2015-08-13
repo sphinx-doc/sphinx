@@ -11,8 +11,8 @@
 """
 
 # "raises" imported for usage by autodoc
-from util import TestApp, Struct, raises
-from nose.tools import with_setup
+from util import TestApp, Struct, raises, SkipTest
+from nose.tools import with_setup, eq_
 
 from six import StringIO
 from docutils.statemachine import ViewList
@@ -968,3 +968,46 @@ class InstAttCls(object):
 
         self.ia2 = 'e'
         """Docstring for instance attribute InstAttCls.ia2."""
+
+
+def test_type_hints():
+    from sphinx.ext.autodoc import formatargspec
+    from sphinx.util.inspect import getargspec
+
+    try:
+        from typing_test_data import f0, f1, f2, f3, f4, f5, f6, f7, f8
+    except (ImportError, SyntaxError):
+        raise SkipTest('Cannot import Python code with function annotations')
+
+    def verify_arg_spec(f, expected):
+        eq_(formatargspec(f, *getargspec(f)), expected)
+
+    # Class annotations
+    verify_arg_spec(f0, '(x: int, y: numbers.Integral) -> None')
+
+    # Generic types with concrete parameters
+    verify_arg_spec(f1, '(x: typing.List[int]) -> typing.List[int]')
+
+    # TypeVars and generic types with TypeVars
+    verify_arg_spec(f2, '(x: typing.List[T],'
+                        ' y: typing.List[T_co],'
+                        ' z: T) -> typing.List[T_contra]')
+
+    # Union types
+    verify_arg_spec(f3, '(x: typing.Union[str, numbers.Integral]) -> None')
+
+    # Quoted annotations
+    verify_arg_spec(f4, '(x: str, y: str) -> None')
+
+    # Keyword-only arguments
+    verify_arg_spec(f5, '(x: int, *, y: str, z: str) -> None')
+
+    # Space around '=' for defaults
+    verify_arg_spec(f6, '(x: int = None, y: dict = {}) -> None')
+
+    # Callable types
+    verify_arg_spec(f7, '(x: typing.Callable[[int, str], int]) -> None')
+
+    # Tuple types
+    verify_arg_spec(f8, '(x: typing.Tuple[int, str],'
+                        ' y: typing.Tuple[int, ...]) -> None')
