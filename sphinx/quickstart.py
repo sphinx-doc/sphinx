@@ -476,7 +476,7 @@ The '$(SPHINXBUILD)' command was not found. Make sure you have Sphinx \
 installed, then set the SPHINXBUILD environment variable to point \
 to the full path of the '$(SPHINXBUILD)' executable. Alternatively you \
 can add the directory with the executable to your PATH. \
-If you don\'t have Sphinx installed, grab it from http://sphinx-doc.org/)
+If you don\\'t have Sphinx installed, grab it from http://sphinx-doc.org/)
 endif
 
 # Internal variables.
