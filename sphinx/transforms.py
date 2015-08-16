@@ -22,6 +22,7 @@ from sphinx.locale import _, init as init_locale
 from sphinx.util import split_index_msg
 from sphinx.util.nodes import (
     traverse_translatable_index, extract_messages, LITERAL_TYPE_NODES, IMAGE_TYPE_NODES,
+    apply_source_workaround,
 )
 from sphinx.util.osutil import ustrftime
 from sphinx.util.i18n import find_catalog
@@ -167,6 +168,18 @@ TRANSLATABLE_NODES = {
     'index': addnodes.index,
     'image': nodes.image,
 }
+
+
+class ApplySourceWorkaround(Transform):
+    """
+    update source and rawsource attributes
+    """
+    default_priority = 10
+
+    def apply(self):
+        for n in self.document.traverse():
+            if isinstance(n, nodes.TextElement):
+                apply_source_workaround(n)
 
 
 class ExtraTranslatableNodes(Transform):

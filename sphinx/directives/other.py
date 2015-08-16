@@ -142,7 +142,7 @@ class Author(Directive):
         env = self.state.document.settings.env
         if not env.config.show_authors:
             return []
-        para = nodes.paragraph()
+        para = nodes.paragraph(translatable=False)
         emph = nodes.emphasis()
         para += emph
         if self.name == 'sectionauthor':
@@ -205,7 +205,7 @@ class VersionChange(Directive):
         if len(self.arguments) == 2:
             inodes, messages = self.state.inline_text(self.arguments[1],
                                                       self.lineno+1)
-            para = nodes.paragraph(self.arguments[1], '', *inodes)
+            para = nodes.paragraph(self.arguments[1], '', *inodes, translatable=False)
             set_source_info(self, para)
             node.append(para)
         else:
@@ -218,13 +218,14 @@ class VersionChange(Directive):
                 content.source = node[0].source
                 content.line = node[0].line
                 content += node[0].children
-                node[0].replace_self(nodes.paragraph('', '', content))
+                node[0].replace_self(nodes.paragraph('', '', content, translatable=False))
             node[0].insert(0, nodes.inline('', '%s: ' % text,
                                            classes=['versionmodified']))
         else:
             para = nodes.paragraph('', '',
                                    nodes.inline('', '%s.' % text,
-                                                classes=['versionmodified']))
+                                                classes=['versionmodified']),
+                                   translatable=False)
             node.append(para)
         env = self.state.document.settings.env
         # XXX should record node.source as well

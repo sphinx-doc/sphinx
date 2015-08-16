@@ -50,6 +50,10 @@ def apply_source_workaround(node):
         # overwrite: ``term : classifier1 : classifier2`` -> ``term text``
         node.rawsource = node.astext()
 
+    # workaround: recommonmark-0.2.0 doesn't set rawsource attribute
+    if not node.rawsource:
+        node.rawsource = node.astext()
+
     if node.source and node.rawsource:
         return
 
@@ -74,17 +78,19 @@ IGNORED_NODES = (
     nodes.Inline,
     nodes.literal_block,
     nodes.doctest_block,
+    addnodes.versionmodified,
     # XXX there are probably more
 )
 
 
 def is_translatable(node):
     if isinstance(node, nodes.TextElement):
-        apply_source_workaround(node)
-
         if not node.source:
             return False  # built-in message
         if isinstance(node, IGNORED_NODES) and 'translatable' not in node:
+            return False
+        if not node.get('translatable', True):
+            # not(node['translatable'] == True or node['translatable'] is None)
             return False
         # <field_name>orphan</field_name>
         # XXX ignore all metadata (== docinfo)
