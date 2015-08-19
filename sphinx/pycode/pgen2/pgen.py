@@ -4,6 +4,7 @@
 from __future__ import print_function
 
 from six import iteritems
+from collections import OrderedDict
 
 # Pgen imports
 
@@ -57,7 +58,7 @@ class ParserGenerator(object):
     def make_first(self, c, name):
         rawfirst = self.first[name]
         first = {}
-        for label in rawfirst:
+        for label in sorted(rawfirst):
             ilabel = self.make_label(c, label)
             ##assert ilabel not in first # X X X failed on <> ... !=
             first[ilabel] = 1
@@ -138,8 +139,8 @@ class ParserGenerator(object):
                 totalset[label] = 1
                 overlapcheck[label] = {label: 1}
         inverse = {}
-        for label, itsfirst in iteritems(overlapcheck):
-            for symbol in itsfirst:
+        for label, itsfirst in sorted(overlapcheck.items()):
+            for symbol in sorted(itsfirst):
                 if symbol in inverse:
                     raise ValueError("rule %s is ambiguous; %s is in the"
                                      " first sets of %s as well as %s" %
@@ -349,6 +350,9 @@ class NFAState(object):
         assert isinstance(next, NFAState)
         self.arcs.append((label, next))
 
+    def __hash__(self):
+        return hash(tuple(x[0] for x in self.arcs))
+
 class DFAState(object):
 
     def __init__(self, nfaset, final):
@@ -357,7 +361,10 @@ class DFAState(object):
         assert isinstance(final, NFAState)
         self.nfaset = nfaset
         self.isfinal = final in nfaset
-        self.arcs = {} # map from label to DFAState
+        self.arcs = OrderedDict() # map from label to DFAState
+
+    def __hash__(self):
+        return hash(tuple(self.arcs))
 
     def addarc(self, next, label):
         assert isinstance(label, str)
