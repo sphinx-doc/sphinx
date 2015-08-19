@@ -837,7 +837,7 @@ class StandaloneHTMLBuilder(Builder):
                      u'# The remainder of this file is compressed using zlib.\n'
                      % (self.config.project, self.config.version)).encode('utf-8'))
             compressor = zlib.compressobj(9)
-            for domainname, domain in iteritems(self.env.domains):
+            for domainname, domain in sorted(self.env.domains.items()):
                 for name, dispname, type, docname, anchor, prio in \
                         sorted(domain.get_objects()):
                     if anchor.endswith(name):
