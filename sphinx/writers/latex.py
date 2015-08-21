@@ -357,12 +357,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return ('%s\\renewcommand{%s}{%s}%s\n' %
                 (babel_prefix, command, definition, babel_suffix))
 
-    def generate_contentsname(self, builder, document):
-        for toctree in document.traverse(addnodes.toctree):
-            if toctree['caption']:
-                print toctree['caption']
-        return ''
-
     def generate_numfig_format(self, builder):
         ret = []
         figure = self.builder.config.numfig_format['figure'].split('%s', 1)
