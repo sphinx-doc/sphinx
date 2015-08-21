@@ -251,7 +251,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             usepackages = (declare_package(*p) for p in builder.usepackages)
             self.elements['usepackages'] += "\n".join(usepackages)
         if getattr(document.settings, 'contentsname', None):
-            self.elements['contentsname'] = self.babel_renewcommand(builder, '\\contentsname', document.settings.contentsname)
+            self.elements['contentsname'] = \
+                self.babel_renewcommand(builder, '\\contentsname',
+                                        document.settings.contentsname)
         self.elements['numfig_format'] = self.generate_numfig_format(builder)
         # allow the user to override them all
         self.elements.update(builder.config.latex_elements)

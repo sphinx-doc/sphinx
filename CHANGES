@@ -51,6 +51,7 @@ Bugs fixed
   ``'ascii' codec can't decode byte`` exception.
 * #1540: Fix RuntimeError with circular referenced toctree
 * #1983: i18n translation feature breaks references which uses section name.
+* #1990: Use caption of toctree to title of \tableofcontents in LaTeX
 
 
 Release 1.3.1 (released Mar 17, 2015)
