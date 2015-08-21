@@ -358,9 +358,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 (babel_prefix, command, definition, babel_suffix))
 
     def generate_contentsname(self, builder, document):
-        print '---'
-        print '---'
-        print '---'
         for toctree in document.traverse(addnodes.toctree):
             if toctree['caption']:
                 print toctree['caption']
