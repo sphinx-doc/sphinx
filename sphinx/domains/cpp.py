@@ -1604,7 +1604,7 @@ class ASTBaseClass(ASTBase):
             signode += addnodes.desc_annotation(self.visibility,
                                                 self.visibility)
             signode += nodes.Text(' ')
-        self.name.describe_signature(signode, mode, env,
+        self.name.describe_signature(signode, 'markType', env,
                                      parentScope=parentScope)
 
 
