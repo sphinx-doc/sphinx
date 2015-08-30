@@ -261,11 +261,6 @@ class Config(object):
         self.overrides = overrides
         self.values = Config.config_values.copy()
         config = {}
-        if 'extensions' in overrides:  # XXX do we need this?
-            if isinstance(overrides['extensions'], string_types):
-                config['extensions'] = overrides.pop('extensions').split(',')
-            else:
-                config['extensions'] = overrides.pop('extensions')
         if dirname is not None:
             config_file = path.join(dirname, filename)
             config['__file__'] = config_file
@@ -279,7 +274,12 @@ class Config(object):
                     raise ConfigError(CONFIG_SYNTAX_ERROR % err)
                 except SystemExit:
                     raise ConfigError(CONFIG_EXIT_ERROR)
-
+        # override extensions after loading the configuration (otherwise it's pointless...)
+        if 'extensions' in overrides:
+            if isinstance(overrides['extensions'], string_types):
+                config['extensions'] = overrides.pop('extensions').split(',')
+            else:
+                config['extensions'] = overrides.pop('extensions')
         self._raw_config = config
         # these two must be preinitialized because extensions can add their
         # own config values
