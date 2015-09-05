@@ -528,59 +528,110 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
    Describe a class/struct, possibly with specification of inheritance, e.g.,::
 
-      .. cpp:class:: SomeName::SomeClass : public MyBase, MyOtherBase
+      .. cpp:class:: MyClass : public MyBase, MyOtherBase
 
-.. rst:directive:: .. cpp:function:: (member-)function prototype
+   The class can be directly declared inside a nested scope, e.g.,::
+
+      .. cpp:class:: OuterScope::MyClass : public MyBase, MyOtherBase
+
+   A template class can be declared::
+
+      .. cpp:class:: template<typename T, std::size_t N> std::array
+
+   or with a line beak::
+
+      .. cpp:class:: template<typename T, std::size_t N> \
+                     std::array
+
+   Full and partial template specialisations can be declared::
+
+      .. cpp::class:: template<> \
+                      std::array<bool, 256>
+
+      .. cpp::class:: template<typename T> \
+                      std::array<T, 42>
+
+
+.. rst:directive:: .. cpp:function:: (member) function prototype
 
    Describe a function or member function, e.g.,::
 
-      .. cpp:function:: bool namespaced::theclass::method(int arg1, std::string arg2)
+      .. cpp:function:: bool myMethod(int arg1, std::string arg2)
 
-         Describes a method with parameters and types.
+         A function with parameters and types.
 
-      .. cpp:function:: bool namespaced::theclass::method(T1, T2)
+      .. cpp:function:: bool myMethod(int, double)
 
-         Describes a method with unnamed parameters.
+         A function with unnamed parameters.
 
-      .. cpp:function:: const T &array<T>::operator[]() const
+      .. cpp:function:: const T &MyClass::operator[](std::size_t i) const
 
-         Describes the constant indexing operator of a templated array.
+         An overload for the indexing operator.
 
       .. cpp:function:: operator bool() const
 
-         Describe a casting operator here.
+         A casting operator.
 
       .. cpp:function:: constexpr void foo(std::string &bar[2]) noexcept
 
-         Describe a constexpr function here.
+         A constexpr function.
 
       .. cpp:function:: MyClass::MyClass(const MyClass&) = default
 
-         Describe a copy constructor with default implementation.
+         A copy constructor with default implementation.
 
-.. rst:directive:: .. cpp:member:: (member-)variable declaration
-                   .. cpp:var:: (member-)variable declaration
+   Function templates can also be described::
+
+      .. cpp:function:: template<typename U> \
+                        void print(U &&u)
+
+   and function template specialisations::
+
+      .. cpp:function:: template<> \
+                        void print(int i)
+
+
+.. rst:directive:: .. cpp:member:: (member) variable declaration
+                   .. cpp:var:: (member) variable declaration
 
    Describe a varible or member variable, e.g.,::
 
-      .. cpp:member:: std::string theclass::name
+      .. cpp:member:: std::string MyClass::myMember
 
-      .. cpp:member:: std::string theclass::name[N][M]
+      .. cpp:var:: std::string MyClass::myOtherMember[N][M]
 
       .. cpp:member:: int a = 42
 
-.. rst:directive:: .. cpp:type:: typedef-like declaration
-                   .. cpp:type:: name
+   Variable templates can also be described::
 
-   Describe a type as in a typedef declaration, or the name of a type with unspecified type, e.g.,::
+      .. cpp:member:: template<class T> \
+                      constexpr T pi = T(3.1415926535897932385)
+
+
+.. rst:directive:: .. cpp:type:: typedef declaration
+                   .. cpp:type:: name
+                   .. cpp:type:: type alias declaration
+
+   Describe a type as in a typedef declaration, a type alias declaration,
+   or simply the name of a type with unspecified type, e.g.,::
 
       .. cpp:type:: std::vector<int> MyList
 
          A typedef-like declaration of a type.
 
-      .. cpp:type:: theclass::const_iterator
+      .. cpp:type:: MyContainer::const_iterator
 
          Declaration of a type alias with unspecified type.
+
+      .. cpp:type:: MyType = std::unordered_map<int, std::string>
+
+         Declaration of a type alias.
+
+   A type alias can also be templated::
+
+      .. cpp:type:: template<typename T>
+                    MyContainer = std::vector<T>
+
 
 .. rst:directive:: .. cpp:enum:: unscoped enum declaration
                    .. cpp:enum-struct:: scoped enum declaration
@@ -610,23 +661,67 @@ a visibility statement (``public``, ``private`` or ``protected``).
 .. rst:directive:: .. cpp:enumerator:: name
                    .. cpp:enumerator:: name = constant
 
-   Describe an enumerator, optionally with its value defined.
+   Describe an enumerator, optionally with its value defined, e.g.,::
 
-.. rst:directive:: .. cpp:namespace:: namespace
+      .. cpp::enumerator:: MyEnum::myEnumerator
 
-   Select the current namespace for the subsequent objects. Note that the namespace
-   does not need to correspond to C++ namespaces, but can end in names of classes, e.g.,::
+      .. cpp::enumerator:: MyEnum::myOtherEnumerator = 42
+
+
+Namespacing
+~~~~~~~~~~~~~~~~~
+
+.. rst:directive:: .. cpp:namespace:: scope specification
+
+   Declarations in the C++ doamin are as default placed in global scope.
+   The ``namespace`` directive changes the current scope for the subsequent objects.
+   Note that the namespace does not need to correspond to C++ namespaces,
+   but can end in names of classes, e.g.,::
 
       .. cpp:namespace:: Namespace1::Namespace2::SomeClass::AnInnerClass
 
-   All subsequent objects will be defined as if their name were declared with the namespace
-   prepended. The subsequent cross-references will be searched for by both their specified name
-   and with the namespace prepended.
+   All subsequent objects will be defined as if their name were declared with the scope
+   prepended. The subsequent cross-references will be searched for starting in the current scope.
 
    Using ``NULL``, ``0``, or ``nullptr`` as the namespace will reset it to the global namespace.
 
+   A namespace declaration can also be templated, e.g.,::
+
+      .. cpp:class:: template<typename T> \
+                     std::vector
+
+      .. cpp:namespace:: template<typename T> std::vector
+
+      .. cpp:function:: std::size_t size() const
+
+   declares ``size`` as a member function of the template class ``std::vector``.
+   Equivalently this could have been declared using::
+
+      .. cpp:class:: template<typename T> \
+                     std::vector
+
+         .. cpp:function:: std::size_t size() const
+
+   or:::
+
+      .. cpp:class:: template<typename T> \
+                     std::vector
+
+
+Info field lists
+~~~~~~~~~~~~~~~~~
+
+The C++ directives support the following info fields (see also :ref:`info-field-lists`):
+
+* `param`, `parameter`, `arg`, `argument`: Description of a parameter.
+* `returns`, `return`: Description of a return value.
+* `throws`, `throw`, `exception`: Description of a possibly thrown exception.
+
 
 .. _cpp-roles:
+
+Cross-referencing
+~~~~~~~~~~~~~~~~~
 
 These roles link to the given object types:
 
@@ -659,12 +754,6 @@ These roles link to the given object types:
    data for comparison we don't want to select a bad syntax to reference a
    specific overload.  Currently Sphinx will link to the first overloaded
    version of the method / function.
-
-.. admonition:: Note on Template Delcarations
-
-   The C++ domain currently does not support template classes/functions/aliases/variables
-   (e.g., ``template<typename T> MyClass``), only template instantiations
-   (e.g., ``MyClass<T>``).
 
 
 The Standard Domain

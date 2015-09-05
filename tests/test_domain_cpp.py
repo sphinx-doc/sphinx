@@ -237,10 +237,27 @@ def test_templates():
     check('class', "template<> A", None, "IE1A")
     check('function', "template<> void A()", None, "IE1Av")
     check('member', "template<> A a", None, "IE1a")
-    check('type', "template<> A a", None, "IE1a")
+    check('type', "template<> a = A", None, "IE1a")
     raises(DefinitionError, parse, 'enum', "template<> A")
     raises(DefinitionError, parse, 'enumerator', "template<> A")
     # then all the real tests
+    check('class', "template<typename T1, typename T2> A", None, "I00E1A")
+    check('type', "template<> a", None, "IE1a")
+
+    check('class', "template<typename T> A", None, "I0E1A")
+    check('class', "template<class T> A", None, "I0E1A")
+    check('class', "template<typename ...T> A", None, "IDpE1A")
+    check('class', "template<typename...> A", None, "IDpE1A")
+    check('class', "template<typename = Test> A", None, "I0E1A")
+    check('class', "template<typename T = Test> A", None, "I0E1A")
+
+    check('class', "template<template<typename> typename T> A",
+          None, "II0E0E1A")
+    check('class', "template<int> A", None, "I_iE1A")
+    check('class', "template<int T> A", None, "I_iE1A")
+    check('class', "template<int... T> A", None, "I_DpiE1A")
+    check('class', "template<int T = 42> A", None, "I_iE1A")
+    check('class', "template<int = 42> A", None, "I_iE1A")
 
 
 def test_bases():
@@ -251,6 +268,7 @@ def test_bases():
     check('class', 'A : public B', "A", "1A")
     check('class', 'A : B, C', "A", "1A")
     check('class', 'A : B, protected C, D', "A", "1A")
+
 
 def test_operators():
     check('function', 'void operator new [  ] ()',

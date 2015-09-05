@@ -24,7 +24,6 @@ from sphinx.util.nodes import make_refnode
 from sphinx.util.compat import Directive
 from sphinx.util.pycompat import UnicodeMixin
 from sphinx.util.docfields import Field, GroupedField
-from fileinput import lineno
 
 """
     Important note on ids:
@@ -60,15 +59,7 @@ from fileinput import lineno
                 "class"  "..."[opt] identifier[opt]
             | "template" "<" template-parameter-list ">"
                 "class"             identifier[opt] "=" id-expression
-            -> # also, from C++17 we can have "struct" in template templates
-            (
-                  "class"
-                | "struct"
-                | "template" "<" template-parameter-list ">"
-            ) (
-                  "..."[opt] identifier[opt]
-                | identifier[opt] "=" type-id
-            )
+            # also, from C++17 we can have "typname" in template templates
         templateDeclPrefix ->
             "template" "<" template-parameter-list ">"
 
@@ -549,8 +540,157 @@ class ASTIdentifier(ASTBase):
             signode += pnode
         elif mode == 'lastIsName':
             signode += addnodes.desc_name(self.identifier, self.identifier)
+        elif mode == 'noneIsName':
+            signode += nodes.Text(self.identifier)
         else:
             raise Exception('Unknown description mode: %s' % mode)
+
+
+class ASTTemplateKeyParamPackIdDefault(ASTBase):
+    def __init__(self, key, identifier, parameterPack, default):
+        assert key
+        if parameterPack:
+            assert default is None
+        self.key = key
+        self.identifier = identifier
+        self.parameterPack = parameterPack
+        self.default = default
+
+    def get_identifier(self):
+        return self.identifier
+
+    def get_id_v2(self):
+        # this is not part of the normal name mangling in C++
+        res = []
+        if self.parameterPack:
+            res.append('Dp')
+        else:
+            res.append('0') # we need to put something
+        return ''.join(res)
+
+    def __unicode__(self):
+        res = [self.key]
+        if self.parameterPack:
+            if self.identifier:
+                res.append(' ')
+            res.append('...')
+        if self.identifier:
+            if not self.parameterPack:
+                res.append(' ')
+            res.append(text_type(self.identifier))
+        if self.default:
+            res.append(' = ')
+            res.append(text_type(self.default))
+        return ''.join(res)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode += nodes.Text(self.key)
+        if self.parameterPack:
+            if self.identifier:
+                signode += nodes.Text(' ')
+            signode += nodes.Text('...')
+        if self.identifier:
+            if not self.parameterPack:
+                signode += nodes.Text(' ')
+            self.identifier.describe_signature(signode, mode, env, '', symbol)
+        if self.default:
+            signode += nodes.Text(' = ')
+            self.default.describe_signature(signode, 'markType', env, symbol)
+
+
+class ASTTemplateParamType(ASTBase):
+    def __init__(self, data):
+        assert data
+        self.data = data
+
+    @property
+    def name(self):
+        id = self.get_identifier()
+        return ASTNestedName([ASTNestedNameElement(id, None)], rooted=False)
+
+    def get_identifier(self):
+        return self.data.get_identifier()
+
+    def get_id_v2(self, objectType=None, symbol=None):
+        # this is not part of the normal name mangling in C++
+        if symbol:
+            # the anchor will be our parent
+            return symbol.parent.declaration.get_id_v2(prefixed=None)
+        else:
+            return self.data.get_id_v2()
+
+    def __unicode__(self):
+        return text_type(self.data)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        self.data.describe_signature(signode, mode, env, symbol)
+
+
+class ASTTemplateParamTemplateType(ASTBase):
+    def __init__(self, nestedParams, data):
+        assert nestedParams
+        assert data
+        self.nestedParams = nestedParams
+        self.data = data
+
+    @property
+    def name(self):
+        id = self.get_identifier()
+        return ASTNestedName([ASTNestedNameElement(id, None)], rooted=False)
+
+    def get_identifier(self):
+        return self.data.get_identifier()
+
+    def get_id_v2(self, objectType=None, symbol=None):
+        # this is not part of the normal name mangling in C++
+        if symbol:
+            # the anchor will be our parent
+            return symbol.parent.declaration.get_id_v2(prefixed=None)
+        else:
+            return self.nestedParams.get_id_v2() + self.data.get_id_v2()
+
+    def __unicode__(self):
+        return text_type(self.nestedParams) + text_type(self.data)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        self.nestedParams.describe_signature(signode, 'noneIsName', env, symbol)
+        signode += nodes.Text(' ')
+        self.data.describe_signature(signode, mode, env, symbol)
+
+
+class ASTTemplateParamNonType(ASTBase):
+    def __init__(self, param):
+        assert param
+        self.param = param
+
+    @property
+    def name(self):
+        id = self.get_identifier()
+        return ASTNestedName([ASTNestedNameElement(id, None)], rooted=False)
+
+    def get_identifier(self):
+        name = self.param.name
+        if name:
+            assert len(name.names) == 1
+            assert name.names[0].identifier
+            assert not name.names[0].templateArgs
+            return name.names[0].identifier
+        else:
+            return None
+
+    def get_id_v2(self, objectType=None, symbol=None):
+        # this is not part of the normal name mangling in C++
+        if symbol:
+            # the anchor will be our parent
+            return symbol.parent.declaration.get_id_v2(prefixed=None)
+        else:
+            return '_' + self.param.get_id_v2()
+
+    def __unicode__(self):
+        return text_type(self.param)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        self.param.describe_signature(signode, mode, env, symbol)
 
 
 class ASTTemplateParams(ASTBase):
@@ -561,8 +701,8 @@ class ASTTemplateParams(ASTBase):
     def get_id_v2(self):
         res = []
         res.append("I")
-        for arg in self.params:
-            raise NotImplementedError("")
+        for param in self.params:
+            res.append(param.get_id_v2())
         res.append("E")
         return ''.join(res)
 
@@ -575,8 +715,12 @@ class ASTTemplateParams(ASTBase):
 
     def describe_signature(self, signode, mode, env, symbol):
         signode += nodes.Text("template<")
+        first = True
         for param in self.params:
-            raise NotImplementedError("")
+            if not first:
+                signode += nodes.Text(", ")
+            first = False
+            param.describe_signature(signode, mode, env, symbol)
         signode += nodes.Text(">")
 
 
@@ -605,7 +749,7 @@ class ASTTemplateDeclarationPrefix(ASTBase):
         _verify_description_mode(mode)
         for t in self.templates:
             templateNode = nodes.line()
-            t.describe_signature(templateNode, mode, env, symbol)
+            t.describe_signature(templateNode, 'lastIsName', env, symbol)
             signode += templateNode
 
 
@@ -816,6 +960,8 @@ class ASTNestedName(ASTBase):
             for n in self.names[:-1]:
                 addname.append(text_type(n))
             addname = '::'.join(addname)
+            if len(self.names) > 1:
+                addname += '::'
             signode += addnodes.desc_addname(addname, addname)
             self.names[-1].describe_signature(signode, mode, env, '', symbol)
         elif mode == 'noneIsName':
@@ -1563,7 +1709,6 @@ class ASTType(ASTBase):
     @property
     def name(self):
         name = self.decl.name
-        assert name
         return name
 
     def get_id_v1(self, objectType=None, symbol=None):
@@ -1662,6 +1807,33 @@ class ASTTypeWithInit(ASTBase):
         self.type.describe_signature(signode, mode, env, symbol=symbol)
         if self.init:
             self.init.describe_signature(signode, mode)
+
+
+class ASTTypeUsing(ASTBase):
+    def __init__(self, name, type):
+        self.name = name
+        self.type = type
+
+    def get_id_v1(self, objectType=None, symbol=None):
+        return None
+
+    def get_id_v2(self, objectType=None, symbol=None):
+        return symbol.get_full_nested_name().get_id_v2()
+
+    def __unicode__(self):
+        res = []
+        res.append(text_type(self.name))
+        if self.type:
+            res.append(' = ')
+            res.append(text_type(self.type))
+        return u''.join(res)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        _verify_description_mode(mode)
+        self.name.describe_signature(signode, mode, env, symbol=symbol)
+        if self.type:
+            signode += nodes.Text(' = ')
+            self.type.describe_signature(signode, 'markType', env, symbol=symbol)
 
 
 class ASTBaseClass(ASTBase):
@@ -1787,10 +1959,10 @@ class ASTDeclaration(ASTBase):
     def __init__(self, objectType, visibility, templatePrefix, declaration):
         self.objectType = objectType
         self.visibility = visibility
-        self.templatePrefix = templatePrefix # will be set to None after symbol
+        self.templatePrefix = templatePrefix
         self.declaration = declaration
 
-        self.symbol = None # set by Symbol.add_declaration
+        self.symbol = None
         self.declarationScope = None # set by Symbol.add_declaration
 
     @property
@@ -1802,12 +1974,18 @@ class ASTDeclaration(ASTBase):
             raise NoOldIdError()
         return self.declaration.get_id_v1(self.objectType, self.symbol)
 
-    def get_id_v2(self):
-        res = [_id_prefix_v2]
+    def get_id_v2(self, prefixed=True):
+        if prefixed:
+            res = [_id_prefix_v2]
+        else:
+            res = []
         if self.templatePrefix:
             res.append(self.templatePrefix.get_id_v2())
         res.append(self.declaration.get_id_v2(self.objectType, self.symbol))
         return u''.join(res)
+
+    def get_newest_id(self):
+        return self.get_id_v2()
 
     def __unicode__(self):
         res = []
@@ -1823,7 +2001,7 @@ class ASTDeclaration(ASTBase):
         _verify_description_mode(mode)
         assert self.symbol
         if not self.declarationScope:
-            raise NotImplementedError("hmm, %s" % text_type(self))
+            raise NotImplementedError("hmm, a bug? %s" % text_type(self))
         assert self.declarationScope
         if self.visibility and self.visibility != "public":
             signode += addnodes.desc_annotation(self.visibility + " ",
@@ -1883,37 +2061,53 @@ class Symbol(object):
             self.parent.children.append(self)
         if self.declaration:
             self.declaration.symbol = self
+        # add symbols for the template params
+        # (do it after self.children has been initialised
+        if self.templateParams:
+            for p in self.templateParams.params:
+                if not p.get_identifier():
+                    continue
+                decl = ASTDeclaration('templateParam', None, None, p)
+                nne = ASTNestedNameElement(p.get_identifier(), None)
+                nn = ASTNestedName([nne], rooted=False)
+                self._add_symbols(nn, [], decl)
+
+    def get_all_symbols(self):
+        # assumed to be in post-order
+        for sChild in self.children:
+            for s in sChild.get_all_symbols():
+                yield s
+        yield self
 
     def get_lookup_key(self):
         if not self.parent:
             # specialise for the root
-            return None, None
+            return None
         symbols = []
-        templateDecls = []
         s = self
         while s.parent:
             symbols.append(s)
-            if s.templateParams:
-                templateDecls.append(s.templateParams)
             s = s.parent
         symbols.reverse()
-        templateDecls.reverse()
-        names = []
+        key = []
         for s in symbols[:-1]:
             assert s.identifier
             nne = ASTNestedNameElement(s.identifier, s.templateArgs)
-            names.append(nne)
+            key.append((nne, s.templateParams))
         s = symbols[-1]
         if s.identifier:
-            names.append(ASTNestedNameElement(s.identifier, s.templateArgs))
+            nne = ASTNestedNameElement(s.identifier, s.templateArgs)
         else:
             assert self.declaration
-            names.append(s.declaration.name.names[-1])
-        return ASTNestedName(names, rooted=False), templateDecls
+            nne = s.declaration.name.names[-1]
+        key.append((nne, s.templateParams))
+        return key
 
     def get_full_nested_name(self):
-        names, _ = self.get_lookup_key()
-        return names
+        names = []
+        for nne, _ in self.get_lookup_key():
+            names.append(nne)
+        return ASTNestedName(names, rooted=False)
 
     def _find_named_symbol(self, identifier, templateParams,
                            templateArgs, operator):
@@ -1971,6 +2165,9 @@ class Symbol(object):
                     templateArgs = name.templateArgs
                     operator = None
                 if iTemplateDecl < len(templateDecls):
+                    if iTemplateDecl + 1 != len(templateDecls):
+                        print(text_type(templateDecls))
+                        print(text_type(nestedName))
                     assert iTemplateDecl + 1 == len(templateDecls)
                     templateParams = templateDecls[iTemplateDecl]
                 else:
@@ -2016,9 +2213,9 @@ class Symbol(object):
                 identifier = name.identifier
                 templateArgs = name.templateArgs
                 if templateArgs:
-                    assert iTemplateDecl + 1 < len(templateDecls)
-
-                    raise NotImplementedError(text_type(declaration))
+                    assert iTemplateDecl < len(templateDecls)
+                    templateParams = templateDecls[iTemplateDecl]
+                    iTemplateDecl += 1
                 else:
                     templateParams = None
                 symbol = parentSymbol._find_named_symbol(identifier,
@@ -2053,6 +2250,23 @@ class Symbol(object):
                 return s
         return None
 
+    def direct_lookup(self, key):
+        s = self
+        for name, templateParams in key:
+            if name.is_operator():
+                identifier = None
+                templateArgs = None
+                operator = name
+            else:
+                identifier = name.identifier
+                templateArgs = name.templateArgs
+                operator = None
+            s = s._find_named_symbol(identifier, templateParams,
+                                     templateArgs, operator)
+            if not s:
+                return None
+        return s
+
     def find_name(self, nestedName, templateDecls, specific_specialisation):
         # TODO: unify this with the _add_symbols
         # This condition should be checked at the parser level.
@@ -2065,7 +2279,6 @@ class Symbol(object):
             while parentSymbol.parent:
                 parentSymbol = parentSymbol.parent
         names = nestedName.names
-        # TODO: lookup in template params when len(names) == 1
 
         # walk up until we find the first identifier
         firstName = names[0]
@@ -2528,7 +2741,7 @@ class DefinitionParser(object):
 
     def _parse_decl_specs(self, outer, typed=True):
         if outer:
-            if outer not in ('type', 'member', 'function'):
+            if outer not in ('type', 'member', 'function', 'templateParam'):
                 raise Exception('Internal error, unknown outer "%s".' % outer)
         """
         storage-class-specifier function-specifier "constexpr"
@@ -2559,6 +2772,13 @@ class DefinitionParser(object):
             try:
                 declId = self._parse_nested_name()
             except DefinitionError:
+                declId = None
+        elif named == 'single':
+            if self.match(_identifier_re):
+                identifier = ASTIdentifier(self.matched_text)
+                nne = ASTNestedNameElement(identifier, None)
+                declId = ASTNestedName([nne], rooted=False)
+            else:
                 declId = None
         elif named:
             declId = self._parse_nested_name()
@@ -2659,13 +2879,14 @@ class DefinitionParser(object):
         else:
             if outer == 'member':
                 value = self.read_rest().strip()
-                return ASTInitializer(value)
+            elif outer == 'templateParam':
+                value = self._parse_expression(end=[',', '>'])
             elif outer is None:  # function parameter
                 value = self._parse_expression(end=[',', ')'])
-                return ASTInitializer(value)
             else:
                 self.fail("Internal error, initializer for outer '%s' not "
                           "implemented." % outer)
+            return ASTInitializer(value)
 
     def _parse_type(self, named, outer=None):
         """
@@ -2675,7 +2896,8 @@ class DefinitionParser(object):
         outer == operatorCast: annoying case, we should not take the params
         """
         if outer:  # always named
-            if outer not in ('type', 'member', 'function', 'operatorCast'):
+            if outer not in ('type', 'member', 'function',
+                             'operatorCast', 'templateParam'):
                 raise Exception('Internal error, unknown outer "%s".' % outer)
             if outer != 'operatorCast':
                 assert named
@@ -2730,16 +2952,26 @@ class DefinitionParser(object):
             elif outer == 'operatorCast':
                 paramMode = 'operatorCast'
                 outer = None
+            elif outer == 'templateParam':
+                named = 'single'
             declSpecs = self._parse_decl_specs(outer=outer)
             decl = self._parse_declerator(named=named, paramMode=paramMode)
         return ASTType(declSpecs, decl)
 
     def _parse_type_with_init(self, named, outer):
         if outer:
-            assert outer in ('type', 'member', 'function')
+            assert outer in ('type', 'member', 'function', 'templateParam')
         type = self._parse_type(outer=outer, named=named)
         init = self._parse_initializer(outer=outer)
         return ASTTypeWithInit(type, init)
+
+    def _parse_type_using(self):
+        name = self._parse_nested_name()
+        self.skip_ws()
+        if not self.skip_string('='):
+            return ASTTypeUsing(name, None)
+        type = self._parse_type(False, None)
+        return ASTTypeUsing(name, type)
 
     def _parse_class(self):
         name = self._parse_nested_name()
@@ -2779,20 +3011,82 @@ class DefinitionParser(object):
             init = ASTInitializer(self.read_rest())
         return ASTEnumerator(name, init)
 
+    def _parse_template_parameter_list(self):
+        # only: '<' parameter-list '>'
+        # we assume that 'template' has just been parsed
+        templateParams = []
+        self.skip_ws()
+        if not self.skip_string("<"):
+            self.fail("Expected '<' after 'template'")
+        while 1:
+            extraError = ''
+            self.skip_ws()
+            if self.skip_word('template'):
+                # declare a tenplate template parameter
+                nestedParams = self._parse_template_parameter_list()
+            else:
+                nestedParams = None
+            self.skip_ws()
+            key = None
+            if self.skip_word_and_ws('typename'):
+                key = 'typename'
+            elif self.skip_word_and_ws('class'):
+                key = 'class'
+            elif nestedParams:
+                self.fail("Expected 'typename' or 'class' after "
+                          "template template parameter list.")
+            if key:
+                # declare a type or template type parameter
+                self.skip_ws()
+                parameterPack = self.skip_string('...')
+                self.skip_ws()
+                if self.match(_identifier_re):
+                    identifier = ASTIdentifier(self.matched_text)
+                else:
+                    identifier = None
+                self.skip_ws()
+                if not parameterPack and self.skip_string('='):
+                    default = self._parse_type(named=False, outer=None)
+                else:
+                    default = None
+                data = ASTTemplateKeyParamPackIdDefault(key, identifier,
+                                                        parameterPack, default)
+                if nestedParams:
+                    # template type
+                    param = ASTTemplateParamTemplateType(nestedParams, data)
+                else:
+                    # type
+                    param = ASTTemplateParamType(data)
+                templateParams.append(param)
+            else:
+                # declare a non-type parameter
+                pos = self.pos
+                try:
+                    param = self._parse_type_with_init('maybe', 'templateParam')
+                    templateParams.append(ASTTemplateParamNonType(param))
+                except DefinitionError as e:
+                    self.pos = pos
+                    extraError = "Error if non-type template parameter: %s"
+                    extraError = extraError % e.description
+            self.skip_ws()
+            if self.skip_string('>'):
+                return ASTTemplateParams(templateParams)
+            elif self.skip_string(','):
+                continue
+            else:
+                msg = 'Expected "=", ",", or ">" in template parameter list.'
+                if len(extraError) > 0:
+                    msg += '\n%s' % extraError
+                self.fail(msg)
+
     def _parse_template_declaration_prefix(self):
         templates = []
         while 1:
             self.skip_ws()
-            if not self.skip_word_and_ws("template"):
+            if not self.skip_word("template"):
                 break
-            templateParams = []
-            if not self.skip_string("<"):
-                self.fail("Expected '<' after 'template'")
-
-            self.skip_ws()
-            if not self.skip_string(">"):
-                self.fail("Expected '>' in the end of template parameter list.")
-            templates.append(ASTTemplateParams(templateParams))
+            params = self._parse_template_parameter_list()
+            templates.append(params)
         if len(templates) == 0:
             return None
         else:
@@ -2838,7 +3132,23 @@ class DefinitionParser(object):
             templatePrefix = self._parse_template_declaration_prefix()
 
         if objectType == 'type':
-            declaration = self._parse_type(named=True, outer='type')
+            error = None
+            try:
+                if not templatePrefix:
+                    declaration = self._parse_type(named=True, outer='type')
+            except DefinitionError as e:
+                error = e.description
+            try:
+                if not declaration:
+                    declaration = self._parse_type_using()
+            except DefinitionError as e:
+                if error:
+                    msg = "Error if typedef:\n%s\n" \
+                          "Error if type alias or template alias:\n%s" \
+                          % (error, e.description)
+                    raise DefinitionError(msg)
+                else:
+                    raise e
         elif objectType == 'member':
             declaration = self._parse_type_with_init(named=True, outer='member')
         elif objectType == 'function':
@@ -2873,8 +3183,9 @@ class DefinitionParser(object):
         return res
 
 
-def _make_phony_error_name(self):
-    return ASTNestedName([ASTNestedNameElement("PhonyNameDueToError", None)])
+def _make_phony_error_name():
+    nne = ASTNestedNameElement(ASTIdentifier("PhonyNameDueToError"), None)
+    return ASTNestedName([nne], rooted=False)
 
 
 class CPPObject(ObjectDescription):
@@ -2894,7 +3205,7 @@ class CPPObject(ObjectDescription):
     def warn(self, msg):
         self.state_machine.reporter.warning(msg, lineno=self.lineno)
 
-    def _add_enumerator_to_parent(self, ast, objects):
+    def _add_enumerator_to_parent(self, ast):
         assert ast.objectType == 'enumerator'
         # find the parent, if it exists && is an enum
         #                     && it's unscoped,
@@ -2928,13 +3239,9 @@ class CPPObject(ObjectDescription):
         if s is not None:
             # something is already declared with that name
             return
-        copySymbol = Symbol(parent=targetSymbol, identifier=symbol.identifier,
-                            templateParams=None, templateArgs=None,
-                            declaration=symbol.declaration.clone())
-        name = text_type(copySymbol.get_full_nested_name()).lstrip(':')
-        if name not in objects:
-            objects.setdefault(name,
-                               (self.env.docname, copySymbol.declaration))
+        _ = Symbol(parent=targetSymbol, identifier=symbol.identifier,
+                   templateParams=None, templateArgs=None,
+                   declaration=symbol.declaration.clone())
 
     def add_target_and_index(self, ast, sig, signode):
         # general note: name must be lstrip(':')'ed, to remove "::"
@@ -2946,35 +3253,30 @@ class CPPObject(ObjectDescription):
         # store them in reverse order, so the newest is first
         ids  = [id_v2, id_v1]
 
-        theid = ids[0]
-        ast.newestId = theid
-        assert theid # shouldn't be None
+        newestId = ids[0]
+        assert newestId # shouldn't be None
+        if not re.compile(r'^[a-zA-Z0-9_]*$').match(newestId):
+            self.warn('Index id generation for C++ object "%s" failed, please '
+                      'report as bug (id=%s).' % (text_type(ast), newestId))
+
         name = text_type(ast.symbol.get_full_nested_name()).lstrip(':')
-        if theid not in self.state.document.ids:
+        indexText = self.get_index_text(name)
+        self.indexnode['entries'].append(('single', indexText, newestId, ''))
+
+        if newestId not in self.state.document.ids:
             # if the name is not unique, the first one will win
-            objects = self.env.domaindata['cpp']['objects']
-            if name not in objects:
+            names = self.env.domaindata['cpp']['names']
+            if name not in names:
+                names[name] = ast.symbol.docname
                 signode['names'].append(name)
             else:
-                pass
                 #print("[CPP] non-unique name:", name)
+                pass
             for id in ids:
                 if id:  # is None when the element didn't exist in that version
                     signode['ids'].append(id)
-            signode['first'] = (not self.names)
+            signode['first'] = (not self.names) # hmm, what is this abound?
             self.state.document.note_explicit_target(signode)
-            if name not in objects:
-                objects.setdefault(name, (self.env.docname, ast))
-                if ast.objectType == 'enumerator':
-                    self._add_enumerator_to_parent(ast, objects)
-
-        indextext = self.get_index_text(name)
-        if not re.compile(r'^[a-zA-Z0-9_]*$').match(theid):
-            self.state_machine.reporter.warning(
-                'Index id generation for C++ object "%s" failed, please '
-                'report as bug (id=%s).' % (text_type(ast), theid),
-                line=self.lineno)
-        self.indexnode['entries'].append(('single', indextext, theid, ''))
 
     def parse_definition(self, parser):
         raise NotImplementedError()
@@ -2993,16 +3295,19 @@ class CPPObject(ObjectDescription):
             ast = self.parse_definition(parser)
             parser.assert_end()
         except DefinitionError as e:
-            self.warn(e.description, line=self.lineno)
+            self.warn(e.description)
             # It is easier to assume some phony name than handling the error in
             # the possibly inner declarations.
             name = _make_phony_error_name()
-            symbol = parentSymbol.add_nested_name(name)
+            symbol = parentSymbol.add_name(name)
             self.env.ref_context['cpp:lastSymbol'] = symbol
             raise ValueError
         symbol = parentSymbol.add_declaration(ast)
         self.env.ref_context['cpp:lastSymbol'] = symbol
         symbol.docname = self.env.docname
+
+        if ast.objectType == 'enumerator':
+            self._add_enumerator_to_parent(ast)
 
         self.describe_signature(signode, ast)
         return ast
@@ -3192,25 +3497,36 @@ class CPPDomain(Domain):
     }
     initial_data = {
         'rootSymbol' : Symbol(None, None, None, None, None),
-        'objects': {},  # qualifiedName -> (docname, ast)
+        'names': {} # full name for indexing -> docname
     }
 
     def clear_doc(self, docname):
-        for fullname, data in list(self.data['objects'].items()):
-            if data[0] == docname:
-                del self.data['objects'][fullname]
+        rootSymbol = self.data['rootSymbol']
+        for symbol in rootSymbol.get_all_symbols():
+            if not symbol.declaration:
+                continue
+            try:
+                sDocname = symbol.docname
+            except AttributeError:
+                # it's a template parameter
+                # the symbols are yielded in post-order, so this should be fine
+                assert symbol.parent
+                sDocname = symbol.parent.docname
+            if sDocname != docname:
+                continue
+            symbol.declaration = None
+            symbol.docname = None
+        for name, nDocname in list(self.data['names'].items()):
+            if nDocname == docname:
+                del self.data['names'][name]
 
     def process_doc(self, env, docname, document):
         # just for debugging
         #print(self.data['rootSymbol'].dump(0))
         pass
 
-#     def merge_domaindata(self, docnames, otherdata):
-#         # XXX check duplicates
-#         # TODO: merge rootSymbol
-#         for fullname, data in otherdata['objects'].items():
-#             if data[0] in docnames:
-#                 self.data['objects'][fullname] = data
+    #def merge_domaindata(self, docnames, otherdata):
+    #    # TODO: merge rootSymbol
 
     def _resolve_xref_inner(self, env, fromdocname, builder,
                             target, node, contnode, warn=True):
@@ -3227,14 +3543,10 @@ class CPPDomain(Domain):
         parentKey = node.get("cpp:parentKey", None)
         rootSymbol = self.data['rootSymbol']
         if parentKey:
-            names, templateDecls = parentKey
-            assert names is not None # hmm
-            assert templateDecls is not None # hmm
-            if templateDecls is None:
-                print(names)
-                assert False
-            parentSymbol = rootSymbol.find_name(names, templateDecls,
-                                                specific_specialisation=True)
+            parentSymbol = rootSymbol.direct_lookup(parentKey)
+            if not parentSymbol:
+                print("Target: ", target)
+                print("ParentKey: ", parentKey)
             assert parentSymbol # should be there
         else:
             parentSymbol = rootSymbol
@@ -3251,9 +3563,15 @@ class CPPDomain(Domain):
         declaration = s.declaration
         fullNestedName = s.get_full_nested_name()
         name = text_type(fullNestedName).lstrip(':')
-        docname = s.docname
-        return make_refnode(builder, fromdocname, docname, declaration.newestId,
-                            contnode, name), declaration.objectType
+        try:
+            docname = s.docname
+        except AttributeError:
+            # it's a template parameter
+            assert s.parent
+            docname = s.parent.docname
+        return make_refnode(builder, fromdocname, docname,
+                            declaration.get_newest_id(), contnode, name
+                            ), declaration.objectType
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
@@ -3270,5 +3588,15 @@ class CPPDomain(Domain):
         return []
 
     def get_objects(self):
-        for refname, (docname, ast) in iteritems(self.data['objects']):
-            yield (refname, refname, ast.objectType, docname, ast.newestId, 1)
+        rootSymbol = self.data['rootSymbol']
+        for symbol in rootSymbol.get_all_symbols():
+            if not symbol.declaration:
+                continue
+            name = text_type(symbol.get_full_nested_name()).lstrip(':')
+            objectType = symbol.declaration.objectType
+            try:
+                docname = symbol.docname
+            except AttributeError:
+                continue
+            newestId = symbol.declaration.get_newest_id()
+            yield (name, name, objectType, docname, newestId, 1)
