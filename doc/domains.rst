@@ -671,10 +671,19 @@ a visibility statement (``public``, ``private`` or ``protected``).
 Namespacing
 ~~~~~~~~~~~~~~~~~
 
+Declarations in the C++ doamin are as default placed in global scope.
+The current scope can be changed using three namespace directives.
+They manage a stack declarations where ``cpp:namespace`` resets the stack and
+changes a given scope.
+The ``cpp:namespace-push`` directive changes the scope to a given inner scope
+of the current one.
+The ``cpp:namespace-pop`` directive undos the most recent ``cpp:namespace-push``
+directive.
+
 .. rst:directive:: .. cpp:namespace:: scope specification
 
-   Declarations in the C++ doamin are as default placed in global scope.
-   The ``namespace`` directive changes the current scope for the subsequent objects.
+   Changes the current scope for the subsequent objects to the given scope,
+   and resets the namespace directive stack.
    Note that the namespace does not need to correspond to C++ namespaces,
    but can end in names of classes, e.g.,::
 
@@ -683,7 +692,7 @@ Namespacing
    All subsequent objects will be defined as if their name were declared with the scope
    prepended. The subsequent cross-references will be searched for starting in the current scope.
 
-   Using ``NULL``, ``0``, or ``nullptr`` as the namespace will reset it to the global namespace.
+   Using ``NULL``, ``0``, or ``nullptr`` as the scope will change to global scope.
 
    A namespace declaration can also be templated, e.g.,::
 
@@ -706,6 +715,38 @@ Namespacing
 
       .. cpp:class:: template<typename T> \
                      std::vector
+
+
+.. rst:directive:: .. cpp:namespace-push:: scope specification
+
+   Change the scope relatively to the current scope. For example, after::
+
+      .. cpp:namespace:: A::B
+
+      .. cpp:namespace-push:: C::D
+
+   the current scope will be ``A::B::C::D``.
+
+.. rst:directive:: .. cpp:namespace-pop::
+
+   Undo the previous ``cpp:namespace-push`` directive (*not* just pop a scope).
+   For example, after::
+
+      .. cpp:namespace:: A::B
+
+      .. cpp:namespace-push:: C::D
+
+      .. cpp:namespace-pop::
+
+   the current scope will be ``A::B`` (*not* ``A::B::C``).
+
+   If no previous ``cpp:namespace-push`` directive has been used, but only a ``cpp:namespace``
+   directive, then the current scope will be reset to global scope.
+   That is, ``.. cpp:namespace:: A::B`` is equivalent to::
+
+      .. cpp:namespace:: nullptr
+
+      .. cpp:namespace-push:: A::B
 
 
 Info field lists

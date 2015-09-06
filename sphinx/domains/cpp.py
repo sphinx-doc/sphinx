@@ -3444,7 +3444,8 @@ class CPPNamespaceObject(Directive):
         env = self.state.document.settings.env
         rootSymbol = env.domaindata['cpp']['rootSymbol']
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
-            env.ref_context['cpp:parentSymbol'] = rootSymbol
+            symbol = rootSymbol
+            stack = []
         else:
             parser = DefinitionParser(self.arguments[0], self)
             try:
@@ -3455,8 +3456,71 @@ class CPPNamespaceObject(Directive):
                                                     line=self.lineno)
                 name = _make_phony_error_name()
                 ast = ASTNamespace(name, None)
-            s = rootSymbol.add_name(ast.nestedName, ast.templatePrefix)
-            env.ref_context['cpp:parentSymbol'] = s
+            symbol = rootSymbol.add_name(ast.nestedName, ast.templatePrefix)
+            stack = [symbol]
+        env.ref_context['cpp:parentSymbol'] = symbol
+        env.temp_data['cpp:namespaceStack'] = stack
+        return []
+
+
+class CPPNamespacePushObject(Directive):
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}
+
+    def warn(self, msg):
+        self.state_machine.reporter.warning(msg, lineno=self.lineno)
+
+    def run(self):
+        env = self.state.document.settings.env
+        if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
+            return
+        parser = DefinitionParser(self.arguments[0], self)
+        try:
+            ast = parser.parse_namespace_object()
+            parser.assert_end()
+        except DefinitionError as e:
+            self.state_machine.reporter.warning(e.description,
+                                                line=self.lineno)
+            name = _make_phony_error_name()
+            ast = ASTNamespace(name, None)
+        oldParent = env.ref_context.get('cpp:parentSymbol', None)
+        if not oldParent:
+            oldParent = env.domaindata['cpp']['rootSymbol']
+        symbol = oldParent.add_name(ast.nestedName, ast.templatePrefix)
+        stack = env.temp_data.get('cpp:namespaceStack', [])
+        stack.append(symbol)
+        env.ref_context['cpp:parentSymbol'] = symbol
+        env.temp_data['cpp:namespaceStack'] = stack
+        return []
+
+
+class CPPNamespacePopObject(Directive):
+    has_content = False
+    required_arguments = 0
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}
+
+    def warn(self, msg):
+        self.state_machine.reporter.warning(msg, lineno=self.lineno)
+
+    def run(self):
+        env = self.state.document.settings.env
+        stack = env.temp_data.get('cpp:namespaceStack', None)
+        if not stack or len(stack) == 0:
+            self.warn("C++ namespace pop on empty stack. Defaulting to gobal scope.")
+            stack = []
+        else:
+            stack.pop()
+        if len(stack) > 0:
+            symbol = stack[-1]
+        else:
+            symbol = env.domaindata['cpp']['rootSymbol']
+        env.ref_context['cpp:parentSymbol'] = symbol
+        env.temp_data['cpp:namespaceStack'] = stack
         return []
 
 
@@ -3501,7 +3565,9 @@ class CPPDomain(Domain):
         'enum-struct': CPPEnumObject,
         'enum-class': CPPEnumObject,
         'enumerator': CPPEnumeratorObject,
-        'namespace': CPPNamespaceObject
+        'namespace': CPPNamespaceObject,
+        'namespace-push': CPPNamespacePushObject,
+        'namespace-pop': CPPNamespacePopObject
     }
     roles = {
         'any': CPPXRefRole(),
