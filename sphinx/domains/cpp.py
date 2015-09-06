@@ -2268,10 +2268,7 @@ class Symbol(object):
     def find_name(self, nestedName, templateDecls, specific_specialisation):
         # TODO: unify this with the _add_symbols
         # This condition should be checked at the parser level.
-        # Each template argument list must have a template parameter list.
-        # But to declare a template there must be an additional template parameter list.
-        assert(nestedName.num_templates() == len(templateDecls) or
-               nestedName.num_templates() + 1 == len(templateDecls))
+        assert len(templateDecls) <= nestedName.num_templates() + 1
         parentSymbol = self
         if nestedName.rooted:
             while parentSymbol.parent:
@@ -2319,8 +2316,7 @@ class Symbol(object):
                 assert not name.is_operator()
                 identifier = name.identifier
                 templateArgs = name.templateArgs
-                if templateArgs:
-                    assert iTemplateDecl < len(templateDecls)
+                if templateArgs and iTemplateDecl < len(templateDecls):
                     templateParams = templateDecls[iTemplateDecl]
                     iTemplateDecl += 1
                 else:
@@ -2386,7 +2382,6 @@ class DefinitionParser(object):
             self.warnEnv.warn(msg)
         else:
             print("Warning: %s" % msg)
-            print("In declaration:\n%s" % self.definition)
 
     def match(self, regex):
         match = regex.match(self.definition, self.pos)
@@ -2496,6 +2491,50 @@ class DefinitionParser(object):
         type = self._parse_type(named=False, outer="operatorCast")
         return ASTOperatorType(type)
 
+    def _parse_template_argument_list(self):
+        self.skip_ws()
+        if not self.skip_string('<'):
+            return None
+        templateArgs = []
+        while 1:
+            pos = self.pos
+            parsedComma = False
+            parsedEnd = False
+            try:
+                type = self._parse_type(named=False)
+                self.skip_ws()
+                if self.skip_string('>'):
+                    parsedEnd = True
+                elif self.skip_string(','):
+                    parsedComma = True
+                else:
+                    self.fail('Expected ">" or "," in template argument list.')
+                templateArgs.append(type)
+            except DefinitionError as e:
+                errorType = e.description
+                self.pos = pos
+                try:
+                    value = self._parse_expression(end=[',', '>'])
+                    self.skip_ws()
+                    if self.skip_string('>'):
+                        parsedEnd = True
+                    elif self.skip_string(','):
+                        parsedComma = True
+                    else:
+                        self.fail('Expected ">" or "," in template argument list.')
+                    templateArgs.append(ASTTemplateArgConstant(value))
+                except DefinitionError as e:
+                    errorExpr = e.description
+                    msg = "Error in parsing template argument list. " \
+                        "Error if type argument:\n%s\n" \
+                        "Error if non-type argument:\n%s" \
+                        % (errorType, errorExpr)
+                    self.fail(msg)
+            if parsedEnd:
+                assert not parsedComma
+                break
+        return ASTTemplateArgs(templateArgs)
+
     def _parse_nested_name(self):
         names = []
 
@@ -2518,31 +2557,7 @@ class DefinitionParser(object):
                 if identifier in _keywords:
                     self.fail("Expected identifier in nested name, "
                               "got keyword: %s" % identifier)
-                templateArgs = None
-                self.skip_ws()
-                if self.skip_string('<'):
-                    templateArgs = []
-                    while 1:
-                        pos = self.pos
-                        try:
-                            type = self._parse_type(named=False)
-                            templateArgs.append(type)
-                        except DefinitionError:
-                            self.pos = pos
-                            try:
-                                value = self._parse_expression(end=[',', '>'])
-                            except DefinitionError:
-                                assert False  # TODO: make nice error
-                            templateArgs.append(ASTTemplateArgConstant(value))
-                        self.skip_ws()
-                        if self.skip_string('>'):
-                            break
-                        elif self.skip_string(','):
-                            continue
-                        else:
-                            self.fail('Expected ">" or "," in template '
-                                      'argument list.')
-                    templateArgs = ASTTemplateArgs(templateArgs)
+                templateArgs = self._parse_template_argument_list()
                 identifier = ASTIdentifier(identifier)
                 names.append(ASTNestedNameElement(identifier, templateArgs))
 
@@ -3102,10 +3117,16 @@ class DefinitionParser(object):
                       % (numArgs, numParams))
         if numArgs > numParams:
             numExtra = numArgs - numParams
-            self.warn("Too many template argument lists compared to parameter"
-                      " lists. Argument lists: %d, Parameter lists: %d,"
-                      " Extra empty parameters lists prepended: %d."
-                      % (numArgs, numParams, numExtra))
+            msg = "Too many template argument lists compared to parameter" \
+                " lists. Argument lists: %d, Parameter lists: %d," \
+                " Extra empty parameters lists prepended: %d." \
+                % (numArgs, numParams, numExtra)
+            msg += " Declaration:\n\t"
+            if templatePrefix:
+                msg += "%s\n\t" % text_type(templatePrefix)
+            msg += text_type(nestedName)
+            self.warn(msg)
+
             newTemplates = []
             for i in range(numExtra):
                 newTemplates.append(ASTTemplateParams([]))
@@ -3175,7 +3196,6 @@ class DefinitionParser(object):
     def parse_xref_object(self):
         templatePrefix = self._parse_template_declaration_prefix()
         name = self._parse_nested_name()
-        templatePrefix = self._check_template_consistency(name, templatePrefix)
         res = ASTNamespace(name, templatePrefix)
         res.objectType = 'xref'
         return res
@@ -3527,16 +3547,20 @@ class CPPDomain(Domain):
     #    # TODO: merge rootSymbol
 
     def _resolve_xref_inner(self, env, fromdocname, builder,
-                            target, node, contnode, warn=True):
-        parser = DefinitionParser(target, env)
+                            target, node, contnode, emitWarnings=True):
+        class Warner(object):
+            def warn(self, msg):
+                if emitWarnings:
+                    env.warn_node(msg, node)
+        warner = Warner()
+        parser = DefinitionParser(target, warner)
         try:
             ast = parser.parse_xref_object()
             parser.skip_ws()
             if not parser.eof:
                 raise DefinitionError('')
         except DefinitionError:
-            if warn:
-                env.warn_node('Unparseable C++ cross-reference: %r' % target, node)
+            warner.warn('Unparseable C++ cross-reference: %r' % target)
             return None, None
         parentKey = node.get("cpp:parentKey", None)
         rootSymbol = self.data['rootSymbol']
@@ -3580,7 +3604,7 @@ class CPPDomain(Domain):
                          node, contnode):
         node, objtype = self._resolve_xref_inner(env, fromdocname, builder,
                                                  target, node, contnode,
-                                                 warn=False)
+                                                 emitWarnings=False)
         if node:
             return [('cpp:' + self.role_for_objtype(objtype), node)]
         return []

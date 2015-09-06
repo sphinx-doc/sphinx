@@ -40,6 +40,7 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
     ast = parse(name, input)
     res = text_type(ast)
     if res != output:
+        print("")
         print("Input:    ", text_type(input))
         print("Result:   ", res)
         print("Expected: ", output)
@@ -262,6 +263,12 @@ def test_templates():
     check('class', "template<int... T> A", None, "I_DpiE1A")
     check('class', "template<int T = 42> A", None, "I_iE1A")
     check('class', "template<int = 42> A", None, "I_iE1A")
+
+    # from breathe#218
+    check('function',
+          "template<typename F> "
+          "void allow(F *f, typename func<F, B, G!=1>::type tt)",
+          None, "I0E5allowP1FN4funcI1F1BXG!=1EE4typeE")
 
 
 def test_bases():
