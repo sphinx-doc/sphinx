@@ -565,7 +565,7 @@ class ASTTemplateKeyParamPackIdDefault(ASTBase):
         if self.parameterPack:
             res.append('Dp')
         else:
-            res.append('0') # we need to put something
+            res.append('0')  # we need to put something
         return ''.join(res)
 
     def __unicode__(self):
@@ -871,6 +871,7 @@ class ASTTemplateArgs(ASTBase):
             a.describe_signature(signode, 'markType', env, symbol=symbol)
         signode += nodes.Text('>')
 
+
 class ASTNestedNameElement(ASTBase):
     def __init__(self, identifier, templateArgs):
         self.identifier = identifier
@@ -985,6 +986,7 @@ class ASTNestedName(ASTBase):
                 prefix += text_type(name)
         else:
             raise Exception('Unknown description mode: %s' % mode)
+
 
 class ASTTrailingTypeSpecFundamental(ASTBase):
     def __init__(self, name):
@@ -1785,7 +1787,7 @@ class ASTTypeWithInit(ASTBase):
     def get_id_v1(self, objectType=None, symbol=None):
         if objectType == 'member':
             return symbol.get_full_nested_name().get_id_v1() + u'__' \
-                 + self.type.get_id_v1()
+                + self.type.get_id_v1()
         else:
             return self.type.get_id_v1(objectType)
 
@@ -1963,7 +1965,7 @@ class ASTDeclaration(ASTBase):
         self.declaration = declaration
 
         self.symbol = None
-        self.declarationScope = None # set by Symbol.add_declaration
+        self.declarationScope = None  # set by Symbol.add_declaration
 
     @property
     def name(self):
@@ -2052,8 +2054,8 @@ class Symbol(object):
                 assert declaration
         self.parent = parent
         self.identifier = identifier
-        self.templateParams = templateParams # template<templateParams>
-        self.templateArgs = templateArgs # identifier<templateArgs>
+        self.templateParams = templateParams  # template<templateParams>
+        self.templateArgs = templateArgs  # identifier<templateArgs>
         self.declaration = declaration
 
         self.children = []
@@ -2105,7 +2107,7 @@ class Symbol(object):
 
     def get_full_nested_name(self):
         names = []
-        for nne, _ in self.get_lookup_key():
+        for nne, templateParams in self.get_lookup_key():
             names.append(nne)
         return ASTNestedName(names, rooted=False)
 
@@ -2195,15 +2197,15 @@ class Symbol(object):
                     # TODO: it could be a duplicate but let's just insert anyway
                     # the id generation will warn about it
                     symbol = Symbol(parent=parentSymbol, identifier=identifier,
-                                templateParams=templateParams,
-                                templateArgs=templateArgs,
-                                declaration=declaration)
+                                    templateParams=templateParams,
+                                    templateArgs=templateArgs,
+                                    declaration=declaration)
                     declaration.declarationScope = declarationScope
                 else:
                     symbol = Symbol(parent=parentSymbol, identifier=identifier,
-                                templateParams=templateParams,
-                                templateArgs=templateArgs,
-                                declaration=declaration)
+                                    templateParams=templateParams,
+                                    templateArgs=templateArgs,
+                                    declaration=declaration)
                     if declaration:
                         declaration.declarationScope = declarationScope
                 return symbol
@@ -2224,10 +2226,10 @@ class Symbol(object):
                                                          operator=None)
                 if symbol is None:
                     symbol = Symbol(parent=parentSymbol, identifier=identifier,
-                                templateParams=templateParams,
-                                templateArgs=templateArgs, declaration=None)
+                                    templateParams=templateParams,
+                                    templateArgs=templateArgs, declaration=None)
             parentSymbol = symbol
-        assert False # should have returned in the loop
+        assert False  # should have returned in the loop
 
     def add_name(self, nestedName, templatePrefix=None):
         if templatePrefix:
@@ -2335,7 +2337,7 @@ class Symbol(object):
                     # TODO: maybe search without template args
                     return None
             parentSymbol = symbol
-        assert False # should have returned in the loop
+        assert False  # should have returned in the loop
 
     def dump(self, indent):
         res = ['\t'*indent]
@@ -2993,7 +2995,7 @@ class DefinitionParser(object):
         return ASTClass(name, bases)
 
     def _parse_enum(self):
-        scoped = None # is set by CPPEnumObject
+        scoped = None  # is set by CPPEnumObject
         self.skip_ws()
         name = self._parse_nested_name()
         self.skip_ws()
@@ -3220,7 +3222,7 @@ class CPPObject(ObjectDescription):
         if parentSymbol.parent is None:
             # TODO: we could warn, but it is somewhat equivalent to unscoped
             # enums, without the enum
-            return # no parent
+            return  # no parent
         parentDecl = parentSymbol.declaration
         if parentDecl is None:
             # the parent is not explicitly declared
@@ -3239,9 +3241,9 @@ class CPPObject(ObjectDescription):
         if s is not None:
             # something is already declared with that name
             return
-        _ = Symbol(parent=targetSymbol, identifier=symbol.identifier,
-                   templateParams=None, templateArgs=None,
-                   declaration=symbol.declaration.clone())
+        Symbol(parent=targetSymbol, identifier=symbol.identifier,
+               templateParams=None, templateArgs=None,
+               declaration=symbol.declaration.clone())
 
     def add_target_and_index(self, ast, sig, signode):
         # general note: name must be lstrip(':')'ed, to remove "::"
@@ -3254,7 +3256,7 @@ class CPPObject(ObjectDescription):
         ids  = [id_v2, id_v1]
 
         newestId = ids[0]
-        assert newestId # shouldn't be None
+        assert newestId  # shouldn't be None
         if not re.compile(r'^[a-zA-Z0-9_]*$').match(newestId):
             self.warn('Index id generation for C++ object "%s" failed, please '
                       'report as bug (id=%s).' % (text_type(ast), newestId))
@@ -3275,7 +3277,7 @@ class CPPObject(ObjectDescription):
             for id in ids:
                 if id:  # is None when the element didn't exist in that version
                     signode['ids'].append(id)
-            signode['first'] = (not self.names) # hmm, what is this abound?
+            signode['first'] = (not self.names)  # hmm, what is this abound?
             self.state.document.note_explicit_target(signode)
 
     def parse_definition(self, parser):
@@ -3496,8 +3498,8 @@ class CPPDomain(Domain):
         'enumerator': CPPXRefRole()
     }
     initial_data = {
-        'rootSymbol' : Symbol(None, None, None, None, None),
-        'names': {} # full name for indexing -> docname
+        'rootSymbol': Symbol(None, None, None, None, None),
+        'names': {}  # full name for indexing -> docname
     }
 
     def clear_doc(self, docname):
@@ -3547,7 +3549,7 @@ class CPPDomain(Domain):
             if not parentSymbol:
                 print("Target: ", target)
                 print("ParentKey: ", parentKey)
-            assert parentSymbol # should be there
+            assert parentSymbol  # should be there
         else:
             parentSymbol = rootSymbol
 
