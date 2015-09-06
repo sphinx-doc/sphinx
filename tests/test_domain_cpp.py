@@ -18,6 +18,7 @@ from sphinx.domains.cpp import Symbol
 
 ids = []
 
+
 def parse(name, string):
     parser = DefinitionParser(string, None)
     ast = parser.parse_declaration(name)
@@ -28,8 +29,9 @@ def parse(name, string):
         raise DefinitionError("")
     # The scopedness would usually have been set by CPPEnumObject
     if name == "enum":
-        ast.scoped = None # simulate unscoped enum
+        ast.scoped = None  # simulate unscoped enum
     return ast
+
 
 def check(name, input, idv1output=None, idv2output=None, output=None):
     # first a simple check of the AST
@@ -50,12 +52,12 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
         idv2output = "_CPPv2" + idv2output
     try:
         idv1 = ast.get_id_v1()
-        assert idv1 != None
+        assert idv1 is not None
     except NoOldIdError:
         idv1 = None
     try:
         idv2 = ast.get_id_v2()
-        assert idv2 != None
+        assert idv2 is not None
     except NoOldIdError:
         idv2 = None
     if idv1 != idv1output or idv2 != idv2output:
@@ -68,6 +70,7 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
         raise DefinitionError("")
     ids.append(ast.get_id_v2())
     #print ".. %s:: %s" % (name, input)
+
 
 def test_type_definitions():
     check("type", "public bool b", "b", "1b", "bool b")
@@ -88,7 +91,7 @@ def test_type_definitions():
     check("type", "std::function<R(A1, A2, A3)> F", "F", "1F")
     check("type", "std::function<R(A1, A2, A3, As...)> F", "F", "1F")
     check("type", "MyContainer::const_iterator",
-          "MyContainer::const_iterator","N11MyContainer14const_iteratorE")
+          "MyContainer::const_iterator", "N11MyContainer14const_iteratorE")
     check("type",
           "public MyContainer::const_iterator",
           "MyContainer::const_iterator", "N11MyContainer14const_iteratorE",
@@ -230,6 +233,7 @@ def test_type_definitions():
     check('enumerator', 'A', None, "1A")
     check('enumerator', 'A = std::numeric_limits<unsigned long>::max()',
           None, "1A")
+
 
 def test_templates():
     check('class', "A<T>", None, "IE1AI1TE", output="template<> A<T>")

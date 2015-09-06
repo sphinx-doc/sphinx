@@ -1867,10 +1867,6 @@ class ASTClass(ASTBase):
 
     def get_id_v1(self, objectType, symbol):
         return symbol.get_full_nested_name().get_id_v1()
-        #name = _id_shortwords.get(self.name)
-        #if name is not None:
-        #    return name
-        #return self.name.replace(u' ', u'-')
 
     def get_id_v2(self, objectType, symbol):
         return symbol.get_full_nested_name().get_id_v2()
@@ -3272,7 +3268,7 @@ class CPPObject(ObjectDescription):
                 names[name] = ast.symbol.docname
                 signode['names'].append(name)
             else:
-                #print("[CPP] non-unique name:", name)
+                # print("[CPP] non-unique name:", name)
                 pass
             for id in ids:
                 if id:  # is None when the element didn't exist in that version
@@ -3524,10 +3520,10 @@ class CPPDomain(Domain):
 
     def process_doc(self, env, docname, document):
         # just for debugging
-        #print(self.data['rootSymbol'].dump(0))
+        # print(self.data['rootSymbol'].dump(0))
         pass
 
-    #def merge_domaindata(self, docnames, otherdata):
+    # def merge_domaindata(self, docnames, otherdata):
     #    # TODO: merge rootSymbol
 
     def _resolve_xref_inner(self, env, fromdocname, builder,
