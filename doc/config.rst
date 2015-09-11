@@ -867,7 +867,7 @@ that use Sphinx's HTMLWriter class.
    * ``it`` -- Italian
    * ``ja`` -- Japanese
    * ``no`` -- Norwegian
-   * ``pr`` -- Portuguese
+   * ``pt`` -- Portuguese
    * ``ro`` -- Romanian
    * ``ru`` -- Russian
    * ``es`` -- Spanish
