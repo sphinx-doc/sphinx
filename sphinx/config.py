@@ -18,7 +18,7 @@ from six import PY3, iteritems, string_types, binary_type, integer_types
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
 from sphinx.util.osutil import make_filename, cd
-from sphinx.util.pycompat import execfile_
+from sphinx.util.pycompat import execfile_, NoneType
 
 nonascii_re = re.compile(br'[\x80-\xff]')
 
@@ -74,7 +74,7 @@ class Config(object):
         rst_epilog = (None, 'env', [str]),
         rst_prolog = (None, 'env', [str]),
         trim_doctest_flags = (True, 'env'),
-        primary_domain = ('py', 'env'),
+        primary_domain = ('py', 'env', [NoneType]),
         needs_sphinx = (None, None, [str]),
         needs_extensions = ({}, None),
         nitpicky = (False, 'env'),

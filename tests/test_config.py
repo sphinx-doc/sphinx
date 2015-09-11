@@ -136,12 +136,18 @@ def test_config_eol(tmpdir):
         assert cfg.project == u'spam'
 
 
-@with_app(confoverrides={'master_doc': 123, 'language': 'foo'})
+@with_app(confoverrides={
+        'master_doc': 123,
+        'language': 'foo',
+        'primary_domain': None})
 def test_builtin_conf(app, status, warning):
-    assert_in('master_doc', warning.getvalue(),
+    warning = warning.getvalue()
+    assert_in('master_doc', warnings,
         'override on builtin "master_doc" should raise a type warning')
-    assert_not_in('language', warning.getvalue(), 'explicitly permitted '
+    assert_not_in('language', warnings, 'explicitly permitted '
         'override on builtin "language" should NOT raise a type warning')
+    assert_not_in('primary_domain', warnings, 'override to None on builtin '
+        '"primary_domain" should NOT raise a type warning')
 
 
 # See roots/test-config/conf.py.
