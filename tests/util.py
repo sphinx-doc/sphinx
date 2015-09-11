@@ -94,14 +94,15 @@ def assert_startswith(thing, prefix):
         assert False, '%r does not start with %r' % (thing, prefix)
 
 
-def assert_in(x, thing):
-    if x not in thing:
-        assert False, '%r is not in %r' % (x, thing)
-
-
-def assert_not_in(x, thing):
-    if x in thing:
-        assert False, '%r is in %r' % (x, thing)
+try:
+    from nose.tools import assert_in, assert_not_in
+except ImportError:
+    def assert_in(x, thing, msg=''):
+        if x not in thing:
+            assert False, msg or '%r is not in %r%r' % (x, thing)
+    def assert_not_in(x, thing, msg=''):
+        if x in thing:
+            assert False, msg or '%r is in %r%r' % (x, thing)
 
 
 def skip_if(condition, msg=None):
