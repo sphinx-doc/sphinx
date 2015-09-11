@@ -537,7 +537,7 @@ class Sphinx(object):
 
     def add_config_value(self, name, default, rebuild, types=()):
         self.debug('[app] adding config value: %r',
-                (name, default, rebuild) + ((types,) if types else ()))
+                   (name, default, rebuild) + ((types,) if types else ()))
         if name in self.config.values:
             raise ExtensionError('Config value %r already present' % name)
         if rebuild in (False, True):
