@@ -275,3 +275,25 @@ def test_latex_add_latex_package(app, status, warning):
     result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')
     assert '\\usepackage{foo}' in result
     assert '\\usepackage[baz]{bar}' in result
+
+
+@with_app(buildername='latex', testroot='contentsname')
+def test_contentsname(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert ('\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of content}}'
+            in result)
+
+
+@with_app(buildername='latex', testroot='contentsname',
+          confoverrides={'language': 'ja'})
+def test_contentsname_with_language_ja(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\renewcommand{\\contentsname}{Table of content}' in result

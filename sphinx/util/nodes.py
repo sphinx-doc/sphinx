@@ -50,6 +50,10 @@ def apply_source_workaround(node):
         # overwrite: ``term : classifier1 : classifier2`` -> ``term text``
         node.rawsource = node.astext()
 
+    # workaround: recommonmark-0.2.0 doesn't set rawsource attribute
+    if not node.rawsource:
+        node.rawsource = node.astext()
+
     if node.source and node.rawsource:
         return
 
@@ -74,17 +78,19 @@ IGNORED_NODES = (
     nodes.Inline,
     nodes.literal_block,
     nodes.doctest_block,
+    addnodes.versionmodified,
     # XXX there are probably more
 )
 
 
 def is_translatable(node):
     if isinstance(node, nodes.TextElement):
-        apply_source_workaround(node)
-
         if not node.source:
             return False  # built-in message
         if isinstance(node, IGNORED_NODES) and 'translatable' not in node:
+            return False
+        if not node.get('translatable', True):
+            # not(node['translatable'] == True or node['translatable'] is None)
             return False
         # <field_name>orphan</field_name>
         # XXX ignore all metadata (== docinfo)
@@ -228,7 +234,7 @@ def process_index_entry(entry, targetid):
     return indexentries
 
 
-def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc):
+def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed):
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
@@ -238,23 +244,25 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc):
         newnodes = []
         includefiles = map(text_type, toctreenode['includefiles'])
         for includefile in includefiles:
-            try:
-                builder.info(colorfunc(includefile) + " ", nonl=1)
-                subtree = inline_all_toctrees(builder, docnameset, includefile,
-                                              builder.env.get_doctree(includefile),
-                                              colorfunc)
-                docnameset.add(includefile)
-            except Exception:
-                builder.warn('toctree contains ref to nonexisting '
-                             'file %r' % includefile,
-                             builder.env.doc2path(docname))
-            else:
-                sof = addnodes.start_of_file(docname=includefile)
-                sof.children = subtree.children
-                for sectionnode in sof.traverse(nodes.section):
-                    if 'docname' not in sectionnode:
-                        sectionnode['docname'] = includefile
-                newnodes.append(sof)
+            if includefile not in traversed:
+                try:
+                    traversed.append(includefile)
+                    builder.info(colorfunc(includefile) + " ", nonl=1)
+                    subtree = inline_all_toctrees(builder, docnameset, includefile,
+                                                  builder.env.get_doctree(includefile),
+                                                  colorfunc, traversed)
+                    docnameset.add(includefile)
+                except Exception:
+                    builder.warn('toctree contains ref to nonexisting '
+                                 'file %r' % includefile,
+                                 builder.env.doc2path(docname))
+                else:
+                    sof = addnodes.start_of_file(docname=includefile)
+                    sof.children = subtree.children
+                    for sectionnode in sof.traverse(nodes.section):
+                        if 'docname' not in sectionnode:
+                            sectionnode['docname'] = includefile
+                    newnodes.append(sof)
         toctreenode.parent.replace(toctreenode, newnodes)
     return tree
 
