@@ -2575,7 +2575,6 @@ class DefinitionParser(object):
 
         # TODO: this could/should be more strict
         elements = []
-        self.skip_ws()
         if self.skip_word_and_ws('signed'):
             elements.append('signed')
         elif self.skip_word_and_ws('unsigned'):
@@ -2587,7 +2586,9 @@ class DefinitionParser(object):
                 elements.append('long')
             else:
                 break
-        if self.skip_word_and_ws('int'):
+        if self.skip_word_and_ws('char'):
+            elements.append('char')
+        elif self.skip_word_and_ws('int'):
             elements.append('int')
         elif self.skip_word_and_ws('double'):
             elements.append('double')

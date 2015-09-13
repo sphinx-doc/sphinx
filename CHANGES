@@ -64,6 +64,7 @@ Bugs fixed
 * #1994: More supporting non-standard parser (like recommonmark parser) for Translation and
   WebSupport feature. Now node.rawsource is fall backed to node.astext() during docutils
   transforming.
+* C++, fix parsing of 'signed char' and 'unsigned char' as types.
 
 Documentation
 -------------

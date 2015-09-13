@@ -15,6 +15,7 @@ from util import raises
 
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
 from sphinx.domains.cpp import Symbol
+import sphinx.domains.cpp as cppDomain
 
 ids = []
 
@@ -234,6 +235,27 @@ def test_type_definitions():
     check('enumerator', 'A', None, "1A")
     check('enumerator', 'A = std::numeric_limits<unsigned long>::max()',
           None, "1A")
+
+
+def test_fundamental_types():
+    # see http://en.cppreference.com/w/cpp/language/types
+    for t, id_v2 in cppDomain._id_fundamental_v2.items():
+        if t == "decltype(auto)":
+            continue
+
+        def makeIdV1():
+            id = t.replace(" ", "-").replace("long", "l").replace("int", "i")
+            id = id.replace("bool", "b").replace("char", "c")
+            id = id.replace("wc_t", "wchar_t").replace("c16_t", "char16_t")
+            id = id.replace("c32_t", "char32_t")
+            return "f__%s" % id
+
+        def makeIdV2():
+            id = id_v2
+            if t == "std::nullptr_t":
+                id = "NSt9nullptr_tE"
+            return "1f%s" % id
+        check("function", "void f(%s arg)" % t, makeIdV1(), makeIdV2())
 
 
 def test_templates():
