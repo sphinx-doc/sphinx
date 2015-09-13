@@ -275,9 +275,9 @@ class IndexBuilder(object):
         rv = {}
         otypes = self._objtypes
         onames = self._objnames
-        for domainname, domain in iteritems(self.env.domains):
+        for domainname, domain in sorted(iteritems(self.env.domains)):
             for fullname, dispname, type, docname, anchor, prio in \
-                    domain.get_objects():
+                    sorted(domain.get_objects()):
                 # XXX use dispname?
                 if docname not in fn2index:
                     continue

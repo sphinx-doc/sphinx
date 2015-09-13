@@ -162,7 +162,7 @@ else:
                         messages=jscatalog,
                         plural_expr=catalog.plural_expr,
                         locale=str(catalog.locale)
-                    ), outfile)
+                    ), outfile, sort_keys=True)
                     outfile.write(');')
                 finally:
                     outfile.close()
