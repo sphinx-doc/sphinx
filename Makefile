@@ -7,6 +7,7 @@ DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
              -i sphinx/pycode/pgen2 -i sphinx/util/smartypants.py \
              -i .ropeproject -i doc/_build -i tests/path.py \
              -i tests/coverage.py -i env -i utils/convert.py \
+             -i tests/typing_test_data.py \
              -i sphinx/search/da.py \
              -i sphinx/search/de.py \
              -i sphinx/search/en.py \
