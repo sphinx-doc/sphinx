@@ -716,7 +716,7 @@ if "%%1" == "clean" (
 
 
 REM Check if sphinx-build is available and fallback to Python version if any
-%%SPHINXBUILD%% 2> nul
+%%SPHINXBUILD%% 1>NUL 2>NUL
 if errorlevel 9009 goto sphinx_python
 goto sphinx_ok
 
@@ -979,7 +979,7 @@ set SPHINXPROJ=%(project_fn)s
 
 if "%%1" == "" goto help
 
-%%SPHINXBUILD%% 2> nul
+%%SPHINXBUILD%% >NUL 2>NUL
 if errorlevel 9009 (
 \techo.
 \techo.The 'sphinx-build' command was not found. Make sure you have Sphinx
