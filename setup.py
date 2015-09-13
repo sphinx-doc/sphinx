@@ -51,7 +51,7 @@ requires = [
     'Pygments>=2.0',
     'docutils>=0.11',
     'snowballstemmer>=1.1',
-    'babel>=1.3',
+    'babel>=1.3,!=2.0',
     'alabaster>=0.7,<0.8',
     'sphinx_rtd_theme>=0.1,<0.2',
 ]

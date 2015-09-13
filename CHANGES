@@ -9,6 +9,7 @@ Features added
 Bugs fixed
 ----------
 
+* #1976: Avoid "2.0" version of Babel because it doesn't work with Windows environment.
 * Add a "default.css" stylesheet (which imports "classic.css") for compatibility.
 * #1788: graphviz extension raises exception when caption option is present.
 * #1789: ``:pyobject:`` option of ``literalinclude`` directive includes following
