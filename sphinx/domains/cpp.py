@@ -1195,7 +1195,7 @@ class ASTParametersQualifiers(ASTBase):
 
 class ASTDeclSpecsSimple(ASTBase):
     def __init__(self, storage, inline, virtual, explicit,
-                 constexpr, volatile, const):
+                 constexpr, volatile, const, friend):
         self.storage = storage
         self.inline = inline
         self.virtual = virtual
@@ -1203,6 +1203,7 @@ class ASTDeclSpecsSimple(ASTBase):
         self.constexpr = constexpr
         self.volatile = volatile
         self.const = const
+        self.friend = friend
 
     def mergeWith(self, other):
         if not other:
@@ -1213,7 +1214,8 @@ class ASTDeclSpecsSimple(ASTBase):
                                   self.explicit or other.explicit,
                                   self.constexpr or other.constexpr,
                                   self.volatile or other.volatile,
-                                  self.const or other.const)
+                                  self.const or other.const,
+                                  self.friend or other.friend)
 
     def __unicode__(self):
         res = []
@@ -1221,6 +1223,8 @@ class ASTDeclSpecsSimple(ASTBase):
             res.append(self.storage)
         if self.inline:
             res.append('inline')
+        if self.friend:
+            res.append('friend')
         if self.virtual:
             res.append('virtual')
         if self.explicit:
@@ -1242,6 +1246,8 @@ class ASTDeclSpecsSimple(ASTBase):
             _add(modifiers, self.storage)
         if self.inline:
             _add(modifiers, 'inline')
+        if self.friend:
+            _add(modifiers, 'friend')
         if self.virtual:
             _add(modifiers, 'virtual')
         if self.explicit:
@@ -2707,6 +2713,7 @@ class DefinitionParser(object):
         constexpr = None
         volatile = None
         const = None
+        friend = None
         while 1:  # accept any permutation of a subset of some decl-specs
             self.skip_ws()
             if not storage:
@@ -2727,6 +2734,10 @@ class DefinitionParser(object):
                 if not inline:
                     inline = self.skip_word('inline')
                     if inline:
+                        continue
+                if not friend:
+                    friend = self.skip_word('friend')
+                    if friend:
                         continue
                 if not virtual:
                     virtual = self.skip_word('virtual')
@@ -2751,7 +2762,7 @@ class DefinitionParser(object):
                     continue
             break
         return ASTDeclSpecsSimple(storage, inline, virtual, explicit, constexpr,
-                                  volatile, const)
+                                  volatile, const, friend)
 
     def _parse_decl_specs(self, outer, typed=True):
         if outer:

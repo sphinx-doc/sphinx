@@ -65,6 +65,7 @@ Bugs fixed
   WebSupport feature. Now node.rawsource is fall backed to node.astext() during docutils
   transforming.
 * C++, fix parsing of 'signed char' and 'unsigned char' as types.
+* C++, add missing support for 'friend' functions.
 
 Documentation
 -------------

@@ -223,6 +223,9 @@ def test_type_definitions():
     # TODO: make tests for functions in a template, e.g., Test<int&&()>
     # such that the id generation for function type types is correct.
 
+    check('function', 'friend std::ostream &f(std::ostream&, int)',
+          'f__osR.i', '1fRNSt7ostreamEi')
+
     check('class', 'public A', "A", "1A", output='A')
     check('class', 'private A', "A", "1A")
 
