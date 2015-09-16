@@ -583,11 +583,18 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.this_is_the_title = 0
             raise nodes.SkipNode
         elif isinstance(parent, nodes.section):
+            short = ''
+            if 'image' in str(node):
+                elementText = []
+                for n in node.children:
+                    if isinstance(n, nodes.Text):
+                        elementText.append(n.astext().strip())
+                short = '[%s]' % ' '.join(elementText)
             try:
-                self.body.append(r'\%s{' % self.sectionnames[self.sectionlevel])
+                self.body.append(r'\%s%s{' % (self.sectionnames[self.sectionlevel], short))
             except IndexError:
                 # just use "subparagraph", it's not numbered anyway
-                self.body.append(r'\%s{' % self.sectionnames[-1])
+                self.body.append(r'\%s%s{' % (self.sectionnames[-1], short))
             self.context.append('}\n')
 
             if self.next_section_ids:
