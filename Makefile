@@ -1,7 +1,7 @@
 PYTHON ?= python
 
 .PHONY: all check clean clean-pyc clean-patchfiles clean-backupfiles \
-        clean-generated pylint reindent test covertest build convert-utils
+        clean-generated pylint reindent test covertest build
 
 DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
              -i sphinx/pycode/pgen2 -i sphinx/util/smartypants.py \
@@ -28,13 +28,8 @@ DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
 
 all: clean-pyc clean-backupfiles check test
 
-ifeq ($(PYTHON), python3)
-check: convert-utils
-	@$(PYTHON) utils/check_sources3.py $(DONT_CHECK) .
-else
 check:
 	@$(PYTHON) utils/check_sources.py $(DONT_CHECK) .
-endif
 
 clean: clean-pyc clean-patchfiles clean-backupfiles clean-generated
 
@@ -56,13 +51,8 @@ clean-generated:
 pylint:
 	@pylint --rcfile utils/pylintrc sphinx
 
-ifeq ($(PYTHON), python3)
-reindent: convert-utils
-	@$(PYTHON) utils/reindent3.py -r -n .
-else
 reindent:
 	@$(PYTHON) utils/reindent.py -r -n .
-endif
 
 test:
 	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' $(TEST)
@@ -73,8 +63,3 @@ covertest:
 
 build:
 	@$(PYTHON) setup.py build
-
-ifeq ($(PYTHON), python3)
-convert-utils:
-	@python3 utils/convert.py -i utils/convert.py utils/
-endif
