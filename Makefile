@@ -1,6 +1,6 @@
 PYTHON ?= python
 
-.PHONY: all check clean clean-pyc clean-patchfiles clean-backupfiles \
+.PHONY: all style-check clean clean-pyc clean-patchfiles clean-backupfiles \
         clean-generated pylint reindent test covertest build
 
 DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
@@ -24,11 +24,11 @@ DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
              -i sphinx/search/ru.py \
              -i sphinx/search/sv.py \
              -i sphinx/search/tr.py \
-             -i utils/reindent3.py -i utils/check_sources3.py -i .tox
+             -i .tox
 
-all: clean-pyc clean-backupfiles check test
+all: clean-pyc clean-backupfiles style-check test
 
-check:
+style-check:
 	@$(PYTHON) utils/check_sources.py $(DONT_CHECK) .
 
 clean: clean-pyc clean-patchfiles clean-backupfiles clean-generated
