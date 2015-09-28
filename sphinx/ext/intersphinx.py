@@ -257,7 +257,7 @@ def missing_reference(app, env, node, contnode):
             proj, version, uri, dispname = inventory[objtype][target]
             if '://' not in uri and node.get('refdoc'):
                 # get correct path in case of subdirectories
-                uri = path.join(relative_path(node['refdoc'], env.srcdir), uri)
+                uri = path.join(relative_path(node['refdoc'], '.'), uri)
             newnode = nodes.reference('', '', internal=False, refuri=uri,
                                       reftitle=_('(in %s v%s)') % (proj, version))
             if node.get('refexplicit'):
