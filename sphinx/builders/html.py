@@ -843,7 +843,9 @@ class StandaloneHTMLBuilder(Builder):
                     if anchor.endswith(name):
                         # this can shorten the inventory by as much as 25%
                         anchor = anchor[:-len(name)] + '$'
-                    uri = self.get_target_uri(docname) + '#' + anchor
+                    uri = self.get_target_uri(docname)
+                    if anchor:
+                        uri += '#' + anchor
                     if dispname == name:
                         dispname = u'-'
                     f.write(compressor.compress(
