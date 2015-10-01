@@ -311,6 +311,8 @@ def test_bases():
     check('class', 'A : virtual private B', 'A', '1A', output='A : virtual B')
     check('class', 'A : B, virtual C', 'A', '1A')
     check('class', 'A : public virtual B', 'A', '1A')
+    check('class', 'A : B, C...', 'A', '1A')
+    check('class', 'A : B..., C', 'A', '1A')
 
 
 def test_operators():

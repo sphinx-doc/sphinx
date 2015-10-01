@@ -212,8 +212,8 @@ from sphinx.util.docfields import Field, GroupedField
         grammar:
               nested-name "final"[opt] (":" base-specifier-list)[opt]
             base-specifier-list ->
-              base-specifier
-            | base-specifier-list, base-specifier
+              base-specifier "..."[opt]
+            | base-specifier-list, base-specifier "..."[opt]
             base-specifier ->
               base-type-specifier
             | "virtual" access-spe"cifier[opt]    base-type-specifier
@@ -1849,10 +1849,11 @@ class ASTTypeUsing(ASTBase):
 
 
 class ASTBaseClass(ASTBase):
-    def __init__(self, name, visibility, virtual):
+    def __init__(self, name, visibility, virtual, pack):
         self.name = name
         self.visibility = visibility
         self.virtual = virtual
+        self.pack = pack
 
     def __unicode__(self):
         res = []
@@ -1862,6 +1863,8 @@ class ASTBaseClass(ASTBase):
         if self.virtual:
             res.append('virtual ')
         res.append(text_type(self.name))
+        if self.pack:
+            res.append('...')
         return u''.join(res)
 
     def describe_signature(self, signode, mode, env, symbol):
@@ -1874,6 +1877,8 @@ class ASTBaseClass(ASTBase):
             signode += addnodes.desc_annotation('virtual', 'virtual')
             signode += nodes.Text(' ')
         self.name.describe_signature(signode, 'markType', env, symbol=symbol)
+        if self.pack:
+            signode += nodes.Text('...')
 
 
 class ASTClass(ASTBase):
@@ -3025,6 +3030,7 @@ class DefinitionParser(object):
                 self.skip_ws()
                 visibility = 'private'
                 virtual = False
+                pack = False
                 if self.skip_word_and_ws('virtual'):
                     virtual = True
                 if self.match(_visibility_re):
@@ -3033,7 +3039,9 @@ class DefinitionParser(object):
                 if not virtual and self.skip_word_and_ws('virtual'):
                     virtual = True
                 baseName = self._parse_nested_name()
-                bases.append(ASTBaseClass(baseName, visibility, virtual))
+                self.skip_ws()
+                pack = self.skip_string('...')
+                bases.append(ASTBaseClass(baseName, visibility, virtual, pack))
                 self.skip_ws()
                 if self.skip_string(','):
                     continue
