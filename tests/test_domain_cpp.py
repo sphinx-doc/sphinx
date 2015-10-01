@@ -296,6 +296,10 @@ def test_templates():
           None, "I0E5allowP1FN4funcI1F1BXG!=1EE4typeE")
 
 
+def test_class():
+    check('class', 'A final', 'A', '1A')
+
+
 def test_bases():
     check('class', 'A', "A", "1A")
     check('class', 'A::B::C', "A::B::C", "N1A1B1CE")

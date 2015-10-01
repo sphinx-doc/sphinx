@@ -210,8 +210,7 @@ from sphinx.util.docfields import Field, GroupedField
     class_object:
         goal: a class declaration, but with specification of a base class
         grammar:
-              nested-name
-            | nested-name ":" base-specifier-list
+              nested-name "final"[opt] (":" base-specifier-list)[opt]
             base-specifier-list ->
               base-specifier
             | base-specifier-list, base-specifier
@@ -1878,8 +1877,9 @@ class ASTBaseClass(ASTBase):
 
 
 class ASTClass(ASTBase):
-    def __init__(self, name, bases):
+    def __init__(self, name, final, bases):
         self.name = name
+        self.final = final
         self.bases = bases
 
     def get_id_v1(self, objectType, symbol):
@@ -1891,6 +1891,8 @@ class ASTClass(ASTBase):
     def __unicode__(self):
         res = []
         res.append(text_type(self.name))
+        if self.final:
+            res.append(' final')
         if len(self.bases) > 0:
             res.append(' : ')
             first = True
@@ -1904,6 +1906,9 @@ class ASTClass(ASTBase):
     def describe_signature(self, signode, mode, env, symbol):
         _verify_description_mode(mode)
         self.name.describe_signature(signode, mode, env, symbol=symbol)
+        if self.final:
+            signode += nodes.Text(' ')
+            signode += addnodes.desc_annotation('final', 'final')
         if len(self.bases) > 0:
             signode += nodes.Text(' : ')
             for b in self.bases:
@@ -3011,6 +3016,8 @@ class DefinitionParser(object):
 
     def _parse_class(self):
         name = self._parse_nested_name()
+        self.skip_ws()
+        final = self.skip_word_and_ws('final')
         bases = []
         self.skip_ws()
         if self.skip_string(':'):
@@ -3032,7 +3039,7 @@ class DefinitionParser(object):
                     continue
                 else:
                     break
-        return ASTClass(name, bases)
+        return ASTClass(name, final, bases)
 
     def _parse_enum(self):
         scoped = None  # is set by CPPEnumObject
