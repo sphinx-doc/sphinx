@@ -66,7 +66,7 @@ Bugs fixed
   transforming.
 * C++, fix parsing of 'signed char' and 'unsigned char' as types.
 * C++, add missing support for 'friend' functions.
-* C++, add support for virtual bases.
+* C++, add support for virtual bases (thanks to Rapptz).
 
 Documentation
 -------------

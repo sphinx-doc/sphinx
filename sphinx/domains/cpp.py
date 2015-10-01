@@ -209,11 +209,16 @@ from sphinx.util.docfields import Field, GroupedField
 
     class_object:
         goal: a class declaration, but with specification of a base class
-              TODO: what about templates? for now: skip
         grammar:
               nested-name
-            | nested-name ":"
-                'comma-separated list of nested-name optionally with visibility'
+            | nested-name ":" base-specifier-list
+            base-specifier-list ->
+              base-specifier
+            | base-specifier-list, base-specifier
+            base-specifier ->
+              base-type-specifier
+            | "virtual" access-spe"cifier[opt]    base-type-specifier
+            | access-specifier[opt] "virtual"[opt] base-type-specifier
         Can start with a templateDeclPrefix.
 
     enum_object:
@@ -3011,17 +3016,14 @@ class DefinitionParser(object):
         if self.skip_string(':'):
             while 1:
                 self.skip_ws()
-                virtual = False
-                if self.skip_string('virtual'):
-                    virtual = True
-                    self.skip_ws()
                 visibility = 'private'
+                virtual = False
+                if self.skip_word_and_ws('virtual'):
+                    virtual = True
                 if self.match(_visibility_re):
                     visibility = self.matched_text
                     self.skip_ws()
-                if self.skip_string('virtual'):
-                    if virtual:
-                        self.fail('Duplicate virtual keyword found')
+                if not virtual and self.skip_word_and_ws('virtual'):
                     virtual = True
                 baseName = self._parse_nested_name()
                 bases.append(ASTBaseClass(baseName, visibility, virtual))
