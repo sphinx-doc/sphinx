@@ -38,7 +38,9 @@ from sphinx.util.docfields import Field, GroupedField
     All versions are generated and attached to elements. The newest is used for
     the index. All of the versions should work as permalinks.
 
-    See http://www.nongnu.org/hcb/ for the grammar.
+    See http://www.nongnu.org/hcb/ for the grammar,
+    or https://github.com/cplusplus/draft/blob/master/source/grammar.tex
+    for the newest grammar.
 
     common grammar things:
         template-declaration ->
@@ -2387,7 +2389,7 @@ class DefinitionParser(object):
         'float', 'double', 'auto'
     )
 
-    _prefix_keys = ('class', 'struct', 'union', 'typename')
+    _prefix_keys = ('class', 'struct', 'enum', 'union', 'typename')
 
     def __init__(self, definition, warnEnv):
         self.definition = definition.strip()

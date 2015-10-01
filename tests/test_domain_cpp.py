@@ -226,6 +226,13 @@ def test_type_definitions():
     check('function', 'friend std::ostream &f(std::ostream&, int)',
           'f__osR.i', '1fRNSt7ostreamEi')
 
+    # from breathe#223
+    check('function', 'void f(struct E e)', 'f__E', '1f1E')
+    check('function', 'void f(class E e)', 'f__E', '1f1E')
+    check('function', 'void f(typename E e)', 'f__E', '1f1E')
+    check('function', 'void f(enum E e)', 'f__E', '1f1E')
+    check('function', 'void f(union E e)', 'f__E', '1f1E')
+
     check('class', 'public A', "A", "1A", output='A')
     check('class', 'private A', "A", "1A")
 
