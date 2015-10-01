@@ -3020,7 +3020,7 @@ class DefinitionParser(object):
                     visibility = self.matched_text
                     self.skip_ws()
                 if self.skip_string('virtual'):
-                    if virtual == True:
+                    if virtual:
                         self.fail('Duplicate virtual keyword found')
                     virtual = True
                 baseName = self._parse_nested_name()
