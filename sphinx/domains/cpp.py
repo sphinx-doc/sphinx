@@ -1845,15 +1845,18 @@ class ASTTypeUsing(ASTBase):
 
 
 class ASTBaseClass(ASTBase):
-    def __init__(self, name, visibility):
+    def __init__(self, name, visibility, virtual):
         self.name = name
         self.visibility = visibility
+        self.virtual = virtual
 
     def __unicode__(self):
         res = []
         if self.visibility != 'private':
             res.append(self.visibility)
             res.append(' ')
+        if self.virtual:
+            res.append('virtual ')
         res.append(text_type(self.name))
         return u''.join(res)
 
@@ -1862,6 +1865,9 @@ class ASTBaseClass(ASTBase):
         if self.visibility != 'private':
             signode += addnodes.desc_annotation(self.visibility,
                                                 self.visibility)
+            signode += nodes.Text(' ')
+        if self.virtual:
+            signode += addnodes.desc_annotation('virtual', 'virtual')
             signode += nodes.Text(' ')
         self.name.describe_signature(signode, 'markType', env, symbol=symbol)
 
@@ -3005,11 +3011,20 @@ class DefinitionParser(object):
         if self.skip_string(':'):
             while 1:
                 self.skip_ws()
+                virtual = False
+                if self.skip_string('virtual'):
+                    virtual = True
+                    self.skip_ws()
                 visibility = 'private'
                 if self.match(_visibility_re):
                     visibility = self.matched_text
+                    self.skip_ws()
+                if self.skip_string('virtual'):
+                    if virtual == True:
+                        self.fail('Duplicate virtual keyword found')
+                    virtual = True
                 baseName = self._parse_nested_name()
-                bases.append(ASTBaseClass(baseName, visibility))
+                bases.append(ASTBaseClass(baseName, visibility, virtual))
                 self.skip_ws()
                 if self.skip_string(','):
                     continue
