@@ -1829,7 +1829,7 @@ class ASTTypeUsing(ASTBase):
         self.type = type
 
     def get_id_v1(self, objectType=None, symbol=None):
-        return None
+        raise NoOldIdError()
 
     def get_id_v2(self, objectType=None, symbol=None):
         return symbol.get_full_nested_name().get_id_v2()
@@ -3198,11 +3198,13 @@ class DefinitionParser(object):
 
         if objectType == 'type':
             error = None
+            pos = self.pos
             try:
                 if not templatePrefix:
                     declaration = self._parse_type(named=True, outer='type')
             except DefinitionError as e:
                 error = e.description
+                self.pos = pos
             try:
                 if not declaration:
                     declaration = self._parse_type_using()

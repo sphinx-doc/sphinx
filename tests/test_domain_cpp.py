@@ -246,6 +246,8 @@ def test_type_definitions():
     check('enumerator', 'A = std::numeric_limits<unsigned long>::max()',
           None, "1A")
 
+    check('type', 'A = B', None, '1A')
+
 
 def test_fundamental_types():
     # see http://en.cppreference.com/w/cpp/language/types
