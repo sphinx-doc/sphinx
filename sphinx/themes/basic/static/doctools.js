@@ -124,6 +124,7 @@ var Documentation = {
     this.fixFirefoxAnchorBug();
     this.highlightSearchWords();
     this.initIndexTable();
+    this.initOnKeyListeners();
   },
 
   /**
@@ -252,6 +253,30 @@ var Documentation = {
     });
     var url = parts.join('/');
     return path.substring(url.lastIndexOf('/') + 1, path.length - 1);
+  },
+
+  /**
+   * init onKeyListernes (for navigation)
+   */
+  initOnKeyListeners: function() {
+    $(document).keyup(function(event) {
+      if (!$(document.activeElement).is('input')) { //don't navigate when in search box
+        switch (event.keyCode) {
+          case 37: //left
+            var prevElement = $('link[rel="prev"]')[0];
+            if (prevElement) {
+              window.location.href = prevElement.href;
+            }
+            break;
+          case 39: //right
+            var nextElement = $('link[rel="next"]')[0];
+            if (nextElement) {
+              window.location.href = nextElement.href;
+            }
+            break;
+        }
+      }
+    });
   }
 };
 

@@ -14,6 +14,7 @@ Features added
 * C++ type alias support (e.g., ``.. type:: T = int``)
 * C++ template support for classes, functions, type aliases, and variables (#1729, #1314).
 * C++, added new scope management directives ``namespace-push`` and ``namespace-pop``.
+* #1970: Keyboard shortcuts to navigate Next and Previous topics
 
 Bugs fixed
 ----------
