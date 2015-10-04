@@ -28,6 +28,7 @@ Other contributors, listed alphabetically, are:
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements
 * Doug Hellmann -- graphviz improvements
+* Timotheus Kampik - stop words language fix
 * Takeshi Komiya -- numref feature
 * Dave Kuhlman -- original LaTeX writer
 * Blaise Laflamme -- pyramid theme

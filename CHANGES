@@ -69,6 +69,7 @@ Bugs fixed
 * C++, add missing support for virtual base classes (thanks to Rapptz).
 * C++, add support for final classes.
 * C++, fix parsing of types prefixed with 'enum'.
+* #2023: Dutch search support uses Danish stemming info
 
 Documentation
 -------------
