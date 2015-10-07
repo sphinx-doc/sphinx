@@ -777,7 +777,12 @@ class Documenter(object):
             has_doc = bool(doc)
 
             keep = False
-            if want_all and membername.startswith('__') and \
+            # remove members given by exclude-members
+            if self.options.exclude_members and membername in \
+                    self.options.exclude_members:
+                keep = False
+
+            elif want_all and membername.startswith('__') and \
                     membername.endswith('__') and len(membername) > 4:
                 # special __methods__
                 if self.options.special_members is ALL and \
@@ -829,11 +834,6 @@ class Documenter(object):
             self.options.members is ALL
         # find out which members are documentable
         members_check_module, members = self.get_object_members(want_all)
-
-        # remove members given by exclude-members
-        if self.options.exclude_members:
-            members = [(membername, member) for (membername, member) in members
-                       if membername not in self.options.exclude_members]
 
         # document non-skipped members
         memberdocumenters = []
