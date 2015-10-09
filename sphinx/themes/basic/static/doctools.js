@@ -260,20 +260,21 @@ var Documentation = {
    */
   initOnKeyListeners: function() {
     $(document).keyup(function(event) {
-      if (!$(document.activeElement).is('input')) { //don't navigate when in search box
+      var activeElementType = $(document.activeElement).prop('tagName');
+      if (activeElementType !== 'TEXTAREA' && activeElementType !== 'INPUT') { // don't navigate when in search box or textarea
         switch (event.keyCode) {
-          case 37: //left
-            var prevElement = $('link[rel="prev"]')[0];
-            if (prevElement) {
-              window.location.href = prevElement.href;
+          case 37: // left
+            var prevHref = $('link[rel="prev"]').prop('href');
+            if (prevHref) {
+              window.location.href = prevHref;
             }
-            break;
-          case 39: //right
-            var nextElement = $('link[rel="next"]')[0];
-            if (nextElement) {
-              window.location.href = nextElement.href;
+            return false;
+          case 39: // right
+            var nextHref = $('link[rel="next"]').prop('href');
+            if (nextHref) {
+              window.location.href = nextHref;
             }
-            break;
+            return false;
         }
       }
     });
