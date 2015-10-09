@@ -141,7 +141,7 @@ def test_config_eol(tmpdir):
         'language': 'foo',
         'primary_domain': None})
 def test_builtin_conf(app, status, warning):
-    warning = warning.getvalue()
+    warnings = warning.getvalue()
     assert_in('master_doc', warnings,
         'override on builtin "master_doc" should raise a type warning')
     assert_not_in('language', warnings, 'explicitly permitted '
