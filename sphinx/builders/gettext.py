@@ -216,7 +216,8 @@ class MessageCatalogBuilder(I18nBuilder):
                     if self.config.gettext_location:
                         # generate "#: file1:line1\n#: file2:line2 ..."
                         pofile.write("#: %s\n" % "\n#: ".join(
-                            "%s:%s" % (safe_relpath(source, self.outdir), line)
+                            "%s:%s" % (safe_relpath(source, self.outdir).
+                                       replace('\\', '/'), line)
                             for source, line, _ in positions))
                     if self.config.gettext_uuid:
                         # generate "# uuid1\n# uuid2\n ..."
