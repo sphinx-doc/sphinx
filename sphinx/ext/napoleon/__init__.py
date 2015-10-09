@@ -307,7 +307,7 @@ def _process_docstring(app, what, name, obj, options, lines):
     lines[:] = result_lines[:]
 
 
-def _skip_member(app, what, name, obj, skip, options):
+def _skip_member(app, what, name, obj, namespace, skip, options):
     """Determine if private and special class members are included in docs.
 
     The following settings in conf.py determine if private and special class

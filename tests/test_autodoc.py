@@ -93,7 +93,7 @@ def process_signature(app, what, name, obj, options, args, retann):
         return '42', None
 
 
-def skip_member(app, what, name, obj, skip, options):
+def skip_member(app, what, name, obj, namespace, skip, options):
     if name in ('__special1__', '__special2__'):
         return skip
     if name.startswith('_'):

@@ -128,13 +128,13 @@ class SkipMemberTest(TestCase):
         app.config = Config()
         setattr(app.config, config_name, True)
         if expect_skip:
-            self.assertEqual(skip, _skip_member(app, what, member, obj, skip,
-                                                mock.Mock()))
+            self.assertEqual(skip, _skip_member(app, what, member, obj, '',
+                                                skip, mock.Mock()))
         else:
-            self.assertFalse(_skip_member(app, what, member, obj, skip,
+            self.assertFalse(_skip_member(app, what, member, obj, '', skip,
                                           mock.Mock()))
         setattr(app.config, config_name, False)
-        self.assertEqual(skip, _skip_member(app, what, member, obj, skip,
+        self.assertEqual(skip, _skip_member(app, what, member, obj, '', skip,
                                             mock.Mock()))
 
     def test_namedtuple(self):

@@ -810,7 +810,7 @@ class Documenter(object):
                 # let extensions preprocess docstrings
                 skip_user = self.env.app.emit_firstresult(
                     'autodoc-skip-member', self.objtype, membername, member,
-                    not keep, self.options)
+                    self.fullname, not keep, self.options)
                 if skip_user is not None:
                     keep = not skip_user
 
