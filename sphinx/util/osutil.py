@@ -38,6 +38,10 @@ SEP = "/"
 
 def os_path(canonicalpath):
     return canonicalpath.replace(SEP, path.sep)
+    
+def canon_path(nativepath):
+    """Return path in OS-independent form"""
+    return nativepath.replace(path.sep, SEP)
 
 
 def relative_uri(base, to):
