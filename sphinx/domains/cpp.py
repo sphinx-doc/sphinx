@@ -2065,23 +2065,30 @@ class ASTNamespace(ASTBase):
 
 
 class Symbol(object):
-    def __init__(self, parent, identifier,
-                 templateParams, templateArgs, declaration):
-        if not parent:
+    def _assert_invariants(self):
+        if not self.parent:
             # parent == None means global scope, so declaration means a parent
-            assert not identifier
-            assert not templateParams
-            assert not templateArgs
-            assert not declaration
+            assert not self.identifier
+            assert not self.templateParams
+            assert not self.templateArgs
+            assert not self.declaration
+            assert not self.docname
         else:
-            if not identifier:
+            if not self.identifier:
                 # in case it's an operator
-                assert declaration
+                assert self.declaration
+            if self.declaration:
+                assert self.docname
+
+    def __init__(self, parent, identifier,
+                 templateParams, templateArgs, declaration, docname):
         self.parent = parent
         self.identifier = identifier
         self.templateParams = templateParams  # template<templateParams>
         self.templateArgs = templateArgs  # identifier<templateArgs>
         self.declaration = declaration
+        self.docname = docname
+        self._assert_invariants()
 
         self.children = []
         if self.parent:
@@ -2097,14 +2104,13 @@ class Symbol(object):
                 decl = ASTDeclaration('templateParam', None, None, p)
                 nne = ASTNestedNameElement(p.get_identifier(), None)
                 nn = ASTNestedName([nne], rooted=False)
-                self._add_symbols(nn, [], decl)
+                self._add_symbols(nn, [], decl, docname)
 
     def get_all_symbols(self):
-        # assumed to be in post-order
+        yield self
         for sChild in self.children:
             for s in sChild.get_all_symbols():
                 yield s
-        yield self
 
     def get_lookup_key(self):
         if not self.parent:
@@ -2166,7 +2172,7 @@ class Symbol(object):
             return s
         return None
 
-    def _add_symbols(self, nestedName, templateDecls, declaration):
+    def _add_symbols(self, nestedName, templateDecls, declaration, docname):
         # This condition should be checked at the parser level.
         # Each template argument list must have a template parameter list.
         # But to declare a template there must be an additional template parameter list.
@@ -2180,96 +2186,100 @@ class Symbol(object):
         declarationScope = parentSymbol
         names = nestedName.names
         iTemplateDecl = 0
-        for iName in range(len(names)):
-            name = names[iName]
-            if iName + 1 == len(names):
-                if name.is_operator():
-                    identifier = None
-                    templateArgs = None
-                    operator = name
-                else:
-                    identifier = name.identifier
-                    templateArgs = name.templateArgs
-                    operator = None
-                if iTemplateDecl < len(templateDecls):
-                    if iTemplateDecl + 1 != len(templateDecls):
-                        print(text_type(templateDecls))
-                        print(text_type(nestedName))
-                    assert iTemplateDecl + 1 == len(templateDecls)
-                    templateParams = templateDecls[iTemplateDecl]
-                else:
-                    assert iTemplateDecl == len(templateDecls)
-                    templateParams = None
-                symbol = parentSymbol._find_named_symbol(identifier,
-                                                         templateParams,
-                                                         templateArgs,
-                                                         operator)
-                if symbol:
-                    if not declaration:
-                        # good, just a scope creation
-                        return symbol
-                    if not symbol.declaration:
-                        # If someone first opened the scope, and then later
-                        # declares it, e.g,
-                        # .. namespace:: Test
-                        # .. namespace:: nullptr
-                        # .. class:: Test
-                        symbol.declaration = declaration
-                        declaration.symbol = symbol
-                        declaration.declarationScope = declarationScope
-                        return symbol
-                    # it may simply be a functin overload
-                    # TODO: it could be a duplicate but let's just insert anyway
-                    # the id generation will warn about it
-                    symbol = Symbol(parent=parentSymbol, identifier=identifier,
-                                    templateParams=templateParams,
-                                    templateArgs=templateArgs,
-                                    declaration=declaration)
-                    declaration.declarationScope = declarationScope
-                else:
-                    symbol = Symbol(parent=parentSymbol, identifier=identifier,
-                                    templateParams=templateParams,
-                                    templateArgs=templateArgs,
-                                    declaration=declaration)
-                    if declaration:
-                        declaration.declarationScope = declarationScope
-                return symbol
+        for name in names[:-1]:
+            # there shouldn't be anything inside an operator
+            # (other than template parameters, which are not added this way, right?)
+            assert not name.is_operator()
+            identifier = name.identifier
+            templateArgs = name.templateArgs
+            if templateArgs:
+                assert iTemplateDecl < len(templateDecls)
+                templateParams = templateDecls[iTemplateDecl]
+                iTemplateDecl += 1
             else:
-                # there shouldn't be anything inside an operator
-                assert not name.is_operator()
-                identifier = name.identifier
-                templateArgs = name.templateArgs
-                if templateArgs:
-                    assert iTemplateDecl < len(templateDecls)
-                    templateParams = templateDecls[iTemplateDecl]
-                    iTemplateDecl += 1
-                else:
-                    templateParams = None
-                symbol = parentSymbol._find_named_symbol(identifier,
-                                                         templateParams,
-                                                         templateArgs,
-                                                         operator=None)
-                if symbol is None:
-                    symbol = Symbol(parent=parentSymbol, identifier=identifier,
-                                    templateParams=templateParams,
-                                    templateArgs=templateArgs, declaration=None)
+                templateParams = None
+            symbol = parentSymbol._find_named_symbol(identifier,
+                                                     templateParams,
+                                                     templateArgs,
+                                                     operator=None)
+            if symbol is None:
+                symbol = Symbol(parent=parentSymbol, identifier=identifier,
+                                templateParams=templateParams,
+                                templateArgs=templateArgs, declaration=None,
+                                docname=None)
             parentSymbol = symbol
-        assert False  # should have returned in the loop
+        name = names[-1]
+        if name.is_operator():
+            identifier = None
+            templateArgs = None
+            operator = name
+        else:
+            identifier = name.identifier
+            templateArgs = name.templateArgs
+            operator = None
+        if iTemplateDecl < len(templateDecls):
+            if iTemplateDecl + 1 != len(templateDecls):
+                print(text_type(templateDecls))
+                print(text_type(nestedName))
+            assert iTemplateDecl + 1 == len(templateDecls)
+            templateParams = templateDecls[iTemplateDecl]
+        else:
+            assert iTemplateDecl == len(templateDecls)
+            templateParams = None
+        symbol = parentSymbol._find_named_symbol(identifier,
+                                                 templateParams,
+                                                 templateArgs,
+                                                 operator)
+        if symbol:
+            if not declaration:
+                # good, just a scope creation
+                return symbol
+            if not symbol.declaration:
+                # If someone first opened the scope, and then later
+                # declares it, e.g,
+                # .. namespace:: Test
+                # .. namespace:: nullptr
+                # .. class:: Test
+                symbol.declaration = declaration
+                symbol.docname = docname
+                declaration.symbol = symbol
+                declaration.declarationScope = declarationScope
+                symbol._assert_invariants()
+                return symbol
+            # it may simply be a functin overload
+            # TODO: it could be a duplicate but let's just insert anyway
+            # the id generation will warn about it
+            symbol = Symbol(parent=parentSymbol, identifier=identifier,
+                            templateParams=templateParams,
+                            templateArgs=templateArgs,
+                            declaration=declaration,
+                            docname=docname)
+            declaration.declarationScope = declarationScope
+        else:
+            symbol = Symbol(parent=parentSymbol, identifier=identifier,
+                            templateParams=templateParams,
+                            templateArgs=templateArgs,
+                            declaration=declaration,
+                            docname=docname)
+            if declaration:
+                declaration.declarationScope = declarationScope
+        return symbol
 
     def add_name(self, nestedName, templatePrefix=None):
         if templatePrefix:
             templateDecls = templatePrefix.templates
         else:
             templateDecls = []
-        return self._add_symbols(nestedName, templateDecls, declaration=None)
+        return self._add_symbols(nestedName, templateDecls,
+                                 declaration=None, docname=None)
 
-    def add_declaration(self, declaration):
+    def add_declaration(self, declaration, docname):
         nestedName = declaration.name
         if declaration.templatePrefix:
             templateDecls = declaration.templatePrefix.templates
         else:
             templateDecls = []
-        return self._add_symbols(nestedName, templateDecls, declaration)
+        return self._add_symbols(nestedName, templateDecls, declaration, docname)
 
     def find_identifier(self, identifier):
         for s in self.children:
@@ -3307,7 +3317,8 @@ class CPPObject(ObjectDescription):
             return
         Symbol(parent=targetSymbol, identifier=symbol.identifier,
                templateParams=None, templateArgs=None,
-               declaration=symbol.declaration.clone())
+               declaration=symbol.declaration.clone(),
+               docname=self.env.docname)
 
     def add_target_and_index(self, ast, sig, signode):
         # general note: name must be lstrip(':')'ed, to remove "::"
@@ -3368,9 +3379,8 @@ class CPPObject(ObjectDescription):
             symbol = parentSymbol.add_name(name)
             self.env.ref_context['cpp:lastSymbol'] = symbol
             raise ValueError
-        symbol = parentSymbol.add_declaration(ast)
+        symbol = parentSymbol.add_declaration(ast, docname=self.env.docname)
         self.env.ref_context['cpp:lastSymbol'] = symbol
-        symbol.docname = self.env.docname
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
@@ -3628,7 +3638,7 @@ class CPPDomain(Domain):
         'enumerator': CPPXRefRole()
     }
     initial_data = {
-        'rootSymbol': Symbol(None, None, None, None, None),
+        'rootSymbol': Symbol(None, None, None, None, None, None),
         'names': {}  # full name for indexing -> docname
     }
 
@@ -3637,14 +3647,7 @@ class CPPDomain(Domain):
         for symbol in rootSymbol.get_all_symbols():
             if not symbol.declaration:
                 continue
-            try:
-                sDocname = symbol.docname
-            except AttributeError:
-                # it's a template parameter
-                # the symbols are yielded in post-order, so this should be fine
-                assert symbol.parent
-                sDocname = symbol.parent.docname
-            if sDocname != docname:
+            if symbol.docname != docname:
                 continue
             symbol.declaration = None
             symbol.docname = None
@@ -3699,12 +3702,8 @@ class CPPDomain(Domain):
         declaration = s.declaration
         fullNestedName = s.get_full_nested_name()
         name = text_type(fullNestedName).lstrip(':')
-        try:
-            docname = s.docname
-        except AttributeError:
-            # it's a template parameter
-            assert s.parent
-            docname = s.parent.docname
+        docname = s.docname
+        assert docname
         return make_refnode(builder, fromdocname, docname,
                             declaration.get_newest_id(), contnode, name
                             ), declaration.objectType
@@ -3726,13 +3725,11 @@ class CPPDomain(Domain):
     def get_objects(self):
         rootSymbol = self.data['rootSymbol']
         for symbol in rootSymbol.get_all_symbols():
-            if not symbol.declaration:
+            if symbol.declaration is None:
                 continue
+            assert symbol.docname
             name = text_type(symbol.get_full_nested_name()).lstrip(':')
             objectType = symbol.declaration.objectType
-            try:
-                docname = symbol.docname
-            except AttributeError:
-                continue
+            docname = symbol.docname
             newestId = symbol.declaration.get_newest_id()
             yield (name, name, objectType, docname, newestId, 1)

@@ -46,8 +46,8 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
         print("Result:   ", res)
         print("Expected: ", output)
         raise DefinitionError("")
-    rootSymbol = Symbol(None, None, None, None, None)
-    symbol = rootSymbol.add_declaration(ast)
+    rootSymbol = Symbol(None, None, None, None, None, None)
+    symbol = rootSymbol.add_declaration(ast, docname="Test")
     ast.describe_signature([], 'lastIsName', symbol)
 
     if idv2output:
