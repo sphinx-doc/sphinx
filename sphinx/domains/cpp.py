@@ -915,8 +915,6 @@ class ASTNestedName(ASTBase):
         assert len(names) > 0
         self.names = names
         self.rooted = rooted
-        for i in range(len(names) - 1):
-            assert not names[i].is_operator()
 
     @property
     def name(self):
@@ -2123,17 +2121,13 @@ class Symbol(object):
             s = s.parent
         symbols.reverse()
         key = []
-        for s in symbols[:-1]:
-            assert s.identifier
-            nne = ASTNestedNameElement(s.identifier, s.templateArgs)
+        for s in symbols:
+            if s.identifier:
+                nne = ASTNestedNameElement(s.identifier, s.templateArgs)
+            else:
+                assert s.declaration
+                nne = s.declaration.name.names[-1]
             key.append((nne, s.templateParams))
-        s = symbols[-1]
-        if s.identifier:
-            nne = ASTNestedNameElement(s.identifier, s.templateArgs)
-        else:
-            assert self.declaration
-            nne = s.declaration.name.names[-1]
-        key.append((nne, s.templateParams))
         return key
 
     def get_full_nested_name(self):

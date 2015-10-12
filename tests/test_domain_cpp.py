@@ -304,6 +304,15 @@ def test_templates():
           "void allow(F *f, typename func<F, B, G!=1>::type tt)",
           None, "I0E5allowP1FN4funcI1F1BXG!=1EE4typeE")
 
+    # from #2058
+    check('function',
+          "template<typename Char, typename Traits> "
+          "inline std::basic_ostream<Char, Traits> &operator<<("
+          "std::basic_ostream<Char, Traits> &os, "
+          "const c_string_view_base<const Char, Traits> &str)",
+          None, "I00ElsRNSt13basic_ostreamI4Char6TraitsEE"
+          "RK18c_string_view_baseIK4Char6TraitsE")
+
 
 def test_class():
     check('class', 'A final', 'A', '1A')
