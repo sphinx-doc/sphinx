@@ -347,6 +347,9 @@ def test_operators():
     check('function', 'void operator ! ()',
           "not-operator", "ntv", output='void operator!()')
 
+    check('function', 'void operator "" _udl()',
+           None, 'li4_udlv', output='void operator""_udl()')
+
 #def test_print():
 #    # used for getting all the ids out for checking
 #    for a in ids:
