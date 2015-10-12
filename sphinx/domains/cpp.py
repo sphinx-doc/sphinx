@@ -821,6 +821,31 @@ class ASTOperatorType(ASTBase):
             signode += addnodes.desc_addname(identifier, identifier)
 
 
+class ASTOperatorLiteral(ASTBase):
+    def __init__(self, identifier):
+        self.identifier = identifier
+
+    def is_operator(self):
+        return True
+
+    def get_id_v1(self):
+        raise NoOldIdError()
+
+    def get_id_v2(self):
+        return u'li' + self.identifier.get_id_v2()
+
+    def __unicode__(self):
+        return u'operator""' + text_type(self.identifier)
+
+    def describe_signature(self, signode, mode, env, prefix, symbol):
+        _verify_description_mode(mode)
+        identifier = text_type(self)
+        if mode == 'lastIsName':
+            signode += addnodes.desc_name(identifier, identifier)
+        else:
+            signode += addnodes.desc_addname(identifier, identifier)
+
+
 class ASTTemplateArgConstant(ASTBase):
     def __init__(self, value):
         self.value = value
@@ -2518,6 +2543,14 @@ class DefinitionParser(object):
                     self.fail('Expected "]" after  "operator ' + op + '["')
                 op += '[]'
             return ASTOperatorBuildIn(op)
+
+        # user-defined literal?
+        if self.skip_string('""'):
+            self.skip_ws()
+            if not self.match(_identifier_re):
+                self.fail("Expected user-defined literal suffix.")
+            identifier = ASTIdentifier(self.matched_text)
+            return ASTOperatorLiteral(identifier)
 
         # oh well, looks like a cast operator definition.
         # In that case, eat another type.
