@@ -297,3 +297,16 @@ def test_contentsname_with_language_ja(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\renewcommand{\\contentsname}{Table of content}' in result
+
+
+@with_app(buildername='latex', testroot='image')
+def test_image_in_section(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert ('\chapter[Test section]{\includegraphics[width=15pt,height=15pt]{pic.png} Test section}'
+            in result)
+    assert ('\chapter[Other {[}blah{]} section]{Other {[}blah{]} \includegraphics[width=15pt,height=15pt]{pic.png} section}' in result)
+    assert ('\chapter{Another section}' in result)

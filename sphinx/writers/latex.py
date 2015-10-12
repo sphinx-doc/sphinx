@@ -25,6 +25,7 @@ from sphinx import highlighting
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import split_into
+from sphinx.util.nodes import clean_astext
 from sphinx.util.osutil import ustrftime
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
 from sphinx.util.smartypants import educate_quotes_latex
@@ -584,12 +585,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             raise nodes.SkipNode
         elif isinstance(parent, nodes.section):
             short = ''
-            if 'image' in str(node):
-                elementText = []
-                for n in node.children:
-                    if isinstance(n, nodes.Text):
-                        elementText.append(n.astext().strip())
-                short = '[%s]' % ' '.join(elementText)
+            if node.traverse(nodes.image):
+                short = '[%s]' % ' '.join(clean_astext(node).split()).translate(tex_escape_map)
+
             try:
                 self.body.append(r'\%s%s{' % (self.sectionnames[self.sectionlevel], short))
             except IndexError:
