@@ -754,7 +754,7 @@ class ASTTemplateDeclarationPrefix(ASTBase):
     def describe_signature(self, signode, mode, env, symbol):
         _verify_description_mode(mode)
         for t in self.templates:
-            templateNode = nodes.line()
+            templateNode = addnodes.desc_signature()
             t.describe_signature(templateNode, 'lastIsName', env, symbol)
             signode += templateNode
 
@@ -2049,36 +2049,43 @@ class ASTDeclaration(ASTBase):
 
     def describe_signature(self, signode, mode, env):
         _verify_description_mode(mode)
+        # the caller of the domain added a desc_signature node
+        # let's pop it so we can add templates before that
+        parentNode = signode.parent
+        mainDeclNode = signode
+        parentNode.pop()
+
         assert self.symbol
         if not self.declarationScope:
             raise NotImplementedError("hmm, a bug? %s" % text_type(self))
         assert self.declarationScope
-        if self.visibility and self.visibility != "public":
-            signode += addnodes.desc_annotation(self.visibility + " ",
-                                                self.visibility + " ")
         if self.templatePrefix:
-            self.templatePrefix.describe_signature(signode, mode, env,
+            self.templatePrefix.describe_signature(parentNode, mode, env,
                                                    symbol=self.symbol)
+        if self.visibility and self.visibility != "public":
+            mainDeclNode += addnodes.desc_annotation(self.visibility + " ",
+                                                     self.visibility + " ")
         if self.objectType == 'type':
-            signode += addnodes.desc_annotation('type ', 'type ')
+            mainDeclNode += addnodes.desc_annotation('type ', 'type ')
         elif self.objectType == 'member':
             pass
         elif self.objectType == 'function':
             pass
         elif self.objectType == 'class':
-            signode += addnodes.desc_annotation('class ', 'class ')
+            mainDeclNode += addnodes.desc_annotation('class ', 'class ')
         elif self.objectType == 'enum':
             prefix = 'enum '
             if self.scoped:
                 prefix += self.scoped
                 prefix += ' '
-            signode += addnodes.desc_annotation(prefix, prefix)
+            mainDeclNode += addnodes.desc_annotation(prefix, prefix)
         elif self.objectType == 'enumerator':
-            signode += addnodes.desc_annotation('enumerator ', 'enumerator ')
+            mainDeclNode += addnodes.desc_annotation('enumerator ', 'enumerator ')
         else:
             assert False
-        self.declaration.describe_signature(signode, mode, env,
+        self.declaration.describe_signature(mainDeclNode, mode, env,
                                             symbol=self.symbol)
+        parentNode += mainDeclNode
 
 
 class ASTNamespace(ASTBase):

@@ -13,6 +13,7 @@ from six import text_type
 
 from util import raises
 
+from sphinx import addnodes
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
 from sphinx.domains.cpp import Symbol
 import sphinx.domains.cpp as cppDomain
@@ -48,7 +49,10 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
         raise DefinitionError("")
     rootSymbol = Symbol(None, None, None, None, None, None)
     symbol = rootSymbol.add_declaration(ast, docname="Test")
-    ast.describe_signature([], 'lastIsName', symbol)
+    parentNode = addnodes.desc()
+    signode = addnodes.desc_signature(input, '')
+    parentNode += signode
+    ast.describe_signature(signode, 'lastIsName', symbol)
 
     if idv2output:
         idv2output = "_CPPv2" + idv2output
@@ -357,7 +361,7 @@ def test_operators():
           "not-operator", "ntv", output='void operator!()')
 
     check('function', 'void operator "" _udl()',
-           None, 'li4_udlv', output='void operator""_udl()')
+          None, 'li4_udlv', output='void operator""_udl()')
 
 #def test_print():
 #    # used for getting all the ids out for checking
