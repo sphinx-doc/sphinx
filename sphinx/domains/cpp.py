@@ -2169,7 +2169,8 @@ class Symbol(object):
         return ASTNestedName(names, rooted=False)
 
     def _find_named_symbol(self, identifier, templateParams,
-                           templateArgs, operator):
+                           templateArgs, operator,
+                           templateShorthand):
         assert (identifier is None) != (operator is None)
         for s in self.children:
             if s.identifier != identifier:
@@ -2184,8 +2185,13 @@ class Symbol(object):
                 if text_type(name) != text_type(operator):
                     continue
             if (s.templateParams is None) != (templateParams is None):
-                continue
-            if s.templateParams:
+                if templateParams is not None:
+                    # we query with params, they must match params
+                    continue
+                if not templateShorthand:
+                    # we don't query with params, and we do care about them
+                    continue
+            if templateParams:
                 # TODO: do better comparison
                 if text_type(s.templateParams) != text_type(templateParams):
                     continue
@@ -2227,7 +2233,8 @@ class Symbol(object):
             symbol = parentSymbol._find_named_symbol(identifier,
                                                      templateParams,
                                                      templateArgs,
-                                                     operator=None)
+                                                     operator=None,
+                                                     templateShorthand=False)
             if symbol is None:
                 symbol = Symbol(parent=parentSymbol, identifier=identifier,
                                 templateParams=templateParams,
@@ -2255,7 +2262,8 @@ class Symbol(object):
         symbol = parentSymbol._find_named_symbol(identifier,
                                                  templateParams,
                                                  templateArgs,
-                                                 operator)
+                                                 operator,
+                                                 templateShorthand=False)
         if symbol:
             if not declaration:
                 # good, just a scope creation
@@ -2325,12 +2333,15 @@ class Symbol(object):
                 templateArgs = name.templateArgs
                 operator = None
             s = s._find_named_symbol(identifier, templateParams,
-                                     templateArgs, operator)
+                                     templateArgs, operator,
+                                     templateShorthand=False)
             if not s:
                 return None
         return s
 
-    def find_name(self, nestedName, templateDecls, specific_specialisation):
+    def find_name(self, nestedName, templateDecls, templateShorthand):
+        # templateShorthand: missing template parameter lists for templates is ok
+
         # TODO: unify this with the _add_symbols
         # This condition should be checked at the parser level.
         assert len(templateDecls) <= nestedName.num_templates() + 1
@@ -2369,12 +2380,11 @@ class Symbol(object):
                 symbol = parentSymbol._find_named_symbol(identifier,
                                                          templateParams,
                                                          templateArgs,
-                                                         operator)
+                                                         operator,
+                                                         templateShorthand=templateShorthand)
                 if symbol:
                     return symbol
                 else:
-                    # TODO: search for version without template args,
-                    #       if not specific_specialisation
                     return None
             else:
                 # there shouldn't be anything inside an operator
@@ -2389,7 +2399,8 @@ class Symbol(object):
                 symbol = parentSymbol._find_named_symbol(identifier,
                                                          templateParams,
                                                          templateArgs,
-                                                         operator=None)
+                                                         operator=None,
+                                                         templateShorthand=templateShorthand)
                 if symbol is None:
                     # TODO: maybe search without template args
                     return None
@@ -2503,8 +2514,7 @@ class DefinitionParser(object):
     def assert_end(self):
         self.skip_ws()
         if not self.eof:
-            self.fail('expected end of definition, got %r' %
-                      self.definition[self.pos:])
+            self.fail('Expected end of definition.')
 
     def _parse_expression(self, end):
         # Stupidly "parse" an expression.
@@ -3195,7 +3205,8 @@ class DefinitionParser(object):
         else:
             return ASTTemplateDeclarationPrefix(templates)
 
-    def _check_template_consistency(self, nestedName, templatePrefix):
+    def _check_template_consistency(self, nestedName, templatePrefix,
+                                    fullSpecShorthand):
         numArgs = nestedName.num_templates()
         if not templatePrefix:
             numParams = 0
@@ -3207,15 +3218,16 @@ class DefinitionParser(object):
                       % (numArgs, numParams))
         if numArgs > numParams:
             numExtra = numArgs - numParams
-            msg = "Too many template argument lists compared to parameter" \
-                " lists. Argument lists: %d, Parameter lists: %d," \
-                " Extra empty parameters lists prepended: %d." \
-                % (numArgs, numParams, numExtra)
-            msg += " Declaration:\n\t"
-            if templatePrefix:
-                msg += "%s\n\t" % text_type(templatePrefix)
-            msg += text_type(nestedName)
-            self.warn(msg)
+            if not fullSpecShorthand:
+                msg = "Too many template argument lists compared to parameter" \
+                    " lists. Argument lists: %d, Parameter lists: %d," \
+                    " Extra empty parameters lists prepended: %d." \
+                    % (numArgs, numParams, numExtra)
+                msg += " Declaration:\n\t"
+                if templatePrefix:
+                    msg += "%s\n\t" % text_type(templatePrefix)
+                msg += text_type(nestedName)
+                self.warn(msg)
 
             newTemplates = []
             for i in range(numExtra):
@@ -3273,14 +3285,16 @@ class DefinitionParser(object):
         else:
             assert False
         templatePrefix = self._check_template_consistency(declaration.name,
-                                                          templatePrefix)
+                                                          templatePrefix,
+                                                          fullSpecShorthand=False)
         return ASTDeclaration(objectType, visibility,
                               templatePrefix, declaration)
 
     def parse_namespace_object(self):
         templatePrefix = self._parse_template_declaration_prefix()
         name = self._parse_nested_name()
-        templatePrefix = self._check_template_consistency(name, templatePrefix)
+        templatePrefix = self._check_template_consistency(name, templatePrefix,
+                                                          fullSpecShorthand=False)
         res = ASTNamespace(name, templatePrefix)
         res.objectType = 'namespace'
         return res
@@ -3288,6 +3302,8 @@ class DefinitionParser(object):
     def parse_xref_object(self):
         templatePrefix = self._parse_template_declaration_prefix()
         name = self._parse_nested_name()
+        templatePrefix = self._check_template_consistency(name, templatePrefix,
+                                                          fullSpecShorthand=True)
         res = ASTNamespace(name, templatePrefix)
         res.objectType = 'xref'
         return res
@@ -3708,10 +3724,10 @@ class CPPDomain(Domain):
         try:
             ast = parser.parse_xref_object()
             parser.skip_ws()
-            if not parser.eof:
-                raise DefinitionError('')
-        except DefinitionError:
-            warner.warn('Unparseable C++ cross-reference: %r' % target)
+            parser.assert_end()
+        except DefinitionError as e:
+            warner.warn('Unparseable C++ cross-reference: %r\n%s'
+                        % (target, str(e.description)))
             return None, None
         parentKey = node.get("cpp:parentKey", None)
         rootSymbol = self.data['rootSymbol']
@@ -3730,7 +3746,7 @@ class CPPDomain(Domain):
         else:
             templateDecls = []
         s = parentSymbol.find_name(name, templateDecls,
-                                   specific_specialisation=False)
+                                   templateShorthand=True)
         if s is None or s.declaration is None:
             return None, None
         declaration = s.declaration
