@@ -57,6 +57,7 @@ Other contributors, listed alphabetically, are:
 * John Waltman -- Texinfo builder
 * Barry Warsaw -- setup command improvements
 * Sebastian Wiesner -- image handling, distutils support
+* Michael Wilson -- Intersphinx HTTP basic auth support
 * Joel Wurtz -- cellspanning support in LaTeX
 
 Many thanks for all contributions!
