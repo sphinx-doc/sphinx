@@ -43,14 +43,14 @@ from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
 
 
-handlers = [request.ProxyHandler(), request.HTTPRedirectHandler(),
-            request.HTTPHandler()]
+default_handlers = [request.ProxyHandler(), request.HTTPRedirectHandler(),
+                    request.HTTPHandler()]
 try:
-    handlers.append(request.HTTPSHandler)
+    default_handlers.append(request.HTTPSHandler)
 except AttributeError:
     pass
 
-request.install_opener(request.build_opener(*handlers))
+default_opener = request.build_opener(*default_handlers)
 
 UTF8StreamReader = codecs.lookup('utf-8')[2]
 
@@ -172,15 +172,14 @@ def _read_from_url(url):
     :rtype: ``file``-like object
     """
     url, username, password = _strip_basic_auth(url)
-    handler = request.BaseHandler()
-
     if username is not None and password is not None:
         # case: url contains basic auth creds
         password_mgr = request.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, url, username, password)
         handler = request.HTTPBasicAuthHandler(password_mgr)
-
-    opener = request.build_opener(handler)
+        opener = request.build_opener(default_handlers + [handler])
+    else:
+        opener = default_opener
 
     return opener.open(url)
 
@@ -207,7 +206,7 @@ def _get_safe_url(url):
     if username is not None:
         # case: url contained basic auth creds; obscure password
         url_parts = parse.urlsplit(url)
-        safe_netloc = '{0}:********@{1}'.format(username, url_parts.hostname)
+        safe_netloc = '{0}@{1}'.format(username, url_parts.hostname)
         # replace original netloc w/ obscured version
         frags = list(url_parts)
         frags[1] = safe_netloc
@@ -220,13 +219,13 @@ def fetch_inventory(app, uri, inv):
     """Fetch, parse and return an intersphinx inventory file."""
     # both *uri* (base URI of the links to generate) and *inv* (actual
     # location of the inventory file) can be local or remote URIs
-    localuri = uri.find('://') == -1
-    if localuri is False:
+    localuri = '://' not in uri
+    if not localuri:
         # case: inv URI points to remote resource; strip any existing auth
         uri, _, _ = _strip_basic_auth(uri)
     join = localuri and path.join or posixpath.join
     try:
-        if inv.find('://') != -1:
+        if '://' in inv:
             f = _read_from_url(inv)
         else:
             f = open(path.join(app.srcdir, inv), 'rb')

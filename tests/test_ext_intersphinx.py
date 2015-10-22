@@ -200,54 +200,52 @@ class TestStripBasicAuth(unittest.TestCase):
         self.assertEqual(None, actual_password)
 
 
-class TestReadFromUrl(unittest.TestCase):
-    """Tests for sphinx.ext.intersphinx._read_from_url()"""
-    @mock.patch('six.moves.urllib.request.HTTPBasicAuthHandler')
-    @mock.patch('six.moves.urllib.request.HTTPPasswordMgrWithDefaultRealm')
-    @mock.patch('six.moves.urllib.request.build_opener')
-    def test_authed(self, m_build_opener, m_HTTPPasswordMgrWithDefaultRealm,
-                    m_HTTPBasicAuthHandler):
-        """read from URL containing basic auth creds"""
-        password_mgr = mock.Mock()
-        m_HTTPPasswordMgrWithDefaultRealm.return_value = password_mgr
+@mock.patch('six.moves.urllib.request.HTTPBasicAuthHandler')
+@mock.patch('six.moves.urllib.request.HTTPPasswordMgrWithDefaultRealm')
+@mock.patch('six.moves.urllib.request.build_opener')
+def test_readfromurl_authed(m_build_opener, m_HTTPPasswordMgrWithDefaultRealm,
+                            m_HTTPBasicAuthHandler):
+    # read from URL containing basic auth creds
+    password_mgr = mock.Mock()
+    m_HTTPPasswordMgrWithDefaultRealm.return_value = password_mgr
 
-        url = 'https://user:12345@domain.com/project/objects.inv'
-        _read_from_url(url)
+    url = 'https://user:12345@domain.com/project/objects.inv'
+    _read_from_url(url)
 
-        m_HTTPPasswordMgrWithDefaultRealm.assert_called_once_with()
-        password_mgr.add_password.assert_called_with(
-            None, 'https://domain.com/project/objects.inv', 'user', '12345')
-
-    @mock.patch('six.moves.urllib.request.HTTPBasicAuthHandler')
-    @mock.patch('six.moves.urllib.request.HTTPPasswordMgrWithDefaultRealm')
-    @mock.patch('six.moves.urllib.request.build_opener')
-    def test_unauthed(self, m_build_opener, m_HTTPPasswordMgrWithDefaultRealm,
-                    m_HTTPBasicAuthHandler):
-        """read from URL without auth creds"""
-        password_mgr = mock.Mock()
-        m_HTTPPasswordMgrWithDefaultRealm.return_value = password_mgr
-
-        url = 'https://domain.com/project/objects.inv'
-        _read_from_url(url)
-
-        # assert password manager not created
-        self.assertEqual(None, m_HTTPPasswordMgrWithDefaultRealm.call_args)
-        # assert no password added to the password manager
-        self.assertEqual(None, password_mgr.add_password.call_args)
+    m_HTTPPasswordMgrWithDefaultRealm.assert_called_once_with()
+    password_mgr.add_password.assert_called_with(
+        None, 'https://domain.com/project/objects.inv', 'user', '12345')
 
 
-class TestGetSafeUrl(unittest.TestCase):
-    """Tests for sphinx.ext.intersphinx._get_safe_url()"""
-    def test_authed(self):
-        """_get_safe_url() with a url with basic auth"""
-        url = 'https://user:12345@domain.com/project/objects.inv'
-        expected = 'https://user:********@domain.com/project/objects.inv'
-        actual = _get_safe_url(url)
-        self.assertEqual(expected, actual)
+@mock.patch('six.moves.urllib.request.HTTPBasicAuthHandler')
+@mock.patch('six.moves.urllib.request.HTTPPasswordMgrWithDefaultRealm')
+@mock.patch('sphinx.ext.intersphinx.default_opener')
+def test_readfromurl_unauthed(m_default_opener, m_HTTPPasswordMgrWithDefaultRealm,
+                              m_HTTPBasicAuthHandler):
+    # read from URL without auth creds
+    password_mgr = mock.Mock()
+    m_HTTPPasswordMgrWithDefaultRealm.return_value = password_mgr
 
-    def test_unauthed(self):
-        """_get_safe_url() with a url without basic auth"""
-        url = 'https://domain.com/project/objects.inv'
-        expected = 'https://domain.com/project/objects.inv'
-        actual = _get_safe_url(url)
-        self.assertEqual(expected, actual)
+    url = 'https://domain.com/project/objects.inv'
+    _read_from_url(url)
+
+    # assert password manager not created
+    assert m_HTTPPasswordMgrWithDefaultRealm.call_args is None
+    # assert no password added to the password manager
+    assert password_mgr.add_password.call_args is None
+
+
+def test_getsafeurl_authed():
+    """_get_safe_url() with a url with basic auth"""
+    url = 'https://user:12345@domain.com/project/objects.inv'
+    expected = 'https://user@domain.com/project/objects.inv'
+    actual = _get_safe_url(url)
+    assert expected == actual
+
+
+def test_getsafeurl_unauthed():
+    """_get_safe_url() with a url without basic auth"""
+    url = 'https://domain.com/project/objects.inv'
+    expected = 'https://domain.com/project/objects.inv'
+    actual = _get_safe_url(url)
+    assert expected == actual
