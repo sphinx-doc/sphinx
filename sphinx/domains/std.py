@@ -530,7 +530,8 @@ class StandardDomain(Domain):
         labels, anonlabels = self.data['labels'], self.data['anonlabels']
         for name, explicit in iteritems(document.nametypes):
             if not explicit:
-                continue
+                if not env.config.section_titles_as_targets:
+                    continue
             labelid = document.nameids[name]
             if labelid is None:
                 continue

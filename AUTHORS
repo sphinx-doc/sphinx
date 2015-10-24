@@ -43,6 +43,7 @@ Other contributors, listed alphabetically, are:
 * Roland Meister -- epub builder
 * Ezio Melotti -- collapsible sidebar JavaScript
 * Daniel Neuhäuser -- JavaScript domain, Python 3 support (GSOC)
+* Tadhg O'Higgins -- linking to section titles without labels
 * Christopher Perkins -- autosummary integration
 * Benjamin Peterson -- unittests
 * T. Powers -- HTML output improvements
