@@ -35,6 +35,45 @@ def test_process_doc_handle_figure_caption():
     assert domain.data['labels']['testname'] == (
         'testdoc', 'testid', 'caption text')
 
+def test_process_doc_handle_explicit_ref_default():
+    env = mock.Mock(domaindata={})
+    env.config.section_titles_as_targets = False
+    section_node = nodes.section(
+        '',
+        nodes.title('title text', 'title text'),
+        names="test_section")
+    document = mock.Mock(
+        nametypes={'test_section': None},
+        nameids={'test_section': 'test_section_id'},
+        ids={'test_section_id': section_node},
+    )
+
+    domain = StandardDomain(env)
+    if 'test_section' in domain.data['labels']:
+        del domain.data['labels']['test_section']
+    domain.process_doc(env, 'testdoc', document)
+    assert "test_section" not in domain.data["labels"]
+
+def test_process_doc_handle_explicit_ref_section_titles_as_targets():
+    env = mock.Mock(domaindata={})
+    env.config.section_titles_as_targets = True
+    section_node = nodes.section(
+        '',
+        nodes.title('title text', 'title text'),
+        names="test_section")
+    document = mock.Mock(
+        nametypes={'test_section': None},
+        nameids={'test_section': 'test_section_id'},
+        ids={'test_section_id': section_node},
+    )
+
+    domain = StandardDomain(env)
+    if 'test_section' in domain.data['labels']:
+        del domain.data['labels']['test_section']
+    domain.process_doc(env, 'testdoc', document)
+    assert 'test_section' in domain.data['labels']
+    assert domain.data['labels']['test_section'] == (
+        'testdoc', 'test_section_id', 'title text')
 
 def test_process_doc_handle_image_parent_figure_caption():
     env = mock.Mock(domaindata={})
