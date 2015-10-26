@@ -158,8 +158,15 @@ if PY2:
         # given by LC_TIME; if that is available, use it
         enc = locale.getlocale(locale.LC_TIME)[1] or 'utf-8'
         return time.strftime(text_type(format).encode(enc), *args).decode(enc)
-else:
-    ustrftime = time.strftime
+else:  # Py3
+    def ustrftime(format, *args):
+        # On Windows, time.strftime() and Unicode characters will raise UnicodeEncodeError.
+        # http://bugs.python.org/issue8304
+        try:
+            return time.strftime(format, *args)
+        except UnicodeEncodeError:
+            r = time.strftime(format.encode('unicode-escape').decode(), *args)
+            return r.encode().decode('unicode-escape')
 
 
 def safe_relpath(path, start=None):
