@@ -173,16 +173,17 @@ General configuration
 
 .. confval:: section_titles_as_targets
 
-   The default is ``False``.
+   This setting allows :ref:`ref-role` to link to sections that do not have
+   explicit labels.
 
    If ``False``, explicit labels are necessary to use ``:ref:`` to link to section
    titles.
 
-   If ``True``, ``:ref:`` will be able to target section titles without explicit
+   If ``True``, :ref:`ref-role` will be able to target section titles without explicit
    labels. This requires targeted section titles to be unique throughout the
    documentation, otherwise unexpected behavior is likely to occur.
 
-   See :ref:`ref-role`.
+   The default is ``False``.
 
     .. versionadded:: 1.4
 
