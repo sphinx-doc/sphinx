@@ -538,7 +538,7 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
       .. cpp:class:: template<typename T, std::size_t N> std::array
 
-   or with a line beak::
+   or with a line break::
 
       .. cpp:class:: template<typename T, std::size_t N> \
                      std::array
