@@ -73,6 +73,7 @@ Bugs fixed
 * C++, fix parsing of types prefixed with 'enum'.
 * #2023: Dutch search support uses Danish stemming info
 * C++, add support for user-defined literals.
+* Fix TOC of PDFs if section contains an image
 
 Documentation
 -------------
