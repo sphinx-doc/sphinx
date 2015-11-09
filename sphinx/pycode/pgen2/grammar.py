@@ -139,6 +139,7 @@ opmap_raw = """
 { LBRACE
 } RBRACE
 @ AT
+@= ATEQUAL
 == EQEQUAL
 != NOTEQUAL
 <> NOTEQUAL
@@ -164,6 +165,8 @@ opmap_raw = """
 //= DOUBLESLASHEQUAL
 -> RARROW
 ... ELLIPSIS
+async ASYNC
+await AWAIT
 """
 
 opmap = {}
