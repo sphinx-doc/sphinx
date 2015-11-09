@@ -165,8 +165,6 @@ opmap_raw = """
 //= DOUBLESLASHEQUAL
 -> RARROW
 ... ELLIPSIS
-async ASYNC
-await AWAIT
 """
 
 opmap = {}
