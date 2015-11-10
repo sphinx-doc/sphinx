@@ -55,6 +55,9 @@ reindent:
 	@$(PYTHON) utils/reindent.py -r -n .
 
 test:
+	@cd tests; $(PYTHON) run.py -I py35 -d -m '^[tT]est' $(TEST)
+
+test-async:
 	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' $(TEST)
 
 covertest:

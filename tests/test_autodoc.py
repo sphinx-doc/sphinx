@@ -791,6 +791,7 @@ def test_generate():
                            'module', 'test_autodoc')
 
 # --- generate fodder ------------
+import six, sys
 
 __all__ = ['Class']
 
@@ -832,6 +833,7 @@ def _funky_classmethod(name, b, c, d, docstring=None):
 class Base(object):
     def inheritedmeth(self):
         """Inherited function."""
+
 
 class Class(Base):
     """Class to document."""
