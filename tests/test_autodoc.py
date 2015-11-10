@@ -636,6 +636,10 @@ def test_generate():
                    ('attribute', 'test_autodoc.Class.inst_attr_string'),
                    ('method', 'test_autodoc.Class.moore'),
                    ])
+    if six.PY3 and sys.version_info[:2] >= (3, 5):
+        should.extend([
+            ('method', 'test_autodoc.Class.do_coroutine'),
+        ])
     options.members = ALL
     assert_processes(should, 'class', 'Class')
     options.undoc_members = True
@@ -791,6 +795,7 @@ def test_generate():
                            'module', 'test_autodoc')
 
 # --- generate fodder ------------
+import six, sys
 
 __all__ = ['Class']
 
@@ -832,6 +837,12 @@ def _funky_classmethod(name, b, c, d, docstring=None):
 class Base(object):
     def inheritedmeth(self):
         """Inherited function."""
+
+if six.PY3 and sys.version_info[:2] >= (3, 5):
+
+    async def _other_coro_func():
+        return "run"
+
 
 class Class(Base):
     """Class to document."""
@@ -888,6 +899,13 @@ class Class(Base):
     def __special2__(self):
         # undocumented special method
         pass
+
+    if six.PY3 and sys.version_info[:2] >= (3, 5):
+
+        async def do_coroutine(self):
+            """A documented coroutine function"""
+
+            attr_coro_result = await _other_coro_func()
 
 
 class CustomDict(dict):
