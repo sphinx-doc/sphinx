@@ -34,7 +34,7 @@ class Config(object):
         napoleon_google_docstring = True
         napoleon_numpy_docstring = True
         napoleon_include_private_with_doc = False
-        napoleon_include_special_with_doc = True
+        napoleon_include_special_with_doc = False
         napoleon_use_admonition_for_examples = False
         napoleon_use_admonition_for_notes = False
         napoleon_use_admonition_for_references = False
@@ -71,7 +71,7 @@ class Config(object):
                 # This will NOT be included in the docs
                 pass
 
-    napoleon_include_special_with_doc : bool, defaults to True
+    napoleon_include_special_with_doc : bool, defaults to False
         True to include special members (like ``__membername__``) with
         docstrings in the documentation. False to fall back to Sphinx's
         default behavior.
@@ -209,7 +209,7 @@ class Config(object):
         'napoleon_google_docstring': (True, 'env'),
         'napoleon_numpy_docstring': (True, 'env'),
         'napoleon_include_private_with_doc': (False, 'env'),
-        'napoleon_include_special_with_doc': (True, 'env'),
+        'napoleon_include_special_with_doc': (False, 'env'),
         'napoleon_use_admonition_for_examples': (False, 'env'),
         'napoleon_use_admonition_for_notes': (False, 'env'),
         'napoleon_use_admonition_for_references': (False, 'env'),
