@@ -472,4 +472,5 @@ BUILTIN_BUILDERS = {
     'gettext':    ('gettext', 'MessageCatalogBuilder'),
     'xml':        ('xml', 'XMLBuilder'),
     'pseudoxml':  ('xml', 'PseudoXMLBuilder'),
+    'ipynb':      ('ipynb', 'IPynbBuilder'),
 }
