@@ -17,8 +17,8 @@ import inspect
 import traceback
 from types import FunctionType, BuiltinFunctionType, MethodType
 
-from six import iteritems, itervalues, text_type, class_types, string_types, \
-    StringIO
+from six import iterkeys, iteritems, itervalues, text_type, class_types, \
+    string_types, StringIO
 from docutils import nodes
 from docutils.utils import assemble_option_dict
 from docutils.statemachine import ViewList
@@ -720,7 +720,7 @@ class Documenter(object):
             # __dict__ contains only the members directly defined in
             # the class (but get them via getattr anyway, to e.g. get
             # unbound method objects instead of function objects);
-            # using keys() because apparently there are objects for which
+            # using list(iterkeys()) because apparently there are objects for which
             # __dict__ changes while getting attributes
             try:
                 obj_dict = self.get_attr(self.object, '__dict__')
@@ -728,7 +728,7 @@ class Documenter(object):
                 members = []
             else:
                 members = [(mname, self.get_attr(self.object, mname, None))
-                           for mname in obj_dict.keys()]
+                           for mname in list(iterkeys(obj_dict))]
         membernames = set(m[0] for m in members)
         # add instance attributes from the analyzer
         for aname in analyzed_member_names:
