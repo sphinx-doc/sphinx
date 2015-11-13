@@ -345,7 +345,7 @@ class IPynbTranslator(nodes.NodeVisitor):
         pass
 
     def visit_tbody(self, node):
-        self.table.append('sep')
+        self.table.append("sep")
 
     def depart_tbody(self, node):
         pass
@@ -357,72 +357,44 @@ class IPynbTranslator(nodes.NodeVisitor):
         pass
 
     def visit_entry(self, node):
-        if 'morerows' in node or 'morecols' in node:
-            raise NotImplementedError('Column or row spanning cells are '
-                                      'not implemented.')
-        self.new_state("text")
+        #if 'morerows' in node or 'morecols' in node:
+        #    raise NotImplementedError('Column or row spanning cells are '
+        #                              'not implemented.')
+        pass
 
     def depart_entry(self, node):
-        text = self.nl.join(self.nl.join(x[1]) for x in self.states.pop())
-        self.stateindent.pop()
-        self.table[-1].append(text)
+        pass
 
     def visit_table(self, node):
-        if self.table:
-            raise NotImplementedError('Nested tables are not supported.')
         self.new_state("text")
         self.table = [[]]
 
     def depart_table(self, node):
         lines = self.table[1:]
-        fmted_rows = []
+        rows = []
         colwidths = self.table[0]
-        realwidths = colwidths[:]
-        separator = 0
-        # don't allow paragraphs in table cells for now
+
         for line in lines:
             if line == 'sep':
-                separator = len(fmted_rows)
+                pass
             else:
                 cells = []
                 for i, cell in enumerate(line):
-                    par = my_wrap(cell, width=colwidths[i])
-                    if par:
-                        maxwidth = max(column_width(x) for x in par)
-                    else:
-                        maxwidth = 0
-                    realwidths[i] = max(realwidths[i], maxwidth)
-                    cells.append(par)
-                fmted_rows.append(cells)
-
-        def writesep(char='-'):
-            out = ['+']
-            for width in realwidths:
-                out.append(char * (width+2))
-                out.append('+')
-            self.add_text(''.join(out) + self.nl)
+                    cells.append(cell)
+                rows.append(cells)
 
         def writerow(row):
             lines = zip_longest(*row)
             for line in lines:
-                out = ['|']
+                out += "<tr>"
                 for i, cell in enumerate(line):
-                    if cell:
-                        adjust_len = len(cell) - column_width(cell)
-                        out.append(' ' + cell.ljust(
-                            realwidths[i] + 1 + adjust_len))
-                    else:
-                        out.append(' ' * (realwidths[i] + 2))
-                    out.append('|')
-                self.add_text(''.join(out) + self.nl)
+                    out += '<td>' + cell + "</td>"
+                out += '</tr>'
 
-        for i, row in enumerate(fmted_rows):
-            if separator and i == separator:
-                writesep('=')
-            else:
-                writesep('-')
+        out = "<table>"
+        for row in rows:
             writerow(row)
-        writesep('-')
+        out += "</table>"
         self.table = None
         self.end_state()
 
@@ -809,6 +781,7 @@ class IPynbTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     visit_math_block = visit_math
+    visit_displaymath = visit_math
 
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
