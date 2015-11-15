@@ -36,7 +36,7 @@ Bugs fixed
 * #1823: '.' as <module_path> for sphinx-apidoc cause an unfriendly error. Now '.'
   is converted to absolute path automatically.
 * Fix a crash when setting up extensions which do not support metadata.
-* #1784: Provide non-minified JS code in ``sphinx/search/*.py``
+* #1784: Provide non-minified JS code in ``sphinx/search/non-minified-js/*.js``
 * #1822, #1892: Fix regression for #1061. autosummary can't generate doc for imported
   members since sphinx-1.3b3. Thanks to Eric Larson.
 * #1793, #1819: "see also" misses a linebreak in text output. Thanks to Takayuki Hirai.
