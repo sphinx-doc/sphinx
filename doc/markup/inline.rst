@@ -154,6 +154,21 @@ Cross-referencing arbitrary locations
    section headings are changed, and for all builders that support
    cross-references.
 
+   .. versionadded:: 1.4
+
+   If ``section_titles_as_targets`` is set to ``True`` in ``conf.py``, you may
+   reference section titles without labels. Example::
+
+        A Plain Title
+        -------------
+
+        This is the text of the section.
+
+        It refers to the section itself, see :ref:`A Plain Title`.
+
+     The ``:ref:`` role would then generate a link to the section, with the link
+     title being "A Plain Title".  This works just as well when section and
+     reference are in different source files.
 
 Cross-referencing documents
 ---------------------------

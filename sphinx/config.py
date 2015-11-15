@@ -74,6 +74,7 @@ class Config(object):
         modindex_common_prefix = ([], 'html'),
         rst_epilog = (None, 'env'),
         rst_prolog = (None, 'env'),
+        section_titles_as_targets = (False, 'env'),
         trim_doctest_flags = (True, 'env'),
         primary_domain = ('py', 'env'),
         needs_sphinx = (None, None),

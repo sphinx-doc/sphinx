@@ -171,6 +171,22 @@ General configuration
 
    .. versionadded:: 1.0
 
+.. confval:: section_titles_as_targets
+
+   This setting allows :ref:`ref-role` to link to sections that do not have
+   explicit labels.
+
+   If ``False``, explicit labels are necessary to use ``:ref:`` to link to section
+   titles.
+
+   If ``True``, :ref:`ref-role` will be able to target section titles without explicit
+   labels. This requires targeted section titles to be unique throughout the
+   documentation, otherwise unexpected behavior is likely to occur.
+
+   The default is ``False``.
+
+    .. versionadded:: 1.4
+
 .. confval:: primary_domain
 
    .. index:: default; domain
