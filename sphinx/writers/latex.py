@@ -25,6 +25,7 @@ from sphinx import highlighting
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import split_into
+from sphinx.util.nodes import clean_astext
 from sphinx.util.osutil import ustrftime
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
 from sphinx.util.smartypants import educate_quotes_latex
@@ -583,11 +584,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.this_is_the_title = 0
             raise nodes.SkipNode
         elif isinstance(parent, nodes.section):
+            short = ''
+            if node.traverse(nodes.image):
+                short = '[%s]' % ' '.join(clean_astext(node).split()).translate(tex_escape_map)
+
             try:
-                self.body.append(r'\%s{' % self.sectionnames[self.sectionlevel])
+                self.body.append(r'\%s%s{' % (self.sectionnames[self.sectionlevel], short))
             except IndexError:
                 # just use "subparagraph", it's not numbered anyway
-                self.body.append(r'\%s{' % self.sectionnames[-1])
+                self.body.append(r'\%s%s{' % (self.sectionnames[-1], short))
             self.context.append('}\n')
 
             if self.next_section_ids:
