@@ -14,9 +14,8 @@
 import collections
 import inspect
 import re
-import sys
 
-from six import string_types
+from six import string_types, u
 from six.moves import range
 
 from sphinx.ext.napoleon.iterators import modify_iter
@@ -163,10 +162,7 @@ class GoogleDocstring(UnicodeMixin):
             Unicode version of the docstring.
 
         """
-        if sys.version_info[0] >= 3:
-            return '\n'.join(self.lines())
-        else:
-            return u'\n'.join(self.lines())
+        return u('\n').join(self.lines())
 
     def lines(self):
         """Return the parsed lines of the docstring in reStructuredText format.
