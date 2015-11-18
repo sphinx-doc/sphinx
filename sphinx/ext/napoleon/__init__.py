@@ -43,7 +43,7 @@ class Config(object):
         napoleon_use_rtype = True
 
     .. _Google style:
-       http://google-styleguide.googlecode.com/svn/trunk/pyguide.html
+       http://google.github.io/styleguide/pyguide.html
     .. _NumPy style:
        https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 
@@ -239,12 +239,12 @@ def setup(app):
 
     See Also
     --------
-    The Sphinx documentation on `Extensions`_, the `Extension Tutorial`_, and
-    the `Extension API`_.
+    `The Sphinx documentation on Extensions
+    <http://sphinx-doc.org/extensions.html>`_
 
-    .. _Extensions: http://sphinx-doc.org/extensions.html
-    .. _Extension Tutorial: http://sphinx-doc.org/ext/tutorial.html
-    .. _Extension API: http://sphinx-doc.org/ext/appapi.html
+    `The Extension Tutorial <http://sphinx-doc.org/extdev/tutorial.html>`_
+
+    `The Extension API <http://sphinx-doc.org/extdev/appapi.html>`_
 
     """
     from sphinx.application import Sphinx
