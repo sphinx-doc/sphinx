@@ -14,6 +14,7 @@
 import collections
 import inspect
 import re
+import sys
 
 from six import string_types
 from six.moves import range
@@ -162,7 +163,10 @@ class GoogleDocstring(UnicodeMixin):
             Unicode version of the docstring.
 
         """
-        return u'\n'.join(self.lines())
+        if sys.version_info[0] >= 3:
+            return '\n'.join(self.lines())
+        else:
+            return u'\n'.join(self.lines())
 
     def lines(self):
         """Return the parsed lines of the docstring in reStructuredText format.
