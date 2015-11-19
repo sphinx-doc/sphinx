@@ -193,8 +193,6 @@ var Search = {
     }
 
     // lookup as search terms in fulltext
-    //results = results.concat(this.performTermsSearch(searchterms, excluded, terms, Scorer.term))
-    //                 .concat(this.performTermsSearch(searchterms, excluded, titleterms, Scorer.title));
 	results = results.concat(this.performTermsSearch(searchterms, excluded, terms, titleterms));
 
     // let the scorer override scores with a custom scoring function
@@ -355,63 +353,6 @@ var Search = {
 
     return results;
   },
-
-  /**
-   * search for full-text terms in the index
-   */
-/*   
-  performTermsSearch : function(searchterms, excluded, terms, score) {
-    var filenames = this._index.filenames;
-    var titles = this._index.titles;
-
-    var i, j, file, files;
-    var fileMap = {};
-    var results = [];
-
-    // perform the search on the required terms
-    for (i = 0; i < searchterms.length; i++) {
-      var word = searchterms[i];
-      // no match but word was a required one
-      if ((files = terms[word]) === undefined)
-        break;
-      if (files.length === undefined) {
-        files = [files];
-      }
-      // create the mapping
-      for (j = 0; j < files.length; j++) {
-        file = files[j];
-        if (file in fileMap)
-          fileMap[file].push(word);
-        else
-          fileMap[file] = [word];
-      }
-    }
-
-    // now check if the files don't contain excluded terms
-    for (file in fileMap) {
-      var valid = true;
-
-      // check if all requirements are matched
-      if (fileMap[file].length != searchterms.length)
-          continue;
-
-      // ensure that none of the excluded terms is in the search result
-      for (i = 0; i < excluded.length; i++) {
-        if (terms[excluded[i]] == file ||
-          $u.contains(terms[excluded[i]] || [], file)) {
-          valid = false;
-          break;
-        }
-      }
-
-      // if we have still a valid result we can add it to the result list
-      if (valid) {
-        results.push([filenames[file], titles[file], '', null, score]);
-      }
-    }
-    return results;
-  },
-*/
 
   /**
    * search for full-text terms in the index
