@@ -357,54 +357,54 @@ var Search = {
   /**
    * search for full-text terms in the index
    */
-	performTermsSearch : function(searchterms, excluded, terms, titleterms) {
-    var filenames = this._index.filenames;
-    var titles = this._index.titles;
+  performTermsSearch : function(searchterms, excluded, terms, titleterms) {
+  var filenames = this._index.filenames;
+  var titles = this._index.titles;
 
-    var i, j, file, files;
-    var fileMap = {};
-    var scoreMap = {};  
-    var results = [];
+  var i, j, file, files;
+  var fileMap = {};
+  var scoreMap = {};
+  var results = [];
 
-    // perform the search on the required terms
-    for (i = 0; i < searchterms.length; i++) {
-      var word = searchterms[i];
+  // perform the search on the required terms
+  for (i = 0; i < searchterms.length; i++) {
+    var word = searchterms[i];
 	  
-	  files = [];
-	  _files1 = terms[word];
-	  _files2 = titleterms[word];
-	  // no match but word was a required one
-	  if (_files1 === undefined && _files2 === undefined) {
-		break;
-	  }
-	  // found search word in contents
-	  if (_files1 !== undefined) {
-		if (_files1.length === undefined)
-		  _files1 = [_files1];
-		files = files.concat(_files1);
+    files = [];
+    _files1 = terms[word];
+    _files2 = titleterms[word];
+    // no match but word was a required one
+    if (_files1 === undefined && _files2 === undefined) {
+      break;
+    }
+    // found search word in contents
+    if (_files1 !== undefined) {
+      if (_files1.length === undefined)
+        _files1 = [_files1];
+        files = files.concat(_files1);
 
-		// set score for the word in each file to Scorer.term
-		for (j = 0; j < _files1.length; j++) {
-		  file = _files1[j];
-		  if (!(file in scoreMap))
-			scoreMap[file] = {}
-		  scoreMap[file][word] = Scorer.term;
-		}
-	  }
-	  if (_files2 !== undefined) {
-		// found the word in document title
-		if (_files2.length === undefined)
-		  _files2 = [_files2];
-		files = files.concat(_files2);
+        // set score for the word in each file to Scorer.term
+        for (j = 0; j < _files1.length; j++) {
+          file = _files1[j];
+          if (!(file in scoreMap))
+            scoreMap[file] = {}
+          scoreMap[file][word] = Scorer.term;
+        }
+      }
+      if (_files2 !== undefined) {
+        // found the word in document title
+        if (_files2.length === undefined)
+          _files2 = [_files2];
+        files = files.concat(_files2);
 
-		// set score for the word in each file to Scorer.title
-		for (j = 0; j < _files2.length; j++) {
-		  file = _files2[j];
-		  if (!(file in scoreMap))
-			scoreMap[file] = {}
-		  scoreMap[file][word] = Scorer.title;
-		}
-	  }
+        // set score for the word in each file to Scorer.title
+        for (j = 0; j < _files2.length; j++) {
+          file = _files2[j];
+          if (!(file in scoreMap))
+            scoreMap[file] = {}
+          scoreMap[file][word] = Scorer.title;
+        }
+      }
 
       // create the mapping
       for (j = 0; j < files.length; j++) {
@@ -427,9 +427,9 @@ var Search = {
       // ensure that none of the excluded terms is in the search result
       for (i = 0; i < excluded.length; i++) {
         if (terms[excluded[i]] == file ||
-			titleterms[excluded[i]] == file ||
-			$u.contains(terms[excluded[i]] || [], file) ||
-			$u.contains(titleterms[excluded[i]] || [], file)) {
+            titleterms[excluded[i]] == file ||
+            $u.contains(terms[excluded[i]] || [], file) ||
+            $u.contains(titleterms[excluded[i]] || [], file)) {
           valid = false;
           break;
         }
@@ -437,14 +437,14 @@ var Search = {
 
       // if we have still a valid result we can add it to the result list
       if (valid) {
-		// select one (max) score for the file.
-		// for better ranking, we should calculate ranking by using words statistics like basic tf-idf...
-		score = 0;
-		for (i = 0; i < fileMap[file].length; i++) {
-		  w = fileMap[file][i];
-		  if (score < scoreMap[file][w])
-			score = scoreMap[file][w]
-		}
+        // select one (max) score for the file.
+        // for better ranking, we should calculate ranking by using words statistics like basic tf-idf...
+        score = 0;
+        for (i = 0; i < fileMap[file].length; i++) {
+          w = fileMap[file][i];
+          if (score < scoreMap[file][w])
+            score = scoreMap[file][w]
+        }
         results.push([filenames[file], titles[file], '', null, score]);
       }
     }
