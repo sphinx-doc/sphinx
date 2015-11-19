@@ -358,29 +358,29 @@ var Search = {
    * search for full-text terms in the index
    */
   performTermsSearch : function(searchterms, excluded, terms, titleterms) {
-  var filenames = this._index.filenames;
-  var titles = this._index.titles;
+    var filenames = this._index.filenames;
+    var titles = this._index.titles;
 
-  var i, j, file, files;
-  var fileMap = {};
-  var scoreMap = {};
-  var results = [];
+    var i, j, file, files;
+    var fileMap = {};
+    var scoreMap = {};
+    var results = [];
 
-  // perform the search on the required terms
-  for (i = 0; i < searchterms.length; i++) {
-    var word = searchterms[i];
+    // perform the search on the required terms
+    for (i = 0; i < searchterms.length; i++) {
+      var word = searchterms[i];
 	  
-    files = [];
-    _files1 = terms[word];
-    _files2 = titleterms[word];
-    // no match but word was a required one
-    if (_files1 === undefined && _files2 === undefined) {
-      break;
-    }
-    // found search word in contents
-    if (_files1 !== undefined) {
-      if (_files1.length === undefined)
-        _files1 = [_files1];
+      files = [];
+      _files1 = terms[word];
+      _files2 = titleterms[word];
+      // no match but word was a required one
+      if (_files1 === undefined && _files2 === undefined) {
+        break;
+      }
+      // found search word in contents
+      if (_files1 !== undefined) {
+        if (_files1.length === undefined)
+          _files1 = [_files1];
         files = files.concat(_files1);
 
         // set score for the word in each file to Scorer.term
