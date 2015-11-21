@@ -755,6 +755,7 @@ Info field lists
 The C++ directives support the following info fields (see also :ref:`info-field-lists`):
 
 * `param`, `parameter`, `arg`, `argument`: Description of a parameter.
+* `tparam`: Description of a template parameter.
 * `returns`, `return`: Description of a return value.
 * `throws`, `throw`, `exception`: Description of a possibly thrown exception.
 

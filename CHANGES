@@ -17,7 +17,7 @@ Features added
 * C++, added new scope management directives ``namespace-push`` and ``namespace-pop``.
 * Intersphinx: Added support for fetching Intersphinx inventories with URLs
   using HTTP basic auth
-* C++, added support for template parameter in function info field lists
+* C++, added support for template parameter in function info field lists.
 
 Bugs fixed
 ----------
