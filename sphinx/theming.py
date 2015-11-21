@@ -136,9 +136,8 @@ class Theme(object):
         except configparser.NoOptionError:
             raise ThemeError('theme %r doesn\'t have "inherit" setting' % name)
 
-        if inherit in ['alabaster', 'sphinx_rtd_theme']:
-            # include 'alabaster' or 'sphinx_themes' automatically #1794
-            self.load_extra_theme(inherit)
+        # load inherited theme automatically #1794, #1884, #1885
+        self.load_extra_theme(inherit)
 
         if inherit == 'none':
             self.base = None
