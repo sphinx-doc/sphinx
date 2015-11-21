@@ -82,6 +82,8 @@ Bugs fixed
   using `any` role and `sphinx.ext.intersphinx` in same time.
 * #2121: multiple words search doesn't find pages when words across on the page title and
   the page content.
+* #1884, #1885: plug-in html themes cannot inherit another plug-in theme. Thanks to
+  Suzumizaki.
 
 Documentation
 -------------
