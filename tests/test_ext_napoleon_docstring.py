@@ -732,8 +732,8 @@ class NumpyDocstringTest(BaseDocstringTest):
         Single line summary
 
         :Parameters: * **arg1** (*str*) -- Extended description of arg1
-                     * ***args** -- Variable length argument list.
-                     * ****kwargs** -- Arbitrary keyword arguments.
+                     * **\\*args** -- Variable length argument list.
+                     * **\\*\\*kwargs** -- Arbitrary keyword arguments.
         """
     ), (
         """
