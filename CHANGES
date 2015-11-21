@@ -78,6 +78,10 @@ Bugs fixed
   config value for 'version' and 'release'.
 * #2102: On Windows + Py3, using ``|today|`` and non-ASCII date format will raise
   UnicodeEncodeError.
+* #1974: UnboundLocalError: local variable 'domain' referenced before assignment when
+  using `any` role and `sphinx.ext.intersphinx` in same time.
+* #2121: multiple words search doesn't find pages when words across on the page title and
+  the page content.
 
 Documentation
 -------------

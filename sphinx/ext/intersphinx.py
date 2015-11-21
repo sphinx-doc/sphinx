@@ -326,6 +326,7 @@ def missing_reference(app, env, node, contnode):
         objtypes = ['%s:%s' % (domain.name, objtype)
                     for domain in env.domains.values()
                     for objtype in domain.object_types]
+        domain = None
     elif node['reftype'] == 'doc':
         domain = 'std'  # special case
         objtypes = ['std:doc']
