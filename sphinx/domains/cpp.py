@@ -3713,8 +3713,12 @@ class CPPDomain(Domain):
         # print(self.data['rootSymbol'].dump(0))
         pass
 
-    # def merge_domaindata(self, docnames, otherdata):
-    #    # TODO: merge rootSymbol
+    def merge_domaindata(self, docnames, otherdata):
+        theirRoot = self.data['rootSymbol']
+        assert theirRoot is not None
+        if theirRoot.parent is not None:
+            raise NotImplementedError()
+        # TODO: do the actual merging
 
     def _resolve_xref_inner(self, env, fromdocname, builder,
                             target, node, contnode, emitWarnings=True):
