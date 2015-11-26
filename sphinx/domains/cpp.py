@@ -2170,38 +2170,44 @@ class Symbol(object):
 
     def _find_named_symbol(self, identifier, templateParams,
                            templateArgs, operator,
-                           templateShorthand):
+                           templateShorthand, matchSelf):
         assert (identifier is None) != (operator is None)
-        for s in self.children:
+
+        def matches(s):
             if s.identifier != identifier:
-                continue
+                return False
             if not s.identifier:
                 if not s.declaration:
-                    continue
+                    return False
                 assert operator
                 name = s.declaration.name.names[-1]
                 if not name.is_operator():
-                    continue
+                    return False
                 if text_type(name) != text_type(operator):
-                    continue
+                    return False
             if (s.templateParams is None) != (templateParams is None):
                 if templateParams is not None:
                     # we query with params, they must match params
-                    continue
+                    return False
                 if not templateShorthand:
                     # we don't query with params, and we do care about them
-                    continue
+                    return False
             if templateParams:
                 # TODO: do better comparison
                 if text_type(s.templateParams) != text_type(templateParams):
-                    continue
+                    return False
             if (s.templateArgs is None) != (templateArgs is None):
-                continue
+                return False
             if s.templateArgs:
                 # TODO: do better comparison
                 if text_type(s.templateArgs) != text_type(templateArgs):
-                    continue
-            return s
+                    return False
+            return True
+        if matchSelf and matches(self):
+            return self
+        for s in self.children:
+            if matches(s):
+                return s
         return None
 
     def _add_symbols(self, nestedName, templateDecls, declaration, docname):
@@ -2234,7 +2240,8 @@ class Symbol(object):
                                                      templateParams,
                                                      templateArgs,
                                                      operator=None,
-                                                     templateShorthand=False)
+                                                     templateShorthand=False,
+                                                     matchSelf=False)
             if symbol is None:
                 symbol = Symbol(parent=parentSymbol, identifier=identifier,
                                 templateParams=templateParams,
@@ -2263,7 +2270,8 @@ class Symbol(object):
                                                  templateParams,
                                                  templateArgs,
                                                  operator,
-                                                 templateShorthand=False)
+                                                 templateShorthand=False,
+                                                 matchSelf=False)
         if symbol:
             if not declaration:
                 # good, just a scope creation
@@ -2315,7 +2323,9 @@ class Symbol(object):
             templateDecls = []
         return self._add_symbols(nestedName, templateDecls, declaration, docname)
 
-    def find_identifier(self, identifier):
+    def find_identifier(self, identifier, matchSelf):
+        if matchSelf and self.identifier and self.identifier == identifier:
+            return self
         for s in self.children:
             if s.identifier and s.identifier == identifier:
                 return s
@@ -2334,12 +2344,13 @@ class Symbol(object):
                 operator = None
             s = s._find_named_symbol(identifier, templateParams,
                                      templateArgs, operator,
-                                     templateShorthand=False)
+                                     templateShorthand=False,
+                                     matchSelf=True)
             if not s:
                 return None
         return s
 
-    def find_name(self, nestedName, templateDecls, templateShorthand):
+    def find_name(self, nestedName, templateDecls, templateShorthand, matchSelf):
         # templateShorthand: missing template parameter lists for templates is ok
 
         # TODO: unify this with the _add_symbols
@@ -2355,7 +2366,8 @@ class Symbol(object):
         firstName = names[0]
         if not firstName.is_operator():
             while parentSymbol.parent:
-                if parentSymbol.find_identifier(firstName.identifier):
+                if parentSymbol.find_identifier(firstName.identifier,
+                                                matchSelf=matchSelf):
                     break
                 parentSymbol = parentSymbol.parent
 
@@ -2381,7 +2393,8 @@ class Symbol(object):
                                                          templateParams,
                                                          templateArgs,
                                                          operator,
-                                                         templateShorthand=templateShorthand)
+                                                         templateShorthand=templateShorthand,
+                                                         matchSelf=matchSelf)
                 if symbol:
                     return symbol
                 else:
@@ -2400,7 +2413,8 @@ class Symbol(object):
                                                          templateParams,
                                                          templateArgs,
                                                          operator=None,
-                                                         templateShorthand=templateShorthand)
+                                                         templateShorthand=templateShorthand,
+                                                         matchSelf=matchSelf)
                 if symbol is None:
                     # TODO: maybe search without template args
                     return None
@@ -3753,7 +3767,8 @@ class CPPDomain(Domain):
         else:
             templateDecls = []
         s = parentSymbol.find_name(name, templateDecls,
-                                   templateShorthand=True)
+                                   templateShorthand=True,
+                                   matchSelf=True)
         if s is None or s.declaration is None:
             return None, None
         declaration = s.declaration
