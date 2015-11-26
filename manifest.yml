@@ -1,0 +1,5 @@
+---
+applications:
+- name:   sphinx-sampledoc
+  memory: 128M
+  host:   sphinx-sampledoc
