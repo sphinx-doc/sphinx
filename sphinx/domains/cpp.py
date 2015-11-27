@@ -2131,7 +2131,11 @@ class Symbol(object):
             for p in self.templateParams.params:
                 if not p.get_identifier():
                     continue
-                decl = ASTDeclaration('templateParam', None, None, p)
+                # only add a declaration if we our selfs from a declaration
+                if declaration:
+                    decl = ASTDeclaration('templateParam', None, None, p)
+                else:
+                    decl = None
                 nne = ASTNestedNameElement(p.get_identifier(), None)
                 nn = ASTNestedName([nne], rooted=False)
                 self._add_symbols(nn, [], decl, docname)
