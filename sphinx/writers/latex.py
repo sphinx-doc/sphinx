@@ -1555,7 +1555,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # if a footnote has been inserted once, it shouldn't be repeated
         # by the next reference
         if used:
-            self.body.append('\\footnotemark[%s]' % num)
+            if self.table:
+                self.body.append('\\protect\\footnotemark[%s]' % num)
+            else:
+                self.body.append('\\footnotemark[%s]' % num)
         elif self.table:
             self.footnotestack[-1][num][1] = True
             self.body.append('\\protect\\footnotemark[%s]' % num)
