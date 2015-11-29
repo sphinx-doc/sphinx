@@ -137,8 +137,7 @@ def test_extract_messages_without_rawsource():
     Check node.rawsource is fall-backed by using node.astext() value.
 
     `extract_message` which is used from Sphinx i18n feature drop ``not node.rawsource``
-    nodes.
-    So, all nodes which want to translate must have ``rawsource`` value.
+    nodes. So, all nodes which want to translate must have ``rawsource`` value.
     However, sometimes node.rawsource is not set.
 
     For example: recommonmark-0.2.0 doesn't set rawsource to `paragraph` node.
