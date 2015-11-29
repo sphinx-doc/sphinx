@@ -13,6 +13,7 @@
 """
 
 from docutils import nodes
+from docutils.parsers.rst import directives
 
 import sphinx
 from sphinx.locale import _
@@ -38,12 +39,17 @@ class Todo(Directive):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {}
+    option_spec = {
+        'class': directives.class_option,
+    }
 
     def run(self):
         env = self.state.document.settings.env
         targetid = 'index-%s' % env.new_serialno('index')
         targetnode = nodes.target('', '', ids=[targetid])
+
+        if not self.options.get('class'):
+            self.options['class'] = ['admonition-todo']
 
         ad = make_admonition(todo_node, self.name, [_('Todo')], self.options,
                              self.content, self.lineno, self.content_offset,
@@ -165,6 +171,7 @@ def merge_info(app, env, docnames, other):
 
 def visit_todo_node(self, node):
     self.visit_admonition(node)
+    # self.visit_admonition(node, 'todo')
 
 
 def depart_todo_node(self, node):
