@@ -2013,7 +2013,6 @@ class ASTDeclaration(ASTBase):
         self.declaration = declaration
 
         self.symbol = None
-        self.declarationScope = None  # set by Symbol.add_declaration
 
     @property
     def name(self):
@@ -2056,9 +2055,6 @@ class ASTDeclaration(ASTBase):
         parentNode.pop()
 
         assert self.symbol
-        if not self.declarationScope:
-            raise NotImplementedError("hmm, a bug? %s" % text_type(self))
-        assert self.declarationScope
         if self.templatePrefix:
             self.templatePrefix.describe_signature(parentNode, mode, env,
                                                    symbol=self.symbol)
@@ -2139,6 +2135,28 @@ class Symbol(object):
                 nne = ASTNestedNameElement(p.get_identifier(), None)
                 nn = ASTNestedName([nne], rooted=False)
                 self._add_symbols(nn, [], decl, docname)
+
+    def _fill_empty(self, declaration, docname):
+        self._assert_invariants()
+        assert not self.declaration
+        assert not self.docname
+        assert declaration
+        assert docname
+        self.declaration = declaration
+        self.declaration.symbol = self
+        self.docname = docname
+        self._assert_invariants()
+
+    def clear_doc(self, docname):
+        newChildren = []
+        for sChild in self.children:
+            sChild.clear_doc(docname)
+            if sChild.declaration and sChild.docname == docname:
+                sChild.declaration = None
+                sChild.docname = None
+            if sChild.declaration or len(sChild.children) > 0:
+                newChildren.append(sChild)
+        self.children = newChildren
 
     def get_all_symbols(self):
         yield self
@@ -2225,7 +2243,6 @@ class Symbol(object):
         if nestedName.rooted:
             while parentSymbol.parent:
                 parentSymbol = parentSymbol.parent
-        declarationScope = parentSymbol
         names = nestedName.names
         iTemplateDecl = 0
         for name in names[:-1]:
@@ -2286,11 +2303,7 @@ class Symbol(object):
                 # .. namespace:: Test
                 # .. namespace:: nullptr
                 # .. class:: Test
-                symbol.declaration = declaration
-                symbol.docname = docname
-                declaration.symbol = symbol
-                declaration.declarationScope = declarationScope
-                symbol._assert_invariants()
+                symbol._fill_empty(declaration, docname)
                 return symbol
             # it may simply be a functin overload
             # TODO: it could be a duplicate but let's just insert anyway
@@ -2300,16 +2313,54 @@ class Symbol(object):
                             templateArgs=templateArgs,
                             declaration=declaration,
                             docname=docname)
-            declaration.declarationScope = declarationScope
         else:
             symbol = Symbol(parent=parentSymbol, identifier=identifier,
                             templateParams=templateParams,
                             templateArgs=templateArgs,
                             declaration=declaration,
                             docname=docname)
-            if declaration:
-                declaration.declarationScope = declarationScope
         return symbol
+
+    def merge_with(self, other, docnames, env):
+        assert other is not None
+        for otherChild in other.children:
+            if not otherChild.identifier:
+                if not otherChild.declaration:
+                    print("WTF?")
+                    print(otherChild.dump(0))
+                    print(other.dump(0))
+                assert otherChild.declaration
+                operator = otherChild.declaration.name.names[-1]
+                assert operator.is_operator()
+            else:
+                operator = None
+            ourChild = self._find_named_symbol(otherChild.identifier,
+                                               otherChild.templateParams,
+                                               otherChild.templateArgs,
+                                               operator,
+                                               templateShorthand=False,
+                                               matchSelf=False)
+            if ourChild is None:
+                # TODO: hmm, should we prune by docnames?
+                self.children.append(otherChild)
+                otherChild.parent = self
+                otherChild._assert_invariants()
+                continue
+            if otherChild.declaration and otherChild.docname in docnames:
+                if not ourChild.declaration:
+                    ourChild._fill_empty(otherChild.declaration, otherChild.docname)
+                elif ourChild.docname != otherChild.docname:
+                    name = text_type(ourChild.declaration)
+                    msg = "Duplicate declaration, also defined in '%s'.\n"
+                    msg += "Declaration is '%s'."
+                    msg = msg % (ourChild.docname, name)
+                    env.warn(otherChild.docname, msg)
+                else:
+                    # Both have declarations, and in the same docname.
+                    # This can apparently happen, it should be safe to
+                    # just ignore it, right?
+                    pass
+            ourChild.merge_with(otherChild, docnames, env)
 
     def add_name(self, nestedName, templatePrefix=None):
         if templatePrefix:
@@ -2320,6 +2371,8 @@ class Symbol(object):
                                  declaration=None, docname=None)
 
     def add_declaration(self, declaration, docname):
+        assert declaration
+        assert docname
         nestedName = declaration.name
         if declaration.templatePrefix:
             templateDecls = declaration.templatePrefix.templates
@@ -2425,22 +2478,34 @@ class Symbol(object):
             parentSymbol = symbol
         assert False  # should have returned in the loop
 
-    def dump(self, indent):
+    def to_string(self, indent):
+        self._assert_invariants()
         res = ['\t'*indent]
-        if self.identifier:
+        if not self.parent:
+            res.append('::')
+        else:
             if self.templateParams:
                 res.append(text_type(self.templateParams))
                 res.append('\n')
                 res.append('\t'*indent)
-            res.append(text_type(self.identifier))
+            if self.identifier:
+                res.append(text_type(self.identifier))
+            else:
+                res.append(text_type(self.declaration))
             if self.templateArgs:
                 res.append(text_type(self.templateArgs))
             if self.declaration:
                 res.append(": ")
                 res.append(text_type(self.declaration))
-        else:
-            res.append('::')
+        if self.docname:
+            res.append('\t(')
+            res.append(self.docname)
+            res.append(')')
         res.append('\n')
+        return ''.join(res)
+
+    def dump(self, indent):
+        res = [self.to_string(indent)]
         for c in self.children:
             res.append(c.dump(indent + 1))
         return ''.join(res)
@@ -3715,28 +3780,30 @@ class CPPDomain(Domain):
 
     def clear_doc(self, docname):
         rootSymbol = self.data['rootSymbol']
-        for symbol in rootSymbol.get_all_symbols():
-            if not symbol.declaration:
-                continue
-            if symbol.docname != docname:
-                continue
-            symbol.declaration = None
-            symbol.docname = None
+        rootSymbol.clear_doc(docname)
         for name, nDocname in list(self.data['names'].items()):
             if nDocname == docname:
                 del self.data['names'][name]
 
     def process_doc(self, env, docname, document):
         # just for debugging
+        # print(docname)
         # print(self.data['rootSymbol'].dump(0))
         pass
 
     def merge_domaindata(self, docnames, otherdata):
-        theirRoot = self.data['rootSymbol']
-        assert theirRoot is not None
-        if theirRoot.parent is not None:
-            raise NotImplementedError()
-        # TODO: do the actual merging
+        self.data['rootSymbol'].merge_with(otherdata['rootSymbol'],
+                                           docnames, self.env)
+        ourNames = self.data['names']
+        for name, docname in otherdata['names'].items():
+            if docname in docnames:
+                if name in ourNames:
+                    msg = "Duplicate declaration, also defined in '%s'.\n"
+                    msg += "Name of declaration is '%s'."
+                    msg = msg % (ourNames[name], name)
+                    self.env.warn(docname, msg)
+                else:
+                    ourNames[name] = docname
 
     def _resolve_xref_inner(self, env, fromdocname, builder,
                             target, node, contnode, emitWarnings=True):
