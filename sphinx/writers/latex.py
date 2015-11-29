@@ -137,6 +137,7 @@ class Table(object):
         self.has_verbatim = False
         self.caption = None
         self.longtable = False
+        self.footnotes = []
 
 
 class LaTeXTranslator(nodes.NodeVisitor):
@@ -495,7 +496,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         fnotes = {}
         for fn in footnotes_under(node):
             num = fn.children[0].astext().strip()
-            fnotes[num] = [collected_footnote(*fn.children), False]
+            newnode = collected_footnote(*fn.children, number=num)
+            fnotes[num] = [newnode, False]
         return fnotes
 
     def depart_start_of_file(self, node):
@@ -743,7 +745,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_collected_footnote(self, node):
         self.in_footnote += 1
-        self.body.append('\\footnote{')
+        if 'in_table' in node:
+            self.body.append('\\footnotetext[%s]{' % node['number'])
+        else:
+            self.body.append('\\footnote[%s]{' % node['number'])
 
     def depart_collected_footnote(self, node):
         self.body.append('}')
@@ -839,6 +844,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(endmacro)
         if not self.table.longtable and self.table.caption is not None:
             self.body.append('\\end{threeparttable}\n\n')
+        if self.table.footnotes:
+            for footnode in self.table.footnotes:
+                footnode['in_table'] = True
+                footnode.walkabout(self)
         self.table = None
         self.tablebody = None
 
@@ -1532,6 +1541,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # by the next reference
         if used:
             self.body.append('\\footnotemark[%s]' % num)
+        elif self.table:
+            self.footnotestack[-1][num][1] = True
+            self.body.append('\\footnotemark[%s]' % num)
+            self.table.footnotes.append(footnode)
         else:
             if self.in_caption:
                 raise UnsupportedError('%s:%s: footnotes in float captions '

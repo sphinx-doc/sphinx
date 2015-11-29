@@ -297,3 +297,21 @@ def test_contentsname_with_language_ja(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\renewcommand{\\contentsname}{Table of content}' in result
+
+
+@with_app(buildername='latex')
+def test_footnote(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\footnote[1]{\nnumbered\n}' in result
+    assert '\\footnote[2]{\nauto numbered\n}' in result
+    assert '\\footnote[3]{\nnamed\n}' in result
+    assert '{\\hyperref[footnote:bar]{\\emph{{[}bar{]}}}}' in result
+    assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} ' in result
+    assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} \ncite' in result
+    assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} \ncite\n}' in result
+    assert 'name \\footnotemark[5]' in result
+    assert '\\end{threeparttable}\n\n\\footnotetext[5]{\nfootnotes in table\n}' in result
