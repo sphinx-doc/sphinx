@@ -313,5 +313,8 @@ def test_footnote(app, status, warning):
     assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} ' in result
     assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} \ncite' in result
     assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} \ncite\n}' in result
-    assert 'name \\footnotemark[5]' in result
-    assert '\\end{threeparttable}\n\n\\footnotetext[5]{\nfootnotes in table\n}' in result
+    assert '\\capstart\\caption{Table caption \\protect\\footnotemark[4]}' in result
+    assert 'name \\protect\\footnotemark[5]' in result
+    assert ('\\end{threeparttable}\n\n'
+            '\\footnotetext[4]{\nfootnotes in table caption\n}'
+            '\\footnotetext[5]{\nfootnotes in table\n}' in result)

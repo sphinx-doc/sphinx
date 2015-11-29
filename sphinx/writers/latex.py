@@ -276,6 +276,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # by .. highlight:: directive in the master file
         self.hlsettingstack = 2 * [[builder.config.highlight_language,
                                     sys.maxsize]]
+        self.bodystack = []
         self.footnotestack = []
         self.curfilestack = []
         self.handled_abbrs = set()
@@ -303,6 +304,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.first_param = 0
         self.remember_multirow = {}
         self.remember_multirowcol = {}
+
+    def pushbody(self, newbody):
+        self.bodystack.append(self.body)
+        self.body = newbody
+
+    def popbody(self):
+        body = self.body
+        self.body = self.bodystack.pop()
+        return body
 
     def format_docclass(self, docclass):
         """ prepends prefix to sphinx document classes
@@ -604,8 +614,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('{')
             self.context.append('}\n')
         elif isinstance(parent, nodes.table):
-            self.table.caption = self.encode(node.astext())
-            raise nodes.SkipNode
+            # Redirect body output until title is finished.
+            self.pushbody([])
         else:
             self.builder.warn(
                 'encountered title node not in section, topic, table, '
@@ -617,7 +627,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def depart_title(self, node):
         self.in_title = 0
-        self.body.append(self.context.pop())
+        if isinstance(node.parent, nodes.table):
+            self.table.caption = self.popbody()
+        else:
+            self.body.append(self.context.pop())
 
     def visit_subtitle(self, node):
         if isinstance(node.parent, nodes.sidebar):
@@ -775,16 +788,18 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.tablebody = []
         self.tableheaders = []
         # Redirect body output until table is finished.
-        self._body = self.body
-        self.body = self.tablebody
+        self.pushbody(self.tablebody)
 
     def depart_table(self, node):
         if self.table.rowcount > 30:
             self.table.longtable = True
-        self.body = self._body
+        self.popbody()
         if not self.table.longtable and self.table.caption is not None:
-            self.body.append(u'\n\n\\begin{threeparttable}\n'
-                             u'\\capstart\\caption{%s}\n' % self.table.caption)
+            self.body.append('\n\n\\begin{threeparttable}\n'
+                             '\\capstart\\caption{')
+            for caption in self.table.caption:
+                self.body.append(caption)
+            self.body.append('}')
             for id in self.next_table_ids:
                 self.body.append(self.hypertarget(id, anchor=False))
             if node['ids']:
@@ -1543,7 +1558,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\footnotemark[%s]' % num)
         elif self.table:
             self.footnotestack[-1][num][1] = True
-            self.body.append('\\footnotemark[%s]' % num)
+            self.body.append('\\protect\\footnotemark[%s]' % num)
             self.table.footnotes.append(footnode)
         else:
             if self.in_caption:
