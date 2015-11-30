@@ -488,6 +488,9 @@ def test_tocdepth_singlehtml(app, status, warning):
 def test_numfig_disabled(app, status, warning):
     app.builder.build_all()
 
+    assert 'WARNING: invalid numfig_format: invalid' not in warning.getvalue()
+    assert 'WARNING: invalid numfig_format: Fig %s %s' not in warning.getvalue()
+
     expects = {
         'index.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -546,6 +549,9 @@ def test_numfig_without_numbered_toctree(app, status, warning):
     index = re.sub(':numbered:.*', '', index, re.MULTILINE)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
     app.builder.build_all()
+
+    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
 
     expects = {
         'index.html': [
@@ -641,6 +647,9 @@ def test_numfig_without_numbered_toctree(app, status, warning):
               confoverrides={'numfig': True})
 def test_numfig_with_numbered_toctree(app, status, warning):
     app.builder.build_all()
+
+    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
 
     expects = {
         'index.html': [
@@ -740,6 +749,9 @@ def test_numfig_with_numbered_toctree(app, status, warning):
 def test_numfig_with_prefix(app, status, warning):
     app.builder.build_all()
 
+    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
+
     expects = {
         'index.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -834,6 +846,9 @@ def test_numfig_with_prefix(app, status, warning):
               confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
 def test_numfig_with_secnum_depth(app, status, warning):
     app.builder.build_all()
+
+    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
 
     expects = {
         'index.html': [
