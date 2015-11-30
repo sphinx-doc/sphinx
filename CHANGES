@@ -5,6 +5,8 @@ Bugs fixed
 ----------
 
 * #2012: Fix exception occurred if ``numfig_format`` is invalid
+* #2142: Provide non-minified JS code in ``sphinx/search/non-minified-js/*.js`` for
+  source distribution on PyPI.
 
 
 Release 1.3.2 (released Nov 29, 2015)
