@@ -2016,6 +2016,15 @@ class ASTDeclaration(ASTBase):
         # set by CPPObject._add_enumerator_to_parent
         self.enumeratorScopedSymbol = None
 
+    def clone(self):
+        if self.templatePrefix:
+            templatePrefixClone = self.templatePrefix.clone()
+        else:
+            templatePrefixClone = None
+        return ASTDeclaration(self.objectType, self.visibility,
+                              templatePrefixClone,
+                              self.declaration.clone())
+
     @property
     def name(self):
         return self.declaration.name
