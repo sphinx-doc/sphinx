@@ -2013,6 +2013,8 @@ class ASTDeclaration(ASTBase):
         self.declaration = declaration
 
         self.symbol = None
+        # set by CPPObject._add_enumerator_to_parent
+        self.enumeratorScopedSymbol = None
 
     @property
     def name(self):
@@ -2021,9 +2023,13 @@ class ASTDeclaration(ASTBase):
     def get_id_v1(self):
         if self.templatePrefix:
             raise NoOldIdError()
+        if self.objectType == 'enumerator' and self.enumeratorScopedSymbol:
+            return self.enumeratorScopedSymbol.declaration.get_id_v1()
         return self.declaration.get_id_v1(self.objectType, self.symbol)
 
     def get_id_v2(self, prefixed=True):
+        if self.objectType == 'enumerator' and self.enumeratorScopedSymbol:
+            return self.enumeratorScopedSymbol.declaration.get_id_v2(prefixed)
         if prefixed:
             res = [_id_prefix_v2]
         else:
@@ -3443,13 +3449,15 @@ class CPPObject(ObjectDescription):
             return
 
         targetSymbol = parentSymbol.parent
-        s = targetSymbol.find_identifier(symbol.identifier)
+        s = targetSymbol.find_identifier(symbol.identifier, matchSelf=False)
         if s is not None:
             # something is already declared with that name
             return
+        declClone = symbol.declaration.clone()
+        declClone.enumeratorScopedSymbol = symbol
         Symbol(parent=targetSymbol, identifier=symbol.identifier,
                templateParams=None, templateArgs=None,
-               declaration=symbol.declaration.clone(),
+               declaration=declClone,
                docname=self.env.docname)
 
     def add_target_and_index(self, ast, sig, signode):
