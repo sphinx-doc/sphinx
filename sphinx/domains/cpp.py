@@ -2148,15 +2148,11 @@ class Symbol(object):
         self._assert_invariants()
 
     def clear_doc(self, docname):
-        newChildren = []
         for sChild in self.children:
             sChild.clear_doc(docname)
             if sChild.declaration and sChild.docname == docname:
                 sChild.declaration = None
                 sChild.docname = None
-            if sChild.declaration or len(sChild.children) > 0:
-                newChildren.append(sChild)
-        self.children = newChildren
 
     def get_all_symbols(self):
         yield self
