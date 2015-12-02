@@ -18,6 +18,7 @@ Features added
 * Intersphinx: Added support for fetching Intersphinx inventories with URLs
   using HTTP basic auth
 * C++, added support for template parameter in function info field lists.
+* C++, added support for pointers to member (function).
 
 Bugs fixed
 ----------

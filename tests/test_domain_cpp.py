@@ -78,6 +78,27 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
     #print ".. %s:: %s" % (name, input)
 
 
+def test_fundamental_types():
+    # see http://en.cppreference.com/w/cpp/language/types
+    for t, id_v2 in cppDomain._id_fundamental_v2.items():
+        if t == "decltype(auto)":
+            continue
+
+        def makeIdV1():
+            id = t.replace(" ", "-").replace("long", "l").replace("int", "i")
+            id = id.replace("bool", "b").replace("char", "c")
+            id = id.replace("wc_t", "wchar_t").replace("c16_t", "char16_t")
+            id = id.replace("c32_t", "char32_t")
+            return "f__%s" % id
+
+        def makeIdV2():
+            id = id_v2
+            if t == "std::nullptr_t":
+                id = "NSt9nullptr_tE"
+            return "1f%s" % id
+        check("function", "void f(%s arg)" % t, makeIdV1(), makeIdV2())
+
+
 def test_type_definitions():
     check("type", "public bool b", "b", "1b", "bool b")
     check("type", "bool A::b", "A::b", "N1A1bE")
@@ -107,6 +128,10 @@ def test_type_definitions():
     # test name in global scope
     check("type", "bool ::B::b", "B::b", "N1B1bE")
 
+    check('type', 'A = B', None, '1A')
+
+
+def test_member_definitions():
     check('member', '  const  std::string  &  name = 42',
           "name__ssCR", "4name", output='const std::string &name = 42')
     check('member', '  const  std::string  &  name', "name__ssCR", "4name",
@@ -117,7 +142,10 @@ def test_type_definitions():
           "name__std::vector:unsigned-i.l:CR",
           "4name", output='const std::vector<unsigned int, long> &name')
     check('member', 'module::myclass foo[n]', "foo__module::myclassA", "3foo")
+    check('member', 'int *const p', 'p__iPC', '1p')
 
+
+def test_function_definitions():
     check('function', 'operator bool() const', "castto-b-operatorC", "NKcvbEv")
     check('function', 'A::operator bool() const',
           "A::castto-b-operatorC", "NK1AcvbEv")
@@ -223,6 +251,8 @@ def test_type_definitions():
           "A::f__doubleC", "NK1A1fEd")
     check("function", "void f(std::shared_ptr<int(double)> ptr)",
           None, "1fNSt10shared_ptrIFidEEE")
+    check("function", "void f(int *const p)", "f__iPC", "1fPCi")
+    check("function", "void f(int *volatile const p)", "f__iPVC", "1fPVCi")
 
     # TODO: make tests for functions in a template, e.g., Test<int&&()>
     # such that the id generation for function type types is correct.
@@ -237,9 +267,72 @@ def test_type_definitions():
     check('function', 'void f(enum E e)', 'f__E', '1f1E')
     check('function', 'void f(union E e)', 'f__E', '1f1E')
 
+    # pointer to member (function)
+    check('function', 'void f(int C::*)', None, '1fM1Ci')
+    check('function', 'void f(int C::* p)', None, '1fM1Ci')
+    check('function', 'void f(int ::C::* p)', None, '1fM1Ci')
+    check('function', 'void f(int C::* const)', None, '1fKM1Ci')
+    check('function', 'void f(int C::* const&)', None, '1fRKM1Ci')
+    check('function', 'void f(int C::* volatile)', None, '1fVM1Ci')
+    check('function', 'void f(int C::* const volatile)', None, '1fVKM1Ci',
+          output='void f(int C::* volatile const)')
+    check('function', 'void f(int C::* volatile const)', None, '1fVKM1Ci')
+    check('function', 'void f(int (C::*)(float, double))', None, '1fM1CFifdE')
+    check('function', 'void f(int (C::* p)(float, double))', None, '1fM1CFifdE')
+    check('function', 'void f(int (::C::* p)(float, double))', None, '1fM1CFifdE')
+    check('function', 'void f(void (C::*)() const &)', None, '1fM1CKRFvvE')
+    check('function', 'int C::* f(int, double)', None, '1fid')
+    check('function', 'void f(int C::* *)', None, '1fPM1Ci')
+
+
+def test_operators():
+    check('function', 'void operator new [  ] ()',
+          "new-array-operator", "nav", output='void operator new[]()')
+    check('function', 'void operator delete ()',
+          "delete-operator", "dlv", output='void operator delete()')
+    check('function', 'operator bool() const',
+          "castto-b-operatorC", "NKcvbEv", output='operator bool() const')
+
+    check('function', 'void operator * ()',
+          "mul-operator", "mlv", output='void operator*()')
+    check('function', 'void operator - ()',
+          "sub-operator", "miv", output='void operator-()')
+    check('function', 'void operator + ()',
+          "add-operator", "plv", output='void operator+()')
+    check('function', 'void operator = ()',
+          "assign-operator", "aSv", output='void operator=()')
+    check('function', 'void operator / ()',
+          "div-operator", "dvv", output='void operator/()')
+    check('function', 'void operator % ()',
+          "mod-operator", "rmv", output='void operator%()')
+    check('function', 'void operator ! ()',
+          "not-operator", "ntv", output='void operator!()')
+
+    check('function', 'void operator "" _udl()',
+          None, 'li4_udlv', output='void operator""_udl()')
+
+
+def test_class_definitions():
     check('class', 'public A', "A", "1A", output='A')
     check('class', 'private A', "A", "1A")
+    check('class', 'A final', 'A', '1A')
 
+    # test bases
+    check('class', 'A', "A", "1A")
+    check('class', 'A::B::C', "A::B::C", "N1A1B1CE")
+    check('class', 'A : B', "A", "1A")
+    check('class', 'A : private B', "A", "1A", output='A : B')
+    check('class', 'A : public B', "A", "1A")
+    check('class', 'A : B, C', "A", "1A")
+    check('class', 'A : B, protected C, D', "A", "1A")
+    check('class', 'A : virtual private B', 'A', '1A', output='A : virtual B')
+    check('class', 'A : B, virtual C', 'A', '1A')
+    check('class', 'A : public virtual B', 'A', '1A')
+    check('class', 'A : B, C...', 'A', '1A')
+    check('class', 'A : B..., C', 'A', '1A')
+
+
+def test_enum_definitions():
     check('enum', 'A', None, "1A")
     check('enum', 'A : std::underlying_type<B>::type', None, "1A")
     check('enum', 'A : unsigned int', None, "1A")
@@ -249,29 +342,6 @@ def test_type_definitions():
     check('enumerator', 'A', None, "1A")
     check('enumerator', 'A = std::numeric_limits<unsigned long>::max()',
           None, "1A")
-
-    check('type', 'A = B', None, '1A')
-
-
-def test_fundamental_types():
-    # see http://en.cppreference.com/w/cpp/language/types
-    for t, id_v2 in cppDomain._id_fundamental_v2.items():
-        if t == "decltype(auto)":
-            continue
-
-        def makeIdV1():
-            id = t.replace(" ", "-").replace("long", "l").replace("int", "i")
-            id = id.replace("bool", "b").replace("char", "c")
-            id = id.replace("wc_t", "wchar_t").replace("c16_t", "char16_t")
-            id = id.replace("c32_t", "char32_t")
-            return "f__%s" % id
-
-        def makeIdV2():
-            id = id_v2
-            if t == "std::nullptr_t":
-                id = "NSt9nullptr_tE"
-            return "1f%s" % id
-        check("function", "void f(%s arg)" % t, makeIdV1(), makeIdV2())
 
 
 def test_templates():
@@ -317,51 +387,6 @@ def test_templates():
           None, "I00ElsRNSt13basic_ostreamI4Char6TraitsEE"
           "RK18c_string_view_baseIK4Char6TraitsE")
 
-
-def test_class():
-    check('class', 'A final', 'A', '1A')
-
-
-def test_bases():
-    check('class', 'A', "A", "1A")
-    check('class', 'A::B::C', "A::B::C", "N1A1B1CE")
-    check('class', 'A : B', "A", "1A")
-    check('class', 'A : private B', "A", "1A", output='A : B')
-    check('class', 'A : public B', "A", "1A")
-    check('class', 'A : B, C', "A", "1A")
-    check('class', 'A : B, protected C, D', "A", "1A")
-    check('class', 'A : virtual private B', 'A', '1A', output='A : virtual B')
-    check('class', 'A : B, virtual C', 'A', '1A')
-    check('class', 'A : public virtual B', 'A', '1A')
-    check('class', 'A : B, C...', 'A', '1A')
-    check('class', 'A : B..., C', 'A', '1A')
-
-
-def test_operators():
-    check('function', 'void operator new [  ] ()',
-          "new-array-operator", "nav", output='void operator new[]()')
-    check('function', 'void operator delete ()',
-          "delete-operator", "dlv", output='void operator delete()')
-    check('function', 'operator bool() const',
-          "castto-b-operatorC", "NKcvbEv", output='operator bool() const')
-
-    check('function', 'void operator * ()',
-          "mul-operator", "mlv", output='void operator*()')
-    check('function', 'void operator - ()',
-          "sub-operator", "miv", output='void operator-()')
-    check('function', 'void operator + ()',
-          "add-operator", "plv", output='void operator+()')
-    check('function', 'void operator = ()',
-          "assign-operator", "aSv", output='void operator=()')
-    check('function', 'void operator / ()',
-          "div-operator", "dvv", output='void operator/()')
-    check('function', 'void operator % ()',
-          "mod-operator", "rmv", output='void operator%()')
-    check('function', 'void operator ! ()',
-          "not-operator", "ntv", output='void operator!()')
-
-    check('function', 'void operator "" _udl()',
-          None, 'li4_udlv', output='void operator""_udl()')
 
 #def test_print():
 #    # used for getting all the ids out for checking
