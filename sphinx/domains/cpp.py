@@ -3607,7 +3607,7 @@ class CPPObject(ObjectDescription):
     ]
 
     def warn(self, msg):
-        self.state_machine.reporter.warning(msg, lineno=self.lineno)
+        self.state_machine.reporter.warning(msg, line=self.lineno)
 
     def _add_enumerator_to_parent(self, ast):
         assert ast.objectType == 'enumerator'
@@ -3826,7 +3826,7 @@ class CPPNamespaceObject(Directive):
     option_spec = {}
 
     def warn(self, msg):
-        self.state_machine.reporter.warning(msg, lineno=self.lineno)
+        self.state_machine.reporter.warning(msg, line=self.lineno)
 
     def run(self):
         env = self.state.document.settings.env
@@ -3840,8 +3840,7 @@ class CPPNamespaceObject(Directive):
                 ast = parser.parse_namespace_object()
                 parser.assert_end()
             except DefinitionError as e:
-                self.state_machine.reporter.warning(e.description,
-                                                    line=self.lineno)
+                self.warn(e.description)
                 name = _make_phony_error_name()
                 ast = ASTNamespace(name, None)
             symbol = rootSymbol.add_name(ast.nestedName, ast.templatePrefix)
@@ -3859,7 +3858,7 @@ class CPPNamespacePushObject(Directive):
     option_spec = {}
 
     def warn(self, msg):
-        self.state_machine.reporter.warning(msg, lineno=self.lineno)
+        self.state_machine.reporter.warning(msg, line=self.lineno)
 
     def run(self):
         env = self.state.document.settings.env
@@ -3870,8 +3869,7 @@ class CPPNamespacePushObject(Directive):
             ast = parser.parse_namespace_object()
             parser.assert_end()
         except DefinitionError as e:
-            self.state_machine.reporter.warning(e.description,
-                                                line=self.lineno)
+            self.warn(e.description)
             name = _make_phony_error_name()
             ast = ASTNamespace(name, None)
         oldParent = env.ref_context.get('cpp:parentSymbol', None)
@@ -3893,7 +3891,7 @@ class CPPNamespacePopObject(Directive):
     option_spec = {}
 
     def warn(self, msg):
-        self.state_machine.reporter.warning(msg, lineno=self.lineno)
+        self.state_machine.reporter.warning(msg, line=self.lineno)
 
     def run(self):
         env = self.state.document.settings.env
