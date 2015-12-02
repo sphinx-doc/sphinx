@@ -91,6 +91,10 @@ Bugs fixed
 * #2140: Fix footnotes in table has broken in LaTeX
 * #2127: MecabBinder for html searching feature doesn't work with Python 3.
   Thanks to Tomoko Uchida.
+* #2012: Fix exception occurred if ``numfig_format`` is invalid
+* #2142: Provide non-minified JS code in ``sphinx/search/non-minified-js/*.js`` for
+  source distribution on PyPI.
+* #2148: Error while building devhelp target with non-ASCII document.
 
 Documentation
 -------------

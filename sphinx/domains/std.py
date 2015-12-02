@@ -648,7 +648,12 @@ class StandardDomain(Domain):
             if target == fully_normalize_name(title):
                 title = env.config.numfig_format.get(figtype, '')
 
-            newtitle = title % '.'.join(map(str, fignumber))
+            try:
+                newtitle = title % '.'.join(map(str, fignumber))
+            except TypeError:
+                env.warn(fromdocname, 'invalid numfig_format: %s' % title)
+                return None
+
             return self.build_reference_node(fromdocname, builder,
                                              docname, labelid, newtitle, 'numref',
                                              nodeclass=addnodes.number_reference,

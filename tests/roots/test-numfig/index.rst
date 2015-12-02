@@ -48,3 +48,5 @@ test-tocdepth
 * Table.2.2 is :numref:`Table:%s <table22>`
 * List.1 is :numref:`CODE_1`
 * List.2.2 is :numref:`Code-%s <CODE22>`
+* Invalid numfig_format 01: :numref:`invalid <fig1>`
+* Invalid numfig_format 02: :numref:`Fig %s %s <fig1>`
