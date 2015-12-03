@@ -331,3 +331,4 @@ def test_reference_in_caption(app, status, warning):
             '{\\hyperref[index:authoryear]{\\emph{{[}AuthorYear{]}}}}.}' in result)
     assert '\\chapter{The section with a reference to {[}AuthorYear{]}}' in result
     assert '\\caption{The table title with a reference to {[}AuthorYear{]}}' in result
+    assert '\\paragraph{The rubric title with a reference to {[}AuthorYear{]}}' in result

@@ -17,4 +17,6 @@ The section with a reference to [AuthorYear]_
    * - Content
      - Content
 
+.. rubric:: The rubric title with a reference to [AuthorYear]_
+
 .. [AuthorYear] Author, Title, Year

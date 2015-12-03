@@ -749,8 +749,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             raise nodes.SkipNode
         self.body.append('\\paragraph{')
         self.context.append('}\n')
+        self.in_title = 1
 
     def depart_rubric(self, node):
+        self.in_title = 0
         self.body.append(self.context.pop())
 
     def visit_footnote(self, node):
