@@ -318,3 +318,14 @@ def test_footnote(app, status, warning):
     assert ('\\end{threeparttable}\n\n'
             '\\footnotetext[4]{\nfootnotes in table caption\n}'
             '\\footnotetext[5]{\nfootnotes in table\n}' in result)
+
+
+@with_app(buildername='latex', testroot='references-in-caption')
+def test_reference_in_caption(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert ('\\caption{This is the figure caption with a reference to \\label{index:id1}'
+            '{\\hyperref[index:authoryear]{\\emph{{[}AuthorYear{]}}}}.}' in result)

@@ -1382,7 +1382,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_reference(self, node):
         for id in node.get('ids'):
-            self.body += self.hypertarget(id, anchor=True)
+            anchor = not self.in_caption
+            self.body += self.hypertarget(id, anchor=anchor)
         uri = node.get('refuri', '')
         if not uri and node.get('refid'):
             uri = '%' + self.curfilestack[-1] + '#' + node['refid']
