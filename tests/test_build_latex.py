@@ -327,5 +327,7 @@ def test_reference_in_caption(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('\\caption{This is the figure caption with a reference to \\label{index:id1}'
+    assert ('\\caption{This is the figure caption with a reference to \\label{index:id2}'
             '{\\hyperref[index:authoryear]{\\emph{{[}AuthorYear{]}}}}.}' in result)
+    assert '\\chapter{The section with a reference to {[}AuthorYear{]}}' in result
+    assert '\\caption{The table title with a reference to {[}AuthorYear{]}}' in result

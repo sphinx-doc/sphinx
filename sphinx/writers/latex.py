@@ -1381,9 +1381,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_reference(self, node):
-        for id in node.get('ids'):
-            anchor = not self.in_caption
-            self.body += self.hypertarget(id, anchor=anchor)
+        if not self.in_title:
+            for id in node.get('ids'):
+                anchor = not self.in_caption
+                self.body += self.hypertarget(id, anchor=anchor)
         uri = node.get('refuri', '')
         if not uri and node.get('refid'):
             uri = '%' + self.curfilestack[-1] + '#' + node['refid']
