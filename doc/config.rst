@@ -1431,6 +1431,8 @@ These options influence LaTeX output.
         'floated' into the next page but may be preceded by any other text.
         If you don't like this behavior, use 'H' which will disable floating
         and position figures strictly in the order they appear in the source.
+
+        .. versionadded:: 1.3
      ``'footer'``
         Additional footer content (before the indices), default empty.
 
