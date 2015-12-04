@@ -524,11 +524,18 @@
 \fi
 
 % Define literal-block environment
-\RequirePackage{float}
-\floatstyle{plaintop}
+\RequirePackage{newfloat}
+\DeclareFloatingEnvironment{literal-block}
 \ifx\thechapter\undefined
-  \newfloat{literal-block}{htbp}{loc}[section]
+  \SetupFloatingEnvironment{literal-block}{within=section,placement=h}
 \else
-  \newfloat{literal-block}{htbp}{loc}[chapter]
+  \SetupFloatingEnvironment{literal-block}{within=chapter,placement=h}
 \fi
-\floatname{literal-block}{List}
+\SetupFloatingEnvironment{literal-block}{name=List}
+% control caption around literal-block
+\RequirePackage{capt-of}
+\RequirePackage{needspace}
+% if the left page space is less than \literalblockneedsapce, insert page-break
+\newcommand{\literalblockneedspace}{5\baselineskip}
+% margin before the caption of literal-block
+\newcommand{\literalblockcaptiontopvspace}{0.5\baselineskip}

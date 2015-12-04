@@ -296,6 +296,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.in_production_list = 0
         self.in_footnote = 0
         self.in_caption = 0
+        self.in_container_literal_block = 0
         self.first_document = 1
         self.this_is_the_title = 1
         self.literal_whitespace = 0
@@ -400,7 +401,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if len(codeblock) == 1:
             pass  # FIXME
         else:
-            ret.append('\\floatname{literal-block}{%s}\n' %
+            ret.append('\\SetupFloatingEnvironment{literal-block}{name=%s}\n' %
                        text_type(codeblock[0]).translate(tex_escape_map))
             if table[1]:
                 pass  # FIXME
@@ -1222,6 +1223,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_caption(self, node):
         self.in_caption += 1
+        if self.in_container_literal_block:
+            self.body.append('\\needspace{\\literalblockneedspace}')
+            self.body.append('\\vspace{\\literalblockcaptiontopvspace}')
+            self.body.append('\\captionof{literal-block}{')
+            return
         self.body.append('\\caption{')
 
     def depart_caption(self, node):
@@ -1774,17 +1780,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_container(self, node):
         if node.get('literal_block'):
+            self.in_container_literal_block += 1
             ids = ''
             for id in self.next_literal_ids:
                 ids += self.hypertarget(id, anchor=False)
             if node['ids']:
                 ids += self.hypertarget(node['ids'][0])
             self.next_literal_ids.clear()
-            self.body.append('\n\\begin{literal-block}\n')
-            self.context.append(ids + '\n\\end{literal-block}\n')
+            self.body.append('\n')
+            self.context.append(ids + '\n')
 
     def depart_container(self, node):
         if node.get('literal_block'):
+            self.in_container_literal_block -= 1
             self.body.append(self.context.pop())
 
     def visit_decoration(self, node):
