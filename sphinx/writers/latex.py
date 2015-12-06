@@ -749,8 +749,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             raise nodes.SkipNode
         self.body.append('\\paragraph{')
         self.context.append('}\n')
+        self.in_title = 1
 
     def depart_rubric(self, node):
+        self.in_title = 0
         self.body.append(self.context.pop())
 
     def visit_footnote(self, node):
@@ -1381,8 +1383,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     def visit_reference(self, node):
-        for id in node.get('ids'):
-            self.body += self.hypertarget(id, anchor=True)
+        if not self.in_title:
+            for id in node.get('ids'):
+                anchor = not self.in_caption
+                self.body += self.hypertarget(id, anchor=anchor)
         uri = node.get('refuri', '')
         if not uri and node.get('refid'):
             uri = '%' + self.curfilestack[-1] + '#' + node['refid']
