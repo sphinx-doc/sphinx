@@ -30,13 +30,31 @@ Bugs fixed
 * C++, fix parsing of types prefixed with 'enum'.
 * #2023: Dutch search support uses Danish stemming info
 * C++, add support for user-defined literals.
+
+Documentation
+-------------
+
+
+Release 1.3.4 (in development)
+==============================
+
+Bugs fixed
+----------
+
+* #2134: Fix figure caption with reference causes latex build error
+* #2094: Fix rubric with reference not working in Latex
+
+
+Release 1.3.3 (released Dec 2, 2015)
+====================================
+
+Bugs fixed
+----------
+
 * #2012: Fix exception occurred if ``numfig_format`` is invalid
 * #2142: Provide non-minified JS code in ``sphinx/search/non-minified-js/*.js`` for
   source distribution on PyPI.
 * #2148: Error while building devhelp target with non-ASCII document.
-
-Documentation
--------------
 
 
 Release 1.3.2 (released Nov 29, 2015)
