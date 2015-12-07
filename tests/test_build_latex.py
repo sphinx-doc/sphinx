@@ -323,7 +323,7 @@ def test_footnote(app, status, warning):
     assert r'\footnote{sphinx-dev@googlegroups.com}' not in result
 
 
-@with_app(buildername='latex', testroot='references-in-caption')
+@with_app(buildername='latex', testroot='footnotes')
 def test_reference_in_caption(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -335,3 +335,46 @@ def test_reference_in_caption(app, status, warning):
     assert '\\chapter{The section with a reference to {[}AuthorYear{]}}' in result
     assert '\\caption{The table title with a reference to {[}AuthorYear{]}}' in result
     assert '\\paragraph{The rubric title with a reference to {[}AuthorYear{]}}' in result
+
+
+@with_app(buildername='latex', testroot='footnotes',
+          confoverrides={'latex_show_urls': 'inline'})
+def test_latex_show_urls_is_inline(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert 'First footnote: \\footnote[2]{\nFirst\n}' in result
+    assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
+    assert '\\href{http://sphinx-doc.org/}{Sphinx} (http://sphinx-doc.org/)' in result
+    assert 'Third footnote: \\footnote[3]{\nThird\n}' in result
+
+
+@with_app(buildername='latex', testroot='footnotes',
+          confoverrides={'latex_show_urls': 'footnote'})
+def test_latex_show_urls_is_footnote(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert 'First footnote: \\footnote[2]{\nFirst\n}' in result
+    assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
+    assert ('\\href{http://sphinx-doc.org/}{Sphinx}'
+            '\\footnote{http://sphinx-doc.org/}' in result)
+    assert 'Third footnote: \\footnote[3]{\nThird\n}' in result
+
+
+@with_app(buildername='latex', testroot='footnotes',
+          confoverrides={'latex_show_urls': 'no'})
+def test_latex_show_urls_is_no(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert 'First footnote: \\footnote[2]{\nFirst\n}' in result
+    assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
+    assert '\\href{http://sphinx-doc.org/}{Sphinx}' in result
+    assert 'Third footnote: \\footnote[3]{\nThird\n}' in result

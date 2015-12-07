@@ -1,6 +1,6 @@
-==============
-test-reference
-==============
+===============
+test-footenotes
+===============
 
 The section with a reference to [AuthorYear]_
 =============================================
@@ -19,4 +19,12 @@ The section with a reference to [AuthorYear]_
 
 .. rubric:: The rubric title with a reference to [AuthorYear]_
 
+* First footnote: [#]_
+* Second footnote: [1]_
+* `Sphinx <http://sphinx-doc.org/>`_
+* Third footnote: [#]_
+
 .. [AuthorYear] Author, Title, Year
+.. [#] First
+.. [1] Second
+.. [#] Third
