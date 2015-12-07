@@ -349,6 +349,8 @@ def test_latex_show_urls_is_inline(app, status, warning):
     assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
     assert '\\href{http://sphinx-doc.org/}{Sphinx} (http://sphinx-doc.org/)' in result
     assert 'Third footnote: \\footnote[3]{\nThird\n}' in result
+    assert ('\\href{http://sphinx-doc.org/~test/}{URL including tilde} '
+            '(http://sphinx-doc.org/\\textasciitilde{}test/)' in result)
 
 
 @with_app(buildername='latex', testroot='footnotes',
@@ -362,8 +364,10 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     assert 'First footnote: \\footnote[2]{\nFirst\n}' in result
     assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
     assert ('\\href{http://sphinx-doc.org/}{Sphinx}'
-            '\\footnote{http://sphinx-doc.org/}' in result)
-    assert 'Third footnote: \\footnote[3]{\nThird\n}' in result
+            '\\footnote[3]{\nhttp://sphinx-doc.org/\n}' in result)
+    assert 'Third footnote: \\footnote[5]{\nThird\n}' in result
+    assert ('\\href{http://sphinx-doc.org/~test/}{URL including tilde}'
+            '\\footnote[4]{\nhttp://sphinx-doc.org/\\textasciitilde{}test/\n}' in result)
 
 
 @with_app(buildername='latex', testroot='footnotes',
@@ -378,3 +382,4 @@ def test_latex_show_urls_is_no(app, status, warning):
     assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
     assert '\\href{http://sphinx-doc.org/}{Sphinx}' in result
     assert 'Third footnote: \\footnote[3]{\nThird\n}' in result
+    assert '\\href{http://sphinx-doc.org/~test/}{URL including tilde}' in result

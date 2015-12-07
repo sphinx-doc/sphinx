@@ -19,12 +19,14 @@ The section with a reference to [AuthorYear]_
 
 .. rubric:: The rubric title with a reference to [AuthorYear]_
 
+.. [#] First
+
 * First footnote: [#]_
 * Second footnote: [1]_
 * `Sphinx <http://sphinx-doc.org/>`_
 * Third footnote: [#]_
+* `URL including tilde <http://sphinx-doc.org/~test/>`_
 
 .. [AuthorYear] Author, Title, Year
-.. [#] First
 .. [1] Second
 .. [#] Third
