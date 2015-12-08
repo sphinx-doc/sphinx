@@ -30,3 +30,14 @@ The section with a reference to [AuthorYear]_
 .. [AuthorYear] Author, Title, Year
 .. [1] Second
 .. [#] Third
+
+`URL in term <http://sphinx-doc.org/>`_
+    Description Description Description ...
+
+Footnote in term [#]_
+    Description Description Description ...
+
+    `Term in deflist <http://sphinx-doc.org/>`_
+        Description2
+
+.. [#] Footnote in term

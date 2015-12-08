@@ -373,6 +373,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                     sys.maxsize]]
         self.bodystack = []
         self.footnotestack = []
+        self.termfootnotestack = []
         self.curfilestack = []
         self.handled_abbrs = set()
         if document.settings.docclass == 'howto':
@@ -392,6 +393,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.in_footnote = 0
         self.in_caption = 0
         self.in_container_literal_block = 0
+        self.in_term = 0
         self.first_document = 1
         self.this_is_the_title = 1
         self.literal_whitespace = 0
@@ -856,7 +858,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_collected_footnote(self, node):
         self.in_footnote += 1
-        if 'in_table' in node:
+        if 'footnotetext' in node:
             self.body.append('\\footnotetext[%s]{' % node['number'])
         else:
             self.body.append('\\footnote[%s]{' % node['number'])
@@ -959,7 +961,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\end{threeparttable}\n\n')
         if self.table.footnotes:
             for footnode in self.table.footnotes:
-                footnode['in_table'] = True
+                footnode['footnotetext'] = True
                 footnode.walkabout(self)
         self.table = None
         self.tablebody = None
@@ -1126,14 +1128,22 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_term(self, node):
+        self.in_term += 1
         ctx = '}] \\leavevmode'
         if node.get('ids'):
             ctx += self.hypertarget(node['ids'][0])
         self.body.append('\\item[{')
+        self.termfootnotestack.append([])
         self.context.append(ctx)
 
     def depart_term(self, node):
         self.body.append(self.context.pop())
+        footnotes = self.termfootnotestack.pop()
+        for footnode in footnotes:
+            footnode['footnotetext'] = True
+            footnode.walkabout(self)
+
+        self.in_term -= 1
 
     def visit_termsep(self, node):
         self.body.append(', ')
@@ -1647,7 +1657,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # if a footnote has been inserted once, it shouldn't be repeated
         # by the next reference
         if used:
-            if self.table:
+            if self.table or self.in_term:
                 self.body.append('\\protect\\footnotemark[%s]' % num)
             else:
                 self.body.append('\\footnotemark[%s]' % num)
@@ -1655,6 +1665,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.footnotestack[-1][num][1] = True
             self.body.append('\\protect\\footnotemark[%s]' % num)
             self.table.footnotes.append(footnode)
+        elif self.in_term:
+            self.body.append('\\footnotemark[%s]' % num)
+            self.termfootnotestack[-1].append(footnode)
         else:
             if self.in_caption:
                 raise UnsupportedError('%s:%s: footnotes in float captions '
