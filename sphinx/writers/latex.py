@@ -135,9 +135,16 @@ class ShowUrlsTransform(Transform):
     expanded = False
 
     def apply(self):
+        # replace id_prefix temporarily
+        id_prefix = self.document.settings.id_prefix
+        self.document.settings.id_prefix = 'show_urls'
+
         self.expand_show_urls()
         if self.expanded:
             self.renumber_footnotes()
+
+        # restore id_prefix
+        self.document.settings.id_prefix = id_prefix
 
     def expand_show_urls(self):
         show_urls = self.document.settings.env.config.latex_show_urls
