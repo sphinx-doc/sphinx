@@ -34,6 +34,8 @@ Bugs fixed
 Documentation
 -------------
 
+* #1757: Fix for usage of :confval:`html_last_updated_fmt`. Thanks to Ralf Hemmecke.
+
 
 Release 1.3.4 (in development)
 ==============================

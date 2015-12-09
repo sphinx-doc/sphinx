@@ -639,7 +639,7 @@ that use Sphinx's HTMLWriter class.
 
    If this is not None, a 'Last updated on:' timestamp is inserted
    at every page bottom, using the given :func:`strftime` format.
-   The empty string is equivalent to '%b %d, %Y' (or a
+   The empty string is equivalent to ``'%b %d, %Y'`` (or a
    locale-dependent equivalent).
 
 .. confval:: html_use_smartypants
