@@ -53,6 +53,7 @@ div.sphinxsidebar {
     margin-left: -100%;
     font-size: 90%;
     word-wrap: break-word;
+    overflow-wrap : break-word;
 }
 
 div.sphinxsidebar ul {
