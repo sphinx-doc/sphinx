@@ -27,11 +27,6 @@ from sphinx.util.osutil import abspath, fs_encoding
 from sphinx.util.pycompat import terminal_safe
 
 
-def usage(argv, msg=None):
-    if msg:
-        print(msg, file=sys.stderr)
-        print(file=sys.stderr)
-
 USAGE = """\
 Sphinx v%s
 Usage: %%prog [options] sourcedir outdir [filenames...]
@@ -150,7 +145,7 @@ def main(argv):
             return 1
         outdir = abspath(args[1])
     except IndexError:
-        usage(argv, 'Error: Insufficient arguments.')
+        parser.print_help()
         return 1
     except UnicodeError:
         print(

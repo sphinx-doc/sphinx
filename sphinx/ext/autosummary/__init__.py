@@ -276,7 +276,7 @@ class Autosummary(Directive):
                 self.warn('failed to import object %s' % real_name)
                 items.append((display_name, '', '', real_name))
                 continue
-            if not documenter.check_module():
+            if documenter.options.members and not documenter.check_module():
                 continue
 
             # try to also get a source code analyzer for attribute docs
@@ -583,5 +583,5 @@ def setup(app):
     app.add_role('autolink', autolink_role)
     app.connect('doctree-read', process_autosummary_toc)
     app.connect('builder-inited', process_generate_options)
-    app.add_config_value('autosummary_generate', [], True)
+    app.add_config_value('autosummary_generate', [], True, [bool])
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

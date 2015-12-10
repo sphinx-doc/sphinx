@@ -14,7 +14,7 @@ import zipfile
 
 from sphinx.theming import Theme, ThemeError
 
-from util import with_app, raises, TestApp
+from util import with_app, raises, mock, path
 
 
 @with_app(confoverrides={'html_theme': 'ziptheme',
@@ -79,3 +79,19 @@ def test_js_source(app, status, warning):
     assert 'Underscore.js {v}'.format(v=v) in underscore_min, msg
     underscore_src = (app.outdir / '_static' / 'underscore-{v}.js'.format(v=v)).text()
     assert 'Underscore.js {v}'.format(v=v) in underscore_src, msg
+
+
+def test_double_inheriting_theme():
+    from sphinx.theming import load_theme_plugins  # load original before patching
+
+    def load_themes():
+        roots = path(__file__).abspath().parent / 'roots'
+        yield roots / 'test-double-inheriting-theme' / 'base_themes_dir'
+        for t in load_theme_plugins():
+            yield t
+
+    @mock.patch('sphinx.theming.load_theme_plugins', side_effect=load_themes)
+    @with_app(testroot='double-inheriting-theme')
+    def test_double_inheriting_theme_(app, status, warning, m_):
+        pass
+    yield test_double_inheriting_theme_
