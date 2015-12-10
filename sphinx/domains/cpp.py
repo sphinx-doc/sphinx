@@ -2605,7 +2605,6 @@ class Symbol(object):
         assert False  # should have returned in the loop
 
     def to_string(self, indent):
-        #self._assert_invariants()
         res = ['\t'*indent]
         if not self.parent:
             res.append('::')
