@@ -2268,11 +2268,19 @@ class Symbol(object):
         self._assert_invariants()
 
     def clear_doc(self, docname):
+        newChildren = []
         for sChild in self.children:
             sChild.clear_doc(docname)
             if sChild.declaration and sChild.docname == docname:
                 sChild.declaration = None
                 sChild.docname = None
+            # Just remove operators, because there is no identification if
+            # they got removed.
+            # Don't remove other symbols because they may be used in namespace
+            # directives.
+            if sChild.identifier or sChild.declaration:
+                newChildren.append(sChild)
+        self.children = newChildren
 
     def get_all_symbols(self):
         yield self
@@ -2442,8 +2450,10 @@ class Symbol(object):
         for otherChild in other.children:
             if not otherChild.identifier:
                 if not otherChild.declaration:
-                    print("WTF?")
+                    print("Problem in symbol tree merging")
+                    print("OtherChild.dump:")
                     print(otherChild.dump(0))
+                    print("Other.dump:")
                     print(other.dump(0))
                 assert otherChild.declaration
                 operator = otherChild.declaration.name.names[-1]
@@ -2595,7 +2605,7 @@ class Symbol(object):
         assert False  # should have returned in the loop
 
     def to_string(self, indent):
-        self._assert_invariants()
+        #self._assert_invariants()
         res = ['\t'*indent]
         if not self.parent:
             res.append('::')
