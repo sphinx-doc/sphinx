@@ -73,9 +73,9 @@ def test_images():
     assert image_uri_message in app._warning.content[-1]
     assert set(latexbuilder.images.keys()) == \
         set(['subdir/img.png', 'subdir/simg.png', 'img.png', 'img.pdf',
-             'svgimg.pdf'])
+             'svgimg.svg'])
     assert set(latexbuilder.images.values()) == \
-        set(['img.pdf', 'img.png', 'img1.png', 'simg.png', 'svgimg.pdf'])
+        set(['img.pdf', 'img.png', 'img1.png', 'simg.png', 'svgimg.svg'])
 
 
 def test_second_update():

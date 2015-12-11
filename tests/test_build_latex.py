@@ -78,7 +78,7 @@ def test_latex(app, status, warning):
     os.chdir(app.outdir)
     try:
         try:
-            p = Popen(['pdflatex', '--interaction=nonstopmode',
+            p = Popen(['pdflatex', '--interaction=nonstopmode', '--shell-escape',
                        'SphinxTests.tex'], stdout=PIPE, stderr=PIPE)
         except OSError:
             raise SkipTest  # most likely pdflatex was not found
@@ -143,7 +143,7 @@ def test_latex_howto(app, status, warning):
     os.chdir(app.outdir)
     try:
         try:
-            p = Popen(['pdflatex', '--interaction=nonstopmode',
+            p = Popen(['pdflatex', '--interaction=nonstopmode', '--shell-escape',
                        'SphinxTests.tex'], stdout=PIPE, stderr=PIPE)
         except OSError:
             raise SkipTest  # most likely pdflatex was not found
