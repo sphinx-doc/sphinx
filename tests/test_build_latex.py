@@ -318,6 +318,9 @@ def test_footnote(app, status, warning):
     assert ('\\end{threeparttable}\n\n'
             '\\footnotetext[4]{\nfootnotes in table caption\n}'
             '\\footnotetext[5]{\nfootnotes in table\n}' in result)
+    assert r'\href{http://sphinx.org}{homepage}\footnote{http://sphinx.org}' in result
+    assert r'\footnote{https://github.com/sphinx-doc/sphinx}' not in result
+    assert r'\footnote{sphinx-dev@googlegroups.com}' not in result
 
 
 @with_app(buildername='latex', testroot='references-in-caption')
