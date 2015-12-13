@@ -224,7 +224,7 @@ def make_termnodes_from_paragraph_node(env, node, new_id=None):
 
     termtext = node.astext()
     if new_id is None:
-        new_id = 'term-' + nodes.make_id(termtext)
+        new_id = nodes.make_id('term-' + termtext)
     if new_id in gloss_entries:
         new_id = 'term-' + str(len(gloss_entries))
     gloss_entries.add(new_id)
@@ -592,12 +592,14 @@ class StandardDomain(Domain):
                 continue
             labels[name] = docname, labelid, sectname
 
-    def build_reference_node(self, fromdocname, builder,
-                             docname, labelid, sectname,
-                             **options):
+    def build_reference_node(self, fromdocname, builder, docname, labelid,
+                             sectname, rolename, **options):
         nodeclass = options.pop('nodeclass', nodes.reference)
         newnode = nodeclass('', '', internal=True, **options)
         innernode = nodes.inline(sectname, sectname)
+        if innernode.get('classes') is not None:
+            innernode['classes'].append('std')
+            innernode['classes'].append('std-' + rolename)
         if docname == fromdocname:
             newnode['refid'] = labelid
         else:
@@ -631,7 +633,7 @@ class StandardDomain(Domain):
                 return None
 
             return self.build_reference_node(fromdocname, builder,
-                                             docname, labelid, sectname)
+                                             docname, labelid, sectname, 'ref')
         elif typ == 'numref':
             docname, labelid = self.data['anonlabels'].get(target, ('', ''))
             if not docname:
@@ -653,9 +655,14 @@ class StandardDomain(Domain):
             if target == fully_normalize_name(title):
                 title = env.config.numfig_format.get(figtype, '')
 
-            newtitle = title % '.'.join(map(str, fignumber))
+            try:
+                newtitle = title % '.'.join(map(str, fignumber))
+            except TypeError:
+                env.warn(fromdocname, 'invalid numfig_format: %s' % title)
+                return None
+
             return self.build_reference_node(fromdocname, builder,
-                                             docname, labelid, newtitle,
+                                             docname, labelid, newtitle, 'numref',
                                              nodeclass=addnodes.number_reference,
                                              title=title)
         elif typ == 'keyword':
@@ -720,6 +727,9 @@ class StandardDomain(Domain):
         return results
 
     def get_objects(self):
+        # handle the special 'doc' reference here
+        for doc in self.env.all_docs:
+            yield (doc, clean_astext(self.env.titles[doc]), 'doc', doc, '', -1)
         for (prog, option), info in iteritems(self.data['progoptions']):
             yield (option, option, 'option', info[0], info[1], 1)
         for (type, name), info in iteritems(self.data['objects']):

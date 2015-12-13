@@ -12,16 +12,19 @@
 """
 from __future__ import print_function
 
-import sys, os, re
-import cStringIO
+import os
+import re
+import sys
 from optparse import OptionParser
 from os.path import join, splitext, abspath
 
 
 checkers = {}
 
+
 def checker(*suffixes, **kwds):
     only_pkg = kwds.pop('only_pkg', False)
+
     def deco(func):
         for suffix in suffixes:
             checkers.setdefault(suffix, []).append(func)
@@ -30,60 +33,70 @@ def checker(*suffixes, **kwds):
     return deco
 
 
-name_mail_re = r'[\w ]+(<.*?>)?'
-copyright_re = re.compile(br'^    :copyright: Copyright 200\d(-20\d\d)? '
-                          br'by %s(, %s)*[,.]$' %
-                          (name_mail_re, name_mail_re))
-license_re = re.compile(br"    :license: (.*?).\n")
-copyright_2_re = re.compile(br'^                %s(, %s)*[,.]$' %
-                            (name_mail_re, name_mail_re))
+# this one is a byte regex since it is applied before decoding
 coding_re    = re.compile(br'coding[:=]\s*([-\w.]+)')
-not_ix_re    = re.compile(br'\bnot\s+\S+?\s+i[sn]\s\S+')
-is_const_re  = re.compile(br'if.*?==\s+(None|False|True)\b')
 
-misspellings = [b"developement", b"adress", # ALLOW-MISSPELLING
-                b"verificate", b"informations"] # ALLOW-MISSPELLING
+uni_coding_re = re.compile(r'^#.*coding[:=]\s*([-\w.]+).*')
+name_mail_re = r'[\w ]+(<.*?>)?'
+copyright_re = re.compile(r'^    :copyright: Copyright 200\d(-20\d\d)? '
+                          r'by %s(, %s)*[,.]$' %
+                          (name_mail_re, name_mail_re))
+license_re = re.compile(r"    :license: (.*?).\n")
+copyright_2_re = re.compile(r'^                %s(, %s)*[,.]$' %
+                            (name_mail_re, name_mail_re))
+not_ix_re    = re.compile(r'\bnot\s+\S+?\s+i[sn]\s\S+')
+is_const_re  = re.compile(r'if.*?==\s+(None|False|True)\b')
 
-if sys.version_info < (3, 0):
-    @checker('.py')
-    def check_syntax(fn, lines):
-        try:
-            compile(b''.join(lines), fn, "exec")
-        except SyntaxError as err:
-            yield 0, "not compilable: %s" % err
+misspellings = ["developement", "adress",  # ALLOW-MISSPELLING
+                "verificate", "informations"]  # ALLOW-MISSPELLING
 
 
-@checker('.py')
-def check_style_and_encoding(fn, lines):
-    encoding = 'ascii'
+def decode_source(fn, lines):
+    encoding = 'ascii' if fn.endswith('.py') else 'utf-8'
+    decoded_lines = []
     for lno, line in enumerate(lines):
-        if len(line) > 95:
-            yield lno+1, "line too long"
         if lno < 2:
             co = coding_re.search(line)
             if co:
-                encoding = co.group(1).decode('ascii')
-        if line.strip().startswith(b'#'):
+                encoding = co.group(1).decode()
+        try:
+            decoded_lines.append(line.decode(encoding))
+        except UnicodeDecodeError as err:
+            raise UnicodeError("%s:%d: not decodable: %s\n   Line: %r" %
+                               (fn, lno+1, err, line))
+        except LookupError as err:
+            raise LookupError("unknown encoding: %s" % encoding)
+    return decoded_lines
+
+
+@checker('.py')
+def check_syntax(fn, lines):
+    lines = [uni_coding_re.sub('', line) for line in lines]
+    try:
+        compile(''.join(lines), fn, "exec")
+    except SyntaxError as err:
+        yield 0, "not compilable: %s" % err
+
+
+@checker('.py')
+def check_style(fn, lines):
+    for lno, line in enumerate(lines):
+        if len(line) > 95:
+            yield lno+1, "line too long"
+        if line.strip().startswith('#'):
             continue
-        #m = not_ix_re.search(line)
-        #if m:
-        #    yield lno+1, '"' + m.group() + '"'
+        # m = not_ix_re.search(line)
+        # if m:
+        #     yield lno+1, '"' + m.group() + '"'
         if is_const_re.search(line):
             yield lno+1, 'using == None/True/False'
-        try:
-            line.decode(encoding)
-        except UnicodeDecodeError as err:
-            yield lno+1, "not decodable: %s\n   Line: %r" % (err, line)
-        except LookupError as err:
-            yield 0, "unknown encoding: %s" % encoding
-            encoding = 'latin1'
 
 
 @checker('.py', only_pkg=True)
 def check_fileheader(fn, lines):
     # line number correction
     c = 1
-    if lines[0:1] == [b'#!/usr/bin/env python\n']:
+    if lines[0:1] == ['#!/usr/bin/env python\n']:
         lines = lines[1:]
         c = 2
 
@@ -92,38 +105,35 @@ def check_fileheader(fn, lines):
     for lno, l in enumerate(lines):
         llist.append(l)
         if lno == 0:
-            if l == b'# -*- coding: rot13 -*-\n':
-                # special-case pony package
-                return
-            elif l != b'# -*- coding: utf-8 -*-\n':
+            if l != '# -*- coding: utf-8 -*-\n':
                 yield 1, "missing coding declaration"
         elif lno == 1:
-            if l != b'"""\n' and l != b'r"""\n':
+            if l != '"""\n' and l != 'r"""\n':
                 yield 2, 'missing docstring begin (""")'
             else:
                 docopen = True
         elif docopen:
-            if l == b'"""\n':
+            if l == '"""\n':
                 # end of docstring
                 if lno <= 4:
                     yield lno+c, "missing module name in docstring"
                 break
 
-            if l != b"\n" and l[:4] != b'    ' and docopen:
+            if l != '\n' and l[:4] != '    ' and docopen:
                 yield lno+c, "missing correct docstring indentation"
 
             if lno == 2:
                 # if not in package, don't check the module name
                 modname = fn[:-3].replace('/', '.').replace('.__init__', '')
                 while modname:
-                    if l.lower()[4:-1] == bytes(modname):
+                    if l.lower()[4:-1] == modname:
                         break
                     modname = '.'.join(modname.split('.')[1:])
                 else:
                     yield 3, "wrong module name in docstring heading"
                 modnamelen = len(l.strip())
             elif lno == 3:
-                if l.strip() != modnamelen * b"~":
+                if l.strip() != modnamelen * '~':
                     yield 4, "wrong module name underline, should be ~~~...~"
 
     else:
@@ -146,16 +156,17 @@ def check_fileheader(fn, lines):
 @checker('.py', '.html', '.rst')
 def check_whitespace_and_spelling(fn, lines):
     for lno, line in enumerate(lines):
-        if b"\t" in line:
+        if '\t' in line:
             yield lno+1, "OMG TABS!!!1 "
-        if line[:-1].rstrip(b' \t') != line[:-1]:
+        if line[:-1].rstrip(' \t') != line[:-1]:
             yield lno+1, "trailing whitespace"
         for word in misspellings:
-            if word in line and b'ALLOW-MISSPELLING' not in line:
+            if word in line and 'ALLOW-MISSPELLING' not in line:
                 yield lno+1, '"%s" used' % word
 
 
-bad_tags = [b'<u>', b'<s>', b'<strike>', b'<center>', b'<font']
+bad_tags = ['<u>', '<s>', '<strike>', '<center>', '<font']
+
 
 @checker('.html')
 def check_xhtml(fn, lines):
@@ -185,7 +196,6 @@ def main(argv):
     ignored_paths = set(abspath(p) for p in options.ignored_paths)
 
     num = 0
-    out = cStringIO.StringIO()
 
     for root, dirs, files in os.walk(path):
         for vcs_dir in ['.svn', '.hg', '.git']:
@@ -198,7 +208,8 @@ def main(argv):
         for fn in files:
 
             fn = join(root, fn)
-            if fn[:2] == './': fn = fn[2:]
+            if fn[:2] == './':
+                fn = fn[2:]
 
             if abspath(fn) in ignored_paths:
                 continue
@@ -222,18 +233,24 @@ def main(argv):
                 num += 1
                 continue
 
+            try:
+                lines = decode_source(fn, lines)
+            except Exception as err:
+                print(err)
+                num += 1
+                continue
+
             for checker in checkerlist:
                 if not in_check_pkg and checker.only_pkg:
                     continue
                 for lno, msg in checker(fn, lines):
-                    print("%s:%d: %s" % (fn, lno, msg), file=out)
+                    print("%s:%d: %s" % (fn, lno, msg))
                     num += 1
     if verbose:
         print()
     if num == 0:
         print("No errors found.")
     else:
-        print(out.getvalue().rstrip('\n'))
         print("%d error%s found." % (num, num > 1 and "s" or ""))
     return int(num > 0)
 

@@ -53,6 +53,10 @@ It adds these directives:
 
          "bar" -- "baz";
 
+   .. note:: The graph name is passed unchanged to Graphviz.  If it contains
+      non-alphanumeric characters (e.g. a dash), you will have to double-quote
+      it.
+
 
 .. rst:directive:: digraph
 

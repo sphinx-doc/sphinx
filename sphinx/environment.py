@@ -49,9 +49,11 @@ from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 from sphinx.versioning import add_uids, merge_doctrees
-from sphinx.transforms import DefaultSubstitutions, MoveModuleTargets, \
-    HandleCodeBlocks, AutoNumbering, SortIds, CitationReferences, Locale, \
-    RemoveTranslatableInline, SphinxContentsFilter, ExtraTranslatableNodes
+from sphinx.transforms import (
+    DefaultSubstitutions, MoveModuleTargets, ApplySourceWorkaround,
+    HandleCodeBlocks, AutoNumbering, SortIds, CitationReferences, Locale,
+    RemoveTranslatableInline, SphinxContentsFilter, ExtraTranslatableNodes,
+)
 
 
 orig_role_function = roles.role
@@ -99,7 +101,7 @@ class SphinxStandaloneReader(standalone.Reader):
     """
     Add our own transforms.
     """
-    transforms = [ExtraTranslatableNodes, Locale, CitationReferences,
+    transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, Locale, CitationReferences,
                   DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
                   AutoNumbering, SortIds, RemoveTranslatableInline]
 
@@ -1604,7 +1606,8 @@ class BuildEnvironment:
                 caption = node.astext()
             else:
                 caption = clean_astext(self.titles[docname])
-            innernode = nodes.emphasis(caption, caption)
+            innernode = nodes.inline(caption, caption)
+            innernode['classes'].append('doc')
             newnode = nodes.reference('', '', internal=True)
             newnode['refuri'] = builder.get_relative_uri(node['refdoc'], docname)
             newnode.append(innernode)

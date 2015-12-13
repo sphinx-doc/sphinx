@@ -22,6 +22,7 @@ from sphinx.locale import _, init as init_locale
 from sphinx.util import split_index_msg
 from sphinx.util.nodes import (
     traverse_translatable_index, extract_messages, LITERAL_TYPE_NODES, IMAGE_TYPE_NODES,
+    apply_source_workaround,
 )
 from sphinx.util.osutil import ustrftime
 from sphinx.util.i18n import find_catalog
@@ -172,6 +173,18 @@ TRANSLATABLE_NODES = {
 }
 
 
+class ApplySourceWorkaround(Transform):
+    """
+    update source and rawsource attributes
+    """
+    default_priority = 10
+
+    def apply(self):
+        for n in self.document.traverse():
+            if isinstance(n, nodes.TextElement):
+                apply_source_workaround(n)
+
+
 class ExtraTranslatableNodes(Transform):
     """
     make nodes translatable
@@ -228,7 +241,8 @@ class Locale(Transform):
         dirs = [path.join(env.srcdir, directory)
                 for directory in env.config.locale_dirs]
         catalog, has_catalog = init_locale(dirs, env.config.language,
-                                           textdomain)
+                                           textdomain,
+                                           charset=env.config.source_encoding)
         if not has_catalog:
             return
 
@@ -279,8 +293,10 @@ class Locale(Transform):
                     # document nameids mapping with new name.
                     names = section_node.setdefault('names', [])
                     names.append(new_name)
-                    if old_name in names:
-                        names.remove(old_name)
+                    # Original section name (reference target name) should be kept to refer
+                    # from other nodes which is still not translated or uses explicit target
+                    # name like "`text to display <explicit target name_>`_"..
+                    # So, `old_name` is still exist in `names`.
 
                     _id = self.document.nameids.get(old_name, None)
                     explicit = self.document.nametypes.get(old_name, None)

@@ -561,6 +561,60 @@ Code sample for usage::
         actual = str(GoogleDocstring(docstring))
         self.assertEqual(expected, actual)
 
+    def test_section_header_formatting(self):
+        docstrings = [("""
+Summary line
+
+Example:
+    Multiline reStructuredText
+    literal code block
+
+""", """
+Summary line
+
+.. rubric:: Example
+
+Multiline reStructuredText
+literal code block
+"""),
+                      ################################
+                      ("""
+Summary line
+
+Example::
+
+    Multiline reStructuredText
+    literal code block
+
+""", """
+Summary line
+
+Example::
+
+    Multiline reStructuredText
+    literal code block
+"""),
+                      ################################
+                      ("""
+Summary line
+
+:Example:
+
+    Multiline reStructuredText
+    literal code block
+
+""", """
+Summary line
+
+:Example:
+
+    Multiline reStructuredText
+    literal code block
+""")]
+        for docstring, expected in docstrings:
+            actual = str(GoogleDocstring(docstring))
+            self.assertEqual(expected, actual)
+
 
 class NumpyDocstringTest(BaseDocstringTest):
     docstrings = [(
@@ -678,8 +732,8 @@ class NumpyDocstringTest(BaseDocstringTest):
         Single line summary
 
         :Parameters: * **arg1** (*str*) -- Extended description of arg1
-                     * ***args** -- Variable length argument list.
-                     * ****kwargs** -- Arbitrary keyword arguments.
+                     * **\\*args** -- Variable length argument list.
+                     * **\\*\\*kwargs** -- Arbitrary keyword arguments.
         """
     ), (
         """
@@ -1068,3 +1122,75 @@ Example Function
         app = mock.Mock()
         actual = str(NumpyDocstring(docstring, config, app, "method"))
         self.assertEqual(expected, actual)
+
+    def test_section_header_underline_length(self):
+        docstrings = [("""
+Summary line
+
+Example
+-
+Multiline example
+body
+
+""", """
+Summary line
+
+Example
+-
+Multiline example
+body
+"""),
+                      ################################
+                      ("""
+Summary line
+
+Example
+--
+Multiline example
+body
+
+""", """
+Summary line
+
+.. rubric:: Example
+
+Multiline example
+body
+"""),
+                      ################################
+                      ("""
+Summary line
+
+Example
+-------
+Multiline example
+body
+
+""", """
+Summary line
+
+.. rubric:: Example
+
+Multiline example
+body
+"""),
+                      ################################
+                      ("""
+Summary line
+
+Example
+------------
+Multiline example
+body
+
+""", """
+Summary line
+
+.. rubric:: Example
+
+Multiline example
+body
+""")]
+        for docstring, expected in docstrings:
+            actual = str(NumpyDocstring(docstring))
+            self.assertEqual(expected, actual)

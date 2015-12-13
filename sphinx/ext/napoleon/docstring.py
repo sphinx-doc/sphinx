@@ -15,7 +15,7 @@ import collections
 import inspect
 import re
 
-from six import string_types
+from six import string_types, u
 from six.moves import range
 
 from sphinx.ext.napoleon.iterators import modify_iter
@@ -23,7 +23,9 @@ from sphinx.util.pycompat import UnicodeMixin
 
 
 _directive_regex = re.compile(r'\.\. \S+::')
+_google_section_regex = re.compile(r'^(\s|\w)+:\s*$')
 _google_typed_arg_regex = re.compile(r'\s*(.+?)\s*\(\s*(.+?)\s*\)')
+_numpy_section_regex = re.compile(r'^[=\-`:\'"~^_*+#<>]{2,}\s*$')
 _xref_regex = re.compile(r'(:\w+:\S+:`.+?`|:\S+:`.+?`|`.+?`)')
 
 
@@ -142,6 +144,7 @@ class GoogleDocstring(UnicodeMixin):
                 'raises': self._parse_raises_section,
                 'references': self._parse_references_section,
                 'see also': self._parse_see_also_section,
+                'todo': self._parse_todo_section,
                 'warning': self._parse_warning_section,
                 'warnings': self._parse_warning_section,
                 'warns': self._parse_warns_section,
@@ -159,7 +162,7 @@ class GoogleDocstring(UnicodeMixin):
             Unicode version of the docstring.
 
         """
-        return u'\n'.join(self.lines())
+        return u('\n').join(self.lines())
 
     def lines(self):
         """Return the parsed lines of the docstring in reStructuredText format.
@@ -209,10 +212,7 @@ class GoogleDocstring(UnicodeMixin):
                 _name = match.group(1)
                 _type = match.group(2)
 
-        if _name[:2] == '**':
-            _name = r'\*\*'+_name[2:]
-        elif _name[:1] == '*':
-            _name = r'\*'+_name[1:]
+        _name = self._escape_args_and_kwargs(_name)
 
         if prefer_type and not _type:
             _type, _name = _name, _type
@@ -293,6 +293,14 @@ class GoogleDocstring(UnicodeMixin):
         else:
             min_indent = self._get_min_indent(lines)
             return [line[min_indent:] for line in lines]
+
+    def _escape_args_and_kwargs(self, name):
+        if name[:2] == '**':
+            return r'\*\*' + name[2:]
+        elif name[:1] == '*':
+            return r'\*' + name[1:]
+        else:
+            return name
 
     def _format_admonition(self, admonition, lines):
         lines = self._strip_empty(lines)
@@ -402,7 +410,8 @@ class GoogleDocstring(UnicodeMixin):
 
     def _is_section_header(self):
         section = self._line_iter.peek().lower()
-        if section.strip(':') in self._sections:
+        match = _google_section_regex.match(section)
+        if match and section.strip(':') in self._sections:
             header_indent = self._get_indent(section)
             section_indent = self._get_current_indent(peek_ahead=1)
             return section_indent > header_indent
@@ -603,6 +612,10 @@ class GoogleDocstring(UnicodeMixin):
         lines = self._consume_to_next_section()
         return self._format_admonition('seealso', lines)
 
+    def _parse_todo_section(self, section):
+        lines = self._consume_to_next_section()
+        return self._format_admonition('todo', lines)
+
     def _parse_warning_section(self, section):
         lines = self._consume_to_next_section()
         return self._format_admonition('warning', lines)
@@ -763,6 +776,7 @@ class NumpyDocstring(GoogleDocstring):
         else:
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()
+        _name = self._escape_args_and_kwargs(_name)
         if prefer_type and not _type:
             _type, _name = _name, _type
         indent = self._get_indent(line)
@@ -793,8 +807,7 @@ class NumpyDocstring(GoogleDocstring):
         section, underline = self._line_iter.peek(2)
         section = section.lower()
         if section in self._sections and isinstance(underline, string_types):
-            pattern = r'[=\-`:\'"~^_*+#<>]{' + str(len(section)) + r'}$'
-            return bool(re.match(pattern, underline))
+            return bool(_numpy_section_regex.match(underline))
         elif self._directive_sections:
             if _directive_regex.match(section):
                 for directive_section in self._directive_sections:

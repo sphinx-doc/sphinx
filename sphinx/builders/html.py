@@ -22,7 +22,7 @@ from six.moves import cPickle as pickle
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
 from docutils.core import Publisher
-from docutils.utils import new_document
+from docutils.utils import new_document, relative_path
 from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
@@ -559,12 +559,15 @@ class StandaloneHTMLBuilder(Builder):
                               (path.join(self.srcdir, src), err))
 
     def copy_download_files(self):
+        def to_relpath(f):
+            return relative_path(self.srcdir, f)
         # copy downloadable files
         if self.env.dlfiles:
             ensuredir(path.join(self.outdir, '_downloads'))
             for src in self.app.status_iterator(self.env.dlfiles,
                                                 'copying downloadable files... ',
-                                                brown, len(self.env.dlfiles)):
+                                                brown, len(self.env.dlfiles),
+                                                stringify_func=to_relpath):
                 dest = self.env.dlfiles[src][1]
                 try:
                     copyfile(path.join(self.srcdir, src),
@@ -834,13 +837,15 @@ class StandaloneHTMLBuilder(Builder):
                      u'# The remainder of this file is compressed using zlib.\n'
                      % (self.config.project, self.config.version)).encode('utf-8'))
             compressor = zlib.compressobj(9)
-            for domainname, domain in iteritems(self.env.domains):
+            for domainname, domain in sorted(self.env.domains.items()):
                 for name, dispname, type, docname, anchor, prio in \
                         sorted(domain.get_objects()):
                     if anchor.endswith(name):
                         # this can shorten the inventory by as much as 25%
                         anchor = anchor[:-len(name)] + '$'
-                    uri = self.get_target_uri(docname) + '#' + anchor
+                    uri = self.get_target_uri(docname)
+                    if anchor:
+                        uri += '#' + anchor
                     if dispname == name:
                         dispname = u'-'
                     f.write(compressor.compress(
@@ -942,7 +947,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def assemble_doctree(self):
         master = self.config.master_doc
         tree = self.env.get_doctree(master)
-        tree = inline_all_toctrees(self, set(), master, tree, darkgreen)
+        tree = inline_all_toctrees(self, set(), master, tree, darkgreen, [master])
         tree['docname'] = master
         self.env.resolve_references(tree, master, self)
         self.fix_refuris(tree)

@@ -19,8 +19,18 @@ from six.moves import queue
 from six.moves.urllib.request import build_opener, Request, HTTPRedirectHandler
 from six.moves.urllib.parse import unquote, urlsplit, quote
 from six.moves.urllib.error import HTTPError
-from six.moves.html_parser import HTMLParser, HTMLParseError
+from six.moves.html_parser import HTMLParser
 from docutils import nodes
+
+# 2015-06-25 barry@python.org.  This exception was deprecated in Python 3.3 and
+# removed in Python 3.5, however for backward compatibility reasons, we're not
+# going to just remove it.  If it doesn't exist, define an exception that will
+# never be caught but leaves the code in check_anchor() intact.
+try:
+    from six.moves.html_parser import HTMLParseError
+except ImportError:
+    class HTMLParseError(Exception):
+        pass
 
 from sphinx.builders import Builder
 from sphinx.util.console import purple, red, darkgreen, darkgray, \
