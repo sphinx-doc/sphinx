@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.search.zh_TW
+    sphinx.search.zh
     ~~~~~~~~~~~~~~~~
 
-    Traditional Chinese search language: includes routine to split words.
+    Chinese search language: includes routine to split words.
 
     :copyright: Copyright 2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -235,11 +235,11 @@ iti|ous|ive|ize)$/;
 
 class SearchChinese(SearchLanguage):
     """
-    Traditional Chinese search implementation
+    Chinese search implementation
     """
 
-    lang = 'zh_TW'
-    language_name = 'Traditional Chinese'
+    lang = 'zh'
+    language_name = 'Chinese'
     js_stemmer_code = js_porter_stemmer
     stopwords = english_stopwords
     latin1_letters = re.compile(r'\w+(?u)[\u0000-\u00ff]')
