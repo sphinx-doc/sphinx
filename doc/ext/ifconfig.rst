@@ -26,8 +26,8 @@ This extension is quite simple, and features only one directive:
    :file:`conf.py`, e.g.::
 
       def setup(app):
-          app.add_config_value('releaselevel', '', True)
+          app.add_config_value('releaselevel', '', 'env')
 
-   The second argument is the default value, the third should always be ``True``
+   The second argument is the default value, the third should always be ``'env'``
    for such values (it selects if Sphinx re-reads the documents if the value
    changes).

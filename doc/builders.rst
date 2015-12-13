@@ -23,6 +23,8 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
 .. class:: DirectoryHTMLBuilder
@@ -36,6 +38,8 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
    .. versionadded:: 0.6
@@ -47,6 +51,8 @@ The builder's "name" must be given to the **-b** command-line option of
    the master document.  No indices will be generated.
 
    .. autoattribute:: name
+
+   .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
 
@@ -61,6 +67,8 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
 .. module:: sphinx.builders.qthelp
@@ -71,6 +79,8 @@ The builder's "name" must be given to the **-b** command-line option of
    the Qt collection generator to compile them.
 
    .. autoattribute:: name
+
+   .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
 
@@ -96,6 +106,8 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
    .. versionadded:: 1.3
@@ -109,6 +121,8 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
 .. module:: sphinx.builders.epub
@@ -121,6 +135,8 @@ The builder's "name" must be given to the **-b** command-line option of
    The builder creates *EPUB 2* files.
 
    .. autoattribute:: name
+
+   .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
 
@@ -145,6 +161,8 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
 Note that a direct PDF builder using ReportLab is available in `rst2pdf
@@ -162,6 +180,8 @@ for details.
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
    .. versionadded:: 0.4
@@ -174,6 +194,8 @@ for details.
    :confval:`man_pages` configuration value.
 
    .. autoattribute:: name
+
+   .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
 
@@ -195,6 +217,8 @@ for details.
    `<http://www.gnu.org/software/texinfo/>`_.
 
    .. autoattribute:: name
+
+   .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
 
@@ -261,6 +285,8 @@ for details.
 
       The old name ``web`` still works as well.
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
    The file suffix is ``.fpickle``.  The global context is called
@@ -275,6 +301,8 @@ for details.
    See :ref:`serialization-details` for details about the output format.
 
    .. autoattribute:: name
+
+   .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
 
@@ -293,6 +321,8 @@ for details.
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
    .. versionadded:: 1.1
@@ -307,6 +337,8 @@ for details.
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
 .. module:: sphinx.builders.linkcheck
@@ -318,6 +350,8 @@ for details.
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
 .. module:: sphinx.builders.xml
@@ -328,6 +362,8 @@ for details.
    final forms.
 
    .. autoattribute:: name
+
+   .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
 
@@ -342,6 +378,8 @@ for details.
    leftover "pending" elements are also given.
 
    .. autoattribute:: name
+
+   .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
 

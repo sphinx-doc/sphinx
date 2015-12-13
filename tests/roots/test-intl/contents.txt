@@ -22,3 +22,4 @@ CONTENTS
    versionchange
    docfields
    raw
+   refs

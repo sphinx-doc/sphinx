@@ -160,16 +160,21 @@ class Builder(object):
     def compile_catalogs(self, catalogs, message):
         if not self.config.gettext_auto_build:
             return
+
+        def cat2relpath(cat):
+            return path.relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
+
         self.info(bold('building [mo]: ') + message)
         for catalog in self.app.status_iterator(
                 catalogs, 'writing output... ', darkgreen, len(catalogs),
-                lambda c: c.mo_path):
+                cat2relpath):
             catalog.write_mo(self.config.language)
 
     def compile_all_catalogs(self):
         catalogs = i18n.find_catalog_source_files(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,
+            charset=self.config.source_encoding,
             gettext_compact=self.config.gettext_compact,
             force_all=True)
         message = 'all of %d po files' % len(catalogs)
@@ -186,6 +191,7 @@ class Builder(object):
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,
             domains=list(specified_domains),
+            charset=self.config.source_encoding,
             gettext_compact=self.config.gettext_compact)
         message = 'targets for %d po files that are specified' % len(catalogs)
         self.compile_catalogs(catalogs, message)
@@ -194,6 +200,7 @@ class Builder(object):
         catalogs = i18n.find_catalog_source_files(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,
+            charset=self.config.source_encoding,
             gettext_compact=self.config.gettext_compact)
         message = 'targets for %d po files that are out of date' % len(catalogs)
         self.compile_catalogs(catalogs, message)

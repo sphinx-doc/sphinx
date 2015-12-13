@@ -528,59 +528,110 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
    Describe a class/struct, possibly with specification of inheritance, e.g.,::
 
-      .. cpp:class:: SomeName::SomeClass : public MyBase, MyOtherBase
+      .. cpp:class:: MyClass : public MyBase, MyOtherBase
 
-.. rst:directive:: .. cpp:function:: (member-)function prototype
+   The class can be directly declared inside a nested scope, e.g.,::
+
+      .. cpp:class:: OuterScope::MyClass : public MyBase, MyOtherBase
+
+   A template class can be declared::
+
+      .. cpp:class:: template<typename T, std::size_t N> std::array
+
+   or with a line break::
+
+      .. cpp:class:: template<typename T, std::size_t N> \
+                     std::array
+
+   Full and partial template specialisations can be declared::
+
+      .. cpp::class:: template<> \
+                      std::array<bool, 256>
+
+      .. cpp::class:: template<typename T> \
+                      std::array<T, 42>
+
+
+.. rst:directive:: .. cpp:function:: (member) function prototype
 
    Describe a function or member function, e.g.,::
 
-      .. cpp:function:: bool namespaced::theclass::method(int arg1, std::string arg2)
+      .. cpp:function:: bool myMethod(int arg1, std::string arg2)
 
-         Describes a method with parameters and types.
+         A function with parameters and types.
 
-      .. cpp:function:: bool namespaced::theclass::method(T1, T2)
+      .. cpp:function:: bool myMethod(int, double)
 
-         Describes a method with unnamed parameters.
+         A function with unnamed parameters.
 
-      .. cpp:function:: const T &array<T>::operator[]() const
+      .. cpp:function:: const T &MyClass::operator[](std::size_t i) const
 
-         Describes the constant indexing operator of a templated array.
+         An overload for the indexing operator.
 
       .. cpp:function:: operator bool() const
 
-         Describe a casting operator here.
+         A casting operator.
 
       .. cpp:function:: constexpr void foo(std::string &bar[2]) noexcept
 
-         Describe a constexpr function here.
+         A constexpr function.
 
       .. cpp:function:: MyClass::MyClass(const MyClass&) = default
 
-         Describe a copy constructor with default implementation.
+         A copy constructor with default implementation.
 
-.. rst:directive:: .. cpp:member:: (member-)variable declaration
-                   .. cpp:var:: (member-)variable declaration
+   Function templates can also be described::
+
+      .. cpp:function:: template<typename U> \
+                        void print(U &&u)
+
+   and function template specialisations::
+
+      .. cpp:function:: template<> \
+                        void print(int i)
+
+
+.. rst:directive:: .. cpp:member:: (member) variable declaration
+                   .. cpp:var:: (member) variable declaration
 
    Describe a varible or member variable, e.g.,::
 
-      .. cpp:member:: std::string theclass::name
+      .. cpp:member:: std::string MyClass::myMember
 
-      .. cpp:member:: std::string theclass::name[N][M]
+      .. cpp:var:: std::string MyClass::myOtherMember[N][M]
 
       .. cpp:member:: int a = 42
 
-.. rst:directive:: .. cpp:type:: typedef-like declaration
-                   .. cpp:type:: name
+   Variable templates can also be described::
 
-   Describe a type as in a typedef declaration, or the name of a type with unspecified type, e.g.,::
+      .. cpp:member:: template<class T> \
+                      constexpr T pi = T(3.1415926535897932385)
+
+
+.. rst:directive:: .. cpp:type:: typedef declaration
+                   .. cpp:type:: name
+                   .. cpp:type:: type alias declaration
+
+   Describe a type as in a typedef declaration, a type alias declaration,
+   or simply the name of a type with unspecified type, e.g.,::
 
       .. cpp:type:: std::vector<int> MyList
 
          A typedef-like declaration of a type.
 
-      .. cpp:type:: theclass::const_iterator
+      .. cpp:type:: MyContainer::const_iterator
 
          Declaration of a type alias with unspecified type.
+
+      .. cpp:type:: MyType = std::unordered_map<int, std::string>
+
+         Declaration of a type alias.
+
+   A type alias can also be templated::
+
+      .. cpp:type:: template<typename T>
+                    MyContainer = std::vector<T>
+
 
 .. rst:directive:: .. cpp:enum:: unscoped enum declaration
                    .. cpp:enum-struct:: scoped enum declaration
@@ -610,25 +661,111 @@ a visibility statement (``public``, ``private`` or ``protected``).
 .. rst:directive:: .. cpp:enumerator:: name
                    .. cpp:enumerator:: name = constant
 
-   Describe an enumerator, optionally with its value defined.
+   Describe an enumerator, optionally with its value defined, e.g.,::
 
-.. rst:directive:: .. cpp:namespace:: namespace
+      .. cpp::enumerator:: MyEnum::myEnumerator
 
-   Select the current namespace for the subsequent objects. Note that the namespace
-   does not need to correspond to C++ namespaces, but can end in names of classes, e.g.,::
+      .. cpp::enumerator:: MyEnum::myOtherEnumerator = 42
+
+
+Namespacing
+~~~~~~~~~~~~~~~~~
+
+Declarations in the C++ doamin are as default placed in global scope.
+The current scope can be changed using three namespace directives.
+They manage a stack declarations where ``cpp:namespace`` resets the stack and
+changes a given scope.
+The ``cpp:namespace-push`` directive changes the scope to a given inner scope
+of the current one.
+The ``cpp:namespace-pop`` directive undos the most recent ``cpp:namespace-push``
+directive.
+
+.. rst:directive:: .. cpp:namespace:: scope specification
+
+   Changes the current scope for the subsequent objects to the given scope,
+   and resets the namespace directive stack.
+   Note that the namespace does not need to correspond to C++ namespaces,
+   but can end in names of classes, e.g.,::
 
       .. cpp:namespace:: Namespace1::Namespace2::SomeClass::AnInnerClass
 
-   All subsequent objects will be defined as if their name were declared with the namespace
-   prepended. The subsequent cross-references will be searched for by both their specified name
-   and with the namespace prepended.
+   All subsequent objects will be defined as if their name were declared with the scope
+   prepended. The subsequent cross-references will be searched for starting in the current scope.
 
-   Using ``NULL``, ``0``, or ``nullptr`` as the namespace will reset it to the global namespace.
+   Using ``NULL``, ``0``, or ``nullptr`` as the scope will change to global scope.
+
+   A namespace declaration can also be templated, e.g.,::
+
+      .. cpp:class:: template<typename T> \
+                     std::vector
+
+      .. cpp:namespace:: template<typename T> std::vector
+
+      .. cpp:function:: std::size_t size() const
+
+   declares ``size`` as a member function of the template class ``std::vector``.
+   Equivalently this could have been declared using::
+
+      .. cpp:class:: template<typename T> \
+                     std::vector
+
+         .. cpp:function:: std::size_t size() const
+
+   or:::
+
+      .. cpp:class:: template<typename T> \
+                     std::vector
+
+
+.. rst:directive:: .. cpp:namespace-push:: scope specification
+
+   Change the scope relatively to the current scope. For example, after::
+
+      .. cpp:namespace:: A::B
+
+      .. cpp:namespace-push:: C::D
+
+   the current scope will be ``A::B::C::D``.
+
+.. rst:directive:: .. cpp:namespace-pop::
+
+   Undo the previous ``cpp:namespace-push`` directive (*not* just pop a scope).
+   For example, after::
+
+      .. cpp:namespace:: A::B
+
+      .. cpp:namespace-push:: C::D
+
+      .. cpp:namespace-pop::
+
+   the current scope will be ``A::B`` (*not* ``A::B::C``).
+
+   If no previous ``cpp:namespace-push`` directive has been used, but only a ``cpp:namespace``
+   directive, then the current scope will be reset to global scope.
+   That is, ``.. cpp:namespace:: A::B`` is equivalent to::
+
+      .. cpp:namespace:: nullptr
+
+      .. cpp:namespace-push:: A::B
+
+
+Info field lists
+~~~~~~~~~~~~~~~~~
+
+The C++ directives support the following info fields (see also :ref:`info-field-lists`):
+
+* `param`, `parameter`, `arg`, `argument`: Description of a parameter.
+* `tparam`: Description of a template parameter.
+* `returns`, `return`: Description of a return value.
+* `throws`, `throw`, `exception`: Description of a possibly thrown exception.
 
 
 .. _cpp-roles:
 
-These roles link to the given object types:
+Cross-referencing
+~~~~~~~~~~~~~~~~~
+
+These roles link to the given declaration types:
 
 .. rst:role:: cpp:any
               cpp:class
@@ -639,19 +776,19 @@ These roles link to the given object types:
               cpp:enum
               cpp:enumerator
 
-   Reference a C++ object by name. The name must be properly qualified relative to the
-   position of the link.
+   Reference a C++ declaration by name (see below for details).
+   The name must be properly qualified relative to the position of the link.
 
-   .. note::
+.. admonition:: Note on References with Templates Parameters/Arguments
 
-      Sphinx's syntax to give references a custom title can interfere with
-      linking to template classes, if nothing follows the closing angle
-      bracket, i.e. if the link looks like this: ``:cpp:class:`MyClass<T>```.
-      This is interpreted as a link to ``T`` with a title of ``MyClass``.
-      In this case, please escape the opening angle bracket with a backslash,
-      like this: ``:cpp:class:`MyClass\<T>```.
+   Sphinx's syntax to give references a custom title can interfere with
+   linking to template classes, if nothing follows the closing angle
+   bracket, i.e. if the link looks like this: ``:cpp:class:`MyClass<int>```.
+   This is interpreted as a link to ``int`` with a title of ``MyClass``.
+   In this case, please escape the opening angle bracket with a backslash,
+   like this: ``:cpp:class:`MyClass\<int>```.
 
-.. admonition:: Note on References
+.. admonition:: Note on References to Overloaded Functions
 
    It is currently impossible to link to a specific version of an
    overloaded method.  Currently the C++ domain is the first domain
@@ -660,11 +797,79 @@ These roles link to the given object types:
    specific overload.  Currently Sphinx will link to the first overloaded
    version of the method / function.
 
-.. admonition:: Note on Template Delcarations
+Declarations without template parameters and template arguments
+.................................................................
 
-   The C++ domain currently does not support template classes/functions/aliases/variables
-   (e.g., ``template<typename T> MyClass``), only template instantiations
-   (e.g., ``MyClass<T>``).
+For linking to non-templated declarations the name must be a nested name,
+e.g., ``f`` or ``MyClass::f``.
+
+Templated declarations
+......................
+
+Assume the following declarations.
+
+.. cpp:class:: Wrapper
+
+   .. cpp:class:: template<typename TOuter> \
+                  Outer
+
+      .. cpp:class:: template<typename TInner> \
+                     Inner
+
+In general the reference must include the template paraemter declarations, e.g.,
+``template\<typename TOuter> Wrapper::Outer`` (:cpp:class:`template\<typename TOuter> Wrapper::Outer`).
+Currently the lookup only succeed if the template parameter identifiers are equal strings. That is,
+``template\<typename UOuter> Wrapper::Outer`` will not work.
+
+The inner template class can not be directly referenced, unless the current namespace
+is changed or the following shorthand is used.
+If a template parameter list is omitted, then the lookup will assume either a template or a non-template,
+but not a partial template specialisation.
+This means the following references work.
+
+- ``Wrapper::Outer`` (:cpp:class:`Wrapper::Outer`)
+- ``Wrapper::Outer::Inner`` (:cpp:class:`Wrapper::Outer::Inner`)
+- ``template\<typename TInner> Wrapper::Outer::Inner`` (:cpp:class:`template\<typename TInner> Wrapper::Outer::Inner`)
+
+(Full) Template Specialisations
+................................
+
+Assume the following declarations.
+
+.. cpp:class:: template<typename TOuter> \
+               Outer
+
+  .. cpp:class:: template<typename TInner> \
+                 Inner
+
+.. cpp:class:: template<> \
+               Outer<int>
+
+  .. cpp:class:: template<typename TInner> \
+                 Inner
+
+  .. cpp:class:: template<> \
+                 Inner<bool>
+
+In general the reference must include a template parameter list for each template argument list.
+The full specialisation above can therefore be referenced with ``template\<> Outer\<int>`` (:cpp:class:`template\<> Outer\<int>`)
+and ``template\<> template\<> Outer\<int>::Inner\<bool>`` (:cpp:class:`template\<> template\<> Outer\<int>::Inner\<bool>`).
+As a shorthand the empty template parameter list can be omitted, e.g., ``Outer\<int>`` (:cpp:class:`Outer\<int>`)
+and ``Outer\<int>::Inner\<bool>`` (:cpp:class:`Outer\<int>::Inner\<bool>`).
+
+
+Partial Template Specialisations
+.................................
+
+Assume the following declaration.
+
+.. cpp:class:: template<typename T> \
+               Outer<T*>
+
+References to partial specialisations must always include the template parameter lists, e.g.,
+``template\<typename T> Outer\<T*>`` (:cpp:class:`template\<typename T> Outer\<T*>`).
+Currently the lookup only succeed if the template parameter identifiers are equal strings.
+
 
 
 The Standard Domain
@@ -695,6 +900,8 @@ There is a set of directives allowing documenting command-line programs:
    The directive will create cross-reference targets for the given options,
    referencable by :rst:role:`option` (in the example case, you'd use something
    like ``:option:`dest_dir```, ``:option:`-m```, or ``:option:`--module```).
+
+   ``cmdoption`` directive is a deprecated alias for the ``option`` directive.
 
 .. rst:directive:: .. envvar:: name
 
@@ -875,13 +1082,14 @@ More domains
 
 The sphinx-contrib_ repository contains more domains available as extensions;
 currently Ada_, CoffeeScript_, Erlang_, HTTP_, Lasso_, MATLAB_, PHP_, and Ruby_
-domains. Also available are domains for `Common Lisp`_, dqn_, Go_, Jinja_,
-Operation_, and Scala_.
+domains. Also available are domains for `Chapel`_, `Common Lisp`_, dqn_, Go_,
+Jinja_, Operation_, and Scala_.
 
 
 .. _sphinx-contrib: https://bitbucket.org/birkenfeld/sphinx-contrib/
 
 .. _Ada: https://pypi.python.org/pypi/sphinxcontrib-adadomain
+.. _Chapel: https://pypi.python.org/pypi/sphinxcontrib-chapeldomain
 .. _CoffeeScript: https://pypi.python.org/pypi/sphinxcontrib-coffee
 .. _Common Lisp: https://pypi.python.org/pypi/sphinxcontrib-cldomain
 .. _dqn: https://pypi.python.org/pypi/sphinxcontrib-dqndomain

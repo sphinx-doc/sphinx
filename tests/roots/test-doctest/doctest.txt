@@ -127,3 +127,12 @@ Special directives
 
    import test_ext_doctest
    test_ext_doctest.cleanup_call()
+
+non-ASCII result
+----------------
+
+>>> print('umlauts: äöü.')
+umlauts: äöü.
+>>> print('Japanese: 日本語')
+Japanese: 日本語
+

@@ -154,7 +154,7 @@ HTML_XPATH = {
         (".//a[@href='#grammar-token-try_stmt']"
             "[@class='reference internal']/code/span", '^statement$'),
         (".//a[@href='subdir/includes.html']"
-            "[@class='reference internal']/em", 'Including in subdir'),
+            "[@class='reference internal']/span", 'Including in subdir'),
         (".//a[@href='objects.html#cmdoption-python-c']"
             "[@class='reference internal']/code/span[@class='pre']", '-c'),
         # abbreviations
@@ -280,14 +280,18 @@ HTML_XPATH = {
         (".//dt/a", "double"),
     ],
     'footnote.html': [
-        (".//a[@class='footnote-reference'][@href='#id5'][@id='id1']", r"\[1\]"),
-        (".//a[@class='footnote-reference'][@href='#id6'][@id='id2']", r"\[2\]"),
+        (".//a[@class='footnote-reference'][@href='#id7'][@id='id1']", r"\[1\]"),
+        (".//a[@class='footnote-reference'][@href='#id8'][@id='id2']", r"\[2\]"),
         (".//a[@class='footnote-reference'][@href='#foo'][@id='id3']", r"\[3\]"),
         (".//a[@class='reference internal'][@href='#bar'][@id='id4']", r"\[bar\]"),
+        (".//a[@class='footnote-reference'][@href='#id9'][@id='id5']", r"\[4\]"),
+        (".//a[@class='footnote-reference'][@href='#id10'][@id='id6']", r"\[5\]"),
         (".//a[@class='fn-backref'][@href='#id1']", r"\[1\]"),
         (".//a[@class='fn-backref'][@href='#id2']", r"\[2\]"),
         (".//a[@class='fn-backref'][@href='#id3']", r"\[3\]"),
         (".//a[@class='fn-backref'][@href='#id4']", r"\[bar\]"),
+        (".//a[@class='fn-backref'][@href='#id5']", r"\[4\]"),
+        (".//a[@class='fn-backref'][@href='#id6']", r"\[5\]"),
     ],
     'otherext.html': [
         (".//h1", "Generated section"),
@@ -484,6 +488,9 @@ def test_tocdepth_singlehtml(app, status, warning):
 def test_numfig_disabled(app, status, warning):
     app.builder.build_all()
 
+    assert 'WARNING: invalid numfig_format: invalid' not in warning.getvalue()
+    assert 'WARNING: invalid numfig_format: Fig %s %s' not in warning.getvalue()
+
     expects = {
         'index.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -542,6 +549,9 @@ def test_numfig_without_numbered_toctree(app, status, warning):
     index = re.sub(':numbered:.*', '', index, re.MULTILINE)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
     app.builder.build_all()
+
+    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
 
     expects = {
         'index.html': [
@@ -637,6 +647,9 @@ def test_numfig_without_numbered_toctree(app, status, warning):
               confoverrides={'numfig': True})
 def test_numfig_with_numbered_toctree(app, status, warning):
     app.builder.build_all()
+
+    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
 
     expects = {
         'index.html': [
@@ -736,6 +749,9 @@ def test_numfig_with_numbered_toctree(app, status, warning):
 def test_numfig_with_prefix(app, status, warning):
     app.builder.build_all()
 
+    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
+
     expects = {
         'index.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -830,6 +846,9 @@ def test_numfig_with_prefix(app, status, warning):
               confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
 def test_numfig_with_secnum_depth(app, status, warning):
     app.builder.build_all()
+
+    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
 
     expects = {
         'index.html': [

@@ -250,7 +250,7 @@ General configuration
 .. confval:: numfig
 
    If true, figures, tables and code-blocks are automatically numbered if they
-   has caption. For now, it works only with the HTML builder. Default is ``False``.
+   have a caption. For now, it works only with the HTML builder. Default is ``False``.
 
    .. versionadded:: 1.3
 
@@ -637,9 +637,10 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_last_updated_fmt
 
-   If this is not the empty string, a 'Last updated on:' timestamp is inserted
-   at every page bottom, using the given :func:`strftime` format.  Default is
-   ``'%b %d, %Y'`` (or a locale-dependent equivalent).
+   If this is not None, a 'Last updated on:' timestamp is inserted
+   at every page bottom, using the given :func:`strftime` format.
+   The empty string is equivalent to ``'%b %d, %Y'`` (or a
+   locale-dependent equivalent).
 
 .. confval:: html_use_smartypants
 
@@ -867,7 +868,7 @@ that use Sphinx's HTMLWriter class.
    * ``it`` -- Italian
    * ``ja`` -- Japanese
    * ``no`` -- Norwegian
-   * ``pr`` -- Portuguese
+   * ``pt`` -- Portuguese
    * ``ro`` -- Romanian
    * ``ru`` -- Russian
    * ``es`` -- Spanish
@@ -1448,6 +1449,9 @@ These options influence LaTeX output.
      ``'maketitle'``
         "maketitle" call, default ``'\\maketitle'``.  Override if you want to
         generate a differently-styled title page.
+     ``'releasename'``
+        value that prefixes ``'release'`` element on title page, default
+        ``'Release'``.
      ``'tableofcontents'``
         "tableofcontents" call, default ``'\\tableofcontents'``.  Override if
         you want to generate a different table of contents or put content
@@ -1473,7 +1477,6 @@ These options influence LaTeX output.
      ``'release'``
      ``'author'``
      ``'logo'``
-     ``'releasename'``
      ``'makeindex'``
      ``'shorthandoff'``
 

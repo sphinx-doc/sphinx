@@ -99,3 +99,15 @@ def test_table_with_empty_cell(app, status, warning):
     assert lines[4] == "+-------+-------+"
     assert lines[5] == "| XXX   |       |"
     assert lines[6] == "+-------+-------+"
+
+
+@with_text_app()
+def test_list_items_in_admonition(app, status, warning):
+    app.builder.build_update()
+    result = (app.outdir / 'listitems.txt').text(encoding='utf-8')
+    lines = [line.rstrip() for line in result.splitlines()]
+    assert lines[0] == "See also:"
+    assert lines[1] == ""
+    assert lines[2] == "  * item 1"
+    assert lines[3] == ""
+    assert lines[4] == "  * item 2"

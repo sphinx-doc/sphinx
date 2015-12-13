@@ -53,8 +53,8 @@ class Field(object):
         self.rolename = rolename
         self.bodyrolename = bodyrolename
 
-    def make_xref(self, rolename, domain, target, innernode=nodes.emphasis,
-                  contnode=None):
+    def make_xref(self, rolename, domain, target,
+                  innernode=addnodes.literal_emphasis, contnode=None):
         if not rolename:
             return contnode or innernode(target, target)
         refnode = addnodes.pending_xref('', refdomain=domain, refexplicit=False,
@@ -159,7 +159,8 @@ class TypedField(GroupedField):
                 fieldtype = types.pop(fieldarg)
                 if len(fieldtype) == 1 and isinstance(fieldtype[0], nodes.Text):
                     typename = u''.join(n.astext() for n in fieldtype)
-                    par += self.make_xref(self.typerolename, domain, typename)
+                    par += self.make_xref(self.typerolename, domain, typename,
+                                          addnodes.literal_emphasis)
                 else:
                     par += fieldtype
                 par += nodes.Text(')')

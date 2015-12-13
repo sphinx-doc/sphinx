@@ -70,7 +70,7 @@ class ManualPageBuilder(Builder):
             tree = self.env.get_doctree(docname)
             docnames = set()
             largetree = inline_all_toctrees(self, docnames, docname, tree,
-                                            darkgreen)
+                                            darkgreen, [docname])
             self.info('} ', nonl=True)
             self.env.resolve_references(largetree, docname, self)
             # remove pending_xref nodes

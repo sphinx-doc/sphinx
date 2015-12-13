@@ -12,7 +12,6 @@
 
 import os
 import re
-import time
 import codecs
 import zipfile
 from os import path
@@ -29,7 +28,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.util.osutil import ensuredir, copyfile, EEXIST
+from sphinx.util.osutil import ensuredir, copyfile, ustrftime, EEXIST
 from sphinx.util.smartypants import sphinx_smarty_pants as ssp
 from sphinx.util.console import brown
 
@@ -511,7 +510,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['copyright'] = self.esc(self.config.epub_copyright)
         metadata['scheme'] = self.esc(self.config.epub_scheme)
         metadata['id'] = self.esc(self.config.epub_identifier)
-        metadata['date'] = self.esc(time.strftime('%Y-%m-%d'))
+        metadata['date'] = self.esc(ustrftime('%Y-%m-%d'))
         metadata['files'] = files
         metadata['spine'] = spine
         metadata['guide'] = guide

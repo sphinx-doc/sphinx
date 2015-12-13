@@ -16,6 +16,7 @@ include sphinx-apidoc.py
 recursive-include sphinx/texinputs *
 recursive-include sphinx/themes *
 recursive-include sphinx/locale *
+recursive-include sphinx/search/non-minified-js *.js
 recursive-include sphinx/ext/autosummary/templates *
 recursive-include tests *
 recursive-include utils *

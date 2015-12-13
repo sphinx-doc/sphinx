@@ -183,7 +183,10 @@ def test_text_builder(app, status, warning):
               u"\nSOME TERM"
               u"\n   THE CORRESPONDING DEFINITION\n"
               u"\nSOME OTHER TERM"
-              u"\n   THE CORRESPONDING DEFINITION #2\n")
+              u"\n   THE CORRESPONDING DEFINITION #2\n"
+              u"\nSOME TERM WITH : CLASSIFIER1 : CLASSIFIER2"
+              u"\n   THE CORRESPONDING DEFINITION\n"
+              )
     yield assert_equal, result, expect
 
     # --- glossary terms: regression test for #1090
@@ -269,21 +272,21 @@ def test_text_builder(app, status, warning):
     result = (app.outdir / 'docfields.txt').text(encoding='utf-8')
     expect = (u"\nI18N WITH DOCFIELDS"
               u"\n*******************\n"
-              u"\nclass class Cls1\n"
+              u"\nclass Cls1\n"
               u"\n   Parameters:"
               u"\n      **param** -- DESCRIPTION OF PARAMETER param\n"
-              u"\nclass class Cls2\n"
+              u"\nclass Cls2\n"
               u"\n   Parameters:"
               u"\n      * **foo** -- DESCRIPTION OF PARAMETER foo\n"
               u"\n      * **bar** -- DESCRIPTION OF PARAMETER bar\n"
-              u"\nclass class Cls3(values)\n"
+              u"\nclass Cls3(values)\n"
               u"\n   Raises ValueError:"
               u"\n      IF THE VALUES ARE OUT OF RANGE\n"
-              u"\nclass class Cls4(values)\n"
+              u"\nclass Cls4(values)\n"
               u"\n   Raises:"
               u"\n      * **TypeError** -- IF THE VALUES ARE NOT VALID\n"
               u"\n      * **ValueError** -- IF THE VALUES ARE OUT OF RANGE\n"
-              u"\nclass class Cls5\n"
+              u"\nclass Cls5\n"
               u"\n   Returns:"
               u'\n      A NEW "Cls3" INSTANCE\n')
     yield assert_equal, result, expect
@@ -748,3 +751,11 @@ def test_additional_targets_should_be_translated(app, status, warning):
     expected_expr = """<img alt="IMG -&gt; I18N" src="_images/i18n.png" />"""
     yield assert_count(expected_expr, result, 1)
 
+
+@gen_with_intl_app('text', freshenv=True)
+def test_references(app, status, warning):
+    app.builder.build_specific([app.srcdir / 'refs.txt'])
+
+    warnings = warning.getvalue().replace(os.sep, '/')
+    warning_expr = u'refs.txt:\\d+: ERROR: Unknown target name:'
+    yield assert_count(warning_expr, warnings, 0)
