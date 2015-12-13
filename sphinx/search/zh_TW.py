@@ -246,11 +246,9 @@ class SearchChinese(SearchLanguage):
 
     def init(self, options):
         if JIEBA:
-            dict = options.get('dict')
-            if os.path.isfile(dict):
-                jieba.set_dictionary(dict)
-                print
-                print "Dictionary path：", dict
+            dict_path = options.get('dict')
+            if dict_path and os.path.isfile(dict_path):
+                jieba.set_dictionary(dict_path)
 
         if CSTEMMER:
             class Stemmer(CStemmer):
