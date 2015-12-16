@@ -223,7 +223,8 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
             alt = node.get('alt', self.encode(code).strip())
         imgcss = imgcls and 'class="%s"' % imgcls or ''
         if format == 'svg':
-            svgtag = '<img src="%s" alt="%s" %s/>\n' % (fname, alt, imgcss)
+            svgtag = '''<object data="%s" type="image/svg+xml">
+            <p class="warning">%s</p></object>\n''' % (fname, alt)
             self.body.append(svgtag)
         else:
             mapfile = open(outfn + '.map', 'rb')
