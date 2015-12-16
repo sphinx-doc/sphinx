@@ -14,9 +14,8 @@ from os import path
 
 try:
     import multiprocessing
-    import threading
 except ImportError:
-    multiprocessing = threading = None
+    multiprocessing = None
 
 from docutils import nodes
 
