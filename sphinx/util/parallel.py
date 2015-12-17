@@ -17,7 +17,6 @@ try:
 except ImportError:
     multiprocessing = None
 
-from six.moves import queue
 from math import sqrt
 
 from sphinx.errors import SphinxParallelError
@@ -91,30 +90,29 @@ class ParallelTasks(object):
         proc = multiprocessing.Process(target=self._process,
                                        args=(psend, self._task_func, arg))
         self._procs[tid] = proc
-        if self._pworking<self.nproc:
+        if self._pworking < self.nproc:
             self._precvs[tid] = precv
             self._pworking += 1
             proc.start()
         else:
             self._precvsWaiting[tid] = precv
 
-
     def join(self):
         while self._pworking:
-            for tid,pipe in self._precvs.items():
+            for tid, pipe in self._precvs.items():
                 if pipe.poll():
-                    exc,result = pipe.recv()
+                    exc, result = pipe.recv()
                     if exc:
                         raise SphinxParallelError(*result)
-                    self._result_func_wrapper(self._args[tid],result)
+                    self._result_func_wrapper(self._args[tid], result)
                     self._procs[tid].join()
-                    if len(self._precvsWaiting)>0:
-                        newtid,newprecv = self._precvsWaiting.popitem()
+                    if len(self._precvsWaiting) > 0:
+                        newtid, newprecv = self._precvsWaiting.popitem()
                         self._precvs[newtid] = newprecv
                         self._procs[newtid].start()
                         break
                     else:
-                        self._pworking -=1
+                        self._pworking -= 1
 
 
 def make_chunks(arguments, nproc, maxbatch=10):
@@ -125,7 +123,7 @@ def make_chunks(arguments, nproc, maxbatch=10):
         chunksize = 1
     if chunksize == maxbatch:
         # try to improve batch size vs. number of batches
-        chunksize = int( sqrt(nargs/nproc * maxbatch) )
+        chunksize = int(sqrt(nargs/nproc * maxbatch))
     nchunks, rest = divmod(nargs, chunksize)
     if rest:
         nchunks += 1
