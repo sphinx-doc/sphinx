@@ -7,7 +7,7 @@ ALLDVI = $(addsuffix .dvi,$(ALLDOCS))
 # Prefix for archive names
 ARCHIVEPRREFIX =
 # Additional LaTeX options
-LATEXOPTS =
+LATEXOPTS = --shell-escape
 
 LATEX = latex
 PDFLATEX = pdflatex
