@@ -1182,7 +1182,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         options = ''
         if include_graphics_options:
             options = '[%s]' % ','.join(include_graphics_options)
-        self.body.append('\\includegraphics%s{%s}' % (options, uri))
+        base, ext = path.splitext(uri)
+        self.body.append('\\includegraphics%s{{%s}%s}' % (options, base, ext))
         self.body.extend(post)
 
     def depart_image(self, node):
