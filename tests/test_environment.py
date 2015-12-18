@@ -63,9 +63,10 @@ def test_images():
         image_uri_message = remove_unicode_literals(image_uri_message)
     assert image_uri_message in app._warning.content[-1]
     assert set(htmlbuilder.images.keys()) == \
-        set(['subdir/img.png', 'img.png', 'subdir/simg.png', 'svgimg.svg'])
+        set(['subdir/img.png', 'img.png', 'subdir/simg.png', 'svgimg.svg',
+             'img.foo.png'])
     assert set(htmlbuilder.images.values()) == \
-        set(['img.png', 'img1.png', 'simg.png', 'svgimg.svg'])
+        set(['img.png', 'img1.png', 'simg.png', 'svgimg.svg', 'img.foo.png'])
 
     app._warning.reset()
     latexbuilder = LaTeXBuilder(app)
@@ -73,9 +74,10 @@ def test_images():
     assert image_uri_message in app._warning.content[-1]
     assert set(latexbuilder.images.keys()) == \
         set(['subdir/img.png', 'subdir/simg.png', 'img.png', 'img.pdf',
-             'svgimg.pdf'])
+             'svgimg.pdf', 'img.foo.png'])
     assert set(latexbuilder.images.values()) == \
-        set(['img.pdf', 'img.png', 'img1.png', 'simg.png', 'svgimg.pdf'])
+        set(['img.pdf', 'img.png', 'img1.png', 'simg.png',
+             'svgimg.pdf', 'img.foo.png'])
 
 
 def test_second_update():
