@@ -10,7 +10,7 @@
 import os
 import sys
 import shutil
-from codecs import open
+from io import open
 
 from six import PY2, text_type
 
@@ -126,21 +126,23 @@ class path(text_type):
     def utime(self, arg):
         os.utime(self, arg)
 
-    def write_text(self, text, **kwargs):
+    def write_text(self, text, encoding='utf-8', **kwargs):
         """
         Writes the given `text` to the file.
         """
-        f = open(self, 'w', **kwargs)
+        if isinstance(text, bytes):
+            text = text.decode(encoding)
+        f = open(self, 'w', encoding=encoding, **kwargs)
         try:
             f.write(text)
         finally:
             f.close()
 
-    def text(self, **kwargs):
+    def text(self, encoding='utf-8', **kwargs):
         """
         Returns the text in the file.
         """
-        f = open(self, mode='U', **kwargs)
+        f = open(self, mode='U', encoding=encoding, **kwargs)
         try:
             return f.read()
         finally:
