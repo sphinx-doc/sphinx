@@ -51,7 +51,6 @@ latex_documents = [
      'Georg Brandl \\and someone else', 'manual'),
 ]
 
-latex_show_urls = 'footnote'
 latex_additional_files = ['svgimg.svg']
 
 texinfo_documents = [

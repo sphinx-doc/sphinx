@@ -26,6 +26,8 @@ The section with a reference to [AuthorYear]_
 * `Sphinx <http://sphinx-doc.org/>`_
 * Third footnote: [#]_
 * `URL including tilde <http://sphinx-doc.org/~test/>`_
+* GitHub Page: `https://github.com/sphinx-doc/sphinx <https://github.com/sphinx-doc/sphinx>`_
+* Mailing list: `sphinx-dev@googlegroups.com <mailto:sphinx-dev@googlegroups.com>`_
 
 .. [AuthorYear] Author, Title, Year
 .. [1] Second

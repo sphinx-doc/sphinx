@@ -318,9 +318,6 @@ def test_footnote(app, status, warning):
     assert ('\\end{threeparttable}\n\n'
             '\\footnotetext[4]{\nfootnotes in table caption\n}'
             '\\footnotetext[5]{\nfootnotes in table\n}' in result)
-    assert r'\href{http://sphinx.org}{homepage}\footnote{http://sphinx.org}' in result
-    assert r'\footnote{https://github.com/sphinx-doc/sphinx}' not in result
-    assert r'\footnote{sphinx-dev@googlegroups.com}' not in result
 
 
 @with_app(buildername='latex', testroot='footnotes')
@@ -355,8 +352,12 @@ def test_latex_show_urls_is_inline(app, status, warning):
             '\\leavevmode\nDescription' in result)
     assert ('\\item[{Footnote in term \\footnotemark[4]}] '
             '\\leavevmode\\footnotetext[4]{\nFootnote in term\n}\nDescription' in result)
-    assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist} (http://sphinx-doc.org/)}] '
-            '\\leavevmode\nDescription' in result)
+    assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist} '
+            '(http://sphinx-doc.org/)}] \\leavevmode\nDescription' in result)
+    assert ('\\href{https://github.com/sphinx-doc/sphinx}'
+            '{https://github.com/sphinx-doc/sphinx}\n' in result)
+    assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
+            '{sphinx-dev@googlegroups.com}' in result)
 
 
 @with_app(buildername='latex', testroot='footnotes',
@@ -380,6 +381,10 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             '\\leavevmode\\footnotetext[8]{\nFootnote in term\n}\nDescription' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}\\footnotemark[7]}] '
             '\\leavevmode\\footnotetext[7]{\nhttp://sphinx-doc.org/\n}\nDescription' in result)
+    assert ('\\href{https://github.com/sphinx-doc/sphinx}'
+            '{https://github.com/sphinx-doc/sphinx}\n' in result)
+    assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
+            '{sphinx-dev@googlegroups.com}\n' in result)
 
 
 @with_app(buildername='latex', testroot='footnotes',
@@ -401,3 +406,7 @@ def test_latex_show_urls_is_no(app, status, warning):
             '\\leavevmode\\footnotetext[4]{\nFootnote in term\n}\nDescription' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}}] '
             '\\leavevmode\nDescription' in result)
+    assert ('\\href{https://github.com/sphinx-doc/sphinx}'
+            '{https://github.com/sphinx-doc/sphinx}\n' in result)
+    assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
+            '{sphinx-dev@googlegroups.com}\n' in result)
