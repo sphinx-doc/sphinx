@@ -376,11 +376,8 @@ def test_html_output(app, status, warning):
     for fname, paths in iteritems(HTML_XPATH):
         parser = NslessParser()
         parser.entity.update(html_entities.entitydefs)
-        fp = open(os.path.join(app.outdir, fname), 'rb')
-        try:
+        with (app.outdir / fname).open('rb') as fp:
             etree = ET.parse(fp, parser)
-        finally:
-            fp.close()
         for path, check in paths:
             yield check_xpath, etree, fname, path, check
 
@@ -429,11 +426,8 @@ def test_tocdepth(app, status, warning):
     for fname, paths in iteritems(expects):
         parser = NslessParser()
         parser.entity.update(html_entities.entitydefs)
-        fp = open(os.path.join(app.outdir, fname), 'rb')
-        try:
+        with (app.outdir / fname).open('rb') as fp:
             etree = ET.parse(fp, parser)
-        finally:
-            fp.close()
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -474,11 +468,8 @@ def test_tocdepth_singlehtml(app, status, warning):
     for fname, paths in iteritems(expects):
         parser = NslessParser()
         parser.entity.update(html_entities.entitydefs)
-        fp = open(os.path.join(app.outdir, fname), 'rb')
-        try:
+        with (app.outdir / fname).open('rb') as fp:
             etree = ET.parse(fp, parser)
-        finally:
-            fp.close()
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -531,11 +522,8 @@ def test_numfig_disabled(app, status, warning):
     for fname, paths in iteritems(expects):
         parser = NslessParser()
         parser.entity.update(html_entities.entitydefs)
-        fp = open(os.path.join(app.outdir, fname), 'rb')
-        try:
+        with (app.outdir / fname).open('rb') as fp:
             etree = ET.parse(fp, parser)
-        finally:
-            fp.close()
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -633,11 +621,8 @@ def test_numfig_without_numbered_toctree(app, status, warning):
     for fname, paths in iteritems(expects):
         parser = NslessParser()
         parser.entity.update(html_entities.entitydefs)
-        fp = open(os.path.join(app.outdir, fname), 'rb')
-        try:
+        with (app.outdir / fname).open('rb') as fp:
             etree = ET.parse(fp, parser)
-        finally:
-            fp.close()
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -731,11 +716,8 @@ def test_numfig_with_numbered_toctree(app, status, warning):
     for fname, paths in iteritems(expects):
         parser = NslessParser()
         parser.entity.update(html_entities.entitydefs)
-        fp = open(os.path.join(app.outdir, fname), 'rb')
-        try:
+        with (app.outdir / fname).open('rb') as fp:
             etree = ET.parse(fp, parser)
-        finally:
-            fp.close()
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -832,11 +814,8 @@ def test_numfig_with_prefix(app, status, warning):
     for fname, paths in iteritems(expects):
         parser = NslessParser()
         parser.entity.update(html_entities.entitydefs)
-        fp = open(os.path.join(app.outdir, fname), 'rb')
-        try:
+        with (app.outdir / fname).open('rb') as fp:
             etree = ET.parse(fp, parser)
-        finally:
-            fp.close()
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -930,11 +909,8 @@ def test_numfig_with_secnum_depth(app, status, warning):
     for fname, paths in iteritems(expects):
         parser = NslessParser()
         parser.entity.update(html_entities.entitydefs)
-        fp = open(os.path.join(app.outdir, fname), 'rb')
-        try:
+        with (app.outdir / fname).open('rb') as fp:
             etree = ET.parse(fp, parser)
-        finally:
-            fp.close()
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
