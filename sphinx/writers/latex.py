@@ -69,6 +69,8 @@ FOOTER = r'''
 \end{document}
 '''
 
+URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
+
 
 class collected_footnote(nodes.footnote):
     """Footnotes that are collected are assigned this class."""
@@ -98,6 +100,8 @@ class LaTeXWriter(writers.Writer):
             self.builder.translator_class or LaTeXTranslator)
 
     def translate(self):
+        transform = ShowUrlsTransform(self.document)
+        transform.apply()
         visitor = self.translator_class(self.document, self.builder)
         self.document.walkabout(visitor)
         self.output = visitor.astext()
@@ -124,6 +128,99 @@ class ExtBabel(Babel):
 # includes Slovene
 if hasattr(Babel, '_ISO639_TO_BABEL'):
     Babel._ISO639_TO_BABEL['sl'] = 'slovene'
+
+
+class ShowUrlsTransform(object):
+    expanded = False
+
+    def __init__(self, document):
+        self.document = document
+
+    def apply(self):
+        # replace id_prefix temporarily
+        id_prefix = self.document.settings.id_prefix
+        self.document.settings.id_prefix = 'show_urls'
+
+        self.expand_show_urls()
+        if self.expanded:
+            self.renumber_footnotes()
+
+        # restore id_prefix
+        self.document.settings.id_prefix = id_prefix
+
+    def expand_show_urls(self):
+        show_urls = self.document.settings.env.config.latex_show_urls
+        if show_urls is False or show_urls == 'no':
+            return
+
+        for node in self.document.traverse(nodes.reference):
+            uri = node.get('refuri', '')
+            if uri.startswith(URI_SCHEMES):
+                if uri.startswith('mailto:'):
+                    uri = uri[7:]
+                if node.astext() != uri:
+                    index = node.parent.index(node)
+                    if show_urls == 'footnote':
+                        footnote_nodes = self.create_footnote(uri)
+                        for i, fn in enumerate(footnote_nodes):
+                            node.parent.insert(index + i + 1, fn)
+
+                        self.expanded = True
+                    else:  # all other true values (b/w compat)
+                        textnode = nodes.Text(" (%s)" % uri)
+                        node.parent.insert(index + 1, textnode)
+
+    def create_footnote(self, uri):
+        label = nodes.label('', '#')
+        para = nodes.paragraph()
+        para.append(nodes.Text(uri))
+        footnote = nodes.footnote(uri, label, para, auto=1)
+        footnote['names'].append('#')
+        self.document.note_autofootnote(footnote)
+
+        label = nodes.Text('#')
+        footnote_ref = nodes.footnote_reference('[#]_', label, auto=1,
+                                                refid=footnote['ids'][0])
+        self.document.note_autofootnote_ref(footnote_ref)
+        footnote.add_backref(footnote_ref['ids'][0])
+
+        return [footnote, footnote_ref]
+
+    def renumber_footnotes(self):
+        def is_used_number(number):
+            for node in self.document.traverse(nodes.footnote):
+                if not node.get('auto') and number in node['names']:
+                    return True
+
+            return False
+
+        def is_auto_footnote(node):
+            return isinstance(node, nodes.footnote) and node.get('auto')
+
+        def footnote_ref_by(ids):
+            def is_footnote_ref(node):
+                return isinstance(node, nodes.footnote_reference) and ids[0] == node['refid']
+
+            return is_footnote_ref
+
+        startnum = 1
+        for footnote in self.document.traverse(is_auto_footnote):
+            while True:
+                label = str(startnum)
+                startnum += 1
+                if not is_used_number(label):
+                    break
+
+            old_label = footnote[0].astext()
+            footnote.remove(footnote[0])
+            footnote.insert(0, nodes.label('', label))
+            if old_label in footnote['names']:
+                footnote['names'].remove(old_label)
+            footnote['names'].append(label)
+
+            for footnote_ref in self.document.traverse(footnote_ref_by(footnote['ids'])):
+                footnote_ref.remove(footnote_ref[0])
+                footnote_ref += nodes.Text(label)
 
 
 class Table(object):
@@ -278,6 +375,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                     sys.maxsize]]
         self.bodystack = []
         self.footnotestack = []
+        self.termfootnotestack = []
         self.curfilestack = []
         self.handled_abbrs = set()
         if document.settings.docclass == 'howto':
@@ -297,6 +395,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.in_footnote = 0
         self.in_caption = 0
         self.in_container_literal_block = 0
+        self.in_term = 0
         self.first_document = 1
         self.this_is_the_title = 1
         self.literal_whitespace = 0
@@ -761,7 +860,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_collected_footnote(self, node):
         self.in_footnote += 1
-        if 'in_table' in node:
+        if 'footnotetext' in node:
             self.body.append('\\footnotetext[%s]{' % node['number'])
         else:
             self.body.append('\\footnote[%s]{' % node['number'])
@@ -864,7 +963,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\end{threeparttable}\n\n')
         if self.table.footnotes:
             for footnode in self.table.footnotes:
-                footnode['in_table'] = True
+                footnode['footnotetext'] = True
                 footnode.walkabout(self)
         self.table = None
         self.tablebody = None
@@ -1031,14 +1130,22 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_term(self, node):
+        self.in_term += 1
         ctx = '}] \\leavevmode'
         if node.get('ids'):
             ctx += self.hypertarget(node['ids'][0])
         self.body.append('\\item[{')
+        self.termfootnotestack.append([])
         self.context.append(ctx)
 
     def depart_term(self, node):
         self.body.append(self.context.pop())
+        footnotes = self.termfootnotestack.pop()
+        for footnode in footnotes:
+            footnode['footnotetext'] = True
+            footnode.walkabout(self)
+
+        self.in_term -= 1
 
     def visit_termsep(self, node):
         self.body.append(', ')
@@ -1399,23 +1506,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             uri = '%' + self.curfilestack[-1] + '#' + node['refid']
         if self.in_title or not uri:
             self.context.append('')
-        elif uri.startswith('mailto:') or uri.startswith('http:') or \
-                uri.startswith('https:') or uri.startswith('ftp:'):
+        elif uri.startswith(URI_SCHEMES):
             self.body.append('\\href{%s}{' % self.encode_uri(uri))
-            # if configured, put the URL after the link
-            show_urls = self.builder.config.latex_show_urls
-            if uri.startswith('mailto:'):
-                uri = uri[7:]
-            if node.astext() != uri and show_urls and show_urls != 'no':
-                if show_urls == 'footnote' and not \
-                   (self.in_footnote or self.in_caption):
-                    # obviously, footnotes in footnotes are not going to work
-                    self.context.append(
-                        r'}\footnote{%s}' % self.encode_uri(uri))
-                else:  # all other true values (b/w compat)
-                    self.context.append('} (%s)' % self.encode_uri(uri))
-            else:
-                self.context.append('}')
+            self.context.append('}')
         elif uri.startswith('#'):
             # references to labels in the same document
             id = self.curfilestack[-1] + ':' + uri[1:]
@@ -1566,7 +1659,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # if a footnote has been inserted once, it shouldn't be repeated
         # by the next reference
         if used:
-            if self.table:
+            if self.table or self.in_term:
                 self.body.append('\\protect\\footnotemark[%s]' % num)
             else:
                 self.body.append('\\footnotemark[%s]' % num)
@@ -1574,6 +1667,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.footnotestack[-1][num][1] = True
             self.body.append('\\protect\\footnotemark[%s]' % num)
             self.table.footnotes.append(footnode)
+        elif self.in_term:
+            self.body.append('\\footnotemark[%s]' % num)
+            self.termfootnotestack[-1].append(footnode)
         else:
             if self.in_caption:
                 raise UnsupportedError('%s:%s: footnotes in float captions '

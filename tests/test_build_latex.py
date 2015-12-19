@@ -318,12 +318,9 @@ def test_footnote(app, status, warning):
     assert ('\\end{threeparttable}\n\n'
             '\\footnotetext[4]{\nfootnotes in table caption\n}'
             '\\footnotetext[5]{\nfootnotes in table\n}' in result)
-    assert r'\href{http://sphinx.org}{homepage}\footnote{http://sphinx.org}' in result
-    assert r'\footnote{https://github.com/sphinx-doc/sphinx}' not in result
-    assert r'\footnote{sphinx-dev@googlegroups.com}' not in result
 
 
-@with_app(buildername='latex', testroot='references-in-caption')
+@with_app(buildername='latex', testroot='footnotes')
 def test_reference_in_caption(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -335,3 +332,81 @@ def test_reference_in_caption(app, status, warning):
     assert '\\chapter{The section with a reference to {[}AuthorYear{]}}' in result
     assert '\\caption{The table title with a reference to {[}AuthorYear{]}}' in result
     assert '\\paragraph{The rubric title with a reference to {[}AuthorYear{]}}' in result
+
+
+@with_app(buildername='latex', testroot='footnotes',
+          confoverrides={'latex_show_urls': 'inline'})
+def test_latex_show_urls_is_inline(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert 'First footnote: \\footnote[2]{\nFirst\n}' in result
+    assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
+    assert '\\href{http://sphinx-doc.org/}{Sphinx} (http://sphinx-doc.org/)' in result
+    assert 'Third footnote: \\footnote[3]{\nThird\n}' in result
+    assert ('\\href{http://sphinx-doc.org/~test/}{URL including tilde} '
+            '(http://sphinx-doc.org/\\textasciitilde{}test/)' in result)
+    assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term} (http://sphinx-doc.org/)}] '
+            '\\leavevmode\nDescription' in result)
+    assert ('\\item[{Footnote in term \\footnotemark[4]}] '
+            '\\leavevmode\\footnotetext[4]{\nFootnote in term\n}\nDescription' in result)
+    assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist} '
+            '(http://sphinx-doc.org/)}] \\leavevmode\nDescription' in result)
+    assert ('\\href{https://github.com/sphinx-doc/sphinx}'
+            '{https://github.com/sphinx-doc/sphinx}\n' in result)
+    assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
+            '{sphinx-dev@googlegroups.com}' in result)
+
+
+@with_app(buildername='latex', testroot='footnotes',
+          confoverrides={'latex_show_urls': 'footnote'})
+def test_latex_show_urls_is_footnote(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert 'First footnote: \\footnote[2]{\nFirst\n}' in result
+    assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
+    assert ('\\href{http://sphinx-doc.org/}{Sphinx}'
+            '\\footnote[3]{\nhttp://sphinx-doc.org/\n}' in result)
+    assert 'Third footnote: \\footnote[5]{\nThird\n}' in result
+    assert ('\\href{http://sphinx-doc.org/~test/}{URL including tilde}'
+            '\\footnote[4]{\nhttp://sphinx-doc.org/\\textasciitilde{}test/\n}' in result)
+    assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term}\\footnotemark[6]}] '
+            '\\leavevmode\\footnotetext[6]{\nhttp://sphinx-doc.org/\n}\nDescription' in result)
+    assert ('\\item[{Footnote in term \\footnotemark[8]}] '
+            '\\leavevmode\\footnotetext[8]{\nFootnote in term\n}\nDescription' in result)
+    assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}\\footnotemark[7]}] '
+            '\\leavevmode\\footnotetext[7]{\nhttp://sphinx-doc.org/\n}\nDescription' in result)
+    assert ('\\href{https://github.com/sphinx-doc/sphinx}'
+            '{https://github.com/sphinx-doc/sphinx}\n' in result)
+    assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
+            '{sphinx-dev@googlegroups.com}\n' in result)
+
+
+@with_app(buildername='latex', testroot='footnotes',
+          confoverrides={'latex_show_urls': 'no'})
+def test_latex_show_urls_is_no(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert 'First footnote: \\footnote[2]{\nFirst\n}' in result
+    assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
+    assert '\\href{http://sphinx-doc.org/}{Sphinx}' in result
+    assert 'Third footnote: \\footnote[3]{\nThird\n}' in result
+    assert '\\href{http://sphinx-doc.org/~test/}{URL including tilde}' in result
+    assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term}}] '
+            '\\leavevmode\nDescription' in result)
+    assert ('\\item[{Footnote in term \\footnotemark[4]}] '
+            '\\leavevmode\\footnotetext[4]{\nFootnote in term\n}\nDescription' in result)
+    assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}}] '
+            '\\leavevmode\nDescription' in result)
+    assert ('\\href{https://github.com/sphinx-doc/sphinx}'
+            '{https://github.com/sphinx-doc/sphinx}\n' in result)
+    assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
+            '{sphinx-dev@googlegroups.com}\n' in result)
