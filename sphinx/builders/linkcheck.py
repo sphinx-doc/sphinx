@@ -17,7 +17,7 @@ from os import path
 
 from six.moves import queue
 from six.moves.urllib.request import build_opener, Request, HTTPRedirectHandler
-from six.moves.urllib.parse import unquote, urlsplit, quote
+from six.moves.urllib.parse import unquote
 from six.moves.urllib.error import HTTPError
 from six.moves.html_parser import HTMLParser
 from docutils import nodes
@@ -33,6 +33,7 @@ except ImportError:
         pass
 
 from sphinx.builders import Builder
+from sphinx.util import encode_uri
 from sphinx.util.console import purple, red, darkgreen, darkgray, \
     darkred, turquoise
 from sphinx.util.pycompat import TextIOWrapper
@@ -153,15 +154,7 @@ class CheckExternalLinksBuilder(Builder):
             try:
                 req_url.encode('ascii')
             except UnicodeError:
-                split = urlsplit(req_url)
-                req_url = (split[0].encode() + '://' +       # scheme
-                           split[1].encode('idna') +         # netloc
-                           quote(split[2].encode('utf-8')))  # path
-                if split[3]:  # query
-                    req_url += '?' + quote(split[3].encode('utf-8'))
-                # go back to Unicode strings which is required by Python 3
-                # (but now all parts are pure ascii)
-                req_url = req_url.decode('ascii')
+                req_url = encode_uri(req_url)
 
             # need to actually check the URI
             try:
