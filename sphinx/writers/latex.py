@@ -18,7 +18,6 @@ from os import path
 
 from six import itervalues, text_type
 from docutils import nodes, writers
-from docutils.transforms import Transform
 from docutils.writers.latex2e import Babel
 
 from sphinx import addnodes
@@ -131,8 +130,11 @@ if hasattr(Babel, '_ISO639_TO_BABEL'):
     Babel._ISO639_TO_BABEL['sl'] = 'slovene'
 
 
-class ShowUrlsTransform(Transform):
+class ShowUrlsTransform(object):
     expanded = False
+
+    def __init__(self, document):
+        self.document = document
 
     def apply(self):
         # replace id_prefix temporarily
