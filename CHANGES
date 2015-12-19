@@ -48,6 +48,12 @@ Bugs fixed
 * #2134: Fix figure caption with reference causes latex build error
 * #2094: Fix rubric with reference not working in Latex
 * #2147: Fix literalinclude code in latex does not break in pages
+* #1833: Fix email addresses is showed again if latex_show_urls is not None
+* #2176: sphinx.ext.graphviz: use <object> instead of <img> to embed svg
+* #967: Fix SVG inheritance diagram is not hyperlinked (clickable)
+* #1237: Fix footnotes not working in definition list in LaTeX
+* #2168: Fix raw directive does not work for text writer
+* #2171: Fix cannot linkcheck url with unicode
 
 
 Release 1.3.3 (released Dec 2, 2015)

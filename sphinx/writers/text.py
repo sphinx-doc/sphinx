@@ -940,7 +940,9 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_raw(self, node):
         if 'text' in node.get('format', '').split():
-            self.body.append(node.astext())
+            self.new_state(0)
+            self.add_text(node.astext())
+            self.end_state(wrap = False)
         raise nodes.SkipNode
 
     def visit_math(self, node):

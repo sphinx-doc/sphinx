@@ -58,12 +58,12 @@ def test_build_all():
             """))
 
         master_doc = srcdir / 'contents.txt'
-        master_doc.write_bytes((master_doc.text() + dedent("""
+        master_doc.write_text(master_doc.text() + dedent(u"""
                 .. toctree::
 
                    %(test_name)s/%(test_name)s
                 """ % {'test_name': test_name})
-        ).encode('utf-8'))
+        )
 
     # note: no 'html' - if it's ok with dirhtml it's ok with html
     for buildername in ['dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle',
