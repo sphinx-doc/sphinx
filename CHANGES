@@ -12,6 +12,7 @@ Bugs fixed
 * #967: Fix SVG inheritance diagram is not hyperlinked (clickable)
 * #1237: Fix footnotes not working in definition list in LaTeX
 * #2168: Fix raw directive does not work for text writer
+* #2171: Fix cannot linkcheck url with unicode
 
 
 Release 1.3.3 (released Dec 2, 2015)

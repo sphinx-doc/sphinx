@@ -23,7 +23,7 @@ from collections import deque
 
 from six import iteritems, text_type, binary_type
 from six.moves import range
-from six.moves.urllib.parse import urlsplit, quote
+from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 import docutils
 from docutils.utils import relative_path
 
@@ -527,12 +527,10 @@ def import_object(objname, source=None):
 
 
 def encode_uri(uri):
-    split = urlsplit(uri)
-    req_url = (split[0].encode() + '://' +       # scheme
-               split[1].encode('idna') +         # netloc
-               quote(split[2].encode('utf-8')))  # path
-    if split[3]:  # query
-        req_url += '?' + quote(split[3].encode('utf-8'))
-    # go back to Unicode strings which is required by Python 3
-    # (but now all parts are pure ascii)
-    return req_url.decode('ascii')
+    split = list(urlsplit(uri))
+    split[1] = split[1].encode('idna').decode('ascii')
+    split[2] = quote_plus(split[2].encode('utf-8'), '/').decode('ascii')
+    query = list((q, quote_plus(v.encode('utf-8')))
+                 for (q, v) in parse_qsl(split[3]))
+    split[3] = urlencode(query).decode('ascii')
+    return urlunsplit(split)
