@@ -8,6 +8,7 @@ Bugs fixed
 * #2094: Fix rubric with reference not working in Latex
 * #2147: Fix litralinclude code in latex does not break in pages
 * #1833: Fix email addresses is showed again if latex_show_urls is not None
+* #2176: sphinx.ext.graphviz: use <object> instead of <img> to embed svg
 
 
 Release 1.3.3 (released Dec 2, 2015)
