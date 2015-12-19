@@ -111,7 +111,18 @@ There are also these new config values:
 .. confval:: graphviz_output_format
 
    The output format for Graphviz when building HTML files.  This must be either
-   ``'png'`` or ``'svg'``; the default is ``'png'``.
+   ``'png'`` or ``'svg'``; the default is ``'png'``. If ``'svg'`` is used, in
+   order to make the URL links work properly, an appropriate ``target``
+   attribute must be set, such as ``"_top"`` and ``"_blank"``. For example, the
+   link in the following graph should work in the svg output: ::
+
+       .. graphviz::
+
+            digraph example {
+                a [label="sphinx", href="http://sphinx-doc.org", target="_top"];
+                b [label="other"];
+                a -> b;
+            }
 
    .. versionadded:: 1.0
       Previously, output always was PNG.
