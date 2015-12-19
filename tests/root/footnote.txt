@@ -35,6 +35,18 @@ footnotes in table
     * - VIDIOC_CROPCAP
       - Information about VIDIOC_CROPCAP
 
+URLs as footnotes
+-----------------
+
+`homepage <http://sphinx.org>`_
+
+URLs should not be footnotes
+----------------------------
+
+GitHub Page: `https://github.com/sphinx-doc/sphinx <https://github.com/sphinx-doc/sphinx>`_
+
+Mailing list: `sphinx-dev@googlegroups.com <mailto:sphinx-dev@googlegroups.com>`_
+
 footenotes
 --------------------
 

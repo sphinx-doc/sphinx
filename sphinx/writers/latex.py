@@ -1404,9 +1404,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\href{%s}{' % self.encode_uri(uri))
             # if configured, put the URL after the link
             show_urls = self.builder.config.latex_show_urls
+            if uri.startswith('mailto:'):
+                uri = uri[7:]
             if node.astext() != uri and show_urls and show_urls != 'no':
-                if uri.startswith('mailto:'):
-                    uri = uri[7:]
                 if show_urls == 'footnote' and not \
                    (self.in_footnote or self.in_caption):
                     # obviously, footnotes in footnotes are not going to work
