@@ -36,6 +36,10 @@ class GraphvizError(SphinxError):
     category = 'Graphviz error'
 
 
+class GraphvizUnavailableError(GraphvizError):
+    pass
+
+
 class graphviz(nodes.General, nodes.Element):
     pass
 
@@ -138,6 +142,38 @@ class GraphvizSimple(Directive):
         return [node]
 
 
+def run_dot(dot_args, code):
+    """Execute graphviz dot subprocess."""
+    # graphviz expects UTF-8 by default
+    if isinstance(code, text_type):
+        code = code.encode('utf-8')
+
+    try:
+        p = Popen(dot_args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
+    except OSError as err:
+        if err.errno != ENOENT:   # No such file or directory
+            raise
+        raise GraphvizUnavailableError('dot command %r cannot be run '
+                                       '(needed for graphviz output), '
+                                       'check the graphviz_dot setting'
+                                       % dot_args[0])
+    try:
+        # Graphviz may close standard input when an error occurs,
+        # resulting in a broken pipe on communicate()
+        stdout, stderr = p.communicate(code)
+    except (OSError, IOError) as err:
+        if err.errno not in (EPIPE, EINVAL):
+            raise
+        # in this case, read the standard output and standard error streams
+        # directly, to get the error message(s)
+        stdout, stderr = p.stdout.read(), p.stderr.read()
+        p.wait()
+    if p.returncode != 0:
+        raise GraphvizError('dot exited with error:\n[stderr]\n%s\n'
+                            '[stdout]\n%s' % (stderr, stdout))
+    return stdout, stderr
+
+
 def render_dot(self, code, options, format, prefix='graphviz'):
     """Render graphviz code into a PNG or PDF output file."""
     hashkey = (code + str(options) +
@@ -157,54 +193,46 @@ def render_dot(self, code, options, format, prefix='graphviz'):
 
     ensuredir(path.dirname(outfn))
 
-    # graphviz expects UTF-8 by default
-    if isinstance(code, text_type):
-        code = code.encode('utf-8')
-
     dot_args = [self.builder.config.graphviz_dot]
     dot_args.extend(self.builder.config.graphviz_dot_args)
     dot_args.extend(options)
     dot_args.extend(['-T' + format, '-o' + outfn])
     if format == 'png':
         dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])
-    try:
-        p = Popen(dot_args, stdout=PIPE, stdin=PIPE, stderr=PIPE)
-    except OSError as err:
-        if err.errno != ENOENT:   # No such file or directory
-            raise
-        self.builder.warn('dot command %r cannot be run (needed for graphviz '
-                          'output), check the graphviz_dot setting' %
-                          self.builder.config.graphviz_dot)
-        self.builder._graphviz_warned_dot = True
-        return None, None
-    try:
-        # Graphviz may close standard input when an error occurs,
-        # resulting in a broken pipe on communicate()
-        stdout, stderr = p.communicate(code)
-    except (OSError, IOError) as err:
-        if err.errno not in (EPIPE, EINVAL):
-            raise
-        # in this case, read the standard output and standard error streams
-        # directly, to get the error message(s)
-        stdout, stderr = p.stdout.read(), p.stderr.read()
-        p.wait()
-    if p.returncode != 0:
-        raise GraphvizError('dot exited with error:\n[stderr]\n%s\n'
-                            '[stdout]\n%s' % (stderr, stdout))
+    stdout, stderr = run_dot(dot_args, code)
     if not path.isfile(outfn):
         raise GraphvizError('dot did not produce an output file:\n[stderr]\n%s\n'
                             '[stdout]\n%s' % (stderr, stdout))
     return relfn, outfn
 
 
+def render_dot_inline_svg(self, code, options):
+    """Render graphviz code into inline SVG code."""
+    dot_args = [self.builder.config.graphviz_dot]
+    dot_args.extend(self.builder.config.graphviz_dot_args)
+    dot_args.extend(options)
+    dot_args.append('-Tsvg')
+
+    stdout, _ = run_dot(dot_args, code)
+    return stdout.decode('utf-8')
+
+
 def render_dot_html(self, node, code, options, prefix='graphviz',
                     imgcls=None, alt=None):
     format = self.builder.config.graphviz_output_format
+    graphviz_unavailable = False
     try:
-        if format not in ('png', 'svg'):
+        if format not in ('png', 'svg', 'inline_svg'):
             raise GraphvizError("graphviz_output_format must be one of 'png', "
-                                "'svg', but is %r" % format)
-        fname, outfn = render_dot(self, code, options, format, prefix)
+                                "'svg', 'inline_svg', but is %r" % format)
+        if format == 'inline_svg':
+            inline_svg = render_dot_inline_svg(self, code, options)
+        else:
+            fname, outfn = render_dot(self, code, options, format, prefix)
+    except GraphvizUnavailableError as exc:
+        self.builder.warn(str(exc))
+        self.builder._graphviz_warned_dot = True
+        graphviz_unavailable = True
     except GraphvizError as exc:
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
@@ -216,9 +244,11 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
         wrapper = 'p'
 
     self.body.append(self.starttag(node, wrapper, CLASS='graphviz'))
-    if fname is None:
+    if graphviz_unavailable:
         self.body.append(self.encode(code))
-    else:
+    elif format == 'inline_svg':
+        self.body.append(inline_svg)
+    else:  # format in ('png, 'svg')
         if alt is None:
             alt = node.get('alt', self.encode(code).strip())
         imgcss = imgcls and 'class="%s"' % imgcls or ''
