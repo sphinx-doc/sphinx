@@ -19,4 +19,8 @@ This is inline math: :math:`a^2 + b^2 = c^2`.
 
    e^{ix} = \cos x + i\sin x
 
+.. math::
+
+   n \in \mathbb N
+
 Referencing equation :eq:`foo`.
