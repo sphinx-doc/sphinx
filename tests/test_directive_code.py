@@ -207,3 +207,20 @@ def test_literalinclude_caption_latex(app, status, warning):
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
     caption = '\\captionof{literal-block}{caption \\textbf{test} py}'
     assert caption in latex
+
+
+@with_app('xml', testroot='directive-code')
+def test_literalinclude_classes(app, status, warning):
+    app.builder.build(['classes'])
+    et = ElementTree.parse(app.outdir / 'classes.xml')
+    secs = et.findall('./section/section')
+
+    code_block = secs[0].findall('literal_block')
+    assert len(code_block) > 0
+    assert 'foo bar' == code_block[0].get('classes')
+    assert 'code_block' == code_block[0].get('names')
+
+    literalinclude = secs[1].findall('literal_block')
+    assert len(literalinclude) > 0
+    assert 'bar baz' == literalinclude[0].get('classes')
+    assert 'literal_include' == literalinclude[0].get('names')
