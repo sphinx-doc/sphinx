@@ -14,6 +14,7 @@ Bugs fixed
 * #2168: Fix raw directive does not work for text writer
 * #2171: Fix cannot linkcheck url with unicode
 * #2182: LaTeX: support image file names with more than 1 dots
+* #2189: Fix previous sibling link for first file in subdirectory uses last file, not intended previous from root toctree
 
 
 Release 1.3.3 (released Dec 2, 2015)

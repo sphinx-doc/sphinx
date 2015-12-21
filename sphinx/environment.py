@@ -1958,6 +1958,8 @@ class BuildEnvironment:
             if docname in parents_set:
                 # we will warn about this in resolve_toctree()
                 return
+            if docname in relations:
+                return
             includes = getinc(docname)
             # previous
             if not previous:
