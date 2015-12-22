@@ -17,6 +17,7 @@ Bugs fixed
 * #2189: Fix previous sibling link for first file in subdirectory uses last file, not intended previous from root toctree
 * #2003: Fix decode error under python2 (only) when ``make linkcheck`` is run
 * #2186: Fix LaTeX output of \mathbb in math
+* #1480, #2188: LaTeX: Support math in section titles
 
 
 Release 1.3.3 (released Dec 2, 2015)
