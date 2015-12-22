@@ -16,7 +16,7 @@ Bugs fixed
 * #2182: LaTeX: support image file names with more than 1 dots
 * #2189: Fix previous sibling link for first file in subdirectory uses last file, not intended previous from root toctree
 * #2003: Fix decode error under python2 (only) when ``make linkcheck`` is run
-
+* #2186: Fix LaTeX output of \mathbb in math
 
 
 Release 1.3.3 (released Dec 2, 2015)
