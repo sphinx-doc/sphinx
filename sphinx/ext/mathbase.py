@@ -214,3 +214,4 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     app.add_role('eq', eq_role)
     app.add_directive('math', MathDirective)
     app.connect('doctree-resolved', number_equations)
+    app.add_latex_package('amsfonts')
