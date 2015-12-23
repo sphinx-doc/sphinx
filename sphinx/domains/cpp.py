@@ -4017,6 +4017,8 @@ class CPPDomain(Domain):
         try:
             ast = parser.parse_xref_object()
             parser.skip_ws()
+            if parser.current_char == '(':
+                parser.skip_string('()')
             parser.assert_end()
         except DefinitionError as e:
             warner.warn('Unparseable C++ cross-reference: %r\n%s'
