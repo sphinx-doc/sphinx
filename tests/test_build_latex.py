@@ -87,7 +87,6 @@ def test_latex(app, status, warning):
             if p.returncode != 0:
                 print(stdout)
                 print(stderr)
-                del app.cleanup_trees[:]
                 assert False, 'latex exited with return code %s' % p.returncode
     finally:
         os.chdir(cwd)
