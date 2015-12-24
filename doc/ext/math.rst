@@ -191,6 +191,11 @@ built:
    Default: ``True``.  If false, do not add the LaTeX code as an "alt" attribute
    for math images.
 
+.. confval:: imgmath_font_size
+
+   The font size (in ``pt``) of the displayed math.  The default value is
+   ``12``.  It must be a positive integer.
+
 
 :mod:`sphinx.ext.mathjax` -- Render math via JavaScript
 -------------------------------------------------------

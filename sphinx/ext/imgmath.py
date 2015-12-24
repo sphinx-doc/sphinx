@@ -47,13 +47,14 @@ DOC_HEAD = r'''
 \usepackage{amsthm}
 \usepackage{amssymb}
 \usepackage{amsfonts}
+\usepackage{anyfontsize}
 \usepackage{bm}
 \pagestyle{empty}
 '''
 
 DOC_BODY = r'''
 \begin{document}
-%s
+\fontsize{%d}{%d}\selectfont %s
 \end{document}
 '''
 
@@ -61,7 +62,7 @@ DOC_BODY_PREVIEW = r'''
 \usepackage[active]{preview}
 \begin{document}
 \begin{preview}
-%s
+\fontsize{%s}{%s}\selectfont %s
 \end{preview}
 \end{document}
 '''
@@ -88,9 +89,11 @@ def render_math(self, math):
         raise MathExtError(
             'imgmath_image_format must be either "png" or "svg"')
 
+    font_size = self.builder.config.imgmath_font_size
     use_preview = self.builder.config.imgmath_use_preview
     latex = DOC_HEAD + self.builder.config.imgmath_latex_preamble
-    latex += (use_preview and DOC_BODY_PREVIEW or DOC_BODY) % math
+    latex += (use_preview and DOC_BODY_PREVIEW or DOC_BODY) % (
+        font_size, int(round(font_size * 1.2)), math)
 
     shasum = "%s.%s" % (sha1(latex.encode('utf-8')).hexdigest(), image_format)
     relfn = posixpath.join(self.builder.imgpath, 'math', shasum)
@@ -276,5 +279,6 @@ def setup(app):
     app.add_config_value('imgmath_latex_args', [], 'html')
     app.add_config_value('imgmath_latex_preamble', '', 'html')
     app.add_config_value('imgmath_add_tooltips', True, 'html')
+    app.add_config_value('imgmath_font_size', 12, 'html')
     app.connect('build-finished', cleanup_tempdir)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
