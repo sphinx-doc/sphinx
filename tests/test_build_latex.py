@@ -331,6 +331,7 @@ def test_reference_in_caption(app, status, warning):
     assert '\\chapter{The section with a reference to {[}AuthorYear{]}}' in result
     assert '\\caption{The table title with a reference to {[}AuthorYear{]}}' in result
     assert '\\paragraph{The rubric title with a reference to {[}AuthorYear{]}}' in result
+    assert '\\chapter{The section with a reference to \\protect\\footnotemark[1]}' in result
 
 
 @with_app(buildername='latex', testroot='footnotes',
