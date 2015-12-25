@@ -12,6 +12,7 @@
 from __future__ import print_function
 
 import sys
+from six import PY2
 
 from sphinx import apidoc
 
@@ -58,10 +59,16 @@ def test_multibyte_parameters(tempdir):
     assert (outdir / 'index.rst').isfile()
 
     conf_py = (outdir / 'conf.py').text()
-    assert u"project = u'プロジェクト名'" in conf_py
-    assert u"author = u'著者名'" in conf_py
-    assert u"version = u'バージョン'" in conf_py
-    assert u"release = u'リリース'" in conf_py
+    if PY2:
+        assert u"project = u'プロジェクト名'" in conf_py
+        assert u"author = u'著者名'" in conf_py
+        assert u"version = u'バージョン'" in conf_py
+        assert u"release = u'リリース'" in conf_py
+    else:
+        assert u"project = 'プロジェクト名'" in conf_py
+        assert u"author = '著者名'" in conf_py
+        assert u"version = 'バージョン'" in conf_py
+        assert u"release = 'リリース'" in conf_py
 
     @with_app('text', srcdir=outdir)
     def assert_build(app, status, warning):
