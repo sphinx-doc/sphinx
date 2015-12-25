@@ -12,18 +12,11 @@
 from sphinx.search import SearchLanguage
 
 try:
-    # http://bitbucket.org/methane/porterstemmer/
-    from porterstemmer import Stemmer as CStemmer
-    CSTEMMER = True
-    PYSTEMMER = False
+    from Stemmer import Stemmer as PyStemmer
+    PYSTEMMER = True
 except ImportError:
-    CSTEMMER = False
-    try:
-        from Stemmer import Stemmer as PyStemmer
-        PYSTEMMER = True
-    except ImportError:
-        from sphinx.util.stemmer import PorterStemmer
-        PYSTEMMER = False
+    from sphinx.util.stemmer import PorterStemmer
+    PYSTEMMER = False
 
 english_stopwords = set("""
 a  and  are  as  at
