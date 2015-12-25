@@ -40,3 +40,37 @@ def test_simple(tempdir):
         assert_build()
     finally:
         sys.path.remove(codedir)
+
+
+@with_tempdir
+def test_multibyte_parameters(tempdir):
+    codedir = rootdir / 'root'
+    outdir = tempdir / 'out'
+    args = ['sphinx-apidoc', '-o', outdir, '-F', codedir,
+            '--doc-project', u'プロジェクト名'.encode('utf-8'),
+            '--doc-author', u'著者名'.encode('utf-8'),
+            '--doc-version', u'バージョン'.encode('utf-8'),
+            '--doc-release', u'リリース'.encode('utf-8')]
+    apidoc.main(args)
+
+    assert (outdir / 'conf.py').isfile()
+    assert (outdir / 'autodoc_fodder.rst').isfile()
+    assert (outdir / 'index.rst').isfile()
+
+    conf_py = (outdir / 'conf.py').text()
+    assert u"project = u'プロジェクト名'" in conf_py
+    assert u"author = u'著者名'" in conf_py
+    assert u"version = u'バージョン'" in conf_py
+    assert u"release = u'リリース'" in conf_py
+
+    @with_app('text', srcdir=outdir)
+    def assert_build(app, status, warning):
+        app.build()
+        print(status.getvalue())
+        print(warning.getvalue())
+
+    sys.path.append(codedir)
+    try:
+        assert_build()
+    finally:
+        sys.path.remove(codedir)

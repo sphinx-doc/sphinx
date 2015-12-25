@@ -353,10 +353,10 @@ Note: By default this script will not overwrite already created files.""")
             path = opts.destdir,
             sep  = False,
             dot  = '_',
-            project = opts.header,
-            author = opts.author or 'Author',
-            version = opts.version or '',
-            release = opts.release or opts.version or '',
+            project = None,
+            author = 'Author',
+            version = '',
+            release = '',
             suffix = '.' + opts.suffix,
             master = 'index',
             epub = True,
@@ -369,6 +369,17 @@ Note: By default this script will not overwrite already created files.""")
             mastertoctree = text,
             language = 'en',
         )
+        if opts.header:
+            d['project'] = opts.header.decode('utf-8')
+        if opts.author:
+            d['author'] = opts.author.decode('utf-8')
+        if opts.version:
+            d['version'] = opts.version.decode('utf-8')
+        if opts.release:
+            d['release'] = opts.release.decode('utf-8')
+        elif opts.version:
+            d['release'] = opts.version.decode('utf-8')
+
         if not opts.dryrun:
             qs.generate(d, silent=True, overwrite=opts.force)
     elif not opts.notoc:
