@@ -24,7 +24,7 @@ from glob import glob
 from itertools import groupby
 
 from six import iteritems, itervalues, text_type, class_types, string_types
-from six.moves import cPickle as pickle, zip
+from six.moves import cPickle as pickle
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
