@@ -3,6 +3,8 @@ Release 1.4 (in development)
 
 Incompatible changes
 --------------------
+* Drop ``PorterStemmer`` package support. Use ``PyStemmer`` instead of ``PorterStemmer``
+  to accelerate stemming.
 
 Features added
 --------------
@@ -33,6 +35,7 @@ Bugs fixed
 * C++, add support for user-defined literals.
 * #1804: Now html output wraps overflowed long-line-text in the sidebar. Thanks to
   Hassen ben tanfous.
+* #2183: Fix porterstemmer causes `make json` to fail
 
 Documentation
 -------------
