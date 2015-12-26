@@ -1,0 +1,7 @@
+Bar
+===
+
+.. toctree::
+   :glob:
+
+   *

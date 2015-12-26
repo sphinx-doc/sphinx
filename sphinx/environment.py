@@ -1987,9 +1987,16 @@ class BuildEnvironment:
                 # else the grandparent's sibling, if present, and so forth
                 for parname, parindex in parents:
                     parincs = getinc(parname)
-                    if parincs and parindex + 1 < len(parincs):
-                        next = parincs[parindex+1]
-                        break
+                    if parincs:
+                        for parinc in parincs[parindex + 1:]:
+                            if parinc in relations or parinc == docname:
+                                pass
+                            else:
+                                next = parinc
+                                break
+
+                        if next:
+                            break
                 # else it will stay None
             # same for children
             if includes:
