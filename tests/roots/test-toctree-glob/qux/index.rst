@@ -1,8 +1,8 @@
-Bar
+Qux
 ===
 
 .. toctree::
    :glob:
+   :hidden:
 
    *
-   bar_4/index

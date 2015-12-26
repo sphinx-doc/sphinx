@@ -8,3 +8,4 @@ test-toctree-glob
    bar/index
    bar/*
    baz
+   qux/index
