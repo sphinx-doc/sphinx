@@ -21,7 +21,6 @@ Bugs fixed
 * #2071: Fix same footnote in more than two section titles => LaTeX/PDF Bug
 * #2040: Fix UnicodeDecodeError in sphinx-apidoc when author contains non-ascii characters
 * #2193: Fix shutil.SameFileError if source directory and destination directory are same
-* #2183: Fix porterstemmer causes `make json` to fail
 
 
 Release 1.3.3 (released Dec 2, 2015)
