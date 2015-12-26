@@ -23,7 +23,7 @@ from os import path
 from glob import glob
 from itertools import groupby
 
-from six import iteritems, itervalues, text_type, class_types, string_types
+from six import iteritems, itervalues, text_type, class_types, string_types, next
 from six.moves import cPickle as pickle
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
@@ -1966,7 +1966,7 @@ class BuildEnvironment:
         relations = {}
         docnames = traverse_toctree(None, self.config.master_doc)
         prevdoc = None
-        parent, docname = docnames.next()
+        parent, docname = next(docnames)
         for nextparent, nextdoc in docnames:
             relations[docname] = [parent, prevdoc, nextdoc]
             prevdoc = docname
