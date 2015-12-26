@@ -15,11 +15,7 @@ a highlighted version of the source code, and a link will be added to all object
 descriptions that leads to the source code of the described object.  A link back
 from the source to the description will also be inserted.
 
-There are currently no configuration values for this extension; you just need to
-add ``'sphinx.ext.viewcode'`` to your :confval:`extensions` value for it to
-work.
-
-There is also an additional config value:
+There is an additional config value:
 
 .. confval:: viewcode_import
 
