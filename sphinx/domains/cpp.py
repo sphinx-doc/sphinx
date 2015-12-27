@@ -2659,6 +2659,9 @@ class CPPXRefRole(XRefRole):
         parent = env.ref_context.get('cpp:parent')
         if parent:
             refnode['cpp:parent'] = parent[:]
+        if refnode['reftype'] == 'any':
+            # Remove parentheses from the target (not from title)
+            title, target = self._fix_parens(env, True, title, target)
         if not has_explicit_title:
             target = target.lstrip('~')  # only has a meaning for the title
             # if the first character is a tilde, don't display the module/class
@@ -2731,6 +2734,15 @@ class CPPDomain(Domain):
                 if name not in self.data['objects']:
                     return None, None
             docname, ast = self.data['objects'][name]
+            if node['reftype'] == 'any' and ast.objectType == 'function':
+                title = contnode.pop(0).astext()
+                if title.endswith('()'):
+                    # remove parentheses
+                    title = title[:-2]
+                if env.config.add_function_parentheses:
+                    # add them back to all occurrences if configured
+                    title += '()'
+                contnode.insert(0, nodes.Text(title))
             return make_refnode(builder, fromdocname, docname, ast.newestId,
                                 contnode, name), ast.objectType
 
