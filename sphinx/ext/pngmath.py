@@ -3,7 +3,8 @@
     sphinx.ext.pngmath
     ~~~~~~~~~~~~~~~~~~
 
-    Render math in HTML via dvipng.
+    Render math in HTML via dvipng. This extension has been deprecated; please
+    use sphinx.ext.imgmath instead.
 
     :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -236,6 +237,7 @@ def html_visit_displaymath(self, node):
 
 
 def setup(app):
+    app.warn('sphinx.ext.pngmath has been deprecated. Please use sphinx.ext.imgmath instead.')
     mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
     app.add_config_value('pngmath_dvipng', 'dvipng', 'html')
     app.add_config_value('pngmath_latex', 'latex', 'html')
