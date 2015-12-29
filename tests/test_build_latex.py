@@ -77,17 +77,20 @@ def test_latex(app, status, warning):
     cwd = os.getcwd()
     os.chdir(app.outdir)
     try:
-        try:
-            p = Popen(['pdflatex', '--interaction=nonstopmode',
-                       'SphinxTests.tex'], stdout=PIPE, stderr=PIPE)
-        except OSError:
-            raise SkipTest  # most likely pdflatex was not found
-        else:
-            stdout, stderr = p.communicate()
-            if p.returncode != 0:
-                print(stdout)
-                print(stderr)
-                assert False, 'latex exited with return code %s' % p.returncode
+        for latex in ('pdflatex', 'xelatex', 'lualatex'):
+            try:
+                os.mkdir(latex)
+                p = Popen([latex, '--interaction=nonstopmode',
+                        '-output-directory=%s' % latex, 'SphinxTests.tex'],
+                        stdout=PIPE, stderr=PIPE)
+            except OSError:
+                raise SkipTest  # most likely pdflatex was not found
+            else:
+                stdout, stderr = p.communicate()
+                if p.returncode != 0:
+                    print(stdout)
+                    print(stderr)
+                    assert False, 'latex exited with return code %s' % p.returncode
     finally:
         os.chdir(cwd)
 
