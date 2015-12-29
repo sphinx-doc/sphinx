@@ -249,7 +249,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'classoptions':    '',
         'extraclassoptions': '',
         'inputenc':        '\\usepackage[utf8]{inputenc}',
-        'utf8extra':       '\\DeclareUnicodeCharacter{00A0}{\\nobreakspace}',
+        'utf8extra':       ('\\ifdefined\\DeclareUnicodeCharacter\n'
+                            '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'
+                            '\\else\\fi'),
         'cmappkg':         '\\usepackage{cmap}',
         'fontenc':         '\\usepackage[T1]{fontenc}',
         'babel':           '\\usepackage{babel}',
