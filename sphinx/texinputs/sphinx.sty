@@ -58,12 +58,7 @@
   \fi
 \fi
 
-% For graphicx, check if we are compiling under latex or pdflatex.
-\ifx\pdftexversion\undefined
-  \usepackage{graphicx}
-\else
-  \usepackage[pdftex]{graphicx}
-\fi
+\RequirePackage{graphicx}
 
 % for PDF output, use colors and maximal compression
 \newif\ifsphinxpdfoutput\sphinxpdfoutputfalse
