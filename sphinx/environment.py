@@ -105,13 +105,16 @@ class SphinxStandaloneReader(standalone.Reader):
                   DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
                   AutoNumbering, SortIds, RemoveTranslatableInline]
 
-    def __init__(self, parsers={}, *args, **kwargs):
+    def __init__(self, app, parsers={}, *args, **kwargs):
         standalone.Reader.__init__(self, *args, **kwargs)
         self.parser_map = {}
         for suffix, parser_class in parsers.items():
             if isinstance(parser_class, string_types):
                 parser_class = import_object(parser_class, 'source parser')
-            self.parser_map[suffix] = parser_class()
+            parser = parser_class()
+            if hasattr(parser, 'set_application'):
+                parser.set_application(app)
+            self.parser_map[suffix] = parser
 
     def read(self, source, parser, settings):
         self.source = source
@@ -776,7 +779,7 @@ class BuildEnvironment:
         codecs.register_error('sphinx', self.warn_and_replace)
 
         # publish manually
-        reader = SphinxStandaloneReader(parsers=self.config.source_parsers)
+        reader = SphinxStandaloneReader(self.app, parsers=self.config.source_parsers)
         pub = Publisher(reader=reader,
                         writer=SphinxDummyWriter(),
                         destination_class=NullOutput)
