@@ -92,7 +92,7 @@ class Config(object):
         html_theme_options = ({}, 'html'),
         html_title = (lambda self: l_('%s %s documentation') %
                       (self.project, self.release),
-                      'html'),
+                      'html', [str]),
         html_short_title = (lambda self: self.html_title, 'html'),
         html_style = (None, 'html', [str]),
         html_logo = (None, 'html', [str]),
