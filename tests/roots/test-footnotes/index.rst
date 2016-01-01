@@ -46,3 +46,9 @@ Footnote in term [#]_
         Description2
 
 .. [#] Footnote in term
+
+.. figure:: rimg.png
+
+   This is the figure caption with a footnote to [#]_.
+
+.. [#] Footnote in caption

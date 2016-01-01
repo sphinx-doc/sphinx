@@ -234,7 +234,6 @@ class Table(object):
         self.has_verbatim = False
         self.caption = None
         self.longtable = False
-        self.footnotes = []
 
 
 class LaTeXTranslator(nodes.NodeVisitor):
@@ -375,7 +374,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                     sys.maxsize]]
         self.bodystack = []
         self.footnotestack = []
-        self.termfootnotestack = []
+        self.footnote_restricted = False
+        self.pending_footnotes = []
         self.curfilestack = []
         self.handled_abbrs = set()
         if document.settings.docclass == 'howto':
@@ -413,6 +413,20 @@ class LaTeXTranslator(nodes.NodeVisitor):
         body = self.body
         self.body = self.bodystack.pop()
         return body
+
+    def restrict_footnote(self, node):
+        if self.footnote_restricted is False:
+            self.footnote_restricted = node
+            self.pending_footnotes = []
+
+    def unrestrict_footnote(self, node):
+        print self.footnote_restricted, self.pending_footnotes
+        if self.footnote_restricted == node:
+            self.footnote_restricted = False
+            for footnode in self.pending_footnotes:
+                footnode['footnotetext'] = True
+                footnode.walkabout(self)
+            self.pending_footnotes = []
 
     def format_docclass(self, docclass):
         """ prepends prefix to sphinx document classes
@@ -891,6 +905,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.tableheaders = []
         # Redirect body output until table is finished.
         self.pushbody(self.tablebody)
+        self.restrict_footnote(node)
 
     def depart_table(self, node):
         if self.table.rowcount > 30:
@@ -961,10 +976,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(endmacro)
         if not self.table.longtable and self.table.caption is not None:
             self.body.append('\\end{threeparttable}\n\n')
-        if self.table.footnotes:
-            for footnode in self.table.footnotes:
-                footnode['footnotetext'] = True
-                footnode.walkabout(self)
+        self.unrestrict_footnote(node)
         self.table = None
         self.tablebody = None
 
@@ -1138,16 +1150,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if node.get('ids'):
             ctx += self.hypertarget(node['ids'][0])
         self.body.append('\\item[{')
-        self.termfootnotestack.append([])
+        self.restrict_footnote(node)
         self.context.append(ctx)
 
     def depart_term(self, node):
         self.body.append(self.context.pop())
-        footnotes = self.termfootnotestack.pop()
-        for footnode in footnotes:
-            footnode['footnotetext'] = True
-            footnode.walkabout(self)
-
+        self.unrestrict_footnote(node)
         self.in_term -= 1
 
     def visit_termsep(self, node):
@@ -1304,6 +1312,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         for id in self.next_figure_ids:
             ids += self.hypertarget(id, anchor=False)
         self.next_figure_ids.clear()
+        self.restrict_footnote(node)
         if (len(node.children) and
            isinstance(node.children[0], nodes.image) and
            node.children[0]['ids']):
@@ -1331,6 +1340,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def depart_figure(self, node):
         self.body.append(self.context.pop())
+        self.unrestrict_footnote(node)
 
     def visit_caption(self, node):
         self.in_caption += 1
@@ -1666,18 +1676,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('\\protect\\footnotemark[%s]' % num)
             else:
                 self.body.append('\\footnotemark[%s]' % num)
-        elif self.table:
+        elif self.footnote_restricted:
             self.footnotestack[-1][num][1] = True
             self.body.append('\\protect\\footnotemark[%s]' % num)
-            self.table.footnotes.append(footnode)
-        elif self.in_term:
-            self.body.append('\\footnotemark[%s]' % num)
-            self.termfootnotestack[-1].append(footnode)
+            self.pending_footnotes.append(footnode)
         else:
-            if self.in_caption:
-                raise UnsupportedError('%s:%s: footnotes in float captions '
-                                       'are not supported by LaTeX' %
-                                       (self.curfilestack[-1], node.line))
             self.footnotestack[-1][num][1] = True
             footnode.walkabout(self)
         raise nodes.SkipChildren

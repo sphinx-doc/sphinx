@@ -22,6 +22,7 @@ Bugs fixed
 * #2040: Fix UnicodeDecodeError in sphinx-apidoc when author contains non-ascii characters
 * #2193: Fix shutil.SameFileError if source directory and destination directory are same
 * #2178: Fix unparseable C++ cross-reference when referencing a function with :cpp:any:
+* #2206: Fix Sphinx latex doc build failed due to a footnotes
 
 
 Release 1.3.3 (released Dec 2, 2015)
