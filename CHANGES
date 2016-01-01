@@ -21,6 +21,7 @@ Features added
 * C++, added support for template parameter in function info field lists.
 * C++, added support for pointers to member (function).
 * #2113: Allow ``:class:`` option to code-block directive
+* #2192: Imgmath (pngmath with svg support)
 
 Bugs fixed
 ----------
