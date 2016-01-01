@@ -4,7 +4,7 @@ Math support in Sphinx
 ======================
 
 .. module:: sphinx.ext.mathbase
-   :synopsis: Common math support for pngmath and mathjax / jsmath.
+   :synopsis: Common math support for imgmath and mathjax / jsmath.
 
 .. versionadded:: 0.5
 
@@ -17,7 +17,7 @@ support extensions should, if possible, reuse that support too.
 .. note::
 
    :mod:`.mathbase` is not meant to be added to the :confval:`extensions` config
-   value, instead, use either :mod:`sphinx.ext.pngmath` or
+   value, instead, use either :mod:`sphinx.ext.imgmath` or
    :mod:`sphinx.ext.mathjax` as described below.
 
 The input language for mathematics is LaTeX markup.  This is the de-facto
@@ -96,20 +96,27 @@ or use Python raw strings (``r"raw"``).
       beautiful mathematical formulas.
 
 
-:mod:`sphinx.ext.pngmath` -- Render math as PNG images
-------------------------------------------------------
+:mod:`sphinx.ext.imgmath` -- Render math as images
+--------------------------------------------------
 
-.. module:: sphinx.ext.pngmath
-   :synopsis: Render math as PNG images.
+.. module:: sphinx.ext.imgmath
+   :synopsis: Render math as PNG or SVG images.
 
-This extension renders math via LaTeX and dvipng_ into PNG images.  This of
-course means that the computer where the docs are built must have both programs
-available.
+.. versionadded:: 1.4
+
+This extension renders math via LaTeX and dvipng_ or dvisvgm_ into PNG or SVG
+images. This of course means that the computer where the docs are built must
+have both programs available.
 
 There are various config values you can set to influence how the images are
 built:
 
-.. confval:: pngmath_latex
+.. confval:: imgmath_image_format
+
+   The output image format. The default is ``'png'``.  It should be either
+   ``'png'`` or ``'svg'``.
+
+.. confval:: imgmath_latex
 
    The command name with which to invoke LaTeX.  The default is ``'latex'``; you
    may need to set this to a full path if ``latex`` is not in the executable
@@ -120,42 +127,51 @@ built:
    :program:`sphinx-build` command line via the :option:`-D` option should be
    preferable, like this::
 
-      sphinx-build -b html -D pngmath_latex=C:\tex\latex.exe . _build/html
+      sphinx-build -b html -D imgmath_latex=C:\tex\latex.exe . _build/html
 
-   .. versionchanged:: 0.5.1
-      This value should only contain the path to the latex executable, not
-      further arguments; use :confval:`pngmath_latex_args` for that purpose.
+   This value should only contain the path to the latex executable, not further
+   arguments; use :confval:`imgmath_latex_args` for that purpose.
 
-.. confval:: pngmath_dvipng
+.. confval:: imgmath_dvipng
 
    The command name with which to invoke ``dvipng``.  The default is
    ``'dvipng'``; you may need to set this to a full path if ``dvipng`` is not in
-   the executable search path.
+   the executable search path. This option is only used when
+   ``imgmath_image_format`` is set to ``'png'``.
 
-.. confval:: pngmath_latex_args
+.. confval:: imgmath_dvisvgm
+
+   The command name with which to invoke ``dvisvgm``.  The default is
+   ``'dvisvgm'``; you may need to set this to a full path if ``dvisvgm`` is not
+   in the executable search path.  This option is only used when
+   ``imgmath_image_format`` is ``'svg'``.
+
+.. confval:: imgmath_latex_args
 
    Additional arguments to give to latex, as a list.  The default is an empty
    list.
 
-   .. versionadded:: 0.5.1
-
-.. confval:: pngmath_latex_preamble
+.. confval:: imgmath_latex_preamble
 
    Additional LaTeX code to put into the preamble of the short LaTeX files that
    are used to translate the math snippets.  This is empty by default.  Use it
    e.g. to add more packages whose commands you want to use in the math.
 
-.. confval:: pngmath_dvipng_args
+.. confval:: imgmath_dvipng_args
 
    Additional arguments to give to dvipng, as a list.  The default value is
    ``['-gamma', '1.5', '-D', '110', '-bg', 'Transparent']`` which makes the
    image a bit darker and larger then it is by default, and produces PNGs with a
-   transparent background.
+   transparent background.  This option is used only when
+   ``imgmath_image_format`` is ``'png'``.
 
-   .. versionchanged:: 1.2
-      Now includes ``-bg Transparent`` by default.
+.. confval:: imgmath_dvisvgm_args
 
-.. confval:: pngmath_use_preview
+   Additional arguments to give to dvisvgm, as a list.  The default value is
+   ``['--no-fonts']``.  This option is used only when ``imgmath_image_format``
+   is ``'svg'``.
+
+.. confval:: imgmath_use_preview
 
    ``dvipng`` has the ability to determine the "depth" of the rendered text: for
    example, when typesetting a fraction inline, the baseline of surrounding text
@@ -165,14 +181,20 @@ built:
    ``vertical-align`` style that correctly aligns the baselines.
 
    Unfortunately, this only works when the `preview-latex package`_ is
-   installed.  Therefore, the default for this option is ``False``.
+   installed. Therefore, the default for this option is ``False``.
 
-.. confval:: pngmath_add_tooltips
+   Currently this option is only used when ``imgmath_image_format`` is
+   ``'png'``.
+
+.. confval:: imgmath_add_tooltips
 
    Default: ``True``.  If false, do not add the LaTeX code as an "alt" attribute
    for math images.
 
-   .. versionadded:: 1.1
+.. confval:: imgmath_font_size
+
+   The font size (in ``pt``) of the displayed math.  The default value is
+   ``12``.  It must be a positive integer.
 
 
 :mod:`sphinx.ext.mathjax` -- Render math via JavaScript
@@ -235,6 +257,7 @@ package jsMath_.  It provides this config value:
 
 
 .. _dvipng: http://savannah.nongnu.org/projects/dvipng/
+.. _dvisvgm: http://dvisvgm.bplaced.net/
 .. _MathJax: http://www.mathjax.org/
 .. _jsMath: http://www.math.union.edu/~dpvc/jsmath/
 .. _preview-latex package: http://www.gnu.org/software/auctex/preview-latex.html

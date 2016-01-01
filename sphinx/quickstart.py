@@ -60,7 +60,7 @@ DEFAULT_VALUE = {
 }
 
 EXTENSIONS = ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
-              'pngmath', 'mathjax', 'ifconfig', 'viewcode')
+              'imgmath', 'mathjax', 'ifconfig', 'viewcode')
 
 PROMPT_PREFIX = '> '
 
@@ -1255,16 +1255,16 @@ Please indicate if you want to use one of the following Sphinx extensions:''')
     if 'ext_coverage' not in d:
         do_prompt(d, 'ext_coverage', 'coverage: checks for documentation '
                   'coverage (y/n)', 'n', boolean)
-    if 'ext_pngmath' not in d:
-        do_prompt(d, 'ext_pngmath', 'pngmath: include math, rendered '
-                  'as PNG images (y/n)', 'n', boolean)
+    if 'ext_imgmath' not in d:
+        do_prompt(d, 'ext_imgmath', 'imgmath: include math, rendered '
+                  'as PNG or SVG images (y/n)', 'n', boolean)
     if 'ext_mathjax' not in d:
         do_prompt(d, 'ext_mathjax', 'mathjax: include math, rendered in the '
                   'browser by MathJax (y/n)', 'n', boolean)
-    if d['ext_pngmath'] and d['ext_mathjax']:
-        print('''Note: pngmath and mathjax cannot be enabled at the same time.
-pngmath has been deselected.''')
-        d['ext_pngmath'] = False
+    if d['ext_imgmath'] and d['ext_mathjax']:
+        print('''Note: imgmath and mathjax cannot be enabled at the same time.
+imgmath has been deselected.''')
+        d['ext_imgmath'] = False
     if 'ext_ifconfig' not in d:
         do_prompt(d, 'ext_ifconfig', 'ifconfig: conditional inclusion of '
                   'content based on config values (y/n)', 'n', boolean)

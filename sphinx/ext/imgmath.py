@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.ext.pngmath
+    sphinx.ext.imgmath
     ~~~~~~~~~~~~~~~~~~
 
-    Render math in HTML via dvipng. This extension has been deprecated; please
-    use sphinx.ext.imgmath instead.
+    Render math in HTML via dvipng or dvisvgm.
 
     :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -48,13 +47,14 @@ DOC_HEAD = r'''
 \usepackage{amsthm}
 \usepackage{amssymb}
 \usepackage{amsfonts}
+\usepackage{anyfontsize}
 \usepackage{bm}
 \pagestyle{empty}
 '''
 
 DOC_BODY = r'''
 \begin{document}
-%s
+\fontsize{%d}{%d}\selectfont %s
 \end{document}
 '''
 
@@ -62,7 +62,7 @@ DOC_BODY_PREVIEW = r'''
 \usepackage[active]{preview}
 \begin{document}
 \begin{preview}
-%s
+\fontsize{%s}{%s}\selectfont %s
 \end{preview}
 \end{document}
 '''
@@ -71,41 +71,49 @@ depth_re = re.compile(br'\[\d+ depth=(-?\d+)\]')
 
 
 def render_math(self, math):
-    """Render the LaTeX math expression *math* using latex and dvipng.
+    """Render the LaTeX math expression *math* using latex and dvipng or
+    dvisvgm.
 
     Return the filename relative to the built document and the "depth",
     that is, the distance of image bottom and baseline in pixels, if the
     option to use preview_latex is switched on.
 
-    Error handling may seem strange, but follows a pattern: if LaTeX or
-    dvipng aren't available, only a warning is generated (since that enables
-    people on machines without these programs to at least build the rest
-    of the docs successfully).  If the programs are there, however, they
-    may not fail since that indicates a problem in the math source.
+    Error handling may seem strange, but follows a pattern: if LaTeX or dvipng
+    (dvisvgm) aren't available, only a warning is generated (since that enables
+    people on machines without these programs to at least build the rest of the
+    docs successfully).  If the programs are there, however, they may not fail
+    since that indicates a problem in the math source.
     """
-    use_preview = self.builder.config.pngmath_use_preview
-    latex = DOC_HEAD + self.builder.config.pngmath_latex_preamble
-    latex += (use_preview and DOC_BODY_PREVIEW or DOC_BODY) % math
+    image_format = self.builder.config.imgmath_image_format
+    if image_format not in ('png', 'svg'):
+        raise MathExtError(
+            'imgmath_image_format must be either "png" or "svg"')
 
-    shasum = "%s.png" % sha1(latex.encode('utf-8')).hexdigest()
+    font_size = self.builder.config.imgmath_font_size
+    use_preview = self.builder.config.imgmath_use_preview
+    latex = DOC_HEAD + self.builder.config.imgmath_latex_preamble
+    latex += (use_preview and DOC_BODY_PREVIEW or DOC_BODY) % (
+        font_size, int(round(font_size * 1.2)), math)
+
+    shasum = "%s.%s" % (sha1(latex.encode('utf-8')).hexdigest(), image_format)
     relfn = posixpath.join(self.builder.imgpath, 'math', shasum)
     outfn = path.join(self.builder.outdir, self.builder.imagedir, 'math', shasum)
     if path.isfile(outfn):
         depth = read_png_depth(outfn)
         return relfn, depth
 
-    # if latex or dvipng has failed once, don't bother to try again
-    if hasattr(self.builder, '_mathpng_warned_latex') or \
-       hasattr(self.builder, '_mathpng_warned_dvipng'):
+    # if latex or dvipng (dvisvgm) has failed once, don't bother to try again
+    if hasattr(self.builder, '_imgmath_warned_latex') or \
+       hasattr(self.builder, '_imgmath_warned_image_translator'):
         return None, None
 
     # use only one tempdir per build -- the use of a directory is cleaner
     # than using temporary files, since we can clean up everything at once
     # just removing the whole directory (see cleanup_tempdir)
-    if not hasattr(self.builder, '_mathpng_tempdir'):
-        tempdir = self.builder._mathpng_tempdir = tempfile.mkdtemp()
+    if not hasattr(self.builder, '_imgmath_tempdir'):
+        tempdir = self.builder._imgmath_tempdir = tempfile.mkdtemp()
     else:
-        tempdir = self.builder._mathpng_tempdir
+        tempdir = self.builder._imgmath_tempdir
 
     tf = codecs.open(path.join(tempdir, 'math.tex'), 'w', 'utf-8')
     tf.write(latex)
@@ -114,9 +122,9 @@ def render_math(self, math):
     # build latex command; old versions of latex don't have the
     # --output-directory option, so we have to manually chdir to the
     # temp dir to run it.
-    ltx_args = [self.builder.config.pngmath_latex, '--interaction=nonstopmode']
+    ltx_args = [self.builder.config.imgmath_latex, '--interaction=nonstopmode']
     # add custom args from the config file
-    ltx_args.extend(self.builder.config.pngmath_latex_args)
+    ltx_args.extend(self.builder.config.imgmath_latex_args)
     ltx_args.append('math.tex')
 
     with cd(tempdir):
@@ -126,9 +134,9 @@ def render_math(self, math):
             if err.errno != ENOENT:   # No such file or directory
                 raise
             self.builder.warn('LaTeX command %r cannot be run (needed for math '
-                              'display), check the pngmath_latex setting' %
-                              self.builder.config.pngmath_latex)
-            self.builder._mathpng_warned_latex = True
+                              'display), check the imgmath_latex setting' %
+                              self.builder.config.imgmath_latex)
+            self.builder._imgmath_warned_latex = True
             return None, None
 
     stdout, stderr = p.communicate()
@@ -136,30 +144,51 @@ def render_math(self, math):
         raise MathExtError('latex exited with error', stderr, stdout)
 
     ensuredir(path.dirname(outfn))
-    # use some standard dvipng arguments
-    dvipng_args = [self.builder.config.pngmath_dvipng]
-    dvipng_args += ['-o', outfn, '-T', 'tight', '-z9']
-    # add custom ones from config value
-    dvipng_args.extend(self.builder.config.pngmath_dvipng_args)
-    if use_preview:
-        dvipng_args.append('--depth')
+    if image_format == 'png':
+        image_translator = 'dvipng'
+        image_translator_executable = self.builder.config.imgmath_dvipng
+        # use some standard dvipng arguments
+        image_translator_args = [self.builder.config.imgmath_dvipng]
+        image_translator_args += ['-o', outfn, '-T', 'tight', '-z9']
+        # add custom ones from config value
+        image_translator_args.extend(self.builder.config.imgmath_dvipng_args)
+        if use_preview:
+            image_translator_args.append('--depth')
+    elif image_format == 'svg':
+        image_translator = 'dvisvgm'
+        image_translator_executable = self.builder.config.imgmath_dvisvgm
+        # use some standard dvisvgm arguments
+        image_translator_args = [self.builder.config.imgmath_dvisvgm]
+        image_translator_args += ['-o', outfn]
+        # add custom ones from config value
+        image_translator_args.extend(self.builder.config.imgmath_dvisvgm_args)
+        # last, the input file name
+        image_translator_args.append(path.join(tempdir, 'math.dvi'))
+    else:
+        raise MathExtError(
+            'imgmath_image_format must be either "png" or "svg"')
+
     # last, the input file name
-    dvipng_args.append(path.join(tempdir, 'math.dvi'))
+    image_translator_args.append(path.join(tempdir, 'math.dvi'))
+
     try:
-        p = Popen(dvipng_args, stdout=PIPE, stderr=PIPE)
+        p = Popen(image_translator_args, stdout=PIPE, stderr=PIPE)
     except OSError as err:
         if err.errno != ENOENT:   # No such file or directory
             raise
-        self.builder.warn('dvipng command %r cannot be run (needed for math '
-                          'display), check the pngmath_dvipng setting' %
-                          self.builder.config.pngmath_dvipng)
-        self.builder._mathpng_warned_dvipng = True
+        self.builder.warn('%s command %r cannot be run (needed for math '
+                          'display), check the imgmath_%s setting' %
+                          image_translator, image_translator_executable,
+                          image_translator)
+        self.builder._imgmath_warned_image_translator = True
         return None, None
+
     stdout, stderr = p.communicate()
     if p.returncode != 0:
-        raise MathExtError('dvipng exited with error', stderr, stdout)
+        raise MathExtError('%s exited with error',
+                           image_translator, stderr, stdout)
     depth = None
-    if use_preview:
+    if use_preview and image_format == 'png':  # depth is only useful for png
         for line in stdout.splitlines():
             m = depth_re.match(line)
             if m:
@@ -173,7 +202,7 @@ def render_math(self, math):
 def cleanup_tempdir(app, exc):
     if exc:
         return
-    if not hasattr(app.builder, '_mathpng_tempdir'):
+    if not hasattr(app.builder, '_imgmath_tempdir'):
         return
     try:
         shutil.rmtree(app.builder._mathpng_tempdir)
@@ -182,7 +211,7 @@ def cleanup_tempdir(app, exc):
 
 
 def get_tooltip(self, node):
-    if self.builder.config.pngmath_add_tooltips:
+    if self.builder.config.imgmath_add_tooltips:
         return ' alt="%s"' % self.encode(node['latex']).strip()
     return ''
 
@@ -237,16 +266,19 @@ def html_visit_displaymath(self, node):
 
 
 def setup(app):
-    app.warn('sphinx.ext.pngmath has been deprecated. Please use sphinx.ext.imgmath instead.')
     mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
-    app.add_config_value('pngmath_dvipng', 'dvipng', 'html')
-    app.add_config_value('pngmath_latex', 'latex', 'html')
-    app.add_config_value('pngmath_use_preview', False, 'html')
-    app.add_config_value('pngmath_dvipng_args',
+    app.add_config_value('imgmath_image_format', 'png', 'html')
+    app.add_config_value('imgmath_dvipng', 'dvipng', 'html')
+    app.add_config_value('imgmath_dvisvgm', 'dvisvgm', 'html')
+    app.add_config_value('imgmath_latex', 'latex', 'html')
+    app.add_config_value('imgmath_use_preview', False, 'html')
+    app.add_config_value('imgmath_dvipng_args',
                          ['-gamma', '1.5', '-D', '110', '-bg', 'Transparent'],
                          'html')
-    app.add_config_value('pngmath_latex_args', [], 'html')
-    app.add_config_value('pngmath_latex_preamble', '', 'html')
-    app.add_config_value('pngmath_add_tooltips', True, 'html')
+    app.add_config_value('imgmath_dvisvgm_args', ['--no-fonts'], 'html')
+    app.add_config_value('imgmath_latex_args', [], 'html')
+    app.add_config_value('imgmath_latex_preamble', '', 'html')
+    app.add_config_value('imgmath_add_tooltips', True, 'html')
+    app.add_config_value('imgmath_font_size', 12, 'html')
     app.connect('build-finished', cleanup_tempdir)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

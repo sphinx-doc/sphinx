@@ -181,7 +181,7 @@ def test_quickstart_all_answers(tempdir):
         'intersphinx': 'no',
         'todo': 'y',
         'coverage': 'no',
-        'pngmath': 'N',
+        'imgmath': 'N',
         'mathjax': 'no',
         'ifconfig': 'no',
         'viewcode': 'no',
