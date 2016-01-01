@@ -420,7 +420,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.pending_footnotes = []
 
     def unrestrict_footnote(self, node):
-        print self.footnote_restricted, self.pending_footnotes
         if self.footnote_restricted == node:
             self.footnote_restricted = False
             for footnode in self.pending_footnotes:
