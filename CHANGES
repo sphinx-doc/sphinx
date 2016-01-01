@@ -36,6 +36,7 @@ Bugs fixed
 * #1804: Now html output wraps overflowed long-line-text in the sidebar. Thanks to
   Hassen ben tanfous.
 * #2183: Fix porterstemmer causes ``make json`` to fail
+* #1899: Ensure list is sent to OptParse
 
 Documentation
 -------------
