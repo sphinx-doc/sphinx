@@ -52,3 +52,89 @@ Footnote in term [#]_
    This is the figure caption with a footnote to [#]_.
 
 .. [#] Footnote in caption
+
+.. list-table:: footnote [#]_ in caption of normal table
+    :widths: 1 1
+    :header-rows: 1
+
+    * - name
+      - desc
+    * - a
+      - b
+    * - a
+      - b
+
+.. [#] Foot note in table
+
+.. list-table:: footnote [#]_ in caption of longtable
+    :widths: 1 1
+    :header-rows: 1
+
+    * - name
+      - desc
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+
+.. [#] Foot note in longtable

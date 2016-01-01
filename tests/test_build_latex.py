@@ -335,6 +335,11 @@ def test_reference_in_caption(app, status, warning):
     assert ('\\caption{This is the figure caption with a footnote to '
             '\\protect\\footnotemark[5].}\end{figure}\n'
             '\\footnotetext[5]{\nFootnote in caption\n}')in result
+    assert ('\\caption{footnote \\protect\\footnotemark[6] '
+            'in caption of normal table}') in result
+    assert '\\end{threeparttable}\n\n\\footnotetext[6]{\nFoot note in table\n}' in result
+    assert '\\caption{footnote \\protect\\footnotemark[7] in caption of longtable}' in result
+    assert '\end{longtable}\n\n\\footnotetext[7]{\nFoot note in longtable\n}' in result
 
 
 @with_app(buildername='latex', testroot='footnotes',
