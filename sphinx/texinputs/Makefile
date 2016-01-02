@@ -71,7 +71,7 @@ xz: tar
 	$(PDFLATEX) $(LATEXOPTS) '$<'
 
 clean:
-	rm -f *.dvi *.log *.ind *.aux *.toc *.syn *.idx *.out *.ilg *.pla
+	rm -f *.log *.ind *.aux *.toc *.syn *.idx *.out *.ilg *.pla *.ps *.tar *.tar.gz *.tar.bz2 *.tar.xz $(ALLPDF) $(ALLDVI)
 
 .PHONY: all all-pdf all-dvi all-ps clean
 .PHONY: all-pdf-ja
