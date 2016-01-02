@@ -43,8 +43,14 @@ tar: all-$(FMT)
 	tar cf $(ARCHIVEPREFIX)docs-$(FMT).tar $(ARCHIVEPREFIX)docs-$(FMT)
 	rm -r $(ARCHIVEPREFIX)docs-$(FMT)
 
+gz: tar
+	gzip -9 < $(ARCHIVEPREFIX)docs-$(FMT).tar > $(ARCHIVEPREFIX)docs-$(FMT).tar.gz
+
 bz2: tar
 	bzip2 -9 -k $(ARCHIVEPREFIX)docs-$(FMT).tar
+
+xz: tar
+	xz -9 -k $(ARCHIVEPREFIX)docs-$(FMT).tar
 
 # The number of LaTeX runs is quite conservative, but I don't expect it
 # to get run often, so the little extra time won't hurt.
