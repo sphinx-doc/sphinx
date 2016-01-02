@@ -1,6 +1,7 @@
 *.pyc
 *.egg
 *.so
+*.swp
 
 .dir-locals.el
 .ropeproject/
