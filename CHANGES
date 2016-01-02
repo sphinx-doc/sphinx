@@ -625,7 +625,7 @@ Bugs fixed
   if they contain uppercase letters.
 * #923: Take the entire LaTeX document into account when caching
   pngmath-generated images.  This rebuilds them correctly when
-  `pngmath_latex_preamble` changes.
+  ``pngmath_latex_preamble`` changes.
 * #901: Emit a warning when using docutils' new "math" markup without a Sphinx
   math extension active.
 * #845: In code blocks, when the selected lexer fails, display line numbers
@@ -1244,7 +1244,7 @@ Features added
     indicators.
   - #367: Added automatic exclusion of hidden members in inheritance
     diagrams, and an option to selectively enable it.
-  - Added `pngmath_add_tooltips`.
+  - Added ``pngmath_add_tooltips``.
   - The math extension displaymath directives now support ``name`` in
     addition to ``label`` for giving the equation label, for compatibility
     with Docutils.
