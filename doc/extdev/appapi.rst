@@ -155,7 +155,7 @@ package.
       add_directive('literalinclude', literalinclude_directive,
                     content = 0, arguments = (1, 0, 0),
                     linenos = directives.flag,
-                    language = direcitves.unchanged,
+                    language = directives.unchanged,
                     encoding = directives.encoding)
 
    .. versionchanged:: 0.6

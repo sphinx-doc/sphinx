@@ -561,7 +561,7 @@ a visibility statement (``public``, ``private`` or ``protected``).
 .. rst:directive:: .. cpp:member:: (member-)variable declaration
                    .. cpp:var:: (member-)variable declaration
 
-   Describe a varible or member variable, e.g.,::
+   Describe a variable or member variable, e.g.,::
 
       .. cpp:member:: std::string theclass::name
 
