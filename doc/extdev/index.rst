@@ -52,4 +52,5 @@ APIs used for writing extensions
    builderapi
    markupapi
    domainapi
+   parserapi
    nodes
