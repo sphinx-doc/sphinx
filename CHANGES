@@ -24,7 +24,7 @@ Bugs fixed
 * #2178: Fix unparseable C++ cross-reference when referencing a function with :cpp:any:
 * #2206: Fix Sphinx latex doc build failed due to a footnotes
 * #2201: Fix wrong table caption for tables with over 30 rows
-
+* #2213: Set <blockquote> in the classic theme to fit with <p>
 
 Release 1.3.3 (released Dec 2, 2015)
 ====================================
