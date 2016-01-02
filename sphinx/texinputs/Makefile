@@ -8,6 +8,8 @@ ALLDVI = $(addsuffix .dvi,$(ALLDOCS))
 ARCHIVEPRREFIX =
 # Additional LaTeX options
 LATEXOPTS =
+# format: pdf or dvi
+FMT = pdf
 
 LATEX = latex
 PDFLATEX = pdflatex
