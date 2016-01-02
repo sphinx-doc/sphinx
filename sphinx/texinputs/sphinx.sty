@@ -58,12 +58,18 @@
   \fi
 \fi
 
-% For graphicx, check if we are compiling under latex or pdflatex.
-\ifx\pdftexversion\undefined
-  \usepackage{graphicx}
-\else
-  \usepackage[pdftex]{graphicx}
-\fi
+% No attempt at auto-detecting driver (dvips, pdftex, xetex, ...), as 
+% modern TeX installations do it automatically. The commented-out
+% check next is now wrong (2015), because modern TeX installations
+% use pdftex binary (in dvi mode) also to do latex.
+% % For graphicx, check if we are compiling under latex or pdflatex.
+% \ifx\pdftexversion\undefined
+%   \usepackage{graphicx}
+% \else
+%   \usepackage[pdftex]{graphicx}
+% \fi
+\RequirePackage{graphicx}% better to use \RequirePackage, see 
+% http://tex.stackexchange.com/questions/19919/whats-the-difference-between-requirepackage-and-usepackage
 
 % for PDF output, use colors and maximal compression
 \newif\ifsphinxpdfoutput\sphinxpdfoutputfalse
