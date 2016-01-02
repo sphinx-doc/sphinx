@@ -453,7 +453,7 @@ documentation on :ref:`intl` for details.
    this path are searched by the standard :mod:`gettext` module.
 
    Internal messages are fetched from a text domain of ``sphinx``; so if you
-   add the directory :file:`./locale` to this settting, the message catalogs
+   add the directory :file:`./locale` to this setting, the message catalogs
    (compiled from ``.po`` format using :program:`msgfmt`) must be in
    :file:`./locale/{language}/LC_MESSAGES/sphinx.mo`.  The text domain of
    individual documents depends on :confval:`gettext_compact`.
