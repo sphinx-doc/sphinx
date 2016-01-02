@@ -73,6 +73,6 @@ xz: tar
 clean:
 	rm -f *.log *.ind *.aux *.toc *.syn *.idx *.out *.ilg *.pla *.ps *.tar *.tar.gz *.tar.bz2 *.tar.xz $(ALLPDF) $(ALLDVI)
 
-.PHONY: all all-pdf all-dvi all-ps clean
+.PHONY: all all-pdf all-dvi all-ps clean zip tar gz bz2 xz
 .PHONY: all-pdf-ja
 
