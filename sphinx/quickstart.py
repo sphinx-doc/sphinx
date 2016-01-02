@@ -87,7 +87,6 @@ QUICKSTART_CONF += u'''\
 
 import sys
 import os
-import shlex
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -295,8 +294,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, '%(project_fn)s.tex', u'%(project_doc_texescaped_str)s',
-   u'%(author_texescaped_str)s', 'manual'),
+    (master_doc, '%(project_fn)s.tex', u'%(project_doc_texescaped_str)s',
+     u'%(author_texescaped_str)s', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -339,9 +338,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, '%(project_fn)s', u'%(project_doc_str)s',
-   author, '%(project_fn)s', 'One line description of project.',
-   'Miscellaneous'),
+    (master_doc, '%(project_fn)s', u'%(project_doc_str)s',
+     author, '%(project_fn)s', 'One line description of project.',
+     'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.
@@ -370,10 +369,10 @@ epub_copyright = copyright
 # The basename for the epub file. It defaults to the project name.
 #epub_basename = project
 
-# The HTML theme for the epub output. Since the default themes are not optimized
-# for small screen space, using the same theme for HTML and epub output is
-# usually not wise. This defaults to 'epub', a theme designed to save visual
-# space.
+# The HTML theme for the epub output. Since the default themes are not
+# optimized for small screen space, using the same theme for HTML and epub
+# output is usually not wise. This defaults to 'epub', a theme designed to save
+# visual space.
 #epub_theme = 'epub'
 
 # The language of the text. It defaults to the language option
