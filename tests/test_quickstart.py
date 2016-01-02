@@ -185,6 +185,7 @@ def test_quickstart_all_answers(tempdir):
         'mathjax': 'no',
         'ifconfig': 'no',
         'viewcode': 'no',
+        'githubpages': 'no',
         'Create Makefile': 'no',
         'Create Windows command file': 'no',
         'Do you want to use the epub builder': 'yes',
