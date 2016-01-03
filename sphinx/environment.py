@@ -618,8 +618,8 @@ class BuildEnvironment:
             self._read_serial(docnames, app)
 
         if config.master_doc not in self.all_docs:
-            self.warn(None, 'master file %s not found' %
-                      self.doc2path(config.master_doc))
+            raise SphinxError('master file %s not found' %
+                              self.doc2path(config.master_doc))
 
         self.app = None
 
