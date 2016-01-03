@@ -76,12 +76,14 @@ def test_build_all():
 
 @with_app(buildername='text')
 def test_master_doc_not_found(app, status, warning):
-    (app.srcdir / 'contents.txt').unlink()
+    (app.srcdir / 'contents.txt').move(app.srcdir / 'contents.txt.bak')
     try:
         app.builder.build_all()
         assert False  # SphinxError not raised
     except Exception as exc:
         assert isinstance(exc, SphinxError)
+    finally:
+        (app.srcdir / 'contents.txt.bak').move(app.srcdir / 'contents.txt')
 
 
 @with_app(buildername='text', testroot='circular')
