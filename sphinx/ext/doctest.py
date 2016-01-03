@@ -262,9 +262,9 @@ Results of doctest builder run on %s
         self.outfile.write(text)
 
     def _warn_out(self, text):
-        self.info(text, nonl=True)
-        if self.app.quiet:
-            self.warn(text)
+        if not self.app.quiet:
+            self.info(text, nonl=True)
+        self.warn(text)
         if isinstance(text, binary_type):
             text = force_decode(text, None)
         self.outfile.write(text)
