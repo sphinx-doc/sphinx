@@ -487,9 +487,7 @@ $(SPHINXOPTS) %(rsrcdir)s
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) %(rsrcdir)s
 
-.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp \
-epub latex latexpdf text man changes linkcheck doctest coverage gettext
-
+.PHONY: help
 help:
 \t@echo "Please use \\`make <target>' where <target> is one of"
 \t@echo "  html       to make standalone HTML files"
@@ -518,40 +516,48 @@ help:
 (if enabled)"
 \t@echo "  coverage   to run coverage check of the documentation (if enabled)"
 
+.PHONY: clean
 clean:
 \trm -rf $(BUILDDIR)/*
 
+.PHONY: html
 html:
 \t$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 \t@echo
 \t@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
+.PHONY: dirhtml
 dirhtml:
 \t$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
 \t@echo
 \t@echo "Build finished. The HTML pages are in $(BUILDDIR)/dirhtml."
 
+.PHONY: singlehtml
 singlehtml:
 \t$(SPHINXBUILD) -b singlehtml $(ALLSPHINXOPTS) $(BUILDDIR)/singlehtml
 \t@echo
 \t@echo "Build finished. The HTML page is in $(BUILDDIR)/singlehtml."
 
+.PHONY: pickle
 pickle:
 \t$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) $(BUILDDIR)/pickle
 \t@echo
 \t@echo "Build finished; now you can process the pickle files."
 
+.PHONY: json
 json:
 \t$(SPHINXBUILD) -b json $(ALLSPHINXOPTS) $(BUILDDIR)/json
 \t@echo
 \t@echo "Build finished; now you can process the JSON files."
 
+.PHONY: htmlhelp
 htmlhelp:
 \t$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) $(BUILDDIR)/htmlhelp
 \t@echo
 \t@echo "Build finished; now you can run HTML Help Workshop with the" \\
 \t      ".hhp project file in $(BUILDDIR)/htmlhelp."
 
+.PHONY: qthelp
 qthelp:
 \t$(SPHINXBUILD) -b qthelp $(ALLSPHINXOPTS) $(BUILDDIR)/qthelp
 \t@echo
@@ -561,6 +567,7 @@ qthelp:
 \t@echo "To view the help file:"
 \t@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/%(project_fn)s.qhc"
 
+.PHONY: applehelp
 applehelp:
 \t$(SPHINXBUILD) -b applehelp $(ALLSPHINXOPTS) $(BUILDDIR)/applehelp
 \t@echo
@@ -569,6 +576,7 @@ applehelp:
 \t      "~/Library/Documentation/Help or install it in your application" \\
 \t      "bundle."
 
+.PHONY: devhelp
 devhelp:
 \t$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) $(BUILDDIR)/devhelp
 \t@echo
@@ -579,11 +587,13 @@ devhelp:
  $$HOME/.local/share/devhelp/%(project_fn)s"
 \t@echo "# devhelp"
 
+.PHONY: epub
 epub:
 \t$(SPHINXBUILD) -b epub $(ALLSPHINXOPTS) $(BUILDDIR)/epub
 \t@echo
 \t@echo "Build finished. The epub file is in $(BUILDDIR)/epub."
 
+.PHONY: latex
 latex:
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 \t@echo
@@ -591,28 +601,33 @@ latex:
 \t@echo "Run \\`make' in that directory to run these through (pdf)latex" \\
 \t      "(use \\`make latexpdf' here to do that automatically)."
 
+.PHONY: latexpdf
 latexpdf:
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 \t@echo "Running LaTeX files through pdflatex..."
 \t$(MAKE) -C $(BUILDDIR)/latex all-pdf
 \t@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
 
+.PHONY: latexpdfja
 latexpdfja:
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 \t@echo "Running LaTeX files through platex and dvipdfmx..."
 \t$(MAKE) -C $(BUILDDIR)/latex all-pdf-ja
 \t@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
 
+.PHONY: text
 text:
 \t$(SPHINXBUILD) -b text $(ALLSPHINXOPTS) $(BUILDDIR)/text
 \t@echo
 \t@echo "Build finished. The text files are in $(BUILDDIR)/text."
 
+.PHONY: man
 man:
 \t$(SPHINXBUILD) -b man $(ALLSPHINXOPTS) $(BUILDDIR)/man
 \t@echo
 \t@echo "Build finished. The manual pages are in $(BUILDDIR)/man."
 
+.PHONY: texinfo
 texinfo:
 \t$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo
 \t@echo
@@ -620,43 +635,51 @@ texinfo:
 \t@echo "Run \\`make' in that directory to run these through makeinfo" \\
 \t      "(use \\`make info' here to do that automatically)."
 
+.PHONY: info
 info:
 \t$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo
 \t@echo "Running Texinfo files through makeinfo..."
 \tmake -C $(BUILDDIR)/texinfo info
 \t@echo "makeinfo finished; the Info files are in $(BUILDDIR)/texinfo."
 
+.PHONY: gettext
 gettext:
 \t$(SPHINXBUILD) -b gettext $(I18NSPHINXOPTS) $(BUILDDIR)/locale
 \t@echo
 \t@echo "Build finished. The message catalogs are in $(BUILDDIR)/locale."
 
+.PHONY: changes
 changes:
 \t$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) $(BUILDDIR)/changes
 \t@echo
 \t@echo "The overview file is in $(BUILDDIR)/changes."
 
+.PHONY: linkcheck
 linkcheck:
 \t$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) $(BUILDDIR)/linkcheck
 \t@echo
 \t@echo "Link check complete; look for any errors in the above output " \\
 \t      "or in $(BUILDDIR)/linkcheck/output.txt."
 
+.PHONY: doctest
 doctest:
 \t$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 \t@echo "Testing of doctests in the sources finished, look at the " \\
 \t      "results in $(BUILDDIR)/doctest/output.txt."
 
+.PHONY: coverage
 coverage:
 \t$(SPHINXBUILD) -b coverage $(ALLSPHINXOPTS) $(BUILDDIR)/coverage
 \t@echo "Testing of coverage in the sources finished, look at the " \\
 \t      "results in $(BUILDDIR)/coverage/python.txt."
 
+.PHONY: xml
 xml:
 \t$(SPHINXBUILD) -b xml $(ALLSPHINXOPTS) $(BUILDDIR)/xml
 \t@echo
 \t@echo "Build finished. The XML files are in $(BUILDDIR)/xml."
 
+.PHONY: pseudoxml
 pseudoxml:
 \t$(SPHINXBUILD) -b pseudoxml $(ALLSPHINXOPTS) $(BUILDDIR)/pseudoxml
 \t@echo
