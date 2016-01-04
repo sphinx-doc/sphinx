@@ -19,7 +19,13 @@
 \RequirePackage{makeidx}
 \RequirePackage{framed}
 \RequirePackage{ifthen}
-\RequirePackage{color}
+%The xcolor package draws better fcolorboxes
+%around verbatim code
+\IfFileExists{xcolor.sty}{
+    \RequirePackage[xcdraw]{xcolor}
+}{
+    \RequirePackage{color}
+}
 % For highlighted code.
 \RequirePackage{fancyvrb}
 % For table captions.
