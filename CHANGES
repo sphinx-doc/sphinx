@@ -41,6 +41,7 @@ Bugs fixed
 * #2183: Fix porterstemmer causes ``make json`` to fail
 * #1899: Ensure list is sent to OptParse
 * #2164: Fix wrong check for pdftex inside sphinx.sty (for graphicx package option)
+* #2165, #2218: Remove faulty and non-need conditional from sphinx.sty
 
 Documentation
 -------------
