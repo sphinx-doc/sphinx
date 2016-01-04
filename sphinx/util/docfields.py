@@ -106,15 +106,6 @@ class GroupedField(Field):
     def make_field(self, types, domain, items):
         fieldname = nodes.field_name('', self.label)
         listnode = self.list_type()
-        if len(items) == 1 and self.can_collapse:
-            fieldarg, content = items[0]
-            par = nodes.paragraph()
-            par += self.make_xref(self.rolename, domain, fieldarg,
-                                  addnodes.literal_strong)
-            par += nodes.Text(' -- ')
-            par += content
-            fieldbody = nodes.field_body('', par)
-            return nodes.field('', fieldname, fieldbody)
         for fieldarg, content in items:
             par = nodes.paragraph()
             par += self.make_xref(self.rolename, domain, fieldarg,
@@ -122,6 +113,9 @@ class GroupedField(Field):
             par += nodes.Text(' -- ')
             par += content
             listnode += nodes.list_item('', par)
+        if len(items) == 1 and self.can_collapse:
+            fieldbody = nodes.field_body('', listnode[0][0])
+            return nodes.field('', fieldname, fieldbody)
         fieldbody = nodes.field_body('', listnode)
         return nodes.field('', fieldname, fieldbody)
 
