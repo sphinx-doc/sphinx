@@ -51,10 +51,9 @@
 %\renewcommand{\paperwidth}{7in}     % O'Reilly ``Programmming Python''
 
 % use pdfoutput for pTeX and dvipdfmx
+% when pTeX (\kanjiskip is defined), set pdfoutput to evade \include{pdfcolor}
 \ifx\kanjiskip\undefined\else
-  \ifx\Gin@driver{dvipdfmx.def}\undefined\else
-    \newcount\pdfoutput\pdfoutput=0
-  \fi
+  \newcount\pdfoutput\pdfoutput=0
 \fi
 
 % For graphicx, check if we are compiling under latex or pdflatex.
