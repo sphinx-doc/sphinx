@@ -428,3 +428,31 @@ def test_latex_logo_if_not_found(app, status, warning):
         assert False  # SphinxError not raised
     except Exception as exc:
         assert isinstance(exc, SphinxError)
+
+
+@with_app(buildername='latex', testroot='tocdepth',
+          confoverrides={'latex_documents': [
+              ('index', 'SphinxTests.tex', 'Sphinx Tests Documentation',
+               'Georg Brandl', 'manual'),
+          ]})
+def test_toctree_maxdepth_manual(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\setcounter{tocdepth}{1}' in result
+
+
+@with_app(buildername='latex', testroot='tocdepth',
+          confoverrides={'latex_documents': [
+              ('index', 'SphinxTests.tex', 'Sphinx Tests Documentation',
+               'Georg Brandl', 'howto'),
+          ]})
+def test_toctree_maxdepth_howto(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\setcounter{tocdepth}{2}' in result

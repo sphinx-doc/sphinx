@@ -95,6 +95,14 @@ class LaTeXBuilder(Builder):
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
             self.info("processing " + targetname + "... ", nonl=1)
+            toctrees = self.env.get_doctree(docname).traverse(addnodes.toctree)
+            if toctrees:
+                if toctrees[0].get('maxdepth'):
+                    tocdepth = int(toctrees[0].get('maxdepth'))
+                else:
+                    tocdepth = None
+            else:
+                tocdepth = None
             doctree = self.assemble_doctree(
                 docname, toctree_only,
                 appendices=((docclass != 'howto') and self.config.latex_appendices or []))
@@ -106,6 +114,7 @@ class LaTeXBuilder(Builder):
             doctree.settings.contentsname = self.get_contentsname(docname)
             doctree.settings.docname = docname
             doctree.settings.docclass = docclass
+            doctree.settings.tocdepth = tocdepth
             docwriter.write(doctree, destination)
             self.info("done")
 
