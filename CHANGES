@@ -14,7 +14,8 @@ Bugs fixed
 * #2168: Fix raw directive does not work for text writer
 * #2171: Fix cannot linkcheck url with unicode
 * #2182: LaTeX: support image file names with more than 1 dots
-* #2189: Fix previous sibling link for first file in subdirectory uses last file, not intended previous from root toctree
+* #2189: Fix previous sibling link for first file in subdirectory uses last file, not
+  intended previous from root toctree
 * #2003: Fix decode error under python2 (only) when ``make linkcheck`` is run
 * #2186: Fix LaTeX output of \mathbb in math
 * #1480, #2188: LaTeX: Support math in section titles
@@ -25,7 +26,8 @@ Bugs fixed
 * #2206: Fix Sphinx latex doc build failed due to a footnotes
 * #2201: Fix wrong table caption for tables with over 30 rows
 * #2213: Set <blockquote> in the classic theme to fit with <p>
-* #1815: Fix linkcheck does not raise an exception if warniserror set to true and link is broken
+* #1815: Fix linkcheck does not raise an exception if warniserror set to true and link is
+  broken
 * #2197: Fix slightly cryptic error message for missing index.rst file
 * #1894: Unlisted phony targets in quickstart Makefile
 * #2125: Fix unifies behavior of collapsed fields (``GroupedField`` and ``TypedField``)
