@@ -29,6 +29,7 @@ Bugs fixed
 * #2197: Fix slightly cryptic error message for missing index.rst file
 * #1894: Unlisted phony targets in quickstart Makefile
 * #2125: Fix unifies behavior of collapsed fields (``GroupedField`` and ``TypedField``)
+* #1408: Check latex_logo validity before copying
 
 Release 1.3.3 (released Dec 2, 2015)
 ====================================

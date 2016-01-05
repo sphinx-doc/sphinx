@@ -16,6 +16,7 @@ from subprocess import Popen, PIPE
 
 from six import PY3
 
+from sphinx.errors import SphinxError
 from sphinx.writers.latex import LaTeXTranslator
 
 from util import SkipTest, remove_unicode_literals, with_app
@@ -418,3 +419,12 @@ def test_latex_show_urls_is_no(app, status, warning):
             '{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx-dev@googlegroups.com}\n' in result)
+
+
+@with_app(buildername='latex', confoverrides={'latex_logo': 'notfound.jpg'})
+def test_latex_logo_if_not_found(app, status, warning):
+    try:
+        app.builder.build_all()
+        assert False  # SphinxError not raised
+    except Exception as exc:
+        assert isinstance(exc, SphinxError)

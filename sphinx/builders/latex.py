@@ -20,6 +20,7 @@ from docutils.frontend import OptionParser
 
 from sphinx import package_dir, addnodes
 from sphinx.util import texescape
+from sphinx.errors import SphinxError
 from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
@@ -191,6 +192,9 @@ class LaTeXBuilder(Builder):
         # the logo is handled differently
         if self.config.latex_logo:
             logobase = path.basename(self.config.latex_logo)
-            copyfile(path.join(self.confdir, self.config.latex_logo),
-                     path.join(self.outdir, logobase))
+            logotarget = path.join(self.outdir, logobase)
+            if not path.isfile(path.join(self.confdir, self.config.latex_logo)):
+                raise SphinxError('logo file %r does not exist' % self.config.latex_logo)
+            elif not path.isfile(logotarget):
+                copyfile(path.join(self.confdir, self.config.latex_logo), logotarget)
         self.info('done')
