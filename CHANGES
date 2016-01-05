@@ -31,6 +31,9 @@ Bugs fixed
 * #2125: Fix unifies behavior of collapsed fields (``GroupedField`` and ``TypedField``)
 * #1408: Check latex_logo validity before copying
 * #771: Fix latex output doesn't set tocdepth
+* #1820: On Windows, console coloring is broken with colorama version 0.3.3.
+  Now sphinx use colorama>=0.3.5 to avoid this problem.
+
 Release 1.3.3 (released Dec 2, 2015)
 ====================================
 
