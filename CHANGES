@@ -24,6 +24,7 @@ Features added
 * #2192: Imgmath (pngmath with svg support)
 * #2200: Support XeTeX and LuaTeX for the LaTeX builder
 * #1906: Use xcolor over color for \fcolorbox where available for LaTeX output
+* #2216: Texinputs makefile improvrments
 
 Bugs fixed
 ----------
