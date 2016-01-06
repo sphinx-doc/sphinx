@@ -60,7 +60,7 @@ DEFAULT_VALUE = {
 }
 
 EXTENSIONS = ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
-              'imgmath', 'mathjax', 'ifconfig', 'viewcode')
+              'imgmath', 'mathjax', 'ifconfig', 'viewcode', 'githubpages')
 
 PROMPT_PREFIX = '> '
 
@@ -1272,6 +1272,9 @@ imgmath has been deselected.''')
     if 'ext_viewcode' not in d:
         do_prompt(d, 'ext_viewcode', 'viewcode: include links to the source '
                   'code of documented Python objects (y/n)', 'n', boolean)
+    if 'ext_githubpages' not in d:
+        do_prompt(d, 'ext_githubpages', 'githubpages: create .nojekyll file '
+                  'to publish the document on GitHub pages (y/n)', 'n', boolean)
 
     if 'no_makefile' in d:
         d['makefile'] = False
