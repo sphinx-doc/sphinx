@@ -15,18 +15,11 @@ import re
 from sphinx.search import SearchLanguage
 
 try:
-    # http://bitbucket.org/methane/porterstemmer/
-    from porterstemmer import Stemmer as CStemmer
-    CSTEMMER = True
-    PYSTEMMER = False
+    from Stemmer import Stemmer as PyStemmer
+    PYSTEMMER = True
 except ImportError:
-    CSTEMMER = False
-    try:
-        from Stemmer import Stemmer as PyStemmer
-        PYSTEMMER = True
-    except ImportError:
-        from sphinx.util.stemmer import PorterStemmer
-        PYSTEMMER = False
+    from sphinx.util.stemmer import PorterStemmer
+    PYSTEMMER = False
 
 try:
     import jieba
@@ -250,11 +243,7 @@ class SearchChinese(SearchLanguage):
             if dict_path and os.path.isfile(dict_path):
                 jieba.set_dictionary(dict_path)
 
-        if CSTEMMER:
-            class Stemmer(CStemmer):
-                def stem(self, word):
-                    return self(word.lower())
-        elif PYSTEMMER:
+        if PYSTEMMER:
             class Stemmer(object):
                 def __init__(self):
                     self.stemmer = PyStemmer('porter')

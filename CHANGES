@@ -3,28 +3,30 @@ Release 1.4 (in development)
 
 Incompatible changes
 --------------------
+
 * Drop ``PorterStemmer`` package support. Use ``PyStemmer`` instead of ``PorterStemmer``
   to accelerate stemming.
 
 Features added
 --------------
 
-* #2092: add todo directive support in napoleon package
+* #2092: add todo directive support in napoleon package.
 * #1962: when adding directives, roles or nodes from an extension, warn if such
   an element is already present (built-in or added by another extension).
 * #1909: Add "doc" references to Intersphinx inventories.
-* C++ type alias support (e.g., ``.. type:: T = int``)
+* C++ type alias support (e.g., ``.. type:: T = int``).
 * C++ template support for classes, functions, type aliases, and variables (#1729, #1314).
 * C++, added new scope management directives ``namespace-push`` and ``namespace-pop``.
 * Intersphinx: Added support for fetching Intersphinx inventories with URLs
-  using HTTP basic auth
+  using HTTP basic auth.
 * C++, added support for template parameter in function info field lists.
 * C++, added support for pointers to member (function).
-* #2113: Allow ``:class:`` option to code-block directive
-* #2192: Imgmath (pngmath with svg support)
-* #2200: Support XeTeX and LuaTeX for the LaTeX builder
-* #1906: Use xcolor over color for \fcolorbox where available for LaTeX output
-* #2216: Texinputs makefile improvrments
+* #2113: Allow ``:class:`` option to code-block directive.
+* #2192: Imgmath (pngmath with svg support).
+* #2200: Support XeTeX and LuaTeX for the LaTeX builder.
+* #1906: Use xcolor over color for \fcolorbox where available for LaTeX output.
+* #2216: Texinputs makefile improvements.
+* #2170: Support for Chinese language search index.
 
 Bugs fixed
 ----------
@@ -35,14 +37,14 @@ Bugs fixed
 * C++, add missing support for virtual base classes (thanks to Rapptz).
 * C++, add support for final classes.
 * C++, fix parsing of types prefixed with 'enum'.
-* #2023: Dutch search support uses Danish stemming info
+* #2023: Dutch search support uses Danish stemming info.
 * C++, add support for user-defined literals.
 * #1804: Now html output wraps overflowed long-line-text in the sidebar. Thanks to
   Hassen ben tanfous.
-* #2183: Fix porterstemmer causes ``make json`` to fail
-* #1899: Ensure list is sent to OptParse
-* #2164: Fix wrong check for pdftex inside sphinx.sty (for graphicx package option)
-* #2165, #2218: Remove faulty and non-need conditional from sphinx.sty
+* #2183: Fix porterstemmer causes ``make json`` to fail.
+* #1899: Ensure list is sent to OptParse.
+* #2164: Fix wrong check for pdftex inside sphinx.sty (for graphicx package option).
+* #2165, #2218: Remove faulty and non-need conditional from sphinx.sty.
 
 Documentation
 -------------
