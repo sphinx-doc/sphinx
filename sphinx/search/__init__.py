@@ -135,6 +135,7 @@ languages = {
     'ru': 'sphinx.search.ru.SearchRussian',
     'sv': 'sphinx.search.sv.SearchSwedish',
     'tr': 'sphinx.search.tr.SearchTurkish',
+    'zh': 'sphinx.search.zh.SearchChinese',
 }
 
 

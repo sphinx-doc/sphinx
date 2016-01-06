@@ -874,6 +874,7 @@ that use Sphinx's HTMLWriter class.
    * ``es`` -- Spanish
    * ``sv`` -- Swedish
    * ``tr`` -- Turkish
+   * ``zh`` -- Chinese
 
    .. admonition:: Accelerating build speed
 
@@ -907,6 +908,12 @@ that use Sphinx's HTMLWriter class.
      Python binding is not installed
 
    .. versionadded:: 1.1
+
+
+   The Chinese support has these options:
+
+   * ``dict``  -- the ``jieba`` dictionary path if want to use
+     custom dictionary.
 
 .. confval:: html_search_scorer
 
