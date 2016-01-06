@@ -724,6 +724,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append(r'\%s{' % self.sectionnames[-1])
             self.context.append('}\n')
 
+            self.restrict_footnote(node)
             if self.next_section_ids:
                 for id in self.next_section_ids:
                     self.context[-1] += self.hypertarget(id, anchor=False)
@@ -753,6 +754,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.table.caption = self.popbody()
         else:
             self.body.append(self.context.pop())
+        self.unrestrict_footnote(node)
 
     def visit_subtitle(self, node):
         if isinstance(node.parent, nodes.sidebar):

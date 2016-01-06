@@ -33,8 +33,10 @@ The section with a reference to [AuthorYear]_
 .. [1] Second
 .. [#] Third
 
-The section with a reference to [1]_
+The section with a reference to [#]_
 =====================================
+
+.. [#] Footnote in section
 
 `URL in term <http://sphinx-doc.org/>`_
     Description Description Description ...

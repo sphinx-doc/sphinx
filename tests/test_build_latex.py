@@ -332,15 +332,17 @@ def test_reference_in_caption(app, status, warning):
     assert '\\chapter{The section with a reference to {[}AuthorYear{]}}' in result
     assert '\\caption{The table title with a reference to {[}AuthorYear{]}}' in result
     assert '\\paragraph{The rubric title with a reference to {[}AuthorYear{]}}' in result
-    assert '\\chapter{The section with a reference to \\protect\\footnotemark[1]}' in result
+    assert ('\\chapter{The section with a reference to \\protect\\footnotemark[4]}\n'
+            '\\label{index:the-section-with-a-reference-to}'
+            '\\footnotetext[4]{\nFootnote in section\n}' in result)
     assert ('\\caption{This is the figure caption with a footnote to '
-            '\\protect\\footnotemark[5].}\end{figure}\n'
-            '\\footnotetext[5]{\nFootnote in caption\n}')in result
-    assert ('\\caption{footnote \\protect\\footnotemark[6] '
+            '\\protect\\footnotemark[6].}\end{figure}\n'
+            '\\footnotetext[6]{\nFootnote in caption\n}')in result
+    assert ('\\caption{footnote \\protect\\footnotemark[7] '
             'in caption of normal table}') in result
-    assert '\\end{threeparttable}\n\n\\footnotetext[6]{\nFoot note in table\n}' in result
-    assert '\\caption{footnote \\protect\\footnotemark[7] in caption of longtable}' in result
-    assert '\end{longtable}\n\n\\footnotetext[7]{\nFoot note in longtable\n}' in result
+    assert '\\end{threeparttable}\n\n\\footnotetext[7]{\nFoot note in table\n}' in result
+    assert '\\caption{footnote \\protect\\footnotemark[8] in caption of longtable}' in result
+    assert '\end{longtable}\n\n\\footnotetext[8]{\nFoot note in longtable\n}' in result
 
 
 @with_app(buildername='latex', testroot='footnotes',
@@ -359,8 +361,8 @@ def test_latex_show_urls_is_inline(app, status, warning):
             '(http://sphinx-doc.org/\\textasciitilde{}test/)' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term} (http://sphinx-doc.org/)}] '
             '\\leavevmode\nDescription' in result)
-    assert ('\\item[{Footnote in term \\protect\\footnotemark[4]}] '
-            '\\leavevmode\\footnotetext[4]{\nFootnote in term\n}\nDescription' in result)
+    assert ('\\item[{Footnote in term \\protect\\footnotemark[5]}] '
+            '\\leavevmode\\footnotetext[5]{\nFootnote in term\n}\nDescription' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist} '
             '(http://sphinx-doc.org/)}] \\leavevmode\nDescription' in result)
     assert ('\\href{https://github.com/sphinx-doc/sphinx}'
@@ -384,12 +386,12 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     assert 'Third footnote: \\footnote[5]{\nThird\n}' in result
     assert ('\\href{http://sphinx-doc.org/~test/}{URL including tilde}'
             '\\footnote[4]{\nhttp://sphinx-doc.org/\\textasciitilde{}test/\n}' in result)
-    assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term}\\protect\\footnotemark[6]}] '
-            '\\leavevmode\\footnotetext[6]{\nhttp://sphinx-doc.org/\n}\nDescription' in result)
-    assert ('\\item[{Footnote in term \\protect\\footnotemark[8]}] '
-            '\\leavevmode\\footnotetext[8]{\nFootnote in term\n}\nDescription' in result)
-    assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}\\protect\\footnotemark[7]}] '
+    assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term}\\protect\\footnotemark[7]}] '
             '\\leavevmode\\footnotetext[7]{\nhttp://sphinx-doc.org/\n}\nDescription' in result)
+    assert ('\\item[{Footnote in term \\protect\\footnotemark[9]}] '
+            '\\leavevmode\\footnotetext[9]{\nFootnote in term\n}\nDescription' in result)
+    assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}\\protect\\footnotemark[8]}] '
+            '\\leavevmode\\footnotetext[8]{\nhttp://sphinx-doc.org/\n}\nDescription' in result)
     assert ('\\href{https://github.com/sphinx-doc/sphinx}'
             '{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
@@ -411,8 +413,8 @@ def test_latex_show_urls_is_no(app, status, warning):
     assert '\\href{http://sphinx-doc.org/~test/}{URL including tilde}' in result
     assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term}}] '
             '\\leavevmode\nDescription' in result)
-    assert ('\\item[{Footnote in term \\protect\\footnotemark[4]}] '
-            '\\leavevmode\\footnotetext[4]{\nFootnote in term\n}\nDescription' in result)
+    assert ('\\item[{Footnote in term \\protect\\footnotemark[5]}] '
+            '\\leavevmode\\footnotetext[5]{\nFootnote in term\n}\nDescription' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}}] '
             '\\leavevmode\nDescription' in result)
     assert ('\\href{https://github.com/sphinx-doc/sphinx}'
