@@ -5,3 +5,9 @@ graphviz
    :caption: caption of graph
 
    bar -> baz
+
+.. |graph| digraph:: bar
+
+           bar -> baz
+
+Hello |graph| graphviz world

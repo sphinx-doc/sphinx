@@ -14,7 +14,7 @@ Incompatible changes
   conf.py that will be provided on sphinx-quickstart.
 * #2027, #2208: The ``html_title`` accepts string values only. And The None value cannot be
   accepted.
-
+* ``sphinx.ext.graphviz``: show graph image in inline by default
 
 Features added
 --------------
