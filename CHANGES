@@ -27,6 +27,7 @@ Features added
 * #1906: Use xcolor over color for \fcolorbox where available for LaTeX output.
 * #2216: Texinputs makefile improvements.
 * #2170: Support for Chinese language search index.
+* #2214: Add sphinx.ext.githubpages to publish the docs on GitHub Pages
 
 Bugs fixed
 ----------
