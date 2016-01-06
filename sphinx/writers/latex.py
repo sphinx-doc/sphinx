@@ -359,13 +359,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
-        if document.settings.tocdepth:
+        if document.get('tocdepth'):
             if document.settings.docclass == 'howto':
                 self.elements['tocdepth'] = ('\\setcounter{tocdepth}{%d}' %
-                                             document.settings.tocdepth)
+                                             document['tocdepth'])
             else:
                 self.elements['tocdepth'] = ('\\setcounter{tocdepth}{%d}' %
-                                             (document.settings.tocdepth - 1))
+                                             (document['tocdepth'] - 1))
 
         self.highlighter = highlighting.PygmentsBridge(
             'latex',

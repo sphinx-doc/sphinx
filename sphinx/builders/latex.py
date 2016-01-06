@@ -106,6 +106,7 @@ class LaTeXBuilder(Builder):
             doctree = self.assemble_doctree(
                 docname, toctree_only,
                 appendices=((docclass != 'howto') and self.config.latex_appendices or []))
+            doctree['tocdepth'] = tocdepth
             self.post_process_images(doctree)
             self.info("writing... ", nonl=1)
             doctree.settings = docsettings
@@ -114,7 +115,6 @@ class LaTeXBuilder(Builder):
             doctree.settings.contentsname = self.get_contentsname(docname)
             doctree.settings.docname = docname
             doctree.settings.docclass = docclass
-            doctree.settings.tocdepth = tocdepth
             docwriter.write(doctree, destination)
             self.info("done")
 
