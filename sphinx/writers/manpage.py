@@ -30,10 +30,40 @@ class ManualPageWriter(Writer):
             self.builder.translator_class or ManualPageTranslator)
 
     def translate(self):
+        transform = NestedInlineTransform(self.document)
+        transform.apply()
         visitor = self.translator_class(self.builder, self.document)
         self.visitor = visitor
         self.document.walkabout(visitor)
         self.output = visitor.astext()
+
+
+class NestedInlineTransform(object):
+    """
+    Flatten nested inline nodes:
+
+    Before:
+        <strong>foo=<emphasis>1</emphasis>&bar=<emphasis>2</emphasis></strong>
+    After:
+        <strong>foo=</strong><emphasis>var</emphasis><strong>&bar=</strong><emphasis>2</emphasis>
+    """
+    def __init__(self, document):
+        self.document = document
+
+    def apply(self):
+        def is_inline(node):
+            return isinstance(node, (nodes.literal, nodes.emphasis, nodes.strong))
+
+        for node in self.document.traverse(is_inline):
+            if any(is_inline(subnode) for subnode in node):
+                pos = node.parent.index(node)
+                for subnode in reversed(node[1:]):
+                    node.remove(subnode)
+                    if is_inline(subnode):
+                        node.parent.insert(pos + 1, subnode)
+                    else:
+                        newnode = node.__class__('', subnode, **node.attributes)
+                        node.parent.insert(pos + 1, newnode)
 
 
 class ManualPageTranslator(BaseTranslator):
