@@ -1209,6 +1209,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_paragraph(self, node):
         self.body.append('\n')
+        if self.table:
+            self.table.has_problematic = True
 
     def depart_paragraph(self, node):
         self.body.append('\n')
