@@ -1285,12 +1285,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 (1, 'top'): ('', ''),
                 (1, 'middle'): ('\\raisebox{-0.5\\height}{', '}'),
                 (1, 'bottom'): ('\\raisebox{-\\height}{', '}'),
-                (0, 'center'): ('{\\hfill', '\\hfill}'),
+                (0, 'center'): ('{\\hspace*{\\fill}', '\\hspace*{\\fill}}'),
                 # These 2 don't exactly do the right thing.  The image should
                 # be floated alongside the paragraph.  See
                 # http://www.w3.org/TR/html4/struct/objects.html#adef-align-IMG
-                (0, 'left'): ('{', '\\hfill}'),
-                (0, 'right'): ('{\\hfill', '}'),
+                (0, 'left'): ('{', '\\hspace*{\\fill}}'),
+                (0, 'right'): ('{\\hspace*{\\fill}', '}'),
             }
             try:
                 pre.append(align_prepost[is_inline, attrs['align']][0])

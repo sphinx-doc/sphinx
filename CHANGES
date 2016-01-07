@@ -37,6 +37,7 @@ Bugs fixed
   Now sphinx use colorama>=0.3.5 to avoid this problem.
 * #2072: Fix footnotes in chapter-titles do not appear in PDF output
 * #1580: Fix paragraphs in longtable don't work in Latex output
+* #1366: Fix centered image not centered in latex
 
 Release 1.3.3 (released Dec 2, 2015)
 ====================================
