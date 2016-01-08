@@ -1476,6 +1476,12 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def depart_abbreviation(self, node):
         self.body.append(self.context.pop())
 
+    def visit_manpage(self, node):
+        return self.visit_literal_emphasis(node)
+
+    def depart_manpage(self, node):
+        return self.depart_literal_emphasis(node)
+
     def visit_download_reference(self, node):
         pass
 

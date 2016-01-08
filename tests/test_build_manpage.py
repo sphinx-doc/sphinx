@@ -20,3 +20,4 @@ def test_all(app, status, warning):
 
     content = (app.outdir / 'SphinxTests.1').text()
     assert r'\fBprint \fP\fIi\fP\fB\en\fP' in content
+    assert r'\fBmanpage\en\fP' in content
