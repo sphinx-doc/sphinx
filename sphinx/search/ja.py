@@ -29,6 +29,7 @@ try:
 except ImportError:
     native_module = False
 
+from sphinx.errors import SphinxError
 from sphinx.search import SearchLanguage
 
 
@@ -93,7 +94,9 @@ class MecabBinder(object):
         self.ctypes_libmecab.mecab_new2.restype = ctypes.c_void_p
         self.ctypes_libmecab.mecab_sparse_tostr.argtypes = (ctypes.c_void_p, ctypes.c_char_p)
         self.ctypes_libmecab.mecab_sparse_tostr.restype = ctypes.c_char_p
-        self.ctypes_mecab = ctypes.c_void_p(self.ctypes_libmecab.mecab_new2(param.encode(fs_enc)))
+        self.ctypes_mecab = self.ctypes_libmecab.mecab_new2(param.encode(fs_enc))
+        if self.ctypes_mecab is None:
+            raise SphinxError('mecab initialization failed')
 
     def __del__(self):
         if self.ctypes_libmecab:
