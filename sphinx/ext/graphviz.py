@@ -69,6 +69,44 @@ class Graphviz(Directive):
     }
 
     def run(self):
+        """
+        Is called if the directive .. graphviz: has been detected in sphinx-doc input files.
+        
+        - Check if the code includes an argument
+         - true:
+          - assign the document as the "directive state"
+          - check if the directive contains content:
+           - true: return a warning "content and filename argument not possible"
+          - assign the documents environment as directives environment
+          - get the relative dot filename and dot filename from the arguments
+          - assign the relative dot filename as environment node dependency
+          - try:
+           - open the external dot file in read mode
+           - try:
+            - assign the dot file content as "dotcode"
+           - finally:
+            - close the external dot file
+          - except:
+           - return error "external file content not found or not readable"
+         - false:
+          - assign the graphviz code as "dotcode" (line wise string list joined to single newline separated string)
+          - check if the dotcode is empty:
+           - true: return warning "empty dotcode string"
+        - create a graphviz node instance
+        - assign the graphviz code as the nodes "code"
+        - assign the "options"
+        - check if the directives "alt" is set:
+         - true: assign the directives "alt" as the nodes "alt"
+        - check if the directives "inline" is set:
+         - true: assign the directives "inline" as the nodey "alt"
+        - assign the directives "caption" as the nodes "caption"
+        - check if a "caption" is present and not "inlined":
+         - true: call the figure wrapping
+        - return the node
+        
+        :returns: A representation of inlined or external graphviz code
+        :rtype: node
+        """
         if self.arguments:
             document = self.state.document
             if self.content:
@@ -123,6 +161,10 @@ class GraphvizSimple(Directive):
     }
 
     def run(self):
+        """ 
+        Is called if the directive .. graph:: or .. digraph:: has been detected in sphinx-doc input files.
+        """
+
         node = graphviz()
         node['code'] = '%s %s {\n%s\n}\n' % \
                        (self.name, self.arguments[0], '\n'.join(self.content))
