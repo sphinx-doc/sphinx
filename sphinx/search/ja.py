@@ -29,7 +29,6 @@ try:
 except ImportError:
     native_module = False
 
-from sphinx.errors import SphinxError
 from sphinx.search import SearchLanguage
 
 
@@ -50,14 +49,10 @@ class MecabBinder(object):
         else:
             result = self.ctypes_libmecab.mecab_sparse_tostr(
                 self.ctypes_mecab, input.encode(self.dict_encode))
-            if result is None:
-                raise SphinxError('Failed to tokenize text:\nMecab: %s\nInput:\n%s' %
-                                  (self.ctypes_mecab, input))
         if PY3:
             return result.split(' ')
         else:
             return result.decode(self.dict_encode).split(' ')
-        return result.decode(self.dict_encode).split(' ')
 
     def init_native(self, options):
         param = '-Owakati'
