@@ -85,7 +85,7 @@ class MecabBinder(object):
         dict = options.get('dict')
         if dict:
             param += ' -d %s' % dict
-        
+
         fs_enc = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
         self.ctypes_libmecab = ctypes.CDLL(libpath)
