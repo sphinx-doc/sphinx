@@ -161,6 +161,10 @@ class GraphvizSimple(Directive):
     }
 
     def run(self):
+        """ 
+        Is called if the directive .. graph:: or .. digraph:: has been detected in sphinx-doc input files.
+        """
+
         node = graphviz()
         node['code'] = '%s %s {\n%s\n}\n' % \
                        (self.name, self.arguments[0], '\n'.join(self.content))
