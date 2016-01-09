@@ -16,6 +16,7 @@ import re
 from subprocess import Popen, PIPE
 from xml.etree import ElementTree
 
+from babel.messages import pofile
 from nose.tools import assert_equal
 from six import string_types
 
@@ -175,16 +176,16 @@ def test_text_builder(app, status, warning):
                             u'WARNING: Literal block expected; none found.'
     yield assert_re_search, expected_warning_expr, warnings
 
-    # --- definition terms: regression test for #975
+    # --- definition terms: regression test for #975, #2198, #2205
 
     result = (app.outdir / 'definition_terms.txt').text(encoding='utf-8')
     expect = (u"\nI18N WITH DEFINITION TERMS"
               u"\n**************************\n"
               u"\nSOME TERM"
               u"\n   THE CORRESPONDING DEFINITION\n"
-              u"\nSOME OTHER TERM"
+              u"\nSOME *TERM* WITH LINK"
               u"\n   THE CORRESPONDING DEFINITION #2\n"
-              u"\nSOME TERM WITH : CLASSIFIER1 : CLASSIFIER2"
+              u"\nSOME **TERM** WITH : CLASSIFIER1 : CLASSIFIER2"
               u"\n   THE CORRESPONDING DEFINITION\n"
               )
     yield assert_equal, result, expect
@@ -302,6 +303,31 @@ def test_text_builder(app, status, warning):
     for d in directives:
         yield assert_in, d.upper() + " TITLE", result
         yield assert_in, d.upper() + " BODY", result
+
+
+@gen_with_intl_app('gettext', freshenv=True)
+def test_gettext_builder(app, status, warning):
+    app.builder.build_all()
+
+    # --- definition terms: regression test for #2198, #2205
+    expect = pofile.read_po((app.srcdir / 'definition_terms.po').open())
+    actual = pofile.read_po((app.outdir / 'definition_terms.pot').open())
+    for expect_msg in [m for m in expect if m.id]:
+        yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
+
+    # --- glossary terms: regression test for #1090
+    expect = pofile.read_po((app.srcdir / 'glossary_terms.po').open())
+    actual = pofile.read_po((app.outdir / 'glossary_terms.pot').open())
+    for expect_msg in [m for m in expect if m.id]:
+        yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
+    warnings = warning.getvalue().replace(os.sep, '/')
+    yield assert_not_in, 'term not in glossary', warnings
+
+    # --- glossary term inconsistencies: regression test for #1090
+    expect = pofile.read_po((app.srcdir / 'glossary_terms_inconsistency.po').open())
+    actual = pofile.read_po((app.outdir / 'glossary_terms_inconsistency.pot').open())
+    for expect_msg in [m for m in expect if m.id]:
+        yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
 
 
 @gen_with_intl_app('html', freshenv=True)

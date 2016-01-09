@@ -6,9 +6,9 @@ i18n with definition terms
 Some term
    The corresponding definition
 
-Some other term
+Some *term* `with link <http://sphinx-doc.org/>`__
    The corresponding definition #2
 
-Some term with : classifier1  : classifier2
+Some **term** with : classifier1  : classifier2
    The corresponding definition
 
