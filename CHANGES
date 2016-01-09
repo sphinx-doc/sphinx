@@ -46,6 +46,7 @@ Bugs fixed
 * #2198,#2205: ``make gettext`` generate broken msgid for definition lists.
 * #2062: Escape characters in doctests are treated incorrectly with Python 2.
 * #2225: Fix if the option does not begin with dash, linking is not performed
+* #2226: Fix math is not HTML-encoded when :nowrap: is given (jsmath, mathjax)
 
 Release 1.3.3 (released Dec 2, 2015)
 ====================================

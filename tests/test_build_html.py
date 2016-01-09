@@ -16,7 +16,7 @@ from six import PY3, iteritems
 from six.moves import html_entities
 
 from sphinx import __display_version__
-from util import remove_unicode_literals, gen_with_app
+from util import remove_unicode_literals, gen_with_app, with_app
 from etree13 import ElementTree as ET
 
 
@@ -929,3 +929,18 @@ def test_numfig_with_secnum_depth(app, status, warning):
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@with_app(buildername='html')
+def test_jsmath(app, status, warning):
+    app.builder.build_all()
+    content = (app.outdir / 'math.html').text()
+
+    assert '<div class="math">\na^2 + b^2 = c^2</div>' in content
+    assert '<div class="math">\n\\begin{split}a + 1 &lt; b\\end{split}</div>' in content
+    assert ('<span class="eqno">(1)</span><div class="math" id="equation-foo">\n'
+            'e^{i\\pi} = 1</div>' in content)
+    assert ('<span class="eqno">(2)</span><div class="math">\n'
+            'e^{ix} = \\cos x + i\\sin x</div>' in content)
+    assert '<div class="math">\nn \\in \\mathbb N</div>' in content
+    assert '<div class="math">\na + 1 &lt; b</div>' in content

@@ -30,7 +30,7 @@ def html_visit_displaymath(self, node):
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     if node['nowrap']:
         self.body.append(self.builder.config.mathjax_display[0] +
-                         node['latex'] +
+                         self.encode(node['latex']) +
                          self.builder.config.mathjax_display[1])
         self.body.append('</div>')
         raise nodes.SkipNode
