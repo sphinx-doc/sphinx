@@ -174,7 +174,17 @@ Others
 
 .. option:: arg
 
-Link to :option:`perl +p` and :option:`arg`.
+Link to :option:`perl +p` and :option:`arg`
+
+.. program:: hg
+
+.. option:: commit
+
+.. program:: git commit
+
+.. option:: -p
+
+Link to :option:`hg commit` and :option:`git commit -p`.
 
 
 User markup
