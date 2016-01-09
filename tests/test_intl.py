@@ -41,6 +41,11 @@ def gen_with_intl_app(builder, confoverrides={}, *args, **kw):
     return gen_with_app(builder, *args, **default_kw)
 
 
+def read_po(pathname):
+    with pathname.open() as f:
+        return pofile.read_po(f)
+
+
 def setup_module():
     if not root.exists():
         (rootdir / 'roots' / 'test-intl').copytree(root)
@@ -310,22 +315,22 @@ def test_gettext_builder(app, status, warning):
     app.builder.build_all()
 
     # --- definition terms: regression test for #2198, #2205
-    expect = pofile.read_po((app.srcdir / 'definition_terms.po').open())
-    actual = pofile.read_po((app.outdir / 'definition_terms.pot').open())
+    expect = read_po(app.srcdir / 'definition_terms.po')
+    actual = read_po(app.outdir / 'definition_terms.pot')
     for expect_msg in [m for m in expect if m.id]:
         yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
 
     # --- glossary terms: regression test for #1090
-    expect = pofile.read_po((app.srcdir / 'glossary_terms.po').open())
-    actual = pofile.read_po((app.outdir / 'glossary_terms.pot').open())
+    expect = read_po(app.srcdir / 'glossary_terms.po')
+    actual = read_po(app.outdir / 'glossary_terms.pot')
     for expect_msg in [m for m in expect if m.id]:
         yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
     warnings = warning.getvalue().replace(os.sep, '/')
     yield assert_not_in, 'term not in glossary', warnings
 
     # --- glossary term inconsistencies: regression test for #1090
-    expect = pofile.read_po((app.srcdir / 'glossary_terms_inconsistency.po').open())
-    actual = pofile.read_po((app.outdir / 'glossary_terms_inconsistency.pot').open())
+    expect = read_po(app.srcdir / 'glossary_terms_inconsistency.po')
+    actual = read_po(app.outdir / 'glossary_terms_inconsistency.pot')
     for expect_msg in [m for m in expect if m.id]:
         yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
 
