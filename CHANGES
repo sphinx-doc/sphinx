@@ -44,6 +44,7 @@ Bugs fixed
 * #2160: Fix broken TOC of PDFs if section includes an image
 * #2172: Fix dysfunctional admonition \py@lightbox in sphinx.sty. Thanks to jfbu.
 * #2198,#2205: ``make gettext`` generate broken msgid for definition lists.
+* #2062: Escape characters in doctests are treated incorrectly with Python 2.
 
 Release 1.3.3 (released Dec 2, 2015)
 ====================================
