@@ -1063,8 +1063,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.remember_multirowcol[self.table.col] = node.get('morecols')
             self.table.col += node.get('morecols')
         if isinstance(node.parent.parent, nodes.thead):
-            self.body.append('\\textsf{\\relax ')
-            context += '}'
+            if len(node) == 1 and isinstance(node[0], nodes.paragraph) and node.astext() == '':
+                pass
+            else:
+                self.body.append('\\textsf{\\relax ')
+                context += '}'
         while self.remember_multirow.get(self.table.col + 1, 0):
             self.table.col += 1
             self.remember_multirow[self.table.col] -= 1
@@ -1661,7 +1664,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # if a footnote has been inserted once, it shouldn't be repeated
         # by the next reference
         if used:
-            if self.table or self.in_term:
+            if self.table or self.in_term or self.in_title:
                 self.body.append('\\protect\\footnotemark[%s]' % num)
             else:
                 self.body.append('\\footnotemark[%s]' % num)

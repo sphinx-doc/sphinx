@@ -23,8 +23,8 @@ from os import path
 from glob import glob
 from itertools import groupby
 
-from six import iteritems, itervalues, text_type, class_types, string_types
-from six.moves import cPickle as pickle, zip
+from six import iteritems, itervalues, text_type, class_types, string_types, next
+from six.moves import cPickle as pickle
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
@@ -1951,54 +1951,31 @@ class BuildEnvironment:
                 for (key_, group) in groupby(newlist, keyfunc2)]
 
     def collect_relations(self):
-        relations = {}
-        getinc = self.toctree_includes.get
+        traversed = set()
 
-        def collect(parents, parents_set, docname, previous, next):
-            # circular relationship?
-            if docname in parents_set:
-                # we will warn about this in resolve_toctree()
-                return
-            includes = getinc(docname)
-            # previous
-            if not previous:
-                # if no previous sibling, go to parent
-                previous = parents[0][0]
-            else:
-                # else, go to previous sibling, or if it has children, to
-                # the last of its children, or if that has children, to the
-                # last of those, and so forth
-                while 1:
-                    previncs = getinc(previous)
-                    if previncs:
-                        previous = previncs[-1]
-                    else:
-                        break
-            # next
-            if includes:
-                # if it has children, go to first of them
-                next = includes[0]
-            elif next:
-                # else, if next sibling, go to it
-                pass
-            else:
-                # else, go to the next sibling of the parent, if present,
-                # else the grandparent's sibling, if present, and so forth
-                for parname, parindex in parents:
-                    parincs = getinc(parname)
-                    if parincs and parindex + 1 < len(parincs):
-                        next = parincs[parindex+1]
-                        break
-                # else it will stay None
-            # same for children
-            if includes:
-                for subindex, args in enumerate(zip(includes,
-                                                    [None] + includes,
-                                                    includes[1:] + [None])):
-                    collect([(docname, subindex)] + parents,
-                            parents_set.union([docname]), *args)
-            relations[docname] = [parents[0][0], previous, next]
-        collect([(None, 0)], set(), self.config.master_doc, None, None)
+        def traverse_toctree(parent, docname):
+            # traverse toctree by pre-order
+            yield parent, docname
+            traversed.add(docname)
+
+            for child in (self.toctree_includes.get(docname) or []):
+                for subparent, subdocname in traverse_toctree(docname, child):
+                    if subdocname not in traversed:
+                        yield subparent, subdocname
+                        traversed.add(subdocname)
+
+        relations = {}
+        docnames = traverse_toctree(None, self.config.master_doc)
+        prevdoc = None
+        parent, docname = next(docnames)
+        for nextparent, nextdoc in docnames:
+            relations[docname] = [parent, prevdoc, nextdoc]
+            prevdoc = docname
+            docname = nextdoc
+            parent = nextparent
+
+        relations[docname] = [parent, prevdoc, None]
+
         return relations
 
     def check_consistency(self):

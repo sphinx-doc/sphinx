@@ -58,7 +58,6 @@ def test_texinfo(app, status, warning):
             if retcode != 0:
                 print(stdout)
                 print(stderr)
-                del app.cleanup_trees[:]
                 assert False, 'makeinfo exited with return code %s' % retcode
     finally:
         os.chdir(cwd)

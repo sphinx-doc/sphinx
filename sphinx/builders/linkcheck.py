@@ -95,6 +95,17 @@ def check_anchor(f, hash):
     return parser.found
 
 
+def get_content_charset(f):
+    content_type = f.headers.get('content-type')
+    if content_type:
+        params = (p.strip() for p in content_type.split(';')[1:])
+        for param in params:
+            if param.startswith('charset='):
+                return param[8:]
+
+    return None
+
+
 class CheckExternalLinksBuilder(Builder):
     """
     Checks for broken external links.
@@ -165,6 +176,8 @@ class CheckExternalLinksBuilder(Builder):
                     encoding = 'utf-8'
                     if hasattr(f.headers, 'get_content_charset'):
                         encoding = f.headers.get_content_charset() or encoding
+                    else:
+                        encoding = get_content_charset(f) or encoding
                     found = check_anchor(TextIOWrapper(f, encoding), unquote(hash))
                     f.close()
 

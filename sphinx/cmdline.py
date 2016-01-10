@@ -144,6 +144,10 @@ def main(argv):
                   file=sys.stderr)
             return 1
         outdir = abspath(args[1])
+        if srcdir == outdir:
+            print('Error: source directory and destination directory are same.',
+                  file=sys.stderr)
+            return 1
     except IndexError:
         parser.print_help()
         return 1

@@ -56,6 +56,17 @@ def eq_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
     return [node], []
 
 
+def is_in_section_title(node):
+    """Determine whether the node is in a section title"""
+    from sphinx.util.nodes import traverse_parent
+
+    for ancestor in traverse_parent(node):
+        if isinstance(ancestor, nodes.title) and \
+           isinstance(ancestor.parent, nodes.section):
+            return True
+    return False
+
+
 class MathDirective(Directive):
 
     has_content = True
@@ -91,7 +102,12 @@ class MathDirective(Directive):
 
 
 def latex_visit_math(self, node):
-    self.body.append('\\(' + node['latex'] + '\\)')
+    if is_in_section_title(node):
+        protect = r'\protect'
+    else:
+        protect = ''
+    equation = protect + r'\(' + node['latex'] + protect + r'\)'
+    self.body.append(equation)
     raise nodes.SkipNode
 
 
@@ -214,3 +230,4 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     app.add_role('eq', eq_role)
     app.add_directive('math', MathDirective)
     app.connect('doctree-resolved', number_equations)
+    app.add_latex_package('amsfonts')
