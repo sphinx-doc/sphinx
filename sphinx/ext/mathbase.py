@@ -28,7 +28,7 @@ class eqref(nodes.Inline, nodes.TextElement):
     pass
 
 
-def wrap_displaymath(math, label):
+def wrap_displaymath(math, label, numbering):
     parts = math.split('\n\n')
     ret = []
     for i, part in enumerate(parts):
@@ -38,7 +38,9 @@ def wrap_displaymath(math, label):
             ret.append('\\begin{split}%s\\end{split}' % part +
                        (label and '\\label{'+label+'}' or ''))
         else:
-            ret.append('\\begin{split}%s\\end{split}\\notag' % part)
+            ret.append(r'\begin{split}%s\end{split}' % part)
+            if not numbering:
+                ret.append(r'\notag')
     if not ret:
         return ''
     return '\\begin{gather}\n' + '\\\\'.join(ret) + '\n\\end{gather}'
@@ -116,7 +118,8 @@ def latex_visit_displaymath(self, node):
         self.body.append(node['latex'])
     else:
         label = node['label'] and node['docname'] + '-' + node['label'] or None
-        self.body.append(wrap_displaymath(node['latex'], label))
+        self.body.append(wrap_displaymath(node['latex'], label,
+                                          self.builder.config.math_number_all))
     raise nodes.SkipNode
 
 
@@ -194,10 +197,11 @@ def number_equations(app, doctree, docname):
     num = 0
     numbers = {}
     for node in doctree.traverse(displaymath):
-        if node['label'] is not None:
+        if node['label'] is not None or app.config.math_number_all:
             num += 1
             node['number'] = num
-            numbers[node['label']] = num
+            if node['label'] is not None:
+                numbers[node['label']] = num
         else:
             node['number'] = None
     for node in doctree.traverse(eqref):
@@ -208,6 +212,7 @@ def number_equations(app, doctree, docname):
 
 
 def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
+    app.add_config_value('math_number_all', False, 'html')
     app.add_node(math, override=True,
                  latex=(latex_visit_math, None),
                  text=(text_visit_math, None),

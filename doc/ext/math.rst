@@ -28,6 +28,13 @@ Keep in mind that when you put math markup in **Python docstrings** read by
 :mod:`autodoc <sphinx.ext.autodoc>`, you either have to double all backslashes,
 or use Python raw strings (``r"raw"``).
 
+:mod:`.mathbase` provides the following config values:
+
+.. confval:: math_number_all
+
+   Set this option to ``True`` if you want all displayed math to be numbered.
+   The default is ``False``.
+
 :mod:`.mathbase` defines these new markup elements:
 
 .. rst:role:: math
