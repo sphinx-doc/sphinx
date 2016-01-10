@@ -12,6 +12,7 @@
 from six import BytesIO
 
 from textwrap import dedent
+from sphinx.errors import SphinxError
 
 from util import with_app, rootdir, tempdir, SkipTest, TestApp
 
@@ -71,6 +72,18 @@ def test_build_all():
                         'applehelp', 'changes', 'xml', 'pseudoxml', 'man',
                         'linkcheck']:
         yield verify_build, buildername, srcdir
+
+
+@with_app(buildername='text')
+def test_master_doc_not_found(app, status, warning):
+    (app.srcdir / 'contents.txt').move(app.srcdir / 'contents.txt.bak')
+    try:
+        app.builder.build_all()
+        assert False  # SphinxError not raised
+    except Exception as exc:
+        assert isinstance(exc, SphinxError)
+    finally:
+        (app.srcdir / 'contents.txt.bak').move(app.srcdir / 'contents.txt')
 
 
 @with_app(buildername='text', testroot='circular')

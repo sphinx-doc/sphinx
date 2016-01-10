@@ -47,8 +47,10 @@ def apply_source_workaround(node):
         node.line = definition_list_item.line - 1
         node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
     if isinstance(node, nodes.term):
-        # overwrite: ``term : classifier1 : classifier2`` -> ``term text``
-        node.rawsource = node.astext()
+        # strip classifier from rawsource of term
+        for classifier in reversed(node.parent.traverse(nodes.classifier)):
+            node.rawsource = re.sub(
+                '\s*:\s*%s' % classifier.astext(), '', node.rawsource)
 
     # workaround: recommonmark-0.2.0 doesn't set rawsource attribute
     if not node.rawsource:

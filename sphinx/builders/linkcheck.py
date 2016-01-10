@@ -243,11 +243,12 @@ class CheckExternalLinksBuilder(Builder):
         elif status == 'working':
             self.info(darkgreen('ok        ')  + uri + info)
         elif status == 'broken':
-            self.info(red('broken    ') + uri + red(' - ' + info))
             self.write_entry('broken', docname, lineno, uri + ': ' + info)
-            if self.app.quiet:
+            if self.app.quiet or self.app.warningiserror:
                 self.warn('broken link: %s' % uri,
                           '%s:%s' % (self.env.doc2path(docname), lineno))
+            else:
+                self.info(red('broken    ') + uri + red(' - ' + info))
         elif status == 'redirected':
             text, color = {
                 301: ('permanently', darkred),

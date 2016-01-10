@@ -69,14 +69,39 @@ Bugs fixed
 * #2168: Fix raw directive does not work for text writer
 * #2171: Fix cannot linkcheck url with unicode
 * #2182: LaTeX: support image file names with more than 1 dots
-* #2189: Fix previous sibling link for first file in subdirectory uses last file, not intended previous from root toctree
+* #2189: Fix previous sibling link for first file in subdirectory uses last file, not
+  intended previous from root toctree
 * #2003: Fix decode error under python2 (only) when ``make linkcheck`` is run
 * #2186: Fix LaTeX output of \mathbb in math
 * #1480, #2188: LaTeX: Support math in section titles
 * #2071: Fix same footnote in more than two section titles => LaTeX/PDF Bug
 * #2040: Fix UnicodeDecodeError in sphinx-apidoc when author contains non-ascii characters
 * #2193: Fix shutil.SameFileError if source directory and destination directory are same
-
+* #2178: Fix unparseable C++ cross-reference when referencing a function with :cpp:any:
+* #2206: Fix Sphinx latex doc build failed due to a footnotes
+* #2201: Fix wrong table caption for tables with over 30 rows
+* #2213: Set <blockquote> in the classic theme to fit with <p>
+* #1815: Fix linkcheck does not raise an exception if warniserror set to true and link is
+  broken
+* #2197: Fix slightly cryptic error message for missing index.rst file
+* #1894: Unlisted phony targets in quickstart Makefile
+* #2125: Fix unifies behavior of collapsed fields (``GroupedField`` and ``TypedField``)
+* #1408: Check latex_logo validity before copying
+* #771: Fix latex output doesn't set tocdepth
+* #1820: On Windows, console coloring is broken with colorama version 0.3.3.
+  Now sphinx use colorama>=0.3.5 to avoid this problem.
+* #2072: Fix footnotes in chapter-titles do not appear in PDF output
+* #1580: Fix paragraphs in longtable don't work in Latex output
+* #1366: Fix centered image not centered in latex
+* #1860: Fix man page using ``:samp:`` with braces - font doesn't reset
+* #1610: Sphinx crashes in japanese indexing in some systems
+* Fix Sphinx crashes if mecab initialization failed
+* #2160: Fix broken TOC of PDFs if section includes an image
+* #2172: Fix dysfunctional admonition \py@lightbox in sphinx.sty. Thanks to jfbu.
+* #2198,#2205: ``make gettext`` generate broken msgid for definition lists.
+* #2062: Escape characters in doctests are treated incorrectly with Python 2.
+* #2225: Fix if the option does not begin with dash, linking is not performed
+* #2226: Fix math is not HTML-encoded when :nowrap: is given (jsmath, mathjax)
 
 Release 1.3.3 (released Dec 2, 2015)
 ====================================

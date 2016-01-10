@@ -9,9 +9,11 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
+
 from six import text_type
 
-from util import raises
+from util import raises, with_app
 
 from sphinx import addnodes
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
@@ -393,3 +395,49 @@ def test_templates():
 #    for a in ids:
 #        print(a)
 #    raise DefinitionError("")
+
+
+@with_app(testroot='domain-cpp')
+def test_build_domain_cpp(app, status, warning):
+    app.builder.build_all()
+
+    roles = (app.outdir / 'roles.html').text()
+    assert re.search('<li><a .*?><code .*?><span .*?>Sphinx</span></code></a></li>', roles)
+    assert re.search(('<li>ref function without parens <a .*?><code .*?><span .*?>'
+                      'hello\(\)</span></code></a>\.</li>'), roles)
+    assert re.search(('<li>ref function with parens <a .*?><code .*?><span .*?>'
+                      'hello\(\)</span></code></a>\.</li>'), roles)
+    assert re.search('<li><a .*?><code .*?><span .*?>Sphinx::version</span></code></a></li>',
+                     roles)
+    assert re.search('<li><a .*?><code .*?><span .*?>version</span></code></a></li>', roles)
+    assert re.search('<li><a .*?><code .*?><span .*?>List</span></code></a></li>', roles)
+    assert re.search('<li><a .*?><code .*?><span .*?>MyEnum</span></code></a></li>', roles)
+
+    any_role = (app.outdir / 'any-role.html').text()
+    assert re.search('<li><a .*?><code .*?><span .*?>Sphinx</span></code></a></li>', any_role)
+    assert re.search(('<li>ref function without parens <a .*?><code .*?><span .*?>'
+                      'hello\(\)</span></code></a>\.</li>'), any_role)
+    assert re.search(('<li>ref function with parens <a .*?><code .*?><span .*?>'
+                      'hello\(\)</span></code></a>\.</li>'), any_role)
+    assert re.search('<li><a .*?><code .*?><span .*?>Sphinx::version</span></code></a></li>',
+                     any_role)
+    assert re.search('<li><a .*?><code .*?><span .*?>version</span></code></a></li>', any_role)
+    assert re.search('<li><a .*?><code .*?><span .*?>List</span></code></a></li>', any_role)
+    assert re.search('<li><a .*?><code .*?><span .*?>MyEnum</span></code></a></li>', any_role)
+
+
+@with_app(testroot='domain-cpp', confoverrides={'add_function_parentheses': False})
+def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, warning):
+    app.builder.build_all()
+
+    roles = (app.outdir / 'roles.html').text()
+    assert re.search(('<li>ref function without parens <a .*?><code .*?><span .*?>'
+                      'hello</span></code></a>\.</li>'), roles)
+    assert re.search(('<li>ref function with parens <a .*?><code .*?><span .*?>'
+                      'hello</span></code></a>\.</li>'), roles)
+
+    any_role = (app.outdir / 'any-role.html').text()
+    assert re.search(('<li>ref function without parens <a .*?><code .*?><span .*?>'
+                      'hello</span></code></a>\.</li>'), any_role)
+    assert re.search(('<li>ref function with parens <a .*?><code .*?><span .*?>'
+                      'hello</span></code></a>\.</li>'), any_role)

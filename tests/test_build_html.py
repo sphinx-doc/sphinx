@@ -16,7 +16,7 @@ from six import PY3, iteritems
 from six.moves import html_entities
 
 from sphinx import __display_version__
-from util import remove_unicode_literals, gen_with_app
+from util import remove_unicode_literals, gen_with_app, with_app
 from etree13 import ElementTree as ET
 
 
@@ -31,9 +31,7 @@ http://www.python.org/logo.png
 reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 :encoding: option\\n?
 %(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
-(%(root)s/markup.txt:\\d+: WARNING: Malformed :option: u'&option', does \
-not contain option marker - or -- or / or \\+
-%(root)s/undecodable.txt:3: WARNING: undecodable source characters, replacing \
+(%(root)s/undecodable.txt:3: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
 )?"""
 
@@ -234,6 +232,23 @@ HTML_XPATH = {
         (".//td[@class='field-body']/ul/li/strong", '^hour$'),
         (".//td[@class='field-body']/ul/li/em", '^DuplicateType$'),
         (".//td[@class='field-body']/ul/li/em", tail_check(r'.* Some parameter')),
+        # others
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-+p']/code/span",
+            'perl'),
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-+p']/code/span",
+            '\+p'),
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-arg']/code/span",
+            'arg'),
+        (".//a[@class='reference internal'][@href='#cmdoption-hg-arg-commit']/code/span",
+            'hg'),
+        (".//a[@class='reference internal'][@href='#cmdoption-hg-arg-commit']/code/span",
+            'commit'),
+        (".//a[@class='reference internal'][@href='#cmdoption-git-commit-p']/code/span",
+            'git'),
+        (".//a[@class='reference internal'][@href='#cmdoption-git-commit-p']/code/span",
+            'commit'),
+        (".//a[@class='reference internal'][@href='#cmdoption-git-commit-p']/code/span",
+            '-p'),
     ],
     'contents.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
@@ -914,3 +929,18 @@ def test_numfig_with_secnum_depth(app, status, warning):
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@with_app(buildername='html')
+def test_jsmath(app, status, warning):
+    app.builder.build_all()
+    content = (app.outdir / 'math.html').text()
+
+    assert '<div class="math">\na^2 + b^2 = c^2</div>' in content
+    assert '<div class="math">\n\\begin{split}a + 1 &lt; b\\end{split}</div>' in content
+    assert ('<span class="eqno">(1)</span><div class="math" id="equation-foo">\n'
+            'e^{i\\pi} = 1</div>' in content)
+    assert ('<span class="eqno">(2)</span><div class="math">\n'
+            'e^{ix} = \\cos x + i\\sin x</div>' in content)
+    assert '<div class="math">\nn \\in \\mathbb N</div>' in content
+    assert '<div class="math">\na + 1 &lt; b</div>' in content

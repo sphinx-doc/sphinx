@@ -3924,6 +3924,9 @@ class CPPXRefRole(XRefRole):
         parent = env.ref_context.get('cpp:parentSymbol', None)
         if parent:
             refnode['cpp:parentKey'] = parent.get_lookup_key()
+        if refnode['reftype'] == 'any':
+            # Remove parentheses from the target (not from title)
+            title, target = self._fix_parens(env, True, title, target)
         # TODO: should this really be here?
         if not has_explicit_title:
             target = target.lstrip('~')  # only has a meaning for the title
@@ -4048,6 +4051,14 @@ class CPPDomain(Domain):
         name = text_type(fullNestedName).lstrip(':')
         docname = s.docname
         assert docname
+        if declaration.objectType == 'function':
+            title = name
+            if title.endswith('()'):
+                title = title[:-2]  # remove parentheses
+            if env.config.add_function_parentheses:
+                title += '()'
+            contnode.pop(0)
+            contnode.insert(0, nodes.Text(title))
         return make_refnode(builder, fromdocname, docname,
                             declaration.get_newest_id(), contnode, name
                             ), declaration.objectType

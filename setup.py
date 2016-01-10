@@ -58,7 +58,7 @@ requires = [
 extras_require = {
     # Environment Marker works for wheel 0.24 or later
     ':sys_platform=="win32"': [
-        'colorama',
+        'colorama>=0.3.5',
     ],
     'websupport': [
         'sqlalchemy>=0.9',
@@ -73,7 +73,7 @@ extras_require = {
 
 # for sdist installation with pip-1.5.6
 if sys.platform == 'win32':
-    requires.append('colorama')
+    requires.append('colorama>=0.3.5')
 
 # Provide a "compile_catalog" command that also creates the translated
 # JavaScript files if Babel is available.

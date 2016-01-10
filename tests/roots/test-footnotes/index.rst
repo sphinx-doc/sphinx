@@ -33,8 +33,10 @@ The section with a reference to [AuthorYear]_
 .. [1] Second
 .. [#] Third
 
-The section with a reference to [1]_
+The section with a reference to [#]_
 =====================================
+
+.. [#] Footnote in section
 
 `URL in term <http://sphinx-doc.org/>`_
     Description Description Description ...
@@ -46,3 +48,95 @@ Footnote in term [#]_
         Description2
 
 .. [#] Footnote in term
+
+.. figure:: rimg.png
+
+   This is the figure caption with a footnote to [#]_.
+
+.. [#] Footnote in caption
+
+.. list-table:: footnote [#]_ in caption of normal table
+    :widths: 1 1
+    :header-rows: 1
+
+    * - name
+      - desc
+    * - a
+      - b
+    * - a
+      - b
+
+.. [#] Foot note in table
+
+.. list-table:: footnote [#]_ in caption of longtable
+    :widths: 1 1
+    :header-rows: 1
+
+    * - name
+      - desc
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+    * - a
+      - b
+
+.. [#] Foot note in longtable

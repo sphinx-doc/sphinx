@@ -210,10 +210,6 @@ class Program(Directive):
 
 class OptionXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # validate content
-        if not re.match(r'(.+ )?[-/+\w]', target):
-            env.warn_node('Malformed :option: %r, does not contain option '
-                          'marker - or -- or / or +' % target, refnode)
         refnode['std:program'] = env.ref_context.get('std:program')
         return title, target
 
@@ -666,22 +662,23 @@ class StandardDomain(Domain):
             return make_refnode(builder, fromdocname, docname,
                                 labelid, contnode)
         elif typ == 'option':
+            progname = node.get('std:program')
             target = target.strip()
-            # most obvious thing: we are a flag option without program
-            if target.startswith(('-', '/', '+')):
-                progname = node.get('std:program')
-            elif re.search(r'[-/+]', target):
-                try:
-                    progname, target = re.split(r' (?=-|--|/|\+)', target, 1)
-                except ValueError:
-                    return None
-                progname = ws_re.sub('-', progname.strip())
-            else:
-                progname = None
-            docname, labelid = self.data['progoptions'].get((progname, target),
-                                                            ('', ''))
+            docname, labelid = self.data['progoptions'].get((progname, target), ('', ''))
             if not docname:
-                return None
+                commands = []
+                while ws_re.search(target):
+                    subcommand, target = ws_re.split(target, 1)
+                    commands.append(subcommand)
+                    progname = "-".join(commands)
+
+                    docname, labelid = self.data['progoptions'].get((progname, target),
+                                                                    ('', ''))
+                    if docname:
+                        break
+                else:
+                    return None
+
             return make_refnode(builder, fromdocname, docname,
                                 labelid, contnode)
         else:

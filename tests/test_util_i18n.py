@@ -55,7 +55,8 @@ def test_catalog_write_mo(dir):
     cat = i18n.CatalogInfo(dir, 'test', 'utf-8')
     cat.write_mo('en')
     assert path.exists(cat.mo_path)
-    assert read_mo(open(cat.mo_path, 'rb')) is not None
+    with open(cat.mo_path, 'rb') as f:
+        assert read_mo(f) is not None
 
 
 @with_tempdir

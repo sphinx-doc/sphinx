@@ -26,7 +26,7 @@ def html_visit_math(self, node):
 def html_visit_displaymath(self, node):
     if node['nowrap']:
         self.body.append(self.starttag(node, 'div', CLASS='math'))
-        self.body.append(node['latex'])
+        self.body.append(self.encode(node['latex']))
         self.body.append('</div>')
         raise nodes.SkipNode
     for i, part in enumerate(node['latex'].split('\n\n')):

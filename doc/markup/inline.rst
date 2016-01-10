@@ -242,9 +242,8 @@ objects:
 
 .. rst:role:: option
 
-   A command-line option to an executable program.  The leading hyphen(s) must
-   be included.  This generates a link to a :rst:dir:`option` directive, if it
-   exists.
+   A command-line option to an executable program.  This generates a link to
+   a :rst:dir:`option` directive, if it exists.
 
 
 The following role creates a cross-reference to a term in a
