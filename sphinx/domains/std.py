@@ -675,6 +675,8 @@ class StandardDomain(Domain):
                     if docname:
                         break
                 else:
+                    env.warn(fromdocname, 'unknown option: %s' % (contnode.astext()),
+                             lineno=node.line)
                     return None
 
             return make_refnode(builder, fromdocname, docname,

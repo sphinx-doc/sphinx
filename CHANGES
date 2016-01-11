@@ -50,6 +50,7 @@ Bugs fixed
 * #1601, #2220: 'any' role breaks extended domains behavior. Affected extensions doesn't
   support resolve_any_xref and resolve_xref returns problematic node instead of None.
   sphinxcontrib-httpdomain is one of them.
+* #2229: Fix no warning is given for unknown options
 
 Release 1.3.3 (released Dec 2, 2015)
 ====================================
