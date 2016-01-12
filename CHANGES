@@ -134,7 +134,7 @@ Bugs fixed
   Suzumizaki.
 * #1818: `sphinx.ext.todo` directive generates broken html class attribute as
   'admonition-' when :confval:`language` is specified with non-ASCII linguistic area like
-  'ru' or 'ja'. To fix this, now ``todo`` directive can use ```:class:`` option.
+  'ru' or 'ja'. To fix this, now ``todo`` directive can use ``:class:`` option.
 * #2140: Fix footnotes in table has broken in LaTeX
 * #2127: MecabBinder for html searching feature doesn't work with Python 3.
   Thanks to Tomoko Uchida.
