@@ -292,9 +292,13 @@ def set_role_source_info(inliner, lineno, node):
     node.source, node.line = inliner.reporter.get_source_and_line(lineno)
 
 
-# monkey-patch Element.copy to copy the rawsource
+# monkey-patch Element.copy to copy the rawsource and line
 
 def _new_copy(self):
-    return self.__class__(self.rawsource, **self.attributes)
+    newnode = self.__class__(self.rawsource, **self.attributes)
+    if isinstance(self, nodes.Element):
+        newnode.source = self.source
+        newnode.line = self.line
+    return newnode
 
 nodes.Element.copy = _new_copy

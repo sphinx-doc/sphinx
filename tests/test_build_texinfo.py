@@ -23,10 +23,10 @@ from test_build_html import ENV_WARNINGS
 
 
 TEXINFO_WARNINGS = ENV_WARNINGS + """\
-None:None: WARNING: unknown option: &option
-None:None: WARNING: citation not found: missing
-None:None: WARNING: no matching candidate for image URI u'foo.\\*'
-None:None: WARNING: no matching candidate for image URI u'svgimg.\\*'
+%(root)s/markup.txt:158: WARNING: unknown option: &option
+None:60: WARNING: citation not found: missing
+%(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
+%(root)s/images.txt:29: WARNING: no matching candidate for image URI u'svgimg.\\*'
 """
 
 if PY3:
