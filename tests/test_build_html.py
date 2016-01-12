@@ -495,8 +495,10 @@ def test_tocdepth_singlehtml(app, status, warning):
 def test_numfig_disabled(app, status, warning):
     app.builder.build_all()
 
-    assert 'WARNING: invalid numfig_format: invalid' not in warning.getvalue()
-    assert 'WARNING: invalid numfig_format: Fig %s %s' not in warning.getvalue()
+    assert ('index.rst:45: WARNING: numfig is disabled. :numref: is ignored.'
+            in warning.getvalue())
+    assert 'index.rst:51: WARNING: invalid numfig_format: invalid' not in warning.getvalue()
+    assert 'index.rst:52: WARNING: invalid numfig_format: Fig %s %s' not in warning.getvalue()
 
     expects = {
         'index.html': [
@@ -554,8 +556,10 @@ def test_numfig_without_numbered_toctree(app, status, warning):
     (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
     app.builder.build_all()
 
-    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
-    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
+    assert ('index.rst:45: WARNING: numfig is disabled. :numref: is ignored.'
+            not in warning.getvalue())
+    assert 'index.rst:51: WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'index.rst:52: WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
 
     expects = {
         'index.html': [
@@ -649,8 +653,10 @@ def test_numfig_without_numbered_toctree(app, status, warning):
 def test_numfig_with_numbered_toctree(app, status, warning):
     app.builder.build_all()
 
-    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
-    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
+    assert ('index.rst:45: WARNING: numfig is disabled. :numref: is ignored.'
+            not in warning.getvalue())
+    assert 'index.rst:51: WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'index.rst:52: WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
 
     expects = {
         'index.html': [
@@ -747,8 +753,10 @@ def test_numfig_with_numbered_toctree(app, status, warning):
 def test_numfig_with_prefix(app, status, warning):
     app.builder.build_all()
 
-    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
-    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
+    assert ('index.rst:45: WARNING: numfig is disabled. :numref: is ignored.'
+            not in warning.getvalue())
+    assert 'index.rst:51: WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'index.rst:52: WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
 
     expects = {
         'index.html': [
@@ -842,8 +850,10 @@ def test_numfig_with_prefix(app, status, warning):
 def test_numfig_with_secnum_depth(app, status, warning):
     app.builder.build_all()
 
-    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
-    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
+    assert ('index.rst:45: WARNING: numfig is disabled. :numref: is ignored.'
+            not in warning.getvalue())
+    assert 'index.rst:51: WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'index.rst:52: WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
 
     expects = {
         'index.html': [

@@ -628,7 +628,8 @@ class StandardDomain(Domain):
                 return None
 
             if env.config.numfig is False:
-                env.warn(fromdocname, 'numfig is disabled. :numref: is ignored.')
+                env.warn(fromdocname, 'numfig is disabled. :numref: is ignored.',
+                         lineno=node.line)
                 return contnode
 
             try:
@@ -646,7 +647,8 @@ class StandardDomain(Domain):
             try:
                 newtitle = title % '.'.join(map(str, fignumber))
             except TypeError:
-                env.warn(fromdocname, 'invalid numfig_format: %s' % title)
+                env.warn(fromdocname, 'invalid numfig_format: %s' % title,
+                         lineno=node.line)
                 return None
 
             return self.build_reference_node(fromdocname, builder,
