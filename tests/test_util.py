@@ -15,7 +15,8 @@ def test_encode_uri():
     expected = (u'https://ru.wikipedia.org/wiki/%D0%A1%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D0%B0_'
                 u'%D1%83%D0%BF%D1%80%D0%B0%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D1%8F_'
                 u'%D0%B1%D0%B0%D0%B7%D0%B0%D0%BC%D0%B8_%D0%B4%D0%B0%D0%BD%D0%BD%D1%8B%D1%85')
-    uri = u'https://ru.wikipedia.org/wiki/Система_управления_базами_данных'
+    uri = (u'https://ru.wikipedia.org/wiki'
+           u'/Система_управления_базами_данных')
     assert expected, encode_uri(uri)
 
     expected = (u'https://github.com/search?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+is%3A'
