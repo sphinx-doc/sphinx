@@ -24,15 +24,7 @@ from test_build_html import ENV_WARNINGS
 
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
-%(root)s/markup.txt:: WARNING: unknown option: &option
-%(root)s/markup.txt:: WARNING: unknown option: headings
-%(root)s/markup.txt:: WARNING: unknown option: objects
-%(root)s/markup.txt:: WARNING: unknown option: modules
-%(root)s/markup.txt:: WARNING: unknown option: classes
-%(root)s/markup.txt:: WARNING: unknown option: JS
-%(root)s/markup.txt:: WARNING: unknown option: C
-%(root)s/markup.txt:: WARNING: unknown option: myobj
-%(root)s/markup.txt:: WARNING: unknown option: n::Array
+None:None: WARNING: unknown option: &option
 None:None: WARNING: citation not found: missing
 None:None: WARNING: no matching candidate for image URI u'foo.\\*'
 WARNING: invalid pair index entry u''

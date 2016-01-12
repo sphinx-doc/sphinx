@@ -453,7 +453,7 @@ class StandardDomain(Domain):
         'productionlist': ProductionList,
     }
     roles = {
-        'option':  OptionXRefRole(),
+        'option':  OptionXRefRole(warn_dangling=True),
         'envvar':  EnvVarXRefRole(),
         # links to tokens in grammar productions
         'token':   XRefRole(),
@@ -491,6 +491,7 @@ class StandardDomain(Domain):
                 'the label must precede a section header)',
         'numref':  'undefined label: %(target)s',
         'keyword': 'unknown keyword: %(target)s',
+        'option': 'unknown option: %(target)s',
     }
 
     def clear_doc(self, docname):
@@ -675,8 +676,6 @@ class StandardDomain(Domain):
                     if docname:
                         break
                 else:
-                    env.warn(fromdocname, 'unknown option: %s' % (contnode.astext()),
-                             lineno=node.line)
                     return None
 
             return make_refnode(builder, fromdocname, docname,

@@ -39,14 +39,6 @@ HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
 None:\\d+: WARNING: citation not found: missing
 %(root)s/markup.txt:158: WARNING: unknown option: &option
-%(root)s/markup.txt:395: WARNING: unknown option: headings
-%(root)s/markup.txt:395: WARNING: unknown option: objects
-%(root)s/markup.txt:395: WARNING: unknown option: modules
-%(root)s/markup.txt:395: WARNING: unknown option: classes
-%(root)s/markup.txt:400: WARNING: unknown option: JS
-%(root)s/markup.txt:401: WARNING: unknown option: C
-%(root)s/markup.txt:402: WARNING: unknown option: myobj
-%(root)s/markup.txt:403: WARNING: unknown option: n::Array
 %(root)s/markup.txt:: WARNING: invalid single index entry u''
 %(root)s/markup.txt:: WARNING: invalid pair index entry u''
 %(root)s/markup.txt:: WARNING: invalid pair index entry u'keyword; '
