@@ -25,7 +25,7 @@ from test_build_html import ENV_WARNINGS
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
 %(root)s/markup.txt:158: WARNING: unknown option: &option
-None:60: WARNING: citation not found: missing
+%(root)s/footnote.txt:60: WARNING: citation not found: missing
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
 WARNING: invalid pair index entry u''
 WARNING: invalid pair index entry u'keyword; '

@@ -156,6 +156,7 @@ class CitationReferences(Transform):
             refnode = addnodes.pending_xref(cittext, reftype='citation',
                                             reftarget=cittext, refwarn=True,
                                             ids=citnode["ids"])
+            refnode.source = citnode.source or citnode.parent.source
             refnode.line = citnode.line or citnode.parent.line
             refnode += nodes.Text('[' + cittext + ']')
             citnode.parent.replace(citnode, refnode)

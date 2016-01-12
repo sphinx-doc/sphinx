@@ -5,6 +5,7 @@ Bugs fixed
 ----------
 
 * Fix line numbers was not shown on warnings in LaTeX and texinfo builders
+* Fix filenames were not shown on warnings of citations
 
 Release 1.3.4 (released Jan 12, 2016)
 =====================================
