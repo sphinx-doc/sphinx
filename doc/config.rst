@@ -234,7 +234,7 @@ General configuration
 
    If true, Sphinx will warn about *all* references where the target cannot be
    found.  Default is ``False``.  You can activate this mode temporarily using
-   the :option:`-n` command-line switch.
+   the :option:`-n <sphinx-build -n>` command-line switch.
 
    .. versionadded:: 1.0
 
@@ -580,7 +580,7 @@ that use Sphinx's HTMLWriter class.
 
    A dictionary of values to pass into the template engine's context for all
    pages.  Single values can also be put in this dictionary using the
-   :option:`-A` command-line option of ``sphinx-build``.
+   :option:`-A <sphinx-build -A>` command-line option of ``sphinx-build``.
 
    .. versionadded:: 0.5
 

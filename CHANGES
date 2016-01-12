@@ -943,13 +943,12 @@ Features added
 * Command-line interfaces:
 
   - PR#75: Added ``--follow-links`` option to sphinx-apidoc.
-  - #869: sphinx-build now has the option :option:`-T` for printing the full
+  - #869: sphinx-build now has the option ``-T`` for printing the full
     traceback after an unhandled exception.
-  - sphinx-build now supports the standard :option:`--help` and
-    :option:`--version` options.
+  - sphinx-build now supports the standard ``--help`` and ``--version`` options.
   - sphinx-build now provides more specific error messages when called with
     invalid options or arguments.
-  - sphinx-build now has a verbose option :option:`-v` which can be repeated for
+  - sphinx-build now has a verbose option ``-v`` which can be repeated for
     greater effect.  A single occurrence provides a slightly more verbose output
     than normal.  Two or more occurrences of this option provides more detailed
     output which may be useful for debugging.
@@ -971,7 +970,7 @@ Features added
     stemming routines.  Saves about 20 seconds when building the Python
     documentation.
   - PR#108: Add experimental support for parallel building with a new
-    :option:`-j` option.
+    :option:`sphinx-build -j` option.
 
 Documentation
 -------------
@@ -1561,7 +1560,7 @@ Features added
 * General:
 
   - Added a "nitpicky" mode that emits warnings for all missing
-    references.  It is activated by the :option:`-n` command-line switch
+    references.  It is activated by the :option:`sphinx-build -n` command-line switch
     or the `nitpicky` config value.
   - Added ``latexpdf`` target in quickstart Makefile.
 
