@@ -1656,7 +1656,7 @@ class BuildEnvironment:
                 for role in domain.roles:
                     res = domain.resolve_xref(self, refdoc, builder, role, target,
                                               node, contnode)
-                    if res:
+                    if res and isinstance(res[0], nodes.Element):
                         results.append(('%s:%s' % (domain.name, role), res))
         # now, see how many matches we got...
         if not results:

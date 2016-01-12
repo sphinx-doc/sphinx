@@ -43,9 +43,11 @@ class NestedInlineTransform(object):
     Flatten nested inline nodes:
 
     Before:
-        <strong>foo=<emphasis>1</emphasis>&bar=<emphasis>2</emphasis></strong>
+        <strong>foo=<emphasis>1</emphasis>
+        &bar=<emphasis>2</emphasis></strong>
     After:
-        <strong>foo=</strong><emphasis>var</emphasis><strong>&bar=</strong><emphasis>2</emphasis>
+        <strong>foo=</strong><emphasis>var</emphasis>
+        <strong>&bar=</strong><emphasis>2</emphasis>
     """
     def __init__(self, document):
         self.document = document

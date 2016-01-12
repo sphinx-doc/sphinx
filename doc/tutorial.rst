@@ -122,8 +122,9 @@ this::
    $ sphinx-build -b html sourcedir builddir
 
 where *sourcedir* is the :term:`source directory`, and *builddir* is the
-directory in which you want to place the built documentation.  The :option:`-b`
-option selects a builder; in this example Sphinx will build HTML files.
+directory in which you want to place the built documentation.
+The :option:`-b <sphinx-build -b>` option selects a builder; in this example
+Sphinx will build HTML files.
 
 |more| See :ref:`invocation` for all options that :program:`sphinx-build`
 supports.

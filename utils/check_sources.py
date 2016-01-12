@@ -81,7 +81,7 @@ def check_syntax(fn, lines):
 @checker('.py')
 def check_style(fn, lines):
     for lno, line in enumerate(lines):
-        if len(line) > 95:
+        if len(line.rstrip('\n')) > 95:
             yield lno+1, "line too long"
         if line.strip().startswith('#'):
             continue

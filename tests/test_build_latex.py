@@ -24,6 +24,7 @@ from test_build_html import ENV_WARNINGS
 
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
+None:None: WARNING: unknown option: &option
 None:None: WARNING: citation not found: missing
 None:None: WARNING: no matching candidate for image URI u'foo.\\*'
 WARNING: invalid pair index entry u''
@@ -393,7 +394,8 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             '\\leavevmode\\footnotetext[7]{\nhttp://sphinx-doc.org/\n}\nDescription' in result)
     assert ('\\item[{Footnote in term \\protect\\footnotemark[9]}] '
             '\\leavevmode\\footnotetext[9]{\nFootnote in term\n}\nDescription' in result)
-    assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}\\protect\\footnotemark[8]}] '
+    assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}\\protect'
+            '\\footnotemark[8]}] '
             '\\leavevmode\\footnotetext[8]{\nhttp://sphinx-doc.org/\n}\nDescription' in result)
     assert ('\\href{https://github.com/sphinx-doc/sphinx}'
             '{https://github.com/sphinx-doc/sphinx}\n' in result)
@@ -433,9 +435,11 @@ def test_image_in_section(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('\chapter[Test section]{\includegraphics[width=15pt,height=15pt]{{pic}.png} Test section}'
+    assert ('\chapter[Test section]'
+            '{\includegraphics[width=15pt,height=15pt]{{pic}.png} Test section}'
             in result)
-    assert ('\chapter[Other {[}blah{]} section]{Other {[}blah{]} \includegraphics[width=15pt,height=15pt]{{pic}.png} section}' in result)
+    assert ('\chapter[Other {[}blah{]} section]{Other {[}blah{]} '
+            '\includegraphics[width=15pt,height=15pt]{{pic}.png} section}' in result)
     assert ('\chapter{Another section}' in result)
 
 

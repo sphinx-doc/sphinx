@@ -53,8 +53,15 @@ Documentation
 * #1757: Fix for usage of :confval:`html_last_updated_fmt`. Thanks to Ralf Hemmecke.
 
 
-Release 1.3.4 (in development)
+Release 1.3.5 (in development)
 ==============================
+
+Bugs fixed
+----------
+
+
+Release 1.3.4 (released Jan 12, 2016)
+=====================================
 
 Bugs fixed
 ----------
@@ -102,6 +109,10 @@ Bugs fixed
 * #2062: Escape characters in doctests are treated incorrectly with Python 2.
 * #2225: Fix if the option does not begin with dash, linking is not performed
 * #2226: Fix math is not HTML-encoded when :nowrap: is given (jsmath, mathjax)
+* #1601, #2220: 'any' role breaks extended domains behavior. Affected extensions doesn't
+  support resolve_any_xref and resolve_xref returns problematic node instead of None.
+  sphinxcontrib-httpdomain is one of them.
+* #2229: Fix no warning is given for unknown options
 
 Release 1.3.3 (released Dec 2, 2015)
 ====================================
@@ -156,7 +167,6 @@ Bugs fixed
 * #1923: Use babel features only if the babel latex element is nonempty.
 * #1942: Fix a KeyError in websupport.
 * #1903: Fix strange id generation for glossary terms.
-* #1796, On py3, automated .mo building cause UnicodeDecodeError
 * ``make text`` will crush if a definition list item has more than 1 classifiers as:
   ``term : classifier1 : classifier2``.
 * #1855: make gettext generates broken po file for definition lists with classifier.
@@ -186,7 +196,7 @@ Bugs fixed
   Suzumizaki.
 * #1818: `sphinx.ext.todo` directive generates broken html class attribute as
   'admonition-' when :confval:`language` is specified with non-ASCII linguistic area like
-  'ru' or 'ja'. To fix this, now ``todo`` directive can use ```:class:`` option.
+  'ru' or 'ja'. To fix this, now ``todo`` directive can use ``:class:`` option.
 * #2140: Fix footnotes in table has broken in LaTeX
 * #2127: MecabBinder for html searching feature doesn't work with Python 3.
   Thanks to Tomoko Uchida.
@@ -995,13 +1005,12 @@ Features added
 * Command-line interfaces:
 
   - PR#75: Added ``--follow-links`` option to sphinx-apidoc.
-  - #869: sphinx-build now has the option :option:`-T` for printing the full
+  - #869: sphinx-build now has the option ``-T`` for printing the full
     traceback after an unhandled exception.
-  - sphinx-build now supports the standard :option:`--help` and
-    :option:`--version` options.
+  - sphinx-build now supports the standard ``--help`` and ``--version`` options.
   - sphinx-build now provides more specific error messages when called with
     invalid options or arguments.
-  - sphinx-build now has a verbose option :option:`-v` which can be repeated for
+  - sphinx-build now has a verbose option ``-v`` which can be repeated for
     greater effect.  A single occurrence provides a slightly more verbose output
     than normal.  Two or more occurrences of this option provides more detailed
     output which may be useful for debugging.
@@ -1023,7 +1032,7 @@ Features added
     stemming routines.  Saves about 20 seconds when building the Python
     documentation.
   - PR#108: Add experimental support for parallel building with a new
-    :option:`-j` option.
+    :option:`sphinx-build -j` option.
 
 Documentation
 -------------
@@ -1613,7 +1622,7 @@ Features added
 * General:
 
   - Added a "nitpicky" mode that emits warnings for all missing
-    references.  It is activated by the :option:`-n` command-line switch
+    references.  It is activated by the :option:`sphinx-build -n` command-line switch
     or the `nitpicky` config value.
   - Added ``latexpdf`` target in quickstart Makefile.
 
