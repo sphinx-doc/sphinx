@@ -27,15 +27,13 @@ LATEX_WARNINGS = ENV_WARNINGS + """\
 %(root)s/markup.txt:158: WARNING: unknown option: &option
 %(root)s/footnote.txt:60: WARNING: citation not found: missing
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
-WARNING: invalid pair index entry u''
-WARNING: invalid pair index entry u'keyword; '
 """
 
 if PY3:
     LATEX_WARNINGS = remove_unicode_literals(LATEX_WARNINGS)
 
 
-@with_app(buildername='latex')
+@with_app(buildername='latex', freshenv=True)  # use freshenv to check warnings
 def test_latex(app, status, warning):
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
@@ -94,7 +92,7 @@ def test_latex(app, status, warning):
         os.chdir(cwd)
 
 
-@with_app(buildername='latex',
+@with_app(buildername='latex', freshenv=True,  # use freshenv to check warnings
           confoverrides={'latex_documents': [
               ('contents', 'SphinxTests.tex', 'Sphinx Tests Documentation',
                'Georg Brandl \\and someone else', 'howto'),

@@ -33,7 +33,7 @@ if PY3:
     TEXINFO_WARNINGS = remove_unicode_literals(TEXINFO_WARNINGS)
 
 
-@with_app('texinfo')
+@with_app('texinfo', freshenv=True)  # use freshenv to check warnings
 def test_texinfo(app, status, warning):
     TexinfoTranslator.ignore_missing_images = True
     app.builder.build_all()

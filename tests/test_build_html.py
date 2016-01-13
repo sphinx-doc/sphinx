@@ -31,6 +31,7 @@ http://www.python.org/logo.png
 reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 :encoding: option\\n?
 %(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
+(%(root)s/markup.txt:351: WARNING: invalid single index entry u'')?
 (%(root)s/undecodable.txt:3: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
 )?"""
@@ -39,9 +40,6 @@ HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
 %(root)s/footnote.txt:60: WARNING: citation not found: missing
 %(root)s/markup.txt:158: WARNING: unknown option: &option
-%(root)s/markup.txt:: WARNING: invalid single index entry u''
-%(root)s/markup.txt:: WARNING: invalid pair index entry u''
-%(root)s/markup.txt:: WARNING: invalid pair index entry u'keyword; '
 """
 
 if PY3:
@@ -376,7 +374,7 @@ def check_extra_entries(outdir):
     assert (outdir / 'robots.txt').isfile()
 
 
-@gen_with_app(buildername='html',
+@gen_with_app(buildername='html', freshenv=True,  # use freshenv to check warnings
               confoverrides={'html_context.hckey_co': 'hcval_co'},
               tags=['testtag'])
 def test_html_output(app, status, warning):
