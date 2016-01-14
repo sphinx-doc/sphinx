@@ -16,7 +16,7 @@ from docutils.parsers.rst.directives.misc import Include as BaseInclude
 
 from sphinx import addnodes
 from sphinx.locale import versionlabels, _
-from sphinx.util import url_re, docname_join
+from sphinx.util import url_re, inline_link_re, docname_join
 from sphinx.util.nodes import explicit_title_re, set_source_info, \
     process_index_entry
 from sphinx.util.matching import patfilter
@@ -96,6 +96,11 @@ class TocTree(Directive):
                 # absolutize filenames
                 docname = docname_join(env.docname, docname)
                 if url_re.match(ref) or ref == 'self':
+                    entries.append((title, ref))
+                elif inline_link_re.match(ref):
+                    # match inline link toctree entries `Title <link>`_
+                    lm = inline_link_re.match(ref)
+                    title = lm.group(1) or None
                     entries.append((title, ref))
                 elif docname not in env.found_docs:
                     ret.append(self.state.document.reporter.warning(
