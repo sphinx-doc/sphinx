@@ -459,7 +459,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             '\\label{%s}' % self.idescape(id)
 
     def hyperlink(self, id):
-        return '{\\hyperref[%s]{' % self.idescape(id)
+        return '{\\hyperref[%s]{' % self.hyperrefescape(id)
 
     def hyperpageref(self, id):
         return '\\autopageref*{%s}' % self.idescape(id)
@@ -468,6 +468,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return text_type(id).translate(tex_replace_map).\
             encode('ascii', 'backslashreplace').decode('ascii').\
             replace('\\', '_')
+
+    def hyperrefescape(self, ref):
+        return self.idescape(ref).replace('-', '\\string-')
 
     def babel_renewcommand(self, builder, command, definition):
         if builder.config.language == 'ja':
