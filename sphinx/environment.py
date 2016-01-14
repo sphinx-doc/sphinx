@@ -5,7 +5,7 @@
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -38,7 +38,7 @@ from docutils.frontend import OptionParser
 
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
-    FilenameUniqDict, get_figtype, import_object
+    FilenameUniqDict, get_figtype, import_object, split_index_msg
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream, is_translatable
 from sphinx.util.osutil import SEP, getcwd, fs_encoding
 from sphinx.util.i18n import find_catalog_files
@@ -1123,7 +1123,14 @@ class BuildEnvironment:
     def note_indexentries_from(self, docname, document):
         entries = self.indexentries[docname] = []
         for node in document.traverse(addnodes.index):
-            entries.extend(node['entries'])
+            try:
+                for type, value, tid, main in node['entries']:
+                    split_index_msg(type, value)
+            except ValueError as exc:
+                self.warn_node(exc, node)
+                node.parent.remove(node)
+            else:
+                entries.extend(node['entries'])
 
     def note_citations_from(self, docname, document):
         for node in document.traverse(nodes.citation):

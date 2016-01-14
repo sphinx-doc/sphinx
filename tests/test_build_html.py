@@ -5,7 +5,7 @@
 
     Test the HTML builder and check output against XPath.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -31,17 +31,15 @@ http://www.python.org/logo.png
 reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 :encoding: option\\n?
 %(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
+(%(root)s/markup.txt:351: WARNING: invalid single index entry u'')?
 (%(root)s/undecodable.txt:3: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
 )?"""
 
 HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
-None:\\d+: WARNING: citation not found: missing
+%(root)s/footnote.txt:60: WARNING: citation not found: missing
 %(root)s/markup.txt:158: WARNING: unknown option: &option
-%(root)s/markup.txt:: WARNING: invalid single index entry u''
-%(root)s/markup.txt:: WARNING: invalid pair index entry u''
-%(root)s/markup.txt:: WARNING: invalid pair index entry u'keyword; '
 """
 
 if PY3:
@@ -376,7 +374,7 @@ def check_extra_entries(outdir):
     assert (outdir / 'robots.txt').isfile()
 
 
-@gen_with_app(buildername='html',
+@gen_with_app(buildername='html', freshenv=True,  # use freshenv to check warnings
               confoverrides={'html_context.hckey_co': 'hcval_co'},
               tags=['testtag'])
 def test_html_output(app, status, warning):
@@ -495,8 +493,10 @@ def test_tocdepth_singlehtml(app, status, warning):
 def test_numfig_disabled(app, status, warning):
     app.builder.build_all()
 
-    assert 'WARNING: invalid numfig_format: invalid' not in warning.getvalue()
-    assert 'WARNING: invalid numfig_format: Fig %s %s' not in warning.getvalue()
+    assert ('index.rst:45: WARNING: numfig is disabled. :numref: is ignored.'
+            in warning.getvalue())
+    assert 'index.rst:51: WARNING: invalid numfig_format: invalid' not in warning.getvalue()
+    assert 'index.rst:52: WARNING: invalid numfig_format: Fig %s %s' not in warning.getvalue()
 
     expects = {
         'index.html': [
@@ -554,8 +554,10 @@ def test_numfig_without_numbered_toctree(app, status, warning):
     (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
     app.builder.build_all()
 
-    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
-    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
+    assert ('index.rst:45: WARNING: numfig is disabled. :numref: is ignored.'
+            not in warning.getvalue())
+    assert 'index.rst:51: WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'index.rst:52: WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
 
     expects = {
         'index.html': [
@@ -649,8 +651,10 @@ def test_numfig_without_numbered_toctree(app, status, warning):
 def test_numfig_with_numbered_toctree(app, status, warning):
     app.builder.build_all()
 
-    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
-    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
+    assert ('index.rst:45: WARNING: numfig is disabled. :numref: is ignored.'
+            not in warning.getvalue())
+    assert 'index.rst:51: WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'index.rst:52: WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
 
     expects = {
         'index.html': [
@@ -747,8 +751,10 @@ def test_numfig_with_numbered_toctree(app, status, warning):
 def test_numfig_with_prefix(app, status, warning):
     app.builder.build_all()
 
-    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
-    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
+    assert ('index.rst:45: WARNING: numfig is disabled. :numref: is ignored.'
+            not in warning.getvalue())
+    assert 'index.rst:51: WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'index.rst:52: WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
 
     expects = {
         'index.html': [
@@ -842,8 +848,10 @@ def test_numfig_with_prefix(app, status, warning):
 def test_numfig_with_secnum_depth(app, status, warning):
     app.builder.build_all()
 
-    assert 'WARNING: invalid numfig_format: invalid' in warning.getvalue()
-    assert 'WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
+    assert ('index.rst:45: WARNING: numfig is disabled. :numref: is ignored.'
+            not in warning.getvalue())
+    assert 'index.rst:51: WARNING: invalid numfig_format: invalid' in warning.getvalue()
+    assert 'index.rst:52: WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
 
     expects = {
         'index.html': [

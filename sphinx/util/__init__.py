@@ -5,7 +5,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -421,23 +421,21 @@ def split_into(n, type, value):
 
 def split_index_msg(type, value):
     # new entry types must be listed in directives/other.py!
-    result = []
-    try:
-        if type == 'single':
-            try:
-                result = split_into(2, 'single', value)
-            except ValueError:
-                result = split_into(1, 'single', value)
-        elif type == 'pair':
-            result = split_into(2, 'pair', value)
-        elif type == 'triple':
-            result = split_into(3, 'triple', value)
-        elif type == 'see':
-            result = split_into(2, 'see', value)
-        elif type == 'seealso':
-            result = split_into(2, 'see', value)
-    except ValueError:
-        pass
+    if type == 'single':
+        try:
+            result = split_into(2, 'single', value)
+        except ValueError:
+            result = split_into(1, 'single', value)
+    elif type == 'pair':
+        result = split_into(2, 'pair', value)
+    elif type == 'triple':
+        result = split_into(3, 'triple', value)
+    elif type == 'see':
+        result = split_into(2, 'see', value)
+    elif type == 'seealso':
+        result = split_into(2, 'see', value)
+    else:
+        raise ValueError('invalid %s index entry %r' % (type, value))
 
     return result
 

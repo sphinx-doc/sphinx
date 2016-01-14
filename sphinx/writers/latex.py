@@ -8,7 +8,7 @@
     Much of this code is adapted from Dave Kuhlman's "docpy" writer from his
     docutils sandbox.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -461,7 +461,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             '\\label{%s}' % self.idescape(id)
 
     def hyperlink(self, id):
-        return '{\\hyperref[%s]{' % self.idescape(id)
+        return '{\\hyperref[%s]{' % self.hyperrefescape(id)
 
     def hyperpageref(self, id):
         return '\\autopageref*{%s}' % self.idescape(id)
@@ -470,6 +470,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return text_type(id).translate(tex_replace_map).\
             encode('ascii', 'backslashreplace').decode('ascii').\
             replace('\\', '_')
+
+    def hyperrefescape(self, ref):
+        return self.idescape(ref).replace('-', '\\string-')
 
     def babel_renewcommand(self, builder, command, definition):
         if builder.config.language == 'ja':
