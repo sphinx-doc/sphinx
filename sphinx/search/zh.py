@@ -5,7 +5,7 @@
 
     Chinese search language: includes routine to split words.
 
-    :copyright: Copyright 2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
