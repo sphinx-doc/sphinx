@@ -27,7 +27,6 @@ from sphinx import package_dir
 from sphinx.errors import ThemeError
 
 import alabaster
-import sphinx_rtd_theme
 
 NODEFAULT = object()
 THEMECONF = 'theme.conf'
@@ -71,7 +70,13 @@ class Theme(object):
 
     @classmethod
     def load_extra_theme(cls, name):
-        if name in ('alabaster', 'sphinx_rtd_theme'):
+        themes = ['alabaster']
+        try:
+            import sphinx_rtd_theme
+            themes.append('sphinx_rtd_theme')
+        except ImportError:
+            pass
+        if name in themes:
             if name == 'alabaster':
                 themedir = alabaster.get_path()
                 # alabaster theme also requires 'alabaster' extension, it will be loaded
@@ -97,8 +102,12 @@ class Theme(object):
         if name not in self.themes:
             self.load_extra_theme(name)
             if name not in self.themes:
-                raise ThemeError('no theme named %r found '
-                                 '(missing theme.conf?)' % name)
+                if name == 'sphinx_rtd_theme':
+                    raise ThemeError('sphinx_rtd_theme has been unbundled since version '
+                                     '1.4.0. Please install it manually.')
+                else:
+                    raise ThemeError('no theme named %r found '
+                                     '(missing theme.conf?)' % name)
         self.name = name
 
         # Do not warn yet -- to be compatible with old Sphinxes, people *have*
