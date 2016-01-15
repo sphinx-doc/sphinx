@@ -53,3 +53,10 @@ def test_math_number_all(app, status, warning):
     html = (r'<div class="math">\s*'
             r'<span class="eqno">\(1\)</span>\\\[a\^2\+b\^2=c\^2\\\]</div>')
     assert re.search(html, content, re.S)
+
+@with_app('latex', testroot='ext-math',
+          confoverrides={'extensions': ['sphinx.ext.mathjax']})
+def test_math_number_all(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'test.tex').text()
