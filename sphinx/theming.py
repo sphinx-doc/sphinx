@@ -103,8 +103,8 @@ class Theme(object):
             self.load_extra_theme(name)
             if name not in self.themes:
                 if name == 'sphinx_rtd_theme':
-                    raise ThemeError('sphinx_rtd_theme has been unbundled since version '
-                                     '1.4.0. Please install it manually.')
+                    raise ThemeError('sphinx_rtd_theme is no longer a hard dependency '
+                                     'since version 1.4.0. Please install it manually.')
                 else:
                     raise ThemeError('no theme named %r found '
                                      '(missing theme.conf?)' % name)
