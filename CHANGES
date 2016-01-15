@@ -6,6 +6,9 @@ Incompatible changes
 
 * Drop ``PorterStemmer`` package support. Use ``PyStemmer`` instead of ``PorterStemmer``
   to accelerate stemming.
+* Now sphinx_rtd_theme become optional. Please install it manually.
+  Refs #2087, #2086, #1845 and #2097. Thanks to Victor Zverovich.
+
 
 Features added
 --------------
