@@ -17,6 +17,8 @@ Incompatible changes
 * ``sphinx.ext.graphviz``: show graph image in inline by default
 * #2060, #2224: The ``manpage`` role now generate ``sphinx.addnodes.manpage`` node instead
   of ``sphinx.addnodes.literal_emphasis`` node.
+* #2022: :confval:`html_extra_path` also copies dotfiles in the extra directory, and
+  refers to :confval:`exclude_patterns` to exclude extra files and directories.
 
 Features added
 --------------

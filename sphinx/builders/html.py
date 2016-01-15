@@ -27,7 +27,7 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __display_version__
-from sphinx.util import jsonimpl, copy_static_entry
+from sphinx.util import jsonimpl, copy_static_entry, copy_extra_entry
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, ustrftime, copyfile
 from sphinx.util.nodes import inline_all_toctrees
@@ -644,11 +644,12 @@ class StandaloneHTMLBuilder(Builder):
         self.info(bold('copying extra files... '), nonl=True)
         extraentries = [path.join(self.confdir, epath)
                         for epath in self.config.html_extra_path]
+        matchers = compile_matchers(self.config.exclude_patterns)
         for entry in extraentries:
             if not path.exists(entry):
                 self.warn('html_extra_path entry %r does not exist' % entry)
                 continue
-            copy_static_entry(entry, self.outdir, self)
+            copy_extra_entry(entry, self.outdir, matchers)
         self.info('done')
 
     def write_buildinfo(self):

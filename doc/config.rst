@@ -131,7 +131,7 @@ General configuration
      :confval:`exclude_dirnames`)
 
    :confval:`exclude_patterns` is also consulted when looking for static files
-   in :confval:`html_static_path`.
+   in :confval:`html_static_path` and :confval:`html_extra_path`.
 
    .. versionadded:: 1.0
 
@@ -639,6 +639,11 @@ that use Sphinx's HTMLWriter class.
    :confval:`exclude_patterns`.
 
    .. versionadded:: 1.2
+
+   .. versionchanged:: 1.4
+      The dotfiles in the extra directory will be copied to the output directory.
+      And it refers :confval:`exclude_patterns` on copying extra files and
+      directories, and ignores if path matches to patterns.
 
 .. confval:: html_last_updated_fmt
 
