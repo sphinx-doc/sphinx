@@ -583,5 +583,5 @@ def setup(app):
     app.add_role('autolink', autolink_role)
     app.connect('doctree-read', process_autosummary_toc)
     app.connect('builder-inited', process_generate_options)
-    app.add_config_value('autosummary_generate', [], True)
+    app.add_config_value('autosummary_generate', [], True, [bool])
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

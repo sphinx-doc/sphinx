@@ -100,9 +100,9 @@ Extension options
 
    Enable `sphinx.ext.coverage` extension.
 
-.. option:: --ext-pngmath
+.. option:: --ext-imgmath
 
-   Enable `sphinx.ext.pngmath` extension.
+   Enable `sphinx.ext.imgmath` extension.
 
 .. option:: --ext-mathjax
 

@@ -114,7 +114,7 @@ as ``sphinx-build`` easily from the Command Prompt.
 
 
 Install the pip command
-^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Python has a very useful :command:`pip` command which can download and install
 3rd-party libraries with a single command. This is provided by the
@@ -139,7 +139,7 @@ install.
 
 
 Installing Sphinx with pip
----------------------------
+--------------------------
 
 If you finished the installation of pip, type this line in the command prompt:
 

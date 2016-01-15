@@ -208,7 +208,7 @@ def number_equations(app, doctree, docname):
 
 
 def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
-    app.add_node(math,
+    app.add_node(math, override=True,
                  latex=(latex_visit_math, None),
                  text=(text_visit_math, None),
                  man=(man_visit_math, None),

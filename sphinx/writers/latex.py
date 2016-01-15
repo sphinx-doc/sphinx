@@ -250,7 +250,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'classoptions':    '',
         'extraclassoptions': '',
         'inputenc':        '\\usepackage[utf8]{inputenc}',
-        'utf8extra':       '\\DeclareUnicodeCharacter{00A0}{\\nobreakspace}',
+        'utf8extra':       ('\\ifdefined\\DeclareUnicodeCharacter\n'
+                            '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'
+                            '\\else\\fi'),
         'cmappkg':         '\\usepackage{cmap}',
         'fontenc':         '\\usepackage[T1]{fontenc}',
         'babel':           '\\usepackage{babel}',
@@ -1066,7 +1068,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.remember_multirow[self.table.col] -= 1
                 if self.remember_multirowcol.get(self.table.col, 0):
                     extracols = self.remember_multirowcol[self.table.col]
-                    self.body.append(' \multicolumn{')
+                    self.body.append(' \\multicolumn{')
                     self.body.append(str(extracols + 1))
                     self.body.append('}{|l|}{}')
                     self.table.col += extracols
@@ -1076,7 +1078,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.table.col += 1
         context = ''
         if 'morecols' in node:
-            self.body.append(' \multicolumn{')
+            self.body.append(' \\multicolumn{')
             self.body.append(str(node.get('morecols') + 1))
             if self.table.col == 1:
                 self.body.append('}{|l|}{')
@@ -1084,7 +1086,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('}{l|}{')
             context += '}'
         if 'morerows' in node:
-            self.body.append(' \multirow{')
+            self.body.append(' \\multirow{')
             self.body.append(str(node.get('morerows') + 1))
             self.body.append('}{*}{')
             context += '}'
@@ -1105,7 +1107,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             context += ' & '
             if self.remember_multirowcol.get(self.table.col, 0):
                 extracols = self.remember_multirowcol[self.table.col]
-                context += ' \multicolumn{'
+                context += ' \\multicolumn{'
                 context += str(extracols + 1)
                 context += '}{l|}{}'
                 self.table.col += extracols
@@ -1884,7 +1886,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(r'\underline{')
             self.context.append('}')
         elif classes and not self.in_title:
-            self.body.append(r'\DUspan{%s}{' % ','.join(classes))
+            self.body.append(r'\DUrole{%s}{' % ','.join(classes))
             self.context.append('}')
         else:
             self.context.append('')

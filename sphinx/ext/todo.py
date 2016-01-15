@@ -19,7 +19,8 @@ import sphinx
 from sphinx.locale import _
 from sphinx.environment import NoUri
 from sphinx.util.nodes import set_source_info
-from sphinx.util.compat import Directive, make_admonition
+from docutils.parsers.rst import Directive
+from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
 
 class todo_node(nodes.Admonition, nodes.Element):
@@ -30,11 +31,12 @@ class todolist(nodes.General, nodes.Element):
     pass
 
 
-class Todo(Directive):
+class Todo(BaseAdmonition):
     """
     A todo entry, displayed (if configured) in the form of an admonition.
     """
 
+    node_class = todo_node
     has_content = True
     required_arguments = 0
     optional_arguments = 0
@@ -44,18 +46,20 @@ class Todo(Directive):
     }
 
     def run(self):
-        env = self.state.document.settings.env
-        targetid = 'index-%s' % env.new_serialno('index')
-        targetnode = nodes.target('', '', ids=[targetid])
-
         if not self.options.get('class'):
             self.options['class'] = ['admonition-todo']
 
-        ad = make_admonition(todo_node, self.name, [_('Todo')], self.options,
-                             self.content, self.lineno, self.content_offset,
-                             self.block_text, self.state, self.state_machine)
-        set_source_info(self, ad[0])
-        return [targetnode] + ad
+        (todo,) = super(Todo, self).run()
+        if isinstance(todo, nodes.system_message):
+            return [todo]
+
+        todo.insert(0, nodes.title(text=_('Todo')))
+        set_source_info(self, todo)
+
+        env = self.state.document.settings.env
+        targetid = 'index-%s' % env.new_serialno('index')
+        targetnode = nodes.target('', '', ids=[targetid])
+        return [targetnode, todo]
 
 
 def process_todos(app, doctree):

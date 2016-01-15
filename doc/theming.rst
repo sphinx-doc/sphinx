@@ -81,8 +81,6 @@ that has to return the directory with themes in it::
 Builtin themes
 --------------
 
-.. cssclass:: right
-
 +--------------------+--------------------+
 | **Theme overview** |                    |
 +--------------------+--------------------+

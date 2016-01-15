@@ -9,9 +9,10 @@
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from six import PY2, PY3, StringIO
+from six import PY2, PY3, StringIO, iteritems
 
-from util import TestApp, with_app, with_tempdir, raises, raises_msg
+from util import TestApp, with_app, gen_with_app, with_tempdir, \
+    raises, raises_msg, assert_in, assert_not_in
 
 from sphinx.config import Config
 from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
@@ -135,40 +136,36 @@ def test_config_eol(tmpdir):
         assert cfg.project == u'spam'
 
 
-TYPECHECK_OVERRIDES = [
-    # configuration key, override value, should warn, default type
-    ('master_doc', 123, True, str),
-    ('man_pages', 123, True, list),  # lambda
-    ('man_pages', [], False, list),
-    ('epub_tocdepth', True, True, int),  # child type
-    ('nitpicky', 3, False, bool),  # parent type
-    ('templates_path', (), True, list),  # other sequence, also raises
-]
-if PY2:
-    # Run a check for proper sibling detection in Python 2.  Under py3k, the
-    # default types do not have any siblings.
-    TYPECHECK_OVERRIDES.append(
-            ('html_add_permalinks', 'bar', False, unicode))
+@with_app(confoverrides={
+        'master_doc': 123,
+        'language': 'foo',
+        'primary_domain': None})
+def test_builtin_conf(app, status, warning):
+    warnings = warning.getvalue()
+    assert_in('master_doc', warnings,
+        'override on builtin "master_doc" should raise a type warning')
+    assert_not_in('language', warnings, 'explicitly permitted '
+        'override on builtin "language" should NOT raise a type warning')
+    assert_not_in('primary_domain', warnings, 'override to None on builtin '
+        '"primary_domain" should NOT raise a type warning')
 
-def test_gen_check_types():
-    for key, value, should, deftype in TYPECHECK_OVERRIDES:
-        warning = StringIO()
-        try:
-            app = TestApp(confoverrides={key: value}, warning=warning)
-        except:
-            pass
-        else:
-            app.cleanup()
 
-        real = type(value).__name__
-        msg = ("WARNING: the config value %r has type `%s',"
-               " defaults to `%s.'\n" % (key, real, deftype.__name__))
-        def test():
-            warning_list = warning.getvalue()
-            assert (msg in warning_list) == should, \
-                    "Setting %s to %r should%s raise: %s" % \
-                    (key, value, " not" if should else "", msg)
-        test.description = "test_check_type_%s_on_%s" % \
-                (real, type(Config.config_values[key][0]).__name__)
-
-        yield test
+# See roots/test-config/conf.py.
+TYPECHECK_WARNINGS = {
+    'value1': True,
+    'value2': True,
+    'value3': False,
+    'value4': True,
+    'value5': False,
+    'value6': True,
+    'value7': False,
+    'value8': False,
+    'value9': False,
+    'value10': False,
+}
+@gen_with_app(testroot='config')
+def test_gen_check_types(app, status, warning):
+    for key, should in iteritems(TYPECHECK_WARNINGS):
+        yield assert_in if should else assert_not_in, key, warning.getvalue(), \
+                'override on "%s" should%s raise a type warning' % \
+                (key, '' if should else ' NOT')

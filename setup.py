@@ -53,7 +53,6 @@ requires = [
     'snowballstemmer>=1.1',
     'babel>=1.3,!=2.0',
     'alabaster>=0.7,<0.8',
-    'sphinx_rtd_theme>=0.1,<2.0',
 ]
 extras_require = {
     # Environment Marker works for wheel 0.24 or later
@@ -162,7 +161,7 @@ else:
                         messages=jscatalog,
                         plural_expr=catalog.plural_expr,
                         locale=str(catalog.locale)
-                    ), outfile)
+                    ), outfile, sort_keys=True)
                     outfile.write(');')
                 finally:
                     outfile.close()

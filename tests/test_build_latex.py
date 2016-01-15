@@ -33,6 +33,29 @@ if PY3:
     LATEX_WARNINGS = remove_unicode_literals(LATEX_WARNINGS)
 
 
+def run_latex(outdir):
+    """Run pdflatex, xelatex, and lualatex in the outdir"""
+    cwd = os.getcwd()
+    os.chdir(outdir)
+    try:
+        for latex in ('pdflatex', 'xelatex', 'lualatex'):
+            try:
+                os.mkdir(latex)
+                p = Popen([latex, '--interaction=nonstopmode',
+                        '-output-directory=%s' % latex, 'SphinxTests.tex'],
+                        stdout=PIPE, stderr=PIPE)
+            except OSError:
+                raise SkipTest  # most likely pdflatex was not found
+            else:
+                stdout, stderr = p.communicate()
+                if p.returncode != 0:
+                    print(stdout)
+                    print(stderr)
+                    assert False, '%s exited with return code %s' % (
+                        latex, p.returncode)
+    finally:
+        os.chdir(cwd)
+
 @with_app(buildername='latex', freshenv=True)  # use freshenv to check warnings
 def test_latex(app, status, warning):
     LaTeXTranslator.ignore_missing_images = True
@@ -74,22 +97,7 @@ def test_latex(app, status, warning):
                            'seem to be installed' % filename)
 
     # now, try to run latex over it
-    cwd = os.getcwd()
-    os.chdir(app.outdir)
-    try:
-        try:
-            p = Popen(['pdflatex', '--interaction=nonstopmode',
-                       'SphinxTests.tex'], stdout=PIPE, stderr=PIPE)
-        except OSError:
-            raise SkipTest  # most likely pdflatex was not found
-        else:
-            stdout, stderr = p.communicate()
-            if p.returncode != 0:
-                print(stdout)
-                print(stderr)
-                assert False, 'latex exited with return code %s' % p.returncode
-    finally:
-        os.chdir(cwd)
+    run_latex(app.outdir)
 
 
 @with_app(buildername='latex', freshenv=True,  # use freshenv to check warnings
@@ -138,23 +146,7 @@ def test_latex_howto(app, status, warning):
                            'seem to be installed' % filename)
 
     # now, try to run latex over it
-    cwd = os.getcwd()
-    os.chdir(app.outdir)
-    try:
-        try:
-            p = Popen(['pdflatex', '--interaction=nonstopmode',
-                       'SphinxTests.tex'], stdout=PIPE, stderr=PIPE)
-        except OSError:
-            raise SkipTest  # most likely pdflatex was not found
-        else:
-            stdout, stderr = p.communicate()
-            if p.returncode != 0:
-                print(stdout)
-                print(stderr)
-                app.cleanup()
-                assert False, 'latex exited with return code %s' % p.returncode
-    finally:
-        os.chdir(cwd)
+    run_latex(app.outdir)
 
 
 @with_app(buildername='latex', testroot='numfig',

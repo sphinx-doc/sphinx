@@ -201,7 +201,7 @@ Referencing :userdescrole:`myobj`.
 CPP domain
 ==========
 
-.. cpp:class:: n::Array<T,d>
+.. cpp:class:: n::Array
 
    .. cpp:function:: T& operator[]( unsigned j )
                      const T& operator[]( unsigned j ) const

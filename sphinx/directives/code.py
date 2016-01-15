@@ -93,6 +93,7 @@ class CodeBlock(Directive):
         'lineno-start': int,
         'emphasize-lines': directives.unchanged_required,
         'caption': directives.unchanged_required,
+        'class': directives.class_option,
         'name': directives.unchanged,
     }
 
@@ -119,6 +120,7 @@ class CodeBlock(Directive):
         literal['language'] = self.arguments[0]
         literal['linenos'] = 'linenos' in self.options or \
                              'lineno-start' in self.options
+        literal['classes'] += self.options.get('class', [])
         extra_args = literal['highlight_args'] = {}
         if hl_lines is not None:
             extra_args['hl_lines'] = hl_lines
@@ -165,6 +167,7 @@ class LiteralInclude(Directive):
         'append': directives.unchanged_required,
         'emphasize-lines': directives.unchanged_required,
         'caption': directives.unchanged,
+        'class': directives.class_option,
         'name': directives.unchanged,
         'diff': directives.unchanged_required,
     }
@@ -322,6 +325,7 @@ class LiteralInclude(Directive):
         retnode['linenos'] = 'linenos' in self.options or \
                              'lineno-start' in self.options or \
                              'lineno-match' in self.options
+        retnode['classes'] += self.options.get('class', [])
         extra_args = retnode['highlight_args'] = {}
         if hl_lines is not None:
             extra_args['hl_lines'] = hl_lines

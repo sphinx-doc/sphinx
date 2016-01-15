@@ -22,7 +22,7 @@ from six.moves import cPickle as pickle
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
 from docutils.core import Publisher
-from docutils.utils import new_document
+from docutils.utils import new_document, relative_path
 from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
@@ -408,6 +408,9 @@ class StandaloneHTMLBuilder(Builder):
         # metadata for the document
         meta = self.env.metadata.get(docname)
 
+        # Suffix for the document
+        source_suffix = '.' + self.env.doc2path(docname).split('.')[-1]
+
         # local TOC and global TOC tree
         self_toc = self.env.get_toc_for(docname, self)
         toc = self.render_partial(self_toc)['fragment']
@@ -425,6 +428,7 @@ class StandaloneHTMLBuilder(Builder):
             toc = toc,
             # only display a TOC if there's more than one item to show
             display_toc = (self.env.toc_num_entries[docname] > 1),
+            page_source_suffix = source_suffix,
         )
 
     def write_doc(self, docname, doctree):
@@ -555,12 +559,15 @@ class StandaloneHTMLBuilder(Builder):
                               (path.join(self.srcdir, src), err))
 
     def copy_download_files(self):
+        def to_relpath(f):
+            return relative_path(self.srcdir, f)
         # copy downloadable files
         if self.env.dlfiles:
             ensuredir(path.join(self.outdir, '_downloads'))
             for src in self.app.status_iterator(self.env.dlfiles,
                                                 'copying downloadable files... ',
-                                                brown, len(self.env.dlfiles)):
+                                                brown, len(self.env.dlfiles),
+                                                stringify_func=to_relpath):
                 dest = self.env.dlfiles[src][1]
                 try:
                     copyfile(path.join(self.srcdir, src),
@@ -830,13 +837,15 @@ class StandaloneHTMLBuilder(Builder):
                      u'# The remainder of this file is compressed using zlib.\n'
                      % (self.config.project, self.config.version)).encode('utf-8'))
             compressor = zlib.compressobj(9)
-            for domainname, domain in iteritems(self.env.domains):
+            for domainname, domain in sorted(self.env.domains.items()):
                 for name, dispname, type, docname, anchor, prio in \
                         sorted(domain.get_objects()):
                     if anchor.endswith(name):
                         # this can shorten the inventory by as much as 25%
                         anchor = anchor[:-len(name)] + '$'
-                    uri = self.get_target_uri(docname) + '#' + anchor
+                    uri = self.get_target_uri(docname)
+                    if anchor:
+                        uri += '#' + anchor
                     if dispname == name:
                         dispname = u'-'
                     f.write(compressor.compress(

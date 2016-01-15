@@ -151,7 +151,7 @@ HTML_XPATH = {
         (".//a[@href='#grammar-token-try_stmt']"
             "[@class='reference internal']/code/span", '^statement$'),
         (".//a[@href='subdir/includes.html']"
-            "[@class='reference internal']/em", 'Including in subdir'),
+            "[@class='reference internal']/span", 'Including in subdir'),
         (".//a[@href='objects.html#cmdoption-python-c']"
             "[@class='reference internal']/code/span[@class='pre']", '-c'),
         # abbreviations

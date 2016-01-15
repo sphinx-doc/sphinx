@@ -34,7 +34,7 @@ class Config(object):
         napoleon_google_docstring = True
         napoleon_numpy_docstring = True
         napoleon_include_private_with_doc = False
-        napoleon_include_special_with_doc = True
+        napoleon_include_special_with_doc = False
         napoleon_use_admonition_for_examples = False
         napoleon_use_admonition_for_notes = False
         napoleon_use_admonition_for_references = False
@@ -43,7 +43,7 @@ class Config(object):
         napoleon_use_rtype = True
 
     .. _Google style:
-       http://google-styleguide.googlecode.com/svn/trunk/pyguide.html
+       http://google.github.io/styleguide/pyguide.html
     .. _NumPy style:
        https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 
@@ -71,7 +71,7 @@ class Config(object):
                 # This will NOT be included in the docs
                 pass
 
-    napoleon_include_special_with_doc : bool, defaults to True
+    napoleon_include_special_with_doc : bool, defaults to False
         True to include special members (like ``__membername__``) with
         docstrings in the documentation. False to fall back to Sphinx's
         default behavior.
@@ -209,7 +209,7 @@ class Config(object):
         'napoleon_google_docstring': (True, 'env'),
         'napoleon_numpy_docstring': (True, 'env'),
         'napoleon_include_private_with_doc': (False, 'env'),
-        'napoleon_include_special_with_doc': (True, 'env'),
+        'napoleon_include_special_with_doc': (False, 'env'),
         'napoleon_use_admonition_for_examples': (False, 'env'),
         'napoleon_use_admonition_for_notes': (False, 'env'),
         'napoleon_use_admonition_for_references': (False, 'env'),
@@ -239,12 +239,12 @@ def setup(app):
 
     See Also
     --------
-    The Sphinx documentation on `Extensions`_, the `Extension Tutorial`_, and
-    the `Extension API`_.
+    `The Sphinx documentation on Extensions
+    <http://sphinx-doc.org/extensions.html>`_
 
-    .. _Extensions: http://sphinx-doc.org/extensions.html
-    .. _Extension Tutorial: http://sphinx-doc.org/ext/tutorial.html
-    .. _Extension API: http://sphinx-doc.org/ext/appapi.html
+    `The Extension Tutorial <http://sphinx-doc.org/extdev/tutorial.html>`_
+
+    `The Extension API <http://sphinx-doc.org/extdev/appapi.html>`_
 
     """
     from sphinx.application import Sphinx
@@ -371,7 +371,7 @@ def _skip_member(app, what, name, obj, skip, options):
                             cls = functools.reduce(getattr, mod_path, mod)
                         else:
                             cls = obj.__globals__[cls_path]
-                    except:
+                    except Exception:
                         cls_is_owner = False
                     else:
                         cls_is_owner = (cls and hasattr(cls, name) and

@@ -1,3 +1,63 @@
+Release 1.4 (in development)
+============================
+
+Incompatible changes
+--------------------
+
+* Drop ``PorterStemmer`` package support. Use ``PyStemmer`` instead of ``PorterStemmer``
+  to accelerate stemming.
+* Now sphinx_rtd_theme become optional. Please install it manually.
+  Refs #2087, #2086, #1845 and #2097. Thanks to Victor Zverovich.
+* #2231: Use DUrole instead of DUspan for custom roles in LaTeX writer. It enables to take
+  title of roles as an argument of custom macros.
+
+
+Features added
+--------------
+
+* #2092: add todo directive support in napoleon package.
+* #1962: when adding directives, roles or nodes from an extension, warn if such
+  an element is already present (built-in or added by another extension).
+* #1909: Add "doc" references to Intersphinx inventories.
+* C++ type alias support (e.g., ``.. type:: T = int``).
+* C++ template support for classes, functions, type aliases, and variables (#1729, #1314).
+* C++, added new scope management directives ``namespace-push`` and ``namespace-pop``.
+* Intersphinx: Added support for fetching Intersphinx inventories with URLs
+  using HTTP basic auth.
+* C++, added support for template parameter in function info field lists.
+* C++, added support for pointers to member (function).
+* #2113: Allow ``:class:`` option to code-block directive.
+* #2192: Imgmath (pngmath with svg support).
+* #2200: Support XeTeX and LuaTeX for the LaTeX builder.
+* #1906: Use xcolor over color for \fcolorbox where available for LaTeX output.
+* #2216: Texinputs makefile improvements.
+* #2170: Support for Chinese language search index.
+* #2214: Add sphinx.ext.githubpages to publish the docs on GitHub Pages
+
+Bugs fixed
+----------
+
+* #1913: C++, fix assert bug for enumerators in next-to-global and global scope.
+* C++, fix parsing of 'signed char' and 'unsigned char' as types.
+* C++, add missing support for 'friend' functions.
+* C++, add missing support for virtual base classes (thanks to Rapptz).
+* C++, add support for final classes.
+* C++, fix parsing of types prefixed with 'enum'.
+* #2023: Dutch search support uses Danish stemming info.
+* C++, add support for user-defined literals.
+* #1804: Now html output wraps overflowed long-line-text in the sidebar. Thanks to
+  Hassen ben tanfous.
+* #2183: Fix porterstemmer causes ``make json`` to fail.
+* #1899: Ensure list is sent to OptParse.
+* #2164: Fix wrong check for pdftex inside sphinx.sty (for graphicx package option).
+* #2165, #2218: Remove faulty and non-need conditional from sphinx.sty.
+
+Documentation
+-------------
+
+* #1757: Fix for usage of :confval:`html_last_updated_fmt`. Thanks to Ralf Hemmecke.
+
+
 Release 1.3.5 (in development)
 ==============================
 
@@ -18,7 +78,7 @@ Bugs fixed
 
 * #2134: Fix figure caption with reference causes latex build error
 * #2094: Fix rubric with reference not working in Latex
-* #2147: Fix litralinclude code in latex does not break in pages
+* #2147: Fix literalinclude code in latex does not break in pages
 * #1833: Fix email addresses is showed again if latex_show_urls is not None
 * #2176: sphinx.ext.graphviz: use <object> instead of <img> to embed svg
 * #967: Fix SVG inheritance diagram is not hyperlinked (clickable)
@@ -150,6 +210,7 @@ Bugs fixed
 * #2140: Fix footnotes in table has broken in LaTeX
 * #2127: MecabBinder for html searching feature doesn't work with Python 3.
   Thanks to Tomoko Uchida.
+
 
 Release 1.3.1 (released Mar 17, 2015)
 =====================================
@@ -625,7 +686,7 @@ Bugs fixed
   if they contain uppercase letters.
 * #923: Take the entire LaTeX document into account when caching
   pngmath-generated images.  This rebuilds them correctly when
-  `pngmath_latex_preamble` changes.
+  ``pngmath_latex_preamble`` changes.
 * #901: Emit a warning when using docutils' new "math" markup without a Sphinx
   math extension active.
 * #845: In code blocks, when the selected lexer fails, display line numbers
@@ -1243,7 +1304,7 @@ Features added
     indicators.
   - #367: Added automatic exclusion of hidden members in inheritance
     diagrams, and an option to selectively enable it.
-  - Added `pngmath_add_tooltips`.
+  - Added ``pngmath_add_tooltips``.
   - The math extension displaymath directives now support ``name`` in
     addition to ``label`` for giving the equation label, for compatibility
     with Docutils.
