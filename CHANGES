@@ -8,6 +8,8 @@ Incompatible changes
   to accelerate stemming.
 * Now sphinx_rtd_theme become optional. Please install it manually.
   Refs #2087, #2086, #1845 and #2097. Thanks to Victor Zverovich.
+* #2231: Use DUrole instead of DUspan for custom roles in LaTeX writer. It enables to take
+  title of roles as an argument of custom macros.
 
 
 Features added

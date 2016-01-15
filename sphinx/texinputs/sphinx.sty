@@ -444,15 +444,18 @@
 \RequirePackage{hypcap}
 
 % From docutils.writers.latex2e
-\providecommand{\DUspan}[2]{%
-  {% group ("span") to limit the scope of styling commands
-    \@for\node@class@name:=#1\do{%
-    \ifcsname docutilsrole\node@class@name\endcsname%
-      \csname docutilsrole\node@class@name\endcsname%
+% inline markup (custom roles)
+% \DUrole{#1}{#2} tries \DUrole#1{#2}
+\providecommand*{\DUrole}[2]{%
+  \ifcsname DUrole#1\endcsname%
+    \csname DUrole#1\endcsname{#2}%
+  \else% backwards compatibility: try \docutilsrole#1{#2}
+    \ifcsname docutilsrole#1\endcsname%
+      \csname docutilsrole#1\endcsname{#2}%
+    \else%
+      #2%
     \fi%
-    }%
-    {#2}% node content
-  }% close "span"
+  \fi%
 }
 
 \providecommand*{\DUprovidelength}[2]{
