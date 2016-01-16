@@ -51,6 +51,7 @@ Bugs fixed
 * #1899: Ensure list is sent to OptParse.
 * #2164: Fix wrong check for pdftex inside sphinx.sty (for graphicx package option).
 * #2165, #2218: Remove faulty and non-need conditional from sphinx.sty.
+* Fix broken LaTeX code is generated if unknown language is given
 
 Documentation
 -------------

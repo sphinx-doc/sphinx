@@ -273,26 +273,94 @@ def test_latex_add_latex_package(app, status, warning):
     assert '\\usepackage[baz]{bar}' in result
 
 
-@with_app(buildername='latex', testroot='contentsname')
-def test_contentsname(app, status, warning):
+@with_app(buildername='latex', testroot='latex-babel')
+def test_babel_with_no_language_settings(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of content}}'
+    assert '\\documentclass[letterpaper,10pt,english]{sphinxmanual}' in result
+    assert '\\usepackage{babel}' in result
+    assert '\\usepackage{times}' in result
+    assert '\\usepackage[Bjarne]{fncychap}' in result
+    assert ('\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
+    assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig. }}\n' in result
+    assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table. }}\n' in result
 
 
-@with_app(buildername='latex', testroot='contentsname',
-          confoverrides={'language': 'ja'})
-def test_contentsname_with_language_ja(app, status, warning):
+@with_app(buildername='latex', testroot='latex-babel',
+          confoverrides={'language': 'de'})
+def test_babel_with_language_de(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\renewcommand{\\contentsname}{Table of content}' in result
+    assert '\\documentclass[letterpaper,10pt,ngerman]{sphinxmanual}' in result
+    assert '\\usepackage{babel}' in result
+    assert '\\usepackage{times}' in result
+    assert '\\usepackage[Sonny]{fncychap}' in result
+    assert ('\\addto\\captionsngerman{\\renewcommand{\\contentsname}{Table of content}}\n'
+            in result)
+    assert '\\addto\\captionsngerman{\\renewcommand{\\figurename}{Fig. }}\n' in result
+    assert '\\addto\\captionsngerman{\\renewcommand{\\tablename}{Table. }}\n' in result
+
+
+@with_app(buildername='latex', testroot='latex-babel',
+          confoverrides={'language': 'ru'})
+def test_babel_with_language_ru(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\documentclass[letterpaper,10pt,russian]{sphinxmanual}' in result
+    assert '\\usepackage{babel}' in result
+    assert '\\usepackage{times}' not in result
+    assert '\\usepackage[Sonny]{fncychap}' in result
+    assert ('\\addto\\captionsrussian{\\renewcommand{\\contentsname}{Table of content}}\n'
+            in result)
+    assert '\\addto\\captionsrussian{\\renewcommand{\\figurename}{Fig. }}\n' in result
+    assert '\\addto\\captionsrussian{\\renewcommand{\\tablename}{Table. }}\n' in result
+
+
+@with_app(buildername='latex', testroot='latex-babel',
+          confoverrides={'language': 'ja'})
+def test_babel_with_language_ja(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\documentclass[letterpaper,10pt,dvipdfmx]{sphinxmanual}' in result
+    assert '\\usepackage{babel}' not in result
+    assert '\\usepackage{times}' in result
+    assert '\\usepackage[Sonny]{fncychap}' not in result
+    assert '\\renewcommand{\\contentsname}{Table of content}\n' in result
+    assert '\\renewcommand{\\figurename}{Fig. }\n' in result
+    assert '\\renewcommand{\\tablename}{Table. }\n' in result
+
+
+@with_app(buildername='latex', testroot='latex-babel',
+          confoverrides={'language': 'unknown'})
+def test_babel_with_unknown_language(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\documentclass[letterpaper,10pt,english]{sphinxmanual}' in result
+    assert '\\usepackage{babel}' in result
+    assert '\\usepackage{times}' in result
+    assert '\\usepackage[Sonny]{fncychap}' in result
+    assert ('\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of content}}\n'
+            in result)
+    assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig. }}\n' in result
+    assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table. }}\n' in result
+
+    assert "WARNING: no Babel option known for language 'unknown'" in warning.getvalue()
 
 
 @with_app(buildername='latex')

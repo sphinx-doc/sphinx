@@ -327,6 +327,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.builder.warn('no Babel option known for language %r' %
                                   builder.config.language)
+                self.elements['classoptions'] += ',english'  # fallback to english
             self.elements['shorthandoff'] = babel.get_shorthandoff()
             self.elements['fncychap'] = '\\usepackage[Sonny]{fncychap}'
 
@@ -481,7 +482,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         else:
             if builder.config.language:
                 language = ExtBabel(builder.config.language).get_language()
-                if language is None:
+                if not language:
                     language = 'english'
             else:
                 language = 'english'
