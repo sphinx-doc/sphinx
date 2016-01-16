@@ -38,14 +38,16 @@ def run_latex(outdir):
     cwd = os.getcwd()
     os.chdir(outdir)
     try:
-        for latex in ('pdflatex', 'xelatex', 'lualatex'):
+        latexes = ('pdflatex', 'xelatex', 'lualatex')
+        available_latexes = len(latexes)
+        for latex in latexes:
             try:
                 os.mkdir(latex)
                 p = Popen([latex, '--interaction=nonstopmode',
                         '-output-directory=%s' % latex, 'SphinxTests.tex'],
                         stdout=PIPE, stderr=PIPE)
-            except OSError:
-                raise SkipTest  # most likely pdflatex was not found
+            except OSError:  # most likely the latex executable was not found
+                available_latexes -= 1
             else:
                 stdout, stderr = p.communicate()
                 if p.returncode != 0:
@@ -55,6 +57,9 @@ def run_latex(outdir):
                         latex, p.returncode)
     finally:
         os.chdir(cwd)
+
+    if available_latexes == 0: # no latex is available, skip the test
+        raise SkipTest
 
 @with_app(buildername='latex', freshenv=True)  # use freshenv to check warnings
 def test_latex(app, status, warning):
