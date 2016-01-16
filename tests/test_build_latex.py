@@ -288,6 +288,7 @@ def test_babel_with_no_language_settings(app, status, warning):
             in result)
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig. }}\n' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table. }}\n' in result
+    assert '\\addto\\extrasenglish{\\def\\pageautorefname{page}}\n' in result
 
 
 @with_app(buildername='latex', testroot='latex-babel',
@@ -306,6 +307,7 @@ def test_babel_with_language_de(app, status, warning):
             in result)
     assert '\\addto\\captionsngerman{\\renewcommand{\\figurename}{Fig. }}\n' in result
     assert '\\addto\\captionsngerman{\\renewcommand{\\tablename}{Table. }}\n' in result
+    assert '\\addto\\extrasngerman{\\def\\pageautorefname{page}}\n' in result
 
 
 @with_app(buildername='latex', testroot='latex-babel',
@@ -324,6 +326,7 @@ def test_babel_with_language_ru(app, status, warning):
             in result)
     assert '\\addto\\captionsrussian{\\renewcommand{\\figurename}{Fig. }}\n' in result
     assert '\\addto\\captionsrussian{\\renewcommand{\\tablename}{Table. }}\n' in result
+    assert '\\addto\\extrasrussian{\\def\\pageautorefname{page}}\n' in result
 
 
 @with_app(buildername='latex', testroot='latex-babel',
@@ -341,6 +344,7 @@ def test_babel_with_language_ja(app, status, warning):
     assert '\\renewcommand{\\contentsname}{Table of content}\n' in result
     assert '\\renewcommand{\\figurename}{Fig. }\n' in result
     assert '\\renewcommand{\\tablename}{Table. }\n' in result
+    assert '\\def\\pageautorefname{page}\n' in result
 
 
 @with_app(buildername='latex', testroot='latex-babel',
@@ -359,6 +363,7 @@ def test_babel_with_unknown_language(app, status, warning):
             in result)
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig. }}\n' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table. }}\n' in result
+    assert '\\addto\\extrasenglish{\\def\\pageautorefname{page}}\n' in result
 
     assert "WARNING: no Babel option known for language 'unknown'" in warning.getvalue()
 

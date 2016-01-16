@@ -33,6 +33,7 @@ Features added
 * #2216: Texinputs makefile improvements.
 * #2170: Support for Chinese language search index.
 * #2214: Add sphinx.ext.githubpages to publish the docs on GitHub Pages
+* #1030: Make page reference names for latex_show_pagerefs translatable
 
 Bugs fixed
 ----------
