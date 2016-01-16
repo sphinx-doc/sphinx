@@ -112,6 +112,10 @@ class LaTeXWriter(writers.Writer):
 # Helper classes
 
 class ExtBabel(Babel):
+    def __init__(self, language_code):
+        super(ExtBabel, self).__init__(language_code or '')
+        self.language_code = language_code
+
     def get_shorthandoff(self):
         shortlang = self.language.split('_')[0]
         if shortlang in ('de', 'ngerman', 'sl', 'slovene', 'pt', 'portuges',
@@ -125,6 +129,16 @@ class ExtBabel(Babel):
         return shortlang in ('bg', 'bulgarian', 'kk', 'kazakh',
                              'mn', 'mongolian', 'ru', 'russian',
                              'uk', 'ukrainian')
+
+    def is_supported_language(self):
+        return bool(super(ExtBabel, self).get_language())
+
+    def get_language(self):
+        language = super(ExtBabel, self).get_language()
+        if not language:
+            return 'english'  # fallback to english
+        else:
+            return language
 
 # in latest trunk, the attribute is called Babel.language_codes and already
 # includes Slovene
@@ -319,20 +333,18 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if builder.config.latex_logo:
             self.elements['logo'] = '\\includegraphics{%s}\\par' % \
                                     path.basename(builder.config.latex_logo)
+        # setup babel
+        self.babel = ExtBabel(builder.config.language)
+        self.elements['classoptions'] += ',' + self.babel.get_language()
         if builder.config.language:
-            babel = ExtBabel(builder.config.language)
-            lang = babel.get_language()
-            if lang:
-                self.elements['classoptions'] += ',' + babel.get_language()
-            else:
+            if not self.babel.is_supported_language():
                 self.builder.warn('no Babel option known for language %r' %
                                   builder.config.language)
-                self.elements['classoptions'] += ',english'  # fallback to english
-            self.elements['shorthandoff'] = babel.get_shorthandoff()
+            self.elements['shorthandoff'] = self.babel.get_shorthandoff()
             self.elements['fncychap'] = '\\usepackage[Sonny]{fncychap}'
 
             # Times fonts don't work with Cyrillic languages
-            if babel.uses_cyrillic():
+            if self.babel.uses_cyrillic():
                 self.elements['fontpkg'] = ''
 
             # pTeX (Japanese TeX) for support
@@ -343,8 +355,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.elements['babel'] = ''
                 # disable fncychap in Japanese documents
                 self.elements['fncychap'] = ''
-        else:
-            self.elements['classoptions'] += ',english'
         if getattr(builder, 'usepackages', None):
             def declare_package(packagename, options=None):
                 if options:
@@ -355,8 +365,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['usepackages'] += "\n".join(usepackages)
         if getattr(document.settings, 'contentsname', None):
             self.elements['contentsname'] = \
-                self.babel_renewcommand(builder, '\\contentsname',
-                                        document.settings.contentsname)
+                self.babel_renewcommand('\\contentsname', document.settings.contentsname)
         self.elements['numfig_format'] = self.generate_numfig_format(builder)
         # allow the user to override them all
         self.elements.update(builder.config.latex_elements)
@@ -475,27 +484,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def hyperrefescape(self, ref):
         return self.idescape(ref).replace('-', '\\string-')
 
-    def babel_renewcommand(self, builder, command, definition):
-        if builder.config.language == 'ja':
-            babel_prefix = ''
-            babel_suffix = ''
-        else:
-            if builder.config.language:
-                language = ExtBabel(builder.config.language).get_language()
-                if not language:
-                    language = 'english'
-            else:
-                language = 'english'
+    def babel_renewcommand(self, command, definition):
+        if self.elements['babel']:
+            prefix = '\\addto\\captions%s{' % self.babel.get_language()
+            suffix = '}'
+        else:  # babel is disabled (mainly for Japanese environment)
+            prefix = ''
+            suffix = ''
 
-            if self.elements['babel']:
-                babel_prefix = '\\addto\\captions%s{' % language
-                babel_suffix = '}'
-            else:
-                babel_prefix = ''
-                babel_suffix = ''
-
-        return ('%s\\renewcommand{%s}{%s}%s\n' %
-                (babel_prefix, command, definition, babel_suffix))
+        return ('%s\\renewcommand{%s}{%s}%s\n' % (prefix, command, definition, suffix))
 
     def generate_numfig_format(self, builder):
         ret = []
@@ -505,7 +502,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                        text_type(figure[0]).translate(tex_escape_map))
         else:
             definition = text_type(figure[0]).translate(tex_escape_map)
-            ret.append(self.babel_renewcommand(builder, '\\figurename', definition))
+            ret.append(self.babel_renewcommand('\\figurename', definition))
             if figure[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@figure{\\figurename\\thefigure%s}\n' %
@@ -518,7 +515,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                        text_type(table[0]).translate(tex_escape_map))
         else:
             definition = text_type(table[0]).translate(tex_escape_map)
-            ret.append(self.babel_renewcommand(builder, '\\tablename', definition))
+            ret.append(self.babel_renewcommand('\\tablename', definition))
             if table[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@table{\\tablename\\thetable%s}\n' %
