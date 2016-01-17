@@ -336,6 +336,12 @@ package.
 
    .. versionadded:: 1.1
 
+.. method:: Sphinx.add_source_parser(name, suffix, parser)
+
+   Register a parser class for specified *suffix*.
+
+   .. versionadded:: 1.4
+
 .. method:: Sphinx.require_sphinx(version)
 
    Compare *version* (which must be a ``major.minor`` version string,
