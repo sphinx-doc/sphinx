@@ -212,6 +212,10 @@ class termsep(nodes.Structural, nodes.Element):
     """Separates two terms within a <term> node."""
 
 
+class manpage(nodes.Inline, nodes.TextElement):
+    """Node for references to manpages."""
+
+
 # make the new nodes known to docutils; needed because the HTML writer will
 # choke at some point if these are not added
 nodes._add_node_class_names(k for k in globals().keys()

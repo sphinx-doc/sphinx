@@ -375,6 +375,12 @@ class ManualPageTranslator(BaseTranslator):
     def depart_abbreviation(self, node):
         pass
 
+    def visit_manpage(self, node):
+        return self.visit_strong(node)
+
+    def depart_manpage(self, node):
+        return self.depart_strong(node)
+
     # overwritten: handle section titles better than in 0.6 release
     def visit_title(self, node):
         if isinstance(node.parent, addnodes.seealso):
