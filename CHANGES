@@ -39,6 +39,7 @@ Features added
 * #2214: Add sphinx.ext.githubpages to publish the docs on GitHub Pages
 * #1030: Make page reference names for latex_show_pagerefs translatable
 * #2162: Add Sphinx.add_source_parser() to add source_suffix and source_parsers from extension
+* #2207: Add sphinx.parsers.Parser class; a base class for new parsers
 
 Bugs fixed
 ----------
