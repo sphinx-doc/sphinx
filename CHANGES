@@ -15,6 +15,8 @@ Incompatible changes
 * #2027, #2208: The ``html_title`` accepts string values only. And The None value cannot be
   accepted.
 * ``sphinx.ext.graphviz``: show graph image in inline by default
+* #2060, #2224: The ``manpage`` role now generate ``sphinx.addnodes.manpage`` node instead
+  of ``sphinx.addnodes.literal_emphasis` node.
 
 Features added
 --------------
