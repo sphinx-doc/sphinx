@@ -96,8 +96,11 @@ General configuration
 
    If given, a dictionary of parser classes for different source suffices.  The
    keys are the suffix, the values can be either a class or a string giving a
-   fully-qualified name of a parser class.  Files with a suffix that is not in
-   the dictionary will be parsed with the default reStructuredText parser.
+   fully-qualified name of a parser class.  The parser class can be either
+   ``docutils.parsers.Parser`` or :class:`sphinx.parsers.Parser`.  Files with a
+   suffix that is not in the dictionary will be parsed with the default
+   reStructuredText parser.
+
 
    For example::
 
