@@ -124,7 +124,7 @@ var Documentation = {
     this.fixFirefoxAnchorBug();
     this.highlightSearchWords();
     this.initIndexTable();
-    {% if not theme_nonavigationwithkeys|tobool %}
+    {% if theme_navigation_with_keys|tobool %}
     this.initOnKeyListeners();
     {% endif %}
   },
