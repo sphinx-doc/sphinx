@@ -565,8 +565,7 @@ that use Sphinx's HTMLWriter class.
    The "title" for HTML documentation generated with Sphinx's own templates.
    This is appended to the ``<title>`` tag of individual pages, and used in the
    navigation bar as the "topmost" element.  It defaults to :samp:`'{<project>}
-   v{<revision>} documentation'` (with the values coming from the config
-   values).
+   v{<revision>} documentation'`.
 
 .. confval:: html_short_title
 
