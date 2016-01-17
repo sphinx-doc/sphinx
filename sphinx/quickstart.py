@@ -1364,7 +1364,11 @@ def generate(d, overwrite=True, silent=False):
         d['exclude_patterns'] = ''
     else:
         builddir = path.join(srcdir, d['dot'] + 'build')
-        d['exclude_patterns'] = repr(d['dot'] + 'build')
+        exclude_patterns = map(repr, [
+            d['dot'] + 'build',
+            'Thumbs.db', '.DS_Store',
+        ])
+        d['exclude_patterns'] = ', '.join(exclude_patterns)
     mkdir_p(builddir)
     mkdir_p(path.join(srcdir, d['dot'] + 'templates'))
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))

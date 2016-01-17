@@ -10,6 +10,8 @@ Incompatible changes
   Refs #2087, #2086, #1845 and #2097. Thanks to Victor Zverovich.
 * #2231: Use DUrole instead of DUspan for custom roles in LaTeX writer. It enables to take
   title of roles as an argument of custom macros.
+* #2022: 'Thumbs.db' and '.DS_Store' are added to `exclude_patterns` default values in
+  conf.py that will be provided on sphinx-quickstart.
 
 
 Features added
