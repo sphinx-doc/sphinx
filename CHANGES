@@ -38,6 +38,7 @@ Features added
 * #2170: Support for Chinese language search index.
 * #2214: Add sphinx.ext.githubpages to publish the docs on GitHub Pages
 * #1030: Make page reference names for latex_show_pagerefs translatable
+* #2162: Add Sphinx.add_source_parser() to add source_suffix and source_parsers from extension
 
 Bugs fixed
 ----------
