@@ -1145,10 +1145,24 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    The title of the document.  It defaults to the :confval:`html_title` option
    but can be set independently for epub creation.
 
+.. confval:: epub3_description
+
+   The description of the document. The default value is ``''``.
+
+   .. versionadded:: 1.4
+
 .. confval:: epub_author
 
    The author of the document.  This is put in the Dublin Core metadata.  The
    default value is ``'unknown'``.
+
+.. confval:: epub3_contributor
+
+   The name of a person, organization, etc. that played a secondary role in
+   the creation of the content of an EPUB Publication. The default value is
+   ``'unknown'``.
+
+   .. versionadded:: 1.4
 
 .. confval:: epub_language
 
@@ -1304,6 +1318,14 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    creation.
 
    .. versionadded:: 1.2
+
+.. confval:: epub3_page_progression_direction
+
+   The global direction in which the content flows.
+   Allowed values are ltr (left-to-right), rtl (right-to-left) and default.
+   The default value is ``'ltr'``.
+
+   .. versionadded:: 1.4
 
 .. _latex-options:
 
