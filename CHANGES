@@ -12,6 +12,8 @@ Incompatible changes
   title of roles as an argument of custom macros.
 * #2022: 'Thumbs.db' and '.DS_Store' are added to `exclude_patterns` default values in
   conf.py that will be provided on sphinx-quickstart.
+* #2027, #2208: The ``html_title`` accepts string values only. And The None value cannot be
+  accepted.
 
 
 Features added
