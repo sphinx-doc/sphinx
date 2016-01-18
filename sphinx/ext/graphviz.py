@@ -153,8 +153,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     if path.isfile(outfn):
         return relfn, outfn
 
-    if hasattr(self.builder, '_graphviz_warned_dot') or \
-       hasattr(self.builder, '_graphviz_warned_ps2pdf'):
+    if hasattr(self.builder, '_graphviz_warned_dot'):
         return None, None
 
     ensuredir(path.dirname(outfn))
