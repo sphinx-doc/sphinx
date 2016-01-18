@@ -183,9 +183,13 @@ class PygmentsBridge(object):
         formatter = self.get_formatter(**kwargs)
         try:
             hlsource = highlight(source, lexer, formatter)
-        except ErrorToken:
+        except ErrorToken as exc:
             # this is most probably not the selected language,
             # so let it pass unhighlighted
+            if warn:
+                warn('Could not parse literal_block as "%s". highlighting skipped.' % lang)
+            else:
+                raise exc
             hlsource = highlight(source, lexers['none'], formatter)
         if self.dest == 'html':
             return hlsource

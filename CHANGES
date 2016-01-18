@@ -80,6 +80,9 @@ Bugs fixed
 * Fix line numbers was not shown on warnings of indecies
 * #2026: Fix LaTeX builder rais error if parsed-literal includes links
 * #2243: Ignore strange docstring types for classes, do not crash
+* #2247: Fix #2205 breaks make html for definition list with classifiers
+  that contains regular-expression like string
+* #1565: Show warning if Pygments throws an ErrorToken
 
 Release 1.3.4 (released Jan 12, 2016)
 =====================================

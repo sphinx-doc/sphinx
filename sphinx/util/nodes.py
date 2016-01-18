@@ -50,7 +50,7 @@ def apply_source_workaround(node):
         # strip classifier from rawsource of term
         for classifier in reversed(node.parent.traverse(nodes.classifier)):
             node.rawsource = re.sub(
-                '\s*:\s*%s' % classifier.astext(), '', node.rawsource)
+                '\s*:\s*%s' % re.escape(classifier.astext()), '', node.rawsource)
 
     # workaround: recommonmark-0.2.0 doesn't set rawsource attribute
     if not node.rawsource:

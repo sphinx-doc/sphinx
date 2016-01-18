@@ -12,3 +12,5 @@ Some *term* `with link <http://sphinx-doc.org/>`__
 Some **term** with : classifier1  : classifier2
    The corresponding definition
 
+Some term with : classifier[]
+   The corresponding definition

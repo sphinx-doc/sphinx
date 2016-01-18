@@ -266,6 +266,12 @@ Code blocks
        false
    end
 
+.. code-block:: c
+
+   import sys
+
+   sys.stdout.write('hello world!\n')
+
 
 Misc stuff
 ----------

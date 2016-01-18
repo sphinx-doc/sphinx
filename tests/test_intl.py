@@ -192,6 +192,8 @@ def test_text_builder(app, status, warning):
               u"\n   THE CORRESPONDING DEFINITION #2\n"
               u"\nSOME **TERM** WITH : CLASSIFIER1 : CLASSIFIER2"
               u"\n   THE CORRESPONDING DEFINITION\n"
+              u"\nSOME TERM WITH : CLASSIFIER[]"
+              u"\n   THE CORRESPONDING DEFINITION\n"
               )
     yield assert_equal, result, expect
 
@@ -692,14 +694,15 @@ def test_additional_targets_should_not_be_translated(app, status, warning):
     yield assert_count(expected_expr, result, 1)
 
     # C code block with lang should not be translated but be *C* highlighted
-    expected_expr = """<span class="cp">#include &lt;stdio.h&gt;</span>"""
+    expected_expr = ("""<span class="cp">#include</span> """
+                     """<span class="cpf">&lt;stdio.h&gt;</span>""")
     yield assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
         """<span class="kn">import</span> <span class="nn">sys</span>  """
-        """<span class="c"># sys importing</span>""")
+        """<span class="c1"># sys importing</span>""")
     yield assert_count(expected_expr, result, 1)
 
     ## raw.txt
@@ -752,14 +755,15 @@ def test_additional_targets_should_be_translated(app, status, warning):
     yield assert_count(expected_expr, result, 1)
 
     # C code block with lang should be translated and be *C* highlighted
-    expected_expr = """<span class="cp">#include &lt;STDIO.H&gt;</span>"""
+    expected_expr = ("""<span class="cp">#include</span> """
+                     """<span class="cpf">&lt;STDIO.H&gt;</span>""")
     yield assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
         """<span class="kn">import</span> <span class="nn">sys</span>  """
-        """<span class="c"># SYS IMPORTING</span>""")
+        """<span class="c1"># SYS IMPORTING</span>""")
     yield assert_count(expected_expr, result, 1)
 
     ## raw.txt
