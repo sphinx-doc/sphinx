@@ -16,7 +16,7 @@ Incompatible changes
   accepted.
 * ``sphinx.ext.graphviz``: show graph image in inline by default
 * #2060, #2224: The ``manpage`` role now generate ``sphinx.addnodes.manpage`` node instead
-  of ``sphinx.addnodes.literal_emphasis` node.
+  of ``sphinx.addnodes.literal_emphasis`` node.
 
 Features added
 --------------
