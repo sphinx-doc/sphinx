@@ -192,6 +192,8 @@ def test_text_builder(app, status, warning):
               u"\n   THE CORRESPONDING DEFINITION #2\n"
               u"\nSOME **TERM** WITH : CLASSIFIER1 : CLASSIFIER2"
               u"\n   THE CORRESPONDING DEFINITION\n"
+              u"\nSOME TERM WITH : CLASSIFIER[]"
+              u"\n   THE CORRESPONDING DEFINITION\n"
               )
     yield assert_equal, result, expect
 

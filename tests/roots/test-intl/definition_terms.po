@@ -40,3 +40,8 @@ msgstr "CLASSIFIER1"
 msgid "classifier2"
 msgstr "CLASSIFIER2"
 
+msgid "Some term with"
+msgstr "SOME TERM WITH"
+
+msgid "classifier[]"
+msgstr "CLASSIFIER[]"
