@@ -99,7 +99,8 @@ class Graphviz(Directive):
         node['options'] = []
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
-        node['inline'] = 'inline' in self.options
+        if 'inline' in self.options:
+            node['inline'] = True
 
         caption = self.options.get('caption')
         if caption:
@@ -129,7 +130,8 @@ class GraphvizSimple(Directive):
         node['options'] = []
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
-        node['inline'] = 'inline' in self.options
+        if 'inline' in self.options:
+            node['inline'] = True
 
         caption = self.options.get('caption')
         if caption:
