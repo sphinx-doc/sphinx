@@ -11,3 +11,8 @@ graphviz
            bar -> baz
 
 Hello |graph| graphviz world
+
+.. digraph:: foo
+   :graphviz_dot: neato
+
+   bar -> baz

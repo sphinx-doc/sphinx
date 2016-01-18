@@ -66,6 +66,7 @@ class Graphviz(Directive):
         'alt': directives.unchanged,
         'inline': directives.flag,
         'caption': directives.unchanged,
+        'graphviz_dot': directives.unchanged,
     }
 
     def run(self):
@@ -96,7 +97,9 @@ class Graphviz(Directive):
                     line=self.lineno)]
         node = graphviz()
         node['code'] = dotcode
-        node['options'] = []
+        node['options'] = {}
+        if 'graphviz_dot' in self.options:
+            node['options']['graphviz_dot'] = self.options['graphviz_dot']
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
         if 'inline' in self.options:
@@ -121,13 +124,16 @@ class GraphvizSimple(Directive):
         'alt': directives.unchanged,
         'inline': directives.flag,
         'caption': directives.unchanged,
+        'graphviz_dot': directives.unchanged,
     }
 
     def run(self):
         node = graphviz()
         node['code'] = '%s %s {\n%s\n}\n' % \
                        (self.name, self.arguments[0], '\n'.join(self.content))
-        node['options'] = []
+        node['options'] = {}
+        if 'graphviz_dot' in self.options:
+            node['options']['graphviz_dot'] = self.options['graphviz_dot']
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
         if 'inline' in self.options:
@@ -142,8 +148,8 @@ class GraphvizSimple(Directive):
 
 def render_dot(self, code, options, format, prefix='graphviz'):
     """Render graphviz code into a PNG or PDF output file."""
-    hashkey = (code + str(options) +
-               str(self.builder.config.graphviz_dot) +
+    graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
+    hashkey = (code + str(options) + str(graphviz_dot) +
                str(self.builder.config.graphviz_dot_args)).encode('utf-8')
 
     fname = '%s-%s.%s' % (prefix, sha1(hashkey).hexdigest(), format)
@@ -153,7 +159,8 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     if path.isfile(outfn):
         return relfn, outfn
 
-    if hasattr(self.builder, '_graphviz_warned_dot'):
+    if (hasattr(self.builder, '_graphviz_warned_dot') and
+       self.builder._graphviz_warned_dot[graphviz_dot]):
         return None, None
 
     ensuredir(path.dirname(outfn))
@@ -162,9 +169,8 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     if isinstance(code, text_type):
         code = code.encode('utf-8')
 
-    dot_args = [self.builder.config.graphviz_dot]
+    dot_args = [graphviz_dot]
     dot_args.extend(self.builder.config.graphviz_dot_args)
-    dot_args.extend(options)
     dot_args.extend(['-T' + format, '-o' + outfn])
     if format == 'png':
         dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])
@@ -174,9 +180,10 @@ def render_dot(self, code, options, format, prefix='graphviz'):
         if err.errno != ENOENT:   # No such file or directory
             raise
         self.builder.warn('dot command %r cannot be run (needed for graphviz '
-                          'output), check the graphviz_dot setting' %
-                          self.builder.config.graphviz_dot)
-        self.builder._graphviz_warned_dot = True
+                          'output), check the graphviz_dot setting' % graphviz_dot)
+        if not hasattr(self.builder, '_graphviz_warned_dot'):
+            self.builder._graphviz_warned_dot = {}
+        self.builder._graphviz_warned_dot[graphviz_dot] = True
         return None, None
     try:
         # Graphviz may close standard input when an error occurs,
