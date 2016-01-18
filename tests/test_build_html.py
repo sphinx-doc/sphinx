@@ -82,7 +82,7 @@ HTML_XPATH = {
         (".//a[@href='_downloads/img1.png']", ''),
         (".//pre", u'"quotes"'),
         (".//pre", u"'included'"),
-        (".//pre/span[@class='s']", u'üöä'),
+        (".//pre/span[@class='s2']", u'üöä'),
         (".//div[@class='inc-pyobj1 highlight-text']//pre",
             r'^class Foo:\n    pass\n\s*$'),
         (".//div[@class='inc-pyobj2 highlight-text']//pre",
