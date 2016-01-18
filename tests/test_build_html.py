@@ -31,13 +31,14 @@ http://www.python.org/logo.png
 reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 :encoding: option\\n?
 %(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
-(%(root)s/markup.txt:351: WARNING: invalid single index entry u'')?
+(%(root)s/markup.txt:357: WARNING: invalid single index entry u'')?
 (%(root)s/undecodable.txt:3: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
 )?"""
 
 HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
+%(root)s/markup.txt:269: WARNING: Could not parse literal_block as "c". highlighting skipped.
 %(root)s/footnote.txt:60: WARNING: citation not found: missing
 %(root)s/markup.txt:158: WARNING: unknown option: &option
 """
