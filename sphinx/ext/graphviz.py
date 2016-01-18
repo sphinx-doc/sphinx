@@ -160,7 +160,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
         return relfn, outfn
 
     if (hasattr(self.builder, '_graphviz_warned_dot') and
-       self.builder._graphviz_warned_dot[graphviz_dot]):
+       self.builder._graphviz_warned_dot.get(graphviz_dot)):
         return None, None
 
     ensuredir(path.dirname(outfn))
