@@ -87,6 +87,11 @@ It adds these directives:
    caption to the diagram.  Naturally, diagrams marked as "inline" cannot have a
    caption.
 
+.. deprecated:: 1.4
+   ``inline`` option is deprecated.
+   All three directives generate inline node by default. If ``caption`` is given,
+   these generate block node instead.
+
 .. versionchanged:: 1.4
    All three directives support a ``graphviz_dot`` option that can be switch the
    ``dot`` command within the directive.
