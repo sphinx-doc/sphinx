@@ -6,7 +6,7 @@
     "Doc fields" are reST field lists in object descriptions that will
     be domain-specifically transformed to a more appealing presentation.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -106,8 +106,6 @@ class GroupedField(Field):
     def make_field(self, types, domain, items):
         fieldname = nodes.field_name('', self.label)
         listnode = self.list_type()
-        if len(items) == 1 and self.can_collapse:
-            return Field.make_field(self, types, domain, items[0])
         for fieldarg, content in items:
             par = nodes.paragraph()
             par += self.make_xref(self.rolename, domain, fieldarg,
@@ -115,6 +113,9 @@ class GroupedField(Field):
             par += nodes.Text(' -- ')
             par += content
             listnode += nodes.list_item('', par)
+        if len(items) == 1 and self.can_collapse:
+            fieldbody = nodes.field_body('', listnode[0][0])
+            return nodes.field('', fieldname, fieldbody)
         fieldbody = nodes.field_body('', listnode)
         return nodes.field('', fieldname, fieldbody)
 

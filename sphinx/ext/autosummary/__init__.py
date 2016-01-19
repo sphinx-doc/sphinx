@@ -49,7 +49,7 @@
     resolved to a Python object, and otherwise it becomes simple emphasis.
     This can be used as the default role to make links 'smart'.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -583,5 +583,5 @@ def setup(app):
     app.add_role('autolink', autolink_role)
     app.connect('doctree-read', process_autosummary_toc)
     app.connect('builder-inited', process_generate_options)
-    app.add_config_value('autosummary_generate', [], True)
+    app.add_config_value('autosummary_generate', [], True, [bool])
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

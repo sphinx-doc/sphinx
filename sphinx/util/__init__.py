@@ -5,7 +5,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -23,6 +23,7 @@ from collections import deque
 
 from six import iteritems, text_type, binary_type
 from six.moves import range
+from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 import docutils
 from docutils.utils import relative_path
 
@@ -420,23 +421,21 @@ def split_into(n, type, value):
 
 def split_index_msg(type, value):
     # new entry types must be listed in directives/other.py!
-    result = []
-    try:
-        if type == 'single':
-            try:
-                result = split_into(2, 'single', value)
-            except ValueError:
-                result = split_into(1, 'single', value)
-        elif type == 'pair':
-            result = split_into(2, 'pair', value)
-        elif type == 'triple':
-            result = split_into(3, 'triple', value)
-        elif type == 'see':
-            result = split_into(2, 'see', value)
-        elif type == 'seealso':
-            result = split_into(2, 'see', value)
-    except ValueError:
-        pass
+    if type == 'single':
+        try:
+            result = split_into(2, 'single', value)
+        except ValueError:
+            result = split_into(1, 'single', value)
+    elif type == 'pair':
+        result = split_into(2, 'pair', value)
+    elif type == 'triple':
+        result = split_into(3, 'triple', value)
+    elif type == 'see':
+        result = split_into(2, 'see', value)
+    elif type == 'seealso':
+        result = split_into(2, 'see', value)
+    else:
+        raise ValueError('invalid %s index entry %r' % (type, value))
 
     return result
 
@@ -523,3 +522,13 @@ def import_object(objname, source=None):
         raise ExtensionError('Could not find %s' % objname +
                              (source and ' (needed for %s)' % source or ''),
                              err)
+
+
+def encode_uri(uri):
+    split = list(urlsplit(uri))
+    split[1] = split[1].encode('idna').decode('ascii')
+    split[2] = quote_plus(split[2].encode('utf-8'), '/').decode('ascii')
+    query = list((q, quote_plus(v.encode('utf-8')))
+                 for (q, v) in parse_qsl(split[3]))
+    split[3] = urlencode(query).decode('ascii')
+    return urlunsplit(split)

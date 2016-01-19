@@ -7,7 +7,7 @@
 
     .. _Devhelp: http://live.gnome.org/devhelp
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
@@ -91,7 +91,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
                     write_toc(subnode, item)
             elif isinstance(node, nodes.reference):
                 parent.attrib['link'] = node['refuri']
-                parent.attrib['name'] = node.astext().encode('utf-8')
+                parent.attrib['name'] = node.astext()
 
         def istoctree(node):
             return isinstance(node, addnodes.compact_paragraph) and \
@@ -129,6 +129,6 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
         # Dump the XML file
         f = comp_open(path.join(outdir, outname + '.devhelp'), 'w')
         try:
-            tree.write(f)
+            tree.write(f, 'utf-8')
         finally:
             f.close()

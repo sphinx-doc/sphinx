@@ -538,7 +538,7 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
       .. cpp:class:: template<typename T, std::size_t N> std::array
 
-   or with a line beak::
+   or with a line break::
 
       .. cpp:class:: template<typename T, std::size_t N> \
                      std::array
@@ -594,7 +594,7 @@ a visibility statement (``public``, ``private`` or ``protected``).
 .. rst:directive:: .. cpp:member:: (member) variable declaration
                    .. cpp:var:: (member) variable declaration
 
-   Describe a varible or member variable, e.g.,::
+   Describe a variable or member variable, e.g.,::
 
       .. cpp:member:: std::string MyClass::myMember
 
@@ -671,7 +671,7 @@ a visibility statement (``public``, ``private`` or ``protected``).
 Namespacing
 ~~~~~~~~~~~~~~~~~
 
-Declarations in the C++ doamin are as default placed in global scope.
+Declarations in the C++ domain are as default placed in global scope.
 The current scope can be changed using three namespace directives.
 They manage a stack declarations where ``cpp:namespace`` resets the stack and
 changes a given scope.
@@ -755,6 +755,7 @@ Info field lists
 The C++ directives support the following info fields (see also :ref:`info-field-lists`):
 
 * `param`, `parameter`, `arg`, `argument`: Description of a parameter.
+* `tparam`: Description of a template parameter.
 * `returns`, `return`: Description of a return value.
 * `throws`, `throw`, `exception`: Description of a possibly thrown exception.
 
@@ -764,7 +765,7 @@ The C++ directives support the following info fields (see also :ref:`info-field-
 Cross-referencing
 ~~~~~~~~~~~~~~~~~
 
-These roles link to the given object types:
+These roles link to the given declaration types:
 
 .. rst:role:: cpp:any
               cpp:class
@@ -775,19 +776,19 @@ These roles link to the given object types:
               cpp:enum
               cpp:enumerator
 
-   Reference a C++ object by name. The name must be properly qualified relative to the
-   position of the link.
+   Reference a C++ declaration by name (see below for details).
+   The name must be properly qualified relative to the position of the link.
 
-   .. note::
+.. admonition:: Note on References with Templates Parameters/Arguments
 
-      Sphinx's syntax to give references a custom title can interfere with
-      linking to template classes, if nothing follows the closing angle
-      bracket, i.e. if the link looks like this: ``:cpp:class:`MyClass<T>```.
-      This is interpreted as a link to ``T`` with a title of ``MyClass``.
-      In this case, please escape the opening angle bracket with a backslash,
-      like this: ``:cpp:class:`MyClass\<T>```.
+   Sphinx's syntax to give references a custom title can interfere with
+   linking to template classes, if nothing follows the closing angle
+   bracket, i.e. if the link looks like this: ``:cpp:class:`MyClass<int>```.
+   This is interpreted as a link to ``int`` with a title of ``MyClass``.
+   In this case, please escape the opening angle bracket with a backslash,
+   like this: ``:cpp:class:`MyClass\<int>```.
 
-.. admonition:: Note on References
+.. admonition:: Note on References to Overloaded Functions
 
    It is currently impossible to link to a specific version of an
    overloaded method.  Currently the C++ domain is the first domain
@@ -795,6 +796,80 @@ These roles link to the given object types:
    data for comparison we don't want to select a bad syntax to reference a
    specific overload.  Currently Sphinx will link to the first overloaded
    version of the method / function.
+
+Declarations without template parameters and template arguments
+.................................................................
+
+For linking to non-templated declarations the name must be a nested name,
+e.g., ``f`` or ``MyClass::f``.
+
+Templated declarations
+......................
+
+Assume the following declarations.
+
+.. cpp:class:: Wrapper
+
+   .. cpp:class:: template<typename TOuter> \
+                  Outer
+
+      .. cpp:class:: template<typename TInner> \
+                     Inner
+
+In general the reference must include the template paraemter declarations, e.g.,
+``template\<typename TOuter> Wrapper::Outer`` (:cpp:class:`template\<typename TOuter> Wrapper::Outer`).
+Currently the lookup only succeed if the template parameter identifiers are equal strings. That is,
+``template\<typename UOuter> Wrapper::Outer`` will not work.
+
+The inner template class can not be directly referenced, unless the current namespace
+is changed or the following shorthand is used.
+If a template parameter list is omitted, then the lookup will assume either a template or a non-template,
+but not a partial template specialisation.
+This means the following references work.
+
+- ``Wrapper::Outer`` (:cpp:class:`Wrapper::Outer`)
+- ``Wrapper::Outer::Inner`` (:cpp:class:`Wrapper::Outer::Inner`)
+- ``template\<typename TInner> Wrapper::Outer::Inner`` (:cpp:class:`template\<typename TInner> Wrapper::Outer::Inner`)
+
+(Full) Template Specialisations
+................................
+
+Assume the following declarations.
+
+.. cpp:class:: template<typename TOuter> \
+               Outer
+
+  .. cpp:class:: template<typename TInner> \
+                 Inner
+
+.. cpp:class:: template<> \
+               Outer<int>
+
+  .. cpp:class:: template<typename TInner> \
+                 Inner
+
+  .. cpp:class:: template<> \
+                 Inner<bool>
+
+In general the reference must include a template parameter list for each template argument list.
+The full specialisation above can therefore be referenced with ``template\<> Outer\<int>`` (:cpp:class:`template\<> Outer\<int>`)
+and ``template\<> template\<> Outer\<int>::Inner\<bool>`` (:cpp:class:`template\<> template\<> Outer\<int>::Inner\<bool>`).
+As a shorthand the empty template parameter list can be omitted, e.g., ``Outer\<int>`` (:cpp:class:`Outer\<int>`)
+and ``Outer\<int>::Inner\<bool>`` (:cpp:class:`Outer\<int>::Inner\<bool>`).
+
+
+Partial Template Specialisations
+.................................
+
+Assume the following declaration.
+
+.. cpp:class:: template<typename T> \
+               Outer<T*>
+
+References to partial specialisations must always include the template parameter lists, e.g.,
+``template\<typename T> Outer\<T*>`` (:cpp:class:`template\<typename T> Outer\<T*>`).
+Currently the lookup only succeed if the template parameter identifiers are equal strings.
+
 
 
 The Standard Domain

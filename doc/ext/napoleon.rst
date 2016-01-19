@@ -110,6 +110,7 @@ All of the following section headers are supported:
     * ``Raises``
     * ``References``
     * ``See Also``
+    * ``Todo``
     * ``Warning``
     * ``Warnings`` *(alias of Warning)*
     * ``Warns``

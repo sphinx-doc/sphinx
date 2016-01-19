@@ -96,8 +96,11 @@ General configuration
 
    If given, a dictionary of parser classes for different source suffices.  The
    keys are the suffix, the values can be either a class or a string giving a
-   fully-qualified name of a parser class.  Files with a suffix that is not in
-   the dictionary will be parsed with the default reStructuredText parser.
+   fully-qualified name of a parser class.  The parser class can be either
+   ``docutils.parsers.Parser`` or :class:`sphinx.parsers.Parser`.  Files with a
+   suffix that is not in the dictionary will be parsed with the default
+   reStructuredText parser.
+
 
    For example::
 
@@ -234,7 +237,7 @@ General configuration
 
    If true, Sphinx will warn about *all* references where the target cannot be
    found.  Default is ``False``.  You can activate this mode temporarily using
-   the :option:`-n` command-line switch.
+   the :option:`-n <sphinx-build -n>` command-line switch.
 
    .. versionadded:: 1.0
 
@@ -453,7 +456,7 @@ documentation on :ref:`intl` for details.
    this path are searched by the standard :mod:`gettext` module.
 
    Internal messages are fetched from a text domain of ``sphinx``; so if you
-   add the directory :file:`./locale` to this settting, the message catalogs
+   add the directory :file:`./locale` to this setting, the message catalogs
    (compiled from ``.po`` format using :program:`msgfmt`) must be in
    :file:`./locale/{language}/LC_MESSAGES/sphinx.mo`.  The text domain of
    individual documents depends on :confval:`gettext_compact`.
@@ -565,8 +568,7 @@ that use Sphinx's HTMLWriter class.
    The "title" for HTML documentation generated with Sphinx's own templates.
    This is appended to the ``<title>`` tag of individual pages, and used in the
    navigation bar as the "topmost" element.  It defaults to :samp:`'{<project>}
-   v{<revision>} documentation'` (with the values coming from the config
-   values).
+   v{<revision>} documentation'`.
 
 .. confval:: html_short_title
 
@@ -580,7 +582,7 @@ that use Sphinx's HTMLWriter class.
 
    A dictionary of values to pass into the template engine's context for all
    pages.  Single values can also be put in this dictionary using the
-   :option:`-A` command-line option of ``sphinx-build``.
+   :option:`-A <sphinx-build -A>` command-line option of ``sphinx-build``.
 
    .. versionadded:: 0.5
 
@@ -637,9 +639,10 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_last_updated_fmt
 
-   If this is not the empty string, a 'Last updated on:' timestamp is inserted
-   at every page bottom, using the given :func:`strftime` format.  Default is
-   ``'%b %d, %Y'`` (or a locale-dependent equivalent).
+   If this is not None, a 'Last updated on:' timestamp is inserted
+   at every page bottom, using the given :func:`strftime` format.
+   The empty string is equivalent to ``'%b %d, %Y'`` (or a
+   locale-dependent equivalent).
 
 .. confval:: html_use_smartypants
 
@@ -873,6 +876,7 @@ that use Sphinx's HTMLWriter class.
    * ``es`` -- Spanish
    * ``sv`` -- Swedish
    * ``tr`` -- Turkish
+   * ``zh`` -- Chinese
 
    .. admonition:: Accelerating build speed
 
@@ -906,6 +910,12 @@ that use Sphinx's HTMLWriter class.
      Python binding is not installed
 
    .. versionadded:: 1.1
+
+
+   The Chinese support has these options:
+
+   * ``dict``  -- the ``jieba`` dictionary path if want to use
+     custom dictionary.
 
 .. confval:: html_search_scorer
 
@@ -1431,6 +1441,8 @@ These options influence LaTeX output.
         'floated' into the next page but may be preceded by any other text.
         If you don't like this behavior, use 'H' which will disable floating
         and position figures strictly in the order they appear in the source.
+
+        .. versionadded:: 1.3
      ``'footer'``
         Additional footer content (before the indices), default empty.
 

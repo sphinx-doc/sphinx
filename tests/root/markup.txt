@@ -187,6 +187,15 @@ Tables
    | 2  | Empty cells:   |    |
    +----+----------------+----+
 
+.. table:: empty cell in table header
+
+   ===== ======
+   \ 
+   ===== ======
+   1     2
+   3     4
+   ===== ======
+
 Tables with multirow and multicol:
 
 .. only:: latex
@@ -256,6 +265,12 @@ Code blocks
    def ruby?
        false
    end
+
+.. code-block:: c
+
+   import sys
+
+   sys.stdout.write('hello world!\n')
 
 
 Misc stuff

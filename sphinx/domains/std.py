@@ -5,7 +5,7 @@
 
     The standard domain.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -210,10 +210,6 @@ class Program(Directive):
 
 class OptionXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
-        # validate content
-        if not re.match(r'(.+ )?[-/+\w]', target):
-            env.warn_node('Malformed :option: %r, does not contain option '
-                          'marker - or -- or / or +' % target, refnode)
         refnode['std:program'] = env.ref_context.get('std:program')
         return title, target
 
@@ -457,7 +453,7 @@ class StandardDomain(Domain):
         'productionlist': ProductionList,
     }
     roles = {
-        'option':  OptionXRefRole(),
+        'option':  OptionXRefRole(warn_dangling=True),
         'envvar':  EnvVarXRefRole(),
         # links to tokens in grammar productions
         'token':   XRefRole(),
@@ -495,6 +491,7 @@ class StandardDomain(Domain):
                 'the label must precede a section header)',
         'numref':  'undefined label: %(target)s',
         'keyword': 'unknown keyword: %(target)s',
+        'option': 'unknown option: %(target)s',
     }
 
     def clear_doc(self, docname):
@@ -633,7 +630,8 @@ class StandardDomain(Domain):
                 return None
 
             if env.config.numfig is False:
-                env.warn(fromdocname, 'numfig is disabled. :numref: is ignored.')
+                env.warn(fromdocname, 'numfig is disabled. :numref: is ignored.',
+                         lineno=node.line)
                 return contnode
 
             try:
@@ -648,7 +646,13 @@ class StandardDomain(Domain):
             if target == fully_normalize_name(title):
                 title = env.config.numfig_format.get(figtype, '')
 
-            newtitle = title % '.'.join(map(str, fignumber))
+            try:
+                newtitle = title % '.'.join(map(str, fignumber))
+            except TypeError:
+                env.warn(fromdocname, 'invalid numfig_format: %s' % title,
+                         lineno=node.line)
+                return None
+
             return self.build_reference_node(fromdocname, builder,
                                              docname, labelid, newtitle, 'numref',
                                              nodeclass=addnodes.number_reference,
@@ -661,22 +665,23 @@ class StandardDomain(Domain):
             return make_refnode(builder, fromdocname, docname,
                                 labelid, contnode)
         elif typ == 'option':
+            progname = node.get('std:program')
             target = target.strip()
-            # most obvious thing: we are a flag option without program
-            if target.startswith(('-', '/', '+')):
-                progname = node.get('std:program')
-            elif re.search(r'[-/+]', target):
-                try:
-                    progname, target = re.split(r' (?=-|--|/|\+)', target, 1)
-                except ValueError:
-                    return None
-                progname = ws_re.sub('-', progname.strip())
-            else:
-                progname = None
-            docname, labelid = self.data['progoptions'].get((progname, target),
-                                                            ('', ''))
+            docname, labelid = self.data['progoptions'].get((progname, target), ('', ''))
             if not docname:
-                return None
+                commands = []
+                while ws_re.search(target):
+                    subcommand, target = ws_re.split(target, 1)
+                    commands.append(subcommand)
+                    progname = "-".join(commands)
+
+                    docname, labelid = self.data['progoptions'].get((progname, target),
+                                                                    ('', ''))
+                    if docname:
+                        break
+                else:
+                    return None
+
             return make_refnode(builder, fromdocname, docname,
                                 labelid, contnode)
         else:

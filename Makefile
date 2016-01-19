@@ -8,6 +8,8 @@ DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
              -i .ropeproject -i doc/_build -i tests/path.py \
              -i tests/coverage.py -i env -i utils/convert.py \
              -i tests/typing_test_data.py \
+             -i tests/test_autodoc_py35.py \
+             -i tests/build \
              -i sphinx/search/da.py \
              -i sphinx/search/de.py \
              -i sphinx/search/en.py \
@@ -55,6 +57,9 @@ reindent:
 	@$(PYTHON) utils/reindent.py -r -n .
 
 test:
+	@cd tests; $(PYTHON) run.py -I py35 -d -m '^[tT]est' $(TEST)
+
+test-async:
 	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' $(TEST)
 
 covertest:

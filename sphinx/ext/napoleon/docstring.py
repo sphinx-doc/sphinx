@@ -7,7 +7,7 @@
     Classes for docstring parsing and formatting.
 
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,7 +15,7 @@ import collections
 import inspect
 import re
 
-from six import string_types
+from six import string_types, u
 from six.moves import range
 
 from sphinx.ext.napoleon.iterators import modify_iter
@@ -144,6 +144,7 @@ class GoogleDocstring(UnicodeMixin):
                 'raises': self._parse_raises_section,
                 'references': self._parse_references_section,
                 'see also': self._parse_see_also_section,
+                'todo': self._parse_todo_section,
                 'warning': self._parse_warning_section,
                 'warnings': self._parse_warning_section,
                 'warns': self._parse_warns_section,
@@ -161,7 +162,7 @@ class GoogleDocstring(UnicodeMixin):
             Unicode version of the docstring.
 
         """
-        return u'\n'.join(self.lines())
+        return u('\n').join(self.lines())
 
     def lines(self):
         """Return the parsed lines of the docstring in reStructuredText format.
@@ -211,10 +212,7 @@ class GoogleDocstring(UnicodeMixin):
                 _name = match.group(1)
                 _type = match.group(2)
 
-        if _name[:2] == '**':
-            _name = r'\*\*'+_name[2:]
-        elif _name[:1] == '*':
-            _name = r'\*'+_name[1:]
+        _name = self._escape_args_and_kwargs(_name)
 
         if prefer_type and not _type:
             _type, _name = _name, _type
@@ -295,6 +293,14 @@ class GoogleDocstring(UnicodeMixin):
         else:
             min_indent = self._get_min_indent(lines)
             return [line[min_indent:] for line in lines]
+
+    def _escape_args_and_kwargs(self, name):
+        if name[:2] == '**':
+            return r'\*\*' + name[2:]
+        elif name[:1] == '*':
+            return r'\*' + name[1:]
+        else:
+            return name
 
     def _format_admonition(self, admonition, lines):
         lines = self._strip_empty(lines)
@@ -606,6 +612,10 @@ class GoogleDocstring(UnicodeMixin):
         lines = self._consume_to_next_section()
         return self._format_admonition('seealso', lines)
 
+    def _parse_todo_section(self, section):
+        lines = self._consume_to_next_section()
+        return self._format_admonition('todo', lines)
+
     def _parse_warning_section(self, section):
         lines = self._consume_to_next_section()
         return self._format_admonition('warning', lines)
@@ -766,6 +776,7 @@ class NumpyDocstring(GoogleDocstring):
         else:
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()
+        _name = self._escape_args_and_kwargs(_name)
         if prefer_type and not _type:
             _type, _name = _name, _type
         indent = self._get_indent(line)

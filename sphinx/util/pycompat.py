@@ -5,7 +5,7 @@
 
     Stuff for Python version compatibility.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,6 +19,8 @@ from six.moves import zip_longest
 from itertools import product
 
 from six import PY3, text_type, exec_
+
+NoneType = type(None)
 
 # ------------------------------------------------------------------------------
 # Python 2/3 compatibility

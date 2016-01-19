@@ -6,7 +6,7 @@
     Test message patching for internationalization purposes.  Runs the text
     builder in the test root.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -16,6 +16,7 @@ import re
 from subprocess import Popen, PIPE
 from xml.etree import ElementTree
 
+from babel.messages import pofile
 from nose.tools import assert_equal
 from six import string_types
 
@@ -38,6 +39,11 @@ def gen_with_intl_app(builder, confoverrides={}, *args, **kw):
     default_kw.update(kw)
     default_kw['confoverrides'].update(confoverrides)
     return gen_with_app(builder, *args, **default_kw)
+
+
+def read_po(pathname):
+    with pathname.open() as f:
+        return pofile.read_po(f)
 
 
 def setup_module():
@@ -175,16 +181,18 @@ def test_text_builder(app, status, warning):
                             u'WARNING: Literal block expected; none found.'
     yield assert_re_search, expected_warning_expr, warnings
 
-    # --- definition terms: regression test for #975
+    # --- definition terms: regression test for #975, #2198, #2205
 
     result = (app.outdir / 'definition_terms.txt').text(encoding='utf-8')
     expect = (u"\nI18N WITH DEFINITION TERMS"
               u"\n**************************\n"
               u"\nSOME TERM"
               u"\n   THE CORRESPONDING DEFINITION\n"
-              u"\nSOME OTHER TERM"
+              u"\nSOME *TERM* WITH LINK"
               u"\n   THE CORRESPONDING DEFINITION #2\n"
-              u"\nSOME TERM WITH : CLASSIFIER1 : CLASSIFIER2"
+              u"\nSOME **TERM** WITH : CLASSIFIER1 : CLASSIFIER2"
+              u"\n   THE CORRESPONDING DEFINITION\n"
+              u"\nSOME TERM WITH : CLASSIFIER[]"
               u"\n   THE CORRESPONDING DEFINITION\n"
               )
     yield assert_equal, result, expect
@@ -280,8 +288,8 @@ def test_text_builder(app, status, warning):
               u"\n      * **foo** -- DESCRIPTION OF PARAMETER foo\n"
               u"\n      * **bar** -- DESCRIPTION OF PARAMETER bar\n"
               u"\nclass Cls3(values)\n"
-              u"\n   Raises ValueError:"
-              u"\n      IF THE VALUES ARE OUT OF RANGE\n"
+              u"\n   Raises:"
+              u"\n      **ValueError** -- IF THE VALUES ARE OUT OF RANGE\n"
               u"\nclass Cls4(values)\n"
               u"\n   Raises:"
               u"\n      * **TypeError** -- IF THE VALUES ARE NOT VALID\n"
@@ -302,6 +310,31 @@ def test_text_builder(app, status, warning):
     for d in directives:
         yield assert_in, d.upper() + " TITLE", result
         yield assert_in, d.upper() + " BODY", result
+
+
+@gen_with_intl_app('gettext', freshenv=True)
+def test_gettext_builder(app, status, warning):
+    app.builder.build_all()
+
+    # --- definition terms: regression test for #2198, #2205
+    expect = read_po(app.srcdir / 'definition_terms.po')
+    actual = read_po(app.outdir / 'definition_terms.pot')
+    for expect_msg in [m for m in expect if m.id]:
+        yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
+
+    # --- glossary terms: regression test for #1090
+    expect = read_po(app.srcdir / 'glossary_terms.po')
+    actual = read_po(app.outdir / 'glossary_terms.pot')
+    for expect_msg in [m for m in expect if m.id]:
+        yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
+    warnings = warning.getvalue().replace(os.sep, '/')
+    yield assert_not_in, 'term not in glossary', warnings
+
+    # --- glossary term inconsistencies: regression test for #1090
+    expect = read_po(app.srcdir / 'glossary_terms_inconsistency.po')
+    actual = read_po(app.outdir / 'glossary_terms_inconsistency.pot')
+    for expect_msg in [m for m in expect if m.id]:
+        yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
 
 
 @gen_with_intl_app('html', freshenv=True)
@@ -661,14 +694,15 @@ def test_additional_targets_should_not_be_translated(app, status, warning):
     yield assert_count(expected_expr, result, 1)
 
     # C code block with lang should not be translated but be *C* highlighted
-    expected_expr = """<span class="cp">#include &lt;stdio.h&gt;</span>"""
+    expected_expr = ("""<span class="cp">#include</span> """
+                     """<span class="cpf">&lt;stdio.h&gt;</span>""")
     yield assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
         """<span class="kn">import</span> <span class="nn">sys</span>  """
-        """<span class="c"># sys importing</span>""")
+        """<span class="c1"># sys importing</span>""")
     yield assert_count(expected_expr, result, 1)
 
     ## raw.txt
@@ -721,14 +755,15 @@ def test_additional_targets_should_be_translated(app, status, warning):
     yield assert_count(expected_expr, result, 1)
 
     # C code block with lang should be translated and be *C* highlighted
-    expected_expr = """<span class="cp">#include &lt;STDIO.H&gt;</span>"""
+    expected_expr = ("""<span class="cp">#include</span> """
+                     """<span class="cpf">&lt;STDIO.H&gt;</span>""")
     yield assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
         """<span class="kn">import</span> <span class="nn">sys</span>  """
-        """<span class="c"># SYS IMPORTING</span>""")
+        """<span class="c1"># SYS IMPORTING</span>""")
     yield assert_count(expected_expr, result, 1)
 
     ## raw.txt

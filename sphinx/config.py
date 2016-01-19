@@ -5,7 +5,7 @@
 
     Build configuration file handling.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,7 +18,7 @@ from six import PY3, iteritems, string_types, binary_type, integer_types
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
 from sphinx.util.osutil import make_filename, cd
-from sphinx.util.pycompat import execfile_
+from sphinx.util.pycompat import execfile_, NoneType
 
 nonascii_re = re.compile(br'[\x80-\xff]')
 
@@ -27,10 +27,8 @@ if PY3:
     CONFIG_SYNTAX_ERROR += "\nDid you change the syntax from 2.x to 3.x?"
 CONFIG_EXIT_ERROR = "The configuration file (or one of the modules it imports) " \
                     "called sys.exit()"
-
-IGNORE_CONFIG_TYPE_CHECKS = (
-    'html_domain_indices', 'latex_domain_indices', 'texinfo_domain_indices'
-)
+CONFIG_TYPE_WARNING = "The config value `{name}' has type `{current.__name__}', " \
+                      "defaults to `{default.__name__}.'"
 
 
 class Config(object):
@@ -50,9 +48,10 @@ class Config(object):
         version = ('', 'env'),
         release = ('', 'env'),
         today = ('', 'env'),
-        today_fmt = (None, 'env'),  # the real default is locale-dependent
+        # the real default is locale-dependent
+        today_fmt = (None, 'env', [str]),
 
-        language = (None, 'env'),
+        language = (None, 'env', [str]),
         locale_dirs = ([], 'env'),
 
         master_doc = ('contents', 'env'),
@@ -60,23 +59,23 @@ class Config(object):
         source_encoding = ('utf-8-sig', 'env'),
         source_parsers = ({}, 'env'),
         exclude_patterns = ([], 'env'),
-        default_role = (None, 'env'),
+        default_role = (None, 'env', [str]),
         add_function_parentheses = (True, 'env'),
         add_module_names = (True, 'env'),
         trim_footnote_reference_space = (False, 'env'),
         show_authors = (False, 'env'),
-        pygments_style = (None, 'html'),
+        pygments_style = (None, 'html', [str]),
         highlight_language = ('python', 'env'),
         highlight_options = ({}, 'env'),
         templates_path = ([], 'html'),
-        template_bridge = (None, 'html'),
+        template_bridge = (None, 'html', [str]),
         keep_warnings = (False, 'env'),
         modindex_common_prefix = ([], 'html'),
-        rst_epilog = (None, 'env'),
-        rst_prolog = (None, 'env'),
+        rst_epilog = (None, 'env', [str]),
+        rst_prolog = (None, 'env', [str]),
         trim_doctest_flags = (True, 'env'),
-        primary_domain = ('py', 'env'),
-        needs_sphinx = (None, None),
+        primary_domain = ('py', 'env', [NoneType]),
+        needs_sphinx = (None, None, [str]),
         needs_extensions = ({}, None),
         nitpicky = (False, 'env'),
         nitpick_ignore = ([], 'html'),
@@ -93,36 +92,36 @@ class Config(object):
         html_theme_options = ({}, 'html'),
         html_title = (lambda self: l_('%s %s documentation') %
                       (self.project, self.release),
-                      'html'),
+                      'html', [str]),
         html_short_title = (lambda self: self.html_title, 'html'),
-        html_style = (None, 'html'),
-        html_logo = (None, 'html'),
-        html_favicon = (None, 'html'),
+        html_style = (None, 'html', [str]),
+        html_logo = (None, 'html', [str]),
+        html_favicon = (None, 'html', [str]),
         html_static_path = ([], 'html'),
         html_extra_path = ([], 'html'),
         # the real default is locale-dependent
-        html_last_updated_fmt = (None, 'html'),
+        html_last_updated_fmt = (None, 'html', [str]),
         html_use_smartypants = (True, 'html'),
-        html_translator_class = (None, 'html'),
+        html_translator_class = (None, 'html', [str]),
         html_sidebars = ({}, 'html'),
         html_additional_pages = ({}, 'html'),
         html_use_modindex = (True, 'html'),  # deprecated
-        html_domain_indices = (True, 'html'),
+        html_domain_indices = (True, 'html', [list]),
         html_add_permalinks = (u'\u00B6', 'html'),
         html_use_index = (True, 'html'),
         html_split_index = (False, 'html'),
         html_copy_source = (True, 'html'),
         html_show_sourcelink = (True, 'html'),
         html_use_opensearch = ('', 'html'),
-        html_file_suffix = (None, 'html'),
-        html_link_suffix = (None, 'html'),
+        html_file_suffix = (None, 'html', [str]),
+        html_link_suffix = (None, 'html', [str]),
         html_show_copyright = (True, 'html'),
         html_show_sphinx = (True, 'html'),
         html_context = ({}, 'html'),
         html_output_encoding = ('utf-8', 'html'),
         html_compact_lists = (True, 'html'),
         html_secnumber_suffix = ('. ', 'html'),
-        html_search_language = (None, 'html'),
+        html_search_language = (None, 'html', [str]),
         html_search_options = ({}, 'html'),
         html_search_scorer = ('', None),
         html_scaled_image_link = (True, 'html'),
@@ -139,17 +138,17 @@ class Config(object):
         # Apple help options
         applehelp_bundle_name = (lambda self: make_filename(self.project),
                                  'applehelp'),
-        applehelp_bundle_id = (None, 'applehelp'),
+        applehelp_bundle_id = (None, 'applehelp', [str]),
         applehelp_dev_region = ('en-us', 'applehelp'),
         applehelp_bundle_version = ('1', 'applehelp'),
-        applehelp_icon = (None, 'applehelp'),
+        applehelp_icon = (None, 'applehelp', [str]),
         applehelp_kb_product = (lambda self: '%s-%s' %
                                 (make_filename(self.project), self.release),
                                 'applehelp'),
-        applehelp_kb_url = (None, 'applehelp'),
-        applehelp_remote_url = (None, 'applehelp'),
-        applehelp_index_anchors = (False, 'applehelp'),
-        applehelp_min_term_length = (None, 'applehelp'),
+        applehelp_kb_url = (None, 'applehelp', [str]),
+        applehelp_remote_url = (None, 'applehelp', [str]),
+        applehelp_index_anchors = (False, 'applehelp', [str]),
+        applehelp_min_term_length = (None, 'applehelp', [str]),
         applehelp_stopwords = (lambda self: self.language or 'en', 'applehelp'),
         applehelp_locale = (lambda self: self.language or 'en', 'applehelp'),
         applehelp_title = (lambda self: self.project + ' Help', 'applehelp'),
@@ -196,11 +195,11 @@ class Config(object):
                                           self.project,
                                           '', 'manual')],
                            None),
-        latex_logo = (None, None),
+        latex_logo = (None, None, [str]),
         latex_appendices = ([], None),
         latex_use_parts = (False, None),
         latex_use_modindex = (True, None),  # deprecated
-        latex_domain_indices = (True, None),
+        latex_domain_indices = (True, None, [list]),
         latex_show_urls = ('no', None),
         latex_show_pagerefs = (False, None),
         # paper_size and font_size are still separate values
@@ -236,13 +235,13 @@ class Config(object):
                              None),
         texinfo_appendices = ([], None),
         texinfo_elements = ({}, None),
-        texinfo_domain_indices = (True, None),
+        texinfo_domain_indices = (True, None, [list]),
         texinfo_show_urls = ('footnote', None),
         texinfo_no_detailmenu = (False, None),
 
         # linkcheck options
         linkcheck_ignore = ([], None),
-        linkcheck_timeout = (None, None),
+        linkcheck_timeout = (None, None, [int]),
         linkcheck_workers = (5, None),
         linkcheck_anchors = (True, None),
 
@@ -292,25 +291,30 @@ class Config(object):
         # NB. since config values might use l_() we have to wait with calling
         # this method until i18n is initialized
         for name in self._raw_config:
-            if name in IGNORE_CONFIG_TYPE_CHECKS:
-                continue  # for a while, ignore multiple types config value. see #1781
-            if name not in Config.config_values:
+            if name not in self.values:
                 continue  # we don't know a default value
-            default, dummy_rebuild = Config.config_values[name]
+            settings = self.values[name]
+            default, dummy_rebuild = settings[:2]
+            permitted = settings[2] if len(settings) == 3 else ()
+
             if hasattr(default, '__call__'):
                 default = default(self)  # could invoke l_()
-            if default is None:
-                continue
+            if default is None and not permitted:
+                continue  # neither inferrable nor expliclitly permitted types
             current = self[name]
             if type(current) is type(default):
                 continue
+            if type(current) in permitted:
+                continue
+
             common_bases = (set(type(current).__bases__ + (type(current),)) &
                             set(type(default).__bases__))
             common_bases.discard(object)
             if common_bases:
                 continue  # at least we share a non-trivial base class
-            warn("the config value %r has type `%s', defaults to `%s.'" %
-                 (name, type(current).__name__, type(default).__name__))
+
+            warn(CONFIG_TYPE_WARNING.format(
+                name=name, current=type(current), default=type(default)))
 
     def check_unicode(self, warn):
         # check all string values for non-ASCII characters in bytestrings,

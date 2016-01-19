@@ -5,13 +5,14 @@
 
     Test all builders.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from six import BytesIO
 
 from textwrap import dedent
+from sphinx.errors import SphinxError
 
 from util import with_app, rootdir, tempdir, SkipTest, TestApp
 
@@ -58,12 +59,12 @@ def test_build_all():
             """))
 
         master_doc = srcdir / 'contents.txt'
-        master_doc.write_bytes((master_doc.text() + dedent("""
+        master_doc.write_text(master_doc.text() + dedent(u"""
                 .. toctree::
 
                    %(test_name)s/%(test_name)s
                 """ % {'test_name': test_name})
-        ).encode('utf-8'))
+        )
 
     # note: no 'html' - if it's ok with dirhtml it's ok with html
     for buildername in ['dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle',
@@ -71,6 +72,18 @@ def test_build_all():
                         'applehelp', 'changes', 'xml', 'pseudoxml', 'man',
                         'linkcheck']:
         yield verify_build, buildername, srcdir
+
+
+@with_app(buildername='text')
+def test_master_doc_not_found(app, status, warning):
+    (app.srcdir / 'contents.txt').move(app.srcdir / 'contents.txt.bak')
+    try:
+        app.builder.build_all()
+        assert False  # SphinxError not raised
+    except Exception as exc:
+        assert isinstance(exc, SphinxError)
+    finally:
+        (app.srcdir / 'contents.txt.bak').move(app.srcdir / 'contents.txt')
 
 
 @with_app(buildername='text', testroot='circular')

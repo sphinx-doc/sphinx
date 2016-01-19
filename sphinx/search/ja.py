@@ -5,7 +5,7 @@
 
     Japanese search language: includes routine to split words.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,7 +21,7 @@ import os
 import re
 import sys
 
-from six import iteritems
+from six import iteritems, PY3
 
 try:
     import MeCab
@@ -29,6 +29,7 @@ try:
 except ImportError:
     native_module = False
 
+from sphinx.errors import SphinxError
 from sphinx.search import SearchLanguage
 
 
@@ -43,13 +44,16 @@ class MecabBinder(object):
         self.dict_encode = options.get('dic_enc', 'utf-8')
 
     def split(self, input):
-        input2 = input.encode(self.dict_encode)
+        input2 = input if PY3 else input.encode(self.dict_encode)
         if native_module:
             result = self.native.parse(input2)
         else:
             result = self.ctypes_libmecab.mecab_sparse_tostr(
                 self.ctypes_mecab, input.encode(self.dict_encode))
-        return result.decode(self.dict_encode).split(' ')
+        if PY3:
+            return result.split(' ')
+        else:
+            return result.decode(self.dict_encode).split(' ')
 
     def init_native(self, options):
         param = '-Owakati'
@@ -83,9 +87,16 @@ class MecabBinder(object):
         if dict:
             param += ' -d %s' % dict
 
+        fs_enc = sys.getfilesystemencoding() or sys.getdefaultencoding()
+
         self.ctypes_libmecab = ctypes.CDLL(libpath)
+        self.ctypes_libmecab.mecab_new2.argtypes = (ctypes.c_char_p,)
+        self.ctypes_libmecab.mecab_new2.restype = ctypes.c_void_p
+        self.ctypes_libmecab.mecab_sparse_tostr.argtypes = (ctypes.c_void_p, ctypes.c_char_p)
         self.ctypes_libmecab.mecab_sparse_tostr.restype = ctypes.c_char_p
-        self.ctypes_mecab = self.ctypes_libmecab.mecab_new2(param)
+        self.ctypes_mecab = self.ctypes_libmecab.mecab_new2(param.encode(fs_enc))
+        if self.ctypes_mecab is None:
+            raise SphinxError('mecab initialization failed')
 
     def __del__(self):
         if self.ctypes_libmecab:

@@ -5,7 +5,7 @@
 
     Additional docutils nodes.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -210,6 +210,10 @@ class abbreviation(nodes.Inline, nodes.TextElement):
 
 class termsep(nodes.Structural, nodes.Element):
     """Separates two terms within a <term> node."""
+
+
+class manpage(nodes.Inline, nodes.TextElement):
+    """Node for references to manpages."""
 
 
 # make the new nodes known to docutils; needed because the HTML writer will

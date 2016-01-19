@@ -5,7 +5,7 @@
 
     Global creation environment.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -23,8 +23,8 @@ from os import path
 from glob import glob
 from itertools import groupby
 
-from six import iteritems, itervalues, text_type, class_types, string_types
-from six.moves import cPickle as pickle, zip
+from six import iteritems, itervalues, text_type, class_types, string_types, next
+from six.moves import cPickle as pickle
 from docutils import nodes
 from docutils.io import FileInput, NullOutput
 from docutils.core import Publisher
@@ -38,7 +38,7 @@ from docutils.frontend import OptionParser
 
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
-    FilenameUniqDict, get_figtype, import_object
+    FilenameUniqDict, get_figtype, import_object, split_index_msg
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream, is_translatable
 from sphinx.util.osutil import SEP, getcwd, fs_encoding
 from sphinx.util.i18n import find_catalog_files
@@ -105,13 +105,16 @@ class SphinxStandaloneReader(standalone.Reader):
                   DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
                   AutoNumbering, SortIds, RemoveTranslatableInline]
 
-    def __init__(self, parsers={}, *args, **kwargs):
+    def __init__(self, app, parsers={}, *args, **kwargs):
         standalone.Reader.__init__(self, *args, **kwargs)
         self.parser_map = {}
         for suffix, parser_class in parsers.items():
             if isinstance(parser_class, string_types):
                 parser_class = import_object(parser_class, 'source parser')
-            self.parser_map[suffix] = parser_class()
+            parser = parser_class()
+            if hasattr(parser, 'set_application'):
+                parser.set_application(app)
+            self.parser_map[suffix] = parser
 
     def read(self, source, parser, settings):
         self.source = source
@@ -618,8 +621,8 @@ class BuildEnvironment:
             self._read_serial(docnames, app)
 
         if config.master_doc not in self.all_docs:
-            self.warn(None, 'master file %s not found' %
-                      self.doc2path(config.master_doc))
+            raise SphinxError('master file %s not found' %
+                              self.doc2path(config.master_doc))
 
         self.app = None
 
@@ -776,7 +779,7 @@ class BuildEnvironment:
         codecs.register_error('sphinx', self.warn_and_replace)
 
         # publish manually
-        reader = SphinxStandaloneReader(parsers=self.config.source_parsers)
+        reader = SphinxStandaloneReader(self.app, parsers=self.config.source_parsers)
         pub = Publisher(reader=reader,
                         writer=SphinxDummyWriter(),
                         destination_class=NullOutput)
@@ -1123,7 +1126,14 @@ class BuildEnvironment:
     def note_indexentries_from(self, docname, document):
         entries = self.indexentries[docname] = []
         for node in document.traverse(addnodes.index):
-            entries.extend(node['entries'])
+            try:
+                for type, value, tid, main in node['entries']:
+                    split_index_msg(type, value)
+            except ValueError as exc:
+                self.warn_node(exc, node)
+                node.parent.remove(node)
+            else:
+                entries.extend(node['entries'])
 
     def note_citations_from(self, docname, document):
         for node in document.traverse(nodes.citation):
@@ -1656,7 +1666,7 @@ class BuildEnvironment:
                 for role in domain.roles:
                     res = domain.resolve_xref(self, refdoc, builder, role, target,
                                               node, contnode)
-                    if res:
+                    if res and isinstance(res[0], nodes.Element):
                         results.append(('%s:%s' % (domain.name, role), res))
         # now, see how many matches we got...
         if not results:
@@ -1951,54 +1961,31 @@ class BuildEnvironment:
                 for (key_, group) in groupby(newlist, keyfunc2)]
 
     def collect_relations(self):
-        relations = {}
-        getinc = self.toctree_includes.get
+        traversed = set()
 
-        def collect(parents, parents_set, docname, previous, next):
-            # circular relationship?
-            if docname in parents_set:
-                # we will warn about this in resolve_toctree()
-                return
-            includes = getinc(docname)
-            # previous
-            if not previous:
-                # if no previous sibling, go to parent
-                previous = parents[0][0]
-            else:
-                # else, go to previous sibling, or if it has children, to
-                # the last of its children, or if that has children, to the
-                # last of those, and so forth
-                while 1:
-                    previncs = getinc(previous)
-                    if previncs:
-                        previous = previncs[-1]
-                    else:
-                        break
-            # next
-            if includes:
-                # if it has children, go to first of them
-                next = includes[0]
-            elif next:
-                # else, if next sibling, go to it
-                pass
-            else:
-                # else, go to the next sibling of the parent, if present,
-                # else the grandparent's sibling, if present, and so forth
-                for parname, parindex in parents:
-                    parincs = getinc(parname)
-                    if parincs and parindex + 1 < len(parincs):
-                        next = parincs[parindex+1]
-                        break
-                # else it will stay None
-            # same for children
-            if includes:
-                for subindex, args in enumerate(zip(includes,
-                                                    [None] + includes,
-                                                    includes[1:] + [None])):
-                    collect([(docname, subindex)] + parents,
-                            parents_set.union([docname]), *args)
-            relations[docname] = [parents[0][0], previous, next]
-        collect([(None, 0)], set(), self.config.master_doc, None, None)
+        def traverse_toctree(parent, docname):
+            # traverse toctree by pre-order
+            yield parent, docname
+            traversed.add(docname)
+
+            for child in (self.toctree_includes.get(docname) or []):
+                for subparent, subdocname in traverse_toctree(docname, child):
+                    if subdocname not in traversed:
+                        yield subparent, subdocname
+                        traversed.add(subdocname)
+
+        relations = {}
+        docnames = traverse_toctree(None, self.config.master_doc)
+        prevdoc = None
+        parent, docname = next(docnames)
+        for nextparent, nextdoc in docnames:
+            relations[docname] = [parent, prevdoc, nextdoc]
+            prevdoc = docname
+            docname = nextdoc
+            parent = nextparent
+
+        relations[docname] = [parent, prevdoc, None]
+
         return relations
 
     def check_consistency(self):

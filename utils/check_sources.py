@@ -7,7 +7,7 @@
     Make sure each Python file has a correct file header
     including copyright and license information.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -81,7 +81,7 @@ def check_syntax(fn, lines):
 @checker('.py')
 def check_style(fn, lines):
     for lno, line in enumerate(lines):
-        if len(line) > 95:
+        if len(line.rstrip('\n')) > 95:
             yield lno+1, "line too long"
         if line.strip().startswith('#'):
             continue

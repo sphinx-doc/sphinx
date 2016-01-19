@@ -5,7 +5,7 @@
 
     The CheckExternalLinksBuilder class.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,7 +17,7 @@ from os import path
 
 from six.moves import queue
 from six.moves.urllib.request import build_opener, Request, HTTPRedirectHandler
-from six.moves.urllib.parse import unquote, urlsplit, quote
+from six.moves.urllib.parse import unquote
 from six.moves.urllib.error import HTTPError
 from six.moves.html_parser import HTMLParser
 from docutils import nodes
@@ -33,6 +33,7 @@ except ImportError:
         pass
 
 from sphinx.builders import Builder
+from sphinx.util import encode_uri
 from sphinx.util.console import purple, red, darkgreen, darkgray, \
     darkred, turquoise
 from sphinx.util.pycompat import TextIOWrapper
@@ -94,6 +95,17 @@ def check_anchor(f, hash):
     return parser.found
 
 
+def get_content_charset(f):
+    content_type = f.headers.get('content-type')
+    if content_type:
+        params = (p.strip() for p in content_type.split(';')[1:])
+        for param in params:
+            if param.startswith('charset='):
+                return param[8:]
+
+    return None
+
+
 class CheckExternalLinksBuilder(Builder):
     """
     Checks for broken external links.
@@ -153,15 +165,7 @@ class CheckExternalLinksBuilder(Builder):
             try:
                 req_url.encode('ascii')
             except UnicodeError:
-                split = urlsplit(req_url)
-                req_url = (split[0].encode() + '://' +       # scheme
-                           split[1].encode('idna') +         # netloc
-                           quote(split[2].encode('utf-8')))  # path
-                if split[3]:  # query
-                    req_url += '?' + quote(split[3].encode('utf-8'))
-                # go back to Unicode strings which is required by Python 3
-                # (but now all parts are pure ascii)
-                req_url = req_url.decode('ascii')
+                req_url = encode_uri(req_url)
 
             # need to actually check the URI
             try:
@@ -172,6 +176,8 @@ class CheckExternalLinksBuilder(Builder):
                     encoding = 'utf-8'
                     if hasattr(f.headers, 'get_content_charset'):
                         encoding = f.headers.get_content_charset() or encoding
+                    else:
+                        encoding = get_content_charset(f) or encoding
                     found = check_anchor(TextIOWrapper(f, encoding), unquote(hash))
                     f.close()
 
@@ -237,11 +243,12 @@ class CheckExternalLinksBuilder(Builder):
         elif status == 'working':
             self.info(darkgreen('ok        ')  + uri + info)
         elif status == 'broken':
-            self.info(red('broken    ') + uri + red(' - ' + info))
             self.write_entry('broken', docname, lineno, uri + ': ' + info)
-            if self.app.quiet:
+            if self.app.quiet or self.app.warningiserror:
                 self.warn('broken link: %s' % uri,
                           '%s:%s' % (self.env.doc2path(docname), lineno))
+            else:
+                self.info(red('broken    ') + uri + red(' - ' + info))
         elif status == 'redirected':
             text, color = {
                 301: ('permanently', darkred),

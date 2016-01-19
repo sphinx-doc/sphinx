@@ -7,7 +7,7 @@
 
     Gracefully adapted from the TextPress system by Armin.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -77,6 +77,7 @@ class Sphinx(object):
         self.next_listener_id = 0
         self._extensions = {}
         self._extension_metadata = {}
+        self._additional_source_parsers = {}
         self._listeners = {}
         self._setting_up_extension = ['?']
         self.domains = BUILTIN_DOMAINS.copy()
@@ -185,6 +186,8 @@ class Sphinx(object):
         self._init_i18n()
         # check all configuration values for permissible types
         self.config.check_types(self.warn)
+        # set up source_parsers
+        self._init_source_parsers()
         # set up the build environment
         self._init_env(freshenv)
         # set up the builder
@@ -210,6 +213,13 @@ class Sphinx(object):
                 self.info('done')
             else:
                 self.info('not available for built-in messages')
+
+    def _init_source_parsers(self):
+        for suffix, parser in iteritems(self._additional_source_parsers):
+            if suffix not in self.config.source_suffix:
+                self.config.source_suffix.append(suffix)
+            if suffix not in self.config.source_parsers:
+                self.config.source_parsers[suffix] = parser
 
     def _init_env(self, freshenv):
         if freshenv:
@@ -535,13 +545,14 @@ class Sphinx(object):
                         builder.name, self.builderclasses[builder.name].__module__))
         self.builderclasses[builder.name] = builder
 
-    def add_config_value(self, name, default, rebuild):
-        self.debug('[app] adding config value: %r', (name, default, rebuild))
+    def add_config_value(self, name, default, rebuild, types=()):
+        self.debug('[app] adding config value: %r',
+                   (name, default, rebuild) + ((types,) if types else ()))
         if name in self.config.values:
             raise ExtensionError('Config value %r already present' % name)
         if rebuild in (False, True):
             rebuild = rebuild and 'env' or ''
-        self.config.values[name] = (default, rebuild)
+        self.config.values[name] = (default, rebuild, types)
 
     def add_event(self, name):
         self.debug('[app] adding event: %r', name)
@@ -750,6 +761,10 @@ class Sphinx(object):
         from sphinx.search import languages, SearchLanguage
         assert issubclass(cls, SearchLanguage)
         languages[cls.lang] = cls
+
+    def add_source_parser(self, suffix, parser):
+        self.debug('[app] adding search source_parser: %r, %r', (suffix, parser))
+        self._additional_source_parsers[suffix] = parser
 
 
 class TemplateBridge(object):

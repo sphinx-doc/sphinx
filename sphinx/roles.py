@@ -5,7 +5,7 @@
 
     Handlers for additional ReST roles.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -29,7 +29,7 @@ generic_docroles = {
     'kbd': nodes.literal,
     'mailheader': addnodes.literal_emphasis,
     'makevar': addnodes.literal_strong,
-    'manpage': addnodes.literal_emphasis,
+    'manpage': addnodes.manpage,
     'mimetype': addnodes.literal_emphasis,
     'newsgroup': addnodes.literal_emphasis,
     'program': addnodes.literal_strong,  # XXX should be an x-ref

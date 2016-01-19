@@ -24,6 +24,10 @@ Attributes:
         one convention to document module level variables and be consistent
         with it.
 
+Todo:
+    * For module TODOs
+    * You have to also use ``sphinx.ext.todo`` extension
+
 .. _Google Python Style Guide:
    http://google.github.io/styleguide/pyguide.html
 
@@ -237,16 +241,17 @@ class ExampleClass(object):
         return True
 
     def __special__(self):
-        """By default special members with docstrings are included.
+        """By default special members with docstrings are not included.
 
         Special members are any methods or attributes that start with and
         end with a double underscore. Any special member with a docstring
-        will be included in the output.
+        will be included in the output, if
+        ``napoleon_include_special_with_doc`` is set to True.
 
-        This behavior can be disabled by changing the following setting in
+        This behavior can be enabled by changing the following setting in
         Sphinx's conf.py::
 
-            napoleon_include_special_with_doc = False
+            napoleon_include_special_with_doc = True
 
         """
         pass

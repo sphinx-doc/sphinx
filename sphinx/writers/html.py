@@ -5,7 +5,7 @@
 
     docutils writers handling Sphinx' custom nodes.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -639,6 +639,12 @@ class HTMLTranslator(BaseTranslator):
     def visit_termsep(self, node):
         self.body.append('<br />')
         raise nodes.SkipNode
+
+    def visit_manpage(self, node):
+        return self.visit_literal_emphasis(node)
+
+    def depart_manpage(self, node):
+        return self.depart_literal_emphasis(node)
 
     def depart_title(self, node):
         close_tag = self.context[-1]

@@ -6,7 +6,7 @@
     Test the autodoc extension.  This tests mainly the Documenters; the auto
     directives are tested in a test source file translated by test_build.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -791,6 +791,7 @@ def test_generate():
                            'module', 'test_autodoc')
 
 # --- generate fodder ------------
+import six, sys
 
 __all__ = ['Class']
 
@@ -832,6 +833,7 @@ def _funky_classmethod(name, b, c, d, docstring=None):
 class Base(object):
     def inheritedmeth(self):
         """Inherited function."""
+
 
 class Class(Base):
     """Class to document."""

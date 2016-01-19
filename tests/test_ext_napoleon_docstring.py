@@ -6,7 +6,7 @@
     Tests for :mod:`sphinx.ext.napoleon.docstring` module.
 
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -732,8 +732,8 @@ class NumpyDocstringTest(BaseDocstringTest):
         Single line summary
 
         :Parameters: * **arg1** (*str*) -- Extended description of arg1
-                     * ***args** -- Variable length argument list.
-                     * ****kwargs** -- Arbitrary keyword arguments.
+                     * **\\*args** -- Variable length argument list.
+                     * **\\*\\*kwargs** -- Arbitrary keyword arguments.
         """
     ), (
         """
