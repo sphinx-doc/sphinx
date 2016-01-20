@@ -20,6 +20,7 @@ Incompatible changes
 
 Features added
 --------------
+* Added the ``dummy`` builder: syntax check without output.
 
 * #2092: add todo directive support in napoleon package.
 * #1962: when adding directives, roles or nodes from an extension, warn if such
