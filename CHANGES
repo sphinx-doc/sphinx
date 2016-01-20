@@ -44,6 +44,7 @@ Features added
 * #2207: Add sphinx.parsers.Parser class; a base class for new parsers
 * #656: Add ``graphviz_dot`` option to graphviz directives to switch the ``dot`` command
 * #1939: Added the ``dummy`` builder: syntax check without output.
+* #2230: Add ``math_number_all`` option to number all displayed math in math extensions
 
 Bugs fixed
 ----------
