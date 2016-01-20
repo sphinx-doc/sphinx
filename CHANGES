@@ -20,7 +20,6 @@ Incompatible changes
 
 Features added
 --------------
-* Added the ``dummy`` builder: syntax check without output.
 
 * #2092: add todo directive support in napoleon package.
 * #1962: when adding directives, roles or nodes from an extension, warn if such
@@ -44,6 +43,7 @@ Features added
 * #2162: Add Sphinx.add_source_parser() to add source_suffix and source_parsers from extension
 * #2207: Add sphinx.parsers.Parser class; a base class for new parsers
 * #656: Add ``graphviz_dot`` option to graphviz directives to switch the ``dot`` command
+* #1939: Added the ``dummy`` builder: syntax check without output.
 
 Bugs fixed
 ----------
