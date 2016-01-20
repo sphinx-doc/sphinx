@@ -13,6 +13,7 @@ Bugs fixed
 * #2247: Fix #2205 breaks make html for definition list with classifiers
   that contains regular-expression like string
 * #1565: Show warning if Pygments throws an ErrorToken
+* #2211: Fix paragraphs in table cell doesn't work in Latex output
 
 Release 1.3.4 (released Jan 12, 2016)
 =====================================
