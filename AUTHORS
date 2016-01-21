@@ -18,6 +18,7 @@ Other co-maintainers:
 Other contributors, listed alphabetically, are:
 
 * Alastair Houghton -- Apple Help builder
+* Alexander Todorov -- inheritance_diagram tests and improvements
 * Andi Albrecht -- agogo theme
 * Jakob Lykke Andersen -- Rewritten C++ domain
 * Henrique Bastos -- SVG support for graphviz extension

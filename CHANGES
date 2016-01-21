@@ -52,6 +52,7 @@ Bugs fixed
 
 Testing
 --------
+* Add tests for the ``sphinx.ext.inheritance_diagram`` extension.
 
 Release 1.6.3 (in development)
 ==============================
