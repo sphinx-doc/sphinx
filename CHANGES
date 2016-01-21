@@ -45,6 +45,7 @@ Features added
 * #656: Add ``graphviz_dot`` option to graphviz directives to switch the ``dot`` command
 * #1939: Added the ``dummy`` builder: syntax check without output.
 * #2230: Add ``math_number_all`` option to number all displayed math in math extensions
+* #2235: ``needs_sphinx`` supports micro version comparison
 
 Bugs fixed
 ----------

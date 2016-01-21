@@ -220,6 +220,9 @@ General configuration
 
    .. versionadded:: 1.0
 
+   .. versionchanged:: 1.4
+      also accepts micro version string
+
 .. confval:: needs_extensions
 
    This value can be a dictionary specifying version requirements for extensions

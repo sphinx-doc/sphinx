@@ -162,7 +162,7 @@ class Sphinx(object):
 
         # check the Sphinx version if requested
         if self.config.needs_sphinx and \
-           self.config.needs_sphinx > sphinx.__display_version__[:3]:
+           self.config.needs_sphinx > sphinx.__display_version__:
             raise VersionRequirementError(
                 'This project needs at least Sphinx v%s and therefore cannot '
                 'be built with this version.' % self.config.needs_sphinx)
