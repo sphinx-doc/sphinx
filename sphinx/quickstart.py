@@ -448,7 +448,7 @@ Welcome to %(project)s's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: %(mastertocmaxdepth)s
+    :maxdepth: %(mastertocmaxdepth)s
 
 %(mastertoctree)s
 
