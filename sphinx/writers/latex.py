@@ -127,11 +127,6 @@ class ExtBabel(Babel):
                              'mn', 'mongolian', 'ru', 'russian',
                              'uk', 'ukrainian')
 
-# in latest trunk, the attribute is called Babel.language_codes and already
-# includes Slovene
-if hasattr(Babel, '_ISO639_TO_BABEL'):
-    Babel._ISO639_TO_BABEL['sl'] = 'slovene'
-
 
 class ShowUrlsTransform(object):
     expanded = False
