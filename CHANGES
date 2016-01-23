@@ -17,6 +17,7 @@ Bugs fixed
 * #2253: ``:pyobject:`` option of ``literalinclude`` directive can't detect indented
   body block when the block starts with blank or comment lines.
 * Fix TOC is not shown when no ``:maxdepth:`` for toctrees (ref: #771)
+* Fix warning message for ``:numref:`` if target is in orphaned doc (ref: #2244)
 
 Release 1.3.4 (released Jan 12, 2016)
 =====================================
