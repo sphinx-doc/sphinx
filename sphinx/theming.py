@@ -26,8 +26,6 @@ except ImportError:
 from sphinx import package_dir
 from sphinx.errors import ThemeError
 
-import alabaster
-
 NODEFAULT = object()
 THEMECONF = 'theme.conf'
 
@@ -78,6 +76,7 @@ class Theme(object):
             pass
         if name in themes:
             if name == 'alabaster':
+                import alabaster
                 themedir = alabaster.get_path()
                 # alabaster theme also requires 'alabaster' extension, it will be loaded
                 # at sphinx.application module.

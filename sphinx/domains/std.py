@@ -637,10 +637,18 @@ class StandardDomain(Domain):
             try:
                 target_node = env.get_doctree(docname).ids[labelid]
                 figtype = get_figtype(target_node)
+            except:
+                return None
+
+            try:
                 figure_id = target_node['ids'][0]
                 fignumber = env.toc_fignumbers[docname][figtype][figure_id]
             except (KeyError, IndexError):
-                return None
+                # target_node is found, but fignumber is not assigned.
+                # Maybe it is defined in orphaned document.
+                env.warn(fromdocname, "no number is assigned for %s: %s" % (figtype, labelid),
+                         lineno=node.line)
+                return contnode
 
             title = contnode.astext()
             if target == fully_normalize_name(title):

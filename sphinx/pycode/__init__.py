@@ -300,7 +300,7 @@ class ModuleAnalyzer(object):
                     yield tokentup
         tokeniter = tokeniter()
         for type, tok, spos, epos, line in tokeniter:
-            if expect_indent:
+            if expect_indent and type != token.NL:
                 if type != token.INDENT:
                     # no suite -- one-line definition
                     assert stack

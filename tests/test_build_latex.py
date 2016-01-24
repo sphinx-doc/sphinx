@@ -544,3 +544,25 @@ def test_toctree_maxdepth_howto(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\setcounter{tocdepth}{2}' in result
+
+
+@with_app(buildername='latex', testroot='toctree-maxdepth',
+          confoverrides={'master_doc': 'foo'})
+def test_toctree_not_found(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\setcounter{tocdepth}' not in result
+
+
+@with_app(buildername='latex', testroot='toctree-maxdepth',
+          confoverrides={'master_doc': 'bar'})
+def test_toctree_without_maxdepth(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\setcounter{tocdepth}' not in result
