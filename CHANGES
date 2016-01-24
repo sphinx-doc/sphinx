@@ -14,8 +14,8 @@ Bugs fixed
 * Fix line numbers was not shown on warnings in LaTeX and texinfo builders
 * Fix filenames were not shown on warnings of citations
 * Fix line numbers was not shown on warnings in LaTeX and texinfo builders
-* Fix line numbers was not shown on warnings of indecies
-* #2026: Fix LaTeX builder rais error if parsed-literal includes links
+* Fix line numbers was not shown on warnings of indices
+* #2026: Fix LaTeX builder raises error if parsed-literal includes links
 * #2243: Ignore strange docstring types for classes, do not crash
 * #2247: Fix #2205 breaks make html for definition list with classifiers
   that contains regular-expression like string
