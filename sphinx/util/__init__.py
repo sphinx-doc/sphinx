@@ -532,3 +532,12 @@ def encode_uri(uri):
                  for (q, v) in parse_qsl(split[3]))
     split[3] = urlencode(query).decode('ascii')
     return urlunsplit(split)
+
+
+def split_docinfo(text):
+    docinfo_re = re.compile('\A((?:\s*:\w+:.*?\n)+)', re.M)
+    result = docinfo_re.split(text, 1)
+    if len(result) == 1:
+        return '', result[0]
+    else:
+        return result[1:]

@@ -8,7 +8,7 @@
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from sphinx.util import encode_uri
+from sphinx.util import encode_uri, split_docinfo
 
 
 def test_encode_uri():
@@ -24,3 +24,20 @@ def test_encode_uri():
     uri = (u'https://github.com/search?utf8=✓&q=is%3Aissue+is%3Aopen+is%3A'
            u'sprint-friendly+user%3Ajupyter&type=Issues&ref=searchresults')
     assert expected, encode_uri(uri)
+
+
+def test_splitdocinfo():
+    source = "Hello world.\n"
+    docinfo, content = split_docinfo(source)
+    assert docinfo == ''
+    assert content == 'Hello world.\n'
+
+    source = ":orphan:\n\nHello world.\n"
+    docinfo, content = split_docinfo(source)
+    assert docinfo == ':orphan:\n'
+    assert content == '\nHello world.\n'
+
+    source = ":author: Georg Brandl\n:title: Manual of Sphinx\n\nHello world.\n"
+    docinfo, content = split_docinfo(source)
+    assert docinfo == ':author: Georg Brandl\n:title: Manual of Sphinx\n'
+    assert content == '\nHello world.\n'

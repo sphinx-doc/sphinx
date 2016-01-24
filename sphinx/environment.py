@@ -38,7 +38,7 @@ from docutils.frontend import OptionParser
 
 from sphinx import addnodes
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
-    FilenameUniqDict, get_figtype, import_object, split_index_msg
+    FilenameUniqDict, get_figtype, import_object, split_index_msg, split_docinfo
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream, is_translatable
 from sphinx.util.osutil import SEP, getcwd, fs_encoding
 from sphinx.util.i18n import find_catalog_files
@@ -160,11 +160,12 @@ class SphinxFileInput(FileInput):
             arg = [data]
             self.app.emit('source-read', self.env.docname, arg)
             data = arg[0]
+        docinfo, data = split_docinfo(data)
         if self.env.config.rst_epilog:
             data = data + '\n' + self.env.config.rst_epilog + '\n'
         if self.env.config.rst_prolog:
             data = self.env.config.rst_prolog + '\n' + data
-        return data
+        return docinfo + data
 
 
 class BuildEnvironment:
