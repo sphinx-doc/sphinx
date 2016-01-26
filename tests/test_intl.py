@@ -13,6 +13,8 @@ from __future__ import print_function
 
 import os
 import re
+import pickle
+from docutils import nodes
 from subprocess import Popen, PIPE
 from xml.etree import ElementTree
 
@@ -20,9 +22,9 @@ from babel.messages import pofile
 from nose.tools import assert_equal
 from six import string_types
 
-from util import tempdir, rootdir, path, gen_with_app, SkipTest, \
+from util import tempdir, rootdir, path, gen_with_app, with_app, SkipTest, \
     assert_re_search, assert_not_re_search, assert_in, assert_not_in, \
-    assert_startswith
+    assert_startswith, assert_node
 
 
 root = tempdir / 'test-intl'
@@ -794,3 +796,44 @@ def test_references(app, status, warning):
     warnings = warning.getvalue().replace(os.sep, '/')
     warning_expr = u'refs.txt:\\d+: ERROR: Unknown target name:'
     yield assert_count(warning_expr, warnings, 0)
+
+
+@with_app(buildername='dummy', testroot='image-glob', confoverrides={'language': 'xx'})
+def test_image_glob_intl(app, status, warning):
+    app.builder.build_all()
+
+    # index.rst
+    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+
+    assert_node(doctree[0][1], nodes.image, uri='rimg.xx.png',
+                candidates={'*': 'rimg.xx.png'})
+
+    assert isinstance(doctree[0][2], nodes.figure)
+    assert_node(doctree[0][2][0], nodes.image, uri='rimg.xx.png',
+                candidates={'*': 'rimg.xx.png'})
+
+    assert_node(doctree[0][3], nodes.image, uri='img.*',
+                candidates={'application/pdf': 'img.pdf',
+                            'image/gif': 'img.gif',
+                            'image/png': 'img.png'})
+
+    assert isinstance(doctree[0][4], nodes.figure)
+    assert_node(doctree[0][4][0], nodes.image, uri='img.*',
+                candidates={'application/pdf': 'img.pdf',
+                            'image/gif': 'img.gif',
+                            'image/png': 'img.png'})
+
+    # subdir/index.rst
+    doctree = pickle.loads((app.doctreedir / 'subdir/index.doctree').bytes())
+
+    assert_node(doctree[0][1], nodes.image, uri='subdir/rimg.xx.png',
+                candidates={'*': 'subdir/rimg.xx.png'})
+
+    assert_node(doctree[0][2], nodes.image, uri='subdir/svgimg.*',
+                candidates={'application/pdf': 'subdir/svgimg.pdf',
+                            'image/svg+xml': 'subdir/svgimg.xx.svg'})
+
+    assert isinstance(doctree[0][3], nodes.figure)
+    assert_node(doctree[0][3][0], nodes.image, uri='subdir/svgimg.*',
+                candidates={'application/pdf': 'subdir/svgimg.pdf',
+                            'image/svg+xml': 'subdir/svgimg.xx.svg'})

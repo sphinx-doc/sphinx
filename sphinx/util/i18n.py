@@ -22,6 +22,7 @@ import babel.dates
 from babel.messages.pofile import read_po
 from babel.messages.mofile import write_mo
 
+from sphinx.errors import SphinxError
 from sphinx.util.osutil import walk
 from sphinx.util import SEP
 
@@ -190,3 +191,27 @@ def format_date(format, date=None, language=None):
                 result.append(token)
 
         return "".join(result)
+
+
+def get_image_filename_for_language(filename, env):
+    if not env.config.language:
+        return filename
+
+    root, ext = path.splitext(filename)
+    try:
+        return "{root}.{language}{ext}".format(root=root, ext=ext,
+                                               language=env.config.language)
+    except KeyError as exc:
+        raise SphinxError('Invalid figure_language_filename: %r' % exc)
+
+
+def search_image_for_language(filename, env):
+    if not env.config.language:
+        return filename
+
+    translated = get_image_filename_for_language(filename, env)
+    dirname = path.dirname(env.docname)
+    if path.exists(path.join(env.srcdir, dirname, translated)):
+        return translated
+    else:
+        return filename
