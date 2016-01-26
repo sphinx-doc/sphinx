@@ -19,7 +19,8 @@ Bugs fixed
 * #2243: Ignore strange docstring types for classes, do not crash
 * #2247: Fix #2205 breaks make html for definition list with classifiers
   that contains regular-expression like string
-* #1565: Show warning if Pygments throws an ErrorToken
+* #1565: Sphinx will now emit a warning that highlighting was skipped if the syntax
+  is incorrect for `code-block`, `literalinclude` and so on.
 * #2211: Fix paragraphs in table cell doesn't work in Latex output
 * #2253: ``:pyobject:`` option of ``literalinclude`` directive can't detect indented
   body block when the block starts with blank or comment lines.
