@@ -11,6 +11,8 @@
 
 from six import BytesIO
 
+import pickle
+from docutils import nodes
 from textwrap import dedent
 from sphinx.errors import SphinxError
 
@@ -108,3 +110,47 @@ def test_numbered_circular_toctree(app, status, warning):
     assert (
         'circular toctree references detected, ignoring: '
         'contents <- sub <- contents') in warnings
+
+
+@with_app(buildername='html', testroot='image-glob')
+def test_image_glob(app, status, warning):
+    app.builder.build_all()
+
+    # index.rst
+    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+
+    assert isinstance(doctree[0][1], nodes.image)
+    assert doctree[0][1]['candidates'] == {'*': 'rimg.png'}
+    assert doctree[0][1]['uri'] == 'rimg.png'
+
+    assert isinstance(doctree[0][2], nodes.figure)
+    assert isinstance(doctree[0][2][0], nodes.image)
+    assert doctree[0][2][0]['candidates'] == {'*': 'rimg.png'}
+    assert doctree[0][2][0]['uri'] == 'rimg.png'
+
+    assert isinstance(doctree[0][3], nodes.image)
+    assert doctree[0][3]['candidates'] == {'application/pdf': 'img.pdf',
+                                           'image/gif': 'img.gif',
+                                           'image/png': 'img.png'}
+    assert doctree[0][3]['uri'] == 'img.*'
+
+    assert isinstance(doctree[0][4], nodes.figure)
+    assert isinstance(doctree[0][4][0], nodes.image)
+    assert doctree[0][4][0]['candidates'] == {'application/pdf': 'img.pdf',
+                                              'image/gif': 'img.gif',
+                                              'image/png': 'img.png'}
+    assert doctree[0][4][0]['uri'] == 'img.*'
+
+    # subdir/index.rst
+    doctree = pickle.loads((app.doctreedir / 'subdir/index.doctree').bytes())
+
+    assert isinstance(doctree[0][1], nodes.image)
+    assert doctree[0][1]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
+                                           'image/svg+xml': 'subdir/svgimg.svg'}
+    assert doctree[0][1]['uri'] == 'subdir/svgimg.*'
+
+    assert isinstance(doctree[0][2], nodes.figure)
+    assert isinstance(doctree[0][2][0], nodes.image)
+    assert doctree[0][2][0]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
+                                              'image/svg+xml': 'subdir/svgimg.svg'}
+    assert doctree[0][2][0]['uri'] == 'subdir/svgimg.*'
