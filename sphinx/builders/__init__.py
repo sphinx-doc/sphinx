@@ -450,6 +450,7 @@ class Builder(object):
             return getattr(self.config, optname)
 
 BUILTIN_BUILDERS = {
+    'dummy':      ('dummy', 'DummyBuilder'),
     'html':       ('html', 'StandaloneHTMLBuilder'),
     'dirhtml':    ('html', 'DirectoryHTMLBuilder'),
     'singlehtml': ('html', 'SingleFileHTMLBuilder'),
