@@ -346,11 +346,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     return '\\usepackage{%s}' % (packagename,)
             usepackages = (declare_package(*p) for p in builder.usepackages)
             self.elements['usepackages'] += "\n".join(usepackages)
-        if getattr(document.settings, 'contentsname', None):
-            self.elements['contentsname'] = \
-                self.babel_renewcommand(builder, '\\contentsname',
-                                        document.settings.contentsname)
-        self.elements['numfig_format'] = self.generate_numfig_format(builder)
         # allow the user to override them all
         self.elements.update(builder.config.latex_elements)
         if self.elements['extraclassoptions']:
@@ -363,6 +358,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.elements['tocdepth'] = ('\\setcounter{tocdepth}{%d}' %
                                              (document['tocdepth'] - 1))
+        if getattr(document.settings, 'contentsname', None):
+            self.elements['contentsname'] = \
+                self.babel_renewcommand(builder, '\\contentsname',
+                                        document.settings.contentsname)
+        self.elements['numfig_format'] = self.generate_numfig_format(builder)
 
         self.highlighter = highlighting.PygmentsBridge(
             'latex',

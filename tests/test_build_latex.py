@@ -267,6 +267,25 @@ def test_numref_with_language_ja(app, status, warning):
     assert '\\hyperref[baz:code22]{Code-\\ref{baz:code22}}' in result
 
 
+@with_app(buildername='latex', testroot='numfig',
+          confoverrides={'numfig': True, 'language': 'ru', 'latex_elements': {'babel': ''}})
+def test_numref_on_bable_disabled(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\renewcommand{\\figurename}{Fig. }' in result
+    assert '\\renewcommand{\\tablename}{Table }' in result
+    assert '\\SetupFloatingEnvironment{literal-block}{name=Listing }' in result
+    assert '\\hyperref[index:fig1]{Fig. \\ref{index:fig1}}' in result
+    assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
+    assert '\\hyperref[index:table-1]{Table \\ref{index:table-1}}' in result
+    assert '\\hyperref[baz:table22]{Table:\\ref{baz:table22}}' in result
+    assert '\\hyperref[index:code-1]{Listing \\ref{index:code-1}}' in result
+    assert '\\hyperref[baz:code22]{Code-\\ref{baz:code22}}' in result
+
+
 @with_app(buildername='latex')
 def test_latex_add_latex_package(app, status, warning):
     app.add_latex_package('foo')
