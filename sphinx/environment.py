@@ -899,15 +899,18 @@ class BuildEnvironment:
             # set imgpath as default URI
             node['uri'] = rel_imgpath
             if rel_imgpath.endswith(os.extsep + '*'):
+                globbed = {}
                 for filename in glob(full_imgpath):
                     new_imgpath = relative_path(path.join(self.srcdir, 'dummy'),
                                                 filename)
                     try:
                         mimetype = guess_mimetype(filename)
-                        candidates[mimetype] = new_imgpath
+                        globbed.setdefault(mimetype, []).append(new_imgpath)
                     except (OSError, IOError) as err:
                         self.warn_node('image file %s not readable: %s' %
                                        (filename, err), node)
+                for key, files in iteritems(globbed):
+                    candidates[key] = sorted(files, key=len)[0]  # select by similarity
             else:
                 candidates['*'] = rel_imgpath
 

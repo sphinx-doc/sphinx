@@ -105,6 +105,7 @@ Features added
 * #1853: support custom text splitter on html search with ``language='ja'``.
 * #2320: classifier of glossary terms can be used for index entries grouping key.
   The classifier also be used for translation. See also :ref:`glossary-directive`.
+* Select an image by similarity if multiple images are globbed by ``.. image:: filename.*``
 
 Bugs fixed
 ----------
