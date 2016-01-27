@@ -4009,7 +4009,7 @@ class CPPDomain(Domain):
                 else:
                     ourNames[name] = docname
 
-    def _resolve_xref_inner(self, env, fromdocname, builder,
+    def _resolve_xref_inner(self, env, fromdocname, builder, typ,
                             target, node, contnode, emitWarnings=True):
         class Warner(object):
             def warn(self, msg):
@@ -4051,7 +4051,7 @@ class CPPDomain(Domain):
         name = text_type(fullNestedName).lstrip(':')
         docname = s.docname
         assert docname
-        if declaration.objectType == 'function':
+        if typ == 'any' and declaration.objectType == 'function':
             title = name
             if title.endswith('()'):
                 title = title[:-2]  # remove parentheses
@@ -4065,13 +4065,13 @@ class CPPDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
-        return self._resolve_xref_inner(env, fromdocname, builder, target,
-                                        node, contnode)[0]
+        return self._resolve_xref_inner(env, fromdocname, builder, typ,
+                                        target, node, contnode)[0]
 
     def resolve_any_xref(self, env, fromdocname, builder, target,
                          node, contnode):
         node, objtype = self._resolve_xref_inner(env, fromdocname, builder,
-                                                 target, node, contnode,
+                                                 'any', target, node, contnode,
                                                  emitWarnings=False)
         if node:
             return [('cpp:' + self.role_for_objtype(objtype), node)]
