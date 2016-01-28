@@ -397,47 +397,75 @@ def test_templates():
 #    raise DefinitionError("")
 
 
-@with_app(testroot='domain-cpp')
-def test_build_domain_cpp(app, status, warning):
+@with_app(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})
+def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, warning):
     app.builder.build_all()
 
-    roles = (app.outdir / 'roles.html').text()
-    assert re.search('<li><a .*?><code .*?><span .*?>Sphinx</span></code></a></li>', roles)
-    assert re.search(('<li>ref function without parens <a .*?><code .*?><span .*?>'
-                      'hello\(\)</span></code></a>\.</li>'), roles)
-    assert re.search(('<li>ref function with parens <a .*?><code .*?><span .*?>'
-                      'hello\(\)</span></code></a>\.</li>'), roles)
-    assert re.search('<li><a .*?><code .*?><span .*?>Sphinx::version</span></code></a></li>',
-                     roles)
-    assert re.search('<li><a .*?><code .*?><span .*?>version</span></code></a></li>', roles)
-    assert re.search('<li><a .*?><code .*?><span .*?>List</span></code></a></li>', roles)
-    assert re.search('<li><a .*?><code .*?><span .*?>MyEnum</span></code></a></li>', roles)
+    def check(spec, text, file):
+        pattern = '<li>%s<a .*?><code .*?><span .*?>%s</span></code></a></li>' % spec
+        res = re.search(pattern, text)
+        if not res:
+            print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
+            assert False
+    rolePatterns = [
+        ('', 'Sphinx'),
+        ('', 'Sphinx::version'),
+        ('', 'version'),
+        ('', 'List'),
+        ('', 'MyEnum')
+    ]
+    parenPatterns = [
+        ('ref function without parens ', 'paren_1\(\)'),
+        ('ref function with parens ', 'paren_2\(\)'),
+        ('ref function without parens, explicit title ', 'paren_3_title'),
+        ('ref function with parens, explicit title ', 'paren_4_title')
+    ]
 
-    any_role = (app.outdir / 'any-role.html').text()
-    assert re.search('<li><a .*?><code .*?><span .*?>Sphinx</span></code></a></li>', any_role)
-    assert re.search(('<li>ref function without parens <a .*?><code .*?><span .*?>'
-                      'hello\(\)</span></code></a>\.</li>'), any_role)
-    assert re.search(('<li>ref function with parens <a .*?><code .*?><span .*?>'
-                      'hello\(\)</span></code></a>\.</li>'), any_role)
-    assert re.search('<li><a .*?><code .*?><span .*?>Sphinx::version</span></code></a></li>',
-                     any_role)
-    assert re.search('<li><a .*?><code .*?><span .*?>version</span></code></a></li>', any_role)
-    assert re.search('<li><a .*?><code .*?><span .*?>List</span></code></a></li>', any_role)
-    assert re.search('<li><a .*?><code .*?><span .*?>MyEnum</span></code></a></li>', any_role)
+    f = 'roles.html'
+    t = (app.outdir / f).text()
+    for s in rolePatterns:
+        check(s, t, f)
+    for s in parenPatterns:
+        check(s, t, f)
+
+    f = 'any-role.html'
+    t = (app.outdir / f).text()
+    for s in parenPatterns:
+        check(s, t, f)
 
 
 @with_app(testroot='domain-cpp', confoverrides={'add_function_parentheses': False})
 def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, warning):
     app.builder.build_all()
 
-    roles = (app.outdir / 'roles.html').text()
-    assert re.search(('<li>ref function without parens <a .*?><code .*?><span .*?>'
-                      'hello</span></code></a>\.</li>'), roles)
-    assert re.search(('<li>ref function with parens <a .*?><code .*?><span .*?>'
-                      'hello</span></code></a>\.</li>'), roles)
+    def check(spec, text, file):
+        pattern = '<li>%s<a .*?><code .*?><span .*?>%s</span></code></a></li>' % spec
+        res = re.search(pattern, text)
+        if not res:
+            print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
+            assert False
+    rolePatterns = [
+        ('', 'Sphinx'),
+        ('', 'Sphinx::version'),
+        ('', 'version'),
+        ('', 'List'),
+        ('', 'MyEnum')
+    ]
+    parenPatterns = [
+        ('ref function without parens ', 'paren_1'),
+        ('ref function with parens ', 'paren_2'),
+        ('ref function without parens, explicit title ', 'paren_3_title'),
+        ('ref function with parens, explicit title ', 'paren_4_title')
+    ]
 
-    any_role = (app.outdir / 'any-role.html').text()
-    assert re.search(('<li>ref function without parens <a .*?><code .*?><span .*?>'
-                      'hello</span></code></a>\.</li>'), any_role)
-    assert re.search(('<li>ref function with parens <a .*?><code .*?><span .*?>'
-                      'hello</span></code></a>\.</li>'), any_role)
+    f = 'roles.html'
+    t = (app.outdir / f).text()
+    for s in rolePatterns:
+        check(s, t, f)
+    for s in parenPatterns:
+        check(s, t, f)
+
+    f = 'any-role.html'
+    t = (app.outdir / f).text()
+    for s in parenPatterns:
+        check(s, t, f)
