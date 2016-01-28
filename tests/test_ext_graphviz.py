@@ -52,6 +52,9 @@ def test_graphviz_html(app, status, warning):
     html = 'Hello <img .*?/>\n graphviz world'
     assert re.search(html, content, re.S)
 
+    html = '<img src=".*?" alt="digraph {\n  bar -&gt; baz\n}" />'
+    assert re.search(html, content, re.M)
+
 
 @with_app('latex', testroot='ext-graphviz')
 @skip_if_graphviz_not_found
@@ -66,3 +69,13 @@ def test_graphviz_latex(app, status, warning):
 
     macro = 'Hello \\\\includegraphics{graphviz-\w+.pdf} graphviz world'
     assert re.search(macro, content, re.S)
+
+
+@with_app('html', testroot='ext-graphviz', confoverrides={'language': 'xx'})
+@skip_if_graphviz_not_found
+def test_graphviz_i18n(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').text()
+    html = '<img src=".*?" alt="digraph {\n  BAR -&gt; BAZ\n}" />'
+    assert re.search(html, content, re.M)
