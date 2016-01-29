@@ -547,6 +547,14 @@ documentation on :ref:`intl` for details.
 
    .. versionadded:: 1.3
 
+.. confval:: figure_language_filename
+
+   The filename format for language-specific figures.  The default value is
+   ``{root}.{language}{ext}``.  It will be expanded to
+   ``dirname/filename.en.png`` from ``.. image:: dirname/filename.png``.
+
+   .. versionadded:: 1.4
+
 .. _html-options:
 
 Options for HTML output

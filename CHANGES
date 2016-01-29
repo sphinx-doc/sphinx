@@ -106,7 +106,7 @@ Features added
 * #2320: classifier of glossary terms can be used for index entries grouping key.
   The classifier also be used for translation. See also :ref:`glossary-directive`.
 * Select an image by similarity if multiple images are globbed by ``.. image:: filename.*``
-* #1921: Support figure substitutions by :confval:`language`
+* #1921: Support figure substitutions by :confval:`language` and :confval:`figure_language_filename`
 
 Bugs fixed
 ----------

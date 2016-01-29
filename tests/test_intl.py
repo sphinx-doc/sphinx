@@ -837,3 +837,46 @@ def test_image_glob_intl(app, status, warning):
     assert_node(doctree[0][3][0], nodes.image, uri='subdir/svgimg.*',
                 candidates={'application/pdf': 'subdir/svgimg.pdf',
                             'image/svg+xml': 'subdir/svgimg.xx.svg'})
+
+
+@with_app(buildername='dummy', testroot='image-glob',
+          confoverrides={'language': 'xx',
+                         'figure_language_filename': '{root}{ext}.{language}'})
+def test_image_glob_intl_using_figure_language_filename(app, status, warning):
+    app.builder.build_all()
+
+    # index.rst
+    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+
+    assert_node(doctree[0][1], nodes.image, uri='rimg.png.xx',
+                candidates={'*': 'rimg.png.xx'})
+
+    assert isinstance(doctree[0][2], nodes.figure)
+    assert_node(doctree[0][2][0], nodes.image, uri='rimg.png.xx',
+                candidates={'*': 'rimg.png.xx'})
+
+    assert_node(doctree[0][3], nodes.image, uri='img.*',
+                candidates={'application/pdf': 'img.pdf',
+                            'image/gif': 'img.gif',
+                            'image/png': 'img.png'})
+
+    assert isinstance(doctree[0][4], nodes.figure)
+    assert_node(doctree[0][4][0], nodes.image, uri='img.*',
+                candidates={'application/pdf': 'img.pdf',
+                            'image/gif': 'img.gif',
+                            'image/png': 'img.png'})
+
+    # subdir/index.rst
+    doctree = pickle.loads((app.doctreedir / 'subdir/index.doctree').bytes())
+
+    assert_node(doctree[0][1], nodes.image, uri='subdir/rimg.png',
+                candidates={'*': 'subdir/rimg.png'})
+
+    assert_node(doctree[0][2], nodes.image, uri='subdir/svgimg.*',
+                candidates={'application/pdf': 'subdir/svgimg.pdf',
+                            'image/svg+xml': 'subdir/svgimg.svg'})
+
+    assert isinstance(doctree[0][3], nodes.figure)
+    assert_node(doctree[0][3][0], nodes.image, uri='subdir/svgimg.*',
+                candidates={'application/pdf': 'subdir/svgimg.pdf',
+                            'image/svg+xml': 'subdir/svgimg.svg'})
