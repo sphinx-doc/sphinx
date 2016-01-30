@@ -257,9 +257,8 @@ easy to fetch and push translations.
       ...
       Done.
 
-   Build po files into mo and make html::
+   Invoke make html::
 
-      $ sphinx-intl build
       $ make -e SPHINXOPTS="-D language='de'" html
 
 
