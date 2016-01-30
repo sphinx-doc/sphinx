@@ -106,16 +106,22 @@ This section describe a easy way to translate with sphinx-intl.
 
 #. Translate your po files under `./locale/<lang>/LC_MESSAGES/`.
 
-#. Build mo files and make translated document.
+#. make translated document.
 
    You need a :confval:`language` parameter in ``conf.py`` or you may also
    specify the parameter on the command line::
 
-      $ sphinx-intl build
       $ make -e SPHINXOPTS="-D language='de'" html
 
 Congratulations! You got the translated documentation in the ``_build/html``
 directory.
+
+.. versionadded:: 1.3
+
+   sphinx-build that is invoked by make command will build po files into mo files.
+
+   If you are using 1.2.x or earlier, please invoke ``sphinx-intl build`` command
+   before make command.
 
 
 Translating
