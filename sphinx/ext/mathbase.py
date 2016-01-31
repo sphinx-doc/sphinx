@@ -34,16 +34,19 @@ def wrap_displaymath(math, label, numbering):
     for i, part in enumerate(parts):
         if not part.strip():
             continue
-        if label is not None and i == 0:
-            ret.append('\\begin{split}%s\\end{split}' % part +
-                       (label and '\\label{'+label+'}' or ''))
-        else:
-            ret.append(r'\begin{split}%s\end{split}' % part)
-            if not numbering:
-                ret.append(r'\notag')
+        ret.append(r'\begin{split}%s\end{split}' % part)
     if not ret:
         return ''
-    return '\\begin{gather}\n' + '\\\\'.join(ret) + '\n\\end{gather}'
+    if label is not None or numbering:
+        env_begin = r'\begin{align}'
+        if label is not None:
+            env_begin += r'\label{%s}' % label
+        env_end = r'\end{align}'
+    else:
+        env_begin = r'\begin{align*}'
+        env_end = r'\end{align*}'
+    return ('%s\\begin{aligned}\n%s\\end{aligned}%s') % (
+        env_begin, '\\\\\n'.join(ret), env_end)
 
 
 def math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
