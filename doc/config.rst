@@ -414,6 +414,7 @@ documentation on :ref:`intl` for details.
    * ``bn`` -- Bengali
    * ``ca`` -- Catalan
    * ``cs`` -- Czech
+   * ``cy`` -- Welsh
    * ``da`` -- Danish
    * ``de`` -- German
    * ``en`` -- English
