@@ -1,19 +1,19 @@
-# Vietnamese translations for Sphinx.
+# Welsh translations for Sphinx.
 # Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version:  Sphinx\n"
+"Project-Id-Version: Sphinx 1.3\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-02-01 09:45+0000\n"
-"PO-Revision-Date: 2015-03-08 14:35+0000\n"
-"Last-Translator: Takayuki Shimizukawa <shimizukawa@gmail.com>\n"
-"Language: vi\n"
-"Language-Team: Vietnamese "
-"(http://www.transifex.com/projects/p/sphinx-1/language/vi/)\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"PO-Revision-Date: 2016-02-01 09:07+0000\n"
+"Last-Translator: Geraint Palmer <palmer.geraint@gmail.com>\n"
+"Language: cy\n"
+"Language-Team: Welsh <LL@li.org>\n"
+"Plural-Forms: nplurals=5; plural=(n==1 ? 1 : n==2 ? 2 : n==3 ? 3 : n==6 ?"
+" 4 : 0)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,191 +22,191 @@ msgstr ""
 #: sphinx/config.py:84
 #, python-format
 msgid "Fig. %s"
-msgstr ""
+msgstr "Fig. %s"
 
 #: sphinx/config.py:85
 #, python-format
 msgid "Table %s"
-msgstr ""
+msgstr "Tabl %s"
 
 #: sphinx/config.py:86
 #, python-format
 msgid "Listing %s"
-msgstr ""
+msgstr "Listing %s"
 
 #: sphinx/config.py:93
 #, python-format
 msgid "%s %s documentation"
-msgstr "Tài liệu %s %s"
+msgstr "Dogfennaeth %s %s "
 
 #: sphinx/environment.py:1899
 #, python-format
 msgid "see %s"
-msgstr "xem %s"
+msgstr "gweler %s"
 
 #: sphinx/environment.py:1902
 #, python-format
 msgid "see also %s"
-msgstr "nên xem %s"
+msgstr "gweler hefyd %s"
 
 #: sphinx/environment.py:1960
 msgid "Symbols"
-msgstr "Biểu tượng"
+msgstr "Symbolau"
 
 #: sphinx/roles.py:193
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
-msgstr "Các đề nghị nâng cao Python; PEP %s"
+msgstr "Python Enhancement Proposals; PEP %s"
 
 #: sphinx/transforms.py:60 sphinx/writers/latex.py:347
 #: sphinx/writers/manpage.py:99 sphinx/writers/texinfo.py:221
 #, python-format
 msgid "%B %d, %Y"
-msgstr "%d/%m/%Y"
+msgstr ""
 
 #: sphinx/builders/changes.py:75
 msgid "Builtins"
-msgstr "Dựng sẵn"
+msgstr ""
 
 #: sphinx/builders/changes.py:77
 msgid "Module level"
-msgstr "Mức mô-đun"
+msgstr "Lefel modiwl"
 
 #: sphinx/builders/html.py:294
 #, python-format
 msgid "%b %d, %Y"
-msgstr "%d/%m/%Y"
+msgstr ""
 
 #: sphinx/builders/html.py:313 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
-msgstr "Chỉ mục chung"
+msgstr "Indecs cyffredinol"
 
 #: sphinx/builders/html.py:313
 msgid "index"
-msgstr "chỉ mục"
+msgstr "indecs"
 
 #: sphinx/builders/html.py:374
 msgid "next"
-msgstr "xem tiếp"
+msgstr "nesaf"
 
 #: sphinx/builders/html.py:383
 msgid "previous"
-msgstr "xem lại"
+msgstr "blaenorol"
 
 #: sphinx/builders/latex.py:165 sphinx/builders/texinfo.py:199
 msgid " (in "
-msgstr "(trong"
+msgstr " (yn "
 
 #: sphinx/directives/other.py:149
 msgid "Section author: "
-msgstr "Tác giả mục:"
+msgstr "Awdur yr adran:"
 
 #: sphinx/directives/other.py:151
 msgid "Module author: "
-msgstr "Tác giả mô-đun:"
+msgstr "Awdur y fodiwl:"
 
 #: sphinx/directives/other.py:153
 msgid "Code author: "
-msgstr "Tác giả mã lệnh:"
+msgstr "Awdur y cod:"
 
 #: sphinx/directives/other.py:155
 msgid "Author: "
-msgstr "Tác giả:"
+msgstr "Awdur:"
 
 #: sphinx/domains/__init__.py:275
 #, python-format
 msgid "%s %s"
-msgstr "%s %s"
+msgstr ""
 
 #: sphinx/domains/c.py:58 sphinx/domains/cpp.py:3605
 #: sphinx/domains/python.py:124
 msgid "Parameters"
-msgstr "Tham số"
+msgstr "Paramedrau"
 
 #: sphinx/domains/c.py:61 sphinx/domains/cpp.py:3614
 #: sphinx/domains/javascript.py:128 sphinx/domains/python.py:136
 msgid "Returns"
-msgstr "Trả về"
+msgstr ""
 
 #: sphinx/domains/c.py:63 sphinx/domains/javascript.py:130
 #: sphinx/domains/python.py:138
 msgid "Return type"
-msgstr "Kiểu trả về"
+msgstr ""
 
 #: sphinx/domains/c.py:177
 #, python-format
 msgid "%s (C function)"
-msgstr "%s (hàm C)"
+msgstr ""
 
 #: sphinx/domains/c.py:179
 #, python-format
 msgid "%s (C member)"
-msgstr "%s (thuộc tính C)"
+msgstr ""
 
 #: sphinx/domains/c.py:181
 #, python-format
 msgid "%s (C macro)"
-msgstr "%s (macro C)"
+msgstr ""
 
 #: sphinx/domains/c.py:183
 #, python-format
 msgid "%s (C type)"
-msgstr "%s (kiểu C)"
+msgstr ""
 
 #: sphinx/domains/c.py:185
 #, python-format
 msgid "%s (C variable)"
-msgstr "%s (biến C)"
+msgstr ""
 
 #: sphinx/domains/c.py:242 sphinx/domains/cpp.py:3953
 #: sphinx/domains/javascript.py:164 sphinx/domains/python.py:589
 msgid "function"
-msgstr "hàm"
+msgstr "ffwythiant"
 
 #: sphinx/domains/c.py:243 sphinx/domains/cpp.py:3954
 msgid "member"
-msgstr "thuộc tính"
+msgstr "aelod"
 
 #: sphinx/domains/c.py:244
 msgid "macro"
-msgstr "macro"
+msgstr ""
 
 #: sphinx/domains/c.py:245 sphinx/domains/cpp.py:3955
 msgid "type"
-msgstr "kiểu"
+msgstr ""
 
 #: sphinx/domains/c.py:246
 msgid "variable"
-msgstr "biến"
+msgstr ""
 
 #: sphinx/domains/cpp.py:3608
 #, fuzzy
 msgid "Template Parameters"
-msgstr "Tham số"
+msgstr "Paramedrau"
 
 #: sphinx/domains/cpp.py:3611 sphinx/domains/javascript.py:125
 msgid "Throws"
-msgstr "Ném"
+msgstr ""
 
 #: sphinx/domains/cpp.py:3733
 #, python-format
 msgid "%s (C++ type)"
-msgstr "%s (kiểu C++)"
+msgstr ""
 
 #: sphinx/domains/cpp.py:3744
 #, python-format
 msgid "%s (C++ member)"
-msgstr "%s (thuộc tính C++)"
+msgstr ""
 
 #: sphinx/domains/cpp.py:3755
 #, python-format
 msgid "%s (C++ function)"
-msgstr "%s (hàm C++)"
+msgstr ""
 
 #: sphinx/domains/cpp.py:3766
 #, python-format
 msgid "%s (C++ class)"
-msgstr "%s (lớp C++)"
+msgstr ""
 
 #: sphinx/domains/cpp.py:3786
 #, python-format
@@ -221,7 +221,7 @@ msgstr ""
 #: sphinx/domains/cpp.py:3952 sphinx/domains/javascript.py:165
 #: sphinx/domains/python.py:591
 msgid "class"
-msgstr "lớp"
+msgstr ""
 
 #: sphinx/domains/cpp.py:3956
 msgid "enum"
@@ -234,176 +234,176 @@ msgstr ""
 #: sphinx/domains/javascript.py:106 sphinx/domains/python.py:282
 #, python-format
 msgid "%s() (built-in function)"
-msgstr "%s() (hàm dựng sẵn)"
+msgstr ""
 
 #: sphinx/domains/javascript.py:107 sphinx/domains/python.py:346
 #, python-format
 msgid "%s() (%s method)"
-msgstr "%s() (phương thức %s)"
+msgstr ""
 
 #: sphinx/domains/javascript.py:109
 #, python-format
 msgid "%s() (class)"
-msgstr "%s() (lớp)"
+msgstr ""
 
 #: sphinx/domains/javascript.py:111
 #, python-format
 msgid "%s (global variable or constant)"
-msgstr "%s (biến toàn cục hoặc hằng số)"
+msgstr "%s (newidyn byd-eang neu cysonyn)"
 
 #: sphinx/domains/javascript.py:113 sphinx/domains/python.py:384
 #, python-format
 msgid "%s (%s attribute)"
-msgstr "%s (thuộc tính %s)"
+msgstr ""
 
 #: sphinx/domains/javascript.py:122
 msgid "Arguments"
-msgstr "Đối số"
+msgstr ""
 
 #: sphinx/domains/javascript.py:166 sphinx/domains/python.py:590
 msgid "data"
-msgstr "dữ liệu"
+msgstr ""
 
 #: sphinx/domains/javascript.py:167 sphinx/domains/python.py:596
 msgid "attribute"
-msgstr "thuộc tính"
+msgstr ""
 
 #: sphinx/domains/python.py:129
 msgid "Variables"
-msgstr "Các biến"
+msgstr ""
 
 #: sphinx/domains/python.py:133
 msgid "Raises"
-msgstr "Đưa ra"
+msgstr ""
 
 #: sphinx/domains/python.py:283 sphinx/domains/python.py:340
 #: sphinx/domains/python.py:352 sphinx/domains/python.py:365
 #, python-format
 msgid "%s() (in module %s)"
-msgstr "%s() (trong mô-đun %s)"
+msgstr ""
 
 #: sphinx/domains/python.py:286
 #, python-format
 msgid "%s (built-in variable)"
-msgstr "%s (biến dựng sẵn)"
+msgstr ""
 
 #: sphinx/domains/python.py:287 sphinx/domains/python.py:378
 #, python-format
 msgid "%s (in module %s)"
-msgstr "%s (trong mô-đun %s)"
+msgstr ""
 
 #: sphinx/domains/python.py:303
 #, python-format
 msgid "%s (built-in class)"
-msgstr "%s (lớp dựng sẵn)"
+msgstr ""
 
 #: sphinx/domains/python.py:304
 #, python-format
 msgid "%s (class in %s)"
-msgstr "%s (lớp trong %s)"
+msgstr ""
 
 #: sphinx/domains/python.py:344
 #, python-format
 msgid "%s() (%s.%s method)"
-msgstr "%s() (phương thức %s.%s) "
+msgstr ""
 
 #: sphinx/domains/python.py:356
 #, python-format
 msgid "%s() (%s.%s static method)"
-msgstr "%s() (phương thức tĩnh %s.%s)"
+msgstr ""
 
 #: sphinx/domains/python.py:359
 #, python-format
 msgid "%s() (%s static method)"
-msgstr "%s() (phương thức tĩnh %s)"
+msgstr ""
 
 #: sphinx/domains/python.py:369
 #, python-format
 msgid "%s() (%s.%s class method)"
-msgstr "%s() (phương thức lớp %s.%s)"
+msgstr ""
 
 #: sphinx/domains/python.py:372
 #, python-format
 msgid "%s() (%s class method)"
-msgstr "%s() (phương thức lớp %s)"
+msgstr ""
 
 #: sphinx/domains/python.py:382
 #, python-format
 msgid "%s (%s.%s attribute)"
-msgstr "%s (thuộc tính %s.%s)"
+msgstr ""
 
 #: sphinx/domains/python.py:463
 #, python-format
 msgid "%s (module)"
-msgstr "%s (mô-đun)"
+msgstr ""
 
 #: sphinx/domains/python.py:520
 msgid "Python Module Index"
-msgstr "Chỉ Mục Mô-đun Python"
+msgstr ""
 
 #: sphinx/domains/python.py:521
 msgid "modules"
-msgstr "các mô-đun"
+msgstr ""
 
 #: sphinx/domains/python.py:567
 msgid "Deprecated"
-msgstr "Sắp loại bỏ"
+msgstr ""
 
 #: sphinx/domains/python.py:592 sphinx/locale/__init__.py:183
 msgid "exception"
-msgstr "ngoại lệ"
+msgstr ""
 
 #: sphinx/domains/python.py:593
 msgid "method"
-msgstr "phương thức"
+msgstr ""
 
 #: sphinx/domains/python.py:594
 msgid "class method"
-msgstr "phương thức lớp"
+msgstr ""
 
 #: sphinx/domains/python.py:595
 msgid "static method"
-msgstr "phương thức tĩnh"
+msgstr ""
 
 #: sphinx/domains/python.py:597 sphinx/locale/__init__.py:179
 msgid "module"
-msgstr "mô-đun"
+msgstr "modiwl"
 
 #: sphinx/domains/python.py:762
 msgid " (deprecated)"
-msgstr "(sắp loại bỏ)"
+msgstr ""
 
 #: sphinx/domains/rst.py:55
 #, python-format
 msgid "%s (directive)"
-msgstr "%s (chỉ thị)"
+msgstr ""
 
 #: sphinx/domains/rst.py:57
 #, python-format
 msgid "%s (role)"
-msgstr "%s (vai trò)"
+msgstr ""
 
 #: sphinx/domains/rst.py:106
 msgid "directive"
-msgstr "chỉ thị"
+msgstr ""
 
 #: sphinx/domains/rst.py:107
 msgid "role"
-msgstr "vai trò"
+msgstr ""
 
 #: sphinx/domains/std.py:73 sphinx/domains/std.py:89
 #, python-format
 msgid "environment variable; %s"
-msgstr "các biến môi trường; %s"
+msgstr ""
 
 #: sphinx/domains/std.py:185
 #, python-format
 msgid "%scommand line option; %s"
-msgstr "tuỳ chọn dòng lệnh%s; %s"
+msgstr ""
 
 #: sphinx/domains/std.py:439
 msgid "glossary term"
-msgstr "chú giải thuật ngữ"
+msgstr ""
 
 #: sphinx/domains/std.py:440
 msgid "grammar token"
@@ -429,15 +429,15 @@ msgstr ""
 #: sphinx/themes/basic/genindex.html:68 sphinx/themes/basic/layout.html:134
 #: sphinx/writers/latex.py:336 sphinx/writers/texinfo.py:479
 msgid "Index"
-msgstr ""
+msgstr "Indecs"
 
 #: sphinx/domains/std.py:478
 msgid "Module Index"
-msgstr ""
+msgstr "Indecs Modiwlau"
 
 #: sphinx/domains/std.py:479 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
-msgstr ""
+msgstr "Tudalen Chwilio"
 
 #: sphinx/ext/autodoc.py:1263
 #, python-format
@@ -452,248 +452,248 @@ msgstr ""
 #: sphinx/ext/graphviz.py:307 sphinx/ext/graphviz.py:316
 #, python-format
 msgid "[graph: %s]"
-msgstr ""
+msgstr "[graff: %s]"
 
 #: sphinx/ext/graphviz.py:309 sphinx/ext/graphviz.py:318
 msgid "[graph]"
-msgstr ""
+msgstr "[graff]"
 
 #: sphinx/ext/intersphinx.py:359
 #, python-format
 msgid "(in %s v%s)"
-msgstr ""
+msgstr "(yn %s v%s)"
 
 #: sphinx/ext/linkcode.py:69 sphinx/ext/viewcode.py:99
 msgid "[source]"
-msgstr ""
+msgstr "[ffynhonnell]"
 
 #: sphinx/ext/todo.py:56
 msgid "Todo"
-msgstr ""
+msgstr "Todo"
 
 #: sphinx/ext/todo.py:128
 #, python-format
 msgid "(The <<original entry>> is located in  %s, line %d.)"
-msgstr ""
+msgstr "(Mae'r <<eitem wreiddiol>> wedi'i leoli yn  %s, llinell %d.)"
 
 #: sphinx/ext/todo.py:137
 msgid "original entry"
-msgstr ""
+msgstr "eitem wreiddiol"
 
 #: sphinx/ext/viewcode.py:158
 msgid "[docs]"
-msgstr ""
+msgstr "[docs]"
 
 #: sphinx/ext/viewcode.py:172
 msgid "Module code"
-msgstr ""
+msgstr "Cod y modiwl"
 
 #: sphinx/ext/viewcode.py:178
 #, python-format
 msgid "<h1>Source code for %s</h1>"
-msgstr ""
+msgstr "<h1>Cod ffynhonnell ar gyfer %s</h1>"
 
 #: sphinx/ext/viewcode.py:204
 msgid "Overview: module code"
-msgstr ""
+msgstr "Trosolwg: cod y modiwl"
 
 #: sphinx/ext/viewcode.py:205
 msgid "<h1>All modules for which code is available</h1>"
-msgstr ""
+msgstr "<h1>Holl fodiwlau lle mae'r cod ar gael</h1>"
 
 #: sphinx/locale/__init__.py:159
 msgid "Attention"
-msgstr "Chú ý"
+msgstr "Sylw"
 
 #: sphinx/locale/__init__.py:160
 msgid "Caution"
-msgstr "Cảnh báo"
+msgstr "Gofal"
 
 #: sphinx/locale/__init__.py:161
 msgid "Danger"
-msgstr "Nguy hiểm"
+msgstr "Perygl"
 
 #: sphinx/locale/__init__.py:162
 msgid "Error"
-msgstr "Lỗi"
+msgstr "Gwall"
 
 #: sphinx/locale/__init__.py:163
 msgid "Hint"
-msgstr "Gợi ý"
+msgstr "Awgrym"
 
 #: sphinx/locale/__init__.py:164
 msgid "Important"
-msgstr "Quan trọng"
+msgstr "Pwysig"
 
 #: sphinx/locale/__init__.py:165
 msgid "Note"
-msgstr "Ghi chú"
+msgstr "Nodyn"
 
 #: sphinx/locale/__init__.py:166
 msgid "See also"
-msgstr "Xem thêm"
+msgstr "Gweler hefyd"
 
 #: sphinx/locale/__init__.py:167
 msgid "Tip"
-msgstr "Mẹo"
+msgstr "Awgrym"
 
 #: sphinx/locale/__init__.py:168
 msgid "Warning"
-msgstr "Cảnh báo"
+msgstr "Rhybudd"
 
 #: sphinx/locale/__init__.py:172
 #, python-format
 msgid "New in version %s"
-msgstr "Mới từ phiên bản %s"
+msgstr "Newydd yn fersiwn %s"
 
 #: sphinx/locale/__init__.py:173
 #, python-format
 msgid "Changed in version %s"
-msgstr "Thay đổi trong phiên bản %s"
+msgstr "Wedi newid yn fersiwn %s"
 
 #: sphinx/locale/__init__.py:174
 #, python-format
 msgid "Deprecated since version %s"
-msgstr "Sắp loại bỏ từ phiên bản %s"
+msgstr "Dibrisiwyd ers fersiwn %s"
 
 #: sphinx/locale/__init__.py:180
 msgid "keyword"
-msgstr "từ khoá"
+msgstr "allweddair"
 
 #: sphinx/locale/__init__.py:181
 msgid "operator"
-msgstr "toán tử"
+msgstr "gweithredydd"
 
 #: sphinx/locale/__init__.py:182
 msgid "object"
-msgstr "đối tượng"
+msgstr "gwrthrych"
 
 #: sphinx/locale/__init__.py:184
 msgid "statement"
-msgstr "câu lệnh"
+msgstr "datganiad"
 
 #: sphinx/locale/__init__.py:185
 msgid "built-in function"
-msgstr "hàm dựng sẵn"
+msgstr "ffwythiant built-in"
 
 #: sphinx/themes/agogo/layout.html:46 sphinx/themes/basic/globaltoc.html:10
 #: sphinx/themes/basic/localtoc.html:11 sphinx/themes/scrolls/layout.html:35
 msgid "Table Of Contents"
-msgstr "Mục Lục"
+msgstr "Tabl Cynnwys"
 
 #: sphinx/themes/agogo/layout.html:51 sphinx/themes/basic/layout.html:137
 #: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:23
 #: sphinx/themes/basic/searchresults.html:10
 msgid "Search"
-msgstr "Tìm Kiếm"
+msgstr "Chwilio"
 
 #: sphinx/themes/agogo/layout.html:54 sphinx/themes/basic/searchbox.html:15
 msgid "Go"
-msgstr "Thực hiện"
+msgstr "Ewch"
 
 #: sphinx/themes/agogo/layout.html:59 sphinx/themes/basic/searchbox.html:20
 msgid "Enter search terms or a module, class or function name."
-msgstr "Nhập thuật ngữ, tên một mô-đun, lớp hay hàm cần tìm."
+msgstr "Rhowch dermau chwilio neu enw modiwl, ffwythiant neu ddosbarth."
 
 #: sphinx/themes/agogo/layout.html:84 sphinx/themes/basic/sourcelink.html:15
 msgid "Show Source"
-msgstr "Hiển thị mã nguồn"
+msgstr "Dangos Ffynhonell"
 
 #: sphinx/themes/basic/defindex.html:11
 msgid "Overview"
-msgstr "Tổng quan"
+msgstr "Trosolwg"
 
 #: sphinx/themes/basic/defindex.html:15
 msgid "Welcome! This is"
-msgstr "Chào mừng! Đây là"
+msgstr "Croeso! Dyma"
 
 #: sphinx/themes/basic/defindex.html:16
 msgid "the documentation for"
-msgstr "tài liệu cho"
+msgstr "y dogfennaeth am"
 
 #: sphinx/themes/basic/defindex.html:17
 msgid "last updated"
-msgstr "cập nhật mới nhất"
+msgstr "diweddarwyd yn ddiwethaf"
 
 #: sphinx/themes/basic/defindex.html:20
 msgid "Indices and tables:"
-msgstr "Các chỉ mục và bảng biểu:"
+msgstr "Indecsau a tablau:"
 
 #: sphinx/themes/basic/defindex.html:23
 msgid "Complete Table of Contents"
-msgstr "Mục Lục Đầy Đủ"
+msgstr "Tabl Cynnwys Llawn"
 
 #: sphinx/themes/basic/defindex.html:24
 msgid "lists all sections and subsections"
-msgstr "liệt kê tất cả các mục và mục con"
+msgstr "rhestru holl adrannau ac isadrannau"
 
 #: sphinx/themes/basic/defindex.html:26
 msgid "search this documentation"
-msgstr "tìm kiếm trong tài liệu này"
+msgstr "chwiliwch y ddogfennaeth"
 
 #: sphinx/themes/basic/defindex.html:28
 msgid "Global Module Index"
-msgstr "Chỉ Mục Mô-đun Toàn Cục"
+msgstr "Indecs Modiwl Byd-Eang"
 
 #: sphinx/themes/basic/defindex.html:29
 msgid "quick access to all modules"
-msgstr "truy cập nhanh tất cả các mô-đun"
+msgstr "mynediad cloi i bob modiwl"
 
 #: sphinx/themes/basic/defindex.html:31
 msgid "all functions, classes, terms"
-msgstr "tất cả các hàm, lớp, thuật ngữ"
+msgstr "holl ffwythiannau, dosbarthau a thermau"
 
 #: sphinx/themes/basic/genindex-single.html:35
 #, python-format
 msgid "Index &ndash; %(key)s"
-msgstr "Chỉ mục &ndash; %(key)s"
+msgstr "Indecs &ndash; %(key)s"
 
 #: sphinx/themes/basic/genindex-single.html:63
 #: sphinx/themes/basic/genindex-split.html:24
 #: sphinx/themes/basic/genindex-split.html:38
 #: sphinx/themes/basic/genindex.html:74
 msgid "Full index on one page"
-msgstr "Toàn bộ chỉ mục trên một trang"
+msgstr "Indecs llawn ar un tudalen"
 
 #: sphinx/themes/basic/genindex-split.html:16
 msgid "Index pages by letter"
-msgstr "Các trang chỉ mục theo chữ cái"
+msgstr "Indecs tudalennau gan lythyren"
 
 #: sphinx/themes/basic/genindex-split.html:25
 msgid "can be huge"
-msgstr "có thể rất nhiều"
+msgstr "gall fod yn enfawr"
 
 #: sphinx/themes/basic/layout.html:29
 msgid "Navigation"
-msgstr "Điều hướng"
+msgstr "Llywio"
 
 #: sphinx/themes/basic/layout.html:122
 #, python-format
 msgid "Search within %(docstitle)s"
-msgstr "Tìm kiếm trong %(docstitle)s"
+msgstr "Chwilio o fewn %(docstitle)s"
 
 #: sphinx/themes/basic/layout.html:131
 msgid "About these documents"
-msgstr "Về các tài liệu này"
+msgstr "Ynglŷn â'r dogfennau hyn"
 
 #: sphinx/themes/basic/layout.html:140
 msgid "Copyright"
-msgstr "Bản quyền"
+msgstr "Hawlfraint"
 
 #: sphinx/themes/basic/layout.html:189
 #, python-format
 msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
-msgstr "&copy; <a href=\"%(path)s\">Bản quyền thuộc</a> %(copyright)s."
+msgstr "&copy; <a href=\"%(path)s\">Hawlfraint</a> %(copyright)s."
 
 #: sphinx/themes/basic/layout.html:191
 #, python-format
 msgid "&copy; Copyright %(copyright)s."
-msgstr "&copy; Bản quyền thuộc %(copyright)s."
+msgstr "&copy; Hawlfraint %(copyright)s."
 
 #: sphinx/themes/basic/layout.html:195
 #, python-format
 msgid "Last updated on %(last_updated)s."
-msgstr "Cập nhật mới nhất vào %(last_updated)s."
+msgstr "Diweddarwyd yn ddiwethaf ar %(last_updated)s."
 
 #: sphinx/themes/basic/layout.html:198
 #, python-format
@@ -701,37 +701,35 @@ msgid ""
 "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
 msgstr ""
-"Được tạo nhờ <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
-"%(sphinx_version)s."
+"Crëwyd gan ddefnyddio <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
+"%(sphinx_version)s"
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
 msgid "Search %(docstitle)s"
-msgstr "Tìm %(docstitle)s"
+msgstr "Chwilio %(docstitle)s"
 
 #: sphinx/themes/basic/relations.html:11
 msgid "Previous topic"
-msgstr "Chủ đề trước"
+msgstr "Pwnc blaenorol"
 
 #: sphinx/themes/basic/relations.html:13
 msgid "previous chapter"
-msgstr "chương trước "
+msgstr "pennod blaenorol"
 
 #: sphinx/themes/basic/relations.html:16
 msgid "Next topic"
-msgstr "Chủ đề tiếp"
+msgstr "Pwnc nesaf"
 
 #: sphinx/themes/basic/relations.html:18
 msgid "next chapter"
-msgstr "chương tiếp"
+msgstr "pennod nesaf"
 
 #: sphinx/themes/basic/search.html:27
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
-msgstr ""
-"Hãy bật JavaScript để dùng tính năng\n"
-"tìm kiếm."
+msgstr "Trwoch JavaScript ymlaen i alluogi'r chwilio."
 
 #: sphinx/themes/basic/search.html:32
 msgid ""
@@ -740,15 +738,19 @@ msgid ""
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
 msgstr ""
+"O'r fan hon gallwch chwilio'r dogfennau hyn. Rhowch eich geiriau chwilio "
+"yn y blwch isod a chliciwch \"chwilio\". Nodwch fod y ffwythiant chwilio "
+"yn chwilio am bob un o'r geiriau yn awtomatig. Ni fydd dudalennau sy'n "
+"cynnwys llai o eiriau yn ymddangos yn y rhestr canlyniadau."
 
 #: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
 msgid "search"
-msgstr ""
+msgstr "chwilio"
 
 #: sphinx/themes/basic/search.html:43 sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js_t:282
 msgid "Search Results"
-msgstr ""
+msgstr "Canlyniadau chwilio"
 
 #: sphinx/themes/basic/search.html:45 sphinx/themes/basic/searchresults.html:23
 #: sphinx/themes/basic/static/searchtools.js_t:284
@@ -756,130 +758,135 @@ msgid ""
 "Your search did not match any documents. Please make sure that all words "
 "are spelled correctly and that you've selected enough categories."
 msgstr ""
+"Nid yw eich chwiliad yn cyfateb unrhyw ddogfennau. Gwnewch yn siŵr fod "
+"pob gair wedi'i sillafu'n gywir, ac eich bod wedi dewis digon o "
+"gategorïau."
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
-msgstr ""
+msgstr "Chwilio cyflym"
 
 #: sphinx/themes/basic/sourcelink.html:12
 msgid "This Page"
-msgstr ""
+msgstr "Y Dudalen Hon"
 
 #: sphinx/themes/basic/changes/frameset.html:5
 #: sphinx/themes/basic/changes/versionchanges.html:12
 #, python-format
 msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
-msgstr ""
+msgstr "Newidiadau yn Fersiwn %(version)s &mdash; (docstitle)s"
 
 #: sphinx/themes/basic/changes/rstsource.html:5
 #, python-format
 msgid "%(filename)s &mdash; %(docstitle)s"
-msgstr ""
+msgstr "%(filename)s &mdash; %(docstitle)s"
 
 #: sphinx/themes/basic/changes/versionchanges.html:17
 #, python-format
 msgid "Automatically generated list of changes in version %(version)s"
-msgstr ""
+msgstr "Rhestr o newidiadau yn fersiwn %(version)s wedi'i cynhyrchu'n awtomatig"
 
 #: sphinx/themes/basic/changes/versionchanges.html:18
 msgid "Library changes"
-msgstr ""
+msgstr "Newidiadau i'r llyfrgell"
 
 #: sphinx/themes/basic/changes/versionchanges.html:23
 msgid "C API changes"
-msgstr ""
+msgstr "Newidiadau i'r C-API"
 
 #: sphinx/themes/basic/changes/versionchanges.html:25
 msgid "Other changes"
-msgstr ""
+msgstr "Newidiadau arall"
 
 #: sphinx/themes/basic/static/doctools.js:166 sphinx/writers/html.py:655
 #: sphinx/writers/html.py:660
 msgid "Permalink to this headline"
-msgstr ""
+msgstr "Permalink i'r pennawd hwn"
 
 #: sphinx/themes/basic/static/doctools.js:172 sphinx/writers/html.py:111
 msgid "Permalink to this definition"
-msgstr ""
+msgstr "Permalink i'r diffiniad hwn"
 
 #: sphinx/themes/basic/static/doctools.js:205
 msgid "Hide Search Matches"
-msgstr ""
+msgstr "Cuddio Canlyniadau Chwilio"
 
 #: sphinx/themes/basic/static/searchtools.js_t:121
 msgid "Searching"
-msgstr ""
+msgstr "Yn chwilio"
 
 #: sphinx/themes/basic/static/searchtools.js_t:126
 msgid "Preparing search..."
-msgstr ""
+msgstr "Paratoi chwilio..."
 
 #: sphinx/themes/basic/static/searchtools.js_t:286
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr ""
+"Chwiliad wedi gorffen, wedi ffeindio %s tudalen(nau) yn cyfateb a'r "
+"ymholiad chwilio."
 
 #: sphinx/themes/basic/static/searchtools.js_t:338
 msgid ", in "
-msgstr ""
+msgstr ", yn "
 
 #: sphinx/themes/classic/static/sidebar.js_t:83
 msgid "Expand sidebar"
-msgstr ""
+msgstr "Ehangu'r bar ochr"
 
 #: sphinx/themes/classic/static/sidebar.js_t:96
 #: sphinx/themes/classic/static/sidebar.js_t:124
 msgid "Collapse sidebar"
-msgstr ""
+msgstr "Cyfangu'r bar ochr"
 
 #: sphinx/themes/haiku/layout.html:24
 msgid "Contents"
-msgstr ""
+msgstr "Cynnwys"
 
 #: sphinx/writers/html.py:350
 msgid "Permalink to this code"
-msgstr ""
+msgstr "Permalink i'r cod hwn"
 
 #: sphinx/writers/html.py:354
 msgid "Permalink to this image"
-msgstr ""
+msgstr "Permalink i'r ddelwedd hon"
 
 #: sphinx/writers/html.py:356
 msgid "Permalink to this toctree"
-msgstr ""
+msgstr "Permalink i'r toctree hwn"
 
 #: sphinx/writers/html.py:664
 msgid "Permalink to this table"
-msgstr ""
+msgstr "Permalink i'r tabl hwn"
 
 #: sphinx/writers/latex.py:334
 msgid "Release"
-msgstr ""
+msgstr "Rhyddhad"
 
 #: sphinx/writers/latex.py:385
 #, fuzzy
 msgid "page"
-msgstr "Nguy hiểm"
+msgstr "Perygl"
 
 #: sphinx/writers/latex.py:892 sphinx/writers/manpage.py:221
 #: sphinx/writers/texinfo.py:618
 msgid "Footnotes"
-msgstr ""
+msgstr "Troednodiadau"
 
 #: sphinx/writers/latex.py:996
 msgid "continued from previous page"
-msgstr ""
+msgstr "wedi'i barhau o'r tudalen blaenorol"
 
 #: sphinx/writers/latex.py:1002
 msgid "Continued on next page"
-msgstr ""
+msgstr "Yn parhau ar y tudalen nesaf"
 
 #: sphinx/writers/manpage.py:270 sphinx/writers/text.py:581
 #, python-format
 msgid "[image: %s]"
-msgstr ""
+msgstr "[delwedd: %s]"
 
 #: sphinx/writers/manpage.py:271 sphinx/writers/text.py:582
 msgid "[image]"
-msgstr ""
+msgstr "[delwedd]"
 
