@@ -23,22 +23,21 @@ from os import path
 from glob import glob
 from itertools import groupby
 
-from six import iteritems, itervalues, text_type, class_types, string_types, next
+from six import iteritems, itervalues, text_type, class_types, next
 from six.moves import cPickle as pickle
 from docutils import nodes
-from docutils.io import FileInput, NullOutput
+from docutils.io import NullOutput
 from docutils.core import Publisher
 from docutils.utils import Reporter, relative_path, get_source_line
-from docutils.readers import standalone
 from docutils.parsers.rst import roles, directives
 from docutils.parsers.rst.languages import en as english
 from docutils.parsers.rst.directives.html import MetaBody
-from docutils.writers import UnfilteredWriter
 from docutils.frontend import OptionParser
 
 from sphinx import addnodes
+from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
-    FilenameUniqDict, get_figtype, import_object, split_index_msg
+    FilenameUniqDict, get_figtype, split_index_msg
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream, is_translatable
 from sphinx.util.osutil import SEP, getcwd, fs_encoding, ensuredir
 from sphinx.util.i18n import find_catalog_files
@@ -49,12 +48,7 @@ from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 from sphinx.versioning import add_uids, merge_doctrees
-from sphinx.transforms import (
-    DefaultSubstitutions, MoveModuleTargets, ApplySourceWorkaround,
-    HandleCodeBlocks, AutoNumbering, SortIds, CitationReferences, Locale,
-    RemoveTranslatableInline, SphinxContentsFilter, ExtraTranslatableNodes,
-)
-
+from sphinx.transforms import SphinxContentsFilter
 
 orig_role_function = roles.role
 orig_directive_function = directives.directive
@@ -95,73 +89,6 @@ versioning_conditions = {
 class NoUri(Exception):
     """Raised by get_relative_uri if there is no URI available."""
     pass
-
-
-class SphinxStandaloneReader(standalone.Reader):
-    """
-    Add our own transforms.
-    """
-    transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, Locale, CitationReferences,
-                  DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
-                  AutoNumbering, SortIds, RemoveTranslatableInline]
-
-    def __init__(self, parsers={}, *args, **kwargs):
-        standalone.Reader.__init__(self, *args, **kwargs)
-        self.parser_map = {}
-        for suffix, parser_class in parsers.items():
-            if isinstance(parser_class, string_types):
-                parser_class = import_object(parser_class, 'source parser')
-            self.parser_map[suffix] = parser_class()
-
-    def read(self, source, parser, settings):
-        self.source = source
-
-        for suffix in self.parser_map:
-            if source.source_path.endswith(suffix):
-                self.parser = self.parser_map[suffix]
-                break
-
-        if not self.parser:
-            self.parser = parser
-        self.settings = settings
-        self.input = self.source.read()
-        self.parse()
-        return self.document
-
-    def get_transforms(self):
-        return standalone.Reader.get_transforms(self) + self.transforms
-
-
-class SphinxDummyWriter(UnfilteredWriter):
-    supported = ('html',)  # needed to keep "meta" nodes
-
-    def translate(self):
-        pass
-
-
-class SphinxFileInput(FileInput):
-    def __init__(self, app, env, *args, **kwds):
-        self.app = app
-        self.env = env
-        kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
-        FileInput.__init__(self, *args, **kwds)
-
-    def decode(self, data):
-        if isinstance(data, text_type):  # py3: `data` already decoded.
-            return data
-        return data.decode(self.encoding, 'sphinx')  # py2: decoding
-
-    def read(self):
-        data = FileInput.read(self)
-        if self.app:
-            arg = [data]
-            self.app.emit('source-read', self.env.docname, arg)
-            data = arg[0]
-        if self.env.config.rst_epilog:
-            data = data + '\n' + self.env.config.rst_epilog + '\n'
-        if self.env.config.rst_prolog:
-            data = self.env.config.rst_prolog + '\n' + data
-        return data
 
 
 class BuildEnvironment:

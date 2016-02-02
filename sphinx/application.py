@@ -35,7 +35,8 @@ from sphinx.errors import SphinxError, SphinxWarning, ExtensionError, \
 from sphinx.domains import ObjType, BUILTIN_DOMAINS
 from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.builders import BUILTIN_BUILDERS
-from sphinx.environment import BuildEnvironment, SphinxStandaloneReader
+from sphinx.environment import BuildEnvironment
+from sphinx.io import SphinxStandaloneReader
 from sphinx.util import pycompat  # noqa: imported for side-effects
 from sphinx.util import import_object
 from sphinx.util.tags import Tags
