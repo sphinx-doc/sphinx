@@ -5,6 +5,8 @@ Bugs fixed
 ----------
 
 * #2265: Fix babel is used in spite of disabling it on ``latex_elements``
+* #2295: Avoid mutating dictionary errors while enumerating members in autodoc
+  with Python 3
 
 
 Release 1.3.5 (released Jan 24, 2016)
