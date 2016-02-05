@@ -314,6 +314,12 @@ There are also new config values that you can set:
 
    .. versionadded:: 0.3
 
+   If the class has no ``__init__`` method or if the ``__init__`` method's
+   docstring is empty, but the class has a ``__new__`` method's docstring,
+   it is used instead.
+
+   .. versionadded:: 1.4
+
 .. confval:: autodoc_member_order
 
    This value selects if automatically documented members are sorted

@@ -297,6 +297,9 @@ def test_get_doc():
         """Class docstring"""
         def __init__(self):
             """Init docstring"""
+
+        def __new__(cls):
+            """New docstring"""
     directive.env.config.autoclass_content = 'class'
     assert getdocl('class', C) == ['Class docstring']
     directive.env.config.autoclass_content = 'init'
@@ -379,6 +382,36 @@ def test_get_doc():
         assert getdocl('class', G) == ['Class docstring']
         directive.env.config.autoclass_content = 'both'
         assert getdocl('class', G) == ['Class docstring']
+
+    # class has __new__ method with docstring
+    # class docstring: depends on config value which one is taken
+    class H:
+        """Class docstring"""
+        def __init__(self):
+            pass
+
+        def __new__(cls):
+            """New docstring"""
+    directive.env.config.autoclass_content = 'class'
+    assert getdocl('class', H) == ['Class docstring']
+    directive.env.config.autoclass_content = 'init'
+    assert getdocl('class', H) == ['New docstring']
+    directive.env.config.autoclass_content = 'both'
+    assert getdocl('class', H) == ['Class docstring', '', 'New docstring']
+
+    # class has __init__ method without docstring and
+    # __new__ method with docstring
+    # class docstring: depends on config value which one is taken
+    class I:
+        """Class docstring"""
+        def __new__(cls):
+            """New docstring"""
+    directive.env.config.autoclass_content = 'class'
+    assert getdocl('class', I) == ['Class docstring']
+    directive.env.config.autoclass_content = 'init'
+    assert getdocl('class', I) == ['New docstring']
+    directive.env.config.autoclass_content = 'both'
+    assert getdocl('class', I) == ['Class docstring', '', 'New docstring']
 
 
 @with_setup(setup_test)
