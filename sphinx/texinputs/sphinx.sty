@@ -163,10 +163,75 @@
 }
 \def\FrameCommand{\mycolorbox}
 
+% Go deep into framed.sty to insert a Title above the frame
+% Will be used for literal-block captions.
+% \MyCustomFBox, \MyFrameTitle, \MyVerbatimTitle, \setupverbatimcaption
+
+% The amsmath patches \stepcounter to inhibit stepping via \firstchoice@false
+% We will use that, because framed.sty typesets multiple times its contents,
+% and we want to put the \captionof in it.
+\newif\if@MyFirstFramedPass
+
+% \MyCustomFBox is for use by \FirstFrameCommand
+% It is copied from framed.sty's \CustomFBox, with the difference that
+% #1=title/caption is to be set _above_ the top rule, not _below_
+% #1 must be "vertical material" and may be left empty.
+% #1=\captionof{literal-block}{foo} is ok for example.
+\long\def\MyCustomFBox#1#2#3#4#5#6#7{%
+  % we set up amsmath (amstext.sty) conditional to inhibit counter stepping
+  % except in first pass
+  \if@MyFirstFramedPass\firstchoice@true
+                  \else\firstchoice@false\fi
+  \leavevmode\begingroup
+  \setbox\@tempboxa\hbox{%
+    \color@begingroup
+      \kern\fboxsep{#7}\kern\fboxsep
+    \color@endgroup}%
+  \hbox{%
+    \lower\dimexpr#4+\fboxsep+\dp\@tempboxa\hbox{%
+      \vbox{%
+        #1% TITLE
+        \hrule\@height#3\relax
+        \hbox{%
+          \vrule\@width#5\relax
+          \vbox{%
+            \vskip\fboxsep
+            \copy\@tempboxa
+            \vskip\fboxsep}%
+          \vrule\@width#6\relax}%
+        #2%
+        \hrule\@height#4\relax}%
+    }%
+  }%
+  \endgroup
+  \global\@MyFirstFramedPassfalse
+}
+
+\newcommand*\MyFrameTitle {}
+\newcommand*\MyVerbatimTitle {}
+\newcommand*\setupcaptionforverbatim [2]
+{% make \smallskip customizable ?
+    \def\MyVerbatimTitle{\captionof{#1}{#2}\smallskip }%
+}
+
+\def\FirstFrameCommand{%
+   % this is inspired from framed.sty v 0.96 2011/10/22 lines 185--190
+   % \fcolorbox (see \mycolorbox above) from color.sty uses \fbox.
+   \def\fbox{\MyCustomFBox{\MyFrameTitle}{}%
+                 \fboxrule\fboxrule\fboxrule\fboxrule}%
+   % \fcolorbox from xcolor.sty may use rather \XC@fbox.
+   \let\XC@fbox\fbox
+   \mycolorbox
+}
+
+% Unneeded %'s after control words removed.
 \renewcommand{\Verbatim}[1][1]{%
   % list starts new par, but we don't want it to be set apart vertically
-  \bgroup\parskip=0pt%
-  \smallskip%
+  \bgroup\parskip=0pt
+  \smallskip
+  % use customized framed environment
+  \let\MyFrameTitle\MyVerbatimTitle
+  \global\@MyFirstFramedPasstrue
   % The list environement is needed to control perfectly the vertical
   % space.
   \list{}{%
@@ -177,15 +242,17 @@
   \setlength\leftmargin{0pt}%
   }%
   \item\MakeFramed {\FrameRestore}%
-     \small%
+     \small
     \OriginalVerbatim[#1]%
 }
 \renewcommand{\endVerbatim}{%
-    \endOriginalVerbatim%
-  \endMakeFramed%
-  \endlist%
-  % close group to restore \parskip
-  \egroup%
+  \endOriginalVerbatim
+  \endMakeFramed
+  \endlist
+  % close group to restore \parskip (and \MyFrameTitle)
+  \egroup
+  % reset to empty \MyVerbatimTitle
+  \global\let\MyVerbatimTitle\empty
 }
 
 
