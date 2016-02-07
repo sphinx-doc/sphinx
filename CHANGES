@@ -8,6 +8,7 @@ Bugs fixed
 * #2295: Avoid mutating dictionary errors while enumerating members in autodoc
   with Python 3
 * #2291: Fix pdflatex "Counter too large" error from footnotes inside tables of contents
+* #2292: Fix some footnotes disappear from LaTeX output
 
 
 Release 1.3.5 (released Jan 24, 2016)

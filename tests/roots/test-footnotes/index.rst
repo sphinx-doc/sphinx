@@ -2,6 +2,11 @@
 test-footenotes
 ===============
 
+.. toctree::
+
+   bar
+   baz
+
 .. contents::
    :local:
 

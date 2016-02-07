@@ -199,9 +199,14 @@ class ShowUrlsTransform(object):
         def is_auto_footnote(node):
             return isinstance(node, nodes.footnote) and node.get('auto')
 
-        def footnote_ref_by(ids):
+        def footnote_ref_by(node):
+            ids = node['ids']
+            parent = list(traverse_parent(node, (nodes.document, addnodes.start_of_file)))[0]
+
             def is_footnote_ref(node):
-                return isinstance(node, nodes.footnote_reference) and ids[0] == node['refid']
+                return (isinstance(node, nodes.footnote_reference) and
+                        ids[0] == node['refid'] and
+                        parent in list(traverse_parent(node)))
 
             return is_footnote_ref
 
@@ -220,7 +225,7 @@ class ShowUrlsTransform(object):
                 footnote['names'].remove(old_label)
             footnote['names'].append(label)
 
-            for footnote_ref in self.document.traverse(footnote_ref_by(footnote['ids'])):
+            for footnote_ref in self.document.traverse(footnote_ref_by(footnote)):
                 footnote_ref.remove(footnote_ref[0])
                 footnote_ref += nodes.Text(label)
 

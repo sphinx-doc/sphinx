@@ -372,6 +372,8 @@ def test_latex_show_urls_is_inline(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
+    assert 'Same footnote number \\footnote[1]{\nfootnote in bar\n} in bar.rst' in result
+    assert 'Auto footnote number \\footnote[1]{\nfootnote in baz\n} in baz.rst' in result
     assert ('\\phantomsection\\label{index:id26}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
             '{\\emph{The section with a reference to \\phantomsection\\label{index:id1}'
@@ -405,6 +407,8 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
+    assert 'Same footnote number \\footnote[1]{\nfootnote in bar\n} in bar.rst' in result
+    assert 'Auto footnote number \\footnote[2]{\nfootnote in baz\n} in baz.rst' in result
     assert ('\\phantomsection\\label{index:id26}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
             '{\\emph{The section with a reference to \\phantomsection\\label{index:id1}'
@@ -412,20 +416,20 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     assert ('\\phantomsection\\label{index:id27}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to]{\\emph{The section '
             'with a reference to }}}' in result)
-    assert 'First footnote: \\footnote[2]{\nFirst\n}' in result
+    assert 'First footnote: \\footnote[3]{\nFirst\n}' in result
     assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
     assert ('\\href{http://sphinx-doc.org/}{Sphinx}'
-            '\\footnote[3]{\nhttp://sphinx-doc.org/\n}' in result)
-    assert 'Third footnote: \\footnote[5]{\nThird\n}' in result
+            '\\footnote[4]{\nhttp://sphinx-doc.org/\n}' in result)
+    assert 'Third footnote: \\footnote[6]{\nThird\n}' in result
     assert ('\\href{http://sphinx-doc.org/~test/}{URL including tilde}'
-            '\\footnote[4]{\nhttp://sphinx-doc.org/\\textasciitilde{}test/\n}' in result)
-    assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term}\\protect\\footnotemark[7]}] '
-            '\\leavevmode\\footnotetext[7]{\nhttp://sphinx-doc.org/\n}\nDescription' in result)
-    assert ('\\item[{Footnote in term \\protect\\footnotemark[9]}] '
-            '\\leavevmode\\footnotetext[9]{\nFootnote in term\n}\nDescription' in result)
-    assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}\\protect'
-            '\\footnotemark[8]}] '
+            '\\footnote[5]{\nhttp://sphinx-doc.org/\\textasciitilde{}test/\n}' in result)
+    assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term}\\protect\\footnotemark[8]}] '
             '\\leavevmode\\footnotetext[8]{\nhttp://sphinx-doc.org/\n}\nDescription' in result)
+    assert ('\\item[{Footnote in term \\protect\\footnotemark[10]}] '
+            '\\leavevmode\\footnotetext[10]{\nFootnote in term\n}\nDescription' in result)
+    assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}\\protect'
+            '\\footnotemark[9]}] '
+            '\\leavevmode\\footnotetext[9]{\nhttp://sphinx-doc.org/\n}\nDescription' in result)
     assert ('\\href{https://github.com/sphinx-doc/sphinx}'
             '{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
@@ -440,6 +444,8 @@ def test_latex_show_urls_is_no(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
+    assert 'Same footnote number \\footnote[1]{\nfootnote in bar\n} in bar.rst' in result
+    assert 'Auto footnote number \\footnote[1]{\nfootnote in baz\n} in baz.rst' in result
     assert ('\\phantomsection\\label{index:id26}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
             '{\\emph{The section with a reference to \\phantomsection\\label{index:id1}'
