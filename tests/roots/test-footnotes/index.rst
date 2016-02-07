@@ -2,6 +2,9 @@
 test-footenotes
 ===============
 
+.. contents::
+   :local:
+
 The section with a reference to [AuthorYear]_
 =============================================
 

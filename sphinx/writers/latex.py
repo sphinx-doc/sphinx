@@ -25,7 +25,7 @@ from sphinx import highlighting
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import split_into
-from sphinx.util.nodes import clean_astext
+from sphinx.util.nodes import clean_astext, traverse_parent
 from sphinx.util.osutil import ustrftime
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
 from sphinx.util.smartypants import educate_quotes_latex
@@ -159,11 +159,15 @@ class ShowUrlsTransform(object):
                 if node.astext() != uri:
                     index = node.parent.index(node)
                     if show_urls == 'footnote':
-                        footnote_nodes = self.create_footnote(uri)
-                        for i, fn in enumerate(footnote_nodes):
-                            node.parent.insert(index + i + 1, fn)
+                        if list(traverse_parent(node, nodes.topic)):
+                            # should not expand references in topics
+                            pass
+                        else:
+                            footnote_nodes = self.create_footnote(uri)
+                            for i, fn in enumerate(footnote_nodes):
+                                node.parent.insert(index + i + 1, fn)
 
-                        self.expanded = True
+                            self.expanded = True
                     else:  # all other true values (b/w compat)
                         textnode = nodes.Text(" (%s)" % uri)
                         node.parent.insert(index + 1, textnode)

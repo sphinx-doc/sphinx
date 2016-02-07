@@ -372,6 +372,13 @@ def test_latex_show_urls_is_inline(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
+    assert ('\\phantomsection\\label{index:id26}{\\hyperref[index:the\\string-section'
+            '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
+            '{\\emph{The section with a reference to \\phantomsection\\label{index:id1}'
+            '{\\hyperref[index:authoryear]{\\emph{{[}AuthorYear{]}}}}}}}' in result)
+    assert ('\\phantomsection\\label{index:id27}{\\hyperref[index:the\\string-section'
+            '\\string-with\\string-a\\string-reference\\string-to]{\\emph{The section '
+            'with a reference to }}}' in result)
     assert 'First footnote: \\footnote[2]{\nFirst\n}' in result
     assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
     assert '\\href{http://sphinx-doc.org/}{Sphinx} (http://sphinx-doc.org/)' in result
@@ -398,6 +405,13 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
+    assert ('\\phantomsection\\label{index:id26}{\\hyperref[index:the\\string-section'
+            '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
+            '{\\emph{The section with a reference to \\phantomsection\\label{index:id1}'
+            '{\\hyperref[index:authoryear]{\\emph{{[}AuthorYear{]}}}}}}}' in result)
+    assert ('\\phantomsection\\label{index:id27}{\\hyperref[index:the\\string-section'
+            '\\string-with\\string-a\\string-reference\\string-to]{\\emph{The section '
+            'with a reference to }}}' in result)
     assert 'First footnote: \\footnote[2]{\nFirst\n}' in result
     assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
     assert ('\\href{http://sphinx-doc.org/}{Sphinx}'
@@ -426,6 +440,13 @@ def test_latex_show_urls_is_no(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
+    assert ('\\phantomsection\\label{index:id26}{\\hyperref[index:the\\string-section'
+            '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
+            '{\\emph{The section with a reference to \\phantomsection\\label{index:id1}'
+            '{\\hyperref[index:authoryear]{\\emph{{[}AuthorYear{]}}}}}}}' in result)
+    assert ('\\phantomsection\\label{index:id27}{\\hyperref[index:the\\string-section'
+            '\\string-with\\string-a\\string-reference\\string-to]{\\emph{The section '
+            'with a reference to }}}' in result)
     assert 'First footnote: \\footnote[2]{\nFirst\n}' in result
     assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
     assert '\\href{http://sphinx-doc.org/}{Sphinx}' in result

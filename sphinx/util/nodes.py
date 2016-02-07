@@ -141,9 +141,10 @@ def find_source_node(node):
             return pnode.source
 
 
-def traverse_parent(node):
+def traverse_parent(node, cls=None):
     while node:
-        yield node
+        if cls is None or isinstance(node, cls):
+            yield node
         node = node.parent
 
 
