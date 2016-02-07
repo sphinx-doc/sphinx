@@ -51,6 +51,7 @@ Other contributors, listed alphabetically, are:
 * Rob Ruana -- napoleon extension
 * Stefan Seefeld -- toctree improvements
 * Shibukawa Yoshiki -- pluggable search API and Japanese search
+* Taku Shimizu -- epub3 builder
 * Antonio Valentino -- qthelp builder
 * Filip Vavera -- napoleon todo directive
 * Pauli Virtanen -- autodoc improvements, autosummary extension

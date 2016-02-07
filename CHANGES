@@ -49,6 +49,7 @@ Features added
 * #2230: Add ``math_number_all`` option to number all displayed math in math extensions
 * #2235: ``needs_sphinx`` supports micro version comparison
 * #2282: Add "language" attribute to html tag in the "basic" theme
+* #1779: Add EPUB 3 builder
 
 Bugs fixed
 ----------
