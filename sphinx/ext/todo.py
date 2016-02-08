@@ -128,9 +128,10 @@ def process_todo_nodes(app, doctree, fromdocname):
             if app.config['todo_link_only']:
                 description = _('<<original entry>>')
             else:
-                description = _('(The <<original entry>> is located in '
-                                ' %s, line %d.)') % \
-                            (todo_info['source'], todo_info['lineno'])
+                description = (
+                    _('(The <<original entry>> is located in %s, line %d.)') %
+                    (todo_info['source'], todo_info['lineno'])
+                )
             desc1 = description[:description.find('<<')]
             desc2 = description[description.find('>>')+2:]
             para += nodes.Text(desc1, desc1)
