@@ -136,3 +136,14 @@ umlauts: äöü.
 >>> print('Japanese: 日本語')
 Japanese: 日本語
 
+keep control char in raw string
+-------------------------------
+
+.. doctest::
+
+    >>> print('one\ntwo')
+    one
+    two
+    >>> print(r'one\ntwo')
+    one\ntwo
+

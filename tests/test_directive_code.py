@@ -5,7 +5,7 @@
 
     Test the code-block directive.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -64,7 +64,7 @@ def test_code_block_caption_html(app, status, warning):
 def test_code_block_caption_latex(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
-    caption = '\\caption{caption \\emph{test} rb}'
+    caption = '\\captionof{literal-block}{caption \\emph{test} rb}'
     assert caption in latex
 
 
@@ -96,6 +96,30 @@ def test_literal_include_dedent(app, status, warning):
         assert (i, actual) == (i, expect)
 
     assert blocks[5].text == '\n\n'   # dedent: 1000
+
+
+@with_app('xml', testroot='directive-code')
+def test_literal_include_block_start_with_comment_or_brank(app, status, warning):
+    app.builder.build(['python'])
+    et = ElementTree.parse(app.outdir / 'python.xml')
+    secs = et.findall('./section/section')
+    literal_include = secs[0].findall('literal_block')
+    assert len(literal_include) > 0
+    actual = literal_include[0].text
+    expect = (
+        'def block_start_with_comment():\n'
+        '    # Comment\n'
+        '    return 1\n'
+    )
+    assert actual == expect
+
+    actual = literal_include[1].text
+    expect = (
+        'def block_start_with_blank():\n'
+        '\n'
+        '    return 1\n'
+    )
+    assert actual == expect
 
 
 @with_app('html', testroot='directive-code')
@@ -205,5 +229,22 @@ def test_literalinclude_caption_html(app, status, warning):
 def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
-    caption = '\\caption{caption \\textbf{test} py}'
+    caption = '\\captionof{literal-block}{caption \\textbf{test} py}'
     assert caption in latex
+
+
+@with_app('xml', testroot='directive-code')
+def test_literalinclude_classes(app, status, warning):
+    app.builder.build(['classes'])
+    et = ElementTree.parse(app.outdir / 'classes.xml')
+    secs = et.findall('./section/section')
+
+    code_block = secs[0].findall('literal_block')
+    assert len(code_block) > 0
+    assert 'foo bar' == code_block[0].get('classes')
+    assert 'code_block' == code_block[0].get('names')
+
+    literalinclude = secs[1].findall('literal_block')
+    assert len(literalinclude) > 0
+    assert 'bar baz' == literalinclude[0].get('classes')
+    assert 'literal_include' == literalinclude[0].get('names')

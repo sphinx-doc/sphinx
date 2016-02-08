@@ -8,7 +8,7 @@
     all todos of your project and lists them along with a backlink to the
     original location.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,7 +19,8 @@ import sphinx
 from sphinx.locale import _
 from sphinx.environment import NoUri
 from sphinx.util.nodes import set_source_info
-from sphinx.util.compat import Directive, make_admonition
+from docutils.parsers.rst import Directive
+from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
 
 class todo_node(nodes.Admonition, nodes.Element):
@@ -30,11 +31,12 @@ class todolist(nodes.General, nodes.Element):
     pass
 
 
-class Todo(Directive):
+class Todo(BaseAdmonition):
     """
     A todo entry, displayed (if configured) in the form of an admonition.
     """
 
+    node_class = todo_node
     has_content = True
     required_arguments = 0
     optional_arguments = 0
@@ -44,18 +46,20 @@ class Todo(Directive):
     }
 
     def run(self):
-        env = self.state.document.settings.env
-        targetid = 'index-%s' % env.new_serialno('index')
-        targetnode = nodes.target('', '', ids=[targetid])
-
         if not self.options.get('class'):
             self.options['class'] = ['admonition-todo']
 
-        ad = make_admonition(todo_node, self.name, [_('Todo')], self.options,
-                             self.content, self.lineno, self.content_offset,
-                             self.block_text, self.state, self.state_machine)
-        set_source_info(self, ad[0])
-        return [targetnode] + ad
+        (todo,) = super(Todo, self).run()
+        if isinstance(todo, nodes.system_message):
+            return [todo]
+
+        todo.insert(0, nodes.title(text=_('Todo')))
+        set_source_info(self, todo)
+
+        env = self.state.document.settings.env
+        targetid = 'index-%s' % env.new_serialno('index')
+        targetnode = nodes.target('', '', ids=[targetid])
+        return [targetnode, todo]
 
 
 def process_todos(app, doctree):
@@ -121,9 +125,13 @@ def process_todo_nodes(app, doctree, fromdocname):
 
         for todo_info in env.todo_all_todos:
             para = nodes.paragraph(classes=['todo-source'])
-            description = _('(The <<original entry>> is located in '
-                            ' %s, line %d.)') % \
-                (todo_info['source'], todo_info['lineno'])
+            if app.config['todo_link_only']:
+                description = _('<<original entry>>')
+            else:
+                description = (
+                    _('(The <<original entry>> is located in %s, line %d.)') %
+                    (todo_info['source'], todo_info['lineno'])
+                )
             desc1 = description[:description.find('<<')]
             desc2 = description[description.find('>>')+2:]
             para += nodes.Text(desc1, desc1)
@@ -180,6 +188,7 @@ def depart_todo_node(self, node):
 
 def setup(app):
     app.add_config_value('todo_include_todos', False, 'html')
+    app.add_config_value('todo_link_only', False, 'html')
 
     app.add_node(todolist)
     app.add_node(todo_node,

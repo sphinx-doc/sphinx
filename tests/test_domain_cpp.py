@@ -5,13 +5,15 @@
 
     Tests the C++ Domain
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import re
+
 from six import text_type
 
-from util import raises
+from util import raises, with_app
 
 from sphinx import addnodes
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
@@ -393,3 +395,77 @@ def test_templates():
 #    for a in ids:
 #        print(a)
 #    raise DefinitionError("")
+
+
+@with_app(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})
+def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, warning):
+    app.builder.build_all()
+
+    def check(spec, text, file):
+        pattern = '<li>%s<a .*?><code .*?><span .*?>%s</span></code></a></li>' % spec
+        res = re.search(pattern, text)
+        if not res:
+            print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
+            assert False
+    rolePatterns = [
+        ('', 'Sphinx'),
+        ('', 'Sphinx::version'),
+        ('', 'version'),
+        ('', 'List'),
+        ('', 'MyEnum')
+    ]
+    parenPatterns = [
+        ('ref function without parens ', 'paren_1\(\)'),
+        ('ref function with parens ', 'paren_2\(\)'),
+        ('ref function without parens, explicit title ', 'paren_3_title'),
+        ('ref function with parens, explicit title ', 'paren_4_title')
+    ]
+
+    f = 'roles.html'
+    t = (app.outdir / f).text()
+    for s in rolePatterns:
+        check(s, t, f)
+    for s in parenPatterns:
+        check(s, t, f)
+
+    f = 'any-role.html'
+    t = (app.outdir / f).text()
+    for s in parenPatterns:
+        check(s, t, f)
+
+
+@with_app(testroot='domain-cpp', confoverrides={'add_function_parentheses': False})
+def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, warning):
+    app.builder.build_all()
+
+    def check(spec, text, file):
+        pattern = '<li>%s<a .*?><code .*?><span .*?>%s</span></code></a></li>' % spec
+        res = re.search(pattern, text)
+        if not res:
+            print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
+            assert False
+    rolePatterns = [
+        ('', 'Sphinx'),
+        ('', 'Sphinx::version'),
+        ('', 'version'),
+        ('', 'List'),
+        ('', 'MyEnum')
+    ]
+    parenPatterns = [
+        ('ref function without parens ', 'paren_1'),
+        ('ref function with parens ', 'paren_2'),
+        ('ref function without parens, explicit title ', 'paren_3_title'),
+        ('ref function with parens, explicit title ', 'paren_4_title')
+    ]
+
+    f = 'roles.html'
+    t = (app.outdir / f).text()
+    for s in rolePatterns:
+        check(s, t, f)
+    for s in parenPatterns:
+        check(s, t, f)
+
+    f = 'any-role.html'
+    t = (app.outdir / f).text()
+    for s in parenPatterns:
+        check(s, t, f)

@@ -33,3 +33,11 @@ There is also an additional config value:
 
    If this is ``True``, :rst:dir:`todo` and :rst:dir:`todolist` produce output,
    else they produce nothing.  The default is ``False``.
+
+.. confval:: todo_link_only
+
+   If this is ``True``, :rst:dir:`todolist` produce output without file path and line,
+   The default is ``False``.
+
+   .. versionadded:: 1.4
+

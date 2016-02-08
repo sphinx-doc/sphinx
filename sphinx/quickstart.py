@@ -5,7 +5,7 @@
 
     Quickly setup documentation source to work with Sphinx.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -60,7 +60,7 @@ DEFAULT_VALUE = {
 }
 
 EXTENSIONS = ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
-              'pngmath', 'mathjax', 'ifconfig', 'viewcode')
+              'imgmath', 'mathjax', 'ifconfig', 'viewcode', 'githubpages')
 
 PROMPT_PREFIX = '> '
 
@@ -146,6 +146,7 @@ language = %(language)r
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
+# This patterns also effect to html_static_path and html_extra_path
 exclude_patterns = [%(exclude_patterns)s]
 
 # The reST default role (used for this markup: `text`) to use for all
@@ -190,9 +191,9 @@ html_theme = 'alabaster'
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
 
-# The name for this set of Sphinx documents.  If None, it defaults to
-# "<project> v<release> documentation".
-#html_title = None
+# The name for this set of Sphinx documents.
+# "<project> v<release> documentation" by default.
+#html_title = u'%(project_str)s v%(release_str)s'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #html_short_title = None
@@ -261,11 +262,12 @@ html_static_path = ['%(dot)sstatic']
 # Language to be used for generating the HTML full-text search index.
 # Sphinx supports the following languages:
 #   'da', 'de', 'en', 'es', 'fi', 'fr', 'hu', 'it', 'ja'
-#   'nl', 'no', 'pt', 'ro', 'ru', 'sv', 'tr'
+#   'nl', 'no', 'pt', 'ro', 'ru', 'sv', 'tr', 'zh'
 #html_search_language = 'en'
 
 # A dictionary with options for the search language support, empty by default.
-# Now only 'ja' uses this config value
+# 'ja' uses this config value.
+# 'zh' user can custom change `jieba` dictionary path.
 #html_search_options = {'type': 'default'}
 
 # The name of a javascript file (relative to the configuration directory) that
@@ -295,8 +297,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, '%(project_fn)s.tex', u'%(project_doc_texescaped_str)s',
-   u'%(author_texescaped_str)s', 'manual'),
+    (master_doc, '%(project_fn)s.tex', u'%(project_doc_texescaped_str)s',
+     u'%(author_texescaped_str)s', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -339,9 +341,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, '%(project_fn)s', u'%(project_doc_str)s',
-   author, '%(project_fn)s', 'One line description of project.',
-   'Miscellaneous'),
+    (master_doc, '%(project_fn)s', u'%(project_doc_str)s',
+     author, '%(project_fn)s', 'One line description of project.',
+     'Miscellaneous'),
 ]
 
 # Documents to append as an appendix to all manuals.
@@ -370,10 +372,10 @@ epub_copyright = copyright
 # The basename for the epub file. It defaults to the project name.
 #epub_basename = project
 
-# The HTML theme for the epub output. Since the default themes are not optimized
-# for small screen space, using the same theme for HTML and epub output is
-# usually not wise. This defaults to 'epub', a theme designed to save visual
-# space.
+# The HTML theme for the epub output. Since the default themes are not
+# optimized for small screen space, using the same theme for HTML and epub
+# output is usually not wise. This defaults to 'epub', a theme designed to save
+# visual space.
 #epub_theme = 'epub'
 
 # The language of the text. It defaults to the language option
@@ -400,7 +402,7 @@ epub_copyright = copyright
 # The format is a list of tuples containing the path and title.
 #epub_pre_files = []
 
-# HTML files shat should be inserted after the pages created by sphinx.
+# HTML files that should be inserted after the pages created by sphinx.
 # The format is a list of tuples containing the path and title.
 #epub_post_files = []
 
@@ -488,9 +490,7 @@ $(SPHINXOPTS) %(rsrcdir)s
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) %(rsrcdir)s
 
-.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp \
-epub latex latexpdf text man changes linkcheck doctest coverage gettext
-
+.PHONY: help
 help:
 \t@echo "Please use \\`make <target>' where <target> is one of"
 \t@echo "  html       to make standalone HTML files"
@@ -503,6 +503,7 @@ help:
 \t@echo "  applehelp  to make an Apple Help Book"
 \t@echo "  devhelp    to make HTML files and a Devhelp project"
 \t@echo "  epub       to make an epub"
+\t@echo "  epub3      to make an epub3"
 \t@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
 \t@echo "  latexpdfja to make LaTeX files and run them through platex/dvipdfmx"
@@ -519,40 +520,48 @@ help:
 (if enabled)"
 \t@echo "  coverage   to run coverage check of the documentation (if enabled)"
 
+.PHONY: clean
 clean:
 \trm -rf $(BUILDDIR)/*
 
+.PHONY: html
 html:
 \t$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 \t@echo
 \t@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
+.PHONY: dirhtml
 dirhtml:
 \t$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
 \t@echo
 \t@echo "Build finished. The HTML pages are in $(BUILDDIR)/dirhtml."
 
+.PHONY: singlehtml
 singlehtml:
 \t$(SPHINXBUILD) -b singlehtml $(ALLSPHINXOPTS) $(BUILDDIR)/singlehtml
 \t@echo
 \t@echo "Build finished. The HTML page is in $(BUILDDIR)/singlehtml."
 
+.PHONY: pickle
 pickle:
 \t$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) $(BUILDDIR)/pickle
 \t@echo
 \t@echo "Build finished; now you can process the pickle files."
 
+.PHONY: json
 json:
 \t$(SPHINXBUILD) -b json $(ALLSPHINXOPTS) $(BUILDDIR)/json
 \t@echo
 \t@echo "Build finished; now you can process the JSON files."
 
+.PHONY: htmlhelp
 htmlhelp:
 \t$(SPHINXBUILD) -b htmlhelp $(ALLSPHINXOPTS) $(BUILDDIR)/htmlhelp
 \t@echo
 \t@echo "Build finished; now you can run HTML Help Workshop with the" \\
 \t      ".hhp project file in $(BUILDDIR)/htmlhelp."
 
+.PHONY: qthelp
 qthelp:
 \t$(SPHINXBUILD) -b qthelp $(ALLSPHINXOPTS) $(BUILDDIR)/qthelp
 \t@echo
@@ -562,6 +571,7 @@ qthelp:
 \t@echo "To view the help file:"
 \t@echo "# assistant -collectionFile $(BUILDDIR)/qthelp/%(project_fn)s.qhc"
 
+.PHONY: applehelp
 applehelp:
 \t$(SPHINXBUILD) -b applehelp $(ALLSPHINXOPTS) $(BUILDDIR)/applehelp
 \t@echo
@@ -570,6 +580,7 @@ applehelp:
 \t      "~/Library/Documentation/Help or install it in your application" \\
 \t      "bundle."
 
+.PHONY: devhelp
 devhelp:
 \t$(SPHINXBUILD) -b devhelp $(ALLSPHINXOPTS) $(BUILDDIR)/devhelp
 \t@echo
@@ -580,11 +591,19 @@ devhelp:
  $$HOME/.local/share/devhelp/%(project_fn)s"
 \t@echo "# devhelp"
 
+.PHONY: epub
 epub:
 \t$(SPHINXBUILD) -b epub $(ALLSPHINXOPTS) $(BUILDDIR)/epub
 \t@echo
 \t@echo "Build finished. The epub file is in $(BUILDDIR)/epub."
 
+.PHONY: epub3
+epub3:
+\t$(SPHINXBUILD) -b epub3 $(ALLSPHINXOPTS) $(BUILDDIR)/epub3
+\t@echo
+\t@echo "Build finished. The epub3 file is in $(BUILDDIR)/epub3."
+
+.PHONY: latex
 latex:
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 \t@echo
@@ -592,28 +611,33 @@ latex:
 \t@echo "Run \\`make' in that directory to run these through (pdf)latex" \\
 \t      "(use \\`make latexpdf' here to do that automatically)."
 
+.PHONY: latexpdf
 latexpdf:
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 \t@echo "Running LaTeX files through pdflatex..."
 \t$(MAKE) -C $(BUILDDIR)/latex all-pdf
 \t@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
 
+.PHONY: latexpdfja
 latexpdfja:
 \t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 \t@echo "Running LaTeX files through platex and dvipdfmx..."
 \t$(MAKE) -C $(BUILDDIR)/latex all-pdf-ja
 \t@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
 
+.PHONY: text
 text:
 \t$(SPHINXBUILD) -b text $(ALLSPHINXOPTS) $(BUILDDIR)/text
 \t@echo
 \t@echo "Build finished. The text files are in $(BUILDDIR)/text."
 
+.PHONY: man
 man:
 \t$(SPHINXBUILD) -b man $(ALLSPHINXOPTS) $(BUILDDIR)/man
 \t@echo
 \t@echo "Build finished. The manual pages are in $(BUILDDIR)/man."
 
+.PHONY: texinfo
 texinfo:
 \t$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo
 \t@echo
@@ -621,43 +645,51 @@ texinfo:
 \t@echo "Run \\`make' in that directory to run these through makeinfo" \\
 \t      "(use \\`make info' here to do that automatically)."
 
+.PHONY: info
 info:
 \t$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo
 \t@echo "Running Texinfo files through makeinfo..."
 \tmake -C $(BUILDDIR)/texinfo info
 \t@echo "makeinfo finished; the Info files are in $(BUILDDIR)/texinfo."
 
+.PHONY: gettext
 gettext:
 \t$(SPHINXBUILD) -b gettext $(I18NSPHINXOPTS) $(BUILDDIR)/locale
 \t@echo
 \t@echo "Build finished. The message catalogs are in $(BUILDDIR)/locale."
 
+.PHONY: changes
 changes:
 \t$(SPHINXBUILD) -b changes $(ALLSPHINXOPTS) $(BUILDDIR)/changes
 \t@echo
 \t@echo "The overview file is in $(BUILDDIR)/changes."
 
+.PHONY: linkcheck
 linkcheck:
 \t$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) $(BUILDDIR)/linkcheck
 \t@echo
 \t@echo "Link check complete; look for any errors in the above output " \\
 \t      "or in $(BUILDDIR)/linkcheck/output.txt."
 
+.PHONY: doctest
 doctest:
 \t$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 \t@echo "Testing of doctests in the sources finished, look at the " \\
 \t      "results in $(BUILDDIR)/doctest/output.txt."
 
+.PHONY: coverage
 coverage:
 \t$(SPHINXBUILD) -b coverage $(ALLSPHINXOPTS) $(BUILDDIR)/coverage
 \t@echo "Testing of coverage in the sources finished, look at the " \\
 \t      "results in $(BUILDDIR)/coverage/python.txt."
 
+.PHONY: xml
 xml:
 \t$(SPHINXBUILD) -b xml $(ALLSPHINXOPTS) $(BUILDDIR)/xml
 \t@echo
 \t@echo "Build finished. The XML files are in $(BUILDDIR)/xml."
 
+.PHONY: pseudoxml
 pseudoxml:
 \t$(SPHINXBUILD) -b pseudoxml $(ALLSPHINXOPTS) $(BUILDDIR)/pseudoxml
 \t@echo
@@ -694,6 +726,7 @@ if "%%1" == "help" (
 \techo.  qthelp     to make HTML files and a qthelp project
 \techo.  devhelp    to make HTML files and a Devhelp project
 \techo.  epub       to make an epub
+\techo.  epub3      to make an epub3
 \techo.  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter
 \techo.  text       to make text files
 \techo.  man        to make manual pages
@@ -813,6 +846,14 @@ if "%%1" == "epub" (
 \tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The epub file is in %%BUILDDIR%%/epub.
+\tgoto end
+)
+
+if "%%1" == "epub3" (
+\t%%SPHINXBUILD%% -b epub3 %%ALLSPHINXOPTS%% %%BUILDDIR%%/epub3
+\tif errorlevel 1 exit /b 1
+\techo.
+\techo.Build finished. The epub3 file is in %%BUILDDIR%%/epub3.
 \tgoto end
 )
 
@@ -1255,22 +1296,25 @@ Please indicate if you want to use one of the following Sphinx extensions:''')
     if 'ext_coverage' not in d:
         do_prompt(d, 'ext_coverage', 'coverage: checks for documentation '
                   'coverage (y/n)', 'n', boolean)
-    if 'ext_pngmath' not in d:
-        do_prompt(d, 'ext_pngmath', 'pngmath: include math, rendered '
-                  'as PNG images (y/n)', 'n', boolean)
+    if 'ext_imgmath' not in d:
+        do_prompt(d, 'ext_imgmath', 'imgmath: include math, rendered '
+                  'as PNG or SVG images (y/n)', 'n', boolean)
     if 'ext_mathjax' not in d:
         do_prompt(d, 'ext_mathjax', 'mathjax: include math, rendered in the '
                   'browser by MathJax (y/n)', 'n', boolean)
-    if d['ext_pngmath'] and d['ext_mathjax']:
-        print('''Note: pngmath and mathjax cannot be enabled at the same time.
-pngmath has been deselected.''')
-        d['ext_pngmath'] = False
+    if d['ext_imgmath'] and d['ext_mathjax']:
+        print('''Note: imgmath and mathjax cannot be enabled at the same time.
+imgmath has been deselected.''')
+        d['ext_imgmath'] = False
     if 'ext_ifconfig' not in d:
         do_prompt(d, 'ext_ifconfig', 'ifconfig: conditional inclusion of '
                   'content based on config values (y/n)', 'n', boolean)
     if 'ext_viewcode' not in d:
         do_prompt(d, 'ext_viewcode', 'viewcode: include links to the source '
                   'code of documented Python objects (y/n)', 'n', boolean)
+    if 'ext_githubpages' not in d:
+        do_prompt(d, 'ext_githubpages', 'githubpages: create .nojekyll file '
+                  'to publish the document on GitHub pages (y/n)', 'n', boolean)
 
     if 'no_makefile' in d:
         d['makefile'] = False
@@ -1337,7 +1381,11 @@ def generate(d, overwrite=True, silent=False):
         d['exclude_patterns'] = ''
     else:
         builddir = path.join(srcdir, d['dot'] + 'build')
-        d['exclude_patterns'] = repr(d['dot'] + 'build')
+        exclude_patterns = map(repr, [
+            d['dot'] + 'build',
+            'Thumbs.db', '.DS_Store',
+        ])
+        d['exclude_patterns'] = ', '.join(exclude_patterns)
     mkdir_p(builddir)
     mkdir_p(path.join(srcdir, d['dot'] + 'templates'))
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))

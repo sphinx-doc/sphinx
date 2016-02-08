@@ -5,7 +5,7 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -124,13 +124,13 @@ class AutoNumbering(Transform):
                 if has_child(node, nodes.caption):
                     self.document.note_implicit_target(node)
             elif isinstance(node, nodes.image):
-                if has_child(node.parent, nodes.caption):
+                if node.parent and has_child(node.parent, nodes.caption):
                     self.document.note_implicit_target(node.parent)
             elif isinstance(node, nodes.table):
                 if has_child(node, nodes.title):
                     self.document.note_implicit_target(node)
             elif isinstance(node, nodes.literal_block):
-                if has_child(node.parent, nodes.caption):
+                if node.parent and has_child(node.parent, nodes.caption):
                     self.document.note_implicit_target(node.parent)
 
 
@@ -159,6 +159,7 @@ class CitationReferences(Transform):
             refnode = addnodes.pending_xref(cittext, reftype='citation',
                                             reftarget=cittext, refwarn=True,
                                             ids=citnode["ids"])
+            refnode.source = citnode.source or citnode.parent.source
             refnode.line = citnode.line or citnode.parent.line
             refnode += nodes.Text('[' + cittext + ']')
             citnode.parent.replace(citnode, refnode)

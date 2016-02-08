@@ -140,6 +140,26 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: supported_image_types
 
+.. module:: sphinx.builders.epub3
+.. class:: Epub3Builder
+
+   This builder produces the same output as the standalone HTML builder, but
+   also generates an *epub* file for ebook readers.  See :ref:`epub-faq` for
+   details about it.  For definition of the epub format, have a look at
+   `<http://idpf.org/epub>`_ or `<http://en.wikipedia.org/wiki/EPUB>`_.
+   The builder creates *EPUB 3* files.
+
+   This builder is still *experimental* because it can't generate valid EPUB 3
+   files.
+
+   .. autoattribute:: name
+
+   .. autoattribute:: format
+
+   .. autoattribute:: supported_image_types
+
+   .. versionadded:: 1.4
+
 .. module:: sphinx.builders.latex
 .. class:: LaTeXBuilder
 
@@ -340,6 +360,18 @@ for details.
    .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
+
+.. module:: sphinx.builders.dummy
+.. class:: DummyBuilder
+
+   This builder produces no output.  The input is only parsed and checked for
+   consistency.  This is useful for linting purposes.
+
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
+
+   .. versionadded:: 1.4
 
 .. module:: sphinx.builders.linkcheck
 .. class:: CheckExternalLinksBuilder

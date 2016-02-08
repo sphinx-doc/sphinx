@@ -7,7 +7,7 @@
     the doctree, thus avoiding duplication between docstrings and documentation
     for those who like elaborate docstrings.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -1292,9 +1292,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
                     docstrings.append(initdocstring)
         doc = []
         for docstring in docstrings:
-            if not isinstance(docstring, text_type):
-                docstring = force_decode(docstring, encoding)
-            doc.append(prepare_docstring(docstring))
+            if isinstance(docstring, text_type):
+                doc.append(prepare_docstring(docstring, ignore))
+            elif isinstance(docstring, str):  # this will not trigger on Py3
+                doc.append(prepare_docstring(force_decode(docstring, encoding),
+                                             ignore))
         return doc
 
     def add_content(self, more_content, no_docstring=False):

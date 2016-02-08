@@ -4,13 +4,13 @@
     path
     ~~~~
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
 import sys
 import shutil
-from codecs import open
+from io import open
 
 from six import PY2, text_type
 
@@ -126,35 +126,31 @@ class path(text_type):
     def utime(self, arg):
         os.utime(self, arg)
 
-    def write_text(self, text, **kwargs):
+    def open(self, mode='r', **kwargs):
+        return open(self, mode, **kwargs)
+
+    def write_text(self, text, encoding='utf-8', **kwargs):
         """
         Writes the given `text` to the file.
         """
-        f = open(self, 'w', **kwargs)
-        try:
+        if isinstance(text, bytes):
+            text = text.decode(encoding)
+        with open(self, 'w', encoding=encoding, **kwargs) as f:
             f.write(text)
-        finally:
-            f.close()
 
-    def text(self, **kwargs):
+    def text(self, encoding='utf-8', **kwargs):
         """
         Returns the text in the file.
         """
-        f = open(self, mode='U', **kwargs)
-        try:
+        with open(self, mode='U', encoding=encoding, **kwargs) as f:
             return f.read()
-        finally:
-            f.close()
 
     def bytes(self):
         """
         Returns the bytes in the file.
         """
-        f = open(self, mode='rb')
-        try:
+        with open(self, mode='rb') as f:
             return f.read()
-        finally:
-            f.close()
 
     def write_bytes(self, bytes, append=False):
         """
@@ -167,11 +163,8 @@ class path(text_type):
             mode = 'ab'
         else:
             mode = 'wb'
-        f = open(self, mode=mode)
-        try:
+        with open(self, mode=mode) as f:
             f.write(bytes)
-        finally:
-            f.close()
 
     def exists(self):
         """

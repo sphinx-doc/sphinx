@@ -5,7 +5,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -23,6 +23,7 @@ from collections import deque
 
 from six import iteritems, text_type, binary_type
 from six.moves import range
+from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 import docutils
 from docutils.utils import relative_path
 
@@ -180,6 +181,36 @@ def copy_static_entry(source, targetdir, builder, context={},
                               builder, context, level=level+1,
                               exclude_matchers=exclude_matchers)
 
+
+def copy_extra_entry(source, targetdir, exclude_matchers=()):
+    """Copy a HTML builder extra_path entry from source to targetdir.
+
+    Handles all possible cases of files, directories and subdirectories.
+    """
+    def excluded(path):
+        relpath = relative_path(os.path.dirname(source), path)
+        return any(matcher(relpath) for matcher in exclude_matchers)
+
+    def copy_extra_file(source_, targetdir_):
+        if not excluded(source_):
+            target = path.join(targetdir_, os.path.basename(source_))
+            copyfile(source_, target)
+
+    if os.path.isfile(source):
+        copy_extra_file(source, targetdir)
+        return
+
+    for root, dirs, files in os.walk(source):
+        reltargetdir = os.path.join(targetdir, relative_path(source, root))
+        for dir in dirs[:]:
+            if excluded(os.path.join(root, dir)):
+                dirs.remove(dir)
+            else:
+                target = os.path.join(reltargetdir, dir)
+                if not path.exists(target):
+                    os.mkdir(target)
+        for file in files:
+            copy_extra_file(os.path.join(root, file), reltargetdir)
 
 _DEBUG_HEADER = '''\
 # Sphinx version: %s
@@ -420,23 +451,21 @@ def split_into(n, type, value):
 
 def split_index_msg(type, value):
     # new entry types must be listed in directives/other.py!
-    result = []
-    try:
-        if type == 'single':
-            try:
-                result = split_into(2, 'single', value)
-            except ValueError:
-                result = split_into(1, 'single', value)
-        elif type == 'pair':
-            result = split_into(2, 'pair', value)
-        elif type == 'triple':
-            result = split_into(3, 'triple', value)
-        elif type == 'see':
-            result = split_into(2, 'see', value)
-        elif type == 'seealso':
-            result = split_into(2, 'see', value)
-    except ValueError:
-        pass
+    if type == 'single':
+        try:
+            result = split_into(2, 'single', value)
+        except ValueError:
+            result = split_into(1, 'single', value)
+    elif type == 'pair':
+        result = split_into(2, 'pair', value)
+    elif type == 'triple':
+        result = split_into(3, 'triple', value)
+    elif type == 'see':
+        result = split_into(2, 'see', value)
+    elif type == 'seealso':
+        result = split_into(2, 'see', value)
+    else:
+        raise ValueError('invalid %s index entry %r' % (type, value))
 
     return result
 
@@ -525,3 +554,22 @@ def import_object(objname, source=None):
         raise ExtensionError('Could not find %s' % objname +
                              (source and ' (needed for %s)' % source or ''),
                              err)
+
+
+def encode_uri(uri):
+    split = list(urlsplit(uri))
+    split[1] = split[1].encode('idna').decode('ascii')
+    split[2] = quote_plus(split[2].encode('utf-8'), '/').decode('ascii')
+    query = list((q, quote_plus(v.encode('utf-8')))
+                 for (q, v) in parse_qsl(split[3]))
+    split[3] = urlencode(query).decode('ascii')
+    return urlunsplit(split)
+
+
+def split_docinfo(text):
+    docinfo_re = re.compile('\A((?:\s*:\w+:.*?\n)+)', re.M)
+    result = docinfo_re.split(text, 1)
+    if len(result) == 1:
+        return '', result[0]
+    else:
+        return result[1:]

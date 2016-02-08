@@ -594,7 +594,7 @@ a visibility statement (``public``, ``private`` or ``protected``).
 .. rst:directive:: .. cpp:member:: (member) variable declaration
                    .. cpp:var:: (member) variable declaration
 
-   Describe a varible or member variable, e.g.,::
+   Describe a variable or member variable, e.g.,::
 
       .. cpp:member:: std::string MyClass::myMember
 
@@ -671,7 +671,7 @@ a visibility statement (``public``, ``private`` or ``protected``).
 Namespacing
 ~~~~~~~~~~~~~~~~~
 
-Declarations in the C++ doamin are as default placed in global scope.
+Declarations in the C++ domain are as default placed in global scope.
 The current scope can be changed using three namespace directives.
 They manage a stack declarations where ``cpp:namespace`` resets the stack and
 changes a given scope.

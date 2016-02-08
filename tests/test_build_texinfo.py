@@ -5,7 +5,7 @@
 
     Test the build process with Texinfo builder with the test root.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -23,16 +23,17 @@ from test_build_html import ENV_WARNINGS
 
 
 TEXINFO_WARNINGS = ENV_WARNINGS + """\
-None:None: WARNING: citation not found: missing
-None:None: WARNING: no matching candidate for image URI u'foo.\\*'
-None:None: WARNING: no matching candidate for image URI u'svgimg.\\*'
+%(root)s/markup.txt:158: WARNING: unknown option: &option
+%(root)s/footnote.txt:60: WARNING: citation not found: missing
+%(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
+%(root)s/images.txt:29: WARNING: no matching candidate for image URI u'svgimg.\\*'
 """
 
 if PY3:
     TEXINFO_WARNINGS = remove_unicode_literals(TEXINFO_WARNINGS)
 
 
-@with_app('texinfo')
+@with_app('texinfo', freshenv=True)  # use freshenv to check warnings
 def test_texinfo(app, status, warning):
     TexinfoTranslator.ignore_missing_images = True
     app.builder.build_all()
@@ -58,7 +59,6 @@ def test_texinfo(app, status, warning):
             if retcode != 0:
                 print(stdout)
                 print(stderr)
-                del app.cleanup_trees[:]
                 assert False, 'makeinfo exited with return code %s' % retcode
     finally:
         os.chdir(cwd)

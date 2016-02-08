@@ -5,7 +5,7 @@
 
     Create a full-text search index for offline search.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import re
@@ -135,6 +135,7 @@ languages = {
     'ru': 'sphinx.search.ru.SearchRussian',
     'sv': 'sphinx.search.sv.SearchSwedish',
     'tr': 'sphinx.search.tr.SearchTurkish',
+    'zh': 'sphinx.search.zh.SearchChinese',
 }
 
 

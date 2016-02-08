@@ -16,7 +16,7 @@ source_suffix = ['.txt', '.add', '.foo']
 source_parsers = {'.foo': 'parsermod.Parser'}
 
 project = 'Sphinx <Tests>'
-copyright = '2010-2015, Georg Brandl & Team'
+copyright = '2010-2016, Georg Brandl & Team'
 # If this is changed, remember to update the versionchanges!
 version = '0.6'
 release = '0.6alpha1'

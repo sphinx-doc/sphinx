@@ -6,14 +6,16 @@
     Test the sphinx.config.Config class and its handling in the
     Application class.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from six import PY2, PY3, StringIO, iteritems
+from mock import patch
 
 from util import TestApp, with_app, gen_with_app, with_tempdir, \
     raises, raises_msg, assert_in, assert_not_in
 
+import sphinx
 from sphinx.config import Config
 from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
 
@@ -120,9 +122,31 @@ def test_errors_if_setup_is_not_callable(dir):
     raises_msg(ConfigError, 'callable', TestApp, srcdir=dir)
 
 
+@patch.object(sphinx, '__display_version__', '1.3.4')
 def test_needs_sphinx():
+    # micro version
+    app = TestApp(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
+    app.cleanup()
+    app = TestApp(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
+    app.cleanup()
     raises(VersionRequirementError, TestApp,
-           confoverrides={'needs_sphinx': '9.9'})
+           confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
+
+    # minor version
+    app = TestApp(confoverrides={'needs_sphinx': '1.2'})  # OK: less
+    app.cleanup()
+    app = TestApp(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
+    app.cleanup()
+    raises(VersionRequirementError, TestApp,
+           confoverrides={'needs_sphinx': '1.4'})  # NG: greater
+
+    # major version
+    app = TestApp(confoverrides={'needs_sphinx': '0'})  # OK: less
+    app.cleanup()
+    app = TestApp(confoverrides={'needs_sphinx': '1'})  # OK: equals
+    app.cleanup()
+    raises(VersionRequirementError, TestApp,
+           confoverrides={'needs_sphinx': '2'})  # NG: greater
 
 
 @with_tempdir

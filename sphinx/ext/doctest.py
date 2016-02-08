@@ -6,7 +6,7 @@
     Mimic doctest by automatically executing code snippets and checking
     their results.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
@@ -43,14 +43,6 @@ if PY2:
 else:
     def doctest_encode(text, encoding):
         return text
-
-
-class _SpoofOutSphinx(doctest._SpoofOut):
-    # override: convert console encoding to unicode
-    if PY2:
-        def getvalue(self):
-            result = doctest._SpoofOut.getvalue(self)
-            return result.decode('string_escape')
 
 
 # set up the necessary directives
@@ -184,11 +176,6 @@ class TestCode(object):
 
 
 class SphinxDocTestRunner(doctest.DocTestRunner):
-    def __init__(self, *args, **kw):
-        doctest.DocTestRunner.__init__(self, *args, **kw)
-        # Override a fake output target for capturing doctest output.
-        self._fakeout = _SpoofOutSphinx()
-
     def summarize(self, out, verbose=None):
         string_io = StringIO()
         old_stdout = sys.stdout
@@ -262,9 +249,10 @@ Results of doctest builder run on %s
         self.outfile.write(text)
 
     def _warn_out(self, text):
-        self.info(text, nonl=True)
-        if self.app.quiet:
+        if self.app.quiet or self.app.warningiserror:
             self.warn(text)
+        else:
+            self.info(text, nonl=True)
         if isinstance(text, binary_type):
             text = force_decode(text, None)
         self.outfile.write(text)

@@ -5,7 +5,7 @@
 
     Test the sphinx.quickstart module.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -181,10 +181,11 @@ def test_quickstart_all_answers(tempdir):
         'intersphinx': 'no',
         'todo': 'y',
         'coverage': 'no',
-        'pngmath': 'N',
+        'imgmath': 'N',
         'mathjax': 'no',
         'ifconfig': 'no',
         'viewcode': 'no',
+        'githubpages': 'no',
         'Create Makefile': 'no',
         'Create Windows command file': 'no',
         'Do you want to use the epub builder': 'yes',

@@ -63,7 +63,7 @@ be translated you need to follow these instructions:
         msgfmt "usage.po" -o "locale/es/LC_MESSAGES/usage.mo"
 
 * Set :confval:`locale_dirs` to ``["locale/"]``.
-* Set :confval:`language` to ``es`` (also possible via :option:`-D`).
+* Set :confval:`language` to ``es`` (also possible via :option:`-D <sphinx-build -D>`).
 * Run your desired build.
 
 

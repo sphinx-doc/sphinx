@@ -19,7 +19,13 @@
 \RequirePackage{makeidx}
 \RequirePackage{framed}
 \RequirePackage{ifthen}
-\RequirePackage{color}
+%The xcolor package draws better fcolorboxes
+%around verbatim code
+\IfFileExists{xcolor.sty}{
+    \RequirePackage[xcdraw]{xcolor}
+}{
+    \RequirePackage{color}
+}
 % For highlighted code.
 \RequirePackage{fancyvrb}
 % For table captions.
@@ -52,18 +58,12 @@
 %\renewcommand{\paperwidth}{7in}     % O'Reilly ``Programmming Python''
 
 % use pdfoutput for pTeX and dvipdfmx
+% when pTeX (\kanjiskip is defined), set pdfoutput to evade \include{pdfcolor}
 \ifx\kanjiskip\undefined\else
-  \ifx\Gin@driver{dvipdfmx.def}\undefined\else
-    \newcount\pdfoutput\pdfoutput=0
-  \fi
+  \newcount\pdfoutput\pdfoutput=0
 \fi
 
-% For graphicx, check if we are compiling under latex or pdflatex.
-\ifx\pdftexversion\undefined
-  \usepackage{graphicx}
-\else
-  \usepackage[pdftex]{graphicx}
-\fi
+\RequirePackage{graphicx}
 
 % for PDF output, use colors and maximal compression
 \newif\ifsphinxpdfoutput\sphinxpdfoutputfalse
@@ -270,16 +270,15 @@
   \fbox{\TheSbox}
 }
 
-\newcommand{\py@lightbox}{{%
-  \setlength\parskip{0pt}\par
-  \noindent\rule[0ex]{\linewidth}{0.5pt}%
-  \par\noindent\vspace{-0.5ex}%
-  }}
-\newcommand{\py@endlightbox}{{%
-  \setlength{\parskip}{0pt}%
-  \par\noindent\rule[0.5ex]{\linewidth}{0.5pt}%
-  \par\vspace{-0.5ex}%
-  }}
+\newcommand{\py@lightbox}{%
+  \par\allowbreak
+  \noindent\rule{\linewidth}{0.5pt}\par\nobreak
+  {\parskip\z@skip\noindent}%
+  }
+\newcommand{\py@endlightbox}{%
+  \par\nobreak
+  {\parskip\z@skip\noindent\rule[.4\baselineskip]{\linewidth}{0.5pt}}\par
+  }
 
 % Some are quite plain:
 \newcommand{\py@noticestart@note}{\py@lightbox}
@@ -445,15 +444,18 @@
 \RequirePackage{hypcap}
 
 % From docutils.writers.latex2e
-\providecommand{\DUspan}[2]{%
-  {% group ("span") to limit the scope of styling commands
-    \@for\node@class@name:=#1\do{%
-    \ifcsname docutilsrole\node@class@name\endcsname%
-      \csname docutilsrole\node@class@name\endcsname%
+% inline markup (custom roles)
+% \DUrole{#1}{#2} tries \DUrole#1{#2}
+\providecommand*{\DUrole}[2]{%
+  \ifcsname DUrole#1\endcsname%
+    \csname DUrole#1\endcsname{#2}%
+  \else% backwards compatibility: try \docutilsrole#1{#2}
+    \ifcsname docutilsrole#1\endcsname%
+      \csname docutilsrole#1\endcsname{#2}%
+    \else%
+      #2%
     \fi%
-    }%
-    {#2}% node content
-  }% close "span"
+  \fi%
 }
 
 \providecommand*{\DUprovidelength}[2]{
@@ -525,11 +527,18 @@
 \fi
 
 % Define literal-block environment
-\RequirePackage{float}
-\floatstyle{plaintop}
+\RequirePackage{newfloat}
+\DeclareFloatingEnvironment{literal-block}
 \ifx\thechapter\undefined
-  \newfloat{literal-block}{htbp}{loc}[section]
+  \SetupFloatingEnvironment{literal-block}{within=section,placement=h}
 \else
-  \newfloat{literal-block}{htbp}{loc}[chapter]
+  \SetupFloatingEnvironment{literal-block}{within=chapter,placement=h}
 \fi
-\floatname{literal-block}{List}
+\SetupFloatingEnvironment{literal-block}{name=List}
+% control caption around literal-block
+\RequirePackage{capt-of}
+\RequirePackage{needspace}
+% if the left page space is less than \literalblockneedsapce, insert page-break
+\newcommand{\literalblockneedspace}{5\baselineskip}
+% margin before the caption of literal-block
+\newcommand{\literalblockcaptiontopvspace}{0.5\baselineskip}

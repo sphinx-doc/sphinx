@@ -5,7 +5,7 @@
 
     Test i18n util.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -55,7 +55,8 @@ def test_catalog_write_mo(dir):
     cat = i18n.CatalogInfo(dir, 'test', 'utf-8')
     cat.write_mo('en')
     assert path.exists(cat.mo_path)
-    assert read_mo(open(cat.mo_path, 'rb')) is not None
+    with open(cat.mo_path, 'rb') as f:
+        assert read_mo(f) is not None
 
 
 @with_tempdir

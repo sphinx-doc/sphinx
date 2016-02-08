@@ -5,7 +5,7 @@
 
     Utilities parsing and analyzing Python code.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -300,7 +300,7 @@ class ModuleAnalyzer(object):
                     yield tokentup
         tokeniter = tokeniter()
         for type, tok, spos, epos, line in tokeniter:
-            if expect_indent:
+            if expect_indent and type != token.NL:
                 if type != token.INDENT:
                     # no suite -- one-line definition
                     assert stack
