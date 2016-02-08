@@ -125,9 +125,12 @@ def process_todo_nodes(app, doctree, fromdocname):
 
         for todo_info in env.todo_all_todos:
             para = nodes.paragraph(classes=['todo-source'])
-            description = _('(The <<original entry>> is located in '
-                            ' %s, line %d.)') % \
-                (todo_info['source'], todo_info['lineno'])
+            if app.config['todo_link_only']:
+                description = _('<<original entry>>')
+            else:
+                description = _('(The <<original entry>> is located in '
+                                ' %s, line %d.)') % \
+                            (todo_info['source'], todo_info['lineno'])
             desc1 = description[:description.find('<<')]
             desc2 = description[description.find('>>')+2:]
             para += nodes.Text(desc1, desc1)
@@ -184,6 +187,7 @@ def depart_todo_node(self, node):
 
 def setup(app):
     app.add_config_value('todo_include_todos', False, 'html')
+    app.add_config_value('todo_link_only', False, 'html')
 
     app.add_node(todolist)
     app.add_node(todo_node,
