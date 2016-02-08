@@ -2,6 +2,7 @@
 
 extensions = ['sphinx.ext.ifconfig']
 master_doc = 'index'
+exclude_patterns = ['_build']
 
 confval1 = True
 

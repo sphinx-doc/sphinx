@@ -32,7 +32,7 @@ r"""
     The graph is inserted as a PNG+image map into HTML and a PDF in
     LaTeX.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -227,10 +227,10 @@ class InheritanceGraph(object):
     }
 
     def _format_node_attrs(self, attrs):
-        return ','.join(['%s=%s' % x for x in attrs.items()])
+        return ','.join(['%s=%s' % x for x in sorted(attrs.items())])
 
     def _format_graph_attrs(self, attrs):
-        return ''.join(['%s=%s;\n' % x for x in attrs.items()])
+        return ''.join(['%s=%s;\n' % x for x in sorted(attrs.items())])
 
     def generate_dot(self, name, urls={}, env=None,
                      graph_attrs={}, node_attrs={}, edge_attrs={}):
@@ -264,6 +264,7 @@ class InheritanceGraph(object):
             this_node_attrs = n_attrs.copy()
             if fullname in urls:
                 this_node_attrs['URL'] = '"%s"' % urls[fullname]
+                this_node_attrs['target'] = '"_top"'
             if tooltip:
                 this_node_attrs['tooltip'] = tooltip
             res.append('  "%s" [%s];\n' %
@@ -348,12 +349,20 @@ def html_visit_inheritance_diagram(self, node):
     name = 'inheritance%s' % graph_hash
 
     # Create a mapping from fully-qualified class names to URLs.
+    graphviz_output_format = self.builder.env.config.graphviz_output_format.upper()
+    current_filename = self.builder.current_docname + self.builder.out_suffix
     urls = {}
     for child in node:
         if child.get('refuri') is not None:
-            urls[child['reftitle']] = child.get('refuri')
+            if graphviz_output_format == 'SVG':
+                urls[child['reftitle']] = "../" + child.get('refuri')
+            else:
+                urls[child['reftitle']] = child.get('refuri')
         elif child.get('refid') is not None:
-            urls[child['reftitle']] = '#' + child.get('refid')
+            if graphviz_output_format == 'SVG':
+                urls[child['reftitle']] = '../' + current_filename + '#' + child.get('refid')
+            else:
+                urls[child['reftitle']] = '#' + child.get('refid')
 
     dotcode = graph.generate_dot(name, urls, env=self.builder.env)
     render_dot_html(self, node, dotcode, [], 'inheritance', 'inheritance',

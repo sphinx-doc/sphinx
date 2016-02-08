@@ -5,7 +5,7 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,9 +14,8 @@ from os import path
 
 try:
     import multiprocessing
-    import threading
 except ImportError:
-    multiprocessing = threading = None
+    multiprocessing = None
 
 from docutils import nodes
 
@@ -451,6 +450,7 @@ class Builder(object):
             return getattr(self.config, optname)
 
 BUILTIN_BUILDERS = {
+    'dummy':      ('dummy', 'DummyBuilder'),
     'html':       ('html', 'StandaloneHTMLBuilder'),
     'dirhtml':    ('html', 'DirectoryHTMLBuilder'),
     'singlehtml': ('html', 'SingleFileHTMLBuilder'),
@@ -462,6 +462,7 @@ BUILTIN_BUILDERS = {
     'qthelp':     ('qthelp', 'QtHelpBuilder'),
     'applehelp':  ('applehelp', 'AppleHelpBuilder'),
     'epub':       ('epub', 'EpubBuilder'),
+    'epub3':      ('epub3', 'Epub3Builder'),
     'latex':      ('latex', 'LaTeXBuilder'),
     'text':       ('text', 'TextBuilder'),
     'man':        ('manpage', 'ManualPageBuilder'),

@@ -4,7 +4,7 @@
 
     Master layout template for Sphinx themes.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 #}
 {%- block doctype -%}
@@ -125,7 +125,7 @@
     {%- endfor %}
 {%- endmacro %}
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml"{% if language is not none %} lang="{{ language }}"{% endif %}>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset={{ encoding }}" />
     {{ metatags }}

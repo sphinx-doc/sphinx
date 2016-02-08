@@ -155,7 +155,7 @@ package.
       add_directive('literalinclude', literalinclude_directive,
                     content = 0, arguments = (1, 0, 0),
                     linenos = directives.flag,
-                    language = direcitves.unchanged,
+                    language = directives.unchanged,
                     encoding = directives.encoding)
 
    .. versionchanged:: 0.6
@@ -339,6 +339,12 @@ package.
    used for.  See :confval:`html_search_language`.
 
    .. versionadded:: 1.1
+
+.. method:: Sphinx.add_source_parser(name, suffix, parser)
+
+   Register a parser class for specified *suffix*.
+
+   .. versionadded:: 1.4
 
 .. method:: Sphinx.require_sphinx(version)
 

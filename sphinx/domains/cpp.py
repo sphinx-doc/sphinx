@@ -5,7 +5,7 @@
 
     The C++ language domain.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -2268,11 +2268,19 @@ class Symbol(object):
         self._assert_invariants()
 
     def clear_doc(self, docname):
+        newChildren = []
         for sChild in self.children:
             sChild.clear_doc(docname)
             if sChild.declaration and sChild.docname == docname:
                 sChild.declaration = None
                 sChild.docname = None
+            # Just remove operators, because there is no identification if
+            # they got removed.
+            # Don't remove other symbols because they may be used in namespace
+            # directives.
+            if sChild.identifier or sChild.declaration:
+                newChildren.append(sChild)
+        self.children = newChildren
 
     def get_all_symbols(self):
         yield self
@@ -2442,8 +2450,10 @@ class Symbol(object):
         for otherChild in other.children:
             if not otherChild.identifier:
                 if not otherChild.declaration:
-                    print("WTF?")
+                    print("Problem in symbol tree merging")
+                    print("OtherChild.dump:")
                     print(otherChild.dump(0))
+                    print("Other.dump:")
                     print(other.dump(0))
                 assert otherChild.declaration
                 operator = otherChild.declaration.name.names[-1]
@@ -2595,7 +2605,6 @@ class Symbol(object):
         assert False  # should have returned in the loop
 
     def to_string(self, indent):
-        self._assert_invariants()
         res = ['\t'*indent]
         if not self.parent:
             res.append('::')
@@ -3915,6 +3924,13 @@ class CPPXRefRole(XRefRole):
         parent = env.ref_context.get('cpp:parentSymbol', None)
         if parent:
             refnode['cpp:parentKey'] = parent.get_lookup_key()
+        if refnode['reftype'] == 'any':
+            # Assume the removal part of fix_parens for :any: refs.
+            # The addition part is done with the reference is resolved.
+            if not has_explicit_title and title.endswith('()'):
+                title = title[:-2]
+            if target.endswith('()'):
+                target = target[:-2]
         # TODO: should this really be here?
         if not has_explicit_title:
             target = target.lstrip('~')  # only has a meaning for the title
@@ -3997,7 +4013,7 @@ class CPPDomain(Domain):
                 else:
                     ourNames[name] = docname
 
-    def _resolve_xref_inner(self, env, fromdocname, builder,
+    def _resolve_xref_inner(self, env, fromdocname, builder, typ,
                             target, node, contnode, emitWarnings=True):
         class Warner(object):
             def warn(self, msg):
@@ -4039,19 +4055,24 @@ class CPPDomain(Domain):
         name = text_type(fullNestedName).lstrip(':')
         docname = s.docname
         assert docname
+        if typ == 'any' and declaration.objectType == 'function':
+            if env.config.add_function_parentheses:
+                if not node['refexplicit']:
+                    title = contnode.pop(0).astext()
+                    contnode += nodes.Text(title + '()')
         return make_refnode(builder, fromdocname, docname,
                             declaration.get_newest_id(), contnode, name
                             ), declaration.objectType
 
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
-        return self._resolve_xref_inner(env, fromdocname, builder, target,
-                                        node, contnode)[0]
+        return self._resolve_xref_inner(env, fromdocname, builder, typ,
+                                        target, node, contnode)[0]
 
     def resolve_any_xref(self, env, fromdocname, builder, target,
                          node, contnode):
         node, objtype = self._resolve_xref_inner(env, fromdocname, builder,
-                                                 target, node, contnode,
+                                                 'any', target, node, contnode,
                                                  emitWarnings=False)
         if node:
             return [('cpp:' + self.role_for_objtype(objtype), node)]

@@ -5,7 +5,7 @@
 
     Custom docutils writer for Texinfo.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -1475,6 +1475,12 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def depart_abbreviation(self, node):
         self.body.append(self.context.pop())
+
+    def visit_manpage(self, node):
+        return self.visit_literal_emphasis(node)
+
+    def depart_manpage(self, node):
+        return self.depart_literal_emphasis(node)
 
     def visit_download_reference(self, node):
         pass

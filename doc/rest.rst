@@ -223,8 +223,10 @@ as long as the text::
    =================
 
 Normally, there are no heading levels assigned to certain characters as the
-structure is determined from the succession of headings.  However, for the
-Python documentation, this convention is used which you may follow:
+structure is determined from the succession of headings.  However, this
+convention is used in `Python's Style Guide for documentating
+<https://docs.python.org/devguide/documenting.html#style-guide>`_ which you may
+follow:
 
 * ``#`` with overline, for parts
 * ``*`` with overline, for chapters

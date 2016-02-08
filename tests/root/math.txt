@@ -1,5 +1,5 @@
-Test math extensions
-====================
+Test math extensions :math:`E = m c^2`
+======================================
 
 This is inline math: :math:`a^2 + b^2 = c^2`.
 
@@ -7,7 +7,7 @@ This is inline math: :math:`a^2 + b^2 = c^2`.
 
 .. math::
 
-   a^2 + b^2 = c^2
+   a + 1 < b
 
 .. math::
    :label: foo
@@ -18,5 +18,14 @@ This is inline math: :math:`a^2 + b^2 = c^2`.
    :label:
 
    e^{ix} = \cos x + i\sin x
+
+.. math::
+
+   n \in \mathbb N
+
+.. math::
+   :nowrap:
+
+   a + 1 < b
 
 Referencing equation :eq:`foo`.

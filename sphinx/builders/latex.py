@@ -5,7 +5,7 @@
 
     LaTeX builder.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,6 +20,7 @@ from docutils.frontend import OptionParser
 
 from sphinx import package_dir, addnodes
 from sphinx.util import texescape
+from sphinx.errors import SphinxError
 from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
@@ -94,9 +95,18 @@ class LaTeXBuilder(Builder):
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
             self.info("processing " + targetname + "... ", nonl=1)
+            toctrees = self.env.get_doctree(docname).traverse(addnodes.toctree)
+            if toctrees:
+                if toctrees[0].get('maxdepth') > 0:
+                    tocdepth = toctrees[0].get('maxdepth')
+                else:
+                    tocdepth = None
+            else:
+                tocdepth = None
             doctree = self.assemble_doctree(
                 docname, toctree_only,
                 appendices=((docclass != 'howto') and self.config.latex_appendices or []))
+            doctree['tocdepth'] = tocdepth
             self.post_process_images(doctree)
             self.info("writing... ", nonl=1)
             doctree.settings = docsettings
@@ -191,6 +201,9 @@ class LaTeXBuilder(Builder):
         # the logo is handled differently
         if self.config.latex_logo:
             logobase = path.basename(self.config.latex_logo)
-            copyfile(path.join(self.confdir, self.config.latex_logo),
-                     path.join(self.outdir, logobase))
+            logotarget = path.join(self.outdir, logobase)
+            if not path.isfile(path.join(self.confdir, self.config.latex_logo)):
+                raise SphinxError('logo file %r does not exist' % self.config.latex_logo)
+            elif not path.isfile(logotarget):
+                copyfile(path.join(self.confdir, self.config.latex_logo), logotarget)
         self.info('done')

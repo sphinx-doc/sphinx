@@ -5,7 +5,7 @@
 
     sphinx-build command-line handling.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -120,7 +120,7 @@ def main(argv):
 
     # parse options
     try:
-        opts, args = parser.parse_args(argv[1:])
+        opts, args = parser.parse_args(list(argv[1:]))
     except SystemExit as err:
         return err.code
 
@@ -144,6 +144,10 @@ def main(argv):
                   file=sys.stderr)
             return 1
         outdir = abspath(args[1])
+        if srcdir == outdir:
+            print('Error: source directory and destination directory are same.',
+                  file=sys.stderr)
+            return 1
     except IndexError:
         parser.print_help()
         return 1

@@ -7,7 +7,7 @@
     Classes for docstring parsing and formatting.
 
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -27,6 +27,11 @@ _google_section_regex = re.compile(r'^(\s|\w)+:\s*$')
 _google_typed_arg_regex = re.compile(r'\s*(.+?)\s*\(\s*(.+?)\s*\)')
 _numpy_section_regex = re.compile(r'^[=\-`:\'"~^_*+#<>]{2,}\s*$')
 _xref_regex = re.compile(r'(:\w+:\S+:`.+?`|:\S+:`.+?`|`.+?`)')
+_bullet_list_regex = re.compile(r'^(\*|\+|\-)(\s+\S|\s*$)')
+_enumerated_list_regex = re.compile(
+    r'^(?P<paren>\()?'
+    r'(\d+|#|[ivxlcdm]+|[IVXLCDM]+|[a-zA-Z])'
+    r'(?(paren)\)|\.)(\s+\S|\s*$)')
 
 
 class GoogleDocstring(UnicodeMixin):
@@ -349,6 +354,8 @@ class GoogleDocstring(UnicodeMixin):
             field = ''
 
         if has_desc:
+            if self._is_list(_desc):
+                return [field, ''] + _desc
             return [field + _desc[0]] + _desc[1:]
         else:
             return [field]
@@ -407,6 +414,23 @@ class GoogleDocstring(UnicodeMixin):
             elif not s.isspace():
                 return False
         return False
+
+    def _is_list(self, lines):
+        if not lines:
+            return False
+        if _bullet_list_regex.match(lines[0]):
+            return True
+        if _enumerated_list_regex.match(lines[0]):
+            return True
+        if len(lines) < 2 or lines[0].endswith('::'):
+            return False
+        indent = self._get_indent(lines[0])
+        next_indent = indent
+        for line in lines[1:]:
+            if line:
+                next_indent = self._get_indent(line)
+                break
+        return next_indent > indent
 
     def _is_section_header(self):
         section = self._line_iter.peek().lower()
@@ -530,10 +554,18 @@ class GoogleDocstring(UnicodeMixin):
         if self._config.napoleon_use_param:
             lines = []
             for _name, _type, _desc in fields:
-                field = ':param %s: ' % _name
-                lines.extend(self._format_block(field, _desc))
+                _desc = self._strip_empty(_desc)
+                if any(_desc):
+                    if self._is_list(_desc):
+                        _desc = [''] + _desc
+                    field = ':param %s: ' % _name
+                    lines.extend(self._format_block(field, _desc))
+                else:
+                    lines.append(':param %s:' % _name)
+
                 if _type:
                     lines.append(':type %s: %s' % (_name, _type))
+
             return lines + ['']
         else:
             return self._format_fields('Parameters', fields)
@@ -777,10 +809,11 @@ class NumpyDocstring(GoogleDocstring):
             _name, _type = line, ''
         _name, _type = _name.strip(), _type.strip()
         _name = self._escape_args_and_kwargs(_name)
+
         if prefer_type and not _type:
             _type, _name = _name, _type
-        indent = self._get_indent(line)
-        _desc = self._dedent(self._consume_indented_block(indent + 1))
+        indent = self._get_indent(line) + 1
+        _desc = self._dedent(self._consume_indented_block(indent))
         _desc = self.__class__(_desc, self._config).lines()
         return _name, _type, _desc
 
