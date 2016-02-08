@@ -51,6 +51,8 @@ Features added
 * #2235: ``needs_sphinx`` supports micro version comparison
 * #2282: Add "language" attribute to html tag in the "basic" theme
 * #1779: Add EPUB 3 builder
+* #1751: Add :confval:`todo_link_only` to avoid file path and line indication on
+  :rst:dir:`todolist`.
 
 Bugs fixed
 ----------
