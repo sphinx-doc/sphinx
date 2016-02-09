@@ -85,8 +85,23 @@ Documentation
 Release 1.3.6 (in development)
 ==============================
 
+Features added
+--------------
+
+* #1873, #1876, #2278: Add ``page_source_suffix`` html context variable. This should be
+  introduced with :confval:`source_parsers` feature. Thanks for Eric Holscher.
+
+
 Bugs fixed
 ----------
+
+* #2265: Fix babel is used in spite of disabling it on ``latex_elements``
+* #2295: Avoid mutating dictionary errors while enumerating members in autodoc
+  with Python 3
+* #2291: Fix pdflatex "Counter too large" error from footnotes inside tables of contents
+* #2292: Fix some footnotes disappear from LaTeX output
+* #2287: ``sphinx.transforms.Locale`` always uses rst parser. Sphinx i18n feature should
+  support parsers that specified source_parsers.
 
 
 Release 1.3.5 (released Jan 24, 2016)
@@ -103,7 +118,8 @@ Bugs fixed
 * #2243: Ignore strange docstring types for classes, do not crash
 * #2247: Fix #2205 breaks make html for definition list with classifiers
   that contains regular-expression like string
-* #1565: Show warning if Pygments throws an ErrorToken
+* #1565: Sphinx will now emit a warning that highlighting was skipped if the syntax
+  is incorrect for `code-block`, `literalinclude` and so on.
 * #2211: Fix paragraphs in table cell doesn't work in Latex output
 * #2253: ``:pyobject:`` option of ``literalinclude`` directive can't detect indented
   body block when the block starts with blank or comment lines.

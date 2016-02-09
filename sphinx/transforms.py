@@ -12,8 +12,8 @@
 from os import path
 
 from docutils import nodes
-from docutils.utils import new_document, relative_path
-from docutils.parsers.rst import Parser as RSTParser
+from docutils.io import StringInput
+from docutils.utils import relative_path
 from docutils.transforms import Transform
 from docutils.transforms.parts import ContentsFilter
 
@@ -202,21 +202,35 @@ class ExtraTranslatableNodes(Transform):
             node['translatable'] = True
 
 
-class CustomLocaleReporter(object):
+def publish_msgstr(app, source, source_path, source_line, config, settings):
+    """Publish msgstr (single line) into docutils document
+
+    :param sphinx.application.Sphinx app: sphinx application
+    :param unicode source: source text
+    :param unicode source_path: source path for warning indication
+    :param source_line: source line for warning indication
+    :param sphinx.config.Config config: sphinx config
+    :param docutils.frontend.Values settings: docutils settings
+    :return: document
+    :rtype: docutils.nodes.document
     """
-    Replacer for document.reporter.get_source_and_line method.
-
-    reST text lines for translation do not have the original source line number.
-    This class provides the correct line numbers when reporting.
-    """
-    def __init__(self, source, line):
-        self.source, self.line = source, line
-
-    def set_reporter(self, document):
-        document.reporter.get_source_and_line = self.get_source_and_line
-
-    def get_source_and_line(self, lineno=None):
-        return self.source, self.line
+    from sphinx.io import SphinxI18nReader
+    reader = SphinxI18nReader(
+        app=app,
+        parsers=config.source_parsers,
+        parser_name='restructuredtext',  # default parser
+    )
+    reader.set_lineno_for_reporter(source_line)
+    doc = reader.read(
+        source=StringInput(source=source, source_path=source_path),
+        parser=reader.parser,
+        settings=settings,
+    )
+    try:
+        doc = doc[0]
+    except IndexError:  # empty node
+        pass
+    return doc
 
 
 class Locale(Transform):
@@ -244,8 +258,6 @@ class Locale(Transform):
         if not has_catalog:
             return
 
-        parser = RSTParser()
-
         # phase1: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
             msgstr = catalog.gettext(msg)
@@ -267,13 +279,8 @@ class Locale(Transform):
             if isinstance(node, LITERAL_TYPE_NODES):
                 msgstr = '::\n\n' + indent(msgstr, ' '*3)
 
-            patch = new_document(source, settings)
-            CustomLocaleReporter(node.source, node.line).set_reporter(patch)
-            parser.parse(msgstr, patch)
-            try:
-                patch = patch[0]
-            except IndexError:  # empty node
-                pass
+            patch = publish_msgstr(
+                env.app, msgstr, source, node.line, env.config, settings)
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
                 continue  # skip for now
@@ -390,13 +397,8 @@ class Locale(Transform):
             if isinstance(node, LITERAL_TYPE_NODES):
                 msgstr = '::\n\n' + indent(msgstr, ' '*3)
 
-            patch = new_document(source, settings)
-            CustomLocaleReporter(node.source, node.line).set_reporter(patch)
-            parser.parse(msgstr, patch)
-            try:
-                patch = patch[0]
-            except IndexError:  # empty node
-                pass
+            patch = publish_msgstr(
+                env.app, msgstr, source, node.line, env.config, settings)
             # XXX doctest and other block markup
             if not isinstance(
                     patch,

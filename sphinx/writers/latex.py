@@ -25,7 +25,7 @@ from sphinx import highlighting
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import split_into
-from sphinx.util.nodes import clean_astext
+from sphinx.util.nodes import clean_astext, traverse_parent
 from sphinx.util.osutil import ustrftime
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
 from sphinx.util.smartypants import educate_quotes_latex
@@ -174,11 +174,15 @@ class ShowUrlsTransform(object):
                 if node.astext() != uri:
                     index = node.parent.index(node)
                     if show_urls == 'footnote':
-                        footnote_nodes = self.create_footnote(uri)
-                        for i, fn in enumerate(footnote_nodes):
-                            node.parent.insert(index + i + 1, fn)
+                        if list(traverse_parent(node, nodes.topic)):
+                            # should not expand references in topics
+                            pass
+                        else:
+                            footnote_nodes = self.create_footnote(uri)
+                            for i, fn in enumerate(footnote_nodes):
+                                node.parent.insert(index + i + 1, fn)
 
-                        self.expanded = True
+                            self.expanded = True
                     else:  # all other true values (b/w compat)
                         textnode = nodes.Text(" (%s)" % uri)
                         node.parent.insert(index + 1, textnode)
@@ -210,9 +214,14 @@ class ShowUrlsTransform(object):
         def is_auto_footnote(node):
             return isinstance(node, nodes.footnote) and node.get('auto')
 
-        def footnote_ref_by(ids):
+        def footnote_ref_by(node):
+            ids = node['ids']
+            parent = list(traverse_parent(node, (nodes.document, addnodes.start_of_file)))[0]
+
             def is_footnote_ref(node):
-                return isinstance(node, nodes.footnote_reference) and ids[0] == node['refid']
+                return (isinstance(node, nodes.footnote_reference) and
+                        ids[0] == node['refid'] and
+                        parent in list(traverse_parent(node)))
 
             return is_footnote_ref
 
@@ -231,7 +240,7 @@ class ShowUrlsTransform(object):
                 footnote['names'].remove(old_label)
             footnote['names'].append(label)
 
-            for footnote_ref in self.document.traverse(footnote_ref_by(footnote['ids'])):
+            for footnote_ref in self.document.traverse(footnote_ref_by(footnote)):
                 footnote_ref.remove(footnote_ref[0])
                 footnote_ref += nodes.Text(label)
 
@@ -378,12 +387,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     return '\\usepackage{%s}' % (packagename,)
             usepackages = (declare_package(*p) for p in builder.usepackages)
             self.elements['usepackages'] += "\n".join(usepackages)
-        if getattr(document.settings, 'contentsname', None):
-            self.elements['contentsname'] = \
-                self.babel_renewcommand('\\contentsname', document.settings.contentsname)
-        self.elements['pageautorefname'] = \
-            self.babel_defmacro('\\pageautorefname', self.encode(_('page')))
-        self.elements['numfig_format'] = self.generate_numfig_format(builder)
         # allow the user to override them all
         self.elements.update(builder.config.latex_elements)
         if self.elements['extraclassoptions']:
@@ -396,6 +399,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.elements['tocdepth'] = ('\\setcounter{tocdepth}{%d}' %
                                              (document['tocdepth'] - 1))
+        if getattr(document.settings, 'contentsname', None):
+            self.elements['contentsname'] = \
+                self.babel_renewcommand('\\contentsname', document.settings.contentsname)
+        self.elements['pageautorefname'] = \
+            self.babel_defmacro('\\pageautorefname', self.encode(_('page')))
+        self.elements['numfig_format'] = self.generate_numfig_format(builder)
 
         self.highlighter = highlighting.PygmentsBridge(
             'latex',
