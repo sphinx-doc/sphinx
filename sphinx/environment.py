@@ -16,7 +16,6 @@ import time
 import types
 import bisect
 import codecs
-import imghdr
 import string
 import unicodedata
 from os import path
@@ -41,6 +40,7 @@ from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream, is_translatable
 from sphinx.util.osutil import SEP, getcwd, fs_encoding, ensuredir
 from sphinx.util.i18n import find_catalog_files
+from sphinx.util.images import guess_mimetype
 from sphinx.util.console import bold, purple
 from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
@@ -902,24 +902,15 @@ class BuildEnvironment:
                 for filename in glob(full_imgpath):
                     new_imgpath = relative_path(path.join(self.srcdir, 'dummy'),
                                                 filename)
-                    if filename.lower().endswith('.pdf'):
-                        candidates['application/pdf'] = new_imgpath
-                    elif filename.lower().endswith('.svg'):
-                        candidates['image/svg+xml'] = new_imgpath
-                    else:
-                        try:
-                            f = open(filename, 'rb')
-                            try:
-                                imgtype = imghdr.what(f)
-                            finally:
-                                f.close()
-                        except (OSError, IOError) as err:
-                            self.warn_node('image file %s not readable: %s' %
-                                           (filename, err), node)
-                        if imgtype:
-                            candidates['image/' + imgtype] = new_imgpath
+                    try:
+                        mimetype = guess_mimetype(filename)
+                        candidates[mimetype] = new_imgpath
+                    except (OSError, IOError) as err:
+                        self.warn_node('image file %s not readable: %s' %
+                                       (filename, err), node)
             else:
                 candidates['*'] = rel_imgpath
+
             # map image paths to unique image names (so that they can be put
             # into a single directory)
             for imgpath in itervalues(candidates):

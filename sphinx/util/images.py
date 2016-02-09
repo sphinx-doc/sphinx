@@ -9,7 +9,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+import imghdr
 import imagesize
+from os import path
 
 try:
     from PIL import Image        # check for the Python Imaging Library
@@ -18,6 +20,11 @@ except ImportError:
         import Image
     except ImportError:
         Image = None
+
+mime_suffixes = {
+    '.pdf': 'application/pdf',
+    '.svg': 'image/svg+xml',
+}
 
 
 def get_image_size(filename):
@@ -37,3 +44,16 @@ def get_image_size(filename):
         return size
     except:
         return None
+
+
+def guess_mimetype(filename):
+    _, ext = path.splitext(filename)
+    if ext in mime_suffixes:
+        return mime_suffixes[ext]
+    else:
+        with open(filename, 'rb') as f:
+            imgtype = imghdr.what(f)
+            if imgtype:
+                return 'image/' + imgtype
+
+    return None
