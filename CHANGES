@@ -52,7 +52,7 @@ Features added
 * #2282: Add "language" attribute to html tag in the "basic" theme
 * #1779: Add EPUB 3 builder
 * #1751: Add :confval:`todo_link_only` to avoid file path and line indication on
-  :rst:dir:`todolist`.
+  :rst:dir:`todolist`. Thanks to Francesco Montesano.
 
 Bugs fixed
 ----------
@@ -73,6 +73,8 @@ Bugs fixed
 * #2165, #2218: Remove faulty and non-need conditional from sphinx.sty.
 * Fix broken LaTeX code is generated if unknown language is given
 * #1944: Fix rst_prolog breaks file-wide metadata
+* #2074: make gettext should use canonical relative paths for .pot. Thanks to
+  anatoly techtonik.
 
 Documentation
 -------------
