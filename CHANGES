@@ -53,6 +53,7 @@ Features added
 * #1779: Add EPUB 3 builder
 * #1751: Add :confval:`todo_link_only` to avoid file path and line indication on
   :rst:dir:`todolist`. Thanks to Francesco Montesano.
+* #2199: Use ``imagesize`` package to obtain size of images
 
 Bugs fixed
 ----------
