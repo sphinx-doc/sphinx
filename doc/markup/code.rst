@@ -72,7 +72,8 @@ installed) and handled in a smart way:
     <http://pygments.org/docs/lexers/>`_.
 
 * If highlighting with the selected language fails (i.e. Pygments emits an
-  "Error" token), the block is not highlighted in any way.
+  "Error" token), the block is not highlighted in any way, unless the
+  highlighting language is passed with ``force_`` prepended to it.
 
 Line numbers
 ^^^^^^^^^^^^
