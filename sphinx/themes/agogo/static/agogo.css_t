@@ -507,3 +507,13 @@ div.code-block-caption {
     padding: 2px 5px;
     font-size: small;
 }
+
+/* -- math display ---------------------------------------------------------- */
+
+div.body div.math p {
+    text-align: center;
+}
+
+span.eqno {
+    float: right;
+}
