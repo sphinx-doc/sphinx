@@ -17,7 +17,7 @@ import inspect
 import traceback
 from types import FunctionType, BuiltinFunctionType, MethodType
 
-from six import iterkeys, iteritems, itervalues, text_type, class_types, \
+from six import PY2, iterkeys, iteritems, itervalues, text_type, class_types, \
     string_types
 from docutils import nodes
 from docutils.utils import assemble_option_dict
@@ -411,6 +411,8 @@ class Documenter(object):
             else:
                 errmsg += '; the following exception was raised:\n%s' % \
                           traceback.format_exc()
+            if PY2:
+                errmsg = errmsg.decode('utf-8')
             dbg(errmsg)
             self.directive.warn(errmsg)
             self.env.note_reread()
