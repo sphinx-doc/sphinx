@@ -177,7 +177,7 @@ class PygmentsBridge(object):
                     raiseonerror = True
                 try:
                     lexer = lexers[lang] = get_lexer_by_name(lang, **(opts or {}))
-                except ClassNotFound as err:
+                except ClassNotFound:
                     if warn:
                         warn('Pygments lexer name %r is not known' % lang)
                         lexer = lexers['none']
