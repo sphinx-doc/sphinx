@@ -736,3 +736,13 @@ div.figure p.caption span.caption-number {
 
 div.figure p.caption span.caption-text {
 }
+
+/* :::: MATH DISPLAY :::: */
+
+div.body div.math p {
+    text-align: center;
+}
+
+span.eqno {
+    float: right;
+}
