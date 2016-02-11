@@ -170,25 +170,22 @@ class PygmentsBridge(object):
             if lang in lexers:
                 lexer = lexers[lang]
             else:
-                lexer_err = False
+                if lang.startswith("force_"):
+                    lang = lang.split("force_", 1)[1]
+                    raiseonerror = False
+                else:
+                    raiseonerror = True
                 try:
                     lexer = lexers[lang] = get_lexer_by_name(lang, **(opts or {}))
                 except ClassNotFound as err:
-                    if lang.startswith("force_"):
-                        try:
-                            lexer = lexers[lang] = get_lexer_by_name(lang.split("force_", 1)[1], **(opts or {}))
-                        except ClassNotFound as err:
-                            lexer_err = err
-                    else:
-                        lexer_err = err
-                else:
-                    lexer.add_filter('raiseonerror')
-                if lexer_err:
                     if warn:
                         warn('Pygments lexer name %r is not known' % lang)
                         lexer = lexers['none']
                     else:
-                        raise lexer_err
+                        raise
+                else:
+                    if raiseonerror:
+                        lexer.add_filter('raiseonerror')
 
         # trim doctest options if wanted
         if isinstance(lexer, PythonConsoleLexer) and self.trim_doctest_flags:
