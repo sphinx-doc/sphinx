@@ -26,7 +26,7 @@ def get_image_size(filename):
         if size[0] == -1:
             size = None
 
-        if Image:  # fallback to PIL
+        if size is None and Image:  # fallback to PIL
             im = Image.open(filename)
             size = im.size
             try:
