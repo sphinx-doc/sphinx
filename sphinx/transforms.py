@@ -113,19 +113,11 @@ class AutoNumbering(Transform):
     default_priority = 210
 
     def apply(self):
-        def has_child(node, cls):
-            return any(isinstance(child, cls) for child in node)
+        domain = self.document.settings.env.domains['std']
 
         for node in self.document.traverse(nodes.Element):
-            if isinstance(node, nodes.figure):
-                if has_child(node, nodes.caption):
-                    self.document.note_implicit_target(node)
-            elif isinstance(node, nodes.table):
-                if has_child(node, nodes.title):
-                    self.document.note_implicit_target(node)
-            elif isinstance(node, nodes.literal_block):
-                if node.parent and has_child(node.parent, nodes.caption):
-                    self.document.note_implicit_target(node.parent)
+            if domain.is_enumerable_node(node) and domain.get_numfig_title(node):
+                self.document.note_implicit_target(node)
 
 
 class SortIds(Transform):
