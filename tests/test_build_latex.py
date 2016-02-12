@@ -425,7 +425,7 @@ def test_reference_in_caption(app, status, warning):
             '\\label{index:the-section-with-a-reference-to}'
             '\\footnotetext[4]{\nFootnote in section\n}' in result)
     assert ('\\caption{This is the figure caption with a footnote to '
-            '\\protect\\footnotemark[6].}\end{figure}\n'
+            '\\protect\\footnotemark[6].}\label{index:id23}\end{figure}\n'
             '\\footnotetext[6]{\nFootnote in caption\n}')in result
     assert ('\\caption{footnote \\protect\\footnotemark[7] '
             'in caption of normal table}') in result

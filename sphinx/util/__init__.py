@@ -522,10 +522,6 @@ def get_figtype(node):
     from docutils import nodes
     if isinstance(node, nodes.figure):
         return 'figure'
-    elif isinstance(node, nodes.image) and isinstance(node.parent, nodes.figure):
-        # bare image node is not supported because it doesn't have caption and
-        # no-caption-target isn't a numbered figure.
-        return 'figure'
     elif isinstance(node, nodes.table):
         return 'table'
     elif isinstance(node, nodes.container):

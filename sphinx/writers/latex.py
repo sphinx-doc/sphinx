@@ -1372,6 +1372,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         ids = ''
         for id in self.next_figure_ids:
             ids += self.hypertarget(id, anchor=False)
+        if node['ids']:
+            ids += self.hypertarget(node['ids'][0], anchor=False)
         self.next_figure_ids.clear()
         self.restrict_footnote(node)
         if (len(node.children) and

@@ -1725,12 +1725,7 @@ class BuildEnvironment:
             fignumbers = self.toc_fignumbers[docname].setdefault(figtype, {})
             figure_id = fignode['ids'][0]
 
-            if (isinstance(fignode, nodes.image) and
-               isinstance(fignode.parent, nodes.figure) and
-               fignode.parent['ids']):
-                fignumbers[figure_id] = fignumbers[fignode.parent['ids'][0]]
-            else:
-                fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
+            fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
 
         def _walk_doctree(docname, doctree, secnum):
             for subnode in doctree.children:
