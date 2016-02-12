@@ -120,9 +120,6 @@ class AutoNumbering(Transform):
             if isinstance(node, nodes.figure):
                 if has_child(node, nodes.caption):
                     self.document.note_implicit_target(node)
-            elif isinstance(node, nodes.image):
-                if node.parent and has_child(node.parent, nodes.caption):
-                    self.document.note_implicit_target(node.parent)
             elif isinstance(node, nodes.table):
                 if has_child(node, nodes.title):
                     self.document.note_implicit_target(node)
