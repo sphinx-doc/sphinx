@@ -27,10 +27,7 @@ from sphinx.util.nodes import (
 from sphinx.util.osutil import ustrftime
 from sphinx.util.i18n import find_catalog
 from sphinx.util.pycompat import indent
-from sphinx.domains.std import (
-    make_term_from_paragraph_node,
-    make_termnodes_from_paragraph_node,
-)
+from sphinx.domains.std import register_term_to_glossary
 
 
 default_substitutions = set([
@@ -340,18 +337,10 @@ class Locale(Transform):
             # glossary terms update refid
             if isinstance(node, nodes.term):
                 gloss_entries = env.temp_data.setdefault('gloss_entries', set())
-                ids = []
-                termnodes = []
                 for _id in node['names']:
                     if _id in gloss_entries:
                         gloss_entries.remove(_id)
-                    _id, _, new_termnodes = \
-                        make_termnodes_from_paragraph_node(env, patch, _id)
-                    ids.append(_id)
-                    termnodes.extend(new_termnodes)
-
-                if termnodes and ids:
-                    patch = make_term_from_paragraph_node(termnodes, ids)
+                    register_term_to_glossary(env, patch, _id)
                     node['ids'] = patch['ids']
                     node['names'] = patch['names']
                     processed = True

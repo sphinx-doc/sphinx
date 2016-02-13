@@ -208,8 +208,8 @@ class abbreviation(nodes.Inline, nodes.TextElement):
     """Node for abbreviations with explanations."""
 
 
-class termsep(nodes.Structural, nodes.Element):
-    """Separates two terms within a <term> node."""
+class termset(nodes.Structural, nodes.Element):
+    """A set of <term> node"""
 
 
 class manpage(nodes.Inline, nodes.TextElement):

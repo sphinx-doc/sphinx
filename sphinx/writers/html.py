@@ -629,9 +629,11 @@ class HTMLTranslator(BaseTranslator):
     def depart_abbreviation(self, node):
         self.body.append('</abbr>')
 
-    def visit_termsep(self, node):
-        self.body.append('<br />')
-        raise nodes.SkipNode
+    def visit_termset(self, node):
+        pass
+
+    def depart_termset(self, node):
+        pass
 
     def visit_manpage(self, node):
         return self.visit_literal_emphasis(node)
@@ -691,6 +693,15 @@ class HTMLTranslator(BaseTranslator):
                           'described at http://sphinx-doc.org/ext/math.html',
                           (self.builder.current_docname, node.line))
         raise nodes.SkipNode
+
+    # overwritten to do not add '</dt>' in 'visit_definition' state.
+    def visit_definition(self, node):
+        self.body.append(self.starttag(node, 'dd', ''))
+        self.set_first_last(node)
+
+    # overwritten to add '</dt>' in 'depart_term' state.
+    def depart_term(self, node):
+        self.body.append('</dt>\n')
 
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

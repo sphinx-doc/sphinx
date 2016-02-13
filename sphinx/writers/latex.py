@@ -1222,9 +1222,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.unrestrict_footnote(node)
         self.in_term -= 1
 
-    def visit_termsep(self, node):
-        self.body.append(', ')
-        raise nodes.SkipNode
+    def visit_termset(self, node):
+        pass
+
+    def depart_termset(self, node):
+        pass
 
     def visit_classifier(self, node):
         self.body.append('{[}')

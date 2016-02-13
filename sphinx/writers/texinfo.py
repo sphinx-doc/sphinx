@@ -952,10 +952,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def depart_term(self, node):
         pass
 
-    def visit_termsep(self, node):
-        self.body.append('\n%s ' % self.at_item_x)
+    def visit_termset(self, node):
+        pass
 
-    def depart_termsep(self, node):
+    def depart_termset(self, node):
         pass
 
     def visit_classifier(self, node):
