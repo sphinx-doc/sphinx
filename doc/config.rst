@@ -1759,8 +1759,8 @@ Options for the linkcheck builder
 
 .. confval:: linkcheck_retries
 
-  The number of times the linkcheck builder will attempt to check a URL before
-  declaring it broken. Defaults to 1 attempt.
+   The number of times the linkcheck builder will attempt to check a URL before
+   declaring it broken. Defaults to 1 attempt.
 
   .. versionadded:: 1.4
 
