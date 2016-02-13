@@ -302,5 +302,5 @@ There is `sphinx translation page`_ for Sphinx-1.3 documentation.
 .. _`transifex-client`: https://pypi.python.org/pypi/transifex-client
 .. _`sphinx-intl`: https://pypi.python.org/pypi/sphinx-intl
 .. _Transifex: https://www.transifex.com/
-.. _`sphinx translation page`: https://www.transifex.com/projects/p/sphinx-doc-1_3/
-.. _`Transifex Client v0.8 &mdash; Transifex documentation`: http://help.transifex.com/features/client/index.html
+.. _`sphinx translation page`: https://www.transifex.com/sphinx-doc/sphinx-doc-1_3/
+.. _`Transifex Client v0.8 &mdash; Transifex documentation`: http://docs.transifex.com/developer/client/

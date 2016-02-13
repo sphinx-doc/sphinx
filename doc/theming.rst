@@ -152,9 +152,9 @@ These themes are:
 
   .. _Read the Docs Sphinx Theme: https://pypi.python.org/pypi/sphinx_rtd_theme
 
-* **classic** -- This is the classic theme, which looks like `the Python
-  documentation <https://docs.python.org/>`_.  It can be customized via these
-  options:
+* **classic** -- This is the classic theme, which looks like `the Python 2
+  documentation <https://docs.python.org/2/>`_.  It can be customized via
+  these options:
 
   - **rightsidebar** (true or false): Put the sidebar on the right side.
     Defaults to ``False``.
@@ -240,7 +240,7 @@ These themes are:
   *sidebarwidth*.
 
 * **haiku** -- A theme without sidebar inspired by the `Haiku OS user guide
-  <http://www.haiku-os.org/docs/userguide/en/contents.html>`_.  The following
+  <https://www.haiku-os.org/docs/userguide/en/contents.html>`_.  The following
   options are supported:
 
   - **full_logo** (true or false, default ``False``): If this is true, the

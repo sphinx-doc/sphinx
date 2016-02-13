@@ -48,7 +48,7 @@ the documentation, so it doesn't modify any of the docstrings in your actual
 source code files.
 
 .. _ReStructuredText: http://docutils.sourceforge.net/rst.html
-.. _docstrings: http://www.python.org/dev/peps/pep-0287/
+.. _docstrings: https://www.python.org/dev/peps/pep-0287/
 .. _Google Python Style Guide:
    http://google.github.io/styleguide/pyguide.html
 .. _Google:
