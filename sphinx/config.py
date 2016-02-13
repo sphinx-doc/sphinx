@@ -244,6 +244,7 @@ class Config(object):
 
         # linkcheck options
         linkcheck_ignore = ([], None),
+        linkcheck_retries = (1, None),
         linkcheck_timeout = (None, None, [int]),
         linkcheck_workers = (5, None),
         linkcheck_anchors = (True, None),
