@@ -60,6 +60,7 @@ Features added
   Also don't check anchors starting with ``!``.
 * #2300: enhance autoclass:: to use the docstring of __new__ if __init__ method's is missing
   of empty
+* #1858: Add Sphinx.add_enumerable_node() to add enumerable nodes for numfig feature
 
 Bugs fixed
 ----------

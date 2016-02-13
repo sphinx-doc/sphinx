@@ -86,6 +86,7 @@ class Sphinx(object):
         self.builderclasses = BUILTIN_BUILDERS.copy()
         self.builder = None
         self.env = None
+        self.enumerable_nodes = {}
 
         self.srcdir = srcdir
         self.confdir = confdir
@@ -193,6 +194,8 @@ class Sphinx(object):
         self._init_env(freshenv)
         # set up the builder
         self._init_builder(self.buildername)
+        # set up the enumerable nodes
+        self._init_enumerable_nodes()
 
     def _init_i18n(self):
         """Load translated strings from the configured localedirs if enabled in
@@ -263,6 +266,10 @@ class Sphinx(object):
                 __import__('sphinx.builders.' + mod, None, None, [cls]), cls)
         self.builder = builderclass(self)
         self.emit('builder-inited')
+
+    def _init_enumerable_nodes(self):
+        for node, settings in iteritems(self.enumerable_nodes):
+            self.env.domains['std'].enumerable_nodes[node] = settings
 
     # ---- main "build" method -------------------------------------------------
 
@@ -600,6 +607,10 @@ class Sphinx(object):
             setattr(translator, 'visit_'+node.__name__, visit)
             if depart:
                 setattr(translator, 'depart_'+node.__name__, depart)
+
+    def add_enumerable_node(self, node, figtype, **kwds):
+        self.enumerable_nodes[node] = figtype
+        self.add_node(node, **kwds)
 
     def _directive_helper(self, obj, content=None, arguments=None, **options):
         if isinstance(obj, (types.FunctionType, types.MethodType)):
