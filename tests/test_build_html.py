@@ -953,9 +953,13 @@ def test_enumerable_node(app, status, warning):
              "Fig. 2", True),
             (".//div[@class='figure']/p[@class='caption']/span[@class='caption-number']",
              "Fig. 3", True),
+            (".//div//span[@class='caption-number']", "No.1 ", True),
+            (".//div//span[@class='caption-number']", "No.2 ", True),
             (".//li/a/span", 'Fig. 1', True),
             (".//li/a/span", 'Fig. 2', True),
             (".//li/a/span", 'Fig. 3', True),
+            (".//li/a/span", 'No.1', True),
+            (".//li/a/span", 'No.2', True),
         ],
     }
 

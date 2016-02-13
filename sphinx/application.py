@@ -608,8 +608,8 @@ class Sphinx(object):
             if depart:
                 setattr(translator, 'depart_'+node.__name__, depart)
 
-    def add_enumerable_node(self, node, figtype, **kwds):
-        self.enumerable_nodes[node] = figtype
+    def add_enumerable_node(self, node, figtype, title_getter=None, **kwds):
+        self.enumerable_nodes[node] = (figtype, title_getter)
         self.add_node(node, **kwds)
 
     def _directive_helper(self, obj, content=None, arguments=None, **options):

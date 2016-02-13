@@ -125,12 +125,22 @@ package.
    .. versionchanged:: 0.5
       Added the support for keyword arguments giving visit functions.
 
-.. method:: Sphinx.add_enumerable_node(node, figtype, **kwds)
+.. method:: Sphinx.add_enumerable_node(node, figtype, title_getter=None, **kwds)
 
-   Register a Docutils node class as a numfig target.  Sphinx treats the node as
-   figure, table or code-block. And then the node is numbered automatically.
+   Register a Docutils node class as a numfig target.  Sphinx numbers the node
+   automatically. And then the users can refer it using :rst:role:`numref`.
 
-   *figtype* should be one of ``figure``, ``table`` or ``code-block``.
+   *figtype* is a type of enumerable nodes.  Each figtypes have individual
+   numbering sequences.  As a system figtypes, ``figure``, ``table`` and
+   ``code-block`` are defined.  It is able to add custom nodes to these
+   default figtypes.  It is also able to define new custom figtype if new
+   figtype is given.
+
+   *title_getter* is a getter function to obtain the title of node.  It takes
+   an instance of the enumerable node, and it must return its title as string.
+   The title is used to the default title of references for :rst:role:`ref`.
+   By default, Sphinx searches ``docutils.nodes.caption`` or
+   ``docutils.nodes.title`` from the node as a title.
 
    Other keyword arguments are used for node visitor functions. See the
    :meth:`Sphinx.add_node` for details.
