@@ -1049,7 +1049,7 @@ class BuildEnvironment:
         entries = self.indexentries[docname] = []
         for node in document.traverse(addnodes.index):
             try:
-                for type, value, tid, main in node['entries']:
+                for type, value, tid, main, index_key in node['entries']:
                     split_index_msg(type, value)
             except ValueError as exc:
                 self.warn_node(exc, node)
@@ -1771,16 +1771,16 @@ class BuildEnvironment:
         """Create the real index from the collected index entries."""
         new = {}
 
-        def add_entry(word, subword, link=True, dic=new):
+        def add_entry(word, subword, link=True, dic=new, key=None):
             # Force the word to be unicode if it's a ASCII bytestring.
             # This will solve problems with unicode normalization later.
             # For instance the RFC role will add bytestrings at the moment
             word = text_type(word)
             entry = dic.get(word)
             if not entry:
-                dic[word] = entry = [[], {}]
+                dic[word] = entry = [[], {}, key]
             if subword:
-                add_entry(subword, '', link=link, dic=entry[1])
+                add_entry(subword, '', link=link, dic=entry[1], key=key)
             elif link:
                 try:
                     uri = builder.get_relative_uri('genindex', fn) + '#' + tid
@@ -1792,7 +1792,7 @@ class BuildEnvironment:
 
         for fn, entries in iteritems(self.indexentries):
             # new entry types must be listed in directives/other.py!
-            for type, value, tid, main in entries:
+            for type, value, tid, main, index_key in entries:
                 try:
                     if type == 'single':
                         try:
@@ -1800,22 +1800,24 @@ class BuildEnvironment:
                         except ValueError:
                             entry, = split_into(1, 'single', value)
                             subentry = ''
-                        add_entry(entry, subentry)
+                        add_entry(entry, subentry, key=index_key)
                     elif type == 'pair':
                         first, second = split_into(2, 'pair', value)
-                        add_entry(first, second)
-                        add_entry(second, first)
+                        add_entry(first, second, key=index_key)
+                        add_entry(second, first, key=index_key)
                     elif type == 'triple':
                         first, second, third = split_into(3, 'triple', value)
-                        add_entry(first, second+' '+third)
-                        add_entry(second, third+', '+first)
-                        add_entry(third, first+' '+second)
+                        add_entry(first, second+' '+third, key=index_key)
+                        add_entry(second, third+', '+first, key=index_key)
+                        add_entry(third, first+' '+second, key=index_key)
                     elif type == 'see':
                         first, second = split_into(2, 'see', value)
-                        add_entry(first, _('see %s') % second, link=False)
+                        add_entry(first, _('see %s') % second, link=False,
+                                  key=index_key)
                     elif type == 'seealso':
                         first, second = split_into(2, 'see', value)
-                        add_entry(first, _('see also %s') % second, link=False)
+                        add_entry(first, _('see also %s') % second, link=False,
+                                  key=index_key)
                     else:
                         self.warn(fn, 'unknown index entry type %r' % type)
                 except ValueError as err:
@@ -1844,7 +1846,7 @@ class BuildEnvironment:
             oldsubitems = None
             i = 0
             while i < len(newlist):
-                key, (targets, subitems) = newlist[i]
+                key, (targets, subitems, _key) = newlist[i]
                 # cannot move if it has subitems; structure gets too complex
                 if not subitems:
                     m = _fixre.match(key)
@@ -1852,7 +1854,7 @@ class BuildEnvironment:
                         if oldkey == m.group(1):
                             # prefixes match: add entry as subitem of the
                             # previous entry
-                            oldsubitems.setdefault(m.group(2), [[], {}])[0].\
+                            oldsubitems.setdefault(m.group(2), [[], {}, _key])[0].\
                                 extend(targets)
                             del newlist[i]
                             continue
@@ -1866,14 +1868,17 @@ class BuildEnvironment:
         def keyfunc2(item, letters=string.ascii_uppercase + '_'):
             # hack: mutating the subitems dicts to a list in the keyfunc
             k, v = item
-            v[1] = sorted((si, se) for (si, (se, void)) in iteritems(v[1]))
-            # now calculate the key
-            letter = unicodedata.normalize('NFD', k[0])[0].upper()
-            if letter in letters:
-                return letter
+            v[1] = sorted((si, se) for (si, (se, void, void)) in iteritems(v[1]))
+            if v[2] is None:
+                # now calculate the key
+                letter = unicodedata.normalize('NFD', k[0])[0].upper()
+                if letter in letters:
+                    return letter
+                else:
+                    # get all other symbols under one heading
+                    return _('Symbols')
             else:
-                # get all other symbols under one heading
-                return _('Symbols')
+                return v[2]
         return [(key_, list(group))
                 for (key_, group) in groupby(newlist, keyfunc2)]
 

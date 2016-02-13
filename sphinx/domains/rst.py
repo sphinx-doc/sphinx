@@ -48,7 +48,7 @@ class ReSTMarkup(ObjectDescription):
         indextext = self.get_index_text(self.objtype, name)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
-                                              targetname, ''))
+                                              targetname, '', None))
 
     def get_index_text(self, objectname, name):
         if self.objtype == 'directive':

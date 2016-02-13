@@ -117,7 +117,7 @@ class I18nBuilder(Builder):
         if 'index' in self.env.config.gettext_additional_targets:
             # Extract translatable messages from index entries.
             for node, entries in traverse_translatable_index(doctree):
-                for typ, msg, tid, main in entries:
+                for typ, msg, tid, main, key_ in entries:
                     for m in split_index_msg(typ, msg):
                         if typ == 'pair' and m in pairindextypes.values():
                             # avoid built-in translated message was incorporated

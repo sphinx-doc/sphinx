@@ -3677,7 +3677,7 @@ class CPPObject(ObjectDescription):
 
         name = text_type(ast.symbol.get_full_nested_name()).lstrip(':')
         indexText = self.get_index_text(name)
-        self.indexnode['entries'].append(('single', indexText, newestId, ''))
+        self.indexnode['entries'].append(('single', indexText, newestId, '', None))
 
         if newestId not in self.state.document.ids:
             # if the name is not unique, the first one will win
