@@ -1757,6 +1757,13 @@ Options for the linkcheck builder
 
    .. versionadded:: 1.1
 
+.. confval:: linkcheck_retries
+
+  The number of times the linkcheck builder will attempt to check a URL before
+  declaring it broken. Defaults to 1 attempt.
+
+  .. versionadded:: 1.4
+
 .. confval:: linkcheck_timeout
 
    A timeout value, in seconds, for the linkcheck builder.  **Only works in

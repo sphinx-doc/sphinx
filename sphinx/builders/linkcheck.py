@@ -137,37 +137,8 @@ class CheckExternalLinksBuilder(Builder):
         if self.app.config.linkcheck_timeout:
             kwargs['timeout'] = self.app.config.linkcheck_timeout
 
-        def check():
-            # check for various conditions without bothering the network
-            if len(uri) == 0 or uri[0] == '#' or \
-               uri[0:7] == 'mailto:' or uri[0:4] == 'ftp:':
-                return 'unchecked', '', 0
-            elif not (uri[0:5] == 'http:' or uri[0:6] == 'https:'):
-                return 'local', '', 0
-            elif uri in self.good:
-                return 'working', 'old', 0
-            elif uri in self.broken:
-                return 'broken', self.broken[uri], 0
-            elif uri in self.redirected:
-                return 'redirected', self.redirected[uri][0], self.redirected[uri][1]
-            for rex in self.to_ignore:
-                if rex.match(uri):
-                    return 'ignored', '', 0
 
-            # split off anchor
-            if '#' in uri:
-                req_url, hash = uri.split('#', 1)
-            else:
-                req_url = uri
-                hash = None
-
-            # handle non-ASCII URIs
-            try:
-                req_url.encode('ascii')
-            except UnicodeError:
-                req_url = encode_uri(req_url)
-
-            # need to actually check the URI
+        def check_uri():
             try:
                 if hash and self.app.config.linkcheck_anchors:
                     # Read the whole document and see if #hash exists
@@ -201,24 +172,62 @@ class CheckExternalLinksBuilder(Builder):
             except HTTPError as err:
                 if err.code == 401:
                     # We'll take "Unauthorized" as working.
-                    self.good.add(uri)
                     return 'working', ' - unauthorized', 0
                 else:
-                    self.broken[uri] = str(err)
                     return 'broken', str(err), 0
             except Exception as err:
-                self.broken[uri] = str(err)
                 return 'broken', str(err), 0
             if f.url.rstrip('/') == req_url.rstrip('/'):
-                self.good.add(uri)
                 return 'working', '', 0
             else:
                 new_url = f.url
                 if hash:
                     new_url += '#' + hash
                 code = getattr(req, 'redirect_code', 0)
-                self.redirected[uri] = (new_url, code)
                 return 'redirected', new_url, code
+
+        def check():
+            # check for various conditions without bothering the network
+            if len(uri) == 0 or uri[0] == '#' or \
+               uri[0:7] == 'mailto:' or uri[0:4] == 'ftp:':
+                return 'unchecked', '', 0
+            elif not (uri[0:5] == 'http:' or uri[0:6] == 'https:'):
+                return 'local', '', 0
+            elif uri in self.good:
+                return 'working', 'old', 0
+            elif uri in self.broken:
+                return 'broken', self.broken[uri], 0
+            elif uri in self.redirected:
+                return 'redirected', self.redirected[uri][0], self.redirected[uri][1]
+            for rex in self.to_ignore:
+                if rex.match(uri):
+                    return 'ignored', '', 0
+
+            # split off anchor
+            if '#' in uri:
+                req_url, hash = uri.split('#', 1)
+            else:
+                req_url = uri
+                hash = None
+
+            # handle non-ASCII URIs
+            try:
+                req_url.encode('ascii')
+            except UnicodeError:
+                req_url = encode_uri(req_url)
+
+            # need to actually check the URI
+            for _ in range(self.app.config.linkcheck_retries)
+                status, info, code = check_uri()
+                if status != "broken":
+                    break
+
+            if status == "working":
+                self.good.add(uri)
+            elif status == "broken":
+                self.broken[uri] = info
+            elif status == "redirected":
+                self.redirected[uri] = (info, code)
 
         while True:
             uri, docname, lineno = self.wqueue.get()
