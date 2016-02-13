@@ -137,8 +137,20 @@ class CheckExternalLinksBuilder(Builder):
         if self.app.config.linkcheck_timeout:
             kwargs['timeout'] = self.app.config.linkcheck_timeout
 
-
         def check_uri():
+            # split off anchor
+            if '#' in uri:
+                req_url, hash = uri.split('#', 1)
+            else:
+                req_url = uri
+                hash = None
+
+            # handle non-ASCII URIs
+            try:
+                req_url.encode('ascii')
+            except UnicodeError:
+                req_url = encode_uri(req_url)
+
             try:
                 if hash and self.app.config.linkcheck_anchors:
                     # Read the whole document and see if #hash exists
@@ -202,19 +214,6 @@ class CheckExternalLinksBuilder(Builder):
             for rex in self.to_ignore:
                 if rex.match(uri):
                     return 'ignored', '', 0
-
-            # split off anchor
-            if '#' in uri:
-                req_url, hash = uri.split('#', 1)
-            else:
-                req_url = uri
-                hash = None
-
-            # handle non-ASCII URIs
-            try:
-                req_url.encode('ascii')
-            except UnicodeError:
-                req_url = encode_uri(req_url)
 
             # need to actually check the URI
             for _ in range(self.app.config.linkcheck_retries):
