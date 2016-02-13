@@ -200,10 +200,9 @@ class CheckExternalLinksBuilder(Builder):
 
         def check():
             # check for various conditions without bothering the network
-            if len(uri) == 0 or uri[0] == '#' or \
-               uri[0:7] == 'mailto:' or uri[0:4] == 'ftp:':
+            if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'ftp:')):
                 return 'unchecked', '', 0
-            elif not (uri[0:5] == 'http:' or uri[0:6] == 'https:'):
+            elif not uri.startswith(('http:', 'https:')):
                 return 'local', '', 0
             elif uri in self.good:
                 return 'working', 'old', 0
