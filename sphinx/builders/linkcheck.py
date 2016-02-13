@@ -228,6 +228,8 @@ class CheckExternalLinksBuilder(Builder):
             elif status == "redirected":
                 self.redirected[uri] = (info, code)
 
+            return (status, info, code)
+
         while True:
             uri, docname, lineno = self.wqueue.get()
             if uri is None:
