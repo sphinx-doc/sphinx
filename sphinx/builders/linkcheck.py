@@ -75,11 +75,11 @@ class AnchorCheckParser(HTMLParser):
                 self.found = True
 
 
-def check_anchor(f, hash):
-    """Reads HTML data from a filelike object 'f' searching for anchor 'hash'.
+def check_anchor(f, anchor):
+    """Reads HTML data from a filelike object 'f' searching for *anchor*.
     Returns True if anchor was found, False otherwise.
     """
-    parser = AnchorCheckParser(hash)
+    parser = AnchorCheckParser(anchor)
     try:
         # Read file in chunks of 8192 bytes. If we find a matching anchor, we
         # break the loop early in hopes not to have to download the whole thing.
@@ -140,10 +140,10 @@ class CheckExternalLinksBuilder(Builder):
         def check_uri():
             # split off anchor
             if '#' in uri:
-                req_url, hash = uri.split('#', 1)
+                req_url, anchor = uri.split('#', 1)
             else:
                 req_url = uri
-                hash = None
+                anchor = None
 
             # handle non-ASCII URIs
             try:
@@ -152,8 +152,11 @@ class CheckExternalLinksBuilder(Builder):
                 req_url = encode_uri(req_url)
 
             try:
-                if hash and self.app.config.linkcheck_anchors:
-                    # Read the whole document and see if #hash exists
+                if anchor and self.app.config.linkcheck_anchors and \
+                   not anchor.startswith('!'):
+                    # Read the whole document and see if #anchor exists
+                    # (Anchors starting with ! are ignored since they are
+                    # commonly used for dynamic pages)
                     req = Request(req_url)
                     f = opener.open(req, **kwargs)
                     encoding = 'utf-8'
@@ -161,11 +164,12 @@ class CheckExternalLinksBuilder(Builder):
                         encoding = f.headers.get_content_charset() or encoding
                     else:
                         encoding = get_content_charset(f) or encoding
-                    found = check_anchor(TextIOWrapper(f, encoding), unquote(hash))
+                    found = check_anchor(TextIOWrapper(f, encoding),
+                                         unquote(anchor))
                     f.close()
 
                     if not found:
-                        raise Exception("Anchor '%s' not found" % hash)
+                        raise Exception("Anchor '%s' not found" % anchor)
                 else:
                     try:
                         # try a HEAD request, which should be easier on
@@ -193,8 +197,8 @@ class CheckExternalLinksBuilder(Builder):
                 return 'working', '', 0
             else:
                 new_url = f.url
-                if hash:
-                    new_url += '#' + hash
+                if anchor:
+                    new_url += '#' + anchor
                 code = getattr(req, 'redirect_code', 0)
                 return 'redirected', new_url, code
 
