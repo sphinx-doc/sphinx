@@ -125,6 +125,18 @@ package.
    .. versionchanged:: 0.5
       Added the support for keyword arguments giving visit functions.
 
+.. method:: Sphinx.add_enumerable_node(node, figtype, **kwds)
+
+   Register a Docutils node class as a numfig target.  Sphinx treats the node as
+   figure, table or code-block. And then the node is numbered automatically.
+
+   *figtype* should be one of ``figure``, ``table`` or ``code-block``.
+
+   Other keyword arguments are used for node visitor functions. See the
+   :meth:`Sphinx.add_node` for details.
+
+   .. versionadded:: 1.4
+
 .. method:: Sphinx.add_directive(name, func, content, arguments, **options)
             Sphinx.add_directive(name, directiveclass)
 
