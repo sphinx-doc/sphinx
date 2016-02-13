@@ -1762,7 +1762,7 @@ Options for the linkcheck builder
    The number of times the linkcheck builder will attempt to check a URL before
    declaring it broken. Defaults to 1 attempt.
 
-  .. versionadded:: 1.4
+   .. versionadded:: 1.4
 
 .. confval:: linkcheck_timeout
 
