@@ -217,7 +217,7 @@ class CheckExternalLinksBuilder(Builder):
                 req_url = encode_uri(req_url)
 
             # need to actually check the URI
-            for _ in range(self.app.config.linkcheck_retries)
+            for _ in range(self.app.config.linkcheck_retries):
                 status, info, code = check_uri()
                 if status != "broken":
                     break
