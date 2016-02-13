@@ -494,10 +494,10 @@ class StandardDomain(Domain):
         'option': 'unknown option: %(target)s',
     }
 
-    enumerable_nodes = {  # node_class -> figtype
-        nodes.figure: 'figure',
-        nodes.table: 'table',
-        nodes.container: 'code-block',
+    enumerable_nodes = {  # node_class -> (figtype, title_getter)
+        nodes.figure: ('figure', None),
+        nodes.table: ('table', None),
+        nodes.container: ('code-block', None),
     }
 
     def clear_doc(self, docname):
@@ -735,9 +735,13 @@ class StandardDomain(Domain):
     def get_numfig_title(self, node):
         """Get the title of enumerable nodes to refer them using its title"""
         if self.is_enumerable_node(node):
-            for subnode in node:
-                if subnode.tagname in ('caption', 'title'):
-                    return clean_astext(subnode)
+            _, title_getter = self.enumerable_nodes.get(node.__class__, (None, None))
+            if title_getter:
+                return title_getter(node)
+            else:
+                for subnode in node:
+                    if subnode.tagname in ('caption', 'title'):
+                        return clean_astext(subnode)
 
         return None
 
@@ -752,5 +756,5 @@ class StandardDomain(Domain):
             else:
                 return None
         else:
-            figtype = self.enumerable_nodes.get(node.__class__)
+            figtype, _ = self.enumerable_nodes.get(node.__class__, (None, None))
             return figtype
