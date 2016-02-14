@@ -213,7 +213,7 @@ def process_index_entry(entry, targetid):
         if entry.startswith(type+':'):
             value = entry[len(type)+1:].strip()
             value = pairindextypes[type] + '; ' + value
-            indexentries.append(('pair', value, targetid, main))
+            indexentries.append(('pair', value, targetid, main, None))
             break
     else:
         for type in indextypes:
@@ -221,7 +221,7 @@ def process_index_entry(entry, targetid):
                 value = entry[len(type)+1:].strip()
                 if type == 'double':
                     type = 'pair'
-                indexentries.append((type, value, targetid, main))
+                indexentries.append((type, value, targetid, main, None))
                 break
         # shorthand notation for single entries
         else:
@@ -233,7 +233,7 @@ def process_index_entry(entry, targetid):
                     value = value[1:].lstrip()
                 if not value:
                     continue
-                indexentries.append(('single', value, targetid, main))
+                indexentries.append(('single', value, targetid, main, None))
     return indexentries
 
 

@@ -191,7 +191,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner,
     if typ == 'pep':
         indexnode['entries'] = [
             ('single', _('Python Enhancement Proposals; PEP %s') % target,
-             targetid, '')]
+             targetid, '', None)]
         anchor = ''
         anchorindex = target.find('#')
         if anchorindex > 0:
@@ -212,7 +212,8 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner,
         rn += sn
         return [indexnode, targetnode, rn], []
     elif typ == 'rfc':
-        indexnode['entries'] = [('single', 'RFC; RFC %s' % target, targetid, '')]
+        indexnode['entries'] = [
+            ('single', 'RFC; RFC %s' % target, targetid, '', None)]
         anchor = ''
         anchorindex = target.find('#')
         if anchorindex > 0:
@@ -317,7 +318,7 @@ def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
             target = target[1:]
             title = title[1:]
             main = 'main'
-        entries = [('single', target, targetid, main)]
+        entries = [('single', target, targetid, main, None)]
     indexnode = addnodes.index()
     indexnode['entries'] = entries
     set_role_source_info(inliner, lineno, indexnode)

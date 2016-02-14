@@ -97,7 +97,7 @@ class JSObject(ObjectDescription):
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
                                               fullname.replace('$', '_S_'),
-                                              ''))
+                                              '', None))
 
     def get_index_text(self, objectname, name_obj):
         name, obj = name_obj

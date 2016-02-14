@@ -400,7 +400,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # XXX: modifies tree inline
         # Logic modeled from themes/basic/genindex.html
         for key, columns in tree:
-            for entryname, (links, subitems) in columns:
+            for entryname, (links, subitems, key_) in columns:
                 for (i, (ismain, link)) in enumerate(links):
                     m = self.refuri_re.match(link)
                     if m:

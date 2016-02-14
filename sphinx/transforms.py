@@ -27,7 +27,7 @@ from sphinx.util.nodes import (
 from sphinx.util.osutil import ustrftime
 from sphinx.util.i18n import find_catalog
 from sphinx.util.pycompat import indent
-from sphinx.domains.std import register_term_to_glossary
+from sphinx.domains.std import make_glossary_term, split_term_classifiers
 
 
 default_substitutions = set([
@@ -340,7 +340,12 @@ class Locale(Transform):
                 for _id in node['names']:
                     if _id in gloss_entries:
                         gloss_entries.remove(_id)
-                    register_term_to_glossary(env, patch, _id)
+
+                    parts = split_term_classifiers(msgstr)
+                    patch = publish_msgstr(
+                        env.app, parts[0], source, node.line, env.config, settings)
+                    patch = make_glossary_term(
+                        env, patch, parts[1], source, node.line, _id)
                     node['ids'] = patch['ids']
                     node['names'] = patch['names']
                     processed = True
@@ -521,7 +526,7 @@ class Locale(Transform):
             # Extract and translate messages for index entries.
             for node, entries in traverse_translatable_index(self.document):
                 new_entries = []
-                for type, msg, tid, main in entries:
+                for type, msg, tid, main, key_ in entries:
                     msg_parts = split_index_msg(type, msg)
                     msgstr_parts = []
                     for part in msg_parts:
@@ -530,7 +535,7 @@ class Locale(Transform):
                             msgstr = part
                         msgstr_parts.append(msgstr)
 
-                    new_entries.append((type, ';'.join(msgstr_parts), tid, main))
+                    new_entries.append((type, ';'.join(msgstr_parts), tid, main, None))
 
                 node['raw_entries'] = entries
                 node['entries'] = new_entries

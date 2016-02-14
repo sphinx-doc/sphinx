@@ -206,7 +206,7 @@ class CObject(ObjectDescription):
         indextext = self.get_index_text(name)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
-                                              targetname, ''))
+                                              targetname, '', None))
 
     def before_content(self):
         self.typename_set = False

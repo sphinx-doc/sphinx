@@ -512,7 +512,7 @@ class StandaloneHTMLBuilder(Builder):
         indexcounts = []
         for _k, entries in genindex:
             indexcounts.append(sum(1 + len(subitems)
-                                   for _, (_, subitems) in entries))
+                                   for _, (_, subitems, _) in entries))
 
         genindexcontext = dict(
             genindexentries = genindex,

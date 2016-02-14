@@ -1302,7 +1302,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         else:
             self.body.append('\n')
         for entry in node['entries']:
-            typ, text, tid, text2 = entry
+            typ, text, tid, text2, key_ = entry
             text = self.escape_menu(text)
             self.body.append('@geindex %s\n' % text)
 

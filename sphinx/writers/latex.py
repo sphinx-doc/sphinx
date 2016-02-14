@@ -1531,7 +1531,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if not node.get('inline', True):
             self.body.append('\n')
         entries = node['entries']
-        for type, string, tid, ismain in entries:
+        for type, string, tid, ismain, key_ in entries:
             m = ''
             if ismain:
                 m = '|textbf'

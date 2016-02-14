@@ -64,7 +64,7 @@ class GenericObject(ObjectDescription):
                 indextype = 'single'
                 indexentry = self.indextemplate % (name,)
             self.indexnode['entries'].append((indextype, indexentry,
-                                              targetname, ''))
+                                              targetname, '', None))
         self.env.domaindata['std']['objects'][self.objtype, name] = \
             self.env.docname, targetname
 
@@ -85,8 +85,8 @@ class EnvVarXRefRole(XRefRole):
         tgtid = 'index-%s' % env.new_serialno('index')
         indexnode = addnodes.index()
         indexnode['entries'] = [
-            ('single', varname, tgtid, ''),
-            ('single', _('environment variable; %s') % varname, tgtid, '')
+            ('single', varname, tgtid, '', None),
+            ('single', _('environment variable; %s') % varname, tgtid, '', None)
         ]
         targetnode = nodes.target('', '', ids=[tgtid])
         document.note_explicit_target(targetnode)
@@ -184,7 +184,7 @@ class Cmdoption(ObjectDescription):
                 self.indexnode['entries'].append(
                     ('pair', _('%scommand line option; %s') %
                      ((currprogram and currprogram + ' ' or ''), sig),
-                     targetname, ''))
+                     targetname, '', None))
 
 
 class Program(Directive):
@@ -214,11 +214,23 @@ class OptionXRefRole(XRefRole):
         return title, target
 
 
-def register_term_to_glossary(env, node, new_id=None):
+def split_term_classifiers(line):
+    # split line into a term and classifiers. if no classifier, None is used..
+    parts = re.split(' +: +', line) + [None]
+    return parts
+
+
+def make_glossary_term(env, textnodes, index_key, source, lineno, new_id=None):
+    # get a text-only representation of the term and register it
+    # as a cross-reference target
+    term = nodes.term('', '', *textnodes)
+    term.source = source
+    term.line = lineno
+
     gloss_entries = env.temp_data.setdefault('gloss_entries', set())
     objects = env.domaindata['std']['objects']
 
-    termtext = node.astext()
+    termtext = term.astext()
     if new_id is None:
         new_id = nodes.make_id('term-' + termtext)
     if new_id in gloss_entries:
@@ -228,11 +240,13 @@ def register_term_to_glossary(env, node, new_id=None):
 
     # add an index entry too
     indexnode = addnodes.index()
-    indexnode['entries'] = [('single', termtext, new_id, 'main')]
-    indexnode.source, indexnode.line = node.source, node.line
-    node.append(indexnode)
-    node['ids'].append(new_id)
-    node['names'].append(new_id)
+    indexnode['entries'] = [('single', termtext, new_id, 'main', index_key)]
+    indexnode.source, indexnode.line = term.source, term.line
+    term.append(indexnode)
+    term['ids'].append(new_id)
+    term['names'].append(new_id)
+
+    return term
 
 
 class Glossary(Directive):
@@ -316,16 +330,15 @@ class Glossary(Directive):
             termnodes = []
             system_messages = []
             for line, source, lineno in terms:
+                parts = split_term_classifiers(line)
                 # parse the term with inline markup
-                res = self.state.inline_text(line, lineno)
-                system_messages.extend(res[1])
+                # classifiers (parts[1:]) will not be shown on doctree
+                textnodes, sysmsg = self.state.inline_text(parts[0], lineno)
 
-                # get a text-only representation of the term and register it
-                # as a cross-reference target
-                term = nodes.term('', '', *res[0])
-                term.source = source
-                term.line = lineno
-                register_term_to_glossary(env, term)
+                # use first classifier as a index key
+                term = make_glossary_term(env, textnodes, parts[1], source, lineno)
+                term.rawsource = line
+                system_messages.extend(sysmsg)
                 termtexts.append(term.astext())
                 termnodes.append(term)
 
