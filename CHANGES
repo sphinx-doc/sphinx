@@ -19,6 +19,8 @@ Incompatible changes
   of ``sphinx.addnodes.literal_emphasis`` node.
 * #2022: :confval:`html_extra_path` also copies dotfiles in the extra directory, and
   refers to :confval:`exclude_patterns` to exclude extra files and directories.
+* #2300: enhance autoclass:: to use the docstring of __new__ if __init__ method's is missing
+  of empty
 
 Features added
 --------------
@@ -56,6 +58,8 @@ Features added
 * #2199: Use ``imagesize`` package to obtain size of images.
 * #1099: Add configurable retries to the linkcheck builder. Thanks to Alex Gaynor.
   Also don't check anchors starting with ``!``.
+* #2300: enhance autoclass:: to use the docstring of __new__ if __init__ method's is missing
+  of empty
 
 Bugs fixed
 ----------
