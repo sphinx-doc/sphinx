@@ -19,6 +19,7 @@ These extensions are built in and can be activated by respective entries in the
 .. toctree::
 
    ext/autodoc
+   ext/autosectionlabel
    ext/autosummary
    ext/coverage
    ext/doctest
