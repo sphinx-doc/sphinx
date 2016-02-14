@@ -10,9 +10,15 @@
 """
 import gettext
 import io
+import os
+import re
+import warnings
 from os import path
+from time import time
+from datetime import datetime
 from collections import namedtuple
 
+import babel.dates
 from babel.messages.pofile import read_po
 from babel.messages.mofile import write_mo
 
@@ -118,3 +124,69 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
                     catalogs.add(cat)
 
     return catalogs
+
+# date_format mappings: ustrftime() to bable.dates.format_date()
+date_format_mappings = {
+    '%a': 'EEE',     # Weekday as locale’s abbreviated name.
+    '%A': 'EEEE',    # Weekday as locale’s full name.
+    '%b': 'MMM',     # Month as locale’s abbreviated name.
+    '%B': 'MMMM',    # Month as locale’s full name.
+    '%d': 'dd',      # Day of the month as a zero-padded decimal number.
+    '%j': 'DDD',     # Day of the year as a zero-padded decimal number.
+    '%m': 'MM',      # Month as a zero-padded decimal number.
+    '%U': 'WW',      # Week number of the year (Sunday as the first day of the week)
+                     # as a zero padded decimal number. All days in a new year preceding
+                     # the first Sunday are considered to be in week 0.
+    '%w': 'e',       # Weekday as a decimal number, where 0 is Sunday and 6 is Saturday.
+    '%W': 'WW',      # Week number of the year (Monday as the first day of the week)
+                     # as a decimal number. All days in a new year preceding the first
+                     # Monday are considered to be in week 0.
+    '%x': 'medium',  # Locale’s appropriate date representation.
+    '%y': 'YY',      # Year without century as a zero-padded decimal number.
+    '%Y': 'YYYY',    # Year with century as a decimal number.
+    '%%': '%',
+}
+
+
+def babel_format_date(date, format, locale):
+    if locale is None:
+        locale = 'en'
+
+    try:
+        return babel.dates.format_date(date, format, locale=locale)
+    except babel.core.UnknownLocaleError:
+        # fallback to English
+        return babel.dates.format_date(date, format, locale='en')
+
+
+def format_date(format, date=None, language=None):
+    if format is None:
+        format = 'medium'
+
+    if date is None:
+        # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
+        # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
+        source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
+        if source_date_epoch is not None:
+            date = time.gmtime(float(source_date_epoch))
+        else:
+            date = datetime.now()
+
+    if '%' not in format:
+        # consider the format as babel's
+        return babel_format_date(date, format, locale=language)
+    else:
+        warnings.warn('ustrftime format support will be dropped at Sphinx-1.5',
+                      DeprecationWarning)
+
+        # consider the format as ustrftime's and try to convert it to babel's
+        result = []
+        tokens = re.split('(%.)', format)
+        for token in tokens:
+            if token in date_format_mappings:
+                babel_format = date_format_mappings.get(token, '')
+                result.append(babel_format_date(date, babel_format, locale=language))
+            else:
+                result.append(token)
+
+        return "".join(result)

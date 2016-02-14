@@ -11,6 +11,7 @@
 from __future__ import print_function
 
 import os
+import datetime
 from os import path
 
 from babel.messages.mofile import read_mo
@@ -162,3 +163,20 @@ def test_get_catalogs_with_compact(dir):
     catalogs = i18n.find_catalog_source_files([dir / 'loc1'], 'xx', gettext_compact=True)
     domains = set(c.domain for c in catalogs)
     assert domains == set(['test1', 'test2', 'sub'])
+
+
+def test_format_date():
+    date = datetime.date(2016, 2, 7)
+
+    format = None
+    assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
+    assert i18n.format_date(format, date=date, language='en') == 'Feb 7, 2016'
+    assert i18n.format_date(format, date=date, language='ja') == '2016/02/07'
+    assert i18n.format_date(format, date=date, language='de') == '07.02.2016'
+
+    format = '%B %d, %Y'
+    print(i18n.format_date(format, date=date))
+    assert i18n.format_date(format, date=date) == 'February 07, 2016'
+    assert i18n.format_date(format, date=date, language='en') == 'February 07, 2016'
+    assert i18n.format_date(format, date=date, language='ja') == u'2月 07, 2016'
+    assert i18n.format_date(format, date=date, language='de') == 'Februar 07, 2016'

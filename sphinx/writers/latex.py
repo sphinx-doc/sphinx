@@ -26,8 +26,8 @@ from sphinx import highlighting
 from sphinx.errors import SphinxError
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import split_into
+from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext, traverse_parent
-from sphinx.util.osutil import ustrftime
 from sphinx.util.texescape import tex_escape_map, tex_replace_map
 from sphinx.util.smartypants import educate_quotes_latex
 
@@ -353,8 +353,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if builder.config.today:
             self.elements['date'] = builder.config.today
         else:
-            self.elements['date'] = ustrftime(builder.config.today_fmt or
-                                              _('%B %d, %Y'))
+            self.elements['date'] = format_date(builder.config.today_fmt or
+                                                _('MMMM dd, YYYY'),
+                                                language=builder.config.language)
         if builder.config.latex_logo:
             self.elements['logo'] = '\\includegraphics{%s}\\par' % \
                                     path.basename(builder.config.latex_logo)
