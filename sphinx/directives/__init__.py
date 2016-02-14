@@ -20,6 +20,7 @@ from sphinx.util.docfields import DocFieldTransformer
 # import and register directives
 from sphinx.directives.code import *   # noqa
 from sphinx.directives.other import *  # noqa
+from sphinx.directives.patches import *  # noqa
 
 
 # RE to strip backslash escapes

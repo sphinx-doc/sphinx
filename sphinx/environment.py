@@ -37,7 +37,7 @@ from docutils.frontend import OptionParser
 from sphinx import addnodes
 from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
-    FilenameUniqDict, get_figtype, split_index_msg
+    FilenameUniqDict, split_index_msg
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream, is_translatable
 from sphinx.util.osutil import SEP, getcwd, fs_encoding, ensuredir
 from sphinx.util.i18n import find_catalog_files
@@ -1725,12 +1725,7 @@ class BuildEnvironment:
             fignumbers = self.toc_fignumbers[docname].setdefault(figtype, {})
             figure_id = fignode['ids'][0]
 
-            if (isinstance(fignode, nodes.image) and
-               isinstance(fignode.parent, nodes.figure) and
-               fignode.parent['ids']):
-                fignumbers[figure_id] = fignumbers[fignode.parent['ids'][0]]
-            else:
-                fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
+            fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
 
         def _walk_doctree(docname, doctree, secnum):
             for subnode in doctree.children:
@@ -1751,7 +1746,7 @@ class BuildEnvironment:
 
                     continue
 
-                figtype = get_figtype(subnode)
+                figtype = self.domains['std'].get_figtype(subnode)
                 if figtype and subnode['ids']:
                     register_fignumber(docname, secnum, figtype, subnode)
 

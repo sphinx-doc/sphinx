@@ -38,7 +38,7 @@ def test_graphviz_latex(app, status, warning):
     content = (app.outdir / 'SphinxTests.tex').text()
     macro = ('\\\\begin{figure}\[htbp\]\n\\\\centering\n\\\\capstart\n\n'
              '\\\\includegraphics{graphviz-\w+.pdf}\n'
-             '\\\\caption{caption of graph}\\\\end{figure}')
+             '\\\\caption{caption of graph}\\\\label{.*}\\\\end{figure}')
     assert re.search(macro, content, re.S)
 
     macro = 'Hello \\\\includegraphics{graphviz-\w+.pdf} graphviz world'

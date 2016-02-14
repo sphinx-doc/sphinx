@@ -56,6 +56,7 @@ Features added
 * #2199: Use ``imagesize`` package to obtain size of images.
 * #1099: Add configurable retries to the linkcheck builder. Thanks to Alex Gaynor.
   Also don't check anchors starting with ``!``.
+* #1858: Add Sphinx.add_enumerable_node() to add enumerable nodes for numfig feature
 
 Bugs fixed
 ----------

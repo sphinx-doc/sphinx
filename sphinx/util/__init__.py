@@ -514,27 +514,6 @@ class PeekableIterator(object):
         return item
 
 
-def get_figtype(node):
-    """Return figtype for given node."""
-    def has_child(node, cls):
-        return any(isinstance(child, cls) for child in node)
-
-    from docutils import nodes
-    if isinstance(node, nodes.figure):
-        return 'figure'
-    elif isinstance(node, nodes.image) and isinstance(node.parent, nodes.figure):
-        # bare image node is not supported because it doesn't have caption and
-        # no-caption-target isn't a numbered figure.
-        return 'figure'
-    elif isinstance(node, nodes.table):
-        return 'table'
-    elif isinstance(node, nodes.container):
-        if has_child(node, nodes.literal_block):
-            return 'code-block'
-
-    return None
-
-
 def import_object(objname, source=None):
     try:
         module, name = objname.rsplit('.', 1)

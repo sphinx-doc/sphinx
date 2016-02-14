@@ -433,10 +433,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.top_sectionlevel = 0
             else:
                 self.top_sectionlevel = 1
+        self.next_hyperlink_ids = {}
         self.next_section_ids = set()
-        self.next_figure_ids = set()
-        self.next_table_ids = set()
-        self.next_literal_ids = set()
 
     def pushbody(self, newbody):
         self.bodystack.append(self.body)
@@ -446,6 +444,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
         body = self.body
         self.body = self.bodystack.pop()
         return body
+
+    def push_hyperlink_ids(self, figtype, ids):
+        hyperlink_ids = self.next_hyperlink_ids.setdefault(figtype, set())
+        hyperlink_ids.update(ids)
+
+    def pop_hyperlink_ids(self, figtype):
+        return self.next_hyperlink_ids.get(figtype, set())
 
     def restrict_footnote(self, node):
         if self.footnote_restricted is False:
@@ -956,11 +961,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             for caption in self.table.caption:
                 self.body.append(caption)
             self.body.append('}')
-            for id in self.next_table_ids:
+            for id in self.pop_hyperlink_ids('table'):
                 self.body.append(self.hypertarget(id, anchor=False))
             if node['ids']:
                 self.body.append(self.hypertarget(node['ids'][0], anchor=False))
-            self.next_table_ids.clear()
         if self.table.longtable:
             self.body.append('\n\\begin{longtable}')
             endmacro = '\\end{longtable}\n\n'
@@ -992,9 +996,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             for caption in self.table.caption:
                 self.body.append(caption)
             self.body.append('}')
-            for id in self.next_table_ids:
+            for id in self.pop_hyperlink_ids('table'):
                 self.body.append(self.hypertarget(id, anchor=False))
-            self.next_table_ids.clear()
             self.body.append(u'\\\\\n')
         if self.table.longtable:
             self.body.append('\\hline\n')
@@ -1370,9 +1373,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_figure(self, node):
         ids = ''
-        for id in self.next_figure_ids:
+        for id in self.pop_hyperlink_ids('figure'):
             ids += self.hypertarget(id, anchor=False)
-        self.next_figure_ids.clear()
+        if node['ids']:
+            ids += self.hypertarget(node['ids'][0], anchor=False)
         self.restrict_footnote(node)
         if (len(node.children) and
            isinstance(node.children[0], nodes.image) and
@@ -1490,26 +1494,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.next_section_ids.add(node['refid'])
                 self.next_section_ids.update(node['ids'])
                 return
-            elif isinstance(next, nodes.figure):
-                # labels for figures go in the figure body, not before
-                if node.get('refid'):
-                    self.next_figure_ids.add(node['refid'])
-                self.next_figure_ids.update(node['ids'])
-                return
-            elif isinstance(next, nodes.table):
-                # same for tables, but only if they have a caption
-                for n in next:
-                    if isinstance(n, nodes.title):
-                        if node.get('refid'):
-                            self.next_table_ids.add(node['refid'])
-                        self.next_table_ids.update(node['ids'])
-                        return
-            elif isinstance(next, nodes.container) and next.get('literal_block'):
-                # same for literal_block, but only if they have a caption
-                if node.get('refid'):
-                    self.next_literal_ids.add(node['refid'])
-                self.next_literal_ids.update(node['ids'])
-                return
+            else:
+                domain = self.builder.env.domains['std']
+                figtype = domain.get_figtype(node)
+                if figtype and domain.get_numfig_title(node):
+                    ids = set()
+                    # labels for figures go in the figure body, not before
+                    if node.get('refid'):
+                        ids.add(node['refid'])
+                    ids.update(node['ids'])
+                    self.push_hyperlink_ids(figtype, ids)
+                    return
         except IndexError:
             pass
         if 'refuri' in node:
@@ -1952,11 +1947,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if node.get('literal_block'):
             self.in_container_literal_block += 1
             ids = ''
-            for id in self.next_literal_ids:
+            for id in self.pop_hyperlink_ids('code-block'):
                 ids += self.hypertarget(id, anchor=False)
             if node['ids']:
                 ids += self.hypertarget(node['ids'][0])
-            self.next_literal_ids.clear()
             self.body.append('\n')
             self.context.append(ids + '\n')
 

@@ -23,7 +23,7 @@ from sphinx.roles import XRefRole
 from sphinx.locale import l_, _
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
-from sphinx.util import ws_re, get_figtype
+from sphinx.util import ws_re
 from sphinx.util.nodes import clean_astext, make_refnode
 from sphinx.util.compat import Directive
 
@@ -494,6 +494,12 @@ class StandardDomain(Domain):
         'option': 'unknown option: %(target)s',
     }
 
+    enumerable_nodes = {  # node_class -> (figtype, title_getter)
+        nodes.figure: ('figure', None),
+        nodes.table: ('table', None),
+        nodes.container: ('code-block', None),
+    }
+
     def clear_doc(self, docname):
         for key, (fn, _l) in list(self.data['progoptions'].items()):
             if fn == docname:
@@ -543,33 +549,9 @@ class StandardDomain(Domain):
             anonlabels[name] = docname, labelid
             if node.tagname == 'section':
                 sectname = clean_astext(node[0])  # node[0] == title node
-            elif node.tagname == 'figure':
-                for n in node:
-                    if n.tagname == 'caption':
-                        sectname = clean_astext(n)
-                        break
-                else:
-                    continue
-            elif node.tagname == 'image' and node.parent.tagname == 'figure':
-                for n in node.parent:
-                    if n.tagname == 'caption':
-                        sectname = clean_astext(n)
-                        break
-                else:
-                    continue
-            elif node.tagname == 'table':
-                for n in node:
-                    if n.tagname == 'title':
-                        sectname = clean_astext(n)
-                        break
-                else:
-                    continue
-            elif node.tagname == 'container' and node.get('literal_block'):
-                for n in node:
-                    if n.tagname == 'caption':
-                        sectname = clean_astext(n)
-                        break
-                else:
+            elif self.is_enumerable_node(node):
+                sectname = self.get_numfig_title(node)
+                if sectname is None:
                     continue
             elif node.traverse(addnodes.toctree):
                 n = node.traverse(addnodes.toctree)[0]
@@ -634,10 +616,9 @@ class StandardDomain(Domain):
                          lineno=node.line)
                 return contnode
 
-            try:
-                target_node = env.get_doctree(docname).ids[labelid]
-                figtype = get_figtype(target_node)
-            except:
+            target_node = env.get_doctree(docname).ids.get(labelid)
+            figtype = self.get_figtype(target_node)
+            if figtype is None:
                 return None
 
             try:
@@ -747,3 +728,33 @@ class StandardDomain(Domain):
     def get_type_name(self, type, primary=False):
         # never prepend "Default"
         return type.lname
+
+    def is_enumerable_node(self, node):
+        return node.__class__ in self.enumerable_nodes
+
+    def get_numfig_title(self, node):
+        """Get the title of enumerable nodes to refer them using its title"""
+        if self.is_enumerable_node(node):
+            _, title_getter = self.enumerable_nodes.get(node.__class__, (None, None))
+            if title_getter:
+                return title_getter(node)
+            else:
+                for subnode in node:
+                    if subnode.tagname in ('caption', 'title'):
+                        return clean_astext(subnode)
+
+        return None
+
+    def get_figtype(self, node):
+        """Get figure type of nodes."""
+        def has_child(node, cls):
+            return any(isinstance(child, cls) for child in node)
+
+        if isinstance(node, nodes.container):
+            if node.get('literal_block') and has_child(node, nodes.literal_block):
+                return 'code-block'
+            else:
+                return None
+        else:
+            figtype, _ = self.enumerable_nodes.get(node.__class__, (None, None))
+            return figtype

@@ -265,17 +265,22 @@ class HTMLTranslator(BaseTranslator):
         def append_fignumber(figtype, figure_id):
             if figure_id in self.builder.fignumbers.get(figtype, {}):
                 self.body.append('<span class="caption-number">')
-                prefix = self.builder.config.numfig_format.get(figtype, '')
-                numbers = self.builder.fignumbers[figtype][figure_id]
-                self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
-                self.body.append('</span>')
+                prefix = self.builder.config.numfig_format.get(figtype)
+                if prefix is None:
+                    msg = 'numfig_format is not defined for %s' % figtype
+                    self.builder.warn(msg)
+                else:
+                    numbers = self.builder.fignumbers[figtype][figure_id]
+                    self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
+                    self.body.append('</span>')
 
-        if isinstance(node.parent, nodes.figure):
-            append_fignumber('figure', node.parent['ids'][0])
-        elif isinstance(node.parent, nodes.table):
-            append_fignumber('table', node.parent['ids'][0])
-        elif isinstance(node.parent, nodes.container):
-            append_fignumber('code-block', node.parent['ids'][0])
+        figtype = self.builder.env.domains['std'].get_figtype(node)
+        if figtype:
+            if len(node['ids']) == 0:
+                msg = 'Any IDs not assiend for %s node' % node.tagname
+                self.builder.env.warn_node(msg, node)
+            else:
+                append_fignumber(figtype, node['ids'][0])
 
     def add_permalink_ref(self, node, title):
         if node['ids'] and self.permalink_text and self.builder.add_permalinks:
@@ -292,7 +297,7 @@ class HTMLTranslator(BaseTranslator):
     def visit_title(self, node):
         BaseTranslator.visit_title(self, node)
         self.add_secnumber(node)
-        self.add_fignumber(node)
+        self.add_fignumber(node.parent)
         if isinstance(node.parent, nodes.table):
             self.body.append('<span class="caption-text">')
 
@@ -332,7 +337,7 @@ class HTMLTranslator(BaseTranslator):
             self.body.append('<div class="code-block-caption">')
         else:
             BaseTranslator.visit_caption(self, node)
-        self.add_fignumber(node)
+        self.add_fignumber(node.parent)
         self.body.append(self.starttag(node, 'span', '', CLASS='caption-text'))
 
     def depart_caption(self, node):

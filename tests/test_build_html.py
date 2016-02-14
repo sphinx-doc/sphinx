@@ -941,6 +941,38 @@ def test_numfig_with_secnum_depth(app, status, warning):
             yield check_xpath, etree, fname, xpath, check, be_found
 
 
+@gen_with_app(buildername='html', testroot='add_enumerable_node')
+def test_enumerable_node(app, status, warning):
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//div[@class='figure']/p[@class='caption']/span[@class='caption-number']",
+             "Fig. 1", True),
+            (".//div[@class='figure']/p[@class='caption']/span[@class='caption-number']",
+             "Fig. 2", True),
+            (".//div[@class='figure']/p[@class='caption']/span[@class='caption-number']",
+             "Fig. 3", True),
+            (".//div//span[@class='caption-number']", "No.1 ", True),
+            (".//div//span[@class='caption-number']", "No.2 ", True),
+            (".//li/a/span", 'Fig. 1', True),
+            (".//li/a/span", 'Fig. 2', True),
+            (".//li/a/span", 'Fig. 3', True),
+            (".//li/a/span", 'No.1', True),
+            (".//li/a/span", 'No.2', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        with (app.outdir / fname).open('rb') as fp:
+            etree = ET.parse(fp, parser)
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
+
+
 @with_app(buildername='html')
 def test_jsmath(app, status, warning):
     app.builder.build_all()
