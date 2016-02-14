@@ -29,6 +29,12 @@ try:
 except ImportError:
     native_module = False
 
+try:
+    import janome.tokenizer
+    janome_module = True
+except ImportError:
+    janome_module = False
+
 from sphinx.errors import SphinxError
 from sphinx.search import SearchLanguage
 
@@ -101,6 +107,22 @@ class MecabBinder(object):
     def __del__(self):
         if self.ctypes_libmecab:
             self.ctypes_libmecab.mecab_destroy(self.ctypes_mecab)
+
+
+class JanomeBinder(object):
+    def __init__(self, options):
+        self.user_dict = options.get('user_dic')
+        self.user_dict_enc = options.get('user_dic_enc', 'utf8')
+        self.init_tokenizer()
+
+    def init_tokenizer(self):
+        if not janome_module:
+            raise RuntimeError('Janome is not available')
+        self.tokenizer = janome.tokenizer.Tokenizer(udic=self.user_dict, udic_enc=self.user_dict_enc)
+
+    def split(self, input):
+        result = u' '.join(token.surface for token in self.tokenizer.tokenize(input))
+        return result.split(u' ')
 
 
 class TinySegmenter(object):
@@ -489,11 +511,13 @@ class SearchJapanese(SearchLanguage):
 
     def init(self, options):
         type = options.get('type', 'default')
-        if type not in ('mecab', 'default'):
-            raise ValueError(("Japanese tokenizer's type should be 'mecab'"
+        if type not in ('mecab', 'janome', 'default'):
+            raise ValueError(("Japanese tokenizer's type should be 'mecab' or 'janome'"
                               " or 'default'"))
         if type == 'mecab':
             self.splitter = MecabBinder(options)
+        if type == 'janome':
+            self.splitter = JanomeBinder(options)
         else:
             self.splitter = TinySegmenter()
 
