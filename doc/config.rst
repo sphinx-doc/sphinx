@@ -320,10 +320,15 @@ Project information
 .. confval:: highlight_language
 
    The default language to highlight source code in.  The default is
-   ``'python'``.  The value should be a valid Pygments lexer name, see
+   ``'python3'``.  The value should be a valid Pygments lexer name, see
    :ref:`code-examples` for more details.
 
    .. versionadded:: 0.5
+
+   .. versionchanged:: 1.4
+      The default is now ``'python3'``, since it is mostly a superset of
+      ``'python'``.  If you prefer Python 2 only highlighting, you can set
+      it back to ``'python'``.
 
 .. confval:: highlight_options
 

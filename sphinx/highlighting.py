@@ -25,8 +25,8 @@ from sphinx.util.texescape import tex_hl_escape_map_new
 from sphinx.ext import doctest
 
 from pygments import highlight
-from pygments.lexers import PythonLexer, PythonConsoleLexer, CLexer, \
-    TextLexer, RstLexer
+from pygments.lexers import PythonLexer, Python3Lexer, PythonConsoleLexer, \
+    CLexer, TextLexer, RstLexer
 from pygments.lexers import get_lexer_by_name, guess_lexer
 from pygments.formatters import HtmlFormatter, LatexFormatter
 from pygments.filters import ErrorToken
@@ -37,6 +37,7 @@ from sphinx.pygments_styles import SphinxStyle, NoneStyle
 lexers = dict(
     none = TextLexer(stripnl=False),
     python = PythonLexer(stripnl=False),
+    python3 = Python3Lexer(stripnl=False),
     pycon = PythonConsoleLexer(stripnl=False),
     pycon3 = PythonConsoleLexer(python3=True, stripnl=False),
     rest = RstLexer(stripnl=False),
@@ -151,9 +152,11 @@ class PygmentsBridge(object):
                     lexer = lexers['none']
             else:
                 lexer = lexers['python']
-        elif lang in ('python3', 'py3') and source.startswith('>>>'):
-            # for py3, recognize interactive sessions, but do not try parsing...
-            lexer = lexers['pycon3']
+        elif lang in ('py3', 'python3'):
+            if source.startswith('>>>'):
+                lexer = lexers['pycon3']
+            else:
+                lexer = lexers['python3']
         elif lang == 'guess':
             try:
                 lexer = guess_lexer(source)
@@ -187,7 +190,8 @@ class PygmentsBridge(object):
             # this is most probably not the selected language,
             # so let it pass unhighlighted
             if warn:
-                warn('Could not parse literal_block as "%s". highlighting skipped.' % lang)
+                warn('Could not lex literal_block as "%s". '
+                     'Highlighting skipped.' % lang)
             else:
                 raise exc
             hlsource = highlight(source, lexers['none'], formatter)
