@@ -161,22 +161,28 @@
   \end{minipage}%
   }%
 }
-\def\FrameCommand{\mycolorbox}
+\def\MidFrameCommand{\mycolorbox}
+\let\LastFrameCommand\MidFrameCommand
 
-% Go deep into framed.sty to insert a Title above the frame
-% Will be used for literal-block captions.
-% \MyCustomFBox, \MyFrameTitle, \MyVerbatimTitle, \setupverbatimcaption
+% We now customize \FrameCommand (for non split frames) and \FirstFrameCommand
+% (split frames), in order for the framed environment in order for it to
+% handle a Title above the frame, which can not be separated by a pagebreak.
+\newcommand*\MyFrameTitle {}
+\newcommand*\MyVerbatimTitle {}
+% cf visit_caption(self, node) in sphinx/writers/latex.py
+\newcommand*\setupcaptionforverbatim [2]
+{% make the \smallskip customizable ?
+    \def\MyVerbatimTitle{\captionof{#1}{#2}\smallskip }%
+}
 
-% The amsmath patches \stepcounter to inhibit stepping via \firstchoice@false
-% We will use that, because framed.sty typesets multiple times its contents,
-% and we want to put the \captionof in it.
+% \MyCustomFBox is copied from framed.sty's \CustomFBox, but
+% #1=title/caption is to be set _above_ the top rule, not _below_
+% #1 must be "vertical material", it may be left empty.
+
+% The amsmath patches \stepcounter to inhibit stepping under \firstchoice@false
+% We use that too, because framed.sty typesets multiple times its contents,
 \newif\if@MyFirstFramedPass
 
-% \MyCustomFBox is for use by \FirstFrameCommand
-% It is copied from framed.sty's \CustomFBox, with the difference that
-% #1=title/caption is to be set _above_ the top rule, not _below_
-% #1 must be "vertical material" and may be left empty.
-% #1=\captionof{literal-block}{foo} is ok for example.
 \long\def\MyCustomFBox#1#2#3#4#5#6#7{%
   % we set up amsmath (amstext.sty) conditional to inhibit counter stepping
   % except in first pass
@@ -207,14 +213,7 @@
   \global\@MyFirstFramedPassfalse
 }
 
-\newcommand*\MyFrameTitle {}
-\newcommand*\MyVerbatimTitle {}
-\newcommand*\setupcaptionforverbatim [2]
-{% make \smallskip customizable ?
-    \def\MyVerbatimTitle{\captionof{#1}{#2}\smallskip }%
-}
-
-\def\FirstFrameCommand{%
+\def\FrameCommand{% used for non-split frames
    % this is inspired from framed.sty v 0.96 2011/10/22 lines 185--190
    % \fcolorbox (see \mycolorbox above) from color.sty uses \fbox.
    \def\fbox{\MyCustomFBox{\MyFrameTitle}{}%
@@ -223,6 +222,8 @@
    \let\XC@fbox\fbox
    \mycolorbox
 }
+% first portion of split frames:
+\let\FirstFrameCommand\FrameCommand
 
 % Unneeded %'s after control words removed.
 \renewcommand{\Verbatim}[1][1]{%
