@@ -577,6 +577,13 @@ class StandardDomain(Domain):
                     sectname = n['caption']
                 else:
                     continue
+            elif 'figtype' in node:
+                for n in node:
+                    if n.tagname == 'caption':
+                        sectname = clean_astext(n)
+                        break
+                else:
+                    continue
             else:
                 # anonymous-only labels
                 continue

@@ -117,7 +117,10 @@ class AutoNumbering(Transform):
             return any(isinstance(child, cls) for child in node)
 
         for node in self.document.traverse(nodes.Element):
-            if isinstance(node, nodes.figure):
+            if 'figtype' in node:
+                if has_child(node, nodes.caption):
+                    self.document.note_implicit_target(node)
+            elif isinstance(node, nodes.figure):
                 if has_child(node, nodes.caption):
                     self.document.note_implicit_target(node)
             elif isinstance(node, nodes.image):

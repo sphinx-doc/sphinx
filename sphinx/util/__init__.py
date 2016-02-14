@@ -520,7 +520,9 @@ def get_figtype(node):
         return any(isinstance(child, cls) for child in node)
 
     from docutils import nodes
-    if isinstance(node, nodes.figure):
+    if 'figtype' in node:
+        return node['figtype']
+    elif isinstance(node, nodes.figure):
         return 'figure'
     elif isinstance(node, nodes.image) and isinstance(node.parent, nodes.figure):
         # bare image node is not supported because it doesn't have caption and
