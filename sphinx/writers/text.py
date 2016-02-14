@@ -12,6 +12,7 @@ import os
 import re
 import textwrap
 from itertools import groupby
+import warnings
 
 from six.moves import zip_longest
 
@@ -640,11 +641,11 @@ class TextTranslator(nodes.NodeVisitor):
         if not self._classifier_count_in_li:
             self.end_state(end=None)
 
-    def visit_termset(self, node):
-        pass
-
-    def depart_termset(self, node):
-        pass
+    def visit_termsep(self, node):
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
+                      DeprecationWarning)
+        self.add_text(', ')
+        raise nodes.SkipNode
 
     def visit_classifier(self, node):
         self.add_text(' : ')

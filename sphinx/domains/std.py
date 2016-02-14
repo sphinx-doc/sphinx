@@ -235,14 +235,6 @@ def register_term_to_glossary(env, node, new_id=None):
     node['names'].append(new_id)
 
 
-def make_termset_from_termnodes(termnodes):
-    # make a single "termset" node with all the terms
-    termset = addnodes.termset('', *termnodes)
-    termset.source, termset.line = termnodes[0].source, termnodes[0].line
-    termset.rawsource = termset.astext()
-    return termset
-
-
 class Glossary(Directive):
     """
     Directive to create a glossary with cross-reference targets for :term:
@@ -337,16 +329,15 @@ class Glossary(Directive):
                 termtexts.append(term.astext())
                 termnodes.append(term)
 
-            termset = make_termset_from_termnodes(termnodes)
-            termset += system_messages
+            termnodes.extend(system_messages)
 
             defnode = nodes.definition()
             if definition:
                 self.state.nested_parse(definition, definition.items[0][1],
                                         defnode)
-
+            termnodes.append(defnode)
             items.append((termtexts,
-                          nodes.definition_list_item('', termset, defnode)))
+                          nodes.definition_list_item('', *termnodes)))
 
         if 'sorted' in self.options:
             items.sort(key=lambda x:

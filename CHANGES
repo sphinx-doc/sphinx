@@ -21,9 +21,11 @@ Incompatible changes
   refers to :confval:`exclude_patterns` to exclude extra files and directories.
 * #2300: enhance autoclass:: to use the docstring of __new__ if __init__ method's is missing
   of empty
-* #2251: term nodes in a glossary directive are wrapped with ``termset`` node to handle
-  multiple term correctly. ``termsep`` node is removed and ``termset`` is added.
-  By this change, every writers must have visit_termset and depart_termset method.
+* #2251: Previously, under glossary directives, multiple terms for one definition are
+  converted into single ``term`` node and the each terms in the term node are separated
+  by ``termsep`` node. In new implementation, each terms are converted into individual
+  ``term`` nodes and ``termsep`` node is removed.
+  By this change, output layout of every builders are changed a bit.
 
 Features added
 --------------

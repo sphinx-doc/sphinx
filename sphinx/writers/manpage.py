@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
+
 from docutils import nodes
 from docutils.writers.manpage import (
     MACRO_DEF,
@@ -200,11 +202,11 @@ class ManualPageTranslator(BaseTranslator):
     def depart_versionmodified(self, node):
         self.depart_paragraph(node)
 
-    def visit_termset(self, node):
-        pass
-
-    def depart_termset(self, node):
-        pass
+    def visit_termsep(self, node):
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
+                      DeprecationWarning)
+        self.body.append(', ')
+        raise nodes.SkipNode
 
     # overwritten -- we don't want source comments to show up
     def visit_comment(self, node):

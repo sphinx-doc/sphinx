@@ -13,6 +13,7 @@ import sys
 import posixpath
 import os
 import copy
+import warnings
 
 from six import string_types
 from docutils import nodes
@@ -629,11 +630,11 @@ class HTMLTranslator(BaseTranslator):
     def depart_abbreviation(self, node):
         self.body.append('</abbr>')
 
-    def visit_termset(self, node):
-        pass
-
-    def depart_termset(self, node):
-        pass
+    def visit_termsep(self, node):
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
+                      DeprecationWarning)
+        self.body.append('<br />')
+        raise nodes.SkipNode
 
     def visit_manpage(self, node):
         return self.visit_literal_emphasis(node)

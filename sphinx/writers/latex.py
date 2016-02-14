@@ -15,6 +15,7 @@
 import re
 import sys
 from os import path
+import warnings
 
 from six import itervalues, text_type
 from docutils import nodes, writers
@@ -1222,11 +1223,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.unrestrict_footnote(node)
         self.in_term -= 1
 
-    def visit_termset(self, node):
-        pass
-
-    def depart_termset(self, node):
-        pass
+    def visit_termsep(self, node):
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
+                      DeprecationWarning)
+        self.body.append(', ')
+        raise nodes.SkipNode
 
     def visit_classifier(self, node):
         self.body.append('{[}')
