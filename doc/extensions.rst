@@ -20,19 +20,19 @@ These extensions are built in and can be activated by respective entries in the
 
    ext/autodoc
    ext/autosummary
-   ext/doctest
-   ext/intersphinx
-   ext/math
-   ext/graphviz
-   ext/inheritance
-   ext/ifconfig
    ext/coverage
-   ext/todo
+   ext/doctest
    ext/extlinks
-   ext/viewcode
-   ext/linkcode
-   ext/napoleon
    ext/githubpages
+   ext/graphviz
+   ext/ifconfig
+   ext/inheritance
+   ext/intersphinx
+   ext/linkcode
+   ext/math
+   ext/napoleon
+   ext/todo
+   ext/viewcode
 
 
 Third-party extensions
