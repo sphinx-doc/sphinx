@@ -88,14 +88,18 @@ This section describe a easy way to translate with sphinx-intl.
    :confval:`gettext_compact` is set to `False` (the Sphinx document is
    already configured as such).
 
-#. Extract document's translatable messages into pot files::
+#. Extract document's translatable messages into pot files:
+
+   .. code-block:: console
 
       $ make gettext
 
    As a result, many pot files are generated under ``_build/locale``
    directory.
 
-#. Setup/Update your `locale_dir`::
+#. Setup/Update your `locale_dir`:
+
+   .. code-block:: console
 
       $ sphinx-intl update -p _build/locale -l de -l ja
 
@@ -109,7 +113,9 @@ This section describe a easy way to translate with sphinx-intl.
 #. make translated document.
 
    You need a :confval:`language` parameter in ``conf.py`` or you may also
-   specify the parameter on the command line::
+   specify the parameter on the command line:
+
+   .. code-block:: console
 
       $ make -e SPHINXOPTS="-D language='de'" html
 
@@ -163,7 +169,7 @@ and to apply differences to translated po files.
 In order to apply the updating difference of a pot file to po file,
 use the :command:`sphinx-intl update` command.
 
-.. code-block:: bash
+.. code-block:: console
 
    $ sphinx-intl update -p _build/locale
 
@@ -182,7 +188,7 @@ easy to fetch and push translations.
 
    You need :command:`tx` command to upload resources (pot files).
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ pip install transifex-client
 
@@ -206,7 +212,7 @@ easy to fetch and push translations.
    This process will create ``.tx/config`` in the current directory, as well as
    a ``~/.transifexrc`` file that includes auth information.
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ tx init
       Creating .tx folder...
@@ -221,7 +227,7 @@ easy to fetch and push translations.
 
    Register pot files to ``.tx/config`` file:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ cd /your/document/root
       $ sphinx-intl update-txconfig-resources --pot-dir _build/locale \
@@ -229,7 +235,7 @@ easy to fetch and push translations.
 
    and upload pot files:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ tx push -s
       Pushing translations for resource sphinx-document-test_1_0.builders:
@@ -248,7 +254,7 @@ easy to fetch and push translations.
 
    Get translated catalogs and build mo files (ex. for 'de'):
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ cd /your/document/root
       $ tx pull -l de
@@ -257,7 +263,9 @@ easy to fetch and push translations.
       ...
       Done.
 
-   Invoke make html::
+   Invoke make html:
+
+   .. code-block:: console
 
       $ make -e SPHINXOPTS="-D language='de'" html
 
