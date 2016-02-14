@@ -24,8 +24,7 @@ from sphinx.util.nodes import (
     traverse_translatable_index, extract_messages, LITERAL_TYPE_NODES, IMAGE_TYPE_NODES,
     apply_source_workaround,
 )
-from sphinx.util.osutil import ustrftime
-from sphinx.util.i18n import find_catalog
+from sphinx.util.i18n import find_catalog, format_date
 from sphinx.util.pycompat import indent
 from sphinx.domains.std import make_glossary_term, split_term_classifiers
 
@@ -54,7 +53,8 @@ class DefaultSubstitutions(Transform):
                 text = config[refname]
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
-                    text = ustrftime(config.today_fmt or _('%B %d, %Y'))
+                    text = format_date(config.today_fmt or _('MMMM dd, YYYY'),
+                                       language=config.language)
                 ref.replace_self(nodes.Text(text, text))
 
 

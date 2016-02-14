@@ -310,12 +310,19 @@ Project information
    replacement for ``|today|``.
 
    * If you set :confval:`today` to a non-empty value, it is used.
-   * Otherwise, the current time is formatted using :func:`time.strftime` and
-     the format given in :confval:`today_fmt`.
+   * Otherwise, the current time is formatted using `Locale Data Markup Language
+     <http://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns>`_
+     and the format given in :confval:`today_fmt`.
 
-   The default is no :confval:`today` and a :confval:`today_fmt` of ``'%B %d,
-   %Y'`` (or, if translation is enabled with :confval:`language`, an equivalent
-   %format for the selected locale).
+   The default is no :confval:`today` and a :confval:`today_fmt` of ``'MMMM dd,
+   YYYY'`` (or, if translation is enabled with :confval:`language`, an
+   equivalent %format for the selected locale).
+
+   .. versionchanged:: 1.4
+
+      Format specification was changed from strftime to Locale Data Markup
+      Language. strftime format is also supported for backward compatibility
+      until Sphinx-1.5.
 
 .. confval:: highlight_language
 
@@ -653,9 +660,16 @@ that use Sphinx's HTMLWriter class.
 .. confval:: html_last_updated_fmt
 
    If this is not None, a 'Last updated on:' timestamp is inserted
-   at every page bottom, using the given :func:`strftime` format.
-   The empty string is equivalent to ``'%b %d, %Y'`` (or a
+   at every page bottom, using the given `Locale Data Markup Language
+   <http://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns>`_
+   format.  The empty string is equivalent to ``'MMM dd, YYYY'`` (or a
    locale-dependent equivalent).
+
+   .. versionchanged:: 1.4
+
+      Format specification was changed from strftime to Locale Data Markup
+      Language. strftime format is also supported for backward compatibility
+      until Sphinx-1.5.
 
 .. confval:: html_use_smartypants
 

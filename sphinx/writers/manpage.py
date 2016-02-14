@@ -20,8 +20,8 @@ from docutils.writers.manpage import (
 
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
-from sphinx.util.osutil import ustrftime
 from sphinx.util.compat import docutils_version
+from sphinx.util.i18n import format_date
 
 
 class ManualPageWriter(Writer):
@@ -97,8 +97,9 @@ class ManualPageTranslator(BaseTranslator):
         if builder.config.today:
             self._docinfo['date'] = builder.config.today
         else:
-            self._docinfo['date'] = ustrftime(builder.config.today_fmt or
-                                              _('%B %d, %Y'))
+            self._docinfo['date'] = format_date(builder.config.today_fmt or
+                                                _('MMMM dd, YYYY'),
+                                                language=builder.config.language)
         self._docinfo['copyright'] = builder.config.copyright
         self._docinfo['version'] = builder.config.version
         self._docinfo['manual_group'] = builder.config.project

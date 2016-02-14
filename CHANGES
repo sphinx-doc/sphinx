@@ -29,6 +29,11 @@ Incompatible changes
 * The default highlight language is now Python 3.  This means that source code
   is highlighted as Python 3 (which is mostly a superset of Python 2), and no
   parsing is attempted to distinguish valid code.
+* `Locale Date Markup Language
+  <http://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns>`_ like
+  ``"MMMM dd, YYYY"`` is default format for `today_fmt` and `html_last_updated_fmt`.
+  However strftime format like ``"%B %d, %Y"`` is also supported for backward
+  compatibility until Sphinx-1.5. Later format will be disabled from Sphinx-1.5.
 
 Features added
 --------------
@@ -99,6 +104,7 @@ Bugs fixed
   anatoly techtonik.
 * #2311: Fix sphinx.ext.inheritance_diagram raises AttributeError
 * #2251: Line breaks in .rst files are transferred to .pot files in a wrong way.
+* #794: Fix date formatting in latex output is not localized
 
 
 Documentation
