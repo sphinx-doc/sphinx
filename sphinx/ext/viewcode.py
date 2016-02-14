@@ -139,7 +139,11 @@ def collect_pages(app):
         # construct a page name for the highlighted source
         pagename = '_modules/' + modname.replace('.', '/')
         # highlight the source using the builder's highlighter
-        highlighted = highlighter.highlight_block(code, 'python', linenos=False)
+        if env.config.highlight_language == 'python3':
+            lexer = 'python3'
+        else:
+            lexer = 'python'
+        highlighted = highlighter.highlight_block(code, lexer, linenos=False)
         # split the code into lines
         lines = highlighted.splitlines()
         # split off wrap markup from the first line of the actual code

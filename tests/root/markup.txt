@@ -23,6 +23,8 @@ Generic reST
 
 A |subst| (the definition is in rst_epilog).
 
+.. highlight:: none
+
 .. _label:
 
 ::

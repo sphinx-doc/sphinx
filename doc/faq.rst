@@ -213,7 +213,7 @@ If you want Emacs to display Info files produced by Sphinx using the value
 Info files, try adding the following Emacs Lisp code to your start-up file,
 ``~/.emacs.d/init.el``.
 
-::
+.. code-block:: elisp
 
    (defadvice info-insert-file-contents (after
                                          sphinx-info-insert-file-contents

@@ -26,6 +26,9 @@ Incompatible changes
   by ``termsep`` node. In new implementation, each terms are converted into individual
   ``term`` nodes and ``termsep`` node is removed.
   By this change, output layout of every builders are changed a bit.
+* The default highlight language is now Python 3.  This means that source code
+  is highlighted as Python 3 (which is mostly a superset of Python 2), and no
+  parsing is attempted to distinguish valid code.
 
 Features added
 --------------
