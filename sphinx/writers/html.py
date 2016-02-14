@@ -630,6 +630,23 @@ class HTMLTranslator(BaseTranslator):
     def depart_abbreviation(self, node):
         self.body.append('</abbr>')
 
+    # overwritten (but not changed) to keep pair of visit/depart_term
+    def visit_term(self, node):
+        self.body.append(self.starttag(node, 'dt', ''))
+
+    # overwritten to add '</dt>' in 'depart_term' state.
+    def depart_term(self, node):
+        self.body.append('</dt>\n')
+
+    # overwritten to do not add '</dt>' in 'visit_definition' state.
+    def visit_definition(self, node):
+        self.body.append(self.starttag(node, 'dd', ''))
+        self.set_first_last(node)
+
+    # overwritten (but not changed) to keep pair of visit/depart_definition
+    def depart_definition(self, node):
+        self.body.append('</dd>\n')
+
     def visit_termsep(self, node):
         warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
                       DeprecationWarning)
@@ -694,15 +711,6 @@ class HTMLTranslator(BaseTranslator):
                           'described at http://sphinx-doc.org/ext/math.html',
                           (self.builder.current_docname, node.line))
         raise nodes.SkipNode
-
-    # overwritten to do not add '</dt>' in 'visit_definition' state.
-    def visit_definition(self, node):
-        self.body.append(self.starttag(node, 'dd', ''))
-        self.set_first_last(node)
-
-    # overwritten to add '</dt>' in 'depart_term' state.
-    def depart_term(self, node):
-        self.body.append('</dt>\n')
 
     def unknown_visit(self, node):
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
