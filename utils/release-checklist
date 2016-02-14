@@ -2,7 +2,7 @@ Release checklist
 =================
 
 * Check git status
-* Make check
+* Run make style-check
 * Update version info in sphinx/__init__.py
 * Update release date in CHANGES
 * git commit
