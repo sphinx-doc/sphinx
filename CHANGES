@@ -68,6 +68,7 @@ Features added
 * #1858: Add Sphinx.add_enumerable_node() to add enumerable nodes for numfig feature
 * #1286, #2099: Add ``sphinx.ext.autosectionlabel`` extension to allow reference
   sections using its title. Thanks to Tadhg O'Higgins.
+* #1854: Allow to choose Janome for Japanese splitter.
 
 Bugs fixed
 ----------
