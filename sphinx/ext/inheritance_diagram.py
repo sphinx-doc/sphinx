@@ -365,7 +365,7 @@ def html_visit_inheritance_diagram(self, node):
                 urls[child['reftitle']] = '#' + child.get('refid')
 
     dotcode = graph.generate_dot(name, urls, env=self.builder.env)
-    render_dot_html(self, node, dotcode, [], 'inheritance', 'inheritance',
+    render_dot_html(self, node, dotcode, {}, 'inheritance', 'inheritance',
                     alt='Inheritance diagram of ' + node['content'])
     raise nodes.SkipNode
 
@@ -381,7 +381,7 @@ def latex_visit_inheritance_diagram(self, node):
 
     dotcode = graph.generate_dot(name, env=self.builder.env,
                                  graph_attrs={'size': '"6.0,6.0"'})
-    render_dot_latex(self, node, dotcode, [], 'inheritance')
+    render_dot_latex(self, node, dotcode, {}, 'inheritance')
     raise nodes.SkipNode
 
 
@@ -396,7 +396,7 @@ def texinfo_visit_inheritance_diagram(self, node):
 
     dotcode = graph.generate_dot(name, env=self.builder.env,
                                  graph_attrs={'size': '"6.0,6.0"'})
-    render_dot_texinfo(self, node, dotcode, [], 'inheritance')
+    render_dot_texinfo(self, node, dotcode, {}, 'inheritance')
     raise nodes.SkipNode
 
 
