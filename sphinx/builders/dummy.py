@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
     sphinx.builders.dummy
-    ~~~~~~~~~~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~~~~
 
     Do syntax checks, but no writing.
 

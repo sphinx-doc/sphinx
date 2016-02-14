@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
     sphinx.util.images
-    ~~~~~~~~~~~
+    ~~~~~~~~~~~~~~~~~~
 
     Image utility functions for Sphinx.
 
