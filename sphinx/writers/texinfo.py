@@ -12,6 +12,7 @@
 import re
 import textwrap
 from os import path
+import warnings
 
 from six import itervalues
 from six.moves import range
@@ -953,6 +954,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
         pass
 
     def visit_termsep(self, node):
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
+                      DeprecationWarning)
         self.body.append('\n%s ' % self.at_item_x)
 
     def depart_termsep(self, node):

@@ -214,7 +214,7 @@ class OptionXRefRole(XRefRole):
         return title, target
 
 
-def make_termnodes_from_paragraph_node(env, node, new_id=None):
+def register_term_to_glossary(env, node, new_id=None):
     gloss_entries = env.temp_data.setdefault('gloss_entries', set())
     objects = env.domaindata['std']['objects']
 
@@ -229,25 +229,10 @@ def make_termnodes_from_paragraph_node(env, node, new_id=None):
     # add an index entry too
     indexnode = addnodes.index()
     indexnode['entries'] = [('single', termtext, new_id, 'main')]
-    new_termnodes = []
-    new_termnodes.append(indexnode)
-    new_termnodes.extend(node.children)
-    new_termnodes.append(addnodes.termsep())
-    for termnode in new_termnodes:
-        termnode.source, termnode.line = node.source, node.line
-
-    return new_id, termtext, new_termnodes
-
-
-def make_term_from_paragraph_node(termnodes, ids):
-    # make a single "term" node with all the terms, separated by termsep
-    # nodes (remove the dangling trailing separator)
-    term = nodes.term('', '', *termnodes[:-1])
-    term.source, term.line = termnodes[0].source, termnodes[0].line
-    term.rawsource = term.astext()
-    term['ids'].extend(ids)
-    term['names'].extend(ids)
-    return term
+    indexnode.source, indexnode.line = node.source, node.line
+    node.append(indexnode)
+    node['ids'].append(new_id)
+    node['names'].append(new_id)
 
 
 class Glossary(Directive):
@@ -330,7 +315,6 @@ class Glossary(Directive):
             termtexts = []
             termnodes = []
             system_messages = []
-            ids = []
             for line, source, lineno in terms:
                 # parse the term with inline markup
                 res = self.state.inline_text(line, lineno)
@@ -338,25 +322,22 @@ class Glossary(Directive):
 
                 # get a text-only representation of the term and register it
                 # as a cross-reference target
-                tmp = nodes.paragraph('', '', *res[0])
-                tmp.source = source
-                tmp.line = lineno
-                new_id, termtext, new_termnodes = \
-                    make_termnodes_from_paragraph_node(env, tmp)
-                ids.append(new_id)
-                termtexts.append(termtext)
-                termnodes.extend(new_termnodes)
+                term = nodes.term('', '', *res[0])
+                term.source = source
+                term.line = lineno
+                register_term_to_glossary(env, term)
+                termtexts.append(term.astext())
+                termnodes.append(term)
 
-            term = make_term_from_paragraph_node(termnodes, ids)
-            term += system_messages
+            termnodes.extend(system_messages)
 
             defnode = nodes.definition()
             if definition:
                 self.state.nested_parse(definition, definition.items[0][1],
                                         defnode)
-
+            termnodes.append(defnode)
             items.append((termtexts,
-                          nodes.definition_list_item('', term, defnode)))
+                          nodes.definition_list_item('', *termnodes)))
 
         if 'sorted' in self.options:
             items.sort(key=lambda x:
