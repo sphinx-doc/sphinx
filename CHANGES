@@ -72,6 +72,7 @@ Features added
 * #1286, #2099: Add ``sphinx.ext.autosectionlabel`` extension to allow reference
   sections using its title. Thanks to Tadhg O'Higgins.
 * #1854: Allow to choose Janome for Japanese splitter.
+* #1853: support custom text splitter on html search with `language='ja'`.
 
 Bugs fixed
 ----------

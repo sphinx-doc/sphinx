@@ -915,18 +915,60 @@ that use Sphinx's HTMLWriter class.
 
    The Japanese support has these options:
 
-   * ``type`` -- ``'mecab'`` or ``'janome'`` or ``'default'`` (selects either MeCab or Janome or
-     TinySegmenter word splitter algorithm)
-   * ``dic_enc`` -- the encoding for the MeCab algorithm
-   * ``dict`` -- the dictionary to use for the MeCab algorithm
-   * ``lib`` -- the library name for finding the MeCab library via ctypes if the
-     Python binding is not installed
-   * ``user_dic`` -- the user dictionary file path for Janome
-   * ``user_dic_enc`` -- the encoding for the user dictionary file specified by ``user_dic`` option (default is 'utf8')
+   :type:
+      _`type` is dotted module path string to specify Splitter implementation which
+      should be derived from :class:`sphinx.search.ja.BaseSplitter`.
+      If not specified or None is specified, ``'sphinx.search.ja.DefaultSplitter'`` will
+      be used.
 
-   `Janome <https://pypi.python.org/pypi/Janome>`_ is required to use type ``'janome'``.
+      You can choose from these modules:
+
+      :'sphinx.search.ja.DefaultSplitter':
+         TinySegmenter algorithm. This is default splitter.
+      :'sphinx.search.ja.MeCabSplitter':
+         MeCab binding. To use this splitter, 'mecab' python binding or dynamic link
+         library ('libmecab.so' for linux, 'libmecab.dll' for windows) is required.
+      :'sphinx.search.ja.JanomeSplitter':
+         Janome binding. To use this splitter,
+         `Janome <https://pypi.python.org/pypi/Janome>`_ is required.
+
+      To keep compatibility, ``'mecab'``, ``'janome'`` and ``'default'`` are also
+      acceptable. However it will be deprecated in Sphinx-1.6.
+
+
+   Other option values depend on splitter value which you choose.
+
+   Options for ``'mecab'``:
+      :dic_enc:
+         _`dic_enc option` is the encoding for the MeCab algorithm.
+      :dict:
+         _`dict option` is the dictionary to use for the MeCab algorithm.
+      :lib:
+         _`lib option` is the library name for finding the MeCab library via ctypes if
+         the Python binding is not installed.
+
+      For example::
+
+          html_search_options = {
+              'splitter': 'mecab',
+              'options': {
+                  'dic_enc': 'utf-8',
+                  'dict': '/path/to/mecab.dic',
+                  'lib': '/path/to/libmecab.so',
+           }
+       }
+
+   Options for ``'janome'``:
+      :user_dic: _`user_dic option` is the user dictionary file path for Janome.
+      :user_dic_enc:
+         _`user_dic_enc option` is the encoding for the user dictionary file specified by
+         ``user_dic`` option. Default is 'utf8'.
 
    .. versionadded:: 1.1
+
+   .. versionchanged:: 1.4
+      html_search_options for Japanese is re-organized and any custom splitter can be
+      used by `type`_ settings.
 
 
    The Chinese support has these options:
