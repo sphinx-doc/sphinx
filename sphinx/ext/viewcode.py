@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import sys
 import traceback
 
 from six import iteritems, text_type
@@ -139,7 +140,10 @@ def collect_pages(app):
         # construct a page name for the highlighted source
         pagename = '_modules/' + modname.replace('.', '/')
         # highlight the source using the builder's highlighter
-        highlighted = highlighter.highlight_block(code, 'python', linenos=False)
+        lang = 'python'
+        if sys.version_info[0] == 3:
+            lang = 'python3'
+        highlighted = highlighter.highlight_block(code, lang, linenos=False)
         # split the code into lines
         lines = highlighted.splitlines()
         # split off wrap markup from the first line of the actual code
