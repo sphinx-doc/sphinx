@@ -207,6 +207,11 @@ def number_equations(app, doctree, docname):
         node[0] = nodes.Text(num, num)
 
 
+def setup_amsfont(app):
+    # use amsfonts if users do not configure latex_elements['amsfonts']
+    app.config.latex_elements.setdefault('amsfonts', r'\usepackage{amsfonts}')
+
+
 def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     app.add_node(math,
                  latex=(latex_visit_math, None),
@@ -230,4 +235,4 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
     app.add_role('eq', eq_role)
     app.add_directive('math', MathDirective)
     app.connect('doctree-resolved', number_equations)
-    app.add_latex_package('amsfonts')
+    app.connect('builder-inited', setup_amsfont)
