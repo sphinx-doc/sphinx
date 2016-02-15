@@ -964,13 +964,11 @@ that use Sphinx's HTMLWriter class.
       For example::
 
           html_search_options = {
-              'splitter': 'mecab',
-              'options': {
-                  'dic_enc': 'utf-8',
-                  'dict': '/path/to/mecab.dic',
-                  'lib': '/path/to/libmecab.so',
-           }
-       }
+              'type': 'mecab',
+              'dic_enc': 'utf-8',
+              'dict': '/path/to/mecab.dic',
+              'lib': '/path/to/libmecab.so',
+          }
 
    Options for ``'janome'``:
       :user_dic: _`user_dic option` is the user dictionary file path for Janome.
