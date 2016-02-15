@@ -344,12 +344,23 @@ def check_xpath(etree, fname, path, check, be_found=True):
         # only check for node presence
         pass
     else:
+        def get_text(node):
+            if node.text is not None:
+                return node.text
+            else:
+                # Since pygments-2.1.1, empty <span> tag is inserted at top of
+                # highlighting block
+                if len(node) == 1 and node[0].tag == 'span' and node[0].text is None:
+                    return node[0].tail
+                else:
+                    return ''
+
         rex = re.compile(check)
         if be_found:
-            if any(node.text and rex.search(node.text) for node in nodes):
+            if any(rex.search(get_text(node)) for node in nodes):
                 return
         else:
-            if all(node.text and not rex.search(node.text) for node in nodes):
+            if all(not rex.search(get_text(node)) for node in nodes):
                 return
 
         assert False, ('%r not found in any node matching '
