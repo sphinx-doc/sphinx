@@ -43,7 +43,8 @@ Incompatible changes
   By this change, output layout of every builders are changed a bit.
 * The default highlight language is now Python 3.  This means that source code
   is highlighted as Python 3 (which is mostly a superset of Python 2), and no
-  parsing is attempted to distinguish valid code.
+  parsing is attempted to distinguish valid code.  To get the old behavior back,
+  add ``highlight_language = "python"`` to conf.py.
 * `Locale Date Markup Language
   <http://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns>`_ like
   ``"MMMM dd, YYYY"`` is default format for `today_fmt` and `html_last_updated_fmt`.
