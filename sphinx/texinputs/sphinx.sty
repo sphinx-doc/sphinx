@@ -161,17 +161,24 @@
   \end{minipage}%
   }%
 }
+% used for split frames for continuation on next and final page
 \def\MidFrameCommand{\mycolorbox}
 \let\LastFrameCommand\MidFrameCommand
 
-% We now customize \FrameCommand (for non split frames) and \FirstFrameCommand
-% (split frames), in order for the framed environment in order for it to
-% handle a Title above the frame, which can not be separated by a pagebreak.
+% We customize \FrameCommand (for non split frames) and \FirstFrameCommand
+% (split frames), in order for the framed environment to insert a Title above
+% the frame, which can not be separated by a pagebreak.
+
+% The title is specified from outside as macro \MyVerbatimTitle.
+% \MyVerbatimTitle is reset to empty after each use of Verbatim environment.
+
+% It is also possible to use directly framed environment (i.e. not indirectly
+% via the Verbatim environment next), then it is \MyFrameTitle which specifies
+% the title.
 \newcommand*\MyFrameTitle {}
 \newcommand*\MyVerbatimTitle {}
-% cf visit_caption(self, node) in sphinx/writers/latex.py
 \newcommand*\setupcaptionforverbatim [2]
-{% make the \smallskip customizable ?
+{%
     \def\MyVerbatimTitle{\captionof{#1}{#2}\smallskip }%
 }
 
@@ -179,8 +186,9 @@
 % #1=title/caption is to be set _above_ the top rule, not _below_
 % #1 must be "vertical material", it may be left empty.
 
-% The amsmath patches \stepcounter to inhibit stepping under \firstchoice@false
-% We use that too, because framed.sty typesets multiple times its contents,
+% The amsmath patches \stepcounter to inhibit stepping under
+% \firstchoice@false. We use it because framed.sty typesets multiple
+% times its contents.
 \newif\if@MyFirstFramedPass
 
 \long\def\MyCustomFBox#1#2#3#4#5#6#7{%
@@ -213,7 +221,8 @@
   \global\@MyFirstFramedPassfalse
 }
 
-\def\FrameCommand{% used for non-split frames
+% for non split frames:
+\def\FrameCommand{%
    % this is inspired from framed.sty v 0.96 2011/10/22 lines 185--190
    % \fcolorbox (see \mycolorbox above) from color.sty uses \fbox.
    \def\fbox{\MyCustomFBox{\MyFrameTitle}{}%
@@ -222,7 +231,7 @@
    \let\XC@fbox\fbox
    \mycolorbox
 }
-% first portion of split frames:
+% for first portion of split frames:
 \let\FirstFrameCommand\FrameCommand
 
 \renewcommand{\Verbatim}[1][1]{%
