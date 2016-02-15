@@ -957,6 +957,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.table.rowcount > 30:
             self.table.longtable = True
         self.popbody()
+        if 'align' in node:
+            self.body.append('\\begin{table}[htb]')
+            if node['align'] == 'center':
+                self.body.append('\\centering')
+                align_end = ''
+            else:
+                self.body.append('\\begin{flush%s}' % node['align'])
+                align_end = '\\end{flush%s}' % node['align']
         if not self.table.longtable and self.table.caption is not None:
             self.body.append('\n\n\\begin{threeparttable}\n'
                              '\\capstart\\caption{')
@@ -1023,6 +1031,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(endmacro)
         if not self.table.longtable and self.table.caption is not None:
             self.body.append('\\end{threeparttable}\n\n')
+        if 'align' in node:
+            self.body.append(align_end)
+            self.body.append('\\end{table}')
         self.unrestrict_footnote(node)
         self.table = None
         self.tablebody = None
