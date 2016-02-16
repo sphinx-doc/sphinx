@@ -154,7 +154,7 @@ def babel_format_date(date, format, locale):
 
     try:
         return babel.dates.format_date(date, format, locale=locale)
-    except babel.core.UnknownLocaleError:
+    except (ValueError, babel.core.UnknownLocaleError):
         # fallback to English
         return babel.dates.format_date(date, format, locale='en')
 
