@@ -154,6 +154,8 @@ Bugs fixed
 * #2292: Fix some footnotes disappear from LaTeX output
 * #2287: ``sphinx.transforms.Locale`` always uses rst parser. Sphinx i18n feature should
   support parsers that specified source_parsers.
+* #2290: Fix ``sphinx.ext.mathbase`` use of amsfonts may break user choice of math fonts
+* #2324: Print a hint how to increase the recursion limit when it is hit.
 
 
 Release 1.3.5 (released Jan 24, 2016)

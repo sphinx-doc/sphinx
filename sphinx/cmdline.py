@@ -270,6 +270,14 @@ def main(argv):
                 print(red('The full traceback has been saved in %s, if you want '
                           'to report the issue to the developers.' % tbpath),
                       file=error)
+            elif isinstance(err, RuntimeError) and 'recursion depth' in str(err):
+                print(red('Recursion error:'), file=error)
+                print(terminal_safe(text_type(err)), file=error)
+                print(file=error)
+                print('This can happen with very large or deeply nested source '
+                      'files.  You can carefully increase the default Python '
+                      'recursion limit of 1000 in conf.py with e.g.:', file=error)
+                print('    import sys; sys.setrecursionlimit(1500)', file=error)
             else:
                 print(red('Exception occurred:'), file=error)
                 print(format_exception_cut_frames().rstrip(), file=error)
