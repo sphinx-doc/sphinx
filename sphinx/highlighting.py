@@ -144,17 +144,17 @@ class PygmentsBridge(object):
             if source.startswith('>>>'):
                 # interactive session
                 lexer = lexers['pycon']
-            elif not force:
-                # maybe Python -- try parsing it
-                if self.try_parse(source):
-                    lexer = lexers['python']
-                else:
-                    lexer = lexers['none']
             else:
                 lexer = lexers['python']
         elif lang in ('py3', 'python3'):
             if source.startswith('>>>'):
                 lexer = lexers['pycon3']
+            elif not force:
+                # maybe Python -- try parsing it
+                if self.try_parse(source):
+                    lexer = lexers['python3']
+                else:
+                    lexer = lexers['none']
             else:
                 lexer = lexers['python3']
         elif lang == 'guess':

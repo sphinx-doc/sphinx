@@ -12,6 +12,7 @@ Features added
 Bugs fixed
 ----------
 * Remove ``image/gif`` from supported_image_types of LaTeX writer (#2272)
+* Fix code-block literals raises highlighting warnings by default
 
 Documentation
 -------------
