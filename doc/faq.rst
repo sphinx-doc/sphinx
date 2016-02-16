@@ -267,3 +267,22 @@ The following notes may be helpful if you want to create Texinfo files:
      @definfoenclose strong,*,*
      @definfoenclose emph,_,_
      """}
+
+
+Troubleshooting
+---------------
+
+``RuntimeError: maximum recursion depth exceeded while pickling an object`` while building docs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You may run into this error if you have large documents that can't be pickled
+within the standard Python limit of 1000 recursive calls. You can increase the
+limit by putting the following in your ``conf.py`` file::
+
+    # Workaround for sphinx-build recursion limit overflow:
+    # pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
+    #  RuntimeError: maximum recursion depth exceeded while pickling an object
+    #
+    # Python's default allowed recursion depth is 1000.
+    import sys
+    sys.setrecursionlimit(2000)  # adjust number as needed
