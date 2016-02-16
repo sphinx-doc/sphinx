@@ -6,6 +6,8 @@ Incompatible changes
 
 Features added
 --------------
+* #2308: Define ``\tablecontinued`` macro to redefine the style of continued label for
+  longtables.
 
 Bugs fixed
 ----------

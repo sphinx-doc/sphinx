@@ -1006,12 +1006,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.extend(self.tableheaders)
             self.body.append('\\endfirsthead\n\n')
             self.body.append('\\multicolumn{%s}{c}%%\n' % self.table.colcount)
-            self.body.append(r'{{\textsf{\tablename\ \thetable{} -- %s}}} \\'
+            self.body.append(r'{{\tablecontinued{\tablename\ \thetable{} -- %s}}} \\'
                              % _('continued from previous page'))
             self.body.append('\n\\hline\n')
             self.body.extend(self.tableheaders)
             self.body.append('\\endhead\n\n')
-            self.body.append(r'\hline \multicolumn{%s}{|r|}{{\textsf{%s}}} \\ \hline'
+            self.body.append(r'\hline \multicolumn{%s}{|r|}{{\tablecontinued{%s}}} \\ \hline'
                              % (self.table.colcount,
                                 _('Continued on next page')))
             self.body.append('\n\\endfoot\n\n')
