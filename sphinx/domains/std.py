@@ -121,7 +121,7 @@ class Target(Directive):
                 indextype = indexentry[:colon].strip()
                 indexentry = indexentry[colon+1:].strip()
             inode = addnodes.index(entries=[(indextype, indexentry,
-                                             targetname, '')])
+                                             targetname, '', None)])
             ret.insert(0, inode)
         name = self.name
         if ':' in self.name:
