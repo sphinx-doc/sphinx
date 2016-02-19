@@ -9,16 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import re
-import textwrap
-
-try:
-    import parser
-except ImportError:
-    # parser is not available on Jython
-    parser = None
-
-from six import PY2, text_type
+from six import text_type
 
 from sphinx.util.pycompat import htmlescape
 from sphinx.util.texescape import tex_hl_escape_map_new
@@ -100,41 +91,6 @@ class PygmentsBridge(object):
             return '\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n' + \
                    source + '\\end{Verbatim}\n'
 
-    def try_parse(self, src):
-        # Make sure it ends in a newline
-        src += '\n'
-
-        # Ignore consistent indentation.
-        if src.lstrip('\n').startswith(' '):
-            src = textwrap.dedent(src)
-
-        # Replace "..." by a mark which is also a valid python expression
-        # (Note, the highlighter gets the original source, this is only done
-        #  to allow "..." in code and still highlight it as Python code.)
-        mark = "__highlighting__ellipsis__"
-        src = src.replace("...", mark)
-
-        # lines beginning with "..." are probably placeholders for suite
-        src = re.sub(r"(?m)^(\s*)" + mark + "(.)", r"\1" + mark + r"# \2", src)
-
-        if PY2 and isinstance(src, text_type):
-            # Non-ASCII chars will only occur in string literals
-            # and comments.  If we wanted to give them to the parser
-            # correctly, we'd have to find out the correct source
-            # encoding.  Since it may not even be given in a snippet,
-            # just replace all non-ASCII characters.
-            src = src.encode('ascii', 'replace')
-
-        if parser is None:
-            return True
-
-        try:
-            parser.suite(src)
-        except (SyntaxError, UnicodeEncodeError):
-            return False
-        else:
-            return True
-
     def highlight_block(self, source, lang, opts=None, warn=None, force=False, **kwargs):
         if not isinstance(source, text_type):
             source = source.decode()
@@ -146,15 +102,9 @@ class PygmentsBridge(object):
                 lexer = lexers['pycon']
             else:
                 lexer = lexers['python']
-        elif lang in ('py3', 'python3'):
+        elif lang in ('py3', 'python3', 'default'):
             if source.startswith('>>>'):
                 lexer = lexers['pycon3']
-            elif not force:
-                # maybe Python -- try parsing it
-                if self.try_parse(source):
-                    lexer = lexers['python3']
-                else:
-                    lexer = lexers['none']
             else:
                 lexer = lexers['python3']
         elif lang == 'guess':
@@ -189,7 +139,9 @@ class PygmentsBridge(object):
         except ErrorToken as exc:
             # this is most probably not the selected language,
             # so let it pass unhighlighted
-            if warn:
+            if lang == 'default':
+                pass  # automatic highlighting failed.
+            elif warn:
                 warn('Could not lex literal_block as "%s". '
                      'Highlighting skipped.' % lang)
             else:

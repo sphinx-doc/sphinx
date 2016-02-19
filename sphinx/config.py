@@ -65,7 +65,7 @@ class Config(object):
         trim_footnote_reference_space = (False, 'env'),
         show_authors = (False, 'env'),
         pygments_style = (None, 'html', [str]),
-        highlight_language = ('python3', 'env'),
+        highlight_language = ('default', 'env'),
         highlight_options = ({}, 'env'),
         templates_path = ([], 'html'),
         template_bridge = (None, 'html', [str]),
