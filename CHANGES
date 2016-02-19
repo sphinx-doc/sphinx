@@ -12,9 +12,11 @@ Features added
 Bugs fixed
 ----------
 * Remove ``image/gif`` from supported_image_types of LaTeX writer (#2272)
-* Fix code-block literals raises highlighting warnings by default
 * Fix ValueError is raised if LANGUAGE is empty string
 * Fix unpack warning is shown when the directives generated from ``Sphinx.add_crossref_type`` is used
+* The default highlight language is now ``default``.  This means that source code
+  is highlighted as Python 3 (which is mostly a superset of Python 2) if possible.
+  To get the old behavior back, add ``highlight_language = "python"`` to conf.py.
 
 Documentation
 -------------
