@@ -38,7 +38,6 @@ with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
 
 HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/markup.txt:269: WARNING: Could not parse literal_block as "c". highlighting skipped.
 %(root)s/footnote.txt:60: WARNING: citation not found: missing
 %(root)s/markup.txt:158: WARNING: unknown option: &option
 """
