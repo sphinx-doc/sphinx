@@ -447,7 +447,7 @@ class StandardDomain(Domain):
         'productionlist': ProductionList,
     }
     roles = {
-        'option':  OptionXRefRole(warn_dangling=True),
+        'option':  OptionXRefRole(),
         'envvar':  EnvVarXRefRole(),
         # links to tokens in grammar productions
         'token':   XRefRole(),
@@ -485,7 +485,6 @@ class StandardDomain(Domain):
                 'the label must precede a section header)',
         'numref':  'undefined label: %(target)s',
         'keyword': 'unknown keyword: %(target)s',
-        'option': 'unknown option: %(target)s',
     }
 
     enumerable_nodes = {  # node_class -> (figtype, title_getter)
