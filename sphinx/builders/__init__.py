@@ -260,12 +260,12 @@ class Builder(object):
 
         # while reading, collect all warnings from docutils
         warnings = []
-        self.env.set_warnfunc(lambda *args: warnings.append(args))
+        self.env.set_warnfunc(lambda *args, **kwargs: warnings.append((args, kwargs)))
         updated_docnames = set(self.env.update(self.config, self.srcdir,
                                                self.doctreedir, self.app))
         self.env.set_warnfunc(self.warn)
-        for warning in warnings:
-            self.warn(*warning)
+        for warning, kwargs in warnings:
+            self.warn(*warning, **kwargs)
 
         doccount = len(updated_docnames)
         self.info(bold('looking for now-outdated files... '), nonl=1)
@@ -350,7 +350,7 @@ class Builder(object):
         self.info('done')
 
         warnings = []
-        self.env.set_warnfunc(lambda *args: warnings.append(args))
+        self.env.set_warnfunc(lambda *args, **kwargs: warnings.append((args, kwargs)))
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
             # is busy loading doctrees and doing write_doc_serialized()
@@ -366,13 +366,16 @@ class Builder(object):
             doctree = self.env.get_and_resolve_doctree(docname, self)
             self.write_doc_serialized(docname, doctree)
             self.write_doc(docname, doctree)
-        for warning in warnings:
-            self.warn(*warning)
+        for warning, kwargs in warnings:
+            self.warn(*warning, **kwargs)
 
     def _write_parallel(self, docnames, warnings, nproc):
         def write_process(docs):
             local_warnings = []
-            self.env.set_warnfunc(lambda *args: local_warnings.append(args))
+
+            def warnfunc(*args, **kwargs):
+                local_warnings.append((args, kwargs))
+            self.env.set_warnfunc(warnfunc)
             for docname, doctree in docs:
                 self.write_doc(docname, doctree)
             return local_warnings
@@ -402,8 +405,8 @@ class Builder(object):
         self.info(bold('waiting for workers...'))
         tasks.join()
 
-        for warning in warnings:
-            self.warn(*warning)
+        for warning, kwargs in warnings:
+            self.warn(*warning, **kwargs)
 
     def prepare_writing(self, docnames):
         """A place where you can add logic before :meth:`write_doc` is run"""
