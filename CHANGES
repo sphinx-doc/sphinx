@@ -17,6 +17,7 @@ Bugs fixed
 * The default highlight language is now ``default``.  This means that source code
   is highlighted as Python 3 (which is mostly a superset of Python 2) if possible.
   To get the old behavior back, add ``highlight_language = "python"`` to conf.py.
+* #2329: Refresh environment forcely if source directory has changed.
 
 Documentation
 -------------
