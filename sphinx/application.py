@@ -41,6 +41,7 @@ from sphinx.util import pycompat  # noqa: imported for side-effects
 from sphinx.util import import_object
 from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT
+from sphinx.util.logging import is_suppressed_warning
 from sphinx.util.console import bold, lightgray, darkgray, darkgreen, \
     term_width_line
 
@@ -318,7 +319,7 @@ class Sphinx(object):
             wfile.flush()
         self.messagelog.append(message)
 
-    def warn(self, message, location=None, prefix='WARNING: '):
+    def warn(self, message, location=None, prefix='WARNING: ', type=None, subtype=None):
         """Emit a warning.
 
         If *location* is given, it should either be a tuple of (docname, lineno)
@@ -326,12 +327,17 @@ class Sphinx(object):
 
         *prefix* usually should not be changed.
 
+        *type* and *subtype* are used to suppress warnings with :confval:`suppress_warnings`.
+
         .. note::
 
            For warnings emitted during parsing, you should use
            :meth:`.BuildEnvironment.warn` since that will collect all
            warnings during parsing for later output.
         """
+        if is_suppressed_warning(type, subtype, self.config.suppress_warnings):
+            return
+
         if isinstance(location, tuple):
             docname, lineno = location
             if docname:

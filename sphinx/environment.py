@@ -1540,7 +1540,7 @@ class BuildEnvironment:
                   (node['refdomain'], typ)
         else:
             msg = '%r reference target not found: %%(target)s' % typ
-        self.warn_node(msg % {'target': target}, node)
+        self.warn_node(msg % {'target': target}, node, type='ref', subtype=typ)
 
     def _resolve_doc_reference(self, builder, node, contnode):
         # directly reference to document by source name;

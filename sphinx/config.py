@@ -71,6 +71,7 @@ class Config(object):
         templates_path = ([], 'html'),
         template_bridge = (None, 'html', [str]),
         keep_warnings = (False, 'env'),
+        suppress_warnings = ([], 'env'),
         modindex_common_prefix = ([], 'html'),
         rst_epilog = (None, 'env', [str]),
         rst_prolog = (None, 'env', [str]),

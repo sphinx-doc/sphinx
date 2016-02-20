@@ -212,6 +212,25 @@ General configuration
 
    .. versionadded:: 0.5
 
+.. confval:: suppress_warnings
+
+   A list of warning types to suppress arbitrary warning messages.
+
+   Sphinx supports following warning types:
+
+   * ref.term
+   * ref.ref
+   * ref.numref
+   * ref.keyword
+   * ref.citation
+   * ref.doc
+
+   You can choose from these types.
+
+   Now, this option should be considered *experimental*.
+
+   .. versionadded:: 1.4
+
 .. confval:: needs_sphinx
 
    If set to a ``major.minor`` version string like ``'1.1'``, Sphinx will
