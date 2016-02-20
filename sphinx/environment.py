@@ -101,7 +101,7 @@ class BuildEnvironment:
     # --------- ENVIRONMENT PERSISTENCE ----------------------------------------
 
     @staticmethod
-    def frompickle(config, filename):
+    def frompickle(srcdir, config, filename):
         picklefile = open(filename, 'rb')
         try:
             env = pickle.load(picklefile)
@@ -109,6 +109,8 @@ class BuildEnvironment:
             picklefile.close()
         if env.version != ENV_VERSION:
             raise IOError('build environment version not current')
+        if env.srcdir != srcdir:
+            raise IOError('source directory has changed')
         env.config.values = config.values
         return env
 

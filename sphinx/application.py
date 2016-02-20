@@ -221,7 +221,7 @@ class Sphinx(object):
             try:
                 self.info(bold('loading pickled environment... '), nonl=True)
                 self.env = BuildEnvironment.frompickle(
-                    self.config, path.join(self.doctreedir, ENV_PICKLE_FILENAME))
+                    self.srcdir, self.config, path.join(self.doctreedir, ENV_PICKLE_FILENAME))
                 self.env.domains = {}
                 for domain in self.domains.keys():
                     # this can raise if the data version doesn't fit
