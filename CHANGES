@@ -13,6 +13,7 @@ Features added
 * #2245: Add ``latex_elements["passoptionstopackages"]`` option to call PassOptionsToPackages
   in early stage of preambles.
 * Add :confval:`suppress_warnings` to suppress arbitrary warning message (experimental)
+* #2229: Fix no warning is given for unknown options
 
 Bugs fixed
 ----------

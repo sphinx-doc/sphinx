@@ -222,6 +222,7 @@ General configuration
    * ref.ref
    * ref.numref
    * ref.keyword
+   * ref.option
    * ref.citation
    * ref.doc
 
