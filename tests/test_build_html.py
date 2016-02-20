@@ -39,7 +39,6 @@ with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
 HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
 %(root)s/footnote.txt:60: WARNING: citation not found: missing
-%(root)s/markup.txt:158: WARNING: unknown option: &option
 """
 
 if PY3:
