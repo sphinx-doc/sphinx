@@ -1391,8 +1391,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    ``'default'``. The default value is ``'ltr'``.
 
    When the ``'default'`` value is specified, the Author is expressing no
-   preference and the Reading System may chose the rendering direction. This
-   value must be assumed when the attribute is not specified.
+   preference and the Reading System may chose the rendering direction.
 
    .. versionadded:: 1.4
 
