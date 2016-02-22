@@ -8,6 +8,8 @@ Features added
 --------------
 * #2308: Define ``\tablecontinued`` macro to redefine the style of continued label for
   longtables.
+* Select an image by similarity if multiple images are globbed by ``.. image:: filename.*``
+* #1921: Support figure substitutions by :confval:`language` and :confval:`figure_language_filename`
 
 Bugs fixed
 ----------
@@ -105,8 +107,6 @@ Features added
 * #1853: support custom text splitter on html search with ``language='ja'``.
 * #2320: classifier of glossary terms can be used for index entries grouping key.
   The classifier also be used for translation. See also :ref:`glossary-directive`.
-* Select an image by similarity if multiple images are globbed by ``.. image:: filename.*``
-* #1921: Support figure substitutions by :confval:`language` and :confval:`figure_language_filename`
 
 Bugs fixed
 ----------
