@@ -1545,6 +1545,10 @@ These options influence LaTeX output.
         the "Bjarne" style uses numbers spelled out in English).  Other
         "fncychap" styles you can try include "Lenny", "Glenn", "Conny" and
         "Rejne".  You can also set this to ``''`` to disable fncychap.
+     ``'passoptionstopackages'``
+        "PassOptionsToPackage" call, default empty.
+
+        .. versionadded:: 1.4
      ``'preamble'``
         Additional preamble content, default empty.
      ``'figure_align'``

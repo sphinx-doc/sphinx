@@ -10,6 +10,8 @@ Features added
   longtables.
 * Select an image by similarity if multiple images are globbed by ``.. image:: filename.*``
 * #1921: Support figure substitutions by :confval:`language` and :confval:`figure_language_filename`
+* #2245: Add ``latex_elements["passoptionstopackages"]`` option to call PassOptionsToPackages
+  in early stage of preambles.
 
 Bugs fixed
 ----------
