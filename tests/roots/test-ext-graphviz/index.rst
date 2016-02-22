@@ -16,3 +16,6 @@ Hello |graph| graphviz world
    :graphviz_dot: neato
 
    bar -> baz
+
+
+.. graphviz:: graph.dot

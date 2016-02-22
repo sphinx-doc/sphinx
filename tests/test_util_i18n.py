@@ -16,8 +16,9 @@ from os import path
 
 from babel.messages.mofile import read_mo
 from sphinx.util import i18n
+from sphinx.errors import SphinxError
 
-from util import with_tempdir
+from util import TestApp, with_tempdir, raises
 
 
 def test_catalog_info_for_file_and_path():
@@ -183,3 +184,46 @@ def test_format_date():
     assert i18n.format_date(format, date=date, language='en') == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='ja') == u'2月 07, 2016'
     assert i18n.format_date(format, date=date, language='de') == 'Februar 07, 2016'
+
+
+def test_get_filename_for_language():
+    app = TestApp()
+
+    # language is None
+    app.env.config.language = None
+    assert app.env.config.language is None
+    assert i18n.get_image_filename_for_language('foo.png', app.env) == 'foo.png'
+    assert i18n.get_image_filename_for_language('foo.bar.png', app.env) == 'foo.bar.png'
+    assert i18n.get_image_filename_for_language('subdir/foo.png', app.env) == 'subdir/foo.png'
+    assert i18n.get_image_filename_for_language('../foo.png', app.env) == '../foo.png'
+    assert i18n.get_image_filename_for_language('foo', app.env) == 'foo'
+
+    # language is en
+    app.env.config.language = 'en'
+    assert i18n.get_image_filename_for_language('foo.png', app.env) == 'foo.en.png'
+    assert i18n.get_image_filename_for_language('foo.bar.png', app.env) == 'foo.bar.en.png'
+    assert i18n.get_image_filename_for_language('dir/foo.png', app.env) == 'dir/foo.en.png'
+    assert i18n.get_image_filename_for_language('../foo.png', app.env) == '../foo.en.png'
+    assert i18n.get_image_filename_for_language('foo', app.env) == 'foo.en'
+
+    # modify figure_language_filename and language is None
+    app.env.config.language = None
+    app.env.config.figure_language_filename = 'images/{language}/{root}{ext}'
+    assert i18n.get_image_filename_for_language('foo.png', app.env) == 'foo.png'
+    assert i18n.get_image_filename_for_language('foo.bar.png', app.env) == 'foo.bar.png'
+    assert i18n.get_image_filename_for_language('subdir/foo.png', app.env) == 'subdir/foo.png'
+    assert i18n.get_image_filename_for_language('../foo.png', app.env) == '../foo.png'
+    assert i18n.get_image_filename_for_language('foo', app.env) == 'foo'
+
+    # modify figure_language_filename and language is 'en'
+    app.env.config.language = 'en'
+    app.env.config.figure_language_filename = 'images/{language}/{root}{ext}'
+    assert i18n.get_image_filename_for_language('foo.png', app.env) == 'images/en/foo.png'
+    assert i18n.get_image_filename_for_language('foo.bar.png', app.env) == 'images/en/foo.bar.png'
+    assert i18n.get_image_filename_for_language('subdir/foo.png', app.env) == 'images/en/subdir/foo.png'
+    assert i18n.get_image_filename_for_language('../foo.png', app.env) == 'images/en/../foo.png'
+    assert i18n.get_image_filename_for_language('foo', app.env) == 'images/en/foo'
+
+    # invalid figure_language_filename
+    app.env.config.figure_language_filename = '{root}.{invalid}{ext}'
+    raises(SphinxError, i18n.get_image_filename_for_language, 'foo.png', app.env)

@@ -25,6 +25,7 @@ from docutils.statemachine import ViewList
 import sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _
+from sphinx.util.i18n import search_image_for_language
 from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 from sphinx.util.compat import Directive
 
@@ -77,7 +78,8 @@ class Graphviz(Directive):
                     'Graphviz directive cannot have both content and '
                     'a filename argument', line=self.lineno)]
             env = self.state.document.settings.env
-            rel_filename, filename = env.relfn2path(self.arguments[0])
+            argument = search_image_for_language(self.arguments[0], env)
+            rel_filename, filename = env.relfn2path(argument)
             env.note_dependency(rel_filename)
             try:
                 fp = codecs.open(filename, 'r', 'utf-8')

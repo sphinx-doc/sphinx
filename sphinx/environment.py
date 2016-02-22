@@ -16,7 +16,6 @@ import time
 import types
 import bisect
 import codecs
-import imghdr
 import string
 import unicodedata
 from os import path
@@ -40,7 +39,9 @@ from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
     FilenameUniqDict, split_index_msg
 from sphinx.util.nodes import clean_astext, make_refnode, WarningStream, is_translatable
 from sphinx.util.osutil import SEP, getcwd, fs_encoding, ensuredir
-from sphinx.util.i18n import find_catalog_files
+from sphinx.util.images import guess_mimetype
+from sphinx.util.i18n import find_catalog_files, get_image_filename_for_language, \
+    search_image_for_language
 from sphinx.util.console import bold, purple
 from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
@@ -884,6 +885,21 @@ class BuildEnvironment:
 
     def process_images(self, docname, doctree):
         """Process and rewrite image URIs."""
+        def collect_candidates(imgpath, candidates):
+            globbed = {}
+            for filename in glob(imgpath):
+                new_imgpath = relative_path(path.join(self.srcdir, 'dummy'),
+                                            filename)
+                try:
+                    mimetype = guess_mimetype(filename)
+                    if mimetype not in candidates:
+                        globbed.setdefault(mimetype, []).append(new_imgpath)
+                except (OSError, IOError) as err:
+                    self.warn_node('image file %s not readable: %s' %
+                                   (filename, err), node)
+            for key, files in iteritems(globbed):
+                candidates[key] = sorted(files, key=len)[0]  # select by similarity
+
         for node in doctree.traverse(nodes.image):
             # Map the mimetype to the corresponding image.  The writer may
             # choose the best image from these candidates.  The special key * is
@@ -896,30 +912,26 @@ class BuildEnvironment:
                 candidates['?'] = imguri
                 continue
             rel_imgpath, full_imgpath = self.relfn2path(imguri, docname)
+            if self.config.language:
+                # substitute figures (ex. foo.png -> foo.en.png)
+                i18n_full_imgpath = search_image_for_language(full_imgpath, self)
+                if i18n_full_imgpath != full_imgpath:
+                    full_imgpath = i18n_full_imgpath
+                    rel_imgpath = relative_path(path.join(self.srcdir, 'dummy'),
+                                                i18n_full_imgpath)
             # set imgpath as default URI
             node['uri'] = rel_imgpath
             if rel_imgpath.endswith(os.extsep + '*'):
-                for filename in glob(full_imgpath):
-                    new_imgpath = relative_path(path.join(self.srcdir, 'dummy'),
-                                                filename)
-                    if filename.lower().endswith('.pdf'):
-                        candidates['application/pdf'] = new_imgpath
-                    elif filename.lower().endswith('.svg'):
-                        candidates['image/svg+xml'] = new_imgpath
-                    else:
-                        try:
-                            f = open(filename, 'rb')
-                            try:
-                                imgtype = imghdr.what(f)
-                            finally:
-                                f.close()
-                        except (OSError, IOError) as err:
-                            self.warn_node('image file %s not readable: %s' %
-                                           (filename, err), node)
-                        if imgtype:
-                            candidates['image/' + imgtype] = new_imgpath
+                if self.config.language:
+                    # Search language-specific figures at first
+                    i18n_imguri = get_image_filename_for_language(imguri, self)
+                    _, full_i18n_imgpath = self.relfn2path(i18n_imguri, docname)
+                    collect_candidates(full_i18n_imgpath, candidates)
+
+                collect_candidates(full_imgpath, candidates)
             else:
                 candidates['*'] = rel_imgpath
+
             # map image paths to unique image names (so that they can be put
             # into a single directory)
             for imgpath in itervalues(candidates):
