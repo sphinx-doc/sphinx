@@ -10,15 +10,39 @@
 """
 
 import re
+import subprocess
+from functools import wraps
 
 from util import with_app, SkipTest
 
 
+def skip_if_graphviz_not_found(fn):
+    @wraps(fn)
+    def decorator(app, *args, **kwargs):
+        found = False
+        graphviz_dot = getattr(app.config, 'graphviz_dot', '')
+        try:
+            if graphviz_dot:
+                dot = subprocess.Popen([graphviz_dot, '-V'],
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.PIPE)  # show version
+                dot.wait()
+                found = True
+        except OSError:  # No such file or directory
+            pass
+
+        if not found:
+            raise SkipTest('graphviz "dot" is not available')
+
+        return fn(app, *args, **kwargs)
+
+    return decorator
+
+
 @with_app('html', testroot='ext-graphviz')
+@skip_if_graphviz_not_found
 def test_graphviz_html(app, status, warning):
     app.builder.build_all()
-    if "dot command 'dot' cannot be run" in warning.getvalue():
-        raise SkipTest('graphviz "dot" is not available')
 
     content = (app.outdir / 'index.html').text()
     html = ('<div class="figure" .*?>\s*<img .*?/>\s*<p class="caption">'
@@ -30,10 +54,9 @@ def test_graphviz_html(app, status, warning):
 
 
 @with_app('latex', testroot='ext-graphviz')
+@skip_if_graphviz_not_found
 def test_graphviz_latex(app, status, warning):
     app.builder.build_all()
-    if "dot command 'dot' cannot be run" in warning.getvalue():
-        raise SkipTest('graphviz "dot" is not available')
 
     content = (app.outdir / 'SphinxTests.tex').text()
     macro = ('\\\\begin{figure}\[htbp\]\n\\\\centering\n\\\\capstart\n\n'
