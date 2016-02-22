@@ -120,7 +120,7 @@ class Epub3Builder(EpubBuilder):
         metadata['description'] = self.esc(self.config.epub3_description)
         metadata['contributor'] = self.esc(self.config.epub3_contributor)
         metadata['page_progression_direction'] = self.esc(
-            self.config.epub3_page_progression_direction)
+            self.config.epub3_page_progression_direction) or 'default'
         return metadata
 
     def new_navlist(self, node, level):
