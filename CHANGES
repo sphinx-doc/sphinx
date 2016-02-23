@@ -13,6 +13,7 @@ Features added
 * #2245: Add ``latex_elements["passoptionstopackages"]`` option to call PassOptionsToPackages
   in early stage of preambles.
 * PR #2340: Math extension: support alignment of multiple equations for MathJAX.
+* #2338: Define ``\titlereference`` macro to redefine the style of `title-reference` roles.
 
 Bugs fixed
 ----------
