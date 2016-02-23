@@ -3,6 +3,7 @@ Release 1.4 alpha2 (in development)
 
 Incompatible changes
 --------------------
+* #2327: `latex_use_parts` is deprecated now. Use `latex_toplevel_sectioning` instead.
 
 Features added
 --------------
@@ -17,6 +18,7 @@ Features added
 * Define ``\menuselection`` and ``\accelerator`` macros to redefine the style of `menuselection` roles.
 * Define ``\internalreference`` macro to redefine the style of references
 * #2301: Texts in the classic html theme should be hyphenated.
+* #2327: Add `latex_toplevel_sectioning` to switch the top level sectioning of LaTeX document.
 
 Bugs fixed
 ----------

@@ -1459,12 +1459,24 @@ These options influence LaTeX output.
    configuration directory) that is the logo of the docs.  It is placed at the
    top of the title page.  Default: ``None``.
 
+.. confval:: latex_toplevel_sectioning
+
+   This value determines the topmost sectioning unit. It should be chosen from
+   ``part``, ``chapter`` or ``section``. The default is ``None``; the topmost
+   sectioning unit is switched by documentclass. ``section`` is used if
+   documentclass will be ``howto``, otherwise ``chapter`` will be used.
+
+   .. versionadded:: 1.4
+
 .. confval:: latex_use_parts
 
    If true, the topmost sectioning unit is parts, else it is chapters.  Default:
    ``False``.
 
    .. versionadded:: 0.3
+
+   .. deprecated:: 1.4
+      Use :confval:`latex_toplevel_sectioning`.
 
 .. confval:: latex_appendices
 
