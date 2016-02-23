@@ -1925,10 +1925,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_inline(self, node):
         classes = node.get('classes', [])
         if classes in [['menuselection'], ['guilabel']]:
-            self.body.append(r'\emph{')
+            self.body.append(r'\menuselection{')
             self.context.append('}')
         elif classes in [['accelerator']]:
-            self.body.append(r'\underline{')
+            self.body.append(r'\accelerator{')
             self.context.append('}')
         elif classes and not self.in_title:
             self.body.append(r'\DUrole{%s}{' % ','.join(classes))

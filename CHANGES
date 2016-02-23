@@ -14,6 +14,7 @@ Features added
   in early stage of preambles.
 * PR #2340: Math extension: support alignment of multiple equations for MathJAX.
 * #2338: Define ``\titlereference`` macro to redefine the style of `title-reference` roles.
+* Define ``\menuselection`` and ``\accelerator`` macros to redefine the style of `menuselection` roles.
 
 Bugs fixed
 ----------
