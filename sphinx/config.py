@@ -13,7 +13,7 @@ import re
 from os import path, environ
 import shlex
 
-from six import PY3, iteritems, string_types, binary_type, integer_types
+from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
 
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
@@ -29,6 +29,11 @@ CONFIG_EXIT_ERROR = "The configuration file (or one of the modules it imports) "
                     "called sys.exit()"
 CONFIG_TYPE_WARNING = "The config value `{name}' has type `{current.__name__}', " \
                       "defaults to `{default.__name__}.'"
+
+
+string_classes = [text_type]
+if PY2:
+    string_classes.append(binary_type)  # => [str, unicode]
 
 
 class Config(object):
@@ -49,9 +54,9 @@ class Config(object):
         release = ('', 'env'),
         today = ('', 'env'),
         # the real default is locale-dependent
-        today_fmt = (None, 'env', [str]),
+        today_fmt = (None, 'env', string_classes),
 
-        language = (None, 'env', [str]),
+        language = (None, 'env', string_classes),
         locale_dirs = ([], 'env'),
         figure_language_filename = ('{root}.{language}{ext}', 'env', [str]),
 
@@ -60,23 +65,23 @@ class Config(object):
         source_encoding = ('utf-8-sig', 'env'),
         source_parsers = ({}, 'env'),
         exclude_patterns = ([], 'env'),
-        default_role = (None, 'env', [str]),
+        default_role = (None, 'env', string_classes),
         add_function_parentheses = (True, 'env'),
         add_module_names = (True, 'env'),
         trim_footnote_reference_space = (False, 'env'),
         show_authors = (False, 'env'),
-        pygments_style = (None, 'html', [str]),
+        pygments_style = (None, 'html', string_classes),
         highlight_language = ('default', 'env'),
         highlight_options = ({}, 'env'),
         templates_path = ([], 'html'),
-        template_bridge = (None, 'html', [str]),
+        template_bridge = (None, 'html', string_classes),
         keep_warnings = (False, 'env'),
         modindex_common_prefix = ([], 'html'),
-        rst_epilog = (None, 'env', [str]),
-        rst_prolog = (None, 'env', [str]),
+        rst_epilog = (None, 'env', string_classes),
+        rst_prolog = (None, 'env', string_classes),
         trim_doctest_flags = (True, 'env'),
         primary_domain = ('py', 'env', [NoneType]),
-        needs_sphinx = (None, None, [str]),
+        needs_sphinx = (None, None, string_classes),
         needs_extensions = ({}, None),
         nitpicky = (False, 'env'),
         nitpick_ignore = ([], 'html'),
@@ -93,17 +98,17 @@ class Config(object):
         html_theme_options = ({}, 'html'),
         html_title = (lambda self: l_('%s %s documentation') %
                       (self.project, self.release),
-                      'html', [str]),
+                      'html', string_classes),
         html_short_title = (lambda self: self.html_title, 'html'),
-        html_style = (None, 'html', [str]),
-        html_logo = (None, 'html', [str]),
-        html_favicon = (None, 'html', [str]),
+        html_style = (None, 'html', string_classes),
+        html_logo = (None, 'html', string_classes),
+        html_favicon = (None, 'html', string_classes),
         html_static_path = ([], 'html'),
         html_extra_path = ([], 'html'),
         # the real default is locale-dependent
-        html_last_updated_fmt = (None, 'html', [str]),
+        html_last_updated_fmt = (None, 'html', string_classes),
         html_use_smartypants = (True, 'html'),
-        html_translator_class = (None, 'html', [str]),
+        html_translator_class = (None, 'html', string_classes),
         html_sidebars = ({}, 'html'),
         html_additional_pages = ({}, 'html'),
         html_use_modindex = (True, 'html'),  # deprecated
@@ -114,15 +119,15 @@ class Config(object):
         html_copy_source = (True, 'html'),
         html_show_sourcelink = (True, 'html'),
         html_use_opensearch = ('', 'html'),
-        html_file_suffix = (None, 'html', [str]),
-        html_link_suffix = (None, 'html', [str]),
+        html_file_suffix = (None, 'html', string_classes),
+        html_link_suffix = (None, 'html', string_classes),
         html_show_copyright = (True, 'html'),
         html_show_sphinx = (True, 'html'),
         html_context = ({}, 'html'),
         html_output_encoding = ('utf-8', 'html'),
         html_compact_lists = (True, 'html'),
         html_secnumber_suffix = ('. ', 'html'),
-        html_search_language = (None, 'html', [str]),
+        html_search_language = (None, 'html', string_classes),
         html_search_options = ({}, 'html'),
         html_search_scorer = ('', None),
         html_scaled_image_link = (True, 'html'),
@@ -139,17 +144,17 @@ class Config(object):
         # Apple help options
         applehelp_bundle_name = (lambda self: make_filename(self.project),
                                  'applehelp'),
-        applehelp_bundle_id = (None, 'applehelp', [str]),
+        applehelp_bundle_id = (None, 'applehelp', string_classes),
         applehelp_dev_region = ('en-us', 'applehelp'),
         applehelp_bundle_version = ('1', 'applehelp'),
-        applehelp_icon = (None, 'applehelp', [str]),
+        applehelp_icon = (None, 'applehelp', string_classes),
         applehelp_kb_product = (lambda self: '%s-%s' %
                                 (make_filename(self.project), self.release),
                                 'applehelp'),
-        applehelp_kb_url = (None, 'applehelp', [str]),
-        applehelp_remote_url = (None, 'applehelp', [str]),
-        applehelp_index_anchors = (False, 'applehelp', [str]),
-        applehelp_min_term_length = (None, 'applehelp', [str]),
+        applehelp_kb_url = (None, 'applehelp', string_classes),
+        applehelp_remote_url = (None, 'applehelp', string_classes),
+        applehelp_index_anchors = (False, 'applehelp', string_classes),
+        applehelp_min_term_length = (None, 'applehelp', string_classes),
         applehelp_stopwords = (lambda self: self.language or 'en', 'applehelp'),
         applehelp_locale = (lambda self: self.language or 'en', 'applehelp'),
         applehelp_title = (lambda self: self.project + ' Help', 'applehelp'),
@@ -170,9 +175,9 @@ class Config(object):
         epub_theme = ('epub', 'html'),
         epub_theme_options = ({}, 'html'),
         epub_title = (lambda self: self.html_title, 'html'),
-        epub3_description = ('', 'epub3', [str]),
+        epub3_description = ('', 'epub3', string_classes),
         epub_author = ('unknown', 'html'),
-        epub3_contributor = ('unknown', 'epub3', [str]),
+        epub3_contributor = ('unknown', 'epub3', string_classes),
         epub_language = (lambda self: self.language or 'en', 'html'),
         epub_publisher = ('unknown', 'html'),
         epub_copyright = (lambda self: self.copyright, 'html'),
@@ -191,7 +196,7 @@ class Config(object):
         epub_max_image_width = (0, 'env'),
         epub_show_urls = ('inline', 'html'),
         epub_use_index = (lambda self: self.html_use_index, 'html'),
-        epub3_page_progression_direction = ('ltr', 'epub3', [str]),
+        epub3_page_progression_direction = ('ltr', 'epub3', string_classes),
 
         # LaTeX options
         latex_documents = (lambda self: [(self.master_doc,
@@ -199,7 +204,7 @@ class Config(object):
                                           self.project,
                                           '', 'manual')],
                            None),
-        latex_logo = (None, None, [str]),
+        latex_logo = (None, None, string_classes),
         latex_appendices = ([], None),
         latex_use_parts = (False, None),
         latex_use_modindex = (True, None),  # deprecated
