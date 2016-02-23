@@ -12,6 +12,7 @@ Features added
 * #1921: Support figure substitutions by :confval:`language` and :confval:`figure_language_filename`
 * #2245: Add ``latex_elements["passoptionstopackages"]`` option to call PassOptionsToPackages
   in early stage of preambles.
+* PR #2340: Math extension: support alignment of multiple equations for MathJAX.
 
 Bugs fixed
 ----------
