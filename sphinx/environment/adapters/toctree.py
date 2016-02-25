@@ -123,7 +123,14 @@ class TocTree(object):
             for (title, ref) in refs:
                 try:
                     refdoc = None
-                    if url_re.match(ref):
+                    if isinstance(ref, nodes.Node):
+                        # Strip off the outer paragraph and stuff its
+                        # children into a compact one here.
+                        para = addnodes.compact_paragraph('', '')
+                        para.children = ref.children[0].children
+                        item = nodes.list_item('', para)
+                        toc = nodes.bullet_list('', item)
+                    elif url_re.match(ref):
                         if title is None:
                             title = ref
                         reference = nodes.reference('', '', internal=False,

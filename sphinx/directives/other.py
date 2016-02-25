@@ -14,6 +14,7 @@ from docutils.parsers.rst import Directive, directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.parsers.rst.directives.misc import Class
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
+from docutils.statemachine import ViewList
 
 from sphinx import addnodes
 from sphinx.locale import versionlabels, _
@@ -24,7 +25,7 @@ from sphinx.util.matching import patfilter
 
 if False:
     # For type annotation
-    from typing import Any, Dict, List, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 
@@ -63,9 +64,15 @@ class TocTree(Directive):
         glob = 'glob' in self.options
 
         ret = []
+        # Children of the internal toctree node; these will be rewritten by
+        # traversals (and so having other references into these will also
+        # get rewritten) but, nicely, are not rendered directly due to the
+        # way that the environment code deals with toctrees.
+        others = []
         # (title, ref) pairs, where ref may be a document, or an external link,
-        # and title may be None if the document's title is to be used
-        entries = []        # type: List[Tuple[unicode, unicode]]
+        # or a node.  title may be None if the document's title is to be used
+        # and must be None if a node is given as a ref.
+        entries = []        # type: List[Tuple[unicode, Union[unicode,nodes.Node]]]
         includefiles = []
         all_docnames = env.found_docs.copy()
         # don't add the currently visited file in catch-all patterns
@@ -73,7 +80,12 @@ class TocTree(Directive):
         for entry in self.content:
             if not entry:
                 continue
-            if glob and ('*' in entry or '?' in entry or '[' in entry):
+            if entry.startswith("_ "):
+                node = nodes.paragraph()
+                self.state.nested_parse(ViewList([entry[2:]]), 0, node)
+                others.append(node)
+                entries.append((None, node))
+            elif glob and ('*' in entry or '?' in entry or '[' in entry):
                 patname = docname_join(env.docname, entry)
                 docnames = sorted(patfilter(all_docnames, patname))
                 for docname in docnames:
@@ -127,6 +139,7 @@ class TocTree(Directive):
         subnode['includehidden'] = 'includehidden' in self.options
         subnode['numbered'] = self.options.get('numbered', 0)
         subnode['titlesonly'] = 'titlesonly' in self.options
+        subnode.children = others
         set_source_info(self, subnode)
         wrappernode = nodes.compound(classes=['toctree-wrapper'])
         wrappernode.append(subnode)
