@@ -16,6 +16,7 @@ from docutils.nodes import raw, comment, title, Text, NodeVisitor, SkipNode
 from os import path
 
 from sphinx.util import jsdump, rpartition
+from sphinx.util.pycompat import htmlescape
 
 
 class SearchLanguage(object):
@@ -283,6 +284,7 @@ class IndexBuilder(object):
                     continue
                 if prio < 0:
                     continue
+                fullname = htmlescape(fullname)
                 prefix, name = rpartition(fullname, '.')
                 pdict = rv.setdefault(prefix, {})
                 try:
