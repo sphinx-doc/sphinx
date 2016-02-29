@@ -40,6 +40,11 @@ def os_path(canonicalpath):
     return canonicalpath.replace(SEP, path.sep)
 
 
+def canon_path(nativepath):
+    """Return path in OS-independent form"""
+    return nativepath.replace(path.sep, SEP)
+
+
 def relative_uri(base, to):
     """Return a relative URL from ``base`` to ``to``."""
     if to.startswith(SEP):
@@ -153,7 +158,8 @@ def make_filename(string):
 
 
 def ustrftime(format, *args):
-    # strftime for unicode strings
+    # [DEPRECATED] strftime for unicode strings
+    # It will be removed at Sphinx-1.5
     if not args:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal

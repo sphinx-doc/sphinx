@@ -186,9 +186,18 @@ TYPECHECK_WARNINGS = {
     'value8': False,
     'value9': False,
     'value10': False,
+    'value11': True,
+    'value12': False,
+    'value13': False,
+    'value14': False,
+    'value15': False,
+    'value16': False,
 }
 @gen_with_app(testroot='config')
 def test_gen_check_types(app, status, warning):
+    if PY3:
+        TYPECHECK_WARNINGS['value11'] = False
+
     for key, should in iteritems(TYPECHECK_WARNINGS):
         yield assert_in if should else assert_not_in, key, warning.getvalue(), \
                 'override on "%s" should%s raise a type warning' % \

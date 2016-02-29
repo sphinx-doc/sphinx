@@ -31,16 +31,15 @@ http://www.python.org/logo.png
 reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 :encoding: option\\n?
 %(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
-(%(root)s/markup.txt:357: WARNING: invalid single index entry u'')?
+(%(root)s/markup.txt:359: WARNING: invalid single index entry u'')?
 (%(root)s/undecodable.txt:3: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
 )?"""
 
 HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/markup.txt:269: WARNING: Could not parse literal_block as "c". highlighting skipped.
+%(root)s/markup.txt:271: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 %(root)s/footnote.txt:60: WARNING: citation not found: missing
-%(root)s/markup.txt:158: WARNING: unknown option: &option
 """
 
 if PY3:
@@ -81,8 +80,8 @@ HTML_XPATH = {
         (".//pre", u'Max Strauß'),
         (".//a[@href='_downloads/img.png']", ''),
         (".//a[@href='_downloads/img1.png']", ''),
-        (".//pre", u'"quotes"'),
-        (".//pre", u"'included'"),
+        (".//pre/span", u'"quotes"'),
+        (".//pre/span", u"'included'"),
         (".//pre/span[@class='s2']", u'üöä'),
         (".//div[@class='inc-pyobj1 highlight-text']//pre",
             r'^class Foo:\n    pass\n\s*$'),
@@ -344,12 +343,23 @@ def check_xpath(etree, fname, path, check, be_found=True):
         # only check for node presence
         pass
     else:
+        def get_text(node):
+            if node.text is not None:
+                return node.text
+            else:
+                # Since pygments-2.1.1, empty <span> tag is inserted at top of
+                # highlighting block
+                if len(node) == 1 and node[0].tag == 'span' and node[0].text is None:
+                    return node[0].tail
+                else:
+                    return ''
+
         rex = re.compile(check)
         if be_found:
-            if any(node.text and rex.search(node.text) for node in nodes):
+            if any(rex.search(get_text(node)) for node in nodes):
                 return
         else:
-            if all(node.text and not rex.search(node.text) for node in nodes):
+            if all(not rex.search(get_text(node)) for node in nodes):
                 return
 
         assert False, ('%r not found in any node matching '
@@ -928,6 +938,38 @@ def test_numfig_with_secnum_depth(app, status, warning):
              '^Table 2.1.2 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Listing 2.1.2 $', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        with (app.outdir / fname).open('rb') as fp:
+            etree = ET.parse(fp, parser)
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@gen_with_app(buildername='html', testroot='add_enumerable_node')
+def test_enumerable_node(app, status, warning):
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//div[@class='figure']/p[@class='caption']/span[@class='caption-number']",
+             "Fig. 1", True),
+            (".//div[@class='figure']/p[@class='caption']/span[@class='caption-number']",
+             "Fig. 2", True),
+            (".//div[@class='figure']/p[@class='caption']/span[@class='caption-number']",
+             "Fig. 3", True),
+            (".//div//span[@class='caption-number']", "No.1 ", True),
+            (".//div//span[@class='caption-number']", "No.2 ", True),
+            (".//li/a/span", 'Fig. 1', True),
+            (".//li/a/span", 'Fig. 2', True),
+            (".//li/a/span", 'Fig. 3', True),
+            (".//li/a/span", 'No.1', True),
+            (".//li/a/span", 'No.2', True),
         ],
     }
 

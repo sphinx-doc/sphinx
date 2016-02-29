@@ -265,7 +265,7 @@ package jsMath_.  It provides this config value:
 
 .. _dvipng: http://savannah.nongnu.org/projects/dvipng/
 .. _dvisvgm: http://dvisvgm.bplaced.net/
-.. _MathJax: http://www.mathjax.org/
+.. _MathJax: https://www.mathjax.org/
 .. _jsMath: http://www.math.union.edu/~dpvc/jsmath/
 .. _preview-latex package: http://www.gnu.org/software/auctex/preview-latex.html
 .. _AmSMath LaTeX package: http://www.ams.org/publications/authors/tex/amslatex

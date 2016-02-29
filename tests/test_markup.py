@@ -103,13 +103,13 @@ def test_inline():
     # interpolation of arrows in menuselection
     yield (verify, ':menuselection:`a --> b`',
            u'<p><span class="menuselection">a \N{TRIANGULAR BULLET} b</span></p>',
-           '\\emph{a \\(\\rightarrow\\) b}')
+           '\\menuselection{a \\(\\rightarrow\\) b}')
 
     # interpolation of ampersands in guilabel/menuselection
     yield (verify, ':guilabel:`&Foo -&&- &Bar`',
            u'<p><span class="guilabel"><span class="accelerator">F</span>oo '
            '-&amp;- <span class="accelerator">B</span>ar</span></p>',
-           r'\emph{\underline{F}oo -\&- \underline{B}ar}')
+           r'\menuselection{\accelerator{F}oo -\&- \accelerator{B}ar}')
 
     # non-interpolation of dashes in option role
     yield (verify_re, ':option:`--with-option`',

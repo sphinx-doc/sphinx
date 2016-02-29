@@ -1,5 +1,39 @@
-Release 1.4 (in development)
-============================
+Release 1.4 alpha2 (in development)
+===================================
+
+Incompatible changes
+--------------------
+
+Features added
+--------------
+* #2308: Define ``\tablecontinued`` macro to redefine the style of continued label for
+  longtables.
+* Select an image by similarity if multiple images are globbed by ``.. image:: filename.*``
+* #1921: Support figure substitutions by :confval:`language` and :confval:`figure_language_filename`
+* #2245: Add ``latex_elements["passoptionstopackages"]`` option to call PassOptionsToPackages
+  in early stage of preambles.
+* #2340: Math extension: support alignment of multiple equations for MathJAX.
+* #2338: Define ``\titlereference`` macro to redefine the style of ``title-reference`` roles.
+* Define ``\menuselection`` and ``\accelerator`` macros to redefine the style of `menuselection` roles.
+* Define ``\internalreference`` macro to redefine the style of references
+
+Bugs fixed
+----------
+* Remove ``image/gif`` from supported_image_types of LaTeX writer (#2272)
+* Fix ValueError is raised if LANGUAGE is empty string
+* Fix unpack warning is shown when the directives generated from ``Sphinx.add_crossref_type`` is used
+* The default highlight language is now ``default``.  This means that source code
+  is highlighted as Python 3 (which is mostly a superset of Python 2) if possible.
+  To get the old behavior back, add ``highlight_language = "python"`` to conf.py.
+* #2329: Refresh environment forcely if source directory has changed.
+* #2331: Fix code-blocks are filled by block in dvi; remove ``xcdraw`` option from xcolor package
+* Fix the confval type checker emits warnings if unicode is given to confvals which expects string value
+
+Documentation
+-------------
+
+Release 1.4 alpha1 (released Feb 14, 2016)
+==========================================
 
 Incompatible changes
 --------------------
@@ -19,6 +53,22 @@ Incompatible changes
   of ``sphinx.addnodes.literal_emphasis`` node.
 * #2022: :confval:`html_extra_path` also copies dotfiles in the extra directory, and
   refers to :confval:`exclude_patterns` to exclude extra files and directories.
+* #2300: enhance autoclass:: to use the docstring of __new__ if __init__ method's is missing
+  of empty
+* #2251: Previously, under glossary directives, multiple terms for one definition are
+  converted into single ``term`` node and the each terms in the term node are separated
+  by ``termsep`` node. In new implementation, each terms are converted into individual
+  ``term`` nodes and ``termsep`` node is removed.
+  By this change, output layout of every builders are changed a bit.
+* The default highlight language is now Python 3.  This means that source code
+  is highlighted as Python 3 (which is mostly a superset of Python 2), and no
+  parsing is attempted to distinguish valid code.  To get the old behavior back,
+  add ``highlight_language = "python"`` to conf.py.
+* `Locale Date Markup Language
+  <http://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns>`_ like
+  ``"MMMM dd, YYYY"`` is default format for `today_fmt` and `html_last_updated_fmt`.
+  However strftime format like ``"%B %d, %Y"`` is also supported for backward
+  compatibility until Sphinx-1.5. Later format will be disabled from Sphinx-1.5.
 
 Features added
 --------------
@@ -52,7 +102,19 @@ Features added
 * #2282: Add "language" attribute to html tag in the "basic" theme
 * #1779: Add EPUB 3 builder
 * #1751: Add :confval:`todo_link_only` to avoid file path and line indication on
-  :rst:dir:`todolist`.
+  :rst:dir:`todolist`. Thanks to Francesco Montesano.
+* #2199: Use ``imagesize`` package to obtain size of images.
+* #1099: Add configurable retries to the linkcheck builder. Thanks to Alex Gaynor.
+  Also don't check anchors starting with ``!``.
+* #2300: enhance autoclass:: to use the docstring of __new__ if __init__ method's is missing
+  of empty
+* #1858: Add Sphinx.add_enumerable_node() to add enumerable nodes for numfig feature
+* #1286, #2099: Add ``sphinx.ext.autosectionlabel`` extension to allow reference
+  sections using its title. Thanks to Tadhg O'Higgins.
+* #1854: Allow to choose Janome for Japanese splitter.
+* #1853: support custom text splitter on html search with ``language='ja'``.
+* #2320: classifier of glossary terms can be used for index entries grouping key.
+  The classifier also be used for translation. See also :ref:`glossary-directive`.
 
 Bugs fixed
 ----------
@@ -73,6 +135,12 @@ Bugs fixed
 * #2165, #2218: Remove faulty and non-need conditional from sphinx.sty.
 * Fix broken LaTeX code is generated if unknown language is given
 * #1944: Fix rst_prolog breaks file-wide metadata
+* #2074: make gettext should use canonical relative paths for .pot. Thanks to
+  anatoly techtonik.
+* #2311: Fix sphinx.ext.inheritance_diagram raises AttributeError
+* #2251: Line breaks in .rst files are transferred to .pot files in a wrong way.
+* #794: Fix date formatting in latex output is not localized
+
 
 Documentation
 -------------
@@ -80,12 +148,38 @@ Documentation
 * #1757: Fix for usage of :confval:`html_last_updated_fmt`. Thanks to Ralf Hemmecke.
 
 
-Release 1.3.6 (in development)
+Release 1.3.7 (in development)
 ==============================
 
 Bugs fixed
 ----------
 
+
+Release 1.3.6 (released Feb 29, 2016)
+=====================================
+
+Features added
+--------------
+
+* #1873, #1876, #2278: Add ``page_source_suffix`` html context variable. This should be
+  introduced with :confval:`source_parsers` feature. Thanks for Eric Holscher.
+
+
+Bugs fixed
+----------
+
+* #2265: Fix babel is used in spite of disabling it on ``latex_elements``
+* #2295: Avoid mutating dictionary errors while enumerating members in autodoc
+  with Python 3
+* #2291: Fix pdflatex "Counter too large" error from footnotes inside tables of contents
+* #2292: Fix some footnotes disappear from LaTeX output
+* #2287: ``sphinx.transforms.Locale`` always uses rst parser. Sphinx i18n feature should
+  support parsers that specified source_parsers.
+* #2290: Fix ``sphinx.ext.mathbase`` use of amsfonts may break user choice of math fonts
+* #2324: Print a hint how to increase the recursion limit when it is hit.
+* #1565, #2229: Revert new warning; the new warning will be triggered from version 1.4 on.
+* #2329: Refresh environment forcely if source directory has changed.
+* #2019: Fix the domain objects in search result are not escaped
 
 Release 1.3.5 (released Jan 24, 2016)
 =====================================
@@ -101,7 +195,8 @@ Bugs fixed
 * #2243: Ignore strange docstring types for classes, do not crash
 * #2247: Fix #2205 breaks make html for definition list with classifiers
   that contains regular-expression like string
-* #1565: Show warning if Pygments throws an ErrorToken
+* #1565: Sphinx will now emit a warning that highlighting was skipped if the syntax
+  is incorrect for `code-block`, `literalinclude` and so on.
 * #2211: Fix paragraphs in table cell doesn't work in Latex output
 * #2253: ``:pyobject:`` option of ``literalinclude`` directive can't detect indented
   body block when the block starts with blank or comment lines.
@@ -329,7 +424,7 @@ Incompatible changes
 * Dependency requirement updates: docutils 0.11, Pygments 2.0
 * The ``gettext_enables`` config value has been renamed to
   `gettext_additional_targets`.
-* #1735: Use https://doc.python.org/ instead of ``http`` protocol.
+* #1735: Use https://docs.python.org/ instead of ``http`` protocol.
   It was used for `sphinx.ext.intersphinx` and some documentation.
 
 Features added

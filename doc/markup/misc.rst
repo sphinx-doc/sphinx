@@ -191,7 +191,7 @@ Including content based on tags
 
    All tags must follow the standard Python identifier syntax as set out in
    the `Identifiers and keywords
-   <https://docs.python.org/reference/lexical_analysis.html#identifiers>`_
+   <https://docs.python.org/2/reference/lexical_analysis.html#identifiers>`_
    documentation.  That is, a tag expression may only consist of tags that
    conform to the syntax of Python variables.  In ASCII, this consists of the
    uppercase and lowercase letters ``A`` through ``Z``, the underscore ``_``

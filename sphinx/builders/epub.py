@@ -28,7 +28,8 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.util.osutil import ensuredir, copyfile, ustrftime, EEXIST
+from sphinx.util.i18n import format_date
+from sphinx.util.osutil import ensuredir, copyfile, EEXIST
 from sphinx.util.smartypants import sphinx_smarty_pants as ssp
 from sphinx.util.console import brown
 
@@ -400,7 +401,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # XXX: modifies tree inline
         # Logic modeled from themes/basic/genindex.html
         for key, columns in tree:
-            for entryname, (links, subitems) in columns:
+            for entryname, (links, subitems, key_) in columns:
                 for (i, (ismain, link)) in enumerate(links):
                     m = self.refuri_re.match(link)
                     if m:
@@ -529,7 +530,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['copyright'] = self.esc(self.config.epub_copyright)
         metadata['scheme'] = self.esc(self.config.epub_scheme)
         metadata['id'] = self.esc(self.config.epub_identifier)
-        metadata['date'] = self.esc(ustrftime('%Y-%m-%d'))
+        metadata['date'] = self.esc(format_date('YYYY-MM-dd', language=self.config.language))
         metadata['files'] = files
         metadata['spine'] = spine
         metadata['guide'] = guide

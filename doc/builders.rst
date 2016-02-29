@@ -84,7 +84,7 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: supported_image_types
 
-   .. _Qt help: http://qt-project.org/doc/qt-4.8/qthelp-framework.html
+   .. _Qt help: http://doc.qt.io/qt-4.8/qthelp-framework.html
 
 .. module:: sphinx.builders.applehelp
 .. class:: AppleHelpBuilder
@@ -131,7 +131,7 @@ The builder's "name" must be given to the **-b** command-line option of
    This builder produces the same output as the standalone HTML builder, but
    also generates an *epub* file for ebook readers.  See :ref:`epub-faq` for
    details about it.  For definition of the epub format, have a look at
-   `<http://idpf.org/epub>`_ or `<http://en.wikipedia.org/wiki/EPUB>`_.
+   `<http://idpf.org/epub>`_ or `<https://en.wikipedia.org/wiki/EPUB>`_.
    The builder creates *EPUB 2* files.
 
    .. autoattribute:: name
@@ -146,7 +146,7 @@ The builder's "name" must be given to the **-b** command-line option of
    This builder produces the same output as the standalone HTML builder, but
    also generates an *epub* file for ebook readers.  See :ref:`epub-faq` for
    details about it.  For definition of the epub format, have a look at
-   `<http://idpf.org/epub>`_ or `<http://en.wikipedia.org/wiki/EPUB>`_.
+   `<http://idpf.org/epub>`_ or `<https://en.wikipedia.org/wiki/EPUB>`_.
    The builder creates *EPUB 3* files.
 
    This builder is still *experimental* because it can't generate valid EPUB 3
@@ -186,7 +186,7 @@ The builder's "name" must be given to the **-b** command-line option of
    .. autoattribute:: supported_image_types
 
 Note that a direct PDF builder using ReportLab is available in `rst2pdf
-<http://rst2pdf.googlecode.com>`_ version 0.12 or greater.  You need to add
+<https://github.com/rst2pdf/rst2pdf>`_ version 0.12 or greater.  You need to add
 ``'rst2pdf.pdfbuilder'`` to your :confval:`extensions` to enable it, its name is
 ``pdf``.  Refer to the `rst2pdf manual <http://ralsina.me/static/manual.pdf>`_
 for details.

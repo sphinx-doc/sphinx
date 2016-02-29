@@ -44,9 +44,20 @@ def test_imgmath_svg(app, status, warning):
     assert re.search(html, content, re.S)
 
 @with_app('html', testroot='ext-math',
+          confoverrides={'extensions': ['sphinx.ext.mathjax']})
+def test_mathjax_align(app, status, warning):
+    app.builder.build_all()
+
+    content = (app.outdir / 'index.html').text()
+    html = (r'<div class="math">\s*'
+            r'\\\[ \\begin\{align\}\\begin\{aligned\}S \&amp;= \\pi r\^2\\\\'
+            r'V \&amp;= \\frac\{4\}\{3\} \\pi r\^3\\end\{aligned\}\\end\{align\} \\\]</div>')
+    assert re.search(html, content, re.S)
+
+@with_app('html', testroot='ext-math',
           confoverrides={'math_number_all': True,
                          'extensions': ['sphinx.ext.mathjax']})
-def test_math_number_all(app, status, warning):
+def test_math_number_all_mathjax(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').text()
@@ -56,7 +67,7 @@ def test_math_number_all(app, status, warning):
 
 @with_app('latex', testroot='ext-math',
           confoverrides={'extensions': ['sphinx.ext.mathjax']})
-def test_math_number_all(app, status, warning):
+def test_math_number_all_latex(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'test.tex').text()

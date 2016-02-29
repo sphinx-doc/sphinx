@@ -369,3 +369,8 @@ div.viewcode-block:target {
     margin: -1px -10px;
     padding: 0 12px;
 }
+
+/* math display */
+div.math p {
+    text-align: center;
+}

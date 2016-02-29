@@ -72,7 +72,7 @@ Install Python
 Most Windows users do not have Python, so we begin with the installation of
 Python itself.  If you have already installed Python, please skip this section.
 
-Go to http://python.org, the main download site for Python. Look at the left
+Go to https://www.python.org/, the main download site for Python. Look at the left
 sidebar and under "Quick Links", click "Windows Installer" to download.
 
 .. image:: pythonorg.png

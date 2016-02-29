@@ -183,6 +183,24 @@ Glossary
 
    (When the glossary is sorted, the first term determines the sort order.)
 
+   If you want to specify "grouping key" for general index entries, you can put a "key"
+   as "term : key". For example::
+
+      .. glossary::
+
+         term 1 : A
+         term 2 : B
+            Definition of both terms.
+
+   Note that "key" is used for grouping key as is.
+   The "key" isn't normalized; key "A" and "a" become different groups.
+   The whole characters in "key" is used instead of a first character; it is used for
+   "Combining Character Sequence" and "Surrogate Pairs" grouping key.
+
+   In i18n situation, you can specify "localized term : key" even if original text only
+   have "term" part. In this case, translated "localized term" will be categorized in
+   "key" group.
+
    .. versionadded:: 0.6
       You can now give the glossary directive a ``:sorted:`` flag that will
       automatically sort the entries alphabetically.
@@ -190,6 +208,8 @@ Glossary
    .. versionchanged:: 1.1
       Now supports multiple terms and inline markup in terms.
 
+   .. versionchanged:: 1.4
+      Index key for glossary term should be considered *experimental*.
 
 Grammar production displays
 ---------------------------

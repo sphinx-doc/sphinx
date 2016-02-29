@@ -94,6 +94,16 @@ def assert_startswith(thing, prefix):
         assert False, '%r does not start with %r' % (thing, prefix)
 
 
+def assert_node(node, cls=None, **kwargs):
+    if cls:
+        assert isinstance(node, cls), '%r is not subclass of %r' % (node, cls)
+
+    for key, value in kwargs.items():
+        assert key in node, '%r does not have %r attribute' % (node, key)
+        assert node[key] == value, \
+            '%r[%s]: %r does not equals %r' % (node, key, node[key], value)
+
+
 try:
     from nose.tools import assert_in, assert_not_in
 except ImportError:

@@ -41,7 +41,7 @@ you can also enable the :mod:`napoleon <sphinx.ext.napoleon>` extension.
 docstrings to correct reStructuredText before :mod:`autodoc` processes them.
 
 .. _Google:
-   http://google-styleguide.googlecode.com/svn/trunk/pyguide.html#Comments
+   https://google.github.io/styleguide/pyguide.html#Comments
 .. _NumPy:
    https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 
@@ -313,6 +313,12 @@ There are also new config values that you can set:
       Only the ``__init__`` method's docstring is inserted.
 
    .. versionadded:: 0.3
+
+   If the class has no ``__init__`` method or if the ``__init__`` method's
+   docstring is empty, but the class has a ``__new__`` method's docstring,
+   it is used instead.
+
+   .. versionadded:: 1.4
 
 .. confval:: autodoc_member_order
 

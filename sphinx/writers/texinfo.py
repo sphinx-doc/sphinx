@@ -12,6 +12,7 @@
 import re
 import textwrap
 from os import path
+import warnings
 
 from six import itervalues
 from six.moves import range
@@ -19,7 +20,7 @@ from docutils import nodes, writers
 
 from sphinx import addnodes, __display_version__
 from sphinx.locale import admonitionlabels, _
-from sphinx.util import ustrftime
+from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
 
 
@@ -217,8 +218,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
             'project': self.escape(self.builder.config.project),
             'copyright': self.escape(self.builder.config.copyright),
             'date': self.escape(self.builder.config.today or
-                                ustrftime(self.builder.config.today_fmt or
-                                          _('%B %d, %Y')))
+                                format_date(self.builder.config.today_fmt or
+                                            _('MMMM dd, YYYY'),
+                                            language=self.builder.config.language))
         })
         # title
         title = elements['title']
@@ -953,6 +955,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
         pass
 
     def visit_termsep(self, node):
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
+                      DeprecationWarning)
         self.body.append('\n%s ' % self.at_item_x)
 
     def depart_termsep(self, node):
@@ -1299,7 +1303,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         else:
             self.body.append('\n')
         for entry in node['entries']:
-            typ, text, tid, text2 = entry
+            typ, text, tid, text2, key_ = entry
             text = self.escape_menu(text)
             self.body.append('@geindex %s\n' % text)
 

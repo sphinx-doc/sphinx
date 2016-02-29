@@ -4,7 +4,7 @@ Projects using Sphinx
 This is an (incomplete) alphabetic list of projects that use Sphinx or
 are experimenting with using it for their documentation.  If you like to
 be included, please mail to `the Google group
-<https://groups.google.com/group/sphinx-users>`_.
+<https://groups.google.com/forum/#!forum/sphinx-users>`_.
 
 I've grouped the list into sections to make it easier to find
 interesting examples.
@@ -15,11 +15,11 @@ Documentation using the default theme
 * APSW: http://apidoc.apsw.googlecode.com/hg/index.html
 * ASE: https://wiki.fysik.dtu.dk/ase/
 * Calibre: http://manual.calibre-ebook.com/
-* CodePy: http://documen.tician.de/codepy/
+* CodePy: https://documen.tician.de/codepy/
 * Cython: http://docs.cython.org/
 * Cormoran: http://cormoran.nhopkg.org/docs/
 * Director: http://pythonhosted.org/director/
-* Dirigible: http://www.projectdirigible.com/documentation/
+* Dirigible: http://www.projectdirigible.com/
 * F2py: http://f2py.sourceforge.net/docs/
 * GeoDjango: https://docs.djangoproject.com/en/dev/ref/contrib/gis/
 * Genomedata:
@@ -31,10 +31,10 @@ Documentation using the default theme
 * Heapkeeper: http://heapkeeper.org/
 * Hands-on Python Tutorial:
   http://anh.cs.luc.edu/python/hands-on/3.1/handsonHtml/
-* Hedge: http://documen.tician.de/hedge/
+* Hedge: https://documen.tician.de/hedge/
 * Leo: http://leoeditor.com/
-* Lino: http://lino.saffre-rumma.net/
-* MeshPy: http://documen.tician.de/meshpy/
+* Lino: http://www.lino-framework.org/
+* MeshPy: https://documen.tician.de/meshpy/
 * mpmath: http://mpmath.googlecode.com/svn/trunk/doc/build/index.html
 * OpenEXR: http://excamera.com/articles/26/doc/index.html
 * OpenGDA: http://www.opengda.org/gdadoc/html/
@@ -42,17 +42,17 @@ Documentation using the default theme
 * Paste: http://pythonpaste.org/script/
 * Paver: http://paver.github.io/paver/
 * Pioneers and Prominent Men of Utah: http://pioneers.rstebbing.com/
-* PyCantonese: http://pycantonese.github.io/
+* PyCantonese: http://pycantonese.org/
 * Pyccuracy: https://github.com/heynemann/pyccuracy/wiki/
-* PyCuda: http://documen.tician.de/pycuda/
+* PyCuda: https://documen.tician.de/pycuda/
 * Pyevolve: http://pyevolve.sourceforge.net/
-* Pylo: http://documen.tician.de/pylo/
+* Pylo: https://documen.tician.de/pylo/
 * PyMQI: http://pythonhosted.org/pymqi/
 * PyPubSub: http://pubsub.sourceforge.net/
 * pySPACE: http://pyspace.github.io/pyspace/
-* Python: https://docs.python.org/
+* Python: https://docs.python.org/3/
 * python-apt: http://apt.alioth.debian.org/python-apt-doc/
-* PyUblas: http://documen.tician.de/pyublas/
+* PyUblas: https://documen.tician.de/pyublas/
 * Quex: http://quex.sourceforge.net/doc/html/main.html
 * Scapy: http://www.secdev.org/projects/scapy/doc/
 * Segway: http://noble.gs.washington.edu/proj/segway/doc/1.1.0/segway.html
@@ -78,7 +78,6 @@ Documentation using a customized version of the default theme
   https://or-tools.googlecode.com/svn/trunk/documentation/user_manual/index.html
 * GPAW: https://wiki.fysik.dtu.dk/gpaw/
 * Grok: http://grok.zope.org/doc/current/
-* IFM: http://fluffybunny.memebot.com/ifm-docs/index.html
 * Kaa: http://api.freevo.org/kaa-base/
 * LEPL: http://www.acooke.org/lepl/
 * Mayavi: http://docs.enthought.com/mayavi/mayavi/
@@ -87,11 +86,11 @@ Documentation using a customized version of the default theme
 * NumPy: http://docs.scipy.org/doc/numpy/reference/
 * OpenCV: http://docs.opencv.org/
 * Peach^3: http://peach3.nl/doc/latest/userdoc/
-* Sage: http://sagemath.org/doc/
+* Sage: http://www.sagemath.org/doc/
 * SciPy: http://docs.scipy.org/doc/scipy/reference/
 * simuPOP: http://simupop.sourceforge.net/manual_release/build/userGuide.html
 * Sprox: http://sprox.org/
-* TurboGears: http://turbogears.org/2.0/docs/
+* TurboGears: http://turbogears.readthedocs.org/en/latest/
 * Varnish: https://www.varnish-cache.org/docs/
 * Zentyal: http://doc.zentyal.org/
 * Zope: http://docs.zope.org/zope2/index.html
@@ -114,9 +113,8 @@ Documentation using the sphinxdoc theme
 * Python Wild Magic: http://vmlaker.github.io/pythonwildmagic/
 * Reteisi: http://www.reteisi.org/contents.html
 * Sqlkit: http://sqlkit.argolinux.org/
-* Tau: http://www.tango-controls.org/static/tau/latest/doc/html/index.html
 * Turbulenz: http://docs.turbulenz.com/
-* WebFaction: http://docs.webfaction.com/
+* WebFaction: https://docs.webfaction.com/
 
 
 Documentation using another builtin theme
@@ -145,12 +143,12 @@ Documentation using another builtin theme
 Documentation using a custom theme/integrated in a site
 -------------------------------------------------------
 
-* Blender: http://www.blender.org/documentation/250PythonDoc/
+* Blender: https://www.blender.org/api/250PythonDoc/
 * Blinker: http://discorporate.us/projects/Blinker/docs/
-* Ceph: http://ceph.com/docs/master/
+* Ceph: http://docs.ceph.com/docs/master/
 * Classy: http://www.pocoo.org/projects/classy/
 * DEAP: http://deap.gel.ulaval.ca/doc/0.8/index.html
-* Django: http://docs.djangoproject.com/
+* Django: https://docs.djangoproject.com/
 * Elemental: http://libelemental.org/documentation/dev/index.html
 * Enterprise Toolkit for Acrobat products:
   http://www.adobe.com/devnet-docs/acrobatetk/
@@ -160,33 +158,31 @@ Documentation using a custom theme/integrated in a site
 * Gameduino: http://excamera.com/sphinx/gameduino/
 * GeoServer: http://docs.geoserver.org/
 * Glashammer: http://glashammer.org/
-* Istihza (Turkish Python documentation project):
-  http://www.istihza.com/py2/icindekiler_python.html
+* Istihza (Turkish Python documentation project): http://belgeler.istihza.com/py2/
 * Lasso: http://lassoguide.com/
 * Manage documentation such as source code (fr): http://redaction-technique.org/
 * MathJax: http://docs.mathjax.org/en/latest/
 * MirrorBrain: http://mirrorbrain.org/docs/
 * MyHDL: http://docs.myhdl.org/en/latest/
 * nose: http://nose.readthedocs.org/en/latest/
-* NoTex: https://notex.ch/overview/
+* NoTex: https://www.notex.ch/overview/
 * ObjectListView: http://objectlistview.sourceforge.net/python/
-* Open ERP: http://doc.openerp.com/
+* Open ERP: https://doc.odoo.com/
 * OpenCV: http://docs.opencv.org/
-* Open Dylan: http://opendylan.org/documentation/ and also provides a
-  `dylan domain <https://github.com/dylan-lang/sphinx-extensions/blob/master/dylandomain/reference.rst>`__
+* Open Dylan: http://opendylan.org/documentation/
 * OpenLayers: http://docs.openlayers.org/
 * PyEphem: http://rhodesmill.org/pyephem/
 * German Plone user manual: http://www.hasecke.com/plone-benutzerhandbuch/
-* PSI4: http://sirius.chem.vt.edu/psi4manual/latest/index.html
+* PSI4: http://www.psicode.org/psi4manual/master/index.html
 * Pylons: http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/
-* PyMOTW: http://pymotw.com/2/
+* PyMOTW: https://pymotw.com/2/
 * python-aspectlib: http://python-aspectlib.readthedocs.org/en/latest/
   (`sphinx-py3doc-enhanced-theme`_)
 * QGIS: http://qgis.org/en/docs/index.html
 * qooxdoo: http://manual.qooxdoo.org/current/
 * Roundup: http://www.roundup-tracker.org/
 * Selenium: http://docs.seleniumhq.org/docs/
-* Self: http://selflanguage.org/
+* Self: http://www.selflanguage.org/
 * Substance D: http://docs.pylonsproject.org/projects/substanced/en/latest/
 * Tablib: http://tablib.org/
 * SQLAlchemy: http://www.sqlalchemy.org/docs/
@@ -201,14 +197,12 @@ Documentation using a custom theme/integrated in a site
 Homepages and other non-documentation sites
 -------------------------------------------
 
-* Applied Mathematics at the Stellenbosch University: http://dip.sun.ac.za/
 * A personal page: http://www.dehlia.in/
 * Benoit Boissinot: http://bboissin.appspot.com/
 * lunarsite: http://lunaryorn.de/
-* Red Hot Chili Python: http://redhotchilipython.com/
 * The Wine Cellar Book: http://www.thewinecellarbook.com/doc/en/
 * UC Berkeley Advanced Control Systems course:
-  http://www.me.berkeley.edu/ME233/sp14/
+  http://msc.berkeley.edu/tomizuka/me233spring13/
 * VOR: http://www.vor-cycling.be/
 
 
@@ -217,11 +211,11 @@ Books produced using Sphinx
 
 * "The ``repoze.bfg`` Web Application Framework":
   http://www.amazon.com/repoze-bfg-Web-Application-Framework-Version/dp/0615345379
-* A Theoretical Physics Reference book: http://theoretical-physics.net/
+* A Theoretical Physics Reference book: http://www.theoretical-physics.net/
 * "Simple and Steady Way of Learning for Software Engineering" (in Japanese):
   http://www.amazon.co.jp/dp/477414259X/
 * "Expert Python Programming":
-  http://www.packtpub.com/expert-python-programming/book
+  https://www.packtpub.com/application-development/expert-python-programming
 * "Expert Python Programming" (Japanese translation):
   http://www.amazon.co.jp/dp/4048686291/
 * "Pomodoro Technique Illustrated" (Japanese translation):
@@ -231,7 +225,7 @@ Books produced using Sphinx
 * "Die Wahrheit des Sehens. Der DEKALOG von Krzysztof Kieślowski":
   http://www.hasecke.eu/Dekalog/
 * The "Varnish Book":
-  https://www.varnish-software.com/static/book/
+  http://book.varnish-software.com/4.0/
 * "Learning Sphinx" (in Japanese):
   http://www.oreilly.co.jp/books/9784873116488/
 * "LassoGuide":

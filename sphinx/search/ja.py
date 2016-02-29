@@ -29,12 +29,35 @@ try:
 except ImportError:
     native_module = False
 
-from sphinx.errors import SphinxError
+try:
+    import janome.tokenizer
+    janome_module = True
+except ImportError:
+    janome_module = False
+
+from sphinx.errors import SphinxError, ExtensionError
 from sphinx.search import SearchLanguage
+from sphinx.util import import_object
 
 
-class MecabBinder(object):
+class BaseSplitter(object):
+
     def __init__(self, options):
+        self.options = options
+
+    def split(self, input):
+        """
+
+        :param str input:
+        :return:
+        :rtype: list[str]
+        """
+        raise NotImplementedError
+
+
+class MecabSplitter(BaseSplitter):
+    def __init__(self, options):
+        super(MecabSplitter, self).__init__(options)
         self.ctypes_libmecab = None
         self.ctypes_mecab = None
         if not native_module:
@@ -102,8 +125,27 @@ class MecabBinder(object):
         if self.ctypes_libmecab:
             self.ctypes_libmecab.mecab_destroy(self.ctypes_mecab)
 
+MeCabBinder = MecabSplitter  # keep backward compatibility until Sphinx-1.6
 
-class TinySegmenter(object):
+
+class JanomeSplitter(BaseSplitter):
+    def __init__(self, options):
+        super(JanomeSplitter, self).__init__(options)
+        self.user_dict = options.get('user_dic')
+        self.user_dict_enc = options.get('user_dic_enc', 'utf8')
+        self.init_tokenizer()
+
+    def init_tokenizer(self):
+        if not janome_module:
+            raise RuntimeError('Janome is not available')
+        self.tokenizer = janome.tokenizer.Tokenizer(udic=self.user_dict, udic_enc=self.user_dict_enc)
+
+    def split(self, input):
+        result = u' '.join(token.surface for token in self.tokenizer.tokenize(input))
+        return result.split(u' ')
+
+
+class DefaultSplitter(BaseSplitter):
     patterns_ = dict([(re.compile(pattern), value) for pattern, value in iteritems({
         u'[一二三四五六七八九十百千万億兆]': u'M',
         u'[一-龠々〆ヵヶ]': u'H',
@@ -479,6 +521,9 @@ class TinySegmenter(object):
         return result
 
 
+TinySegmenter = DefaultSplitter  # keep backward compatibility until Sphinx-1.6
+
+
 class SearchJapanese(SearchLanguage):
     """
     Japanese search implementation: uses no stemmer, but word splitting is quite
@@ -486,16 +531,23 @@ class SearchJapanese(SearchLanguage):
     """
     lang = 'ja'
     language_name = 'Japanese'
+    splitters = {
+        'default': 'sphinx.search.ja.DefaultSplitter',
+        'mecab': 'sphinx.sarch.ja.MecabSplitter',
+        'janome': 'sphinx.search.ja.JanomeSplitter',
+    }
 
     def init(self, options):
         type = options.get('type', 'default')
-        if type not in ('mecab', 'default'):
-            raise ValueError(("Japanese tokenizer's type should be 'mecab'"
-                              " or 'default'"))
-        if type == 'mecab':
-            self.splitter = MecabBinder(options)
+        if type in self.splitters:
+            dotted_path = self.splitters[type]
         else:
-            self.splitter = TinySegmenter()
+            dotted_path = type
+        try:
+            self.splitter = import_object(dotted_path)(options)
+        except ExtensionError:
+            raise ExtensionError("Splitter module %r can't be imported" %
+                                 dotted_path)
 
     def split(self, input):
         return self.splitter.split(input)

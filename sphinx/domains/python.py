@@ -257,7 +257,7 @@ class PyObject(ObjectDescription):
         indextext = self.get_index_text(modname, name_cls)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
-                                              fullname, ''))
+                                              fullname, '', None))
 
     def before_content(self):
         # needed for automatic qualification of members (reset in subclasses)
@@ -462,7 +462,7 @@ class PyModule(Directive):
             ret.append(targetnode)
             indextext = _('%s (module)') % modname
             inode = addnodes.index(entries=[('single', indextext,
-                                             'module-' + modname, '')])
+                                             'module-' + modname, '', None)])
             ret.append(inode)
         return ret
 

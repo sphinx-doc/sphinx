@@ -12,8 +12,8 @@
 from os import path
 
 from docutils import nodes
-from docutils.utils import new_document, relative_path
-from docutils.parsers.rst import Parser as RSTParser
+from docutils.io import StringInput
+from docutils.utils import relative_path
 from docutils.transforms import Transform
 from docutils.transforms.parts import ContentsFilter
 
@@ -24,13 +24,9 @@ from sphinx.util.nodes import (
     traverse_translatable_index, extract_messages, LITERAL_TYPE_NODES, IMAGE_TYPE_NODES,
     apply_source_workaround,
 )
-from sphinx.util.osutil import ustrftime
-from sphinx.util.i18n import find_catalog
+from sphinx.util.i18n import find_catalog, format_date
 from sphinx.util.pycompat import indent
-from sphinx.domains.std import (
-    make_term_from_paragraph_node,
-    make_termnodes_from_paragraph_node,
-)
+from sphinx.domains.std import make_glossary_term, split_term_classifiers
 
 
 default_substitutions = set([
@@ -57,7 +53,8 @@ class DefaultSubstitutions(Transform):
                 text = config[refname]
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
-                    text = ustrftime(config.today_fmt or _('%B %d, %Y'))
+                    text = format_date(config.today_fmt or _('MMMM dd, YYYY'),
+                                       language=config.language)
                 ref.replace_self(nodes.Text(text, text))
 
 
@@ -113,22 +110,11 @@ class AutoNumbering(Transform):
     default_priority = 210
 
     def apply(self):
-        def has_child(node, cls):
-            return any(isinstance(child, cls) for child in node)
+        domain = self.document.settings.env.domains['std']
 
         for node in self.document.traverse(nodes.Element):
-            if isinstance(node, nodes.figure):
-                if has_child(node, nodes.caption):
-                    self.document.note_implicit_target(node)
-            elif isinstance(node, nodes.image):
-                if node.parent and has_child(node.parent, nodes.caption):
-                    self.document.note_implicit_target(node.parent)
-            elif isinstance(node, nodes.table):
-                if has_child(node, nodes.title):
-                    self.document.note_implicit_target(node)
-            elif isinstance(node, nodes.literal_block):
-                if node.parent and has_child(node.parent, nodes.caption):
-                    self.document.note_implicit_target(node.parent)
+            if domain.is_enumerable_node(node) and domain.get_numfig_title(node):
+                self.document.note_implicit_target(node)
 
 
 class SortIds(Transform):
@@ -202,21 +188,35 @@ class ExtraTranslatableNodes(Transform):
             node['translatable'] = True
 
 
-class CustomLocaleReporter(object):
+def publish_msgstr(app, source, source_path, source_line, config, settings):
+    """Publish msgstr (single line) into docutils document
+
+    :param sphinx.application.Sphinx app: sphinx application
+    :param unicode source: source text
+    :param unicode source_path: source path for warning indication
+    :param source_line: source line for warning indication
+    :param sphinx.config.Config config: sphinx config
+    :param docutils.frontend.Values settings: docutils settings
+    :return: document
+    :rtype: docutils.nodes.document
     """
-    Replacer for document.reporter.get_source_and_line method.
-
-    reST text lines for translation do not have the original source line number.
-    This class provides the correct line numbers when reporting.
-    """
-    def __init__(self, source, line):
-        self.source, self.line = source, line
-
-    def set_reporter(self, document):
-        document.reporter.get_source_and_line = self.get_source_and_line
-
-    def get_source_and_line(self, lineno=None):
-        return self.source, self.line
+    from sphinx.io import SphinxI18nReader
+    reader = SphinxI18nReader(
+        app=app,
+        parsers=config.source_parsers,
+        parser_name='restructuredtext',  # default parser
+    )
+    reader.set_lineno_for_reporter(source_line)
+    doc = reader.read(
+        source=StringInput(source=source, source_path=source_path),
+        parser=reader.parser,
+        settings=settings,
+    )
+    try:
+        doc = doc[0]
+    except IndexError:  # empty node
+        pass
+    return doc
 
 
 class Locale(Transform):
@@ -244,8 +244,6 @@ class Locale(Transform):
         if not has_catalog:
             return
 
-        parser = RSTParser()
-
         # phase1: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
             msgstr = catalog.gettext(msg)
@@ -267,13 +265,8 @@ class Locale(Transform):
             if isinstance(node, LITERAL_TYPE_NODES):
                 msgstr = '::\n\n' + indent(msgstr, ' '*3)
 
-            patch = new_document(source, settings)
-            CustomLocaleReporter(node.source, node.line).set_reporter(patch)
-            parser.parse(msgstr, patch)
-            try:
-                patch = patch[0]
-            except IndexError:  # empty node
-                pass
+            patch = publish_msgstr(
+                env.app, msgstr, source, node.line, env.config, settings)
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
                 continue  # skip for now
@@ -344,18 +337,15 @@ class Locale(Transform):
             # glossary terms update refid
             if isinstance(node, nodes.term):
                 gloss_entries = env.temp_data.setdefault('gloss_entries', set())
-                ids = []
-                termnodes = []
                 for _id in node['names']:
                     if _id in gloss_entries:
                         gloss_entries.remove(_id)
-                    _id, _, new_termnodes = \
-                        make_termnodes_from_paragraph_node(env, patch, _id)
-                    ids.append(_id)
-                    termnodes.extend(new_termnodes)
 
-                if termnodes and ids:
-                    patch = make_term_from_paragraph_node(termnodes, ids)
+                    parts = split_term_classifiers(msgstr)
+                    patch = publish_msgstr(
+                        env.app, parts[0], source, node.line, env.config, settings)
+                    patch = make_glossary_term(
+                        env, patch, parts[1], source, node.line, _id)
                     node['ids'] = patch['ids']
                     node['names'] = patch['names']
                     processed = True
@@ -390,13 +380,8 @@ class Locale(Transform):
             if isinstance(node, LITERAL_TYPE_NODES):
                 msgstr = '::\n\n' + indent(msgstr, ' '*3)
 
-            patch = new_document(source, settings)
-            CustomLocaleReporter(node.source, node.line).set_reporter(patch)
-            parser.parse(msgstr, patch)
-            try:
-                patch = patch[0]
-            except IndexError:  # empty node
-                pass
+            patch = publish_msgstr(
+                env.app, msgstr, source, node.line, env.config, settings)
             # XXX doctest and other block markup
             if not isinstance(
                     patch,
@@ -541,7 +526,7 @@ class Locale(Transform):
             # Extract and translate messages for index entries.
             for node, entries in traverse_translatable_index(self.document):
                 new_entries = []
-                for type, msg, tid, main in entries:
+                for type, msg, tid, main, key_ in entries:
                     msg_parts = split_index_msg(type, msg)
                     msgstr_parts = []
                     for part in msg_parts:
@@ -550,7 +535,7 @@ class Locale(Transform):
                             msgstr = part
                         msgstr_parts.append(msgstr)
 
-                    new_entries.append((type, ';'.join(msgstr_parts), tid, main))
+                    new_entries.append((type, ';'.join(msgstr_parts), tid, main, None))
 
                 node['raw_entries'] = entries
                 node['entries'] = new_entries

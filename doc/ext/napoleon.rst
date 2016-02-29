@@ -11,6 +11,8 @@
 Napoleon - *Marching toward legible docstrings*
 ===============================================
 
+.. highlight:: text
+
 Are you tired of writing docstrings that look like this::
 
     :param path: The path of the file to wrap
@@ -48,7 +50,7 @@ the documentation, so it doesn't modify any of the docstrings in your actual
 source code files.
 
 .. _ReStructuredText: http://docutils.sourceforge.net/rst.html
-.. _docstrings: http://www.python.org/dev/peps/pep-0287/
+.. _docstrings: https://www.python.org/dev/peps/pep-0287/
 .. _Google Python Style Guide:
    http://google.github.io/styleguide/pyguide.html
 .. _Google:
@@ -124,7 +126,9 @@ Napoleon supports two styles of docstrings: `Google`_ and `NumPy`_. The
 main difference between the two styles is that Google uses indention to
 separate sections, whereas NumPy uses underlines.
 
-Google style::
+Google style:
+
+.. code-block:: python3
 
     def func(arg1, arg2):
         """Summary line.
@@ -141,7 +145,9 @@ Google style::
         """
         return True
 
-NumPy style::
+NumPy style:
+
+.. code-block:: python3
 
     def func(arg1, arg2):
         """Summary line.

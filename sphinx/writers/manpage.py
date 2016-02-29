@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
+
 from docutils import nodes
 from docutils.writers.manpage import (
     MACRO_DEF,
@@ -18,8 +20,8 @@ from docutils.writers.manpage import (
 
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
-from sphinx.util.osutil import ustrftime
 from sphinx.util.compat import docutils_version
+from sphinx.util.i18n import format_date
 
 
 class ManualPageWriter(Writer):
@@ -95,8 +97,9 @@ class ManualPageTranslator(BaseTranslator):
         if builder.config.today:
             self._docinfo['date'] = builder.config.today
         else:
-            self._docinfo['date'] = ustrftime(builder.config.today_fmt or
-                                              _('%B %d, %Y'))
+            self._docinfo['date'] = format_date(builder.config.today_fmt or
+                                                _('MMMM dd, YYYY'),
+                                                language=builder.config.language)
         self._docinfo['copyright'] = builder.config.copyright
         self._docinfo['version'] = builder.config.version
         self._docinfo['manual_group'] = builder.config.project
@@ -201,6 +204,8 @@ class ManualPageTranslator(BaseTranslator):
         self.depart_paragraph(node)
 
     def visit_termsep(self, node):
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
+                      DeprecationWarning)
         self.body.append(', ')
         raise nodes.SkipNode
 

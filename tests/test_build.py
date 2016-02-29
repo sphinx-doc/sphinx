@@ -112,7 +112,7 @@ def test_numbered_circular_toctree(app, status, warning):
         'contents <- sub <- contents') in warnings
 
 
-@with_app(buildername='html', testroot='image-glob')
+@with_app(buildername='dummy', testroot='image-glob')
 def test_image_glob(app, status, warning):
     app.builder.build_all()
 
@@ -145,12 +145,16 @@ def test_image_glob(app, status, warning):
     doctree = pickle.loads((app.doctreedir / 'subdir/index.doctree').bytes())
 
     assert isinstance(doctree[0][1], nodes.image)
-    assert doctree[0][1]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
-                                           'image/svg+xml': 'subdir/svgimg.svg'}
-    assert doctree[0][1]['uri'] == 'subdir/svgimg.*'
+    assert doctree[0][1]['candidates'] == {'*': 'subdir/rimg.png'}
+    assert doctree[0][1]['uri'] == 'subdir/rimg.png'
 
-    assert isinstance(doctree[0][2], nodes.figure)
-    assert isinstance(doctree[0][2][0], nodes.image)
-    assert doctree[0][2][0]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
+    assert isinstance(doctree[0][2], nodes.image)
+    assert doctree[0][2]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
+                                           'image/svg+xml': 'subdir/svgimg.svg'}
+    assert doctree[0][2]['uri'] == 'subdir/svgimg.*'
+
+    assert isinstance(doctree[0][3], nodes.figure)
+    assert isinstance(doctree[0][3][0], nodes.image)
+    assert doctree[0][3][0]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
                                               'image/svg+xml': 'subdir/svgimg.svg'}
-    assert doctree[0][2][0]['uri'] == 'subdir/svgimg.*'
+    assert doctree[0][3][0]['uri'] == 'subdir/svgimg.*'

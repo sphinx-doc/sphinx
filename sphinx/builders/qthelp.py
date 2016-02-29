@@ -148,7 +148,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         keywords = []
         index = self.env.create_index(self, group_entries=False)
         for (key, group) in index:
-            for title, (refs, subitems) in group:
+            for title, (refs, subitems, key_) in group:
                 keywords.extend(self.build_keywords(title, refs, subitems))
         keywords = u'\n'.join(keywords)
 

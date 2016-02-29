@@ -28,8 +28,9 @@ from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __display_version__
 from sphinx.util import jsonimpl, copy_static_entry, copy_extra_entry
+from sphinx.util.i18n import format_date
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
-    movefile, ustrftime, copyfile
+    movefile, copyfile
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.matching import patmatch, compile_matchers
 from sphinx.locale import _
@@ -291,7 +292,8 @@ class StandaloneHTMLBuilder(Builder):
         # typically doesn't include the time of day
         lufmt = self.config.html_last_updated_fmt
         if lufmt is not None:
-            self.last_updated = ustrftime(lufmt or _('%b %d, %Y'))
+            self.last_updated = format_date(lufmt or _('MMM dd, YYYY'),
+                                            language=self.config.language)
         else:
             self.last_updated = None
 
@@ -512,7 +514,7 @@ class StandaloneHTMLBuilder(Builder):
         indexcounts = []
         for _k, entries in genindex:
             indexcounts.append(sum(1 + len(subitems)
-                                   for _, (_, subitems) in entries))
+                                   for _, (_, subitems, _) in entries))
 
         genindexcontext = dict(
             genindexentries = genindex,

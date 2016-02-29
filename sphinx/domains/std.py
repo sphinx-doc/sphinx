@@ -23,7 +23,7 @@ from sphinx.roles import XRefRole
 from sphinx.locale import l_, _
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
-from sphinx.util import ws_re, get_figtype
+from sphinx.util import ws_re
 from sphinx.util.nodes import clean_astext, make_refnode
 from sphinx.util.compat import Directive
 
@@ -64,7 +64,7 @@ class GenericObject(ObjectDescription):
                 indextype = 'single'
                 indexentry = self.indextemplate % (name,)
             self.indexnode['entries'].append((indextype, indexentry,
-                                              targetname, ''))
+                                              targetname, '', None))
         self.env.domaindata['std']['objects'][self.objtype, name] = \
             self.env.docname, targetname
 
@@ -85,8 +85,8 @@ class EnvVarXRefRole(XRefRole):
         tgtid = 'index-%s' % env.new_serialno('index')
         indexnode = addnodes.index()
         indexnode['entries'] = [
-            ('single', varname, tgtid, ''),
-            ('single', _('environment variable; %s') % varname, tgtid, '')
+            ('single', varname, tgtid, '', None),
+            ('single', _('environment variable; %s') % varname, tgtid, '', None)
         ]
         targetnode = nodes.target('', '', ids=[tgtid])
         document.note_explicit_target(targetnode)
@@ -121,7 +121,7 @@ class Target(Directive):
                 indextype = indexentry[:colon].strip()
                 indexentry = indexentry[colon+1:].strip()
             inode = addnodes.index(entries=[(indextype, indexentry,
-                                             targetname, '')])
+                                             targetname, '', None)])
             ret.insert(0, inode)
         name = self.name
         if ':' in self.name:
@@ -184,7 +184,7 @@ class Cmdoption(ObjectDescription):
                 self.indexnode['entries'].append(
                     ('pair', _('%scommand line option; %s') %
                      ((currprogram and currprogram + ' ' or ''), sig),
-                     targetname, ''))
+                     targetname, '', None))
 
 
 class Program(Directive):
@@ -214,11 +214,23 @@ class OptionXRefRole(XRefRole):
         return title, target
 
 
-def make_termnodes_from_paragraph_node(env, node, new_id=None):
+def split_term_classifiers(line):
+    # split line into a term and classifiers. if no classifier, None is used..
+    parts = re.split(' +: +', line) + [None]
+    return parts
+
+
+def make_glossary_term(env, textnodes, index_key, source, lineno, new_id=None):
+    # get a text-only representation of the term and register it
+    # as a cross-reference target
+    term = nodes.term('', '', *textnodes)
+    term.source = source
+    term.line = lineno
+
     gloss_entries = env.temp_data.setdefault('gloss_entries', set())
     objects = env.domaindata['std']['objects']
 
-    termtext = node.astext()
+    termtext = term.astext()
     if new_id is None:
         new_id = nodes.make_id('term-' + termtext)
     if new_id in gloss_entries:
@@ -228,25 +240,12 @@ def make_termnodes_from_paragraph_node(env, node, new_id=None):
 
     # add an index entry too
     indexnode = addnodes.index()
-    indexnode['entries'] = [('single', termtext, new_id, 'main')]
-    new_termnodes = []
-    new_termnodes.append(indexnode)
-    new_termnodes.extend(node.children)
-    new_termnodes.append(addnodes.termsep())
-    for termnode in new_termnodes:
-        termnode.source, termnode.line = node.source, node.line
+    indexnode['entries'] = [('single', termtext, new_id, 'main', index_key)]
+    indexnode.source, indexnode.line = term.source, term.line
+    term.append(indexnode)
+    term['ids'].append(new_id)
+    term['names'].append(new_id)
 
-    return new_id, termtext, new_termnodes
-
-
-def make_term_from_paragraph_node(termnodes, ids):
-    # make a single "term" node with all the terms, separated by termsep
-    # nodes (remove the dangling trailing separator)
-    term = nodes.term('', '', *termnodes[:-1])
-    term.source, term.line = termnodes[0].source, termnodes[0].line
-    term.rawsource = term.astext()
-    term['ids'].extend(ids)
-    term['names'].extend(ids)
     return term
 
 
@@ -330,33 +329,28 @@ class Glossary(Directive):
             termtexts = []
             termnodes = []
             system_messages = []
-            ids = []
             for line, source, lineno in terms:
+                parts = split_term_classifiers(line)
                 # parse the term with inline markup
-                res = self.state.inline_text(line, lineno)
-                system_messages.extend(res[1])
+                # classifiers (parts[1:]) will not be shown on doctree
+                textnodes, sysmsg = self.state.inline_text(parts[0], lineno)
 
-                # get a text-only representation of the term and register it
-                # as a cross-reference target
-                tmp = nodes.paragraph('', '', *res[0])
-                tmp.source = source
-                tmp.line = lineno
-                new_id, termtext, new_termnodes = \
-                    make_termnodes_from_paragraph_node(env, tmp)
-                ids.append(new_id)
-                termtexts.append(termtext)
-                termnodes.extend(new_termnodes)
+                # use first classifier as a index key
+                term = make_glossary_term(env, textnodes, parts[1], source, lineno)
+                term.rawsource = line
+                system_messages.extend(sysmsg)
+                termtexts.append(term.astext())
+                termnodes.append(term)
 
-            term = make_term_from_paragraph_node(termnodes, ids)
-            term += system_messages
+            termnodes.extend(system_messages)
 
             defnode = nodes.definition()
             if definition:
                 self.state.nested_parse(definition, definition.items[0][1],
                                         defnode)
-
+            termnodes.append(defnode)
             items.append((termtexts,
-                          nodes.definition_list_item('', term, defnode)))
+                          nodes.definition_list_item('', *termnodes)))
 
         if 'sorted' in self.options:
             items.sort(key=lambda x:
@@ -453,7 +447,7 @@ class StandardDomain(Domain):
         'productionlist': ProductionList,
     }
     roles = {
-        'option':  OptionXRefRole(warn_dangling=True),
+        'option':  OptionXRefRole(),
         'envvar':  EnvVarXRefRole(),
         # links to tokens in grammar productions
         'token':   XRefRole(),
@@ -491,7 +485,12 @@ class StandardDomain(Domain):
                 'the label must precede a section header)',
         'numref':  'undefined label: %(target)s',
         'keyword': 'unknown keyword: %(target)s',
-        'option': 'unknown option: %(target)s',
+    }
+
+    enumerable_nodes = {  # node_class -> (figtype, title_getter)
+        nodes.figure: ('figure', None),
+        nodes.table: ('table', None),
+        nodes.container: ('code-block', None),
     }
 
     def clear_doc(self, docname):
@@ -543,33 +542,9 @@ class StandardDomain(Domain):
             anonlabels[name] = docname, labelid
             if node.tagname == 'section':
                 sectname = clean_astext(node[0])  # node[0] == title node
-            elif node.tagname == 'figure':
-                for n in node:
-                    if n.tagname == 'caption':
-                        sectname = clean_astext(n)
-                        break
-                else:
-                    continue
-            elif node.tagname == 'image' and node.parent.tagname == 'figure':
-                for n in node.parent:
-                    if n.tagname == 'caption':
-                        sectname = clean_astext(n)
-                        break
-                else:
-                    continue
-            elif node.tagname == 'table':
-                for n in node:
-                    if n.tagname == 'title':
-                        sectname = clean_astext(n)
-                        break
-                else:
-                    continue
-            elif node.tagname == 'container' and node.get('literal_block'):
-                for n in node:
-                    if n.tagname == 'caption':
-                        sectname = clean_astext(n)
-                        break
-                else:
+            elif self.is_enumerable_node(node):
+                sectname = self.get_numfig_title(node)
+                if sectname is None:
                     continue
             elif node.traverse(addnodes.toctree):
                 n = node.traverse(addnodes.toctree)[0]
@@ -634,10 +609,9 @@ class StandardDomain(Domain):
                          lineno=node.line)
                 return contnode
 
-            try:
-                target_node = env.get_doctree(docname).ids[labelid]
-                figtype = get_figtype(target_node)
-            except:
+            target_node = env.get_doctree(docname).ids.get(labelid)
+            figtype = self.get_figtype(target_node)
+            if figtype is None:
                 return None
 
             try:
@@ -747,3 +721,33 @@ class StandardDomain(Domain):
     def get_type_name(self, type, primary=False):
         # never prepend "Default"
         return type.lname
+
+    def is_enumerable_node(self, node):
+        return node.__class__ in self.enumerable_nodes
+
+    def get_numfig_title(self, node):
+        """Get the title of enumerable nodes to refer them using its title"""
+        if self.is_enumerable_node(node):
+            _, title_getter = self.enumerable_nodes.get(node.__class__, (None, None))
+            if title_getter:
+                return title_getter(node)
+            else:
+                for subnode in node:
+                    if subnode.tagname in ('caption', 'title'):
+                        return clean_astext(subnode)
+
+        return None
+
+    def get_figtype(self, node):
+        """Get figure type of nodes."""
+        def has_child(node, cls):
+            return any(isinstance(child, cls) for child in node)
+
+        if isinstance(node, nodes.container):
+            if node.get('literal_block') and has_child(node, nodes.literal_block):
+                return 'code-block'
+            else:
+                return None
+        else:
+            figtype, _ = self.enumerable_nodes.get(node.__class__, (None, None))
+            return figtype

@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-    import ez_setup
-    ez_setup.use_setuptools()
-    from setuptools import setup, find_packages
+from setuptools import setup, find_packages
 
 import os
 import sys
@@ -53,6 +48,7 @@ requires = [
     'snowballstemmer>=1.1',
     'babel>=1.3,!=2.0',
     'alabaster>=0.7,<0.8',
+    'imagesize',
 ]
 extras_require = {
     # Environment Marker works for wheel 0.24 or later

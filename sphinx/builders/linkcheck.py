@@ -75,11 +75,11 @@ class AnchorCheckParser(HTMLParser):
                 self.found = True
 
 
-def check_anchor(f, hash):
-    """Reads HTML data from a filelike object 'f' searching for anchor 'hash'.
+def check_anchor(f, anchor):
+    """Reads HTML data from a filelike object 'f' searching for *anchor*.
     Returns True if anchor was found, False otherwise.
     """
-    parser = AnchorCheckParser(hash)
+    parser = AnchorCheckParser(anchor)
     try:
         # Read file in chunks of 8192 bytes. If we find a matching anchor, we
         # break the loop early in hopes not to have to download the whole thing.
@@ -137,29 +137,13 @@ class CheckExternalLinksBuilder(Builder):
         if self.app.config.linkcheck_timeout:
             kwargs['timeout'] = self.app.config.linkcheck_timeout
 
-        def check():
-            # check for various conditions without bothering the network
-            if len(uri) == 0 or uri[0] == '#' or \
-               uri[0:7] == 'mailto:' or uri[0:4] == 'ftp:':
-                return 'unchecked', '', 0
-            elif not (uri[0:5] == 'http:' or uri[0:6] == 'https:'):
-                return 'local', '', 0
-            elif uri in self.good:
-                return 'working', 'old', 0
-            elif uri in self.broken:
-                return 'broken', self.broken[uri], 0
-            elif uri in self.redirected:
-                return 'redirected', self.redirected[uri][0], self.redirected[uri][1]
-            for rex in self.to_ignore:
-                if rex.match(uri):
-                    return 'ignored', '', 0
-
+        def check_uri():
             # split off anchor
             if '#' in uri:
-                req_url, hash = uri.split('#', 1)
+                req_url, anchor = uri.split('#', 1)
             else:
                 req_url = uri
-                hash = None
+                anchor = None
 
             # handle non-ASCII URIs
             try:
@@ -167,10 +151,12 @@ class CheckExternalLinksBuilder(Builder):
             except UnicodeError:
                 req_url = encode_uri(req_url)
 
-            # need to actually check the URI
             try:
-                if hash and self.app.config.linkcheck_anchors:
-                    # Read the whole document and see if #hash exists
+                if anchor and self.app.config.linkcheck_anchors and \
+                   not anchor.startswith('!'):
+                    # Read the whole document and see if #anchor exists
+                    # (Anchors starting with ! are ignored since they are
+                    # commonly used for dynamic pages)
                     req = Request(req_url)
                     f = opener.open(req, **kwargs)
                     encoding = 'utf-8'
@@ -178,11 +164,12 @@ class CheckExternalLinksBuilder(Builder):
                         encoding = f.headers.get_content_charset() or encoding
                     else:
                         encoding = get_content_charset(f) or encoding
-                    found = check_anchor(TextIOWrapper(f, encoding), unquote(hash))
+                    found = check_anchor(TextIOWrapper(f, encoding),
+                                         unquote(anchor))
                     f.close()
 
                     if not found:
-                        raise Exception("Anchor '%s' not found" % hash)
+                        raise Exception("Anchor '%s' not found" % anchor)
                 else:
                     try:
                         # try a HEAD request, which should be easier on
@@ -201,24 +188,50 @@ class CheckExternalLinksBuilder(Builder):
             except HTTPError as err:
                 if err.code == 401:
                     # We'll take "Unauthorized" as working.
-                    self.good.add(uri)
                     return 'working', ' - unauthorized', 0
                 else:
-                    self.broken[uri] = str(err)
                     return 'broken', str(err), 0
             except Exception as err:
-                self.broken[uri] = str(err)
                 return 'broken', str(err), 0
             if f.url.rstrip('/') == req_url.rstrip('/'):
-                self.good.add(uri)
                 return 'working', '', 0
             else:
                 new_url = f.url
-                if hash:
-                    new_url += '#' + hash
+                if anchor:
+                    new_url += '#' + anchor
                 code = getattr(req, 'redirect_code', 0)
-                self.redirected[uri] = (new_url, code)
                 return 'redirected', new_url, code
+
+        def check():
+            # check for various conditions without bothering the network
+            if len(uri) == 0 or uri.startswith(('#', 'mailto:', 'ftp:')):
+                return 'unchecked', '', 0
+            elif not uri.startswith(('http:', 'https:')):
+                return 'local', '', 0
+            elif uri in self.good:
+                return 'working', 'old', 0
+            elif uri in self.broken:
+                return 'broken', self.broken[uri], 0
+            elif uri in self.redirected:
+                return 'redirected', self.redirected[uri][0], self.redirected[uri][1]
+            for rex in self.to_ignore:
+                if rex.match(uri):
+                    return 'ignored', '', 0
+
+            # need to actually check the URI
+            for _ in range(self.app.config.linkcheck_retries):
+                status, info, code = check_uri()
+                if status != "broken":
+                    break
+
+            if status == "working":
+                self.good.add(uri)
+            elif status == "broken":
+                self.broken[uri] = info
+            elif status == "redirected":
+                self.redirected[uri] = (info, code)
+
+            return (status, info, code)
 
         while True:
             uri, docname, lineno = self.wqueue.get()
