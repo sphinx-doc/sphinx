@@ -13,6 +13,9 @@ from docutils import frontend, utils
 from docutils.parsers import rst
 
 from sphinx.search import IndexBuilder
+from sphinx.util import jsdump
+
+from util import with_app
 
 
 settings = parser = None
@@ -39,3 +42,13 @@ def test_wordcollector():
     ix.feed('filename', 'title', doc)
     assert 'boson' not in ix._mapping
     assert 'fermion' in ix._mapping
+
+
+@with_app()
+def test_objects_are_escaped(app, status, warning):
+    app.builder.build_all()
+    searchindex = (app.outdir / 'searchindex.js').text()
+    assert searchindex.startswith('Search.setIndex(')
+
+    index = jsdump.loads(searchindex[16:-2])
+    assert 'n::Array&lt;T, d&gt;' in index.get('objects').get('')  # n::Array<T,d> is escaped
