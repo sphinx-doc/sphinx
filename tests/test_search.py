@@ -44,7 +44,7 @@ def test_wordcollector():
     assert 'fermion' in ix._mapping
 
 
-@with_app()
+@with_app(testroot='ext-viewcode')
 def test_objects_are_escaped(app, status, warning):
     app.builder.build_all()
     searchindex = (app.outdir / 'searchindex.js').text()
