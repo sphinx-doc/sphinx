@@ -246,6 +246,20 @@ class StandaloneHTMLBuilder(Builder):
         pub.publish()
         return pub.writer.parts
 
+    def fix_refuris(self, tree):
+        # fix refuris with double anchor
+        fname = self.config.master_doc + self.out_suffix
+        for refnode in tree.traverse(nodes.reference):
+            if 'refuri' not in refnode:
+                continue
+            refuri = refnode['refuri']
+            hashindex = refuri.find('#')
+            if hashindex < 0:
+                continue
+            hashindex = refuri.find('#', hashindex+1)
+            if hashindex >= 0:
+                refnode['refuri'] = fname + refuri[hashindex:]
+
     def prepare_writing(self, docnames):
         # create the search indexer
         self.indexer = None
@@ -718,8 +732,9 @@ class StandaloneHTMLBuilder(Builder):
     def _get_local_toctree(self, docname, collapse=True, **kwds):
         if 'includehidden' not in kwds:
             kwds['includehidden'] = False
-        return self.render_partial(self.env.get_toctree_for(
-            docname, self, collapse, **kwds))['fragment']
+        toc = self.env.get_toctree_for(docname, self, collapse, **kwds)
+        self.fix_refuris(toc)
+        return self.render_partial(toc)['fragment']
 
     def get_outfilename(self, pagename):
         return path.join(self.outdir, os_path(pagename) + self.out_suffix)
@@ -924,20 +939,6 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def get_relative_uri(self, from_, to, typ=None):
         # ignore source
         return self.get_target_uri(to, typ)
-
-    def fix_refuris(self, tree):
-        # fix refuris with double anchor
-        fname = self.config.master_doc + self.out_suffix
-        for refnode in tree.traverse(nodes.reference):
-            if 'refuri' not in refnode:
-                continue
-            refuri = refnode['refuri']
-            hashindex = refuri.find('#')
-            if hashindex < 0:
-                continue
-            hashindex = refuri.find('#', hashindex+1)
-            if hashindex >= 0:
-                refnode['refuri'] = fname + refuri[hashindex:]
 
     def assemble_doctree(self):
         master = self.config.master_doc
