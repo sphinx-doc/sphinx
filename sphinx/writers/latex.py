@@ -293,6 +293,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.builder = builder
         self.body = []
 
+        # determine top section level
+        if document.settings.docclass == 'howto':
+            self.top_sectionlevel = 2
+        else:
+            if builder.config.latex_use_parts:
+                self.top_sectionlevel = 0
+            else:
+                self.top_sectionlevel = 1
+
         # sort out some elements
         papersize = builder.config.latex_paper_size + 'paper'
         if papersize == 'paper':  # e.g. command line "-D latex_paper_size="
@@ -363,12 +372,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
         if document.get('tocdepth'):
-            if document.settings.docclass == 'howto':
-                self.elements['tocdepth'] = ('\\setcounter{tocdepth}{%d}' %
-                                             document['tocdepth'])
-            else:
-                self.elements['tocdepth'] = ('\\setcounter{tocdepth}{%d}' %
-                                             (document['tocdepth'] - 1))
+            # redece tocdepth if `part` or `chapter` is used for top_sectionlevel
+            #   tocdepth = -1: show only parts
+            #   tocdepth =  0: show parts and chapters
+            #   tocdepth =  1: show parts, chapters and sections
+            #   tocdepth =  2: show parts, chapters, sections and subsections
+            #   ...
+            self.elements['tocdepth'] = ('\\setcounter{tocdepth}{%d}' %
+                                         (document['tocdepth'] + self.top_sectionlevel - 2))
         if getattr(document.settings, 'contentsname', None):
             self.elements['contentsname'] = \
                 self.babel_renewcommand(builder, '\\contentsname',
@@ -395,13 +406,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.pending_footnotes = []
         self.curfilestack = []
         self.handled_abbrs = set()
-        if document.settings.docclass == 'howto':
-            self.top_sectionlevel = 2
-        else:
-            if builder.config.latex_use_parts:
-                self.top_sectionlevel = 0
-            else:
-                self.top_sectionlevel = 1
         self.next_section_ids = set()
         self.next_figure_ids = set()
         self.next_table_ids = set()
