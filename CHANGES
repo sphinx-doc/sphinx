@@ -16,6 +16,7 @@ Features added
 * #2338: Define ``\titlereference`` macro to redefine the style of ``title-reference`` roles.
 * Define ``\menuselection`` and ``\accelerator`` macros to redefine the style of `menuselection` roles.
 * Define ``\internalreference`` macro to redefine the style of references
+* #2301: Texts in the classic html theme should be hyphenated.
 
 Bugs fixed
 ----------
