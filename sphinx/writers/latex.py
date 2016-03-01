@@ -1504,8 +1504,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 return
             else:
                 domain = self.builder.env.domains['std']
-                figtype = domain.get_figtype(node)
-                if figtype and domain.get_numfig_title(node):
+                figtype = domain.get_figtype(next)
+                if figtype and domain.get_numfig_title(next):
                     ids = set()
                     # labels for figures go in the figure body, not before
                     if node.get('refid'):

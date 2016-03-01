@@ -28,6 +28,7 @@ Bugs fixed
 * #2329: Refresh environment forcely if source directory has changed.
 * #2331: Fix code-blocks are filled by block in dvi; remove ``xcdraw`` option from xcolor package
 * Fix the confval type checker emits warnings if unicode is given to confvals which expects string value
+* #2360: Fix numref in LaTeX output is broken
 
 Documentation
 -------------
