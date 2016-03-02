@@ -905,9 +905,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_collected_footnote(self, node):
         self.in_footnote += 1
         if 'footnotetext' in node:
-            self.body.append('\\footnotetext[%s]{' % node['number'])
+            self.body.append('\\footnotetext[%s]{\\mbox{ }%%' % node['number'])
         else:
-            self.body.append('\\footnote[%s]{' % node['number'])
+            self.body.append('\\footnote[%s]{\\mbox{ }%%' % node['number'])
 
     def depart_collected_footnote(self, node):
         self.body.append('}')

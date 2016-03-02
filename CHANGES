@@ -6,6 +6,7 @@ Bugs fixed
 
 * #2358: Fix user-preamble could not override the tocdepth definition.
 * #2358: Redece tocdepth if ``part`` or ``chapter`` is used for top_sectionlevel.
+* #2351: Fix footnote spacing
 
 
 Release 1.3.6 (released Feb 29, 2016)
