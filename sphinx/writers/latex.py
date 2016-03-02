@@ -1712,7 +1712,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return self.depart_literal_emphasis(node)
 
     def visit_title_reference(self, node):
-        self.body.append(r'\titlereference{')
+        self.body.append(r'\titleref{')
 
     def depart_title_reference(self, node):
         self.body.append('}')

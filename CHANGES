@@ -13,7 +13,7 @@ Features added
 * #2245: Add ``latex_elements["passoptionstopackages"]`` option to call PassOptionsToPackages
   in early stage of preambles.
 * #2340: Math extension: support alignment of multiple equations for MathJAX.
-* #2338: Define ``\titlereference`` macro to redefine the style of ``title-reference`` roles.
+* #2338: Define ``\titleref`` macro to redefine the style of ``title-reference`` roles.
 * Define ``\menuselection`` and ``\accelerator`` macros to redefine the style of `menuselection` roles.
 * Define ``\crossref`` macro to redefine the style of references
 * #2301: Texts in the classic html theme should be hyphenated.
