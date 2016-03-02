@@ -15,6 +15,7 @@ from __future__ import print_function
 import os
 import sys
 import types
+import fnmatch
 import posixpath
 import traceback
 from os import path
@@ -338,12 +339,25 @@ class Sphinx(object):
                 location = '%s:%s' % (self.env.doc2path(docname), lineno or '')
             else:
                 location = None
+        else:
+            docname = location
+
+        ignore = False
+        for fpattern, msg in self.config.ignore_warnings:
+            if fnmatch.fnmatch(docname or '', fpattern or '*') and \
+               msg in message:
+                ignore = True
+                break
+
         warntext = location and '%s: %s%s\n' % (location, prefix, message) or \
             '%s%s\n' % (prefix, message)
-        if self.warningiserror:
-            raise SphinxWarning(warntext)
-        self._warncount += 1
-        self._log(warntext, self._warning, True)
+        if not ignore:
+            if self.warningiserror:
+                raise SphinxWarning(warntext)
+            self._warncount += 1
+            self._log(warntext, self._warning, True)
+        else:
+            self.debug("IGNORED " + warntext)
 
     def info(self, message='', nonl=False):
         """Emit an informational message.

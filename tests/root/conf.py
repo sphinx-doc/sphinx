@@ -23,6 +23,7 @@ release = '0.6alpha1'
 today_fmt = '%B %d, %Y'
 exclude_patterns = ['_build', '**/excluded.*']
 keep_warnings = True
+ignore_warnings = [('markup', 'nonlocal image URI found')]
 pygments_style = 'sphinx'
 show_authors = True
 numfig = True

@@ -298,6 +298,11 @@ Reference lookup underscore: [Ref_1]_
    * with several
    * items
 
+The following statement should emit a nonlocal image warning which will be
+ignored by ``ignore_warnings`` configuration.
+
+.. image:: https://www.python.org/static/img/python-logo.png
+
 .. rubric:: Side note
 
 This is a side note.
