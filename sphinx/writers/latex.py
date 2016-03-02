@@ -1267,7 +1267,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
     depart_field_body = depart_definition
 
     def visit_paragraph(self, node):
-        self.body.append('\n')
+        # insert blank line, if the paragraph follows a non-paragraph node in a compound
+        index = node.parent.index(node)
+        if (index > 0 and isinstance(node.parent, nodes.compound) and
+                not isinstance(node.parent[index - 1], nodes.paragraph) and
+                not isinstance(node.parent[index - 1], nodes.compound)):
+            self.body.append('\\noindent\n')
+        else:
+            self.body.append('\n')
 
     def depart_paragraph(self, node):
         self.body.append('\n')

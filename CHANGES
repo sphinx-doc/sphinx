@@ -30,6 +30,7 @@ Bugs fixed
 * #2331: Fix code-blocks are filled by block in dvi; remove ``xcdraw`` option from xcolor package
 * Fix the confval type checker emits warnings if unicode is given to confvals which expects string value
 * #2360: Fix numref in LaTeX output is broken
+* #2361: Fix additional paragraphs inside the "compound" directive are indented
 
 Documentation
 -------------
