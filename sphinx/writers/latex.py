@@ -1617,12 +1617,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # reference to a label
                 id = uri[1:].replace('#', ':')
             self.body.append(self.hyperlink(id))
-            self.body.append(r'\internalreference{')
             if len(node) and hasattr(node[0], 'attributes') and \
                'std-term' in node[0].get('classes', []):
                 # don't add a pageref for glossary terms
                 self.context.append('}}}')
+                # mark up as termreference
+                self.body.append(r'\termref{')
             else:
+                self.body.append(r'\internalreference{')
                 if self.builder.config.latex_show_pagerefs and not \
                    self.in_production_list:
                     self.context.append('}}} (%s)' % self.hyperpageref(id))
