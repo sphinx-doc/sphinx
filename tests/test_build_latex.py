@@ -397,7 +397,7 @@ def test_footnote(app, status, warning):
     assert '\\footnote[1]{\nnumbered\n}' in result
     assert '\\footnote[2]{\nauto numbered\n}' in result
     assert '\\footnote[3]{\nnamed\n}' in result
-    assert '{\\hyperref[footnote:bar]{\\internalreference{{[}bar{]}}}}' in result
+    assert '{\\hyperref[footnote:bar]{\\crossref{{[}bar{]}}}}' in result
     assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} ' in result
     assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} \ncite' in result
     assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} \ncite\n}' in result
@@ -416,8 +416,7 @@ def test_reference_in_caption(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert ('\\caption{This is the figure caption with a reference to \\label{index:id2}'
-            '{\\hyperref[index:authoryear]{\\internalreference{{[}AuthorYear{]}}}}.}'
-            in result)
+            '{\\hyperref[index:authoryear]{\\crossref{{[}AuthorYear{]}}}}.}' in result)
     assert '\\chapter{The section with a reference to {[}AuthorYear{]}}' in result
     assert '\\caption{The table title with a reference to {[}AuthorYear{]}}' in result
     assert '\\paragraph{The rubric title with a reference to {[}AuthorYear{]}}' in result
@@ -446,12 +445,11 @@ def test_latex_show_urls_is_inline(app, status, warning):
     assert 'Auto footnote number \\footnote[1]{\nfootnote in baz\n} in baz.rst' in result
     assert ('\\phantomsection\\label{index:id26}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
-            '{\\internalreference{The section with a reference to \\phantomsection'
-            '\\label{index:id1}{\\hyperref[index:authoryear]{\\internalreference'
-            '{{[}AuthorYear{]}}}}}}}' in result)
+            '{\\crossref{The section with a reference to \\phantomsection\\label{index:id1}'
+            '{\\hyperref[index:authoryear]{\\crossref{{[}AuthorYear{]}}}}}}}' in result)
     assert ('\\phantomsection\\label{index:id27}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to]'
-            '{\\internalreference{The section with a reference to }}}' in result)
+            '{\\crossref{The section with a reference to }}}' in result)
     assert 'First footnote: \\footnote[2]{\nFirst\n}' in result
     assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
     assert '\\href{http://sphinx-doc.org/}{Sphinx} (http://sphinx-doc.org/)' in result
@@ -482,12 +480,11 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     assert 'Auto footnote number \\footnote[2]{\nfootnote in baz\n} in baz.rst' in result
     assert ('\\phantomsection\\label{index:id26}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
-            '{\\internalreference{The section with a reference to \\phantomsection'
-            '\\label{index:id1}{\\hyperref[index:authoryear]{\\internalreference'
-            '{{[}AuthorYear{]}}}}}}}' in result)
+            '{\\crossref{The section with a reference to \\phantomsection\\label{index:id1}'
+            '{\\hyperref[index:authoryear]{\\crossref{{[}AuthorYear{]}}}}}}}' in result)
     assert ('\\phantomsection\\label{index:id27}{\\hyperref[index:the\\string-section'
-            '\\string-with\\string-a\\string-reference\\string-to]{\\internalreference'
-            '{The section with a reference to }}}' in result)
+            '\\string-with\\string-a\\string-reference\\string-to]'
+            '{\\crossref{The section with a reference to }}}' in result)
     assert 'First footnote: \\footnote[3]{\nFirst\n}' in result
     assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
     assert ('\\href{http://sphinx-doc.org/}{Sphinx}'
@@ -520,12 +517,11 @@ def test_latex_show_urls_is_no(app, status, warning):
     assert 'Auto footnote number \\footnote[1]{\nfootnote in baz\n} in baz.rst' in result
     assert ('\\phantomsection\\label{index:id26}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
-            '{\\internalreference{The section with a reference to \\phantomsection'
-            '\\label{index:id1}{\\hyperref[index:authoryear]{\\internalreference'
-            '{{[}AuthorYear{]}}}}}}}' in result)
+            '{\\crossref{The section with a reference to \\phantomsection\\label{index:id1}'
+            '{\\hyperref[index:authoryear]{\\crossref{{[}AuthorYear{]}}}}}}}' in result)
     assert ('\\phantomsection\\label{index:id27}{\\hyperref[index:the\\string-section'
-            '\\string-with\\string-a\\string-reference\\string-to]{\\internalreference'
-            '{The section with a reference to }}}' in result)
+            '\\string-with\\string-a\\string-reference\\string-to]'
+            '{\\crossref{The section with a reference to }}}' in result)
     assert 'First footnote: \\footnote[2]{\nFirst\n}' in result
     assert 'Second footnote: \\footnote[1]{\nSecond\n}' in result
     assert '\\href{http://sphinx-doc.org/}{Sphinx}' in result

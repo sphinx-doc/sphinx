@@ -1624,7 +1624,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # mark up as termreference
                 self.body.append(r'\termref{')
             else:
-                self.body.append(r'\internalreference{')
+                self.body.append(r'\crossref{')
                 if self.builder.config.latex_show_pagerefs and not \
                    self.in_production_list:
                     self.context.append('}}} (%s)' % self.hyperpageref(id))
