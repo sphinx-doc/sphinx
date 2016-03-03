@@ -26,7 +26,7 @@ from sphinx.theming import Theme
 from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
 
-from path import path
+from path import path, repr_as
 
 try:
     # Python >=3.3
