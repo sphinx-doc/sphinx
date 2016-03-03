@@ -789,7 +789,6 @@ def test_additional_targets_should_be_translated(app, status, warning):
     yield assert_count(expected_expr, result, 1)
 
 
-<<<<<<< HEAD
 @gen_with_intl_app('text', freshenv=True)
 def test_references(app, status, warning):
     app.builder.build_specific([app.srcdir / 'refs.txt'])
