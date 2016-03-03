@@ -242,7 +242,7 @@ class BuildEnvironment:
         self.versioning_condition = condition
         self.versioning_compare = compare
 
-    def warn(self, docname, msg, lineno=None):
+    def warn(self, docname, msg, lineno=None, **kwargs):
         """Emit a warning.
 
         This differs from using ``app.warn()`` in that the warning may not
@@ -250,11 +250,11 @@ class BuildEnvironment:
         the update of the environment.
         """
         # strange argument order is due to backwards compatibility
-        self._warnfunc(msg, (docname, lineno))
+        self._warnfunc(msg, (docname, lineno), **kwargs)
 
-    def warn_node(self, msg, node):
+    def warn_node(self, msg, node, **kwargs):
         """Like :meth:`warn`, but with source information taken from *node*."""
-        self._warnfunc(msg, '%s:%s' % get_source_line(node))
+        self._warnfunc(msg, '%s:%s' % get_source_line(node), **kwargs)
 
     def clear_doc(self, docname):
         """Remove all traces of a source file in the inventory."""
@@ -576,7 +576,7 @@ class BuildEnvironment:
         def read_process(docs):
             self.app = app
             self.warnings = []
-            self.set_warnfunc(lambda *args: self.warnings.append(args))
+            self.set_warnfunc(lambda *args, **kwargs: self.warnings.append((args, kwargs)))
             for docname in docs:
                 self.read_doc(docname, app)
             # allow pickling self to send it back
@@ -603,8 +603,8 @@ class BuildEnvironment:
         app.info(bold('waiting for workers...'))
         tasks.join()
 
-        for warning in warnings:
-            self._warnfunc(*warning)
+        for warning, kwargs in warnings:
+            self._warnfunc(*warning, **kwargs)
 
     def check_dependents(self, already):
         to_rewrite = self.assign_section_numbers() + self.assign_figure_numbers()
@@ -1540,7 +1540,7 @@ class BuildEnvironment:
                   (node['refdomain'], typ)
         else:
             msg = '%r reference target not found: %%(target)s' % typ
-        self.warn_node(msg % {'target': target}, node)
+        self.warn_node(msg % {'target': target}, node, type='ref', subtype=typ)
 
     def _resolve_doc_reference(self, builder, node, contnode):
         # directly reference to document by source name;
