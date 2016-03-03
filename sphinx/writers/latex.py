@@ -332,13 +332,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.remember_multirowcol = {}
 
         # determine top section level
-        if document.settings.docclass == 'howto':
-            self.top_sectionlevel = 2
+        if builder.config.latex_toplevel_sectioning:
+            self.top_sectionlevel = \
+                self.sectionnames.index(builder.config.latex_toplevel_sectioning)
         else:
-            if builder.config.latex_use_parts:
-                self.top_sectionlevel = 0
+            if document.settings.docclass == 'howto':
+                self.top_sectionlevel = 2
             else:
-                self.top_sectionlevel = 1
+                if builder.config.latex_use_parts:
+                    self.top_sectionlevel = 0
+                else:
+                    self.top_sectionlevel = 1
 
         # sort out some elements
         papersize = builder.config.latex_paper_size + 'paper'

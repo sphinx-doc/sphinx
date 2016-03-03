@@ -612,3 +612,47 @@ def test_toctree_without_maxdepth(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\setcounter{tocdepth}' not in result
+
+
+@with_app(buildername='latex', testroot='toctree-maxdepth',
+          confoverrides={'latex_toplevel_sectioning': None})
+def test_latex_toplevel_sectioning_is_None(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\chapter{Foo}' in result
+
+
+@with_app(buildername='latex', testroot='toctree-maxdepth',
+          confoverrides={'latex_toplevel_sectioning': 'part'})
+def test_latex_toplevel_sectioning_is_part(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\part{Foo}' in result
+
+
+@with_app(buildername='latex', testroot='toctree-maxdepth',
+          confoverrides={'latex_toplevel_sectioning': 'chapter'})
+def test_latex_toplevel_sectioning_is_chapter(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\chapter{Foo}' in result
+
+
+@with_app(buildername='latex', testroot='toctree-maxdepth',
+          confoverrides={'latex_toplevel_sectioning': 'section'})
+def test_latex_toplevel_sectioning_is_section(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\section{Foo}' in result
