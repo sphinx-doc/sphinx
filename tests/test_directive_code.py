@@ -229,5 +229,5 @@ def test_literalinclude_caption_html(app, status, warning):
 def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
-    caption = '\\setupcaptionforverbatim{literal-block}{caption \\textbf{test} py}'
+    caption = '\\SphinxSetupCaptionForVerbatim{literal-block}{caption \\textbf{test} py}'
     assert caption in latex
