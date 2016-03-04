@@ -469,8 +469,7 @@ def test_latex_show_urls_is_inline(app, status, warning):
             'Footnote in term\n}\nDescription' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist} '
             '(http://sphinx-doc.org/)}] \\leavevmode\nDescription' in result)
-    assert ('\\href{https://github.com/sphinx-doc/sphinx}'
-            '{https://github.com/sphinx-doc/sphinx}\n' in result)
+    assert ('\\url{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx-dev@googlegroups.com}' in result)
 
@@ -512,8 +511,7 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             '\\footnotemark[9]}] '
             '\\leavevmode\\footnotetext[9]{\sphinxAtStartFootnote%\n'
             'http://sphinx-doc.org/\n}\nDescription' in result)
-    assert ('\\href{https://github.com/sphinx-doc/sphinx}'
-            '{https://github.com/sphinx-doc/sphinx}\n' in result)
+    assert ('\\url{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx-dev@googlegroups.com}\n' in result)
 
@@ -549,8 +547,7 @@ def test_latex_show_urls_is_no(app, status, warning):
             'Footnote in term\n}\nDescription' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}}] '
             '\\leavevmode\nDescription' in result)
-    assert ('\\href{https://github.com/sphinx-doc/sphinx}'
-            '{https://github.com/sphinx-doc/sphinx}\n' in result)
+    assert ('\\url{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx-dev@googlegroups.com}\n' in result)
 

@@ -1599,8 +1599,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.in_title or not uri:
             self.context.append('')
         elif uri.startswith(URI_SCHEMES):
-            self.body.append('\\href{%s}{' % self.encode_uri(uri))
-            self.context.append('}')
+            if len(node) == 1 and uri == node[0]:
+                self.body.append('\\url{%s}' % self.encode_uri(uri))
+                raise nodes.SkipNode
+            else:
+                self.body.append('\\href{%s}{' % self.encode_uri(uri))
+                self.context.append('}')
         elif uri.startswith('#'):
             # references to labels in the same document
             id = self.curfilestack[-1] + ':' + uri[1:]
