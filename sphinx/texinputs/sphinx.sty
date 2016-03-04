@@ -151,50 +151,50 @@
 \let\endOriginalVerbatim=\endVerbatim
 
 % Play with vspace to be able to keep the indentation.
-\newlength\distancetoright
-\def\mycolorbox#1{%
-  \setlength\distancetoright{\linewidth}%
-  \advance\distancetoright -\@totalleftmargin %
+\newlength\Sphinx@scratchlength
+\newcommand\Sphinxcolorbox [1]{%
+  \setlength\Sphinx@scratchlength{\linewidth}%
+  \advance\Sphinx@scratchlength -\@totalleftmargin %
   \fcolorbox{VerbatimBorderColor}{VerbatimColor}{%
-  \begin{minipage}{\distancetoright}%
+  \begin{minipage}{\Sphinx@scratchlength}%
     #1
   \end{minipage}%
   }%
 }
 % used for split frames for continuation on next and final page
-\def\MidFrameCommand{\mycolorbox}
+\def\MidFrameCommand{\Sphinxcolorbox}
 \let\LastFrameCommand\MidFrameCommand
 
 % We customize \FrameCommand (for non split frames) and \FirstFrameCommand
 % (split frames), in order for the framed environment to insert a Title above
 % the frame, which can not be separated by a pagebreak.
 
-% The title is specified from outside as macro \MyVerbatimTitle.
-% \MyVerbatimTitle is reset to empty after each use of Verbatim environment.
+% The title is specified from outside as macro \SphinxVerbatimTitle.
+% \SphinxVerbatimTitle is reset to empty after each use of Verbatim environment.
 
 % It is also possible to use directly framed environment (i.e. not indirectly
-% via the Verbatim environment next), then it is \MyFrameTitle which specifies
+% via the Verbatim environment next), then it is \SphinxFrameTitle which specifies
 % the title.
-\newcommand*\MyFrameTitle {}
-\newcommand*\MyVerbatimTitle {}
-\newcommand*\setupcaptionforverbatim [2]
+\newcommand*\SphinxFrameTitle {}
+\newcommand*\SphinxVerbatimTitle {}
+\newcommand*\SphinxSetupCaptionForVerbatim [2]
 {%
-    \def\MyVerbatimTitle{\captionof{#1}{#2}\smallskip }%
+    \def\SphinxVerbatimTitle{\captionof{#1}{#2}\smallskip }%
 }
 
-% \MyCustomFBox is copied from framed.sty's \CustomFBox, but
+% \SphinxCustomFBox is copied from framed.sty's \CustomFBox, but
 % #1=title/caption is to be set _above_ the top rule, not _below_
 % #1 must be "vertical material", it may be left empty.
 
 % The amsmath patches \stepcounter to inhibit stepping under
 % \firstchoice@false. We use it because framed.sty typesets multiple
 % times its contents.
-\newif\if@MyFirstFramedPass
+\newif\ifSphinx@myfirstframedpass
 
-\long\def\MyCustomFBox#1#2#3#4#5#6#7{%
+\long\def\SphinxCustomFBox#1#2#3#4#5#6#7{%
   % we set up amsmath (amstext.sty) conditional to inhibit counter stepping
   % except in first pass
-  \if@MyFirstFramedPass\firstchoice@true
+  \ifSphinx@myfirstframedpass\firstchoice@true
                   \else\firstchoice@false\fi
   \leavevmode\begingroup
   \setbox\@tempboxa\hbox{%
@@ -218,29 +218,29 @@
     }%
   }%
   \endgroup
-  \global\@MyFirstFramedPassfalse
+  \global\Sphinx@myfirstframedpassfalse
 }
 
 % for non split frames:
 \def\FrameCommand{%
    % this is inspired from framed.sty v 0.96 2011/10/22 lines 185--190
-   % \fcolorbox (see \mycolorbox above) from color.sty uses \fbox.
-   \def\fbox{\MyCustomFBox{\MyFrameTitle}{}%
+   % \fcolorbox (see \Sphinxcolorbox above) from color.sty uses \fbox.
+   \def\fbox{\SphinxCustomFBox{\SphinxFrameTitle}{}%
                  \fboxrule\fboxrule\fboxrule\fboxrule}%
    % \fcolorbox from xcolor.sty may use rather \XC@fbox.
    \let\XC@fbox\fbox
-   \mycolorbox
+   \Sphinxcolorbox
 }
 % for first portion of split frames:
 \let\FirstFrameCommand\FrameCommand
 
 \renewcommand{\Verbatim}[1][1]{%
   % list starts new par, but we don't want it to be set apart vertically
-  \bgroup\parskip=0pt
+  \bgroup\parskip\z@skip
   \smallskip
   % use customized framed environment
-  \let\MyFrameTitle\MyVerbatimTitle
-  \global\@MyFirstFramedPasstrue
+  \let\SphinxFrameTitle\SphinxVerbatimTitle
+  \global\Sphinx@myfirstframedpasstrue
   % The list environement is needed to control perfectly the vertical
   % space.
   \list{}{%
@@ -258,10 +258,10 @@
   \endOriginalVerbatim
   \endMakeFramed
   \endlist
-  % close group to restore \parskip (and \MyFrameTitle)
+  % close group to restore \parskip (and \SphinxFrameTitle)
   \egroup
-  % reset to empty \MyVerbatimTitle
-  \global\let\MyVerbatimTitle\empty
+  % reset to empty \SphinxVerbatimTitle
+  \global\let\SphinxVerbatimTitle\empty
 }
 
 

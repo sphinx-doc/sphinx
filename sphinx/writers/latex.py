@@ -1384,7 +1384,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.in_container_literal_block:
             self.body.append('\\needspace{\\literalblockneedspace}')
             self.body.append('\\vspace{\\literalblockcaptiontopvspace}%')
-            self.body.append('\n\\setupcaptionforverbatim{literal-block}{')
+            self.body.append('\n\\SphinxSetupCaptionForVerbatim{literal-block}{')
             return
         self.body.append('\\caption{')
 
