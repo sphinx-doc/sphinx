@@ -219,9 +219,12 @@ def test_get_filename_for_language():
     app.env.config.language = 'en'
     app.env.config.figure_language_filename = 'images/{language}/{root}{ext}'
     assert i18n.get_image_filename_for_language('foo.png', app.env) == 'images/en/foo.png'
-    assert i18n.get_image_filename_for_language('foo.bar.png', app.env) == 'images/en/foo.bar.png'
-    assert i18n.get_image_filename_for_language('subdir/foo.png', app.env) == 'images/en/subdir/foo.png'
-    assert i18n.get_image_filename_for_language('../foo.png', app.env) == 'images/en/../foo.png'
+    assert i18n.get_image_filename_for_language(
+        'foo.bar.png', app.env) == 'images/en/foo.bar.png'
+    assert i18n.get_image_filename_for_language(
+        'subdir/foo.png', app.env) == 'images/en/subdir/foo.png'
+    assert i18n.get_image_filename_for_language(
+        '../foo.png', app.env) == 'images/en/../foo.png'
     assert i18n.get_image_filename_for_language('foo', app.env) == 'images/en/foo'
 
     # invalid figure_language_filename
