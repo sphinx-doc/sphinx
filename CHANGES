@@ -1,3 +1,15 @@
+Release 1.4 beta2 (in development)
+==================================
+
+Incompatible changes
+--------------------
+
+Bugs fixed
+----------
+
+Documentation
+-------------
+
 Release 1.4 beta1 (released Mar 6, 2016)
 ========================================
 
@@ -44,9 +56,6 @@ Bugs fixed
 * #2368: Ignore emacs lock files like ``.#foo.rst`` by default.
 * #2262: literal_block and its caption has been separated by pagebreak in LaTeX output.
 * #2319: Fix table counter is overrided by code-block's in LaTeX.  Thanks to jfbu.
-
-Documentation
--------------
 
 Release 1.4 alpha1 (released Feb 14, 2016)
 ==========================================
