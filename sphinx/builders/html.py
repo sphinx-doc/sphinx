@@ -947,6 +947,13 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             if hashindex >= 0:
                 refnode['refuri'] = fname + refuri[hashindex:]
 
+    def _get_local_toctree(self, docname, collapse=True, **kwds):
+        if 'includehidden' not in kwds:
+            kwds['includehidden'] = False
+        toctree = self.env.get_toctree_for(docname, self, collapse, **kwds)
+        self.fix_refuris(toctree)
+        return self.render_partial(toctree)['fragment']
+
     def assemble_doctree(self):
         master = self.config.master_doc
         tree = self.env.get_doctree(master)
