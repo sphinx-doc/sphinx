@@ -40,6 +40,8 @@ Bugs fixed
 * #2364: Fix KeyError 'rootSymbol' on Sphinx upgrade from older version.
 * #2348: Move amsmath and amssymb to before fontpkg on LaTeX writer.
 * #2368: Ignore emacs lock files like ``.#foo.rst`` by default.
+* #2262: literal_block and its caption has been separated by pagebreak in LaTeX output.
+* #2319: Fix table counter is overrided by code-block's in LaTeX.  Thanks to jfbu.
 
 Documentation
 -------------
