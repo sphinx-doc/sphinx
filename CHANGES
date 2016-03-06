@@ -5,6 +5,7 @@ Incompatible changes
 --------------------
 * #2327: `latex_use_parts` is deprecated now. Use `latex_toplevel_sectioning` instead.
 * #2337: Use ``\url{URL}`` macro instead of ``\href{URL}{URL}`` in LaTeX writer.
+* #1498: manpage writer: don't make whole of item in definition list bold if it includes strong node.
 
 Features added
 --------------
