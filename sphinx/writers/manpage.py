@@ -203,6 +203,10 @@ class ManualPageTranslator(BaseTranslator):
     def depart_versionmodified(self, node):
         self.depart_paragraph(node)
 
+    # overwritten -- remove implicit bold
+    def visit_term(self, node):
+        self.body.append("\n")
+
     def visit_termsep(self, node):
         warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
                       DeprecationWarning)
