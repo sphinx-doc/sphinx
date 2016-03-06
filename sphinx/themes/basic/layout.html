@@ -102,26 +102,24 @@
 {%- macro css() %}
     <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" />
     <link rel="stylesheet" href="{{ pathto('_static/pygments.css', 1) }}" type="text/css" />
+    {#- Process the custom css files, with their alternate and title properties if available #}
     {%- for cssfile in css_files %}
-        {%- if cssfile.filename is defined %}
-            {%- set filename = cssfile.filename %}
+        {%- if css_props[cssfile] is not defined %}
+            {%- set alt = False %}
+            {%- set csstitle = undefined %}
         {%- else %}
-            {%- set filename = cssfile %}
-        {%- endif %}
-        {%- if cssfile.alternate is defined %}
-            {%- set alt = cssfile.alternate %}
-        {%- endif %}
-        {%- if cssfile.title is defined and cssfile.title is string %}
-            {%- if cssfile.alternate is not defined %}
-                {%- set alt = True %}
+            {%- set csstitle = css_props[cssfile].title %}
+            {%- set alt = (csstitle is defined) %}
+            {%- if css_props[cssfile].alternate is defined %}
+                {%- set alt = css_props[cssfile].alternate %}
             {%- endif %}
-    <link rel="{% if alt %}alternate {% endif %}stylesheet" href="{{ pathto(filename, 1) }}" type="text/css" title="{{ cssfile.title }}" />
+        {%- endif %}
+        {%- if alt %}
+            {%- set rel = "alternate stylesheet" %}
         {%- else %}
-            {%- if cssfile.alternate is not defined %}
-                {%- set alt = False %}
-            {%- endif %}
-    <link rel="{% if alt %}alternate {% endif %}stylesheet" href="{{ pathto(filename, 1) }}" type="text/css" />
+            {%- set rel = "stylesheet" %}
         {%- endif %}
+    <link rel="{{ rel }}" href="{{ pathto(cssfile, 1) }}" type="text/css"{% if csstitle is defined %} title="{{ csstitle }}"{% endif %} />
     {%- endfor %}
 {%- endmacro %}
 

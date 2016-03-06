@@ -84,8 +84,9 @@ class StandaloneHTMLBuilder(Builder):
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
     script_files = ['_static/jquery.js', '_static/underscore.js',
                     '_static/doctools.js']
-    # Dito for this one.
+    # Ditto for these ones (Sphinx.add_stylesheet).
     css_files = []
+    css_props = {}
 
     default_sidebars = ['localtoc.html', 'relations.html',
                         'sourcelink.html', 'searchbox.html']
@@ -345,6 +346,7 @@ class StandaloneHTMLBuilder(Builder):
             script_files = self.script_files,
             language = self.config.language,
             css_files = self.css_files,
+            css_props = self.css_props,
             sphinx_version = __display_version__,
             style = stylename,
             rellinks = rellinks,

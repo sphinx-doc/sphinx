@@ -206,17 +206,20 @@ Overriding works like this::
 
       {% set css_files = css_files + ["_static/mystyle.css"] %}
 
-   .. versionchanged:: 1.4
-      Optionally, ``alternate`` and/or ``title`` attributes can be provided by
-      supplying a Python dictionary, in which case the filename is given in the
-      ``filename`` key::
+.. data:: css_props
 
-         {% set css_files = css_files + [{"filename":"_static/mystyle.css", "alternate":False, "title":"Default"}] %}
+   .. versionadded:: 1.4
 
-      The default is no title and ``alternate=False``, but if only ``title`` is
-      given, the default is ``alternate=True``. If ``alternate`` is ``True``, it
-      will be translated to ``rel="alternate stylesheet"``, otherwise it will be
-      ``rel="stylesheet"``.
+   An optional dict where you can specify ``alternate`` and/or ``title``
+   attributes for the css files. The keys are the css filenames, the values
+   are dicts themselves:
+
+      {% set _dummy = css_props.update( {"_static/mystyle.css": {"alternate":False, "title":"Default"} }) %}
+
+   The default is no title and ``alternate=False``, but if only ``title`` is
+   given, the default is ``alternate=True``. If ``alternate`` is ``True``, it
+   will be translated to ``rel="alternate stylesheet"``, otherwise it will be
+   ``rel="stylesheet"``.
 
 Helper Functions
 ~~~~~~~~~~~~~~~~

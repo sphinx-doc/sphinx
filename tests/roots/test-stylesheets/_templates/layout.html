@@ -1,7 +1,7 @@
 {% extends "!layout.html" %}
-{% set css_files = css_files + ["_static/more_persistent.css",
-                                {"filename": "_static/more_persistent2.css"},
-                                {"filename": "_static/more_default.css", "title": "Default", "alternate": False},
-                                {"filename": "_static/more_alternate1.css", "title": "Alternate"},
-                                {"filename": "_static/more_alternate2.css", "alternate": True}] %}
-
+{% set css_files = css_files + ["_static/more_persistent.css", "_static/more_persistent2.css", "_static/more_default.css", "_static/more_alternate1.css", "_static/more_alternate2.css"] %}
+{% set _dummy = css_props.update(
+    {"_static/more_default.css": {"title": "Default", "alternate": False},
+     "_static/more_alternate1.css": {"title": "Alternate"},
+     "_static/more_alternate2.css": {"alternate": True} }
+) %}
