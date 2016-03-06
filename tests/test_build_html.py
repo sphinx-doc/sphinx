@@ -207,7 +207,7 @@ HTML_XPATH = {
         (".//a[@href='#c.SphinxType']", ''),
         (".//a[@href='#c.sphinx_global']", ''),
         # test global TOC created by toctree()
-        (".//ul[@class='current']/li[@class='toctree-l1 current']/a[@href='']",
+        (".//ul[@class='current']/li[@class='toctree-l1 current']/a[@href='#']",
             'Testing object descriptions'),
         (".//li[@class='toctree-l1']/a[@href='markup.html']",
             'Testing various markup'),
