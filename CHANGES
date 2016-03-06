@@ -39,6 +39,7 @@ Bugs fixed
 * #2361: Fix additional paragraphs inside the "compound" directive are indented
 * #2364: Fix KeyError 'rootSymbol' on Sphinx upgrade from older version.
 * #2348: Move amsmath and amssymb to before fontpkg on LaTeX writer.
+* #2368: Ignore emacs lock files like ``.#foo.rst`` by default.
 
 Documentation
 -------------

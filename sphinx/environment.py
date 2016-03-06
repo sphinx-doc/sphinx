@@ -391,7 +391,7 @@ class BuildEnvironment:
             config.exclude_patterns[:] +
             config.templates_path +
             config.html_extra_path +
-            ['**/_sources', '.#*', '*.lproj/**']
+            ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
         )
         self.found_docs = set(get_matching_docs(
             self.srcdir, config.source_suffix, exclude_matchers=matchers))
