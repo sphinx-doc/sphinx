@@ -203,6 +203,13 @@ class ManualPageTranslator(BaseTranslator):
     def depart_versionmodified(self, node):
         self.depart_paragraph(node)
 
+    # overwritten -- don't make whole of term bold if it includes strong node
+    def visit_term(self, node):
+        if node.traverse(nodes.strong):
+            self.body.append('\n')
+        else:
+            BaseTranslator.visit_term(self, node)
+
     def visit_termsep(self, node):
         warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
                       DeprecationWarning)

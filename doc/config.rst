@@ -212,6 +212,26 @@ General configuration
 
    .. versionadded:: 0.5
 
+.. confval:: suppress_warnings
+
+   A list of warning types to suppress arbitrary warning messages.
+
+   Sphinx supports following warning types:
+
+   * ref.term
+   * ref.ref
+   * ref.numref
+   * ref.keyword
+   * ref.option
+   * ref.citation
+   * ref.doc
+
+   You can choose from these types.
+
+   Now, this option should be considered *experimental*.
+
+   .. versionadded:: 1.4
+
 .. confval:: needs_sphinx
 
    If set to a ``major.minor`` version string like ``'1.1'``, Sphinx will
@@ -1459,12 +1479,24 @@ These options influence LaTeX output.
    configuration directory) that is the logo of the docs.  It is placed at the
    top of the title page.  Default: ``None``.
 
+.. confval:: latex_toplevel_sectioning
+
+   This value determines the topmost sectioning unit. It should be chosen from
+   ``part``, ``chapter`` or ``section``. The default is ``None``; the topmost
+   sectioning unit is switched by documentclass. ``section`` is used if
+   documentclass will be ``howto``, otherwise ``chapter`` will be used.
+
+   .. versionadded:: 1.4
+
 .. confval:: latex_use_parts
 
    If true, the topmost sectioning unit is parts, else it is chapters.  Default:
    ``False``.
 
    .. versionadded:: 0.3
+
+   .. deprecated:: 1.4
+      Use :confval:`latex_toplevel_sectioning`.
 
 .. confval:: latex_appendices
 

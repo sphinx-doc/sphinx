@@ -40,6 +40,7 @@ HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
 %(root)s/markup.txt:271: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 %(root)s/footnote.txt:60: WARNING: citation not found: missing
+%(root)s/markup.txt:160: WARNING: unknown option: &option
 """
 
 if PY3:

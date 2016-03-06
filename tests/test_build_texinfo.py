@@ -23,6 +23,7 @@ from test_build_html import ENV_WARNINGS
 
 
 TEXINFO_WARNINGS = ENV_WARNINGS + """\
+%(root)s/markup.txt:160: WARNING: unknown option: &option
 %(root)s/footnote.txt:60: WARNING: citation not found: missing
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
 %(root)s/images.txt:29: WARNING: no matching candidate for image URI u'svgimg.\\*'

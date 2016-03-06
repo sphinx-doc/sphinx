@@ -21,3 +21,7 @@ def test_all(app, status, warning):
     content = (app.outdir / 'SphinxTests.1').text()
     assert r'\fBprint \fP\fIi\fP\fB\en\fP' in content
     assert r'\fBmanpage\en\fP' in content
+
+    # term of definition list including nodes.strong
+    assert '\n.B term1\n' in content
+    assert '\nterm2 (\\fBstronged partially\\fP)\n' in content

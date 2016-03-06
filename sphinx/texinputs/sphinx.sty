@@ -14,8 +14,6 @@
 \RequirePackage{fancybox}
 \RequirePackage{titlesec}
 \RequirePackage{tabulary}
-\RequirePackage{amsmath} % for \text
-\RequirePackage{amssymb} % for some symbols
 \RequirePackage{makeidx}
 \RequirePackage{framed}
 \RequirePackage{ifthen}
@@ -146,10 +144,13 @@
 \newcommand{\bfcode}[1]{\code{\bfseries#1}}
 \newcommand{\email}[1]{\textsf{#1}}
 \newcommand{\tablecontinued}[1]{\textsf{#1}}
-\newcommand{\titlereference}[1]{\emph{#1}}
+\newcommand{\titleref}[1]{\emph{#1}}
 \newcommand{\menuselection}[1]{\emph{#1}}
 \newcommand{\accelerator}[1]{\underline{#1}}
-\newcommand{\internalreference}[1]{\emph{#1}}
+\newcommand{\crossref}[1]{\emph{#1}}
+\newcommand{\termref}[1]{\emph{#1}}
+
+\newcommand*{\sphinxAtStartFootnote}{\mbox{ }}
 
 % Redefine the Verbatim environment to allow border and background colors.
 % The original environment is still used for verbatims within tables.
@@ -157,22 +158,96 @@
 \let\endOriginalVerbatim=\endVerbatim
 
 % Play with vspace to be able to keep the indentation.
-\newlength\distancetoright
-\def\mycolorbox#1{%
-  \setlength\distancetoright{\linewidth}%
-  \advance\distancetoright -\@totalleftmargin %
+\newlength\Sphinx@scratchlength
+\newcommand\Sphinxcolorbox [1]{%
+  \setlength\Sphinx@scratchlength{\linewidth}%
+  \advance\Sphinx@scratchlength -\@totalleftmargin %
   \fcolorbox{VerbatimBorderColor}{VerbatimColor}{%
-  \begin{minipage}{\distancetoright}%
+  \begin{minipage}{\Sphinx@scratchlength}%
     #1
   \end{minipage}%
   }%
 }
-\def\FrameCommand{\mycolorbox}
+% used for split frames for continuation on next and final page
+\def\MidFrameCommand{\Sphinxcolorbox}
+\let\LastFrameCommand\MidFrameCommand
+
+% We customize \FrameCommand (for non split frames) and \FirstFrameCommand
+% (split frames), in order for the framed environment to insert a Title above
+% the frame, which can not be separated by a pagebreak.
+
+% The title is specified from outside as macro \SphinxVerbatimTitle.
+% \SphinxVerbatimTitle is reset to empty after each use of Verbatim environment.
+
+% It is also possible to use directly framed environment (i.e. not indirectly
+% via the Verbatim environment next), then it is \SphinxFrameTitle which specifies
+% the title.
+\newcommand*\SphinxFrameTitle {}
+\newcommand*\SphinxVerbatimTitle {}
+\newcommand*\SphinxSetupCaptionForVerbatim [2]
+{%
+    \def\SphinxVerbatimTitle{\captionof{#1}{#2}\smallskip }%
+}
+
+% \SphinxCustomFBox is copied from framed.sty's \CustomFBox, but
+% #1=title/caption is to be set _above_ the top rule, not _below_
+% #1 must be "vertical material", it may be left empty.
+
+% The amsmath patches \stepcounter to inhibit stepping under
+% \firstchoice@false. We use it because framed.sty typesets multiple
+% times its contents.
+\newif\ifSphinx@myfirstframedpass
+
+\long\def\SphinxCustomFBox#1#2#3#4#5#6#7{%
+  % we set up amsmath (amstext.sty) conditional to inhibit counter stepping
+  % except in first pass
+  \ifSphinx@myfirstframedpass\firstchoice@true
+                  \else\firstchoice@false\fi
+  \leavevmode\begingroup
+  \setbox\@tempboxa\hbox{%
+    \color@begingroup
+      \kern\fboxsep{#7}\kern\fboxsep
+    \color@endgroup}%
+  \hbox{%
+    \lower\dimexpr#4+\fboxsep+\dp\@tempboxa\hbox{%
+      \vbox{%
+        #1% TITLE
+        \hrule\@height#3\relax
+        \hbox{%
+          \vrule\@width#5\relax
+          \vbox{%
+            \vskip\fboxsep
+            \copy\@tempboxa
+            \vskip\fboxsep}%
+          \vrule\@width#6\relax}%
+        #2%
+        \hrule\@height#4\relax}%
+    }%
+  }%
+  \endgroup
+  \global\Sphinx@myfirstframedpassfalse
+}
+
+% for non split frames:
+\def\FrameCommand{%
+   % this is inspired from framed.sty v 0.96 2011/10/22 lines 185--190
+   % \fcolorbox (see \Sphinxcolorbox above) from color.sty uses \fbox.
+   \def\fbox{\SphinxCustomFBox{\SphinxFrameTitle}{}%
+                 \fboxrule\fboxrule\fboxrule\fboxrule}%
+   % \fcolorbox from xcolor.sty may use rather \XC@fbox.
+   \let\XC@fbox\fbox
+   \Sphinxcolorbox
+}
+% for first portion of split frames:
+\let\FirstFrameCommand\FrameCommand
 
 \renewcommand{\Verbatim}[1][1]{%
   % list starts new par, but we don't want it to be set apart vertically
-  \bgroup\parskip=0pt%
-  \smallskip%
+  \bgroup\parskip\z@skip
+  \smallskip
+  % use customized framed environment
+  \let\SphinxFrameTitle\SphinxVerbatimTitle
+  \global\Sphinx@myfirstframedpasstrue
   % The list environement is needed to control perfectly the vertical
   % space.
   \list{}{%
@@ -183,15 +258,17 @@
   \setlength\leftmargin{0pt}%
   }%
   \item\MakeFramed {\FrameRestore}%
-     \small%
+     \small
     \OriginalVerbatim[#1]%
 }
 \renewcommand{\endVerbatim}{%
-    \endOriginalVerbatim%
-  \endMakeFramed%
-  \endlist%
-  % close group to restore \parskip
-  \egroup%
+  \endOriginalVerbatim
+  \endMakeFramed
+  \endlist
+  % close group to restore \parskip (and \SphinxFrameTitle)
+  \egroup
+  % reset to empty \SphinxVerbatimTitle
+  \global\let\SphinxVerbatimTitle\empty
 }
 
 
@@ -447,6 +524,9 @@
 % (Note: we don't use a package option here; instead, we give an explicit
 % \capstart for figures that actually have a caption.)
 \RequirePackage{hypcap}
+
+% Set up styles of URL: it should be placed after hyperref
+\urlstyle{same}
 
 % From docutils.writers.latex2e
 % inline markup (custom roles)

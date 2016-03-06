@@ -76,6 +76,7 @@ class Config(object):
         templates_path = ([], 'html'),
         template_bridge = (None, 'html', string_classes),
         keep_warnings = (False, 'env'),
+        suppress_warnings = ([], 'env'),
         modindex_common_prefix = ([], 'html'),
         rst_epilog = (None, 'env', string_classes),
         rst_prolog = (None, 'env', string_classes),
@@ -206,7 +207,9 @@ class Config(object):
                            None),
         latex_logo = (None, None, string_classes),
         latex_appendices = ([], None),
+        # now deprecated - use latex_toplevel_sectioning
         latex_use_parts = (False, None),
+        latex_toplevel_sectioning = (None, None, [str]),
         latex_use_modindex = (True, None),  # deprecated
         latex_domain_indices = (True, None, [list]),
         latex_show_urls = ('no', None),
