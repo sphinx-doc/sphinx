@@ -9,6 +9,7 @@ Bugs fixed
 
 Documentation
 -------------
+* Fix unpack warning if combinated with 3rd party domain extensions.
 
 Release 1.4 beta1 (released Mar 6, 2016)
 ========================================
