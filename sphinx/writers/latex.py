@@ -322,6 +322,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.in_container_literal_block = 0
         self.in_term = 0
         self.in_merged_cell = 0
+        self.in_minipage = 0
         self.first_document = 1
         self.this_is_the_title = 1
         self.literal_whitespace = 0
@@ -703,10 +704,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('}')
 
     def visit_topic(self, node):
+        self.in_minipage = 1
         self.body.append('\\setbox0\\vbox{\n'
                          '\\begin{minipage}{0.95\\linewidth}\n')
 
     def depart_topic(self, node):
+        self.in_minipage = 0
         self.body.append('\\end{minipage}}\n'
                          '\\begin{center}\\setlength{\\fboxsep}{5pt}'
                          '\\shadowbox{\\box0}\\end{center}\n')
@@ -1410,6 +1413,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                              (node['align'] == 'right' and 'r' or 'l',
                               node['width']))
             self.context.append(ids + '\\end{wrapfigure}\n')
+        elif self.in_minipage:
+            if ('align' not in node.attributes or
+                    node.attributes['align'] == 'center'):
+                self.body.append('\n\\begin{center}')
+                self.context.append('\\end{center}\n')
+            else:
+                self.body.append('\n\\begin{flush%s}' % node.attributes['align'])
+                self.context.append('\\end{flush%s}\n' % node.attributes['align'])
         else:
             if ('align' not in node.attributes or
                     node.attributes['align'] == 'center'):
@@ -1436,8 +1447,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\needspace{\\literalblockneedspace}')
             self.body.append('\\vspace{\\literalblockcaptiontopvspace}%')
             self.body.append('\n\\SphinxSetupCaptionForVerbatim{literal-block}{')
-            return
-        self.body.append('\\caption{')
+        elif self.in_minipage and isinstance(node.parent, nodes.figure):
+            self.body.append('\\captionof{figure}{')
+        else:
+            self.body.append('\\caption{')
 
     def depart_caption(self, node):
         self.body.append('}')
