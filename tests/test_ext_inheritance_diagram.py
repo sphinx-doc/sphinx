@@ -11,9 +11,11 @@
 
 import re
 from util import with_app
+from test_ext_graphviz import skip_if_graphviz_not_found
 
 
 @with_app('html', testroot='ext-inheritance_diagram')
+@skip_if_graphviz_not_found
 def test_inheritance_diagram_html(app, status, warning):
     app.builder.build_all()
 
@@ -28,6 +30,7 @@ def test_inheritance_diagram_html(app, status, warning):
 
 
 @with_app('latex', testroot='ext-inheritance_diagram')
+@skip_if_graphviz_not_found
 def test_inheritance_diagram_latex(app, status, warning):
     app.builder.build_all()
 
