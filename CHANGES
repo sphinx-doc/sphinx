@@ -7,6 +7,8 @@ Incompatible changes
 Features added
 --------------
 
+* Add ``:caption:`` option for sphinx.ext.inheritance_diagram.
+
 Bugs fixed
 ----------
 
