@@ -62,3 +62,7 @@ Test for issue #1700
 
 :ref:`mastertoc`
 
+Test for indirect hyperlink targets
+===================================
+
+:ref:`indirect hyperref <other-label>`

@@ -31,16 +31,16 @@ http://www.python.org/logo.png
 reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 :encoding: option\\n?
 %(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
-(%(root)s/markup.txt:359: WARNING: invalid single index entry u'')?
+(%(root)s/markup.txt:363: WARNING: invalid single index entry u'')?
 (%(root)s/undecodable.txt:3: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
 )?"""
 
 HTML_WARNINGS = ENV_WARNINGS + """\
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/markup.txt:271: WARNING: Could not lex literal_block as "c". Highlighting skipped.
+%(root)s/markup.txt:275: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 %(root)s/footnote.txt:60: WARNING: citation not found: missing
-%(root)s/markup.txt:160: WARNING: unknown option: &option
+%(root)s/markup.txt:164: WARNING: unknown option: &option
 """
 
 if PY3:
@@ -151,6 +151,8 @@ HTML_XPATH = {
             "[@class='reference internal']/code/span[@class='pre']", '^with$'),
         (".//a[@href='#grammar-token-try_stmt']"
             "[@class='reference internal']/code/span", '^statement$'),
+        (".//a[@href='#some-label'][@class='reference internal']/span", '^here$'),
+        (".//a[@href='#some-label'][@class='reference internal']/span", '^there$'),
         (".//a[@href='subdir/includes.html']"
             "[@class='reference internal']/span", 'Including in subdir'),
         (".//a[@href='objects.html#cmdoption-python-c']"
@@ -274,6 +276,9 @@ HTML_XPATH = {
          'http://sphinx-doc.org/'),
         (".//a[@class='reference external'][@href='http://sphinx-doc.org/latest/']",
          'Latest reference'),
+        # Indirect hyperlink targets across files
+        (".//a[@href='markup.html#some-label'][@class='reference internal']/span",
+         '^indirect hyperref$'),
     ],
     'bom.html': [
         (".//title", " File with UTF-8 BOM"),

@@ -34,6 +34,7 @@ Bugs fixed
 * #2465: latex builder fails in case no caption option is provided to toctree directive
 * Sphinx crashes if self referenced toctree found
 * #2481: spelling mistake for mecab search splitter. Thanks to Naoki Sato.
+* #2309: Fix could not refer "indirect hyperlink targets" by ref-role
 
 
 Release 1.4.1 (released Apr 12, 2016)
