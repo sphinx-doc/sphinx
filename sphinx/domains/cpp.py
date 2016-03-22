@@ -26,7 +26,9 @@ from sphinx.util.pycompat import UnicodeMixin
 from sphinx.util.docfields import Field, GroupedField
 
 """
-    Important note on ids:
+    Important note on ids
+    ----------------------------------------------------------------------------
+
     Multiple id generation schemes are used due to backwards compatibility.
     - v1: 1.2.3 <= version < 1.3
           The style used before the rewrite.
@@ -37,6 +39,19 @@ from sphinx.util.docfields import Field, GroupedField
           though not completely implemented.
     All versions are generated and attached to elements. The newest is used for
     the index. All of the versions should work as permalinks.
+
+
+    Tagnames
+    ----------------------------------------------------------------------------
+
+    Each desc_signature node will have the attribute 'sphinx_cpp_tagname' set to
+    - 'templateParams', if the line is on the form 'template<...>',
+    - 'declarator', if the line contains the name of the declared object.
+    No other desc_signature nodes should exist (so far).
+
+
+    Grammar
+    ----------------------------------------------------------------------------
 
     See http://www.nongnu.org/hcb/ for the grammar,
     or https://github.com/cplusplus/draft/blob/master/source/grammar.tex
@@ -755,6 +770,7 @@ class ASTTemplateDeclarationPrefix(ASTBase):
         _verify_description_mode(mode)
         for t in self.templates:
             templateNode = addnodes.desc_signature()
+            templateNode.sphinx_cpp_tagname = 'templateParams'
             t.describe_signature(templateNode, 'lastIsName', env, symbol)
             signode += templateNode
 
@@ -2172,6 +2188,7 @@ class ASTDeclaration(ASTBase):
         # let's pop it so we can add templates before that
         parentNode = signode.parent
         mainDeclNode = signode
+        mainDeclNode.sphinx_cpp_tagname = 'declarator'
         parentNode.pop()
 
         assert self.symbol
