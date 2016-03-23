@@ -1,6 +1,11 @@
 Release 1.3.7 (in development)
 ==============================
 
+Incompatible changes
+--------------------
+
+* #2378: Sphinx now bundles newfloat.sty
+
 Bugs fixed
 ----------
 
