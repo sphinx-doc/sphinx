@@ -249,7 +249,11 @@ class GoogleDocstringTest(BaseDocstringTest):
     )]
 
     def test_docstrings(self):
-        config = Config(napoleon_use_param=False, napoleon_use_rtype=False)
+        config = Config(
+            napoleon_use_param=False,
+            napoleon_use_rtype=False,
+            napoleon_use_keyword=False
+        )
         for docstring, expected in self.docstrings:
             actual = str(GoogleDocstring(dedent(docstring), config))
             expected = dedent(expected)
@@ -1046,7 +1050,10 @@ class NumpyDocstringTest(BaseDocstringTest):
     )]
 
     def test_docstrings(self):
-        config = Config(napoleon_use_param=False, napoleon_use_rtype=False)
+        config = Config(
+            napoleon_use_param=False,
+            napoleon_use_rtype=False,
+            napoleon_use_keyword=False)
         for docstring, expected in self.docstrings:
             actual = str(NumpyDocstring(dedent(docstring), config))
             expected = dedent(expected)
@@ -1735,4 +1742,20 @@ definition_after_normal_text : int
 """
         config = Config(napoleon_use_param=False)
         actual = str(NumpyDocstring(docstring, config))
+        self.assertEqual(expected, actual)
+
+    def test_keywords_with_types(self):
+        docstring = """\
+Do as you please
+
+Keyword Args:
+    gotham_is_yours (None): shall interfere.
+"""
+        actual = str(GoogleDocstring(docstring))
+        expected = """\
+Do as you please
+
+:keyword gotham_is_yours: shall interfere.
+:kwtype gotham_is_yours: None
+"""
         self.assertEqual(expected, actual)
