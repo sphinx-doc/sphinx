@@ -82,6 +82,8 @@ class CheckExternalLinksBuilder(Builder):
 
     def init(self):
         self.to_ignore = [re.compile(x) for x in self.app.config.linkcheck_ignore]
+        self.anchors_ignore = [re.compile(x)
+                               for x in self.app.config.linkcheck_anchors_ignore]
         self.good = set()
         self.broken = {}
         self.redirected = {}
@@ -112,6 +114,10 @@ class CheckExternalLinksBuilder(Builder):
             # split off anchor
             if '#' in uri:
                 req_url, anchor = uri.split('#', 1)
+                for rex in self.anchors_ignore:
+                    if rex.match(anchor):
+                        anchor = None
+                        break
             else:
                 req_url = uri
                 anchor = None
@@ -123,11 +129,8 @@ class CheckExternalLinksBuilder(Builder):
                 req_url = encode_uri(req_url)
 
             try:
-                if anchor and self.app.config.linkcheck_anchors and \
-                   not anchor.startswith('!'):
+                if anchor and self.app.config.linkcheck_anchors:
                     # Read the whole document and see if #anchor exists
-                    # (Anchors starting with ! are ignored since they are
-                    # commonly used for dynamic pages)
                     response = requests.get(req_url, stream=True, headers=self.headers,
                                             **kwargs)
                     found = check_anchor(response, unquote(anchor))
@@ -294,3 +297,6 @@ def setup(app):
     app.add_config_value('linkcheck_timeout', None, None, [int])
     app.add_config_value('linkcheck_workers', 5, None)
     app.add_config_value('linkcheck_anchors', True, None)
+    # Anchors starting with ! are ignored since they are
+    # commonly used for dynamic pages
+    app.add_config_value('linkcheck_anchors_ignore', ["^!"], None)

@@ -2083,6 +2083,17 @@ Options for the linkcheck builder
 
    .. versionadded:: 1.2
 
+.. confval:: linkcheck_anchors_ignore
+
+   A list of regular expressions that match URIs that should skip checking
+   the validity of anchors in links. This allows skipping entire sites, where
+   anchors are used to control dynamic pages, or just specific anchors within
+   a page, where javascript is used to add anchors dynamically, or use the
+   fragment as part of to trigger an internal REST request. Default is
+   ``["/#!"]``.
+
+   .. versionadded:: 1.5
+
 
 Options for the XML builder
 ---------------------------
