@@ -162,10 +162,10 @@ class CheckExternalLinksBuilder(Builder):
                         response = requests.head(req_url, **kwargs)
                         response.raise_for_status()
                     except HTTPError as err:
-                        if err.response.status_code != 405:
+                        if err.response.status_code not in (403, 405):
                             raise
                         # retry with GET if that fails, some servers
-                        # don't like HEAD requests and reply with 405
+                        # don't like HEAD requests and reply with 403 or 405
                         response = requests.get(req_url, stream=True, **kwargs)
                         response.raise_for_status()
             except HTTPError as err:
