@@ -1,70 +1,8 @@
-Release 1.4 beta2 (in development)
-==================================
+Release 1.4 (released Mar 28, 2016)
+===================================
 
 Incompatible changes
 --------------------
-
-Bugs fixed
-----------
-
-Documentation
--------------
-* Fix unpack warning if combinated with 3rd party domain extensions.
-* #1153: Fix figures in sidebar causes latex build error.
-
-Release 1.4 beta1 (released Mar 6, 2016)
-========================================
-
-Incompatible changes
---------------------
-* #2327: `latex_use_parts` is deprecated now. Use `latex_toplevel_sectioning` instead.
-* #2337: Use ``\url{URL}`` macro instead of ``\href{URL}{URL}`` in LaTeX writer.
-* #1498: manpage writer: don't make whole of item in definition list bold if it includes strong node.
-* #582: Remove hint message from quick search box for html output.
-
-Features added
---------------
-* #2308: Define ``\tablecontinued`` macro to redefine the style of continued label for
-  longtables.
-* Select an image by similarity if multiple images are globbed by ``.. image:: filename.*``
-* #1921: Support figure substitutions by :confval:`language` and :confval:`figure_language_filename`
-* #2245: Add ``latex_elements["passoptionstopackages"]`` option to call PassOptionsToPackages
-  in early stage of preambles.
-* #2340: Math extension: support alignment of multiple equations for MathJAX.
-* #2338: Define ``\titleref`` macro to redefine the style of ``title-reference`` roles.
-* Define ``\menuselection`` and ``\accelerator`` macros to redefine the style of `menuselection` roles.
-* Define ``\crossref`` macro to redefine the style of references
-* #2301: Texts in the classic html theme should be hyphenated.
-* #2355: Define ``\termref`` macro to redefine the style of ``term`` roles.
-* Add :confval:`suppress_warnings` to suppress arbitrary warning message (experimental)
-* #2229: Fix no warning is given for unknown options
-* #2327: Add `latex_toplevel_sectioning` to switch the top level sectioning of LaTeX document.
-
-Bugs fixed
-----------
-* Remove ``image/gif`` from supported_image_types of LaTeX writer (#2272)
-* Fix ValueError is raised if LANGUAGE is empty string
-* Fix unpack warning is shown when the directives generated from ``Sphinx.add_crossref_type`` is used
-* The default highlight language is now ``default``.  This means that source code
-  is highlighted as Python 3 (which is mostly a superset of Python 2) if possible.
-  To get the old behavior back, add ``highlight_language = "python"`` to conf.py.
-* #2329: Refresh environment forcely if source directory has changed.
-* #2331: Fix code-blocks are filled by block in dvi; remove ``xcdraw`` option from xcolor package
-* Fix the confval type checker emits warnings if unicode is given to confvals which expects string value
-* #2360: Fix numref in LaTeX output is broken
-* #2361: Fix additional paragraphs inside the "compound" directive are indented
-* #2364: Fix KeyError 'rootSymbol' on Sphinx upgrade from older version.
-* #2348: Move amsmath and amssymb to before fontpkg on LaTeX writer.
-* #2368: Ignore emacs lock files like ``.#foo.rst`` by default.
-* #2262: literal_block and its caption has been separated by pagebreak in LaTeX output.
-* #2319: Fix table counter is overrided by code-block's in LaTeX.  Thanks to jfbu.
-
-Release 1.4 alpha1 (released Feb 14, 2016)
-==========================================
-
-Incompatible changes
---------------------
-
 * Drop ``PorterStemmer`` package support. Use ``PyStemmer`` instead of ``PorterStemmer``
   to accelerate stemming.
 * sphinx_rtd_theme has become optional. Please install it manually.
@@ -96,10 +34,14 @@ Incompatible changes
   ``"MMMM dd, YYYY"`` is default format for `today_fmt` and `html_last_updated_fmt`.
   However strftime format like ``"%B %d, %Y"`` is also supported for backward
   compatibility until Sphinx-1.5. Later format will be disabled from Sphinx-1.5.
+* #2327: `latex_use_parts` is deprecated now. Use `latex_toplevel_sectioning` instead.
+* #2337: Use ``\url{URL}`` macro instead of ``\href{URL}{URL}`` in LaTeX writer.
+* #1498: manpage writer: don't make whole of item in definition list bold if it includes strong node.
+* #582: Remove hint message from quick search box for html output.
+* #2378: Sphinx now bundles newfloat.sty
 
 Features added
 --------------
-
 * #2092: add todo directive support in napoleon package.
 * #1962: when adding directives, roles or nodes from an extension, warn if such
   an element is already present (built-in or added by another extension).
@@ -142,10 +84,24 @@ Features added
 * #1853: support custom text splitter on html search with ``language='ja'``.
 * #2320: classifier of glossary terms can be used for index entries grouping key.
   The classifier also be used for translation. See also :ref:`glossary-directive`.
+* #2308: Define ``\tablecontinued`` macro to redefine the style of continued label for
+  longtables.
+* Select an image by similarity if multiple images are globbed by ``.. image:: filename.*``
+* #1921: Support figure substitutions by :confval:`language` and :confval:`figure_language_filename`
+* #2245: Add ``latex_elements["passoptionstopackages"]`` option to call PassOptionsToPackages
+  in early stage of preambles.
+* #2340: Math extension: support alignment of multiple equations for MathJAX.
+* #2338: Define ``\titleref`` macro to redefine the style of ``title-reference`` roles.
+* Define ``\menuselection`` and ``\accelerator`` macros to redefine the style of `menuselection` roles.
+* Define ``\crossref`` macro to redefine the style of references
+* #2301: Texts in the classic html theme should be hyphenated.
+* #2355: Define ``\termref`` macro to redefine the style of ``term`` roles.
+* Add :confval:`suppress_warnings` to suppress arbitrary warning message (experimental)
+* #2229: Fix no warning is given for unknown options
+* #2327: Add `latex_toplevel_sectioning` to switch the top level sectioning of LaTeX document.
 
 Bugs fixed
 ----------
-
 * #1913: C++, fix assert bug for enumerators in next-to-global and global scope.
 * C++, fix parsing of 'signed char' and 'unsigned char' as types.
 * C++, add missing support for 'friend' functions.
@@ -167,30 +123,34 @@ Bugs fixed
 * #2311: Fix sphinx.ext.inheritance_diagram raises AttributeError
 * #2251: Line breaks in .rst files are transferred to .pot files in a wrong way.
 * #794: Fix date formatting in latex output is not localized
-
-
-Documentation
--------------
-
-* #1757: Fix for usage of :confval:`html_last_updated_fmt`. Thanks to Ralf Hemmecke.
-
-
-Release 1.3.7 (in development)
-==============================
-
-Incompatible changes
---------------------
-
-* #2378: Sphinx now bundles newfloat.sty
-
-Bugs fixed
-----------
-
+* Remove ``image/gif`` from supported_image_types of LaTeX writer (#2272)
+* Fix ValueError is raised if LANGUAGE is empty string
+* Fix unpack warning is shown when the directives generated from ``Sphinx.add_crossref_type`` is used
+* The default highlight language is now ``default``.  This means that source code
+  is highlighted as Python 3 (which is mostly a superset of Python 2) if possible.
+  To get the old behavior back, add ``highlight_language = "python"`` to conf.py.
+* #2329: Refresh environment forcely if source directory has changed.
+* #2331: Fix code-blocks are filled by block in dvi; remove ``xcdraw`` option from xcolor package
+* Fix the confval type checker emits warnings if unicode is given to confvals which expects string value
+* #2360: Fix numref in LaTeX output is broken
+* #2361: Fix additional paragraphs inside the "compound" directive are indented
+* #2364: Fix KeyError 'rootSymbol' on Sphinx upgrade from older version.
+* #2348: Move amsmath and amssymb to before fontpkg on LaTeX writer.
+* #2368: Ignore emacs lock files like ``.#foo.rst`` by default.
+* #2262: literal_block and its caption has been separated by pagebreak in LaTeX output.
+* #2319: Fix table counter is overrided by code-block's in LaTeX.  Thanks to jfbu.
+* Fix unpack warning if combinated with 3rd party domain extensions.
+* #1153: Fix figures in sidebar causes latex build error.
 * #2358: Fix user-preamble could not override the tocdepth definition.
 * #2358: Redece tocdepth if ``part`` or ``chapter`` is used for top_sectionlevel.
 * #2351: Fix footnote spacing
 * #2363: Fix ``toctree()`` in templates generates broken links in SingleHTMLBuilder.
 * #2366: Fix empty hyperref is generated on toctree in HTML builder.
+
+Documentation
+-------------
+
+* #1757: Fix for usage of :confval:`html_last_updated_fmt`. Thanks to Ralf Hemmecke.
 
 
 Release 1.3.6 (released Feb 29, 2016)
