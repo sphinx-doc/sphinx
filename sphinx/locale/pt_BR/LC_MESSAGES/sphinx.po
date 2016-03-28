@@ -1,23 +1,24 @@
-# Portuguese (Brazil) translations for Sphinx.
+# Translations template for Sphinx.
 # Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
-#
+# 
+# Translators:
+# FIRST AUTHOR <roger.demetrescu@gmail.com>, 2008
+# gilberto dos santos alves <gsavix@gmail.com>, 2015-2016
 msgid ""
 msgstr ""
-"Project-Id-Version:  Sphinx\n"
+"Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-03-06 21:58+0900\n"
-"PO-Revision-Date: 2015-03-08 14:35+0000\n"
-"Last-Translator: Takayuki Shimizukawa <shimizukawa@gmail.com>\n"
-"Language: pt_BR\n"
-"Language-Team: Portuguese (Brazil) "
-"(http://www.transifex.com/projects/p/sphinx-1/language/pt_BR/)\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"PO-Revision-Date: 2016-03-08 22:54+0000\n"
+"Last-Translator: gilberto dos santos alves <gsavix@gmail.com>\n"
+"Language-Team: Portuguese (Brazil) (http://www.transifex.com/sphinx-doc/sphinx-1/language/pt_BR/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.2.0\n"
+"Language: pt_BR\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: sphinx/config.py:91
 #, python-format
@@ -61,7 +62,7 @@ msgstr "Propostas Estendidas Python; PEP %s"
 #: sphinx/transforms.py:56 sphinx/writers/latex.py:374
 #: sphinx/writers/manpage.py:101 sphinx/writers/texinfo.py:222
 msgid "MMMM dd, YYYY"
-msgstr ""
+msgstr "MMMM dd, YYYY"
 
 #: sphinx/builders/changes.py:75
 msgid "Builtins"
@@ -69,11 +70,11 @@ msgstr "Internos"
 
 #: sphinx/builders/changes.py:77
 msgid "Module level"
-msgstr "Módulo"
+msgstr "Nível do Módulo"
 
 #: sphinx/builders/html.py:295
 msgid "MMM dd, YYYY"
-msgstr ""
+msgstr "MMM dd, YYYY"
 
 #: sphinx/builders/html.py:315 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
@@ -178,13 +179,12 @@ msgid "variable"
 msgstr "variável"
 
 #: sphinx/domains/cpp.py:3608
-#, fuzzy
 msgid "Template Parameters"
-msgstr "Parâmetros"
+msgstr "Parâmetros do Modelo"
 
 #: sphinx/domains/cpp.py:3611 sphinx/domains/javascript.py:125
 msgid "Throws"
-msgstr "Gera"
+msgstr "Lança"
 
 #: sphinx/domains/cpp.py:3733
 #, python-format
@@ -209,7 +209,7 @@ msgstr "%s (classe C++)"
 #: sphinx/domains/cpp.py:3786
 #, python-format
 msgid "%s (C++ enum)"
-msgstr "%s (C++enum)"
+msgstr "%s (C++ enum)"
 
 #: sphinx/domains/cpp.py:3816
 #, python-format
@@ -256,7 +256,7 @@ msgstr "%s (atributo %s)"
 
 #: sphinx/domains/javascript.py:122
 msgid "Arguments"
-msgstr "Parâmetros"
+msgstr "Argumentos"
 
 #: sphinx/domains/javascript.py:166 sphinx/domains/python.py:590
 msgid "data"
@@ -337,7 +337,7 @@ msgstr "%s (módulo)"
 
 #: sphinx/domains/python.py:520
 msgid "Python Module Index"
-msgstr "Índice de Módulos do Python"
+msgstr "Índice de Módulos Python"
 
 #: sphinx/domains/python.py:521
 msgid "modules"
@@ -397,19 +397,19 @@ msgstr "váriavel de ambiente; %s"
 #: sphinx/domains/std.py:185
 #, python-format
 msgid "%scommand line option; %s"
-msgstr "%sopção de linha de comando; %s"
+msgstr "%s opção de linha de comando; %s"
 
 #: sphinx/domains/std.py:433
 msgid "glossary term"
-msgstr "Termo de glossário"
+msgstr "Glossário de Termos"
 
 #: sphinx/domains/std.py:434
 msgid "grammar token"
-msgstr "token de gramática"
+msgstr "termo gramatical"
 
 #: sphinx/domains/std.py:435
 msgid "reference label"
-msgstr "rótulo de referência"
+msgstr "marca referencial"
 
 #: sphinx/domains/std.py:437
 msgid "environment variable"
@@ -417,7 +417,7 @@ msgstr "váriavel de ambiente"
 
 #: sphinx/domains/std.py:438
 msgid "program option"
-msgstr "opção de programa"
+msgstr "opção do programa"
 
 #: sphinx/domains/std.py:471 sphinx/themes/basic/genindex-single.html:32
 #: sphinx/themes/basic/genindex-single.html:57
@@ -435,12 +435,12 @@ msgstr "Índice do Módulo"
 
 #: sphinx/domains/std.py:473 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
-msgstr "Página de Pesquisa"
+msgstr "Página de Busca"
 
 #: sphinx/ext/autodoc.py:1265
 #, python-format
 msgid "   Bases: %s"
-msgstr "   Bases: %s"
+msgstr "Bases: %s"
 
 #: sphinx/ext/autodoc.py:1318
 #, python-format
@@ -470,14 +470,13 @@ msgid "Todo"
 msgstr "Por fazer"
 
 #: sphinx/ext/todo.py:129
-#, fuzzy
 msgid "<<original entry>>"
-msgstr "entrada original"
+msgstr "<<original entry>>"
 
 #: sphinx/ext/todo.py:132
-#, fuzzy, python-format
+#, python-format
 msgid "(The <<original entry>> is located in %s, line %d.)"
-msgstr "(A <<entrada original>> está localizada em %s, linha %d.)"
+msgstr "(A <<original entry>> está localizada na %s, linha %d.)"
 
 #: sphinx/ext/todo.py:141
 msgid "original entry"
@@ -494,7 +493,7 @@ msgstr "Código do módulo"
 #: sphinx/ext/viewcode.py:182
 #, python-format
 msgid "<h1>Source code for %s</h1>"
-msgstr "<h1>Código fonte de %s</h1>"
+msgstr "<h1>Código fonte para %s</h1>"
 
 #: sphinx/ext/viewcode.py:208
 msgid "Overview: module code"
@@ -534,7 +533,7 @@ msgstr "Nota"
 
 #: sphinx/locale/__init__.py:166
 msgid "See also"
-msgstr "Veja também"
+msgstr "Ver também"
 
 #: sphinx/locale/__init__.py:167
 msgid "Tip"
@@ -588,7 +587,7 @@ msgstr "Tabela de Conteúdo"
 #: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:23
 #: sphinx/themes/basic/searchresults.html:10
 msgid "Search"
-msgstr "Pesquisar"
+msgstr "Buscar"
 
 #: sphinx/themes/agogo/layout.html:54 sphinx/themes/basic/searchbox.html:15
 msgid "Go"
@@ -604,7 +603,7 @@ msgstr "Visão geral"
 
 #: sphinx/themes/basic/defindex.html:15
 msgid "Welcome! This is"
-msgstr "Bem Vindo(a)! É isso aí"
+msgstr "Bem Vindo! É isso aí."
 
 #: sphinx/themes/basic/defindex.html:16
 msgid "the documentation for"
@@ -616,19 +615,19 @@ msgstr "última atualização"
 
 #: sphinx/themes/basic/defindex.html:20
 msgid "Indices and tables:"
-msgstr "Índices e tabelas:"
+msgstr "Índices e Tabelas:"
 
 #: sphinx/themes/basic/defindex.html:23
 msgid "Complete Table of Contents"
-msgstr "Tabela de Conteúdo Completa"
+msgstr "Tabela Completa dos Conteúdos"
 
 #: sphinx/themes/basic/defindex.html:24
 msgid "lists all sections and subsections"
-msgstr "Lista todas seções e subseções"
+msgstr "Listar todas seções e subseções"
 
 #: sphinx/themes/basic/defindex.html:26
 msgid "search this documentation"
-msgstr "Pesquisar esta documentação"
+msgstr "Buscar nessa documentação"
 
 #: sphinx/themes/basic/defindex.html:28
 msgid "Global Module Index"
@@ -652,11 +651,11 @@ msgstr "Índice &ndash; %(key)s"
 #: sphinx/themes/basic/genindex-split.html:38
 #: sphinx/themes/basic/genindex.html:74
 msgid "Full index on one page"
-msgstr "Índice completo em uma página"
+msgstr "Índice completo em página única"
 
 #: sphinx/themes/basic/genindex-split.html:16
 msgid "Index pages by letter"
-msgstr "Paginas de índice por letra"
+msgstr "Páginas de índice por letra"
 
 #: sphinx/themes/basic/genindex-split.html:25
 msgid "can be huge"
@@ -673,7 +672,7 @@ msgstr "Pesquisar dentro de %(docstitle)s"
 
 #: sphinx/themes/basic/layout.html:131
 msgid "About these documents"
-msgstr "Sobre estes documentos"
+msgstr "Sobre esses documentos"
 
 #: sphinx/themes/basic/layout.html:140
 msgid "Copyright"
@@ -699,14 +698,12 @@ msgstr "Última atualização em %(last_updated)s."
 msgid ""
 "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
-msgstr ""
-"Criado usando <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
-"%(sphinx_version)s."
+msgstr "Criado usando <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s."
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
 msgid "Search %(docstitle)s"
-msgstr "Pesquisar em %(docstitle)s"
+msgstr "Buscar em %(docstitle)s"
 
 #: sphinx/themes/basic/relations.html:11
 msgid "Previous topic"
@@ -728,10 +725,7 @@ msgstr "próximo capítulo"
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
-msgstr ""
-"Por favor ative o JavaScript para habilitar a\n"
-"\"\n"
-"\"    funcionalidade de pesquisa."
+msgstr "Por favor, ativar JavaScript para habilitar a\nfuncionalidade de busca."
 
 #: sphinx/themes/basic/search.html:32
 msgid ""
@@ -739,40 +733,34 @@ msgid ""
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
-msgstr ""
-"A partir daqui você pode pesquisar estes documentos. Preencha suas \n"
-"    palavras de pesquisa na caixa abaixo e clique em  \"pesquisar\".\n"
-"    Observe que a função de pesquisa\n"
-"    irá procurar automaticamente por todas as palavras.\n"
-"    Páginas contendo menos palavras não irão aparecer na lista de\n"
-"    resultado."
+msgstr "Aqui pode-se fazer buscas nesses documentos. Preencha sua \npalavras de busca na caixa abaixo e clicar em  \"Buscar\". Notar que a busca\nirá procurar automaticamente por todas as palavras. Páginas \ncontendo menos palavras não irão aparecer na lista de resultados."
 
-#: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
+#: sphinx/themes/basic/search.html:39
+#: sphinx/themes/basic/searchresults.html:17
 msgid "search"
-msgstr "pesquisar"
+msgstr "buscar"
 
-#: sphinx/themes/basic/search.html:43 sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/search.html:43
+#: sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js_t:282
 msgid "Search Results"
-msgstr "Resultados da Pesquisa"
+msgstr "Resultados da Busca"
 
-#: sphinx/themes/basic/search.html:45 sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/search.html:45
+#: sphinx/themes/basic/searchresults.html:23
 #: sphinx/themes/basic/static/searchtools.js_t:284
 msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
-msgstr ""
-"Sua pesquisa não encontrou nenhum documento. Por favor, confirme que "
-"todas as palavras estão grafadas corretamente e que você selecionou "
-"categorias suficientes."
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
+msgstr "Sua busca não encontrou nenhum documento. Por favor, confirme se todas as palavras estão grafadas corretamente e se você selecionou categorias suficientes."
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
-msgstr "Pesquisa rápida"
+msgstr "Busca rápida"
 
 #: sphinx/themes/basic/sourcelink.html:12
 msgid "This Page"
-msgstr "Esta Página"
+msgstr "Essa Página"
 
 #: sphinx/themes/basic/changes/frameset.html:5
 #: sphinx/themes/basic/changes/versionchanges.html:12
@@ -788,7 +776,7 @@ msgstr "%(filename)s &mdash; %(docstitle)s"
 #: sphinx/themes/basic/changes/versionchanges.html:17
 #, python-format
 msgid "Automatically generated list of changes in version %(version)s"
-msgstr "Lista de alterações na versão %(version)s gerada automaticamente"
+msgstr "Lista de alterações na versão %(version)s, gerada automaticamente"
 
 #: sphinx/themes/basic/changes/versionchanges.html:18
 msgid "Library changes"
@@ -813,22 +801,20 @@ msgstr "Link permanente para esta definição"
 
 #: sphinx/themes/basic/static/doctools.js_t:208
 msgid "Hide Search Matches"
-msgstr "Esconder Resultados da Pesquisa"
+msgstr "Esconder Resultados da Busca"
 
 #: sphinx/themes/basic/static/searchtools.js_t:121
 msgid "Searching"
-msgstr "Pesquisando"
+msgstr "Buscando"
 
 #: sphinx/themes/basic/static/searchtools.js_t:126
 msgid "Preparing search..."
-msgstr "Preparando a pesquisa..."
+msgstr "Preparando a busca..."
 
 #: sphinx/themes/basic/static/searchtools.js_t:286
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
-msgstr ""
-"Pesquisa concluída, foram encontrada(s) %s página(s) que \"\n"
-"\"combinam com a consulta feita."
+msgstr "Busca concluída. %s página(s) que atendem a consulta."
 
 #: sphinx/themes/basic/static/searchtools.js_t:338
 msgid ", in "
@@ -845,7 +831,7 @@ msgstr "Recolher painel lateral"
 
 #: sphinx/themes/haiku/layout.html:24
 msgid "Contents"
-msgstr "Conteúdo"
+msgstr "Conteúdos"
 
 #: sphinx/writers/html.py:349
 msgid "Permalink to this code"
@@ -857,7 +843,7 @@ msgstr "Link Permanente para essa imagem"
 
 #: sphinx/writers/html.py:355
 msgid "Permalink to this toctree"
-msgstr ""
+msgstr "Link permanente para esse \"toctree\""
 
 #: sphinx/writers/html.py:677
 msgid "Permalink to this table"
@@ -865,12 +851,11 @@ msgstr "Link Permanente para essa tabela"
 
 #: sphinx/writers/latex.py:361
 msgid "Release"
-msgstr "Versão"
+msgstr "Release"
 
 #: sphinx/writers/latex.py:427
-#, fuzzy
 msgid "page"
-msgstr "Perigo"
+msgstr "página"
 
 #: sphinx/writers/latex.py:920 sphinx/writers/manpage.py:233
 #: sphinx/writers/texinfo.py:620
@@ -893,13 +878,3 @@ msgstr "[imagem: %s]"
 #: sphinx/writers/manpage.py:283 sphinx/writers/text.py:583
 msgid "[image]"
 msgstr "[imagem]"
-
-#~ msgid "%B %d, %Y"
-#~ msgstr "%d/%m/%Y"
-
-#~ msgid "%b %d, %Y"
-#~ msgstr "%d/%m/%Y"
-
-#~ msgid "Enter search terms or a module, class or function name."
-#~ msgstr "Digite os termos da busca ou o nome de um módulo, classe ou função."
-

@@ -1,23 +1,23 @@
-# Nepali translations for Sphinx.
+# Translations template for Sphinx.
 # Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
-#
+# 
+# Translators:
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011
 msgid ""
 msgstr ""
-"Project-Id-Version:  Sphinx\n"
+"Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-03-06 21:58+0900\n"
-"PO-Revision-Date: 2015-03-08 14:35+0000\n"
+"PO-Revision-Date: 2016-03-06 13:01+0000\n"
 "Last-Translator: Takayuki Shimizukawa <shimizukawa@gmail.com>\n"
-"Language: ne\n"
-"Language-Team: Nepali "
-"(http://www.transifex.com/projects/p/sphinx-1/language/ne/)\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Language-Team: Nepali (http://www.transifex.com/sphinx-doc/sphinx-1/language/ne/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.2.0\n"
+"Language: ne\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: sphinx/config.py:91
 #, python-format
@@ -178,9 +178,8 @@ msgid "variable"
 msgstr "चल"
 
 #: sphinx/domains/cpp.py:3608
-#, fuzzy
 msgid "Template Parameters"
-msgstr "Parameters"
+msgstr ""
 
 #: sphinx/domains/cpp.py:3611 sphinx/domains/javascript.py:125
 msgid "Throws"
@@ -470,14 +469,13 @@ msgid "Todo"
 msgstr "Todo"
 
 #: sphinx/ext/todo.py:129
-#, fuzzy
 msgid "<<original entry>>"
-msgstr "मौलिक इन्ट्री"
+msgstr ""
 
 #: sphinx/ext/todo.py:132
-#, fuzzy, python-format
+#, python-format
 msgid "(The <<original entry>> is located in %s, line %d.)"
-msgstr "(<<original entry>> यहाँ %s, line %d रहेको छ ।   "
+msgstr ""
 
 #: sphinx/ext/todo.py:141
 msgid "original entry"
@@ -734,26 +732,25 @@ msgid ""
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
-msgstr ""
-"यहाँबाट तपाईंले यी ड्कुमेन्टहरु खोज्नसक्नु हुन्छ । खोज्न शब्दहरु\n"
-"तलको बक्समा लेख्‍नुहोस र \"खोज्नुहोस्\"थिच्नुहोस ।  खोज्नुहोस्\n"
-"फन्क्सनले आफै सबै शब्दहरु खोज्छ । \n"
-"थोरै शब्दहरु भएको पानाहरु नतिजामा देखिन्न । "
+msgstr "यहाँबाट तपाईंले यी ड्कुमेन्टहरु खोज्नसक्नु हुन्छ । खोज्न शब्दहरु\nतलको बक्समा लेख्‍नुहोस र \"खोज्नुहोस्\"थिच्नुहोस ।  खोज्नुहोस्\nफन्क्सनले आफै सबै शब्दहरु खोज्छ । \nथोरै शब्दहरु भएको पानाहरु नतिजामा देखिन्न । "
 
-#: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
+#: sphinx/themes/basic/search.html:39
+#: sphinx/themes/basic/searchresults.html:17
 msgid "search"
 msgstr "खोज्नुहोस्"
 
-#: sphinx/themes/basic/search.html:43 sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/search.html:43
+#: sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js_t:282
 msgid "Search Results"
 msgstr "खोजेको नतिजा"
 
-#: sphinx/themes/basic/search.html:45 sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/search.html:45
+#: sphinx/themes/basic/searchresults.html:23
 #: sphinx/themes/basic/static/searchtools.js_t:284
 msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
 msgstr ""
 
 #: sphinx/themes/basic/searchbox.html:12
@@ -856,9 +853,8 @@ msgid "Release"
 msgstr "रीलीज"
 
 #: sphinx/writers/latex.py:427
-#, fuzzy
 msgid "page"
-msgstr "खतरा"
+msgstr ""
 
 #: sphinx/writers/latex.py:920 sphinx/writers/manpage.py:233
 #: sphinx/writers/texinfo.py:620
@@ -881,13 +877,3 @@ msgstr ""
 #: sphinx/writers/manpage.py:283 sphinx/writers/text.py:583
 msgid "[image]"
 msgstr "[चित्र]"
-
-#~ msgid "%B %d, %Y"
-#~ msgstr "%B %d, %Y"
-
-#~ msgid "%b %d, %Y"
-#~ msgstr "%b %d, %Y"
-
-#~ msgid "Enter search terms or a module, class or function name."
-#~ msgstr "खोज्ने टर्मस् अथवा एक मडुल्, कक्षा अथवा फन्क्सनको नाम लेख्नुहोस "
-

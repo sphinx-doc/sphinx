@@ -1,23 +1,23 @@
-# Bengali translations for Sphinx.
+# Translations template for Sphinx.
 # Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
-#
+# 
+# Translators:
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009
 msgid ""
 msgstr ""
-"Project-Id-Version:  Sphinx\n"
+"Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-03-06 21:58+0900\n"
-"PO-Revision-Date: 2015-03-08 14:35+0000\n"
+"PO-Revision-Date: 2016-03-06 13:01+0000\n"
 "Last-Translator: Takayuki Shimizukawa <shimizukawa@gmail.com>\n"
-"Language: bn\n"
-"Language-Team: Bengali "
-"(http://www.transifex.com/projects/p/sphinx-1/language/bn/)\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Language-Team: Bengali (http://www.transifex.com/sphinx-doc/sphinx-1/language/bn/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.2.0\n"
+"Language: bn\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: sphinx/config.py:91
 #, python-format
@@ -178,9 +178,8 @@ msgid "variable"
 msgstr ""
 
 #: sphinx/domains/cpp.py:3608
-#, fuzzy
 msgid "Template Parameters"
-msgstr "প্যারামিটার"
+msgstr ""
 
 #: sphinx/domains/cpp.py:3611 sphinx/domains/javascript.py:125
 msgid "Throws"
@@ -698,9 +697,7 @@ msgstr "%(last_updated)s সর্বশেষ পরিবর্তন কর�
 msgid ""
 "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
-msgstr ""
-"<a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s দিয়ে "
-"তৈরী।"
+msgstr "<a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s দিয়ে তৈরী।"
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
@@ -727,9 +724,7 @@ msgstr "পরবর্তী অধ্যায়"
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
-msgstr ""
-"অনুসন্ধান করার জন্য অনুগ্রহপূর্বক জাভাস্ক্রিপ্ট \n"
-"   সক্রিয় করুন।"
+msgstr "অনুসন্ধান করার জন্য অনুগ্রহপূর্বক জাভাস্ক্রিপ্ট \n   সক্রিয় করুন।"
 
 #: sphinx/themes/basic/search.html:32
 msgid ""
@@ -737,28 +732,25 @@ msgid ""
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
-msgstr ""
-"এখান থেকে এই নথিগুলোতে আপনি অনুসন্ধান করতে পারবেন। \n"
-"   আপনার কাঙ্ক্ষিত শব্দসমূহ নিচের বাক্সে লিখুন এবং \"অনুসন্ধান\" বাটনে "
-"ক্লিক করুন।\n"
-"   উল্লেখ্য, সকল শব্দসমূহের উপস্থিতি নিয়ে অনুসন্ধান করা হবে। যেসব পাতায় "
-"সকল\n"
-"   শব্দ নেই সেগুলো বাদ দেয়া হবে।"
+msgstr "এখান থেকে এই নথিগুলোতে আপনি অনুসন্ধান করতে পারবেন। \n   আপনার কাঙ্ক্ষিত শব্দসমূহ নিচের বাক্সে লিখুন এবং \"অনুসন্ধান\" বাটনে ক্লিক করুন।\n   উল্লেখ্য, সকল শব্দসমূহের উপস্থিতি নিয়ে অনুসন্ধান করা হবে। যেসব পাতায় সকল\n   শব্দ নেই সেগুলো বাদ দেয়া হবে।"
 
-#: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
+#: sphinx/themes/basic/search.html:39
+#: sphinx/themes/basic/searchresults.html:17
 msgid "search"
 msgstr "খুঁজুন"
 
-#: sphinx/themes/basic/search.html:43 sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/search.html:43
+#: sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js_t:282
 msgid "Search Results"
 msgstr "অনুসন্ধানের ফলাফল"
 
-#: sphinx/themes/basic/search.html:45 sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/search.html:45
+#: sphinx/themes/basic/searchresults.html:23
 #: sphinx/themes/basic/static/searchtools.js_t:284
 msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
 msgstr ""
 
 #: sphinx/themes/basic/searchbox.html:12
@@ -861,9 +853,8 @@ msgid "Release"
 msgstr "রিলিজ"
 
 #: sphinx/writers/latex.py:427
-#, fuzzy
 msgid "page"
-msgstr "বিপজ্জনক"
+msgstr ""
 
 #: sphinx/writers/latex.py:920 sphinx/writers/manpage.py:233
 #: sphinx/writers/texinfo.py:620
@@ -886,16 +877,3 @@ msgstr ""
 #: sphinx/writers/manpage.py:283 sphinx/writers/text.py:583
 msgid "[image]"
 msgstr "[ছবি]"
-
-#~ msgid "%B %d, %Y"
-#~ msgstr "%B %d, %Y"
-
-#~ msgid "%b %d, %Y"
-#~ msgstr "%b %d, %Y"
-
-#~ msgid "(The <<original entry>> is located in  %s, line %d.)"
-#~ msgstr ""
-
-#~ msgid "Enter search terms or a module, class or function name."
-#~ msgstr "অনুসন্ধানের জন্য টার্ম, মডিউল, ক্লাস অথবা ফাংশনের নাম দিন।"
-
