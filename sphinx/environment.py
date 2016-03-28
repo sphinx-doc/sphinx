@@ -1063,13 +1063,18 @@ class BuildEnvironment:
         entries = self.indexentries[docname] = []
         for node in document.traverse(addnodes.index):
             try:
-                for type, value, tid, main, index_key in node['entries']:
-                    split_index_msg(type, value)
+                for entry in node['entries']:
+                    split_index_msg(entry[0], entry[1])
             except ValueError as exc:
                 self.warn_node(exc, node)
                 node.parent.remove(node)
             else:
-                entries.extend(node['entries'])
+                for entry in node['entries']:
+                    if len(entry) == 5:
+                        # Since 1.4: new index structure including index_key (5th column)
+                        entries.append(entry)
+                    else:
+                        entries.append(entry + (None,))
 
     def note_citations_from(self, docname, document):
         for node in document.traverse(nodes.citation):

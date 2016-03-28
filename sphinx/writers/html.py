@@ -197,7 +197,7 @@ class HTMLTranslator(BaseTranslator):
         else:
             atts['class'] += ' external'
         if 'refuri' in node:
-            atts['href'] = node['refuri']
+            atts['href'] = node['refuri'] or '#'
             if self.settings.cloak_email_addresses and \
                atts['href'].startswith('mailto:'):
                 atts['href'] = self.cloak_mailto(atts['href'])
