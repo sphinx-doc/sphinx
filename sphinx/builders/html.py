@@ -402,14 +402,20 @@ class StandaloneHTMLBuilder(Builder):
         # title rendered as HTML
         title = self.env.longtitles.get(docname)
         title = title and self.render_partial(title)['title'] or ''
+
+        # Suffix for the document
+        source_suffix = path.splitext(self.env.doc2path(docname))[1]
+
         # the name for the copied source
-        sourcename = self.config.html_copy_source and docname + '.txt' or ''
+        if self.config.html_copy_source:
+            sourcename = docname + source_suffix
+            if self.config.html_sourcelink_txt and source_suffix != '.txt':
+                sourcename += '.txt'
+        else:
+            sourcename = ''
 
         # metadata for the document
         meta = self.env.metadata.get(docname)
-
-        # Suffix for the document
-        source_suffix = '.' + self.env.doc2path(docname).split('.')[-1]
 
         # local TOC and global TOC tree
         self_toc = self.env.get_toc_for(docname, self)
