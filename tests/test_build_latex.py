@@ -326,7 +326,7 @@ def test_babel_with_language_ja(app, status, warning):
     assert '\\renewcommand{\\contentsname}{Table of content}\n' in result
     assert '\\renewcommand{\\figurename}{Fig. }\n' in result
     assert '\\renewcommand{\\tablename}{Table. }\n' in result
-    assert '\\def\\pageautorefname{page}\n' in result
+    assert u'\\def\\pageautorefname{ページ}\n' in result
 
 
 @with_app(buildername='latex', testroot='latex-babel',
