@@ -177,7 +177,7 @@ def _read_from_url(url):
         password_mgr = request.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, url, username, password)
         handler = request.HTTPBasicAuthHandler(password_mgr)
-        opener = request.build_opener(default_handlers + [handler])
+        opener = request.build_opener(*(default_handlers + [handler]))
     else:
         opener = default_opener
 
