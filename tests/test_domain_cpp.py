@@ -145,6 +145,11 @@ def test_member_definitions():
           "4name", output='const std::vector<unsigned int, long> &name')
     check('member', 'module::myclass foo[n]', "foo__module::myclassA", "3foo")
     check('member', 'int *const p', 'p__iPC', '1p')
+    check('member', 'extern int myInt', 'myInt__i', '5myInt')
+    check('member', 'thread_local int myInt', 'myInt__i', '5myInt')
+    check('member', 'extern thread_local int myInt', 'myInt__i', '5myInt')
+    check('member', 'thread_local extern int myInt', 'myInt__i', '5myInt',
+          'extern thread_local int myInt')
 
 
 def test_function_definitions():

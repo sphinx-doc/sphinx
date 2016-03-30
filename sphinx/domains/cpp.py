@@ -90,8 +90,13 @@ from sphinx.util.docfields import Field, GroupedField
 
         decl-specifier ->
               storage-class-specifier ->
-                    "static" (only for member_object and function_object)
+                 (   "static" (only for member_object and function_object)
                   | "register"
+                  | "extern" (only for member_object)
+                 )
+                 thread_local[opt] (only for member_object)
+                                   (it can also appear before the others)
+
             | type-specifier -> trailing-type-specifier
             | function-specifier -> "inline" | "virtual" | "explicit" (only
               for function_object)
@@ -1239,9 +1244,10 @@ class ASTParametersQualifiers(ASTBase):
 
 
 class ASTDeclSpecsSimple(ASTBase):
-    def __init__(self, storage, inline, virtual, explicit,
+    def __init__(self, storage, threadLocal, inline, virtual, explicit,
                  constexpr, volatile, const, friend):
         self.storage = storage
+        self.threadLocal = threadLocal
         self.inline = inline
         self.virtual = virtual
         self.explicit = explicit
@@ -1254,6 +1260,7 @@ class ASTDeclSpecsSimple(ASTBase):
         if not other:
             return self
         return ASTDeclSpecsSimple(self.storage or other.storage,
+                                  self.threadLocal or other.threadLocal,
                                   self.inline or other.inline,
                                   self.virtual or other.virtual,
                                   self.explicit or other.explicit,
@@ -1266,6 +1273,8 @@ class ASTDeclSpecsSimple(ASTBase):
         res = []
         if self.storage:
             res.append(self.storage)
+        if self.threadLocal:
+            res.append('thread_local')
         if self.inline:
             res.append('inline')
         if self.friend:
@@ -1289,6 +1298,8 @@ class ASTDeclSpecsSimple(ASTBase):
             modifiers.append(addnodes.desc_annotation(text, text))
         if self.storage:
             _add(modifiers, self.storage)
+        if self.threadLocal:
+            _add(modifiers, 'thread_local')
         if self.inline:
             _add(modifiers, 'inline')
         if self.friend:
@@ -3039,6 +3050,7 @@ class DefinitionParser(object):
     def _parse_decl_specs_simple(self, outer, typed):
         """Just parse the simple ones."""
         storage = None
+        threadLocal = None
         inline = None
         virtual = None
         explicit = None
@@ -3057,8 +3069,15 @@ class DefinitionParser(object):
                     if self.skip_word('mutable'):
                         storage = 'mutable'
                         continue
+                    if self.skip_word('extern'):
+                        storage = 'extern'
+                        continue
                 if self.skip_word('register'):
                     storage = 'register'
+                    continue
+            if not threadLocal and outer == 'member':
+                threadLocal = self.skip_word('thread_local')
+                if threadLocal:
                     continue
 
             if outer == 'function':
@@ -3093,8 +3112,8 @@ class DefinitionParser(object):
                 if const:
                     continue
             break
-        return ASTDeclSpecsSimple(storage, inline, virtual, explicit, constexpr,
-                                  volatile, const, friend)
+        return ASTDeclSpecsSimple(storage, threadLocal, inline, virtual,
+                                  explicit, constexpr, volatile, const, friend)
 
     def _parse_decl_specs(self, outer, typed=True):
         if outer:

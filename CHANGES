@@ -13,6 +13,8 @@ Translations
 Bugs fixed
 ----------
 
+- C++, added support for 'extern' and 'thread_local'.
+
 
 Release 1.4 (released Mar 28, 2016)
 ===================================
