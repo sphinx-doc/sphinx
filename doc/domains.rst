@@ -629,8 +629,25 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
    A type alias can also be templated::
 
-      .. cpp:type:: template<typename T>
+      .. cpp:type:: template<typename T> \
                     MyContainer = std::vector<T>
+
+   The example are rendered as follows.
+
+   .. cpp:type:: std::vector<int> MyList
+
+      A typedef-like declaration of a type.
+
+   .. cpp:type:: MyContainer::const_iterator
+
+      Declaration of a type alias with unspecified type.
+
+   .. cpp:type:: MyType = std::unordered_map<int, std::string>
+
+      Declaration of a type alias.
+
+   .. cpp:type:: template<typename T> \
+                 MyContainer = std::vector<T>
 
 
 .. rst:directive:: .. cpp:enum:: unscoped enum declaration

@@ -13,7 +13,9 @@ Translations
 Bugs fixed
 ----------
 
-- C++, added support for 'extern' and 'thread_local'.
+- C++, added support for ``extern`` and ``thread_local``.
+- C++, type declarations are now using the prefixes ``typedef``, ``using``, and ``type``,
+  depending on the style of declaration.
 
 
 Release 1.4 (released Mar 28, 2016)

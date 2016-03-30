@@ -1933,6 +1933,12 @@ class ASTType(ASTBase):
         res.append(text_type(self.decl))
         return u''.join(res)
 
+    def get_type_declaration_prefix(self):
+        if self.declSpecs.trailingTypeSpec:
+            return 'typedef'
+        else:
+            return 'type'
+
     def describe_signature(self, signode, mode, env, symbol):
         _verify_description_mode(mode)
         self.declSpecs.describe_signature(signode, 'markType', env, symbol)
@@ -1996,6 +2002,9 @@ class ASTTypeUsing(ASTBase):
             res.append(' = ')
             res.append(text_type(self.type))
         return u''.join(res)
+
+    def get_type_declaration_prefix(self):
+        return 'using'
 
     def describe_signature(self, signode, mode, env, symbol):
         _verify_description_mode(mode)
@@ -2210,7 +2219,9 @@ class ASTDeclaration(ASTBase):
             mainDeclNode += addnodes.desc_annotation(self.visibility + " ",
                                                      self.visibility + " ")
         if self.objectType == 'type':
-            mainDeclNode += addnodes.desc_annotation('type ', 'type ')
+            prefix = self.declaration.get_type_declaration_prefix()
+            prefix += ' '
+            mainDeclNode += addnodes.desc_annotation(prefix, prefix)
         elif self.objectType == 'member':
             pass
         elif self.objectType == 'function':
