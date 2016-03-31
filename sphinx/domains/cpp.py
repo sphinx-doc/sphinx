@@ -90,9 +90,9 @@ from sphinx.util.docfields import Field, GroupedField
 
         decl-specifier ->
               storage-class-specifier ->
-                 (   "static" (only for member_object and function_object)
+                 (  "static" (only for member_object and function_object)
+                  | "extern" (only for member_object and function_object)
                   | "register"
-                  | "extern" (only for member_object)
                  )
                  thread_local[opt] (only for member_object)
                                    (it can also appear before the others)
@@ -3076,12 +3076,12 @@ class DefinitionParser(object):
                     if self.skip_word('static'):
                         storage = 'static'
                         continue
+                    if self.skip_word('extern'):
+                        storage = 'extern'
+                        continue
                 if outer == 'member':
                     if self.skip_word('mutable'):
                         storage = 'mutable'
-                        continue
-                    if self.skip_word('extern'):
-                        storage = 'extern'
                         continue
                 if self.skip_word('register'):
                     storage = 'register'

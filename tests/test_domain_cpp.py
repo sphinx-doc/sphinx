@@ -261,6 +261,8 @@ def test_function_definitions():
     check("function", "void f(int *const p)", "f__iPC", "1fPCi")
     check("function", "void f(int *volatile const p)", "f__iPVC", "1fPVCi")
 
+    check('function', 'extern int f()', 'f', '1fv')
+
     # TODO: make tests for functions in a template, e.g., Test<int&&()>
     # such that the id generation for function type types is correct.
 
