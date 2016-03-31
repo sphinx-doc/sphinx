@@ -4,17 +4,17 @@ Release 1.4.1 (in development)
 Translations
 ------------
 
-- Added Welsh translation, thanks to Geraint Palmer.
-- Added Greek translation, thanks to Stelios Vitalis.
-- Added Esperanto translation, thanks to Dinu Gherman.
-- Added Hindi translation, thanks to Purnank H. Ghumalia.
-- Added Romanian translation, thanks to Razvan Stefanescu.
+* Added Welsh translation, thanks to Geraint Palmer.
+* Added Greek translation, thanks to Stelios Vitalis.
+* Added Esperanto translation, thanks to Dinu Gherman.
+* Added Hindi translation, thanks to Purnank H. Ghumalia.
+* Added Romanian translation, thanks to Razvan Stefanescu.
 
 Bugs fixed
 ----------
 
-- C++, added support for ``extern`` and ``thread_local``.
-- C++, type declarations are now using the prefixes ``typedef``, ``using``, and ``type``,
+* C++, added support for ``extern`` and ``thread_local``.
+* C++, type declarations are now using the prefixes ``typedef``, ``using``, and ``type``,
   depending on the style of declaration.
 
 
