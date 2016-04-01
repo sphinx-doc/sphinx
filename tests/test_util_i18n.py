@@ -185,6 +185,14 @@ def test_format_date():
     assert i18n.format_date(format, date=date, language='ja') == u'2月 07, 2016'
     assert i18n.format_date(format, date=date, language='de') == 'Februar 07, 2016'
 
+    # invalid date format
+    format = 'Mon Mar 28 12:37:08 2016, commit 4367aef'
+    assert i18n.format_date(format, date=date) == format
+
+    # quoted format
+    quoted_format = "'Mon Mar 28 12:37:08 2016, commit 4367aef'"
+    assert i18n.format_date(quoted_format, date=date) == format
+
 
 def test_get_filename_for_language():
     app = TestApp()

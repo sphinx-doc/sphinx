@@ -530,7 +530,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['copyright'] = self.esc(self.config.epub_copyright)
         metadata['scheme'] = self.esc(self.config.epub_scheme)
         metadata['id'] = self.esc(self.config.epub_identifier)
-        metadata['date'] = self.esc(format_date('YYYY-MM-dd', language=self.config.language))
+        metadata['date'] = self.esc(format_date('YYYY-MM-dd', language=self.config.language,
+                                                warn=self.warn))
         metadata['files'] = files
         metadata['spine'] = spine
         metadata['guide'] = guide

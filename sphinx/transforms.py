@@ -44,6 +44,7 @@ class DefaultSubstitutions(Transform):
     default_priority = 210
 
     def apply(self):
+        env = self.document.settings.env
         config = self.document.settings.env.config
         # only handle those not otherwise defined in the document
         to_handle = default_substitutions - set(self.document.substitution_defs)
@@ -54,7 +55,7 @@ class DefaultSubstitutions(Transform):
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
                     text = format_date(config.today_fmt or _('MMMM dd, YYYY'),
-                                       language=config.language)
+                                       language=config.language, warn=env.warn)
                 ref.replace_self(nodes.Text(text, text))
 
 

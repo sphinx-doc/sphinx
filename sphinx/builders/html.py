@@ -293,7 +293,8 @@ class StandaloneHTMLBuilder(Builder):
         lufmt = self.config.html_last_updated_fmt
         if lufmt is not None:
             self.last_updated = format_date(lufmt or _('MMM dd, YYYY'),
-                                            language=self.config.language)
+                                            language=self.config.language,
+                                            warn=self.warn)
         else:
             self.last_updated = None
 

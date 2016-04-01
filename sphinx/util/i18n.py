@@ -149,7 +149,7 @@ date_format_mappings = {
 }
 
 
-def babel_format_date(date, format, locale):
+def babel_format_date(date, format, locale, warn=None):
     if locale is None:
         locale = 'en'
 
@@ -158,9 +158,15 @@ def babel_format_date(date, format, locale):
     except (ValueError, babel.core.UnknownLocaleError):
         # fallback to English
         return babel.dates.format_date(date, format, locale='en')
+    except AttributeError:
+        if warn:
+            warn('Invalid date format. Quote the string by single quote '
+                 'if you want to output it directly: %s' % format)
+
+        return format
 
 
-def format_date(format, date=None, language=None):
+def format_date(format, date=None, language=None, warn=None):
     if format is None:
         format = 'medium'
 
@@ -175,7 +181,7 @@ def format_date(format, date=None, language=None):
 
     if '%' not in format:
         # consider the format as babel's
-        return babel_format_date(date, format, locale=language)
+        return babel_format_date(date, format, locale=language, warn=warn)
     else:
         warnings.warn('ustrftime format support will be dropped at Sphinx-1.5',
                       DeprecationWarning)
