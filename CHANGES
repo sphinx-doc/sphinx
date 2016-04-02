@@ -1,6 +1,13 @@
 Release 1.4.1 (in development)
 ==============================
 
+Incompatible changes
+--------------------
+
+* The default format of `today_fmt` and `html_last_updated_fmt` is back to
+  strftime format again.  Locale Date Markup Language is also supported for
+  backward compatibility until Sphinx-1.5.
+
 Translations
 ------------
 

@@ -179,13 +179,13 @@ def format_date(format, date=None, language=None, warn=None):
         else:
             date = datetime.now()
 
-    if '%' not in format:
+    if re.match('EEE|MMM|dd|DDD|MM|WW|medium|YY', format):
         # consider the format as babel's
-        return babel_format_date(date, format, locale=language, warn=warn)
-    else:
-        warnings.warn('ustrftime format support will be dropped at Sphinx-1.5',
+        warnings.warn('LDML format support will be dropped at Sphinx-1.5',
                       DeprecationWarning)
 
+        return babel_format_date(date, format, locale=language, warn=warn)
+    else:
         # consider the format as ustrftime's and try to convert it to babel's
         result = []
         tokens = re.split('(%.)', format)

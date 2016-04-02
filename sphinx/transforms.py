@@ -54,7 +54,7 @@ class DefaultSubstitutions(Transform):
                 text = config[refname]
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
-                    text = format_date(config.today_fmt or _('MMMM dd, YYYY'),
+                    text = format_date(config.today_fmt or _('%b %d, %Y'),
                                        language=config.language, warn=env.warn)
                 ref.replace_self(nodes.Text(text, text))
 

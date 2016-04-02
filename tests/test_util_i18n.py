@@ -169,6 +169,7 @@ def test_get_catalogs_with_compact(dir):
 def test_format_date():
     date = datetime.date(2016, 2, 7)
 
+    # default format
     format = None
     assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
     assert i18n.format_date(format, date=date, language='') == 'Feb 7, 2016'
@@ -177,6 +178,7 @@ def test_format_date():
     assert i18n.format_date(format, date=date, language='ja') == '2016/02/07'
     assert i18n.format_date(format, date=date, language='de') == '07.02.2016'
 
+    # strftime format
     format = '%B %d, %Y'
     assert i18n.format_date(format, date=date) == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='') == 'February 07, 2016'
@@ -185,13 +187,18 @@ def test_format_date():
     assert i18n.format_date(format, date=date, language='ja') == u'2月 07, 2016'
     assert i18n.format_date(format, date=date, language='de') == 'Februar 07, 2016'
 
-    # invalid date format
+    # LDML format
+    format = 'MMM dd, YYYY'
+    assert i18n.format_date(format, date=date) == 'Feb 07, 2016'
+    assert i18n.format_date(format, date=date, language='') == 'Feb 07, 2016'
+    assert i18n.format_date(format, date=date, language='unknown') == 'Feb 07, 2016'
+    assert i18n.format_date(format, date=date, language='en') == 'Feb 07, 2016'
+    assert i18n.format_date(format, date=date, language='ja') == u'2月 07, 2016'
+    assert i18n.format_date(format, date=date, language='de') == 'Feb. 07, 2016'
+
+    # raw string
     format = 'Mon Mar 28 12:37:08 2016, commit 4367aef'
     assert i18n.format_date(format, date=date) == format
-
-    # quoted format
-    quoted_format = "'Mon Mar 28 12:37:08 2016, commit 4367aef'"
-    assert i18n.format_date(quoted_format, date=date) == format
 
 
 def test_get_filename_for_language():
