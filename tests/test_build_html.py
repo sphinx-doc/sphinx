@@ -1010,3 +1010,11 @@ def test_html_extra_path(app, status, warning):
     assert (app.outdir / 'rimg.png').exists()
     assert not (app.outdir / '_build/index.html').exists()
     assert (app.outdir / 'background.png').exists()
+
+
+@with_app(buildername='html')
+def test_api_styles(app, status, warning):
+    app.builder.build_all()
+    content = (app.outdir / 'autodoc.html').text()
+
+    assert '<dt class="descsignature" id="test_autodoc.Class">' in content

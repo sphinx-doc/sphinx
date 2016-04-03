@@ -95,7 +95,7 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_desc_signature(self, node):
         # the id is set automatically
-        self.body.append(self.starttag(node, 'dt'))
+        self.body.append(self.starttag(node, 'dt', CLASS='descsignature'))
         # anchor for per-desc interactive data
         if node.parent['objtype'] != 'describe' \
            and node['ids'] and node['first']:
