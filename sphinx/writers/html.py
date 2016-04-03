@@ -127,7 +127,9 @@ class HTMLTranslator(BaseTranslator):
         self.body.append(self.starttag(node, 'code', '', CLASS='descname'))
 
     def depart_desc_name(self, node):
-        self.body.append('</code>')
+        # space after the name allows for content wrapping to occur
+        # before a parameter list
+        self.body.append('</code> ')
 
     def visit_desc_parameterlist(self, node):
         self.body.append('<span class="sig-paren">(</span>')

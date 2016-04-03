@@ -1018,3 +1018,4 @@ def test_api_styles(app, status, warning):
     content = (app.outdir / 'autodoc.html').text()
 
     assert '<dt class="descsignature" id="test_autodoc.Class">' in content
+    assert '<code class="descname">Class</code> ' in content
