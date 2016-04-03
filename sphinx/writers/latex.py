@@ -1995,8 +1995,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # suppress with anchor=False \phantomsection generation
                 ids += self.hypertarget(node['ids'][0], anchor=False)
             self.body.append('\n')
-            if ids:
-                self.context.append(ids) # will be used in visit_caption
+            self.context.append(ids) # will be used in visit_caption
 
     def depart_container(self, node):
         if node.get('literal_block'):
