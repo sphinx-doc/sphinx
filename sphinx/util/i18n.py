@@ -192,7 +192,8 @@ def format_date(format, date=None, language=None, warn=None):
         warnings.warn('LDML format support will be dropped at Sphinx-1.5',
                       DeprecationWarning)
 
-        return babel_format_date(date, format, locale=language, warn=warn, formatter=babel.dates.format_datetime)
+        return babel_format_date(date, format, locale=language, warn=warn,
+                                 formatter=babel.dates.format_datetime)
     else:
         # consider the format as ustrftime's and try to convert it to babel's
         result = []
@@ -206,7 +207,8 @@ def format_date(format, date=None, language=None, warn=None):
                     function = babel.dates.format_time
                 else:
                     function = babel.dates.format_datetime
-                result.append(babel_format_date(date, babel_format, locale=language, formatter=function))
+                result.append(babel_format_date(date, babel_format, locale=language,
+                                                formatter=function))
             else:
                 result.append(token)
 
