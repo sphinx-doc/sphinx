@@ -1445,7 +1445,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.in_container_literal_block:
             self.body.append('\\needspace{\\literalblockneedspace}')
             self.body.append('\\vspace{\\literalblockcaptiontopvspace}\n')
-            self.body.append('\\SphinxSetupCaptionForVerbatim{literal-block}{' + self.context.pop())
+            self.body.append('\\SphinxSetupCaptionForVerbatim{literal-block}{'
+                             '' + self.context.pop())
         elif self.in_minipage and isinstance(node.parent, nodes.figure):
             self.body.append('\\captionof{figure}{')
         else:
