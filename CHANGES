@@ -25,6 +25,7 @@ Bugs fixed
   depending on the style of declaration.
 * #2394: Fix Sphinx crashes when html_last_updated_fmt is invalid
 * #2408: dummy builder not available in Makefile and make.bat
+* #2412: Fix hyperlink targets are broken in LaTeX builder
 
 
 Release 1.4 (released Mar 28, 2016)

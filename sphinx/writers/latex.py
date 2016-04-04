@@ -464,7 +464,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         hyperlink_ids.update(ids)
 
     def pop_hyperlink_ids(self, figtype):
-        return self.next_hyperlink_ids.get(figtype, set())
+        return self.next_hyperlink_ids.pop(figtype, set())
 
     def restrict_footnote(self, node):
         if self.footnote_restricted is False:
