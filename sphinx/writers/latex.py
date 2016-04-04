@@ -1445,8 +1445,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.in_container_literal_block:
             self.body.append('\\needspace{\\literalblockneedspace}')
             self.body.append('\\vspace{\\literalblockcaptiontopvspace}\n')
-            self.body.append('\\SphinxSetupCaptionForVerbatim{literal-block}{'
-                             + self.context.pop())
+            self.body.append('\\SphinxSetupCaptionForVerbatim{literal-block}{' + self.context.pop())
         elif self.in_minipage and isinstance(node.parent, nodes.figure):
             self.body.append('\\captionof{figure}{')
         else:
@@ -1995,7 +1994,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # suppress with anchor=False \phantomsection generation
                 ids += self.hypertarget(node['ids'][0], anchor=False)
             self.body.append('\n')
-            self.context.append(ids) # will be used in visit_caption
+            # context.pop will be done in visit_caption
+            self.context.append(ids)
 
     def depart_container(self, node):
         if node.get('literal_block'):
