@@ -161,6 +161,11 @@ def babel_format_date(date, format, locale, warn=None, formatter=babel.dates.for
     if locale is None:
         locale = 'en'
 
+    # Check if we have the tzinfo attribute. If not we cannot do any time
+    # related formats.
+    if not hasattr(date, 'tzinfo'):
+        formatter = babel.dates.format_date
+
     try:
         return formatter(date, format, locale=locale)
     except (ValueError, babel.core.UnknownLocaleError):
@@ -201,12 +206,17 @@ def format_date(format, date=None, language=None, warn=None):
         for token in tokens:
             if token in date_format_mappings:
                 babel_format = date_format_mappings.get(token, '')
+
+                # Check if we have to use a different babel formatter then
+                # format_datetime, because we only want to format a date
+                # or a time.
                 if token == '%x':
                     function = babel.dates.format_date
                 elif token == '%X':
                     function = babel.dates.format_time
                 else:
                     function = babel.dates.format_datetime
+
                 result.append(babel_format_date(date, babel_format, locale=language,
                                                 formatter=function))
             else:
