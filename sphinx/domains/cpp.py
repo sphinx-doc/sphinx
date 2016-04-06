@@ -476,6 +476,17 @@ class DefinitionError(UnicodeMixin, Exception):
         return self.description
 
 
+class _DuplicateSymbolError(UnicodeMixin, Exception):
+    def __init__(self, symbol, candSymbol):
+        assert symbol
+        assert candSymbol
+        self.symbol = symbol
+        self.candSymbol = candSymbol
+
+    def __unicode__(self):
+        return "Internal C++ duplicate symbol error:\n%s" % self.symbol.dump(0)
+
+
 class ASTBase(UnicodeMixin):
     def __eq__(self, other):
         if type(self) is not type(other):
@@ -2468,14 +2479,23 @@ class Symbol(object):
                 # .. class:: Test
                 symbol._fill_empty(declaration, docname)
                 return symbol
-            # it may simply be a functin overload
-            # TODO: it could be a duplicate but let's just insert anyway
-            # the id generation will warn about it
-            symbol = Symbol(parent=parentSymbol, identifier=identifier,
-                            templateParams=templateParams,
-                            templateArgs=templateArgs,
-                            declaration=declaration,
-                            docname=docname)
+            # It may simply be a functin overload, so let's compare ids.
+            candSymbol = Symbol(parent=parentSymbol, identifier=identifier,
+                                templateParams=templateParams,
+                                templateArgs=templateArgs,
+                                declaration=declaration,
+                                docname=docname)
+            newId = declaration.get_newest_id()
+            oldId = symbol.declaration.get_newest_id()
+            if newId != oldId:
+                # we already inserted the symbol, so return the new one
+                symbol = candSymbol
+            else:
+                # Redeclaration of the same symbol.
+                # Let the new one be there, but raise an error to the client
+                # so it can use the real symbol as subscope.
+                # This will probably result in a duplicate id warning.
+                raise _DuplicateSymbolError(symbol, candSymbol)
         else:
             symbol = Symbol(parent=parentSymbol, identifier=identifier,
                             templateParams=templateParams,
@@ -3765,8 +3785,14 @@ class CPPObject(ObjectDescription):
             symbol = parentSymbol.add_name(name)
             self.env.ref_context['cpp:lastSymbol'] = symbol
             raise ValueError
-        symbol = parentSymbol.add_declaration(ast, docname=self.env.docname)
-        self.env.ref_context['cpp:lastSymbol'] = symbol
+
+        try:
+            symbol = parentSymbol.add_declaration(ast, docname=self.env.docname)
+            self.env.ref_context['cpp:lastSymbol'] = symbol
+        except _DuplicateSymbolError as e:
+            # Assume we are actually in the old symbol,
+            # instead of the newly created duplicate.
+            self.env.ref_context['cpp:lastSymbol'] = e.symbol
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
