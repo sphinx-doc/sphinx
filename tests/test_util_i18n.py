@@ -200,6 +200,18 @@ def test_format_date():
     format = 'Mon Mar 28 12:37:08 2016, commit 4367aef'
     assert i18n.format_date(format, date=date) == format
 
+    format = '%B %d, %Y, %H:%M:%S %I %p'
+    datet = datetime.datetime(2016, 2, 7, 5, 11, 17, 0)
+    assert i18n.format_date(format, date=datet) == 'February 07, 2016, 05:11:17 05 AM'
+
+    format = '%x'
+    assert i18n.format_date(format, date=datet) == 'Feb 7, 2016'
+    format = '%X'
+    assert i18n.format_date(format, date=datet) == '5:11:17 AM'
+    assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
+    format = '%c'
+    assert i18n.format_date(format, date=datet) == 'Feb 7, 2016, 5:11:17 AM'
+    assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
 
 def test_get_filename_for_language():
     app = TestApp()
