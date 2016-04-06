@@ -10,7 +10,7 @@
     :license: BSD, see LICENSE for details.
 """
 from six import PY2, PY3, StringIO, iteritems
-from mock import patch
+from util import mock
 
 from util import TestApp, with_app, gen_with_app, with_tempdir, \
     raises, raises_msg, assert_in, assert_not_in
@@ -122,7 +122,7 @@ def test_errors_if_setup_is_not_callable(dir):
     raises_msg(ConfigError, 'callable', TestApp, srcdir=dir)
 
 
-@patch.object(sphinx, '__display_version__', '1.3.4')
+@mock.patch.object(sphinx, '__display_version__', '1.3.4')
 def test_needs_sphinx():
     # micro version
     app = TestApp(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less

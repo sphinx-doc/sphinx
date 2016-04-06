@@ -1,23 +1,28 @@
-# Japanese translations for Sphinx.
+# Translations template for Sphinx.
 # Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
-#
+# 
+# Translators:
+# WAKAYAMA Shirou <shirou.faw@gmail.com>, 2013
+# Akitoshi Ohta <fire.kuma8@gmail.com>, 2011
+# Kouhei Sutou <kou@clear-code.com>, 2011
+# Takayuki Shimizukawa <shimizukawa@gmail.com>, 2013-2016
+# WAKAYAMA Shirou <shirou.faw@gmail.com>, 2014
+# Yasushi Masuda <whosaysni@gmail.com>, 2008
 msgid ""
 msgstr ""
-"Project-Id-Version:  Sphinx\n"
+"Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-03-06 21:58+0900\n"
-"PO-Revision-Date: 2015-03-08 14:36+0000\n"
+"PO-Revision-Date: 2016-03-06 14:18+0000\n"
 "Last-Translator: Takayuki Shimizukawa <shimizukawa@gmail.com>\n"
-"Language: ja\n"
-"Language-Team: Japanese "
-"(http://www.transifex.com/projects/p/sphinx-1/language/ja/)\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Team: Japanese (http://www.transifex.com/sphinx-doc/sphinx-1/language/ja/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.2.0\n"
+"Language: ja\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: sphinx/config.py:91
 #, python-format
@@ -61,7 +66,7 @@ msgstr "Python Enhancement Proposals; PEP %s"
 #: sphinx/transforms.py:56 sphinx/writers/latex.py:374
 #: sphinx/writers/manpage.py:101 sphinx/writers/texinfo.py:222
 msgid "MMMM dd, YYYY"
-msgstr ""
+msgstr "YYYY年MMMM月dd日"
 
 #: sphinx/builders/changes.py:75
 msgid "Builtins"
@@ -73,7 +78,7 @@ msgstr "モジュールレベル"
 
 #: sphinx/builders/html.py:295
 msgid "MMM dd, YYYY"
-msgstr ""
+msgstr "YYYY年MMMM月dd日"
 
 #: sphinx/builders/html.py:315 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
@@ -119,7 +124,7 @@ msgstr "%s %s"
 #: sphinx/domains/c.py:58 sphinx/domains/cpp.py:3605
 #: sphinx/domains/python.py:124
 msgid "Parameters"
-msgstr "パラメタ"
+msgstr "パラメータ"
 
 #: sphinx/domains/c.py:61 sphinx/domains/cpp.py:3614
 #: sphinx/domains/javascript.py:128 sphinx/domains/python.py:136
@@ -178,9 +183,8 @@ msgid "variable"
 msgstr "変数"
 
 #: sphinx/domains/cpp.py:3608
-#, fuzzy
 msgid "Template Parameters"
-msgstr "パラメタ"
+msgstr "テンプレートパラメータ"
 
 #: sphinx/domains/cpp.py:3611 sphinx/domains/javascript.py:125
 msgid "Throws"
@@ -470,12 +474,11 @@ msgid "Todo"
 msgstr "課題"
 
 #: sphinx/ext/todo.py:129
-#, fuzzy
 msgid "<<original entry>>"
-msgstr "元のエントリ"
+msgstr "<<original entry>>"
 
 #: sphinx/ext/todo.py:132
-#, fuzzy, python-format
+#, python-format
 msgid "(The <<original entry>> is located in %s, line %d.)"
 msgstr "(<<元のエントリ>> は、 %s の %d 行目です)"
 
@@ -699,9 +702,7 @@ msgstr "最終更新: %(last_updated)s"
 msgid ""
 "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
-msgstr ""
-"このドキュメントは <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
-"%(sphinx_version)s で生成しました。"
+msgstr "このドキュメントは <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s で生成しました。"
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
@@ -738,20 +739,23 @@ msgid ""
 "    containing fewer words won't appear in the result list."
 msgstr "このページからドキュメントを検索できます。キーワードを下のボックスに入力して、「検索」をクリックしてください。入力された全てのキーワードを含むページが検索されます。一部のキーワードしか含まないページは検索結果に表示されないので注意してください。"
 
-#: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
+#: sphinx/themes/basic/search.html:39
+#: sphinx/themes/basic/searchresults.html:17
 msgid "search"
 msgstr "検索"
 
-#: sphinx/themes/basic/search.html:43 sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/search.html:43
+#: sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js_t:282
 msgid "Search Results"
 msgstr "検索結果"
 
-#: sphinx/themes/basic/search.html:45 sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/search.html:45
+#: sphinx/themes/basic/searchresults.html:23
 #: sphinx/themes/basic/static/searchtools.js_t:284
 msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
 msgstr "検索した文字列はどの文書にも見つかりませんでした。すべての単語が正確に記述されているか、あるいは、十分なカテゴリーが選択されているか確認してください。"
 
 #: sphinx/themes/basic/searchbox.html:12
@@ -854,9 +858,8 @@ msgid "Release"
 msgstr "リリース"
 
 #: sphinx/writers/latex.py:427
-#, fuzzy
 msgid "page"
-msgstr "危険"
+msgstr "ページ"
 
 #: sphinx/writers/latex.py:920 sphinx/writers/manpage.py:233
 #: sphinx/writers/texinfo.py:620
@@ -879,13 +882,3 @@ msgstr "[画像: %s]"
 #: sphinx/writers/manpage.py:283 sphinx/writers/text.py:583
 msgid "[image]"
 msgstr "[画像]"
-
-#~ msgid "%B %d, %Y"
-#~ msgstr "%Y 年 %m 月 %d 日"
-
-#~ msgid "%b %d, %Y"
-#~ msgstr "%Y 年 %m 月 %d 日"
-
-#~ msgid "Enter search terms or a module, class or function name."
-#~ msgstr "モジュール、クラス、または関数名を入力してください"
-

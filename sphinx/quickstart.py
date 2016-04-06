@@ -520,6 +520,7 @@ help:
 \t@echo "  doctest    to run all doctests embedded in the documentation \
 (if enabled)"
 \t@echo "  coverage   to run coverage check of the documentation (if enabled)"
+\t@echo "  dummy      to check syntax errors of document sources"
 
 .PHONY: clean
 clean:
@@ -695,6 +696,12 @@ pseudoxml:
 \t$(SPHINXBUILD) -b pseudoxml $(ALLSPHINXOPTS) $(BUILDDIR)/pseudoxml
 \t@echo
 \t@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
+
+.PHONY: dummy
+dummy:
+\t$(SPHINXBUILD) -b dummy $(ALLSPHINXOPTS) $(BUILDDIR)/dummy
+\t@echo
+\t@echo "Build finished. Dummy builder generates no files."
 '''
 
 BATCHFILE = u'''\
@@ -739,6 +746,7 @@ if "%%1" == "help" (
 \techo.  linkcheck  to check all external links for integrity
 \techo.  doctest    to run all doctests embedded in the documentation if enabled
 \techo.  coverage   to run coverage check of the documentation if enabled
+\techo.  dummy      to check syntax errors of document sources
 \tgoto end
 )
 
@@ -966,6 +974,14 @@ if "%%1" == "pseudoxml" (
 \tif errorlevel 1 exit /b 1
 \techo.
 \techo.Build finished. The pseudo-XML files are in %%BUILDDIR%%/pseudoxml.
+\tgoto end
+)
+
+if "%%1" == "dummy" (
+\t%%SPHINXBUILD%% -b dummy %%ALLSPHINXOPTS%% %%BUILDDIR%%/dummy
+\tif errorlevel 1 exit /b 1
+\techo.
+\techo.Build finished. Dummy builder generates no files.
 \tgoto end
 )
 

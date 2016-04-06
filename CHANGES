@@ -19,8 +19,34 @@ Documentation
 Release 1.4.1 (in development)
 ==============================
 
+Incompatible changes
+--------------------
+
+* The default format of `today_fmt` and `html_last_updated_fmt` is back to
+  strftime format again.  Locale Date Markup Language is also supported for
+  backward compatibility until Sphinx-1.5.
+
+Translations
+------------
+
+* Added Welsh translation, thanks to Geraint Palmer.
+* Added Greek translation, thanks to Stelios Vitalis.
+* Added Esperanto translation, thanks to Dinu Gherman.
+* Added Hindi translation, thanks to Purnank H. Ghumalia.
+* Added Romanian translation, thanks to Razvan Stefanescu.
+
 Bugs fixed
 ----------
+
+* C++, added support for ``extern`` and ``thread_local``.
+* C++, type declarations are now using the prefixes ``typedef``, ``using``, and ``type``,
+  depending on the style of declaration.
+* #2413: C++, fix crash on duplicate declarations
+* #2394: Fix Sphinx crashes when html_last_updated_fmt is invalid
+* #2408: dummy builder not available in Makefile and make.bat
+* #2412: Fix hyperlink targets are broken in LaTeX builder
+* Fix figure directive crashes if non paragraph item is given as caption
+* #2418: Fix time formats no longer allowed in today_fmt
 
 
 Release 1.4 (released Mar 28, 2016)

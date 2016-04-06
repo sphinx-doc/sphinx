@@ -371,8 +371,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if builder.config.today:
             self.elements['date'] = builder.config.today
         else:
-            self.elements['date'] = format_date(builder.config.today_fmt or
-                                                _('MMMM dd, YYYY'),
+            self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
                                                 language=builder.config.language)
         if builder.config.latex_logo:
             self.elements['logo'] = '\\includegraphics{%s}\\par' % \
@@ -465,7 +464,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         hyperlink_ids.update(ids)
 
     def pop_hyperlink_ids(self, figtype):
-        return self.next_hyperlink_ids.get(figtype, set())
+        return self.next_hyperlink_ids.pop(figtype, set())
 
     def restrict_footnote(self, node):
         if self.footnote_restricted is False:

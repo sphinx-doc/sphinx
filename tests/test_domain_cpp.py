@@ -145,6 +145,11 @@ def test_member_definitions():
           "4name", output='const std::vector<unsigned int, long> &name')
     check('member', 'module::myclass foo[n]', "foo__module::myclassA", "3foo")
     check('member', 'int *const p', 'p__iPC', '1p')
+    check('member', 'extern int myInt', 'myInt__i', '5myInt')
+    check('member', 'thread_local int myInt', 'myInt__i', '5myInt')
+    check('member', 'extern thread_local int myInt', 'myInt__i', '5myInt')
+    check('member', 'thread_local extern int myInt', 'myInt__i', '5myInt',
+          'extern thread_local int myInt')
 
 
 def test_function_definitions():
@@ -255,6 +260,8 @@ def test_function_definitions():
           None, "1fNSt10shared_ptrIFidEEE")
     check("function", "void f(int *const p)", "f__iPC", "1fPCi")
     check("function", "void f(int *volatile const p)", "f__iPVC", "1fPVCi")
+
+    check('function', 'extern int f()', 'f', '1fv')
 
     # TODO: make tests for functions in a template, e.g., Test<int&&()>
     # such that the id generation for function type types is correct.

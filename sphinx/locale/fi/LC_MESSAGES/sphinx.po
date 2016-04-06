@@ -1,23 +1,23 @@
-# Finnish translations for Sphinx.
+# Translations template for Sphinx.
 # Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
-#
+# 
+# Translators:
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009
 msgid ""
 msgstr ""
-"Project-Id-Version:  Sphinx\n"
+"Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-03-06 21:58+0900\n"
-"PO-Revision-Date: 2015-03-08 14:35+0000\n"
+"PO-Revision-Date: 2016-03-06 13:01+0000\n"
 "Last-Translator: Takayuki Shimizukawa <shimizukawa@gmail.com>\n"
-"Language: fi\n"
-"Language-Team: Finnish "
-"(http://www.transifex.com/projects/p/sphinx-1/language/fi/)\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Language-Team: Finnish (http://www.transifex.com/sphinx-doc/sphinx-1/language/fi/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.2.0\n"
+"Language: fi\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: sphinx/config.py:91
 #, python-format
@@ -734,20 +734,23 @@ msgid ""
 "    containing fewer words won't appear in the result list."
 msgstr "Anna hakusanat kokonaan, osasanoilla ei haeta."
 
-#: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
+#: sphinx/themes/basic/search.html:39
+#: sphinx/themes/basic/searchresults.html:17
 msgid "search"
 msgstr "etsi"
 
-#: sphinx/themes/basic/search.html:43 sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/search.html:43
+#: sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js_t:282
 msgid "Search Results"
 msgstr "Etsinnän tulos"
 
-#: sphinx/themes/basic/search.html:45 sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/search.html:45
+#: sphinx/themes/basic/searchresults.html:23
 #: sphinx/themes/basic/static/searchtools.js_t:284
 msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
 msgstr ""
 
 #: sphinx/themes/basic/searchbox.html:12
@@ -850,9 +853,8 @@ msgid "Release"
 msgstr ""
 
 #: sphinx/writers/latex.py:427
-#, fuzzy
 msgid "page"
-msgstr "Vaara"
+msgstr ""
 
 #: sphinx/writers/latex.py:920 sphinx/writers/manpage.py:233
 #: sphinx/writers/texinfo.py:620
@@ -875,16 +877,3 @@ msgstr ""
 #: sphinx/writers/manpage.py:283 sphinx/writers/text.py:583
 msgid "[image]"
 msgstr ""
-
-#~ msgid "%B %d, %Y"
-#~ msgstr "%d.%m.%Y"
-
-#~ msgid "%b %d, %Y"
-#~ msgstr "%d.%m.%Y"
-
-#~ msgid "(The <<original entry>> is located in  %s, line %d.)"
-#~ msgstr ""
-
-#~ msgid "Enter search terms or a module, class or function name."
-#~ msgstr "Anna etsittävä termi tai moduuli, luokka tai funktio"
-

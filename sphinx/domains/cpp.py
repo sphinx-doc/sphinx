@@ -26,7 +26,9 @@ from sphinx.util.pycompat import UnicodeMixin
 from sphinx.util.docfields import Field, GroupedField
 
 """
-    Important note on ids:
+    Important note on ids
+    ----------------------------------------------------------------------------
+
     Multiple id generation schemes are used due to backwards compatibility.
     - v1: 1.2.3 <= version < 1.3
           The style used before the rewrite.
@@ -37,6 +39,19 @@ from sphinx.util.docfields import Field, GroupedField
           though not completely implemented.
     All versions are generated and attached to elements. The newest is used for
     the index. All of the versions should work as permalinks.
+
+
+    Tagnames
+    ----------------------------------------------------------------------------
+
+    Each desc_signature node will have the attribute 'sphinx_cpp_tagname' set to
+    - 'templateParams', if the line is on the form 'template<...>',
+    - 'declarator', if the line contains the name of the declared object.
+    No other desc_signature nodes should exist (so far).
+
+
+    Grammar
+    ----------------------------------------------------------------------------
 
     See http://www.nongnu.org/hcb/ for the grammar,
     or https://github.com/cplusplus/draft/blob/master/source/grammar.tex
@@ -75,8 +90,13 @@ from sphinx.util.docfields import Field, GroupedField
 
         decl-specifier ->
               storage-class-specifier ->
-                    "static" (only for member_object and function_object)
+                 (  "static" (only for member_object and function_object)
+                  | "extern" (only for member_object and function_object)
                   | "register"
+                 )
+                 thread_local[opt] (only for member_object)
+                                   (it can also appear before the others)
+
             | type-specifier -> trailing-type-specifier
             | function-specifier -> "inline" | "virtual" | "explicit" (only
               for function_object)
@@ -456,6 +476,17 @@ class DefinitionError(UnicodeMixin, Exception):
         return self.description
 
 
+class _DuplicateSymbolError(UnicodeMixin, Exception):
+    def __init__(self, symbol, candSymbol):
+        assert symbol
+        assert candSymbol
+        self.symbol = symbol
+        self.candSymbol = candSymbol
+
+    def __unicode__(self):
+        return "Internal C++ duplicate symbol error:\n%s" % self.symbol.dump(0)
+
+
 class ASTBase(UnicodeMixin):
     def __eq__(self, other):
         if type(self) is not type(other):
@@ -755,6 +786,7 @@ class ASTTemplateDeclarationPrefix(ASTBase):
         _verify_description_mode(mode)
         for t in self.templates:
             templateNode = addnodes.desc_signature()
+            templateNode.sphinx_cpp_tagname = 'templateParams'
             t.describe_signature(templateNode, 'lastIsName', env, symbol)
             signode += templateNode
 
@@ -1223,9 +1255,10 @@ class ASTParametersQualifiers(ASTBase):
 
 
 class ASTDeclSpecsSimple(ASTBase):
-    def __init__(self, storage, inline, virtual, explicit,
+    def __init__(self, storage, threadLocal, inline, virtual, explicit,
                  constexpr, volatile, const, friend):
         self.storage = storage
+        self.threadLocal = threadLocal
         self.inline = inline
         self.virtual = virtual
         self.explicit = explicit
@@ -1238,6 +1271,7 @@ class ASTDeclSpecsSimple(ASTBase):
         if not other:
             return self
         return ASTDeclSpecsSimple(self.storage or other.storage,
+                                  self.threadLocal or other.threadLocal,
                                   self.inline or other.inline,
                                   self.virtual or other.virtual,
                                   self.explicit or other.explicit,
@@ -1250,6 +1284,8 @@ class ASTDeclSpecsSimple(ASTBase):
         res = []
         if self.storage:
             res.append(self.storage)
+        if self.threadLocal:
+            res.append('thread_local')
         if self.inline:
             res.append('inline')
         if self.friend:
@@ -1273,6 +1309,8 @@ class ASTDeclSpecsSimple(ASTBase):
             modifiers.append(addnodes.desc_annotation(text, text))
         if self.storage:
             _add(modifiers, self.storage)
+        if self.threadLocal:
+            _add(modifiers, 'thread_local')
         if self.inline:
             _add(modifiers, 'inline')
         if self.friend:
@@ -1906,6 +1944,12 @@ class ASTType(ASTBase):
         res.append(text_type(self.decl))
         return u''.join(res)
 
+    def get_type_declaration_prefix(self):
+        if self.declSpecs.trailingTypeSpec:
+            return 'typedef'
+        else:
+            return 'type'
+
     def describe_signature(self, signode, mode, env, symbol):
         _verify_description_mode(mode)
         self.declSpecs.describe_signature(signode, 'markType', env, symbol)
@@ -1969,6 +2013,9 @@ class ASTTypeUsing(ASTBase):
             res.append(' = ')
             res.append(text_type(self.type))
         return u''.join(res)
+
+    def get_type_declaration_prefix(self):
+        return 'using'
 
     def describe_signature(self, signode, mode, env, symbol):
         _verify_description_mode(mode)
@@ -2172,6 +2219,7 @@ class ASTDeclaration(ASTBase):
         # let's pop it so we can add templates before that
         parentNode = signode.parent
         mainDeclNode = signode
+        mainDeclNode.sphinx_cpp_tagname = 'declarator'
         parentNode.pop()
 
         assert self.symbol
@@ -2182,7 +2230,9 @@ class ASTDeclaration(ASTBase):
             mainDeclNode += addnodes.desc_annotation(self.visibility + " ",
                                                      self.visibility + " ")
         if self.objectType == 'type':
-            mainDeclNode += addnodes.desc_annotation('type ', 'type ')
+            prefix = self.declaration.get_type_declaration_prefix()
+            prefix += ' '
+            mainDeclNode += addnodes.desc_annotation(prefix, prefix)
         elif self.objectType == 'member':
             pass
         elif self.objectType == 'function':
@@ -2429,14 +2479,23 @@ class Symbol(object):
                 # .. class:: Test
                 symbol._fill_empty(declaration, docname)
                 return symbol
-            # it may simply be a functin overload
-            # TODO: it could be a duplicate but let's just insert anyway
-            # the id generation will warn about it
-            symbol = Symbol(parent=parentSymbol, identifier=identifier,
-                            templateParams=templateParams,
-                            templateArgs=templateArgs,
-                            declaration=declaration,
-                            docname=docname)
+            # It may simply be a functin overload, so let's compare ids.
+            candSymbol = Symbol(parent=parentSymbol, identifier=identifier,
+                                templateParams=templateParams,
+                                templateArgs=templateArgs,
+                                declaration=declaration,
+                                docname=docname)
+            newId = declaration.get_newest_id()
+            oldId = symbol.declaration.get_newest_id()
+            if newId != oldId:
+                # we already inserted the symbol, so return the new one
+                symbol = candSymbol
+            else:
+                # Redeclaration of the same symbol.
+                # Let the new one be there, but raise an error to the client
+                # so it can use the real symbol as subscope.
+                # This will probably result in a duplicate id warning.
+                raise _DuplicateSymbolError(symbol, candSymbol)
         else:
             symbol = Symbol(parent=parentSymbol, identifier=identifier,
                             templateParams=templateParams,
@@ -3022,6 +3081,7 @@ class DefinitionParser(object):
     def _parse_decl_specs_simple(self, outer, typed):
         """Just parse the simple ones."""
         storage = None
+        threadLocal = None
         inline = None
         virtual = None
         explicit = None
@@ -3036,12 +3096,19 @@ class DefinitionParser(object):
                     if self.skip_word('static'):
                         storage = 'static'
                         continue
+                    if self.skip_word('extern'):
+                        storage = 'extern'
+                        continue
                 if outer == 'member':
                     if self.skip_word('mutable'):
                         storage = 'mutable'
                         continue
                 if self.skip_word('register'):
                     storage = 'register'
+                    continue
+            if not threadLocal and outer == 'member':
+                threadLocal = self.skip_word('thread_local')
+                if threadLocal:
                     continue
 
             if outer == 'function':
@@ -3076,8 +3143,8 @@ class DefinitionParser(object):
                 if const:
                     continue
             break
-        return ASTDeclSpecsSimple(storage, inline, virtual, explicit, constexpr,
-                                  volatile, const, friend)
+        return ASTDeclSpecsSimple(storage, threadLocal, inline, virtual,
+                                  explicit, constexpr, volatile, const, friend)
 
     def _parse_decl_specs(self, outer, typed=True):
         if outer:
@@ -3718,8 +3785,14 @@ class CPPObject(ObjectDescription):
             symbol = parentSymbol.add_name(name)
             self.env.ref_context['cpp:lastSymbol'] = symbol
             raise ValueError
-        symbol = parentSymbol.add_declaration(ast, docname=self.env.docname)
-        self.env.ref_context['cpp:lastSymbol'] = symbol
+
+        try:
+            symbol = parentSymbol.add_declaration(ast, docname=self.env.docname)
+            self.env.ref_context['cpp:lastSymbol'] = symbol
+        except _DuplicateSymbolError as e:
+            # Assume we are actually in the old symbol,
+            # instead of the newly created duplicate.
+            self.env.ref_context['cpp:lastSymbol'] = e.symbol
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)

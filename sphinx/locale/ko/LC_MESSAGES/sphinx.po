@@ -1,23 +1,22 @@
-# Korean translations for Sphinx.
+# Translations template for Sphinx.
 # Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
-#
+# 
+# Translators:
 msgid ""
 msgstr ""
-"Project-Id-Version:  Sphinx\n"
+"Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-03-06 21:58+0900\n"
-"PO-Revision-Date: 2015-03-08 14:35+0000\n"
+"PO-Revision-Date: 2016-03-06 13:01+0000\n"
 "Last-Translator: Takayuki Shimizukawa <shimizukawa@gmail.com>\n"
-"Language: ko\n"
-"Language-Team: Korean "
-"(http://www.transifex.com/projects/p/sphinx-1/language/ko/)\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Team: Korean (http://www.transifex.com/sphinx-doc/sphinx-1/language/ko/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.2.0\n"
+"Language: ko\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: sphinx/config.py:91
 #, python-format
@@ -178,9 +177,8 @@ msgid "variable"
 msgstr "변수"
 
 #: sphinx/domains/cpp.py:3608
-#, fuzzy
 msgid "Template Parameters"
-msgstr "매개 변수"
+msgstr ""
 
 #: sphinx/domains/cpp.py:3611 sphinx/domains/javascript.py:125
 msgid "Throws"
@@ -470,9 +468,8 @@ msgid "Todo"
 msgstr "과제"
 
 #: sphinx/ext/todo.py:129
-#, fuzzy
 msgid "<<original entry>>"
-msgstr "원래 항목"
+msgstr ""
 
 #: sphinx/ext/todo.py:132
 #, python-format
@@ -736,20 +733,23 @@ msgid ""
 "    containing fewer words won't appear in the result list."
 msgstr ""
 
-#: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
+#: sphinx/themes/basic/search.html:39
+#: sphinx/themes/basic/searchresults.html:17
 msgid "search"
 msgstr "검색"
 
-#: sphinx/themes/basic/search.html:43 sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/search.html:43
+#: sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js_t:282
 msgid "Search Results"
 msgstr "검색 결과"
 
-#: sphinx/themes/basic/search.html:45 sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/search.html:45
+#: sphinx/themes/basic/searchresults.html:23
 #: sphinx/themes/basic/static/searchtools.js_t:284
 msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
 msgstr ""
 
 #: sphinx/themes/basic/searchbox.html:12
@@ -852,9 +852,8 @@ msgid "Release"
 msgstr "출시"
 
 #: sphinx/writers/latex.py:427
-#, fuzzy
 msgid "page"
-msgstr "위험"
+msgstr ""
 
 #: sphinx/writers/latex.py:920 sphinx/writers/manpage.py:233
 #: sphinx/writers/texinfo.py:620
@@ -877,16 +876,3 @@ msgstr ""
 #: sphinx/writers/manpage.py:283 sphinx/writers/text.py:583
 msgid "[image]"
 msgstr "[그림]"
-
-#~ msgid "%B %d, %Y"
-#~ msgstr "%Y년 %m월 %d일"
-
-#~ msgid "%b %d, %Y"
-#~ msgstr "%Y년 %m월 %d일"
-
-#~ msgid "(The <<original entry>> is located in  %s, line %d.)"
-#~ msgstr ""
-
-#~ msgid "Enter search terms or a module, class or function name."
-#~ msgstr "모듈, 클래스 또는 함수 이름을 입력하십시오."
-

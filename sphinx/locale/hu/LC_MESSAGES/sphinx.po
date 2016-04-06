@@ -1,23 +1,24 @@
-# Hungarian translations for Sphinx.
+# Translations template for Sphinx.
 # Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
-#
+# 
+# Translators:
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011
+# szunyog <szunyog@gmail.com>, 2013,2015
 msgid ""
 msgstr ""
-"Project-Id-Version:  Sphinx\n"
+"Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-03-06 21:58+0900\n"
-"PO-Revision-Date: 2015-03-08 14:35+0000\n"
+"PO-Revision-Date: 2016-03-06 13:01+0000\n"
 "Last-Translator: Takayuki Shimizukawa <shimizukawa@gmail.com>\n"
-"Language: hu\n"
-"Language-Team: Hungarian "
-"(http://www.transifex.com/projects/p/sphinx-1/language/hu/)\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Language-Team: Hungarian (http://www.transifex.com/sphinx-doc/sphinx-1/language/hu/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.2.0\n"
+"Language: hu\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: sphinx/config.py:91
 #, python-format
@@ -178,9 +179,8 @@ msgid "variable"
 msgstr "változó"
 
 #: sphinx/domains/cpp.py:3608
-#, fuzzy
 msgid "Template Parameters"
-msgstr "Paraméterek"
+msgstr ""
 
 #: sphinx/domains/cpp.py:3611 sphinx/domains/javascript.py:125
 msgid "Throws"
@@ -470,14 +470,13 @@ msgid "Todo"
 msgstr "Tennivaló"
 
 #: sphinx/ext/todo.py:129
-#, fuzzy
 msgid "<<original entry>>"
-msgstr "eredeti bejegyzés"
+msgstr ""
 
 #: sphinx/ext/todo.py:132
-#, fuzzy, python-format
+#, python-format
 msgid "(The <<original entry>> is located in %s, line %d.)"
-msgstr "(Az <<eredeti bejegyzés>> megtalálható a(z) %s, %d sor.)"
+msgstr ""
 
 #: sphinx/ext/todo.py:141
 msgid "original entry"
@@ -699,9 +698,7 @@ msgstr "Utolsó frissítés %(last_updated)s."
 msgid ""
 "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
-msgstr ""
-"<a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s "
-"használatával készült."
+msgstr "<a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s használatával készült."
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
@@ -728,9 +725,7 @@ msgstr "következő fejezet"
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
-msgstr ""
-"Kérem engedélyezze a JavaScriptet a kereső funkció\n"
-"    használatához."
+msgstr "Kérem engedélyezze a JavaScriptet a kereső funkció\n    használatához."
 
 #: sphinx/themes/basic/search.html:32
 msgid ""
@@ -738,30 +733,26 @@ msgid ""
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
-msgstr ""
-"Erről az oldalról indíthatja kereséseit. Írja be a kulcsszavakat\n"
-"    az alábbi szövegdobozba, majd kattintson a \"keresés\" gombra.\n"
-"    Ügyeljen arra, hogy a keresés megadott kulcsszavak mindegyikét\n"
-"    figyelembe veszi, így azok az oldalak, melyek nem tartalmazzák az\n"
-"    összes kifejezést, nem jelennek meg a találati listában."
+msgstr "Erről az oldalról indíthatja kereséseit. Írja be a kulcsszavakat\n    az alábbi szövegdobozba, majd kattintson a \"keresés\" gombra.\n    Ügyeljen arra, hogy a keresés megadott kulcsszavak mindegyikét\n    figyelembe veszi, így azok az oldalak, melyek nem tartalmazzák az\n    összes kifejezést, nem jelennek meg a találati listában."
 
-#: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
+#: sphinx/themes/basic/search.html:39
+#: sphinx/themes/basic/searchresults.html:17
 msgid "search"
 msgstr "keresés"
 
-#: sphinx/themes/basic/search.html:43 sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/search.html:43
+#: sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js_t:282
 msgid "Search Results"
 msgstr "Keresési Eredmények"
 
-#: sphinx/themes/basic/search.html:45 sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/search.html:45
+#: sphinx/themes/basic/searchresults.html:23
 #: sphinx/themes/basic/static/searchtools.js_t:284
 msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
-msgstr ""
-"A keresése nem hozott eredményt. Ellenőrizze, a megadott kulcsszavakat és"
-" azt, hogy megfelelő számú kategória van-e kiválasztva."
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
+msgstr "A keresése nem hozott eredményt. Ellenőrizze, a megadott kulcsszavakat és azt, hogy megfelelő számú kategória van-e kiválasztva."
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
@@ -863,9 +854,8 @@ msgid "Release"
 msgstr "Kiadás"
 
 #: sphinx/writers/latex.py:427
-#, fuzzy
 msgid "page"
-msgstr "Veszély"
+msgstr ""
 
 #: sphinx/writers/latex.py:920 sphinx/writers/manpage.py:233
 #: sphinx/writers/texinfo.py:620
@@ -888,13 +878,3 @@ msgstr "[image: %s]"
 #: sphinx/writers/manpage.py:283 sphinx/writers/text.py:583
 msgid "[image]"
 msgstr "[image]"
-
-#~ msgid "%B %d, %Y"
-#~ msgstr "%Y. %m. %d."
-
-#~ msgid "%b %d, %Y"
-#~ msgstr "%b %d, %Y"
-
-#~ msgid "Enter search terms or a module, class or function name."
-#~ msgstr "Adjon meg egy keresendő kifejezést, modul, osztály vagy funkció nevet."
-
