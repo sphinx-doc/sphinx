@@ -64,7 +64,7 @@ def test_code_block_caption_html(app, status, warning):
 def test_code_block_caption_latex(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
-    caption = '\\SphinxSetupCaptionForVerbatim{literal-block}{\label{caption:caption-test-rb}caption \\emph{test} rb}'
+    caption = '\\SphinxSetupCaptionForVerbatim{literal-block}{caption \\emph{test} rb}'
     assert caption in latex
 
 
@@ -229,7 +229,7 @@ def test_literalinclude_caption_html(app, status, warning):
 def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
-    caption = '\\SphinxSetupCaptionForVerbatim{literal-block}{\label{caption:caption-test-py}caption \\textbf{test} py}'
+    caption = '\\SphinxSetupCaptionForVerbatim{literal-block}{caption \\textbf{test} py}'
     assert caption in latex
 
 
