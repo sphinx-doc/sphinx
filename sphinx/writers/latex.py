@@ -1804,8 +1804,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if node['ids']:
                 # suppress with anchor=False \phantomsection insertion
                 ids += self.hypertarget(node['ids'][0], anchor=False)
-            # define label for use in caption, or directly if none exist.
-            # LaTeX code will add the \phantomsection in latter case.
+            # LaTeX code will insert \phantomsection prior to \label
             if ids:
                 self.body.append('\n\\def\\SphinxLiteralBlockLabel{' + ids + '}')
             code = node.astext()
