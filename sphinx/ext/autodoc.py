@@ -313,7 +313,7 @@ def format_annotation(annotation):
                 return '%s[%s]' % (qualified_name, param_str)
         elif hasattr(typing, 'CallableMeta') and \
                 isinstance(annotation, typing.CallableMeta) and \
-                hasattr(annotation, '__args__') and \
+                getattr(annotation, '__args__', None) is not None and \
                 hasattr(annotation, '__result__'):
             args = annotation.__args__
             if args is Ellipsis:
