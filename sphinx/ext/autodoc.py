@@ -350,7 +350,9 @@ def formatargspec(function, args, varargs=None, varkw=None, defaults=None,
         formatted.append('*' + format_arg_with_annotation(varargs))
 
     if kwonlyargs:
-        formatted.append('*')
+        if not varargs:
+            formatted.append('*')
+
         for kwarg in kwonlyargs:
             arg_fd = StringIO()
             arg_fd.write(format_arg_with_annotation(kwarg))
