@@ -247,7 +247,7 @@
 
 \renewcommand{\Verbatim}[1][1]{%
   % list starts new par, but we don't want it to be set apart vertically
-  \bgroup\parskip\z@skip
+  \parskip\z@skip
   \smallskip
   % first, let's check if there is a caption
   \ifx\SphinxVerbatimTitle\empty
@@ -279,8 +279,7 @@
   \endOriginalVerbatim
   \endMakeFramed
   \endlist
-  % close group to restore \parskip (and \SphinxFrameTitle)
-  \egroup
+  % LaTeX environments always revert local changes on exit, here e.g. \parskip
 }
 
 
