@@ -58,7 +58,7 @@ class Config(object):
 
         language = (None, 'env', string_classes),
         locale_dirs = ([], 'env'),
-        figure_language_filename = ('{root}.{language}{ext}', 'env', [str]),
+        figure_language_filename = (u'{root}.{language}{ext}', 'env', [str]),
 
         master_doc = ('contents', 'env'),
         source_suffix = (['.rst'], 'env'),
