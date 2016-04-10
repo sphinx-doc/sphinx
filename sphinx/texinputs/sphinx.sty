@@ -190,6 +190,7 @@
     \def\SphinxVerbatimTitle
        {\captionof{#1}{\SphinxLiteralBlockLabel #2}\smallskip }%
 }
+% \SphinxLiteralBlockLabel will be set dynamically to hold the label for links
 \newcommand*\SphinxLiteralBlockLabel {}
 
 % \SphinxCustomFBox is copied from framed.sty's \CustomFBox, but
@@ -248,17 +249,17 @@
   % list starts new par, but we don't want it to be set apart vertically
   \bgroup\parskip\z@skip
   \smallskip
-  % use customized framed environment
-  % first, check if has caption
+  % first, let's check if there is a caption
   \ifx\SphinxVerbatimTitle\empty
-      % no caption. Require space if at bottom of page
-      \needspace{\literalblockwithoutcaptionneedspace}%
-      % if there is a label insert hypertarget.
+      % there was no caption. Check if nevertheless a label was set.
       \ifx\SphinxLiteralBlockLabel\empty\else
+      % we require some space to be sure hyperlink target from \phantomsection
+      % will not be separated from upcoming verbatim by a page break
+          \needspace{\literalblockwithoutcaptionneedspace}%
           \phantomsection\SphinxLiteralBlockLabel
       \fi
   \fi
-  % non empty \SphinxVerbatimTitle has label inside if there is one.
+  % non-empty \SphinxVerbatimTitle has label inside it (in case there is one)
   \let\SphinxFrameTitle\SphinxVerbatimTitle
   \global\Sphinx@myfirstframedpasstrue
   % The list environement is needed to control perfectly the vertical
@@ -280,8 +281,6 @@
   \endlist
   % close group to restore \parskip (and \SphinxFrameTitle)
   \egroup
-  % reset to empty \SphinxVerbatimTitle
-  \global\let\SphinxVerbatimTitle\empty
 }
 
 

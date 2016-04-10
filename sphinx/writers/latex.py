@@ -2009,6 +2009,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_container(self, node):
         if node.get('literal_block'):
             self.in_container_literal_block -= 1
+            self.body.append('\\let\\SphinxVerbatimTitle\\empty\n')
             self.body.append('\\let\\SphinxLiteralBlockLabel\\empty\n')
 
     def visit_decoration(self, node):
