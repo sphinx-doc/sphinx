@@ -31,6 +31,8 @@ Bugs fixed
 * #2418: Fix time formats no longer allowed in today_fmt
 * #2395: Fix Sphinx crashs if unicode character in image filename
 * #2396: Fix "too many values to unpack" in genindex-single
+* #2405: Fix numref link in PDF jumps to the wrong location
+* #2414: Fix missing number in PDF hyperlinks to code listings
 
 
 Release 1.4 (released Mar 28, 2016)
