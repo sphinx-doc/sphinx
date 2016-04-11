@@ -54,6 +54,7 @@ def test_code_block_caption_html(app, status, warning):
     app.builder.build(['caption'])
     html = (app.outdir / 'caption.html').text(encoding='utf-8')
     caption = (u'<div class="code-block-caption">'
+               u'<span class="caption-number">Listing 1 </span>'
                u'<span class="caption-text">caption <em>test</em> rb'
                u'</span><a class="headerlink" href="#caption-test-rb" '
                u'title="Permalink to this code">\xb6</a></div>')
@@ -65,7 +66,28 @@ def test_code_block_caption_latex(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
     caption = '\\SphinxSetupCaptionForVerbatim{literal-block}{caption \\emph{test} rb}'
+    label = '\\def\\SphinxLiteralBlockLabel{\\label{caption:caption-test-rb}}'
+    link  = '\hyperref[caption:caption-test-rb]' \
+            '{Listing \\ref{caption:caption-test-rb}}'
     assert caption in latex
+    assert label in latex
+    assert link in latex
+
+
+@with_app('latex', testroot='directive-code')
+def test_code_block_namedlink_latex(app, status, warning):
+    app.builder.build_all()
+    latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
+    label1 = '\def\SphinxLiteralBlockLabel{\label{caption:name-test-rb}}'
+    link1  = '\\hyperref[caption:name\\string-test\\string-rb]'\
+             '{\\crossref{\\DUrole{std,std-ref}{Ruby}}'
+    label2 = '\def\SphinxLiteralBlockLabel{\label{namedblocks:some-ruby-code}}'
+    link2  = '\\hyperref[namedblocks:some\\string-ruby\\string-code]'\
+             '{\\crossref{\\DUrole{std,std-ref}{the ruby code}}}'
+    assert label1 in latex
+    assert link1  in latex
+    assert label2 in latex
+    assert link2  in latex
 
 
 @with_app('xml', testroot='directive-code')
@@ -219,6 +241,7 @@ def test_literalinclude_caption_html(app, status, warning):
     app.builder.build('index')
     html = (app.outdir / 'caption.html').text(encoding='utf-8')
     caption = (u'<div class="code-block-caption">'
+               u'<span class="caption-number">Listing 2 </span>'
                u'<span class="caption-text">caption <strong>test</strong> py'
                u'</span><a class="headerlink" href="#caption-test-py" '
                u'title="Permalink to this code">\xb6</a></div>')
@@ -230,7 +253,28 @@ def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
     caption = '\\SphinxSetupCaptionForVerbatim{literal-block}{caption \\textbf{test} py}'
+    label = '\\def\\SphinxLiteralBlockLabel{\\label{caption:caption-test-py}}'
+    link  = '\hyperref[caption:caption-test-py]' \
+            '{Listing \\ref{caption:caption-test-py}}'
     assert caption in latex
+    assert label in latex
+    assert link in latex
+
+
+@with_app('latex', testroot='directive-code')
+def test_literalinclude_namedlink_latex(app, status, warning):
+    app.builder.build('index')
+    latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
+    label1 = '\def\SphinxLiteralBlockLabel{\label{caption:name-test-py}}'
+    link1  = '\\hyperref[caption:name\\string-test\\string-py]'\
+             '{\\crossref{\\DUrole{std,std-ref}{Python}}'
+    label2 = '\def\SphinxLiteralBlockLabel{\label{namedblocks:some-python-code}}'
+    link2  = '\\hyperref[namedblocks:some\\string-python\\string-code]'\
+             '{\\crossref{\\DUrole{std,std-ref}{the python code}}}'
+    assert label1 in latex
+    assert link1  in latex
+    assert label2 in latex
+    assert link2  in latex
 
 
 @with_app('xml', testroot='directive-code')

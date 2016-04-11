@@ -1443,9 +1443,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_caption(self, node):
         self.in_caption += 1
         if self.in_container_literal_block:
-            self.body.append('\\needspace{\\literalblockneedspace}')
-            self.body.append('\\vspace{\\literalblockcaptiontopvspace}%')
-            self.body.append('\n\\SphinxSetupCaptionForVerbatim{literal-block}{')
+            self.body.append('\\SphinxSetupCaptionForVerbatim{literal-block}{')
         elif self.in_minipage and isinstance(node.parent, nodes.figure):
             self.body.append('\\captionof{figure}{')
         else:
@@ -1800,6 +1798,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # most probably a parsed-literal block -- don't highlight
             self.body.append('\\begin{alltt}\n')
         else:
+            ids = ''
+            for id in self.pop_hyperlink_ids('code-block'):
+                ids += self.hypertarget(id, anchor=False)
+            if node['ids']:
+                # suppress with anchor=False \phantomsection insertion
+                ids += self.hypertarget(node['ids'][0], anchor=False)
+            # LaTeX code will insert \phantomsection prior to \label
+            if ids:
+                self.body.append('\n\\def\\SphinxLiteralBlockLabel{' + ids + '}')
             code = node.astext()
             lang = self.hlsettingstack[-1][0]
             linenos = code.count('\n') >= self.hlsettingstack[-1][1] - 1
@@ -1833,6 +1840,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             hlcode = hlcode.rstrip()[:-14]  # strip \end{Verbatim}
             self.body.append('\n' + hlcode + '\\end{%sVerbatim}\n' %
                              (self.table and 'Original' or ''))
+            if ids:
+                self.body.append('\\let\\SphinxLiteralBlockLabel\empty\n')
             raise nodes.SkipNode
 
     def depart_literal_block(self, node):
@@ -1991,14 +2000,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
             for id in self.pop_hyperlink_ids('code-block'):
                 ids += self.hypertarget(id, anchor=False)
             if node['ids']:
-                ids += self.hypertarget(node['ids'][0])
-            self.body.append('\n')
-            self.context.append(ids + '\n')
+                # suppress with anchor=False \phantomsection insertion
+                ids += self.hypertarget(node['ids'][0], anchor=False)
+            # define label for use in caption.
+            if ids:
+                self.body.append('\n\\def\\SphinxLiteralBlockLabel{' + ids + '}\n')
 
     def depart_container(self, node):
         if node.get('literal_block'):
             self.in_container_literal_block -= 1
-            self.body.append(self.context.pop())
+            self.body.append('\\let\\SphinxVerbatimTitle\\empty\n')
+            self.body.append('\\let\\SphinxLiteralBlockLabel\\empty\n')
 
     def visit_decoration(self, node):
         pass
