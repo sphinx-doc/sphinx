@@ -841,7 +841,7 @@ def test_image_glob_intl(app, status, warning):
 
 @with_app(buildername='dummy', testroot='image-glob',
           confoverrides={'language': 'xx',
-                         'figure_language_filename': '{root}{ext}.{language}'})
+                         'figure_language_filename': u'{root}{ext}.{language}'})
 def test_image_glob_intl_using_figure_language_filename(app, status, warning):
     app.builder.build_all()
 

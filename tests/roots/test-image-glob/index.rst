@@ -12,3 +12,5 @@ test-image-glob
 .. figure:: img.*
 
    The caption of img
+
+.. image:: testimäge.png

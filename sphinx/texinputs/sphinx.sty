@@ -186,8 +186,12 @@
 \newcommand*\SphinxVerbatimTitle {}
 \newcommand*\SphinxSetupCaptionForVerbatim [2]
 {%
-    \def\SphinxVerbatimTitle{\captionof{#1}{#2}\smallskip }%
+    \needspace{\literalblockneedspace}\vspace{\literalblockcaptiontopvspace}%
+    \def\SphinxVerbatimTitle
+       {\captionof{#1}{\SphinxLiteralBlockLabel #2}\smallskip }%
 }
+% \SphinxLiteralBlockLabel will be set dynamically to hold the label for links
+\newcommand*\SphinxLiteralBlockLabel {}
 
 % \SphinxCustomFBox is copied from framed.sty's \CustomFBox, but
 % #1=title/caption is to be set _above_ the top rule, not _below_
@@ -243,9 +247,19 @@
 
 \renewcommand{\Verbatim}[1][1]{%
   % list starts new par, but we don't want it to be set apart vertically
-  \bgroup\parskip\z@skip
+  \parskip\z@skip
   \smallskip
-  % use customized framed environment
+  % first, let's check if there is a caption
+  \ifx\SphinxVerbatimTitle\empty
+      % there was no caption. Check if nevertheless a label was set.
+      \ifx\SphinxLiteralBlockLabel\empty\else
+      % we require some space to be sure hyperlink target from \phantomsection
+      % will not be separated from upcoming verbatim by a page break
+          \needspace{\literalblockwithoutcaptionneedspace}%
+          \phantomsection\SphinxLiteralBlockLabel
+      \fi
+  \fi
+  % non-empty \SphinxVerbatimTitle has label inside it (in case there is one)
   \let\SphinxFrameTitle\SphinxVerbatimTitle
   \global\Sphinx@myfirstframedpasstrue
   % The list environement is needed to control perfectly the vertical
@@ -265,10 +279,7 @@
   \endOriginalVerbatim
   \endMakeFramed
   \endlist
-  % close group to restore \parskip (and \SphinxFrameTitle)
-  \egroup
-  % reset to empty \SphinxVerbatimTitle
-  \global\let\SphinxVerbatimTitle\empty
+  % LaTeX environments always revert local changes on exit, here e.g. \parskip
 }
 
 
@@ -625,5 +636,6 @@
 \RequirePackage{needspace}
 % if the left page space is less than \literalblockneedsapce, insert page-break
 \newcommand{\literalblockneedspace}{5\baselineskip}
+\newcommand{\literalblockwithoutcaptionneedspace}{1.5\baselineskip}
 % margin before the caption of literal-block
 \newcommand{\literalblockcaptiontopvspace}{0.5\baselineskip}
