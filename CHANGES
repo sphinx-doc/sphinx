@@ -24,16 +24,16 @@ Bugs fixed
 * C++, type declarations are now using the prefixes ``typedef``, ``using``, and ``type``,
   depending on the style of declaration.
 * #2413: C++, fix crash on duplicate declarations
-* #2394: Fix Sphinx crashes when html_last_updated_fmt is invalid
+* #2394: Sphinx crashes when html_last_updated_fmt is invalid
 * #2408: dummy builder not available in Makefile and make.bat
-* #2412: Fix hyperlink targets are broken in LaTeX builder
-* Fix figure directive crashes if non paragraph item is given as caption
-* #2418: Fix time formats no longer allowed in today_fmt
-* #2395: Fix Sphinx crashs if unicode character in image filename
-* #2396: Fix "too many values to unpack" in genindex-single
-* #2405: Fix numref link in PDF jumps to the wrong location
-* #2414: Fix missing number in PDF hyperlinks to code listings
-* #2440: Fix wrong import for gmtime. Thanks to Uwe L. Korn.
+* #2412: hyperlink targets are broken in LaTeX builder
+* figure directive crashes if non paragraph item is given as caption
+* #2418: time formats no longer allowed in today_fmt
+* #2395: Sphinx crashes if unicode character in image filename
+* #2396: "too many values to unpack" in genindex-single
+* #2405: numref link in PDF jumps to the wrong location
+* #2414: missing number in PDF hyperlinks to code listings
+* #2440: wrong import for gmtime. Thanks to Uwe L. Korn.
 
 
 Release 1.4 (released Mar 28, 2016)
