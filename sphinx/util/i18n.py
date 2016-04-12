@@ -14,7 +14,7 @@ import os
 import re
 import warnings
 from os import path
-from time import time, gmtime
+from time import gmtime
 from datetime import datetime
 from collections import namedtuple
 

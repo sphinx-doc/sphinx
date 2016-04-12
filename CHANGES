@@ -33,6 +33,7 @@ Bugs fixed
 * #2396: Fix "too many values to unpack" in genindex-single
 * #2405: Fix numref link in PDF jumps to the wrong location
 * #2414: Fix missing number in PDF hyperlinks to code listings
+* #2440: Fix wrong import for gmtime. Thanks to Uwe L. Korn.
 
 
 Release 1.4 (released Mar 28, 2016)
