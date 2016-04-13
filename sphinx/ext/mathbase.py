@@ -31,10 +31,10 @@ class eqref(nodes.Inline, nodes.TextElement):
 def wrap_displaymath(math, label, numbering):
     parts = math.split('\n\n')
     ret = []
-    for i, part in enumerate(parts):
+    for part in parts:
         if not part.strip():
             continue
-        ret.append(r'\begin{split}%s\end{split}' % part)
+        ret.append('\\!\\begin{split}%s\\end{split}\\\\\n' % part)
     if not ret:
         return ''
     if label is not None or numbering:
@@ -45,8 +45,7 @@ def wrap_displaymath(math, label, numbering):
     else:
         env_begin = r'\begin{align*}'
         env_end = r'\end{align*}'
-    return ('%s\\begin{aligned}\n%s\\end{aligned}%s') % (
-        env_begin, '\\\\\n'.join(ret), env_end)
+    return '%s\\begin{aligned}\n%s\\end{aligned}%s' % (env_begin, ''.join(ret), env_end)
 
 
 def math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
