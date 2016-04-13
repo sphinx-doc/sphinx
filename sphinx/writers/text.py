@@ -126,11 +126,8 @@ class TextWrapper(textwrap.TextWrapper):
             cur_line.append(reversed_chunks.pop())
 
 
-MAXWIDTH = 70
-STDINDENT = 3
-
-
-def my_wrap(text, width=MAXWIDTH, **kwargs):
+def my_wrap(text, width=None, **kwargs):
+    width = TextTranslator.MAXWIDTH if width is None else width
     w = TextWrapper(width=width, **kwargs)
     return w.wrap(text)
 
@@ -154,6 +151,9 @@ class TextWriter(writers.Writer):
 
 
 class TextTranslator(nodes.NodeVisitor):
+    MAXWIDTH = 70
+    STDINDENT = 3
+
     sectionchars = '*=-~"+`'
 
     def __init__(self, document, builder):
@@ -178,8 +178,9 @@ class TextTranslator(nodes.NodeVisitor):
     def add_text(self, text):
         self.states[-1].append((-1, text))
 
-    def new_state(self, indent=STDINDENT):
+    def new_state(self, indent=None):
         self.states.append([])
+        indent = self.STDINDENT if indent is None else indent
         self.stateindent.append(indent)
 
     def end_state(self, wrap=True, end=[''], first=None):
@@ -193,7 +194,7 @@ class TextTranslator(nodes.NodeVisitor):
             if not toformat:
                 return
             if wrap:
-                res = my_wrap(''.join(toformat), width=MAXWIDTH-maxindent)
+                res = my_wrap(''.join(toformat), width=self.MAXWIDTH-maxindent)
             else:
                 res = ''.join(toformat).splitlines()
             if end:
@@ -586,7 +587,7 @@ class TextTranslator(nodes.NodeVisitor):
     def visit_transition(self, node):
         indent = sum(self.stateindent)
         self.new_state(0)
-        self.add_text('=' * (MAXWIDTH - indent))
+        self.add_text('=' * (self.MAXWIDTH - indent))
         self.end_state()
         raise nodes.SkipNode
 

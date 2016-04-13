@@ -10,7 +10,7 @@
 """
 
 from docutils.utils import column_width
-from sphinx.writers.text import MAXWIDTH
+from sphinx.writers.text import TextTranslator
 
 from util import with_app
 
@@ -31,7 +31,7 @@ def test_maxwitdh_with_prefix(app, status, warning):
 
     lines = result.splitlines()
     line_widths = [column_width(line) for line in lines]
-    assert max(line_widths) < MAXWIDTH
+    assert max(line_widths) < TextTranslator.MAXWIDTH
     assert lines[0].startswith('See also: ham')
     assert lines[1].startswith('  ham')
     assert lines[2] == ''
@@ -84,7 +84,7 @@ def test_nonascii_maxwidth(app, status, warning):
     result = (app.outdir / 'nonascii_maxwidth.txt').text(encoding='utf-8')
     lines = [line.strip() for line in result.splitlines() if line.strip()]
     line_widths = [column_width(line) for line in lines]
-    assert max(line_widths) < MAXWIDTH
+    assert max(line_widths) < TextTranslator.MAXWIDTH
 
 
 @with_text_app()
