@@ -71,7 +71,6 @@ def test_math_number_all_latex(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'test.tex').text()
-    print content
     macro = (r'\\begin{equation\*}\s*'
              r'\\begin{split}a\^2\+b\^2=c\^2\\end{split}\s*'
              r'\\end{equation\*}')
