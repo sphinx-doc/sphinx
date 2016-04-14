@@ -158,14 +158,19 @@
 \let\OriginalVerbatim=\Verbatim
 \let\endOriginalVerbatim=\endVerbatim
 
-\newcommand\Sphinxcolorbox [1]{%
-  \fcolorbox{VerbatimBorderColor}{VerbatimColor}{%
-% Adjust width to be able to handle indentation.
+\newcommand\Sphinx@colorbox [2]{%
+% #1 will be \fcolorbox or, for first part of frame: \Sphinx@fcolorbox
+  #1{VerbatimBorderColor}{VerbatimColor}{%
+  % adjust width to be able to handle indentation.
   \begin{minipage}{\dimexpr\linewidth-\@totalleftmargin\relax}%
-    #1%
+    #2%
   \end{minipage}%
   }%
 }
+% use of \color@b@x here is compatible with both xcolor.sty and color.sty
+\def\Sphinx@fcolorbox #1#2%
+  {\color@b@x {\fboxsep\z@\color{#1}\Sphinx@VerbatimFBox}{\color{#2}}}%
+
 % The title is specified from outside as macro \SphinxVerbatimTitle.
 % \SphinxVerbatimTitle is reset to empty after each use of Verbatim.
 \newcommand*\SphinxVerbatimTitle {}
@@ -184,7 +189,7 @@
 % of a non separable by pagebreak caption, and controlled counter stepping.
 \newif\ifSphinx@myfirstframedpass
 
-\long\def\SphinxVerbatimFBox#1{%
+\long\def\Sphinx@VerbatimFBox#1{%
   \leavevmode
   \begingroup
   \ifSphinx@myfirstframedpass\else\firstchoice@false\fi
@@ -221,15 +226,11 @@
   % non-empty \SphinxVerbatimTitle has label inside it (in case there is one)
   % Customize framed.sty \MakeFramed to glue caption to literal block
   \global\Sphinx@myfirstframedpasstrue
-  \def\FrameCommand {%
-          % will insert the caption (if there is one) preventing pagebreaks
-          \def\fbox{\SphinxVerbatimFBox}%
-          % \fcolorbox from xcolor.sty may use rather \XC@fbox
-          \let\XC@fbox\fbox
-      \Sphinxcolorbox }%
+  % via \Sphinx@fcolorbox, will use \SphinxVerbatimFBox which inserts title
+  \def\FrameCommand   {\Sphinx@colorbox\Sphinx@fcolorbox }%
   \let\FirstFrameCommand\FrameCommand
   % for mid pages and last page portion of (long) split frame:
-  \def\MidFrameCommand{\Sphinxcolorbox}%
+  \def\MidFrameCommand{\Sphinx@colorbox\fcolorbox }%
   \let\LastFrameCommand\MidFrameCommand
   % The list environement is needed to control perfectly the vertical
   % space.
