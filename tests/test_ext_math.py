@@ -72,21 +72,21 @@ def test_math_number_all_latex(app, status, warning):
 
     content = (app.outdir / 'test.tex').text()
     print content
-    macro = (r'\\begin{align\*}\\begin{aligned}\s*'
-             r'\\!\\begin{split}a\^2\+b\^2=c\^2\\end{split}\\\\\s*'
-             r'\\end{aligned}\\end{align\*}')
+    macro = (r'\\begin{equation\*}\s*'
+             r'\\begin{split}a\^2\+b\^2=c\^2\\end{split}\s*'
+             r'\\end{equation\*}')
     assert re.search(macro, content, re.S)
 
     macro = r'Inline \\\(E=mc\^2\\\)'
     assert re.search(macro, content, re.S)
 
-    macro = (r'\\begin{align\*}\\begin{aligned}\s*'
-             r'\\!\\begin{split}e\^{i\\pi}\+1=0\\end{split}\\\\\s+'
-             r'\\end{aligned}\\end{align\*}')
+    macro = (r'\\begin{equation\*}\s*'
+             r'\\begin{split}e\^{i\\pi}\+1=0\\end{split}\s+'
+             r'\\end{equation\*}')
     assert re.search(macro, content, re.S)
 
     macro = (r'\\begin{align\*}\\begin{aligned}\s*'
-             r'\\!\\begin{split}S &= \\pi r\^2\\end{split}\\\\\s*'
-             r'\\!\\begin{split}V &= \\frac\{4}\{3} \\pi r\^3\\end{split}\\\\\s*'
+             r'\\!S &= \\pi r\^2\\\\\s*'
+             r'\\!V &= \\frac\{4}\{3} \\pi r\^3\\\\\s*'
              r'\\end{aligned}\\end{align\*}')
     assert re.search(macro, content, re.S)
