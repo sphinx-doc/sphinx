@@ -499,6 +499,7 @@ help:
 \t@echo "  singlehtml to make a single large HTML file"
 \t@echo "  pickle     to make pickle files"
 \t@echo "  json       to make JSON files"
+\t@echo "  ipynb      to make Jupyter/IPython Notebook files"
 \t@echo "  htmlhelp   to make HTML files and a HTML help project"
 \t@echo "  qthelp     to make HTML files and a qthelp project"
 \t@echo "  applehelp  to make an Apple Help Book"
