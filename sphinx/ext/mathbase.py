@@ -38,7 +38,7 @@ def wrap_displaymath(math, label, numbering):
         labeldef = r'\label{%s}' % label
         numbering = True
 
-    parts = filter(is_equation, math.split('\n\n'))
+    parts = list(filter(is_equation, math.split('\n\n')))
     equations = []
     if len(parts) == 0:
         return ''
