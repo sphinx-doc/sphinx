@@ -315,6 +315,7 @@ def format_annotation(annotation):
                 isinstance(annotation, typing.CallableMeta) and \
                 getattr(annotation, '__args__', None) is not None and \
                 hasattr(annotation, '__result__'):
+            # Skipped in the case of plain typing.Callable
             args = annotation.__args__
             if args is Ellipsis:
                 args_str = '...'
