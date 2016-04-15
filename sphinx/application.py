@@ -584,7 +584,8 @@ class Sphinx(object):
            hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
             self.warn('while setting up extension %s: node class %r is '
                       'already registered, its visitors will be overridden' %
-                      (self._setting_up_extension, node.__name__))
+                      (self._setting_up_extension, node.__name__),
+                      type='app', subtype='add_node')
         nodes._add_node_class_names([node.__name__])
         for key, val in iteritems(kwds):
             try:
@@ -636,7 +637,8 @@ class Sphinx(object):
         if name in directives._directives:
             self.warn('while setting up extension %s: directive %r is '
                       'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], name))
+                      (self._setting_up_extension[-1], name),
+                      type='app', subtype='add_directive')
         directives.register_directive(
             name, self._directive_helper(obj, content, arguments, **options))
 
@@ -645,7 +647,8 @@ class Sphinx(object):
         if name in roles._roles:
             self.warn('while setting up extension %s: role %r is '
                       'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], name))
+                      (self._setting_up_extension[-1], name),
+                      type='app', subtype='add_role')
         roles.register_local_role(name, role)
 
     def add_generic_role(self, name, nodeclass):
@@ -655,7 +658,8 @@ class Sphinx(object):
         if name in roles._roles:
             self.warn('while setting up extension %s: role %r is '
                       'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], name))
+                      (self._setting_up_extension[-1], name),
+                      type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)
         roles.register_local_role(name, role)
 

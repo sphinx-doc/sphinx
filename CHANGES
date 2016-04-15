@@ -1,6 +1,11 @@
 Release 1.4.2 (in development)
 ==============================
 
+Features added
+--------------
+
+* Now :confval:`suppress_warnings` accepts following configurations: ``app.add_node``, ``app.add_directive``, ``app.add_role`` and ``app.add_generic_role`` (ref: #2451)
+
 Bugs fixed
 ----------
 
