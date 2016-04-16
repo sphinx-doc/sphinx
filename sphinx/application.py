@@ -144,6 +144,10 @@ class Sphinx(object):
         if 'alabaster' not in self.config.extensions:
             self.config.extensions.append('alabaster')
 
+        # collect values a first time before extension setup because they may
+        # be needing for things like suppressing warnings.
+        self.config.init_values(self.warn)
+
         # load all user-given extension modules
         for extension in self.config.extensions:
             self.setup_extension(extension)
@@ -584,7 +588,8 @@ class Sphinx(object):
            hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
             self.warn('while setting up extension %s: node class %r is '
                       'already registered, its visitors will be overridden' %
-                      (self._setting_up_extension, node.__name__))
+                      (self._setting_up_extension, node.__name__),
+                      type='node_overridden', subtype=node.__name__)
         nodes._add_node_class_names([node.__name__])
         for key, val in iteritems(kwds):
             try:
@@ -636,7 +641,8 @@ class Sphinx(object):
         if name in directives._directives:
             self.warn('while setting up extension %s: directive %r is '
                       'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], name))
+                      (self._setting_up_extension[-1], name),
+                      type='directive_overridden', subtype=name)
         directives.register_directive(
             name, self._directive_helper(obj, content, arguments, **options))
 
@@ -645,7 +651,8 @@ class Sphinx(object):
         if name in roles._roles:
             self.warn('while setting up extension %s: role %r is '
                       'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], name))
+                      (self._setting_up_extension[-1], name),
+                      type='role_overridden', subtype=name)
         roles.register_local_role(name, role)
 
     def add_generic_role(self, name, nodeclass):
@@ -655,7 +662,8 @@ class Sphinx(object):
         if name in roles._roles:
             self.warn('while setting up extension %s: role %r is '
                       'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], name))
+                      (self._setting_up_extension[-1], name),
+                      type='role_overridden', subtype=name)
         role = roles.GenericRole(name, nodeclass)
         roles.register_local_role(name, role)
 
