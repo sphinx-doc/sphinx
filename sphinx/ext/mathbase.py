@@ -52,13 +52,13 @@ def wrap_displaymath(math, label, numbering):
         equations.append('\\begin{split}%s\\end{split}\n' % parts[0])
     else:
         if numbering:
-            begin = r'\begin{align}%s\begin{aligned}' % labeldef
+            begin = r'\begin{align}%s\!\begin{aligned}' % labeldef
             end = r'\end{aligned}\end{align}'
         else:
-            begin = r'\begin{align*}%s\begin{aligned}' % labeldef
+            begin = r'\begin{align*}%s\!\begin{aligned}' % labeldef
             end = r'\end{aligned}\end{align*}'
         for part in parts:
-            equations.append('\\!%s\\\\\n' % part)
+            equations.append('%s\\\\\n' % part)
 
     return '%s\n%s%s' % (begin, ''.join(equations), end)
 
