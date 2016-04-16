@@ -271,6 +271,7 @@ def test_babel_with_no_language_settings(app, status, warning):
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig. }}\n' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table. }}\n' in result
     assert '\\addto\\extrasenglish{\\def\\pageautorefname{page}}\n' in result
+    assert '\\shorthandoff' not in result
 
 
 @with_app(buildername='latex', testroot='latex-babel',
@@ -290,6 +291,7 @@ def test_babel_with_language_de(app, status, warning):
     assert '\\addto\\captionsngerman{\\renewcommand{\\figurename}{Fig. }}\n' in result
     assert '\\addto\\captionsngerman{\\renewcommand{\\tablename}{Table. }}\n' in result
     assert '\\addto\\extrasngerman{\\def\\pageautorefname{page}}\n' in result
+    assert '\\shorthandoff{"}' in result
 
 
 @with_app(buildername='latex', testroot='latex-babel',
@@ -309,6 +311,27 @@ def test_babel_with_language_ru(app, status, warning):
     assert '\\addto\\captionsrussian{\\renewcommand{\\figurename}{Fig. }}\n' in result
     assert '\\addto\\captionsrussian{\\renewcommand{\\tablename}{Table. }}\n' in result
     assert '\\addto\\extrasrussian{\\def\\pageautorefname{page}}\n' in result
+    assert '\\shorthandoff' not in result
+
+
+@with_app(buildername='latex', testroot='latex-babel',
+          confoverrides={'language': 'tr'})
+def test_babel_with_language_tr(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\documentclass[letterpaper,10pt,turkish]{sphinxmanual}' in result
+    assert '\\usepackage{babel}' in result
+    assert '\\usepackage{times}' in result
+    assert '\\usepackage[Sonny]{fncychap}' in result
+    assert ('\\addto\\captionsturkish{\\renewcommand{\\contentsname}{Table of content}}\n'
+            in result)
+    assert '\\addto\\captionsturkish{\\renewcommand{\\figurename}{Fig. }}\n' in result
+    assert '\\addto\\captionsturkish{\\renewcommand{\\tablename}{Table. }}\n' in result
+    assert '\\addto\\extrasturkish{\\def\\pageautorefname{sayfa}}\n' in result
+    assert '\\shorthandoff{=}' in result
 
 
 @with_app(buildername='latex', testroot='latex-babel',
@@ -327,6 +350,7 @@ def test_babel_with_language_ja(app, status, warning):
     assert '\\renewcommand{\\figurename}{Fig. }\n' in result
     assert '\\renewcommand{\\tablename}{Table. }\n' in result
     assert u'\\def\\pageautorefname{ページ}\n' in result
+    assert '\\shorthandoff' not in result
 
 
 @with_app(buildername='latex', testroot='latex-babel',
@@ -346,6 +370,7 @@ def test_babel_with_unknown_language(app, status, warning):
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig. }}\n' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table. }}\n' in result
     assert '\\addto\\extrasenglish{\\def\\pageautorefname{page}}\n' in result
+    assert '\\shorthandoff' not in result
 
     assert "WARNING: no Babel option known for language 'unknown'" in warning.getvalue()
 
