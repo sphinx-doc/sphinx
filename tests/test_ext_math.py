@@ -84,8 +84,8 @@ def test_math_number_all_latex(app, status, warning):
              r'\\end{equation\*}')
     assert re.search(macro, content, re.S)
 
-    macro = (r'\\begin{align\*}\\begin{aligned}\s*'
-             r'\\!S &= \\pi r\^2\\\\\s*'
-             r'\\!V &= \\frac\{4}\{3} \\pi r\^3\\\\\s*'
+    macro = (r'\\begin{align\*}\\!\\begin{aligned}\s*'
+             r'S &= \\pi r\^2\\\\\s*'
+             r'V &= \\frac\{4}\{3} \\pi r\^3\\\\\s*'
              r'\\end{aligned}\\end{align\*}')
     assert re.search(macro, content, re.S)
