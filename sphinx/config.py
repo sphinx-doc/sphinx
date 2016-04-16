@@ -338,6 +338,10 @@ class Config(object):
                      'characters; this can lead to Unicode errors occurring. '
                      'Please use Unicode strings, e.g. %r.' % (name, u'Content'))
 
+    def get_needs_sphinx(self):
+        """Obtain the value of ``needs_sphinx``"""
+        return self.overrides.get('needs_sphinx') or self._raw_config.get('needs_sphinx')
+
     def init_values(self, warn):
         config = self._raw_config
         for valname, value in iteritems(self.overrides):

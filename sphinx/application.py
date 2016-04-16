@@ -133,6 +133,13 @@ class Sphinx(object):
         self.config.check_unicode(self.warn)
         # defer checking types until i18n has been initialized
 
+        # check the Sphinx version if requested
+        needs_sphinx = self.config.get_needs_sphinx()
+        if needs_sphinx and needs_sphinx > sphinx.__display_version__:
+            raise VersionRequirementError(
+                'This project needs at least Sphinx v%s and therefore cannot '
+                'be built with this version.' % needs_sphinx)
+
         # set confdir to srcdir if -C given (!= no confdir); a few pieces
         # of code expect a confdir to be set
         if self.confdir is None:
@@ -162,13 +169,6 @@ class Sphinx(object):
 
         # now that we know all config values, collect them from conf.py
         self.config.init_values(self.warn)
-
-        # check the Sphinx version if requested
-        if self.config.needs_sphinx and \
-           self.config.needs_sphinx > sphinx.__display_version__:
-            raise VersionRequirementError(
-                'This project needs at least Sphinx v%s and therefore cannot '
-                'be built with this version.' % self.config.needs_sphinx)
 
         # check extension versions if requested
         if self.config.needs_extensions:
