@@ -54,6 +54,10 @@ Bugs fixed
 * #2414: missing number in PDF hyperlinks to code listings
 * #2440: wrong import for gmtime. Thanks to Uwe L. Korn.
 
+Features added
+--------------
+
+* Tag signature descriptions with the ``descsignature`` CSS class.
 
 Release 1.4 (released Mar 28, 2016)
 ===================================

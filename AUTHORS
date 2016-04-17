@@ -50,6 +50,7 @@ Other contributors, listed alphabetically, are:
 * Jeppe Pihl -- literalinclude improvements
 * Rob Ruana -- napoleon extension
 * Stefan Seefeld -- toctree improvements
+* Dave Shawley -- HTML writer improvements
 * Shibukawa Yoshiki -- pluggable search API and Japanese search
 * Taku Shimizu -- epub3 builder
 * Antonio Valentino -- qthelp builder
