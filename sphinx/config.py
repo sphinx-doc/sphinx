@@ -338,9 +338,11 @@ class Config(object):
                      'characters; this can lead to Unicode errors occurring. '
                      'Please use Unicode strings, e.g. %r.' % (name, u'Content'))
 
-    def get_needs_sphinx(self):
-        """Obtain the value of ``needs_sphinx``"""
-        return self.overrides.get('needs_sphinx') or self._raw_config.get('needs_sphinx')
+    def pre_init_values(self, warn):
+        """Initialize some limited config variables before loading extensions"""
+        variables = ['needs_sphinx']
+        for name in variables:
+            self.__dict__[name] = self.overrides.get(name) or self._raw_config.get(name)
 
     def init_values(self, warn):
         config = self._raw_config

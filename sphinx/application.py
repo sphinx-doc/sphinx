@@ -133,12 +133,14 @@ class Sphinx(object):
         self.config.check_unicode(self.warn)
         # defer checking types until i18n has been initialized
 
+        # initialize some limited config variables before loading extensions
+        self.config.pre_init_values(self.warn)
+
         # check the Sphinx version if requested
-        needs_sphinx = self.config.get_needs_sphinx()
-        if needs_sphinx and needs_sphinx > sphinx.__display_version__:
+        if self.config.needs_sphinx and self.config.needs_sphinx > sphinx.__display_version__:
             raise VersionRequirementError(
                 'This project needs at least Sphinx v%s and therefore cannot '
-                'be built with this version.' % needs_sphinx)
+                'be built with this version.' % self.config.needs_sphinx)
 
         # set confdir to srcdir if -C given (!= no confdir); a few pieces
         # of code expect a confdir to be set
