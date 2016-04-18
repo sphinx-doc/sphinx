@@ -133,6 +133,15 @@ class Sphinx(object):
         self.config.check_unicode(self.warn)
         # defer checking types until i18n has been initialized
 
+        # initialize some limited config variables before loading extensions
+        self.config.pre_init_values(self.warn)
+
+        # check the Sphinx version if requested
+        if self.config.needs_sphinx and self.config.needs_sphinx > sphinx.__display_version__:
+            raise VersionRequirementError(
+                'This project needs at least Sphinx v%s and therefore cannot '
+                'be built with this version.' % self.config.needs_sphinx)
+
         # set confdir to srcdir if -C given (!= no confdir); a few pieces
         # of code expect a confdir to be set
         if self.confdir is None:
@@ -162,13 +171,6 @@ class Sphinx(object):
 
         # now that we know all config values, collect them from conf.py
         self.config.init_values(self.warn)
-
-        # check the Sphinx version if requested
-        if self.config.needs_sphinx and \
-           self.config.needs_sphinx > sphinx.__display_version__:
-            raise VersionRequirementError(
-                'This project needs at least Sphinx v%s and therefore cannot '
-                'be built with this version.' % self.config.needs_sphinx)
 
         # check extension versions if requested
         if self.config.needs_extensions:
@@ -584,7 +586,8 @@ class Sphinx(object):
            hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
             self.warn('while setting up extension %s: node class %r is '
                       'already registered, its visitors will be overridden' %
-                      (self._setting_up_extension, node.__name__))
+                      (self._setting_up_extension, node.__name__),
+                      type='app', subtype='add_node')
         nodes._add_node_class_names([node.__name__])
         for key, val in iteritems(kwds):
             try:
@@ -636,7 +639,8 @@ class Sphinx(object):
         if name in directives._directives:
             self.warn('while setting up extension %s: directive %r is '
                       'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], name))
+                      (self._setting_up_extension[-1], name),
+                      type='app', subtype='add_directive')
         directives.register_directive(
             name, self._directive_helper(obj, content, arguments, **options))
 
@@ -645,7 +649,8 @@ class Sphinx(object):
         if name in roles._roles:
             self.warn('while setting up extension %s: role %r is '
                       'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], name))
+                      (self._setting_up_extension[-1], name),
+                      type='app', subtype='add_role')
         roles.register_local_role(name, role)
 
     def add_generic_role(self, name, nodeclass):
@@ -655,7 +660,8 @@ class Sphinx(object):
         if name in roles._roles:
             self.warn('while setting up extension %s: role %r is '
                       'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], name))
+                      (self._setting_up_extension[-1], name),
+                      type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)
         roles.register_local_role(name, role)
 

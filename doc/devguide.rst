@@ -111,7 +111,7 @@ These are the basic steps needed to start developing on Sphinx.
 
    * Run the unit tests::
 
-       pip install nose mock
+       pip install -r test-reqs.txt
        make test
 
    * Build the documentation and check the output for different builders::

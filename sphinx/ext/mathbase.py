@@ -29,24 +29,38 @@ class eqref(nodes.Inline, nodes.TextElement):
 
 
 def wrap_displaymath(math, label, numbering):
-    parts = math.split('\n\n')
-    ret = []
-    for i, part in enumerate(parts):
-        if not part.strip():
-            continue
-        ret.append(r'\begin{split}%s\end{split}' % part)
-    if not ret:
-        return ''
-    if label is not None or numbering:
-        env_begin = r'\begin{align}'
-        if label is not None:
-            env_begin += r'\label{%s}' % label
-        env_end = r'\end{align}'
+    def is_equation(part):
+        return part.strip()
+
+    if label is None:
+        labeldef = ''
     else:
-        env_begin = r'\begin{align*}'
-        env_end = r'\end{align*}'
-    return ('%s\\begin{aligned}\n%s\\end{aligned}%s') % (
-        env_begin, '\\\\\n'.join(ret), env_end)
+        labeldef = r'\label{%s}' % label
+        numbering = True
+
+    parts = list(filter(is_equation, math.split('\n\n')))
+    equations = []
+    if len(parts) == 0:
+        return ''
+    elif len(parts) == 1:
+        if numbering:
+            begin = r'\begin{equation}' + labeldef
+            end = r'\end{equation}'
+        else:
+            begin = r'\begin{equation*}' + labeldef
+            end = r'\end{equation*}'
+        equations.append('\\begin{split}%s\\end{split}\n' % parts[0])
+    else:
+        if numbering:
+            begin = r'\begin{align}%s\!\begin{aligned}' % labeldef
+            end = r'\end{aligned}\end{align}'
+        else:
+            begin = r'\begin{align*}%s\!\begin{aligned}' % labeldef
+            end = r'\end{aligned}\end{align*}'
+        for part in parts:
+            equations.append('%s\\\\\n' % part)
+
+    return '%s\n%s%s' % (begin, ''.join(equations), end)
 
 
 def math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):

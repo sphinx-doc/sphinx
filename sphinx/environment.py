@@ -907,7 +907,11 @@ class BuildEnvironment:
             # The special key ? is set for nonlocal URIs.
             node['candidates'] = candidates = {}
             imguri = node['uri']
-            if imguri.find('://') != -1:
+            if imguri.startswith('data:'):
+                self.warn_node('image data URI found. some builders might not support', node)
+                candidates['?'] = imguri
+                continue
+            elif imguri.find('://') != -1:
                 self.warn_node('nonlocal image URI found: %s' % imguri, node)
                 candidates['?'] = imguri
                 continue

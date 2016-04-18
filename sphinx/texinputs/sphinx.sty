@@ -152,98 +152,62 @@
 
 \newcommand*{\sphinxAtStartFootnote}{\mbox{ }}
 
-% Redefine the Verbatim environment to allow border and background colors.
+% Redefine the Verbatim environment to allow border and background colors
+% and to handle the top caption in a non separable by pagebreak way.
 % The original environment is still used for verbatims within tables.
 \let\OriginalVerbatim=\Verbatim
 \let\endOriginalVerbatim=\endVerbatim
 
-% Play with vspace to be able to keep the indentation.
-\newlength\Sphinx@scratchlength
-\newcommand\Sphinxcolorbox [1]{%
-  \setlength\Sphinx@scratchlength{\linewidth}%
-  \advance\Sphinx@scratchlength -\@totalleftmargin %
-  \fcolorbox{VerbatimBorderColor}{VerbatimColor}{%
-  \begin{minipage}{\Sphinx@scratchlength}%
-    #1
+\newcommand\Sphinx@colorbox [2]{%
+% #1 will be \fcolorbox or, for first part of frame: \Sphinx@fcolorbox
+  #1{VerbatimBorderColor}{VerbatimColor}{%
+  % adjust width to be able to handle indentation.
+  \begin{minipage}{\dimexpr\linewidth-\@totalleftmargin\relax}%
+    #2%
   \end{minipage}%
   }%
 }
-% used for split frames for continuation on next and final page
-\def\MidFrameCommand{\Sphinxcolorbox}
-\let\LastFrameCommand\MidFrameCommand
-
-% We customize \FrameCommand (for non split frames) and \FirstFrameCommand
-% (split frames), in order for the framed environment to insert a Title above
-% the frame, which can not be separated by a pagebreak.
+% use of \color@b@x here is compatible with both xcolor.sty and color.sty
+\def\Sphinx@fcolorbox #1#2%
+  {\color@b@x {\fboxsep\z@\color{#1}\Sphinx@VerbatimFBox}{\color{#2}}}%
 
 % The title is specified from outside as macro \SphinxVerbatimTitle.
-% \SphinxVerbatimTitle is reset to empty after each use of Verbatim environment.
-
-% It is also possible to use directly framed environment (i.e. not indirectly
-% via the Verbatim environment next), then it is \SphinxFrameTitle which specifies
-% the title.
-\newcommand*\SphinxFrameTitle {}
+% \SphinxVerbatimTitle is reset to empty after each use of Verbatim.
 \newcommand*\SphinxVerbatimTitle {}
+% Holder macro for labels of literal blocks. Set-up by LaTeX writer.
+\newcommand*\SphinxLiteralBlockLabel {}
 \newcommand*\SphinxSetupCaptionForVerbatim [2]
 {%
     \needspace{\literalblockneedspace}\vspace{\literalblockcaptiontopvspace}%
+% insert a \label via \SphinxLiteralBlockLabel
+% reset to normal the color for the literal block caption
     \def\SphinxVerbatimTitle
-       {\captionof{#1}{\SphinxLiteralBlockLabel #2}\smallskip }%
+       {\py@NormalColor\captionof{#1}{\SphinxLiteralBlockLabel #2}\smallskip }%
 }
-% \SphinxLiteralBlockLabel will be set dynamically to hold the label for links
-\newcommand*\SphinxLiteralBlockLabel {}
 
-% \SphinxCustomFBox is copied from framed.sty's \CustomFBox, but
-% #1=title/caption is to be set _above_ the top rule, not _below_
-% #1 must be "vertical material", it may be left empty.
-
-% The amsmath patches \stepcounter to inhibit stepping under
-% \firstchoice@false. We use it because framed.sty typesets multiple
-% times its contents.
+% Inspired and adapted from framed.sty's \CustomFBox with extra handling
+% of a non separable by pagebreak caption, and controlled counter stepping.
 \newif\ifSphinx@myfirstframedpass
 
-\long\def\SphinxCustomFBox#1#2#3#4#5#6#7{%
-  % we set up amsmath (amstext.sty) conditional to inhibit counter stepping
-  % except in first pass
-  \ifSphinx@myfirstframedpass\firstchoice@true
-                  \else\firstchoice@false\fi
-  \leavevmode\begingroup
-  \setbox\@tempboxa\hbox{%
-    \color@begingroup
-      \kern\fboxsep{#7}\kern\fboxsep
-    \color@endgroup}%
-  \hbox{%
-    \lower\dimexpr#4+\fboxsep+\dp\@tempboxa\hbox{%
-      \vbox{%
-        #1% TITLE
-        \hrule\@height#3\relax
-        \hbox{%
-          \vrule\@width#5\relax
-          \vbox{%
-            \vskip\fboxsep
-            \copy\@tempboxa
-            \vskip\fboxsep}%
-          \vrule\@width#6\relax}%
-        #2%
-        \hrule\@height#4\relax}%
-    }%
-  }%
+\long\def\Sphinx@VerbatimFBox#1{%
+  \leavevmode
+  \begingroup
+  \ifSphinx@myfirstframedpass\else\firstchoice@false\fi
+  \setbox\@tempboxa\hbox{\kern\fboxsep{#1}\kern\fboxsep}%
+   \hbox
+   {\lower\dimexpr\fboxrule+\fboxsep+\dp\@tempboxa
+    \hbox{%
+      \vbox{\ifx\SphinxVerbatimTitle\empty\else{\SphinxVerbatimTitle}\fi
+            \hrule\@height\fboxrule\relax
+            \hbox{\vrule\@width\fboxrule\relax
+                  \vbox{\vskip\fboxsep\copy\@tempboxa\vskip\fboxsep}%
+                  \vrule\@width\fboxrule\relax}%
+            \hrule\@height\fboxrule\relax}%
+   }}%
   \endgroup
+  % amsmath conditional inhibits counter stepping after first pass.
   \global\Sphinx@myfirstframedpassfalse
 }
-
-% for non split frames:
-\def\FrameCommand{%
-   % this is inspired from framed.sty v 0.96 2011/10/22 lines 185--190
-   % \fcolorbox (see \Sphinxcolorbox above) from color.sty uses \fbox.
-   \def\fbox{\SphinxCustomFBox{\SphinxFrameTitle}{}%
-                 \fboxrule\fboxrule\fboxrule\fboxrule}%
-   % \fcolorbox from xcolor.sty may use rather \XC@fbox.
-   \let\XC@fbox\fbox
-   \Sphinxcolorbox
-}
-% for first portion of split frames:
-\let\FirstFrameCommand\FrameCommand
 
 \renewcommand{\Verbatim}[1][1]{%
   % list starts new par, but we don't want it to be set apart vertically
@@ -260,14 +224,21 @@
       \fi
   \fi
   % non-empty \SphinxVerbatimTitle has label inside it (in case there is one)
-  \let\SphinxFrameTitle\SphinxVerbatimTitle
+  % Customize framed.sty \MakeFramed to glue caption to literal block
   \global\Sphinx@myfirstframedpasstrue
+  % via \Sphinx@fcolorbox, will use \Sphinx@VerbatimFBox which inserts title
+  \def\FrameCommand   {\Sphinx@colorbox\Sphinx@fcolorbox }%
+  \let\FirstFrameCommand\FrameCommand
+  % for mid pages and last page portion of (long) split frame:
+  \def\MidFrameCommand{\Sphinx@colorbox\fcolorbox }%
+  \let\LastFrameCommand\MidFrameCommand
   % The list environement is needed to control perfectly the vertical
   % space.
   \list{}{%
   \setlength\parskip{0pt}%
   \setlength\itemsep{0ex}%
   \setlength\topsep{0ex}%
+  \setlength\parsep{0pt}% let's not forget this one!
   \setlength\partopsep{0pt}%
   \setlength\leftmargin{0pt}%
   }%

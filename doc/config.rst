@@ -218,6 +218,10 @@ General configuration
 
    Sphinx supports following warning types:
 
+   * app.add_node
+   * app.add_directive
+   * app.add_role
+   * app.add_generic_role
    * ref.term
    * ref.ref
    * ref.numref
