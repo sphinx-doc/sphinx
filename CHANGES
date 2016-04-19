@@ -12,6 +12,8 @@ Features added
 Bugs fixed
 ----------
 
+* Ignore updates of catalog files for gettext builder
+
 Documentation
 -------------
 
