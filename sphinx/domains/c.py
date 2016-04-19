@@ -279,6 +279,9 @@ class CDomain(Domain):
                      typ, target, node, contnode):
         # strip pointer asterisk
         target = target.rstrip(' *')
+        # becase TypedField can generate xrefs
+        if target in CObject.stopwords:
+            return contnode
         if target not in self.data['objects']:
             return None
         obj = self.data['objects'][target]
