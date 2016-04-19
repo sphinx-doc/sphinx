@@ -12,7 +12,7 @@ Features added
 Bugs fixed
 ----------
 
-* Ignore updates of catalog files for gettext builder
+* #2469: Ignore updates of catalog files for gettext builder
 
 Documentation
 -------------
