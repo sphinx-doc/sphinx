@@ -15,6 +15,7 @@ Bugs fixed
 * #2436: Sphinx does not check version by :confval:`needs_sphinx` if loading extensions failed
 * #2397: Setup shorthandoff for turkish documents
 * #2447: VerbatimBorderColor wrongly used also for captions of PDF
+* #2456: C++, fix crash related to document merging (e.g., singlehtml and Latex builders).
 
 
 Release 1.4.1 (released Apr 12, 2016)
