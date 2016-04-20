@@ -8,17 +8,25 @@
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesPackage{sphinx}[2010/01/15 LaTeX package (Sphinx markup)]
 
+\ifx\directlua\undefined\else
+% if compiling with lualatex 0.85 or later load compatibility patch issued by
+% the LaTeX team for older packages relying on \pdf<name> named primitives.
+    \IfFileExists{luatex85.sty}{\RequirePackage{luatex85}}{}
+\fi
+
 \@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
 
 \RequirePackage{textcomp}
+% fancybox not used anymore and will be removed at Sphinx-1.5
 \RequirePackage{fancybox}
 \RequirePackage{titlesec}
 \RequirePackage{tabulary}
 \RequirePackage{makeidx}
+% For framing code-blocks and warning type notices, and shadowing topics
 \RequirePackage{framed}
+\newif\ifSphinx@inframed % flag set if we are in a framed environment
 \RequirePackage{ifthen}
-%The xcolor package draws better fcolorboxes
-%around verbatim code
+% The xcolor package draws better fcolorboxes around verbatim code
 \IfFileExists{xcolor.sty}{
     \RequirePackage{xcolor}
 }{
@@ -242,17 +250,101 @@
   \setlength\partopsep{0pt}%
   \setlength\leftmargin{0pt}%
   }%
-  \item\MakeFramed {\FrameRestore}%
+  \item
+  % use a minipage if we are already inside a framed environment
+  \relax\ifSphinx@inframed\noindent\begin{\minipage}{\linewidth}\fi
+     \MakeFramed {\FrameRestore}%
      \small
     \OriginalVerbatim[#1]%
 }
 \renewcommand{\endVerbatim}{%
   \endOriginalVerbatim
   \endMakeFramed
+  \ifSphinx@inframed\end{minipage}\fi
   \endlist
   % LaTeX environments always revert local changes on exit, here e.g. \parskip
 }
 
+% define macro to frame contents and add shadow on right and bottom
+\def\Sphinx@shadowsep     {5\p@}       % \p@ means "pt "
+\def\Sphinx@shadowsize    {4\p@}
+\def\Sphinx@shadowrule    {\fboxrule}
+\long\def\Sphinx@ShadowFBox#1{%
+  \leavevmode\begingroup
+  % first we frame the box #1
+  \setbox\@tempboxa
+   \hbox{\vrule\@width\Sphinx@shadowrule
+         \vbox{\hrule\@height\Sphinx@shadowrule
+               \kern\Sphinx@shadowsep
+               \hbox{\kern\Sphinx@shadowsep #1\kern\Sphinx@shadowsep}%
+               \kern\Sphinx@shadowsep
+               \hrule\@height\Sphinx@shadowrule}%
+         \vrule\@width\Sphinx@shadowrule}%
+  % Now we add the shadow, like \shadowbox from fancybox.sty would do
+  \dimen@\dimexpr.5\Sphinx@shadowrule+\Sphinx@shadowsize\relax
+  \hbox{\vbox{\offinterlineskip
+              \hbox{\copy\@tempboxa\kern-.5\Sphinx@shadowrule
+                    % add shadow on right side
+                    \lower\Sphinx@shadowsize
+                          \hbox{\vrule\@height\ht\@tempboxa \@width\dimen@}%
+                    }%
+              \kern-\dimen@ % shift back vertically to bottom of frame
+              % and add shadow at bottom
+              \moveright\Sphinx@shadowsize
+                    \vbox{\hrule\@width\wd\@tempboxa \@height\dimen@}%
+              }%
+        % move left by the size of right shadow so shadow adds no width
+        \kern-\Sphinx@shadowsize
+       }%
+  \endgroup
+}
+
+% use framed.sty to allow page breaks in frame+shadow
+% works well inside Lists and Quote-like environments
+% produced by ``topic'' directive (or local contents)
+% could nest if LaTeX writer authorized it
+\newenvironment{SphinxShadowBox}
+  {\def\FrameCommand {\Sphinx@ShadowFBox }%
+   % configure framed.sty not to add extra vertical spacing
+   \OuterFrameSep \z@skip
+   % the \trivlist will add the vertical spacing on top and bottom which is
+   % typical of center environment as used in Sphinx <= 1.4.1
+   % the \noindent has the effet of an extra blank line on top, to
+   % imitate closely the layout from Sphinx <= 1.4.1; the \FrameHeightAdjust
+   % will put top part of frame on this baseline.
+   \def\FrameHeightAdjust {\baselineskip}%
+   \trivlist\item\noindent
+    % use a minipage if we are already inside a framed environment
+    \ifSphinx@inframed\begin{minipage}{\linewidth}\fi
+    \MakeFramed {\Sphinx@inframedtrue
+    % framed.sty puts into "\width" the added width (=2shadowsep+2shadowrule)
+    % adjust \hsize to what the contents must use
+    \advance\hsize-\width
+    % adjust LaTeX parameters to behave properly in indented/quoted contexts
+    \FrameRestore
+    % typeset the contents as in a minipage (Sphinx <= 1.4.1 used a minipage and
+    % itemize/enumerate are therein typeset more tightly, we want to keep
+    % that). We copy-paste from LaTeX source code but don't do a real minipage.
+    \@pboxswfalse
+       % for footnotes, but Sphinx inactivates footnotes in topics
+       \def\@mpfn{mpfootnote}\def\thempfn{\thempfootnote}\c@mpfootnote\z@
+       \let\@footnotetext\@mpfootnotetext
+    \let\@listdepth\@mplistdepth \@mplistdepth\z@
+    \@minipagerestore
+    \@setminipage
+    }%
+  }%
+  {% insert the "endminipage" code
+    \par\unskip
+    % handle (currently non existing) minipage style footnotes
+    \ifvoid\@mpfootins\else
+      \vskip\skip\@mpfootins\normalcolor\footnoterule\unvbox\@mpfootins
+    \fi
+    \@minipagefalse
+   \endMakeFramed
+     \ifSphinx@inframed\end{minipage}\fi
+   \endtrivlist
+  }
 
 % \moduleauthor{name}{email}
 \newcommand{\moduleauthor}[2]{}
@@ -316,23 +408,49 @@
 
 % Notices / Admonitions
 %
-\newlength{\py@noticelength}
 
-\newcommand{\py@heavybox}{
-  \setlength{\fboxrule}{1pt}
-  \setlength{\fboxsep}{6pt}
-  \setlength{\py@noticelength}{\linewidth}
-  \addtolength{\py@noticelength}{-2\fboxsep}
-  \addtolength{\py@noticelength}{-2\fboxrule}
-  %\setlength{\shadowsize}{3pt}
-  \noindent\Sbox
-  \minipage{\py@noticelength}
-}
-\newcommand{\py@endheavybox}{
-  \endminipage
-  \endSbox
-  \fbox{\TheSbox}
-}
+% Code adapted from framed.sty's "snugshade" environment.
+% Nesting works (inner frames do not allow page breaks).
+\newcommand{\py@heavybox}{\par
+   \setlength{\FrameRule}{\p@}% 1pt
+   \setlength{\FrameSep}{\dimexpr.6\baselineskip-\FrameRule\relax}
+   % configure framed.sty's parameters to obtain same vertical spacing
+   % as for "light" boxes. We need for this to manually insert parskip glue and
+   % revert a skip done by framed before the frame.
+    \setlength{\OuterFrameSep}{0pt}
+    \vspace{\FrameHeightAdjust}
+   % copied/adapted from framed.sty's snugshade
+   \def\FrameCommand##1{\hskip\@totalleftmargin
+       \fboxsep\FrameSep \fboxrule\FrameRule\fbox{##1}%
+       \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+   % use a minipage if we are already inside a framed environment
+   \ifSphinx@inframed
+       \noindent\begin{minipage}{\linewidth}
+   \else
+       \vspace{\parskip}
+   \fi
+   \MakeFramed {\Sphinx@inframedtrue
+     \advance\hsize-\width \@totalleftmargin\z@ \linewidth\hsize
+     % minipage initialization copied from LaTeX source code.
+     \@pboxswfalse
+       % for footnotes
+       \def\@mpfn{mpfootnote}\def\thempfn{\thempfootnote}\c@mpfootnote\z@
+       \let\@footnotetext\@mpfootnotetext
+     \let\@listdepth\@mplistdepth \@mplistdepth\z@
+     \@minipagerestore
+     \@setminipage }%
+   }
+\newcommand{\py@endheavybox}{%
+   \par\unskip
+   % handles footnotes
+   \ifvoid\@mpfootins\else
+      \vskip\skip\@mpfootins\normalcolor\footnoterule\unvbox\@mpfootins
+   \fi
+   \@minipagefalse\endMakeFramed
+   \ifSphinx@inframed\end{minipage}\fi
+   % arrange for similar spacing below frame as for "light" boxes.
+   \vskip .4\baselineskip
+   }
 
 \newcommand{\py@lightbox}{%
   \par\allowbreak
