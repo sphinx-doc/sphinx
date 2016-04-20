@@ -4,6 +4,8 @@ Release 1.5 (in development)
 Incompatible changes
 --------------------
 
+* LaTeX package fancybox is not longer a dependency of sphinx.sty
+
 Features added
 --------------
 
