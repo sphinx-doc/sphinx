@@ -8,6 +8,12 @@
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesPackage{sphinx}[2010/01/15 LaTeX package (Sphinx markup)]
 
+\ifx\directlua\undefined\else
+% if compiling with lualatex 0.85 or later load compatibility patch issued by
+% the LaTeX team for older packages relying on \pdf<name> named primitives.
+    \IfFileExists{luatex85.sty}{\RequirePackage{luatex85}}{}
+\fi
+
 \@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
 
 \RequirePackage{textcomp}
@@ -240,6 +246,7 @@
   \setlength\parskip{0pt}%
   \setlength\itemsep{0ex}%
   \setlength\topsep{0ex}%
+  \setlength\parsep{0pt}% let's not forget this one!
   \setlength\partopsep{0pt}%
   \setlength\leftmargin{0pt}%
   }%

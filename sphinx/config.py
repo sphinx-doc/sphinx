@@ -338,44 +338,60 @@ class Config(object):
                      'characters; this can lead to Unicode errors occurring. '
                      'Please use Unicode strings, e.g. %r.' % (name, u'Content'))
 
-    def get_needs_sphinx(self):
-        """Obtain the value of ``needs_sphinx``"""
-        return self.overrides.get('needs_sphinx') or self._raw_config.get('needs_sphinx')
+    def convert_overrides(self, name, value):
+        if not isinstance(value, string_types):
+            return value
+        else:
+            defvalue = self.values[name][0]
+            if isinstance(defvalue, dict):
+                raise ValueError('cannot override dictionary config setting %r, '
+                                 'ignoring (use %r to set individual elements)' %
+                                 (name, name + '.key=value'))
+            elif isinstance(defvalue, list):
+                return value.split(',')
+            elif isinstance(defvalue, integer_types):
+                try:
+                    return int(value)
+                except ValueError:
+                    raise ValueError('invalid number %r for config value %r, ignoring' %
+                                     (value, name))
+            elif hasattr(defvalue, '__call__'):
+                return value
+            elif defvalue is not None and not isinstance(defvalue, string_types):
+                raise ValueError('cannot override config setting %r with unsupported '
+                                 'type, ignoring' % name)
+            else:
+                return value
+
+    def pre_init_values(self, warn):
+        """Initialize some limited config variables before loading extensions"""
+        variables = ['needs_sphinx', 'suppress_warnings']
+        for name in variables:
+            try:
+                if name in self.overrides:
+                    self.__dict__[name] = self.convert_overrides(name, self.overrides[name])
+                elif name in self._raw_config:
+                    self.__dict__[name] = self._raw_config[name]
+            except ValueError as exc:
+                warn(exc)
 
     def init_values(self, warn):
         config = self._raw_config
         for valname, value in iteritems(self.overrides):
-            if '.' in valname:
-                realvalname, key = valname.split('.', 1)
-                config.setdefault(realvalname, {})[key] = value
-                continue
-            elif valname not in self.values:
-                warn('unknown config value %r in override, ignoring' % valname)
-                continue
-            defvalue = self.values[valname][0]
-            if isinstance(value, string_types):
-                if isinstance(defvalue, dict):
-                    warn('cannot override dictionary config setting %r, '
-                         'ignoring (use %r to set individual elements)' %
-                         (valname, valname + '.key=value'))
+            try:
+                if '.' in valname:
+                    realvalname, key = valname.split('.', 1)
+                    config.setdefault(realvalname, {})[key] = value
                     continue
-                elif isinstance(defvalue, list):
-                    config[valname] = value.split(',')
-                elif isinstance(defvalue, integer_types):
-                    try:
-                        config[valname] = int(value)
-                    except ValueError:
-                        warn('invalid number %r for config value %r, ignoring'
-                             % (value, valname))
-                elif hasattr(defvalue, '__call__'):
-                    config[valname] = value
-                elif defvalue is not None and not isinstance(defvalue, string_types):
-                    warn('cannot override config setting %r with unsupported '
-                         'type, ignoring' % valname)
+                elif valname not in self.values:
+                    warn('unknown config value %r in override, ignoring' % valname)
+                    continue
+                if isinstance(value, string_types):
+                    config[valname] = self.convert_overrides(valname, value)
                 else:
                     config[valname] = value
-            else:
-                config[valname] = value
+            except ValueError as exc:
+                warn(exc)
         for name in config:
             if name in self.values:
                 self.__dict__[name] = config[name]
