@@ -326,7 +326,6 @@
     % itemize/enumerate are therein typeset more tightly, we want to keep
     % that). We copy-paste from LaTeX source code but don't do a real minipage.
     \@pboxswfalse
-    \@parboxrestore
        % for footnotes, but Sphinx inactivates footnotes in topics
        \def\@mpfn{mpfootnote}\def\thempfn{\thempfootnote}\c@mpfootnote\z@
        \let\@footnotetext\@mpfootnotetext
@@ -419,18 +418,21 @@
    % as for "light" boxes. We need for this to manually insert parskip glue and
    % revert a skip done by framed before the frame.
     \setlength{\OuterFrameSep}{0pt}
-    \vspace{\dimexpr\FrameHeightAdjust+\parskip\relax}
+    \vspace{\FrameHeightAdjust}
    % copied/adapted from framed.sty's snugshade
    \def\FrameCommand##1{\hskip\@totalleftmargin
        \fboxsep\FrameSep \fboxrule\FrameRule\fbox{##1}%
        \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
    % use a minipage if we are already inside a framed environment
-   \ifSphinx@inframed\noindent\begin{minipage}{\linewidth}\fi
+   \ifSphinx@inframed
+       \noindent\begin{minipage}{\linewidth}
+   \else
+       \vspace{\parskip}
+   \fi
    \MakeFramed {\Sphinx@inframedtrue
      \advance\hsize-\width \@totalleftmargin\z@ \linewidth\hsize
      % minipage initialization copied from LaTeX source code.
      \@pboxswfalse
-     \@parboxrestore
        % for footnotes
        \def\@mpfn{mpfootnote}\def\thempfn{\thempfootnote}\c@mpfootnote\z@
        \let\@footnotetext\@mpfootnotetext
