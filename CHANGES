@@ -5,6 +5,10 @@ Features added
 --------------
 
 * Now :confval:`suppress_warnings` accepts following configurations: ``app.add_node``, ``app.add_directive``, ``app.add_role`` and ``app.add_generic_role`` (ref: #2451)
+* LaTeX writer allows page breaks in topic contents; and their horizontal
+  extent now fits in the line width (shadow in margin). Warning-type
+  admonitions allow page breaks (if very long) and their vertical spacing
+  has been made more coherent with the one for Hint-type notices.
 
 Bugs fixed
 ----------
@@ -16,6 +20,7 @@ Bugs fixed
 * #2397: Setup shorthandoff for turkish documents
 * #2447: VerbatimBorderColor wrongly used also for captions of PDF
 * #2456: C++, fix crash related to document merging (e.g., singlehtml and Latex builders).
+* #2446: latex(pdf) sets local tables of contents (or more generally topic nodes) in unbreakable boxes, causes overflow at bottom
 
 
 Release 1.4.1 (released Apr 12, 2016)
