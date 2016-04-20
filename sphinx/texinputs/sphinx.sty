@@ -186,9 +186,11 @@
 \newcommand*\SphinxLiteralBlockLabel {}
 \newcommand*\SphinxSetupCaptionForVerbatim [2]
 {%
-    \needspace{\literalblockneedspace}\vspace{\literalblockcaptiontopvspace}%
+    \needspace{\literalblockneedspace}%
 % insert a \label via \SphinxLiteralBlockLabel
 % reset to normal the color for the literal block caption
+% the caption inserts \abovecaptionskip whitespace above itself (usually 10pt)
+% there is also \belowcaptionskip but it is usually zero, hence the \smallskip
     \def\SphinxVerbatimTitle
        {\py@NormalColor\captionof{#1}{\SphinxLiteralBlockLabel #2}\smallskip }%
 }
@@ -281,8 +283,6 @@
 \renewcommand{\Verbatim}[1][1]{%
   % list starts new par, but we don't want it to be set apart vertically
   \parskip\z@skip
-  % in case of caption there was already \literalblockcaptiontopvspace
-  % plus there will be additionally \abovecaptionskip. Don't do \smallskip then.
   % first, let's check if there is a caption
   \ifx\SphinxVerbatimTitle\empty
       % there was no caption. Check if nevertheless a label was set.
@@ -818,9 +818,6 @@
 % control caption around literal-block
 \RequirePackage{capt-of}
 \RequirePackage{needspace}
-% if the left page space is less than \literalblockneedsapce, insert page-break
+% if the left page space is less than \literalblockneedspace, insert page-break
 \newcommand{\literalblockneedspace}{5\baselineskip}
 \newcommand{\literalblockwithoutcaptionneedspace}{1.5\baselineskip}
-% margin before the caption of literal-block
-% this will cumulate with \abovecaptionskip !
-\newcommand{\literalblockcaptiontopvspace}{0.5\baselineskip}
