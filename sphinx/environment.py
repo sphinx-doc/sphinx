@@ -75,7 +75,7 @@ default_settings = {
 # or changed to properly invalidate pickle files.
 #
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
-ENV_VERSION = 47 + (sys.version_info[0] - 2)
+ENV_VERSION = 48 + (sys.version_info[0] - 2)
 
 
 dummy_reporter = Reporter('', 4, 4)
