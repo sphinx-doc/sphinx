@@ -214,8 +214,7 @@ class DocTestBuilder(Builder):
 
     def init(self):
         # default options
-        self.opt = doctest.DONT_ACCEPT_TRUE_FOR_1 | doctest.ELLIPSIS | \
-            doctest.IGNORE_EXCEPTION_DETAIL
+        self.opt = self.config.doctest_default_flags
 
         # HACK HACK HACK
         # doctest compiles its snippets with type 'single'. That is nice
@@ -464,4 +463,8 @@ def setup(app):
     app.add_config_value('doctest_test_doctest_blocks', 'default', False)
     app.add_config_value('doctest_global_setup', '', False)
     app.add_config_value('doctest_global_cleanup', '', False)
+    app.add_config_value(
+        'doctest_default_flags',
+        [doctest.DONT_ACCEPT_TRUE_FOR_1 | doctest.ELLIPSIS | doctest.IGNORE_EXCEPTION_DETAIL],
+        False)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
