@@ -21,6 +21,7 @@ Bugs fixed
 * #2447: VerbatimBorderColor wrongly used also for captions of PDF
 * #2456: C++, fix crash related to document merging (e.g., singlehtml and Latex builders).
 * #2446: latex(pdf) sets local tables of contents (or more generally topic nodes) in unbreakable boxes, causes overflow at bottom
+* #2476: Omit MathJax markers if :nowrap: is given
 
 
 Release 1.4.1 (released Apr 12, 2016)
