@@ -103,7 +103,8 @@ class Theme(object):
             if name not in self.themes:
                 if name == 'sphinx_rtd_theme':
                     raise ThemeError('sphinx_rtd_theme is no longer a hard dependency '
-                                     'since version 1.4.0. Please install it manually.')
+                                     'since version 1.4.0. Please install it manually '
+                                     '(pip install sphinx_rtd_theme)')
                 else:
                     raise ThemeError('no theme named %r found '
                                      '(missing theme.conf?)' % name)
