@@ -68,6 +68,7 @@ HTML_XPATH = {
         (".//img[@src='_images/img1.png']", ''),
         (".//img[@src='_images/simg.png']", ''),
         (".//img[@src='_images/svgimg.svg']", ''),
+        (".//a[@href='_sources/images.txt']", ''),
     ],
     'subdir/images.html': [
         (".//img[@src='../_images/img1.png']", ''),
@@ -318,6 +319,7 @@ HTML_XPATH = {
     ],
     'otherext.html': [
         (".//h1", "Generated section"),
+        (".//a[@href='_sources/otherext.txt']", ''),
     ]
 }
 
