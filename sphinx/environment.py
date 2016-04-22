@@ -1911,6 +1911,10 @@ class BuildEnvironment:
         traversed = set()
 
         def traverse_toctree(parent, docname):
+            if parent == docname:
+                self.warn(docname, 'self referenced toctree found. Ignored.')
+                return
+
             # traverse toctree by pre-order
             yield parent, docname
             traversed.add(docname)
