@@ -137,7 +137,7 @@ class LaTeXBuilder(Builder):
         tree = self.env.get_doctree(indexfile)
         contentsname = None
         for toctree in tree.traverse(addnodes.toctree):
-            if toctree['caption']:
+            if 'caption' in toctree:
                 contentsname = toctree['caption']
                 break
 
