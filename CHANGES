@@ -4,7 +4,15 @@ Release 1.4.2 (in development)
 Features added
 --------------
 
-* Now :confval:`suppress_warnings` accepts following configurations: ``app.add_node``, ``app.add_directive``, ``app.add_role`` and ``app.add_generic_role`` (ref: #2451)
+* Now :confval:`suppress_warnings` accepts following configurations (ref: #2451, #2466):
+
+  - ``app.add_node``
+  - ``app.add_directive``
+  - ``app.add_role``
+  - ``app.add_generic_role``
+  - ``image.data_uri``
+  - ``image.nonlocal_uri``
+
 * LaTeX writer allows page breaks in topic contents; and their horizontal
   extent now fits in the line width (shadow in margin). Warning-type
   admonitions allow page breaks (if very long) and their vertical spacing

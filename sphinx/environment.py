@@ -908,11 +908,13 @@ class BuildEnvironment:
             node['candidates'] = candidates = {}
             imguri = node['uri']
             if imguri.startswith('data:'):
-                self.warn_node('image data URI found. some builders might not support', node)
+                self.warn_node('image data URI found. some builders might not support', node,
+                               type='image', subtype='data_uri')
                 candidates['?'] = imguri
                 continue
             elif imguri.find('://') != -1:
-                self.warn_node('nonlocal image URI found: %s' % imguri, node)
+                self.warn_node('nonlocal image URI found: %s' % imguri, node,
+                               type='image', subtype='nonlocal_uri')
                 candidates['?'] = imguri
                 continue
             rel_imgpath, full_imgpath = self.relfn2path(imguri, docname)
