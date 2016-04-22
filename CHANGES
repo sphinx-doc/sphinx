@@ -30,6 +30,7 @@ Features added
   extent now fits in the line width (shadow in margin). Warning-type
   admonitions allow page breaks (if very long) and their vertical spacing
   has been made more coherent with the one for Hint-type notices.
+* Convert linkcheck builder to requests for better encoding handling
 
 Bugs fixed
 ----------
