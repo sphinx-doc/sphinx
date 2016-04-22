@@ -32,6 +32,7 @@ Bugs fixed
 * #2476: Omit MathJax markers if :nowrap: is given
 * #2465: latex builder fails in case no caption option is provided to toctree directive
 * Sphinx crashes if self referenced toctree found
+* #2481: spelling mistake for mecab search splitter. Thanks to Naoki Sato.
 
 
 Release 1.4.1 (released Apr 12, 2016)
