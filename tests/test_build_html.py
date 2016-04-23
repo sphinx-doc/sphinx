@@ -1012,3 +1012,16 @@ def test_html_extra_path(app, status, warning):
     assert (app.outdir / 'rimg.png').exists()
     assert not (app.outdir / '_build/index.html').exists()
     assert (app.outdir / 'background.png').exists()
+
+
+@with_app(buildername='html',
+          confoverrides={'html_sourcelink_keep_suffix': True})
+def test_html_sourcelink_keep_suffix(app, status, warning):
+    app.builder.build_all()
+    content_otherext = (app.outdir / 'otherext.html').text()
+    content_images = (app.outdir / 'images.html').text()
+
+    assert '<a href="_sources/otherext.foo"' in content_otherext
+    assert '<a href="_sources/images.txt"' in content_images
+    assert (app.outdir / '_sources' / 'otherext.foo').exists()
+    assert (app.outdir / '_sources' / 'images.txt').exists()

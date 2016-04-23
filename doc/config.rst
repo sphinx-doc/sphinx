@@ -844,6 +844,13 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 0.6
 
+.. confval:: html_sourcelink_keep_suffix
+
+   If false, the suffix of source links is changed to ``.txt`` (see
+   :confval:`html_show_sourcelink`).  Default is ``False``.
+
+   .. versionadded:: 1.5
+
 .. confval:: html_use_opensearch
 
    If nonempty, an `OpenSearch <http://www.opensearch.org/Home>`_ description file will be
