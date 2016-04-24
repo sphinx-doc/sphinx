@@ -56,12 +56,9 @@ names.
 .. rst:directive:: .. doctest:: [group]
 
    A doctest-style code block.  You can use standard :mod:`doctest` flags for
-   controlling how actual output is compared with what you give as output.  By
-   default, these options are enabled: ``ELLIPSIS`` (allowing you to put
-   ellipses in the expected output that match anything in the actual output),
-   ``IGNORE_EXCEPTION_DETAIL`` (not comparing tracebacks),
-   ``DONT_ACCEPT_TRUE_FOR_1`` (by default, doctest accepts "True" in the output
-   where "1" is given -- this is a relic of pre-Python 2.2 times).
+   controlling how actual output is compared with what you give as output.  The
+   default set of flags is specified by the :confval:`doctest_default_flags`
+   configuration variable.
 
    This directive supports two options:
 
@@ -175,6 +172,20 @@ The following is an example for the usage of the directives.  The test via
 
 
 There are also these config values for customizing the doctest extension:
+
+.. confval:: doctest_default_flags
+
+   By default, these options are enabled:
+   
+   - ``ELLIPSIS``, allowing you to put ellipses in the expected output that
+     match anything in the actual output;
+   - ``IGNORE_EXCEPTION_DETAIL``, causing everything following the leftmost
+     colon and any module information in the exception name to be ignored;
+   - ``DONT_ACCEPT_TRUE_FOR_1``, rejecting "True" in the output where "1" is
+     given -- the default behavior of accepting this substitution is a relic of
+     pre-Python 2.2 times.
+
+   .. versionadded:: 1.5
 
 .. confval:: doctest_path
 

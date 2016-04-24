@@ -11,6 +11,7 @@ Features added
 
 * Add ``:caption:`` option for sphinx.ext.inheritance_diagram.
 * #894: Add ``lualatexpdf`` and ``xelatexpdf`` as a make target to build PDF using lualatex or xelatex
+* #2471: Add config variable for default doctest flags.
 
 Bugs fixed
 ----------
