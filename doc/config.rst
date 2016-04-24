@@ -222,6 +222,7 @@ General configuration
    * app.add_directive
    * app.add_role
    * app.add_generic_role
+   * app.add_source_parser
    * image.data_uri
    * image.nonlocal_uri
    * ref.term
