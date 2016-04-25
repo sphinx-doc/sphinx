@@ -199,6 +199,16 @@ class TestStripBasicAuth(unittest.TestCase):
         self.assertEqual(None, actual_username)
         self.assertEqual(None, actual_password)
 
+    def test_having_port(self):
+        """basic auth creds correctly stripped from URL containing creds even if URL
+        contains port"""
+        url = 'https://user:12345@domain.com:8080/project/objects.inv'
+        expected = 'https://domain.com:8080/project/objects.inv'
+        actual_url, actual_username, actual_password = _strip_basic_auth(url)
+        self.assertEqual(expected, actual_url)
+        self.assertEqual('user', actual_username)
+        self.assertEqual('12345', actual_password)
+
 
 @mock.patch('six.moves.urllib.request.HTTPBasicAuthHandler')
 @mock.patch('six.moves.urllib.request.HTTPPasswordMgrWithDefaultRealm')

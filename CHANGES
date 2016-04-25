@@ -35,6 +35,7 @@ Bugs fixed
 * Sphinx crashes if self referenced toctree found
 * #2481: spelling mistake for mecab search splitter. Thanks to Naoki Sato.
 * #2309: Fix could not refer "indirect hyperlink targets" by ref-role
+* intersphinx fails if mapping URL contains any port
 
 
 Release 1.4.1 (released Apr 12, 2016)
