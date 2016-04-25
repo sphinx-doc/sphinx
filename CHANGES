@@ -27,7 +27,16 @@ Release 1.4.2 (in development)
 Features added
 --------------
 
-* Now :confval:`suppress_warnings` accepts following configurations: ``app.add_node``, ``app.add_directive``, ``app.add_role`` and ``app.add_generic_role`` (ref: #2451)
+* Now :confval:`suppress_warnings` accepts following configurations (ref: #2451, #2466):
+
+  - ``app.add_node``
+  - ``app.add_directive``
+  - ``app.add_role``
+  - ``app.add_generic_role``
+  - ``app.add_source_parser``
+  - ``image.data_uri``
+  - ``image.nonlocal_uri``
+
 * LaTeX writer allows page breaks in topic contents; and their horizontal
   extent now fits in the line width (shadow in margin). Warning-type
   admonitions allow page breaks (if very long) and their vertical spacing
@@ -45,6 +54,11 @@ Bugs fixed
 * #2447: VerbatimBorderColor wrongly used also for captions of PDF
 * #2456: C++, fix crash related to document merging (e.g., singlehtml and Latex builders).
 * #2446: latex(pdf) sets local tables of contents (or more generally topic nodes) in unbreakable boxes, causes overflow at bottom
+* #2476: Omit MathJax markers if :nowrap: is given
+* #2465: latex builder fails in case no caption option is provided to toctree directive
+* Sphinx crashes if self referenced toctree found
+* #2481: spelling mistake for mecab search splitter. Thanks to Naoki Sato.
+* #2309: Fix could not refer "indirect hyperlink targets" by ref-role
 
 
 Release 1.4.1 (released Apr 12, 2016)
