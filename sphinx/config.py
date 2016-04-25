@@ -57,7 +57,7 @@ class Config(object):
         today_fmt = (None, 'env', string_classes),
 
         language = (None, 'env', string_classes),
-        locale_dirs = ([], 'env'),
+        locale_dirs = (['locales'], 'env'),
         figure_language_filename = (u'{root}.{language}{ext}', 'env', [str]),
 
         master_doc = ('contents', 'env'),
