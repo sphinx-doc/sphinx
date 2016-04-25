@@ -16,8 +16,11 @@ Features added
 
 * LaTeX writer allows page breaks in topic contents; and their horizontal
   extent now fits in the line width (shadow in margin). Warning-type
-  admonitions allow page breaks (if very long) and their vertical spacing
-  has been made more coherent with the one for Hint-type notices.
+  admonitions allow page breaks and their vertical spacing has been made
+  more coherent with the one for Hint-type notices.
+
+* The framing of literal code-blocks in LaTeX output (and not only the code
+  lines themselves) obey the indentation context in lists or quoted blocks.
 
 Bugs fixed
 ----------

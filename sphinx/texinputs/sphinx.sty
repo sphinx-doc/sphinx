@@ -168,12 +168,12 @@
 
 \newcommand\Sphinx@colorbox [2]{%
 % #1 will be \fcolorbox or, for first part of frame: \Sphinx@fcolorbox
-  #1{VerbatimBorderColor}{VerbatimColor}{%
-  % adjust width to be able to handle indentation.
-  \begin{minipage}{\dimexpr\linewidth-\@totalleftmargin\relax}%
-    #2%
-  \end{minipage}%
-  }%
+% let the framing obey the current indentation (adapted from framed.sty's code).
+  \hskip\@totalleftmargin
+  \hskip-\fboxsep\hskip-\fboxrule
+  #1{VerbatimBorderColor}{VerbatimColor}{#2}%
+  \hskip-\fboxsep\hskip-\fboxrule
+  \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
 }
 % use of \color@b@x here is compatible with both xcolor.sty and color.sty
 \def\Sphinx@fcolorbox #1#2%
@@ -200,12 +200,22 @@
 \long\def\Sphinx@VerbatimFBox#1{%
   \leavevmode
   \begingroup
+  % framed.sty does some measuring but this macro adds possibly a caption
+  % use amsmath conditional to inhibit the caption counter stepping after
+  % first pass
   \ifSphinx@myfirstframedpass\else\firstchoice@false\fi
   \setbox\@tempboxa\hbox{\kern\fboxsep{#1}\kern\fboxsep}%
    \hbox
    {\lower\dimexpr\fboxrule+\fboxsep+\dp\@tempboxa
     \hbox{%
-      \vbox{\ifx\SphinxVerbatimTitle\empty\else{\SphinxVerbatimTitle}\fi
+      \vbox{\ifx\SphinxVerbatimTitle\empty\else
+            % add the caption in a centered way above possibly indented frame
+            % hide its width from framed.sty's measuring step
+            % note that the caption brings \abovecaptionskip top vertical space
+            \moveright\dimexpr\fboxrule+.5\wd\@tempboxa
+                  \hb@xt@\z@{\hss\begin{minipage}{\wd\@tempboxa}%
+                                  \SphinxVerbatimTitle
+                                 \end{minipage}\hss}\fi
             \hrule\@height\fboxrule\relax
             \hbox{\vrule\@width\fboxrule\relax
                   \vbox{\vskip\fboxsep\copy\@tempboxa\vskip\fboxsep}%
@@ -213,17 +223,18 @@
             \hrule\@height\fboxrule\relax}%
    }}%
   \endgroup
-  % amsmath conditional inhibits counter stepping after first pass.
   \global\Sphinx@myfirstframedpassfalse
 }
 
 \renewcommand{\Verbatim}[1][1]{%
   % list starts new par, but we don't want it to be set apart vertically
   \parskip\z@skip
-  \smallskip
+  % in case of caption there was already \literalblockcaptiontopvspace
+  % plus there will be additionally \abovecaptionskip. Don't do \smallskip then.
   % first, let's check if there is a caption
   \ifx\SphinxVerbatimTitle\empty
       % there was no caption. Check if nevertheless a label was set.
+      \smallskip
       \ifx\SphinxLiteralBlockLabel\empty\else
       % we require some space to be sure hyperlink target from \phantomsection
       % will not be separated from upcoming verbatim by a page break
@@ -240,8 +251,9 @@
   % for mid pages and last page portion of (long) split frame:
   \def\MidFrameCommand{\Sphinx@colorbox\fcolorbox }%
   \let\LastFrameCommand\MidFrameCommand
-  % The list environement is needed to control perfectly the vertical
-  % space.
+  % The list environment is needed to control perfectly the vertical space.
+  % Note: \OuterFrameSep used by framed.sty is later set to \topsep hence 0pt.
+  % If caption, there is \literalcaptiontopvspace + \abovecaptionskip vertical space
   \list{}{%
   \setlength\parskip{0pt}%
   \setlength\itemsep{0ex}%
@@ -253,13 +265,15 @@
   \item
   % use a minipage if we are already inside a framed environment
   \relax\ifSphinx@inframed\noindent\begin{\minipage}{\linewidth}\fi
-     \MakeFramed {\FrameRestore}%
+     \MakeFramed {% adapted over from framed.sty's snugshade environment
+    \advance\hsize-\width\@totalleftmargin\z@\linewidth\hsize
+    \@setminipage  }%
      \small
     \OriginalVerbatim[#1]%
 }
 \renewcommand{\endVerbatim}{%
   \endOriginalVerbatim
-  \endMakeFramed
+  \par\unskip\@minipagefalse\endMakeFramed
   \ifSphinx@inframed\end{minipage}\fi
   \endlist
   % LaTeX environments always revert local changes on exit, here e.g. \parskip
@@ -345,6 +359,7 @@
      \ifSphinx@inframed\end{minipage}\fi
    \endtrivlist
   }
+
 
 % \moduleauthor{name}{email}
 \newcommand{\moduleauthor}[2]{}
@@ -727,4 +742,5 @@
 \newcommand{\literalblockneedspace}{5\baselineskip}
 \newcommand{\literalblockwithoutcaptionneedspace}{1.5\baselineskip}
 % margin before the caption of literal-block
+% this will cumulate with \abovecaptionskip !
 \newcommand{\literalblockcaptiontopvspace}{0.5\baselineskip}
