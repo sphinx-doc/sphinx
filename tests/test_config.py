@@ -38,7 +38,7 @@ def test_core_config(app, status, warning):
 
     # simple default values
     assert 'locale_dirs' not in cfg.__dict__
-    assert cfg.locale_dirs == []
+    assert cfg.locale_dirs == ['locales']
     assert cfg.trim_footnote_reference_space is False
 
     # complex default values
