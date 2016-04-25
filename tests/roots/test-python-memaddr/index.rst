@@ -1,13 +1,13 @@
-.. test-domain-py documentation master file
+.. test-python-memaddr documentation master file
 
-test-domain-py
-==============
+test-python-memaddr
+===================
 
 Let us see if some memory address shows in the doc...
 
 .. automodule:: util
 
-.. automodule:: test_domain_py
+.. automodule:: test_python_memaddr
 
 .. autoclass:: MyClass
    :members:
