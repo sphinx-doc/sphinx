@@ -14,13 +14,16 @@ Features added
   - ``image.data_uri``
   - ``image.nonlocal_uri``
 
-* LaTeX writer allows page breaks in topic contents; and their horizontal
-  extent now fits in the line width (shadow in margin). Warning-type
-  admonitions allow page breaks and their vertical spacing has been made
-  more coherent with the one for Hint-type notices.
+* #2453: LaTeX writer allows page breaks in topic contents; and their
+  horizontal extent now fits in the line width (with shadow in margin). Also
+  warning-type admonitions allow page breaks and their vertical spacing has
+  been made more coherent with the one for hint-type notices (ref #2446).
 
-* The framing of literal code-blocks in LaTeX output (and not only the code
-  lines themselves) obey the indentation context in lists or quoted blocks.
+* #2459: the framing of literal code-blocks in LaTeX output (and not only the
+  code lines themselves) obey the indentation in lists or quoted blocks.
+
+* #2343: the long source lines in code-blocks are wrapped (without modifying
+   the line numbering) in LaTeX output (ref #1534, #2304).
 
 Bugs fixed
 ----------
@@ -40,6 +43,8 @@ Bugs fixed
 * #2309: Fix could not refer "indirect hyperlink targets" by ref-role
 * intersphinx fails if mapping URL contains any port
 * #2088: intersphinx crashes if the mapping URL requires basic auth
+* #2304: auto line breaks in latexpdf codeblocks
+* #1534: Word wrap long lines in Latex verbatim blocks
 
 
 Release 1.4.1 (released Apr 12, 2016)
