@@ -74,7 +74,7 @@ class Sphinx(object):
     def __init__(self, srcdir, confdir, outdir, doctreedir, buildername,
                  confoverrides=None, status=sys.stdout, warning=sys.stderr,
                  freshenv=False, warningiserror=False, tags=None, verbosity=0,
-                 parallel=0):
+                 builderclass=None, parallel=0):
         self.verbosity = verbosity
         self.next_listener_id = 0
         self._extensions = {}
@@ -121,6 +121,9 @@ class Sphinx(object):
 
         # status code for command-line application
         self.statuscode = 0
+
+        if builderclass:
+            self.add_builder(builderclass)
 
         if not path.isdir(outdir):
             self.info('making output directory...')
