@@ -226,6 +226,58 @@
   \global\Sphinx@myfirstframedpassfalse
 }
 
+% For linebreaks inside Verbatim environment from package fancyvrb.
+\newbox\Sphinxcontinuationbox
+\newbox\Sphinxvisiblespacebox
+% These are user customizable e.g. from latex_elements's preamble key.
+% Use of \textvisiblespace for compatibility with XeTeX/LuaTeX/fontspec.
+\newcommand*\Sphinxvisiblespace {\textcolor{red}{\textvisiblespace}}
+\newcommand*\Sphinxcontinuationsymbol {\textcolor{red}{\llap{\tiny$\m@th\hookrightarrow$}}}
+\newcommand*\Sphinxcontinuationindent {3ex }
+\newcommand*\Sphinxafterbreak {\kern\Sphinxcontinuationindent\copy\Sphinxcontinuationbox}
+
+% Take advantage of the already applied Pygments mark-up to insert
+% potential linebreaks for TeX processing.
+%        {, <, #, %, $, ' and ": go to next line.
+%        _, }, ^, &, >, - and ~: stay at end of broken line.
+% Use of \textquotesingle for straight quote.
+\newcommand*\Sphinxbreaksatspecials {%
+    \def\PYGZus{\discretionary{\char`\_}{\Sphinxafterbreak}{\char`\_}}%
+    \def\PYGZob{\discretionary{}{\Sphinxafterbreak\char`\{}{\char`\{}}%
+    \def\PYGZcb{\discretionary{\char`\}}{\Sphinxafterbreak}{\char`\}}}%
+    \def\PYGZca{\discretionary{\char`\^}{\Sphinxafterbreak}{\char`\^}}%
+    \def\PYGZam{\discretionary{\char`\&}{\Sphinxafterbreak}{\char`\&}}%
+    \def\PYGZlt{\discretionary{}{\Sphinxafterbreak\char`\<}{\char`\<}}%
+    \def\PYGZgt{\discretionary{\char`\>}{\Sphinxafterbreak}{\char`\>}}%
+    \def\PYGZsh{\discretionary{}{\Sphinxafterbreak\char`\#}{\char`\#}}%
+    \def\PYGZpc{\discretionary{}{\Sphinxafterbreak\char`\%}{\char`\%}}%
+    \def\PYGZdl{\discretionary{}{\Sphinxafterbreak\char`\$}{\char`\$}}%
+    \def\PYGZhy{\discretionary{\char`\-}{\Sphinxafterbreak}{\char`\-}}%
+    \def\PYGZsq{\discretionary{}{\Sphinxafterbreak\textquotesingle}{\textquotesingle}}%
+    \def\PYGZdq{\discretionary{}{\Sphinxafterbreak\char`\"}{\char`\"}}%
+    \def\PYGZti{\discretionary{\char`\~}{\Sphinxafterbreak}{\char`\~}}%
+}
+
+% Some characters . , ; ? ! / are not pygmentized.
+% This macro makes them "active" and they will insert potential linebreaks
+\newcommand*\Sphinxbreaksatpunct {%
+   \lccode`\~`\.\lowercase{\def~}{\discretionary{\char`\.}{\Sphinxafterbreak}{\char`\.}}%
+   \lccode`\~`\,\lowercase{\def~}{\discretionary{\char`\,}{\Sphinxafterbreak}{\char`\,}}%
+   \lccode`\~`\;\lowercase{\def~}{\discretionary{\char`\;}{\Sphinxafterbreak}{\char`\;}}%
+   \lccode`\~`\:\lowercase{\def~}{\discretionary{\char`\:}{\Sphinxafterbreak}{\char`\:}}%
+   \lccode`\~`\?\lowercase{\def~}{\discretionary{\char`\?}{\Sphinxafterbreak}{\char`\?}}%
+   \lccode`\~`\!\lowercase{\def~}{\discretionary{\char`\!}{\Sphinxafterbreak}{\char`\!}}%
+   \lccode`\~`\/\lowercase{\def~}{\discretionary{\char`\/}{\Sphinxafterbreak}{\char`\/}}%
+   \catcode`\.\active
+   \catcode`\,\active
+   \catcode`\;\active
+   \catcode`\:\active
+   \catcode`\?\active
+   \catcode`\!\active
+   \catcode`\/\active
+   \lccode`\~`\~
+}
+
 \renewcommand{\Verbatim}[1][1]{%
   % list starts new par, but we don't want it to be set apart vertically
   \parskip\z@skip
@@ -251,6 +303,31 @@
   % for mid pages and last page portion of (long) split frame:
   \def\MidFrameCommand{\Sphinx@colorbox\fcolorbox }%
   \let\LastFrameCommand\MidFrameCommand
+  % fancyvrb's Verbatim puts each input line in (unbreakable) horizontal boxes.
+  % This customization wraps each line from the input in a \vtop, thus
+  % allowing it to wrap and display on two or more lines in the latex output.
+  %     - The codeline counter will be increased only once.
+  %     - The wrapped material will not break across pages, it is impossible
+  %       to achieve this without extensive rewrite of fancyvrb.
+  %     - The (not used in Sphinx) obeytabs option to Verbatim is
+  %       broken by this change (showtabs and tabspace work).
+  \sbox\Sphinxcontinuationbox {\Sphinxcontinuationsymbol}%
+  \sbox\Sphinxvisiblespacebox {\FV@SetupFont\Sphinxvisiblespace}%
+  \def\FancyVerbFormatLine ##1{\hsize\linewidth
+          \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
+                \doublehyphendemerits\z@\finalhyphendemerits\z@
+                \strut ##1\strut}%
+          }%
+  % If the linebreak is at a space, the latter will be displayed as visible
+  % space at end of first line, and a continuation symbol starts next line.
+  % Stretch/shrink are however usually zero for typewriter font.
+  \def\FV@Space {%
+       \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
+       \discretionary{\copy\Sphinxvisiblespacebox}{\Sphinxafterbreak}
+                     {\kern\fontdimen2\font}%
+       }%
+  % Allow breaks at special characters using \PYG... macros.
+  \Sphinxbreaksatspecials
   % The list environment is needed to control perfectly the vertical space.
   % Note: \OuterFrameSep used by framed.sty is later set to \topsep hence 0pt.
   % If caption, there is \literalcaptiontopvspace + \abovecaptionskip vertical space
@@ -269,7 +346,10 @@
     \advance\hsize-\width\@totalleftmargin\z@\linewidth\hsize
     \@setminipage  }%
      \small
-    \OriginalVerbatim[#1]%
+     % For grid placement from \strut's in \FancyVerbFormatLine
+     \lineskip\z@skip
+     % Breaks at punctuation characters . , ; ? ! and / need catcode=\active
+     \OriginalVerbatim[#1,codes*=\Sphinxbreaksatpunct]%
 }
 \renewcommand{\endVerbatim}{%
   \endOriginalVerbatim
