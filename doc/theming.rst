@@ -51,7 +51,7 @@ The third form provides your theme path dynamically to Sphinx if the
 called ``sphinx_themes`` in your setup.py file and write a ``get_path`` function
 that has to return the directory with themes in it::
 
-    // in your 'setup.py'
+    # 'setup.py'
 
     setup(
         ...
@@ -63,7 +63,7 @@ that has to return the directory with themes in it::
         ...
     )
 
-    // in 'your_package.py'
+    # 'your_package.py'
 
     from os import path
     package_dir = path.abspath(path.dirname(__file__))
