@@ -14,7 +14,6 @@
 from docutils import nodes
 
 import sphinx
-from sphinx.application import ExtensionError
 from sphinx.errors import ExtensionError
 from sphinx.ext.mathbase import setup_math as mathbase_setup
 
