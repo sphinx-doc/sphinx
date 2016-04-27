@@ -23,7 +23,7 @@ from six import text_type
 from docutils import nodes
 
 import sphinx
-from sphinx.errors import SphinxError
+from sphinx.errors import SphinxError, ExtensionError
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.osutil import ensuredir, ENOENT, cd
 from sphinx.util.pycompat import sys_encoding
@@ -239,7 +239,11 @@ def html_visit_displaymath(self, node):
 
 def setup(app):
     app.warn('sphinx.ext.pngmath has been deprecated. Please use sphinx.ext.imgmath instead.')
-    mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
+    try:
+        mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
+    except ExtensionError:
+        raise ExtensionError('sphinx.ext.mathjax: other math package is already installed')
+
     app.add_config_value('pngmath_dvipng', 'dvipng', 'html')
     app.add_config_value('pngmath_latex', 'latex', 'html')
     app.add_config_value('pngmath_use_preview', False, 'html')

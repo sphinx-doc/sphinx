@@ -15,6 +15,7 @@ from docutils import nodes
 
 import sphinx
 from sphinx.application import ExtensionError
+from sphinx.errors import ExtensionError
 from sphinx.ext.mathbase import setup_math as mathbase_setup
 
 
@@ -63,7 +64,11 @@ def builder_inited(app):
 
 
 def setup(app):
-    mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
+    try:
+        mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
+    except ExtensionError:
+        raise ExtensionError('sphinx.ext.mathjax: other math package is already installed')
+
     # more information for mathjax secure url is here:
     # http://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
     app.add_config_value('mathjax_path',
@@ -72,4 +77,5 @@ def setup(app):
     app.add_config_value('mathjax_inline', [r'\(', r'\)'], 'html')
     app.add_config_value('mathjax_display', [r'\[', r'\]'], 'html')
     app.connect('builder-inited', builder_inited)
+
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

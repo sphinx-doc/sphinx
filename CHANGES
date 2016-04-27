@@ -46,6 +46,7 @@ Bugs fixed
 * #2304: auto line breaks in latexpdf codeblocks
 * #1534: Word wrap long lines in Latex verbatim blocks
 * #2460: too much white space on top of captioned literal blocks in PDF output
+* Show error reason when multiple math extensions are loaded (ref: #2499)
 
 
 Release 1.4.1 (released Apr 12, 2016)
