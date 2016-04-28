@@ -270,7 +270,7 @@ def setup(app):
     try:
         mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
     except ExtensionError:
-        raise ExtensionError('sphinx.ext.imgmath: other math package is already installed')
+        raise ExtensionError('sphinx.ext.imgmath: other math package is already loaded')
 
     app.add_config_value('imgmath_image_format', 'png', 'html')
     app.add_config_value('imgmath_dvipng', 'dvipng', 'html')

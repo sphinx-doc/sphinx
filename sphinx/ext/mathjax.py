@@ -66,7 +66,7 @@ def setup(app):
     try:
         mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
     except ExtensionError:
-        raise ExtensionError('sphinx.ext.mathjax: other math package is already installed')
+        raise ExtensionError('sphinx.ext.mathjax: other math package is already loaded')
 
     # more information for mathjax secure url is here:
     # http://docs.mathjax.org/en/latest/start.html#secure-access-to-the-cdn
