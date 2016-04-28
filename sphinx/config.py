@@ -10,7 +10,7 @@
 """
 
 import re
-from os import path, environ
+from os import path, environ, getenv
 import shlex
 
 from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
@@ -19,6 +19,7 @@ from sphinx.errors import ConfigError
 from sphinx.locale import l_
 from sphinx.util.osutil import make_filename, cd
 from sphinx.util.pycompat import execfile_, NoneType
+from sphinx.util.i18n import format_date
 
 nonascii_re = re.compile(br'[\x80-\xff]')
 
@@ -297,6 +298,15 @@ class Config(object):
         # own config values
         self.setup = config.get('setup', None)
         self.extensions = config.get('extensions', [])
+
+        # correct values of copyright year that are not coherent with
+        # the SOURCE_DATE_EPOCH environment variable:
+        if getenv('SOURCE_DATE_EPOCH') is not None:
+            for k in ['copyright','epub_copyright']:
+                if k in config:
+                    config[k] = re.sub('^((\d{4}-)?)(\d{4})(?=[ ,])',
+                                       '\g<1>%s' % format_date('%Y'),
+                                       config[k])
 
     def check_types(self, warn):
         # check all values for deviation from the default value's type, since
