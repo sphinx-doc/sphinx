@@ -11,7 +11,7 @@
 
 from __future__ import unicode_literals
 
-from os import path, walk
+from os import path, walk, getenv
 from codecs import open
 from time import time
 from datetime import datetime, tzinfo, timedelta
@@ -130,7 +130,10 @@ class I18nBuilder(Builder):
 timestamp = time()
 tzdelta = datetime.fromtimestamp(timestamp) - \
     datetime.utcfromtimestamp(timestamp)
-
+source_date_epoch = getenv('SOURCE_DATE_EPOCH')
+if source_date_epoch is not None:
+    timestamp = float(source_date_epoch)
+    tzdelta = 0
 
 class LocalTimeZone(tzinfo):
 
