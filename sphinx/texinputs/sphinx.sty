@@ -279,8 +279,9 @@
   \parskip\z@skip
   % first, let's check if there is a caption
   \ifx\SphinxVerbatimTitle\empty
-      % there was no caption. Check if nevertheless a label was set.
+      \addvspace\z@% counteract possible previous negative skip (French lists!)
       \smallskip
+      % there was no caption. Check if nevertheless a label was set.
       \ifx\SphinxLiteralBlockLabel\empty\else
       % we require some space to be sure hyperlink target from \phantomsection
       % will not be separated from upcoming verbatim by a page break
@@ -547,8 +548,11 @@
   {\parskip\z@skip\noindent}%
   }
 \newcommand{\py@endlightbox}{%
-  \par\nobreak
-  {\parskip\z@skip\noindent\rule[.4\baselineskip]{\linewidth}{0.5pt}}\par
+  \par
+  % counteract previous possible negative skip (French lists!):
+  % (we can't cancel that any earlier \vskip introduced a potential pagebreak)
+  \ifdim\lastskip<\z@\vskip-\lastskip\fi
+  \nobreak\vbox{\noindent\rule[.4\baselineskip]{\linewidth}{0.5pt}}\allowbreak
   }
 
 % Some are quite plain:
