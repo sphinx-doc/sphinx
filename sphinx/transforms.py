@@ -114,7 +114,7 @@ class AutoNumbering(Transform):
         domain = self.document.settings.env.domains['std']
 
         for node in self.document.traverse(nodes.Element):
-            if domain.is_enumerable_node(node) and domain.get_numfig_title(node):
+            if domain.is_enumerable_node(node) and domain.get_numfig_title(node) is not None:
                 self.document.note_implicit_target(node)
 
 
