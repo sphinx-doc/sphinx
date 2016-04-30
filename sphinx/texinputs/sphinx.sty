@@ -324,7 +324,9 @@
   \Sphinxbreaksatspecials
   % The list environment is needed to control perfectly the vertical space.
   % Note: \OuterFrameSep used by framed.sty is later set to \topsep hence 0pt.
-  % If caption, there is \literalcaptiontopvspace + \abovecaptionskip vertical space
+  % - if caption: vertical space above caption = (\abovecaptionskip + D) with
+  %   D = \baselineskip-\FrameHeightAdjust, and then \smallskip above frame.
+  % - if no caption: (\smallskip + D) above frame. By default D=6pt.
   \list{}{%
   \setlength\parskip{0pt}%
   \setlength\itemsep{0ex}%
