@@ -409,7 +409,8 @@ def _skip_member(app, what, name, obj, skip, options):
             inc_init = app.config.napoleon_include_init_with_doc
             inc_special = app.config.napoleon_include_special_with_doc
             inc_private = app.config.napoleon_include_private_with_doc
-            if ((is_special and inc_special) or (is_private and inc_private) or
-                (is_init and inc_init)):
+            if ((is_special and inc_special) or
+                    (is_private and inc_private) or
+                    (is_init and inc_init)):
                 return False
     return skip
