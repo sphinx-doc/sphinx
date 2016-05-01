@@ -52,3 +52,11 @@ def test_objects_are_escaped(app, status, warning):
 
     index = jsdump.loads(searchindex[16:-2])
     assert 'n::Array&lt;T, d&gt;' in index.get('objects').get('')  # n::Array<T,d> is escaped
+
+@with_app(testroot='search')
+def test_meta_keys_are_handled_for_language(app, status, warning):
+    app.builder.build_all()
+    searchindex = (app.outdir / 'searchindex.js').text()
+    assert 'findnotthiskey' not in searchindex
+    assert 'findthiskei' in searchindex
+    assert 'thisonetoo' in searchindex
