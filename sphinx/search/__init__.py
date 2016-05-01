@@ -180,6 +180,17 @@ class WordCollector(NodeVisitor):
         self.found_title_words = []
         self.lang = lang
 
+    def is_meta_keywords(self, node, nodetype):
+        is_meta = str(nodetype) == '<class \'sphinx.addnodes.meta\'>'
+        if is_meta:
+            language_match = re.search(r'lang\=\"(.*?)\"', str(node))
+            is_correct_language =\
+                language_match == None \
+                or self.lang.lang == language_match.group(1)
+            return is_meta and is_correct_language
+        else:
+            return False
+
     def dispatch_visit(self, node):
         nodetype = type(node)
         if issubclass(nodetype, comment):
@@ -197,6 +208,9 @@ class WordCollector(NodeVisitor):
             self.found_words.extend(self.lang.split(node.astext()))
         elif issubclass(nodetype, title):
             self.found_title_words.extend(self.lang.split(node.astext()))
+        elif self.is_meta_keywords(node, nodetype):
+                keywords = re.search(r'content\=\"(.*?)\"', str(node)).group(1)
+                self.found_words.extend(self.lang.split(keywords))
 
 
 class IndexBuilder(object):
@@ -353,7 +367,6 @@ class IndexBuilder(object):
     def feed(self, filename, title, doctree):
         """Feed a doctree to the index."""
         self._titles[filename] = title
-
         visitor = WordCollector(doctree, self.lang)
         doctree.walk(visitor)
 
