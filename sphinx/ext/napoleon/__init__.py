@@ -33,6 +33,7 @@ class Config(object):
         # Napoleon settings
         napoleon_google_docstring = True
         napoleon_numpy_docstring = True
+        napoleon_include_init_with_doc = False
         napoleon_include_private_with_doc = False
         napoleon_include_special_with_doc = False
         napoleon_use_admonition_for_examples = False
@@ -56,6 +57,21 @@ class Config(object):
     napoleon_numpy_docstring : bool, defaults to True
         True to parse `NumPy style`_ docstrings. False to disable support
         for NumPy style docstrings.
+    napoleon_include_init_with_doc : bool, defaults to False
+        True to include init methods (i.e. ``__init___``) with
+        docstrings in the documentation. False to fall back to Sphinx's
+        default behavior.
+
+        **If True**::
+
+            def __init__(self):
+                \"\"\"
+                This will be included in the docs because it has a docstring
+                \"\"\"
+
+            def __init__(self):
+                # This will NOT be included in the docs
+
     napoleon_include_private_with_doc : bool, defaults to False
         True to include private members (like ``_membername``) with docstrings
         in the documentation. False to fall back to Sphinx's default behavior.
@@ -223,6 +239,7 @@ class Config(object):
     _config_values = {
         'napoleon_google_docstring': (True, 'env'),
         'napoleon_numpy_docstring': (True, 'env'),
+        'napoleon_include_init_with_doc': (False, 'env'),
         'napoleon_include_private_with_doc': (False, 'env'),
         'napoleon_include_special_with_doc': (False, 'env'),
         'napoleon_use_admonition_for_examples': (False, 'env'),
@@ -346,8 +363,10 @@ def _skip_member(app, what, name, obj, skip, options):
     """Determine if private and special class members are included in docs.
 
     The following settings in conf.py determine if private and special class
-    members are included in the generated documentation:
+    members or init methods are included in the generated documentation:
 
+    * ``napoleon_include_init_with_doc`` --
+      include init methods if they have docstrings
     * ``napoleon_include_private_with_doc`` --
       include private members if they have docstrings
     * ``napoleon_include_special_with_doc`` --
@@ -384,7 +403,7 @@ def _skip_member(app, what, name, obj, skip, options):
     """
     has_doc = getattr(obj, '__doc__', False)
     is_member = (what == 'class' or what == 'exception' or what == 'module')
-    if name != '__weakref__' and name != '__init__' and has_doc and is_member:
+    if name != '__weakref__' and has_doc and is_member:
         cls_is_owner = False
         if what == 'class' or what == 'exception':
             if PY2:
@@ -417,10 +436,16 @@ def _skip_member(app, what, name, obj, skip, options):
                 cls_is_owner = True
 
         if what == 'module' or cls_is_owner:
-            is_special = name.startswith('__') and name.endswith('__')
-            is_private = not is_special and name.startswith('_')
+            is_init = (name == '__init__')
+            is_special = (not is_init and name.startswith('__') and
+                          name.endswith('__'))
+            is_private = (not is_init and not is_special and
+                          name.startswith('_'))
+            inc_init = app.config.napoleon_include_init_with_doc
             inc_special = app.config.napoleon_include_special_with_doc
             inc_private = app.config.napoleon_include_private_with_doc
-            if (is_special and inc_special) or (is_private and inc_private):
+            if ((is_special and inc_special) or
+                    (is_private and inc_private) or
+                    (is_init and inc_init)):
                 return False
     return skip
