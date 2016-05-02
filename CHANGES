@@ -48,6 +48,7 @@ Bugs fixed
 * #2460: too much white space on top of captioned literal blocks in PDF output
 * Show error reason when multiple math extensions are loaded (ref: #2499)
 * #2483: any figure number was not assigned if figure title contains only non text objects
+* #2501: Unicode subscript numbers are normalized in LaTeX
 
 
 Release 1.4.1 (released Apr 12, 2016)
