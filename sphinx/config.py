@@ -303,7 +303,7 @@ class Config(object):
         # correct values of copyright year that are not coherent with
         # the SOURCE_DATE_EPOCH environment variable:
         if getenv('SOURCE_DATE_EPOCH') is not None:
-            for k in ('copyright','epub_copyright'):
+            for k in ('copyright', 'epub_copyright'):
                 if k in config:
                     config[k] = copyright_year_re.sub('\g<1>%s' % format_date('%Y'),
                                                       config[k])
