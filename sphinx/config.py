@@ -22,6 +22,7 @@ from sphinx.util.pycompat import execfile_, NoneType
 from sphinx.util.i18n import format_date
 
 nonascii_re = re.compile(br'[\x80-\xff]')
+copyright_year_re = re.compile(br'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
 CONFIG_SYNTAX_ERROR = "There is a syntax error in your configuration file: %s"
 if PY3:
@@ -302,11 +303,10 @@ class Config(object):
         # correct values of copyright year that are not coherent with
         # the SOURCE_DATE_EPOCH environment variable:
         if getenv('SOURCE_DATE_EPOCH') is not None:
-            for k in ['copyright','epub_copyright']:
+            for k in ('copyright','epub_copyright'):
                 if k in config:
-                    config[k] = re.sub('^((\d{4}-)?)(\d{4})(?=[ ,])',
-                                       '\g<1>%s' % format_date('%Y'),
-                                       config[k])
+                    config[k] = copyright_year_re.sub('\g<1>%s' % format_date('%Y'),
+                                                      config[k])
 
     def check_types(self, warn):
         # check all values for deviation from the default value's type, since
