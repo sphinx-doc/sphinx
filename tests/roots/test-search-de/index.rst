@@ -2,7 +2,7 @@ meta keywords
 =============
 
 .. meta::
-   :keywords lang=en: findthiskey, thistoo
+   :keywords lang=de: findthiskey, thistoo
    :keywords: thisonetoo
-   :keywords lang=de: findnotthiskey
+   :keywords lang=en: findnotthiskey
    :description: thisnoteither

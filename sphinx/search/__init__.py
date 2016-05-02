@@ -182,11 +182,10 @@ class WordCollector(NodeVisitor):
 
     def is_meta_keywords(self, node, nodetype):
         is_meta = str(nodetype) == '<class \'sphinx.addnodes.meta\'>'
-        if is_meta:
-            language_match = re.search(r'lang\=\"(.*?)\"', str(node))
-            is_correct_language =\
-                language_match == None \
-                or self.lang.lang == language_match.group(1)
+        if is_meta and node.get('name', None) == 'keywords':
+            node_lang = node.get('lang', None)
+            is_correct_language = node_lang == None \
+                or node_lang == self.lang.lang
             return is_meta and is_correct_language
         else:
             return False
@@ -209,8 +208,9 @@ class WordCollector(NodeVisitor):
         elif issubclass(nodetype, title):
             self.found_title_words.extend(self.lang.split(node.astext()))
         elif self.is_meta_keywords(node, nodetype):
-                keywords = re.search(r'content\=\"(.*?)\"', str(node)).group(1)
-                self.found_words.extend(self.lang.split(keywords))
+                keywords = node['content']
+                keywords = [keyword.strip() for keyword in keywords.split(',')]
+                self.found_words.extend(keywords)
 
 
 class IndexBuilder(object):
