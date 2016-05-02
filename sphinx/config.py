@@ -22,7 +22,7 @@ from sphinx.util.pycompat import execfile_, NoneType
 from sphinx.util.i18n import format_date
 
 nonascii_re = re.compile(br'[\x80-\xff]')
-copyright_year_re = re.compile(br'^((\d{4}-)?)(\d{4})(?=[ ,])')
+copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
 
 CONFIG_SYNTAX_ERROR = "There is a syntax error in your configuration file: %s"
 if PY3:
