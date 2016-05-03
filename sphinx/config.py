@@ -301,7 +301,8 @@ class Config(object):
         self.extensions = config.get('extensions', [])
 
         # correct values of copyright year that are not coherent with
-        # the SOURCE_DATE_EPOCH environment variable:
+        # the SOURCE_DATE_EPOCH environment variable (if set)
+        # See https://reproducible-builds.org/specs/source-date-epoch/
         if getenv('SOURCE_DATE_EPOCH') is not None:
             for k in ('copyright', 'epub_copyright'):
                 if k in config:

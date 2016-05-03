@@ -130,6 +130,8 @@ class I18nBuilder(Builder):
 timestamp = time()
 tzdelta = datetime.fromtimestamp(timestamp) - \
     datetime.utcfromtimestamp(timestamp)
+# set timestamp from SOURCE_DATE_EPOCH if set
+# see https://reproducible-builds.org/specs/source-date-epoch/
 source_date_epoch = getenv('SOURCE_DATE_EPOCH')
 if source_date_epoch is not None:
     timestamp = float(source_date_epoch)
