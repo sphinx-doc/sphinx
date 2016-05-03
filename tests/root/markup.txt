@@ -235,6 +235,11 @@ Figures
 
    Description paragraph is wraped with legend node.
 
+.. figure:: rimg.png
+   :align: right
+   :figwidth: 50%
+
+   figure with align & figwidth option
 
 Version markup
 --------------
