@@ -275,6 +275,8 @@
 }
 
 \renewcommand{\Verbatim}[1][1]{%
+  % quit horizontal mode if we are still in a paragraph
+  \par
   % list starts new par, but we don't want it to be set apart vertically
   \parskip\z@skip
   % first, let's check if there is a caption
