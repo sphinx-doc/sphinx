@@ -50,6 +50,7 @@ Bugs fixed
 * #2483: any figure number was not assigned if figure title contains only non text objects
 * #2501: Unicode subscript numbers are normalized in LaTeX
 * #2492: Figure directive with :figwidth: generates incorrect Latex-code
+* The caption of figure is always put on center even if ``:align:`` was specified
 
 
 Release 1.4.1 (released Apr 12, 2016)

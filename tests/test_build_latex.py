@@ -27,7 +27,7 @@ LATEX_WARNINGS = ENV_WARNINGS + """\
 %(root)s/markup.txt:164: WARNING: unknown option: &option
 %(root)s/footnote.txt:60: WARNING: citation not found: missing
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/markup.txt:280: WARNING: Could not lex literal_block as "c". Highlighting skipped.
+%(root)s/markup.txt:285: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 """
 
 if PY3:
@@ -111,9 +111,13 @@ def test_writer(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')
 
+    assert ('\\begin{wrapfigure}{r}{0pt}\n\\centering\n'
+            '\\includegraphics{{rimg}.png}\n\\caption{figure with align option}'
+            '\\label{markup:id7}\\end{wrapfigure}' in result)
+
     assert ('\\begin{wrapfigure}{r}{0.500\\linewidth}\n\\centering\n'
             '\\includegraphics{{rimg}.png}\n\\caption{figure with align \\& figwidth option}'
-            '\\label{markup:id7}\\end{wrapfigure}' in result)
+            '\\label{markup:id8}\\end{wrapfigure}' in result)
 
 
 @with_app(buildername='latex', freshenv=True,  # use freshenv to check warnings

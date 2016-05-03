@@ -237,6 +237,11 @@ Figures
 
 .. figure:: rimg.png
    :align: right
+
+   figure with align option
+
+.. figure:: rimg.png
+   :align: right
    :figwidth: 50%
 
    figure with align & figwidth option

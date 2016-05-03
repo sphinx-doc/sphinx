@@ -1424,10 +1424,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
            isinstance(node.children[0], nodes.image) and
            node.children[0]['ids']):
             ids += self.hypertarget(node.children[0]['ids'][0], anchor=False)
-        if 'width' in node and node.get('align', '') in ('left', 'right'):
+        if node.get('align', '') in ('left', 'right'):
+            if 'width' in node:
+                length = width_to_latex_length(node['width'])
+            else:
+                length = '0pt'
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
-                             (node['align'] == 'right' and 'r' or 'l',
-                              width_to_latex_length(node['width'])))
+                             (node['align'] == 'right' and 'r' or 'l', length))
             self.context.append(ids + '\\end{wrapfigure}\n')
         elif self.in_minipage:
             if ('align' not in node.attributes or
