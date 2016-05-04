@@ -46,6 +46,7 @@ class TocTree(Directive):
         'includehidden': directives.flag,
         'numbered': int_or_nothing,
         'titlesonly': directives.flag,
+        'reverse': directives.flag,
     }
 
     def run(self):
@@ -109,6 +110,8 @@ class TocTree(Directive):
         subnode = addnodes.toctree()
         subnode['parent'] = env.docname
         # entries contains all entries (self references, external links etc.)
+        if 'reverse' in self.options:
+            entries.reverse()
         subnode['entries'] = entries
         # includefiles only entries that are documents
         subnode['includefiles'] = includefiles

@@ -123,6 +123,16 @@ tables of contents.  The ``toctree`` directive is the central element.
    toctree directive.  This is useful if you want to generate a "sitemap" from
    the toctree.
 
+   You can use the ``reverse`` flag option to reverse the order of the entries
+   in the list. This can be useful when using the ``glob`` flag option to
+   reverse the ordering of the files.  Example::
+
+      .. toctree::
+         :glob:
+         :reverse:
+
+         recipe/*
+
    You can also give a "hidden" option to the directive, like this::
 
       .. toctree::
