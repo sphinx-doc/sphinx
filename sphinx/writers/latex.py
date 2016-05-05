@@ -299,7 +299,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                             '\\else\\fi'),
         'cmappkg':         '\\usepackage{cmap}',
         'fontenc':         '\\usepackage[T1]{fontenc}',
-        'amsmath':         '\\usepackage{amsmath,amssymb}',
+        'amsmath':         '\\usepackage{amsmath,amssymb,amstext}',
         'babel':           '\\usepackage{babel}',
         'fontpkg':         '\\usepackage{times}',
         'fncychap':        '\\usepackage[Bjarne]{fncychap}',
