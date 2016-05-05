@@ -51,6 +51,7 @@ Bugs fixed
 * #2501: Unicode subscript numbers are normalized in LaTeX
 * #2492: Figure directive with :figwidth: generates incorrect Latex-code
 * The caption of figure is always put on center even if ``:align:`` was specified
+* #2526: LaTeX writer crashes if the section having only images
 
 
 Release 1.4.1 (released Apr 12, 2016)

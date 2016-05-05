@@ -782,7 +782,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif isinstance(parent, nodes.section):
             short = ''
             if node.traverse(nodes.image):
-                short = '[%s]' % ' '.join(clean_astext(node).split()).translate(tex_escape_map)
+                short = ('[%s]' %
+                         u' '.join(clean_astext(node).split()).translate(tex_escape_map))
 
             try:
                 self.body.append(r'\%s%s{' % (self.sectionnames[self.sectionlevel], short))

@@ -16,3 +16,7 @@ another blah
 Other [blah] |picture| section
 ------------------------------
 other blah
+
+|picture|
+---------
+blah blah blah
