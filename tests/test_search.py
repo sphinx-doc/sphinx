@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import os
 
 from docutils import frontend, utils
 from docutils.parsers import rst
@@ -54,21 +55,24 @@ def test_objects_are_escaped(app, status, warning):
     assert 'n::Array&lt;T, d&gt;' in index.get('objects').get('')  # n::Array<T,d> is escaped
 
 def assert_lang_agnostic_key_words(searchindex):
-    assert 'findnotthiskey' not in searchindex
     assert 'thisnoteith' not in searchindex
-    assert 'thistoo' in searchindex
     assert 'thisonetoo' in searchindex
 
 @with_app(testroot='search')
 def test_meta_keys_are_handled_for_language_en(app, status, warning):
+    os.remove(app.outdir / 'searchindex.js')
     app.builder.build_all()
     searchindex = (app.outdir / 'searchindex.js').text()
     assert_lang_agnostic_key_words(searchindex)
     assert 'findthiskei' in searchindex
+    assert 'onlygerman' not in searchindex
+    assert 'thistoo' in searchindex
 
-@with_app(testroot='search-de')
+@with_app(testroot='search', confoverrides={'html_search_language': 'de'})
 def test_meta_keys_are_handled_for_language_de(app, status, warning):
     app.builder.build_all()
     searchindex = (app.outdir / 'searchindex.js').text()
     assert_lang_agnostic_key_words(searchindex)
-    assert 'findthiskey' in searchindex
+    assert 'onlygerman' in searchindex
+    assert 'notgerman' not in searchindex
+    assert 'onlytoogerman' in searchindex
