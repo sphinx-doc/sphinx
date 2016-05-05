@@ -14,7 +14,6 @@ import os
 import re
 import warnings
 from os import path
-from time import gmtime
 from datetime import datetime
 from collections import namedtuple
 
@@ -188,7 +187,7 @@ def format_date(format, date=None, language=None, warn=None):
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
         source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
         if source_date_epoch is not None:
-            date = gmtime(float(source_date_epoch))
+            date = datetime.utcfromtimestamp(float(source_date_epoch))
         else:
             date = datetime.now()
 
