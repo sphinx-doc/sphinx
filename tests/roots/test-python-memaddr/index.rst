@@ -3,8 +3,6 @@
 test-python-memaddr
 ===================
 
-Let us see if some memory address shows in the doc...
-
 .. automodule:: util
 
 .. automodule:: test_python_memaddr
@@ -13,14 +11,9 @@ Let us see if some memory address shows in the doc...
    :members:
    :undoc-members:
 
-Contents:
+.. py:attribute:: zero_func = <function the_same at 0xabcdef>
 
-.. toctree::
-   :maxdepth: 2
+.. py:method:: suppl(fnc = <function the_same at 0xabcdef>)
 
-Indices and tables
-==================
+.. py:method:: suppl_opts({x: 2, fnc: <function the_same at 0xabcdef>})
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

@@ -34,9 +34,6 @@ py_sig_re = re.compile(
           )? $                   # and nothing more
           ''', re.VERBOSE)
 
-# RE for memory address in variable description
-py_memaddr_re = re.compile(r' at 0x[0-9a-f]{4,}(?=>)')
-
 
 def _pseudo_parse_arglist(signode, arglist):
     """"Parse" a list of arguments separated by commas.
@@ -65,7 +62,6 @@ def _pseudo_parse_arglist(signode, arglist):
                 ends_open += 1
                 argument = argument[:-1].strip()
             if argument:
-                argument = py_memaddr_re.sub('', argument)
                 stack[-1] += addnodes.desc_parameter(argument, argument)
             while ends_open:
                 stack.append(addnodes.desc_optional())
@@ -224,8 +220,6 @@ class PyObject(ObjectDescription):
             if retann:
                 signode += addnodes.desc_returns(retann, retann)
             if anno:
-                if anno[0] == '=':
-                    anno = py_memaddr_re.sub('', anno)
                 signode += addnodes.desc_annotation(' ' + anno, ' ' + anno)
             return fullname, name_prefix
 

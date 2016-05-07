@@ -15,33 +15,37 @@ from util import with_app
 @with_app('html', testroot='python-memaddr')
 def test_memory_address(app, status, warning):
     app.builder.build_all()
-    for f in ['index.html','searchindex.js']:
+    for f, refs_manual in {'index.html': 3, 'searchindex.js': -1}.iteritems():
         t = (app.outdir / f).text()
-        refs = t.count("0x")
-        assert refs == 0, "A memory address was found %d times in the file %s." % (refs, f)
+        refs_ok = t.count("0xabcdef")
+        if refs_manual >= 0:
+            assert refs_ok == refs_manual, \
+                ("%s memory addresses were deleted from file %s."
+                 % (refs_manual-refs_ok, f))
+        refs = t.count("0x") - refs_ok
+        assert refs == 0, "File %s contained %d memory addresses." % (f, refs)
+
 
 def the_same(x):
     return(x)
 
+
 class MyClass(object):
     """A test class."""
 
-    functions = { 'TheSame': the_same }
+    functions = {'TheSame': the_same}
 
     def __init__(self):
-        self.a=1
+        pass
 
     def get_a(self):
         """Get a value"""
-        return(self.a)
-    
-    def set_a(self,func=the_same,x=3):
-        """Set a value.
+        pass
 
-        :param func: a function to be called
-        :param x: value to be passed to the function"""
-        self.a=the_same(x)
+    def set_a(self, func=the_same, x=3):
+        """Set a value."""
+        pass
 
-    def set_ah(self,opts={'func': the_same, 'x': 3}):
+    def set_ah(self, opts={'func': the_same, 'x': 3}):
         """Set a value, with opts."""
-        self.set_a(opts['func'],opts['x'])
+        pass
