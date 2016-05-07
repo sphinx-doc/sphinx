@@ -10,12 +10,13 @@
 """
 
 from util import with_app
+from six import iteritems
 
 
 @with_app('html', testroot='python-memaddr')
 def test_memory_address(app, status, warning):
     app.builder.build_all()
-    for f, refs_manual in {'index.html': 3, 'searchindex.js': -1}.iteritems():
+    for f, refs_manual in iteritems({'index.html': 3, 'searchindex.js': -1}):
         t = (app.outdir / f).text()
         refs_ok = t.count("0xabcdef")
         if refs_manual >= 0:
