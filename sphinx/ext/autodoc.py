@@ -269,9 +269,17 @@ def format_annotation(annotation):
         if isinstance(annotation, typing.TypeVar):
             return annotation.__name__
         elif hasattr(typing, 'GenericMeta') and \
-                isinstance(annotation, typing.GenericMeta) and \
-                hasattr(annotation, '__parameters__'):
-            params = annotation.__parameters__
+                isinstance(annotation, typing.GenericMeta):
+            # In Python 3.5.2+, all arguments are stored in __args__,
+            # whereas __parameters__ only contains generic parameters.
+            #
+            # Prior to Python 3.5.2, __args__ is not available, and all
+            # arguments are in __parameters__.
+            params = None
+            if hasattr(annotation, '__args__'):
+                params = annotation.__args__
+            elif hasattr(annotation, '__parameters__'):
+                params = annotation.__parameters__
             if params is not None:
                 param_str = ', '.join(format_annotation(p) for p in params)
                 return '%s[%s]' % (qualified_name, param_str)
