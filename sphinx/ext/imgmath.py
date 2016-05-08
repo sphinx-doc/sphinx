@@ -178,8 +178,8 @@ def render_math(self, math):
             raise
         self.builder.warn('%s command %r cannot be run (needed for math '
                           'display), check the imgmath_%s setting' %
-                          image_translator, image_translator_executable,
-                          image_translator)
+                          (image_translator, image_translator_executable,
+                           image_translator))
         self.builder._imgmath_warned_image_translator = True
         return None, None
 
