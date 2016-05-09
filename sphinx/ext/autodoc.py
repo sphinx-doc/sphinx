@@ -49,6 +49,9 @@ py_ext_sig_re = re.compile(
           )? $                   # and nothing more
           ''', re.VERBOSE)
 
+# RE for memory address in variable description
+py_memaddr_re = re.compile(r' at 0x[0-9a-f]{4,}(?=>)')
+
 
 class DefDict(dict):
     """A dict that returns a default on nonexisting keys."""
@@ -343,7 +346,9 @@ def formatargspec(function, args, varargs=None, varkw=None, defaults=None,
         arg_fd.write(format_arg_with_annotation(arg))
         if defaults and i >= defaults_start:
             arg_fd.write(' = ' if arg in annotations else '=')
-            arg_fd.write(object_description(defaults[i - defaults_start]))
+            value = defaults[i - defaults_start]
+            value = py_memaddr_re.sub('', object_description(value))
+            arg_fd.write(value)
         formatted.append(arg_fd.getvalue())
 
     if varargs:
@@ -487,6 +492,7 @@ class Documenter(object):
         self.retann = retann
         self.fullname = (self.modname or '') + \
                         (self.objpath and '.' + '.'.join(self.objpath) or '')
+
         return True
 
     def import_object(self):
@@ -1366,6 +1372,7 @@ class DataDocumenter(ModuleLevelDocumenter):
             except ValueError:
                 pass
             else:
+                objrepr = py_memaddr_re.sub('', objrepr)
                 self.add_line(u'   :annotation: = ' + objrepr, sourcename)
         elif self.options.annotation is SUPPRESS:
             pass
@@ -1479,6 +1486,7 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):
                 except ValueError:
                     pass
                 else:
+                    objrepr = py_memaddr_re.sub('', objrepr)
                     self.add_line(u'   :annotation: = ' + objrepr, sourcename)
         elif self.options.annotation is SUPPRESS:
             pass
