@@ -411,6 +411,26 @@ def test_templates():
           None, "I00ElsRNSt13basic_ostreamI4Char6TraitsEE"
           "RK18c_string_view_baseIK4Char6TraitsE")
 
+    # template introductions
+    raises(DefinitionError, parse, 'enum', 'abc::ns::foo{id_0, id_1, id_2} A')
+    raises(DefinitionError, parse, 'enumerator', 'abc::ns::foo{id_0, id_1, id_2} A')
+    check('class', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar',
+          None, 'I000EN3xyz3barE')
+    check('class', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar',
+          None, 'I00DpEN3xyz3barE')
+    check('type', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar = ghi::qux',
+          None, 'I000EN3xyz3barE')
+    check('type', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar = ghi::qux',
+          None, 'I00DpEN3xyz3barE')
+    check('function', 'abc::ns::foo{id_0, id_1, id_2} void xyz::bar()',
+          None, 'I000EN3xyz3barEv')
+    check('function', 'abc::ns::foo{id_0, id_1, ...id_2} void xyz::bar()',
+          None, 'I00DpEN3xyz3barEv')
+    check('member', 'abc::ns::foo{id_0, id_1, id_2} ghi::qux xyz::bar',
+          None, 'I000EN3xyz3barE')
+    check('member', 'abc::ns::foo{id_0, id_1, ...id_2} ghi::qux xyz::bar',
+          None, 'I00DpEN3xyz3barE')
+
 
 #def test_print():
 #    # used for getting all the ids out for checking

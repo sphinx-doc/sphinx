@@ -916,6 +916,27 @@ References to partial specialisations must always include the template parameter
 Currently the lookup only succeed if the template parameter identifiers are equal strings.
 
 
+Template Introductions
+.......................
+
+As an alternative, template parameters can be specified with the template
+introduction syntax of Concepts Lite:
+
+.. rst:directive:: .. cpp:concept:: template<typename It> Iterator
+                   .. cpp:function:: Iterator{It} void advance(It& it)
+
+   .. cpp:concept:: template<typename It> Iterator
+   .. cpp:function:: Iterator{It} void advance(It& it)
+
+This is a shorter way of declaring ``template<typename It> void advance(It&
+it)`` with the added benefit that the constraints on the ``It`` template
+parameter are made explicit, and the :cpp:concept:`Iterator` concept is linked
+to.
+
+Note however that no checking is performed with respect to parameter
+compatibility. E.g. ``Iterator{A, B, C}`` will be accepted as an introduction
+even though it would not be valid C++.
+
 
 The Standard Domain
 -------------------

@@ -761,6 +761,72 @@ class ASTTemplateParams(ASTBase):
         signode += nodes.Text(">")
 
 
+class ASTTemplateIntroductionParameter(ASTBase):
+    def __init__(self, identifier, pack):
+        self.identifier = identifier
+        self.pack = pack
+
+    def get_identifier(self):
+        return self.identifier
+
+    def get_id_v2(self, objectType=None, symbol=None):
+        # this is not part of the normal name mangling in C++
+        if symbol:
+            # the anchor will be our parent
+            return symbol.parent.declaration.get_id_v2(prefixed=None)
+        else:
+            return self.identifier.get_id_v2()
+
+    def __unicode__(self):
+        res = []
+        if self.pack:
+            res.append('...')
+        res.append(text_type(self.identifier))
+        return ''.join(res)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        if self.pack:
+            signode += nodes.Text('...')
+        self.identifier.describe_signature(signode, mode, env, '', symbol)
+
+
+class ASTTemplateIntroduction(ASTBase):
+    def __init__(self, concept, params):
+        assert len(params) > 0
+        self.concept = concept
+        self.params = params
+
+    def get_id_v2(self):
+        # for now treat abc::def::concept{A, B, [...]C} the same as:
+        # template<typename A, typename B, typename [...]C>
+        type_params = [ASTTemplateParamType(ASTTemplateKeyParamPackIdDefault('typename',
+                                                                             param.identifier,
+                                                                             param.pack, None))
+                       for param in self.params]
+        return ASTTemplateParams(type_params).get_id_v2()
+
+    def __unicode__(self):
+        res = []
+        res.append(text_type(self.concept))
+        res.append('{')
+        res.append(', '.join(text_type(param) for param in self.params))
+        res.append('} ')
+        return ''.join(res)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        self.concept.describe_signature(signode, 'markType', env, symbol)
+        signode += nodes.Text('{')
+
+        first = True
+        for param in self.params:
+            if not first:
+                signode += nodes.Text(', ')
+            first = False
+            param.describe_signature(signode, mode, env, symbol)
+
+        signode += nodes.Text('}')
+
+
 class ASTTemplateDeclarationPrefix(ASTBase):
     def __init__(self, templates):
         assert templates is not None
@@ -3614,14 +3680,60 @@ class DefinitionParser(object):
                     prevErrors.append((e, ""))
                 raise self._make_multi_error(prevErrors, header)
 
+    def _parse_template_introduction_params(self):
+        params = []
+
+        pack = False
+        while 1:
+            self.skip_ws()
+            if self.skip_string('...'):
+                pack = True
+
+            self.skip_ws()
+            if not self.match(_identifier_re):
+                self.fail("Expected identifier in template introduction list.")
+            identifier = self.matched_text
+            # make sure there isn't a keyword
+            if identifier in _keywords:
+                self.fail("Expected identifier in template introduction list, "
+                          "got keyword: %s" % identifier)
+            params.append(ASTTemplateIntroductionParameter(ASTIdentifier(identifier), pack))
+
+            self.skip_ws()
+            if not self.skip_string(','):
+                break
+
+            if pack:
+                self.fail("Introduced pack parameter '...%s' is not last in template "
+                          "introduction list." % identifier)
+
+        return params
+
+    def _parse_template_introduction(self):
+        concept = self._parse_nested_name()
+        self.skip_ws()
+        if not self.skip_string('{'):
+            self.fail("Expected '{' after nested name for template introduction")
+        params = self._parse_template_introduction_params()
+        self.skip_ws()
+        if not self.skip_string('}'):
+            self.fail("Expected '}' after nested name for template introduction")
+        return ASTTemplateIntroduction(concept, params)
+
     def _parse_template_declaration_prefix(self):
         templates = []
         while 1:
             self.skip_ws()
-            if not self.skip_word("template"):
-                break
-            params = self._parse_template_parameter_list()
-            templates.append(params)
+            if self.skip_word("template"):
+                params = self._parse_template_parameter_list()
+                templates.append(params)
+            else:
+                pos = self.pos
+                try:
+                    templates.append(self._parse_template_introduction())
+                except DefinitionError:
+                    self.pos = pos
+                    break
         if len(templates) == 0:
             return None
         else:
