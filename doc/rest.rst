@@ -196,6 +196,8 @@ Use ```Link text <http://example.com/>`_`` for inline web links.  If the link
 text should be the web address, you don't need special markup at all, the parser
 finds links and mail addresses in ordinary text.
 
+.. important:: There must be a space between the link text and the opening \< for the URL.
+
 You can also separate the link and the target definition (:duref:`ref
 <hyperlink-targets>`), like this::
 
