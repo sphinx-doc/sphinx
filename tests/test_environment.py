@@ -24,7 +24,7 @@ def setup_module():
     global app, env
     app = TestApp(srcdir='root-envtest')
     env = app.env
-    env.set_warnfunc(lambda *args: warnings.append(args))
+    env.set_warnfunc(lambda *args, **kwargs: warnings.append(args))
 
 
 def teardown_module():

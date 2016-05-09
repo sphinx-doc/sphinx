@@ -27,11 +27,26 @@ Release 1.4.2 (in development)
 Features added
 --------------
 
-* Now :confval:`suppress_warnings` accepts following configurations: ``app.add_node``, ``app.add_directive``, ``app.add_role`` and ``app.add_generic_role`` (ref: #2451)
-* LaTeX writer allows page breaks in topic contents; and their horizontal
-  extent now fits in the line width (shadow in margin). Warning-type
-  admonitions allow page breaks (if very long) and their vertical spacing
-  has been made more coherent with the one for Hint-type notices.
+* Now :confval:`suppress_warnings` accepts following configurations (ref: #2451, #2466):
+
+  - ``app.add_node``
+  - ``app.add_directive``
+  - ``app.add_role``
+  - ``app.add_generic_role``
+  - ``app.add_source_parser``
+  - ``image.data_uri``
+  - ``image.nonlocal_uri``
+
+* #2453: LaTeX writer allows page breaks in topic contents; and their
+  horizontal extent now fits in the line width (with shadow in margin). Also
+  warning-type admonitions allow page breaks and their vertical spacing has
+  been made more coherent with the one for hint-type notices (ref #2446).
+
+* #2459: the framing of literal code-blocks in LaTeX output (and not only the
+  code lines themselves) obey the indentation in lists or quoted blocks.
+
+* #2343: the long source lines in code-blocks are wrapped (without modifying
+   the line numbering) in LaTeX output (ref #1534, #2304).
 * Convert linkcheck builder to requests for better encoding handling
 
 Bugs fixed
@@ -45,6 +60,22 @@ Bugs fixed
 * #2447: VerbatimBorderColor wrongly used also for captions of PDF
 * #2456: C++, fix crash related to document merging (e.g., singlehtml and Latex builders).
 * #2446: latex(pdf) sets local tables of contents (or more generally topic nodes) in unbreakable boxes, causes overflow at bottom
+* #2476: Omit MathJax markers if :nowrap: is given
+* #2465: latex builder fails in case no caption option is provided to toctree directive
+* Sphinx crashes if self referenced toctree found
+* #2481: spelling mistake for mecab search splitter. Thanks to Naoki Sato.
+* #2309: Fix could not refer "indirect hyperlink targets" by ref-role
+* intersphinx fails if mapping URL contains any port
+* #2088: intersphinx crashes if the mapping URL requires basic auth
+* #2304: auto line breaks in latexpdf codeblocks
+* #1534: Word wrap long lines in Latex verbatim blocks
+* #2460: too much white space on top of captioned literal blocks in PDF output
+* Show error reason when multiple math extensions are loaded (ref: #2499)
+* #2483: any figure number was not assigned if figure title contains only non text objects
+* #2501: Unicode subscript numbers are normalized in LaTeX
+* #2492: Figure directive with :figwidth: generates incorrect Latex-code
+* The caption of figure is always put on center even if ``:align:`` was specified
+* #2526: LaTeX writer crashes if the section having only images
 
 
 Release 1.4.1 (released Apr 12, 2016)

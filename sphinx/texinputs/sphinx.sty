@@ -8,12 +8,6 @@
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesPackage{sphinx}[2010/01/15 LaTeX package (Sphinx markup)]
 
-\ifx\directlua\undefined\else
-% if compiling with lualatex 0.85 or later load compatibility patch issued by
-% the LaTeX team for older packages relying on \pdf<name> named primitives.
-    \IfFileExists{luatex85.sty}{\RequirePackage{luatex85}}{}
-\fi
-
 \@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
 
 \RequirePackage{textcomp}
@@ -166,12 +160,12 @@
 
 \newcommand\Sphinx@colorbox [2]{%
 % #1 will be \fcolorbox or, for first part of frame: \Sphinx@fcolorbox
-  #1{VerbatimBorderColor}{VerbatimColor}{%
-  % adjust width to be able to handle indentation.
-  \begin{minipage}{\dimexpr\linewidth-\@totalleftmargin\relax}%
-    #2%
-  \end{minipage}%
-  }%
+% let the framing obey the current indentation (adapted from framed.sty's code).
+  \hskip\@totalleftmargin
+  \hskip-\fboxsep\hskip-\fboxrule
+  #1{VerbatimBorderColor}{VerbatimColor}{#2}%
+  \hskip-\fboxsep\hskip-\fboxrule
+  \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
 }
 % use of \color@b@x here is compatible with both xcolor.sty and color.sty
 \def\Sphinx@fcolorbox #1#2%
@@ -184,9 +178,11 @@
 \newcommand*\SphinxLiteralBlockLabel {}
 \newcommand*\SphinxSetupCaptionForVerbatim [2]
 {%
-    \needspace{\literalblockneedspace}\vspace{\literalblockcaptiontopvspace}%
+    \needspace{\literalblockneedspace}%
 % insert a \label via \SphinxLiteralBlockLabel
 % reset to normal the color for the literal block caption
+% the caption inserts \abovecaptionskip whitespace above itself (usually 10pt)
+% there is also \belowcaptionskip but it is usually zero, hence the \smallskip
     \def\SphinxVerbatimTitle
        {\py@NormalColor\captionof{#1}{\SphinxLiteralBlockLabel #2}\smallskip }%
 }
@@ -198,12 +194,22 @@
 \long\def\Sphinx@VerbatimFBox#1{%
   \leavevmode
   \begingroup
+  % framed.sty does some measuring but this macro adds possibly a caption
+  % use amsmath conditional to inhibit the caption counter stepping after
+  % first pass
   \ifSphinx@myfirstframedpass\else\firstchoice@false\fi
   \setbox\@tempboxa\hbox{\kern\fboxsep{#1}\kern\fboxsep}%
    \hbox
    {\lower\dimexpr\fboxrule+\fboxsep+\dp\@tempboxa
     \hbox{%
-      \vbox{\ifx\SphinxVerbatimTitle\empty\else{\SphinxVerbatimTitle}\fi
+      \vbox{\ifx\SphinxVerbatimTitle\empty\else
+            % add the caption in a centered way above possibly indented frame
+            % hide its width from framed.sty's measuring step
+            % note that the caption brings \abovecaptionskip top vertical space
+            \moveright\dimexpr\fboxrule+.5\wd\@tempboxa
+                  \hb@xt@\z@{\hss\begin{minipage}{\wd\@tempboxa}%
+                                  \SphinxVerbatimTitle
+                                 \end{minipage}\hss}\fi
             \hrule\@height\fboxrule\relax
             \hbox{\vrule\@width\fboxrule\relax
                   \vbox{\vskip\fboxsep\copy\@tempboxa\vskip\fboxsep}%
@@ -211,16 +217,70 @@
             \hrule\@height\fboxrule\relax}%
    }}%
   \endgroup
-  % amsmath conditional inhibits counter stepping after first pass.
   \global\Sphinx@myfirstframedpassfalse
 }
 
+% For linebreaks inside Verbatim environment from package fancyvrb.
+\newbox\Sphinxcontinuationbox
+\newbox\Sphinxvisiblespacebox
+% These are user customizable e.g. from latex_elements's preamble key.
+% Use of \textvisiblespace for compatibility with XeTeX/LuaTeX/fontspec.
+\newcommand*\Sphinxvisiblespace {\textcolor{red}{\textvisiblespace}}
+\newcommand*\Sphinxcontinuationsymbol {\textcolor{red}{\llap{\tiny$\m@th\hookrightarrow$}}}
+\newcommand*\Sphinxcontinuationindent {3ex }
+\newcommand*\Sphinxafterbreak {\kern\Sphinxcontinuationindent\copy\Sphinxcontinuationbox}
+
+% Take advantage of the already applied Pygments mark-up to insert
+% potential linebreaks for TeX processing.
+%        {, <, #, %, $, ' and ": go to next line.
+%        _, }, ^, &, >, - and ~: stay at end of broken line.
+% Use of \textquotesingle for straight quote.
+\newcommand*\Sphinxbreaksatspecials {%
+    \def\PYGZus{\discretionary{\char`\_}{\Sphinxafterbreak}{\char`\_}}%
+    \def\PYGZob{\discretionary{}{\Sphinxafterbreak\char`\{}{\char`\{}}%
+    \def\PYGZcb{\discretionary{\char`\}}{\Sphinxafterbreak}{\char`\}}}%
+    \def\PYGZca{\discretionary{\char`\^}{\Sphinxafterbreak}{\char`\^}}%
+    \def\PYGZam{\discretionary{\char`\&}{\Sphinxafterbreak}{\char`\&}}%
+    \def\PYGZlt{\discretionary{}{\Sphinxafterbreak\char`\<}{\char`\<}}%
+    \def\PYGZgt{\discretionary{\char`\>}{\Sphinxafterbreak}{\char`\>}}%
+    \def\PYGZsh{\discretionary{}{\Sphinxafterbreak\char`\#}{\char`\#}}%
+    \def\PYGZpc{\discretionary{}{\Sphinxafterbreak\char`\%}{\char`\%}}%
+    \def\PYGZdl{\discretionary{}{\Sphinxafterbreak\char`\$}{\char`\$}}%
+    \def\PYGZhy{\discretionary{\char`\-}{\Sphinxafterbreak}{\char`\-}}%
+    \def\PYGZsq{\discretionary{}{\Sphinxafterbreak\textquotesingle}{\textquotesingle}}%
+    \def\PYGZdq{\discretionary{}{\Sphinxafterbreak\char`\"}{\char`\"}}%
+    \def\PYGZti{\discretionary{\char`\~}{\Sphinxafterbreak}{\char`\~}}%
+}
+
+% Some characters . , ; ? ! / are not pygmentized.
+% This macro makes them "active" and they will insert potential linebreaks
+\newcommand*\Sphinxbreaksatpunct {%
+   \lccode`\~`\.\lowercase{\def~}{\discretionary{\char`\.}{\Sphinxafterbreak}{\char`\.}}%
+   \lccode`\~`\,\lowercase{\def~}{\discretionary{\char`\,}{\Sphinxafterbreak}{\char`\,}}%
+   \lccode`\~`\;\lowercase{\def~}{\discretionary{\char`\;}{\Sphinxafterbreak}{\char`\;}}%
+   \lccode`\~`\:\lowercase{\def~}{\discretionary{\char`\:}{\Sphinxafterbreak}{\char`\:}}%
+   \lccode`\~`\?\lowercase{\def~}{\discretionary{\char`\?}{\Sphinxafterbreak}{\char`\?}}%
+   \lccode`\~`\!\lowercase{\def~}{\discretionary{\char`\!}{\Sphinxafterbreak}{\char`\!}}%
+   \lccode`\~`\/\lowercase{\def~}{\discretionary{\char`\/}{\Sphinxafterbreak}{\char`\/}}%
+   \catcode`\.\active
+   \catcode`\,\active
+   \catcode`\;\active
+   \catcode`\:\active
+   \catcode`\?\active
+   \catcode`\!\active
+   \catcode`\/\active
+   \lccode`\~`\~
+}
+
 \renewcommand{\Verbatim}[1][1]{%
+  % quit horizontal mode if we are still in a paragraph
+  \par
   % list starts new par, but we don't want it to be set apart vertically
   \parskip\z@skip
-  \smallskip
   % first, let's check if there is a caption
   \ifx\SphinxVerbatimTitle\empty
+      \addvspace\z@% counteract possible previous negative skip (French lists!)
+      \smallskip
       % there was no caption. Check if nevertheless a label was set.
       \ifx\SphinxLiteralBlockLabel\empty\else
       % we require some space to be sure hyperlink target from \phantomsection
@@ -238,8 +298,36 @@
   % for mid pages and last page portion of (long) split frame:
   \def\MidFrameCommand{\Sphinx@colorbox\fcolorbox }%
   \let\LastFrameCommand\MidFrameCommand
-  % The list environement is needed to control perfectly the vertical
-  % space.
+  % fancyvrb's Verbatim puts each input line in (unbreakable) horizontal boxes.
+  % This customization wraps each line from the input in a \vtop, thus
+  % allowing it to wrap and display on two or more lines in the latex output.
+  %     - The codeline counter will be increased only once.
+  %     - The wrapped material will not break across pages, it is impossible
+  %       to achieve this without extensive rewrite of fancyvrb.
+  %     - The (not used in Sphinx) obeytabs option to Verbatim is
+  %       broken by this change (showtabs and tabspace work).
+  \sbox\Sphinxcontinuationbox {\Sphinxcontinuationsymbol}%
+  \sbox\Sphinxvisiblespacebox {\FV@SetupFont\Sphinxvisiblespace}%
+  \def\FancyVerbFormatLine ##1{\hsize\linewidth
+          \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
+                \doublehyphendemerits\z@\finalhyphendemerits\z@
+                \strut ##1\strut}%
+          }%
+  % If the linebreak is at a space, the latter will be displayed as visible
+  % space at end of first line, and a continuation symbol starts next line.
+  % Stretch/shrink are however usually zero for typewriter font.
+  \def\FV@Space {%
+       \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
+       \discretionary{\copy\Sphinxvisiblespacebox}{\Sphinxafterbreak}
+                     {\kern\fontdimen2\font}%
+       }%
+  % Allow breaks at special characters using \PYG... macros.
+  \Sphinxbreaksatspecials
+  % The list environment is needed to control perfectly the vertical space.
+  % Note: \OuterFrameSep used by framed.sty is later set to \topsep hence 0pt.
+  % - if caption: vertical space above caption = (\abovecaptionskip + D) with
+  %   D = \baselineskip-\FrameHeightAdjust, and then \smallskip above frame.
+  % - if no caption: (\smallskip + D) above frame. By default D=6pt.
   \list{}{%
   \setlength\parskip{0pt}%
   \setlength\itemsep{0ex}%
@@ -251,13 +339,18 @@
   \item
   % use a minipage if we are already inside a framed environment
   \relax\ifSphinx@inframed\noindent\begin{\minipage}{\linewidth}\fi
-     \MakeFramed {\FrameRestore}%
+     \MakeFramed {% adapted over from framed.sty's snugshade environment
+    \advance\hsize-\width\@totalleftmargin\z@\linewidth\hsize
+    \@setminipage  }%
      \small
-    \OriginalVerbatim[#1]%
+     % For grid placement from \strut's in \FancyVerbFormatLine
+     \lineskip\z@skip
+     % Breaks at punctuation characters . , ; ? ! and / need catcode=\active
+     \OriginalVerbatim[#1,codes*=\Sphinxbreaksatpunct]%
 }
 \renewcommand{\endVerbatim}{%
   \endOriginalVerbatim
-  \endMakeFramed
+  \par\unskip\@minipagefalse\endMakeFramed
   \ifSphinx@inframed\end{minipage}\fi
   \endlist
   % LaTeX environments always revert local changes on exit, here e.g. \parskip
@@ -343,6 +436,7 @@
      \ifSphinx@inframed\end{minipage}\fi
    \endtrivlist
   }
+
 
 % \moduleauthor{name}{email}
 \newcommand{\moduleauthor}[2]{}
@@ -456,8 +550,11 @@
   {\parskip\z@skip\noindent}%
   }
 \newcommand{\py@endlightbox}{%
-  \par\nobreak
-  {\parskip\z@skip\noindent\rule[.4\baselineskip]{\linewidth}{0.5pt}}\par
+  \par
+  % counteract previous possible negative skip (French lists!):
+  % (we can't cancel that any earlier \vskip introduced a potential pagebreak)
+  \ifdim\lastskip<\z@\vskip-\lastskip\fi
+  \nobreak\vbox{\noindent\rule[.4\baselineskip]{\linewidth}{0.5pt}}\allowbreak
   }
 
 % Some are quite plain:
@@ -721,8 +818,6 @@
 % control caption around literal-block
 \RequirePackage{capt-of}
 \RequirePackage{needspace}
-% if the left page space is less than \literalblockneedsapce, insert page-break
+% if the left page space is less than \literalblockneedspace, insert page-break
 \newcommand{\literalblockneedspace}{5\baselineskip}
 \newcommand{\literalblockwithoutcaptionneedspace}{1.5\baselineskip}
-% margin before the caption of literal-block
-\newcommand{\literalblockcaptiontopvspace}{0.5\baselineskip}

@@ -107,6 +107,9 @@ Admonitions
 .. tip::
    Tip text.
 
+Indirect hyperlink targets
+
+.. _other-label: some-label_
 
 Inline markup
 -------------
@@ -142,6 +145,7 @@ Adding \n to test unescaping.
 * :token:`try statement <try_stmt>`
 * :ref:`admonition-section`
 * :ref:`here <some-label>`
+* :ref:`there <other-label>`
 * :ref:`my-figure`
 * :ref:`my-figure-name`
 * :ref:`my-table`
@@ -231,6 +235,16 @@ Figures
 
    Description paragraph is wraped with legend node.
 
+.. figure:: rimg.png
+   :align: right
+
+   figure with align option
+
+.. figure:: rimg.png
+   :align: right
+   :figwidth: 50%
+
+   figure with align & figwidth option
 
 Version markup
 --------------

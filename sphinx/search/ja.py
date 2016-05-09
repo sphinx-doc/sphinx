@@ -533,7 +533,7 @@ class SearchJapanese(SearchLanguage):
     language_name = 'Japanese'
     splitters = {
         'default': 'sphinx.search.ja.DefaultSplitter',
-        'mecab': 'sphinx.sarch.ja.MecabSplitter',
+        'mecab': 'sphinx.search.ja.MecabSplitter',
         'janome': 'sphinx.search.ja.JanomeSplitter',
     }
 

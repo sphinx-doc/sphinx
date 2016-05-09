@@ -75,7 +75,7 @@ default_settings = {
 # or changed to properly invalidate pickle files.
 #
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
-ENV_VERSION = 47 + (sys.version_info[0] - 2)
+ENV_VERSION = 48 + (sys.version_info[0] - 2)
 
 
 dummy_reporter = Reporter('', 4, 4)
@@ -908,11 +908,13 @@ class BuildEnvironment:
             node['candidates'] = candidates = {}
             imguri = node['uri']
             if imguri.startswith('data:'):
-                self.warn_node('image data URI found. some builders might not support', node)
+                self.warn_node('image data URI found. some builders might not support', node,
+                               type='image', subtype='data_uri')
                 candidates['?'] = imguri
                 continue
             elif imguri.find('://') != -1:
-                self.warn_node('nonlocal image URI found: %s' % imguri, node)
+                self.warn_node('nonlocal image URI found: %s' % imguri, node,
+                               type='image', subtype='nonlocal_uri')
                 candidates['?'] = imguri
                 continue
             rel_imgpath, full_imgpath = self.relfn2path(imguri, docname)
@@ -1909,6 +1911,10 @@ class BuildEnvironment:
         traversed = set()
 
         def traverse_toctree(parent, docname):
+            if parent == docname:
+                self.warn(docname, 'self referenced toctree found. Ignored.')
+                return
+
             # traverse toctree by pre-order
             yield parent, docname
             traversed.add(docname)

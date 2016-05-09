@@ -33,11 +33,14 @@ There are two kinds of test blocks:
 * *code-output-style* blocks consist of an ordinary piece of Python code, and
   optionally, a piece of output for that code.
 
-The doctest extension provides four directives.  The *group* argument is
-interpreted as follows: if it is empty, the block is assigned to the group named
-``default``.  If it is ``*``, the block is assigned to all groups (including the
-``default`` group).  Otherwise, it must be a comma-separated list of group
-names.
+
+Directives
+----------
+
+The *group* argument below is interpreted as follows: if it is empty, the block
+is assigned to the group named ``default``.  If it is ``*``, the block is
+assigned to all groups (including the ``default`` group).  Otherwise, it must be
+a comma-separated list of group names.
 
 .. rst:directive:: .. testsetup:: [group]
 
@@ -171,7 +174,10 @@ The following is an example for the usage of the directives.  The test via
       This parrot wouldn't voom if you put 3000 volts through it!
 
 
-There are also these config values for customizing the doctest extension:
+Configuration
+-------------
+
+The doctest extension uses the following configuration values:
 
 .. confval:: doctest_default_flags
 

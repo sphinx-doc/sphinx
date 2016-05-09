@@ -263,6 +263,24 @@ class Table(object):
         self.longtable = False
 
 
+def width_to_latex_length(length_str):
+    """Convert `length_str` with rst length to LaTeX length.
+
+    This function is copied from docutils' latex writer
+    """
+    match = re.match('(\d*\.?\d*)\s*(\S*)', length_str)
+    if not match:
+        return length_str
+    value, unit = match.groups()[:2]
+    if unit in ('', 'pt'):
+        length_str = '%sbp' % value  # convert to 'bp'
+    # percentage: relate to current line width
+    elif unit == '%':
+        length_str = '%.3f\\linewidth' % (float(value)/100.0)
+
+    return length_str
+
+
 class LaTeXTranslator(nodes.NodeVisitor):
     sectionnames = ["part", "chapter", "section", "subsection",
                     "subsubsection", "paragraph", "subparagraph"]
@@ -281,7 +299,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                             '\\else\\fi'),
         'cmappkg':         '\\usepackage{cmap}',
         'fontenc':         '\\usepackage[T1]{fontenc}',
-        'amsmath':         '\\usepackage{amsmath,amssymb}',
+        'amsmath':         '\\usepackage{amsmath,amssymb,amstext}',
         'babel':           '\\usepackage{babel}',
         'fontpkg':         '\\usepackage{times}',
         'fncychap':        '\\usepackage[Bjarne]{fncychap}',
@@ -764,7 +782,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif isinstance(parent, nodes.section):
             short = ''
             if node.traverse(nodes.image):
-                short = '[%s]' % ' '.join(clean_astext(node).split()).translate(tex_escape_map)
+                short = ('[%s]' %
+                         u' '.join(clean_astext(node).split()).translate(tex_escape_map))
 
             try:
                 self.body.append(r'\%s%s{' % (self.sectionnames[self.sectionlevel], short))
@@ -1406,10 +1425,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
            isinstance(node.children[0], nodes.image) and
            node.children[0]['ids']):
             ids += self.hypertarget(node.children[0]['ids'][0], anchor=False)
-        if 'width' in node and node.get('align', '') in ('left', 'right'):
+        if node.get('align', '') in ('left', 'right'):
+            if 'width' in node:
+                length = width_to_latex_length(node['width'])
+            else:
+                length = '0pt'
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
-                             (node['align'] == 'right' and 'r' or 'l',
-                              node['width']))
+                             (node['align'] == 'right' and 'r' or 'l', length))
             self.context.append(ids + '\\end{wrapfigure}\n')
         elif self.in_minipage:
             if ('align' not in node.attributes or
