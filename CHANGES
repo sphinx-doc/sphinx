@@ -17,6 +17,7 @@ Features added
 * #2463, #2516: Add keywords of "meta" directive to search index
 * ``:maxdepth:`` option of toctree affects ``secnumdepth`` (ref: #2547)
 * #2575: Now ``sphinx.ext.graphviz`` allows ``:align:`` option
+* C++, added concept directive
 
 Bugs fixed
 ----------

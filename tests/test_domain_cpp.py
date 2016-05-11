@@ -133,6 +133,21 @@ def test_type_definitions():
     check('type', 'A = B', None, '1A')
 
 
+def test_concept_definitions():
+    check('concept', '  template  <  typename  Param  >  A  ::  B  ::  Concept  ',
+          None, 'I0EN1A1B7ConceptE',
+          output='template<typename Param> concept bool A::B::Concept')
+    check('concept', 'template<typename A, typename B, typename ...C> Foo',
+          None, 'I00DpE3Foo',
+          output='template<typename A, typename B, typename ...C> concept bool Foo')
+    check('concept', '  template  <  typename  Param  >  A  ::  B  ::  Concept  (  )  ',
+          None, 'I0EN1A1B7ConceptEv',
+          output='template<typename Param> concept bool A::B::Concept()')
+    check('concept', 'template<typename A, typename B, typename ...C> Foo()',
+          None, 'I00DpE3Foov',
+          output='template<typename A, typename B, typename ...C> concept bool Foo()')
+
+
 def test_member_definitions():
     check('member', '  const  std::string  &  name = 42',
           "name__ssCR", "4name", output='const std::string &name = 42')

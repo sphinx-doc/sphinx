@@ -685,6 +685,33 @@ a visibility statement (``public``, ``private`` or ``protected``).
       .. cpp::enumerator:: MyEnum::myOtherEnumerator = 42
 
 
+.. rst:directive:: .. cpp:concept:: template<typename Param> name
+                   .. cpp:concept:: template<typename Param> name()
+
+   Describe a concept, which must be a template. A concept can be declared as a
+   variable concept or as a function concept. Examples::
+
+      .. cpp:concept:: template<typename It> Iterator
+
+         Proxy to an element of a notional sequence that can be compared,
+         indirected, or incremented.
+
+      .. cpp:concept:: template<typename Cont> Container()
+
+         Holder of elements, to which it can provide access via Iterators.
+
+   They will render as follows:
+
+   .. cpp:concept:: template<typename It> Iterator
+
+      Proxy to an element of a notional sequence that can be compared,
+      indirected, or incremented.
+
+   .. cpp:concept:: template<typename Cont> Container()
+
+      Holder of elements, to which it can provide access via Iterators.
+
+
 Namespacing
 ~~~~~~~~~~~~~~~~~
 
@@ -790,6 +817,7 @@ These roles link to the given declaration types:
               cpp:member
               cpp:var
               cpp:type
+              cpp:concept
               cpp:enum
               cpp:enumerator
 
