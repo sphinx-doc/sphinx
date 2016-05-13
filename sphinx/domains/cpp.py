@@ -2587,7 +2587,7 @@ class Symbol(object):
             s = s._find_named_symbol(identifier, templateParams,
                                      templateArgs, operator,
                                      templateShorthand=False,
-                                     matchSelf=True)
+                                     matchSelf=False)
             if not s:
                 return None
         return s
