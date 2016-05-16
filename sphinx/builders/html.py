@@ -718,7 +718,8 @@ class StandaloneHTMLBuilder(Builder):
     def index_page(self, pagename, doctree, title):
         # only index pages with title
         if self.indexer is not None and title:
-            self.indexer.feed(pagename, title, doctree)
+            filename = self.env.doc2path(pagename, base=None)
+            self.indexer.feed(pagename, filename, title, doctree)
 
     def _get_local_toctree(self, docname, collapse=True, **kwds):
         if 'includehidden' not in kwds:
