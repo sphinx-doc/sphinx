@@ -409,8 +409,8 @@ class StandaloneHTMLBuilder(Builder):
         # the name for the copied source
         if self.config.html_copy_source:
             sourcename = docname + source_suffix
-            if self.config.html_sourcelink_txt and source_suffix != '.txt':
-                sourcename += '.txt'
+            if source_suffix != self.config.html_sourcelink_suffix:
+                sourcename += self.config.html_sourcelink_suffix
         else:
             sourcename = ''
 

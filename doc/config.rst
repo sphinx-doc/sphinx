@@ -870,10 +870,10 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 0.6
 
-.. confval:: html_sourcelink_txt
+.. confval:: html_sourcelink_suffix
 
-   If true, ``.txt`` is appended to source links (see
-   :confval:`html_show_sourcelink`).  Default is ``True``.
+   Suffix to be appended to source links (see :confval:`html_show_sourcelink`),
+   unless they have this suffix already.  Default is ``'.txt'``.
 
    .. versionadded:: 1.5
 

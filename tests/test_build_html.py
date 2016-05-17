@@ -989,8 +989,8 @@ def test_html_extra_path(app, status, warning):
     assert (app.outdir / 'background.png').exists()
 
 
-@with_app(buildername='html', confoverrides={'html_sourcelink_txt': False})
-def test_html_sourcelink_txt(app, status, warning):
+@with_app(buildername='html', confoverrides={'html_sourcelink_suffix': ''})
+def test_html_sourcelink_suffix(app, status, warning):
     app.builder.build_all()
     content_otherext = (app.outdir / 'otherext.html').text()
     content_images = (app.outdir / 'images.html').text()
