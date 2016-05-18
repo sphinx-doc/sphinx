@@ -54,6 +54,7 @@ Bugs fixed
 * #2526: LaTeX writer crashes if the section having only images
 * #2522: Sphinx touches mo files under installed directory that caused permission error.
 * #2536: C++, fix crash when an immediately nested scope has the same name as the current scope.
+* #2555: Fix crash on any-references with unicode.
 
 
 Release 1.4.1 (released Apr 12, 2016)

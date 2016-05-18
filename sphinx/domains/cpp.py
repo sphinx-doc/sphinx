@@ -4100,7 +4100,7 @@ class CPPDomain(Domain):
             parser.assert_end()
         except DefinitionError as e:
             warner.warn('Unparseable C++ cross-reference: %r\n%s'
-                        % (target, str(e.description)))
+                        % (target, text_type(e.description)))
             return None, None
         parentKey = node.get("cpp:parent_key", None)
         rootSymbol = self.data['root_symbol']
