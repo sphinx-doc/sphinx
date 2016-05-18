@@ -699,7 +699,10 @@
 
 % to make pdf with correct encoded bookmarks in Japanese
 % this should precede the hyperref package
-\ifx\kanjiskip\undefined\else
+\ifx\kanjiskip\undefined
+% for non-Japanese: make sure bookmarks are ok also with lualatex
+  \PassOptionsToPackage{pdfencoding=unicode}{hyperref}
+\else
   \usepackage{atbegshi}
   \ifx\ucs\undefined
     \ifnum 42146=\euc"A4A2
