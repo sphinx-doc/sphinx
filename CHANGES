@@ -56,7 +56,7 @@ Bugs fixed
 * #2536: C++, fix crash when an immediately nested scope has the same name as the current scope.
 * #2555: Fix crash on any-references with unicode.
 * #2517: wrong bookmark encoding in PDF if using LuaLaTeX
-* #2512: generated Makefile causes BSD make crashed if sphinx-build not found
+* #2521: generated Makefile causes BSD make crashed if sphinx-build not found
 
 
 Release 1.4.1 (released Apr 12, 2016)
