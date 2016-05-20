@@ -67,7 +67,10 @@ class PycodeError(Exception):
         return res
 
 
-class SphinxParallelError(Exception):
+class SphinxParallelError(SphinxError):
+
+    category = 'Sphinx parallel build error'
+
     def __init__(self, orig_exc, traceback):
         self.orig_exc = orig_exc
         self.traceback = traceback
