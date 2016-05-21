@@ -35,7 +35,10 @@ from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
 from sphinx.util.docstrings import prepare_docstring
 
 try:
-    import typing
+    if sys.version_info >= (3,):
+        import typing
+    else:
+        typing = None
 except ImportError:
     typing = None
 

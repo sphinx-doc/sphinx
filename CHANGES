@@ -57,6 +57,7 @@ Bugs fixed
 * #2555: Fix crash on any-references with unicode.
 * #2517: wrong bookmark encoding in PDF if using LuaLaTeX
 * #2521: generated Makefile causes BSD make crashed if sphinx-build not found
+* #2470: ``typing`` backport package causes autodoc errors with python 2.7
 
 
 Release 1.4.1 (released Apr 12, 2016)
