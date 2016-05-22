@@ -142,6 +142,9 @@ release = u'%(release_str)s'
 # Usually you set "language" from the command line for these cases.
 language = %(language)r
 
+# The number of spaces tab characters in reST source files will be expanded to.
+# tab_width = 8
+
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
 #

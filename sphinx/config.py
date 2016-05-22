@@ -71,6 +71,7 @@ class Config(object):
         add_function_parentheses = (True, 'env'),
         add_module_names = (True, 'env'),
         trim_footnote_reference_space = (False, 'env'),
+        tab_width = (8, 'env'),
         show_authors = (False, 'env'),
         pygments_style = (None, 'html', string_classes),
         highlight_language = ('default', 'env'),

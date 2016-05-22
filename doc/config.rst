@@ -92,6 +92,14 @@ General configuration
    .. versionadded:: 0.5
       Previously, Sphinx accepted only UTF-8 encoded sources.
 
+.. confval:: tab_width
+
+   The number of spaces tab characters in reST source files will be expanded to.
+   The default is 8.
+
+   .. versionadded:: 1.5
+      Previously tabs were always expanded to 8 spaces.
+
 .. confval:: source_parsers
 
    If given, a dictionary of parser classes for different source suffices.  The

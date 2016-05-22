@@ -685,6 +685,7 @@ class BuildEnvironment:
         self.settings['trim_footnote_reference_space'] = \
             self.config.trim_footnote_reference_space
         self.settings['gettext_compact'] = self.config.gettext_compact
+        self.settings['tab_width'] = self.config.tab_width
 
         self.patch_lookup_functions()
 
