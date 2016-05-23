@@ -544,6 +544,9 @@ class Sphinx(object):
                 return result
         return None
 
+    def has_event_listener(self, event):
+        return event in self._listeners
+
     # registering addon parts
 
     def add_builder(self, builder):
