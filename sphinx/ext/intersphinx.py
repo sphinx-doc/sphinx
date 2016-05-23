@@ -274,8 +274,6 @@ def load_mappings(app):
             if not isinstance(name, string_types):
                 app.warn('intersphinx identifier %r is not string. Ignored' % name)
                 continue
-            elif not name.isalnum():
-                app.warn('intersphinx identifier %r is not alphanumeric' % name)
         else:
             # old format, no name
             name, uri, inv = None, key, value
