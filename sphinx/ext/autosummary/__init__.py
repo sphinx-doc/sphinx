@@ -298,8 +298,9 @@ class Autosummary(Directive):
             if not sig:
                 sig = ''
             else:
-                max_chars = max(10, max_item_chars - len(display_name))
-                sig = mangle_signature(sig, max_chars=max_chars)
+                if not env.app.has_event_listener('autodoc-process-signature'):
+                    max_chars = max(10, max_item_chars - len(display_name))
+                    sig = mangle_signature(sig, max_chars=max_chars)
                 sig = sig.replace('*', r'\*')
 
             # -- Grab the summary
