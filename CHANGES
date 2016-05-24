@@ -48,7 +48,7 @@ Features added
 * #2343: the long source lines in code-blocks are wrapped (without modifying
    the line numbering) in LaTeX output (ref #1534, #2304).
 * Convert linkcheck builder to requests for better encoding handling
-* #2516: Allow to search keywords on ``meta`` directive
+* #2463, #2516: Add keywords of "meta" directive to search index
 
 Bugs fixed
 ----------
