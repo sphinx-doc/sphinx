@@ -454,8 +454,12 @@
             {\py@TitleColor\thesubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
 \titleformat{\subsubsection}{\py@HeaderFamily}%
             {\py@TitleColor\thesubsubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
-\titleformat{\paragraph}{\small\py@HeaderFamily}%
-            {\py@TitleColor}{0em}{\py@TitleColor}{\py@NormalColor}
+% By default paragraphs (and subsubsections) will not be numbered because
+% sphinxmanual.cls and sphinxhowto.cls set secnumdepth to 2
+\titleformat{\paragraph}{\py@HeaderFamily}%
+            {\py@TitleColor\theparagraph}{0.5em}{\py@TitleColor}{\py@NormalColor}
+\titleformat{\subparagraph}{\py@HeaderFamily}%
+            {\py@TitleColor\thesubparagraph}{0.5em}{\py@TitleColor}{\py@NormalColor}
 
 % {fulllineitems} is the main environment for object descriptions.
 %
