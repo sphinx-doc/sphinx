@@ -23,7 +23,7 @@ Features added
   code lines themselves) obey the indentation in lists or quoted blocks.
 
 * #2343: the long source lines in code-blocks are wrapped (without modifying
-   the line numbering) in LaTeX output (ref #1534, #2304).
+  the line numbering) in LaTeX output (ref #1534, #2304).
 
 Bugs fixed
 ----------
