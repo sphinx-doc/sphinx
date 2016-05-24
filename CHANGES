@@ -60,6 +60,7 @@ Bugs fixed
 * #2470: ``typing`` backport package causes autodoc errors with python 2.7
 * ``sphinx.ext.intersphinx`` crashes if non-string value is used for key of `intersphinx_mapping`
 * #2518: `intersphinx_mapping` disallows non alphanumeric keys
+* #2558: unpack error on devhelp builder
 
 
 Release 1.4.1 (released Apr 12, 2016)

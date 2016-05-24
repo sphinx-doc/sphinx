@@ -123,7 +123,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
                                 subitem[1], [])
 
         for (key, group) in index:
-            for title, (refs, subitems) in group:
+            for title, (refs, subitems, key) in group:
                 write_index(title, refs, subitems)
 
         # Dump the XML file
