@@ -61,6 +61,7 @@ Bugs fixed
 * ``sphinx.ext.intersphinx`` crashes if non-string value is used for key of `intersphinx_mapping`
 * #2518: `intersphinx_mapping` disallows non alphanumeric keys
 * #2558: unpack error on devhelp builder
+* #2561: Info builder crashes when a footnote contains a link
 
 
 Release 1.4.1 (released Apr 12, 2016)
