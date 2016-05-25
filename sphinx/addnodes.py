@@ -120,6 +120,10 @@ class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
     target, ignored, key)``.
 
     *entrytype* is one of "single", "pair", "double", "triple".
+
+    *key* is categolziation characters (usually it is single character) for
+    general index page. For the detail of this, please see also:
+    :rst:directive:`glossary` and issue #2320.
     """
 
 
