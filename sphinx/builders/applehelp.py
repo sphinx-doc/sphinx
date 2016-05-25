@@ -178,14 +178,11 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
         # Build the access page
         self.info(bold('building access page...'), nonl=True)
-        f = codecs.open(path.join(language_dir, '_access.html'), 'w')
-        try:
+        with codecs.open(path.join(language_dir, '_access.html'), 'w') as f:
             f.write(access_page_template % {
                 'toc': htmlescape(toc, quote=True),
                 'title': htmlescape(self.config.applehelp_title)
             })
-        finally:
-            f.close()
         self.info('done')
 
         # Generate the help index

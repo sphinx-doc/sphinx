@@ -82,11 +82,8 @@ class Graphviz(Directive):
             rel_filename, filename = env.relfn2path(argument)
             env.note_dependency(rel_filename)
             try:
-                fp = codecs.open(filename, 'r', 'utf-8')
-                try:
+                with codecs.open(filename, 'r', 'utf-8') as fp:
                     dotcode = fp.read()
-                finally:
-                    fp.close()
             except (IOError, OSError):
                 return [document.reporter.warning(
                     'External Graphviz file %r not found or reading '
@@ -239,11 +236,8 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
             <p class="warning">%s</p></object>\n''' % (fname, alt)
             self.body.append(svgtag)
         else:
-            mapfile = open(outfn + '.map', 'rb')
-            try:
+            with open(outfn + '.map', 'rb') as mapfile:
                 imgmap = mapfile.readlines()
-            finally:
-                mapfile.close()
             if len(imgmap) == 2:
                 # nothing in image map (the lines are <map> and </map>)
                 self.body.append('<img src="%s" alt="%s" %s/>\n' %

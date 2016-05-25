@@ -130,11 +130,8 @@ class WebSupport(object):
         """Load and return the "global context" pickle."""
         if not self._globalcontext:
             infilename = path.join(self.datadir, 'globalcontext.pickle')
-            f = open(infilename, 'rb')
-            try:
+            with open(infilename, 'rb') as f:
                 self._globalcontext = pickle.load(f)
-            finally:
-                f.close()
         return self._globalcontext
 
     def get_document(self, docname, username='', moderator=False):
@@ -185,14 +182,11 @@ class WebSupport(object):
             infilename = docpath + '.fpickle'
 
         try:
-            f = open(infilename, 'rb')
+            with open(infilename, 'rb') as f:
+                document = pickle.load(f)
         except IOError:
             raise errors.DocumentNotFoundError(
                 'The document "%s" could not be found' % docname)
-        try:
-            document = pickle.load(f)
-        finally:
-            f.close()
 
         comment_opts = self._make_comment_options(username, moderator)
         comment_meta = self._make_metadata(

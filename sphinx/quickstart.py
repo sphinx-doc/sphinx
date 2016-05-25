@@ -1487,11 +1487,8 @@ def generate(d, overwrite=True, silent=False):
     def write_file(fpath, content, newline=None):
         if overwrite or not path.isfile(fpath):
             print('Creating file %s.' % fpath)
-            f = open(fpath, 'wt', encoding='utf-8', newline=newline)
-            try:
+            with open(fpath, 'wt', encoding='utf-8', newline=newline) as f:
                 f.write(content)
-            finally:
-                f.close()
         else:
             print('File %s already exists, skipping.' % fpath)
 

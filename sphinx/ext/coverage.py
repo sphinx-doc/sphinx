@@ -87,8 +87,7 @@ class CoverageBuilder(Builder):
         c_objects = self.env.domaindata['c']['objects']
         for filename in self.c_sourcefiles:
             undoc = set()
-            f = open(filename, 'r')
-            try:
+            with open(filename, 'r') as f:
                 for line in f:
                     for key, regex in self.c_regexes:
                         match = regex.match(line)
@@ -101,15 +100,12 @@ class CoverageBuilder(Builder):
                                 else:
                                     undoc.add((key, name))
                             continue
-            finally:
-                f.close()
             if undoc:
                 self.c_undoc[filename] = undoc
 
     def write_c_coverage(self):
         output_file = path.join(self.outdir, 'c.txt')
-        op = open(output_file, 'w')
-        try:
+        with open(output_file, 'w') as op:
             if self.config.coverage_write_headline:
                 write_header(op, 'Undocumented C API elements', '=')
             op.write('\n')
@@ -119,8 +115,6 @@ class CoverageBuilder(Builder):
                 for typ, name in sorted(undoc):
                     op.write(' * %-50s [%9s]\n' % (name, typ))
                 op.write('\n')
-        finally:
-            op.close()
 
     def build_py_coverage(self):
         objects = self.env.domaindata['py']['objects']
@@ -214,9 +208,8 @@ class CoverageBuilder(Builder):
 
     def write_py_coverage(self):
         output_file = path.join(self.outdir, 'python.txt')
-        op = open(output_file, 'w')
         failed = []
-        try:
+        with open(output_file, 'w') as op:
             if self.config.coverage_write_headline:
                 write_header(op, 'Undocumented Python objects', '=')
             keys = sorted(self.py_undoc.keys())
@@ -247,17 +240,12 @@ class CoverageBuilder(Builder):
             if failed:
                 write_header(op, 'Modules that failed to import')
                 op.writelines(' * %s -- %s\n' % x for x in failed)
-        finally:
-            op.close()
 
     def finish(self):
         # dump the coverage data to a pickle file too
         picklepath = path.join(self.outdir, 'undoc.pickle')
-        dumpfile = open(picklepath, 'wb')
-        try:
+        with open(picklepath, 'wb') as dumpfile:
             pickle.dump((self.py_undoc, self.c_undoc), dumpfile)
-        finally:
-            dumpfile.close()
 
 
 def setup(app):
