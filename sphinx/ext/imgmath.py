@@ -162,8 +162,6 @@ def render_math(self, math):
         image_translator_args += ['-o', outfn]
         # add custom ones from config value
         image_translator_args.extend(self.builder.config.imgmath_dvisvgm_args)
-        # last, the input file name
-        image_translator_args.append(path.join(tempdir, 'math.dvi'))
     else:
         raise MathExtError(
             'imgmath_image_format must be either "png" or "svg"')
