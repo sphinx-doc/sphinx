@@ -43,6 +43,8 @@ class graphviz(nodes.General, nodes.Inline, nodes.Element):
 
 def figure_wrapper(directive, node, caption):
     figure_node = nodes.figure('', node)
+    if 'align' in node:
+        figure_node['align'] = node.attributes.pop('align')
 
     parsed = nodes.Element()
     directive.state.nested_parse(ViewList([caption], source=''),
@@ -55,6 +57,10 @@ def figure_wrapper(directive, node, caption):
     return figure_node
 
 
+def align_spec(argument):
+    return directives.choice(argument, ('left', 'center', 'right'))
+
+
 class Graphviz(Directive):
     """
     Directive to insert arbitrary dot markup.
@@ -65,6 +71,7 @@ class Graphviz(Directive):
     final_argument_whitespace = False
     option_spec = {
         'alt': directives.unchanged,
+        'align': align_spec,
         'inline': directives.flag,
         'caption': directives.unchanged,
         'graphviz_dot': directives.unchanged,
@@ -101,6 +108,8 @@ class Graphviz(Directive):
             node['options']['graphviz_dot'] = self.options['graphviz_dot']
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
+        if 'align' in self.options:
+            node['align'] = self.options['align']
         if 'inline' in self.options:
             node['inline'] = True
 
@@ -121,6 +130,7 @@ class GraphvizSimple(Directive):
     final_argument_whitespace = False
     option_spec = {
         'alt': directives.unchanged,
+        'align': align_spec,
         'inline': directives.flag,
         'caption': directives.unchanged,
         'graphviz_dot': directives.unchanged,
@@ -135,6 +145,8 @@ class GraphvizSimple(Directive):
             node['options']['graphviz_dot'] = self.options['graphviz_dot']
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
+        if 'align' in self.options:
+            node['align'] = self.options['align']
         if 'inline' in self.options:
             node['inline'] = True
 
@@ -236,6 +248,9 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
             <p class="warning">%s</p></object>\n''' % (fname, alt)
             self.body.append(svgtag)
         else:
+            if 'align' in node:
+                self.body.append('<div align="%s" class="align-%s">' %
+                                 (node['align'], node['align']))
             with open(outfn + '.map', 'rb') as mapfile:
                 imgmap = mapfile.readlines()
             if len(imgmap) == 2:
@@ -248,6 +263,8 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
                 self.body.append('<img src="%s" alt="%s" usemap="#%s" %s/>\n' %
                                  (fname, alt, mapname, imgcss))
                 self.body.extend([item.decode('utf-8') for item in imgmap])
+            if 'align' in node:
+                self.body.append('</div>\n')
 
     raise nodes.SkipNode
 
@@ -271,8 +288,19 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
         para_separator = '\n'
 
     if fname is not None:
+        post = None
+        if not is_inline and 'align' in node:
+            if node['align'] == 'left':
+                self.body.append('{')
+                post = '\\hspace*{\\fill}}'
+            elif node['align'] == 'right':
+                self.body.append('{\\hspace*{\\fill}')
+                post = '}'
         self.body.append('%s\\includegraphics{%s}%s' %
                          (para_separator, fname, para_separator))
+        if post:
+            self.body.append(post)
+
     raise nodes.SkipNode
 
 

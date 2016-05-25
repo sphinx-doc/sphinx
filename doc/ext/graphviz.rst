@@ -96,6 +96,10 @@ It adds these directives:
    All three directives support a ``graphviz_dot`` option that can be switch the
    ``dot`` command within the directive.
 
+.. versionadded:: 1.5
+   All three directives support a ``align`` option to align the graph horizontal.
+   The values "left", "center", "right" are allowed.
+
 There are also these new config values:
 
 .. confval:: graphviz_dot
