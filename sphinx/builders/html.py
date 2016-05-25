@@ -175,7 +175,7 @@ class StandaloneHTMLBuilder(Builder):
         self.tags_hash = get_stable_hash(sorted(self.tags))
         old_config_hash = old_tags_hash = ''
         try:
-            with open(path.join(self.outdir, '.buildinfo')) as f:
+            with open(path.join(self.outdir, '.buildinfo')) as fp:
                 version = fp.readline()
                 if version.rstrip() != '# Sphinx build info version 1':
                     raise ValueError
