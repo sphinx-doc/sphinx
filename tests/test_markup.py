@@ -148,17 +148,22 @@ def test_latex_escaping():
 @with_app(buildername='dummy', testroot='prolog')
 def test_rst_prolog(app, status, warning):
     app.builder.build_all()
-    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    rst = pickle.loads((app.doctreedir / 'restructuredtext.doctree').bytes())
+    md = pickle.loads((app.doctreedir / 'markdown.doctree').bytes())
 
     # rst_prolog
-    assert_node(doctree[0], nodes.paragraph)
-    assert_node(doctree[0][0], nodes.emphasis)
-    assert_node(doctree[0][0][0], nodes.Text)
-    assert doctree[0][0][0] == 'Hello world'
+    assert_node(rst[0], nodes.paragraph)
+    assert_node(rst[0][0], nodes.emphasis)
+    assert_node(rst[0][0][0], nodes.Text)
+    assert rst[0][0][0] == 'Hello world'
 
     # rst_epilog
-    assert_node(doctree[-1], nodes.section)
-    assert_node(doctree[-1][-1], nodes.paragraph)
-    assert_node(doctree[-1][-1][0], nodes.emphasis)
-    assert_node(doctree[-1][-1][0][0], nodes.Text)
-    assert doctree[-1][-1][0][0] == 'Good-bye world'
+    assert_node(rst[-1], nodes.section)
+    assert_node(rst[-1][-1], nodes.paragraph)
+    assert_node(rst[-1][-1][0], nodes.emphasis)
+    assert_node(rst[-1][-1][0][0], nodes.Text)
+    assert rst[-1][-1][0][0] == 'Good-bye world'
+
+    # rst_prolog & rst_epilog on exlucding reST parser
+    assert not md.rawsource.startswith('*Hello world*.')
+    assert not md.rawsource.endswith('*Good-bye world*.\n')
