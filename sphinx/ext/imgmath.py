@@ -185,7 +185,7 @@ def render_math(self, math):
 
     stdout, stderr = p.communicate()
     if p.returncode != 0:
-        raise MathExtError('%s exited with error',
+        raise MathExtError('%s exited with error' %
                            image_translator, stderr, stdout)
     depth = None
     if use_preview and image_format == 'png':  # depth is only useful for png
