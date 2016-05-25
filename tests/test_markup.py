@@ -10,6 +10,7 @@
 """
 
 import re
+import pickle
 
 from docutils import frontend, utils, nodes
 from docutils.parsers import rst
@@ -18,7 +19,7 @@ from sphinx.util import texescape
 from sphinx.writers.html import HTMLWriter, SmartyPantsHTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
 
-from util import TestApp
+from util import TestApp, with_app, assert_node
 
 
 app = settings = parser = None
@@ -142,3 +143,22 @@ def test_latex_escaping():
     # in URIs
     yield (verify_re, u'`test <http://example.com/~me/>`_', None,
            r'\\href{http://example.com/~me/}{test}.*')
+
+
+@with_app(buildername='dummy', testroot='prolog')
+def test_rst_prolog(app, status, warning):
+    app.builder.build_all()
+    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+
+    # rst_prolog
+    assert_node(doctree[0], nodes.paragraph)
+    assert_node(doctree[0][0], nodes.emphasis)
+    assert_node(doctree[0][0][0], nodes.Text)
+    assert doctree[0][0][0] == 'Hello world'
+
+    # rst_epilog
+    assert_node(doctree[-1], nodes.section)
+    assert_node(doctree[-1][-1], nodes.paragraph)
+    assert_node(doctree[-1][-1][0], nodes.emphasis)
+    assert_node(doctree[-1][-1][0][0], nodes.Text)
+    assert doctree[-1][-1][0][0] == 'Good-bye world'
