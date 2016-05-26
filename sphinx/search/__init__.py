@@ -362,7 +362,7 @@ class IndexBuilder(object):
             try:
                 return self._stem_cache[word]
             except KeyError:
-                self._stem_cache[word] = self.lang.stem(word)
+                self._stem_cache[word] = self.lang.stem(word).lower()
                 return self._stem_cache[word]
         _filter = self.lang.word_filter
 

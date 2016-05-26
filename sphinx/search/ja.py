@@ -556,4 +556,4 @@ class SearchJapanese(SearchLanguage):
         return len(stemmed_word) > 1
 
     def stem(self, word):
-        return word.lower()
+        return word

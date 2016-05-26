@@ -311,5 +311,4 @@ class SearchGerman(SearchLanguage):
         self.stemmer = snowballstemmer.stemmer('german')
 
     def stem(self, word):
-        word = word.lower()
         return self.stemmer.stemWord(word)
