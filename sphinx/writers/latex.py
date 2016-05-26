@@ -442,6 +442,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             #   tocdepth =  2: show parts, chapters, sections and subsections
             #   ...
             tocdepth = document['tocdepth'] + self.top_sectionlevel - 2
+            maxdepth = len(self.sectionnames) - self.top_sectionlevel
+            if tocdepth > maxdepth:
+                self.builder.warn('too large :maxdepth:, ignored.')
+                tocdepth = maxdepth
+
             self.elements['tocdepth'] = '\\setcounter{tocdepth}{%d}' % tocdepth
             if tocdepth >= SECNUMDEPTH:
                 # Increase secnumdepth if tocdepth is depther than default SECNUMDEPTH
