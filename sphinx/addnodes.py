@@ -116,10 +116,14 @@ class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
     """Node for index entries.
 
     This node is created by the ``index`` directive and has one attribute,
-    ``entries``.  Its value is a list of 4-tuples of ``(entrytype, entryname,
-    target, ignored)``.
+    ``entries``.  Its value is a list of 5-tuples of ``(entrytype, entryname,
+    target, ignored, key)``.
 
     *entrytype* is one of "single", "pair", "double", "triple".
+
+    *key* is categolziation characters (usually it is single character) for
+    general index page. For the detail of this, please see also:
+    :rst:directive:`glossary` and issue #2320.
     """
 
 

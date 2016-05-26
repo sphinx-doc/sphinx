@@ -452,8 +452,12 @@
             {\py@TitleColor\thesubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
 \titleformat{\subsubsection}{\py@HeaderFamily}%
             {\py@TitleColor\thesubsubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
-\titleformat{\paragraph}{\small\py@HeaderFamily}%
-            {\py@TitleColor}{0em}{\py@TitleColor}{\py@NormalColor}
+% By default paragraphs (and subsubsections) will not be numbered because
+% sphinxmanual.cls and sphinxhowto.cls set secnumdepth to 2
+\titleformat{\paragraph}{\py@HeaderFamily}%
+            {\py@TitleColor\theparagraph}{0.5em}{\py@TitleColor}{\py@NormalColor}
+\titleformat{\subparagraph}{\py@HeaderFamily}%
+            {\py@TitleColor\thesubparagraph}{0.5em}{\py@TitleColor}{\py@NormalColor}
 
 % {fulllineitems} is the main environment for object descriptions.
 %
@@ -697,7 +701,10 @@
 
 % to make pdf with correct encoded bookmarks in Japanese
 % this should precede the hyperref package
-\ifx\kanjiskip\undefined\else
+\ifx\kanjiskip\undefined
+% for non-Japanese: make sure bookmarks are ok also with lualatex
+  \PassOptionsToPackage{pdfencoding=unicode}{hyperref}
+\else
   \usepackage{atbegshi}
   \ifx\ucs\undefined
     \ifnum 42146=\euc"A4A2

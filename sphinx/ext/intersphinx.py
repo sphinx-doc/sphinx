@@ -33,7 +33,7 @@ import posixpath
 from os import path
 import re
 
-from six import iteritems
+from six import iteritems, string_types
 from six.moves.urllib import parse, request
 from docutils import nodes
 from docutils.utils import relative_path
@@ -271,8 +271,9 @@ def load_mappings(app):
         if isinstance(value, tuple):
             # new format
             name, (uri, inv) = key, value
-            if not name.isalnum():
-                app.warn('intersphinx identifier %r is not alphanumeric' % name)
+            if not isinstance(name, string_types):
+                app.warn('intersphinx identifier %r is not string. Ignored' % name)
+                continue
         else:
             # old format, no name
             name, uri, inv = None, key, value

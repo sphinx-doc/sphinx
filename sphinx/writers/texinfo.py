@@ -650,7 +650,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                     self.next_section_ids.add(node['refid'])
                 self.next_section_ids.update(node['ids'])
                 return
-        except IndexError:
+        except (IndexError, AttributeError):
             pass
         if 'refuri' in node:
             return

@@ -98,6 +98,13 @@ else:
         def run(self):
             compile_catalog.run(self)
 
+            if isinstance(self.domain, list):
+                for domain in self.domain:
+                    self._run_domain_js(domain)
+            else:
+                self._run_domain_js(self.domain)
+
+        def _run_domain_js(self, domain):
             po_files = []
             js_files = []
 
@@ -106,20 +113,20 @@ else:
                     po_files.append((self.locale,
                                      os.path.join(self.directory, self.locale,
                                                   'LC_MESSAGES',
-                                                  self.domain + '.po')))
+                                                  domain + '.po')))
                     js_files.append(os.path.join(self.directory, self.locale,
                                                  'LC_MESSAGES',
-                                                 self.domain + '.js'))
+                                                 domain + '.js'))
                 else:
                     for locale in os.listdir(self.directory):
                         po_file = os.path.join(self.directory, locale,
                                                'LC_MESSAGES',
-                                               self.domain + '.po')
+                                               domain + '.po')
                         if os.path.exists(po_file):
                             po_files.append((locale, po_file))
                             js_files.append(os.path.join(self.directory, locale,
                                                          'LC_MESSAGES',
-                                                         self.domain + '.js'))
+                                                         domain + '.js'))
             else:
                 po_files.append((self.locale, self.input_file))
                 if self.output_file:
@@ -127,7 +134,7 @@ else:
                 else:
                     js_files.append(os.path.join(self.directory, self.locale,
                                                  'LC_MESSAGES',
-                                                 self.domain + '.js'))
+                                                 domain + '.js'))
 
             for js_file, (locale, po_file) in zip(js_files, po_files):
                 infile = open(po_file, 'r')
