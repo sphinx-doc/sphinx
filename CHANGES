@@ -13,6 +13,8 @@ Features added
 * Add ``:caption:`` option for sphinx.ext.inheritance_diagram.
 * #894: Add ``lualatexpdf`` and ``xelatexpdf`` as a make target to build PDF using lualatex or xelatex
 * #2471: Add config variable for default doctest flags.
+* Convert linkcheck builder to requests for better encoding handling
+* #2463, #2516: Add keywords of "meta" directive to search index
 
 Bugs fixed
 ----------
@@ -47,8 +49,6 @@ Features added
 
 * #2343: the long source lines in code-blocks are wrapped (without modifying
    the line numbering) in LaTeX output (ref #1534, #2304).
-* Convert linkcheck builder to requests for better encoding handling
-* #2463, #2516: Add keywords of "meta" directive to search index
 
 Bugs fixed
 ----------
