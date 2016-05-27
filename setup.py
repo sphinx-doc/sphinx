@@ -64,6 +64,7 @@ extras_require = {
         'nose',
         'mock',  # it would be better for 'test:python_version in "2.6,2.7"'
         'simplejson',  # better: 'test:platform_python_implementation=="PyPy"'
+        'lxml',
     ],
 }
 

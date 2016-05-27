@@ -13,11 +13,10 @@ import os
 import re
 
 from six import PY3, iteritems
-from six.moves import html_entities
 
 from sphinx import __display_version__
 from util import remove_unicode_literals, gen_with_app, with_app
-from etree13 import ElementTree as ET
+import lxml.etree
 
 
 ENV_WARNINGS = """\
@@ -319,21 +318,6 @@ HTML_XPATH = {
 }
 
 
-class NslessParser(ET.XMLParser):
-    """XMLParser that throws away namespaces in tag names."""
-
-    def _fixname(self, key):
-        try:
-            return self._names[key]
-        except KeyError:
-            name = key
-            br = name.find('}')
-            if br > 0:
-                name = name[br+1:]
-            self._names[key] = name = self._fixtext(name)
-            return name
-
-
 def check_xpath(etree, fname, path, check, be_found=True):
     nodes = list(etree.findall(path))
     if check is None:
@@ -405,10 +389,10 @@ def test_html_output(app, status, warning):
         '--- Got:\n' + html_warnings
 
     for fname, paths in iteritems(HTML_XPATH):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
+        parser = lxml.etree.HTMLParser()
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = lxml.etree.parse(fp, parser)
+
         for path, check in paths:
             yield check_xpath, etree, fname, path, check
 
@@ -455,10 +439,9 @@ def test_tocdepth(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
+        parser = lxml.etree.HTMLParser()
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = lxml.etree.parse(fp, parser)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -497,10 +480,9 @@ def test_tocdepth_singlehtml(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
+        parser = lxml.etree.HTMLParser()
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = lxml.etree.parse(fp, parser)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -553,10 +535,9 @@ def test_numfig_disabled(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
+        parser = lxml.etree.HTMLParser()
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = lxml.etree.parse(fp, parser)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -654,10 +635,9 @@ def test_numfig_without_numbered_toctree(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
+        parser = lxml.etree.HTMLParser()
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = lxml.etree.parse(fp, parser)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -751,10 +731,9 @@ def test_numfig_with_numbered_toctree(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
+        parser = lxml.etree.HTMLParser()
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = lxml.etree.parse(fp, parser)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -851,10 +830,9 @@ def test_numfig_with_prefix(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
+        parser = lxml.etree.HTMLParser()
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = lxml.etree.parse(fp, parser)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -948,10 +926,9 @@ def test_numfig_with_secnum_depth(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
+        parser = lxml.etree.HTMLParser()
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = lxml.etree.parse(fp, parser)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -980,10 +957,9 @@ def test_enumerable_node(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
+        parser = lxml.etree.HTMLParser()
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = lxml.etree.parse(fp, parser)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
