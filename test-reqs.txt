@@ -13,4 +13,4 @@ alabaster
 sphinx_rtd_theme
 imagesize
 requests
-lxml
+lxml>=3.5.0
