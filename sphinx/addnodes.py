@@ -123,7 +123,7 @@ class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
 
     *key* is categolziation characters (usually it is single character) for
     general index page. For the detail of this, please see also:
-    :rst:directive:`glossary` and issue #2320.
+    :rst:dir:`glossary` and issue #2320.
     """
 
 

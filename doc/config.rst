@@ -283,7 +283,12 @@ General configuration
 .. confval:: numfig
 
    If true, figures, tables and code-blocks are automatically numbered if they
-   have a caption. For now, it works only with the HTML builder. Default is ``False``.
+   have a caption.  At same time, the `numref` role is enabled.  For now, it
+   works only with the HTML builder and LaTeX builder. Default is ``False``.
+
+   .. note::
+
+      LaTeX builder always assign numbers whether this option is enabled or not.
 
    .. versionadded:: 1.3
 

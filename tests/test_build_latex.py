@@ -177,10 +177,10 @@ def test_numref(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig. }}' in result
+    assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.\\@ }}' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table }}' in result
     assert '\\SetupFloatingEnvironment{literal-block}{name=Listing }' in result
-    assert '\\hyperref[index:fig1]{Fig. \\ref{index:fig1}}' in result
+    assert '\\hyperref[index:fig1]{Fig.\\@ \\ref{index:fig1}}' in result
     assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
     assert '\\hyperref[index:table-1]{Table \\ref{index:table-1}}' in result
     assert '\\hyperref[baz:table22]{Table:\\ref{baz:table22}}' in result
@@ -228,11 +228,11 @@ def test_numref_with_prefix2(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Figure:}}' in result
-    assert '\\def\\fnum@figure{\\figurename\\thefigure.}' in result
+    assert '\\def\\fnum@figure{\\figurename\\thefigure.\\@}' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Tab\\_}}' in result
     assert '\\def\\fnum@table{\\tablename\\thetable:}' in result
     assert '\\SetupFloatingEnvironment{literal-block}{name=Code-}' in result
-    assert '\\hyperref[index:fig1]{Figure:\\ref{index:fig1}.}' in result
+    assert '\\hyperref[index:fig1]{Figure:\\ref{index:fig1}.\\@}' in result
     assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
     assert '\\hyperref[index:table-1]{Tab\\_\\ref{index:table-1}:}' in result
     assert '\\hyperref[baz:table22]{Table:\\ref{baz:table22}}' in result
@@ -282,8 +282,8 @@ def test_babel_with_no_language_settings(app, status, warning):
     assert '\\usepackage[Bjarne]{fncychap}' in result
     assert ('\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
-    assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig. }}\n' in result
-    assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table. }}\n' in result
+    assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.\\@ }}\n' in result
+    assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table.\\@ }}\n' in result
     assert '\\addto\\extrasenglish{\\def\\pageautorefname{page}}\n' in result
     assert '\\shorthandoff' not in result
 
@@ -302,8 +302,8 @@ def test_babel_with_language_de(app, status, warning):
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsngerman{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
-    assert '\\addto\\captionsngerman{\\renewcommand{\\figurename}{Fig. }}\n' in result
-    assert '\\addto\\captionsngerman{\\renewcommand{\\tablename}{Table. }}\n' in result
+    assert '\\addto\\captionsngerman{\\renewcommand{\\figurename}{Fig.\\@ }}\n' in result
+    assert '\\addto\\captionsngerman{\\renewcommand{\\tablename}{Table.\\@ }}\n' in result
     assert '\\addto\\extrasngerman{\\def\\pageautorefname{page}}\n' in result
     assert '\\shorthandoff{"}' in result
 
@@ -322,8 +322,8 @@ def test_babel_with_language_ru(app, status, warning):
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsrussian{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
-    assert '\\addto\\captionsrussian{\\renewcommand{\\figurename}{Fig. }}\n' in result
-    assert '\\addto\\captionsrussian{\\renewcommand{\\tablename}{Table. }}\n' in result
+    assert '\\addto\\captionsrussian{\\renewcommand{\\figurename}{Fig.\\@ }}\n' in result
+    assert '\\addto\\captionsrussian{\\renewcommand{\\tablename}{Table.\\@ }}\n' in result
     assert '\\addto\\extrasrussian{\\def\\pageautorefname{page}}\n' in result
     assert '\\shorthandoff' not in result
 
@@ -342,8 +342,8 @@ def test_babel_with_language_tr(app, status, warning):
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsturkish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
-    assert '\\addto\\captionsturkish{\\renewcommand{\\figurename}{Fig. }}\n' in result
-    assert '\\addto\\captionsturkish{\\renewcommand{\\tablename}{Table. }}\n' in result
+    assert '\\addto\\captionsturkish{\\renewcommand{\\figurename}{Fig.\\@ }}\n' in result
+    assert '\\addto\\captionsturkish{\\renewcommand{\\tablename}{Table.\\@ }}\n' in result
     assert '\\addto\\extrasturkish{\\def\\pageautorefname{sayfa}}\n' in result
     assert '\\shorthandoff{=}' in result
 
@@ -361,8 +361,8 @@ def test_babel_with_language_ja(app, status, warning):
     assert '\\usepackage{times}' in result
     assert '\\usepackage[Sonny]{fncychap}' not in result
     assert '\\renewcommand{\\contentsname}{Table of content}\n' in result
-    assert '\\renewcommand{\\figurename}{Fig. }\n' in result
-    assert '\\renewcommand{\\tablename}{Table. }\n' in result
+    assert '\\renewcommand{\\figurename}{Fig.\\@ }\n' in result
+    assert '\\renewcommand{\\tablename}{Table.\\@ }\n' in result
     assert u'\\def\\pageautorefname{ページ}\n' in result
     assert '\\shorthandoff' not in result
 
@@ -381,8 +381,8 @@ def test_babel_with_unknown_language(app, status, warning):
     assert '\\usepackage[Sonny]{fncychap}' in result
     assert ('\\addto\\captionsenglish{\\renewcommand{\\contentsname}{Table of content}}\n'
             in result)
-    assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig. }}\n' in result
-    assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table. }}\n' in result
+    assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.\\@ }}\n' in result
+    assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table.\\@ }}\n' in result
     assert '\\addto\\extrasenglish{\\def\\pageautorefname{page}}\n' in result
     assert '\\shorthandoff' not in result
 
@@ -497,21 +497,22 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     assert 'First footnote: \\footnote[3]{\sphinxAtStartFootnote%\nFirst\n}' in result
     assert 'Second footnote: \\footnote[1]{\sphinxAtStartFootnote%\nSecond\n}' in result
     assert ('\\href{http://sphinx-doc.org/}{Sphinx}'
-            '\\footnote[4]{\sphinxAtStartFootnote%\nhttp://sphinx-doc.org/\n}' in result)
+            '\\footnote[4]{\sphinxAtStartFootnote%\n'
+            '\\nolinkurl{http://sphinx-doc.org/}\n}' in result)
     assert 'Third footnote: \\footnote[6]{\sphinxAtStartFootnote%\nThird\n}' in result
     assert ('\\href{http://sphinx-doc.org/~test/}{URL including tilde}'
             '\\footnote[5]{\sphinxAtStartFootnote%\n'
-            'http://sphinx-doc.org/\\textasciitilde{}test/\n}' in result)
+            '\\nolinkurl{http://sphinx-doc.org/~test/}\n}' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term}\\protect\\footnotemark[8]}] '
             '\\leavevmode\\footnotetext[8]{\sphinxAtStartFootnote%\n'
-            'http://sphinx-doc.org/\n}\nDescription' in result)
+            '\\nolinkurl{http://sphinx-doc.org/}\n}\nDescription' in result)
     assert ('\\item[{Footnote in term \\protect\\footnotemark[10]}] '
             '\\leavevmode\\footnotetext[10]{\sphinxAtStartFootnote%\n'
             'Footnote in term\n}\nDescription' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}\\protect'
             '\\footnotemark[9]}] '
             '\\leavevmode\\footnotetext[9]{\sphinxAtStartFootnote%\n'
-            'http://sphinx-doc.org/\n}\nDescription' in result)
+            '\\nolinkurl{http://sphinx-doc.org/}\n}\nDescription' in result)
     assert ('\\url{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx-dev@googlegroups.com}\n' in result)

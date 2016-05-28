@@ -94,6 +94,9 @@ Bugs fixed
 * #2576: ``sphinx.ext.imgmath`` crashes if subprocess raises error
 * #2577: ``sphinx.ext.imgmath``: Invalid argument are passed to dvisvgm
 * #2556: Xapian search does not work with Python 3
+* #2581: The search doesn't work if language="es" (spanish)
+* #2382: Adjust spacing after abbreviations on figure numbers in LaTeX writer
+* #2383: The generated footnote by `latex_show_urls` overflows lines
 
 
 Release 1.4.1 (released Apr 12, 2016)
