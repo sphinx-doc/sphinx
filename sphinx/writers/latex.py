@@ -429,11 +429,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     return '\\usepackage{%s}' % (packagename,)
             usepackages = (declare_package(*p) for p in builder.usepackages)
             self.elements['usepackages'] += "\n".join(usepackages)
-        # allow the user to override them all
-        self.elements.update(builder.config.latex_elements)
-        if self.elements['extraclassoptions']:
-            self.elements['classoptions'] += ',' + \
-                                             self.elements['extraclassoptions']
         if document.get('tocdepth'):
             # redece tocdepth if `part` or `chapter` is used for top_sectionlevel
             #   tocdepth = -1: show only parts
@@ -454,6 +449,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if getattr(document.settings, 'contentsname', None):
             self.elements['contentsname'] = \
                 self.babel_renewcommand('\\contentsname', document.settings.contentsname)
+        # allow the user to override them all
+        self.elements.update(builder.config.latex_elements)
+        if self.elements['extraclassoptions']:
+            self.elements['classoptions'] += ',' + \
+                                             self.elements['extraclassoptions']
         self.elements['pageautorefname'] = \
             self.babel_defmacro('\\pageautorefname', self.encode(_('page')))
         self.elements['numfig_format'] = self.generate_numfig_format(builder)
