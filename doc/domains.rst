@@ -685,6 +685,61 @@ a visibility statement (``public``, ``private`` or ``protected``).
       .. cpp::enumerator:: MyEnum::myOtherEnumerator = 42
 
 
+.. rst:directive:: .. cpp:concept:: template-parameter-list name
+                   .. cpp:concept:: template-parameter-list name()
+
+   .. warning:: The support for concepts is experimental. It is based on the
+      Concepts Technical Specification, and the features may change as the TS evolves.
+
+   Describe a variable concept or a function concept. Both must have exactly 1
+   template parameter list. The name may be a nested name. Examples::
+
+      .. cpp:concept:: template<typename It> std::Iterator
+
+         Proxy to an element of a notional sequence that can be compared,
+         indirected, or incremented.
+
+      .. cpp:concept:: template<typename Cont> std::Container()
+
+         Holder of elements, to which it can provide access via
+         :cpp:concept:`Iterator` s.
+
+   They will render as follows:
+
+   .. cpp:concept:: template<typename It> std::Iterator
+
+      Proxy to an element of a notional sequence that can be compared,
+      indirected, or incremented.
+
+   .. cpp:concept:: template<typename Cont> std::Container()
+
+      Holder of elements, to which it can provide access via
+      :cpp:concept:`Iterator` s.
+
+Constrained Templates
+~~~~~~~~~~~~~~~~~~~~~
+
+.. warning:: The support for constrained templates is experimental. It is based on the
+  Concepts Technical Specification, and the features may change as the TS evolves.
+
+.. note:: Sphinx does not currently support ``requires`` clauses.
+
+Placeholders
+............
+
+Declarations may use the name of a concept to introduce constrained template
+parameters, or the keyword ``auto`` to introduce unconstrained template parameters::
+
+   .. cpp:function:: void f(auto &&arg)
+
+      A function template with a single unconstrained template parameter.
+
+   .. cpp:function:: void f(std::Iterator it)
+
+      A function template with a single template parameter, constrained by the
+      Iterator concept.
+
+
 Namespacing
 ~~~~~~~~~~~~~~~~~
 
@@ -790,6 +845,7 @@ These roles link to the given declaration types:
               cpp:member
               cpp:var
               cpp:type
+              cpp:concept
               cpp:enum
               cpp:enumerator
 
@@ -886,7 +942,6 @@ Assume the following declaration.
 References to partial specialisations must always include the template parameter lists, e.g.,
 ``template\<typename T> Outer\<T*>`` (:cpp:class:`template\<typename T> Outer\<T*>`).
 Currently the lookup only succeed if the template parameter identifiers are equal strings.
-
 
 
 The Standard Domain

@@ -50,7 +50,7 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
         print("Expected: ", output)
         raise DefinitionError("")
     rootSymbol = Symbol(None, None, None, None, None, None)
-    symbol = rootSymbol.add_declaration(ast, docname="Test")
+    symbol = rootSymbol.add_declaration(ast, docname="TestDoc")
     parentNode = addnodes.desc()
     signode = addnodes.desc_signature(input, '')
     parentNode += signode
@@ -131,6 +131,20 @@ def test_type_definitions():
     check("type", "bool ::B::b", "B::b", "N1B1bE")
 
     check('type', 'A = B', None, '1A')
+
+
+def test_concept_definitions():
+    check('concept', 'template<typename Param> A::B::Concept',
+          None, 'I0EN1A1B7ConceptE')
+    check('concept', 'template<typename A, typename B, typename ...C> Foo',
+          None, 'I00DpE3Foo')
+    check('concept', 'template<typename Param> A::B::Concept()',
+          None, 'I0EN1A1B7ConceptE')
+    check('concept', 'template<typename A, typename B, typename ...C> Foo()',
+          None, 'I00DpE3Foo')
+    raises(DefinitionError, parse, 'concept', 'Foo')
+    raises(DefinitionError, parse, 'concept',
+           'template<typename T> template<typename U> Foo')
 
 
 def test_member_definitions():

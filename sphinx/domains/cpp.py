@@ -54,7 +54,8 @@ from sphinx.util.docfields import Field, GroupedField
     ----------------------------------------------------------------------------
 
     See http://www.nongnu.org/hcb/ for the grammar,
-    or https://github.com/cplusplus/draft/blob/master/source/grammar.tex
+    and https://github.com/cplusplus/draft/blob/master/source/grammar.tex,
+    and https://github.com/cplusplus/concepts-ts
     for the newest grammar.
 
     common grammar things:
@@ -200,6 +201,17 @@ from sphinx.util.docfields import Field, GroupedField
 
     We additionally add the possibility for specifying the visibility as the
     first thing.
+
+    concept_object:
+        goal:
+            just a declaration of the name (for now)
+            either a variable concept or function concept
+
+        grammar: only a single template parameter list, and the nested name
+            may not have any template argument lists
+
+            "template" "<" template-parameter-list ">"
+            nested-name-specifier "()"[opt]
 
     type_object:
         goal:
@@ -2025,6 +2037,34 @@ class ASTTypeUsing(ASTBase):
             self.type.describe_signature(signode, 'markType', env, symbol=symbol)
 
 
+class ASTConcept(ASTBase):
+    def __init__(self, nestedName, isFunction):
+        self.nestedName = nestedName
+        self.isFunction = isFunction  # otherwise it's a variable concept
+
+    @property
+    def name(self):
+        return self.nestedName
+
+    def get_id_v1(self, objectType=None, symbol=None):
+        raise NoOldIdError()
+
+    def get_id_v2(self, objectType, symbol):
+        return symbol.get_full_nested_name().get_id_v2()
+
+    def __unicode__(self):
+        res = text_type(self.nestedName)
+        if self.isFunction:
+            res += "()"
+        return res
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode += nodes.Text(text_type("bool "))
+        self.nestedName.describe_signature(signode, mode, env, symbol)
+        if self.isFunction:
+            signode += nodes.Text("()")
+
+
 class ASTBaseClass(ASTBase):
     def __init__(self, name, visibility, virtual, pack):
         self.name = name
@@ -2233,6 +2273,8 @@ class ASTDeclaration(ASTBase):
             prefix = self.declaration.get_type_declaration_prefix()
             prefix += ' '
             mainDeclNode += addnodes.desc_annotation(prefix, prefix)
+        elif self.objectType == 'concept':
+            mainDeclNode += addnodes.desc_annotation('concept ', 'concept ')
         elif self.objectType == 'member':
             pass
         elif self.objectType == 'function':
@@ -3427,6 +3469,18 @@ class DefinitionParser(object):
         type = self._parse_type(False, None)
         return ASTTypeUsing(name, type)
 
+    def _parse_concept(self):
+        nestedName = self._parse_nested_name()
+        isFunction = False
+
+        self.skip_ws()
+        if self.skip_string('('):
+            isFunction = True
+            self.skip_ws()
+            if not self.skip_string(')'):
+                self.fail("Expected ')' in function concept declaration.")
+        return ASTConcept(nestedName, isFunction)
+
     def _parse_class(self):
         name = self._parse_nested_name()
         self.skip_ws()
@@ -3545,15 +3599,19 @@ class DefinitionParser(object):
                     prevErrors.append((e, ""))
                 raise self._make_multi_error(prevErrors, header)
 
-    def _parse_template_declaration_prefix(self):
+    def _parse_template_declaration_prefix(self, objectType):
         templates = []
         while 1:
             self.skip_ws()
             if not self.skip_word("template"):
                 break
+            if objectType == 'concept' and len(templates) > 0:
+                self.fail("More than 1 template parameter list for concept.")
             params = self._parse_template_parameter_list()
             templates.append(params)
         if len(templates) == 0:
+            if objectType == 'concept':
+                self.fail('Missing template parameter list for concept.')
             return None
         else:
             return ASTTemplateDeclarationPrefix(templates)
@@ -3591,7 +3649,7 @@ class DefinitionParser(object):
         return templatePrefix
 
     def parse_declaration(self, objectType):
-        if objectType not in ('type', 'member',
+        if objectType not in ('type', 'concept', 'member',
                               'function', 'class', 'enum', 'enumerator'):
             raise Exception('Internal error, unknown objectType "%s".' % objectType)
         visibility = None
@@ -3602,8 +3660,8 @@ class DefinitionParser(object):
         if self.match(_visibility_re):
             visibility = self.matched_text
 
-        if objectType in ('type', 'member', 'function', 'class'):
-            templatePrefix = self._parse_template_declaration_prefix()
+        if objectType in ('type', 'concept', 'member', 'function', 'class'):
+            templatePrefix = self._parse_template_declaration_prefix(objectType)
 
         if objectType == 'type':
             prevErrors = []
@@ -3623,6 +3681,8 @@ class DefinitionParser(object):
                 prevErrors.append((e, "If type alias or template alias"))
                 header = "Error in type declaration."
                 raise self._make_multi_error(prevErrors, header)
+        elif objectType == 'concept':
+            declaration = self._parse_concept()
         elif objectType == 'member':
             declaration = self._parse_type_with_init(named=True, outer='member')
         elif objectType == 'function':
@@ -3642,7 +3702,7 @@ class DefinitionParser(object):
                               templatePrefix, declaration)
 
     def parse_namespace_object(self):
-        templatePrefix = self._parse_template_declaration_prefix()
+        templatePrefix = self._parse_template_declaration_prefix(objectType="namespace")
         name = self._parse_nested_name()
         templatePrefix = self._check_template_consistency(name, templatePrefix,
                                                           fullSpecShorthand=False)
@@ -3651,7 +3711,7 @@ class DefinitionParser(object):
         return res
 
     def parse_xref_object(self):
-        templatePrefix = self._parse_template_declaration_prefix()
+        templatePrefix = self._parse_template_declaration_prefix(objectType="xref")
         name = self._parse_nested_name()
         templatePrefix = self._check_template_consistency(name, templatePrefix,
                                                           fullSpecShorthand=True)
@@ -3807,6 +3867,26 @@ class CPPTypeObject(CPPObject):
 
     def parse_definition(self, parser):
         return parser.parse_declaration("type")
+
+    def describe_signature(self, signode, ast):
+        ast.describe_signature(signode, 'lastIsName', self.env)
+
+
+class CPPConceptObject(CPPObject):
+    def get_index_text(self, name):
+        return _('%s (C++ concept)') % name
+
+    def before_content(self):
+        lastSymbol = self.env.ref_context['cpp:last_symbol']
+        assert lastSymbol
+        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
+        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
+
+    def after_content(self):
+        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
+
+    def parse_definition(self, parser):
+        return parser.parse_declaration("concept")
 
     def describe_signature(self, signode, ast):
         ast.describe_signature(signode, 'lastIsName', self.env)
@@ -4026,6 +4106,7 @@ class CPPDomain(Domain):
         'function': ObjType(l_('function'), 'func'),
         'member': ObjType(l_('member'), 'member'),
         'type': ObjType(l_('type'), 'type'),
+        'concept': ObjType(l_('concept'), 'concept'),
         'enum': ObjType(l_('enum'), 'enum'),
         'enumerator': ObjType(l_('enumerator'), 'enumerator')
     }
@@ -4036,6 +4117,7 @@ class CPPDomain(Domain):
         'member': CPPMemberObject,
         'var': CPPMemberObject,
         'type': CPPTypeObject,
+        'concept': CPPConceptObject,
         'enum': CPPEnumObject,
         'enum-struct': CPPEnumObject,
         'enum-class': CPPEnumObject,
@@ -4051,6 +4133,7 @@ class CPPDomain(Domain):
         'member': CPPXRefRole(),
         'var': CPPXRefRole(),
         'type': CPPXRefRole(),
+        'concept': CPPXRefRole(),
         'enum': CPPXRefRole(),
         'enumerator': CPPXRefRole()
     }
