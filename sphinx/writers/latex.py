@@ -1691,7 +1691,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         ref = '\\ref{%s}' % self.idescape(id)
         title = node.get('title', '%s')
         title = text_type(title).translate(tex_escape_map).replace('\\%s', '%s')
-        hyperref = '\\hyperref[%s]{%s}' % (self.idescape(id), title % ref)
+        hyperref = '\\hyperref[%s]{%s}' % (self.idescape(id), escape_abbr(title) % ref)
         self.body.append(hyperref)
 
         raise nodes.SkipNode

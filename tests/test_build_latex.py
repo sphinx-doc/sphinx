@@ -180,7 +180,7 @@ def test_numref(app, status, warning):
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.\\@ }}' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table }}' in result
     assert '\\SetupFloatingEnvironment{literal-block}{name=Listing }' in result
-    assert '\\hyperref[index:fig1]{Fig. \\ref{index:fig1}}' in result
+    assert '\\hyperref[index:fig1]{Fig.\\@ \\ref{index:fig1}}' in result
     assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
     assert '\\hyperref[index:table-1]{Table \\ref{index:table-1}}' in result
     assert '\\hyperref[baz:table22]{Table:\\ref{baz:table22}}' in result
@@ -232,7 +232,7 @@ def test_numref_with_prefix2(app, status, warning):
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Tab\\_}}' in result
     assert '\\def\\fnum@table{\\tablename\\thetable:}' in result
     assert '\\SetupFloatingEnvironment{literal-block}{name=Code-}' in result
-    assert '\\hyperref[index:fig1]{Figure:\\ref{index:fig1}.}' in result
+    assert '\\hyperref[index:fig1]{Figure:\\ref{index:fig1}.\\@}' in result
     assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
     assert '\\hyperref[index:table-1]{Tab\\_\\ref{index:table-1}:}' in result
     assert '\\hyperref[baz:table22]{Table:\\ref{baz:table22}}' in result
