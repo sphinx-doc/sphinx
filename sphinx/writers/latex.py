@@ -195,7 +195,7 @@ class ShowUrlsTransform(object):
     def create_footnote(self, uri):
         label = nodes.label('', '#')
         para = nodes.paragraph()
-        para.append(nodes.Text(uri))
+        para.append(nodes.reference('', nodes.Text(uri), refuri=uri, nolinkurl=True))
         footnote = nodes.footnote(uri, label, para, auto=1)
         footnote['names'].append('#')
         self.document.note_autofootnote(footnote)
@@ -1636,7 +1636,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.context.append('')
         elif uri.startswith(URI_SCHEMES):
             if len(node) == 1 and uri == node[0]:
-                self.body.append('\\url{%s}' % self.encode_uri(uri))
+                if node.get('nolinkurl'):
+                    self.body.append('\\nolinkurl{%s}' % self.encode_uri(uri))
+                else:
+                    self.body.append('\\url{%s}' % self.encode_uri(uri))
                 raise nodes.SkipNode
             else:
                 self.body.append('\\href{%s}{' % self.encode_uri(uri))

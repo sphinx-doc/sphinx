@@ -497,21 +497,22 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     assert 'First footnote: \\footnote[3]{\sphinxAtStartFootnote%\nFirst\n}' in result
     assert 'Second footnote: \\footnote[1]{\sphinxAtStartFootnote%\nSecond\n}' in result
     assert ('\\href{http://sphinx-doc.org/}{Sphinx}'
-            '\\footnote[4]{\sphinxAtStartFootnote%\nhttp://sphinx-doc.org/\n}' in result)
+            '\\footnote[4]{\sphinxAtStartFootnote%\n'
+            '\\nolinkurl{http://sphinx-doc.org/}\n}' in result)
     assert 'Third footnote: \\footnote[6]{\sphinxAtStartFootnote%\nThird\n}' in result
     assert ('\\href{http://sphinx-doc.org/~test/}{URL including tilde}'
             '\\footnote[5]{\sphinxAtStartFootnote%\n'
-            'http://sphinx-doc.org/\\textasciitilde{}test/\n}' in result)
+            '\\nolinkurl{http://sphinx-doc.org/~test/}\n}' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term}\\protect\\footnotemark[8]}] '
             '\\leavevmode\\footnotetext[8]{\sphinxAtStartFootnote%\n'
-            'http://sphinx-doc.org/\n}\nDescription' in result)
+            '\\nolinkurl{http://sphinx-doc.org/}\n}\nDescription' in result)
     assert ('\\item[{Footnote in term \\protect\\footnotemark[10]}] '
             '\\leavevmode\\footnotetext[10]{\sphinxAtStartFootnote%\n'
             'Footnote in term\n}\nDescription' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}\\protect'
             '\\footnotemark[9]}] '
             '\\leavevmode\\footnotetext[9]{\sphinxAtStartFootnote%\n'
-            'http://sphinx-doc.org/\n}\nDescription' in result)
+            '\\nolinkurl{http://sphinx-doc.org/}\n}\nDescription' in result)
     assert ('\\url{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx-dev@googlegroups.com}\n' in result)
