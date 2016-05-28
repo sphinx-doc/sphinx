@@ -13,3 +13,4 @@ alabaster
 sphinx_rtd_theme
 imagesize
 requests
+html5lib
