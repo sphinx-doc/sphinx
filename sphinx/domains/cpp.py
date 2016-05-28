@@ -46,6 +46,7 @@ from sphinx.util.docfields import Field, GroupedField
 
     Each desc_signature node will have the attribute 'sphinx_cpp_tagname' set to
     - 'templateParams', if the line is on the form 'template<...>',
+    - 'templateIntroduction, if the line is on the form 'conceptName{...}'
     - 'declarator', if the line contains the name of the declared object.
     No other desc_signature nodes should exist (so far).
 
@@ -763,6 +764,7 @@ class ASTTemplateParams(ASTBase):
         return ''.join(res)
 
     def describe_signature(self, signode, mode, env, symbol):
+        signode.sphinx_cpp_tagname = 'templateParams'
         signode += nodes.Text("template<")
         first = True
         for param in self.params:
@@ -771,6 +773,78 @@ class ASTTemplateParams(ASTBase):
             first = False
             param.describe_signature(signode, mode, env, symbol)
         signode += nodes.Text(">")
+
+
+class ASTTemplateIntroductionParameter(ASTBase):
+    def __init__(self, identifier, parameterPack):
+        self.identifier = identifier
+        self.parameterPack = parameterPack
+
+    def get_identifier(self):
+        return self.identifier
+
+    def get_id_v2(self, objectType=None, symbol=None):
+        # this is not part of the normal name mangling in C++
+        if symbol:
+            # the anchor will be our parent
+            return symbol.parent.declaration.get_id_v2(prefixed=None)
+        else:
+            if self.parameterPack:
+                return 'Dp'
+            else:
+                return '0'  # we need to put something
+
+    def __unicode__(self):
+        res = []
+        if self.parameterPack:
+            res.append('...')
+        res.append(text_type(self.identifier))
+        return ''.join(res)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        if self.parameterPack:
+            signode += nodes.Text('...')
+        self.identifier.describe_signature(signode, mode, env, '', symbol)
+
+
+class ASTTemplateIntroduction(ASTBase):
+    def __init__(self, concept, params):
+        assert len(params) > 0
+        self.concept = concept
+        self.params = params
+
+    # id_v1 does not exist
+
+    def get_id_v2(self):
+        # first do the same as a normal template parameter list
+        res = []
+        res.append("I")
+        for param in self.params:
+            res.append(param.get_id_v2())
+        res.append("E")
+        # TODO: add stuff for the implicit requires clause
+        res.append("MissingRequiresMangling")
+        return ''.join(res)
+
+    def __unicode__(self):
+        res = []
+        res.append(text_type(self.concept))
+        res.append('{')
+        res.append(', '.join(text_type(param) for param in self.params))
+        res.append('} ')
+        return ''.join(res)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.sphinx_cpp_tagname = 'templateIntroduction'
+        self.concept.describe_signature(signode, 'markType', env, symbol)
+        signode += nodes.Text('{')
+        first = True
+        for param in self.params:
+            if not first:
+                signode += nodes.Text(', ')
+            first = False
+            param.describe_signature(signode, mode, env, symbol)
+        signode += nodes.Text('}')
 
 
 class ASTTemplateDeclarationPrefix(ASTBase):
@@ -798,7 +872,6 @@ class ASTTemplateDeclarationPrefix(ASTBase):
         _verify_description_mode(mode)
         for t in self.templates:
             templateNode = addnodes.desc_signature()
-            templateNode.sphinx_cpp_tagname = 'templateParams'
             t.describe_signature(templateNode, 'lastIsName', env, symbol)
             signode += templateNode
 
@@ -3599,19 +3672,63 @@ class DefinitionParser(object):
                     prevErrors.append((e, ""))
                 raise self._make_multi_error(prevErrors, header)
 
+    def _parse_template_introduction(self):
+        pos = self.pos
+        try:
+            concept = self._parse_nested_name()
+        except:
+            self.pos = pos
+            return None
+        self.skip_ws()
+        if not self.skip_string('{'):
+            self.pos = pos
+            return None
+
+        # for sure it must be a template introduction now
+        params = []
+        while 1:
+            self.skip_ws()
+            parameterPack = self.skip_string('...')
+            self.skip_ws()
+            if not self.match(_identifier_re):
+                self.fail("Expected identifier in template introduction list.")
+            identifier = self.matched_text
+            # make sure there isn't a keyword
+            if identifier in _keywords:
+                self.fail("Expected identifier in template introduction list, "
+                          "got keyword: %s" % identifier)
+            identifier = ASTIdentifier(identifier)
+            params.append(ASTTemplateIntroductionParameter(identifier, parameterPack))
+
+            self.skip_ws()
+            if self.skip_string('}'):
+                break
+            elif self.skip_string(','):
+                continue
+            else:
+                self.fail("Error in template introduction list. "
+                          'Expected ",", or "}".')
+        return ASTTemplateIntroduction(concept, params)
+
     def _parse_template_declaration_prefix(self, objectType):
         templates = []
         while 1:
             self.skip_ws()
-            if not self.skip_word("template"):
-                break
+            # the saved position is only used to provide a better error message
+            pos = self.pos
+            if self.skip_word("template"):
+                params = self._parse_template_parameter_list()
+            else:
+                params = self._parse_template_introduction()
+                if not params:
+                    break
             if objectType == 'concept' and len(templates) > 0:
+                self.pos = pos
                 self.fail("More than 1 template parameter list for concept.")
-            params = self._parse_template_parameter_list()
             templates.append(params)
+        if len(templates) == 0 and objectType == 'concept':
+            self.fail('Missing template parameter list for concept.')
         if len(templates) == 0:
-            if objectType == 'concept':
-                self.fail('Missing template parameter list for concept.')
             return None
         else:
             return ASTTemplateDeclarationPrefix(templates)
@@ -3821,6 +3938,15 @@ class CPPObject(ObjectDescription):
             signode['first'] = (not self.names)  # hmm, what is this abound?
             self.state.document.note_explicit_target(signode)
 
+    def before_content(self):
+        lastSymbol = self.env.ref_context['cpp:last_symbol']
+        assert lastSymbol
+        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
+        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
+
+    def after_content(self):
+        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
+
     def parse_definition(self, parser):
         raise NotImplementedError()
 
@@ -3876,15 +4002,6 @@ class CPPConceptObject(CPPObject):
     def get_index_text(self, name):
         return _('%s (C++ concept)') % name
 
-    def before_content(self):
-        lastSymbol = self.env.ref_context['cpp:last_symbol']
-        assert lastSymbol
-        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
-        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
-
-    def after_content(self):
-        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
-
     def parse_definition(self, parser):
         return parser.parse_declaration("concept")
 
@@ -3918,15 +4035,6 @@ class CPPClassObject(CPPObject):
     def get_index_text(self, name):
         return _('%s (C++ class)') % name
 
-    def before_content(self):
-        lastSymbol = self.env.ref_context['cpp:last_symbol']
-        assert lastSymbol
-        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
-        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
-
-    def after_content(self):
-        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
-
     def parse_definition(self, parser):
         return parser.parse_declaration("class")
 
@@ -3937,15 +4045,6 @@ class CPPClassObject(CPPObject):
 class CPPEnumObject(CPPObject):
     def get_index_text(self, name):
         return _('%s (C++ enum)') % name
-
-    def before_content(self):
-        lastSymbol = self.env.ref_context['cpp:last_symbol']
-        assert lastSymbol
-        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
-        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
-
-    def after_content(self):
-        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
 
     def parse_definition(self, parser):
         ast = parser.parse_declaration("enum")

@@ -739,6 +739,34 @@ parameters, or the keyword ``auto`` to introduce unconstrained template paramete
       A function template with a single template parameter, constrained by the
       Iterator concept.
 
+Template Introductions
+......................
+
+Simple constrained function or class templates can be declared with a
+`template introduction` instead of a template parameter list::
+
+   .. cpp:function:: std::Iterator{It} void advance(It &it)
+
+       A function template with a template parameter constrained to be an Iterator.
+
+   .. cpp:class:: std::LessThanComparable{T} MySortedContainer
+
+       A class template with a template parameter constrained to be LessThanComparable.
+
+They are rendered as follows.
+
+.. cpp:function:: std::Iterator{It} void advance(It &it)
+
+   A function template with a template parameter constrained to be an Iterator.
+
+.. cpp:class:: std::LessThanComparable{T} MySortedContainer
+
+   A class template with a template parameter constrained to be LessThanComparable.
+
+Note however that no checking is performed with respect to parameter
+compatibility. E.g., ``Iterator{A, B, C}`` will be accepted as an introduction
+even though it would not be valid C++.
+
 
 Namespacing
 ~~~~~~~~~~~~~~~~~

@@ -18,6 +18,7 @@ Features added
 * ``:maxdepth:`` option of toctree affects ``secnumdepth`` (ref: #2547)
 * #2575: Now ``sphinx.ext.graphviz`` allows ``:align:`` option
 * C++, added concept directive. Thanks to mickk-on-cpp.
+* C++, added support for template introduction syntax. Thanks to mickk-on-cpp.
 
 Bugs fixed
 ----------
