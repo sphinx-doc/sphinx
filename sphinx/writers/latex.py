@@ -281,6 +281,11 @@ def width_to_latex_length(length_str):
     return length_str
 
 
+def escape_abbr(text):
+    """Adjust spacing after abbreviations."""
+    return text.replace('.', '.\\@')
+
+
 class LaTeXTranslator(nodes.NodeVisitor):
     sectionnames = ["part", "chapter", "section", "subsection",
                     "subsubsection", "paragraph", "subparagraph"]
@@ -559,27 +564,27 @@ class LaTeXTranslator(nodes.NodeVisitor):
         figure = self.builder.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
             ret.append('\\def\\fnum@figure{%s}\n' %
-                       text_type(figure[0]).translate(tex_escape_map))
+                       escape_abbr(text_type(figure[0]).translate(tex_escape_map)))
         else:
-            definition = text_type(figure[0]).translate(tex_escape_map)
+            definition = escape_abbr(text_type(figure[0]).translate(tex_escape_map))
             ret.append(self.babel_renewcommand('\\figurename', definition))
             if figure[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@figure{\\figurename\\thefigure%s}\n' %
-                           text_type(figure[1]).translate(tex_escape_map))
+                           escape_abbr(text_type(figure[1]).translate(tex_escape_map)))
                 ret.append('\\makeatother\n')
 
         table = self.builder.config.numfig_format['table'].split('%s', 1)
         if len(table) == 1:
             ret.append('\\def\\fnum@table{%s}\n' %
-                       text_type(table[0]).translate(tex_escape_map))
+                       escape_abbr(text_type(table[0]).translate(tex_escape_map)))
         else:
-            definition = text_type(table[0]).translate(tex_escape_map)
+            definition = escape_abbr(text_type(table[0]).translate(tex_escape_map))
             ret.append(self.babel_renewcommand('\\tablename', definition))
             if table[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@table{\\tablename\\thetable%s}\n' %
-                           text_type(table[1]).translate(tex_escape_map))
+                           escape_abbr(text_type(table[1]).translate(tex_escape_map)))
                 ret.append('\\makeatother\n')
 
         codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
@@ -587,7 +592,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             pass  # FIXME
         else:
             ret.append('\\SetupFloatingEnvironment{literal-block}{name=%s}\n' %
-                       text_type(codeblock[0]).translate(tex_escape_map))
+                       escape_abbr(text_type(codeblock[0]).translate(tex_escape_map)))
             if table[1]:
                 pass  # FIXME
 
