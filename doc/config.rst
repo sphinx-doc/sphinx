@@ -1623,13 +1623,8 @@ These options influence LaTeX output.
    * Keys that don't need be overridden unless in special cases are:
 
      ``'inputenc'``
-        "inputenc" package inclusion, defaults to
-        ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex.
-        Otherwise unset.
-
-        .. versionchanged:: 1.5
-           Previously ``'\\usepackage[utf8]{inputenc}'`` was used for all
-           compilers.
+        "inputenc" package inclusion, default
+        ``'\\usepackage[utf8]{inputenc}'``.
      ``'cmappkg'``
         "cmap" package inclusion, default ``'\\usepackage{cmap}'``.
 
