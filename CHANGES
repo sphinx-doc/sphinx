@@ -71,6 +71,7 @@ Bugs fixed
 * #2581: The search doesn't work if language="es" (spanish)
 * #2382: Adjust spacing after abbreviations on figure numbers in LaTeX writer
 * #2383: The generated footnote by `latex_show_urls` overflows lines
+* #2497, #2552: The label of search button does not fit for the button itself
 
 
 Release 1.4.1 (released Apr 12, 2016)
