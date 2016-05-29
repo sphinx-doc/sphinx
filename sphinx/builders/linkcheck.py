@@ -243,7 +243,7 @@ class CheckExternalLinksBuilder(Builder):
         elif status == 'broken':
             self.write_entry('broken', docname, lineno, uri + ': ' + info)
             if self.app.quiet or self.app.warningiserror:
-                self.warn('broken link: %s' % uri,
+                self.warn('broken link: %s (%s)' % (uri, info),
                           '%s:%s' % (self.env.doc2path(docname), lineno))
             else:
                 self.info(red('broken    ') + uri + red(' - ' + info))
