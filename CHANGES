@@ -4,6 +4,8 @@ Release 1.4.3 (in development)
 Bugs fixed
 ----------
 
+* #2350: got "Counter too large" error on building PDF if large numbered footnotes existed in admonitions
+
 
 Release 1.4.2 (released May 29, 2016)
 =====================================

@@ -154,6 +154,9 @@
 
 \newcommand*{\sphinxAtStartFootnote}{\mbox{ }}
 
+% Support large numbered footnotes in minipage (cf. admonitions)
+\def\thempfootnote{\arabic{mpfootnote}}
+
 % Redefine the Verbatim environment to allow border and background colors
 % and to handle the top caption in a non separable by pagebreak way.
 % The original environment is still used for verbatims within tables.
