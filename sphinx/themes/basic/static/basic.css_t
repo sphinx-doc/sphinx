@@ -85,10 +85,6 @@ div.sphinxsidebar #searchbox input[type="text"] {
     width: 170px;
 }
 
-div.sphinxsidebar #searchbox input[type="submit"] {
-    width: 30px;
-}
-
 img {
     border: 0;
     max-width: 100%;

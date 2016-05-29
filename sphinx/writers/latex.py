@@ -286,7 +286,7 @@ def width_to_latex_length(length_str):
 
 def escape_abbr(text):
     """Adjust spacing after abbreviations."""
-    return text.replace('.', '.\\@')
+    return re.sub('\.(?=\s|$)', '.\\@', text)
 
 
 class LaTeXTranslator(nodes.NodeVisitor):
