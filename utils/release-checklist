@@ -19,3 +19,4 @@ Release checklist
 * Update version info, add new CHANGES entry for next version
 * `git commit`
 * `git push`
+* Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_
