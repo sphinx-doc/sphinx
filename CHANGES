@@ -5,6 +5,7 @@ Bugs fixed
 ----------
 
 * #2530: got "Counter too large" error on building PDF if large numbered footnotes existed in admonitions
+* ``width`` option of figure directive does not work if ``align`` option specified at same time (ref: #2595)
 
 
 Release 1.4.2 (released May 29, 2016)

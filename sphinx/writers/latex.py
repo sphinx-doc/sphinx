@@ -1431,8 +1431,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
            node.children[0]['ids']):
             ids += self.hypertarget(node.children[0]['ids'][0], anchor=False)
         if node.get('align', '') in ('left', 'right'):
-            if 'width' in node:
-                length = width_to_latex_length(node['width'])
+            if 'width' in node[0]:
+                length = width_to_latex_length(node[0]['width'])
             else:
                 length = '0pt'
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
