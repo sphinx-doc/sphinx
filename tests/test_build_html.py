@@ -15,7 +15,7 @@ import re
 from six import PY3, iteritems
 
 from sphinx import __display_version__
-from util import remove_unicode_literals, gen_with_app, with_app
+from util import remove_unicode_literals, gen_with_app, with_app, strip_escseq
 from etree13 import ElementTree
 from html5lib import getTreeBuilder, HTMLParser
 
@@ -384,7 +384,7 @@ def check_extra_entries(outdir):
               tags=['testtag'])
 def test_html_output(app, status, warning):
     app.builder.build_all()
-    html_warnings = warning.getvalue().replace(os.sep, '/')
+    html_warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
     html_warnings_exp = HTML_WARNINGS % {
         'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(html_warnings_exp + '$', html_warnings), \

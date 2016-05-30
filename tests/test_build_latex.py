@@ -19,7 +19,7 @@ from six import PY3
 from sphinx.errors import SphinxError
 from sphinx.writers.latex import LaTeXTranslator
 
-from util import SkipTest, remove_unicode_literals, with_app
+from util import SkipTest, remove_unicode_literals, with_app, strip_escseq
 from test_build_html import ENV_WARNINGS
 
 
@@ -67,7 +67,7 @@ def run_latex(outdir):
 def test_latex(app, status, warning):
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
-    latex_warnings = warning.getvalue().replace(os.sep, '/')
+    latex_warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
     latex_warnings_exp = LATEX_WARNINGS % {
         'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(latex_warnings_exp + '$', latex_warnings), \
@@ -142,7 +142,7 @@ def test_writer(app, status, warning):
 def test_latex_howto(app, status, warning):
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
-    latex_warnings = warning.getvalue().replace(os.sep, '/')
+    latex_warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
     latex_warnings_exp = LATEX_WARNINGS % {
         'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(latex_warnings_exp + '$', latex_warnings), \
