@@ -60,8 +60,8 @@
     \begin{flushright}%
       \sphinxlogo
       \py@HeaderFamily
-      {\rm\Huge \@title \par}
-      {\em\LARGE \py@release\releaseinfo \par}
+      {\Huge \@title \par}
+      {\itshape\LARGE \py@release\releaseinfo \par}
       \vfill
       {\LARGE
         \begin{tabular}[t]{c}

@@ -53,8 +53,8 @@
   \begin{flushright}
     \sphinxlogo
     \py@HeaderFamily
-    {\rm\Huge \@title }\par
-    {\em\large \py@release \releaseinfo}\par
+    {\Huge \@title }\par
+    {\itshape\large \py@release \releaseinfo}\par
     \vspace{25pt}
     {\Large
       \begin{tabular}[t]{c}
