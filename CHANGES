@@ -17,6 +17,7 @@ Incompatible changes
   ``height`` attribute of an image.
 * latex, if ``width`` or ``height`` attribute of an image is given with no unit,
   use ``px`` rather than ignore it.
+* latex: Separate stylesheets of pygments to independent .sty file
 
 
 Features added

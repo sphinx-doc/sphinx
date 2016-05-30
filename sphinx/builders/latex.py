@@ -19,7 +19,7 @@ from docutils.io import FileOutput
 from docutils.utils import new_document
 from docutils.frontend import OptionParser
 
-from sphinx import package_dir, addnodes
+from sphinx import package_dir, addnodes, highlighting
 from sphinx.util import texescape
 from sphinx.errors import SphinxError
 from sphinx.locale import _
@@ -92,6 +92,16 @@ class LaTeXBuilder(Builder):
                 docname = docname[:-5]
             self.titles.append((docname, entry[2]))
 
+    def write_stylesheet(self):
+        highlighter = highlighting.PygmentsBridge(
+            'latex', self.config.pygments_style, self.config.trim_doctest_flags)
+        stylesheet = path.join(self.outdir, 'sphinxhighlight.sty')
+        with open(stylesheet, 'w') as f:
+            f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
+            f.write('\\ProvidesPackage{sphinxhighlight}'
+                    '[2016/05/29 stylesheet for highlighting with pygments]\n\n')
+            f.write(highlighter.get_stylesheet())
+
     def write(self, *ignored):
         docwriter = LaTeXWriter(self)
         docsettings = OptionParser(
@@ -100,6 +110,7 @@ class LaTeXBuilder(Builder):
             read_config_files=True).get_default_values()
 
         self.init_document_data()
+        self.write_stylesheet()
 
         for entry in self.document_data:
             docname, targetname, title, author, docclass = entry[:5]
