@@ -246,6 +246,12 @@ Figures
 
    figure with align & figwidth option
 
+.. figure:: rimg.png
+   :align: right
+   :width: 3cm
+
+   figure with align & width option
+
 Version markup
 --------------
 

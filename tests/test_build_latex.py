@@ -27,7 +27,7 @@ LATEX_WARNINGS = ENV_WARNINGS + """\
 %(root)s/markup.txt:164: WARNING: unknown option: &option
 %(root)s/footnote.txt:60: WARNING: citation not found: missing
 %(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/markup.txt:285: WARNING: Could not lex literal_block as "c". Highlighting skipped.
+%(root)s/markup.txt:291: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 """
 
 if PY3:
@@ -118,6 +118,11 @@ def test_writer(app, status, warning):
     assert ('\\begin{wrapfigure}{r}{0.500\\linewidth}\n\\centering\n'
             '\\includegraphics{{rimg}.png}\n\\caption{figure with align \\& figwidth option}'
             '\\label{markup:id8}\\end{wrapfigure}' in result)
+
+    assert ('\\begin{wrapfigure}{r}{3cm}\n\\centering\n'
+            '\\includegraphics[width=3cm]{{rimg}.png}\n'
+            '\\caption{figure with align \\& width option}'
+            '\\label{markup:id9}\\end{wrapfigure}' in result)
 
 
 @with_app(buildername='latex', freshenv=True,  # use freshenv to check warnings
