@@ -58,11 +58,12 @@
       \endgroup
     \fi
     \begin{flushright}%
-      \sphinxlogo%
-      {\rm\Huge\py@HeaderFamily \@title \par}%
-      {\em\LARGE\py@HeaderFamily \py@release\releaseinfo \par}
+      \sphinxlogo
+      \py@HeaderFamily
+      {\Huge \@title \par}
+      {\itshape\LARGE \py@release\releaseinfo \par}
       \vfill
-      {\LARGE\py@HeaderFamily
+      {\LARGE
         \begin{tabular}[t]{c}
           \@author
         \end{tabular}

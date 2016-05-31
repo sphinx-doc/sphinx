@@ -51,14 +51,15 @@
     \endgroup
   \fi
   \begin{flushright}
-    \sphinxlogo%
-    {\rm\Huge\py@HeaderFamily \@title} \par
-    {\em\large\py@HeaderFamily \py@release\releaseinfo} \par
+    \sphinxlogo
+    \py@HeaderFamily
+    {\Huge \@title }\par
+    {\itshape\large \py@release \releaseinfo}\par
     \vspace{25pt}
-    {\Large\py@HeaderFamily
+    {\Large
       \begin{tabular}[t]{c}
         \@author
-      \end{tabular}} \par
+      \end{tabular}}\par
     \vspace{25pt}
     \@date \par
     \py@authoraddress \par
