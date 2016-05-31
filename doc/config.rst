@@ -1624,7 +1624,7 @@ These options influence LaTeX output.
         ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex.
         Otherwise unset.
 
-        .. versionchanged:: 1.5
+        .. versionchanged:: 1.4.3
            Previously ``'\\usepackage[utf8]{inputenc}'`` was used for all
            compilers.
      ``'cmappkg'``
