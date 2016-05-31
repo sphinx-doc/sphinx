@@ -542,6 +542,26 @@ $(SPHINXOPTS) %(rsrcdir)s
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) %(rsrcdir)s
 
+# Validate safety of BUILDDIR.
+# Unsafe BUILDDIR configuration can have disastrous consequences, 
+# in particular if clean target is executed.
+ABSBUILDDIR := $(abspath $(BUILDDIR))
+ifeq ($(ABSBUILDDIR),)
+    .ERROR := $(error BUILDDIR unsafe: \
+        BUILDDIR is empty)
+else ifeq ($(patsubst $(ABSBUILDDIR)/%,,$(CURDIR)),)
+    .ERROR := $(error BUILDDIR unsafe: \
+        sphinx document root is contained in \
+        BUILDDIR ($(BUILDDIR)))
+else ifeq ($(ABSBUILDDIR),$(CURDIR))
+    .ERROR := $(error BUILDDIR unsafe: \
+		BUILDDIR points to sphinx document root ("$(CURDIR)"))
+# special case BUILDDIR -> / does not match in in patsubst (pattern = //%),
+# handled here
+else ifeq (/,$(ABSBUILDDIR))
+    .ERROR := $(error BUILDDIR unsafe: BUILDDIR is '/')
+endif
+
 .PHONY: help
 help:
 \t@echo "Please use \\`make <target>' where <target> is one of"
