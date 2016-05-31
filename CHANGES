@@ -8,6 +8,7 @@ Bugs fixed
 * ``width`` option of figure directive does not work if ``align`` option specified at same time (ref: #2595)
 * #2590: The ``inputenc`` package breaks compiling under lualatex and xelatex
 * #2540: date on latex front page use different font
+* Suppress "document isn't included in any toctree" warning if the document is included (ref: #2603)
 
 
 Release 1.4.2 (released May 29, 2016)
