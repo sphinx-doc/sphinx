@@ -301,10 +301,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'passoptionstopackages': '',
         'inputenc':        ('\\ifPDFTeX\n'
                             '  \\usepackage[utf8]{inputenc}\n'
-                            '\\else\\fi'),
+                            '\\fi'),
         'utf8extra':       ('\\ifdefined\\DeclareUnicodeCharacter\n'
                             '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'
-                            '\\else\\fi'),
+                            '\\fi'),
         'cmappkg':         '\\usepackage{cmap}',
         'fontenc':         '\\usepackage[T1]{fontenc}',
         'amsmath':         '\\usepackage{amsmath,amssymb,amstext}',
