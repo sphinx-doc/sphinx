@@ -2111,9 +2111,10 @@ class ASTTypeUsing(ASTBase):
 
 
 class ASTConcept(ASTBase):
-    def __init__(self, nestedName, isFunction):
+    def __init__(self, nestedName, isFunction, initializer):
         self.nestedName = nestedName
         self.isFunction = isFunction  # otherwise it's a variable concept
+        self.initializer = initializer
 
     @property
     def name(self):
@@ -2129,6 +2130,8 @@ class ASTConcept(ASTBase):
         res = text_type(self.nestedName)
         if self.isFunction:
             res += "()"
+        if self.initializer:
+            res += text_type(self.initializer)
         return res
 
     def describe_signature(self, signode, mode, env, symbol):
@@ -2136,6 +2139,8 @@ class ASTConcept(ASTBase):
         self.nestedName.describe_signature(signode, mode, env, symbol)
         if self.isFunction:
             signode += nodes.Text("()")
+        if self.initializer:
+            self.initializer.describe_signature(signode, mode)
 
 
 class ASTBaseClass(ASTBase):
@@ -3552,7 +3557,12 @@ class DefinitionParser(object):
             self.skip_ws()
             if not self.skip_string(')'):
                 self.fail("Expected ')' in function concept declaration.")
-        return ASTConcept(nestedName, isFunction)
+
+        initializer = self._parse_initializer('member')
+        if initializer and isFunction:
+            self.fail("Function concept with initializer.")
+
+        return ASTConcept(nestedName, isFunction, initializer)
 
     def _parse_class(self):
         name = self._parse_nested_name()
