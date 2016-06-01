@@ -237,12 +237,13 @@ def fetch_inventory(app, uri, inv):
                  '%s: %s' % (inv, err.__class__, err))
         return
     try:
-        newuri = f.geturl()
-        if newuri.endswith("/" + INVENTORY_FILENAME):
-            newuri = newuri[:-len(INVENTORY_FILENAME) - 1]
-        if uri != newuri:
-            app.info('intersphinx inventory has moved: %s -> %s' % (uri, newuri))
-            uri = newuri
+        if hasattr(f, 'geturl'):
+            newuri = f.geturl()
+            if newuri.endswith("/" + INVENTORY_FILENAME):
+                newuri = newuri[:-len(INVENTORY_FILENAME) - 1]
+            if uri != newuri:
+                app.info('intersphinx inventory has moved: %s -> %s' % (uri, newuri))
+                uri = newuri
         line = f.readline().rstrip().decode('utf-8')
         try:
             if line == '# Sphinx inventory version 1':
