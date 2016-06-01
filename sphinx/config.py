@@ -32,7 +32,6 @@ CONFIG_EXIT_ERROR = "The configuration file (or one of the modules it imports) "
 CONFIG_TYPE_WARNING = "The config value `{name}' has type `{current.__name__}', " \
                       "defaults to `{default.__name__}.'"
 
-
 string_classes = [text_type]
 if PY2:
     string_classes.append(binary_type)  # => [str, unicode]
