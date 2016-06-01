@@ -241,7 +241,7 @@ def fetch_inventory(app, uri, inv):
             newuri = f.geturl()
             if newuri.endswith("/" + INVENTORY_FILENAME):
                 newuri = newuri[:-len(INVENTORY_FILENAME) - 1]
-            if uri != newuri:
+            if uri != newuri and uri != newuri + "/":
                 app.info('intersphinx inventory has moved: %s -> %s' % (uri, newuri))
                 uri = newuri
         line = f.readline().rstrip().decode('utf-8')
