@@ -24,10 +24,10 @@ from test_build_html import ENV_WARNINGS
 
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
-%(root)s/markup.txt:164: WARNING: unknown option: &option
-%(root)s/footnote.txt:60: WARNING: citation not found: missing
-%(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/markup.txt:291: WARNING: Could not lex literal_block as "c". Highlighting skipped.
+%(root)s/markup.txt:\\d+: WARNING: unknown option: &option
+%(root)s/footnote.txt:\\d+: WARNING: citation not found: missing
+%(root)s/images.txt:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
+%(root)s/markup.txt:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 """
 
 if PY3:
