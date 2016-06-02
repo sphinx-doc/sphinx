@@ -835,3 +835,11 @@
 % if the left page space is less than \literalblockneedspace, insert page-break
 \newcommand{\literalblockneedspace}{5\baselineskip}
 \newcommand{\literalblockwithoutcaptionneedspace}{1.5\baselineskip}
+
+% figure in table
+\newenvironment{figure-in-table}[1][\linewidth]{
+  \def\@captype{figure}%
+  \minipage{#1}%
+}{\endminipage}
+% store \caption to use it in longtable
+\let\figcaption\caption

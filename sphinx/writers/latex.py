@@ -1433,7 +1433,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
            isinstance(node.children[0], nodes.image) and
            node.children[0]['ids']):
             ids += self.hypertarget(node.children[0]['ids'][0], anchor=False)
-        if node.get('align', '') in ('left', 'right'):
+        if self.table:
+            # TODO: support align option
+            if 'width' in node:
+                length = width_to_latex_length(node['width'])
+                self.body.append('\\begin{figure-in-table}[%s]\n\\centering' % length)
+            else:
+                self.body.append('\\begin{figure-in-table}\n\\centering')
+            self.context.append(ids + '\\end{figure-in-table}\n')
+        elif node.get('align', '') in ('left', 'right'):
             if 'width' in node:
                 length = width_to_latex_length(node['width'])
             elif 'width' in node[0]:
@@ -1477,6 +1485,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\SphinxSetupCaptionForVerbatim{literal-block}{')
         elif self.in_minipage and isinstance(node.parent, nodes.figure):
             self.body.append('\\captionof{figure}{')
+        elif self.table and node.parent.tagname == 'figure':
+            self.body.append('\\figcaption{')
         else:
             self.body.append('\\caption{')
 
