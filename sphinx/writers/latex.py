@@ -1011,15 +1011,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\n\\begin{longtable}')
             endmacro = '\\end{longtable}\n\n'
         elif self.table.has_verbatim:
-            self.body.append('\n\\begin{tabular}')
+            self.body.append('\n\\noindent\\begin{tabular}')
             endmacro = '\\end{tabular}\n\n'
         elif self.table.has_problematic and not self.table.colspec:
             # if the user has given us tabularcolumns, accept them and use
             # tabulary nevertheless
-            self.body.append('\n\\begin{tabular}')
+            self.body.append('\n\\noindent\\begin{tabular}')
             endmacro = '\\end{tabular}\n\n'
         else:
-            self.body.append('\n\\begin{tabulary}{\\linewidth}')
+            self.body.append('\n\\noindent\\begin{tabulary}{\\linewidth}')
             endmacro = '\\end{tabulary}\n\n'
         if self.table.colspec:
             self.body.append(self.table.colspec)

@@ -9,6 +9,7 @@ Bugs fixed
 * #2590: The ``inputenc`` package breaks compiling under lualatex and xelatex
 * #2540: date on latex front page use different font
 * Suppress "document isn't included in any toctree" warning if the document is included (ref: #2603)
+* #2614: Some tables in PDF output will end up shifted if user sets non zero \parindent in preamble
 
 
 Release 1.4.2 (released May 29, 2016)
