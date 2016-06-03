@@ -1437,9 +1437,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # TODO: support align option
             if 'width' in node:
                 length = width_to_latex_length(node['width'])
-                self.body.append('\\begin{figure-in-table}[%s]\n\\centering' % length)
+                self.body.append('\\begin{figure-in-table}[%s]\n\\centering\n' % length)
             else:
-                self.body.append('\\begin{figure-in-table}\n\\centering')
+                self.body.append('\\begin{figure-in-table}\n\\centering\n')
+            if any(isinstance(child, nodes.caption) for child in node):
+                self.body.append('\\capstart')
             self.context.append(ids + '\\end{figure-in-table}\n')
         elif node.get('align', '') in ('left', 'right'):
             if 'width' in node:

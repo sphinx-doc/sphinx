@@ -837,9 +837,13 @@
 \newcommand{\literalblockwithoutcaptionneedspace}{1.5\baselineskip}
 
 % figure in table
-\newenvironment{figure-in-table}[1][\linewidth]{
+\newenvironment{figure-in-table}[1][\linewidth]{%
   \def\@captype{figure}%
-  \minipage{#1}%
-}{\endminipage}
-% store \caption to use it in longtable
-\let\figcaption\caption
+  \begin{minipage}{#1}%
+}{\end{minipage}}
+% store original \caption macro for figures in longtable and tabulary
+\let\sphinxcaption\caption
+\newcommand*\figcaption
+  {\ifx\equation$%$% this is trick to identify tabulary first pass
+       \firstchoice@false\else\firstchoice@true\fi
+   \sphinxcaption }

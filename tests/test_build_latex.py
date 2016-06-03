@@ -111,7 +111,7 @@ def test_writer(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')
 
-    assert ('\\begin{figure-in-table}\n\\centering\n'
+    assert ('\\begin{figure-in-table}\n\\centering\n\\capstart\n'
             '\\includegraphics{{img}.png}\n'
             '\\figcaption{figure in table}\\label{markup:id7}\\end{figure-in-table}' in result)
 
