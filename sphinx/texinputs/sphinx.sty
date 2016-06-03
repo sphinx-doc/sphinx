@@ -833,3 +833,13 @@
 % if the left page space is less than \literalblockneedspace, insert page-break
 \newcommand{\literalblockneedspace}{5\baselineskip}
 \newcommand{\literalblockwithoutcaptionneedspace}{1.5\baselineskip}
+
+% set 96px=1in for LaTeX lengths specifications
+\RequirePackage{iftex}
+\ifPDFTeX
+  \pdfpxdimen=\dimexpr49336sp\relax
+\fi
+\ifLuaTeX % thanks to luatex85 package
+  \pdfpxdimen=\dimexpr49336sp\relax
+\fi
+% no \pdfpxdimen for XeTeX

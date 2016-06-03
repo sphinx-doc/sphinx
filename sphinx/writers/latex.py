@@ -1349,8 +1349,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             return width_str
         res = width_str
         amount, unit = match.groups()[:2]
-        if not unit or unit == "px":
-            # pixels: let LaTeX alone
+        if not unit:
             return None
         elif unit == "%":
             res = "%.3f\\linewidth" % (float(amount) / 100.0)

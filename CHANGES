@@ -1,6 +1,12 @@
 Release 1.4.3 (in development)
 ==============================
 
+Features added
+--------------
+
+* LaTeX writer allows figure dimensions using px unit (96px=1in)
+
+
 Bugs fixed
 ----------
 
