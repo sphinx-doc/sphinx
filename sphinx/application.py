@@ -69,6 +69,10 @@ events = {
 CONFIG_FILENAME = 'conf.py'
 ENV_PICKLE_FILENAME = 'environment.pickle'
 
+# list of deprecated extensions. Keys are extension name.
+# Values are Sphinx version that merge the extension.
+EXTENSION_BLACKLIST = {"sphinxjp.themecore": "1.2"}
+
 
 class Sphinx(object):
 
@@ -459,6 +463,11 @@ class Sphinx(object):
         """Import and setup a Sphinx extension module. No-op if called twice."""
         self.debug('[app] setting up extension: %r', extension)
         if extension in self._extensions:
+            return
+        if extension in EXTENSION_BLACKLIST:
+            self.warn('the extension %r was already merged with Sphinx since version %s; '
+                      'this extension is ignored.' % (
+                          extension, EXTENSION_BLACKLIST[extension]))
             return
         self._setting_up_extension.append(extension)
         try:

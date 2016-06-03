@@ -71,6 +71,12 @@ def test_extensions(app, status, warning):
 
 
 @with_app()
+def test_extension_in_blacklist(app, status, warning):
+    app.setup_extension('sphinxjp.themecore')
+    assert warning.getvalue().startswith("WARNING: the extension 'sphinxjp.themecore' was")
+
+
+@with_app()
 def test_domain_override(app, status, warning):
     class A(Domain):
         name = 'foo'
