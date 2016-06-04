@@ -337,7 +337,7 @@ class Autosummary(Directive):
         *items* is a list produced by :meth:`get_items`.
         """
         table_spec = addnodes.tabular_col_spec()
-        table_spec['spec'] = 'll'
+        table_spec['spec'] = 'p{0.5\linewidth}p{0.5\linewidth}'
 
         table = autosummary_table('')
         real_table = nodes.table('', classes=['longtable'])

@@ -161,7 +161,7 @@ def test_missing_reference(tempdir, app, status, warning):
 def test_load_mappings_warnings(tempdir, app, status, warning):
     """
     load_mappings issues a warning if new-style mapping
-    identifiers are not alphanumeric
+    identifiers are not string
     """
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
@@ -170,13 +170,14 @@ def test_load_mappings_warnings(tempdir, app, status, warning):
         'py3k': ('https://docs.python.org/py3k/', inv_file),
         'repoze.workflow': ('http://docs.repoze.org/workflow/', inv_file),
         'django-taggit': ('http://django-taggit.readthedocs.org/en/latest/',
-                          inv_file)
+                          inv_file),
+        12345: ('http://www.sphinx-doc.org/en/stable/', inv_file),
     }
 
     app.config.intersphinx_cache_limit = 0
     # load the inventory and check if it's done correctly
     load_mappings(app)
-    assert warning.getvalue().count('\n') == 2
+    assert warning.getvalue().count('\n') == 1
 
 
 class TestStripBasicAuth(unittest.TestCase):
@@ -198,6 +199,16 @@ class TestStripBasicAuth(unittest.TestCase):
         self.assertEqual(expected, actual_url)
         self.assertEqual(None, actual_username)
         self.assertEqual(None, actual_password)
+
+    def test_having_port(self):
+        """basic auth creds correctly stripped from URL containing creds even if URL
+        contains port"""
+        url = 'https://user:12345@domain.com:8080/project/objects.inv'
+        expected = 'https://domain.com:8080/project/objects.inv'
+        actual_url, actual_username, actual_password = _strip_basic_auth(url)
+        self.assertEqual(expected, actual_url)
+        self.assertEqual('user', actual_username)
+        self.assertEqual('12345', actual_password)
 
 
 @mock.patch('six.moves.urllib.request.HTTPBasicAuthHandler')

@@ -77,11 +77,8 @@ class XMLBuilder(Builder):
         outfilename = path.join(self.outdir, os_path(docname) + self.out_suffix)
         ensuredir(path.dirname(outfilename))
         try:
-            f = codecs.open(outfilename, 'w', 'utf-8')
-            try:
+            with codecs.open(outfilename, 'w', 'utf-8') as f:
                 f.write(self.writer.output)
-            finally:
-                f.close()
         except (IOError, OSError) as err:
             self.warn("error writing file %s: %s" % (outfilename, err))
 

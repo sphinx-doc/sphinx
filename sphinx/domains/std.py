@@ -532,6 +532,9 @@ class StandardDomain(Domain):
             if labelid is None:
                 continue
             node = document.ids[labelid]
+            if node.tagname == 'target' and 'refid' in node:  # indirect hyperlink targets
+                node = document.ids.get(node['refid'])
+                labelid = node['names'][0]
             if name.isdigit() or 'refuri' in node or \
                node.tagname.startswith('desc_'):
                 # ignore footnote labels, labels automatically generated from a
@@ -545,7 +548,7 @@ class StandardDomain(Domain):
                 sectname = clean_astext(node[0])  # node[0] == title node
             elif self.is_enumerable_node(node):
                 sectname = self.get_numfig_title(node)
-                if sectname is None:
+                if not sectname:
                     continue
             elif node.traverse(addnodes.toctree):
                 n = node.traverse(addnodes.toctree)[0]

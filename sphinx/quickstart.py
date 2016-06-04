@@ -219,7 +219,7 @@ html_theme = 'alabaster'
 # html_logo = None
 
 # The name of an image file (relative to this directory) to use as a favicon of
-# the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
+# the docs. This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
 #
 # html_favicon = None
@@ -533,16 +533,6 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = %(rbuilddir)s
-
-# User-friendly check for sphinx-build
-ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)
-\t$(error \
-The '$(SPHINXBUILD)' command was not found. Make sure you have Sphinx \
-installed, then set the SPHINXBUILD environment variable to point \
-to the full path of the '$(SPHINXBUILD)' executable. Alternatively you \
-can add the directory with the executable to your PATH. \
-If you don\\'t have Sphinx installed, grab it from http://sphinx-doc.org/)
-endif
 
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
@@ -1077,16 +1067,6 @@ SPHINXPROJ    = %(project_fn)s
 SOURCEDIR     = %(rsrcdir)s
 BUILDDIR      = %(rbuilddir)s
 
-# User-friendly check for sphinx-build.
-ifeq ($(shell which $(SPHINXBUILD) >/dev/null 2>&1; echo $$?), 1)
-$(error \
-The '$(SPHINXBUILD)' command was not found. Make sure you have Sphinx \
-installed, then set the SPHINXBUILD environment variable to point \
-to the full path of the '$(SPHINXBUILD)' executable. Alternatively you \
-can add the directory with the executable to your PATH. \
-If you don't have Sphinx installed, grab it from http://sphinx-doc.org/)
-endif
-
 # Has to be explicit, otherwise we don't get "make" without targets right.
 help:
 \t@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
@@ -1487,11 +1467,8 @@ def generate(d, overwrite=True, silent=False):
     def write_file(fpath, content, newline=None):
         if overwrite or not path.isfile(fpath):
             print('Creating file %s.' % fpath)
-            f = open(fpath, 'wt', encoding='utf-8', newline=newline)
-            try:
+            with open(fpath, 'wt', encoding='utf-8', newline=newline) as f:
                 f.write(content)
-            finally:
-                f.close()
         else:
             print('File %s already exists, skipping.' % fpath)
 

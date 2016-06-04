@@ -92,11 +92,8 @@ class Driver(object):
 
     def parse_file(self, filename, debug=False):
         """Parse a file and return the syntax tree."""
-        stream = open(filename)
-        try:
+        with open(filename) as stream:
             return self.parse_stream(stream, debug)
-        finally:
-            stream.close()
 
     def parse_string(self, text, debug=False):
         """Parse a string and return the syntax tree."""

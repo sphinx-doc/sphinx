@@ -22,7 +22,7 @@ from six import text_type
 from docutils import nodes
 
 import sphinx
-from sphinx.errors import SphinxError
+from sphinx.errors import SphinxError, ExtensionError
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.osutil import ensuredir, ENOENT, cd
 from sphinx.util.pycompat import sys_encoding
@@ -162,8 +162,6 @@ def render_math(self, math):
         image_translator_args += ['-o', outfn]
         # add custom ones from config value
         image_translator_args.extend(self.builder.config.imgmath_dvisvgm_args)
-        # last, the input file name
-        image_translator_args.append(path.join(tempdir, 'math.dvi'))
     else:
         raise MathExtError(
             'imgmath_image_format must be either "png" or "svg"')
@@ -178,14 +176,14 @@ def render_math(self, math):
             raise
         self.builder.warn('%s command %r cannot be run (needed for math '
                           'display), check the imgmath_%s setting' %
-                          image_translator, image_translator_executable,
-                          image_translator)
+                          (image_translator, image_translator_executable,
+                           image_translator))
         self.builder._imgmath_warned_image_translator = True
         return None, None
 
     stdout, stderr = p.communicate()
     if p.returncode != 0:
-        raise MathExtError('%s exited with error',
+        raise MathExtError('%s exited with error' %
                            image_translator, stderr, stdout)
     depth = None
     if use_preview and image_format == 'png':  # depth is only useful for png
@@ -267,7 +265,11 @@ def html_visit_displaymath(self, node):
 
 
 def setup(app):
-    mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
+    try:
+        mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
+    except ExtensionError:
+        raise ExtensionError('sphinx.ext.imgmath: other math package is already loaded')
+
     app.add_config_value('imgmath_image_format', 'png', 'html')
     app.add_config_value('imgmath_dvipng', 'dvipng', 'html')
     app.add_config_value('imgmath_dvisvgm', 'dvisvgm', 'html')

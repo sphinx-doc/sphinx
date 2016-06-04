@@ -533,7 +533,7 @@ class SearchJapanese(SearchLanguage):
     language_name = 'Japanese'
     splitters = {
         'default': 'sphinx.search.ja.DefaultSplitter',
-        'mecab': 'sphinx.sarch.ja.MecabSplitter',
+        'mecab': 'sphinx.search.ja.MecabSplitter',
         'janome': 'sphinx.search.ja.JanomeSplitter',
     }
 
@@ -556,4 +556,4 @@ class SearchJapanese(SearchLanguage):
         return len(stemmed_word) > 1
 
     def stem(self, word):
-        return word.lower()
+        return word

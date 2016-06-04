@@ -278,7 +278,7 @@ class HTMLTranslator(BaseTranslator):
         figtype = self.builder.env.domains['std'].get_figtype(node)
         if figtype:
             if len(node['ids']) == 0:
-                msg = 'Any IDs not assiend for %s node' % node.tagname
+                msg = 'Any IDs not assigned for %s node' % node.tagname
                 self.builder.env.warn_node(msg, node)
             else:
                 append_fignumber(figtype, node['ids'][0])

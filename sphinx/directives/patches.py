@@ -28,6 +28,10 @@ class Figure(images.Figure):
             self.options['name'] = name
             self.add_name(figure_node)
 
+        # fill lineno using image node
+        if figure_node.line is None and len(figure_node) == 2:
+            figure_node.line = figure_node[1].line
+
         return [figure_node]
 
 

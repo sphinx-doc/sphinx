@@ -33,7 +33,7 @@ import posixpath
 from os import path
 import re
 
-from six import iteritems
+from six import iteritems, string_types
 from six.moves.urllib import parse, request
 from docutils import nodes
 from docutils.utils import relative_path
@@ -150,7 +150,10 @@ def _strip_basic_auth(url):
     password = url_parts.password
     frags = list(url_parts)
     # swap out "user[:pass]@hostname" for "hostname"
-    frags[1] = url_parts.hostname
+    if url_parts.port:
+        frags[1] = "%s:%s" % (url_parts.hostname, url_parts.port)
+    else:
+        frags[1] = url_parts.hostname
     url = parse.urlunsplit(frags)
     return (url, username, password)
 
@@ -177,7 +180,7 @@ def _read_from_url(url):
         password_mgr = request.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, url, username, password)
         handler = request.HTTPBasicAuthHandler(password_mgr)
-        opener = request.build_opener(default_handlers + [handler])
+        opener = request.build_opener(*(default_handlers + [handler]))
     else:
         opener = default_opener
 
@@ -268,8 +271,9 @@ def load_mappings(app):
         if isinstance(value, tuple):
             # new format
             name, (uri, inv) = key, value
-            if not name.isalnum():
-                app.warn('intersphinx identifier %r is not alphanumeric' % name)
+            if not isinstance(name, string_types):
+                app.warn('intersphinx identifier %r is not string. Ignored' % name)
+                continue
         else:
             # old format, no name
             name, uri, inv = None, key, value

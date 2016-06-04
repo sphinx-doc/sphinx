@@ -222,6 +222,9 @@ General configuration
    * app.add_directive
    * app.add_role
    * app.add_generic_role
+   * app.add_source_parser
+   * image.data_uri
+   * image.nonlocal_uri
    * ref.term
    * ref.ref
    * ref.numref
@@ -280,7 +283,12 @@ General configuration
 .. confval:: numfig
 
    If true, figures, tables and code-blocks are automatically numbered if they
-   have a caption. For now, it works only with the HTML builder. Default is ``False``.
+   have a caption.  At same time, the `numref` role is enabled.  For now, it
+   works only with the HTML builder and LaTeX builder. Default is ``False``.
+
+   .. note::
+
+      LaTeX builder always assign numbers whether this option is enabled or not.
 
    .. versionadded:: 1.3
 
@@ -1615,8 +1623,13 @@ These options influence LaTeX output.
    * Keys that don't need be overridden unless in special cases are:
 
      ``'inputenc'``
-        "inputenc" package inclusion, default
-        ``'\\usepackage[utf8]{inputenc}'``.
+        "inputenc" package inclusion, defaults to
+        ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex.
+        Otherwise unset.
+
+        .. versionchanged:: 1.5
+           Previously ``'\\usepackage[utf8]{inputenc}'`` was used for all
+           compilers.
      ``'cmappkg'``
         "cmap" package inclusion, default ``'\\usepackage{cmap}'``.
 

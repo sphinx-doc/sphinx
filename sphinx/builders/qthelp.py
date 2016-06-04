@@ -179,8 +179,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         nspace = nspace.lower()
 
         # write the project file
-        f = codecs.open(path.join(outdir, outname+'.qhp'), 'w', 'utf-8')
-        try:
+        with codecs.open(path.join(outdir, outname+'.qhp'), 'w', 'utf-8') as f:
             f.write(project_template % {
                 'outname': htmlescape(outname),
                 'title': htmlescape(self.config.html_title),
@@ -191,23 +190,18 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                 'sections': sections,
                 'keywords': keywords,
                 'files': projectfiles})
-        finally:
-            f.close()
 
         homepage = 'qthelp://' + posixpath.join(
             nspace, 'doc', self.get_target_uri(self.config.master_doc))
         startpage = 'qthelp://' + posixpath.join(nspace, 'doc', 'index.html')
 
         self.info('writing collection project file...')
-        f = codecs.open(path.join(outdir, outname+'.qhcp'), 'w', 'utf-8')
-        try:
+        with codecs.open(path.join(outdir, outname+'.qhcp'), 'w', 'utf-8') as f:
             f.write(collection_template % {
                 'outname': htmlescape(outname),
                 'title': htmlescape(self.config.html_short_title),
                 'homepage': htmlescape(homepage),
                 'startpage': htmlescape(startpage)})
-        finally:
-            f.close()
 
     def isdocnode(self, node):
         if not isinstance(node, nodes.list_item):

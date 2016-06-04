@@ -5,6 +5,12 @@
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesClass{sphinxhowto}[2009/06/02 Document class (Sphinx HOWTO)]
 
+\ifx\directlua\undefined\else
+% if compiling with lualatex 0.85 or later load compatibility patch issued by
+% the LaTeX team for older packages relying on \pdf<name> named primitives.
+    \IfFileExists{luatex85.sty}{\RequirePackage{luatex85}}{}
+\fi
+
 % 'oneside' option overriding the 'twoside' default
 \newif\if@oneside
 \DeclareOption{oneside}{\@onesidetrue}

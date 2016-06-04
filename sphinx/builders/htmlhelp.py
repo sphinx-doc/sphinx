@@ -198,16 +198,12 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
     def build_hhx(self, outdir, outname):
         self.info('dumping stopword list...')
-        f = self.open_file(outdir, outname+'.stp')
-        try:
+        with self.open_file(outdir, outname+'.stp') as f:
             for word in sorted(stopwords):
                 print(word, file=f)
-        finally:
-            f.close()
 
         self.info('writing project file...')
-        f = self.open_file(outdir, outname+'.hhp')
-        try:
+        with self.open_file(outdir, outname+'.hhp') as f:
             f.write(project_template % {'outname': outname,
                                         'title': self.config.html_title,
                                         'version': self.config.version,
@@ -223,12 +219,9 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                        fn.endswith('.html'):
                         print(path.join(root, fn)[olen:].replace(os.sep, '\\'),
                               file=f)
-        finally:
-            f.close()
 
         self.info('writing TOC file...')
-        f = self.open_file(outdir, outname+'.hhc')
-        try:
+        with self.open_file(outdir, outname+'.hhc') as f:
             f.write(contents_header)
             # special books
             f.write('<LI> ' + object_sitemap % (self.config.html_short_title,
@@ -266,13 +259,10 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             for node in tocdoc.traverse(istoctree):
                 write_toc(node)
             f.write(contents_footer)
-        finally:
-            f.close()
 
         self.info('writing index file...')
         index = self.env.create_index(self)
-        f = self.open_file(outdir, outname+'.hhk')
-        try:
+        with self.open_file(outdir, outname+'.hhk') as f:
             f.write('<UL>\n')
 
             def write_index(title, refs, subitems):
@@ -302,5 +292,3 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 for title, (refs, subitems, key_) in group:
                     write_index(title, refs, subitems)
             f.write('</UL>\n')
-        finally:
-            f.close()

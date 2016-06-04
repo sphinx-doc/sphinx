@@ -75,7 +75,7 @@ default_settings = {
 # or changed to properly invalidate pickle files.
 #
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
-ENV_VERSION = 47 + (sys.version_info[0] - 2)
+ENV_VERSION = 48 + (sys.version_info[0] - 2)
 
 
 dummy_reporter = Reporter('', 4, 4)
@@ -103,11 +103,8 @@ class BuildEnvironment:
 
     @staticmethod
     def frompickle(srcdir, config, filename):
-        picklefile = open(filename, 'rb')
-        try:
+        with open(filename, 'rb') as picklefile:
             env = pickle.load(picklefile)
-        finally:
-            picklefile.close()
         if env.version != ENV_VERSION:
             raise IOError('build environment version not current')
         if env.srcdir != srcdir:
@@ -123,7 +120,6 @@ class BuildEnvironment:
         del self.config.values
         domains = self.domains
         del self.domains
-        picklefile = open(filename, 'wb')
         # remove potentially pickling-problematic values from config
         for key, val in list(vars(self.config).items()):
             if key.startswith('_') or \
@@ -131,10 +127,8 @@ class BuildEnvironment:
                isinstance(val, types.FunctionType) or \
                isinstance(val, class_types):
                 del self.config[key]
-        try:
+        with open(filename, 'wb') as picklefile:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
-        finally:
-            picklefile.close()
         # reset attributes
         self.domains = domains
         self.config.values = values
@@ -751,12 +745,9 @@ class BuildEnvironment:
             if self.versioning_compare:
                 # get old doctree
                 try:
-                    f = open(self.doc2path(docname,
-                                           self.doctreedir, '.doctree'), 'rb')
-                    try:
+                    with open(self.doc2path(docname,
+                                            self.doctreedir, '.doctree'), 'rb') as f:
                         old_doctree = pickle.load(f)
-                    finally:
-                        f.close()
                 except EnvironmentError:
                     pass
 
@@ -786,11 +777,8 @@ class BuildEnvironment:
         doctree_filename = self.doc2path(docname, self.doctreedir,
                                          '.doctree')
         ensuredir(path.dirname(doctree_filename))
-        f = open(doctree_filename, 'wb')
-        try:
+        with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
-        finally:
-            f.close()
 
     # utilities to use while reading a document
 
@@ -908,11 +896,13 @@ class BuildEnvironment:
             node['candidates'] = candidates = {}
             imguri = node['uri']
             if imguri.startswith('data:'):
-                self.warn_node('image data URI found. some builders might not support', node)
+                self.warn_node('image data URI found. some builders might not support', node,
+                               type='image', subtype='data_uri')
                 candidates['?'] = imguri
                 continue
             elif imguri.find('://') != -1:
-                self.warn_node('nonlocal image URI found: %s' % imguri, node)
+                self.warn_node('nonlocal image URI found: %s' % imguri, node,
+                               type='image', subtype='nonlocal_uri')
                 candidates['?'] = imguri
                 continue
             rel_imgpath, full_imgpath = self.relfn2path(imguri, docname)
@@ -1224,11 +1214,8 @@ class BuildEnvironment:
     def get_doctree(self, docname):
         """Read the doctree for a file from the pickle and return it."""
         doctree_filename = self.doc2path(docname, self.doctreedir, '.doctree')
-        f = open(doctree_filename, 'rb')
-        try:
+        with open(doctree_filename, 'rb') as f:
             doctree = pickle.load(f)
-        finally:
-            f.close()
         doctree.settings.env = self
         doctree.reporter = Reporter(self.doc2path(docname), 2, 5,
                                     stream=WarningStream(self._warnfunc))
@@ -1909,6 +1896,10 @@ class BuildEnvironment:
         traversed = set()
 
         def traverse_toctree(parent, docname):
+            if parent == docname:
+                self.warn(docname, 'self referenced toctree found. Ignored.')
+                return
+
             # traverse toctree by pre-order
             yield parent, docname
             traversed.add(docname)

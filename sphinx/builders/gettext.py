@@ -11,7 +11,7 @@
 
 from __future__ import unicode_literals
 
-from os import path, walk
+from os import path, walk, getenv
 from codecs import open
 from time import time
 from datetime import datetime, tzinfo, timedelta
@@ -130,6 +130,12 @@ class I18nBuilder(Builder):
 timestamp = time()
 tzdelta = datetime.fromtimestamp(timestamp) - \
     datetime.utcfromtimestamp(timestamp)
+# set timestamp from SOURCE_DATE_EPOCH if set
+# see https://reproducible-builds.org/specs/source-date-epoch/
+source_date_epoch = getenv('SOURCE_DATE_EPOCH')
+if source_date_epoch is not None:
+    timestamp = float(source_date_epoch)
+    tzdelta = 0
 
 
 class LocalTimeZone(tzinfo):
@@ -205,8 +211,7 @@ class MessageCatalogBuilder(I18nBuilder):
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
             pofn = path.join(self.outdir, textdomain + '.pot')
-            pofile = open(pofn, 'w', encoding='utf-8')
-            try:
+            with open(pofn, 'w', encoding='utf-8') as pofile:
                 pofile.write(POHEADER % data)
 
                 for message in catalog.messages:
@@ -228,6 +233,3 @@ class MessageCatalogBuilder(I18nBuilder):
                         replace('"', r'\"'). \
                         replace('\n', '\\n"\n"')
                     pofile.write('msgid "%s"\nmsgstr ""\n\n' % message)
-
-            finally:
-                pofile.close()
