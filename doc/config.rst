@@ -1583,6 +1583,19 @@ These options influence LaTeX output.
      ``'pointsize'``
         Point size option of the document class (``'10pt'``, ``'11pt'`` or
         ``'12pt'``), default ``'10pt'``.
+     ``'pixelsize'``
+        px unit size, default ``'49336sp'`` which achieves (almost) 96px=1in
+        (1in = 72.27\*65536 = 4736286.72sp).
+
+        .. versionadded:: 1.4.3
+  
+           - ``'1/96in'`` is not allowed but for example to obtain 100px=1in,
+             one could use ``'0.01in'``. However TeX evaluates ``0.01in`` to
+             ``47336sp`` which is less precise than direct ``47363sp`` (note:
+             all dimensions are treated internally by TeX as integral
+             multiples of ``1sp``).
+           - use of px unit in LaTeX lengths is not possible with XeTeX engine,
+             only PDFTeX or LuaTeX.
      ``'babel'``
         "babel" package inclusion, default ``'\\usepackage{babel}'``.
      ``'fontpkg'``

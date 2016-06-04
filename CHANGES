@@ -4,7 +4,7 @@ Release 1.4.3 (in development)
 Features added
 --------------
 
-* LaTeX writer allows figure dimensions using px unit (96px=1in)
+* new ``'pixelsize'`` key in ``latex_elements`` to allow LaTeX writer handle image dimensions using px unit (default 96px=1in) (ref: #2618)
 
 
 Bugs fixed
