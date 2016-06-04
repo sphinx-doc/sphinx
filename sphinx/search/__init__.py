@@ -381,14 +381,20 @@ class IndexBuilder(object):
         _filter = self.lang.word_filter
 
         for word in visitor.found_title_words:
-            word = stem(word)
-            if _filter(word):
+            stemmed_word = stem(word)
+            if _filter(stemmed_word):
+                self._title_mapping.setdefault(stemmed_word, set()).add(filename)
+            elif _filter(word): # stemmer must not remove words from search index
                 self._title_mapping.setdefault(word, set()).add(filename)
 
         for word in visitor.found_words:
-            word = stem(word)
-            if word not in self._title_mapping and _filter(word):
-                self._mapping.setdefault(word, set()).add(filename)
+            stemmed_word = stem(word)
+            # again, stemmer must not remove words from search index
+            if not _filter(stemmed_word) and _filter(word):
+                stemmed_word = word
+            if stemmed_word not in self._title_mapping and _filter(stemmed_word):
+                self._mapping.setdefault(stemmed_word, set()).add(filename)
+
 
     def context_for_searchtool(self):
         return dict(

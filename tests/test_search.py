@@ -58,6 +58,7 @@ def assert_lang_agnostic_key_words(searchindex):
     assert 'thisnoteith' not in searchindex
     assert 'thisonetoo' in searchindex
 
+
 @with_app(testroot='search')
 def test_meta_keys_are_handled_for_language_en(app, status, warning):
     os.remove(app.outdir / 'searchindex.js')
@@ -68,6 +69,7 @@ def test_meta_keys_are_handled_for_language_en(app, status, warning):
     assert 'onlygerman' not in searchindex
     assert 'thistoo' in searchindex
 
+
 @with_app(testroot='search', confoverrides={'html_search_language': 'de'})
 def test_meta_keys_are_handled_for_language_de(app, status, warning):
     app.builder.build_all()
@@ -76,3 +78,16 @@ def test_meta_keys_are_handled_for_language_de(app, status, warning):
     assert 'onlygerman' in searchindex
     assert 'notgerman' not in searchindex
     assert 'onlytoogerman' in searchindex
+
+
+@with_app(testroot='search')
+def test_stemmer_does_not_remove_short_words(app, status, warning):
+    app.builder.build_all()
+    searchindex = (app.outdir / 'searchindex.js').text()
+    assert 'zfs' in searchindex
+
+
+@with_app(testroot='search')
+def test_stemmer(app, status, warning):
+    searchindex = (app.outdir / 'searchindex.js').text()
+    assert 'findthisstemmedkei' in searchindex
