@@ -841,9 +841,9 @@
   \def\@captype{figure}%
   \begin{minipage}{#1}%
 }{\end{minipage}}
-% store original \caption macro for figures in longtable and tabulary
-\let\sphinxcaption\caption
+% store original \caption macro for use with figures in longtable and tabulary
+\AtBeginDocument{\let\Sphinx@originalcaption\caption}
 \newcommand*\figcaption
   {\ifx\equation$%$% this is trick to identify tabulary first pass
        \firstchoice@false\else\firstchoice@true\fi
-   \sphinxcaption }
+   \Sphinx@originalcaption }
