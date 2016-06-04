@@ -1633,6 +1633,17 @@ These options influence LaTeX output.
         .. versionadded:: 1.2
      ``'fontenc'``
         "fontenc" package inclusion, default ``'\\usepackage[T1]{fontenc}'``.
+     ``'amsmath'``
+        "amsmath" package inclusion, default ``'\\usepackage{amsmath,amssymb}'``.
+
+        .. versionadded:: 1.4
+           Override if conflicts arise with math font packages
+           (note: package ``amsfonts`` is loaded by ``amssymb``.)
+
+
+        .. versionchanged:: 1.4.3
+           Package ``amstext`` is always loaded (for its ``\text`` macro,
+           among others), independently of this key value.
      ``'maketitle'``
         "maketitle" call, default ``'\\maketitle'``.  Override if you want to
         generate a differently-styled title page.
