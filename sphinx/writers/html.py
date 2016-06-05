@@ -213,6 +213,8 @@ class HTMLTranslator(BaseTranslator):
             atts['class'] += ' image-reference'
         if 'reftitle' in node:
             atts['title'] = node['reftitle']
+        if 'target' in node:
+            atts['target'] = node['target']
         self.body.append(self.starttag(node, 'a', '', **atts))
 
         if node.get('secnumber'):

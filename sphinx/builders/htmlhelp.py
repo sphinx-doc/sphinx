@@ -198,6 +198,14 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     def handle_finish(self):
         self.build_hhx(self.outdir, self.config.htmlhelp_basename)
 
+    def write_doc(self, docname, doctree):
+        for node in doctree.traverse(nodes.reference):
+            # add ``target=_blank`` attributes to external links
+            if node.get('internal') is None and 'refuri' in node:
+                node['target'] = '_blank'
+
+        StandaloneHTMLBuilder.write_doc(self, docname, doctree)
+
     def build_hhx(self, outdir, outname):
         self.info('dumping stopword list...')
         with self.open_file(outdir, outname+'.stp') as f:
