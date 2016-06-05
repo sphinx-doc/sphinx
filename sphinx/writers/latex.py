@@ -1283,12 +1283,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\n')
 
     def visit_field_list(self, node):
-        self.body.append('\\begin{quote}\\begin{description}\n')
+        self.body.append('\\begin{quote}\\SphinxDecreaseListDepth'
+                         '\\begin{description}\n')
         if self.table:
             self.table.has_problematic = True
 
     def depart_field_list(self, node):
-        self.body.append('\\end{description}\\end{quote}\n')
+        self.body.append('\\end{description}\\end{quote}'
+                         '\\SphinxIncreaseListDepth\n')
 
     def visit_field(self, node):
         pass
@@ -1927,7 +1929,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     isinstance(child, nodes.enumerated_list):
                 done = 1
         if not done:
-            self.body.append('\\begin{quote}\n')
+            self.body.append('\\begin{quote}\\SphinxDecreaseListDepth\n')
             if self.table:
                 self.table.has_problematic = True
 
@@ -1939,7 +1941,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     isinstance(child, nodes.enumerated_list):
                 done = 1
         if not done:
-            self.body.append('\\end{quote}\n')
+            self.body.append('\\end{quote}\\SphinxIncreaseListDepth\n')
 
     # option node handling copied from docutils' latex writer
 
