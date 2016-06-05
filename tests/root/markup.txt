@@ -220,6 +220,13 @@ Tables with multirow and multicol:
    |    |
    +----+
 
+.. list-table::
+   :header-rows: 0
+
+   * - .. figure:: img.png
+
+          figure in table
+
 
 Figures
 -------
