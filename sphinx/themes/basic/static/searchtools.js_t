@@ -159,6 +159,10 @@ var Search = {
       }
       // stem the word
       var word = stemmer.stemWord(tmp[i].toLowerCase());
+      // prevent stemmer from cutting word smaller than two chars
+      if(word.length < 3 && tmp[i].length >= 3) {
+        word = tmp[i];
+      }
       var toAppend;
       // select the correct list
       if (word[0] == '-') {
