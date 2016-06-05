@@ -24,23 +24,23 @@ ENV_WARNINGS = """\
 (%(root)s/autodoc_fodder.py:docstring of autodoc_fodder\\.MarkupError:2: \
 WARNING: Explicit markup ends without a blank line; unexpected \
 unindent\\.\\n?
-)?%(root)s/images.txt:9: WARNING: image file not readable: foo.png
-%(root)s/images.txt:23: WARNING: nonlocal image URI found: \
+)?%(root)s/images.txt:\\d+: WARNING: image file not readable: foo.png
+%(root)s/images.txt:\\d+3: WARNING: nonlocal image URI found: \
 http://www.python.org/logo.png
-%(root)s/includes.txt:\\d*: WARNING: Encoding 'utf-8-sig' used for \
+%(root)s/includes.txt:\\d+: WARNING: Encoding 'utf-8-sig' used for \
 reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
 :encoding: option\\n?
-%(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
-(%(root)s/markup.txt:373: WARNING: invalid single index entry u'')?
-(%(root)s/undecodable.txt:3: WARNING: undecodable source characters, replacing \
+%(root)s/includes.txt:\\d+: WARNING: download file not readable: .*?nonexisting.png
+(%(root)s/markup.txt:\\d+: WARNING: invalid single index entry u'')?
+(%(root)s/undecodable.txt:\\d+: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
 )?"""
 
 HTML_WARNINGS = ENV_WARNINGS + """\
-%(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/markup.txt:285: WARNING: Could not lex literal_block as "c". Highlighting skipped.
-%(root)s/footnote.txt:60: WARNING: citation not found: missing
-%(root)s/markup.txt:164: WARNING: unknown option: &option
+%(root)s/images.txt:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
+%(root)s/markup.txt:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
+%(root)s/footnote.txt:\\d+: WARNING: citation not found: missing
+%(root)s/markup.txt:\\d+: WARNING: unknown option: &option
 """
 
 if PY3:

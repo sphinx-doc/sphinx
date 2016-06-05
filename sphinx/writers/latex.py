@@ -303,10 +303,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'passoptionstopackages': '',
         'inputenc':        ('\\ifPDFTeX\n'
                             '  \\usepackage[utf8]{inputenc}\n'
-                            '\\else\\fi'),
+                            '\\fi'),
         'utf8extra':       ('\\ifdefined\\DeclareUnicodeCharacter\n'
                             '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'
-                            '\\else\\fi'),
+                            '\\fi'),
         'cmappkg':         '\\usepackage{cmap}',
         'fontenc':         '\\usepackage[T1]{fontenc}',
         'amsmath':         '\\usepackage{amsmath,amssymb,amstext}',
@@ -1022,15 +1022,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\n\\begin{longtable}')
             endmacro = '\\end{longtable}\n\n'
         elif self.table.has_verbatim:
-            self.body.append('\n\\begin{tabular}')
+            self.body.append('\n\\noindent\\begin{tabular}')
             endmacro = '\\end{tabular}\n\n'
         elif self.table.has_problematic and not self.table.colspec:
             # if the user has given us tabularcolumns, accept them and use
             # tabulary nevertheless
-            self.body.append('\n\\begin{tabular}')
+            self.body.append('\n\\noindent\\begin{tabular}')
             endmacro = '\\end{tabular}\n\n'
         else:
-            self.body.append('\n\\begin{tabulary}{\\linewidth}')
+            self.body.append('\n\\noindent\\begin{tabulary}{\\linewidth}')
             endmacro = '\\end{tabulary}\n\n'
         if self.table.colspec:
             self.body.append(self.table.colspec)
@@ -1444,9 +1444,21 @@ class LaTeXTranslator(nodes.NodeVisitor):
            isinstance(node.children[0], nodes.image) and
            node.children[0]['ids']):
             ids += self.hypertarget(node.children[0]['ids'][0], anchor=False)
-        if node.get('align', '') in ('left', 'right'):
+        if self.table:
+            # TODO: support align option
             if 'width' in node:
                 length = width_to_latex_length(node['width'])
+                self.body.append('\\begin{figure-in-table}[%s]\n\\centering\n' % length)
+            else:
+                self.body.append('\\begin{figure-in-table}\n\\centering\n')
+            if any(isinstance(child, nodes.caption) for child in node):
+                self.body.append('\\capstart')
+            self.context.append(ids + '\\end{figure-in-table}\n')
+        elif node.get('align', '') in ('left', 'right'):
+            if 'width' in node:
+                length = width_to_latex_length(node['width'])
+            elif 'width' in node[0]:
+                length = width_to_latex_length(node[0]['width'])
             else:
                 length = '0pt'
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
@@ -1486,6 +1498,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\SphinxSetupCaptionForVerbatim{literal-block}{')
         elif self.in_minipage and isinstance(node.parent, nodes.figure):
             self.body.append('\\captionof{figure}{')
+        elif self.table and node.parent.tagname == 'figure':
+            self.body.append('\\figcaption{')
         else:
             self.body.append('\\caption{')
 

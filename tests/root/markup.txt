@@ -220,6 +220,13 @@ Tables with multirow and multicol:
    |    |
    +----+
 
+.. list-table::
+   :header-rows: 0
+
+   * - .. figure:: img.png
+
+          figure in table
+
 
 Figures
 -------
@@ -245,6 +252,12 @@ Figures
    :figwidth: 50%
 
    figure with align & figwidth option
+
+.. figure:: rimg.png
+   :align: right
+   :width: 3cm
+
+   figure with align & width option
 
 Version markup
 --------------

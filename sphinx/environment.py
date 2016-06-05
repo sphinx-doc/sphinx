@@ -17,6 +17,7 @@ import types
 import bisect
 import codecs
 import string
+import fnmatch
 import unicodedata
 from os import path
 from glob import glob
@@ -169,6 +170,7 @@ class BuildEnvironment:
                                     # contains all read docnames
         self.dependencies = {}      # docname -> set of dependent file
                                     # names, relative to documentation root
+        self.included = set()       # docnames included from other documents
         self.reread_always = set()  # docnames to re-read unconditionally on
                                     # next build
 
@@ -327,6 +329,20 @@ class BuildEnvironment:
         for domainname, domain in self.domains.items():
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         app.emit('env-merge-info', self, docnames, other)
+
+    def path2doc(self, filename):
+        """Return the docname for the filename if the file is document.
+
+        *filename* should be absolute or relative to the source directory.
+        """
+        if filename.startswith(self.srcdir):
+            filename = filename[len(self.srcdir) + 1:]
+        for suffix in self.config.source_suffix:
+            if fnmatch.fnmatch(filename, '*' + suffix):
+                return filename[:-len(suffix)]
+        else:
+            # the file does not have docname
+            return None
 
     def doc2path(self, docname, base=True, suffix=None):
         """Return the filename for the document name.
@@ -819,6 +835,15 @@ class BuildEnvironment:
         *filename* should be absolute or relative to the source directory.
         """
         self.dependencies.setdefault(self.docname, set()).add(filename)
+
+    def note_included(self, filename):
+        """Add *filename* as a included from other document.
+
+        This means the document is not orphaned.
+
+        *filename* should be absolute or relative to the source directory.
+        """
+        self.included.add(self.path2doc(filename))
 
     def note_reread(self):
         """Add the current document to the list of documents that will
@@ -1930,6 +1955,9 @@ class BuildEnvironment:
             if docname not in self.files_to_rebuild:
                 if docname == self.config.master_doc:
                     # the master file is not included anywhere ;)
+                    continue
+                if docname in self.included:
+                    # the document is included from other documents
                     continue
                 if 'orphan' in self.metadata[docname]:
                     continue

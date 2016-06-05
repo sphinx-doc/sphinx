@@ -10,6 +10,8 @@
 
 \@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
 
+% for \text macro and \iffirstchoice@ conditional even if amsmath not loaded
+\RequirePackage{amstext}
 \RequirePackage{textcomp}
 \RequirePackage{titlesec}
 \RequirePackage{tabulary}
@@ -151,6 +153,9 @@
 \newcommand{\termref}[1]{\emph{#1}}
 
 \newcommand*{\sphinxAtStartFootnote}{\mbox{ }}
+
+% Support large numbered footnotes in minipage (cf. admonitions)
+\def\thempfootnote{\arabic{mpfootnote}}
 
 % Redefine the Verbatim environment to allow border and background colors
 % and to handle the top caption in a non separable by pagebreak way.
@@ -828,3 +833,15 @@
 % if the left page space is less than \literalblockneedspace, insert page-break
 \newcommand{\literalblockneedspace}{5\baselineskip}
 \newcommand{\literalblockwithoutcaptionneedspace}{1.5\baselineskip}
+
+% figure in table
+\newenvironment{figure-in-table}[1][\linewidth]{%
+  \def\@captype{figure}%
+  \begin{minipage}{#1}%
+}{\end{minipage}}
+% store original \caption macro for use with figures in longtable and tabulary
+\AtBeginDocument{\let\Sphinx@originalcaption\caption}
+\newcommand*\figcaption
+  {\ifx\equation$%$% this is trick to identify tabulary first pass
+       \firstchoice@false\else\firstchoice@true\fi
+   \Sphinx@originalcaption }
