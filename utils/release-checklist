@@ -1,6 +1,7 @@
 Release checklist
 =================
 
+* Open https://travis-ci.org/sphinx-doc/sphinx/branches and check stable branch is green
 * Check `git status`
 * Run `make style-check`
 * Run `tx pull -a -f` in sphinx/locale if final major release
