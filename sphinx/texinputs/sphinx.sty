@@ -10,6 +10,8 @@
 
 \@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
 
+% for \text macro and \iffirstchoice@ conditional even if amsmath not loaded
+\RequirePackage{amstext}
 \RequirePackage{textcomp}
 % fancybox not used anymore and will be removed at Sphinx-1.5
 \RequirePackage{fancybox}
