@@ -77,56 +77,27 @@
     \end{flushright}%\par
     \@thanks
   \end{titlepage}%
-  % avoid extra blank page after title if openany option
-  \if@openright\cleardoublepage\else\clearpage\fi
   \setcounter{footnote}{0}%
   \let\thanks\relax\let\maketitle\relax
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
 }
 
-
-% This is only needed for the \typeout message.
-\if@openright
-\let\py@OldEndAbstract=\endabstract
-\renewcommand{\endabstract}{%
-  \py@OldEndAbstract
-  % mimic \clearpage/\cleardoublepage with added message to log
-  \clearpage
-  % LaTeX's standard is that openright has any effect only under twoside
-  \if@twoside
-     \ifodd\c@page\else
-        \typeout{Adding blank page after the abstract}%
-        \hbox{}\newpage\if@twocolumn\hbox{}\newpage\fi
-      \fi
-  \fi
-}
-\fi
-
-% Mainly for the \typeout message.
 \let\py@OldTableofcontents=\tableofcontents
 \renewcommand{\tableofcontents}{%
   % before resetting page counter, let's do the right thing.
   \if@openright\cleardoublepage\else\clearpage\fi
   \pagenumbering{roman}%
-  \setcounter{page}{1}%
   \pagestyle{plain}%
-  {%
+  \begingroup
     \parskip \z@skip
     \py@OldTableofcontents
-    % mimic \clearpage/\cleardoublepage with added message to log
-    \clearpage
-    % LaTeX's standard is that openright has any effect only under twoside
-    \if@openright\if@twoside
-       \ifodd\c@page\else
-         \typeout{Adding blank page after the table of contents}%
-         \hbox{}\newpage\if@twocolumn\hbox{}\newpage\fi
-       \fi
-    \fi\fi
-  }%
+  \endgroup
+  % before resetting page counter, let's do the right thing.
+  \if@openright\cleardoublepage\else\clearpage\fi
   \pagenumbering{arabic}%
-  \@ifundefined{fancyhf}{}{\pagestyle{normal}}%
+  \ifdefined\fancyhf\pagestyle{normal}\fi
 }
-\pagenumbering{alph}
+%\pagenumbering{alph}%
 
 % This is needed to get the width of the section # area wide enough in the
 % library reference.  Doing it here keeps it the same for all the manuals.
@@ -139,7 +110,7 @@
 % For a report document class this environment is a chapter.
 \let\py@OldThebibliography=\thebibliography
 \renewcommand{\thebibliography}[1]{
-  \cleardoublepage
+  \if@openright\cleardoublepage\else\clearpage\fi
   \phantomsection
   \py@OldThebibliography{1}
   \addcontentsline{toc}{chapter}{\bibname}
@@ -151,7 +122,7 @@
 \@ifclassloaded{memoir}{}{
   \let\py@OldTheindex=\theindex
   \renewcommand{\theindex}{
-    \cleardoublepage
+    \if@openright\cleardoublepage\else\clearpage\fi
     \phantomsection
     \py@OldTheindex
     \addcontentsline{toc}{chapter}{\indexname}
