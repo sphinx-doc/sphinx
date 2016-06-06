@@ -21,6 +21,7 @@
 % For framing code-blocks and warning type notices, and shadowing topics
 \RequirePackage{framed}
 \newif\ifSphinx@inframed % flag set if we are in a framed environment
+% ifthen not used anymore and will be removed at Sphinx-1.5
 \RequirePackage{ifthen}
 % The xcolor package draws better fcolorboxes around verbatim code
 \IfFileExists{xcolor.sty}{
@@ -752,12 +753,12 @@
   \fi%
 }
 
-\providecommand*{\DUprovidelength}[2]{
-  \ifthenelse{\isundefined{#1}}{\newlength{#1}\setlength{#1}{#2}}{}
+\providecommand*{\DUprovidelength}[2]{%
+  \ifdefined#1\else\newlength{#1}\setlength{#1}{#2}\fi
 }
 
 \DUprovidelength{\DUlineblockindent}{2.5em}
-\ifthenelse{\isundefined{\DUlineblock}}{
+\ifdefined\DUlineblock\else
   \newenvironment{DUlineblock}[1]{%
     \list{}{\setlength{\partopsep}{\parskip}
             \addtolength{\partopsep}{\baselineskip}
@@ -768,8 +769,7 @@
     \raggedright
   }
   {\endlist}
-}{}
-
+\fi
 
 % From footmisc.sty: allows footnotes in titles
 \let\FN@sf@@footnote\footnote
