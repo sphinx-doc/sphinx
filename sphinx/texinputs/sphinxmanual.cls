@@ -77,7 +77,8 @@
     \end{flushright}%\par
     \@thanks
   \end{titlepage}%
-  \cleardoublepage%
+  % avoid extra blank page after title if openany option
+  \if@openright\cleardoublepage\else\clearpage\fi
   \setcounter{footnote}{0}%
   \let\thanks\relax\let\maketitle\relax
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
@@ -86,38 +87,54 @@
 
 % Catch the end of the {abstract} environment, but here make sure the abstract
 % is followed by a blank page if the 'openright' option is used.
-%
+
+% Note added (Sphinx 1.4.4): the earlier code was wrong and in fact not really
+% needed as after an abstract there might be table of contents, part, or chapter
+% which all do the right \cleardoublepage if openright option. Besides, there
+% does not seem to be Sphinx interface for user to abstract.
+\if@openright
 \let\py@OldEndAbstract=\endabstract
-\renewcommand{\endabstract}{
-  \if@openright
-    \ifodd\value{page}
-      \typeout{Adding blank page after the abstract.}
-      \vfil\pagebreak
-    \fi
-  \fi
+\renewcommand{\endabstract}{%
   \py@OldEndAbstract
+  % mimic \clearpage/\cleardoublepage with added message to log
+  \clearpage
+  % LaTeX's standard is that openright has any effect only under twoside
+  \if@twoside
+     \ifodd\c@page\else
+        \typeout{Adding blank page after the abstract}%
+        \hbox{}\newpage\if@twocolumn\hbox{}\newpage\fi
+      \fi
+  \fi
 }
+\fi
 
 % This wraps the \tableofcontents macro with all the magic to get the spacing
 % right and have the right number of pages if the 'openright' option has been
 % used.  This eliminates a fair amount of crud in the individual document files.
-%
+
+% Note added (Sphinx 1.4.4): code was wrong in case of openany option. Further:
+% after table of contents there will be part or chapter which by default already
+% do the right thing. Blank page code is thus here only for the extra message
+% in log.
 \let\py@OldTableofcontents=\tableofcontents
 \renewcommand{\tableofcontents}{%
+  % before resetting page counter, let's do the right thing.
+  \if@openright\cleardoublepage\else\clearpage\fi
   \pagenumbering{roman}%
   \setcounter{page}{1}%
-  \pagebreak%
   \pagestyle{plain}%
   {%
-    \parskip = 0mm%
-    \py@OldTableofcontents%
-    \if@openright%
-      \ifodd\value{page}%
-        \typeout{Adding blank page after the table of contents.}%
-        \pagebreak\hspace{0pt}%
-      \fi%
-    \fi%
-    \cleardoublepage%
+    \parskip \z@skip
+    \py@OldTableofcontents
+    % mimic \clearpage/\cleardoublepage with added message to log
+    \clearpage
+    % LaTeX's standard is that openright has any effect only under twoside
+    \if@openright\if@twoside
+       \ifodd\c@page\else
+         \typeout{Adding blank page after the table of contents}%
+         \hbox{}\newpage\if@twocolumn\hbox{}\newpage\fi
+       \fi
+    \fi\fi
   }%
   \pagenumbering{arabic}%
   \@ifundefined{fancyhf}{}{\pagestyle{normal}}%
