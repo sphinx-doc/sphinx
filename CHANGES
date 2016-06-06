@@ -5,6 +5,7 @@ Bugs fixed
 ----------
 
 * #2630: Latex sphinx.sty Notice Enviroment formatting problem
+* #2632: Warning directives fail in quote environment latex build
 
 
 Release 1.4.3 (released Jun 5, 2016)

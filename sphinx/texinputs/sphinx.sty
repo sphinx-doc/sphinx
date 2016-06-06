@@ -550,7 +550,8 @@
    \ifvoid\@mpfootins\else
       \vskip\skip\@mpfootins\normalcolor\footnoterule\unvbox\@mpfootins
    \fi
-   \@minipagefalse\endMakeFramed
+   \@minipagefalse
+   \global\@newlistfalse\endMakeFramed
    \ifSphinx@inframed\end{minipage}\fi
    % arrange for similar spacing below frame as for "light" boxes.
    \vskip .4\baselineskip
