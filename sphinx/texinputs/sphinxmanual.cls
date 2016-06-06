@@ -85,13 +85,7 @@
 }
 
 
-% Catch the end of the {abstract} environment, but here make sure the abstract
-% is followed by a blank page if the 'openright' option is used.
-
-% Note added (Sphinx 1.4.4): the earlier code was wrong and in fact not really
-% needed as after an abstract there might be table of contents, part, or chapter
-% which all do the right \cleardoublepage if openright option. Besides, there
-% does not seem to be Sphinx interface for user to abstract.
+% This is only needed for the \typeout message.
 \if@openright
 \let\py@OldEndAbstract=\endabstract
 \renewcommand{\endabstract}{%
@@ -108,14 +102,7 @@
 }
 \fi
 
-% This wraps the \tableofcontents macro with all the magic to get the spacing
-% right and have the right number of pages if the 'openright' option has been
-% used.  This eliminates a fair amount of crud in the individual document files.
-
-% Note added (Sphinx 1.4.4): code was wrong in case of openany option. Further:
-% after table of contents there will be part or chapter which by default already
-% do the right thing. Blank page code is thus here only for the extra message
-% in log.
+% Mainly for the \typeout message.
 \let\py@OldTableofcontents=\tableofcontents
 \renewcommand{\tableofcontents}{%
   % before resetting page counter, let's do the right thing.
