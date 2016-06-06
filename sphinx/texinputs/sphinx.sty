@@ -566,7 +566,8 @@
   % counteract previous possible negative skip (French lists!):
   % (we can't cancel that any earlier \vskip introduced a potential pagebreak)
   \ifdim\lastskip<\z@\vskip-\lastskip\fi
-  \nobreak\vbox{\noindent\rule[.4\baselineskip]{\linewidth}{0.5pt}}\allowbreak
+  \nobreak\vbox{\noindent\kern\@totalleftmargin
+           \rule[.4\baselineskip]{\linewidth}{0.5pt}\hss}\allowbreak
   }
 
 % Some are quite plain:

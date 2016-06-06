@@ -4,6 +4,8 @@ Release 1.4.4 (in development)
 Bugs fixed
 ----------
 
+* #2630: Latex sphinx.sty Notice Enviroment formatting problem
+
 
 Release 1.4.3 (released Jun 5, 2016)
 ====================================
