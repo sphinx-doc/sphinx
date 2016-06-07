@@ -458,6 +458,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['contentsname'] = \
                 self.babel_renewcommand('\\contentsname', document.settings.contentsname)
         # allow the user to override them all
+        self.check_latex_elements()
         self.elements.update(builder.config.latex_elements)
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
@@ -504,6 +505,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def pop_hyperlink_ids(self, figtype):
         return self.next_hyperlink_ids.pop(figtype, set())
+
+    def check_latex_elements(self):
+        for key in self.builder.config.latex_elements:
+            if key not in self.elements:
+                msg = _("Unknown configure key: latex_elements[%r] is ignored.")
+                self.builder.warn(msg % key)
 
     def restrict_footnote(self, node):
         if self.footnote_restricted is False:
