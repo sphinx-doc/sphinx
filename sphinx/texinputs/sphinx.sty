@@ -329,6 +329,8 @@
        \discretionary{\copy\Sphinxvisiblespacebox}{\Sphinxafterbreak}
                      {\kern\fontdimen2\font}%
        }%
+  % go around fancyvrb's check of @currenvir (for case of minipage below)
+  \renewcommand*{\VerbatimEnvironment}{\xdef\FV@EnvironName{Verbatim}}%
   % Allow breaks at special characters using \PYG... macros.
   \Sphinxbreaksatspecials
   % The list environment is needed to control perfectly the vertical space.
