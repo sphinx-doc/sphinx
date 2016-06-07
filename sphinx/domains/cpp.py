@@ -761,6 +761,72 @@ class ASTTemplateParams(ASTBase):
         signode += nodes.Text(">")
 
 
+class ASTTemplateIntroductionParameter(ASTBase):
+    def __init__(self, identifier, pack):
+        self.identifier = identifier
+        self.pack = pack
+
+    def get_identifier(self):
+        return self.identifier
+
+    def get_id_v2(self, objectType=None, symbol=None):
+        # this is not part of the normal name mangling in C++
+        if symbol:
+            # the anchor will be our parent
+            return symbol.parent.declaration.get_id_v2(prefixed=None)
+        else:
+            return self.identifier.get_id_v2()
+
+    def __unicode__(self):
+        res = []
+        if self.pack:
+            res.append('...')
+        res.append(text_type(self.identifier))
+        return ''.join(res)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        if self.pack:
+            signode += nodes.Text('...')
+        self.identifier.describe_signature(signode, mode, env, '', symbol)
+
+
+class ASTTemplateIntroduction(ASTBase):
+    def __init__(self, concept, params):
+        assert len(params) > 0
+        self.concept = concept
+        self.params = params
+
+    def get_id_v2(self):
+        # for now treat abc::def::concept{A, B, [...]C} the same as:
+        # template<typename A, typename B, typename [...]C>
+        type_params = [ASTTemplateParamType(ASTTemplateKeyParamPackIdDefault('typename',
+                                                                             param.identifier,
+                                                                             param.pack, None))
+                       for param in self.params]
+        return ASTTemplateParams(type_params).get_id_v2()
+
+    def __unicode__(self):
+        res = []
+        res.append(text_type(self.concept))
+        res.append('{')
+        res.append(', '.join(text_type(param) for param in self.params))
+        res.append('} ')
+        return ''.join(res)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        self.concept.describe_signature(signode, 'markType', env, symbol)
+        signode += nodes.Text('{')
+
+        first = True
+        for param in self.params:
+            if not first:
+                signode += nodes.Text(', ')
+            first = False
+            param.describe_signature(signode, mode, env, symbol)
+
+        signode += nodes.Text('}')
+
+
 class ASTTemplateDeclarationPrefix(ASTBase):
     def __init__(self, templates):
         assert templates is not None
@@ -1255,6 +1321,10 @@ class ASTParametersQualifiers(ASTBase):
 
 
 class ASTDeclSpecsSimple(ASTBase):
+    # self.constexpr can be one of three values: false-y, truth-y but not a concept, and
+    # truth-y and a concept
+    concept = object()
+
     def __init__(self, storage, threadLocal, inline, virtual, explicit,
                  constexpr, volatile, const, friend):
         self.storage = storage
@@ -1295,7 +1365,10 @@ class ASTDeclSpecsSimple(ASTBase):
         if self.explicit:
             res.append('explicit')
         if self.constexpr:
-            res.append('constexpr')
+            if self.constexpr is self.concept:
+                res.append('concept')
+            else:
+                res.append('constexpr')
         if self.volatile:
             res.append('volatile')
         if self.const:
@@ -1320,7 +1393,10 @@ class ASTDeclSpecsSimple(ASTBase):
         if self.explicit:
             _add(modifiers, 'explicit')
         if self.constexpr:
-            _add(modifiers, 'constexpr')
+            if self.constexpr is self.concept:
+                _add(modifiers, 'concept')
+            else:
+                _add(modifiers, 'constexpr')
         if self.volatile:
             _add(modifiers, 'volatile')
         if self.const:
@@ -2023,6 +2099,51 @@ class ASTTypeUsing(ASTBase):
         if self.type:
             signode += nodes.Text(' = ')
             self.type.describe_signature(signode, 'markType', env, symbol=symbol)
+
+
+class ASTConcept(ASTBase):
+    def __init__(self, name, function):
+        # we build the appropriate AST depending on the kind of the concept:
+        #  - a function concept is a constexpr bool function template taking no args
+        #    (technically noexcept, too)
+        #  - a variable concept is a constexpr bool variable template
+        if function:
+            paramQuals = ASTParametersQualifiers([], False, False, None, None, False, False,
+                                                 None)
+        else:
+            paramQuals = None
+        concept_spec = ASTDeclSpecsSimple.concept
+        constexpr_bool = ASTDeclSpecs('function' if function else 'member',
+                                      ASTDeclSpecsSimple(None, None, None, None, None,
+                                                         concept_spec, None, None, None),
+                                      ASTDeclSpecsSimple(None, None, None, None, None,
+                                                         None, None, None, None),
+                                      ASTTrailingTypeSpecFundamental('bool'))
+        name = ASTDecleratorNameParamQual(name, [], paramQuals)
+        if function:
+            self.ast = ASTType(constexpr_bool, name)
+        else:
+            self.ast = ASTTypeWithInit(ASTType(constexpr_bool, name), None)
+
+    @property
+    def is_function_concept(self):
+        return isinstance(self.ast, ASTType)
+
+    @property
+    def name(self):
+        return self.ast.name
+
+    def get_id_v1(self, objectType=None, symbol=None):
+        return self.ast.get_id_v1(objectType=objectType, symbol=symbol)
+
+    def get_id_v2(self, objectType=None, symbol=None):
+        return self.ast.get_id_v2(objectType=objectType, symbol=symbol)
+
+    def __unicode__(self):
+        return self.ast.__unicode__()
+
+    def describe_signature(self, signode, mode, env, symbol):
+        return self.ast.describe_signature(signode, mode, env, symbol)
 
 
 class ASTBaseClass(ASTBase):
@@ -3427,6 +3548,20 @@ class DefinitionParser(object):
         type = self._parse_type(False, None)
         return ASTTypeUsing(name, type)
 
+    def _parse_concept(self):
+        name = self._parse_nested_name()
+
+        function = False
+        self.skip_ws()
+        if self.skip_string('('):
+            self.skip_ws()
+            if self.skip_string(')'):
+                function = True
+            else:
+                self.fail("Expected ')' in function concept declaration.")
+
+        return ASTConcept(name, function)
+
     def _parse_class(self):
         name = self._parse_nested_name()
         self.skip_ws()
@@ -3545,14 +3680,60 @@ class DefinitionParser(object):
                     prevErrors.append((e, ""))
                 raise self._make_multi_error(prevErrors, header)
 
+    def _parse_template_introduction_params(self):
+        params = []
+
+        pack = False
+        while 1:
+            self.skip_ws()
+            if self.skip_string('...'):
+                pack = True
+
+            self.skip_ws()
+            if not self.match(_identifier_re):
+                self.fail("Expected identifier in template introduction list.")
+            identifier = self.matched_text
+            # make sure there isn't a keyword
+            if identifier in _keywords:
+                self.fail("Expected identifier in template introduction list, "
+                          "got keyword: %s" % identifier)
+            params.append(ASTTemplateIntroductionParameter(ASTIdentifier(identifier), pack))
+
+            self.skip_ws()
+            if not self.skip_string(','):
+                break
+
+            if pack:
+                self.fail("Introduced pack parameter '...%s' is not last in template "
+                          "introduction list." % identifier)
+
+        return params
+
+    def _parse_template_introduction(self):
+        concept = self._parse_nested_name()
+        self.skip_ws()
+        if not self.skip_string('{'):
+            self.fail("Expected '{' after nested name for template introduction")
+        params = self._parse_template_introduction_params()
+        self.skip_ws()
+        if not self.skip_string('}'):
+            self.fail("Expected '}' after nested name for template introduction")
+        return ASTTemplateIntroduction(concept, params)
+
     def _parse_template_declaration_prefix(self):
         templates = []
         while 1:
             self.skip_ws()
-            if not self.skip_word("template"):
-                break
-            params = self._parse_template_parameter_list()
-            templates.append(params)
+            if self.skip_word("template"):
+                params = self._parse_template_parameter_list()
+                templates.append(params)
+            else:
+                pos = self.pos
+                try:
+                    templates.append(self._parse_template_introduction())
+                except DefinitionError:
+                    self.pos = pos
+                    break
         if len(templates) == 0:
             return None
         else:
@@ -3591,19 +3772,23 @@ class DefinitionParser(object):
         return templatePrefix
 
     def parse_declaration(self, objectType):
-        if objectType not in ('type', 'member',
+        if objectType not in ('type', 'concept', 'member',
                               'function', 'class', 'enum', 'enumerator'):
             raise Exception('Internal error, unknown objectType "%s".' % objectType)
         visibility = None
         templatePrefix = None
         declaration = None
+        conceptObjectType = None
 
         self.skip_ws()
         if self.match(_visibility_re):
             visibility = self.matched_text
 
-        if objectType in ('type', 'member', 'function', 'class'):
+        if objectType in ('type', 'concept', 'member', 'function', 'class'):
             templatePrefix = self._parse_template_declaration_prefix()
+
+        if objectType == 'concept' and templatePrefix is None:
+            self.fail('Missing template declaration for concept.')
 
         if objectType == 'type':
             prevErrors = []
@@ -3623,6 +3808,9 @@ class DefinitionParser(object):
                 prevErrors.append((e, "If type alias or template alias"))
                 header = "Error in type declaration."
                 raise self._make_multi_error(prevErrors, header)
+        elif objectType == 'concept':
+            declaration = self._parse_concept()
+            conceptObjectType = 'function' if declaration.is_function_concept else 'member'
         elif objectType == 'member':
             declaration = self._parse_type_with_init(named=True, outer='member')
         elif objectType == 'function':
@@ -3638,7 +3826,7 @@ class DefinitionParser(object):
         templatePrefix = self._check_template_consistency(declaration.name,
                                                           templatePrefix,
                                                           fullSpecShorthand=False)
-        return ASTDeclaration(objectType, visibility,
+        return ASTDeclaration(conceptObjectType or objectType, visibility,
                               templatePrefix, declaration)
 
     def parse_namespace_object(self):
@@ -3807,6 +3995,26 @@ class CPPTypeObject(CPPObject):
 
     def parse_definition(self, parser):
         return parser.parse_declaration("type")
+
+    def describe_signature(self, signode, ast):
+        ast.describe_signature(signode, 'lastIsName', self.env)
+
+
+class CPPConceptObject(CPPObject):
+    def get_index_text(self, name):
+        return _('%s (C++ concept)') % name
+
+    def before_content(self):
+        lastSymbol = self.env.ref_context['cpp:last_symbol']
+        assert lastSymbol
+        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
+        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
+
+    def after_content(self):
+        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
+
+    def parse_definition(self, parser):
+        return parser.parse_declaration("concept")
 
     def describe_signature(self, signode, ast):
         ast.describe_signature(signode, 'lastIsName', self.env)
@@ -4026,6 +4234,7 @@ class CPPDomain(Domain):
         'function': ObjType(l_('function'), 'func'),
         'member': ObjType(l_('member'), 'member'),
         'type': ObjType(l_('type'), 'type'),
+        'concept': ObjType(l_('concept'), 'concept'),
         'enum': ObjType(l_('enum'), 'enum'),
         'enumerator': ObjType(l_('enumerator'), 'enumerator')
     }
@@ -4036,6 +4245,7 @@ class CPPDomain(Domain):
         'member': CPPMemberObject,
         'var': CPPMemberObject,
         'type': CPPTypeObject,
+        'concept': CPPConceptObject,
         'enum': CPPEnumObject,
         'enum-struct': CPPEnumObject,
         'enum-class': CPPEnumObject,
@@ -4051,6 +4261,7 @@ class CPPDomain(Domain):
         'member': CPPXRefRole(),
         'var': CPPXRefRole(),
         'type': CPPXRefRole(),
+        'concept': CPPXRefRole(),
         'enum': CPPXRefRole(),
         'enumerator': CPPXRefRole()
     }

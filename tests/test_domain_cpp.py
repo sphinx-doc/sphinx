@@ -133,6 +133,21 @@ def test_type_definitions():
     check('type', 'A = B', None, '1A')
 
 
+def test_concept_definitions():
+    check('concept', '  template  <  typename  Param  >  A  ::  B  ::  Concept  ',
+          None, 'I0EN1A1B7ConceptE',
+          output='template<typename Param> concept bool A::B::Concept')
+    check('concept', 'template<typename A, typename B, typename ...C> Foo',
+          None, 'I00DpE3Foo',
+          output='template<typename A, typename B, typename ...C> concept bool Foo')
+    check('concept', '  template  <  typename  Param  >  A  ::  B  ::  Concept  (  )  ',
+          None, 'I0EN1A1B7ConceptEv',
+          output='template<typename Param> concept bool A::B::Concept()')
+    check('concept', 'template<typename A, typename B, typename ...C> Foo()',
+          None, 'I00DpE3Foov',
+          output='template<typename A, typename B, typename ...C> concept bool Foo()')
+
+
 def test_member_definitions():
     check('member', '  const  std::string  &  name = 42',
           "name__ssCR", "4name", output='const std::string &name = 42')
@@ -395,6 +410,26 @@ def test_templates():
           "const c_string_view_base<const Char, Traits> &str)",
           None, "I00ElsRNSt13basic_ostreamI4Char6TraitsEE"
           "RK18c_string_view_baseIK4Char6TraitsE")
+
+    # template introductions
+    raises(DefinitionError, parse, 'enum', 'abc::ns::foo{id_0, id_1, id_2} A')
+    raises(DefinitionError, parse, 'enumerator', 'abc::ns::foo{id_0, id_1, id_2} A')
+    check('class', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar',
+          None, 'I000EN3xyz3barE')
+    check('class', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar',
+          None, 'I00DpEN3xyz3barE')
+    check('type', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar = ghi::qux',
+          None, 'I000EN3xyz3barE')
+    check('type', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar = ghi::qux',
+          None, 'I00DpEN3xyz3barE')
+    check('function', 'abc::ns::foo{id_0, id_1, id_2} void xyz::bar()',
+          None, 'I000EN3xyz3barEv')
+    check('function', 'abc::ns::foo{id_0, id_1, ...id_2} void xyz::bar()',
+          None, 'I00DpEN3xyz3barEv')
+    check('member', 'abc::ns::foo{id_0, id_1, id_2} ghi::qux xyz::bar',
+          None, 'I000EN3xyz3barE')
+    check('member', 'abc::ns::foo{id_0, id_1, ...id_2} ghi::qux xyz::bar',
+          None, 'I00DpEN3xyz3barE')
 
 
 #def test_print():

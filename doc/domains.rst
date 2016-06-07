@@ -685,6 +685,33 @@ a visibility statement (``public``, ``private`` or ``protected``).
       .. cpp::enumerator:: MyEnum::myOtherEnumerator = 42
 
 
+.. rst:directive:: .. cpp:concept:: template<typename Param> name
+                   .. cpp:concept:: template<typename Param> name()
+
+   Describe a concept, which must be a template. A concept can be declared as a
+   variable concept or as a function concept. Examples::
+
+      .. cpp:concept:: template<typename It> Iterator
+
+         Proxy to an element of a notional sequence that can be compared,
+         indirected, or incremented.
+
+      .. cpp:concept:: template<typename Cont> Container()
+
+         Holder of elements, to which it can provide access via Iterators.
+
+   They will render as follows:
+
+   .. cpp:concept:: template<typename It> Iterator
+
+      Proxy to an element of a notional sequence that can be compared,
+      indirected, or incremented.
+
+   .. cpp:concept:: template<typename Cont> Container()
+
+      Holder of elements, to which it can provide access via Iterators.
+
+
 Namespacing
 ~~~~~~~~~~~~~~~~~
 
@@ -790,6 +817,7 @@ These roles link to the given declaration types:
               cpp:member
               cpp:var
               cpp:type
+              cpp:concept
               cpp:enum
               cpp:enumerator
 
@@ -887,6 +915,27 @@ References to partial specialisations must always include the template parameter
 ``template\<typename T> Outer\<T*>`` (:cpp:class:`template\<typename T> Outer\<T*>`).
 Currently the lookup only succeed if the template parameter identifiers are equal strings.
 
+
+Template Introductions
+.......................
+
+As an alternative, template parameters can be specified with the template
+introduction syntax of Concepts Lite:
+
+.. rst:directive:: .. cpp:concept:: template<typename It> Iterator
+                   .. cpp:function:: Iterator{It} void advance(It& it)
+
+   .. cpp:concept:: template<typename It> Iterator
+   .. cpp:function:: Iterator{It} void advance(It& it)
+
+This is a shorter way of declaring ``template<typename It> void advance(It&
+it)`` with the added benefit that the constraints on the ``It`` template
+parameter are made explicit, and the :cpp:concept:`Iterator` concept is linked
+to.
+
+Note however that no checking is performed with respect to parameter
+compatibility. E.g. ``Iterator{A, B, C}`` will be accepted as an introduction
+even though it would not be valid C++.
 
 
 The Standard Domain
