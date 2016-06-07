@@ -170,6 +170,24 @@ class ApplySourceWorkaround(Transform):
                 apply_source_workaround(n)
 
 
+class AutoIndexUpgrader(Transform):
+    """
+    Detect old style; 4 column based indices and automatically upgrade to new style.
+    """
+    default_priority = 210
+
+    def apply(self):
+        env = self.document.settings.env
+        for node in self.document.traverse(addnodes.index):
+            if 'entries' in node and any(len(entry) == 4 for entry in node['entries']):
+                msg = ('4 column based index found. '
+                       'It might be a bug of extensions you use: %r' % node['entries'])
+                env.warn_node(msg, node)
+                for i, entry in enumerate(node['entries']):
+                    if len(entry) == 4:
+                        node['entries'][i] = entry + (None,)
+
+
 class ExtraTranslatableNodes(Transform):
     """
     make nodes translatable
