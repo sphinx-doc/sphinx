@@ -145,7 +145,10 @@
 % Some custom font markup commands.
 %
 \newcommand{\strong}[1]{{\textbf{#1}}}
-\newcommand{\code}[1]{\texttt{#1}}
+% let \code and \bfcode use straight quotes (\@noligs patched by upquote)
+% use \scantokens to handle e.g. \item[{\code{'fontenc'}}], too late for
+% \code to change catcodes.
+\newcommand{\code}[1]{{\@noligs\scantokens{\texttt{#1}}}}
 \newcommand{\bfcode}[1]{\code{\bfseries#1}}
 \newcommand{\email}[1]{\textsf{#1}}
 \newcommand{\tablecontinued}[1]{\textsf{#1}}
