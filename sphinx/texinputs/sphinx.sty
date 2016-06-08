@@ -538,6 +538,7 @@
    \else
        \vspace{\parskip}
    \fi
+   \global\@newlistfalse
    \MakeFramed {\Sphinx@inframedtrue
      \advance\hsize-\width \@totalleftmargin\z@ \linewidth\hsize
      % minipage initialization copied from LaTeX source code.
@@ -556,7 +557,7 @@
       \vskip\skip\@mpfootins\normalcolor\footnoterule\unvbox\@mpfootins
    \fi
    \@minipagefalse
-   \global\@newlistfalse\endMakeFramed
+   \endMakeFramed
    \ifSphinx@inframed\end{minipage}\fi
    % arrange for similar spacing below frame as for "light" boxes.
    \vskip .4\baselineskip
