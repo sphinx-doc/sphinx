@@ -536,9 +536,13 @@
    \ifSphinx@inframed
        \noindent\begin{minipage}{\linewidth}
    \else
-       \vspace{\parskip}
+       % handle case where notice is first thing in a list item (or is quoted)
+       \if@inlabel
+        \noindent\par\vspace{-\baselineskip}
+       \else
+        \vspace{\parskip}
+       \fi
    \fi
-   \global\@newlistfalse
    \MakeFramed {\Sphinx@inframedtrue
      \advance\hsize-\width \@totalleftmargin\z@ \linewidth\hsize
      % minipage initialization copied from LaTeX source code.
