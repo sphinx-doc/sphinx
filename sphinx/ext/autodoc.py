@@ -42,6 +42,11 @@ try:
 except ImportError:
     typing = None
 
+# This type isn't exposed directly in any modules, but can be found
+# here in most Python versions
+MethodDescriptorType = type(type.__subclasses__)
+
+
 #: extended signature RE: with explicit module name separated by ::
 py_ext_sig_re = re.compile(
     r'''^ ([\w.]+::)?            # explicit module name
@@ -1455,10 +1460,13 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
+        non_attr_types = cls.method_types + (type, MethodDescriptorType)
         isdatadesc = isdescriptor(member) and not \
-            isinstance(member, cls.method_types) and not \
-            type(member).__name__ in ("type", "method_descriptor",
-                                      "instancemethod")
+            isinstance(member, non_attr_types) and not \
+            type(member).__name__ == "instancemethod"
+        # That last condition addresses an obscure case of C-defined
+        # methods using a deprecated type in Python 3, that is not otherwise
+        # exported anywhere by Python
         return isdatadesc or (not isinstance(parent, ModuleDocumenter) and
                               not inspect.isroutine(member) and
                               not isinstance(member, class_types))
