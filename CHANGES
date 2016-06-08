@@ -6,6 +6,7 @@ Incompatible changes
 
 * LaTeX package fancybox is not longer a dependency of sphinx.sty
 * Use ``'locales'`` as a default value of `locale_dirs`
+* LaTeX package ifthen is not any longer a dependency of sphinx.sty
 
 Features added
 --------------
