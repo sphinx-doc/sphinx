@@ -35,7 +35,10 @@ def html_visit_displaymath(self, node):
 
     # necessary to e.g. set the id property correctly
     if node['number']:
-        self.body.append('<span class="eqno">(%s)</span>' % node['number'])
+        self.body.append('<span class="eqno"><a class="equationlink" '
+                         'href="#%s" title="Permalink to this '
+                         'equation">(%s)</a></span>' % (node['ids'][0],
+                             node['number']))
     self.body.append(self.builder.config.mathjax_display[0])
     parts = [prt for prt in node['latex'].split('\n\n') if prt.strip()]
     if len(parts) > 1:  # Add alignment if there are more than 1 equation
