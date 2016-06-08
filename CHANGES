@@ -8,6 +8,8 @@ Bugs fixed
 * #2632: Warning directives fail in quote environment latex build
 * #2633: Sphinx crashes with old styled indices
 * Fix a \begin{\minipage} typo in sphinx.sty from 1.4.2 (ref: 68becb1)
+* #2622: Latex produces empty pages after title and table of contents
+
 
 Release 1.4.3 (released Jun 5, 2016)
 ====================================
