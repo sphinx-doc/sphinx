@@ -32,6 +32,14 @@ Release 1.4.4 (in development)
 Bugs fixed
 ----------
 
+* #2630: Latex sphinx.sty Notice Enviroment formatting problem
+* #2632: Warning directives fail in quote environment latex build
+* #2633: Sphinx crashes with old styled indices
+* Fix a \begin{\minipage} typo in sphinx.sty from 1.4.2 (ref: 68becb1)
+* #2622: Latex produces empty pages after title and table of contents
+* #2640: 1.4.2 LaTeX crashes if code-block inside warning directive
+* Let LaTeX use straight quotes also in inline code (ref #2627)
+
 
 Release 1.4.3 (released Jun 5, 2016)
 ====================================

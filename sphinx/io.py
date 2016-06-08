@@ -15,7 +15,7 @@ from six import string_types, text_type
 
 from sphinx.transforms import ApplySourceWorkaround, ExtraTranslatableNodes, Locale, \
     CitationReferences, DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, \
-    AutoNumbering, SortIds, RemoveTranslatableInline
+    AutoNumbering, AutoIndexUpgrader, SortIds, RemoveTranslatableInline
 from sphinx.util import import_object, split_docinfo
 
 
@@ -59,7 +59,7 @@ class SphinxStandaloneReader(SphinxBaseReader):
     """
     transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, Locale, CitationReferences,
                   DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
-                  AutoNumbering, SortIds, RemoveTranslatableInline]
+                  AutoNumbering, AutoIndexUpgrader, SortIds, RemoveTranslatableInline]
 
 
 class SphinxI18nReader(SphinxBaseReader):

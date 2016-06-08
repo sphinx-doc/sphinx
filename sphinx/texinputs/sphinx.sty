@@ -19,6 +19,7 @@
 % For framing code-blocks and warning type notices, and shadowing topics
 \RequirePackage{framed}
 \newif\ifSphinx@inframed % flag set if we are in a framed environment
+% ifthen not used anymore and will be removed at Sphinx-1.5
 \RequirePackage{ifthen}
 % The xcolor package draws better fcolorboxes around verbatim code
 \IfFileExists{xcolor.sty}{
@@ -142,7 +143,10 @@
 % Some custom font markup commands.
 %
 \newcommand{\strong}[1]{{\textbf{#1}}}
-\newcommand{\code}[1]{\texttt{#1}}
+% let \code and \bfcode use straight quotes (\@noligs patched by upquote)
+% use \scantokens to handle e.g. \item[{\code{'fontenc'}}], too late for
+% \code to change catcodes.
+\newcommand{\code}[1]{{\@noligs\scantokens{\texttt{#1}}}}
 \newcommand{\bfcode}[1]{\code{\bfseries#1}}
 \newcommand{\email}[1]{\textsf{#1}}
 \newcommand{\tablecontinued}[1]{\textsf{#1}}
@@ -326,6 +330,8 @@
        \discretionary{\copy\Sphinxvisiblespacebox}{\Sphinxafterbreak}
                      {\kern\fontdimen2\font}%
        }%
+  % go around fancyvrb's check of @currenvir (for case of minipage below)
+  \renewcommand*{\VerbatimEnvironment}{\gdef\FV@EnvironName{Verbatim}}%
   % Allow breaks at special characters using \PYG... macros.
   \Sphinxbreaksatspecials
   % The list environment is needed to control perfectly the vertical space.
@@ -343,7 +349,7 @@
   }%
   \item
   % use a minipage if we are already inside a framed environment
-  \relax\ifSphinx@inframed\noindent\begin{\minipage}{\linewidth}\fi
+  \relax\ifSphinx@inframed\noindent\begin{minipage}{\linewidth}\fi
      \MakeFramed {% adapted over from framed.sty's snugshade environment
     \advance\hsize-\width\@totalleftmargin\z@\linewidth\hsize
     \@setminipage  }%
@@ -528,7 +534,12 @@
    \ifSphinx@inframed
        \noindent\begin{minipage}{\linewidth}
    \else
-       \vspace{\parskip}
+       % handle case where notice is first thing in a list item (or is quoted)
+       \if@inlabel
+        \noindent\par\vspace{-\baselineskip}
+       \else
+        \vspace{\parskip}
+       \fi
    \fi
    \MakeFramed {\Sphinx@inframedtrue
      \advance\hsize-\width \@totalleftmargin\z@ \linewidth\hsize
@@ -547,7 +558,8 @@
    \ifvoid\@mpfootins\else
       \vskip\skip\@mpfootins\normalcolor\footnoterule\unvbox\@mpfootins
    \fi
-   \@minipagefalse\endMakeFramed
+   \@minipagefalse
+   \endMakeFramed
    \ifSphinx@inframed\end{minipage}\fi
    % arrange for similar spacing below frame as for "light" boxes.
    \vskip .4\baselineskip
@@ -563,7 +575,8 @@
   % counteract previous possible negative skip (French lists!):
   % (we can't cancel that any earlier \vskip introduced a potential pagebreak)
   \ifdim\lastskip<\z@\vskip-\lastskip\fi
-  \nobreak\vbox{\noindent\rule[.4\baselineskip]{\linewidth}{0.5pt}}\allowbreak
+  \nobreak\vbox{\noindent\kern\@totalleftmargin
+           \rule[.4\baselineskip]{\linewidth}{0.5pt}\hss}\allowbreak
   }
 
 % Some are quite plain:
@@ -750,12 +763,12 @@
   \fi%
 }
 
-\providecommand*{\DUprovidelength}[2]{
-  \ifthenelse{\isundefined{#1}}{\newlength{#1}\setlength{#1}{#2}}{}
+\providecommand*{\DUprovidelength}[2]{%
+  \ifdefined#1\else\newlength{#1}\setlength{#1}{#2}\fi
 }
 
 \DUprovidelength{\DUlineblockindent}{2.5em}
-\ifthenelse{\isundefined{\DUlineblock}}{
+\ifdefined\DUlineblock\else
   \newenvironment{DUlineblock}[1]{%
     \list{}{\setlength{\partopsep}{\parskip}
             \addtolength{\partopsep}{\baselineskip}
@@ -766,8 +779,7 @@
     \raggedright
   }
   {\endlist}
-}{}
-
+\fi
 
 % From footmisc.sty: allows footnotes in titles
 \let\FN@sf@@footnote\footnote
