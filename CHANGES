@@ -11,6 +11,7 @@ Bugs fixed
 * #2622: Latex produces empty pages after title and table of contents
 * #2640: 1.4.2 LaTeX crashes if code-block inside warning directive
 * Let LaTeX use straight quotes also in inline code (ref #2627)
+* #2351: latex crashes if enumerated lists are placed on footnotes
 
 
 Release 1.4.3 (released Jun 5, 2016)

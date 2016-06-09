@@ -961,9 +961,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_collected_footnote(self, node):
         self.in_footnote += 1
         if 'footnotetext' in node:
-            self.body.append('\\footnotetext[%s]{\sphinxAtStartFootnote%%' % node['number'])
+            self.body.append('\\footnotetext[%s]{\sphinxAtStartFootnote%%\n' % node['number'])
         else:
-            self.body.append('\\footnote[%s]{\sphinxAtStartFootnote%%' % node['number'])
+            self.body.append('\\footnote[%s]{\sphinxAtStartFootnote%%\n' % node['number'])
 
     def depart_collected_footnote(self, node):
         self.body.append('}')
@@ -1303,12 +1303,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
     depart_field_body = depart_definition
 
     def visit_paragraph(self, node):
-        # insert blank line, if the paragraph follows a non-paragraph node in a compound
         index = node.parent.index(node)
         if (index > 0 and isinstance(node.parent, nodes.compound) and
                 not isinstance(node.parent[index - 1], nodes.paragraph) and
                 not isinstance(node.parent[index - 1], nodes.compound)):
+            # insert blank line, if the paragraph follows a non-paragraph node in a compound
             self.body.append('\\noindent\n')
+        elif index == 0 and isinstance(node.parent, nodes.footnote):
+            # don't insert blank line, if the paragraph is first child of a footnote
+            pass
         else:
             self.body.append('\n')
 
