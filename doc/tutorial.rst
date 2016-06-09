@@ -300,12 +300,17 @@ features of intersphinx.
 More topics to be covered
 -------------------------
 
-- Other extensions (math, viewcode, doctest)
+- :doc:`Other extensions <extensions>`:
+
+  * :doc:`ext/math`,
+  * :doc:`ext/viewcode`,
+  * :doc:`ext/doctest`,
+  * ...
 - Static files
-- Selecting a theme
-- Templating
+- :doc:`Selecting a theme <theming>`
+- :ref:`Templating <templating>`
 - Using extensions
-- Writing extensions
+- :ref:`Writing extensions <dev-extensions>`
 
 
 .. rubric:: Footnotes
