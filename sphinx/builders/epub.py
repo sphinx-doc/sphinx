@@ -496,11 +496,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def build_mimetype(self, outdir, outname):
         """Write the metainfo file mimetype."""
         self.info('writing %s file...' % outname)
-        f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
-        try:
+        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:
             f.write(self.mimetype_template)
-        finally:
-            f.close()
 
     def build_container(self, outdir, outname):
         """Write the metainfo file META-INF/cointainer.xml."""
@@ -511,11 +508,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         except OSError as err:
             if err.errno != EEXIST:
                 raise
-        f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
-        try:
+        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:
             f.write(self.container_template)
-        finally:
-            f.close()
 
     def content_metadata(self, files, spine, guide):
         """Create a dictionary with all metadata for the content.opf
@@ -652,12 +646,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         guide = '\n'.join(guide)
 
         # write the project file
-        f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
-        try:
+        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:
             f.write(content_tmpl %
                     self.content_metadata(projectfiles, spine, guide))
-        finally:
-            f.close()
 
     def new_navpoint(self, node, level, incr=True):
         """Create a new entry in the toc from the node at given level."""
@@ -749,11 +740,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)
         level = min(level, self.config.epub_tocdepth)
-        f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
-        try:
+        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:
             f.write(self.toc_template % self.toc_metadata(level, navpoints))
-        finally:
-            f.close()
 
     def build_epub(self, outdir, outname):
         """Write the epub file.

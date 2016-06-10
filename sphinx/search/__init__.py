@@ -15,6 +15,7 @@ from six.moves import cPickle as pickle
 from docutils.nodes import raw, comment, title, Text, NodeVisitor, SkipNode
 from os import path
 
+import sphinx
 from sphinx.util import jsdump, rpartition
 from sphinx.util.pycompat import htmlescape
 
@@ -180,6 +181,16 @@ class WordCollector(NodeVisitor):
         self.found_title_words = []
         self.lang = lang
 
+    def is_meta_keywords(self, node, nodetype):
+        if isinstance(node, sphinx.addnodes.meta) and node.get('name') == 'keywords':
+            meta_lang = node.get('lang')
+            if meta_lang is None:  # lang not specified
+                return True
+            elif meta_lang == self.lang.lang:  # matched to html_search_language
+                return True
+
+        return False
+
     def dispatch_visit(self, node):
         nodetype = type(node)
         if issubclass(nodetype, comment):
@@ -197,6 +208,10 @@ class WordCollector(NodeVisitor):
             self.found_words.extend(self.lang.split(node.astext()))
         elif issubclass(nodetype, title):
             self.found_title_words.extend(self.lang.split(node.astext()))
+        elif self.is_meta_keywords(node, nodetype):
+            keywords = node['content']
+            keywords = [keyword.strip() for keyword in keywords.split(',')]
+            self.found_words.extend(keywords)
 
 
 class IndexBuilder(object):
@@ -353,7 +368,6 @@ class IndexBuilder(object):
     def feed(self, filename, title, doctree):
         """Feed a doctree to the index."""
         self._titles[filename] = title
-
         visitor = WordCollector(doctree, self.lang)
         doctree.walk(visitor)
 

@@ -49,6 +49,7 @@ requires = [
     'babel>=1.3,!=2.0',
     'alabaster>=0.7,<0.8',
     'imagesize',
+    'requests',
 ]
 extras_require = {
     # Environment Marker works for wheel 0.24 or later
@@ -63,6 +64,7 @@ extras_require = {
         'nose',
         'mock',  # it would be better for 'test:python_version in "2.6,2.7"'
         'simplejson',  # better: 'test:platform_python_implementation=="PyPy"'
+        'html5lib',
     ],
 }
 

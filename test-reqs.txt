@@ -12,3 +12,5 @@ whoosh>=2.0
 alabaster
 sphinx_rtd_theme
 imagesize
+requests
+html5lib

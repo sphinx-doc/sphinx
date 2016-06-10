@@ -127,8 +127,5 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
                 write_index(title, refs, subitems)
 
         # Dump the XML file
-        f = comp_open(path.join(outdir, outname + '.devhelp'), 'w')
-        try:
+        with comp_open(path.join(outdir, outname + '.devhelp'), 'w') as f:
             tree.write(f, 'utf-8')
-        finally:
-            f.close()

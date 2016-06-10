@@ -371,6 +371,22 @@ enabled in `conf.py`::
                     * **arg2** (*int, optional*) --
                       Description of `arg2`, defaults to 0
 
+.. confval:: napoleon_use_keyword
+
+   True to use a ``:keyword:`` role for each function keyword argument.
+   False to use a single ``:keyword arguments:`` role for all the
+   keywords.
+   *Defaults to True.*
+
+   This behaves similarly to  :attr:`napoleon_use_param`. Note unlike docutils,
+   ``:keyword:`` and ``:param:`` will not be treated the same way - there will
+   be a separate "Keyword Arguments" section, rendered in the same fashion as
+   "Parameters" section (type links created if possible)
+
+   .. seealso::
+
+      :attr:`napoleon_use_param`
+
 .. confval:: napoleon_use_rtype
 
    True to use the ``:rtype:`` role for the return type. False to output

@@ -527,7 +527,15 @@ class GoogleDocstring(UnicodeMixin):
             return [header, '']
 
     def _parse_keyword_arguments_section(self, section):
-        return self._format_fields('Keyword Arguments', self._consume_fields())
+        fields = self._consume_fields()
+        if self._config.napoleon_use_keyword:
+            return self._generate_docutils_params(
+                fields,
+                field_role="keyword",
+                type_role="kwtype"
+            )
+        else:
+            return self._format_fields('Keyword Arguments', fields)
 
     def _parse_methods_section(self, section):
         lines = []
@@ -552,23 +560,25 @@ class GoogleDocstring(UnicodeMixin):
     def _parse_parameters_section(self, section):
         fields = self._consume_fields()
         if self._config.napoleon_use_param:
-            lines = []
-            for _name, _type, _desc in fields:
-                _desc = self._strip_empty(_desc)
-                if any(_desc):
-                    if self._is_list(_desc):
-                        _desc = [''] + _desc
-                    field = ':param %s: ' % _name
-                    lines.extend(self._format_block(field, _desc))
-                else:
-                    lines.append(':param %s:' % _name)
-
-                if _type:
-                    lines.append(':type %s: %s' % (_name, _type))
-
-            return lines + ['']
+            return self._generate_docutils_params(fields)
         else:
             return self._format_fields('Parameters', fields)
+
+    def _generate_docutils_params(self, fields, field_role='param', type_role='type'):
+        lines = []
+        for _name, _type, _desc in fields:
+            _desc = self._strip_empty(_desc)
+            if any(_desc):
+                if self._is_list(_desc):
+                    _desc = [''] + _desc
+                field = ':%s %s: ' % (field_role, _name)
+                lines.extend(self._format_block(field, _desc))
+            else:
+                lines.append(':%s %s:' % (field_role, _name))
+
+            if _type:
+                lines.append(':%s %s: %s' % (type_role, _name, _type))
+        return lines + ['']
 
     def _parse_raises_section(self, section):
         fields = self._consume_fields(parse_type=False, prefer_type=True)

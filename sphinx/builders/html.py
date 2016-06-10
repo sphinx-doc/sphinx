@@ -175,8 +175,7 @@ class StandaloneHTMLBuilder(Builder):
         self.tags_hash = get_stable_hash(sorted(self.tags))
         old_config_hash = old_tags_hash = ''
         try:
-            fp = open(path.join(self.outdir, '.buildinfo'))
-            try:
+            with open(path.join(self.outdir, '.buildinfo')) as fp:
                 version = fp.readline()
                 if version.rstrip() != '# Sphinx build info version 1':
                     raise ValueError
@@ -187,8 +186,6 @@ class StandaloneHTMLBuilder(Builder):
                 tag, old_tags_hash = fp.readline().strip().split(': ')
                 if tag != 'tags':
                     raise ValueError
-            finally:
-                fp.close()
         except ValueError:
             self.warn('unsupported build info format in %r, building all' %
                       path.join(self.outdir, '.buildinfo'))
@@ -657,15 +654,12 @@ class StandaloneHTMLBuilder(Builder):
 
     def write_buildinfo(self):
         # write build info file
-        fp = open(path.join(self.outdir, '.buildinfo'), 'w')
-        try:
+        with open(path.join(self.outdir, '.buildinfo'), 'w') as fp:
             fp.write('# Sphinx build info version 1\n'
                      '# This file hashes the configuration used when building'
                      ' these files. When it is not found, a full rebuild will'
                      ' be done.\nconfig: %s\ntags: %s\n' %
                      (self.config_hash, self.tags_hash))
-        finally:
-            fp.close()
 
     def cleanup(self):
         # clean up theme stuff
@@ -705,10 +699,8 @@ class StandaloneHTMLBuilder(Builder):
                 f = codecs.open(searchindexfn, 'r', encoding='utf-8')
             else:
                 f = open(searchindexfn, 'rb')
-            try:
+            with f:
                 self.indexer.load(f, self.indexer_format)
-            finally:
-                f.close()
         except (IOError, OSError, ValueError):
             if keep:
                 self.warn('search index couldn\'t be loaded, but not all '
@@ -812,11 +804,8 @@ class StandaloneHTMLBuilder(Builder):
         # outfilename's path is in general different from self.outdir
         ensuredir(path.dirname(outfilename))
         try:
-            f = codecs.open(outfilename, 'w', encoding, 'xmlcharrefreplace')
-            try:
+            with codecs.open(outfilename, 'w', encoding, 'xmlcharrefreplace') as f:
                 f.write(output)
-            finally:
-                f.close()
         except (IOError, OSError) as err:
             self.warn("error writing file %s: %s" % (outfilename, err))
         if self.copysource and ctx.get('sourcename'):
@@ -833,8 +822,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def dump_inventory(self):
         self.info(bold('dumping object inventory... '), nonl=True)
-        f = open(path.join(self.outdir, INVENTORY_FILENAME), 'wb')
-        try:
+        with open(path.join(self.outdir, INVENTORY_FILENAME), 'wb') as f:
             f.write((u'# Sphinx inventory version 2\n'
                      u'# Project: %s\n'
                      u'# Version: %s\n'
@@ -856,8 +844,6 @@ class StandaloneHTMLBuilder(Builder):
                         (u'%s %s:%s %s %s %s\n' % (name, domainname, type,
                                                    prio, uri, dispname)).encode('utf-8')))
             f.write(compressor.flush())
-        finally:
-            f.close()
         self.info('done')
 
     def dump_search_index(self):
@@ -872,10 +858,8 @@ class StandaloneHTMLBuilder(Builder):
             f = codecs.open(searchindexfn + '.tmp', 'w', encoding='utf-8')
         else:
             f = open(searchindexfn + '.tmp', 'wb')
-        try:
+        with f:
             self.indexer.dump(f, self.indexer_format)
-        finally:
-            f.close()
         movefile(searchindexfn + '.tmp', searchindexfn)
         self.info('done')
 
@@ -1086,10 +1070,8 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
             f = codecs.open(filename, 'w', encoding='utf-8')
         else:
             f = open(filename, 'wb')
-        try:
+        with f:
             self.implementation.dump(context, f, *self.additional_dump_args)
-        finally:
-            f.close()
 
     def handle_page(self, pagename, ctx, templatename='page.html',
                     outfilename=None, event_arg=None):

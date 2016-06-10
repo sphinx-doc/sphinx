@@ -59,7 +59,7 @@ class Config(object):
         today_fmt = (None, 'env', string_classes),
 
         language = (None, 'env', string_classes),
-        locale_dirs = ([], 'env'),
+        locale_dirs = (['locales'], 'env'),
         figure_language_filename = (u'{root}.{language}{ext}', 'env', [str]),
 
         master_doc = ('contents', 'env'),
@@ -86,8 +86,8 @@ class Config(object):
         primary_domain = ('py', 'env', [NoneType]),
         needs_sphinx = (None, None, string_classes),
         needs_extensions = ({}, None),
-        nitpicky = (False, 'env'),
-        nitpick_ignore = ([], 'html'),
+        nitpicky = (False, None),
+        nitpick_ignore = ([], None),
         numfig = (False, 'env'),
         numfig_secnum_depth = (1, 'env'),
         numfig_format = ({'figure': l_('Fig. %s'),
