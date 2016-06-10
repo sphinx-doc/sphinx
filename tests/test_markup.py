@@ -137,9 +137,9 @@ def test_latex_escaping():
            r'\(\Gamma\)\textbackslash{}\(\infty\)\$')
     # in verbatim code fragments
     yield (verify, u'::\n\n @Γ\\∞${}', None,
-           u'\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n'
+           u'\\begin{SphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
            u'@\\(\\Gamma\\)\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
-           u'\\end{Verbatim}')
+           u'\\end{SphinxVerbatim}')
     # in URIs
     yield (verify_re, u'`test <http://example.com/~me/>`_', None,
            r'\\href{http://example.com/~me/}{test}.*')

@@ -159,11 +159,10 @@
 % Support large numbered footnotes in minipage (cf. admonitions)
 \def\thempfootnote{\arabic{mpfootnote}}
 
-% Redefine the Verbatim environment to allow border and background colors
-% and to handle the top caption in a non separable by pagebreak way.
-% The original environment is still used for verbatims within tables.
-\let\OriginalVerbatim=\Verbatim
-\let\endOriginalVerbatim=\endVerbatim
+% Preparations for SphinxVerbatim environment, which is a wrapper of fancyvrb
+% Verbatim with framing allowing pagebreaks, with border and background colors
+% and possibly also a top caption, non separable by pagebreak. The original
+% fancyvrb Verbatim is still used within tables.
 
 \newcommand\Sphinx@colorbox [2]{%
 % #1 will be \fcolorbox or, for first part of frame: \Sphinx@fcolorbox
@@ -279,7 +278,7 @@
    \lccode`\~`\~
 }
 
-\renewcommand{\Verbatim}[1][1]{%
+\newenvironment{SphinxVerbatim}[1][1]{%
   % quit horizontal mode if we are still in a paragraph
   \par
   % list starts new par, but we don't want it to be set apart vertically
@@ -328,8 +327,10 @@
        \discretionary{\copy\Sphinxvisiblespacebox}{\Sphinxafterbreak}
                      {\kern\fontdimen2\font}%
        }%
-  % go around fancyvrb's check of @currenvir (for case of minipage below)
-  \renewcommand*{\VerbatimEnvironment}{\gdef\FV@EnvironName{Verbatim}}%
+  % go around fancyvrb's check of \@currenvir
+  \renewcommand*{\VerbatimEnvironment}{\gdef\FV@EnvironName{SphinxVerbatim}}%
+  % go around fancyvrb's check of current list depth
+  \def\@toodeep {\advance\@listdepth\@ne}%
   % Allow breaks at special characters using \PYG... macros.
   \Sphinxbreaksatspecials
   % The list environment is needed to control perfectly the vertical space.
@@ -354,10 +355,10 @@
      % For grid placement from \strut's in \FancyVerbFormatLine
      \lineskip\z@skip
      % Breaks at punctuation characters . , ; ? ! and / need catcode=\active
-     \OriginalVerbatim[#1,codes*=\Sphinxbreaksatpunct]%
+     \Verbatim[#1,codes*=\Sphinxbreaksatpunct]%
 }
-\renewcommand{\endVerbatim}{%
-  \endOriginalVerbatim
+{%
+  \endVerbatim
   \par\unskip\@minipagefalse\endMakeFramed
   \ifSphinx@inframed\end{minipage}\fi
   \endtrivlist
