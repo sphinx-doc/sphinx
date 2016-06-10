@@ -1,6 +1,13 @@
 Release 1.4.4 (in development)
 ==============================
 
+Features added
+--------------
+
+* Add ``--warning-is-error`` option to setup.py command.
+  ex. ``python setup.py build_sphinx --warning-is-error`` returns non-zero exit
+  status even when there are only warnings.
+
 Bugs fixed
 ----------
 

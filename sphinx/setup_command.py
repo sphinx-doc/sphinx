@@ -71,6 +71,7 @@ class BuildDoc(Command):
         ('build-dir=', None, 'Build directory'),
         ('config-dir=', 'c', 'Location of the configuration directory'),
         ('builder=', 'b', 'The builder to use. Defaults to "html"'),
+        ('warning-is-error', 'W', 'Turn warning into errors'),
         ('project=', None, 'The documented project\'s name'),
         ('version=', None, 'The short X.Y version'),
         ('release=', None, 'The full version, including alpha/beta/rc tags'),
@@ -79,12 +80,14 @@ class BuildDoc(Command):
         ('link-index', 'i', 'Link index.html to the master doc'),
         ('copyright', None, 'The copyright string'),
     ]
-    boolean_options = ['fresh-env', 'all-files', 'link-index']
+    boolean_options = ['fresh-env', 'all-files', 'warning-is-error',
+                       'link-index']
 
     def initialize_options(self):
         self.fresh_env = self.all_files = False
         self.source_dir = self.build_dir = None
         self.builder = 'html'
+        self.warning_is_error = False
         self.project = ''
         self.version = ''
         self.release = ''
@@ -158,7 +161,8 @@ class BuildDoc(Command):
         app = Sphinx(self.source_dir, self.config_dir,
                      self.builder_target_dir, self.doctree_dir,
                      self.builder, confoverrides, status_stream,
-                     freshenv=self.fresh_env)
+                     freshenv=self.fresh_env,
+                     warningiserror=self.warning_is_error)
 
         try:
             app.build(force_all=self.all_files)
