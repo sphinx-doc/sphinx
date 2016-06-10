@@ -3,6 +3,7 @@
 ALLDOCS = $(basename $(wildcard *.tex))
 ALLPDF = $(addsuffix .pdf,$(ALLDOCS))
 ALLDVI = $(addsuffix .dvi,$(ALLDOCS))
+ALLPS  = $(addsuffix .ps,$(ALLDOCS))
 
 # Prefix for archive names
 ARCHIVEPRREFIX =
@@ -18,8 +19,7 @@ MAKEINDEX = makeindex
 all: $(ALLPDF)
 all-pdf: $(ALLPDF)
 all-dvi: $(ALLDVI)
-all-ps: all-dvi
-	for f in *.dvi; do dvips $$f; done
+all-ps: $(ALLPS)
 
 all-pdf-ja:
 	for f in *.pdf *.png *.gif *.jpg *.jpeg; do extractbb $$f; done
@@ -69,6 +69,9 @@ xz: tar
 	-$(MAKEINDEX) -s python.ist '$(basename $<).idx'
 	$(PDFLATEX) $(LATEXOPTS) '$<'
 	$(PDFLATEX) $(LATEXOPTS) '$<'
+
+%.ps: %.dvi
+	dvips '$<'
 
 clean:
 	rm -f *.log *.ind *.aux *.toc *.syn *.idx *.out *.ilg *.pla *.ps *.tar *.tar.gz *.tar.bz2 *.tar.xz $(ALLPDF) $(ALLDVI)
