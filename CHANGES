@@ -43,6 +43,7 @@ Bugs fixed
 * #2351: latex crashes if enumerated lists are placed on footnotes
 * #2646: latex crashes if math contains twice empty lines
 * #2480: `sphinx.ext.autodoc`: memory addresses were shown
+* latex: allow one more nesting depth for code-blocks (ref #777, PR #2624)
 
 
 Release 1.4.3 (released Jun 5, 2016)
