@@ -334,6 +334,8 @@
        }%
   % go around fancyvrb's check of @currenvir (for case of minipage below)
   \renewcommand*{\VerbatimEnvironment}{\gdef\FV@EnvironName{Verbatim}}%
+  % go around fancyvrb's check of current list depth
+  \def\@toodeep {\advance\@listdepth\@ne}%
   % Allow breaks at special characters using \PYG... macros.
   \Sphinxbreaksatspecials
   % The list environment is needed to control perfectly the vertical space.
