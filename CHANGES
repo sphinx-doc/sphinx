@@ -13,6 +13,7 @@ Bugs fixed
 * Let LaTeX use straight quotes also in inline code (ref #2627)
 * #2351: latex crashes if enumerated lists are placed on footnotes
 * #2646: latex crashes if math contains twice empty lines
+* #2480: `sphinx.ext.autodoc`: memory addresses were shown
 
 
 Release 1.4.3 (released Jun 5, 2016)
