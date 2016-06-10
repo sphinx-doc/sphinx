@@ -203,11 +203,9 @@ class Epub3Builder(EpubBuilder):
             # 'includehidden'
             refnodes = self.refnodes
         navlist = self.build_navlist(refnodes)
-        f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
-        try:
+        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:
             f.write(self.navigation_doc_template %
                     self.navigation_doc_metadata(navlist))
-        finally:
-            f.close()
-            # Add nav.xhtml to epub file
-            self.files.append(outname)
+
+        # Add nav.xhtml to epub file
+        self.files.append(outname)

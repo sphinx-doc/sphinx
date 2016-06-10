@@ -220,11 +220,8 @@ class TexinfoBuilder(Builder):
         fn = path.join(self.outdir, 'Makefile')
         self.info(fn, nonl=1)
         try:
-            mkfile = open(fn, 'w')
-            try:
+            with open(fn, 'w') as mkfile:
                 mkfile.write(TEXINFO_MAKEFILE)
-            finally:
-                mkfile.close()
         except (IOError, OSError) as err:
             self.warn("error writing file %s: %s" % (fn, err))
         self.info(' done')

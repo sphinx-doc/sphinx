@@ -70,10 +70,8 @@ class SphinxFileSystemLoader(FileSystemLoader):
             f = open_if_exists(filename)
             if f is None:
                 continue
-            try:
+            with f:
                 contents = f.read().decode(self.encoding)
-            finally:
-                f.close()
 
             mtime = path.getmtime(filename)
 

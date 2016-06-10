@@ -173,13 +173,12 @@ class LiteralInclude(Directive):
     }
 
     def read_with_encoding(self, filename, document, codec_info, encoding):
-        f = None
         try:
-            f = codecs.StreamReaderWriter(open(filename, 'rb'), codec_info[2],
-                                          codec_info[3], 'strict')
-            lines = f.readlines()
-            lines = dedent_lines(lines, self.options.get('dedent'))
-            return lines
+            with codecs.StreamReaderWriter(open(filename, 'rb'), codec_info[2],
+                                           codec_info[3], 'strict') as f:
+                lines = f.readlines()
+                lines = dedent_lines(lines, self.options.get('dedent'))
+                return lines
         except (IOError, OSError):
             return [document.reporter.warning(
                 'Include file %r not found or reading it failed' % filename,
@@ -189,9 +188,6 @@ class LiteralInclude(Directive):
                 'Encoding %r used for reading included file %r seems to '
                 'be wrong, try giving an :encoding: option' %
                 (encoding, filename))]
-        finally:
-            if f is not None:
-                f.close()
 
     def run(self):
         document = self.state.document

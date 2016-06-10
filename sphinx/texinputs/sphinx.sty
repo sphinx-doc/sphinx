@@ -13,16 +13,12 @@
 % for \text macro and \iffirstchoice@ conditional even if amsmath not loaded
 \RequirePackage{amstext}
 \RequirePackage{textcomp}
-% fancybox not used anymore and will be removed at Sphinx-1.5
-\RequirePackage{fancybox}
 \RequirePackage{titlesec}
 \RequirePackage{tabulary}
 \RequirePackage{makeidx}
 % For framing code-blocks and warning type notices, and shadowing topics
 \RequirePackage{framed}
 \newif\ifSphinx@inframed % flag set if we are in a framed environment
-% ifthen not used anymore and will be removed at Sphinx-1.5
-\RequirePackage{ifthen}
 % The xcolor package draws better fcolorboxes around verbatim code
 \IfFileExists{xcolor.sty}{
     \RequirePackage{xcolor}
