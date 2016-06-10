@@ -15,6 +15,8 @@ from __future__ import print_function
 
 import sys
 import os
+import traceback
+
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError, DistutilsExecError
 
@@ -78,11 +80,13 @@ class BuildDoc(Command):
          'replacement for |today|'),
         ('link-index', 'i', 'Link index.html to the master doc'),
         ('copyright', None, 'The copyright string'),
+        ('pdb', None, 'Start pdb on exception'),
     ]
     boolean_options = ['fresh-env', 'all-files', 'link-index']
 
     def initialize_options(self):
         self.fresh_env = self.all_files = False
+        self.pdb = False
         self.source_dir = self.build_dir = None
         self.builder = 'html'
         self.project = ''
@@ -166,13 +170,20 @@ class BuildDoc(Command):
                 raise DistutilsExecError(
                     'caused by %s builder.' % app.builder.name)
         except Exception as err:
-            from docutils.utils import SystemMessage
-            if isinstance(err, SystemMessage):
-                print(darkred('reST markup error:'), file=sys.stderr)
-                print(err.args[0].encode('ascii', 'backslashreplace'),
+            if self.pdb:
+                import pdb
+                print(darkred('Exception occurred while building, starting debugger:'),
                       file=sys.stderr)
+                traceback.print_exc()
+                pdb.post_mortem(sys.exc_info()[2])
             else:
-                raise
+                from docutils.utils import SystemMessage
+                if isinstance(err, SystemMessage):
+                    print(darkred('reST markup error:'), file=sys.stderr)
+                    print(err.args[0].encode('ascii', 'backslashreplace'),
+                          file=sys.stderr)
+                else:
+                    raise
 
         if self.link_index:
             src = app.config.master_doc + app.builder.out_suffix
