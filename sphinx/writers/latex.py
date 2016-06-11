@@ -1090,7 +1090,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('\\capstart\\caption{')
                 for caption in self.table.caption:
                     self.body.append(caption)
-                self.body.append('}\n')            
+                self.body.append('}\n')
             self.body.append('\\end{threeparttable}\n\n')
         self.unrestrict_footnote(node)
         self.table = None
