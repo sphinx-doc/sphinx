@@ -44,6 +44,7 @@ import os
 import sys
 import shutil
 import tokenize
+from six.ranges import range
 
 __version__ = "1"
 
@@ -218,7 +219,7 @@ class Reindenter:
                     want = have2want.get(have, -1)
                     if want < 0:
                         # Then it probably belongs to the next real stmt.
-                        for j in xrange(i+1, len(stats)-1):
+                        for j in range(i+1, len(stats)-1):
                             jline, jlevel = stats[j]
                             if jlevel >= 0:
                                 if have == getlspace(lines[jline]):
@@ -228,7 +229,7 @@ class Reindenter:
                                         # comment like this one,
                         # in which case we should shift it like its base
                         # line got shifted.
-                        for j in xrange(i-1, -1, -1):
+                        for j in range(i-1, -1, -1):
                             jline, jlevel = stats[j]
                             if jlevel >= 0:
                                 want = (have + getlspace(after[jline-1]) -
