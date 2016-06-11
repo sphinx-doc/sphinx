@@ -58,9 +58,10 @@ class Config(object):
         True to parse `NumPy style`_ docstrings. False to disable support
         for NumPy style docstrings.
     napoleon_include_init_with_doc : bool, defaults to False
-        True to include init methods (i.e. ``__init___``) with
-        docstrings in the documentation. False to fall back to Sphinx's
-        default behavior.
+        True to list ``__init___`` docstrings separately from the class
+        docstring. False to fall back to Sphinx's default behavior, which
+        considers the ``__init___`` docstring as part of the class
+        documentation.
 
         **If True**::
 
@@ -206,10 +207,11 @@ class Config(object):
         False to use a single ``:keyword arguments:`` role for all the
         keywords.
 
-        This behaves similarly to  :attr:`napoleon_use_param`. Note unlike docutils,
-        ``:keyword:`` and ``:param:`` will not be treated the same way - there will
-        be a separate "Keyword Arguments" section, rendered in the same fashion as
-        "Parameters" section (type links created if possible)
+        This behaves similarly to  :attr:`napoleon_use_param`. Note unlike
+        docutils, ``:keyword:`` and ``:param:`` will not be treated the same
+        way - there will be a separate "Keyword Arguments" section, rendered
+        in the same fashion as "Parameters" section (type links created if
+        possible)
 
         See Also
         --------
