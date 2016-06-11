@@ -1,6 +1,11 @@
 Release 1.4.4 (in development)
 ==============================
 
+Features added
+--------------
+
+* Added ability to place table titles below table in latex using ``:title-below:`` option
+
 Bugs fixed
 ----------
 
