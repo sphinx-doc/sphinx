@@ -33,9 +33,14 @@ It adds this directive:
    It also supports a ``private-bases`` flag option; if given, private base
    classes (those whose name starts with ``_``) will be included.
 
+   You can use ``caption`` option to give a caption to the diagram.
+
    .. versionchanged:: 1.1
       Added ``private-bases`` option; previously, all bases were always
       included.
+
+   .. versionchanged:: 1.5
+      Added ``caption`` option 
 
 
 New config values are:

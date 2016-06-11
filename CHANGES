@@ -1,3 +1,32 @@
+Release 1.5 (in development)
+============================
+
+Incompatible changes
+--------------------
+
+* LaTeX package fancybox is not longer a dependency of sphinx.sty
+* Use ``'locales'`` as a default value of `locale_dirs`
+* LaTeX package ifthen is not any longer a dependency of sphinx.sty
+
+Features added
+--------------
+
+* Add ``:caption:`` option for sphinx.ext.inheritance_diagram.
+* #894: Add ``lualatexpdf`` and ``xelatexpdf`` as a make target to build PDF using lualatex or xelatex
+* #2471: Add config variable for default doctest flags.
+* Convert linkcheck builder to requests for better encoding handling
+* #2463, #2516: Add keywords of "meta" directive to search index
+* ``:maxdepth:`` option of toctree affects ``secnumdepth`` (ref: #2547)
+* #2575: Now ``sphinx.ext.graphviz`` allows ``:align:`` option
+* Show warnings if unknown key is specified to `latex_elements`
+
+Bugs fixed
+----------
+
+Documentation
+-------------
+
+
 Release 1.4.4 (in development)
 ==============================
 
@@ -16,6 +45,7 @@ Bugs fixed
 * #2480: `sphinx.ext.autodoc`: memory addresses were shown
 * latex: allow one more nesting depth for code-blocks (ref #777, PR #2624)
 * #2635: Latex code directives produce inconsistent frames based on viewing resolution
+* added option to table directive to place table title (caption) below table in latex
 
 
 Release 1.4.3 (released Jun 5, 2016)

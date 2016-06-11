@@ -521,7 +521,10 @@ documentation on :ref:`intl` for details.
    :file:`./locale/{language}/LC_MESSAGES/sphinx.mo`.  The text domain of
    individual documents depends on :confval:`gettext_compact`.
 
-   The default is ``[]``.
+   The default is ``['locales']``.
+
+   .. versionchanged:: 1.5
+      Use ``locales`` directory as a default value
 
 .. confval:: gettext_compact
 

@@ -211,8 +211,7 @@ class MessageCatalogBuilder(I18nBuilder):
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
             pofn = path.join(self.outdir, textdomain + '.pot')
-            pofile = open(pofn, 'w', encoding='utf-8')
-            try:
+            with open(pofn, 'w', encoding='utf-8') as pofile:
                 pofile.write(POHEADER % data)
 
                 for message in catalog.messages:
@@ -234,6 +233,3 @@ class MessageCatalogBuilder(I18nBuilder):
                         replace('"', r'\"'). \
                         replace('\n', '\\n"\n"')
                     pofile.write('msgid "%s"\nmsgstr ""\n\n' % message)
-
-            finally:
-                pofile.close()

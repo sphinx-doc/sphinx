@@ -219,7 +219,7 @@ html_theme = 'alabaster'
 # html_logo = None
 
 # The name of an image file (relative to this directory) to use as a favicon of
-# the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
+# the docs. This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
 #
 # html_favicon = None
@@ -545,33 +545,35 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) %(rsrcdir)s
 .PHONY: help
 help:
 \t@echo "Please use \\`make <target>' where <target> is one of"
-\t@echo "  html       to make standalone HTML files"
-\t@echo "  dirhtml    to make HTML files named index.html in directories"
-\t@echo "  singlehtml to make a single large HTML file"
-\t@echo "  pickle     to make pickle files"
-\t@echo "  json       to make JSON files"
-\t@echo "  htmlhelp   to make HTML files and a HTML help project"
-\t@echo "  qthelp     to make HTML files and a qthelp project"
-\t@echo "  applehelp  to make an Apple Help Book"
-\t@echo "  devhelp    to make HTML files and a Devhelp project"
-\t@echo "  epub       to make an epub"
-\t@echo "  epub3      to make an epub3"
-\t@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
-\t@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
-\t@echo "  latexpdfja to make LaTeX files and run them through platex/dvipdfmx"
-\t@echo "  text       to make text files"
-\t@echo "  man        to make manual pages"
-\t@echo "  texinfo    to make Texinfo files"
-\t@echo "  info       to make Texinfo files and run them through makeinfo"
-\t@echo "  gettext    to make PO message catalogs"
-\t@echo "  changes    to make an overview of all changed/added/deprecated items"
-\t@echo "  xml        to make Docutils-native XML files"
-\t@echo "  pseudoxml  to make pseudoxml-XML files for display purposes"
-\t@echo "  linkcheck  to check all external links for integrity"
-\t@echo "  doctest    to run all doctests embedded in the documentation \
+\t@echo "  html        to make standalone HTML files"
+\t@echo "  dirhtml     to make HTML files named index.html in directories"
+\t@echo "  singlehtml  to make a single large HTML file"
+\t@echo "  pickle      to make pickle files"
+\t@echo "  json        to make JSON files"
+\t@echo "  htmlhelp    to make HTML files and a HTML help project"
+\t@echo "  qthelp      to make HTML files and a qthelp project"
+\t@echo "  applehelp   to make an Apple Help Book"
+\t@echo "  devhelp     to make HTML files and a Devhelp project"
+\t@echo "  epub        to make an epub"
+\t@echo "  epub3       to make an epub3"
+\t@echo "  latex       to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
+\t@echo "  latexpdf    to make LaTeX files and run them through pdflatex"
+\t@echo "  latexpdfja  to make LaTeX files and run them through platex/dvipdfmx"
+\t@echo "  lualatexpdf to make LaTeX files and run them through pdflatex"
+\t@echo "  xelatexpdf  to make LaTeX files and run them through pdflatex"
+\t@echo "  text        to make text files"
+\t@echo "  man         to make manual pages"
+\t@echo "  texinfo     to make Texinfo files"
+\t@echo "  info        to make Texinfo files and run them through makeinfo"
+\t@echo "  gettext     to make PO message catalogs"
+\t@echo "  changes     to make an overview of all changed/added/deprecated items"
+\t@echo "  xml         to make Docutils-native XML files"
+\t@echo "  pseudoxml   to make pseudoxml-XML files for display purposes"
+\t@echo "  linkcheck   to check all external links for integrity"
+\t@echo "  doctest     to run all doctests embedded in the documentation \
 (if enabled)"
-\t@echo "  coverage   to run coverage check of the documentation (if enabled)"
-\t@echo "  dummy      to check syntax errors of document sources"
+\t@echo "  coverage    to run coverage check of the documentation (if enabled)"
+\t@echo "  dummy       to check syntax errors of document sources"
 
 .PHONY: clean
 clean:
@@ -677,6 +679,20 @@ latexpdfja:
 \t@echo "Running LaTeX files through platex and dvipdfmx..."
 \t$(MAKE) -C $(BUILDDIR)/latex all-pdf-ja
 \t@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
+
+.PHONY: lualatexpdf
+lualatexpdf:
+\t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
+\t@echo "Running LaTeX files through lualatex..."
+\t$(MAKE) PDFLATEX=lualatex -C $(BUILDDIR)/latex all-pdf
+\t@echo "lualatex finished; the PDF files are in $(BUILDDIR)/latex."
+
+.PHONY: xelatexpdf
+xelatexpdf:
+\t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
+\t@echo "Running LaTeX files through xelatex..."
+\t$(MAKE) PDFLATEX=xelatex -C $(BUILDDIR)/latex all-pdf
+\t@echo "xelatex finished; the PDF files are in $(BUILDDIR)/latex."
 
 .PHONY: text
 text:
@@ -1451,11 +1467,8 @@ def generate(d, overwrite=True, silent=False):
     def write_file(fpath, content, newline=None):
         if overwrite or not path.isfile(fpath):
             print('Creating file %s.' % fpath)
-            f = open(fpath, 'wt', encoding='utf-8', newline=newline)
-            try:
+            with open(fpath, 'wt', encoding='utf-8', newline=newline) as f:
                 f.write(content)
-            finally:
-                f.close()
         else:
             print('File %s already exists, skipping.' % fpath)
 
