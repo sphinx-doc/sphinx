@@ -108,6 +108,10 @@ def safe_getattr(obj, name, *defargs):
     try:
         return getattr(obj, name, *defargs)
     except Exception:
+        # sometimes accessing a property raises an exception (e.g.
+        # NotImplementedError), so let's try to read the attribute directly
+        if name in obj.__dict__:
+            return obj.__dict__[name]
         # this is a catch-all for all the weird things that some modules do
         # with attribute access
         if defargs:
