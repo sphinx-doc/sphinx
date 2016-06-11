@@ -841,7 +841,7 @@
 % Define literal-block environment
 \RequirePackage{newfloat}
 \DeclareFloatingEnvironment{literal-block}
-\ifx\thechapter\undefined
+\ifx\c@chapter\undefined
   \SetupFloatingEnvironment{literal-block}{within=section,placement=h}
 \else
   \SetupFloatingEnvironment{literal-block}{within=chapter,placement=h}
