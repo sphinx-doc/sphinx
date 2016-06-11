@@ -45,6 +45,7 @@ Bugs fixed
 * #2480: `sphinx.ext.autodoc`: memory addresses were shown
 * latex: allow one more nesting depth for code-blocks (ref #777, PR #2624)
 * #2635: Latex code directives produce inconsistent frames based on viewing resolution
+* added option to table directive to place table title (caption) below table in latex
 
 
 Release 1.4.3 (released Jun 5, 2016)
