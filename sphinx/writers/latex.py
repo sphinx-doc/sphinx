@@ -1052,7 +1052,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('{|' + ('l|' * self.table.colcount) + '}\n')
             else:
                 self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
-        if self.table.longtable and self.table.caption is not None:
+        if self.table.longtable and self.table.caption is not None and not 'title-below' in node:
             self.body.append(u'\\caption{')
             for caption in self.table.caption:
                 self.body.append(caption)
@@ -1079,6 +1079,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\hline\n')
             self.body.extend(self.tableheaders)
         self.body.extend(self.tablebody)
+        if self.table.longtable and 'title-below' in node:
+            self.body.append(u'\\caption{')
+            for caption in self.table.caption:
+                self.body.append(caption)
+            self.body.append('}')
         self.body.append(endmacro)
         if not self.table.longtable and self.table.caption is not None:
             if 'title-below' in node:
