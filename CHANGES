@@ -17,6 +17,7 @@ Bugs fixed
 * latex: allow one more nesting depth for code-blocks (ref #777, PR #2624)
 * #2635: Latex code directives produce inconsistent frames based on viewing resolution
 * #2639: Sphinx now bundles iftex.sty
+* Failed to build PDF with framed.sty 0.95
 
 
 Release 1.4.3 (released Jun 5, 2016)
