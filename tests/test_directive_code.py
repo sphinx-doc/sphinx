@@ -65,8 +65,7 @@ def test_code_block_caption_html(app, status, warning):
 def test_code_block_caption_latex(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
-    caption = '\\sphinxSetupCaptionForVerbatim{literal-block}' \
-              '{caption \\sphinxstyleemphasis{test} rb}'
+    caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstyleemphasis{test} rb}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{caption:caption-test-rb}}'
     link  = '\hyperref[caption:caption-test-rb]' \
             '{Listing \\ref{caption:caption-test-rb}}'
@@ -253,8 +252,7 @@ def test_literalinclude_caption_html(app, status, warning):
 def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
-    caption = '\\sphinxSetupCaptionForVerbatim{literal-block}' \
-              '{caption \\sphinxstylestrong{test} py}'
+    caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstylestrong{test} py}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{caption:caption-test-py}}'
     link  = '\hyperref[caption:caption-test-py]' \
             '{Listing \\ref{caption:caption-test-py}}'

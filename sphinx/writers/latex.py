@@ -618,9 +618,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if len(codeblock) == 1:
             pass  # FIXME
         else:
-            ret.append('\\SetupFloatingEnvironment{literal-block}{name=%s}\n' %
-                       escape_abbr(text_type(codeblock[0]).translate(tex_escape_map)))
-            if table[1]:
+            definition = escape_abbr(text_type(codeblock[0]).translate(tex_escape_map))
+            ret.append(self.babel_renewcommand('\\literalblockname', definition))
+            if codeblock[1]:
                 pass  # FIXME
 
         return ''.join(ret)
@@ -1514,7 +1514,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_caption(self, node):
         self.in_caption += 1
         if self.in_container_literal_block:
-            self.body.append('\\sphinxSetupCaptionForVerbatim{literal-block}{')
+            self.body.append('\\sphinxSetupCaptionForVerbatim{')
         elif self.in_minipage and isinstance(node.parent, nodes.figure):
             self.body.append('\\captionof{figure}{')
         elif self.table and node.parent.tagname == 'figure':
