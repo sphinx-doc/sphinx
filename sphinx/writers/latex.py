@@ -1016,11 +1016,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.table.longtable = True
         self.popbody()
         if not self.table.longtable and self.table.caption is not None:
-            self.body.append('\n\n\\begin{threeparttable}\n'
-                             '\\capstart\\caption{')
-            for caption in self.table.caption:
-                self.body.append(caption)
-            self.body.append('}')
+            self.body.append('\n\n\\begin{threeparttable}\n')
+            if not 'title-below' in node:
+                self.body.append('\\capstart\\caption{')
+                for caption in self.table.caption:
+                    self.body.append(caption)
+                self.body.append('}')
             for id in self.pop_hyperlink_ids('table'):
                 self.body.append(self.hypertarget(id, anchor=False))
             if node['ids']:
@@ -1051,7 +1052,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('{|' + ('l|' * self.table.colcount) + '}\n')
             else:
                 self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
-        if self.table.longtable and self.table.caption is not None:
+        if self.table.longtable and self.table.caption is not None and not 'title-below' in node:
             self.body.append(u'\\caption{')
             for caption in self.table.caption:
                 self.body.append(caption)
@@ -1078,8 +1079,18 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('\\hline\n')
             self.body.extend(self.tableheaders)
         self.body.extend(self.tablebody)
+        if self.table.longtable and 'title-below' in node:
+            self.body.append(u'\\caption{')
+            for caption in self.table.caption:
+                self.body.append(caption)
+            self.body.append('}')
         self.body.append(endmacro)
         if not self.table.longtable and self.table.caption is not None:
+            if 'title-below' in node:
+                self.body.append('\\capstart\\caption{')
+                for caption in self.table.caption:
+                    self.body.append(caption)
+                self.body.append('}\n')
             self.body.append('\\end{threeparttable}\n\n')
         self.unrestrict_footnote(node)
         self.table = None

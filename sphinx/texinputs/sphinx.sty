@@ -217,11 +217,19 @@
                   \hb@xt@\z@{\hss\begin{minipage}{\wd\@tempboxa}%
                                   \SphinxVerbatimTitle
                                  \end{minipage}\hss}\fi
-            \hrule\@height\fboxrule\relax
-            \hbox{\vrule\@width\fboxrule\relax
+            % draw frame border _latest_ to avoid pdf viewer issue
+            \kern\fboxrule
+            \hbox{\kern\fboxrule
                   \vbox{\vskip\fboxsep\copy\@tempboxa\vskip\fboxsep}%
-                  \vrule\@width\fboxrule\relax}%
-            \hrule\@height\fboxrule\relax}%
+                  \kern-\wd\@tempboxa\kern-\fboxrule
+                  \vrule\@width\fboxrule
+                  \kern\wd\@tempboxa
+                  \vrule\@width\fboxrule}%
+            \kern-\dimexpr\fboxsep+\ht\@tempboxa+\dp\@tempboxa
+                                  +\fboxsep+\fboxrule\relax
+            \hrule\@height\fboxrule
+            \kern\dimexpr\fboxsep+\ht\@tempboxa+\dp\@tempboxa+\fboxsep\relax
+            \hrule\@height\fboxrule}%
    }}%
   \endgroup
   \global\Sphinx@myfirstframedpassfalse
