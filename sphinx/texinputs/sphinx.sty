@@ -217,11 +217,19 @@
                   \hb@xt@\z@{\hss\begin{minipage}{\wd\@tempboxa}%
                                   \SphinxVerbatimTitle
                                  \end{minipage}\hss}\fi
-            \hrule\@height\fboxrule\relax
-            \hbox{\vrule\@width\fboxrule\relax
+            % draw frame border _latest_ to avoid pdf viewer issue
+            \kern\fboxrule
+            \hbox{\kern\fboxrule
                   \vbox{\vskip\fboxsep\copy\@tempboxa\vskip\fboxsep}%
-                  \vrule\@width\fboxrule\relax}%
-            \hrule\@height\fboxrule\relax}%
+                  \kern-\wd\@tempboxa\kern-\fboxrule
+                  \vrule\@width\fboxrule
+                  \kern\wd\@tempboxa
+                  \vrule\@width\fboxrule}%
+            \kern-\dimexpr\fboxsep+\ht\@tempboxa+\dp\@tempboxa
+                                  +\fboxsep+\fboxrule\relax
+            \hrule\@height\fboxrule
+            \kern\dimexpr\fboxsep+\ht\@tempboxa+\dp\@tempboxa+\fboxsep\relax
+            \hrule\@height\fboxrule}%
    }}%
   \endgroup
   \global\Sphinx@myfirstframedpassfalse
@@ -337,20 +345,19 @@
   % - if caption: vertical space above caption = (\abovecaptionskip + D) with
   %   D = \baselineskip-\FrameHeightAdjust, and then \smallskip above frame.
   % - if no caption: (\smallskip + D) above frame. By default D=6pt.
-  \list{}{%
-  \setlength\parskip{0pt}%
-  \setlength\itemsep{0ex}%
-  \setlength\topsep{0ex}%
-  \setlength\parsep{0pt}% let's not forget this one!
-  \setlength\partopsep{0pt}%
-  \setlength\leftmargin{0pt}%
-  }%
-  \item
+  % Use trivlist rather than list to avoid possible "too deeply nested" error.
+  \itemsep   \z@skip
+  \topsep    \z@skip
+  \partopsep \z@skip% trivlist will set \parsep to \parskip = zero (see above)
+  % \leftmargin will be set to zero by trivlist
+  \rightmargin\z@
+  \parindent  \z@% becomes \itemindent. Default zero, but perhaps overwritten.
+  \trivlist\item\relax
   % use a minipage if we are already inside a framed environment
-  \relax\ifSphinx@inframed\noindent\begin{minipage}{\linewidth}\fi
+     \ifSphinx@inframed\noindent\begin{minipage}{\linewidth}\fi
      \MakeFramed {% adapted over from framed.sty's snugshade environment
-    \advance\hsize-\width\@totalleftmargin\z@\linewidth\hsize
-    \@setminipage  }%
+     \advance\hsize-\width\@totalleftmargin\z@\linewidth\hsize
+     \@setminipage  }%
      \small
      % For grid placement from \strut's in \FancyVerbFormatLine
      \lineskip\z@skip
@@ -361,8 +368,7 @@
   \endOriginalVerbatim
   \par\unskip\@minipagefalse\endMakeFramed
   \ifSphinx@inframed\end{minipage}\fi
-  \endlist
-  % LaTeX environments always revert local changes on exit, here e.g. \parskip
+  \endtrivlist
 }
 
 % define macro to frame contents and add shadow on right and bottom
