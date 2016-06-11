@@ -406,9 +406,9 @@ def test_footnote(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\footnote[1]{\sphinxAtStartFootnote%\nnumbered\n}' in result
-    assert '\\footnote[2]{\sphinxAtStartFootnote%\nauto numbered\n}' in result
-    assert '\\footnote[3]{\sphinxAtStartFootnote%\nnamed\n}' in result
+    assert '\\footnote[1]{\sphinxAtStartFootnote\nnumbered\n}' in result
+    assert '\\footnote[2]{\sphinxAtStartFootnote\nauto numbered\n}' in result
+    assert '\\footnote[3]{\sphinxAtStartFootnote\nnamed\n}' in result
     assert '{\\hyperref[footnote:bar]{\\crossref{{[}bar{]}}}}' in result
     assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} ' in result
     assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} \ncite' in result
@@ -416,8 +416,8 @@ def test_footnote(app, status, warning):
     assert '\\capstart\\caption{Table caption \\protect\\footnotemark[4]}' in result
     assert 'name \\protect\\footnotemark[5]' in result
     assert ('\\end{threeparttable}\n\n'
-            '\\footnotetext[4]{\sphinxAtStartFootnote%\nfootnotes in table caption\n}'
-            '\\footnotetext[5]{\sphinxAtStartFootnote%\nfootnotes in table\n}' in result)
+            '\\footnotetext[4]{\sphinxAtStartFootnote\nfootnotes in table caption\n}'
+            '\\footnotetext[5]{\sphinxAtStartFootnote\nfootnotes in table\n}' in result)
 
 
 @with_app(buildername='latex', testroot='footnotes')
@@ -434,17 +434,17 @@ def test_reference_in_caption(app, status, warning):
     assert '\\paragraph{The rubric title with a reference to {[}AuthorYear{]}}' in result
     assert ('\\chapter{The section with a reference to \\protect\\footnotemark[4]}\n'
             '\\label{index:the-section-with-a-reference-to}'
-            '\\footnotetext[4]{\sphinxAtStartFootnote%\nFootnote in section\n}' in result)
+            '\\footnotetext[4]{\sphinxAtStartFootnote\nFootnote in section\n}' in result)
     assert ('\\caption{This is the figure caption with a footnote to '
             '\\protect\\footnotemark[6].}\label{index:id23}\end{figure}\n'
-            '\\footnotetext[6]{\sphinxAtStartFootnote%\nFootnote in caption\n}')in result
+            '\\footnotetext[6]{\sphinxAtStartFootnote\nFootnote in caption\n}')in result
     assert ('\\caption{footnote \\protect\\footnotemark[7] '
             'in caption of normal table}') in result
-    assert ('\\end{threeparttable}\n\n\\footnotetext[7]{\sphinxAtStartFootnote%\n'
+    assert ('\\end{threeparttable}\n\n\\footnotetext[7]{\sphinxAtStartFootnote\n'
             'Foot note in table\n}' in result)
     assert ('\\caption{footnote \\protect\\footnotemark[8] in caption of longtable}'
             in result)
-    assert ('\end{longtable}\n\n\\footnotetext[8]{\sphinxAtStartFootnote%\n'
+    assert ('\end{longtable}\n\n\\footnotetext[8]{\sphinxAtStartFootnote\n'
             'Foot note in longtable\n}' in result)
 
 
@@ -456,9 +456,9 @@ def test_latex_show_urls_is_inline(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('Same footnote number \\footnote[1]{\sphinxAtStartFootnote%\n'
+    assert ('Same footnote number \\footnote[1]{\sphinxAtStartFootnote\n'
             'footnote in bar\n} in bar.rst' in result)
-    assert ('Auto footnote number \\footnote[1]{\sphinxAtStartFootnote%\n'
+    assert ('Auto footnote number \\footnote[1]{\sphinxAtStartFootnote\n'
             'footnote in baz\n} in baz.rst' in result)
     assert ('\\phantomsection\\label{index:id26}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
@@ -467,16 +467,16 @@ def test_latex_show_urls_is_inline(app, status, warning):
     assert ('\\phantomsection\\label{index:id27}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to]'
             '{\\crossref{The section with a reference to }}}' in result)
-    assert 'First footnote: \\footnote[2]{\sphinxAtStartFootnote%\nFirst\n}' in result
-    assert 'Second footnote: \\footnote[1]{\sphinxAtStartFootnote%\nSecond\n}' in result
+    assert 'First footnote: \\footnote[2]{\sphinxAtStartFootnote\nFirst\n}' in result
+    assert 'Second footnote: \\footnote[1]{\sphinxAtStartFootnote\nSecond\n}' in result
     assert '\\href{http://sphinx-doc.org/}{Sphinx} (http://sphinx-doc.org/)' in result
-    assert 'Third footnote: \\footnote[3]{\sphinxAtStartFootnote%\nThird\n}' in result
+    assert 'Third footnote: \\footnote[3]{\sphinxAtStartFootnote\nThird\n}' in result
     assert ('\\href{http://sphinx-doc.org/~test/}{URL including tilde} '
             '(http://sphinx-doc.org/\\textasciitilde{}test/)' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term} (http://sphinx-doc.org/)}] '
             '\\leavevmode\nDescription' in result)
     assert ('\\item[{Footnote in term \\protect\\footnotemark[5]}] '
-            '\\leavevmode\\footnotetext[5]{\sphinxAtStartFootnote%\n'
+            '\\leavevmode\\footnotetext[5]{\sphinxAtStartFootnote\n'
             'Footnote in term\n}\nDescription' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist} '
             '(http://sphinx-doc.org/)}] \\leavevmode\nDescription' in result)
@@ -493,9 +493,9 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('Same footnote number \\footnote[1]{\sphinxAtStartFootnote%\n'
+    assert ('Same footnote number \\footnote[1]{\sphinxAtStartFootnote\n'
             'footnote in bar\n} in bar.rst' in result)
-    assert ('Auto footnote number \\footnote[2]{\sphinxAtStartFootnote%\n'
+    assert ('Auto footnote number \\footnote[2]{\sphinxAtStartFootnote\n'
             'footnote in baz\n} in baz.rst' in result)
     assert ('\\phantomsection\\label{index:id26}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
@@ -504,24 +504,24 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     assert ('\\phantomsection\\label{index:id27}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to]'
             '{\\crossref{The section with a reference to }}}' in result)
-    assert 'First footnote: \\footnote[3]{\sphinxAtStartFootnote%\nFirst\n}' in result
-    assert 'Second footnote: \\footnote[1]{\sphinxAtStartFootnote%\nSecond\n}' in result
+    assert 'First footnote: \\footnote[3]{\sphinxAtStartFootnote\nFirst\n}' in result
+    assert 'Second footnote: \\footnote[1]{\sphinxAtStartFootnote\nSecond\n}' in result
     assert ('\\href{http://sphinx-doc.org/}{Sphinx}'
-            '\\footnote[4]{\sphinxAtStartFootnote%\n'
+            '\\footnote[4]{\sphinxAtStartFootnote\n'
             '\\nolinkurl{http://sphinx-doc.org/}\n}' in result)
-    assert 'Third footnote: \\footnote[6]{\sphinxAtStartFootnote%\nThird\n}' in result
+    assert 'Third footnote: \\footnote[6]{\sphinxAtStartFootnote\nThird\n}' in result
     assert ('\\href{http://sphinx-doc.org/~test/}{URL including tilde}'
-            '\\footnote[5]{\sphinxAtStartFootnote%\n'
+            '\\footnote[5]{\sphinxAtStartFootnote\n'
             '\\nolinkurl{http://sphinx-doc.org/~test/}\n}' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term}\\protect\\footnotemark[8]}] '
-            '\\leavevmode\\footnotetext[8]{\sphinxAtStartFootnote%\n'
+            '\\leavevmode\\footnotetext[8]{\sphinxAtStartFootnote\n'
             '\\nolinkurl{http://sphinx-doc.org/}\n}\nDescription' in result)
     assert ('\\item[{Footnote in term \\protect\\footnotemark[10]}] '
-            '\\leavevmode\\footnotetext[10]{\sphinxAtStartFootnote%\n'
+            '\\leavevmode\\footnotetext[10]{\sphinxAtStartFootnote\n'
             'Footnote in term\n}\nDescription' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}\\protect'
             '\\footnotemark[9]}] '
-            '\\leavevmode\\footnotetext[9]{\sphinxAtStartFootnote%\n'
+            '\\leavevmode\\footnotetext[9]{\sphinxAtStartFootnote\n'
             '\\nolinkurl{http://sphinx-doc.org/}\n}\nDescription' in result)
     assert ('\\url{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
@@ -536,9 +536,9 @@ def test_latex_show_urls_is_no(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('Same footnote number \\footnote[1]{\sphinxAtStartFootnote%\n'
+    assert ('Same footnote number \\footnote[1]{\sphinxAtStartFootnote\n'
             'footnote in bar\n} in bar.rst' in result)
-    assert ('Auto footnote number \\footnote[1]{\sphinxAtStartFootnote%\n'
+    assert ('Auto footnote number \\footnote[1]{\sphinxAtStartFootnote\n'
             'footnote in baz\n} in baz.rst' in result)
     assert ('\\phantomsection\\label{index:id26}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
@@ -547,15 +547,15 @@ def test_latex_show_urls_is_no(app, status, warning):
     assert ('\\phantomsection\\label{index:id27}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to]'
             '{\\crossref{The section with a reference to }}}' in result)
-    assert 'First footnote: \\footnote[2]{\sphinxAtStartFootnote%\nFirst\n}' in result
-    assert 'Second footnote: \\footnote[1]{\sphinxAtStartFootnote%\nSecond\n}' in result
+    assert 'First footnote: \\footnote[2]{\sphinxAtStartFootnote\nFirst\n}' in result
+    assert 'Second footnote: \\footnote[1]{\sphinxAtStartFootnote\nSecond\n}' in result
     assert '\\href{http://sphinx-doc.org/}{Sphinx}' in result
-    assert 'Third footnote: \\footnote[3]{\sphinxAtStartFootnote%\nThird\n}' in result
+    assert 'Third footnote: \\footnote[3]{\sphinxAtStartFootnote\nThird\n}' in result
     assert '\\href{http://sphinx-doc.org/~test/}{URL including tilde}' in result
     assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term}}] '
             '\\leavevmode\nDescription' in result)
     assert ('\\item[{Footnote in term \\protect\\footnotemark[5]}] '
-            '\\leavevmode\\footnotetext[5]{\sphinxAtStartFootnote%\n'
+            '\\leavevmode\\footnotetext[5]{\sphinxAtStartFootnote\n'
             'Footnote in term\n}\nDescription' in result)
     assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}}] '
             '\\leavevmode\nDescription' in result)

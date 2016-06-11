@@ -979,9 +979,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_collected_footnote(self, node):
         self.in_footnote += 1
         if 'footnotetext' in node:
-            self.body.append('\\footnotetext[%s]{\sphinxAtStartFootnote%%\n' % node['number'])
+            self.body.append('\\footnotetext[%s]{\sphinxAtStartFootnote\n' % node['number'])
         else:
-            self.body.append('\\footnote[%s]{\sphinxAtStartFootnote%%\n' % node['number'])
+            self.body.append('\\footnote[%s]{\sphinxAtStartFootnote\n' % node['number'])
 
     def depart_collected_footnote(self, node):
         self.body.append('}')
