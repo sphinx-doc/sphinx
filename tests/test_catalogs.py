@@ -56,6 +56,7 @@ def test_compile_all_catalogs(app, status, warning):
           confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
 def test_compile_specific_catalogs(app, status, warning):
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
+
     def get_actual():
         return set(find_files(catalog_dir, '.mo'))
 

@@ -26,7 +26,7 @@ from sphinx.theming import Theme
 from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
 
-from path import path, repr_as
+from path import path, repr_as  # NOQA
 
 try:
     # Python >=3.3
@@ -110,6 +110,7 @@ except ImportError:
     def assert_in(x, thing, msg=''):
         if x not in thing:
             assert False, msg or '%r is not in %r' % (x, thing)
+
     def assert_not_in(x, thing, msg=''):
         if x in thing:
             assert False, msg or '%r is in %r' % (x, thing)

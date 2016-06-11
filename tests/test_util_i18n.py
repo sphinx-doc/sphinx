@@ -47,7 +47,7 @@ def test_catalog_outdated(dir):
     mo_file.write_text('#')
     assert not cat.is_outdated()  # if mo is exist and newer than po
 
-    os.utime(mo_file, (os.stat(mo_file).st_mtime - 10,) * 2) # to be outdate
+    os.utime(mo_file, (os.stat(mo_file).st_mtime - 10,) * 2)  # to be outdate
     assert cat.is_outdated()  # if mo is exist and older than po
 
 
@@ -212,6 +212,7 @@ def test_format_date():
     format = '%c'
     assert i18n.format_date(format, date=datet) == 'Feb 7, 2016, 5:11:17 AM'
     assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
+
 
 def test_get_filename_for_language():
     app = TestApp()

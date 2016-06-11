@@ -680,7 +680,7 @@ def test_xml_builder(app, status, warning):
 def test_additional_targets_should_not_be_translated(app, status, warning):
     app.builder.build_all()
 
-    ## literalblock.txt
+    # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
 
     # title should be translated
@@ -707,7 +707,7 @@ def test_additional_targets_should_not_be_translated(app, status, warning):
         """<span class="c1"># sys importing</span>""")
     yield assert_count(expected_expr, result, 1)
 
-    ## raw.txt
+    # [raw.txt]
 
     result = (app.outdir / 'raw.html').text(encoding='utf-8')
 
@@ -715,7 +715,7 @@ def test_additional_targets_should_not_be_translated(app, status, warning):
     expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></div>"""
     yield assert_count(expected_expr, result, 1)
 
-    ## figure.txt
+    # [figure.txt]
 
     result = (app.outdir / 'figure.html').text(encoding='utf-8')
 
@@ -741,7 +741,7 @@ def test_additional_targets_should_not_be_translated(app, status, warning):
 def test_additional_targets_should_be_translated(app, status, warning):
     app.builder.build_all()
 
-    ## literalblock.txt
+    # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
 
     # title should be translated
@@ -768,7 +768,7 @@ def test_additional_targets_should_be_translated(app, status, warning):
         """<span class="c1"># SYS IMPORTING</span>""")
     yield assert_count(expected_expr, result, 1)
 
-    ## raw.txt
+    # [raw.txt]
 
     result = (app.outdir / 'raw.html').text(encoding='utf-8')
 
@@ -776,7 +776,7 @@ def test_additional_targets_should_be_translated(app, status, warning):
     expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></div>"""
     yield assert_count(expected_expr, result, 1)
 
-    ## figure.txt
+    # [figure.txt]
 
     result = (app.outdir / 'figure.html').text(encoding='utf-8')
 

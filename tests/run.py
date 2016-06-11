@@ -16,6 +16,7 @@ import sys
 import traceback
 
 from path import path
+import nose
 
 testroot = os.path.dirname(__file__) or '.'
 sys.path.insert(0, os.path.abspath(os.path.join(testroot, os.path.pardir)))
@@ -47,5 +48,4 @@ tempdir.makedirs()
 print('Running Sphinx test suite (with Python %s)...' % sys.version.split()[0])
 sys.stdout.flush()
 
-import nose
 nose.main()

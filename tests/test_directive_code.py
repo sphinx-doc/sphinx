@@ -85,9 +85,9 @@ def test_code_block_namedlink_latex(app, status, warning):
     link2  = '\\hyperref[namedblocks:some\\string-ruby\\string-code]'\
              '{\\crossref{\\DUrole{std,std-ref}{the ruby code}}}'
     assert label1 in latex
-    assert link1  in latex
+    assert link1 in latex
     assert label2 in latex
-    assert link2  in latex
+    assert link2 in latex
 
 
 @with_app('xml', testroot='directive-code')
@@ -272,9 +272,9 @@ def test_literalinclude_namedlink_latex(app, status, warning):
     link2  = '\\hyperref[namedblocks:some\\string-python\\string-code]'\
              '{\\crossref{\\DUrole{std,std-ref}{the python code}}}'
     assert label1 in latex
-    assert link1  in latex
+    assert link1 in latex
     assert label2 in latex
-    assert link2  in latex
+    assert link2 in latex
 
 
 @with_app('xml', testroot='directive-code')

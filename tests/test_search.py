@@ -20,6 +20,7 @@ from util import with_app
 
 settings = parser = None
 
+
 def setup_module():
     global settings, parser
     optparser = frontend.OptionParser(components=(rst.Parser,))
@@ -32,6 +33,7 @@ FILE_CONTENTS = '''\
 
 test that non-comments are indexed: fermion
 '''
+
 
 def test_wordcollector():
     doc = utils.new_document(b'test data', settings)

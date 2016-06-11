@@ -11,7 +11,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import os
 import plistlib
 
 from util import with_app

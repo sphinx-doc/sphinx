@@ -596,7 +596,7 @@ def test_numfig_without_numbered_toctree(app, status, warning):
             (".//li/a/span", '^Table:6$', True),
             (".//li/a/span", '^Listing 9$', True),
             (".//li/a/span", '^Code-6$', True),
-            ],
+        ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Fig. 1 $', True),
@@ -622,7 +622,7 @@ def test_numfig_without_numbered_toctree(app, status, warning):
              "span[@class='caption-number']", '^Listing 3 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Listing 4 $', True),
-            ],
+        ],
         'bar.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Fig. 5 $', True),
@@ -693,7 +693,7 @@ def test_numfig_with_numbered_toctree(app, status, warning):
             (".//li/a/span", '^Table:2.2$', True),
             (".//li/a/span", '^Listing 1$', True),
             (".//li/a/span", '^Code-2.2$', True),
-            ],
+        ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Fig. 1.1 $', True),
@@ -719,7 +719,7 @@ def test_numfig_with_numbered_toctree(app, status, warning):
              "span[@class='caption-number']", '^Listing 1.3 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Listing 1.4 $', True),
-            ],
+        ],
         'bar.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Fig. 2.1 $', True),
@@ -793,7 +793,7 @@ def test_numfig_with_prefix(app, status, warning):
             (".//li/a/span", '^Table:2.2$', True),
             (".//li/a/span", '^Code-1$', True),
             (".//li/a/span", '^Code-2.2$', True),
-            ],
+        ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Figure:1.1 $', True),
@@ -819,7 +819,7 @@ def test_numfig_with_prefix(app, status, warning):
              "span[@class='caption-number']", '^Code-1.3 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Code-1.4 $', True),
-            ],
+        ],
         'bar.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Figure:2.1 $', True),
@@ -890,7 +890,7 @@ def test_numfig_with_secnum_depth(app, status, warning):
             (".//li/a/span", '^Table:2.1.2$', True),
             (".//li/a/span", '^Listing 1$', True),
             (".//li/a/span", '^Code-2.1.2$', True),
-            ],
+        ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Fig. 1.1 $', True),
@@ -916,7 +916,7 @@ def test_numfig_with_secnum_depth(app, status, warning):
              "span[@class='caption-number']", '^Listing 1.1.2 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Listing 1.2.1 $', True),
-            ],
+        ],
         'bar.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Fig. 2.1.1 $', True),
