@@ -77,7 +77,7 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
         print(rootSymbol.dump(0))
         raise DefinitionError("")
     ids.append(ast.get_id_v2())
-    #print ".. %s:: %s" % (name, input)
+    # print ".. %s:: %s" % (name, input)
 
 
 def test_fundamental_types():
@@ -397,11 +397,11 @@ def test_templates():
           "RK18c_string_view_baseIK4Char6TraitsE")
 
 
-#def test_print():
-#    # used for getting all the ids out for checking
-#    for a in ids:
-#        print(a)
-#    raise DefinitionError("")
+# def test_print():
+#     # used for getting all the ids out for checking
+#     for a in ids:
+#         print(a)
+#     raise DefinitionError("")
 
 
 @with_app(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})

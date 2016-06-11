@@ -28,6 +28,7 @@ def test_imgmath_png(app, status, warning):
             '\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
     assert re.search(html, content, re.S)
 
+
 @with_app('html', testroot='ext-math',
           confoverrides={'extensions': ['sphinx.ext.imgmath'],
                          'imgmath_image_format': 'svg'})
@@ -43,6 +44,7 @@ def test_imgmath_svg(app, status, warning):
             '\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
     assert re.search(html, content, re.S)
 
+
 @with_app('html', testroot='ext-math',
           confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_mathjax_align(app, status, warning):
@@ -54,6 +56,7 @@ def test_mathjax_align(app, status, warning):
             r'V \&amp;= \\frac\{4\}\{3\} \\pi r\^3\\end\{aligned\}\\end\{align\} \\\]</div>')
     assert re.search(html, content, re.S)
 
+
 @with_app('html', testroot='ext-math',
           confoverrides={'math_number_all': True,
                          'extensions': ['sphinx.ext.mathjax']})
@@ -64,6 +67,7 @@ def test_math_number_all_mathjax(app, status, warning):
     html = (r'<div class="math">\s*'
             r'<span class="eqno">\(1\)</span>\\\[a\^2\+b\^2=c\^2\\\]</div>')
     assert re.search(html, content, re.S)
+
 
 @with_app('latex', testroot='ext-math',
           confoverrides={'extensions': ['sphinx.ext.mathjax']})

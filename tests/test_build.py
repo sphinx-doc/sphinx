@@ -15,6 +15,7 @@ import pickle
 from docutils import nodes
 from textwrap import dedent
 from sphinx.errors import SphinxError
+import sphinx.builders.linkcheck
 
 from util import with_app, rootdir, tempdir, SkipTest, TestApp
 
@@ -31,7 +32,6 @@ class MockOpener(object):
             url = req.url
         return result()
 
-import sphinx.builders.linkcheck
 sphinx.builders.linkcheck.opener = MockOpener()
 
 

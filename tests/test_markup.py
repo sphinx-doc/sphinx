@@ -41,6 +41,7 @@ def setup_module():
 def teardown_module():
     app.cleanup()
 
+
 # since we're not resolving the markup afterwards, these nodes may remain
 class ForgivingTranslator:
     def visit_pending_xref(self, node):
@@ -74,10 +75,11 @@ def verify_re(rst, html_expected, latex_expected):
 
     if latex_expected:
         latex_translator = ForgivingLaTeXTranslator(document, app.builder)
-        latex_translator.first_document = -1 # don't write \begin{document}
+        latex_translator.first_document = -1  # don't write \begin{document}
         document.walkabout(latex_translator)
         latex_translated = ''.join(latex_translator.body).strip()
         assert re.match(latex_expected, latex_translated), 'from ' + repr(rst)
+
 
 def verify(rst, html_expected, latex_expected):
     if html_expected:
@@ -130,6 +132,7 @@ def test_inline():
     yield (verify, ':manpage:`mp(1)`',
            '<p><em class="manpage">mp(1)</em></p>',
            '\\emph{\\texttt{mp(1)}}')
+
 
 def test_latex_escaping():
     # correct escaping in normal mode

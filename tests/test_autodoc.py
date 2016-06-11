@@ -11,7 +11,7 @@
 """
 
 # "raises" imported for usage by autodoc
-from util import TestApp, Struct, raises, SkipTest
+from util import TestApp, Struct, raises, SkipTest  # NOQA
 from nose.tools import with_setup, eq_
 
 from six import StringIO
@@ -21,6 +21,7 @@ from sphinx.ext.autodoc import AutoDirective, add_documenter, \
     ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
 
 app = None
+
 
 def setup_module():
     global app
@@ -37,6 +38,7 @@ def teardown_module():
 
 
 directive = options = None
+
 
 def setup_test():
     global options, directive
@@ -73,19 +75,19 @@ def setup_test():
 
 
 _warnings = []
+processed_docstrings = []
+processed_signatures = []
+
 
 def warnfunc(msg):
     _warnings.append(msg)
 
-
-processed_docstrings = []
 
 def process_docstring(app, what, name, obj, options, lines):
     processed_docstrings.append((what, name))
     if name == 'bar':
         lines.extend(['42', ''])
 
-processed_signatures = []
 
 def process_signature(app, what, name, obj, options, args, retann):
     processed_signatures.append((what, name))
@@ -164,25 +166,28 @@ def test_format_signature():
     # test for functions
     def f(a, b, c=1, **d):
         pass
+
     def g(a='\n'):
         pass
     assert formatsig('function', 'f', f, None, None) == '(a, b, c=1, **d)'
     assert formatsig('function', 'f', f, 'a, b, c, d', None) == '(a, b, c, d)'
-    assert formatsig('function', 'f', f, None, 'None') == \
-           '(a, b, c=1, **d) -> None'
+    assert formatsig('function', 'f', f, None, 'None') == '(a, b, c=1, **d) -> None'
     assert formatsig('function', 'g', g, None, None) == r"(a='\\n')"
 
     # test for classes
     class D:
         pass
+
     class E(object):
         pass
     # no signature for classes without __init__
     for C in (D, E):
         assert formatsig('class', 'D', C, None, None) == ''
+
     class F:
         def __init__(self, a, b=None):
             pass
+
     class G(F, object):
         pass
     for C in (F, G):
@@ -191,6 +196,7 @@ def test_format_signature():
 
     # __init__ have signature at first line of docstring
     directive.env.config.autoclass_content = 'both'
+
     class F2:
         '''some docstring for F2.'''
         def __init__(self, *args, **kw):
@@ -211,8 +217,10 @@ def test_format_signature():
     class H:
         def foo1(self, b, *c):
             pass
+
         def foo2(b, *c):
             pass
+
         def foo3(self, d='\n'):
             pass
     assert formatsig('method', 'H.foo', H.foo1, None, None) == '(b, *c)'
@@ -431,6 +439,7 @@ def test_docstring_processing():
 
     lid = app.connect('autodoc-process-docstring',
                       cut_lines(1, 1, ['function']))
+
     def f():
         """
         first line
@@ -441,6 +450,7 @@ def test_docstring_processing():
     app.disconnect(lid)
 
     lid = app.connect('autodoc-process-docstring', between('---', ['function']))
+
     def g():
         """
         first line
@@ -452,8 +462,9 @@ def test_docstring_processing():
     assert process('function', 'g', g) == ['second line', '']
     app.disconnect(lid)
 
-    lid = app.connect('autodoc-process-docstring', between('---', ['function'],
-                                                           exclude=True))
+    lid = app.connect('autodoc-process-docstring',
+                      between('---', ['function'], exclude=True))
+
     def h():
         """
         first line
@@ -522,7 +533,7 @@ def test_new_documenter():
     def assert_result_contains(item, objtype, name, **kw):
         inst = AutoDirective._registry[objtype](directive, name)
         inst.generate(**kw)
-        #print '\n'.join(directive.result)
+        # print '\n'.join(directive.result)
         assert len(_warnings) == 0, _warnings
         assert item in directive.result
         del directive.result[:]
@@ -535,6 +546,7 @@ def test_new_documenter():
 def test_attrgetter_using():
     def assert_getter_works(objtype, name, obj, attrs=[], **kw):
         getattr_spy = []
+
         def special_getattr(obj, name, *defargs):
             if name in attrs:
                 getattr_spy.append((obj, name))
@@ -556,12 +568,10 @@ def test_attrgetter_using():
 
     options.members = ALL
     options.inherited_members = False
-    assert_getter_works('class', 'test_autodoc.Class', Class,
-                       ['meth'])
+    assert_getter_works('class', 'test_autodoc.Class', Class, ['meth'])
 
     options.inherited_members = True
-    assert_getter_works('class', 'test_autodoc.Class', Class,
-                       ['meth', 'inheritedmeth'])
+    assert_getter_works('class', 'test_autodoc.Class', Class, ['meth', 'inheritedmeth'])
 
 
 @with_setup(setup_test)
@@ -578,7 +588,7 @@ def test_generate():
         inst = AutoDirective._registry[objtype](directive, name)
         inst.generate(**kw)
         assert directive.result
-        #print '\n'.join(directive.result)
+        # print '\n'.join(directive.result)
         assert len(_warnings) == 0, _warnings
         del directive.result[:]
 
@@ -586,13 +596,12 @@ def test_generate():
         del processed_docstrings[:]
         del processed_signatures[:]
         assert_works(objtype, name, **kw)
-        assert set(processed_docstrings) | set(processed_signatures) == \
-               set(items)
+        assert set(processed_docstrings) | set(processed_signatures) == set(items)
 
     def assert_result_contains(item, objtype, name, **kw):
         inst = AutoDirective._registry[objtype](directive, name)
         inst.generate(**kw)
-        #print '\n'.join(directive.result)
+        # print '\n'.join(directive.result)
         assert len(_warnings) == 0, _warnings
         assert item in directive.result
         del directive.result[:]
@@ -604,17 +613,17 @@ def test_generate():
         assert len(_warnings) == 0, _warnings
         items = list(reversed(items))
         lineiter = iter(directive.result)
-        #for line in directive.result:
-        #    if line.strip():
-        #        print repr(line)
+        # for line in directive.result:
+        #     if line.strip():
+        #         print repr(line)
         while items:
             item = items.pop()
             for line in lineiter:
                 if line == item:
                     break
             else:  # ran out of items!
-                assert False, 'item %r not found in result or not in the ' \
-                       ' correct order' % item
+                assert False, ('item %r not found in result or not in the '
+                               ' correct order' % item)
         del directive.result[:]
 
     options.members = []
@@ -824,18 +833,18 @@ def test_generate():
                            'module', 'test_autodoc')
 
 # --- generate fodder ------------
-import six, sys
-
 __all__ = ['Class']
 
 #: documentation for the integer
 integer = 1
+
 
 class CustomEx(Exception):
     """My custom exception."""
 
     def f(self):
         """Exception method."""
+
 
 class CustomDataDescriptor(object):
     """Descriptor class docstring."""
@@ -852,6 +861,7 @@ class CustomDataDescriptor(object):
         """Function."""
         return "The Answer"
 
+
 def _funky_classmethod(name, b, c, d, docstring=None):
     """Generates a classmethod for a class from a template by filling out
     some arguments."""
@@ -862,6 +872,7 @@ def _funky_classmethod(name, b, c, d, docstring=None):
     function.__name__ = name
     function.__doc__ = docstring
     return classmethod(function)
+
 
 class Base(object):
     def inheritedmeth(self):
@@ -908,10 +919,10 @@ class Class(Base):
     roger = _funky_classmethod("roger", 2, 3, 4)
 
     moore = _funky_classmethod("moore", 9, 8, 7,
-        docstring="moore(a, e, f) -> happiness")
+                               docstring="moore(a, e, f) -> happiness")
 
     def __init__(self, arg):
-        self.inst_attr_inline = None #: an inline documented instance attr
+        self.inst_attr_inline = None  #: an inline documented instance attr
         #: a documented instance attribute
         self.inst_attr_comment = None
         self.inst_attr_string = None
@@ -927,6 +938,7 @@ class Class(Base):
 
 class CustomDict(dict):
     """Docstring."""
+
 
 def function(foo, *args, **kwds):
     """
@@ -977,13 +989,16 @@ First line of docstring
         """
         return 456
 
+
 class StrRepr(str):
     def __repr__(self):
         return self
 
+
 class AttCls(object):
     a1 = StrRepr('hello\nworld')
     a2 = None
+
 
 class InstAttCls(object):
     """Class with documented class and instance attributes."""

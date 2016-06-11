@@ -38,14 +38,16 @@ Bugs fixed
 * #2630: Latex sphinx.sty Notice Enviroment formatting problem
 * #2632: Warning directives fail in quote environment latex build
 * #2633: Sphinx crashes with old styled indices
-* Fix a \begin{\minipage} typo in sphinx.sty from 1.4.2 (ref: 68becb1)
+* Fix a ``\begin{\minipage}`` typo in sphinx.sty from 1.4.2 (ref: 68becb1)
 * #2622: Latex produces empty pages after title and table of contents
 * #2640: 1.4.2 LaTeX crashes if code-block inside warning directive
 * Let LaTeX use straight quotes also in inline code (ref #2627)
 * #2351: latex crashes if enumerated lists are placed on footnotes
 * #2646: latex crashes if math contains twice empty lines
 * #2480: `sphinx.ext.autodoc`: memory addresses were shown
-* latex: allow one more nesting depth for code-blocks (ref #777, PR #2624)
+* latex: allow code-blocks appearing inside lists and quotes at maximal nesting depth (ref #777, #2624, #2651)
+* #2635: Latex code directives produce inconsistent frames based on viewing resolution
+* #2639: Sphinx now bundles iftex.sty
 
 
 Release 1.4.3 (released Jun 5, 2016)

@@ -9,7 +9,7 @@
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from six import PY2, PY3, StringIO, iteritems
+from six import PY3, iteritems
 from util import mock
 
 from util import TestApp, with_app, gen_with_app, with_tempdir, \
@@ -109,8 +109,10 @@ def test_errors_warnings(dir):
         u'# -*- coding: latin-1\nproject = "fooä"\n', encoding='latin-1')
     cfg = Config(dir, 'conf.py', {}, None)
     warned = [False]
+
     def warn(msg):
         warned[0] = True
+
     cfg.check_unicode(warn)
     assert warned[0]
 
@@ -160,18 +162,17 @@ def test_config_eol(tmpdir):
         assert cfg.project == u'spam'
 
 
-@with_app(confoverrides={
-        'master_doc': 123,
-        'language': 'foo',
-        'primary_domain': None})
+@with_app(confoverrides={'master_doc': 123,
+                         'language': 'foo',
+                         'primary_domain': None})
 def test_builtin_conf(app, status, warning):
     warnings = warning.getvalue()
     assert_in('master_doc', warnings,
-        'override on builtin "master_doc" should raise a type warning')
+              'override on builtin "master_doc" should raise a type warning')
     assert_not_in('language', warnings, 'explicitly permitted '
-        'override on builtin "language" should NOT raise a type warning')
+                  'override on builtin "language" should NOT raise a type warning')
     assert_not_in('primary_domain', warnings, 'override to None on builtin '
-        '"primary_domain" should NOT raise a type warning')
+                  '"primary_domain" should NOT raise a type warning')
 
 
 # See roots/test-config/conf.py.
@@ -193,12 +194,15 @@ TYPECHECK_WARNINGS = {
     'value15': False,
     'value16': False,
 }
+
+
 @gen_with_app(testroot='config')
 def test_gen_check_types(app, status, warning):
     if PY3:
         TYPECHECK_WARNINGS['value11'] = False
 
     for key, should in iteritems(TYPECHECK_WARNINGS):
-        yield assert_in if should else assert_not_in, key, warning.getvalue(), \
-                'override on "%s" should%s raise a type warning' % \
-                (key, '' if should else ' NOT')
+        yield assert_in if should else assert_not_in, key, warning.getvalue(), (
+            'override on "%s" should%s raise a type warning' %
+            (key, '' if should else ' NOT')
+        )
