@@ -34,20 +34,21 @@ class Figure(images.Figure):
 
         return [figure_node]
 
+
 class RSTTable(tables.RSTTable):
     """Adds an option to the table directive which allows for the title to below
     displayed below the table.
-    """ 
+    """
     option_spec = tables.Table.option_spec
     option_spec.update({'title-below': directives.flag})
-    
+
     def run(self):
         result = tables.RSTTable.run(self)
         (table_node,) = result
-        
+
         table_node['title-below'] = 'title-below' in self.options
-        
-        return [table_node]   
+
+        return [table_node]
 
 directives.register_directive('table', RSTTable)
 directives.register_directive('figure', Figure)

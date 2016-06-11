@@ -999,7 +999,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.popbody()
         if not self.table.longtable and self.table.caption is not None:
             self.body.append('\n\n\\begin{threeparttable}\n')
-            if not 'title-below' in node:
+            if 'title-below' not in node:
                 self.body.append('\\capstart\\caption{')
                 for caption in self.table.caption:
                     self.body.append(caption)
@@ -1034,14 +1034,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('{|' + ('l|' * self.table.colcount) + '}\n')
             else:
                 self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
-        if self.table.longtable and self.table.caption is not None and not 'title-below' in node:
-            self.body.append(u'\\caption{')
-            for caption in self.table.caption:
-                self.body.append(caption)
-            self.body.append('}')
-            for id in self.pop_hyperlink_ids('table'):
-                self.body.append(self.hypertarget(id, anchor=False))
-            self.body.append(u'\\\\\n')
+        if self.table.longtable and self.table.caption is not None:
+            if 'title-below' not in node:
+                self.body.append(u'\\caption{')
+                for caption in self.table.caption:
+                    self.body.append(caption)
+                self.body.append('}')
+                for id in self.pop_hyperlink_ids('table'):
+                    self.body.append(self.hypertarget(id, anchor=False))
+                self.body.append(u'\\\\\n')
         if self.table.longtable:
             self.body.append('\\hline\n')
             self.body.extend(self.tableheaders)
