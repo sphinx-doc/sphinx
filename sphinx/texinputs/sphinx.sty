@@ -867,3 +867,7 @@
   {\ifx\equation$%$% this is trick to identify tabulary first pass
        \firstchoice@false\else\firstchoice@true\fi
    \Sphinx@originalcaption }
+
+% will be used to accompany quote environment and help avoid "too deeply nested"
+\newcommand*\SphinxDecreaseListDepth {\global\advance\@listdepth\m@ne}
+\newcommand*\SphinxIncreaseListDepth {\global\advance\@listdepth\@ne}
