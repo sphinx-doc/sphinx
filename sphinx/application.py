@@ -192,6 +192,10 @@ class Sphinx(object):
                         'version %s and therefore cannot be built with the '
                         'loaded version (%s).' % (extname, needs_ver, has_ver))
 
+        # check primary_domain if requested
+        if self.config.primary_domain and self.config.primary_domain not in self.domains:
+            self.warn('primary_domain %r not found, ignored.' % self.config.primary_domain)
+
         # set up translation infrastructure
         self._init_i18n()
         # check all configuration values for permissible types

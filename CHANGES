@@ -19,6 +19,7 @@ Features added
 * ``:maxdepth:`` option of toctree affects ``secnumdepth`` (ref: #2547)
 * #2575: Now ``sphinx.ext.graphviz`` allows ``:align:`` option
 * Show warnings if unknown key is specified to `latex_elements`
+* Show warnings if no domains match with `primary_domain` (ref: #2001)
 
 Bugs fixed
 ----------
