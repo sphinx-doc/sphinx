@@ -40,11 +40,12 @@ you'd prefer. You can always use the --nobackup option to prevent this.
 """
 from __future__ import print_function
 
-__version__ = "1"
-
-import tokenize
-import os, shutil
+import os
 import sys
+import shutil
+import tokenize
+
+__version__ = "1"
 
 if sys.version_info >= (3, 0):
     def tokens(readline, tokeneater):
@@ -58,10 +59,12 @@ recurse    = 0
 dryrun     = 0
 makebackup = True
 
+
 def usage(msg=None):
     if msg is not None:
         print(msg, file=sys.stderr)
     print(__doc__, file=sys.stderr)
+
 
 def errprint(*args):
     sep = ""
@@ -70,12 +73,13 @@ def errprint(*args):
         sep = " "
     sys.stderr.write("\n")
 
+
 def main():
     import getopt
     global verbose, recurse, dryrun, makebackup
     try:
         opts, args = getopt.getopt(sys.argv[1:], "drnvh",
-                        ["dryrun", "recurse", "nobackup", "verbose", "help"])
+                                   ["dryrun", "recurse", "nobackup", "verbose", "help"])
     except getopt.error as msg:
         usage(msg)
         return
@@ -99,6 +103,7 @@ def main():
     for arg in args:
         check(arg)
 
+
 def check(file):
     if os.path.isdir(file) and not os.path.islink(file):
         if verbose:
@@ -108,8 +113,8 @@ def check(file):
             fullname = os.path.join(file, name)
             if ((recurse and os.path.isdir(fullname) and
                  not os.path.islink(fullname) and
-                 not os.path.split(fullname)[1].startswith("."))
-                or name.lower().endswith(".py")):
+                 not os.path.split(fullname)[1].startswith(".")) or
+               name.lower().endswith(".py")):
                 check(fullname)
         return
 
@@ -145,6 +150,7 @@ def check(file):
             print("unchanged.")
         return False
 
+
 def _rstrip(line, JUNK='\n \t'):
     """Return line stripped of trailing spaces, tabs, newlines.
 
@@ -158,8 +164,8 @@ def _rstrip(line, JUNK='\n \t'):
         i -= 1
     return line[:i]
 
-class Reindenter:
 
+class Reindenter:
     def __init__(self, f):
         self.find_stmt = 1  # next token begins a fresh stmt?
         self.level = 0      # current indent level
@@ -218,15 +224,15 @@ class Reindenter:
                                 if have == getlspace(lines[jline]):
                                     want = jlevel * 4
                                 break
-                    if want < 0:           # Maybe it's a hanging
-                                           # comment like this one,
+                    if want < 0:        # Maybe it's a hanging
+                                        # comment like this one,
                         # in which case we should shift it like its base
                         # line got shifted.
                         for j in xrange(i-1, -1, -1):
                             jline, jlevel = stats[j]
                             if jlevel >= 0:
-                                want = have + getlspace(after[jline-1]) - \
-                                       getlspace(lines[jline])
+                                want = (have + getlspace(after[jline-1]) -
+                                        getlspace(lines[jline]))
                                 break
                     if want < 0:
                         # Still no luck -- leave it alone.
@@ -300,6 +306,7 @@ class Reindenter:
             self.find_stmt = 0
             if line:   # not endmarker
                 self.stats.append((position[0], self.level))
+
 
 # Count number of leading blanks.
 def getlspace(line):
