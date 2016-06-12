@@ -208,6 +208,7 @@ enabled in `conf.py`::
     # Napoleon settings
     napoleon_google_docstring = True
     napoleon_numpy_docstring = True
+    napoleon_include_init_with_doc = False
     napoleon_include_private_with_doc = False
     napoleon_include_special_with_doc = True
     napoleon_use_admonition_for_examples = False
@@ -233,6 +234,23 @@ enabled in `conf.py`::
 
    True to parse `NumPy style`_ docstrings. False to disable support
    for NumPy style docstrings. *Defaults to True.*
+
+.. confval:: napoleon_include_init_with_doc
+
+   True to list ``__init___`` docstrings separately from the class
+   docstring. False to fall back to Sphinx's default behavior, which
+   considers the ``__init___`` docstring as part of the class
+   documentation. *Defaults to False.*
+
+   **If True**::
+
+       def __init__(self):
+           \"\"\"
+           This will be included in the docs because it has a docstring
+           \"\"\"
+
+       def __init__(self):
+           # This will NOT be included in the docs
 
 .. confval:: napoleon_include_private_with_doc
 
