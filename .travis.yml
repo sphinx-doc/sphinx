@@ -21,6 +21,10 @@ addons:
   apt:
     packages:
     - graphviz
+    - texlive-latex-recommended
+    - texlive-latex-extra
+    - texlive-fonts-recommended
+    - texlive-fonts-extra
 install:
   - pip install -U pip
   - pip install docutils==$DOCUTILS

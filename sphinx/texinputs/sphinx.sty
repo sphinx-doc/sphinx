@@ -418,7 +418,7 @@
 \newenvironment{SphinxShadowBox}
   {\def\FrameCommand {\Sphinx@ShadowFBox }%
    % configure framed.sty not to add extra vertical spacing
-   \OuterFrameSep \z@skip
+   \ifdefined\OuterFrameSep \OuterFrameSep\z@skip \fi
    % the \trivlist will add the vertical spacing on top and bottom which is
    % typical of center environment as used in Sphinx <= 1.4.1
    % the \noindent has the effet of an extra blank line on top, to
@@ -534,7 +534,7 @@
    % configure framed.sty's parameters to obtain same vertical spacing
    % as for "light" boxes. We need for this to manually insert parskip glue and
    % revert a skip done by framed before the frame.
-    \setlength{\OuterFrameSep}{0pt}
+    \ifdefined\OuterFrameSep \OuterFrameSep\z@skip \fi
     \vspace{\FrameHeightAdjust}
    % copied/adapted from framed.sty's snugshade
    \def\FrameCommand##1{\hskip\@totalleftmargin
@@ -843,7 +843,7 @@
 % Define literal-block environment
 \RequirePackage{newfloat}
 \DeclareFloatingEnvironment{literal-block}
-\ifx\thechapter\undefined
+\ifx\c@chapter\undefined
   \SetupFloatingEnvironment{literal-block}{within=section,placement=h}
 \else
   \SetupFloatingEnvironment{literal-block}{within=chapter,placement=h}
