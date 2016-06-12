@@ -8,6 +8,23 @@
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesPackage{sphinx}[2010/01/15 LaTeX package (Sphinx markup)]
 
+% this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
+% hyperref.sty, but we may need it before, and besides the first ltxcmds.sty
+% as in TL2009/Debian had wrong definition. To be used if a doubt exists some
+% package may have done \@ifundefined{foo}, hence a later \ifx\foo\undefined
+% may be invalidated, as formerly undefined \foo would have become \relax.
+\newcommand{\spx@ifundefined}[1]{%
+    \ifcsname #1\endcsname
+      \expandafter\ifx\csname #1\endcsname\relax
+        \expandafter\expandafter\expandafter\@firstoftwo
+      \else
+        \expandafter\expandafter\expandafter\@secondoftwo
+      \fi
+    \else
+      \expandafter\@firstoftwo
+    \fi
+}
+
 \@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
 
 % for \text macro and \iffirstchoice@ conditional even if amsmath not loaded
@@ -62,30 +79,32 @@
 
 % use pdfoutput for pTeX and dvipdfmx
 % when pTeX (\kanjiskip is defined), set pdfoutput to evade \include{pdfcolor}
-\ifx\kanjiskip\undefined\else
+\spx@ifundefined{kanjiskip}{}{
   \newcount\pdfoutput\pdfoutput=0
-\fi
+}
 
 \RequirePackage{graphicx}
 
 % for PDF output, use colors and maximal compression
 \newif\ifsphinxpdfoutput % used in \maketitle
-\ifx\pdfoutput\undefined\else\ifcase\pdfoutput
+\spx@ifundefined{pdfoutput}{}{
+ \ifnum\pdfoutput=\z@
   \let\py@NormalColor\relax
   \let\py@TitleColor\relax
-\else
+ \else
   \sphinxpdfoutputtrue
   \input{pdfcolor}
   \def\py@NormalColor{\color[rgb]{0.0,0.0,0.0}}
   \def\py@TitleColor{\color{TitleColor}}
   \pdfcompresslevel=9
-\fi\fi
+ \fi
+}
 
 % XeLaTeX can do colors, too
-\ifx\XeTeXrevision\undefined\else
+\spx@ifundefined{XeTeXrevision}{}{
   \def\py@NormalColor{\color[rgb]{0.0,0.0,0.0}}
   \def\py@TitleColor{\color{TitleColor}}
-\fi
+}
 
 % Increase printable page size (copied from fullpage.sty)
 \topmargin 0pt
@@ -117,7 +136,7 @@
 \newcommand{\sphinxSetHeaderFamily}[1]{\renewcommand{\py@HeaderFamily}{#1}}
 
 % Redefine the 'normal' header/footer style when using "fancyhdr" package:
-\@ifundefined{fancyhf}{}{
+\spx@ifundefined{fancyhf}{}{
   % Use \pagestyle{normal} as the primary pagestyle for text.
   \fancypagestyle{normal}{
     \fancyhf{}
@@ -128,9 +147,8 @@
     \renewcommand{\headrulewidth}{0.4pt}
     \renewcommand{\footrulewidth}{0.4pt}
     % define chaptermark with \@chappos when \@chappos is available for Japanese
-    \ifx\@chappos\undefined\else
-      \def\chaptermark##1{\markboth{\@chapapp\space\thechapter\space\@chappos\space ##1}{}}
-    \fi
+    \spx@ifundefined{@chappos}{}
+      {\def\chaptermark##1{\markboth{\@chapapp\space\thechapter\space\@chappos\space ##1}{}}}
   }
   % Update the plain style so we get the page number & footer line,
   % but not a chapter or section title.  This is to keep the first
@@ -422,7 +440,7 @@
 \newenvironment{sphinxShadowBox}
   {\def\FrameCommand {\spx@ShadowFBox }%
    % configure framed.sty not to add extra vertical spacing
-   \ifdefined\OuterFrameSep \OuterFrameSep\z@skip \fi
+   \spx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
    % the \trivlist will add the vertical spacing on top and bottom which is
    % typical of center environment as used in Sphinx <= 1.4.1
    % the \noindent has the effet of an extra blank line on top, to
@@ -538,7 +556,7 @@
    % configure framed.sty's parameters to obtain same vertical spacing
    % as for "light" boxes. We need for this to manually insert parskip glue and
    % revert a skip done by framed before the frame.
-    \ifdefined\OuterFrameSep \OuterFrameSep\z@skip \fi
+    \spx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
     \vspace{\FrameHeightAdjust}
    % copied/adapted from framed.sty's snugshade
    \def\FrameCommand##1{\hskip\@totalleftmargin
@@ -648,7 +666,7 @@
 % This sets up the fancy chapter headings that make the documents look
 % at least a little better than the usual LaTeX output.
 %
-\@ifundefined{ChTitleVar}{}{
+\spx@ifundefined{ChTitleVar}{}{
   \ChNameVar{\raggedleft\normalsize\py@HeaderFamily}
   \ChNumVar{\raggedleft \bfseries\Large\py@HeaderFamily}
   \ChTitleVar{\raggedleft \textrm{\Huge\py@HeaderFamily}}
@@ -733,21 +751,19 @@
 
 % to make pdf with correct encoded bookmarks in Japanese
 % this should precede the hyperref package
-\ifx\kanjiskip\undefined
+\spx@ifundefined{kanjiskip}{
 % for non-Japanese: make sure bookmarks are ok also with lualatex
   \PassOptionsToPackage{pdfencoding=unicode}{hyperref}
-\else
+}{
   \usepackage{atbegshi}
-  \ifx\ucs\undefined
-    \ifnum 42146=\euc"A4A2
+  \spx@ifundefined{ucs}
+    {\ifnum 42146=\euc"A4A2
       \AtBeginShipoutFirst{\special{pdf:tounicode EUC-UCS2}}
     \else
       \AtBeginShipoutFirst{\special{pdf:tounicode 90ms-RKSJ-UCS2}}
-    \fi
-  \else
-    \AtBeginShipoutFirst{\special{pdf:tounicode UTF8-UCS2}}
-  \fi
-\fi
+    \fi}
+    {\AtBeginShipoutFirst{\special{pdf:tounicode UTF8-UCS2}}}
+}
 
 % Include hyperref last.
 \RequirePackage[colorlinks,breaklinks,
@@ -782,7 +798,7 @@
 }
 
 \DUprovidelength{\DUlineblockindent}{2.5em}
-\ifdefined\DUlineblock\else
+\spx@ifundefined{DUlineblock}{
   \newenvironment{DUlineblock}[1]{%
     \list{}{\setlength{\partopsep}{\parskip}
             \addtolength{\partopsep}{\baselineskip}
@@ -793,7 +809,7 @@
     \raggedright
   }
   {\endlist}
-\fi
+}{}
 
 % From footmisc.sty: allows footnotes in titles
 \let\FN@sf@@footnote\footnote
@@ -814,15 +830,15 @@
 
 % adjust the margins for footer,
 % this works with the jsclasses only (Japanese standard document classes)
-\ifx\@jsc@uplatextrue\undefined\else
+\spx@ifundefined{@jsc@uplatextrue}{}{
   \hypersetup{setpagesize=false}
   \setlength\footskip{2\baselineskip}
   \addtolength{\textheight}{-2\baselineskip}
-\fi
+}
 
 % fix the double index and bibliography on the table of contents
 % in jsclasses (Japanese standard document classes)
-\ifx\@jsc@uplatextrue\undefined\else
+\spx@ifundefined{@jsc@uplatextrue}{}{
   \renewcommand{\theindex}{
     \cleardoublepage
     \phantomsection
@@ -833,25 +849,23 @@
     \phantomsection
     \py@OldThebibliography{1}
   }
-\fi
+}
 
 % disable \@chappos in Appendix in pTeX
-\ifx\kanjiskip\undefined\else
+\spx@ifundefined{kanjiskip}{}{
   \let\py@OldAppendix=\appendix
   \renewcommand{\appendix}{
     \py@OldAppendix
     \gdef\@chappos{}
   }
-\fi
+}
 
 % Define literal-block environment
 \RequirePackage{newfloat}
 \DeclareFloatingEnvironment{literal-block}
-\ifx\c@chapter\undefined
-  \SetupFloatingEnvironment{literal-block}{within=section,placement=h}
-\else
-  \SetupFloatingEnvironment{literal-block}{within=chapter,placement=h}
-\fi
+\spx@ifundefined{c@chapter}
+  {\SetupFloatingEnvironment{literal-block}{within=section,placement=h}}
+  {\SetupFloatingEnvironment{literal-block}{within=chapter,placement=h}}
 \SetupFloatingEnvironment{literal-block}{name=List}
 % control caption around literal-block
 \RequirePackage{capt-of}
