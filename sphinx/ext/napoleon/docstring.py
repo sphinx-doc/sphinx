@@ -26,6 +26,7 @@ _directive_regex = re.compile(r'\.\. \S+::')
 _google_section_regex = re.compile(r'^(\s|\w)+:\s*$')
 _google_typed_arg_regex = re.compile(r'\s*(.+?)\s*\(\s*(.+?)\s*\)')
 _numpy_section_regex = re.compile(r'^[=\-`:\'"~^_*+#<>]{2,}\s*$')
+_single_colon_regex = re.compile(r'(?<!:):(?!:)')
 _xref_regex = re.compile(r'(:\w+:\S+:`.+?`|:\S+:`.+?`|`.+?`)')
 _bullet_list_regex = re.compile(r'^(\*|\+|\-)(\s+\S|\s*$)')
 _enumerated_list_regex = re.compile(
@@ -307,6 +308,19 @@ class GoogleDocstring(UnicodeMixin):
         else:
             return name
 
+    def _fix_field_desc(self, desc):
+        if self._is_list(desc):
+            desc = [''] + desc
+        elif desc[0].endswith('::'):
+            desc_block = desc[1:]
+            indent = self._get_indent(desc[0])
+            block_indent = self._get_initial_indent(desc_block)
+            if block_indent > indent:
+                desc = [''] + desc
+            else:
+                desc = ['', desc[0]] + self._indent(desc_block, 4)
+        return desc
+
     def _format_admonition(self, admonition, lines):
         lines = self._strip_empty(lines)
         if len(lines) == 1:
@@ -333,6 +347,22 @@ class GoogleDocstring(UnicodeMixin):
         else:
             return [prefix]
 
+    def _format_docutils_params(self, fields, field_role='param',
+                                type_role='type'):
+        lines = []
+        for _name, _type, _desc in fields:
+            _desc = self._strip_empty(_desc)
+            if any(_desc):
+                _desc = self._fix_field_desc(_desc)
+                field = ':%s %s: ' % (field_role, _name)
+                lines.extend(self._format_block(field, _desc))
+            else:
+                lines.append(':%s %s:' % (field_role, _name))
+
+            if _type:
+                lines.append(':%s %s: %s' % (type_role, _name, _type))
+        return lines + ['']
+
     def _format_field(self, _name, _type, _desc):
         _desc = self._strip_empty(_desc)
         has_desc = any(_desc)
@@ -354,9 +384,11 @@ class GoogleDocstring(UnicodeMixin):
             field = ''
 
         if has_desc:
-            if self._is_list(_desc):
-                return [field, ''] + _desc
-            return [field + _desc[0]] + _desc[1:]
+            _desc = self._fix_field_desc(_desc)
+            if _desc[0]:
+                return [field + _desc[0]] + _desc[1:]
+            else:
+                return [field] + _desc
         else:
             return [field]
 
@@ -392,6 +424,12 @@ class GoogleDocstring(UnicodeMixin):
             if not s.isspace():
                 return i
         return len(line)
+
+    def _get_initial_indent(self, lines):
+        for line in lines:
+            if line:
+                return self._get_indent(line)
+        return 0
 
     def _get_min_indent(self, lines):
         min_indent = None
@@ -529,11 +567,10 @@ class GoogleDocstring(UnicodeMixin):
     def _parse_keyword_arguments_section(self, section):
         fields = self._consume_fields()
         if self._config.napoleon_use_keyword:
-            return self._generate_docutils_params(
+            return self._format_docutils_params(
                 fields,
                 field_role="keyword",
-                type_role="kwtype"
-            )
+                type_role="kwtype")
         else:
             return self._format_fields('Keyword Arguments', fields)
 
@@ -560,25 +597,9 @@ class GoogleDocstring(UnicodeMixin):
     def _parse_parameters_section(self, section):
         fields = self._consume_fields()
         if self._config.napoleon_use_param:
-            return self._generate_docutils_params(fields)
+            return self._format_docutils_params(fields)
         else:
             return self._format_fields('Parameters', fields)
-
-    def _generate_docutils_params(self, fields, field_role='param', type_role='type'):
-        lines = []
-        for _name, _type, _desc in fields:
-            _desc = self._strip_empty(_desc)
-            if any(_desc):
-                if self._is_list(_desc):
-                    _desc = [''] + _desc
-                field = ':%s %s: ' % (field_role, _name)
-                lines.extend(self._format_block(field, _desc))
-            else:
-                lines.append(':%s %s:' % (field_role, _name))
-
-            if _type:
-                lines.append(':%s %s: %s' % (type_role, _name, _type))
-        return lines + ['']
 
     def _parse_raises_section(self, section):
         fields = self._consume_fields(parse_type=False, prefer_type=True)
@@ -678,11 +699,12 @@ class GoogleDocstring(UnicodeMixin):
             if found_colon:
                 after_colon.append(source)
             else:
-                if (i % 2) == 0 and ":" in source:
+                m = _single_colon_regex.search(source)
+                if (i % 2) == 0 and m:
                     found_colon = True
-                    before, colon, after = source.partition(":")
-                    before_colon.append(before)
-                    after_colon.append(after)
+                    colon = source[m.start(): m.end()]
+                    before_colon.append(source[:m.start()])
+                    after_colon.append(source[m.end():])
                 else:
                     before_colon.append(source)
 
