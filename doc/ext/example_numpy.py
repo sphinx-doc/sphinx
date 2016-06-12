@@ -37,6 +37,7 @@ module_level_variable1 : int
     one convention to document module level variables and be consistent
     with it.
 
+
 .. _NumPy Documentation HOWTO:
    https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 
