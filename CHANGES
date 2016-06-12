@@ -18,6 +18,7 @@ Bugs fixed
 * #2635: Latex code directives produce inconsistent frames based on viewing resolution
 * #2639: Sphinx now bundles iftex.sty
 * Failed to build PDF with framed.sty 0.95
+* Sphinx now bundles needspace.sty
 
 
 Release 1.4.3 (released Jun 5, 2016)
