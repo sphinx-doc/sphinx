@@ -209,6 +209,7 @@ class Config(object):
                            None),
         latex_logo = (None, None, string_classes),
         latex_appendices = ([], None),
+        latex_keep_old_macro_names = (True, None),
         # now deprecated - use latex_toplevel_sectioning
         latex_use_parts = (False, None),
         latex_toplevel_sectioning = (None, None, [str]),

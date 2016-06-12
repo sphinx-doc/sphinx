@@ -1,10 +1,16 @@
 Release 1.4.5 (in development)
 ==============================
 
+Features added
+--------------
+
+* new config option ``latex_keep_old_macro_names``, defaults to True. If False, let macros (for text styling) be defined only with ``\sphinx``-prefixed names.
+
 Bugs fixed
 ----------
 
 * #2676: (latex) Error with verbatim text in captions since Sphinx 1.4.4
+* #2629: memoir class crashes LaTeX. Fixed ``by latex_keep_old_macro_names=False`` (ref 2675)
 
 
 Release 1.4.4 (released Jun 12, 2016)

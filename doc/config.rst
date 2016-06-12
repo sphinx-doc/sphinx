@@ -1565,6 +1565,21 @@ These options influence LaTeX output.
       value selected the ``'inline'`` display.  For backwards compatibility,
       ``True`` is still accepted.
 
+.. confval:: latex_keep_old_macro_names
+
+   If ``True`` (default) the ``\strong``, ``\code``, ``\bfcode``, ``\email``,
+   ``\tablecontinued``, ``\titleref``, ``\menuselection``, ``\accelerator``,
+   ``\crossref``, ``\termref``, and ``\optional`` text styling macros are
+   pre-defined by Sphinx and may be user-customized by some
+   ``\renewcommand``'s inserted either via ``'preamble'`` key or :dudir:`raw
+   <raw-data-pass-through>` directive. If ``False``, only ``\sphinxstrong``,
+   etc... macros are defined (and may be redefined by user). Setting to
+   ``False`` may help solve macro name conflicts caused by user-added latex
+   packages.
+
+   .. versionadded:: 1.4.5
+
+
 .. confval:: latex_elements
 
    .. versionadded:: 0.5
