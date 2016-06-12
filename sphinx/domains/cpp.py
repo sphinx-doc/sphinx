@@ -3800,6 +3800,15 @@ class CPPObject(ObjectDescription):
         self.describe_signature(signode, ast)
         return ast
 
+    def before_content(self):
+        lastSymbol = self.env.ref_context['cpp:last_symbol']
+        assert lastSymbol
+        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
+        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
+
+    def after_content(self):
+        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
+
 
 class CPPTypeObject(CPPObject):
     def get_index_text(self, name):
@@ -3838,15 +3847,6 @@ class CPPClassObject(CPPObject):
     def get_index_text(self, name):
         return _('%s (C++ class)') % name
 
-    def before_content(self):
-        lastSymbol = self.env.ref_context['cpp:last_symbol']
-        assert lastSymbol
-        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
-        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
-
-    def after_content(self):
-        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
-
     def parse_definition(self, parser):
         return parser.parse_declaration("class")
 
@@ -3857,15 +3857,6 @@ class CPPClassObject(CPPObject):
 class CPPEnumObject(CPPObject):
     def get_index_text(self, name):
         return _('%s (C++ enum)') % name
-
-    def before_content(self):
-        lastSymbol = self.env.ref_context['cpp:last_symbol']
-        assert lastSymbol
-        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
-        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
-
-    def after_content(self):
-        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
 
     def parse_definition(self, parser):
         ast = parser.parse_declaration("enum")
