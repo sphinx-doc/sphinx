@@ -29,8 +29,15 @@ Documentation
 -------------
 
 
-Release 1.4.4 (in development)
+Release 1.4.5 (in development)
 ==============================
+
+Bugs fixed
+----------
+
+
+Release 1.4.4 (released Jun 12, 2016)
+=====================================
 
 Bugs fixed
 ----------
@@ -48,6 +55,8 @@ Bugs fixed
 * latex: allow code-blocks appearing inside lists and quotes at maximal nesting depth (ref #777, #2624, #2651)
 * #2635: Latex code directives produce inconsistent frames based on viewing resolution
 * #2639: Sphinx now bundles iftex.sty
+* Failed to build PDF with framed.sty 0.95
+* Sphinx now bundles needspace.sty
 
 
 Release 1.4.3 (released Jun 5, 2016)
