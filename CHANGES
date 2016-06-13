@@ -30,6 +30,9 @@ Features added
   the ``visit_emphasis`` will output ``\sphinxstyleemphasis`` rather than
   ``\emph`` (which may be in use elsewhere or in an added LaTeX package). See
   list at end of ``sphinx.sty`` (ref: #2686)
+* public names for latex environments and parameters used by note, warning,
+  and other admonition types, allowing full customizability from the
+  ``'preamble'`` key (ref: feature request #2674, #2685)
 
 Bugs fixed
 ----------

@@ -540,12 +540,56 @@
 }
 
 % Notices / Admonitions
-%
 
+% Some are quite plain
+\newenvironment{sphinxlightbox}{%
+  \par\allowbreak
+  \noindent{\color{spx@notice@bordercolor}%
+            \rule{\linewidth}{\spx@notice@border}}\par\nobreak
+  {\parskip\z@skip\noindent}%
+  }
+  {%
+  \par
+  % counteract previous possible negative skip (French lists!):
+  % (we can't cancel that any earlier \vskip introduced a potential pagebreak)
+  \ifdim\lastskip<\z@\vskip-\lastskip\fi
+  \nobreak\vbox{\noindent\kern\@totalleftmargin
+      {\color{spx@notice@bordercolor}%
+       \rule[\dimexpr.4\baselineskip-\spx@notice@border\relax]
+             {\linewidth}{\spx@notice@border}}\hss}\allowbreak
+  }% end of sphinxlightbox environment definition
+% may be renewenvironment'd by user for complete customization
+\newenvironment{sphinxnote}[1]
+  {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
+\newenvironment{sphinxhint}[1]
+  {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
+\newenvironment{sphinximportant}[1]
+  {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
+\newenvironment{sphinxtip}[1]
+  {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
+% or user may just customize the bordercolor and the border width
+% re-use \definecolor if change needed, and \renewcommand for rule width
+\definecolor{sphinxnotebordercolor}{rgb}{0,0,0}
+\definecolor{sphinxhintbordercolor}{rgb}{0,0,0}
+\definecolor{sphinximportantbordercolor}{rgb}{0,0,0}
+\definecolor{sphinxtipbordercolor}{rgb}{0,0,0}
+\newcommand{\sphinxnoteborder}{0.5pt}
+\newcommand{\sphinxhintborder}{0.5pt}
+\newcommand{\sphinximportantborder}{0.5pt}
+\newcommand{\sphinxtipborder}{0.5pt}
+% these are needed for common handling by notice environment of lightbox
+% and heavybox but they are  currently not used by lightbox environment
+\definecolor{sphinxnotebgcolor}{rgb}{1,1,1}
+\definecolor{sphinxhintbgcolor}{rgb}{1,1,1}
+\definecolor{sphinximportantbgcolor}{rgb}{1,1,1}
+\definecolor{sphinxtipbgcolor}{rgb}{1,1,1}
+
+% Others get more distinction
+\newdimen\spx@notice@border
 % Code adapted from framed.sty's "snugshade" environment.
 % Nesting works (inner frames do not allow page breaks).
-\newcommand{\py@heavybox}{\par
-   \setlength{\FrameRule}{\p@}% 1pt
+\newenvironment{sphinxheavybox}{\par
+   \setlength{\FrameRule}{\spx@notice@border}%
    \setlength{\FrameSep}{\dimexpr.6\baselineskip-\FrameRule\relax}
    % configure framed.sty's parameters to obtain same vertical spacing
    % as for "light" boxes. We need for this to manually insert parskip glue and
@@ -554,7 +598,8 @@
     \vspace{\FrameHeightAdjust}
    % copied/adapted from framed.sty's snugshade
    \def\FrameCommand##1{\hskip\@totalleftmargin
-       \fboxsep\FrameSep \fboxrule\FrameRule\fbox{##1}%
+       \fboxsep\FrameSep \fboxrule\FrameRule
+       \fcolorbox{spx@notice@bordercolor}{spx@notice@bgcolor}{##1}%
        \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
    % use a minipage if we are already inside a framed environment
    \ifspx@inframed
@@ -578,7 +623,7 @@
      \@minipagerestore
      \@setminipage }%
    }
-\newcommand{\py@endheavybox}{%
+   {%
    \par\unskip
    % handles footnotes
    \ifvoid\@mpfootins\else
@@ -589,49 +634,55 @@
    \ifspx@inframed\end{minipage}\fi
    % arrange for similar spacing below frame as for "light" boxes.
    \vskip .4\baselineskip
-   }
+   }% end of sphinxheavybox environment definition
+% may be renewenvironment'd by user for complete customization
+\newenvironment{sphinxwarning}[1]
+  {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
+\newenvironment{sphinxcaution}[1]
+  {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
+\newenvironment{sphinxattention}[1]
+  {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
+\newenvironment{sphinxdanger}[1]
+  {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
+\newenvironment{sphinxerror}[1]
+  {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
+% or just re-do \definecolor for colours, \renewcommand for frame width
+\definecolor{sphinxwarningbordercolor}{rgb}{0,0,0}
+\definecolor{sphinxcautionbordercolor}{rgb}{0,0,0}
+\definecolor{sphinxattentionbordercolor}{rgb}{0,0,0}
+\definecolor{sphinxdangerbordercolor}{rgb}{0,0,0}
+\definecolor{sphinxerrorbordercolor}{rgb}{0,0,0}
+\definecolor{sphinxwarningbgcolor}{rgb}{1,1,1}
+\definecolor{sphinxcautionbgcolor}{rgb}{1,1,1}
+\definecolor{sphinxattentionbgcolor}{rgb}{1,1,1}
+\definecolor{sphinxdangerbgcolor}{rgb}{1,1,1}
+\definecolor{sphinxerrorbgcolor}{rgb}{1,1,1}
+\newcommand{\sphinxwarningborder}{1pt}
+\newcommand{\sphinxcautionborder}{1pt}
+\newcommand{\sphinxattentionborder}{1pt}
+\newcommand{\sphinxdangerborder}{1pt}
+\newcommand{\sphinxerrorborder}{1pt}
 
-\newcommand{\py@lightbox}{%
-  \par\allowbreak
-  \noindent\rule{\linewidth}{0.5pt}\par\nobreak
-  {\parskip\z@skip\noindent}%
-  }
-\newcommand{\py@endlightbox}{%
-  \par
-  % counteract previous possible negative skip (French lists!):
-  % (we can't cancel that any earlier \vskip introduced a potential pagebreak)
-  \ifdim\lastskip<\z@\vskip-\lastskip\fi
-  \nobreak\vbox{\noindent\kern\@totalleftmargin
-           \rule[.4\baselineskip]{\linewidth}{0.5pt}\hss}\allowbreak
-  }
+% the \colorlet of xcolor (if at all loaded) is overkill for our use case
+\newcommand{\sphinxcolorlet}[2]
+    {\expandafter\let\csname\@backslashchar color@#1\expandafter\endcsname
+                     \csname\@backslashchar color@#2\endcsname }
 
-% Some are quite plain:
-\newcommand{\py@noticestart@note}{\py@lightbox}
-\newcommand{\py@noticeend@note}{\py@endlightbox}
-\newcommand{\py@noticestart@hint}{\py@lightbox}
-\newcommand{\py@noticeend@hint}{\py@endlightbox}
-\newcommand{\py@noticestart@important}{\py@lightbox}
-\newcommand{\py@noticeend@important}{\py@endlightbox}
-\newcommand{\py@noticestart@tip}{\py@lightbox}
-\newcommand{\py@noticeend@tip}{\py@endlightbox}
-
-% Others gets more visible distinction:
-\newcommand{\py@noticestart@warning}{\py@heavybox}
-\newcommand{\py@noticeend@warning}{\py@endheavybox}
-\newcommand{\py@noticestart@caution}{\py@heavybox}
-\newcommand{\py@noticeend@caution}{\py@endheavybox}
-\newcommand{\py@noticestart@attention}{\py@heavybox}
-\newcommand{\py@noticeend@attention}{\py@endheavybox}
-\newcommand{\py@noticestart@danger}{\py@heavybox}
-\newcommand{\py@noticeend@danger}{\py@endheavybox}
-\newcommand{\py@noticestart@error}{\py@heavybox}
-\newcommand{\py@noticeend@error}{\py@endheavybox}
-
-\newenvironment{notice}[2]{
-  \def\py@noticetype{#1}
-  \csname py@noticestart@#1\endcsname
-  \sphinxstrong{#2} % <- legacy code creates a space after {#2}
-}{\csname py@noticeend@\py@noticetype\endcsname}
+% the main dispatch for all types of notices
+\newenvironment{sphinxadmonition}{\begin{notice}}{\end{notice}}
+% use of ``notice'' is for backwards compatibility and will be removed in
+% future release; sphinxadmonition environment will be defined directly.
+\newenvironment{notice}[2]{% #1=type, #2=heading
+  % can't use #1 directly in definition of end part
+  \def\spx@noticetype {#1}%
+  % set parameters of heavybox/lightbox
+  \sphinxcolorlet{spx@notice@bordercolor}{sphinx#1bordercolor}%
+  \sphinxcolorlet{spx@notice@bgcolor}{sphinx#1bgcolor}%
+  \setlength\spx@notice@border {\dimexpr\csname sphinx#1border\endcsname\relax}%
+  % start specific environment, passing the heading as argument
+  \begin{sphinx#1}{#2}}
+  % in end part, need to go around a LaTeX's "feature"
+ {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
 
 % Allow the release number to be specified independently of the
 % \date{}.  This allows the date to reflect the document's date and

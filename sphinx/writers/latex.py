@@ -1533,19 +1533,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('}')
 
     def visit_admonition(self, node):
-        self.body.append('\n\\begin{notice}{note}')
+        self.body.append('\n\\begin{sphinxadmonition}{note}')
 
     def depart_admonition(self, node):
-        self.body.append('\\end{notice}\n')
+        self.body.append('\\end{sphinxadmonition}\n')
 
     def _make_visit_admonition(name):
         def visit_admonition(self, node):
-            self.body.append(u'\n\\begin{notice}{%s}{%s:}' %
+            self.body.append(u'\n\\begin{sphinxadmonition}{%s}{%s:}' %
                              (name, admonitionlabels[name]))
         return visit_admonition
 
     def _depart_named_admonition(self, node):
-        self.body.append('\\end{notice}\n')
+        self.body.append('\\end{sphinxadmonition}\n')
 
     visit_attention = _make_visit_admonition('attention')
     depart_attention = _depart_named_admonition
