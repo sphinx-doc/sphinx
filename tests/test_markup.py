@@ -93,32 +93,32 @@ def test_inline():
     # correct interpretation of code with whitespace
     _html = ('<p><code class="(samp )?docutils literal"><span class="pre">'
              'code</span>&nbsp;&nbsp; <span class="pre">sample</span></code></p>')
-    yield verify_re, '``code   sample``', _html, r'\\code{code   sample}'
-    yield verify_re, ':samp:`code   sample`', _html, r'\\code{code   sample}'
+    yield verify_re, '``code   sample``', _html, r'\\sphinxcode{code   sample}'
+    yield verify_re, ':samp:`code   sample`', _html, r'\\sphinxcode{code   sample}'
 
     # interpolation of braces in samp and file roles (HTML only)
     yield (verify, ':samp:`a{b}c`',
            '<p><code class="samp docutils literal"><span class="pre">a</span>'
            '<em><span class="pre">b</span></em>'
            '<span class="pre">c</span></code></p>',
-           '\\code{a\\emph{b}c}')
+           '\\sphinxcode{a\\emph{b}c}')
 
     # interpolation of arrows in menuselection
     yield (verify, ':menuselection:`a --> b`',
            u'<p><span class="menuselection">a \N{TRIANGULAR BULLET} b</span></p>',
-           '\\menuselection{a \\(\\rightarrow\\) b}')
+           '\\sphinxmenuselection{a \\(\\rightarrow\\) b}')
 
     # interpolation of ampersands in guilabel/menuselection
     yield (verify, ':guilabel:`&Foo -&&- &Bar`',
            u'<p><span class="guilabel"><span class="accelerator">F</span>oo '
            '-&amp;- <span class="accelerator">B</span>ar</span></p>',
-           r'\menuselection{\accelerator{F}oo -\&- \accelerator{B}ar}')
+           r'\sphinxmenuselection{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}')
 
     # non-interpolation of dashes in option role
     yield (verify_re, ':option:`--with-option`',
            '<p><code( class="xref std std-option docutils literal")?>'
            '<span class="pre">--with-option</span></code></p>$',
-           r'\\code{-{-}with-option}$')
+           r'\\sphinxcode{-{-}with-option}$')
 
     # verify smarty-pants quotes
     yield verify, '"John"', '<p>&#8220;John&#8221;</p>', "``John''"
@@ -126,7 +126,7 @@ def test_inline():
     yield (verify, '``"John"``',
            '<p><code class="docutils literal"><span class="pre">'
            '&quot;John&quot;</span></code></p>',
-           '\\code{"John"}')
+           '\\sphinxcode{"John"}')
 
     # verify classes for inline roles
     yield (verify, ':manpage:`mp(1)`',
@@ -140,9 +140,9 @@ def test_latex_escaping():
            r'\(\Gamma\)\textbackslash{}\(\infty\)\$')
     # in verbatim code fragments
     yield (verify, u'::\n\n @Γ\\∞${}', None,
-           u'\\begin{SphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
+           u'\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
            u'@\\(\\Gamma\\)\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
-           u'\\end{SphinxVerbatim}')
+           u'\\end{sphinxVerbatim}')
     # in URIs
     yield (verify_re, u'`test <http://example.com/~me/>`_', None,
            r'\\href{http://example.com/~me/}{test}.*')
