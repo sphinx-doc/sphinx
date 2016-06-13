@@ -706,22 +706,25 @@
  \raggedright}
 {\end{list}}
 
-% Redefine \includegraphics to resize images larger than the line width
-% if the size is not specified.
+% Redefine includgraphics for avoiding images larger than the screen size
+% If the size is not specified.
 \let\py@Oldincludegraphics\includegraphics
-\newbox\spx@image@box
-\renewcommand\includegraphics[2][\hfuzz]{%
-  \noindent
-  \ifx\hfuzz #1%
-    \setbox\spx@image@box=\hbox{\py@Oldincludegraphics{#2}}%
-    \ifdim \wd\spx@image@box>\linewidth
-      \py@Oldincludegraphics[width=\linewidth]{#2}%
-    \else
-      \box\spx@image@box
-    \fi
-  \else
+
+\newbox\image@box%
+\newdimen\image@width%
+\renewcommand\includegraphics[2][\@empty]{%
+  \ifx#1\@empty%
+    \setbox\image@box=\hbox{\py@Oldincludegraphics{#2}}%
+    \image@width\wd\image@box%
+    \ifdim \image@width>\linewidth%
+      \setbox\image@box=\hbox{\py@Oldincludegraphics[width=\linewidth]{#2}}%
+      \box\image@box%
+    \else%
+      \py@Oldincludegraphics{#2}%
+    \fi%
+  \else%
     \py@Oldincludegraphics[#1]{#2}%
-  \fi
+  \fi%
 }
 
 % to make pdf with correct encoded bookmarks in Japanese
