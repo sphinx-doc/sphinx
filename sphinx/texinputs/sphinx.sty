@@ -608,7 +608,7 @@
 \newcommand{\py@noticestart@error}{\py@heavybox}
 \newcommand{\py@noticeend@error}{\py@endheavybox}
 
-\newenvironment{sphinxnotice}[2]{
+\newenvironment{notice}[2]{
   \def\py@noticetype{#1}
   \csname py@noticestart@#1\endcsname
   \sphinxstrong{#2} % <- legacy code creates a space after {#2}
