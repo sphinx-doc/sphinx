@@ -866,10 +866,9 @@
    \spx@originalcaption }
 
 % by default, also define macros with the no-prefix names
-\ifsphinxAlsoNoPrefixMacros
-  \typeout{(sphinx) defining (legacy) text style macros without \string\sphinx\space prefix}
-  \typeout{if clashes with other packages, set latex_macroswithprefix=True in conf.py}
-  \typeout{}
+\ifsphinxOnlyWithPrefix\else
+  \typeout{** (sphinx) defining (legacy) text style macros without \string\sphinx\space prefix}
+  \typeout{** if clashes with packages, set latex_macros_onlywithprefix=True in conf.py}
   \@for\@tempa:=strong,code,bfcode,email,tablecontinued,titleref,%
                 menuselection,accelerator,crossref,termref,optional\do
 {% first check if command with no prefix already exists

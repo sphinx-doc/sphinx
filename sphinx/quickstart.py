@@ -359,6 +359,10 @@ latex_documents = [
 #
 # latex_appendices = []
 
+# It true, will not define \strong, \code, \titleref, \crossref ... but only
+# \sphinxstrong, ..., \sphinxtitleref, ... to avoid clash with packages.
+# latex_macros_onlywithprefix = False
+
 # If false, no module index is generated.
 #
 # latex_domain_indices = True
