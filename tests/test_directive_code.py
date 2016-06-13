@@ -65,8 +65,8 @@ def test_code_block_caption_html(app, status, warning):
 def test_code_block_caption_latex(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
-    caption = '\\SPXSetupCaptionForVerbatim{literal-block}{caption \\emph{test} rb}'
-    label = '\\def\\SPXLiteralBlockLabel{\\label{caption:caption-test-rb}}'
+    caption = '\\sphinxSetupCaptionForVerbatim{literal-block}{caption \\emph{test} rb}'
+    label = '\\def\\sphinxLiteralBlockLabel{\\label{caption:caption-test-rb}}'
     link  = '\hyperref[caption:caption-test-rb]' \
             '{Listing \\ref{caption:caption-test-rb}}'
     assert caption in latex
@@ -78,12 +78,12 @@ def test_code_block_caption_latex(app, status, warning):
 def test_code_block_namedlink_latex(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
-    label1 = '\def\SPXLiteralBlockLabel{\label{caption:name-test-rb}}'
+    label1 = '\def\sphinxLiteralBlockLabel{\label{caption:name-test-rb}}'
     link1  = '\\hyperref[caption:name\\string-test\\string-rb]'\
-             '{\\SPXcrossref{\\DUrole{std,std-ref}{Ruby}}'
-    label2 = '\def\SPXLiteralBlockLabel{\label{namedblocks:some-ruby-code}}'
+             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Ruby}}'
+    label2 = '\def\sphinxLiteralBlockLabel{\label{namedblocks:some-ruby-code}}'
     link2  = '\\hyperref[namedblocks:some\\string-ruby\\string-code]'\
-             '{\\SPXcrossref{\\DUrole{std,std-ref}{the ruby code}}}'
+             '{\\sphinxcrossref{\\DUrole{std,std-ref}{the ruby code}}}'
     assert label1 in latex
     assert link1 in latex
     assert label2 in latex
@@ -228,12 +228,12 @@ def test_literalinclude_file_whole_of_emptyline(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8').replace('\r\n', '\n')
     includes = (
-        '\\begin{SPXVerbatim}'
+        '\\begin{sphinxVerbatim}'
         '[commandchars=\\\\\\{\\},numbers=left,firstnumber=1,stepnumber=1]\n'
         '\n'
         '\n'
         '\n'
-        '\\end{SPXVerbatim}\n')
+        '\\end{sphinxVerbatim}\n')
     assert includes in latex
 
 
@@ -253,8 +253,8 @@ def test_literalinclude_caption_html(app, status, warning):
 def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
-    caption = '\\SPXSetupCaptionForVerbatim{literal-block}{caption \\textbf{test} py}'
-    label = '\\def\\SPXLiteralBlockLabel{\\label{caption:caption-test-py}}'
+    caption = '\\sphinxSetupCaptionForVerbatim{literal-block}{caption \\textbf{test} py}'
+    label = '\\def\\sphinxLiteralBlockLabel{\\label{caption:caption-test-py}}'
     link  = '\hyperref[caption:caption-test-py]' \
             '{Listing \\ref{caption:caption-test-py}}'
     assert caption in latex
@@ -266,12 +266,12 @@ def test_literalinclude_caption_latex(app, status, warning):
 def test_literalinclude_namedlink_latex(app, status, warning):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
-    label1 = '\def\SPXLiteralBlockLabel{\label{caption:name-test-py}}'
+    label1 = '\def\sphinxLiteralBlockLabel{\label{caption:name-test-py}}'
     link1  = '\\hyperref[caption:name\\string-test\\string-py]'\
-             '{\\SPXcrossref{\\DUrole{std,std-ref}{Python}}'
-    label2 = '\def\SPXLiteralBlockLabel{\label{namedblocks:some-python-code}}'
+             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Python}}'
+    label2 = '\def\sphinxLiteralBlockLabel{\label{namedblocks:some-python-code}}'
     link2  = '\\hyperref[namedblocks:some\\string-python\\string-code]'\
-             '{\\SPXcrossref{\\DUrole{std,std-ref}{the python code}}}'
+             '{\\sphinxcrossref{\\DUrole{std,std-ref}{the python code}}}'
     assert label1 in latex
     assert link1 in latex
     assert label2 in latex

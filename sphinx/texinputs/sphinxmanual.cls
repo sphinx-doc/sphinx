@@ -61,7 +61,7 @@
       \sphinxlogo
       \py@HeaderFamily
       {\Huge \@title \par}
-      {\itshape\LARGE \py@release\SPXreleaseinfo \par}
+      {\itshape\LARGE \py@release\releaseinfo \par}
       \vfill
       {\LARGE
         \begin{tabular}[t]{c}
