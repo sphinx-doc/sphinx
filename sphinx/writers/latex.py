@@ -408,7 +408,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
                                                 language=builder.config.language)
         if builder.config.latex_logo:
-            self.elements['logo'] = '\\includegraphics{%s}\\par' % \
+            # no need for \\noindent here, used in flushright
+            self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
                                     path.basename(builder.config.latex_logo)
         # setup babel
         self.babel = ExtBabel(builder.config.language)
@@ -1407,8 +1408,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             except KeyError:
                 pass
         if not is_inline:
-            pre.append('\n')
-            post.append('\n')
+            if isinstance(node.parent, nodes.section):
+                pre.append('\n\\noindent')
+                post.append('\n')
+            else:
+                pre.append('\n')
+                post.append('\n')
         pre.reverse()
         if node['uri'] in self.builder.images:
             uri = self.builder.images[node['uri']]
@@ -1425,7 +1430,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if include_graphics_options:
             options = '[%s]' % ','.join(include_graphics_options)
         base, ext = path.splitext(uri)
-        self.body.append('\\includegraphics%s{{%s}%s}' % (options, base, ext))
+        self.body.append('\\sphinxincludegraphics%s{{%s}%s}' % (options, base, ext))
         self.body.extend(post)
 
     def depart_image(self, node):
