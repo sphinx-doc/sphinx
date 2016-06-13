@@ -374,10 +374,13 @@
 }
 
 % define macro to frame contents and add shadow on right and bottom
-% use public names for customazibility
-\newcommand*\sphinxshadowsep     {5\p@}     % \p@ means "pt "
-\newcommand*\sphinxshadowsize    {4\p@}
-\newcommand*\sphinxshadowrule    {\fboxrule}% must be a dimen var or \dimexpr...\relax
+% use public names for customizable lengths
+\newlength\sphinxshadowsep  \setlength\sphinxshadowsep  {5pt}
+\newlength\sphinxshadowsize \setlength\sphinxshadowsize {4pt}
+\newlength\sphinxshadowrule
+% this uses \fboxrule value at loading time of sphinx.sty (0.4pt normally)
+\setlength\sphinxshadowrule {\fboxrule}
+
 \long\def\spx@ShadowFBox#1{%
   \leavevmode\begingroup
   % first we frame the box #1
@@ -681,7 +684,7 @@
 
 % The following is stuff copied from docutils' latex writer.
 %
-\newcommand{\optionlistlabel}[1]{\normalfont\bfseries #1 \hfill}
+\newcommand{\optionlistlabel}[1]{\normalfont\bfseries #1 \hfill}% \bf deprecated
 \newenvironment{optionlist}[1]
 {\begin{list}{}
   {\setlength{\labelwidth}{#1}
@@ -868,7 +871,7 @@
   \typeout{if clashes with other packages, set latex_macroswithprefix=True in conf.py}
   \typeout{}
   \@for\@tempa:=strong,code,bfcode,email,tablecontinued,titleref,%
-                menuselection,accelerator,crossref,termref,optional\do 
+                menuselection,accelerator,crossref,termref,optional\do
 {% first check if command with no prefix already exists
   \expandafter\newcommand\csname\@tempa\endcsname{}%
   % give it the meaning defined so far with \sphinx prefix
