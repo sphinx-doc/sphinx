@@ -4123,6 +4123,28 @@ class CPPDomain(Domain):
                                    matchSelf=True)
         if s is None or s.declaration is None:
             return None, None
+
+        if typ.startswith('cpp:'):
+            typ = typ[4:]
+        if typ == 'func':
+            typ = 'function'
+        declTyp = s.declaration.objectType
+
+        def checkType():
+            if typ == 'any':
+                return True
+            elif typ == 'var' or typ == 'member':
+                return declTyp == 'var' or declTyp == 'member'
+            elif typ in ['enum', 'enumerator', 'class', 'function']:
+                return declTyp == typ
+            elif typ == 'type':
+                return declTyp in ['enum', 'class', 'function', 'type']
+            else:
+                print("Type is %s" % typ)
+                assert False
+        if not checkType():
+            warner.warn("cpp:%s targets a %s." % (typ, s.declaration.objectType))
+
         declaration = s.declaration
         fullNestedName = s.get_full_nested_name()
         name = text_type(fullNestedName).lstrip(':')
