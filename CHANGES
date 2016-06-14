@@ -4,6 +4,8 @@ Release 1.4.5 (in development)
 Bugs fixed
 ----------
 
+* #2676: (latex) Error with verbatim text in captions since Sphinx 1.4.4
+
 
 Release 1.4.4 (released Jun 12, 2016)
 =====================================
