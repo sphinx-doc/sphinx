@@ -3738,7 +3738,7 @@ class CPPObject(ObjectDescription):
             id_v1 = None
         id_v2 = ast.get_id_v2()
         # store them in reverse order, so the newest is first
-        ids  = [id_v2, id_v1]
+        ids = [id_v2, id_v1]
 
         newestId = ids[0]
         assert newestId  # shouldn't be None
@@ -3759,8 +3759,14 @@ class CPPObject(ObjectDescription):
             else:
                 # print("[CPP] non-unique name:", name)
                 pass
-            for id in ids:
-                if id:  # is None when the element didn't exist in that version
+            # always add the newest id
+            assert newestId
+            signode['ids'].append(newestId)
+            # only add compatibility ids when there are no conflicts
+            for id in ids[1:]:
+                if not id:  # is None when the element didn't exist in that version
+                    continue
+                if id not in self.state.document.ids:
                     signode['ids'].append(id)
             signode['first'] = (not self.names)  # hmm, what is this abound?
             self.state.document.note_explicit_target(signode)
