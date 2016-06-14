@@ -2660,6 +2660,10 @@ class Symbol(object):
                 if symbol is None:
                     # TODO: maybe search without template args
                     return None
+                # We have now matched part of a nested name, and need to match more
+                # so even if we should matchSelf before, we definitely shouldn't
+                # even more. (see also issue #2666)
+                matchSelf = False
             parentSymbol = symbol
         assert False  # should have returned in the loop
 
@@ -4114,6 +4118,7 @@ class CPPDomain(Domain):
                                    matchSelf=True)
         if s is None or s.declaration is None:
             return None, None
+
         declaration = s.declaration
         fullNestedName = s.get_full_nested_name()
         name = text_type(fullNestedName).lstrip(':')

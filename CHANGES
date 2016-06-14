@@ -26,6 +26,7 @@ Bugs fixed
 * #2639: Sphinx now bundles iftex.sty
 * Failed to build PDF with framed.sty 0.95
 * Sphinx now bundles needspace.sty
+* #2666: C++, properly look up nested names involving constructors.
 
 
 Release 1.4.3 (released Jun 5, 2016)
