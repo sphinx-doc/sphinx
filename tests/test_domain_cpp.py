@@ -439,6 +439,8 @@ def test_templates():
           None, 'I00DpEMissingRequiresManglingN3xyz3barE')
     check('concept', 'Iterator{T, U} Another',
           None, 'I00EMissingRequiresMangling7Another')
+    check('concept', 'template<typename ...Pack> Numerics = (... && Numeric<Pack>)',
+          None, 'IDpE8Numerics')
 
 
 #def test_print():
