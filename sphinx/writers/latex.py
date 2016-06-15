@@ -1909,11 +1909,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.table.has_verbatim = True
             else:
                 hlcode = hlcode.replace('\\begin{Verbatim}',
-                                        '\\begin{SphinxVerbatim}')
+                                        '\\begin{sphinxVerbatim}')
             # get consistent trailer
             hlcode = hlcode.rstrip()[:-14]  # strip \end{Verbatim}
             self.body.append('\n' + hlcode + '\\end{%sVerbatim}\n' %
-                             ((not self.table) and 'Sphinx' or ''))
+                             ((not self.table) and 'sphinx' or ''))
             if ids:
                 self.body.append('\\let\\sphinxLiteralBlockLabel\empty\n')
             raise nodes.SkipNode

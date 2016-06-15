@@ -160,7 +160,7 @@
 % Support large numbered footnotes in minipage (cf. admonitions)
 \def\thempfootnote{\arabic{mpfootnote}}
 
-% Preparations for SphinxVerbatim environment, which is a wrapper of fancyvrb
+% Preparations for sphinxVerbatim environment, which is a wrapper of fancyvrb
 % Verbatim with framing allowing pagebreaks, with border and background colors
 % and possibly also a top caption, non separable by pagebreak. The original
 % fancyvrb Verbatim is still used within tables.
@@ -286,7 +286,7 @@
    \lccode`\~`\~
 }
 
-\newenvironment{SphinxVerbatim}[1][1]{%
+\newenvironment{sphinxVerbatim}[1][1]{%
   % quit horizontal mode if we are still in a paragraph
   \par
   % list starts new par, but we don't want it to be set apart vertically
@@ -336,7 +336,7 @@
                      {\kern\fontdimen2\font}%
        }%
   % go around fancyvrb's check of \@currenvir
-  \renewcommand*{\VerbatimEnvironment}{\gdef\FV@EnvironName{SphinxVerbatim}}%
+  \renewcommand*{\VerbatimEnvironment}{\gdef\FV@EnvironName{sphinxVerbatim}}%
   % go around fancyvrb's check of current list depth
   \def\@toodeep {\advance\@listdepth\@ne}%
   % Allow breaks at special characters using \PYG... macros.
