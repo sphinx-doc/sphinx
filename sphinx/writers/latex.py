@@ -405,7 +405,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
                                                 language=builder.config.language)
         if builder.config.latex_logo:
-            self.elements['logo'] = '\\includegraphics{%s}\\par' % \
+            self.elements['logo'] = '\\SPXincludegraphics{%s}\\par' % \
                                     path.basename(builder.config.latex_logo)
         # setup babel
         self.babel = ExtBabel(builder.config.language)
@@ -1437,7 +1437,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if include_graphics_options:
             options = '[%s]' % ','.join(include_graphics_options)
         base, ext = path.splitext(uri)
-        self.body.append('\\includegraphics%s{{%s}%s}' % (options, base, ext))
+        self.body.append('\\SPXincludegraphics%s{{%s}%s}' % (options, base, ext))
         self.body.extend(post)
 
     def depart_image(self, node):
