@@ -5,6 +5,7 @@ Features added
 --------------
 
 * new config option ``latex_keep_old_macro_names``, defaults to True. If False, let macros (for text styling) be defined only with ``\sphinx``-prefixed names.
+* latex writer allows user customization of "shadowed" boxes (topics), via three length variables
 
 Bugs fixed
 ----------

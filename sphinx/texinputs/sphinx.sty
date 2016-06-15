@@ -378,35 +378,39 @@
 }
 
 % define macro to frame contents and add shadow on right and bottom
-\def\spx@shadowsep     {5\p@}       % \p@ means "pt "
-\def\spx@shadowsize    {4\p@}
-\def\spx@shadowrule    {\fboxrule}
+% use public names for customizable lengths
+\newlength\sphinxshadowsep  \setlength\sphinxshadowsep  {5pt}
+\newlength\sphinxshadowsize \setlength\sphinxshadowsize {4pt}
+\newlength\sphinxshadowrule
+% this uses \fboxrule value at loading time of sphinx.sty (0.4pt normally)
+\setlength\sphinxshadowrule {\fboxrule}
+
 \long\def\spx@ShadowFBox#1{%
   \leavevmode\begingroup
   % first we frame the box #1
   \setbox\@tempboxa
-   \hbox{\vrule\@width\spx@shadowrule
-         \vbox{\hrule\@height\spx@shadowrule
-               \kern\spx@shadowsep
-               \hbox{\kern\spx@shadowsep #1\kern\spx@shadowsep}%
-               \kern\spx@shadowsep
-               \hrule\@height\spx@shadowrule}%
-         \vrule\@width\spx@shadowrule}%
+   \hbox{\vrule\@width\sphinxshadowrule
+         \vbox{\hrule\@height\sphinxshadowrule
+               \kern\sphinxshadowsep
+               \hbox{\kern\sphinxshadowsep #1\kern\sphinxshadowsep}%
+               \kern\sphinxshadowsep
+               \hrule\@height\sphinxshadowrule}%
+         \vrule\@width\sphinxshadowrule}%
   % Now we add the shadow, like \shadowbox from fancybox.sty would do
-  \dimen@\dimexpr.5\spx@shadowrule+\spx@shadowsize\relax
+  \dimen@\dimexpr.5\sphinxshadowrule+\sphinxshadowsize\relax
   \hbox{\vbox{\offinterlineskip
-              \hbox{\copy\@tempboxa\kern-.5\spx@shadowrule
+              \hbox{\copy\@tempboxa\kern-.5\sphinxshadowrule
                     % add shadow on right side
-                    \lower\spx@shadowsize
+                    \lower\sphinxshadowsize
                           \hbox{\vrule\@height\ht\@tempboxa \@width\dimen@}%
                     }%
               \kern-\dimen@ % shift back vertically to bottom of frame
               % and add shadow at bottom
-              \moveright\spx@shadowsize
+              \moveright\sphinxshadowsize
                     \vbox{\hrule\@width\wd\@tempboxa \@height\dimen@}%
               }%
         % move left by the size of right shadow so shadow adds no width
-        \kern-\spx@shadowsize
+        \kern-\sphinxshadowsize
        }%
   \endgroup
 }
