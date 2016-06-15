@@ -2660,6 +2660,10 @@ class Symbol(object):
                 if symbol is None:
                     # TODO: maybe search without template args
                     return None
+                # We have now matched part of a nested name, and need to match more
+                # so even if we should matchSelf before, we definitely shouldn't
+                # even more. (see also issue #2666)
+                matchSelf = False
             parentSymbol = symbol
         assert False  # should have returned in the loop
 
@@ -3734,7 +3738,7 @@ class CPPObject(ObjectDescription):
             id_v1 = None
         id_v2 = ast.get_id_v2()
         # store them in reverse order, so the newest is first
-        ids  = [id_v2, id_v1]
+        ids = [id_v2, id_v1]
 
         newestId = ids[0]
         assert newestId  # shouldn't be None
@@ -3755,8 +3759,14 @@ class CPPObject(ObjectDescription):
             else:
                 # print("[CPP] non-unique name:", name)
                 pass
-            for id in ids:
-                if id:  # is None when the element didn't exist in that version
+            # always add the newest id
+            assert newestId
+            signode['ids'].append(newestId)
+            # only add compatibility ids when there are no conflicts
+            for id in ids[1:]:
+                if not id:  # is None when the element didn't exist in that version
+                    continue
+                if id not in self.state.document.ids:
                     signode['ids'].append(id)
             signode['first'] = (not self.names)  # hmm, what is this abound?
             self.state.document.note_explicit_target(signode)
@@ -3800,6 +3810,15 @@ class CPPObject(ObjectDescription):
         self.describe_signature(signode, ast)
         return ast
 
+    def before_content(self):
+        lastSymbol = self.env.ref_context['cpp:last_symbol']
+        assert lastSymbol
+        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
+        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
+
+    def after_content(self):
+        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
+
 
 class CPPTypeObject(CPPObject):
     def get_index_text(self, name):
@@ -3838,15 +3857,6 @@ class CPPClassObject(CPPObject):
     def get_index_text(self, name):
         return _('%s (C++ class)') % name
 
-    def before_content(self):
-        lastSymbol = self.env.ref_context['cpp:last_symbol']
-        assert lastSymbol
-        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
-        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
-
-    def after_content(self):
-        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
-
     def parse_definition(self, parser):
         return parser.parse_declaration("class")
 
@@ -3857,15 +3867,6 @@ class CPPClassObject(CPPObject):
 class CPPEnumObject(CPPObject):
     def get_index_text(self, name):
         return _('%s (C++ enum)') % name
-
-    def before_content(self):
-        lastSymbol = self.env.ref_context['cpp:last_symbol']
-        assert lastSymbol
-        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
-        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
-
-    def after_content(self):
-        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
 
     def parse_definition(self, parser):
         ast = parser.parse_declaration("enum")

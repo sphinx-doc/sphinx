@@ -34,8 +34,17 @@ Documentation
 Release 1.4.5 (in development)
 ==============================
 
+Features added
+--------------
+
+* new config option ``latex_keep_old_macro_names``, defaults to True. If False, let macros (for text styling) be defined only with ``\sphinx``-prefixed names.
+* latex writer allows user customization of "shadowed" boxes (topics), via three length variables
+
 Bugs fixed
 ----------
+
+* #2676: (latex) Error with verbatim text in captions since Sphinx 1.4.4
+* #2629: memoir class crashes LaTeX. Fixed ``by latex_keep_old_macro_names=False`` (ref 2675)
 
 
 Release 1.4.4 (released Jun 12, 2016)
@@ -59,6 +68,7 @@ Bugs fixed
 * #2639: Sphinx now bundles iftex.sty
 * Failed to build PDF with framed.sty 0.95
 * Sphinx now bundles needspace.sty
+* #2666: C++, properly look up nested names involving constructors.
 
 
 Release 1.4.3 (released Jun 5, 2016)

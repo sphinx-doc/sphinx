@@ -359,6 +359,12 @@ latex_documents = [
 #
 # latex_appendices = []
 
+# It false, will not define \strong, \code, \titleref, \crossref ... but only
+# \sphinxstrong, ..., \sphinxtitleref, ... To help avoid clash with user added
+# packages.
+#
+# latex_keep_old_macro_names = True
+
 # If false, no module index is generated.
 #
 # latex_domain_indices = True
