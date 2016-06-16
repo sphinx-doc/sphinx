@@ -9,10 +9,8 @@
 \ProvidesPackage{sphinx}[2010/01/15 LaTeX package (Sphinx markup)]
 
 % this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
-% hyperref.sty, but we may need it before, and besides the first ltxcmds.sty
-% as in TL2009/Debian had wrong definition. To be used if a doubt exists some
-% package may have done \@ifundefined{foo}, hence a later \ifx\foo\undefined
-% may be invalidated, as formerly undefined \foo would have become \relax.
+% hyperref.sty, but we need it before, and initial ltxcmds.sty
+% as in TL2009/Debian had wrong definition.
 \newcommand{\spx@ifundefined}[1]{%
     \ifcsname #1\endcsname
       \expandafter\ifx\csname #1\endcsname\relax
@@ -79,15 +77,15 @@
 
 % use pdfoutput for pTeX and dvipdfmx
 % when pTeX (\kanjiskip is defined), set pdfoutput to evade \include{pdfcolor}
-\spx@ifundefined{kanjiskip}{}{
+\ifx\kanjiskip\undefined\else
   \newcount\pdfoutput\pdfoutput=0
-}
+\fi
 
 \RequirePackage{graphicx}
 
 % for PDF output, use colors and maximal compression
 \newif\ifsphinxpdfoutput % used in \maketitle
-\spx@ifundefined{pdfoutput}{}{
+\ifx\pdfoutput\undefined\else
  \ifnum\pdfoutput=\z@
   \let\py@NormalColor\relax
   \let\py@TitleColor\relax
@@ -98,13 +96,13 @@
   \def\py@TitleColor{\color{TitleColor}}
   \pdfcompresslevel=9
  \fi
-}
+\fi
 
 % XeLaTeX can do colors, too
-\spx@ifundefined{XeTeXrevision}{}{
+\ifx\XeTeXrevision\undefined\else
   \def\py@NormalColor{\color[rgb]{0.0,0.0,0.0}}
   \def\py@TitleColor{\color{TitleColor}}
-}
+\fi
 
 % Increase printable page size (copied from fullpage.sty)
 \topmargin 0pt
@@ -751,19 +749,21 @@
 
 % to make pdf with correct encoded bookmarks in Japanese
 % this should precede the hyperref package
-\spx@ifundefined{kanjiskip}{
+\ifx\kanjiskip\undefined
 % for non-Japanese: make sure bookmarks are ok also with lualatex
   \PassOptionsToPackage{pdfencoding=unicode}{hyperref}
-}{
+\else
   \usepackage{atbegshi}
-  \spx@ifundefined{ucs}
-    {\ifnum 42146=\euc"A4A2
+  \ifx\ucs\undefined
+    \ifnum 42146=\euc"A4A2
       \AtBeginShipoutFirst{\special{pdf:tounicode EUC-UCS2}}
     \else
       \AtBeginShipoutFirst{\special{pdf:tounicode 90ms-RKSJ-UCS2}}
-    \fi}
-    {\AtBeginShipoutFirst{\special{pdf:tounicode UTF8-UCS2}}}
-}
+    \fi
+  \else
+    \AtBeginShipoutFirst{\special{pdf:tounicode UTF8-UCS2}}
+  \fi
+\fi
 
 % Include hyperref last.
 \RequirePackage[colorlinks,breaklinks,
@@ -798,7 +798,7 @@
 }
 
 \DUprovidelength{\DUlineblockindent}{2.5em}
-\spx@ifundefined{DUlineblock}{
+\ifdefined\DUlineblock\else
   \newenvironment{DUlineblock}[1]{%
     \list{}{\setlength{\partopsep}{\parskip}
             \addtolength{\partopsep}{\baselineskip}
@@ -809,7 +809,7 @@
     \raggedright
   }
   {\endlist}
-}{}
+\fi
 
 % From footmisc.sty: allows footnotes in titles
 \let\FN@sf@@footnote\footnote
@@ -830,15 +830,15 @@
 
 % adjust the margins for footer,
 % this works with the jsclasses only (Japanese standard document classes)
-\spx@ifundefined{@jsc@uplatextrue}{}{
+\ifx\@jsc@uplatextrue\undefined\else
   \hypersetup{setpagesize=false}
   \setlength\footskip{2\baselineskip}
   \addtolength{\textheight}{-2\baselineskip}
-}
+\fi
 
 % fix the double index and bibliography on the table of contents
 % in jsclasses (Japanese standard document classes)
-\spx@ifundefined{@jsc@uplatextrue}{}{
+\ifx\@jsc@uplatextrue\undefined\else
   \renewcommand{\theindex}{
     \cleardoublepage
     \phantomsection
@@ -849,16 +849,16 @@
     \phantomsection
     \py@OldThebibliography{1}
   }
-}
+\fi
 
 % disable \@chappos in Appendix in pTeX
-\spx@ifundefined{kanjiskip}{}{
+\ifx\kanjiskip\undefined\else
   \let\py@OldAppendix=\appendix
   \renewcommand{\appendix}{
     \py@OldAppendix
     \gdef\@chappos{}
   }
-}
+\fi
 
 % Define literal-block environment
 \RequirePackage{newfloat}
