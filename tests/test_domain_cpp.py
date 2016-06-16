@@ -132,6 +132,11 @@ def test_type_definitions():
 
     check('type', 'A = B', None, '1A')
 
+    # from breathe#267 (named function parameters for function pointers
+    check('type', 'void (*gpio_callback_t)(struct device *port, uint32_t pin)',
+          'gpio_callback_t', '15gpio_callback_t')
+    check('type', 'void (*f)(std::function<void(int i)> g)', 'f', '1f')
+
 
 def test_member_definitions():
     check('member', '  const  std::string  &  name = 42',

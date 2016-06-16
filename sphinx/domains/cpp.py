@@ -3011,10 +3011,9 @@ class DefinitionParser(object):
                         self.fail('Expected ")" after "..." in '
                                   'parameters_and_qualifiers.')
                     break
-                if paramMode == 'function':
-                    arg = self._parse_type_with_init(outer=None, named='single')
-                else:
-                    arg = self._parse_type(named=False)
+                # note: it seems that function arguments can always sbe named,
+                # even in function pointers and similar.
+                arg = self._parse_type_with_init(outer=None, named='single')
                 # TODO: parse default parameters # TODO: didn't we just do that?
                 args.append(ASTFunctinoParameter(arg))
 
