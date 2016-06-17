@@ -887,3 +887,19 @@
   \DeclareRobustCommand{\code}[1]{{\@noligs\scantokens{\texttt{#1}}}}
   \def\sphinxcode{\code}%
 \fi
+
+% additional customizable styling
+\let\sphinxstyleindexentry\texttt
+\newcommand{\sphinxstyleindexextra}[1]{ \emph{(#1)}}
+\newcommand*{\sphinxstyleindexpageref}{, \pageref}
+\newcommand{\sphinxstyletopictitle}[1]{\textbf{#1}\par\medskip}
+\let\sphinxstylesidebartitle\sphinxstyletopictitle
+\let\sphinxstyleothertitle\textbf
+\newcommand{\sphinxstylesidebarsubtitle}[1]{~\\\textbf{#1} \smallskip}
+\let\sphinxstylethead\textsf
+\let\sphinxstyleemphasis\emph
+\newcommand{\sphinxstyleliteralemphasis}[1]{\emph{\texttt{#1}}}
+\let\sphinxstylestrong\textbf
+\newcommand{\sphinxstyleliteralstrong}[1]{\textbf{\texttt{#1}}}
+\let\sphinxstyleabbreviation\textsc
+\let\sphinxstyleliteralintitle\texttt

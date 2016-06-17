@@ -23,6 +23,10 @@ Features added
 * Show warnings if no domains match with `primary_domain` (ref: #2001)
 * C++, show warnings when the kind of role is misleading for the kind
   of target it refers to (e.g., using the `class` role for a function).
+* latex writer abstracts more of text styling into customizable macros, e.g.
+  the ``visit_emphasis`` will output ``\sphinxstyleemphasis`` rather than
+  ``\\emph`` (which may be in use elsewhere or in an added LaTeX package). See
+  list at end of ``sphinx.sty`` (ref: #2686)
 
 Bugs fixed
 ----------

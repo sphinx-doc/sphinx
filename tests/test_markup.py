@@ -101,7 +101,7 @@ def test_inline():
            '<p><code class="samp docutils literal"><span class="pre">a</span>'
            '<em><span class="pre">b</span></em>'
            '<span class="pre">c</span></code></p>',
-           '\\sphinxcode{a\\emph{b}c}')
+           '\\sphinxcode{a\\sphinxstyleemphasis{b}c}')
 
     # interpolation of arrows in menuselection
     yield (verify, ':menuselection:`a --> b`',
@@ -131,7 +131,7 @@ def test_inline():
     # verify classes for inline roles
     yield (verify, ':manpage:`mp(1)`',
            '<p><em class="manpage">mp(1)</em></p>',
-           '\\emph{\\texttt{mp(1)}}')
+           '\\sphinxstyleliteralemphasis{mp(1)}')
 
 
 def test_latex_escaping():

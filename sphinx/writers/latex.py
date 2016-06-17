@@ -638,11 +638,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 for entry in entries:
                     if not entry[3]:
                         continue
-                    ret.append('\\item {\\texttt{%s}}' % self.encode(entry[0]))
+                    # ret.append('\\item {\\texttt{%s}}' % self.encode(entry[0]))
+                    ret.append('\\item {\\sphinxstyleindexentry{%s}}' % self.encode(entry[0]))
                     if entry[4]:
                         # add "extra" info
-                        ret.append(' \\emph{(%s)}' % self.encode(entry[4]))
-                    ret.append(', \\pageref{%s:%s}\n' %
+                        # ret.append(' \\emph{(%s)}' % self.encode(entry[4]))
+                        ret.append('\\sphinxstyleindexextra{%s}' % self.encode(entry[4]))
+                    # ret.append(', \\pageref{%s:%s}\n' %
+                    ret.append('\\sphinxstyleindexpageref{%s:%s}\n' %
                                (entry[2], self.idescape(entry[3])))
             ret.append('\\end{theindex}\n')
 
@@ -830,9 +833,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.context[-1] += self.hypertarget(id, anchor=False)
                 self.next_section_ids.clear()
 
-        elif isinstance(parent, (nodes.topic, nodes.sidebar)):
-            self.body.append(r'\textbf{')
-            self.context.append('}\n\n\medskip\n\n')
+        elif isinstance(parent, nodes.topic):
+            # self.body.append(r'\textbf{')
+            self.body.append(r'\sphinxstyletopictitle{')
+            # self.context.append('}\n\n\medskip\n\n')
+            self.context.append('}\n')
+        elif isinstance(parent, nodes.sidebar):
+            # self.body.append(r'\textbf{')
+            self.body.append(r'\sphinxstylesidebartitle{')
+            # self.context.append('}\n\n\medskip\n\n')
+            self.context.append('}\n')
         elif isinstance(parent, nodes.Admonition):
             self.body.append('{')
             self.context.append('}\n')
@@ -844,7 +854,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 'encountered title node not in section, topic, table, '
                 'admonition or sidebar',
                 (self.curfilestack[-1], node.line or ''))
-            self.body.append('\\textbf{')
+#            self.body.append('\\textbf{')
+            self.body.append('\\sphinxstyleothertitle{')
             self.context.append('}\n')
         self.in_title = 1
 
@@ -858,8 +869,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_subtitle(self, node):
         if isinstance(node.parent, nodes.sidebar):
-            self.body.append('~\\\\\n\\textbf{')
-            self.context.append('}\n\\smallskip\n')
+            # self.body.append('~\\\\\n\\textbf{')
+            # self.context.append('}\n\\smallskip\n')
+            self.body.append('\\sphinxstylesidebarsubtitle{')
+            self.context.append('}\n')
         else:
             self.context.append('')
 
@@ -1194,7 +1207,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if len(node) == 1 and isinstance(node[0], nodes.paragraph) and node.astext() == '':
                 pass
             else:
-                self.body.append('\\textsf{\\relax ')
+                # self.body.append('\\textsf{\\relax ')
+                self.body.append('\\sphinxstylethead{\\relax ')
                 context += '}'
         while self.remember_multirow.get(self.table.col + 1, 0):
             self.table.col += 1
@@ -1756,36 +1770,43 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_emphasis(self, node):
-        self.body.append(r'\emph{')
+        # self.body.append(r'\emph{')
+        self.body.append(r'\sphinxstyleemphasis{')
 
     def depart_emphasis(self, node):
         self.body.append('}')
 
     def visit_literal_emphasis(self, node):
-        self.body.append(r'\emph{\texttt{')
+        # self.body.append(r'\emph{\texttt{')
+        self.body.append(r'\sphinxstyleliteralemphasis{')
         self.no_contractions += 1
 
     def depart_literal_emphasis(self, node):
-        self.body.append('}}')
+        # self.body.append('}}')
+        self.body.append('}')
         self.no_contractions -= 1
 
     def visit_strong(self, node):
-        self.body.append(r'\textbf{')
+        # self.body.append(r'\textbf{')
+        self.body.append(r'\sphinxstylestrong{')
 
     def depart_strong(self, node):
         self.body.append('}')
 
     def visit_literal_strong(self, node):
-        self.body.append(r'\textbf{\texttt{')
+        # self.body.append(r'\textbf{\texttt{')
+        self.body.append(r'\sphinxstyleliteralstrong{')
         self.no_contractions += 1
 
     def depart_literal_strong(self, node):
-        self.body.append('}}')
+        # self.body.append('}}')
+        self.body.append('}')
         self.no_contractions -= 1
 
     def visit_abbreviation(self, node):
         abbr = node.astext()
-        self.body.append(r'\textsc{')
+        # self.body.append(r'\textsc{')
+        self.body.append(r'\sphinxstyleabbreviation{')
         # spell out the explanation once
         if node.hasattr('explanation') and abbr not in self.handled_abbrs:
             self.context.append('} (%s)' % self.encode(node['explanation']))
@@ -1829,7 +1850,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_literal(self, node):
         self.no_contractions += 1
         if self.in_title:
-            self.body.append(r'\texttt{')
+            # self.body.append(r'\texttt{')
+            self.body.append(r'\sphinxstyleliteralintitle{')
         else:
             self.body.append(r'\sphinxcode{')
 
