@@ -34,7 +34,8 @@ from os import path
 import re
 
 from six import iteritems, string_types
-from six.moves.urllib import parse, request
+from six.moves.urllib import request
+from six.moves.urllib.parse import urlsplit, urlunsplit
 from docutils import nodes
 from docutils.utils import relative_path
 
@@ -145,7 +146,7 @@ def _strip_basic_auth(url):
 
     :rtype: ``tuple``
     """
-    url_parts = parse.urlsplit(url)
+    url_parts = urlsplit(url)
     username = url_parts.username
     password = url_parts.password
     frags = list(url_parts)
@@ -154,7 +155,7 @@ def _strip_basic_auth(url):
         frags[1] = "%s:%s" % (url_parts.hostname, url_parts.port)
     else:
         frags[1] = url_parts.hostname
-    url = parse.urlunsplit(frags)
+    url = urlunsplit(frags)
     return (url, username, password)
 
 
@@ -208,12 +209,12 @@ def _get_safe_url(url):
     url, username, _ = _strip_basic_auth(url)
     if username is not None:
         # case: url contained basic auth creds; obscure password
-        url_parts = parse.urlsplit(url)
+        url_parts = urlsplit(url)
         safe_netloc = '{0}@{1}'.format(username, url_parts.hostname)
         # replace original netloc w/ obscured version
         frags = list(url_parts)
         frags[1] = safe_netloc
-        safe_url = parse.urlunsplit(frags)
+        safe_url = urlunsplit(frags)
 
     return safe_url
 

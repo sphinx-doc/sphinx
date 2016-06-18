@@ -12,6 +12,7 @@ Bugs fixed
 
 * #2676: (latex) Error with verbatim text in captions since Sphinx 1.4.4
 * #2629: memoir class crashes LaTeX. Fixed ``by latex_keep_old_macro_names=False`` (ref 2675)
+* #2684: `sphinx.ext.intersphinx` crashes with six-1.4.1
 
 
 Release 1.4.4 (released Jun 12, 2016)
