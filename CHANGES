@@ -25,7 +25,7 @@ Features added
   of target it refers to (e.g., using the `class` role for a function).
 * latex writer abstracts more of text styling into customizable macros, e.g.
   the ``visit_emphasis`` will output ``\sphinxstyleemphasis`` rather than
-  ``\\emph`` (which may be in use elsewhere or in an added LaTeX package). See
+  ``\emph`` (which may be in use elsewhere or in an added LaTeX package). See
   list at end of ``sphinx.sty`` (ref: #2686)
 
 Bugs fixed
