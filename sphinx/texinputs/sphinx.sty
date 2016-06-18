@@ -8,6 +8,21 @@
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesPackage{sphinx}[2016/06/10 LaTeX package (Sphinx markup)]
 
+% this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
+% hyperref.sty, but we need it before, and initial ltxcmds.sty
+% as in TL2009/Debian had wrong definition.
+\newcommand{\spx@ifundefined}[1]{%
+    \ifcsname #1\endcsname
+      \expandafter\ifx\csname #1\endcsname\relax
+        \expandafter\expandafter\expandafter\@firstoftwo
+      \else
+        \expandafter\expandafter\expandafter\@secondoftwo
+      \fi
+    \else
+      \expandafter\@firstoftwo
+    \fi
+}
+
 \@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
 
 % for \text macro and \iffirstchoice@ conditional even if amsmath not loaded
@@ -66,16 +81,18 @@
 
 % for PDF output, use colors and maximal compression
 \newif\ifsphinxpdfoutput % used in \maketitle
-\ifx\pdfoutput\undefined\else\ifcase\pdfoutput
+\ifx\pdfoutput\undefined\else
+ \ifnum\pdfoutput=\z@
   \let\py@NormalColor\relax
   \let\py@TitleColor\relax
-\else
+ \else
   \sphinxpdfoutputtrue
   \input{pdfcolor}
   \def\py@NormalColor{\color[rgb]{0.0,0.0,0.0}}
   \def\py@TitleColor{\color{TitleColor}}
   \pdfcompresslevel=9
-\fi\fi
+ \fi
+\fi
 
 % XeLaTeX can do colors, too
 \ifx\XeTeXrevision\undefined\else
@@ -113,7 +130,7 @@
 \newcommand{\sphinxSetHeaderFamily}[1]{\renewcommand{\py@HeaderFamily}{#1}}
 
 % Redefine the 'normal' header/footer style when using "fancyhdr" package:
-\@ifundefined{fancyhf}{}{
+\spx@ifundefined{fancyhf}{}{
   % Use \pagestyle{normal} as the primary pagestyle for text.
   \fancypagestyle{normal}{
     \fancyhf{}
@@ -124,9 +141,8 @@
     \renewcommand{\headrulewidth}{0.4pt}
     \renewcommand{\footrulewidth}{0.4pt}
     % define chaptermark with \@chappos when \@chappos is available for Japanese
-    \ifx\@chappos\undefined\else
-      \def\chaptermark##1{\markboth{\@chapapp\space\thechapter\space\@chappos\space ##1}{}}
-    \fi
+    \spx@ifundefined{@chappos}{}
+      {\def\chaptermark##1{\markboth{\@chapapp\space\thechapter\space\@chappos\space ##1}{}}}
   }
   % Update the plain style so we get the page number & footer line,
   % but not a chapter or section title.  This is to keep the first
@@ -417,7 +433,7 @@
 \newenvironment{sphinxShadowBox}
   {\def\FrameCommand {\spx@ShadowFBox }%
    % configure framed.sty not to add extra vertical spacing
-   \ifdefined\OuterFrameSep \OuterFrameSep\z@skip \fi
+   \spx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
    % the \trivlist will add the vertical spacing on top and bottom which is
    % typical of center environment as used in Sphinx <= 1.4.1
    % the \noindent has the effet of an extra blank line on top, to
@@ -533,7 +549,7 @@
    % configure framed.sty's parameters to obtain same vertical spacing
    % as for "light" boxes. We need for this to manually insert parskip glue and
    % revert a skip done by framed before the frame.
-    \ifdefined\OuterFrameSep \OuterFrameSep\z@skip \fi
+    \spx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
     \vspace{\FrameHeightAdjust}
    % copied/adapted from framed.sty's snugshade
    \def\FrameCommand##1{\hskip\@totalleftmargin
@@ -643,7 +659,7 @@
 % This sets up the fancy chapter headings that make the documents look
 % at least a little better than the usual LaTeX output.
 %
-\@ifundefined{ChTitleVar}{}{
+\spx@ifundefined{ChTitleVar}{}{
   \ChNameVar{\raggedleft\normalsize\py@HeaderFamily}
   \ChNumVar{\raggedleft \bfseries\Large\py@HeaderFamily}
   \ChTitleVar{\raggedleft \textrm{\Huge\py@HeaderFamily}}
@@ -842,11 +858,9 @@
 % Define literal-block environment
 \RequirePackage{newfloat}
 \DeclareFloatingEnvironment{literal-block}
-\ifx\c@chapter\undefined
-  \SetupFloatingEnvironment{literal-block}{within=section,placement=h}
-\else
-  \SetupFloatingEnvironment{literal-block}{within=chapter,placement=h}
-\fi
+\spx@ifundefined{c@chapter}
+  {\SetupFloatingEnvironment{literal-block}{within=section,placement=h}}
+  {\SetupFloatingEnvironment{literal-block}{within=chapter,placement=h}}
 \SetupFloatingEnvironment{literal-block}{name=List}
 % control caption around literal-block
 \RequirePackage{capt-of}
