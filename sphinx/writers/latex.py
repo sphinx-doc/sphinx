@@ -1408,12 +1408,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             except KeyError:
                 pass
         if not is_inline:
-            if isinstance(node.parent, nodes.section):
-                pre.append('\n\\noindent')
-                post.append('\n')
-            else:
-                pre.append('\n')
-                post.append('\n')
+            pre.append('\n\\noindent')
+            post.append('\n')
         pre.reverse()
         if node['uri'] in self.builder.images:
             uri = self.builder.images[node['uri']]
@@ -1456,7 +1452,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('\\begin{sphinxfigure-in-table}\n\\centering\n')
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart')
-            self.context.append(ids + '\\end{sphinxfigure-in-table}\n')
+            self.context.append(ids + '\\end{sphinxfigure-in-table}\\relax\n')
         elif node.get('align', '') in ('left', 'right'):
             if 'width' in node:
                 length = width_to_latex_length(node['width'])
