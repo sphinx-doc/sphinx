@@ -1460,7 +1460,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 Options for LaTeX output
 ------------------------
 
-These options influence LaTeX output.
+These options influence LaTeX output. See further :doc:`latex`.
 
 .. confval:: latex_documents
 
@@ -1623,7 +1623,7 @@ These options influence LaTeX output.
 
         .. versionadded:: 1.4
      ``'preamble'``
-        Additional preamble content, default empty.
+        Additional preamble content, default empty. See :doc:`latex`.
      ``'figure_align'``
         Latex figure float alignment, default 'htbp' (here, top, bottom, page).
         Whenever an image doesn't fit into the current page, it will be

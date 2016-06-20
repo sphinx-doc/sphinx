@@ -1,3 +1,4 @@
+
 .. _contents:
 
 Sphinx documentation contents
@@ -17,6 +18,7 @@ Sphinx documentation contents
    intl
    theming
    templating
+   latex
    extensions
    extdev/index
    websupport
