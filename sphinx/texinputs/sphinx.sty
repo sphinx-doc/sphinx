@@ -199,7 +199,7 @@
 \newcommand*\sphinxVerbatimTitle {}
 % Holder macro for labels of literal blocks. Set-up by LaTeX writer.
 \newcommand*\sphinxLiteralBlockLabel {}
-\newcommand*\sphinxSetupCaptionForVerbatim [2]
+\newcommand*\sphinxSetupCaptionForVerbatim [1]
 {%
     \needspace{\sphinxliteralblockneedspace}%
 % insert a \label via \sphinxLiteralBlockLabel
@@ -207,7 +207,8 @@
 % the caption inserts \abovecaptionskip whitespace above itself (usually 10pt)
 % there is also \belowcaptionskip but it is usually zero, hence the \smallskip
     \def\sphinxVerbatimTitle
-       {\py@NormalColor\captionof{#1}{\sphinxLiteralBlockLabel #2}\smallskip }%
+       {\py@NormalColor
+        \captionof{literalblock}{\sphinxLiteralBlockLabel #1}\smallskip }%
 }
 
 % Inspired and adapted from framed.sty's \CustomFBox with extra handling
@@ -855,13 +856,24 @@
   }
 \fi
 
-% Define literal-block environment
-\RequirePackage{newfloat}
-\DeclareFloatingEnvironment{literal-block}
+% for captions of literal blocks
+\newcounter{literalblock}
 \spx@ifundefined{c@chapter}
-  {\SetupFloatingEnvironment{literal-block}{within=section,placement=h}}
-  {\SetupFloatingEnvironment{literal-block}{within=chapter,placement=h}}
-\SetupFloatingEnvironment{literal-block}{name=List}
+  {\@addtoreset{literalblock}{section}
+  \def\theliteralblock {\ifnum\c@section>\z@ \thesection.\fi\arabic{literalblock}}
+  \def\theHliteralblock {\theHsection.\arabic{literalblock}}}
+  {\@addtoreset{literalblock}{chapter}
+  \def\theliteralblock {\ifnum\c@chapter>\z@ \thechapter.\fi\arabic{literalblock}}
+  \def\theHliteralblock {\theHchapter.\arabic{literalblock}}}
+% at start of caption title
+\newcommand*{\fnum@literalblock}{\literalblockname\nobreakspace\theliteralblock}
+% this will be overwritten in document preamble by Babel translation
+\newcommand*{\literalblockname}{Listing }
+% file extension needed for \caption's good functioning, but file isn't
+% created without \listofliteralblocks. The latter macro could be defined
+% on model of \listoffigures.
+\newcommand*{\ext@literalblock}{lol}
+
 % control caption around literal-block
 \RequirePackage{capt-of}
 \RequirePackage{needspace}

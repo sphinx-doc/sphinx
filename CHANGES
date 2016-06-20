@@ -7,7 +7,10 @@ Incompatible changes
 * LaTeX package fancybox is not longer a dependency of sphinx.sty
 * Use ``'locales'`` as a default value of `locale_dirs`
 * LaTeX package ifthen is not any longer a dependency of sphinx.sty
-* LaTeX writer produces source not modifying original fancyvrb's Verbatim but using new name sphinxVerbatim for its custom wrapper
+* LaTeX writer produces source not modifying original fancyvrb's Verbatim but
+  using new name sphinxVerbatim for its custom wrapper
+* LaTeX package newfloat (which was shipped with Sphinx since 1.3.4) is no
+  longer a dependency of sphinx.sty (ref #2660)
 
 Features added
 --------------

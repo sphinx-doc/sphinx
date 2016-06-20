@@ -189,7 +189,7 @@ def test_numref(app, status, warning):
     print(warning.getvalue())
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.\\@ }}' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table }}' in result
-    assert '\\SetupFloatingEnvironment{literal-block}{name=Listing }' in result
+    assert '\\addto\\captionsenglish{\\renewcommand{\\literalblockname}{Listing }}' in result
     assert '\\hyperref[index:fig1]{Fig.\\@ \\ref{index:fig1}}' in result
     assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
     assert '\\hyperref[index:table-1]{Table \\ref{index:table-1}}' in result
@@ -211,7 +211,7 @@ def test_numref_with_prefix1(app, status, warning):
     print(warning.getvalue())
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Figure:}}' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Tab\\_}}' in result
-    assert '\\SetupFloatingEnvironment{literal-block}{name=Code-}' in result
+    assert '\\addto\\captionsenglish{\\renewcommand{\\literalblockname}{Code-}}' in result
     assert '\\ref{index:fig1}' in result
     assert '\\ref{baz:fig22}' in result
     assert '\\ref{index:table-1}' in result
@@ -241,7 +241,7 @@ def test_numref_with_prefix2(app, status, warning):
     assert '\\def\\fnum@figure{\\figurename\\thefigure.\\@}' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Tab\\_}}' in result
     assert '\\def\\fnum@table{\\tablename\\thetable:}' in result
-    assert '\\SetupFloatingEnvironment{literal-block}{name=Code-}' in result
+    assert '\\addto\\captionsenglish{\\renewcommand{\\literalblockname}{Code-}}' in result
     assert '\\hyperref[index:fig1]{Figure:\\ref{index:fig1}.\\@}' in result
     assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
     assert '\\hyperref[index:table-1]{Tab\\_\\ref{index:table-1}:}' in result
@@ -260,7 +260,7 @@ def test_numref_with_language_ja(app, status, warning):
     print(warning.getvalue())
     assert u'\\renewcommand{\\figurename}{\u56f3 }' in result
     assert '\\renewcommand{\\tablename}{TABLE }' in result
-    assert '\\SetupFloatingEnvironment{literal-block}{name=LIST }' in result
+    assert '\\renewcommand{\\literalblockname}{LIST }' in result
     assert u'\\hyperref[index:fig1]{\u56f3 \\ref{index:fig1}}' in result
     assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
     assert '\\hyperref[index:table-1]{TABLE \\ref{index:table-1}}' in result
