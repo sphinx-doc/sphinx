@@ -294,12 +294,15 @@ General configuration
 
 .. confval:: numfig_format
 
-   A dictionary mapping ``'figure'``, ``'table'`` and ``'code-block'`` to
-   strings that are used for format of figure numbers. Default is to use
-   ``'Fig. %s'`` for ``'figure'``, ``'Table %s'`` for ``'table'`` and
-   ``'Listing %s'`` for ``'code-block'``.
+   A dictionary mapping ``'figure'``, ``'table'``, ``'code-block'`` and
+   ``'section'`` to strings that are used for format of figure numbers.  Default
+   is to use ``'Fig. %s'`` for ``'figure'``, ``'Table %s'`` for ``'table'``,
+   ``'Listing %s'`` for ``'code-block'`` and ``'Section'`` for ``'section'``.
 
    .. versionadded:: 1.3
+
+   .. versionchanged:: 1.5
+      Support format of section
 
 .. confval:: numfig_secnum_depth
 

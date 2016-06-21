@@ -1,6 +1,10 @@
+.. _bar:
+
 ===
 Bar
 ===
+
+.. _bar_a:
 
 Bar A
 =====
@@ -37,8 +41,12 @@ Bar A
 
    print('hello world')
 
+.. _bar_b:
+
 Bar B
 =====
+
+.. _bar_b1:
 
 Bar B1
 ------

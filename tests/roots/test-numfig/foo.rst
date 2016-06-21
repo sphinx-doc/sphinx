@@ -1,3 +1,5 @@
+.. _foo:
+
 ===
 Foo
 ===
@@ -15,6 +17,8 @@ Foo
    :caption: should be List 1.1
 
    print('hello world')
+
+.. _foo_a:
 
 Foo A
 =====
@@ -47,11 +51,17 @@ Foo A
 
    print('hello world')
 
+.. _foo_a1:
+
 Foo A1
 ------
 
+.. _foo_b:
+
 Foo B
 =====
+
+.. _foo_b1:
 
 Foo B1
 ------

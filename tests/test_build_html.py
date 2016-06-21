@@ -503,10 +503,11 @@ def test_tocdepth_singlehtml(app, status, warning):
 def test_numfig_disabled(app, status, warning):
     app.builder.build_all()
 
-    assert ('index.rst:45: WARNING: numfig is disabled. :numref: is ignored.'
-            in warning.getvalue())
-    assert 'index.rst:51: WARNING: invalid numfig_format: invalid' not in warning.getvalue()
-    assert 'index.rst:52: WARNING: invalid numfig_format: Fig %s %s' not in warning.getvalue()
+    warnings = warning.getvalue()
+    assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' in warnings
+    assert 'index.rst:55: WARNING: no number is assigned for section: index' not in warnings
+    assert 'index.rst:56: WARNING: invalid numfig_format: invalid' not in warnings
+    assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' not in warnings
 
     expects = {
         'index.html': [
@@ -521,6 +522,8 @@ def test_numfig_disabled(app, status, warning):
             (".//li/code/span", '^Table:%s$', True),
             (".//li/code/span", '^CODE_1$', True),
             (".//li/code/span", '^Code-%s$', True),
+            (".//li/code/span", '^foo$', True),
+            (".//li/code/span", '^bar_a$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -562,10 +565,11 @@ def test_numfig_without_numbered_toctree(app, status, warning):
     (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
     app.builder.build_all()
 
-    assert ('index.rst:45: WARNING: numfig is disabled. :numref: is ignored.'
-            not in warning.getvalue())
-    assert 'index.rst:51: WARNING: invalid numfig_format: invalid' in warning.getvalue()
-    assert 'index.rst:52: WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
+    warnings = warning.getvalue()
+    assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
+    assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
+    assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
+    assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
     expects = {
         'index.html': [
@@ -587,6 +591,8 @@ def test_numfig_without_numbered_toctree(app, status, warning):
             (".//li/a/span", '^Table:6$', True),
             (".//li/a/span", '^Listing 9$', True),
             (".//li/a/span", '^Code-6$', True),
+            (".//li/code/span", '^foo$', True),
+            (".//li/code/span", '^bar_a$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -657,10 +663,11 @@ def test_numfig_without_numbered_toctree(app, status, warning):
 def test_numfig_with_numbered_toctree(app, status, warning):
     app.builder.build_all()
 
-    assert ('index.rst:45: WARNING: numfig is disabled. :numref: is ignored.'
-            not in warning.getvalue())
-    assert 'index.rst:51: WARNING: invalid numfig_format: invalid' in warning.getvalue()
-    assert 'index.rst:52: WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
+    warnings = warning.getvalue()
+    assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
+    assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
+    assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
+    assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
     expects = {
         'index.html': [
@@ -682,6 +689,8 @@ def test_numfig_with_numbered_toctree(app, status, warning):
             (".//li/a/span", '^Table:2.2$', True),
             (".//li/a/span", '^Listing 1$', True),
             (".//li/a/span", '^Code-2.2$', True),
+            (".//li/a/span", '^Section.1$', True),
+            (".//li/a/span", '^Section.2.1$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -751,14 +760,16 @@ def test_numfig_with_numbered_toctree(app, status, warning):
               confoverrides={'numfig': True,
                              'numfig_format': {'figure': 'Figure:%s',
                                                'table': 'Tab_%s',
-                                               'code-block': 'Code-%s'}})
+                                               'code-block': 'Code-%s',
+                                               'section': 'SECTION-%s'}})
 def test_numfig_with_prefix(app, status, warning):
     app.builder.build_all()
 
-    assert ('index.rst:45: WARNING: numfig is disabled. :numref: is ignored.'
-            not in warning.getvalue())
-    assert 'index.rst:51: WARNING: invalid numfig_format: invalid' in warning.getvalue()
-    assert 'index.rst:52: WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
+    warnings = warning.getvalue()
+    assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
+    assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
+    assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
+    assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
     expects = {
         'index.html': [
@@ -780,6 +791,8 @@ def test_numfig_with_prefix(app, status, warning):
             (".//li/a/span", '^Table:2.2$', True),
             (".//li/a/span", '^Code-1$', True),
             (".//li/a/span", '^Code-2.2$', True),
+            (".//li/a/span", '^SECTION-1$', True),
+            (".//li/a/span", '^SECTION-2.1$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -850,10 +863,11 @@ def test_numfig_with_prefix(app, status, warning):
 def test_numfig_with_secnum_depth(app, status, warning):
     app.builder.build_all()
 
-    assert ('index.rst:45: WARNING: numfig is disabled. :numref: is ignored.'
-            not in warning.getvalue())
-    assert 'index.rst:51: WARNING: invalid numfig_format: invalid' in warning.getvalue()
-    assert 'index.rst:52: WARNING: invalid numfig_format: Fig %s %s' in warning.getvalue()
+    warnings = warning.getvalue()
+    assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
+    assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
+    assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
+    assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
     expects = {
         'index.html': [
@@ -875,6 +889,8 @@ def test_numfig_with_secnum_depth(app, status, warning):
             (".//li/a/span", '^Table:2.1.2$', True),
             (".//li/a/span", '^Listing 1$', True),
             (".//li/a/span", '^Code-2.1.2$', True),
+            (".//li/a/span", '^Section.1$', True),
+            (".//li/a/span", '^Section.2.1$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -965,6 +981,8 @@ def test_numfig_with_singlehtml(app, status, warning):
             (".//li/a/span", '^Table:2.2$', True),
             (".//li/a/span", '^Listing 1$', True),
             (".//li/a/span", '^Code-2.2$', True),
+            (".//li/a/span", '^Section.1$', True),
+            (".//li/a/span", '^Section.2.1$', True),
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Fig. 1.1 $', True),
             (".//div[@class='figure']/p[@class='caption']/"

@@ -118,6 +118,7 @@ Features added
 * #2926: EPUB3 builder supports vertical mode (``epub3_writing_mode`` option)
 * #2695: ``build_sphinx`` subcommand for setuptools handles exceptions as same
   as ``sphinx-build`` does
+* #326: `numref` role can also refer sections
 
 Bugs fixed
 ----------
