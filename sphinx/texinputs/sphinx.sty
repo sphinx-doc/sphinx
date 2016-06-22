@@ -181,6 +181,12 @@
 % and possibly also a top caption, non separable by pagebreak. The original
 % fancyvrb Verbatim is still used within tables.
 
+% For maintaining compatibility with Sphinx < 1.5, we define and use these
+% when (unmodified) Verbatim will be needed. But Sphinx >= 1.5 does not modify
+% original Verbatim anyhow.
+\let\OriginalVerbatim   \Verbatim
+\let\endOriginalVerbatim\endVerbatim
+
 \newcommand\spx@colorbox [2]{%
 % #1 will be \fcolorbox or, for first part of frame: \spx@fcolorbox
 % let the framing obey the current indentation (adapted from framed.sty's code).
@@ -380,10 +386,10 @@
      % For grid placement from \strut's in \FancyVerbFormatLine
      \lineskip\z@skip
      % Breaks at punctuation characters . , ; ? ! and / need catcode=\active
-     \Verbatim[#1,codes*=\sphinxbreaksatpunct]%
+     \OriginalVerbatim[#1,codes*=\sphinxbreaksatpunct]%
 }
 {%
-  \endVerbatim
+  \endOriginalVerbatim
   \par\unskip\@minipagefalse\endMakeFramed
   \ifspx@inframed\end{minipage}\fi
   \endtrivlist
