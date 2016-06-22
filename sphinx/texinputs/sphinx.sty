@@ -179,8 +179,7 @@
 
 % Preparations for sphinxVerbatim environment, which is a wrapper of fancyvrb
 % Verbatim with framing allowing pagebreaks, with border and background colors
-% and possibly also a top caption, non separable by pagebreak. The original
-% fancyvrb Verbatim is still used within tables.
+% and possibly also a top caption, non separable by pagebreak.
 
 % For maintaining compatibility with Sphinx < 1.5, we define and use these
 % when (unmodified) Verbatim will be needed. But Sphinx >= 1.5 does not modify
@@ -232,9 +231,6 @@
 \long\def\spx@VerbatimFBox#1{%
   \leavevmode
   \begingroup
-  % framed.sty does some measuring but this macro adds possibly a caption
-  % use amsmath conditional to inhibit the caption counter stepping after
-  % first pass
   \setbox\@tempboxa\hbox{\kern\fboxsep{#1}\kern\fboxsep}%
    \hbox
    {\lower\dimexpr\fboxrule+\fboxsep+\dp\@tempboxa
