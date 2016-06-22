@@ -1908,17 +1908,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
             hlcode = hlcode.replace(u'€', u'@texteuro[]')
             # must use original Verbatim environment and "tabular" environment
             if self.table:
-                hlcode = hlcode.replace('\\begin{Verbatim}',
-                                        '\\begin{OriginalVerbatim}')
                 self.table.has_problematic = True
                 self.table.has_verbatim = True
+                hlcode = hlcode.replace('\\begin{Verbatim}',
+                                        '\\begin{sphinxVerbatimintable}')
             else:
                 hlcode = hlcode.replace('\\begin{Verbatim}',
                                         '\\begin{sphinxVerbatim}')
             # get consistent trailer
             hlcode = hlcode.rstrip()[:-14]  # strip \end{Verbatim}
-            self.body.append('\n' + hlcode + '\\end{%sVerbatim}\n' %
-                             ((not self.table) and 'sphinx' or 'Original'))
+            self.body.append('\n' + hlcode + '\\end{sphinxVerbatim%s}\n' %
+                             (self.table and 'intable' or ''))
             if ids:
                 self.body.append('\\let\\sphinxLiteralBlockLabel\empty\n')
             raise nodes.SkipNode
