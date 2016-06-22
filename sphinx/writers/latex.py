@@ -1907,7 +1907,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                                       **highlight_args)
             # workaround for Unicode issue
             hlcode = hlcode.replace(u'€', u'@texteuro[]')
-            # must use original Verbatim environment and "tabular" environment
+            # if in table raise verbatim flag to avoid "tabulary" environment
+            # and opt for sphinxVerbatimintable to handle caption & long lines
             if self.table:
                 self.table.has_problematic = True
                 self.table.has_verbatim = True
