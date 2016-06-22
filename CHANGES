@@ -12,6 +12,7 @@ Incompatible changes
 * LaTeX package newfloat (which was shipped with Sphinx since 1.3.4) is no
   longer a dependency of sphinx.sty (ref #2660)
 
+
 Features added
 --------------
 
@@ -33,9 +34,13 @@ Features added
 * public names for latex environments and parameters used by note, warning,
   and other admonition types, allowing full customizability from the
   ``'preamble'`` key (ref: feature request #2674, #2685)
+* latex better computes column widths of some tables (as a result, there will
+  be slight changes as tables now correctly fill the line with; ref: #2708)
 
 Bugs fixed
 ----------
+
+* #2707: (latex) the column width is badly computed for tabular
 
 Documentation
 -------------

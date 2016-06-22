@@ -1052,9 +1052,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(self.table.colspec)
         else:
             if self.table.has_problematic:
-                colwidth = 0.95 / self.table.colcount
-                colspec = ('p{%.3f\\linewidth}|' % colwidth) * \
-                    self.table.colcount
+                colspec = ('*{%d}{p{\\dimexpr(\\linewidth-\\arrayrulewidth)/%d'
+                           '-2\\tabcolsep-\\arrayrulewidth\\relax}|}' %
+                           (self.table.colcount, self.table.colcount))
                 self.body.append('{|' + colspec + '}\n')
             elif self.table.longtable:
                 self.body.append('{|' + ('l|' * self.table.colcount) + '}\n')
