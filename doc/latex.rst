@@ -103,6 +103,23 @@ Let us illustrate here what can be modified by the second method.
   .. versionchanged:: 1.5
      use of public names for the three lengths. The environment itself was
      redefined to allow page breaks at release 1.4.2.
+- the literal blocks (:rst:dir:`code-block` directives, etc ...), are
+  implemented using ``sphinxVerbatim`` environment which is a wrapper of
+  ``Verbatim`` environment from package ``fancyvrb.sty``. It adds the handling
+  of the top caption and the wrapping of long lines, and a frame which allows
+  pagebreaks. The LaTeX lengths (not commands) ``\sphinxverbatimsep`` and
+  ``\sphinxverbatimborder`` customize the framing. Inside tables the used
+  environment is ``sphinxVerbatimintable`` (it does not draw a frame, but
+  allows a caption).
+
+  .. versionchanged:: 1.5
+     ``Verbatim`` keeps exact same meaning as in ``fancyvrb.sty`` (meaning
+     which is the one of ``OriginalVerbatim`` too), and custom one is called
+     ``sphinxVerbatim``. Also, earlier version of Sphinx used
+     ``OriginalVerbatim`` inside tables (captions were lost, long code lines
+     were not wrapped), they now use ``sphinxVerbatimintable``.
+  .. versionadded:: 1.5
+     the two customizable lengths, the ``sphinxVerbatimintable``.
 - miscellaneous colours: *TitleColor*, *InnerLinkColor*, *OuterLinkColor*,
   *VerbatimColor* (this is a background colour), *VerbatimBorderColor*.
 - the ``\sphinxAtStartFootnote`` is inserted between footnote numbers and their
