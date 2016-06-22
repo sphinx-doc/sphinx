@@ -1,6 +1,16 @@
 Release 1.4.5 (in development)
 ==============================
 
+Incompatible changes
+--------------------
+
+* latex, inclusion of non-inline images from image directive resulted in
+  non-coherent whitespaces depending on original image width; new behaviour
+  by necessity from earlier one in some cases. (ref: #2672)
+* latex, use of ``\includegraphics`` to refer to Sphinx custom variant is
+  deprecated; in future it will revert to original LaTeX macro, custom one has
+  already alternative name ``\sphinxincludegraphics``.
+
 Features added
 --------------
 
@@ -16,6 +26,7 @@ Bugs fixed
 * #2629: memoir class crashes LaTeX. Fixed ``by latex_keep_old_macro_names=False`` (ref 2675)
 * #2684: `sphinx.ext.intersphinx` crashes with six-1.4.1
 * #2679: ``float`` package needed for ``'figure_align': 'H'`` latex option
+* #2671: image directive may lead to inconsistent spacing in pdf
 
 
 Release 1.4.4 (released Jun 12, 2016)
