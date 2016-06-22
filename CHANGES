@@ -37,6 +37,8 @@ Features added
 Bugs fixed
 ----------
 
+* #2469: Ignore updates of catalog files for gettext builder
+
 Documentation
 -------------
 

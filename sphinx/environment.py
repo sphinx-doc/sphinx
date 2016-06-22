@@ -137,10 +137,11 @@ class BuildEnvironment:
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
-    def __init__(self, srcdir, doctreedir, config):
+    def __init__(self, srcdir, doctreedir, config, buildername):
         self.doctreedir = doctreedir
         self.srcdir = srcdir
         self.config = config
+        self.buildername = buildername
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition = None
@@ -405,6 +406,9 @@ class BuildEnvironment:
         )
         self.found_docs = set(get_matching_docs(
             self.srcdir, config.source_suffix, exclude_matchers=matchers))
+
+        if self.buildername == 'gettext':
+            return
 
         # add catalog mo file dependency
         for docname in self.found_docs:
