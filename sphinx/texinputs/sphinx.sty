@@ -729,26 +729,29 @@
  \raggedright}
 {\end{list}}
 
-% Redefine includgraphics for avoiding images larger than the screen size
-% If the size is not specified.
+% Re-define \includegraphics to resize images larger than the line width
+% if the size is not specified.
+% Warning: future version of Sphinx will not modify original \includegraphics,
+% Below custom code will be direct definition of \sphinxincludegraphics, with
+% \py@Oldincludegraphics replaced by direct use of original \includegraphics.
 \let\py@Oldincludegraphics\includegraphics
-
-\newbox\image@box%
-\newdimen\image@width%
-\renewcommand\includegraphics[2][\@empty]{%
-  \ifx#1\@empty%
-    \setbox\image@box=\hbox{\py@Oldincludegraphics{#2}}%
-    \image@width\wd\image@box%
-    \ifdim \image@width>\linewidth%
-      \setbox\image@box=\hbox{\py@Oldincludegraphics[width=\linewidth]{#2}}%
-      \box\image@box%
-    \else%
-      \py@Oldincludegraphics{#2}%
-    \fi%
-  \else%
+\newbox\spx@image@box
+\renewcommand*{\includegraphics}[2][\@empty]{%
+  \ifx\@empty #1% attention, #1 could be bb.., bad if first after \ifx
+    \setbox\spx@image@box=\hbox{\py@Oldincludegraphics{#2}}%
+    \ifdim \wd\spx@image@box>\linewidth
+      \py@Oldincludegraphics[width=\linewidth]{#2}%
+    \else
+      \leavevmode\box\spx@image@box
+    \fi
+  \else
     \py@Oldincludegraphics[#1]{#2}%
-  \fi%
+  \fi
 }
+% Writer will put \sphinxincludegraphics in LaTeX source, and with this,
+% documents which used their own modified \includegraphics will compile
+% as before. But see warning above.
+\newcommand*{\sphinxincludegraphics}{\includegraphics}
 
 % to make pdf with correct encoded bookmarks in Japanese
 % this should precede the hyperref package

@@ -113,21 +113,24 @@ def test_writer(app, status, warning):
     result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')
 
     assert ('\\begin{sphinxfigure-in-table}\n\\centering\n\\capstart\n'
-            '\\includegraphics{{img}.png}\n\\sphinxfigcaption'
-            '{figure in table}\\label{markup:id7}\\end{sphinxfigure-in-table}' in result)
+            '\\noindent\\sphinxincludegraphics{{img}.png}\n'
+            '\\sphinxfigcaption{figure in table}\\label{markup:id7}'
+            '\\end{sphinxfigure-in-table}\\relax' in result)
 
     assert ('\\begin{wrapfigure}{r}{0pt}\n\\centering\n'
-            '\\includegraphics{{rimg}.png}\n\\caption{figure with align option}'
-            '\\label{markup:id8}\\end{wrapfigure}' in result)
+            '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
+            '\\caption{figure with align option}\\label{markup:id8}'
+            '\\end{wrapfigure}' in result)
 
     assert ('\\begin{wrapfigure}{r}{0.500\\linewidth}\n\\centering\n'
-            '\\includegraphics{{rimg}.png}\n\\caption{figure with align \\& figwidth option}'
-            '\\label{markup:id9}\\end{wrapfigure}' in result)
+            '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
+            '\\caption{figure with align \\& figwidth option}\\label{markup:id9}'
+            '\\end{wrapfigure}' in result)
 
     assert ('\\begin{wrapfigure}{r}{3cm}\n\\centering\n'
-            '\\includegraphics[width=3cm]{{rimg}.png}\n'
-            '\\caption{figure with align \\& width option}'
-            '\\label{markup:id10}\\end{wrapfigure}' in result)
+            '\\noindent\\sphinxincludegraphics[width=3cm]{{rimg}.png}\n'
+            '\\caption{figure with align \\& width option}\\label{markup:id10}'
+            '\\end{wrapfigure}' in result)
 
 
 @with_app(buildername='latex', freshenv=True,  # use freshenv to check warnings
@@ -574,12 +577,12 @@ def test_image_in_section(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('\chapter[Test section]'
-            '{\includegraphics[width=15pt,height=15pt]{{pic}.png} Test section}'
+    assert ('\\chapter[Test section]'
+            '{\\sphinxincludegraphics[width=15pt,height=15pt]{{pic}.png} Test section}'
             in result)
-    assert ('\chapter[Other {[}blah{]} section]{Other {[}blah{]} '
-            '\includegraphics[width=15pt,height=15pt]{{pic}.png} section}' in result)
-    assert ('\chapter{Another section}' in result)
+    assert ('\\chapter[Other {[}blah{]} section]{Other {[}blah{]} '
+            '\\sphinxincludegraphics[width=15pt,height=15pt]{{pic}.png} section}' in result)
+    assert ('\\chapter{Another section}' in result)
 
 
 @with_app(buildername='latex', confoverrides={'latex_logo': 'notfound.jpg'})
