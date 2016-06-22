@@ -135,7 +135,7 @@ tzdelta = datetime.fromtimestamp(timestamp) - \
 source_date_epoch = getenv('SOURCE_DATE_EPOCH')
 if source_date_epoch is not None:
     timestamp = float(source_date_epoch)
-    tzdelta = 0
+    tzdelta = timedelta(0)
 
 
 class LocalTimeZone(tzinfo):

@@ -411,7 +411,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
                                                 language=builder.config.language)
         if builder.config.latex_logo:
-            self.elements['logo'] = '\\includegraphics{%s}\\par' % \
+            # no need for \\noindent here, used in flushright
+            self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
                                     path.basename(builder.config.latex_logo)
         # setup babel
         self.babel = ExtBabel(builder.config.language)
@@ -1428,7 +1429,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             except KeyError:
                 pass
         if not is_inline:
-            pre.append('\n')
+            pre.append('\n\\noindent')
             post.append('\n')
         pre.reverse()
         if node['uri'] in self.builder.images:
@@ -1446,7 +1447,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if include_graphics_options:
             options = '[%s]' % ','.join(include_graphics_options)
         base, ext = path.splitext(uri)
-        self.body.append('\\includegraphics%s{{%s}%s}' % (options, base, ext))
+        self.body.append('\\sphinxincludegraphics%s{{%s}%s}' % (options, base, ext))
         self.body.extend(post)
 
     def depart_image(self, node):
@@ -1472,7 +1473,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('\\begin{sphinxfigure-in-table}\n\\centering\n')
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart')
-            self.context.append(ids + '\\end{sphinxfigure-in-table}\n')
+            self.context.append(ids + '\\end{sphinxfigure-in-table}\\relax\n')
         elif node.get('align', '') in ('left', 'right'):
             if 'width' in node:
                 length = width_to_latex_length(node['width'])
