@@ -27,6 +27,7 @@ Bugs fixed
 * #2684: `sphinx.ext.intersphinx` crashes with six-1.4.1
 * #2679: ``float`` package needed for ``'figure_align': 'H'`` latex option
 * #2671: image directive may lead to inconsistent spacing in pdf
+* #2705: `toctree` generates empty bullet_list if ``:titlesonly:`` specified
 
 
 Release 1.4.4 (released Jun 12, 2016)

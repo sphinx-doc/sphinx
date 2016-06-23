@@ -1453,7 +1453,10 @@ class BuildEnvironment:
                             # nodes with length 1 don't have any children anyway
                             if len(toplevel) > 1:
                                 subtrees = toplevel.traverse(addnodes.toctree)
-                                toplevel[1][:] = subtrees
+                                if subtrees:
+                                    toplevel[1][:] = subtrees
+                                else:
+                                    toplevel.pop(1)
                     # resolve all sub-toctrees
                     for subtocnode in toc.traverse(addnodes.toctree):
                         if not (subtocnode.get('hidden', False) and
@@ -1498,6 +1501,9 @@ class BuildEnvironment:
         # prune the tree to maxdepth, also set toc depth and current classes
         _toctree_add_classes(newnode, 1)
         self._toctree_prune(newnode, 1, prune and maxdepth or 0, collapse)
+
+        if len(newnode[-1]) == 0:  # No titles found
+            return None
 
         # set the target paths in the toctrees (they are not known at TOC
         # generation time)
