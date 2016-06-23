@@ -40,31 +40,28 @@ class GoogleDocstring(UnicodeMixin):
 
     Parameters
     ----------
-    docstring : str or List[str]
+    docstring : :obj:`str` or :obj:`list` of :obj:`str`
         The docstring to parse, given either as a string or split into
         individual lines.
-    config : Optional[sphinx.ext.napoleon.Config or sphinx.config.Config]
+    config: :obj:`sphinx.ext.napoleon.Config` or :obj:`sphinx.config.Config`
         The configuration settings to use. If not given, defaults to the
         config object on `app`; or if `app` is not given defaults to the
-        a new `sphinx.ext.napoleon.Config` object.
+        a new :class:`sphinx.ext.napoleon.Config` object.
 
-        See Also
-        --------
-        :class:`sphinx.ext.napoleon.Config`
 
     Other Parameters
     ----------------
-    app : Optional[sphinx.application.Sphinx]
+    app : :class:`sphinx.application.Sphinx`, optional
         Application object representing the Sphinx process.
-    what : Optional[str]
+    what : :obj:`str`, optional
         A string specifying the type of the object to which the docstring
         belongs. Valid values: "module", "class", "exception", "function",
         "method", "attribute".
-    name : Optional[str]
+    name : :obj:`str`, optional
         The fully qualified name of the object.
     obj : module, class, exception, function, method, or attribute
         The object to which the docstring belongs.
-    options : Optional[sphinx.ext.autodoc.Options]
+    options : :class:`sphinx.ext.autodoc.Options`, optional
         The options given to the directive: an object with attributes
         inherited_members, undoc_members, show_inheritance and noindex that
         are True if the flag option of same name was given to the auto
@@ -175,7 +172,7 @@ class GoogleDocstring(UnicodeMixin):
 
         Returns
         -------
-        List[str]
+        :obj:`list` of :obj:`str`
             The lines of the docstring in a list.
 
         """
@@ -737,31 +734,28 @@ class NumpyDocstring(GoogleDocstring):
 
     Parameters
     ----------
-    docstring : str or List[str]
+    docstring : :obj:`str` or :obj:`list` of :obj:`str`
         The docstring to parse, given either as a string or split into
         individual lines.
-    config : Optional[sphinx.ext.napoleon.Config or sphinx.config.Config]
+    config: :obj:`sphinx.ext.napoleon.Config` or :obj:`sphinx.config.Config`
         The configuration settings to use. If not given, defaults to the
         config object on `app`; or if `app` is not given defaults to the
-        a new `sphinx.ext.napoleon.Config` object.
+        a new :class:`sphinx.ext.napoleon.Config` object.
 
-        See Also
-        --------
-        :class:`sphinx.ext.napoleon.Config`
 
     Other Parameters
     ----------------
-    app : Optional[sphinx.application.Sphinx]
+    app : :class:`sphinx.application.Sphinx`, optional
         Application object representing the Sphinx process.
-    what : Optional[str]
+    what : :obj:`str`, optional
         A string specifying the type of the object to which the docstring
         belongs. Valid values: "module", "class", "exception", "function",
         "method", "attribute".
-    name : Optional[str]
+    name : :obj:`str`, optional
         The fully qualified name of the object.
     obj : module, class, exception, function, method, or attribute
         The object to which the docstring belongs.
-    options : Optional[sphinx.ext.autodoc.Options]
+    options : :class:`sphinx.ext.autodoc.Options`, optional
         The options given to the directive: an object with attributes
         inherited_members, undoc_members, show_inheritance and noindex that
         are True if the flag option of same name was given to the auto
@@ -823,7 +817,7 @@ class NumpyDocstring(GoogleDocstring):
 
         Returns
         -------
-        List[str]
+        :obj:`list` of :obj:`str`
             The lines of the docstring in a list.
 
     """

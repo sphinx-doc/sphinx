@@ -186,10 +186,73 @@ not be mixed. Choose one style for your project and be consistent with it.
    * :ref:`example_google`
    * :ref:`example_numpy`
 
-   For Python type annotations, see `PEP 484`_.
+
+Type Annotations
+----------------
+
+`PEP 484`_ introduced a standard way to express types in Python code.
+This is an alternative to expressing types directly in docstrings.
+One benefit of expressing types according to `PEP 484`_ is that
+type checkers and IDEs can take advantage of them for static code
+analysis.
+
+Google style with Python 3 type annotations::
+
+    def func(arg1: int, arg2: str) -> bool:
+        """Summary line.
+
+        Extended description of function.
+
+        Args:
+            arg1: Description of arg1
+            arg2: Description of arg2
+
+        Returns:
+            Description of return value
+
+        """
+        return True
+
+Google style with `Python 2/3 compatible annotations`_::
+
+    def func(arg1, arg2):
+        # type: (int, str) -> bool
+        """Summary line.
+
+        Extended description of function.
+
+        Args:
+            arg1: Description of arg1
+            arg2: Description of arg2
+
+        Returns:
+            Description of return value
+
+        """
+        return True
+
+Google style with types in docstrings::
+
+    def func(arg1, arg2):
+        """Summary line.
+
+        Extended description of function.
+
+        Args:
+            arg1 (int): Description of arg1
+            arg2 (str): Description of arg2
+
+        Returns:
+            bool: Description of return value
+
+        """
+        return True
 
 .. _PEP 484:
    https://www.python.org/dev/peps/pep-0484/
+
+.. _Python 2/3 compatible annotations:
+   https://www.python.org/dev/peps/pep-0484/#suggested-syntax-for-python-2-7-and-straddling-code
 
 
 Configuration

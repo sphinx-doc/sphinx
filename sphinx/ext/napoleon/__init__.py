@@ -51,13 +51,13 @@ class Config(object):
 
     Attributes
     ----------
-    napoleon_google_docstring : bool, defaults to True
+    napoleon_google_docstring : :obj:`bool` (Defaults to True)
         True to parse `Google style`_ docstrings. False to disable support
         for Google style docstrings.
-    napoleon_numpy_docstring : bool, defaults to True
+    napoleon_numpy_docstring : :obj:`bool` (Defaults to True)
         True to parse `NumPy style`_ docstrings. False to disable support
         for NumPy style docstrings.
-    napoleon_include_init_with_doc : bool, defaults to False
+    napoleon_include_init_with_doc : :obj:`bool` (Defaults to False)
         True to list ``__init___`` docstrings separately from the class
         docstring. False to fall back to Sphinx's default behavior, which
         considers the ``__init___`` docstring as part of the class
@@ -73,7 +73,7 @@ class Config(object):
             def __init__(self):
                 # This will NOT be included in the docs
 
-    napoleon_include_private_with_doc : bool, defaults to False
+    napoleon_include_private_with_doc : :obj:`bool` (Defaults to False)
         True to include private members (like ``_membername``) with docstrings
         in the documentation. False to fall back to Sphinx's default behavior.
 
@@ -89,7 +89,7 @@ class Config(object):
                 # This will NOT be included in the docs
                 pass
 
-    napoleon_include_special_with_doc : bool, defaults to False
+    napoleon_include_special_with_doc : :obj:`bool` (Defaults to False)
         True to include special members (like ``__membername__``) with
         docstrings in the documentation. False to fall back to Sphinx's
         default behavior.
@@ -106,7 +106,7 @@ class Config(object):
                 # This will NOT be included in the docs
                 return unicode(self.__class__.__name__)
 
-    napoleon_use_admonition_for_examples : bool, defaults to False
+    napoleon_use_admonition_for_examples : :obj:`bool` (Defaults to False)
         True to use the ``.. admonition::`` directive for the **Example** and
         **Examples** sections. False to use the ``.. rubric::`` directive
         instead. One may look better than the other depending on what HTML
@@ -130,7 +130,7 @@ class Config(object):
 
             This is just a quick example
 
-    napoleon_use_admonition_for_notes : bool, defaults to False
+    napoleon_use_admonition_for_notes : :obj:`bool` (Defaults to False)
         True to use the ``.. admonition::`` directive for **Notes** sections.
         False to use the ``.. rubric::`` directive instead.
 
@@ -143,7 +143,7 @@ class Config(object):
         --------
         :attr:`napoleon_use_admonition_for_examples`
 
-    napoleon_use_admonition_for_references : bool, defaults to False
+    napoleon_use_admonition_for_references : :obj:`bool` (Defaults to False)
         True to use the ``.. admonition::`` directive for **References**
         sections. False to use the ``.. rubric::`` directive instead.
 
@@ -151,7 +151,7 @@ class Config(object):
         --------
         :attr:`napoleon_use_admonition_for_examples`
 
-    napoleon_use_ivar : bool, defaults to False
+    napoleon_use_ivar : :obj:`bool` (Defaults to False)
         True to use the ``:ivar:`` role for instance variables. False to use
         the ``.. attribute::`` directive instead.
 
@@ -175,7 +175,7 @@ class Config(object):
 
                Description of `attr1`
 
-    napoleon_use_param : bool, defaults to True
+    napoleon_use_param : :obj:`bool` (Defaults to True)
         True to use a ``:param:`` role for each function parameter. False to
         use a single ``:parameters:`` role for all the parameters.
 
@@ -202,7 +202,7 @@ class Config(object):
                          * **arg2** (*int, optional*) --
                            Description of `arg2`, defaults to 0
 
-    napoleon_use_keyword : bool, defaults to True
+    napoleon_use_keyword : :obj:`bool` (Defaults to True)
         True to use a ``:keyword:`` role for each function keyword argument.
         False to use a single ``:keyword arguments:`` role for all the
         keywords.
@@ -217,7 +217,7 @@ class Config(object):
         --------
         :attr:`napoleon_use_param`
 
-    napoleon_use_rtype : bool, defaults to True
+    napoleon_use_rtype : :obj:`bool` (Defaults to True)
         True to use the ``:rtype:`` role for the return type. False to output
         the return type inline with the description.
 
@@ -297,20 +297,23 @@ def setup(app):
 
 
 def _patch_python_domain():
-    import sphinx.domains.python
-    from sphinx.domains.python import PyTypedField
-    import sphinx.locale
-    l_ = sphinx.locale.lazy_gettext
-    for doc_field in sphinx.domains.python.PyObject.doc_field_types:
-        if doc_field.name == 'parameter':
-            doc_field.names = ('param', 'parameter', 'arg', 'argument')
-            break
-    sphinx.domains.python.PyObject.doc_field_types.append(
-        PyTypedField('keyword', label=l_('Keyword Arguments'),
-                     names=('keyword', 'kwarg', 'kwparam'),
-                     typerolename='obj', typenames=('paramtype', 'kwtype'),
-                     can_collapse=True),
-    )
+    try:
+        from sphinx.domains.python import PyTypedField
+    except ImportError:
+        pass
+    else:
+        import sphinx.domains.python
+        import sphinx.locale
+        l_ = sphinx.locale.lazy_gettext
+        for doc_field in sphinx.domains.python.PyObject.doc_field_types:
+            if doc_field.name == 'parameter':
+                doc_field.names = ('param', 'parameter', 'arg', 'argument')
+                break
+        sphinx.domains.python.PyObject.doc_field_types.append(
+            PyTypedField('keyword', label=l_('Keyword Arguments'),
+                         names=('keyword', 'kwarg', 'kwparam'),
+                         typerolename='obj', typenames=('paramtype', 'kwtype'),
+                         can_collapse=True))
 
 
 def _process_docstring(app, what, name, obj, options, lines):

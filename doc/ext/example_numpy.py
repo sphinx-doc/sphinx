@@ -53,15 +53,58 @@ on the first line, separated by a colon.
 """
 
 
+def function_with_types_in_docstring(param1, param2):
+    """Example function with types documented in the docstring.
+
+    `PEP 484`_ type annotations are supported. If attribute, parameter, and
+    return types are annotated according to `PEP 484`_, they do not need to be
+    included in the docstring:
+
+    Parameters
+    ----------
+    param1 : int
+        The first parameter.
+    param2 : str
+        The second parameter.
+
+    Returns
+    -------
+    bool
+        True if successful, False otherwise.
+
+    .. _PEP 484:
+        https://www.python.org/dev/peps/pep-0484/
+
+    """
+
+
+def function_with_pep484_type_annotations(param1: int, param2: str) -> bool:
+    """Example function with PEP 484 type annotations.
+
+    The return type must be duplicated in the docstring to comply
+    with the NumPy docstring style.
+
+    Parameters
+    ----------
+    param1
+        The first parameter.
+    param2
+        The second parameter.
+
+    Returns
+    -------
+    bool
+        True if successful, False otherwise.
+
+    """
+
+
 def module_level_function(param1, param2=None, *args, **kwargs):
     """This is an example of a module level function.
 
     Function parameters should be documented in the ``Parameters`` section.
     The name of each parameter is required. The type and description of each
     parameter is optional, but should be included if not obvious.
-
-    Parameter types -- if given -- should be specified according to
-    `PEP 484`_, though `PEP 484`_ conformance isn't required or enforced.
 
     If \*args or \*\*kwargs are accepted,
     they should be listed as ``*args`` and ``**kwargs``.
@@ -82,7 +125,7 @@ def module_level_function(param1, param2=None, *args, **kwargs):
     ----------
     param1 : int
         The first parameter.
-    param2 : Optional[str]
+    param2 : :obj:`str`, optional
         The second parameter.
     *args
         Variable length argument list.
@@ -113,10 +156,6 @@ def module_level_function(param1, param2=None, *args, **kwargs):
         that are relevant to the interface.
     ValueError
         If `param2` is equal to `param1`.
-
-
-    .. _PEP 484:
-       https://www.python.org/dev/peps/pep-0484/
 
     """
     if param1 == param2:
@@ -167,7 +206,7 @@ class ExampleError(Exception):
     ----------
     msg : str
         Human readable string describing the exception.
-    code : Optional[int]
+    code : :obj:`int`, optional
         Numeric error code.
 
     Attributes
@@ -195,19 +234,12 @@ class ExampleClass(object):
     Properties created with the ``@property`` decorator should be documented
     in the property's getter method.
 
-    Attribute and property types -- if given -- should be specified according
-    to `PEP 484`_, though `PEP 484`_ conformance isn't required or enforced.
-
     Attributes
     ----------
     attr1 : str
         Description of `attr1`.
-    attr2 : Optional[int]
+    attr2 : :obj:`int`, optional
         Description of `attr2`.
-
-
-    .. _PEP 484:
-       https://www.python.org/dev/peps/pep-0484/
 
     """
 
@@ -228,10 +260,10 @@ class ExampleClass(object):
         ----------
         param1 : str
             Description of `param1`.
-        param2 : List[str]
+        param2 : :obj:`list` of :obj:`str`
             Description of `param2`. Multiple
             lines are supported.
-        param3 : Optional[int]
+        param3 : :obj:`int`, optional
             Description of `param3`.
 
         """
@@ -239,11 +271,11 @@ class ExampleClass(object):
         self.attr2 = param2
         self.attr3 = param3  #: Doc comment *inline* with attribute
 
-        #: List[str]: Doc comment *before* attribute, with type specified
+        #: list of str: Doc comment *before* attribute, with type specified
         self.attr4 = ["attr4"]
 
         self.attr5 = None
-        """Optional[str]: Docstring *after* attribute, with type specified."""
+        """str: Docstring *after* attribute, with type specified."""
 
     @property
     def readonly_property(self):
@@ -252,8 +284,8 @@ class ExampleClass(object):
 
     @property
     def readwrite_property(self):
-        """List[str]: Properties with both a getter and setter should only
-        be documented in their getter method.
+        """:obj:`list` of :obj:`str`: Properties with both a getter and setter
+        should only be documented in their getter method.
 
         If the setter method contains notable behavior, it should be
         mentioned here.
