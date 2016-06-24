@@ -6,18 +6,18 @@ Incompatible changes
 
 * latex, inclusion of non-inline images from image directive resulted in
   non-coherent whitespaces depending on original image width; new behaviour
-  by necessity from earlier one in some cases. (ref: #2672)
+  by necessity differs from earlier one in some cases. (ref: #2672)
 * latex, use of ``\includegraphics`` to refer to Sphinx custom variant is
-  deprecated; in future it will revert to original LaTeX macro, custom one has
-  already alternative name ``\sphinxincludegraphics``.
+  deprecated; in future it will revert to original LaTeX macro, custom one
+  already has alternative name ``\sphinxincludegraphics``.
 
 Features added
 --------------
 
 * new config option ``latex_keep_old_macro_names``, defaults to True. If False,
-  let macros (for text styling) be defined only with ``\sphinx``-prefixed names.
+  lets macros (for text styling) be defined only with ``\sphinx``-prefixed names.
 * latex writer allows user customization of "shadowed" boxes (topics), via
-  three length variables
+  three length variables.
 
 Bugs fixed
 ----------
