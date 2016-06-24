@@ -4133,15 +4133,16 @@ class CPPDomain(Domain):
         def checkType():
             if typ == 'any':
                 return True
-            elif typ == 'var' or typ == 'member':
-                return declTyp == 'var' or declTyp == 'member'
-            elif typ in ['enum', 'enumerator', 'class', 'function']:
+            if declTyp == 'templateParam':
+                return True
+            if typ == 'var' or typ == 'member':
+                return declTyp in ['var', 'member']
+            if typ in ['enum', 'enumerator', 'function', 'class']:
                 return declTyp == typ
-            elif typ == 'type':
+            if typ == 'type':
                 return declTyp in ['enum', 'class', 'function', 'type']
-            else:
-                print("Type is %s" % typ)
-                assert False
+            print("Type is %s" % typ)
+            assert False
         if not checkType():
             warner.warn("cpp:%s targets a %s." % (typ, s.declaration.objectType))
 
