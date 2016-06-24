@@ -309,3 +309,7 @@ def find_files(root, suffix=None):
         for f in [f for f in files if not suffix or f.endswith(suffix)]:
             fpath = dirpath / f
             yield os.path.relpath(fpath, root)
+
+
+def strip_escseq(text):
+    return re.sub('\x1b.*?m', '', text)

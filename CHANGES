@@ -45,6 +45,7 @@ Features added
   - booleans ``\ifsphinxverbatimwithframe`` and ``\ifsphinxverbatimwrapslines``.
 * latex, captions for literal blocks inside tables are handled, and long code
   lines wrapped to fit table cell (ref: #2704)
+* #2597: Show warning messages as darkred
 
 Bugs fixed
 ----------
