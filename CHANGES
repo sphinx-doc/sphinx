@@ -56,6 +56,8 @@ Bugs fixed
 * Failed to build PDF with framed.sty 0.95
 * Sphinx now bundles needspace.sty
 * #2666: C++, properly look up nested names involving constructors.
+* #2579: Could not refer a label including both spaces and colons via
+  `sphinx.ext.intersphinx`
 
 
 Release 1.4.3 (released Jun 5, 2016)

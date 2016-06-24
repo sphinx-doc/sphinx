@@ -43,6 +43,7 @@ module2 py:module 0 foo.html#module-$ -
 module1.func py:function 1 sub/foo.html#$ -
 CFunc c:function 2 cfunc.html#CFunc -
 a term std:term -1 glossary.html#term-a-term -
+a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
 '''.encode('utf-8'))
 
 
@@ -78,6 +79,8 @@ def test_read_inventory_v2():
     assert invdata1['c:function']['CFunc'][2] == '/util/cfunc.html#CFunc'
     assert invdata1['std:term']['a term'][2] == \
         '/util/glossary.html#term-a-term'
+    assert invdata1['std:term']['a term including:colon'][2] == \
+        '/util/glossary.html#term-a-term-including-colon'
 
 
 @with_app()
