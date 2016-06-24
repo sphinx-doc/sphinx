@@ -208,12 +208,14 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         self.info('writing project file...')
         f = self.open_file(outdir, outname+'.hhp')
         try:
-            f.write(project_template % {'outname': outname,
-                                        'title': self.config.html_title,
-                                        'version': self.config.version,
-                                        'project': self.config.project,
-                                        'lcid': self.lcid,
-                                        'master_doc': self.config.master_doc + self.out_suffix})
+            f.write(project_template % {
+                'outname': outname,
+                'title': self.config.html_title,
+                'version': self.config.version,
+                'project': self.config.project,
+                'lcid': self.lcid,
+                'master_doc': self.config.master_doc + self.out_suffix
+            })
             if not outdir.endswith(os.sep):
                 outdir += os.sep
             olen = len(outdir)
