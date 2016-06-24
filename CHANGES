@@ -30,6 +30,7 @@ Bugs fixed
 * #2705: `toctree` generates empty bullet_list if ``:titlesonly:`` specified
 * #2479: `sphinx.ext.viewcode` uses python2 highlighter by default
 * #2700: HtmlHelp builder has hard coded index.html
+* latex, since 1.4.4 inline literal text is followed by spurious space
 
 
 Release 1.4.4 (released Jun 12, 2016)
