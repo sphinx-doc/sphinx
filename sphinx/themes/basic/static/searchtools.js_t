@@ -256,7 +256,7 @@ var Search = {
             displayNextItem();
           });
         } else if (DOCUMENTATION_OPTIONS.HAS_SOURCE) {
-          $.ajax({url: DOCUMENTATION_OPTIONS.URL_ROOT + '_sources/' + item[5] + '.txt',
+          $.ajax({url: DOCUMENTATION_OPTIONS.URL_ROOT + '_sources/' + item[5] + (item[5].endsWith('.txt') ? '' : '.txt'),
                   dataType: "text",
                   complete: function(jqxhr, textstatus) {
                     var data = jqxhr.responseText;
