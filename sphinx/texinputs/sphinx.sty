@@ -964,9 +964,9 @@
 \newcommand*{\fnum@literalblock}{\literalblockname\nobreakspace\theliteralblock}
 % this will be overwritten in document preamble by Babel translation
 \newcommand*{\literalblockname}{Listing }
-% file extension needed for \caption's good functioning, but file isn't
-% created without \listofliteralblocks. The latter macro could be defined
-% on model of \listoffigures.
+% file extension needed for \caption's good functioning, the file is created
+% only if a \listof{literalblock}{foo} command is encountered, which is
+% analogous to \listoffigures, but for the code listings (foo = chosen title.)
 \newcommand*{\ext@literalblock}{lol}
 
 % control caption around literal-block
