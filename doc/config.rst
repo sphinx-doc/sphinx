@@ -1601,6 +1601,15 @@ These options influence LaTeX output. See further :doc:`latex`.
      ``'pointsize'``
         Point size option of the document class (``'10pt'``, ``'11pt'`` or
         ``'12pt'``), default ``'10pt'``.
+     ``'pxunit'``
+        the value of the ``px`` when used in image attributes ``width`` and
+        ``height``. The default value is ``'49336sp'`` which achieves
+        ``96px=1in`` (``1in = 72.27*65536 = 4736286.72sp``, and all dimensions
+        in TeX are internally integer multiples of ``sp``). To obtain for
+        example ``100px=1in``, one can use ``'0.01in'`` but it is more precise
+        to use ``'47363sp'``.
+
+        .. versionadded:: 1.5
      ``'babel'``
         "babel" package inclusion, default ``'\\usepackage{babel}'``.
      ``'fontpkg'``
