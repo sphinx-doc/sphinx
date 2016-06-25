@@ -13,6 +13,10 @@ Incompatible changes
   it was shipped with Sphinx since 1.3.4).
 * latex, literal blocks in tables do not use OriginalVerbatim but
   sphinxVerbatimintable which handles captions and wraps lines(ref #2704).
+* latex, if ``width`` or ``height`` attribute of images are given with no unit,
+  use ``bp`` rather than ignore it.
+* latex, convert ``pt`` to TeX equivalent ``bp`` if found in ``width`` or
+  ``height`` attribute of images.
 
 
 Features added
@@ -47,11 +51,14 @@ Features added
   lines wrapped to fit table cell (ref: #2704)
 * #2597: Show warning messages as darkred
 * latex, allow image dimensions using px unit (default is 96px=1in)
+* latex, allow ``figwidth`` with px unit (also xelatex/platex; ref #2712)
 
 Bugs fixed
 ----------
 
 * #2707: (latex) the column width is badly computed for tabular
+* #2712: latex has two distinct python functions to convert dimensions and
+  they behave differently
 
 Documentation
 -------------

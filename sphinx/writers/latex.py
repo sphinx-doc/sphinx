@@ -270,6 +270,7 @@ class Table(object):
         self.longtable = False
 
 
+# this is not used but maintained for <1.5 compat. See latex_dim_to_latexdim.
 def width_to_latex_length(length_str):
     """Convert `length_str` with rst length to LaTeX length.
 
@@ -1378,19 +1379,23 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def latex_image_length(self, width_str):
-        match = re.match('(\d*\.?\d*)\s*(\S*)', width_str)
+        return self.latex_dim_to_latexdim(width_str)
+
+    def latex_dim_to_latexdim(self, length_str):
+        match = re.match('(\d*\.?\d*)\s*(\S*)', length_str)
         if not match:
             # fallback
-            return width_str
-        res = width_str
+            return length_str
         amount, unit = match.groups()[:2]
-        if not unit:
-            return None
+        if unit in ('', 'pt'):
+            length_str = '%sbp' % amount  # convert to 'bp'
+        # px unit not accepted by all engines
         elif unit == "px":
-            res = "%.3f\\sphinxpxdimen" % (float(amount))
+            length_str = "%.3f\\sphinxpxdimen" % (float(amount))
+        # relate % to current line width (fits with lists or quotes)
         elif unit == "%":
-            res = "%.3f\\linewidth" % (float(amount) / 100.0)
-        return res
+            length_str = "%.3f\\linewidth" % (float(amount) / 100.0)
+        return length_str
 
     def is_inline(self, node):
         """Check whether a node represents an inline element."""
@@ -1408,13 +1413,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             pre.append('\\scalebox{%f}{' % (attrs['scale'] / 100.0,))
             post.append('}')
         if 'width' in attrs:
-            w = self.latex_image_length(attrs['width'])
-            if w:
-                include_graphics_options.append('width=%s' % w)
+            w = self.latex_dim_to_latexdim(attrs['width'])
+            include_graphics_options.append('width=%s' % w)
         if 'height' in attrs:
-            h = self.latex_image_length(attrs['height'])
-            if h:
-                include_graphics_options.append('height=%s' % h)
+            h = self.latex_dim_to_latexdim(attrs['height'])
+            include_graphics_options.append('height=%s' % h)
         if 'align' in attrs:
             align_prepost = {
                 # By default latex aligns the top of an image.
@@ -1472,7 +1475,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.table:
             # TODO: support align option
             if 'width' in node:
-                length = width_to_latex_length(node['width'])
+                length = self.latex_dim_to_latexdim(node['width'])
                 self.body.append('\\begin{sphinxfigure-in-table}[%s]\n\\centering\n' % length)
             else:
                 self.body.append('\\begin{sphinxfigure-in-table}\n\\centering\n')
@@ -1481,9 +1484,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.context.append(ids + '\\end{sphinxfigure-in-table}\\relax\n')
         elif node.get('align', '') in ('left', 'right'):
             if 'width' in node:
-                length = width_to_latex_length(node['width'])
+                length = self.latex_dim_to_latexdim(node['width'])
             elif 'width' in node[0]:
-                length = width_to_latex_length(node[0]['width'])
+                length = self.latex_dim_to_latexdim(node[0]['width'])
             else:
                 length = '0pt'
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
