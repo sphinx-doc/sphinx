@@ -270,25 +270,6 @@ class Table(object):
         self.longtable = False
 
 
-# this is not used but maintained for <1.5 compat. See latex_dim_to_latexdim.
-def width_to_latex_length(length_str):
-    """Convert `length_str` with rst length to LaTeX length.
-
-    This function is copied from docutils' latex writer
-    """
-    match = re.match('(\d*\.?\d*)\s*(\S*)', length_str)
-    if not match:
-        return length_str
-    value, unit = match.groups()[:2]
-    if unit in ('', 'pt'):
-        length_str = '%sbp' % value  # convert to 'bp'
-    # percentage: relate to current line width
-    elif unit == '%':
-        length_str = '%.3f\\linewidth' % (float(value)/100.0)
-
-    return length_str
-
-
 def escape_abbr(text):
     """Adjust spacing after abbreviations."""
     return re.sub('\.(?=\s|$)', '.\\@', text)

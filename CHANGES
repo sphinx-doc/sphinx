@@ -13,10 +13,10 @@ Incompatible changes
   it was shipped with Sphinx since 1.3.4).
 * latex, literal blocks in tables do not use OriginalVerbatim but
   sphinxVerbatimintable which handles captions and wraps lines(ref #2704).
-* latex, if ``width`` or ``height`` attribute of images are given with no unit,
+* latex, if ``width`` or ``height`` attribute of an image is given with no unit,
   use ``bp`` rather than ignore it.
 * latex, convert ``pt`` to TeX equivalent ``bp`` if found in ``width`` or
-  ``height`` attribute of images.
+  ``height`` attribute of an image.
 
 
 Features added
