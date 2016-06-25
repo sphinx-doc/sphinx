@@ -47,7 +47,10 @@
 % Handle footnotes in tables.
 \RequirePackage{footnote}
 \makesavenoteenv{tabulary}
-% For floating figures in the text.
+% For the H specifier. Do not \restylefloat{figure}, it breaks Sphinx code
+% for allowing figures in tables.
+\RequirePackage{float}
+% For floating figures in the text. Better to load after float.
 \RequirePackage{wrapfig}
 % Separate paragraphs by space by default.
 \RequirePackage{parskip}
@@ -55,9 +58,6 @@
 \RequirePackage{alltt}
 % Display "real" single quotes in literal blocks.
 \RequirePackage{upquote}
-% For the H specifier. Do not \restylefloat{figure}, it breaks Sphinx code
-% for allowing figures in tables.
-\RequirePackage{float}
 
 % Redefine these colors to your liking in the preamble.
 \definecolor{TitleColor}{rgb}{0.126,0.263,0.361}
