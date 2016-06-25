@@ -339,6 +339,7 @@ class StandaloneHTMLBuilder(Builder):
             show_sphinx = self.config.html_show_sphinx,
             has_source = self.config.html_copy_source,
             show_source = self.config.html_show_sourcelink,
+            sourcelink_suffix = self.config.html_sourcelink_suffix,
             file_suffix = self.out_suffix,
             script_files = self.script_files,
             language = self.config.language,

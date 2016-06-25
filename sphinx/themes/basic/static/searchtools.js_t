@@ -256,7 +256,8 @@ var Search = {
             displayNextItem();
           });
         } else if (DOCUMENTATION_OPTIONS.HAS_SOURCE) {
-          $.ajax({url: DOCUMENTATION_OPTIONS.URL_ROOT + '_sources/' + item[5] + (item[5].endsWith('.txt') ? '' : '.txt'),
+          var suffix = DOCUMENTATION_OPTIONS.SOURCELINK_SUFFIX;
+          $.ajax({url: DOCUMENTATION_OPTIONS.URL_ROOT + '_sources/' + item[5] + (item[5].endsWith(suffix) ? '' : suffix),
                   dataType: "text",
                   complete: function(jqxhr, textstatus) {
                     var data = jqxhr.responseText;
