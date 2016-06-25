@@ -1368,11 +1368,13 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # fallback
             return length_str
         amount, unit = match.groups()[:2]
-        if unit in ('', 'pt'):
+        if not unit:
+            length_str = '%s\\sphinxpxdimen' % amount
+        elif unit == "pt":
             length_str = '%sbp' % amount  # convert to 'bp'
-        # px unit not accepted by all engines
+        # px unit not natively accepted by all engines, use \sphinxpxdimen
         elif unit == "px":
-            length_str = "%.3f\\sphinxpxdimen" % (float(amount))
+            length_str = "%s\\sphinxpxdimen" % amount
         # relate % to current line width (fits with lists or quotes)
         elif unit == "%":
             length_str = "%.3f\\linewidth" % (float(amount) / 100.0)
