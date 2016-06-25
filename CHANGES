@@ -64,18 +64,18 @@ Incompatible changes
 
 * latex, inclusion of non-inline images from image directive resulted in
   non-coherent whitespaces depending on original image width; new behaviour
-  by necessity from earlier one in some cases. (ref: #2672)
+  by necessity differs from earlier one in some cases. (ref: #2672)
 * latex, use of ``\includegraphics`` to refer to Sphinx custom variant is
-  deprecated; in future it will revert to original LaTeX macro, custom one has
-  already alternative name ``\sphinxincludegraphics``.
+  deprecated; in future it will revert to original LaTeX macro, custom one
+  already has alternative name ``\sphinxincludegraphics``.
 
 Features added
 --------------
 
 * new config option ``latex_keep_old_macro_names``, defaults to True. If False,
-  let macros (for text styling) be defined only with ``\sphinx``-prefixed names.
+  lets macros (for text styling) be defined only with ``\sphinx``-prefixed names.
 * latex writer allows user customization of "shadowed" boxes (topics), via
-  three length variables
+  three length variables.
 
 Bugs fixed
 ----------
@@ -85,6 +85,10 @@ Bugs fixed
 * #2684: `sphinx.ext.intersphinx` crashes with six-1.4.1
 * #2679: ``float`` package needed for ``'figure_align': 'H'`` latex option
 * #2671: image directive may lead to inconsistent spacing in pdf
+* #2705: ``toctree`` generates empty bullet_list if ``:titlesonly:`` specified
+* #2479: `sphinx.ext.viewcode` uses python2 highlighter by default
+* #2700: HtmlHelp builder has hard coded index.html
+* latex, since 1.4.4 inline literal text is followed by spurious space
 
 
 Release 1.4.4 (released Jun 12, 2016)
@@ -111,6 +115,8 @@ Bugs fixed
 * Failed to build PDF with framed.sty 0.95
 * Sphinx now bundles needspace.sty
 * #2666: C++, properly look up nested names involving constructors.
+* #2579: Could not refer a label including both spaces and colons via
+  `sphinx.ext.intersphinx`
 
 
 Release 1.4.3 (released Jun 5, 2016)

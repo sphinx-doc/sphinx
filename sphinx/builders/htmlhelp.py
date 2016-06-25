@@ -63,7 +63,7 @@ Binary Index=No
 Compiled file=%(outname)s.chm
 Contents file=%(outname)s.hhc
 Default Window=%(outname)s
-Default topic=index.html
+Default topic=%(master_doc)s
 Display compile progress=No
 Full text search stop list file=%(outname)s.stp
 Full-text search=Yes
@@ -73,7 +73,7 @@ Title=%(title)s
 
 [WINDOWS]
 %(outname)s="%(title)s","%(outname)s.hhc","%(outname)s.hhk",\
-"index.html","index.html",,,,,0x63520,220,0x10384e,[0,0,1024,768],,,,,,,0
+"%(master_doc)s","%(master_doc)s",,,,,0x63520,220,0x10384e,[0,0,1024,768],,,,,,,0
 
 [FILES]
 '''
@@ -204,11 +204,14 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
         self.info('writing project file...')
         with self.open_file(outdir, outname+'.hhp') as f:
-            f.write(project_template % {'outname': outname,
-                                        'title': self.config.html_title,
-                                        'version': self.config.version,
-                                        'project': self.config.project,
-                                        'lcid': self.lcid})
+            f.write(project_template % {
+                'outname': outname,
+                'title': self.config.html_title,
+                'version': self.config.version,
+                'project': self.config.project,
+                'lcid': self.lcid,
+                'master_doc': self.config.master_doc + self.out_suffix
+            })
             if not outdir.endswith(os.sep):
                 outdir += os.sep
             olen = len(outdir)
@@ -225,7 +228,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             f.write(contents_header)
             # special books
             f.write('<LI> ' + object_sitemap % (self.config.html_short_title,
-                                                'index.html'))
+                                                self.config.master_doc + self.out_suffix))
             for indexname, indexcls, content, collapse in self.domain_indices:
                 f.write('<LI> ' + object_sitemap % (indexcls.localname,
                                                     '%s.html' % indexname))

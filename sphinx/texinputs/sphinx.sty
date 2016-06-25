@@ -162,7 +162,7 @@
 % let \sphinxcode and \sphinxbfcode use straight quotes. \@noligs patched by upquote,
 % but needs protection in "moving arguments" such as for captions.
 % Use \scantokens to handle e.g. \item[{\sphinxcode{'fontenc'}}]
-\DeclareRobustCommand{\sphinxcode}[1]{{\@noligs\scantokens{\texttt{#1}}}}
+\DeclareRobustCommand{\sphinxcode}[1]{{\@noligs\scantokens{\texttt{#1}\relax}}}
 \newcommand{\sphinxbfcode}[1]{\sphinxcode{\bfseries#1}}
 \newcommand{\sphinxemail}[1]{\textsf{#1}}
 \newcommand{\sphinxtablecontinued}[1]{\textsf{#1}}
@@ -1005,7 +1005,7 @@
 }
   % robustified case needs special treatment
   \newcommand\code{}\let\code\relax
-  \DeclareRobustCommand{\code}[1]{{\@noligs\scantokens{\texttt{#1}}}}
+  \DeclareRobustCommand{\code}[1]{{\@noligs\scantokens{\texttt{#1}\relax}}}
   \def\sphinxcode{\code}%
 \fi
 
