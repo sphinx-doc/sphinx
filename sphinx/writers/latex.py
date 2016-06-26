@@ -275,6 +275,24 @@ def escape_abbr(text):
     return re.sub('\.(?=\s|$)', '.\\@', text)
 
 
+def rstdim_to_latexdim(width_str):
+    """Convert `width_str` with rst length to LaTeX length."""
+    match = re.match('(\d*\.?\d*)\s*(\S*)', width_str)
+    if not match:
+        raise ValueError
+    res = width_str
+    amount, unit = match.groups()[:2]
+    if not unit:
+        return None
+    elif unit == 'pt':
+        res = '%sbp' % amount  # convert to 'bp'
+    elif unit == "px":
+        res = "%.3f\\sphinxpxdimen" % (float(amount))
+    elif unit == "%":
+        res = "%.3f\\linewidth" % (float(amount) / 100.0)
+    return res
+
+
 class LaTeXTranslator(nodes.NodeVisitor):
     sectionnames = ["part", "chapter", "section", "subsection",
                     "subsubsection", "paragraph", "subparagraph"]
@@ -1360,25 +1378,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def latex_image_length(self, width_str):
-        """Convert `width_str` with rst length to LaTeX length.
-
-        This function is copied from docutils' latex writer
-        """
-        match = re.match('(\d*\.?\d*)\s*(\S*)', width_str)
-        if not match:
-            # fallback
-            return width_str
-        res = width_str
-        amount, unit = match.groups()[:2]
-        if not unit:
-            return None
-        elif unit == 'pt':
-            res = '%sbp' % amount  # convert to 'bp'
-        elif unit == "px":
-            res = "%.3f\\sphinxpxdimen" % (float(amount))
-        elif unit == "%":
-            res = "%.3f\\linewidth" % (float(amount) / 100.0)
-        return res
+        try:
+            return rstdim_to_latexdim(width_str)
+        except ValueError:
+            self.builder.warn('dimension unit %s is invalid. Ignored.' % width_str)
 
     def is_inline(self, node):
         """Check whether a node represents an inline element."""

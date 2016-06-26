@@ -49,6 +49,8 @@ Features added
   lines wrapped to fit table cell (ref: #2704)
 * #2597: Show warning messages as darkred
 * latex, allow image dimensions using px unit (default is 96px=1in)
+* Show warnings if invalid dimension units found
+
 
 Bugs fixed
 ----------
