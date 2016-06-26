@@ -27,7 +27,7 @@ Bugs fixed
 * #2684: `sphinx.ext.intersphinx` crashes with six-1.4.1
 * #2679: ``float`` package needed for ``'figure_align': 'H'`` latex option
 * #2671: image directive may lead to inconsistent spacing in pdf
-* #2705: `toctree` generates empty bullet_list if ``:titlesonly:`` specified
+* #2705: ``toctree`` generates empty bullet_list if ``:titlesonly:`` specified
 * #2479: `sphinx.ext.viewcode` uses python2 highlighter by default
 * #2700: HtmlHelp builder has hard coded index.html
 * latex, since 1.4.4 inline literal text is followed by spurious space
