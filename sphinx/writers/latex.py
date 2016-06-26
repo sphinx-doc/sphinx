@@ -1463,21 +1463,22 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # TODO: support align option
             if 'width' in node:
                 length = self.latex_image_length(node['width'])
-                self.body.append('\\begin{sphinxfigure-in-table}[%s]\n\\centering\n' % length)
+                if length:
+                    self.body.append('\\begin{sphinxfigure-in-table}[%s]\n'
+                                     '\\centering\n' % length)
             else:
                 self.body.append('\\begin{sphinxfigure-in-table}\n\\centering\n')
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart')
             self.context.append(ids + '\\end{sphinxfigure-in-table}\\relax\n')
         elif node.get('align', '') in ('left', 'right'):
+            length = None
             if 'width' in node:
                 length = self.latex_image_length(node['width'])
             elif 'width' in node[0]:
                 length = self.latex_image_length(node[0]['width'])
-            else:
-                length = '0pt'
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
-                             (node['align'] == 'right' and 'r' or 'l', length))
+                             (node['align'] == 'right' and 'r' or 'l', length or '0pt'))
             self.context.append(ids + '\\end{wrapfigure}\n')
         elif self.in_minipage:
             if ('align' not in node.attributes or
