@@ -283,12 +283,10 @@ def rstdim_to_latexdim(width_str):
     res = width_str
     amount, unit = match.groups()[:2]
     float(amount)  # validate amount is float
-    if not unit:
-        return None
+    if unit in ('', "px"):
+        res = "%s\\sphinxpxdimen" % amount
     elif unit == 'pt':
         res = '%sbp' % amount  # convert to 'bp'
-    elif unit == "px":
-        res = "%s\\sphinxpxdimen" % amount
     elif unit == "%":
         res = "%.3f\\linewidth" % (float(amount) / 100.0)
     return res

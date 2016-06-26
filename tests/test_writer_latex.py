@@ -25,7 +25,7 @@ def test_rstdim_to_latexdim():
     assert rstdim_to_latexdim('160pt') == '160bp'
     assert rstdim_to_latexdim('160pc') == '160pc'
     assert rstdim_to_latexdim('30%') == '0.300\\linewidth'
-    assert rstdim_to_latexdim('160') is None
+    assert rstdim_to_latexdim('160') == '160\\sphinxpxdimen'
 
     # flaot values
     assert rstdim_to_latexdim('160.0em') == '160.0em'
