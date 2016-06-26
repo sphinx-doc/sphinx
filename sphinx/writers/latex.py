@@ -1350,7 +1350,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         amount, unit = match.groups()[:2]
         if figure and unit in ('', 'pt'):
             res = '%sbp' % amount  # convert to 'bp'
-        if not unit or unit == "px":
+        elif not unit or unit == "px":
             # pixels: let LaTeX alone
             return None
         elif unit == "%":
