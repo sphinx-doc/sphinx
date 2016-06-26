@@ -270,24 +270,6 @@ class Table(object):
         self.longtable = False
 
 
-def width_to_latex_length(length_str):
-    """Convert `length_str` with rst length to LaTeX length.
-
-    This function is copied from docutils' latex writer
-    """
-    match = re.match('(\d*\.?\d*)\s*(\S*)', length_str)
-    if not match:
-        return length_str
-    value, unit = match.groups()[:2]
-    if unit in ('', 'pt'):
-        length_str = '%sbp' % value  # convert to 'bp'
-    # percentage: relate to current line width
-    elif unit == '%':
-        length_str = '%.3f\\linewidth' % (float(value)/100.0)
-
-    return length_str
-
-
 def escape_abbr(text):
     """Adjust spacing after abbreviations."""
     return re.sub('\.(?=\s|$)', '.\\@', text)
@@ -1377,14 +1359,23 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_hlistcol(self, node):
         pass
 
-    def latex_image_length(self, width_str):
+    def latex_image_length(self, width_str, figure=False):
+        """Convert `width_str` with rst length to LaTeX length.
+
+        This function is copied from docutils' latex writer
+
+        The last parameter, ``figure`` is only for compatibility with 1.4.4.
+        It will be removed at Sphinx-1.5.
+        """
         match = re.match('(\d*\.?\d*)\s*(\S*)', width_str)
         if not match:
             # fallback
             return width_str
         res = width_str
         amount, unit = match.groups()[:2]
-        if not unit:
+        if figure and unit in ('', 'pt'):
+            res = '%sbp' % amount  # convert to 'bp'
+        elif not unit:
             return None
         elif unit == "px":
             res = "%.3f\\sphinxpxdimen" % (float(amount))
@@ -1472,7 +1463,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.table:
             # TODO: support align option
             if 'width' in node:
-                length = width_to_latex_length(node['width'])
+                length = self.latex_image_length(node['width'], figure=True)
                 self.body.append('\\begin{sphinxfigure-in-table}[%s]\n\\centering\n' % length)
             else:
                 self.body.append('\\begin{sphinxfigure-in-table}\n\\centering\n')
@@ -1481,9 +1472,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.context.append(ids + '\\end{sphinxfigure-in-table}\\relax\n')
         elif node.get('align', '') in ('left', 'right'):
             if 'width' in node:
-                length = width_to_latex_length(node['width'])
+                length = self.latex_image_length(node['width'], figure=True)
             elif 'width' in node[0]:
-                length = width_to_latex_length(node[0]['width'])
+                length = self.latex_image_length(node[0]['width'], figure=True)
             else:
                 length = '0pt'
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
