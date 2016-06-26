@@ -540,6 +540,40 @@ def _verify_description_mode(mode):
         raise Exception("Description mode '%s' is invalid." % mode)
 
 
+class ASTGnuAttribute(ASTBase):
+    def __init__(self, name, args):
+        self.name = name
+        self.args = args
+
+    def __unicode__(self):
+        res = [self.name]
+        if self.args:
+            res.append('(')
+            res.append(text_type(self.args))
+            res.append(')')
+        return ''.join(res)
+
+
+class ASTGnuAttributeList(ASTBase):
+    def __init__(self, attrs):
+        self.attrs = attrs
+
+    def __unicode__(self):
+        res = ['__attribute__((']
+        first = True
+        for attr in self.attrs:
+            if not first:
+                res.append(', ')
+            first = False
+            res.append(text_type(attr))
+        res.append('))')
+        return ''.join(res)
+
+    def describe_signature(self, signode):
+        txt = text_type(self)
+        signode.append(nodes.Text(txt, txt))
+
+
 class ASTIdentifier(ASTBase):
     def __init__(self, identifier):
         assert identifier is not None
@@ -1256,7 +1290,7 @@ class ASTParametersQualifiers(ASTBase):
 
 class ASTDeclSpecsSimple(ASTBase):
     def __init__(self, storage, threadLocal, inline, virtual, explicit,
-                 constexpr, volatile, const, friend):
+                 constexpr, volatile, const, friend, attrs):
         self.storage = storage
         self.threadLocal = threadLocal
         self.inline = inline
@@ -1266,6 +1300,7 @@ class ASTDeclSpecsSimple(ASTBase):
         self.volatile = volatile
         self.const = const
         self.friend = friend
+        self.attrs = attrs
 
     def mergeWith(self, other):
         if not other:
@@ -1278,10 +1313,12 @@ class ASTDeclSpecsSimple(ASTBase):
                                   self.constexpr or other.constexpr,
                                   self.volatile or other.volatile,
                                   self.const or other.const,
-                                  self.friend or other.friend)
+                                  self.friend or other.friend,
+                                  self.attrs + other.attrs)
 
     def __unicode__(self):
         res = []
+        res.extend(text_type(attr) for attr in self.attrs)
         if self.storage:
             res.append(self.storage)
         if self.threadLocal:
@@ -1307,6 +1344,10 @@ class ASTDeclSpecsSimple(ASTBase):
             if len(modifiers) > 0:
                 modifiers.append(nodes.Text(' '))
             modifiers.append(addnodes.desc_annotation(text, text))
+        for attr in self.attrs:
+            if len(modifiers) > 0:
+                modifiers.append(nodes.Text(' '))
+            modifiers.append(attr.describe_signature(modifiers))
         if self.storage:
             _add(modifiers, self.storage)
         if self.threadLocal:
@@ -2785,6 +2826,12 @@ class DefinitionParser(object):
             return True
         return False
 
+    def skip_string_and_ws(self, string):
+        if self.skip_string(string):
+            self.skip_ws()
+            return True
+        return False
+
     @property
     def eof(self):
         return self.pos >= self.end
@@ -2810,6 +2857,38 @@ class DefinitionParser(object):
         self.skip_ws()
         if not self.eof:
             self.fail('Expected end of definition.')
+
+    def _parse_attribute(self):
+        self.skip_ws()
+        # try C++11 style
+        # TODO: implement
+
+        # try GNU style
+        if self.skip_word_and_ws('__attribute__'):
+            if not self.skip_string_and_ws('('):
+                self.fail("Expected '(' after '__attribute__'.")
+            if not self.skip_string_and_ws('('):
+                self.fail("Expected '(' after '__attribute__('.")
+            attrs = []
+            while 1:
+                if self.match(_identifier_re):
+                    name = self.matched_text
+                    self.skip_ws()
+                    if self.skip_string_and_ws('('):
+                        self.fail('Parameterized GNU style attribute not yet supported.')
+                    attrs.append(ASTGnuAttribute(name, None))
+                    # TODO: parse arguments for the attribute
+                if self.skip_string_and_ws(','):
+                    continue
+                elif self.skip_string_and_ws(')'):
+                    break
+                else:
+                    self.fail("Expected identifier, ')', or ',' in __attribute__.")
+            if not self.skip_string_and_ws(')'):
+                self.fail("Expected ')' after '__attribute__((...)'")
+            return ASTGnuAttributeList(attrs)
+
+        return None
 
     def _parse_expression(self, end):
         # Stupidly "parse" an expression.
@@ -3092,6 +3171,7 @@ class DefinitionParser(object):
         volatile = None
         const = None
         friend = None
+        attrs = []
         while 1:  # accept any permutation of a subset of some decl-specs
             self.skip_ws()
             if not storage:
@@ -3145,9 +3225,14 @@ class DefinitionParser(object):
                 const = self.skip_word('const')
                 if const:
                     continue
+            attr = self._parse_attribute()
+            if attr:
+                attrs.append(attr)
+                continue
             break
         return ASTDeclSpecsSimple(storage, threadLocal, inline, virtual,
-                                  explicit, constexpr, volatile, const, friend)
+                                  explicit, constexpr, volatile, const,
+                                  friend, attrs)
 
     def _parse_decl_specs(self, outer, typed=True):
         if outer:
@@ -4144,7 +4229,9 @@ class CPPDomain(Domain):
             print("Type is %s" % typ)
             assert False
         if not checkType():
-            warner.warn("cpp:%s targets a %s." % (typ, s.declaration.objectType))
+            warner.warn("cpp:%s targets a %s (%s)."
+                        % (typ, s.declaration.objectType,
+                           s.get_full_nested_name()))
 
         declaration = s.declaration
         fullNestedName = s.get_full_nested_name()

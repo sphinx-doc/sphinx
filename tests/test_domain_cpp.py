@@ -402,6 +402,19 @@ def test_templates():
           "RK18c_string_view_baseIK4Char6TraitsE")
 
 
+def test_attributes():
+    # style: GNU
+    check('member', '__attribute__(()) int f', 'f__i', '1f')
+    check('member', '__attribute__((a)) int f', 'f__i', '1f')
+    check('member', '__attribute__((a, b)) int f', 'f__i', '1f')
+
+    # position: decl specs
+    check('function', 'static inline __attribute__(()) void f()',
+          'f', '1fv',
+          output='__attribute__(()) static inline void f()')
+
+
+
 # def test_print():
 #     # used for getting all the ids out for checking
 #     for a in ids:
