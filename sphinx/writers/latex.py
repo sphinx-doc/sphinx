@@ -1359,13 +1359,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_hlistcol(self, node):
         pass
 
-    def latex_image_length(self, width_str, figure=False):
+    def latex_image_length(self, width_str):
         """Convert `width_str` with rst length to LaTeX length.
 
         This function is copied from docutils' latex writer
-
-        The last parameter, ``figure`` is only for compatibility with 1.4.4.
-        It will be removed at Sphinx-1.5.
         """
         match = re.match('(\d*\.?\d*)\s*(\S*)', width_str)
         if not match:
@@ -1373,10 +1370,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             return width_str
         res = width_str
         amount, unit = match.groups()[:2]
-        if figure and unit in ('', 'pt'):
-            res = '%sbp' % amount  # convert to 'bp'
-        elif not unit:
+        if not unit:
             return None
+        elif unit == 'pt':
+            res = '%sbp' % amount  # convert to 'bp'
         elif unit == "px":
             res = "%.3f\\sphinxpxdimen" % (float(amount))
         elif unit == "%":
@@ -1463,7 +1460,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.table:
             # TODO: support align option
             if 'width' in node:
-                length = self.latex_image_length(node['width'], figure=True)
+                length = self.latex_image_length(node['width'])
                 self.body.append('\\begin{sphinxfigure-in-table}[%s]\n\\centering\n' % length)
             else:
                 self.body.append('\\begin{sphinxfigure-in-table}\n\\centering\n')
@@ -1472,9 +1469,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.context.append(ids + '\\end{sphinxfigure-in-table}\\relax\n')
         elif node.get('align', '') in ('left', 'right'):
             if 'width' in node:
-                length = self.latex_image_length(node['width'], figure=True)
+                length = self.latex_image_length(node['width'])
             elif 'width' in node[0]:
-                length = self.latex_image_length(node[0]['width'], figure=True)
+                length = self.latex_image_length(node[0]['width'])
             else:
                 length = '0pt'
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
