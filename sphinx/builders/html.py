@@ -1069,6 +1069,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         self.theme = None       # no theme necessary
         self.templates = None   # no template bridge necessary
         self.init_translator_class()
+        self.init_templates()
         self.init_highlighter()
 
     def get_target_uri(self, docname, typ=None):

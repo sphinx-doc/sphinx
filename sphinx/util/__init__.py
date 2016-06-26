@@ -18,7 +18,7 @@ import posixpath
 import traceback
 import unicodedata
 from os import path
-from codecs import open, BOM_UTF8
+from codecs import BOM_UTF8
 from collections import deque
 
 from six import iteritems, text_type, binary_type
@@ -32,6 +32,7 @@ import jinja2
 import sphinx
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
 from sphinx.util.console import strip_colors
+from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import fs_encoding
 
 # import other utilities; partly for backwards compatibility, so don't
@@ -158,16 +159,7 @@ def copy_static_entry(source, targetdir, builder, context={},
             if matcher(relpath):
                 return
     if path.isfile(source):
-        target = path.join(targetdir, path.basename(source))
-        if source.lower().endswith('_t') and builder.templates:
-            # templated!
-            fsrc = open(source, 'r', encoding='utf-8')
-            fdst = open(target[:-2], 'w', encoding='utf-8')
-            fdst.write(builder.templates.render_string(fsrc.read(), context))
-            fsrc.close()
-            fdst.close()
-        else:
-            copyfile(source, target)
+        copy_asset_file(source, targetdir, context, builder.templates)
     elif path.isdir(source):
         if not path.isdir(targetdir):
             os.mkdir(targetdir)
