@@ -277,11 +277,12 @@ def escape_abbr(text):
 
 def rstdim_to_latexdim(width_str):
     """Convert `width_str` with rst length to LaTeX length."""
-    match = re.match('(\d*\.?\d*)\s*(\S*)', width_str)
+    match = re.match('^(\d*\.?\d*)\s*(\S*)$', width_str)
     if not match:
         raise ValueError
     res = width_str
     amount, unit = match.groups()[:2]
+    float(amount)  # validate amount is float
     if not unit:
         return None
     elif unit == 'pt':
