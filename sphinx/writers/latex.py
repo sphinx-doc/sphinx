@@ -288,7 +288,7 @@ def rstdim_to_latexdim(width_str):
     elif unit == 'pt':
         res = '%sbp' % amount  # convert to 'bp'
     elif unit == "px":
-        res = "%.3f\\sphinxpxdimen" % (float(amount))
+        res = "%s\\sphinxpxdimen" % amount
     elif unit == "%":
         res = "%.3f\\linewidth" % (float(amount) / 100.0)
     return res
