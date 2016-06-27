@@ -8,7 +8,7 @@
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from sphinx.util.fileutil import copy_asset_file
+from sphinx.util.fileutil import copy_asset, copy_asset_file
 from sphinx.jinja2glue import BuiltinTemplateLoader
 
 from mock import Mock
@@ -56,3 +56,48 @@ def test_copy_asset_file(tmpdir):
     copy_asset_file(src, subdir, {'var1': 'template'}, renderer)
     assert (subdir / 'asset.txt').exists()
     assert (subdir / 'asset.txt').text() == '# template data'
+
+
+@with_tempdir
+def test_copy_asset(tmpdir):
+    renderer = DummyTemplateLoader()
+
+    # prepare source files
+    source = (tmpdir / 'source')
+    source.makedirs()
+    (source / 'index.rst').write_text('index.rst')
+    (source / 'foo.rst_t').write_text('{{var1}}.rst')
+    (source / '_static').makedirs()
+    (source / '_static' / 'basic.css').write_text('basic.css')
+    (source / '_templates').makedirs()
+    (source / '_templates' / 'layout.html').write_text('layout.html')
+    (source / '_templates' / 'sidebar.html_t').write_text('sidebar: {{var2}}')
+
+    # copy a single file
+    assert not (tmpdir / 'test1').exists()
+    copy_asset(source / 'index.rst', tmpdir / 'test1')
+    assert (tmpdir / 'test1').exists()
+    assert (tmpdir / 'test1/index.rst').exists()
+
+    # copy directories
+    destdir = tmpdir / 'test2'
+    copy_asset(source, destdir, context=dict(var1='bar', var2='baz'), renderer=renderer)
+    assert (destdir / 'index.rst').exists()
+    assert (destdir / 'foo.rst').exists()
+    assert (destdir / 'foo.rst').text() == 'bar.rst'
+    assert (destdir / '_static' / 'basic.css').exists()
+    assert (destdir / '_templates' / 'layout.html').exists()
+    assert (destdir / '_templates' / 'sidebar.html').exists()
+    assert (destdir / '_templates' / 'sidebar.html').text() == 'sidebar: baz'
+
+    # copy with exclusion
+    def excluded(path):
+        return ('sidebar.html' in path or 'basic.css' in path)
+
+    destdir = tmpdir / 'test3'
+    copy_asset(source, destdir, excluded, renderer=renderer)
+    assert (destdir / 'index.rst').exists()
+    assert (destdir / 'foo.rst').exists()
+    assert not (destdir / '_static' / 'basic.css').exists()
+    assert (destdir / '_templates' / 'layout.html').exists()
+    assert not (destdir / '_templates' / 'sidebar.html').exists()

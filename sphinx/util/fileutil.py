@@ -10,7 +10,9 @@
 """
 import os
 import codecs
-from sphinx.util.osutil import copyfile
+import posixpath
+from docutils.utils import relative_path
+from sphinx.util.osutil import copyfile, ensuredir, walk
 
 
 def copy_asset_file(source, destination, context={}, renderer=None):
@@ -37,3 +39,34 @@ def copy_asset_file(source, destination, context={}, renderer=None):
                 fdst.write(renderer.render_string(fsrc.read(), context))
     else:
         copyfile(source, destination)
+
+
+def copy_asset(source, destination, excluded=lambda path: False, context={}, renderer=None):
+    """Copy asset files to destination recursively.
+
+    On copying, it expands the template variables if the asset is a template file.
+
+    :param source: The path to source file or directory
+    :param destination: The path to destination directory
+    :param excluded: The matcher to determine the given path should be copied or not
+    :param context: The template variables
+    :param renderer: The template engine
+    """
+    ensuredir(destination)
+    if os.path.isfile(source):
+        copy_asset_file(source, destination, context, renderer)
+        return
+
+    for root, dirs, files in walk(source):
+        reldir = relative_path(source, root)
+        for dir in dirs[:]:
+            if excluded(posixpath.join(reldir, dir)):
+                dirs.remove(dir)
+            else:
+                ensuredir(posixpath.join(destination, reldir, dir))
+
+        for filename in files:
+            if not excluded(posixpath.join(reldir, filename)):
+                copy_asset_file(posixpath.join(root, filename),
+                                posixpath.join(destination, reldir),
+                                context, renderer)
