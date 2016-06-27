@@ -50,12 +50,22 @@ def test_copy_asset_file(tmpdir):
     # copy template file to subdir
     src = (tmpdir / 'asset.txt_t')
     src.write_text('# {{var1}} data')
-    subdir = (tmpdir / 'subdir')
-    subdir.makedirs()
+    subdir1 = (tmpdir / 'subdir')
+    subdir1.makedirs()
 
-    copy_asset_file(src, subdir, {'var1': 'template'}, renderer)
-    assert (subdir / 'asset.txt').exists()
-    assert (subdir / 'asset.txt').text() == '# template data'
+    copy_asset_file(src, subdir1, {'var1': 'template'}, renderer)
+    assert (subdir1 / 'asset.txt').exists()
+    assert (subdir1 / 'asset.txt').text() == '# template data'
+
+    # copy template file without context
+    src = (tmpdir / 'asset.txt_t')
+    subdir2 = (tmpdir / 'subdir2')
+    subdir2.makedirs()
+
+    copy_asset_file(src, subdir2)
+    assert not (subdir2 / 'asset.txt').exists()
+    assert (subdir2 / 'asset.txt_t').exists()
+    assert (subdir2 / 'asset.txt_t').text() == '# {{var1}} data'
 
 
 @with_tempdir
@@ -95,7 +105,8 @@ def test_copy_asset(tmpdir):
         return ('sidebar.html' in path or 'basic.css' in path)
 
     destdir = tmpdir / 'test3'
-    copy_asset(source, destdir, excluded, renderer=renderer)
+    copy_asset(source, destdir, excluded,
+               context=dict(var1='bar', var2='baz'), renderer=renderer)
     assert (destdir / 'index.rst').exists()
     assert (destdir / 'foo.rst').exists()
     assert not (destdir / '_static' / 'basic.css').exists()

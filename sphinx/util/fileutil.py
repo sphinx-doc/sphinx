@@ -15,21 +15,22 @@ from docutils.utils import relative_path
 from sphinx.util.osutil import copyfile, ensuredir, walk
 
 
-def copy_asset_file(source, destination, context={}, renderer=None):
+def copy_asset_file(source, destination, context=None, renderer=None):
     """Copy an asset file to destination.
 
-    On copying, it expands the template variables if the asset is a template file.
+    On copying, it expands the template variables if context argument is given and
+    the asset is a template file.
 
     :param source: The path to source file
     :param destination: The path to destination file or directory
-    :param context: The template variables
+    :param context: The template variables. If not given, template files are simply copied
     :param renderer: The template engine
     """
     if os.path.exists(destination) and os.path.isdir(destination):
         # Use source filename if destination points a directory
         destination = os.path.join(destination, os.path.basename(source))
 
-    if source.lower().endswith('_t'):
+    if source.lower().endswith('_t') and context:
         if renderer is None:
             msg = 'Template engine is not initialized. Failed to render %s' % source
             raise RuntimeError(msg)
@@ -41,15 +42,16 @@ def copy_asset_file(source, destination, context={}, renderer=None):
         copyfile(source, destination)
 
 
-def copy_asset(source, destination, excluded=lambda path: False, context={}, renderer=None):
+def copy_asset(source, destination, excluded=lambda path: False, context=None, renderer=None):
     """Copy asset files to destination recursively.
 
-    On copying, it expands the template variables if the asset is a template file.
+    On copying, it expands the template variables if context argument is given and
+    the asset is a template file.
 
     :param source: The path to source file or directory
     :param destination: The path to destination directory
     :param excluded: The matcher to determine the given path should be copied or not
-    :param context: The template variables
+    :param context: The template variables. If not given, template files are simply copied
     :param renderer: The template engine
     """
     ensuredir(destination)
