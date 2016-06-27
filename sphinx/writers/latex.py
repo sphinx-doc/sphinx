@@ -275,6 +275,23 @@ def escape_abbr(text):
     return re.sub('\.(?=\s|$)', '.\\@', text)
 
 
+def rstdim_to_latexdim(width_str):
+    """Convert `width_str` with rst length to LaTeX length."""
+    match = re.match('^(\d*\.?\d*)\s*(\S*)$', width_str)
+    if not match:
+        raise ValueError
+    res = width_str
+    amount, unit = match.groups()[:2]
+    float(amount)  # validate amount is float
+    if unit in ('', "px"):
+        res = "%s\\sphinxpxdimen" % amount
+    elif unit == 'pt':
+        res = '%sbp' % amount  # convert to 'bp'
+    elif unit == "%":
+        res = "%.3f\\linewidth" % (float(amount) / 100.0)
+    return res
+
+
 class LaTeXTranslator(nodes.NodeVisitor):
     sectionnames = ["part", "chapter", "section", "subsection",
                     "subsubsection", "paragraph", "subparagraph"]
@@ -1360,25 +1377,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def latex_image_length(self, width_str):
-        """Convert `width_str` with rst length to LaTeX length.
-
-        This function is copied from docutils' latex writer
-        """
-        match = re.match('(\d*\.?\d*)\s*(\S*)', width_str)
-        if not match:
-            # fallback
-            return width_str
-        res = width_str
-        amount, unit = match.groups()[:2]
-        if not unit:
-            return None
-        elif unit == 'pt':
-            res = '%sbp' % amount  # convert to 'bp'
-        elif unit == "px":
-            res = "%.3f\\sphinxpxdimen" % (float(amount))
-        elif unit == "%":
-            res = "%.3f\\linewidth" % (float(amount) / 100.0)
-        return res
+        try:
+            return rstdim_to_latexdim(width_str)
+        except ValueError:
+            self.builder.warn('dimension unit %s is invalid. Ignored.' % width_str)
 
     def is_inline(self, node):
         """Check whether a node represents an inline element."""
@@ -1461,21 +1463,22 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # TODO: support align option
             if 'width' in node:
                 length = self.latex_image_length(node['width'])
-                self.body.append('\\begin{sphinxfigure-in-table}[%s]\n\\centering\n' % length)
+                if length:
+                    self.body.append('\\begin{sphinxfigure-in-table}[%s]\n'
+                                     '\\centering\n' % length)
             else:
                 self.body.append('\\begin{sphinxfigure-in-table}\n\\centering\n')
             if any(isinstance(child, nodes.caption) for child in node):
                 self.body.append('\\capstart')
             self.context.append(ids + '\\end{sphinxfigure-in-table}\\relax\n')
         elif node.get('align', '') in ('left', 'right'):
+            length = None
             if 'width' in node:
                 length = self.latex_image_length(node['width'])
             elif 'width' in node[0]:
                 length = self.latex_image_length(node[0]['width'])
-            else:
-                length = '0pt'
             self.body.append('\\begin{wrapfigure}{%s}{%s}\n\\centering' %
-                             (node['align'] == 'right' and 'r' or 'l', length))
+                             (node['align'] == 'right' and 'r' or 'l', length or '0pt'))
             self.context.append(ids + '\\end{wrapfigure}\n')
         elif self.in_minipage:
             if ('align' not in node.attributes or
