@@ -42,6 +42,7 @@
 }
 % For highlighted code.
 \RequirePackage{fancyvrb}
+\fvset{fontsize=\small}
 % For table captions.
 \RequirePackage{threeparttable}
 % Handle footnotes in tables.
@@ -400,7 +401,6 @@
      \MakeFramed {% adapted over from framed.sty's snugshade environment
         \advance\hsize-\width\@totalleftmargin\z@\linewidth\hsize\@setminipage
         }%
-     \small
      % For grid placement from \strut's in \FancyVerbFormatLine
      \lineskip\z@skip
      % will fetch its optional arguments if any
