@@ -41,7 +41,7 @@ Features added
   and other admonition types, allowing full customizability from the
   ``'preamble'`` key or an input file (ref: feature request #2674, #2685)
 * latex, better computes column widths of some tables (as a result, there will
-  be slight changes as tables now correctly fill the line with; ref: #2708)
+  be slight changes as tables now correctly fill the line width; ref: #2708)
 * latex, sphinxVerbatim environment is more easily customizable (ref: #2704).
   In addition to already existing VerbatimColor and VerbatimBorderColor:
 
