@@ -31,6 +31,7 @@ Bugs fixed
 * #2479: `sphinx.ext.viewcode` uses python2 highlighter by default
 * #2700: HtmlHelp builder has hard coded index.html
 * latex, since 1.4.4 inline literal text is followed by spurious space
+* #2722: C++, fix id generation for var/member declarations to include namespaces.
 
 
 Release 1.4.4 (released Jun 12, 2016)

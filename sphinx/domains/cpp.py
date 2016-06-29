@@ -1977,7 +1977,7 @@ class ASTTypeWithInit(ASTBase):
 
     def get_id_v2(self, objectType=None, symbol=None):
         if objectType == 'member':
-            return symbol.declaration.name.get_id_v2()
+            return symbol.get_full_nested_name().get_id_v2()
         else:
             return self.type.get_id_v2()
 
