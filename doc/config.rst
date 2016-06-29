@@ -1607,7 +1607,7 @@ These options influence LaTeX output. See further :doc:`latex`.
         ``96px=1in`` (``1in = 72.27*65536 = 4736286.72sp``, and all dimensions
         in TeX are internally integer multiples of ``sp``). To obtain for
         example ``100px=1in``, one can use ``'0.01in'`` but it is more precise
-        to use ``'47363sp'``.
+        to use ``'47363sp'``. To obtain ``72px=1in``, use ``'1bp'``.
 
         .. versionadded:: 1.5
      ``'babel'``
