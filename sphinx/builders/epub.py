@@ -152,6 +152,7 @@ MEDIA_TYPES = {
     '.jpeg': 'image/jpeg',
     '.otf': 'application/x-font-otf',
     '.ttf': 'application/x-font-ttf',
+    '.woff': 'application/font-woff', 
 }
 
 VECTOR_GRAPHICS_EXTENSIONS = ('.svg',)
