@@ -54,6 +54,7 @@ Features added
 * Show warnings if invalid dimension units found
 * #2650: Add ``--warning-is-error`` option to setup.py command
 * latex, make the use of ``\small`` for code listings customizable (ref #2721)
+* #2663: Add ``--warning-is-error`` option to setup.py command
 
 
 Bugs fixed
