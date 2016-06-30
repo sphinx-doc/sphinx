@@ -120,6 +120,14 @@ Let us illustrate here what can be modified by the second method.
      were not wrapped), they now use ``sphinxVerbatimintable``.
   .. versionadded:: 1.5
      the two customizable lengths, the ``sphinxVerbatimintable``.
+- by default the Sphinx style file ``sphinx.sty`` includes the command
+  ``\fvset{fontsize=\small}`` as part of its configuration of
+  ``fancyvrb.sty``. The user may override this for example via
+  ``\fvset{fontsize=auto}`` which will use for listings the ambient
+  font size. Refer to ``fancyvrb.sty``'s documentation for further keys.
+
+  .. versionadded:: 1.5
+     formerly, the use of ``\small`` for code listings was not customizable.
 - miscellaneous colours: *TitleColor*, *InnerLinkColor*, *OuterLinkColor*,
   *VerbatimColor* (this is a background colour), *VerbatimBorderColor*.
 - the ``\sphinxAtStartFootnote`` is inserted between footnote numbers and their

@@ -53,6 +53,7 @@ Features added
 * latex, allow image dimensions using px unit (default is 96px=1in)
 * Show warnings if invalid dimension units found
 * #2650: Add ``--warning-is-error`` option to setup.py command
+* latex, make the use of ``\small`` for code listings customizable (ref #2721)
 
 
 Bugs fixed
