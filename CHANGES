@@ -18,6 +18,7 @@ Features added
   lets macros (for text styling) be defined only with ``\sphinx``-prefixed names.
 * latex writer allows user customization of "shadowed" boxes (topics), via
   three length variables.
+* woff-format web font files now supported by the epub builder.
 
 Bugs fixed
 ----------
