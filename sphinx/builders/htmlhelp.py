@@ -183,6 +183,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         StandaloneHTMLBuilder.init(self)
         # the output files for HTML help must be .html only
         self.out_suffix = '.html'
+        self.link_suffix = '.html'
         # determine the correct locale setting
         locale = chm_locales.get(self.config.language)
         if locale is not None:

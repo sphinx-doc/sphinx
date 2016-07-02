@@ -59,6 +59,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
     def init(self):
         StandaloneHTMLBuilder.init(self)
         self.out_suffix = '.html'
+        self.link_suffix = '.html'
 
     def handle_finish(self):
         self.build_devhelp(self.outdir, self.config.devhelp_basename)

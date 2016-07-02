@@ -42,6 +42,7 @@ Bugs fixed
 * #2579: Could not refer a label including both spaces and colons via
   `sphinx.ext.intersphinx`
 * #2718: Sphinx crashes if the document file is not readable
+* #2699: hyperlinks in help HTMLs are broken if `html_file_suffix` is set
 
 
 Release 1.4.4 (released Jun 12, 2016)
