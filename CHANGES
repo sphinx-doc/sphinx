@@ -86,6 +86,7 @@ Features added
   lets macros (for text styling) be defined only with ``\sphinx``-prefixed names.
 * latex writer allows user customization of "shadowed" boxes (topics), via
   three length variables.
+* woff-format web font files now supported by the epub builder.
 
 Bugs fixed
 ----------
@@ -99,6 +100,18 @@ Bugs fixed
 * #2479: `sphinx.ext.viewcode` uses python2 highlighter by default
 * #2700: HtmlHelp builder has hard coded index.html
 * latex, since 1.4.4 inline literal text is followed by spurious space
+* #2722: C++, fix id generation for var/member declarations to include namespaces.
+* latex, images (from image directive) in lists or quoted blocks did not obey
+  indentation (fixed together with #2671)
+* #2733: since Sphinx-1.4.4 ``make latexpdf`` generates lots of hyperref warnings
+* #2731: `sphinx.ext.autodoc` does not access propertymethods which raises any
+  exceptions
+* #2666: C++, properly look up nested names involving constructors.
+* #2579: Could not refer a label including both spaces and colons via
+  `sphinx.ext.intersphinx`
+* #2718: Sphinx crashes if the document file is not readable
+* #2699: hyperlinks in help HTMLs are broken if `html_file_suffix` is set
+* #2723: extra spaces in latex pdf output from multirow cell
 
 
 Release 1.4.4 (released Jun 12, 2016)
@@ -124,9 +137,6 @@ Bugs fixed
 * #2639: Sphinx now bundles iftex.sty
 * Failed to build PDF with framed.sty 0.95
 * Sphinx now bundles needspace.sty
-* #2666: C++, properly look up nested names involving constructors.
-* #2579: Could not refer a label including both spaces and colons via
-  `sphinx.ext.intersphinx`
 
 
 Release 1.4.3 (released Jun 5, 2016)

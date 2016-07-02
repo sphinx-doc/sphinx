@@ -33,6 +33,12 @@ Install from cloned source as editable::
    pip install -e .
 
 
+Release signatures
+==================
+
+Releases are signed with `498D6B9E <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x102C2C17498D6B9E>`_
+
+
 Reading the docs
 ================
 

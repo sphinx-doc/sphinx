@@ -243,8 +243,8 @@ class Sphinx(object):
 
     def _init_env(self, freshenv):
         if freshenv:
-            self.env = BuildEnvironment(self.srcdir, self.doctreedir,
-                                        self.config)
+            self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
+            self.env.set_warnfunc(self.warn)
             self.env.find_files(self.config)
             for domain in self.domains.keys():
                 self.env.domains[domain] = self.domains[domain](self.env)
@@ -253,6 +253,7 @@ class Sphinx(object):
                 self.info(bold('loading pickled environment... '), nonl=True)
                 self.env = BuildEnvironment.frompickle(
                     self.srcdir, self.config, path.join(self.doctreedir, ENV_PICKLE_FILENAME))
+                self.env.set_warnfunc(self.warn)
                 self.env.domains = {}
                 for domain in self.domains.keys():
                     # this can raise if the data version doesn't fit
@@ -264,8 +265,6 @@ class Sphinx(object):
                 else:
                     self.info('failed: %s' % err)
                 return self._init_env(freshenv=True)
-
-        self.env.set_warnfunc(self.warn)
 
     def _init_builder(self, buildername):
         if buildername is None:

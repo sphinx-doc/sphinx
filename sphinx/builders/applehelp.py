@@ -84,6 +84,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         super(AppleHelpBuilder, self).init()
         # the output files for HTML help must be .html only
         self.out_suffix = '.html'
+        self.link_suffix = '.html'
 
         if self.config.applehelp_bundle_id is None:
             raise SphinxError('You must set applehelp_bundle_id before '
