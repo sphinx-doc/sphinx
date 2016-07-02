@@ -409,8 +409,13 @@ class BuildEnvironment:
             config.html_extra_path +
             ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
         )
-        self.found_docs = set(get_matching_docs(
-            self.srcdir, config.source_suffix, exclude_matchers=matchers))
+        self.found_docs = set()
+        for docname in get_matching_docs(self.srcdir, config.source_suffix,
+                                         exclude_matchers=matchers):
+            if os.access(self.doc2path(docname), os.R_OK):
+                self.found_docs.add(docname)
+            else:
+                self.warn(docname, "document not readable. Ignored.")
 
         # add catalog mo file dependency
         for docname in self.found_docs:
