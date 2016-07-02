@@ -112,6 +112,7 @@ Bugs fixed
 * #2718: Sphinx crashes if the document file is not readable
 * #2699: hyperlinks in help HTMLs are broken if `html_file_suffix` is set
 * #2723: extra spaces in latex pdf output from multirow cell
+* #2667: latex crashes if resized images appeared in section title
 
 
 Release 1.4.4 (released Jun 12, 2016)
