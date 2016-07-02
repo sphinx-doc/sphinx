@@ -1442,7 +1442,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if include_graphics_options:
             options = '[%s]' % ','.join(include_graphics_options)
         base, ext = path.splitext(uri)
-        self.body.append('\\sphinxincludegraphics%s{{%s}%s}' % (options, base, ext))
+        if self.in_title and base:
+            # Lowercase tokens forcely because some fncychap themes capitalize
+            # the options of \sphinxincludegraphics unexpectly (ex. WIDTH=...).
+            self.body.append('\\lowercase{\\sphinxincludegraphics%s}{{%s}%s}' %
+                             (options, base, ext))
+        else:
+            self.body.append('\\sphinxincludegraphics%s{{%s}%s}' %
+                             (options, base, ext))
         self.body.extend(post)
 
     def depart_image(self, node):
