@@ -577,11 +577,12 @@ def test_image_in_section(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('\\chapter[Test section]'
-            '{\\sphinxincludegraphics[width=15pt,height=15pt]{{pic}.png} Test section}'
+    assert ('\\chapter[Test section]{\\lowercase{\\sphinxincludegraphics'
+            '[width=15pt,height=15pt]}{{pic}.png} Test section}'
             in result)
     assert ('\\chapter[Other {[}blah{]} section]{Other {[}blah{]} '
-            '\\sphinxincludegraphics[width=15pt,height=15pt]{{pic}.png} section}' in result)
+            '\\lowercase{\\sphinxincludegraphics[width=15pt,height=15pt]}'
+            '{{pic}.png} section}' in result)
     assert ('\\chapter{Another section}' in result)
 
 
