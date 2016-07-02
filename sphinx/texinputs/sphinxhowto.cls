@@ -35,19 +35,19 @@
 % Change the title page to look a bit better, and fit in with the fncychap
 % ``Bjarne'' style a bit better.
 %
-\renewcommand{\maketitle}{
-  \rule{\textwidth}{1pt}
+\renewcommand{\maketitle}{%
+  \noindent\rule{\textwidth}{1pt}\newline\null\par
   \ifsphinxpdfoutput
     \begingroup
     % These \defs are required to deal with multi-line authors; it
     % changes \\ to ', ' (comma-space), making it pass muster for
     % generating document info in the PDF file.
-    \def\\{, }
-    \def\and{and }
+    \def\\{, }%
+    \def\and{and }%
     \pdfinfo{
       /Author (\@author)
       /Title (\@title)
-    }
+    }%
     \endgroup
   \fi
   \begin{flushright}
