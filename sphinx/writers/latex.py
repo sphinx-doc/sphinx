@@ -544,7 +544,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def astext(self):
         return (HEADER % self.elements +
-                self.highlighter.get_stylesheet() +
                 u''.join(self.body) +
                 '\n' + self.elements['footer'] + '\n' +
                 self.generate_indices() +
