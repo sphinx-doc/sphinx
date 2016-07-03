@@ -585,106 +585,121 @@ class StandardDomain(Domain):
         newnode.append(innernode)
         return newnode
 
-    def resolve_xref(self, env, fromdocname, builder,
-                     typ, target, node, contnode):
+    def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         if typ == 'ref':
-            if node['refexplicit']:
-                # reference to anonymous label; the reference uses
-                # the supplied link caption
-                docname, labelid = self.data['anonlabels'].get(target, ('', ''))
-                sectname = node.astext()
-            else:
-                # reference to named label; the final node will
-                # contain the section name after the label
-                docname, labelid, sectname = self.data['labels'].get(target,
-                                                                     ('', '', ''))
-            if not docname:
-                return None
-
-            return self.build_reference_node(fromdocname, builder,
-                                             docname, labelid, sectname, 'ref')
+            resolver = self._resolve_ref_xref
         elif typ == 'numref':
-            docname, labelid = self.data['anonlabels'].get(target, ('', ''))
-            if not docname:
-                return None
-
-            if env.config.numfig is False:
-                env.warn(fromdocname, 'numfig is disabled. :numref: is ignored.',
-                         lineno=node.line)
-                return contnode
-
-            target_node = env.get_doctree(docname).ids.get(labelid)
-            figtype = self.get_figtype(target_node)
-            if figtype is None:
-                return None
-
-            try:
-                figure_id = target_node['ids'][0]
-                fignumber = env.toc_fignumbers[docname][figtype][figure_id]
-            except (KeyError, IndexError):
-                # target_node is found, but fignumber is not assigned.
-                # Maybe it is defined in orphaned document.
-                env.warn(fromdocname, "no number is assigned for %s: %s" % (figtype, labelid),
-                         lineno=node.line)
-                return contnode
-
-            title = contnode.astext()
-            if target == fully_normalize_name(title):
-                title = env.config.numfig_format.get(figtype, '')
-
-            try:
-                newtitle = title % '.'.join(map(str, fignumber))
-            except TypeError:
-                env.warn(fromdocname, 'invalid numfig_format: %s' % title,
-                         lineno=node.line)
-                return None
-
-            return self.build_reference_node(fromdocname, builder,
-                                             docname, labelid, newtitle, 'numref',
-                                             nodeclass=addnodes.number_reference,
-                                             title=title)
+            resolver = self._resolve_numref_xref
         elif typ == 'keyword':
-            # keywords are oddballs: they are referenced by named labels
-            docname, labelid, _ = self.data['labels'].get(target, ('', '', ''))
-            if not docname:
-                return None
-            return make_refnode(builder, fromdocname, docname,
-                                labelid, contnode)
+            resolver = self._resolve_keyword_xref
         elif typ == 'option':
-            progname = node.get('std:program')
-            target = target.strip()
-            docname, labelid = self.data['progoptions'].get((progname, target), ('', ''))
-            if not docname:
-                commands = []
-                while ws_re.search(target):
-                    subcommand, target = ws_re.split(target, 1)
-                    commands.append(subcommand)
-                    progname = "-".join(commands)
-
-                    docname, labelid = self.data['progoptions'].get((progname, target),
-                                                                    ('', ''))
-                    if docname:
-                        break
-                else:
-                    return None
-
-            return make_refnode(builder, fromdocname, docname,
-                                labelid, contnode)
+            resolver = self._resolve_option_xref
         else:
-            objtypes = self.objtypes_for_role(typ) or []
-            for objtype in objtypes:
-                if (objtype, target) in self.data['objects']:
-                    docname, labelid = self.data['objects'][objtype, target]
+            resolver = self._resolve_obj_xref
+
+        return resolver(env, fromdocname, builder, typ, target, node, contnode)
+
+    def _resolve_ref_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        if node['refexplicit']:
+            # reference to anonymous label; the reference uses
+            # the supplied link caption
+            docname, labelid = self.data['anonlabels'].get(target, ('', ''))
+            sectname = node.astext()
+        else:
+            # reference to named label; the final node will
+            # contain the section name after the label
+            docname, labelid, sectname = self.data['labels'].get(target,
+                                                                 ('', '', ''))
+        if not docname:
+            return None
+
+        return self.build_reference_node(fromdocname, builder,
+                                         docname, labelid, sectname, 'ref')
+
+    def _resolve_numref_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        docname, labelid = self.data['anonlabels'].get(target, ('', ''))
+        if not docname:
+            return None
+
+        if env.config.numfig is False:
+            env.warn(fromdocname, 'numfig is disabled. :numref: is ignored.',
+                     lineno=node.line)
+            return contnode
+
+        target_node = env.get_doctree(docname).ids.get(labelid)
+        figtype = self.get_figtype(target_node)
+        if figtype is None:
+            return None
+
+        try:
+            figure_id = target_node['ids'][0]
+            fignumber = env.toc_fignumbers[docname][figtype][figure_id]
+        except (KeyError, IndexError):
+            # target_node is found, but fignumber is not assigned.
+            # Maybe it is defined in orphaned document.
+            env.warn(fromdocname, "no number is assigned for %s: %s" % (figtype, labelid),
+                     lineno=node.line)
+            return contnode
+
+        title = contnode.astext()
+        if target == fully_normalize_name(title):
+            title = env.config.numfig_format.get(figtype, '')
+
+        try:
+            newtitle = title % '.'.join(map(str, fignumber))
+        except TypeError:
+            env.warn(fromdocname, 'invalid numfig_format: %s' % title,
+                     lineno=node.line)
+            return None
+
+        return self.build_reference_node(fromdocname, builder,
+                                         docname, labelid, newtitle, 'numref',
+                                         nodeclass=addnodes.number_reference,
+                                         title=title)
+
+    def _resolve_keyword_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        # keywords are oddballs: they are referenced by named labels
+        docname, labelid, _ = self.data['labels'].get(target, ('', '', ''))
+        if not docname:
+            return None
+        return make_refnode(builder, fromdocname, docname,
+                            labelid, contnode)
+
+    def _resolve_option_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        progname = node.get('std:program')
+        target = target.strip()
+        docname, labelid = self.data['progoptions'].get((progname, target), ('', ''))
+        if not docname:
+            commands = []
+            while ws_re.search(target):
+                subcommand, target = ws_re.split(target, 1)
+                commands.append(subcommand)
+                progname = "-".join(commands)
+
+                docname, labelid = self.data['progoptions'].get((progname, target),
+                                                                ('', ''))
+                if docname:
                     break
             else:
-                docname, labelid = '', ''
-            if not docname:
                 return None
-            return make_refnode(builder, fromdocname, docname,
-                                labelid, contnode)
 
-    def resolve_any_xref(self, env, fromdocname, builder, target,
-                         node, contnode):
+        return make_refnode(builder, fromdocname, docname,
+                            labelid, contnode)
+
+    def _resolve_obj_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        objtypes = self.objtypes_for_role(typ) or []
+        for objtype in objtypes:
+            if (objtype, target) in self.data['objects']:
+                docname, labelid = self.data['objects'][objtype, target]
+                break
+        else:
+            docname, labelid = '', ''
+        if not docname:
+            return None
+        return make_refnode(builder, fromdocname, docname,
+                            labelid, contnode)
+
+    def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
         results = []
         ltarget = target.lower()  # :ref: lowercases its target automatically
         for role in ('ref', 'option'):  # do not try "keyword"
