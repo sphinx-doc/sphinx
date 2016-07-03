@@ -27,12 +27,13 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __display_version__
-from sphinx.util import jsonimpl, copy_static_entry, copy_extra_entry
+from sphinx.util import jsonimpl, copy_static_entry
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.matching import patmatch, compile_matchers
+from sphinx.util.fileutil import copy_asset
+from sphinx.util.matching import patmatch, compile_matchers, Matcher
 from sphinx.config import string_classes
 from sphinx.locale import _, l_
 from sphinx.search import js_index
@@ -650,14 +651,15 @@ class StandaloneHTMLBuilder(Builder):
     def copy_extra_files(self):
         # copy html_extra_path files
         self.info(bold('copying extra files... '), nonl=True)
-        extraentries = [path.join(self.confdir, epath)
-                        for epath in self.config.html_extra_path]
-        matchers = compile_matchers(self.config.exclude_patterns)
-        for entry in extraentries:
+        excluded = Matcher(self.config.exclude_patterns)
+
+        for extra_path in self.config.html_extra_path:
+            entry = path.join(self.confdir, extra_path)
             if not path.exists(entry):
                 self.warn('html_extra_path entry %r does not exist' % entry)
                 continue
-            copy_extra_entry(entry, self.outdir, matchers)
+
+            copy_asset(entry, self.outdir, excluded)
         self.info('done')
 
     def write_buildinfo(self):

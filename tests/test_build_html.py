@@ -987,6 +987,8 @@ def test_html_extra_path(app, status, warning):
     assert (app.outdir / 'rimg.png').exists()
     assert not (app.outdir / '_build/index.html').exists()
     assert (app.outdir / 'background.png').exists()
+    assert (app.outdir / 'subdir' / '.htaccess').exists()
+    assert not (app.outdir / 'subdir' / '.htpasswd').exists()
 
 
 @with_app(buildername='html', confoverrides={'html_sourcelink_suffix': ''})

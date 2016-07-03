@@ -8,7 +8,7 @@
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from sphinx.util.matching import compile_matchers
+from sphinx.util.matching import compile_matchers, Matcher
 
 
 def test_compile_matchers():
@@ -81,3 +81,11 @@ def test_compile_matchers():
     pat = compile_matchers(['hello[!].py']).pop()
     assert pat('hello[!].py')
     assert not pat('hello.py')
+
+
+def test_Matcher():
+    matcher = Matcher(['hello.py', '**/world.py'])
+    assert matcher('hello.py')
+    assert not matcher('subdir/hello.py')
+    assert matcher('world.py')
+    assert matcher('subdir/world.py')
