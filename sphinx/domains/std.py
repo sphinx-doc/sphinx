@@ -14,7 +14,6 @@ import unicodedata
 
 from six import iteritems
 from docutils import nodes
-from docutils.nodes import fully_normalize_name
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 
