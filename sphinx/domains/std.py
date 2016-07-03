@@ -621,8 +621,7 @@ class StandardDomain(Domain):
             return None
 
         if env.config.numfig is False:
-            env.warn(fromdocname, 'numfig is disabled. :numref: is ignored.',
-                     lineno=node.line)
+            env.warn_node('numfig is disabled. :numref: is ignored.', node)
             return contnode
 
         target_node = env.get_doctree(docname).ids.get(labelid)
@@ -636,8 +635,7 @@ class StandardDomain(Domain):
         except (KeyError, IndexError):
             # target_node is found, but fignumber is not assigned.
             # Maybe it is defined in orphaned document.
-            env.warn(fromdocname, "no number is assigned for %s: %s" % (figtype, labelid),
-                     lineno=node.line)
+            env.warn_node("no number is assigned for %s: %s" % (figtype, labelid), node)
             return contnode
 
         try:
@@ -648,8 +646,7 @@ class StandardDomain(Domain):
 
             newtitle = title % '.'.join(map(str, fignumber))
         except TypeError:
-            env.warn(fromdocname, 'invalid numfig_format: %s' % title,
-                     lineno=node.line)
+            env.warn_node('invalid numfig_format: %s' % title, node)
             return None
 
         return self.build_reference_node(fromdocname, builder,
