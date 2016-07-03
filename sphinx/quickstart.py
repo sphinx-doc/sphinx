@@ -565,8 +565,6 @@ help:
 \t@echo "  latex       to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  latexpdf    to make LaTeX files and run them through pdflatex"
 \t@echo "  latexpdfja  to make LaTeX files and run them through platex/dvipdfmx"
-\t@echo "  lualatexpdf to make LaTeX files and run them through lualatex"
-\t@echo "  xelatexpdf  to make LaTeX files and run them through xelatex"
 \t@echo "  text        to make text files"
 \t@echo "  man         to make manual pages"
 \t@echo "  texinfo     to make Texinfo files"
@@ -685,20 +683,6 @@ latexpdfja:
 \t@echo "Running LaTeX files through platex and dvipdfmx..."
 \t$(MAKE) -C $(BUILDDIR)/latex all-pdf-ja
 \t@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
-
-.PHONY: lualatexpdf
-lualatexpdf:
-\t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
-\t@echo "Running LaTeX files through lualatex..."
-\t$(MAKE) PDFLATEX=lualatex -C $(BUILDDIR)/latex all-pdf
-\t@echo "lualatex finished; the PDF files are in $(BUILDDIR)/latex."
-
-.PHONY: xelatexpdf
-xelatexpdf:
-\t$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
-\t@echo "Running LaTeX files through xelatex..."
-\t$(MAKE) PDFLATEX=xelatex -C $(BUILDDIR)/latex all-pdf
-\t@echo "xelatex finished; the PDF files are in $(BUILDDIR)/latex."
 
 .PHONY: text
 text:

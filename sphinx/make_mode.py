@@ -42,8 +42,6 @@ BUILDERS = [
     ("",      "latex",       "to make LaTeX files, you can set PAPER=a4 or PAPER=letter"),
     ("posix", "latexpdf",    "to make LaTeX files and run them through pdflatex"),
     ("posix", "latexpdfja",  "to make LaTeX files and run them through platex/dvipdfmx"),
-    ("posix", "lualatexpdf", "to make LaTeX files and run them through lualatex"),
-    ("posix", "xelatexpdf",  "to make LaTeX files and run them through xelatex"),
     ("",      "text",        "to make text files"),
     ("",      "man",         "to make manual pages"),
     ("",      "texinfo",     "to make Texinfo files"),
@@ -172,18 +170,6 @@ class Make(object):
             return 1
         with cd(self.builddir_join('latex')):
             os.system('make all-pdf-ja')
-
-    def build_lualatexpdf(self):
-        if self.run_generic_build('latex') > 0:
-            return 1
-        with cd(self.builddir_join('latex')):
-            os.system('make PDFLATEX=lualatex all-pdf')
-
-    def build_xelatexpdf(self):
-        if self.run_generic_build('latex') > 0:
-            return 1
-        with cd(self.builddir_join('latex')):
-            os.system('make PDFLATEX=xelatex all-pdf')
 
     def build_text(self):
         if self.run_generic_build('text') > 0:

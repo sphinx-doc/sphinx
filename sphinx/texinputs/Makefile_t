@@ -13,7 +13,7 @@ LATEXOPTS =
 FMT = pdf
 
 LATEX = latex
-PDFLATEX = pdflatex
+PDFLATEX = {{ latex_engine }}
 MAKEINDEX = makeindex
 
 all: $(ALLPDF)
