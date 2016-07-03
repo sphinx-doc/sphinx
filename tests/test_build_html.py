@@ -976,10 +976,23 @@ def test_jsmath(app, status, warning):
     assert '<div class="math">\na + 1 &lt; b</div>' in content
 
 
-@with_app(buildername='html', testroot='html_extra_path')
-def test_html_extra_path(app, status, warning):
+@with_app(buildername='html', testroot='html_assets')
+def test_html_assets(app, status, warning):
     app.builder.build_all()
 
+    # html_static_path
+    assert not (app.outdir / '_static' / '.htaccess').exists()
+    assert not (app.outdir / '_static' / '.htpasswd').exists()
+    assert (app.outdir / '_static' / 'API.html').exists()
+    assert (app.outdir / '_static' / 'API.html').text() == 'Sphinx-1.4.4'
+    assert (app.outdir / '_static' / 'css/style.css').exists()
+    assert (app.outdir / '_static' / 'rimg.png').exists()
+    assert not (app.outdir / '_static' / '_build/index.html').exists()
+    assert (app.outdir / '_static' / 'background.png').exists()
+    assert not (app.outdir / '_static' / 'subdir' / '.htaccess').exists()
+    assert not (app.outdir / '_static' / 'subdir' / '.htpasswd').exists()
+
+    # html_extra_path
     assert (app.outdir / '.htaccess').exists()
     assert not (app.outdir / '.htpasswd').exists()
     assert (app.outdir / 'API.html_t').exists()

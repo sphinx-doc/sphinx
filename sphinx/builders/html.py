@@ -33,7 +33,7 @@ from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.fileutil import copy_asset
-from sphinx.util.matching import patmatch, compile_matchers, Matcher
+from sphinx.util.matching import patmatch, Matcher
 from sphinx.config import string_classes
 from sphinx.locale import _, l_
 from sphinx.search import js_index
@@ -620,15 +620,14 @@ class StandaloneHTMLBuilder(Builder):
                 copy_static_entry(entry, path.join(self.outdir, '_static'),
                                   self, ctx)
         # then, copy over all user-supplied static files
-        staticentries = [path.join(self.confdir, spath)
-                         for spath in self.config.html_static_path]
-        matchers = compile_matchers(self.config.exclude_patterns)
-        for entry in staticentries:
+        excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
+        for static_path in self.config.html_static_path:
+            entry = path.join(self.confdir, static_path)
             if not path.exists(entry):
                 self.warn('html_static_path entry %r does not exist' % entry)
                 continue
-            copy_static_entry(entry, path.join(self.outdir, '_static'), self,
-                              ctx, exclude_matchers=matchers)
+            copy_asset(entry, path.join(self.outdir, '_static'), excluded,
+                       context=ctx, renderer=self.templates)
         # copy logo and favicon files if not already in static path
         if self.config.html_logo:
             logobase = path.basename(self.config.html_logo)
