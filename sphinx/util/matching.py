@@ -80,6 +80,9 @@ class Matcher(object):
         return any(pat(string) for pat in self.patterns)
 
 
+DOTFILES = Matcher(['**/.*'])
+
+
 _pat_cache = {}
 
 

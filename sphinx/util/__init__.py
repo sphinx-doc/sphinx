@@ -149,7 +149,7 @@ class FilenameUniqDict(dict):
 
 def copy_static_entry(source, targetdir, builder, context={},
                       exclude_matchers=(), level=0):
-    """Copy a HTML builder static_path entry from source to targetdir.
+    """[DEPRECATED] Copy a HTML builder static_path entry from source to targetdir.
 
     Handles all possible cases of files, directories and subdirectories.
     """

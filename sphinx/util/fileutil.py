@@ -26,6 +26,9 @@ def copy_asset_file(source, destination, context=None, renderer=None):
     :param context: The template variables. If not given, template files are simply copied
     :param renderer: The template engine
     """
+    if not os.path.exists(source):
+        return
+
     if os.path.exists(destination) and os.path.isdir(destination):
         # Use source filename if destination points a directory
         destination = os.path.join(destination, os.path.basename(source))
@@ -54,6 +57,9 @@ def copy_asset(source, destination, excluded=lambda path: False, context=None, r
     :param context: The template variables. If not given, template files are simply copied
     :param renderer: The template engine
     """
+    if not os.path.exists(source):
+        return
+
     ensuredir(destination)
     if os.path.isfile(source):
         copy_asset_file(source, destination, context, renderer)

@@ -27,13 +27,13 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __display_version__
-from sphinx.util import jsonimpl, copy_static_entry
+from sphinx.util import jsonimpl
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.fileutil import copy_asset
-from sphinx.util.matching import patmatch, Matcher
+from sphinx.util.matching import patmatch, Matcher, DOTFILES
 from sphinx.config import string_classes
 from sphinx.locale import _, l_
 from sphinx.search import js_index
@@ -614,11 +614,10 @@ class StandaloneHTMLBuilder(Builder):
 
         # then, copy over theme-supplied static files
         if self.theme:
-            themeentries = [path.join(themepath, 'static')
-                            for themepath in self.theme.get_dirchain()[::-1]]
-            for entry in themeentries:
-                copy_static_entry(entry, path.join(self.outdir, '_static'),
-                                  self, ctx)
+            for theme_path in self.theme.get_dirchain()[::-1]:
+                entry = path.join(theme_path, 'static')
+                copy_asset(entry, path.join(self.outdir, '_static'), excluded=DOTFILES,
+                           context=ctx, renderer=self.templates)
         # then, copy over all user-supplied static files
         excluded = Matcher(self.config.exclude_patterns + ["**/.*"])
         for static_path in self.config.html_static_path:
