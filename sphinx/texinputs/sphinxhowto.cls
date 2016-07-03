@@ -36,7 +36,7 @@
 % ``Bjarne'' style a bit better.
 %
 \renewcommand{\maketitle}{%
-  \noindent\rule{\textwidth}{1pt}\newline\null\par
+  \noindent\rule{\textwidth}{1pt}\ifsphinxpdfoutput\newline\null\fi\par
   \ifsphinxpdfoutput
     \begingroup
     % These \defs are required to deal with multi-line authors; it
