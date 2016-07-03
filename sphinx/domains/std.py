@@ -641,11 +641,12 @@ class StandardDomain(Domain):
                      lineno=node.line)
             return contnode
 
-        title = contnode.astext()
-        if target == fully_normalize_name(title):
-            title = env.config.numfig_format.get(figtype, '')
-
         try:
+            if node['refexplicit']:
+                title = contnode.astext()
+            else:
+                title = env.config.numfig_format.get(figtype, '')
+
             newtitle = title % '.'.join(map(str, fignumber))
         except TypeError:
             env.warn(fromdocname, 'invalid numfig_format: %s' % title,
