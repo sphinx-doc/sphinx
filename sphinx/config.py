@@ -28,8 +28,23 @@ if PY3:
     CONFIG_SYNTAX_ERROR += "\nDid you change the syntax from 2.x to 3.x?"
 CONFIG_EXIT_ERROR = "The configuration file (or one of the modules it imports) " \
                     "called sys.exit()"
+CONFIG_ENUM_WARNING = "The config value `{name}` has to be a one of {candidates}, " \
+                      "but `{current}` is given."
 CONFIG_TYPE_WARNING = "The config value `{name}' has type `{current.__name__}', " \
                       "defaults to `{default.__name__}.'"
+
+
+class ENUM:
+    """represents the config value should be a one of candidates.
+
+    Example:
+        app.add_config_value('latex_show_urls', 'no', ENUM('no', 'footnote', 'inline'))
+    """
+    def __init__(self, *candidates):
+        self.candidates = candidates
+
+    def match(self, value):
+        return value in self.candidates
 
 
 string_classes = [text_type]
@@ -150,19 +165,24 @@ class Config(object):
             if default is None and not permitted:
                 continue  # neither inferrable nor expliclitly permitted types
             current = self[name]
-            if type(current) is type(default):
-                continue
-            if type(current) in permitted:
-                continue
+            if isinstance(permitted, ENUM):
+                if not permitted.match(current):
+                    warn(CONFIG_ENUM_WARNING.format(
+                        name=name, current=current, candidates=permitted.candidates))
+            else:
+                if type(current) is type(default):
+                    continue
+                if type(current) in permitted:
+                    continue
 
-            common_bases = (set(type(current).__bases__ + (type(current),)) &
-                            set(type(default).__bases__))
-            common_bases.discard(object)
-            if common_bases:
-                continue  # at least we share a non-trivial base class
+                common_bases = (set(type(current).__bases__ + (type(current),)) &
+                                set(type(default).__bases__))
+                common_bases.discard(object)
+                if common_bases:
+                    continue  # at least we share a non-trivial base class
 
-            warn(CONFIG_TYPE_WARNING.format(
-                name=name, current=type(current), default=type(default)))
+                warn(CONFIG_TYPE_WARNING.format(
+                    name=name, current=type(current), default=type(default)))
 
     def check_unicode(self, warn):
         # check all string values for non-ASCII characters in bytestrings,
