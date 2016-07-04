@@ -13,11 +13,13 @@ from __future__ import print_function
 import codecs
 import pipes
 
-from os import path
+from os import path, environ
+import shlex
 
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.config import string_classes
 from sphinx.util import copy_static_entry
-from sphinx.util.osutil import copyfile, ensuredir
+from sphinx.util.osutil import copyfile, ensuredir, make_filename
 from sphinx.util.console import bold
 from sphinx.util.pycompat import htmlescape
 from sphinx.util.matching import compile_matchers
@@ -255,3 +257,35 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
                     raise AppleHelpCodeSigningFailed(output)
                 else:
                     self.info('done')
+
+
+def setup(app):
+    app.setup_extension('sphinx.builders.html')
+    app.add_builder(AppleHelpBuilder)
+
+    app.add_config_value('applehelp_bundle_name',
+                         lambda self: make_filename(self.project), 'applehelp')
+    app.add_config_value('applehelp_bundle_id', None, 'applehelp', string_classes)
+    app.add_config_value('applehelp_dev_region', 'en-us', 'applehelp')
+    app.add_config_value('applehelp_bundle_version', '1', 'applehelp')
+    app.add_config_value('applehelp_icon', None, 'applehelp', string_classes)
+    app.add_config_value('applehelp_kb_product',
+                         lambda self: '%s-%s' % (make_filename(self.project), self.release),
+                         'applehelp')
+    app.add_config_value('applehelp_kb_url', None, 'applehelp', string_classes)
+    app.add_config_value('applehelp_remote_url', None, 'applehelp', string_classes)
+    app.add_config_value('applehelp_index_anchors', False, 'applehelp', string_classes)
+    app.add_config_value('applehelp_min_term_length', None, 'applehelp', string_classes)
+    app.add_config_value('applehelp_stopwords',
+                         lambda self: self.language or 'en', 'applehelp')
+    app.add_config_value('applehelp_locale', lambda self: self.language or 'en', 'applehelp')
+    app.add_config_value('applehelp_title', lambda self: self.project + ' Help', 'applehelp')
+    app.add_config_value('applehelp_codesign_identity',
+                         lambda self: environ.get('CODE_SIGN_IDENTITY', None),
+                         'applehelp'),
+    app.add_config_value('applehelp_codesign_flags',
+                         lambda self: shlex.split(environ.get('OTHER_CODE_SIGN_FLAGS', '')),
+                         'applehelp'),
+    app.add_config_value('applehelp_indexer_path', '/usr/bin/hiutil', 'applehelp')
+    app.add_config_value('applehelp_codesign_path', '/usr/bin/codesign', 'applehelp')
+    app.add_config_value('applehelp_disable_external_tools', False, None)

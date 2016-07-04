@@ -4185,3 +4185,7 @@ class CPPDomain(Domain):
             docname = symbol.docname
             newestId = symbol.declaration.get_newest_id()
             yield (name, name, objectType, docname, newestId, 1)
+
+
+def setup(app):
+    app.add_domain(CPPDomain)

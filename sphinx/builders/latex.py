@@ -21,12 +21,13 @@ from docutils.frontend import OptionParser
 
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.util import texescape
+from sphinx.config import string_classes
 from sphinx.errors import SphinxError
 from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP, copyfile
+from sphinx.util.osutil import SEP, copyfile, make_filename
 from sphinx.util.console import bold, darkgreen
 from sphinx.writers.latex import LaTeXWriter
 
@@ -233,3 +234,31 @@ class LaTeXBuilder(Builder):
             elif not path.isfile(logotarget):
                 copyfile(path.join(self.confdir, self.config.latex_logo), logotarget)
         self.info('done')
+
+
+def setup(app):
+    app.add_builder(LaTeXBuilder)
+
+    app.add_config_value('latex_documents',
+                         lambda self: [(self.master_doc, make_filename(self.project) + '.tex',
+                                        self.project, '', 'manual')],
+                         None)
+    app.add_config_value('latex_logo', None, None, string_classes)
+    app.add_config_value('latex_appendices', [], None)
+    app.add_config_value('latex_keep_old_macro_names', True, None)
+    # now deprecated - use latex_toplevel_sectioning
+    app.add_config_value('latex_use_parts', False, None)
+    app.add_config_value('latex_toplevel_sectioning', None, None, [str])
+    app.add_config_value('latex_use_modindex', True, None)  # deprecated
+    app.add_config_value('latex_domain_indices', True, None, [list])
+    app.add_config_value('latex_show_urls', 'no', None)
+    app.add_config_value('latex_show_pagerefs', False, None)
+    # paper_size and font_size are still separate values
+    # so that you can give them easily on the command line
+    app.add_config_value('latex_paper_size', 'letter', None)
+    app.add_config_value('latex_font_size', '10pt', None)
+    app.add_config_value('latex_elements', {}, None)
+    app.add_config_value('latex_additional_files', [], None)
+    app.add_config_value('latex_docclass', {}, None)
+    # now deprecated - use latex_elements
+    app.add_config_value('latex_preamble', '', None)

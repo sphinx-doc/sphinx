@@ -18,6 +18,7 @@ from os import path
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.util.osutil import make_filename
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util.pycompat import htmlescape
 
@@ -296,3 +297,10 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 for title, (refs, subitems, key_) in group:
                     write_index(title, refs, subitems)
             f.write('</UL>\n')
+
+
+def setup(app):
+    app.setup_extension('sphinx.builders.html')
+    app.add_builder(HTMLHelpBuilder)
+
+    app.add_config_value('htmlhelp_basename', lambda self: make_filename(self.project), None)

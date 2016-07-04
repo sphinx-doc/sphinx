@@ -13,6 +13,7 @@
 import codecs
 from os import path
 
+from sphinx.config import string_classes
 from sphinx.builders.epub import EpubBuilder
 
 
@@ -209,3 +210,12 @@ class Epub3Builder(EpubBuilder):
 
         # Add nav.xhtml to epub file
         self.files.append(outname)
+
+
+def setup(app):
+    app.setup_extension('sphinx.builders.epub')
+    app.add_builder(Epub3Builder)
+
+    app.add_config_value('epub3_description', '', 'epub3', string_classes)
+    app.add_config_value('epub3_contributor', 'unknown', 'epub3', string_classes)
+    app.add_config_value('epub3_page_progression_direction', 'ltr', 'epub3', string_classes)
