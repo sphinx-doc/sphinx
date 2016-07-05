@@ -18,6 +18,9 @@ Incompatible changes
 * latex, if ``width`` or ``height`` attribute of an image is given with no unit,
   use ``px`` rather than ignore it.
 * latex: Separate stylesheets of pygments to independent .sty file
+* #2454: The filename of sourcelink is now changed.  The value of
+  `html_sourcelink_suffix` will be appended to the original filename (like
+  ``index.rst.txt``).
 
 
 Features added
