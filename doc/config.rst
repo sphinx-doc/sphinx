@@ -1709,6 +1709,10 @@ These options influence LaTeX output. See further :doc:`latex`.
 
    .. versionadded:: 1.0
 
+   .. versionchanged:: 1.5
+
+      In Japanese docs, ``'jsbooks'`` is used to manual by default
+
 .. confval:: latex_additional_files
 
    A list of file names, relative to the configuration directory, to copy to the
