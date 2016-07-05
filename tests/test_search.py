@@ -53,7 +53,7 @@ def test_wordcollector():
     parser.parse(FILE_CONTENTS, doc)
 
     ix = IndexBuilder(None, 'en', {}, None)
-    ix.feed('filename', 'title', doc)
+    ix.feed('docname', 'filename', 'title', doc)
     assert 'boson' not in ix._mapping
     assert 'fermion' in ix._mapping
 

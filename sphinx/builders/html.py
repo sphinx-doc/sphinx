@@ -339,6 +339,7 @@ class StandaloneHTMLBuilder(Builder):
             show_sphinx = self.config.html_show_sphinx,
             has_source = self.config.html_copy_source,
             show_source = self.config.html_show_sourcelink,
+            sourcelink_suffix = self.config.html_sourcelink_suffix,
             file_suffix = self.out_suffix,
             script_files = self.script_files,
             language = self.config.language,
@@ -402,14 +403,20 @@ class StandaloneHTMLBuilder(Builder):
         # title rendered as HTML
         title = self.env.longtitles.get(docname)
         title = title and self.render_partial(title)['title'] or ''
+
+        # Suffix for the document
+        source_suffix = path.splitext(self.env.doc2path(docname))[1]
+
         # the name for the copied source
-        sourcename = self.config.html_copy_source and docname + '.txt' or ''
+        if self.config.html_copy_source:
+            sourcename = docname + source_suffix
+            if source_suffix != self.config.html_sourcelink_suffix:
+                sourcename += self.config.html_sourcelink_suffix
+        else:
+            sourcename = ''
 
         # metadata for the document
         meta = self.env.metadata.get(docname)
-
-        # Suffix for the document
-        source_suffix = '.' + self.env.doc2path(docname).split('.')[-1]
 
         # local TOC and global TOC tree
         self_toc = self.env.get_toc_for(docname, self)
@@ -712,7 +719,12 @@ class StandaloneHTMLBuilder(Builder):
     def index_page(self, pagename, doctree, title):
         # only index pages with title
         if self.indexer is not None and title:
-            self.indexer.feed(pagename, title, doctree)
+            filename = self.env.doc2path(pagename, base=None)
+            try:
+                self.indexer.feed(pagename, filename, title, doctree)
+            except TypeError:
+                # fallback for old search-adapters
+                self.indexer.feed(pagename, title, doctree)
 
     def _get_local_toctree(self, docname, collapse=True, **kwds):
         if 'includehidden' not in kwds:

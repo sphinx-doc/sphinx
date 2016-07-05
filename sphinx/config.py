@@ -121,6 +121,7 @@ class Config(object):
         html_split_index = (False, 'html'),
         html_copy_source = (True, 'html'),
         html_show_sourcelink = (True, 'html'),
+        html_sourcelink_suffix = ('.txt', 'html'),
         html_use_opensearch = ('', 'html'),
         html_file_suffix = (None, 'html', string_classes),
         html_link_suffix = (None, 'html', string_classes),

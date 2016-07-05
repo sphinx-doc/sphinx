@@ -68,6 +68,7 @@ HTML_XPATH = {
         (".//img[@src='_images/img1.png']", ''),
         (".//img[@src='_images/simg.png']", ''),
         (".//img[@src='_images/svgimg.svg']", ''),
+        (".//a[@href='_sources/images.txt']", ''),
     ],
     'subdir/images.html': [
         (".//img[@src='../_images/img1.png']", ''),
@@ -318,6 +319,7 @@ HTML_XPATH = {
     ],
     'otherext.html': [
         (".//h1", "Generated section"),
+        (".//a[@href='_sources/otherext.foo.txt']", ''),
     ]
 }
 
@@ -985,3 +987,15 @@ def test_html_extra_path(app, status, warning):
     assert (app.outdir / 'rimg.png').exists()
     assert not (app.outdir / '_build/index.html').exists()
     assert (app.outdir / 'background.png').exists()
+
+
+@with_app(buildername='html', confoverrides={'html_sourcelink_suffix': ''})
+def test_html_sourcelink_suffix(app, status, warning):
+    app.builder.build_all()
+    content_otherext = (app.outdir / 'otherext.html').text()
+    content_images = (app.outdir / 'images.html').text()
+
+    assert '<a href="_sources/otherext.foo"' in content_otherext
+    assert '<a href="_sources/images.txt"' in content_images
+    assert (app.outdir / '_sources' / 'otherext.foo').exists()
+    assert (app.outdir / '_sources' / 'images.txt').exists()

@@ -870,6 +870,13 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 0.6
 
+.. confval:: html_sourcelink_suffix
+
+   Suffix to be appended to source links (see :confval:`html_show_sourcelink`),
+   unless they have this suffix already.  Default is ``'.txt'``.
+
+   .. versionadded:: 1.5
+
 .. confval:: html_use_opensearch
 
    If nonempty, an `OpenSearch <http://www.opensearch.org/Home>`_ description file will be

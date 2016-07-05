@@ -41,7 +41,7 @@ def search_adapter_helper(adapter):
 
     # Make sure documents are properly updated by the search adapter.
     s.init_indexing(changed=['markup'])
-    s.add_document(u'markup', u'title', u'SomeLongRandomWord')
+    s.add_document(u'markup', u'filename', u'title', u'SomeLongRandomWord')
     s.finish_indexing()
     # Now a search for "Epigraph" should return zero results.
     results = s.query(u'Epigraph')
