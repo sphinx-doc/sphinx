@@ -33,7 +33,8 @@ from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.matching import patmatch, compile_matchers
-from sphinx.locale import _
+from sphinx.config import string_classes
+from sphinx.locale import _, l_
 from sphinx.search import js_index
 from sphinx.theming import Theme
 from sphinx.builders import Builder
@@ -1160,3 +1161,52 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
 
     def init(self):
         SerializingHTMLBuilder.init(self)
+
+
+def setup(app):
+    # builders
+    app.add_builder(StandaloneHTMLBuilder)
+    app.add_builder(DirectoryHTMLBuilder)
+    app.add_builder(SingleFileHTMLBuilder)
+    app.add_builder(PickleHTMLBuilder)
+    app.add_builder(JSONHTMLBuilder)
+
+    # config values
+    app.add_config_value('html_theme', 'alabaster', 'html')
+    app.add_config_value('html_theme_path', [], 'html')
+    app.add_config_value('html_theme_options', {}, 'html')
+    app.add_config_value('html_title',
+                         lambda self: l_('%s %s documentation') % (self.project, self.release),
+                         'html', string_classes)
+    app.add_config_value('html_short_title', lambda self: self.html_title, 'html')
+    app.add_config_value('html_style', None, 'html', string_classes)
+    app.add_config_value('html_logo', None, 'html', string_classes)
+    app.add_config_value('html_favicon', None, 'html', string_classes)
+    app.add_config_value('html_static_path', [], 'html')
+    app.add_config_value('html_extra_path', [], 'html')
+    app.add_config_value('html_last_updated_fmt', None, 'html', string_classes)
+    app.add_config_value('html_use_smartypants', True, 'html')
+    app.add_config_value('html_translator_class', None, 'html', string_classes)
+    app.add_config_value('html_sidebars', {}, 'html')
+    app.add_config_value('html_additional_pages', {}, 'html')
+    app.add_config_value('html_use_modindex', True, 'html')  # deprecated
+    app.add_config_value('html_domain_indices', True, 'html', [list])
+    app.add_config_value('html_add_permalinks', u'\u00B6', 'html')
+    app.add_config_value('html_use_index', True, 'html')
+    app.add_config_value('html_split_index', False, 'html')
+    app.add_config_value('html_copy_source', True, 'html')
+    app.add_config_value('html_show_sourcelink', True, 'html')
+    app.add_config_value('html_sourcelink_suffix', '.txt', 'html')
+    app.add_config_value('html_use_opensearch', '', 'html')
+    app.add_config_value('html_file_suffix', None, 'html', string_classes)
+    app.add_config_value('html_link_suffix', None, 'html', string_classes)
+    app.add_config_value('html_show_copyright', True, 'html')
+    app.add_config_value('html_show_sphinx', True, 'html')
+    app.add_config_value('html_context', {}, 'html')
+    app.add_config_value('html_output_encoding', 'utf-8', 'html')
+    app.add_config_value('html_compact_lists', True, 'html')
+    app.add_config_value('html_secnumber_suffix', '. ', 'html')
+    app.add_config_value('html_search_language', None, 'html', string_classes)
+    app.add_config_value('html_search_options', {}, 'html')
+    app.add_config_value('html_search_scorer', '', None)
+    app.add_config_value('html_scaled_image_link', True, 'html')

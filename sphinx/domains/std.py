@@ -767,3 +767,7 @@ class StandardDomain(Domain):
         else:
             figtype, _ = self.enumerable_nodes.get(node.__class__, (None, None))
             return figtype
+
+
+def setup(app):
+    app.add_domain(StandardDomain)

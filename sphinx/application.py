@@ -32,9 +32,8 @@ from sphinx.roles import XRefRole
 from sphinx.config import Config
 from sphinx.errors import SphinxError, SphinxWarning, ExtensionError, \
     VersionRequirementError, ConfigError
-from sphinx.domains import ObjType, BUILTIN_DOMAINS
+from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target, StandardDomain
-from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.environment import BuildEnvironment
 from sphinx.io import SphinxStandaloneReader
 from sphinx.util import pycompat  # noqa: imported for side-effects
@@ -65,6 +64,31 @@ events = {
     'html-page-context': 'pagename, context, doctree or None',
     'build-finished': 'exception',
 }
+builtin_extensions = (
+    'sphinx.builders.applehelp',
+    'sphinx.builders.changes',
+    'sphinx.builders.epub',
+    'sphinx.builders.epub3',
+    'sphinx.builders.devhelp',
+    'sphinx.builders.dummy',
+    'sphinx.builders.gettext',
+    'sphinx.builders.html',
+    'sphinx.builders.htmlhelp',
+    'sphinx.builders.latex',
+    'sphinx.builders.linkcheck',
+    'sphinx.builders.manpage',
+    'sphinx.builders.qthelp',
+    'sphinx.builders.texinfo',
+    'sphinx.builders.text',
+    'sphinx.builders.websupport',
+    'sphinx.builders.xml',
+    'sphinx.domains.c',
+    'sphinx.domains.cpp',
+    'sphinx.domains.javascript',
+    'sphinx.domains.python',
+    'sphinx.domains.rst',
+    'sphinx.domains.std',
+)
 
 CONFIG_FILENAME = 'conf.py'
 ENV_PICKLE_FILENAME = 'environment.pickle'
@@ -87,9 +111,9 @@ class Sphinx(object):
         self._additional_source_parsers = {}
         self._listeners = {}
         self._setting_up_extension = ['?']
-        self.domains = BUILTIN_DOMAINS.copy()
+        self.domains = {}
         self.buildername = buildername
-        self.builderclasses = BUILTIN_BUILDERS.copy()
+        self.builderclasses = {}
         self.builder = None
         self.env = None
         self.enumerable_nodes = {}
@@ -151,6 +175,10 @@ class Sphinx(object):
         # of code expect a confdir to be set
         if self.confdir is None:
             self.confdir = self.srcdir
+
+        # load all built-in extension modules
+        for extension in builtin_extensions:
+            self.setup_extension(extension)
 
         # extension loading support for alabaster theme
         # self.config.html_theme is not set from conf.py at here
@@ -274,11 +302,6 @@ class Sphinx(object):
             raise SphinxError('Builder name %s not registered' % buildername)
 
         builderclass = self.builderclasses[buildername]
-        if isinstance(builderclass, tuple):
-            # builtin builder
-            mod, cls = builderclass
-            builderclass = getattr(
-                __import__('sphinx.builders.' + mod, None, None, [cls]), cls)
         self.builder = builderclass(self)
         self.emit('builder-inited')
 
@@ -570,13 +593,9 @@ class Sphinx(object):
             raise ExtensionError('Builder class %s has no "name" attribute'
                                  % builder)
         if builder.name in self.builderclasses:
-            if isinstance(self.builderclasses[builder.name], tuple):
-                raise ExtensionError('Builder %r is a builtin builder' %
-                                     builder.name)
-            else:
-                raise ExtensionError(
-                    'Builder %r already exists (in module %s)' % (
-                        builder.name, self.builderclasses[builder.name].__module__))
+            raise ExtensionError(
+                'Builder %r already exists (in module %s)' % (
+                    builder.name, self.builderclasses[builder.name].__module__))
         self.builderclasses[builder.name] = builder
 
     def add_config_value(self, name, default, rebuild, types=()):

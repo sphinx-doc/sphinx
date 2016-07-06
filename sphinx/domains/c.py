@@ -302,3 +302,7 @@ class CDomain(Domain):
     def get_objects(self):
         for refname, (docname, type) in list(self.data['objects'].items()):
             yield (refname, refname, type, docname, 'c.' + refname, 1)
+
+
+def setup(app):
+    app.add_domain(CDomain)

@@ -19,6 +19,7 @@ from sphinx import addnodes
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util.nodes import inline_all_toctrees
+from sphinx.util.osutil import make_filename
 from sphinx.util.console import bold, darkgreen
 from sphinx.writers.manpage import ManualPageWriter
 
@@ -88,3 +89,13 @@ class ManualPageBuilder(Builder):
 
     def finish(self):
         pass
+
+
+def setup(app):
+    app.add_builder(ManualPageBuilder)
+
+    app.add_config_value('man_pages',
+                         lambda self: [(self.master_doc, make_filename(self.project).lower(),
+                                        '%s %s' % (self.project, self.release), [], 1)],
+                         None)
+    app.add_config_value('man_show_urls', False, None)
