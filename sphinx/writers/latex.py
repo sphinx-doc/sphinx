@@ -335,27 +335,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if document.settings.docclass == 'howto':
                 self.top_sectionlevel = 2
             else:
-                if builder.config.latex_use_parts:
-                    self.top_sectionlevel = 0
-                else:
-                    self.top_sectionlevel = 1
+                self.top_sectionlevel = 1
 
         # sort out some elements
-        papersize = builder.config.latex_paper_size + 'paper'
-        if papersize == 'paper':  # e.g. command line "-D latex_paper_size="
-            papersize = 'letterpaper'
-
         self.elements = self.default_elements.copy()
         self.elements.update({
             'wrapperclass': self.format_docclass(document.settings.docclass),
-            'papersize':    papersize,
-            'pointsize':    builder.config.latex_font_size,
             # if empty, the title is set to the first section title
             'title':        document.settings.title,
             'release':      builder.config.release,
             'author':       document.settings.author,
             'releasename':  _('Release'),
-            'preamble':     builder.config.latex_preamble,
             'indexname':    _('Index'),
         })
         # set-up boolean for sphinx.sty

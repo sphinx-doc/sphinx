@@ -228,12 +228,37 @@ def validate_config_values(app):
         app.config.latex_toplevel_sectioning = None
 
     if app.config.latex_use_parts:
-        warnings.warn('latex_use_parts will be removed at Sphinx-1.5. '
-                      'Use latex_toplevel_sectioning instead.',
-                      DeprecationWarning)
-
         if app.config.latex_toplevel_sectioning:
             app.warn('latex_use_parts conflicts with latex_toplevel_sectioning, ignored.')
+        else:
+            app.warn('latex_use_parts is deprecated. Use latex_toplevel_sectioning instead.')
+            app.config.latex_toplevel_sectioning = 'parts'
+
+    if app.config.latex_use_modindex is not True:  # changed by user
+        app.warn('latex_use_modeindex is deprecated. Use latex_domain_indices instead.')
+
+    if app.config.latex_preamble:
+        if app.config.latex_elements.get('preamble'):
+            app.warn("latex_preamble conflicts with latex_elements['preamble'], ignored.")
+        else:
+            app.warn("latex_preamble is deprecated. Use latex_elements['preamble'] instead.")
+            app.config.latex_elements['preamble'] = app.config.latex_preamble
+
+    if app.config.latex_paper_size != 'letter':
+        if app.config.latex_elements.get('papersize'):
+            app.warn("latex_paper_size conflicts with latex_elements['papersize'], ignored.")
+        else:
+            app.warn("latex_paper_size is deprecated. "
+                     "Use latex_elements['papersize'] instead.")
+            if app.config.latex_paper_size:
+                app.config.latex_elements['papersize'] = app.config.latex_paper_size + 'paper'
+
+    if app.config.latex_font_size != '10pt':
+        if app.config.latex_elements.get('pointsize'):
+            app.warn("latex_font_size conflicts with latex_elements['pointsize'], ignored.")
+        else:
+            app.warn("latex_font_size is deprecated. Use latex_elements['pointsize'] instead.")
+            app.config.latex_elements['pointsize'] = app.config.latex_font_size
 
 
 def setup(app):
