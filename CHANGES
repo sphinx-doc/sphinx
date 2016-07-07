@@ -23,6 +23,8 @@ Incompatible changes
   ``index.rst.txt``).
 * ``sphinx.util.copy_static_entry()`` is now deprecated.
   Use ``sphinx.util.fileutil.copy_asset()`` instead.
+* ``sphinx.util.osutil.filecopy()`` skips copying if the file has not been changed
+  (ref: #2510, #2753)
 
 
 Features added
