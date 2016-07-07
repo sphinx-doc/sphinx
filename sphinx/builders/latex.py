@@ -11,7 +11,6 @@
 
 import os
 from os import path
-import warnings
 
 from six import iteritems
 from docutils import nodes
