@@ -31,6 +31,5 @@ install:
   - pip install -r test-reqs.txt
 before_script: flake8
 script:
-
-  -  if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then make test-async; fi
+  -  if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then make style-check test-async; fi
   -  if [[ $TRAVIS_PYTHON_VERSION != '3.5' ]]; then make test; fi
