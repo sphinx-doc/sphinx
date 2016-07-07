@@ -40,7 +40,7 @@ It adds this directive:
       included.
 
    .. versionchanged:: 1.5
-      Added ``caption`` option 
+      Added ``caption`` option
 
 
 New config values are:
