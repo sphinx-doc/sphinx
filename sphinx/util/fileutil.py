@@ -13,7 +13,7 @@ import codecs
 import posixpath
 from docutils.utils import relative_path
 from sphinx.util.osutil import copyfile, ensuredir, walk
-from sphinx.util.temlate import SphinxRenderer
+from sphinx.util.template import SphinxRenderer
 
 
 def copy_asset_file(source, destination, context=None, renderer=None):
