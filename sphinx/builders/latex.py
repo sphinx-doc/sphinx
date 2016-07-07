@@ -50,8 +50,8 @@ class LaTeXBuilder(Builder):
     def check_options(self):
         if self.config.latex_toplevel_sectioning not in (None, 'part', 'chapter', 'section'):
             self.warn('invalid latex_toplevel_sectioning, ignored: %s' %
-                      self.config.latex_top_sectionlevel)
-            self.config.latex_top_sectionlevel = None
+                      self.config.latex_toplevel_sectioning)
+            self.config.latex_toplevel_sectioning = None
 
         if self.config.latex_use_parts:
             warnings.warn('latex_use_parts will be removed at Sphinx-1.5. '
