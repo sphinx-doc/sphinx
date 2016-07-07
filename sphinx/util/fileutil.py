@@ -13,6 +13,7 @@ import codecs
 import posixpath
 from docutils.utils import relative_path
 from sphinx.util.osutil import copyfile, ensuredir, walk
+from sphinx.util.temlate import SphinxRenderer
 
 
 def copy_asset_file(source, destination, context=None, renderer=None):
@@ -23,8 +24,8 @@ def copy_asset_file(source, destination, context=None, renderer=None):
 
     :param source: The path to source file
     :param destination: The path to destination file or directory
-    :param context: The template variables. If not given, template files are simply copied
-    :param renderer: The template engine
+    :param context: The template variables.  If not given, template files are simply copied
+    :param renderer: The template engine.  If not given, SphinxRenderer is used by default
     """
     if not os.path.exists(source):
         return
@@ -35,8 +36,7 @@ def copy_asset_file(source, destination, context=None, renderer=None):
 
     if source.lower().endswith('_t') and context:
         if renderer is None:
-            msg = 'Template engine is not initialized. Failed to render %s' % source
-            raise RuntimeError(msg)
+            renderer = SphinxRenderer()
 
         with codecs.open(source, 'r', encoding='utf-8') as fsrc:
             with codecs.open(destination[:-2], 'w', encoding='utf-8') as fdst:
@@ -54,8 +54,8 @@ def copy_asset(source, destination, excluded=lambda path: False, context=None, r
     :param source: The path to source file or directory
     :param destination: The path to destination directory
     :param excluded: The matcher to determine the given path should be copied or not
-    :param context: The template variables. If not given, template files are simply copied
-    :param renderer: The template engine
+    :param context: The template variables.  If not given, template files are simply copied
+    :param renderer: The template engine.  If not given, SphinxRenderer is used by default
     """
     if not os.path.exists(source):
         return
