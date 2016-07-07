@@ -13,7 +13,6 @@ import codecs
 import posixpath
 from docutils.utils import relative_path
 from sphinx.util.osutil import copyfile, ensuredir, walk
-from sphinx.util.template import SphinxRenderer
 
 
 def copy_asset_file(source, destination, context=None, renderer=None):
@@ -36,6 +35,7 @@ def copy_asset_file(source, destination, context=None, renderer=None):
 
     if source.lower().endswith('_t') and context:
         if renderer is None:
+            from sphinx.util.template import SphinxRenderer
             renderer = SphinxRenderer()
 
         with codecs.open(source, 'r', encoding='utf-8') as fsrc:
