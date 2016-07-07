@@ -18,11 +18,11 @@ import shlex
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.config import string_classes
-from sphinx.util import copy_static_entry
 from sphinx.util.osutil import copyfile, ensuredir, make_filename
 from sphinx.util.console import bold
+from sphinx.util.fileutil import copy_asset
 from sphinx.util.pycompat import htmlescape
-from sphinx.util.matching import compile_matchers
+from sphinx.util.matching import Matcher
 from sphinx.errors import SphinxError
 
 import plistlib
@@ -107,17 +107,15 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         self.finish_tasks.add_task(self.build_helpbook)
 
     def copy_localized_files(self):
-        source_dir = path.join(self.confdir,
-                               self.config.applehelp_locale + '.lproj')
+        source_dir = path.join(self.confdir, self.config.applehelp_locale + '.lproj')
         target_dir = self.outdir
 
         if path.isdir(source_dir):
             self.info(bold('copying localized files... '), nonl=True)
 
-            ctx = self.globalcontext.copy()
-            matchers = compile_matchers(self.config.exclude_patterns)
-            copy_static_entry(source_dir, target_dir, self, ctx,
-                              exclude_matchers=matchers)
+            excluded = Matcher(self.config.exclude_patterns + ['**/.*'])
+            copy_asset(source_dir, target_dir, excluded,
+                       context=self.globalcontext, renderer=self.templates)
 
             self.info('done')
 

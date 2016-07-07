@@ -18,7 +18,7 @@ import posixpath
 import traceback
 import unicodedata
 from os import path
-from codecs import open, BOM_UTF8
+from codecs import BOM_UTF8
 from collections import deque
 
 from six import iteritems, text_type, binary_type
@@ -32,6 +32,7 @@ import jinja2
 import sphinx
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
 from sphinx.util.console import strip_colors
+from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import fs_encoding
 
 # import other utilities; partly for backwards compatibility, so don't
@@ -148,7 +149,7 @@ class FilenameUniqDict(dict):
 
 def copy_static_entry(source, targetdir, builder, context={},
                       exclude_matchers=(), level=0):
-    """Copy a HTML builder static_path entry from source to targetdir.
+    """[DEPRECATED] Copy a HTML builder static_path entry from source to targetdir.
 
     Handles all possible cases of files, directories and subdirectories.
     """
@@ -158,16 +159,7 @@ def copy_static_entry(source, targetdir, builder, context={},
             if matcher(relpath):
                 return
     if path.isfile(source):
-        target = path.join(targetdir, path.basename(source))
-        if source.lower().endswith('_t') and builder.templates:
-            # templated!
-            fsrc = open(source, 'r', encoding='utf-8')
-            fdst = open(target[:-2], 'w', encoding='utf-8')
-            fdst.write(builder.templates.render_string(fsrc.read(), context))
-            fsrc.close()
-            fdst.close()
-        else:
-            copyfile(source, target)
+        copy_asset_file(source, targetdir, context, builder.templates)
     elif path.isdir(source):
         if not path.isdir(targetdir):
             os.mkdir(targetdir)
@@ -180,37 +172,6 @@ def copy_static_entry(source, targetdir, builder, context={},
             copy_static_entry(path.join(source, entry), newtarget,
                               builder, context, level=level+1,
                               exclude_matchers=exclude_matchers)
-
-
-def copy_extra_entry(source, targetdir, exclude_matchers=()):
-    """Copy a HTML builder extra_path entry from source to targetdir.
-
-    Handles all possible cases of files, directories and subdirectories.
-    """
-    def excluded(path):
-        relpath = relative_path(os.path.dirname(source), path)
-        return any(matcher(relpath) for matcher in exclude_matchers)
-
-    def copy_extra_file(source_, targetdir_):
-        if not excluded(source_):
-            target = path.join(targetdir_, os.path.basename(source_))
-            copyfile(source_, target)
-
-    if os.path.isfile(source):
-        copy_extra_file(source, targetdir)
-        return
-
-    for root, dirs, files in os.walk(source):
-        reltargetdir = os.path.join(targetdir, relative_path(source, root))
-        for dir in dirs[:]:
-            if excluded(os.path.join(root, dir)):
-                dirs.remove(dir)
-            else:
-                target = os.path.join(reltargetdir, dir)
-                if not path.exists(target):
-                    os.mkdir(target)
-        for file in files:
-            copy_extra_file(os.path.join(root, file), reltargetdir)
 
 _DEBUG_HEADER = '''\
 # Sphinx version: %s

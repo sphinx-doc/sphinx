@@ -21,6 +21,8 @@ Incompatible changes
 * #2454: The filename of sourcelink is now changed.  The value of
   `html_sourcelink_suffix` will be appended to the original filename (like
   ``index.rst.txt``).
+* ``sphinx.util.copy_static_entry()`` is now deprecated.
+  Use ``sphinx.util.fileutil.copy_asset()`` instead.
 
 
 Features added
