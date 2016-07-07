@@ -45,21 +45,6 @@ class LaTeXBuilder(Builder):
         self.docnames = []
         self.document_data = []
         texescape.init()
-        self.check_options()
-
-    def check_options(self):
-        if self.config.latex_toplevel_sectioning not in (None, 'part', 'chapter', 'section'):
-            self.warn('invalid latex_toplevel_sectioning, ignored: %s' %
-                      self.config.latex_toplevel_sectioning)
-            self.config.latex_toplevel_sectioning = None
-
-        if self.config.latex_use_parts:
-            warnings.warn('latex_use_parts will be removed at Sphinx-1.5. '
-                          'Use latex_toplevel_sectioning instead.',
-                          DeprecationWarning)
-
-            if self.config.latex_toplevel_sectioning:
-                self.warn('latex_use_parts conflicts with latex_toplevel_sectioning, ignored.')
 
     def get_outdated_docs(self):
         return 'all documents'  # for now
@@ -236,8 +221,24 @@ class LaTeXBuilder(Builder):
         self.info('done')
 
 
+def validate_config_values(app):
+    if app.config.latex_toplevel_sectioning not in (None, 'part', 'chapter', 'section'):
+        app.warn('invalid latex_toplevel_sectioning, ignored: %s' %
+                 app.config.latex_toplevel_sectioning)
+        app.config.latex_toplevel_sectioning = None
+
+    if app.config.latex_use_parts:
+        warnings.warn('latex_use_parts will be removed at Sphinx-1.5. '
+                      'Use latex_toplevel_sectioning instead.',
+                      DeprecationWarning)
+
+        if app.config.latex_toplevel_sectioning:
+            app.warn('latex_use_parts conflicts with latex_toplevel_sectioning, ignored.')
+
+
 def setup(app):
     app.add_builder(LaTeXBuilder)
+    app.connect('builder-inited', validate_config_values)
 
     app.add_config_value('latex_documents',
                          lambda self: [(self.master_doc, make_filename(self.project) + '.tex',
