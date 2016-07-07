@@ -228,7 +228,8 @@ def test_literalinclude_file_whole_of_emptyline(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8').replace('\r\n', '\n')
     includes = (
-        '\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\},numbers=left,firstnumber=1,stepnumber=1]\n'
+        '\\begin{sphinxVerbatim}'
+        '[commandchars=\\\\\\{\\},numbers=left,firstnumber=1,stepnumber=1]\n'
         '\n'
         '\n'
         '\n'
