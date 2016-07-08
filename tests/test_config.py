@@ -206,3 +206,15 @@ def test_gen_check_types(app, status, warning):
             'override on "%s" should%s raise a type warning' %
             (key, '' if should else ' NOT')
         )
+
+
+@with_app(testroot='config')
+def test_check_enum(app, status, warning):
+    assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
+           not in warning.getvalue()
+
+
+@with_app(testroot='config', confoverrides={'value17': 'invalid'})
+def test_check_enum_failed(app, status, warning):
+    assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
+           "but `invalid` is given." in warning.getvalue()
