@@ -65,6 +65,7 @@ Features added
 * #2663: Add ``--warning-is-error`` option to setup.py command
 * Show warnings if deprecated latex options are used
 * Add sphinx.config.ENUM to check the config values is in candidates
+* math: Add hyperlink marker to each equations in HTML output
 
 
 Bugs fixed
