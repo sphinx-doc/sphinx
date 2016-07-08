@@ -72,6 +72,8 @@ Bugs fixed
 ----------
 
 * #2707: (latex) the column width is badly computed for tabular
+* #2763: (html) Provide default value for required ``alt`` attribute for image
+  tags of SVG format, required to validate and now consistent w/ other formats.
 
 Documentation
 -------------
