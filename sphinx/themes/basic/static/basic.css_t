@@ -585,6 +585,16 @@ span.eqno {
     float: right;
 }
 
+span.eqno a.headerlink {
+    position: relative;
+    left: 0px;
+    z-index: 1;
+}
+
+div.math:hover a.headerlink {
+    visibility: visible;
+}
+
 /* -- printout stylesheet --------------------------------------------------- */
 
 @media print {

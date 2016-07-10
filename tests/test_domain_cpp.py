@@ -77,7 +77,7 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
         print(rootSymbol.dump(0))
         raise DefinitionError("")
     ids.append(ast.get_id_v2())
-    #print ".. %s:: %s" % (name, input)
+    # print ".. %s:: %s" % (name, input)
 
 
 def test_fundamental_types():
@@ -131,6 +131,11 @@ def test_type_definitions():
     check("type", "bool ::B::b", "B::b", "N1B1bE")
 
     check('type', 'A = B', None, '1A')
+
+    # from breathe#267 (named function parameters for function pointers
+    check('type', 'void (*gpio_callback_t)(struct device *port, uint32_t pin)',
+          'gpio_callback_t', '15gpio_callback_t')
+    check('type', 'void (*f)(std::function<void(int i)> g)', 'f', '1f')
 
 
 def test_member_definitions():
@@ -397,11 +402,11 @@ def test_templates():
           "RK18c_string_view_baseIK4Char6TraitsE")
 
 
-#def test_print():
-#    # used for getting all the ids out for checking
-#    for a in ids:
-#        print(a)
-#    raise DefinitionError("")
+# def test_print():
+#     # used for getting all the ids out for checking
+#     for a in ids:
+#         print(a)
+#     raise DefinitionError("")
 
 
 @with_app(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})

@@ -300,3 +300,13 @@ class CheckExternalLinksBuilder(Builder):
     def finish(self):
         for worker in self.workers:
             self.wqueue.put((None, None, None), False)
+
+
+def setup(app):
+    app.add_builder(CheckExternalLinksBuilder)
+
+    app.add_config_value('linkcheck_ignore', [], None)
+    app.add_config_value('linkcheck_retries', 1, None)
+    app.add_config_value('linkcheck_timeout', None, None, [int])
+    app.add_config_value('linkcheck_workers', 5, None)
+    app.add_config_value('linkcheck_anchors', True, None)

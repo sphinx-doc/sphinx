@@ -11,7 +11,6 @@
 
 import os
 from os import path
-import warnings
 
 from six import iteritems
 from docutils import nodes
@@ -19,14 +18,15 @@ from docutils.io import FileOutput
 from docutils.utils import new_document
 from docutils.frontend import OptionParser
 
-from sphinx import package_dir, addnodes
+from sphinx import package_dir, addnodes, highlighting
 from sphinx.util import texescape
+from sphinx.config import string_classes
 from sphinx.errors import SphinxError
 from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP, copyfile
+from sphinx.util.osutil import SEP, copyfile, make_filename
 from sphinx.util.console import bold, darkgreen
 from sphinx.writers.latex import LaTeXWriter
 
@@ -44,21 +44,6 @@ class LaTeXBuilder(Builder):
         self.docnames = []
         self.document_data = []
         texescape.init()
-        self.check_options()
-
-    def check_options(self):
-        if self.config.latex_toplevel_sectioning not in (None, 'part', 'chapter', 'section'):
-            self.warn('invalid latex_toplevel_sectioning, ignored: %s' %
-                      self.config.latex_top_sectionlevel)
-            self.config.latex_top_sectionlevel = None
-
-        if self.config.latex_use_parts:
-            warnings.warn('latex_use_parts will be removed at Sphinx-1.5. '
-                          'Use latex_toplevel_sectioning instead.',
-                          DeprecationWarning)
-
-            if self.config.latex_toplevel_sectioning:
-                self.warn('latex_use_parts conflicts with latex_toplevel_sectioning, ignored.')
 
     def get_outdated_docs(self):
         return 'all documents'  # for now
@@ -92,6 +77,16 @@ class LaTeXBuilder(Builder):
                 docname = docname[:-5]
             self.titles.append((docname, entry[2]))
 
+    def write_stylesheet(self):
+        highlighter = highlighting.PygmentsBridge(
+            'latex', self.config.pygments_style, self.config.trim_doctest_flags)
+        stylesheet = path.join(self.outdir, 'sphinxhighlight.sty')
+        with open(stylesheet, 'w') as f:
+            f.write('\\NeedsTeXFormat{LaTeX2e}[1995/12/01]\n')
+            f.write('\\ProvidesPackage{sphinxhighlight}'
+                    '[2016/05/29 stylesheet for highlighting with pygments]\n\n')
+            f.write(highlighter.get_stylesheet())
+
     def write(self, *ignored):
         docwriter = LaTeXWriter(self)
         docsettings = OptionParser(
@@ -100,6 +95,7 @@ class LaTeXBuilder(Builder):
             read_config_files=True).get_default_values()
 
         self.init_document_data()
+        self.write_stylesheet()
 
         for entry in self.document_data:
             docname, targetname, title, author, docclass = entry[:5]
@@ -222,3 +218,72 @@ class LaTeXBuilder(Builder):
             elif not path.isfile(logotarget):
                 copyfile(path.join(self.confdir, self.config.latex_logo), logotarget)
         self.info('done')
+
+
+def validate_config_values(app):
+    if app.config.latex_toplevel_sectioning not in (None, 'part', 'chapter', 'section'):
+        app.warn('invalid latex_toplevel_sectioning, ignored: %s' %
+                 app.config.latex_toplevel_sectioning)
+        app.config.latex_toplevel_sectioning = None
+
+    if app.config.latex_use_parts:
+        if app.config.latex_toplevel_sectioning:
+            app.warn('latex_use_parts conflicts with latex_toplevel_sectioning, ignored.')
+        else:
+            app.warn('latex_use_parts is deprecated. Use latex_toplevel_sectioning instead.')
+            app.config.latex_toplevel_sectioning = 'parts'
+
+    if app.config.latex_use_modindex is not True:  # changed by user
+        app.warn('latex_use_modeindex is deprecated. Use latex_domain_indices instead.')
+
+    if app.config.latex_preamble:
+        if app.config.latex_elements.get('preamble'):
+            app.warn("latex_preamble conflicts with latex_elements['preamble'], ignored.")
+        else:
+            app.warn("latex_preamble is deprecated. Use latex_elements['preamble'] instead.")
+            app.config.latex_elements['preamble'] = app.config.latex_preamble
+
+    if app.config.latex_paper_size != 'letter':
+        if app.config.latex_elements.get('papersize'):
+            app.warn("latex_paper_size conflicts with latex_elements['papersize'], ignored.")
+        else:
+            app.warn("latex_paper_size is deprecated. "
+                     "Use latex_elements['papersize'] instead.")
+            if app.config.latex_paper_size:
+                app.config.latex_elements['papersize'] = app.config.latex_paper_size + 'paper'
+
+    if app.config.latex_font_size != '10pt':
+        if app.config.latex_elements.get('pointsize'):
+            app.warn("latex_font_size conflicts with latex_elements['pointsize'], ignored.")
+        else:
+            app.warn("latex_font_size is deprecated. Use latex_elements['pointsize'] instead.")
+            app.config.latex_elements['pointsize'] = app.config.latex_font_size
+
+
+def setup(app):
+    app.add_builder(LaTeXBuilder)
+    app.connect('builder-inited', validate_config_values)
+
+    app.add_config_value('latex_documents',
+                         lambda self: [(self.master_doc, make_filename(self.project) + '.tex',
+                                        self.project, '', 'manual')],
+                         None)
+    app.add_config_value('latex_logo', None, None, string_classes)
+    app.add_config_value('latex_appendices', [], None)
+    app.add_config_value('latex_keep_old_macro_names', True, None)
+    # now deprecated - use latex_toplevel_sectioning
+    app.add_config_value('latex_use_parts', False, None)
+    app.add_config_value('latex_toplevel_sectioning', None, None, [str])
+    app.add_config_value('latex_use_modindex', True, None)  # deprecated
+    app.add_config_value('latex_domain_indices', True, None, [list])
+    app.add_config_value('latex_show_urls', 'no', None)
+    app.add_config_value('latex_show_pagerefs', False, None)
+    # paper_size and font_size are still separate values
+    # so that you can give them easily on the command line
+    app.add_config_value('latex_paper_size', 'letter', None)
+    app.add_config_value('latex_font_size', '10pt', None)
+    app.add_config_value('latex_elements', {}, None)
+    app.add_config_value('latex_additional_files', [], None)
+    app.add_config_value('latex_docclass', {}, None)
+    # now deprecated - use latex_elements
+    app.add_config_value('latex_preamble', '', None)

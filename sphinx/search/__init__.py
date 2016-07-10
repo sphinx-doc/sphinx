@@ -226,11 +226,13 @@ class IndexBuilder(object):
 
     def __init__(self, env, lang, options, scoring):
         self.env = env
-        # filename -> title
+        # docname -> title
         self._titles = {}
-        # stemmed word -> set(filenames)
+        # docname -> filename
+        self._filenames = {}
+        # stemmed word -> set(docname)
         self._mapping = {}
-        # stemmed words in titles -> set(filenames)
+        # stemmed words in titles -> set(docname)
         self._title_mapping = {}
         # word -> stemmed word
         self._stem_cache = {}
@@ -338,15 +340,16 @@ class IndexBuilder(object):
 
     def freeze(self):
         """Create a usable data structure for serializing."""
-        filenames, titles = zip(*sorted(self._titles.items()))
-        fn2index = dict((f, i) for (i, f) in enumerate(filenames))
+        docnames, titles = zip(*sorted(self._titles.items()))
+        filenames = [self._filenames.get(docname) for docname in docnames]
+        fn2index = dict((f, i) for (i, f) in enumerate(docnames))
         terms, title_terms = self.get_terms(fn2index)
 
         objects = self.get_objects(fn2index)  # populates _objtypes
         objtypes = dict((v, k[0] + ':' + k[1])
                         for (k, v) in iteritems(self._objtypes))
         objnames = self._objnames
-        return dict(filenames=filenames, titles=titles, terms=terms,
+        return dict(docnames=docnames, filenames=filenames, titles=titles, terms=terms,
                     objects=objects, objtypes=objtypes, objnames=objnames,
                     titleterms=title_terms, envversion=self.env.version)
 
@@ -365,9 +368,11 @@ class IndexBuilder(object):
         for wordnames in itervalues(self._title_mapping):
             wordnames.intersection_update(filenames)
 
-    def feed(self, filename, title, doctree):
+    def feed(self, docname, filename, title, doctree):
         """Feed a doctree to the index."""
-        self._titles[filename] = title
+        self._titles[docname] = title
+        self._filenames[docname] = filename
+
         visitor = WordCollector(doctree, self.lang)
         doctree.walk(visitor)
 
@@ -383,9 +388,9 @@ class IndexBuilder(object):
         for word in visitor.found_title_words:
             stemmed_word = stem(word)
             if _filter(stemmed_word):
-                self._title_mapping.setdefault(stemmed_word, set()).add(filename)
+                self._title_mapping.setdefault(stemmed_word, set()).add(docname)
             elif _filter(word): # stemmer must not remove words from search index
-                self._title_mapping.setdefault(word, set()).add(filename)
+                self._title_mapping.setdefault(word, set()).add(docname)
 
         for word in visitor.found_words:
             stemmed_word = stem(word)
@@ -393,8 +398,7 @@ class IndexBuilder(object):
             if not _filter(stemmed_word) and _filter(word):
                 stemmed_word = word
             if stemmed_word not in self._title_mapping and _filter(stemmed_word):
-                self._mapping.setdefault(stemmed_word, set()).add(filename)
-
+                self._mapping.setdefault(stemmed_word, set()).add(docname)
 
     def context_for_searchtool(self):
         return dict(

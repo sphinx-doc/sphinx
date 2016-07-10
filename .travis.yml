@@ -17,12 +17,19 @@ env:
   matrix:
     - DOCUTILS=0.11
     - DOCUTILS=0.12
+addons:
+  apt:
+    packages:
+    - graphviz
+    - texlive-latex-recommended
+    - texlive-latex-extra
+    - texlive-fonts-recommended
+    - texlive-fonts-extra
 install:
   - pip install -U pip
   - pip install docutils==$DOCUTILS
   - pip install -r test-reqs.txt
 before_script: flake8
 script:
-
-  -  if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then make test-async; fi
+  -  if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then make style-check test-async; fi
   -  if [[ $TRAVIS_PYTHON_VERSION != '3.5' ]]; then make test; fi

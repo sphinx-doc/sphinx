@@ -21,6 +21,7 @@ from util import with_app
 
 settings = parser = None
 
+
 def setup_module():
     global settings, parser
     optparser = frontend.OptionParser(components=(rst.Parser,))
@@ -45,13 +46,14 @@ FILE_CONTENTS = '''\
 test that non-comments are indexed: fermion
 '''
 
+
 def test_wordcollector():
     doc = utils.new_document(b'test data', settings)
     doc['file'] = 'dummy'
     parser.parse(FILE_CONTENTS, doc)
 
     ix = IndexBuilder(None, 'en', {}, None)
-    ix.feed('filename', 'title', doc)
+    ix.feed('docname', 'filename', 'title', doc)
     assert 'boson' not in ix._mapping
     assert 'fermion' in ix._mapping
 

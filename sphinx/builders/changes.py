@@ -15,12 +15,12 @@ from os import path
 from six import iteritems
 
 from sphinx import package_dir
-from sphinx.util import copy_static_entry
 from sphinx.locale import _
 from sphinx.theming import Theme
 from sphinx.builders import Builder
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.util.console import bold
+from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.pycompat import htmlescape
 
 
@@ -138,12 +138,10 @@ class ChangesBuilder(Builder):
                 f.write(self.templates.render('changes/rstsource.html', ctx))
         themectx = dict(('theme_' + key, val) for (key, val) in
                         iteritems(self.theme.get_options({})))
-        copy_static_entry(path.join(package_dir, 'themes', 'default',
-                                    'static', 'default.css_t'),
-                          self.outdir, self, themectx)
-        copy_static_entry(path.join(package_dir, 'themes', 'basic',
-                                    'static', 'basic.css'),
-                          self.outdir, self)
+        copy_asset_file(path.join(package_dir, 'themes', 'default', 'static', 'default.css_t'),
+                        self.outdir, context=themectx, renderer=self.templates)
+        copy_asset_file(path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
+                        self.outdir)
 
     def hl(self, text, version):
         text = htmlescape(text)
@@ -154,3 +152,7 @@ class ChangesBuilder(Builder):
 
     def finish(self):
         pass
+
+
+def setup(app):
+    app.add_builder(ChangesBuilder)

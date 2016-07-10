@@ -182,7 +182,7 @@ The doctest extension uses the following configuration values:
 .. confval:: doctest_default_flags
 
    By default, these options are enabled:
-   
+
    - ``ELLIPSIS``, allowing you to put ellipses in the expected output that
      match anything in the actual output;
    - ``IGNORE_EXCEPTION_DETAIL``, causing everything following the leftmost

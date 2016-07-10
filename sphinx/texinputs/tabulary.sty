@@ -14,7 +14,7 @@
 %%
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{tabulary}
-          [2008/12/01 v0.9 tabulary package (DPC)]
+          [2014/06/11 v0.10 tabulary package (DPC) + footnote patch (sphinx)]
 \RequirePackage{array}
 \catcode`\Z=14
 \DeclareOption{debugshow}{\catcode`\Z=9\relax}
@@ -354,6 +354,7 @@ Z \message{^^JTotal:\the\@tempdima^^J}%
     \expandafter\let\expandafter\color\expandafter\relax
     \expandafter\let\expandafter\CT@column@color\expandafter\relax
     \expandafter\let\expandafter\CT@row@color\expandafter\relax
+    \expandafter\let\expandafter\CT@cell@color\expandafter\relax
     \@mkpream{#1}}
 \let\TY@@mkpream\@mkpream
 \def\TY@classz{%
@@ -396,6 +397,7 @@ Z \message{^^JTotal:\the\@tempdima^^J}%
   \CT@setup
   \CT@column@color
   \CT@row@color
+  \CT@cell@color
   \CT@do@color
 \endgroup
         \@tempdima\ht\z@

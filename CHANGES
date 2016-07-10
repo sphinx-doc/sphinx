@@ -4,8 +4,28 @@ Release 1.5 (in development)
 Incompatible changes
 --------------------
 
-* LaTeX package fancybox is not longer a dependency of sphinx.sty
+* latex, package fancybox is not longer a dependency of sphinx.sty
 * Use ``'locales'`` as a default value of `locale_dirs`
+* latex, package ifthen is not any longer a dependency of sphinx.sty
+* latex, style file does not modify fancyvrb's Verbatim (also available as
+  OriginalVerbatim) but uses sphinxVerbatim for name of custom wrapper.
+* latex, package newfloat is no longer a dependency of sphinx.sty (ref #2660;
+  it was shipped with Sphinx since 1.3.4).
+* latex, literal blocks in tables do not use OriginalVerbatim but
+  sphinxVerbatimintable which handles captions and wraps lines(ref #2704).
+* latex, replace ``pt`` by TeX equivalent ``bp`` if found in ``width`` or
+  ``height`` attribute of an image.
+* latex, if ``width`` or ``height`` attribute of an image is given with no unit,
+  use ``px`` rather than ignore it.
+* latex: Separate stylesheets of pygments to independent .sty file
+* #2454: The filename of sourcelink is now changed.  The value of
+  `html_sourcelink_suffix` will be appended to the original filename (like
+  ``index.rst.txt``).
+* ``sphinx.util.copy_static_entry()`` is now deprecated.
+  Use ``sphinx.util.fileutil.copy_asset()`` instead.
+* ``sphinx.util.osutil.filecopy()`` skips copying if the file has not been changed
+  (ref: #2510, #2753)
+
 
 Features added
 --------------
@@ -17,19 +37,140 @@ Features added
 * #2463, #2516: Add keywords of "meta" directive to search index
 * ``:maxdepth:`` option of toctree affects ``secnumdepth`` (ref: #2547)
 * #2575: Now ``sphinx.ext.graphviz`` allows ``:align:`` option
+* Show warnings if unknown key is specified to `latex_elements`
+* Show warnings if no domains match with `primary_domain` (ref: #2001)
+* C++, show warnings when the kind of role is misleading for the kind
+  of target it refers to (e.g., using the `class` role for a function).
+* latex, writer abstracts more of text styling into customizable macros, e.g.
+  the ``visit_emphasis`` will output ``\sphinxstyleemphasis`` rather than
+  ``\emph`` (which may be in use elsewhere or in an added LaTeX package). See
+  list at end of ``sphinx.sty`` (ref: #2686)
+* latex, public names for environments and parameters used by note, warning,
+  and other admonition types, allowing full customizability from the
+  ``'preamble'`` key or an input file (ref: feature request #2674, #2685)
+* latex, better computes column widths of some tables (as a result, there will
+  be slight changes as tables now correctly fill the line width; ref: #2708)
+* latex, sphinxVerbatim environment is more easily customizable (ref: #2704).
+  In addition to already existing VerbatimColor and VerbatimBorderColor:
+
+  - two lengths ``\sphinxverbatimsep`` and ``\sphinxverbatimborder``,
+  - booleans ``\ifsphinxverbatimwithframe`` and ``\ifsphinxverbatimwrapslines``.
+* latex, captions for literal blocks inside tables are handled, and long code
+  lines wrapped to fit table cell (ref: #2704)
+* #2597: Show warning messages as darkred
+* latex, allow image dimensions using px unit (default is 96px=1in)
+* Show warnings if invalid dimension units found
+* #2650: Add ``--pdb`` option to setup.py command
+* latex, make the use of ``\small`` for code listings customizable (ref #2721)
+* #2663: Add ``--warning-is-error`` option to setup.py command
+* Show warnings if deprecated latex options are used
+* Add sphinx.config.ENUM to check the config values is in candidates
+* math: Add hyperlink marker to each equations in HTML output
+
 
 Bugs fixed
 ----------
+
+* #2707: (latex) the column width is badly computed for tabular
 
 Documentation
 -------------
 
 
-Release 1.4.3 (in development)
+Release 1.4.5 (in development)
 ==============================
+
+Incompatible changes
+--------------------
+
+* latex, inclusion of non-inline images from image directive resulted in
+  non-coherent whitespaces depending on original image width; new behaviour
+  by necessity differs from earlier one in some cases. (ref: #2672)
+* latex, use of ``\includegraphics`` to refer to Sphinx custom variant is
+  deprecated; in future it will revert to original LaTeX macro, custom one
+  already has alternative name ``\sphinxincludegraphics``.
+
+Features added
+--------------
+
+* new config option ``latex_keep_old_macro_names``, defaults to True. If False,
+  lets macros (for text styling) be defined only with ``\sphinx``-prefixed names.
+* latex writer allows user customization of "shadowed" boxes (topics), via
+  three length variables.
+* woff-format web font files now supported by the epub builder.
 
 Bugs fixed
 ----------
+
+* #2676: (latex) Error with verbatim text in captions since Sphinx 1.4.4
+* #2629: memoir class crashes LaTeX. Fixed ``by latex_keep_old_macro_names=False`` (ref 2675)
+* #2684: `sphinx.ext.intersphinx` crashes with six-1.4.1
+* #2679: ``float`` package needed for ``'figure_align': 'H'`` latex option
+* #2671: image directive may lead to inconsistent spacing in pdf
+* #2705: ``toctree`` generates empty bullet_list if ``:titlesonly:`` specified
+* #2479: `sphinx.ext.viewcode` uses python2 highlighter by default
+* #2700: HtmlHelp builder has hard coded index.html
+* latex, since 1.4.4 inline literal text is followed by spurious space
+* #2722: C++, fix id generation for var/member declarations to include namespaces.
+* latex, images (from image directive) in lists or quoted blocks did not obey
+  indentation (fixed together with #2671)
+* #2733: since Sphinx-1.4.4 ``make latexpdf`` generates lots of hyperref warnings
+* #2731: `sphinx.ext.autodoc` does not access propertymethods which raises any
+  exceptions
+* #2666: C++, properly look up nested names involving constructors.
+* #2579: Could not refer a label including both spaces and colons via
+  `sphinx.ext.intersphinx`
+* #2718: Sphinx crashes if the document file is not readable
+* #2699: hyperlinks in help HTMLs are broken if `html_file_suffix` is set
+* #2723: extra spaces in latex pdf output from multirow cell
+* #2735: latexpdf ``Underfull \hbox (badness 10000)`` warnings from title page
+* #2667: latex crashes if resized images appeared in section title
+
+
+Release 1.4.4 (released Jun 12, 2016)
+=====================================
+
+Bugs fixed
+----------
+
+* #2630: Latex sphinx.sty Notice Enviroment formatting problem
+* #2632: Warning directives fail in quote environment latex build
+* #2633: Sphinx crashes with old styled indices
+* Fix a ``\begin{\minipage}`` typo in sphinx.sty from 1.4.2 (ref: 68becb1)
+* #2622: Latex produces empty pages after title and table of contents
+* #2640: 1.4.2 LaTeX crashes if code-block inside warning directive
+* Let LaTeX use straight quotes also in inline code (ref #2627)
+* #2351: latex crashes if enumerated lists are placed on footnotes
+* #2646: latex crashes if math contains twice empty lines
+* #2480: `sphinx.ext.autodoc`: memory addresses were shown
+* latex: allow code-blocks appearing inside lists and quotes at maximal nesting
+  depth (ref #777, #2624, #2651)
+* #2635: Latex code directives produce inconsistent frames based on viewing
+  resolution
+* #2639: Sphinx now bundles iftex.sty
+* Failed to build PDF with framed.sty 0.95
+* Sphinx now bundles needspace.sty
+
+
+Release 1.4.3 (released Jun 5, 2016)
+====================================
+
+Bugs fixed
+----------
+
+* #2530: got "Counter too large" error on building PDF if large numbered
+  footnotes existed in admonitions
+* ``width`` option of figure directive does not work if ``align`` option specified at same time (ref: #2595)
+* #2590: The ``inputenc`` package breaks compiling under lualatex and xelatex
+* #2540: date on latex front page use different font
+* Suppress "document isn't included in any toctree" warning if the document is included (ref: #2603)
+* #2614: Some tables in PDF output will end up shifted if user sets non zero
+  \parindent in preamble
+* #2602: URL redirection breaks the hyperlinks generated by `sphinx.ext.intersphinx`
+* #2613: Show warnings if merged extensions are loaded
+* #2619: make sure amstext LaTeX package always loaded (ref: d657225, 488ee52,
+  9d82cad and #2615)
+* #2593: latex crashes if any figures in the table
 
 
 Release 1.4.2 (released May 29, 2016)
@@ -69,7 +210,8 @@ Bugs fixed
 * #2397: Setup shorthandoff for turkish documents
 * #2447: VerbatimBorderColor wrongly used also for captions of PDF
 * #2456: C++, fix crash related to document merging (e.g., singlehtml and Latex builders).
-* #2446: latex(pdf) sets local tables of contents (or more generally topic nodes) in unbreakable boxes, causes overflow at bottom
+* #2446: latex(pdf) sets local tables of contents (or more generally topic
+  nodes) in unbreakable boxes, causes overflow at bottom
 * #2476: Omit MathJax markers if :nowrap: is given
 * #2465: latex builder fails in case no caption option is provided to toctree directive
 * Sphinx crashes if self referenced toctree found
@@ -278,7 +420,8 @@ Bugs fixed
   is highlighted as Python 3 (which is mostly a superset of Python 2) if possible.
   To get the old behavior back, add ``highlight_language = "python"`` to conf.py.
 * #2329: Refresh environment forcely if source directory has changed.
-* #2331: Fix code-blocks are filled by block in dvi; remove ``xcdraw`` option from xcolor package
+* #2331: Fix code-blocks are filled by block in dvi; remove ``xcdraw`` option from
+  xcolor package
 * Fix the confval type checker emits warnings if unicode is given to confvals which expects string value
 * #2360: Fix numref in LaTeX output is broken
 * #2361: Fix additional paragraphs inside the "compound" directive are indented

@@ -87,7 +87,6 @@ def test_extract_messages():
         nodes.rubric, 1,
     )
 
-
     text = dedent(
         """
         | spam
@@ -99,7 +98,6 @@ def test_extract_messages():
         extract_messages(_get_doctree(text)),
         nodes.line, 2,
     )
-
 
     text = dedent(
         """
@@ -117,7 +115,6 @@ def test_extract_messages():
         extract_messages(_get_doctree(text)),
         nodes.line, 2,
     )
-
 
     text = dedent(
         """

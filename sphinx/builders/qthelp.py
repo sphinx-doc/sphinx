@@ -21,6 +21,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util import force_decode
+from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
 
 
@@ -111,6 +112,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         StandaloneHTMLBuilder.init(self)
         # the output files for HTML help must be .html only
         self.out_suffix = '.html'
+        self.link_suffix = '.html'
         # self.config.html_style = 'traditional.css'
 
     def handle_finish(self):
@@ -290,3 +292,10 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                 keywords.extend(self.build_keywords(subitem[0], subitem[1], []))
 
         return keywords
+
+
+def setup(app):
+    app.setup_extension('sphinx.builders.html')
+    app.add_builder(QtHelpBuilder)
+
+    app.add_config_value('qthelp_basename', lambda self: make_filename(self.project), None)

@@ -1977,7 +1977,7 @@ class ASTTypeWithInit(ASTBase):
 
     def get_id_v2(self, objectType=None, symbol=None):
         if objectType == 'member':
-            return symbol.declaration.name.get_id_v2()
+            return symbol.get_full_nested_name().get_id_v2()
         else:
             return self.type.get_id_v2()
 
@@ -2660,6 +2660,10 @@ class Symbol(object):
                 if symbol is None:
                     # TODO: maybe search without template args
                     return None
+                # We have now matched part of a nested name, and need to match more
+                # so even if we should matchSelf before, we definitely shouldn't
+                # even more. (see also issue #2666)
+                matchSelf = False
             parentSymbol = symbol
         assert False  # should have returned in the loop
 
@@ -3007,10 +3011,9 @@ class DefinitionParser(object):
                         self.fail('Expected ")" after "..." in '
                                   'parameters_and_qualifiers.')
                     break
-                if paramMode == 'function':
-                    arg = self._parse_type_with_init(outer=None, named='single')
-                else:
-                    arg = self._parse_type(named=False)
+                # note: it seems that function arguments can always sbe named,
+                # even in function pointers and similar.
+                arg = self._parse_type_with_init(outer=None, named='single')
                 # TODO: parse default parameters # TODO: didn't we just do that?
                 args.append(ASTFunctinoParameter(arg))
 
@@ -3734,7 +3737,7 @@ class CPPObject(ObjectDescription):
             id_v1 = None
         id_v2 = ast.get_id_v2()
         # store them in reverse order, so the newest is first
-        ids  = [id_v2, id_v1]
+        ids = [id_v2, id_v1]
 
         newestId = ids[0]
         assert newestId  # shouldn't be None
@@ -3755,8 +3758,14 @@ class CPPObject(ObjectDescription):
             else:
                 # print("[CPP] non-unique name:", name)
                 pass
-            for id in ids:
-                if id:  # is None when the element didn't exist in that version
+            # always add the newest id
+            assert newestId
+            signode['ids'].append(newestId)
+            # only add compatibility ids when there are no conflicts
+            for id in ids[1:]:
+                if not id:  # is None when the element didn't exist in that version
+                    continue
+                if id not in self.state.document.ids:
                     signode['ids'].append(id)
             signode['first'] = (not self.names)  # hmm, what is this abound?
             self.state.document.note_explicit_target(signode)
@@ -3800,6 +3809,15 @@ class CPPObject(ObjectDescription):
         self.describe_signature(signode, ast)
         return ast
 
+    def before_content(self):
+        lastSymbol = self.env.ref_context['cpp:last_symbol']
+        assert lastSymbol
+        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
+        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
+
+    def after_content(self):
+        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
+
 
 class CPPTypeObject(CPPObject):
     def get_index_text(self, name):
@@ -3838,15 +3856,6 @@ class CPPClassObject(CPPObject):
     def get_index_text(self, name):
         return _('%s (C++ class)') % name
 
-    def before_content(self):
-        lastSymbol = self.env.ref_context['cpp:last_symbol']
-        assert lastSymbol
-        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
-        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
-
-    def after_content(self):
-        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
-
     def parse_definition(self, parser):
         return parser.parse_declaration("class")
 
@@ -3857,15 +3866,6 @@ class CPPClassObject(CPPObject):
 class CPPEnumObject(CPPObject):
     def get_index_text(self, name):
         return _('%s (C++ enum)') % name
-
-    def before_content(self):
-        lastSymbol = self.env.ref_context['cpp:last_symbol']
-        assert lastSymbol
-        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
-        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
-
-    def after_content(self):
-        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
 
     def parse_definition(self, parser):
         ast = parser.parse_declaration("enum")
@@ -4123,6 +4123,29 @@ class CPPDomain(Domain):
                                    matchSelf=True)
         if s is None or s.declaration is None:
             return None, None
+
+        if typ.startswith('cpp:'):
+            typ = typ[4:]
+        if typ == 'func':
+            typ = 'function'
+        declTyp = s.declaration.objectType
+
+        def checkType():
+            if typ == 'any':
+                return True
+            if declTyp == 'templateParam':
+                return True
+            if typ == 'var' or typ == 'member':
+                return declTyp in ['var', 'member']
+            if typ in ['enum', 'enumerator', 'function', 'class']:
+                return declTyp == typ
+            if typ == 'type':
+                return declTyp in ['enum', 'class', 'function', 'type']
+            print("Type is %s" % typ)
+            assert False
+        if not checkType():
+            warner.warn("cpp:%s targets a %s." % (typ, s.declaration.objectType))
+
         declaration = s.declaration
         fullNestedName = s.get_full_nested_name()
         name = text_type(fullNestedName).lstrip(':')
@@ -4162,3 +4185,7 @@ class CPPDomain(Domain):
             docname = symbol.docname
             newestId = symbol.declaration.get_newest_id()
             yield (name, name, objectType, docname, newestId, 1)
+
+
+def setup(app):
+    app.add_domain(CPPDomain)

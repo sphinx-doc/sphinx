@@ -405,6 +405,7 @@ class Include(BaseInclude):
             return BaseInclude.run(self)
         rel_filename, filename = env.relfn2path(self.arguments[0])
         self.arguments[0] = filename
+        env.note_included(filename)
         return BaseInclude.run(self)
 
 

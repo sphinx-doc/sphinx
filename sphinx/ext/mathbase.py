@@ -58,7 +58,7 @@ def wrap_displaymath(math, label, numbering):
             begin = r'\begin{align*}%s\!\begin{aligned}' % labeldef
             end = r'\end{aligned}\end{align*}'
         for part in parts:
-            equations.append('%s\\\\\n' % part)
+            equations.append('%s\\\\\n' % part.strip())
 
     return '%s\n%s%s' % (begin, ''.join(equations), end)
 

@@ -1,4 +1,4 @@
-from sphinx.config import string_classes
+from sphinx.config import string_classes, ENUM
 
 value1 = 123  # wrong type
 value2 = 123  # lambda with wrong type
@@ -45,3 +45,4 @@ def setup(app):
     app.add_config_value('value14', None, False, string_classes)
     app.add_config_value('value15', u'unicode', False)
     app.add_config_value('value16', u'unicode', False)
+    app.add_config_value('value17', 'default', False, ENUM('default', 'one', 'two'))

@@ -29,7 +29,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util.i18n import format_date
-from sphinx.util.osutil import ensuredir, copyfile, EEXIST
+from sphinx.util.osutil import ensuredir, copyfile, make_filename, EEXIST
 from sphinx.util.smartypants import sphinx_smarty_pants as ssp
 from sphinx.util.console import brown
 
@@ -152,6 +152,7 @@ MEDIA_TYPES = {
     '.jpeg': 'image/jpeg',
     '.otf': 'application/x-font-otf',
     '.ttf': 'application/x-font-ttf',
+    '.woff': 'application/font-woff',
 }
 
 VECTOR_GRAPHICS_EXTENSIONS = ('.svg',)
@@ -760,3 +761,33 @@ class EpubBuilder(StandaloneHTMLBuilder):
             fp = path.join(outdir, file)
             epub.write(fp, file, zipfile.ZIP_DEFLATED)
         epub.close()
+
+
+def setup(app):
+    app.setup_extension('sphinx.builders.html')
+    app.add_builder(EpubBuilder)
+
+    # config values
+    app.add_config_value('epub_basename', lambda self: make_filename(self.project), None)
+    app.add_config_value('epub_theme', 'epub', 'html')
+    app.add_config_value('epub_theme_options', {}, 'html')
+    app.add_config_value('epub_title', lambda self: self.html_title, 'html')
+    app.add_config_value('epub_author', 'unknown', 'html')
+    app.add_config_value('epub_language', lambda self: self.language or 'en', 'html')
+    app.add_config_value('epub_publisher', 'unknown', 'html')
+    app.add_config_value('epub_copyright', lambda self: self.copyright, 'html')
+    app.add_config_value('epub_identifier', 'unknown', 'html')
+    app.add_config_value('epub_scheme', 'unknown', 'html')
+    app.add_config_value('epub_uid', 'unknown', 'env')
+    app.add_config_value('epub_cover', (), 'env')
+    app.add_config_value('epub_guide', (), 'env')
+    app.add_config_value('epub_pre_files', [], 'env')
+    app.add_config_value('epub_post_files', [], 'env')
+    app.add_config_value('epub_exclude_files', [], 'env')
+    app.add_config_value('epub_tocdepth', 3, 'env')
+    app.add_config_value('epub_tocdup', True, 'env')
+    app.add_config_value('epub_tocscope', 'default', 'env')
+    app.add_config_value('epub_fix_images', False, 'env')
+    app.add_config_value('epub_max_image_width', 0, 'env')
+    app.add_config_value('epub_show_urls', 'inline', 'html')
+    app.add_config_value('epub_use_index', lambda self: self.html_use_index, 'html')

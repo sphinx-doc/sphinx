@@ -359,6 +359,12 @@ latex_documents = [
 #
 # latex_appendices = []
 
+# It false, will not define \strong, \code, \titleref, \crossref ... but only
+# \sphinxstrong, ..., \sphinxtitleref, ... To help avoid clash with user added
+# packages.
+#
+# latex_keep_old_macro_names = True
+
 # If false, no module index is generated.
 #
 # latex_domain_indices = True
@@ -559,8 +565,8 @@ help:
 \t@echo "  latex       to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 \t@echo "  latexpdf    to make LaTeX files and run them through pdflatex"
 \t@echo "  latexpdfja  to make LaTeX files and run them through platex/dvipdfmx"
-\t@echo "  lualatexpdf to make LaTeX files and run them through pdflatex"
-\t@echo "  xelatexpdf  to make LaTeX files and run them through pdflatex"
+\t@echo "  lualatexpdf to make LaTeX files and run them through lualatex"
+\t@echo "  xelatexpdf  to make LaTeX files and run them through xelatex"
 \t@echo "  text        to make text files"
 \t@echo "  man         to make manual pages"
 \t@echo "  texinfo     to make Texinfo files"

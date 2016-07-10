@@ -67,7 +67,7 @@ def test_html_with_set_translator_for_html_and_html_translator_class(
     assert translator_class.__name__ == 'ConfHTMLTranslator'
 
 
-## this test break test_websupport.test_comments test. why?
+# this test break test_websupport.test_comments test. why?
 # @with_app(
 #     buildername='dirhtml',
 #     srcdir=(test_roots / 'test-api-set-translator'),

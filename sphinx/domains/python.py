@@ -771,3 +771,7 @@ class PythonDomain(Domain):
         for refname, (docname, type) in iteritems(self.data['objects']):
             if type != 'module':  # modules are already handled
                 yield (refname, refname, type, docname, refname, 1)
+
+
+def setup(app):
+    app.add_domain(PythonDomain)
