@@ -24,12 +24,8 @@ from collections import deque
 from six import iteritems, text_type, binary_type
 from six.moves import range
 from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
-import docutils
 from docutils.utils import relative_path
 
-import jinja2
-
-import sphinx
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
 from sphinx.util.console import strip_colors
 from sphinx.util.fileutil import copy_asset_file
@@ -186,6 +182,9 @@ _DEBUG_HEADER = '''\
 
 def save_traceback(app):
     """Save the current exception's traceback in a temporary file."""
+    import sphinx
+    import jinja2
+    import docutils
     import platform
     exc = sys.exc_info()[1]
     if isinstance(exc, SphinxParallelError):
