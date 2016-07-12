@@ -113,8 +113,7 @@ def get_compiled_path(filename):
     head, tail = os.path.splitext(filename)
     if tail == ".txt":
         tail = ""
-    # embed Sphinx major version for the case we ever change the grammar...
-    return "%s%s-sphinx%s.pickle" % (head, tail, ".".join(map(str, sphinx.version_info[:2])))
+    return "%s%s.pickle" % (head, tail)
 
 
 def compile_grammar(gt='Grammar.txt', logger=None):
