@@ -92,3 +92,16 @@ def test_meta_keys_are_handled_for_language_de(app, status, warning):
     assert is_registered_term(searchindex, 'onlygerman')
     assert not is_registered_term(searchindex, 'notgerman')
     assert is_registered_term(searchindex, 'onlytoogerman')
+
+
+@with_app(testroot='search')
+def test_stemmer_does_not_remove_short_words(app, status, warning):
+    app.builder.build_all()
+    searchindex = (app.outdir / 'searchindex.js').text()
+    assert 'zfs' in searchindex
+
+
+@with_app(testroot='search')
+def test_stemmer(app, status, warning):
+    searchindex = (app.outdir / 'searchindex.js').text()
+    assert 'findthisstemmedkei' in searchindex
