@@ -78,8 +78,15 @@ Documentation
 -------------
 
 
-Release 1.4.5 (in development)
+Release 1.4.6 (in development)
 ==============================
+
+Bugs fixed
+----------
+
+
+Release 1.4.5 (released Jul 13, 2016)
+=====================================
 
 Incompatible changes
 --------------------
@@ -103,6 +110,7 @@ Features added
 Bugs fixed
 ----------
 
+* jsdump fix for python 3: fixes the HTML search on python > 3
 * #2676: (latex) Error with verbatim text in captions since Sphinx 1.4.4
 * #2629: memoir class crashes LaTeX. Fixed ``by latex_keep_old_macro_names=False`` (ref 2675)
 * #2684: `sphinx.ext.intersphinx` crashes with six-1.4.1
@@ -126,6 +134,8 @@ Bugs fixed
 * #2723: extra spaces in latex pdf output from multirow cell
 * #2735: latexpdf ``Underfull \hbox (badness 10000)`` warnings from title page
 * #2667: latex crashes if resized images appeared in section title
+* #2763: (html) Provide default value for required ``alt`` attribute for image
+  tags of SVG source, required to validate and now consistent w/ other formats.
 
 
 Release 1.4.4 (released Jun 12, 2016)
