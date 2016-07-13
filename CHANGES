@@ -25,8 +25,9 @@ Incompatible changes
   Use ``sphinx.util.fileutil.copy_asset()`` instead.
 * ``sphinx.util.osutil.filecopy()`` skips copying if the file has not been changed
   (ref: #2510, #2753)
-
-
+* Internet Explorer 6-8, Opera 12.1x or Safari 5.1+ support is dropped
+  because jQuery version is updated from 1.11.0 to 3.1.0 (ref: #2634, #2773)
+  
 Features added
 --------------
 
