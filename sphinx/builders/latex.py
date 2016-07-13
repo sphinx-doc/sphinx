@@ -263,8 +263,10 @@ def setup(app):
     app.add_builder(LaTeXBuilder)
     app.connect('builder-inited', validate_config_values)
 
-    app.add_config_value('latex_engine', 'pdflatex', None,
-                         ENUM('pdflatex', 'xelatex', 'lualatex'))
+    app.add_config_value('latex_engine',
+                         lambda self: 'pdflatex' if self.language != 'ja' else 'platex',
+                         None,
+                         ENUM('pdflatex', 'xelatex', 'lualatex', 'platex'))
     app.add_config_value('latex_documents',
                          lambda self: [(self.master_doc, make_filename(self.project) + '.tex',
                                         self.project, '', 'manual')],
