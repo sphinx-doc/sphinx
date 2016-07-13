@@ -14,7 +14,7 @@ import re
 from util import with_app, SkipTest
 
 
-@with_app('html', testroot='ext-math',
+@with_app('html', testroot='ext-math-simple',
           confoverrides = {'extensions': ['sphinx.ext.imgmath']})
 def test_imgmath_png(app, status, warning):
     app.builder.build_all()
@@ -29,7 +29,7 @@ def test_imgmath_png(app, status, warning):
     assert re.search(html, content, re.S)
 
 
-@with_app('html', testroot='ext-math',
+@with_app('html', testroot='ext-math-simple',
           confoverrides={'extensions': ['sphinx.ext.imgmath'],
                          'imgmath_image_format': 'svg'})
 def test_imgmath_svg(app, status, warning):
