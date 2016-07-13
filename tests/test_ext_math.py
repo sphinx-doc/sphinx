@@ -14,6 +14,22 @@ import re
 from util import with_app, SkipTest
 
 
+@with_app(buildername='html', testroot='ext-math',
+          confoverrides = {'extensions': ['sphinx.ext.jsmath'], 'jsmath_path': 'dummy.js'})
+def test_jsmath(app, status, warning):
+    app.builder.build_all()
+    content = (app.outdir / 'math.html').text()
+
+    assert '<div class="math">\na^2 + b^2 = c^2</div>' in content
+    assert '<div class="math">\n\\begin{split}a + 1 &lt; b\\end{split}</div>' in content
+    assert ('<span class="eqno">(1)</span><div class="math" id="equation-foo">\n'
+            'e^{i\\pi} = 1</div>' in content)
+    assert ('<span class="eqno">(2)</span><div class="math">\n'
+            'e^{ix} = \\cos x + i\\sin x</div>' in content)
+    assert '<div class="math">\nn \\in \\mathbb N</div>' in content
+    assert '<div class="math">\na + 1 &lt; b</div>' in content
+
+
 @with_app('html', testroot='ext-math-simple',
           confoverrides = {'extensions': ['sphinx.ext.imgmath']})
 def test_imgmath_png(app, status, warning):

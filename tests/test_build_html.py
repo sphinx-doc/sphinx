@@ -989,21 +989,6 @@ def test_enumerable_node(app, status, warning):
             yield check_xpath, etree, fname, xpath, check, be_found
 
 
-@with_app(buildername='html')
-def test_jsmath(app, status, warning):
-    app.builder.build_all()
-    content = (app.outdir / 'math.html').text()
-
-    assert '<div class="math">\na^2 + b^2 = c^2</div>' in content
-    assert '<div class="math">\n\\begin{split}a + 1 &lt; b\\end{split}</div>' in content
-    assert ('<span class="eqno">(1)</span><div class="math" id="equation-foo">\n'
-            'e^{i\\pi} = 1</div>' in content)
-    assert ('<span class="eqno">(2)</span><div class="math">\n'
-            'e^{ix} = \\cos x + i\\sin x</div>' in content)
-    assert '<div class="math">\nn \\in \\mathbb N</div>' in content
-    assert '<div class="math">\na + 1 &lt; b</div>' in content
-
-
 @with_app(buildername='html', testroot='html_extra_path')
 def test_html_extra_path(app, status, warning):
     app.builder.build_all()
