@@ -12,16 +12,23 @@ from __future__ import print_function
 
 import os
 import re
+from itertools import product
 from subprocess import Popen, PIPE
 
 from six import PY3
 
 from sphinx.errors import SphinxError
+from sphinx.util.osutil import cd, ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
 from util import SkipTest, remove_unicode_literals, with_app, strip_escseq
 from test_build_html import ENV_WARNINGS
 
+
+LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
+DOCCLASSES = ['howto', 'manual']
+STYLEFILES = ['article.sty', 'fancyhdr.sty', 'fancybox.sty', 'titlesec.sty', 'amsmath.sty',
+              'framed.sty', 'color.sty', 'fancyvrb.sty', 'threeparttable.sty']
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: unknown option: &option
@@ -34,70 +41,58 @@ if PY3:
     LATEX_WARNINGS = remove_unicode_literals(LATEX_WARNINGS)
 
 
-def run_latex(outdir):
-    """Run pdflatex, xelatex, and lualatex in the outdir"""
-    cwd = os.getcwd()
-    os.chdir(outdir)
+# only run latex if all needed packages are there
+def kpsetest(*filenames):
     try:
-        latexes = ('pdflatex', 'xelatex', 'lualatex')
-        available_latexes = len(latexes)
-        for latex in latexes:
-            try:
-                os.mkdir(latex)
-                p = Popen([latex, '--interaction=nonstopmode',
-                           '-output-directory=%s' % latex, 'SphinxTests.tex'],
-                          stdout=PIPE, stderr=PIPE)
-            except OSError:  # most likely the latex executable was not found
-                available_latexes -= 1
-            else:
-                stdout, stderr = p.communicate()
-                if p.returncode != 0:
-                    print(stdout)
-                    print(stderr)
-                    assert False, '%s exited with return code %s' % (
-                        latex, p.returncode)
-    finally:
-        os.chdir(cwd)
+        p = Popen(['kpsewhich'] + list(filenames), stdout=PIPE)
+    except OSError:
+        # no kpsewhich... either no tex distribution is installed or it is
+        # a "strange" one -- don't bother running latex
+        return None
+    else:
+        p.communicate()
+        if p.returncode != 0:
+            # not found
+            return False
+        # found
+        return True
 
-    if available_latexes == 0:  # no latex is available, skip the test
-        raise SkipTest
+
+def test_latex():
+    if kpsetest(*STYLEFILES) is False:
+        raise SkipTest('not running latex, the required styles doesn\'t seem to be installed')
+
+    for engine, docclass in product(LATEX_ENGINES, DOCCLASSES):
+        yield build_latex_doc, engine, docclass
 
 
 @with_app(buildername='latex')
-def test_latex(app, status, warning):
+def build_latex_doc(app, status, warning, engine, docclass):
+    app.config.latex_engine = engine
+    app.config.latex_documents[0] = app.config.latex_documents[0][:4] + (docclass,)
+
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
 
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').isfile()
 
-    # only run latex if all needed packages are there
-    def kpsetest(filename):
-        try:
-            p = Popen(['kpsewhich', filename], stdout=PIPE)
-        except OSError:
-            # no kpsewhich... either no tex distribution is installed or it is
-            # a "strange" one -- don't bother running latex
-            return None
-        else:
-            p.communicate()
-            if p.returncode != 0:
-                # not found
-                return False
-            # found
-            return True
-
-    if kpsetest('article.sty') is None:
-        raise SkipTest('not running latex, it doesn\'t seem to be installed')
-    for filename in ['fancyhdr.sty', 'fancybox.sty', 'titlesec.sty',
-                     'amsmath.sty', 'framed.sty', 'color.sty', 'fancyvrb.sty',
-                     'threeparttable.sty']:
-        if not kpsetest(filename):
-            raise SkipTest('not running latex, the %s package doesn\'t '
-                           'seem to be installed' % filename)
-
     # now, try to run latex over it
-    run_latex(app.outdir)
+    with cd(app.outdir):
+        try:
+            ensuredir(engine)
+            p = Popen([engine, '--interaction=nonstopmode',
+                       '-output-directory=%s' % engine, 'SphinxTests.tex'],
+                      stdout=PIPE, stderr=PIPE)
+        except OSError:  # most likely the latex executable was not found
+            raise SkipTest
+        else:
+            stdout, stderr = p.communicate()
+            if p.returncode != 0:
+                print(stdout)
+                print(stderr)
+                assert False, '%s exited with return code %s' % (
+                    engine, p.returncode)
 
 
 @with_app(buildername='latex')
@@ -124,48 +119,6 @@ def test_writer(app, status, warning):
             '\\noindent\\sphinxincludegraphics[width=3cm]{{rimg}.png}\n'
             '\\caption{figure with align \\& width option}\\label{markup:id10}'
             '\\end{wrapfigure}' in result)
-
-
-@with_app(buildername='latex',
-          confoverrides={'latex_documents': [
-              ('contents', 'SphinxTests.tex', 'Sphinx Tests Documentation',
-               'Georg Brandl \\and someone else', 'howto'),
-          ]},
-          srcdir='latex_howto')
-def test_latex_howto(app, status, warning):
-    LaTeXTranslator.ignore_missing_images = True
-    app.builder.build_all()
-
-    # file from latex_additional_files
-    assert (app.outdir / 'svgimg.svg').isfile()
-
-    # only run latex if all needed packages are there
-    def kpsetest(filename):
-        try:
-            p = Popen(['kpsewhich', filename], stdout=PIPE)
-        except OSError:
-            # no kpsewhich... either no tex distribution is installed or it is
-            # a "strange" one -- don't bother running latex
-            return None
-        else:
-            p.communicate()
-            if p.returncode != 0:
-                # not found
-                return False
-            # found
-            return True
-
-    if kpsetest('article.sty') is None:
-        raise SkipTest('not running latex, it doesn\'t seem to be installed')
-    for filename in ['fancyhdr.sty', 'fancybox.sty', 'titlesec.sty',
-                     'amsmath.sty', 'framed.sty', 'color.sty', 'fancyvrb.sty',
-                     'threeparttable.sty']:
-        if not kpsetest(filename):
-            raise SkipTest('not running latex, the %s package doesn\'t '
-                           'seem to be installed' % filename)
-
-    # now, try to run latex over it
-    run_latex(app.outdir)
 
 
 @with_app(buildername='latex', testroot='warnings', freshenv=True)
