@@ -1469,6 +1469,16 @@ Options for LaTeX output
 
 These options influence LaTeX output. See further :doc:`latex`.
 
+.. confval:: latex_engine
+
+   The LaTeX engine to build the docs.  The setting can have the following
+   values:
+
+   * pdflatex -- PDFLaTeX (default)
+   * xelatex -- XeLaTeX
+   * lualatex -- LuaLaTeX
+   * platex -- pLaTeX (default if `language` is 'ja')
+
 .. confval:: latex_documents
 
    This value determines how to group the document tree into LaTeX source files.

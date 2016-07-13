@@ -76,7 +76,7 @@ Features added
   entries in 3rd party extensions.
 * Python domain signature parser now uses the xref mixin for 'exceptions',
   allowing exception classes to be autolinked.
-
+* #2513: Add `latex_engine` to switch the LaTeX engine by conf.py
 
 Bugs fixed
 ----------
