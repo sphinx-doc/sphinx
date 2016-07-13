@@ -1711,7 +1711,8 @@ These options influence LaTeX output. See further :doc:`latex`.
 
    .. versionchanged:: 1.5
 
-      In Japanese docs, ``'jsbooks'`` is used to manual by default
+      In Japanese docs(`language` is ``ja``), ``'jreport'`` is used for
+      ``'howto'`` and ``'jsbooks'`` is used for ``'manual'`` by default.
 
 .. confval:: latex_additional_files
 

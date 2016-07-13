@@ -32,6 +32,9 @@ Incompatible changes
   to improve readability.
 * latex: To provide good default settings to Japanese docs, Sphinx uses ``jsbooks``
   as a docclass by default if the `language` is ``ja``.
+* latex: To provide good default settings to Japanese docs, Sphinx uses
+  ``jreport`` and ``jsbooks`` as a docclass by default if the `language` is
+  ``ja``.
 
 
 Features added

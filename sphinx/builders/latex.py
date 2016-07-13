@@ -284,8 +284,11 @@ def setup(app):
     app.add_config_value('latex_font_size', '10pt', None)
     app.add_config_value('latex_elements', {}, None)
     app.add_config_value('latex_additional_files', [], None)
+
+    japanese_default = {'manual': 'jsbook',
+                        'howto': 'jreport'}
     app.add_config_value('latex_docclass',
-                         lambda self: {'manual': 'jsbook'} if self.language == 'ja' else {},
+                         lambda self: japanese_default if self.language == 'ja' else {},
                          None)
     # now deprecated - use latex_elements
     app.add_config_value('latex_preamble', '', None)
