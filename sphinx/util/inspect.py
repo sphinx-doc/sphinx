@@ -116,7 +116,7 @@ def safe_getattr(obj, name, *defargs):
 
         try:
             obj_dict = obj.__dict__
-        except Exception as exc:
+        except Exception:
             obj_dict = {}
 
         if name in obj_dict:
