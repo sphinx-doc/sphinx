@@ -217,16 +217,19 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             self.warn('you will need to index this help book with:\n  %s'
                       % (' '.join([pipes.quote(arg) for arg in args])))
         else:
-            p = subprocess.Popen(args,
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.STDOUT)
+            try:
+                p = subprocess.Popen(args,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.STDOUT)
 
-            output = p.communicate()[0]
+                output = p.communicate()[0]
 
-            if p.returncode != 0:
-                raise AppleHelpIndexerFailed(output)
-            else:
-                self.info('done')
+                if p.returncode != 0:
+                    raise AppleHelpIndexerFailed(output)
+                else:
+                    self.info('done')
+            except OSError:
+                raise AppleHelpIndexerFailed('Command not found: %s' % args[0])
 
         # If we've been asked to, sign the bundle
         if self.config.applehelp_codesign_identity:
@@ -248,13 +251,16 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
                 self.warn('you will need to sign this help book with:\n  %s'
                           % (' '.join([pipes.quote(arg) for arg in args])))
             else:
-                p = subprocess.Popen(args,
-                                     stdout=subprocess.PIPE,
-                                     stderr=subprocess.STDOUT)
+                try:
+                    p = subprocess.Popen(args,
+                                         stdout=subprocess.PIPE,
+                                         stderr=subprocess.STDOUT)
 
-                output = p.communicate()[0]
+                    output = p.communicate()[0]
 
-                if p.returncode != 0:
-                    raise AppleHelpCodeSigningFailed(output)
-                else:
-                    self.info('done')
+                    if p.returncode != 0:
+                        raise AppleHelpCodeSigningFailed(output)
+                    else:
+                        self.info('done')
+                except OSError:
+                    raise AppleHelpCodeSigningFailed('Command not found: %s' % args[0])
