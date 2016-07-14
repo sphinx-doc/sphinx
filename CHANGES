@@ -75,6 +75,8 @@ Features added
 * #2680: `sphinx.ext.todo` now emits warnings if `todo_emit_warnings` enabled.
   Also, it emits an additional event named `todo-defined` to handle the TODO
   entries in 3rd party extensions.
+* Python domain signature parser now uses the xref mixin for 'exceptions',
+  allowing exception classes to be autolinked.
 
 
 Bugs fixed
