@@ -32,8 +32,12 @@ class TestSafeGetAttr(TestCase):
 
         obj = Foo()
 
-        with self.assertRaisesRegexp(AttributeError, 'bar'):
+        try:
             inspect.safe_getattr(obj, 'bar')
+        except AttributeError as exc:
+            self.assertEqual(exc.args[0], 'bar')
+        else:
+            self.fail('AttributeError not raised')
 
     def test_safe_getattr_with_property_exception(self):
         class Foo(object):
@@ -43,8 +47,12 @@ class TestSafeGetAttr(TestCase):
 
         obj = Foo()
 
-        with self.assertRaisesRegexp(AttributeError, 'bar'):
+        try:
             inspect.safe_getattr(obj, 'bar')
+        except AttributeError as exc:
+            self.assertEqual(exc.args[0], 'bar')
+        else:
+            self.fail('AttributeError not raised')
 
     def test_safe_getattr_with___dict___override(self):
         class Foo(object):
@@ -54,5 +62,9 @@ class TestSafeGetAttr(TestCase):
 
         obj = Foo()
 
-        with self.assertRaisesRegexp(AttributeError, 'bar'):
+        try:
             inspect.safe_getattr(obj, 'bar')
+        except AttributeError as exc:
+            self.assertEqual(exc.args[0], 'bar')
+        else:
+            self.fail('AttributeError not raised')
