@@ -27,7 +27,10 @@ Incompatible changes
   (ref: #2510, #2753)
 * Internet Explorer 6-8, Opera 12.1x or Safari 5.1+ support is dropped
   because jQuery version is updated from 1.11.0 to 3.1.0 (ref: #2634, #2773)
-  
+* QtHelpBuilder doens't generate search page (ref: #2352)
+* QtHelpBuilder uses ``nonav`` theme instead of default one
+  to improve readability.
+
 Features added
 --------------
 
@@ -67,7 +70,8 @@ Features added
 * Show warnings if deprecated latex options are used
 * Add sphinx.config.ENUM to check the config values is in candidates
 * math: Add hyperlink marker to each equations in HTML output
-
+* Add new theme ``nonav`` that doesn't include any navigation links.
+  This is for any help generator like qthelp.
 
 Bugs fixed
 ----------
