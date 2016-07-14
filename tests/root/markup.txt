@@ -161,7 +161,6 @@ Adding \n to test unescaping.
 * :doc:`subdir/includes`
 * ``:download:`` is tested in includes.txt
 * :option:`Python -c option <python -c>`
-* This used to crash: :option:`&option`
 
 Test :abbr:`abbr (abbreviation)` and another :abbr:`abbr (abbreviation)`.
 
@@ -295,13 +294,6 @@ Code blocks
        false
    end
 
-.. code-block:: c
-
-   import sys
-
-   sys.stdout.write('hello world!\n')
-
-
 Misc stuff
 ----------
 
@@ -380,13 +372,6 @@ Index markup
    keyword: with
    see: from; to
    seealso: fromalso; toalso
-
-Invalid index markup...
-
-.. index::
-   single:
-   pair:
-   keyword:
 
 .. index::
    !Main, !Other
