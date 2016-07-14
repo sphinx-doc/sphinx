@@ -43,8 +43,11 @@ def check_localization(outdir):
     assert (lprojdir / 'localized.txt').isfile()
 
 
-@with_app(buildername='applehelp')
+@with_app(buildername='applehelp', testroot='basic', srcdir='applehelp_output',
+          confoverrides={'applehelp_bundle_id': 'org.sphinx-doc.Sphinx.help'})
 def test_applehelp_output(app, status, warning):
+    (app.srcdir / 'en.lproj').makedirs()
+    (app.srcdir / 'en.lproj' / 'localized.txt').write_text('')
     app.builder.build_all()
 
     # Have to use bundle_path, not outdir, because we alter the latter
