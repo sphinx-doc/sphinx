@@ -13,7 +13,7 @@ python:
   - "pypy"
 env:
   global:
-    - TEST='-v --with-timer'
+    - TEST='-v --with-timer --timer-top-n 25'
   matrix:
     - DOCUTILS=0.11
     - DOCUTILS=0.12
