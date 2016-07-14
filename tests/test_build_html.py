@@ -207,6 +207,7 @@ HTML_XPATH = {
         # docfields
         (".//a[@class='reference internal'][@href='#TimeInt']/em", 'TimeInt'),
         (".//a[@class='reference internal'][@href='#Time']", 'Time'),
+        (".//a[@class='reference internal'][@href='#errmod.Error']/strong", 'Error'),
         # C references
         (".//span[@class='pre']", 'CFunction()'),
         (".//a[@href='#c.Sphinx_DoSomething']", ''),
