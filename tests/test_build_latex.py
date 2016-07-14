@@ -24,10 +24,10 @@ from test_build_html import ENV_WARNINGS
 
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
-%(root)s/markup.txt:\\d+: WARNING: unknown option: &option
-%(root)s/footnote.txt:\\d+: WARNING: citation not found: missing
-%(root)s/images.txt:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/markup.txt:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
+%(root)s/index.rst:\\d+: WARNING: unknown option: &option
+%(root)s/index.rst:\\d+: WARNING: citation not found: missing
+%(root)s/index.rst:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
+%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 """
 
 if PY3:
@@ -63,17 +63,10 @@ def run_latex(outdir):
         raise SkipTest
 
 
-@with_app(buildername='latex', freshenv=True)  # use freshenv to check warnings
+@with_app(buildername='latex')
 def test_latex(app, status, warning):
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
-    latex_warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
-    latex_warnings_exp = LATEX_WARNINGS % {
-        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
-    assert re.match(latex_warnings_exp + '$', latex_warnings), \
-        'Warnings don\'t match:\n' + \
-        '--- Expected (regex):\n' + latex_warnings_exp + \
-        '--- Got:\n' + latex_warnings
 
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').isfile()
@@ -133,7 +126,7 @@ def test_writer(app, status, warning):
             '\\end{wrapfigure}' in result)
 
 
-@with_app(buildername='latex', freshenv=True,  # use freshenv to check warnings
+@with_app(buildername='latex',
           confoverrides={'latex_documents': [
               ('contents', 'SphinxTests.tex', 'Sphinx Tests Documentation',
                'Georg Brandl \\and someone else', 'howto'),
@@ -142,13 +135,6 @@ def test_writer(app, status, warning):
 def test_latex_howto(app, status, warning):
     LaTeXTranslator.ignore_missing_images = True
     app.builder.build_all()
-    latex_warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
-    latex_warnings_exp = LATEX_WARNINGS % {
-        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
-    assert re.match(latex_warnings_exp + '$', latex_warnings), \
-        'Warnings don\'t match:\n' + \
-        '--- Expected (regex):\n' + latex_warnings_exp + \
-        '--- Got:\n' + latex_warnings
 
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').isfile()
@@ -180,6 +166,19 @@ def test_latex_howto(app, status, warning):
 
     # now, try to run latex over it
     run_latex(app.outdir)
+
+
+@with_app(buildername='latex', testroot='warnings', freshenv=True)
+def test_latex_warnings(app, status, warning):
+    app.builder.build_all()
+
+    warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
+    warnings_exp = LATEX_WARNINGS % {
+        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+    assert re.match(warnings_exp + '$', warnings), \
+        'Warnings don\'t match:\n' + \
+        '--- Expected (regex):\n' + warnings_exp + \
+        '--- Got:\n' + warnings
 
 
 @with_app(buildername='latex', testroot='numfig',

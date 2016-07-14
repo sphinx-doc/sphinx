@@ -22,7 +22,7 @@ def teardown_module():
 
 
 def search_adapter_helper(adapter):
-    settings = {'srcdir': rootdir / 'root',
+    settings = {'srcdir': rootdir / 'roots' / 'test-searchadapters',
                 'builddir': tempdir / 'websupport',
                 'status': StringIO(),
                 'warning': StringIO(),

@@ -24,26 +24,26 @@ TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
 HTML_PARSER = HTMLParser(TREE_BUILDER, namespaceHTMLElements=False)
 
 ENV_WARNINGS = """\
-(%(root)s/autodoc_fodder.py:docstring of autodoc_fodder\\.MarkupError:2: \
-WARNING: Explicit markup ends without a blank line; unexpected \
-unindent\\.\\n?
-)?%(root)s/images.txt:\\d+: WARNING: image file not readable: foo.png
-%(root)s/images.txt:\\d+3: WARNING: nonlocal image URI found: \
-http://www.python.org/logo.png
-%(root)s/includes.txt:\\d+: WARNING: Encoding 'utf-8-sig' used for \
-reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
-:encoding: option\\n?
-%(root)s/includes.txt:\\d+: WARNING: download file not readable: .*?nonexisting.png
-(%(root)s/markup.txt:\\d+: WARNING: invalid single index entry u'')?
-(%(root)s/undecodable.txt:\\d+: WARNING: undecodable source characters, replacing \
+(%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
+WARNING: duplicate object description of autodoc_fodder.MarkupError, other \
+instance in %(root)s/autodoc.rst, use :noindex: for one of them
+)?%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
+WARNING: Explicit markup ends without a blank line; unexpected unindent.
+%(root)s/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
+file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
+%(root)s/index.rst:\\d+: WARNING: image file not readable: foo.png
+%(root)s/index.rst:\\d+: WARNING: nonlocal image URI found: http://www.python.org/logo.png
+%(root)s/index.rst:\\d+: WARNING: download file not readable: %(root)s/nonexisting.png
+%(root)s/index.rst:\\d+: WARNING: invalid single index entry u''
+%(root)s/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
-)?"""
+"""
 
 HTML_WARNINGS = ENV_WARNINGS + """\
-%(root)s/images.txt:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/markup.txt:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
-%(root)s/footnote.txt:\\d+: WARNING: citation not found: missing
-%(root)s/markup.txt:\\d+: WARNING: unknown option: &option
+%(root)s/index.rst:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
+%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
+%(root)s/index.rst:\\d+: WARNING: unknown option: &option
+%(root)s/index.rst:\\d+: WARNING: citation not found: missing
 """
 
 if PY3:
@@ -381,10 +381,8 @@ def check_extra_entries(outdir):
     assert (outdir / 'robots.txt').isfile()
 
 
-@gen_with_app(buildername='html', freshenv=True,  # use freshenv to check warnings
-              confoverrides={'html_context.hckey_co': 'hcval_co'},
-              tags=['testtag'])
-def test_html_output(app, status, warning):
+@with_app(buildername='html', testroot='warnings', freshenv=True)
+def test_html_warnings(app, status, warning):
     app.builder.build_all()
     html_warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
     html_warnings_exp = HTML_WARNINGS % {
@@ -394,6 +392,11 @@ def test_html_output(app, status, warning):
         '--- Expected (regex):\n' + html_warnings_exp + \
         '--- Got:\n' + html_warnings
 
+
+@gen_with_app(buildername='html', tags=['testtag'],
+              confoverrides={'html_context.hckey_co': 'hcval_co'})
+def test_html_output(app, status, warning):
+    app.builder.build_all()
     for fname, paths in iteritems(HTML_XPATH):
         with (app.outdir / fname).open('rb') as fp:
             etree = HTML_PARSER.parse(fp)
@@ -959,22 +962,6 @@ def test_enumerable_node(app, status, warning):
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
-
-
-@with_app(buildername='html')
-def test_jsmath(app, status, warning):
-    app.builder.build_all()
-    content = (app.outdir / 'math.html').text()
-
-    assert '<div class="math">\na^2 + b^2 = c^2</div>' in content
-    assert '<div class="math">\n\\begin{split}a + 1 &lt; b\\end{split}</div>' in content
-    assert (u'<span class="eqno">(1)<a class="headerlink" href="#equation-foo" '
-            u'title="Permalink to this code">\xb6</a></span>'
-            u'<div class="math" id="equation-foo">\ne^{i\\pi} = 1</div>' in content)
-    assert ('<span class="eqno">(2)</span><div class="math">\n'
-            'e^{ix} = \\cos x + i\\sin x</div>' in content)
-    assert '<div class="math">\nn \\in \\mathbb N</div>' in content
-    assert '<div class="math">\na + 1 &lt; b</div>' in content
 
 
 @with_app(buildername='html', testroot='html_assets')
