@@ -72,6 +72,7 @@ Features added
 * math: Add hyperlink marker to each equations in HTML output
 * Add new theme ``nonav`` that doesn't include any navigation links.
   This is for any help generator like qthelp.
+* Python domain signature parser now recognizes 'exceptions' as a typed field
 
 Bugs fixed
 ----------

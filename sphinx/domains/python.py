@@ -22,7 +22,7 @@ from sphinx.domains import Domain, ObjType, Index
 from sphinx.directives import ObjectDescription
 from sphinx.util.nodes import make_refnode
 from sphinx.util.compat import Directive
-from sphinx.util.docfields import Field, GroupedField, TypedField
+from sphinx.util.docfields import Field, TypedField
 
 
 # REs for Python signatures
@@ -130,7 +130,7 @@ class PyObject(ObjectDescription):
                      names=('var', 'ivar', 'cvar'),
                      typerolename='obj', typenames=('vartype',),
                      can_collapse=True),
-        GroupedField('exceptions', label=l_('Raises'), rolename='exc',
+        PyTypedField('exceptions', label=l_('Raises'), rolename='exc',
                      names=('raises', 'raise', 'exception', 'except'),
                      can_collapse=True),
         Field('returnvalue', label=l_('Returns'), has_arg=False,
