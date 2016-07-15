@@ -34,6 +34,13 @@ There is also an additional config value:
    If this is ``True``, :rst:dir:`todo` and :rst:dir:`todolist` produce output,
    else they produce nothing.  The default is ``False``.
 
+.. confval:: todo_emit_warnings
+
+   If this is ``True``, :rst:dir:`todo` emits a warning for each TODO entries.
+   The default is ``False``.
+
+   .. versionadded:: 1.5
+
 .. confval:: todo_link_only
 
    If this is ``True``, :rst:dir:`todolist` produce output without file path and line,
@@ -41,3 +48,11 @@ There is also an additional config value:
 
    .. versionadded:: 1.4
 
+autodoc provides the following an additional event:
+
+.. event:: todo-defined (app, node)
+
+   .. versionadded:: 1.5
+
+   Emitted when a todo is defined. *node* is the defined ``sphinx.ext.todo.todo_node``
+   node.

@@ -72,6 +72,10 @@ Features added
 * math: Add hyperlink marker to each equations in HTML output
 * Add new theme ``nonav`` that doesn't include any navigation links.
   This is for any help generator like qthelp.
+* #2680: `sphinx.ext.todo` now emits warnings if `todo_emit_warnings` enabled.
+  Also, it emits an additional event named `todo-defined` to handle the TODO
+  entries in 3rd party extensions.
+
 
 Bugs fixed
 ----------
