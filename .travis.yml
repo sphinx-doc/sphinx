@@ -26,7 +26,7 @@ addons:
     - texlive-fonts-recommended
     - texlive-fonts-extra
 install:
-  - pip install -U pip
+  - pip install -U pip setuptools
   - pip install docutils==$DOCUTILS
   - pip install -r test-reqs.txt
 before_script: flake8
