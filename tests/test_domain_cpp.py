@@ -495,7 +495,7 @@ def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, war
     app.builder.build_all()
 
     def check(spec, text, file):
-        pattern = '<li>%s<a .*?><code .*?><span .*?>%s</span></code></a></li>' % spec
+        pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
             print("Pattern\n\t%s\nnot found in %s" % (pattern, file))
@@ -532,7 +532,7 @@ def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, wa
     app.builder.build_all()
 
     def check(spec, text, file):
-        pattern = '<li>%s<a .*?><code .*?><span .*?>%s</span></code></a></li>' % spec
+        pattern = '<li><p>%s<a .*?><code .*?><span .*?>%s</span></code></a></p></li>' % spec
         res = re.search(pattern, text)
         if not res:
             print("Pattern\n\t%s\nnot found in %s" % (pattern, file))

@@ -19,18 +19,18 @@ def test_autosectionlabel_html(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').text()
-    html = ('<li><a class="reference internal" href="#introduce-of-sphinx">'
-            '<span class=".*?">Introduce of Sphinx</span></a></li>')
+    html = ('<li><p><a class="reference internal" href="#introduce-of-sphinx">'
+            '<span class=".*?">Introduce of Sphinx</span></a></p></li>')
     assert re.search(html, content, re.S)
 
-    html = ('<li><a class="reference internal" href="#installation">'
-            '<span class="std std-ref">Installation</span></a></li>')
+    html = ('<li><p><a class="reference internal" href="#installation">'
+            '<span class="std std-ref">Installation</span></a></p></li>')
     assert re.search(html, content, re.S)
 
-    html = ('<li><a class="reference internal" href="#for-windows-users">'
-            '<span class="std std-ref">For Windows users</span></a></li>')
+    html = ('<li><p><a class="reference internal" href="#for-windows-users">'
+            '<span class="std std-ref">For Windows users</span></a></p></li>')
     assert re.search(html, content, re.S)
 
-    html = ('<li><a class="reference internal" href="#for-unix-users">'
-            '<span class="std std-ref">For UNIX users</span></a></li>')
+    html = ('<li><p><a class="reference internal" href="#for-unix-users">'
+            '<span class="std std-ref">For UNIX users</span></a></p></li>')
     assert re.search(html, content, re.S)

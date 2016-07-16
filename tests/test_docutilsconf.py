@@ -23,14 +23,13 @@ def test_html_with_default_docutilsconf(app, status, warning):
     app.builder.build(['contents'])
     result = (app.outdir / 'contents.html').text(encoding='utf-8')
 
-    assert regex_count(r'<th class="field-name">', result) == 1
-    assert regex_count(r'<th class="field-name" colspan="2">', result) == 1
-    assert regex_count(r'<td class="option-group">', result) == 1
-    assert regex_count(r'<td class="option-group" colspan="2">', result) == 1
+    assert regex_count(r'<dt class="field-odd">', result) == 1
+    assert regex_count(r'<dt class="field-even">', result) == 1
+    assert regex_count(r'<dd>', result) == 2
 
 
 @with_app('html', testroot='docutilsconf', freshenv=True, docutilsconf=(
-    '\n[html4css1 writer]'
+    '\n[html5 writer]'
     '\noption-limit:1'
     '\nfield-name-limit:1'
     '\n')
@@ -39,10 +38,9 @@ def test_html_with_docutilsconf(app, status, warning):
     app.builder.build(['contents'])
     result = (app.outdir / 'contents.html').text(encoding='utf-8')
 
-    assert regex_count(r'<th class="field-name">', result) == 0
-    assert regex_count(r'<th class="field-name" colspan="2">', result) == 2
-    assert regex_count(r'<td class="option-group">', result) == 0
-    assert regex_count(r'<td class="option-group" colspan="2">', result) == 2
+    assert regex_count(r'<dt class="field-odd">', result) == 1
+    assert regex_count(r'<dt class="field-even">', result) == 1
+    assert regex_count(r'<dd>', result) == 2
 
 
 @with_app('html', testroot='docutilsconf')
