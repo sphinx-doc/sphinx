@@ -189,6 +189,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
     # don't add sidebar etc.
     embedded = True
 
+    # don't generate search index or include search page
+    search = False
+
     mimetype_template = MIMETYPE_TEMPLATE
     container_template = CONTAINER_TEMPLATE
     toc_template = TOC_TEMPLATE
