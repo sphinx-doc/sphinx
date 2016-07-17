@@ -113,7 +113,7 @@ COVER_TEMPLATE = u'''\
     <meta name="cover" content="%(cover)s"/>
 '''
 
-COVERPAGE_NAME = u'epub-cover.html'
+COVERPAGE_NAME = u'epub-cover.xhtml'
 
 FILE_TEMPLATE = u'''\
     <item id="%(id)s"
@@ -127,6 +127,10 @@ GUIDE_TEMPLATE = u'''\
     <reference type="%(type)s" title="%(title)s" href="%(uri)s" />'''
 
 TOCTREE_TEMPLATE = u'toctree-l%d'
+
+DOCTYPE = u'''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+'''
 
 LINK_TARGET_TEMPLATE = u' [%(uri)s]'
 
@@ -143,7 +147,7 @@ GUIDE_TITLES = {
 }
 
 MEDIA_TYPES = {
-    '.html': 'application/xhtml+xml',
+    '.xhtml': 'application/xhtml+xml',
     '.css': 'text/css',
     '.png': 'image/png',
     '.gif': 'image/gif',
@@ -198,6 +202,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     spine_template = SPINE_TEMPLATE
     guide_template = GUIDE_TEMPLATE
     toctree_template = TOCTREE_TEMPLATE
+    doctype = DOCTYPE
     link_target_template = LINK_TARGET_TEMPLATE
     css_link_target_class = CSS_LINK_TARGET_CLASS
     guide_titles = GUIDE_TITLES
@@ -207,7 +212,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def init(self):
         StandaloneHTMLBuilder.init(self)
         # the output files for epub must be .html only
-        self.out_suffix = '.html'
+        self.out_suffix = '.xhtml'
+        self.link_suffix = '.xhtml'
         self.playorder = 0
         self.tocid = 0
 
@@ -277,7 +283,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         refnodes.insert(0, {
             'level': 1,
-            'refuri': self.esc(self.config.master_doc + '.html'),
+            'refuri': self.esc(self.config.master_doc + self.out_suffix),
             'text': ssp(self.esc(
                 self.env.titles[self.config.master_doc].astext()))
         })
@@ -481,6 +487,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         if pagename.startswith('genindex'):
             self.fix_genindex(addctx['genindexentries'])
+        addctx['doctype'] = self.doctype
         StandaloneHTMLBuilder.handle_page(self, pagename, addctx, templatename,
                                           outfilename, event_arg)
 
