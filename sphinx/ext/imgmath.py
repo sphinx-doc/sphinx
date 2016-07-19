@@ -255,7 +255,7 @@ def html_visit_displaymath(self, node):
     self.body.append('<p>')
     if node['number']:
         self.body.append('<span class="eqno">(%s)' % node['number'])
-        self.add_permalink_ref(node, _('Permalink to this code'))
+        self.add_permalink_ref(node, _('Permalink to this equation'))
         self.body.append('</span>')
     if fname is None:
         # something failed -- use text-only as a bad substitute

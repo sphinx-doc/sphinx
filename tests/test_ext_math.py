@@ -23,7 +23,7 @@ def test_jsmath(app, status, warning):
     assert '<div class="math">\na^2 + b^2 = c^2</div>' in content
     assert '<div class="math">\n\\begin{split}a + 1 &lt; b\\end{split}</div>' in content
     assert (u'<span class="eqno">(1)<a class="headerlink" href="#equation-foo" '
-            u'title="Permalink to this code">\xb6</a></span>'
+            u'title="Permalink to this equation">\xb6</a></span>'
             u'<div class="math" id="equation-foo">\ne^{i\\pi} = 1</div>' in content)
     assert ('<span class="eqno">(2)</span><div class="math">\n'
             'e^{ix} = \\cos x + i\\sin x</div>' in content)

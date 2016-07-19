@@ -37,7 +37,7 @@ def html_visit_displaymath(self, node):
     # necessary to e.g. set the id property correctly
     if node['number']:
         self.body.append('<span class="eqno">(%s)' % node['number'])
-        self.add_permalink_ref(node, _('Permalink to this code'))
+        self.add_permalink_ref(node, _('Permalink to this equation'))
         self.body.append('</span>')
     self.body.append(self.builder.config.mathjax_display[0])
     parts = [prt for prt in node['latex'].split('\n\n') if prt.strip()]
