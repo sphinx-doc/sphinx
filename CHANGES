@@ -37,7 +37,8 @@ Incompatible changes
   ``ja``.
 * `sphinx-quickstart` now allows a project version is empty
 * Fix :download: role on epub/qthelp builder. They ignore the role because they don't support it.
-
+* ``sphinx.ext.viewcode`` doesn't work on epub building by default. ``viewcode_enable_epub`` option
+* ``sphinx.ext.viewcode`` disabled on singlehtml builder.
 
 Features added
 --------------
@@ -66,6 +67,7 @@ Features added
 
   - two lengths ``\sphinxverbatimsep`` and ``\sphinxverbatimborder``,
   - booleans ``\ifsphinxverbatimwithframe`` and ``\ifsphinxverbatimwrapslines``.
+
 * latex, captions for literal blocks inside tables are handled, and long code
   lines wrapped to fit table cell (ref: #2704)
 * #2597: Show warning messages as darkred

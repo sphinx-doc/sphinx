@@ -46,6 +46,10 @@ def doctree_read(app, doctree):
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
         env._viewcode_modules = {}
+    if app.builder.name == "singlehtml":
+        return
+    if app.builder.name.startswith("epub") and not env.config.viewcode_enable_epub:
+        return
 
     def has_tag(modname, fullname, docname, refname):
         entry = env._viewcode_modules.get(modname, None)
@@ -215,6 +219,7 @@ def collect_pages(app):
 
 def setup(app):
     app.add_config_value('viewcode_import', True, False)
+    app.add_config_value('viewcode_enable_epub', False, False)
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('html-collect-pages', collect_pages)
