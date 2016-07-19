@@ -73,7 +73,6 @@ PACKAGE_DOC_TEMPLATE = u'''\
 %(files)s
   </manifest>
   <spine toc="ncx" page-progression-direction="%(page_progression_direction)s">
-    <itemref idref="nav" />
 %(spine)s
   </spine>
   <guide>
