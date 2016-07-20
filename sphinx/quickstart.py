@@ -1124,6 +1124,10 @@ def is_path(x):
     return x
 
 
+def allow_empty(x):
+    return x
+
+
 def nonempty(x):
     if not x:
         raise ValidationError("Please enter some text.")
@@ -1296,9 +1300,9 @@ software. Each version can have multiple releases. For example, for
 Python the version is something like 2.5 or 3.0, while the release is
 something like 2.5.1 or 3.0a1.  If you don't need this dual structure,
 just set both to the same value.''')
-        do_prompt(d, 'version', 'Project version')
+        do_prompt(d, 'version', 'Project version', '', allow_empty)
     if 'release' not in d:
-        do_prompt(d, 'release', 'Project release', d['version'])
+        do_prompt(d, 'release', 'Project release', d['version'], allow_empty)
 
     if 'language' not in d:
         print('''
@@ -1640,13 +1644,14 @@ def main(argv=sys.argv):
 
     try:
         if 'quiet' in d:
-            if not set(['project', 'author', 'version']).issubset(d):
-                print('''"quiet" is specified, but any of "project", \
-"author" or "version" is not specified.''')
+            if not set(['project', 'author']).issubset(d):
+                print('''"quiet" is specified, but any of "project" or \
+"author" is not specified.''')
                 return
 
-        if set(['quiet', 'project', 'author', 'version']).issubset(d):
+        if set(['quiet', 'project', 'author']).issubset(d):
             # quiet mode with all required params satisfied, use default
+            d.setdefault('version', '')
             d.setdefault('release', d['version'])
             d2 = DEFAULT_VALUE.copy()
             d2.update(dict(("ext_"+ext, False) for ext in EXTENSIONS))
