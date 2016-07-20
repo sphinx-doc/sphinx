@@ -1,3 +1,98 @@
+Release 1.5 (in development)
+============================
+
+Incompatible changes
+--------------------
+
+* latex, package fancybox is not longer a dependency of sphinx.sty
+* Use ``'locales'`` as a default value of `locale_dirs`
+* latex, package ifthen is not any longer a dependency of sphinx.sty
+* latex, style file does not modify fancyvrb's Verbatim (also available as
+  OriginalVerbatim) but uses sphinxVerbatim for name of custom wrapper.
+* latex, package newfloat is no longer a dependency of sphinx.sty (ref #2660;
+  it was shipped with Sphinx since 1.3.4).
+* latex, literal blocks in tables do not use OriginalVerbatim but
+  sphinxVerbatimintable which handles captions and wraps lines(ref #2704).
+* latex, replace ``pt`` by TeX equivalent ``bp`` if found in ``width`` or
+  ``height`` attribute of an image.
+* latex, if ``width`` or ``height`` attribute of an image is given with no unit,
+  use ``px`` rather than ignore it.
+* latex: Separate stylesheets of pygments to independent .sty file
+* #2454: The filename of sourcelink is now changed.  The value of
+  `html_sourcelink_suffix` will be appended to the original filename (like
+  ``index.rst.txt``).
+* ``sphinx.util.copy_static_entry()`` is now deprecated.
+  Use ``sphinx.util.fileutil.copy_asset()`` instead.
+* ``sphinx.util.osutil.filecopy()`` skips copying if the file has not been changed
+  (ref: #2510, #2753)
+* Internet Explorer 6-8, Opera 12.1x or Safari 5.1+ support is dropped
+  because jQuery version is updated from 1.11.0 to 3.1.0 (ref: #2634, #2773)
+* QtHelpBuilder doens't generate search page (ref: #2352)
+* QtHelpBuilder uses ``nonav`` theme instead of default one
+  to improve readability.
+* latex: To provide good default settings to Japanese docs, Sphinx uses ``jsbooks``
+  as a docclass by default if the `language` is ``ja``.
+* latex: To provide good default settings to Japanese docs, Sphinx uses
+  ``jreport`` and ``jsbooks`` as a docclass by default if the `language` is
+  ``ja``.
+
+
+Features added
+--------------
+
+* Add ``:caption:`` option for sphinx.ext.inheritance_diagram.
+* #2471: Add config variable for default doctest flags.
+* Convert linkcheck builder to requests for better encoding handling
+* #2463, #2516: Add keywords of "meta" directive to search index
+* ``:maxdepth:`` option of toctree affects ``secnumdepth`` (ref: #2547)
+* #2575: Now ``sphinx.ext.graphviz`` allows ``:align:`` option
+* Show warnings if unknown key is specified to `latex_elements`
+* Show warnings if no domains match with `primary_domain` (ref: #2001)
+* C++, show warnings when the kind of role is misleading for the kind
+  of target it refers to (e.g., using the `class` role for a function).
+* latex, writer abstracts more of text styling into customizable macros, e.g.
+  the ``visit_emphasis`` will output ``\sphinxstyleemphasis`` rather than
+  ``\emph`` (which may be in use elsewhere or in an added LaTeX package). See
+  list at end of ``sphinx.sty`` (ref: #2686)
+* latex, public names for environments and parameters used by note, warning,
+  and other admonition types, allowing full customizability from the
+  ``'preamble'`` key or an input file (ref: feature request #2674, #2685)
+* latex, better computes column widths of some tables (as a result, there will
+  be slight changes as tables now correctly fill the line width; ref: #2708)
+* latex, sphinxVerbatim environment is more easily customizable (ref: #2704).
+  In addition to already existing VerbatimColor and VerbatimBorderColor:
+
+  - two lengths ``\sphinxverbatimsep`` and ``\sphinxverbatimborder``,
+  - booleans ``\ifsphinxverbatimwithframe`` and ``\ifsphinxverbatimwrapslines``.
+* latex, captions for literal blocks inside tables are handled, and long code
+  lines wrapped to fit table cell (ref: #2704)
+* #2597: Show warning messages as darkred
+* latex, allow image dimensions using px unit (default is 96px=1in)
+* Show warnings if invalid dimension units found
+* #2650: Add ``--pdb`` option to setup.py command
+* latex, make the use of ``\small`` for code listings customizable (ref #2721)
+* #2663: Add ``--warning-is-error`` option to setup.py command
+* Show warnings if deprecated latex options are used
+* Add sphinx.config.ENUM to check the config values is in candidates
+* math: Add hyperlink marker to each equations in HTML output
+* Add new theme ``nonav`` that doesn't include any navigation links.
+  This is for any help generator like qthelp.
+* #2680: `sphinx.ext.todo` now emits warnings if `todo_emit_warnings` enabled.
+  Also, it emits an additional event named `todo-defined` to handle the TODO
+  entries in 3rd party extensions.
+* Python domain signature parser now uses the xref mixin for 'exceptions',
+  allowing exception classes to be autolinked.
+* #2513: Add `latex_engine` to switch the LaTeX engine by conf.py
+
+Bugs fixed
+----------
+
+* #2707: (latex) the column width is badly computed for tabular
+
+Documentation
+-------------
+
+
 Release 1.4.6 (in development)
 ==============================
 

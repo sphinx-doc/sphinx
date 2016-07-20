@@ -65,7 +65,7 @@ def test_code_block_caption_html(app, status, warning):
 def test_code_block_caption_latex(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
-    caption = '\\sphinxSetupCaptionForVerbatim{literal-block}{caption \\emph{test} rb}'
+    caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstyleemphasis{test} rb}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{caption:caption-test-rb}}'
     link  = '\hyperref[caption:caption-test-rb]' \
             '{Listing \\ref{caption:caption-test-rb}}'
@@ -228,11 +228,12 @@ def test_literalinclude_file_whole_of_emptyline(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8').replace('\r\n', '\n')
     includes = (
-        '\\begin{Verbatim}[commandchars=\\\\\\{\\},numbers=left,firstnumber=1,stepnumber=1]\n'
+        '\\begin{sphinxVerbatim}'
+        '[commandchars=\\\\\\{\\},numbers=left,firstnumber=1,stepnumber=1]\n'
         '\n'
         '\n'
         '\n'
-        '\\end{Verbatim}\n')
+        '\\end{sphinxVerbatim}\n')
     assert includes in latex
 
 
@@ -252,7 +253,7 @@ def test_literalinclude_caption_html(app, status, warning):
 def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
-    caption = '\\sphinxSetupCaptionForVerbatim{literal-block}{caption \\textbf{test} py}'
+    caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstylestrong{test} py}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{caption:caption-test-py}}'
     link  = '\hyperref[caption:caption-test-py]' \
             '{Listing \\ref{caption:caption-test-py}}'

@@ -52,7 +52,7 @@ from docutils.parsers.rst import directives
 
 import sphinx
 from sphinx.ext.graphviz import render_dot_html, render_dot_latex, \
-    render_dot_texinfo
+    render_dot_texinfo, figure_wrapper
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import force_decode
 from sphinx.util.compat import Directive
@@ -297,6 +297,7 @@ class InheritanceDiagram(Directive):
     option_spec = {
         'parts': directives.nonnegative_int,
         'private-bases': directives.flag,
+        'caption': directives.unchanged,
     }
 
     def run(self):
@@ -330,6 +331,11 @@ class InheritanceDiagram(Directive):
         # Store the graph object so we can use it to generate the
         # dot file later
         node['graph'] = graph
+
+        # wrap the result in figure node
+        caption = self.options.get('caption')
+        if caption:
+            node = figure_wrapper(self, node, caption)
         return [node]
 
 

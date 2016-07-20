@@ -13,14 +13,16 @@ from __future__ import print_function
 import codecs
 import pipes
 
-from os import path
+from os import path, environ
+import shlex
 
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.util import copy_static_entry
-from sphinx.util.osutil import copyfile, ensuredir
+from sphinx.config import string_classes
+from sphinx.util.osutil import copyfile, ensuredir, make_filename
 from sphinx.util.console import bold
+from sphinx.util.fileutil import copy_asset
 from sphinx.util.pycompat import htmlescape
-from sphinx.util.matching import compile_matchers
+from sphinx.util.matching import Matcher
 from sphinx.errors import SphinxError
 
 import plistlib
@@ -105,17 +107,15 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         self.finish_tasks.add_task(self.build_helpbook)
 
     def copy_localized_files(self):
-        source_dir = path.join(self.confdir,
-                               self.config.applehelp_locale + '.lproj')
+        source_dir = path.join(self.confdir, self.config.applehelp_locale + '.lproj')
         target_dir = self.outdir
 
         if path.isdir(source_dir):
             self.info(bold('copying localized files... '), nonl=True)
 
-            ctx = self.globalcontext.copy()
-            matchers = compile_matchers(self.config.exclude_patterns)
-            copy_static_entry(source_dir, target_dir, self, ctx,
-                              exclude_matchers=matchers)
+            excluded = Matcher(self.config.exclude_patterns + ['**/.*'])
+            copy_asset(source_dir, target_dir, excluded,
+                       context=self.globalcontext, renderer=self.templates)
 
             self.info('done')
 
@@ -179,14 +179,11 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
         # Build the access page
         self.info(bold('building access page...'), nonl=True)
-        f = codecs.open(path.join(language_dir, '_access.html'), 'w')
-        try:
+        with codecs.open(path.join(language_dir, '_access.html'), 'w') as f:
             f.write(access_page_template % {
                 'toc': htmlescape(toc, quote=True),
                 'title': htmlescape(self.config.applehelp_title)
             })
-        finally:
-            f.close()
         self.info('done')
 
         # Generate the help index
@@ -264,3 +261,35 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
                         self.info('done')
                 except OSError:
                     raise AppleHelpCodeSigningFailed('Command not found: %s' % args[0])
+
+
+def setup(app):
+    app.setup_extension('sphinx.builders.html')
+    app.add_builder(AppleHelpBuilder)
+
+    app.add_config_value('applehelp_bundle_name',
+                         lambda self: make_filename(self.project), 'applehelp')
+    app.add_config_value('applehelp_bundle_id', None, 'applehelp', string_classes)
+    app.add_config_value('applehelp_dev_region', 'en-us', 'applehelp')
+    app.add_config_value('applehelp_bundle_version', '1', 'applehelp')
+    app.add_config_value('applehelp_icon', None, 'applehelp', string_classes)
+    app.add_config_value('applehelp_kb_product',
+                         lambda self: '%s-%s' % (make_filename(self.project), self.release),
+                         'applehelp')
+    app.add_config_value('applehelp_kb_url', None, 'applehelp', string_classes)
+    app.add_config_value('applehelp_remote_url', None, 'applehelp', string_classes)
+    app.add_config_value('applehelp_index_anchors', False, 'applehelp', string_classes)
+    app.add_config_value('applehelp_min_term_length', None, 'applehelp', string_classes)
+    app.add_config_value('applehelp_stopwords',
+                         lambda self: self.language or 'en', 'applehelp')
+    app.add_config_value('applehelp_locale', lambda self: self.language or 'en', 'applehelp')
+    app.add_config_value('applehelp_title', lambda self: self.project + ' Help', 'applehelp')
+    app.add_config_value('applehelp_codesign_identity',
+                         lambda self: environ.get('CODE_SIGN_IDENTITY', None),
+                         'applehelp'),
+    app.add_config_value('applehelp_codesign_flags',
+                         lambda self: shlex.split(environ.get('OTHER_CODE_SIGN_FLAGS', '')),
+                         'applehelp'),
+    app.add_config_value('applehelp_indexer_path', '/usr/bin/hiutil', 'applehelp')
+    app.add_config_value('applehelp_codesign_path', '/usr/bin/codesign', 'applehelp')
+    app.add_config_value('applehelp_disable_external_tools', False, None)

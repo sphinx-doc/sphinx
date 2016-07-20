@@ -44,7 +44,7 @@ class WhooshSearch(BaseSearch):
     def finish_indexing(self):
         self.index_writer.commit()
 
-    def add_document(self, pagename, title, text):
+    def add_document(self, pagename, filename, title, text):
         self.index_writer.add_document(path=text_type(pagename),
                                        title=title,
                                        text=text)

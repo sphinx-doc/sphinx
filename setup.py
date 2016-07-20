@@ -49,6 +49,7 @@ requires = [
     'babel>=1.3,!=2.0',
     'alabaster>=0.7,<0.8',
     'imagesize',
+    'requests',
 ]
 extras_require = {
     # Environment Marker works for wheel 0.24 or later
@@ -63,6 +64,7 @@ extras_require = {
         'nose',
         'mock',  # it would be better for 'test:python_version in "2.6,2.7"'
         'simplejson',  # better: 'test:platform_python_implementation=="PyPy"'
+        'html5lib',
     ],
 }
 
@@ -136,11 +138,8 @@ else:
                                                  domain + '.js'))
 
             for js_file, (locale, po_file) in zip(js_files, po_files):
-                infile = open(po_file, 'r')
-                try:
+                with open(po_file, 'r') as infile:
                     catalog = read_po(infile, locale)
-                finally:
-                    infile.close()
 
                 if catalog.fuzzy and not self.use_fuzzy:
                     continue
@@ -157,8 +156,7 @@ else:
                             msgid = msgid[0]
                         jscatalog[msgid] = message.string
 
-                outfile = open(js_file, 'wb')
-                try:
+                with open(js_file, 'wb') as outfile:
                     outfile.write('Documentation.addTranslations(')
                     dump(dict(
                         messages=jscatalog,
@@ -166,8 +164,6 @@ else:
                         locale=str(catalog.locale)
                     ), outfile, sort_keys=True)
                     outfile.write(');')
-                finally:
-                    outfile.close()
 
     cmdclass['compile_catalog'] = compile_catalog_plusjs
 

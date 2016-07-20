@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(testroot, os.path.pardir)))
 # check dependencies before testing
 print('Checking dependencies...')
 for modname in ('nose', 'mock', 'six', 'docutils', 'jinja2', 'pygments',
-                'snowballstemmer', 'babel'):
+                'snowballstemmer', 'babel', 'html5lib'):
     try:
         __import__(modname)
     except ImportError as err:

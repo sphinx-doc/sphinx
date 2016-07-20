@@ -275,7 +275,7 @@ These themes are:
 
 .. versionchanged:: 1.3
    The 'default' theme has been renamed to 'classic'. 'default' is still
-   available, however it will emit notice a recommendation that using new
+   available, however it will emit a notice that it is an alias for the new
    'alabaster' theme.
 
 Creating themes

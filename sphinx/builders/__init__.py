@@ -451,29 +451,3 @@ class Builder(object):
         except AttributeError:
             optname = '%s_%s' % (default, option)
             return getattr(self.config, optname)
-
-BUILTIN_BUILDERS = {
-    'dummy':      ('dummy', 'DummyBuilder'),
-    'html':       ('html', 'StandaloneHTMLBuilder'),
-    'dirhtml':    ('html', 'DirectoryHTMLBuilder'),
-    'singlehtml': ('html', 'SingleFileHTMLBuilder'),
-    'pickle':     ('html', 'PickleHTMLBuilder'),
-    'json':       ('html', 'JSONHTMLBuilder'),
-    'web':        ('html', 'PickleHTMLBuilder'),
-    'htmlhelp':   ('htmlhelp', 'HTMLHelpBuilder'),
-    'devhelp':    ('devhelp', 'DevhelpBuilder'),
-    'qthelp':     ('qthelp', 'QtHelpBuilder'),
-    'applehelp':  ('applehelp', 'AppleHelpBuilder'),
-    'epub':       ('epub', 'EpubBuilder'),
-    'epub3':      ('epub3', 'Epub3Builder'),
-    'latex':      ('latex', 'LaTeXBuilder'),
-    'text':       ('text', 'TextBuilder'),
-    'man':        ('manpage', 'ManualPageBuilder'),
-    'texinfo':    ('texinfo', 'TexinfoBuilder'),
-    'changes':    ('changes', 'ChangesBuilder'),
-    'linkcheck':  ('linkcheck', 'CheckExternalLinksBuilder'),
-    'websupport': ('websupport', 'WebSupportBuilder'),
-    'gettext':    ('gettext', 'MessageCatalogBuilder'),
-    'xml':        ('xml', 'XMLBuilder'),
-    'pseudoxml':  ('xml', 'PseudoXMLBuilder'),
-}

@@ -104,11 +104,8 @@ class BuildEnvironment:
 
     @staticmethod
     def frompickle(srcdir, config, filename):
-        picklefile = open(filename, 'rb')
-        try:
+        with open(filename, 'rb') as picklefile:
             env = pickle.load(picklefile)
-        finally:
-            picklefile.close()
         if env.version != ENV_VERSION:
             raise IOError('build environment version not current')
         if env.srcdir != srcdir:
@@ -124,7 +121,6 @@ class BuildEnvironment:
         del self.config.values
         domains = self.domains
         del self.domains
-        picklefile = open(filename, 'wb')
         # remove potentially pickling-problematic values from config
         for key, val in list(vars(self.config).items()):
             if key.startswith('_') or \
@@ -132,10 +128,8 @@ class BuildEnvironment:
                isinstance(val, types.FunctionType) or \
                isinstance(val, class_types):
                 del self.config[key]
-        try:
+        with open(filename, 'wb') as picklefile:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
-        finally:
-            picklefile.close()
         # reset attributes
         self.domains = domains
         self.config.values = values
@@ -772,12 +766,9 @@ class BuildEnvironment:
             if self.versioning_compare:
                 # get old doctree
                 try:
-                    f = open(self.doc2path(docname,
-                                           self.doctreedir, '.doctree'), 'rb')
-                    try:
+                    with open(self.doc2path(docname,
+                                            self.doctreedir, '.doctree'), 'rb') as f:
                         old_doctree = pickle.load(f)
-                    finally:
-                        f.close()
                 except EnvironmentError:
                     pass
 
@@ -807,11 +798,8 @@ class BuildEnvironment:
         doctree_filename = self.doc2path(docname, self.doctreedir,
                                          '.doctree')
         ensuredir(path.dirname(doctree_filename))
-        f = open(doctree_filename, 'wb')
-        try:
+        with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
-        finally:
-            f.close()
 
     # utilities to use while reading a document
 
@@ -1256,11 +1244,8 @@ class BuildEnvironment:
     def get_doctree(self, docname):
         """Read the doctree for a file from the pickle and return it."""
         doctree_filename = self.doc2path(docname, self.doctreedir, '.doctree')
-        f = open(doctree_filename, 'rb')
-        try:
+        with open(doctree_filename, 'rb') as f:
             doctree = pickle.load(f)
-        finally:
-            f.close()
         doctree.settings.env = self
         doctree.reporter = Reporter(self.doc2path(docname), 2, 5,
                                     stream=WarningStream(self._warnfunc))
@@ -1539,9 +1524,9 @@ class BuildEnvironment:
                                                   typ, target, node, contnode)
                 # really hardwired reference types
                 elif typ == 'any':
-                    newnode = self._resolve_any_reference(builder, node, contnode)
+                    newnode = self._resolve_any_reference(builder, refdoc, node, contnode)
                 elif typ == 'doc':
-                    newnode = self._resolve_doc_reference(builder, node, contnode)
+                    newnode = self._resolve_doc_reference(builder, refdoc, node, contnode)
                 elif typ == 'citation':
                     newnode = self._resolve_citation(builder, refdoc, node, contnode)
                 # no new node found? try the missing-reference event
@@ -1589,10 +1574,10 @@ class BuildEnvironment:
             msg = '%r reference target not found: %%(target)s' % typ
         self.warn_node(msg % {'target': target}, node, type='ref', subtype=typ)
 
-    def _resolve_doc_reference(self, builder, node, contnode):
+    def _resolve_doc_reference(self, builder, refdoc, node, contnode):
         # directly reference to document by source name;
         # can be absolute or relative
-        docname = docname_join(node['refdoc'], node['reftarget'])
+        docname = docname_join(refdoc, node['reftarget'])
         if docname in self.all_docs:
             if node['refexplicit']:
                 # reference with explicit title
@@ -1602,7 +1587,7 @@ class BuildEnvironment:
             innernode = nodes.inline(caption, caption)
             innernode['classes'].append('doc')
             newnode = nodes.reference('', '', internal=True)
-            newnode['refuri'] = builder.get_relative_uri(node['refdoc'], docname)
+            newnode['refuri'] = builder.get_relative_uri(refdoc, docname)
             newnode.append(innernode)
             return newnode
 
@@ -1625,13 +1610,12 @@ class BuildEnvironment:
             # transforms.CitationReference.apply.
             del node['ids'][:]
 
-    def _resolve_any_reference(self, builder, node, contnode):
+    def _resolve_any_reference(self, builder, refdoc, node, contnode):
         """Resolve reference generated by the "any" role."""
-        refdoc = node['refdoc']
         target = node['reftarget']
         results = []
         # first, try resolving as :doc:
-        doc_ref = self._resolve_doc_reference(builder, node, contnode)
+        doc_ref = self._resolve_doc_reference(builder, refdoc, node, contnode)
         if doc_ref:
             results.append(('doc', doc_ref))
         # next, do the standard domain (makes this a priority)

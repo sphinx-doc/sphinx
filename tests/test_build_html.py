@@ -13,12 +13,15 @@ import os
 import re
 
 from six import PY3, iteritems
-from six.moves import html_entities
 
 from sphinx import __display_version__
-from util import remove_unicode_literals, gen_with_app, with_app
-from etree13 import ElementTree as ET
+from util import remove_unicode_literals, gen_with_app, with_app, strip_escseq
+from etree13 import ElementTree
+from html5lib import getTreeBuilder, HTMLParser
 
+
+TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
+HTML_PARSER = HTMLParser(TREE_BUILDER, namespaceHTMLElements=False)
 
 ENV_WARNINGS = """\
 (%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
@@ -65,6 +68,7 @@ HTML_XPATH = {
         (".//img[@src='_images/img1.png']", ''),
         (".//img[@src='_images/simg.png']", ''),
         (".//img[@src='_images/svgimg.svg']", ''),
+        (".//a[@href='_sources/images.txt']", ''),
     ],
     'subdir/images.html': [
         (".//img[@src='../_images/img1.png']", ''),
@@ -174,7 +178,7 @@ HTML_XPATH = {
         # ``seealso`` directive
         (".//div/p[@class='first admonition-title']", 'See also'),
         # a ``hlist`` directive
-        (".//table[@class='hlist']/tr/td/ul/li", '^This$'),
+        (".//table[@class='hlist']/tbody/tr/td/ul/li", '^This$'),
         # a ``centered`` directive
         (".//p[@class='centered']/strong", 'LICENSE'),
         # a glossary
@@ -203,6 +207,7 @@ HTML_XPATH = {
         # docfields
         (".//a[@class='reference internal'][@href='#TimeInt']/em", 'TimeInt'),
         (".//a[@class='reference internal'][@href='#Time']", 'Time'),
+        (".//a[@class='reference internal'][@href='#errmod.Error']/strong", 'Error'),
         # C references
         (".//span[@class='pre']", 'CFunction()'),
         (".//a[@href='#c.Sphinx_DoSomething']", ''),
@@ -315,23 +320,9 @@ HTML_XPATH = {
     ],
     'otherext.html': [
         (".//h1", "Generated section"),
+        (".//a[@href='_sources/otherext.foo.txt']", ''),
     ]
 }
-
-
-class NslessParser(ET.XMLParser):
-    """XMLParser that throws away namespaces in tag names."""
-
-    def _fixname(self, key):
-        try:
-            return self._names[key]
-        except KeyError:
-            name = key
-            br = name.find('}')
-            if br > 0:
-                name = name[br+1:]
-            self._names[key] = name = self._fixtext(name)
-            return name
 
 
 def check_xpath(etree, fname, path, check, be_found=True):
@@ -394,8 +385,7 @@ def check_extra_entries(outdir):
 @with_app(buildername='html', testroot='warnings', freshenv=True)
 def test_html_warnings(app, status, warning):
     app.builder.build_all()
-
-    html_warnings = warning.getvalue().replace(os.sep, '/')
+    html_warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
     html_warnings_exp = HTML_WARNINGS % {
         'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(html_warnings_exp + '$', html_warnings), \
@@ -409,10 +399,8 @@ def test_html_warnings(app, status, warning):
 def test_html_output(app, status, warning):
     app.builder.build_all()
     for fname, paths in iteritems(HTML_XPATH):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
         for path, check in paths:
             yield check_xpath, etree, fname, path, check
 
@@ -459,10 +447,8 @@ def test_tocdepth(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -501,10 +487,8 @@ def test_tocdepth_singlehtml(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -557,10 +541,8 @@ def test_numfig_disabled(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -658,10 +640,8 @@ def test_numfig_without_numbered_toctree(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -755,10 +735,8 @@ def test_numfig_with_numbered_toctree(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -855,10 +833,8 @@ def test_numfig_with_prefix(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -952,10 +928,8 @@ def test_numfig_with_secnum_depth(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -984,19 +958,30 @@ def test_enumerable_node(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
 
 
-@with_app(buildername='html', testroot='html_extra_path')
-def test_html_extra_path(app, status, warning):
+@with_app(buildername='html', testroot='html_assets')
+def test_html_assets(app, status, warning):
     app.builder.build_all()
 
+    # html_static_path
+    assert not (app.outdir / '_static' / '.htaccess').exists()
+    assert not (app.outdir / '_static' / '.htpasswd').exists()
+    assert (app.outdir / '_static' / 'API.html').exists()
+    assert (app.outdir / '_static' / 'API.html').text() == 'Sphinx-1.4.4'
+    assert (app.outdir / '_static' / 'css/style.css').exists()
+    assert (app.outdir / '_static' / 'rimg.png').exists()
+    assert not (app.outdir / '_static' / '_build/index.html').exists()
+    assert (app.outdir / '_static' / 'background.png').exists()
+    assert not (app.outdir / '_static' / 'subdir' / '.htaccess').exists()
+    assert not (app.outdir / '_static' / 'subdir' / '.htpasswd').exists()
+
+    # html_extra_path
     assert (app.outdir / '.htaccess').exists()
     assert not (app.outdir / '.htpasswd').exists()
     assert (app.outdir / 'API.html_t').exists()
@@ -1004,3 +989,17 @@ def test_html_extra_path(app, status, warning):
     assert (app.outdir / 'rimg.png').exists()
     assert not (app.outdir / '_build/index.html').exists()
     assert (app.outdir / 'background.png').exists()
+    assert (app.outdir / 'subdir' / '.htaccess').exists()
+    assert not (app.outdir / 'subdir' / '.htpasswd').exists()
+
+
+@with_app(buildername='html', confoverrides={'html_sourcelink_suffix': ''})
+def test_html_sourcelink_suffix(app, status, warning):
+    app.builder.build_all()
+    content_otherext = (app.outdir / 'otherext.html').text()
+    content_images = (app.outdir / 'images.html').text()
+
+    assert '<a href="_sources/otherext.foo"' in content_otherext
+    assert '<a href="_sources/images.txt"' in content_images
+    assert (app.outdir / '_sources' / 'otherext.foo').exists()
+    assert (app.outdir / '_sources' / 'images.txt').exists()

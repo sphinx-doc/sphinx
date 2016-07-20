@@ -112,10 +112,9 @@ class SphinxFileInput(FileInput):
         return data.decode(self.encoding, 'sphinx')  # py2: decoding
 
     def read(self):
-        def get_parser_type(docname):
-            path = self.env.doc2path(docname)
+        def get_parser_type(source_path):
             for suffix in self.env.config.source_parsers:
-                if path.endswith(suffix):
+                if source_path.endswith(suffix):
                     parser_class = self.env.config.source_parsers[suffix]
                     if isinstance(parser_class, string_types):
                         parser_class = import_object(parser_class, 'source parser')
@@ -129,7 +128,7 @@ class SphinxFileInput(FileInput):
             self.app.emit('source-read', self.env.docname, arg)
             data = arg[0]
         docinfo, data = split_docinfo(data)
-        if 'restructuredtext' in get_parser_type(self.env.docname):
+        if 'restructuredtext' in get_parser_type(self.source_path):
             if self.env.config.rst_epilog:
                 data = data + '\n' + self.env.config.rst_epilog + '\n'
             if self.env.config.rst_prolog:

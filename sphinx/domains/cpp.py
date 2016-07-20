@@ -4124,6 +4124,28 @@ class CPPDomain(Domain):
         if s is None or s.declaration is None:
             return None, None
 
+        if typ.startswith('cpp:'):
+            typ = typ[4:]
+        if typ == 'func':
+            typ = 'function'
+        declTyp = s.declaration.objectType
+
+        def checkType():
+            if typ == 'any':
+                return True
+            if declTyp == 'templateParam':
+                return True
+            if typ == 'var' or typ == 'member':
+                return declTyp in ['var', 'member']
+            if typ in ['enum', 'enumerator', 'function', 'class']:
+                return declTyp == typ
+            if typ == 'type':
+                return declTyp in ['enum', 'class', 'function', 'type']
+            print("Type is %s" % typ)
+            assert False
+        if not checkType():
+            warner.warn("cpp:%s targets a %s." % (typ, s.declaration.objectType))
+
         declaration = s.declaration
         fullNestedName = s.get_full_nested_name()
         name = text_type(fullNestedName).lstrip(':')
@@ -4163,3 +4185,7 @@ class CPPDomain(Domain):
             docname = symbol.docname
             newestId = symbol.declaration.get_newest_id()
             yield (name, name, objectType, docname, newestId, 1)
+
+
+def setup(app):
+    app.add_domain(CPPDomain)

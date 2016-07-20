@@ -165,3 +165,7 @@ class WebSupportBuilder(PickleHTMLBuilder):
 
     def dump_search_index(self):
         self.indexer.finish_indexing()
+
+
+def setup(app):
+    app.add_builder(WebSupportBuilder)

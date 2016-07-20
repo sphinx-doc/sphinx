@@ -18,6 +18,7 @@ from os import path
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.util.osutil import make_filename
 from sphinx.builders.html import StandaloneHTMLBuilder
 
 try:
@@ -128,8 +129,12 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
                 write_index(title, refs, subitems)
 
         # Dump the XML file
-        f = comp_open(path.join(outdir, outname + '.devhelp'), 'w')
-        try:
+        with comp_open(path.join(outdir, outname + '.devhelp'), 'w') as f:
             tree.write(f, 'utf-8')
-        finally:
-            f.close()
+
+
+def setup(app):
+    app.setup_extension('sphinx.builders.html')
+    app.add_builder(DevhelpBuilder)
+
+    app.add_config_value('devhelp_basename', lambda self: make_filename(self.project), None)

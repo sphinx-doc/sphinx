@@ -13,6 +13,7 @@
 import codecs
 from os import path
 
+from sphinx.config import string_classes
 from sphinx.builders.epub import EpubBuilder
 
 
@@ -207,11 +208,18 @@ class Epub3Builder(EpubBuilder):
             # 'includehidden'
             refnodes = self.refnodes
         navlist = self.build_navlist(refnodes)
-        f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
-        try:
+        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:
             f.write(self.navigation_doc_template %
                     self.navigation_doc_metadata(navlist))
-        finally:
-            f.close()
-            # Add nav.xhtml to epub file
-            self.files.append(outname)
+
+        # Add nav.xhtml to epub file
+        self.files.append(outname)
+
+
+def setup(app):
+    app.setup_extension('sphinx.builders.epub')
+    app.add_builder(Epub3Builder)
+
+    app.add_config_value('epub3_description', '', 'epub3', string_classes)
+    app.add_config_value('epub3_contributor', 'unknown', 'epub3', string_classes)
+    app.add_config_value('epub3_page_progression_direction', 'ltr', 'epub3', string_classes)

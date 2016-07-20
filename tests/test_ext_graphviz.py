@@ -55,6 +55,10 @@ def test_graphviz_html(app, status, warning):
     html = '<img src=".*?" alt="digraph {\n  bar -&gt; baz\n}" />'
     assert re.search(html, content, re.M)
 
+    html = ('<div class="figure align-right" .*?>\s*<img .*?/>\s*<p class="caption">'
+            '<span class="caption-text">on right</span>.*</p>\s*</div>')
+    assert re.search(html, content, re.S)
+
 
 @with_app('latex', testroot='ext-graphviz')
 @skip_if_graphviz_not_found
@@ -68,6 +72,11 @@ def test_graphviz_latex(app, status, warning):
     assert re.search(macro, content, re.S)
 
     macro = 'Hello \\\\includegraphics{graphviz-\w+.pdf} graphviz world'
+    assert re.search(macro, content, re.S)
+
+    macro = ('\\\\begin{wrapfigure}{r}{0pt}\n\\\\centering\n'
+             '\\\\includegraphics{graphviz-\w+.pdf}\n'
+             '\\\\caption{on right}\\\\label{.*}\\\\end{wrapfigure}')
     assert re.search(macro, content, re.S)
 
 

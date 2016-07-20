@@ -29,7 +29,7 @@ Other contributors, listed alphabetically, are:
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements
 * Doug Hellmann -- graphviz improvements
-* Timotheus Kampik - JS enhancements, stop words language fix
+* Timotheus Kampik - JS theme & search enhancements
 * Takeshi Komiya -- numref feature
 * Dave Kuhlman -- original LaTeX writer
 * Blaise Laflamme -- pyramid theme
@@ -41,6 +41,7 @@ Other contributors, listed alphabetically, are:
 * Martin Mahner -- nature theme
 * Will Maier -- directory HTML builder
 * Jacob Mason -- websupport library (GSOC project)
+* Glenn Matthews -- python domain signature improvements
 * Roland Meister -- epub builder
 * Ezio Melotti -- collapsible sidebar JavaScript
 * Daniel Neuhäuser -- JavaScript domain, Python 3 support (GSOC)

@@ -101,7 +101,7 @@ def test_inline():
            '<p><code class="samp docutils literal"><span class="pre">a</span>'
            '<em><span class="pre">b</span></em>'
            '<span class="pre">c</span></code></p>',
-           '\\sphinxcode{a\\emph{b}c}')
+           '\\sphinxcode{a\\sphinxstyleemphasis{b}c}')
 
     # interpolation of arrows in menuselection
     yield (verify, ':menuselection:`a --> b`',
@@ -131,7 +131,7 @@ def test_inline():
     # verify classes for inline roles
     yield (verify, ':manpage:`mp(1)`',
            '<p><em class="manpage">mp(1)</em></p>',
-           '\\emph{\\texttt{mp(1)}}')
+           '\\sphinxstyleliteralemphasis{mp(1)}')
 
 
 def test_latex_escaping():
@@ -140,9 +140,9 @@ def test_latex_escaping():
            r'\(\Gamma\)\textbackslash{}\(\infty\)\$')
     # in verbatim code fragments
     yield (verify, u'::\n\n @Γ\\∞${}', None,
-           u'\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n'
+           u'\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
            u'@\\(\\Gamma\\)\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
-           u'\\end{Verbatim}')
+           u'\\end{sphinxVerbatim}')
     # in URIs
     yield (verify_re, u'`test <http://example.com/~me/>`_', None,
            r'\\href{http://example.com/~me/}{test}.*')

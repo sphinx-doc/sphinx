@@ -18,7 +18,7 @@ from six import PY3
 
 from sphinx.writers.texinfo import TexinfoTranslator
 
-from util import SkipTest, remove_unicode_literals, with_app
+from util import SkipTest, remove_unicode_literals, with_app, strip_escseq
 from test_build_html import ENV_WARNINGS
 
 
@@ -36,8 +36,7 @@ if PY3:
 @with_app(buildername='texinfo', testroot='warnings', freshenv=True)
 def test_texinfo_warnings(app, status, warning):
     app.builder.build_all()
-
-    warnings = warning.getvalue().replace(os.sep, '/')
+    warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
     warnings_exp = TEXINFO_WARNINGS % {
         'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(warnings_exp + '$', warnings), \

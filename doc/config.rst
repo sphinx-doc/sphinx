@@ -521,7 +521,10 @@ documentation on :ref:`intl` for details.
    :file:`./locale/{language}/LC_MESSAGES/sphinx.mo`.  The text domain of
    individual documents depends on :confval:`gettext_compact`.
 
-   The default is ``[]``.
+   The default is ``['locales']``.
+
+   .. versionchanged:: 1.5
+      Use ``locales`` directory as a default value
 
 .. confval:: gettext_compact
 
@@ -866,6 +869,13 @@ that use Sphinx's HTMLWriter class.
    reST sources will be added to the sidebar.  The default is ``True``.
 
    .. versionadded:: 0.6
+
+.. confval:: html_sourcelink_suffix
+
+   Suffix to be appended to source links (see :confval:`html_show_sourcelink`),
+   unless they have this suffix already.  Default is ``'.txt'``.
+
+   .. versionadded:: 1.5
 
 .. confval:: html_use_opensearch
 
@@ -1457,7 +1467,17 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 Options for LaTeX output
 ------------------------
 
-These options influence LaTeX output.
+These options influence LaTeX output. See further :doc:`latex`.
+
+.. confval:: latex_engine
+
+   The LaTeX engine to build the docs.  The setting can have the following
+   values:
+
+   * pdflatex -- PDFLaTeX (default)
+   * xelatex -- XeLaTeX
+   * lualatex -- LuaLaTeX
+   * platex -- pLaTeX (default if `language` is 'ja')
 
 .. confval:: latex_documents
 
@@ -1598,6 +1618,15 @@ These options influence LaTeX output.
      ``'pointsize'``
         Point size option of the document class (``'10pt'``, ``'11pt'`` or
         ``'12pt'``), default ``'10pt'``.
+     ``'pxunit'``
+        the value of the ``px`` when used in image attributes ``width`` and
+        ``height``. The default value is ``'49336sp'`` which achieves
+        ``96px=1in`` (``1in = 72.27*65536 = 4736286.72sp``, and all dimensions
+        in TeX are internally integer multiples of ``sp``). To obtain for
+        example ``100px=1in``, one can use ``'0.01in'`` but it is more precise
+        to use ``'47363sp'``. To obtain ``72px=1in``, use ``'1bp'``.
+
+        .. versionadded:: 1.5
      ``'babel'``
         "babel" package inclusion, default ``'\\usepackage{babel}'``.
      ``'fontpkg'``
@@ -1620,7 +1649,7 @@ These options influence LaTeX output.
 
         .. versionadded:: 1.4
      ``'preamble'``
-        Additional preamble content, default empty.
+        Additional preamble content, default empty. See :doc:`latex`.
      ``'figure_align'``
         Latex figure float alignment, default 'htbp' (here, top, bottom, page).
         Whenever an image doesn't fit into the current page, it will be
@@ -1689,6 +1718,11 @@ These options influence LaTeX output.
    is to use ``'article'`` for ``'howto'`` and ``'report'`` for ``'manual'``.
 
    .. versionadded:: 1.0
+
+   .. versionchanged:: 1.5
+
+      In Japanese docs(`language` is ``ja``), ``'jreport'`` is used for
+      ``'howto'`` and ``'jsbooks'`` is used for ``'manual'`` by default.
 
 .. confval:: latex_additional_files
 
