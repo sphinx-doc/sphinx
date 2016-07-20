@@ -22,6 +22,34 @@ The configuration file itself can be treated as an extension if it contains a
 ``setup()`` function.  All other extensions to load must be listed in the
 :confval:`extensions` configuration value.
 
+Discovery of builders by entry point
+------------------------------------
+
+.. versionadded:: 1.6
+
+:term:`Builder` extensions can be discovered by means of `entry points`_ so
+they do not have to be listed in the :confval:`extensions` configuration value.
+
+Builder extensions need to define an entry point in the ``sphinx.builders``
+group. The name of the entry point needs to be set to the name of the builder,
+which is the name passed to the :option:`sphinx-build -b` option. Here is an
+example of how an entry point for 'mybuilder' can be defined in ``setup.py``::
+
+    setup(
+        # ...
+        entry_points={
+            'sphinx.builders': [
+                'mybuilder = mypackage.mymodule:MyBuilder',
+            ],
+        }
+    )
+
+It is no longer strictly necessary to register the builder using
+:meth:`~.Sphinx.add_builder` in the extension's ``setup()`` function, but it is
+recommended to not remove this in order to ensure backward compatiblity.
+
+.. _entry points: https://setuptools.readthedocs.io/en/latest/setuptools.html#dynamic-discovery-of-services-and-plugins
+
 Extension metadata
 ------------------
 

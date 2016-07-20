@@ -26,6 +26,7 @@ from six.moves import cStringIO
 from docutils import nodes
 from docutils.parsers.rst import convert_directive_function, \
     directives, roles
+from pkg_resources import iter_entry_points
 
 import sphinx
 from sphinx import package_dir, locale
@@ -298,10 +299,19 @@ class Sphinx(object):
         if buildername is None:
             logger.info(_('No builder selected, using default: html'))
             buildername = 'html'
-        if buildername not in self.builderclasses:
-            raise SphinxError(_('Builder name %s not registered') % buildername)
-
-        builderclass = self.builderclasses[buildername]
+        if buildername in self.builderclasses:
+            builderclass = self.builderclasses[buildername]
+        else:
+            entry_points = iter_entry_points('sphinx.builders', buildername)
+            try:
+                entry_point = next(entry_points)
+            except StopIteration:
+                raise SphinxError('Builder name %s not registered or available'
+                                  ' through entry point' % buildername)
+            else:
+                builderclass = entry_point.load()
+                extension_module = sys.modules[builderclass.__module__]
+                extension_module.setup(self)
         return builderclass(self)
 
     def _init_builder(self):
