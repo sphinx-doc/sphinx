@@ -82,6 +82,9 @@ PACKAGE_DOC_TEMPLATE = u'''\
 </package>
 '''
 
+DOCTYPE = u'''<!DOCTYPE html>
+'''
+
 # The epub3 publisher
 
 
@@ -99,6 +102,7 @@ class Epub3Builder(EpubBuilder):
     navlist_template = NAVLIST_TEMPLATE
     navlist_indent = NAVLIST_INDENT
     content_template = PACKAGE_DOC_TEMPLATE
+    doctype = DOCTYPE
 
     # Finish by building the epub file
     def handle_finish(self):
