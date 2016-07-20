@@ -200,6 +200,12 @@ Referencing downloadable files
    The ``example.py`` file will be copied to the output directory, and a
    suitable link generated to it.
 
+   Not to show unavailable download links, you should wrap whole paragraphs that
+   have this role::
+
+      .. only:: builder_html
+
+         See :download:`this example script <../example.py>`.
 
 Cross-referencing figures by figure number
 ------------------------------------------

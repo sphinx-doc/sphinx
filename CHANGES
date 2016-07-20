@@ -95,7 +95,12 @@ Bugs fixed
 ----------
 
 * applehelp: Sphinx crashes if ``hiutil`` or ``codesign`` commands not found
+* Fix ``make clean`` abort issue when build dir contains regular files like ``DS_Store``.
+* Reduce epubcheck warnings/errors:
 
+  * Fix DOCTYPE to html5
+  * Change extension from .html to .xhtml.
+  * Disable search page on epub results
 
 Release 1.4.5 (released Jul 13, 2016)
 =====================================

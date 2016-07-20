@@ -217,3 +217,10 @@ def cd(target_dir):
         yield
     finally:
         os.chdir(cwd)
+
+
+def rmtree(path):
+    if os.path.isdir(path):
+        shutil.rmtree(path)
+    else:
+        os.remove(path)
