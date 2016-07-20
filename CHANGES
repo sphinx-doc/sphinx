@@ -35,7 +35,6 @@ Features added
 --------------
 
 * Add ``:caption:`` option for sphinx.ext.inheritance_diagram.
-* #894: Add ``lualatexpdf`` and ``xelatexpdf`` as a make target to build PDF using lualatex or xelatex
 * #2471: Add config variable for default doctest flags.
 * Convert linkcheck builder to requests for better encoding handling
 * #2463, #2516: Add keywords of "meta" directive to search index
@@ -77,7 +76,7 @@ Features added
   entries in 3rd party extensions.
 * Python domain signature parser now uses the xref mixin for 'exceptions',
   allowing exception classes to be autolinked.
-
+* #2513: Add `latex_engine` to switch the LaTeX engine by conf.py
 
 Bugs fixed
 ----------

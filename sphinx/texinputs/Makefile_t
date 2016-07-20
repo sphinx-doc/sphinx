@@ -13,11 +13,16 @@ LATEXOPTS =
 FMT = pdf
 
 LATEX = latex
-PDFLATEX = pdflatex
+PDFLATEX = {{ latex_engine }}
 MAKEINDEX = makeindex
 
+{% if latex_engine == 'platex' %}
+all: all-pdf-ja
+all-pdf: all-pdf-ja
+{% else %}
 all: $(ALLPDF)
 all-pdf: $(ALLPDF)
+{% endif -%}
 all-dvi: $(ALLDVI)
 all-ps: $(ALLPS)
 

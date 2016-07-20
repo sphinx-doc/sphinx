@@ -265,9 +265,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'classoptions':    '',
         'extraclassoptions': '',
         'passoptionstopackages': '',
-        'inputenc':        ('\\ifPDFTeX\n'
-                            '  \\usepackage[utf8]{inputenc}\n'
-                            '\\fi'),
+        'inputenc':        '',
         'utf8extra':       ('\\ifdefined\\DeclareUnicodeCharacter\n'
                             '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'
                             '\\fi'),
@@ -358,6 +356,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         else:
             docclass = builder.config.latex_docclass.get('manual', 'report')
         self.elements['docclass'] = docclass
+        if builder.config.latex_engine == 'pdflatex':
+            self.elements['inputenc'] = '\\usepackage[utf8]{inputenc}'
         if builder.config.today:
             self.elements['date'] = builder.config.today
         else:

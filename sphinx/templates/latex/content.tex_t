@@ -5,7 +5,6 @@
 \ifdefined\pdfpxdimen
    \let\sphinxpxdimen\pdfpxdimen\else\newdimen\sphinxpxdimen
 \fi \sphinxpxdimen=<%= pxunit %>\relax
-\usepackage{iftex}
 <%= passoptionstopackages %>
 <%= inputenc %>
 <%= utf8extra %>

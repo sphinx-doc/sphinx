@@ -20,13 +20,14 @@ from docutils.frontend import OptionParser
 
 from sphinx import package_dir, addnodes, highlighting
 from sphinx.util import texescape
-from sphinx.config import string_classes
+from sphinx.config import string_classes, ENUM
 from sphinx.errors import SphinxError
 from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP, copyfile, make_filename
+from sphinx.util.fileutil import copy_asset_file
+from sphinx.util.osutil import SEP, make_filename
 from sphinx.util.console import bold, darkgreen
 from sphinx.writers.latex import LaTeXWriter
 
@@ -188,35 +189,33 @@ class LaTeXBuilder(Builder):
             self.info(bold('copying images...'), nonl=1)
             for src, dest in iteritems(self.images):
                 self.info(' '+src, nonl=1)
-                copyfile(path.join(self.srcdir, src),
-                         path.join(self.outdir, dest))
+                copy_asset_file(path.join(self.srcdir, src),
+                                path.join(self.outdir, dest))
             self.info()
 
         # copy TeX support files from texinputs
+        context = {'latex_engine': self.config.latex_engine}
         self.info(bold('copying TeX support files...'))
         staticdirname = path.join(package_dir, 'texinputs')
         for filename in os.listdir(staticdirname):
             if not filename.startswith('.'):
-                copyfile(path.join(staticdirname, filename),
-                         path.join(self.outdir, filename))
+                copy_asset_file(path.join(staticdirname, filename),
+                                self.outdir, context=context)
 
         # copy additional files
         if self.config.latex_additional_files:
             self.info(bold('copying additional files...'), nonl=1)
             for filename in self.config.latex_additional_files:
                 self.info(' '+filename, nonl=1)
-                copyfile(path.join(self.confdir, filename),
-                         path.join(self.outdir, path.basename(filename)))
+                copy_asset_file(path.join(self.confdir, filename), self.outdir)
             self.info()
 
         # the logo is handled differently
         if self.config.latex_logo:
-            logobase = path.basename(self.config.latex_logo)
-            logotarget = path.join(self.outdir, logobase)
             if not path.isfile(path.join(self.confdir, self.config.latex_logo)):
                 raise SphinxError('logo file %r does not exist' % self.config.latex_logo)
-            elif not path.isfile(logotarget):
-                copyfile(path.join(self.confdir, self.config.latex_logo), logotarget)
+            else:
+                copy_asset_file(path.join(self.confdir, self.config.latex_logo), self.outdir)
         self.info('done')
 
 
@@ -264,6 +263,10 @@ def setup(app):
     app.add_builder(LaTeXBuilder)
     app.connect('builder-inited', validate_config_values)
 
+    app.add_config_value('latex_engine',
+                         lambda self: 'pdflatex' if self.language != 'ja' else 'platex',
+                         None,
+                         ENUM('pdflatex', 'xelatex', 'lualatex', 'platex'))
     app.add_config_value('latex_documents',
                          lambda self: [(self.master_doc, make_filename(self.project) + '.tex',
                                         self.project, '', 'manual')],
