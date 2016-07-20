@@ -108,6 +108,8 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
     # don't add sidebar etc.
     embedded = True
+    # disable download role
+    download_support = False
 
     # don't generate the search index or include the search page
     search = False

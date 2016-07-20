@@ -188,6 +188,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
     add_permalinks = False
     # don't add sidebar etc.
     embedded = True
+    # disable download role
+    download_support = False
 
     # don't generate search index or include search page
     search = False
@@ -480,6 +482,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     self.copy_image_files_pil()
             else:
                 super(EpubBuilder, self).copy_image_files()
+
+    def copy_download_files(self):
+        pass
 
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):
