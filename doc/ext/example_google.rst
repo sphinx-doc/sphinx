@@ -9,7 +9,9 @@ Example Google Style Python Docstrings
 
    :ref:`example_numpy`
 
-Download: :download:`example_google.py <example_google.py>`
+.. only:: builder_html
+
+   Download: :download:`example_google.py <example_google.py>`
 
 .. literalinclude:: example_google.py
    :language: python
