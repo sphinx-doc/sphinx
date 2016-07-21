@@ -12,6 +12,9 @@ Bugs fixed
   * Change extension from .html to .xhtml.
   * Disable search page on epub results
 
+* #2778: Fix autodoc crashes if obj.__dict__ is a property method and raises exception
+
+
 Release 1.4.5 (released Jul 13, 2016)
 =====================================
 
