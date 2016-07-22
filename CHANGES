@@ -107,6 +107,8 @@ Bugs fixed
   * Change extension from .html to .xhtml.
   * Disable search page on epub results
 
+* Fix :download: role on epub/qthelp builder. They ignore the role because they don't support it.
+
 Release 1.4.5 (released Jul 13, 2016)
 =====================================
 

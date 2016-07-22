@@ -82,6 +82,7 @@ class StandaloneHTMLBuilder(Builder):
     add_permalinks = True
     embedded = False  # for things like HTML help or Qt help: suppresses sidebar
     search = True  # for things like HTML help and Apple help: suppress search
+    download_support = True  # enable download role
 
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
     script_files = ['_static/jquery.js', '_static/underscore.js',

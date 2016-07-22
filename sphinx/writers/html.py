@@ -439,7 +439,7 @@ class HTMLTranslator(BaseTranslator):
         pass
 
     def visit_download_reference(self, node):
-        if node.hasattr('filename'):
+        if self.builder.download_support and node.hasattr('filename'):
             self.body.append(
                 '<a class="reference download internal" href="%s" download="">' %
                 posixpath.join(self.builder.dlpath, node['filename']))
