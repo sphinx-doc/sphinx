@@ -13,7 +13,7 @@ Bugs fixed
   * Disable search page on epub results
 
 * #2778: Fix autodoc crashes if obj.__dict__ is a property method and raises exception
-
+* Fix duplicated toc in epub3 output.
 
 Release 1.4.5 (released Jul 13, 2016)
 =====================================
