@@ -31,11 +31,11 @@ Incompatible changes
 * QtHelpBuilder uses ``nonav`` theme instead of default one
   to improve readability.
 * latex: To provide good default settings to Japanese docs, Sphinx uses ``jsbooks``
-  as a docclass by default if the `language` is ``ja``.
+  as a docclass by default if the ``language`` is ``ja``.
 * latex: To provide good default settings to Japanese docs, Sphinx uses
   ``jreport`` and ``jsbooks`` as a docclass by default if the ``language`` is
   ``ja``.
-* `sphinx-quickstart` now allows a project version is empty
+* ``sphinx-quickstart`` now allows a project version is empty
 * Fix :download: role on epub/qthelp builder. They ignore the role because they don't support it.
 * ``sphinx.ext.viewcode`` doesn't work on epub building by default. ``viewcode_enable_epub`` option
 * ``sphinx.ext.viewcode`` disabled on singlehtml builder.
