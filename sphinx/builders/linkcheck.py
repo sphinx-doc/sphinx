@@ -56,6 +56,11 @@ opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) '
 
 class HeadRequest(Request):
     """Subclass of urllib2.Request that sends a HEAD request."""
+    def __init__(self, *args, **kwargs):
+        Request.__init__(self, *args, **kwargs)
+        # we do not parse the response in HEAD, so accepting anything is okay
+        self.headers['Accept-encoding'] = '*'
+
     def get_method(self):
         return 'HEAD'
 

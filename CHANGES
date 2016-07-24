@@ -14,6 +14,7 @@ Bugs fixed
 
 * #2778: Fix autodoc crashes if obj.__dict__ is a property method and raises exception
 * Fix duplicated toc in epub3 output.
+* #2775: Fix failing linkcheck with servers not supporting identidy encoding
 
 Release 1.4.5 (released Jul 13, 2016)
 =====================================
