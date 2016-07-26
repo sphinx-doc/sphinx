@@ -37,7 +37,7 @@ from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.builders import BUILTIN_BUILDERS
 from sphinx.environment import BuildEnvironment
 from sphinx.io import SphinxStandaloneReader
-from sphinx.util import pycompat  # noqa: imported for side-effects
+from sphinx.util import pycompat  # noqa: F401
 from sphinx.util import import_object
 from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT

@@ -80,7 +80,7 @@ else:
     # error handler
     sys_encoding = __import__('locale').getpreferredencoding()
     # use Python 3 name
-    from cgi import escape as htmlescape  # noqa: 2.6, 2.7
+    from cgi import escape as htmlescape  # noqa: F401
 
     class UnicodeMixin(object):
         """Mixin class to handle defining the proper __str__/__unicode__
