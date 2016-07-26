@@ -35,6 +35,7 @@ Incompatible changes
 * latex: To provide good default settings to Japanese docs, Sphinx uses
   ``jreport`` and ``jsbooks`` as a docclass by default if the ``language`` is
   ``ja``.
+* `sphinx-quickstart` now allows a project version is empty
 
 
 Features added
