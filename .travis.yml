@@ -30,7 +30,7 @@ install:
   - pip install docutils==$DOCUTILS
   - pip install -r test-reqs.txt
 before_script:
-  -  if [[ $TRAVIS_PYTHON_VERSION != '2.6' ]]; flake8; fi
+  -  if [[ $TRAVIS_PYTHON_VERSION != '2.6' ]]; then flake8; fi
 script:
   -  if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then make test-async; fi
   -  if [[ $TRAVIS_PYTHON_VERSION != '3.5' ]]; then make test; fi
