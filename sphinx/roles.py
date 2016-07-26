@@ -13,7 +13,7 @@ import re
 
 from six import iteritems
 from docutils import nodes, utils
-from docutils.parsers.rst import roles
+from docutils.parsers.rst import roles, languages
 
 from sphinx import addnodes
 from sphinx.locale import _
@@ -176,7 +176,15 @@ class AnyXRefRole(XRefRole):
 def indexmarkup_role(typ, rawtext, text, lineno, inliner,
                      options={}, content=[]):
     """Role for PEP/RFC references that generate an index entry."""
-    env = inliner.document.settings.env
+    document = inliner.document
+    if not hasattr(document.settings, 'env'):    # not a Sphinx document
+        typ = typ.lower()
+        assert typ in ('pep', 'rfc')
+        language_module = languages.get_language(document.get_language_code())
+        role_fn = roles.role(typ + '-reference', language_module, lineno,
+                             document.reporter)
+        return role_fn(typ, rawtext, text, lineno, inliner)
+    env = document.settings.env
     if not typ:
         typ = env.config.default_role
     else:
@@ -187,7 +195,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner,
     targetid = 'index-%s' % env.new_serialno('index')
     indexnode = addnodes.index()
     targetnode = nodes.target('', '', ids=[targetid])
-    inliner.document.note_explicit_target(targetnode)
+    document.note_explicit_target(targetnode)
     if typ == 'pep':
         indexnode['entries'] = [
             ('single', _('Python Enhancement Proposals; PEP %s') % target,
@@ -205,7 +213,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner,
                                          line=lineno)
             prb = inliner.problematic(rawtext, rawtext, msg)
             return [prb], [msg]
-        ref = inliner.document.settings.pep_base_url + 'pep-%04d' % pepnum
+        ref = document.settings.pep_base_url + 'pep-%04d' % pepnum
         sn = nodes.strong(title, title)
         rn = nodes.reference('', '', internal=False, refuri=ref+anchor,
                              classes=[typ])
@@ -227,7 +235,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner,
                                          line=lineno)
             prb = inliner.problematic(rawtext, rawtext, msg)
             return [prb], [msg]
-        ref = inliner.document.settings.rfc_base_url + inliner.rfc_url % rfcnum
+        ref = document.settings.rfc_base_url + inliner.rfc_url % rfcnum
         sn = nodes.strong(title, title)
         rn = nodes.reference('', '', internal=False, refuri=ref+anchor,
                              classes=[typ])
