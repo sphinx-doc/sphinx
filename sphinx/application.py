@@ -88,6 +88,11 @@ builtin_extensions = (
     'sphinx.domains.python',
     'sphinx.domains.rst',
     'sphinx.domains.std',
+    'sphinx.directives',
+    'sphinx.directives.code',
+    'sphinx.directives.other',
+    'sphinx.directives.patches',
+    'sphinx.roles',
 )
 
 CONFIG_FILENAME = 'conf.py'
