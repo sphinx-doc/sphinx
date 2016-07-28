@@ -224,6 +224,7 @@ class SearchEnglish(SearchLanguage):
     stopwords = english_stopwords
 
     def init(self, options):
+        super(SearchEnglish, self).init(options)
         if PYSTEMMER:
             class Stemmer(object):
                 def __init__(self):

@@ -67,6 +67,8 @@ var Stemmer = function() {
         """
         Initialize the class with the options the user has given.
         """
+        if 'wordre' in options:
+            self._word_re = re.compile(options['wordre'])
 
     def split(self, input):
         """
