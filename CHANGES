@@ -87,6 +87,7 @@ Features added
 * Python domain signature parser now uses the xref mixin for 'exceptions',
   allowing exception classes to be autolinked.
 * #2513: Add `latex_engine` to switch the LaTeX engine by conf.py
+* Added feature to pass in custom word splitting regex in html_search_options (English only)
 
 Bugs fixed
 ----------
