@@ -359,6 +359,18 @@ single word, like this::
    :param int priority: The priority of the message, can be a number 1-5
 
 
+.. versionadded:: 1.5
+
+Container types such as lists and dictionaries can be linked automatically
+using the following syntax::
+
+   :type priorities: list(int)
+   :type priorities: list[int]
+   :type mapping: dict(str, int)
+   :type mapping: dict[str, int]
+   :type point: tuple(float, float)
+   :type point: tuple[float, float]
+
 .. _python-roles:
 
 Cross-referencing Python objects

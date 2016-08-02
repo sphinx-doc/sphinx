@@ -24,7 +24,7 @@ from sphinx.util.pycompat import UnicodeMixin
 
 _directive_regex = re.compile(r'\.\. \S+::')
 _google_section_regex = re.compile(r'^(\s|\w)+:\s*$')
-_google_typed_arg_regex = re.compile(r'\s*(.+?)\s*\(\s*(.+?)\s*\)')
+_google_typed_arg_regex = re.compile(r'\s*(.+?)\s*\(\s*(.*[^\s]+)\s*\)')
 _numpy_section_regex = re.compile(r'^[=\-`:\'"~^_*+#<>]{2,}\s*$')
 _single_colon_regex = re.compile(r'(?<!:):(?!:)')
 _xref_regex = re.compile(r'(:\w+:\S+:`.+?`|:\S+:`.+?`|`.+?`)')
@@ -172,7 +172,7 @@ class GoogleDocstring(UnicodeMixin):
 
         Returns
         -------
-        :obj:`list` of :obj:`str`
+        list(str)
             The lines of the docstring in a list.
 
         """
@@ -254,12 +254,7 @@ class GoogleDocstring(UnicodeMixin):
                 else:
                     _desc = lines[1:]
 
-                match = _google_typed_arg_regex.match(before)
-                if match:
-                    _name = match.group(1)
-                    _type = match.group(2)
-                else:
-                    _type = before
+                _type = before
 
             _desc = self.__class__(_desc, self._config).lines()
             return [(_name, _type, _desc,)]
@@ -817,7 +812,7 @@ class NumpyDocstring(GoogleDocstring):
 
         Returns
         -------
-        :obj:`list` of :obj:`str`
+        list(str)
             The lines of the docstring in a list.
 
     """

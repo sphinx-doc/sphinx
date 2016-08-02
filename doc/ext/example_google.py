@@ -211,14 +211,14 @@ class ExampleClass(object):
             param1 (str): Description of `param1`.
             param2 (:obj:`int`, optional): Description of `param2`. Multiple
                 lines are supported.
-            param3 (:obj:`list` of :obj:`str`): Description of `param3`.
+            param3 (list(str)): Description of `param3`.
 
         """
         self.attr1 = param1
         self.attr2 = param2
         self.attr3 = param3  #: Doc comment *inline* with attribute
 
-        #: list of str: Doc comment *before* attribute, with type specified
+        #: list(str): Doc comment *before* attribute, with type specified
         self.attr4 = ['attr4']
 
         self.attr5 = None
@@ -231,7 +231,7 @@ class ExampleClass(object):
 
     @property
     def readwrite_property(self):
-        """:obj:`list` of :obj:`str`: Properties with both a getter and setter
+        """list(str): Properties with both a getter and setter
         should only be documented in their getter method.
 
         If the setter method contains notable behavior, it should be
