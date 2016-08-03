@@ -101,6 +101,27 @@ class PyXrefMixin(object):
                 break
         return result
 
+    def make_xrefs(self, rolename, domain, target, innernode=nodes.emphasis,
+                   contnode=None):
+        delims = '(\s*[\[\]\(\),]\s*)'
+        delims_re = re.compile(delims)
+        sub_targets = re.split(delims, target)
+
+        split_contnode = bool(contnode and contnode.astext() == target)
+
+        results = []
+        for sub_target in sub_targets:
+            if split_contnode:
+                contnode = nodes.Text(sub_target)
+
+            if delims_re.match(sub_target):
+                results.append(contnode or innernode(sub_target, sub_target))
+            else:
+                results.append(self.make_xref(rolename, domain, sub_target,
+                                              innernode, contnode))
+
+        return results
+
 
 class PyField(PyXrefMixin, Field):
     pass
