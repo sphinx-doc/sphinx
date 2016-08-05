@@ -23,27 +23,32 @@ from test_build_html import ENV_WARNINGS
 
 
 TEXINFO_WARNINGS = ENV_WARNINGS + """\
-%(root)s/markup.txt:164: WARNING: unknown option: &option
-%(root)s/footnote.txt:60: WARNING: citation not found: missing
-%(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/images.txt:29: WARNING: no matching candidate for image URI u'svgimg.\\*'
+%(root)s/index.rst:\\d+: WARNING: unknown option: &option
+%(root)s/index.rst:\\d+: WARNING: citation not found: missing
+%(root)s/index.rst:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
+%(root)s/index.rst:\\d+: WARNING: no matching candidate for image URI u'svgimg.\\*'
 """
 
 if PY3:
     TEXINFO_WARNINGS = remove_unicode_literals(TEXINFO_WARNINGS)
 
 
-@with_app('texinfo', freshenv=True)  # use freshenv to check warnings
+@with_app(buildername='texinfo', testroot='warnings', freshenv=True)
+def test_texinfo_warnings(app, status, warning):
+    app.builder.build_all()
+    warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
+    warnings_exp = TEXINFO_WARNINGS % {
+        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+    assert re.match(warnings_exp + '$', warnings), \
+        'Warnings don\'t match:\n' + \
+        '--- Expected (regex):\n' + warnings_exp + \
+        '--- Got:\n' + warnings
+
+
+@with_app(buildername='texinfo')
 def test_texinfo(app, status, warning):
     TexinfoTranslator.ignore_missing_images = True
     app.builder.build_all()
-    texinfo_warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
-    texinfo_warnings_exp = TEXINFO_WARNINGS % {
-        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
-    assert re.match(texinfo_warnings_exp + '$', texinfo_warnings), \
-        'Warnings don\'t match:\n' + \
-        '--- Expected (regex):\n' + texinfo_warnings_exp + \
-        '--- Got:\n' + texinfo_warnings
     # now, try to run makeinfo over it
     cwd = os.getcwd()
     os.chdir(app.outdir)

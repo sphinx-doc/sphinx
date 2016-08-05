@@ -106,7 +106,7 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
 
     for line in split_lines(read_chunks()):
         # be careful to handle names with embedded spaces correctly
-        m = re.match(r'(?x)(.+?)\s+(\S*:\S*)\s+(\S+)\s+(\S+)\s+(.*)',
+        m = re.match(r'(?x)(.+?)\s+(\S*:\S*)\s+(-?\d+)\s+(\S+)\s+(.*)',
                      line.rstrip())
         if not m:
             continue

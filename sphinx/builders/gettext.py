@@ -233,3 +233,13 @@ class MessageCatalogBuilder(I18nBuilder):
                         replace('"', r'\"'). \
                         replace('\n', '\\n"\n"')
                     pofile.write('msgid "%s"\nmsgstr ""\n\n' % message)
+
+
+def setup(app):
+    app.add_builder(MessageCatalogBuilder)
+
+    app.add_config_value('gettext_compact', True, 'gettext')
+    app.add_config_value('gettext_location', True, 'gettext')
+    app.add_config_value('gettext_uuid', False, 'gettext')
+    app.add_config_value('gettext_auto_build', True, 'env')
+    app.add_config_value('gettext_additional_targets', [], 'env')

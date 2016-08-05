@@ -42,12 +42,16 @@
 }
 % For highlighted code.
 \RequirePackage{fancyvrb}
+\fvset{fontsize=\small}
 % For table captions.
 \RequirePackage{threeparttable}
 % Handle footnotes in tables.
 \RequirePackage{footnote}
 \makesavenoteenv{tabulary}
-% For floating figures in the text.
+% For the H specifier. Do not \restylefloat{figure}, it breaks Sphinx code
+% for allowing figures in tables.
+\RequirePackage{float}
+% For floating figures in the text. Better to load after float.
 \RequirePackage{wrapfig}
 % Separate paragraphs by space by default.
 \RequirePackage{parskip}
@@ -55,9 +59,6 @@
 \RequirePackage{alltt}
 % Display "real" single quotes in literal blocks.
 \RequirePackage{upquote}
-% For the H specifier. Do not \restylefloat{figure}, it breaks Sphinx code
-% for allowing figures in tables.
-\RequirePackage{float}
 
 % Redefine these colors to your liking in the preamble.
 \definecolor{TitleColor}{rgb}{0.126,0.263,0.361}
@@ -162,7 +163,7 @@
 % let \sphinxcode and \sphinxbfcode use straight quotes. \@noligs patched by upquote,
 % but needs protection in "moving arguments" such as for captions.
 % Use \scantokens to handle e.g. \item[{\sphinxcode{'fontenc'}}]
-\DeclareRobustCommand{\sphinxcode}[1]{{\@noligs\scantokens{\texttt{#1}}}}
+\DeclareRobustCommand{\sphinxcode}[1]{{\@noligs\scantokens{\texttt{#1}\relax}}}
 \newcommand{\sphinxbfcode}[1]{\sphinxcode{\bfseries#1}}
 \newcommand{\sphinxemail}[1]{\textsf{#1}}
 \newcommand{\sphinxtablecontinued}[1]{\textsf{#1}}
@@ -400,7 +401,6 @@
      \MakeFramed {% adapted over from framed.sty's snugshade environment
         \advance\hsize-\width\@totalleftmargin\z@\linewidth\hsize\@setminipage
         }%
-     \small
      % For grid placement from \strut's in \FancyVerbFormatLine
      \lineskip\z@skip
      % will fetch its optional arguments if any
@@ -964,9 +964,9 @@
 \newcommand*{\fnum@literalblock}{\literalblockname\nobreakspace\theliteralblock}
 % this will be overwritten in document preamble by Babel translation
 \newcommand*{\literalblockname}{Listing }
-% file extension needed for \caption's good functioning, but file isn't
-% created without \listofliteralblocks. The latter macro could be defined
-% on model of \listoffigures.
+% file extension needed for \caption's good functioning, the file is created
+% only if a \listof{literalblock}{foo} command is encountered, which is
+% analogous to \listoffigures, but for the code listings (foo = chosen title.)
 \newcommand*{\ext@literalblock}{lol}
 
 % control caption around literal-block
@@ -1005,7 +1005,7 @@
 }
   % robustified case needs special treatment
   \newcommand\code{}\let\code\relax
-  \DeclareRobustCommand{\code}[1]{{\@noligs\scantokens{\texttt{#1}}}}
+  \DeclareRobustCommand{\code}[1]{{\@noligs\scantokens{\texttt{#1}\relax}}}
   \def\sphinxcode{\code}%
 \fi
 
@@ -1024,3 +1024,6 @@
 \newcommand{\sphinxstyleliteralstrong}[1]{\textbf{\texttt{#1}}}
 \newcommand*{\sphinxstyleabbreviation}{\textsc}
 \newcommand*{\sphinxstyleliteralintitle}{\texttt}
+
+% stylesheet for highlighting with pygments
+\RequirePackage{sphinxhighlight}

@@ -127,8 +127,8 @@ def check(file):
         errprint("%s: I/O Error: %s" % (file, str(msg)))
         return
 
-    r = Reindenter(f)
-    f.close()
+    with f:
+        r = Reindenter(f)
     if r.run():
         if verbose:
             print("changed.")
@@ -140,9 +140,8 @@ def check(file):
                 shutil.copyfile(file, bak)
                 if verbose:
                     print("backed up", file, "to", bak)
-            f = open(file, "w")
-            r.write(f)
-            f.close()
+            with open(file, "w") as f:
+                r.write(f)
             if verbose:
                 print("wrote new", file)
         return True

@@ -43,18 +43,18 @@
   \begin{titlepage}%
     \let\footnotesize\small
     \let\footnoterule\relax
-    \rule{\textwidth}{1pt}%
+    \noindent\rule{\textwidth}{1pt}\ifsphinxpdfoutput\newline\null\fi\par
     \ifsphinxpdfoutput
       \begingroup
       % These \defs are required to deal with multi-line authors; it
       % changes \\ to ', ' (comma-space), making it pass muster for
       % generating document info in the PDF file.
-      \def\\{, }
-      \def\and{and }
+      \def\\{, }%
+      \def\and{and }%
       \pdfinfo{
         /Author (\@author)
         /Title (\@title)
-      }
+      }%
       \endgroup
     \fi
     \begin{flushright}%
@@ -97,7 +97,7 @@
   \pagenumbering{arabic}%
   \ifdefined\fancyhf\pagestyle{normal}\fi
 }
-%\pagenumbering{alph}%
+\pagenumbering{alph}% avoid hyperref "duplicate destination" warnings
 
 % This is needed to get the width of the section # area wide enough in the
 % library reference.  Doing it here keeps it the same for all the manuals.

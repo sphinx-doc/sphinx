@@ -213,24 +213,6 @@ Google style with Python 3 type annotations::
         """
         return True
 
-Google style with `Python 2/3 compatible annotations`_::
-
-    def func(arg1, arg2):
-        # type: (int, str) -> bool
-        """Summary line.
-
-        Extended description of function.
-
-        Args:
-            arg1: Description of arg1
-            arg2: Description of arg2
-
-        Returns:
-            Description of return value
-
-        """
-        return True
-
 Google style with types in docstrings::
 
     def func(arg1, arg2):
@@ -247,6 +229,10 @@ Google style with types in docstrings::
 
         """
         return True
+
+.. Note::
+   `Python 2/3 compatible annotations`_ aren't currently
+   supported by Sphinx and won't show up in the docs.
 
 .. _PEP 484:
    https://www.python.org/dev/peps/pep-0484/

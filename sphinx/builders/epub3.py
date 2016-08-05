@@ -13,6 +13,7 @@
 import codecs
 from os import path
 
+from sphinx.config import string_classes
 from sphinx.builders.epub import EpubBuilder
 
 
@@ -73,13 +74,15 @@ PACKAGE_DOC_TEMPLATE = u'''\
 %(files)s
   </manifest>
   <spine toc="ncx" page-progression-direction="%(page_progression_direction)s">
-    <itemref idref="nav" />
 %(spine)s
   </spine>
   <guide>
 %(guide)s
   </guide>
 </package>
+'''
+
+DOCTYPE = u'''<!DOCTYPE html>
 '''
 
 # The epub3 publisher
@@ -99,6 +102,7 @@ class Epub3Builder(EpubBuilder):
     navlist_template = NAVLIST_TEMPLATE
     navlist_indent = NAVLIST_INDENT
     content_template = PACKAGE_DOC_TEMPLATE
+    doctype = DOCTYPE
 
     # Finish by building the epub file
     def handle_finish(self):
@@ -209,3 +213,12 @@ class Epub3Builder(EpubBuilder):
 
         # Add nav.xhtml to epub file
         self.files.append(outname)
+
+
+def setup(app):
+    app.setup_extension('sphinx.builders.epub')
+    app.add_builder(Epub3Builder)
+
+    app.add_config_value('epub3_description', '', 'epub3', string_classes)
+    app.add_config_value('epub3_contributor', 'unknown', 'epub3', string_classes)
+    app.add_config_value('epub3_page_progression_direction', 'ltr', 'epub3', string_classes)

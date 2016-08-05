@@ -2018,7 +2018,7 @@ class ASTTypeWithInit(ASTBase):
 
     def get_id_v2(self, objectType=None, symbol=None):
         if objectType == 'member':
-            return symbol.declaration.name.get_id_v2()
+            return symbol.get_full_nested_name().get_id_v2()
         else:
             return self.type.get_id_v2()
 
@@ -4272,3 +4272,7 @@ class CPPDomain(Domain):
             docname = symbol.docname
             newestId = symbol.declaration.get_newest_id()
             yield (name, name, objectType, docname, newestId, 1)
+
+
+def setup(app):
+    app.add_domain(CPPDomain)

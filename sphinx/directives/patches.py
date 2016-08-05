@@ -35,4 +35,5 @@ class Figure(images.Figure):
         return [figure_node]
 
 
-directives.register_directive('figure', Figure)
+def setup(app):
+    directives.register_directive('figure', Figure)

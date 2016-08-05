@@ -135,7 +135,7 @@ install.
 .. note::
 
    ``pip`` has been contained in the Python official installation after version
-    of Python-3.4.0 or Python-2.7.9.
+   of Python-3.4.0 or Python-2.7.9.
 
 
 Installing Sphinx with pip

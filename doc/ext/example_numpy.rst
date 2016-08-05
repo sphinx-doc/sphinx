@@ -9,7 +9,9 @@ Example NumPy Style Python Docstrings
 
    :ref:`example_google`
 
-Download: :download:`example_numpy.py <example_numpy.py>`
+.. only:: builder_html
+
+   Download: :download:`example_numpy.py <example_numpy.py>`
 
 .. literalinclude:: example_numpy.py
    :language: python

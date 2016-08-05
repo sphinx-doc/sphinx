@@ -17,6 +17,7 @@ import time
 import errno
 import locale
 import shutil
+import filecmp
 from os import path
 import contextlib
 
@@ -141,13 +142,16 @@ def copytimes(source, dest):
 
 
 def copyfile(source, dest):
-    """Copy a file and its modification times, if possible."""
-    shutil.copyfile(source, dest)
-    try:
-        # don't do full copystat because the source may be read-only
-        copytimes(source, dest)
-    except OSError:
-        pass
+    """Copy a file and its modification times, if possible.
+
+    Note: ``copyfile`` skips copying if the file has not been changed"""
+    if not path.exists(dest) or not filecmp.cmp(source, dest):
+        shutil.copyfile(source, dest)
+        try:
+            # don't do full copystat because the source may be read-only
+            copytimes(source, dest)
+        except OSError:
+            pass
 
 
 no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
@@ -213,3 +217,10 @@ def cd(target_dir):
         yield
     finally:
         os.chdir(cwd)
+
+
+def rmtree(path):
+    if os.path.isdir(path):
+        shutil.rmtree(path)
+    else:
+        os.remove(path)

@@ -26,7 +26,7 @@ def test_theme_api(app, status, warning):
     assert set(Theme.themes.keys()) == \
         set(['basic', 'default', 'scrolls', 'agogo', 'sphinxdoc', 'haiku',
              'traditional', 'testtheme', 'ziptheme', 'epub', 'nature',
-             'pyramid', 'bizstyle', 'classic'])
+             'pyramid', 'bizstyle', 'classic', 'nonav'])
     assert Theme.themes['testtheme'][1] is None
     assert isinstance(Theme.themes['ziptheme'][1], zipfile.ZipFile)
 
@@ -66,7 +66,7 @@ def test_js_source(app, status, warning):
 
     app.builder.build(['contents'])
 
-    v = '1.11.1'
+    v = '3.1.0'
     msg = 'jquery.js version does not match to {v}'.format(v=v)
     jquery_min = (app.outdir / '_static' / 'jquery.js').text()
     assert 'jQuery v{v}'.format(v=v) in jquery_min, msg

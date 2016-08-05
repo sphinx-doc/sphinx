@@ -870,6 +870,13 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 0.6
 
+.. confval:: html_sourcelink_suffix
+
+   Suffix to be appended to source links (see :confval:`html_show_sourcelink`),
+   unless they have this suffix already.  Default is ``'.txt'``.
+
+   .. versionadded:: 1.5
+
 .. confval:: html_use_opensearch
 
    If nonempty, an `OpenSearch <http://www.opensearch.org/Home>`_ description file will be
@@ -1462,6 +1469,16 @@ Options for LaTeX output
 
 These options influence LaTeX output. See further :doc:`latex`.
 
+.. confval:: latex_engine
+
+   The LaTeX engine to build the docs.  The setting can have the following
+   values:
+
+   * pdflatex -- PDFLaTeX (default)
+   * xelatex -- XeLaTeX
+   * lualatex -- LuaLaTeX
+   * platex -- pLaTeX (default if `language` is 'ja')
+
 .. confval:: latex_documents
 
    This value determines how to group the document tree into LaTeX source files.
@@ -1601,6 +1618,15 @@ These options influence LaTeX output. See further :doc:`latex`.
      ``'pointsize'``
         Point size option of the document class (``'10pt'``, ``'11pt'`` or
         ``'12pt'``), default ``'10pt'``.
+     ``'pxunit'``
+        the value of the ``px`` when used in image attributes ``width`` and
+        ``height``. The default value is ``'49336sp'`` which achieves
+        ``96px=1in`` (``1in = 72.27*65536 = 4736286.72sp``, and all dimensions
+        in TeX are internally integer multiples of ``sp``). To obtain for
+        example ``100px=1in``, one can use ``'0.01in'`` but it is more precise
+        to use ``'47363sp'``. To obtain ``72px=1in``, use ``'1bp'``.
+
+        .. versionadded:: 1.5
      ``'babel'``
         "babel" package inclusion, default ``'\\usepackage{babel}'``.
      ``'fontpkg'``
@@ -1692,6 +1718,11 @@ These options influence LaTeX output. See further :doc:`latex`.
    is to use ``'article'`` for ``'howto'`` and ``'report'`` for ``'manual'``.
 
    .. versionadded:: 1.0
+
+   .. versionchanged:: 1.5
+
+      In Japanese docs(`language` is ``ja``), ``'jreport'`` is used for
+      ``'howto'`` and ``'jsbooks'`` is used for ``'manual'`` by default.
 
 .. confval:: latex_additional_files
 

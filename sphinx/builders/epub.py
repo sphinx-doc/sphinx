@@ -29,7 +29,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util.i18n import format_date
-from sphinx.util.osutil import ensuredir, copyfile, EEXIST
+from sphinx.util.osutil import ensuredir, copyfile, make_filename, EEXIST
 from sphinx.util.smartypants import sphinx_smarty_pants as ssp
 from sphinx.util.console import brown
 
@@ -113,7 +113,7 @@ COVER_TEMPLATE = u'''\
     <meta name="cover" content="%(cover)s"/>
 '''
 
-COVERPAGE_NAME = u'epub-cover.html'
+COVERPAGE_NAME = u'epub-cover.xhtml'
 
 FILE_TEMPLATE = u'''\
     <item id="%(id)s"
@@ -127,6 +127,10 @@ GUIDE_TEMPLATE = u'''\
     <reference type="%(type)s" title="%(title)s" href="%(uri)s" />'''
 
 TOCTREE_TEMPLATE = u'toctree-l%d'
+
+DOCTYPE = u'''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+'''
 
 LINK_TARGET_TEMPLATE = u' [%(uri)s]'
 
@@ -143,7 +147,7 @@ GUIDE_TITLES = {
 }
 
 MEDIA_TYPES = {
-    '.html': 'application/xhtml+xml',
+    '.xhtml': 'application/xhtml+xml',
     '.css': 'text/css',
     '.png': 'image/png',
     '.gif': 'image/gif',
@@ -152,6 +156,7 @@ MEDIA_TYPES = {
     '.jpeg': 'image/jpeg',
     '.otf': 'application/x-font-otf',
     '.ttf': 'application/x-font-ttf',
+    '.woff': 'application/font-woff',
 }
 
 VECTOR_GRAPHICS_EXTENSIONS = ('.svg',)
@@ -183,6 +188,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
     add_permalinks = False
     # don't add sidebar etc.
     embedded = True
+    # disable download role
+    download_support = False
+
+    # don't generate search index or include search page
+    search = False
 
     mimetype_template = MIMETYPE_TEMPLATE
     container_template = CONTAINER_TEMPLATE
@@ -197,6 +207,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     spine_template = SPINE_TEMPLATE
     guide_template = GUIDE_TEMPLATE
     toctree_template = TOCTREE_TEMPLATE
+    doctype = DOCTYPE
     link_target_template = LINK_TARGET_TEMPLATE
     css_link_target_class = CSS_LINK_TARGET_CLASS
     guide_titles = GUIDE_TITLES
@@ -206,7 +217,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def init(self):
         StandaloneHTMLBuilder.init(self)
         # the output files for epub must be .html only
-        self.out_suffix = '.html'
+        self.out_suffix = '.xhtml'
+        self.link_suffix = '.xhtml'
         self.playorder = 0
         self.tocid = 0
 
@@ -276,7 +288,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         refnodes.insert(0, {
             'level': 1,
-            'refuri': self.esc(self.config.master_doc + '.html'),
+            'refuri': self.esc(self.config.master_doc + self.out_suffix),
             'text': ssp(self.esc(
                 self.env.titles[self.config.master_doc].astext()))
         })
@@ -471,6 +483,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
             else:
                 super(EpubBuilder, self).copy_image_files()
 
+    def copy_download_files(self):
+        pass
+
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):
         """Create a rendered page.
@@ -480,6 +495,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         if pagename.startswith('genindex'):
             self.fix_genindex(addctx['genindexentries'])
+        addctx['doctype'] = self.doctype
         StandaloneHTMLBuilder.handle_page(self, pagename, addctx, templatename,
                                           outfilename, event_arg)
 
@@ -760,3 +776,33 @@ class EpubBuilder(StandaloneHTMLBuilder):
             fp = path.join(outdir, file)
             epub.write(fp, file, zipfile.ZIP_DEFLATED)
         epub.close()
+
+
+def setup(app):
+    app.setup_extension('sphinx.builders.html')
+    app.add_builder(EpubBuilder)
+
+    # config values
+    app.add_config_value('epub_basename', lambda self: make_filename(self.project), None)
+    app.add_config_value('epub_theme', 'epub', 'html')
+    app.add_config_value('epub_theme_options', {}, 'html')
+    app.add_config_value('epub_title', lambda self: self.html_title, 'html')
+    app.add_config_value('epub_author', 'unknown', 'html')
+    app.add_config_value('epub_language', lambda self: self.language or 'en', 'html')
+    app.add_config_value('epub_publisher', 'unknown', 'html')
+    app.add_config_value('epub_copyright', lambda self: self.copyright, 'html')
+    app.add_config_value('epub_identifier', 'unknown', 'html')
+    app.add_config_value('epub_scheme', 'unknown', 'html')
+    app.add_config_value('epub_uid', 'unknown', 'env')
+    app.add_config_value('epub_cover', (), 'env')
+    app.add_config_value('epub_guide', (), 'env')
+    app.add_config_value('epub_pre_files', [], 'env')
+    app.add_config_value('epub_post_files', [], 'env')
+    app.add_config_value('epub_exclude_files', [], 'env')
+    app.add_config_value('epub_tocdepth', 3, 'env')
+    app.add_config_value('epub_tocdup', True, 'env')
+    app.add_config_value('epub_tocscope', 'default', 'env')
+    app.add_config_value('epub_fix_images', False, 'env')
+    app.add_config_value('epub_max_image_width', 0, 'env')
+    app.add_config_value('epub_show_urls', 'inline', 'html')
+    app.add_config_value('epub_use_index', lambda self: self.html_use_index, 'html')

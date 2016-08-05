@@ -17,7 +17,7 @@ class NullSearch(BaseSearch):
     """A search adapter that does nothing. Used when no search adapter
     is specified.
     """
-    def feed(self, pagename, title, doctree):
+    def feed(self, pagename, filename, title, doctree):
         pass
 
     def query(self, q):

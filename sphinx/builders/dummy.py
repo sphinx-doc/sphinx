@@ -34,3 +34,7 @@ class DummyBuilder(Builder):
 
     def finish(self):
         pass
+
+
+def setup(app):
+    app.add_builder(DummyBuilder)

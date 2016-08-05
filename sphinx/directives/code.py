@@ -342,8 +342,9 @@ class LiteralInclude(Directive):
         return [retnode]
 
 
-directives.register_directive('highlight', Highlight)
-directives.register_directive('highlightlang', Highlight)  # old
-directives.register_directive('code-block', CodeBlock)
-directives.register_directive('sourcecode', CodeBlock)
-directives.register_directive('literalinclude', LiteralInclude)
+def setup(app):
+    directives.register_directive('highlight', Highlight)
+    directives.register_directive('highlightlang', Highlight)  # old
+    directives.register_directive('code-block', CodeBlock)
+    directives.register_directive('sourcecode', CodeBlock)
+    directives.register_directive('literalinclude', LiteralInclude)

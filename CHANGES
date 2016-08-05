@@ -13,13 +13,37 @@ Incompatible changes
   it was shipped with Sphinx since 1.3.4).
 * latex, literal blocks in tables do not use OriginalVerbatim but
   sphinxVerbatimintable which handles captions and wraps lines(ref #2704).
-
+* latex, replace ``pt`` by TeX equivalent ``bp`` if found in ``width`` or
+  ``height`` attribute of an image.
+* latex, if ``width`` or ``height`` attribute of an image is given with no unit,
+  use ``px`` rather than ignore it.
+* latex: Separate stylesheets of pygments to independent .sty file
+* #2454: The filename of sourcelink is now changed.  The value of
+  `html_sourcelink_suffix` will be appended to the original filename (like
+  ``index.rst.txt``).
+* ``sphinx.util.copy_static_entry()`` is now deprecated.
+  Use ``sphinx.util.fileutil.copy_asset()`` instead.
+* ``sphinx.util.osutil.filecopy()`` skips copying if the file has not been changed
+  (ref: #2510, #2753)
+* Internet Explorer 6-8, Opera 12.1x or Safari 5.1+ support is dropped
+  because jQuery version is updated from 1.11.0 to 3.1.0 (ref: #2634, #2773)
+* QtHelpBuilder doens't generate search page (ref: #2352)
+* QtHelpBuilder uses ``nonav`` theme instead of default one
+  to improve readability.
+* latex: To provide good default settings to Japanese docs, Sphinx uses ``jsbooks``
+  as a docclass by default if the ``language`` is ``ja``.
+* latex: To provide good default settings to Japanese docs, Sphinx uses
+  ``jreport`` and ``jsbooks`` as a docclass by default if the ``language`` is
+  ``ja``.
+* ``sphinx-quickstart`` now allows a project version is empty
+* Fix :download: role on epub/qthelp builder. They ignore the role because they don't support it.
+* ``sphinx.ext.viewcode`` doesn't work on epub building by default. ``viewcode_enable_epub`` option
+* ``sphinx.ext.viewcode`` disabled on singlehtml builder.
 
 Features added
 --------------
 
 * Add ``:caption:`` option for sphinx.ext.inheritance_diagram.
-* #894: Add ``lualatexpdf`` and ``xelatexpdf`` as a make target to build PDF using lualatex or xelatex
 * #2471: Add config variable for default doctest flags.
 * Convert linkcheck builder to requests for better encoding handling
 * #2463, #2516: Add keywords of "meta" directive to search index
@@ -37,54 +61,112 @@ Features added
   and other admonition types, allowing full customizability from the
   ``'preamble'`` key or an input file (ref: feature request #2674, #2685)
 * latex, better computes column widths of some tables (as a result, there will
-  be slight changes as tables now correctly fill the line with; ref: #2708)
+  be slight changes as tables now correctly fill the line width; ref: #2708)
 * latex, sphinxVerbatim environment is more easily customizable (ref: #2704).
   In addition to already existing VerbatimColor and VerbatimBorderColor:
 
   - two lengths ``\sphinxverbatimsep`` and ``\sphinxverbatimborder``,
   - booleans ``\ifsphinxverbatimwithframe`` and ``\ifsphinxverbatimwrapslines``.
+
 * latex, captions for literal blocks inside tables are handled, and long code
   lines wrapped to fit table cell (ref: #2704)
 * #2597: Show warning messages as darkred
+* latex, allow image dimensions using px unit (default is 96px=1in)
+* Show warnings if invalid dimension units found
+* #2650: Add ``--pdb`` option to setup.py command
+* latex, make the use of ``\small`` for code listings customizable (ref #2721)
+* #2663: Add ``--warning-is-error`` option to setup.py command
+* Show warnings if deprecated latex options are used
+* Add sphinx.config.ENUM to check the config values is in candidates
+* math: Add hyperlink marker to each equations in HTML output
+* Add new theme ``nonav`` that doesn't include any navigation links.
+  This is for any help generator like qthelp.
+* #2680: `sphinx.ext.todo` now emits warnings if `todo_emit_warnings` enabled.
+  Also, it emits an additional event named `todo-defined` to handle the TODO
+  entries in 3rd party extensions.
+* Python domain signature parser now uses the xref mixin for 'exceptions',
+  allowing exception classes to be autolinked.
+* #2513: Add `latex_engine` to switch the LaTeX engine by conf.py
 
 Bugs fixed
 ----------
 
 * #2707: (latex) the column width is badly computed for tabular
+* #2799: Sphinx installs roles and directives automatically on importing sphinx
+  module.  Now Sphinx installs them on running application.
 
 Documentation
 -------------
 
 
-Release 1.4.5 (in development)
+Release 1.4.6 (in development)
 ==============================
+
+Bugs fixed
+----------
+
+* applehelp: Sphinx crashes if ``hiutil`` or ``codesign`` commands not found
+* Fix ``make clean`` abort issue when build dir contains regular files like ``DS_Store``.
+* Reduce epubcheck warnings/errors:
+
+  * Fix DOCTYPE to html5
+  * Change extension from .html to .xhtml.
+  * Disable search page on epub results
+
+* #2778: Fix autodoc crashes if obj.__dict__ is a property method and raises exception
+* Fix duplicated toc in epub3 output.
+
+Release 1.4.5 (released Jul 13, 2016)
+=====================================
 
 Incompatible changes
 --------------------
 
 * latex, inclusion of non-inline images from image directive resulted in
   non-coherent whitespaces depending on original image width; new behaviour
-  by necessity from earlier one in some cases. (ref: #2672)
+  by necessity differs from earlier one in some cases. (ref: #2672)
 * latex, use of ``\includegraphics`` to refer to Sphinx custom variant is
-  deprecated; in future it will revert to original LaTeX macro, custom one has
-  already alternative name ``\sphinxincludegraphics``.
+  deprecated; in future it will revert to original LaTeX macro, custom one
+  already has alternative name ``\sphinxincludegraphics``.
 
 Features added
 --------------
 
 * new config option ``latex_keep_old_macro_names``, defaults to True. If False,
-  let macros (for text styling) be defined only with ``\sphinx``-prefixed names.
+  lets macros (for text styling) be defined only with ``\sphinx``-prefixed names.
 * latex writer allows user customization of "shadowed" boxes (topics), via
-  three length variables
+  three length variables.
+* woff-format web font files now supported by the epub builder.
 
 Bugs fixed
 ----------
 
+* jsdump fix for python 3: fixes the HTML search on python > 3
 * #2676: (latex) Error with verbatim text in captions since Sphinx 1.4.4
 * #2629: memoir class crashes LaTeX. Fixed ``by latex_keep_old_macro_names=False`` (ref 2675)
 * #2684: `sphinx.ext.intersphinx` crashes with six-1.4.1
 * #2679: ``float`` package needed for ``'figure_align': 'H'`` latex option
 * #2671: image directive may lead to inconsistent spacing in pdf
+* #2705: ``toctree`` generates empty bullet_list if ``:titlesonly:`` specified
+* #2479: `sphinx.ext.viewcode` uses python2 highlighter by default
+* #2700: HtmlHelp builder has hard coded index.html
+* latex, since 1.4.4 inline literal text is followed by spurious space
+* #2722: C++, fix id generation for var/member declarations to include namespaces.
+* latex, images (from image directive) in lists or quoted blocks did not obey
+  indentation (fixed together with #2671)
+* #2733: since Sphinx-1.4.4 ``make latexpdf`` generates lots of hyperref warnings
+* #2731: `sphinx.ext.autodoc` does not access propertymethods which raises any
+  exceptions
+* #2666: C++, properly look up nested names involving constructors.
+* #2579: Could not refer a label including both spaces and colons via
+  `sphinx.ext.intersphinx`
+* #2718: Sphinx crashes if the document file is not readable
+* #2699: hyperlinks in help HTMLs are broken if `html_file_suffix` is set
+* #2723: extra spaces in latex pdf output from multirow cell
+* #2735: latexpdf ``Underfull \hbox (badness 10000)`` warnings from title page
+* #2667: latex crashes if resized images appeared in section title
+* #2763: (html) Provide default value for required ``alt`` attribute for image
+  tags of SVG source, required to validate and now consistent w/ other formats.
 
 
 Release 1.4.4 (released Jun 12, 2016)
@@ -110,7 +192,6 @@ Bugs fixed
 * #2639: Sphinx now bundles iftex.sty
 * Failed to build PDF with framed.sty 0.95
 * Sphinx now bundles needspace.sty
-* #2666: C++, properly look up nested names involving constructors.
 
 
 Release 1.4.3 (released Jun 5, 2016)

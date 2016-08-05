@@ -18,6 +18,7 @@ from os import path
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.util.osutil import make_filename
 from sphinx.builders.html import StandaloneHTMLBuilder
 
 try:
@@ -59,6 +60,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
     def init(self):
         StandaloneHTMLBuilder.init(self)
         self.out_suffix = '.html'
+        self.link_suffix = '.html'
 
     def handle_finish(self):
         self.build_devhelp(self.outdir, self.config.devhelp_basename)
@@ -129,3 +131,10 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
         # Dump the XML file
         with comp_open(path.join(outdir, outname + '.devhelp'), 'w') as f:
             tree.write(f, 'utf-8')
+
+
+def setup(app):
+    app.setup_extension('sphinx.builders.html')
+    app.add_builder(DevhelpBuilder)
+
+    app.add_config_value('devhelp_basename', lambda self: make_filename(self.project), None)

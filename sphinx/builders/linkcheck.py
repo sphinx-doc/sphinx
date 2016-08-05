@@ -54,6 +54,13 @@ except pkg_resources.DistributionNotFound:
             'install "requests[security]" as a dependency or upgrade to '
             'a python version with SNI support (Python 3 and Python 2.7.9+).'
         )
+except pkg_resources.UnknownExtra:
+    warnings.warn(
+        'Some links may return broken results due to being unable to '
+        'check the Server Name Indication (SNI) in the returned SSL cert '
+        'against the hostname in the url requested. Recommended to '
+        'install requests-2.4.1+.'
+    )
 
 requests_user_agent = [('User-agent', 'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) '
                         'Gecko/20100101 Firefox/25.0')]
@@ -300,3 +307,13 @@ class CheckExternalLinksBuilder(Builder):
     def finish(self):
         for worker in self.workers:
             self.wqueue.put((None, None, None), False)
+
+
+def setup(app):
+    app.add_builder(CheckExternalLinksBuilder)
+
+    app.add_config_value('linkcheck_ignore', [], None)
+    app.add_config_value('linkcheck_retries', 1, None)
+    app.add_config_value('linkcheck_timeout', None, None, [int])
+    app.add_config_value('linkcheck_workers', 5, None)
+    app.add_config_value('linkcheck_anchors', True, None)
