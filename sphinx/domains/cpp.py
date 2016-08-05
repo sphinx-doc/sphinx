@@ -4090,7 +4090,7 @@ class CPPNamespaceObject(Directive):
             symbol = rootSymbol
             stack = []
         else:
-            parser = DefinitionParser(self.arguments[0], self)
+            parser = DefinitionParser(self.arguments[0], self, env.config)
             try:
                 ast = parser.parse_namespace_object()
                 parser.assert_end()
@@ -4119,7 +4119,7 @@ class CPPNamespacePushObject(Directive):
         env = self.state.document.settings.env
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             return
-        parser = DefinitionParser(self.arguments[0], self)
+        parser = DefinitionParser(self.arguments[0], self, env.config)
         try:
             ast = parser.parse_namespace_object()
             parser.assert_end()
