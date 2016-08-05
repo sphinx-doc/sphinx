@@ -2006,6 +2006,13 @@ Options for the XML builder
 Options for the C++ domain
 --------------------------
 
+.. confval:: cpp_index_common_prefix
+
+   A list of prefixes that will be ignored when sorting C++ objects in the global index.
+   For example ``['awesome_lib::']``.
+
+   .. versionadded:: 1.5
+
 .. confval:: cpp_id_attributes
 
    A list of strings that the parser additionally should accept as attributes.

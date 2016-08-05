@@ -90,6 +90,8 @@ Features added
 * #2682: C++, basic support for attributes (C++11 style and GNU style).
   The new configuration variables 'cpp_id_attributes' and 'cpp_paren_attributes'
   can be used to introduce custom attributes.
+* #1958: C++, add configuration variable 'cpp_index_common_prefix' for removing
+  prefixes from the index text of C++ objects.
 
 Bugs fixed
 ----------

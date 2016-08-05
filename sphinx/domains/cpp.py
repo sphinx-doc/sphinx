@@ -3919,7 +3919,12 @@ class CPPObject(ObjectDescription):
                       'report as bug (id=%s).' % (text_type(ast), newestId))
 
         name = text_type(ast.symbol.get_full_nested_name()).lstrip(':')
-        indexText = self.get_index_text(name)
+        strippedName = name
+        for prefix in self.env.config.cpp_index_common_prefix:
+            if name.startswith(prefix):
+                strippedName = strippedName[len(prefix):]
+                break
+        indexText = self.get_index_text(strippedName)
         self.indexnode['entries'].append(('single', indexText, newestId, '', None))
 
         if newestId not in self.state.document.ids:
@@ -4364,5 +4369,6 @@ class CPPDomain(Domain):
 
 def setup(app):
     app.add_domain(CPPDomain)
+    app.add_config_value("cpp_index_common_prefix", [], 'env')
     app.add_config_value("cpp_id_attributes", [], 'env')
     app.add_config_value("cpp_paren_attributes", [], 'env')
