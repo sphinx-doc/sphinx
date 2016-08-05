@@ -87,6 +87,9 @@ Features added
 * Python domain signature parser now uses the xref mixin for 'exceptions',
   allowing exception classes to be autolinked.
 * #2513: Add `latex_engine` to switch the LaTeX engine by conf.py
+* #2682: C++, basic support for attributes (C++11 style and GNU style).
+  The new configuration variables 'cpp_id_attributes' and 'cpp_paren_attributes'
+  can be used to introduce custom attributes.
 
 Bugs fixed
 ----------

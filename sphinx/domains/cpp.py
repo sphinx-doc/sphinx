@@ -540,6 +540,18 @@ def _verify_description_mode(mode):
         raise Exception("Description mode '%s' is invalid." % mode)
 
 
+class ASTCPPAttribute(ASTBase):
+    def __init__(self, arg):
+        self.arg = arg
+
+    def __unicode__(self):
+        return "[[" + self.arg + "]]"
+
+    def describe_signature(self, signode):
+        txt = text_type(self)
+        signode.append(nodes.Text(txt, txt))
+
+
 class ASTGnuAttribute(ASTBase):
     def __init__(self, name, args):
         self.name = name
@@ -568,6 +580,34 @@ class ASTGnuAttributeList(ASTBase):
             res.append(text_type(attr))
         res.append('))')
         return ''.join(res)
+
+    def describe_signature(self, signode):
+        txt = text_type(self)
+        signode.append(nodes.Text(txt, txt))
+
+
+class ASTIdAttribute(ASTBase):
+    """For simple attributes defined by the user."""
+
+    def __init__(self, id):
+        self.id = id
+
+    def __unicode__(self):
+        return self.id
+
+    def describe_signature(self, signode):
+        signode.append(nodes.Text(self.id, self.id))
+
+
+class ASTParenAttribute(ASTBase):
+    """For paren attributes defined by the user."""
+
+    def __init__(self, id, arg):
+        self.id = id
+        self.arg = arg
+
+    def __unicode__(self):
+        return self.id + '(' + self.arg + ')'
 
     def describe_signature(self, signode):
         txt = text_type(self)
@@ -2750,7 +2790,7 @@ class DefinitionParser(object):
 
     _prefix_keys = ('class', 'struct', 'enum', 'union', 'typename')
 
-    def __init__(self, definition, warnEnv):
+    def __init__(self, definition, warnEnv, config):
         self.definition = definition.strip()
         self.pos = 0
         self.end = len(self.definition)
@@ -2758,6 +2798,7 @@ class DefinitionParser(object):
         self._previous_state = (0, None)
 
         self.warnEnv = warnEnv
+        self.config = config
 
     def _make_multi_error(self, errors, header):
         if len(errors) == 1:
@@ -2858,10 +2899,41 @@ class DefinitionParser(object):
         if not self.eof:
             self.fail('Expected end of definition.')
 
+    def _parse_balanced_token_seq(self, end):
+        # TODO: add handling of string literals and similar
+        brackets = {'(': ')', '[': ']', '{': '}'}
+        startPos = self.pos
+        symbols = []
+        while not self.eof:
+            if len(symbols) == 0 and self.current_char in end:
+                break
+            if self.current_char in brackets.keys():
+                symbols.append(brackets[self.current_char])
+            elif len(symbols) > 0 and self.current_char == symbols[-1]:
+                symbols.pop()
+            elif self.current_char in ")]}":
+                self.fail("Unexpected '%s' in balanced-token-seq." % self.current_char)
+            self.pos += 1
+        if self.eof:
+            self.fail("Could not find end of balanced-token-seq starting at %d."
+                      % startPos)
+        return self.definition[startPos:self.pos]
+
     def _parse_attribute(self):
         self.skip_ws()
         # try C++11 style
-        # TODO: implement
+        startPos = self.pos
+        if self.skip_string_and_ws('['):
+            if not self.skip_string('['):
+                self.pos = startPos
+            else:
+                # TODO: actually implement the correct grammar
+                arg = self._parse_balanced_token_seq(end=[']'])
+                if not self.skip_string_and_ws(']'):
+                    self.fail("Expected ']' in end of attribute.")
+                if not self.skip_string_and_ws(']'):
+                    self.fail("Expected ']' in end of attribute after [[...]")
+                return ASTCPPAttribute(arg)
 
         # try GNU style
         if self.skip_word_and_ws('__attribute__'):
@@ -2887,6 +2959,22 @@ class DefinitionParser(object):
             if not self.skip_string_and_ws(')'):
                 self.fail("Expected ')' after '__attribute__((...)'")
             return ASTGnuAttributeList(attrs)
+
+        # try the simple id attributes defined by the user
+        for id in self.config.cpp_id_attributes:
+            if self.skip_word_and_ws(id):
+                return ASTIdAttribute(id)
+
+        # try the paren attributes defined by the user
+        for id in self.config.cpp_paren_attributes:
+            if not self.skip_string_and_ws(id):
+                continue
+            if not self.skip_string('('):
+                self.fail("Expected '(' after user-defined paren-attribute.")
+            arg = self._parse_balanced_token_seq(end=[')'])
+            if not self.skip_string(')'):
+                self.fail("Expected ')' to end user-defined paren-attribute.")
+            return ASTParenAttribute(id, arg)
 
         return None
 
@@ -3867,7 +3955,7 @@ class CPPObject(ObjectDescription):
             self.env.ref_context['cpp:parent_symbol'] = root
         parentSymbol = self.env.ref_context['cpp:parent_symbol']
 
-        parser = DefinitionParser(sig, self)
+        parser = DefinitionParser(sig, self, self.env.config)
         try:
             ast = self.parse_definition(parser)
             parser.assert_end()
@@ -4178,7 +4266,7 @@ class CPPDomain(Domain):
                 if emitWarnings:
                     env.warn_node(msg, node)
         warner = Warner()
-        parser = DefinitionParser(target, warner)
+        parser = DefinitionParser(target, warner, env.config)
         try:
             ast = parser.parse_xref_object()
             parser.skip_ws()
@@ -4276,3 +4364,5 @@ class CPPDomain(Domain):
 
 def setup(app):
     app.add_domain(CPPDomain)
+    app.add_config_value("cpp_id_attributes", [], 'env')
+    app.add_config_value("cpp_paren_attributes", [], 'env')

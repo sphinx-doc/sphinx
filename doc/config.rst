@@ -1999,3 +1999,26 @@ Options for the XML builder
        constructs ``*``, ``?``, ``[...]`` and ``[!...]`` with the feature that
        these all don't match slashes.  A double star ``**`` can be used to match
        any sequence of characters *including* slashes.
+
+
+.. _cpp-config:
+
+Options for the C++ domain
+--------------------------
+
+.. confval:: cpp_id_attributes
+
+   A list of strings that the parser additionally should accept as attributes.
+   This can for example be used when attributes have been ``#define`` d for portability.
+
+   .. versionadded:: 1.5
+
+.. confval:: cpp_paren_attributes
+
+   A list of strings that the parser additionally should accept as attributes with one argument.
+   That is, if ``my_align_as`` is in the list, then ``my_align_as(X)`` is parsed as an attribute
+   for all strings ``X`` that have balanced brances (``()``, ``[]``, and ``{}``).
+   This can for example be used when attributes have been ``#define`` d for portability.
+
+   .. versionadded:: 1.5
+

@@ -900,6 +900,11 @@ References to partial specialisations must always include the template parameter
 Currently the lookup only succeed if the template parameter identifiers are equal strings.
 
 
+Configuration Variables
+~~~~~~~~~~~~~~~~~~~~~~~
+
+See :ref:`cpp-config`.
+
 
 The Standard Domain
 -------------------

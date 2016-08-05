@@ -24,7 +24,10 @@ ids = []
 
 
 def parse(name, string):
-    parser = DefinitionParser(string, None)
+    class Config(object):
+        cpp_id_attributes = ["id_attr"]
+        cpp_paren_attributes = ["paren_attr"]
+    parser = DefinitionParser(string, None, Config())
     ast = parser.parse_declaration(name)
     if not parser.eof:
         print("Parsing stopped at", parser.pos)
@@ -403,10 +406,29 @@ def test_templates():
 
 
 def test_attributes():
+    # style: C++
+    check('member', '[[]] int f', 'f__i', '1f')
+    check('member', '[ [ ] ] int f', 'f__i', '1f',
+          # this will fail when the proper grammar is implemented
+          output='[[ ]] int f')
+    check('member', '[[a]] int f', 'f__i', '1f')
     # style: GNU
     check('member', '__attribute__(()) int f', 'f__i', '1f')
     check('member', '__attribute__((a)) int f', 'f__i', '1f')
     check('member', '__attribute__((a, b)) int f', 'f__i', '1f')
+    # style: user-defined id
+    check('member', 'id_attr int f', 'f__i', '1f')
+    # style: user-defined paren
+    check('member', 'paren_attr() int f', 'f__i', '1f')
+    check('member', 'paren_attr(a) int f', 'f__i', '1f')
+    check('member', 'paren_attr("") int f', 'f__i', '1f')
+    check('member', 'paren_attr(()[{}][]{}) int f', 'f__i', '1f')
+    raises(DefinitionError, parse, 'member', 'paren_attr(() int f')
+    raises(DefinitionError, parse, 'member', 'paren_attr([) int f')
+    raises(DefinitionError, parse, 'member', 'paren_attr({) int f')
+    raises(DefinitionError, parse, 'member', 'paren_attr([)]) int f')
+    raises(DefinitionError, parse, 'member', 'paren_attr((])) int f')
+    raises(DefinitionError, parse, 'member', 'paren_attr({]}) int f')
 
     # position: decl specs
     check('function', 'static inline __attribute__(()) void f()',
