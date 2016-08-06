@@ -67,6 +67,7 @@ class GoogleDocstring(UnicodeMixin):
         are True if the flag option of same name was given to the auto
         directive.
 
+
     Example
     -------
     >>> from sphinx.ext.napoleon import Config
@@ -755,6 +756,7 @@ class NumpyDocstring(GoogleDocstring):
         inherited_members, undoc_members, show_inheritance and noindex that
         are True if the flag option of same name was given to the auto
         directive.
+
 
     Example
     -------
