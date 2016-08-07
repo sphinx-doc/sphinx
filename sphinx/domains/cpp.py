@@ -654,7 +654,8 @@ class ASTIdentifier(ASTBase):
         _verify_description_mode(mode)
         if mode == 'markType':
             targetText = prefix + self.identifier
-            pnode = addnodes.pending_xref('', refdomain='cpp', reftype='type',
+            pnode = addnodes.pending_xref('', refdomain='cpp',
+                                          reftype='typeOrConcept',
                                           reftarget=targetText, modname=None,
                                           classname=None)
             key = symbol.get_lookup_key()
@@ -4135,15 +4136,6 @@ class CPPObject(ObjectDescription):
             signode['first'] = (not self.names)  # hmm, what is this abound?
             self.state.document.note_explicit_target(signode)
 
-    def before_content(self):
-        lastSymbol = self.env.ref_context['cpp:last_symbol']
-        assert lastSymbol
-        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
-        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
-
-    def after_content(self):
-        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
-
     def parse_definition(self, parser):
         raise NotImplementedError()
 
@@ -4525,10 +4517,13 @@ class CPPDomain(Domain):
                 return True
             if typ == 'var' or typ == 'member':
                 return declTyp in ['var', 'member']
-            if typ in ['enum', 'enumerator', 'function', 'class']:
+            if typ in ['enum', 'enumerator', 'function', 'class', 'concept']:
                 return declTyp == typ
+            validForType = ['enum', 'class', 'function', 'type']
+            if typ == 'typeOrConcept':
+                return declTyp == 'concept' or declTyp in validForType
             if typ == 'type':
-                return declTyp in ['enum', 'class', 'function', 'type']
+                return declTyp in validForType
             print("Type is %s" % typ)
             assert False
         if not checkType():
