@@ -422,31 +422,31 @@ def test_templates():
     raises(DefinitionError, parse, 'enum', 'abc::ns::foo{id_0, id_1, id_2} A')
     raises(DefinitionError, parse, 'enumerator', 'abc::ns::foo{id_0, id_1, id_2} A')
     check('class', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar',
-          None, 'I000EMissingRequiresManglingN3xyz3barE')
+          None, 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE')
     check('class', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar',
-          None, 'I00DpEMissingRequiresManglingN3xyz3barE')
+          None, 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE')
     check('class', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar<id_0, id_1, id_2>',
-          None, 'I000EMissingRequiresManglingN3xyz3barI4id_04id_14id_2EE')
+          None, 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barI4id_04id_14id_2EE')
     check('class', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar<id_0, id_1, id_2...>',
-          None, 'I00DpEMissingRequiresManglingN3xyz3barI4id_04id_1Dp4id_2EE')
+          None, 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barI4id_04id_1Dp4id_2EE')
 
     check('class', 'template<> Concept{U} A<int>::B',
-          None, 'IEI0EMissingRequiresManglingN1AIiE1BE')
+          None, 'IEI0EX7ConceptI1UEEN1AIiE1BE')
 
     check('type', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar = ghi::qux',
-          None, 'I000EMissingRequiresManglingN3xyz3barE')
+          None, 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE')
     check('type', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar = ghi::qux',
-          None, 'I00DpEMissingRequiresManglingN3xyz3barE')
+          None, 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE')
     check('function', 'abc::ns::foo{id_0, id_1, id_2} void xyz::bar()',
-          None, 'I000EMissingRequiresManglingN3xyz3barEv')
+          None, 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barEv')
     check('function', 'abc::ns::foo{id_0, id_1, ...id_2} void xyz::bar()',
-          None, 'I00DpEMissingRequiresManglingN3xyz3barEv')
+          None, 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barEv')
     check('member', 'abc::ns::foo{id_0, id_1, id_2} ghi::qux xyz::bar',
-          None, 'I000EMissingRequiresManglingN3xyz3barE')
+          None, 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE')
     check('member', 'abc::ns::foo{id_0, id_1, ...id_2} ghi::qux xyz::bar',
-          None, 'I00DpEMissingRequiresManglingN3xyz3barE')
+          None, 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE')
     check('concept', 'Iterator{T, U} Another',
-          None, 'I00EMissingRequiresMangling7Another')
+          None, 'I00EX8IteratorI1T1UEE7Another')
     check('concept', 'template<typename ...Pack> Numerics = (... && Numeric<Pack>)',
           None, 'IDpE8Numerics')
 

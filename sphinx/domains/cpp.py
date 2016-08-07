@@ -869,6 +869,14 @@ class ASTTemplateIntroductionParameter(ASTBase):
             else:
                 return '0'  # we need to put something
 
+    def get_id_v2_as_arg(self):
+        # used for the implicit requires clause
+        res = self.identifier.get_id_v2()
+        if self.parameterPack:
+            return u'sp' + res
+        else:
+            return res
+
     def __unicode__(self):
         res = []
         if self.parameterPack:
@@ -897,8 +905,14 @@ class ASTTemplateIntroduction(ASTBase):
         for param in self.params:
             res.append(param.get_id_v2())
         res.append("E")
-        # TODO: add stuff for the implicit requires clause
-        res.append("MissingRequiresMangling")
+        # let's use X expr E, which is otherwise for constant template args
+        res.append("X")
+        res.append(self.concept.get_id_v2())
+        res.append("I")
+        for param in self.params:
+            res.append(param.get_id_v2_as_arg())
+        res.append("E")
+        res.append("E")
         return ''.join(res)
 
     def __unicode__(self):
