@@ -261,12 +261,13 @@ def format_annotation(annotation):
 
     Displaying complex types from ``typing`` relies on its private API.
     """
+    if not isinstance(annotation, type):
+        return repr(annotation)
+
     qualified_name = (annotation.__module__ + '.' + annotation.__qualname__
                       if annotation else repr(annotation))
 
-    if not isinstance(annotation, type):
-        return repr(annotation)
-    elif annotation.__module__ == 'builtins':
+    if annotation.__module__ == 'builtins':
         return annotation.__qualname__
     elif typing:
         if isinstance(annotation, typing.TypeVar):
