@@ -161,7 +161,6 @@ Adding \n to test unescaping.
 * :doc:`subdir/includes`
 * ``:download:`` is tested in includes.txt
 * :option:`Python -c option <python -c>`
-* This used to crash: :option:`&option`
 
 Test :abbr:`abbr (abbreviation)` and another :abbr:`abbr (abbreviation)`.
 
@@ -220,6 +219,13 @@ Tables with multirow and multicol:
    |    |
    +----+
 
+.. list-table::
+   :header-rows: 0
+
+   * - .. figure:: img.png
+
+          figure in table
+
 
 Figures
 -------
@@ -245,6 +251,12 @@ Figures
    :figwidth: 50%
 
    figure with align & figwidth option
+
+.. figure:: rimg.png
+   :align: right
+   :width: 3cm
+
+   figure with align & width option
 
 Version markup
 --------------
@@ -281,13 +293,6 @@ Code blocks
    def ruby?
        false
    end
-
-.. code-block:: c
-
-   import sys
-
-   sys.stdout.write('hello world!\n')
-
 
 Misc stuff
 ----------
@@ -367,13 +372,6 @@ Index markup
    keyword: with
    see: from; to
    seealso: fromalso; toalso
-
-Invalid index markup...
-
-.. index::
-   single:
-   pair:
-   keyword:
 
 .. index::
    !Main, !Other

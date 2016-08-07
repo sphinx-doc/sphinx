@@ -222,6 +222,24 @@ class GoogleDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
+        Args:
+          arg1 (list(int)): Description
+          arg2 (list[int]): Description
+          arg3 (dict(str, int)): Description
+          arg4 (dict[str, int]): Description
+        """,
+        """
+        Single line summary
+
+        :Parameters: * **arg1** (*list(int)*) -- Description
+                     * **arg2** (*list[int]*) -- Description
+                     * **arg3** (*dict(str, int)*) -- Description
+                     * **arg4** (*dict[str, int]*) -- Description
+        """
+    ), (
+        """
+        Single line summary
+
         Yield:
           str:Extended
           description of yielded value
@@ -329,7 +347,9 @@ Returns:
         codecode
 """
         expected = """
-:returns: foo::
+:returns:
+
+          foo::
 
               codecode
               codecode

@@ -11,8 +11,8 @@
 
 from sphinx.domains.rst import parse_directive
 
-def test_parse_directive():
 
+def test_parse_directive():
     s = parse_directive(u' foö  ')
     assert s == (u'foö', '')
 

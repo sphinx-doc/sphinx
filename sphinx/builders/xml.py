@@ -95,3 +95,10 @@ class PseudoXMLBuilder(XMLBuilder):
     out_suffix = '.pseudoxml'
 
     _writer_class = PseudoXMLWriter
+
+
+def setup(app):
+    app.add_builder(XMLBuilder)
+    app.add_builder(PseudoXMLBuilder)
+
+    app.add_config_value('xml_pretty', True, 'env')

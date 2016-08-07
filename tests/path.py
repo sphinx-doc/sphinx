@@ -206,9 +206,12 @@ class path(text_type):
 class _repr_text(text_type):
     def __repr__(self):
         return self._repr
+
+
 class _repr_bin(binary_type):
     def __repr__(self):
         return self._repr
+
 
 def repr_as(string, repr_):
     wrapper = _repr_text if isinstance(string, text_type) else _repr_bin

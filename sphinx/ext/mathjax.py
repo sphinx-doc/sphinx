@@ -14,6 +14,7 @@
 from docutils import nodes
 
 import sphinx
+from sphinx.locale import _
 from sphinx.errors import ExtensionError
 from sphinx.ext.mathbase import setup_math as mathbase_setup
 
@@ -35,7 +36,9 @@ def html_visit_displaymath(self, node):
 
     # necessary to e.g. set the id property correctly
     if node['number']:
-        self.body.append('<span class="eqno">(%s)</span>' % node['number'])
+        self.body.append('<span class="eqno">(%s)' % node['number'])
+        self.add_permalink_ref(node, _('Permalink to this equation'))
+        self.body.append('</span>')
     self.body.append(self.builder.config.mathjax_display[0])
     parts = [prt for prt in node['latex'].split('\n\n') if prt.strip()]
     if len(parts) > 1:  # Add alignment if there are more than 1 equation

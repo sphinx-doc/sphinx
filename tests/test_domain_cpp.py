@@ -24,7 +24,10 @@ ids = []
 
 
 def parse(name, string):
-    parser = DefinitionParser(string, None)
+    class Config(object):
+        cpp_id_attributes = ["id_attr"]
+        cpp_paren_attributes = ["paren_attr"]
+    parser = DefinitionParser(string, None, Config())
     ast = parser.parse_declaration(name)
     if not parser.eof:
         print("Parsing stopped at", parser.pos)
@@ -77,7 +80,7 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
         print(rootSymbol.dump(0))
         raise DefinitionError("")
     ids.append(ast.get_id_v2())
-    #print ".. %s:: %s" % (name, input)
+    # print ".. %s:: %s" % (name, input)
 
 
 def test_fundamental_types():
@@ -131,6 +134,11 @@ def test_type_definitions():
     check("type", "bool ::B::b", "B::b", "N1B1bE")
 
     check('type', 'A = B', None, '1A')
+
+    # from breathe#267 (named function parameters for function pointers
+    check('type', 'void (*gpio_callback_t)(struct device *port, uint32_t pin)',
+          'gpio_callback_t', '15gpio_callback_t')
+    check('type', 'void (*f)(std::function<void(int i)> g)', 'f', '1f')
 
 
 def test_concept_definitions():
@@ -443,11 +451,43 @@ def test_templates():
           None, 'IDpE8Numerics')
 
 
-#def test_print():
-#    # used for getting all the ids out for checking
-#    for a in ids:
-#        print(a)
-#    raise DefinitionError("")
+def test_attributes():
+    # style: C++
+    check('member', '[[]] int f', 'f__i', '1f')
+    check('member', '[ [ ] ] int f', 'f__i', '1f',
+          # this will fail when the proper grammar is implemented
+          output='[[ ]] int f')
+    check('member', '[[a]] int f', 'f__i', '1f')
+    # style: GNU
+    check('member', '__attribute__(()) int f', 'f__i', '1f')
+    check('member', '__attribute__((a)) int f', 'f__i', '1f')
+    check('member', '__attribute__((a, b)) int f', 'f__i', '1f')
+    # style: user-defined id
+    check('member', 'id_attr int f', 'f__i', '1f')
+    # style: user-defined paren
+    check('member', 'paren_attr() int f', 'f__i', '1f')
+    check('member', 'paren_attr(a) int f', 'f__i', '1f')
+    check('member', 'paren_attr("") int f', 'f__i', '1f')
+    check('member', 'paren_attr(()[{}][]{}) int f', 'f__i', '1f')
+    raises(DefinitionError, parse, 'member', 'paren_attr(() int f')
+    raises(DefinitionError, parse, 'member', 'paren_attr([) int f')
+    raises(DefinitionError, parse, 'member', 'paren_attr({) int f')
+    raises(DefinitionError, parse, 'member', 'paren_attr([)]) int f')
+    raises(DefinitionError, parse, 'member', 'paren_attr((])) int f')
+    raises(DefinitionError, parse, 'member', 'paren_attr({]}) int f')
+
+    # position: decl specs
+    check('function', 'static inline __attribute__(()) void f()',
+          'f', '1fv',
+          output='__attribute__(()) static inline void f()')
+
+
+
+# def test_print():
+#     # used for getting all the ids out for checking
+#     for a in ids:
+#         print(a)
+#     raise DefinitionError("")
 
 
 @with_app(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})

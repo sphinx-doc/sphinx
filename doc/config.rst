@@ -56,7 +56,7 @@ General configuration
 
 .. confval:: extensions
 
-   A list of strings that are module names of Sphinx extensions.  These can be
+   A list of strings that are module names of :ref:`extensions`. These can be
    extensions coming with Sphinx (named ``sphinx.ext.*``) or custom ones.
 
    Note that you can extend :data:`sys.path` within the conf file if your
@@ -870,6 +870,13 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 0.6
 
+.. confval:: html_sourcelink_suffix
+
+   Suffix to be appended to source links (see :confval:`html_show_sourcelink`),
+   unless they have this suffix already.  Default is ``'.txt'``.
+
+   .. versionadded:: 1.5
+
 .. confval:: html_use_opensearch
 
    If nonempty, an `OpenSearch <http://www.opensearch.org/Home>`_ description file will be
@@ -1460,7 +1467,17 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 Options for LaTeX output
 ------------------------
 
-These options influence LaTeX output.
+These options influence LaTeX output. See further :doc:`latex`.
+
+.. confval:: latex_engine
+
+   The LaTeX engine to build the docs.  The setting can have the following
+   values:
+
+   * pdflatex -- PDFLaTeX (default)
+   * xelatex -- XeLaTeX
+   * lualatex -- LuaLaTeX
+   * platex -- pLaTeX (default if `language` is 'ja')
 
 .. confval:: latex_documents
 
@@ -1568,6 +1585,21 @@ These options influence LaTeX output.
       value selected the ``'inline'`` display.  For backwards compatibility,
       ``True`` is still accepted.
 
+.. confval:: latex_keep_old_macro_names
+
+   If ``True`` (default) the ``\strong``, ``\code``, ``\bfcode``, ``\email``,
+   ``\tablecontinued``, ``\titleref``, ``\menuselection``, ``\accelerator``,
+   ``\crossref``, ``\termref``, and ``\optional`` text styling macros are
+   pre-defined by Sphinx and may be user-customized by some
+   ``\renewcommand``'s inserted either via ``'preamble'`` key or :dudir:`raw
+   <raw-data-pass-through>` directive. If ``False``, only ``\sphinxstrong``,
+   etc... macros are defined (and may be redefined by user). Setting to
+   ``False`` may help solve macro name conflicts caused by user-added latex
+   packages.
+
+   .. versionadded:: 1.4.5
+
+
 .. confval:: latex_elements
 
    .. versionadded:: 0.5
@@ -1586,6 +1618,15 @@ These options influence LaTeX output.
      ``'pointsize'``
         Point size option of the document class (``'10pt'``, ``'11pt'`` or
         ``'12pt'``), default ``'10pt'``.
+     ``'pxunit'``
+        the value of the ``px`` when used in image attributes ``width`` and
+        ``height``. The default value is ``'49336sp'`` which achieves
+        ``96px=1in`` (``1in = 72.27*65536 = 4736286.72sp``, and all dimensions
+        in TeX are internally integer multiples of ``sp``). To obtain for
+        example ``100px=1in``, one can use ``'0.01in'`` but it is more precise
+        to use ``'47363sp'``. To obtain ``72px=1in``, use ``'1bp'``.
+
+        .. versionadded:: 1.5
      ``'babel'``
         "babel" package inclusion, default ``'\\usepackage{babel}'``.
      ``'fontpkg'``
@@ -1608,7 +1649,7 @@ These options influence LaTeX output.
 
         .. versionadded:: 1.4
      ``'preamble'``
-        Additional preamble content, default empty.
+        Additional preamble content, default empty. See :doc:`latex`.
      ``'figure_align'``
         Latex figure float alignment, default 'htbp' (here, top, bottom, page).
         Whenever an image doesn't fit into the current page, it will be
@@ -1627,7 +1668,7 @@ These options influence LaTeX output.
         ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex.
         Otherwise unset.
 
-        .. versionchanged:: 1.5
+        .. versionchanged:: 1.4.3
            Previously ``'\\usepackage[utf8]{inputenc}'`` was used for all
            compilers.
      ``'cmappkg'``
@@ -1677,6 +1718,11 @@ These options influence LaTeX output.
    is to use ``'article'`` for ``'howto'`` and ``'report'`` for ``'manual'``.
 
    .. versionadded:: 1.0
+
+   .. versionchanged:: 1.5
+
+      In Japanese docs(`language` is ``ja``), ``'jreport'`` is used for
+      ``'howto'`` and ``'jsbooks'`` is used for ``'manual'`` by default.
 
 .. confval:: latex_additional_files
 
@@ -1953,3 +1999,33 @@ Options for the XML builder
        constructs ``*``, ``?``, ``[...]`` and ``[!...]`` with the feature that
        these all don't match slashes.  A double star ``**`` can be used to match
        any sequence of characters *including* slashes.
+
+
+.. _cpp-config:
+
+Options for the C++ domain
+--------------------------
+
+.. confval:: cpp_index_common_prefix
+
+   A list of prefixes that will be ignored when sorting C++ objects in the global index.
+   For example ``['awesome_lib::']``.
+
+   .. versionadded:: 1.5
+
+.. confval:: cpp_id_attributes
+
+   A list of strings that the parser additionally should accept as attributes.
+   This can for example be used when attributes have been ``#define`` d for portability.
+
+   .. versionadded:: 1.5
+
+.. confval:: cpp_paren_attributes
+
+   A list of strings that the parser additionally should accept as attributes with one argument.
+   That is, if ``my_align_as`` is in the list, then ``my_align_as(X)`` is parsed as an attribute
+   for all strings ``X`` that have balanced brances (``()``, ``[]``, and ``{}``).
+   This can for example be used when attributes have been ``#define`` d for portability.
+
+   .. versionadded:: 1.5
+

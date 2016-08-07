@@ -67,3 +67,10 @@ class TextBuilder(Builder):
 
     def finish(self):
         pass
+
+
+def setup(app):
+    app.add_builder(TextBuilder)
+
+    app.add_config_value('text_sectionchars', '*=-~"+`', 'env')
+    app.add_config_value('text_newlines', 'unix', 'env')

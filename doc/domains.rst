@@ -359,6 +359,18 @@ single word, like this::
    :param int priority: The priority of the message, can be a number 1-5
 
 
+.. versionadded:: 1.5
+
+Container types such as lists and dictionaries can be linked automatically
+using the following syntax::
+
+   :type priorities: list(int)
+   :type priorities: list[int]
+   :type mapping: dict(str, int)
+   :type mapping: dict[str, int]
+   :type point: tuple(float, float)
+   :type point: tuple[float, float]
+
 .. _python-roles:
 
 Cross-referencing Python objects
@@ -545,10 +557,10 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
    Full and partial template specialisations can be declared::
 
-      .. cpp::class:: template<> \
+      .. cpp:class:: template<> \
                       std::array<bool, 256>
 
-      .. cpp::class:: template<typename T> \
+      .. cpp:class:: template<typename T> \
                       std::array<T, 42>
 
 
@@ -680,9 +692,9 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
    Describe an enumerator, optionally with its value defined, e.g.,::
 
-      .. cpp::enumerator:: MyEnum::myEnumerator
+      .. cpp:enumerator:: MyEnum::myEnumerator
 
-      .. cpp::enumerator:: MyEnum::myOtherEnumerator = 42
+      .. cpp:enumerator:: MyEnum::myOtherEnumerator = 42
 
 
 .. rst:directive:: .. cpp:concept:: template-parameter-list name
@@ -970,6 +982,12 @@ Assume the following declaration.
 References to partial specialisations must always include the template parameter lists, e.g.,
 ``template\<typename T> Outer\<T*>`` (:cpp:class:`template\<typename T> Outer\<T*>`).
 Currently the lookup only succeed if the template parameter identifiers are equal strings.
+
+
+Configuration Variables
+~~~~~~~~~~~~~~~~~~~~~~~
+
+See :ref:`cpp-config`.
 
 
 The Standard Domain

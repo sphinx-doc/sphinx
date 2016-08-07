@@ -62,6 +62,27 @@ def compile_matchers(patterns):
     return [re.compile(_translate_pattern(pat)).match for pat in patterns]
 
 
+class Matcher(object):
+    """A pattern matcher for Multiple shell-style glob patterns.
+
+    Note: this modifies the patterns to work with copy_asset().
+          For example, "**/index.rst" matches with "index.rst"
+    """
+
+    def __init__(self, patterns):
+        expanded = [pat[3:] for pat in patterns if pat.startswith('**/')]
+        self.patterns = compile_matchers(patterns + expanded)
+
+    def __call__(self, string):
+        return self.match(string)
+
+    def match(self, string):
+        return any(pat(string) for pat in self.patterns)
+
+
+DOTFILES = Matcher(['**/.*'])
+
+
 _pat_cache = {}
 
 

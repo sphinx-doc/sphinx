@@ -553,6 +553,80 @@ def _verify_description_mode(mode):
         raise Exception("Description mode '%s' is invalid." % mode)
 
 
+class ASTCPPAttribute(ASTBase):
+    def __init__(self, arg):
+        self.arg = arg
+
+    def __unicode__(self):
+        return "[[" + self.arg + "]]"
+
+    def describe_signature(self, signode):
+        txt = text_type(self)
+        signode.append(nodes.Text(txt, txt))
+
+
+class ASTGnuAttribute(ASTBase):
+    def __init__(self, name, args):
+        self.name = name
+        self.args = args
+
+    def __unicode__(self):
+        res = [self.name]
+        if self.args:
+            res.append('(')
+            res.append(text_type(self.args))
+            res.append(')')
+        return ''.join(res)
+
+
+class ASTGnuAttributeList(ASTBase):
+    def __init__(self, attrs):
+        self.attrs = attrs
+
+    def __unicode__(self):
+        res = ['__attribute__((']
+        first = True
+        for attr in self.attrs:
+            if not first:
+                res.append(', ')
+            first = False
+            res.append(text_type(attr))
+        res.append('))')
+        return ''.join(res)
+
+    def describe_signature(self, signode):
+        txt = text_type(self)
+        signode.append(nodes.Text(txt, txt))
+
+
+class ASTIdAttribute(ASTBase):
+    """For simple attributes defined by the user."""
+
+    def __init__(self, id):
+        self.id = id
+
+    def __unicode__(self):
+        return self.id
+
+    def describe_signature(self, signode):
+        signode.append(nodes.Text(self.id, self.id))
+
+
+class ASTParenAttribute(ASTBase):
+    """For paren attributes defined by the user."""
+
+    def __init__(self, id, arg):
+        self.id = id
+        self.arg = arg
+
+    def __unicode__(self):
+        return self.id + '(' + self.arg + ')'
+
+    def describe_signature(self, signode):
+        txt = text_type(self)
+        signode.append(nodes.Text(txt, txt))
+
+
 class ASTIdentifier(ASTBase):
     def __init__(self, identifier):
         assert identifier is not None
@@ -1341,7 +1415,7 @@ class ASTParametersQualifiers(ASTBase):
 
 class ASTDeclSpecsSimple(ASTBase):
     def __init__(self, storage, threadLocal, inline, virtual, explicit,
-                 constexpr, volatile, const, friend):
+                 constexpr, volatile, const, friend, attrs):
         self.storage = storage
         self.threadLocal = threadLocal
         self.inline = inline
@@ -1351,6 +1425,7 @@ class ASTDeclSpecsSimple(ASTBase):
         self.volatile = volatile
         self.const = const
         self.friend = friend
+        self.attrs = attrs
 
     def mergeWith(self, other):
         if not other:
@@ -1363,10 +1438,12 @@ class ASTDeclSpecsSimple(ASTBase):
                                   self.constexpr or other.constexpr,
                                   self.volatile or other.volatile,
                                   self.const or other.const,
-                                  self.friend or other.friend)
+                                  self.friend or other.friend,
+                                  self.attrs + other.attrs)
 
     def __unicode__(self):
         res = []
+        res.extend(text_type(attr) for attr in self.attrs)
         if self.storage:
             res.append(self.storage)
         if self.threadLocal:
@@ -1392,6 +1469,10 @@ class ASTDeclSpecsSimple(ASTBase):
             if len(modifiers) > 0:
                 modifiers.append(nodes.Text(' '))
             modifiers.append(addnodes.desc_annotation(text, text))
+        for attr in self.attrs:
+            if len(modifiers) > 0:
+                modifiers.append(nodes.Text(' '))
+            modifiers.append(attr.describe_signature(modifiers))
         if self.storage:
             _add(modifiers, self.storage)
         if self.threadLocal:
@@ -2062,7 +2143,7 @@ class ASTTypeWithInit(ASTBase):
 
     def get_id_v2(self, objectType=None, symbol=None):
         if objectType == 'member':
-            return symbol.declaration.name.get_id_v2()
+            return symbol.get_full_nested_name().get_id_v2()
         else:
             return self.type.get_id_v2()
 
@@ -2780,6 +2861,10 @@ class Symbol(object):
                 if symbol is None:
                     # TODO: maybe search without template args
                     return None
+                # We have now matched part of a nested name, and need to match more
+                # so even if we should matchSelf before, we definitely shouldn't
+                # even more. (see also issue #2666)
+                matchSelf = False
             parentSymbol = symbol
         assert False  # should have returned in the loop
 
@@ -2825,7 +2910,7 @@ class DefinitionParser(object):
 
     _prefix_keys = ('class', 'struct', 'enum', 'union', 'typename')
 
-    def __init__(self, definition, warnEnv):
+    def __init__(self, definition, warnEnv, config):
         self.definition = definition.strip()
         self.pos = 0
         self.end = len(self.definition)
@@ -2833,6 +2918,7 @@ class DefinitionParser(object):
         self._previous_state = (0, None)
 
         self.warnEnv = warnEnv
+        self.config = config
 
     def _make_multi_error(self, errors, header):
         if len(errors) == 1:
@@ -2901,6 +2987,12 @@ class DefinitionParser(object):
             return True
         return False
 
+    def skip_string_and_ws(self, string):
+        if self.skip_string(string):
+            self.skip_ws()
+            return True
+        return False
+
     @property
     def eof(self):
         return self.pos >= self.end
@@ -2926,6 +3018,85 @@ class DefinitionParser(object):
         self.skip_ws()
         if not self.eof:
             self.fail('Expected end of definition.')
+
+    def _parse_balanced_token_seq(self, end):
+        # TODO: add handling of string literals and similar
+        brackets = {'(': ')', '[': ']', '{': '}'}
+        startPos = self.pos
+        symbols = []
+        while not self.eof:
+            if len(symbols) == 0 and self.current_char in end:
+                break
+            if self.current_char in brackets.keys():
+                symbols.append(brackets[self.current_char])
+            elif len(symbols) > 0 and self.current_char == symbols[-1]:
+                symbols.pop()
+            elif self.current_char in ")]}":
+                self.fail("Unexpected '%s' in balanced-token-seq." % self.current_char)
+            self.pos += 1
+        if self.eof:
+            self.fail("Could not find end of balanced-token-seq starting at %d."
+                      % startPos)
+        return self.definition[startPos:self.pos]
+
+    def _parse_attribute(self):
+        self.skip_ws()
+        # try C++11 style
+        startPos = self.pos
+        if self.skip_string_and_ws('['):
+            if not self.skip_string('['):
+                self.pos = startPos
+            else:
+                # TODO: actually implement the correct grammar
+                arg = self._parse_balanced_token_seq(end=[']'])
+                if not self.skip_string_and_ws(']'):
+                    self.fail("Expected ']' in end of attribute.")
+                if not self.skip_string_and_ws(']'):
+                    self.fail("Expected ']' in end of attribute after [[...]")
+                return ASTCPPAttribute(arg)
+
+        # try GNU style
+        if self.skip_word_and_ws('__attribute__'):
+            if not self.skip_string_and_ws('('):
+                self.fail("Expected '(' after '__attribute__'.")
+            if not self.skip_string_and_ws('('):
+                self.fail("Expected '(' after '__attribute__('.")
+            attrs = []
+            while 1:
+                if self.match(_identifier_re):
+                    name = self.matched_text
+                    self.skip_ws()
+                    if self.skip_string_and_ws('('):
+                        self.fail('Parameterized GNU style attribute not yet supported.')
+                    attrs.append(ASTGnuAttribute(name, None))
+                    # TODO: parse arguments for the attribute
+                if self.skip_string_and_ws(','):
+                    continue
+                elif self.skip_string_and_ws(')'):
+                    break
+                else:
+                    self.fail("Expected identifier, ')', or ',' in __attribute__.")
+            if not self.skip_string_and_ws(')'):
+                self.fail("Expected ')' after '__attribute__((...)'")
+            return ASTGnuAttributeList(attrs)
+
+        # try the simple id attributes defined by the user
+        for id in self.config.cpp_id_attributes:
+            if self.skip_word_and_ws(id):
+                return ASTIdAttribute(id)
+
+        # try the paren attributes defined by the user
+        for id in self.config.cpp_paren_attributes:
+            if not self.skip_string_and_ws(id):
+                continue
+            if not self.skip_string('('):
+                self.fail("Expected '(' after user-defined paren-attribute.")
+            arg = self._parse_balanced_token_seq(end=[')'])
+            if not self.skip_string(')'):
+                self.fail("Expected ')' to end user-defined paren-attribute.")
+            return ASTParenAttribute(id, arg)
+
+        return None
 
     def _parse_expression(self, end):
         # Stupidly "parse" an expression.
@@ -3127,10 +3298,9 @@ class DefinitionParser(object):
                         self.fail('Expected ")" after "..." in '
                                   'parameters_and_qualifiers.')
                     break
-                if paramMode == 'function':
-                    arg = self._parse_type_with_init(outer=None, named='single')
-                else:
-                    arg = self._parse_type(named=False)
+                # note: it seems that function arguments can always sbe named,
+                # even in function pointers and similar.
+                arg = self._parse_type_with_init(outer=None, named='single')
                 # TODO: parse default parameters # TODO: didn't we just do that?
                 args.append(ASTFunctinoParameter(arg))
 
@@ -3209,6 +3379,7 @@ class DefinitionParser(object):
         volatile = None
         const = None
         friend = None
+        attrs = []
         while 1:  # accept any permutation of a subset of some decl-specs
             self.skip_ws()
             if not storage:
@@ -3262,9 +3433,14 @@ class DefinitionParser(object):
                 const = self.skip_word('const')
                 if const:
                     continue
+            attr = self._parse_attribute()
+            if attr:
+                attrs.append(attr)
+                continue
             break
         return ASTDeclSpecsSimple(storage, threadLocal, inline, virtual,
-                                  explicit, constexpr, volatile, const, friend)
+                                  explicit, constexpr, volatile, const,
+                                  friend, attrs)
 
     def _parse_decl_specs(self, outer, typed=True):
         if outer:
@@ -3921,7 +4097,7 @@ class CPPObject(ObjectDescription):
             id_v1 = None
         id_v2 = ast.get_id_v2()
         # store them in reverse order, so the newest is first
-        ids  = [id_v2, id_v1]
+        ids = [id_v2, id_v1]
 
         newestId = ids[0]
         assert newestId  # shouldn't be None
@@ -3930,7 +4106,12 @@ class CPPObject(ObjectDescription):
                       'report as bug (id=%s).' % (text_type(ast), newestId))
 
         name = text_type(ast.symbol.get_full_nested_name()).lstrip(':')
-        indexText = self.get_index_text(name)
+        strippedName = name
+        for prefix in self.env.config.cpp_index_common_prefix:
+            if name.startswith(prefix):
+                strippedName = strippedName[len(prefix):]
+                break
+        indexText = self.get_index_text(strippedName)
         self.indexnode['entries'].append(('single', indexText, newestId, '', None))
 
         if newestId not in self.state.document.ids:
@@ -3942,8 +4123,14 @@ class CPPObject(ObjectDescription):
             else:
                 # print("[CPP] non-unique name:", name)
                 pass
-            for id in ids:
-                if id:  # is None when the element didn't exist in that version
+            # always add the newest id
+            assert newestId
+            signode['ids'].append(newestId)
+            # only add compatibility ids when there are no conflicts
+            for id in ids[1:]:
+                if not id:  # is None when the element didn't exist in that version
+                    continue
+                if id not in self.state.document.ids:
                     signode['ids'].append(id)
             signode['first'] = (not self.names)  # hmm, what is this abound?
             self.state.document.note_explicit_target(signode)
@@ -3969,7 +4156,7 @@ class CPPObject(ObjectDescription):
             self.env.ref_context['cpp:parent_symbol'] = root
         parentSymbol = self.env.ref_context['cpp:parent_symbol']
 
-        parser = DefinitionParser(sig, self)
+        parser = DefinitionParser(sig, self, self.env.config)
         try:
             ast = self.parse_definition(parser)
             parser.assert_end()
@@ -3995,6 +4182,15 @@ class CPPObject(ObjectDescription):
 
         self.describe_signature(signode, ast)
         return ast
+
+    def before_content(self):
+        lastSymbol = self.env.ref_context['cpp:last_symbol']
+        assert lastSymbol
+        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
+        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
+
+    def after_content(self):
+        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
 
 
 class CPPTypeObject(CPPObject):
@@ -4106,7 +4302,7 @@ class CPPNamespaceObject(Directive):
             symbol = rootSymbol
             stack = []
         else:
-            parser = DefinitionParser(self.arguments[0], self)
+            parser = DefinitionParser(self.arguments[0], self, env.config)
             try:
                 ast = parser.parse_namespace_object()
                 parser.assert_end()
@@ -4135,7 +4331,7 @@ class CPPNamespacePushObject(Directive):
         env = self.state.document.settings.env
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
             return
-        parser = DefinitionParser(self.arguments[0], self)
+        parser = DefinitionParser(self.arguments[0], self, env.config)
         try:
             ast = parser.parse_namespace_object()
             parser.assert_end()
@@ -4285,7 +4481,7 @@ class CPPDomain(Domain):
                 if emitWarnings:
                     env.warn_node(msg, node)
         warner = Warner()
-        parser = DefinitionParser(target, warner)
+        parser = DefinitionParser(target, warner, env.config)
         try:
             ast = parser.parse_xref_object()
             parser.skip_ws()
@@ -4315,6 +4511,31 @@ class CPPDomain(Domain):
                                    matchSelf=True)
         if s is None or s.declaration is None:
             return None, None
+
+        if typ.startswith('cpp:'):
+            typ = typ[4:]
+        if typ == 'func':
+            typ = 'function'
+        declTyp = s.declaration.objectType
+
+        def checkType():
+            if typ == 'any':
+                return True
+            if declTyp == 'templateParam':
+                return True
+            if typ == 'var' or typ == 'member':
+                return declTyp in ['var', 'member']
+            if typ in ['enum', 'enumerator', 'function', 'class']:
+                return declTyp == typ
+            if typ == 'type':
+                return declTyp in ['enum', 'class', 'function', 'type']
+            print("Type is %s" % typ)
+            assert False
+        if not checkType():
+            warner.warn("cpp:%s targets a %s (%s)."
+                        % (typ, s.declaration.objectType,
+                           s.get_full_nested_name()))
+
         declaration = s.declaration
         fullNestedName = s.get_full_nested_name()
         name = text_type(fullNestedName).lstrip(':')
@@ -4354,3 +4575,10 @@ class CPPDomain(Domain):
             docname = symbol.docname
             newestId = symbol.declaration.get_newest_id()
             yield (name, name, objectType, docname, newestId, 1)
+
+
+def setup(app):
+    app.add_domain(CPPDomain)
+    app.add_config_value("cpp_index_common_prefix", [], 'env')
+    app.add_config_value("cpp_id_attributes", [], 'env')
+    app.add_config_value("cpp_paren_attributes", [], 'env')

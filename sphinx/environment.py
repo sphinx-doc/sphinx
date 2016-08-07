@@ -17,6 +17,7 @@ import types
 import bisect
 import codecs
 import string
+import fnmatch
 import unicodedata
 from os import path
 from glob import glob
@@ -75,7 +76,7 @@ default_settings = {
 # or changed to properly invalidate pickle files.
 #
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
-ENV_VERSION = 48 + (sys.version_info[0] - 2)
+ENV_VERSION = 49 + (sys.version_info[0] - 2)
 
 
 dummy_reporter = Reporter('', 4, 4)
@@ -169,6 +170,7 @@ class BuildEnvironment:
                                     # contains all read docnames
         self.dependencies = {}      # docname -> set of dependent file
                                     # names, relative to documentation root
+        self.included = set()       # docnames included from other documents
         self.reread_always = set()  # docnames to re-read unconditionally on
                                     # next build
 
@@ -328,6 +330,20 @@ class BuildEnvironment:
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         app.emit('env-merge-info', self, docnames, other)
 
+    def path2doc(self, filename):
+        """Return the docname for the filename if the file is document.
+
+        *filename* should be absolute or relative to the source directory.
+        """
+        if filename.startswith(self.srcdir):
+            filename = filename[len(self.srcdir) + 1:]
+        for suffix in self.config.source_suffix:
+            if fnmatch.fnmatch(filename, '*' + suffix):
+                return filename[:-len(suffix)]
+        else:
+            # the file does not have docname
+            return None
+
     def doc2path(self, docname, base=True, suffix=None):
         """Return the filename for the document name.
 
@@ -387,8 +403,13 @@ class BuildEnvironment:
             config.html_extra_path +
             ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
         )
-        self.found_docs = set(get_matching_docs(
-            self.srcdir, config.source_suffix, exclude_matchers=matchers))
+        self.found_docs = set()
+        for docname in get_matching_docs(self.srcdir, config.source_suffix,
+                                         exclude_matchers=matchers):
+            if os.access(self.doc2path(docname), os.R_OK):
+                self.found_docs.add(docname)
+            else:
+                self.warn(docname, "document not readable. Ignored.")
 
         # add catalog mo file dependency
         for docname in self.found_docs:
@@ -819,6 +840,15 @@ class BuildEnvironment:
         *filename* should be absolute or relative to the source directory.
         """
         self.dependencies.setdefault(self.docname, set()).add(filename)
+
+    def note_included(self, filename):
+        """Add *filename* as a included from other document.
+
+        This means the document is not orphaned.
+
+        *filename* should be absolute or relative to the source directory.
+        """
+        self.included.add(self.path2doc(filename))
 
     def note_reread(self):
         """Add the current document to the list of documents that will
@@ -1413,7 +1443,10 @@ class BuildEnvironment:
                             # nodes with length 1 don't have any children anyway
                             if len(toplevel) > 1:
                                 subtrees = toplevel.traverse(addnodes.toctree)
-                                toplevel[1][:] = subtrees
+                                if subtrees:
+                                    toplevel[1][:] = subtrees
+                                else:
+                                    toplevel.pop(1)
                     # resolve all sub-toctrees
                     for subtocnode in toc.traverse(addnodes.toctree):
                         if not (subtocnode.get('hidden', False) and
@@ -1459,6 +1492,9 @@ class BuildEnvironment:
         _toctree_add_classes(newnode, 1)
         self._toctree_prune(newnode, 1, prune and maxdepth or 0, collapse)
 
+        if len(newnode[-1]) == 0:  # No titles found
+            return None
+
         # set the target paths in the toctrees (they are not known at TOC
         # generation time)
         for refnode in newnode.traverse(nodes.reference):
@@ -1488,9 +1524,9 @@ class BuildEnvironment:
                                                   typ, target, node, contnode)
                 # really hardwired reference types
                 elif typ == 'any':
-                    newnode = self._resolve_any_reference(builder, node, contnode)
+                    newnode = self._resolve_any_reference(builder, refdoc, node, contnode)
                 elif typ == 'doc':
-                    newnode = self._resolve_doc_reference(builder, node, contnode)
+                    newnode = self._resolve_doc_reference(builder, refdoc, node, contnode)
                 elif typ == 'citation':
                     newnode = self._resolve_citation(builder, refdoc, node, contnode)
                 # no new node found? try the missing-reference event
@@ -1538,10 +1574,10 @@ class BuildEnvironment:
             msg = '%r reference target not found: %%(target)s' % typ
         self.warn_node(msg % {'target': target}, node, type='ref', subtype=typ)
 
-    def _resolve_doc_reference(self, builder, node, contnode):
+    def _resolve_doc_reference(self, builder, refdoc, node, contnode):
         # directly reference to document by source name;
         # can be absolute or relative
-        docname = docname_join(node['refdoc'], node['reftarget'])
+        docname = docname_join(refdoc, node['reftarget'])
         if docname in self.all_docs:
             if node['refexplicit']:
                 # reference with explicit title
@@ -1551,7 +1587,7 @@ class BuildEnvironment:
             innernode = nodes.inline(caption, caption)
             innernode['classes'].append('doc')
             newnode = nodes.reference('', '', internal=True)
-            newnode['refuri'] = builder.get_relative_uri(node['refdoc'], docname)
+            newnode['refuri'] = builder.get_relative_uri(refdoc, docname)
             newnode.append(innernode)
             return newnode
 
@@ -1574,13 +1610,12 @@ class BuildEnvironment:
             # transforms.CitationReference.apply.
             del node['ids'][:]
 
-    def _resolve_any_reference(self, builder, node, contnode):
+    def _resolve_any_reference(self, builder, refdoc, node, contnode):
         """Resolve reference generated by the "any" role."""
-        refdoc = node['refdoc']
         target = node['reftarget']
         results = []
         # first, try resolving as :doc:
-        doc_ref = self._resolve_doc_reference(builder, node, contnode)
+        doc_ref = self._resolve_doc_reference(builder, refdoc, node, contnode)
         if doc_ref:
             results.append(('doc', doc_ref))
         # next, do the standard domain (makes this a priority)
@@ -1930,6 +1965,9 @@ class BuildEnvironment:
             if docname not in self.files_to_rebuild:
                 if docname == self.config.master_doc:
                     # the master file is not included anywhere ;)
+                    continue
+                if docname in self.included:
+                    # the document is included from other documents
                     continue
                 if 'orphan' in self.metadata[docname]:
                     continue

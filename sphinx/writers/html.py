@@ -439,7 +439,7 @@ class HTMLTranslator(BaseTranslator):
         pass
 
     def visit_download_reference(self, node):
-        if node.hasattr('filename'):
+        if self.builder.download_support and node.hasattr('filename'):
             self.body.append(
                 '<a class="reference download internal" href="%s" download="">' %
                 posixpath.join(self.builder.dlpath, node['filename']))
@@ -458,15 +458,14 @@ class HTMLTranslator(BaseTranslator):
             node['uri'] = posixpath.join(self.builder.imgpath,
                                          self.builder.images[olduri])
 
-        if node['uri'].lower().endswith('svg') or \
-           node['uri'].lower().endswith('svgz'):
-            atts = {'src': node['uri']}
+        uri = node['uri']
+        if uri.lower().endswith('svg') or uri.lower().endswith('svgz'):
+            atts = {'src': uri}
             if 'width' in node:
                 atts['width'] = node['width']
             if 'height' in node:
                 atts['height'] = node['height']
-            if 'alt' in node:
-                atts['alt'] = node['alt']
+            atts['alt'] = node.get('alt', uri)
             if 'align' in node:
                 self.body.append('<div align="%s" class="align-%s">' %
                                  (node['align'], node['align']))

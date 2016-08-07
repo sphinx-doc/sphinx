@@ -186,10 +186,59 @@ not be mixed. Choose one style for your project and be consistent with it.
    * :ref:`example_google`
    * :ref:`example_numpy`
 
-   For Python type annotations, see `PEP 484`_.
+
+Type Annotations
+----------------
+
+`PEP 484`_ introduced a standard way to express types in Python code.
+This is an alternative to expressing types directly in docstrings.
+One benefit of expressing types according to `PEP 484`_ is that
+type checkers and IDEs can take advantage of them for static code
+analysis.
+
+Google style with Python 3 type annotations::
+
+    def func(arg1: int, arg2: str) -> bool:
+        """Summary line.
+
+        Extended description of function.
+
+        Args:
+            arg1: Description of arg1
+            arg2: Description of arg2
+
+        Returns:
+            Description of return value
+
+        """
+        return True
+
+Google style with types in docstrings::
+
+    def func(arg1, arg2):
+        """Summary line.
+
+        Extended description of function.
+
+        Args:
+            arg1 (int): Description of arg1
+            arg2 (str): Description of arg2
+
+        Returns:
+            bool: Description of return value
+
+        """
+        return True
+
+.. Note::
+   `Python 2/3 compatible annotations`_ aren't currently
+   supported by Sphinx and won't show up in the docs.
 
 .. _PEP 484:
    https://www.python.org/dev/peps/pep-0484/
+
+.. _Python 2/3 compatible annotations:
+   https://www.python.org/dev/peps/pep-0484/#suggested-syntax-for-python-2-7-and-straddling-code
 
 
 Configuration
@@ -208,6 +257,7 @@ enabled in `conf.py`::
     # Napoleon settings
     napoleon_google_docstring = True
     napoleon_numpy_docstring = True
+    napoleon_include_init_with_doc = False
     napoleon_include_private_with_doc = False
     napoleon_include_special_with_doc = True
     napoleon_use_admonition_for_examples = False
@@ -233,6 +283,23 @@ enabled in `conf.py`::
 
    True to parse `NumPy style`_ docstrings. False to disable support
    for NumPy style docstrings. *Defaults to True.*
+
+.. confval:: napoleon_include_init_with_doc
+
+   True to list ``__init___`` docstrings separately from the class
+   docstring. False to fall back to Sphinx's default behavior, which
+   considers the ``__init___`` docstring as part of the class
+   documentation. *Defaults to False.*
+
+   **If True**::
+
+       def __init__(self):
+           \"\"\"
+           This will be included in the docs because it has a docstring
+           \"\"\"
+
+       def __init__(self):
+           # This will NOT be included in the docs
 
 .. confval:: napoleon_include_private_with_doc
 

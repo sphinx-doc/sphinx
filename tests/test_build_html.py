@@ -13,34 +13,37 @@ import os
 import re
 
 from six import PY3, iteritems
-from six.moves import html_entities
 
 from sphinx import __display_version__
-from util import remove_unicode_literals, gen_with_app, with_app
-from etree13 import ElementTree as ET
+from util import remove_unicode_literals, gen_with_app, with_app, strip_escseq
+from etree13 import ElementTree
+from html5lib import getTreeBuilder, HTMLParser
 
+
+TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
+HTML_PARSER = HTMLParser(TREE_BUILDER, namespaceHTMLElements=False)
 
 ENV_WARNINGS = """\
-(%(root)s/autodoc_fodder.py:docstring of autodoc_fodder\\.MarkupError:2: \
-WARNING: Explicit markup ends without a blank line; unexpected \
-unindent\\.\\n?
-)?%(root)s/images.txt:9: WARNING: image file not readable: foo.png
-%(root)s/images.txt:23: WARNING: nonlocal image URI found: \
-http://www.python.org/logo.png
-%(root)s/includes.txt:\\d*: WARNING: Encoding 'utf-8-sig' used for \
-reading included file u'.*?wrongenc.inc' seems to be wrong, try giving an \
-:encoding: option\\n?
-%(root)s/includes.txt:4: WARNING: download file not readable: .*?nonexisting.png
-(%(root)s/markup.txt:373: WARNING: invalid single index entry u'')?
-(%(root)s/undecodable.txt:3: WARNING: undecodable source characters, replacing \
+(%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
+WARNING: duplicate object description of autodoc_fodder.MarkupError, other \
+instance in %(root)s/autodoc.rst, use :noindex: for one of them
+)?%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
+WARNING: Explicit markup ends without a blank line; unexpected unindent.
+%(root)s/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
+file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
+%(root)s/index.rst:\\d+: WARNING: image file not readable: foo.png
+%(root)s/index.rst:\\d+: WARNING: nonlocal image URI found: http://www.python.org/logo.png
+%(root)s/index.rst:\\d+: WARNING: download file not readable: %(root)s/nonexisting.png
+%(root)s/index.rst:\\d+: WARNING: invalid single index entry u''
+%(root)s/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
 with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
-)?"""
+"""
 
 HTML_WARNINGS = ENV_WARNINGS + """\
-%(root)s/images.txt:20: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/markup.txt:285: WARNING: Could not lex literal_block as "c". Highlighting skipped.
-%(root)s/footnote.txt:60: WARNING: citation not found: missing
-%(root)s/markup.txt:164: WARNING: unknown option: &option
+%(root)s/index.rst:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
+%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
+%(root)s/index.rst:\\d+: WARNING: unknown option: &option
+%(root)s/index.rst:\\d+: WARNING: citation not found: missing
 """
 
 if PY3:
@@ -65,6 +68,7 @@ HTML_XPATH = {
         (".//img[@src='_images/img1.png']", ''),
         (".//img[@src='_images/simg.png']", ''),
         (".//img[@src='_images/svgimg.svg']", ''),
+        (".//a[@href='_sources/images.txt']", ''),
     ],
     'subdir/images.html': [
         (".//img[@src='../_images/img1.png']", ''),
@@ -174,7 +178,7 @@ HTML_XPATH = {
         # ``seealso`` directive
         (".//div/p[@class='first admonition-title']", 'See also'),
         # a ``hlist`` directive
-        (".//table[@class='hlist']/tr/td/ul/li", '^This$'),
+        (".//table[@class='hlist']/tbody/tr/td/ul/li", '^This$'),
         # a ``centered`` directive
         (".//p[@class='centered']/strong", 'LICENSE'),
         # a glossary
@@ -203,6 +207,7 @@ HTML_XPATH = {
         # docfields
         (".//a[@class='reference internal'][@href='#TimeInt']/em", 'TimeInt'),
         (".//a[@class='reference internal'][@href='#Time']", 'Time'),
+        (".//a[@class='reference internal'][@href='#errmod.Error']/strong", 'Error'),
         # C references
         (".//span[@class='pre']", 'CFunction()'),
         (".//a[@href='#c.Sphinx_DoSomething']", ''),
@@ -315,23 +320,9 @@ HTML_XPATH = {
     ],
     'otherext.html': [
         (".//h1", "Generated section"),
+        (".//a[@href='_sources/otherext.foo.txt']", ''),
     ]
 }
-
-
-class NslessParser(ET.XMLParser):
-    """XMLParser that throws away namespaces in tag names."""
-
-    def _fixname(self, key):
-        try:
-            return self._names[key]
-        except KeyError:
-            name = key
-            br = name.find('}')
-            if br > 0:
-                name = name[br+1:]
-            self._names[key] = name = self._fixtext(name)
-            return name
 
 
 def check_xpath(etree, fname, path, check, be_found=True):
@@ -391,12 +382,10 @@ def check_extra_entries(outdir):
     assert (outdir / 'robots.txt').isfile()
 
 
-@gen_with_app(buildername='html', freshenv=True,  # use freshenv to check warnings
-              confoverrides={'html_context.hckey_co': 'hcval_co'},
-              tags=['testtag'])
-def test_html_output(app, status, warning):
+@with_app(buildername='html', testroot='warnings', freshenv=True)
+def test_html_warnings(app, status, warning):
     app.builder.build_all()
-    html_warnings = warning.getvalue().replace(os.sep, '/')
+    html_warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
     html_warnings_exp = HTML_WARNINGS % {
         'root': re.escape(app.srcdir.replace(os.sep, '/'))}
     assert re.match(html_warnings_exp + '$', html_warnings), \
@@ -404,11 +393,14 @@ def test_html_output(app, status, warning):
         '--- Expected (regex):\n' + html_warnings_exp + \
         '--- Got:\n' + html_warnings
 
+
+@gen_with_app(buildername='html', tags=['testtag'],
+              confoverrides={'html_context.hckey_co': 'hcval_co'})
+def test_html_output(app, status, warning):
+    app.builder.build_all()
     for fname, paths in iteritems(HTML_XPATH):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
         for path, check in paths:
             yield check_xpath, etree, fname, path, check
 
@@ -455,10 +447,8 @@ def test_tocdepth(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -497,10 +487,8 @@ def test_tocdepth_singlehtml(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -553,10 +541,8 @@ def test_numfig_disabled(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -596,7 +582,7 @@ def test_numfig_without_numbered_toctree(app, status, warning):
             (".//li/a/span", '^Table:6$', True),
             (".//li/a/span", '^Listing 9$', True),
             (".//li/a/span", '^Code-6$', True),
-            ],
+        ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Fig. 1 $', True),
@@ -622,7 +608,7 @@ def test_numfig_without_numbered_toctree(app, status, warning):
              "span[@class='caption-number']", '^Listing 3 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Listing 4 $', True),
-            ],
+        ],
         'bar.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Fig. 5 $', True),
@@ -654,10 +640,8 @@ def test_numfig_without_numbered_toctree(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -693,7 +677,7 @@ def test_numfig_with_numbered_toctree(app, status, warning):
             (".//li/a/span", '^Table:2.2$', True),
             (".//li/a/span", '^Listing 1$', True),
             (".//li/a/span", '^Code-2.2$', True),
-            ],
+        ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Fig. 1.1 $', True),
@@ -719,7 +703,7 @@ def test_numfig_with_numbered_toctree(app, status, warning):
              "span[@class='caption-number']", '^Listing 1.3 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Listing 1.4 $', True),
-            ],
+        ],
         'bar.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Fig. 2.1 $', True),
@@ -751,10 +735,8 @@ def test_numfig_with_numbered_toctree(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -793,7 +775,7 @@ def test_numfig_with_prefix(app, status, warning):
             (".//li/a/span", '^Table:2.2$', True),
             (".//li/a/span", '^Code-1$', True),
             (".//li/a/span", '^Code-2.2$', True),
-            ],
+        ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Figure:1.1 $', True),
@@ -819,7 +801,7 @@ def test_numfig_with_prefix(app, status, warning):
              "span[@class='caption-number']", '^Code-1.3 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Code-1.4 $', True),
-            ],
+        ],
         'bar.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Figure:2.1 $', True),
@@ -851,10 +833,8 @@ def test_numfig_with_prefix(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -890,7 +870,7 @@ def test_numfig_with_secnum_depth(app, status, warning):
             (".//li/a/span", '^Table:2.1.2$', True),
             (".//li/a/span", '^Listing 1$', True),
             (".//li/a/span", '^Code-2.1.2$', True),
-            ],
+        ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Fig. 1.1 $', True),
@@ -916,7 +896,7 @@ def test_numfig_with_secnum_depth(app, status, warning):
              "span[@class='caption-number']", '^Listing 1.1.2 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Listing 1.2.1 $', True),
-            ],
+        ],
         'bar.html': [
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Fig. 2.1.1 $', True),
@@ -948,10 +928,8 @@ def test_numfig_with_secnum_depth(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
@@ -980,34 +958,30 @@ def test_enumerable_node(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
 
 
-@with_app(buildername='html')
-def test_jsmath(app, status, warning):
-    app.builder.build_all()
-    content = (app.outdir / 'math.html').text()
-
-    assert '<div class="math">\na^2 + b^2 = c^2</div>' in content
-    assert '<div class="math">\n\\begin{split}a + 1 &lt; b\\end{split}</div>' in content
-    assert ('<span class="eqno">(1)</span><div class="math" id="equation-foo">\n'
-            'e^{i\\pi} = 1</div>' in content)
-    assert ('<span class="eqno">(2)</span><div class="math">\n'
-            'e^{ix} = \\cos x + i\\sin x</div>' in content)
-    assert '<div class="math">\nn \\in \\mathbb N</div>' in content
-    assert '<div class="math">\na + 1 &lt; b</div>' in content
-
-
-@with_app(buildername='html', testroot='html_extra_path')
-def test_html_extra_path(app, status, warning):
+@with_app(buildername='html', testroot='html_assets')
+def test_html_assets(app, status, warning):
     app.builder.build_all()
 
+    # html_static_path
+    assert not (app.outdir / '_static' / '.htaccess').exists()
+    assert not (app.outdir / '_static' / '.htpasswd').exists()
+    assert (app.outdir / '_static' / 'API.html').exists()
+    assert (app.outdir / '_static' / 'API.html').text() == 'Sphinx-1.4.4'
+    assert (app.outdir / '_static' / 'css/style.css').exists()
+    assert (app.outdir / '_static' / 'rimg.png').exists()
+    assert not (app.outdir / '_static' / '_build/index.html').exists()
+    assert (app.outdir / '_static' / 'background.png').exists()
+    assert not (app.outdir / '_static' / 'subdir' / '.htaccess').exists()
+    assert not (app.outdir / '_static' / 'subdir' / '.htpasswd').exists()
+
+    # html_extra_path
     assert (app.outdir / '.htaccess').exists()
     assert not (app.outdir / '.htpasswd').exists()
     assert (app.outdir / 'API.html_t').exists()
@@ -1015,3 +989,17 @@ def test_html_extra_path(app, status, warning):
     assert (app.outdir / 'rimg.png').exists()
     assert not (app.outdir / '_build/index.html').exists()
     assert (app.outdir / 'background.png').exists()
+    assert (app.outdir / 'subdir' / '.htaccess').exists()
+    assert not (app.outdir / 'subdir' / '.htpasswd').exists()
+
+
+@with_app(buildername='html', confoverrides={'html_sourcelink_suffix': ''})
+def test_html_sourcelink_suffix(app, status, warning):
+    app.builder.build_all()
+    content_otherext = (app.outdir / 'otherext.html').text()
+    content_images = (app.outdir / 'images.html').text()
+
+    assert '<a href="_sources/otherext.foo"' in content_otherext
+    assert '<a href="_sources/images.txt"' in content_images
+    assert (app.outdir / '_sources' / 'otherext.foo').exists()
+    assert (app.outdir / '_sources' / 'images.txt').exists()

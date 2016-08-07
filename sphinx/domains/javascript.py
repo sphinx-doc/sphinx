@@ -234,3 +234,7 @@ class JavaScriptDomain(Domain):
         for refname, (docname, type) in list(self.data['objects'].items()):
             yield refname, refname, type, docname, \
                 refname.replace('$', '_S_'), 1
+
+
+def setup(app):
+    app.add_domain(JavaScriptDomain)

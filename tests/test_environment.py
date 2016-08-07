@@ -58,10 +58,6 @@ def test_images():
     htmlbuilder = StandaloneHTMLBuilder(app)
     htmlbuilder.imgpath = 'dummy'
     htmlbuilder.post_process_images(tree)
-    image_uri_message = "no matching candidate for image URI u'foo.*'"
-    if PY3:
-        image_uri_message = remove_unicode_literals(image_uri_message)
-    assert image_uri_message in app._warning.content[-1]
     assert set(htmlbuilder.images.keys()) == \
         set(['subdir/img.png', 'img.png', 'subdir/simg.png', 'svgimg.svg',
              'img.foo.png'])
@@ -71,7 +67,6 @@ def test_images():
     app._warning.reset()
     latexbuilder = LaTeXBuilder(app)
     latexbuilder.post_process_images(tree)
-    assert image_uri_message in app._warning.content[-1]
     assert set(latexbuilder.images.keys()) == \
         set(['subdir/img.png', 'subdir/simg.png', 'img.png', 'img.pdf',
              'svgimg.pdf', 'img.foo.png'])

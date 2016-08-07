@@ -15,8 +15,9 @@ import pickle
 from docutils import nodes
 from textwrap import dedent
 from sphinx.errors import SphinxError
+import sphinx.builders.linkcheck
 
-from util import with_app, rootdir, tempdir, SkipTest, TestApp
+from util import with_app, with_tempdir, rootdir, tempdir, SkipTest, TestApp
 
 try:
     from docutils.writers.manpage import Writer as ManWriter
@@ -31,7 +32,6 @@ class MockOpener(object):
             url = req.url
         return result()
 
-import sphinx.builders.linkcheck
 sphinx.builders.linkcheck.opener = MockOpener()
 
 
@@ -76,16 +76,19 @@ def test_build_all():
         yield verify_build, buildername, srcdir
 
 
-@with_app(buildername='text')
-def test_master_doc_not_found(app, status, warning):
-    (app.srcdir / 'contents.txt').move(app.srcdir / 'contents.txt.bak')
+@with_tempdir
+def test_master_doc_not_found(tmpdir):
+    (tmpdir / 'conf.py').write_text('master_doc = "index"')
+    assert tmpdir.listdir() == ['conf.py']
+
     try:
+        app = TestApp(buildername='dummy', srcdir=tmpdir)
         app.builder.build_all()
         assert False  # SphinxError not raised
     except Exception as exc:
         assert isinstance(exc, SphinxError)
     finally:
-        (app.srcdir / 'contents.txt.bak').move(app.srcdir / 'contents.txt')
+        app.cleanup()
 
 
 @with_app(buildername='text', testroot='circular')

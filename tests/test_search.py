@@ -21,6 +21,7 @@ from util import with_app
 
 settings = parser = None
 
+
 def setup_module():
     global settings, parser
     optparser = frontend.OptionParser(components=(rst.Parser,))
@@ -45,13 +46,14 @@ FILE_CONTENTS = '''\
 test that non-comments are indexed: fermion
 '''
 
+
 def test_wordcollector():
     doc = utils.new_document(b'test data', settings)
     doc['file'] = 'dummy'
     parser.parse(FILE_CONTENTS, doc)
 
     ix = IndexBuilder(None, 'en', {}, None)
-    ix.feed('filename', 'title', doc)
+    ix.feed('docname', 'filename', 'title', doc)
     assert 'boson' not in ix._mapping
     assert 'fermion' in ix._mapping
 
@@ -90,3 +92,16 @@ def test_meta_keys_are_handled_for_language_de(app, status, warning):
     assert is_registered_term(searchindex, 'onlygerman')
     assert not is_registered_term(searchindex, 'notgerman')
     assert is_registered_term(searchindex, 'onlytoogerman')
+
+
+@with_app(testroot='search')
+def test_stemmer_does_not_remove_short_words(app, status, warning):
+    app.builder.build_all()
+    searchindex = (app.outdir / 'searchindex.js').text()
+    assert 'zfs' in searchindex
+
+
+@with_app(testroot='search')
+def test_stemmer(app, status, warning):
+    searchindex = (app.outdir / 'searchindex.js').text()
+    assert 'findthisstemmedkei' in searchindex

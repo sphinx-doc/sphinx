@@ -13,6 +13,7 @@
 from docutils import nodes
 
 import sphinx
+from sphinx.locale import _
 from sphinx.application import ExtensionError
 from sphinx.ext.mathbase import setup_math as mathbase_setup
 
@@ -34,8 +35,9 @@ def html_visit_displaymath(self, node):
         if i == 0:
             # necessary to e.g. set the id property correctly
             if node['number']:
-                self.body.append('<span class="eqno">(%s)</span>' %
-                                 node['number'])
+                self.body.append('<span class="eqno">(%s)' % node['number'])
+                self.add_permalink_ref(node, _('Permalink to this equation'))
+                self.body.append('</span>')
             self.body.append(self.starttag(node, 'div', CLASS='math'))
         else:
             # but only once!

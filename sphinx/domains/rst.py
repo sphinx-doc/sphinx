@@ -156,3 +156,7 @@ class ReSTDomain(Domain):
     def get_objects(self):
         for (typ, name), docname in iteritems(self.data['objects']):
             yield name, name, typ, docname, typ + '-' + name, 1
+
+
+def setup(app):
+    app.add_domain(ReSTDomain)

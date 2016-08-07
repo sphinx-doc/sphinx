@@ -135,7 +135,7 @@ tzdelta = datetime.fromtimestamp(timestamp) - \
 source_date_epoch = getenv('SOURCE_DATE_EPOCH')
 if source_date_epoch is not None:
     timestamp = float(source_date_epoch)
-    tzdelta = 0
+    tzdelta = timedelta(0)
 
 
 class LocalTimeZone(tzinfo):
@@ -233,3 +233,13 @@ class MessageCatalogBuilder(I18nBuilder):
                         replace('"', r'\"'). \
                         replace('\n', '\\n"\n"')
                     pofile.write('msgid "%s"\nmsgstr ""\n\n' % message)
+
+
+def setup(app):
+    app.add_builder(MessageCatalogBuilder)
+
+    app.add_config_value('gettext_compact', True, 'gettext')
+    app.add_config_value('gettext_location', True, 'gettext')
+    app.add_config_value('gettext_uuid', False, 'gettext')
+    app.add_config_value('gettext_auto_build', True, 'env')
+    app.add_config_value('gettext_additional_targets', [], 'env')

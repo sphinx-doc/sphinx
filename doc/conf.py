@@ -47,7 +47,7 @@ epub_fix_images = False
 epub_max_image_width = 0
 epub_show_urls = 'inline'
 epub_use_index = False
-epub_guide = (('toc', 'contents.html', u'Table of Contents'),)
+epub_guide = (('toc', 'contents.xhtml', u'Table of Contents'),)
 
 latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
                     'Georg Brandl', 'manual', 1)]
