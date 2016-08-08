@@ -312,6 +312,9 @@ man_pages = [
 #
 # man_show_urls = False
 
+# -- Options for text output -------------------------------------------
+
+# text_file_suffix = None
 
 # -- Options for Texinfo output -------------------------------------------
 

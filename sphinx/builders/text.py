@@ -17,6 +17,7 @@ from docutils.io import StringOutput
 from sphinx.builders import Builder
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.text import TextWriter
+from sphinx.config import string_classes
 
 
 class TextBuilder(Builder):
@@ -26,7 +27,8 @@ class TextBuilder(Builder):
     allow_parallel = True
 
     def init(self):
-        pass
+        if self.config.text_file_suffix is not None:
+            self.out_suffix = self.config.text_file_suffix
 
     def get_outdated_docs(self):
         for docname in self.env.found_docs:
@@ -74,3 +76,4 @@ def setup(app):
 
     app.add_config_value('text_sectionchars', '*=-~"+`', 'env')
     app.add_config_value('text_newlines', 'unix', 'env')
+    app.add_config_value('text_file_suffix', None, 'env', string_classes)
