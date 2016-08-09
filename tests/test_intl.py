@@ -373,7 +373,10 @@ def test_html_builder(app, status, warning):
         start_tag = "<%s[^>]*>" % tag
         end_tag = "</%s>" % tag
         return r"%s\s*%s\s*%s" % (start_tag, keyword, end_tag)
-
+    def wrap_nest(parenttag, childtag, keyword):
+        start_tag1 = "<%s[^>]*>" % parenttag 
+        start_tag2 = "<%s[^>]*>" % childtag
+        return r"%s\s*%s\s*%s" % (start_tag1, keyword, start_tag2)
     expected_exprs = [
         wrap('a', 'NEWSLETTER'),
         wrap('a', 'MAILING LIST'),
@@ -381,8 +384,8 @@ def test_html_builder(app, status, warning):
         wrap('a', 'FIRST SECOND'),
         wrap('a', 'SECOND THIRD'),
         wrap('a', 'THIRD, FIRST'),
-        wrap('dt', 'ENTRY'),
-        wrap('dt', 'SEE'),
+        wrap_nest('li', 'ul', 'ENTRY'),
+        wrap_nest('li', 'ul', 'SEE'),
         wrap('a', 'MODULE'),
         wrap('a', 'KEYWORD'),
         wrap('a', 'OPERATOR'),
