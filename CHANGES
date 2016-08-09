@@ -129,6 +129,7 @@ Bugs fixed
 * #2775: Fix failing linkcheck with servers not supporting identidy encoding
 * #2833: Fix formatting instance annotations in ext.autodoc.
 * #1911: ``-D`` option of ``sphinx-build`` does not override the ``extensions`` variable
+* Fix ``genindex.html`` to satisfy xhtml standard.
 
 Release 1.4.5 (released Jul 13, 2016)
 =====================================
