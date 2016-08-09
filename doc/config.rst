@@ -1388,6 +1388,10 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    a chapter, but can be confusing because it mixes entries of different
    depth in one list.  The default value is ``True``.
 
+   .. note::
+
+      ``epub3`` builder ignores ``epub_tocdup`` option(always ``False``)
+
 .. confval:: epub_tocscope
 
    This setting control the scope of the epub table of contents.  The setting
