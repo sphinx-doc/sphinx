@@ -86,17 +86,21 @@ class Options(dict):
 
 class _MockModule(object):
     """Used by autodoc_mock_imports."""
+    __file__ = '/dev/null'
+    __path__ = '/dev/null'
+
     def __init__(self, *args, **kwargs):
-        pass
+        self.__all__ = []
 
     def __call__(self, *args, **kwargs):
         return _MockModule()
 
+    def _append_submodule(self, submod):
+        self.__all__.append(submod)
+
     @classmethod
     def __getattr__(cls, name):
-        if name in ('__file__', '__path__'):
-            return '/dev/null'
-        elif name[0] == name[0].upper():
+        if name[0] == name[0].upper():
             # Not very good, we assume Uppercase names are classes...
             mocktype = type(name, (), {})
             mocktype.__module__ = __name__
@@ -109,9 +113,12 @@ def mock_import(modname):
     if '.' in modname:
         pkg, _n, mods = modname.rpartition('.')
         mock_import(pkg)
-    mod = _MockModule()
-    sys.modules[modname] = mod
-    return mod
+        if isinstance(sys.modules[pkg], _MockModule):
+            sys.modules[pkg]._append_submodule(mods)
+
+    if modname not in sys.modules:
+        mod = _MockModule()
+        sys.modules[modname] = mod
 
 
 ALL = object()
@@ -514,7 +521,7 @@ class Documenter(object):
         try:
             dbg('[autodoc] import %s', self.modname)
             for modname in self.env.config.autodoc_mock_imports:
-                dbg('[autodoc] adding a mock module %s!', self.modname)
+                dbg('[autodoc] adding a mock module %s!', modname)
                 mock_import(modname)
             __import__(self.modname)
             parent = None

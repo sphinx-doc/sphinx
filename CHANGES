@@ -101,6 +101,8 @@ Bugs fixed
 * #2707: (latex) the column width is badly computed for tabular
 * #2799: Sphinx installs roles and directives automatically on importing sphinx
   module.  Now Sphinx installs them on running application.
+* `sphinx.ext.autodoc` crashes if target code imports * from mock modules
+  by `autodoc_mock_imports`.
 
 Documentation
 -------------
