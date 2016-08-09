@@ -555,12 +555,12 @@ def process_generate_options(app):
 
     from sphinx.ext.autosummary.generate import generate_autosummary_docs
 
-    ext = app.config.source_suffix[0]
-    genfiles = [genfile + (not genfile.endswith(ext) and ext or '')
+    ext = app.config.source_suffix
+    genfiles = [genfile + (not genfile.endswith(tuple(ext)) and ext[0] or '')
                 for genfile in genfiles]
 
     generate_autosummary_docs(genfiles, builder=app.builder,
-                              warn=app.warn, info=app.info, suffix=ext,
+                              warn=app.warn, info=app.info, suffix=ext[0],
                               base_path=app.srcdir)
 
 
