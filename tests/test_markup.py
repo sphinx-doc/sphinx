@@ -92,7 +92,7 @@ def verify(rst, html_expected, latex_expected):
 def test_inline():
     # correct interpretation of code with whitespace
     _html = ('<p><code class="(samp )?docutils literal"><span class="pre">'
-             'code</span>&nbsp;&nbsp; <span class="pre">sample</span></code></p>')
+             'code</span>&#160;&#160; <span class="pre">sample</span></code></p>')
     yield verify_re, '``code   sample``', _html, r'\\sphinxcode{code   sample}'
     yield verify_re, ':samp:`code   sample`', _html, r'\\sphinxcode{code   sample}'
 

@@ -12,6 +12,7 @@
 
 import codecs
 from os import path
+from datetime import datetime
 
 from sphinx.config import string_classes
 from sphinx.builders.epub import EpubBuilder
@@ -42,13 +43,12 @@ NAVIGATION_DOC_TEMPLATE = u'''\
 </html>
 '''
 
-NAVLIST_TEMPLATE = u'''\
-%(indent)s  <li>
-%(indent)s    <a href="%(refuri)s">%(text)s</a>
-%(indent)s  </li>
-'''
-NAVLIST_INDENT = '      '
-
+NAVLIST_TEMPLATE = u'''%(indent)s      <li><a href="%(refuri)s">%(text)s</a></li>'''
+NAVLIST_TEMPLATE_HAS_CHILD = u'''%(indent)s      <li><a href="%(refuri)s">%(text)s</a>'''
+NAVLIST_TEMPLATE_BEGIN_BLOCK = u'''%(indent)s        <ol>'''
+NAVLIST_TEMPLATE_END_BLOCK = u'''%(indent)s        </ol>
+%(indent)s      </li>'''
+NAVLIST_INDENT = '  '
 
 PACKAGE_DOC_TEMPLATE = u'''\
 <?xml version="1.0" encoding="UTF-8"?>
@@ -82,8 +82,7 @@ PACKAGE_DOC_TEMPLATE = u'''\
 </package>
 '''
 
-DOCTYPE = u'''<!DOCTYPE html>
-'''
+DOCTYPE = u'''<!DOCTYPE html>'''
 
 # The epub3 publisher
 
@@ -100,6 +99,9 @@ class Epub3Builder(EpubBuilder):
 
     navigation_doc_template = NAVIGATION_DOC_TEMPLATE
     navlist_template = NAVLIST_TEMPLATE
+    navlist_template_has_child = NAVLIST_TEMPLATE_HAS_CHILD
+    navlist_template_begin_block = NAVLIST_TEMPLATE_BEGIN_BLOCK
+    navlist_template_end_block = NAVLIST_TEMPLATE_END_BLOCK
     navlist_indent = NAVLIST_INDENT
     content_template = PACKAGE_DOC_TEMPLATE
     doctype = DOCTYPE
@@ -125,15 +127,26 @@ class Epub3Builder(EpubBuilder):
         metadata['contributor'] = self.esc(self.config.epub3_contributor)
         metadata['page_progression_direction'] = self.esc(
             self.config.epub3_page_progression_direction) or 'default'
+        metadata['date'] = self.esc(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
         return metadata
 
-    def new_navlist(self, node, level):
+    def new_navlist(self, node, level, has_child):
         """Create a new entry in the toc from the node at given level."""
         # XXX Modifies the node
         self.tocid += 1
         node['indent'] = self.navlist_indent * level
-        navpoint = self.navlist_template % node
-        return navpoint
+        if has_child:
+            return self.navlist_template_has_child % node
+        else:
+            return self.navlist_template % node
+
+    def begin_navlist_block(self, level):
+        return self.navlist_template_begin_block % {
+            "indent": self.navlist_indent * level
+        }
+
+    def end_navlist_block(self, level):
+        return self.navlist_template_end_block % {"indent": self.navlist_indent * level}
 
     def build_navlist(self, nodes):
         """Create the toc navigation structure.
@@ -145,10 +158,9 @@ class Epub3Builder(EpubBuilder):
         The difference from build_navpoints method is templates which are used
         when generating navigation documents.
         """
-        navstack = []
         navlist = []
         level = 1
-        lastnode = None
+        usenodes = []
         for node in nodes:
             if not node['text']:
                 continue
@@ -157,30 +169,23 @@ class Epub3Builder(EpubBuilder):
                 continue
             if node['level'] > self.config.epub_tocdepth:
                 continue
-            if node['level'] == level:
-                navlist.append(self.new_navlist(node, level))
-            elif node['level'] == level + 1:
-                navstack.append(navlist)
-                navlist = []
-                level += 1
-                if lastnode and self.config.epub_tocdup:
-                    navlist.append(self.new_navlist(node, level))
-                    navlist[-1] = '<ol>\n' + navlist[-1]
+            usenodes.append(node)
+        for i, node in enumerate(usenodes):
+            curlevel = node['level']
+            if curlevel == level + 1:
+                navlist.append(self.begin_navlist_block(level))
+            while curlevel < level:
+                level -= 1
+                navlist.append(self.end_navlist_block(level))
+            level = curlevel
+            if i != len(usenodes) - 1 and usenodes[i + 1]['level'] > level:
+                has_child = True
             else:
-                while node['level'] < level:
-                    subnav = '\n'.join(navlist)
-                    navlist = navstack.pop()
-                    navlist[-1] = self.insert_subnav(navlist[-1], subnav)
-                    level -= 1
-                    navlist[-1] = navlist[-1] + '</ol>'
-                navlist.append(self.new_navlist(node, level))
-            lastnode = node
+                has_child = False
+            navlist.append(self.new_navlist(node, level, has_child))
         while level != 1:
-            subnav = '\n'.join(navlist)
-            navlist = navstack.pop()
-            navlist[-1] = self.insert_subnav(navlist[-1], subnav)
             level -= 1
-            navlist[-1] = navlist[-1] + '</ol>'
+            navlist.append(self.end_navlist_block(level))
         return '\n'.join(navlist)
 
     def navigation_doc_metadata(self, navlist):
@@ -212,7 +217,8 @@ class Epub3Builder(EpubBuilder):
                     self.navigation_doc_metadata(navlist))
 
         # Add nav.xhtml to epub file
-        self.files.append(outname)
+        if outname not in self.files:
+            self.files.append(outname)
 
 
 def setup(app):

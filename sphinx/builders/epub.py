@@ -15,6 +15,7 @@ import re
 import codecs
 import zipfile
 from os import path
+from datetime import datetime
 
 try:
     from PIL import Image
@@ -28,7 +29,6 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.util.i18n import format_date
 from sphinx.util.osutil import ensuredir, copyfile, make_filename, EEXIST
 from sphinx.util.smartypants import sphinx_smarty_pants as ssp
 from sphinx.util.console import brown
@@ -129,8 +129,7 @@ GUIDE_TEMPLATE = u'''\
 TOCTREE_TEMPLATE = u'toctree-l%d'
 
 DOCTYPE = u'''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-'''
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'''
 
 LINK_TARGET_TEMPLATE = u' [%(uri)s]'
 
@@ -540,8 +539,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['copyright'] = self.esc(self.config.epub_copyright)
         metadata['scheme'] = self.esc(self.config.epub_scheme)
         metadata['id'] = self.esc(self.config.epub_identifier)
-        metadata['date'] = self.esc(format_date('%Y-%m-%d', language=self.config.language,
-                                                warn=self.warn))
+        metadata['date'] = self.esc(datetime.utcnow().strftime("%Y-%m-%d"))
         metadata['files'] = files
         metadata['spine'] = spine
         metadata['guide'] = guide

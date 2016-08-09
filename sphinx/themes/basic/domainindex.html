@@ -32,7 +32,7 @@
 
    <table class="indextable modindextable" cellspacing="0" cellpadding="2">
    {%- for letter, entries in content %}
-     <tr class="pcap"><td></td><td>&nbsp;</td><td></td></tr>
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
      <tr class="cap" id="cap-{{ letter }}"><td></td><td>
        <strong>{{ letter }}</strong></td><td></td></tr>
      {%- for (name, grouptype, page, anchor, extra, qualifier, description)
@@ -42,7 +42,7 @@
          <img src="{{ pathto('_static/minus.png', 1) }}" class="toggler"
               id="toggle-{{ groupid.next() }}" style="display: none" alt="-" />
            {%- endif %}</td>
-       <td>{% if grouptype == 2 %}&nbsp;&nbsp;&nbsp;{% endif %}
+       <td>{% if grouptype == 2 %}&#160;&#160;&#160;{% endif %}
        {% if page %}<a href="{{ pathto(page) }}#{{ anchor }}">{% endif -%}
        <code class="xref">{{ name|e }}</code>
        {%- if page %}</a>{% endif %}
