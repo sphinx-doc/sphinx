@@ -222,6 +222,13 @@ def test_literal_include_lineno_match(app, status, warning):
         '14</pre></div></td>')
     assert start_after in html
 
+    start_at_end_at = (
+        '<td class="linenos"><div class="linenodiv"><pre>'
+        ' 9\n'
+        '10\n'
+        '11</pre></div></td>')
+    assert start_at_end_at in html
+
 
 @with_app('latex', testroot='directive-code')
 def test_literalinclude_file_whole_of_emptyline(app, status, warning):
