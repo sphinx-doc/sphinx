@@ -104,7 +104,6 @@ def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_
     assert status.getvalue() == ('intersphinx inventory has moved: '
                                  'http://hostname/%s -> http://hostname/new/%s\n' %
                                  (INVENTORY_FILENAME, INVENTORY_FILENAME))
-    print read_inventory_v2.call_args
     assert read_inventory_v2.call_args[0][1] == 'http://hostname/new'
 
     # different uri and inv, not redirected
