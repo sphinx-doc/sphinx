@@ -87,16 +87,16 @@ def test_read_inventory_v2():
 @mock.patch('sphinx.ext.intersphinx.read_inventory_v2')
 @mock.patch('sphinx.ext.intersphinx._read_from_url')
 def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_inventory_v2):
-    _read_from_url().readline.return_value = '# Sphinx inventory version 2'
+    _read_from_url().readline.return_value = '# Sphinx inventory version 2'.encode('utf-8')
 
     # same uri and inv, not redirected
     _read_from_url().geturl.return_value = 'http://hostname/' + INVENTORY_FILENAME
     fetch_inventory(app, 'http://hostname/', 'http://hostname/' + INVENTORY_FILENAME)
     assert 'intersphinx inventory has moved' not in status.getvalue()
     assert read_inventory_v2.call_args[0][1] == 'http://hostname/'
-    status.truncate(0)
 
     # same uri and inv, redirected
+    status.seek(0)
     status.truncate(0)
     _read_from_url().geturl.return_value = 'http://hostname/new/' + INVENTORY_FILENAME
 
@@ -107,6 +107,7 @@ def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_
     assert read_inventory_v2.call_args[0][1] == 'http://hostname/new'
 
     # different uri and inv, not redirected
+    status.seek(0)
     status.truncate(0)
     _read_from_url().geturl.return_value = 'http://hostname/new/' + INVENTORY_FILENAME
 
@@ -115,6 +116,7 @@ def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_
     assert read_inventory_v2.call_args[0][1] == 'http://hostname/'
 
     # different uri and inv, redirected
+    status.seek(0)
     status.truncate(0)
     _read_from_url().geturl.return_value = 'http://hostname/other/' + INVENTORY_FILENAME
 
