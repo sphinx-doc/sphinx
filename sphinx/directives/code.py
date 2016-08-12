@@ -18,6 +18,7 @@ from docutils.statemachine import ViewList
 from six import string_types
 
 from sphinx import addnodes
+from sphinx.locale import _
 from sphinx.util import parselinenos
 from sphinx.util.nodes import set_source_info
 
@@ -68,6 +69,8 @@ def container_wrapper(directive, literal_node, caption):
     parsed = nodes.Element()
     directive.state.nested_parse(ViewList([caption], source=''),
                                  directive.content_offset, parsed)
+    if isinstance(parsed[0], nodes.system_message):
+        raise ValueError(parsed[0])
     caption_node = nodes.caption(parsed[0].rawsource, '',
                                  *parsed[0].children)
     caption_node.source = parsed[0].source
@@ -131,7 +134,12 @@ class CodeBlock(Directive):
         caption = self.options.get('caption')
         if caption:
             self.options.setdefault('name', nodes.fully_normalize_name(caption))
-            literal = container_wrapper(self, literal, caption)
+            try:
+                literal = container_wrapper(self, literal, caption)
+            except ValueError as exc:
+                document = self.state.document
+                errmsg = _('Invalid caption: %s' % exc[0][0].astext())
+                return [document.reporter.warning(errmsg, line=self.lineno)]
 
         # literal will be note_implicit_target that is linked from caption and numref.
         # when options['name'] is provided, it should be primary ID.
@@ -337,7 +345,12 @@ class LiteralInclude(Directive):
             if not caption:
                 caption = self.arguments[0]
             self.options.setdefault('name', nodes.fully_normalize_name(caption))
-            retnode = container_wrapper(self, retnode, caption)
+            try:
+                retnode = container_wrapper(self, retnode, caption)
+            except ValueError as exc:
+                document = self.state.document
+                errmsg = _('Invalid caption: %s' % exc[0][0].astext())
+                return [document.reporter.warning(errmsg, line=self.lineno)]
 
         # retnode will be note_implicit_target that is linked from caption and numref.
         # when options['name'] is provided, it should be primary ID.

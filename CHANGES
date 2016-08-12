@@ -18,6 +18,7 @@ Bugs fixed
 * #2833: Fix formatting instance annotations in ext.autodoc.
 * #1911: ``-D`` option of ``sphinx-build`` does not override the ``extensions`` variable
 * #2789: `sphinx.ext.intersphinx` generates wrong hyperlinks if the inventory is given
+* parsing errors for caption of code-blocks are displayed in document (ref: #2845)
 
 Release 1.4.5 (released Jul 13, 2016)
 =====================================
