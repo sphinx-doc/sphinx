@@ -1728,7 +1728,7 @@ class BuildEnvironment:
                 return
             for (title, ref) in toctreenode['entries']:
                 if url_re.match(ref) or ref in ['self', 'genindex', 'modindex', 'search'] \
-                or ref in assigned:
+                        or ref in assigned:
                     # don't mess with those
                     continue
                 if ref in self.tocs:
@@ -1797,7 +1797,7 @@ class BuildEnvironment:
                 elif isinstance(subnode, addnodes.toctree):
                     for title, subdocname in subnode['entries']:
                         if url_re.match(subdocname) or \
-                        subdocname in ['self', 'genindex', 'modindex', 'search']:
+                                subdocname in ['self', 'genindex', 'modindex', 'search']:
                             # don't mess with those
                             continue
 
