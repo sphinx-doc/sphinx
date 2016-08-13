@@ -1773,6 +1773,13 @@ Options for text output
 
 These options influence text output.
 
+.. confval:: text_file_suffix
+
+   This is the file name suffix for generated text files.  The default is
+   ``".text"``.
+
+   .. versionadded:: 1.5
+
 .. confval:: text_newlines
 
    Determines which end-of-line character(s) are used in text output.
