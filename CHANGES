@@ -39,6 +39,8 @@ Incompatible changes
 * Fix :download: role on epub/qthelp builder. They ignore the role because they don't support it.
 * ``sphinx.ext.viewcode`` doesn't work on epub building by default. ``viewcode_enable_epub`` option
 * ``sphinx.ext.viewcode`` disabled on singlehtml builder.
+* Use make-mode of ``sphinx-quickstart`` by default.  To disable this, use
+  ``-M`` option
 
 Features added
 --------------
