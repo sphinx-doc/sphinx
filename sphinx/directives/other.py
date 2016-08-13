@@ -95,7 +95,7 @@ class TocTree(Directive):
                         break
                 # absolutize filenames
                 docname = docname_join(env.docname, docname)
-                if url_re.match(ref) or ref == 'self':
+                if url_re.match(ref) or ref in ['self', 'genindex', 'modindex', 'search']:
                     entries.append((title, ref))
                 elif docname not in env.found_docs:
                     ret.append(self.state.document.reporter.warning(

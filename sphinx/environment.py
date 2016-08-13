@@ -1404,6 +1404,18 @@ class BuildEnvironment:
                         item = nodes.list_item('', para)
                         # don't show subitems
                         toc = nodes.bullet_list('', item)
+                    elif ref in ['genindex', 'modindex', 'search']:
+                        reflabel = self.domains['std'].data['labels'][ref]
+                        if not title:
+                            title = reflabel[2]
+                        reference = nodes.reference('', '', internal=True,
+                                                    refuri=reflabel[0],
+                                                    anchorname='',
+                                                    *[nodes.Text(title)])
+                        para = addnodes.compact_paragraph('', '', reference)
+                        item = nodes.list_item('', para)
+                        # don't show subitems
+                        toc = nodes.bullet_list('', item)
                     else:
                         if ref in parents:
                             self.warn(ref, 'circular toctree references '
@@ -1715,7 +1727,8 @@ class BuildEnvironment:
             if depth == 0:
                 return
             for (title, ref) in toctreenode['entries']:
-                if url_re.match(ref) or ref == 'self' or ref in assigned:
+                if url_re.match(ref) or ref in ['self', 'genindex', 'modindex', 'search'] \
+                or ref in assigned:
                     # don't mess with those
                     continue
                 if ref in self.tocs:
@@ -1783,7 +1796,8 @@ class BuildEnvironment:
                     continue
                 elif isinstance(subnode, addnodes.toctree):
                     for title, subdocname in subnode['entries']:
-                        if url_re.match(subdocname) or subdocname == 'self':
+                        if url_re.match(subdocname) or \
+                        subdocname in ['self', 'genindex', 'modindex', 'search']:
                             # don't mess with those
                             continue
 
