@@ -95,7 +95,7 @@ class Epub3Builder(EpubBuilder):
     and META-INF/container.xml. Afterwards, all necessary files are zipped to
     an epub file.
     """
-    name = 'epub3'
+    name = 'epub'
 
     navigation_doc_template = NAVIGATION_DOC_TEMPLATE
     navlist_template = NAVLIST_TEMPLATE

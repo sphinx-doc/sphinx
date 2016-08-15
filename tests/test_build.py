@@ -70,7 +70,7 @@ def test_build_all():
 
     # note: no 'html' - if it's ok with dirhtml it's ok with html
     for buildername in ['dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle',
-                        'json', 'text', 'htmlhelp', 'qthelp', 'epub', 'epub3',
+                        'json', 'text', 'htmlhelp', 'qthelp', 'epub2', 'epub',
                         'applehelp', 'changes', 'xml', 'pseudoxml', 'man',
                         'linkcheck']:
         yield verify_build, buildername, srcdir

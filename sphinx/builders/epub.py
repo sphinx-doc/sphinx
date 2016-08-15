@@ -176,7 +176,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     META-INF/container.xml.  Afterwards, all necessary files are zipped to an
     epub file.
     """
-    name = 'epub'
+    name = 'epub2'
 
     # don't copy the reST source
     copysource = False
