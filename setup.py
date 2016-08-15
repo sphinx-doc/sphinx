@@ -6,6 +6,7 @@ import sys
 from distutils import log
 
 import sphinx
+from sphinx.pycode.pgen2.driver import compile_grammar
 
 long_desc = '''
 Sphinx is a tool that makes it easy to create intelligent and beautiful
@@ -71,6 +72,10 @@ extras_require = {
 # for sdist installation with pip-1.5.6
 if sys.platform == 'win32':
     requires.append('colorama>=0.3.5')
+
+# Compile grammars before packaging
+compile_grammar('sphinx/pycode/Grammar-py2.txt')
+compile_grammar('sphinx/pycode/Grammar-py3.txt')
 
 # Provide a "compile_catalog" command that also creates the translated
 # JavaScript files if Babel is available.
