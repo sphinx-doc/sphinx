@@ -25,8 +25,10 @@ def test_jsmath(app, status, warning):
     assert (u'<span class="eqno">(1)<a class="headerlink" href="#equation-foo" '
             u'title="Permalink to this equation">\xb6</a></span>'
             u'<div class="math" id="equation-foo">\ne^{i\\pi} = 1</div>' in content)
-    assert ('<span class="eqno">(2)</span><div class="math">\n'
-            'e^{ix} = \\cos x + i\\sin x</div>' in content)
+    assert (u'<span class="eqno">(2)<a class="headerlink" href="#equation-math:0" '
+            u'title="Permalink to this equation">\xb6</a></span>'
+            u'<div class="math" id="equation-math:0">\n'
+            u'e^{ix} = \\cos x + i\\sin x</div>' in content)
     assert '<div class="math">\nn \\in \\mathbb N</div>' in content
     assert '<div class="math">\na + 1 &lt; b</div>' in content
 
@@ -81,8 +83,8 @@ def test_math_number_all_mathjax(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').text()
-    html = (r'<div class="math">\s*'
-            r'<span class="eqno">\(1\)</span>\\\[a\^2\+b\^2=c\^2\\\]</div>')
+    html = (r'<div class="math" id="equation-index:0">\s*'
+            r'<span class="eqno">\(1\)<a .*>\xb6</a></span>\\\[a\^2\+b\^2=c\^2\\\]</div>')
     assert re.search(html, content, re.S)
 
 
@@ -109,4 +111,7 @@ def test_math_number_all_latex(app, status, warning):
              r'S &= \\pi r\^2\\\\\s*'
              r'V &= \\frac\{4}\{3} \\pi r\^3\\\\\s*'
              r'\\end{aligned}\\end{align\*}')
+    assert re.search(macro, content, re.S)
+
+    macro = r'Referencing equation \\eqref{equation:math:foo}.'
     assert re.search(macro, content, re.S)
