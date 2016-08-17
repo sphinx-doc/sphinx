@@ -978,6 +978,20 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
         return {self.config.master_doc: new_secnumbers}
 
+    def assemble_toc_fignumbers(self):
+        # Assemble toc_fignumbers to resolve figure numbers on SingleHTML.
+        # Merge all fignumbers to single fignumber.
+        new_fignumbers = {}
+        for docname, fignums in iteritems(self.env.toc_fignumbers):
+            for figtype, mapping in iteritems(fignums):
+                new_mapping = new_fignumbers.get(figtype)
+                if new_mapping is None:
+                    new_mapping = new_fignumbers[figtype] = {}
+                for id, fignum in iteritems(mapping):
+                    new_mapping[id] = fignum
+
+        return {self.config.master_doc: new_fignumbers}
+
     def get_doc_context(self, docname, body, metatags):
         # no relation links...
         toc = self.env.get_toctree_for(self.config.master_doc, self, False)
@@ -1014,6 +1028,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         self.info(bold('assembling single document... '), nonl=True)
         doctree = self.assemble_doctree()
         self.env.toc_secnumbers = self.assemble_toc_secnumbers()
+        self.env.toc_fignumbers = self.assemble_toc_fignumbers()
         self.info()
         self.info(bold('writing... '), nonl=True)
         self.write_doc_serialized(self.config.master_doc, doctree)
