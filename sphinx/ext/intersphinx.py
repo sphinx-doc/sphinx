@@ -200,17 +200,12 @@ def _get_safe_url(url):
     """Gets version of *url* with basic auth passwords obscured. This function
     returns results suitable for printing and logging.
 
-    E.g.: https://user:12345@example.com => https://user:********@example.com
-
-    .. note::
-
-       The number of astrisks is invariant in the length of the basic auth
-       password, so minimal information is leaked.
+    E.g.: https://user:12345@example.com => https://user@example.com
 
     :param url: a url
     :type url: ``str``
 
-    :return: *url* with password obscured
+    :return: *url* with password removed
     :rtype: ``str``
     """
     safe_url = url
