@@ -55,6 +55,56 @@ class MyFormatter(optparse.IndentedHelpFormatter):
         return "\n".join(result)
 
 
+def handle_exception(app, opts, exception, stderr=sys.stderr):
+    if opts.pdb:
+        import pdb
+        print(red('Exception occurred while building, starting debugger:'),
+              file=stderr)
+        traceback.print_exc()
+        pdb.post_mortem(sys.exc_info()[2])
+    else:
+        print(file=stderr)
+        if opts.verbosity or opts.traceback:
+            traceback.print_exc(None, stderr)
+            print(file=stderr)
+        if isinstance(exception, KeyboardInterrupt):
+            print('interrupted!', file=stderr)
+        elif isinstance(exception, SystemMessage):
+            print(red('reST markup error:'), file=stderr)
+            print(terminal_safe(exception.args[0]), file=stderr)
+        elif isinstance(exception, SphinxError):
+            print(red('%s:' % exception.category), file=stderr)
+            print(terminal_safe(text_type(exception)), file=stderr)
+        elif isinstance(exception, UnicodeError):
+            print(red('Encoding error:'), file=stderr)
+            print(terminal_safe(text_type(exception)), file=stderr)
+            tbpath = save_traceback(app)
+            print(red('The full traceback has been saved in %s, if you want '
+                      'to report the issue to the developers.' % tbpath),
+                  file=stderr)
+        elif isinstance(exception, RuntimeError) and 'recursion depth' in str(exception):
+            print(red('Recursion error:'), file=stderr)
+            print(terminal_safe(text_type(exception)), file=stderr)
+            print(file=stderr)
+            print('This can happen with very large or deeply nested source '
+                  'files.  You can carefully increase the default Python '
+                  'recursion limit of 1000 in conf.py with e.g.:', file=stderr)
+            print('    import sys; sys.setrecursionlimit(1500)', file=stderr)
+        else:
+            print(red('Exception occurred:'), file=stderr)
+            print(format_exception_cut_frames().rstrip(), file=stderr)
+            tbpath = save_traceback(app)
+            print(red('The full traceback has been saved in %s, if you '
+                      'want to report the issue to the developers.' % tbpath),
+                  file=stderr)
+            print('Please also report this if it was a user error, so '
+                  'that a better error message can be provided next time.',
+                  file=stderr)
+            print('A bug report can be filed in the tracker at '
+                  '<https://github.com/sphinx-doc/sphinx/issues>. Thanks!',
+                  file=stderr)
+
+
 def main(argv):
     if not color_terminal():
         nocolor()
@@ -243,52 +293,6 @@ def main(argv):
                      opts.warningiserror, opts.tags, opts.verbosity, opts.jobs)
         app.build(opts.force_all, filenames)
         return app.statuscode
-    except (Exception, KeyboardInterrupt) as err:
-        if opts.pdb:
-            import pdb
-            print(red('Exception occurred while building, starting debugger:'),
-                  file=error)
-            traceback.print_exc()
-            pdb.post_mortem(sys.exc_info()[2])
-        else:
-            print(file=error)
-            if opts.verbosity or opts.traceback:
-                traceback.print_exc(None, error)
-                print(file=error)
-            if isinstance(err, KeyboardInterrupt):
-                print('interrupted!', file=error)
-            elif isinstance(err, SystemMessage):
-                print(red('reST markup error:'), file=error)
-                print(terminal_safe(err.args[0]), file=error)
-            elif isinstance(err, SphinxError):
-                print(red('%s:' % err.category), file=error)
-                print(terminal_safe(text_type(err)), file=error)
-            elif isinstance(err, UnicodeError):
-                print(red('Encoding error:'), file=error)
-                print(terminal_safe(text_type(err)), file=error)
-                tbpath = save_traceback(app)
-                print(red('The full traceback has been saved in %s, if you want '
-                          'to report the issue to the developers.' % tbpath),
-                      file=error)
-            elif isinstance(err, RuntimeError) and 'recursion depth' in str(err):
-                print(red('Recursion error:'), file=error)
-                print(terminal_safe(text_type(err)), file=error)
-                print(file=error)
-                print('This can happen with very large or deeply nested source '
-                      'files.  You can carefully increase the default Python '
-                      'recursion limit of 1000 in conf.py with e.g.:', file=error)
-                print('    import sys; sys.setrecursionlimit(1500)', file=error)
-            else:
-                print(red('Exception occurred:'), file=error)
-                print(format_exception_cut_frames().rstrip(), file=error)
-                tbpath = save_traceback(app)
-                print(red('The full traceback has been saved in %s, if you '
-                          'want to report the issue to the developers.' % tbpath),
-                      file=error)
-                print('Please also report this if it was a user error, so '
-                      'that a better error message can be provided next time.',
-                      file=error)
-                print('A bug report can be filed in the tracker at '
-                      '<https://github.com/sphinx-doc/sphinx/issues>. Thanks!',
-                      file=error)
-            return 1
+    except (Exception, KeyboardInterrupt) as exc:
+        handle_exception(app, opts, exc, error)
+        return 1
