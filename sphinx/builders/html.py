@@ -981,6 +981,26 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
 
         return {self.config.master_doc: new_secnumbers}
 
+    def assemble_toc_fignumbers(self):
+        # Assemble toc_fignumbers to resolve figure numbers on SingleHTML.
+        # Merge all fignumbers to single fignumber.
+        #
+        # Note: current Sphinx has refid confliction in singlehtml mode.
+        #       To avoid the problem, it replaces key of secnumbers to
+        #       tuple of docname and refid.
+        #
+        #       There are related codes in inline_all_toctres() and
+        #       HTMLTranslter#add_fignumber().
+        new_fignumbers = {}
+        # {u'foo': {'figure': {'id2': (2,), 'id1': (1,)}}, u'bar': {'figure': {'id1': (3,)}}}
+        for docname, fignumlist in iteritems(self.env.toc_fignumbers):
+            for figtype, fignums in iteritems(fignumlist):
+                new_fignumbers.setdefault((docname, figtype), {})
+                for id, fignum in iteritems(fignums):
+                    new_fignumbers[(docname, figtype)][id] = fignum
+
+        return {self.config.master_doc: new_fignumbers}
+
     def get_doc_context(self, docname, body, metatags):
         # no relation links...
         toc = self.env.get_toctree_for(self.config.master_doc, self, False)
@@ -1017,6 +1037,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         self.info(bold('assembling single document... '), nonl=True)
         doctree = self.assemble_doctree()
         self.env.toc_secnumbers = self.assemble_toc_secnumbers()
+        self.env.toc_fignumbers = self.assemble_toc_fignumbers()
         self.info()
         self.info(bold('writing... '), nonl=True)
         self.write_doc_serialized(self.config.master_doc, doctree)
@@ -1069,6 +1090,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         self.config_hash = ''
         self.tags_hash = ''
         self.imagedir = '_images'
+        self.current_docname = None
         self.theme = None       # no theme necessary
         self.templates = None   # no template bridge necessary
         self.init_translator_class()
