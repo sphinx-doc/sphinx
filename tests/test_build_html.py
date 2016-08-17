@@ -566,7 +566,7 @@ def test_numfig_disabled(app, status, warning):
             yield check_xpath, etree, fname, xpath, check, be_found
 
 
-@gen_with_app(buildername='html', testroot='numfig',
+@gen_with_app(buildername='html', testroot='numfig', freshenv=True,
               confoverrides={'numfig': True})
 def test_numfig_without_numbered_toctree(app, status, warning):
     # remove :numbered: option
@@ -948,6 +948,92 @@ def test_numfig_with_secnum_depth(app, status, warning):
              '^Table 2.1.2 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Listing 2.1.2 $', True),
+        ],
+    }
+
+    for fname, paths in iteritems(expects):
+        parser = NslessParser()
+        parser.entity.update(html_entities.entitydefs)
+        with (app.outdir / fname).open('rb') as fp:
+            etree = ET.parse(fp, parser)
+
+        for xpath, check, be_found in paths:
+            yield check_xpath, etree, fname, xpath, check, be_found
+
+
+@gen_with_app(buildername='singlehtml', testroot='numfig',
+              confoverrides={'numfig': True})
+def test_numfig_with_singlehtml(app, status, warning):
+    app.builder.build_all()
+
+    expects = {
+        'index.html': [
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig. 1 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig. 2 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Listing 1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Listing 2 $', True),
+            (".//li/a/span", '^Fig. 1$', True),
+            (".//li/a/span", '^Figure2.2$', True),
+            (".//li/a/span", '^Table 1$', True),
+            (".//li/a/span", '^Table:2.2$', True),
+            (".//li/a/span", '^Listing 1$', True),
+            (".//li/a/span", '^Code-2.2$', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig. 1.1 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig. 1.2 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig. 1.3 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig. 1.4 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1.1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1.2 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1.3 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 1.4 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Listing 1.1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Listing 1.2 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Listing 1.3 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Listing 1.4 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig. 2.1 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig. 2.3 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig. 2.4 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2.1 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2.3 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2.4 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Listing 2.1 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Listing 2.3 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Listing 2.4 $', True),
+            (".//div[@class='figure']/p[@class='caption']/"
+             "span[@class='caption-number']", '^Fig. 2.2 $', True),
+            (".//table/caption/span[@class='caption-number']",
+             '^Table 2.2 $', True),
+            (".//div[@class='code-block-caption']/"
+             "span[@class='caption-number']", '^Listing 2.2 $', True),
         ],
     }
 
