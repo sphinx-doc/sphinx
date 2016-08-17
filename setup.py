@@ -42,7 +42,7 @@ if sys.version_info < (2, 6) or (3, 0) <= sys.version_info < (3, 3):
     sys.exit(1)
 
 requires = [
-    'six>=1.4',
+    'six>=1.5',
     'Jinja2>=2.3',
     'Pygments>=2.0',
     'docutils>=0.11',
