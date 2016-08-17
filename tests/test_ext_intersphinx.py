@@ -17,7 +17,7 @@ from six import BytesIO
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.ext.intersphinx import read_inventory_v1, read_inventory_v2, \
+from sphinx.ext.intersphinx import read_inventory, \
     load_mappings, missing_reference, _strip_basic_auth, _read_from_url, \
     _get_safe_url, fetch_inventory, INVENTORY_FILENAME
 
@@ -49,8 +49,7 @@ a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
 
 def test_read_inventory_v1():
     f = BytesIO(inventory_v1)
-    f.readline()
-    invdata = read_inventory_v1(f, '/util', posixpath.join)
+    invdata = read_inventory(f, '/util', posixpath.join)
     assert invdata['py:module']['module'] == \
         ('foo', '1.0', '/util/foo.html#module-module', '-')
     assert invdata['py:class']['module.cls'] == \
@@ -59,13 +58,11 @@ def test_read_inventory_v1():
 
 def test_read_inventory_v2():
     f = BytesIO(inventory_v2)
-    f.readline()
-    invdata1 = read_inventory_v2(f, '/util', posixpath.join)
+    invdata1 = read_inventory(f, '/util', posixpath.join)
 
     # try again with a small buffer size to test the chunking algorithm
     f = BytesIO(inventory_v2)
-    f.readline()
-    invdata2 = read_inventory_v2(f, '/util', posixpath.join, bufsize=5)
+    invdata2 = read_inventory(f, '/util', posixpath.join, bufsize=5)
 
     assert invdata1 == invdata2
 

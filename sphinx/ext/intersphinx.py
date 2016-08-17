@@ -125,6 +125,14 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
     return invdata
 
 
+def read_inventory(f, uri, join, bufsize=16*1024):
+    line = f.readline().rstrip().decode('utf-8')
+    if line == '# Sphinx inventory version 1':
+        return read_inventory_v1(f, uri, join)
+    elif line == '# Sphinx inventory version 2':
+        return read_inventory_v2(f, uri, join, bufsize=bufsize)
+
+
 def _strip_basic_auth(url):
     """Returns *url* with basic auth credentials removed. Also returns the
     basic auth username and password if they're present in *url*.
@@ -227,7 +235,6 @@ def fetch_inventory(app, uri, inv):
     if not localuri:
         # case: inv URI points to remote resource; strip any existing auth
         uri, _, _ = _strip_basic_auth(uri)
-    join = localuri and path.join or posixpath.join
     try:
         if '://' in inv:
             f = _read_from_url(inv)
@@ -245,18 +252,12 @@ def fetch_inventory(app, uri, inv):
 
                 if uri in (inv, path.dirname(inv), path.dirname(inv) + '/'):
                     uri = path.dirname(newinv)
-        line = f.readline().rstrip().decode('utf-8')
-        try:
-            if line == '# Sphinx inventory version 1':
-                invdata = read_inventory_v1(f, uri, join)
-            elif line == '# Sphinx inventory version 2':
-                invdata = read_inventory_v2(f, uri, join)
-            else:
-                raise ValueError
-            f.close()
-        except ValueError:
-            f.close()
-            raise ValueError('unknown or unsupported inventory version')
+        with f:
+            try:
+                join = localuri and path.join or posixpath.join
+                invdata = read_inventory(f, uri, join)
+            except ValueError:
+                raise ValueError('unknown or unsupported inventory version')
     except Exception as err:
         app.warn('intersphinx inventory %r not readable due to '
                  '%s: %s' % (inv, err.__class__.__name__, err))
