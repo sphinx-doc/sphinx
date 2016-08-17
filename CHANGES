@@ -96,6 +96,7 @@ Features added
   prefixes from the index text of C++ objects.
 * C++, added concept directive. Thanks to mickk-on-cpp.
 * C++, added support for template introduction syntax. Thanks to mickk-on-cpp.
+* #2725: latex builder: allow to use user-defined template file (experimental)
 
 Bugs fixed
 ----------

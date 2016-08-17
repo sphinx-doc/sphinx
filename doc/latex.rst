@@ -149,3 +149,12 @@ Let us illustrate here what can be modified by the second method.
    from a ``\usepackage`` executed from inside the :file:`sphinx.sty` style
    file. Sphinx aims at loading as few packages as are really needed for its
    default design.
+
+.. hint::
+
+   As an experimental feature, Sphinx can use user-defined template file for
+   LaTeX source if you have a file named ``_templates/latex.tex_t`` on your
+   project.  Now all template variables are unstable and undocumented.  They
+   will be changed in future version.
+
+   .. versionadded:: 1.5
