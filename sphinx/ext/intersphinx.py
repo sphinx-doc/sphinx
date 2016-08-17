@@ -208,18 +208,17 @@ def _get_safe_url(url):
     :return: *url* with password removed
     :rtype: ``str``
     """
-    safe_url = url
-    url, username, _ = _strip_basic_auth(url)
-    if username is not None:
-        # case: url contained basic auth creds; obscure password
-        url_parts = urlsplit(url)
-        safe_netloc = '{0}@{1}'.format(username, url_parts.hostname)
-        # replace original netloc w/ obscured version
-        frags = list(url_parts)
-        frags[1] = safe_netloc
-        safe_url = urlunsplit(frags)
+    parts = urlsplit(url)
+    if parts.username is None:
+        return url
+    else:
+        frags = list(parts)
+        if parts.port:
+            frags[1] = '{0}@{1}:{2}'.format(parts.username, parts.hostname, parts.port)
+        else:
+            frags[1] = '{0}@{1}'.format(parts.username, parts.hostname)
 
-    return safe_url
+        return urlunsplit(frags)
 
 
 def fetch_inventory(app, uri, inv):

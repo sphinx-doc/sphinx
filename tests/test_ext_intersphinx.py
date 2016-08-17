@@ -298,6 +298,14 @@ def test_getsafeurl_authed():
     assert expected == actual
 
 
+def test_getsafeurl_authed_having_port():
+    """_get_safe_url() with a url with basic auth having port"""
+    url = 'https://user:12345@domain.com:8080/project/objects.inv'
+    expected = 'https://user@domain.com:8080/project/objects.inv'
+    actual = _get_safe_url(url)
+    assert expected == actual
+
+
 def test_getsafeurl_unauthed():
     """_get_safe_url() with a url without basic auth"""
     url = 'https://domain.com/project/objects.inv'
