@@ -19,7 +19,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.ext.intersphinx import read_inventory_v1, read_inventory_v2, \
     load_mappings, missing_reference, _strip_basic_auth, _read_from_url, \
-    _get_safe_url
+    _get_safe_url, fetch_inventory, INVENTORY_FILENAME
 
 from util import with_app, with_tempdir, mock
 
@@ -81,6 +81,50 @@ def test_read_inventory_v2():
         '/util/glossary.html#term-a-term'
     assert invdata1['std:term']['a term including:colon'][2] == \
         '/util/glossary.html#term-a-term-including-colon'
+
+
+@with_app()
+@mock.patch('sphinx.ext.intersphinx.read_inventory_v2')
+@mock.patch('sphinx.ext.intersphinx._read_from_url')
+def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_inventory_v2):
+    _read_from_url().readline.return_value = '# Sphinx inventory version 2'.encode('utf-8')
+
+    # same uri and inv, not redirected
+    _read_from_url().geturl.return_value = 'http://hostname/' + INVENTORY_FILENAME
+    fetch_inventory(app, 'http://hostname/', 'http://hostname/' + INVENTORY_FILENAME)
+    assert 'intersphinx inventory has moved' not in status.getvalue()
+    assert read_inventory_v2.call_args[0][1] == 'http://hostname/'
+
+    # same uri and inv, redirected
+    status.seek(0)
+    status.truncate(0)
+    _read_from_url().geturl.return_value = 'http://hostname/new/' + INVENTORY_FILENAME
+
+    fetch_inventory(app, 'http://hostname/', 'http://hostname/' + INVENTORY_FILENAME)
+    assert status.getvalue() == ('intersphinx inventory has moved: '
+                                 'http://hostname/%s -> http://hostname/new/%s\n' %
+                                 (INVENTORY_FILENAME, INVENTORY_FILENAME))
+    assert read_inventory_v2.call_args[0][1] == 'http://hostname/new'
+
+    # different uri and inv, not redirected
+    status.seek(0)
+    status.truncate(0)
+    _read_from_url().geturl.return_value = 'http://hostname/new/' + INVENTORY_FILENAME
+
+    fetch_inventory(app, 'http://hostname/', 'http://hostname/new/' + INVENTORY_FILENAME)
+    assert 'intersphinx inventory has moved' not in status.getvalue()
+    assert read_inventory_v2.call_args[0][1] == 'http://hostname/'
+
+    # different uri and inv, redirected
+    status.seek(0)
+    status.truncate(0)
+    _read_from_url().geturl.return_value = 'http://hostname/other/' + INVENTORY_FILENAME
+
+    fetch_inventory(app, 'http://hostname/', 'http://hostname/new/' + INVENTORY_FILENAME)
+    assert status.getvalue() == ('intersphinx inventory has moved: '
+                                 'http://hostname/new/%s -> http://hostname/other/%s\n' %
+                                 (INVENTORY_FILENAME, INVENTORY_FILENAME))
+    assert read_inventory_v2.call_args[0][1] == 'http://hostname/'
 
 
 @with_app()

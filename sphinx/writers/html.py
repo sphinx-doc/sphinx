@@ -69,6 +69,7 @@ class HTMLTranslator(BaseTranslator):
             builder.config.highlight_language
         self.highlightopts = builder.config.highlight_options
         self.highlightlinenothreshold = sys.maxsize
+        self.docnames = [builder.current_docname]  # for singlehtml builder
         self.protect_literal_text = 0
         self.permalink_text = builder.config.html_add_permalinks
         # support backwards-compatible setting to a bool
@@ -82,10 +83,11 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_start_of_file(self, node):
         # only occurs in the single-file builder
+        self.docnames.append(node['docname'])
         self.body.append('<span id="document-%s"></span>' % node['docname'])
 
     def depart_start_of_file(self, node):
-        pass
+        self.docnames.pop()
 
     def visit_desc(self, node):
         self.body.append(self.starttag(node, 'dl', CLASS=node['objtype']))
@@ -247,7 +249,7 @@ class HTMLTranslator(BaseTranslator):
                              self.secnumber_suffix)
         elif isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
-                docname = node.parent.get('docname')
+                docname = self.docnames[-1]
                 anchorname = '#' + node.parent['ids'][0]
                 if (docname, anchorname) not in self.builder.secnumbers:
                     anchorname = (docname, '')  # try first heading which has no anchor
@@ -264,14 +266,19 @@ class HTMLTranslator(BaseTranslator):
 
     def add_fignumber(self, node):
         def append_fignumber(figtype, figure_id):
-            if figure_id in self.builder.fignumbers.get(figtype, {}):
+            if self.builder.name == 'singlehtml':
+                key = (self.docnames[-1], figtype)
+            else:
+                key = figtype
+
+            if figure_id in self.builder.fignumbers.get(key, {}):
                 self.body.append('<span class="caption-number">')
                 prefix = self.builder.config.numfig_format.get(figtype)
                 if prefix is None:
                     msg = 'numfig_format is not defined for %s' % figtype
                     self.builder.warn(msg)
                 else:
-                    numbers = self.builder.fignumbers[figtype][figure_id]
+                    numbers = self.builder.fignumbers[key][figure_id]
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                     self.body.append('</span>')
 
