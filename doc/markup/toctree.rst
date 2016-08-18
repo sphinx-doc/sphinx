@@ -121,7 +121,8 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    The special entry name ``self`` stands for the document containing the
    toctree directive.  This is useful if you want to generate a "sitemap" from
-   the toctree.
+   the toctree.  The special document names ``genindex``, ``modindex``, and
+   ``search`` can also be used.
 
    You can also give a "hidden" option to the directive, like this::
 
@@ -180,6 +181,9 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    .. versionchanged:: 1.3
       Added "caption" and "name" option.
+
+   .. versionchanged:: 1.5
+      Added support for "genindex", "modindex", and "search" references.
 
 Special names
 -------------
