@@ -81,47 +81,47 @@ def test_read_inventory_v2():
 
 
 @with_app()
-@mock.patch('sphinx.ext.intersphinx.read_inventory_v2')
+@mock.patch('sphinx.ext.intersphinx.read_inventory')
 @mock.patch('sphinx.ext.intersphinx._read_from_url')
-def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_inventory_v2):
+def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_inventory):
     _read_from_url().readline.return_value = '# Sphinx inventory version 2'.encode('utf-8')
 
     # same uri and inv, not redirected
-    _read_from_url().geturl.return_value = 'http://hostname/' + INVENTORY_FILENAME
+    _read_from_url().url = 'http://hostname/' + INVENTORY_FILENAME
     fetch_inventory(app, 'http://hostname/', 'http://hostname/' + INVENTORY_FILENAME)
     assert 'intersphinx inventory has moved' not in status.getvalue()
-    assert read_inventory_v2.call_args[0][1] == 'http://hostname/'
+    assert read_inventory.call_args[0][1] == 'http://hostname/'
 
     # same uri and inv, redirected
     status.seek(0)
     status.truncate(0)
-    _read_from_url().geturl.return_value = 'http://hostname/new/' + INVENTORY_FILENAME
+    _read_from_url().url = 'http://hostname/new/' + INVENTORY_FILENAME
 
     fetch_inventory(app, 'http://hostname/', 'http://hostname/' + INVENTORY_FILENAME)
     assert status.getvalue() == ('intersphinx inventory has moved: '
                                  'http://hostname/%s -> http://hostname/new/%s\n' %
                                  (INVENTORY_FILENAME, INVENTORY_FILENAME))
-    assert read_inventory_v2.call_args[0][1] == 'http://hostname/new'
+    assert read_inventory.call_args[0][1] == 'http://hostname/new'
 
     # different uri and inv, not redirected
     status.seek(0)
     status.truncate(0)
-    _read_from_url().geturl.return_value = 'http://hostname/new/' + INVENTORY_FILENAME
+    _read_from_url().url = 'http://hostname/new/' + INVENTORY_FILENAME
 
     fetch_inventory(app, 'http://hostname/', 'http://hostname/new/' + INVENTORY_FILENAME)
     assert 'intersphinx inventory has moved' not in status.getvalue()
-    assert read_inventory_v2.call_args[0][1] == 'http://hostname/'
+    assert read_inventory.call_args[0][1] == 'http://hostname/'
 
     # different uri and inv, redirected
     status.seek(0)
     status.truncate(0)
-    _read_from_url().geturl.return_value = 'http://hostname/other/' + INVENTORY_FILENAME
+    _read_from_url().url = 'http://hostname/other/' + INVENTORY_FILENAME
 
     fetch_inventory(app, 'http://hostname/', 'http://hostname/new/' + INVENTORY_FILENAME)
     assert status.getvalue() == ('intersphinx inventory has moved: '
                                  'http://hostname/new/%s -> http://hostname/other/%s\n' %
                                  (INVENTORY_FILENAME, INVENTORY_FILENAME))
-    assert read_inventory_v2.call_args[0][1] == 'http://hostname/'
+    assert read_inventory.call_args[0][1] == 'http://hostname/'
 
 
 @with_app()
@@ -253,41 +253,6 @@ class TestStripBasicAuth(unittest.TestCase):
         self.assertEqual(expected, actual_url)
         self.assertEqual('user', actual_username)
         self.assertEqual('12345', actual_password)
-
-
-@mock.patch('six.moves.urllib.request.HTTPBasicAuthHandler')
-@mock.patch('six.moves.urllib.request.HTTPPasswordMgrWithDefaultRealm')
-@mock.patch('six.moves.urllib.request.build_opener')
-def test_readfromurl_authed(m_build_opener, m_HTTPPasswordMgrWithDefaultRealm,
-                            m_HTTPBasicAuthHandler):
-    # read from URL containing basic auth creds
-    password_mgr = mock.Mock()
-    m_HTTPPasswordMgrWithDefaultRealm.return_value = password_mgr
-
-    url = 'https://user:12345@domain.com/project/objects.inv'
-    _read_from_url(url)
-
-    m_HTTPPasswordMgrWithDefaultRealm.assert_called_once_with()
-    password_mgr.add_password.assert_called_with(
-        None, 'https://domain.com/project/objects.inv', 'user', '12345')
-
-
-@mock.patch('six.moves.urllib.request.HTTPBasicAuthHandler')
-@mock.patch('six.moves.urllib.request.HTTPPasswordMgrWithDefaultRealm')
-@mock.patch('sphinx.ext.intersphinx.default_opener')
-def test_readfromurl_unauthed(m_default_opener, m_HTTPPasswordMgrWithDefaultRealm,
-                              m_HTTPBasicAuthHandler):
-    # read from URL without auth creds
-    password_mgr = mock.Mock()
-    m_HTTPPasswordMgrWithDefaultRealm.return_value = password_mgr
-
-    url = 'https://domain.com/project/objects.inv'
-    _read_from_url(url)
-
-    # assert password manager not created
-    assert m_HTTPPasswordMgrWithDefaultRealm.call_args is None
-    # assert no password added to the password manager
-    assert password_mgr.add_password.call_args is None
 
 
 def test_getsafeurl_authed():

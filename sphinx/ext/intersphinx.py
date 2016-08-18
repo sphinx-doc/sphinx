@@ -34,7 +34,6 @@ from os import path
 import re
 
 from six import iteritems, string_types
-from six.moves.urllib import request
 from six.moves.urllib.parse import urlsplit, urlunsplit
 from docutils import nodes
 from docutils.utils import relative_path
@@ -42,16 +41,8 @@ from docutils.utils import relative_path
 import sphinx
 from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
+from sphinx.util.requests import requests
 
-
-default_handlers = [request.ProxyHandler(), request.HTTPRedirectHandler(),
-                    request.HTTPHandler()]
-try:
-    default_handlers.append(request.HTTPSHandler)
-except AttributeError:
-    pass
-
-default_opener = request.build_opener(*default_handlers)
 
 UTF8StreamReader = codecs.lookup('utf-8')[2]
 
@@ -183,17 +174,10 @@ def _read_from_url(url):
     :return: data read from resource described by *url*
     :rtype: ``file``-like object
     """
-    url, username, password = _strip_basic_auth(url)
-    if username is not None and password is not None:
-        # case: url contains basic auth creds
-        password_mgr = request.HTTPPasswordMgrWithDefaultRealm()
-        password_mgr.add_password(None, url, username, password)
-        handler = request.HTTPBasicAuthHandler(password_mgr)
-        opener = request.build_opener(*(default_handlers + [handler]))
-    else:
-        opener = default_opener
-
-    return opener.open(url)
+    r = requests.get(url, stream=True)
+    r.raise_for_status()
+    r.raw.url = r.url
+    return r.raw
 
 
 def _get_safe_url(url):
@@ -239,8 +223,8 @@ def fetch_inventory(app, uri, inv):
                  '%s: %s' % (inv, err.__class__, err))
         return
     try:
-        if hasattr(f, 'geturl'):
-            newinv = f.geturl()
+        if hasattr(f, 'url'):
+            newinv = f.url
             if inv != newinv:
                 app.info('intersphinx inventory has moved: %s -> %s' % (inv, newinv))
 
