@@ -1012,10 +1012,8 @@ def test_numfig_with_singlehtml(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
         with (app.outdir / fname).open('rb') as fp:
-            etree = ET.parse(fp, parser)
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
