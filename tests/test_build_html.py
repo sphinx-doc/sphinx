@@ -302,7 +302,7 @@ HTML_XPATH = {
         (".//a/strong", "[1]"),
         (".//a/strong", "Other"),
         (".//a", "entry"),
-        (".//dt/a", "double"),
+        (".//li/a", "double"),
     ],
     'footnote.html': [
         (".//a[@class='footnote-reference'][@href='#id7'][@id='id1']", r"\[1\]"),
