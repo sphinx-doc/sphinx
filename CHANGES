@@ -105,6 +105,8 @@ Bugs fixed
   module.  Now Sphinx installs them on running application.
 * `sphinx.ext.autodoc` crashes if target code imports * from mock modules
   by `autodoc_mock_imports`.
+* #1953: ``Sphinx.add_node`` does not add handlers the translator installed by
+  `html_translator_class`
 
 Documentation
 -------------

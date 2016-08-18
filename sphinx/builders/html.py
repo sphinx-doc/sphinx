@@ -159,16 +159,11 @@ class StandaloneHTMLBuilder(Builder):
                                           self.config.trim_doctest_flags)
 
     def init_translator_class(self):
-        if self.translator_class is not None:
-            pass
-        elif self.config.html_translator_class:
-            self.translator_class = self.app.import_object(
-                self.config.html_translator_class,
-                'html_translator_class setting')
-        elif self.config.html_use_smartypants:
-            self.translator_class = SmartyPantsHTMLTranslator
-        else:
-            self.translator_class = HTMLTranslator
+        if self.translator_class is None:
+            if self.config.html_use_smartypants:
+                self.translator_class = SmartyPantsHTMLTranslator
+            else:
+                self.translator_class = HTMLTranslator
 
     def get_outdated_docs(self):
         cfgdict = dict((name, self.config[name])
@@ -1209,7 +1204,6 @@ def setup(app):
     app.add_config_value('html_extra_path', [], 'html')
     app.add_config_value('html_last_updated_fmt', None, 'html', string_classes)
     app.add_config_value('html_use_smartypants', True, 'html')
-    app.add_config_value('html_translator_class', None, 'html', string_classes)
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
     app.add_config_value('html_use_modindex', True, 'html')  # deprecated

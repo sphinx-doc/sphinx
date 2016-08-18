@@ -108,6 +108,9 @@ class Config(object):
                           'table': l_('Table %s'),
                           'code-block': l_('Listing %s')},
                          'env'),
+
+        # pre-initialized confval for HTML builder
+        html_translator_class = (None, 'html', string_classes),
     )
 
     def __init__(self, dirname, filename, overrides, tags):
@@ -221,7 +224,7 @@ class Config(object):
 
     def pre_init_values(self, warn):
         """Initialize some limited config variables before loading extensions"""
-        variables = ['needs_sphinx', 'suppress_warnings']
+        variables = ['needs_sphinx', 'suppress_warnings', 'html_translator_class']
         for name in variables:
             try:
                 if name in self.overrides:

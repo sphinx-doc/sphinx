@@ -176,6 +176,12 @@ class Sphinx(object):
                 'This project needs at least Sphinx v%s and therefore cannot '
                 'be built with this version.' % self.config.needs_sphinx)
 
+        # force preload html_translator_class
+        if self.config.html_translator_class:
+            translator_class = self.import_object(self.config.html_translator_class,
+                                                  'html_translator_class setting')
+            self.set_translator('html', translator_class)
+
         # set confdir to srcdir if -C given (!= no confdir); a few pieces
         # of code expect a confdir to be set
         if self.confdir is None:
