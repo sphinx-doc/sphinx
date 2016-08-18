@@ -1183,6 +1183,12 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
         SerializingHTMLBuilder.init(self)
 
 
+def validate_config_values(app):
+    if app.config.html_translator_class:
+        app.warn('html_translator_class is deprecated. '
+                 'Use Sphinx.set_translator() API instead.')
+
+
 def setup(app):
     # builders
     app.add_builder(StandaloneHTMLBuilder)
@@ -1190,6 +1196,8 @@ def setup(app):
     app.add_builder(SingleFileHTMLBuilder)
     app.add_builder(PickleHTMLBuilder)
     app.add_builder(JSONHTMLBuilder)
+
+    app.connect('builder-inited', validate_config_values)
 
     # config values
     app.add_config_value('html_theme', 'alabaster', 'html')

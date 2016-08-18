@@ -44,6 +44,8 @@ Incompatible changes
 * Fix ``genindex.html`` to satisfy xhtml standard.
 * Use epub3 builder by default.  And the old epub builder is renamed to epub2.
 * Fix ``epub`` and ``epub3`` builders that contained links to ``genindex`` even if ``epub_use_index = False``.
+* `html_translator_class` is now deprecated.
+  Use `Sphinx.set_translator()` API instead.
 
 Features added
 --------------
