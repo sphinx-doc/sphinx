@@ -135,27 +135,14 @@ def _strip_basic_auth(url):
     :param url: url which may or may not contain basic auth credentials
     :type url: ``str``
 
-    :return: 3-``tuple`` of:
-
-      * (``str``) -- *url* with any basic auth creds removed
-      * (``str`` or ``NoneType``) -- basic auth username or ``None`` if basic
-        auth username not given
-      * (``str`` or ``NoneType``) -- basic auth password or ``None`` if basic
-        auth password not given
-
-    :rtype: ``tuple``
+    :return: *url* with any basic auth creds removed
+    :rtype: ``str``
     """
-    url_parts = urlsplit(url)
-    username = url_parts.username
-    password = url_parts.password
-    frags = list(url_parts)
+    frags = list(urlsplit(url))
     # swap out "user[:pass]@hostname" for "hostname"
-    if url_parts.port:
-        frags[1] = "%s:%s" % (url_parts.hostname, url_parts.port)
-    else:
-        frags[1] = url_parts.hostname
-    url = urlunsplit(frags)
-    return (url, username, password)
+    if '@' in frags[1]:
+        frags[1] = frags[1].split('@')[1]
+    return urlunsplit(frags)
 
 
 def _read_from_url(url):
@@ -212,7 +199,7 @@ def fetch_inventory(app, uri, inv):
     localuri = '://' not in uri
     if not localuri:
         # case: inv URI points to remote resource; strip any existing auth
-        uri, _, _ = _strip_basic_auth(uri)
+        uri = _strip_basic_auth(uri)
     try:
         if '://' in inv:
             f = _read_from_url(inv)
