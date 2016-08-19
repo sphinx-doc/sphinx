@@ -26,6 +26,7 @@ Bugs fixed
 * #2789: `sphinx.ext.intersphinx` generates wrong hyperlinks if the inventory is given
 * parsing errors for caption of code-blocks are displayed in document (ref: #2845)
 * #2846: ``singlehtml`` builder does not include figure numbers
+* #2816: Fix data from builds cluttering the ``Domain.initial_data`` class attributes
 
 Release 1.4.5 (released Jul 13, 2016)
 =====================================
