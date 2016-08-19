@@ -126,7 +126,7 @@ def test_text_builder(app, status, warning):
     yield assert_re_search, warning_expr, warnings
 
     result = (app.outdir / 'warnings.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH REST WARNINGS"
+    expect = (u"I18N WITH REST WARNINGS"
               u"\n***********************\n"
               u"\nLINE OF >>``<<BROKEN LITERAL MARKUP.\n")
     yield assert_equal, result, expect
@@ -134,7 +134,7 @@ def test_text_builder(app, status, warning):
     # --- simple translation; check title underlines
 
     result = (app.outdir / 'bom.txt').text(encoding='utf-8')
-    expect = (u"\nDatei mit UTF-8"
+    expect = (u"Datei mit UTF-8"
               u"\n***************\n"  # underline matches new translation
               u"\nThis file has umlauts: äöü.\n")
     yield assert_equal, result, expect
@@ -142,12 +142,12 @@ def test_text_builder(app, status, warning):
     # --- check translation in subdirs
 
     result = (app.outdir / 'subdir' / 'contents.txt').text(encoding='utf-8')
-    yield assert_startswith, result, u"\nsubdir contents\n***************\n"
+    yield assert_startswith, result, u"subdir contents\n***************\n"
 
     # --- check warnings for inconsistency in number of references
 
     result = (app.outdir / 'refs_inconsistency.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH REFS INCONSISTENCY"
+    expect = (u"I18N WITH REFS INCONSISTENCY"
               u"\n****************************\n"
               u"\n* FOR FOOTNOTE [ref2].\n"
               u"\n* reference FOR reference.\n"
@@ -169,7 +169,7 @@ def test_text_builder(app, status, warning):
     # --- check warning for literal block
 
     result = (app.outdir / 'literalblock.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH LITERAL BLOCK"
+    expect = (u"I18N WITH LITERAL BLOCK"
               u"\n***********************\n"
               u"\nCORRECT LITERAL BLOCK:\n"
               u"\n   this is"
@@ -186,7 +186,7 @@ def test_text_builder(app, status, warning):
     # --- definition terms: regression test for #975, #2198, #2205
 
     result = (app.outdir / 'definition_terms.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH DEFINITION TERMS"
+    expect = (u"I18N WITH DEFINITION TERMS"
               u"\n**************************\n"
               u"\nSOME TERM"
               u"\n   THE CORRESPONDING DEFINITION\n"
@@ -202,7 +202,7 @@ def test_text_builder(app, status, warning):
     # --- glossary terms: regression test for #1090
 
     result = (app.outdir / 'glossary_terms.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH GLOSSARY TERMS"
+    expect = (u"I18N WITH GLOSSARY TERMS"
               u"\n************************\n"
               u"\nSOME NEW TERM"
               u"\n   THE CORRESPONDING GLOSSARY\n"
@@ -216,7 +216,7 @@ def test_text_builder(app, status, warning):
     # --- glossary term inconsistencies: regression test for #1090
 
     result = (app.outdir / 'glossary_terms_inconsistency.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH GLOSSARY TERMS INCONSISTENCY"
+    expect = (u"I18N WITH GLOSSARY TERMS INCONSISTENCY"
               u"\n**************************************\n"
               u"\n1. LINK TO *SOME NEW TERM*.\n")
     yield assert_equal, result, expect
@@ -230,7 +230,7 @@ def test_text_builder(app, status, warning):
     # --- seealso
 
     result = (app.outdir / 'seealso.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH SEEALSO"
+    expect = (u"I18N WITH SEEALSO"
               u"\n*****************\n"
               u"\nSee also: SHORT TEXT 1\n"
               u"\nSee also: LONG TEXT 1\n"
@@ -241,7 +241,7 @@ def test_text_builder(app, status, warning):
     # --- figure captions: regression test for #940
 
     result = (app.outdir / 'figure.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH FIGURE CAPTION"
+    expect = (u"I18N WITH FIGURE CAPTION"
               u"\n************************\n"
               u"\n   [image]MY CAPTION OF THE FIGURE\n"
               u"\n   MY DESCRIPTION PARAGRAPH1 OF THE FIGURE.\n"
@@ -267,7 +267,7 @@ def test_text_builder(app, status, warning):
     # --- rubric: regression test for pull request #190
 
     result = (app.outdir / 'rubric.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH RUBRIC"
+    expect = (u"I18N WITH RUBRIC"
               u"\n****************\n"
               u"\n-[ RUBRIC TITLE ]-\n"
               u"\n"
@@ -280,7 +280,7 @@ def test_text_builder(app, status, warning):
     # --- docfields
 
     result = (app.outdir / 'docfields.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH DOCFIELDS"
+    expect = (u"I18N WITH DOCFIELDS"
               u"\n*******************\n"
               u"\nclass Cls1\n"
               u"\n   Parameters:"
