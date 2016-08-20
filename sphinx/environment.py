@@ -38,7 +38,7 @@ from sphinx import addnodes
 from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
     FilenameUniqDict, split_index_msg
-from sphinx.util.nodes import clean_astext, make_refnode, WarningStream, is_translatable
+from sphinx.util.nodes import clean_astext, WarningStream, is_translatable
 from sphinx.util.osutil import SEP, getcwd, fs_encoding, ensuredir
 from sphinx.util.images import guess_mimetype
 from sphinx.util.i18n import find_catalog_files, get_image_filename_for_language, \
@@ -76,7 +76,7 @@ default_settings = {
 # or changed to properly invalidate pickle files.
 #
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
-ENV_VERSION = 49 + (sys.version_info[0] - 2)
+ENV_VERSION = 50 + (sys.version_info[0] - 2)
 
 
 dummy_reporter = Reporter('', 4, 4)
@@ -199,7 +199,6 @@ class BuildEnvironment:
         self.domaindata = {}        # domainname -> domain-specific dict
 
         # Other inventories
-        self.citations = {}         # citation name -> docname, labelid
         self.indexentries = {}      # docname -> list of
                                     # (type, string, target, aliasname)
         self.versionchanges = {}    # version -> list of (type, docname,
@@ -276,9 +275,6 @@ class BuildEnvironment:
                 fnset.discard(docname)
                 if not fnset:
                     del self.files_to_rebuild[subfn]
-            for key, (fn, _ignore) in list(self.citations.items()):
-                if fn == docname:
-                    del self.citations[key]
             for version, changes in self.versionchanges.items():
                 new = [change for change in changes if change[1] != docname]
                 changes[:] = new
@@ -318,10 +314,6 @@ class BuildEnvironment:
 
         for subfn, fnset in other.files_to_rebuild.items():
             self.files_to_rebuild.setdefault(subfn, set()).update(fnset & docnames)
-        for key, data in other.citations.items():
-            # XXX duplicates?
-            if data[0] in docnames:
-                self.citations[key] = data
         for version, changes in other.versionchanges.items():
             self.versionchanges.setdefault(version, []).extend(
                 change for change in changes if change[1] in docnames)
@@ -745,7 +737,6 @@ class BuildEnvironment:
         self.process_refonly_bullet_lists(docname, doctree)
         self.create_title_from(docname, doctree)
         self.note_indexentries_from(docname, doctree)
-        self.note_citations_from(docname, doctree)
         self.build_toc_from(docname, doctree)
         for domain in itervalues(self.domains):
             domain.process_doc(self, docname, doctree)
@@ -1099,15 +1090,6 @@ class BuildEnvironment:
                         entries.append(entry)
                     else:
                         entries.append(entry + (None,))
-
-    def note_citations_from(self, docname, document):
-        for node in document.traverse(nodes.citation):
-            label = node[0].astext()
-            if label in self.citations:
-                self.warn_node('duplicate citation %s, ' % label +
-                               'other instance in %s' % self.doc2path(
-                                   self.citations[label][0]), node)
-            self.citations[label] = (docname, node['ids'][0])
 
     def note_toctree(self, docname, toctreenode):
         """Note a TOC tree directive in a document and gather information about
@@ -1527,8 +1509,6 @@ class BuildEnvironment:
                     newnode = self._resolve_any_reference(builder, refdoc, node, contnode)
                 elif typ == 'doc':
                     newnode = self._resolve_doc_reference(builder, refdoc, node, contnode)
-                elif typ == 'citation':
-                    newnode = self._resolve_citation(builder, refdoc, node, contnode)
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(
@@ -1565,8 +1545,6 @@ class BuildEnvironment:
             msg = domain.dangling_warnings[typ]
         elif typ == 'doc':
             msg = 'unknown document: %(target)s'
-        elif typ == 'citation':
-            msg = 'citation not found: %(target)s'
         elif node.get('refdomain', 'std') not in ('', 'std'):
             msg = '%s:%s reference target not found: %%(target)s' % \
                   (node['refdomain'], typ)
@@ -1590,25 +1568,6 @@ class BuildEnvironment:
             newnode['refuri'] = builder.get_relative_uri(refdoc, docname)
             newnode.append(innernode)
             return newnode
-
-    def _resolve_citation(self, builder, fromdocname, node, contnode):
-        docname, labelid = self.citations.get(node['reftarget'], ('', ''))
-        if docname:
-            try:
-                newnode = make_refnode(builder, fromdocname,
-                                       docname, labelid, contnode)
-                return newnode
-            except NoUri:
-                # remove the ids we added in the CitationReferences
-                # transform since they can't be transfered to
-                # the contnode (if it's a Text node)
-                if not isinstance(contnode, nodes.Element):
-                    del node['ids'][:]
-                raise
-        elif 'ids' in node:
-            # remove ids attribute that annotated at
-            # transforms.CitationReference.apply.
-            del node['ids'][:]
 
     def _resolve_any_reference(self, builder, refdoc, node, contnode):
         """Resolve reference generated by the "any" role."""

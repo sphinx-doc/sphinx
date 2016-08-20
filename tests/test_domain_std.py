@@ -26,6 +26,7 @@ def test_process_doc_handle_figure_caption():
         nameids={'testname': 'testid'},
         ids={'testid': figure_node},
     )
+    document.traverse.return_value = []
 
     domain = StandardDomain(env)
     if 'testname' in domain.data['labels']:
@@ -47,6 +48,7 @@ def test_process_doc_handle_table_title():
         nameids={'testname': 'testid'},
         ids={'testid': table_node},
     )
+    document.traverse.return_value = []
 
     domain = StandardDomain(env)
     if 'testname' in domain.data['labels']:

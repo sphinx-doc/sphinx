@@ -466,6 +466,7 @@ class StandardDomain(Domain):
     initial_data = {
         'progoptions': {},  # (program, name) -> docname, labelid
         'objects': {},      # (type, name) -> docname, labelid
+        'citations': {},    # name -> docname, labelid
         'labels': {         # labelname -> docname, labelid, sectionname
             'genindex': ('genindex', '', l_('Index')),
             'modindex': ('py-modindex', '', l_('Module Index')),
@@ -485,6 +486,7 @@ class StandardDomain(Domain):
         'numref':  'undefined label: %(target)s',
         'keyword': 'unknown keyword: %(target)s',
         'option': 'unknown option: %(target)s',
+        'citation': 'citation not found: %(target)s',
     }
 
     enumerable_nodes = {  # node_class -> (figtype, title_getter)
@@ -500,6 +502,9 @@ class StandardDomain(Domain):
         for key, (fn, _l) in list(self.data['objects'].items()):
             if fn == docname:
                 del self.data['objects'][key]
+        for key, (fn, _l) in list(self.data['citations'].items()):
+            if fn == docname:
+                del self.data['citations'][key]
         for key, (fn, _l, _l) in list(self.data['labels'].items()):
             if fn == docname:
                 del self.data['labels'][key]
@@ -515,6 +520,9 @@ class StandardDomain(Domain):
         for key, data in otherdata['objects'].items():
             if data[0] in docnames:
                 self.data['objects'][key] = data
+        for key, data in otherdata['citations'].items():
+            if data[0] in docnames:
+                self.data['citations'][key] = data
         for key, data in otherdata['labels'].items():
             if data[0] in docnames:
                 self.data['labels'][key] = data
@@ -523,6 +531,19 @@ class StandardDomain(Domain):
                 self.data['anonlabels'][key] = data
 
     def process_doc(self, env, docname, document):
+        self.note_citations(env, docname, document)
+        self.note_labels(env, docname, document)
+
+    def note_citations(self, env, docname, document):
+        for node in document.traverse(nodes.citation):
+            label = node[0].astext()
+            if label in self.data['citations']:
+                path = env.doc2path(self.data['citations'][0])
+                env.warn_node('duplicate citation %s, other instance in %s' %
+                              (label, path), node)
+            self.data['citations'][label] = (docname, node['ids'][0])
+
+    def note_labels(self, env, docname, document):
         labels, anonlabels = self.data['labels'], self.data['anonlabels']
         for name, explicit in iteritems(document.nametypes):
             if not explicit:
@@ -593,6 +614,8 @@ class StandardDomain(Domain):
             resolver = self._resolve_keyword_xref
         elif typ == 'option':
             resolver = self._resolve_option_xref
+        elif typ == 'citation':
+            resolver = self._resolve_citation_xref
         else:
             resolver = self._resolve_obj_xref
 
@@ -682,6 +705,28 @@ class StandardDomain(Domain):
 
         return make_refnode(builder, fromdocname, docname,
                             labelid, contnode)
+
+    def _resolve_citation_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        from sphinx.environment import NoUri
+
+        docname, labelid = self.data['citations'].get(target, ('', ''))
+        if not docname:
+            if 'ids' in node:
+                # remove ids attribute that annotated at
+                # transforms.CitationReference.apply.
+                del node['ids'][:]
+            return None
+
+        try:
+            return make_refnode(builder, fromdocname, docname,
+                                labelid, contnode)
+        except NoUri:
+            # remove the ids we added in the CitationReferences
+            # transform since they can't be transfered to
+            # the contnode (if it's a Text node)
+            if not isinstance(contnode, nodes.Element):
+                del node['ids'][:]
+            raise
 
     def _resolve_obj_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         objtypes = self.objtypes_for_role(typ) or []
