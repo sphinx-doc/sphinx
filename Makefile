@@ -9,6 +9,7 @@ DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
              -i tests/coverage.py -i utils/convert.py \
              -i tests/typing_test_data.py \
              -i tests/test_autodoc_py35.py \
+             -i tests/roots/test-warnings/undecodable.rst \
              -i tests/build \
              -i tests/roots/test-warnings/undecodable.rst \
              -i sphinx/search/da.py \

@@ -10,6 +10,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import copy
+
 from six import iteritems
 
 from sphinx.errors import SphinxError
@@ -145,7 +147,7 @@ class Domain(object):
         self.env = env
         if self.name not in env.domaindata:
             assert isinstance(self.initial_data, dict)
-            new_data = self.initial_data.copy()
+            new_data = copy.deepcopy(self.initial_data)
             new_data['version'] = self.data_version
             self.data = env.domaindata[self.name] = new_data
         else:
