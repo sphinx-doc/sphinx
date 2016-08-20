@@ -497,7 +497,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'body': u''.join(self.body),
             'indices': self.generate_indices()
         })
-        return LaTeXRenderer().render(DEFAULT_TEMPLATE, self.elements)
+
+        template_path = path.join(self.builder.srcdir, '_templates', 'latex.tex_t')
+        if path.exists(template_path):
+            return LaTeXRenderer().render(template_path, self.elements)
+        else:
+            return LaTeXRenderer().render(DEFAULT_TEMPLATE, self.elements)
 
     def hypertarget(self, id, withdoc=True, anchor=True):
         if withdoc:
