@@ -127,6 +127,7 @@ Bugs fixed
 * #2874: gettext builder could not extract all text under the ``only``
   directives
 * #2485: autosummary crashes with multiple source_suffix values
+* #1734: Could not translate the caption of toctree directive
 
 Documentation
 -------------

@@ -118,6 +118,11 @@ def assert_count(expected_expr, result, count):
 def test_text_builder(app, status, warning):
     app.builder.build_all()
 
+    # --- toctree
+
+    result = (app.outdir / 'contents.txt').text(encoding='utf-8')
+    yield assert_startswith, result, u"CONTENTS\n********\n\nTABLE OF CONTENTS\n"
+
     # --- warnings in translation
 
     warnings = getwarning(warning)
@@ -317,6 +322,12 @@ def test_text_builder(app, status, warning):
 @gen_with_intl_app('gettext', freshenv=True)
 def test_gettext_builder(app, status, warning):
     app.builder.build_all()
+
+    # --- toctree
+    expect = read_po(app.srcdir / 'contents.po')
+    actual = read_po(app.outdir / 'contents.pot')
+    for expect_msg in [m for m in expect if m.id]:
+        yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
 
     # --- definition terms: regression test for #2198, #2205
     expect = read_po(app.srcdir / 'definition_terms.po')

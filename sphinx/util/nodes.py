@@ -86,6 +86,9 @@ IGNORED_NODES = (
 
 
 def is_translatable(node):
+    if isinstance(node, addnodes.translatable):
+        return True
+
     if isinstance(node, nodes.TextElement):
         if not node.source:
             return False  # built-in message
@@ -119,6 +122,10 @@ IMAGE_TYPE_NODES = (
 def extract_messages(doctree):
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(is_translatable):
+        if isinstance(node, addnodes.translatable):
+            for msg in node.extract_original_messages():
+                yield node, msg
+            continue
         if isinstance(node, LITERAL_TYPE_NODES):
             msg = node.rawsource
             if not msg:

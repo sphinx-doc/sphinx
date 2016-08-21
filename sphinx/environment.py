@@ -1466,7 +1466,15 @@ class BuildEnvironment:
         newnode = addnodes.compact_paragraph('', '')
         caption = toctree.attributes.get('caption')
         if caption:
-            newnode += nodes.caption(caption, '', *[nodes.Text(caption)])
+            caption_node = nodes.caption(caption, '', *[nodes.Text(caption)])
+            caption_node.line = toctree.line
+            caption_node.source = toctree.source
+            caption_node.rawsource = toctree['rawcaption']
+            if hasattr(toctree, 'uid'):
+                # move uid to caption_node to translate it
+                caption_node.uid = toctree.uid
+                del toctree.uid
+            newnode += caption_node
         newnode.extend(tocentries)
         newnode['toctree'] = True
 
