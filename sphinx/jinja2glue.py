@@ -35,6 +35,27 @@ def _toint(val):
         return 0
 
 
+def _slice_index(values, slices):
+    seq = list(values)
+    length = 0
+    for value in values:
+        length += 1 + len(value[1][1])  # count includes subitems
+    items_per_slice = length // slices
+    offset = 0
+    for slice_number in range(slices):
+        count = 0
+        start = offset
+        if slices == slice_number + 1:  # last column
+            offset = len(seq)
+        else:
+            for value in values[offset:]:
+                count += 1 + len(value[1][1])
+                offset += 1
+                if count >= items_per_slice:
+                    break
+        yield seq[start:offset]
+
+
 def accesskey(context, key):
     """Helper to output each access key only once."""
     if '_accesskeys' not in context:
@@ -127,6 +148,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
                                                 extensions=extensions)
         self.environment.filters['tobool'] = _tobool
         self.environment.filters['toint'] = _toint
+        self.environment.filters['slice_index'] = _slice_index
         self.environment.globals['debug'] = contextfunction(pformat)
         self.environment.globals['accesskey'] = contextfunction(accesskey)
         self.environment.globals['idgen'] = idgen

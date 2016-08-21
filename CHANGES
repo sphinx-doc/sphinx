@@ -4,6 +4,7 @@ Release 1.4.7 (in development)
 Bugs fixed
 ----------
 
+* #2870: flatten genindex columns' heights.
 
 Release 1.4.6 (released Aug 20, 2016)
 =====================================
