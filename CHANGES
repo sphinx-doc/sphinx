@@ -101,6 +101,8 @@ Features added
 * apidoc now avoids invalidating cached files by not writing to files whose
   content doesn't change. This can lead to significant performance wins if
   apidoc is run frequently.
+* #2851: `sphinx.ext.math` emits missing-reference event if equation not found
+* #1210: ``eqref`` role now supports cross reference
 
 Bugs fixed
 ----------
