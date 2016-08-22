@@ -41,7 +41,7 @@ from docutils.utils import relative_path
 import sphinx
 from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
-from sphinx.util.requests import requests
+from sphinx.util.requests import requests, useragent_header
 
 
 UTF8StreamReader = codecs.lookup('utf-8')[2]
@@ -161,7 +161,7 @@ def _read_from_url(url):
     :return: data read from resource described by *url*
     :rtype: ``file``-like object
     """
-    r = requests.get(url, stream=True)
+    r = requests.get(url, stream=True, headers=dict(useragent_header))
     r.raise_for_status()
     r.raw.url = r.url
     return r.raw
