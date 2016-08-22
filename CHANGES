@@ -5,6 +5,7 @@ Bugs fixed
 ----------
 
 * #2870: flatten genindex columns' heights.
+* #2856: Search on generated HTML site doesnt find some symbols
 
 Release 1.4.6 (released Aug 20, 2016)
 =====================================
