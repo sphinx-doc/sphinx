@@ -157,7 +157,7 @@ class CheckExternalLinksBuilder(Builder):
                     # Read the whole document and see if #anchor exists
                     # (Anchors starting with ! are ignored since they are
                     # commonly used for dynamic pages)
-                    response = requests.get(req_url, stream=True, **kwargs)
+                    response = self.session.get(req_url, stream=True, **kwargs)
                     found = check_anchor(response, unquote(anchor))
 
                     if not found:
@@ -166,14 +166,14 @@ class CheckExternalLinksBuilder(Builder):
                     try:
                         # try a HEAD request, which should be easier on
                         # the server and the network
-                        response = requests.head(req_url, **kwargs)
+                        response = self.session.head(req_url, **kwargs)
                         response.raise_for_status()
                     except HTTPError as err:
                         if err.response.status_code not in (403, 405):
                             raise
                         # retry with GET if that fails, some servers
                         # don't like HEAD requests and reply with 403 or 405
-                        response = requests.get(req_url, stream=True, **kwargs)
+                        response = self.session.get(req_url, stream=True, **kwargs)
                         response.raise_for_status()
             except HTTPError as err:
                 if err.response.status_code == 401:
