@@ -5,7 +5,7 @@
 
     Builder superclass for all builders.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,9 +14,8 @@ from os import path
 
 try:
     import multiprocessing
-    import threading
 except ImportError:
-    multiprocessing = threading = None
+    multiprocessing = None
 
 from docutils import nodes
 
@@ -160,16 +159,21 @@ class Builder(object):
     def compile_catalogs(self, catalogs, message):
         if not self.config.gettext_auto_build:
             return
+
+        def cat2relpath(cat):
+            return path.relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
+
         self.info(bold('building [mo]: ') + message)
         for catalog in self.app.status_iterator(
                 catalogs, 'writing output... ', darkgreen, len(catalogs),
-                lambda c: c.mo_path):
+                cat2relpath):
             catalog.write_mo(self.config.language)
 
     def compile_all_catalogs(self):
         catalogs = i18n.find_catalog_source_files(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,
+            charset=self.config.source_encoding,
             gettext_compact=self.config.gettext_compact,
             force_all=True)
         message = 'all of %d po files' % len(catalogs)
@@ -186,6 +190,7 @@ class Builder(object):
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,
             domains=list(specified_domains),
+            charset=self.config.source_encoding,
             gettext_compact=self.config.gettext_compact)
         message = 'targets for %d po files that are specified' % len(catalogs)
         self.compile_catalogs(catalogs, message)
@@ -194,6 +199,7 @@ class Builder(object):
         catalogs = i18n.find_catalog_source_files(
             [path.join(self.srcdir, x) for x in self.config.locale_dirs],
             self.config.language,
+            charset=self.config.source_encoding,
             gettext_compact=self.config.gettext_compact)
         message = 'targets for %d po files that are out of date' % len(catalogs)
         self.compile_catalogs(catalogs, message)
@@ -254,12 +260,12 @@ class Builder(object):
 
         # while reading, collect all warnings from docutils
         warnings = []
-        self.env.set_warnfunc(lambda *args: warnings.append(args))
+        self.env.set_warnfunc(lambda *args, **kwargs: warnings.append((args, kwargs)))
         updated_docnames = set(self.env.update(self.config, self.srcdir,
                                                self.doctreedir, self.app))
         self.env.set_warnfunc(self.warn)
-        for warning in warnings:
-            self.warn(*warning)
+        for warning, kwargs in warnings:
+            self.warn(*warning, **kwargs)
 
         doccount = len(updated_docnames)
         self.info(bold('looking for now-outdated files... '), nonl=1)
@@ -344,7 +350,7 @@ class Builder(object):
         self.info('done')
 
         warnings = []
-        self.env.set_warnfunc(lambda *args: warnings.append(args))
+        self.env.set_warnfunc(lambda *args, **kwargs: warnings.append((args, kwargs)))
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
             # is busy loading doctrees and doing write_doc_serialized()
@@ -360,13 +366,16 @@ class Builder(object):
             doctree = self.env.get_and_resolve_doctree(docname, self)
             self.write_doc_serialized(docname, doctree)
             self.write_doc(docname, doctree)
-        for warning in warnings:
-            self.warn(*warning)
+        for warning, kwargs in warnings:
+            self.warn(*warning, **kwargs)
 
     def _write_parallel(self, docnames, warnings, nproc):
         def write_process(docs):
             local_warnings = []
-            self.env.set_warnfunc(lambda *args: local_warnings.append(args))
+
+            def warnfunc(*args, **kwargs):
+                local_warnings.append((args, kwargs))
+            self.env.set_warnfunc(warnfunc)
             for docname, doctree in docs:
                 self.write_doc(docname, doctree)
             return local_warnings
@@ -396,8 +405,8 @@ class Builder(object):
         self.info(bold('waiting for workers...'))
         tasks.join()
 
-        for warning in warnings:
-            self.warn(*warning)
+        for warning, kwargs in warnings:
+            self.warn(*warning, **kwargs)
 
     def prepare_writing(self, docnames):
         """A place where you can add logic before :meth:`write_doc` is run"""
@@ -442,27 +451,3 @@ class Builder(object):
         except AttributeError:
             optname = '%s_%s' % (default, option)
             return getattr(self.config, optname)
-
-BUILTIN_BUILDERS = {
-    'html':       ('html', 'StandaloneHTMLBuilder'),
-    'dirhtml':    ('html', 'DirectoryHTMLBuilder'),
-    'singlehtml': ('html', 'SingleFileHTMLBuilder'),
-    'pickle':     ('html', 'PickleHTMLBuilder'),
-    'json':       ('html', 'JSONHTMLBuilder'),
-    'web':        ('html', 'PickleHTMLBuilder'),
-    'htmlhelp':   ('htmlhelp', 'HTMLHelpBuilder'),
-    'devhelp':    ('devhelp', 'DevhelpBuilder'),
-    'qthelp':     ('qthelp', 'QtHelpBuilder'),
-    'applehelp':  ('applehelp', 'AppleHelpBuilder'),
-    'epub':       ('epub', 'EpubBuilder'),
-    'latex':      ('latex', 'LaTeXBuilder'),
-    'text':       ('text', 'TextBuilder'),
-    'man':        ('manpage', 'ManualPageBuilder'),
-    'texinfo':    ('texinfo', 'TexinfoBuilder'),
-    'changes':    ('changes', 'ChangesBuilder'),
-    'linkcheck':  ('linkcheck', 'CheckExternalLinksBuilder'),
-    'websupport': ('websupport', 'WebSupportBuilder'),
-    'gettext':    ('gettext', 'MessageCatalogBuilder'),
-    'xml':        ('xml', 'XMLBuilder'),
-    'pseudoxml':  ('xml', 'PseudoXMLBuilder'),
-}

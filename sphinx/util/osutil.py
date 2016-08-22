@@ -5,7 +5,7 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -17,6 +17,7 @@ import time
 import errno
 import locale
 import shutil
+import filecmp
 from os import path
 import contextlib
 from io import BytesIO, StringIO
@@ -39,6 +40,11 @@ SEP = "/"
 
 def os_path(canonicalpath):
     return canonicalpath.replace(SEP, path.sep)
+
+
+def canon_path(nativepath):
+    """Return path in OS-independent form"""
+    return nativepath.replace(path.sep, SEP)
 
 
 def relative_uri(base, to):
@@ -137,13 +143,16 @@ def copytimes(source, dest):
 
 
 def copyfile(source, dest):
-    """Copy a file and its modification times, if possible."""
-    shutil.copyfile(source, dest)
-    try:
-        # don't do full copystat because the source may be read-only
-        copytimes(source, dest)
-    except OSError:
-        pass
+    """Copy a file and its modification times, if possible.
+
+    Note: ``copyfile`` skips copying if the file has not been changed"""
+    if not path.exists(dest) or not filecmp.cmp(source, dest):
+        shutil.copyfile(source, dest)
+        try:
+            # don't do full copystat because the source may be read-only
+            copytimes(source, dest)
+        except OSError:
+            pass
 
 
 no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
@@ -152,15 +161,30 @@ no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
 def make_filename(string):
     return no_fn_re.sub('', string) or 'sphinx'
 
-if PY2:
-    # strftime for unicode strings
-    def ustrftime(format, *args):
+
+def ustrftime(format, *args):
+    # [DEPRECATED] strftime for unicode strings
+    # It will be removed at Sphinx-1.5
+    if not args:
+        # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
+        # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
+        source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
+        if source_date_epoch is not None:
+            time_struct = time.gmtime(float(source_date_epoch))
+            args = [time_struct]
+    if PY2:
         # if a locale is set, the time strings are encoded in the encoding
         # given by LC_TIME; if that is available, use it
         enc = locale.getlocale(locale.LC_TIME)[1] or 'utf-8'
         return time.strftime(text_type(format).encode(enc), *args).decode(enc)
-else:
-    ustrftime = time.strftime
+    else:  # Py3
+        # On Windows, time.strftime() and Unicode characters will raise UnicodeEncodeError.
+        # http://bugs.python.org/issue8304
+        try:
+            return time.strftime(format, *args)
+        except UnicodeEncodeError:
+            r = time.strftime(format.encode('unicode-escape').decode(), *args)
+            return r.encode().decode('unicode-escape')
 
 
 def safe_relpath(path, start=None):
@@ -267,3 +291,10 @@ class FileAvoidWrite(object):
                 'methods can be used')
 
         return getattr(self._io, name)
+
+
+def rmtree(path):
+    if os.path.isdir(path):
+        shutil.rmtree(path)
+    else:
+        os.remove(path)

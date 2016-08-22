@@ -5,7 +5,7 @@
 
     Handlers for additional ReST directives.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -16,10 +16,6 @@ from docutils.parsers.rst import Directive, directives, roles
 
 from sphinx import addnodes
 from sphinx.util.docfields import DocFieldTransformer
-
-# import and register directives
-from sphinx.directives.code import *   # noqa
-from sphinx.directives.other import *  # noqa
 
 
 # RE to strip backslash escapes
@@ -215,8 +211,9 @@ class DefaultDomain(Directive):
         return []
 
 
-directives.register_directive('default-role', DefaultRole)
-directives.register_directive('default-domain', DefaultDomain)
-directives.register_directive('describe', ObjectDescription)
-# new, more consistent, name
-directives.register_directive('object', ObjectDescription)
+def setup(app):
+    directives.register_directive('default-role', DefaultRole)
+    directives.register_directive('default-domain', DefaultDomain)
+    directives.register_directive('describe', ObjectDescription)
+    # new, more consistent, name
+    directives.register_directive('object', ObjectDescription)

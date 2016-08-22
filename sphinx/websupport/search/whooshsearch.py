@@ -5,7 +5,7 @@
 
     Whoosh search adapter.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -44,7 +44,7 @@ class WhooshSearch(BaseSearch):
     def finish_indexing(self):
         self.index_writer.commit()
 
-    def add_document(self, pagename, title, text):
+    def add_document(self, pagename, filename, title, text):
         self.index_writer.add_document(path=text_type(pagename),
                                        title=title,
                                        text=text)

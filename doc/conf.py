@@ -15,7 +15,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build']
 
 project = 'Sphinx'
-copyright = '2007-2015, Georg Brandl and the Sphinx team'
+copyright = '2007-2016, Georg Brandl and the Sphinx team'
 version = sphinx.__released__
 release = version
 show_authors = True
@@ -36,9 +36,9 @@ epub_author = 'Georg Brandl'
 epub_publisher = 'http://sphinx-doc.org/'
 epub_scheme = 'url'
 epub_identifier = epub_publisher
-epub_pre_files = [('index.html', 'Welcome')]
-epub_post_files = [('install.html', 'Installing Sphinx'),
-                   ('develop.html', 'Sphinx development')]
+epub_pre_files = [('index.xhtml', 'Welcome')]
+epub_post_files = [('install.xhtml', 'Installing Sphinx'),
+                   ('develop.xhtml', 'Sphinx development')]
 epub_exclude_files = ['_static/opensearch.xml', '_static/doctools.js',
                       '_static/jquery.js', '_static/searchtools.js',
                       '_static/underscore.js', '_static/basic.css',
@@ -47,7 +47,8 @@ epub_fix_images = False
 epub_max_image_width = 0
 epub_show_urls = 'inline'
 epub_use_index = False
-epub_guide = (('toc', 'contents.html', u'Table of Contents'),)
+epub_guide = (('toc', 'contents.xhtml', u'Table of Contents'),)
+epub3_description = 'Sphinx documentation generator system manual'
 
 latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
                     'Georg Brandl', 'manual', 1)]

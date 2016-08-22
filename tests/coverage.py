@@ -472,10 +472,9 @@ class coverage:
     def save(self):
         if self.usecache and self.cache:
             self.canonicalize_filenames()
-            cache = open(self.cache, 'wb')
             import marshal
-            marshal.dump(self.cexecuted, cache)
-            cache.close()
+            with open(self.cache, 'wb') as cache:
+                marshal.dump(self.cexecuted, cache)
 
     # restore().  Restore coverage data from the coverage cache (if it exists).
 
@@ -488,10 +487,9 @@ class coverage:
 
     def restore_file(self, file_name):
         try:
-            cache = open(file_name, 'rb')
             import marshal
-            cexecuted = marshal.load(cache)
-            cache.close()
+            with open(file_name, 'rb') as cache:
+                cexecuted = marshal.load(cache)
             if isinstance(cexecuted, dict):
                 return cexecuted
             else:
@@ -614,8 +612,8 @@ class coverage:
                         )
             filename = filename[:-1]
         if not source:
-            sourcef = open(filename, 'rU')
-            source = sourcef.read()
+            with open(filename, 'rU') as sourcef:
+                source = sourcef.read()
         try:
             lines, excluded_lines, line_map = self.find_executable_statements(
                 source, exclude=self.exclude_re
@@ -625,8 +623,6 @@ class coverage:
                 "Couldn't parse '%s' as Python source: '%s' at line %d" %
                     (filename, synerr.msg, synerr.lineno)
                 )
-        if sourcef:
-            sourcef.close()
         result = filename, lines, excluded_lines, line_map
         self.analysis_cache[morf] = result
         return result

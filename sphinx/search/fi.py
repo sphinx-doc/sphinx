@@ -113,6 +113,7 @@ var Stemmer = JSX.require("src/finnish-stemmer.jsx").FinnishStemmer;
 class SearchFinnish(SearchLanguage):
     lang = 'fi'
     language_name = 'Finnish'
+    js_stemmer_rawcode = 'finnish-stemmer.js'
     js_stemmer_code = js_stemmer
     stopwords = finnish_stopwords
 

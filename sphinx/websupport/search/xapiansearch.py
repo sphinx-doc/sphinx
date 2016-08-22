@@ -5,11 +5,13 @@
 
     Xapian search adapter.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import xapian
+
+from six import string_types
 
 from sphinx.util.osutil import ensuredir
 from sphinx.websupport.search import BaseSearch
@@ -73,7 +75,10 @@ class XapianSearch(BaseSearch):
         results = []
 
         for m in matches:
-            context = self.extract_context(m.document.get_data())
+            data = m.document.get_data()
+            if not isinstance(data, string_types):
+                data = data.decode("utf-8")
+            context = self.extract_context(data)
             results.append((m.document.get_value(self.DOC_PATH),
                             m.document.get_value(self.DOC_TITLE),
                             ''.join(context)))

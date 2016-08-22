@@ -72,7 +72,7 @@ Install Python
 Most Windows users do not have Python, so we begin with the installation of
 Python itself.  If you have already installed Python, please skip this section.
 
-Go to http://python.org, the main download site for Python. Look at the left
+Go to https://www.python.org/, the main download site for Python. Look at the left
 sidebar and under "Quick Links", click "Windows Installer" to download.
 
 .. image:: pythonorg.png
@@ -114,7 +114,7 @@ as ``sphinx-build`` easily from the Command Prompt.
 
 
 Install the pip command
-^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Python has a very useful :command:`pip` command which can download and install
 3rd-party libraries with a single command. This is provided by the
@@ -135,11 +135,11 @@ install.
 .. note::
 
    ``pip`` has been contained in the Python official installation after version
-    of Python-3.4.0 or Python-2.7.9.
+   of Python-3.4.0 or Python-2.7.9.
 
 
 Installing Sphinx with pip
----------------------------
+--------------------------
 
 If you finished the installation of pip, type this line in the command prompt:
 
@@ -147,7 +147,7 @@ If you finished the installation of pip, type this line in the command prompt:
 
    C:\> pip install sphinx
 
-After installation, type :command:`sphinx-build` on the command prompt.  If
+After installation, type :command:`sphinx-build -h` on the command prompt.  If
 everything worked fine, you will get a Sphinx version number and a list of
 options for this command.
 

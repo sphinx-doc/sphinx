@@ -3,7 +3,7 @@
     sphinx.search.nl
     ~~~~~~~~~~~~~~~~
 
-    Danish search language: includes the JS porter stemmer.
+    Dutch search language: includes the JS porter stemmer.
 
     :copyright: Copyright 2007-2013 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -13,102 +13,109 @@ from sphinx.search import SearchLanguage, parse_stop_word
 
 import snowballstemmer
 
-danish_stopwords = parse_stop_word(u'''
-| source: http://snowball.tartarus.org/algorithms/danish/stop.txt
-og           | and
-i            | in
-jeg          | I
-det          | that (dem. pronoun)/it (pers. pronoun)
-at           | that (in front of a sentence)/to (with infinitive)
-en           | a/an
-den          | it (pers. pronoun)/that (dem. pronoun)
-til          | to/at/for/until/against/by/of/into, more
-er           | present tense of "to be"
-som          | who, as
-på           | on/upon/in/on/at/to/after/of/with/for, on
-de           | they
-med          | with/by/in, along
-han          | he
-af           | of/by/from/off/for/in/with/on, off
-for          | at/for/to/from/by/of/ago, in front/before, because
-ikke         | not
-der          | who/which, there/those
-var          | past tense of "to be"
-mig          | me/myself
-sig          | oneself/himself/herself/itself/themselves
-men          | but
-et           | a/an/one, one (number), someone/somebody/one
-har          | present tense of "to have"
-om           | round/about/for/in/a, about/around/down, if
-vi           | we
-min          | my
-havde        | past tense of "to have"
-ham          | him
-hun          | she
-nu           | now
-over         | over/above/across/by/beyond/past/on/about, over/past
-da           | then, when/as/since
-fra          | from/off/since, off, since
-du           | you
-ud           | out
-sin          | his/her/its/one's
-dem          | them
-os           | us/ourselves
-op           | up
-man          | you/one
-hans         | his
-hvor         | where
-eller        | or
-hvad         | what
-skal         | must/shall etc.
-selv         | myself/youself/herself/ourselves etc., even
-her          | here
-alle         | all/everyone/everybody etc.
-vil          | will (verb)
-blev         | past tense of "to stay/to remain/to get/to become"
-kunne        | could
-ind          | in
-når          | when
-være         | present tense of "to be"
-dog          | however/yet/after all
-noget        | something
-ville        | would
-jo           | you know/you see (adv), yes
-deres        | their/theirs
-efter        | after/behind/according to/for/by/from, later/afterwards
-ned          | down
-skulle       | should
-denne        | this
-end          | than
-dette        | this
-mit          | my/mine
-også         | also
-under        | under/beneath/below/during, below/underneath
-have         | have
-dig          | you
-anden        | other
-hende        | her
-mine         | my
-alt          | everything
-meget        | much/very, plenty of
-sit          | his, her, its, one's
-sine         | his, her, its, one's
-vor          | our
-mod          | against
-disse        | these
-hvis         | if
-din          | your/yours
-nogle        | some
-hos          | by/at
-blive        | be/become
-mange        | many
-ad           | by/through
-bliver       | present tense of "to be/to become"
-hendes       | her/hers
-været        | be
-thi          | for (conj)
-jer          | you
-sådan        | such, like this/like that
+dutch_stopwords = parse_stop_word(u'''
+| source: http://snowball.tartarus.org/algorithms/dutch/stop.txt
+de             |  the
+en             |  and
+van            |  of, from
+ik             |  I, the ego
+te             |  (1) chez, at etc, (2) to, (3) too
+dat            |  that, which
+die            |  that, those, who, which
+in             |  in, inside
+een            |  a, an, one
+hij            |  he
+het            |  the, it
+niet           |  not, nothing, naught
+zijn           |  (1) to be, being, (2) his, one's, its
+is             |  is
+was            |  (1) was, past tense of all persons sing. of 'zijn' (to be) (2) wax, (3) the washing, (4) rise of river
+op             |  on, upon, at, in, up, used up
+aan            |  on, upon, to (as dative)
+met            |  with, by
+als            |  like, such as, when
+voor           |  (1) before, in front of, (2) furrow
+had            |  had, past tense all persons sing. of 'hebben' (have)
+er             |  there
+maar           |  but, only
+om             |  round, about, for etc
+hem            |  him
+dan            |  then
+zou            |  should/would, past tense all persons sing. of 'zullen'
+of             |  or, whether, if
+wat            |  what, something, anything
+mijn           |  possessive and noun 'mine'
+men            |  people, 'one'
+dit            |  this
+zo             |  so, thus, in this way
+door           |  through by
+over           |  over, across
+ze             |  she, her, they, them
+zich           |  oneself
+bij            |  (1) a bee, (2) by, near, at
+ook            |  also, too
+tot            |  till, until
+je             |  you
+mij            |  me
+uit            |  out of, from
+der            |  Old Dutch form of 'van der' still found in surnames
+daar           |  (1) there, (2) because
+haar           |  (1) her, their, them, (2) hair
+naar           |  (1) unpleasant, unwell etc, (2) towards, (3) as
+heb            |  present first person sing. of 'to have'
+hoe            |  how, why
+heeft          |  present third person sing. of 'to have'
+hebben         |  'to have' and various parts thereof
+deze           |  this
+u              |  you
+want           |  (1) for, (2) mitten, (3) rigging
+nog            |  yet, still
+zal            |  'shall', first and third person sing. of verb 'zullen' (will)
+me             |  me
+zij            |  she, they
+nu             |  now
+ge             |  'thou', still used in Belgium and south Netherlands
+geen           |  none
+omdat          |  because
+iets           |  something, somewhat
+worden         |  to become, grow, get
+toch           |  yet, still
+al             |  all, every, each
+waren          |  (1) 'were' (2) to wander, (3) wares, (3)
+veel           |  much, many
+meer           |  (1) more, (2) lake
+doen           |  to do, to make
+toen           |  then, when
+moet           |  noun 'spot/mote' and present form of 'to must'
+ben            |  (1) am, (2) 'are' in interrogative second person singular of 'to be'
+zonder         |  without
+kan            |  noun 'can' and present form of 'to be able'
+hun            |  their, them
+dus            |  so, consequently
+alles          |  all, everything, anything
+onder          |  under, beneath
+ja             |  yes, of course
+eens           |  once, one day
+hier           |  here
+wie            |  who
+werd           |  imperfect third person sing. of 'become'
+altijd         |  always
+doch           |  yet, but etc
+wordt          |  present third person sing. of 'become'
+wezen          |  (1) to be, (2) 'been' as in 'been fishing', (3) orphans
+kunnen         |  to be able
+ons            |  us/our
+zelf           |  self
+tegen          |  against, towards, at
+na             |  after, near
+reeds          |  already
+wil            |  (1) present tense of 'want', (2) 'will', noun, (3) fender
+kon            |  could; past tense of 'to be able'
+niets          |  nothing
+uw             |  your
+iemand         |  somebody
+geweest        |  been; past participle of 'be'
+andere         |  other
 ''')
 
 js_stemmer = u"""
@@ -120,8 +127,9 @@ var Stemmer = JSX.require("src/dutch-stemmer.jsx").DutchStemmer;
 class SearchDutch(SearchLanguage):
     lang = 'nl'
     language_name = 'Dutch'
+    js_stemmer_rawcode = 'dutch-stemmer.js'
     js_stemmer_code = js_stemmer
-    stopwords = danish_stopwords
+    stopwords = dutch_stopwords
 
     def init(self, options):
         self.stemmer = snowballstemmer.stemmer('dutch')

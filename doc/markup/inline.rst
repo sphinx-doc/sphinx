@@ -200,6 +200,12 @@ Referencing downloadable files
    The ``example.py`` file will be copied to the output directory, and a
    suitable link generated to it.
 
+   Not to show unavailable download links, you should wrap whole paragraphs that
+   have this role::
+
+      .. only:: builder_html
+
+         See :download:`this example script <../example.py>`.
 
 Cross-referencing figures by figure number
 ------------------------------------------
@@ -242,9 +248,8 @@ objects:
 
 .. rst:role:: option
 
-   A command-line option to an executable program.  The leading hyphen(s) must
-   be included.  This generates a link to a :rst:dir:`option` directive, if it
-   exists.
+   A command-line option to an executable program.  This generates a link to
+   a :rst:dir:`option` directive, if it exists.
 
 
 The following role creates a cross-reference to a term in a

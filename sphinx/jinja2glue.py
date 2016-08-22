@@ -5,7 +5,7 @@
 
     Glue code for the jinja2 templating engine.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -70,10 +70,8 @@ class SphinxFileSystemLoader(FileSystemLoader):
             f = open_if_exists(filename)
             if f is None:
                 continue
-            try:
+            with f:
                 contents = f.read().decode(self.encoding)
-            finally:
-                f.close()
 
             mtime = path.getmtime(filename)
 

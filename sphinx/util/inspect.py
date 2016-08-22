@@ -5,7 +5,7 @@
 
     Helpers for inspecting Python modules.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,7 +20,7 @@ from sphinx.util import force_decode
 # relatively import this module
 inspect = __import__('inspect')
 
-memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>$)')
+memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)')
 
 
 if PY3:
@@ -108,10 +108,20 @@ def safe_getattr(obj, name, *defargs):
     try:
         return getattr(obj, name, *defargs)
     except Exception:
+        # sometimes accessing a property raises an exception (e.g.
+        # NotImplementedError), so let's try to read the attribute directly
+        try:
+            # In case the object does weird things with attribute access
+            # such that accessing `obj.__dict__` may raise an exception
+            return obj.__dict__[name]
+        except Exception:
+            pass
+
         # this is a catch-all for all the weird things that some modules do
         # with attribute access
         if defargs:
             return defargs[0]
+
         raise AttributeError(name)
 
 

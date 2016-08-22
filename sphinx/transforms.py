@@ -5,15 +5,15 @@
 
     Docutils transforms used by Sphinx when reading documents.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from os import path
 
 from docutils import nodes
-from docutils.utils import new_document, relative_path
-from docutils.parsers.rst import Parser as RSTParser
+from docutils.io import StringInput
+from docutils.utils import relative_path
 from docutils.transforms import Transform
 from docutils.transforms.parts import ContentsFilter
 
@@ -22,14 +22,11 @@ from sphinx.locale import _, init as init_locale
 from sphinx.util import split_index_msg
 from sphinx.util.nodes import (
     traverse_translatable_index, extract_messages, LITERAL_TYPE_NODES, IMAGE_TYPE_NODES,
+    apply_source_workaround,
 )
-from sphinx.util.osutil import ustrftime
-from sphinx.util.i18n import find_catalog
+from sphinx.util.i18n import find_catalog, format_date
 from sphinx.util.pycompat import indent
-from sphinx.domains.std import (
-    make_term_from_paragraph_node,
-    make_termnodes_from_paragraph_node,
-)
+from sphinx.domains.std import make_glossary_term, split_term_classifiers
 
 
 default_substitutions = set([
@@ -47,6 +44,7 @@ class DefaultSubstitutions(Transform):
     default_priority = 210
 
     def apply(self):
+        env = self.document.settings.env
         config = self.document.settings.env.config
         # only handle those not otherwise defined in the document
         to_handle = default_substitutions - set(self.document.substitution_defs)
@@ -56,7 +54,8 @@ class DefaultSubstitutions(Transform):
                 text = config[refname]
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
-                    text = ustrftime(config.today_fmt or _('%B %d, %Y'))
+                    text = format_date(config.today_fmt or _('%b %d, %Y'),
+                                       language=config.language, warn=env.warn)
                 ref.replace_self(nodes.Text(text, text))
 
 
@@ -112,22 +111,11 @@ class AutoNumbering(Transform):
     default_priority = 210
 
     def apply(self):
-        def has_child(node, cls):
-            return any(isinstance(child, cls) for child in node)
+        domain = self.document.settings.env.domains['std']
 
         for node in self.document.traverse(nodes.Element):
-            if isinstance(node, nodes.figure):
-                if has_child(node, nodes.caption):
-                    self.document.note_implicit_target(node)
-            elif isinstance(node, nodes.image):
-                if has_child(node.parent, nodes.caption):
-                    self.document.note_implicit_target(node.parent)
-            elif isinstance(node, nodes.table):
-                if has_child(node, nodes.title):
-                    self.document.note_implicit_target(node)
-            elif isinstance(node, nodes.literal_block):
-                if has_child(node.parent, nodes.caption):
-                    self.document.note_implicit_target(node.parent)
+            if domain.is_enumerable_node(node) and domain.get_numfig_title(node) is not None:
+                self.document.note_implicit_target(node)
 
 
 class SortIds(Transform):
@@ -152,9 +140,10 @@ class CitationReferences(Transform):
     def apply(self):
         for citnode in self.document.traverse(nodes.citation_reference):
             cittext = citnode.astext()
-            refnode = addnodes.pending_xref(cittext, reftype='citation',
+            refnode = addnodes.pending_xref(cittext, refdomain='std', reftype='citation',
                                             reftarget=cittext, refwarn=True,
                                             ids=citnode["ids"])
+            refnode.source = citnode.source or citnode.parent.source
             refnode.line = citnode.line or citnode.parent.line
             refnode += nodes.Text('[' + cittext + ']')
             citnode.parent.replace(citnode, refnode)
@@ -167,6 +156,36 @@ TRANSLATABLE_NODES = {
     'index': addnodes.index,
     'image': nodes.image,
 }
+
+
+class ApplySourceWorkaround(Transform):
+    """
+    update source and rawsource attributes
+    """
+    default_priority = 10
+
+    def apply(self):
+        for n in self.document.traverse():
+            if isinstance(n, nodes.TextElement):
+                apply_source_workaround(n)
+
+
+class AutoIndexUpgrader(Transform):
+    """
+    Detect old style; 4 column based indices and automatically upgrade to new style.
+    """
+    default_priority = 210
+
+    def apply(self):
+        env = self.document.settings.env
+        for node in self.document.traverse(addnodes.index):
+            if 'entries' in node and any(len(entry) == 4 for entry in node['entries']):
+                msg = ('4 column based index found. '
+                       'It might be a bug of extensions you use: %r' % node['entries'])
+                env.warn_node(msg, node)
+                for i, entry in enumerate(node['entries']):
+                    if len(entry) == 4:
+                        node['entries'][i] = entry + (None,)
 
 
 class ExtraTranslatableNodes(Transform):
@@ -188,21 +207,35 @@ class ExtraTranslatableNodes(Transform):
             node['translatable'] = True
 
 
-class CustomLocaleReporter(object):
+def publish_msgstr(app, source, source_path, source_line, config, settings):
+    """Publish msgstr (single line) into docutils document
+
+    :param sphinx.application.Sphinx app: sphinx application
+    :param unicode source: source text
+    :param unicode source_path: source path for warning indication
+    :param source_line: source line for warning indication
+    :param sphinx.config.Config config: sphinx config
+    :param docutils.frontend.Values settings: docutils settings
+    :return: document
+    :rtype: docutils.nodes.document
     """
-    Replacer for document.reporter.get_source_and_line method.
-
-    reST text lines for translation do not have the original source line number.
-    This class provides the correct line numbers when reporting.
-    """
-    def __init__(self, source, line):
-        self.source, self.line = source, line
-
-    def set_reporter(self, document):
-        document.reporter.get_source_and_line = self.get_source_and_line
-
-    def get_source_and_line(self, lineno=None):
-        return self.source, self.line
+    from sphinx.io import SphinxI18nReader
+    reader = SphinxI18nReader(
+        app=app,
+        parsers=config.source_parsers,
+        parser_name='restructuredtext',  # default parser
+    )
+    reader.set_lineno_for_reporter(source_line)
+    doc = reader.read(
+        source=StringInput(source=source, source_path=source_path),
+        parser=reader.parser,
+        settings=settings,
+    )
+    try:
+        doc = doc[0]
+    except IndexError:  # empty node
+        pass
+    return doc
 
 
 class Locale(Transform):
@@ -224,12 +257,9 @@ class Locale(Transform):
         # fetch translations
         dirs = [path.join(env.srcdir, directory)
                 for directory in env.config.locale_dirs]
-        catalog, has_catalog = init_locale(dirs, env.config.language,
-                                           textdomain)
+        catalog, has_catalog = init_locale(dirs, env.config.language, textdomain)
         if not has_catalog:
             return
-
-        parser = RSTParser()
 
         # phase1: replace reference ids with translated names
         for node, msg in extract_messages(self.document):
@@ -252,13 +282,8 @@ class Locale(Transform):
             if isinstance(node, LITERAL_TYPE_NODES):
                 msgstr = '::\n\n' + indent(msgstr, ' '*3)
 
-            patch = new_document(source, settings)
-            CustomLocaleReporter(node.source, node.line).set_reporter(patch)
-            parser.parse(msgstr, patch)
-            try:
-                patch = patch[0]
-            except IndexError:  # empty node
-                pass
+            patch = publish_msgstr(
+                env.app, msgstr, source, node.line, env.config, settings)
             # XXX doctest and other block markup
             if not isinstance(patch, nodes.paragraph):
                 continue  # skip for now
@@ -276,8 +301,10 @@ class Locale(Transform):
                     # document nameids mapping with new name.
                     names = section_node.setdefault('names', [])
                     names.append(new_name)
-                    if old_name in names:
-                        names.remove(old_name)
+                    # Original section name (reference target name) should be kept to refer
+                    # from other nodes which is still not translated or uses explicit target
+                    # name like "`text to display <explicit target name_>`_"..
+                    # So, `old_name` is still exist in `names`.
 
                     _id = self.document.nameids.get(old_name, None)
                     explicit = self.document.nametypes.get(old_name, None)
@@ -327,18 +354,15 @@ class Locale(Transform):
             # glossary terms update refid
             if isinstance(node, nodes.term):
                 gloss_entries = env.temp_data.setdefault('gloss_entries', set())
-                ids = []
-                termnodes = []
                 for _id in node['names']:
                     if _id in gloss_entries:
                         gloss_entries.remove(_id)
-                    _id, _, new_termnodes = \
-                        make_termnodes_from_paragraph_node(env, patch, _id)
-                    ids.append(_id)
-                    termnodes.extend(new_termnodes)
 
-                if termnodes and ids:
-                    patch = make_term_from_paragraph_node(termnodes, ids)
+                    parts = split_term_classifiers(msgstr)
+                    patch = publish_msgstr(
+                        env.app, parts[0], source, node.line, env.config, settings)
+                    patch = make_glossary_term(
+                        env, patch, parts[1], source, node.line, _id)
                     node['ids'] = patch['ids']
                     node['names'] = patch['names']
                     processed = True
@@ -373,13 +397,8 @@ class Locale(Transform):
             if isinstance(node, LITERAL_TYPE_NODES):
                 msgstr = '::\n\n' + indent(msgstr, ' '*3)
 
-            patch = new_document(source, settings)
-            CustomLocaleReporter(node.source, node.line).set_reporter(patch)
-            parser.parse(msgstr, patch)
-            try:
-                patch = patch[0]
-            except IndexError:  # empty node
-                pass
+            patch = publish_msgstr(
+                env.app, msgstr, source, node.line, env.config, settings)
             # XXX doctest and other block markup
             if not isinstance(
                     patch,
@@ -524,7 +543,7 @@ class Locale(Transform):
             # Extract and translate messages for index entries.
             for node, entries in traverse_translatable_index(self.document):
                 new_entries = []
-                for type, msg, tid, main in entries:
+                for type, msg, tid, main, key_ in entries:
                     msg_parts = split_index_msg(type, msg)
                     msgstr_parts = []
                     for part in msg_parts:
@@ -533,7 +552,7 @@ class Locale(Transform):
                             msgstr = part
                         msgstr_parts.append(msgstr)
 
-                    new_entries.append((type, ';'.join(msgstr_parts), tid, main))
+                    new_entries.append((type, ';'.join(msgstr_parts), tid, main, None))
 
                 node['raw_entries'] = entries
                 node['entries'] = new_entries

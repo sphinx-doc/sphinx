@@ -5,7 +5,7 @@
 
     Server side search support for the web support package.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -34,19 +34,20 @@ class BaseSearch(object):
         """
         pass
 
-    def feed(self, pagename, title, doctree):
+    def feed(self, pagename, filename, title, doctree):
         """Called by the builder to add a doctree to the index. Converts the
         `doctree` to text and passes it to :meth:`add_document`. You probably
         won't want to override this unless you need access to the `doctree`.
         Override :meth:`add_document` instead.
 
         :param pagename: the name of the page to be indexed
+        :param filename: the name of the original source file
         :param title: the title of the page to be indexed
         :param doctree: is the docutils doctree representation of the page
         """
-        self.add_document(pagename, title, doctree.astext())
+        self.add_document(pagename, filename, title, doctree.astext())
 
-    def add_document(self, pagename, title, text):
+    def add_document(self, pagename, filename, title, text):
         """Called by :meth:`feed` to add a document to the search index.
         This method should should do everything necessary to add a single
         document to the search index.
@@ -59,6 +60,7 @@ class BaseSearch(object):
         query.
 
         :param pagename: the name of the page being indexed
+        :param filename: the name of the original source file
         :param title: the page's title
         :param text: the full text of the page
         """
@@ -118,6 +120,10 @@ class BaseSearch(object):
     def context_for_searchtool(self):
         """Required by the HTML builder."""
         return {}
+
+    def get_js_stemmer_rawcode(self):
+        """Required by the HTML builder."""
+        return None
 
 
 # The built-in search adapters.

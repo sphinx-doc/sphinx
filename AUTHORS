@@ -24,10 +24,12 @@ Other contributors, listed alphabetically, are:
 * Charles Duffy -- original graphviz extension
 * Kevin Dunn -- MathJax extension
 * Josip Dzolonga -- coverage builder
+* Buck Evan -- dummy builder
 * Hernan Grecco -- search improvements
 * Horst Gutmann -- internationalization support
 * Martin Hans -- autodoc improvements
 * Doug Hellmann -- graphviz improvements
+* Timotheus Kampik - JS theme & search enhancements
 * Takeshi Komiya -- numref feature
 * Dave Kuhlman -- original LaTeX writer
 * Blaise Laflamme -- pyramid theme
@@ -39,6 +41,7 @@ Other contributors, listed alphabetically, are:
 * Martin Mahner -- nature theme
 * Will Maier -- directory HTML builder
 * Jacob Mason -- websupport library (GSOC project)
+* Glenn Matthews -- python domain signature improvements
 * Roland Meister -- epub builder
 * Ezio Melotti -- collapsible sidebar JavaScript
 * Daniel Neuhäuser -- JavaScript domain, Python 3 support (GSOC)
@@ -50,14 +53,18 @@ Other contributors, listed alphabetically, are:
 * Stefan Seefeld -- toctree improvements
 * Gregory Szorc -- performance improvements
 * Shibukawa Yoshiki -- pluggable search API and Japanese search
+* Taku Shimizu -- epub3 builder
 * Antonio Valentino -- qthelp builder
+* Filip Vavera -- napoleon todo directive
 * Pauli Virtanen -- autodoc improvements, autosummary extension
 * Stefan van der Walt -- autosummary extension
 * Thomas Waldmann -- apidoc module fixes
 * John Waltman -- Texinfo builder
 * Barry Warsaw -- setup command improvements
 * Sebastian Wiesner -- image handling, distutils support
+* Michael Wilson -- Intersphinx HTTP basic auth support
 * Joel Wurtz -- cellspanning support in LaTeX
+* Hong Xu -- svg support in imgmath extension and various bug fixes
 
 Many thanks for all contributions!
 

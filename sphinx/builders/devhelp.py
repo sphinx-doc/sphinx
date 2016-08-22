@@ -7,7 +7,7 @@
 
     .. _Devhelp: http://live.gnome.org/devhelp
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import absolute_import
@@ -18,6 +18,7 @@ from os import path
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.util.osutil import make_filename
 from sphinx.builders.html import StandaloneHTMLBuilder
 
 try:
@@ -59,6 +60,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
     def init(self):
         StandaloneHTMLBuilder.init(self)
         self.out_suffix = '.html'
+        self.link_suffix = '.html'
 
     def handle_finish(self):
         self.build_devhelp(self.outdir, self.config.devhelp_basename)
@@ -91,7 +93,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
                     write_toc(subnode, item)
             elif isinstance(node, nodes.reference):
                 parent.attrib['link'] = node['refuri']
-                parent.attrib['name'] = node.astext().encode('utf-8')
+                parent.attrib['name'] = node.astext()
 
         def istoctree(node):
             return isinstance(node, addnodes.compact_paragraph) and \
@@ -123,12 +125,16 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
                                 subitem[1], [])
 
         for (key, group) in index:
-            for title, (refs, subitems) in group:
+            for title, (refs, subitems, key) in group:
                 write_index(title, refs, subitems)
 
         # Dump the XML file
-        f = comp_open(path.join(outdir, outname + '.devhelp'), 'w')
-        try:
-            tree.write(f)
-        finally:
-            f.close()
+        with comp_open(path.join(outdir, outname + '.devhelp'), 'w') as f:
+            tree.write(f, 'utf-8')
+
+
+def setup(app):
+    app.setup_extension('sphinx.builders.html')
+    app.add_builder(DevhelpBuilder)
+
+    app.add_config_value('devhelp_basename', lambda self: make_filename(self.project), None)

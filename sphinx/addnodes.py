@@ -5,9 +5,11 @@
 
     Additional docutils nodes.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+import warnings
 
 from docutils import nodes
 
@@ -114,10 +116,14 @@ class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
     """Node for index entries.
 
     This node is created by the ``index`` directive and has one attribute,
-    ``entries``.  Its value is a list of 4-tuples of ``(entrytype, entryname,
-    target, ignored)``.
+    ``entries``.  Its value is a list of 5-tuples of ``(entrytype, entryname,
+    target, ignored, key)``.
 
     *entrytype* is one of "single", "pair", "double", "triple".
+
+    *key* is categolziation characters (usually it is single character) for
+    general index page. For the detail of this, please see also:
+    :rst:dir:`glossary` and issue #2320.
     """
 
 
@@ -209,7 +215,20 @@ class abbreviation(nodes.Inline, nodes.TextElement):
 
 
 class termsep(nodes.Structural, nodes.Element):
-    """Separates two terms within a <term> node."""
+    """Separates two terms within a <term> node.
+
+    .. versionchanged:: 1.4
+       sphinx.addnodes.termsep is deprecated. It will be removed at Sphinx-1.5.
+    """
+
+    def __init__(self, *args, **kw):
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
+                      DeprecationWarning, stacklevel=2)
+        super(termsep, self).__init__(*args, **kw)
+
+
+class manpage(nodes.Inline, nodes.TextElement):
+    """Node for references to manpages."""
 
 
 # make the new nodes known to docutils; needed because the HTML writer will

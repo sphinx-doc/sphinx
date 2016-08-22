@@ -5,7 +5,7 @@
 
     Manual pages builder.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,6 +19,7 @@ from sphinx import addnodes
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util.nodes import inline_all_toctrees
+from sphinx.util.osutil import make_filename
 from sphinx.util.console import bold, darkgreen
 from sphinx.writers.manpage import ManualPageWriter
 
@@ -70,7 +71,7 @@ class ManualPageBuilder(Builder):
             tree = self.env.get_doctree(docname)
             docnames = set()
             largetree = inline_all_toctrees(self, docnames, docname, tree,
-                                            darkgreen)
+                                            darkgreen, [docname])
             self.info('} ', nonl=True)
             self.env.resolve_references(largetree, docname, self)
             # remove pending_xref nodes
@@ -88,3 +89,13 @@ class ManualPageBuilder(Builder):
 
     def finish(self):
         pass
+
+
+def setup(app):
+    app.add_builder(ManualPageBuilder)
+
+    app.add_config_value('man_pages',
+                         lambda self: [(self.master_doc, make_filename(self.project).lower(),
+                                        '%s %s' % (self.project, self.release), [], 1)],
+                         None)
+    app.add_config_value('man_show_urls', False, None)

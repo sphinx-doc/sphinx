@@ -6,7 +6,9 @@ Invocation of sphinx-quickstart
 ===============================
 
 The :program:`sphinx-quickstart` script generates a Sphinx documentation set.
-It is called like this::
+It is called like this:
+
+   .. code-block:: console
 
      $ sphinx-quickstart [options] [projectdir]
 
@@ -100,9 +102,9 @@ Extension options
 
    Enable `sphinx.ext.coverage` extension.
 
-.. option:: --ext-pngmath
+.. option:: --ext-imgmath
 
-   Enable `sphinx.ext.pngmath` extension.
+   Enable `sphinx.ext.imgmath` extension.
 
 .. option:: --ext-mathjax
 
@@ -141,9 +143,11 @@ Invocation of sphinx-build
 ==========================
 
 The :program:`sphinx-build` script builds a Sphinx documentation set.  It is
-called like this::
+called like this:
 
-     $ sphinx-build [options] sourcedir builddir [filenames]
+.. code-block:: console
+
+    $ sphinx-build [options] sourcedir builddir [filenames]
 
 where *sourcedir* is the :term:`source directory`, and *builddir* is the
 directory in which you want to place the built documentation.  Most of the time,
@@ -380,9 +384,11 @@ Invocation of sphinx-apidoc
 ===========================
 
 The :program:`sphinx-apidoc` generates completely automatic API documentation
-for a Python package.  It is called like this::
+for a Python package.  It is called like this:
 
-     $ sphinx-apidoc [options] -o outputdir packagedir [pathnames]
+.. code-block:: console
+
+    $ sphinx-apidoc [options] -o outputdir packagedir [pathnames]
 
 where *packagedir* is the path to the package to document, and *outputdir* is
 the directory where the generated sources are placed.  Any *pathnames* given

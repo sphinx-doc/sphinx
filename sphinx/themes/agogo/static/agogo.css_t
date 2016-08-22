@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- agogo theme.
  *
- * :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -462,9 +462,14 @@ table.indextable td {
     vertical-align: top;
 }
 
-table.indextable dl, table.indextable dd {
+table.indextable ul {
     margin-top: 0;
     margin-bottom: 0;
+    list-style-type: none;
+}
+
+table.indextable > tbody > tr > td > ul {
+    padding-left: 0em;
 }
 
 table.indextable tr.pcap {
@@ -506,4 +511,14 @@ div.code-block-caption {
     color: #333;
     padding: 2px 5px;
     font-size: small;
+}
+
+/* -- math display ---------------------------------------------------------- */
+
+div.body div.math p {
+    text-align: center;
+}
+
+span.eqno {
+    float: right;
 }

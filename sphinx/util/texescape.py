@@ -5,7 +5,7 @@
 
     TeX escaping helper.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -36,6 +36,7 @@ tex_replacements = [
     ('±', r'\(\pm\)'),
     ('→', r'\(\rightarrow\)'),
     ('‣', r'\(\rightarrow\)'),
+    ('✓', r'\(\checkmark\)'),
     # used to separate -- in options
     ('﻿', r'{}'),
     # map some special Unicode characters to similar ASCII ones
@@ -46,8 +47,26 @@ tex_replacements = [
     ('│', r'\textbar{}'),
     ('ℯ', r'e'),
     ('ⅈ', r'i'),
-    ('₁', r'1'),
-    ('₂', r'2'),
+    ('⁰', r'$^\text{0}$'),
+    ('¹', r'$^\text{1}$'),
+    ('²', r'$^\text{2}$'),
+    ('³', r'$^\text{3}$'),
+    ('⁴', r'$^\text{4}$'),
+    ('⁵', r'$^\text{5}$'),
+    ('⁶', r'$^\text{6}$'),
+    ('⁷', r'$^\text{7}$'),
+    ('⁸', r'$^\text{8}$'),
+    ('⁹', r'$^\text{9}$'),
+    ('₀', r'$_\text{0}$'),
+    ('₁', r'$_\text{1}$'),
+    ('₂', r'$_\text{2}$'),
+    ('₃', r'$_\text{3}$'),
+    ('₄', r'$_\text{4}$'),
+    ('₅', r'$_\text{5}$'),
+    ('₆', r'$_\text{6}$'),
+    ('₇', r'$_\text{7}$'),
+    ('₈', r'$_\text{8}$'),
+    ('₉', r'$_\text{9}$'),
     # map Greek alphabet
     ('α', r'\(\alpha\)'),
     ('β', r'\(\beta\)'),

@@ -5,7 +5,7 @@
 
     Test the Sphinx class.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,7 +14,7 @@ from docutils import nodes
 from sphinx.application import ExtensionError
 from sphinx.domains import Domain
 
-from util import with_app, raises_msg
+from util import with_app, raises_msg, strip_escseq
 
 
 @with_app()
@@ -60,14 +60,21 @@ def test_output(app, status, warning):
 
     old_count = app._warncount
     app.warn("Bad news!")
-    assert warning.getvalue() == "WARNING: Bad news!\n"
+    assert strip_escseq(warning.getvalue()) == "WARNING: Bad news!\n"
     assert app._warncount == old_count + 1
 
 
 @with_app()
 def test_extensions(app, status, warning):
     app.setup_extension('shutil')
-    assert warning.getvalue().startswith("WARNING: extension 'shutil'")
+    assert strip_escseq(warning.getvalue()).startswith("WARNING: extension 'shutil'")
+
+
+@with_app()
+def test_extension_in_blacklist(app, status, warning):
+    app.setup_extension('sphinxjp.themecore')
+    msg = strip_escseq(warning.getvalue())
+    assert msg.startswith("WARNING: the extension 'sphinxjp.themecore' was")
 
 
 @with_app()
@@ -88,3 +95,18 @@ def test_domain_override(app, status, warning):
     assert app.override_domain(B) is None
     raises_msg(ExtensionError, 'new domain not a subclass of registered '
                'foo domain', app.override_domain, C)
+
+
+@with_app(testroot='add_source_parser')
+def test_add_source_parser(app, status, warning):
+    assert set(app.config.source_suffix) == set(['.rst', '.md', '.test'])
+    assert set(app.config.source_parsers.keys()) == set(['.md', '.test'])
+    assert app.config.source_parsers['.md'].__name__ == 'DummyMarkdownParser'
+    assert app.config.source_parsers['.test'].__name__ == 'TestSourceParser'
+
+
+@with_app(testroot='add_source_parser-conflicts-with-users-setting')
+def test_add_source_parser_conflicts_with_users_setting(app, status, warning):
+    assert set(app.config.source_suffix) == set(['.rst', '.test'])
+    assert set(app.config.source_parsers.keys()) == set(['.test'])
+    assert app.config.source_parsers['.test'].__name__ == 'DummyTestParser'

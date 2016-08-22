@@ -6,7 +6,7 @@
 
     This script runs the Sphinx unit test suite.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -16,6 +16,7 @@ import sys
 import traceback
 
 from path import path
+import nose
 
 testroot = os.path.dirname(__file__) or '.'
 sys.path.insert(0, os.path.abspath(os.path.join(testroot, os.path.pardir)))
@@ -23,7 +24,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(testroot, os.path.pardir)))
 # check dependencies before testing
 print('Checking dependencies...')
 for modname in ('nose', 'mock', 'six', 'docutils', 'jinja2', 'pygments',
-                'snowballstemmer', 'babel'):
+                'snowballstemmer', 'babel', 'html5lib'):
     try:
         __import__(modname)
     except ImportError as err:
@@ -47,5 +48,4 @@ tempdir.makedirs()
 print('Running Sphinx test suite (with Python %s)...' % sys.version.split()[0])
 sys.stdout.flush()
 
-import nose
-nose.main()
+nose.main(argv=sys.argv)

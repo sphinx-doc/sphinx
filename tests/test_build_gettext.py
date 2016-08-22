@@ -5,7 +5,7 @@
 
     Test the build process with gettext builder with the test root.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -114,7 +114,7 @@ def test_gettext_index_entries(app, status, warning):
         "Exception",
         "Statement",
         "Builtin",
-        ]
+    ]
     for expect in expected_msgids:
         assert expect in msgids
         msgids.remove(expect)

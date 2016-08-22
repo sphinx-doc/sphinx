@@ -25,8 +25,23 @@ msgstr "SOME TERM"
 msgid "The corresponding definition"
 msgstr "THE CORRESPONDING DEFINITION"
 
-msgid "Some other term"
-msgstr "SOME OTHER TERM"
+msgid "Some *term* `with link <http://sphinx-doc.org/>`__"
+msgstr "SOME *TERM* `WITH LINK <http://sphinx-doc.org/>`__"
 
 msgid "The corresponding definition #2"
 msgstr "THE CORRESPONDING DEFINITION #2"
+
+msgid "Some **term** with"
+msgstr "SOME **TERM** WITH"
+
+msgid "classifier1"
+msgstr "CLASSIFIER1"
+
+msgid "classifier2"
+msgstr "CLASSIFIER2"
+
+msgid "Some term with"
+msgstr "SOME TERM WITH"
+
+msgid "classifier[]"
+msgstr "CLASSIFIER[]"

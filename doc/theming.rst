@@ -51,7 +51,7 @@ The third form provides your theme path dynamically to Sphinx if the
 called ``sphinx_themes`` in your setup.py file and write a ``get_path`` function
 that has to return the directory with themes in it::
 
-    // in your 'setup.py'
+    # 'setup.py'
 
     setup(
         ...
@@ -63,7 +63,7 @@ that has to return the directory with themes in it::
         ...
     )
 
-    // in 'your_package.py'
+    # 'your_package.py'
 
     from os import path
     package_dir = path.abspath(path.dirname(__file__))
@@ -81,7 +81,7 @@ that has to return the directory with themes in it::
 Builtin themes
 --------------
 
-.. cssclass:: right
+.. cssclass:: longtable
 
 +--------------------+--------------------+
 | **Theme overview** |                    |
@@ -154,9 +154,9 @@ These themes are:
 
   .. _Read the Docs Sphinx Theme: https://pypi.python.org/pypi/sphinx_rtd_theme
 
-* **classic** -- This is the classic theme, which looks like `the Python
-  documentation <https://docs.python.org/>`_.  It can be customized via these
-  options:
+* **classic** -- This is the classic theme, which looks like `the Python 2
+  documentation <https://docs.python.org/2/>`_.  It can be customized via
+  these options:
 
   - **rightsidebar** (true or false): Put the sidebar on the right side.
     Defaults to ``False``.
@@ -242,7 +242,7 @@ These themes are:
   *sidebarwidth*.
 
 * **haiku** -- A theme without sidebar inspired by the `Haiku OS user guide
-  <http://www.haiku-os.org/docs/userguide/en/contents.html>`_.  The following
+  <https://www.haiku-os.org/docs/userguide/en/contents.html>`_.  The following
   options are supported:
 
   - **full_logo** (true or false, default ``False``): If this is true, the
@@ -275,7 +275,7 @@ These themes are:
 
 .. versionchanged:: 1.3
    The 'default' theme has been renamed to 'classic'. 'default' is still
-   available, however it will emit notice a recommendation that using new
+   available, however it will emit a notice that it is an alias for the new
    'alabaster' theme.
 
 Creating themes

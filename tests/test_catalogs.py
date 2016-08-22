@@ -5,7 +5,7 @@
 
     Test the base build process.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import shutil
@@ -56,6 +56,7 @@ def test_compile_all_catalogs(app, status, warning):
           confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
 def test_compile_specific_catalogs(app, status, warning):
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
+
     def get_actual():
         return set(find_files(catalog_dir, '.mo'))
 

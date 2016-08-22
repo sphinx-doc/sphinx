@@ -8,13 +8,15 @@
 
     :author: Sebastian Wiesner
     :contact: basti.wiesner@gmx.net
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
 
 import sys
 import os
+import traceback
+
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError, DistutilsExecError
 
@@ -71,6 +73,7 @@ class BuildDoc(Command):
         ('build-dir=', None, 'Build directory'),
         ('config-dir=', 'c', 'Location of the configuration directory'),
         ('builder=', 'b', 'The builder to use. Defaults to "html"'),
+        ('warning-is-error', 'W', 'Turn warning into errors'),
         ('project=', None, 'The documented project\'s name'),
         ('version=', None, 'The short X.Y version'),
         ('release=', None, 'The full version, including alpha/beta/rc tags'),
@@ -78,13 +81,17 @@ class BuildDoc(Command):
          'replacement for |today|'),
         ('link-index', 'i', 'Link index.html to the master doc'),
         ('copyright', None, 'The copyright string'),
+        ('pdb', None, 'Start pdb on exception'),
     ]
-    boolean_options = ['fresh-env', 'all-files', 'link-index']
+    boolean_options = ['fresh-env', 'all-files', 'warning-is-error',
+                       'link-index']
 
     def initialize_options(self):
         self.fresh_env = self.all_files = False
+        self.pdb = False
         self.source_dir = self.build_dir = None
         self.builder = 'html'
+        self.warning_is_error = False
         self.project = ''
         self.version = ''
         self.release = ''
@@ -158,7 +165,8 @@ class BuildDoc(Command):
         app = Sphinx(self.source_dir, self.config_dir,
                      self.builder_target_dir, self.doctree_dir,
                      self.builder, confoverrides, status_stream,
-                     freshenv=self.fresh_env)
+                     freshenv=self.fresh_env,
+                     warningiserror=self.warning_is_error)
 
         try:
             app.build(force_all=self.all_files)
@@ -166,13 +174,20 @@ class BuildDoc(Command):
                 raise DistutilsExecError(
                     'caused by %s builder.' % app.builder.name)
         except Exception as err:
-            from docutils.utils import SystemMessage
-            if isinstance(err, SystemMessage):
-                print(darkred('reST markup error:'), file=sys.stderr)
-                print(err.args[0].encode('ascii', 'backslashreplace'),
+            if self.pdb:
+                import pdb
+                print(darkred('Exception occurred while building, starting debugger:'),
                       file=sys.stderr)
+                traceback.print_exc()
+                pdb.post_mortem(sys.exc_info()[2])
             else:
-                raise
+                from docutils.utils import SystemMessage
+                if isinstance(err, SystemMessage):
+                    print(darkred('reST markup error:'), file=sys.stderr)
+                    print(err.args[0].encode('ascii', 'backslashreplace'),
+                          file=sys.stderr)
+                else:
+                    raise
 
         if self.link_index:
             src = app.config.master_doc + app.builder.out_suffix

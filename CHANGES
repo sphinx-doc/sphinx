@@ -1,12 +1,102 @@
-Release 1.4 (in development)
+Release 1.5 (in development)
 ============================
 
 Incompatible changes
 --------------------
 
+* latex, package fancybox is not longer a dependency of sphinx.sty
+* Use ``'locales'`` as a default value of `locale_dirs`
+* latex, package ifthen is not any longer a dependency of sphinx.sty
+* latex, style file does not modify fancyvrb's Verbatim (also available as
+  OriginalVerbatim) but uses sphinxVerbatim for name of custom wrapper.
+* latex, package newfloat is no longer a dependency of sphinx.sty (ref #2660;
+  it was shipped with Sphinx since 1.3.4).
+* latex, literal blocks in tables do not use OriginalVerbatim but
+  sphinxVerbatimintable which handles captions and wraps lines(ref #2704).
+* latex, replace ``pt`` by TeX equivalent ``bp`` if found in ``width`` or
+  ``height`` attribute of an image.
+* latex, if ``width`` or ``height`` attribute of an image is given with no unit,
+  use ``px`` rather than ignore it.
+* latex: Separate stylesheets of pygments to independent .sty file
+* #2454: The filename of sourcelink is now changed.  The value of
+  `html_sourcelink_suffix` will be appended to the original filename (like
+  ``index.rst.txt``).
+* ``sphinx.util.copy_static_entry()`` is now deprecated.
+  Use ``sphinx.util.fileutil.copy_asset()`` instead.
+* ``sphinx.util.osutil.filecopy()`` skips copying if the file has not been changed
+  (ref: #2510, #2753)
+* Internet Explorer 6-8, Opera 12.1x or Safari 5.1+ support is dropped
+  because jQuery version is updated from 1.11.0 to 3.1.0 (ref: #2634, #2773)
+* QtHelpBuilder doens't generate search page (ref: #2352)
+* QtHelpBuilder uses ``nonav`` theme instead of default one
+  to improve readability.
+* latex: To provide good default settings to Japanese docs, Sphinx uses ``jsbooks``
+  as a docclass by default if the ``language`` is ``ja``.
+* latex: To provide good default settings to Japanese docs, Sphinx uses
+  ``jreport`` and ``jsbooks`` as a docclass by default if the ``language`` is
+  ``ja``.
+* ``sphinx-quickstart`` now allows a project version is empty
+* Fix :download: role on epub/qthelp builder. They ignore the role because they don't support it.
+* ``sphinx.ext.viewcode`` doesn't work on epub building by default. ``viewcode_enable_epub`` option
+* ``sphinx.ext.viewcode`` disabled on singlehtml builder.
+* Use make-mode of ``sphinx-quickstart`` by default.  To disable this, use
+  ``-M`` option
+* Fix ``genindex.html`` to satisfy xhtml standard.
+
 Features added
 --------------
 
+* Add ``:caption:`` option for sphinx.ext.inheritance_diagram.
+* #2471: Add config variable for default doctest flags.
+* Convert linkcheck builder to requests for better encoding handling
+* #2463, #2516: Add keywords of "meta" directive to search index
+* ``:maxdepth:`` option of toctree affects ``secnumdepth`` (ref: #2547)
+* #2575: Now ``sphinx.ext.graphviz`` allows ``:align:`` option
+* Show warnings if unknown key is specified to `latex_elements`
+* Show warnings if no domains match with `primary_domain` (ref: #2001)
+* C++, show warnings when the kind of role is misleading for the kind
+  of target it refers to (e.g., using the `class` role for a function).
+* latex, writer abstracts more of text styling into customizable macros, e.g.
+  the ``visit_emphasis`` will output ``\sphinxstyleemphasis`` rather than
+  ``\emph`` (which may be in use elsewhere or in an added LaTeX package). See
+  list at end of ``sphinx.sty`` (ref: #2686)
+* latex, public names for environments and parameters used by note, warning,
+  and other admonition types, allowing full customizability from the
+  ``'preamble'`` key or an input file (ref: feature request #2674, #2685)
+* latex, better computes column widths of some tables (as a result, there will
+  be slight changes as tables now correctly fill the line width; ref: #2708)
+* latex, sphinxVerbatim environment is more easily customizable (ref: #2704).
+  In addition to already existing VerbatimColor and VerbatimBorderColor:
+
+  - two lengths ``\sphinxverbatimsep`` and ``\sphinxverbatimborder``,
+  - booleans ``\ifsphinxverbatimwithframe`` and ``\ifsphinxverbatimwrapslines``.
+
+* latex, captions for literal blocks inside tables are handled, and long code
+  lines wrapped to fit table cell (ref: #2704)
+* #2597: Show warning messages as darkred
+* latex, allow image dimensions using px unit (default is 96px=1in)
+* Show warnings if invalid dimension units found
+* #2650: Add ``--pdb`` option to setup.py command
+* latex, make the use of ``\small`` for code listings customizable (ref #2721)
+* #2663: Add ``--warning-is-error`` option to setup.py command
+* Show warnings if deprecated latex options are used
+* Add sphinx.config.ENUM to check the config values is in candidates
+* math: Add hyperlink marker to each equations in HTML output
+* Add new theme ``nonav`` that doesn't include any navigation links.
+  This is for any help generator like qthelp.
+* #2680: `sphinx.ext.todo` now emits warnings if `todo_emit_warnings` enabled.
+  Also, it emits an additional event named `todo-defined` to handle the TODO
+  entries in 3rd party extensions.
+* Python domain signature parser now uses the xref mixin for 'exceptions',
+  allowing exception classes to be autolinked.
+* #2513: Add `latex_engine` to switch the LaTeX engine by conf.py
+* #2682: C++, basic support for attributes (C++11 style and GNU style).
+  The new configuration variables 'cpp_id_attributes' and 'cpp_paren_attributes'
+  can be used to introduce custom attributes.
+* #1958: C++, add configuration variable 'cpp_index_common_prefix' for removing
+  prefixes from the index text of C++ objects.
+* C++, added concept directive. Thanks to mickk-on-cpp.
+* C++, added support for template introduction syntax. Thanks to mickk-on-cpp.
 * apidoc now avoids invalidating cached files by not writing to files whose
   content doesn't change. This can lead to significant performance wins if
   apidoc is run frequently.
@@ -14,13 +104,614 @@ Features added
 Bugs fixed
 ----------
 
-* #1789: ``:pyobject:`` option of ``literalinclude`` directive includes following
-  lines after class definitions
-* #1790: ``literalinclude`` strips empty lines at the head and tail
-* #1913: C++, fix assert bug for enumerators in next-to-global and global scope.
+* #2707: (latex) the column width is badly computed for tabular
+* #2799: Sphinx installs roles and directives automatically on importing sphinx
+  module.  Now Sphinx installs them on running application.
+* `sphinx.ext.autodoc` crashes if target code imports * from mock modules
+  by `autodoc_mock_imports`.
+* #1953: ``Sphinx.add_node`` does not add handlers the translator installed by
+  `html_translator_class`
+* #1797: text builder inserts blank line on top
 
 Documentation
 -------------
+
+
+Release 1.4.6 (in development)
+==============================
+
+Bugs fixed
+----------
+
+
+Release 1.4.6 (released Aug 20, 2016)
+=====================================
+
+Incompatible changes
+--------------------
+
+* #2867: linkcheck builder crashes with six-1.4.  Now Sphinx depends on six-1.5 or
+  later
+
+Bugs fixed
+----------
+
+* applehelp: Sphinx crashes if ``hiutil`` or ``codesign`` commands not found
+* Fix ``make clean`` abort issue when build dir contains regular files like ``DS_Store``.
+* Reduce epubcheck warnings/errors:
+
+  * Fix DOCTYPE to html5
+  * Change extension from .html to .xhtml.
+  * Disable search page on epub results
+
+* #2778: Fix autodoc crashes if obj.__dict__ is a property method and raises exception
+* Fix duplicated toc in epub3 output.
+* #2775: Fix failing linkcheck with servers not supporting identidy encoding
+* #2833: Fix formatting instance annotations in ext.autodoc.
+* #1911: ``-D`` option of ``sphinx-build`` does not override the ``extensions`` variable
+* #2789: `sphinx.ext.intersphinx` generates wrong hyperlinks if the inventory is given
+* parsing errors for caption of code-blocks are displayed in document (ref: #2845)
+* #2846: ``singlehtml`` builder does not include figure numbers
+* #2816: Fix data from builds cluttering the ``Domain.initial_data`` class attributes
+
+Release 1.4.5 (released Jul 13, 2016)
+=====================================
+
+Incompatible changes
+--------------------
+
+* latex, inclusion of non-inline images from image directive resulted in
+  non-coherent whitespaces depending on original image width; new behaviour
+  by necessity differs from earlier one in some cases. (ref: #2672)
+* latex, use of ``\includegraphics`` to refer to Sphinx custom variant is
+  deprecated; in future it will revert to original LaTeX macro, custom one
+  already has alternative name ``\sphinxincludegraphics``.
+
+Features added
+--------------
+
+* new config option ``latex_keep_old_macro_names``, defaults to True. If False,
+  lets macros (for text styling) be defined only with ``\sphinx``-prefixed names.
+* latex writer allows user customization of "shadowed" boxes (topics), via
+  three length variables.
+* woff-format web font files now supported by the epub builder.
+
+Bugs fixed
+----------
+
+* jsdump fix for python 3: fixes the HTML search on python > 3
+* #2676: (latex) Error with verbatim text in captions since Sphinx 1.4.4
+* #2629: memoir class crashes LaTeX. Fixed ``by latex_keep_old_macro_names=False`` (ref 2675)
+* #2684: `sphinx.ext.intersphinx` crashes with six-1.4.1
+* #2679: ``float`` package needed for ``'figure_align': 'H'`` latex option
+* #2671: image directive may lead to inconsistent spacing in pdf
+* #2705: ``toctree`` generates empty bullet_list if ``:titlesonly:`` specified
+* #2479: `sphinx.ext.viewcode` uses python2 highlighter by default
+* #2700: HtmlHelp builder has hard coded index.html
+* latex, since 1.4.4 inline literal text is followed by spurious space
+* #2722: C++, fix id generation for var/member declarations to include namespaces.
+* latex, images (from image directive) in lists or quoted blocks did not obey
+  indentation (fixed together with #2671)
+* #2733: since Sphinx-1.4.4 ``make latexpdf`` generates lots of hyperref warnings
+* #2731: `sphinx.ext.autodoc` does not access propertymethods which raises any
+  exceptions
+* #2666: C++, properly look up nested names involving constructors.
+* #2579: Could not refer a label including both spaces and colons via
+  `sphinx.ext.intersphinx`
+* #2718: Sphinx crashes if the document file is not readable
+* #2699: hyperlinks in help HTMLs are broken if `html_file_suffix` is set
+* #2723: extra spaces in latex pdf output from multirow cell
+* #2735: latexpdf ``Underfull \hbox (badness 10000)`` warnings from title page
+* #2667: latex crashes if resized images appeared in section title
+* #2763: (html) Provide default value for required ``alt`` attribute for image
+  tags of SVG source, required to validate and now consistent w/ other formats.
+
+
+Release 1.4.4 (released Jun 12, 2016)
+=====================================
+
+Bugs fixed
+----------
+
+* #2630: Latex sphinx.sty Notice Enviroment formatting problem
+* #2632: Warning directives fail in quote environment latex build
+* #2633: Sphinx crashes with old styled indices
+* Fix a ``\begin{\minipage}`` typo in sphinx.sty from 1.4.2 (ref: 68becb1)
+* #2622: Latex produces empty pages after title and table of contents
+* #2640: 1.4.2 LaTeX crashes if code-block inside warning directive
+* Let LaTeX use straight quotes also in inline code (ref #2627)
+* #2351: latex crashes if enumerated lists are placed on footnotes
+* #2646: latex crashes if math contains twice empty lines
+* #2480: `sphinx.ext.autodoc`: memory addresses were shown
+* latex: allow code-blocks appearing inside lists and quotes at maximal nesting
+  depth (ref #777, #2624, #2651)
+* #2635: Latex code directives produce inconsistent frames based on viewing
+  resolution
+* #2639: Sphinx now bundles iftex.sty
+* Failed to build PDF with framed.sty 0.95
+* Sphinx now bundles needspace.sty
+
+
+Release 1.4.3 (released Jun 5, 2016)
+====================================
+
+Bugs fixed
+----------
+
+* #2530: got "Counter too large" error on building PDF if large numbered
+  footnotes existed in admonitions
+* ``width`` option of figure directive does not work if ``align`` option specified at same time (ref: #2595)
+* #2590: The ``inputenc`` package breaks compiling under lualatex and xelatex
+* #2540: date on latex front page use different font
+* Suppress "document isn't included in any toctree" warning if the document is included (ref: #2603)
+* #2614: Some tables in PDF output will end up shifted if user sets non zero
+  \parindent in preamble
+* #2602: URL redirection breaks the hyperlinks generated by `sphinx.ext.intersphinx`
+* #2613: Show warnings if merged extensions are loaded
+* #2619: make sure amstext LaTeX package always loaded (ref: d657225, 488ee52,
+  9d82cad and #2615)
+* #2593: latex crashes if any figures in the table
+
+
+Release 1.4.2 (released May 29, 2016)
+=====================================
+
+Features added
+--------------
+
+* Now :confval:`suppress_warnings` accepts following configurations (ref: #2451, #2466):
+
+  - ``app.add_node``
+  - ``app.add_directive``
+  - ``app.add_role``
+  - ``app.add_generic_role``
+  - ``app.add_source_parser``
+  - ``image.data_uri``
+  - ``image.nonlocal_uri``
+
+* #2453: LaTeX writer allows page breaks in topic contents; and their
+  horizontal extent now fits in the line width (with shadow in margin). Also
+  warning-type admonitions allow page breaks and their vertical spacing has
+  been made more coherent with the one for hint-type notices (ref #2446).
+
+* #2459: the framing of literal code-blocks in LaTeX output (and not only the
+  code lines themselves) obey the indentation in lists or quoted blocks.
+
+* #2343: the long source lines in code-blocks are wrapped (without modifying
+  the line numbering) in LaTeX output (ref #1534, #2304).
+
+Bugs fixed
+----------
+
+* #2370: the equations are slightly misaligned in LaTeX writer
+* #1817, #2077: suppress pep8 warnings on conf.py generated by sphinx-quickstart
+* #2407: building docs crash if document includes large data image URIs
+* #2436: Sphinx does not check version by :confval:`needs_sphinx` if loading extensions failed
+* #2397: Setup shorthandoff for turkish documents
+* #2447: VerbatimBorderColor wrongly used also for captions of PDF
+* #2456: C++, fix crash related to document merging (e.g., singlehtml and Latex builders).
+* #2446: latex(pdf) sets local tables of contents (or more generally topic
+  nodes) in unbreakable boxes, causes overflow at bottom
+* #2476: Omit MathJax markers if :nowrap: is given
+* #2465: latex builder fails in case no caption option is provided to toctree directive
+* Sphinx crashes if self referenced toctree found
+* #2481: spelling mistake for mecab search splitter. Thanks to Naoki Sato.
+* #2309: Fix could not refer "indirect hyperlink targets" by ref-role
+* intersphinx fails if mapping URL contains any port
+* #2088: intersphinx crashes if the mapping URL requires basic auth
+* #2304: auto line breaks in latexpdf codeblocks
+* #1534: Word wrap long lines in Latex verbatim blocks
+* #2460: too much white space on top of captioned literal blocks in PDF output
+* Show error reason when multiple math extensions are loaded (ref: #2499)
+* #2483: any figure number was not assigned if figure title contains only non text objects
+* #2501: Unicode subscript numbers are normalized in LaTeX
+* #2492: Figure directive with :figwidth: generates incorrect Latex-code
+* The caption of figure is always put on center even if ``:align:`` was specified
+* #2526: LaTeX writer crashes if the section having only images
+* #2522: Sphinx touches mo files under installed directory that caused permission error.
+* #2536: C++, fix crash when an immediately nested scope has the same name as the current scope.
+* #2555: Fix crash on any-references with unicode.
+* #2517: wrong bookmark encoding in PDF if using LuaLaTeX
+* #2521: generated Makefile causes BSD make crashed if sphinx-build not found
+* #2470: ``typing`` backport package causes autodoc errors with python 2.7
+* ``sphinx.ext.intersphinx`` crashes if non-string value is used for key of `intersphinx_mapping`
+* #2518: `intersphinx_mapping` disallows non alphanumeric keys
+* #2558: unpack error on devhelp builder
+* #2561: Info builder crashes when a footnote contains a link
+* #2565: The descriptions of objects generated by ``sphinx.ext.autosummary`` overflow lines at LaTeX writer
+* Extend pdflatex config in sphinx.sty to subparagraphs (ref: #2551)
+* #2445: `rst_prolog` and `rst_epilog` affect to non reST sources
+* #2576: ``sphinx.ext.imgmath`` crashes if subprocess raises error
+* #2577: ``sphinx.ext.imgmath``: Invalid argument are passed to dvisvgm
+* #2556: Xapian search does not work with Python 3
+* #2581: The search doesn't work if language="es" (spanish)
+* #2382: Adjust spacing after abbreviations on figure numbers in LaTeX writer
+* #2383: The generated footnote by `latex_show_urls` overflows lines
+* #2497, #2552: The label of search button does not fit for the button itself
+
+
+Release 1.4.1 (released Apr 12, 2016)
+=====================================
+
+Incompatible changes
+--------------------
+
+* The default format of `today_fmt` and `html_last_updated_fmt` is back to
+  strftime format again.  Locale Date Markup Language is also supported for
+  backward compatibility until Sphinx-1.5.
+
+Translations
+------------
+
+* Added Welsh translation, thanks to Geraint Palmer.
+* Added Greek translation, thanks to Stelios Vitalis.
+* Added Esperanto translation, thanks to Dinu Gherman.
+* Added Hindi translation, thanks to Purnank H. Ghumalia.
+* Added Romanian translation, thanks to Razvan Stefanescu.
+
+Bugs fixed
+----------
+
+* C++, added support for ``extern`` and ``thread_local``.
+* C++, type declarations are now using the prefixes ``typedef``, ``using``, and ``type``,
+  depending on the style of declaration.
+* #2413: C++, fix crash on duplicate declarations
+* #2394: Sphinx crashes when html_last_updated_fmt is invalid
+* #2408: dummy builder not available in Makefile and make.bat
+* #2412: hyperlink targets are broken in LaTeX builder
+* figure directive crashes if non paragraph item is given as caption
+* #2418: time formats no longer allowed in today_fmt
+* #2395: Sphinx crashes if unicode character in image filename
+* #2396: "too many values to unpack" in genindex-single
+* #2405: numref link in PDF jumps to the wrong location
+* #2414: missing number in PDF hyperlinks to code listings
+* #2440: wrong import for gmtime. Thanks to Uwe L. Korn.
+
+
+Release 1.4 (released Mar 28, 2016)
+===================================
+
+Incompatible changes
+--------------------
+* Drop ``PorterStemmer`` package support. Use ``PyStemmer`` instead of ``PorterStemmer``
+  to accelerate stemming.
+* sphinx_rtd_theme has become optional. Please install it manually.
+  Refs #2087, #2086, #1845 and #2097. Thanks to Victor Zverovich.
+* #2231: Use DUrole instead of DUspan for custom roles in LaTeX writer. It enables to take
+  title of roles as an argument of custom macros.
+* #2022: 'Thumbs.db' and '.DS_Store' are added to `exclude_patterns` default values in
+  conf.py that will be provided on sphinx-quickstart.
+* #2027, #2208: The ``html_title`` accepts string values only. And The None value cannot be
+  accepted.
+* ``sphinx.ext.graphviz``: show graph image in inline by default
+* #2060, #2224: The ``manpage`` role now generate ``sphinx.addnodes.manpage`` node instead
+  of ``sphinx.addnodes.literal_emphasis`` node.
+* #2022: :confval:`html_extra_path` also copies dotfiles in the extra directory, and
+  refers to :confval:`exclude_patterns` to exclude extra files and directories.
+* #2300: enhance autoclass:: to use the docstring of __new__ if __init__ method's is missing
+  of empty
+* #2251: Previously, under glossary directives, multiple terms for one definition are
+  converted into single ``term`` node and the each terms in the term node are separated
+  by ``termsep`` node. In new implementation, each terms are converted into individual
+  ``term`` nodes and ``termsep`` node is removed.
+  By this change, output layout of every builders are changed a bit.
+* The default highlight language is now Python 3.  This means that source code
+  is highlighted as Python 3 (which is mostly a superset of Python 2), and no
+  parsing is attempted to distinguish valid code.  To get the old behavior back,
+  add ``highlight_language = "python"`` to conf.py.
+* `Locale Date Markup Language
+  <http://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns>`_ like
+  ``"MMMM dd, YYYY"`` is default format for `today_fmt` and `html_last_updated_fmt`.
+  However strftime format like ``"%B %d, %Y"`` is also supported for backward
+  compatibility until Sphinx-1.5. Later format will be disabled from Sphinx-1.5.
+* #2327: `latex_use_parts` is deprecated now. Use `latex_toplevel_sectioning` instead.
+* #2337: Use ``\url{URL}`` macro instead of ``\href{URL}{URL}`` in LaTeX writer.
+* #1498: manpage writer: don't make whole of item in definition list bold if it includes strong node.
+* #582: Remove hint message from quick search box for html output.
+* #2378: Sphinx now bundles newfloat.sty
+
+Features added
+--------------
+* #2092: add todo directive support in napoleon package.
+* #1962: when adding directives, roles or nodes from an extension, warn if such
+  an element is already present (built-in or added by another extension).
+* #1909: Add "doc" references to Intersphinx inventories.
+* C++ type alias support (e.g., ``.. type:: T = int``).
+* C++ template support for classes, functions, type aliases, and variables (#1729, #1314).
+* C++, added new scope management directives ``namespace-push`` and ``namespace-pop``.
+* #1970: Keyboard shortcuts to navigate Next and Previous topics
+* Intersphinx: Added support for fetching Intersphinx inventories with URLs
+  using HTTP basic auth.
+* C++, added support for template parameter in function info field lists.
+* C++, added support for pointers to member (function).
+* #2113: Allow ``:class:`` option to code-block directive.
+* #2192: Imgmath (pngmath with svg support).
+* #2200: Support XeTeX and LuaTeX for the LaTeX builder.
+* #1906: Use xcolor over color for \fcolorbox where available for LaTeX output.
+* #2216: Texinputs makefile improvements.
+* #2170: Support for Chinese language search index.
+* #2214: Add sphinx.ext.githubpages to publish the docs on GitHub Pages
+* #1030: Make page reference names for latex_show_pagerefs translatable
+* #2162: Add Sphinx.add_source_parser() to add source_suffix and source_parsers from extension
+* #2207: Add sphinx.parsers.Parser class; a base class for new parsers
+* #656: Add ``graphviz_dot`` option to graphviz directives to switch the ``dot`` command
+* #1939: Added the ``dummy`` builder: syntax check without output.
+* #2230: Add ``math_number_all`` option to number all displayed math in math extensions
+* #2235: ``needs_sphinx`` supports micro version comparison
+* #2282: Add "language" attribute to html tag in the "basic" theme
+* #1779: Add EPUB 3 builder
+* #1751: Add :confval:`todo_link_only` to avoid file path and line indication on
+  :rst:dir:`todolist`. Thanks to Francesco Montesano.
+* #2199: Use ``imagesize`` package to obtain size of images.
+* #1099: Add configurable retries to the linkcheck builder. Thanks to Alex Gaynor.
+  Also don't check anchors starting with ``!``.
+* #2300: enhance autoclass:: to use the docstring of __new__ if __init__ method's is missing
+  of empty
+* #1858: Add Sphinx.add_enumerable_node() to add enumerable nodes for numfig feature
+* #1286, #2099: Add ``sphinx.ext.autosectionlabel`` extension to allow reference
+  sections using its title. Thanks to Tadhg O'Higgins.
+* #1854: Allow to choose Janome for Japanese splitter.
+* #1853: support custom text splitter on html search with ``language='ja'``.
+* #2320: classifier of glossary terms can be used for index entries grouping key.
+  The classifier also be used for translation. See also :ref:`glossary-directive`.
+* #2308: Define ``\tablecontinued`` macro to redefine the style of continued label for
+  longtables.
+* Select an image by similarity if multiple images are globbed by ``.. image:: filename.*``
+* #1921: Support figure substitutions by :confval:`language` and :confval:`figure_language_filename`
+* #2245: Add ``latex_elements["passoptionstopackages"]`` option to call PassOptionsToPackages
+  in early stage of preambles.
+* #2340: Math extension: support alignment of multiple equations for MathJAX.
+* #2338: Define ``\titleref`` macro to redefine the style of ``title-reference`` roles.
+* Define ``\menuselection`` and ``\accelerator`` macros to redefine the style of `menuselection` roles.
+* Define ``\crossref`` macro to redefine the style of references
+* #2301: Texts in the classic html theme should be hyphenated.
+* #2355: Define ``\termref`` macro to redefine the style of ``term`` roles.
+* Add :confval:`suppress_warnings` to suppress arbitrary warning message (experimental)
+* #2229: Fix no warning is given for unknown options
+* #2327: Add `latex_toplevel_sectioning` to switch the top level sectioning of LaTeX document.
+
+Bugs fixed
+----------
+* #1913: C++, fix assert bug for enumerators in next-to-global and global scope.
+* C++, fix parsing of 'signed char' and 'unsigned char' as types.
+* C++, add missing support for 'friend' functions.
+* C++, add missing support for virtual base classes (thanks to Rapptz).
+* C++, add support for final classes.
+* C++, fix parsing of types prefixed with 'enum'.
+* #2023: Dutch search support uses Danish stemming info.
+* C++, add support for user-defined literals.
+* #1804: Now html output wraps overflowed long-line-text in the sidebar. Thanks to
+  Hassen ben tanfous.
+* #2183: Fix porterstemmer causes ``make json`` to fail.
+* #1899: Ensure list is sent to OptParse.
+* #2164: Fix wrong check for pdftex inside sphinx.sty (for graphicx package option).
+* #2165, #2218: Remove faulty and non-need conditional from sphinx.sty.
+* Fix broken LaTeX code is generated if unknown language is given
+* #1944: Fix rst_prolog breaks file-wide metadata
+* #2074: make gettext should use canonical relative paths for .pot. Thanks to
+  anatoly techtonik.
+* #2311: Fix sphinx.ext.inheritance_diagram raises AttributeError
+* #2251: Line breaks in .rst files are transferred to .pot files in a wrong way.
+* #794: Fix date formatting in latex output is not localized
+* Remove ``image/gif`` from supported_image_types of LaTeX writer (#2272)
+* Fix ValueError is raised if LANGUAGE is empty string
+* Fix unpack warning is shown when the directives generated from ``Sphinx.add_crossref_type`` is used
+* The default highlight language is now ``default``.  This means that source code
+  is highlighted as Python 3 (which is mostly a superset of Python 2) if possible.
+  To get the old behavior back, add ``highlight_language = "python"`` to conf.py.
+* #2329: Refresh environment forcely if source directory has changed.
+* #2331: Fix code-blocks are filled by block in dvi; remove ``xcdraw`` option from
+  xcolor package
+* Fix the confval type checker emits warnings if unicode is given to confvals which expects string value
+* #2360: Fix numref in LaTeX output is broken
+* #2361: Fix additional paragraphs inside the "compound" directive are indented
+* #2364: Fix KeyError 'rootSymbol' on Sphinx upgrade from older version.
+* #2348: Move amsmath and amssymb to before fontpkg on LaTeX writer.
+* #2368: Ignore emacs lock files like ``.#foo.rst`` by default.
+* #2262: literal_block and its caption has been separated by pagebreak in LaTeX output.
+* #2319: Fix table counter is overrided by code-block's in LaTeX.  Thanks to jfbu.
+* Fix unpack warning if combinated with 3rd party domain extensions.
+* #1153: Fix figures in sidebar causes latex build error.
+* #2358: Fix user-preamble could not override the tocdepth definition.
+* #2358: Redece tocdepth if ``part`` or ``chapter`` is used for top_sectionlevel.
+* #2351: Fix footnote spacing
+* #2363: Fix ``toctree()`` in templates generates broken links in SingleHTMLBuilder.
+* #2366: Fix empty hyperref is generated on toctree in HTML builder.
+
+Documentation
+-------------
+
+* #1757: Fix for usage of :confval:`html_last_updated_fmt`. Thanks to Ralf Hemmecke.
+
+
+Release 1.3.6 (released Feb 29, 2016)
+=====================================
+
+Features added
+--------------
+
+* #1873, #1876, #2278: Add ``page_source_suffix`` html context variable. This should be
+  introduced with :confval:`source_parsers` feature. Thanks for Eric Holscher.
+
+
+Bugs fixed
+----------
+
+* #2265: Fix babel is used in spite of disabling it on ``latex_elements``
+* #2295: Avoid mutating dictionary errors while enumerating members in autodoc
+  with Python 3
+* #2291: Fix pdflatex "Counter too large" error from footnotes inside tables of contents
+* #2292: Fix some footnotes disappear from LaTeX output
+* #2287: ``sphinx.transforms.Locale`` always uses rst parser. Sphinx i18n feature should
+  support parsers that specified source_parsers.
+* #2290: Fix ``sphinx.ext.mathbase`` use of amsfonts may break user choice of math fonts
+* #2324: Print a hint how to increase the recursion limit when it is hit.
+* #1565, #2229: Revert new warning; the new warning will be triggered from version 1.4 on.
+* #2329: Refresh environment forcely if source directory has changed.
+* #2019: Fix the domain objects in search result are not escaped
+
+Release 1.3.5 (released Jan 24, 2016)
+=====================================
+
+Bugs fixed
+----------
+
+* Fix line numbers was not shown on warnings in LaTeX and texinfo builders
+* Fix filenames were not shown on warnings of citations
+* Fix line numbers was not shown on warnings in LaTeX and texinfo builders
+* Fix line numbers was not shown on warnings of indices
+* #2026: Fix LaTeX builder raises error if parsed-literal includes links
+* #2243: Ignore strange docstring types for classes, do not crash
+* #2247: Fix #2205 breaks make html for definition list with classifiers
+  that contains regular-expression like string
+* #1565: Sphinx will now emit a warning that highlighting was skipped if the syntax
+  is incorrect for `code-block`, `literalinclude` and so on.
+* #2211: Fix paragraphs in table cell doesn't work in Latex output
+* #2253: ``:pyobject:`` option of ``literalinclude`` directive can't detect indented
+  body block when the block starts with blank or comment lines.
+* Fix TOC is not shown when no ``:maxdepth:`` for toctrees (ref: #771)
+* Fix warning message for ``:numref:`` if target is in orphaned doc (ref: #2244)
+
+Release 1.3.4 (released Jan 12, 2016)
+=====================================
+
+Bugs fixed
+----------
+
+* #2134: Fix figure caption with reference causes latex build error
+* #2094: Fix rubric with reference not working in Latex
+* #2147: Fix literalinclude code in latex does not break in pages
+* #1833: Fix email addresses is showed again if latex_show_urls is not None
+* #2176: sphinx.ext.graphviz: use <object> instead of <img> to embed svg
+* #967: Fix SVG inheritance diagram is not hyperlinked (clickable)
+* #1237: Fix footnotes not working in definition list in LaTeX
+* #2168: Fix raw directive does not work for text writer
+* #2171: Fix cannot linkcheck url with unicode
+* #2182: LaTeX: support image file names with more than 1 dots
+* #2189: Fix previous sibling link for first file in subdirectory uses last file, not
+  intended previous from root toctree
+* #2003: Fix decode error under python2 (only) when ``make linkcheck`` is run
+* #2186: Fix LaTeX output of \mathbb in math
+* #1480, #2188: LaTeX: Support math in section titles
+* #2071: Fix same footnote in more than two section titles => LaTeX/PDF Bug
+* #2040: Fix UnicodeDecodeError in sphinx-apidoc when author contains non-ascii characters
+* #2193: Fix shutil.SameFileError if source directory and destination directory are same
+* #2178: Fix unparseable C++ cross-reference when referencing a function with :cpp:any:
+* #2206: Fix Sphinx latex doc build failed due to a footnotes
+* #2201: Fix wrong table caption for tables with over 30 rows
+* #2213: Set <blockquote> in the classic theme to fit with <p>
+* #1815: Fix linkcheck does not raise an exception if warniserror set to true and link is
+  broken
+* #2197: Fix slightly cryptic error message for missing index.rst file
+* #1894: Unlisted phony targets in quickstart Makefile
+* #2125: Fix unifies behavior of collapsed fields (``GroupedField`` and ``TypedField``)
+* #1408: Check latex_logo validity before copying
+* #771: Fix latex output doesn't set tocdepth
+* #1820: On Windows, console coloring is broken with colorama version 0.3.3.
+  Now sphinx use colorama>=0.3.5 to avoid this problem.
+* #2072: Fix footnotes in chapter-titles do not appear in PDF output
+* #1580: Fix paragraphs in longtable don't work in Latex output
+* #1366: Fix centered image not centered in latex
+* #1860: Fix man page using ``:samp:`` with braces - font doesn't reset
+* #1610: Sphinx crashes in japanese indexing in some systems
+* Fix Sphinx crashes if mecab initialization failed
+* #2160: Fix broken TOC of PDFs if section includes an image
+* #2172: Fix dysfunctional admonition \py@lightbox in sphinx.sty. Thanks to jfbu.
+* #2198,#2205: ``make gettext`` generate broken msgid for definition lists.
+* #2062: Escape characters in doctests are treated incorrectly with Python 2.
+* #2225: Fix if the option does not begin with dash, linking is not performed
+* #2226: Fix math is not HTML-encoded when :nowrap: is given (jsmath, mathjax)
+* #1601, #2220: 'any' role breaks extended domains behavior. Affected extensions doesn't
+  support resolve_any_xref and resolve_xref returns problematic node instead of None.
+  sphinxcontrib-httpdomain is one of them.
+* #2229: Fix no warning is given for unknown options
+
+Release 1.3.3 (released Dec 2, 2015)
+====================================
+
+Bugs fixed
+----------
+
+* #2177: Fix parallel hangs
+* #2012: Fix exception occurred if ``numfig_format`` is invalid
+* #2142: Provide non-minified JS code in ``sphinx/search/non-minified-js/*.js`` for
+  source distribution on PyPI.
+* #2148: Error while building devhelp target with non-ASCII document.
+
+
+Release 1.3.2 (released Nov 29, 2015)
+=====================================
+
+Features added
+--------------
+
+* #1935: Make "numfig_format" overridable in latex_elements.
+
+Bugs fixed
+----------
+
+* #1976: Avoid "2.0" version of Babel because it doesn't work with Windows environment.
+* Add a "default.css" stylesheet (which imports "classic.css") for compatibility.
+* #1788: graphviz extension raises exception when caption option is present.
+* #1789: ``:pyobject:`` option of ``literalinclude`` directive includes following
+  lines after class definitions
+* #1790: ``literalinclude`` strips empty lines at the head and tail
+* #1802: load plugin themes automatically when theme.conf use it as 'inherit'. Thanks to
+  Takayuki Hirai.
+* #1794: custom theme extended from alabaster or sphinx_rtd_theme can't find base theme.
+* #1834: compatibility for docutils-0.13: handle_io_errors keyword argument for
+  docutils.io.FileInput cause TypeError.
+* #1823: '.' as <module_path> for sphinx-apidoc cause an unfriendly error. Now '.'
+  is converted to absolute path automatically.
+* Fix a crash when setting up extensions which do not support metadata.
+* #1784: Provide non-minified JS code in ``sphinx/search/non-minified-js/*.js``
+* #1822, #1892: Fix regression for #1061. autosummary can't generate doc for imported
+  members since sphinx-1.3b3. Thanks to Eric Larson.
+* #1793, #1819: "see also" misses a linebreak in text output. Thanks to Takayuki Hirai.
+* #1780, #1866: "make text" shows "class" keyword twice. Thanks to Takayuki
+  Hirai.
+* #1871: Fix for LaTeX output of tables with one column and multirows.
+* Work around the lack of the HTMLParserError exception in Python 3.5.
+* #1949: Use ``safe_getattr`` in the coverage builder to avoid aborting with
+  descriptors that have custom behavior.
+* #1915: Do not generate smart quotes in doc field type annotations.
+* #1796: On py3, automated .mo building caused UnicodeDecodeError.
+* #1923: Use babel features only if the babel latex element is nonempty.
+* #1942: Fix a KeyError in websupport.
+* #1903: Fix strange id generation for glossary terms.
+* ``make text`` will crush if a definition list item has more than 1 classifiers as:
+  ``term : classifier1 : classifier2``.
+* #1855: make gettext generates broken po file for definition lists with classifier.
+* #1869: Fix problems when dealing with files containing non-ASCII characters. Thanks to
+  Marvin Schmidt.
+* #1798: Fix building LaTeX with references in titles.
+* #1725: On py2 environment, doctest with using non-ASCII characters causes
+  ``'ascii' codec can't decode byte`` exception.
+* #1540: Fix RuntimeError with circular referenced toctree
+* #1983: i18n translation feature breaks references which uses section name.
+* #1990: Use caption of toctree to title of \tableofcontents in LaTeX
+* #1987: Fix ampersand is ignored in ``:menuselection:`` and ``:guilabel:`` on LaTeX builder
+* #1994: More supporting non-standard parser (like recommonmark parser) for Translation and
+  WebSupport feature. Now node.rawsource is fall backed to node.astext() during docutils
+  transforming.
+* #1989: "make blahblah" on Windows indicate help messages for sphinx-build every time.
+  It was caused by wrong make.bat that generated by Sphinx-1.3.0/1.3.1.
+* On Py2 environment, conf.py that is generated by sphinx-quickstart should have u prefixed
+  config value for 'version' and 'release'.
+* #2102: On Windows + Py3, using ``|today|`` and non-ASCII date format will raise
+  UnicodeEncodeError.
+* #1974: UnboundLocalError: local variable 'domain' referenced before assignment when
+  using `any` role and `sphinx.ext.intersphinx` in same time.
+* #2121: multiple words search doesn't find pages when words across on the page title and
+  the page content.
+* #1884, #1885: plug-in html themes cannot inherit another plug-in theme. Thanks to
+  Suzumizaki.
+* #1818: `sphinx.ext.todo` directive generates broken html class attribute as
+  'admonition-' when :confval:`language` is specified with non-ASCII linguistic area like
+  'ru' or 'ja'. To fix this, now ``todo`` directive can use ``:class:`` option.
+* #2140: Fix footnotes in table has broken in LaTeX
+* #2127: MecabBinder for html searching feature doesn't work with Python 3.
+  Thanks to Tomoko Uchida.
 
 
 Release 1.3.1 (released Mar 17, 2015)
@@ -42,6 +733,7 @@ Bugs fixed
 * #1783: Autodoc: Python2 Allow unicode string in __all__.
   Thanks to Jens Hedegaard Nielsen.
 * #1781: Setting `html_domain_indices` to a list raises a type check warnings.
+
 
 Release 1.3 (released Mar 10, 2015)
 ===================================
@@ -91,6 +783,7 @@ Documentation
 
 * #1651: Add ``vartype`` field descritpion for python domain.
 
+
 Release 1.3b3 (released Feb 24, 2015)
 =====================================
 
@@ -100,7 +793,7 @@ Incompatible changes
 * Dependency requirement updates: docutils 0.11, Pygments 2.0
 * The ``gettext_enables`` config value has been renamed to
   `gettext_additional_targets`.
-* #1735: Use https://doc.python.org/ instead of ``http`` protocol.
+* #1735: Use https://docs.python.org/ instead of ``http`` protocol.
   It was used for `sphinx.ext.intersphinx` and some documentation.
 
 Features added
@@ -495,7 +1188,7 @@ Bugs fixed
   if they contain uppercase letters.
 * #923: Take the entire LaTeX document into account when caching
   pngmath-generated images.  This rebuilds them correctly when
-  `pngmath_latex_preamble` changes.
+  ``pngmath_latex_preamble`` changes.
 * #901: Emit a warning when using docutils' new "math" markup without a Sphinx
   math extension active.
 * #845: In code blocks, when the selected lexer fails, display line numbers
@@ -824,13 +1517,12 @@ Features added
 * Command-line interfaces:
 
   - PR#75: Added ``--follow-links`` option to sphinx-apidoc.
-  - #869: sphinx-build now has the option :option:`-T` for printing the full
+  - #869: sphinx-build now has the option ``-T`` for printing the full
     traceback after an unhandled exception.
-  - sphinx-build now supports the standard :option:`--help` and
-    :option:`--version` options.
+  - sphinx-build now supports the standard ``--help`` and ``--version`` options.
   - sphinx-build now provides more specific error messages when called with
     invalid options or arguments.
-  - sphinx-build now has a verbose option :option:`-v` which can be repeated for
+  - sphinx-build now has a verbose option ``-v`` which can be repeated for
     greater effect.  A single occurrence provides a slightly more verbose output
     than normal.  Two or more occurrences of this option provides more detailed
     output which may be useful for debugging.
@@ -852,7 +1544,7 @@ Features added
     stemming routines.  Saves about 20 seconds when building the Python
     documentation.
   - PR#108: Add experimental support for parallel building with a new
-    :option:`-j` option.
+    :option:`sphinx-build -j` option.
 
 Documentation
 -------------
@@ -1114,7 +1806,7 @@ Features added
     indicators.
   - #367: Added automatic exclusion of hidden members in inheritance
     diagrams, and an option to selectively enable it.
-  - Added `pngmath_add_tooltips`.
+  - Added ``pngmath_add_tooltips``.
   - The math extension displaymath directives now support ``name`` in
     addition to ``label`` for giving the equation label, for compatibility
     with Docutils.
@@ -1442,7 +2134,7 @@ Features added
 * General:
 
   - Added a "nitpicky" mode that emits warnings for all missing
-    references.  It is activated by the :option:`-n` command-line switch
+    references.  It is activated by the :option:`sphinx-build -n` command-line switch
     or the `nitpicky` config value.
   - Added ``latexpdf`` target in quickstart Makefile.
 

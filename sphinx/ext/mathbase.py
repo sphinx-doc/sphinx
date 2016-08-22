@@ -5,7 +5,7 @@
 
     Set up math support in source files and LaTeX/text output.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -28,20 +28,39 @@ class eqref(nodes.Inline, nodes.TextElement):
     pass
 
 
-def wrap_displaymath(math, label):
-    parts = math.split('\n\n')
-    ret = []
-    for i, part in enumerate(parts):
-        if not part.strip():
-            continue
-        if label is not None and i == 0:
-            ret.append('\\begin{split}%s\\end{split}' % part +
-                       (label and '\\label{'+label+'}' or ''))
-        else:
-            ret.append('\\begin{split}%s\\end{split}\\notag' % part)
-    if not ret:
+def wrap_displaymath(math, label, numbering):
+    def is_equation(part):
+        return part.strip()
+
+    if label is None:
+        labeldef = ''
+    else:
+        labeldef = r'\label{%s}' % label
+        numbering = True
+
+    parts = list(filter(is_equation, math.split('\n\n')))
+    equations = []
+    if len(parts) == 0:
         return ''
-    return '\\begin{gather}\n' + '\\\\'.join(ret) + '\n\\end{gather}'
+    elif len(parts) == 1:
+        if numbering:
+            begin = r'\begin{equation}' + labeldef
+            end = r'\end{equation}'
+        else:
+            begin = r'\begin{equation*}' + labeldef
+            end = r'\end{equation*}'
+        equations.append('\\begin{split}%s\\end{split}\n' % parts[0])
+    else:
+        if numbering:
+            begin = r'\begin{align}%s\!\begin{aligned}' % labeldef
+            end = r'\end{aligned}\end{align}'
+        else:
+            begin = r'\begin{align*}%s\!\begin{aligned}' % labeldef
+            end = r'\end{aligned}\end{align*}'
+        for part in parts:
+            equations.append('%s\\\\\n' % part.strip())
+
+    return '%s\n%s%s' % (begin, ''.join(equations), end)
 
 
 def math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
@@ -54,6 +73,17 @@ def eq_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
     node = eqref('(?)', '(?)', target=text)
     node['docname'] = inliner.document.settings.env.docname
     return [node], []
+
+
+def is_in_section_title(node):
+    """Determine whether the node is in a section title"""
+    from sphinx.util.nodes import traverse_parent
+
+    for ancestor in traverse_parent(node):
+        if isinstance(ancestor, nodes.title) and \
+           isinstance(ancestor.parent, nodes.section):
+            return True
+    return False
 
 
 class MathDirective(Directive):
@@ -91,7 +121,12 @@ class MathDirective(Directive):
 
 
 def latex_visit_math(self, node):
-    self.body.append('\\(' + node['latex'] + '\\)')
+    if is_in_section_title(node):
+        protect = r'\protect'
+    else:
+        protect = ''
+    equation = protect + r'\(' + node['latex'] + protect + r'\)'
+    self.body.append(equation)
     raise nodes.SkipNode
 
 
@@ -100,7 +135,8 @@ def latex_visit_displaymath(self, node):
         self.body.append(node['latex'])
     else:
         label = node['label'] and node['docname'] + '-' + node['label'] or None
-        self.body.append(wrap_displaymath(node['latex'], label))
+        self.body.append(wrap_displaymath(node['latex'], label,
+                                          self.builder.config.math_number_all))
     raise nodes.SkipNode
 
 
@@ -178,10 +214,11 @@ def number_equations(app, doctree, docname):
     num = 0
     numbers = {}
     for node in doctree.traverse(displaymath):
-        if node['label'] is not None:
+        if node['label'] is not None or app.config.math_number_all:
             num += 1
             node['number'] = num
-            numbers[node['label']] = num
+            if node['label'] is not None:
+                numbers[node['label']] = num
         else:
             node['number'] = None
     for node in doctree.traverse(eqref):
@@ -192,7 +229,8 @@ def number_equations(app, doctree, docname):
 
 
 def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
-    app.add_node(math,
+    app.add_config_value('math_number_all', False, 'html')
+    app.add_node(math, override=True,
                  latex=(latex_visit_math, None),
                  text=(text_visit_math, None),
                  man=(man_visit_math, None),

@@ -7,7 +7,7 @@
     the doctree, thus avoiding duplication between docstrings and documentation
     for those who like elaborate docstrings.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,7 +17,8 @@ import inspect
 import traceback
 from types import FunctionType, BuiltinFunctionType, MethodType
 
-from six import iteritems, itervalues, text_type, class_types, string_types
+from six import PY2, iterkeys, iteritems, itervalues, text_type, class_types, \
+    string_types, StringIO
 from docutils import nodes
 from docutils.utils import assemble_option_dict
 from docutils.statemachine import ViewList
@@ -33,6 +34,13 @@ from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method
 from sphinx.util.docstrings import prepare_docstring
 
+try:
+    if sys.version_info >= (3,):
+        import typing
+    else:
+        typing = None
+except ImportError:
+    typing = None
 
 #: extended signature RE: with explicit module name separated by ::
 py_ext_sig_re = re.compile(
@@ -78,17 +86,21 @@ class Options(dict):
 
 class _MockModule(object):
     """Used by autodoc_mock_imports."""
+    __file__ = '/dev/null'
+    __path__ = '/dev/null'
+
     def __init__(self, *args, **kwargs):
-        pass
+        self.__all__ = []
 
     def __call__(self, *args, **kwargs):
         return _MockModule()
 
+    def _append_submodule(self, submod):
+        self.__all__.append(submod)
+
     @classmethod
     def __getattr__(cls, name):
-        if name in ('__file__', '__path__'):
-            return '/dev/null'
-        elif name[0] == name[0].upper():
+        if name[0] == name[0].upper():
             # Not very good, we assume Uppercase names are classes...
             mocktype = type(name, (), {})
             mocktype.__module__ = __name__
@@ -101,9 +113,12 @@ def mock_import(modname):
     if '.' in modname:
         pkg, _n, mods = modname.rpartition('.')
         mock_import(pkg)
-    mod = _MockModule()
-    sys.modules[modname] = mod
-    return mod
+        if isinstance(sys.modules[pkg], _MockModule):
+            sys.modules[pkg]._append_submodule(mods)
+
+    if modname not in sys.modules:
+        mod = _MockModule()
+        sys.modules[modname] = mod
 
 
 ALL = object()
@@ -245,9 +260,135 @@ def between(marker, what=None, keepempty=False, exclude=False):
     return process
 
 
-def formatargspec(*argspec):
-    return inspect.formatargspec(*argspec,
-                                 formatvalue=lambda x: '=' + object_description(x))
+def format_annotation(annotation):
+    """Return formatted representation of a type annotation.
+
+    Show qualified names for types and additional details for types from
+    the ``typing`` module.
+
+    Displaying complex types from ``typing`` relies on its private API.
+    """
+    if not isinstance(annotation, type):
+        return repr(annotation)
+
+    qualified_name = (annotation.__module__ + '.' + annotation.__qualname__
+                      if annotation else repr(annotation))
+
+    if annotation.__module__ == 'builtins':
+        return annotation.__qualname__
+    elif typing:
+        if isinstance(annotation, typing.TypeVar):
+            return annotation.__name__
+        elif hasattr(typing, 'GenericMeta') and \
+                isinstance(annotation, typing.GenericMeta):
+            # In Python 3.5.2+, all arguments are stored in __args__,
+            # whereas __parameters__ only contains generic parameters.
+            #
+            # Prior to Python 3.5.2, __args__ is not available, and all
+            # arguments are in __parameters__.
+            params = None
+            if hasattr(annotation, '__args__'):
+                params = annotation.__args__
+            elif hasattr(annotation, '__parameters__'):
+                params = annotation.__parameters__
+            if params is not None:
+                param_str = ', '.join(format_annotation(p) for p in params)
+                return '%s[%s]' % (qualified_name, param_str)
+        elif hasattr(typing, 'UnionMeta') and \
+                isinstance(annotation, typing.UnionMeta) and \
+                hasattr(annotation, '__union_params__'):
+            params = annotation.__union_params__
+            if params is not None:
+                param_str = ', '.join(format_annotation(p) for p in params)
+                return '%s[%s]' % (qualified_name, param_str)
+        elif hasattr(typing, 'CallableMeta') and \
+                isinstance(annotation, typing.CallableMeta) and \
+                hasattr(annotation, '__args__') and \
+                hasattr(annotation, '__result__'):
+            args = annotation.__args__
+            if args is Ellipsis:
+                args_str = '...'
+            else:
+                formatted_args = (format_annotation(a) for a in args)
+                args_str = '[%s]' % ', '.join(formatted_args)
+            return '%s[%s, %s]' % (qualified_name,
+                                   args_str,
+                                   format_annotation(annotation.__result__))
+        elif hasattr(typing, 'TupleMeta') and \
+                isinstance(annotation, typing.TupleMeta) and \
+                hasattr(annotation, '__tuple_params__') and \
+                hasattr(annotation, '__tuple_use_ellipsis__'):
+            params = annotation.__tuple_params__
+            if params is not None:
+                param_strings = [format_annotation(p) for p in params]
+                if annotation.__tuple_use_ellipsis__:
+                    param_strings.append('...')
+                return '%s[%s]' % (qualified_name,
+                                   ', '.join(param_strings))
+    return qualified_name
+
+
+def formatargspec(function, args, varargs=None, varkw=None, defaults=None,
+                  kwonlyargs=(), kwonlydefaults={}, annotations={}):
+    """Return a string representation of an ``inspect.FullArgSpec`` tuple.
+
+    An enhanced version of ``inspect.formatargspec()`` that handles typing
+    annotations better.
+    """
+
+    def format_arg_with_annotation(name):
+        if name in annotations:
+            return '%s: %s' % (name, format_annotation(get_annotation(name)))
+        return name
+
+    def get_annotation(name):
+        value = annotations[name]
+        if isinstance(value, string_types):
+            return introspected_hints.get(name, value)
+        else:
+            return value
+
+    introspected_hints = (typing.get_type_hints(function)
+                          if typing and hasattr(function, '__code__') else {})
+
+    fd = StringIO()
+    fd.write('(')
+
+    formatted = []
+    defaults_start = len(args) - len(defaults) if defaults else len(args)
+
+    for i, arg in enumerate(args):
+        arg_fd = StringIO()
+        arg_fd.write(format_arg_with_annotation(arg))
+        if defaults and i >= defaults_start:
+            arg_fd.write(' = ' if arg in annotations else '=')
+            arg_fd.write(object_description(defaults[i - defaults_start]))
+        formatted.append(arg_fd.getvalue())
+
+    if varargs:
+        formatted.append('*' + format_arg_with_annotation(varargs))
+
+    if kwonlyargs:
+        formatted.append('*')
+        for kwarg in kwonlyargs:
+            arg_fd = StringIO()
+            arg_fd.write(format_arg_with_annotation(kwarg))
+            if kwonlydefaults and kwarg in kwonlydefaults:
+                arg_fd.write(' = ' if kwarg in annotations else '=')
+                arg_fd.write(object_description(kwonlydefaults[kwarg]))
+            formatted.append(arg_fd.getvalue())
+
+    if varkw:
+        formatted.append('**' + format_arg_with_annotation(varkw))
+
+    fd.write(', '.join(formatted))
+    fd.write(')')
+
+    if 'return' in annotations:
+        fd.write(' -> ')
+        fd.write(format_annotation(get_annotation('return')))
+
+    return fd.getvalue()
 
 
 class Documenter(object):
@@ -380,7 +521,7 @@ class Documenter(object):
         try:
             dbg('[autodoc] import %s', self.modname)
             for modname in self.env.config.autodoc_mock_imports:
-                dbg('[autodoc] adding a mock module %s!', self.modname)
+                dbg('[autodoc] adding a mock module %s!', modname)
                 mock_import(modname)
             __import__(self.modname)
             parent = None
@@ -410,6 +551,8 @@ class Documenter(object):
             else:
                 errmsg += '; the following exception was raised:\n%s' % \
                           traceback.format_exc()
+            if PY2:
+                errmsg = errmsg.decode('utf-8')
             dbg(errmsg)
             self.directive.warn(errmsg)
             self.env.note_reread()
@@ -598,7 +741,7 @@ class Documenter(object):
             # __dict__ contains only the members directly defined in
             # the class (but get them via getattr anyway, to e.g. get
             # unbound method objects instead of function objects);
-            # using keys() because apparently there are objects for which
+            # using list(iterkeys()) because apparently there are objects for which
             # __dict__ changes while getting attributes
             try:
                 obj_dict = self.get_attr(self.object, '__dict__')
@@ -606,7 +749,7 @@ class Documenter(object):
                 members = []
             else:
                 members = [(mname, self.get_attr(self.object, mname, None))
-                           for mname in obj_dict.keys()]
+                           for mname in list(iterkeys(obj_dict))]
         membernames = set(m[0] for m in members)
         # add instance attributes from the analyzer
         for aname in analyzed_member_names:
@@ -1061,7 +1204,7 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
                 argspec = getargspec(self.object.__init__)
                 if argspec[0]:
                     del argspec[0][0]
-        args = formatargspec(*argspec)
+        args = formatargspec(self.object, *argspec)
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
         return args
@@ -1116,7 +1259,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
             return None
         if argspec[0] and argspec[0][0] in ('cls', 'self'):
             del argspec[0][0]
-        return formatargspec(*argspec)
+        return formatargspec(initmeth, *argspec)
 
     def format_signature(self):
         if self.doc_as_attr:
@@ -1163,6 +1306,15 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
                 (initdocstring == object.__init__.__doc__ or  # for pypy
                  initdocstring.strip() == object.__init__.__doc__)):  # for !pypy
                 initdocstring = None
+            if not initdocstring:
+                # try __new__
+                initdocstring = self.get_attr(
+                    self.get_attr(self.object, '__new__', None), '__doc__')
+                # for new-style classes, no __new__ means default __new__
+                if (initdocstring is not None and
+                    (initdocstring == object.__new__.__doc__ or  # for pypy
+                     initdocstring.strip() == object.__new__.__doc__)):  # for !pypy
+                    initdocstring = None
             if initdocstring:
                 if content == 'init':
                     docstrings = [initdocstring]
@@ -1170,9 +1322,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
                     docstrings.append(initdocstring)
         doc = []
         for docstring in docstrings:
-            if not isinstance(docstring, text_type):
-                docstring = force_decode(docstring, encoding)
-            doc.append(prepare_docstring(docstring))
+            if isinstance(docstring, text_type):
+                doc.append(prepare_docstring(docstring, ignore))
+            elif isinstance(docstring, str):  # this will not trigger on Py3
+                doc.append(prepare_docstring(force_decode(docstring, encoding),
+                                             ignore))
         return doc
 
     def add_content(self, more_content, no_docstring=False):
@@ -1283,7 +1437,7 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):
         argspec = getargspec(self.object)
         if argspec[0] and argspec[0][0] in ('cls', 'self'):
             del argspec[0][0]
-        args = formatargspec(*argspec)
+        args = formatargspec(self.object, *argspec)
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
         return args

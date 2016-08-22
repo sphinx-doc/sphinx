@@ -6,17 +6,19 @@
     Mimic doctest by automatically executing code snippets and checking
     their results.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import absolute_import
 
 import re
 import sys
 import time
 import codecs
 from os import path
+import doctest
 
-from six import itervalues, StringIO, binary_type
+from six import itervalues, StringIO, binary_type, text_type, PY2
 from docutils import nodes
 from docutils.parsers.rst import directives
 
@@ -26,12 +28,21 @@ from sphinx.util import force_decode
 from sphinx.util.nodes import set_source_info
 from sphinx.util.compat import Directive
 from sphinx.util.console import bold
-
-# circumvent relative import
-doctest = __import__('doctest')
+from sphinx.util.osutil import fs_encoding
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
 doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
+
+if PY2:
+    def doctest_encode(text, encoding):
+        if isinstance(text, text_type):
+            text = text.encode(encoding)
+            if text.startswith(codecs.BOM_UTF8):
+                text = text[len(codecs.BOM_UTF8):]
+        return text
+else:
+    def doctest_encode(text, encoding):
+        return text
 
 
 # set up the necessary directives
@@ -203,8 +214,7 @@ class DocTestBuilder(Builder):
 
     def init(self):
         # default options
-        self.opt = doctest.DONT_ACCEPT_TRUE_FOR_1 | doctest.ELLIPSIS | \
-            doctest.IGNORE_EXCEPTION_DETAIL
+        self.opt = self.config.doctest_default_flags
 
         # HACK HACK HACK
         # doctest compiles its snippets with type 'single'. That is nice
@@ -238,9 +248,10 @@ Results of doctest builder run on %s
         self.outfile.write(text)
 
     def _warn_out(self, text):
-        self.info(text, nonl=True)
-        if self.app.quiet:
+        if self.app.quiet or self.app.warningiserror:
             self.warn(text)
+        else:
+            self.info(text, nonl=True)
         if isinstance(text, binary_type):
             text = force_decode(text, None)
         self.outfile.write(text)
@@ -358,19 +369,25 @@ Doctest summary
         return compile(code, name, self.type, flags, dont_inherit)
 
     def test_group(self, group, filename):
+        if PY2:
+            filename_str = filename.encode(fs_encoding)
+        else:
+            filename_str = filename
+
         ns = {}
 
         def run_setup_cleanup(runner, testcodes, what):
             examples = []
             for testcode in testcodes:
-                examples.append(doctest.Example(testcode.code, '',
-                                                lineno=testcode.lineno))
+                examples.append(doctest.Example(
+                    doctest_encode(testcode.code, self.env.config.source_encoding), '',
+                    lineno=testcode.lineno))
             if not examples:
                 return True
             # simulate a doctest with the code
             sim_doctest = doctest.DocTest(examples, {},
                                           '%s (%s code)' % (group.name, what),
-                                          filename, 0, None)
+                                          filename_str, 0, None)
             sim_doctest.globs = ns
             old_f = runner.failures
             self.type = 'exec'  # the snippet may contain multiple statements
@@ -389,8 +406,9 @@ Doctest summary
             if len(code) == 1:
                 # ordinary doctests (code/output interleaved)
                 try:
-                    test = parser.get_doctest(code[0].code, {}, group.name,
-                                              filename, code[0].lineno)
+                    test = parser.get_doctest(
+                        doctest_encode(code[0].code, self.env.config.source_encoding), {},
+                        group.name, filename_str, code[0].lineno)
                 except Exception:
                     self.warn('ignoring invalid doctest code: %r' %
                               code[0].code,
@@ -416,12 +434,13 @@ Doctest summary
                     exc_msg = m.group('msg')
                 else:
                     exc_msg = None
-                example = doctest.Example(code[0].code, output,
-                                          exc_msg=exc_msg,
-                                          lineno=code[0].lineno,
-                                          options=options)
+                example = doctest.Example(
+                    doctest_encode(code[0].code, self.env.config.source_encoding), output,
+                    exc_msg=exc_msg,
+                    lineno=code[0].lineno,
+                    options=options)
                 test = doctest.DocTest([example], {}, group.name,
-                                       filename, code[0].lineno, None)
+                                       filename_str, code[0].lineno, None)
                 self.type = 'exec'  # multiple statements again
             # DocTest.__init__ copies the globs namespace, which we don't want
             test.globs = ns
@@ -444,4 +463,8 @@ def setup(app):
     app.add_config_value('doctest_test_doctest_blocks', 'default', False)
     app.add_config_value('doctest_global_setup', '', False)
     app.add_config_value('doctest_global_cleanup', '', False)
+    app.add_config_value(
+        'doctest_default_flags',
+        doctest.DONT_ACCEPT_TRUE_FOR_1 | doctest.ELLIPSIS | doctest.IGNORE_EXCEPTION_DETAIL,
+        False)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

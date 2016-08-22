@@ -11,7 +11,7 @@
     Copyright 2008 Société des arts technologiques (SAT),
     http://www.sat.qc.ca/
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -20,6 +20,7 @@ import os
 import sys
 import optparse
 from os import path
+from six import binary_type
 
 from sphinx.util.osutil import FileAvoidWrite, walk
 from sphinx import __display_version__
@@ -366,7 +367,20 @@ Note: By default this script will not overwrite already created files.""")
             mastertoctree = text,
             language = 'en',
         )
+        if isinstance(opts.header, binary_type):
+            d['project'] = d['project'].decode('utf-8')
+        if isinstance(opts.author, binary_type):
+            d['author'] = d['author'].decode('utf-8')
+        if isinstance(opts.version, binary_type):
+            d['version'] = d['version'].decode('utf-8')
+        if isinstance(opts.release, binary_type):
+            d['release'] = d['release'].decode('utf-8')
+
         if not opts.dryrun:
             qs.generate(d, silent=True, overwrite=opts.force)
     elif not opts.notoc:
         create_modules_toc_file(modules, opts)
+
+# So program can be started with "python -m sphinx.apidoc ..."
+if __name__ == "__main__":
+    main()

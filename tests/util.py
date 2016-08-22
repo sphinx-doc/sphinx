@@ -3,7 +3,7 @@
     Sphinx test suite utilities
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,13 +17,16 @@ from six import StringIO
 
 from nose import tools, SkipTest
 
+from docutils import nodes
+from docutils.parsers.rst import directives, roles
+
 from sphinx import application
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.theming import Theme
 from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
 
-from path import path
+from path import path, repr_as  # NOQA
 
 try:
     # Python >=3.3
@@ -91,14 +94,26 @@ def assert_startswith(thing, prefix):
         assert False, '%r does not start with %r' % (thing, prefix)
 
 
-def assert_in(x, thing):
-    if x not in thing:
-        assert False, '%r is not in %r' % (x, thing)
+def assert_node(node, cls=None, **kwargs):
+    if cls:
+        assert isinstance(node, cls), '%r is not subclass of %r' % (node, cls)
+
+    for key, value in kwargs.items():
+        assert key in node, '%r does not have %r attribute' % (node, key)
+        assert node[key] == value, \
+            '%r[%s]: %r does not equals %r' % (node, key, node[key], value)
 
 
-def assert_not_in(x, thing):
-    if x in thing:
-        assert False, '%r is in %r' % (x, thing)
+try:
+    from nose.tools import assert_in, assert_not_in
+except ImportError:
+    def assert_in(x, thing, msg=''):
+        if x not in thing:
+            assert False, msg or '%r is not in %r' % (x, thing)
+
+    def assert_not_in(x, thing, msg=''):
+        if x in thing:
+            assert False, msg or '%r is in %r' % (x, thing)
 
 
 def skip_if(condition, msg=None):
@@ -195,10 +210,19 @@ class TestApp(application.Sphinx):
         warningiserror = False
 
         self._saved_path = sys.path[:]
+        self._saved_directives = directives._directives.copy()
+        self._saved_roles = roles._roles.copy()
 
-        application.Sphinx.__init__(self, srcdir, confdir, outdir, doctreedir,
-                                    buildername, confoverrides, status, warning,
-                                    freshenv, warningiserror, tags)
+        self._saved_nodeclasses = set(v for v in dir(nodes.GenericNodeVisitor)
+                                      if v.startswith('visit_'))
+
+        try:
+            application.Sphinx.__init__(self, srcdir, confdir, outdir, doctreedir,
+                                        buildername, confoverrides, status, warning,
+                                        freshenv, warningiserror, tags)
+        except:
+            self.cleanup()
+            raise
 
     def cleanup(self, doctrees=False):
         Theme.themes.clear()
@@ -207,6 +231,13 @@ class TestApp(application.Sphinx):
         LaTeXBuilder.usepackages = []
         sys.path[:] = self._saved_path
         sys.modules.pop('autodoc_fodder', None)
+        directives._directives = self._saved_directives
+        roles._roles = self._saved_roles
+        for method in dir(nodes.GenericNodeVisitor):
+            if method.startswith('visit_') and \
+               method not in self._saved_nodeclasses:
+                delattr(nodes.GenericNodeVisitor, 'visit_' + method[6:])
+                delattr(nodes.GenericNodeVisitor, 'depart_' + method[6:])
 
     def __repr__(self):
         return '<%s buildername=%r>' % (self.__class__.__name__, self.builder.name)
@@ -278,3 +309,7 @@ def find_files(root, suffix=None):
         for f in [f for f in files if not suffix or f.endswith(suffix)]:
             fpath = dirpath / f
             yield os.path.relpath(fpath, root)
+
+
+def strip_escseq(text):
+    return re.sub('\x1b.*?m', '', text)

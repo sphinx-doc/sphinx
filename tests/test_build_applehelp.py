@@ -7,11 +7,10 @@
     test the HTML itself; that's already handled by
     :file:`test_build_html.py`.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import os
 import plistlib
 
 from util import with_app
@@ -44,8 +43,12 @@ def check_localization(outdir):
     assert (lprojdir / 'localized.txt').isfile()
 
 
-@with_app(buildername='applehelp')
+@with_app(buildername='applehelp', testroot='basic', srcdir='applehelp_output',
+          confoverrides={'applehelp_bundle_id': 'org.sphinx-doc.Sphinx.help',
+                         'applehelp_disable_external_tools': True})
 def test_applehelp_output(app, status, warning):
+    (app.srcdir / 'en.lproj').makedirs()
+    (app.srcdir / 'en.lproj' / 'localized.txt').write_text('')
     app.builder.build_all()
 
     # Have to use bundle_path, not outdir, because we alter the latter

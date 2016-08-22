@@ -14,20 +14,12 @@
 <p>{%trans%}Current version: <b>{{ version }}</b>{%endtrans%}</p>
 <p>{%trans%}Get Sphinx from the <a href="https://pypi.python.org/pypi/Sphinx">Python Package
 Index</a>, or install it with:{%endtrans%}</p>
-{% if version.split('b')|length > 1 %}
-<pre>pip install Sphinx=={{ version }}</pre>
-<p>{%trans%}<a href="http://sphinx-doc.org/">Stable version docs</a>
-are also available.{%endtrans%}</p>
-{% else %}
 <pre>pip install -U Sphinx</pre>
-<p>{%trans%}Latest <a href="http://sphinx-doc.org/latest/">development version docs</a>
-are also available.{%endtrans%}</p>
-{% endif %}
 {% endif %}
 
 <h3>{%trans%}Questions? Suggestions?{%endtrans%}</h3>
 
-<p>{%trans%}Join the <a href="http://groups.google.com/group/sphinx-users">Google group</a>:{%endtrans%}</p>
+<p>{%trans%}Join the <a href="http://groups.google.com/group/sphinx-users">sphinx-users</a> mailing list on Google Groups:{%endtrans%}</p>
 <form action="http://groups.google.com/group/sphinx-users/boxsubscribe"
       style="padding-left: 0.5em">
   <input type="text" name="email" value="your@email" style="font-size: 90%; width: 120px"

@@ -92,11 +92,8 @@ class Driver(object):
 
     def parse_file(self, filename, debug=False):
         """Parse a file and return the syntax tree."""
-        stream = open(filename)
-        try:
+        with open(filename) as stream:
             return self.parse_stream(stream, debug)
-        finally:
-            stream.close()
 
     def parse_string(self, text, debug=False):
         """Parse a string and return the syntax tree."""
@@ -112,27 +109,36 @@ def generate_lines(text):
         yield ""
 
 
-def load_grammar(gt="Grammar.txt", gp=None,
-                 save=True, force=False, logger=None):
+def get_compiled_path(filename):
+    head, tail = os.path.splitext(filename)
+    if tail == ".txt":
+        tail = ""
+    return "%s%s.pickle" % (head, tail)
+
+
+def compile_grammar(gt='Grammar.txt', logger=None):
+    """Compile the grammer."""
+    if logger is None:
+        logger = logging.getLogger()
+
+    logger.info("Generating grammar tables from %s", gt)
+    g = pgen.generate_grammar(gt)
+    gp = get_compiled_path(gt)
+    logger.info("Writing grammar tables to %s", gp)
+    try:
+        g.dump(gp)
+    except IOError as e:
+        logger.info("Writing failed:"+str(e))
+
+
+def load_grammar(gt="Grammar.txt", logger=None):
     """Load the grammar (maybe from a pickle)."""
     if logger is None:
         logger = logging.getLogger()
-    if gp is None:
-        head, tail = os.path.splitext(gt)
-        if tail == ".txt":
-            tail = ""
-        # embed Sphinx major version for the case we ever change the grammar...
-        gp = head + tail + "-sphinx" + \
-             ".".join(map(str, sphinx.version_info[:2])) + ".pickle"
-    if force or not _newer(gp, gt):
+    gp = get_compiled_path(gt)
+    if not os.path.exists(gp):
         logger.info("Generating grammar tables from %s", gt)
         g = pgen.generate_grammar(gt)
-        if save:
-            logger.info("Writing grammar tables to %s", gp)
-            try:
-                g.dump(gp)
-            except IOError as e:
-                logger.info("Writing failed:"+str(e))
     else:
         g = grammar.Grammar()
         g.load(gp)

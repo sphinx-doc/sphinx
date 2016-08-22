@@ -5,7 +5,7 @@
 
     The C language domain.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -206,7 +206,7 @@ class CObject(ObjectDescription):
         indextext = self.get_index_text(name)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
-                                              targetname, ''))
+                                              targetname, '', None))
 
     def before_content(self):
         self.typename_set = False
@@ -279,6 +279,9 @@ class CDomain(Domain):
                      typ, target, node, contnode):
         # strip pointer asterisk
         target = target.rstrip(' *')
+        # becase TypedField can generate xrefs
+        if target in CObject.stopwords:
+            return contnode
         if target not in self.data['objects']:
             return None
         obj = self.data['objects'][target]
@@ -299,3 +302,7 @@ class CDomain(Domain):
     def get_objects(self):
         for refname, (docname, type) in list(self.data['objects'].items()):
             yield (refname, refname, type, docname, 'c.' + refname, 1)
+
+
+def setup(app):
+    app.add_domain(CDomain)

@@ -360,6 +360,16 @@ def generate_tokens(readline):
                 spos, epos, pos = (lnum, start), (lnum, end), end
                 token, initial = line[start:end], line[start]
 
+                if end < max:
+                    next_pseudomatch = pseudoprog.match(line, end)
+                    if next_pseudomatch:
+                        n_start, n_end = next_pseudomatch.span(1)
+                        n_token  = line[n_start:n_end]
+                    else:
+                        n_token = None
+                else:
+                    n_token = None
+
                 if initial in numchars or (
                    initial == '.' and token not in ('.', '...')
                    ):                                      # ordinary number
@@ -396,6 +406,10 @@ def generate_tokens(readline):
                         break
                     else:                                  # ordinary string
                         yield (STRING, token, spos, epos, line)
+                elif token == 'await' and n_token:
+                    yield (AWAIT, token, spos, epos, line)
+                elif token == 'async' and n_token in ('def', 'for', 'with'):
+                    yield (ASYNC, token, spos, epos, line)
                 elif initial in namechars:                 # ordinary name
                     yield (NAME, token, spos, epos, line)
                 elif token in ('...',):                    # ordinary name

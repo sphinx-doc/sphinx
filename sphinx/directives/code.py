@@ -3,7 +3,7 @@
     sphinx.directives.code
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,6 +18,7 @@ from docutils.statemachine import ViewList
 from six import string_types
 
 from sphinx import addnodes
+from sphinx.locale import _
 from sphinx.util import parselinenos
 from sphinx.util.nodes import set_source_info
 
@@ -68,6 +69,8 @@ def container_wrapper(directive, literal_node, caption):
     parsed = nodes.Element()
     directive.state.nested_parse(ViewList([caption], source=''),
                                  directive.content_offset, parsed)
+    if isinstance(parsed[0], nodes.system_message):
+        raise ValueError(parsed[0])
     caption_node = nodes.caption(parsed[0].rawsource, '',
                                  *parsed[0].children)
     caption_node.source = parsed[0].source
@@ -93,6 +96,7 @@ class CodeBlock(Directive):
         'lineno-start': int,
         'emphasize-lines': directives.unchanged_required,
         'caption': directives.unchanged_required,
+        'class': directives.class_option,
         'name': directives.unchanged,
     }
 
@@ -119,6 +123,7 @@ class CodeBlock(Directive):
         literal['language'] = self.arguments[0]
         literal['linenos'] = 'linenos' in self.options or \
                              'lineno-start' in self.options
+        literal['classes'] += self.options.get('class', [])
         extra_args = literal['highlight_args'] = {}
         if hl_lines is not None:
             extra_args['hl_lines'] = hl_lines
@@ -129,7 +134,12 @@ class CodeBlock(Directive):
         caption = self.options.get('caption')
         if caption:
             self.options.setdefault('name', nodes.fully_normalize_name(caption))
-            literal = container_wrapper(self, literal, caption)
+            try:
+                literal = container_wrapper(self, literal, caption)
+            except ValueError as exc:
+                document = self.state.document
+                errmsg = _('Invalid caption: %s' % exc[0][0].astext())
+                return [document.reporter.warning(errmsg, line=self.lineno)]
 
         # literal will be note_implicit_target that is linked from caption and numref.
         # when options['name'] is provided, it should be primary ID.
@@ -165,18 +175,18 @@ class LiteralInclude(Directive):
         'append': directives.unchanged_required,
         'emphasize-lines': directives.unchanged_required,
         'caption': directives.unchanged,
+        'class': directives.class_option,
         'name': directives.unchanged,
         'diff': directives.unchanged_required,
     }
 
     def read_with_encoding(self, filename, document, codec_info, encoding):
-        f = None
         try:
-            f = codecs.StreamReaderWriter(open(filename, 'rb'), codec_info[2],
-                                          codec_info[3], 'strict')
-            lines = f.readlines()
-            lines = dedent_lines(lines, self.options.get('dedent'))
-            return lines
+            with codecs.StreamReaderWriter(open(filename, 'rb'), codec_info[2],
+                                           codec_info[3], 'strict') as f:
+                lines = f.readlines()
+                lines = dedent_lines(lines, self.options.get('dedent'))
+                return lines
         except (IOError, OSError):
             return [document.reporter.warning(
                 'Include file %r not found or reading it failed' % filename,
@@ -186,9 +196,6 @@ class LiteralInclude(Directive):
                 'Encoding %r used for reading included file %r seems to '
                 'be wrong, try giving an :encoding: option' %
                 (encoding, filename))]
-        finally:
-            if f is not None:
-                f.close()
 
     def run(self):
         document = self.state.document
@@ -322,6 +329,7 @@ class LiteralInclude(Directive):
         retnode['linenos'] = 'linenos' in self.options or \
                              'lineno-start' in self.options or \
                              'lineno-match' in self.options
+        retnode['classes'] += self.options.get('class', [])
         extra_args = retnode['highlight_args'] = {}
         if hl_lines is not None:
             extra_args['hl_lines'] = hl_lines
@@ -333,7 +341,12 @@ class LiteralInclude(Directive):
             if not caption:
                 caption = self.arguments[0]
             self.options.setdefault('name', nodes.fully_normalize_name(caption))
-            retnode = container_wrapper(self, retnode, caption)
+            try:
+                retnode = container_wrapper(self, retnode, caption)
+            except ValueError as exc:
+                document = self.state.document
+                errmsg = _('Invalid caption: %s' % exc[0][0].astext())
+                return [document.reporter.warning(errmsg, line=self.lineno)]
 
         # retnode will be note_implicit_target that is linked from caption and numref.
         # when options['name'] is provided, it should be primary ID.
@@ -342,8 +355,9 @@ class LiteralInclude(Directive):
         return [retnode]
 
 
-directives.register_directive('highlight', Highlight)
-directives.register_directive('highlightlang', Highlight)  # old
-directives.register_directive('code-block', CodeBlock)
-directives.register_directive('sourcecode', CodeBlock)
-directives.register_directive('literalinclude', LiteralInclude)
+def setup(app):
+    directives.register_directive('highlight', Highlight)
+    directives.register_directive('highlightlang', Highlight)  # old
+    directives.register_directive('code-block', CodeBlock)
+    directives.register_directive('sourcecode', CodeBlock)
+    directives.register_directive('literalinclude', LiteralInclude)

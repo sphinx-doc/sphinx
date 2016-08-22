@@ -9,12 +9,12 @@ possibly subdirectories of docs in there as well), Sphinx can generate a
 nicely-organized arrangement of HTML files (in some other directory) for easy
 browsing and navigation.  But from the same source, it can also generate a
 LaTeX file that you can compile into a PDF version of the documents, or a
-PDF file directly using `rst2pdf <http://rst2pdf.googlecode.com>`_.
+PDF file directly using `rst2pdf <https://github.com/rst2pdf/rst2pdf>`_.
 
 The focus is on hand-written documentation, rather than auto-generated API docs.
 Though there is support for that kind of docs as well (which is intended to be
 freely mixed with hand-written content), if you need pure API docs have a look
-at `Epydoc <http://epydoc.sf.net/>`_, which also understands reST.
+at `Epydoc <http://epydoc.sourceforge.net/>`_, which also understands reST.
 
 For a great "introduction" to writing docs in general -- the whys and hows, see
 also `Write the docs <http://write-the-docs.readthedocs.org/>`_, written by Eric
@@ -36,12 +36,12 @@ to reStructuredText/Sphinx from other documentation systems.
   code to convert Python-doc-style LaTeX markup to Sphinx reST.
 
 * Marcin Wojdyr has written a script to convert Docbook to reST with Sphinx
-  markup; it is at `Google Code <http://code.google.com/p/db2rst/>`_.
+  markup; it is at `Google Code <https://github.com/wojdyr/db2rst>`_.
 
 * Christophe de Vienne wrote a tool to convert from Open/LibreOffice documents
   to Sphinx: `odt2sphinx <https://pypi.python.org/pypi/odt2sphinx/>`_.
 
-* To convert different markups, `Pandoc <http://johnmacfarlane.net/pandoc/>`_ is
+* To convert different markups, `Pandoc <http://pandoc.org/>`_ is
   a very helpful tool.
 
 
@@ -59,8 +59,8 @@ docutils_ and Jinja2_ libraries.  Sphinx should work with docutils version 0.10
 or some (not broken) SVN trunk snapshot.  If you like to have source code
 highlighting support, you must also install the Pygments_ library.
 
-.. _reStructuredText: http://docutils.sf.net/rst.html
-.. _docutils: http://docutils.sf.net/
+.. _reStructuredText: http://docutils.sourceforge.net/rst.html
+.. _docutils: http://docutils.sourceforge.net/
 .. _Jinja2: http://jinja.pocoo.org/
 .. _Pygments: http://pygments.org/
 

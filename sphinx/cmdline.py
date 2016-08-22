@@ -5,7 +5,7 @@
 
     sphinx-build command-line handling.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -26,11 +26,6 @@ from sphinx.util.console import red, nocolor, color_terminal
 from sphinx.util.osutil import abspath, fs_encoding
 from sphinx.util.pycompat import terminal_safe
 
-
-def usage(argv, msg=None):
-    if msg:
-        print(msg, file=sys.stderr)
-        print(file=sys.stderr)
 
 USAGE = """\
 Sphinx v%s
@@ -125,7 +120,7 @@ def main(argv):
 
     # parse options
     try:
-        opts, args = parser.parse_args(argv[1:])
+        opts, args = parser.parse_args(list(argv[1:]))
     except SystemExit as err:
         return err.code
 
@@ -149,8 +144,12 @@ def main(argv):
                   file=sys.stderr)
             return 1
         outdir = abspath(args[1])
+        if srcdir == outdir:
+            print('Error: source directory and destination directory are same.',
+                  file=sys.stderr)
+            return 1
     except IndexError:
-        usage(argv, 'Error: Insufficient arguments.')
+        parser.print_help()
         return 1
     except UnicodeError:
         print(
@@ -271,6 +270,14 @@ def main(argv):
                 print(red('The full traceback has been saved in %s, if you want '
                           'to report the issue to the developers.' % tbpath),
                       file=error)
+            elif isinstance(err, RuntimeError) and 'recursion depth' in str(err):
+                print(red('Recursion error:'), file=error)
+                print(terminal_safe(text_type(err)), file=error)
+                print(file=error)
+                print('This can happen with very large or deeply nested source '
+                      'files.  You can carefully increase the default Python '
+                      'recursion limit of 1000 in conf.py with e.g.:', file=error)
+                print('    import sys; sys.setrecursionlimit(1500)', file=error)
             else:
                 print(red('Exception occurred:'), file=error)
                 print(format_exception_cut_frames().rstrip(), file=error)

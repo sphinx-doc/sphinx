@@ -5,7 +5,7 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,19 +18,17 @@ import posixpath
 import traceback
 import unicodedata
 from os import path
-from codecs import open, BOM_UTF8
+from codecs import BOM_UTF8
 from collections import deque
 
 from six import iteritems, text_type, binary_type
 from six.moves import range
-import docutils
+from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 from docutils.utils import relative_path
 
-import jinja2
-
-import sphinx
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
 from sphinx.util.console import strip_colors
+from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import fs_encoding
 
 # import other utilities; partly for backwards compatibility, so don't
@@ -147,7 +145,7 @@ class FilenameUniqDict(dict):
 
 def copy_static_entry(source, targetdir, builder, context={},
                       exclude_matchers=(), level=0):
-    """Copy a HTML builder static_path entry from source to targetdir.
+    """[DEPRECATED] Copy a HTML builder static_path entry from source to targetdir.
 
     Handles all possible cases of files, directories and subdirectories.
     """
@@ -157,16 +155,7 @@ def copy_static_entry(source, targetdir, builder, context={},
             if matcher(relpath):
                 return
     if path.isfile(source):
-        target = path.join(targetdir, path.basename(source))
-        if source.lower().endswith('_t') and builder.templates:
-            # templated!
-            fsrc = open(source, 'r', encoding='utf-8')
-            fdst = open(target[:-2], 'w', encoding='utf-8')
-            fdst.write(builder.templates.render_string(fsrc.read(), context))
-            fsrc.close()
-            fdst.close()
-        else:
-            copyfile(source, target)
+        copy_asset_file(source, targetdir, context, builder.templates)
     elif path.isdir(source):
         if not path.isdir(targetdir):
             os.mkdir(targetdir)
@@ -179,7 +168,6 @@ def copy_static_entry(source, targetdir, builder, context={},
             copy_static_entry(path.join(source, entry), newtarget,
                               builder, context, level=level+1,
                               exclude_matchers=exclude_matchers)
-
 
 _DEBUG_HEADER = '''\
 # Sphinx version: %s
@@ -194,6 +182,9 @@ _DEBUG_HEADER = '''\
 
 def save_traceback(app):
     """Save the current exception's traceback in a temporary file."""
+    import sphinx
+    import jinja2
+    import docutils
     import platform
     exc = sys.exc_info()[1]
     if isinstance(exc, SphinxParallelError):
@@ -420,23 +411,21 @@ def split_into(n, type, value):
 
 def split_index_msg(type, value):
     # new entry types must be listed in directives/other.py!
-    result = []
-    try:
-        if type == 'single':
-            try:
-                result = split_into(2, 'single', value)
-            except ValueError:
-                result = split_into(1, 'single', value)
-        elif type == 'pair':
-            result = split_into(2, 'pair', value)
-        elif type == 'triple':
-            result = split_into(3, 'triple', value)
-        elif type == 'see':
-            result = split_into(2, 'see', value)
-        elif type == 'seealso':
-            result = split_into(2, 'see', value)
-    except ValueError:
-        pass
+    if type == 'single':
+        try:
+            result = split_into(2, 'single', value)
+        except ValueError:
+            result = split_into(1, 'single', value)
+    elif type == 'pair':
+        result = split_into(2, 'pair', value)
+    elif type == 'triple':
+        result = split_into(3, 'triple', value)
+    elif type == 'see':
+        result = split_into(2, 'see', value)
+    elif type == 'seealso':
+        result = split_into(2, 'see', value)
+    else:
+        raise ValueError('invalid %s index entry %r' % (type, value))
 
     return result
 
@@ -485,27 +474,6 @@ class PeekableIterator(object):
         return item
 
 
-def get_figtype(node):
-    """Return figtype for given node."""
-    def has_child(node, cls):
-        return any(isinstance(child, cls) for child in node)
-
-    from docutils import nodes
-    if isinstance(node, nodes.figure):
-        return 'figure'
-    elif isinstance(node, nodes.image) and isinstance(node.parent, nodes.figure):
-        # bare image node is not supported because it doesn't have caption and
-        # no-caption-target isn't a numbered figure.
-        return 'figure'
-    elif isinstance(node, nodes.table):
-        return 'table'
-    elif isinstance(node, nodes.container):
-        if has_child(node, nodes.literal_block):
-            return 'code-block'
-
-    return None
-
-
 def import_object(objname, source=None):
     try:
         module, name = objname.rsplit('.', 1)
@@ -523,3 +491,22 @@ def import_object(objname, source=None):
         raise ExtensionError('Could not find %s' % objname +
                              (source and ' (needed for %s)' % source or ''),
                              err)
+
+
+def encode_uri(uri):
+    split = list(urlsplit(uri))
+    split[1] = split[1].encode('idna').decode('ascii')
+    split[2] = quote_plus(split[2].encode('utf-8'), '/').decode('ascii')
+    query = list((q, quote_plus(v.encode('utf-8')))
+                 for (q, v) in parse_qsl(split[3]))
+    split[3] = urlencode(query).decode('ascii')
+    return urlunsplit(split)
+
+
+def split_docinfo(text):
+    docinfo_re = re.compile('\A((?:\s*:\w+:.*?\n)+)', re.M)
+    result = docinfo_re.split(text, 1)
+    if len(result) == 1:
+        return '', result[0]
+    else:
+        return result[1:]

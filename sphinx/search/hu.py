@@ -227,6 +227,7 @@ var Stemmer = JSX.require("src/hungarian-stemmer.jsx").HungarianStemmer;
 class SearchHungarian(SearchLanguage):
     lang = 'hu'
     language_name = 'Hungarian'
+    js_stemmer_rawcode = 'hungarian-stemmer.js'
     js_stemmer_code = js_stemmer
     stopwords = hungarian_stopwords
 

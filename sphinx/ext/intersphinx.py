@@ -20,9 +20,11 @@
       also be specified individually, e.g. if the docs should be buildable
       without Internet access.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+from __future__ import print_function
 
 import time
 import zlib
@@ -31,8 +33,9 @@ import posixpath
 from os import path
 import re
 
-from six import iteritems
+from six import iteritems, string_types
 from six.moves.urllib import request
+from six.moves.urllib.parse import urlsplit, urlunsplit
 from docutils import nodes
 from docutils.utils import relative_path
 
@@ -41,14 +44,14 @@ from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
 
 
-handlers = [request.ProxyHandler(), request.HTTPRedirectHandler(),
-            request.HTTPHandler()]
+default_handlers = [request.ProxyHandler(), request.HTTPRedirectHandler(),
+                    request.HTTPHandler()]
 try:
-    handlers.append(request.HTTPSHandler)
+    default_handlers.append(request.HTTPSHandler)
 except AttributeError:
     pass
 
-request.install_opener(request.build_opener(*handlers))
+default_opener = request.build_opener(*default_handlers)
 
 UTF8StreamReader = codecs.lookup('utf-8')[2]
 
@@ -103,7 +106,7 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
 
     for line in split_lines(read_chunks()):
         # be careful to handle names with embedded spaces correctly
-        m = re.match(r'(?x)(.+?)\s+(\S*:\S*)\s+(\S+)\s+(\S+)\s+(.*)',
+        m = re.match(r'(?x)(.+?)\s+(\S*:\S*)\s+(-?\d+)\s+(\S+)\s+(.*)',
                      line.rstrip())
         if not m:
             continue
@@ -122,15 +125,112 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
     return invdata
 
 
+def _strip_basic_auth(url):
+    """Returns *url* with basic auth credentials removed. Also returns the
+    basic auth username and password if they're present in *url*.
+
+    E.g.: https://user:pass@example.com => https://example.com
+
+    *url* need not include basic auth credentials.
+
+    :param url: url which may or may not contain basic auth credentials
+    :type url: ``str``
+
+    :return: 3-``tuple`` of:
+
+      * (``str``) -- *url* with any basic auth creds removed
+      * (``str`` or ``NoneType``) -- basic auth username or ``None`` if basic
+        auth username not given
+      * (``str`` or ``NoneType``) -- basic auth password or ``None`` if basic
+        auth password not given
+
+    :rtype: ``tuple``
+    """
+    url_parts = urlsplit(url)
+    username = url_parts.username
+    password = url_parts.password
+    frags = list(url_parts)
+    # swap out "user[:pass]@hostname" for "hostname"
+    if url_parts.port:
+        frags[1] = "%s:%s" % (url_parts.hostname, url_parts.port)
+    else:
+        frags[1] = url_parts.hostname
+    url = urlunsplit(frags)
+    return (url, username, password)
+
+
+def _read_from_url(url):
+    """Reads data from *url* with an HTTP *GET*.
+
+    This function supports fetching from resources which use basic HTTP auth as
+    laid out by RFC1738 § 3.1. See § 5 for grammar definitions for URLs.
+
+    .. seealso:
+
+       https://www.ietf.org/rfc/rfc1738.txt
+
+    :param url: URL of an HTTP resource
+    :type url: ``str``
+
+    :return: data read from resource described by *url*
+    :rtype: ``file``-like object
+    """
+    url, username, password = _strip_basic_auth(url)
+    if username is not None and password is not None:
+        # case: url contains basic auth creds
+        password_mgr = request.HTTPPasswordMgrWithDefaultRealm()
+        password_mgr.add_password(None, url, username, password)
+        handler = request.HTTPBasicAuthHandler(password_mgr)
+        opener = request.build_opener(*(default_handlers + [handler]))
+    else:
+        opener = default_opener
+
+    return opener.open(url)
+
+
+def _get_safe_url(url):
+    """Gets version of *url* with basic auth passwords obscured. This function
+    returns results suitable for printing and logging.
+
+    E.g.: https://user:12345@example.com => https://user:********@example.com
+
+    .. note::
+
+       The number of astrisks is invariant in the length of the basic auth
+       password, so minimal information is leaked.
+
+    :param url: a url
+    :type url: ``str``
+
+    :return: *url* with password obscured
+    :rtype: ``str``
+    """
+    safe_url = url
+    url, username, _ = _strip_basic_auth(url)
+    if username is not None:
+        # case: url contained basic auth creds; obscure password
+        url_parts = urlsplit(url)
+        safe_netloc = '{0}@{1}'.format(username, url_parts.hostname)
+        # replace original netloc w/ obscured version
+        frags = list(url_parts)
+        frags[1] = safe_netloc
+        safe_url = urlunsplit(frags)
+
+    return safe_url
+
+
 def fetch_inventory(app, uri, inv):
     """Fetch, parse and return an intersphinx inventory file."""
     # both *uri* (base URI of the links to generate) and *inv* (actual
     # location of the inventory file) can be local or remote URIs
-    localuri = uri.find('://') == -1
+    localuri = '://' not in uri
+    if not localuri:
+        # case: inv URI points to remote resource; strip any existing auth
+        uri, _, _ = _strip_basic_auth(uri)
     join = localuri and path.join or posixpath.join
     try:
-        if inv.find('://') != -1:
-            f = request.urlopen(inv)
+        if '://' in inv:
+            f = _read_from_url(inv)
         else:
             f = open(path.join(app.srcdir, inv), 'rb')
     except Exception as err:
@@ -138,6 +238,13 @@ def fetch_inventory(app, uri, inv):
                  '%s: %s' % (inv, err.__class__, err))
         return
     try:
+        if hasattr(f, 'geturl'):
+            newinv = f.geturl()
+            if inv != newinv:
+                app.info('intersphinx inventory has moved: %s -> %s' % (inv, newinv))
+
+                if uri in (inv, path.dirname(inv), path.dirname(inv) + '/'):
+                    uri = path.dirname(newinv)
         line = f.readline().rstrip().decode('utf-8')
         try:
             if line == '# Sphinx inventory version 1':
@@ -172,8 +279,9 @@ def load_mappings(app):
         if isinstance(value, tuple):
             # new format
             name, (uri, inv) = key, value
-            if not name.isalnum():
-                app.warn('intersphinx identifier %r is not alphanumeric' % name)
+            if not isinstance(name, string_types):
+                app.warn('intersphinx identifier %r is not string. Ignored' % name)
+                continue
         else:
             # old format, no name
             name, uri, inv = None, key, value
@@ -192,7 +300,9 @@ def load_mappings(app):
             # files; remote ones only if the cache time is expired
             if '://' not in inv or uri not in cache \
                     or cache[uri][1] < cache_time:
-                app.info('loading intersphinx inventory from %s...' % inv)
+                safe_inv_url = _get_safe_url(inv)
+                app.info(
+                    'loading intersphinx inventory from %s...' % safe_inv_url)
                 invdata = fetch_inventory(app, uri, inv)
                 if invdata:
                     cache[uri] = (name, now, invdata)
@@ -228,6 +338,10 @@ def missing_reference(app, env, node, contnode):
         objtypes = ['%s:%s' % (domain.name, objtype)
                     for domain in env.domains.values()
                     for objtype in domain.object_types]
+        domain = None
+    elif node['reftype'] == 'doc':
+        domain = 'std'  # special case
+        objtypes = ['std:doc']
     else:
         domain = node.get('refdomain')
         if not domain:
@@ -283,3 +397,23 @@ def setup(app):
     app.connect('missing-reference', missing_reference)
     app.connect('builder-inited', load_mappings)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
+
+
+if __name__ == '__main__':
+    # debug functionality to print out an inventory
+    import sys
+
+    class MockApp(object):
+        srcdir = ''
+
+        def warn(self, msg):
+            print(msg, file=sys.stderr)
+
+    filename = sys.argv[1]
+    invdata = fetch_inventory(MockApp(), '', filename)
+    for key in sorted(invdata or {}):
+        print(key)
+        for entry, einfo in sorted(invdata[key].items()):
+            print('\t%-40s %s%s' % (entry,
+                                    einfo[3] != '-' and '%-40s: ' % einfo[3] or '',
+                                    einfo[2]))

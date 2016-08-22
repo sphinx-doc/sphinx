@@ -122,8 +122,9 @@ this::
    $ sphinx-build -b html sourcedir builddir
 
 where *sourcedir* is the :term:`source directory`, and *builddir* is the
-directory in which you want to place the built documentation.  The :option:`-b`
-option selects a builder; in this example Sphinx will build HTML files.
+directory in which you want to place the built documentation.
+The :option:`-b <sphinx-build -b>` option selects a builder; in this example
+Sphinx will build HTML files.
 
 |more| See :ref:`invocation` for all options that :program:`sphinx-build`
 supports.
@@ -299,12 +300,17 @@ features of intersphinx.
 More topics to be covered
 -------------------------
 
-- Other extensions (math, viewcode, doctest)
+- :doc:`Other extensions <extensions>`:
+
+  * :doc:`ext/math`,
+  * :doc:`ext/viewcode`,
+  * :doc:`ext/doctest`,
+  * ...
 - Static files
-- Selecting a theme
-- Templating
+- :doc:`Selecting a theme <theming>`
+- :ref:`Templating <templating>`
 - Using extensions
-- Writing extensions
+- :ref:`Writing extensions <dev-extensions>`
 
 
 .. rubric:: Footnotes

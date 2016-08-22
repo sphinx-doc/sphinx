@@ -17,7 +17,11 @@ Build environment API
 
    .. attribute:: srcdir
 
-      Source directory (the directory containing ``conf.py``).
+      Source directory.
+
+   .. attribute:: confdir
+
+      Directory containing ``conf.py``.
 
    .. attribute:: doctreedir
 

@@ -6,7 +6,7 @@
     Contains SphinxError and a few subclasses (in an extra module to avoid
     circular import problems).
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -67,7 +67,10 @@ class PycodeError(Exception):
         return res
 
 
-class SphinxParallelError(Exception):
+class SphinxParallelError(SphinxError):
+
+    category = 'Sphinx parallel build error'
+
     def __init__(self, orig_exc, traceback):
         self.orig_exc = orig_exc
         self.traceback = traceback

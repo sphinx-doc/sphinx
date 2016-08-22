@@ -5,7 +5,7 @@
 
     Japanese search language: includes routine to split words.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,7 +21,7 @@ import os
 import re
 import sys
 
-from six import iteritems
+from six import iteritems, PY3
 
 try:
     import MeCab
@@ -29,11 +29,35 @@ try:
 except ImportError:
     native_module = False
 
+try:
+    import janome.tokenizer
+    janome_module = True
+except ImportError:
+    janome_module = False
+
+from sphinx.errors import SphinxError, ExtensionError
 from sphinx.search import SearchLanguage
+from sphinx.util import import_object
 
 
-class MecabBinder(object):
+class BaseSplitter(object):
+
     def __init__(self, options):
+        self.options = options
+
+    def split(self, input):
+        """
+
+        :param str input:
+        :return:
+        :rtype: list[str]
+        """
+        raise NotImplementedError
+
+
+class MecabSplitter(BaseSplitter):
+    def __init__(self, options):
+        super(MecabSplitter, self).__init__(options)
         self.ctypes_libmecab = None
         self.ctypes_mecab = None
         if not native_module:
@@ -43,13 +67,16 @@ class MecabBinder(object):
         self.dict_encode = options.get('dic_enc', 'utf-8')
 
     def split(self, input):
-        input2 = input.encode(self.dict_encode)
+        input2 = input if PY3 else input.encode(self.dict_encode)
         if native_module:
             result = self.native.parse(input2)
         else:
             result = self.ctypes_libmecab.mecab_sparse_tostr(
                 self.ctypes_mecab, input.encode(self.dict_encode))
-        return result.decode(self.dict_encode).split(' ')
+        if PY3:
+            return result.split(' ')
+        else:
+            return result.decode(self.dict_encode).split(' ')
 
     def init_native(self, options):
         param = '-Owakati'
@@ -83,16 +110,42 @@ class MecabBinder(object):
         if dict:
             param += ' -d %s' % dict
 
+        fs_enc = sys.getfilesystemencoding() or sys.getdefaultencoding()
+
         self.ctypes_libmecab = ctypes.CDLL(libpath)
+        self.ctypes_libmecab.mecab_new2.argtypes = (ctypes.c_char_p,)
+        self.ctypes_libmecab.mecab_new2.restype = ctypes.c_void_p
+        self.ctypes_libmecab.mecab_sparse_tostr.argtypes = (ctypes.c_void_p, ctypes.c_char_p)
         self.ctypes_libmecab.mecab_sparse_tostr.restype = ctypes.c_char_p
-        self.ctypes_mecab = self.ctypes_libmecab.mecab_new2(param)
+        self.ctypes_mecab = self.ctypes_libmecab.mecab_new2(param.encode(fs_enc))
+        if self.ctypes_mecab is None:
+            raise SphinxError('mecab initialization failed')
 
     def __del__(self):
         if self.ctypes_libmecab:
             self.ctypes_libmecab.mecab_destroy(self.ctypes_mecab)
 
+MeCabBinder = MecabSplitter  # keep backward compatibility until Sphinx-1.6
 
-class TinySegmenter(object):
+
+class JanomeSplitter(BaseSplitter):
+    def __init__(self, options):
+        super(JanomeSplitter, self).__init__(options)
+        self.user_dict = options.get('user_dic')
+        self.user_dict_enc = options.get('user_dic_enc', 'utf8')
+        self.init_tokenizer()
+
+    def init_tokenizer(self):
+        if not janome_module:
+            raise RuntimeError('Janome is not available')
+        self.tokenizer = janome.tokenizer.Tokenizer(udic=self.user_dict, udic_enc=self.user_dict_enc)
+
+    def split(self, input):
+        result = u' '.join(token.surface for token in self.tokenizer.tokenize(input))
+        return result.split(u' ')
+
+
+class DefaultSplitter(BaseSplitter):
     patterns_ = dict([(re.compile(pattern), value) for pattern, value in iteritems({
         u'[一二三四五六七八九十百千万億兆]': u'M',
         u'[一-龠々〆ヵヶ]': u'H',
@@ -468,6 +521,9 @@ class TinySegmenter(object):
         return result
 
 
+TinySegmenter = DefaultSplitter  # keep backward compatibility until Sphinx-1.6
+
+
 class SearchJapanese(SearchLanguage):
     """
     Japanese search implementation: uses no stemmer, but word splitting is quite
@@ -475,16 +531,23 @@ class SearchJapanese(SearchLanguage):
     """
     lang = 'ja'
     language_name = 'Japanese'
+    splitters = {
+        'default': 'sphinx.search.ja.DefaultSplitter',
+        'mecab': 'sphinx.search.ja.MecabSplitter',
+        'janome': 'sphinx.search.ja.JanomeSplitter',
+    }
 
     def init(self, options):
         type = options.get('type', 'default')
-        if type not in ('mecab', 'default'):
-            raise ValueError(("Japanese tokenizer's type should be 'mecab'"
-                              " or 'default'"))
-        if type == 'mecab':
-            self.splitter = MecabBinder(options)
+        if type in self.splitters:
+            dotted_path = self.splitters[type]
         else:
-            self.splitter = TinySegmenter()
+            dotted_path = type
+        try:
+            self.splitter = import_object(dotted_path)(options)
+        except ExtensionError:
+            raise ExtensionError("Splitter module %r can't be imported" %
+                                 dotted_path)
 
     def split(self, input):
         return self.splitter.split(input)
@@ -493,4 +556,4 @@ class SearchJapanese(SearchLanguage):
         return len(stemmed_word) > 1
 
     def stem(self, word):
-        return word.lower()
+        return word

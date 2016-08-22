@@ -85,7 +85,7 @@ tables of contents.  The ``toctree`` directive is the central element.
 
    **Additional options**
 
-   You can use ``caption`` option to provide toctree caption and you can use
+   You can use ``caption`` option to provide a toctree caption and you can use
    ``name`` option to provide implicit target name that can be referenced by
    using :rst:role:`ref`::
 
@@ -223,11 +223,8 @@ The special document names (and pages generated for them) are:
 
 .. rubric:: Footnotes
 
-.. [#] The ``maxdepth`` option does not apply to the LaTeX writer, where the
-       whole table of contents will always be presented at the begin of the
-       document, and its depth is controlled by the ``tocdepth`` counter, which
-       you can reset in your :confval:`latex_preamble` config value using
-       e.g. ``\setcounter{tocdepth}{2}``.
+.. [#] The LaTeX writer only refers the ``maxdepth`` option of first toctree
+       directive in the document.
 
 .. [#] A note on available globbing syntax: you can use the standard shell
        constructs ``*``, ``?``, ``[...]`` and ``[!...]`` with the feature that

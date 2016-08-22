@@ -1,19 +1,27 @@
 Release checklist
 =================
 
-* Check git status
-* Make check
+* Open https://travis-ci.org/sphinx-doc/sphinx/branches and check stable branch is green
+* Check `git status`
+* Run `make style-check`
+* Run `tx pull -a -f` in sphinx/locale if final major release
 * Update version info in sphinx/__init__.py
 * Update release date in CHANGES
-* git commit
-* make clean
-* python setup.py release bdist_wheel sdist upload
+* `git commit -am 'Bump to x.y.z final'`
+* `make clean`
+* `python setup.py compile_grammar`
+* `python setup.py release bdist_wheel sdist upload --identity=[your key]`
 * Check PyPI release page for obvious errors
-* git tag
+* `git tag` with version number
 * Merge default into stable if final major release
-* Update homepage (release info), regenerate docs (+printable!)
+* `git push origin stable --tags`
+* Open https://readthedocs.org/dashboard/sphinx/versions/ and enable the released version
 * Add new version/milestone to tracker categories
-* Write announcement and send to mailing list/python-announce
+* Write announcement and send to sphinx-dev, sphinx-users and python-announce
 * Update version info, add new CHANGES entry for next version
-* git commit
-* git push
+* `git commit -am 'Bump version'`
+* `git push origin stable`
+* `git checkout master`
+* `git merge stable`
+* `git push origin master`
+* Update `sphinx-doc-translations <https://github.com/sphinx-doc/sphinx-doc-translations>`_

@@ -1,16 +1,36 @@
 language: python
 sudo: false
+cache:
+  directories:
+    - $HOME/.cache/pip
 python:
   - "2.6"
   - "2.7"
   - "3.3"
   - "3.4"
+  - "3.5"
+  - "3.5-dev"
   - "pypy"
 env:
-  - DOCUTILS=0.11
-  - DOCUTILS=0.12
+  global:
+    - TEST='-v --with-timer --timer-top-n 25'
+  matrix:
+    - DOCUTILS=0.11
+    - DOCUTILS=0.12
+addons:
+  apt:
+    packages:
+    - graphviz
+    - texlive-latex-recommended
+    - texlive-latex-extra
+    - texlive-fonts-recommended
+    - texlive-fonts-extra
 install:
+  - pip install -U pip setuptools
   - pip install docutils==$DOCUTILS
   - pip install -r test-reqs.txt
-before_script: flake8
-script: make test
+before_script:
+  -  if [[ $TRAVIS_PYTHON_VERSION != '2.6' ]]; then flake8; fi
+script:
+  -  if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then make style-check test-async; fi
+  -  if [[ $TRAVIS_PYTHON_VERSION != '3.5' ]]; then make test; fi

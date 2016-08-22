@@ -53,6 +53,10 @@ It adds these directives:
 
          "bar" -- "baz";
 
+   .. note:: The graph name is passed unchanged to Graphviz.  If it contains
+      non-alphanumeric characters (e.g. a dash), you will have to double-quote
+      it.
+
 
 .. rst:directive:: digraph
 
@@ -83,6 +87,19 @@ It adds these directives:
    caption to the diagram.  Naturally, diagrams marked as "inline" cannot have a
    caption.
 
+.. deprecated:: 1.4
+   ``inline`` option is deprecated.
+   All three directives generate inline node by default. If ``caption`` is given,
+   these generate block node instead.
+
+.. versionchanged:: 1.4
+   All three directives support a ``graphviz_dot`` option that can be switch the
+   ``dot`` command within the directive.
+
+.. versionadded:: 1.5
+   All three directives support a ``align`` option to align the graph horizontal.
+   The values "left", "center", "right" are allowed.
+
 There are also these new config values:
 
 .. confval:: graphviz_dot
@@ -93,8 +110,8 @@ There are also these new config values:
 
    Since this setting is not portable from system to system, it is normally not
    useful to set it in ``conf.py``; rather, giving it on the
-   :program:`sphinx-build` command line via the :option:`-D` option should be
-   preferable, like this::
+   :program:`sphinx-build` command line via the :option:`-D <sphinx-build -D>`
+   option should be preferable, like this::
 
       sphinx-build -b html -D graphviz_dot=C:\graphviz\bin\dot.exe . _build/html
 
@@ -107,7 +124,18 @@ There are also these new config values:
 .. confval:: graphviz_output_format
 
    The output format for Graphviz when building HTML files.  This must be either
-   ``'png'`` or ``'svg'``; the default is ``'png'``.
+   ``'png'`` or ``'svg'``; the default is ``'png'``. If ``'svg'`` is used, in
+   order to make the URL links work properly, an appropriate ``target``
+   attribute must be set, such as ``"_top"`` and ``"_blank"``. For example, the
+   link in the following graph should work in the svg output: ::
+
+       .. graphviz::
+
+            digraph example {
+                a [label="sphinx", href="http://sphinx-doc.org", target="_top"];
+                b [label="other"];
+                a -> b;
+            }
 
    .. versionadded:: 1.0
       Previously, output always was PNG.

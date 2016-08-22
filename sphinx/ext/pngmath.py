@@ -3,9 +3,10 @@
     sphinx.ext.pngmath
     ~~~~~~~~~~~~~~~~~~
 
-    Render math in HTML via dvipng.
+    Render math in HTML via dvipng. This extension has been deprecated; please
+    use sphinx.ext.imgmath instead.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -22,7 +23,7 @@ from six import text_type
 from docutils import nodes
 
 import sphinx
-from sphinx.errors import SphinxError
+from sphinx.errors import SphinxError, ExtensionError
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.osutil import ensuredir, ENOENT, cd
 from sphinx.util.pycompat import sys_encoding
@@ -212,7 +213,8 @@ def html_visit_displaymath(self, node):
     if node['nowrap']:
         latex = node['latex']
     else:
-        latex = wrap_displaymath(node['latex'], None)
+        latex = wrap_displaymath(node['latex'], None,
+                                 self.builder.config.math_number_all)
     try:
         fname, depth = render_math(self, latex)
     except MathExtError as exc:
@@ -236,7 +238,12 @@ def html_visit_displaymath(self, node):
 
 
 def setup(app):
-    mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
+    app.warn('sphinx.ext.pngmath has been deprecated. Please use sphinx.ext.imgmath instead.')
+    try:
+        mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
+    except ExtensionError:
+        raise ExtensionError('sphinx.ext.pngmath: other math package is already loaded')
+
     app.add_config_value('pngmath_dvipng', 'dvipng', 'html')
     app.add_config_value('pngmath_latex', 'latex', 'html')
     app.add_config_value('pngmath_use_preview', False, 'html')

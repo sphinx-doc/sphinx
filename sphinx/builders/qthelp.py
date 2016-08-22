@@ -5,7 +5,7 @@
 
     Build input files for the Qt collection generator.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -21,6 +21,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util import force_decode
+from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
 
 
@@ -104,14 +105,24 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
     # don't add links
     add_permalinks = False
+
     # don't add sidebar etc.
     embedded = True
+    # disable download role
+    download_support = False
+
+    # don't generate the search index or include the search page
+    search = False
 
     def init(self):
         StandaloneHTMLBuilder.init(self)
         # the output files for HTML help must be .html only
         self.out_suffix = '.html'
+        self.link_suffix = '.html'
         # self.config.html_style = 'traditional.css'
+
+    def get_theme_config(self):
+        return self.config.qthelp_theme, self.config.qthelp_theme_options
 
     def handle_finish(self):
         self.build_qhp(self.outdir, self.config.qthelp_basename)
@@ -148,7 +159,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         keywords = []
         index = self.env.create_index(self, group_entries=False)
         for (key, group) in index:
-            for title, (refs, subitems) in group:
+            for title, (refs, subitems, key_) in group:
                 keywords.extend(self.build_keywords(title, refs, subitems))
         keywords = u'\n'.join(keywords)
 
@@ -179,8 +190,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         nspace = nspace.lower()
 
         # write the project file
-        f = codecs.open(path.join(outdir, outname+'.qhp'), 'w', 'utf-8')
-        try:
+        with codecs.open(path.join(outdir, outname+'.qhp'), 'w', 'utf-8') as f:
             f.write(project_template % {
                 'outname': htmlescape(outname),
                 'title': htmlescape(self.config.html_title),
@@ -191,23 +201,18 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                 'sections': sections,
                 'keywords': keywords,
                 'files': projectfiles})
-        finally:
-            f.close()
 
         homepage = 'qthelp://' + posixpath.join(
             nspace, 'doc', self.get_target_uri(self.config.master_doc))
         startpage = 'qthelp://' + posixpath.join(nspace, 'doc', 'index.html')
 
         self.info('writing collection project file...')
-        f = codecs.open(path.join(outdir, outname+'.qhcp'), 'w', 'utf-8')
-        try:
+        with codecs.open(path.join(outdir, outname+'.qhcp'), 'w', 'utf-8') as f:
             f.write(collection_template % {
                 'outname': htmlescape(outname),
                 'title': htmlescape(self.config.html_short_title),
                 'homepage': htmlescape(homepage),
                 'startpage': htmlescape(startpage)})
-        finally:
-            f.close()
 
     def isdocnode(self, node):
         if not isinstance(node, nodes.list_item):
@@ -296,3 +301,12 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                 keywords.extend(self.build_keywords(subitem[0], subitem[1], []))
 
         return keywords
+
+
+def setup(app):
+    app.setup_extension('sphinx.builders.html')
+    app.add_builder(QtHelpBuilder)
+
+    app.add_config_value('qthelp_basename', lambda self: make_filename(self.project), None)
+    app.add_config_value('qthelp_theme', 'nonav', 'html')
+    app.add_config_value('qthelp_theme_options', {}, 'html')

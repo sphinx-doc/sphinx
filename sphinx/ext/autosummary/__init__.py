@@ -49,7 +49,7 @@
     resolved to a Python object, and otherwise it becomes simple emphasis.
     This can be used as the default role to make links 'smart'.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -276,7 +276,7 @@ class Autosummary(Directive):
                 self.warn('failed to import object %s' % real_name)
                 items.append((display_name, '', '', real_name))
                 continue
-            if not documenter.check_module():
+            if documenter.options.members and not documenter.check_module():
                 continue
 
             # try to also get a source code analyzer for attribute docs
@@ -337,7 +337,7 @@ class Autosummary(Directive):
         *items* is a list produced by :meth:`get_items`.
         """
         table_spec = addnodes.tabular_col_spec()
-        table_spec['spec'] = 'll'
+        table_spec['spec'] = 'p{0.5\linewidth}p{0.5\linewidth}'
 
         table = autosummary_table('')
         real_table = nodes.table('', classes=['longtable'])
@@ -583,5 +583,5 @@ def setup(app):
     app.add_role('autolink', autolink_role)
     app.connect('doctree-read', process_autosummary_toc)
     app.connect('builder-inited', process_generate_options)
-    app.add_config_value('autosummary_generate', [], True)
+    app.add_config_value('autosummary_generate', [], True, [bool])
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

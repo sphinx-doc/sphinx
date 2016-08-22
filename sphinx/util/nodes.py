@@ -5,7 +5,7 @@
 
     Docutils node-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -36,19 +36,28 @@ caption_ref_re = explicit_title_re  # b/w compat alias
 
 
 def apply_source_workaround(node):
+    # workaround: nodes.term have wrong rawsource if classifier is specified.
+    # The behavior of docutils-0.11, 0.12 is:
+    # * when ``term text : classifier1 : classifier2`` is specified,
+    # * rawsource of term node will have: ``term text : classifier1 : classifier2``
+    # * rawsource of classifier node will be None
+    if isinstance(node, nodes.classifier) and not node.rawsource:
+        definition_list_item = node.parent
+        node.source = definition_list_item.source
+        node.line = definition_list_item.line - 1
+        node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
+    if isinstance(node, nodes.term):
+        # strip classifier from rawsource of term
+        for classifier in reversed(node.parent.traverse(nodes.classifier)):
+            node.rawsource = re.sub(
+                '\s*:\s*%s' % re.escape(classifier.astext()), '', node.rawsource)
+
+    # workaround: recommonmark-0.2.0 doesn't set rawsource attribute
+    if not node.rawsource:
+        node.rawsource = node.astext()
+
     if node.source and node.rawsource:
         return
-
-    # workaround: nodes.term doesn't have source, line and rawsource
-    # (fixed in Docutils r7495)
-    if isinstance(node, nodes.term):
-        definition_list_item = node.parent
-        if definition_list_item.line is not None:
-            node.source = definition_list_item.source
-            node.line = definition_list_item.line - 1
-            node.rawsource = definition_list_item. \
-                rawsource.split("\n", 2)[0]
-            return
 
     # workaround: docutils-0.10.0 or older's nodes.caption for nodes.figure
     # and nodes.title for nodes.admonition doesn't have source, line.
@@ -71,17 +80,19 @@ IGNORED_NODES = (
     nodes.Inline,
     nodes.literal_block,
     nodes.doctest_block,
+    addnodes.versionmodified,
     # XXX there are probably more
 )
 
 
 def is_translatable(node):
     if isinstance(node, nodes.TextElement):
-        apply_source_workaround(node)
-
         if not node.source:
             return False  # built-in message
         if isinstance(node, IGNORED_NODES) and 'translatable' not in node:
+            return False
+        if not node.get('translatable', True):
+            # not(node['translatable'] == True or node['translatable'] is None)
             return False
         # <field_name>orphan</field_name>
         # XXX ignore all metadata (== docinfo)
@@ -130,9 +141,10 @@ def find_source_node(node):
             return pnode.source
 
 
-def traverse_parent(node):
+def traverse_parent(node, cls=None):
     while node:
-        yield node
+        if cls is None or isinstance(node, cls):
+            yield node
         node = node.parent
 
 
@@ -201,7 +213,7 @@ def process_index_entry(entry, targetid):
         if entry.startswith(type+':'):
             value = entry[len(type)+1:].strip()
             value = pairindextypes[type] + '; ' + value
-            indexentries.append(('pair', value, targetid, main))
+            indexentries.append(('pair', value, targetid, main, None))
             break
     else:
         for type in indextypes:
@@ -209,7 +221,7 @@ def process_index_entry(entry, targetid):
                 value = entry[len(type)+1:].strip()
                 if type == 'double':
                     type = 'pair'
-                indexentries.append((type, value, targetid, main))
+                indexentries.append((type, value, targetid, main, None))
                 break
         # shorthand notation for single entries
         else:
@@ -221,11 +233,11 @@ def process_index_entry(entry, targetid):
                     value = value[1:].lstrip()
                 if not value:
                     continue
-                indexentries.append(('single', value, targetid, main))
+                indexentries.append(('single', value, targetid, main, None))
     return indexentries
 
 
-def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc):
+def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed):
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
@@ -235,23 +247,25 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc):
         newnodes = []
         includefiles = map(text_type, toctreenode['includefiles'])
         for includefile in includefiles:
-            try:
-                builder.info(colorfunc(includefile) + " ", nonl=1)
-                subtree = inline_all_toctrees(builder, docnameset, includefile,
-                                              builder.env.get_doctree(includefile),
-                                              colorfunc)
-                docnameset.add(includefile)
-            except Exception:
-                builder.warn('toctree contains ref to nonexisting '
-                             'file %r' % includefile,
-                             builder.env.doc2path(docname))
-            else:
-                sof = addnodes.start_of_file(docname=includefile)
-                sof.children = subtree.children
-                for sectionnode in sof.traverse(nodes.section):
-                    if 'docname' not in sectionnode:
-                        sectionnode['docname'] = includefile
-                newnodes.append(sof)
+            if includefile not in traversed:
+                try:
+                    traversed.append(includefile)
+                    builder.info(colorfunc(includefile) + " ", nonl=1)
+                    subtree = inline_all_toctrees(builder, docnameset, includefile,
+                                                  builder.env.get_doctree(includefile),
+                                                  colorfunc, traversed)
+                    docnameset.add(includefile)
+                except Exception:
+                    builder.warn('toctree contains ref to nonexisting '
+                                 'file %r' % includefile,
+                                 builder.env.doc2path(docname))
+                else:
+                    sof = addnodes.start_of_file(docname=includefile)
+                    sof.children = subtree.children
+                    for sectionnode in sof.traverse(nodes.section):
+                        if 'docname' not in sectionnode:
+                            sectionnode['docname'] = includefile
+                    newnodes.append(sof)
         toctreenode.parent.replace(toctreenode, newnodes)
     return tree
 
@@ -279,9 +293,13 @@ def set_role_source_info(inliner, lineno, node):
     node.source, node.line = inliner.reporter.get_source_and_line(lineno)
 
 
-# monkey-patch Element.copy to copy the rawsource
+# monkey-patch Element.copy to copy the rawsource and line
 
 def _new_copy(self):
-    return self.__class__(self.rawsource, **self.attributes)
+    newnode = self.__class__(self.rawsource, **self.attributes)
+    if isinstance(self, nodes.Element):
+        newnode.source = self.source
+        newnode.line = self.line
+    return newnode
 
 nodes.Element.copy = _new_copy

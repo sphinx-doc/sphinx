@@ -5,13 +5,14 @@
 
     Custom docutils writer for plain text.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 import os
 import re
 import textwrap
 from itertools import groupby
+import warnings
 
 from six.moves import zip_longest
 
@@ -280,8 +281,11 @@ class TextTranslator(nodes.NodeVisitor):
             char = '^'
         text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)
         self.stateindent.pop()
-        self.states[-1].append(
-            (0, ['', text, '%s' % (char * column_width(text)), '']))
+        title = ['', text, '%s' % (char * column_width(text)), '']
+        if len(self.states) == 2 and len(self.states[-1]) == 0:
+            # remove an empty line before title if it is first section title in the document
+            title.pop(0)
+        self.states[-1].append((0, title))
 
     def visit_subtitle(self, node):
         pass
@@ -303,8 +307,6 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_desc_signature(self, node):
         self.new_state(0)
-        if node.parent['objtype'] in ('class', 'exception'):
-            self.add_text('%s ' % node.parent['objtype'])
 
     def depart_desc_signature(self, node):
         # XXX: wrap signatures in a way that makes sense
@@ -630,8 +632,7 @@ class TextTranslator(nodes.NodeVisitor):
             self.end_state(first='%s. ' % self.list_counter[-1])
 
     def visit_definition_list_item(self, node):
-        self._li_has_classifier = len(node) >= 2 and \
-            isinstance(node[1], nodes.classifier)
+        self._classifier_count_in_li = len(node.traverse(nodes.classifier))
 
     def depart_definition_list_item(self, node):
         pass
@@ -640,10 +641,12 @@ class TextTranslator(nodes.NodeVisitor):
         self.new_state(0)
 
     def depart_term(self, node):
-        if not self._li_has_classifier:
+        if not self._classifier_count_in_li:
             self.end_state(end=None)
 
     def visit_termsep(self, node):
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
+                      DeprecationWarning)
         self.add_text(', ')
         raise nodes.SkipNode
 
@@ -651,7 +654,9 @@ class TextTranslator(nodes.NodeVisitor):
         self.add_text(' : ')
 
     def depart_classifier(self, node):
-        self.end_state(end=None)
+        self._classifier_count_in_li -= 1
+        if not self._classifier_count_in_li:
+            self.end_state(end=None)
 
     def visit_definition(self, node):
         self.new_state()
@@ -710,6 +715,9 @@ class TextTranslator(nodes.NodeVisitor):
 
     def _visit_admonition(self, node):
         self.new_state(2)
+
+        if isinstance(node.children[0], nodes.Sequential):
+            self.add_text(self.nl)
 
     def _make_depart_admonition(name):
         def depart_admonition(self, node):
@@ -859,6 +867,12 @@ class TextTranslator(nodes.NodeVisitor):
         if node.hasattr('explanation'):
             self.add_text(' (%s)' % node['explanation'])
 
+    def visit_manpage(self, node):
+        return self.visit_literal_emphasis(node)
+
+    def depart_manpage(self, node):
+        return self.depart_literal_emphasis(node)
+
     def visit_title_reference(self, node):
         self.add_text('*')
 
@@ -938,7 +952,9 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_raw(self, node):
         if 'text' in node.get('format', '').split():
-            self.body.append(node.astext())
+            self.new_state(0)
+            self.add_text(node.astext())
+            self.end_state(wrap = False)
         raise nodes.SkipNode
 
     def visit_math(self, node):

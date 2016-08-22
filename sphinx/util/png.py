@@ -5,7 +5,7 @@
 
     PNG image manipulation helpers.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -23,18 +23,14 @@ IEND_CHUNK = b'\x00\x00\x00\x00IEND\xAE\x42\x60\x82'
 
 def read_png_depth(filename):
     """Read the special tEXt chunk indicating the depth from a PNG file."""
-    result = None
-    f = open(filename, 'rb')
-    try:
+    with open(filename, 'rb') as f:
         f.seek(- (LEN_IEND + LEN_DEPTH), 2)
         depthchunk = f.read(LEN_DEPTH)
         if not depthchunk.startswith(DEPTH_CHUNK_LEN + DEPTH_CHUNK_START):
             # either not a PNG file or not containing the depth chunk
             return None
-        result = struct.unpack('!i', depthchunk[14:18])[0]
-    finally:
-        f.close()
-    return result
+        else:
+            return struct.unpack('!i', depthchunk[14:18])[0]
 
 
 def write_png_depth(filename, depth):
@@ -43,8 +39,7 @@ def write_png_depth(filename, depth):
     The chunk is placed immediately before the special IEND chunk.
     """
     data = struct.pack('!i', depth)
-    f = open(filename, 'r+b')
-    try:
+    with open(filename, 'r+b') as f:
         # seek to the beginning of the IEND chunk
         f.seek(-LEN_IEND, 2)
         # overwrite it with the depth chunk
@@ -54,5 +49,3 @@ def write_png_depth(filename, depth):
         f.write(struct.pack('!I', crc))
         # replace the IEND chunk
         f.write(IEND_CHUNK)
-    finally:
-        f.close()

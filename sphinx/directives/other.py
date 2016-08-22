@@ -3,7 +3,7 @@
     sphinx.directives.other
     ~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -142,7 +142,7 @@ class Author(Directive):
         env = self.state.document.settings.env
         if not env.config.show_authors:
             return []
-        para = nodes.paragraph()
+        para = nodes.paragraph(translatable=False)
         emph = nodes.emphasis()
         para += emph
         if self.name == 'sectionauthor':
@@ -205,7 +205,7 @@ class VersionChange(Directive):
         if len(self.arguments) == 2:
             inodes, messages = self.state.inline_text(self.arguments[1],
                                                       self.lineno+1)
-            para = nodes.paragraph(self.arguments[1], '', *inodes)
+            para = nodes.paragraph(self.arguments[1], '', *inodes, translatable=False)
             set_source_info(self, para)
             node.append(para)
         else:
@@ -218,13 +218,14 @@ class VersionChange(Directive):
                 content.source = node[0].source
                 content.line = node[0].line
                 content += node[0].children
-                node[0].replace_self(nodes.paragraph('', '', content))
+                node[0].replace_self(nodes.paragraph('', '', content, translatable=False))
             node[0].insert(0, nodes.inline('', '%s: ' % text,
                                            classes=['versionmodified']))
         else:
             para = nodes.paragraph('', '',
                                    nodes.inline('', '%s.' % text,
-                                                classes=['versionmodified']))
+                                                classes=['versionmodified']),
+                                   translatable=False)
             node.append(para)
         env = self.state.document.settings.env
         # XXX should record node.source as well
@@ -404,27 +405,29 @@ class Include(BaseInclude):
             return BaseInclude.run(self)
         rel_filename, filename = env.relfn2path(self.arguments[0])
         self.arguments[0] = filename
+        env.note_included(filename)
         return BaseInclude.run(self)
 
 
-directives.register_directive('toctree', TocTree)
-directives.register_directive('sectionauthor', Author)
-directives.register_directive('moduleauthor', Author)
-directives.register_directive('codeauthor', Author)
-directives.register_directive('index', Index)
-directives.register_directive('deprecated', VersionChange)
-directives.register_directive('versionadded', VersionChange)
-directives.register_directive('versionchanged', VersionChange)
-directives.register_directive('seealso', SeeAlso)
-directives.register_directive('tabularcolumns', TabularColumns)
-directives.register_directive('centered', Centered)
-directives.register_directive('acks', Acks)
-directives.register_directive('hlist', HList)
-directives.register_directive('only', Only)
-directives.register_directive('include', Include)
+def setup(app):
+    directives.register_directive('toctree', TocTree)
+    directives.register_directive('sectionauthor', Author)
+    directives.register_directive('moduleauthor', Author)
+    directives.register_directive('codeauthor', Author)
+    directives.register_directive('index', Index)
+    directives.register_directive('deprecated', VersionChange)
+    directives.register_directive('versionadded', VersionChange)
+    directives.register_directive('versionchanged', VersionChange)
+    directives.register_directive('seealso', SeeAlso)
+    directives.register_directive('tabularcolumns', TabularColumns)
+    directives.register_directive('centered', Centered)
+    directives.register_directive('acks', Acks)
+    directives.register_directive('hlist', HList)
+    directives.register_directive('only', Only)
+    directives.register_directive('include', Include)
 
-# register the standard rst class directive under a different name
-# only for backwards compatibility now
-directives.register_directive('cssclass', Class)
-# new standard name when default-domain with "class" is in effect
-directives.register_directive('rst-class', Class)
+    # register the standard rst class directive under a different name
+    # only for backwards compatibility now
+    directives.register_directive('cssclass', Class)
+    # new standard name when default-domain with "class" is in effect
+    directives.register_directive('rst-class', Class)

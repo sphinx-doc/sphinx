@@ -10,7 +10,7 @@ Sphinx is a maintained by a group of volunteers.  We value every contribution!
 * Issues and feature requests should be raised in the `tracker
   <https://github.com/sphinx-doc/sphinx/issues>`_.
 * The mailing list for development is at `Google Groups
-  <https://groups.google.com/group/sphinx-dev/>`_.
+  <https://groups.google.com/forum/#!forum/sphinx-dev>`_.
 * There is also the #sphinx-doc IRC channel on `freenode
   <http://freenode.net/>`_.
 
@@ -21,7 +21,7 @@ Extensions
 
 To learn how to write your own extension, see :ref:`dev-extensions`.
 
-The `sphinx-contrib <http://bitbucket.org/birkenfeld/sphinx-contrib/>`_
+The `sphinx-contrib <https://bitbucket.org/birkenfeld/sphinx-contrib/>`_
 repository contains many contributed extensions.  Some of them have their own
 releases on PyPI, others you can install from a checkout.
 
@@ -96,14 +96,14 @@ own extensions.
 
 .. _aafigure: https://launchpad.net/aafigure
 .. _gnuplot: http://www.gnuplot.info/
-.. _paver: http://www.blueskyonmars.com/projects/paver/
+.. _paver: http://paver.github.io/paver/
 .. _Sword: http://www.crosswire.org/sword/
 .. _Lilypond: http://lilypond.org/
 .. _sdedit: http://sdedit.sourceforge.net/
 .. _Trac: http://trac.edgewall.org
 .. _TracLinks: http://trac.edgewall.org/wiki/TracLinks
 .. _OmegaT: http://www.omegat.org/
-.. _PlantUML: http://plantuml.sourceforge.net/
+.. _PlantUML: http://plantuml.com/
 .. _PyEnchant: http://www.rfk.id.au/software/pyenchant/
 .. _sadisplay: https://bitbucket.org/estin/sadisplay/wiki/Home
 .. _blockdiag: http://blockdiag.com/en/
@@ -112,24 +112,24 @@ own extensions.
 .. _nwdiag: http://blockdiag.com/en/
 .. _Google Analytics: http://www.google.com/analytics/
 .. _Google Chart: https://developers.google.com/chart/
-.. _Google Maps: https://maps.google.com/
+.. _Google Maps: https://www.google.com/maps
 .. _Google style: http://google-styleguide.googlecode.com/svn/trunk/pyguide.html
 .. _NumPy style: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
-.. _hyphenator: http://code.google.com/p/hyphenator/
+.. _hyphenator: https://github.com/mnater/hyphenator
 .. _exceltable: http://pythonhosted.org/sphinxcontrib-exceltable/
 .. _YouTube: http://www.youtube.com/
 .. _ClearQuest: http://www-03.ibm.com/software/products/en/clearquest
 .. _Zope interfaces: http://docs.zope.org/zope.interface/README.html
 .. _slideshare: http://www.slideshare.net/
-.. _TikZ/PGF LaTeX package: http://sourceforge.net/projects/pgf/
+.. _TikZ/PGF LaTeX package: https://sourceforge.net/projects/pgf/
 .. _MATLAB: http://www.mathworks.com/products/matlab/
-.. _swf: http://bitbucket.org/klorenz/sphinxcontrib-swf
-.. _findanything: http://bitbucket.org/klorenz/sphinxcontrib-findanything
-.. _cmakedomain: http://bitbucket.org/klorenz/sphinxcontrib-cmakedomain
+.. _swf: https://bitbucket.org/klorenz/sphinxcontrib-swf
+.. _findanything: https://bitbucket.org/klorenz/sphinxcontrib-findanything
+.. _cmakedomain: https://bitbucket.org/klorenz/sphinxcontrib-cmakedomain
 .. _GNU Make: http://www.gnu.org/software/make/
-.. _makedomain: http://bitbucket.org/klorenz/sphinxcontrib-makedomain
+.. _makedomain: https://bitbucket.org/klorenz/sphinxcontrib-makedomain
 .. _inlinesyntaxhighlight: http://sphinxcontrib-inlinesyntaxhighlight.readthedocs.org
-.. _CMake: http://cmake.org
-.. _domaintools: http://bitbucket.org/klorenz/sphinxcontrib-domaintools
+.. _CMake: https://cmake.org
+.. _domaintools: https://bitbucket.org/klorenz/sphinxcontrib-domaintools
 .. _restbuilder: https://pypi.python.org/pypi/sphinxcontrib-restbuilder
 .. _Lasso: http://www.lassosoft.com/

@@ -23,6 +23,8 @@ Generic reST
 
 A |subst| (the definition is in rst_epilog).
 
+.. highlight:: none
+
 .. _label:
 
 ::
@@ -105,6 +107,9 @@ Admonitions
 .. tip::
    Tip text.
 
+Indirect hyperlink targets
+
+.. _other-label: some-label_
 
 Inline markup
 -------------
@@ -140,6 +145,7 @@ Adding \n to test unescaping.
 * :token:`try statement <try_stmt>`
 * :ref:`admonition-section`
 * :ref:`here <some-label>`
+* :ref:`there <other-label>`
 * :ref:`my-figure`
 * :ref:`my-figure-name`
 * :ref:`my-table`
@@ -155,7 +161,6 @@ Adding \n to test unescaping.
 * :doc:`subdir/includes`
 * ``:download:`` is tested in includes.txt
 * :option:`Python -c option <python -c>`
-* This used to crash: :option:`&option`
 
 Test :abbr:`abbr (abbreviation)` and another :abbr:`abbr (abbreviation)`.
 
@@ -187,7 +192,16 @@ Tables
    | 2  | Empty cells:   |    |
    +----+----------------+----+
 
-Table with multirow and multicol:
+.. table:: empty cell in table header
+
+   ===== ======
+   \ 
+   ===== ======
+   1     2
+   3     4
+   ===== ======
+
+Tables with multirow and multicol:
 
 .. only:: latex
 
@@ -198,6 +212,19 @@ Table with multirow and multicol:
    | y  +---------+------+----+----+
    | x  | multi-column cell   | x  |
    +----+---------------------+----+
+
+   +----+
+   | 1  |
+   +    +
+   |    |
+   +----+
+
+.. list-table::
+   :header-rows: 0
+
+   * - .. figure:: img.png
+
+          figure in table
 
 
 Figures
@@ -214,6 +241,22 @@ Figures
 
    Description paragraph is wraped with legend node.
 
+.. figure:: rimg.png
+   :align: right
+
+   figure with align option
+
+.. figure:: rimg.png
+   :align: right
+   :figwidth: 50%
+
+   figure with align & figwidth option
+
+.. figure:: rimg.png
+   :align: right
+   :width: 3cm
+
+   figure with align & width option
 
 Version markup
 --------------
@@ -250,7 +293,6 @@ Code blocks
    def ruby?
        false
    end
-
 
 Misc stuff
 ----------
@@ -330,13 +372,6 @@ Index markup
    keyword: with
    see: from; to
    seealso: fromalso; toalso
-
-Invalid index markup...
-
-.. index::
-   single:
-   pair:
-   keyword:
 
 .. index::
    !Main, !Other
