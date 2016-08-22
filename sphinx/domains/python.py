@@ -152,6 +152,7 @@ class PyObject(ObjectDescription):
     """
     option_spec = {
         'noindex': directives.flag,
+        'hidden': directives.flag,
         'module': directives.unchanged,
         'annotation': directives.unchanged,
     }
@@ -494,6 +495,7 @@ class PyModule(Directive):
         'platform': lambda x: x,
         'synopsis': lambda x: x,
         'noindex': directives.flag,
+        'hidden': directives.flag,
         'deprecated': directives.flag,
     }
 

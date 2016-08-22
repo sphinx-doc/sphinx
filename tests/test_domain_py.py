@@ -14,6 +14,8 @@ from six import text_type
 from sphinx import addnodes
 from sphinx.domains.python import py_sig_re, _pseudo_parse_arglist
 
+from util import with_app
+
 
 def parse(sig):
     m = py_sig_re.match(sig)
@@ -44,3 +46,12 @@ def test_function_signatures():
 
     rv = parse('func(a=[][, b=None])')
     assert text_type(rv) == u'a=[], [b=None]'
+
+
+@with_app('html', testroot='domain-py')
+def test_hidden_directive(app, status, warning):
+    app.builder.build(['domain-py'])
+    result = (app.outdir / 'index.html').text(encoding='utf-8')
+    assert '<dt id="Foobar">' in result
+    assert '<dt id="Foo">' not in result
+    assert '<dt id="Foo.bar">' in result

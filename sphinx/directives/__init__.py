@@ -54,6 +54,7 @@ class ObjectDescription(Directive):
     final_argument_whitespace = True
     option_spec = {
         'noindex': directives.flag,
+        'hidden': directives.flag,
     }
 
     # types of doc fields that this directive handles, see sphinx.util.docfields
@@ -123,7 +124,7 @@ class ObjectDescription(Directive):
 
         * find out if called as a domain-specific directive, set self.domain
         * create a `desc` node to fit all description inside
-        * parse standard options, currently `noindex`
+        * parse standard options, currently `noindex` and `hidden`
         * create an index node if needed as self.indexnode
         * parse all given signatures (as returned by self.get_signatures())
           using self.handle_signature(), which should either return a name
@@ -144,6 +145,7 @@ class ObjectDescription(Directive):
         # 'desctype' is a backwards compatible attribute
         node['objtype'] = node['desctype'] = self.objtype
         node['noindex'] = noindex = ('noindex' in self.options)
+        node['hidden'] = hidden = ('hidden' in self.options)
 
         self.names = []  # type: List[unicode]
         signatures = self.get_signatures()
@@ -152,7 +154,8 @@ class ObjectDescription(Directive):
             # and add a reference target for it
             signode = addnodes.desc_signature(sig, '')
             signode['first'] = False
-            node.append(signode)
+            if not hidden:
+                node.append(signode)
             try:
                 # name can also be a tuple, e.g. (classname, objname);
                 # this is strictly domain-specific (i.e. no assumptions may

@@ -562,3 +562,13 @@ def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, wa
     t = (app.outdir / f).text()
     for s in parenPatterns:
         check(s, t, f)
+
+
+@with_app('html', testroot='domain-cpp')
+def test_hidden_directive(app, status, warning):
+    app.builder.build(['domain-cpp'])
+    result = (app.outdir / 'domain.html').text(encoding='utf-8')
+    assert '<dt id="_CPPv26Foobar">' in result
+    assert '<dt id="_CPPv2N3Foo3barEv">' in result
+    pattern = re.compile(r'<dt id="_CPPv\d+Foo">')
+    assert pattern.search(result) is None
