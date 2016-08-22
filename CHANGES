@@ -98,6 +98,9 @@ Features added
 * C++, added concept directive. Thanks to mickk-on-cpp.
 * C++, added support for template introduction syntax. Thanks to mickk-on-cpp.
 * #2725: latex builder: allow to use user-defined template file (experimental)
+* apidoc now avoids invalidating cached files by not writing to files whose
+  content doesn't change. This can lead to significant performance wins if
+  apidoc is run frequently.
 
 Bugs fixed
 ----------

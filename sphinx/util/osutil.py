@@ -20,6 +20,7 @@ import shutil
 import filecmp
 from os import path
 import contextlib
+from io import BytesIO, StringIO
 
 from six import PY2, text_type
 
@@ -217,6 +218,73 @@ def cd(target_dir):
         yield
     finally:
         os.chdir(cwd)
+
+
+class FileAvoidWrite(object):
+    """File-like object that buffers output and only writes if content changed.
+
+    Use this class like when writing to a file to avoid touching the original
+    file if the content hasn't changed. This is useful in scenarios where file
+    mtime is used to invalidate caches or trigger new behavior.
+
+    When writing to this file handle, all writes are buffered until the object
+    is closed.
+
+    Objects can be used as context managers.
+    """
+    def __init__(self, path):
+        self._path = path
+        self._io = None
+
+    def write(self, data):
+        if not self._io:
+            if isinstance(data, text_type):
+                self._io = StringIO()
+            else:
+                self._io = BytesIO()
+
+        self._io.write(data)
+
+    def close(self):
+        """Stop accepting writes and write file, if needed."""
+        if not self._io:
+            raise Exception('FileAvoidWrite does not support empty files.')
+
+        buf = self.getvalue()
+        self._io.close()
+
+        r_mode = 'r'
+        w_mode = 'w'
+        if isinstance(self._io, BytesIO):
+            r_mode = 'rb'
+            w_mode = 'wb'
+
+        old_content = None
+
+        try:
+            with open(self._path, r_mode) as old_f:
+                old_content = old_f.read()
+                if old_content == buf:
+                    return
+        except IOError:
+            pass
+
+        with open(self._path, w_mode) as f:
+            f.write(buf)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+
+    def __getattr__(self, name):
+        # Proxy to _io instance.
+        if not self._io:
+            raise Exception('Must write to FileAvoidWrite before other '
+                            'methods can be used')
+
+        return getattr(self._io, name)
 
 
 def rmtree(path):
