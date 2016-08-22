@@ -31,7 +31,6 @@ from docutils.core import Publisher
 from docutils.utils import Reporter, relative_path, get_source_line
 from docutils.parsers.rst import roles, directives
 from docutils.parsers.rst.languages import en as english
-from docutils.parsers.rst.directives.html import MetaBody
 from docutils.frontend import OptionParser
 
 from sphinx import addnodes
@@ -776,9 +775,6 @@ class BuildEnvironment:
         doctree.settings.warning_stream = None
         doctree.settings.env = None
         doctree.settings.record_dependencies = None
-        for metanode in doctree.traverse(MetaBody.meta):
-            # docutils' meta nodes aren't picklable because the class is nested
-            metanode.__class__ = addnodes.meta
 
         # cleanup
         self.temp_data.clear()

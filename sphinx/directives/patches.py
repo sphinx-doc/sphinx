@@ -9,7 +9,9 @@
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.directives import images
+from docutils.parsers.rst.directives import images, html
+
+from sphinx import addnodes
 
 
 class Figure(images.Figure):
@@ -35,5 +37,23 @@ class Figure(images.Figure):
         return [figure_node]
 
 
+class Meta(html.Meta):
+    def run(self):
+        env = self.state.document.settings.env
+        result = html.Meta.run(self)
+        for node in result:
+            if (isinstance(node, nodes.pending) and
+               isinstance(node.details['nodes'][0], html.MetaBody.meta)):
+                meta = node.details['nodes'][0]
+                meta.source = env.doc2path(env.docname)
+                meta.line = self.lineno
+
+                # docutils' meta nodes aren't picklable because the class is nested
+                meta.__class__ = addnodes.meta
+
+        return result
+
+
 def setup(app):
     directives.register_directive('figure', Figure)
+    directives.register_directive('meta', Meta)
