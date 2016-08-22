@@ -183,10 +183,10 @@ class CheckExternalLinksBuilder(Builder):
                         f = opener.open(req, **kwargs)
                         f.close()
                     except HTTPError as err:
-                        if err.code != 405:
+                        if err.code not in (403, 405):
                             raise
                         # retry with GET if that fails, some servers
-                        # don't like HEAD requests and reply with 405
+                        # don't like HEAD requests and reply with 403 or 405
                         req = Request(req_url)
                         f = opener.open(req, **kwargs)
                         f.close()

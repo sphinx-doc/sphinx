@@ -6,6 +6,7 @@ Bugs fixed
 
 * #2870: flatten genindex columns' heights.
 * #2856: Search on generated HTML site doesnt find some symbols
+* #2882: Fall back to a GET request on 403 status in linkcheck
 
 Release 1.4.6 (released Aug 20, 2016)
 =====================================
