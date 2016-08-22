@@ -262,18 +262,12 @@ class FileAvoidWrite(object):
         old_content = None
 
         try:
-            old_f = open(self._path, r_mode)
-        except IOError:
-            pass
-        else:
-            try:
+            with open(self._path, r_mode) as old_f:
                 old_content = old_f.read()
                 if old_content == buf:
                     return
-            except IOError:
-                pass
-            finally:
-                old_f.close()
+        except IOError:
+            pass
 
         with open(self._path, w_mode) as f:
             f.write(buf)
