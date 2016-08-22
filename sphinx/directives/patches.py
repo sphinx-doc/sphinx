@@ -47,6 +47,7 @@ class Meta(html.Meta):
                 meta = node.details['nodes'][0]
                 meta.source = env.doc2path(env.docname)
                 meta.line = self.lineno
+                meta.rawcontent = meta['content']
 
                 # docutils' meta nodes aren't picklable because the class is nested
                 meta.__class__ = addnodes.meta

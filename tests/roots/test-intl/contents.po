@@ -18,3 +18,9 @@ msgstr ""
 
 msgid "Table of Contents"
 msgstr "TABLE OF CONTENTS"
+
+msgid "testdata for i18n"
+msgstr "TESTDATA FOR I18N"
+
+msgid "i18n, sphinx, markup"
+msgstr "I18N, SPHINX, MARKUP"

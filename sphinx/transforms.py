@@ -22,7 +22,7 @@ from sphinx.locale import _, init as init_locale
 from sphinx.util import split_index_msg
 from sphinx.util.nodes import (
     traverse_translatable_index, extract_messages, LITERAL_TYPE_NODES, IMAGE_TYPE_NODES,
-    apply_source_workaround,
+    apply_source_workaround, is_pending_meta,
 )
 from sphinx.util.i18n import find_catalog, format_date
 from sphinx.util.pycompat import indent
@@ -398,6 +398,11 @@ class Locale(Transform):
             # update translatable nodes
             if isinstance(node, addnodes.translatable):
                 node.apply_translated_message(msg, msgstr)
+                continue
+
+            # update meta nodes
+            if is_pending_meta(node):
+                node.details['nodes'][0]['content'] = msgstr
                 continue
 
             # Avoid "Literal block expected; none found." warnings.
