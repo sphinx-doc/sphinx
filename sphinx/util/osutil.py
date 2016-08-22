@@ -288,7 +288,7 @@ class FileAvoidWrite(object):
         # Proxy to _io instance.
         if not self._io:
             raise Exception('Must write to FileAvoidWrite before other '
-                'methods can be used')
+                            'methods can be used')
 
         return getattr(self._io, name)
 
