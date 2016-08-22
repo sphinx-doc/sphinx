@@ -42,6 +42,7 @@ Incompatible changes
 * Use make-mode of ``sphinx-quickstart`` by default.  To disable this, use
   ``-M`` option
 * Fix ``genindex.html`` to satisfy xhtml standard.
+* Use epub3 builder by default.  And the old epub builder is renamed to epub2.
 
 Features added
 --------------

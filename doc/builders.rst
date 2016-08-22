@@ -140,6 +140,11 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: supported_image_types
 
+   .. deprecated:: 1.5
+
+      Since Sphinx-1.5, the epub3 builder is used for the default builder of epub.
+      Now EpubBuilder is renamed to epub2.
+
 .. module:: sphinx.builders.epub3
 .. class:: Epub3Builder
 
@@ -149,9 +154,6 @@ The builder's "name" must be given to the **-b** command-line option of
    `<http://idpf.org/epub>`_ or `<https://en.wikipedia.org/wiki/EPUB>`_.
    The builder creates *EPUB 3* files.
 
-   This builder is still *experimental* because it can't generate valid EPUB 3
-   files.
-
    .. autoattribute:: name
 
    .. autoattribute:: format
@@ -159,6 +161,10 @@ The builder's "name" must be given to the **-b** command-line option of
    .. autoattribute:: supported_image_types
 
    .. versionadded:: 1.4
+
+   .. versionchanged:: 1.5
+
+      Since Sphinx-1.5, the epub3 builder is used for the default builder of epub.
 
 .. module:: sphinx.builders.latex
 .. class:: LaTeXBuilder
