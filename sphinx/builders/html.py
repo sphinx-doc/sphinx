@@ -121,6 +121,7 @@ class StandaloneHTMLBuilder(Builder):
         if self.config.language is not None:
             if self._get_translations_js():
                 self.script_files.append('_static/translations.js')
+        self.use_index = self.get_builder_config('use_index', 'html')
 
     def _get_translations_js(self):
         candidates = [path.join(package_dir, 'locale', self.config.language,
@@ -307,7 +308,7 @@ class StandaloneHTMLBuilder(Builder):
         self.relations = self.env.collect_relations()
 
         rellinks = []
-        if self.get_builder_config('use_index', 'html'):
+        if self.use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
         for indexname, indexcls, content, collapse in self.domain_indices:
             # if it has a short name
@@ -476,7 +477,7 @@ class StandaloneHTMLBuilder(Builder):
         self.info(bold('generating indices...'), nonl=1)
 
         # the global general index
-        if self.get_builder_config('use_index', 'html'):
+        if self.use_index:
             self.write_genindex()
 
         # the global domain-specific indices
@@ -1088,6 +1089,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         self.init_translator_class()
         self.init_templates()
         self.init_highlighter()
+        self.use_index = self.get_builder_config('use_index', 'html')
 
     def get_target_uri(self, docname, typ=None):
         if docname == 'index':

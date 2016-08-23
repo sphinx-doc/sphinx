@@ -43,6 +43,7 @@ Incompatible changes
   ``-M`` option
 * Fix ``genindex.html`` to satisfy xhtml standard.
 * Use epub3 builder by default.  And the old epub builder is renamed to epub2.
+* Fix ``epub`` and ``epub3`` builders that contained links to ``genindex`` even if ``epub_use_index = False``.
 
 Features added
 --------------

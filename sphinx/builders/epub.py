@@ -220,6 +220,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.link_suffix = '.xhtml'
         self.playorder = 0
         self.tocid = 0
+        self.use_index = self.get_builder_config('use_index', 'epub')
 
     def get_theme_config(self):
         return self.config.epub_theme, self.config.epub_theme_options
@@ -493,6 +494,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         attributes.
         """
         if pagename.startswith('genindex'):
+            if not self.use_index:
+                return
             self.fix_genindex(addctx['genindexentries'])
         addctx['doctype'] = self.doctype
         StandaloneHTMLBuilder.handle_page(self, pagename, addctx, templatename,
@@ -561,6 +564,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
                               'toc.ncx', 'META-INF/container.xml',
                               self.config.epub_basename + '.epub'] + \
             self.config.epub_exclude_files
+        if not self.use_index:
+            self.ignored_files.append('genindex' + self.out_suffix)
         for root, dirs, files in os.walk(outdir):
             for fn in files:
                 filename = path.join(root, fn)[olen:]
@@ -595,7 +600,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             spine.append(self.spine_template % {
                 'idref': self.esc(self.make_id(info[0] + self.out_suffix))
             })
-        if self.get_builder_config('use_index', 'epub'):
+        if self.use_index:
             spine.append(self.spine_template % {
                 'idref': self.esc(self.make_id('genindex' + self.out_suffix))
             })

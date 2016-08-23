@@ -55,8 +55,8 @@
     </td><td width="50%">
       <p class="biglink"><a class="biglink" href="{{ pathto("search") }}">{%trans%}Search page{%endtrans%}</a><br/>
          <span class="linkdescr">{%trans%}search the documentation{%endtrans%}</span></p>
-      <p class="biglink"><a class="biglink" href="{{ pathto("genindex") }}">{%trans%}General Index{%endtrans%}</a><br/>
-         <span class="linkdescr">{%trans%}all functions, classes, terms{%endtrans%}</span></p>
+      {%- if hasdoc('genindex') %}<p class="biglink"><a class="biglink" href="{{ pathto("genindex") }}">{%trans%}General Index{%endtrans%}</a><br/>
+         <span class="linkdescr">{%trans%}all functions, classes, terms{%endtrans%}</span></p>{%- endif %}
     </td></tr>
   </table>
 
