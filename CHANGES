@@ -107,6 +107,7 @@ Features added
   apidoc is run frequently.
 * #2851: `sphinx.ext.math` emits missing-reference event if equation not found
 * #1210: ``eqref`` role now supports cross reference
+* #2892: Added ``-a`` (``--append-syspath``) option to `sphinx-apidoc`
 
 Bugs fixed
 ----------

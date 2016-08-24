@@ -458,6 +458,10 @@ The :program:`sphinx-apidoc` script has several options:
    This option makes sphinx-apidoc put module documentation before submodule
    documentation.
 
+.. option:: -a
+
+   Append module_path to sys.path.
+
 .. option:: -H project
 
    Sets the project name to put in generated files (see :confval:`project`).
