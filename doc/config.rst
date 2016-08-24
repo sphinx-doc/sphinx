@@ -910,6 +910,11 @@ that use Sphinx's HTMLWriter class.
 
    .. seealso::  :meth:`~sphinx.application.Sphinx.set_translator`
 
+   .. deprecated:: 1.5
+
+      Implement your translator as extension and use `Sphinx.set_translator`
+      instead.
+
 .. confval:: html_show_copyright
 
    If true, "(C) Copyright ..." is shown in the HTML footer. Default is
