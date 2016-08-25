@@ -190,7 +190,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
     add_permalinks = False
     # don't add sidebar etc.
     embedded = True
-
+    # dont' create links to original images from images
+    html_scaled_image_link = False
     # don't generate search index or include search page
     search = False
 
