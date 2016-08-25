@@ -119,6 +119,7 @@ Bugs fixed
 * #1953: ``Sphinx.add_node`` does not add handlers the translator installed by
   `html_translator_class`
 * #1797: text builder inserts blank line on top
+* #2894: quickstart main() doesn't use argv argument
 
 Documentation
 -------------
