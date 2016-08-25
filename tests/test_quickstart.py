@@ -177,6 +177,7 @@ def test_quickstart_all_answers(tempdir):
         'Source file suffix': '.txt',
         'Name of your master document': 'contents',
         'extensions': 'autodoc,doctest,todo',
+        'sphinxcontrib extensions': 'autohttp',
         'Create Makefile': 'no',
         'Create Windows command file': 'no',
         'Do you want to use the epub builder': 'yes',
@@ -192,7 +193,8 @@ def test_quickstart_all_answers(tempdir):
     ns = {}
     execfile_(conffile, ns)
     assert ns['extensions'] == [
-        'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo'
+        'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
+        'sphinxcontrib.autohttp',
     ]
     assert ns['templates_path'] == ['.templates']
     assert ns['source_suffix'] == '.txt'

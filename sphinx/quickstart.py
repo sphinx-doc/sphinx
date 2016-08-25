@@ -18,7 +18,6 @@ import optparse
 import time
 from os import path
 from io import open
-from textwrap import dedent
 
 # try to import readline, unix specific enhancement
 try:
@@ -58,6 +57,7 @@ DEFAULT_VALUE = {
     'makefile': True,
     'batchfile': True,
     'extensions': '',
+    'contrib_extensions': '',
 }
 
 ALLOWED_EXTS = {
@@ -71,8 +71,7 @@ ALLOWED_EXTS = {
     'ifconfig': 'conditional inclusion of content based on config values',
     'viewcode': 'include links to source code of documented Python objects',
     'githubpages': 'enable publication on GitHub pages via .nojekyll file',
-    'sphinxcontrib.httpdomain': 'generates documentation of http apis',
-    }
+}
 
 PROMPT_PREFIX = '> '
 
@@ -197,20 +196,21 @@ def ask_user(d):
 
     Values are:
 
-    * path:       root path
-    * sep:        separate source and build dirs (bool)
-    * dot:        replacement for dot in _templates etc.
-    * project:    project name
-    * author:     author names
-    * version:    version of project
-    * release:    release of project
-    * language:   document language
-    * suffix:     source file suffix
-    * master:     master document name
-    * epub:       use epub (bool)
-    * extensions: extensions to use (comma separated list)
-    * makefile:   make Makefile
-    * batchfile:  make command file
+    * path:               root path
+    * sep:                separate source and build dirs (bool)
+    * dot:                replacement for dot in _templates etc.
+    * project:            project name
+    * author:             author names
+    * version:            version of project
+    * release:            release of project
+    * language:           document language
+    * suffix:             source file suffix
+    * master:             master document name
+    * epub:               use epub (bool)
+    * extensions:         extensions to use (comma separated list)
+    * contrib_extensions: extensions from sphinxcontrib (comma separated list)
+    * makefile:           make Makefile
+    * batchfile:          make command file
     """
 
     print(bold('Welcome to the Sphinx %s quickstart utility.') % __display_version__)
@@ -320,6 +320,13 @@ Sphinx can also add configuration for epub output:''')
         print('\n    '.join(['%s: %s' % (k, v) for (k, v) in ALLOWED_EXTS.items()]))
         do_prompt(d, 'extensions', 'extensions:', default='', validator=allow_empty)
 
+    if 'contrib_extensions' not in d:
+        print("Please list any extensions from sphinxcontrib to:")
+        print("(Specify as a comma separated list with no spaces)")
+        print("(Will not be checked for official support)")
+        do_prompt(d, 'contrib_extensions', 'sphinxcontrib extensions:',
+                  default='', validator=allow_empty)
+
     if 'no_makefile' in d:
         d['makefile'] = False
     elif 'makefile' not in d:
@@ -355,12 +362,16 @@ def generate(d, overwrite=True, silent=False):
     d['now'] = time.asctime()
     d['project_underline'] = column_width(d['project']) * '='
 
+    extensions = []
     if d.get('extensions'):
-        extensions = []
         for ext in d['extensions'].split(','):
             if ext not in ALLOWED_EXTS:
                 raise ValidationError("%s is not an allowed extension" % ext)
             extensions.append("'sphinx.ext.%s'" % ext)
+    if d.get('contrib_extensions'):
+        for ext in d['contrib_extensions'].split(','):
+            extensions.append("'sphinxcontrib.%s'" % ext)
+    if extensions:
         sep = ',\n' + indent
         d['extensions'] = '\n' + indent + sep.join(extensions) + ',\n'
     else:
@@ -549,6 +560,8 @@ def main(argv=sys.argv):
     group = parser.add_option_group('Extension options')
     group.add_option('--extensions', default='',
                      help='enable extensions (comma separated list)')
+    group.add_option('--contrib-extensions', default='',
+                     help='add exts from spinxcontrib (comma separated list)')
 
     group = parser.add_option_group('Makefile and Batchfile creation')
     group.add_option('--makefile', action='store_true', dest='makefile',
