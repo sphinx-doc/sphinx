@@ -142,7 +142,7 @@ def term_decode(text):
 
 def do_prompt(d, key, text, default=None, validator=nonempty):
     while True:
-        if default:
+        if default is not None:
             prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)
         else:
             prompt = PROMPT_PREFIX + text + ': '
