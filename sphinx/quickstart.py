@@ -59,6 +59,7 @@ DEFAULT_VALUE = {
     'ext_todo': False,
     'makefile': True,
     'batchfile': True,
+    'mastertoc_entries': '',
 }
 
 EXTENSIONS = ('autodoc', 'doctest', 'intersphinx', 'todo', 'coverage',
@@ -187,20 +188,21 @@ def ask_user(d):
 
     Values are:
 
-    * path:      root path
-    * sep:       separate source and build dirs (bool)
-    * dot:       replacement for dot in _templates etc.
-    * project:   project name
-    * author:    author names
-    * version:   version of project
-    * release:   release of project
-    * language:  document language
-    * suffix:    source file suffix
-    * master:    master document name
-    * epub:      use epub (bool)
-    * ext_*:     extensions to use (bools)
-    * makefile:  make Makefile
-    * batchfile: make command file
+    * path:              root path
+    * sep:               separate source and build dirs (bool)
+    * dot:               replacement for dot in _templates etc.
+    * project:           project name
+    * author:            author names
+    * version:           version of project
+    * release:           release of project
+    * language:          document language
+    * suffix:            source file suffix
+    * master:            master document name
+    * epub:              use epub (bool)
+    * ext_*:             extensions to use (bools)
+    * makefile:          make Makefile
+    * batchfile:         make command file
+    * mastertoc_entries: entries for the master TOC (comma separated list)
     """
 
     print(bold('Welcome to the Sphinx %s quickstart utility.') % __display_version__)
@@ -341,6 +343,13 @@ imgmath has been deselected.''')
         do_prompt(d, 'ext_githubpages', 'githubpages: create .nojekyll file '
                   'to publish the document on GitHub pages (y/n)', 'n', boolean)
 
+    if 'mastertoc_entries' not in d:
+        print("Please list any entries you would like in the mastertoc:")
+        print("(Specify as a comma separated list with no spaces)")
+        print("(include any generated rst documents to include in index toc)")
+        do_prompt(d, 'mastertoc_entries', 'entries to add to index TOC:',
+                  default='', validator=allow_empty)
+
     if 'no_makefile' in d:
         d['makefile'] = False
     elif 'makefile' not in d:
@@ -366,6 +375,12 @@ def generate(d, overwrite=True, silent=False):
 
     if 'mastertoctree' not in d:
         d['mastertoctree'] = ''
+
+    if d['mastertoctree'] == '' and d['mastertoc_entries']:
+        entries = d['mastertoc_entries'].split(',')
+        entries = [' ' * len('.. ') + e for e in entries]
+        d['mastertoctree'] = '\n'.join(entries)
+
     if 'mastertocmaxdepth' not in d:
         d['mastertocmaxdepth'] = 2
 
@@ -562,6 +577,8 @@ def main(argv=sys.argv):
     group.add_option('--epub', action='store_true', dest='epub',
                      default=False,
                      help='use epub')
+    group.add_option('-t', '--mastertoc-entries', default='',
+                     help='Comma seperated list of master TOC entries',)
 
     group = parser.add_option_group('Extension options')
     for ext in EXTENSIONS:
