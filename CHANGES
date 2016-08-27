@@ -9,6 +9,7 @@ Bugs fixed
 * #2882: Fall back to a GET request on 403 status in linkcheck
 * #2902: jsdump.loads fails to load search index if keywords starts with
   underscore
+* #2900: Fix epub content.opf: add auto generated orphan files to spine.
 
 Release 1.4.6 (released Aug 20, 2016)
 =====================================
