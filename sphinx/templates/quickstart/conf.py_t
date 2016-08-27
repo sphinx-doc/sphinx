@@ -19,9 +19,19 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+{% if append_syspath -%}
+import os
+import sys
+sys.path.insert(0, u'{{ module_path }}')
+{% else -%}
 # import os
 # import sys
+{% if module_path -%}
+# sys.path.insert(0, u'{{ module_path }}')
+{% else -%}
 # sys.path.insert(0, os.path.abspath('.'))
+{% endif -%}
+{% endif %}
 
 # -- General configuration ------------------------------------------------
 

@@ -299,6 +299,9 @@ Note: By default this script will not overwrite already created files.""")
                       help='file suffix (default: rst)', default='rst')
     parser.add_option('-F', '--full', action='store_true', dest='full',
                       help='Generate a full project with sphinx-quickstart')
+    parser.add_option('-a', '--append-syspath', action='store_true',
+                      dest='append_syspath',
+                      help='Append module_path to sys.path, used when --full is given')
     parser.add_option('-H', '--doc-project', action='store', dest='header',
                       help='Project name (default: root module name)')
     parser.add_option('-A', '--doc-author', action='store', dest='author',
@@ -366,6 +369,8 @@ Note: By default this script will not overwrite already created files.""")
             mastertocmaxdepth = opts.maxdepth,
             mastertoctree = text,
             language = 'en',
+            module_path = rootpath,
+            append_syspath = opts.append_syspath,
         )
         if isinstance(opts.header, binary_type):
             d['project'] = d['project'].decode('utf-8')
