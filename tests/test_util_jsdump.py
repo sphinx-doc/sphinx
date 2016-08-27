@@ -14,3 +14,7 @@ def test_jsdump():
     data = {u'a\xe8': 1}
     assert dumps(data) == '{"a\\u00e8":1}'
     assert data == loads(dumps(data))
+
+    data = {'_foo': 1}
+    assert dumps(data) == '{_foo:1}'
+    assert data == loads(dumps(data))
