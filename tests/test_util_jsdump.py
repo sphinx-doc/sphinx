@@ -1,9 +1,20 @@
 # -*- coding: utf-8 -*-
+from sphinx.util.jsdump import dumps, loads
+
 
 def test_jsdump():
-    from sphinx.util.jsdump import dumps
+    data = {'1a': 1}
+    assert dumps(data) == '{"1a":1}'
+    assert data == loads(dumps(data))
 
-    assert dumps({'1a': 1}) == '{"1a":1}'
-    assert dumps({'a1': 1}) == '{a1:1}'
+    data = {'a1': 1}
+    assert dumps(data) == '{a1:1}'
+    assert data == loads(dumps(data))
 
-    assert dumps({u'a\xe8': 1}) == '{"a\\u00e8":1}'
+    data = {u'a\xe8': 1}
+    assert dumps(data) == '{"a\\u00e8":1}'
+    assert data == loads(dumps(data))
+
+    data = {'_foo': 1}
+    assert dumps(data) == '{_foo:1}'
+    assert data == loads(dumps(data))

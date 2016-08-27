@@ -126,12 +126,20 @@ Documentation
 -------------
 
 
-Release 1.4.6 (in development)
+Release 1.4.7 (in development)
 ==============================
 
 Bugs fixed
 ----------
 
+* #2870: flatten genindex columns' heights.
+* #2856: Search on generated HTML site doesnt find some symbols
+* #2882: Fall back to a GET request on 403 status in linkcheck
+* #2902: jsdump.loads fails to load search index if keywords starts with
+  underscore
+* #2900: Fix epub content.opf: add auto generated orphan files to spine.
+* #2899: Fix ``hasdoc()`` function in Jinja2 template. It can detect ``genindex``, ``search`` collectly.
+* #2901: Fix epub result: skip creating links from image tags to original image files.
 
 Release 1.4.6 (released Aug 20, 2016)
 =====================================

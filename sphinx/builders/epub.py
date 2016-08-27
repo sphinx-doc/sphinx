@@ -123,6 +123,9 @@ FILE_TEMPLATE = u'''\
 SPINE_TEMPLATE = u'''\
     <itemref idref="%(idref)s" />'''
 
+NO_LINEAR_SPINE_TEMPLATE = u'''\
+    <itemref idref="%(idref)s" linear="no" />'''
+
 GUIDE_TEMPLATE = u'''\
     <reference type="%(type)s" title="%(title)s" href="%(uri)s" />'''
 
@@ -189,7 +192,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
     embedded = True
     # disable download role
     download_support = False
-
+    # dont' create links to original images from images
+    html_scaled_image_link = False
     # don't generate search index or include search page
     search = False
 
@@ -204,6 +208,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     coverpage_name = COVERPAGE_NAME
     file_template = FILE_TEMPLATE
     spine_template = SPINE_TEMPLATE
+    no_linear_spine_template = NO_LINEAR_SPINE_TEMPLATE
     guide_template = GUIDE_TEMPLATE
     toctree_template = TOCTREE_TEMPLATE
     doctype = DOCTYPE
@@ -588,6 +593,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
         # spine
         spine = []
+        spinefiles = set()
         for item in self.refnodes:
             if '#' in item['refuri']:
                 continue
@@ -596,14 +602,23 @@ class EpubBuilder(StandaloneHTMLBuilder):
             spine.append(self.spine_template % {
                 'idref': self.esc(self.make_id(item['refuri']))
             })
+            spinefiles.add(item['refuri'])
         for info in self.domain_indices:
             spine.append(self.spine_template % {
                 'idref': self.esc(self.make_id(info[0] + self.out_suffix))
             })
+            spinefiles.add(info[0] + self.out_suffix)
         if self.use_index:
             spine.append(self.spine_template % {
                 'idref': self.esc(self.make_id('genindex' + self.out_suffix))
             })
+            spinefiles.add('genindex' + self.out_suffix)
+        # add auto generated files
+        for name in self.files:
+            if name not in spinefiles and name.endswith(self.out_suffix):
+                spine.append(self.no_linear_spine_template % {
+                    'idref': self.esc(self.make_id(name))
+                })
 
         # add the optional cover
         content_tmpl = self.content_template
@@ -630,6 +645,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 ctx = {'image': self.esc(image), 'title': self.config.project}
                 self.handle_page(
                     path.splitext(self.coverpage_name)[0], ctx, html_tmpl)
+                spinefiles.add(self.coverpage_name)
 
         guide = []
         auto_add_cover = True

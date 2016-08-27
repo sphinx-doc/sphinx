@@ -76,6 +76,8 @@ class StandaloneHTMLBuilder(Builder):
     link_suffix = '.html'  # defaults to matching out_suffix
     indexer_format = js_index
     indexer_dumps_unicode = True
+    # create links to original images from images [True/False]
+    html_scaled_image_link = True
     supported_image_types = ['image/svg+xml', 'image/png',
                              'image/gif', 'image/jpeg']
     searchindex_filename = 'searchindex.js'
@@ -676,7 +678,7 @@ class StandaloneHTMLBuilder(Builder):
         """
         Builder.post_process_images(self, doctree)
 
-        if self.config.html_scaled_image_link:
+        if self.config.html_scaled_image_link and self.html_scaled_image_link:
             for node in doctree.traverse(nodes.image):
                 scale_keys = ('scale', 'width', 'height')
                 if not any((key in node) for key in scale_keys) or \
@@ -786,7 +788,17 @@ class StandaloneHTMLBuilder(Builder):
             uri = relative_uri(baseuri, otheruri) or '#'
             return uri
         ctx['pathto'] = pathto
-        ctx['hasdoc'] = lambda name: name in self.env.all_docs
+
+        def hasdoc(name):
+            if name in self.env.all_docs:
+                return True
+            elif name == 'search' and self.search:
+                return True
+            elif name == 'genindex' and self.get_builder_config('use_index', 'html'):
+                return True
+            return False
+        ctx['hasdoc'] = hasdoc
+
         if self.name != 'htmlhelp':
             ctx['encoding'] = encoding = self.config.html_output_encoding
         else:
