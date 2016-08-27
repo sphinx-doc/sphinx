@@ -14,10 +14,7 @@ import socket
 import codecs
 import threading
 from os import path
-import warnings
 
-import pkg_resources
-import requests
 from requests.exceptions import HTTPError
 from six.moves import queue
 from six.moves.urllib.parse import unquote
@@ -38,32 +35,7 @@ from sphinx.builders import Builder
 from sphinx.util import encode_uri
 from sphinx.util.console import purple, red, darkgreen, darkgray, \
     darkred, turquoise
-
-try:
-    pkg_resources.require(['requests[security]'])
-except pkg_resources.DistributionNotFound:
-    import ssl
-    if not getattr(ssl, 'HAS_SNI', False):
-        # don't complain on each url processed about the SSL issue
-        requests.packages.urllib3.disable_warnings(
-            requests.packages.urllib3.exceptions.InsecurePlatformWarning)
-        warnings.warn(
-            'Some links may return broken results due to being unable to '
-            'check the Server Name Indication (SNI) in the returned SSL cert '
-            'against the hostname in the url requested. Recommended to '
-            'install "requests[security]" as a dependency or upgrade to '
-            'a python version with SNI support (Python 3 and Python 2.7.9+).'
-        )
-except pkg_resources.UnknownExtra:
-    warnings.warn(
-        'Some links may return broken results due to being unable to '
-        'check the Server Name Indication (SNI) in the returned SSL cert '
-        'against the hostname in the url requested. Recommended to '
-        'install requests-2.4.1+.'
-    )
-
-requests_user_agent = [('User-agent', 'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) '
-                        'Gecko/20100101 Firefox/25.0')]
+from sphinx.util.requests import requests, useragent_header
 
 
 class AnchorCheckParser(HTMLParser):
@@ -118,7 +90,7 @@ class CheckExternalLinksBuilder(Builder):
         open(path.join(self.outdir, 'output.txt'), 'w').close()
 
         self.session = requests.Session()
-        self.session.headers = dict(requests_user_agent)
+        self.session.headers = dict(useragent_header)
 
         # create queues and worker threads
         self.wqueue = queue.Queue()
