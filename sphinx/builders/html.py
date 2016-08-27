@@ -785,7 +785,17 @@ class StandaloneHTMLBuilder(Builder):
             uri = relative_uri(baseuri, otheruri) or '#'
             return uri
         ctx['pathto'] = pathto
-        ctx['hasdoc'] = lambda name: name in self.env.all_docs
+
+        def hasdoc(name):
+            if name in self.env.all_docs:
+                return True
+            elif name == 'search' and self.search:
+                return True
+            elif name == 'genindex' and self.get_builder_config('use_index', 'html'):
+                return True
+            return False
+        ctx['hasdoc'] = hasdoc
+
         if self.name != 'htmlhelp':
             ctx['encoding'] = encoding = self.config.html_output_encoding
         else:
