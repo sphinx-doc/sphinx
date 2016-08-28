@@ -175,6 +175,13 @@ img.toggler {
     cursor: pointer;
 }
 
+/* -- domain module index --------------------------------------------------- */
+
+table.modindextable td {
+    padding: 2px;
+    border-collapse: collapse;
+}
+
 /* -- general body styles --------------------------------------------------- */
 
 a.headerlink {

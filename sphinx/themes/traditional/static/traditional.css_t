@@ -415,6 +415,13 @@ img.toggler {
     cursor: pointer;
 }
 
+/* :::: DOMAIN MODULE INDEX STYLES :::: */
+
+table.modindextable td {
+    padding: 2px;
+    border-collapse: collapse;
+}
+
 /* :::: GLOBAL STYLES :::: */
 
 p.subhead {

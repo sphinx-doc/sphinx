@@ -326,6 +326,11 @@ table.modindextable {
     border: none;
 }
 
+table.modindextable td {
+    padding: 2px;
+    border-collapse: collapse;
+}
+
 table.modindextable img.toggler {
     margin-right: 10px;
 }
