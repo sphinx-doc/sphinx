@@ -569,6 +569,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.files = []
         self.ignored_files = ['.buildinfo', 'mimetype', 'content.opf',
                               'toc.ncx', 'META-INF/container.xml',
+                              'Thumbs.db', 'ehthumbs.db', '.DS_Store',
                               self.config.epub_basename + '.epub'] + \
             self.config.epub_exclude_files
         if not self.use_index:
