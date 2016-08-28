@@ -188,6 +188,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     # don't add links
     add_permalinks = False
+    # don't use # as current path. ePub check reject it.
+    allow_sharp_as_current_path = False
     # don't add sidebar etc.
     embedded = True
     # disable download role
