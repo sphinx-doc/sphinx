@@ -41,7 +41,7 @@ Incompatible changes
 * ``sphinx.ext.viewcode`` disabled on singlehtml builder.
 * Use make-mode of ``sphinx-quickstart`` by default.  To disable this, use
   ``-M`` option
-* Fix ``genindex.html`` to satisfy xhtml standard.
+* Fix ``genindex.html``, Sphinx's document template, link address to itself to satisfy xhtml standard.
 * Use epub3 builder by default.  And the old epub builder is renamed to epub2.
 * Fix ``epub`` and ``epub3`` builders that contained links to ``genindex`` even if ``epub_use_index = False``.
 * `html_translator_class` is now deprecated.
