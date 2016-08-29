@@ -12,6 +12,7 @@ Bugs fixed
 * #2900: Fix epub content.opf: add auto generated orphan files to spine.
 * #2899: Fix ``hasdoc()`` function in Jinja2 template. It can detect ``genindex``, ``search`` collectly.
 * #2901: Fix epub result: skip creating links from image tags to original image files.
+* #2917: inline code is hyphenated on HTML
 
 Release 1.4.6 (released Aug 20, 2016)
 =====================================
