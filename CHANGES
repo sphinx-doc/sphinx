@@ -46,6 +46,7 @@ Incompatible changes
 * Fix ``epub`` and ``epub3`` builders that contained links to ``genindex`` even if ``epub_use_index = False``.
 * `html_translator_class` is now deprecated.
   Use `Sphinx.set_translator()` API instead.
+* Drop python 3.3 support
 
 Features added
 --------------

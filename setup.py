@@ -37,8 +37,8 @@ Among its features are the following:
 * Setuptools integration
 '''
 
-if sys.version_info < (2, 6) or (3, 0) <= sys.version_info < (3, 3):
-    print('ERROR: Sphinx requires at least Python 2.6 or 3.3 to run.')
+if sys.version_info < (2, 6) or (3, 0) <= sys.version_info < (3, 4):
+    print('ERROR: Sphinx requires at least Python 2.6 or 3.4 to run.')
     sys.exit(1)
 
 requires = [
