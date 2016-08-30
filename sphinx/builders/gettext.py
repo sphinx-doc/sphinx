@@ -22,6 +22,7 @@ from six import iteritems
 
 from sphinx.builders import Builder
 from sphinx.util import split_index_msg
+from sphinx.util.tags import Tags
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import safe_relpath, ensuredir, canon_path
 from sphinx.util.i18n import find_catalog
@@ -79,6 +80,16 @@ class MsgOrigin(object):
         self.uid = uuid4().hex
 
 
+class I18nTags(Tags):
+    """Dummy tags module for I18nBuilder.
+
+    To translate all text inside of only nodes, this class
+    always returns True value even if no tags are defined.
+    """
+    def eval_condition(self, condition):
+        return True
+
+
 class I18nBuilder(Builder):
     """
     General i18n builder.
@@ -93,6 +104,7 @@ class I18nBuilder(Builder):
 
     def init(self):
         Builder.init(self)
+        self.tags = I18nTags()
         self.catalogs = defaultdict(Catalog)
 
     def get_target_uri(self, docname, typ=None):

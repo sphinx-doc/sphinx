@@ -124,6 +124,8 @@ Bugs fixed
   `html_translator_class`
 * #1797: text builder inserts blank line on top
 * #2894: quickstart main() doesn't use argv argument
+* #2874: gettext builder could not extract all text under the ``only``
+  directives
 
 Documentation
 -------------

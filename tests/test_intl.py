@@ -338,6 +338,12 @@ def test_gettext_builder(app, status, warning):
     for expect_msg in [m for m in expect if m.id]:
         yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
 
+    # --- gettext builder always ignores ``only`` directive
+    expect = read_po(app.srcdir / 'only.po')
+    actual = read_po(app.outdir / 'only.pot')
+    for expect_msg in [m for m in expect if m.id]:
+        yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
+
 
 @gen_with_intl_app('html', freshenv=True)
 def test_html_builder(app, status, warning):
