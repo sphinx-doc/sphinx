@@ -58,6 +58,7 @@ import re
 import sys
 import inspect
 import posixpath
+from six import string_types
 from types import ModuleType
 
 from six import text_type
@@ -67,6 +68,7 @@ from docutils import nodes
 
 import sphinx
 from sphinx import addnodes
+from sphinx.util import import_object
 from sphinx.util.compat import Directive
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.ext.autodoc import Options
@@ -542,6 +544,22 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
     return r
 
 
+def get_rst_suffix(app):
+    def get_supported_format(suffix):
+        parser_class = app.config.source_parsers.get(suffix)
+        if parser_class is None:
+            return ('restructuredtext',)
+        if isinstance(parser_class, string_types):
+            parser_class = import_object(parser_class, 'source parser')
+        return parser_class.supported
+
+    for suffix in app.config.source_suffix:
+        if 'restructuredtext' in get_supported_format(suffix):
+            return suffix
+
+    return None
+
+
 def process_generate_options(app):
     genfiles = app.config.autosummary_generate
 
@@ -559,8 +577,14 @@ def process_generate_options(app):
     genfiles = [genfile + (not genfile.endswith(tuple(ext)) and ext[0] or '')
                 for genfile in genfiles]
 
+    suffix = get_rst_suffix(app)
+    if suffix is None:
+        app.warn('autosummary generats .rst files internally. '
+                 'But your source_suffix does not contain .rst. Skipped.')
+        return
+
     generate_autosummary_docs(genfiles, builder=app.builder,
-                              warn=app.warn, info=app.info, suffix=ext[0],
+                              warn=app.warn, info=app.info, suffix=suffix,
                               base_path=app.srcdir)
 
 
