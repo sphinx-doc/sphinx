@@ -172,9 +172,13 @@ Others
 
 .. option:: +p
 
+.. option:: --plugin.option
+
+.. option:: create-auth-token
+
 .. option:: arg
 
-Link to :option:`perl +p` and :option:`arg`
+Link to :option:`perl +p`, :option:`--plugin.option`, :option:`create-auth-token` and :option:`arg`
 
 .. program:: hg
 

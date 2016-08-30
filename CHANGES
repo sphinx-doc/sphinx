@@ -110,6 +110,7 @@ Features added
 * #1210: ``eqref`` role now supports cross reference
 * #2892: Added ``-a`` (``--append-syspath``) option to ``sphinx-apidoc``
 * #1604: epub3 builder: Obey font-related CSS when viewing in iBooks.
+* #646: ``option`` directive support '.' character as a part of options
 
 Bugs fixed
 ----------
