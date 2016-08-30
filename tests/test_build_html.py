@@ -246,7 +246,8 @@ HTML_XPATH = {
             '\+p'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl--plugin.option']/code/span",
             '--plugin.option'),
-        (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-create-auth-token']/code/span",
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-create-auth-token']"
+         "/code/span",
             'create-auth-token'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-arg']/code/span",
             'arg'),
