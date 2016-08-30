@@ -1460,6 +1460,30 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
    .. versionadded:: 1.2
 
+.. confval:: epub3_writing_mode
+
+   It specifies writing direction. It can accept ``'horizontal'`` (default) and
+   ``'vertical'``
+
+   .. list-table::
+      :header-rows: 1
+      :stub-columns: 1
+
+      - * ``epub3_writing_mode``
+        * ``'horizontal'``
+        * ``'vertical'``
+      - * writing-mode [#]_
+        * ``horizontal-tb``
+        * ``vertical-rl``
+      - * page progression
+        * left to right
+        * right to left
+      - * iBook's Scroll Theme support
+        * scroll-axis is vertical.
+        * scroll-axis is horizontal.
+
+   .. [#] https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode
+
 .. confval:: epub3_page_progression_direction
 
    The global direction in which the content flows.
@@ -1470,6 +1494,9 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    preference and the Reading System may chose the rendering direction.
 
    .. versionadded:: 1.4
+
+   .. deprecated:: 1.5
+      Use ``epub3_writing_mode``.
 
 .. _latex-options:
 

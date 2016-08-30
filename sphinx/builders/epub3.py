@@ -54,7 +54,7 @@ PACKAGE_DOC_TEMPLATE = u'''\
 <?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="%(lang)s"
  unique-identifier="%(uid)s"
- prefix="ibooks:http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/">
+ prefix="ibooks: http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/">
   <metadata xmlns:opf="http://www.idpf.org/2007/opf"
         xmlns:dc="http://purl.org/dc/elements/1.1/">
     <dc:language>%(lang)s</dc:language>
@@ -150,7 +150,7 @@ class Epub3Builder(EpubBuilder):
             page_progression_direction = 'rtl'
         else:
             page_progression_direction = 'default'
-        return self.esc(page_progression_direction)
+        return page_progression_direction
 
     def _ibook_scroll_axis(self):
         if self.config.epub3_writing_mode == 'horizontal':
@@ -159,7 +159,7 @@ class Epub3Builder(EpubBuilder):
             scroll_axis = 'horizontal'
         else:
             scroll_axis = 'default'
-        return self.esc(scroll_axis)
+        return scroll_axis
 
     def _css_writing_mode(self):
         if self.config.epub3_writing_mode == 'vertical':

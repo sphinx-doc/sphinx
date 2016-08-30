@@ -47,6 +47,7 @@ Incompatible changes
 * `html_translator_class` is now deprecated.
   Use `Sphinx.set_translator()` API instead.
 * Drop python 3.3 support
+* Drop epub3 builder's ``epub3_page_progression_direction`` option (use ``epub3_writing_mode``).
 
 Features added
 --------------
@@ -113,6 +114,7 @@ Features added
 * #646: ``option`` directive support '.' character as a part of options
 * Add document about kindlegen and fix document structure for it.
 * #2474: Add ``intersphinx_timeout`` option to ``sphinx.ext.intersphinx``
+* #2926: EPUB3 builder supports vertical mode (``epub3_writing_mode`` option)
 
 Bugs fixed
 ----------
