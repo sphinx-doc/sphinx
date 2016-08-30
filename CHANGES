@@ -109,6 +109,7 @@ Features added
 * #2851: ``sphinx.ext.math`` emits missing-reference event if equation not found
 * #1210: ``eqref`` role now supports cross reference
 * #2892: Added ``-a`` (``--append-syspath``) option to ``sphinx-apidoc``
+* #1604: epub3 builder: Obey font-related CSS when viewing in iBooks.
 
 Bugs fixed
 ----------

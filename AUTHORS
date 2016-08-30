@@ -11,6 +11,7 @@ Other co-maintainers:
 * Rob Ruana <@RobRuana>
 * Robert Lehmann <@lehmannro>
 * Roland Meister <@rolmei>
+* Takeshi Komiya <@tk0miya>
 
 Other contributors, listed alphabetically, are:
 
@@ -30,7 +31,6 @@ Other contributors, listed alphabetically, are:
 * Martin Hans -- autodoc improvements
 * Doug Hellmann -- graphviz improvements
 * Timotheus Kampik - JS theme & search enhancements
-* Takeshi Komiya -- numref feature
 * Dave Kuhlman -- original LaTeX writer
 * Blaise Laflamme -- pyramid theme
 * Thomas Lamb -- linkcheck builder
@@ -52,7 +52,7 @@ Other contributors, listed alphabetically, are:
 * Rob Ruana -- napoleon extension
 * Stefan Seefeld -- toctree improvements
 * Gregory Szorc -- performance improvements
-* Shibukawa Yoshiki -- pluggable search API and Japanese search
+* Shibukawa Yoshiki -- pluggable search API and Japanese search, epub3 builder improvements
 * Taku Shimizu -- epub3 builder
 * Antonio Valentino -- qthelp builder
 * Filip Vavera -- napoleon todo directive
@@ -65,6 +65,7 @@ Other contributors, listed alphabetically, are:
 * Michael Wilson -- Intersphinx HTTP basic auth support
 * Joel Wurtz -- cellspanning support in LaTeX
 * Hong Xu -- svg support in imgmath extension and various bug fixes
+* Bruce Mitchener -- Minor epub improvement
 
 Many thanks for all contributions!
 
