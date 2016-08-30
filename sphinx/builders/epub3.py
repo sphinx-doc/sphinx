@@ -70,6 +70,7 @@ PACKAGE_DOC_TEMPLATE = u'''\
     <meta property="ibooks:version">%(version)s</meta>
     <meta property="ibooks:specified-fonts">true</meta>
     <meta property="ibooks:binding">true</meta>
+    <meta property="ibooks:scroll-axis">%(ibook_scroll_axis)s</meta>
   </metadata>
   <manifest>
     <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
@@ -129,11 +130,40 @@ class Epub3Builder(EpubBuilder):
             files, spine, guide)
         metadata['description'] = self.esc(self.config.epub3_description)
         metadata['contributor'] = self.esc(self.config.epub3_contributor)
-        metadata['page_progression_direction'] = self.esc(
-            self.config.epub3_page_progression_direction) or 'default'
+        metadata['page_progression_direction'] = self._page_progression_direction()
+        metadata['ibook_scroll_axis'] = self._ibook_scroll_axis()
         metadata['date'] = self.esc(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
         metadata['version'] = self.esc(self.config.version)
         return metadata
+
+    def _page_progression_direction(self):
+        if self.config.epub3_writing_mode == 'horizontal':
+            page_progression_direction = 'ltr'
+        elif self.config.epub3_writing_mode == 'vertical':
+            page_progression_direction = 'rtl'
+        else:
+            page_progression_direction = 'default'
+        return self.esc(page_progression_direction)
+
+    def _ibook_scroll_axis(self):
+        if self.config.epub3_writing_mode == 'horizontal':
+            scroll_axis = 'vertical'
+        elif self.config.epub3_writing_mode == 'vertical':
+            scroll_axis = 'horizontal'
+        else:
+            scroll_axis = 'default'
+        return self.esc(scroll_axis)
+
+    def _css_writing_mode(self):
+        if self.config.epub3_writing_mode == 'vertical':
+            editing_mode = 'vertical-rl'
+        else:
+            editing_mode = 'horizontal-tb'
+        return editing_mode
+
+    def prepare_writing(self, docnames):
+        super(Epub3Builder, self).prepare_writing(docnames)
+        self.globalcontext['theme_writing_mode'] = self._css_writing_mode()
 
     def new_navlist(self, node, level, has_child):
         """Create a new entry in the toc from the node at given level."""
@@ -232,4 +262,4 @@ def setup(app):
 
     app.add_config_value('epub3_description', '', 'epub3', string_classes)
     app.add_config_value('epub3_contributor', 'unknown', 'epub3', string_classes)
-    app.add_config_value('epub3_page_progression_direction', 'ltr', 'epub3', string_classes)
+    app.add_config_value('epub3_writing_mode', 'horizontal', 'epub3', string_classes)

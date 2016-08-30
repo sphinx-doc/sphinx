@@ -11,6 +11,17 @@
 
 /* -- main layout ----------------------------------------------------------- */
 
+{% if theme_writing_mode is defined %}
+body{
+  writing-mode: {{ theme_writing_mode }};
+  line-break: normal;
+  -epub-writing-mode: {{ theme_writing_mode }};
+  -webkit-writing-mode: {{ theme_writing_mode }};
+  -epub-line-break: normal;
+  -webkit-line-break: normal;
+}
+{% endif %}
+
 div.clearer {
     clear: both;
 }
