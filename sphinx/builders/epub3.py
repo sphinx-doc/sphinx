@@ -111,6 +111,13 @@ class Epub3Builder(EpubBuilder):
     content_template = PACKAGE_DOC_TEMPLATE
     doctype = DOCTYPE
 
+    # Warning deprecated option
+    def init(self):
+        if self.config.epub3_page_progression_direction:
+            self.warn('epub3_page_progression_direction option is deprecated'
+                      ' from 1.5. Use epub3_writing_mode instead of this.')
+        super(Epub3Builder, self).init()
+
     # Finish by building the epub file
     def handle_finish(self):
         """Create the metainfo files and finally the epub."""
@@ -263,3 +270,4 @@ def setup(app):
     app.add_config_value('epub3_description', '', 'epub3', string_classes)
     app.add_config_value('epub3_contributor', 'unknown', 'epub3', string_classes)
     app.add_config_value('epub3_writing_mode', 'horizontal', 'epub3', string_classes)
+    app.add_config_value('epub3_page_progression_direction', '', 'epub3', string_classes)
