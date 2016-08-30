@@ -53,7 +53,8 @@ NAVLIST_INDENT = '  '
 PACKAGE_DOC_TEMPLATE = u'''\
 <?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="%(lang)s"
-      unique-identifier="%(uid)s">
+ unique-identifier="%(uid)s"
+ prefix="ibooks:http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/">
   <metadata xmlns:opf="http://www.idpf.org/2007/opf"
         xmlns:dc="http://purl.org/dc/elements/1.1/">
     <dc:language>%(lang)s</dc:language>
@@ -66,6 +67,9 @@ PACKAGE_DOC_TEMPLATE = u'''\
     <dc:identifier id="%(uid)s">%(id)s</dc:identifier>
     <dc:date>%(date)s</dc:date>
     <meta property="dcterms:modified">%(date)s</meta>
+    <meta property="ibooks:version">%(version)s</meta>
+    <meta property="ibooks:specified-fonts">true</meta>
+    <meta property="ibooks:binding">true</meta>
   </metadata>
   <manifest>
     <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
@@ -128,6 +132,7 @@ class Epub3Builder(EpubBuilder):
         metadata['page_progression_direction'] = self.esc(
             self.config.epub3_page_progression_direction) or 'default'
         metadata['date'] = self.esc(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
+        metadata['version'] = self.esc(self.config.version)
         return metadata
 
     def new_navlist(self, node, level, has_child):
