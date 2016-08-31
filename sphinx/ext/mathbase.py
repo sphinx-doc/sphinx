@@ -133,7 +133,8 @@ def latex_visit_math(self, node):
 def latex_visit_displaymath(self, node):
     label = node['label'] and node['docname'] + '-' + node['label'] or None
     if node['nowrap']:
-        self.body.append(r'\label{%s}' % label)
+        if label:
+            self.body.append(r'\label{%s}' % label)
         self.body.append(node['latex'])
     else:
         self.body.append(wrap_displaymath(node['latex'], label,
