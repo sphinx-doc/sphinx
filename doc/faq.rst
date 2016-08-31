@@ -167,11 +167,45 @@ The following list gives some hints for the creation of epub files:
   :confval:`html_static_path` directory and reference it with its full path in
   the :confval:`epub_cover` config option.
 
+* kindlegen_ command can convert from epub3 resulting file to ``.mobi`` file
+  for Kindle. You can get ``yourdoc.mobi`` under ``_build/epub`` after the
+  following command:
+
+  .. code-block:: bash
+
+     $ make epub
+     $ kindlegen _build/epub/yourdoc.epub
+
+  kindlegen commands doesn't accept documents that have section
+  titles surrounding ``toctree`` directive:
+
+  .. code-block:: rst
+
+     Section Title
+     =============
+
+     .. toctree::
+
+        subdocument
+
+     Section After Toc Tree
+     ======================
+
+  kindlegen assumes all documents order in line, but resulting document
+  has complecated order for kindlegen::
+
+     ``parent.xhtml`` -> ``child.xhtml`` -> ``parent.xhtml``
+
+  If you got the following error, fix document structure::
+
+     Error(prcgen):E24011: TOC section scope is not included in the parent chapter:(title)
+     Error(prcgen):E24001: The table of content could not be built.
+
 .. _Epubcheck: https://code.google.com/archive/p/epubcheck
 .. _Calibre: http://calibre-ebook.com/
 .. _FBreader: https://fbreader.org/
 .. _Bookworm: http://www.oreilly.com/bookworm/index.html
-
+.. _kindlegen: https://www.amazon.com/gp/feature.html?docId=1000765211
 
 .. _texinfo-faq:
 
