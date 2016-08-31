@@ -146,6 +146,9 @@ Bugs fixed
 * #2900: Fix epub content.opf: add auto generated orphan files to spine.
 * #2899: Fix ``hasdoc()`` function in Jinja2 template. It can detect ``genindex``, ``search`` collectly.
 * #2901: Fix epub result: skip creating links from image tags to original image files.
+* #2917: inline code is hyphenated on HTML
+* #1462: autosummary warns for namedtuple with attribute with trailing underscore
+* Could not reference equations if ``:nowrap:`` option specified
 
 Release 1.4.6 (released Aug 20, 2016)
 =====================================

@@ -223,13 +223,16 @@ def latex_visit_math(self, node):
 
 
 def latex_visit_displaymath(self, node):
+    if not node['label']:
+        label = None
+    else:
+        label = "equation:%s:%s" % (node['docname'], node['label'])
+
     if node['nowrap']:
+        if label:
+            self.body.append(r'\label{%s}' % label)
         self.body.append(node['latex'])
     else:
-        if not node['label']:
-            label = None
-        else:
-            label = "equation:%s:%s" % (node['docname'], node['label'])
         self.body.append(wrap_displaymath(node['latex'], label,
                                           self.builder.config.math_number_all))
     raise nodes.SkipNode

@@ -68,7 +68,7 @@ from docutils import nodes
 
 import sphinx
 from sphinx import addnodes
-from sphinx.util import import_object
+from sphinx.util import import_object, rst
 from sphinx.util.compat import Directive
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.ext.autodoc import Options
@@ -369,7 +369,7 @@ class Autosummary(Directive):
         for name, sig, summary, real_name in items:
             qualifier = 'obj'
             if 'nosignatures' not in self.options:
-                col1 = ':%s:`%s <%s>`\ %s' % (qualifier, name, real_name, sig)
+                col1 = ':%s:`%s <%s>`\ %s' % (qualifier, name, real_name, rst.escape(sig))
             else:
                 col1 = ':%s:`%s <%s>`' % (qualifier, name, real_name)
             col2 = summary

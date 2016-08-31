@@ -69,3 +69,7 @@ class C:
         '''
         This is a nested inner class docstring
         '''
+
+
+def func(arg_):
+    """Test function take an argument ended with underscore."""
