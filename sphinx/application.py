@@ -117,7 +117,11 @@ ENV_PICKLE_FILENAME = 'environment.pickle'
 
 # list of deprecated extensions. Keys are extension name.
 # Values are Sphinx version that merge the extension.
-EXTENSION_BLACKLIST = {"sphinxjp.themecore": "1.2"}  # type: Dict[unicode, unicode]
+EXTENSION_BLACKLIST = {
+    'sphinxjp.themecore': '1.2',
+    'sphinxcontrib.textstyle': '1.6',
+}  # type: Dict[unicode, unicode]
+
 
 logger = logging.getLogger(__name__)
 

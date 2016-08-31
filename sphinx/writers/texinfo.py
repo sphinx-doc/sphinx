@@ -1423,6 +1423,21 @@ class TexinfoTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         self.body.append('<<')
 
+    def visit_ruby(self, node):
+        error = node.get('error')
+        if error:
+            self.builder.warn(error, (self.builder.current_docname, node.line))
+        self.body.append(self.escape(node.to_plaintext()))
+
+    def depart_ruby(self, node):
+        pass
+
+    def visit_delete(self, node):
+        self.body.append(self.escape(node.to_plaintext()))
+
+    def depart_delete(self, node):
+        pass
+
     def unimplemented_visit(self, node):
         # type: (nodes.Node) -> None
         logger.warning("unimplemented node type: %r", node,

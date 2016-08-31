@@ -18,6 +18,105 @@ They are written as ``:rolename:`content```.
 
 See :ref:`domains` for roles added by domains.
 
+.. _text-style:
+
+Common Text markup
+~~~~~~~~~~~~~~~~~~
+
+Common text markups represent text semantics.
+
+.. rst:role:: ruby
+
+   ``ruby`` role marks ruby annotations to phrases. Ruby annotations are mainly
+   used in East Asian languages to give a guide for pronunciations alongside base
+   text:
+
+   .. only:: not latex
+
+      .. code-block:: rest
+
+         :ruby:`鮪 <tuna>`
+
+      | :ruby:`鮪 <tuna>`
+
+   .. only:: latex
+
+      .. image:: /_static/ruby_source_01.png
+         :height: 0.7cm
+
+      .. image:: /_static/ruby_result_01.png
+         :height: 0.5cm
+
+   If you want to distribute ruby annotations to each character, use pipe (``|``)
+   to separate:
+
+   .. only:: not latex
+
+      .. code-block:: rest
+
+         :ruby:`梅酒 <plum|wine>`
+
+      | :ruby:`梅酒 <plum|wine>`
+
+   .. only:: latex
+
+      .. image:: /_static/ruby_source_02.png
+         :height: 0.7cm
+
+      .. image:: /_static/ruby_result_02.png
+         :height: 0.5cm
+
+   Pipes can use on base text:
+
+   .. only:: not latex
+
+      .. code-block:: rest
+
+         :ruby:`麻婆|豆腐 <mapo|tofu>`
+
+      | :ruby:`麻婆|豆腐 <mapo|tofu>`
+
+   .. only:: latex
+
+      .. image:: /_static/ruby_source_03.png
+         :height: 0.7cm
+
+      .. image:: /_static/ruby_result_03.png
+         :height: 0.5cm
+
+   If one of base text or ruby annotations includes pipe (``|``), another text
+   would be splitted into each characters.
+
+   If you don't want to bind base text into single word, use double pipe(``||``) to
+   split words:
+
+   .. only:: not latex
+
+      .. code-block:: rest
+
+         :ruby:`Leo||un||libro <I read|a|book>`
+
+      | :ruby:`Leo||un||libro <I read|a|book>`
+
+   .. only:: latex
+
+      .. image:: /_static/ruby_source_04.png
+         :height: 0.7cm
+
+      .. image:: /_static/ruby_result_04.png
+         :height: 0.5cm
+
+   .. versionadded:: 1.5
+
+.. rst:role:: del
+
+   ``del`` role represents a range of text that has been deleted from a text::
+
+       Sold Out: :del:`Root Beer 24ct $19.99`
+
+   | Sold Out: :del:`Root Beer 24ct $19.99`
+
+   .. versionadded:: 1.5
 
 .. _xref-syntax:
 

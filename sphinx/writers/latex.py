@@ -494,6 +494,49 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     ignore_missing_images = False
 
+    default_elements = {
+        'papersize':       'letterpaper',
+        'pointsize':       '10pt',
+        'pxunit':          '49336sp',
+        'classoptions':    '',
+        'extraclassoptions': '',
+        'passoptionstopackages': '',
+        'inputenc':        '',
+        'utf8extra':       ('\\ifdefined\\DeclareUnicodeCharacter\n'
+                            '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'
+                            '\\fi'),
+        'cmappkg':         '\\usepackage{cmap}',
+        'fontenc':         '\\usepackage[T1]{fontenc}',
+        'amsmath':         '\\usepackage{amsmath,amssymb,amstext}',
+        'babel':           '\\usepackage{babel}',
+        'fontpkg':         '\\usepackage{times}',
+        'fncychap':        '\\usepackage[Bjarne]{fncychap}',
+        'longtable':       '\\usepackage{longtable}',
+        'ruby':            '\\usepackage{pxrubrica}',
+        'strikeout':       '\\usepackage{ulem}',
+        'usepackages':     '',
+        'numfig_format':   '',
+        'contentsname':    '',
+        'preamble':        '',
+        'title':           '',
+        'date':            '',
+        'release':         '',
+        'author':          '',
+        'logo':            '',
+        'releasename':     'Release',
+        'makeindex':       '\\makeindex',
+        'shorthandoff':    '',
+        'maketitle':       '\\maketitle',
+        'tableofcontents': '\\tableofcontents',
+        'footer':          '',
+        'printindex':      '\\printindex',
+        'transition':      '\n\n\\bigskip\\hrule{}\\bigskip\n\n',
+        'figure_align':    'htbp',
+        'tocdepth':        '',
+        'secnumdepth':     '',
+        'pageautorefname': '',
+    }
+
     # sphinx specific document classes
     docclasses = ('howto', 'manual')
 
@@ -2561,6 +2604,29 @@ class LaTeXTranslator(nodes.NodeVisitor):
         raise nodes.SkipNode
 
     visit_math_block = visit_math
+
+    def visit_ruby(self, node):
+        error = node.get('error')
+        if error:
+            self.builder.warn(error, (self.builder.current_docname, node.line))
+        rubies = node.get('ruby')
+        for base, ruby, have_space in rubies:
+            if have_space:
+                self.body.append(' ')
+            if ruby is None:
+                ruby = '-'
+            if base is None:
+                base = '-'
+            self.body.append(r'\jruby[g]{%s}{%s}' % (self.encode(base), self.encode(ruby)))
+
+    def depart_ruby(self, node):
+        pass
+
+    def visit_delete(self, node):
+        self.body.append(r'\sout{%s}' % self.encode(node.get('text')))
+
+    def depart_delete(self, node):
+        pass
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None

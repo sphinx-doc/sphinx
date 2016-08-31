@@ -872,6 +872,44 @@ class HTMLTranslator(BaseTranslator):
                        location=(self.builder.current_docname, node.line))
         raise nodes.SkipNode
 
+    def visit_ruby(self, node):
+        error = node.get('error')
+        if error:
+            self.builder.warn(error, (self.builder.current_docname, node.line))
+        rubies = node.get('ruby')
+        for base, ruby, have_space in rubies:
+            if have_space:
+                self.body.append(' ')
+            if base is None:
+                base = '-'
+            if ruby is None:
+                ruby = '-'
+            self.body.append(self.starttag(node, 'ruby'))
+            self.body.append(self.starttag(node, 'rb'))
+            self.body.append(base)
+            self.body.append('</rb>')
+            self.body.append(self.starttag(node, 'rp'))
+            self.body.append('(')
+            self.body.append('</rp>')
+            self.body.append(self.starttag(node, 'rt'))
+            self.body.append(ruby)
+            self.body.append('</rt>')
+            self.body.append(self.starttag(node, 'rp'))
+            self.body.append(')')
+            self.body.append('</rp>')
+            self.body.append('</ruby>')
+
+    def depart_ruby(self, node):
+        pass
+
+    def visit_delete(self, node):
+        self.body.append(self.starttag(node, 'del'))
+        self.body.append(node.get('text'))
+        self.body.append('</del>')
+
+    def depart_delete(self, node):
+        pass
+
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)

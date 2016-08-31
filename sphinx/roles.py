@@ -23,7 +23,7 @@ from sphinx.util.nodes import split_explicit_title, process_index_entry, \
 
 if False:
     # For type annotation
-    from typing import Any, Tuple, Type  # NOQA
+    from typing import Any, Tuple, Type, Text  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -338,6 +338,64 @@ def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     return [indexnode, targetnode, textnode], []
 
 
+re_ruby_word_splitter = re.compile(r'(\|{1,2})')
+
+
+def ruby_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
+    """Role for ruby"""
+
+    text = utils.unescape(text)
+    has_explicit, rb_source, rt_source = split_explicit_title(text)
+
+    rubynode = addnodes.ruby()
+    rubynode.line = lineno
+
+    if has_explicit:
+        has_rb_split = '|' in rb_source
+        has_rt_split = '|' in rt_source
+
+        if not has_rb_split and not has_rt_split:
+            rubies = [(rb_source, rt_source, False)]
+        else:
+            rubies = []
+            if has_rb_split:
+                rb = re_ruby_word_splitter.split(rb_source)  # type: ignore
+                rs = [s for i, s in enumerate(rb) if (i % 2) == 1]
+                rs.insert(0, '|')
+                rb = [s for i, s in enumerate(rb) if (i % 2) == 0]
+            else:
+                rb = list(rb_source)  # type: ignore
+                rs = ['|'] * len(rb)
+            if has_rt_split:
+                rt = rt_source.split('|')
+            else:
+                rt = list(rt_source)
+            if len(rb) != len(rt):
+                rubynode['error'] = 'using "ruby" markup but base text and ruby ' \
+                                    'annotation have different block count,'
+                while len(rb) < len(rt):
+                    rb.append(None)
+                    rs.append('|')
+                while len(rb) > len(rt):
+                    rt.append(None)
+            for i, base in enumerate(rb):
+                rubies.append((base, rt[i], rs[i] == '||'))
+    else:
+        rubynode['error'] = 'using "ruby" markup without ruby annotation, ' \
+                            'please add ruby to :ruby:`%s <ruby>' % rb_source
+        rubies = [(rb_source, None, False)]
+    rubynode['ruby'] = rubies
+    return [rubynode], []
+
+
+def del_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
+    """Role for del."""
+    delete = addnodes.delete()
+    delete['text'] = utils.unescape(text)
+    delete['label'] = 'DELETE'
+    return [delete], []
+
+
 specific_docroles = {
     # links to download references
     'download': XRefRole(nodeclass=addnodes.download_reference),
@@ -352,6 +410,8 @@ specific_docroles = {
     'samp': emph_literal_role,
     'abbr': abbr_role,
     'index': index_role,
+    'ruby': ruby_role,
+    'del': del_role,
 }
 
 

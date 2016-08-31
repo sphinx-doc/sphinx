@@ -23,9 +23,12 @@
 <%= fontpkg %>
 <%= fncychap %>
 <%= longtable %>
+<%= ruby %>
+<%= strikeout %>
 \usepackage<%= sphinxpkgoptions %>{sphinx}
 <%= sphinxsetup %>
 <%= geometry %>
+\usepackage{sphinx}
 \usepackage{multirow}
 \let\originalmutirow\multirow\protected\def\multirow{%
   \sphinxdeprecationwarning{\multirow}{1.6}{1.7}

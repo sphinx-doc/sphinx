@@ -13,7 +13,7 @@ from docutils import nodes
 
 if False:
     # For type annotation
-    from typing import Sequence  # NOQA
+    from typing import Sequence, Tuple  # NOQA
 
 
 class translatable(object):
@@ -284,6 +284,80 @@ class abbreviation(nodes.Inline, nodes.TextElement):
 
 class manpage(nodes.Inline, nodes.TextElement):
     """Node for references to manpages."""
+
+
+class ruby(nodes.General, nodes.Element):
+    """Node for ruby annotation"""
+
+    BASE = 0
+    RUBY = 1
+
+    def preserve_original_messages(self):
+        rubies = self.get('ruby', [])
+        raw_texts = {}  # type: Dict[str, Tuple[int, int, str]]
+
+        def search_unique_key(original_key):
+            suffix = 1
+            key = original_key
+            while key in raw_texts:
+                key = "%s_%d" % (original_key, suffix)
+            return key
+
+        for i, (base, ruby, have_space) in enumerate(rubies):
+            if base is not None:
+                key = search_unique_key(base)
+                raw_texts[key] = (i, self.BASE, base)
+            if ruby is not None:
+                key = search_unique_key(ruby)
+                raw_texts[key] = (i, self.RUBY, ruby)
+        self['raw_texts'] = raw_texts
+
+    def apply_translated_message(self, original_message, translated_message):
+        raw_texts = self.get('raw_texts')
+        if original_message in raw_texts:
+            i, typeid, _ = raw_texts[original_message]
+            ruby = self.get('ruby')[i]
+            if typeid == self.BASE:
+                self.get('ruby')[i] = (translated_message, ruby[1], ruby[2])
+            else:
+                self.get('ruby')[i] = (ruby[0], translated_message, ruby[2])
+
+    def extract_original_messages(self):
+        if 'raw_texts' in self:
+            for _, _, word in self.get('raw_texts').values():
+                yield word
+
+    def to_plaintext(self):
+        rubies = self.get('ruby')
+        result = []
+        for base, ruby, have_space in rubies:
+            if have_space:
+                result.append(' ')
+            if ruby is None:
+                ruby = '-'
+            if base is None:
+                base = '-'
+            result.append(r'%s(%s)' % (base, ruby))
+        return ''.join(result)
+
+
+class delete(nodes.General, nodes.Element):
+    """Node for del role"""
+
+    def preserve_original_messages(self):
+        self['raw_text'] = self['text']
+
+    def apply_translated_message(self, original_message, translated_message):
+        if self['text'] == original_message:
+            self['text'] = translated_message
+        elif 'DELETE' == original_message:
+            self['label'] = translated_message
+
+    def extract_original_messages(self):
+        return ['DELETE', self['raw_text']]
+
+    def to_plaintext(self):
+        return '[%s:%s]' % (self['label'], self['text'])
 
 
 # make the new nodes known to docutils; needed because the HTML writer will

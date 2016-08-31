@@ -1175,6 +1175,21 @@ class TextTranslator(nodes.NodeVisitor):
 
     visit_math_block = visit_math
 
+    def visit_ruby(self, node):
+        error = node.get('error')
+        if error:
+            self.builder.warn(error, (self.builder.current_docname, node.line))
+        self.add_text(node.to_plaintext())
+
+    def depart_ruby(self, node):
+        pass
+
+    def visit_delete(self, node):
+        self.add_text(node.to_plaintext())
+
+    def depart_delete(self, node):
+        pass
+
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
