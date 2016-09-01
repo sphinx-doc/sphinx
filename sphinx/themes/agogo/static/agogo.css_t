@@ -487,6 +487,13 @@ img.toggler {
     cursor: pointer;
 }
 
+/* -- domain module index --------------------------------------------------- */
+
+table.modindextable td {
+    padding: 2px;
+    border-collapse: collapse;
+}
+
 /* -- viewcode extension ---------------------------------------------------- */
 
 .viewcode-link {

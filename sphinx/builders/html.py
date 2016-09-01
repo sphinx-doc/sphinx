@@ -82,6 +82,7 @@ class StandaloneHTMLBuilder(Builder):
                              'image/gif', 'image/jpeg']
     searchindex_filename = 'searchindex.js'
     add_permalinks = True
+    allow_sharp_as_current_path = True
     embedded = False  # for things like HTML help or Qt help: suppresses sidebar
     search = True  # for things like HTML help and Apple help: suppress search
     download_support = True  # enable download role
@@ -786,6 +787,8 @@ class StandaloneHTMLBuilder(Builder):
             elif not resource:
                 otheruri = self.get_target_uri(otheruri)
             uri = relative_uri(baseuri, otheruri) or '#'
+            if uri == '#' and not self.allow_sharp_as_current_path:
+                uri = baseuri
             return uri
         ctx['pathto'] = pathto
 

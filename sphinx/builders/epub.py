@@ -188,6 +188,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     # don't add links
     add_permalinks = False
+    # don't use # as current path. ePub check reject it.
+    allow_sharp_as_current_path = False
     # don't add sidebar etc.
     embedded = True
     # disable download role
@@ -567,6 +569,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.files = []
         self.ignored_files = ['.buildinfo', 'mimetype', 'content.opf',
                               'toc.ncx', 'META-INF/container.xml',
+                              'Thumbs.db', 'ehthumbs.db', '.DS_Store',
                               self.config.epub_basename + '.epub'] + \
             self.config.epub_exclude_files
         if not self.use_index:

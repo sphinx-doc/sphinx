@@ -394,3 +394,9 @@ div.viewcode-block:target {
     border-top: 1px solid #ac9;
     border-bottom: 1px solid #ac9;
 }
+
+.contentstable {
+    margin-left: 30px;
+    margin: 0 auto;
+    table-layout: fixed;
+}
