@@ -80,8 +80,8 @@ def ensuredir(path):
             raise
 
 
-# This function is same as os.walk of Python2.6, 2.7, 3.2, 3.3 except a
-# customization that check UnicodeError.
+# This function is same as os.walk of Python2.7 except a customization
+# that check UnicodeError.
 # The customization obstacle to replace the function with the os.walk.
 def walk(top, topdown=True, followlinks=False):
     """Backport of os.walk from 2.6, where the *followlinks* argument was

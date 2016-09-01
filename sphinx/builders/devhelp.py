@@ -13,6 +13,7 @@
 from __future__ import absolute_import
 
 import re
+import gzip
 from os import path
 
 from docutils import nodes
@@ -24,22 +25,7 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 try:
     import xml.etree.ElementTree as etree
 except ImportError:
-    try:
-        import lxml.etree as etree
-    except ImportError:
-        try:
-            import elementtree.ElementTree as etree
-        except ImportError:
-            import cElementTree as etree
-
-try:
-    import gzip
-
-    def comp_open(filename, mode='rb'):
-        return gzip.open(filename + '.gz', mode)
-except ImportError:
-    def comp_open(filename, mode='rb'):
-        return open(filename, mode)
+    import lxml.etree as etree
 
 
 class DevhelpBuilder(StandaloneHTMLBuilder):
@@ -129,7 +115,8 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
                 write_index(title, refs, subitems)
 
         # Dump the XML file
-        with comp_open(path.join(outdir, outname + '.devhelp'), 'w') as f:
+        xmlfile = path.join(outdir, outname + '.devhelp.gz')
+        with gzip.open(xmlfile, 'w') as f:
             tree.write(f, 'utf-8')
 
 
