@@ -17,6 +17,7 @@ from six import BytesIO
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.ext.intersphinx import read_inventory, \
     load_mappings, missing_reference, _strip_basic_auth, _read_from_url, \
     _get_safe_url, fetch_inventory, INVENTORY_FILENAME
@@ -84,6 +85,7 @@ def test_read_inventory_v2():
 @mock.patch('sphinx.ext.intersphinx.read_inventory')
 @mock.patch('sphinx.ext.intersphinx._read_from_url')
 def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_inventory):
+    intersphinx_setup(app)
     _read_from_url().readline.return_value = '# Sphinx inventory version 2'.encode('utf-8')
 
     # same uri and inv, not redirected
