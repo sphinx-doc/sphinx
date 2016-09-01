@@ -238,6 +238,17 @@ def publish_msgstr(app, source, source_path, source_line, config, settings):
     return doc
 
 
+class PreserveTranslatableMessages(Transform):
+    """
+    Preserve original translatable messages befor translation
+    """
+    default_priority = 10  # this MUST be invoked before Locale transform
+
+    def apply(self):
+        for node in self.document.traverse(addnodes.translatable):
+            node.preserve_original_messages()
+
+
 class Locale(Transform):
     """
     Replace translatable nodes with their translated doctree.
@@ -382,6 +393,11 @@ class Locale(Transform):
             msgstr = catalog.gettext(msg)
             # XXX add marker to untranslated parts
             if not msgstr or msgstr == msg:  # as-of-yet untranslated
+                continue
+
+            # update translatable nodes
+            if isinstance(node, addnodes.translatable):
+                node.apply_translated_message(msg, msgstr)
                 continue
 
             # Avoid "Literal block expected; none found." warnings.
