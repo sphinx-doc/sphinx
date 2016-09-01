@@ -112,6 +112,7 @@ Features added
 * #1604: epub3 builder: Obey font-related CSS when viewing in iBooks.
 * #646: ``option`` directive support '.' character as a part of options
 * Add document about kindlegen and fix document structure for it.
+* #2474: Add ``intersphinx_timeout`` option to ``sphinx.ext.intersphinx``
 
 Bugs fixed
 ----------

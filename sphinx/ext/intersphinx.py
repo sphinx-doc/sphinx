@@ -145,7 +145,7 @@ def _strip_basic_auth(url):
     return urlunsplit(frags)
 
 
-def _read_from_url(url):
+def _read_from_url(url, timeout=None):
     """Reads data from *url* with an HTTP *GET*.
 
     This function supports fetching from resources which use basic HTTP auth as
@@ -161,7 +161,7 @@ def _read_from_url(url):
     :return: data read from resource described by *url*
     :rtype: ``file``-like object
     """
-    r = requests.get(url, stream=True, headers=dict(useragent_header))
+    r = requests.get(url, stream=True, timeout=timeout, headers=dict(useragent_header))
     r.raise_for_status()
     r.raw.url = r.url
     return r.raw
@@ -202,7 +202,7 @@ def fetch_inventory(app, uri, inv):
         uri = _strip_basic_auth(uri)
     try:
         if '://' in inv:
-            f = _read_from_url(inv)
+            f = _read_from_url(inv, timeout=app.config.intersphinx_timeout)
         else:
             f = open(path.join(app.srcdir, inv), 'rb')
     except Exception as err:
@@ -360,6 +360,7 @@ def missing_reference(app, env, node, contnode):
 def setup(app):
     app.add_config_value('intersphinx_mapping', {}, True)
     app.add_config_value('intersphinx_cache_limit', 5, False)
+    app.add_config_value('intersphinx_timeout', None, False)
     app.connect('missing-reference', missing_reference)
     app.connect('builder-inited', load_mappings)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
