@@ -130,6 +130,7 @@ Bugs fixed
   directives
 * #2485: autosummary crashes with multiple source_suffix values
 * #1734: Could not translate the caption of toctree directive
+* Could not translate the content of meta directive (ref: #1734)
 
 Documentation
 -------------

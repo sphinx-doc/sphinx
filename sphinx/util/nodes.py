@@ -85,6 +85,14 @@ IGNORED_NODES = (
 )
 
 
+def is_pending_meta(node):
+    if (isinstance(node, nodes.pending) and
+       isinstance(node.details.get('nodes', [None])[0], addnodes.meta)):
+        return True
+    else:
+        return False
+
+
 def is_translatable(node):
     if isinstance(node, addnodes.translatable):
         return True
@@ -106,6 +114,11 @@ def is_translatable(node):
     if isinstance(node, nodes.image) and node.get('translatable'):
         return True
 
+    if isinstance(node, addnodes.meta):
+        return True
+    if is_pending_meta(node):
+        return True
+
     return False
 
 
@@ -116,6 +129,9 @@ LITERAL_TYPE_NODES = (
 )
 IMAGE_TYPE_NODES = (
     nodes.image,
+)
+META_TYPE_NODES = (
+    addnodes.meta,
 )
 
 
@@ -134,6 +150,10 @@ def extract_messages(doctree):
             msg = '.. image:: %s' % node['uri']
             if node.get('alt'):
                 msg += '\n   :alt: %s' % node['alt']
+        elif isinstance(node, META_TYPE_NODES):
+            msg = node.rawcontent
+        elif is_pending_meta(node):
+            msg = node.details['nodes'][0].rawcontent
         else:
             msg = node.rawsource.replace('\n', ' ').strip()
 

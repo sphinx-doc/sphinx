@@ -360,6 +360,14 @@ def test_gettext_builder(app, status, warning):
 def test_html_builder(app, status, warning):
     app.builder.build_all()
 
+    # --- test for meta
+
+    result = (app.outdir / 'contents.html').text(encoding='utf-8')
+    expected_expr = '<meta content="TESTDATA FOR I18N" name="description" />'
+    yield assert_in, expected_expr, result
+    expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" />'
+    yield assert_in, expected_expr, result
+
     # --- test for #955 cant-build-html-with-footnotes-when-using
 
     # expect no error by build
