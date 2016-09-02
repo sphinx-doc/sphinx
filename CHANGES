@@ -77,6 +77,7 @@ Features added
 * #3476: setuptools: Support multiple builders
 * latex: merged cells in LaTeX tables allow code-blocks, lists, blockquotes...
   as do normal cells (refs: #3435)
+* #2935: Add ``:ruby:`` and ``:del:`` roles
 
 Bugs fixed
 ----------
