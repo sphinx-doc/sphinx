@@ -10,11 +10,19 @@
 """
 from __future__ import absolute_import
 
+import re
 from copy import copy
 from contextlib import contextmanager
 
 import docutils
+from docutils.utils import Reporter
 from docutils.parsers.rst import directives, roles
+
+from sphinx.util import logging
+
+logger = logging.getLogger(__name__)
+report_re = re.compile('^(.+?:\d+): \((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\d+)?\) (.+?)\n?$')
+
 
 if False:
     # For type annotation
@@ -113,3 +121,36 @@ class sphinx_domains(object):
             return self.lookup_domain_element('role', name)
         except ElementLookupError:
             return self.role_func(name, lang_module, lineno, reporter)
+
+
+class WarningStream(object):
+    level_mapping = {
+        'DEBUG': logger.debug,
+        'INFO': logger.info,
+        'WARNING': logger.warning,
+        'ERROR': logger.error,
+        'SEVERE': logger.critical,
+    }
+
+    def write(self, text):
+        matched = report_re.search(text)
+        if not matched:
+            logger.warning(text.rstrip("\r\n"))
+        else:
+            location, type, level, message = matched.groups()
+            if type in self.level_mapping:
+                logger_method = self.level_mapping.get(type)
+                logger_method(message, location=location)
+            else:
+                logger.warning(text.rstrip("\r\n"))
+
+
+class LoggingReporter(Reporter):
+    def __init__(self, source, report_level, halt_level,
+                 debug=False, error_handler='backslashreplace'):
+        stream = WarningStream()
+        Reporter.__init__(self, source, report_level, halt_level,
+                          stream, debug, error_handler=error_handler)
+
+    def set_conditions(self, category, report_level, halt_level, debug=False):
+        Reporter.set_conditions(self, category, report_level, halt_level, debug=debug)
