@@ -15,6 +15,7 @@ Bugs fixed
 * #2917: inline code is hyphenated on HTML
 * #1462: autosummary warns for namedtuple with attribute with trailing underscore
 * Could not reference equations if ``:nowrap:`` option specified
+* #2873: code-block overflow in latex (due to commas)
 
 Release 1.4.6 (released Aug 20, 2016)
 =====================================
