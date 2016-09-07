@@ -403,7 +403,9 @@
      % For grid placement from \strut's in \FancyVerbFormatLine
      \lineskip\z@skip
      % active comma should not be overwritten by \@noligs
-     \let\verbatim@nolig@list \sphinx@verbatim@nolig@list
+     \ifsphinxverbatimwrapslines
+       \let\verbatim@nolig@list \sphinx@verbatim@nolig@list
+     \fi
      % will fetch its optional arguments if any
      \OriginalVerbatim
 }
