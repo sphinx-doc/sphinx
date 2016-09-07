@@ -291,6 +291,7 @@
     \def\PYGZti{\discretionary{\char`\~}{\sphinxafterbreak}{\char`\~}}%
 }
 
+\def\sphinx@verbatim@nolig@list {\do \`}%
 % Some characters . , ; ? ! / are not pygmentized.
 % This macro makes them "active" and they will insert potential linebreaks
 \newcommand*\sphinxbreaksatpunct {%
@@ -403,6 +404,8 @@
         }%
      % For grid placement from \strut's in \FancyVerbFormatLine
      \lineskip\z@skip
+     % active comma should not be overwritten by \@noligs
+     \let\verbatim@nolig@list \sphinx@verbatim@nolig@list
      % will fetch its optional arguments if any
      \OriginalVerbatim
 }
