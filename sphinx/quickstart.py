@@ -182,6 +182,19 @@ def convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
         return source
 
 
+class QuickstartRenderer(SphinxRenderer):
+    def __init__(self, templatedir):
+        self.templatedir = templatedir or ''
+        super(QuickstartRenderer, self).__init__()
+
+    def render(self, template_name, context):
+        user_template = path.join(self.templatedir, path.basename(template_name))
+        if self.templatedir and path.exists(user_template):
+            return self.render_from_file(user_template, context)
+        else:
+            return super(QuickstartRenderer, self).render(template_name, context)
+
+
 def ask_user(d):
     """Ask the user for quickstart values missing from *d*.
 
@@ -357,9 +370,9 @@ directly.''')
     print()
 
 
-def generate(d, overwrite=True, silent=False):
+def generate(d, overwrite=True, silent=False, templatedir=None):
     """Generate project based on values in *d*."""
-    template = SphinxRenderer()
+    template = QuickstartRenderer(templatedir=templatedir)
 
     texescape.init()
     indent = ' ' * 4
@@ -588,6 +601,12 @@ def main(argv=sys.argv):
                      default=True,
                      help='use make-mode for Makefile/make.bat')
 
+    group = parser.add_option_group('Project templating')
+    group.add_option('-t', '--templatedir', metavar='TEMPLATEDIR', dest='templatedir',
+                     help='template directory for template files')
+    group.add_option('-d', metavar='NAME=VALUE', action='append', dest='variables',
+                     help='define a template variable')
+
     # parse options
     try:
         opts, args = parser.parse_args(argv[1:])
@@ -640,7 +659,14 @@ def main(argv=sys.argv):
         if isinstance(value, binary_type):
             d[key] = term_decode(value)
 
-    generate(d)
+    for variable in d.get('variables', []):
+        try:
+            name, value = variable.split('=')
+            d[name] = value
+        except ValueError:
+            print('Invalid template variable: %s' % variable)
+
+    generate(d, templatedir=opts.templatedir)
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
