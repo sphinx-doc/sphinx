@@ -37,7 +37,8 @@ from sphinx import addnodes
 from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
     FilenameUniqDict, split_index_msg
-from sphinx.util.nodes import clean_astext, WarningStream, is_translatable
+from sphinx.util.nodes import clean_astext, WarningStream, is_translatable, \
+    process_only_nodes
 from sphinx.util.osutil import SEP, getcwd, fs_encoding, ensuredir
 from sphinx.util.images import guess_mimetype
 from sphinx.util.i18n import find_catalog_files, get_image_filename_for_language, \
@@ -1058,7 +1059,7 @@ class BuildEnvironment(object):
             # the document does not exist anymore: return a dummy node that
             # renders to nothing
             return nodes.paragraph()
-        self.process_only_nodes(toc, builder, docname)
+        process_only_nodes(toc, builder.tags, warn_node=self.warn_node)
         for node in toc.traverse(nodes.reference):
             node['refuri'] = node['anchorname'] or '#'
         return toc
@@ -1270,7 +1271,7 @@ class BuildEnvironment(object):
                         maxdepth = self.metadata[ref].get('tocdepth', 0)
                         if ref not in toctree_ancestors or (prune and maxdepth > 0):
                             self._toctree_prune(toc, 2, maxdepth, collapse)
-                        self.process_only_nodes(toc, builder, ref)
+                        process_only_nodes(toc, builder.tags, warn_node=self.warn_node)
                         if title and toc.children and len(toc.children) == 1:
                             child = toc.children[0]
                             for refnode in child.traverse(nodes.reference):
@@ -1403,7 +1404,7 @@ class BuildEnvironment(object):
             node.replace_self(newnode or contnode)
 
         # remove only-nodes that do not belong to our builder
-        self.process_only_nodes(doctree, builder, fromdocname)
+        process_only_nodes(doctree, builder.tags, warn_node=self.warn_node)
 
         # allow custom references to be resolved
         builder.app.emit('doctree-resolved', doctree, fromdocname)
@@ -1491,24 +1492,6 @@ class BuildEnvironment(object):
             newnode[0]['classes'].append(res_domain)
             newnode[0]['classes'].append(res_role.replace(':', '-'))
         return newnode
-
-    def process_only_nodes(self, doctree, builder, fromdocname=None):
-        # A comment on the comment() nodes being inserted: replacing by [] would
-        # result in a "Losing ids" exception if there is a target node before
-        # the only node, so we make sure docutils can transfer the id to
-        # something, even if it's just a comment and will lose the id anyway...
-        for node in doctree.traverse(addnodes.only):
-            try:
-                ret = builder.tags.eval_condition(node['expr'])
-            except Exception as err:
-                self.warn_node('exception while evaluating only '
-                               'directive expression: %s' % err, node)
-                node.replace_self(node.children or nodes.comment())
-            else:
-                if ret:
-                    node.replace_self(node.children or nodes.comment())
-                else:
-                    node.replace_self(nodes.comment())
 
     def assign_section_numbers(self):
         """Assign a section number to each heading under a numbered toctree."""
