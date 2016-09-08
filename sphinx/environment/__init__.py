@@ -14,16 +14,12 @@ import os
 import sys
 import time
 import types
-import bisect
 import codecs
-import string
 import fnmatch
-import unicodedata
 from os import path
 from glob import glob
-from itertools import groupby
 
-from six import iteritems, itervalues, text_type, class_types, next
+from six import iteritems, itervalues, class_types, next
 from six.moves import cPickle as pickle
 from docutils import nodes
 from docutils.io import NullOutput
@@ -35,8 +31,7 @@ from docutils.frontend import OptionParser
 
 from sphinx import addnodes
 from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
-from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
-    FilenameUniqDict, split_index_msg
+from sphinx.util import url_re, get_matching_docs, docname_join, FilenameUniqDict
 from sphinx.util.nodes import clean_astext, WarningStream, is_translatable, \
     process_only_nodes
 from sphinx.util.osutil import SEP, getcwd, fs_encoding, ensuredir
@@ -49,9 +44,9 @@ from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
-from sphinx.locale import _
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.transforms import SphinxContentsFilter
+from sphinx.environment.managers.indexentries import IndexEntries
 
 
 default_settings = {
@@ -209,6 +204,14 @@ class BuildEnvironment(object):
         # attributes of "any" cross references
         self.ref_context = {}
 
+        self.init_managers()
+
+    def init_managers(self):
+        self.managers = {}
+        for manager_class in [IndexEntries]:
+            manager = manager_class(self)
+            self.managers[manager.name] = manager
+
     def set_warnfunc(self, func):
         self._warnfunc = func
         self.settings['warning_stream'] = WarningStream(func)
@@ -259,7 +262,6 @@ class BuildEnvironment(object):
             self.toc_fignumbers.pop(docname, None)
             self.toc_num_entries.pop(docname, None)
             self.toctree_includes.pop(docname, None)
-            self.indexentries.pop(docname, None)
             self.glob_toctrees.discard(docname)
             self.numbered_toctrees.discard(docname)
             self.images.purge_doc(docname)
@@ -272,6 +274,9 @@ class BuildEnvironment(object):
             for version, changes in self.versionchanges.items():
                 new = [change for change in changes if change[1] != docname]
                 changes[:] = new
+
+        for manager in itervalues(self.managers):
+            manager.clear_doc(docname)
 
         for domain in self.domains.values():
             domain.clear_doc(docname)
@@ -297,7 +302,6 @@ class BuildEnvironment(object):
             # toc_secnumbers and toc_fignumbers are not assigned during read
             if docname in other.toctree_includes:
                 self.toctree_includes[docname] = other.toctree_includes[docname]
-            self.indexentries[docname] = other.indexentries[docname]
             if docname in other.glob_toctrees:
                 self.glob_toctrees.add(docname)
             if docname in other.numbered_toctrees:
@@ -312,6 +316,8 @@ class BuildEnvironment(object):
             self.versionchanges.setdefault(version, []).extend(
                 change for change in changes if change[1] in docnames)
 
+        for manager in itervalues(self.managers):
+            manager.merge_other(docnames, other)
         for domainname, domain in self.domains.items():
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         app.emit('env-merge-info', self, docnames, other)
@@ -682,8 +688,9 @@ class BuildEnvironment(object):
         self.process_downloads(docname, doctree)
         self.process_metadata(docname, doctree)
         self.create_title_from(docname, doctree)
-        self.note_indexentries_from(docname, doctree)
         self.build_toc_from(docname, doctree)
+        for manager in itervalues(self.managers):
+            manager.process_doc(docname, doctree)
         for domain in itervalues(self.domains):
             domain.process_doc(self, docname, doctree)
 
@@ -947,23 +954,6 @@ class BuildEnvironment(object):
             titlenode += nodes.Text('<no title>')
         self.titles[docname] = titlenode
         self.longtitles[docname] = longtitlenode
-
-    def note_indexentries_from(self, docname, document):
-        entries = self.indexentries[docname] = []
-        for node in document.traverse(addnodes.index):
-            try:
-                for entry in node['entries']:
-                    split_index_msg(entry[0], entry[1])
-            except ValueError as exc:
-                self.warn_node(exc, node)
-                node.parent.remove(node)
-            else:
-                for entry in node['entries']:
-                    if len(entry) == 5:
-                        # Since 1.4: new index structure including index_key (5th column)
-                        entries.append(entry)
-                    else:
-                        entries.append(entry + (None,))
 
     def note_toctree(self, docname, toctreenode):
         """Note a TOC tree directive in a document and gather information about
@@ -1636,119 +1626,8 @@ class BuildEnvironment(object):
 
     def create_index(self, builder, group_entries=True,
                      _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
-        """Create the real index from the collected index entries."""
-        new = {}
-
-        def add_entry(word, subword, link=True, dic=new, key=None):
-            # Force the word to be unicode if it's a ASCII bytestring.
-            # This will solve problems with unicode normalization later.
-            # For instance the RFC role will add bytestrings at the moment
-            word = text_type(word)
-            entry = dic.get(word)
-            if not entry:
-                dic[word] = entry = [[], {}, key]
-            if subword:
-                add_entry(subword, '', link=link, dic=entry[1], key=key)
-            elif link:
-                try:
-                    uri = builder.get_relative_uri('genindex', fn) + '#' + tid
-                except NoUri:
-                    pass
-                else:
-                    # maintain links in sorted/deterministic order
-                    bisect.insort(entry[0], (main, uri))
-
-        for fn, entries in iteritems(self.indexentries):
-            # new entry types must be listed in directives/other.py!
-            for type, value, tid, main, index_key in entries:
-                try:
-                    if type == 'single':
-                        try:
-                            entry, subentry = split_into(2, 'single', value)
-                        except ValueError:
-                            entry, = split_into(1, 'single', value)
-                            subentry = ''
-                        add_entry(entry, subentry, key=index_key)
-                    elif type == 'pair':
-                        first, second = split_into(2, 'pair', value)
-                        add_entry(first, second, key=index_key)
-                        add_entry(second, first, key=index_key)
-                    elif type == 'triple':
-                        first, second, third = split_into(3, 'triple', value)
-                        add_entry(first, second+' '+third, key=index_key)
-                        add_entry(second, third+', '+first, key=index_key)
-                        add_entry(third, first+' '+second, key=index_key)
-                    elif type == 'see':
-                        first, second = split_into(2, 'see', value)
-                        add_entry(first, _('see %s') % second, link=False,
-                                  key=index_key)
-                    elif type == 'seealso':
-                        first, second = split_into(2, 'see', value)
-                        add_entry(first, _('see also %s') % second, link=False,
-                                  key=index_key)
-                    else:
-                        self.warn(fn, 'unknown index entry type %r' % type)
-                except ValueError as err:
-                    self.warn(fn, str(err))
-
-        # sort the index entries; put all symbols at the front, even those
-        # following the letters in ASCII, this is where the chr(127) comes from
-        def keyfunc(entry, lcletters=string.ascii_lowercase + '_'):
-            lckey = unicodedata.normalize('NFD', entry[0].lower())
-            if lckey[0:1] in lcletters:
-                lckey = chr(127) + lckey
-            # ensure a determinstic order *within* letters by also sorting on
-            # the entry itself
-            return (lckey, entry[0])
-        newlist = sorted(new.items(), key=keyfunc)
-
-        if group_entries:
-            # fixup entries: transform
-            #   func() (in module foo)
-            #   func() (in module bar)
-            # into
-            #   func()
-            #     (in module foo)
-            #     (in module bar)
-            oldkey = ''
-            oldsubitems = None
-            i = 0
-            while i < len(newlist):
-                key, (targets, subitems, _key) = newlist[i]
-                # cannot move if it has subitems; structure gets too complex
-                if not subitems:
-                    m = _fixre.match(key)
-                    if m:
-                        if oldkey == m.group(1):
-                            # prefixes match: add entry as subitem of the
-                            # previous entry
-                            oldsubitems.setdefault(m.group(2), [[], {}, _key])[0].\
-                                extend(targets)
-                            del newlist[i]
-                            continue
-                        oldkey = m.group(1)
-                    else:
-                        oldkey = key
-                oldsubitems = subitems
-                i += 1
-
-        # group the entries by letter
-        def keyfunc2(item, letters=string.ascii_uppercase + '_'):
-            # hack: mutating the subitems dicts to a list in the keyfunc
-            k, v = item
-            v[1] = sorted((si, se) for (si, (se, void, void)) in iteritems(v[1]))
-            if v[2] is None:
-                # now calculate the key
-                letter = unicodedata.normalize('NFD', k[0])[0].upper()
-                if letter in letters:
-                    return letter
-                else:
-                    # get all other symbols under one heading
-                    return _('Symbols')
-            else:
-                return v[2]
-        return [(key_, list(group))
-                for (key_, group) in groupby(newlist, keyfunc2)]
+        entries = self.managers['indexentries']
+        return entries.create_index(builder, group_entries=group_entries, _fixre=_fixre)
 
     def collect_relations(self):
         traversed = set()
