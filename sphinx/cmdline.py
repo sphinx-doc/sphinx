@@ -23,6 +23,7 @@ from sphinx.errors import SphinxError
 from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
 from sphinx.util.console import red, nocolor, color_terminal
+from sphinx.util.docutils import docutils_namespace
 from sphinx.util.osutil import abspath, fs_encoding
 from sphinx.util.pycompat import terminal_safe
 
@@ -288,11 +289,12 @@ def main(argv):
 
     app = None
     try:
-        app = Sphinx(srcdir, confdir, outdir, doctreedir, opts.builder,
-                     confoverrides, status, warning, opts.freshenv,
-                     opts.warningiserror, opts.tags, opts.verbosity, opts.jobs)
-        app.build(opts.force_all, filenames)
-        return app.statuscode
+        with docutils_namespace():
+            app = Sphinx(srcdir, confdir, outdir, doctreedir, opts.builder,
+                         confoverrides, status, warning, opts.freshenv,
+                         opts.warningiserror, opts.tags, opts.verbosity, opts.jobs)
+            app.build(opts.force_all, filenames)
+            return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:
         handle_exception(app, opts, exc, error)
         return 1
