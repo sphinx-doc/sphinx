@@ -137,7 +137,7 @@ def autosummary_table_visit_html(self, node):
 
 # -- autodoc integration -------------------------------------------------------
 
-class FakeDirective:
+class FakeDirective(object):
     env = {}
     genopt = Options()
 

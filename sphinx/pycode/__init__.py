@@ -33,7 +33,7 @@ pydriver = driver.Driver(pygrammar, convert=nodes.convert)
 
 
 # an object with attributes corresponding to token and symbol names
-class sym:
+class sym(object):
     pass
 for k, v in iteritems(pygrammar.symbol2number):
     setattr(sym, k, v)
