@@ -17,7 +17,7 @@ from textwrap import dedent
 from sphinx.errors import SphinxError
 import sphinx.builders.linkcheck
 
-from util import with_app, with_tempdir, rootdir, tempdir, SkipTest, TestApp
+from util import mock, with_app, with_tempdir, rootdir, tempdir, SkipTest, TestApp
 
 try:
     from docutils.writers.manpage import Writer as ManWriter
@@ -25,14 +25,11 @@ except ImportError:
     ManWriter = None
 
 
-class MockOpener(object):
-    def open(self, req, **kwargs):
-        class result(BytesIO):
-            headers = None
-            url = req.url
-        return result()
-
-sphinx.builders.linkcheck.opener = MockOpener()
+def request_session_head(url, **kwargs):
+    response = mock.Mock()
+    response.status_code = 200
+    response.url = url
+    return response
 
 
 def verify_build(buildername, srcdir):
@@ -68,12 +65,15 @@ def test_build_all():
                 """ % {'test_name': test_name})
         )
 
-    # note: no 'html' - if it's ok with dirhtml it's ok with html
-    for buildername in ['dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle',
-                        'json', 'text', 'htmlhelp', 'qthelp', 'epub2', 'epub',
-                        'applehelp', 'changes', 'xml', 'pseudoxml', 'man',
-                        'linkcheck']:
-        yield verify_build, buildername, srcdir
+    with mock.patch('sphinx.builders.linkcheck.requests') as requests:
+        requests.Session().head = request_session_head
+
+        # note: no 'html' - if it's ok with dirhtml it's ok with html
+        for buildername in ['dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle',
+                            'json', 'text', 'htmlhelp', 'qthelp', 'epub2', 'epub',
+                            'applehelp', 'changes', 'xml', 'pseudoxml', 'man',
+                            'linkcheck']:
+            yield verify_build, buildername, srcdir
 
 
 @with_tempdir
