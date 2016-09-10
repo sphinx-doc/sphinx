@@ -18,6 +18,7 @@ from sphinx.transforms import (
     DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds,
     AutoNumbering, AutoIndexUpgrader, FilterSystemMessages,
 )
+from sphinx.transforms.compact_bullet_list import RefOnlyBulletListTransform
 from sphinx.transforms.i18n import (
     PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
 )
@@ -65,7 +66,8 @@ class SphinxStandaloneReader(SphinxBaseReader):
     transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, PreserveTranslatableMessages,
                   Locale, CitationReferences, DefaultSubstitutions, MoveModuleTargets,
                   HandleCodeBlocks, AutoNumbering, AutoIndexUpgrader, SortIds,
-                  RemoveTranslatableInline, PreserveTranslatableMessages, FilterSystemMessages]
+                  RemoveTranslatableInline, PreserveTranslatableMessages, FilterSystemMessages,
+                  RefOnlyBulletListTransform]
 
 
 class SphinxI18nReader(SphinxBaseReader):
@@ -79,7 +81,7 @@ class SphinxI18nReader(SphinxBaseReader):
     transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
                   DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
                   AutoNumbering, SortIds, RemoveTranslatableInline,
-                  FilterSystemMessages]
+                  FilterSystemMessages, RefOnlyBulletListTransform]
 
     def __init__(self, *args, **kwargs):
         SphinxBaseReader.__init__(self, *args, **kwargs)

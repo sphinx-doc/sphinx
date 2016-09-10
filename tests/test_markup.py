@@ -15,6 +15,7 @@ import pickle
 from docutils import frontend, utils, nodes
 from docutils.parsers import rst
 
+from sphinx import addnodes
 from sphinx.util import texescape
 from sphinx.writers.html import HTMLWriter, SmartyPantsHTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
@@ -188,3 +189,21 @@ def test_keep_warnings_is_False(app, status, warning):
     doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
     assert_node(doctree[0], nodes.section)
     assert len(doctree[0]) == 1
+
+
+@with_app(buildername='dummy', testroot='refonly_bullet_list')
+def test_compact_refonly_bullet_list(app, status, warning):
+    app.builder.build_all()
+    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    assert_node(doctree[0], nodes.section)
+    assert len(doctree[0]) == 5
+
+    assert doctree[0][1].astext() == 'List A:'
+    assert_node(doctree[0][2], nodes.bullet_list)
+    assert_node(doctree[0][2][0][0], addnodes.compact_paragraph)
+    assert doctree[0][2][0][0].astext() == 'genindex'
+
+    assert doctree[0][3].astext() == 'List B:'
+    assert_node(doctree[0][4], nodes.bullet_list)
+    assert_node(doctree[0][4][0][0], nodes.paragraph)
+    assert doctree[0][4][0][0].astext() == 'Hello'
