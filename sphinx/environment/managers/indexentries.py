@@ -60,7 +60,7 @@ class IndexEntries(EnvironmentManager):
 
         new = {}
 
-        def add_entry(word, subword, link=True, dic=new, key=None):
+        def add_entry(word, subword, main, link=True, dic=new, key=None):
             # Force the word to be unicode if it's a ASCII bytestring.
             # This will solve problems with unicode normalization later.
             # For instance the RFC role will add bytestrings at the moment
@@ -69,7 +69,7 @@ class IndexEntries(EnvironmentManager):
             if not entry:
                 dic[word] = entry = [[], {}, key]
             if subword:
-                add_entry(subword, '', link=link, dic=entry[1], key=key)
+                add_entry(subword, '', main, link=link, dic=entry[1], key=key)
             elif link:
                 try:
                     uri = builder.get_relative_uri('genindex', fn) + '#' + tid
@@ -89,24 +89,24 @@ class IndexEntries(EnvironmentManager):
                         except ValueError:
                             entry, = split_into(1, 'single', value)
                             subentry = ''
-                        add_entry(entry, subentry, key=index_key)
+                        add_entry(entry, subentry, main, key=index_key)
                     elif type == 'pair':
                         first, second = split_into(2, 'pair', value)
-                        add_entry(first, second, key=index_key)
-                        add_entry(second, first, key=index_key)
+                        add_entry(first, second, main, key=index_key)
+                        add_entry(second, first, main, key=index_key)
                     elif type == 'triple':
                         first, second, third = split_into(3, 'triple', value)
-                        add_entry(first, second+' '+third, key=index_key)
-                        add_entry(second, third+', '+first, key=index_key)
-                        add_entry(third, first+' '+second, key=index_key)
+                        add_entry(first, second + ' ' + third, main, key=index_key)
+                        add_entry(second, third + ', ' + first, main, key=index_key)
+                        add_entry(third, first + ' ' + second, main, key=index_key)
                     elif type == 'see':
                         first, second = split_into(2, 'see', value)
-                        add_entry(first, _('see %s') % second, link=False,
-                                  key=index_key)
+                        add_entry(first, _('see %s') % second, None,
+                                  link=False, key=index_key)
                     elif type == 'seealso':
                         first, second = split_into(2, 'see', value)
-                        add_entry(first, _('see also %s') % second, link=False,
-                                  key=index_key)
+                        add_entry(first, _('see also %s') % second, None,
+                                  link=False, key=index_key)
                     else:
                         self.env.warn(fn, 'unknown index entry type %r' % type)
                 except ValueError as err:
