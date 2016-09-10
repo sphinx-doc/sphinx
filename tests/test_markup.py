@@ -170,3 +170,21 @@ def test_rst_prolog(app, status, warning):
     # rst_prolog & rst_epilog on exlucding reST parser
     assert not md.rawsource.startswith('*Hello world*.')
     assert not md.rawsource.endswith('*Good-bye world*.\n')
+
+
+@with_app(buildername='dummy', testroot='keep_warnings')
+def test_keep_warnings_is_True(app, status, warning):
+    app.builder.build_all()
+    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    assert_node(doctree[0], nodes.section)
+    assert len(doctree[0]) == 2
+    assert_node(doctree[0][1], nodes.system_message)
+
+
+@with_app(buildername='dummy', testroot='keep_warnings',
+          confoverrides={'keep_warnings': False})
+def test_keep_warnings_is_False(app, status, warning):
+    app.builder.build_all()
+    doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
+    assert_node(doctree[0], nodes.section)
+    assert len(doctree[0]) == 1

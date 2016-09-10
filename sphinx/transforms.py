@@ -249,6 +249,19 @@ class PreserveTranslatableMessages(Transform):
             node.preserve_original_messages()
 
 
+class FilterSystemMessages(Transform):
+    """Filter system messages from a doctree."""
+    default_priority = 999
+
+    def apply(self):
+        env = self.document.settings.env
+        filterlevel = env.config.keep_warnings and 2 or 5
+        for node in self.document.traverse(nodes.system_message):
+            if node['level'] < filterlevel:
+                env.app.debug('%s [filtered system message]', node.astext())
+                node.parent.remove(node)
+
+
 class Locale(Transform):
     """
     Replace translatable nodes with their translated doctree.

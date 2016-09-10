@@ -728,7 +728,6 @@ class BuildEnvironment(object):
         doctree = pub.document
 
         # post-processing
-        self.filter_messages(doctree)
         self.process_dependencies(docname, doctree)
         self.process_images(docname, doctree)
         self.process_downloads(docname, doctree)
@@ -850,14 +849,6 @@ class BuildEnvironment(object):
              self.temp_data.get('object'), node.astext()))
 
     # post-processing of read doctrees
-
-    def filter_messages(self, doctree):
-        """Filter system messages from a doctree."""
-        filterlevel = self.config.keep_warnings and 2 or 5
-        for node in doctree.traverse(nodes.system_message):
-            if node['level'] < filterlevel:
-                self.app.debug('%s [filtered system message]', node.astext())
-                node.parent.remove(node)
 
     def process_dependencies(self, docname, doctree):
         """Process docutils-generated dependency info."""
