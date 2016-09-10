@@ -14,10 +14,12 @@ from docutils.writers import UnfilteredWriter
 from six import string_types, text_type
 
 from sphinx.transforms import (
-    ApplySourceWorkaround, ExtraTranslatableNodes, PreserveTranslatableMessages, Locale,
-    CitationReferences, DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
-    AutoNumbering, AutoIndexUpgrader, SortIds, RemoveTranslatableInline,
-    FilterSystemMessages
+    ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
+    DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds,
+    AutoNumbering, AutoIndexUpgrader, FilterSystemMessages,
+)
+from sphinx.transforms.i18n import (
+    PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
 )
 from sphinx.util import import_object, split_docinfo
 
