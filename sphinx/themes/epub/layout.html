@@ -15,14 +15,7 @@
 {# add only basic navigation links #}
 {% block sidebar1 %}{% endblock %}
 {% block sidebar2 %}{% endblock %}
+{% block relbar1 %}{% endblock %}
 {% block relbar2 %}{% endblock %}
 {% block linktags %}{% endblock %}
-
-{# redefine relbar1 and footer to only call super if options are true #}
-{%- block relbar1 %}
-{% if theme_relbar1|tobool %}{{ super() }}{% endif %}
-{%- endblock %}
-{%- block footer %}
-{% if theme_footer|tobool %}{{ super() }}{% endif %}
-{%- endblock %}
-
+{% block footer %}{% endblock %}
