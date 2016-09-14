@@ -274,41 +274,39 @@
 %        {, <, #, %, $, ' and ": go to next line.
 %        _, }, ^, &, >, - and ~: stay at end of broken line.
 % Use of \textquotesingle for straight quote.
+\newcommand*\sphinxbreaksbeforelist {%
+    \do\PYGZob\{\do\PYGZlt\<\do\PYGZsh\#\do\PYGZpc\%% {, <, #, %,
+    \do\PYGZdl\$\do\PYGZdq\"% $, "
+    \def\PYGZsq
+     {\discretionary{}{\sphinxafterbreak\textquotesingle}{\textquotesingle}}% '
+}
+\newcommand*\sphinxbreaksafterlist {%
+    \do\PYGZus\_\do\PYGZcb\}\do\PYGZca\^\do\PYGZam\&% _, }, ^, &,
+    \do\PYGZgt\>\do\PYGZhy\-\do\PYGZti\~% >, -, ~
+}
 \newcommand*\sphinxbreaksatspecials {%
-    \def\PYGZus{\discretionary{\char`\_}{\sphinxafterbreak}{\char`\_}}%
-    \def\PYGZob{\discretionary{}{\sphinxafterbreak\char`\{}{\char`\{}}%
-    \def\PYGZcb{\discretionary{\char`\}}{\sphinxafterbreak}{\char`\}}}%
-    \def\PYGZca{\discretionary{\char`\^}{\sphinxafterbreak}{\char`\^}}%
-    \def\PYGZam{\discretionary{\char`\&}{\sphinxafterbreak}{\char`\&}}%
-    \def\PYGZlt{\discretionary{}{\sphinxafterbreak\char`\<}{\char`\<}}%
-    \def\PYGZgt{\discretionary{\char`\>}{\sphinxafterbreak}{\char`\>}}%
-    \def\PYGZsh{\discretionary{}{\sphinxafterbreak\char`\#}{\char`\#}}%
-    \def\PYGZpc{\discretionary{}{\sphinxafterbreak\char`\%}{\char`\%}}%
-    \def\PYGZdl{\discretionary{}{\sphinxafterbreak\char`\$}{\char`\$}}%
-    \def\PYGZhy{\discretionary{\char`\-}{\sphinxafterbreak}{\char`\-}}%
-    \def\PYGZsq{\discretionary{}{\sphinxafterbreak\textquotesingle}{\textquotesingle}}%
-    \def\PYGZdq{\discretionary{}{\sphinxafterbreak\char`\"}{\char`\"}}%
-    \def\PYGZti{\discretionary{\char`\~}{\sphinxafterbreak}{\char`\~}}%
+  \def\do##1##2%
+     {\def##1{\discretionary{}{\sphinxafterbreak\char`##2}{\char`##2}}}%
+  \sphinxbreaksbeforelist
+  \def\do##1##2%
+     {\def##1{\discretionary{\char`##2}{\sphinxafterbreak}{\char`##2}}}%
+  \sphinxbreaksafterlist
 }
 
 \def\sphinx@verbatim@nolig@list {\do \`}%
 % Some characters . , ; ? ! / are not pygmentized.
 % This macro makes them "active" and they will insert potential linebreaks
-\newcommand*\sphinxbreaksatpunct {%
-   \lccode`\~`\.\lowercase{\def~}{\discretionary{\char`\.}{\sphinxafterbreak}{\char`\.}}%
-   \lccode`\~`\,\lowercase{\def~}{\discretionary{\char`\,}{\sphinxafterbreak}{\char`\,}}%
-   \lccode`\~`\;\lowercase{\def~}{\discretionary{\char`\;}{\sphinxafterbreak}{\char`\;}}%
-   \lccode`\~`\:\lowercase{\def~}{\discretionary{\char`\:}{\sphinxafterbreak}{\char`\:}}%
-   \lccode`\~`\?\lowercase{\def~}{\discretionary{\char`\?}{\sphinxafterbreak}{\char`\?}}%
-   \lccode`\~`\!\lowercase{\def~}{\discretionary{\char`\!}{\sphinxafterbreak}{\char`\!}}%
-   \lccode`\~`\/\lowercase{\def~}{\discretionary{\char`\/}{\sphinxafterbreak}{\char`\/}}%
-   \catcode`\.\active
-   \catcode`\,\active
-   \catcode`\;\active
-   \catcode`\:\active
-   \catcode`\?\active
-   \catcode`\!\active
-   \catcode`\/\active
+\newcommand*\sphinxbreaksbeforeactivelist {}% none
+\newcommand*\sphinxbreaksafteractivelist  {\do\.\do\,\do\;\do\?\do\!\do\/}
+\newcommand*\sphinxbreaksviaactive {%
+   \def\do##1{\lccode`\~`##1%
+    \lowercase{\def~}{\discretionary{}{\sphinxafterbreak\char`##1}{\char`##1}}%
+    \catcode`##1\active}%
+   \sphinxbreaksbeforeactivelist
+   \def\do##1{\lccode`\~`##1%
+    \lowercase{\def~}{\discretionary{\char`##1}{\sphinxafterbreak}{\char`##1}}%
+    \catcode`##1\active}%
+   \sphinxbreaksafteractivelist
    \lccode`\~`\~
 }
 
@@ -377,7 +375,7 @@
   % Allow breaks at special characters using \PYG... macros.
   \sphinxbreaksatspecials
   % Breaks at punctuation characters . , ; ? ! and / (needs catcode activation)
-  \def\FancyVerbCodes{\sphinxbreaksatpunct}%
+  \def\FancyVerbCodes{\sphinxbreaksviaactive}%
   \fi % end of conditional code for wrapping long code lines
   % go around fancyvrb's check of \@currenvir
   \let\VerbatimEnvironment\sphinxVerbatimEnvironment
@@ -405,7 +403,9 @@
      % For grid placement from \strut's in \FancyVerbFormatLine
      \lineskip\z@skip
      % active comma should not be overwritten by \@noligs
-     \let\verbatim@nolig@list \sphinx@verbatim@nolig@list
+     \ifsphinxverbatimwrapslines
+       \let\verbatim@nolig@list \sphinx@verbatim@nolig@list
+     \fi
      % will fetch its optional arguments if any
      \OriginalVerbatim
 }
