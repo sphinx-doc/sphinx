@@ -163,13 +163,13 @@ class BuildDoc(Command):
             confoverrides['today'] = self.today
         if self.copyright:
             confoverrides['copyright'] = self.copyright
-        app = Sphinx(self.source_dir, self.config_dir,
-                     self.builder_target_dir, self.doctree_dir,
-                     self.builder, confoverrides, status_stream,
-                     freshenv=self.fresh_env,
-                     warningiserror=self.warning_is_error)
 
         try:
+            app = Sphinx(self.source_dir, self.config_dir,
+                         self.builder_target_dir, self.doctree_dir,
+                         self.builder, confoverrides, status_stream,
+                         freshenv=self.fresh_env,
+                         warningiserror=self.warning_is_error)
             app.build(force_all=self.all_files)
             if app.statuscode:
                 raise DistutilsExecError(
