@@ -34,7 +34,7 @@ CONFIG_TYPE_WARNING = "The config value `{name}' has type `{current.__name__}', 
                       "defaults to `{default.__name__}.'"
 
 
-class ENUM:
+class ENUM(object):
     """represents the config value should be a one of candidates.
 
     Example:

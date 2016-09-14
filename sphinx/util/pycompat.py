@@ -55,7 +55,7 @@ if PY3:
         return text_type(tree)
     from html import escape as htmlescape  # noqa: >= Python 3.2
 
-    class UnicodeMixin:
+    class UnicodeMixin(object):
         """Mixin class to handle defining the proper __str__/__unicode__
         methods in Python 2 or 3."""
 

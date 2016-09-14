@@ -14,7 +14,7 @@ import warnings
 from docutils import nodes
 
 
-class translatable:
+class translatable(object):
     """Node which supports translation.
 
     The translation goes forward with following steps:
