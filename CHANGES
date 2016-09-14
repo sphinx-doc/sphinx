@@ -16,6 +16,8 @@ Bugs fixed
 * #1462: autosummary warns for namedtuple with attribute with trailing underscore
 * Could not reference equations if ``:nowrap:`` option specified
 * #2873: code-block overflow in latex (due to commas)
+* #1060, #2056: sphinx.ext.intersphinx: broken links are generated if relative
+  paths are used in `intersphinx_mapping`
 
 Release 1.4.6 (released Aug 20, 2016)
 =====================================
