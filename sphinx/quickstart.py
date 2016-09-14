@@ -1646,7 +1646,7 @@ def main(argv=sys.argv):
             if not set(['project', 'author', 'version']).issubset(d):
                 print('''"quiet" is specified, but any of "project", \
 "author" or "version" is not specified.''')
-                return
+                return 1
 
         if set(['quiet', 'project', 'author', 'version']).issubset(d):
             # quiet mode with all required params satisfied, use default
@@ -1666,13 +1666,13 @@ def main(argv=sys.argv):
                            ' files already exist.'))
                 print('sphinx-quickstart only generate into a empty directory.'
                       ' Please specify a new root path.')
-                return
+                return 1
         else:
             ask_user(d)
     except (KeyboardInterrupt, EOFError):
         print()
         print('[Interrupted.]')
-        return
+        return 130  # 128 + SIGINT
 
     # decode values in d if value is a Python string literal
     for key, value in d.items():
