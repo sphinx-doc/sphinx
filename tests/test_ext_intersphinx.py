@@ -134,6 +134,8 @@ def test_missing_reference(tempdir, app, status, warning):
     app.config.intersphinx_mapping = {
         'https://docs.python.org/': inv_file,
         'py3k': ('https://docs.python.org/py3k/', inv_file),
+        'py3krel': ('py3k', inv_file),  # relative path
+        'py3krelparent': ('../../py3k', inv_file),  # relative path, parent dir
     }
     app.config.intersphinx_cache_limit = 0
 
@@ -200,6 +202,19 @@ def test_missing_reference(tempdir, app, status, warning):
     rn = missing_reference(app, app.env, node, contnode)
     assert rn is None
     assert contnode[0].astext() == 'py3k:unknown'
+
+    # check relative paths
+    rn = reference_check('py', 'mod', 'py3krel:module1', 'foo')
+    assert rn['refuri'] == 'py3k/foo.html#module-module1'
+
+    rn = reference_check('py', 'mod', 'py3krelparent:module1', 'foo')
+    assert rn['refuri'] == '../../py3k/foo.html#module-module1'
+
+    rn = reference_check('py', 'mod', 'py3krel:module1', 'foo', refdoc='sub/dir/test')
+    assert rn['refuri'] == '../../py3k/foo.html#module-module1'
+
+    rn = reference_check('py', 'mod', 'py3krelparent:module1', 'foo', refdoc='sub/dir/test')
+    assert rn['refuri'] == '../../../../py3k/foo.html#module-module1'
 
 
 @with_app()
