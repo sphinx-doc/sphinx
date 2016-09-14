@@ -15,15 +15,14 @@ from __future__ import print_function
 
 import sys
 import os
-import traceback
 
+from six import StringIO, string_types
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError, DistutilsExecError
 
-from six import StringIO, string_types
-
 from sphinx.application import Sphinx
-from sphinx.util.console import darkred, nocolor, color_terminal
+from sphinx.cmdline import handle_exception
+from sphinx.util.console import nocolor, color_terminal
 from sphinx.util.osutil import abspath
 
 
@@ -99,6 +98,8 @@ class BuildDoc(Command):
         self.config_dir = None
         self.link_index = False
         self.copyright = ''
+        self.verbosity = 0
+        self.traceback = False
 
     def _guess_source_dir(self):
         for guess in ('doc', 'docs'):
@@ -162,32 +163,21 @@ class BuildDoc(Command):
             confoverrides['today'] = self.today
         if self.copyright:
             confoverrides['copyright'] = self.copyright
-        app = Sphinx(self.source_dir, self.config_dir,
-                     self.builder_target_dir, self.doctree_dir,
-                     self.builder, confoverrides, status_stream,
-                     freshenv=self.fresh_env,
-                     warningiserror=self.warning_is_error)
 
         try:
+            app = Sphinx(self.source_dir, self.config_dir,
+                         self.builder_target_dir, self.doctree_dir,
+                         self.builder, confoverrides, status_stream,
+                         freshenv=self.fresh_env,
+                         warningiserror=self.warning_is_error)
             app.build(force_all=self.all_files)
             if app.statuscode:
                 raise DistutilsExecError(
                     'caused by %s builder.' % app.builder.name)
-        except Exception as err:
-            if self.pdb:
-                import pdb
-                print(darkred('Exception occurred while building, starting debugger:'),
-                      file=sys.stderr)
-                traceback.print_exc()
-                pdb.post_mortem(sys.exc_info()[2])
-            else:
-                from docutils.utils import SystemMessage
-                if isinstance(err, SystemMessage):
-                    print(darkred('reST markup error:'), file=sys.stderr)
-                    print(err.args[0].encode('ascii', 'backslashreplace'),
-                          file=sys.stderr)
-                else:
-                    raise
+        except Exception as exc:
+            handle_exception(app, self, exc, sys.stderr)
+            if not self.pdb:
+                raise SystemExit(1)
 
         if self.link_index:
             src = app.config.master_doc + app.builder.out_suffix
