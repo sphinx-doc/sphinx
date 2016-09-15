@@ -4,10 +4,7 @@
 from __future__ import print_function
 
 from six import iteritems
-try:
-    from collections import OrderedDict
-except ImportError: # Fallback for Python 2.6
-    OrderedDict = dict
+from collections import OrderedDict
 
 # Pgen imports
 

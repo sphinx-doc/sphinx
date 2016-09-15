@@ -37,8 +37,8 @@ Among its features are the following:
 * Setuptools integration
 '''
 
-if sys.version_info < (2, 6) or (3, 0) <= sys.version_info < (3, 4):
-    print('ERROR: Sphinx requires at least Python 2.6 or 3.4 to run.')
+if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 4):
+    print('ERROR: Sphinx requires at least Python 2.7 or 3.4 to run.')
     sys.exit(1)
 
 requires = [
@@ -63,7 +63,7 @@ extras_require = {
     ],
     'test': [
         'nose',
-        'mock',  # it would be better for 'test:python_version in "2.6,2.7"'
+        'mock',  # it would be better for 'test:python_version in 2.7'
         'simplejson',  # better: 'test:platform_python_implementation=="PyPy"'
         'html5lib',
     ],

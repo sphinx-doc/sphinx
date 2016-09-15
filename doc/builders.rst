@@ -277,8 +277,7 @@ for details.
       A module that implements `dump()`, `load()`, `dumps()` and `loads()`
       functions that conform to the functions with the same names from the
       pickle module.  Known modules implementing this interface are
-      `simplejson` (or `json` in Python 2.6), `phpserialize`, `plistlib`,
-      and others.
+      `simplejson`, `phpserialize`, `plistlib`, and others.
 
    .. attribute:: out_suffix
 

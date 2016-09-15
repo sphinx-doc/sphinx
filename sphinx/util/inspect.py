@@ -60,7 +60,7 @@ if PY3:
             raise TypeError('%r is not a Python function' % func)
         return inspect.getfullargspec(func)
 
-else:  # 2.6, 2.7
+else:  # 2.7
     from functools import partial
 
     def getargspec(func):
