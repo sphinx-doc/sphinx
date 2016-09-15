@@ -728,12 +728,10 @@ class BuildEnvironment(object):
         doctree = pub.document
 
         # post-processing
-        self.filter_messages(doctree)
         self.process_dependencies(docname, doctree)
         self.process_images(docname, doctree)
         self.process_downloads(docname, doctree)
         self.process_metadata(docname, doctree)
-        self.process_refonly_bullet_lists(docname, doctree)
         self.create_title_from(docname, doctree)
         self.note_indexentries_from(docname, doctree)
         self.build_toc_from(docname, doctree)
@@ -850,14 +848,6 @@ class BuildEnvironment(object):
              self.temp_data.get('object'), node.astext()))
 
     # post-processing of read doctrees
-
-    def filter_messages(self, doctree):
-        """Filter system messages from a doctree."""
-        filterlevel = self.config.keep_warnings and 2 or 5
-        for node in doctree.traverse(nodes.system_message):
-            if node['level'] < filterlevel:
-                self.app.debug('%s [filtered system message]', node.astext())
-                node.parent.remove(node)
 
     def process_dependencies(self, docname, doctree):
         """Process docutils-generated dependency info."""
@@ -985,67 +975,6 @@ class BuildEnvironment(object):
                 md[name] = value
 
         del doctree[0]
-
-    def process_refonly_bullet_lists(self, docname, doctree):
-        """Change refonly bullet lists to use compact_paragraphs.
-
-        Specifically implemented for 'Indices and Tables' section, which looks
-        odd when html_compact_lists is false.
-        """
-        if self.config.html_compact_lists:
-            return
-
-        class RefOnlyListChecker(nodes.GenericNodeVisitor):
-            """Raise `nodes.NodeFound` if non-simple list item is encountered.
-
-            Here 'simple' means a list item containing only a paragraph with a
-            single reference in it.
-            """
-
-            def default_visit(self, node):
-                raise nodes.NodeFound
-
-            def visit_bullet_list(self, node):
-                pass
-
-            def visit_list_item(self, node):
-                children = []
-                for child in node.children:
-                    if not isinstance(child, nodes.Invisible):
-                        children.append(child)
-                if len(children) != 1:
-                    raise nodes.NodeFound
-                if not isinstance(children[0], nodes.paragraph):
-                    raise nodes.NodeFound
-                para = children[0]
-                if len(para) != 1:
-                    raise nodes.NodeFound
-                if not isinstance(para[0], addnodes.pending_xref):
-                    raise nodes.NodeFound
-                raise nodes.SkipChildren
-
-            def invisible_visit(self, node):
-                """Invisible nodes should be ignored."""
-                pass
-
-        def check_refonly_list(node):
-            """Check for list with only references in it."""
-            visitor = RefOnlyListChecker(doctree)
-            try:
-                node.walk(visitor)
-            except nodes.NodeFound:
-                return False
-            else:
-                return True
-
-        for node in doctree.traverse(nodes.bullet_list):
-            if check_refonly_list(node):
-                for item in node.traverse(nodes.list_item):
-                    para = item[0]
-                    ref = para[0]
-                    compact_para = addnodes.compact_paragraph()
-                    compact_para += ref
-                    item.replace(para, compact_para)
 
     def create_title_from(self, docname, document):
         """Add a title node to the document (just copy the first section title),
