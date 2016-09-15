@@ -7,11 +7,12 @@ python:
   - "2.7"
   - "3.4"
   - "3.5"
-  - "3.5-dev"
+  - "nightly"
   - "pypy"
 env:
   global:
     - TEST='-v --with-timer --timer-top-n 25'
+    - PYTHONFAULTHANDLER=x
   matrix:
     - DOCUTILS=0.11
     - DOCUTILS=0.12
