@@ -48,6 +48,8 @@ Incompatible changes
   Use `Sphinx.set_translator()` API instead.
 * Drop python 2.6 and 3.3 support
 * Drop epub3 builder's ``epub3_page_progression_direction`` option (use ``epub3_writing_mode``).
+* #2877: Rename ``latex_elements['footer']`` to
+  ``latex_elements['postpreamble']``
 
 Features added
 --------------
