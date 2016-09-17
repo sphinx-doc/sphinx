@@ -91,11 +91,12 @@ def create_module_file(package, module, opts):
     write_file(makename(package, module), text, opts)
 
 
-def create_package_file(root, master_package, subroot, py_files, opts, subs):
+def create_package_file(root, master_package, subroot, py_files, opts, subs, is_namespace):
     """Build the text of the file and write the file."""
-    text = format_heading(1, '%s package' % makename(master_package, subroot))
+    text = format_heading(1, ('%s package' if not is_namespace else "%s namespace")
+                          % makename(master_package, subroot))
 
-    if opts.modulefirst:
+    if opts.modulefirst and not is_namespace:
         text += format_directive(subroot, master_package)
         text += '\n'
 
@@ -138,7 +139,7 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs):
                 text += '\n'
         text += '\n'
 
-    if not opts.modulefirst:
+    if not opts.modulefirst and not is_namespace:
         text += format_heading(2, 'Module contents')
         text += format_directive(subroot, master_package)
 
@@ -165,9 +166,14 @@ def create_modules_toc_file(modules, opts, name='modules'):
 
 def shall_skip(module, opts):
     """Check if we want to skip this module."""
-    # skip it if there is nothing (or just \n or \r\n) in the file
-    if path.getsize(module) <= 2:
+    # skip if the file doesn't exist and not using implicit namespaces
+    if not opts.implicit_namespaces and not path.exists(module):
         return True
+
+    # skip it if there is nothing (or just \n or \r\n) in the file
+    if path.exists(module) and path.getsize(module) <= 2:
+        return True
+
     # skip if it has a "private" name and this is selected
     filename = path.basename(module)
     if filename != '__init__.py' and filename.startswith('_') and \
@@ -191,19 +197,22 @@ def recurse_tree(rootpath, excludes, opts):
     toplevels = []
     followlinks = getattr(opts, 'followlinks', False)
     includeprivate = getattr(opts, 'includeprivate', False)
+    implicit_namespaces = getattr(opts, 'implicit_namespaces', False)
     for root, subs, files in walk(rootpath, followlinks=followlinks):
         # document only Python module files (that aren't excluded)
         py_files = sorted(f for f in files
                           if path.splitext(f)[1] in PY_SUFFIXES and
                           not is_excluded(path.join(root, f), excludes))
         is_pkg = INITPY in py_files
+        is_namespace = INITPY not in py_files and implicit_namespaces
         if is_pkg:
             py_files.remove(INITPY)
             py_files.insert(0, INITPY)
         elif root != rootpath:
-            # only accept non-package at toplevel
-            del subs[:]
-            continue
+            # only accept non-package at toplevel unless using implicit namespaces
+            if not implicit_namespaces:
+                del subs[:]
+                continue
         # remove hidden ('.') and private ('_') directories, as well as
         # excluded dirs
         if includeprivate:
@@ -213,15 +222,17 @@ def recurse_tree(rootpath, excludes, opts):
         subs[:] = sorted(sub for sub in subs if not sub.startswith(exclude_prefixes) and
                          not is_excluded(path.join(root, sub), excludes))
 
-        if is_pkg:
+        if is_pkg or is_namespace:
             # we are in a package with something to document
-            if subs or len(py_files) > 1 or not \
-               shall_skip(path.join(root, INITPY), opts):
+            if subs or len(py_files) > 1 or not shall_skip(path.join(root, INITPY), opts):
                 subpackage = root[len(rootpath):].lstrip(path.sep).\
                     replace(path.sep, '.')
-                create_package_file(root, root_package, subpackage,
-                                    py_files, opts, subs)
-                toplevels.append(makename(root_package, subpackage))
+                # if this is not a namespace or
+                # a namespace and there is something there to document
+                if not is_namespace or len(py_files) > 0:
+                    create_package_file(root, root_package, subpackage,
+                                        py_files, opts, subs, is_namespace)
+                    toplevels.append(makename(root_package, subpackage))
         else:
             # if we are at the root level, we don't require it to be a package
             assert root == rootpath and root_package is None
@@ -295,6 +306,10 @@ Note: By default this script will not overwrite already created files.""")
                       dest='modulefirst',
                       help='Put module documentation before submodule '
                       'documentation')
+    parser.add_option('--implicit-namespaces', action='store_true',
+                      dest='implicit_namespaces',
+                      help='Interpret module paths according to PEP-0420 '
+                           'implicit namespaces specification')
     parser.add_option('-s', '--suffix', action='store', dest='suffix',
                       help='file suffix (default: rst)', default='rst')
     parser.add_option('-F', '--full', action='store_true', dest='full',

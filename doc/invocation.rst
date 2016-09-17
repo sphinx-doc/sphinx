@@ -453,6 +453,15 @@ The :program:`sphinx-apidoc` script has several options:
    to default values, but you can influence the most important ones using the
    following options.
 
+.. option:: --implicit-namespaces
+
+   By default `sphinx-apidoc` processes sys.path searching for modules only.
+   Python 3.3 introduced :pep:`420` implicit namespaces that allow module path
+   structures such as `foo/bar/module.py` or `foo/bar/baz/__init__.py`
+   (notice that `bar` and `foo` are namespaces, not modules).
+
+   Specifying this option interprets paths recursively according to PEP-0420.
+
 .. option:: -M
 
    This option makes sphinx-apidoc put module documentation before submodule
