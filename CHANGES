@@ -119,6 +119,7 @@ Features added
 * #2695: ``build_sphinx`` subcommand for setuptools handles exceptions as same
   as ``sphinx-build`` does
 * #326: `numref` role can also refer sections
+* #2916: `numref` role can also refer caption as an its linktext
 
 Bugs fixed
 ----------

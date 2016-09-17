@@ -639,7 +639,12 @@ class StandardDomain(Domain):
                                          docname, labelid, sectname, 'ref')
 
     def _resolve_numref_xref(self, env, fromdocname, builder, typ, target, node, contnode):
-        docname, labelid = self.data['anonlabels'].get(target, ('', ''))
+        if target in self.data['labels']:
+            docname, labelid, figname = self.data['labels'].get(target, ('', '', ''))
+        else:
+            docname, labelid = self.data['anonlabels'].get(target, ('', ''))
+            figname = None
+
         if not docname:
             return None
 
@@ -666,7 +671,23 @@ class StandardDomain(Domain):
             else:
                 title = env.config.numfig_format.get(figtype, '')
 
-            newtitle = title % '.'.join(map(str, fignumber))
+            if figname is None and '%{name}' in title:
+                env.warn_node('the link has no caption: %s' % title, node)
+                return contnode
+            else:
+                fignum = '.'.join(map(str, fignumber))
+                if '{name}' in title or 'number' in title:
+                    # new style format (cf. "Fig.%{number}")
+                    if figname:
+                        newtitle = title.format(name=figname, number=fignum)
+                    else:
+                        newtitle = title.format(number=fignum)
+                else:
+                    # old style format (cf. "Fig.%s")
+                    newtitle = title % fignum
+        except KeyError as exc:
+            env.warn_node('invalid numfig_format: %s (%r)' % (title, exc), node)
+            return contnode
         except TypeError:
             env.warn_node('invalid numfig_format: %s' % title, node)
             return contnode

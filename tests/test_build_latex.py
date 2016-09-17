@@ -153,6 +153,8 @@ def test_numref(app, status, warning):
     assert '\\hyperref[baz:code22]{Code-\\ref{baz:code22}}' in result
     assert '\\hyperref[foo:foo]{Section \\ref{foo:foo}}' in result
     assert '\\hyperref[bar:bar-a]{Section \\ref{bar:bar-a}}' in result
+    assert '\\hyperref[index:fig1]{Fig.\\ref{index:fig1} \\nameref{index:fig1}}' in result
+    assert '\\hyperref[foo:foo]{Sect.\\ref{foo:foo} \\nameref{foo:foo}}' in result
 
 
 @with_app(buildername='latex', testroot='numfig',
@@ -184,6 +186,8 @@ def test_numref_with_prefix1(app, status, warning):
     assert '\\hyperref[baz:code22]{Code-\\ref{baz:code22}}' in result
     assert '\\hyperref[foo:foo]{SECTION-\\ref{foo:foo}}' in result
     assert '\\hyperref[bar:bar-a]{SECTION-\\ref{bar:bar-a}}' in result
+    assert '\\hyperref[index:fig1]{Fig.\\ref{index:fig1} \\nameref{index:fig1}}' in result
+    assert '\\hyperref[foo:foo]{Sect.\\ref{foo:foo} \\nameref{foo:foo}}' in result
 
 
 @with_app(buildername='latex', testroot='numfig',
@@ -211,6 +215,8 @@ def test_numref_with_prefix2(app, status, warning):
     assert '\\hyperref[baz:code22]{Code-\\ref{baz:code22}}' in result
     assert '\\hyperref[foo:foo]{SECTION\\_\\ref{foo:foo}\\_}' in result
     assert '\\hyperref[bar:bar-a]{SECTION\\_\\ref{bar:bar-a}\\_}' in result
+    assert '\\hyperref[index:fig1]{Fig.\\ref{index:fig1} \\nameref{index:fig1}}' in result
+    assert '\\hyperref[foo:foo]{Sect.\\ref{foo:foo} \\nameref{foo:foo}}' in result
 
 
 @with_app(buildername='latex', testroot='numfig',
@@ -232,6 +238,8 @@ def test_numref_with_language_ja(app, status, warning):
     assert '\\hyperref[baz:code22]{Code-\\ref{baz:code22}}' in result
     assert '\\hyperref[foo:foo]{Section \\ref{foo:foo}}' in result
     assert '\\hyperref[bar:bar-a]{Section \\ref{bar:bar-a}}' in result
+    assert '\\hyperref[index:fig1]{Fig.\\ref{index:fig1} \\nameref{index:fig1}}' in result
+    assert '\\hyperref[foo:foo]{Sect.\\ref{foo:foo} \\nameref{foo:foo}}' in result
 
 
 @with_app(buildername='latex')

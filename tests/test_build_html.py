@@ -524,6 +524,8 @@ def test_numfig_disabled(app, status, warning):
             (".//li/code/span", '^Code-%s$', True),
             (".//li/code/span", '^foo$', True),
             (".//li/code/span", '^bar_a$', True),
+            (".//li/code/span", '^Fig.{number}$', True),
+            (".//li/code/span", '^Sect.{number}$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -593,6 +595,8 @@ def test_numfig_without_numbered_toctree(app, status, warning):
             (".//li/a/span", '^Code-6$', True),
             (".//li/code/span", '^foo$', True),
             (".//li/code/span", '^bar_a$', True),
+            (".//li/a/span", '^Fig.9 should be Fig.1$', True),
+            (".//li/code/span", '^Sect.{number}$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -691,6 +695,8 @@ def test_numfig_with_numbered_toctree(app, status, warning):
             (".//li/a/span", '^Code-2.2$', True),
             (".//li/a/span", '^Section.1$', True),
             (".//li/a/span", '^Section.2.1$', True),
+            (".//li/a/span", '^Fig.1 should be Fig.1$', True),
+            (".//li/a/span", '^Sect.1 Foo$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -793,6 +799,8 @@ def test_numfig_with_prefix(app, status, warning):
             (".//li/a/span", '^Code-2.2$', True),
             (".//li/a/span", '^SECTION-1$', True),
             (".//li/a/span", '^SECTION-2.1$', True),
+            (".//li/a/span", '^Fig.1 should be Fig.1$', True),
+            (".//li/a/span", '^Sect.1 Foo$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -891,6 +899,8 @@ def test_numfig_with_secnum_depth(app, status, warning):
             (".//li/a/span", '^Code-2.1.2$', True),
             (".//li/a/span", '^Section.1$', True),
             (".//li/a/span", '^Section.2.1$', True),
+            (".//li/a/span", '^Fig.1 should be Fig.1$', True),
+            (".//li/a/span", '^Sect.1 Foo$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -983,6 +993,8 @@ def test_numfig_with_singlehtml(app, status, warning):
             (".//li/a/span", '^Code-2.2$', True),
             (".//li/a/span", '^Section.1$', True),
             (".//li/a/span", '^Section.2.1$', True),
+            (".//li/a/span", '^Fig.1 should be Fig.1$', True),
+            (".//li/a/span", '^Sect.1 Foo$', True),
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Fig. 1.1 $', True),
             (".//div[@class='figure']/p[@class='caption']/"

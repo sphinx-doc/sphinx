@@ -1696,10 +1696,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
         else:
             id = node.get('refuri', '')[1:].replace('#', ':')
 
-        ref = '\\ref{%s}' % self.idescape(id)
         title = node.get('title', '%s')
         title = text_type(title).translate(tex_escape_map).replace('\\%s', '%s')
-        hyperref = '\\hyperref[%s]{%s}' % (self.idescape(id), escape_abbr(title) % ref)
+        if '\\{name\\}' in title or '\\{number\\}' in title:
+            # new style format (cf. "Fig.%{number}")
+            title = title.replace('\\{name\\}', '{name}').replace('\\{number\\}', '{number}')
+            text = escape_abbr(title).format(name='\\nameref{%s}' % self.idescape(id),
+                                             number='\\ref{%s}' % self.idescape(id))
+        else:
+            # old style format (cf. "Fig.%{number}")
+            text = escape_abbr(title) % ('\\ref{%s}' % self.idescape(id))
+        hyperref = '\\hyperref[%s]{%s}' % (self.idescape(id), text)
         self.body.append(hyperref)
 
         raise nodes.SkipNode
