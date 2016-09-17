@@ -56,7 +56,7 @@ def test_code_block_caption_html(app, status, warning):
     caption = (u'<div class="code-block-caption">'
                u'<span class="caption-number">Listing 1 </span>'
                u'<span class="caption-text">caption <em>test</em> rb'
-               u'</span><a class="headerlink" href="#caption-test-rb" '
+               u'</span><a class="headerlink" href="#id1" '
                u'title="Permalink to this code">\xb6</a></div>')
     assert caption in html
 
@@ -66,9 +66,9 @@ def test_code_block_caption_latex(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
     caption = '\\sphinxSetupCaptionForVerbatim{literal-block}{caption \\emph{test} rb}'
-    label = '\\def\\sphinxLiteralBlockLabel{\\label{caption:caption-test-rb}}'
-    link  = '\hyperref[caption:caption-test-rb]' \
-            '{Listing \\ref{caption:caption-test-rb}}'
+    label = '\\def\\sphinxLiteralBlockLabel{\\label{caption:id1}}'
+    link  = '\hyperref[caption:name-test-rb]' \
+            '{Listing \\ref{caption:name-test-rb}}'
     assert caption in latex
     assert label in latex
     assert link in latex
@@ -243,7 +243,7 @@ def test_literalinclude_caption_html(app, status, warning):
     caption = (u'<div class="code-block-caption">'
                u'<span class="caption-number">Listing 2 </span>'
                u'<span class="caption-text">caption <strong>test</strong> py'
-               u'</span><a class="headerlink" href="#caption-test-py" '
+               u'</span><a class="headerlink" href="#id2" '
                u'title="Permalink to this code">\xb6</a></div>')
     assert caption in html
 
@@ -253,9 +253,9 @@ def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
     caption = '\\sphinxSetupCaptionForVerbatim{literal-block}{caption \\textbf{test} py}'
-    label = '\\def\\sphinxLiteralBlockLabel{\\label{caption:caption-test-py}}'
-    link  = '\hyperref[caption:caption-test-py]' \
-            '{Listing \\ref{caption:caption-test-py}}'
+    label = '\\def\\sphinxLiteralBlockLabel{\\label{caption:id2}}'
+    link  = '\hyperref[caption:name-test-py]' \
+            '{Listing \\ref{caption:name-test-py}}'
     assert caption in latex
     assert label in latex
     assert link in latex

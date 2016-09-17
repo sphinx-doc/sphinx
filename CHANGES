@@ -19,6 +19,9 @@ Bugs fixed
 * #2873: code-block overflow in latex (due to commas)
 * #1060, #2056: sphinx.ext.intersphinx: broken links are generated if relative
   paths are used in `intersphinx_mapping`
+* #2931: code-block directive with same :caption: causes warning of duplicate
+  target.  Now `code-block` and `literalinclude` does not define hyperlink
+  target using its caption automatially.
 
 Release 1.4.6 (released Aug 20, 2016)
 =====================================

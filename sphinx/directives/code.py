@@ -133,7 +133,6 @@ class CodeBlock(Directive):
 
         caption = self.options.get('caption')
         if caption:
-            self.options.setdefault('name', nodes.fully_normalize_name(caption))
             try:
                 literal = container_wrapper(self, literal, caption)
             except ValueError as exc:
@@ -344,7 +343,6 @@ class LiteralInclude(Directive):
         if caption is not None:
             if not caption:
                 caption = self.arguments[0]
-            self.options.setdefault('name', nodes.fully_normalize_name(caption))
             try:
                 retnode = container_wrapper(self, retnode, caption)
             except ValueError as exc:
