@@ -1029,6 +1029,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('}')
             for id in self.pop_hyperlink_ids('table'):
                 self.body.append(self.hypertarget(id, anchor=False))
+            if node['ids']:
+                self.body.append(self.hypertarget(node['ids'][0], anchor=False))
             self.body.append(u'\\\\\n')
         if self.table.longtable:
             self.body.append('\\hline\n')
