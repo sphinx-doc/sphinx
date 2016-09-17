@@ -22,6 +22,7 @@ Bugs fixed
 * #2931: code-block directive with same :caption: causes warning of duplicate
   target.  Now `code-block` and `literalinclude` does not define hyperlink
   target using its caption automatially.
+* #2962: latex: missing label of longtable
 
 Release 1.4.6 (released Aug 20, 2016)
 =====================================
