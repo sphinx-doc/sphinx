@@ -48,6 +48,9 @@ Incompatible changes
   Use `Sphinx.set_translator()` API instead.
 * Drop python 2.6 and 3.3 support
 * Drop epub3 builder's ``epub3_page_progression_direction`` option (use ``epub3_writing_mode``).
+* #2931: code-block directive with same :caption: causes warning of duplicate
+  target.  Now `code-block` and `literalinclude` does not define hyperlink
+  target using its caption automatially.
 
 Features added
 --------------
