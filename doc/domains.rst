@@ -371,6 +371,13 @@ using the following syntax::
    :type point: tuple(float, float)
    :type point: tuple[float, float]
 
+Multiple types in a type field will be linked automatically if separated by
+the word "or"::
+
+   :type an_arg: int or None
+   :vartype a_var: str or int
+   :rtype: float or str
+
 .. _python-roles:
 
 Cross-referencing Python objects
