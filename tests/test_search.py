@@ -111,6 +111,7 @@ def test_stemmer(app, status, warning):
 def test_term_in_heading_and_section(app, status, warning):
     searchindex = (app.outdir / 'searchindex.js').text()
     # if search term is in the title of one doc and in the text of another
-    # both documents should be a hit in the search index as a title, respectively text hit
+    # both documents should be a hit in the search index as a title,
+    # respectively text hit
     assert 'textinhead:1' in searchindex
     assert 'textinhead:0' in searchindex
