@@ -420,6 +420,7 @@ var Search = {
     // now check if the files don't contain excluded terms
     for (file in fileMap) {
       var valid = true;
+      //fileMap[file] = $.unique(fileMap[file]);
 
       // check if all requirements are matched
       if (fileMap[file].length != searchterms.length)

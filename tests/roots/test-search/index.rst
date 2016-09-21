@@ -12,3 +12,9 @@ Stemmer
 
 zfs
 findthisstemmedkey
+
+textinheading
+
+.. toctree::
+
+   tocitem
