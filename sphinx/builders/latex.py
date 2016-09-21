@@ -258,6 +258,15 @@ def validate_config_values(app):
             app.warn("latex_font_size is deprecated. Use latex_elements['pointsize'] instead.")
             app.config.latex_elements['pointsize'] = app.config.latex_font_size
 
+    if 'footer' in app.config.latex_elements:
+        if 'postamble' in app.config.latex_elements:
+            app.warn("latex_elements['footer'] conflicts with "
+                     "latex_elements['postamble'], ignored.")
+        else:
+            app.warn("latex_elements['footer'] is deprecated. "
+                     "Use latex_elements['preamble'] instead.")
+            app.config.latex_elements['postamble'] = app.config.latex_elements['footer']
+
 
 def setup(app):
     app.add_builder(LaTeXBuilder)

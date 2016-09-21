@@ -1693,6 +1693,8 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. versionadded:: 1.4
      ``'preamble'``
         Additional preamble content, default empty. See :doc:`latex`.
+     ``'postamble'``
+        Additional postamble content (before the indices), default empty.
      ``'figure_align'``
         Latex figure float alignment, default 'htbp' (here, top, bottom, page).
         Whenever an image doesn't fit into the current page, it will be
@@ -1703,6 +1705,9 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. versionadded:: 1.3
      ``'footer'``
         Additional footer content (before the indices), default empty.
+
+        .. deprecated:: 1.5
+           User ``'postamble'`` key instead.
 
    * Keys that don't need be overridden unless in special cases are:
 

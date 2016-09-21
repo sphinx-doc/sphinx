@@ -290,7 +290,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'shorthandoff':    '',
         'maketitle':       '\\maketitle',
         'tableofcontents': '\\tableofcontents',
-        'footer':          '',
+        'postamble':       '',
         'printindex':      '\\printindex',
         'transition':      '\n\n\\bigskip\\hrule{}\\bigskip\n\n',
         'figure_align':    'htbp',

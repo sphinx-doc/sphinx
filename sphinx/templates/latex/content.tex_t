@@ -34,7 +34,7 @@
 \renewcommand{\releasename}{<%= releasename %>}
 <%= makeindex %>
 <%= body %>
-<%= footer %>
+<%= postamble %>
 <%= indices %>
 \renewcommand{\indexname}{<%= indexname %>}
 <%= printindex %>
