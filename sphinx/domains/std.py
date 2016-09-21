@@ -639,7 +639,12 @@ class StandardDomain(Domain):
                                          docname, labelid, sectname, 'ref')
 
     def _resolve_numref_xref(self, env, fromdocname, builder, typ, target, node, contnode):
-        docname, labelid = self.data['anonlabels'].get(target, ('', ''))
+        if target in self.data['labels']:
+            docname, labelid, figname = self.data['labels'].get(target, ('', '', ''))
+        else:
+            docname, labelid = self.data['anonlabels'].get(target, ('', ''))
+            figname = None
+
         if not docname:
             return None
 
@@ -653,11 +658,10 @@ class StandardDomain(Domain):
             return None
 
         try:
-            figure_id = target_node['ids'][0]
-            fignumber = env.toc_fignumbers[docname][figtype][figure_id]
-        except (KeyError, IndexError):
-            # target_node is found, but fignumber is not assigned.
-            # Maybe it is defined in orphaned document.
+            fignumber = self.get_fignumber(env, builder, figtype, docname, target_node)
+            if fignumber is None:
+                return contnode
+        except ValueError:
             env.warn_node("no number is assigned for %s: %s" % (figtype, labelid), node)
             return contnode
 
@@ -667,10 +671,26 @@ class StandardDomain(Domain):
             else:
                 title = env.config.numfig_format.get(figtype, '')
 
-            newtitle = title % '.'.join(map(str, fignumber))
+            if figname is None and '%{name}' in title:
+                env.warn_node('the link has no caption: %s' % title, node)
+                return contnode
+            else:
+                fignum = '.'.join(map(str, fignumber))
+                if '{name}' in title or 'number' in title:
+                    # new style format (cf. "Fig.%{number}")
+                    if figname:
+                        newtitle = title.format(name=figname, number=fignum)
+                    else:
+                        newtitle = title.format(number=fignum)
+                else:
+                    # old style format (cf. "Fig.%s")
+                    newtitle = title % fignum
+        except KeyError as exc:
+            env.warn_node('invalid numfig_format: %s (%r)' % (title, exc), node)
+            return contnode
         except TypeError:
             env.warn_node('invalid numfig_format: %s' % title, node)
-            return None
+            return contnode
 
         return self.build_reference_node(fromdocname, builder,
                                          docname, labelid, newtitle, 'numref',
@@ -804,7 +824,9 @@ class StandardDomain(Domain):
         def has_child(node, cls):
             return any(isinstance(child, cls) for child in node)
 
-        if isinstance(node, nodes.container):
+        if isinstance(node, nodes.section):
+            return 'section'
+        elif isinstance(node, nodes.container):
             if node.get('literal_block') and has_child(node, nodes.literal_block):
                 return 'code-block'
             else:
@@ -812,6 +834,28 @@ class StandardDomain(Domain):
         else:
             figtype, _ = self.enumerable_nodes.get(node.__class__, (None, None))
             return figtype
+
+    def get_fignumber(self, env, builder, figtype, docname, target_node):
+        if figtype == 'section':
+            if builder.name == 'latex':
+                return tuple()
+            elif docname not in env.toc_secnumbers:
+                raise ValueError  # no number assigned
+            else:
+                anchorname = '#' + target_node['ids'][0]
+                if anchorname not in env.toc_secnumbers[docname]:
+                    # try first heading which has no anchor
+                    return env.toc_secnumbers[docname].get('')
+                else:
+                    return env.toc_secnumbers[docname].get(anchorname)
+        else:
+            try:
+                figure_id = target_node['ids'][0]
+                return env.toc_fignumbers[docname][figtype][figure_id]
+            except (KeyError, IndexError):
+                # target_node is found, but fignumber is not assigned.
+                # Maybe it is defined in orphaned document.
+                raise ValueError
 
 
 def setup(app):
