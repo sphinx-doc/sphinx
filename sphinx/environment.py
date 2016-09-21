@@ -29,7 +29,7 @@ from docutils import nodes
 from docutils.io import NullOutput
 from docutils.core import Publisher
 from docutils.utils import Reporter, relative_path, get_source_line
-from docutils.parsers.rst import roles, directives
+from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
 from docutils.frontend import OptionParser
 
@@ -43,6 +43,7 @@ from sphinx.util.images import guess_mimetype
 from sphinx.util.i18n import find_catalog_files, get_image_filename_for_language, \
     search_image_for_language
 from sphinx.util.console import bold, purple
+from sphinx.util.docutils import sphinx_domains
 from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
@@ -50,13 +51,6 @@ from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.transforms import SphinxContentsFilter
-
-orig_role_function = roles.role
-orig_directive_function = directives.directive
-
-
-class ElementLookupError(Exception):
-    pass
 
 
 default_settings = {
@@ -634,51 +628,6 @@ class BuildEnvironment(object):
                    error.object[error.end:lineend]), lineno)
         return (u'?', error.end)
 
-    def lookup_domain_element(self, type, name):
-        """Lookup a markup element (directive or role), given its name which can
-        be a full name (with domain).
-        """
-        name = name.lower()
-        # explicit domain given?
-        if ':' in name:
-            domain_name, name = name.split(':', 1)
-            if domain_name in self.domains:
-                domain = self.domains[domain_name]
-                element = getattr(domain, type)(name)
-                if element is not None:
-                    return element, []
-        # else look in the default domain
-        else:
-            def_domain = self.temp_data.get('default_domain')
-            if def_domain is not None:
-                element = getattr(def_domain, type)(name)
-                if element is not None:
-                    return element, []
-        # always look in the std domain
-        element = getattr(self.domains['std'], type)(name)
-        if element is not None:
-            return element, []
-        raise ElementLookupError
-
-    def patch_lookup_functions(self):
-        """Monkey-patch directive and role dispatch, so that domain-specific
-        markup takes precedence.
-        """
-        def directive(name, lang_module, document):
-            try:
-                return self.lookup_domain_element('directive', name)
-            except ElementLookupError:
-                return orig_directive_function(name, lang_module, document)
-
-        def role(name, lang_module, lineno, reporter):
-            try:
-                return self.lookup_domain_element('role', name)
-            except ElementLookupError:
-                return orig_role_function(name, lang_module, lineno, reporter)
-
-        directives.directive = directive
-        roles.role = role
-
     def read_doc(self, docname, app=None):
         """Parse a file and add/update inventory entries for the doctree."""
 
@@ -692,40 +641,39 @@ class BuildEnvironment(object):
             self.config.trim_footnote_reference_space
         self.settings['gettext_compact'] = self.config.gettext_compact
 
-        self.patch_lookup_functions()
-
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
         # read docutils.conf from source dir, not from current dir
         OptionParser.standard_config_files[1] = docutilsconf
         if path.isfile(docutilsconf):
             self.note_dependency(docutilsconf)
 
-        if self.config.default_role:
-            role_fn, messages = roles.role(self.config.default_role, english,
-                                           0, dummy_reporter)
-            if role_fn:
-                roles._roles[''] = role_fn
-            else:
-                self.warn(docname, 'default role %s not found' %
-                          self.config.default_role)
+        with sphinx_domains(self):
+            if self.config.default_role:
+                role_fn, messages = roles.role(self.config.default_role, english,
+                                               0, dummy_reporter)
+                if role_fn:
+                    roles._roles[''] = role_fn
+                else:
+                    self.warn(docname, 'default role %s not found' %
+                              self.config.default_role)
 
-        codecs.register_error('sphinx', self.warn_and_replace)
+            codecs.register_error('sphinx', self.warn_and_replace)
 
-        # publish manually
-        reader = SphinxStandaloneReader(self.app, parsers=self.config.source_parsers)
-        pub = Publisher(reader=reader,
-                        writer=SphinxDummyWriter(),
-                        destination_class=NullOutput)
-        pub.set_components(None, 'restructuredtext', None)
-        pub.process_programmatic_settings(None, self.settings, None)
-        src_path = self.doc2path(docname)
-        source = SphinxFileInput(app, self, source=None, source_path=src_path,
-                                 encoding=self.config.source_encoding)
-        pub.source = source
-        pub.settings._source = src_path
-        pub.set_destination(None, None)
-        pub.publish()
-        doctree = pub.document
+            # publish manually
+            reader = SphinxStandaloneReader(self.app, parsers=self.config.source_parsers)
+            pub = Publisher(reader=reader,
+                            writer=SphinxDummyWriter(),
+                            destination_class=NullOutput)
+            pub.set_components(None, 'restructuredtext', None)
+            pub.process_programmatic_settings(None, self.settings, None)
+            src_path = self.doc2path(docname)
+            source = SphinxFileInput(app, self, source=None, source_path=src_path,
+                                     encoding=self.config.source_encoding)
+            pub.source = source
+            pub.settings._source = src_path
+            pub.set_destination(None, None)
+            pub.publish()
+            doctree = pub.document
 
         # post-processing
         self.process_dependencies(docname, doctree)

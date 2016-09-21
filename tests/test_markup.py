@@ -17,30 +17,33 @@ from docutils.parsers import rst
 
 from sphinx import addnodes
 from sphinx.util import texescape
+from sphinx.util.docutils import sphinx_domains
 from sphinx.writers.html import HTMLWriter, SmartyPantsHTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
 
 from util import TestApp, with_app, assert_node
 
 
-app = settings = parser = None
+app = settings = parser = domain_context = None
 
 
 def setup_module():
-    global app, settings, parser
+    global app, settings, parser, domain_context
     texescape.init()  # otherwise done by the latex builder
     app = TestApp()
     optparser = frontend.OptionParser(
         components=(rst.Parser, HTMLWriter, LaTeXWriter))
     settings = optparser.get_default_values()
     settings.env = app.builder.env
-    settings.env.patch_lookup_functions()
     settings.env.temp_data['docname'] = 'dummy'
     parser = rst.Parser()
+    domain_context = sphinx_domains(settings.env)
+    domain_context.enable()
 
 
 def teardown_module():
     app.cleanup()
+    domain_context.disable()
 
 
 # since we're not resolving the markup afterwards, these nodes may remain

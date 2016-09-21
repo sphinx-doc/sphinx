@@ -23,6 +23,7 @@ from distutils.errors import DistutilsOptionError, DistutilsExecError
 from sphinx.application import Sphinx
 from sphinx.cmdline import handle_exception
 from sphinx.util.console import nocolor, color_terminal
+from sphinx.util.docutils import docutils_namespace
 from sphinx.util.osutil import abspath
 
 
@@ -165,15 +166,16 @@ class BuildDoc(Command):
             confoverrides['copyright'] = self.copyright
 
         try:
-            app = Sphinx(self.source_dir, self.config_dir,
-                         self.builder_target_dir, self.doctree_dir,
-                         self.builder, confoverrides, status_stream,
-                         freshenv=self.fresh_env,
-                         warningiserror=self.warning_is_error)
-            app.build(force_all=self.all_files)
-            if app.statuscode:
-                raise DistutilsExecError(
-                    'caused by %s builder.' % app.builder.name)
+            with docutils_namespace():
+                app = Sphinx(self.source_dir, self.config_dir,
+                             self.builder_target_dir, self.doctree_dir,
+                             self.builder, confoverrides, status_stream,
+                             freshenv=self.fresh_env,
+                             warningiserror=self.warning_is_error)
+                app.build(force_all=self.all_files)
+                if app.statuscode:
+                    raise DistutilsExecError(
+                        'caused by %s builder.' % app.builder.name)
         except Exception as exc:
             handle_exception(app, self, exc, sys.stderr)
             if not self.pdb:
