@@ -446,7 +446,7 @@ msgstr "Page de recherche"
 #: sphinx/ext/autodoc.py:1265
 #, python-format
 msgid "   Bases: %s"
-msgstr "Bases: %s"
+msgstr "   Bases: %s"
 
 #: sphinx/ext/autodoc.py:1318
 #, python-format

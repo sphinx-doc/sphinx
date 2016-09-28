@@ -23,6 +23,7 @@ Bugs fixed
   target.  Now `code-block` and `literalinclude` does not define hyperlink
   target using its caption automatially.
 * #2962: latex: missing label of longtable
+* #2968: autodoc: show-inheritance option breaks docstrings
 
 Release 1.4.6 (released Aug 20, 2016)
 =====================================
