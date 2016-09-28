@@ -441,7 +441,7 @@ msgstr "Cerca"
 #: sphinx/ext/autodoc.py:1265
 #, python-format
 msgid "   Bases: %s"
-msgstr "Basi: %s"
+msgstr "   Basi: %s"
 
 #: sphinx/ext/autodoc.py:1318
 #, python-format
