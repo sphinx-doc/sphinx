@@ -1281,7 +1281,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
                          u':class:`%s`' % b.__name__ or
                          u':class:`%s.%s`' % (b.__module__, b.__name__)
                          for b in self.object.__bases__]
-                self.add_line(_(u'   Bases: %s') % ', '.join(bases),
+                self.add_line(u'   ' + _(u'Bases: %s') % ', '.join(bases),
                               sourcename)
 
     def get_doc(self, encoding=None, ignore=1):
