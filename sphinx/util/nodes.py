@@ -8,6 +8,7 @@
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import absolute_import
 
 import re
 
@@ -85,7 +86,18 @@ IGNORED_NODES = (
 )
 
 
+def is_pending_meta(node):
+    if (isinstance(node, nodes.pending) and
+       isinstance(node.details.get('nodes', [None])[0], addnodes.meta)):
+        return True
+    else:
+        return False
+
+
 def is_translatable(node):
+    if isinstance(node, addnodes.translatable):
+        return True
+
     if isinstance(node, nodes.TextElement):
         if not node.source:
             return False  # built-in message
@@ -103,6 +115,11 @@ def is_translatable(node):
     if isinstance(node, nodes.image) and node.get('translatable'):
         return True
 
+    if isinstance(node, addnodes.meta):
+        return True
+    if is_pending_meta(node):
+        return True
+
     return False
 
 
@@ -114,11 +131,18 @@ LITERAL_TYPE_NODES = (
 IMAGE_TYPE_NODES = (
     nodes.image,
 )
+META_TYPE_NODES = (
+    addnodes.meta,
+)
 
 
 def extract_messages(doctree):
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(is_translatable):
+        if isinstance(node, addnodes.translatable):
+            for msg in node.extract_original_messages():
+                yield node, msg
+            continue
         if isinstance(node, LITERAL_TYPE_NODES):
             msg = node.rawsource
             if not msg:
@@ -127,6 +151,10 @@ def extract_messages(doctree):
             msg = '.. image:: %s' % node['uri']
             if node.get('alt'):
                 msg += '\n   :alt: %s' % node['alt']
+        elif isinstance(node, META_TYPE_NODES):
+            msg = node.rawcontent
+        elif is_pending_meta(node):
+            msg = node.details['nodes'][0].rawcontent
         else:
             msg = node.rawsource.replace('\n', ' ').strip()
 

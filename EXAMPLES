@@ -9,7 +9,12 @@ be included, please mail to `the Google group
 I've grouped the list into sections to make it easier to find
 interesting examples.
 
-Documentation using the default theme
+Documentation using the alabaster theme
+---------------------------------------
+
+* PyLangAcq: http://pylangacq.org/
+
+Documentation using the classic theme
 -------------------------------------
 
 * APSW: http://apidoc.apsw.googlecode.com/hg/index.html
@@ -54,7 +59,9 @@ Documentation using the default theme
 * python-apt: http://apt.alioth.debian.org/python-apt-doc/
 * PyUblas: https://documen.tician.de/pyublas/
 * Quex: http://quex.sourceforge.net/doc/html/main.html
+* Ring programming language: http://ring-lang.sourceforge.net/doc/index.html
 * Scapy: http://www.secdev.org/projects/scapy/doc/
+* Seaborn: https://stanford.edu/~mwaskom/software/seaborn/
 * Segway: http://noble.gs.washington.edu/proj/segway/doc/1.1.0/segway.html
 * SimPy: http://simpy.readthedocs.org/en/latest/
 * SymPy: http://docs.sympy.org/
@@ -62,11 +69,12 @@ Documentation using the default theme
 * z3c: http://www.ibiblio.org/paulcarduner/z3ctutorial/
 
 
-Documentation using a customized version of the default theme
+Documentation using a customized version of the classic theme
 -------------------------------------------------------------
 
 * Advanced Generic Widgets:
   http://xoomer.virgilio.it/infinity77/AGW_Docs/index.html
+* Arb: http://fredrikj.net/arb/
 * Bazaar: http://doc.bazaar.canonical.com/en/
 * CakePHP: http://book.cakephp.org/2.0/en/index.html
 * Chaco: http://docs.enthought.com/chaco/
@@ -121,9 +129,11 @@ Documentation using another builtin theme
 -----------------------------------------
 
 * C/C++ Development with Eclipse: http://eclipsebook.in/ (agogo)
+* ESWP3 (http://eswp3.org) (sphinx_rtd_theme)
 * Jinja: http://jinja.pocoo.org/ (scrolls)
 * jsFiddle: http://doc.jsfiddle.net/ (nature)
 * libLAS: http://www.liblas.org/ (nature)
+* Linguistica: http://linguistica-uchicago.github.io/lxa5/ (sphinx_rtd_theme)
 * MPipe: http://vmlaker.github.io/mpipe/ (sphinx13)
 * pip: https://pip.pypa.io/en/latest/ (sphinx_rtd_theme)
 * Pyramid web framework:
@@ -157,6 +167,7 @@ Documentation using a custom theme/integrated in a site
 * Flask-OpenID: http://pythonhosted.org/Flask-OpenID/
 * Gameduino: http://excamera.com/sphinx/gameduino/
 * GeoServer: http://docs.geoserver.org/
+* GHC - Glasgow Haskell Compiler: http://downloads.haskell.org/~ghc/master/users-guide/
 * Glashammer: http://glashammer.org/
 * Istihza (Turkish Python documentation project): http://belgeler.istihza.com/py2/
 * Lasso: http://lassoguide.com/

@@ -15,9 +15,6 @@ Sphinx image handling
 .. an image with unspecified extension
 .. image:: img.*
 
-.. a non-existing image with .*
-.. image:: foo.*
-
 .. a non-local image URI
 .. image:: http://www.python.org/logo.png
 

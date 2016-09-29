@@ -1,55 +1,56 @@
-# Turkish translations for Sphinx.
+# Translations template for Sphinx.
 # Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
-#
+# 
+# Translators:
+# Fırat Özgül <ozgulfirat@gmail.com>, 2013-2016
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011
 msgid ""
 msgstr ""
-"Project-Id-Version:  Sphinx\n"
+"Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-02-14 22:15+0900\n"
-"PO-Revision-Date: 2015-03-08 14:35+0000\n"
-"Last-Translator: Takayuki Shimizukawa <shimizukawa@gmail.com>\n"
-"Language: tr\n"
-"Language-Team: Turkish "
-"(http://www.transifex.com/projects/p/sphinx-1/language/tr/)\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"POT-Creation-Date: 2016-03-06 21:58+0900\n"
+"PO-Revision-Date: 2016-03-14 14:17+0000\n"
+"Last-Translator: Fırat Özgül <ozgulfirat@gmail.com>\n"
+"Language-Team: Turkish (http://www.transifex.com/sphinx-doc/sphinx-1/language/tr/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.2.0\n"
+"Language: tr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: sphinx/config.py:84
+#: sphinx/config.py:91
 #, python-format
 msgid "Fig. %s"
 msgstr "Şekil %s"
 
-#: sphinx/config.py:85
+#: sphinx/config.py:92
 #, python-format
 msgid "Table %s"
 msgstr "Tablo %s"
 
-#: sphinx/config.py:86
+#: sphinx/config.py:93
 #, python-format
 msgid "Listing %s"
 msgstr "Liste %s"
 
-#: sphinx/config.py:93
+#: sphinx/config.py:100
 #, python-format
 msgid "%s %s documentation"
 msgstr "%s %s belgelendirme çalışması"
 
-#: sphinx/environment.py:1815
+#: sphinx/environment.py:1829
 #, python-format
 msgid "see %s"
 msgstr "bkz. %s"
 
-#: sphinx/environment.py:1819
+#: sphinx/environment.py:1833
 #, python-format
 msgid "see also %s"
 msgstr "ayrıca bkz. %s"
 
-#: sphinx/environment.py:1879
+#: sphinx/environment.py:1893
 msgid "Symbols"
 msgstr "Simgeler"
 
@@ -58,10 +59,10 @@ msgstr "Simgeler"
 msgid "Python Enhancement Proposals; PEP %s"
 msgstr "Python'ı İyileştirme Önerileri; PEP %s"
 
-#: sphinx/transforms.py:56 sphinx/writers/latex.py:357
+#: sphinx/transforms.py:56 sphinx/writers/latex.py:374
 #: sphinx/writers/manpage.py:101 sphinx/writers/texinfo.py:222
 msgid "MMMM dd, YYYY"
-msgstr ""
+msgstr "AAAA gg, YYY"
 
 #: sphinx/builders/changes.py:75
 msgid "Builtins"
@@ -73,7 +74,7 @@ msgstr "Modül düzeyi"
 
 #: sphinx/builders/html.py:295
 msgid "MMM dd, YYYY"
-msgstr ""
+msgstr "AAA gg, YYYY"
 
 #: sphinx/builders/html.py:315 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
@@ -91,7 +92,7 @@ msgstr "sonraki"
 msgid "previous"
 msgstr "önceki"
 
-#: sphinx/builders/latex.py:165 sphinx/builders/texinfo.py:199
+#: sphinx/builders/latex.py:180 sphinx/builders/texinfo.py:199
 msgid " (in "
 msgstr " (şurada:  "
 
@@ -178,9 +179,8 @@ msgid "variable"
 msgstr "değişkeni"
 
 #: sphinx/domains/cpp.py:3608
-#, fuzzy
 msgid "Template Parameters"
-msgstr "Parametreler"
+msgstr "Şablon Parametreleri"
 
 #: sphinx/domains/cpp.py:3611 sphinx/domains/javascript.py:125
 msgid "Throws"
@@ -425,7 +425,7 @@ msgstr "program seçeneği"
 #: sphinx/themes/basic/genindex-split.html:14
 #: sphinx/themes/basic/genindex.html:32 sphinx/themes/basic/genindex.html:35
 #: sphinx/themes/basic/genindex.html:68 sphinx/themes/basic/layout.html:134
-#: sphinx/writers/latex.py:346 sphinx/writers/texinfo.py:481
+#: sphinx/writers/latex.py:363 sphinx/writers/texinfo.py:481
 msgid "Index"
 msgstr "Dizin"
 
@@ -447,12 +447,12 @@ msgstr "   Taban: %s"
 msgid "alias of :class:`%s`"
 msgstr "şunun takma adı: :class:`%s`"
 
-#: sphinx/ext/graphviz.py:307 sphinx/ext/graphviz.py:316
+#: sphinx/ext/graphviz.py:309 sphinx/ext/graphviz.py:318
 #, python-format
 msgid "[graph: %s]"
 msgstr "[çizim: %s]"
 
-#: sphinx/ext/graphviz.py:309 sphinx/ext/graphviz.py:318
+#: sphinx/ext/graphviz.py:311 sphinx/ext/graphviz.py:320
 msgid "[graph]"
 msgstr "[çizim]"
 
@@ -470,14 +470,13 @@ msgid "Todo"
 msgstr "Yapılacaklar"
 
 #: sphinx/ext/todo.py:129
-#, fuzzy
 msgid "<<original entry>>"
-msgstr "özgün girdi"
+msgstr "<<özgün girdi>>"
 
 #: sphinx/ext/todo.py:132
-#, fuzzy, python-format
+#, python-format
 msgid "(The <<original entry>> is located in %s, line %d.)"
-msgstr "(<<özgün girdi>> %s içinde ve %d satırında bulunuyor.)"
+msgstr "(<<özgün girdi>> %s içinde, %d. satırda.)"
 
 #: sphinx/ext/todo.py:141
 msgid "original entry"
@@ -594,11 +593,7 @@ msgstr "Ara"
 msgid "Go"
 msgstr "Git"
 
-#: sphinx/themes/agogo/layout.html:59 sphinx/themes/basic/searchbox.html:20
-msgid "Enter search terms or a module, class or function name."
-msgstr "Aranacak terimleri veya modül, sınıf ya da fonksiyon adını yazınız"
-
-#: sphinx/themes/agogo/layout.html:84 sphinx/themes/basic/sourcelink.html:15
+#: sphinx/themes/agogo/layout.html:81 sphinx/themes/basic/sourcelink.html:15
 msgid "Show Source"
 msgstr "Kaynağı Göster"
 
@@ -703,9 +698,7 @@ msgstr "Son güncelleme: %(last_updated)s."
 msgid ""
 "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
-msgstr ""
-"<a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s ile "
-"oluşturulmuştur."
+msgstr "<a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s ile oluşturulmuştur."
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
@@ -732,9 +725,7 @@ msgstr "sonraki bölüm"
 msgid ""
 "Please activate JavaScript to enable the search\n"
 "    functionality."
-msgstr ""
-"Arama işlevini kullanabilmek için lütfen JavaScript'i\n"
-"    etkinleştirin."
+msgstr "Arama işlevini kullanabilmek için lütfen JavaScript'i\n    etkinleştirin."
 
 #: sphinx/themes/basic/search.html:32
 msgid ""
@@ -742,29 +733,26 @@ msgid ""
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
-msgstr ""
-"Burada belgeler içinde arama yapabilirsiniz. Aradığınız kelimeyi \n"
-"aşağıdaki kutuya yazıp \"ara\" düğmesine basınız. Arama işlevi \n"
-"otomatik olarak bütün kelimeleri arayacaktır. Eksik kelime içeren \n"
-"sayfalar sonuç listesinde görünmez."
+msgstr "Burada belgeler içinde arama yapabilirsiniz. Aradığınız kelimeyi \naşağıdaki kutuya yazıp \"ara\" düğmesine basınız. Arama işlevi \notomatik olarak bütün kelimeleri arayacaktır. Eksik kelime içeren \nsayfalar sonuç listesinde görünmez."
 
-#: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
+#: sphinx/themes/basic/search.html:39
+#: sphinx/themes/basic/searchresults.html:17
 msgid "search"
 msgstr "ara"
 
-#: sphinx/themes/basic/search.html:43 sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/search.html:43
+#: sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js_t:282
 msgid "Search Results"
 msgstr "Arama Sonuçları"
 
-#: sphinx/themes/basic/search.html:45 sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/search.html:45
+#: sphinx/themes/basic/searchresults.html:23
 #: sphinx/themes/basic/static/searchtools.js_t:284
 msgid ""
-"Your search did not match any documents. Please make sure that all words "
-"are spelled correctly and that you've selected enough categories."
-msgstr ""
-"Arama sonucunda herhangi bir belge bulunamadı. Bütün kelimeleri doğru "
-"yazdığınızdan ve gerekli bütün kategorileri seçtiğinizden emin olun."
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
+msgstr "Arama sonucunda herhangi bir belge bulunamadı. Bütün kelimeleri doğru yazdığınızdan ve gerekli bütün kategorileri seçtiğinizden emin olun."
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
@@ -855,46 +843,38 @@ msgstr "Bu resmin kalıcı bağlantısı"
 
 #: sphinx/writers/html.py:355
 msgid "Permalink to this toctree"
-msgstr ""
+msgstr "Bu içindekiler tablosunun kalıcı bağlantısı"
 
 #: sphinx/writers/html.py:677
 msgid "Permalink to this table"
 msgstr "Bu tablonun kalıcı bağlantısı"
 
-#: sphinx/writers/latex.py:344
+#: sphinx/writers/latex.py:361
 msgid "Release"
 msgstr "Sürüm"
 
-#: sphinx/writers/latex.py:408
-#, fuzzy
+#: sphinx/writers/latex.py:427
 msgid "page"
-msgstr "Tehlike"
+msgstr "sayfa"
 
-#: sphinx/writers/latex.py:908 sphinx/writers/manpage.py:226
+#: sphinx/writers/latex.py:920 sphinx/writers/manpage.py:233
 #: sphinx/writers/texinfo.py:620
 msgid "Footnotes"
 msgstr "Dipnotları"
 
-#: sphinx/writers/latex.py:1010
+#: sphinx/writers/latex.py:1022
 msgid "continued from previous page"
 msgstr "önceki sayfadan devam"
 
-#: sphinx/writers/latex.py:1016
+#: sphinx/writers/latex.py:1028
 msgid "Continued on next page"
 msgstr "Devamı sonraki sayfada"
 
-#: sphinx/writers/manpage.py:275 sphinx/writers/text.py:582
+#: sphinx/writers/manpage.py:282 sphinx/writers/text.py:582
 #, python-format
 msgid "[image: %s]"
 msgstr "[resim: %s]"
 
-#: sphinx/writers/manpage.py:276 sphinx/writers/text.py:583
+#: sphinx/writers/manpage.py:283 sphinx/writers/text.py:583
 msgid "[image]"
 msgstr "[resim]"
-
-#~ msgid "%B %d, %Y"
-#~ msgstr "%d %B %Y"
-
-#~ msgid "%b %d, %Y"
-#~ msgstr "%d %b %Y"
-

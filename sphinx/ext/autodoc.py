@@ -35,7 +35,10 @@ from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
 from sphinx.util.docstrings import prepare_docstring
 
 try:
-    import typing
+    if sys.version_info >= (3,):
+        import typing
+    else:
+        typing = None
 except ImportError:
     typing = None
 
@@ -83,17 +86,21 @@ class Options(dict):
 
 class _MockModule(object):
     """Used by autodoc_mock_imports."""
+    __file__ = '/dev/null'
+    __path__ = '/dev/null'
+
     def __init__(self, *args, **kwargs):
-        pass
+        self.__all__ = []
 
     def __call__(self, *args, **kwargs):
         return _MockModule()
 
+    def _append_submodule(self, submod):
+        self.__all__.append(submod)
+
     @classmethod
     def __getattr__(cls, name):
-        if name in ('__file__', '__path__'):
-            return '/dev/null'
-        elif name[0] == name[0].upper():
+        if name[0] == name[0].upper():
             # Not very good, we assume Uppercase names are classes...
             mocktype = type(name, (), {})
             mocktype.__module__ = __name__
@@ -106,9 +113,12 @@ def mock_import(modname):
     if '.' in modname:
         pkg, _n, mods = modname.rpartition('.')
         mock_import(pkg)
-    mod = _MockModule()
-    sys.modules[modname] = mod
-    return mod
+        if isinstance(sys.modules[pkg], _MockModule):
+            sys.modules[pkg]._append_submodule(mods)
+
+    if modname not in sys.modules:
+        mod = _MockModule()
+        sys.modules[modname] = mod
 
 
 ALL = object()
@@ -258,20 +268,29 @@ def format_annotation(annotation):
 
     Displaying complex types from ``typing`` relies on its private API.
     """
+    if typing and isinstance(annotation, typing.TypeVar):
+        return annotation.__name__
+    if not isinstance(annotation, type):
+        return repr(annotation)
+
     qualified_name = (annotation.__module__ + '.' + annotation.__qualname__
                       if annotation else repr(annotation))
 
-    if not isinstance(annotation, type):
-        return repr(annotation)
-    elif annotation.__module__ == 'builtins':
+    if annotation.__module__ == 'builtins':
         return annotation.__qualname__
     elif typing:
-        if isinstance(annotation, typing.TypeVar):
-            return annotation.__name__
-        elif hasattr(typing, 'GenericMeta') and \
-                isinstance(annotation, typing.GenericMeta) and \
-                hasattr(annotation, '__parameters__'):
-            params = annotation.__parameters__
+        if hasattr(typing, 'GenericMeta') and \
+                isinstance(annotation, typing.GenericMeta):
+            # In Python 3.5.2+, all arguments are stored in __args__,
+            # whereas __parameters__ only contains generic parameters.
+            #
+            # Prior to Python 3.5.2, __args__ is not available, and all
+            # arguments are in __parameters__.
+            params = None
+            if hasattr(annotation, '__args__'):
+                params = annotation.__args__
+            elif hasattr(annotation, '__parameters__'):
+                params = annotation.__parameters__
             if params is not None:
                 param_str = ', '.join(format_annotation(p) for p in params)
                 return '%s[%s]' % (qualified_name, param_str)
@@ -502,7 +521,7 @@ class Documenter(object):
         try:
             dbg('[autodoc] import %s', self.modname)
             for modname in self.env.config.autodoc_mock_imports:
-                dbg('[autodoc] adding a mock module %s!', self.modname)
+                dbg('[autodoc] adding a mock module %s!', modname)
                 mock_import(modname)
             __import__(self.modname)
             parent = None
@@ -1262,7 +1281,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):
                          u':class:`%s`' % b.__name__ or
                          u':class:`%s.%s`' % (b.__module__, b.__name__)
                          for b in self.object.__bases__]
-                self.add_line(_(u'   Bases: %s') % ', '.join(bases),
+                self.add_line(u'   ' + _(u'Bases: %s') % ', '.join(bases),
                               sourcename)
 
     def get_doc(self, encoding=None, ignore=1):

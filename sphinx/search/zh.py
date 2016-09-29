@@ -256,7 +256,6 @@ class SearchChinese(SearchLanguage):
                 make at least the stem method nicer.
                 """
                 def stem(self, word):
-                    word = word.lower()
                     return PorterStemmer.stem(self, word, 0, len(word) - 1)
 
         self.stemmer = Stemmer()

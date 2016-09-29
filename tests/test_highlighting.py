@@ -65,7 +65,7 @@ def test_detect_interactive():
 
 def test_lexer_options():
     bridge = PygmentsBridge('html')
-    ret = bridge.highlight_block('//comment', 'php', opts={'startinline' : True})
+    ret = bridge.highlight_block('//comment', 'php', opts={'startinline': True})
     assert '<span class="c1">//comment</span>' in ret
 
 

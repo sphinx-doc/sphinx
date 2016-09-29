@@ -15,8 +15,9 @@ import pickle
 from docutils import nodes
 from textwrap import dedent
 from sphinx.errors import SphinxError
+import sphinx.builders.linkcheck
 
-from util import with_app, rootdir, tempdir, SkipTest, TestApp
+from util import mock, with_app, with_tempdir, rootdir, tempdir, SkipTest, TestApp
 
 try:
     from docutils.writers.manpage import Writer as ManWriter
@@ -24,15 +25,11 @@ except ImportError:
     ManWriter = None
 
 
-class MockOpener(object):
-    def open(self, req, **kwargs):
-        class result(BytesIO):
-            headers = None
-            url = req.url
-        return result()
-
-import sphinx.builders.linkcheck
-sphinx.builders.linkcheck.opener = MockOpener()
+def request_session_head(url, **kwargs):
+    response = mock.Mock()
+    response.status_code = 200
+    response.url = url
+    return response
 
 
 def verify_build(buildername, srcdir):
@@ -68,24 +65,30 @@ def test_build_all():
                 """ % {'test_name': test_name})
         )
 
-    # note: no 'html' - if it's ok with dirhtml it's ok with html
-    for buildername in ['dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle',
-                        'json', 'text', 'htmlhelp', 'qthelp', 'epub', 'epub3',
-                        'applehelp', 'changes', 'xml', 'pseudoxml', 'man',
-                        'linkcheck']:
-        yield verify_build, buildername, srcdir
+    with mock.patch('sphinx.builders.linkcheck.requests') as requests:
+        requests.Session().head = request_session_head
+
+        # note: no 'html' - if it's ok with dirhtml it's ok with html
+        for buildername in ['dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle',
+                            'json', 'text', 'htmlhelp', 'qthelp', 'epub2', 'epub',
+                            'applehelp', 'changes', 'xml', 'pseudoxml', 'man',
+                            'linkcheck']:
+            yield verify_build, buildername, srcdir
 
 
-@with_app(buildername='text')
-def test_master_doc_not_found(app, status, warning):
-    (app.srcdir / 'contents.txt').move(app.srcdir / 'contents.txt.bak')
+@with_tempdir
+def test_master_doc_not_found(tmpdir):
+    (tmpdir / 'conf.py').write_text('master_doc = "index"')
+    assert tmpdir.listdir() == ['conf.py']
+
     try:
+        app = TestApp(buildername='dummy', srcdir=tmpdir)
         app.builder.build_all()
         assert False  # SphinxError not raised
     except Exception as exc:
         assert isinstance(exc, SphinxError)
     finally:
-        (app.srcdir / 'contents.txt.bak').move(app.srcdir / 'contents.txt')
+        app.cleanup()
 
 
 @with_app(buildername='text', testroot='circular')

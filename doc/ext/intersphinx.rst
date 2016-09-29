@@ -121,3 +121,14 @@ linking:
    The maximum number of days to cache remote inventories.  The default is
    ``5``, meaning five days.  Set this to a negative value to cache inventories
    for unlimited time.
+
+.. confval:: intersphinx_timeout
+
+   The number of seconds for timeout.  The default is ``None``, meaning do not
+   timeout.
+
+   .. note::
+
+      timeout is not a time limit on the entire response download; rather, an
+      exception is raised if the server has not issued a response for timeout
+      seconds.

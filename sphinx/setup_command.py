@@ -15,13 +15,15 @@ from __future__ import print_function
 
 import sys
 import os
+
+from six import StringIO, string_types
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError, DistutilsExecError
 
-from six import StringIO, string_types
-
 from sphinx.application import Sphinx
-from sphinx.util.console import darkred, nocolor, color_terminal
+from sphinx.cmdline import handle_exception
+from sphinx.util.console import nocolor, color_terminal
+from sphinx.util.docutils import docutils_namespace
 from sphinx.util.osutil import abspath
 
 
@@ -71,6 +73,7 @@ class BuildDoc(Command):
         ('build-dir=', None, 'Build directory'),
         ('config-dir=', 'c', 'Location of the configuration directory'),
         ('builder=', 'b', 'The builder to use. Defaults to "html"'),
+        ('warning-is-error', 'W', 'Turn warning into errors'),
         ('project=', None, 'The documented project\'s name'),
         ('version=', None, 'The short X.Y version'),
         ('release=', None, 'The full version, including alpha/beta/rc tags'),
@@ -78,13 +81,17 @@ class BuildDoc(Command):
          'replacement for |today|'),
         ('link-index', 'i', 'Link index.html to the master doc'),
         ('copyright', None, 'The copyright string'),
+        ('pdb', None, 'Start pdb on exception'),
     ]
-    boolean_options = ['fresh-env', 'all-files', 'link-index']
+    boolean_options = ['fresh-env', 'all-files', 'warning-is-error',
+                       'link-index']
 
     def initialize_options(self):
         self.fresh_env = self.all_files = False
+        self.pdb = False
         self.source_dir = self.build_dir = None
         self.builder = 'html'
+        self.warning_is_error = False
         self.project = ''
         self.version = ''
         self.release = ''
@@ -92,6 +99,8 @@ class BuildDoc(Command):
         self.config_dir = None
         self.link_index = False
         self.copyright = ''
+        self.verbosity = 0
+        self.traceback = False
 
     def _guess_source_dir(self):
         for guess in ('doc', 'docs'):
@@ -155,24 +164,22 @@ class BuildDoc(Command):
             confoverrides['today'] = self.today
         if self.copyright:
             confoverrides['copyright'] = self.copyright
-        app = Sphinx(self.source_dir, self.config_dir,
-                     self.builder_target_dir, self.doctree_dir,
-                     self.builder, confoverrides, status_stream,
-                     freshenv=self.fresh_env)
 
         try:
-            app.build(force_all=self.all_files)
-            if app.statuscode:
-                raise DistutilsExecError(
-                    'caused by %s builder.' % app.builder.name)
-        except Exception as err:
-            from docutils.utils import SystemMessage
-            if isinstance(err, SystemMessage):
-                print(darkred('reST markup error:'), file=sys.stderr)
-                print(err.args[0].encode('ascii', 'backslashreplace'),
-                      file=sys.stderr)
-            else:
-                raise
+            with docutils_namespace():
+                app = Sphinx(self.source_dir, self.config_dir,
+                             self.builder_target_dir, self.doctree_dir,
+                             self.builder, confoverrides, status_stream,
+                             freshenv=self.fresh_env,
+                             warningiserror=self.warning_is_error)
+                app.build(force_all=self.all_files)
+                if app.statuscode:
+                    raise DistutilsExecError(
+                        'caused by %s builder.' % app.builder.name)
+        except Exception as exc:
+            handle_exception(app, self, exc, sys.stderr)
+            if not self.pdb:
+                raise SystemExit(1)
 
         if self.link_index:
             src = app.config.master_doc + app.builder.out_suffix

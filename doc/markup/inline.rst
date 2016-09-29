@@ -200,21 +200,30 @@ Referencing downloadable files
    The ``example.py`` file will be copied to the output directory, and a
    suitable link generated to it.
 
+   Not to show unavailable download links, you should wrap whole paragraphs that
+   have this role::
+
+      .. only:: builder_html
+
+         See :download:`this example script <../example.py>`.
 
 Cross-referencing figures by figure number
 ------------------------------------------
 
 .. versionadded:: 1.3
 
+.. versionchanged:: 1.5
+   `numref` role can also refer sections.
+
 .. rst:role:: numref
 
-   Link to the specified figures, tables and code-blocks; the standard reST
-   labels are used. When you use this role, it will insert a reference to the
-   figure with link text by its figure number like "Fig. 1.1".
+   Link to the specified figures, tables, code-blocks and sections; the standard
+   reST labels are used.  When you use this role, it will insert a reference to
+   the figure with link text by its figure number like "Fig. 1.1".
 
    If an explicit link text is given (like usual: ``:numref:`Image of Sphinx (Fig.
    %s) <my-figure>```), the link caption will be the title of the reference.
-   As a special character, `%s` will be replaced to figure number.
+   The format of link text is same as :confval:`numfig_format`.
 
    If :confval:`numfig` is ``False``, figures are not numbered.
    so this role inserts not a reference but labels or link text.

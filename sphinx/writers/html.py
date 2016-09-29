@@ -69,6 +69,7 @@ class HTMLTranslator(BaseTranslator):
             builder.config.highlight_language
         self.highlightopts = builder.config.highlight_options
         self.highlightlinenothreshold = sys.maxsize
+        self.docnames = [builder.current_docname]  # for singlehtml builder
         self.protect_literal_text = 0
         self.permalink_text = builder.config.html_add_permalinks
         # support backwards-compatible setting to a bool
@@ -82,10 +83,11 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_start_of_file(self, node):
         # only occurs in the single-file builder
+        self.docnames.append(node['docname'])
         self.body.append('<span id="document-%s"></span>' % node['docname'])
 
     def depart_start_of_file(self, node):
-        pass
+        self.docnames.pop()
 
     def visit_desc(self, node):
         self.body.append(self.starttag(node, 'dl', CLASS=node['objtype']))
@@ -197,7 +199,7 @@ class HTMLTranslator(BaseTranslator):
         else:
             atts['class'] += ' external'
         if 'refuri' in node:
-            atts['href'] = node['refuri']
+            atts['href'] = node['refuri'] or '#'
             if self.settings.cloak_email_addresses and \
                atts['href'].startswith('mailto:'):
                 atts['href'] = self.cloak_mailto(atts['href'])
@@ -211,6 +213,8 @@ class HTMLTranslator(BaseTranslator):
             atts['class'] += ' image-reference'
         if 'reftitle' in node:
             atts['title'] = node['reftitle']
+        if 'target' in node:
+            atts['target'] = node['target']
         self.body.append(self.starttag(node, 'a', '', **atts))
 
         if node.get('secnumber'):
@@ -247,7 +251,7 @@ class HTMLTranslator(BaseTranslator):
                              self.secnumber_suffix)
         elif isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
-                docname = node.parent.get('docname')
+                docname = self.docnames[-1]
                 anchorname = '#' + node.parent['ids'][0]
                 if (docname, anchorname) not in self.builder.secnumbers:
                     anchorname = (docname, '')  # try first heading which has no anchor
@@ -264,21 +268,26 @@ class HTMLTranslator(BaseTranslator):
 
     def add_fignumber(self, node):
         def append_fignumber(figtype, figure_id):
-            if figure_id in self.builder.fignumbers.get(figtype, {}):
+            if self.builder.name == 'singlehtml':
+                key = (self.docnames[-1], figtype)
+            else:
+                key = figtype
+
+            if figure_id in self.builder.fignumbers.get(key, {}):
                 self.body.append('<span class="caption-number">')
                 prefix = self.builder.config.numfig_format.get(figtype)
                 if prefix is None:
                     msg = 'numfig_format is not defined for %s' % figtype
                     self.builder.warn(msg)
                 else:
-                    numbers = self.builder.fignumbers[figtype][figure_id]
+                    numbers = self.builder.fignumbers[key][figure_id]
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
                     self.body.append('</span>')
 
         figtype = self.builder.env.domains['std'].get_figtype(node)
         if figtype:
             if len(node['ids']) == 0:
-                msg = 'Any IDs not assiend for %s node' % node.tagname
+                msg = 'Any IDs not assigned for %s node' % node.tagname
                 self.builder.env.warn_node(msg, node)
             else:
                 append_fignumber(figtype, node['ids'][0])
@@ -439,7 +448,7 @@ class HTMLTranslator(BaseTranslator):
         pass
 
     def visit_download_reference(self, node):
-        if node.hasattr('filename'):
+        if self.builder.download_support and node.hasattr('filename'):
             self.body.append(
                 '<a class="reference download internal" href="%s" download="">' %
                 posixpath.join(self.builder.dlpath, node['filename']))
@@ -458,15 +467,14 @@ class HTMLTranslator(BaseTranslator):
             node['uri'] = posixpath.join(self.builder.imgpath,
                                          self.builder.images[olduri])
 
-        if node['uri'].lower().endswith('svg') or \
-           node['uri'].lower().endswith('svgz'):
-            atts = {'src': node['uri']}
+        uri = node['uri']
+        if uri.lower().endswith('svg') or uri.lower().endswith('svgz'):
+            atts = {'src': uri}
             if 'width' in node:
                 atts['width'] = node['width']
             if 'height' in node:
                 atts['height'] = node['height']
-            if 'alt' in node:
-                atts['alt'] = node['alt']
+            atts['alt'] = node.get('alt', uri)
             if 'align' in node:
                 self.body.append('<div align="%s" class="align-%s">' %
                                  (node['align'], node['align']))
@@ -546,7 +554,7 @@ class HTMLTranslator(BaseTranslator):
                     self.body.append(token)
                 else:
                     # protect runs of multiple spaces; the last one can wrap
-                    self.body.append('&nbsp;' * (len(token)-1) + ' ')
+                    self.body.append('&#160;' * (len(token)-1) + ' ')
         else:
             if self.in_mailto and self.settings.cloak_email_addresses:
                 encoded = self.cloak_email(encoded)

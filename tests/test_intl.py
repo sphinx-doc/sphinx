@@ -118,6 +118,11 @@ def assert_count(expected_expr, result, count):
 def test_text_builder(app, status, warning):
     app.builder.build_all()
 
+    # --- toctree
+
+    result = (app.outdir / 'contents.txt').text(encoding='utf-8')
+    yield assert_startswith, result, u"CONTENTS\n********\n\nTABLE OF CONTENTS\n"
+
     # --- warnings in translation
 
     warnings = getwarning(warning)
@@ -126,7 +131,7 @@ def test_text_builder(app, status, warning):
     yield assert_re_search, warning_expr, warnings
 
     result = (app.outdir / 'warnings.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH REST WARNINGS"
+    expect = (u"I18N WITH REST WARNINGS"
               u"\n***********************\n"
               u"\nLINE OF >>``<<BROKEN LITERAL MARKUP.\n")
     yield assert_equal, result, expect
@@ -134,7 +139,7 @@ def test_text_builder(app, status, warning):
     # --- simple translation; check title underlines
 
     result = (app.outdir / 'bom.txt').text(encoding='utf-8')
-    expect = (u"\nDatei mit UTF-8"
+    expect = (u"Datei mit UTF-8"
               u"\n***************\n"  # underline matches new translation
               u"\nThis file has umlauts: äöü.\n")
     yield assert_equal, result, expect
@@ -142,12 +147,12 @@ def test_text_builder(app, status, warning):
     # --- check translation in subdirs
 
     result = (app.outdir / 'subdir' / 'contents.txt').text(encoding='utf-8')
-    yield assert_startswith, result, u"\nsubdir contents\n***************\n"
+    yield assert_startswith, result, u"subdir contents\n***************\n"
 
     # --- check warnings for inconsistency in number of references
 
     result = (app.outdir / 'refs_inconsistency.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH REFS INCONSISTENCY"
+    expect = (u"I18N WITH REFS INCONSISTENCY"
               u"\n****************************\n"
               u"\n* FOR FOOTNOTE [ref2].\n"
               u"\n* reference FOR reference.\n"
@@ -169,7 +174,7 @@ def test_text_builder(app, status, warning):
     # --- check warning for literal block
 
     result = (app.outdir / 'literalblock.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH LITERAL BLOCK"
+    expect = (u"I18N WITH LITERAL BLOCK"
               u"\n***********************\n"
               u"\nCORRECT LITERAL BLOCK:\n"
               u"\n   this is"
@@ -186,7 +191,7 @@ def test_text_builder(app, status, warning):
     # --- definition terms: regression test for #975, #2198, #2205
 
     result = (app.outdir / 'definition_terms.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH DEFINITION TERMS"
+    expect = (u"I18N WITH DEFINITION TERMS"
               u"\n**************************\n"
               u"\nSOME TERM"
               u"\n   THE CORRESPONDING DEFINITION\n"
@@ -202,7 +207,7 @@ def test_text_builder(app, status, warning):
     # --- glossary terms: regression test for #1090
 
     result = (app.outdir / 'glossary_terms.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH GLOSSARY TERMS"
+    expect = (u"I18N WITH GLOSSARY TERMS"
               u"\n************************\n"
               u"\nSOME NEW TERM"
               u"\n   THE CORRESPONDING GLOSSARY\n"
@@ -216,7 +221,7 @@ def test_text_builder(app, status, warning):
     # --- glossary term inconsistencies: regression test for #1090
 
     result = (app.outdir / 'glossary_terms_inconsistency.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH GLOSSARY TERMS INCONSISTENCY"
+    expect = (u"I18N WITH GLOSSARY TERMS INCONSISTENCY"
               u"\n**************************************\n"
               u"\n1. LINK TO *SOME NEW TERM*.\n")
     yield assert_equal, result, expect
@@ -230,7 +235,7 @@ def test_text_builder(app, status, warning):
     # --- seealso
 
     result = (app.outdir / 'seealso.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH SEEALSO"
+    expect = (u"I18N WITH SEEALSO"
               u"\n*****************\n"
               u"\nSee also: SHORT TEXT 1\n"
               u"\nSee also: LONG TEXT 1\n"
@@ -241,7 +246,7 @@ def test_text_builder(app, status, warning):
     # --- figure captions: regression test for #940
 
     result = (app.outdir / 'figure.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH FIGURE CAPTION"
+    expect = (u"I18N WITH FIGURE CAPTION"
               u"\n************************\n"
               u"\n   [image]MY CAPTION OF THE FIGURE\n"
               u"\n   MY DESCRIPTION PARAGRAPH1 OF THE FIGURE.\n"
@@ -267,7 +272,7 @@ def test_text_builder(app, status, warning):
     # --- rubric: regression test for pull request #190
 
     result = (app.outdir / 'rubric.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH RUBRIC"
+    expect = (u"I18N WITH RUBRIC"
               u"\n****************\n"
               u"\n-[ RUBRIC TITLE ]-\n"
               u"\n"
@@ -280,7 +285,7 @@ def test_text_builder(app, status, warning):
     # --- docfields
 
     result = (app.outdir / 'docfields.txt').text(encoding='utf-8')
-    expect = (u"\nI18N WITH DOCFIELDS"
+    expect = (u"I18N WITH DOCFIELDS"
               u"\n*******************\n"
               u"\nclass Cls1\n"
               u"\n   Parameters:"
@@ -318,6 +323,12 @@ def test_text_builder(app, status, warning):
 def test_gettext_builder(app, status, warning):
     app.builder.build_all()
 
+    # --- toctree
+    expect = read_po(app.srcdir / 'contents.po')
+    actual = read_po(app.outdir / 'contents.pot')
+    for expect_msg in [m for m in expect if m.id]:
+        yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
+
     # --- definition terms: regression test for #2198, #2205
     expect = read_po(app.srcdir / 'definition_terms.po')
     actual = read_po(app.outdir / 'definition_terms.pot')
@@ -338,10 +349,24 @@ def test_gettext_builder(app, status, warning):
     for expect_msg in [m for m in expect if m.id]:
         yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
 
+    # --- gettext builder always ignores ``only`` directive
+    expect = read_po(app.srcdir / 'only.po')
+    actual = read_po(app.outdir / 'only.pot')
+    for expect_msg in [m for m in expect if m.id]:
+        yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
+
 
 @gen_with_intl_app('html', freshenv=True)
 def test_html_builder(app, status, warning):
     app.builder.build_all()
+
+    # --- test for meta
+
+    result = (app.outdir / 'contents.html').text(encoding='utf-8')
+    expected_expr = '<meta content="TESTDATA FOR I18N" name="description" />'
+    yield assert_in, expected_expr, result
+    expected_expr = '<meta content="I18N, SPHINX, MARKUP" name="keywords" />'
+    yield assert_in, expected_expr, result
 
     # --- test for #955 cant-build-html-with-footnotes-when-using
 
@@ -373,7 +398,10 @@ def test_html_builder(app, status, warning):
         start_tag = "<%s[^>]*>" % tag
         end_tag = "</%s>" % tag
         return r"%s\s*%s\s*%s" % (start_tag, keyword, end_tag)
-
+    def wrap_nest(parenttag, childtag, keyword):
+        start_tag1 = "<%s[^>]*>" % parenttag
+        start_tag2 = "<%s[^>]*>" % childtag
+        return r"%s\s*%s\s*%s" % (start_tag1, keyword, start_tag2)
     expected_exprs = [
         wrap('a', 'NEWSLETTER'),
         wrap('a', 'MAILING LIST'),
@@ -381,8 +409,8 @@ def test_html_builder(app, status, warning):
         wrap('a', 'FIRST SECOND'),
         wrap('a', 'SECOND THIRD'),
         wrap('a', 'THIRD, FIRST'),
-        wrap('dt', 'ENTRY'),
-        wrap('dt', 'SEE'),
+        wrap_nest('li', 'ul', 'ENTRY'),
+        wrap_nest('li', 'ul', 'SEE'),
         wrap('a', 'MODULE'),
         wrap('a', 'KEYWORD'),
         wrap('a', 'OPERATOR'),
@@ -680,7 +708,7 @@ def test_xml_builder(app, status, warning):
 def test_additional_targets_should_not_be_translated(app, status, warning):
     app.builder.build_all()
 
-    ## literalblock.txt
+    # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
 
     # title should be translated
@@ -707,7 +735,7 @@ def test_additional_targets_should_not_be_translated(app, status, warning):
         """<span class="c1"># sys importing</span>""")
     yield assert_count(expected_expr, result, 1)
 
-    ## raw.txt
+    # [raw.txt]
 
     result = (app.outdir / 'raw.html').text(encoding='utf-8')
 
@@ -715,7 +743,7 @@ def test_additional_targets_should_not_be_translated(app, status, warning):
     expected_expr = """<iframe src="http://sphinx-doc.org"></iframe></div>"""
     yield assert_count(expected_expr, result, 1)
 
-    ## figure.txt
+    # [figure.txt]
 
     result = (app.outdir / 'figure.html').text(encoding='utf-8')
 
@@ -741,7 +769,7 @@ def test_additional_targets_should_not_be_translated(app, status, warning):
 def test_additional_targets_should_be_translated(app, status, warning):
     app.builder.build_all()
 
-    ## literalblock.txt
+    # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
 
     # title should be translated
@@ -768,7 +796,7 @@ def test_additional_targets_should_be_translated(app, status, warning):
         """<span class="c1"># SYS IMPORTING</span>""")
     yield assert_count(expected_expr, result, 1)
 
-    ## raw.txt
+    # [raw.txt]
 
     result = (app.outdir / 'raw.html').text(encoding='utf-8')
 
@@ -776,7 +804,7 @@ def test_additional_targets_should_be_translated(app, status, warning):
     expected_expr = """<iframe src="HTTP://SPHINX-DOC.ORG"></iframe></div>"""
     yield assert_count(expected_expr, result, 1)
 
-    ## figure.txt
+    # [figure.txt]
 
     result = (app.outdir / 'figure.html').text(encoding='utf-8')
 
@@ -841,7 +869,7 @@ def test_image_glob_intl(app, status, warning):
 
 @with_app(buildername='dummy', testroot='image-glob',
           confoverrides={'language': 'xx',
-                         'figure_language_filename': '{root}{ext}.{language}'})
+                         'figure_language_filename': u'{root}{ext}.{language}'})
 def test_image_glob_intl_using_figure_language_filename(app, status, warning):
     app.builder.build_all()
 

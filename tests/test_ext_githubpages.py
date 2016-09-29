@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import re
-
 from util import with_app
 
 

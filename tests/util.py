@@ -26,7 +26,7 @@ from sphinx.theming import Theme
 from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
 
-from path import path, repr_as
+from path import path, repr_as  # NOQA
 
 try:
     # Python >=3.3
@@ -109,10 +109,11 @@ try:
 except ImportError:
     def assert_in(x, thing, msg=''):
         if x not in thing:
-            assert False, msg or '%r is not in %r%r' % (x, thing)
+            assert False, msg or '%r is not in %r' % (x, thing)
+
     def assert_not_in(x, thing, msg=''):
         if x in thing:
-            assert False, msg or '%r is in %r%r' % (x, thing)
+            assert False, msg or '%r is in %r' % (x, thing)
 
 
 def skip_if(condition, msg=None):
@@ -308,3 +309,7 @@ def find_files(root, suffix=None):
         for f in [f for f in files if not suffix or f.endswith(suffix)]:
             fpath = dirpath / f
             yield os.path.relpath(fpath, root)
+
+
+def strip_escseq(text):
+    return re.sub('\x1b.*?m', '', text)

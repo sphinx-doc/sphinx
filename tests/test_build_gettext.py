@@ -114,7 +114,7 @@ def test_gettext_index_entries(app, status, warning):
         "Exception",
         "Statement",
         "Builtin",
-        ]
+    ]
     for expect in expected_msgids:
         assert expect in msgids
         msgids.remove(expect)

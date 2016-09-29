@@ -24,7 +24,10 @@ ids = []
 
 
 def parse(name, string):
-    parser = DefinitionParser(string, None)
+    class Config(object):
+        cpp_id_attributes = ["id_attr"]
+        cpp_paren_attributes = ["paren_attr"]
+    parser = DefinitionParser(string, None, Config())
     ast = parser.parse_declaration(name)
     if not parser.eof:
         print("Parsing stopped at", parser.pos)
@@ -50,7 +53,7 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
         print("Expected: ", output)
         raise DefinitionError("")
     rootSymbol = Symbol(None, None, None, None, None, None)
-    symbol = rootSymbol.add_declaration(ast, docname="Test")
+    symbol = rootSymbol.add_declaration(ast, docname="TestDoc")
     parentNode = addnodes.desc()
     signode = addnodes.desc_signature(input, '')
     parentNode += signode
@@ -77,7 +80,7 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
         print(rootSymbol.dump(0))
         raise DefinitionError("")
     ids.append(ast.get_id_v2())
-    #print ".. %s:: %s" % (name, input)
+    # print ".. %s:: %s" % (name, input)
 
 
 def test_fundamental_types():
@@ -132,6 +135,25 @@ def test_type_definitions():
 
     check('type', 'A = B', None, '1A')
 
+    # from breathe#267 (named function parameters for function pointers
+    check('type', 'void (*gpio_callback_t)(struct device *port, uint32_t pin)',
+          'gpio_callback_t', '15gpio_callback_t')
+    check('type', 'void (*f)(std::function<void(int i)> g)', 'f', '1f')
+
+
+def test_concept_definitions():
+    check('concept', 'template<typename Param> A::B::Concept',
+          None, 'I0EN1A1B7ConceptE')
+    check('concept', 'template<typename A, typename B, typename ...C> Foo',
+          None, 'I00DpE3Foo')
+    check('concept', 'template<typename Param> A::B::Concept()',
+          None, 'I0EN1A1B7ConceptE')
+    check('concept', 'template<typename A, typename B, typename ...C> Foo()',
+          None, 'I00DpE3Foo')
+    raises(DefinitionError, parse, 'concept', 'Foo')
+    raises(DefinitionError, parse, 'concept',
+           'template<typename T> template<typename U> Foo')
+
 
 def test_member_definitions():
     check('member', '  const  std::string  &  name = 42',
@@ -145,6 +167,11 @@ def test_member_definitions():
           "4name", output='const std::vector<unsigned int, long> &name')
     check('member', 'module::myclass foo[n]', "foo__module::myclassA", "3foo")
     check('member', 'int *const p', 'p__iPC', '1p')
+    check('member', 'extern int myInt', 'myInt__i', '5myInt')
+    check('member', 'thread_local int myInt', 'myInt__i', '5myInt')
+    check('member', 'extern thread_local int myInt', 'myInt__i', '5myInt')
+    check('member', 'thread_local extern int myInt', 'myInt__i', '5myInt',
+          'extern thread_local int myInt')
 
 
 def test_function_definitions():
@@ -255,6 +282,8 @@ def test_function_definitions():
           None, "1fNSt10shared_ptrIFidEEE")
     check("function", "void f(int *const p)", "f__iPC", "1fPCi")
     check("function", "void f(int *volatile const p)", "f__iPVC", "1fPVCi")
+
+    check('function', 'extern int f()', 'f', '1fv')
 
     # TODO: make tests for functions in a template, e.g., Test<int&&()>
     # such that the id generation for function type types is correct.
@@ -389,12 +418,76 @@ def test_templates():
           None, "I00ElsRNSt13basic_ostreamI4Char6TraitsEE"
           "RK18c_string_view_baseIK4Char6TraitsE")
 
+    # template introductions
+    raises(DefinitionError, parse, 'enum', 'abc::ns::foo{id_0, id_1, id_2} A')
+    raises(DefinitionError, parse, 'enumerator', 'abc::ns::foo{id_0, id_1, id_2} A')
+    check('class', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar',
+          None, 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE')
+    check('class', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar',
+          None, 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE')
+    check('class', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar<id_0, id_1, id_2>',
+          None, 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barI4id_04id_14id_2EE')
+    check('class', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar<id_0, id_1, id_2...>',
+          None, 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barI4id_04id_1Dp4id_2EE')
 
-#def test_print():
-#    # used for getting all the ids out for checking
-#    for a in ids:
-#        print(a)
-#    raise DefinitionError("")
+    check('class', 'template<> Concept{U} A<int>::B',
+          None, 'IEI0EX7ConceptI1UEEN1AIiE1BE')
+
+    check('type', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar = ghi::qux',
+          None, 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE')
+    check('type', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar = ghi::qux',
+          None, 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE')
+    check('function', 'abc::ns::foo{id_0, id_1, id_2} void xyz::bar()',
+          None, 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barEv')
+    check('function', 'abc::ns::foo{id_0, id_1, ...id_2} void xyz::bar()',
+          None, 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barEv')
+    check('member', 'abc::ns::foo{id_0, id_1, id_2} ghi::qux xyz::bar',
+          None, 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE')
+    check('member', 'abc::ns::foo{id_0, id_1, ...id_2} ghi::qux xyz::bar',
+          None, 'I00DpEXN3abc2ns3fooEI4id_04id_1sp4id_2EEN3xyz3barE')
+    check('concept', 'Iterator{T, U} Another',
+          None, 'I00EX8IteratorI1T1UEE7Another')
+    check('concept', 'template<typename ...Pack> Numerics = (... && Numeric<Pack>)',
+          None, 'IDpE8Numerics')
+
+
+def test_attributes():
+    # style: C++
+    check('member', '[[]] int f', 'f__i', '1f')
+    check('member', '[ [ ] ] int f', 'f__i', '1f',
+          # this will fail when the proper grammar is implemented
+          output='[[ ]] int f')
+    check('member', '[[a]] int f', 'f__i', '1f')
+    # style: GNU
+    check('member', '__attribute__(()) int f', 'f__i', '1f')
+    check('member', '__attribute__((a)) int f', 'f__i', '1f')
+    check('member', '__attribute__((a, b)) int f', 'f__i', '1f')
+    # style: user-defined id
+    check('member', 'id_attr int f', 'f__i', '1f')
+    # style: user-defined paren
+    check('member', 'paren_attr() int f', 'f__i', '1f')
+    check('member', 'paren_attr(a) int f', 'f__i', '1f')
+    check('member', 'paren_attr("") int f', 'f__i', '1f')
+    check('member', 'paren_attr(()[{}][]{}) int f', 'f__i', '1f')
+    raises(DefinitionError, parse, 'member', 'paren_attr(() int f')
+    raises(DefinitionError, parse, 'member', 'paren_attr([) int f')
+    raises(DefinitionError, parse, 'member', 'paren_attr({) int f')
+    raises(DefinitionError, parse, 'member', 'paren_attr([)]) int f')
+    raises(DefinitionError, parse, 'member', 'paren_attr((])) int f')
+    raises(DefinitionError, parse, 'member', 'paren_attr({]}) int f')
+
+    # position: decl specs
+    check('function', 'static inline __attribute__(()) void f()',
+          'f', '1fv',
+          output='__attribute__(()) static inline void f()')
+
+
+
+# def test_print():
+#     # used for getting all the ids out for checking
+#     for a in ids:
+#         print(a)
+#     raise DefinitionError("")
 
 
 @with_app(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})

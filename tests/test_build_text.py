@@ -65,7 +65,7 @@ def test_nonascii_title_line(app, status, warning):
     app.builder.build_update()
     result = (app.outdir / 'nonascii_title.txt').text(encoding='utf-8')
     expect_underline = '******'
-    result_underline = result.splitlines()[2].strip()
+    result_underline = result.splitlines()[1].strip()
     assert expect_underline == result_underline
 
 

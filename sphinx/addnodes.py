@@ -14,8 +14,52 @@ import warnings
 from docutils import nodes
 
 
-class toctree(nodes.General, nodes.Element):
+class translatable(object):
+    """Node which supports translation.
+
+    The translation goes forward with following steps:
+
+    1. Preserve original translatable messages
+    2. Apply translated messages from message catalog
+    3. Extract preserved messages (for gettext builder)
+
+    The translatable nodes MUST preserve original messages.
+    And these messages should not be overridden at applying step.
+    Because they are used at final step; extraction.
+    """
+
+    def preserve_original_messages(self):
+        """Preserve original translatable messages."""
+        raise NotImplementedError
+
+    def apply_translated_message(self, original_message, translated_message):
+        """Apply translated message."""
+        raise NotImplementedError
+
+    def extract_original_messages(self):
+        """Extract translation messages.
+
+        :returns: list of extracted messages or messages generator
+        """
+        raise NotImplementedError
+
+
+class toctree(nodes.General, nodes.Element, translatable):
     """Node for inserting a "TOC tree"."""
+
+    def preserve_original_messages(self):
+        if 'caption' in self:
+            self['rawcaption'] = self['caption']
+
+    def apply_translated_message(self, original_message, translated_message):
+        if self.get('rawcaption') == original_message:
+            self['caption'] = translated_message
+
+    def extract_original_messages(self):
+        if 'rawcaption' in self:
+            return [self['rawcaption']]
+        else:
+            return []
 
 
 # domain-specific object descriptions (class, function etc.)
@@ -116,10 +160,14 @@ class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
     """Node for index entries.
 
     This node is created by the ``index`` directive and has one attribute,
-    ``entries``.  Its value is a list of 4-tuples of ``(entrytype, entryname,
-    target, ignored)``.
+    ``entries``.  Its value is a list of 5-tuples of ``(entrytype, entryname,
+    target, ignored, key)``.
 
     *entrytype* is one of "single", "pair", "double", "triple".
+
+    *key* is categolziation characters (usually it is single character) for
+    general index page. For the detail of this, please see also:
+    :rst:dir:`glossary` and issue #2320.
     """
 
 

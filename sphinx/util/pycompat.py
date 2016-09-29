@@ -55,7 +55,7 @@ if PY3:
         return text_type(tree)
     from html import escape as htmlescape  # noqa: >= Python 3.2
 
-    class UnicodeMixin:
+    class UnicodeMixin(object):
         """Mixin class to handle defining the proper __str__/__unicode__
         methods in Python 2 or 3."""
 
@@ -80,7 +80,7 @@ else:
     # error handler
     sys_encoding = __import__('locale').getpreferredencoding()
     # use Python 3 name
-    from cgi import escape as htmlescape  # noqa: 2.6, 2.7
+    from cgi import escape as htmlescape  # noqa: F401
 
     class UnicodeMixin(object):
         """Mixin class to handle defining the proper __str__/__unicode__
@@ -105,11 +105,8 @@ def execfile_(filepath, _globals, open=open):
     from sphinx.util.osutil import fs_encoding
     # get config source -- 'b' is a no-op under 2.x, while 'U' is
     # ignored under 3.x (but 3.x compile() accepts \r\n newlines)
-    f = open(filepath, 'rbU')
-    try:
+    with open(filepath, 'rbU') as f:
         source = f.read()
-    finally:
-        f.close()
 
     # py26 accept only LF eol instead of CRLF
     if sys.version_info[:2] == (2, 6):

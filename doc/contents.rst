@@ -1,3 +1,4 @@
+
 .. _contents:
 
 Sphinx documentation contents
@@ -17,6 +18,7 @@ Sphinx documentation contents
    intl
    theming
    templating
+   latex
    extensions
    extdev/index
    websupport
@@ -32,7 +34,14 @@ Sphinx documentation contents
 Indices and tables
 ==================
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-* :ref:`glossary`
+.. only:: builder_html
+
+   * :ref:`genindex`
+   * :ref:`modindex`
+   * :ref:`search`
+   * :ref:`glossary`
+
+.. only:: not builder_html
+
+   * :ref:`modindex`
+   * :ref:`glossary`

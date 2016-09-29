@@ -13,9 +13,15 @@ from docutils.readers import standalone
 from docutils.writers import UnfilteredWriter
 from six import string_types, text_type
 
-from sphinx.transforms import ApplySourceWorkaround, ExtraTranslatableNodes, Locale, \
-    CitationReferences, DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, \
-    AutoNumbering, SortIds, RemoveTranslatableInline
+from sphinx.transforms import (
+    ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
+    DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks, SortIds,
+    AutoNumbering, AutoIndexUpgrader, FilterSystemMessages,
+)
+from sphinx.transforms.compact_bullet_list import RefOnlyBulletListTransform
+from sphinx.transforms.i18n import (
+    PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
+)
 from sphinx.util import import_object, split_docinfo
 
 
@@ -57,9 +63,11 @@ class SphinxStandaloneReader(SphinxBaseReader):
     """
     Add our own transforms.
     """
-    transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, Locale, CitationReferences,
-                  DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
-                  AutoNumbering, SortIds, RemoveTranslatableInline]
+    transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, PreserveTranslatableMessages,
+                  Locale, CitationReferences, DefaultSubstitutions, MoveModuleTargets,
+                  HandleCodeBlocks, AutoNumbering, AutoIndexUpgrader, SortIds,
+                  RemoveTranslatableInline, PreserveTranslatableMessages, FilterSystemMessages,
+                  RefOnlyBulletListTransform]
 
 
 class SphinxI18nReader(SphinxBaseReader):
@@ -72,7 +80,8 @@ class SphinxI18nReader(SphinxBaseReader):
 
     transforms = [ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
                   DefaultSubstitutions, MoveModuleTargets, HandleCodeBlocks,
-                  AutoNumbering, SortIds, RemoveTranslatableInline]
+                  AutoNumbering, SortIds, RemoveTranslatableInline,
+                  FilterSystemMessages, RefOnlyBulletListTransform]
 
     def __init__(self, *args, **kwargs):
         SphinxBaseReader.__init__(self, *args, **kwargs)
@@ -112,14 +121,25 @@ class SphinxFileInput(FileInput):
         return data.decode(self.encoding, 'sphinx')  # py2: decoding
 
     def read(self):
+        def get_parser_type(source_path):
+            for suffix in self.env.config.source_parsers:
+                if source_path.endswith(suffix):
+                    parser_class = self.env.config.source_parsers[suffix]
+                    if isinstance(parser_class, string_types):
+                        parser_class = import_object(parser_class, 'source parser')
+                    return parser_class.supported
+            else:
+                return ('restructuredtext',)
+
         data = FileInput.read(self)
         if self.app:
             arg = [data]
             self.app.emit('source-read', self.env.docname, arg)
             data = arg[0]
         docinfo, data = split_docinfo(data)
-        if self.env.config.rst_epilog:
-            data = data + '\n' + self.env.config.rst_epilog + '\n'
-        if self.env.config.rst_prolog:
-            data = self.env.config.rst_prolog + '\n' + data
+        if 'restructuredtext' in get_parser_type(self.source_path):
+            if self.env.config.rst_epilog:
+                data = data + '\n' + self.env.config.rst_epilog + '\n'
+            if self.env.config.rst_prolog:
+                data = self.env.config.rst_prolog + '\n' + data
         return docinfo + data

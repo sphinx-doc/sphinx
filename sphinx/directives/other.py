@@ -405,27 +405,29 @@ class Include(BaseInclude):
             return BaseInclude.run(self)
         rel_filename, filename = env.relfn2path(self.arguments[0])
         self.arguments[0] = filename
+        env.note_included(filename)
         return BaseInclude.run(self)
 
 
-directives.register_directive('toctree', TocTree)
-directives.register_directive('sectionauthor', Author)
-directives.register_directive('moduleauthor', Author)
-directives.register_directive('codeauthor', Author)
-directives.register_directive('index', Index)
-directives.register_directive('deprecated', VersionChange)
-directives.register_directive('versionadded', VersionChange)
-directives.register_directive('versionchanged', VersionChange)
-directives.register_directive('seealso', SeeAlso)
-directives.register_directive('tabularcolumns', TabularColumns)
-directives.register_directive('centered', Centered)
-directives.register_directive('acks', Acks)
-directives.register_directive('hlist', HList)
-directives.register_directive('only', Only)
-directives.register_directive('include', Include)
+def setup(app):
+    directives.register_directive('toctree', TocTree)
+    directives.register_directive('sectionauthor', Author)
+    directives.register_directive('moduleauthor', Author)
+    directives.register_directive('codeauthor', Author)
+    directives.register_directive('index', Index)
+    directives.register_directive('deprecated', VersionChange)
+    directives.register_directive('versionadded', VersionChange)
+    directives.register_directive('versionchanged', VersionChange)
+    directives.register_directive('seealso', SeeAlso)
+    directives.register_directive('tabularcolumns', TabularColumns)
+    directives.register_directive('centered', Centered)
+    directives.register_directive('acks', Acks)
+    directives.register_directive('hlist', HList)
+    directives.register_directive('only', Only)
+    directives.register_directive('include', Include)
 
-# register the standard rst class directive under a different name
-# only for backwards compatibility now
-directives.register_directive('cssclass', Class)
-# new standard name when default-domain with "class" is in effect
-directives.register_directive('rst-class', Class)
+    # register the standard rst class directive under a different name
+    # only for backwards compatibility now
+    directives.register_directive('cssclass', Class)
+    # new standard name when default-domain with "class" is in effect
+    directives.register_directive('rst-class', Class)

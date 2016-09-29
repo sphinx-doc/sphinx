@@ -14,7 +14,7 @@ from docutils import nodes
 from sphinx.application import ExtensionError
 from sphinx.domains import Domain
 
-from util import with_app, raises_msg
+from util import with_app, raises_msg, strip_escseq
 
 
 @with_app()
@@ -60,14 +60,21 @@ def test_output(app, status, warning):
 
     old_count = app._warncount
     app.warn("Bad news!")
-    assert warning.getvalue() == "WARNING: Bad news!\n"
+    assert strip_escseq(warning.getvalue()) == "WARNING: Bad news!\n"
     assert app._warncount == old_count + 1
 
 
 @with_app()
 def test_extensions(app, status, warning):
     app.setup_extension('shutil')
-    assert warning.getvalue().startswith("WARNING: extension 'shutil'")
+    assert strip_escseq(warning.getvalue()).startswith("WARNING: extension 'shutil'")
+
+
+@with_app()
+def test_extension_in_blacklist(app, status, warning):
+    app.setup_extension('sphinxjp.themecore')
+    msg = strip_escseq(warning.getvalue())
+    assert msg.startswith("WARNING: the extension 'sphinxjp.themecore' was")
 
 
 @with_app()

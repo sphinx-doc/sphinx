@@ -17,6 +17,7 @@ import types
 import bisect
 import codecs
 import string
+import fnmatch
 import unicodedata
 from os import path
 from glob import glob
@@ -28,21 +29,21 @@ from docutils import nodes
 from docutils.io import NullOutput
 from docutils.core import Publisher
 from docutils.utils import Reporter, relative_path, get_source_line
-from docutils.parsers.rst import roles, directives
+from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
-from docutils.parsers.rst.directives.html import MetaBody
 from docutils.frontend import OptionParser
 
 from sphinx import addnodes
 from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
 from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
     FilenameUniqDict, split_index_msg
-from sphinx.util.nodes import clean_astext, make_refnode, WarningStream, is_translatable
+from sphinx.util.nodes import clean_astext, WarningStream, is_translatable
 from sphinx.util.osutil import SEP, getcwd, fs_encoding, ensuredir
 from sphinx.util.images import guess_mimetype
 from sphinx.util.i18n import find_catalog_files, get_image_filename_for_language, \
     search_image_for_language
 from sphinx.util.console import bold, purple
+from sphinx.util.docutils import sphinx_domains
 from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
@@ -50,13 +51,6 @@ from sphinx.errors import SphinxError, ExtensionError
 from sphinx.locale import _
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.transforms import SphinxContentsFilter
-
-orig_role_function = roles.role
-orig_directive_function = directives.directive
-
-
-class ElementLookupError(Exception):
-    pass
 
 
 default_settings = {
@@ -75,7 +69,7 @@ default_settings = {
 # or changed to properly invalidate pickle files.
 #
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
-ENV_VERSION = 47 + (sys.version_info[0] - 2)
+ENV_VERSION = 50 + (sys.version_info[0] - 2)
 
 
 dummy_reporter = Reporter('', 4, 4)
@@ -92,7 +86,7 @@ class NoUri(Exception):
     pass
 
 
-class BuildEnvironment:
+class BuildEnvironment(object):
     """
     The environment in which the ReST files are translated.
     Stores an inventory of cross-file targets and provides doctree
@@ -103,11 +97,8 @@ class BuildEnvironment:
 
     @staticmethod
     def frompickle(srcdir, config, filename):
-        picklefile = open(filename, 'rb')
-        try:
+        with open(filename, 'rb') as picklefile:
             env = pickle.load(picklefile)
-        finally:
-            picklefile.close()
         if env.version != ENV_VERSION:
             raise IOError('build environment version not current')
         if env.srcdir != srcdir:
@@ -123,7 +114,6 @@ class BuildEnvironment:
         del self.config.values
         domains = self.domains
         del self.domains
-        picklefile = open(filename, 'wb')
         # remove potentially pickling-problematic values from config
         for key, val in list(vars(self.config).items()):
             if key.startswith('_') or \
@@ -131,10 +121,8 @@ class BuildEnvironment:
                isinstance(val, types.FunctionType) or \
                isinstance(val, class_types):
                 del self.config[key]
-        try:
+        with open(filename, 'wb') as picklefile:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
-        finally:
-            picklefile.close()
         # reset attributes
         self.domains = domains
         self.config.values = values
@@ -175,6 +163,7 @@ class BuildEnvironment:
                                     # contains all read docnames
         self.dependencies = {}      # docname -> set of dependent file
                                     # names, relative to documentation root
+        self.included = set()       # docnames included from other documents
         self.reread_always = set()  # docnames to re-read unconditionally on
                                     # next build
 
@@ -203,7 +192,6 @@ class BuildEnvironment:
         self.domaindata = {}        # domainname -> domain-specific dict
 
         # Other inventories
-        self.citations = {}         # citation name -> docname, labelid
         self.indexentries = {}      # docname -> list of
                                     # (type, string, target, aliasname)
         self.versionchanges = {}    # version -> list of (type, docname,
@@ -280,9 +268,6 @@ class BuildEnvironment:
                 fnset.discard(docname)
                 if not fnset:
                     del self.files_to_rebuild[subfn]
-            for key, (fn, _ignore) in list(self.citations.items()):
-                if fn == docname:
-                    del self.citations[key]
             for version, changes in self.versionchanges.items():
                 new = [change for change in changes if change[1] != docname]
                 changes[:] = new
@@ -322,10 +307,6 @@ class BuildEnvironment:
 
         for subfn, fnset in other.files_to_rebuild.items():
             self.files_to_rebuild.setdefault(subfn, set()).update(fnset & docnames)
-        for key, data in other.citations.items():
-            # XXX duplicates?
-            if data[0] in docnames:
-                self.citations[key] = data
         for version, changes in other.versionchanges.items():
             self.versionchanges.setdefault(version, []).extend(
                 change for change in changes if change[1] in docnames)
@@ -333,6 +314,20 @@ class BuildEnvironment:
         for domainname, domain in self.domains.items():
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         app.emit('env-merge-info', self, docnames, other)
+
+    def path2doc(self, filename):
+        """Return the docname for the filename if the file is document.
+
+        *filename* should be absolute or relative to the source directory.
+        """
+        if filename.startswith(self.srcdir):
+            filename = filename[len(self.srcdir) + 1:]
+        for suffix in self.config.source_suffix:
+            if fnmatch.fnmatch(filename, '*' + suffix):
+                return filename[:-len(suffix)]
+        else:
+            # the file does not have docname
+            return None
 
     def doc2path(self, docname, base=True, suffix=None):
         """Return the filename for the document name.
@@ -393,8 +388,13 @@ class BuildEnvironment:
             config.html_extra_path +
             ['**/_sources', '.#*', '**/.#*', '*.lproj/**']
         )
-        self.found_docs = set(get_matching_docs(
-            self.srcdir, config.source_suffix, exclude_matchers=matchers))
+        self.found_docs = set()
+        for docname in get_matching_docs(self.srcdir, config.source_suffix,
+                                         exclude_matchers=matchers):
+            if os.access(self.doc2path(docname), os.R_OK):
+                self.found_docs.add(docname)
+            else:
+                self.warn(docname, "document not readable. Ignored.")
 
         # add catalog mo file dependency
         for docname in self.found_docs:
@@ -628,51 +628,6 @@ class BuildEnvironment:
                    error.object[error.end:lineend]), lineno)
         return (u'?', error.end)
 
-    def lookup_domain_element(self, type, name):
-        """Lookup a markup element (directive or role), given its name which can
-        be a full name (with domain).
-        """
-        name = name.lower()
-        # explicit domain given?
-        if ':' in name:
-            domain_name, name = name.split(':', 1)
-            if domain_name in self.domains:
-                domain = self.domains[domain_name]
-                element = getattr(domain, type)(name)
-                if element is not None:
-                    return element, []
-        # else look in the default domain
-        else:
-            def_domain = self.temp_data.get('default_domain')
-            if def_domain is not None:
-                element = getattr(def_domain, type)(name)
-                if element is not None:
-                    return element, []
-        # always look in the std domain
-        element = getattr(self.domains['std'], type)(name)
-        if element is not None:
-            return element, []
-        raise ElementLookupError
-
-    def patch_lookup_functions(self):
-        """Monkey-patch directive and role dispatch, so that domain-specific
-        markup takes precedence.
-        """
-        def directive(name, lang_module, document):
-            try:
-                return self.lookup_domain_element('directive', name)
-            except ElementLookupError:
-                return orig_directive_function(name, lang_module, document)
-
-        def role(name, lang_module, lineno, reporter):
-            try:
-                return self.lookup_domain_element('role', name)
-            except ElementLookupError:
-                return orig_role_function(name, lang_module, lineno, reporter)
-
-        directives.directive = directive
-        roles.role = role
-
     def read_doc(self, docname, app=None):
         """Parse a file and add/update inventory entries for the doctree."""
 
@@ -686,51 +641,47 @@ class BuildEnvironment:
             self.config.trim_footnote_reference_space
         self.settings['gettext_compact'] = self.config.gettext_compact
 
-        self.patch_lookup_functions()
-
         docutilsconf = path.join(self.srcdir, 'docutils.conf')
         # read docutils.conf from source dir, not from current dir
         OptionParser.standard_config_files[1] = docutilsconf
         if path.isfile(docutilsconf):
             self.note_dependency(docutilsconf)
 
-        if self.config.default_role:
-            role_fn, messages = roles.role(self.config.default_role, english,
-                                           0, dummy_reporter)
-            if role_fn:
-                roles._roles[''] = role_fn
-            else:
-                self.warn(docname, 'default role %s not found' %
-                          self.config.default_role)
+        with sphinx_domains(self):
+            if self.config.default_role:
+                role_fn, messages = roles.role(self.config.default_role, english,
+                                               0, dummy_reporter)
+                if role_fn:
+                    roles._roles[''] = role_fn
+                else:
+                    self.warn(docname, 'default role %s not found' %
+                              self.config.default_role)
 
-        codecs.register_error('sphinx', self.warn_and_replace)
+            codecs.register_error('sphinx', self.warn_and_replace)
 
-        # publish manually
-        reader = SphinxStandaloneReader(self.app, parsers=self.config.source_parsers)
-        pub = Publisher(reader=reader,
-                        writer=SphinxDummyWriter(),
-                        destination_class=NullOutput)
-        pub.set_components(None, 'restructuredtext', None)
-        pub.process_programmatic_settings(None, self.settings, None)
-        src_path = self.doc2path(docname)
-        source = SphinxFileInput(app, self, source=None, source_path=src_path,
-                                 encoding=self.config.source_encoding)
-        pub.source = source
-        pub.settings._source = src_path
-        pub.set_destination(None, None)
-        pub.publish()
-        doctree = pub.document
+            # publish manually
+            reader = SphinxStandaloneReader(self.app, parsers=self.config.source_parsers)
+            pub = Publisher(reader=reader,
+                            writer=SphinxDummyWriter(),
+                            destination_class=NullOutput)
+            pub.set_components(None, 'restructuredtext', None)
+            pub.process_programmatic_settings(None, self.settings, None)
+            src_path = self.doc2path(docname)
+            source = SphinxFileInput(app, self, source=None, source_path=src_path,
+                                     encoding=self.config.source_encoding)
+            pub.source = source
+            pub.settings._source = src_path
+            pub.set_destination(None, None)
+            pub.publish()
+            doctree = pub.document
 
         # post-processing
-        self.filter_messages(doctree)
         self.process_dependencies(docname, doctree)
         self.process_images(docname, doctree)
         self.process_downloads(docname, doctree)
         self.process_metadata(docname, doctree)
-        self.process_refonly_bullet_lists(docname, doctree)
         self.create_title_from(docname, doctree)
         self.note_indexentries_from(docname, doctree)
-        self.note_citations_from(docname, doctree)
         self.build_toc_from(docname, doctree)
         for domain in itervalues(self.domains):
             domain.process_doc(self, docname, doctree)
@@ -751,12 +702,9 @@ class BuildEnvironment:
             if self.versioning_compare:
                 # get old doctree
                 try:
-                    f = open(self.doc2path(docname,
-                                           self.doctreedir, '.doctree'), 'rb')
-                    try:
+                    with open(self.doc2path(docname,
+                                            self.doctreedir, '.doctree'), 'rb') as f:
                         old_doctree = pickle.load(f)
-                    finally:
-                        f.close()
                 except EnvironmentError:
                     pass
 
@@ -773,9 +721,6 @@ class BuildEnvironment:
         doctree.settings.warning_stream = None
         doctree.settings.env = None
         doctree.settings.record_dependencies = None
-        for metanode in doctree.traverse(MetaBody.meta):
-            # docutils' meta nodes aren't picklable because the class is nested
-            metanode.__class__ = addnodes.meta
 
         # cleanup
         self.temp_data.clear()
@@ -786,11 +731,8 @@ class BuildEnvironment:
         doctree_filename = self.doc2path(docname, self.doctreedir,
                                          '.doctree')
         ensuredir(path.dirname(doctree_filename))
-        f = open(doctree_filename, 'wb')
-        try:
+        with open(doctree_filename, 'wb') as f:
             pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
-        finally:
-            f.close()
 
     # utilities to use while reading a document
 
@@ -832,6 +774,15 @@ class BuildEnvironment:
         """
         self.dependencies.setdefault(self.docname, set()).add(filename)
 
+    def note_included(self, filename):
+        """Add *filename* as a included from other document.
+
+        This means the document is not orphaned.
+
+        *filename* should be absolute or relative to the source directory.
+        """
+        self.included.add(self.path2doc(filename))
+
     def note_reread(self):
         """Add the current document to the list of documents that will
         automatically be re-read at the next build.
@@ -845,14 +796,6 @@ class BuildEnvironment:
              self.temp_data.get('object'), node.astext()))
 
     # post-processing of read doctrees
-
-    def filter_messages(self, doctree):
-        """Filter system messages from a doctree."""
-        filterlevel = self.config.keep_warnings and 2 or 5
-        for node in doctree.traverse(nodes.system_message):
-            if node['level'] < filterlevel:
-                self.app.debug('%s [filtered system message]', node.astext())
-                node.parent.remove(node)
 
     def process_dependencies(self, docname, doctree):
         """Process docutils-generated dependency info."""
@@ -907,8 +850,14 @@ class BuildEnvironment:
             # The special key ? is set for nonlocal URIs.
             node['candidates'] = candidates = {}
             imguri = node['uri']
-            if imguri.find('://') != -1:
-                self.warn_node('nonlocal image URI found: %s' % imguri, node)
+            if imguri.startswith('data:'):
+                self.warn_node('image data URI found. some builders might not support', node,
+                               type='image', subtype='data_uri')
+                candidates['?'] = imguri
+                continue
+            elif imguri.find('://') != -1:
+                self.warn_node('nonlocal image URI found: %s' % imguri, node,
+                               type='image', subtype='nonlocal_uri')
                 candidates['?'] = imguri
                 continue
             rel_imgpath, full_imgpath = self.relfn2path(imguri, docname)
@@ -975,67 +924,6 @@ class BuildEnvironment:
 
         del doctree[0]
 
-    def process_refonly_bullet_lists(self, docname, doctree):
-        """Change refonly bullet lists to use compact_paragraphs.
-
-        Specifically implemented for 'Indices and Tables' section, which looks
-        odd when html_compact_lists is false.
-        """
-        if self.config.html_compact_lists:
-            return
-
-        class RefOnlyListChecker(nodes.GenericNodeVisitor):
-            """Raise `nodes.NodeFound` if non-simple list item is encountered.
-
-            Here 'simple' means a list item containing only a paragraph with a
-            single reference in it.
-            """
-
-            def default_visit(self, node):
-                raise nodes.NodeFound
-
-            def visit_bullet_list(self, node):
-                pass
-
-            def visit_list_item(self, node):
-                children = []
-                for child in node.children:
-                    if not isinstance(child, nodes.Invisible):
-                        children.append(child)
-                if len(children) != 1:
-                    raise nodes.NodeFound
-                if not isinstance(children[0], nodes.paragraph):
-                    raise nodes.NodeFound
-                para = children[0]
-                if len(para) != 1:
-                    raise nodes.NodeFound
-                if not isinstance(para[0], addnodes.pending_xref):
-                    raise nodes.NodeFound
-                raise nodes.SkipChildren
-
-            def invisible_visit(self, node):
-                """Invisible nodes should be ignored."""
-                pass
-
-        def check_refonly_list(node):
-            """Check for list with only references in it."""
-            visitor = RefOnlyListChecker(doctree)
-            try:
-                node.walk(visitor)
-            except nodes.NodeFound:
-                return False
-            else:
-                return True
-
-        for node in doctree.traverse(nodes.bullet_list):
-            if check_refonly_list(node):
-                for item in node.traverse(nodes.list_item):
-                    para = item[0]
-                    ref = para[0]
-                    compact_para = addnodes.compact_paragraph()
-                    compact_para += ref
-                    item.replace(para, compact_para)
-
     def create_title_from(self, docname, document):
         """Add a title node to the document (just copy the first section title),
         and store that title in the environment.
@@ -1063,22 +951,18 @@ class BuildEnvironment:
         entries = self.indexentries[docname] = []
         for node in document.traverse(addnodes.index):
             try:
-                for type, value, tid, main, index_key in node['entries']:
-                    split_index_msg(type, value)
+                for entry in node['entries']:
+                    split_index_msg(entry[0], entry[1])
             except ValueError as exc:
                 self.warn_node(exc, node)
                 node.parent.remove(node)
             else:
-                entries.extend(node['entries'])
-
-    def note_citations_from(self, docname, document):
-        for node in document.traverse(nodes.citation):
-            label = node[0].astext()
-            if label in self.citations:
-                self.warn_node('duplicate citation %s, ' % label +
-                               'other instance in %s' % self.doc2path(
-                                   self.citations[label][0]), node)
-            self.citations[label] = (docname, node['ids'][0])
+                for entry in node['entries']:
+                    if len(entry) == 5:
+                        # Since 1.4: new index structure including index_key (5th column)
+                        entries.append(entry)
+                    else:
+                        entries.append(entry + (None,))
 
     def note_toctree(self, docname, toctreenode):
         """Note a TOC tree directive in a document and gather information about
@@ -1215,11 +1099,8 @@ class BuildEnvironment:
     def get_doctree(self, docname):
         """Read the doctree for a file from the pickle and return it."""
         doctree_filename = self.doc2path(docname, self.doctreedir, '.doctree')
-        f = open(doctree_filename, 'rb')
-        try:
+        with open(doctree_filename, 'rb') as f:
             doctree = pickle.load(f)
-        finally:
-            f.close()
         doctree.settings.env = self
         doctree.reporter = Reporter(self.doc2path(docname), 2, 5,
                                     stream=WarningStream(self._warnfunc))
@@ -1417,7 +1298,10 @@ class BuildEnvironment:
                             # nodes with length 1 don't have any children anyway
                             if len(toplevel) > 1:
                                 subtrees = toplevel.traverse(addnodes.toctree)
-                                toplevel[1][:] = subtrees
+                                if subtrees:
+                                    toplevel[1][:] = subtrees
+                                else:
+                                    toplevel.pop(1)
                     # resolve all sub-toctrees
                     for subtocnode in toc.traverse(addnodes.toctree):
                         if not (subtocnode.get('hidden', False) and
@@ -1455,13 +1339,24 @@ class BuildEnvironment:
         newnode = addnodes.compact_paragraph('', '')
         caption = toctree.attributes.get('caption')
         if caption:
-            newnode += nodes.caption(caption, '', *[nodes.Text(caption)])
+            caption_node = nodes.caption(caption, '', *[nodes.Text(caption)])
+            caption_node.line = toctree.line
+            caption_node.source = toctree.source
+            caption_node.rawsource = toctree['rawcaption']
+            if hasattr(toctree, 'uid'):
+                # move uid to caption_node to translate it
+                caption_node.uid = toctree.uid
+                del toctree.uid
+            newnode += caption_node
         newnode.extend(tocentries)
         newnode['toctree'] = True
 
         # prune the tree to maxdepth, also set toc depth and current classes
         _toctree_add_classes(newnode, 1)
         self._toctree_prune(newnode, 1, prune and maxdepth or 0, collapse)
+
+        if len(newnode[-1]) == 0:  # No titles found
+            return None
 
         # set the target paths in the toctrees (they are not known at TOC
         # generation time)
@@ -1492,11 +1387,9 @@ class BuildEnvironment:
                                                   typ, target, node, contnode)
                 # really hardwired reference types
                 elif typ == 'any':
-                    newnode = self._resolve_any_reference(builder, node, contnode)
+                    newnode = self._resolve_any_reference(builder, refdoc, node, contnode)
                 elif typ == 'doc':
-                    newnode = self._resolve_doc_reference(builder, node, contnode)
-                elif typ == 'citation':
-                    newnode = self._resolve_citation(builder, refdoc, node, contnode)
+                    newnode = self._resolve_doc_reference(builder, refdoc, node, contnode)
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(
@@ -1533,8 +1426,6 @@ class BuildEnvironment:
             msg = domain.dangling_warnings[typ]
         elif typ == 'doc':
             msg = 'unknown document: %(target)s'
-        elif typ == 'citation':
-            msg = 'citation not found: %(target)s'
         elif node.get('refdomain', 'std') not in ('', 'std'):
             msg = '%s:%s reference target not found: %%(target)s' % \
                   (node['refdomain'], typ)
@@ -1542,10 +1433,10 @@ class BuildEnvironment:
             msg = '%r reference target not found: %%(target)s' % typ
         self.warn_node(msg % {'target': target}, node, type='ref', subtype=typ)
 
-    def _resolve_doc_reference(self, builder, node, contnode):
+    def _resolve_doc_reference(self, builder, refdoc, node, contnode):
         # directly reference to document by source name;
         # can be absolute or relative
-        docname = docname_join(node['refdoc'], node['reftarget'])
+        docname = docname_join(refdoc, node['reftarget'])
         if docname in self.all_docs:
             if node['refexplicit']:
                 # reference with explicit title
@@ -1555,36 +1446,16 @@ class BuildEnvironment:
             innernode = nodes.inline(caption, caption)
             innernode['classes'].append('doc')
             newnode = nodes.reference('', '', internal=True)
-            newnode['refuri'] = builder.get_relative_uri(node['refdoc'], docname)
+            newnode['refuri'] = builder.get_relative_uri(refdoc, docname)
             newnode.append(innernode)
             return newnode
 
-    def _resolve_citation(self, builder, fromdocname, node, contnode):
-        docname, labelid = self.citations.get(node['reftarget'], ('', ''))
-        if docname:
-            try:
-                newnode = make_refnode(builder, fromdocname,
-                                       docname, labelid, contnode)
-                return newnode
-            except NoUri:
-                # remove the ids we added in the CitationReferences
-                # transform since they can't be transfered to
-                # the contnode (if it's a Text node)
-                if not isinstance(contnode, nodes.Element):
-                    del node['ids'][:]
-                raise
-        elif 'ids' in node:
-            # remove ids attribute that annotated at
-            # transforms.CitationReference.apply.
-            del node['ids'][:]
-
-    def _resolve_any_reference(self, builder, node, contnode):
+    def _resolve_any_reference(self, builder, refdoc, node, contnode):
         """Resolve reference generated by the "any" role."""
-        refdoc = node['refdoc']
         target = node['reftarget']
         results = []
         # first, try resolving as :doc:
-        doc_ref = self._resolve_doc_reference(builder, node, contnode)
+        doc_ref = self._resolve_doc_reference(builder, refdoc, node, contnode)
         if doc_ref:
             results.append(('doc', doc_ref))
         # next, do the standard domain (makes this a priority)
@@ -1900,6 +1771,10 @@ class BuildEnvironment:
         traversed = set()
 
         def traverse_toctree(parent, docname):
+            if parent == docname:
+                self.warn(docname, 'self referenced toctree found. Ignored.')
+                return
+
             # traverse toctree by pre-order
             yield parent, docname
             traversed.add(docname)
@@ -1930,6 +1805,9 @@ class BuildEnvironment:
             if docname not in self.files_to_rebuild:
                 if docname == self.config.master_doc:
                     # the master file is not included anywhere ;)
+                    continue
+                if docname in self.included:
+                    # the document is included from other documents
                     continue
                 if 'orphan' in self.metadata[docname]:
                     continue

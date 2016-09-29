@@ -17,9 +17,10 @@ from six import BytesIO
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.ext.intersphinx import read_inventory_v1, read_inventory_v2, \
+from sphinx.ext.intersphinx import setup as intersphinx_setup
+from sphinx.ext.intersphinx import read_inventory, \
     load_mappings, missing_reference, _strip_basic_auth, _read_from_url, \
-    _get_safe_url
+    _get_safe_url, fetch_inventory, INVENTORY_FILENAME
 
 from util import with_app, with_tempdir, mock
 
@@ -43,13 +44,13 @@ module2 py:module 0 foo.html#module-$ -
 module1.func py:function 1 sub/foo.html#$ -
 CFunc c:function 2 cfunc.html#CFunc -
 a term std:term -1 glossary.html#term-a-term -
+a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
 '''.encode('utf-8'))
 
 
 def test_read_inventory_v1():
     f = BytesIO(inventory_v1)
-    f.readline()
-    invdata = read_inventory_v1(f, '/util', posixpath.join)
+    invdata = read_inventory(f, '/util', posixpath.join)
     assert invdata['py:module']['module'] == \
         ('foo', '1.0', '/util/foo.html#module-module', '-')
     assert invdata['py:class']['module.cls'] == \
@@ -58,13 +59,11 @@ def test_read_inventory_v1():
 
 def test_read_inventory_v2():
     f = BytesIO(inventory_v2)
-    f.readline()
-    invdata1 = read_inventory_v2(f, '/util', posixpath.join)
+    invdata1 = read_inventory(f, '/util', posixpath.join)
 
     # try again with a small buffer size to test the chunking algorithm
     f = BytesIO(inventory_v2)
-    f.readline()
-    invdata2 = read_inventory_v2(f, '/util', posixpath.join, bufsize=5)
+    invdata2 = read_inventory(f, '/util', posixpath.join, bufsize=5)
 
     assert invdata1 == invdata2
 
@@ -78,6 +77,53 @@ def test_read_inventory_v2():
     assert invdata1['c:function']['CFunc'][2] == '/util/cfunc.html#CFunc'
     assert invdata1['std:term']['a term'][2] == \
         '/util/glossary.html#term-a-term'
+    assert invdata1['std:term']['a term including:colon'][2] == \
+        '/util/glossary.html#term-a-term-including-colon'
+
+
+@with_app()
+@mock.patch('sphinx.ext.intersphinx.read_inventory')
+@mock.patch('sphinx.ext.intersphinx._read_from_url')
+def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_inventory):
+    intersphinx_setup(app)
+    _read_from_url().readline.return_value = '# Sphinx inventory version 2'.encode('utf-8')
+
+    # same uri and inv, not redirected
+    _read_from_url().url = 'http://hostname/' + INVENTORY_FILENAME
+    fetch_inventory(app, 'http://hostname/', 'http://hostname/' + INVENTORY_FILENAME)
+    assert 'intersphinx inventory has moved' not in status.getvalue()
+    assert read_inventory.call_args[0][1] == 'http://hostname/'
+
+    # same uri and inv, redirected
+    status.seek(0)
+    status.truncate(0)
+    _read_from_url().url = 'http://hostname/new/' + INVENTORY_FILENAME
+
+    fetch_inventory(app, 'http://hostname/', 'http://hostname/' + INVENTORY_FILENAME)
+    assert status.getvalue() == ('intersphinx inventory has moved: '
+                                 'http://hostname/%s -> http://hostname/new/%s\n' %
+                                 (INVENTORY_FILENAME, INVENTORY_FILENAME))
+    assert read_inventory.call_args[0][1] == 'http://hostname/new'
+
+    # different uri and inv, not redirected
+    status.seek(0)
+    status.truncate(0)
+    _read_from_url().url = 'http://hostname/new/' + INVENTORY_FILENAME
+
+    fetch_inventory(app, 'http://hostname/', 'http://hostname/new/' + INVENTORY_FILENAME)
+    assert 'intersphinx inventory has moved' not in status.getvalue()
+    assert read_inventory.call_args[0][1] == 'http://hostname/'
+
+    # different uri and inv, redirected
+    status.seek(0)
+    status.truncate(0)
+    _read_from_url().url = 'http://hostname/other/' + INVENTORY_FILENAME
+
+    fetch_inventory(app, 'http://hostname/', 'http://hostname/new/' + INVENTORY_FILENAME)
+    assert status.getvalue() == ('intersphinx inventory has moved: '
+                                 'http://hostname/new/%s -> http://hostname/other/%s\n' %
+                                 (INVENTORY_FILENAME, INVENTORY_FILENAME))
+    assert read_inventory.call_args[0][1] == 'http://hostname/'
 
 
 @with_app()
@@ -88,6 +134,8 @@ def test_missing_reference(tempdir, app, status, warning):
     app.config.intersphinx_mapping = {
         'https://docs.python.org/': inv_file,
         'py3k': ('https://docs.python.org/py3k/', inv_file),
+        'py3krel': ('py3k', inv_file),  # relative path
+        'py3krelparent': ('../../py3k', inv_file),  # relative path, parent dir
     }
     app.config.intersphinx_cache_limit = 0
 
@@ -155,13 +203,26 @@ def test_missing_reference(tempdir, app, status, warning):
     assert rn is None
     assert contnode[0].astext() == 'py3k:unknown'
 
+    # check relative paths
+    rn = reference_check('py', 'mod', 'py3krel:module1', 'foo')
+    assert rn['refuri'] == 'py3k/foo.html#module-module1'
+
+    rn = reference_check('py', 'mod', 'py3krelparent:module1', 'foo')
+    assert rn['refuri'] == '../../py3k/foo.html#module-module1'
+
+    rn = reference_check('py', 'mod', 'py3krel:module1', 'foo', refdoc='sub/dir/test')
+    assert rn['refuri'] == '../../py3k/foo.html#module-module1'
+
+    rn = reference_check('py', 'mod', 'py3krelparent:module1', 'foo', refdoc='sub/dir/test')
+    assert rn['refuri'] == '../../../../py3k/foo.html#module-module1'
+
 
 @with_app()
 @with_tempdir
 def test_load_mappings_warnings(tempdir, app, status, warning):
     """
     load_mappings issues a warning if new-style mapping
-    identifiers are not alphanumeric
+    identifiers are not string
     """
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
@@ -170,13 +231,14 @@ def test_load_mappings_warnings(tempdir, app, status, warning):
         'py3k': ('https://docs.python.org/py3k/', inv_file),
         'repoze.workflow': ('http://docs.repoze.org/workflow/', inv_file),
         'django-taggit': ('http://django-taggit.readthedocs.org/en/latest/',
-                          inv_file)
+                          inv_file),
+        12345: ('http://www.sphinx-doc.org/en/stable/', inv_file),
     }
 
     app.config.intersphinx_cache_limit = 0
     # load the inventory and check if it's done correctly
     load_mappings(app)
-    assert warning.getvalue().count('\n') == 2
+    assert warning.getvalue().count('\n') == 1
 
 
 class TestStripBasicAuth(unittest.TestCase):
@@ -185,60 +247,37 @@ class TestStripBasicAuth(unittest.TestCase):
         """basic auth creds stripped from URL containing creds"""
         url = 'https://user:12345@domain.com/project/objects.inv'
         expected = 'https://domain.com/project/objects.inv'
-        actual_url, actual_username, actual_password = _strip_basic_auth(url)
-        self.assertEqual(expected, actual_url)
-        self.assertEqual('user', actual_username)
-        self.assertEqual('12345', actual_password)
+        actual = _strip_basic_auth(url)
+        self.assertEqual(expected, actual)
 
     def test_no_auth(self):
         """url unchanged if param doesn't contain basic auth creds"""
         url = 'https://domain.com/project/objects.inv'
         expected = 'https://domain.com/project/objects.inv'
-        actual_url, actual_username, actual_password = _strip_basic_auth(url)
-        self.assertEqual(expected, actual_url)
-        self.assertEqual(None, actual_username)
-        self.assertEqual(None, actual_password)
+        actual = _strip_basic_auth(url)
+        self.assertEqual(expected, actual)
 
-
-@mock.patch('six.moves.urllib.request.HTTPBasicAuthHandler')
-@mock.patch('six.moves.urllib.request.HTTPPasswordMgrWithDefaultRealm')
-@mock.patch('six.moves.urllib.request.build_opener')
-def test_readfromurl_authed(m_build_opener, m_HTTPPasswordMgrWithDefaultRealm,
-                            m_HTTPBasicAuthHandler):
-    # read from URL containing basic auth creds
-    password_mgr = mock.Mock()
-    m_HTTPPasswordMgrWithDefaultRealm.return_value = password_mgr
-
-    url = 'https://user:12345@domain.com/project/objects.inv'
-    _read_from_url(url)
-
-    m_HTTPPasswordMgrWithDefaultRealm.assert_called_once_with()
-    password_mgr.add_password.assert_called_with(
-        None, 'https://domain.com/project/objects.inv', 'user', '12345')
-
-
-@mock.patch('six.moves.urllib.request.HTTPBasicAuthHandler')
-@mock.patch('six.moves.urllib.request.HTTPPasswordMgrWithDefaultRealm')
-@mock.patch('sphinx.ext.intersphinx.default_opener')
-def test_readfromurl_unauthed(m_default_opener, m_HTTPPasswordMgrWithDefaultRealm,
-                              m_HTTPBasicAuthHandler):
-    # read from URL without auth creds
-    password_mgr = mock.Mock()
-    m_HTTPPasswordMgrWithDefaultRealm.return_value = password_mgr
-
-    url = 'https://domain.com/project/objects.inv'
-    _read_from_url(url)
-
-    # assert password manager not created
-    assert m_HTTPPasswordMgrWithDefaultRealm.call_args is None
-    # assert no password added to the password manager
-    assert password_mgr.add_password.call_args is None
+    def test_having_port(self):
+        """basic auth creds correctly stripped from URL containing creds even if URL
+        contains port"""
+        url = 'https://user:12345@domain.com:8080/project/objects.inv'
+        expected = 'https://domain.com:8080/project/objects.inv'
+        actual = _strip_basic_auth(url)
+        self.assertEqual(expected, actual)
 
 
 def test_getsafeurl_authed():
     """_get_safe_url() with a url with basic auth"""
     url = 'https://user:12345@domain.com/project/objects.inv'
     expected = 'https://user@domain.com/project/objects.inv'
+    actual = _get_safe_url(url)
+    assert expected == actual
+
+
+def test_getsafeurl_authed_having_port():
+    """_get_safe_url() with a url with basic auth having port"""
+    url = 'https://user:12345@domain.com:8080/project/objects.inv'
+    expected = 'https://user@domain.com:8080/project/objects.inv'
     actual = _get_safe_url(url)
     assert expected == actual
 

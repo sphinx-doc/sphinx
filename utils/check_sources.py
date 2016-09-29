@@ -223,11 +223,8 @@ def main(argv):
                 print("Checking %s..." % fn)
 
             try:
-                f = open(fn, 'rb')
-                try:
+                with open(fn, 'rb') as f:
                     lines = list(f)
-                finally:
-                    f.close()
             except (IOError, OSError) as err:
                 print("%s: cannot open: %s" % (fn, err))
                 num += 1

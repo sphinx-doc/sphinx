@@ -196,6 +196,8 @@ Use ```Link text <http://example.com/>`_`` for inline web links.  If the link
 text should be the web address, you don't need special markup at all, the parser
 finds links and mail addresses in ordinary text.
 
+.. important:: There must be a space between the link text and the opening \< for the URL.
+
 You can also separate the link and the target definition (:duref:`ref
 <hyperlink-targets>`), like this::
 
@@ -361,8 +363,9 @@ directory on building (e.g. the ``_static`` directory for HTML output.)
 
 Interpretation of image size options (``width`` and ``height``) is as follows:
 if the size has no unit or the unit is pixels, the given size will only be
-respected for output channels that support pixels (i.e. not in LaTeX output).
-Other units (like ``pt`` for points) will be used for HTML and LaTeX output.
+respected for output channels that support pixels. Other units (like ``pt``
+for points) will be used for HTML and LaTeX output (the latter replaces ``pt``
+by ``bp`` as this is the TeX unit such that ``72bp=1in``).
 
 Sphinx extends the standard docutils behavior by allowing an asterisk for the
 extension::
@@ -383,6 +386,9 @@ Note that image file names should not contain spaces.
 
 .. versionchanged:: 0.6
    Image paths can now be absolute.
+
+.. versionchanged:: 1.5
+   latex target supports pixels (default is ``96px=1in``).
 
 
 Footnotes

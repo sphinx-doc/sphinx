@@ -24,8 +24,9 @@ from sphinx.util.pycompat import UnicodeMixin
 
 _directive_regex = re.compile(r'\.\. \S+::')
 _google_section_regex = re.compile(r'^(\s|\w)+:\s*$')
-_google_typed_arg_regex = re.compile(r'\s*(.+?)\s*\(\s*(.+?)\s*\)')
+_google_typed_arg_regex = re.compile(r'\s*(.+?)\s*\(\s*(.*[^\s]+)\s*\)')
 _numpy_section_regex = re.compile(r'^[=\-`:\'"~^_*+#<>]{2,}\s*$')
+_single_colon_regex = re.compile(r'(?<!:):(?!:)')
 _xref_regex = re.compile(r'(:\w+:\S+:`.+?`|:\S+:`.+?`|`.+?`)')
 _bullet_list_regex = re.compile(r'^(\*|\+|\-)(\s+\S|\s*$)')
 _enumerated_list_regex = re.compile(
@@ -39,35 +40,33 @@ class GoogleDocstring(UnicodeMixin):
 
     Parameters
     ----------
-    docstring : str or List[str]
+    docstring : :obj:`str` or :obj:`list` of :obj:`str`
         The docstring to parse, given either as a string or split into
         individual lines.
-    config : Optional[sphinx.ext.napoleon.Config or sphinx.config.Config]
+    config: :obj:`sphinx.ext.napoleon.Config` or :obj:`sphinx.config.Config`
         The configuration settings to use. If not given, defaults to the
         config object on `app`; or if `app` is not given defaults to the
-        a new `sphinx.ext.napoleon.Config` object.
+        a new :class:`sphinx.ext.napoleon.Config` object.
 
-        See Also
-        --------
-        :class:`sphinx.ext.napoleon.Config`
 
     Other Parameters
     ----------------
-    app : Optional[sphinx.application.Sphinx]
+    app : :class:`sphinx.application.Sphinx`, optional
         Application object representing the Sphinx process.
-    what : Optional[str]
+    what : :obj:`str`, optional
         A string specifying the type of the object to which the docstring
         belongs. Valid values: "module", "class", "exception", "function",
         "method", "attribute".
-    name : Optional[str]
+    name : :obj:`str`, optional
         The fully qualified name of the object.
     obj : module, class, exception, function, method, or attribute
         The object to which the docstring belongs.
-    options : Optional[sphinx.ext.autodoc.Options]
+    options : :class:`sphinx.ext.autodoc.Options`, optional
         The options given to the directive: an object with attributes
         inherited_members, undoc_members, show_inheritance and noindex that
         are True if the flag option of same name was given to the auto
         directive.
+
 
     Example
     -------
@@ -174,7 +173,7 @@ class GoogleDocstring(UnicodeMixin):
 
         Returns
         -------
-        List[str]
+        list(str)
             The lines of the docstring in a list.
 
         """
@@ -256,12 +255,7 @@ class GoogleDocstring(UnicodeMixin):
                 else:
                     _desc = lines[1:]
 
-                match = _google_typed_arg_regex.match(before)
-                if match:
-                    _name = match.group(1)
-                    _type = match.group(2)
-                else:
-                    _type = before
+                _type = before
 
             _desc = self.__class__(_desc, self._config).lines()
             return [(_name, _type, _desc,)]
@@ -307,6 +301,19 @@ class GoogleDocstring(UnicodeMixin):
         else:
             return name
 
+    def _fix_field_desc(self, desc):
+        if self._is_list(desc):
+            desc = [''] + desc
+        elif desc[0].endswith('::'):
+            desc_block = desc[1:]
+            indent = self._get_indent(desc[0])
+            block_indent = self._get_initial_indent(desc_block)
+            if block_indent > indent:
+                desc = [''] + desc
+            else:
+                desc = ['', desc[0]] + self._indent(desc_block, 4)
+        return desc
+
     def _format_admonition(self, admonition, lines):
         lines = self._strip_empty(lines)
         if len(lines) == 1:
@@ -333,6 +340,22 @@ class GoogleDocstring(UnicodeMixin):
         else:
             return [prefix]
 
+    def _format_docutils_params(self, fields, field_role='param',
+                                type_role='type'):
+        lines = []
+        for _name, _type, _desc in fields:
+            _desc = self._strip_empty(_desc)
+            if any(_desc):
+                _desc = self._fix_field_desc(_desc)
+                field = ':%s %s: ' % (field_role, _name)
+                lines.extend(self._format_block(field, _desc))
+            else:
+                lines.append(':%s %s:' % (field_role, _name))
+
+            if _type:
+                lines.append(':%s %s: %s' % (type_role, _name, _type))
+        return lines + ['']
+
     def _format_field(self, _name, _type, _desc):
         _desc = self._strip_empty(_desc)
         has_desc = any(_desc)
@@ -354,9 +377,11 @@ class GoogleDocstring(UnicodeMixin):
             field = ''
 
         if has_desc:
-            if self._is_list(_desc):
-                return [field, ''] + _desc
-            return [field + _desc[0]] + _desc[1:]
+            _desc = self._fix_field_desc(_desc)
+            if _desc[0]:
+                return [field + _desc[0]] + _desc[1:]
+            else:
+                return [field] + _desc
         else:
             return [field]
 
@@ -392,6 +417,12 @@ class GoogleDocstring(UnicodeMixin):
             if not s.isspace():
                 return i
         return len(line)
+
+    def _get_initial_indent(self, lines):
+        for line in lines:
+            if line:
+                return self._get_indent(line)
+        return 0
 
     def _get_min_indent(self, lines):
         min_indent = None
@@ -527,7 +558,14 @@ class GoogleDocstring(UnicodeMixin):
             return [header, '']
 
     def _parse_keyword_arguments_section(self, section):
-        return self._format_fields('Keyword Arguments', self._consume_fields())
+        fields = self._consume_fields()
+        if self._config.napoleon_use_keyword:
+            return self._format_docutils_params(
+                fields,
+                field_role="keyword",
+                type_role="kwtype")
+        else:
+            return self._format_fields('Keyword Arguments', fields)
 
     def _parse_methods_section(self, section):
         lines = []
@@ -552,21 +590,7 @@ class GoogleDocstring(UnicodeMixin):
     def _parse_parameters_section(self, section):
         fields = self._consume_fields()
         if self._config.napoleon_use_param:
-            lines = []
-            for _name, _type, _desc in fields:
-                _desc = self._strip_empty(_desc)
-                if any(_desc):
-                    if self._is_list(_desc):
-                        _desc = [''] + _desc
-                    field = ':param %s: ' % _name
-                    lines.extend(self._format_block(field, _desc))
-                else:
-                    lines.append(':param %s:' % _name)
-
-                if _type:
-                    lines.append(':type %s: %s' % (_name, _type))
-
-            return lines + ['']
+            return self._format_docutils_params(fields)
         else:
             return self._format_fields('Parameters', fields)
 
@@ -668,11 +692,12 @@ class GoogleDocstring(UnicodeMixin):
             if found_colon:
                 after_colon.append(source)
             else:
-                if (i % 2) == 0 and ":" in source:
+                m = _single_colon_regex.search(source)
+                if (i % 2) == 0 and m:
                     found_colon = True
-                    before, colon, after = source.partition(":")
-                    before_colon.append(before)
-                    after_colon.append(after)
+                    colon = source[m.start(): m.end()]
+                    before_colon.append(source[:m.start()])
+                    after_colon.append(source[m.end():])
                 else:
                     before_colon.append(source)
 
@@ -705,35 +730,33 @@ class NumpyDocstring(GoogleDocstring):
 
     Parameters
     ----------
-    docstring : str or List[str]
+    docstring : :obj:`str` or :obj:`list` of :obj:`str`
         The docstring to parse, given either as a string or split into
         individual lines.
-    config : Optional[sphinx.ext.napoleon.Config or sphinx.config.Config]
+    config: :obj:`sphinx.ext.napoleon.Config` or :obj:`sphinx.config.Config`
         The configuration settings to use. If not given, defaults to the
         config object on `app`; or if `app` is not given defaults to the
-        a new `sphinx.ext.napoleon.Config` object.
+        a new :class:`sphinx.ext.napoleon.Config` object.
 
-        See Also
-        --------
-        :class:`sphinx.ext.napoleon.Config`
 
     Other Parameters
     ----------------
-    app : Optional[sphinx.application.Sphinx]
+    app : :class:`sphinx.application.Sphinx`, optional
         Application object representing the Sphinx process.
-    what : Optional[str]
+    what : :obj:`str`, optional
         A string specifying the type of the object to which the docstring
         belongs. Valid values: "module", "class", "exception", "function",
         "method", "attribute".
-    name : Optional[str]
+    name : :obj:`str`, optional
         The fully qualified name of the object.
     obj : module, class, exception, function, method, or attribute
         The object to which the docstring belongs.
-    options : Optional[sphinx.ext.autodoc.Options]
+    options : :class:`sphinx.ext.autodoc.Options`, optional
         The options given to the directive: an object with attributes
         inherited_members, undoc_members, show_inheritance and noindex that
         are True if the flag option of same name was given to the auto
         directive.
+
 
     Example
     -------
@@ -791,7 +814,7 @@ class NumpyDocstring(GoogleDocstring):
 
         Returns
         -------
-        List[str]
+        list(str)
             The lines of the docstring in a list.
 
     """

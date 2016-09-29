@@ -51,7 +51,7 @@ The third form provides your theme path dynamically to Sphinx if the
 called ``sphinx_themes`` in your setup.py file and write a ``get_path`` function
 that has to return the directory with themes in it::
 
-    // in your 'setup.py'
+    # 'setup.py'
 
     setup(
         ...
@@ -63,7 +63,7 @@ that has to return the directory with themes in it::
         ...
     )
 
-    // in 'your_package.py'
+    # 'your_package.py'
 
     from os import path
     package_dir = path.abspath(path.dirname(__file__))
@@ -81,36 +81,33 @@ that has to return the directory with themes in it::
 Builtin themes
 --------------
 
+.. cssclass:: longtable
+
 +--------------------+--------------------+
 | **Theme overview** |                    |
 +--------------------+--------------------+
-| |alabaster|        | |sphinx_rtd_theme| |
+| |alabaster|        | |classic|          |
 |                    |                    |
-| *alabaster*        | *sphinx_rtd_theme* |
+| *alabaster*        | *classic*          |
 +--------------------+--------------------+
-| |classic|          | |sphinxdoc|        |
+| |sphinxdoc|        | |scrolls|          |
 |                    |                    |
-| *classic*          | *sphinxdoc*        |
+| *sphinxdoc*        | *scrolls*          |
 +--------------------+--------------------+
-| |scrolls|          | |agogo|            |
+| |agogo|            | |traditional|      |
 |                    |                    |
-| *scrolls*          | *agogo*            |
+| *agogo*            | *traditional*      |
 +--------------------+--------------------+
-| |traditional|      | |nature|           |
+| |nature|           | |haiku|            |
 |                    |                    |
-| *traditional*      | *nature*           |
+| *nature*           | *haiku*            |
 +--------------------+--------------------+
-| |haiku|            | |pyramid|          |
+| |pyramid|          | |bizstyle|         |
 |                    |                    |
-| *haiku*            | *pyramid*          |
-+--------------------+--------------------+
-| |bizstyle|         |                    |
-|                    |                    |
-| *bizstyle*         |                    |
+| *pyramid*          | *bizstyle*         |
 +--------------------+--------------------+
 
 .. |alabaster|        image:: themes/alabaster.png
-.. |sphinx_rtd_theme| image:: themes/sphinx_rtd_theme.png
 .. |classic|          image:: themes/classic.png
 .. |sphinxdoc|        image:: themes/sphinxdoc.png
 .. |scrolls|          image:: themes/scrolls.png
@@ -144,13 +141,6 @@ These themes are:
   at `Alabaster theme`_ page.
 
   .. _Alabaster theme: https://pypi.python.org/pypi/alabaster
-
-* **sphinx_rtd_theme** -- `Read the Docs Sphinx Theme`_.
-  This is a mobile-friendly sphinx theme that was made for readthedocs.org.
-  View a working demo over on readthedocs.org. You can get options information
-  at `Read the Docs Sphinx Theme`_ page.
-
-  .. _Read the Docs Sphinx Theme: https://pypi.python.org/pypi/sphinx_rtd_theme
 
 * **classic** -- This is the classic theme, which looks like `the Python 2
   documentation <https://docs.python.org/2/>`_.  It can be customized via
@@ -273,7 +263,7 @@ These themes are:
 
 .. versionchanged:: 1.3
    The 'default' theme has been renamed to 'classic'. 'default' is still
-   available, however it will emit notice a recommendation that using new
+   available, however it will emit a notice that it is an alias for the new
    'alabaster' theme.
 
 Creating themes
@@ -357,3 +347,28 @@ is built with the classic theme, the output directory will contain a
 .. [1] It is not an executable Python file, as opposed to :file:`conf.py`,
        because that would pose an unnecessary security risk if themes are
        shared.
+
+Third Party Themes
+------------------
+
+.. cssclass:: longtable
+
++--------------------+--------------------+
+| **Theme overview** |                    |
++--------------------+--------------------+
+| |sphinx_rtd_theme| |                    |
+|                    |                    |
+| *sphinx_rtd_theme* |                    |
++--------------------+--------------------+
+
+.. |sphinx_rtd_theme| image:: themes/sphinx_rtd_theme.png
+
+* **sphinx_rtd_theme** -- `Read the Docs Sphinx Theme`_.
+  This is a mobile-friendly sphinx theme that was made for readthedocs.org.
+  View a working demo over on readthedocs.org. You can get install and options
+  information at `Read the Docs Sphinx Theme`_ page.
+
+  .. _Read the Docs Sphinx Theme: https://pypi.python.org/pypi/sphinx_rtd_theme
+
+  .. versionchanged:: 1.4
+     **sphinx_rtd_theme** has become optional.

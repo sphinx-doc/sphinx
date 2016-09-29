@@ -103,7 +103,8 @@ class Theme(object):
             if name not in self.themes:
                 if name == 'sphinx_rtd_theme':
                     raise ThemeError('sphinx_rtd_theme is no longer a hard dependency '
-                                     'since version 1.4.0. Please install it manually.')
+                                     'since version 1.4.0. Please install it manually.'
+                                     '(pip install sphinx_rtd_theme)')
                 else:
                     raise ThemeError('no theme named %r found '
                                      '(missing theme.conf?)' % name)
@@ -132,9 +133,8 @@ class Theme(object):
                 dirname = path.dirname(name)
                 if not path.isdir(path.join(self.themedir, dirname)):
                     os.makedirs(path.join(self.themedir, dirname))
-                fp = open(path.join(self.themedir, name), 'wb')
-                fp.write(tinfo.read(name))
-                fp.close()
+                with open(path.join(self.themedir, name), 'wb') as fp:
+                    fp.write(tinfo.read(name))
 
         self.themeconf = configparser.RawConfigParser()
         self.themeconf.read(path.join(self.themedir, THEMECONF))

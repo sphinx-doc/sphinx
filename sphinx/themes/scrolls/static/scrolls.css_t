@@ -299,12 +299,19 @@ table.genindextable td {
     width: 50%;
 }
 
-table.indextable dl dd {
+table.indextable ul {
+    margin-top: 0;
+    margin-bottom: 0;
+    list-style-type: none;
     font-size: 11px;
 }
 
-table.indextable dl dd a {
+table.indextable ul a {
     color: #000;
+}
+
+table.indextable > tbody > tr > td > ul {
+    padding-left: 0em;
 }
 
 div.modindex-jumpbox {
@@ -317,6 +324,11 @@ div.modindex-jumpbox {
 table.modindextable {
     width: 100%;
     border: none;
+}
+
+table.modindextable td {
+    padding: 2px;
+    border-collapse: collapse;
 }
 
 table.modindextable img.toggler {

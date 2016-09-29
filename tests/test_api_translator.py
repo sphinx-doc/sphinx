@@ -57,7 +57,7 @@ def test_html_with_set_translator_for_html_(app, status, warning):
 
 
 @with_app('html', testroot='api-set-translator',
-          confoverrides={'html_translator_class': 'ext.ExtHTMLTranslator'})
+          confoverrides={'html_translator_class': 'translator.ExtHTMLTranslator'})
 def test_html_with_set_translator_for_html_and_html_translator_class(
         app, status, warning):
     # use set_translator() and html_translator_class.
@@ -67,7 +67,7 @@ def test_html_with_set_translator_for_html_and_html_translator_class(
     assert translator_class.__name__ == 'ConfHTMLTranslator'
 
 
-## this test break test_websupport.test_comments test. why?
+# this test break test_websupport.test_comments test. why?
 # @with_app(
 #     buildername='dirhtml',
 #     srcdir=(test_roots / 'test-api-set-translator'),

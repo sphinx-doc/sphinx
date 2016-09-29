@@ -53,9 +53,3 @@ footenotes
 .. [#] footnotes in table caption
 
 .. [#] footnotes in table
-
-
-missing target
---------------------
-[missing]_ citation
-

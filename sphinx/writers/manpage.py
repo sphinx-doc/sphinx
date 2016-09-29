@@ -97,8 +97,7 @@ class ManualPageTranslator(BaseTranslator):
         if builder.config.today:
             self._docinfo['date'] = builder.config.today
         else:
-            self._docinfo['date'] = format_date(builder.config.today_fmt or
-                                                _('MMMM dd, YYYY'),
+            self._docinfo['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
                                                 language=builder.config.language)
         self._docinfo['copyright'] = builder.config.copyright
         self._docinfo['version'] = builder.config.version

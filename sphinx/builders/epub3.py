@@ -12,7 +12,9 @@
 
 import codecs
 from os import path
+from datetime import datetime
 
+from sphinx.config import string_classes
 from sphinx.builders.epub import EpubBuilder
 
 
@@ -41,18 +43,18 @@ NAVIGATION_DOC_TEMPLATE = u'''\
 </html>
 '''
 
-NAVLIST_TEMPLATE = u'''\
-%(indent)s  <li>
-%(indent)s    <a href="%(refuri)s">%(text)s</a>
-%(indent)s  </li>
-'''
-NAVLIST_INDENT = '      '
-
+NAVLIST_TEMPLATE = u'''%(indent)s      <li><a href="%(refuri)s">%(text)s</a></li>'''
+NAVLIST_TEMPLATE_HAS_CHILD = u'''%(indent)s      <li><a href="%(refuri)s">%(text)s</a>'''
+NAVLIST_TEMPLATE_BEGIN_BLOCK = u'''%(indent)s        <ol>'''
+NAVLIST_TEMPLATE_END_BLOCK = u'''%(indent)s        </ol>
+%(indent)s      </li>'''
+NAVLIST_INDENT = '  '
 
 PACKAGE_DOC_TEMPLATE = u'''\
 <?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="%(lang)s"
-      unique-identifier="%(uid)s">
+ unique-identifier="%(uid)s"
+ prefix="ibooks: http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/">
   <metadata xmlns:opf="http://www.idpf.org/2007/opf"
         xmlns:dc="http://purl.org/dc/elements/1.1/">
     <dc:language>%(lang)s</dc:language>
@@ -65,6 +67,10 @@ PACKAGE_DOC_TEMPLATE = u'''\
     <dc:identifier id="%(uid)s">%(id)s</dc:identifier>
     <dc:date>%(date)s</dc:date>
     <meta property="dcterms:modified">%(date)s</meta>
+    <meta property="ibooks:version">%(version)s</meta>
+    <meta property="ibooks:specified-fonts">true</meta>
+    <meta property="ibooks:binding">true</meta>
+    <meta property="ibooks:scroll-axis">%(ibook_scroll_axis)s</meta>
   </metadata>
   <manifest>
     <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
@@ -73,7 +79,6 @@ PACKAGE_DOC_TEMPLATE = u'''\
 %(files)s
   </manifest>
   <spine toc="ncx" page-progression-direction="%(page_progression_direction)s">
-    <itemref idref="nav" />
 %(spine)s
   </spine>
   <guide>
@@ -81,6 +86,8 @@ PACKAGE_DOC_TEMPLATE = u'''\
   </guide>
 </package>
 '''
+
+DOCTYPE = u'''<!DOCTYPE html>'''
 
 # The epub3 publisher
 
@@ -93,12 +100,23 @@ class Epub3Builder(EpubBuilder):
     and META-INF/container.xml. Afterwards, all necessary files are zipped to
     an epub file.
     """
-    name = 'epub3'
+    name = 'epub'
 
     navigation_doc_template = NAVIGATION_DOC_TEMPLATE
     navlist_template = NAVLIST_TEMPLATE
+    navlist_template_has_child = NAVLIST_TEMPLATE_HAS_CHILD
+    navlist_template_begin_block = NAVLIST_TEMPLATE_BEGIN_BLOCK
+    navlist_template_end_block = NAVLIST_TEMPLATE_END_BLOCK
     navlist_indent = NAVLIST_INDENT
     content_template = PACKAGE_DOC_TEMPLATE
+    doctype = DOCTYPE
+
+    # Warning deprecated option
+    def init(self):
+        if self.config.epub3_page_progression_direction:
+            self.warn('epub3_page_progression_direction option is deprecated'
+                      ' from 1.5. Use epub3_writing_mode instead of this.')
+        super(Epub3Builder, self).init()
 
     # Finish by building the epub file
     def handle_finish(self):
@@ -119,17 +137,58 @@ class Epub3Builder(EpubBuilder):
             files, spine, guide)
         metadata['description'] = self.esc(self.config.epub3_description)
         metadata['contributor'] = self.esc(self.config.epub3_contributor)
-        metadata['page_progression_direction'] = self.esc(
-            self.config.epub3_page_progression_direction) or 'default'
+        metadata['page_progression_direction'] = self._page_progression_direction()
+        metadata['ibook_scroll_axis'] = self._ibook_scroll_axis()
+        metadata['date'] = self.esc(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
+        metadata['version'] = self.esc(self.config.version)
         return metadata
 
-    def new_navlist(self, node, level):
+    def _page_progression_direction(self):
+        if self.config.epub3_writing_mode == 'horizontal':
+            page_progression_direction = 'ltr'
+        elif self.config.epub3_writing_mode == 'vertical':
+            page_progression_direction = 'rtl'
+        else:
+            page_progression_direction = 'default'
+        return page_progression_direction
+
+    def _ibook_scroll_axis(self):
+        if self.config.epub3_writing_mode == 'horizontal':
+            scroll_axis = 'vertical'
+        elif self.config.epub3_writing_mode == 'vertical':
+            scroll_axis = 'horizontal'
+        else:
+            scroll_axis = 'default'
+        return scroll_axis
+
+    def _css_writing_mode(self):
+        if self.config.epub3_writing_mode == 'vertical':
+            editing_mode = 'vertical-rl'
+        else:
+            editing_mode = 'horizontal-tb'
+        return editing_mode
+
+    def prepare_writing(self, docnames):
+        super(Epub3Builder, self).prepare_writing(docnames)
+        self.globalcontext['theme_writing_mode'] = self._css_writing_mode()
+
+    def new_navlist(self, node, level, has_child):
         """Create a new entry in the toc from the node at given level."""
         # XXX Modifies the node
         self.tocid += 1
         node['indent'] = self.navlist_indent * level
-        navpoint = self.navlist_template % node
-        return navpoint
+        if has_child:
+            return self.navlist_template_has_child % node
+        else:
+            return self.navlist_template % node
+
+    def begin_navlist_block(self, level):
+        return self.navlist_template_begin_block % {
+            "indent": self.navlist_indent * level
+        }
+
+    def end_navlist_block(self, level):
+        return self.navlist_template_end_block % {"indent": self.navlist_indent * level}
 
     def build_navlist(self, nodes):
         """Create the toc navigation structure.
@@ -141,10 +200,9 @@ class Epub3Builder(EpubBuilder):
         The difference from build_navpoints method is templates which are used
         when generating navigation documents.
         """
-        navstack = []
         navlist = []
         level = 1
-        lastnode = None
+        usenodes = []
         for node in nodes:
             if not node['text']:
                 continue
@@ -153,30 +211,23 @@ class Epub3Builder(EpubBuilder):
                 continue
             if node['level'] > self.config.epub_tocdepth:
                 continue
-            if node['level'] == level:
-                navlist.append(self.new_navlist(node, level))
-            elif node['level'] == level + 1:
-                navstack.append(navlist)
-                navlist = []
-                level += 1
-                if lastnode and self.config.epub_tocdup:
-                    navlist.append(self.new_navlist(node, level))
-                    navlist[-1] = '<ol>\n' + navlist[-1]
+            usenodes.append(node)
+        for i, node in enumerate(usenodes):
+            curlevel = node['level']
+            if curlevel == level + 1:
+                navlist.append(self.begin_navlist_block(level))
+            while curlevel < level:
+                level -= 1
+                navlist.append(self.end_navlist_block(level))
+            level = curlevel
+            if i != len(usenodes) - 1 and usenodes[i + 1]['level'] > level:
+                has_child = True
             else:
-                while node['level'] < level:
-                    subnav = '\n'.join(navlist)
-                    navlist = navstack.pop()
-                    navlist[-1] = self.insert_subnav(navlist[-1], subnav)
-                    level -= 1
-                    navlist[-1] = navlist[-1] + '</ol>'
-                navlist.append(self.new_navlist(node, level))
-            lastnode = node
+                has_child = False
+            navlist.append(self.new_navlist(node, level, has_child))
         while level != 1:
-            subnav = '\n'.join(navlist)
-            navlist = navstack.pop()
-            navlist[-1] = self.insert_subnav(navlist[-1], subnav)
             level -= 1
-            navlist[-1] = navlist[-1] + '</ol>'
+            navlist.append(self.end_navlist_block(level))
         return '\n'.join(navlist)
 
     def navigation_doc_metadata(self, navlist):
@@ -203,11 +254,20 @@ class Epub3Builder(EpubBuilder):
             # 'includehidden'
             refnodes = self.refnodes
         navlist = self.build_navlist(refnodes)
-        f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
-        try:
+        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:
             f.write(self.navigation_doc_template %
                     self.navigation_doc_metadata(navlist))
-        finally:
-            f.close()
-            # Add nav.xhtml to epub file
+
+        # Add nav.xhtml to epub file
+        if outname not in self.files:
             self.files.append(outname)
+
+
+def setup(app):
+    app.setup_extension('sphinx.builders.epub')
+    app.add_builder(Epub3Builder)
+
+    app.add_config_value('epub3_description', '', 'epub3', string_classes)
+    app.add_config_value('epub3_contributor', 'unknown', 'epub3', string_classes)
+    app.add_config_value('epub3_writing_mode', 'horizontal', 'epub3', string_classes)
+    app.add_config_value('epub3_page_progression_direction', '', 'epub3', string_classes)

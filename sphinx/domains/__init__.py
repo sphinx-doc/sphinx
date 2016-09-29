@@ -10,6 +10,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import copy
+
 from six import iteritems
 
 from sphinx.errors import SphinxError
@@ -145,7 +147,7 @@ class Domain(object):
         self.env = env
         if self.name not in env.domaindata:
             assert isinstance(self.initial_data, dict)
-            new_data = self.initial_data.copy()
+            new_data = copy.deepcopy(self.initial_data)
             new_data['version'] = self.data_version
             self.data = env.domaindata[self.name] = new_data
         else:
@@ -273,20 +275,3 @@ class Domain(object):
         if primary:
             return type.lname
         return _('%s %s') % (self.label, type.lname)
-
-
-from sphinx.domains.c import CDomain                     # noqa
-from sphinx.domains.cpp import CPPDomain                 # noqa
-from sphinx.domains.std import StandardDomain            # noqa
-from sphinx.domains.python import PythonDomain           # noqa
-from sphinx.domains.javascript import JavaScriptDomain   # noqa
-from sphinx.domains.rst import ReSTDomain                # noqa
-
-BUILTIN_DOMAINS = {
-    'std': StandardDomain,
-    'py': PythonDomain,
-    'c': CDomain,
-    'cpp': CPPDomain,
-    'js': JavaScriptDomain,
-    'rst': ReSTDomain,
-}

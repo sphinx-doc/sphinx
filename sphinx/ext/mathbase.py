@@ -12,7 +12,10 @@
 from docutils import nodes, utils
 from docutils.parsers.rst import directives
 
-from sphinx.util.nodes import set_source_info
+from sphinx.roles import XRefRole
+from sphinx.locale import _
+from sphinx.domains import Domain
+from sphinx.util.nodes import make_refnode, set_source_info
 from sphinx.util.compat import Directive
 
 
@@ -28,37 +31,114 @@ class eqref(nodes.Inline, nodes.TextElement):
     pass
 
 
+class EqXRefRole(XRefRole):
+    def result_nodes(self, document, env, node, is_ref):
+        node['refdomain'] = 'math'
+        return [node], []
+
+
+class MathDomain(Domain):
+    """Mathematics domain."""
+    name = 'math'
+    label = 'mathematics'
+
+    initial_data = {
+        'objects': {},  # labelid -> (docname, eqno)
+    }
+    dangling_warnings = {
+        'eq': 'equation not found: %(target)s',
+    }
+
+    def clear_doc(self, docname):
+        for labelid, (doc, eqno) in list(self.data['objects'].items()):
+            if doc == docname:
+                del self.data['objects'][labelid]
+
+    def merge_domaindata(self, docnames, otherdata):
+        for labelid, (doc, eqno) in otherdata['objects'].items():
+            if doc in docnames:
+                self.data['objects'][labelid] = doc
+
+    def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        assert typ == 'eq'
+        docname, number = self.data['objects'].get(target, (None, None))
+        if docname:
+            if builder.name == 'latex':
+                newnode = eqref('', **node.attributes)
+                newnode['docname'] = docname
+                newnode['target'] = target
+                return newnode
+            else:
+                title = nodes.Text("(%d)" % number)
+                return make_refnode(builder, fromdocname, docname,
+                                    "equation-" + target, title)
+        else:
+            return None
+
+    def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
+        refnode = self.resolve_xref(env, fromdocname, builder, 'eq', target, node, contnode)
+        if refnode is None:
+            return []
+        else:
+            return [refnode]
+
+    def get_objects(self):
+        return []
+
+    def add_equation(self, env, docname, labelid):
+        equations = self.data['objects']
+        if labelid in equations:
+            path = env.doc2path(equations[labelid][0])
+            msg = _('duplicate label of equation %s, other instance in %s') % (labelid, path)
+            raise UserWarning(msg)
+        else:
+            eqno = self.get_next_equation_number(docname)
+            equations[labelid] = (docname, eqno)
+            return eqno
+
+    def get_next_equation_number(self, docname):
+        targets = [eq for eq in self.data['objects'].values() if eq[0] == docname]
+        return len(targets) + 1
+
+
 def wrap_displaymath(math, label, numbering):
-    parts = math.split('\n\n')
-    ret = []
-    for i, part in enumerate(parts):
-        if not part.strip():
-            continue
-        ret.append(r'\begin{split}%s\end{split}' % part)
-    if not ret:
-        return ''
-    if label is not None or numbering:
-        env_begin = r'\begin{align}'
-        if label is not None:
-            env_begin += r'\label{%s}' % label
-        env_end = r'\end{align}'
+    def is_equation(part):
+        return part.strip()
+
+    if label is None:
+        labeldef = ''
     else:
-        env_begin = r'\begin{align*}'
-        env_end = r'\end{align*}'
-    return ('%s\\begin{aligned}\n%s\\end{aligned}%s') % (
-        env_begin, '\\\\\n'.join(ret), env_end)
+        labeldef = r'\label{%s}' % label
+        numbering = True
+
+    parts = list(filter(is_equation, math.split('\n\n')))
+    equations = []
+    if len(parts) == 0:
+        return ''
+    elif len(parts) == 1:
+        if numbering:
+            begin = r'\begin{equation}' + labeldef
+            end = r'\end{equation}'
+        else:
+            begin = r'\begin{equation*}' + labeldef
+            end = r'\end{equation*}'
+        equations.append('\\begin{split}%s\\end{split}\n' % parts[0])
+    else:
+        if numbering:
+            begin = r'\begin{align}%s\!\begin{aligned}' % labeldef
+            end = r'\end{aligned}\end{align}'
+        else:
+            begin = r'\begin{align*}%s\!\begin{aligned}' % labeldef
+            end = r'\end{aligned}\end{align*}'
+        for part in parts:
+            equations.append('%s\\\\\n' % part.strip())
+
+    return '%s\n%s%s' % (begin, ''.join(equations), end)
 
 
 def math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
     latex = utils.unescape(text, restore_backslashes=True)
     return [math(latex=latex)], []
-
-
-def eq_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
-    text = utils.unescape(text)
-    node = eqref('(?)', '(?)', target=text)
-    node['docname'] = inliner.document.settings.env.docname
-    return [node], []
 
 
 def is_in_section_title(node):
@@ -90,20 +170,46 @@ class MathDirective(Directive):
             latex = self.arguments[0] + '\n\n' + latex
         node = displaymath()
         node['latex'] = latex
-        node['label'] = self.options.get('name', None)
-        if node['label'] is None:
-            node['label'] = self.options.get('label', None)
+        node['number'] = None
+        node['label'] = None
+        if 'name' in self.options:
+            node['label'] = self.options['name']
+        if 'label' in self.options:
+            node['label'] = self.options['label']
         node['nowrap'] = 'nowrap' in self.options
         node['docname'] = self.state.document.settings.env.docname
         ret = [node]
         set_source_info(self, node)
         if hasattr(self, 'src'):
             node.source = self.src
-        if node['label']:
-            tnode = nodes.target('', '', ids=['equation-' + node['label']])
-            self.state.document.note_explicit_target(tnode)
-            ret.insert(0, tnode)
+        self.add_target(ret)
         return ret
+
+    def add_target(self, ret):
+        node = ret[0]
+        env = self.state.document.settings.env
+
+        # assign label automatically if math_number_all enabled
+        if node['label'] == '' or (env.config.math_number_all and not node['label']):
+            seq = env.new_serialno('sphinx.ext.math#equations')
+            node['label'] = "%s:%d" % (env.docname, seq)
+
+        # no targets and numbers are needed
+        if not node['label']:
+            return
+
+        # register label to domain
+        domain = env.get_domain('math')
+        try:
+            eqno = domain.add_equation(env, env.docname, node['label'])
+            node['number'] = eqno
+
+            # add target node
+            target = nodes.target('', '', ids=['equation-' + node['label']])
+            self.state.document.note_explicit_target(target)
+            ret.insert(0, target)
+        except UserWarning as exc:
+            self.state_machine.reporter.warning(exc[0], line=self.lineno)
 
 
 def latex_visit_math(self, node):
@@ -117,17 +223,24 @@ def latex_visit_math(self, node):
 
 
 def latex_visit_displaymath(self, node):
+    if not node['label']:
+        label = None
+    else:
+        label = "equation:%s:%s" % (node['docname'], node['label'])
+
     if node['nowrap']:
+        if label:
+            self.body.append(r'\label{%s}' % label)
         self.body.append(node['latex'])
     else:
-        label = node['label'] and node['docname'] + '-' + node['label'] or None
         self.body.append(wrap_displaymath(node['latex'], label,
                                           self.builder.config.math_number_all))
     raise nodes.SkipNode
 
 
 def latex_visit_eqref(self, node):
-    self.body.append('\\eqref{%s-%s}' % (node['docname'], node['target']))
+    label = "equation:%s:%s" % (node['docname'], node['target'])
+    self.body.append('\\eqref{%s}' % label)
     raise nodes.SkipNode
 
 
@@ -143,11 +256,6 @@ def text_visit_displaymath(self, node):
     raise nodes.SkipNode
 
 
-def text_visit_eqref(self, node):
-    self.add_text(node['target'])
-    raise nodes.SkipNode
-
-
 def man_visit_math(self, node):
     self.body.append(node['latex'])
     raise nodes.SkipNode
@@ -159,11 +267,6 @@ def man_visit_displaymath(self, node):
 
 def man_depart_displaymath(self, node):
     self.depart_centered(node)
-
-
-def man_visit_eqref(self, node):
-    self.body.append(node['target'])
-    raise nodes.SkipNode
 
 
 def texinfo_visit_math(self, node):
@@ -182,40 +285,9 @@ def texinfo_depart_displaymath(self, node):
     pass
 
 
-def texinfo_visit_eqref(self, node):
-    self.add_xref(node['docname'] + ':' + node['target'],
-                  node['target'], node)
-    raise nodes.SkipNode
-
-
-def html_visit_eqref(self, node):
-    self.body.append('<a href="#equation-%s">' % node['target'])
-
-
-def html_depart_eqref(self, node):
-    self.body.append('</a>')
-
-
-def number_equations(app, doctree, docname):
-    num = 0
-    numbers = {}
-    for node in doctree.traverse(displaymath):
-        if node['label'] is not None or app.config.math_number_all:
-            num += 1
-            node['number'] = num
-            if node['label'] is not None:
-                numbers[node['label']] = num
-        else:
-            node['number'] = None
-    for node in doctree.traverse(eqref):
-        if node['target'] not in numbers:
-            continue
-        num = '(%d)' % numbers[node['target']]
-        node[0] = nodes.Text(num, num)
-
-
 def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
-    app.add_config_value('math_number_all', False, 'html')
+    app.add_config_value('math_number_all', False, 'env')
+    app.add_domain(MathDomain)
     app.add_node(math, override=True,
                  latex=(latex_visit_math, None),
                  text=(text_visit_math, None),
@@ -228,13 +300,7 @@ def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
                  man=(man_visit_displaymath, man_depart_displaymath),
                  texinfo=(texinfo_visit_displaymath, texinfo_depart_displaymath),
                  html=htmldisplayvisitors)
-    app.add_node(eqref,
-                 latex=(latex_visit_eqref, None),
-                 text=(text_visit_eqref, None),
-                 man=(man_visit_eqref, None),
-                 texinfo=(texinfo_visit_eqref, None),
-                 html=(html_visit_eqref, html_depart_eqref))
+    app.add_node(eqref, latex=(latex_visit_eqref, None))
     app.add_role('math', math_role)
-    app.add_role('eq', eq_role)
+    app.add_role('eq', EqXRefRole(warn_dangling=True))
     app.add_directive('math', MathDirective)
-    app.connect('doctree-resolved', number_equations)

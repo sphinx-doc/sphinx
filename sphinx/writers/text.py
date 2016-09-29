@@ -281,8 +281,11 @@ class TextTranslator(nodes.NodeVisitor):
             char = '^'
         text = ''.join(x[1] for x in self.states.pop() if x[0] == -1)
         self.stateindent.pop()
-        self.states[-1].append(
-            (0, ['', text, '%s' % (char * column_width(text)), '']))
+        title = ['', text, '%s' % (char * column_width(text)), '']
+        if len(self.states) == 2 and len(self.states[-1]) == 0:
+            # remove an empty line before title if it is first section title in the document
+            title.pop(0)
+        self.states[-1].append((0, title))
 
     def visit_subtitle(self, node):
         pass

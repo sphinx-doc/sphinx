@@ -362,7 +362,7 @@ package.
 
    .. versionadded:: 1.1
 
-.. method:: Sphinx.add_source_parser(name, suffix, parser)
+.. method:: Sphinx.add_source_parser(suffix, parser)
 
    Register a parser class for specified *suffix*.
 

@@ -359,6 +359,25 @@ single word, like this::
    :param int priority: The priority of the message, can be a number 1-5
 
 
+.. versionadded:: 1.5
+
+Container types such as lists and dictionaries can be linked automatically
+using the following syntax::
+
+   :type priorities: list(int)
+   :type priorities: list[int]
+   :type mapping: dict(str, int)
+   :type mapping: dict[str, int]
+   :type point: tuple(float, float)
+   :type point: tuple[float, float]
+
+Multiple types in a type field will be linked automatically if separated by
+the word "or"::
+
+   :type an_arg: int or None
+   :vartype a_var: str or int
+   :rtype: float or str
+
 .. _python-roles:
 
 Cross-referencing Python objects
@@ -545,10 +564,10 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
    Full and partial template specialisations can be declared::
 
-      .. cpp::class:: template<> \
+      .. cpp:class:: template<> \
                       std::array<bool, 256>
 
-      .. cpp::class:: template<typename T> \
+      .. cpp:class:: template<typename T> \
                       std::array<T, 42>
 
 
@@ -629,8 +648,25 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
    A type alias can also be templated::
 
-      .. cpp:type:: template<typename T>
+      .. cpp:type:: template<typename T> \
                     MyContainer = std::vector<T>
+
+   The example are rendered as follows.
+
+   .. cpp:type:: std::vector<int> MyList
+
+      A typedef-like declaration of a type.
+
+   .. cpp:type:: MyContainer::const_iterator
+
+      Declaration of a type alias with unspecified type.
+
+   .. cpp:type:: MyType = std::unordered_map<int, std::string>
+
+      Declaration of a type alias.
+
+   .. cpp:type:: template<typename T> \
+                 MyContainer = std::vector<T>
 
 
 .. rst:directive:: .. cpp:enum:: unscoped enum declaration
@@ -663,9 +699,92 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
    Describe an enumerator, optionally with its value defined, e.g.,::
 
-      .. cpp::enumerator:: MyEnum::myEnumerator
+      .. cpp:enumerator:: MyEnum::myEnumerator
 
-      .. cpp::enumerator:: MyEnum::myOtherEnumerator = 42
+      .. cpp:enumerator:: MyEnum::myOtherEnumerator = 42
+
+
+.. rst:directive:: .. cpp:concept:: template-parameter-list name
+                   .. cpp:concept:: template-parameter-list name()
+
+   .. warning:: The support for concepts is experimental. It is based on the
+      Concepts Technical Specification, and the features may change as the TS evolves.
+
+   Describe a variable concept or a function concept. Both must have exactly 1
+   template parameter list. The name may be a nested name. Examples::
+
+      .. cpp:concept:: template<typename It> std::Iterator
+
+         Proxy to an element of a notional sequence that can be compared,
+         indirected, or incremented.
+
+      .. cpp:concept:: template<typename Cont> std::Container()
+
+         Holder of elements, to which it can provide access via
+         :cpp:concept:`Iterator` s.
+
+   They will render as follows:
+
+   .. cpp:concept:: template<typename It> std::Iterator
+
+      Proxy to an element of a notional sequence that can be compared,
+      indirected, or incremented.
+
+   .. cpp:concept:: template<typename Cont> std::Container()
+
+      Holder of elements, to which it can provide access via
+      :cpp:concept:`Iterator` s.
+
+Constrained Templates
+~~~~~~~~~~~~~~~~~~~~~
+
+.. warning:: The support for constrained templates is experimental. It is based on the
+  Concepts Technical Specification, and the features may change as the TS evolves.
+
+.. note:: Sphinx does not currently support ``requires`` clauses.
+
+Placeholders
+............
+
+Declarations may use the name of a concept to introduce constrained template
+parameters, or the keyword ``auto`` to introduce unconstrained template parameters::
+
+   .. cpp:function:: void f(auto &&arg)
+
+      A function template with a single unconstrained template parameter.
+
+   .. cpp:function:: void f(std::Iterator it)
+
+      A function template with a single template parameter, constrained by the
+      Iterator concept.
+
+Template Introductions
+......................
+
+Simple constrained function or class templates can be declared with a
+`template introduction` instead of a template parameter list::
+
+   .. cpp:function:: std::Iterator{It} void advance(It &it)
+
+       A function template with a template parameter constrained to be an Iterator.
+
+   .. cpp:class:: std::LessThanComparable{T} MySortedContainer
+
+       A class template with a template parameter constrained to be LessThanComparable.
+
+They are rendered as follows.
+
+.. cpp:function:: std::Iterator{It} void advance(It &it)
+
+   A function template with a template parameter constrained to be an Iterator.
+
+.. cpp:class:: std::LessThanComparable{T} MySortedContainer
+
+   A class template with a template parameter constrained to be LessThanComparable.
+
+Note however that no checking is performed with respect to parameter
+compatibility. E.g., ``Iterator{A, B, C}`` will be accepted as an introduction
+even though it would not be valid C++.
 
 
 Namespacing
@@ -773,6 +892,7 @@ These roles link to the given declaration types:
               cpp:member
               cpp:var
               cpp:type
+              cpp:concept
               cpp:enum
               cpp:enumerator
 
@@ -870,6 +990,11 @@ References to partial specialisations must always include the template parameter
 ``template\<typename T> Outer\<T*>`` (:cpp:class:`template\<typename T> Outer\<T*>`).
 Currently the lookup only succeed if the template parameter identifiers are equal strings.
 
+
+Configuration Variables
+~~~~~~~~~~~~~~~~~~~~~~~
+
+See :ref:`cpp-config`.
 
 
 The Standard Domain

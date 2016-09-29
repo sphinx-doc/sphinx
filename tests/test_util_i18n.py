@@ -47,7 +47,7 @@ def test_catalog_outdated(dir):
     mo_file.write_text('#')
     assert not cat.is_outdated()  # if mo is exist and newer than po
 
-    os.utime(mo_file, (os.stat(mo_file).st_mtime - 10,) * 2) # to be outdate
+    os.utime(mo_file, (os.stat(mo_file).st_mtime - 10,) * 2)  # to be outdate
     assert cat.is_outdated()  # if mo is exist and older than po
 
 
@@ -169,6 +169,7 @@ def test_get_catalogs_with_compact(dir):
 def test_format_date():
     date = datetime.date(2016, 2, 7)
 
+    # default format
     format = None
     assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
     assert i18n.format_date(format, date=date, language='') == 'Feb 7, 2016'
@@ -177,6 +178,7 @@ def test_format_date():
     assert i18n.format_date(format, date=date, language='ja') == '2016/02/07'
     assert i18n.format_date(format, date=date, language='de') == '07.02.2016'
 
+    # strftime format
     format = '%B %d, %Y'
     assert i18n.format_date(format, date=date) == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='') == 'February 07, 2016'
@@ -184,6 +186,32 @@ def test_format_date():
     assert i18n.format_date(format, date=date, language='en') == 'February 07, 2016'
     assert i18n.format_date(format, date=date, language='ja') == u'2月 07, 2016'
     assert i18n.format_date(format, date=date, language='de') == 'Februar 07, 2016'
+
+    # LDML format
+    format = 'MMM dd, YYYY'
+    assert i18n.format_date(format, date=date) == 'Feb 07, 2016'
+    assert i18n.format_date(format, date=date, language='') == 'Feb 07, 2016'
+    assert i18n.format_date(format, date=date, language='unknown') == 'Feb 07, 2016'
+    assert i18n.format_date(format, date=date, language='en') == 'Feb 07, 2016'
+    assert i18n.format_date(format, date=date, language='ja') == u'2月 07, 2016'
+    assert i18n.format_date(format, date=date, language='de') == 'Feb. 07, 2016'
+
+    # raw string
+    format = 'Mon Mar 28 12:37:08 2016, commit 4367aef'
+    assert i18n.format_date(format, date=date) == format
+
+    format = '%B %d, %Y, %H:%M:%S %I %p'
+    datet = datetime.datetime(2016, 2, 7, 5, 11, 17, 0)
+    assert i18n.format_date(format, date=datet) == 'February 07, 2016, 05:11:17 05 AM'
+
+    format = '%x'
+    assert i18n.format_date(format, date=datet) == 'Feb 7, 2016'
+    format = '%X'
+    assert i18n.format_date(format, date=datet) == '5:11:17 AM'
+    assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
+    format = '%c'
+    assert i18n.format_date(format, date=datet) == 'Feb 7, 2016, 5:11:17 AM'
+    assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
 
 
 def test_get_filename_for_language():
@@ -219,9 +247,12 @@ def test_get_filename_for_language():
     app.env.config.language = 'en'
     app.env.config.figure_language_filename = 'images/{language}/{root}{ext}'
     assert i18n.get_image_filename_for_language('foo.png', app.env) == 'images/en/foo.png'
-    assert i18n.get_image_filename_for_language('foo.bar.png', app.env) == 'images/en/foo.bar.png'
-    assert i18n.get_image_filename_for_language('subdir/foo.png', app.env) == 'images/en/subdir/foo.png'
-    assert i18n.get_image_filename_for_language('../foo.png', app.env) == 'images/en/../foo.png'
+    assert i18n.get_image_filename_for_language(
+        'foo.bar.png', app.env) == 'images/en/foo.bar.png'
+    assert i18n.get_image_filename_for_language(
+        'subdir/foo.png', app.env) == 'images/en/subdir/foo.png'
+    assert i18n.get_image_filename_for_language(
+        '../foo.png', app.env) == 'images/en/../foo.png'
     assert i18n.get_image_filename_for_language('foo', app.env) == 'images/en/foo'
 
     # invalid figure_language_filename
