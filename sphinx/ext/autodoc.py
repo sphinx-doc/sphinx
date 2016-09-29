@@ -268,6 +268,8 @@ def format_annotation(annotation):
 
     Displaying complex types from ``typing`` relies on its private API.
     """
+    if typing and isinstance(annotation, typing.TypeVar):
+        return annotation.__name__
     if not isinstance(annotation, type):
         return repr(annotation)
 
@@ -277,9 +279,7 @@ def format_annotation(annotation):
     if annotation.__module__ == 'builtins':
         return annotation.__qualname__
     elif typing:
-        if isinstance(annotation, typing.TypeVar):
-            return annotation.__name__
-        elif hasattr(typing, 'GenericMeta') and \
+        if hasattr(typing, 'GenericMeta') and \
                 isinstance(annotation, typing.GenericMeta):
             # In Python 3.5.2+, all arguments are stored in __args__,
             # whereas __parameters__ only contains generic parameters.
