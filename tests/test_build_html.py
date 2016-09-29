@@ -1123,7 +1123,7 @@ def test_html_sourcelink_suffix(app, status, warning):
     assert (app.outdir / '_sources' / 'otherext.foo').exists()
     assert (app.outdir / '_sources' / 'images.txt').exists()
 
-    
+
 @gen_with_app(buildername='html', testroot='stylesheets')
 def test_alternate_stylesheets(app, status, warning):
     app.builder.build_all()
