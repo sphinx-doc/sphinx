@@ -1156,13 +1156,9 @@ def test_alternate_stylesheets(app, status, warning):
     }
 
     for fname, paths in iteritems(expects):
-        parser = NslessParser()
-        parser.entity.update(html_entities.entitydefs)
-        fp = open(os.path.join(app.outdir, fname), 'rb')
-        try:
-            etree = ET.parse(fp, parser)
-        finally:
-            fp.close()
+        with (app.outdir / fname).open('rb') as fp:
+            etree = HTML_PARSER.parse(fp)
 
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
+
