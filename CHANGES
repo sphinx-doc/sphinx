@@ -4,6 +4,9 @@ Release 1.5 alpha2 (in development)
 Incompatible changes
 --------------------
 
+* #2983: Rename ``epub3_description`` and ``epub3_contributor`` to
+  ``epub_description`` and ``epub_contributor``.
+
 Features added
 --------------
 
