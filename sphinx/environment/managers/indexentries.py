@@ -23,7 +23,7 @@ from sphinx.environment.managers import EnvironmentManager
 
 
 class IndexEntries(EnvironmentManager):
-    name = 'indexentries'
+    name = 'indices'
 
     def __init__(self, env):
         super(IndexEntries, self).__init__(env)

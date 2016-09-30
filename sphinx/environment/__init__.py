@@ -212,6 +212,7 @@ class BuildEnvironment(object):
         for manager_class in [IndexEntries, Toctree]:
             manager = manager_class(self)
             self.managers[manager.name] = manager
+            setattr(self, manager.name, manager)
 
     def set_warnfunc(self, func):
         self._warnfunc = func
@@ -593,8 +594,8 @@ class BuildEnvironment(object):
             self._warnfunc(*warning, **kwargs)
 
     def check_dependents(self, already):
-        toctree = self.managers['toctree']
-        to_rewrite = toctree.assign_section_numbers() + toctree.assign_figure_numbers()
+        to_rewrite = (self.toctree.assign_section_numbers() +
+                      self.toctree.assign_figure_numbers())
         for docname in set(to_rewrite):
             if docname not in already:
                 yield docname
@@ -938,15 +939,15 @@ class BuildEnvironment(object):
         """Note a TOC tree directive in a document and gather information about
         file relations from it.
         """
-        self.managers['toctree'].note_toctree(docname, toctreenode)
+        self.toctree.note_toctree(docname, toctreenode)
 
     def get_toc_for(self, docname, builder):
         """Return a TOC nodetree -- for use on the same page only!"""
-        return self.managers['toctree'].get_toc_for(docname, builder)
+        return self.toctree.get_toc_for(docname, builder)
 
     def get_toctree_for(self, docname, builder, collapse, **kwds):
         """Return the global TOC nodetree."""
-        return self.managers['toctree'].get_toctree_for(docname, builder, collapse, **kwds)
+        return self.toctree.get_toctree_for(docname, builder, collapse, **kwds)
 
     def get_domain(self, domainname):
         """Return the domain instance with the specified name.
@@ -1006,9 +1007,9 @@ class BuildEnvironment(object):
         If *collapse* is True, all branches not containing docname will
         be collapsed.
         """
-        return self.managers['toctree'].resolve_toctree(docname, builder, toctree, prune,
-                                                        maxdepth, titles_only, collapse,
-                                                        includehidden)
+        return self.toctree.resolve_toctree(docname, builder, toctree, prune,
+                                            maxdepth, titles_only, collapse,
+                                            includehidden)
 
     def resolve_references(self, doctree, fromdocname, builder):
         for node in doctree.traverse(addnodes.pending_xref):
@@ -1138,8 +1139,7 @@ class BuildEnvironment(object):
 
     def create_index(self, builder, group_entries=True,
                      _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
-        entries = self.managers['indexentries']
-        return entries.create_index(builder, group_entries=group_entries, _fixre=_fixre)
+        return self.indices.create_index(builder, group_entries=group_entries, _fixre=_fixre)
 
     def collect_relations(self):
         traversed = set()
