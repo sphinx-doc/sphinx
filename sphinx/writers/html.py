@@ -297,11 +297,32 @@ class HTMLTranslator(BaseTranslator):
             format = u'<a class="headerlink" href="#%s" title="%s">%s</a>'
             self.body.append(format % (node['ids'][0], title, self.permalink_text))
 
-    # overwritten to avoid emitting empty <ul></ul>
+    def generate_targets_for_listing(self, node):
+        """Generate hyperlink targets for listings.
+
+        Original visit_bullet_list(), visit_definition_list() and visit_enumerated_list()
+        generates hyperlink targets inside listing tags (<ul>, <ol> and <dl>) if multiple
+        IDs are assigned to listings.  That is invalid DOM structure.
+        (This is a bug of docutils <= 0.12)
+
+        This exports hyperlink targets before listings to make valid DOM structure.
+        """
+        for id in node['ids'][1:]:
+            self.body.append('<span id="%s"></span>' % id)
+            node['ids'].remove(id)
+
+    # overwritten
     def visit_bullet_list(self, node):
         if len(node) == 1 and node[0].tagname == 'toctree':
+            # avoid emitting empty <ul></ul>
             raise nodes.SkipNode
+        self.generate_targets_for_listing(node)
         BaseTranslator.visit_bullet_list(self, node)
+
+    # overwritten
+    def visit_enumerated_list(self, node):
+        self.generate_targets_for_listing(node)
+        BaseTranslator.visit_enumerated_list(self, node)
 
     # overwritten
     def visit_title(self, node):
@@ -648,6 +669,7 @@ class HTMLTranslator(BaseTranslator):
 
     # overwritten to do not add '</dt>' in 'visit_definition' state.
     def visit_definition(self, node):
+        self.generate_targets_for_listing(node)
         self.body.append(self.starttag(node, 'dd', ''))
         self.set_first_last(node)
 
