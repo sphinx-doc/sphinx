@@ -61,7 +61,7 @@ def check_anchor(response, anchor):
     try:
         # Read file in chunks. If we find a matching anchor, we break
         # the loop early in hopes not to have to download the whole thing.
-        for chunk in response.iter_content():
+        for chunk in response.iter_content(decode_unicode=True):
             parser.feed(chunk)
             if parser.found:
                 break
@@ -162,6 +162,7 @@ class CheckExternalLinksBuilder(Builder):
                 if anchor:
                     new_url += '#' + anchor
                 # history contains any redirects, get last
+                code = response.status_code  # FIXME: there is a case changing url with 200 OK...
                 if response.history:
                     code = response.history[-1].status_code
                 return 'redirected', new_url, code
@@ -232,6 +233,7 @@ class CheckExternalLinksBuilder(Builder):
                 302: ('with Found', purple),
                 303: ('with See Other', purple),
                 307: ('temporarily', turquoise),
+                200: ('with Found (200 OK)', purple),  # FIXME: why 200 OK?
                 0:   ('with unknown code', purple),
             }[code]
             self.write_entry('redirected ' + text, docname, lineno,
