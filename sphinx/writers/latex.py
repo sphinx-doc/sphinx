@@ -93,7 +93,7 @@ class ExtBabel(Babel):
         if shortlang in ('de', 'ngerman', 'sl', 'slovene', 'pt', 'portuges',
                          'es', 'spanish', 'nl', 'dutch', 'pl', 'polish', 'it',
                          'italian'):
-            return '\\shorthandoff{"}'
+            return '\\if\\catcode`\\"\\active\\shorthandoff{"}\\fi'
         elif shortlang in ('tr', 'turkish'):
             return '\\shorthandoff{=}'
         return ''
