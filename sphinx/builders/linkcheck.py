@@ -163,7 +163,8 @@ class CheckExternalLinksBuilder(Builder):
                 if anchor:
                     new_url += '#' + anchor
                 # history contains any redirects, get last
-                code = response.status_code  # FIXME: there is a case changing url with 200 OK...
+                # FIXME: there is a case changing url with 200 OK...
+                code = response.status_code
                 if response.history:
                     code = response.history[-1].status_code
                 return 'redirected', new_url, code
