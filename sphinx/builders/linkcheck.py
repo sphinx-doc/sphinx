@@ -51,6 +51,7 @@ class AnchorCheckParser(HTMLParser):
         for key, value in attrs:
             if key in ('id', 'name') and value == self.search_anchor:
                 self.found = True
+                break
 
 
 def check_anchor(response, anchor):
