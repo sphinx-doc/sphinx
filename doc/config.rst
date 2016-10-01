@@ -1289,24 +1289,30 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    The title of the document.  It defaults to the :confval:`html_title` option
    but can be set independently for epub creation.
 
-.. confval:: epub3_description
+.. confval:: epub_description
 
    The description of the document. The default value is ``''``.
 
    .. versionadded:: 1.4
+
+   .. versionchanged:: 1.5
+      Renamed from ``epub3_description``
 
 .. confval:: epub_author
 
    The author of the document.  This is put in the Dublin Core metadata.  The
    default value is ``'unknown'``.
 
-.. confval:: epub3_contributor
+.. confval:: epub_contributor
 
    The name of a person, organization, etc. that played a secondary role in
    the creation of the content of an EPUB Publication. The default value is
    ``'unknown'``.
 
    .. versionadded:: 1.4
+
+   .. versionchanged:: 1.5
+      Renamed from ``epub3_contributor``
 
 .. confval:: epub_language
 
@@ -1467,7 +1473,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
    .. versionadded:: 1.2
 
-.. confval:: epub3_writing_mode
+.. confval:: epub_writing_mode
 
    It specifies writing direction. It can accept ``'horizontal'`` (default) and
    ``'vertical'``
@@ -1476,7 +1482,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
       :header-rows: 1
       :stub-columns: 1
 
-      - * ``epub3_writing_mode``
+      - * ``epub_writing_mode``
         * ``'horizontal'``
         * ``'vertical'``
       - * writing-mode [#]_
@@ -1503,7 +1509,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    .. versionadded:: 1.4
 
    .. deprecated:: 1.5
-      Use ``epub3_writing_mode``.
+      Use ``epub_writing_mode`` instead.
 
 .. _latex-options:
 
