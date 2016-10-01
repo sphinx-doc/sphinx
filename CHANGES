@@ -162,11 +162,19 @@ Bugs fixed
 * #2550: external links are opened in help viewer
 * #2687: Running Sphinx multiple times produces 'already registered' warnings
 
-Release 1.4.8 (in development)
+Release 1.4.9 (in development)
 ==============================
 
 Bugs fixed
 ----------
+
+Release 1.4.8 (released Oct 1, 2016)
+====================================
+
+Bugs fixed
+----------
+
+* #2996: The wheel package of Sphinx got crash with ImportError
 
 Release 1.4.7 (released Oct 1, 2016)
 ====================================
