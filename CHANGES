@@ -4,6 +4,8 @@ Release 1.4.8 (in development)
 Bugs fixed
 ----------
 
+* #2996: The wheel package of Sphinx got crash with ImportError
+
 Release 1.4.7 (released Oct 1, 2016)
 ====================================
 
