@@ -946,12 +946,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_collected_footnote(self, node):
         self.in_footnote += 1
         if 'footnotetext' in node:
-            self.body.append('\\footnotetext[%s]{\sphinxAtStartFootnote\n' % node['number'])
+            self.body.append('\\begin{footnotetext}[%s]'
+                             '\sphinxAtStartFootnote\n' % node['number'])
         else:
-            self.body.append('\\footnote[%s]{\sphinxAtStartFootnote\n' % node['number'])
+            self.body.append('\\begin{footnote}[%s]'
+                             '\sphinxAtStartFootnote\n' % node['number'])
 
     def depart_collected_footnote(self, node):
-        self.body.append('}')
+        if 'footnotetext' in node:
+            self.body.append('\\end{footnotetext}\n')
+        else:
+            self.body.append('\\end{footnote}\n')
         self.in_footnote -= 1
 
     def visit_label(self, node):
@@ -1833,10 +1838,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         pass
 
     def visit_literal_block(self, node):
-        if self.in_footnote:
-            raise UnsupportedError('%s:%s: literal blocks in footnotes are '
-                                   'not supported by LaTeX' %
-                                   (self.curfilestack[-1], node.line))
         if node.rawsource != node.astext():
             # most probably a parsed-literal block -- don't highlight
             self.body.append('\\begin{alltt}\n')
@@ -1848,7 +1849,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 # suppress with anchor=False \phantomsection insertion
                 ids += self.hypertarget(node['ids'][0], anchor=False)
             # LaTeX code will insert \phantomsection prior to \label
-            if ids:
+            if ids and not self.in_footnote:
                 self.body.append('\n\\def\\sphinxLiteralBlockLabel{' + ids + '}')
             code = node.astext()
             lang = self.hlsettingstack[-1][0]
@@ -1873,9 +1874,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                                       **highlight_args)
             # workaround for Unicode issue
             hlcode = hlcode.replace(u'€', u'@texteuro[]')
+            if self.in_footnote:
+                self.body.append('\n\\sphinxSetupCodeBlockInFootnote')
+                hlcode = hlcode.replace('\\begin{Verbatim}',
+                                        '\\begin{sphinxVerbatim}')
+                pass
             # if in table raise verbatim flag to avoid "tabulary" environment
             # and opt for sphinxVerbatimintable to handle caption & long lines
-            if self.table:
+            elif self.table:
                 self.table.has_problematic = True
                 self.table.has_verbatim = True
                 hlcode = hlcode.replace('\\begin{Verbatim}',
@@ -1886,9 +1892,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # get consistent trailer
             hlcode = hlcode.rstrip()[:-14]  # strip \end{Verbatim}
             self.body.append('\n' + hlcode + '\\end{sphinxVerbatim%s}\n' %
-                             (self.table and 'intable' or ''))
+                             ((self.table and not self.in_footnote) 
+                              and 'intable' or ''))
             if ids:
-                self.body.append('\\let\\sphinxLiteralBlockLabel\empty\n')
+                self.body.append('\\let\\sphinxLiteralBlockLabel\\empty\n')
             raise nodes.SkipNode
 
     def depart_literal_block(self, node):
