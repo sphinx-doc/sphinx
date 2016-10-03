@@ -241,7 +241,7 @@ Dedent
 
 .. versionadded:: 1.3
 
-A ``dedent`` option can be given to strip a precedence characters from the code
+A ``dedent`` option can be given to strip indentation characters from the code
 block. For example::
 
    .. literalinclude:: example.rb
