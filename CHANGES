@@ -15,6 +15,7 @@ Bugs fixed
 
 * #2810: Problems with pdflatex in an Italian document
 * Use ``latex_elements.papersize`` to specify papersize of LaTeX in Makefile
+* #2988: linkcheck: retry with GET request if denied HEAD request
 
 Documentation
 -------------

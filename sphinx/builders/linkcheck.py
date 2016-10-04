@@ -84,13 +84,11 @@ class CheckExternalLinksBuilder(Builder):
         self.good = set()
         self.broken = {}
         self.redirected = {}
+        self.headers = dict(useragent_header)
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
         # create output file
         open(path.join(self.outdir, 'output.txt'), 'w').close()
-
-        self.session = requests.Session()
-        self.session.headers = dict(useragent_header)
 
         # create queues and worker threads
         self.wqueue = queue.Queue()
@@ -129,23 +127,23 @@ class CheckExternalLinksBuilder(Builder):
                     # Read the whole document and see if #anchor exists
                     # (Anchors starting with ! are ignored since they are
                     # commonly used for dynamic pages)
-                    response = self.session.get(req_url, stream=True, **kwargs)
+                    response = requests.get(req_url, stream=True, headers=self.headers,
+                                            **kwargs)
                     found = check_anchor(response, unquote(anchor))
 
                     if not found:
                         raise Exception("Anchor '%s' not found" % anchor)
                 else:
                     try:
-                        # try a HEAD request, which should be easier on
+                        # try a HEAD request first, which should be easier on
                         # the server and the network
-                        response = self.session.head(req_url, **kwargs)
+                        response = requests.head(req_url, headers=self.headers, **kwargs)
                         response.raise_for_status()
                     except HTTPError as err:
-                        if err.response.status_code not in (403, 405):
-                            raise
-                        # retry with GET if that fails, some servers
-                        # don't like HEAD requests and reply with 403 or 405
-                        response = self.session.get(req_url, stream=True, **kwargs)
+                        # retry with GET request if that fails, some servers
+                        # don't like HEAD requests.
+                        response = requests.get(req_url, stream=True, headers=self.headers,
+                                                **kwargs)
                         response.raise_for_status()
             except HTTPError as err:
                 if err.response.status_code == 401:
