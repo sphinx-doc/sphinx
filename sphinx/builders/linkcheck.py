@@ -62,7 +62,7 @@ def check_anchor(response, anchor):
     try:
         # Read file in chunks. If we find a matching anchor, we break
         # the loop early in hopes not to have to download the whole thing.
-        for chunk in response.iter_content(decode_unicode=True):
+        for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
             parser.feed(chunk)
             if parser.found:
                 break
