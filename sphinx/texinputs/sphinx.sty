@@ -160,9 +160,10 @@
 % Some custom font markup commands.
 % *** the macros without \sphinx prefix are still defined at bottom of file ***
 \newcommand{\sphinxstrong}[1]{{\textbf{#1}}}
-% let \sphinxcode and \sphinxbfcode use straight quotes. \@noligs patched by upquote,
-% but needs protection in "moving arguments" such as for captions.
-% Use \scantokens to handle e.g. \item[{\sphinxcode{'fontenc'}}]
+% to obtain straight quotes we execute \@noligs as patched by upquote, the
+% macro must be robust in case it is used in captions e.g., and \scantokens is
+% needed in such cases and others such as \item[{\sphinxcode{'fontenc'}}]
+% in 'alltt' \@noligs is done already, and the \scantokens must be avoided.
 \DeclareRobustCommand{\sphinxcode}[1]{{\def\@tempa{alltt}%
   \ifx\@tempa\@currenvir\else\@noligs\endlinechar\m@ne\everyeof{\noexpand}%
   \expandafter\scantokens\fi {\texttt{#1}}}}
@@ -996,8 +997,12 @@
 % by default, also define macros with the no-prefix names
 \ifsphinxKeepOldNames
   \typeout{** (sphinx) defining (legacy) text style macros without \string\sphinx\space prefix}
-  \typeout{** if clashes with packages, set latex_keep_old_macro_names=False in conf.py}
-  \@for\@tempa:=strong,bfcode,email,tablecontinued,titleref,%
+  \typeout{** if clashes with packages, set latex_keep_old_macro_names=False
+    in conf.py}
+  % robustified case needs special treatment
+  \newcommand\code{}\DeclareRobustCommand{\code}{}%
+  \expandafter\let\csname code \endcsname\relax\def\sphinxcode{\code}%
+  \@for\@tempa:=code ,strong,bfcode,email,tablecontinued,titleref,%
                 menuselection,accelerator,crossref,termref,optional\do
 {% first, check if command with no prefix already exists
   \expandafter\newcommand\csname\@tempa\endcsname{}%
@@ -1007,13 +1012,7 @@
   % redefine the \sphinx prefixed macro to expand to non-prefixed one
   \expandafter\def\csname sphinx\@tempa\expandafter\endcsname
                   \expandafter{\csname\@tempa\endcsname}%
-}
-  % robustified case needs special treatment
-  \newcommand\code{}\let\code\relax
-  \DeclareRobustCommand{\code}[1]{{\def\@tempa{alltt}%
-  \ifx\@tempa\@currenvir\else\@noligs\endlinechar\m@ne\everyeof{\noexpand}%
-  \expandafter\scantokens\fi {\texttt{#1}}}}
-  \def\sphinxcode{\code}%
+}%
 \fi
 
 % additional customizable styling
