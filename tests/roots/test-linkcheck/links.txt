@@ -1,0 +1,4 @@
+This is from CPython documentation.
+
+* Also, if there is a `default namespace <https://www.w3.org/TR/2006/REC-xml-names-20060816/#defaulting>`__, that full URI gets prepended to all of the non-prefixed tags.
+* The `SSMEDIAN <https://help.gnome.org/users/gnumeric/stable/gnumeric.html#gnumeric-function-SSMEDIAN>`_ function in the Gnome Gnumeric spreadsheet.

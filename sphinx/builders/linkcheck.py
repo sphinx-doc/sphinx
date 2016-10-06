@@ -51,6 +51,7 @@ class AnchorCheckParser(HTMLParser):
         for key, value in attrs:
             if key in ('id', 'name') and value == self.search_anchor:
                 self.found = True
+                break
 
 
 def check_anchor(response, anchor):
@@ -61,7 +62,7 @@ def check_anchor(response, anchor):
     try:
         # Read file in chunks. If we find a matching anchor, we break
         # the loop early in hopes not to have to download the whole thing.
-        for chunk in response.iter_content():
+        for chunk in response.iter_content(chunk_size=4096, decode_unicode=True):
             parser.feed(chunk)
             if parser.found:
                 break
