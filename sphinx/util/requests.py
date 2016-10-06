@@ -14,6 +14,7 @@ from __future__ import absolute_import
 import requests
 import warnings
 import pkg_resources
+from requests.packages.urllib3.exceptions import SSLError
 
 # try to load requests[security]
 try:
@@ -41,3 +42,14 @@ except pkg_resources.UnknownExtra:
 
 useragent_header = [('User-Agent',
                      'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0')]
+
+
+def is_ssl_error(exc):
+    if isinstance(exc, SSLError):
+        return True
+    else:
+        args = getattr(exc, 'args', [])
+        if args and isinstance(args[0], SSLError):
+            return True
+        else:
+            return False

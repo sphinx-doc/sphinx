@@ -35,7 +35,7 @@ from sphinx.builders import Builder
 from sphinx.util import encode_uri
 from sphinx.util.console import purple, red, darkgreen, darkgray, \
     darkred, turquoise
-from sphinx.util.requests import requests, useragent_header
+from sphinx.util.requests import requests, useragent_header, is_ssl_error
 
 
 class AnchorCheckParser(HTMLParser):
@@ -152,7 +152,10 @@ class CheckExternalLinksBuilder(Builder):
                 else:
                     return 'broken', str(err), 0
             except Exception as err:
-                return 'broken', str(err), 0
+                if is_ssl_error(err):
+                    return 'ignored', str(err), 0
+                else:
+                    return 'broken', str(err), 0
             if response.url.rstrip('/') == req_url.rstrip('/'):
                 return 'working', '', 0
             else:
@@ -211,7 +214,10 @@ class CheckExternalLinksBuilder(Builder):
         if lineno:
             self.info('(line %4d) ' % lineno, nonl=1)
         if status == 'ignored':
-            self.info(darkgray('-ignored- ') + uri)
+            if info:
+                self.info(darkgray('-ignored- ') + uri + ': ' + info)
+            else:
+                self.info(darkgray('-ignored- ') + uri)
         elif status == 'local':
             self.info(darkgray('-local-   ') + uri)
             self.write_entry('local', docname, lineno, uri)
