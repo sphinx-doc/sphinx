@@ -21,7 +21,7 @@ Bugs fixed
 * #2990: linkcheck raises "Can't convert 'bytes' object to str implicitly" error
   if linkcheck_anchors enabled
 * #3004: Invalid link types "top" and "up" are used
-* #3009: Bad rendering of parsed-literals in LaTeX
+* #3009: Bad rendering of parsed-literals in LaTeX since Sphinx 1.4.4
 
 Documentation
 -------------
