@@ -16,3 +16,10 @@ from util import with_app
 @with_app('linkcheck', testroot='linkcheck', freshenv=True)
 def test_all(app, status, warning):
     app.builder.build_all()
+
+    assert (app.outdir / 'output.txt').exists()
+    content = (app.outdir / 'output.txt').text()
+
+    # expect all ok
+    assert not content
+
