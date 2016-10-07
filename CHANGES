@@ -6,6 +6,7 @@ Incompatible changes
 
 * #2983: Rename ``epub3_description`` and ``epub3_contributor`` to
   ``epub_description`` and ``epub_contributor``.
+* Remove themes/basic/defindex.html; no longer used
 
 Features added
 --------------
@@ -24,7 +25,6 @@ Bugs fixed
 * #3009: Bad rendering of parsed-literals in LaTeX since Sphinx 1.4.4
 * #3000: ``option`` directive generates invalid HTML anchors
 * #2984: Invalid HTML has been generated if `html_split_index` enabled
-* Remove themes/basic/defindex.html; no longer used
 
 Documentation
 -------------
