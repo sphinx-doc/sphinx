@@ -24,7 +24,7 @@ Bugs fixed
 * #3009: Bad rendering of parsed-literals in LaTeX since Sphinx 1.4.4
 * #3000: ``option`` directive generates invalid HTML anchors
 * #2984: Invalid HTML has been generated if `html_split_index` enabled
-* #2986: themes/basic/defindex.html should be changed for html5 friendly
+* Remove themes/basic/defindex.html; no longer used
 
 Documentation
 -------------
