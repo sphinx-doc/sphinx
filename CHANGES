@@ -23,6 +23,7 @@ Bugs fixed
 * #3004: Invalid link types "top" and "up" are used
 * #3009: Bad rendering of parsed-literals in LaTeX since Sphinx 1.4.4
 * #3000: ``option`` directive generates invalid HTML anchors
+* #2984: Invalid HTML has been generated if `html_split_index` enabled
 
 Documentation
 -------------

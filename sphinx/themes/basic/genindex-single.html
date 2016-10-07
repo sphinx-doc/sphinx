@@ -36,7 +36,7 @@
   {%- for column in entries|slice(2) if column %}
   <td style="width: 33%; vertical-align: top;"><ul>
     {%- for entryname, (links, subitems, _) in column %}
-      <li>{{ indexentries(entryname, links) }}</li>
+      <li>{{ indexentries(entryname, links) }}
       {%- if subitems %}
       <ul>
       {%- for subentryname, subentrylinks in subitems %}
