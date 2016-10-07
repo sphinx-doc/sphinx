@@ -1688,7 +1688,8 @@ These options influence LaTeX output. See further :doc:`latex`.
            script.
      ``'fncychap'``
         Inclusion of the "fncychap" package (which makes fancy chapter titles),
-        default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation,
+        default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation
+        (this option is slightly customized by Sphinx),
         ``'\\usepackage[Sonny]{fncychap}'`` for internationalized docs (because
         the "Bjarne" style uses numbers spelled out in English).  Other
         "fncychap" styles you can try include "Lenny", "Glenn", "Conny" and
