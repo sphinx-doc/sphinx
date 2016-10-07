@@ -22,6 +22,7 @@ Bugs fixed
   if linkcheck_anchors enabled
 * #3004: Invalid link types "top" and "up" are used
 * #3009: Bad rendering of parsed-literals in LaTeX since Sphinx 1.4.4
+* #3000: ``option`` directive generates invalid HTML anchors
 
 Documentation
 -------------

@@ -631,7 +631,7 @@ def test_xml_builder(app, status, warning):
     yield (assert_elem,
            para2[3],
            ['LINK TO', '--module', 'AND', '-m', '.'],
-           ['cmdoption--module', 'cmdoption-m'])
+           ['cmdoption-module', 'cmdoption-m'])
     yield (assert_elem,
            para2[4],
            ['LINK TO', 'env2', 'AND', 'env1', '.'],

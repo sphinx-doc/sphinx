@@ -174,16 +174,18 @@ class Cmdoption(ObjectDescription):
             if currprogram:
                 targetname = '-' + currprogram + targetname
             targetname = 'cmdoption' + targetname
-            signode['ids'].append(targetname)
-            self.state.document.note_explicit_target(signode)
+            signode['names'].append(targetname)
+
+        self.state.document.note_explicit_target(signode)
+        for optname in signode.get('allnames', []):
             self.env.domaindata['std']['progoptions'][currprogram, optname] = \
-                self.env.docname, targetname
+                self.env.docname, signode['ids'][0]
             # create only one index entry for the whole option
             if optname == firstname:
                 self.indexnode['entries'].append(
                     ('pair', _('%scommand line option; %s') %
                      ((currprogram and currprogram + ' ' or ''), sig),
-                     targetname, '', None))
+                     signode['ids'][0], '', None))
 
 
 class Program(Directive):
