@@ -265,6 +265,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'classoptions':    '',
         'extraclassoptions': '',
         'passoptionstopackages': '',
+        'geometry':        '\\usepackage[margin=1in,marginparwidth=0.5in]'
+                           '{geometry}',
         'inputenc':        '',
         'utf8extra':       ('\\ifdefined\\DeclareUnicodeCharacter\n'
                             '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'

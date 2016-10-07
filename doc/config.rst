@@ -1676,6 +1676,12 @@ These options influence LaTeX output. See further :doc:`latex`.
         to use ``'47363sp'``. To obtain ``72px=1in``, use ``'1bp'``.
 
         .. versionadded:: 1.5
+     ``'geometry'``
+        "geometry" package inclusion, the default definition is:
+
+          ``'\\usepackage[margin=1in,marginparwidth=0.5in]{geometry}'``.
+
+        .. versionadded:: 1.5
      ``'babel'``
         "babel" package inclusion, default ``'\\usepackage{babel}'``.
      ``'fontpkg'``

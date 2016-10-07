@@ -6,6 +6,7 @@
    \let\sphinxpxdimen\pdfpxdimen\else\newdimen\sphinxpxdimen
 \fi \sphinxpxdimen=<%= pxunit %>\relax
 <%= passoptionstopackages %>
+<%= geometry %>
 <%= inputenc %>
 <%= utf8extra %>
 <%= cmappkg %>
