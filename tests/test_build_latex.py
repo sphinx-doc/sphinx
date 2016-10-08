@@ -388,6 +388,11 @@ def test_footnote(app, status, warning):
     assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} \ncite\n}' in result
     assert '\\caption{Table caption \\sphinxfootnotemark[4]' in result
     assert 'name \\sphinxfootnotemark[5]' in result
+    assert ('\\end{threeparttable}\n\n%\n'
+            '\\begin{footnotetext}[4]\sphinxAtStartFootnote\n'
+            'footnotes in table caption\n%\n\\end{footnotetext}%\n'
+            '\\begin{footnotetext}[5]\sphinxAtStartFootnote\n'
+            'footnotes in table\n%\n\\end{footnotetext}') in result
 
 
 @with_app(buildername='latex', testroot='footnotes')
@@ -413,6 +418,9 @@ def test_reference_in_caption(app, status, warning):
             'in caption of normal table}\\label{index:id24}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[8] '
             'in caption of longtable}') in result
+    assert ('\end{longtable}\n\n%\n\\begin{footnotetext}[8]'
+            '\sphinxAtStartFootnote\n'
+            'Foot note in longtable\n%\n\\end{footnotetext}' in result)
 
 
 @with_app(buildername='latex', testroot='footnotes',
