@@ -379,8 +379,10 @@ def test_footnote(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\begin{footnote}[1]\\sphinxAtStartFootnote\nnumbered\n%\n\\end{footnote}' in result
-    assert '\\begin{footnote}[2]\\sphinxAtStartFootnote\nauto numbered\n%\n\\end{footnote}' in result
+    assert ('\\begin{footnote}[1]\\sphinxAtStartFootnote\nnumbered\n%\n'
+            '\\end{footnote}') in result
+    assert ('\\begin{footnote}[2]\\sphinxAtStartFootnote\nauto numbered\n%\n'
+            '\\end{footnote}') in result
     assert '\\begin{footnote}[3]\\sphinxAtStartFootnote\nnamed\n%\n\\end{footnote}' in result
     assert '{\\hyperref[footnote:bar]{\\sphinxcrossref{{[}bar{]}}}}' in result
     assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} ' in result
@@ -409,7 +411,8 @@ def test_reference_in_caption(app, status, warning):
     assert '\\paragraph{The rubric title with a reference to {[}AuthorYear{]}}' in result
     assert ('\\chapter{The section with a reference to \\sphinxfootnotemark[4]}\n'
             '\\label{index:the-section-with-a-reference-to}'
-            '%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\nFootnote in section\n%\n\\end{footnotetext}' in result)
+            '%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
+            'Footnote in section\n%\n\\end{footnotetext}') in result
     assert ('\\caption{This is the figure caption with a footnote to '
             '\\sphinxfootnotemark[6].}\label{index:id23}\end{figure}\n'
             '%\n\\begin{footnotetext}[6]\\sphinxAtStartFootnote\n'
