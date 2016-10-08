@@ -1821,13 +1821,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # if a footnote has been inserted once, it shouldn't be repeated
         # by the next reference
         if used:
-            if self.table or self.in_term or self.in_title:
-                self.body.append('\\protect\\footnotemark[%s]' % num)
-            else:
-                self.body.append('\\footnotemark[%s]' % num)
+            self.body.append('\\sphinxfootnotemark[%s]' % num)
         elif self.footnote_restricted:
             self.footnotestack[-1][num][1] = True
-            self.body.append('\\protect\\footnotemark[%s]' % num)
+            self.body.append('\\sphinxfootnotemark[%s]' % num)
             self.pending_footnotes.append(footnode)
         else:
             self.footnotestack[-1][num][1] = True

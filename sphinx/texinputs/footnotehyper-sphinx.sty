@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{footnotehyper-sphinx}%
- [2016/10/03 v0.9f hyperref aware footnote.sty for sphinx(JFB)]
+ [2016/10/08 v0.9f hyperref aware footnote.sty for sphinx (JFB)]
 %%
 %% Package: footnotehyper-sphinx
 %% Version: based on footnotehyper.sty v0.9f (2016/10/03)
@@ -8,12 +8,18 @@
 %% License: the one applying to Sphinx
 %%
 %% Differences from footnotehyper v0.9f (2016/10/03):
-%% 1. hyperref is assumed in use with hyperfootnotes=true,
+%% 1. hyperref is assumed in use (with default hyperfootnotes=true),
 %% 2. no need to check if footnote.sty was loaded,
-%% 3. a special tabulary compatibility layer added, (partial but enough for Sphinx),
+%% 3. a special tabulary compatibility layer added, (partial but enough for
+%% Sphinx),
+%% 4. the \sphinxfootnotemark command is added. Its rôle is to silently remove
+%% footnote marks from locations like the tables of contents, or page headers,
+%% and to be compatible with hyperref constructions of bookmarks, and survive
+%% to \MakeUppercase command or such which may be used to typeset chapter
+%% titles for example.
 %%
 %% Note: with \footnotemark[N]/\footnotetext[N] syntax, hyperref
-%% does not insert an hyperlink. This is not improved here.
+%% does not insert an hyperlink. This is _not_ improved here.
 %%
 \DeclareOption*{\PackageWarning{footnotehyper}{Option `\CurrentOption' is unknown}}%
 \ProcessOptions\relax
@@ -142,6 +148,11 @@
     \typeout{\meaning\@makefntext}%
     \let\fn@prefntext\@empty\let\fn@postfntext\@empty
 }%
+%% \sphinxfootnotemark: usable in section titles and silently removed from TOCs
+\def\sphinxfootnotemark [#1]%
+   {\ifx\thepage\relax\else \protect\footnotemark[#1]\fi}%
+\AtBeginDocument
+   {\pdfstringdefDisableCommands{\def\sphinxfootnotemark [#1]{}}}%
 \endinput
 %%
 %% End of file `footnotehyper-sphinx.sty'.
