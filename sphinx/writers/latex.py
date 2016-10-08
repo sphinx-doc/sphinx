@@ -1891,8 +1891,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # get consistent trailer
             hlcode = hlcode.rstrip()[:-14]  # strip \end{Verbatim}
             self.body.append('\n' + hlcode + '\\end{sphinxVerbatim%s}\n' %
-                             ((self.table and not self.in_footnote) 
-                              and 'intable' or ''))
+                             ((self.table and not self.in_footnote) and
+                              'intable' or ''))
             if ids:
                 self.body.append('\\let\\sphinxLiteralBlockLabel\\empty\n')
             raise nodes.SkipNode
