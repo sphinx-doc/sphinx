@@ -1478,6 +1478,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_caption(self, node):
         self.in_caption += 1
+        self.restrict_footnote(node)
         if self.in_container_literal_block:
             self.body.append('\\sphinxSetupCaptionForVerbatim{')
         elif self.in_minipage and isinstance(node.parent, nodes.figure):
@@ -1490,6 +1491,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_caption(self, node):
         self.body.append('}')
         self.in_caption -= 1
+        self.unrestrict_footnote(node)
 
     def visit_legend(self, node):
         self.body.append('{\\small ')
