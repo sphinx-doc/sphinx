@@ -76,15 +76,17 @@ Footnote in term [#]_
 
 .. [#] Foot note in table
 
-.. list-table:: footnote [#]_ in caption of longtable
+.. list-table:: footnote [#]_ in caption [#]_ of longtable
     :widths: 1 1
     :header-rows: 1
 
     * - name
       - desc
-    * - a
-      - b
-    * - a
+    * - This is a reference to the code-block in the footnote:
+        :ref:`codeblockinfootnote`
+      - This is one more footnote with some code in it [#]_.
+    * - This is a reference to the other code block:
+        :ref:`codeblockinanotherfootnote`
       - b
     * - a
       - b
@@ -148,3 +150,21 @@ Footnote in term [#]_
       - b
 
 .. [#] Foot note in longtable
+
+.. [#] Second footnote in caption of longtable
+
+       .. code-block:: python
+          :caption: I am in a footnote
+          :name: codeblockinfootnote
+
+          def foo(x,y):
+              return x+y
+
+.. [#] Third footnote in longtable
+
+       .. code-block:: python
+          :caption: I am also in a footnote
+          :name: codeblockinanotherfootnote
+
+          def bar(x,y):
+              return x+y

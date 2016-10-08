@@ -398,7 +398,7 @@ def test_footnote(app, status, warning):
 
 
 @with_app(buildername='latex', testroot='footnotes')
-def test_reference_in_caption(app, status, warning):
+def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
     print(result)
@@ -414,16 +414,22 @@ def test_reference_in_caption(app, status, warning):
             '%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'Footnote in section\n%\n\\end{footnotetext}') in result
     assert ('\\caption{This is the figure caption with a footnote to '
-            '\\sphinxfootnotemark[6].}\label{index:id23}\end{figure}\n'
+            '\\sphinxfootnotemark[6].}\label{index:id27}\end{figure}\n'
             '%\n\\begin{footnotetext}[6]\\sphinxAtStartFootnote\n'
             'Footnote in caption\n%\n\\end{footnotetext}')in result
     assert ('\\caption{footnote \\sphinxfootnotemark[7] '
-            'in caption of normal table}\\label{index:id24}') in result
+            'in caption of normal table}\\label{index:id28}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[8] '
-            'in caption of longtable}') in result
+            'in caption \sphinxfootnotemark[9] of longtable}') in result
     assert ('\end{longtable}\n\n%\n\\begin{footnotetext}[8]'
             '\sphinxAtStartFootnote\n'
             'Foot note in longtable\n%\n\\end{footnotetext}' in result)
+    assert ('This is a reference to the code-block in the footnote:\n'
+            '{\hyperref[index:codeblockinfootnote]{\\sphinxcrossref{\\DUrole'
+            '{std,std-ref}{I am in a footnote}}}}') in result
+    assert ('&\nThis is one more footnote with some code in it '
+            '\\sphinxfootnotemark[10].\n\\\\') in result
+    assert '\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]' in result
 
 
 @with_app(buildername='latex', testroot='footnotes',
@@ -438,12 +444,12 @@ def test_latex_show_urls_is_inline(app, status, warning):
             'footnote in bar\n%\n\\end{footnote} in bar.rst' in result)
     assert ('Auto footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst' in result)
-    assert ('\\phantomsection\\label{index:id26}{\\hyperref[index:the\\string-section'
+    assert ('\\phantomsection\\label{index:id30}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
             '{\\sphinxcrossref{The section with a reference to '
             '\\phantomsection\\label{index:id1}'
             '{\\hyperref[index:authoryear]{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}' in result)
-    assert ('\\phantomsection\\label{index:id27}{\\hyperref[index:the\\string-section'
+    assert ('\\phantomsection\\label{index:id31}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
@@ -479,12 +485,12 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             'footnote in bar\n%\n\\end{footnote} in bar.rst' in result)
     assert ('Auto footnote number %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst' in result)
-    assert ('\\phantomsection\\label{index:id26}{\\hyperref[index:the\\string-section'
+    assert ('\\phantomsection\\label{index:id30}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
             '{\\sphinxcrossref{The section with a reference '
             'to \\phantomsection\\label{index:id1}'
             '{\\hyperref[index:authoryear]{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}' in result)
-    assert ('\\phantomsection\\label{index:id27}{\\hyperref[index:the\\string-section'
+    assert ('\\phantomsection\\label{index:id31}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
@@ -528,12 +534,12 @@ def test_latex_show_urls_is_no(app, status, warning):
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
-    assert ('\\phantomsection\\label{index:id26}{\\hyperref[index:the\\string-section'
+    assert ('\\phantomsection\\label{index:id30}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
             '{\\sphinxcrossref{The section with a reference '
             'to \\phantomsection\\label{index:id1}'
             '{\\hyperref[index:authoryear]{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
-    assert ('\\phantomsection\\label{index:id27}{\\hyperref[index:the\\string-section'
+    assert ('\\phantomsection\\label{index:id31}{\\hyperref[index:the\\string-section'
             '\\string-with\\string-a\\string-reference\\string-to]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
