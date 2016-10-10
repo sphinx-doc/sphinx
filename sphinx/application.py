@@ -360,7 +360,11 @@ class Sphinx(object):
             wfile.write(message)
         except UnicodeEncodeError:
             encoding = getattr(wfile, 'encoding', 'ascii') or 'ascii'
-            wfile.write(message.encode(encoding, 'replace'))
+            message_b = message.encode(encoding, 'replace')
+            try:
+                wfile.write(message_b)
+            except TypeError:  # expected Unicode
+                wfile.write(message_b.decode(encoding))
         if not nonl:
             wfile.write('\n')
         if hasattr(wfile, 'flush'):
