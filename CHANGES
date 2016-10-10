@@ -26,6 +26,7 @@ Bugs fixed
 * #3000: ``option`` directive generates invalid HTML anchors
 * #2984: Invalid HTML has been generated if `html_split_index` enabled
 * #2987: Invalid HTML has been generated if multiple IDs are assigned to a list
+* #2891: HTML search does not provide all the results
 
 Documentation
 -------------
