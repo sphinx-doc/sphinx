@@ -758,21 +758,26 @@
 % This sets up the fancy chapter headings that make the documents look
 % at least a little better than the usual LaTeX output.
 %
-\spx@ifundefined{ChTitleVar}{}{
-  \ChNameVar{\raggedleft\normalsize\py@HeaderFamily}
-  \ChNumVar{\raggedleft \bfseries\Large\py@HeaderFamily}
-  \ChTitleVar{\raggedleft \textrm{\Huge\py@HeaderFamily}}
-  % This creates chapter heads without the leading \vspace*{}:
+\@ifpackagewith{fncychap}{Bjarne}{
+  \ChNameVar {\raggedleft\normalsize \py@HeaderFamily}
+  \ChNumVar  {\raggedleft\Large      \py@HeaderFamily}
+  \ChTitleVar{\raggedleft\Large      \py@HeaderFamily}
+  % This creates (numbered) chapter heads without the leading \vspace*{}:
   \def\@makechapterhead#1{%
     {\parindent \z@ \raggedright \normalfont
       \ifnum \c@secnumdepth >\m@ne
-        \DOCH
+        \if@mainmatter
+          \DOCH
+        \fi
       \fi
       \interlinepenalty\@M
-      \DOTI{#1}
-    }
-  }
-}
+      \if@mainmatter
+        \DOTI{#1}%
+      \else%
+        \DOTIS{#1}%
+      \fi
+    }}
+}{}% <-- "false" clause of \@ifpackagewith
 
 % Redefine description environment so that it is usable inside fulllineitems.
 %
