@@ -33,6 +33,7 @@ Bugs fixed
 * #1986: Title in PDF Output
 * #147: Problem with latex chapter style
 * #3018: LaTeX problem with page layout dimensions and chapter titles
+* Fix an issue with ``\pysigline`` in LaTeX style file (ref #3023)
 
 Documentation
 -------------
