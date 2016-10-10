@@ -150,6 +150,8 @@ def test_image_glob(app, status, warning):
     doctree = pickle.loads((app.doctreedir / 'subdir/index.doctree').bytes())
 
     assert isinstance(doctree[0][1], nodes.image)
+    # expected doctree[0][1]['candidates'] == {'*': 'subdir/rimg.png'}
+    assert len(doctree[0][1]['candidates']) == 1
     assert normpath(doctree[0][1]['candidates']['*']) == normpath('subdir/rimg.png')
     assert normpath(doctree[0][1]['uri']) == normpath('subdir/rimg.png')
 
