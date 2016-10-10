@@ -28,7 +28,7 @@ from test_build_html import ENV_WARNINGS
 LATEX_ENGINES = ['pdflatex', 'lualatex', 'xelatex']
 DOCCLASSES = ['howto', 'manual']
 STYLEFILES = ['article.sty', 'fancyhdr.sty', 'titlesec.sty', 'amsmath.sty', 'framed.sty',
-              'color.sty', 'fancyvrb.sty', 'threeparttable.sty', 'geometry.sty']
+              'color.sty', 'fancyvrb.sty', 'fncychap.sty', 'threeparttable.sty', 'geometry.sty']
 
 LATEX_WARNINGS = ENV_WARNINGS + """\
 %(root)s/index.rst:\\d+: WARNING: unknown option: &option
