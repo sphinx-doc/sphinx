@@ -7,6 +7,7 @@ Incompatible changes
 * #2983: Rename ``epub3_description`` and ``epub3_contributor`` to
   ``epub_description`` and ``epub_contributor``.
 * Remove themes/basic/defindex.html; no longer used
+* Sphinx does not ship anymore (but still uses) LaTeX style file ``fncychap``
 
 Features added
 --------------
@@ -27,6 +28,8 @@ Bugs fixed
 * #2984: Invalid HTML has been generated if `html_split_index` enabled
 * #2987: Invalid HTML has been generated if multiple IDs are assigned to a list
 * #2891: HTML search does not provide all the results
+* #1986: Title in PDF Output
+* #147: Problem with latex chapter style
 
 Documentation
 -------------
