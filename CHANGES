@@ -13,6 +13,8 @@ Features added
 --------------
 
 * #3008: ``linkcheck`` builder ignores self-signed certificate URL
+* #3020: new ``'geometry'`` key to ``latex_elements`` whose default uses
+  LaTeX style file ``geometry.sty`` to set page layout
 
 Bugs fixed
 ----------
@@ -30,6 +32,7 @@ Bugs fixed
 * #2891: HTML search does not provide all the results
 * #1986: Title in PDF Output
 * #147: Problem with latex chapter style
+* #3018: LaTeX problem with page layout dimensions and chapter titles
 
 Documentation
 -------------
