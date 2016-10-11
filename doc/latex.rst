@@ -11,45 +11,71 @@ LaTeX customization
 The *latex* target does not (yet) benefit from pre-prepared themes like the
 *html* target does (see :doc:`theming`).
 
-There are two principal means of setting up customization:
+Basic customization is available from ``conf.py`` via usage of the
+:ref:`latex-options` as described in :doc:`config`. For example::
 
-#. usage of the :ref:`latex-options` as described in :doc:`config`, particularly the
-   various keys of :confval:`latex_elements`, to modify the loaded packages,
-   for example::
+    # inside conf.py
+    latex_engine = 'xelatex'
+    latex_elements = {
+        'fontenc': '\\usepackage{fontspec}',
+        'fontpkg': '''\
+    \\setmainfont{DejaVu Serif}
+    \\setsansfont{DejaVu Sans}
+    \\setmonofont{DejaVu Sans Mono}''',
+        'geometry': '\\usepackage[vmargin=2.5cm, hmargin=3cm]{geometry}',
+        'preamble': '''\
+    \\usepackage[titles]{tocloft}
+    \\cftsetpnumwidth {1.25cm}\\cftsetrmarg{1.5cm}
+    \\setlength{\cftchapnumwidth}{0.75cm}
+    \\setlength{\cftsecindent}{\\cftchapnumwidth}
+    \\setlength{\cftsecnumwidth}{1.25cm}''',
+        'fncychap': '\\usepackage[Bjornstrup]{fncychap}',
+        'printindex': '\\footnotesize\\raggedright\\printindex',
+    }
+    latex_show_urls = 'footnote'
 
-        'fontpkg':  '\\usepackage{times}',            # can load other font
-        'fncychap': '\\usepackage[Bjarne]{fncychap}', # can use other option
+.. the above was tested on Sphinx's own 1.5a2 documentation with good effect !
 
-   .. tip::
+More advanced customization will be obtained via insertion into the LaTeX
+preamble of relevant ``\renewcommand``, ``\renewenvironment``, ``\setlength``,
+or ``\definecolor`` commands. The ``'preamble'`` key of
+:confval:`latex_elements` will serve for inserting these commands. If they are
+numerous, it may prove more convenient to assemble them into a specialized
+file :file:`mycustomizedmacros.tex` and then use::
 
-      It is not mandatory to load *fncychap*. Naturally, without it and in
-      absence of further customizations, the chapter headings will revert to
-      LaTeX's default for the *report* class.
+    'preamble': '\\makeatletter\\input{mycustomizedmacros.tex}\\makeatother',
 
-#. usage of LaTeX ``\renewcommand``, ``\renewenvironment``, ``\setlength``,
-   ``\definecolor`` to modify the defaults from package file :file:`sphinx.sty`
-   and class files :file:`sphinxhowto.cls` and :file:`sphinxmanual.cls`. If such
-   definitions are few, they can be located inside the ``'preamble'`` key of
-   :confval:`latex_elements`. In case of many it may prove more convenient to
-   assemble them into a specialized file :file:`customizedmacros.tex` and use::
+More advanced LaTeX users will set up a style file
+:file:`mycustomizedmacros.sty`, which can then be loaded via::
 
-       'preamble': '\\makeatletter\\input{customizedmacros.tex}\\makeatother',
+    'preamble': '\\usepackage{mycustomizedmacros}',
 
-   More advanced LaTeX users will set up a style file
-   :file:`customizedmacros.sty`, which can then be loaded via::
+The :ref:`build configuration file <build-config>` file for the project needs
+to have its variable :confval:`latex_additional_files` appropriately
+configured, for example::
 
-       'preamble': '\\usepackage{customizedmacros}',
+    latex_additional_files = ["customizedmacros.sty"]
 
-   The :ref:`build configuration file <build-config>` file will then have its variable
-   :confval:`latex_additional_files` appropriately configured, for example::
+Such *LaTeX Sphinx theme* files could possibly be contributed in the
+future by advanced users for wider use.
 
-       latex_additional_files = ["customizedmacros.sty"]
+Let us list here some examples of macros, lengths, colors, which are inherited
+from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
+:file:`sphinxmanual.cls`, and can be customized.
 
-   Such *LaTeX Sphinx theme* files could possibly be contributed in the
-   future by advanced users for wider use.
+- the table of contents is typeset via ``\sphinxtableofcontents`` which is a
+  wrapper (whose definition can be found in :file:`sphinxhowto.cls` or in
+  :file:`sphinxmanual.cls`) of standard ``\tableofcontents``.
 
-Let us illustrate here what can be modified by the second method.
+  .. versionchanged:: 1.5
+     formerly, the meaning of ``\tableofcontents`` was modified by Sphinx.
+- the bibliography and Python Module index are typeset respectively within
+  environments ``sphinxthebibliography`` and ``sphinxtheindex``, which are
+  simple wrappers of the non-modified ``thebibliography`` and ``theindex``
+  environments.
 
+  .. versionchanged:: 1.5
+     formerly, the original environments were modified by Sphinx.
 - text styling commands (they have one argument): ``\sphinx<foo>`` with
   ``<foo>`` being one of ``strong``, ``bfcode``, ``email``, ``tablecontinued``,
   ``titleref``, ``menuselection``, ``accelerator``, ``crossref``, ``termref``,
@@ -128,8 +154,10 @@ Let us illustrate here what can be modified by the second method.
 
   .. versionadded:: 1.5
      formerly, the use of ``\small`` for code listings was not customizable.
-- miscellaneous colours: *TitleColor*, *InnerLinkColor*, *OuterLinkColor*,
-  *VerbatimColor* (this is a background colour), *VerbatimBorderColor*.
+- miscellaneous colours: *InnerLinkColor*, *OuterLinkColor* (used in
+  ``hyperref`` options), *TitleColor* (used for titles via  ``titlesec``),
+  *VerbatimColor* (background colour) and *VerbatimBorderColor* (used for
+  code-blocks).
 - the ``\sphinxAtStartFootnote`` is inserted between footnote numbers and their
   texts, by default it does ``\mbox{ }``.
 - use ``\sphinxSetHeaderFamily`` to set the font used by headings
@@ -140,8 +168,8 @@ Let us illustrate here what can be modified by the second method.
   ``\titleformat`` command.
 - for the ``'manual'`` class, the chapter headings can be customized using
   *fncychap*'s commands ``\ChNameVar``, ``\ChNumVar``, ``\ChTitleVar``. Or, if
-  the loading of this package has been removed from ``'fncychap'`` key, one can
-  use the *titlesec* ``\titleformat`` command.
+  the loading of this package has been removed via emptying the ``'fncychap'``
+  key, one can use the *titlesec* ``\titleformat`` command.
 
 .. note::
 
