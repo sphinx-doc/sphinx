@@ -7,6 +7,10 @@
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesPackage{sphinx}[2016/06/10 LaTeX package (Sphinx markup)]
+\newif\ifsphinxKeepOldNames \sphinxKeepOldNamestrue
+\DeclareOption{dontkeepoldnames}{\sphinxKeepOldNamesfalse}
+\DeclareOption*{\PackageWarning{sphinx}{Unknown option `\CurrentOption'}}
+\ProcessOptions\relax
 
 % this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
 % hyperref.sty, but we need it before, and initial ltxcmds.sty
