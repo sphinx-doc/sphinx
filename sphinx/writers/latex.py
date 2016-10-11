@@ -278,6 +278,18 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'fontpkg':         '\\usepackage{times}',
         'fncychap':        '\\usepackage[Bjarne]{fncychap}',
         'longtable':       '\\usepackage{longtable}',
+        'hyperref':        ('% Include hyperref last.\n'
+                            '\\usepackage[colorlinks,breaklinks,%\n'
+                            '            '
+                            'linkcolor=InnerLinkColor,filecolor=OuterLinkColor,%\n'
+                            '            '
+                            'menucolor=OuterLinkColor,urlcolor=OuterLinkColor,%\n'
+                            '            '
+                            'citecolor=InnerLinkColor]{hyperref}\n'
+                            '% Fix anchor placement for figures with captions.\n'
+                            '\\usepackage{hypcap}% it must be loaded after hyperref.\n'
+                            '% Set up styles of URL: it should be placed after hyperref.\n'
+                            '\\urlstyle{same}'),
         'usepackages':     '',
         'numfig_format':   '',
         'contentsname':    '',

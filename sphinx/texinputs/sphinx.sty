@@ -853,19 +853,6 @@
   \fi
 \fi
 
-% Include hyperref last.
-\RequirePackage[colorlinks,breaklinks,
-                linkcolor=InnerLinkColor,filecolor=OuterLinkColor,
-                menucolor=OuterLinkColor,urlcolor=OuterLinkColor,
-                citecolor=InnerLinkColor]{hyperref}
-% Fix anchor placement for figures with captions.
-% (Note: we don't use a package option here; instead, we give an explicit
-% \capstart for figures that actually have a caption.)
-\RequirePackage{hypcap}
-
-% Set up styles of URL: it should be placed after hyperref
-\urlstyle{same}
-
 % From docutils.writers.latex2e
 % inline markup (custom roles)
 % \DUrole{#1}{#2} tries \DUrole#1{#2}
