@@ -8,6 +8,7 @@ Incompatible changes
   ``epub_description`` and ``epub_contributor``.
 * Remove themes/basic/defindex.html; no longer used
 * Sphinx does not ship anymore (but still uses) LaTeX style file ``fncychap``
+* Use non make-mode of ``sphinx-quickstart`` by default
 
 Features added
 --------------
