@@ -2089,3 +2089,8 @@ Options for the C++ domain
 
    .. versionadded:: 1.5
 
+example of configuration file
+=============================
+
+.. literalinclude:: _static/conf.py.txt
+   :language: python
