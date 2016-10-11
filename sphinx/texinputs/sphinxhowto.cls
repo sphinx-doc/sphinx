@@ -93,7 +93,7 @@
 \newenvironment{sphinxthebibliography}[1]{%
   \phantomsection
   \begin{thebibliography}{\detokenize{#1}}%
-  \addcontentsline{toc}{chapter}{\bibname}}{\end{thebibliography}}
+  \addcontentsline{toc}{section}{\bibname}}{\end{thebibliography}}
 
 
 % Same for the indices.
@@ -104,4 +104,4 @@
  {\newenvironment{sphinxtheindex}{%
     \phantomsection
     \begin{theindex}%
-    \addcontentsline{toc}{chapter}{\indexname}}{\end{theindex}}}
+    \addcontentsline{toc}{section}{\indexname}}{\end{theindex}}}
