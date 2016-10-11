@@ -111,6 +111,7 @@ class BuildEnvironment(object):
         del self.config.values
         domains = self.domains
         del self.domains
+        managers = self.detach_managers()
         # remove potentially pickling-problematic values from config
         for key, val in list(vars(self.config).items()):
             if key.startswith('_') or \
@@ -121,6 +122,7 @@ class BuildEnvironment(object):
         with open(filename, 'wb') as picklefile:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
         # reset attributes
+        self.attach_managers(managers)
         self.domains = domains
         self.config.values = values
         self.set_warnfunc(warnfunc)
@@ -205,14 +207,26 @@ class BuildEnvironment(object):
         # attributes of "any" cross references
         self.ref_context = {}
 
+        self.managers = {}
         self.init_managers()
 
     def init_managers(self):
-        self.managers = {}
+        managers = {}
         for manager_class in [IndexEntries, Toctree]:
-            manager = manager_class(self)
-            self.managers[manager.name] = manager
-            setattr(self, manager.name, manager)
+            managers[manager_class.name] = manager_class(self)
+        self.attach_managers(managers)
+
+    def attach_managers(self, managers):
+        for name, manager in iteritems(managers):
+            self.managers[name] = manager
+            manager.attach(self)
+
+    def detach_managers(self):
+        managers = self.managers
+        self.managers = {}
+        for _, manager in iteritems(managers):
+            manager.detach(self)
+        return managers
 
     def set_warnfunc(self, func):
         self._warnfunc = func

@@ -17,6 +17,16 @@ class EnvironmentManager(object):
     def __init__(self, env):
         self.env = env
 
+    def attach(self, env):
+        self.env = env
+        if self.name:
+            setattr(env, self.name, self)
+
+    def detach(self, env):
+        self.env = None
+        if self.name:
+            delattr(env, self.name)
+
     def clear_doc(self, docname):
         raise NotImplementedError
 
