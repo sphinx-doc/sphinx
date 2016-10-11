@@ -911,23 +911,6 @@
   {\endlist}
 \fi
 
-% From footmisc.sty: allows footnotes in titles
-\let\FN@sf@@footnote\footnote
-\def\footnote{\ifx\protect\@typeset@protect
-    \expandafter\FN@sf@@footnote
-  \else
-    \expandafter\FN@sf@gobble@opt
-  \fi
-}
-\edef\FN@sf@gobble@opt{\noexpand\protect
-  \expandafter\noexpand\csname FN@sf@gobble@opt \endcsname}
-\expandafter\def\csname FN@sf@gobble@opt \endcsname{%
-  \@ifnextchar[%]
-    \FN@sf@gobble@twobracket
-    \@gobble
-}
-\def\FN@sf@gobble@twobracket[#1]#2{}
-
 % adjust the margins for footer,
 % this works with the jsclasses only (Japanese standard document classes)
 \ifx\@jsc@uplatextrue\undefined\else
