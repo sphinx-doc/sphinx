@@ -1748,7 +1748,8 @@ These options influence LaTeX output. See further :doc:`latex`.
         ``'Release'``.
      ``'tableofcontents'``
         "tableofcontents" call, default ``'\\sphinxtableofcontents'`` (it is a
-        wrapper of unmodified ``tableofcontents``.)
+        wrapper of unmodified ``\tableofcontents``, which may itself be
+        customized by user loaded packages.)
         Override if
         you want to generate a different table of contents or put content
         between the title page and the TOC.
