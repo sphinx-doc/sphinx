@@ -923,16 +923,15 @@
 % fix the double index and bibliography on the table of contents
 % in jsclasses (Japanese standard document classes)
 \ifx\@jsc@uplatextrue\undefined\else
-  \renewcommand{\theindex}{
-    \cleardoublepage
-    \phantomsection
-    \py@OldTheindex
-  }
-  \renewcommand{\thebibliography}[1]{
-    \cleardoublepage
-    \phantomsection
-    \py@OldThebibliography{1}
-  }
+  \renewenvironment{sphinxtheindex}
+    {\cleardoublepage\phantomsection
+     \begin{theindex}}
+    {\end{theindex}}
+
+  \renewenvironment{sphinxthebibliography}[1]
+    {\cleardoublepage\phantomsection
+     \begin{thebibliography}{\detokenize{#1}}}
+    {\end{thebibliography}}
 \fi
 
 % disable \@chappos in Appendix in pTeX
