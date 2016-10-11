@@ -70,11 +70,10 @@
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
 }
 
-\let\py@OldTableofcontents=\tableofcontents
-\renewcommand{\tableofcontents}{
+\newcommand{\sphinxtableofcontents}{
   \begingroup
     \parskip = 0mm
-    \py@OldTableofcontents
+    \tableofcontents
   \endgroup
   \rule{\textwidth}{1pt}
   \vspace{12pt}
@@ -91,21 +90,18 @@
 % Contents.
 % For an article document class this environment is a section,
 % so no page break before it.
-\let\py@OldThebibliography=\thebibliography
-\renewcommand{\thebibliography}[1]{
+\newenvironment{sphinxthebibliography}[1]{%
   \phantomsection
-  \py@OldThebibliography{1}
-  \addcontentsline{toc}{section}{\bibname}
-}
+  \begin{thebibliography}{\detokenize{#1}}%
+  \addcontentsline{toc}{chapter}{\bibname}}{\end{thebibliography}}
+
 
 % Same for the indices.
 % The memoir class already does this, so we don't duplicate it in that case.
 %
-\@ifclassloaded{memoir}{}{
-  \let\py@OldTheindex=\theindex
-  \renewcommand{\theindex}{
+\@ifclassloaded{memoir}
+ {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}
+ {\newenvironment{sphinxtheindex}{%
     \phantomsection
-    \py@OldTheindex
-    \addcontentsline{toc}{section}{\indexname}
-  }
-}
+    \begin{theindex}%
+    \addcontentsline{toc}{chapter}{\indexname}}{\end{theindex}}}

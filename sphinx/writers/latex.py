@@ -291,7 +291,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'makeindex':       '\\makeindex',
         'shorthandoff':    '',
         'maketitle':       '\\maketitle',
-        'tableofcontents': '\\tableofcontents',
+        'tableofcontents': '\\sphinxtableofcontents',
         'postamble':       '',
         'printindex':      '\\printindex',
         'transition':      '\n\n\\bigskip\\hrule{}\\bigskip\n\n',
@@ -587,7 +587,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def generate_indices(self):
         def generate(content, collapsed):
-            ret.append('\\begin{theindex}\n')
+            ret.append('\\begin{sphinxtheindex}\n')
             ret.append('\\def\\bigletter#1{{\\Large\\sffamily#1}'
                        '\\nopagebreak\\vspace{1mm}}\n')
             for i, (letter, entries) in enumerate(content):
@@ -604,7 +604,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                         ret.append('\\sphinxstyleindexextra{%s}' % self.encode(entry[4]))
                     ret.append('\\sphinxstyleindexpageref{%s:%s}\n' %
                                (entry[2], self.idescape(entry[3])))
-            ret.append('\\end{theindex}\n')
+            ret.append('\\end{sphinxtheindex}\n')
 
         ret = []
         # latex_domain_indices can be False/True or a list of index names
@@ -652,14 +652,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
             for bi in self.bibitems:
                 if len(widest_label) < len(bi[0]):
                     widest_label = bi[0]
-            self.body.append(u'\n\\begin{thebibliography}{%s}\n' % widest_label)
+            self.body.append(u'\n\\begin{sphinxthebibliography}{%s}\n' % widest_label)
             for bi in self.bibitems:
                 target = self.hypertarget(bi[2] + ':' + bi[3],
                                           withdoc=False)
                 self.body.append(u'\\bibitem[%s]{%s}{%s %s}\n' %
                                  (self.encode(bi[0]), self.idescape(bi[0]),
                                   target, bi[1]))
-            self.body.append(u'\\end{thebibliography}\n')
+            self.body.append(u'\\end{sphinxthebibliography}\n')
             self.bibitems = []
 
     def visit_start_of_file(self, node):

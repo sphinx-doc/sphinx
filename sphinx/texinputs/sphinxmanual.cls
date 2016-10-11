@@ -82,15 +82,14 @@
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
 }
 
-\let\py@OldTableofcontents=\tableofcontents
-\renewcommand{\tableofcontents}{%
+\newcommand{\sphinxtableofcontents}{%
   % before resetting page counter, let's do the right thing.
   \if@openright\cleardoublepage\else\clearpage\fi
   \pagenumbering{roman}%
   \pagestyle{plain}%
   \begingroup
     \parskip \z@skip
-    \py@OldTableofcontents
+    \tableofcontents
   \endgroup
   % before resetting page counter, let's do the right thing.
   \if@openright\cleardoublepage\else\clearpage\fi
@@ -108,23 +107,19 @@
 % Fix the bibliography environment to add an entry to the Table of
 % Contents.
 % For a report document class this environment is a chapter.
-\let\py@OldThebibliography=\thebibliography
-\renewcommand{\thebibliography}[1]{
+\newenvironment{sphinxthebibliography}[1]{%
   \if@openright\cleardoublepage\else\clearpage\fi
   \phantomsection
-  \py@OldThebibliography{1}
-  \addcontentsline{toc}{chapter}{\bibname}
-}
+  \begin{thebibliography}{\detokenize{#1}}%
+  \addcontentsline{toc}{chapter}{\bibname}}{\end{thebibliography}}
 
 % Same for the indices.
 % The memoir class already does this, so we don't duplicate it in that case.
 %
-\@ifclassloaded{memoir}{}{
-  \let\py@OldTheindex=\theindex
-  \renewcommand{\theindex}{
+\@ifclassloaded{memoir}
+ {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}
+ {\newenvironment{sphinxtheindex}{%
     \if@openright\cleardoublepage\else\clearpage\fi
     \phantomsection
-    \py@OldTheindex
-    \addcontentsline{toc}{chapter}{\indexname}
-  }
-}
+    \begin{theindex}%
+    \addcontentsline{toc}{chapter}{\indexname}}{\end{theindex}}}

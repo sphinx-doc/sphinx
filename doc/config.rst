@@ -1739,13 +1739,17 @@ These options influence LaTeX output. See further :doc:`latex`.
      ``'fontenc'``
         "fontenc" package inclusion, default ``'\\usepackage[T1]{fontenc}'``.
      ``'maketitle'``
-        "maketitle" call, default ``'\\maketitle'``.  Override if you want to
+        "maketitle" call, default ``'\\maketitle'`` (but it has been
+        redefined by the Sphinx ``manual`` and ``howto`` classes.) Override
+        if you want to
         generate a differently-styled title page.
      ``'releasename'``
         value that prefixes ``'release'`` element on title page, default
         ``'Release'``.
      ``'tableofcontents'``
-        "tableofcontents" call, default ``'\\tableofcontents'``.  Override if
+        "tableofcontents" call, default ``'\\sphinxtableofcontents'`` (it is a
+        wrapper of unmodified ``tableofcontents``.)
+        Override if
         you want to generate a different table of contents or put content
         between the title page and the TOC.
      ``'transition'``
