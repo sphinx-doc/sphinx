@@ -14,16 +14,12 @@ import os
 import sys
 import time
 import types
-import bisect
 import codecs
-import string
 import fnmatch
-import unicodedata
 from os import path
 from glob import glob
-from itertools import groupby
 
-from six import iteritems, itervalues, text_type, class_types, next
+from six import iteritems, itervalues, class_types, next
 from six.moves import cPickle as pickle
 from docutils import nodes
 from docutils.io import NullOutput
@@ -35,9 +31,9 @@ from docutils.frontend import OptionParser
 
 from sphinx import addnodes
 from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
-from sphinx.util import url_re, get_matching_docs, docname_join, split_into, \
-    FilenameUniqDict, split_index_msg
-from sphinx.util.nodes import clean_astext, WarningStream, is_translatable
+from sphinx.util import get_matching_docs, docname_join, FilenameUniqDict
+from sphinx.util.nodes import clean_astext, WarningStream, is_translatable, \
+    process_only_nodes
 from sphinx.util.osutil import SEP, getcwd, fs_encoding, ensuredir
 from sphinx.util.images import guess_mimetype
 from sphinx.util.i18n import find_catalog_files, get_image_filename_for_language, \
@@ -48,9 +44,10 @@ from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
-from sphinx.locale import _
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.transforms import SphinxContentsFilter
+from sphinx.environment.managers.indexentries import IndexEntries
+from sphinx.environment.managers.toctree import Toctree
 
 
 default_settings = {
@@ -114,6 +111,7 @@ class BuildEnvironment(object):
         del self.config.values
         domains = self.domains
         del self.domains
+        managers = self.detach_managers()
         # remove potentially pickling-problematic values from config
         for key, val in list(vars(self.config).items()):
             if key.startswith('_') or \
@@ -124,6 +122,7 @@ class BuildEnvironment(object):
         with open(filename, 'wb') as picklefile:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
         # reset attributes
+        self.attach_managers(managers)
         self.domains = domains
         self.config.values = values
         self.set_warnfunc(warnfunc)
@@ -208,6 +207,27 @@ class BuildEnvironment(object):
         # attributes of "any" cross references
         self.ref_context = {}
 
+        self.managers = {}
+        self.init_managers()
+
+    def init_managers(self):
+        managers = {}
+        for manager_class in [IndexEntries, Toctree]:
+            managers[manager_class.name] = manager_class(self)
+        self.attach_managers(managers)
+
+    def attach_managers(self, managers):
+        for name, manager in iteritems(managers):
+            self.managers[name] = manager
+            manager.attach(self)
+
+    def detach_managers(self):
+        managers = self.managers
+        self.managers = {}
+        for _, manager in iteritems(managers):
+            manager.detach(self)
+        return managers
+
     def set_warnfunc(self, func):
         self._warnfunc = func
         self.settings['warning_stream'] = WarningStream(func)
@@ -253,24 +273,15 @@ class BuildEnvironment(object):
             self.dependencies.pop(docname, None)
             self.titles.pop(docname, None)
             self.longtitles.pop(docname, None)
-            self.tocs.pop(docname, None)
-            self.toc_secnumbers.pop(docname, None)
-            self.toc_fignumbers.pop(docname, None)
-            self.toc_num_entries.pop(docname, None)
-            self.toctree_includes.pop(docname, None)
-            self.indexentries.pop(docname, None)
-            self.glob_toctrees.discard(docname)
-            self.numbered_toctrees.discard(docname)
             self.images.purge_doc(docname)
             self.dlfiles.purge_doc(docname)
 
-            for subfn, fnset in list(self.files_to_rebuild.items()):
-                fnset.discard(docname)
-                if not fnset:
-                    del self.files_to_rebuild[subfn]
             for version, changes in self.versionchanges.items():
                 new = [change for change in changes if change[1] != docname]
                 changes[:] = new
+
+        for manager in itervalues(self.managers):
+            manager.clear_doc(docname)
 
         for domain in self.domains.values():
             domain.clear_doc(docname)
@@ -291,26 +302,16 @@ class BuildEnvironment(object):
                 self.dependencies[docname] = other.dependencies[docname]
             self.titles[docname] = other.titles[docname]
             self.longtitles[docname] = other.longtitles[docname]
-            self.tocs[docname] = other.tocs[docname]
-            self.toc_num_entries[docname] = other.toc_num_entries[docname]
-            # toc_secnumbers and toc_fignumbers are not assigned during read
-            if docname in other.toctree_includes:
-                self.toctree_includes[docname] = other.toctree_includes[docname]
-            self.indexentries[docname] = other.indexentries[docname]
-            if docname in other.glob_toctrees:
-                self.glob_toctrees.add(docname)
-            if docname in other.numbered_toctrees:
-                self.numbered_toctrees.add(docname)
 
         self.images.merge_other(docnames, other.images)
         self.dlfiles.merge_other(docnames, other.dlfiles)
 
-        for subfn, fnset in other.files_to_rebuild.items():
-            self.files_to_rebuild.setdefault(subfn, set()).update(fnset & docnames)
         for version, changes in other.versionchanges.items():
             self.versionchanges.setdefault(version, []).extend(
                 change for change in changes if change[1] in docnames)
 
+        for manager in itervalues(self.managers):
+            manager.merge_other(docnames, other)
         for domainname, domain in self.domains.items():
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         app.emit('env-merge-info', self, docnames, other)
@@ -607,7 +608,8 @@ class BuildEnvironment(object):
             self._warnfunc(*warning, **kwargs)
 
     def check_dependents(self, already):
-        to_rewrite = self.assign_section_numbers() + self.assign_figure_numbers()
+        to_rewrite = (self.toctree.assign_section_numbers() +
+                      self.toctree.assign_figure_numbers())
         for docname in set(to_rewrite):
             if docname not in already:
                 yield docname
@@ -681,8 +683,8 @@ class BuildEnvironment(object):
         self.process_downloads(docname, doctree)
         self.process_metadata(docname, doctree)
         self.create_title_from(docname, doctree)
-        self.note_indexentries_from(docname, doctree)
-        self.build_toc_from(docname, doctree)
+        for manager in itervalues(self.managers):
+            manager.process_doc(docname, doctree)
         for domain in itervalues(self.domains):
             domain.process_doc(self, docname, doctree)
 
@@ -947,142 +949,19 @@ class BuildEnvironment(object):
         self.titles[docname] = titlenode
         self.longtitles[docname] = longtitlenode
 
-    def note_indexentries_from(self, docname, document):
-        entries = self.indexentries[docname] = []
-        for node in document.traverse(addnodes.index):
-            try:
-                for entry in node['entries']:
-                    split_index_msg(entry[0], entry[1])
-            except ValueError as exc:
-                self.warn_node(exc, node)
-                node.parent.remove(node)
-            else:
-                for entry in node['entries']:
-                    if len(entry) == 5:
-                        # Since 1.4: new index structure including index_key (5th column)
-                        entries.append(entry)
-                    else:
-                        entries.append(entry + (None,))
-
     def note_toctree(self, docname, toctreenode):
         """Note a TOC tree directive in a document and gather information about
         file relations from it.
         """
-        if toctreenode['glob']:
-            self.glob_toctrees.add(docname)
-        if toctreenode.get('numbered'):
-            self.numbered_toctrees.add(docname)
-        includefiles = toctreenode['includefiles']
-        for includefile in includefiles:
-            # note that if the included file is rebuilt, this one must be
-            # too (since the TOC of the included file could have changed)
-            self.files_to_rebuild.setdefault(includefile, set()).add(docname)
-        self.toctree_includes.setdefault(docname, []).extend(includefiles)
-
-    def build_toc_from(self, docname, document):
-        """Build a TOC from the doctree and store it in the inventory."""
-        numentries = [0]  # nonlocal again...
-
-        def traverse_in_section(node, cls):
-            """Like traverse(), but stay within the same section."""
-            result = []
-            if isinstance(node, cls):
-                result.append(node)
-            for child in node.children:
-                if isinstance(child, nodes.section):
-                    continue
-                result.extend(traverse_in_section(child, cls))
-            return result
-
-        def build_toc(node, depth=1):
-            entries = []
-            for sectionnode in node:
-                # find all toctree nodes in this section and add them
-                # to the toc (just copying the toctree node which is then
-                # resolved in self.get_and_resolve_doctree)
-                if isinstance(sectionnode, addnodes.only):
-                    onlynode = addnodes.only(expr=sectionnode['expr'])
-                    blist = build_toc(sectionnode, depth)
-                    if blist:
-                        onlynode += blist.children
-                        entries.append(onlynode)
-                    continue
-                if not isinstance(sectionnode, nodes.section):
-                    for toctreenode in traverse_in_section(sectionnode,
-                                                           addnodes.toctree):
-                        item = toctreenode.copy()
-                        entries.append(item)
-                        # important: do the inventory stuff
-                        self.note_toctree(docname, toctreenode)
-                    continue
-                title = sectionnode[0]
-                # copy the contents of the section title, but without references
-                # and unnecessary stuff
-                visitor = SphinxContentsFilter(document)
-                title.walkabout(visitor)
-                nodetext = visitor.get_entry_text()
-                if not numentries[0]:
-                    # for the very first toc entry, don't add an anchor
-                    # as it is the file's title anyway
-                    anchorname = ''
-                else:
-                    anchorname = '#' + sectionnode['ids'][0]
-                numentries[0] += 1
-                # make these nodes:
-                # list_item -> compact_paragraph -> reference
-                reference = nodes.reference(
-                    '', '', internal=True, refuri=docname,
-                    anchorname=anchorname, *nodetext)
-                para = addnodes.compact_paragraph('', '', reference)
-                item = nodes.list_item('', para)
-                sub_item = build_toc(sectionnode, depth + 1)
-                item += sub_item
-                entries.append(item)
-            if entries:
-                return nodes.bullet_list('', *entries)
-            return []
-        toc = build_toc(document)
-        if toc:
-            self.tocs[docname] = toc
-        else:
-            self.tocs[docname] = nodes.bullet_list('')
-        self.toc_num_entries[docname] = numentries[0]
+        self.toctree.note_toctree(docname, toctreenode)
 
     def get_toc_for(self, docname, builder):
         """Return a TOC nodetree -- for use on the same page only!"""
-        tocdepth = self.metadata[docname].get('tocdepth', 0)
-        try:
-            toc = self.tocs[docname].deepcopy()
-            self._toctree_prune(toc, 2, tocdepth)
-        except KeyError:
-            # the document does not exist anymore: return a dummy node that
-            # renders to nothing
-            return nodes.paragraph()
-        self.process_only_nodes(toc, builder, docname)
-        for node in toc.traverse(nodes.reference):
-            node['refuri'] = node['anchorname'] or '#'
-        return toc
+        return self.toctree.get_toc_for(docname, builder)
 
     def get_toctree_for(self, docname, builder, collapse, **kwds):
         """Return the global TOC nodetree."""
-        doctree = self.get_doctree(self.config.master_doc)
-        toctrees = []
-        if 'includehidden' not in kwds:
-            kwds['includehidden'] = True
-        if 'maxdepth' not in kwds:
-            kwds['maxdepth'] = 0
-        kwds['collapse'] = collapse
-        for toctreenode in doctree.traverse(addnodes.toctree):
-            toctree = self.resolve_toctree(docname, builder, toctreenode,
-                                           prune=True, **kwds)
-            if toctree:
-                toctrees.append(toctree)
-        if not toctrees:
-            return None
-        result = toctrees[0]
-        for toctree in toctrees[1:]:
-            result.extend(toctree.children)
-        return result
+        return self.toctree.get_toctree_for(docname, builder, collapse, **kwds)
 
     def get_domain(self, domainname):
         """Return the domain instance with the specified name.
@@ -1129,39 +1008,6 @@ class BuildEnvironment(object):
 
         return doctree
 
-    def _toctree_prune(self, node, depth, maxdepth, collapse=False):
-        """Utility: Cut a TOC at a specified depth."""
-        for subnode in node.children[:]:
-            if isinstance(subnode, (addnodes.compact_paragraph,
-                                    nodes.list_item)):
-                # for <p> and <li>, just recurse
-                self._toctree_prune(subnode, depth, maxdepth, collapse)
-            elif isinstance(subnode, nodes.bullet_list):
-                # for <ul>, determine if the depth is too large or if the
-                # entry is to be collapsed
-                if maxdepth > 0 and depth > maxdepth:
-                    subnode.parent.replace(subnode, [])
-                else:
-                    # cull sub-entries whose parents aren't 'current'
-                    if (collapse and depth > 1 and
-                            'iscurrent' not in subnode.parent):
-                        subnode.parent.remove(subnode)
-                    else:
-                        # recurse on visible children
-                        self._toctree_prune(subnode, depth+1, maxdepth,  collapse)
-
-    def get_toctree_ancestors(self, docname):
-        parent = {}
-        for p, children in iteritems(self.toctree_includes):
-            for child in children:
-                parent[child] = p
-        ancestors = []
-        d = docname
-        while d in parent and d not in ancestors:
-            ancestors.append(d)
-            d = parent[d]
-        return ancestors
-
     def resolve_toctree(self, docname, builder, toctree, prune=True, maxdepth=0,
                         titles_only=False, collapse=False, includehidden=False):
         """Resolve a *toctree* node into individual bullet lists with titles
@@ -1175,196 +1021,9 @@ class BuildEnvironment(object):
         If *collapse* is True, all branches not containing docname will
         be collapsed.
         """
-        if toctree.get('hidden', False) and not includehidden:
-            return None
-
-        # For reading the following two helper function, it is useful to keep
-        # in mind the node structure of a toctree (using HTML-like node names
-        # for brevity):
-        #
-        # <ul>
-        #   <li>
-        #     <p><a></p>
-        #     <p><a></p>
-        #     ...
-        #     <ul>
-        #       ...
-        #     </ul>
-        #   </li>
-        # </ul>
-        #
-        # The transformation is made in two passes in order to avoid
-        # interactions between marking and pruning the tree (see bug #1046).
-
-        toctree_ancestors = self.get_toctree_ancestors(docname)
-
-        def _toctree_add_classes(node, depth):
-            """Add 'toctree-l%d' and 'current' classes to the toctree."""
-            for subnode in node.children:
-                if isinstance(subnode, (addnodes.compact_paragraph,
-                                        nodes.list_item)):
-                    # for <p> and <li>, indicate the depth level and recurse
-                    subnode['classes'].append('toctree-l%d' % (depth-1))
-                    _toctree_add_classes(subnode, depth)
-                elif isinstance(subnode, nodes.bullet_list):
-                    # for <ul>, just recurse
-                    _toctree_add_classes(subnode, depth+1)
-                elif isinstance(subnode, nodes.reference):
-                    # for <a>, identify which entries point to the current
-                    # document and therefore may not be collapsed
-                    if subnode['refuri'] == docname:
-                        if not subnode['anchorname']:
-                            # give the whole branch a 'current' class
-                            # (useful for styling it differently)
-                            branchnode = subnode
-                            while branchnode:
-                                branchnode['classes'].append('current')
-                                branchnode = branchnode.parent
-                        # mark the list_item as "on current page"
-                        if subnode.parent.parent.get('iscurrent'):
-                            # but only if it's not already done
-                            return
-                        while subnode:
-                            subnode['iscurrent'] = True
-                            subnode = subnode.parent
-
-        def _entries_from_toctree(toctreenode, parents,
-                                  separate=False, subtree=False):
-            """Return TOC entries for a toctree node."""
-            refs = [(e[0], e[1]) for e in toctreenode['entries']]
-            entries = []
-            for (title, ref) in refs:
-                try:
-                    refdoc = None
-                    if url_re.match(ref):
-                        if title is None:
-                            title = ref
-                        reference = nodes.reference('', '', internal=False,
-                                                    refuri=ref, anchorname='',
-                                                    *[nodes.Text(title)])
-                        para = addnodes.compact_paragraph('', '', reference)
-                        item = nodes.list_item('', para)
-                        toc = nodes.bullet_list('', item)
-                    elif ref == 'self':
-                        # 'self' refers to the document from which this
-                        # toctree originates
-                        ref = toctreenode['parent']
-                        if not title:
-                            title = clean_astext(self.titles[ref])
-                        reference = nodes.reference('', '', internal=True,
-                                                    refuri=ref,
-                                                    anchorname='',
-                                                    *[nodes.Text(title)])
-                        para = addnodes.compact_paragraph('', '', reference)
-                        item = nodes.list_item('', para)
-                        # don't show subitems
-                        toc = nodes.bullet_list('', item)
-                    else:
-                        if ref in parents:
-                            self.warn(ref, 'circular toctree references '
-                                      'detected, ignoring: %s <- %s' %
-                                      (ref, ' <- '.join(parents)))
-                            continue
-                        refdoc = ref
-                        toc = self.tocs[ref].deepcopy()
-                        maxdepth = self.metadata[ref].get('tocdepth', 0)
-                        if ref not in toctree_ancestors or (prune and maxdepth > 0):
-                            self._toctree_prune(toc, 2, maxdepth, collapse)
-                        self.process_only_nodes(toc, builder, ref)
-                        if title and toc.children and len(toc.children) == 1:
-                            child = toc.children[0]
-                            for refnode in child.traverse(nodes.reference):
-                                if refnode['refuri'] == ref and \
-                                   not refnode['anchorname']:
-                                    refnode.children = [nodes.Text(title)]
-                    if not toc.children:
-                        # empty toc means: no titles will show up in the toctree
-                        self.warn_node(
-                            'toctree contains reference to document %r that '
-                            'doesn\'t have a title: no link will be generated'
-                            % ref, toctreenode)
-                except KeyError:
-                    # this is raised if the included file does not exist
-                    self.warn_node(
-                        'toctree contains reference to nonexisting document %r'
-                        % ref, toctreenode)
-                else:
-                    # if titles_only is given, only keep the main title and
-                    # sub-toctrees
-                    if titles_only:
-                        # delete everything but the toplevel title(s)
-                        # and toctrees
-                        for toplevel in toc:
-                            # nodes with length 1 don't have any children anyway
-                            if len(toplevel) > 1:
-                                subtrees = toplevel.traverse(addnodes.toctree)
-                                if subtrees:
-                                    toplevel[1][:] = subtrees
-                                else:
-                                    toplevel.pop(1)
-                    # resolve all sub-toctrees
-                    for subtocnode in toc.traverse(addnodes.toctree):
-                        if not (subtocnode.get('hidden', False) and
-                                not includehidden):
-                            i = subtocnode.parent.index(subtocnode) + 1
-                            for item in _entries_from_toctree(
-                                    subtocnode, [refdoc] + parents,
-                                    subtree=True):
-                                subtocnode.parent.insert(i, item)
-                                i += 1
-                            subtocnode.parent.remove(subtocnode)
-                    if separate:
-                        entries.append(toc)
-                    else:
-                        entries.extend(toc.children)
-            if not subtree and not separate:
-                ret = nodes.bullet_list()
-                ret += entries
-                return [ret]
-            return entries
-
-        maxdepth = maxdepth or toctree.get('maxdepth', -1)
-        if not titles_only and toctree.get('titlesonly', False):
-            titles_only = True
-        if not includehidden and toctree.get('includehidden', False):
-            includehidden = True
-
-        # NOTE: previously, this was separate=True, but that leads to artificial
-        # separation when two or more toctree entries form a logical unit, so
-        # separating mode is no longer used -- it's kept here for history's sake
-        tocentries = _entries_from_toctree(toctree, [], separate=False)
-        if not tocentries:
-            return None
-
-        newnode = addnodes.compact_paragraph('', '')
-        caption = toctree.attributes.get('caption')
-        if caption:
-            caption_node = nodes.caption(caption, '', *[nodes.Text(caption)])
-            caption_node.line = toctree.line
-            caption_node.source = toctree.source
-            caption_node.rawsource = toctree['rawcaption']
-            if hasattr(toctree, 'uid'):
-                # move uid to caption_node to translate it
-                caption_node.uid = toctree.uid
-                del toctree.uid
-            newnode += caption_node
-        newnode.extend(tocentries)
-        newnode['toctree'] = True
-
-        # prune the tree to maxdepth, also set toc depth and current classes
-        _toctree_add_classes(newnode, 1)
-        self._toctree_prune(newnode, 1, prune and maxdepth or 0, collapse)
-
-        if len(newnode[-1]) == 0:  # No titles found
-            return None
-
-        # set the target paths in the toctrees (they are not known at TOC
-        # generation time)
-        for refnode in newnode.traverse(nodes.reference):
-            if not url_re.match(refnode['refuri']):
-                refnode['refuri'] = builder.get_relative_uri(
-                    docname, refnode['refuri']) + refnode['anchorname']
-        return newnode
+        return self.toctree.resolve_toctree(docname, builder, toctree, prune,
+                                            maxdepth, titles_only, collapse,
+                                            includehidden)
 
     def resolve_references(self, doctree, fromdocname, builder):
         for node in doctree.traverse(addnodes.pending_xref):
@@ -1403,7 +1062,7 @@ class BuildEnvironment(object):
             node.replace_self(newnode or contnode)
 
         # remove only-nodes that do not belong to our builder
-        self.process_only_nodes(doctree, builder, fromdocname)
+        process_only_nodes(doctree, builder.tags, warn_node=self.warn_node)
 
         # allow custom references to be resolved
         builder.app.emit('doctree-resolved', doctree, fromdocname)
@@ -1492,280 +1151,9 @@ class BuildEnvironment(object):
             newnode[0]['classes'].append(res_role.replace(':', '-'))
         return newnode
 
-    def process_only_nodes(self, doctree, builder, fromdocname=None):
-        # A comment on the comment() nodes being inserted: replacing by [] would
-        # result in a "Losing ids" exception if there is a target node before
-        # the only node, so we make sure docutils can transfer the id to
-        # something, even if it's just a comment and will lose the id anyway...
-        for node in doctree.traverse(addnodes.only):
-            try:
-                ret = builder.tags.eval_condition(node['expr'])
-            except Exception as err:
-                self.warn_node('exception while evaluating only '
-                               'directive expression: %s' % err, node)
-                node.replace_self(node.children or nodes.comment())
-            else:
-                if ret:
-                    node.replace_self(node.children or nodes.comment())
-                else:
-                    node.replace_self(nodes.comment())
-
-    def assign_section_numbers(self):
-        """Assign a section number to each heading under a numbered toctree."""
-        # a list of all docnames whose section numbers changed
-        rewrite_needed = []
-
-        assigned = set()
-        old_secnumbers = self.toc_secnumbers
-        self.toc_secnumbers = {}
-
-        def _walk_toc(node, secnums, depth, titlenode=None):
-            # titlenode is the title of the document, it will get assigned a
-            # secnumber too, so that it shows up in next/prev/parent rellinks
-            for subnode in node.children:
-                if isinstance(subnode, nodes.bullet_list):
-                    numstack.append(0)
-                    _walk_toc(subnode, secnums, depth-1, titlenode)
-                    numstack.pop()
-                    titlenode = None
-                elif isinstance(subnode, nodes.list_item):
-                    _walk_toc(subnode, secnums, depth, titlenode)
-                    titlenode = None
-                elif isinstance(subnode, addnodes.only):
-                    # at this stage we don't know yet which sections are going
-                    # to be included; just include all of them, even if it leads
-                    # to gaps in the numbering
-                    _walk_toc(subnode, secnums, depth, titlenode)
-                    titlenode = None
-                elif isinstance(subnode, addnodes.compact_paragraph):
-                    numstack[-1] += 1
-                    if depth > 0:
-                        number = tuple(numstack)
-                    else:
-                        number = None
-                    secnums[subnode[0]['anchorname']] = \
-                        subnode[0]['secnumber'] = number
-                    if titlenode:
-                        titlenode['secnumber'] = number
-                        titlenode = None
-                elif isinstance(subnode, addnodes.toctree):
-                    _walk_toctree(subnode, depth)
-
-        def _walk_toctree(toctreenode, depth):
-            if depth == 0:
-                return
-            for (title, ref) in toctreenode['entries']:
-                if url_re.match(ref) or ref == 'self' or ref in assigned:
-                    # don't mess with those
-                    continue
-                if ref in self.tocs:
-                    secnums = self.toc_secnumbers[ref] = {}
-                    assigned.add(ref)
-                    _walk_toc(self.tocs[ref], secnums, depth,
-                              self.titles.get(ref))
-                    if secnums != old_secnumbers.get(ref):
-                        rewrite_needed.append(ref)
-
-        for docname in self.numbered_toctrees:
-            assigned.add(docname)
-            doctree = self.get_doctree(docname)
-            for toctreenode in doctree.traverse(addnodes.toctree):
-                depth = toctreenode.get('numbered', 0)
-                if depth:
-                    # every numbered toctree gets new numbering
-                    numstack = [0]
-                    _walk_toctree(toctreenode, depth)
-
-        return rewrite_needed
-
-    def assign_figure_numbers(self):
-        """Assign a figure number to each figure under a numbered toctree."""
-
-        rewrite_needed = []
-
-        assigned = set()
-        old_fignumbers = self.toc_fignumbers
-        self.toc_fignumbers = {}
-        fignum_counter = {}
-
-        def get_section_number(docname, section):
-            anchorname = '#' + section['ids'][0]
-            secnumbers = self.toc_secnumbers.get(docname, {})
-            if anchorname in secnumbers:
-                secnum = secnumbers.get(anchorname)
-            else:
-                secnum = secnumbers.get('')
-
-            return secnum or tuple()
-
-        def get_next_fignumber(figtype, secnum):
-            counter = fignum_counter.setdefault(figtype, {})
-
-            secnum = secnum[:self.config.numfig_secnum_depth]
-            counter[secnum] = counter.get(secnum, 0) + 1
-            return secnum + (counter[secnum],)
-
-        def register_fignumber(docname, secnum, figtype, fignode):
-            self.toc_fignumbers.setdefault(docname, {})
-            fignumbers = self.toc_fignumbers[docname].setdefault(figtype, {})
-            figure_id = fignode['ids'][0]
-
-            fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
-
-        def _walk_doctree(docname, doctree, secnum):
-            for subnode in doctree.children:
-                if isinstance(subnode, nodes.section):
-                    next_secnum = get_section_number(docname, subnode)
-                    if next_secnum:
-                        _walk_doctree(docname, subnode, next_secnum)
-                    else:
-                        _walk_doctree(docname, subnode, secnum)
-                    continue
-                elif isinstance(subnode, addnodes.toctree):
-                    for title, subdocname in subnode['entries']:
-                        if url_re.match(subdocname) or subdocname == 'self':
-                            # don't mess with those
-                            continue
-
-                        _walk_doc(subdocname, secnum)
-
-                    continue
-
-                figtype = self.domains['std'].get_figtype(subnode)
-                if figtype and subnode['ids']:
-                    register_fignumber(docname, secnum, figtype, subnode)
-
-                _walk_doctree(docname, subnode, secnum)
-
-        def _walk_doc(docname, secnum):
-            if docname not in assigned:
-                assigned.add(docname)
-                doctree = self.get_doctree(docname)
-                _walk_doctree(docname, doctree, secnum)
-
-        if self.config.numfig:
-            _walk_doc(self.config.master_doc, tuple())
-            for docname, fignums in iteritems(self.toc_fignumbers):
-                if fignums != old_fignumbers.get(docname):
-                    rewrite_needed.append(docname)
-
-        return rewrite_needed
-
     def create_index(self, builder, group_entries=True,
                      _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
-        """Create the real index from the collected index entries."""
-        new = {}
-
-        def add_entry(word, subword, link=True, dic=new, key=None):
-            # Force the word to be unicode if it's a ASCII bytestring.
-            # This will solve problems with unicode normalization later.
-            # For instance the RFC role will add bytestrings at the moment
-            word = text_type(word)
-            entry = dic.get(word)
-            if not entry:
-                dic[word] = entry = [[], {}, key]
-            if subword:
-                add_entry(subword, '', link=link, dic=entry[1], key=key)
-            elif link:
-                try:
-                    uri = builder.get_relative_uri('genindex', fn) + '#' + tid
-                except NoUri:
-                    pass
-                else:
-                    # maintain links in sorted/deterministic order
-                    bisect.insort(entry[0], (main, uri))
-
-        for fn, entries in iteritems(self.indexentries):
-            # new entry types must be listed in directives/other.py!
-            for type, value, tid, main, index_key in entries:
-                try:
-                    if type == 'single':
-                        try:
-                            entry, subentry = split_into(2, 'single', value)
-                        except ValueError:
-                            entry, = split_into(1, 'single', value)
-                            subentry = ''
-                        add_entry(entry, subentry, key=index_key)
-                    elif type == 'pair':
-                        first, second = split_into(2, 'pair', value)
-                        add_entry(first, second, key=index_key)
-                        add_entry(second, first, key=index_key)
-                    elif type == 'triple':
-                        first, second, third = split_into(3, 'triple', value)
-                        add_entry(first, second+' '+third, key=index_key)
-                        add_entry(second, third+', '+first, key=index_key)
-                        add_entry(third, first+' '+second, key=index_key)
-                    elif type == 'see':
-                        first, second = split_into(2, 'see', value)
-                        add_entry(first, _('see %s') % second, link=False,
-                                  key=index_key)
-                    elif type == 'seealso':
-                        first, second = split_into(2, 'see', value)
-                        add_entry(first, _('see also %s') % second, link=False,
-                                  key=index_key)
-                    else:
-                        self.warn(fn, 'unknown index entry type %r' % type)
-                except ValueError as err:
-                    self.warn(fn, str(err))
-
-        # sort the index entries; put all symbols at the front, even those
-        # following the letters in ASCII, this is where the chr(127) comes from
-        def keyfunc(entry, lcletters=string.ascii_lowercase + '_'):
-            lckey = unicodedata.normalize('NFD', entry[0].lower())
-            if lckey[0:1] in lcletters:
-                lckey = chr(127) + lckey
-            # ensure a determinstic order *within* letters by also sorting on
-            # the entry itself
-            return (lckey, entry[0])
-        newlist = sorted(new.items(), key=keyfunc)
-
-        if group_entries:
-            # fixup entries: transform
-            #   func() (in module foo)
-            #   func() (in module bar)
-            # into
-            #   func()
-            #     (in module foo)
-            #     (in module bar)
-            oldkey = ''
-            oldsubitems = None
-            i = 0
-            while i < len(newlist):
-                key, (targets, subitems, _key) = newlist[i]
-                # cannot move if it has subitems; structure gets too complex
-                if not subitems:
-                    m = _fixre.match(key)
-                    if m:
-                        if oldkey == m.group(1):
-                            # prefixes match: add entry as subitem of the
-                            # previous entry
-                            oldsubitems.setdefault(m.group(2), [[], {}, _key])[0].\
-                                extend(targets)
-                            del newlist[i]
-                            continue
-                        oldkey = m.group(1)
-                    else:
-                        oldkey = key
-                oldsubitems = subitems
-                i += 1
-
-        # group the entries by letter
-        def keyfunc2(item, letters=string.ascii_uppercase + '_'):
-            # hack: mutating the subitems dicts to a list in the keyfunc
-            k, v = item
-            v[1] = sorted((si, se) for (si, (se, void, void)) in iteritems(v[1]))
-            if v[2] is None:
-                # now calculate the key
-                letter = unicodedata.normalize('NFD', k[0])[0].upper()
-                if letter in letters:
-                    return letter
-                else:
-                    # get all other symbols under one heading
-                    return _('Symbols')
-            else:
-                return v[2]
-        return [(key_, list(group))
-                for (key_, group) in groupby(newlist, keyfunc2)]
+        return self.indices.create_index(builder, group_entries=group_entries, _fixre=_fixre)
 
     def collect_relations(self):
         traversed = set()

@@ -321,6 +321,27 @@ def set_role_source_info(inliner, lineno, node):
     node.source, node.line = inliner.reporter.get_source_and_line(lineno)
 
 
+def process_only_nodes(doctree, tags, warn_node=None):
+    # A comment on the comment() nodes being inserted: replacing by [] would
+    # result in a "Losing ids" exception if there is a target node before
+    # the only node, so we make sure docutils can transfer the id to
+    # something, even if it's just a comment and will lose the id anyway...
+    for node in doctree.traverse(addnodes.only):
+        try:
+            ret = tags.eval_condition(node['expr'])
+        except Exception as err:
+            if warn_node is None:
+                raise err
+            warn_node('exception while evaluating only '
+                      'directive expression: %s' % err, node)
+            node.replace_self(node.children or nodes.comment())
+        else:
+            if ret:
+                node.replace_self(node.children or nodes.comment())
+            else:
+                node.replace_self(nodes.comment())
+
+
 # monkey-patch Element.copy to copy the rawsource and line
 
 def _new_copy(self):

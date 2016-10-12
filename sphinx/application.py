@@ -293,6 +293,7 @@ class Sphinx(object):
                 self.env = BuildEnvironment.frompickle(
                     self.srcdir, self.config, path.join(self.doctreedir, ENV_PICKLE_FILENAME))
                 self.env.set_warnfunc(self.warn)
+                self.env.init_managers()
                 self.env.domains = {}
                 for domain in self.domains.keys():
                     # this can raise if the data version doesn't fit
