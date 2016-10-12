@@ -350,9 +350,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         })
         # set-up boolean for sphinx.sty
         if builder.config.latex_keep_old_macro_names:
-            self.elements['keepoldnames'] = '\\sphinxKeepOldNamestrue'
+            self.elements['keepoldnames'] = ''
         else:
-            self.elements['keepoldnames'] = '\\sphinxKeepOldNamesfalse'
+            self.elements['keepoldnames'] = ('\\PassOptionsToPackage'
+                                             '{dontkeepoldnames}{sphinx}')
         if document.settings.docclass == 'howto':
             docclass = builder.config.latex_docclass.get('howto', 'article')
         else:
