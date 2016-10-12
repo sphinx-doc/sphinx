@@ -17,6 +17,7 @@ Features added
 * #3020: new ``'geometry'`` key to ``latex_elements`` whose default uses
   LaTeX style file ``geometry.sty`` to set page layout
 * #2843: Add :start-at: and :end-at: options to literalinclude directive
+* #2527: Add ``:reversed:`` option to toctree directive
 
 Bugs fixed
 ----------

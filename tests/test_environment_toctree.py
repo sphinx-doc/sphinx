@@ -108,20 +108,35 @@ def test_glob(app, status, warning):
     toctree = app.env.tocs['index']
     assert_node(toctree,
                 [bullet_list, list_item, (compact_paragraph,  # [0][0]
-                                          [bullet_list, addnodes.toctree])])  # [0][1][0]
+                                          [bullet_list, (list_item,  # [0][1][0]
+                                                         list_item)])])  # [0][1][1]
 
     assert_node(toctree[0][0],
                 [compact_paragraph, reference, "test-toctree-glob"])
-    assert_node(toctree[0][1][0], addnodes.toctree, caption=None,
+    assert_node(toctree[0][1][0],
+                [list_item, ([compact_paragraph, reference, "normal order"],
+                             [bullet_list, addnodes.toctree])])  # [0][1][0][1][0]
+    assert_node(toctree[0][1][0][1][0], addnodes.toctree, caption=None,
                 glob=True, hidden=False, titlesonly=False,
                 maxdepth=-1, numbered=0, includefiles=includefiles,
                 entries=[(None, 'foo'), (None, 'bar/index'), (None, 'bar/bar_1'),
                          (None, 'bar/bar_2'), (None, 'bar/bar_3'), (None, 'baz'),
                          (None, 'qux/index')])
+    assert_node(toctree[0][1][1],
+                [list_item, ([compact_paragraph, reference, "reversed order"],
+                             [bullet_list, addnodes.toctree])])  # [0][1][1][1][0]
+    assert_node(toctree[0][1][1][1][0], addnodes.toctree, caption=None,
+                glob=True, hidden=False, titlesonly=False,
+                maxdepth=-1, numbered=0, includefiles=includefiles,
+                entries=[(None, 'qux/index'), (None, 'baz'), (None, 'bar/bar_3'),
+                         (None, 'bar/bar_2'), (None, 'bar/bar_1'), (None, 'bar/index'),
+                         (None, 'foo')])
+    includefiles = ['foo', 'bar/index', 'bar/bar_1', 'bar/bar_2',
+                    'bar/bar_3', 'baz', 'qux/index']
 
     # other collections
-    assert app.env.toc_num_entries['index'] == 1
-    assert app.env.toctree_includes['index'] == includefiles
+    assert app.env.toc_num_entries['index'] == 3
+    assert app.env.toctree_includes['index'] == includefiles + includefiles
     for file in includefiles:
         assert 'index' in app.env.files_to_rebuild[file]
     assert 'index' in app.env.glob_toctrees
