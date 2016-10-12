@@ -1,65 +1,56 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{footnotehyper}%
- [2016/10/03 v0.9f hyperref aware footnote.sty (JFB)]
+\ProvidesPackage{footnotehyper-sphinx}%
+ [2016/10/08 v0.9f hyperref aware footnote.sty for sphinx (JFB)]
 %%
-%% Package: footnotehyper
-%% Version: 0.9f (2016/10/03)
-%% License: http://www.latex-project.org/lppl/lppl-1-3c.txt
-%% Copyright (C) 2016 Jean-Francois Burnol <jfbu at free dot fr>.
+%% Package: footnotehyper-sphinx
+%% Version: based on footnotehyper.sty v0.9f (2016/10/03)
+%% as available at http://www.ctan.org/pkg/footnotehyper
+%% License: the one applying to Sphinx
+%%
+%% Differences from footnotehyper v0.9f (2016/10/03):
+%% 1. hyperref is assumed in use (with default hyperfootnotes=true),
+%% 2. no need to check if footnote.sty was loaded,
+%% 3. a special tabulary compatibility layer added, (partial but enough for
+%% Sphinx),
+%% 4. the \sphinxfootnotemark command is added. Its rôle is to silently remove
+%% footnote marks from locations like the tables of contents, or page headers,
+%% and to be compatible with hyperref constructions of bookmarks, and survive
+%% to \MakeUppercase command or such which may be used to typeset chapter
+%% titles for example.
+%%
+%% Note: with \footnotemark[N]/\footnotetext[N] syntax, hyperref
+%% does not insert an hyperlink. This is _not_ improved here.
 %%
 \DeclareOption*{\PackageWarning{footnotehyper}{Option `\CurrentOption' is unknown}}%
 \ProcessOptions\relax
-\@ifpackageloaded{footnote}
- {\PackageWarningNoLine{footnotehyper}%
-  {Please next time do not load package footnote,^^J
- but leave that to me. For the time being, I will start by undoing the^^J
- modifications it did to \string\parbox. Use \string\fnparbox\space if needed.}%
- }
- {\let\FNH@@makefntext\@makefntext\let\@makefntext\@firstofone
-  \RequirePackage{footnote}
-  \let\@makefntext\FNH@@makefntext
- }%
-\let\fnparbox\parbox\let\parbox\fn@parbox
-\let\FNH@fn@footnote    \footnote     % footnote.sty's \footnote will get
-\let\FNH@fn@footnotetext\footnotetext % redefined later. We preserve also
-\let\footnote    \fn@latex@@footnote  % the meaning of \footnote from prior
-\let\footnotetext\fn@latex@@footnotetext % to the loading of footnote.sty
+\let\FNH@@makefntext\@makefntext\let\@makefntext\@firstofone
+\RequirePackage{footnote}
+\let\fnparbox\parbox\let\parbox\fn@parbox\let\@makefntext\FNH@@makefntext
+\let\FNH@fn@footnote    \footnote     % buggy footnote.sty's \footnote
+\let\FNH@fn@footnotetext\footnotetext % will be redefined later
+\let\footnote    \fn@latex@@footnote  % meaning of \footnote before footnote.sty
+\let\footnotetext\fn@latex@@footnotetext
 \def\fn@endnote  {\color@endgroup}%
 \AtBeginDocument {%
     \let\fn@latex@@footnote    \footnote % meaning of \footnote at end of preamble
     \let\fn@latex@@footnotetext\footnotetext
-}%
-\AtBeginDocument{\@ifpackageloaded{hyperref}
-  {\ifHy@hyperfootnotes
     \let\fn@fntext \FNH@hyper@fntext
     \let\spewnotes \FNH@hyper@spewnotes
     \let\endsavenotes\spewnotes
     \let\fn@endfntext\FNH@fixed@endfntext
     \let\footnote    \FNH@fixed@footnote
     \let\footnotetext\FNH@fixed@footnotetext
-   \else
-     \FNH@inactive
-   \fi }{\FNH@inactive}%
     \let\endfootnote\fn@endfntext
     \let\endfootnotetext\endfootnote
 }%
-\def\FNH@fix@endfntext\@finalstrut\strutbox\fn@postfntext
-    {\@finalstrut\strutbox\fn@postfntext\fn@endnote}%
-\def\FNH@inactive {%
-    \let\footnote    \FNH@fn@footnote
-    \let\footnotetext\FNH@fn@footnotetext
-    \expandafter\expandafter\expandafter\def
-    \expandafter\expandafter\expandafter\fn@endfntext
-    \expandafter\expandafter\expandafter
-       {\expandafter\FNH@fix@endfntext\fn@endfntext}%
-    \PackageInfo{footnotehyper}%
-     {hyperref package not loaded or hyperfootnotes^^J
-  =false option; I did not activate myself and only patched footnote.sty^^J
-  for color/xcolor compatibility, leaving some other issues unfixed.}}%
-\def\FNH@hyper@fntext {\ifx\ifmeasuring@\undefined\expandafter\@secondoftwo
+\def\FNH@hyper@fntext {%
+%% amsmath compatibility
+  \ifx\ifmeasuring@\undefined\expandafter\@secondoftwo
                                       \else\expandafter\@firstofone\fi
-    {\ifmeasuring@\expandafter\@gobbletwo\fi}%
-    \FNH@hyper@fntext@i }%
+    {\ifmeasuring@\expandafter\@gobbletwo\else\expandafter\@firstofone\fi}%
+%% partial tabulary compatibility, [N] must be used, but Sphinx does it
+    {\ifx\equation$\expandafter\@gobbletwo\fi\FNH@hyper@fntext@i }%$
+}%
 \long\def\FNH@hyper@fntext@i #1{\global\setbox\fn@notes\vbox
      {\unvbox\fn@notes
       \fn@startnote
@@ -126,9 +117,9 @@
      \unrestored@protected@xdef\@thefnmark{\thempfn}%
     \endgroup\def\FNH@endfntext@next{\FNH@endfntext@nolink}%
     \fn@startfntext }%
-\ifx\FNH@@makefntext\undefined\expandafter\@gobble
-   \else\expandafter\AtBeginDocument\fi
-{%
+% Now some checks in case some package has modified \@makefntext.
+\AtBeginDocument
+{% compatibility with French module of LaTeX babel
  \ifx\@makefntextFB\undefined
                    \expandafter\@gobble\else\expandafter\@firstofone\fi
  {\ifFBFrenchFootnotes \let\FNH@@makefntext\@makefntextFB \else
@@ -152,11 +143,16 @@
 \def\FNH@bad@footnote@env
 {\PackageWarningNoLine{footnotehyper}%
  {The footnote environment from package footnote^^J
-  will be dysfunctional, sorry (not my fault...). You may try to mail me the^^J
-  preamble and/or only the next lines:}%
+  will be dysfunctional, sorry (not my fault...). You may try to make a bug^^J
+  report at https://github.com/sphinx-doc/sphinx including the next lines:}%
     \typeout{\meaning\@makefntext}%
     \let\fn@prefntext\@empty\let\fn@postfntext\@empty
 }%
+%% \sphinxfootnotemark: usable in section titles and silently removed from TOCs
+\def\sphinxfootnotemark [#1]%
+   {\ifx\thepage\relax\else \protect\footnotemark[#1]\fi}%
+\AtBeginDocument
+   {\pdfstringdefDisableCommands{\def\sphinxfootnotemark [#1]{}}}%
 \endinput
 %%
-%% End of file `footnotehyper.sty'.
+%% End of file `footnotehyper-sphinx.sty'.
