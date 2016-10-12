@@ -37,6 +37,7 @@ Bugs fixed
 * #147: Problem with latex chapter style
 * #3018: LaTeX problem with page layout dimensions and chapter titles
 * Fix an issue with ``\pysigline`` in LaTeX style file (ref #3023)
+* #3038: ``sphinx.ext.math*`` raises TypeError if labels are duplicated
 
 Documentation
 -------------
