@@ -170,6 +170,8 @@ class LiteralInclude(Directive):
         'lines': directives.unchanged_required,
         'start-after': directives.unchanged_required,
         'end-before': directives.unchanged_required,
+        'start-at': directives.unchanged_required,
+        'end-at': directives.unchanged_required,
         'prepend': directives.unchanged_required,
         'append': directives.unchanged_required,
         'emphasize-lines': directives.unchanged_required,
@@ -218,6 +220,16 @@ class LiteralInclude(Directive):
            (set(['append', 'prepend']) & set(self.options.keys())):
             return [document.reporter.warning(
                 'Cannot use "lineno-match" and "append" or "prepend"',
+                line=self.lineno)]
+
+        if 'start-after' in self.options and 'start-at' in self.options:
+            return [document.reporter.warning(
+                'Cannot use both "start-after" and "start-at" options',
+                line=self.lineno)]
+
+        if 'end-before' in self.options and 'end-at' in self.options:
+            return [document.reporter.warning(
+                'Cannot use both "end-before" and "end-at" options',
                 line=self.lineno)]
 
         encoding = self.options.get('encoding', env.config.source_encoding)
@@ -292,17 +304,29 @@ class LiteralInclude(Directive):
         else:
             hl_lines = None
 
-        startafter = self.options.get('start-after')
-        endbefore = self.options.get('end-before')
-        if startafter is not None or endbefore is not None:
-            use = not startafter
+        start_str = self.options.get('start-after')
+        start_inclusive = False
+        if self.options.get('start-at') is not None:
+            start_str = self.options.get('start-at')
+            start_inclusive = True
+        end_str = self.options.get('end-before')
+        end_inclusive = False
+        if self.options.get('end-at') is not None:
+            end_str = self.options.get('end-at')
+            end_inclusive = True
+        if start_str is not None or end_str is not None:
+            use = not start_str
             res = []
             for line_number, line in enumerate(lines):
-                if not use and startafter and startafter in line:
+                if not use and start_str and start_str in line:
                     if 'lineno-match' in self.options:
                         linenostart += line_number + 1
                     use = True
-                elif use and endbefore and endbefore in line:
+                    if start_inclusive:
+                        res.append(line)
+                elif use and end_str and end_str in line:
+                    if end_inclusive:
+                        res.append(line)
                     break
                 elif use:
                     res.append(line)
