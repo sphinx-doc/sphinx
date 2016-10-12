@@ -26,9 +26,9 @@ Basic customization is available from ``conf.py`` via usage of the
         'preamble': '''\
     \\usepackage[titles]{tocloft}
     \\cftsetpnumwidth {1.25cm}\\cftsetrmarg{1.5cm}
-    \\setlength{\cftchapnumwidth}{0.75cm}
-    \\setlength{\cftsecindent}{\\cftchapnumwidth}
-    \\setlength{\cftsecnumwidth}{1.25cm}''',
+    \\setlength{\\cftchapnumwidth}{0.75cm}
+    \\setlength{\\cftsecindent}{\\cftchapnumwidth}
+    \\setlength{\\cftsecnumwidth}{1.25cm}''',
         'fncychap': '\\usepackage[Bjornstrup]{fncychap}',
         'printindex': '\\footnotesize\\raggedright\\printindex',
     }
