@@ -138,6 +138,12 @@ class ManualPageTranslator(BaseTranslator):
     def depart_desc_signature(self, node):
         self.depart_term(node)
 
+    def visit_desc_signature_line(self, node):
+        pass
+
+    def depart_desc_signature_line(self, node):
+        self.body.append(' ')
+
     def visit_desc_addname(self, node):
         pass
 

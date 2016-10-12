@@ -10,6 +10,7 @@ Nodes for domain-specific object descriptions
 
 .. autoclass:: desc
 .. autoclass:: desc_signature
+.. autoclass:: desc_signature_line
 .. autoclass:: desc_addname
 .. autoclass:: desc_type
 .. autoclass:: desc_returns

@@ -850,12 +850,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_desc(self, node):
         self.body.append('\n\\end{fulllineitems}\n\n')
 
-    def visit_desc_signature(self, node):
-        if node.parent['objtype'] != 'describe' and node['ids']:
-            hyper = self.hypertarget(node['ids'][0])
-        else:
-            hyper = ''
-        self.body.append(hyper)
+    def _visit_signature_line(self, node):
         for child in node:
             if isinstance(child, addnodes.desc_parameterlist):
                 self.body.append(r'\pysiglinewithargsret{')
@@ -863,8 +858,27 @@ class LaTeXTranslator(nodes.NodeVisitor):
         else:
             self.body.append(r'\pysigline{')
 
-    def depart_desc_signature(self, node):
+    def _depart_signature_line(self, node):
         self.body.append('}')
+
+    def visit_desc_signature(self, node):
+        if node.parent['objtype'] != 'describe' and node['ids']:
+            hyper = self.hypertarget(node['ids'][0])
+        else:
+            hyper = ''
+        self.body.append(hyper)
+        if not node.get('is_multiline'):
+            self._visit_signature_line(node)
+
+    def depart_desc_signature(self, node):
+        if not node.get('is_multiline'):
+            self._depart_signature_line(node)
+
+    def visit_desc_signature_line(self, node):
+        self._visit_signature_line(node)
+
+    def depart_desc_signature_line(self, node):
+        self._depart_signature_line(node)
 
     def visit_desc_addname(self, node):
         self.body.append(r'\sphinxcode{')

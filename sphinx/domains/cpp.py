@@ -960,7 +960,7 @@ class ASTTemplateDeclarationPrefix(ASTBase):
     def describe_signature(self, signode, mode, env, symbol):
         _verify_description_mode(mode)
         for t in self.templates:
-            templateNode = addnodes.desc_signature()
+            templateNode = addnodes.desc_signature_line()
             t.describe_signature(templateNode, 'lastIsName', env, symbol)
             signode += templateNode
 
@@ -2429,17 +2429,19 @@ class ASTDeclaration(ASTBase):
 
     def describe_signature(self, signode, mode, env):
         _verify_description_mode(mode)
-        # the caller of the domain added a desc_signature node
-        # let's pop it so we can add templates before that
-        parentNode = signode.parent
-        mainDeclNode = signode
+        # The caller of the domain added a desc_signature node.
+        # Always enable multiline:
+        signode['is_multiline'] = True
+        # Put each line in a desc_signature_line node.
+        mainDeclNode = addnodes.desc_signature_line()
         mainDeclNode.sphinx_cpp_tagname = 'declarator'
-        parentNode.pop()
+        mainDeclNode['add_permalink'] = True
 
         assert self.symbol
         if self.templatePrefix:
-            self.templatePrefix.describe_signature(parentNode, mode, env,
+            self.templatePrefix.describe_signature(signode, mode, env,
                                                    symbol=self.symbol)
+        signode += mainDeclNode
         if self.visibility and self.visibility != "public":
             mainDeclNode += addnodes.desc_annotation(self.visibility + " ",
                                                      self.visibility + " ")
@@ -2467,7 +2469,6 @@ class ASTDeclaration(ASTBase):
             assert False
         self.declaration.describe_signature(mainDeclNode, mode, env,
                                             symbol=self.symbol)
-        parentNode += mainDeclNode
 
 
 class ASTNamespace(ASTBase):
@@ -4147,7 +4148,7 @@ class CPPObject(ObjectDescription):
                     continue
                 if id not in self.state.document.ids:
                     signode['ids'].append(id)
-            signode['first'] = (not self.names)  # hmm, what is this abound?
+            signode['first'] = (not self.names)  # hmm, what is this about?
             self.state.document.note_explicit_target(signode)
 
     def parse_definition(self, parser):

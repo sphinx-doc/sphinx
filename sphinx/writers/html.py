@@ -104,8 +104,18 @@ class HTMLTranslator(BaseTranslator):
             self.body.append('<!--[%s]-->' % node['ids'][0])
 
     def depart_desc_signature(self, node):
-        self.add_permalink_ref(node, _('Permalink to this definition'))
+        if not node.get('is_multiline'):
+            self.add_permalink_ref(node, _('Permalink to this definition'))
         self.body.append('</dt>\n')
+
+    def visit_desc_signature_line(self, node):
+        pass
+
+    def depart_desc_signature_line(self, node):
+        if node.get('add_permalink'):
+            # the permalink info is on the parent desc_signature node
+            self.add_permalink_ref(node.parent, _('Permalink to this definition'))
+        self.body.append('<br />')
 
     def visit_desc_addname(self, node):
         self.body.append(self.starttag(node, 'code', '', CLASS='descclassname'))
