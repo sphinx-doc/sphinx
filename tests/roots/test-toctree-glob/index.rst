@@ -18,7 +18,7 @@ reversed order
 
 .. toctree::
    :glob:
-   :reverse:
+   :reversed:
 
    foo
    bar/index
