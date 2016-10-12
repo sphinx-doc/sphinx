@@ -17,6 +17,18 @@ from docutils.parsers.rst import Directive, directives, roles
 from sphinx import addnodes
 from sphinx.util.docfields import DocFieldTransformer
 
+# import all directives sphinx provides
+from sphinx.directives.code import (  # noqa
+    Highlight, CodeBlock, LiteralInclude
+)
+from sphinx.directives.other import (  # noqa
+    TocTree, Author, Index, VersionChange, SeeAlso,
+    TabularColumns, Centered, Acks, HList, Only, Include, Class
+)
+from sphinx.directives.patches import (  # noqa
+    Figure, Meta
+)
+
 
 # RE to strip backslash escapes
 nl_escape_re = re.compile(r'\\\n')
