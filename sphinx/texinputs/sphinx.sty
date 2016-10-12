@@ -1019,3 +1019,8 @@
 
 % stylesheet for highlighting with pygments
 \RequirePackage{sphinxhighlight}
+
+% make commands known to non-Sphinx document classes
+\providecommand*{\sphinxtableofcontents}{\tableofcontents}
+\providecommand*{\sphinxthebibliography}{\thebibliography}
+\providecommand*{\sphinxtheindex}{\theindex}
