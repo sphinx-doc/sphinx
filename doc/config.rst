@@ -1698,8 +1698,8 @@ These options influence LaTeX output. See further :doc:`latex`.
         (this option is slightly customized by Sphinx),
         ``'\\usepackage[Sonny]{fncychap}'`` for internationalized docs (because
         the "Bjarne" style uses numbers spelled out in English).  Other
-        "fncychap" styles you can try include "Lenny", "Glenn", "Conny" and
-        "Rejne".  You can also set this to ``''`` to disable fncychap.
+        "fncychap" styles you can try are "Lenny", "Glenn", "Conny", "Rejne" and
+        "Bjornstrup".  You can also set this to ``''`` to disable fncychap.
      ``'passoptionstopackages'``
         "PassOptionsToPackage" call, default empty.
 
