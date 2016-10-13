@@ -8,7 +8,7 @@ LaTeX customization
 .. module:: latex
    :synopsis: LaTeX specifics.
 
-The *latex* target does not (yet) benefit from pre-prepared themes like the
+The *latex* target does not benefit from pre-prepared themes like the
 *html* target does (see :doc:`theming`).
 
 Basic customization is available from ``conf.py`` via usage of the
@@ -54,7 +54,7 @@ The :ref:`build configuration file <build-config>` file for the project needs
 to have its variable :confval:`latex_additional_files` appropriately
 configured, for example::
 
-    latex_additional_files = ["customizedmacros.sty"]
+    latex_additional_files = ["mycustomizedmacros.sty"]
 
 Such *LaTeX Sphinx theme* files could possibly be contributed in the
 future by advanced users for wider use.
@@ -63,19 +63,6 @@ Let us list here some examples of macros, lengths, colors, which are inherited
 from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
 :file:`sphinxmanual.cls`, and can be customized.
 
-- the table of contents is typeset via ``\sphinxtableofcontents`` which is a
-  wrapper (whose definition can be found in :file:`sphinxhowto.cls` or in
-  :file:`sphinxmanual.cls`) of standard ``\tableofcontents``.
-
-  .. versionchanged:: 1.5
-     formerly, the meaning of ``\tableofcontents`` was modified by Sphinx.
-- the bibliography and Python Module index are typeset respectively within
-  environments ``sphinxthebibliography`` and ``sphinxtheindex``, which are
-  simple wrappers of the non-modified ``thebibliography`` and ``theindex``
-  environments.
-
-  .. versionchanged:: 1.5
-     formerly, the original environments were modified by Sphinx.
 - text styling commands (they have one argument): ``\sphinx<foo>`` with
   ``<foo>`` being one of ``strong``, ``bfcode``, ``email``, ``tablecontinued``,
   ``titleref``, ``menuselection``, ``accelerator``, ``crossref``, ``termref``,
@@ -86,7 +73,9 @@ from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
 
   .. versionchanged:: 1.4.5
      use of ``\sphinx`` prefixed macro names to limit possibilities of conflict
-     with user added packages. The LaTeX writer uses always the prefixed names.
+     with user added packages: if
+	  :confval:`latex_keep_old_macro_names` is set to ``False`` in
+     :file:`conf.py` only the prefixed names are defined.
 - more text styling commands: ``\sphinxstyle<bar>`` with ``<bar>`` one of
   ``indexentry``, ``indexextra``, ``indexpageref``, ``topictitle``,
   ``sidebartitle``, ``othertitle``, ``sidebarsubtitle``, ``thead``,
@@ -94,7 +83,9 @@ from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
   ``abbreviation``, ``literalintitle``.
 
   .. versionadded:: 1.5
-     earlier, the LaTeX writer used hard-coded ``\texttt``, ``\emph``, etc...
+     the new macros are wrappers of the formerly hard-coded ``\texttt``,
+	  ``\emph``, ... The default definitions can be found near the end of
+	  :file:`sphinx.sty`.
 - parameters for paragraph level environments: with ``<foo>`` one of
   :dudir:`warning`, :dudir:`caution`, :dudir:`attention`,
   :dudir:`danger`, :dudir:`error`, the colours
@@ -157,7 +148,7 @@ from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
 - miscellaneous colours: *InnerLinkColor*, *OuterLinkColor* (used in
   ``hyperref`` options), *TitleColor* (used for titles via  ``titlesec``),
   *VerbatimColor* (background colour) and *VerbatimBorderColor* (used for
-  code-blocks).
+  displaying source code examples).
 - the ``\sphinxAtStartFootnote`` is inserted between footnote numbers and their
   texts, by default it does ``\mbox{ }``.
 - use ``\sphinxSetHeaderFamily`` to set the font used by headings
@@ -165,11 +156,31 @@ from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
 
   .. versionadded:: 1.5
 - the section, subsection, ...  headings are set using  *titlesec*'s
-  ``\titleformat`` command.
-- for the ``'manual'`` class, the chapter headings can be customized using
-  *fncychap*'s commands ``\ChNameVar``, ``\ChNumVar``, ``\ChTitleVar``. Or, if
-  the loading of this package has been removed via emptying the ``'fncychap'``
-  key, one can use the *titlesec* ``\titleformat`` command.
+  ``\titleformat`` command. Check :file:`sphinx.sty` for the definitions.
+- for the ``'sphinxmanual'`` class (corresponding to the fifth element of
+  :confval:`latex_documents` being set to ``'manual'``), the chapter headings
+  can be customized using *fncychap*'s commands ``\ChNameVar``, ``\ChNumVar``,
+  ``\ChTitleVar``. Check :file:`sphinx.sty` for the default definitions. They
+  are applied only if *fncychap* is loaded with option ``Bjarne``. It is also
+  possible to use an empty ``'fncychap'`` key, and use the *titlesec*
+  ``\titleformat`` command to style the chapter titles.
+
+  .. versionchanged:: 1.5
+     formerly, use of *fncychap* with other styles than ``Bjarne`` was
+	  dysfunctional.
+- the table of contents is typeset via ``\sphinxtableofcontents`` which is a
+  wrapper (whose definition can be found in :file:`sphinxhowto.cls` or in
+  :file:`sphinxmanual.cls`) of standard ``\tableofcontents``.
+
+  .. versionchanged:: 1.5
+     formerly, the meaning of ``\tableofcontents`` was modified by Sphinx.
+- the bibliography and Python Module index are typeset respectively within
+  environments ``sphinxthebibliography`` and ``sphinxtheindex``, which are
+  simple wrappers of the non-modified ``thebibliography`` and ``theindex``
+  environments.
+
+  .. versionchanged:: 1.5
+     formerly, the original environments were modified by Sphinx.
 
 .. note::
 
