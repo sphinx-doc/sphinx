@@ -41,6 +41,7 @@
 %
 \renewcommand{\maketitle}{%
   \begin{titlepage}%
+    \hypersetup{pageanchor=false}% avoid duplicate destination page.1 warning
     \let\footnotesize\small
     \let\footnoterule\relax
     \noindent\rule{\textwidth}{1pt}\ifsphinxpdfoutput\newline\null\fi\par
@@ -96,7 +97,6 @@
   \pagenumbering{arabic}%
   \ifdefined\fancyhf\pagestyle{normal}\fi
 }
-\pagenumbering{alph}% avoid hyperref "duplicate destination" warnings
 
 % This is needed to get the width of the section # area wide enough in the
 % library reference.  Doing it here keeps it the same for all the manuals.
