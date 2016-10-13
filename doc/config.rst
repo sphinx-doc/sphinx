@@ -599,8 +599,24 @@ documentation on :ref:`intl` for details.
    The filename format for language-specific figures.  The default value is
    ``{root}.{language}{ext}``.  It will be expanded to
    ``dirname/filename.en.png`` from ``.. image:: dirname/filename.png``.
+   The available format tokens are:
+
+   * ``{root}`` - the filename, including any path component, without the file
+     extension, e.g. ``dirname/filename``
+   * ``{path}`` - the directory path component of the filename, with a trailing
+     slash if non-empty, e.g. ``dirname/``
+   * ``{basename}`` - the filename without the directory path or file extension
+     components, e.g. ``filename``
+   * ``{ext}`` - the file extension, e.g. ``.png``
+   * ``{language}`` - the translation language, e.g. ``en``
+
+   For example, setting this to ``{path}{language}/{basename}{ext}`` will
+   expand to ``dirname/en/filename.png`` instead.
 
    .. versionadded:: 1.4
+
+   .. versionchanged:: 1.5
+      Added ``{path}`` and ``{basename}`` tokens.
 
 .. _html-options:
 

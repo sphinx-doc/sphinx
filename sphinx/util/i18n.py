@@ -229,10 +229,16 @@ def get_image_filename_for_language(filename, env):
         return filename
 
     filename_format = env.config.figure_language_filename
-    root, ext = path.splitext(filename)
+    d = dict()
+    d['root'], d['ext'] = path.splitext(filename)
+    dirname = path.dirname(d['root'])
+    if dirname and not dirname.endswith(path.sep):
+        dirname += path.sep
+    d['path'] = dirname
+    d['basename'] = path.basename(d['root'])
+    d['language'] = env.config.language
     try:
-        return filename_format.format(root=root, ext=ext,
-                                      language=env.config.language)
+        return filename_format.format(**d)
     except KeyError as exc:
         raise SphinxError('Invalid figure_language_filename: %r' % exc)
 

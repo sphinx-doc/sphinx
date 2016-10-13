@@ -255,6 +255,18 @@ def test_get_filename_for_language():
         '../foo.png', app.env) == 'images/en/../foo.png'
     assert i18n.get_image_filename_for_language('foo', app.env) == 'images/en/foo'
 
+    # new path and basename tokens
+    app.env.config.language = 'en'
+    app.env.config.figure_language_filename = '{path}{language}/{basename}{ext}'
+    assert i18n.get_image_filename_for_language('foo.png', app.env) == 'en/foo.png'
+    assert i18n.get_image_filename_for_language(
+        'foo.bar.png', app.env) == 'en/foo.bar.png'
+    assert i18n.get_image_filename_for_language(
+        'subdir/foo.png', app.env) == 'subdir/en/foo.png'
+    assert i18n.get_image_filename_for_language(
+        '../foo.png', app.env) == '../en/foo.png'
+    assert i18n.get_image_filename_for_language('foo', app.env) == 'en/foo'
+
     # invalid figure_language_filename
     app.env.config.figure_language_filename = '{root}.{invalid}{ext}'
     raises(SphinxError, i18n.get_image_filename_for_language, 'foo.png', app.env)
