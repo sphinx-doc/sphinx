@@ -74,7 +74,7 @@ from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
   .. versionchanged:: 1.4.5
      use of ``\sphinx`` prefixed macro names to limit possibilities of conflict
      with user added packages: if
-	  :confval:`latex_keep_old_macro_names` is set to ``False`` in
+     :confval:`latex_keep_old_macro_names` is set to ``False`` in
      :file:`conf.py` only the prefixed names are defined.
 - more text styling commands: ``\sphinxstyle<bar>`` with ``<bar>`` one of
   ``indexentry``, ``indexextra``, ``indexpageref``, ``topictitle``,
@@ -84,8 +84,8 @@ from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
 
   .. versionadded:: 1.5
      the new macros are wrappers of the formerly hard-coded ``\texttt``,
-	  ``\emph``, ... The default definitions can be found near the end of
-	  :file:`sphinx.sty`.
+     ``\emph``, ... The default definitions can be found near the end of
+     :file:`sphinx.sty`.
 - parameters for paragraph level environments: with ``<foo>`` one of
   :dudir:`warning`, :dudir:`caution`, :dudir:`attention`,
   :dudir:`danger`, :dudir:`error`, the colours
@@ -167,7 +167,7 @@ from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
 
   .. versionchanged:: 1.5
      formerly, use of *fncychap* with other styles than ``Bjarne`` was
-	  dysfunctional.
+     dysfunctional.
 - the table of contents is typeset via ``\sphinxtableofcontents`` which is a
   wrapper (whose definition can be found in :file:`sphinxhowto.cls` or in
   :file:`sphinxmanual.cls`) of standard ``\tableofcontents``.
