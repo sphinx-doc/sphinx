@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sphinxmanual}[2009/06/02 Document class (Sphinx manual)]
+\ProvidesClass{sphinxmanual}[2016/10/12 v1.5 Document class (Sphinx manual)]
 
 \ifx\directlua\undefined\else
 % if compiling with lualatex 0.85 or later load compatibility patch issued by
