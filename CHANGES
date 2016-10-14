@@ -20,6 +20,8 @@ Features added
 * #2527: Add ``:reversed:`` option to toctree directive
 * Add ``-t`` and ``-d`` option to ``sphinx-quickstart`` to support templating
   generated sphinx project.
+* #3028: Add ``{path}`` and ``{basename}`` to the format of
+  ``figure_language_filename``
 
 Bugs fixed
 ----------
