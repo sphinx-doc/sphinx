@@ -20,7 +20,6 @@
 \usepackage{multirow}
 \usepackage{eqparbox}
 <%= usepackages %>
-<%= packages %>
 <%= hyperref %>
 <%= contentsname %>
 <%= numfig_format %>

@@ -1720,13 +1720,8 @@ These options influence LaTeX output. See further :doc:`latex`.
         the "Bjarne" style uses numbers spelled out in English).  Other
         "fncychap" styles you can try are "Lenny", "Glenn", "Conny", "Rejne" and
         "Bjornstrup".  You can also set this to ``''`` to disable fncychap.
-     ``'packages'``
-        Extra user specified ``\\usepackage{<foo>}`` commands, default empty,
-        executed *after* the loading of :file:`sphinx.sty` and *before* the
-        loading of "hyperref".
      ``'preamble'``
-        Additional preamble content, default empty. Executed *after*
-        the loading of "hyperref" package. See :doc:`latex`.
+        Additional preamble content, default empty. See :doc:`latex`.
      ``'postamble'``
         Additional postamble content (before the indices), default empty.
      ``'figure_align'``

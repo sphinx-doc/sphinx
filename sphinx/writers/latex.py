@@ -278,7 +278,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         'fontpkg':         '\\usepackage{times}',
         'fncychap':        '\\usepackage[Bjarne]{fncychap}',
         'longtable':       '\\usepackage{longtable}',
-        'packages':        '',
         'hyperref':        ('% Include hyperref last.\n'
                             '\\usepackage[colorlinks,breaklinks,%\n'
                             '            '
