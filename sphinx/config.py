@@ -30,8 +30,10 @@ CONFIG_EXIT_ERROR = "The configuration file (or one of the modules it imports) "
                     "called sys.exit()"
 CONFIG_ENUM_WARNING = "The config value `{name}` has to be a one of {candidates}, " \
                       "but `{current}` is given."
+CONFIG_PERMITTED_TYPE_WARNING = "The config value `{name}' has type `{current.__name__}', " \
+                                "expected to {permitted}."
 CONFIG_TYPE_WARNING = "The config value `{name}' has type `{current.__name__}', " \
-                      "defaults to `{default.__name__}.'"
+                      "defaults to `{default.__name__}'."
 
 
 class ENUM(object):
@@ -186,8 +188,13 @@ class Config(object):
                 if common_bases:
                     continue  # at least we share a non-trivial base class
 
-                warn(CONFIG_TYPE_WARNING.format(
-                    name=name, current=type(current), default=type(default)))
+                if permitted:
+                    warn(CONFIG_PERMITTED_TYPE_WARNING.format(
+                        name=name, current=type(current),
+                        permitted=str([cls.__name__ for cls in permitted])))
+                else:
+                    warn(CONFIG_TYPE_WARNING.format(
+                        name=name, current=type(current), default=type(default)))
 
     def check_unicode(self, warn):
         # check all string values for non-ASCII characters in bytestrings,
