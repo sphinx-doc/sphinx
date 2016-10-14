@@ -1877,7 +1877,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('\n\\sphinxSetupCodeBlockInFootnote')
                 hlcode = hlcode.replace('\\begin{Verbatim}',
                                         '\\begin{sphinxVerbatim}')
-                pass
             # if in table raise verbatim flag to avoid "tabulary" environment
             # and opt for sphinxVerbatimintable to handle caption & long lines
             elif self.table:
@@ -1890,9 +1889,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                         '\\begin{sphinxVerbatim}')
             # get consistent trailer
             hlcode = hlcode.rstrip()[:-14]  # strip \end{Verbatim}
-            self.body.append('\n' + hlcode + '\\end{sphinxVerbatim%s}\n' %
-                             ((self.table and not self.in_footnote) and
-                              'intable' or ''))
+            self.body.append('\n' + hlcode + '\\end{sphinxVerbatim')
+            if self.table and not self.in_footnote:
+                self.body.append('intable')
+            self.body.append('}\n')
             if ids:
                 self.body.append('\\let\\sphinxLiteralBlockLabel\\empty\n')
             raise nodes.SkipNode
