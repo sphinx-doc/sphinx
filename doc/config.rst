@@ -1769,6 +1769,11 @@ These options influence LaTeX output. See further :doc:`latex`.
         Override if
         you want to generate a different table of contents or put content
         between the title page and the TOC.
+
+        .. versionchanged:: 1.5
+           Previously the meaning of ``\tableofcontents`` itself was modified
+           by Sphinx. This created an incompatibility with dedicated packages
+           modifying it also such as "tocloft" or "etoc".
      ``'transition'``
         Commands used to display transitions, default
         ``'\n\n\\bigskip\\hrule{}\\bigskip\n\n'``.  Override if you want to
