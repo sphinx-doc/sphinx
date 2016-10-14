@@ -1783,7 +1783,9 @@ These options influence LaTeX output. See further :doc:`latex`.
      ``'printindex'``
         "printindex" call, the last thing in the file, default
         ``'\\printindex'``.  Override if you want to generate the index
-        differently or append some content after the index.
+        differently or append some content after the index. For example
+        ``'\\footnotesize\\raggedright\\printindex'`` is advisable when the
+        index is full of long entries.
 
    * Keys that are set by other options and therefore should not be overridden
      are:
