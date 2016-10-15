@@ -9,6 +9,8 @@ Incompatible changes
 * Remove themes/basic/defindex.html; no longer used
 * Sphinx does not ship anymore (but still uses) LaTeX style file ``fncychap``
 * #2435: Slim down quickstarted conf.py
+* The ``sphinx.sty`` latex package does not load itself "hyperref", as this
+  is done later in the preamble of the latex output via ``'hyperref'`` key.
 
 Features added
 --------------
@@ -22,6 +24,7 @@ Features added
   generated sphinx project.
 * #3028: Add ``{path}`` and ``{basename}`` to the format of
   ``figure_language_filename``
+* new ``'hyperref'`` key in the ``latex_elements`` dictionary (ref #3030)
 
 Bugs fixed
 ----------
