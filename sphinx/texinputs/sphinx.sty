@@ -49,9 +49,13 @@
 \fvset{fontsize=\small}
 % For table captions.
 \RequirePackage{threeparttable}
-% Handle footnotes in tables.
-\RequirePackage{footnote}
+% For hyperlinked footnotes in tables; also for gathering footnotes from 
+% topic and warning blocks. Also to allow code-blocks in footnotes.
+\RequirePackage{footnotehyper-sphinx}
 \makesavenoteenv{tabulary}
+\makesavenoteenv{tabular}
+\makesavenoteenv{threeparttable}
+% (longtable is hyperref compatible and needs no special treatment here.)
 % For the H specifier. Do not \restylefloat{figure}, it breaks Sphinx code
 % for allowing figures in tables.
 \RequirePackage{float}
@@ -215,6 +219,12 @@
        {\py@NormalColor
         \captionof{literalblock}{\sphinxLiteralBlockLabel #1}\smallskip }%
 }
+\newcommand*\sphinxSetupCodeBlockInFootnote {%
+  \fvset{fontsize=\footnotesize}\let\caption\sphinxfigcaption
+  \sphinxverbatimwithminipagetrue % reduces vertical spaces
+  % we counteract float.sty's \caption which does \@normalsize
+  \let\normalsize\footnotesize\let\@parboxrestore\relax
+  \abovecaptionskip \smallskipamount \belowcaptionskip \z@skip}
 
 % Inspired and adapted from framed.sty's \CustomFBox with extra handling
 % of a non separable by pagebreak caption.
@@ -474,6 +484,8 @@
    % imitate closely the layout from Sphinx <= 1.4.1; the \FrameHeightAdjust
    % will put top part of frame on this baseline.
    \def\FrameHeightAdjust {\baselineskip}%
+   % use package footnote to handle footnotes
+   \savenotes
    \trivlist\item\noindent
     % use a minipage if we are already inside a framed environment
     \ifspx@inframed\begin{minipage}{\linewidth}\fi
@@ -487,9 +499,6 @@
     % itemize/enumerate are therein typeset more tightly, we want to keep
     % that). We copy-paste from LaTeX source code but don't do a real minipage.
     \@pboxswfalse
-       % for footnotes, but Sphinx inactivates footnotes in topics
-       \def\@mpfn{mpfootnote}\def\thempfn{\thempfootnote}\c@mpfootnote\z@
-       \let\@footnotetext\@mpfootnotetext
     \let\@listdepth\@mplistdepth \@mplistdepth\z@
     \@minipagerestore
     \@setminipage
@@ -497,14 +506,12 @@
   }%
   {% insert the "endminipage" code
     \par\unskip
-    % handle (currently non existing) minipage style footnotes
-    \ifvoid\@mpfootins\else
-      \vskip\skip\@mpfootins\normalcolor\footnoterule\unvbox\@mpfootins
-    \fi
     \@minipagefalse
    \endMakeFramed
      \ifspx@inframed\end{minipage}\fi
    \endtrivlist
+   % output the stored footnotes
+   \spewnotes
   }
 
 
@@ -634,6 +641,7 @@
        \fboxsep\FrameSep \fboxrule\FrameRule
        \fcolorbox{spx@notice@bordercolor}{spx@notice@bgcolor}{##1}%
        \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+   \savenotes
    % use a minipage if we are already inside a framed environment
    \ifspx@inframed
        \noindent\begin{minipage}{\linewidth}
@@ -649,22 +657,17 @@
      \advance\hsize-\width \@totalleftmargin\z@ \linewidth\hsize
      % minipage initialization copied from LaTeX source code.
      \@pboxswfalse
-       % for footnotes
-       \def\@mpfn{mpfootnote}\def\thempfn{\thempfootnote}\c@mpfootnote\z@
-       \let\@footnotetext\@mpfootnotetext
      \let\@listdepth\@mplistdepth \@mplistdepth\z@
      \@minipagerestore
      \@setminipage }%
    }
    {%
    \par\unskip
-   % handles footnotes
-   \ifvoid\@mpfootins\else
-      \vskip\skip\@mpfootins\normalcolor\footnoterule\unvbox\@mpfootins
-   \fi
    \@minipagefalse
    \endMakeFramed
    \ifspx@inframed\end{minipage}\fi
+   % set footnotes at bottom of page
+   \spewnotes
    % arrange for similar spacing below frame as for "light" boxes.
    \vskip .4\baselineskip
    }% end of sphinxheavybox environment definition
@@ -885,23 +888,6 @@
   }
   {\endlist}
 \fi
-
-% From footmisc.sty: allows footnotes in titles
-\let\FN@sf@@footnote\footnote
-\def\footnote{\ifx\protect\@typeset@protect
-    \expandafter\FN@sf@@footnote
-  \else
-    \expandafter\FN@sf@gobble@opt
-  \fi
-}
-\edef\FN@sf@gobble@opt{\noexpand\protect
-  \expandafter\noexpand\csname FN@sf@gobble@opt \endcsname}
-\expandafter\def\csname FN@sf@gobble@opt \endcsname{%
-  \@ifnextchar[%]
-    \FN@sf@gobble@twobracket
-    \@gobble
-}
-\def\FN@sf@gobble@twobracket[#1]#2{}
 
 % adjust the margins for footer,
 % this works with the jsclasses only (Japanese standard document classes)
