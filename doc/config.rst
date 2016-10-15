@@ -1692,6 +1692,10 @@ These options influence LaTeX output. See further :doc:`latex`.
         to use ``'47363sp'``. To obtain ``72px=1in``, use ``'1bp'``.
 
         .. versionadded:: 1.5
+     ``'passoptionstopackages'``
+        "PassOptionsToPackage" call, default empty.
+
+        .. versionadded:: 1.4
      ``'geometry'``
         "geometry" package inclusion, the default definition is:
 
@@ -1716,10 +1720,6 @@ These options influence LaTeX output. See further :doc:`latex`.
         the "Bjarne" style uses numbers spelled out in English).  Other
         "fncychap" styles you can try are "Lenny", "Glenn", "Conny", "Rejne" and
         "Bjornstrup".  You can also set this to ``''`` to disable fncychap.
-     ``'passoptionstopackages'``
-        "PassOptionsToPackage" call, default empty.
-
-        .. versionadded:: 1.4
      ``'preamble'``
         Additional preamble content, default empty. See :doc:`latex`.
      ``'postamble'``
@@ -1754,6 +1754,17 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. versionadded:: 1.2
      ``'fontenc'``
         "fontenc" package inclusion, default ``'\\usepackage[T1]{fontenc}'``.
+     ``'hyperref'``
+        "hyperref" package inclusion; also loads package "hypcap" and issues
+        ``\urlstyle{same}``. This is done after :file:`sphinx.sty` file is
+        loaded and before executing the contents of ``'preamble'`` key.
+
+        .. attention::
+
+           Loading of packages "hyperref" and "hypcap" is mandatory.
+
+        .. versionadded:: 1.5
+           Previously this was done from inside :file:`sphinx.sty`.
      ``'maketitle'``
         "maketitle" call, default ``'\\maketitle'`` (but it has been
         redefined by the Sphinx ``manual`` and ``howto`` classes.) Override
