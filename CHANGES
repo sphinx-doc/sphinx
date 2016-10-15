@@ -11,6 +11,8 @@ Incompatible changes
 * #2435: Slim down quickstarted conf.py
 * The ``sphinx.sty`` latex package does not load itself "hyperref", as this
   is done later in the preamble of the latex output via ``'hyperref'`` key.
+* Sphinx does not ship anymore a custom modified LaTeX style file ``tabulary``.
+  The non-modified package is used.
 
 Features added
 --------------
@@ -25,6 +27,7 @@ Features added
 * #3028: Add ``{path}`` and ``{basename}`` to the format of
   ``figure_language_filename``
 * new ``'hyperref'`` key in the ``latex_elements`` dictionary (ref #3030)
+* #3022: Allow code-blocks in footnotes for LaTeX PDF output
 
 Bugs fixed
 ----------
@@ -46,6 +49,7 @@ Bugs fixed
 * Fix an issue with ``\pysigline`` in LaTeX style file (ref #3023)
 * #3038: ``sphinx.ext.math*`` raises TypeError if labels are duplicated
 * #3031: incompatibility with LaTeX package ``tocloft``
+* #3003: literal blocks in footnotes are not supported by Latex
 
 Testing
 --------
