@@ -15,6 +15,7 @@ import zlib
 
 from six import BytesIO
 from docutils import nodes
+import mock
 
 from sphinx import addnodes
 from sphinx.ext.intersphinx import setup as intersphinx_setup
@@ -22,7 +23,7 @@ from sphinx.ext.intersphinx import read_inventory, \
     load_mappings, missing_reference, _strip_basic_auth, _read_from_url, \
     _get_safe_url, fetch_inventory, INVENTORY_FILENAME
 
-from util import with_app, with_tempdir, mock
+from util import with_app, with_tempdir
 
 
 inventory_v1 = '''\

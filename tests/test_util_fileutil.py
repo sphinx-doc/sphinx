@@ -11,14 +11,14 @@
 from sphinx.util.fileutil import copy_asset, copy_asset_file
 from sphinx.jinja2glue import BuiltinTemplateLoader
 
-from mock import Mock
+import mock
 from util import with_tempdir
 
 
 class DummyTemplateLoader(BuiltinTemplateLoader):
     def __init__(self):
         BuiltinTemplateLoader.__init__(self)
-        builder = Mock()
+        builder = mock.Mock()
         builder.config.templates_path = []
         builder.app.translater = None
         self.init(builder)

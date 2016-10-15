@@ -13,11 +13,12 @@ from six import BytesIO
 
 import pickle
 from docutils import nodes
+import mock
 from textwrap import dedent
 from sphinx.errors import SphinxError
 import sphinx.builders.linkcheck
 
-from util import mock, with_app, with_tempdir, rootdir, tempdir, SkipTest, TestApp
+from util import with_app, with_tempdir, rootdir, tempdir, SkipTest, TestApp
 
 try:
     from docutils.writers.manpage import Writer as ManWriter

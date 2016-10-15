@@ -16,7 +16,7 @@ from unittest import TestCase
 from sphinx.application import Sphinx
 from sphinx.ext.napoleon import (_process_docstring, _skip_member, Config,
                                  setup)
-from util import mock
+import mock
 
 
 def _private_doc():

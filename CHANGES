@@ -44,6 +44,11 @@ Bugs fixed
 * #3038: ``sphinx.ext.math*`` raises TypeError if labels are duplicated
 * #3031: incompatibility with LaTeX package ``tocloft``
 
+Testing
+--------
+
+* To simplify, sphinx uses external mock package even if unittest.mock exists.
+
 Documentation
 -------------
 

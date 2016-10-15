@@ -10,9 +10,9 @@
 """
 
 from docutils import nodes
+import mock
 
 from sphinx.domains.std import StandardDomain
-from util import mock
 
 
 def test_process_doc_handle_figure_caption():

@@ -12,9 +12,11 @@
 import os
 import zipfile
 
+import mock
+
 from sphinx.theming import Theme, ThemeError
 
-from util import with_app, raises, mock, path
+from util import with_app, raises, path
 
 
 @with_app(confoverrides={'html_theme': 'ziptheme',

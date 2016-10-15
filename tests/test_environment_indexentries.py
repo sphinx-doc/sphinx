@@ -13,7 +13,7 @@ from collections import namedtuple
 from sphinx import locale
 from sphinx.environment.managers.indexentries import IndexEntries
 
-from util import mock
+import mock
 
 Environment = namedtuple('Environment', 'indexentries')
 

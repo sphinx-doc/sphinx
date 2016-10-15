@@ -28,12 +28,6 @@ from sphinx.pycode import ModuleAnalyzer
 
 from path import path, repr_as  # NOQA
 
-try:
-    # Python >=3.3
-    from unittest import mock
-except ImportError:
-    import mock
-
 
 __all__ = [
     'rootdir', 'tempdir', 'raises', 'raises_msg',
@@ -41,7 +35,6 @@ __all__ = [
     'ListOutput', 'TestApp', 'with_app', 'gen_with_app',
     'path', 'with_tempdir',
     'sprint', 'remove_unicode_literals',
-    'mock',
 ]
 
 
