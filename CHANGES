@@ -13,6 +13,8 @@ Incompatible changes
   is done later in the preamble of the latex output via ``'hyperref'`` key.
 * Sphinx does not ship anymore a custom modified LaTeX style file ``tabulary``.
   The non-modified package is used.
+* #3057: By default, footnote marks in latex PDF output are not preceded by a
+  space anymore, ``\sphinxBeforeFootnote`` allows user customization if needed.
 
 Features added
 --------------
@@ -50,6 +52,7 @@ Bugs fixed
 * #3038: ``sphinx.ext.math*`` raises TypeError if labels are duplicated
 * #3031: incompatibility with LaTeX package ``tocloft``
 * #3003: literal blocks in footnotes are not supported by Latex
+* #3047: space before footnote in pdf output is not coherent and allow breaks
 
 Testing
 --------
