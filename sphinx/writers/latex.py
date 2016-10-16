@@ -1369,10 +1369,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         include_graphics_options = []
         is_inline = self.is_inline(node)
         if 'scale' in attrs:
-            # Could also be done with ``scale`` option to
-            # ``\includegraphics``; doing it this way for consistency.
-            pre.append('\\scalebox{%f}{' % (attrs['scale'] / 100.0,))
-            post.append('}')
+            # start with ``scale`` option so that it gets executed first by
+            # ``\sphinxincludegraphics`` before limiting width to textwidth.
+            include_graphics_options.append('scale=%s'
+                                            % (float(attrs['scale']) / 100.0))
         if 'width' in attrs:
             w = self.latex_image_length(attrs['width'])
             if w:

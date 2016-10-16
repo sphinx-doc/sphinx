@@ -814,23 +814,27 @@
  \raggedright}
 {\end{list}}
 
-% Re-define \includegraphics to resize images larger than the line width
-% if the size is not specified.
+% Redefine \includegraphics to resize images larger than the line width,
+% except if height or width option present.
+%
+% If scale is present, rescale before fitting to line width. (since 1.5)
+%
 % Warning: future version of Sphinx will not modify original \includegraphics,
-% Below custom code will be direct definition of \sphinxincludegraphics, with
-% \py@Oldincludegraphics replaced by direct use of original \includegraphics.
+% below code will be definition only of \sphinxincludegraphics.
 \let\py@Oldincludegraphics\includegraphics
 \newbox\spx@image@box
-\renewcommand*{\includegraphics}[2][\@empty]{%
-  \ifx\@empty #1% attention, #1 could be bb.., bad if first after \ifx
-    \setbox\spx@image@box=\hbox{\py@Oldincludegraphics{#2}}%
-    \ifdim \wd\spx@image@box>\linewidth
-      \py@Oldincludegraphics[width=\linewidth]{#2}%
-    \else
-      \leavevmode\box\spx@image@box
-    \fi
-  \else
+\renewcommand*{\includegraphics}[2][]{%
+  \in@{height}{#1}\ifin@\else\in@{width}{#1}\fi
+  \ifin@ % height or width present
     \py@Oldincludegraphics[#1]{#2}%
+  \else % no height nor width (but #1 may be "scale=...")
+    \setbox\spx@image@box\hbox{\py@Oldincludegraphics[#1,draft]{#2}}%
+    \ifdim \wd\spx@image@box>\linewidth
+      \setbox\spx@image@box\box\voidb@x % clear memory
+      \py@Oldincludegraphics[#1,width=\linewidth]{#2}%
+    \else
+      \py@Oldincludegraphics[#1]{#2}%
+    \fi
   \fi
 }
 % Writer will put \sphinxincludegraphics in LaTeX source, and with this,
