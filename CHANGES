@@ -52,7 +52,7 @@ Bugs fixed
 * #3038: ``sphinx.ext.math*`` raises TypeError if labels are duplicated
 * #3031: incompatibility with LaTeX package ``tocloft``
 * #3003: literal blocks in footnotes are not supported by Latex
-* #3047: space before footnote in pdf output is not coherent and allow breaks
+* #3047: spacing before footnote in pdf output is not coherent and allows breaks
 
 Testing
 --------
