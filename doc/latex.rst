@@ -151,6 +151,20 @@ from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
   displaying source code examples).
 - the ``\sphinxAtStartFootnote`` is inserted between footnote numbers and their
   texts, by default it does ``\mbox{ }``.
+- the ``\sphinxBeforeFootnote`` command is executed before each footnote, its
+  default definition is::
+
+    \newcommand*{\sphinxBeforeFootnote}{\leavevmode\unskip}
+
+  You can ``\renewcommand`` it to do nothing in order to recover the earlier
+  behaviour of Sphinx, or alternatively add a ``\nobreak\space`` or a
+  ``\thinspace`` after the ``\unskip`` in the definition to insert some
+  (non-breakable) space.
+
+  .. versionadded:: 1.5
+     formerly, footnotes from explicit mark-up were preceded by a space
+     allowing a linebreak, but automatically generated footnotes had no such
+     space.
 - use ``\sphinxSetHeaderFamily`` to set the font used by headings
   (default is ``\sffamily\bfseries``).
 
