@@ -103,8 +103,10 @@ def test_stemmer_does_not_remove_short_words(app, status, warning):
 
 @with_app(testroot='search')
 def test_stemmer(app, status, warning):
-    searchindex = (app.outdir / 'searchindex.js').text()
-    assert 'findthisstemmedkei' in searchindex
+    searchindex = jsload(app.outdir / 'searchindex.js')
+    print(searchindex)
+    assert is_registered_term(searchindex, 'findthisstemmedkei')
+    assert is_registered_term(searchindex, 'intern')
 
 
 @with_app(testroot='search')

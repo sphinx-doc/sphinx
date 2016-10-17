@@ -242,4 +242,4 @@ class SearchEnglish(SearchLanguage):
         self.stemmer = Stemmer()
 
     def stem(self, word):
-        return self.stemmer.stem(word)
+        return self.stemmer.stem(word.lower())

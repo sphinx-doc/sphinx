@@ -54,6 +54,7 @@ Bugs fixed
 * #3003: literal blocks in footnotes are not supported by Latex
 * #3047: spacing before footnote in pdf output is not coherent and allows breaks
 * #3045: HTML search index creator should ignore "raw" content if now html
+* #3039: English stemmer returns wrong word if the word is capitalized
 
 Testing
 --------
