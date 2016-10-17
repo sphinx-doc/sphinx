@@ -1562,11 +1562,13 @@ These options influence LaTeX output. See further :doc:`latex`.
    * *author*: Author for the LaTeX document.  The same LaTeX markup caveat as
      for *title* applies.  Use ``\and`` to separate multiple authors, as in:
      ``'John \and Sarah'``.
-   * *documentclass*: Normally, one of ``'manual'`` or ``'howto'`` (provided by
-     Sphinx).  Other document classes can be given, but they must include the
-     "sphinx" package in order to define Sphinx's custom LaTeX commands. "howto"
-     documents will not get appendices.  Also, howtos will have a simpler title
-     page.
+   * *documentclass*: Normally, one of ``'manual'`` or ``'howto'`` (provided
+     by Sphinx and based on ``'report'``, resp. ``'article'``; Japanese
+     documents use ``'jsbook'``, resp. ``'jreport'``.) "howto" (non-Japanese)
+     documents will not get appendices. Also they have a simpler title page.
+     Other document classes can be given. Independently of the document class,
+     the "sphinx" package is always loaded in order to define Sphinx's custom
+     LaTeX commands.
 
    * *toctree_only*: Must be ``True`` or ``False``.  If true, the *startdoc*
      document itself is not included in the output, only the documents
