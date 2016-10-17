@@ -52,9 +52,6 @@ class TocTree(Directive):
         env = self.state.document.settings.env
         suffixes = env.config.source_suffix
         glob = 'glob' in self.options
-        caption = self.options.get('caption')
-        if caption:
-            self.options.setdefault('name', nodes.fully_normalize_name(caption))
 
         ret = []
         # (title, ref) pairs, where ref may be a document, or an external link,
@@ -113,7 +110,7 @@ class TocTree(Directive):
         # includefiles only entries that are documents
         subnode['includefiles'] = includefiles
         subnode['maxdepth'] = self.options.get('maxdepth', -1)
-        subnode['caption'] = caption
+        subnode['caption'] = self.options.get('caption')
         subnode['glob'] = glob
         subnode['hidden'] = 'hidden' in self.options
         subnode['includehidden'] = 'includehidden' in self.options

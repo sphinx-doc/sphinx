@@ -5,6 +5,8 @@ Bugs fixed
 ----------
 
 * #2936: Fix doc/Makefile that can't build man because doc/man exists
+* #3058: Using the same 'caption' attribute in multiple 'toctree' directives
+  results in warning / error
 
 Release 1.4.8 (released Oct 1, 2016)
 ====================================
