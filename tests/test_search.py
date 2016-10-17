@@ -115,3 +115,11 @@ def test_term_in_heading_and_section(app, status, warning):
     # respectively text hit
     assert 'textinhead:1' in searchindex
     assert 'textinhead:0' in searchindex
+
+
+@with_app(testroot='search')
+def test_term_in_raw_directive(app, status, warning):
+    searchindex = jsload(app.outdir / 'searchindex.js')
+    assert not is_registered_term(searchindex, 'raw')
+    assert is_registered_term(searchindex, 'rawword')
+    assert not is_registered_term(searchindex, 'latex_keyword')

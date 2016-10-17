@@ -196,13 +196,14 @@ class WordCollector(NodeVisitor):
         if issubclass(nodetype, comment):
             raise SkipNode
         if issubclass(nodetype, raw):
-            # Some people might put content in raw HTML that should be searched,
-            # so we just amateurishly strip HTML tags and index the remaining
-            # content
-            nodetext = re.sub(r'(?is)<style.*?</style>', '', node.astext())
-            nodetext = re.sub(r'(?is)<script.*?</script>', '', nodetext)
-            nodetext = re.sub(r'<[^<]+?>', '', nodetext)
-            self.found_words.extend(self.lang.split(nodetext))
+            if 'html' in node.get('format', '').split():
+                # Some people might put content in raw HTML that should be searched,
+                # so we just amateurishly strip HTML tags and index the remaining
+                # content
+                nodetext = re.sub(r'(?is)<style.*?</style>', '', node.astext())
+                nodetext = re.sub(r'(?is)<script.*?</script>', '', nodetext)
+                nodetext = re.sub(r'<[^<]+?>', '', nodetext)
+                self.found_words.extend(self.lang.split(nodetext))
             raise SkipNode
         if issubclass(nodetype, Text):
             self.found_words.extend(self.lang.split(node.astext()))
