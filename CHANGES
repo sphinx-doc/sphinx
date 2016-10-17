@@ -1,5 +1,5 @@
-Release 1.5 alpha2 (in development)
-===================================
+Release 1.5 alpha2 (released Oct 17, 2016)
+==========================================
 
 Incompatible changes
 --------------------
@@ -60,10 +60,6 @@ Testing
 --------
 
 * To simplify, sphinx uses external mock package even if unittest.mock exists.
-
-Documentation
--------------
-
 
 Release 1.5 alpha1 (released Sep 21, 2016)
 ==========================================
