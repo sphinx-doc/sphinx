@@ -1052,14 +1052,17 @@ def test_type_hints():
     # Keyword-only arguments
     verify_arg_spec(f5, '(x: int, *, y: str, z: str) -> None')
 
+    # Keyword-only arguments with varargs
+    verify_arg_spec(f6, '(x: int, *args, y: str, z: str) -> None')
+
     # Space around '=' for defaults
-    verify_arg_spec(f6, '(x: int = None, y: dict = {}) -> None')
+    verify_arg_spec(f7, '(x: int = None, y: dict = {}) -> None')
 
     # Callable types
-    verify_arg_spec(f7, '(x: typing.Callable[[int, str], int]) -> None')
+    verify_arg_spec(f8, '(x: typing.Callable[[int, str], int]) -> None')
 
     # Tuple types
-    verify_arg_spec(f8, '(x: typing.Tuple[int, str],'
+    verify_arg_spec(f9, '(x: typing.Tuple[int, str],'
                         ' y: typing.Tuple[int, ...]) -> None')
 
     # Instance annotations
