@@ -10,6 +10,8 @@ Features added
 Bugs fixed
 ----------
 
+* #2432: Fix unwanted * between varargs and keyword only args. Thanks to Alex Grönholm.
+
 
 Release 1.5 alpha2 (released Oct 17, 2016)
 ==========================================
