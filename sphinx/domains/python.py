@@ -185,6 +185,9 @@ class PyObject(ObjectDescription):
         * it is stripped from the displayed name if present
         * it is added to the full name (return value) if not present
         """
+        if 'py:class_stack' not in self.env.ref_context:
+            self.env.ref_context['py:class_stack'] = []
+
         m = py_sig_re.match(sig)
         if m is None:
             raise ValueError
@@ -193,8 +196,9 @@ class PyObject(ObjectDescription):
         # determine module and class name (if applicable), as well as full name
         modname = self.options.get(
             'module', self.env.ref_context.get('py:module'))
-        classname = self.env.ref_context.get('py:class')
-        if classname:
+        class_stack = self.env.ref_context.get('py:class_stack')
+        if class_stack:
+            classname = class_stack[-1]
             add_module = False
             if name_prefix and name_prefix.startswith(classname):
                 fullname = name_prefix + name
@@ -285,12 +289,12 @@ class PyObject(ObjectDescription):
                                               fullname, '', None))
 
     def before_content(self):
-        # needed for automatic qualification of members (reset in subclasses)
-        self.clsname_set = False
+        # Used in subclasses to pop class state if a new frame is entered.
+        self.specified_class = False
 
     def after_content(self):
-        if self.clsname_set:
-            self.env.ref_context.pop('py:class', None)
+        if self.specified_class:
+            self.env.ref_context['py:class_stack'].pop()
 
 
 class PyModulelevel(PyObject):
@@ -335,8 +339,8 @@ class PyClasslike(PyObject):
     def before_content(self):
         PyObject.before_content(self)
         if self.names:
-            self.env.ref_context['py:class'] = self.names[0][0]
-            self.clsname_set = True
+            self.specified_class = True
+            self.env.ref_context['py:class_stack'].append(self.names[0][0])
 
 
 class PyClassmember(PyObject):
@@ -413,9 +417,9 @@ class PyClassmember(PyObject):
     def before_content(self):
         PyObject.before_content(self)
         lastname = self.names and self.names[-1][1]
-        if lastname and not self.env.ref_context.get('py:class'):
-            self.env.ref_context['py:class'] = lastname.strip('.')
-            self.clsname_set = True
+        if lastname and not self.env.ref_context['py:class_stack']:
+            self.specified_class = True
+            self.env.ref_context['py:class_stack'].append(lastname.strip('.'))
 
 
 class PyDecoratorMixin(object):
@@ -517,7 +521,7 @@ class PyCurrentModule(Directive):
 class PyXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
         refnode['py:module'] = env.ref_context.get('py:module')
-        refnode['py:class'] = env.ref_context.get('py:class')
+        refnode['py:class_stack'] = env.ref_context.get('py:class_stack')
         if not has_explicit_title:
             title = title.lstrip('.')    # only has a meaning for the target
             target = target.lstrip('~')  # only has a meaning for the title
@@ -738,7 +742,8 @@ class PythonDomain(Domain):
     def resolve_xref(self, env, fromdocname, builder,
                      type, target, node, contnode):
         modname = node.get('py:module')
-        clsname = node.get('py:class')
+        clsname = node['py:class_stack'][-1] if node.get('py:class_stack') \
+            else None
         searchmode = node.hasattr('refspecific') and 1 or 0
         matches = self.find_obj(env, modname, clsname, target,
                                 type, searchmode)
@@ -761,7 +766,8 @@ class PythonDomain(Domain):
     def resolve_any_xref(self, env, fromdocname, builder, target,
                          node, contnode):
         modname = node.get('py:module')
-        clsname = node.get('py:class')
+        clsname = node['py:class_stack'][-1] if node.get('py:class_stack') \
+            else None
         results = []
 
         # always search in "refspecific" mode with the :any: role

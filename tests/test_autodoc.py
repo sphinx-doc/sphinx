@@ -134,7 +134,7 @@ def test_parse_name():
     verify('method', 'util.TestApp.cleanup',
            ('util', ['TestApp', 'cleanup'], None, None))
     directive.env.ref_context['py:module'] = 'util'
-    directive.env.ref_context['py:class'] = 'Foo'
+    directive.env.ref_context['py:class_stack'] = ['Foo']
     directive.env.temp_data['autodoc:class'] = 'TestApp'
     verify('method', 'cleanup', ('util', ['TestApp', 'cleanup'], None, None))
     verify('method', 'TestApp.cleanup',
@@ -142,7 +142,7 @@ def test_parse_name():
 
     # and clean up
     del directive.env.ref_context['py:module']
-    del directive.env.ref_context['py:class']
+    del directive.env.ref_context['py:class_stack']
     del directive.env.temp_data['autodoc:class']
 
 
