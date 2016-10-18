@@ -56,5 +56,5 @@ class CustomAnnotation:
     def __repr__(self):
         return 'CustomAnnotation'
 
-def f9(x: CustomAnnotation(), y: 123) -> None:
+def f10(x: CustomAnnotation(), y: 123) -> None:
     pass
