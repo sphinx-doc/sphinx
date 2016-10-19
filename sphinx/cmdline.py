@@ -204,7 +204,8 @@ def main(argv):
     confoverrides = {}
     for val in opts.define:
         try:
-            key, val = val.split('=')
+            key, *vals = val.split('=')
+            val='='.join(vals)
         except ValueError:
             print('Error: -D option argument must be in the form name=value.',
                   file=sys.stderr)
