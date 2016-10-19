@@ -102,7 +102,13 @@ DEFAULT_SETTINGS = {
 
 ADDITIONAL_SETTINGS = {
     'pdflatex': {
-        'inputenc': '\\usepackage[utf8]{inputenc}',
+        'inputenc':     '\\usepackage[utf8]{inputenc}',
+    },
+    'xelatex': {
+        'babel':        '',  # disable babel
+        'inputenc':     '\\usepackage{polyglossia}',
+        'fontenc':      '\\usepackage{fontspec}',
+        'fontpkg':      '',
     },
 }
 
