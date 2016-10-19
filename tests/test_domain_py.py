@@ -13,6 +13,7 @@ from six import text_type
 
 from sphinx import addnodes
 from sphinx.domains.python import py_sig_re, _pseudo_parse_arglist
+from util import with_app
 
 
 def parse(sig):
@@ -44,3 +45,17 @@ def test_function_signatures():
 
     rv = parse('func(a=[][, b=None])')
     assert text_type(rv) == u'a=[], [b=None]'
+
+@with_app(testroot='nested-classes')
+def test_nested_classes(app, status, warning):
+    def validate(app, doctree):
+        # Make sure no members are qualified with a class name (since
+        # they're already inside a class). Class names are added
+        # inside a <desc_addname> tag, so there should be none of those.
+        for signature_node in doctree.traverse(
+            condition=lambda node: node.tagname == 'desc_addname'):
+            assert False, ("A superfluous class qualifier was added due to a "
+                "nested class (e.g. Parent.Child() instead of just Child()).")
+
+    app.connect("doctree-read", validate)
+    app.builder.build_all()

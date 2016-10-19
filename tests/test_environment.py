@@ -119,6 +119,7 @@ def test_object_inventory():
     assert 'func_without_module2' in refs
     assert 'mod.func_in_module' in refs
     assert 'mod.Cls' in refs
+    assert 'mod.Cls.NestedClass' in refs
     assert 'mod.Cls.meth1' in refs
     assert 'mod.Cls.meth2' in refs
     assert 'mod.Cls.meths' in refs
