@@ -93,6 +93,9 @@ class _MockModule(object):
         self.__all__ = []
 
     def __call__(self, *args, **kwargs):
+        if args and type(args[0]) in [FunctionType, MethodType]:
+            # Appears to be a decorator, pass through unchanged
+            return args[0]
         return _MockModule()
 
     def _append_submodule(self, submod):
