@@ -892,7 +892,7 @@
 % adjust the margins for footer,
 % this works with the jsclasses only (Japanese standard document classes)
 \ifx\@jsc@uplatextrue\undefined\else
-  \hypersetup{setpagesize=false}
+  \PassOptionsToPackage{setpagesize=false}{hyperref}
   \setlength\footskip{2\baselineskip}
   \addtolength{\textheight}{-2\baselineskip}
 \fi
