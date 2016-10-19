@@ -25,6 +25,7 @@ addons:
     - texlive-fonts-recommended
     - texlive-fonts-extra
     - texlive-xetex
+    - lmodern
 install:
   - pip install -U pip setuptools
   - pip install docutils==$DOCUTILS
