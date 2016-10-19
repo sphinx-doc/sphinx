@@ -45,9 +45,6 @@ from sphinx.util.console import bold, lightgray, darkgray, darkred, darkgreen, \
     term_width_line
 from sphinx.util.i18n import find_catalog_source_files
 
-if hasattr(sys, 'intern'):
-    intern = sys.intern
-
 # List of all known core events. Maps name to arguments description.
 events = {
     'builder-inited': '',
@@ -557,7 +554,6 @@ class Sphinx(object):
     # event interface
 
     def _validate_event(self, event):
-        event = intern(event)
         if event not in self._events:
             raise ExtensionError('Unknown event name: %s' % event)
 
