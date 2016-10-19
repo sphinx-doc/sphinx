@@ -61,7 +61,9 @@ DEFAULT_SETTINGS = {
     'cmappkg':         '\\usepackage{cmap}',
     'fontenc':         '\\usepackage[T1]{fontenc}',
     'amsmath':         '\\usepackage{amsmath,amssymb,amstext}',
+    'multilingual':    '',
     'babel':           '\\usepackage{babel}',
+    'polyglossia':     '',
     'fontpkg':         '\\usepackage{times}',
     'fncychap':        '\\usepackage[Bjarne]{fncychap}',
     'longtable':       '\\usepackage{longtable}',
@@ -105,8 +107,7 @@ ADDITIONAL_SETTINGS = {
         'inputenc':     '\\usepackage[utf8]{inputenc}',
     },
     'xelatex': {
-        'babel':        '',  # disable babel
-        'inputenc':     '\\usepackage{polyglossia}',
+        'polyglossia':  '\\usepackage{polyglossia}',
         'fontenc':      '\\usepackage{fontspec}',
         'fontpkg':      '',
     },
@@ -393,28 +394,34 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # no need for \\noindent here, used in flushright
             self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
                                     path.basename(builder.config.latex_logo)
-        # setup babel
+        # setup multilingual package
         self.babel = ExtBabel(builder.config.language)
-        self.elements['classoptions'] += ',' + self.babel.get_language()
-        if builder.config.language:
-            if not self.babel.is_supported_language():
-                self.builder.warn('no Babel option known for language %r' %
-                                  builder.config.language)
-            self.elements['shorthandoff'] = self.babel.get_shorthandoff()
-            self.elements['fncychap'] = '\\usepackage[Sonny]{fncychap}'
+        if self.elements['polyglossia']:
+            self.elements['babel'] = ''  # disable babel forcely
+            self.elements['multilingual'] = self.elements['polyglossia']
+        elif self.elements['babel']:
+            self.elements['multilingual'] = self.elements['babel']
+            self.elements['classoptions'] += ',' + self.babel.get_language()
+            if builder.config.language:
+                if not self.babel.is_supported_language():
+                    self.builder.warn('no Babel option known for language %r' %
+                                      builder.config.language)
+                self.elements['shorthandoff'] = self.babel.get_shorthandoff()
+                self.elements['fncychap'] = '\\usepackage[Sonny]{fncychap}'
 
-            # Times fonts don't work with Cyrillic languages
-            if self.babel.uses_cyrillic():
-                self.elements['fontpkg'] = ''
+                # Times fonts don't work with Cyrillic languages
+                if self.babel.uses_cyrillic():
+                    self.elements['fontpkg'] = ''
 
-            # pTeX (Japanese TeX) for support
-            if builder.config.language == 'ja':
-                # use dvipdfmx as default class option in Japanese
-                self.elements['classoptions'] = ',dvipdfmx'
-                # disable babel which has not publishing quality in Japanese
-                self.elements['babel'] = ''
-                # disable fncychap in Japanese documents
-                self.elements['fncychap'] = ''
+                # pTeX (Japanese TeX) for support
+                if builder.config.language == 'ja':
+                    # use dvipdfmx as default class option in Japanese
+                    self.elements['classoptions'] = ',dvipdfmx'
+                    # disable babel which has not publishing quality in Japanese
+                    self.elements['babel'] = ''
+                    self.elements['multilingual'] = ''
+                    # disable fncychap in Japanese documents
+                    self.elements['fncychap'] = ''
         if getattr(builder, 'usepackages', None):
             def declare_package(packagename, options=None):
                 if options:

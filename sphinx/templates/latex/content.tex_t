@@ -12,7 +12,7 @@
 <%= cmappkg %>
 <%= fontenc %>
 <%= amsmath %>
-<%= babel %>
+<%= multilingual %>
 <%= fontpkg %>
 <%= fncychap %>
 <%= longtable %>
