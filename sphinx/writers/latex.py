@@ -56,7 +56,7 @@ DEFAULT_SETTINGS = {
                        '{geometry}',
     'inputenc':        '',
     'utf8extra':       ('\\ifdefined\\DeclareUnicodeCharacter\n'
-                        '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'
+                        '  \\DeclareUnicodeCharacter{00A0}{\\leavevmode\\nobreak\\ }\n'
                         '\\fi'),
     'cmappkg':         '\\usepackage{cmap}',
     'fontenc':         '\\usepackage[T1]{fontenc}',
@@ -107,6 +107,8 @@ ADDITIONAL_SETTINGS = {
         'inputenc':     '\\usepackage[utf8]{inputenc}',
     },
     'xelatex': {
+        'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
+                        '{\\leavevmode\\nobreak\\ }'),
         'polyglossia':  '\\usepackage{polyglossia}',
         'fontenc':      '\\usepackage{fontspec}',
         'fontpkg':      '',
