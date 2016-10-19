@@ -205,7 +205,7 @@ def main(argv):
     for val in opts.define:
         try:
             key, *vals = val.split('=')
-            val='='.join(vals)
+            val = '='.join(vals)
         except ValueError:
             print('Error: -D option argument must be in the form name=value.',
                   file=sys.stderr)
