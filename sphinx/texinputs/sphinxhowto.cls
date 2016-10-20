@@ -91,7 +91,6 @@
 % For an article document class this environment is a section,
 % so no page break before it.
 \newenvironment{sphinxthebibliography}[1]{%
-  \phantomsection
   \begin{thebibliography}{\detokenize{#1}}%
   \addcontentsline{toc}{section}{\bibname}}{\end{thebibliography}}
 

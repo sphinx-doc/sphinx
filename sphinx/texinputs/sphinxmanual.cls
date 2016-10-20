@@ -109,7 +109,6 @@
 % For a report document class this environment is a chapter.
 \newenvironment{sphinxthebibliography}[1]{%
   \if@openright\cleardoublepage\else\clearpage\fi
-  \phantomsection
   \begin{thebibliography}{\detokenize{#1}}%
   \addcontentsline{toc}{chapter}{\bibname}}{\end{thebibliography}}
 
