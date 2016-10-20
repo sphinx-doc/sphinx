@@ -755,7 +755,8 @@ class BuildEnvironment(object):
         """Backwards compatible alias.  Will be removed."""
         self.warn(self.docname, 'env.currclass is being referenced by an '
                   'extension; this API will be removed in the future')
-        return self.ref_context.get('py:class')
+        class_stack = self.ref_context.get('py:class_stack')
+        return class_stack[-1] if class_stack else None
 
     def new_serialno(self, category=''):
         """Return a serial number, e.g. for index entry targets.

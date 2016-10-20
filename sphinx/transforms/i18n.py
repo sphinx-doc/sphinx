@@ -359,7 +359,7 @@ class Locale(Transform):
             for new in new_refs:
                 key = get_ref_key(new)
                 # Copy attributes to keep original node behavior. Especially
-                # copying 'reftarget', 'py:module', 'py:class' are needed.
+                # copying 'reftarget', 'py:module', 'py:class_stack' are needed.
                 for k, v in xref_reftarget_map.get(key, {}).items():
                     # Note: This implementation overwrite all attributes.
                     # if some attributes `k` should not be overwritten,

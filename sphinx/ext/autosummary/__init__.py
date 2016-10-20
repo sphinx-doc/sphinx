@@ -451,7 +451,8 @@ def get_import_prefixes_from_env(env):
     if currmodule:
         prefixes.insert(0, currmodule)
 
-    currclass = env.ref_context.get('py:class')
+    class_stack = env.ref_context.get('py:class_stack')
+    currclass = class_stack[-1] if class_stack else None
     if currclass:
         if currmodule:
             prefixes.insert(0, currmodule + "." + currclass)

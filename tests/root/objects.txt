@@ -50,6 +50,8 @@ Referring to :func:`nothing <>`.
 
 .. class:: Cls
 
+   .. class:: NestedClass
+
    .. method:: meth1
 
    .. staticmethod:: meths

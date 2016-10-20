@@ -43,6 +43,7 @@ Other contributors, listed alphabetically, are:
 * Jacob Mason -- websupport library (GSOC project)
 * Glenn Matthews -- python domain signature improvements
 * Roland Meister -- epub builder
+* Samuel Messner -- fixes to Python domain
 * Ezio Melotti -- collapsible sidebar JavaScript
 * Daniel Neuhäuser -- JavaScript domain, Python 3 support (GSOC)
 * Christopher Perkins -- autosummary integration
