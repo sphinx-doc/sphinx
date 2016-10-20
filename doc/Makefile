@@ -1,3 +1,4 @@
+.PHONY: man
 # Makefile for Sphinx documentation
 #
 
@@ -11,6 +12,9 @@ BUILDDIR     = _build
 # Has to be explicit, otherwise we don't get "make" without targets right.
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+man:
+	@$(SPHINXBUILD) -M man "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
