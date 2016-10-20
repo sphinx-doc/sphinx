@@ -563,6 +563,11 @@
   \addtolength{\py@argswidth}{-2\py@argswidth}%
   \addtolength{\py@argswidth}{\linewidth}%
   \item[{#1\sphinxcode{(}\py@sigparams{#2}{#3}}]}
+\newcommand{\pysigstartmultiline}{%
+ \edef\pysigstopmultiline
+     {\noexpand\leavevmode\parskip\the\parskip\relax\itemsep\the\itemsep\relax}%
+ \parskip\z@skip\itemsep\z@skip
+}
 
 % Production lists
 %
