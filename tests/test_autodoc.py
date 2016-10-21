@@ -832,6 +832,17 @@ def test_generate():
     assert_result_contains('   .. py:method:: CustomDataDescriptor.meth()',
                            'module', 'test_autodoc')
 
+    # test mocked module imports
+    options.members = ['TestAutodoc']
+    options.undoc_members = False
+    assert_result_contains('.. py:class:: TestAutodoc',
+                           'module', 'autodoc_missing_imports')
+    assert_result_contains('   .. py:method:: TestAutodoc.decoratedMethod()',
+                           'module', 'autodoc_missing_imports')
+    options.members = ['decoratedFunction']
+    assert_result_contains('.. py:function:: decoratedFunction()',
+                           'module', 'autodoc_missing_imports')
+
 # --- generate fodder ------------
 __all__ = ['Class']
 
