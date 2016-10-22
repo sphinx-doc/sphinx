@@ -1368,11 +1368,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         post = []
         include_graphics_options = []
         is_inline = self.is_inline(node)
-        if 'scale' in attrs:
-            # start with ``scale`` option so that it gets executed first by
-            # ``\sphinxincludegraphics`` before limiting width to textwidth.
-            include_graphics_options.append('scale=%s'
-                                            % (float(attrs['scale']) / 100.0))
         if 'width' in attrs:
             w = self.latex_image_length(attrs['width'])
             if w:
@@ -1381,6 +1376,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
             h = self.latex_image_length(attrs['height'])
             if h:
                 include_graphics_options.append('height=%s' % h)
+        if 'scale' in attrs:
+            if include_graphics_options:
+                # unfortunately passing "height=1cm,scale=2.0" to \includegraphics
+                # does not result in a height of 2cm. We must scale afterwards.
+                pre.append('\\scalebox{%f}{' % (attrs['scale'] / 100.0,))
+                post.append('}')
+            else:
+                # if no "width" nor "height", \sphinxincludegraphics will fit
+                # to the available text width if oversized after rescaling.
+                include_graphics_options.append('scale=%s'
+                                                % (float(attrs['scale']) / 100.0))
         if 'align' in attrs:
             align_prepost = {
                 # By default latex aligns the top of an image.
