@@ -109,7 +109,7 @@
 % For a report document class this environment is a chapter.
 \newenvironment{sphinxthebibliography}[1]{%
   \if@openright\cleardoublepage\else\clearpage\fi
-  \begin{thebibliography}{\detokenize{#1}}%
+  \begin{thebibliography}{1}%
   \addcontentsline{toc}{chapter}{\bibname}}{\end{thebibliography}}
 
 % Same for the indices.
