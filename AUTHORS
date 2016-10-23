@@ -20,6 +20,7 @@ Other contributors, listed alphabetically, are:
 * Jakob Lykke Andersen -- Rewritten C++ domain
 * Henrique Bastos -- SVG support for graphviz extension
 * Daniel Bültmann -- todo extension
+* Jean-François Burnol -- contributions to LaTeX support
 * Etienne Desautels -- apidoc module
 * Michael Droettboom -- inheritance_diagram extension
 * Charles Duffy -- original graphviz extension
@@ -44,6 +45,7 @@ Other contributors, listed alphabetically, are:
 * Glenn Matthews -- python domain signature improvements
 * Roland Meister -- epub builder
 * Ezio Melotti -- collapsible sidebar JavaScript
+* Bruce Mitchener -- Minor epub improvement
 * Daniel Neuhäuser -- JavaScript domain, Python 3 support (GSOC)
 * Christopher Perkins -- autosummary integration
 * Benjamin Peterson -- unittests
@@ -65,7 +67,6 @@ Other contributors, listed alphabetically, are:
 * Michael Wilson -- Intersphinx HTTP basic auth support
 * Joel Wurtz -- cellspanning support in LaTeX
 * Hong Xu -- svg support in imgmath extension and various bug fixes
-* Bruce Mitchener -- Minor epub improvement
 
 Many thanks for all contributions!
 
