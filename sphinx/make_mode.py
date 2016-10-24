@@ -34,7 +34,7 @@ BUILDERS = [
     ("",      "singlehtml",  "to make a single large HTML file"),
     ("",      "pickle",      "to make pickle files"),
     ("",      "json",        "to make JSON files"),
-    ("",      "htmlhelp",    "to make HTML files and a HTML help project"),
+    ("",      "htmlhelp",    "to make HTML files and an HTML help project"),
     ("",      "qthelp",      "to make HTML files and a qthelp project"),
     ("",      "devhelp",     "to make HTML files and a Devhelp project"),
     ("",      "epub",        "to make an epub"),

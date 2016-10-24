@@ -17,7 +17,7 @@ help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  html      to make standalone HTML files"
 	@echo "  pickle    to make pickle files (usable by e.g. sphinx-web)"
-	@echo "  htmlhelp  to make HTML files and a HTML help project"
+	@echo "  htmlhelp  to make HTML files and an HTML help project"
 	@echo "  latex     to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
 	@echo "  changes   to make an overview over all changed/added/deprecated items"
 	@echo "  linkcheck to check all external links for integrity"
