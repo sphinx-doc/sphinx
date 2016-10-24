@@ -13,6 +13,7 @@ Bugs fixed
 * #2432: Fix unwanted * between varargs and keyword only args. Thanks to Alex Grönholm.
 * #3062: Failed to build PDF using 1.5a2 (undefined ``\hypersetup`` for
   Japanese documents since PR#3030)
+* Better rendering of multiline signatures in html.
 
 Release 1.5 alpha2 (released Oct 17, 2016)
 ==========================================

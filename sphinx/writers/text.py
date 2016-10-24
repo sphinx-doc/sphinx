@@ -312,6 +312,12 @@ class TextTranslator(nodes.NodeVisitor):
         # XXX: wrap signatures in a way that makes sense
         self.end_state(wrap=False, end=None)
 
+    def visit_desc_signature_line(self, node):
+        pass
+
+    def depart_desc_signature_line(self, node):
+        self.add_text('\n')
+
     def visit_desc_name(self, node):
         pass
 
