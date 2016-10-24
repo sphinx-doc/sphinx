@@ -39,7 +39,7 @@ BUILDERS = [
     ("",      "devhelp",     "to make HTML files and a Devhelp project"),
     ("",      "epub",        "to make an epub"),
     ("",      "latex",       "to make LaTeX files, you can set PAPER=a4 or PAPER=letter"),
-    ("posix", "latexpdf",    "to make LaTeX files and run them through pdflatex"),
+    ("posix", "latexpdf",    "to make LaTeX and PDF files (default pdflatex)"),
     ("posix", "latexpdfja",  "to make LaTeX files and run them through platex/dvipdfmx"),
     ("",      "text",        "to make text files"),
     ("",      "man",         "to make manual pages"),
