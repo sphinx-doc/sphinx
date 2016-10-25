@@ -7,9 +7,22 @@
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesPackage{sphinx}[2016/10/12 v1.5 LaTeX package (Sphinx markup)]
+
+% Handle package options
 \newif\ifsphinxKeepOldNames \sphinxKeepOldNamestrue
 \DeclareOption{dontkeepoldnames}{\sphinxKeepOldNamesfalse}
-\DeclareOption*{\PackageWarning{sphinx}{Unknown option `\CurrentOption'}}
+\newcommand*\sphinxMaxListDepth{0}
+\def\spx@tempa {0}
+\long\def\spx@tempb #1maxlistdepth=#2\UnDeFiNed #3\@nil
+    {\def\spx@tempa {#2}}
+\DeclareOption*{%
+  \expandafter\spx@tempb\CurrentOption\UnDeFiNed maxlistdepth=0\UnDeFiNed\@nil
+  \ifnum\spx@tempa=\z@
+    \PackageWarning{sphinx}{Unknown option `\CurrentOption'}%
+  \else
+    \PackageInfo{sphinx}{Maximal list depth will be set at \spx@tempa}%
+    \let\sphinxMaxListDepth \spx@tempa
+  \fi }
 \ProcessOptions\relax
 
 % this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
@@ -1005,3 +1018,66 @@
 \providecommand*{\sphinxtableofcontents}{\tableofcontents}
 \providecommand*{\sphinxthebibliography}{\thebibliography}
 \providecommand*{\sphinxtheindex}{\theindex}
+
+% remove LaTeX's cap on nesting depth. This is a hack, intrinsically
+% fragile, but it works with the standard classes. It is executed only
+% if  'maxlistdepth' key from  latex_elements is used.
+
+\def\spx@toodeep@hack{\fi\iffalse}
+
+\ifnum\sphinxMaxListDepth=\z@\expandafter\@gobbletwo\fi
+\AtBeginDocument{%
+  \let\spx@toodeepORI\@toodeep
+  \def\@toodeep{%
+    \ifnum\@listdepth>\sphinxMaxListDepth\relax
+      \expandafter\spx@toodeepORI
+    \else
+      \expandafter\spx@toodeep@hack
+    \fi}%
+% define all missing \@list... macros
+  \count@\@ne
+  \loop
+     \spx@ifundefined{@list\romannumeral\the\count@}
+       {\iffalse}{\iftrue\advance\count@\@ne}%
+  \repeat
+  \loop
+     \ifnum\count@>\sphinxMaxListDepth\relax\else
+       \expandafter\let
+         \csname @list\romannumeral\the\count@\expandafter\endcsname
+         \csname @list\romannumeral\the\numexpr\count@-\@ne\endcsname
+     \advance\count@\@ne
+  \repeat
+% define all missing enum... counters and \labelenum... macros and \p@enum..
+  \count@\@ne
+  \loop
+     \spx@ifundefined{c@enum\romannumeral\the\count@}
+       {\iffalse}{\iftrue\advance\count@\@ne}%
+  \repeat
+  \loop
+     \ifnum\count@>\sphinxMaxListDepth\relax\else
+       \newcounter{enum\romannumeral\the\count@}%
+       \expandafter\def
+         \csname labelenum\romannumeral\the\count@\expandafter\endcsname
+         \expandafter
+         {\csname theenum\romannumeral\the\numexpr\count@\endcsname.}%
+       \expandafter\def
+         \csname p@enum\romannumeral\the\count@\expandafter\endcsname
+         \expandafter
+         {\csname p@enum\romannumeral\the\numexpr\count@-\@ne\expandafter
+          \endcsname\csname theenum\romannumeral\the\numexpr\count@-\@ne\endcsname.}%
+     \advance\count@\@ne
+  \repeat
+% define all missing labelitem... macros
+  \count@\@ne
+  \loop
+     \spx@ifundefined{labelitem\romannumeral\the\count@}
+     {\iffalse}{\iftrue\advance\count@\@ne}%
+  \repeat
+  \loop
+     \ifnum\count@>\sphinxMaxListDepth\relax\else
+       \expandafter\let
+         \csname labelitem\romannumeral\the\count@\expandafter\endcsname
+         \csname labelitem\romannumeral\the\numexpr\count@-\@ne\endcsname
+     \advance\count@\@ne
+  \repeat
+  }

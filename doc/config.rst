@@ -1742,6 +1742,24 @@ These options influence LaTeX output. See further :doc:`latex`.
 
    * Keys that don't need be overridden unless in special cases are:
 
+     ``'maxlistdepth'``
+        For example, setting it to ``'10'`` (as a string) will allow up to 10
+        nested levels of list or quote environments, either numbered or not.
+        The default is to leave this key empty. LaTeX then allows only a
+        maximum of 6 nested levels, and among them at most 4 for numbered and
+        4 for itemized lists.
+
+        .. attention::
+
+           - This setting may likely be incompatible with LaTeX packages
+             modifying lists, or special document classes.
+
+           - The LaTeX package "enumitem" provides its own commands for
+             extending the maximal list depth. If this package is added to the
+             preamble, its commands should be used and ``'maxlistdepth'``
+             left to an empty string.
+
+        .. versionadded:: 1.5
      ``'inputenc'``
         "inputenc" package inclusion, defaults to
         ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex.
