@@ -90,7 +90,11 @@
 % Contents.
 % For an article document class this environment is a section,
 % so no page break before it.
+%
+% Note: \phantomsection is required for TeXLive 2009
+% http://tex.stackexchange.com/questions/44088/when-do-i-need-to-invoke-phantomsection#comment166081_44091
 \newenvironment{sphinxthebibliography}[1]{%
+  \phantomsection
   \begin{thebibliography}{1}%
   \addcontentsline{toc}{section}{\bibname}}{\end{thebibliography}}
 

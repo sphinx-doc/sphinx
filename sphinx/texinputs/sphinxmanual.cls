@@ -107,8 +107,12 @@
 % Fix the bibliography environment to add an entry to the Table of
 % Contents.
 % For a report document class this environment is a chapter.
+%
+% Note: \phantomsection is required for TeXLive 2009
+% http://tex.stackexchange.com/questions/44088/when-do-i-need-to-invoke-phantomsection#comment166081_44091
 \newenvironment{sphinxthebibliography}[1]{%
   \if@openright\cleardoublepage\else\clearpage\fi
+  \phantomsection
   \begin{thebibliography}{1}%
   \addcontentsline{toc}{chapter}{\bibname}}{\end{thebibliography}}
 
