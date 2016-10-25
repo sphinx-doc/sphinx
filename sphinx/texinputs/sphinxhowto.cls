@@ -96,7 +96,7 @@
 \newenvironment{sphinxthebibliography}[1]{%
   \phantomsection
   \begin{thebibliography}{1}%
-  \addcontentsline{toc}{section}{\bibname}}{\end{thebibliography}}
+  \addcontentsline{toc}{section}{\ifdefined\refname\refname\else\ifdefined\bibname\bibname\fi\fi}}{\end{thebibliography}}
 
 
 % Same for the indices.

@@ -45,6 +45,74 @@ DEFAULT_TEMPLATE = 'latex/content.tex_t'
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 SECNUMDEPTH = 3
 
+DEFAULT_SETTINGS = {
+    'papersize':       'letterpaper',
+    'pointsize':       '10pt',
+    'pxunit':          '49336sp',
+    'classoptions':    '',
+    'extraclassoptions': '',
+    'passoptionstopackages': '',
+    'geometry':        '\\usepackage[margin=1in,marginparwidth=0.5in]'
+                       '{geometry}',
+    'inputenc':        '',
+    'utf8extra':       ('\\ifdefined\\DeclareUnicodeCharacter\n'
+                        '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'
+                        '\\fi'),
+    'cmappkg':         '\\usepackage{cmap}',
+    'fontenc':         '\\usepackage[T1]{fontenc}',
+    'amsmath':         '\\usepackage{amsmath,amssymb,amstext}',
+    'multilingual':    '',
+    'babel':           '\\usepackage{babel}',
+    'polyglossia':     '',
+    'fontpkg':         '\\usepackage{times}',
+    'fncychap':        '\\usepackage[Bjarne]{fncychap}',
+    'longtable':       '\\usepackage{longtable}',
+    'hyperref':        ('% Include hyperref last.\n'
+                        '\\usepackage[colorlinks,breaklinks,%\n'
+                        '            '
+                        'linkcolor=InnerLinkColor,filecolor=OuterLinkColor,%\n'
+                        '            '
+                        'menucolor=OuterLinkColor,urlcolor=OuterLinkColor,%\n'
+                        '            '
+                        'citecolor=InnerLinkColor]{hyperref}\n'
+                        '% Fix anchor placement for figures with captions.\n'
+                        '\\usepackage{hypcap}% it must be loaded after hyperref.\n'
+                        '% Set up styles of URL: it should be placed after hyperref.\n'
+                        '\\urlstyle{same}'),
+    'usepackages':     '',
+    'numfig_format':   '',
+    'contentsname':    '',
+    'preamble':        '',
+    'title':           '',
+    'date':            '',
+    'release':         '',
+    'author':          '',
+    'logo':            '',
+    'releasename':     'Release',
+    'makeindex':       '\\makeindex',
+    'shorthandoff':    '',
+    'maketitle':       '\\maketitle',
+    'tableofcontents': '\\sphinxtableofcontents',
+    'postamble':       '',
+    'printindex':      '\\printindex',
+    'transition':      '\n\n\\bigskip\\hrule{}\\bigskip\n\n',
+    'figure_align':    'htbp',
+    'tocdepth':        '',
+    'secnumdepth':     '',
+    'pageautorefname': '',
+}
+
+ADDITIONAL_SETTINGS = {
+    'pdflatex': {
+        'inputenc':     '\\usepackage[utf8]{inputenc}',
+    },
+    'xelatex': {
+        'polyglossia':  '\\usepackage{polyglossia}',
+        'fontenc':      '\\usepackage{fontspec}',
+        'fontpkg':      '',
+    },
+}
+
 
 class collected_footnote(nodes.footnote):
     """Footnotes that are collected are assigned this class."""
@@ -258,61 +326,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     ignore_missing_images = False
 
-    default_elements = {
-        'papersize':       'letterpaper',
-        'pointsize':       '10pt',
-        'pxunit':          '49336sp',
-        'classoptions':    '',
-        'extraclassoptions': '',
-        'passoptionstopackages': '',
-        'geometry':        '\\usepackage[margin=1in,marginparwidth=0.5in]'
-                           '{geometry}',
-        'inputenc':        '',
-        'utf8extra':       ('\\ifdefined\\DeclareUnicodeCharacter\n'
-                            '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'
-                            '\\fi'),
-        'cmappkg':         '\\usepackage{cmap}',
-        'fontenc':         '\\usepackage[T1]{fontenc}',
-        'amsmath':         '\\usepackage{amsmath,amssymb,amstext}',
-        'babel':           '\\usepackage{babel}',
-        'fontpkg':         '\\usepackage{times}',
-        'fncychap':        '\\usepackage[Bjarne]{fncychap}',
-        'longtable':       '\\usepackage{longtable}',
-        'hyperref':        ('% Include hyperref last.\n'
-                            '\\usepackage[colorlinks,breaklinks,%\n'
-                            '            '
-                            'linkcolor=InnerLinkColor,filecolor=OuterLinkColor,%\n'
-                            '            '
-                            'menucolor=OuterLinkColor,urlcolor=OuterLinkColor,%\n'
-                            '            '
-                            'citecolor=InnerLinkColor]{hyperref}\n'
-                            '% Fix anchor placement for figures with captions.\n'
-                            '\\usepackage{hypcap}% it must be loaded after hyperref.\n'
-                            '% Set up styles of URL: it should be placed after hyperref.\n'
-                            '\\urlstyle{same}'),
-        'usepackages':     '',
-        'numfig_format':   '',
-        'contentsname':    '',
-        'preamble':        '',
-        'title':           '',
-        'date':            '',
-        'release':         '',
-        'author':          '',
-        'logo':            '',
-        'releasename':     'Release',
-        'makeindex':       '\\makeindex',
-        'shorthandoff':    '',
-        'maketitle':       '\\maketitle',
-        'tableofcontents': '\\sphinxtableofcontents',
-        'postamble':       '',
-        'printindex':      '\\printindex',
-        'transition':      '\n\n\\bigskip\\hrule{}\\bigskip\n\n',
-        'figure_align':    'htbp',
-        'tocdepth':        '',
-        'secnumdepth':     '',
-        'pageautorefname': '',
-    }
-
     # sphinx specific document classes
     docclasses = ('howto', 'manual')
 
@@ -350,7 +363,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.top_sectionlevel = 1
 
         # sort out some elements
-        self.elements = self.default_elements.copy()
+        self.elements = DEFAULT_SETTINGS.copy()
+        self.elements.update(ADDITIONAL_SETTINGS.get(builder.config.latex_engine, {}))
         self.elements.update({
             'wrapperclass': self.format_docclass(document.settings.docclass),
             # if empty, the title is set to the first section title
@@ -371,8 +385,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         else:
             docclass = builder.config.latex_docclass.get('manual', 'report')
         self.elements['docclass'] = docclass
-        if builder.config.latex_engine == 'pdflatex':
-            self.elements['inputenc'] = '\\usepackage[utf8]{inputenc}'
         if builder.config.today:
             self.elements['date'] = builder.config.today
         else:
@@ -382,28 +394,34 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # no need for \\noindent here, used in flushright
             self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
                                     path.basename(builder.config.latex_logo)
-        # setup babel
+        # setup multilingual package
         self.babel = ExtBabel(builder.config.language)
-        self.elements['classoptions'] += ',' + self.babel.get_language()
-        if builder.config.language:
-            if not self.babel.is_supported_language():
-                self.builder.warn('no Babel option known for language %r' %
-                                  builder.config.language)
-            self.elements['shorthandoff'] = self.babel.get_shorthandoff()
-            self.elements['fncychap'] = '\\usepackage[Sonny]{fncychap}'
+        if self.elements['polyglossia']:
+            self.elements['babel'] = ''  # disable babel forcely
+            self.elements['multilingual'] = self.elements['polyglossia']
+        elif self.elements['babel']:
+            self.elements['multilingual'] = self.elements['babel']
+            self.elements['classoptions'] += ',' + self.babel.get_language()
+            if builder.config.language:
+                if not self.babel.is_supported_language():
+                    self.builder.warn('no Babel option known for language %r' %
+                                      builder.config.language)
+                self.elements['shorthandoff'] = self.babel.get_shorthandoff()
+                self.elements['fncychap'] = '\\usepackage[Sonny]{fncychap}'
 
-            # Times fonts don't work with Cyrillic languages
-            if self.babel.uses_cyrillic():
-                self.elements['fontpkg'] = ''
+                # Times fonts don't work with Cyrillic languages
+                if self.babel.uses_cyrillic():
+                    self.elements['fontpkg'] = ''
 
-            # pTeX (Japanese TeX) for support
-            if builder.config.language == 'ja':
-                # use dvipdfmx as default class option in Japanese
-                self.elements['classoptions'] = ',dvipdfmx'
-                # disable babel which has not publishing quality in Japanese
-                self.elements['babel'] = ''
-                # disable fncychap in Japanese documents
-                self.elements['fncychap'] = ''
+                # pTeX (Japanese TeX) for support
+                if builder.config.language == 'ja':
+                    # use dvipdfmx as default class option in Japanese
+                    self.elements['classoptions'] = ',dvipdfmx'
+                    # disable babel which has not publishing quality in Japanese
+                    self.elements['babel'] = ''
+                    self.elements['multilingual'] = ''
+                    # disable fncychap in Japanese documents
+                    self.elements['fncychap'] = ''
         if getattr(builder, 'usepackages', None):
             def declare_package(packagename, options=None):
                 if options:

@@ -7,6 +7,8 @@ Incompatible changes
 Features added
 --------------
 
+* #2513: A better default settings for XeLaTeX
+
 Bugs fixed
 ----------
 
