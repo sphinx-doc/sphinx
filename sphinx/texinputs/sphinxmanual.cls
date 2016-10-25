@@ -40,8 +40,10 @@
 % ``Bjarne'' style a bit better.
 %
 \renewcommand{\maketitle}{%
+  \let\spx@tempa\relax
+  \ifHy@pageanchor\def\spx@tempa{\Hy@pageanchortrue}\fi
+  \hypersetup{pageanchor=false}% avoid duplicate destination warnings
   \begin{titlepage}%
-    \hypersetup{pageanchor=false}% avoid duplicate destination page.1 warning
     \let\footnotesize\small
     \let\footnoterule\relax
     \noindent\rule{\textwidth}{1pt}\ifsphinxpdfoutput\newline\null\fi\par
@@ -81,11 +83,11 @@
   \setcounter{footnote}{0}%
   \let\thanks\relax\let\maketitle\relax
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
+  \if@openright\cleardoublepage\else\clearpage\fi
+  \spx@tempa
 }
 
 \newcommand{\sphinxtableofcontents}{%
-  % before resetting page counter, let's do the right thing.
-  \if@openright\cleardoublepage\else\clearpage\fi
   \pagenumbering{roman}%
   \pagestyle{plain}%
   \begingroup
