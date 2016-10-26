@@ -1539,10 +1539,10 @@ These options influence LaTeX output. See further :doc:`latex`.
    The LaTeX engine to build the docs.  The setting can have the following
    values:
 
-   * pdflatex -- PDFLaTeX (default)
-   * xelatex -- XeLaTeX
-   * lualatex -- LuaLaTeX
-   * platex -- pLaTeX (default if `language` is 'ja')
+   * ``'pdflatex'`` -- PDFLaTeX (default)
+   * ``'xelatex'`` -- XeLaTeX
+   * ``'lualatex'`` -- LuaLaTeX
+   * ``'platex'`` -- pLaTeX (default if :confval:`language` is ``'ja'``)
 
 .. confval:: latex_documents
 
