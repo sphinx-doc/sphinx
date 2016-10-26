@@ -13,8 +13,8 @@
 \ProcessOptions\relax
 
 % this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
-% hyperref.sty, but we need it before, and initial ltxcmds.sty
-% as in TL2009/Debian had wrong definition.
+% hyperref.sty, but we need it before, and the first release of
+% ltxcmds.sty as in TL2009/Debian has wrong definition.
 \newcommand{\spx@ifundefined}[1]{%
     \ifcsname #1\endcsname
       \expandafter\ifx\csname #1\endcsname\relax
@@ -77,12 +77,7 @@
 \definecolor{VerbatimColor}{rgb}{1,1,1}
 \definecolor{VerbatimBorderColor}{rgb}{0,0,0}
 
-% Uncomment these two lines to ignore the paper size and make the page 
-% size more like a typical published manual.
-%\renewcommand{\paperheight}{9in}
-%\renewcommand{\paperwidth}{8.5in}   % typical squarish manual
-%\renewcommand{\paperwidth}{7in}     % O'Reilly ``Programmming Python''
-
+% FIXME: the reasons might be obsolete (better color drivers now?)
 % use pdfoutput for pTeX and dvipdfmx
 % when pTeX (\kanjiskip is defined), set pdfoutput to evade \include{pdfcolor}
 \ifx\kanjiskip\undefined\else
@@ -171,9 +166,13 @@
 % Support large numbered footnotes in minipage (cf. admonitions)
 \def\thempfootnote{\arabic{mpfootnote}}
 
-% Preparations for sphinxVerbatim environment, which is a wrapper of fancyvrb
-% Verbatim with framing allowing pagebreaks, with border and background colors
-% and possibly also a top caption, non separable by pagebreak.
+% Code-blocks
+
+% Based on use of "fancyvrb.sty"'s Verbatim.
+% - with framing allowing page breaks ("framed.sty")
+% - with breaking of long lines (exploits Pygments mark-up),
+% - with possibly of a top caption, non-separable by pagebreak.
+% - and usable inside tables or footnotes ("footnotehyper-sphinx").
 
 % For maintaining compatibility with Sphinx < 1.5, we define and use these
 % when (unmodified) Verbatim will be needed. But Sphinx >= 1.5 does not modify
@@ -261,7 +260,7 @@
 % For linebreaks inside Verbatim environment from package fancyvrb.
 \newbox\sphinxcontinuationbox
 \newbox\sphinxvisiblespacebox
-% These are user customizable e.g. from latex_elements's preamble key.
+% Customize this via 'preamble' key if desired.
 % Use of \textvisiblespace for compatibility with XeTeX/LuaTeX/fontspec.
 \newcommand*\sphinxvisiblespace {\textcolor{red}{\textvisiblespace}}
 \newcommand*\sphinxcontinuationsymbol {\textcolor{red}{\llap{\tiny$\m@th\hookrightarrow$}}}
@@ -431,6 +430,10 @@
    \def\sphinxVerbatimEnvironment{\gdef\FV@EnvironName{sphinxVerbatimintable}}%
    \begin{sphinxVerbatim}}
   {\end{sphinxVerbatim}}
+
+% Topic boxes
+
+% Again based on use of "framed.sty", this allows breakable framed boxes.
 
 % define macro to frame contents and add shadow on right and bottom
 % use public names for customizable lengths
@@ -789,7 +792,6 @@
 % Tell TeX about pathological hyphenation cases:
 \hyphenation{Base-HTTP-Re-quest-Hand-ler}
 
-
 % The following is stuff copied from docutils' latex writer.
 %
 \newcommand{\optionlistlabel}[1]{\normalfont\bfseries #1 \hfill}% \bf deprecated
@@ -891,6 +893,7 @@
 
 % adjust the margins for footer,
 % this works with the jsclasses only (Japanese standard document classes)
+% FIXME: rather, pass options to "geometry".
 \ifx\@jsc@uplatextrue\undefined\else
   \PassOptionsToPackage{setpagesize=false}{hyperref}
   \setlength\footskip{2\baselineskip}
@@ -921,6 +924,7 @@
 \fi
 
 % for captions of literal blocks
+% with `\theH...` macros for hyperref
 \newcounter{literalblock}
 \spx@ifundefined{c@chapter}
   {\@addtoreset{literalblock}{section}
