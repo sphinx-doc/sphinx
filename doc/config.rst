@@ -288,7 +288,8 @@ General configuration
 
    .. note::
 
-      LaTeX builder always assign numbers whether this option is enabled or not.
+      The LaTeX builder always assigns numbers whether this option is enabled or
+      not.
 
    .. versionadded:: 1.3
 
@@ -1823,8 +1824,8 @@ These options influence LaTeX output. See further :doc:`latex`.
 
    .. versionchanged:: 1.5
 
-      In Japanese docs(`language` is ``ja``), ``'jreport'`` is used for
-      ``'howto'`` and ``'jsbooks'`` is used for ``'manual'`` by default.
+      In Japanese docs (:confval:`language` is ``'ja'``), by default
+      ``'jreport'`` is used for ``'howto'`` and ``'jsbook'`` for ``'manual'``.
 
 .. confval:: latex_additional_files
 
