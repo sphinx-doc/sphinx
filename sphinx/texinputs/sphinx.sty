@@ -1011,11 +1011,11 @@
 \providecommand*{\sphinxtheindex}{\theindex}
 
 % remove LaTeX's cap on nesting depth. This is a hack, intrinsically
-% fragile, but it works with the standard classes. It is executed only
-% if  'maxlistdepth' key from latex_elements is used.
+% fragile, which works with the standard classes: it assumes \@toodeep
+% is always used in "true" branches: "\if ... \@toodeep .. \else .. \fi."
+% It is executed only if  'maxlistdepth' key from latex_elements is used.
 
-% this hack assumes \@toodeep always immediately followed by \else
-% its effect is to force use the \else branch
+% The effect of this is to force use the "false" branch (if there is one)
 \def\spx@toodeep@hack{\fi\iffalse}
 
 % default is to change nothing
@@ -1023,10 +1023,10 @@
 \AtBeginDocument{%
   \let\spx@toodeepORI\@toodeep
   \def\@toodeep{%
-    \ifnum\@listdepth>\spx@opt@maxlistdepth\relax
-      \expandafter\spx@toodeepORI
-    \else
+    \ifnum\@listdepth<\spx@opt@maxlistdepth\relax
       \expandafter\spx@toodeep@hack
+    \else
+      \expandafter\spx@toodeepORI
     \fi}%
 % define all missing \@list... macros
   \count@\@ne
