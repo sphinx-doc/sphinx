@@ -6,24 +6,15 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2016/10/12 v1.5 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2016/10/26 v1.5 LaTeX package (Sphinx markup)]
 
-% Handle package options
-\newif\ifsphinxKeepOldNames \sphinxKeepOldNamestrue
-\DeclareOption{dontkeepoldnames}{\sphinxKeepOldNamesfalse}
-\newcommand*\sphinxMaxListDepth{0}
-\def\spx@tempa {0}
-\long\def\spx@tempb #1maxlistdepth=#2\UnDeFiNed #3\@nil
-    {\def\spx@tempa {#2}}
-\DeclareOption*{%
-  \expandafter\spx@tempb\CurrentOption\UnDeFiNed maxlistdepth=0\UnDeFiNed\@nil
-  \ifnum\spx@tempa=\z@
-    \PackageWarning{sphinx}{Unknown option `\CurrentOption'}%
-  \else
-    \PackageInfo{sphinx}{Maximal list depth will be set at \spx@tempa}%
-    \let\sphinxMaxListDepth \spx@tempa
-  \fi }
-\ProcessOptions\relax
+% Handle package options via "kvoptions" (later loaded by hyperref anyhow)
+\RequirePackage{kvoptions}
+\SetupKeyvalOptions{prefix=spx@opt@} % use \spx@opt@ prefix
+\DeclareBoolOption{dontkeepoldnames} % \ifspx@opt@dontkeepoldnames = \iffalse
+\DeclareStringOption[0]{maxlistdepth}% \newcommand*\spx@opt@maxlistdepth{0}
+\DeclareDefaultOption{\@unknownoptionerror}
+\ProcessKeyvalOptions*
 
 % this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
 % hyperref.sty, but we need it before, and the first release of
@@ -975,7 +966,7 @@
    \spx@originalcaption }
 
 % by default, also define macros with the no-prefix names
-\ifsphinxKeepOldNames
+\ifspx@opt@dontkeepoldnames\else
   \typeout{** (sphinx) defining (legacy) text style macros without \string\sphinx\space prefix}
   \typeout{** if clashes with packages, set latex_keep_old_macro_names=False
     in conf.py}
@@ -1021,15 +1012,18 @@
 
 % remove LaTeX's cap on nesting depth. This is a hack, intrinsically
 % fragile, but it works with the standard classes. It is executed only
-% if  'maxlistdepth' key from  latex_elements is used.
+% if  'maxlistdepth' key from latex_elements is used.
 
+% this hack assumes \@toodeep always immediately followed by \else
+% its effect is to force use the \else branch
 \def\spx@toodeep@hack{\fi\iffalse}
 
-\ifnum\sphinxMaxListDepth=\z@\expandafter\@gobbletwo\fi
+% default is to change nothing
+\ifnum\spx@opt@maxlistdepth=\z@\expandafter\@gobbletwo\fi
 \AtBeginDocument{%
   \let\spx@toodeepORI\@toodeep
   \def\@toodeep{%
-    \ifnum\@listdepth>\sphinxMaxListDepth\relax
+    \ifnum\@listdepth>\spx@opt@maxlistdepth\relax
       \expandafter\spx@toodeepORI
     \else
       \expandafter\spx@toodeep@hack
@@ -1041,7 +1035,7 @@
        {\iffalse}{\iftrue\advance\count@\@ne}%
   \repeat
   \loop
-     \ifnum\count@>\sphinxMaxListDepth\relax\else
+     \ifnum\count@>\spx@opt@maxlistdepth\relax\else
        \expandafter\let
          \csname @list\romannumeral\the\count@\expandafter\endcsname
          \csname @list\romannumeral\the\numexpr\count@-\@ne\endcsname
@@ -1054,7 +1048,7 @@
        {\iffalse}{\iftrue\advance\count@\@ne}%
   \repeat
   \loop
-     \ifnum\count@>\sphinxMaxListDepth\relax\else
+     \ifnum\count@>\spx@opt@maxlistdepth\relax\else
        \newcounter{enum\romannumeral\the\count@}%
        \expandafter\def
          \csname labelenum\romannumeral\the\count@\expandafter\endcsname
@@ -1074,7 +1068,7 @@
      {\iffalse}{\iftrue\advance\count@\@ne}%
   \repeat
   \loop
-     \ifnum\count@>\sphinxMaxListDepth\relax\else
+     \ifnum\count@>\spx@opt@maxlistdepth\relax\else
        \expandafter\let
          \csname labelitem\romannumeral\the\count@\expandafter\endcsname
          \csname labelitem\romannumeral\the\numexpr\count@-\@ne\endcsname
