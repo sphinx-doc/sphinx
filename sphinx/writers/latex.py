@@ -52,6 +52,7 @@ DEFAULT_SETTINGS = {
     'classoptions':    '',
     'extraclassoptions': '',
     'maxlistdepth':    '',
+    'sphinxpackageoptions': '',
     'passoptionstopackages': '',
     'geometry':        '\\usepackage[margin=1in,marginparwidth=0.5in]'
                        '{geometry}',
@@ -69,13 +70,7 @@ DEFAULT_SETTINGS = {
     'fncychap':        '\\usepackage[Bjarne]{fncychap}',
     'longtable':       '\\usepackage{longtable}',
     'hyperref':        ('% Include hyperref last.\n'
-                        '\\usepackage[colorlinks,breaklinks,%\n'
-                        '            '
-                        'linkcolor=InnerLinkColor,filecolor=OuterLinkColor,%\n'
-                        '            '
-                        'menucolor=OuterLinkColor,urlcolor=OuterLinkColor,%\n'
-                        '            '
-                        'citecolor=InnerLinkColor]{hyperref}\n'
+                        '\\usepackage{hyperref}\n'
                         '% Fix anchor placement for figures with captions.\n'
                         '\\usepackage{hypcap}% it must be loaded after hyperref.\n'
                         '% Set up styles of URL: it should be placed after hyperref.\n'
@@ -377,7 +372,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         })
         sphinxpkgoptions = ''
         if not builder.config.latex_keep_old_macro_names:
-            sphinxpkgoptions = 'dontkeepoldnames'
+            sphinxpkgoptions = ',dontkeepoldnames'
         if document.settings.docclass == 'howto':
             docclass = builder.config.latex_docclass.get('howto', 'article')
         else:
@@ -454,8 +449,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.elements['maxlistdepth']:
             sphinxpkgoptions += ',maxlistdepth=%s' % self.elements['maxlistdepth']
         if sphinxpkgoptions:
-            self.elements['passoptionstosphinx'] = \
-                '\\PassOptionsToPackage{%s}{sphinx}' % sphinxpkgoptions
+            self.elements['sphinxpackageoptions'] += sphinxpkgoptions
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
