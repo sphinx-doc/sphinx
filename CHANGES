@@ -8,6 +8,8 @@ Features added
 --------------
 
 * #2513: A better default settings for XeLaTeX
+* #3092: ``sphinx.ext.viewcode``: Add :confval:`viewcode_tab_width` to expand
+  tabs in source code
 
 Bugs fixed
 ----------

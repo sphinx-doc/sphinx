@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import string
 import traceback
 
 from six import iteritems, text_type
@@ -62,6 +63,8 @@ def doctree_read(app, doctree):
             code = analyzer.code.decode(analyzer.encoding)
         else:
             code = analyzer.code
+        if app.config.viewcode_tab_width:
+            code = string.expandtabs(code, app.config.viewcode_tab_width)
         if entry is None or entry[0] != code:
             analyzer.find_tags()
             entry = code, analyzer.tags, {}, refname
@@ -224,6 +227,7 @@ def setup(app):
     app.connect('env-merge-info', env_merge_info)
     app.connect('html-collect-pages', collect_pages)
     app.connect('missing-reference', missing_reference)
+    app.add_config_value('viewcode_tab_width', None, 'html', [int])
     # app.add_config_value('viewcode_include_modules', [], 'env')
     # app.add_config_value('viewcode_exclude_modules', [], 'env')
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
