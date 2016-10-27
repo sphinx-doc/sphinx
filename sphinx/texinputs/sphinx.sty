@@ -1010,17 +1010,17 @@
 \providecommand*{\sphinxthebibliography}{\thebibliography}
 \providecommand*{\sphinxtheindex}{\theindex}
 
-% remove LaTeX's cap on nesting depth. This is a hack, intrinsically
-% fragile, which works with the standard classes: it assumes \@toodeep
-% is always used in "true" branches: "\if ... \@toodeep .. \else .. \fi."
-% It is executed only if  'maxlistdepth' key from latex_elements is used.
+% remove LaTeX's cap on nesting depth if 'maxlistdepth' key used.
+% This is a hack, which works with the standard classes: it assumes \@toodeep
+% is always used in "true" branches: "\if ... \@toodeep \else .. \fi."
 
-% The effect of this is to force use the "false" branch (if there is one)
+% will force use the "false" branch (if there is one)
 \def\spx@toodeep@hack{\fi\iffalse}
 
-% default is to change nothing
+% do nothing if 'maxlistdepth' key not used or if package enumitem loaded.
 \ifnum\spx@opt@maxlistdepth=\z@\expandafter\@gobbletwo\fi
 \AtBeginDocument{%
+\@ifpackageloaded{enumitem}{\remove@to@nnil}{}%
   \let\spx@toodeepORI\@toodeep
   \def\@toodeep{%
     \ifnum\@listdepth<\spx@opt@maxlistdepth\relax
@@ -1039,6 +1039,11 @@
        \expandafter\let
          \csname @list\romannumeral\the\count@\expandafter\endcsname
          \csname @list\romannumeral\the\numexpr\count@-\@ne\endcsname
+       % higher \leftmargin... needed to fix issue with babel-french (v2.6--...)
+       \spx@ifundefined{leftmargin\romannumeral\the\count@}
+       {\expandafter\let
+         \csname leftmargin\romannumeral\the\count@\expandafter\endcsname
+         \csname leftmargin\romannumeral\the\numexpr\count@-\@ne\endcsname}{}%
      \advance\count@\@ne
   \repeat
 % define all missing enum... counters and \labelenum... macros and \p@enum..
@@ -1074,4 +1079,6 @@
          \csname labelitem\romannumeral\the\numexpr\count@-\@ne\endcsname
      \advance\count@\@ne
   \repeat
-  }
+  \PackageInfo{sphinx}{maximal list depth extended to \spx@opt@maxlistdepth}%
+\@gobble\@nnil
+}
