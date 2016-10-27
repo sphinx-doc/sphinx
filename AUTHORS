@@ -20,7 +20,7 @@ Other contributors, listed alphabetically, are:
 * Jakob Lykke Andersen -- Rewritten C++ domain
 * Henrique Bastos -- SVG support for graphviz extension
 * Daniel Bültmann -- todo extension
-* Jean-François Burnol -- contributions to LaTeX support
+* Jean-François Burnol -- LaTeX improvements
 * Etienne Desautels -- apidoc module
 * Michael Droettboom -- inheritance_diagram extension
 * Charles Duffy -- original graphviz extension
@@ -49,7 +49,7 @@ Other contributors, listed alphabetically, are:
 * Daniel Neuhäuser -- JavaScript domain, Python 3 support (GSOC)
 * Christopher Perkins -- autosummary integration
 * Benjamin Peterson -- unittests
-* T. Powers -- HTML output improvements
+* \T. Powers -- HTML output improvements
 * Jeppe Pihl -- literalinclude improvements
 * Rob Ruana -- napoleon extension
 * Stefan Seefeld -- toctree improvements
