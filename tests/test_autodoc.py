@@ -14,6 +14,7 @@
 from util import TestApp, Struct, raises, SkipTest  # NOQA
 from nose.tools import with_setup, eq_
 
+import enum
 from six import StringIO
 from docutils.statemachine import ViewList
 
@@ -825,6 +826,26 @@ def test_generate():
     del directive.env.temp_data['autodoc:module']
     del directive.env.ref_context['py:module']
 
+    # test members with enum attributes
+    directive.env.ref_context['py:module'] = 'test_autodoc'
+    options.inherited_members = False
+    options.undoc_members = False
+    options.members = ALL
+    assert_processes([
+        ('class', 'test_autodoc.EnumCls'),
+        ('attribute', 'test_autodoc.EnumCls.val1'),
+        ('attribute', 'test_autodoc.EnumCls.val2'),
+        ('attribute', 'test_autodoc.EnumCls.val3'),
+    ], 'class', 'EnumCls')
+    assert_result_contains(
+        '   :annotation: = 12', 'attribute', 'EnumCls.val1')
+    assert_result_contains(
+        '   :annotation: = 23', 'attribute', 'EnumCls.val2')
+    assert_result_contains(
+        '   :annotation: = 34', 'attribute', 'EnumCls.val3')
+    del directive.env.temp_data['autodoc:class']
+    del directive.env.temp_data['autodoc:module']
+
     # test descriptor class documentation
     options.members = ['CustomDataDescriptor']
     assert_result_contains('.. py:class:: CustomDataDescriptor(doc)',
@@ -1018,6 +1039,18 @@ class InstAttCls(object):
 
         self.ia2 = 'e'
         """Docstring for instance attribute InstAttCls.ia2."""
+
+
+class EnumCls(enum.Enum):
+    """
+    this is enum class
+    """
+
+    #: doc for val1
+    val1 = 12
+    val2 = 23  #: doc for val2
+    val3 = 34
+    """doc for val3"""
 
 
 def test_type_hints():

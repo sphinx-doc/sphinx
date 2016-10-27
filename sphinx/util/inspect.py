@@ -94,6 +94,18 @@ else:  # 2.7
                     pass
         return inspect.ArgSpec(args, varargs, varkw, func_defaults)
 
+try:
+    import enum
+except ImportError:
+    enum = None
+
+
+def isenumattribute(x):
+    """Check if the object is attribute of enum."""
+    if enum is None:
+        return False
+    return isinstance(x, enum.Enum)
+
 
 def isdescriptor(x):
     """Check if the object is some kind of descriptor."""

@@ -31,7 +31,7 @@ from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
-    safe_getattr, object_description, is_builtin_class_method
+    safe_getattr, object_description, is_builtin_class_method, isenumattribute
 from sphinx.util.docstrings import prepare_docstring
 
 try:
@@ -1478,6 +1478,8 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):
 
     def import_object(self):
         ret = ClassLevelDocumenter.import_object(self)
+        if isenumattribute(self.object):
+            self.object = self.object.value
         if isdescriptor(self.object) and \
                 not isinstance(self.object, self.method_types):
             self._datadescriptor = True
