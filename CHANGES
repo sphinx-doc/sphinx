@@ -8,6 +8,7 @@ Features added
 --------------
 
 * #2513: A better default settings for XeLaTeX
+* #3096: ``'maxlistdepth'`` key to work around LaTeX list limitations
 
 Bugs fixed
 ----------
@@ -16,6 +17,7 @@ Bugs fixed
 * #3062: Failed to build PDF using 1.5a2 (undefined ``\hypersetup`` for
   Japanese documents since PR#3030)
 * Better rendering of multiline signatures in html.
+* #777: LaTeX output "too deeply nested" (ref #3096)
 
 Release 1.5 alpha2 (released Oct 17, 2016)
 ==========================================
