@@ -51,6 +51,7 @@ DEFAULT_SETTINGS = {
     'pxunit':          '49336sp',
     'classoptions':    '',
     'extraclassoptions': '',
+    'maxlistdepth':    '',
     'passoptionstopackages': '',
     'geometry':        '\\usepackage[margin=1in,marginparwidth=0.5in]'
                        '{geometry}',
@@ -374,12 +375,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'releasename':  _('Release'),
             'indexname':    _('Index'),
         })
-        # set-up boolean for sphinx.sty
-        if builder.config.latex_keep_old_macro_names:
-            self.elements['keepoldnames'] = ''
-        else:
-            self.elements['keepoldnames'] = ('\\PassOptionsToPackage'
-                                             '{dontkeepoldnames}{sphinx}')
+        sphinxpkgoptions = ''
+        if not builder.config.latex_keep_old_macro_names:
+            sphinxpkgoptions = 'dontkeepoldnames'
         if document.settings.docclass == 'howto':
             docclass = builder.config.latex_docclass.get('howto', 'article')
         else:
@@ -453,6 +451,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # allow the user to override them all
         self.check_latex_elements()
         self.elements.update(builder.config.latex_elements)
+        if self.elements['maxlistdepth']:
+            sphinxpkgoptions += ',maxlistdepth=%s' % self.elements['maxlistdepth']
+        if sphinxpkgoptions:
+            self.elements['passoptionstosphinx'] = \
+                '\\PassOptionsToPackage{%s}{sphinx}' % sphinxpkgoptions
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
