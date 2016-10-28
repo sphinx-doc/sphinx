@@ -27,6 +27,11 @@
 \DeclareStringOption[\fboxrule]{verbatimborder}
 \DeclareBoolOption[true]{verbatimwithframe}
 \DeclareBoolOption[true]{verbatimwrapslines}
+% \textvisiblespace for compatibility with fontspec+XeTeX/LuaTeX
+\DeclareStringOption[\textcolor{red}{\textvisiblespace}]{verbatimvisiblespace}
+\DeclareStringOption % must use braces to hide the brackets
+  [{\makebox[2\fontcharwd\font`\x][r]{\textcolor{red}{\tiny$\m@th\hookrightarrow$}}}]%
+  {verbatimcontinued}
 % topic boxes
 \DeclareStringOption[5pt]{shadowsep}
 \DeclareStringOption[4pt]{shadowsize}
@@ -56,16 +61,15 @@
 \DeclareStringOption[1pt]{attentionborder}
 \DeclareStringOption[1pt]{dangerborder}
 \DeclareStringOption[1pt]{errorborder}
-
 % Footnotes
 \DeclareStringOption[\mbox{ }]{AtStartFootnote}
 % we need a public macro name for direct use in latex file
 \newcommand*{\sphinxAtStartFootnote}{\spx@opt@AtStartFootnote}
 % no such need for this one, used inside other macros
 \DeclareStringOption[\leavevmode\unskip]{BeforeFootnote}
-
 % some font styling.
 \DeclareStringOption[\sffamily\bfseries]{HeaderFamily}
+
 \DeclareDefaultOption{\@unknownoptionerror}
 \ProcessKeyvalOptions*
 % don't allow use of maxlistdepth via \sphinxsetup.
@@ -81,7 +85,6 @@
 % They are assigned to \spx@notice@border at time of use (sphinxadmonition)
 \newdimen\spx@notice@border
 
-% The \sphinx@setup execution is delayed to after having loaded color/xcolor
 \newcommand*\sphinx@setup
 {%
  \sphinxverbatimsep   \dimexpr\spx@opt@verbatimsep   \relax
@@ -111,6 +114,7 @@
  \@tempa\definecolor{sphinxerrorbgcolor}        \spx@opt@errorbgcolor
 }
 % additional user interface: options can be changed midway in a document!
+% the command will be executed only after package has finished loading.
 \newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}\sphinx@setup}
 
 % this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
@@ -168,9 +172,6 @@
 \RequirePackage{alltt}
 % Display "real" single quotes in literal blocks.
 \RequirePackage{upquote}
-
-% Initialize style parameters
-\sphinx@setup
 
 % FIXME: the reasons might be obsolete (better color drivers now?)
 % use pdfoutput for pTeX and dvipdfmx
@@ -350,13 +351,7 @@
 % For linebreaks inside Verbatim environment from package fancyvrb.
 \newbox\sphinxcontinuationbox
 \newbox\sphinxvisiblespacebox
-% Customize this via 'preamble' key if desired.
-% Use of \textvisiblespace for compatibility with XeTeX/LuaTeX/fontspec.
-% FIXME: convert this to package options
-\newcommand*\sphinxvisiblespace {\textcolor{red}{\textvisiblespace}}
-\newcommand*\sphinxcontinuationsymbol {\textcolor{red}{\llap{\tiny$\m@th\hookrightarrow$}}}
-\newcommand*\sphinxcontinuationindent {3ex }
-\newcommand*\sphinxafterbreak {\kern\sphinxcontinuationindent\copy\sphinxcontinuationbox}
+\newcommand*\sphinxafterbreak {\copy\sphinxcontinuationbox}
 
 % Take advantage of the already applied Pygments mark-up to insert
 % potential linebreaks for TeX processing.
@@ -447,8 +442,9 @@
   %       to achieve this without extensive rewrite of fancyvrb.
   %     - The (not used in sphinx) obeytabs option to Verbatim is
   %       broken by this change (showtabs and tabspace work).
-  \sbox\sphinxcontinuationbox {\sphinxcontinuationsymbol}%
-  \sbox\sphinxvisiblespacebox {\FV@SetupFont\sphinxvisiblespace}%
+  \expandafter\def\expandafter\FV@SetupFont\expandafter
+    {\FV@SetupFont\sbox\sphinxcontinuationbox {\spx@opt@verbatimcontinued}%
+                  \sbox\sphinxvisiblespacebox {\spx@opt@verbatimvisiblespace}}%
   \def\FancyVerbFormatLine ##1{\hsize\linewidth
           \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
                 \doublehyphendemerits\z@\finalhyphendemerits\z@

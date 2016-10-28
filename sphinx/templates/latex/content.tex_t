@@ -15,7 +15,8 @@
 <%= fontpkg %>
 <%= fncychap %>
 <%= longtable %>
-\usepackage[<%= sphinxpackageoptions %>]{sphinx}
+\usepackage<%= sphinxpkgoptions %>{sphinx}
+\sphinxsetup{<%= sphinxpackageoptions %>}
 \usepackage{multirow}
 \usepackage{eqparbox}
 <%= usepackages %>

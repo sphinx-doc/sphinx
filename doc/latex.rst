@@ -11,8 +11,12 @@ LaTeX customization
 The *latex* target does not benefit from pre-prepared themes like the
 *html* target does (see :doc:`theming`).
 
-Basic customization is available from ``conf.py`` via usage of the
-:ref:`latex-options` as described in :doc:`config`. For example::
+Basic customization
+-------------------
+
+It is available from ``conf.py`` via usage of the
+:ref:`latex-options` as described in :doc:`config` (backslashes must be doubled
+in Python string literals to reach latex.) For example::
 
     # inside conf.py
     latex_engine = 'xelatex'
@@ -56,36 +60,46 @@ configured, for example::
 
     latex_additional_files = ["mystyle.sty"]
 
-Such *LaTeX Sphinx theme* files could possibly be contributed in the
-future by advanced users for wider use.
+The Sphinx LaTeX style package options
+--------------------------------------
 
 The ``'sphinxpackageoptions'`` key to :confval:`latex_elements` provides a
 more convenient interface to various style parameters. It is a comma separated
-string of ``key=value`` instructions::
+string of ``key=value`` instructions (if a key is repeated, it is its last
+occurence which counts)::
 
     key1=value1,key2=value2, ...
 
-which will be passed as the optional parameter to the Sphinx LaTeX style \file::
+which will be used as argument to the ``\sphinxsetup`` command::
 
-    \usepackage[<sphinxpackageoptions>]{sphinx}
-
-It is possible to modify later the options (even midway in the
-document using a ``.. raw:: latex`` directive) via use of the command
-``\sphinxsetup{<options>}``, with the same option ``key=value`` syntax.
+    \usepackage{sphinx}
+    \sphinxsetup{key1=value1,key2=value2,...}
 
 .. versionadded:: 1.5
 
-Here is the current list:
+.. note::
+
+   Almost all options described next could be positioned as :file:`sphinx.sty`
+   package options. But when the key value contains some LaTeX code there are
+   issues with LaTeX's processing and the use of ``\sphinxsetup`` is mandatory.
+
+.. hint::
+
+   It is possible to use again ``\sphinxsetup`` in the preamble, via the
+   ``'preamble'`` key, or even in the body of the document, via the
+   :rst:dir:`raw` directive.
+
+Here is the list of currently available keys with their default values.
 
 ``verbatimwithframe``
-    default ``true``. Boolean to use or not frames around
-    :rst:dir:`code-block`\ s and literal includes. Setting it to ``false``
-    does not deactivate use of package "framed", because it is still in use
-    for the optional background colour (see below).
+    default ``true``. Boolean to specify if :rst:dir:`code-block`\ s and literal
+    includes are framed. Setting it to ``false`` does not deactivate use of
+    package "framed", because it is still in use for the optional background
+    colour (see below).
 
     .. attention::
 
-       LaTeX wants *lowercase* ``=true`` or  ``=false`` here.
+       LaTeX requires ``=true`` or ``=false`` in *lowercase*.
 
 ``verbatimwrapslines``
     default ``true``. Tells whether long lines in :rst:dir:`code-block`\ s
@@ -93,6 +107,32 @@ Here is the current list:
     more and decide at which characters a line-break can occur and whether
     before or after, but this is accessible currently only by re-defining some
     macros with complicated LaTeX syntax from :file:`sphinx.sty`.
+
+``verbatimvisiblespace``
+    default ``\\textcolor{red}{\\textvisiblespace}``. When a long code line is
+    split, space characters located at end of the line before the break are
+    displayed using this code.
+
+``verbatimcontinued``
+    default
+    ``\\makebox[2\\fontcharwd\\font`\\x][r]{\\textcolor{red}{\\tiny$\\hookrightarrow$}}``.
+    This is printed at start of continuation lines. This rather formidable
+    expression has the effect of reserving twice the width of a typical
+    character in the current font and uses there a small red hook symbol pointing
+    to the right.
+
+    .. versionchanged:: 1.5
+       The breaking of long code lines was introduced at 1.4.2. The space
+       reserved to the continuation symbol (but not the symbol itself) was
+       changed at 1.5 to obey the current font characteristics (this was needed
+       as Sphinx 1.5 LaTeX allows code-blocks in footnotes which use a smaller
+       font size).
+
+       .. hint::
+
+          To recover exact same indent as earlier the
+          ``\\normalfont\\normalsize\\makebox[3ex][r]{...}`` specification
+          should be used.
 
 ``TitleColor``
     default ``{rgb}{0.126,0.263,0.361}``. The colour for titles (as configured
@@ -229,6 +269,9 @@ Here is the current list:
 In the future, possibly more keys will be made available. As seen above, they
 may even be used for LaTeX commands.
 
+The LaTeX environments defined by Sphinx
+----------------------------------------
+
 Let us now list some macros from the package file
 :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
 :file:`sphinxmanual.cls`, which can be entirely redefined, if desired.
@@ -325,13 +368,6 @@ Let us now list some macros from the package file
 
   .. versionchanged:: 1.5
      formerly, the original environments were modified by Sphinx.
-
-.. note::
-
-   It is impossible to revert or prevent the loading of a package that results
-   from a ``\usepackage`` executed from inside the :file:`sphinx.sty` style
-   file. Sphinx aims at loading as few packages as are really needed for its
-   default design.
 
 .. hint::
 
