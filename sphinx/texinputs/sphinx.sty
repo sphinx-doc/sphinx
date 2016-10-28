@@ -77,10 +77,11 @@
 \newdimen\sphinxshadowsep
 \newdimen\sphinxshadowsize
 \newdimen\sphinxshadowrule
-% This one is dynamical, don't set it.
+% Other dimensions are set by the options and kept as \spx@opt@ prefix macros
+% They are assigned to \spx@notice@border at time of use (sphinxadmonition)
 \newdimen\spx@notice@border
-% Other dimensions are customizable by options and declare macros.
 
+% The \sphinx@setup execution is delayed to after having loaded color/xcolor
 \newcommand*\sphinx@setup
 {%
  \sphinxverbatimsep   \dimexpr\spx@opt@verbatimsep   \relax
@@ -88,17 +89,6 @@
  \sphinxshadowsep     \dimexpr\spx@opt@shadowsep     \relax
  \sphinxshadowsize    \dimexpr\spx@opt@shadowsize    \relax
  \sphinxshadowrule    \dimexpr\spx@opt@shadowrule    \relax
- % they will be embedded in \dimexpr ... \relax at time of use
- \let\sphinxnoteborder     \spx@opt@noteborder
- \let\sphinxhintborder     \spx@opt@hintborder
- \let\sphinximportantborder\spx@opt@importantborder
- \let\sphinxtipborder      \spx@opt@tipborder
- \let\sphinxwarningborder  \spx@opt@warningborder
- \let\sphinxcautionborder  \spx@opt@cautionborder
- \let\sphinxattentionborder\spx@opt@attentionborder
- \let\sphinxdangerborder   \spx@opt@dangerborder
- \let\sphinxerrorborder    \spx@opt@errorborder
- % first execution of \sphinx@setup will be after having loaded color/xcolor
  \def\@tempa ##1##2##3{\edef\@tempb{\noexpand##1{##2}##3}\@tempb}%
  \@tempa\definecolor{TitleColor}                \spx@opt@TitleColor
  \@tempa\definecolor{InnerLinkColor}            \spx@opt@InnerLinkColor
@@ -787,7 +777,7 @@
   % set parameters of heavybox/lightbox
   \sphinxcolorlet{spx@notice@bordercolor}{sphinx#1bordercolor}%
   \sphinxcolorlet{spx@notice@bgcolor}{sphinx#1bgcolor}%
-  \spx@notice@border \dimexpr\csname sphinx#1border\endcsname\relax
+  \spx@notice@border \dimexpr\csname spx@opt@#1border\endcsname\relax
   % start specific environment, passing the heading as argument
   \begin{sphinx#1}{#2}}
   % in end part, need to go around a LaTeX's "feature"
