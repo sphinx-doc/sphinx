@@ -63,14 +63,18 @@ configured, for example::
 The Sphinx LaTeX style package options
 --------------------------------------
 
+.. highlight:: latex
+
 The ``'sphinxpackageoptions'`` key to :confval:`latex_elements` provides a
 more convenient interface to various style parameters. It is a comma separated
-string of ``key=value`` instructions (if a key is repeated, it is its last
-occurence which counts)::
+string of ``key=value`` instructions::
 
     key1=value1,key2=value2, ...
 
-which will be used as argument to the ``\sphinxsetup`` command::
+- if a key is repeated, it is its last occurence which counts,
+- spaces around the commas and equal signs are ignored.
+
+If non-empty, it will be passed as argument to the ``\sphinxsetup`` command::
 
     \usepackage{sphinx}
     \sphinxsetup{key1=value1,key2=value2,...}
@@ -79,17 +83,19 @@ which will be used as argument to the ``\sphinxsetup`` command::
 
 .. note::
 
-   Almost all options described next could be positioned as :file:`sphinx.sty`
-   package options. But when the key value contains some LaTeX code there are
-   issues with LaTeX's processing and the use of ``\sphinxsetup`` is mandatory.
+   - Most options described next could also have been positioned as
+     :file:`sphinx.sty` package options. But for those where the key value
+     contains some LaTeX code the use of ``\sphinxsetup`` is mandatory. Hence
+     the whole ``'sphinxpackageoptions'`` string is passed as argument to
+     ``\sphinxsetup``.
 
-.. hint::
+   - As an alternative to the ``'sphinxpackageoptions'`` key, it is possibly
+     to insert explicitely the ``\\sphinxsetup{key=value,..}`` inside the
+     ``'preamble'`` key. It is even possible to use the ``\sphinxsetup`` in
+     the body of the document, via the :rst:dir:`raw` directive, to modify
+     dynamically the option values.
 
-   It is possible to use again ``\sphinxsetup`` in the preamble, via the
-   ``'preamble'`` key, or even in the body of the document, via the
-   :rst:dir:`raw` directive.
-
-Here is the list of currently available keys with their default values.
+Here are the currently available options together with their default values.
 
 ``verbatimwithframe``
     default ``true``. Boolean to specify if :rst:dir:`code-block`\ s and literal
@@ -99,14 +105,16 @@ Here is the list of currently available keys with their default values.
 
     .. attention::
 
-       LaTeX requires ``=true`` or ``=false`` in *lowercase*.
+       LaTeX requires ``true`` or ``false`` to be specified in *lowercase*.
 
 ``verbatimwrapslines``
     default ``true``. Tells whether long lines in :rst:dir:`code-block`\ s
-    should be wrapped. It is theoretically possible to customize this even
-    more and decide at which characters a line-break can occur and whether
-    before or after, but this is accessible currently only by re-defining some
-    macros with complicated LaTeX syntax from :file:`sphinx.sty`.
+    should be wrapped.
+
+    .. (comment) It is theoretically possible to customize this even
+       more and decide at which characters a line-break can occur and whether
+       before or after, but this is accessible currently only by re-defining some
+       macros with complicated LaTeX syntax from :file:`sphinx.sty`.
 
 ``verbatimvisiblespace``
     default ``\\textcolor{red}{\\textvisiblespace}``. When a long code line is
@@ -114,25 +122,25 @@ Here is the list of currently available keys with their default values.
     displayed using this code.
 
 ``verbatimcontinued``
-    default
-    ``\\makebox[2\\fontcharwd\\font`\\x][r]{\\textcolor{red}{\\tiny$\\hookrightarrow$}}``.
-    This is printed at start of continuation lines. This rather formidable
-    expression has the effect of reserving twice the width of a typical
-    character in the current font and uses there a small red hook symbol pointing
-    to the right.
+    The default is::
+
+      \\makebox[2\\fontcharwd\\font`\\x][r]{\\textcolor{red}{\\tiny$\\hookrightarrow$}}
+
+    It is printed at start of continuation lines. This rather formidable
+    expression reserves twice the width of a typical character in the current
+    (monospaced) font and puts there a small red hook pointing to the right.
 
     .. versionchanged:: 1.5
        The breaking of long code lines was introduced at 1.4.2. The space
-       reserved to the continuation symbol (but not the symbol itself) was
-       changed at 1.5 to obey the current font characteristics (this was needed
-       as Sphinx 1.5 LaTeX allows code-blocks in footnotes which use a smaller
-       font size).
+       reserved to the continuation symbol was changed at 1.5 to obey the
+       current font characteristics (this was needed as Sphinx 1.5 LaTeX
+       allows code-blocks in footnotes which use a smaller font size).
 
        .. hint::
 
-          To recover exact same indent as earlier the
-          ``\\normalfont\\normalsize\\makebox[3ex][r]{...}`` specification
-          should be used.
+          This specification gives the same spacing as before 1.5::
+
+            \\normalfont\\normalsize\\makebox[3ex][r]{\\textcolor{red}{\\tiny$\\hookrightarrow$}
 
 ``TitleColor``
     default ``{rgb}{0.126,0.263,0.361}``. The colour for titles (as configured
@@ -176,6 +184,12 @@ Here is the list of currently available keys with their default values.
     default ``{rgb}{0,0,0}``. The colour for the two horizontal rules used by
     Sphinx in LaTeX for styling a
     :dudir:`note` admonition. Defaults to black.
+
+    .. note::
+
+       The actual name of the colour as declared to "color" or "xcolor" is
+       ``sphinxnotebordercolor``. The same "sphinx" prefix applies to all
+       colours for notices and admonitions.
 
 ``hintbordercolor``
     default ``{rgb}{0,0,0}``. id.

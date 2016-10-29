@@ -16,7 +16,7 @@
 <%= fncychap %>
 <%= longtable %>
 \usepackage<%= sphinxpkgoptions %>{sphinx}
-\sphinxsetup{<%= sphinxpackageoptions %>}
+<%= sphinxsetup %>
 \usepackage{multirow}
 \usepackage{eqparbox}
 <%= usepackages %>

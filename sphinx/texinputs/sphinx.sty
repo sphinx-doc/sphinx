@@ -6,131 +6,10 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2016/10/27 v1.5 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2016/10/29 v1.5 LaTeX package (Sphinx markup)]
 
-% Handle package options via "kvoptions" (later loaded by hyperref anyhow)
-\RequirePackage{kvoptions}
-\SetupKeyvalOptions{prefix=spx@opt@} % use \spx@opt@ prefix
-
-\DeclareBoolOption{dontkeepoldnames} % \ifspx@opt@dontkeepoldnames = \iffalse
-\DeclareStringOption[0]{maxlistdepth}% \newcommand*\spx@opt@maxlistdepth{0}
-
-% colour values must be given in format accepted by color's \definecolor
-\DeclareStringOption[{rgb}{0.126,0.263,0.361}]{TitleColor}
-% for hyperref
-\DeclareStringOption[{rgb}{0.208,0.374,0.486}]{InnerLinkColor}
-\DeclareStringOption[{rgb}{0.216,0.439,0.388}]{OuterLinkColor}
-% code-blocks and literal includes
-\DeclareStringOption[{rgb}{1,1,1}]{VerbatimColor}
-\DeclareStringOption[{rgb}{0,0,0}]{VerbatimBorderColor}
-\DeclareStringOption[\fboxsep]{verbatimsep}
-\DeclareStringOption[\fboxrule]{verbatimborder}
-\DeclareBoolOption[true]{verbatimwithframe}
-\DeclareBoolOption[true]{verbatimwrapslines}
-% \textvisiblespace for compatibility with fontspec+XeTeX/LuaTeX
-\DeclareStringOption[\textcolor{red}{\textvisiblespace}]{verbatimvisiblespace}
-\DeclareStringOption % must use braces to hide the brackets
-  [{\makebox[2\fontcharwd\font`\x][r]{\textcolor{red}{\tiny$\m@th\hookrightarrow$}}}]%
-  {verbatimcontinued}
-% topic boxes
-\DeclareStringOption[5pt]{shadowsep}
-\DeclareStringOption[4pt]{shadowsize}
-\DeclareStringOption[\fboxrule]{shadowrule}
-% admonition boxes, "light" style
-\DeclareStringOption[{rgb}{0,0,0}]{notebordercolor}
-\DeclareStringOption[{rgb}{0,0,0}]{hintbordercolor}
-\DeclareStringOption[{rgb}{0,0,0}]{importantbordercolor}
-\DeclareStringOption[{rgb}{0,0,0}]{tipbordercolor}
-\DeclareStringOption[0.5pt]{noteborder}
-\DeclareStringOption[0.5pt]{hintborder}
-\DeclareStringOption[0.5pt]{importantborder}
-\DeclareStringOption[0.5pt]{tipborder}
-% admonition boxes, "heavy" style
-\DeclareStringOption[{rgb}{0,0,0}]{warningbordercolor}
-\DeclareStringOption[{rgb}{0,0,0}]{cautionbordercolor}
-\DeclareStringOption[{rgb}{0,0,0}]{attentionbordercolor}
-\DeclareStringOption[{rgb}{0,0,0}]{dangerbordercolor}
-\DeclareStringOption[{rgb}{0,0,0}]{errorbordercolor}
-\DeclareStringOption[{rgb}{1,1,1}]{warningbgcolor}
-\DeclareStringOption[{rgb}{1,1,1}]{cautionbgcolor}
-\DeclareStringOption[{rgb}{1,1,1}]{attentionbgcolor}
-\DeclareStringOption[{rgb}{1,1,1}]{dangerbgcolor}
-\DeclareStringOption[{rgb}{1,1,1}]{errorbgcolor}
-\DeclareStringOption[1pt]{warningborder}
-\DeclareStringOption[1pt]{cautionborder}
-\DeclareStringOption[1pt]{attentionborder}
-\DeclareStringOption[1pt]{dangerborder}
-\DeclareStringOption[1pt]{errorborder}
-% Footnotes
-\DeclareStringOption[\mbox{ }]{AtStartFootnote}
-% we need a public macro name for direct use in latex file
-\newcommand*{\sphinxAtStartFootnote}{\spx@opt@AtStartFootnote}
-% no such need for this one, used inside other macros
-\DeclareStringOption[\leavevmode\unskip]{BeforeFootnote}
-% some font styling.
-\DeclareStringOption[\sffamily\bfseries]{HeaderFamily}
-
-\DeclareDefaultOption{\@unknownoptionerror}
-\ProcessKeyvalOptions*
-% don't allow use of maxlistdepth via \sphinxsetup.
-\DisableKeyvalOption{sphinx}{maxlistdepth}
-
-% We declare the \dimen registers here. Those are customizable via options.
-\newdimen\sphinxverbatimsep
-\newdimen\sphinxverbatimborder
-\newdimen\sphinxshadowsep
-\newdimen\sphinxshadowsize
-\newdimen\sphinxshadowrule
-% Other dimensions are set by the options and kept as \spx@opt@ prefix macros
-% They are assigned to \spx@notice@border at time of use (sphinxadmonition)
-\newdimen\spx@notice@border
-
-\newcommand*\sphinx@setup
-{%
- \sphinxverbatimsep   \dimexpr\spx@opt@verbatimsep   \relax
- \sphinxverbatimborder\dimexpr\spx@opt@verbatimborder\relax
- \sphinxshadowsep     \dimexpr\spx@opt@shadowsep     \relax
- \sphinxshadowsize    \dimexpr\spx@opt@shadowsize    \relax
- \sphinxshadowrule    \dimexpr\spx@opt@shadowrule    \relax
- \def\@tempa ##1##2##3{\edef\@tempb{\noexpand##1{##2}##3}\@tempb}%
- \@tempa\definecolor{TitleColor}                \spx@opt@TitleColor
- \@tempa\definecolor{InnerLinkColor}            \spx@opt@InnerLinkColor
- \@tempa\definecolor{OuterLinkColor}            \spx@opt@OuterLinkColor
- \@tempa\definecolor{VerbatimColor}             \spx@opt@VerbatimColor
- \@tempa\definecolor{VerbatimBorderColor}       \spx@opt@VerbatimBorderColor
- \@tempa\definecolor{sphinxnotebordercolor}     \spx@opt@notebordercolor
- \@tempa\definecolor{sphinxhintbordercolor}     \spx@opt@hintbordercolor
- \@tempa\definecolor{sphinximportantbordercolor}\spx@opt@importantbordercolor
- \@tempa\definecolor{sphinxtipbordercolor}      \spx@opt@tipbordercolor
- \@tempa\definecolor{sphinxwarningbordercolor}  \spx@opt@warningbordercolor
- \@tempa\definecolor{sphinxcautionbordercolor}  \spx@opt@cautionbordercolor
- \@tempa\definecolor{sphinxattentionbordercolor}\spx@opt@attentionbordercolor
- \@tempa\definecolor{sphinxdangerbordercolor}   \spx@opt@dangerbordercolor
- \@tempa\definecolor{sphinxerrorbordercolor}    \spx@opt@errorbordercolor
- \@tempa\definecolor{sphinxwarningbgcolor}      \spx@opt@warningbgcolor
- \@tempa\definecolor{sphinxcautionbgcolor}      \spx@opt@cautionbgcolor
- \@tempa\definecolor{sphinxattentionbgcolor}    \spx@opt@attentionbgcolor
- \@tempa\definecolor{sphinxdangerbgcolor}       \spx@opt@dangerbgcolor
- \@tempa\definecolor{sphinxerrorbgcolor}        \spx@opt@errorbgcolor
-}
-% additional user interface: options can be changed midway in a document!
-% the command will be executed only after package has finished loading.
-\newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}\sphinx@setup}
-
-% this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
-% hyperref.sty, but we need it before, and the first release of
-% ltxcmds.sty as in TL2009/Debian has wrong definition.
-\newcommand{\spx@ifundefined}[1]{%
-    \ifcsname #1\endcsname
-      \expandafter\ifx\csname #1\endcsname\relax
-        \expandafter\expandafter\expandafter\@firstoftwo
-      \else
-        \expandafter\expandafter\expandafter\@secondoftwo
-      \fi
-    \else
-      \expandafter\@firstoftwo
-    \fi
-}
+% we delay handling of options to after having loaded packages, because
+% of the need to use \definecolor.
 
 \RequirePackage{graphicx}
 \@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
@@ -154,7 +33,7 @@
 \fvset{fontsize=\small}
 % For table captions.
 \RequirePackage{threeparttable}
-% For hyperlinked footnotes in tables; also for gathering footnotes from 
+% For hyperlinked footnotes in tables; also for gathering footnotes from
 % topic and warning blocks. Also to allow code-blocks in footnotes.
 \RequirePackage{footnotehyper-sphinx}
 \makesavenoteenv{tabulary}
@@ -173,6 +52,122 @@
 % Display "real" single quotes in literal blocks.
 \RequirePackage{upquote}
 
+% Handle options via "kvoptions" (later loaded by hyperref anyhow)
+\RequirePackage{kvoptions}
+\SetupKeyvalOptions{prefix=spx@opt@} % use \spx@opt@ prefix
+
+\DeclareBoolOption{dontkeepoldnames} % \ifspx@opt@dontkeepoldnames = \iffalse
+\DeclareStringOption[0]{maxlistdepth}% \newcommand*\spx@opt@maxlistdepth{0}
+
+% dimensions, we declare the \dimen registers here.
+\newdimen\sphinxverbatimsep
+\newdimen\sphinxverbatimborder
+\newdimen\sphinxshadowsep
+\newdimen\sphinxshadowsize
+\newdimen\sphinxshadowrule
+% \DeclareStringOption is not convenient for the handling of these dimensions
+% because we want to assign the values to the corresponding registers. Even if
+% we added the code to the key handler it would be too late for the initial
+% set-up and we would need to do initial assignments explicitely. We end up
+% using \define@key directly.
+% verbatim
+\sphinxverbatimsep=\fboxsep
+  \define@key{sphinx}{verbatimsep}{\sphinxverbatimsep\dimexpr #1\relax}
+\sphinxverbatimborder=\fboxrule
+  \define@key{sphinx}{verbatimborder}{\sphinxverbatimborder\dimexpr #1\relax}
+% topic boxes
+\sphinxshadowsep =5pt
+  \define@key{sphinx}{shadowsep}{\sphinxshadowsep\dimexpr #1\relax}
+\sphinxshadowsize=4pt
+  \define@key{sphinx}{shadowsize}{\sphinxshadowsize\dimexpr #1\relax}
+\sphinxshadowrule=\fboxrule
+  \define@key{sphinx}{shadowrule}{\sphinxshadowrule\dimexpr #1\relax}
+% verbatim
+\DeclareBoolOption[true]{verbatimwithframe}
+\DeclareBoolOption[true]{verbatimwrapslines}
+% \textvisiblespace for compatibility with fontspec+XeTeX/LuaTeX
+\DeclareStringOption[\textcolor{red}{\textvisiblespace}]{verbatimvisiblespace}
+\DeclareStringOption % must use braces to hide the brackets
+  [{\makebox[2\fontcharwd\font`\x][r]{\textcolor{red}{\tiny$\m@th\hookrightarrow$}}}]%
+  {verbatimcontinued}
+% notices/admonitions
+% the dimensions for notices/admonitions are kept as macros and assigned to
+% \spx@notice@border at time of use, hence \DeclareStringOption is ok for this
+\newdimen\spx@notice@border
+\DeclareStringOption[0.5pt]{noteborder}
+\DeclareStringOption[0.5pt]{hintborder}
+\DeclareStringOption[0.5pt]{importantborder}
+\DeclareStringOption[0.5pt]{tipborder}
+\DeclareStringOption[1pt]{warningborder}
+\DeclareStringOption[1pt]{cautionborder}
+\DeclareStringOption[1pt]{attentionborder}
+\DeclareStringOption[1pt]{dangerborder}
+\DeclareStringOption[1pt]{errorborder}
+% footnotes
+\DeclareStringOption[\mbox{ }]{AtStartFootnote}
+% we need a public macro name for direct use in latex file
+\newcommand*{\sphinxAtStartFootnote}{\spx@opt@AtStartFootnote}
+% no such need for this one, as it is used inside other macros
+\DeclareStringOption[\leavevmode\unskip]{BeforeFootnote}
+% some font styling.
+\DeclareStringOption[\sffamily\bfseries]{HeaderFamily}
+% colours
+% same problems as for dimensions: we want the key handler to use \definecolor
+% first, some colours with no prefix, for backwards compatibility
+\newcommand*{\sphinxDeclareColorOption}[2]{%
+   \definecolor{#1}#2%
+   \define@key{sphinx}{#1}{\definecolor{#1}##1}%
+}%
+\sphinxDeclareColorOption{TitleColor}{{rgb}{0.126,0.263,0.361}}
+\sphinxDeclareColorOption{InnerLinkColor}{{rgb}{0.208,0.374,0.486}}
+\sphinxDeclareColorOption{OuterLinkColor}{{rgb}{0.216,0.439,0.388}}
+\sphinxDeclareColorOption{VerbatimColor}{{rgb}{1,1,1}}
+\sphinxDeclareColorOption{VerbatimBorderColor}{{rgb}{0,0,0}}
+% now the colours defined with "sphinx" prefix in their names
+\newcommand*{\sphinxDeclareSphinxColorOption}[2]{%
+   % set the initial default
+   \definecolor{sphinx#1}#2%
+   % set the key handler. The "value" ##1 must be acceptable by \definecolor.
+   \define@key{sphinx}{#1}{\definecolor{sphinx#1}##1}%
+}%
+% admonition boxes, "light" style
+\sphinxDeclareSphinxColorOption{notebordercolor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{hintbordercolor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{importantbordercolor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{tipbordercolor}{{rgb}{0,0,0}}
+% admonition boxes, "heavy" style
+\sphinxDeclareSphinxColorOption{warningbordercolor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{cautionbordercolor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{attentionbordercolor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{dangerbordercolor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{errorbordercolor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{warningbgcolor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{cautionbgcolor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{attentionbgcolor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{dangerbgcolor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{errorbgcolor}{{rgb}{1,1,1}}
+
+\DeclareDefaultOption{\@unknownoptionerror}
+\ProcessKeyvalOptions*
+% don't allow use of maxlistdepth via \sphinxsetup.
+\DisableKeyvalOption{sphinx}{maxlistdepth}
+% user interface: options can be changed midway in a document!
+\newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
+
+% this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
+% hyperref.sty, but we need it before, and the first release of
+% ltxcmds.sty as in TL2009/Debian has wrong definition.
+\newcommand{\spx@ifundefined}[1]{%
+    \ifcsname #1\endcsname
+      \expandafter\ifx\csname #1\endcsname\relax
+        \expandafter\expandafter\expandafter\@firstoftwo
+      \else
+        \expandafter\expandafter\expandafter\@secondoftwo
+      \fi
+    \else
+      \expandafter\@firstoftwo
+    \fi
+}
 % FIXME: the reasons might be obsolete (better color drivers now?)
 % use pdfoutput for pTeX and dvipdfmx
 % when pTeX (\kanjiskip is defined), set pdfoutput to evade \include{pdfcolor}
