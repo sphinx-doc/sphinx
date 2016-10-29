@@ -55,6 +55,7 @@ latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
 latex_logo = '_static/sphinx.png'
 latex_elements = {
     'fontpkg': '\\usepackage{palatino}',
+    'passoptionstopackages': '\\PassOptionsToPackage{svgnames}{xcolor}',
 }
 latex_show_urls = 'footnote'
 

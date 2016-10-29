@@ -11,6 +11,19 @@ LaTeX customization
 The *latex* target does not benefit from pre-prepared themes like the
 *html* target does (see :doc:`theming`).
 
+.. raw:: latex
+
+   \begingroup
+   \sphinxsetup{verbatimwithframe=false,%
+                VerbatimColor={named}{OldLace}, TitleColor={named}{DarkGoldenrod},%
+                hintbordercolor={named}{LightCoral}, attentionbgcolor={named}{LightPink},%
+                attentionborder=3pt,  attentionbordercolor={named}{Crimson},%
+                notebordercolor={named}{Olive}, noteborder=2pt,%
+                cautionbordercolor={named}{Cyan}, cautionbgcolor={named}{LightCyan},%
+                cautionborder=3pt}
+   \relax
+
+
 Basic customization
 -------------------
 
@@ -40,6 +53,8 @@ in Python string literals to reach latex.) For example::
 
 .. the above was tested on Sphinx's own 1.5a2 documentation with good effect !
 
+.. highlight:: latex
+
 More advanced customization will be obtained via insertion into the LaTeX
 preamble of relevant ``\renewcommand``, ``\renewenvironment``, ``\setlength``,
 or ``\definecolor`` commands. The ``'preamble'`` key of
@@ -47,12 +62,12 @@ or ``\definecolor`` commands. The ``'preamble'`` key of
 numerous, it may prove more convenient to assemble them into a specialized
 file :file:`mystyle.tex` and then use::
 
-    'preamble': '\\makeatletter\\input{mystyle.tex}\\makeatother',
+    'preamble': r'\makeatletter\input{mystyle.tex}\makeatother',
 
 or, better, to set up a style file
 :file:`mystyle.sty` which can then be loaded via::
 
-    'preamble': '\\usepackage{mystyle}',
+    'preamble': r'\usepackage{mystyle}',
 
 The :ref:`build configuration file <build-config>` file for the project needs
 to have its variable :confval:`latex_additional_files` appropriately
@@ -62,8 +77,6 @@ configured, for example::
 
 The Sphinx LaTeX style package options
 --------------------------------------
-
-.. highlight:: latex
 
 The ``'sphinxpackageoptions'`` key to :confval:`latex_elements` provides a
 more convenient interface to various style parameters. It is a comma separated
@@ -93,7 +106,23 @@ If non-empty, it will be passed as argument to the ``\sphinxsetup`` command::
      to insert explicitely the ``\\sphinxsetup{key=value,..}`` inside the
      ``'preamble'`` key. It is even possible to use the ``\sphinxsetup`` in
      the body of the document, via the :rst:dir:`raw` directive, to modify
-     dynamically the option values.
+     dynamically the option values: this is actually what we did for the
+     duration of this chapter for the PDF output, which is styled using::
+
+         verbatimwithframe=false,
+         VerbatimColor={named}{OldLace}, TitleColor={named}{DarkGoldenrod},
+         hintbordercolor={named}{LightCoral}, attentionbgcolor={named}{LightPink},
+         attentionborder=3pt,  attentionbordercolor={named}{Crimson},
+         notebordercolor={named}{Olive}, noteborder=2pt,
+         cautionbordercolor={named}{Cyan}, cautionbgcolor={named}{LightCyan},
+         cautionborder=3pt
+
+     and with the ``svgnames`` option having been passed to "xcolor" package::
+
+         latex_elements = {
+             'passoptionstopackages': r'\PassOptionsToPackage{svgnames}{xcolor}',
+         }
+
 
 Here are the currently available options together with their default values.
 
@@ -117,14 +146,14 @@ Here are the currently available options together with their default values.
        macros with complicated LaTeX syntax from :file:`sphinx.sty`.
 
 ``verbatimvisiblespace``
-    default ``\\textcolor{red}{\\textvisiblespace}``. When a long code line is
+    default ``\textcolor{red}{\textvisiblespace}``. When a long code line is
     split, space characters located at end of the line before the break are
     displayed using this code.
 
 ``verbatimcontinued``
     The default is::
 
-      \\makebox[2\\fontcharwd\\font`\\x][r]{\\textcolor{red}{\\tiny$\\hookrightarrow$}}
+      \makebox[2\fontcharwd\font`\x][r]{\textcolor{red}{\tiny$\hookrightarrow$}}
 
     It is printed at start of continuation lines. This rather formidable
     expression reserves twice the width of a typical character in the current
@@ -140,7 +169,7 @@ Here are the currently available options together with their default values.
 
           This specification gives the same spacing as before 1.5::
 
-            \\normalfont\\normalsize\\makebox[3ex][r]{\\textcolor{red}{\\tiny$\\hookrightarrow$}
+            \normalfont\normalsize\makebox[3ex][r]{\textcolor{red}{\tiny$\hookrightarrow$}
 
 ``TitleColor``
     default ``{rgb}{0.126,0.263,0.361}``. The colour for titles (as configured
@@ -260,16 +289,16 @@ Here are the currently available options together with their default values.
     default ``1pt``. id.
 
 ``AtStartFootnote``
-    default ``\\mbox{ }``. LaTeX macros inserted at the start of the footnote
+    default ``\mbox{ }``. LaTeX macros inserted at the start of the footnote
     text at bottom of page, after the footnote number.
 
 ``BeforeFootnote``
-    default ``\\leavevmode\\unskip``. LaTeX macros inserted before the footnote
+    default ``\leavevmode\unskip``. LaTeX macros inserted before the footnote
     mark. The default removes possible space before it.
 
     It can be set to empty (``BeforeFootnote={},``) to recover the earlier
-    behaviour of Sphinx, or alternatively contain a ``\\nobreak\\space`` or a
-    ``\\thinspace`` after the ``\\unskip`` to insert some chosen
+    behaviour of Sphinx, or alternatively contain a ``\nobreak\space`` or a
+    ``\thinspace`` after the ``\unskip`` to insert some chosen
     (non-breakable) space.
 
     .. versionadded:: 1.5
@@ -278,10 +307,17 @@ Here are the currently available options together with their default values.
        automatically generated footnotes had no such space.
 
 ``HeaderFamily``
-    default ``\\sffamily\\bfseries``. Sets the font used by headings.
+    default ``\sffamily\bfseries``. Sets the font used by headings.
+
+
+.. caution::
+
+   These options correspond to what has been so far the default LaTeX rendering by Sphinx;
+   if in future Sphinx offers various *themes* for LaTeX, the interface may change.
 
 In the future, possibly more keys will be made available. As seen above, they
-may even be used for LaTeX commands.
+may even be used for LaTeX commands. Don't forget to double the backslashes if not using
+"raw" Python strings.
 
 The LaTeX environments defined by Sphinx
 ----------------------------------------
@@ -383,6 +419,9 @@ Let us now list some macros from the package file
   .. versionchanged:: 1.5
      formerly, the original environments were modified by Sphinx.
 
+- the list is not exhaustive: refer to :file:`sphinx.sty` for more.
+
+
 .. hint::
 
    As an experimental feature, Sphinx can use user-defined template file for
@@ -391,3 +430,7 @@ Let us now list some macros from the package file
    will be changed in future version.
 
    .. versionadded:: 1.5
+
+.. raw:: latex
+
+   \endgroup
