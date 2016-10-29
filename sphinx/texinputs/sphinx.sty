@@ -131,21 +131,21 @@
    \define@key{sphinx}{#1}{\definecolor{sphinx#1}##1}%
 }%
 % admonition boxes, "light" style
-\sphinxDeclareSphinxColorOption{notebordercolor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{hintbordercolor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{importantbordercolor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{tipbordercolor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{noteBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{hintBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{importantBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{tipBorderColor}{{rgb}{0,0,0}}
 % admonition boxes, "heavy" style
-\sphinxDeclareSphinxColorOption{warningbordercolor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{cautionbordercolor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{attentionbordercolor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{dangerbordercolor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{errorbordercolor}{{rgb}{0,0,0}}
-\sphinxDeclareSphinxColorOption{warningbgcolor}{{rgb}{1,1,1}}
-\sphinxDeclareSphinxColorOption{cautionbgcolor}{{rgb}{1,1,1}}
-\sphinxDeclareSphinxColorOption{attentionbgcolor}{{rgb}{1,1,1}}
-\sphinxDeclareSphinxColorOption{dangerbgcolor}{{rgb}{1,1,1}}
-\sphinxDeclareSphinxColorOption{errorbgcolor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{warningBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{cautionBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{attentionBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{dangerBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{errorBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{warningBgColor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{cautionBgColor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{attentionBgColor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{dangerBgColor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{errorBgColor}{{rgb}{1,1,1}}
 
 \DeclareDefaultOption{\@unknownoptionerror}
 \ProcessKeyvalOptions*
@@ -689,10 +689,10 @@
 % these are needed for common handling by notice environment of lightbox
 % and heavybox but they are  currently not used by lightbox environment
 % and there is consequently no corresponding package option
-\definecolor{sphinxnotebgcolor}{rgb}{1,1,1}
-\definecolor{sphinxhintbgcolor}{rgb}{1,1,1}
-\definecolor{sphinximportantbgcolor}{rgb}{1,1,1}
-\definecolor{sphinxtipbgcolor}{rgb}{1,1,1}
+\definecolor{sphinxnoteBgColor}{rgb}{1,1,1}
+\definecolor{sphinxhintBgColor}{rgb}{1,1,1}
+\definecolor{sphinimportantBgColor}{rgb}{1,1,1}
+\definecolor{sphinxtipBgColor}{rgb}{1,1,1}
 
 % Others get more distinction
 % Code adapted from framed.sty's "snugshade" environment.
@@ -766,8 +766,8 @@
   % can't use #1 directly in definition of end part
   \def\spx@noticetype {#1}%
   % set parameters of heavybox/lightbox
-  \sphinxcolorlet{spx@notice@bordercolor}{sphinx#1bordercolor}%
-  \sphinxcolorlet{spx@notice@bgcolor}{sphinx#1bgcolor}%
+  \sphinxcolorlet{spx@notice@bordercolor}{sphinx#1BorderColor}%
+  \sphinxcolorlet{spx@notice@bgcolor}{sphinx#1BgColor}%
   \spx@notice@border \dimexpr\csname spx@opt@#1border\endcsname\relax
   % start specific environment, passing the heading as argument
   \begin{sphinx#1}{#2}}

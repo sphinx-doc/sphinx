@@ -16,10 +16,10 @@ The *latex* target does not benefit from pre-prepared themes like the
    \begingroup
    \sphinxsetup{verbatimwithframe=false,%
                 VerbatimColor={named}{OldLace}, TitleColor={named}{DarkGoldenrod},%
-                hintbordercolor={named}{LightCoral}, attentionbgcolor={named}{LightPink},%
-                attentionborder=3pt,  attentionbordercolor={named}{Crimson},%
-                notebordercolor={named}{Olive}, noteborder=2pt,%
-                cautionbordercolor={named}{Cyan}, cautionbgcolor={named}{LightCyan},%
+                hintBorderColor={named}{LightCoral}, attentionBgColor={named}{LightPink},%
+                attentionborder=3pt,  attentionBorderColor={named}{Crimson},%
+                noteBorderColor={named}{Olive}, noteborder=2pt,%
+                cautionBorderColor={named}{Cyan}, cautionBgColor={named}{LightCyan},%
                 cautionborder=3pt}
    \relax
 
@@ -111,10 +111,10 @@ If non-empty, it will be passed as argument to the ``\sphinxsetup`` command::
 
          verbatimwithframe=false,
          VerbatimColor={named}{OldLace}, TitleColor={named}{DarkGoldenrod},
-         hintbordercolor={named}{LightCoral}, attentionbgcolor={named}{LightPink},
-         attentionborder=3pt,  attentionbordercolor={named}{Crimson},
-         notebordercolor={named}{Olive}, noteborder=2pt,
-         cautionbordercolor={named}{Cyan}, cautionbgcolor={named}{LightCyan},
+         hintBorderColor={named}{LightCoral}, attentionBgColor={named}{LightPink},
+         attentionborder=3pt,  attentionBorderColor={named}{Crimson},
+         noteBorderColor={named}{Olive}, noteborder=2pt,
+         cautionBorderColor={named}{Cyan}, cautionBgColor={named}{LightCyan},
          cautionborder=3pt
 
      and with the ``svgnames`` option having been passed to "xcolor" package::
@@ -209,7 +209,7 @@ Here are the currently available options together with their default values.
 ``shadowrule``
     default ``\fboxrule``. The width of the frame around :dudir:`topic` boxes.
 
-``notebordercolor``
+``noteBorderColor``
     default ``{rgb}{0,0,0}``. The colour for the two horizontal rules used by
     Sphinx in LaTeX for styling a
     :dudir:`note` admonition. Defaults to black.
@@ -217,16 +217,16 @@ Here are the currently available options together with their default values.
     .. note::
 
        The actual name of the colour as declared to "color" or "xcolor" is
-       ``sphinxnotebordercolor``. The same "sphinx" prefix applies to all
+       ``sphinxnoteBorderColor``. The same "sphinx" prefix applies to all
        colours for notices and admonitions.
 
-``hintbordercolor``
+``hintBorderColor``
     default ``{rgb}{0,0,0}``. id.
 
-``importantbordercolor``
+``importantBorderColor``
     default ``{rgb}{0,0,0}``. id.
 
-``tipbordercolor``
+``tipBorderColor``
     default ``{rgb}{0,0,0}``. id.
 
 ``noteborder``
@@ -241,36 +241,36 @@ Here are the currently available options together with their default values.
 ``tipborder``
     default ``0.5pt``. id.
 
-``warningbordercolor``
+``warningBorderColor``
     default ``{rgb}{0,0,0}``. The colour of the frame for :dudir:`warning` type
     admonitions. Defaults to black.
 
-``cautionbordercolor``
+``cautionBorderColor``
     default ``{rgb}{0,0,0}``. id.
 
-``attentionbordercolor``
+``attentionBorderColor``
     default ``{rgb}{0,0,0}``. id.
 
-``dangerbordercolor``
+``dangerBorderColor``
     default ``{rgb}{0,0,0}``. id.
 
-``errorbordercolor``
+``errorBorderColor``
     default ``{rgb}{0,0,0}``. id.
 
-``warningbgcolor``
+``warningBgColor``
     default ``{rgb}{1,1,1}``. The background colour for :dudir:`warning` type
     admonition, defaults to white.
 
-``cautionbgcolor``
+``cautionBgColor``
     default ``{rgb}{1,1,1}``. id.
 
-``attentionbgcolor``
+``attentionBgColor``
     default ``{rgb}{1,1,1}``. id.
 
-``dangerbgcolor``
+``dangerBgColor``
     default ``{rgb}{1,1,1}``. id.
 
-``errorbgcolor``
+``errorBgColor``
     default ``{rgb}{1,1,1}``. id.
 
 ``warningborder``
