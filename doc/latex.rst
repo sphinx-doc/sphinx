@@ -126,6 +126,12 @@ If non-empty, it will be passed as argument to the ``\sphinxsetup`` command::
 
 Here are the currently available options together with their default values.
 
+.. caution::
+
+   These options correspond to what has been so far the default LaTeX
+   rendering by Sphinx; if in future Sphinx offers various *themes* for LaTeX,
+   the interface may change.
+
 ``verbatimwithframe``
     default ``true``. Boolean to specify if :rst:dir:`code-block`\ s and literal
     includes are framed. Setting it to ``false`` does not deactivate use of
@@ -309,15 +315,8 @@ Here are the currently available options together with their default values.
 ``HeaderFamily``
     default ``\sffamily\bfseries``. Sets the font used by headings.
 
-
-.. caution::
-
-   These options correspond to what has been so far the default LaTeX rendering by Sphinx;
-   if in future Sphinx offers various *themes* for LaTeX, the interface may change.
-
-In the future, possibly more keys will be made available. As seen above, they
-may even be used for LaTeX commands. Don't forget to double the backslashes if not using
-"raw" Python strings.
+As seen above, key values may even be used for LaTeX commands. But don't
+forget to double the backslashes if not using "raw" Python strings.
 
 The LaTeX environments defined by Sphinx
 ----------------------------------------
@@ -420,7 +419,6 @@ Let us now list some macros from the package file
      formerly, the original environments were modified by Sphinx.
 
 - the list is not exhaustive: refer to :file:`sphinx.sty` for more.
-
 
 .. hint::
 
