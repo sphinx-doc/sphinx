@@ -6,30 +6,10 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2016/10/26 v1.5 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2016/10/29 v1.5 LaTeX package (Sphinx markup)]
 
-% Handle package options via "kvoptions" (later loaded by hyperref anyhow)
-\RequirePackage{kvoptions}
-\SetupKeyvalOptions{prefix=spx@opt@} % use \spx@opt@ prefix
-\DeclareBoolOption{dontkeepoldnames} % \ifspx@opt@dontkeepoldnames = \iffalse
-\DeclareStringOption[0]{maxlistdepth}% \newcommand*\spx@opt@maxlistdepth{0}
-\DeclareDefaultOption{\@unknownoptionerror}
-\ProcessKeyvalOptions*
-
-% this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
-% hyperref.sty, but we need it before, and the first release of
-% ltxcmds.sty as in TL2009/Debian has wrong definition.
-\newcommand{\spx@ifundefined}[1]{%
-    \ifcsname #1\endcsname
-      \expandafter\ifx\csname #1\endcsname\relax
-        \expandafter\expandafter\expandafter\@firstoftwo
-      \else
-        \expandafter\expandafter\expandafter\@secondoftwo
-      \fi
-    \else
-      \expandafter\@firstoftwo
-    \fi
-}
+% we delay handling of options to after having loaded packages, because
+% of the need to use \definecolor.
 
 \RequirePackage{graphicx}
 \@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
@@ -53,7 +33,7 @@
 \fvset{fontsize=\small}
 % For table captions.
 \RequirePackage{threeparttable}
-% For hyperlinked footnotes in tables; also for gathering footnotes from 
+% For hyperlinked footnotes in tables; also for gathering footnotes from
 % topic and warning blocks. Also to allow code-blocks in footnotes.
 \RequirePackage{footnotehyper-sphinx}
 \makesavenoteenv{tabulary}
@@ -72,15 +52,122 @@
 % Display "real" single quotes in literal blocks.
 \RequirePackage{upquote}
 
-% Redefine these colors to your liking in the preamble.
-\definecolor{TitleColor}{rgb}{0.126,0.263,0.361}
-\definecolor{InnerLinkColor}{rgb}{0.208,0.374,0.486}
-\definecolor{OuterLinkColor}{rgb}{0.216,0.439,0.388}
-% Redefine these colors to something if you want to have colored
-% background and border for code examples.
-\definecolor{VerbatimColor}{rgb}{1,1,1}
-\definecolor{VerbatimBorderColor}{rgb}{0,0,0}
+% Handle options via "kvoptions" (later loaded by hyperref anyhow)
+\RequirePackage{kvoptions}
+\SetupKeyvalOptions{prefix=spx@opt@} % use \spx@opt@ prefix
 
+\DeclareBoolOption{dontkeepoldnames} % \ifspx@opt@dontkeepoldnames = \iffalse
+\DeclareStringOption[0]{maxlistdepth}% \newcommand*\spx@opt@maxlistdepth{0}
+
+% dimensions, we declare the \dimen registers here.
+\newdimen\sphinxverbatimsep
+\newdimen\sphinxverbatimborder
+\newdimen\sphinxshadowsep
+\newdimen\sphinxshadowsize
+\newdimen\sphinxshadowrule
+% \DeclareStringOption is not convenient for the handling of these dimensions
+% because we want to assign the values to the corresponding registers. Even if
+% we added the code to the key handler it would be too late for the initial
+% set-up and we would need to do initial assignments explicitely. We end up
+% using \define@key directly.
+% verbatim
+\sphinxverbatimsep=\fboxsep
+  \define@key{sphinx}{verbatimsep}{\sphinxverbatimsep\dimexpr #1\relax}
+\sphinxverbatimborder=\fboxrule
+  \define@key{sphinx}{verbatimborder}{\sphinxverbatimborder\dimexpr #1\relax}
+% topic boxes
+\sphinxshadowsep =5pt
+  \define@key{sphinx}{shadowsep}{\sphinxshadowsep\dimexpr #1\relax}
+\sphinxshadowsize=4pt
+  \define@key{sphinx}{shadowsize}{\sphinxshadowsize\dimexpr #1\relax}
+\sphinxshadowrule=\fboxrule
+  \define@key{sphinx}{shadowrule}{\sphinxshadowrule\dimexpr #1\relax}
+% verbatim
+\DeclareBoolOption[true]{verbatimwithframe}
+\DeclareBoolOption[true]{verbatimwrapslines}
+% \textvisiblespace for compatibility with fontspec+XeTeX/LuaTeX
+\DeclareStringOption[\textcolor{red}{\textvisiblespace}]{verbatimvisiblespace}
+\DeclareStringOption % must use braces to hide the brackets
+  [{\makebox[2\fontcharwd\font`\x][r]{\textcolor{red}{\tiny$\m@th\hookrightarrow$}}}]%
+  {verbatimcontinued}
+% notices/admonitions
+% the dimensions for notices/admonitions are kept as macros and assigned to
+% \spx@notice@border at time of use, hence \DeclareStringOption is ok for this
+\newdimen\spx@notice@border
+\DeclareStringOption[0.5pt]{noteborder}
+\DeclareStringOption[0.5pt]{hintborder}
+\DeclareStringOption[0.5pt]{importantborder}
+\DeclareStringOption[0.5pt]{tipborder}
+\DeclareStringOption[1pt]{warningborder}
+\DeclareStringOption[1pt]{cautionborder}
+\DeclareStringOption[1pt]{attentionborder}
+\DeclareStringOption[1pt]{dangerborder}
+\DeclareStringOption[1pt]{errorborder}
+% footnotes
+\DeclareStringOption[\mbox{ }]{AtStartFootnote}
+% we need a public macro name for direct use in latex file
+\newcommand*{\sphinxAtStartFootnote}{\spx@opt@AtStartFootnote}
+% no such need for this one, as it is used inside other macros
+\DeclareStringOption[\leavevmode\unskip]{BeforeFootnote}
+% some font styling.
+\DeclareStringOption[\sffamily\bfseries]{HeaderFamily}
+% colours
+% same problems as for dimensions: we want the key handler to use \definecolor
+% first, some colours with no prefix, for backwards compatibility
+\newcommand*{\sphinxDeclareColorOption}[2]{%
+   \definecolor{#1}#2%
+   \define@key{sphinx}{#1}{\definecolor{#1}##1}%
+}%
+\sphinxDeclareColorOption{TitleColor}{{rgb}{0.126,0.263,0.361}}
+\sphinxDeclareColorOption{InnerLinkColor}{{rgb}{0.208,0.374,0.486}}
+\sphinxDeclareColorOption{OuterLinkColor}{{rgb}{0.216,0.439,0.388}}
+\sphinxDeclareColorOption{VerbatimColor}{{rgb}{1,1,1}}
+\sphinxDeclareColorOption{VerbatimBorderColor}{{rgb}{0,0,0}}
+% now the colours defined with "sphinx" prefix in their names
+\newcommand*{\sphinxDeclareSphinxColorOption}[2]{%
+   % set the initial default
+   \definecolor{sphinx#1}#2%
+   % set the key handler. The "value" ##1 must be acceptable by \definecolor.
+   \define@key{sphinx}{#1}{\definecolor{sphinx#1}##1}%
+}%
+% admonition boxes, "light" style
+\sphinxDeclareSphinxColorOption{noteBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{hintBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{importantBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{tipBorderColor}{{rgb}{0,0,0}}
+% admonition boxes, "heavy" style
+\sphinxDeclareSphinxColorOption{warningBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{cautionBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{attentionBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{dangerBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{errorBorderColor}{{rgb}{0,0,0}}
+\sphinxDeclareSphinxColorOption{warningBgColor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{cautionBgColor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{attentionBgColor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{dangerBgColor}{{rgb}{1,1,1}}
+\sphinxDeclareSphinxColorOption{errorBgColor}{{rgb}{1,1,1}}
+
+\DeclareDefaultOption{\@unknownoptionerror}
+\ProcessKeyvalOptions*
+% don't allow use of maxlistdepth via \sphinxsetup.
+\DisableKeyvalOption{sphinx}{maxlistdepth}
+% user interface: options can be changed midway in a document!
+\newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
+
+% this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
+% hyperref.sty, but we need it before, and the first release of
+% ltxcmds.sty as in TL2009/Debian has wrong definition.
+\newcommand{\spx@ifundefined}[1]{%
+    \ifcsname #1\endcsname
+      \expandafter\ifx\csname #1\endcsname\relax
+        \expandafter\expandafter\expandafter\@firstoftwo
+      \else
+        \expandafter\expandafter\expandafter\@secondoftwo
+      \fi
+    \else
+      \expandafter\@firstoftwo
+    \fi
+}
 % FIXME: the reasons might be obsolete (better color drivers now?)
 % use pdfoutput for pTeX and dvipdfmx
 % when pTeX (\kanjiskip is defined), set pdfoutput to evade \include{pdfcolor}
@@ -117,8 +204,7 @@
 \pagestyle{empty}               % start this way
 
 % Use this to set the font family for headers and other decor:
-\newcommand{\py@HeaderFamily}{\sffamily\bfseries}
-\newcommand{\sphinxSetHeaderFamily}[1]{\renewcommand{\py@HeaderFamily}{#1}}
+\newcommand{\py@HeaderFamily}{\spx@opt@HeaderFamily}
 
 % Redefine the 'normal' header/footer style when using "fancyhdr" package:
 \spx@ifundefined{fancyhf}{}{
@@ -147,7 +233,7 @@
 }
 
 % Some custom font markup commands.
-% *** the macros without \sphinx prefix are still defined at bottom of file ***
+% *** the macros without \sphinx prefix are still defined near end of file ***
 \newcommand{\sphinxstrong}[1]{{\textbf{#1}}}
 % to obtain straight quotes we execute \@noligs as patched by upquote, the
 % macro must be robust in case it is used in captions e.g., and \scantokens is
@@ -165,9 +251,9 @@
 \newcommand{\sphinxcrossref}[1]{\emph{#1}}
 \newcommand{\sphinxtermref}[1]{\emph{#1}}
 
-% miscellaneous related to footnotes
-\newcommand*{\sphinxAtStartFootnote}{\mbox{ }}
-% Support large numbered footnotes in minipage (cf. admonitions)
+% Support large numbered footnotes in minipage
+% But now obsolete due to systematic use of \savenotes/\spewnotes
+% when minipages are in use in the various macro definitions next.
 \def\thempfootnote{\arabic{mpfootnote}}
 
 % Code-blocks
@@ -185,10 +271,6 @@
 \let\endOriginalVerbatim\endVerbatim
 
 \newif\ifspx@inframed % flag set if we are already in a framed environment
-\newdimen\sphinxverbatimsep   \sphinxverbatimsep   \fboxsep  % default 3pt
-\newdimen\sphinxverbatimborder\sphinxverbatimborder\fboxrule % default 0.4pt
-\newif\ifsphinxverbatimwithframe      \sphinxverbatimwithframetrue
-\newif\ifsphinxverbatimwrapslines     \sphinxverbatimwrapslinestrue
 % if forced use of minipage encapsulation is needed (e.g. table cells)
 \newif\ifsphinxverbatimwithminipage   \sphinxverbatimwithminipagefalse
 \newcommand\spx@colorbox [2]{%
@@ -264,18 +346,14 @@
 % For linebreaks inside Verbatim environment from package fancyvrb.
 \newbox\sphinxcontinuationbox
 \newbox\sphinxvisiblespacebox
-% Customize this via 'preamble' key if desired.
-% Use of \textvisiblespace for compatibility with XeTeX/LuaTeX/fontspec.
-\newcommand*\sphinxvisiblespace {\textcolor{red}{\textvisiblespace}}
-\newcommand*\sphinxcontinuationsymbol {\textcolor{red}{\llap{\tiny$\m@th\hookrightarrow$}}}
-\newcommand*\sphinxcontinuationindent {3ex }
-\newcommand*\sphinxafterbreak {\kern\sphinxcontinuationindent\copy\sphinxcontinuationbox}
+\newcommand*\sphinxafterbreak {\copy\sphinxcontinuationbox}
 
 % Take advantage of the already applied Pygments mark-up to insert
 % potential linebreaks for TeX processing.
 %        {, <, #, %, $, ' and ": go to next line.
 %        _, }, ^, &, >, - and ~: stay at end of broken line.
 % Use of \textquotesingle for straight quote.
+% FIXME: convert this to package options
 \newcommand*\sphinxbreaksbeforelist {%
     \do\PYGZob\{\do\PYGZlt\<\do\PYGZsh\#\do\PYGZpc\%% {, <, #, %,
     \do\PYGZdl\$\do\PYGZdq\"% $, "
@@ -342,7 +420,7 @@
   \fi
   \fboxsep\sphinxverbatimsep \fboxrule\sphinxverbatimborder
   % setting borderwidth to zero is simplest for no-frame effect with same pagebreaks
-  \ifsphinxverbatimwithframe\else\fboxrule\z@\fi
+  \ifspx@opt@verbatimwithframe\else\fboxrule\z@\fi
   % Customize framed.sty \MakeFramed to glue caption to literal block
   % via \spx@fcolorbox, will use \spx@VerbatimFBox which inserts title
   \def\FrameCommand   {\spx@colorbox\spx@fcolorbox }%
@@ -350,7 +428,7 @@
   % for mid pages and last page portion of (long) split frame:
   \def\MidFrameCommand{\spx@colorbox\fcolorbox }%
   \let\LastFrameCommand\MidFrameCommand
-  \ifsphinxverbatimwrapslines
+  \ifspx@opt@verbatimwrapslines
   % fancyvrb's Verbatim puts each input line in (unbreakable) horizontal boxes.
   % This customization wraps each line from the input in a \vtop, thus
   % allowing it to wrap and display on two or more lines in the latex output.
@@ -359,8 +437,9 @@
   %       to achieve this without extensive rewrite of fancyvrb.
   %     - The (not used in sphinx) obeytabs option to Verbatim is
   %       broken by this change (showtabs and tabspace work).
-  \sbox\sphinxcontinuationbox {\sphinxcontinuationsymbol}%
-  \sbox\sphinxvisiblespacebox {\FV@SetupFont\sphinxvisiblespace}%
+  \expandafter\def\expandafter\FV@SetupFont\expandafter
+    {\FV@SetupFont\sbox\sphinxcontinuationbox {\spx@opt@verbatimcontinued}%
+                  \sbox\sphinxvisiblespacebox {\spx@opt@verbatimvisiblespace}}%
   \def\FancyVerbFormatLine ##1{\hsize\linewidth
           \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
                 \doublehyphendemerits\z@\finalhyphendemerits\z@
@@ -405,7 +484,7 @@
      % For grid placement from \strut's in \FancyVerbFormatLine
      \lineskip\z@skip
      % active comma should not be overwritten by \@noligs
-     \ifsphinxverbatimwrapslines
+     \ifspx@opt@verbatimwrapslines
        \let\verbatim@nolig@list \sphinx@verbatim@nolig@list
      \fi
      % will fetch its optional arguments if any
@@ -418,14 +497,14 @@
   \endtrivlist
 }
 \newenvironment {sphinxVerbatimNoFrame}
-  {\sphinxverbatimwithframefalse
+  {\spx@opt@verbatimwithframefalse
    % needed for fancyvrb as literal code will end in \end{sphinxVerbatimNoFrame}
    \def\sphinxVerbatimEnvironment{\gdef\FV@EnvironName{sphinxVerbatimNoFrame}}%
    \begin{sphinxVerbatim}}
   {\end{sphinxVerbatim}}
 \newenvironment {sphinxVerbatimintable}
   {% don't use a frame if in a table cell
-   \sphinxverbatimwithframefalse
+   \spx@opt@verbatimwithframefalse
    \sphinxverbatimwithminipagetrue
    % counteract longtable redefinition of caption
    \let\caption\sphinxfigcaption
@@ -438,15 +517,6 @@
 % Topic boxes
 
 % Again based on use of "framed.sty", this allows breakable framed boxes.
-
-% define macro to frame contents and add shadow on right and bottom
-% use public names for customizable lengths
-\newlength\sphinxshadowsep  \setlength\sphinxshadowsep  {5pt}
-\newlength\sphinxshadowsize \setlength\sphinxshadowsize {4pt}
-\newlength\sphinxshadowrule
-% this uses \fboxrule value at loading time of sphinx.sty (0.4pt normally)
-\setlength\sphinxshadowrule {\fboxrule}
-
 \long\def\spx@ShadowFBox#1{%
   \leavevmode\begingroup
   % first we frame the box #1
@@ -546,13 +616,13 @@
 % {fulllineitems} is the main environment for object descriptions.
 %
 \newcommand{\py@itemnewline}[1]{%
-  \@tempdima\linewidth%
+  \@tempdima\linewidth
   \advance\@tempdima \leftmargin\makebox[\@tempdima][l]{#1}%
 }
 
 \newenvironment{fulllineitems}{
-  \begin{list}{}{\labelwidth \leftmargin \labelsep 0pt
-                 \rightmargin 0pt \topsep -\parskip \partopsep \parskip
+  \begin{list}{}{\labelwidth \leftmargin \labelsep \z@
+                 \rightmargin \z@ \topsep -\parskip \partopsep \parskip
                  \itemsep -\parsep
                  \let\makelabel=\py@itemnewline}
 }{\end{list}}
@@ -573,14 +643,14 @@
 
 % Production lists
 %
-\newenvironment{productionlist}{
+\newenvironment{productionlist}{%
 %  \def\sphinxoptional##1{{\Large[}##1{\Large]}}
-  \def\production##1##2{\\\sphinxcode{##1}&::=&\sphinxcode{##2}}
-  \def\productioncont##1{\\& &\sphinxcode{##1}}
+  \def\production##1##2{\\\sphinxcode{##1}&::=&\sphinxcode{##2}}%
+  \def\productioncont##1{\\& &\sphinxcode{##1}}%
   \parindent=2em
   \indent
-  \setlength{\LTpre}{0pt}
-  \setlength{\LTpost}{0pt}
+  \setlength{\LTpre}{0pt}%
+  \setlength{\LTpost}{0pt}%
   \begin{longtable}[l]{lcl}
 }{%
   \end{longtable}
@@ -589,6 +659,7 @@
 % Notices / Admonitions
 
 % Some are quite plain
+% the spx@notice@bordercolor etc are set in the sphinxadmonition environment
 \newenvironment{sphinxlightbox}{%
   \par\allowbreak
   \noindent{\color{spx@notice@bordercolor}%
@@ -614,25 +685,16 @@
   {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
 \newenvironment{sphinxtip}[1]
   {\begin{sphinxlightbox}\sphinxstrong{#1} }{\end{sphinxlightbox}}
-% or user may just customize the bordercolor and the border width
-% re-use \definecolor if change needed, and \renewcommand for rule width
-\definecolor{sphinxnotebordercolor}{rgb}{0,0,0}
-\definecolor{sphinxhintbordercolor}{rgb}{0,0,0}
-\definecolor{sphinximportantbordercolor}{rgb}{0,0,0}
-\definecolor{sphinxtipbordercolor}{rgb}{0,0,0}
-\newcommand{\sphinxnoteborder}{0.5pt}
-\newcommand{\sphinxhintborder}{0.5pt}
-\newcommand{\sphinximportantborder}{0.5pt}
-\newcommand{\sphinxtipborder}{0.5pt}
+% or just use the package options
 % these are needed for common handling by notice environment of lightbox
 % and heavybox but they are  currently not used by lightbox environment
-\definecolor{sphinxnotebgcolor}{rgb}{1,1,1}
-\definecolor{sphinxhintbgcolor}{rgb}{1,1,1}
-\definecolor{sphinximportantbgcolor}{rgb}{1,1,1}
-\definecolor{sphinxtipbgcolor}{rgb}{1,1,1}
+% and there is consequently no corresponding package option
+\definecolor{sphinxnoteBgColor}{rgb}{1,1,1}
+\definecolor{sphinxhintBgColor}{rgb}{1,1,1}
+\definecolor{sphinimportantBgColor}{rgb}{1,1,1}
+\definecolor{sphinxtipBgColor}{rgb}{1,1,1}
 
 % Others get more distinction
-\newdimen\spx@notice@border
 % Code adapted from framed.sty's "snugshade" environment.
 % Nesting works (inner frames do not allow page breaks).
 \newenvironment{sphinxheavybox}{\par
@@ -689,22 +751,7 @@
   {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
 \newenvironment{sphinxerror}[1]
   {\begin{sphinxheavybox}\sphinxstrong{#1} }{\end{sphinxheavybox}}
-% or just re-do \definecolor for colours, \renewcommand for frame width
-\definecolor{sphinxwarningbordercolor}{rgb}{0,0,0}
-\definecolor{sphinxcautionbordercolor}{rgb}{0,0,0}
-\definecolor{sphinxattentionbordercolor}{rgb}{0,0,0}
-\definecolor{sphinxdangerbordercolor}{rgb}{0,0,0}
-\definecolor{sphinxerrorbordercolor}{rgb}{0,0,0}
-\definecolor{sphinxwarningbgcolor}{rgb}{1,1,1}
-\definecolor{sphinxcautionbgcolor}{rgb}{1,1,1}
-\definecolor{sphinxattentionbgcolor}{rgb}{1,1,1}
-\definecolor{sphinxdangerbgcolor}{rgb}{1,1,1}
-\definecolor{sphinxerrorbgcolor}{rgb}{1,1,1}
-\newcommand{\sphinxwarningborder}{1pt}
-\newcommand{\sphinxcautionborder}{1pt}
-\newcommand{\sphinxattentionborder}{1pt}
-\newcommand{\sphinxdangerborder}{1pt}
-\newcommand{\sphinxerrorborder}{1pt}
+% or just use package options
 
 % the \colorlet of xcolor (if at all loaded) is overkill for our use case
 \newcommand{\sphinxcolorlet}[2]
@@ -719,9 +766,9 @@
   % can't use #1 directly in definition of end part
   \def\spx@noticetype {#1}%
   % set parameters of heavybox/lightbox
-  \sphinxcolorlet{spx@notice@bordercolor}{sphinx#1bordercolor}%
-  \sphinxcolorlet{spx@notice@bgcolor}{sphinx#1bgcolor}%
-  \setlength\spx@notice@border {\dimexpr\csname sphinx#1border\endcsname\relax}%
+  \sphinxcolorlet{spx@notice@bordercolor}{sphinx#1BorderColor}%
+  \sphinxcolorlet{spx@notice@bgcolor}{sphinx#1BgColor}%
+  \spx@notice@border \dimexpr\csname spx@opt@#1border\endcsname\relax
   % start specific environment, passing the heading as argument
   \begin{sphinx#1}{#2}}
   % in end part, need to go around a LaTeX's "feature"
@@ -778,9 +825,9 @@
 % Redefine description environment so that it is usable inside fulllineitems.
 %
 \renewcommand{\description}{%
-  \list{}{\labelwidth\z@%
-          \itemindent-\leftmargin%
-	  \labelsep5pt%
+  \list{}{\labelwidth\z@
+          \itemindent-\leftmargin
+	  \labelsep5pt\relax
           \let\makelabel=\descriptionlabel}}
 
 % Definition lists; requested by AMK for HOWTO documents.  Probably useful
@@ -788,7 +835,7 @@
 %
 \newenvironment{definitions}{%
   \begin{description}%
-  \def\term##1{\item[{##1}]\mbox{}\\*[0mm]}
+  \def\term##1{\item[{##1}]\mbox{}\\*[0mm]}%
 }{%
   \end{description}%
 }
@@ -816,7 +863,7 @@
   {\setlength{\partopsep}{\parskip}
    \addtolength{\partopsep}{\baselineskip}
    \topsep0pt\itemsep0.15\baselineskip\parsep0pt
-   \leftmargin#1}
+   \leftmargin#1\relax}
  \raggedright}
 {\end{list}}
 
@@ -862,19 +909,26 @@
   \fi
 \fi
 
+% These options can be overriden inside  'hyperref' key
+% or by later use of \hypersetup.
+\PassOptionsToPackage{colorlinks,breaklinks,%
+ linkcolor=InnerLinkColor,filecolor=OuterLinkColor,%
+ menucolor=OuterLinkColor,urlcolor=OuterLinkColor,%
+ citecolor=InnerLinkColor}{hyperref}
+
 % From docutils.writers.latex2e
 % inline markup (custom roles)
 % \DUrole{#1}{#2} tries \DUrole#1{#2}
 \providecommand*{\DUrole}[2]{%
-  \ifcsname DUrole#1\endcsname%
+  \ifcsname DUrole#1\endcsname
     \csname DUrole#1\endcsname{#2}%
   \else% backwards compatibility: try \docutilsrole#1{#2}
-    \ifcsname docutilsrole#1\endcsname%
+    \ifcsname docutilsrole#1\endcsname
       \csname docutilsrole#1\endcsname{#2}%
-    \else%
+    \else
       #2%
-    \fi%
-  \fi%
+    \fi
+  \fi
 }
 
 \providecommand*{\DUprovidelength}[2]{%
@@ -987,6 +1041,7 @@
 \fi
 
 % additional customizable styling
+% FIXME: convert this to package options ?
 \newcommand*{\sphinxstyleindexentry}{\texttt}
 \newcommand{\sphinxstyleindexextra}[1]{ \emph{(#1)}}
 \newcommand*{\sphinxstyleindexpageref}{, \pageref}

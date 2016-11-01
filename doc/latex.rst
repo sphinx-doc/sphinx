@@ -11,8 +11,25 @@ LaTeX customization
 The *latex* target does not benefit from pre-prepared themes like the
 *html* target does (see :doc:`theming`).
 
-Basic customization is available from ``conf.py`` via usage of the
-:ref:`latex-options` as described in :doc:`config`. For example::
+.. raw:: latex
+
+   \begingroup
+   \sphinxsetup{verbatimwithframe=false,%
+                VerbatimColor={named}{OldLace}, TitleColor={named}{DarkGoldenrod},%
+                hintBorderColor={named}{LightCoral}, attentionBgColor={named}{LightPink},%
+                attentionborder=3pt,  attentionBorderColor={named}{Crimson},%
+                noteBorderColor={named}{Olive}, noteborder=2pt,%
+                cautionBorderColor={named}{Cyan}, cautionBgColor={named}{LightCyan},%
+                cautionborder=3pt}
+   \relax
+
+
+Basic customization
+-------------------
+
+It is available from ``conf.py`` via usage of the
+:ref:`latex-options` as described in :doc:`config` (backslashes must be doubled
+in Python string literals to reach latex.) For example::
 
     # inside conf.py
     latex_engine = 'xelatex'
@@ -36,32 +53,277 @@ Basic customization is available from ``conf.py`` via usage of the
 
 .. the above was tested on Sphinx's own 1.5a2 documentation with good effect !
 
+.. highlight:: latex
+
 More advanced customization will be obtained via insertion into the LaTeX
 preamble of relevant ``\renewcommand``, ``\renewenvironment``, ``\setlength``,
 or ``\definecolor`` commands. The ``'preamble'`` key of
 :confval:`latex_elements` will serve for inserting these commands. If they are
 numerous, it may prove more convenient to assemble them into a specialized
-file :file:`mycustomizedmacros.tex` and then use::
+file :file:`mystyle.tex` and then use::
 
-    'preamble': '\\makeatletter\\input{mycustomizedmacros.tex}\\makeatother',
+    'preamble': r'\makeatletter\input{mystyle.tex}\makeatother',
 
-More advanced LaTeX users will set up a style file
-:file:`mycustomizedmacros.sty`, which can then be loaded via::
+or, better, to set up a style file
+:file:`mystyle.sty` which can then be loaded via::
 
-    'preamble': '\\usepackage{mycustomizedmacros}',
+    'preamble': r'\usepackage{mystyle}',
 
 The :ref:`build configuration file <build-config>` file for the project needs
 to have its variable :confval:`latex_additional_files` appropriately
 configured, for example::
 
-    latex_additional_files = ["mycustomizedmacros.sty"]
+    latex_additional_files = ["mystyle.sty"]
 
-Such *LaTeX Sphinx theme* files could possibly be contributed in the
-future by advanced users for wider use.
+The Sphinx LaTeX style package options
+--------------------------------------
 
-Let us list here some examples of macros, lengths, colors, which are inherited
-from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
-:file:`sphinxmanual.cls`, and can be customized.
+The ``'sphinxpackageoptions'`` key to :confval:`latex_elements` provides a
+more convenient interface to various style parameters. It is a comma separated
+string of ``key=value`` instructions::
+
+    key1=value1,key2=value2, ...
+
+- if a key is repeated, it is its last occurence which counts,
+- spaces around the commas and equal signs are ignored.
+
+If non-empty, it will be passed as argument to the ``\sphinxsetup`` command::
+
+    \usepackage{sphinx}
+    \sphinxsetup{key1=value1,key2=value2,...}
+
+.. versionadded:: 1.5
+
+.. note::
+
+   - Most options described next could also have been positioned as
+     :file:`sphinx.sty` package options. But for those where the key value
+     contains some LaTeX code the use of ``\sphinxsetup`` is mandatory. Hence
+     the whole ``'sphinxpackageoptions'`` string is passed as argument to
+     ``\sphinxsetup``.
+
+   - As an alternative to the ``'sphinxpackageoptions'`` key, it is possibly
+     to insert explicitely the ``\\sphinxsetup{key=value,..}`` inside the
+     ``'preamble'`` key. It is even possible to use the ``\sphinxsetup`` in
+     the body of the document, via the :rst:dir:`raw` directive, to modify
+     dynamically the option values: this is actually what we did for the
+     duration of this chapter for the PDF output, which is styled using::
+
+         verbatimwithframe=false,
+         VerbatimColor={named}{OldLace}, TitleColor={named}{DarkGoldenrod},
+         hintBorderColor={named}{LightCoral}, attentionBgColor={named}{LightPink},
+         attentionborder=3pt,  attentionBorderColor={named}{Crimson},
+         noteBorderColor={named}{Olive}, noteborder=2pt,
+         cautionBorderColor={named}{Cyan}, cautionBgColor={named}{LightCyan},
+         cautionborder=3pt
+
+     and with the ``svgnames`` option having been passed to "xcolor" package::
+
+         latex_elements = {
+             'passoptionstopackages': r'\PassOptionsToPackage{svgnames}{xcolor}',
+         }
+
+
+Here are the currently available options together with their default values.
+
+.. caution::
+
+   These options correspond to what has been so far the default LaTeX
+   rendering by Sphinx; if in future Sphinx offers various *themes* for LaTeX,
+   the interface may change.
+
+``verbatimwithframe``
+    default ``true``. Boolean to specify if :rst:dir:`code-block`\ s and literal
+    includes are framed. Setting it to ``false`` does not deactivate use of
+    package "framed", because it is still in use for the optional background
+    colour (see below).
+
+    .. attention::
+
+       LaTeX requires ``true`` or ``false`` to be specified in *lowercase*.
+
+``verbatimwrapslines``
+    default ``true``. Tells whether long lines in :rst:dir:`code-block`\ s
+    should be wrapped.
+
+    .. (comment) It is theoretically possible to customize this even
+       more and decide at which characters a line-break can occur and whether
+       before or after, but this is accessible currently only by re-defining some
+       macros with complicated LaTeX syntax from :file:`sphinx.sty`.
+
+``verbatimvisiblespace``
+    default ``\textcolor{red}{\textvisiblespace}``. When a long code line is
+    split, space characters located at end of the line before the break are
+    displayed using this code.
+
+``verbatimcontinued``
+    The default is::
+
+      \makebox[2\fontcharwd\font`\x][r]{\textcolor{red}{\tiny$\hookrightarrow$}}
+
+    It is printed at start of continuation lines. This rather formidable
+    expression reserves twice the width of a typical character in the current
+    (monospaced) font and puts there a small red hook pointing to the right.
+
+    .. versionchanged:: 1.5
+       The breaking of long code lines was introduced at 1.4.2. The space
+       reserved to the continuation symbol was changed at 1.5 to obey the
+       current font characteristics (this was needed as Sphinx 1.5 LaTeX
+       allows code-blocks in footnotes which use a smaller font size).
+
+       .. hint::
+
+          This specification gives the same spacing as before 1.5::
+
+            \normalfont\normalsize\makebox[3ex][r]{\textcolor{red}{\tiny$\hookrightarrow$}
+
+``TitleColor``
+    default ``{rgb}{0.126,0.263,0.361}``. The colour for titles (as configured
+    via use of package "titlesec".) It must obey the syntax of the
+    ``\definecolor`` command. Check the documentation of packages ``color`` or
+    ``xcolor``.
+
+``InnerLinkColor``
+    default ``{rgb}{0.208,0.374,0.486}``. A colour passed to ``hyperref`` as
+    value of ``linkcolor``  and ``citecolor``.
+
+``OuterLinkColor``
+    default ``{rgb}{0.216,0.439,0.388}``. A colour passed to ``hyperref`` as
+    value of ``filecolor``, ``menucolor``, and ``urlcolor``.
+
+``VerbatimColor``
+    default ``{rgb}{1,1,1}``. The background colour for
+    :rst:dir:`code-block`\ s. The default is white.
+
+``VerbatimBorderColor``
+    default ``{rgb}{0,0,0}``. The frame color, defaults to black.
+
+``verbatimsep``
+    default ``\fboxsep``. The separation between code lines and the frame.
+
+``verbatimborder``
+    default ``\fboxrule``. The width of the frame around
+    :rst:dir:`code-block`\ s.
+
+``shadowsep``
+    default ``5pt``. The separation between contents and frame for
+    :dudir:`contents` and :dudir:`topic` boxes.
+
+``shadowsize``
+    default ``4pt``. The width of the lateral "shadow" to the right.
+
+``shadowrule``
+    default ``\fboxrule``. The width of the frame around :dudir:`topic` boxes.
+
+``noteBorderColor``
+    default ``{rgb}{0,0,0}``. The colour for the two horizontal rules used by
+    Sphinx in LaTeX for styling a
+    :dudir:`note` admonition. Defaults to black.
+
+    .. note::
+
+       The actual name of the colour as declared to "color" or "xcolor" is
+       ``sphinxnoteBorderColor``. The same "sphinx" prefix applies to all
+       colours for notices and admonitions.
+
+``hintBorderColor``
+    default ``{rgb}{0,0,0}``. id.
+
+``importantBorderColor``
+    default ``{rgb}{0,0,0}``. id.
+
+``tipBorderColor``
+    default ``{rgb}{0,0,0}``. id.
+
+``noteborder``
+    default ``0.5pt``. The width of the two horizontal rules.
+
+``hintborder``
+    default ``0.5pt``. id.
+
+``importantborder``
+    default ``0.5pt``. id.
+
+``tipborder``
+    default ``0.5pt``. id.
+
+``warningBorderColor``
+    default ``{rgb}{0,0,0}``. The colour of the frame for :dudir:`warning` type
+    admonitions. Defaults to black.
+
+``cautionBorderColor``
+    default ``{rgb}{0,0,0}``. id.
+
+``attentionBorderColor``
+    default ``{rgb}{0,0,0}``. id.
+
+``dangerBorderColor``
+    default ``{rgb}{0,0,0}``. id.
+
+``errorBorderColor``
+    default ``{rgb}{0,0,0}``. id.
+
+``warningBgColor``
+    default ``{rgb}{1,1,1}``. The background colour for :dudir:`warning` type
+    admonition, defaults to white.
+
+``cautionBgColor``
+    default ``{rgb}{1,1,1}``. id.
+
+``attentionBgColor``
+    default ``{rgb}{1,1,1}``. id.
+
+``dangerBgColor``
+    default ``{rgb}{1,1,1}``. id.
+
+``errorBgColor``
+    default ``{rgb}{1,1,1}``. id.
+
+``warningborder``
+    default ``1pt``. The width of the frame.
+
+``cautionborder``
+    default ``1pt``. id.
+
+``attentionborder``
+    default ``1pt``. id.
+
+``dangerborder``
+    default ``1pt``. id.
+
+``errorborder``
+    default ``1pt``. id.
+
+``AtStartFootnote``
+    default ``\mbox{ }``. LaTeX macros inserted at the start of the footnote
+    text at bottom of page, after the footnote number.
+
+``BeforeFootnote``
+    default ``\leavevmode\unskip``. LaTeX macros inserted before the footnote
+    mark. The default removes possible space before it.
+
+    It can be set to empty (``BeforeFootnote={},``) to recover the earlier
+    behaviour of Sphinx, or alternatively contain a ``\nobreak\space`` or a
+    ``\thinspace`` after the ``\unskip`` to insert some chosen
+    (non-breakable) space.
+
+    .. versionadded:: 1.5
+       formerly, footnotes from explicit mark-up were
+       preceded by a space (hence a linebreak there was possible), but
+       automatically generated footnotes had no such space.
+
+``HeaderFamily``
+    default ``\sffamily\bfseries``. Sets the font used by headings.
+
+As seen above, key values may even be used for LaTeX commands. But don't
+forget to double the backslashes if not using "raw" Python strings.
+
+The LaTeX environments defined by Sphinx
+----------------------------------------
+
+Let us now list some macros from the package file
+:file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
+:file:`sphinxmanual.cls`, which can be entirely redefined, if desired.
 
 - text styling commands (they have one argument): ``\sphinx<foo>`` with
   ``<foo>`` being one of ``strong``, ``bfcode``, ``email``, ``tablecontinued``,
@@ -84,38 +346,22 @@ from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
 
   .. versionadded:: 1.5
      the new macros are wrappers of the formerly hard-coded ``\texttt``,
-     ``\emph``, ... The default definitions can be found near the end of
+     ``\emph``, ... The default definitions can be found in
      :file:`sphinx.sty`.
-- parameters for paragraph level environments: with ``<foo>`` one of
-  :dudir:`warning`, :dudir:`caution`, :dudir:`attention`,
-  :dudir:`danger`, :dudir:`error`, the colours
-  *sphinx<foo>bordercolor* and *sphinx<foo>bgcolor* can be
-  re-defined using ``\definecolor`` command. The
-  ``\sphinx<foo>border`` is a command (not a LaTeX length) which
-  specifies the thickness of the frame (default ``1pt``) and can be
-  ``\renewcommand`` 'd. The same applies with ``<foo>`` one of
-  :dudir:`note`, :dudir:`hint`, :dudir:`important`, :dudir:`tip`, but
-  the background colour is not implemented by the default environments
-  and the top and bottom rule thickness default is ``0.5pt``.
-
-  .. versionchanged:: 1.5
-     customizability of the parameters for each type of admonition.
-- paragraph level environments: for each admonition as in the previous item, the
+- paragraph level environments: for each admonition type ``<foo>``, the
   used environment is named ``sphinx<foo>``. They may be ``\renewenvironment``
   'd individually, and must then be defined with one argument (it is the heading
   of the notice, for example ``Warning:`` for :dudir:`warning` directive, if
   English is the document language). Their default definitions use either the
   *sphinxheavybox* (for the first listed directives) or the *sphinxlightbox*
   environments, configured to use the parameters (colours, border thickness)
-  specific to each type, as mentioned in the previous item.
+  specific to each type, which can be set via ``'sphinxpackageoptions'`` string.
 
   .. versionchanged:: 1.5
      use of public environment names, separate customizability of the parameters.
 - the :dudir:`contents` directive (with ``:local:`` option) and the
   :dudir:`topic` directive are implemented by environment ``sphinxShadowBox``.
-  Its default definition obeys three LaTeX lengths (not commands) as parameters:
-  ``\sphinxshadowsep`` (distance from contents), ``\sphinxshadowsize`` (width of
-  lateral shadow), ``\sphinxshadowrule`` (thickness of the frame).
+  See above for the three dimensions associated with it.
 
   .. versionchanged:: 1.5
      use of public names for the three lengths. The environment itself was
@@ -124,8 +370,7 @@ from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
   implemented using ``sphinxVerbatim`` environment which is a wrapper of
   ``Verbatim`` environment from package ``fancyvrb.sty``. It adds the handling
   of the top caption and the wrapping of long lines, and a frame which allows
-  pagebreaks. The LaTeX lengths (not commands) ``\sphinxverbatimsep`` and
-  ``\sphinxverbatimborder`` customize the framing. Inside tables the used
+  pagebreaks. Inside tables the used
   environment is ``sphinxVerbatimintable`` (it does not draw a frame, but
   allows a caption).
 
@@ -134,9 +379,10 @@ from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
      which is the one of ``OriginalVerbatim`` too), and custom one is called
      ``sphinxVerbatim``. Also, earlier version of Sphinx used
      ``OriginalVerbatim`` inside tables (captions were lost, long code lines
-     were not wrapped), they now use ``sphinxVerbatimintable``.
+     were not wrapped), it now uses there ``sphinxVerbatimintable``.
   .. versionadded:: 1.5
-     the two customizable lengths, the ``sphinxVerbatimintable``.
+     the two customizable lengths, the ``sphinxVerbatimintable``, the boolean
+     toggles described above.
 - by default the Sphinx style file ``sphinx.sty`` includes the command
   ``\fvset{fontsize=\small}`` as part of its configuration of
   ``fancyvrb.sty``. The user may override this for example via
@@ -145,30 +391,6 @@ from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
 
   .. versionadded:: 1.5
      formerly, the use of ``\small`` for code listings was not customizable.
-- miscellaneous colours: *InnerLinkColor*, *OuterLinkColor* (used in
-  ``hyperref`` options), *TitleColor* (used for titles via  ``titlesec``),
-  *VerbatimColor* (background colour) and *VerbatimBorderColor* (used for
-  displaying source code examples).
-- the ``\sphinxAtStartFootnote`` is inserted between footnote numbers and their
-  texts, by default it does ``\mbox{ }``.
-- the ``\sphinxBeforeFootnote`` command is executed before each footnote, its
-  default definition is::
-
-    \newcommand*{\sphinxBeforeFootnote}{\leavevmode\unskip}
-
-  You can ``\renewcommand`` it to do nothing in order to recover the earlier
-  behaviour of Sphinx, or alternatively add a ``\nobreak\space`` or a
-  ``\thinspace`` after the ``\unskip`` in the definition to insert some
-  (non-breakable) space.
-
-  .. versionadded:: 1.5
-     formerly, footnotes from explicit mark-up were preceded by a space
-     allowing a linebreak, but automatically generated footnotes had no such
-     space.
-- use ``\sphinxSetHeaderFamily`` to set the font used by headings
-  (default is ``\sffamily\bfseries``).
-
-  .. versionadded:: 1.5
 - the section, subsection, ...  headings are set using  *titlesec*'s
   ``\titleformat`` command. Check :file:`sphinx.sty` for the definitions.
 - for the ``'sphinxmanual'`` class (corresponding to the fifth element of
@@ -196,12 +418,7 @@ from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
   .. versionchanged:: 1.5
      formerly, the original environments were modified by Sphinx.
 
-.. note::
-
-   It is impossible to revert or prevent the loading of a package that results
-   from a ``\usepackage`` executed from inside the :file:`sphinx.sty` style
-   file. Sphinx aims at loading as few packages as are really needed for its
-   default design.
+- the list is not exhaustive: refer to :file:`sphinx.sty` for more.
 
 .. hint::
 
@@ -211,3 +428,7 @@ from package file :file:`sphinx.sty` and class file :file:`sphinxhowto.cls` or
    will be changed in future version.
 
    .. versionadded:: 1.5
+
+.. raw:: latex
+
+   \endgroup

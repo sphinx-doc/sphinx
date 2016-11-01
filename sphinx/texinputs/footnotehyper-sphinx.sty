@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{footnotehyper-sphinx}%
- [2016/10/16 v0.9f hyperref aware footnote.sty for sphinx (JFB)]
+ [2016/10/27 v0.9f hyperref aware footnote.sty for sphinx (JFB)]
 %%
 %% Package: footnotehyper-sphinx
 %% Version: based on footnotehyper.sty v0.9f (2016/10/03)
@@ -12,17 +12,7 @@
 %% 2. no need to check if footnote.sty was loaded,
 %% 3. a special tabulary compatibility layer added, (partial but enough for
 %% Sphinx),
-%% 4. the \sphinxfootnotemark command is added. Its rôle is to silently remove
-%% footnote marks from locations like the tables of contents, or page headers,
-%% and to be compatible with hyperref constructions of bookmarks, and survive
-%% to \MakeUppercase command or such which may be used to typeset chapter
-%% titles for example.
-%% 5. the \sphinxBeforeFootnote is added: reST syntax implies that a space token
-%% is needed before footnote mark-up like [#]_ and it goes to latex file (and
-%% a line break can happen before the footnote mark), but for generated
-%% footnotes from latex_show_urls = 'footnote' there is no such space. The
-%% hook normalizes this, and by default uses no space.
-%%
+%% 4. \sphinxfootnotemark, and use of \spx@opt@BeforeFootnote from sphinx.sty.
 %% Note: with \footnotemark[N]/\footnotetext[N] syntax, hyperref
 %% does not insert an hyperlink. This is _not_ improved here.
 %%
@@ -99,8 +89,8 @@
     \if@savingnotes\expandafter\fn@fntext\else\expandafter\H@@footnotetext\fi
     {\unvbox\z@}\endgroup
 }%
-%% \sphinxBeforeFootnote added 2016/10/16
-\def\FNH@fixed@footnote {\sphinxBeforeFootnote\ifx\@currenvir\fn@footnote
+%% \spx@opt@BeforeFootnote is defined in sphinx.sty
+\def\FNH@fixed@footnote {\spx@opt@BeforeFootnote\ifx\@currenvir\fn@footnote
     \expandafter\FNH@footnoteenv\else\expandafter\fn@latex@@footnote\fi }%
 \def\FNH@footnoteenv {\@ifnextchar[\FNH@xfootnoteenv%]
     {\stepcounter\@mpfn
@@ -154,15 +144,13 @@
     \typeout{\meaning\@makefntext}%
     \let\fn@prefntext\@empty\let\fn@postfntext\@empty
 }%
-%% \sphinxfootnotemark: usable in section titles and silently removed from TOCs
+%% \sphinxfootnotemark: usable in section titles and silently removed from
+%% TOCs.
 \def\sphinxfootnotemark [#1]%
-   {\ifx\thepage\relax\else \protect\sphinxBeforeFootnote
+   {\ifx\thepage\relax\else \protect\spx@opt@BeforeFootnote
                             \protect\footnotemark[#1]\fi}%
-\AtBeginDocument
+\AtBeginDocument % let hyperref less complain
    {\pdfstringdefDisableCommands{\def\sphinxfootnotemark [#1]{}}}%
-%% before 1.5, Sphinx left a (breakable) space before user generated footnotes
-%% but no space before automatically generated footnotes.
-\def\sphinxBeforeFootnote {\leavevmode\unskip}%
 \endinput
 %%
 %% End of file `footnotehyper-sphinx.sty'.

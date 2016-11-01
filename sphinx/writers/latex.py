@@ -52,6 +52,9 @@ DEFAULT_SETTINGS = {
     'classoptions':    '',
     'extraclassoptions': '',
     'maxlistdepth':    '',
+    'sphinxpkgoptions':     '',
+    'sphinxpackageoptions': '',
+    'sphinxsetup':     '',
     'passoptionstopackages': '',
     'geometry':        '\\usepackage[margin=1in,marginparwidth=0.5in]'
                        '{geometry}',
@@ -69,13 +72,7 @@ DEFAULT_SETTINGS = {
     'fncychap':        '\\usepackage[Bjarne]{fncychap}',
     'longtable':       '\\usepackage{longtable}',
     'hyperref':        ('% Include hyperref last.\n'
-                        '\\usepackage[colorlinks,breaklinks,%\n'
-                        '            '
-                        'linkcolor=InnerLinkColor,filecolor=OuterLinkColor,%\n'
-                        '            '
-                        'menucolor=OuterLinkColor,urlcolor=OuterLinkColor,%\n'
-                        '            '
-                        'citecolor=InnerLinkColor]{hyperref}\n'
+                        '\\usepackage{hyperref}\n'
                         '% Fix anchor placement for figures with captions.\n'
                         '\\usepackage{hypcap}% it must be loaded after hyperref.\n'
                         '% Set up styles of URL: it should be placed after hyperref.\n'
@@ -375,9 +372,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'releasename':  _('Release'),
             'indexname':    _('Index'),
         })
-        sphinxpkgoptions = ''
         if not builder.config.latex_keep_old_macro_names:
-            sphinxpkgoptions = 'dontkeepoldnames'
+            self.elements['sphinxpkgoptions'] = 'dontkeepoldnames'
         if document.settings.docclass == 'howto':
             docclass = builder.config.latex_docclass.get('howto', 'article')
         else:
@@ -452,10 +448,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.check_latex_elements()
         self.elements.update(builder.config.latex_elements)
         if self.elements['maxlistdepth']:
-            sphinxpkgoptions += ',maxlistdepth=%s' % self.elements['maxlistdepth']
-        if sphinxpkgoptions:
-            self.elements['passoptionstosphinx'] = \
-                '\\PassOptionsToPackage{%s}{sphinx}' % sphinxpkgoptions
+            self.elements['sphinxpkgoptions'] = \
+                ','.join(self.elements['sphinxpkgoptions'], 'maxlistdepth=%s' %
+                         self.elements['maxlistdepth'])
+        if self.elements['sphinxpkgoptions']:
+            self.elements['sphinxpkgoptions'] = ('[%s]' %
+                                                 self.elements['sphinxpkgoptions'])
+        if self.elements['sphinxpackageoptions']:
+            self.elements['sphinxsetup'] = ('\\sphinxsetup{%s}' %
+                                            self.elements['sphinxpackageoptions'])
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
