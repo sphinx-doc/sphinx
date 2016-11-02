@@ -11,7 +11,7 @@ Features added
 * #3096: ``'maxlistdepth'`` key to work around LaTeX list limitations
 * #3060: autodoc supports documentation for attributes of Enum class. Now autodoc render
   just the value of Enum attributes instead of Enum attribute representation.
-* Add ``--extensions`` to ``sphinx-quickstart`` to support enable arbitary
+* Add ``--extensions`` to ``sphinx-quickstart`` to support enable arbitrary
   extensions from command line (ref: #2904)
 * #3104: ``'sphinxpackageoptions'`` for key=value styling of Sphinx LaTeX
 
