@@ -23,6 +23,7 @@ Bugs fixed
   Japanese documents since PR#3030)
 * Better rendering of multiline signatures in html.
 * #777: LaTeX output "too deeply nested" (ref #3096)
+* Let LaTeX image inclusion obey ``scale`` before textwidth fit (ref #2865, #3059)
 
 Release 1.5 alpha2 (released Oct 17, 2016)
 ==========================================
