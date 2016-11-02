@@ -212,15 +212,11 @@ class ShowUrlsTransform(object):
                 if node.astext() != uri:
                     index = node.parent.index(node)
                     if show_urls == 'footnote':
-                        if list(traverse_parent(node, nodes.topic)):
-                            # should not expand references in topics
-                            pass
-                        else:
-                            footnote_nodes = self.create_footnote(uri)
-                            for i, fn in enumerate(footnote_nodes):
-                                node.parent.insert(index + i + 1, fn)
+                        footnote_nodes = self.create_footnote(uri)
+                        for i, fn in enumerate(footnote_nodes):
+                            node.parent.insert(index + i + 1, fn)
 
-                            self.expanded = True
+                        self.expanded = True
                     else:  # all other true values (b/w compat)
                         textnode = nodes.Text(" (%s)" % uri)
                         node.parent.insert(index + 1, textnode)
