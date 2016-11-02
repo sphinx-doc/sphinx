@@ -13,6 +13,7 @@ Features added
   just the value of Enum attributes instead of Enum attribute representation.
 * Add ``--extensions`` to ``sphinx-quickstart`` to support enable arbitary
   extensions from command line (ref: #2904)
+* #3104: ``'sphinxpackageoptions'`` for key=value styling of Sphinx LaTeX
 
 Bugs fixed
 ----------
