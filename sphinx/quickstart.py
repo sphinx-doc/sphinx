@@ -388,14 +388,11 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     d['project_manpage'] = d['project_fn'].lower()
     d['now'] = time.asctime()
     d['project_underline'] = column_width(d['project']) * '='
-    extensions = (',\n' + indent).join(
-        repr('sphinx.ext.' + name)
-        for name in EXTENSIONS
-        if d.get('ext_' + name))
-    if extensions:
-        d['extensions'] = '\n' + indent + extensions + ',\n'
-    else:
-        d['extensions'] = extensions
+    d.setdefault('extensions', [])
+    for name in EXTENSIONS:
+        if d.get('ext_' + name):
+            d['extensions'].append('sphinx.ext.' + name)
+    d['extensions'] = (',\n' + indent).join(repr(name) for name in d['extensions'])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
     d['author_texescaped'] = text_type(d['author']).\
         translate(texescape.tex_escape_map)
@@ -581,6 +578,8 @@ def main(argv=sys.argv):
         group.add_option('--ext-' + ext, action='store_true',
                          dest='ext_' + ext, default=False,
                          help='enable %s extension' % ext)
+    group.add_option('--extensions', metavar='EXTENSIONS', dest='extensions',
+                     action='append', help='enable extensions')
 
     group = parser.add_option_group('Makefile and Batchfile creation')
     group.add_option('--makefile', action='store_true', dest='makefile',
@@ -658,6 +657,14 @@ def main(argv=sys.argv):
     for key, value in d.items():
         if isinstance(value, binary_type):
             d[key] = term_decode(value)
+
+    # parse extensions list
+    d.setdefault('extensions', [])
+    for ext in d['extensions'][:]:
+        if ',' in ext:
+            d['extensions'].remove(ext)
+            for modname in ext.split(','):
+                d['extensions'].append(modname)
 
     for variable in d.get('variables', []):
         try:

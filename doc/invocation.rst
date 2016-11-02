@@ -118,6 +118,10 @@ Extension options
 
    Enable `sphinx.ext.viewcode` extension.
 
+.. option:: --extensions=EXTENSIONS
+
+   Enable arbitary extensions.
+
 
 Makefile and Batchfile creation options
 ---------------------------------------
