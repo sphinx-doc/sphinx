@@ -263,6 +263,8 @@ def format_annotation(annotation):
     """
     if typing and isinstance(annotation, typing.TypeVar):
         return annotation.__name__
+    if annotation == Ellipsis:
+        return '...'
     if not isinstance(annotation, type):
         return repr(annotation)
 
@@ -281,7 +283,12 @@ def format_annotation(annotation):
             # arguments are in __parameters__.
             params = None
             if hasattr(annotation, '__args__'):
-                params = annotation.__args__
+                if len(annotation.__args__) <= 2:
+                    params = annotation.__args__
+                else:  # typing.Callable
+                    args = ', '.join(format_annotation(a) for a in annotation.__args__[:-1])
+                    result = format_annotation(annotation.__args__[-1])
+                    return '%s[[%s], %s]' % (qualified_name, args, result)
             elif hasattr(annotation, '__parameters__'):
                 params = annotation.__parameters__
             if params is not None:
