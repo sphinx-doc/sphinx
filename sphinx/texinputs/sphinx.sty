@@ -235,13 +235,18 @@
 % Some custom font markup commands.
 % *** the macros without \sphinx prefix are still defined near end of file ***
 \newcommand{\sphinxstrong}[1]{{\textbf{#1}}}
-% to obtain straight quotes we execute \@noligs as patched by upquote, the
-% macro must be robust in case it is used in captions e.g., and \scantokens is
-% needed in such cases and others such as \item[{\sphinxcode{'fontenc'}}]
+% to obtain straight quotes we execute \@noligs as patched by upquote, and
+% \scantokens is needed in cases where it would be too late for the macro to
+% first set catcodes and then fetch its argument. We also make the contents
+% breakable at non-escaped . , ; ? ! / using \sphinxbreaksviaactive.
+% the macro must be protected if it ends up used in moving arguments,
 % in 'alltt' \@noligs is done already, and the \scantokens must be avoided.
 \DeclareRobustCommand{\sphinxcode}[1]{{\def\@tempa{alltt}%
-  \ifx\@tempa\@currenvir\else\@noligs\endlinechar\m@ne\everyeof{\noexpand}%
-  \expandafter\scantokens\fi {\texttt{#1}}}}
+  \ifx\@tempa\@currenvir\else
+   \sphinxbreaksviaactive\let\sphinxafterbreak\empty
+   \@noligs\endlinechar\m@ne\everyeof{\noexpand}%
+   \expandafter\scantokens
+  \fi {\texttt{#1}}}}
 \newcommand{\sphinxbfcode}[1]{\sphinxcode{\bfseries#1}}
 \newcommand{\sphinxemail}[1]{\textsf{#1}}
 \newcommand{\sphinxtablecontinued}[1]{\textsf{#1}}
