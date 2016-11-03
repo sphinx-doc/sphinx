@@ -241,7 +241,7 @@
 % breakable at non-escaped . , ; ? ! / using \sphinxbreaksviaactive.
 % the macro must be protected if it ends up used in moving arguments,
 % in 'alltt' \@noligs is done already, and the \scantokens must be avoided.
-\DeclareRobustCommand{\sphinxcode}[1]{{\def\@tempa{alltt}%
+\long\protected\def\sphinxcode#1{{\def\@tempa{alltt}%
   \ifx\@tempa\@currenvir\else
    \sphinxbreaksviaactive\let\sphinxafterbreak\empty
    \@noligs\endlinechar\m@ne\everyeof{\noexpand}%
@@ -1033,14 +1033,11 @@
   \typeout{** (sphinx) defining (legacy) text style macros without \string\sphinx\space prefix}
   \typeout{** if clashes with packages, set latex_keep_old_macro_names=False
     in conf.py}
-  % robustified case needs special treatment
-  \newcommand\code{}\DeclareRobustCommand{\code}{}%
-  \expandafter\let\csname code \endcsname\relax\def\sphinxcode{\code}%
-  \@for\@tempa:=code ,strong,bfcode,email,tablecontinued,titleref,%
+  \@for\@tempa:=code,strong,bfcode,email,tablecontinued,titleref,%
                 menuselection,accelerator,crossref,termref,optional\do
 {% first, check if command with no prefix already exists
   \expandafter\newcommand\csname\@tempa\endcsname{}%
-  % if no error give it the meaning defined so far with \sphinx prefix
+  % give it the meaning defined so far with \sphinx prefix
   \expandafter\let\csname\@tempa\expandafter\endcsname
                   \csname sphinx\@tempa\endcsname
   % redefine the \sphinx prefixed macro to expand to non-prefixed one
