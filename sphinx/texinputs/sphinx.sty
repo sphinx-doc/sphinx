@@ -234,7 +234,7 @@
 
 % Some custom font markup commands.
 % *** the macros without \sphinx prefix are still defined near end of file ***
-\newcommand{\sphinxstrong}[1]{{\textbf{#1}}}
+\long\protected\def\sphinxstrong#1{{\textbf{#1}}}
 % to obtain straight quotes we execute \@noligs as patched by upquote, and
 % \scantokens is needed in cases where it would be too late for the macro to
 % first set catcodes and then fetch its argument. We also make the contents
@@ -247,14 +247,14 @@
    \@noligs\endlinechar\m@ne\everyeof{\noexpand}%
    \expandafter\scantokens
   \fi {\texttt{#1}}}}
-\newcommand{\sphinxbfcode}[1]{\sphinxcode{\bfseries#1}}
-\newcommand{\sphinxemail}[1]{\textsf{#1}}
-\newcommand{\sphinxtablecontinued}[1]{\textsf{#1}}
-\newcommand{\sphinxtitleref}[1]{\emph{#1}}
-\newcommand{\sphinxmenuselection}[1]{\emph{#1}}
-\newcommand{\sphinxaccelerator}[1]{\underline{#1}}
-\newcommand{\sphinxcrossref}[1]{\emph{#1}}
-\newcommand{\sphinxtermref}[1]{\emph{#1}}
+\long\protected\def\sphinxbfcode#1{\sphinxcode{\bfseries#1}}
+\long\protected\def\sphinxemail#1{\textsf{#1}}
+\long\protected\def\sphinxtablecontinued#1{\textsf{#1}}
+\long\protected\def\sphinxtitleref#1{\emph{#1}}
+\long\protected\def\sphinxmenuselection#1{\emph{#1}}
+\long\protected\def\sphinxaccelerator#1{\underline{#1}}
+\long\protected\def\sphinxcrossref#1{\emph{#1}}
+\long\protected\def\sphinxtermref#1{\emph{#1}}
 
 % Support large numbered footnotes in minipage
 % But now obsolete due to systematic use of \savenotes/\spewnotes
