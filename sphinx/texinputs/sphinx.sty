@@ -1048,20 +1048,20 @@
 
 % additional customizable styling
 % FIXME: convert this to package options ?
-\newcommand*{\sphinxstyleindexentry}{\texttt}
-\newcommand{\sphinxstyleindexextra}[1]{ \emph{(#1)}}
-\newcommand*{\sphinxstyleindexpageref}{, \pageref}
-\newcommand{\sphinxstyletopictitle}[1]{\textbf{#1}\par\medskip}
+\protected\def\sphinxstyleindexentry     {\texttt}
+\long\protected\def\sphinxstyleindexextra #1{ \emph{(#1)}}
+\protected\def\sphinxstyleindexpageref   {, \pageref}
+\long\protected\def\sphinxstyletopictitle #1{\textbf{#1}\par\medskip}
 \let\sphinxstylesidebartitle\sphinxstyletopictitle
-\newcommand*{\sphinxstyleothertitle}{\textbf}
-\newcommand{\sphinxstylesidebarsubtitle}[1]{~\\\textbf{#1} \smallskip}
-\newcommand*{\sphinxstylethead}{\textsf}
-\newcommand*{\sphinxstyleemphasis}{\emph}
-\newcommand{\sphinxstyleliteralemphasis}[1]{\emph{\texttt{#1}}}
-\newcommand*{\sphinxstylestrong}{\textbf}
-\newcommand{\sphinxstyleliteralstrong}[1]{\textbf{\texttt{#1}}}
-\newcommand*{\sphinxstyleabbreviation}{\textsc}
-\newcommand*{\sphinxstyleliteralintitle}{\texttt}
+\protected\def\sphinxstyleothertitle     {\textbf}
+\long\protected\def\sphinxstylesidebarsubtitle #1{~\\\textbf{#1} \smallskip}
+\protected\def\sphinxstylethead          {\textsf}
+\protected\def\sphinxstyleemphasis       {\emph}
+\long\protected\def\sphinxstyleliteralemphasis#1{\emph{\sphinxcode{#1}}}
+\protected\def\sphinxstylestrong         {\textbf}
+\protected\def\sphinxstyleliteralstrong  {\sphinxbfcode}
+\protected\def\sphinxstyleabbreviation   {\textsc}
+\protected\def\sphinxstyleliteralintitle {\sphinxcode}
 
 % stylesheet for highlighting with pygments
 \RequirePackage{sphinxhighlight}
