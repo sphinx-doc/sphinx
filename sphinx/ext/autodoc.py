@@ -293,7 +293,7 @@ def format_annotation(annotation):
             # arguments are in __parameters__.
             params = None
             if hasattr(annotation, '__args__'):
-                if len(annotation.__args__) <= 2:
+                if annotation.__args__ is None or len(annotation.__args__) <= 2:
                     params = annotation.__args__
                 else:  # typing.Callable
                     args = ', '.join(format_annotation(a) for a in annotation.__args__[:-1])
