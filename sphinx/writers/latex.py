@@ -444,9 +444,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.check_latex_elements()
         self.elements.update(builder.config.latex_elements)
         if self.elements['maxlistdepth']:
-            self.elements['sphinxpkgoptions'] = \
-                ','.join(self.elements['sphinxpkgoptions'], 'maxlistdepth=%s' %
-                         self.elements['maxlistdepth'])
+            self.elements['sphinxpkgoptions'] += (',maxlistdepth=%s' %
+                                                  self.elements['maxlistdepth'])
         if self.elements['sphinxpkgoptions']:
             self.elements['sphinxpkgoptions'] = ('[%s]' %
                                                  self.elements['sphinxpkgoptions'])
