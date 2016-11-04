@@ -12,6 +12,7 @@ from __future__ import print_function
 
 import os
 import re
+from functools import wraps
 from itertools import product
 from subprocess import Popen, PIPE
 
@@ -21,7 +22,7 @@ from sphinx.errors import SphinxError
 from sphinx.util.osutil import cd, ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
-from util import SkipTest, remove_unicode_literals, with_app, strip_escseq
+from util import SkipTest, remove_unicode_literals, with_app, strip_escseq, skip_if
 from test_build_html import ENV_WARNINGS
 
 
@@ -81,14 +82,20 @@ def compile_latex_document(app):
                     app.config.latex_engine, p.returncode)
 
 
-def test_latex():
+def skip_if_stylefiles_notfound(testfunc):
     if kpsetest(*STYLEFILES) is False:
-        raise SkipTest('not running latex, the required styles do not seem to be installed')
+        return skip_if(testfunc,
+                       'not running latex, the required styles do not seem to be installed')
+    else:
+        return testfunc
 
+
+def test_latex():
     for engine, docclass in product(LATEX_ENGINES, DOCCLASSES):
         yield build_latex_doc, engine, docclass
 
 
+@skip_if_stylefiles_notfound
 @with_app(buildername='latex')
 def build_latex_doc(app, status, warning, engine, docclass):
     app.config.latex_engine = engine
