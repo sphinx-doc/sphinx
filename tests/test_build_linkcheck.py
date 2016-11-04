@@ -14,12 +14,25 @@ from util import with_app
 
 
 @with_app('linkcheck', testroot='linkcheck', freshenv=True)
-def test_all(app, status, warning):
+def test_defaults(app, status, warning):
     app.builder.build_all()
 
     assert (app.outdir / 'output.txt').exists()
     content = (app.outdir / 'output.txt').text()
 
-    # expect all ok
-    assert not content
+    print(content)
+    # looking for #top should fail
+    assert "Anchor 'top' not found" in content
+    assert len(content.splitlines()) == 1
 
+
+@with_app('linkcheck', testroot='linkcheck', freshenv=True,
+          confoverrides={'linkcheck_anchors_ignore': ["^!", "^top$"]})
+def test_anchors_ignored(app, status, warning):
+    app.builder.build_all()
+
+    assert (app.outdir / 'output.txt').exists()
+    content = (app.outdir / 'output.txt').text()
+
+    # expect all ok when excluding #top
+    assert not content
