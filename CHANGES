@@ -18,6 +18,7 @@ Features added
   unchanged
 * #2495: linkcheck: Allow skipping anchor checking using
   :confval:`linkcheck_anchors_ignore`
+* #3116: allow word wrap in PDF output for inline literals (ref #3110)
 
 Bugs fixed
 ----------
