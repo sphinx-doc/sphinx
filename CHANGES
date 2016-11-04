@@ -16,6 +16,8 @@ Features added
 * #3104: ``'sphinxpackageoptions'`` for key=value styling of Sphinx LaTeX
 * #3071: Autodoc: Allow mocked module decorators to pass-through functions
   unchanged
+* #2495: linkcheck: Allow skipping anchor checking using
+  :confval:`linkcheck_anchors_ignore`
 
 Bugs fixed
 ----------
