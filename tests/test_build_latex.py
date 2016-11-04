@@ -710,3 +710,12 @@ def test_latex_toplevel_sectioning_is_section(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\section{Foo}' in result
+
+@with_app(buildername='latex', testroot='maxlistdepth')
+def test_maxlistdepth_at_ten(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    compile_latex_document(app)
