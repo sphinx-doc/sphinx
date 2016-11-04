@@ -234,22 +234,27 @@
 
 % Some custom font markup commands.
 % *** the macros without \sphinx prefix are still defined near end of file ***
-\newcommand{\sphinxstrong}[1]{{\textbf{#1}}}
-% to obtain straight quotes we execute \@noligs as patched by upquote, the
-% macro must be robust in case it is used in captions e.g., and \scantokens is
-% needed in such cases and others such as \item[{\sphinxcode{'fontenc'}}]
+\long\protected\def\sphinxstrong#1{{\textbf{#1}}}
+% to obtain straight quotes we execute \@noligs as patched by upquote, and
+% \scantokens is needed in cases where it would be too late for the macro to
+% first set catcodes and then fetch its argument. We also make the contents
+% breakable at non-escaped . , ; ? ! / using \sphinxbreaksviaactive.
+% the macro must be protected if it ends up used in moving arguments,
 % in 'alltt' \@noligs is done already, and the \scantokens must be avoided.
-\DeclareRobustCommand{\sphinxcode}[1]{{\def\@tempa{alltt}%
-  \ifx\@tempa\@currenvir\else\@noligs\endlinechar\m@ne\everyeof{\noexpand}%
-  \expandafter\scantokens\fi {\texttt{#1}}}}
-\newcommand{\sphinxbfcode}[1]{\sphinxcode{\bfseries#1}}
-\newcommand{\sphinxemail}[1]{\textsf{#1}}
-\newcommand{\sphinxtablecontinued}[1]{\textsf{#1}}
-\newcommand{\sphinxtitleref}[1]{\emph{#1}}
-\newcommand{\sphinxmenuselection}[1]{\emph{#1}}
-\newcommand{\sphinxaccelerator}[1]{\underline{#1}}
-\newcommand{\sphinxcrossref}[1]{\emph{#1}}
-\newcommand{\sphinxtermref}[1]{\emph{#1}}
+\long\protected\def\sphinxcode#1{{\def\@tempa{alltt}%
+  \ifx\@tempa\@currenvir\else
+   \sphinxbreaksviaactive\let\sphinxafterbreak\empty
+   \@noligs\endlinechar\m@ne\everyeof{\noexpand}%
+   \expandafter\scantokens
+  \fi {\texttt{#1}}}}
+\long\protected\def\sphinxbfcode#1{\sphinxcode{\bfseries#1}}
+\long\protected\def\sphinxemail#1{\textsf{#1}}
+\long\protected\def\sphinxtablecontinued#1{\textsf{#1}}
+\long\protected\def\sphinxtitleref#1{\emph{#1}}
+\long\protected\def\sphinxmenuselection#1{\emph{#1}}
+\long\protected\def\sphinxaccelerator#1{\underline{#1}}
+\long\protected\def\sphinxcrossref#1{\emph{#1}}
+\long\protected\def\sphinxtermref#1{\emph{#1}}
 
 % Support large numbered footnotes in minipage
 % But now obsolete due to systematic use of \savenotes/\spewnotes
@@ -1028,14 +1033,11 @@
   \typeout{** (sphinx) defining (legacy) text style macros without \string\sphinx\space prefix}
   \typeout{** if clashes with packages, set latex_keep_old_macro_names=False
     in conf.py}
-  % robustified case needs special treatment
-  \newcommand\code{}\DeclareRobustCommand{\code}{}%
-  \expandafter\let\csname code \endcsname\relax\def\sphinxcode{\code}%
-  \@for\@tempa:=code ,strong,bfcode,email,tablecontinued,titleref,%
+  \@for\@tempa:=code,strong,bfcode,email,tablecontinued,titleref,%
                 menuselection,accelerator,crossref,termref,optional\do
 {% first, check if command with no prefix already exists
   \expandafter\newcommand\csname\@tempa\endcsname{}%
-  % if no error give it the meaning defined so far with \sphinx prefix
+  % give it the meaning defined so far with \sphinx prefix
   \expandafter\let\csname\@tempa\expandafter\endcsname
                   \csname sphinx\@tempa\endcsname
   % redefine the \sphinx prefixed macro to expand to non-prefixed one
@@ -1046,20 +1048,20 @@
 
 % additional customizable styling
 % FIXME: convert this to package options ?
-\newcommand*{\sphinxstyleindexentry}{\texttt}
-\newcommand{\sphinxstyleindexextra}[1]{ \emph{(#1)}}
-\newcommand*{\sphinxstyleindexpageref}{, \pageref}
-\newcommand{\sphinxstyletopictitle}[1]{\textbf{#1}\par\medskip}
+\protected\def\sphinxstyleindexentry     {\texttt}
+\long\protected\def\sphinxstyleindexextra #1{ \emph{(#1)}}
+\protected\def\sphinxstyleindexpageref   {, \pageref}
+\long\protected\def\sphinxstyletopictitle #1{\textbf{#1}\par\medskip}
 \let\sphinxstylesidebartitle\sphinxstyletopictitle
-\newcommand*{\sphinxstyleothertitle}{\textbf}
-\newcommand{\sphinxstylesidebarsubtitle}[1]{~\\\textbf{#1} \smallskip}
-\newcommand*{\sphinxstylethead}{\textsf}
-\newcommand*{\sphinxstyleemphasis}{\emph}
-\newcommand{\sphinxstyleliteralemphasis}[1]{\emph{\texttt{#1}}}
-\newcommand*{\sphinxstylestrong}{\textbf}
-\newcommand{\sphinxstyleliteralstrong}[1]{\textbf{\texttt{#1}}}
-\newcommand*{\sphinxstyleabbreviation}{\textsc}
-\newcommand*{\sphinxstyleliteralintitle}{\texttt}
+\protected\def\sphinxstyleothertitle     {\textbf}
+\long\protected\def\sphinxstylesidebarsubtitle #1{~\\\textbf{#1} \smallskip}
+\protected\def\sphinxstylethead          {\textsf}
+\protected\def\sphinxstyleemphasis       {\emph}
+\long\protected\def\sphinxstyleliteralemphasis#1{\emph{\sphinxcode{#1}}}
+\protected\def\sphinxstylestrong         {\textbf}
+\protected\def\sphinxstyleliteralstrong  {\sphinxbfcode}
+\protected\def\sphinxstyleabbreviation   {\textsc}
+\protected\def\sphinxstyleliteralintitle {\sphinxcode}
 
 % stylesheet for highlighting with pygments
 \RequirePackage{sphinxhighlight}
