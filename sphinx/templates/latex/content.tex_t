@@ -15,7 +15,9 @@
 \fi \sphinxpxdimen=<%= pxunit %>\relax
 <%= passoptionstopackages %>
 <%= geometry %>
+<% if latex_engine == 'pdflatex' -%>
 <%= inputenc %>
+<% endif -%>
 <%= utf8extra %>
 <%= cmappkg %>
 <%= fontenc %>
