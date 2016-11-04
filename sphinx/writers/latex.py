@@ -60,7 +60,7 @@ DEFAULT_SETTINGS = {
                        '{geometry}',
     'inputenc':        '',
     'utf8extra':       ('\\ifdefined\\DeclareUnicodeCharacter\n'
-                        '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'
+                        '  \\DeclareUnicodeCharacter{00A0}{\\leavevmode\\nobreak\\ }\n'
                         '\\fi'),
     'cmappkg':         '\\usepackage{cmap}',
     'fontenc':         '\\usepackage[T1]{fontenc}',
@@ -105,6 +105,8 @@ ADDITIONAL_SETTINGS = {
         'inputenc':     '\\usepackage[utf8]{inputenc}',
     },
     'xelatex': {
+        'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
+                        '{\\leavevmode\\nobreak\\ }'),
         'polyglossia':  '\\usepackage{polyglossia}',
         'fontenc':      '\\usepackage{fontspec}',
         'fontpkg':      '',
@@ -384,20 +386,31 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # no need for \\noindent here, used in flushright
             self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
                                     path.basename(builder.config.latex_logo)
-        # setup multilingual package
+
+        if builder.config.language:
+            # use Sonny style if any language specified
+            self.elements['fncychap'] = '\\usepackage[Sonny]{fncychap}'
+
         self.babel = ExtBabel(builder.config.language)
+        if builder.config.language and not self.babel.is_supported_language():
+            # emit warning if specified language is invalid
+            # (only emitting, nothing changed to processing)
+            self.builder.warn('no Babel option known for language %r' %
+                              builder.config.language)
+
+        # simply use babel.get_language() always, as get_language() returns
+        # 'english' even if language is invalid or empty
+        self.elements['classoptions'] += ',' + self.babel.get_language()
+
+        # set up multilingual module...
         if self.elements['polyglossia']:
-            self.elements['babel'] = ''  # disable babel forcely
-            self.elements['multilingual'] = self.elements['polyglossia']
+            self.elements['babel'] = ''  # disable babel
+            self.elements['multilingual'] = '%s\n\\setmainlanguage{%s}' % \
+                (self.elements['polyglossia'], self.babel.get_language())
         elif self.elements['babel']:
             self.elements['multilingual'] = self.elements['babel']
-            self.elements['classoptions'] += ',' + self.babel.get_language()
             if builder.config.language:
-                if not self.babel.is_supported_language():
-                    self.builder.warn('no Babel option known for language %r' %
-                                      builder.config.language)
                 self.elements['shorthandoff'] = self.babel.get_shorthandoff()
-                self.elements['fncychap'] = '\\usepackage[Sonny]{fncychap}'
 
                 # Times fonts don't work with Cyrillic languages
                 if self.babel.uses_cyrillic():
@@ -412,6 +425,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.elements['multilingual'] = ''
                     # disable fncychap in Japanese documents
                     self.elements['fncychap'] = ''
+
         if getattr(builder, 'usepackages', None):
             def declare_package(packagename, options=None):
                 if options:
