@@ -59,6 +59,28 @@ def kpsetest(*filenames):
         return True
 
 
+# compile latex document with app.config.latex_engine
+def compile_latex_document(app):
+    # now, try to run latex over it
+    with cd(app.outdir):
+        try:
+            ensuredir(app.config.latex_engine)
+            p = Popen([app.config.latex_engine,
+                       '--interaction=nonstopmode',
+                       '-output-directory=%s' % app.config.latex_engine,
+                       'SphinxTests.tex'],
+                      stdout=PIPE, stderr=PIPE)
+        except OSError:  # most likely the latex executable was not found
+            raise SkipTest
+        else:
+            stdout, stderr = p.communicate()
+            if p.returncode != 0:
+                print(stdout)
+                print(stderr)
+                assert False, '%s exited with return code %s' % (
+                    app.config.latex_engine, p.returncode)
+
+
 def test_latex():
     if kpsetest(*STYLEFILES) is False:
         raise SkipTest('not running latex, the required styles do not seem to be installed')
@@ -78,22 +100,7 @@ def build_latex_doc(app, status, warning, engine, docclass):
     # file from latex_additional_files
     assert (app.outdir / 'svgimg.svg').isfile()
 
-    # now, try to run latex over it
-    with cd(app.outdir):
-        try:
-            ensuredir(engine)
-            p = Popen([engine, '--interaction=nonstopmode',
-                       '-output-directory=%s' % engine, 'SphinxTests.tex'],
-                      stdout=PIPE, stderr=PIPE)
-        except OSError:  # most likely the latex executable was not found
-            raise SkipTest
-        else:
-            stdout, stderr = p.communicate()
-            if p.returncode != 0:
-                print(stdout)
-                print(stderr)
-                assert False, '%s exited with return code %s' % (
-                    engine, p.returncode)
+    compile_latex_document(app)
 
 
 @with_app(buildername='latex')
