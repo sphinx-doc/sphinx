@@ -102,7 +102,9 @@ DEFAULT_SETTINGS = {
 ADDITIONAL_SETTINGS = {
     'pdflatex': {
         'inputenc':     '\\usepackage[utf8]{inputenc}',
-        'utf8extra':    '\\DeclareUnicodeCharacter{00A0}{\\nobreakspace}',
+        'utf8extra':   ('\\ifdefined\\DeclareUnicodeCharacter\n'
+                        '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'
+                        '\\fi'),
     },
     'xelatex': {
         'latex_engine': 'xelatex',
