@@ -711,6 +711,7 @@ def test_latex_toplevel_sectioning_is_section(app, status, warning):
     print(warning.getvalue())
     assert '\\section{Foo}' in result
 
+@skip_if_stylefiles_notfound
 @with_app(buildername='latex', testroot='maxlistdepth')
 def test_maxlistdepth_at_ten(app, status, warning):
     app.builder.build_all()
