@@ -438,7 +438,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.elements['fncychap'] = ''
 
         # set 'babel' to improbable value to detect if user has used it
-        self.elements['babel'] = '3.1415'
+        if self.elements['babel']:
+            self.elements['babel'] = '3.1415'
+        else:
+            self.elements['babel'] = '2.7182'
 
         if getattr(builder, 'usepackages', None):
             def declare_package(packagename, options=None):
@@ -470,7 +473,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.elements.update(builder.config.latex_elements)
 
         if self.elements['babel'] != '3.1415':
-            self.elements['multilingual'] = self.elements['babel']
+            if self.elements['babel'] != '2.7182':
+                self.elements['multilingual'] = self.elements['babel']
+            else:
+                self.elements['babel'] = ''
 
         if getattr(document.settings, 'contentsname', None):
             self.elements['contentsname'] = \
