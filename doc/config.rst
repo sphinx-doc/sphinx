@@ -1761,8 +1761,9 @@ These options influence LaTeX output. See further :doc:`latex`.
            - Using this key may prove incompatible with some LaTeX packages
              or special document classes which do their own list customization.
 
-           - The key setting is silently *ignored* in presence of "enumitem".
-             Use then rather the dedicated commands of this LaTeX package.
+           - The key setting is silently *ignored* if ``\usepackage{enumitem}``
+             is executed inside the document preamble. Use then rather the
+             dedicated commands of this LaTeX package.
 
         .. versionadded:: 1.5
      ``'inputenc'``
