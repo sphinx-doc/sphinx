@@ -5,12 +5,6 @@
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesClass{sphinxmanual}[2016/10/12 v1.5 Document class (Sphinx manual)]
 
-\ifx\directlua\undefined\else
-% if compiling with lualatex 0.85 or later load compatibility patch issued by
-% the LaTeX team for older packages relying on \pdf<name> named primitives.
-    \IfFileExists{luatex85.sty}{\RequirePackage{luatex85}}{}
-\fi
-
 % chapters starting at odd pages (overridden by 'openany' document option)
 \PassOptionsToClass{openright}{\sphinxdocclass}
 

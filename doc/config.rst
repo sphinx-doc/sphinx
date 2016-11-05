@@ -1769,7 +1769,7 @@ These options influence LaTeX output. See further :doc:`latex`.
      ``'inputenc'``
         "inputenc" package inclusion, defaults to
         ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex.
-        Otherwise unset.
+        Otherwise empty.
 
         .. versionchanged:: 1.4.3
            Previously ``'\\usepackage[utf8]{inputenc}'`` was used for all

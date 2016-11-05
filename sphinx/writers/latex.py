@@ -46,6 +46,7 @@ URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 SECNUMDEPTH = 3
 
 DEFAULT_SETTINGS = {
+    'latex_engine':    'pdflatex',
     'papersize':       'letterpaper',
     'pointsize':       '10pt',
     'pxunit':          '49336sp',
@@ -56,12 +57,10 @@ DEFAULT_SETTINGS = {
     'sphinxpackageoptions': '',
     'sphinxsetup':     '',
     'passoptionstopackages': '',
-    'geometry':        '\\usepackage[margin=1in,marginparwidth=0.5in]'
-                       '{geometry}',
+    'geometry':       ('\\usepackage[margin=1in,marginparwidth=0.5in]'
+                       '{geometry}'),
     'inputenc':        '',
-    'utf8extra':       ('\\ifdefined\\DeclareUnicodeCharacter\n'
-                        '  \\DeclareUnicodeCharacter{00A0}{\\leavevmode\\nobreak\\ }\n'
-                        '\\fi'),
+    'utf8extra':       '',
     'cmappkg':         '\\usepackage{cmap}',
     'fontenc':         '\\usepackage[T1]{fontenc}',
     'amsmath':         '\\usepackage{amsmath,amssymb,amstext}',
@@ -103,13 +102,25 @@ DEFAULT_SETTINGS = {
 ADDITIONAL_SETTINGS = {
     'pdflatex': {
         'inputenc':     '\\usepackage[utf8]{inputenc}',
+        'utf8extra':   ('\\ifdefined\\DeclareUnicodeCharacter\n'
+                        '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'
+                        '\\fi'),
     },
     'xelatex': {
-        'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
-                        '{\\leavevmode\\nobreak\\ }'),
+        'latex_engine': 'xelatex',
         'polyglossia':  '\\usepackage{polyglossia}',
         'fontenc':      '\\usepackage{fontspec}',
         'fontpkg':      '',
+        'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
+                        '{\\leavevmode\\nobreak\\ }'),
+    },
+    'lualatex': {
+        'latex_engine': 'lualatex',
+        'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
+                        '{\\leavevmode\\nobreak\\ }'),
+    },
+    'platex': {
+        'latex_engine': 'platex',
     },
 }
 
