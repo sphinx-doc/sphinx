@@ -1695,7 +1695,7 @@ These options influence LaTeX output. See further :doc:`latex`.
         to use ``'47363sp'``. To obtain ``72px=1in``, use ``'1bp'``.
 
         .. versionadded:: 1.5
-     ``'sphinxpackageoptions'``
+     ``'sphinxsetup'``
         A comma separated list of ``key=value`` package options for the Sphinx
         LaTeX style, default empty. See :doc:`latex`.
 

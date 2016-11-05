@@ -54,7 +54,6 @@ DEFAULT_SETTINGS = {
     'extraclassoptions': '',
     'maxlistdepth':    '',
     'sphinxpkgoptions':     '',
-    'sphinxpackageoptions': '',
     'sphinxsetup':     '',
     'passoptionstopackages': '',
     'geometry':       ('\\usepackage[margin=1in,marginparwidth=0.5in]'
@@ -474,9 +473,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.elements['sphinxpkgoptions']:
             self.elements['sphinxpkgoptions'] = ('[%s]' %
                                                  self.elements['sphinxpkgoptions'])
-        if self.elements['sphinxpackageoptions']:
+        if self.elements['sphinxsetup']:
             self.elements['sphinxsetup'] = ('\\sphinxsetup{%s}' %
-                                            self.elements['sphinxpackageoptions'])
+                                            self.elements['sphinxsetup'])
         if self.elements['extraclassoptions']:
             self.elements['classoptions'] += ',' + \
                                              self.elements['extraclassoptions']
