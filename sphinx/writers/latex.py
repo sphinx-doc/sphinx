@@ -437,6 +437,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     # disable fncychap in Japanese documents
                     self.elements['fncychap'] = ''
 
+        # set 'babel' to improbable value to detect if user has used it
+        self.elements['babel'] = '3.1415'
+
         if getattr(builder, 'usepackages', None):
             def declare_package(packagename, options=None):
                 if options:
@@ -462,12 +465,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if tocdepth >= SECNUMDEPTH:
                 # Increase secnumdepth if tocdepth is depther than default SECNUMDEPTH
                 self.elements['secnumdepth'] = '\\setcounter{secnumdepth}{%d}' % tocdepth
-        if getattr(document.settings, 'contentsname', None):
-            self.elements['contentsname'] = \
-                self.babel_renewcommand('\\contentsname', document.settings.contentsname)
         # allow the user to override them all
         self.check_latex_elements()
         self.elements.update(builder.config.latex_elements)
+
+        if self.elements['babel'] != '3.1415':
+            self.elements['multilingual'] = self.elements['babel']
+
+        if getattr(document.settings, 'contentsname', None):
+            self.elements['contentsname'] = \
+                self.babel_renewcommand('\\contentsname', document.settings.contentsname)
+
         if self.elements['maxlistdepth']:
             self.elements['sphinxpkgoptions'] += (',maxlistdepth=%s' %
                                                   self.elements['maxlistdepth'])
