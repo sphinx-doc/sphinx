@@ -1728,6 +1728,8 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. versionchanged:: 1.2
            Defaults to ``''`` when the :confval:`language` uses the Cyrillic
            script.
+        .. versionchanged:: 1.5
+           Defaults to ``''`` when :confval:`latex_engine` is ``'xelatex'``.
      ``'fncychap'``
         Inclusion of the "fncychap" package (which makes fancy chapter titles),
         default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation
@@ -1787,6 +1789,10 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. versionadded:: 1.2
      ``'fontenc'``
         "fontenc" package inclusion, default ``'\\usepackage[T1]{fontenc}'``.
+
+        .. versionchanged:: 1.5
+           Defaults to ``'\\usepackage{fontspec}'`` when
+           :confval:`latex_engine` is ``'xelatex'``.
      ``'hyperref'``
         "hyperref" package inclusion; also loads package "hypcap" and issues
         ``\urlstyle{same}``. This is done after :file:`sphinx.sty` file is
