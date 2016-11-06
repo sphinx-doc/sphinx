@@ -337,6 +337,8 @@ texinfo_documents = [
 #
 # texinfo_no_detailmenu = False
 
+# -- A random example -----------------------------------------------------
+
 import sys, os
 sys.path.insert(0, os.path.abspath('.'))
 exclude_patterns = ['zzz']
@@ -344,7 +346,6 @@ exclude_patterns = ['zzz']
 numfig = True
 #language = 'ja'
 
-extensions.append('sphinx.ext.autodoc')
 extensions.append('sphinx.ext.todo')
 extensions.append('sphinx.ext.autodoc')
 #extensions.append('sphinx.ext.autosummary')
