@@ -377,6 +377,7 @@ are in HTML form), these variables are also available:
 
    The name of the copied source file for the current document.  This is only
    nonempty if the :confval:`html_copy_source` value is ``True``.
+   This has empty value on creating automatically-generated files.
 
 .. data:: toc
 

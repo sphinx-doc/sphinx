@@ -282,7 +282,7 @@ The following notes may be helpful if you want to create Texinfo files:
 
      info:Texinfo#makeinfo_options
 
-  which produces:
+  which produces::
 
      info:Texinfo#makeinfo_options
 

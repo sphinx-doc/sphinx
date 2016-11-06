@@ -831,7 +831,7 @@ class Sphinx(object):
         languages[cls.lang] = cls
 
     def add_source_parser(self, suffix, parser):
-        self.debug('[app] adding search source_parser: %r, %r', (suffix, parser))
+        self.debug('[app] adding search source_parser: %r, %r', suffix, parser)
         if suffix in self._additional_source_parsers:
             self.warn('while setting up extension %s: source_parser for %r is '
                       'already registered, it will be overridden' %

@@ -253,6 +253,8 @@ Bugs fixed
 * #2936: Fix doc/Makefile that can't build man because doc/man exists
 * #3058: Using the same 'caption' attribute in multiple 'toctree' directives
   results in warning / error
+* #3068: Allow the '=' character in the -D option of sphinx-build.py
+* #3074: ``add_source_parser()`` crashes in debug mode
 
 Release 1.4.8 (released Oct 1, 2016)
 ====================================
