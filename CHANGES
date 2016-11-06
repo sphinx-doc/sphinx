@@ -13,7 +13,7 @@ Features added
   just the value of Enum attributes instead of Enum attribute representation.
 * Add ``--extensions`` to ``sphinx-quickstart`` to support enable arbitrary
   extensions from command line (ref: #2904)
-* #3104: ``'sphinxpackageoptions'`` for key=value styling of Sphinx LaTeX
+* #3104, #3122: ``'sphinxsetup'`` for key=value styling of Sphinx LaTeX
 * #3071: Autodoc: Allow mocked module decorators to pass-through functions
   unchanged
 * #2495: linkcheck: Allow skipping anchor checking using
