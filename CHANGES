@@ -34,6 +34,7 @@ Bugs fixed
 * #777: LaTeX output "too deeply nested" (ref #3096)
 * Let LaTeX image inclusion obey ``scale`` before textwidth fit (ref #2865, #3059)
 * #3019: LaTeX fails on description of C function with arguments (ref #3083)
+* fix latex inline literals where ``< > -`` gobbled a space
 
 Release 1.5 alpha2 (released Oct 17, 2016)
 ==========================================
