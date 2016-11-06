@@ -363,6 +363,26 @@ div.preview {
     margin-bottom: 30px;
 }
 
+
+/* :::: INDEX PAGE :::: */
+
+table.contentstable {
+    width: 90%;
+}
+
+table.contentstable p.biglink {
+    line-height: 150%;
+}
+
+a.biglink {
+    font-size: 1.5em;
+}
+
+span.linkdescr {
+    font-style: italic;
+    padding-top: 5px;
+}
+
 /* :::: GENINDEX STYLES :::: */
 
 table.indextable td {
