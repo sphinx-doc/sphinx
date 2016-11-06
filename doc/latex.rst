@@ -78,7 +78,7 @@ configured, for example::
 The Sphinx LaTeX style package options
 --------------------------------------
 
-The ``'sphinxpackageoptions'`` key to :confval:`latex_elements` provides a
+The ``'sphinxsetup'`` key to :confval:`latex_elements` provides a
 more convenient interface to various style parameters. It is a comma separated
 string of ``key=value`` instructions::
 
@@ -99,10 +99,10 @@ If non-empty, it will be passed as argument to the ``\sphinxsetup`` command::
    - Most options described next could also have been positioned as
      :file:`sphinx.sty` package options. But for those where the key value
      contains some LaTeX code the use of ``\sphinxsetup`` is mandatory. Hence
-     the whole ``'sphinxpackageoptions'`` string is passed as argument to
+     the whole ``'sphinxsetup'`` string is passed as argument to
      ``\sphinxsetup``.
 
-   - As an alternative to the ``'sphinxpackageoptions'`` key, it is possibly
+   - As an alternative to the ``'sphinxsetup'`` key, it is possibly
      to insert explicitely the ``\\sphinxsetup{key=value,..}`` inside the
      ``'preamble'`` key. It is even possible to use the ``\sphinxsetup`` in
      the body of the document, via the :rst:dir:`raw` directive, to modify
@@ -355,7 +355,7 @@ Let us now list some macros from the package file
   English is the document language). Their default definitions use either the
   *sphinxheavybox* (for the first listed directives) or the *sphinxlightbox*
   environments, configured to use the parameters (colours, border thickness)
-  specific to each type, which can be set via ``'sphinxpackageoptions'`` string.
+  specific to each type, which can be set via ``'sphinxsetup'`` string.
 
   .. versionchanged:: 1.5
      use of public environment names, separate customizability of the parameters.
