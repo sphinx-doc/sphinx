@@ -89,7 +89,7 @@ DEFAULT_SETTINGS = {
     'shorthandoff':    '',
     'maketitle':       '\\maketitle',
     'tableofcontents': '\\sphinxtableofcontents',
-    'postamble':       '',
+    'atendofbody':     '',
     'printindex':      '\\printindex',
     'transition':      '\n\n\\bigskip\\hrule{}\\bigskip\n\n',
     'figure_align':    'htbp',
