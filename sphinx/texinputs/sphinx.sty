@@ -85,6 +85,7 @@
 % verbatim
 \DeclareBoolOption[true]{verbatimwithframe}
 \DeclareBoolOption[true]{verbatimwrapslines}
+\DeclareBoolOption[true]{inlineliteralwraps}
 % \textvisiblespace for compatibility with fontspec+XeTeX/LuaTeX
 \DeclareStringOption[\textcolor{red}{\textvisiblespace}]{verbatimvisiblespace}
 \DeclareStringOption % must use braces to hide the brackets
@@ -243,7 +244,9 @@
 % in 'alltt' \@noligs is done already, and the \scantokens must be avoided.
 \long\protected\def\sphinxcode#1{{\def\@tempa{alltt}%
   \ifx\@tempa\@currenvir\else
-   \sphinxbreaksviaactive\let\sphinxafterbreak\empty
+   \ifspx@opt@inlineliteralwraps
+      \sphinxbreaksviaactive\let\sphinxafterbreak\empty
+   \fi
    \@noligs\endlinechar\m@ne\everyeof{\noexpand}%
    \expandafter\scantokens
   \fi {\texttt{#1}}}}
