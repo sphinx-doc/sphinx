@@ -20,6 +20,7 @@ Features added
   :confval:`linkcheck_anchors_ignore`
 * #3083: let Unicode no-break space act like LaTeX ``~`` (fixed #3019)
 * #3116: allow word wrap in PDF output for inline literals (ref #3110)
+* #930: sphinx-apidoc allow wildcards for excluding paths. Thanks to Nick Coghlan.
 
 Bugs fixed
 ----------

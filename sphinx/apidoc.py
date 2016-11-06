@@ -21,6 +21,7 @@ import sys
 import optparse
 from os import path
 from six import binary_type
+from fnmatch import fnmatch
 
 from sphinx.util.osutil import FileAvoidWrite, walk
 from sphinx import __display_version__
@@ -257,7 +258,7 @@ def is_excluded(root, excludes):
           e.g. an exlude "foo" also accidentally excluding "foobar".
     """
     for exclude in excludes:
-        if root == exclude:
+        if fnmatch(root, exclude):
             return True
     return False
 
@@ -266,13 +267,13 @@ def main(argv=sys.argv):
     """Parse and check the command line arguments."""
     parser = optparse.OptionParser(
         usage="""\
-usage: %prog [options] -o <output_path> <module_path> [exclude_path, ...]
+usage: %prog [options] -o <output_path> <module_path> [exclude_pattern, ...]
 
 Look recursively in <module_path> for Python modules and packages and create
 one reST file with automodule directives per package in the <output_path>.
 
-The <exclude_path>s can be files and/or directories that will be excluded
-from generation.
+The <exclude_pattern>s can be file and/or directory patterns that will be
+excluded from generation.
 
 Note: By default this script will not overwrite already created files.""")
 
