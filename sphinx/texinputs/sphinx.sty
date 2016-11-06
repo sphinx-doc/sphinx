@@ -245,7 +245,7 @@
 \long\protected\def\sphinxcode#1{{\def\@tempa{alltt}%
   \ifx\@tempa\@currenvir\else
    \ifspx@opt@inlineliteralwraps
-      \let\verbatim@nolig@list \sphinx@verbatim@nolig@list
+      \def\verbatim@nolig@list {\do\`\do\<\do\>\do\'\do\-}%
       \sphinxbreaksviaactive\let\sphinxafterbreak\empty
    \fi
    \@noligs\endlinechar\m@ne\everyeof{\noexpand}%
