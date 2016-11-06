@@ -154,8 +154,9 @@ Here are the currently available options together with their default values.
 ``inlineliteralwraps``
     default ``true``. Allows linebreaks inside inline literals: but extra
     potential break-points (additionally to those allowed by LaTeX at spaces
-    or for hyphenation) are currently inserted only after the characters ``. ,
-    ; ? ! /``. Due to TeX internals, white space in the line will be stretched
+    or for hyphenation) are currently inserted only after the characters
+    ``. , ; ? ! /``. Due to TeX internals, white space in the line will be
+    stretched
     (or shrinked) in order to accomodate the linebreak.
 
     .. versionadded:: 1.5

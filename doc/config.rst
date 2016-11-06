@@ -1756,7 +1756,7 @@ These options influence LaTeX output. See further :doc:`latex`.
         Additional footer content (before the indices), default empty.
 
         .. deprecated:: 1.5
-           User ``'atendofbody'`` key instead.
+           Use ``'atendofbody'`` key instead.
 
    * Keys that don't need be overridden unless in special cases are:
 
