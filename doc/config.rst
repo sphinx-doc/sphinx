@@ -1712,7 +1712,14 @@ These options influence LaTeX output. See further :doc:`latex`.
 
         .. versionadded:: 1.5
      ``'babel'``
-        "babel" package inclusion, default ``'\\usepackage{babel}'``.
+        "babel" package inclusion, default ``'\\usepackage{babel}'`` (the
+        suitable document language string is passed as class option, and
+        ``english`` is used if no language.) For Japanese documents, the
+        default is the empty string.
+
+        .. versionchanged:: 1.5
+           For :confval:`latex_engine` set to ``'xelatex'``, the default
+           is ``'\\usepackage{polyglossia}\n\\setmainlanguage{<language>}'``.
      ``'fontpkg'``
         Font package inclusion, default ``'\\usepackage{times}'`` (which uses
         Times and Helvetica).  You can set this to ``''`` to use the Computer
