@@ -711,6 +711,137 @@ def test_latex_toplevel_sectioning_is_section(app, status, warning):
     print(warning.getvalue())
     assert '\\section{Foo}' in result
 
+
+@with_app(buildername='latex', testroot='admonition',
+          confoverrides={'master_doc': 'index'})
+def test_admonitions_inside_section(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\begin{sphinxadmonition}{note}{title}' in result
+    assert '\\begin{sphinxadmonition}{attention}{Attention:}' in result
+    assert '\\begin{sphinxadmonition}{caution}{Caution:}' in result
+    assert '\\begin{sphinxadmonition}{danger}{Danger:}' in result
+    assert '\\begin{sphinxadmonition}{error}{Error:}' in result
+    assert '\\begin{sphinxadmonition}{hint}{Hint:}' in result
+    assert '\\begin{sphinxadmonition}{important}{Important:}' in result
+    assert '\\begin{sphinxadmonition}{note}{Note:}' in result
+    assert '\\begin{sphinxadmonition}{tip}{Tip:}' in result
+    assert '\\begin{sphinxadmonition}{warning}{Warning:}' in result
+
+
+@with_app(buildername='latex', testroot='admonition',
+          confoverrides={'master_doc': 'admonition'})
+def test_admonition_outside_section(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\begin{sphinxadmonition}{note}{title}' in result
+
+
+@with_app(buildername='latex', testroot='admonition',
+          confoverrides={'master_doc': 'attention'})
+def test_attention_outside_section(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\begin{sphinxadmonition}{attention}{Attention:}' in result
+
+
+@with_app(buildername='latex', testroot='admonition',
+          confoverrides={'master_doc': 'caution'})
+def test_caution_outside_section(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\begin{sphinxadmonition}{caution}{Caution:}' in result
+
+
+@with_app(buildername='latex', testroot='admonition',
+          confoverrides={'master_doc': 'danger'})
+def test_danger_outside_section(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\begin{sphinxadmonition}{danger}{Danger:}' in result
+
+
+@with_app(buildername='latex', testroot='admonition',
+          confoverrides={'master_doc': 'error'})
+def test_error_outside_section(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\begin{sphinxadmonition}{error}{Error:}' in result
+
+
+@with_app(buildername='latex', testroot='admonition',
+          confoverrides={'master_doc': 'hint'})
+def test_hint_outside_section(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\begin{sphinxadmonition}{hint}{Hint:}' in result
+
+
+@with_app(buildername='latex', testroot='admonition',
+          confoverrides={'master_doc': 'important'})
+def test_important_outside_section(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\begin{sphinxadmonition}{important}{Important:}' in result
+
+
+@with_app(buildername='latex', testroot='admonition',
+          confoverrides={'master_doc': 'note'})
+def test_note_outside_section(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\begin{sphinxadmonition}{note}{Note:}' in result
+
+
+@with_app(buildername='latex', testroot='admonition',
+          confoverrides={'master_doc': 'tip'})
+def test_tip_outside_section(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\begin{sphinxadmonition}{tip}{Tip:}' in result
+
+
+@with_app(buildername='latex', testroot='admonition',
+          confoverrides={'master_doc': 'warning'})
+def test_warning_outside_section(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\begin{sphinxadmonition}{warning}{Warning:}' in result
+
+
 @skip_if_stylefiles_notfound
 @with_app(buildername='latex', testroot='maxlistdepth')
 def test_maxlistdepth_at_ten(app, status, warning):

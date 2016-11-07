@@ -1,0 +1,3 @@
+.. danger:: title
+
+   body

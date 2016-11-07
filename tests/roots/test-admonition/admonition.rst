@@ -1,0 +1,3 @@
+.. admonition:: title
+
+   body
