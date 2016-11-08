@@ -12,6 +12,7 @@
 from os import path
 
 from six import string_types
+
 from docutils.io import FileOutput
 from docutils.frontend import OptionParser
 
@@ -20,8 +21,13 @@ from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import make_filename
-from sphinx.util.console import bold, darkgreen
+from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.manpage import ManualPageWriter
+
+if False:
+    # For type annotation
+    from typing import Any, Union  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 
 class ManualPageBuilder(Builder):
@@ -30,22 +36,26 @@ class ManualPageBuilder(Builder):
     """
     name = 'man'
     format = 'man'
-    supported_image_types = []
+    supported_image_types = []  # type: List[unicode]
 
     def init(self):
+        # type: () -> None
         if not self.config.man_pages:
             self.warn('no "man_pages" config value found; no manual pages '
                       'will be written')
 
     def get_outdated_docs(self):
+        # type: () -> Union[unicode, List[unicode]]
         return 'all manpages'  # for now
 
     def get_target_uri(self, docname, typ=None):
+        # type: (unicode, unicode) -> unicode
         if typ == 'token':
             return ''
         raise NoUri
 
     def write(self, *ignored):
+        # type: (Any) -> None
         docwriter = ManualPageWriter(self)
         docsettings = OptionParser(
             defaults=self.env.settings,
@@ -69,7 +79,7 @@ class ManualPageBuilder(Builder):
                 encoding='utf-8')
 
             tree = self.env.get_doctree(docname)
-            docnames = set()
+            docnames = set()  # type: Set[unicode]
             largetree = inline_all_toctrees(self, docnames, docname, tree,
                                             darkgreen, [docname])
             self.info('} ', nonl=True)
@@ -88,10 +98,12 @@ class ManualPageBuilder(Builder):
         self.info()
 
     def finish(self):
+        # type: () -> None
         pass
 
 
 def setup(app):
+    # type: (Sphinx) -> None
     app.add_builder(ManualPageBuilder)
 
     app.add_config_value('man_pages',
