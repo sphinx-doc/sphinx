@@ -16,7 +16,8 @@ import tempfile
 from os import path
 
 from six import string_types, iteritems
-from six.moves import configparser
+from six.moves import configparser  # type: ignore
+from typing import Any, Callable, Tuple  # NOQA
 
 try:
     import pkg_resources
@@ -26,6 +27,10 @@ except ImportError:
 from sphinx import package_dir
 from sphinx.errors import ThemeError
 
+if False:
+    # For type annotation
+    from typing import Any, Callable, Tuple  # NOQA
+
 NODEFAULT = object()
 THEMECONF = 'theme.conf'
 
@@ -34,10 +39,12 @@ class Theme(object):
     """
     Represents the theme chosen in the configuration.
     """
-    themes = {}
+    themes = {}     # type: Dict[unicode, Tuple[unicode, zipfile.ZipFile]]
+    themepath = []  # type: List[unicode]
 
     @classmethod
     def init_themes(cls, confdir, theme_path, warn=None):
+        # type: (unicode, unicode, Callable) -> None
         """Search all theme paths for available themes."""
         cls.themepath = list(theme_path)
         cls.themepath.append(path.join(package_dir, 'themes'))
@@ -49,7 +56,7 @@ class Theme(object):
             for theme in os.listdir(themedir):
                 if theme.lower().endswith('.zip'):
                     try:
-                        zfile = zipfile.ZipFile(path.join(themedir, theme))
+                        zfile = zipfile.ZipFile(path.join(themedir, theme))  # type: ignore
                         if THEMECONF not in zfile.namelist():
                             continue
                         tname = theme[:-4]
@@ -68,6 +75,7 @@ class Theme(object):
 
     @classmethod
     def load_extra_theme(cls, name):
+        # type: (unicode) -> None
         themes = ['alabaster']
         try:
             import sphinx_rtd_theme
@@ -98,6 +106,7 @@ class Theme(object):
         return
 
     def __init__(self, name, warn=None):
+        # type: (unicode, Callable) -> None
         if name not in self.themes:
             self.load_extra_theme(name)
             if name not in self.themes:
@@ -156,6 +165,7 @@ class Theme(object):
             self.base = Theme(inherit, warn=warn)
 
     def get_confstr(self, section, name, default=NODEFAULT):
+        # type: (unicode, unicode, Any) -> Any
         """Return the value for a theme configuration setting, searching the
         base theme chain.
         """
@@ -171,13 +181,14 @@ class Theme(object):
                 return default
 
     def get_options(self, overrides):
+        # type: (Dict) -> Any
         """Return a dictionary of theme options and their values."""
         chain = [self.themeconf]
         base = self.base
         while base is not None:
             chain.append(base.themeconf)
             base = base.base
-        options = {}
+        options = {}  # type: Dict[unicode, Any]
         for conf in reversed(chain):
             try:
                 options.update(conf.items('options'))
@@ -190,6 +201,7 @@ class Theme(object):
         return options
 
     def get_dirchain(self):
+        # type: () -> List[unicode]
         """Return a list of theme directories, beginning with this theme's,
         then the base theme's, then that one's base theme's, etc.
         """
@@ -201,6 +213,7 @@ class Theme(object):
         return chain
 
     def cleanup(self):
+        # type: () -> None
         """Remove temporary directories."""
         if self.themedir_created:
             try:
@@ -212,6 +225,7 @@ class Theme(object):
 
 
 def load_theme_plugins():
+    # type: () -> List[unicode]
     """load plugins by using``sphinx_themes`` section in setuptools entry_points.
     This API will return list of directory that contain some theme directory.
     """
@@ -219,7 +233,7 @@ def load_theme_plugins():
     if not pkg_resources:
         return []
 
-    theme_paths = []
+    theme_paths = []  # type: List[unicode]
 
     for plugin in pkg_resources.iter_entry_points('sphinx_themes'):
         func_or_path = plugin.load()
@@ -229,7 +243,7 @@ def load_theme_plugins():
             path = func_or_path
 
         if isinstance(path, string_types):
-            theme_paths.append(path)
+            theme_paths.append(path)  # type: ignore
         else:
             raise ThemeError('Plugin %r does not response correctly.' %
                              plugin.module_name)

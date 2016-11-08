@@ -14,7 +14,7 @@ class BaseNode(object):
     """
     Node superclass for both terminal and nonterminal nodes.
     """
-    parent = None
+    parent = None  # type: BaseNode
 
     def _eq(self, other):
         raise NotImplementedError
@@ -29,7 +29,7 @@ class BaseNode(object):
             return NotImplemented
         return not self._eq(other)
 
-    __hash__ = None
+    __hash__ = None  # type: str
 
     def get_prev_sibling(self):
         """Return previous child in parent's children, or None."""
@@ -204,5 +204,5 @@ class NodeVisitor(object):
     def generic_visit(self, node):
         """Called if no explicit visitor function exists for a node."""
         if isinstance(node, Node):
-            for child in node:
+            for child in node:  # type: ignore
                 self.visit(child)

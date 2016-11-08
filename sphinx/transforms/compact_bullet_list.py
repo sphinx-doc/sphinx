@@ -23,12 +23,15 @@ class RefOnlyListChecker(nodes.GenericNodeVisitor):
     """
 
     def default_visit(self, node):
+        # type: (nodes.Node) -> None
         raise nodes.NodeFound
 
     def visit_bullet_list(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_list_item(self, node):
+        # type: (nodes.Node) -> None
         children = []
         for child in node.children:
             if not isinstance(child, nodes.Invisible):
@@ -45,6 +48,7 @@ class RefOnlyListChecker(nodes.GenericNodeVisitor):
         raise nodes.SkipChildren
 
     def invisible_visit(self, node):
+        # type: (nodes.Node) -> None
         """Invisible nodes should be ignored."""
         pass
 
@@ -58,11 +62,13 @@ class RefOnlyBulletListTransform(Transform):
     default_priority = 100
 
     def apply(self):
+        # type: () -> None
         env = self.document.settings.env
         if env.config.html_compact_lists:
             return
 
         def check_refonly_list(node):
+            # type: (nodes.Node) -> bool
             """Check for list with only references in it."""
             visitor = RefOnlyListChecker(self.document)
             try:

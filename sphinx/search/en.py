@@ -224,12 +224,15 @@ class SearchEnglish(SearchLanguage):
     stopwords = english_stopwords
 
     def init(self, options):
+        # type: (Dict) -> None
         if PYSTEMMER:
             class Stemmer(object):
                 def __init__(self):
+                    # type: () -> None
                     self.stemmer = PyStemmer('porter')
 
                 def stem(self, word):
+                    # type: (unicode) -> unicode
                     return self.stemmer.stemWord(word)
         else:
             class Stemmer(PorterStemmer):
@@ -237,9 +240,11 @@ class SearchEnglish(SearchLanguage):
                 make at least the stem method nicer.
                 """
                 def stem(self, word):
+                    # type: (unicode) -> unicode
                     return PorterStemmer.stem(self, word, 0, len(word) - 1)
 
         self.stemmer = Stemmer()
 
     def stem(self, word):
+        # type: (unicode) -> unicode
         return self.stemmer.stem(word.lower())

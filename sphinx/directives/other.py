@@ -8,6 +8,7 @@
 """
 
 from six.moves import range
+
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
@@ -21,8 +22,14 @@ from sphinx.util.nodes import explicit_title_re, set_source_info, \
     process_index_entry
 from sphinx.util.matching import patfilter
 
+if False:
+    # For type annotation
+    from typing import Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
 
 def int_or_nothing(argument):
+    # type: (unicode) -> int
     if not argument:
         return 999
     return int(argument)
@@ -50,6 +57,7 @@ class TocTree(Directive):
     }
 
     def run(self):
+        # type: () -> List[nodes.Node]
         env = self.state.document.settings.env
         suffixes = env.config.source_suffix
         glob = 'glob' in self.options
@@ -57,7 +65,7 @@ class TocTree(Directive):
         ret = []
         # (title, ref) pairs, where ref may be a document, or an external link,
         # and title may be None if the document's title is to be used
-        entries = []
+        entries = []        # type: List[Tuple[unicode, unicode]]
         includefiles = []
         all_docnames = env.found_docs.copy()
         # don't add the currently visited file in catch-all patterns
@@ -136,9 +144,10 @@ class Author(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         env = self.state.document.settings.env
         if not env.config.show_authors:
             return []
@@ -168,20 +177,21 @@ class Index(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         arguments = self.arguments[0].split('\n')
         env = self.state.document.settings.env
         targetid = 'index-%s' % env.new_serialno('index')
         targetnode = nodes.target('', '', ids=[targetid])
         self.state.document.note_explicit_target(targetnode)
         indexnode = addnodes.index()
-        indexnode['entries'] = ne = []
+        indexnode['entries'] = []
         indexnode['inline'] = False
         set_source_info(self, indexnode)
         for entry in arguments:
-            ne.extend(process_index_entry(entry, targetid))
+            indexnode['entries'].extend(process_index_entry(entry, targetid))
         return [indexnode, targetnode]
 
 
@@ -193,9 +203,10 @@ class VersionChange(Directive):
     required_arguments = 1
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         node = addnodes.versionmodified()
         node.document = self.state.document
         set_source_info(self, node)
@@ -248,9 +259,10 @@ class TabularColumns(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         node = addnodes.tabular_col_spec()
         node['spec'] = self.arguments[0]
         set_source_info(self, node)
@@ -265,9 +277,10 @@ class Centered(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         if not self.arguments:
             return []
         subnode = addnodes.centered()
@@ -285,9 +298,10 @@ class Acks(Directive):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         node = addnodes.acks()
         node.document = self.state.document
         self.state.nested_parse(self.content, self.content_offset, node)
@@ -311,6 +325,7 @@ class HList(Directive):
     }
 
     def run(self):
+        # type: () -> List[nodes.Node]
         ncolumns = self.options.get('columns', 2)
         node = nodes.paragraph()
         node.document = self.state.document
@@ -342,9 +357,10 @@ class Only(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         node = addnodes.only()
         node.document = self.state.document
         set_source_info(self, node)
@@ -398,6 +414,7 @@ class Include(BaseInclude):
     """
 
     def run(self):
+        # type: () -> List[nodes.Node]
         env = self.state.document.settings.env
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):
@@ -410,6 +427,7 @@ class Include(BaseInclude):
 
 
 def setup(app):
+    # type: (Sphinx) -> None
     directives.register_directive('toctree', TocTree)
     directives.register_directive('sectionauthor', Author)
     directives.register_directive('moduleauthor', Author)

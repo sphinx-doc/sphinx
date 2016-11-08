@@ -33,6 +33,7 @@ class DefaultSubstitutions(Transform):
     default_priority = 210
 
     def apply(self):
+        # type: () -> None
         env = self.document.settings.env
         config = self.document.settings.env.config
         # only handle those not otherwise defined in the document
@@ -58,6 +59,7 @@ class MoveModuleTargets(Transform):
     default_priority = 210
 
     def apply(self):
+        # type: () -> None
         for node in self.document.traverse(nodes.target):
             if not node['ids']:
                 continue
@@ -76,6 +78,7 @@ class HandleCodeBlocks(Transform):
     default_priority = 210
 
     def apply(self):
+        # type: () -> None
         # move doctest blocks out of blockquotes
         for node in self.document.traverse(nodes.block_quote):
             if all(isinstance(child, nodes.doctest_block) for child
@@ -100,6 +103,7 @@ class AutoNumbering(Transform):
     default_priority = 210
 
     def apply(self):
+        # type: () -> None
         domain = self.document.settings.env.domains['std']
 
         for node in self.document.traverse(nodes.Element):
@@ -114,6 +118,7 @@ class SortIds(Transform):
     default_priority = 261
 
     def apply(self):
+        # type: () -> None
         for node in self.document.traverse(nodes.section):
             if len(node['ids']) > 1 and node['ids'][0].startswith('id'):
                 node['ids'] = node['ids'][1:] + [node['ids'][0]]
@@ -127,6 +132,7 @@ class CitationReferences(Transform):
     default_priority = 619
 
     def apply(self):
+        # type: () -> None
         for citnode in self.document.traverse(nodes.citation_reference):
             cittext = citnode.astext()
             refnode = addnodes.pending_xref(cittext, refdomain='std', reftype='citation',
@@ -154,6 +160,7 @@ class ApplySourceWorkaround(Transform):
     default_priority = 10
 
     def apply(self):
+        # type: () -> None
         for n in self.document.traverse():
             if isinstance(n, nodes.TextElement):
                 apply_source_workaround(n)
@@ -166,6 +173,7 @@ class AutoIndexUpgrader(Transform):
     default_priority = 210
 
     def apply(self):
+        # type: () -> None
         env = self.document.settings.env
         for node in self.document.traverse(addnodes.index):
             if 'entries' in node and any(len(entry) == 4 for entry in node['entries']):
@@ -184,12 +192,14 @@ class ExtraTranslatableNodes(Transform):
     default_priority = 10
 
     def apply(self):
+        # type: () -> None
         targets = self.document.settings.env.config.gettext_additional_targets
         target_nodes = [v for k, v in TRANSLATABLE_NODES.items() if k in targets]
         if not target_nodes:
             return
 
         def is_translatable_node(node):
+            # type: (nodes.Node) -> bool
             return isinstance(node, tuple(target_nodes))
 
         for node in self.document.traverse(is_translatable_node):
@@ -201,6 +211,7 @@ class FilterSystemMessages(Transform):
     default_priority = 999
 
     def apply(self):
+        # type: () -> None
         env = self.document.settings.env
         filterlevel = env.config.keep_warnings and 2 or 5
         for node in self.document.traverse(nodes.system_message):
@@ -215,9 +226,11 @@ class SphinxContentsFilter(ContentsFilter):
     within table-of-contents link nodes.
     """
     def visit_pending_xref(self, node):
+        # type: (nodes.Node) -> None
         text = node.astext()
         self.parent.append(nodes.literal(text, text))
         raise nodes.SkipNode
 
     def visit_image(self, node):
+        # type: (nodes.Node) -> None
         raise nodes.SkipNode
