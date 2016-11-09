@@ -21,7 +21,7 @@ Build environment API
 
    .. attribute:: confdir
 
-      Directory containing ``conf.py``.
+      Directory containing the :doc:`configuration file</config>`.
 
    .. attribute:: doctreedir
 

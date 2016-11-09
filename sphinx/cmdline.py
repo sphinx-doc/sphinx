@@ -97,7 +97,7 @@ def handle_exception(app, opts, exception, stderr=sys.stderr):
             print(file=stderr)
             print('This can happen with very large or deeply nested source '
                   'files.  You can carefully increase the default Python '
-                  'recursion limit of 1000 in conf.py with e.g.:', file=stderr)
+                  'recursion limit of 1000 in the config file with e.g.:', file=stderr)
             print('    import sys; sys.setrecursionlimit(1500)', file=stderr)
         else:
             print(red('Exception occurred:'), file=stderr)
@@ -143,9 +143,12 @@ def main(argv):
     #                 '"sphinx-build -M html"')
 
     group = parser.add_option_group('Build configuration options')
-    group.add_option('-c', metavar='PATH', dest='confdir',
-                     help='path where configuration file (conf.py) is located '
-                     '(default: same as sourcedir)')
+    group.add_option('-c', metavar='FILE', dest='confpath',
+                     help='Use FILE as the config file. '
+                     'If FILE is directory, sphinx tries to load conf.py '
+                     'from there. '
+                     'If this option is not given at all, behaviour is the '
+                     'same as for -c sourcedir.')
     group.add_option('-C', action='store_true', dest='noconfig',
                      help='use no config file at all, only -D options')
     group.add_option('-D', metavar='setting=value', action='append',
@@ -191,23 +194,62 @@ def main(argv):
 
     # get paths (first and second positional argument)
     try:
-        srcdir = abspath(args[0])
-        confdir = abspath(opts.confdir or srcdir)
-        if opts.noconfig:
-            confdir = None
+        # Check src directory (first positional argument)
+        srcdir = path.abspath(args[0])
         if not path.isdir(srcdir):
             print('Error: Cannot find source directory `%s\'.' % srcdir,
                   file=sys.stderr)
             return 1
-        if not opts.noconfig and not path.isfile(path.join(confdir, 'conf.py')):
-            print('Error: Config directory doesn\'t contain a conf.py file.',
-                  file=sys.stderr)
-            return 1
+
+        # Check output directory (second positional argument)
         outdir = abspath(args[1])
         if srcdir == outdir:
             print('Error: source directory and destination directory are same.',
                   file=sys.stderr)
             return 1
+
+        # Check config parameters (-c option and -C flag)
+        confdir = None
+        conffilename = None
+        if opts.noconfig:
+            if not opts.confpath:
+                confdir = srcdir
+                conffilename = None
+            else:
+                print('Error: Options -C -c cannot be used at the same time.',
+                      file=sys.stderr)
+                return 1
+
+        elif opts.confpath:
+            confpath = abspath(opts.confpath)
+            if path.isdir(confpath):
+                confdir = confpath
+                conffilename = 'conf.py'
+            elif path.isfile(confpath):
+                confdir = path.dirname(confpath)
+                conffilename = path.basename(confpath)
+            else:
+                print('Error: Config path specified by \'-c %s\' '
+                      'does not exist.' % opts.confpath, file=sys.stderr)
+                return 1
+
+            if not path.isfile(path.join(confdir, conffilename)):
+                print('Error: Config directory \'%s\' doesn\'t '
+                      'contain a \'%s\' file.' % (confdir, conffilename),
+                      file=sys.stderr)
+                return 1
+
+        else:
+            # Could be replaced by auto-detection
+            confdir = srcdir
+            conffilename = 'conf.py'
+
+            if not path.isfile(path.join(confdir, conffilename)):
+                print('Error: Source directory \'%s\' doesn\'t '
+                      'contain a \'%s\' file.' % (confdir, conffilename),
+                      file=sys.stderr)
+                return 1
+
     except IndexError:
         parser.print_help()
         return 1
@@ -300,8 +342,9 @@ def main(argv):
     try:
         with docutils_namespace():
             app = Sphinx(srcdir, confdir, outdir, doctreedir, opts.builder,
-                         confoverrides, status, warning, opts.freshenv,
-                         opts.warningiserror, opts.tags, opts.verbosity, opts.jobs)
+                         conffilename, confoverrides, status, warning,
+                         opts.freshenv, opts.warningiserror, opts.tags,
+                         opts.verbosity, opts.jobs)
             app.build(opts.force_all, filenames)
             return app.statuscode
     except (Exception, KeyboardInterrupt) as exc:

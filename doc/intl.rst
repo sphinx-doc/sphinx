@@ -79,7 +79,7 @@ This section describe a easy way to translate with sphinx-intl.
 #. Install `sphinx-intl`_ by :command:`pip install sphinx-intl` or
    :command:`easy_install sphinx-intl`.
 
-#. Add configurations to your `conf.py`::
+#. Add configurations to your :doc:`configuration file<config>`::
 
       locale_dirs = ['locale/']   # path is example but recommended.
       gettext_compact = False     # optional.
@@ -112,8 +112,9 @@ This section describe a easy way to translate with sphinx-intl.
 
 #. make translated document.
 
-   You need a :confval:`language` parameter in ``conf.py`` or you may also
-   specify the parameter on the command line:
+   You need a :confval:`language` parameter in the
+   :doc:`configuration file<config>` or you may also specify the parameter on
+   the command line:
 
    .. code-block:: console
 

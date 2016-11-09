@@ -33,7 +33,7 @@ def doctree_read(app, doctree):
     resolve_target = getattr(env.config, 'linkcode_resolve', None)
     if not callable(env.config.linkcode_resolve):
         raise LinkcodeError(
-            "Function `linkcode_resolve` is not given in conf.py")
+            "Function `linkcode_resolve` is not given in the config file")
 
     domain_keys = dict(
         py=['module', 'fullname'],

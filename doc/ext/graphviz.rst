@@ -112,8 +112,8 @@ There are also these new config values:
    search path.
 
    Since this setting is not portable from system to system, it is normally not
-   useful to set it in ``conf.py``; rather, giving it on the
-   :program:`sphinx-build` command line via the :option:`-D <sphinx-build -D>`
+   useful to set it in the :doc:`configuration file</config>`; rather, giving it
+   on the :program:`sphinx-build` command line via the :option:`-D <sphinx-build -D>`
    option should be preferable, like this::
 
       sphinx-build -b html -D graphviz_dot=C:\graphviz\bin\dot.exe . _build/html

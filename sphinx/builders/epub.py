@@ -43,7 +43,7 @@ if False:
 # mimetype, and META-INF/container.xml are created.
 # This template section also defines strings that are embedded in the html
 # output but that may be customized by (re-)setting module attributes,
-# e.g. from conf.py.
+# e.g. from the config file.
 
 MIMETYPE_TEMPLATE = 'application/epub+zip'  # no EOL!
 

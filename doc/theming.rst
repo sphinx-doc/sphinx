@@ -22,7 +22,7 @@ Using an existing theme is easy.  If the theme is builtin to Sphinx, you only
 need to set the :confval:`html_theme` config value.  With the
 :confval:`html_theme_options` config value you can set theme-specific options
 that change the look and feel.  For example, you could have the following in
-your :file:`conf.py`::
+your :doc:`configuration file<config>`::
 
     html_theme = "classic"
     html_theme_options = {
@@ -38,10 +38,11 @@ If the theme does not come with Sphinx, it can be in two static forms: either a
 directory (containing :file:`theme.conf` and other needed files), or a zip file
 with the same contents.  Either of them must be put where Sphinx can find it;
 for this there is the config value :confval:`html_theme_path`.  It gives a list
-of directories, relative to the directory containing :file:`conf.py`, that can
-contain theme directories or zip files.  For example, if you have a theme in the
-file :file:`blue.zip`, you can put it right in the directory containing
-:file:`conf.py` and use this configuration::
+of directories, relative to the directory containing
+:doc:`configuration file<config>`, that can contain theme directories or zip
+files.  For example, if you have a theme in the file :file:`blue.zip`, you can
+put it right in the directory containing the :doc:`configuration file<config>`
+and use this configuration::
 
     html_theme = "blue"
     html_theme_path = ["."]
@@ -344,9 +345,9 @@ is built with the classic theme, the output directory will contain a
 ``_static/classic.css`` file where all template tags have been processed.
 
 
-.. [1] It is not an executable Python file, as opposed to :file:`conf.py`,
-       because that would pose an unnecessary security risk if themes are
-       shared.
+.. [1] It is not an executable Python file, as opposed to the
+       :doc:`configuration file<config>`, because that would pose an
+       unnecessary security risk if themes are shared.
 
 Third Party Themes
 ------------------

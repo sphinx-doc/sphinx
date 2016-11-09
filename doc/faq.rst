@@ -291,7 +291,7 @@ The following notes may be helpful if you want to create Texinfo files:
   now displayed like ```literal'``\s.
 
   The standard formatting can be re-enabled by adding the following to
-  your :file:`conf.py`::
+  your :doc:`configuration file<config>`::
 
      texinfo_elements = {'preamble': """
      @definfoenclose strong,*,*

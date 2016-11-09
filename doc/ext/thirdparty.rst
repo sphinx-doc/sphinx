@@ -23,7 +23,7 @@ Extensions local to a project should be put within the project's directory
 structure.  Set Python's module search path, ``sys.path``, accordingly so that
 Sphinx can find them.
 E.g., if your extension ``foo.py`` lies in the ``exts`` subdirectory of the
-project root, put into :file:`conf.py`::
+project root, put into the :doc:`configuration file</config>`::
 
    import sys, os
 

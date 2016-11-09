@@ -64,7 +64,7 @@ Getting Started
 ---------------
 
 1. After :doc:`setting up Sphinx <../tutorial>` to build your docs, enable
-   napoleon in the Sphinx `conf.py` file::
+   napoleon in the Sphinx :doc:`configuration file</config>`::
 
        # conf.py
 
@@ -245,9 +245,9 @@ Configuration
 =============
 
 Listed below are all the settings used by napoleon and their default
-values. These settings can be changed in the Sphinx `conf.py` file. Make
-sure that both "sphinx.ext.autodoc" and "sphinx.ext.napoleon" are
-enabled in `conf.py`::
+values. These settings can be changed in the Sphinx
+:doc:`configuration file</config>` file. Make sure that both
+"sphinx.ext.autodoc" and "sphinx.ext.napoleon" are enabled::
 
     # conf.py
 

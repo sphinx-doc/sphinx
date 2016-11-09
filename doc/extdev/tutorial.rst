@@ -50,8 +50,8 @@ extension.  These are:
 
 **Config**
    The config object (usually called ``config``) provides the values of
-   configuration values set in :file:`conf.py` as attributes.  It is an instance
-   of :class:`.Config`.
+   configuration values set in the :doc:`configuration file</config>` as
+   attributes.  It is an instance of :class:`.Config`.
 
    The config is available as ``app.config`` or ``env.config``.
 
