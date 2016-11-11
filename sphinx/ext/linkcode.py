@@ -16,12 +16,18 @@ from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.errors import SphinxError
 
+if False:
+    # For type annotation
+    from typing import Any  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
 
 class LinkcodeError(SphinxError):
     category = "linkcode error"
 
 
 def doctree_read(app, doctree):
+    # type: (Sphinx, nodes.Node) -> None
     env = app.builder.env
 
     resolve_target = getattr(env.config, 'linkcode_resolve', None)
@@ -38,7 +44,7 @@ def doctree_read(app, doctree):
 
     for objnode in doctree.traverse(addnodes.desc):
         domain = objnode.get('domain')
-        uris = set()
+        uris = set()  # type: Set[unicode]
         for signode in objnode:
             if not isinstance(signode, addnodes.desc_signature):
                 continue
@@ -72,6 +78,7 @@ def doctree_read(app, doctree):
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.connect('doctree-read', doctree_read)
     app.add_config_value('linkcode_resolve', None, '')
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
