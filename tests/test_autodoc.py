@@ -1025,7 +1025,7 @@ def test_type_hints():
     from sphinx.util.inspect import getargspec
 
     try:
-        from typing_test_data import f0, f1, f2, f3, f4, f5, f6, f7, f8, f9
+        from typing_test_data import f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10
     except (ImportError, SyntaxError):
         raise SkipTest('Cannot import Python code with function annotations')
 
@@ -1057,10 +1057,11 @@ def test_type_hints():
 
     # Callable types
     verify_arg_spec(f7, '(x: typing.Callable[[int, str], int]) -> None')
+    verify_arg_spec(f8, '(x: typing.Callable) -> None')
 
     # Tuple types
-    verify_arg_spec(f8, '(x: typing.Tuple[int, str],'
+    verify_arg_spec(f9, '(x: typing.Tuple[int, str],'
                         ' y: typing.Tuple[int, ...]) -> None')
 
     # Instance annotations
-    verify_arg_spec(f9, '(x: CustomAnnotation, y: 123) -> None')
+    verify_arg_spec(f10, '(x: CustomAnnotation, y: 123) -> None')

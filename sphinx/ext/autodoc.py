@@ -306,7 +306,9 @@ def format_annotation(annotation):
                 hasattr(annotation, '__args__') and \
                 hasattr(annotation, '__result__'):
             args = annotation.__args__
-            if args is Ellipsis:
+            if args is None:
+                return qualified_name
+            elif args is Ellipsis:
                 args_str = '...'
             else:
                 formatted_args = (format_annotation(a) for a in args)
