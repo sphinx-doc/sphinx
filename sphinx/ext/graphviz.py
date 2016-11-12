@@ -75,6 +75,7 @@ class Graphviz(Directive):
         'inline': directives.flag,
         'caption': directives.unchanged,
         'graphviz_dot': directives.unchanged,
+        'name': directives.unchanged,
     }
 
     def run(self):
@@ -117,6 +118,7 @@ class Graphviz(Directive):
         if caption:
             node = figure_wrapper(self, node, caption)
 
+        self.add_name(node)
         return [node]
 
 
@@ -134,6 +136,7 @@ class GraphvizSimple(Directive):
         'inline': directives.flag,
         'caption': directives.unchanged,
         'graphviz_dot': directives.unchanged,
+        'name': directives.unchanged,
     }
 
     def run(self):
@@ -154,6 +157,7 @@ class GraphvizSimple(Directive):
         if caption:
             node = figure_wrapper(self, node, caption)
 
+        self.add_name(node)
         return [node]
 
 

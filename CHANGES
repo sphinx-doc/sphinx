@@ -7,6 +7,8 @@ Incompatible changes
 Features added
 --------------
 
+* #3136: Add ``:name:`` option to the directives in ``sphinx.ext.graphviz``
+
 Bugs fixed
 ----------
 
