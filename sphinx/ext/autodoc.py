@@ -317,7 +317,9 @@ def format_annotation(annotation):
                 hasattr(annotation, '__result__'):
             # Skipped in the case of plain typing.Callable
             args = annotation.__args__
-            if args is Ellipsis:
+            if args is None:
+                return qualified_name
+            elif args is Ellipsis:
                 args_str = '...'
             else:
                 formatted_args = (format_annotation(a) for a in args)

@@ -819,7 +819,7 @@ msgstr "Ricerca completata, trovata/e %s pagina/e corrispondenti."
 
 #: sphinx/themes/basic/static/searchtools.js_t:338
 msgid ", in "
-msgstr ", in"
+msgstr ", in "
 
 #: sphinx/themes/classic/static/sidebar.js_t:83
 msgid "Expand sidebar"
