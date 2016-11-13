@@ -12,6 +12,18 @@ Features added
 Bugs fixed
 ----------
 
+Release 1.5 beta2 (in development)
+==================================
+
+Incompatible changes
+--------------------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
 Release 1.5 beta1 (released Nov 6, 2016)
 ========================================
 
@@ -268,6 +280,7 @@ Bugs fixed
   results in warning / error
 * #3068: Allow the '=' character in the -D option of sphinx-build.py
 * #3074: ``add_source_parser()`` crashes in debug mode
+* #3135: ``sphinx.ext.autodoc`` crashes with plain Callable
 
 Release 1.4.8 (released Oct 1, 2016)
 ====================================
