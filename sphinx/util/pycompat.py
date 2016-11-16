@@ -14,11 +14,13 @@ import sys
 import codecs
 import warnings
 
-from six import class_types
+from six import PY3, class_types, text_type, exec_
 from six.moves import zip_longest
 from itertools import product
 
-from six import PY3, text_type, exec_
+if False:
+    # For type annotation
+    from typing import Any, Callable  # NOQA
 
 NoneType = type(None)
 
@@ -33,6 +35,7 @@ if PY3:
 
     # safely encode a string for printing to the terminal
     def terminal_safe(s):
+        # type: (unicode) -> unicode
         return s.encode('ascii', 'backslashreplace').decode('ascii')
     # some kind of default system encoding; should be used with a lenient
     # error handler
@@ -40,6 +43,7 @@ if PY3:
 
     # support for running 2to3 over config files
     def convert_with_2to3(filepath):
+        # type: (unicode) -> unicode
         from lib2to3.refactor import RefactoringTool, get_fixers_from_package
         from lib2to3.pgen2.parse import ParseError
         fixers = get_fixers_from_package('lib2to3.fixes')
@@ -68,13 +72,15 @@ else:
     # Python 2
     u = 'u'
     # no need to refactor on 2.x versions
-    convert_with_2to3 = None
+    convert_with_2to3 = None  # type: ignore
 
     def TextIOWrapper(stream, encoding):
+        # type: (file, str) -> unicode
         return codecs.lookup(encoding or 'ascii')[2](stream)
 
     # safely encode a string for printing to the terminal
     def terminal_safe(s):
+        # type: (unicode) -> unicode
         return s.encode('ascii', 'backslashreplace')
     # some kind of default system encoding; should be used with a lenient
     # error handler
@@ -91,6 +97,7 @@ else:
 
     # backport from python3
     def indent(text, prefix, predicate=None):
+        # type: (unicode, unicode, Callable) -> unicode
         if predicate is None:
             def predicate(line):
                 return line.strip()
@@ -102,6 +109,7 @@ else:
 
 
 def execfile_(filepath, _globals, open=open):
+    # type: (unicode, Any, Callable) -> None
     from sphinx.util.osutil import fs_encoding
     # get config source -- 'b' is a no-op under 2.x, while 'U' is
     # ignored under 3.x (but 3.x compile() accepts \r\n newlines)
@@ -132,6 +140,7 @@ def execfile_(filepath, _globals, open=open):
 
 class _DeprecationWrapper(object):
     def __init__(self, mod, deprecated):
+        # type: (Any, Dict) -> None
         self._mod = mod
         self._deprecated = deprecated
 
@@ -145,7 +154,7 @@ class _DeprecationWrapper(object):
         return getattr(self._mod, attr)
 
 
-sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(
+sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(  # type: ignore
     zip_longest = zip_longest,
     product = product,
     all = all,

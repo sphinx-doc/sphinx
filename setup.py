@@ -51,6 +51,7 @@ requires = [
     'alabaster>=0.7,<0.8',
     'imagesize',
     'requests',
+    'typing',
 ]
 extras_require = {
     # Environment Marker works for wheel 0.24 or later

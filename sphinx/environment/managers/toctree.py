@@ -10,6 +10,7 @@
 """
 
 from six import iteritems
+
 from docutils import nodes
 
 from sphinx import addnodes
@@ -18,11 +19,18 @@ from sphinx.util.nodes import clean_astext, process_only_nodes
 from sphinx.transforms import SphinxContentsFilter
 from sphinx.environment.managers import EnvironmentManager
 
+if False:
+    # For type annotation
+    from typing import Any, Tuple  # NOQA
+    from sphinx.builders import Builder  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
+
 
 class Toctree(EnvironmentManager):
     name = 'toctree'
 
     def __init__(self, env):
+        # type: (BuildEnvironment) -> None
         super(Toctree, self).__init__(env)
 
         self.tocs = env.tocs
@@ -35,6 +43,7 @@ class Toctree(EnvironmentManager):
         self.numbered_toctrees = env.numbered_toctrees
 
     def clear_doc(self, docname):
+        # type: (unicode) -> None
         self.tocs.pop(docname, None)
         self.toc_secnumbers.pop(docname, None)
         self.toc_fignumbers.pop(docname, None)
@@ -49,6 +58,7 @@ class Toctree(EnvironmentManager):
                 del self.files_to_rebuild[subfn]
 
     def merge_other(self, docnames, other):
+        # type: (List[unicode], BuildEnvironment) -> None
         for docname in docnames:
             self.tocs[docname] = other.tocs[docname]
             self.toc_num_entries[docname] = other.toc_num_entries[docname]
@@ -63,6 +73,7 @@ class Toctree(EnvironmentManager):
             self.files_to_rebuild.setdefault(subfn, set()).update(fnset & docnames)
 
     def process_doc(self, docname, doctree):
+        # type: (unicode, nodes.Node) -> None
         """Build a TOC from the doctree and store it in the inventory."""
         numentries = [0]  # nonlocal again...
 
@@ -132,6 +143,7 @@ class Toctree(EnvironmentManager):
         self.toc_num_entries[docname] = numentries[0]
 
     def note_toctree(self, docname, toctreenode):
+        # type: (unicode, addnodes.toctree) -> None
         """Note a TOC tree directive in a document and gather information about
         file relations from it.
         """
@@ -147,6 +159,7 @@ class Toctree(EnvironmentManager):
         self.toctree_includes.setdefault(docname, []).extend(includefiles)
 
     def get_toc_for(self, docname, builder):
+        # type: (unicode, Builder) -> None
         """Return a TOC nodetree -- for use on the same page only!"""
         tocdepth = self.env.metadata[docname].get('tocdepth', 0)
         try:
@@ -162,6 +175,7 @@ class Toctree(EnvironmentManager):
         return toc
 
     def get_toctree_for(self, docname, builder, collapse, **kwds):
+        # type: (unicode, Builder, bool, Any) -> nodes.Node
         """Return the global TOC nodetree."""
         doctree = self.env.get_doctree(self.env.config.master_doc)
         toctrees = []
@@ -184,6 +198,7 @@ class Toctree(EnvironmentManager):
 
     def resolve_toctree(self, docname, builder, toctree, prune=True, maxdepth=0,
                         titles_only=False, collapse=False, includehidden=False):
+        # type: (unicode, Builder, addnodes.toctree, bool, int, bool, bool, bool) -> nodes.Node
         """Resolve a *toctree* node into individual bullet lists with titles
         as items, returning None (if no containing titles are found) or
         a new node.
@@ -387,11 +402,12 @@ class Toctree(EnvironmentManager):
         return newnode
 
     def get_toctree_ancestors(self, docname):
+        # type: (unicode) -> List[unicode]
         parent = {}
         for p, children in iteritems(self.toctree_includes):
             for child in children:
                 parent[child] = p
-        ancestors = []
+        ancestors = []  # type: List[unicode]
         d = docname
         while d in parent and d not in ancestors:
             ancestors.append(d)
@@ -399,6 +415,7 @@ class Toctree(EnvironmentManager):
         return ancestors
 
     def _toctree_prune(self, node, depth, maxdepth, collapse=False):
+        # type: (nodes.Node, int, int, bool) -> None
         """Utility: Cut a TOC at a specified depth."""
         for subnode in node.children[:]:
             if isinstance(subnode, (addnodes.compact_paragraph,
@@ -420,11 +437,12 @@ class Toctree(EnvironmentManager):
                         self._toctree_prune(subnode, depth+1, maxdepth,  collapse)
 
     def assign_section_numbers(self):
+        # type: () -> List[unicode]
         """Assign a section number to each heading under a numbered toctree."""
         # a list of all docnames whose section numbers changed
         rewrite_needed = []
 
-        assigned = set()
+        assigned = set()  # type: Set[unicode]
         old_secnumbers = self.toc_secnumbers
         self.toc_secnumbers = self.env.toc_secnumbers = {}
 
@@ -488,14 +506,15 @@ class Toctree(EnvironmentManager):
         return rewrite_needed
 
     def assign_figure_numbers(self):
+        # type: () -> List[unicode]
         """Assign a figure number to each figure under a numbered toctree."""
 
         rewrite_needed = []
 
-        assigned = set()
+        assigned = set()  # type: Set[unicode]
         old_fignumbers = self.toc_fignumbers
         self.toc_fignumbers = self.env.toc_fignumbers = {}
-        fignum_counter = {}
+        fignum_counter = {}  # type: Dict[unicode, Dict[Tuple[int], int]]
 
         def get_section_number(docname, section):
             anchorname = '#' + section['ids'][0]
@@ -540,7 +559,7 @@ class Toctree(EnvironmentManager):
 
                     continue
 
-                figtype = self.env.domains['std'].get_figtype(subnode)
+                figtype = self.env.domains['std'].get_figtype(subnode)  # type: ignore
                 if figtype and subnode['ids']:
                     register_fignumber(docname, secnum, figtype, subnode)
 

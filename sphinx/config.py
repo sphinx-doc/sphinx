@@ -16,9 +16,14 @@ from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integ
 
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
+from sphinx.util.i18n import format_date
 from sphinx.util.osutil import cd
 from sphinx.util.pycompat import execfile_, NoneType
-from sphinx.util.i18n import format_date
+
+if False:
+    # For type annotation
+    from typing import Any, Callable, Tuple  # NOQA
+    from sphinx.util.tags import Tags  # NOQA
 
 nonascii_re = re.compile(br'[\x80-\xff]')
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
@@ -43,13 +48,15 @@ class ENUM(object):
         app.add_config_value('latex_show_urls', 'no', ENUM('no', 'footnote', 'inline'))
     """
     def __init__(self, *candidates):
+        # type: (unicode) -> None
         self.candidates = candidates
 
     def match(self, value):
+        # type: (unicode) -> bool
         return value in self.candidates
 
 
-string_classes = [text_type]
+string_classes = [text_type]  # type: List
 if PY2:
     string_classes.append(binary_type)  # => [str, unicode]
 
@@ -114,12 +121,13 @@ class Config(object):
 
         # pre-initialized confval for HTML builder
         html_translator_class = (None, 'html', string_classes),
-    )
+    )  # type: Dict[unicode, Tuple]
 
     def __init__(self, dirname, filename, overrides, tags):
+        # type: (unicode, unicode, Dict, Tags) -> None
         self.overrides = overrides
         self.values = Config.config_values.copy()
-        config = {}
+        config = {}  # type: Dict[unicode, Any]
         if dirname is not None:
             config_file = path.join(dirname, filename)
             config['__file__'] = config_file
@@ -137,14 +145,14 @@ class Config(object):
         self._raw_config = config
         # these two must be preinitialized because extensions can add their
         # own config values
-        self.setup = config.get('setup', None)
+        self.setup = config.get('setup', None)  # type: Callable
 
         if 'extensions' in overrides:
             if isinstance(overrides['extensions'], string_types):
                 config['extensions'] = overrides.pop('extensions').split(',')
             else:
                 config['extensions'] = overrides.pop('extensions')
-        self.extensions = config.get('extensions', [])
+        self.extensions = config.get('extensions', [])  # type: List[unicode]
 
         # correct values of copyright year that are not coherent with
         # the SOURCE_DATE_EPOCH environment variable (if set)
@@ -152,10 +160,11 @@ class Config(object):
         if getenv('SOURCE_DATE_EPOCH') is not None:
             for k in ('copyright', 'epub_copyright'):
                 if k in config:
-                    config[k] = copyright_year_re.sub('\g<1>%s' % format_date('%Y'),
+                    config[k] = copyright_year_re.sub('\g<1>%s' % format_date('%Y'),  # type: ignore  # NOQA
                                                       config[k])
 
     def check_types(self, warn):
+        # type: (Callable) -> None
         # check all values for deviation from the default value's type, since
         # that can result in TypeErrors all over the place
         # NB. since config values might use l_() we have to wait with calling
@@ -197,15 +206,17 @@ class Config(object):
                         name=name, current=type(current), default=type(default)))
 
     def check_unicode(self, warn):
+        # type: (Callable) -> None
         # check all string values for non-ASCII characters in bytestrings,
         # since that can result in UnicodeErrors all over the place
         for name, value in iteritems(self._raw_config):
-            if isinstance(value, binary_type) and nonascii_re.search(value):
+            if isinstance(value, binary_type) and nonascii_re.search(value):  # type: ignore
                 warn('the config value %r is set to a string with non-ASCII '
                      'characters; this can lead to Unicode errors occurring. '
                      'Please use Unicode strings, e.g. %r.' % (name, u'Content'))
 
     def convert_overrides(self, name, value):
+        # type: (unicode, Any) -> Any
         if not isinstance(value, string_types):
             return value
         else:
@@ -215,10 +226,10 @@ class Config(object):
                                  'ignoring (use %r to set individual elements)' %
                                  (name, name + '.key=value'))
             elif isinstance(defvalue, list):
-                return value.split(',')
+                return value.split(',')  # type: ignore
             elif isinstance(defvalue, integer_types):
                 try:
-                    return int(value)
+                    return int(value)  # type: ignore
                 except ValueError:
                     raise ValueError('invalid number %r for config value %r, ignoring' %
                                      (value, name))
@@ -231,6 +242,7 @@ class Config(object):
                 return value
 
     def pre_init_values(self, warn):
+        # type: (Callable) -> None
         """Initialize some limited config variables before loading extensions"""
         variables = ['needs_sphinx', 'suppress_warnings', 'html_translator_class']
         for name in variables:
@@ -243,12 +255,13 @@ class Config(object):
                 warn(exc)
 
     def init_values(self, warn):
+        # type: (Callable) -> None
         config = self._raw_config
         for valname, value in iteritems(self.overrides):
             try:
                 if '.' in valname:
                     realvalname, key = valname.split('.', 1)
-                    config.setdefault(realvalname, {})[key] = value
+                    config.setdefault(realvalname, {})[key] = value  # type: ignore
                     continue
                 elif valname not in self.values:
                     warn('unknown config value %r in override, ignoring' % valname)
@@ -262,10 +275,11 @@ class Config(object):
         for name in config:
             if name in self.values:
                 self.__dict__[name] = config[name]
-        if isinstance(self.source_suffix, string_types):
-            self.source_suffix = [self.source_suffix]
+        if isinstance(self.source_suffix, string_types):  # type: ignore
+            self.source_suffix = [self.source_suffix]  # type: ignore
 
     def __getattr__(self, name):
+        # type: (unicode) -> Any
         if name.startswith('_'):
             raise AttributeError(name)
         if name not in self.values:
@@ -276,13 +290,17 @@ class Config(object):
         return default
 
     def __getitem__(self, name):
+        # type: (unicode) -> unicode
         return getattr(self, name)
 
     def __setitem__(self, name, value):
+        # type: (unicode, Any) -> None
         setattr(self, name, value)
 
     def __delitem__(self, name):
+        # type: (unicode) -> None
         delattr(self, name)
 
     def __contains__(self, name):
+        # type: (unicode) -> bool
         return name in self.values

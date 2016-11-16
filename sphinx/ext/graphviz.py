@@ -18,6 +18,7 @@ from subprocess import Popen, PIPE
 from hashlib import sha1
 
 from six import text_type
+
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
@@ -28,6 +29,11 @@ from sphinx.locale import _
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 from sphinx.util.compat import Directive
+
+if False:
+    # For type annotation
+    from typing import Any, Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 
 mapname_re = re.compile(r'<map id="(.*?)"')
@@ -42,6 +48,7 @@ class graphviz(nodes.General, nodes.Inline, nodes.Element):
 
 
 def figure_wrapper(directive, node, caption):
+    # type: (Directive, nodes.Node, unicode) -> nodes.figure
     figure_node = nodes.figure('', node)
     if 'align' in node:
         figure_node['align'] = node.attributes.pop('align')
@@ -58,6 +65,7 @@ def figure_wrapper(directive, node, caption):
 
 
 def align_spec(argument):
+    # type: (Any) -> bool
     return directives.choice(argument, ('left', 'center', 'right'))
 
 
@@ -79,6 +87,7 @@ class Graphviz(Directive):
     }
 
     def run(self):
+        # type: () -> List[nodes.Node]
         if self.arguments:
             document = self.state.document
             if self.content:
@@ -140,6 +149,7 @@ class GraphvizSimple(Directive):
     }
 
     def run(self):
+        # type: () -> List[nodes.Node]
         node = graphviz()
         node['code'] = '%s %s {\n%s\n}\n' % \
                        (self.name, self.arguments[0], '\n'.join(self.content))
@@ -162,6 +172,7 @@ class GraphvizSimple(Directive):
 
 
 def render_dot(self, code, options, format, prefix='graphviz'):
+    # type: (nodes.NodeVisitor, unicode, Dict, unicode, unicode) -> Tuple[unicode, unicode]
     """Render graphviz code into a PNG or PDF output file."""
     graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
     hashkey = (code + str(options) + str(graphviz_dot) +
@@ -221,6 +232,7 @@ def render_dot(self, code, options, format, prefix='graphviz'):
 
 
 def warn_for_deprecated_option(self, node):
+    # type: (nodes.NodeVisitor, graphviz) -> None
     if hasattr(self.builder, '_graphviz_warned_inline'):
         return
 
@@ -231,6 +243,7 @@ def warn_for_deprecated_option(self, node):
 
 def render_dot_html(self, node, code, options, prefix='graphviz',
                     imgcls=None, alt=None):
+    # type: (nodes.NodeVisitor, graphviz, unicode, Dict, unicode, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
     format = self.builder.config.graphviz_output_format
     try:
         if format not in ('png', 'svg'):
@@ -263,7 +276,7 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
                                  (fname, alt, imgcss))
             else:
                 # has a map: get the name of the map and connect the parts
-                mapname = mapname_re.match(imgmap[0].decode('utf-8')).group(1)
+                mapname = mapname_re.match(imgmap[0].decode('utf-8')).group(1)  # type: ignore
                 self.body.append('<img src="%s" alt="%s" usemap="#%s" %s/>\n' %
                                  (fname, alt, mapname, imgcss))
                 self.body.extend([item.decode('utf-8') for item in imgmap])
@@ -274,11 +287,13 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
 
 
 def html_visit_graphviz(self, node):
+    # type: (nodes.NodeVisitor, graphviz) -> None
     warn_for_deprecated_option(self, node)
     render_dot_html(self, node, node['code'], node['options'])
 
 
 def render_dot_latex(self, node, code, options, prefix='graphviz'):
+    # type: (nodes.NodeVisitor, graphviz, unicode, Dict, unicode) -> None
     try:
         fname, outfn = render_dot(self, code, options, 'pdf', prefix)
     except GraphvizError as exc:
@@ -292,7 +307,7 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
         para_separator = '\n'
 
     if fname is not None:
-        post = None
+        post = None  # type: unicode
         if not is_inline and 'align' in node:
             if node['align'] == 'left':
                 self.body.append('{')
@@ -309,11 +324,13 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
 
 
 def latex_visit_graphviz(self, node):
+    # type: (nodes.NodeVisitor, graphviz) -> None
     warn_for_deprecated_option(self, node)
     render_dot_latex(self, node, node['code'], node['options'])
 
 
 def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
+    # type: (nodes.NodeVisitor, graphviz, unicode, Dict, unicode) -> None
     try:
         fname, outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError as exc:
@@ -325,11 +342,13 @@ def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
 
 
 def texinfo_visit_graphviz(self, node):
+    # type: (nodes.NodeVisitor, graphviz) -> None
     warn_for_deprecated_option(self, node)
     render_dot_texinfo(self, node, node['code'], node['options'])
 
 
 def text_visit_graphviz(self, node):
+    # type: (nodes.NodeVisitor, graphviz) -> None
     warn_for_deprecated_option(self, node)
     if 'alt' in node.attributes:
         self.add_text(_('[graph: %s]') % node['alt'])
@@ -339,6 +358,7 @@ def text_visit_graphviz(self, node):
 
 
 def man_visit_graphviz(self, node):
+    # type: (nodes.NodeVisitor, graphviz) -> None
     warn_for_deprecated_option(self, node)
     if 'alt' in node.attributes:
         self.body.append(_('[graph: %s]') % node['alt'])
@@ -348,6 +368,7 @@ def man_visit_graphviz(self, node):
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_node(graphviz,
                  html=(html_visit_graphviz, None),
                  latex=(latex_visit_graphviz, None),

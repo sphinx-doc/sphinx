@@ -15,28 +15,38 @@ import string
 from itertools import groupby
 
 from six import text_type
-
 from sphinx import addnodes
 from sphinx.util import iteritems, split_index_msg, split_into
 from sphinx.locale import _
 from sphinx.environment.managers import EnvironmentManager
+
+if False:
+    # For type annotation
+    from typing import Pattern, Tuple  # NOQA
+    from docutils import nodes  # NOQA
+    from sphinx.builders import Builder  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
 
 
 class IndexEntries(EnvironmentManager):
     name = 'indices'
 
     def __init__(self, env):
+        # type: (BuildEnvironment) -> None
         super(IndexEntries, self).__init__(env)
         self.data = env.indexentries
 
     def clear_doc(self, docname):
+        # type: (unicode) -> None
         self.data.pop(docname, None)
 
     def merge_other(self, docnames, other):
+        # type: (List[unicode], BuildEnvironment) -> None
         for docname in docnames:
             self.data[docname] = other.indexentries[docname]
 
     def process_doc(self, docname, doctree):
+        # type: (unicode, nodes.Node) -> None
         entries = self.data[docname] = []
         for node in doctree.traverse(addnodes.index):
             try:
@@ -55,10 +65,11 @@ class IndexEntries(EnvironmentManager):
 
     def create_index(self, builder, group_entries=True,
                      _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
+        # type: (Builder, bool, Pattern) -> List[Tuple[unicode, List[Tuple[unicode, List[unicode]]]]]  # NOQA
         """Create the real index from the collected index entries."""
         from sphinx.environment import NoUri
 
-        new = {}
+        new = {}  # type: Dict[unicode, List]
 
         def add_entry(word, subword, main, link=True, dic=new, key=None):
             # Force the word to be unicode if it's a ASCII bytestring.
@@ -131,8 +142,8 @@ class IndexEntries(EnvironmentManager):
             #   func()
             #     (in module foo)
             #     (in module bar)
-            oldkey = ''
-            oldsubitems = None
+            oldkey = ''  # type: unicode
+            oldsubitems = None  # type: Dict[unicode, List]
             i = 0
             while i < len(newlist):
                 key, (targets, subitems, _key) = newlist[i]

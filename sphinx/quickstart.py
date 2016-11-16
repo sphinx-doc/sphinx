@@ -36,8 +36,9 @@ from docutils.utils import column_width
 
 from sphinx import __display_version__, package_dir
 from sphinx.util.osutil import make_filename
-from sphinx.util.console import purple, bold, red, turquoise, \
-    nocolor, color_terminal
+from sphinx.util.console import (  # type: ignore
+    purple, bold, red, turquoise, nocolor, color_terminal
+)
 from sphinx.util.template import SphinxRenderer
 from sphinx.util import texescape
 
