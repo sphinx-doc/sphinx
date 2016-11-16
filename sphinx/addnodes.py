@@ -39,6 +39,8 @@ class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement):
 
 class desc_addname(nodes.Part, nodes.Inline, nodes.TextElement):
     """Node for additional name parts (module name, class name)."""
+
+
 # compatibility alias
 desc_classname = desc_addname
 

@@ -48,6 +48,7 @@ class RedirectHandler(HTTPRedirectHandler):
         req.redirect_code = code
         return new_req
 
+
 # create an opener that will simulate a browser user-agent
 opener = build_opener(RedirectHandler)
 opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) '

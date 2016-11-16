@@ -152,6 +152,7 @@ def lazy_gettext(string):
     #     return string
     return _TranslationProxy(mygettext, string)
 
+
 l_ = lazy_gettext
 
 

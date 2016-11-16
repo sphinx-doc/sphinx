@@ -125,6 +125,7 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
 
     return catalogs
 
+
 # date_format mappings: ustrftime() to bable.dates.format_datetime()
 date_format_mappings = {
     '%a': 'EEE',     # Weekday as locale’s abbreviated name.

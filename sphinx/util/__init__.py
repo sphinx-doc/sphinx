@@ -212,6 +212,7 @@ def copy_extra_entry(source, targetdir, exclude_matchers=()):
         for file in files:
             copy_extra_file(os.path.join(root, file), reltargetdir)
 
+
 _DEBUG_HEADER = '''\
 # Sphinx version: %s
 # Python version: %s (%s)

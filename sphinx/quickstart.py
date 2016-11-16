@@ -1516,6 +1516,7 @@ def usage(argv, msg=None):
         print(msg, file=sys.stderr)
         print(file=sys.stderr)
 
+
 USAGE = """\
 Sphinx v%s
 Usage: %%prog [options] [projectdir]
@@ -1680,6 +1681,7 @@ def main(argv=sys.argv):
             d[key] = term_decode(value)
 
     generate(d)
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))

@@ -452,6 +452,7 @@ class Builder(object):
             optname = '%s_%s' % (default, option)
             return getattr(self.config, optname)
 
+
 BUILTIN_BUILDERS = {
     'dummy':      ('dummy', 'DummyBuilder'),
     'html':       ('html', 'StandaloneHTMLBuilder'),
