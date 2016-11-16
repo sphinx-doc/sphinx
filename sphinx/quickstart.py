@@ -485,6 +485,7 @@ def usage(argv, msg=None):
         print(msg, file=sys.stderr)
         print(file=sys.stderr)
 
+
 USAGE = """\
 Sphinx v%s
 Usage: %%prog [options] [projectdir]
@@ -674,6 +675,7 @@ def main(argv=sys.argv):
             print('Invalid template variable: %s' % variable)
 
     generate(d, templatedir=opts.templatedir)
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))

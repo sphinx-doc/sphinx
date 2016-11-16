@@ -81,8 +81,8 @@ def sphinx_smarty_pants(t):
     t = t.replace('"', '&quot;')
     return t
 
-# Constants for quote education.
 
+# Constants for quote education.
 punct_class = r"""[!"#\$\%'()*+,-.\/:;<=>?\@\[\\\]\^_`{|}~]"""
 end_of_word_class = r"""[\s.,;:!?)]"""
 close_class = r"""[^\ \t\r\n\[\{\(\-]"""

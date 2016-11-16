@@ -144,6 +144,7 @@ class _DeprecationWrapper(object):
             return self._deprecated[attr]
         return getattr(self._mod, attr)
 
+
 sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(
     zip_longest = zip_longest,
     product = product,

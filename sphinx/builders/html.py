@@ -1177,6 +1177,7 @@ class PickleHTMLBuilder(SerializingHTMLBuilder):
     globalcontext_filename = 'globalcontext.pickle'
     searchindex_filename = 'searchindex.pickle'
 
+
 # compatibility alias
 WebHTMLBuilder = PickleHTMLBuilder
 
