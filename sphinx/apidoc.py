@@ -402,6 +402,7 @@ Note: By default this script will not overwrite already created files.""")
     elif not opts.notoc:
         create_modules_toc_file(modules, opts)
 
+
 # So program can be started with "python -m sphinx.apidoc ..."
 if __name__ == "__main__":
     main()

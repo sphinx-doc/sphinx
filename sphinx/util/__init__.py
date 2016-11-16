@@ -170,6 +170,7 @@ def copy_static_entry(source, targetdir, builder, context={},
                               builder, context, level=level+1,
                               exclude_matchers=exclude_matchers)
 
+
 _DEBUG_HEADER = '''\
 # Sphinx version: %s
 # Python version: %s (%s)

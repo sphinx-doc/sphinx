@@ -90,6 +90,7 @@ def create_color_func(name):
         return colorize(name, text)
     globals()[name] = inner
 
+
 _attrs = {
     'reset':     '39;49;00m',
     'bold':      '01m',

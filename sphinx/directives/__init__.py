@@ -167,6 +167,7 @@ class ObjectDescription(Directive):
         self.after_content()
         return [self.indexnode, node]
 
+
 # backwards compatible old name
 DescDirective = ObjectDescription
 

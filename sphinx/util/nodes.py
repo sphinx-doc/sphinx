@@ -351,4 +351,5 @@ def _new_copy(self):
         newnode.line = self.line
     return newnode
 
+
 nodes.Element.copy = _new_copy
