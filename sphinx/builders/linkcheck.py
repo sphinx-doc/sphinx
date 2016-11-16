@@ -32,10 +32,10 @@ except ImportError:
         pass
 
 from sphinx.builders import Builder
-from sphinx.util import encode_uri
+from sphinx.util import encode_uri, requests
 from sphinx.util.console import purple, red, darkgreen, darkgray, \
     darkred, turquoise
-from sphinx.util.requests import requests, useragent_header, is_ssl_error
+from sphinx.util.requests import is_ssl_error
 
 
 class AnchorCheckParser(HTMLParser):
@@ -87,7 +87,6 @@ class CheckExternalLinksBuilder(Builder):
         self.good = set()
         self.broken = {}
         self.redirected = {}
-        self.headers = dict(useragent_header)
         # set a timeout for non-responding servers
         socket.setdefaulttimeout(5.0)
         # create output file
@@ -131,7 +130,7 @@ class CheckExternalLinksBuilder(Builder):
             try:
                 if anchor and self.app.config.linkcheck_anchors:
                     # Read the whole document and see if #anchor exists
-                    response = requests.get(req_url, stream=True, headers=self.headers,
+                    response = requests.get(req_url, stream=True, config=self.app.config,
                                             **kwargs)
                     found = check_anchor(response, unquote(anchor))
 
@@ -141,12 +140,12 @@ class CheckExternalLinksBuilder(Builder):
                     try:
                         # try a HEAD request first, which should be easier on
                         # the server and the network
-                        response = requests.head(req_url, headers=self.headers, **kwargs)
+                        response = requests.head(req_url, config=self.app.config, **kwargs)
                         response.raise_for_status()
                     except HTTPError as err:
                         # retry with GET request if that fails, some servers
                         # don't like HEAD requests.
-                        response = requests.get(req_url, stream=True, headers=self.headers,
+                        response = requests.get(req_url, stream=True, config=self.app.config,
                                                 **kwargs)
                         response.raise_for_status()
             except HTTPError as err:

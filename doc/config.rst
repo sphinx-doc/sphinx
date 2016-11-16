@@ -318,6 +318,21 @@ General configuration
 
    .. versionadded:: 1.3
 
+.. confval:: tls_verify
+
+   If true, Sphinx verifies server certifications.  Default is ``True``.
+
+   .. versionadded:: 1.5
+
+.. confval:: tls_cacerts
+
+   A path to a certification file of CA or a path to directory which
+   contains the certificates.  This also allows a dictionary mapping
+   hostname to the path to certificate file.
+   The certificates are used to verify server certifications.
+
+   .. versionadded:: 1.5
+
 Project information
 -------------------
 

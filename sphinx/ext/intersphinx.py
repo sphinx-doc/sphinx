@@ -41,7 +41,7 @@ from docutils.utils import relative_path
 import sphinx
 from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
-from sphinx.util.requests import requests, useragent_header
+from sphinx.util import requests
 
 
 UTF8StreamReader = codecs.lookup('utf-8')[2]
@@ -145,7 +145,7 @@ def _strip_basic_auth(url):
     return urlunsplit(frags)
 
 
-def _read_from_url(url, timeout=None):
+def _read_from_url(url, config=None):
     """Reads data from *url* with an HTTP *GET*.
 
     This function supports fetching from resources which use basic HTTP auth as
@@ -161,7 +161,7 @@ def _read_from_url(url, timeout=None):
     :return: data read from resource described by *url*
     :rtype: ``file``-like object
     """
-    r = requests.get(url, stream=True, timeout=timeout, headers=dict(useragent_header))
+    r = requests.get(url, stream=True, config=config, timeout=config.intersphinx_timeout)
     r.raise_for_status()
     r.raw.url = r.url
     return r.raw
@@ -202,7 +202,7 @@ def fetch_inventory(app, uri, inv):
         uri = _strip_basic_auth(uri)
     try:
         if '://' in inv:
-            f = _read_from_url(inv, timeout=app.config.intersphinx_timeout)
+            f = _read_from_url(inv, config=app.config)
         else:
             f = open(path.join(app.srcdir, inv), 'rb')
     except Exception as err:
