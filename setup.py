@@ -191,6 +191,7 @@ class CompileGrammarCommand(Command):
     def sub_commands(self):
         pass
 
+
 cmdclass['compile_grammar'] = CompileGrammarCommand
 
 
