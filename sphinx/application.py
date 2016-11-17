@@ -301,7 +301,7 @@ class Sphinx(object):
                     self.info('not yet created')
                 else:
                     self.info('failed: %s' % err)
-                return self._init_env(freshenv=True)
+                self._init_env(freshenv=True)
 
     def _init_builder(self, buildername):
         if buildername is None:
