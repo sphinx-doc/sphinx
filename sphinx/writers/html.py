@@ -291,7 +291,7 @@ class HTMLTranslator(BaseTranslator):
                     self.builder.warn(msg)
                 else:
                     numbers = self.builder.fignumbers[key][figure_id]
-                    self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
+                    self.body.append(prefix.format(number='.'.join(map(str, numbers))) + ' ')
                     self.body.append('</span>')
 
         figtype = self.builder.env.domains['std'].get_figtype(node)

@@ -118,10 +118,17 @@ tex_replacements = [
     ('Ω', r'\(\Omega\)'),
     ('Ω', r'\(\Omega\)'),
 ]
+tex_pyformats = [
+    # map special chars of str.format() to escaped one
+    ('{', '{{'),
+    ('}', '}}'),
+]
+
 
 tex_escape_map = {}
 tex_replace_map = {}
 tex_hl_escape_map_new = {}
+tex_pyformat_map = {}
 
 
 def init():
@@ -133,3 +140,6 @@ def init():
         if a in '[]{}\\':
             continue
         tex_hl_escape_map_new[ord(a)] = b
+
+    for a, b in tex_pyformats:
+        tex_pyformat_map[ord(a)] = b

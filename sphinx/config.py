@@ -286,3 +286,12 @@ class Config(object):
 
     def __contains__(self, name):
         return name in self.values
+
+
+def convert_numfig_format(config):
+    """ Convert numfi_format to new one. """
+
+    numfig_format = {}
+    for figtype, fmt in iteritems(config.numfig_format):
+        numfig_format[figtype] = fmt.replace('%s', '{number}')
+    config.numfig_format = numfig_format
