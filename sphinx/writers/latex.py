@@ -175,7 +175,7 @@ class ExtBabel(Babel):
                          'italian'):
             return '\\if\\catcode`\\"\\active\\shorthandoff{"}\\fi'
         elif shortlang in ('tr', 'turkish'):
-            return '\\shorthandoff{=}'
+            return '\\if\\catcode`\\=\\active\\shorthandoff{=}\\fi'
         return ''
 
     def uses_cyrillic(self):
