@@ -533,10 +533,8 @@ class BuildEnvironment(object):
         else:
             # check if a config value was changed that affects how
             # doctrees are read
-            for key, descr in iteritems(config.values):
-                if descr[1] != 'env':
-                    continue
-                if self.config[key] != config[key]:
+            for confval in config.filter('env'):
+                if self.config[confval.name] != confval.value:
                     msg = '[config changed] '
                     config_changed = True
                     break

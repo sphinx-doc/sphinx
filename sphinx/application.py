@@ -582,11 +582,11 @@ class Sphinx(object):
         # type: (unicode, Any, Union[bool, unicode], Any) -> None
         logger.debug('[app] adding config value: %r',
                      (name, default, rebuild) + ((types,) if types else ()))  # type: ignore
-        if name in self.config.values:
+        if name in self.config:
             raise ExtensionError('Config value %r already present' % name)
         if rebuild in (False, True):
             rebuild = rebuild and 'env' or ''
-        self.config.values[name] = (default, rebuild, types)
+        self.config.add(name, default, rebuild, types)
 
     def add_event(self, name):
         # type: (unicode) -> None

@@ -190,9 +190,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def get_outdated_docs(self):  # type: ignore
         # type: () -> Iterator[unicode]
-        cfgdict = dict((name, self.config[name])
-                       for (name, desc) in iteritems(self.config.values)
-                       if desc[1] == 'html')
+        cfgdict = dict((confval.name, confval.value) for confval in self.config.filter('html'))
         self.config_hash = get_stable_hash(cfgdict)
         self.tags_hash = get_stable_hash(sorted(self.tags))  # type: ignore
         old_config_hash = old_tags_hash = ''
