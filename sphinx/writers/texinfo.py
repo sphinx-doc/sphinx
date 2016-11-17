@@ -20,6 +20,7 @@ from six.moves import range
 from docutils import nodes, writers
 
 from sphinx import addnodes, __display_version__
+from sphinx.errors import ExtensionError
 from sphinx.locale import admonitionlabels, _
 from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
@@ -1588,7 +1589,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             primary = self.builder.config.primary_domain
             name = domain.get_type_name(domain.object_types[objtype],
                                         primary == domain.name)
-        except KeyError:
+        except ExtensionError:
             name = objtype
         # by convention, the deffn category should be capitalized like a title
         category = self.escape_arg(smart_capwords(name))
