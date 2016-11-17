@@ -77,7 +77,7 @@ class sphinx_domains(object):
         if ':' in name:
             domain_name, name = name.split(':', 1)
             if domain_name in self.env.domains:
-                domain = self.env.domains[domain_name]
+                domain = self.env.get_domain(domain_name)
                 element = getattr(domain, type)(name)
                 if element is not None:
                     return element, []
@@ -90,7 +90,7 @@ class sphinx_domains(object):
                     return element, []
 
         # always look in the std domain
-        element = getattr(self.env.domains['std'], type)(name)
+        element = getattr(self.env.get_domain('std'), type)(name)
         if element is not None:
             return element, []
 

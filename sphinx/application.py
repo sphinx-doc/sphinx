@@ -332,7 +332,7 @@ class Sphinx(object):
     def _init_enumerable_nodes(self):
         # type: () -> None
         for node, settings in iteritems(self.enumerable_nodes):
-            self.env.domains['std'].enumerable_nodes[node] = settings  # type: ignore
+            self.env.get_domain('std').enumerable_nodes[node] = settings  # type: ignore
 
     # ---- main "build" method -------------------------------------------------
 

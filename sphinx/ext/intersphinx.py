@@ -341,7 +341,7 @@ def missing_reference(app, env, node, contnode):
         if not domain:
             # only objects in domains are in the inventory
             return
-        objtypes = env.domains[domain].objtypes_for_role(node['reftype'])
+        objtypes = env.get_domain(domain).objtypes_for_role(node['reftype'])
         if not objtypes:
             return
         objtypes = ['%s:%s' % (domain, objtype) for objtype in objtypes]

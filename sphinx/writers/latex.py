@@ -1812,7 +1812,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.next_section_ids.update(node['ids'])
                 return
             else:
-                domain = self.builder.env.domains['std']
+                domain = self.builder.env.get_domain('std')
                 figtype = domain.get_figtype(next)
                 if figtype and domain.get_numfig_title(next):
                     ids = set()

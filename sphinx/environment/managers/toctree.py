@@ -559,7 +559,7 @@ class Toctree(EnvironmentManager):
 
                     continue
 
-                figtype = self.env.domains['std'].get_figtype(subnode)  # type: ignore
+                figtype = self.env.get_domain('std').get_figtype(subnode)  # type: ignore
                 if figtype and subnode['ids']:
                     register_fignumber(docname, secnum, figtype, subnode)
 

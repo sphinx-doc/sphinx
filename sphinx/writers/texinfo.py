@@ -1584,7 +1584,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                 self.add_anchor(id, node)
         # use the full name of the objtype for the category
         try:
-            domain = self.builder.env.domains[node.parent['domain']]
+            domain = self.builder.env.get_domain(node.parent['domain'])
             primary = self.builder.config.primary_domain
             name = domain.get_type_name(domain.object_types[objtype],
                                         primary == domain.name)
