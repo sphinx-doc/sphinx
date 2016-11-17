@@ -1589,7 +1589,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             primary = self.builder.config.primary_domain
             name = domain.get_type_name(domain.object_types[objtype],
                                         primary == domain.name)
-        except ExtensionError:
+        except (KeyError, ExtensionError):
             name = objtype
         # by convention, the deffn category should be capitalized like a title
         category = self.escape_arg(smart_capwords(name))
