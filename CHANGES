@@ -10,6 +10,9 @@ Features added
 Bugs fixed
 ----------
 
+* #3069: Even if ``'babel'`` key is set to empty string, LaTeX output contains
+  one ``\addto\captions...``
+
 Release 1.5 beta1 (released Nov 6, 2016)
 ========================================
 
