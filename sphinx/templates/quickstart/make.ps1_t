@@ -17,7 +17,7 @@
 # 
 # 
 # ==========================================================================
-# Copyright © 2016 Patrick Lehmann - Dresden, Germany
+# Copyright Â© 2016 Patrick Lehmann - Dresden, Germany
 # ==========================================================================
 [CmdletBinding()]
 param(
