@@ -108,6 +108,7 @@ ADDITIONAL_SETTINGS = {
     'xelatex': {
         'latex_engine': 'xelatex',
         'polyglossia':  '\\usepackage{polyglossia}',
+        'babel':        '',
         'fontenc':      '\\usepackage{fontspec}',
         'fontpkg':      '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
@@ -173,7 +174,7 @@ class ExtBabel(Babel):
                          'italian'):
             return '\\if\\catcode`\\"\\active\\shorthandoff{"}\\fi'
         elif shortlang in ('tr', 'turkish'):
-            return '\\shorthandoff{=}'
+            return '\\if\\catcode`\\=\\active\\shorthandoff{=}\\fi'
         return ''
 
     def uses_cyrillic(self):
@@ -371,6 +372,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # sort out some elements
         self.elements = DEFAULT_SETTINGS.copy()
         self.elements.update(ADDITIONAL_SETTINGS.get(builder.config.latex_engine, {}))
+        # allow the user to override them all
+        self.check_latex_elements()
+        self.elements.update(builder.config.latex_elements)
+
+        # but some have other interface in config file
         self.elements.update({
             'wrapperclass': self.format_docclass(document.settings.docclass),
             # if empty, the title is set to the first section title
@@ -397,7 +403,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
                                     path.basename(builder.config.latex_logo)
 
-        if builder.config.language:
+        if builder.config.language \
+           and 'fncychap' not in builder.config.latex_elements:
             # use Sonny style if any language specified
             self.elements['fncychap'] = '\\usepackage[Sonny]{fncychap}'
 
@@ -413,17 +420,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.elements['classoptions'] += ',' + self.babel.get_language()
 
         # set up multilingual module...
-        if self.elements['polyglossia']:
-            self.elements['babel'] = ''  # disable babel
-            self.elements['multilingual'] = '%s\n\\setmainlanguage{%s}' % \
-                (self.elements['polyglossia'], self.babel.get_language())
-        elif self.elements['babel']:
+        # 'babel' key is public and user setting must be obeyed
+        if self.elements['babel']:
+            # this branch is not taken for xelatex with writer default settings
             self.elements['multilingual'] = self.elements['babel']
             if builder.config.language:
                 self.elements['shorthandoff'] = self.babel.get_shorthandoff()
 
                 # Times fonts don't work with Cyrillic languages
-                if self.babel.uses_cyrillic():
+                if self.babel.uses_cyrillic() \
+                   and 'fontpkg' not in builder.config.latex_elements:
                     self.elements['fontpkg'] = ''
 
                 # pTeX (Japanese TeX) for support
@@ -435,6 +441,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.elements['multilingual'] = ''
                     # disable fncychap in Japanese documents
                     self.elements['fncychap'] = ''
+        elif self.elements['polyglossia']:
+            self.elements['multilingual'] = '%s\n\\setmainlanguage{%s}' % \
+                (self.elements['polyglossia'], self.babel.get_language())
 
         if getattr(builder, 'usepackages', None):
             def declare_package(packagename, options=None):
@@ -461,12 +470,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if tocdepth >= SECNUMDEPTH:
                 # Increase secnumdepth if tocdepth is depther than default SECNUMDEPTH
                 self.elements['secnumdepth'] = '\\setcounter{secnumdepth}{%d}' % tocdepth
+
         if getattr(document.settings, 'contentsname', None):
             self.elements['contentsname'] = \
                 self.babel_renewcommand('\\contentsname', document.settings.contentsname)
-        # allow the user to override them all
-        self.check_latex_elements()
-        self.elements.update(builder.config.latex_elements)
+
         if self.elements['maxlistdepth']:
             self.elements['sphinxpkgoptions'] += (',maxlistdepth=%s' %
                                                   self.elements['maxlistdepth'])
@@ -581,7 +589,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return self.idescape(ref).replace('-', '\\string-')
 
     def babel_renewcommand(self, command, definition):
-        if self.elements['babel']:
+        if self.elements['multilingual']:
             prefix = '\\addto\\captions%s{' % self.babel.get_language()
             suffix = '}'
         else:  # babel is disabled (mainly for Japanese environment)
