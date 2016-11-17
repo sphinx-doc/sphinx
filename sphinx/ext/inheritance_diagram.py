@@ -420,7 +420,7 @@ def setup(app):
         man=(skip, None),
         texinfo=(texinfo_visit_inheritance_diagram, None))
     app.add_directive('inheritance-diagram', InheritanceDiagram)
-    app.add_config_value('inheritance_graph_attrs', {}, False),
-    app.add_config_value('inheritance_node_attrs', {}, False),
-    app.add_config_value('inheritance_edge_attrs', {}, False),
+    app.add_config_value('inheritance_graph_attrs', {}, False)
+    app.add_config_value('inheritance_node_attrs', {}, False)
+    app.add_config_value('inheritance_edge_attrs', {}, False)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
