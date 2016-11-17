@@ -590,7 +590,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         return self.idescape(ref).replace('-', '\\string-')
 
     def babel_renewcommand(self, command, definition):
-        if self.elements['babel']:
+        if self.elements['multilingual']:
             prefix = '\\addto\\captions%s{' % self.babel.get_language()
             suffix = '}'
         else:  # babel is disabled (mainly for Japanese environment)
