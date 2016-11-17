@@ -463,9 +463,9 @@ class Sphinx(object):
         l = 0
         for item in iterable:
             if l == 0:
-                self.info(bold(summary), nonl=1)
+                self.info(bold(summary), nonl=True)
                 l = 1
-            self.info(colorfunc(stringify_func(item)) + ' ', nonl=1)
+            self.info(colorfunc(stringify_func(item)) + ' ', nonl=True)
             yield item
         if l == 1:
             self.info()
@@ -488,7 +488,7 @@ class Sphinx(object):
                 s += '\n'
             else:
                 s = term_width_line(s)
-            self.info(s, nonl=1)
+            self.info(s, nonl=True)
             yield item
         if l > 0:
             self.info()
