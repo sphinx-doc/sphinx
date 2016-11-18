@@ -12,6 +12,7 @@ Bugs fixed
 
 * #3069: Even if ``'babel'`` key is set to empty string, LaTeX output contains
   one ``\addto\captions...``
+* #3155: Fix JavaScript for `html_sourcelink_suffix` fails with IE and Opera
 
 Release 1.5 beta1 (released Nov 6, 2016)
 ========================================
