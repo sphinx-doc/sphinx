@@ -353,6 +353,7 @@ class StandaloneHTMLBuilder(Builder):
             parents = [],
             logo = logo,
             favicon = favicon,
+            warn = self.warn
         )
         if self.theme:
             self.globalcontext.update(

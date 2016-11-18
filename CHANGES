@@ -4,6 +4,8 @@ Release 1.5 beta2 (in development)
 Incompatible changes
 --------------------
 
+* #2986: ``themes/basic/defindex.html`` is now deprecated
+
 Features added
 --------------
 
