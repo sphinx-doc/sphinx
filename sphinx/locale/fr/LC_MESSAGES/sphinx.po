@@ -131,12 +131,12 @@ msgstr "Paramètres"
 #: sphinx/domains/c.py:61 sphinx/domains/cpp.py:3614
 #: sphinx/domains/javascript.py:128 sphinx/domains/python.py:136
 msgid "Returns"
-msgstr "Retourne"
+msgstr "Renvoie"
 
 #: sphinx/domains/c.py:63 sphinx/domains/javascript.py:130
 #: sphinx/domains/python.py:138
 msgid "Return type"
-msgstr "Type retourné"
+msgstr "Type renvoyé"
 
 #: sphinx/domains/c.py:177
 #, python-format
