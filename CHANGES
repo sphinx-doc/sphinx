@@ -9,6 +9,9 @@ Incompatible changes
 Features added
 --------------
 
+* #3095: Add :confval:`tls_verify` and :confval:`tls_cacerts` to support
+  self-signed HTTPS servers in linkcheck and intersphinx
+
 Bugs fixed
 ----------
 
