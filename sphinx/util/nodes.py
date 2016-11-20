@@ -71,6 +71,7 @@ def apply_source_workaround(node):
             nodes.title,
             nodes.rubric,
             nodes.line,
+            nodes.image,
     ))):
         node.source = find_source_node(node)
         node.line = 0  # need fix docutils to get `node.line`
