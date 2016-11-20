@@ -46,8 +46,8 @@ image under note
 .. note::
 
    .. image:: i18n.png
-      :alt: i18n
+      :alt: i18n under note
 
    .. figure:: img.png
-      :alt: img
+      :alt: img under note
 
