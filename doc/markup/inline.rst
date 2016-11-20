@@ -214,6 +214,7 @@ Cross-referencing figures by figure number
 
 .. versionchanged:: 1.5
    `numref` role can also refer sections.
+   And `numref` allows `{name}` for the link text.
 
 .. rst:role:: numref
 
@@ -223,7 +224,10 @@ Cross-referencing figures by figure number
 
    If an explicit link text is given (like usual: ``:numref:`Image of Sphinx (Fig.
    %s) <my-figure>```), the link caption will be the title of the reference.
-   The format of link text is same as :confval:`numfig_format`.
+   As a special character, `%s` and `{number}` will be replaced to figure
+   number.  `{name}` will be replaced to figure caption.
+   If no explicit link text is given, the value of :confval:`numfig_format` is
+   used to default value of link text.
 
    If :confval:`numfig` is ``False``, figures are not numbered.
    so this role inserts not a reference but labels or link text.
