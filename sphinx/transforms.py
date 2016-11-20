@@ -192,7 +192,7 @@ class ExtraTranslatableNodes(Transform):
     """
     make nodes translatable
     """
-    default_priority = 9
+    default_priority = 10
 
     def apply(self):
         targets = self.document.settings.env.config.gettext_additional_targets
