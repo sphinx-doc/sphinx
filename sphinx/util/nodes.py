@@ -46,6 +46,8 @@ def apply_source_workaround(node):
         node.source = definition_list_item.source
         node.line = definition_list_item.line - 1
         node.rawsource = node.astext()  # set 'classifier1' (or 'classifier2')
+    if isinstance(node, nodes.image) and node.source is None:
+        node.source, node.line = node.parent.source, node.parent.line
     if isinstance(node, nodes.term):
         # strip classifier from rawsource of term
         for classifier in reversed(node.parent.traverse(nodes.classifier)):

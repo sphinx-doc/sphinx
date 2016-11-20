@@ -166,7 +166,7 @@ class ApplySourceWorkaround(Transform):
 
     def apply(self):
         for n in self.document.traverse():
-            if isinstance(n, nodes.TextElement):
+            if isinstance(n, (nodes.TextElement, nodes.image)):
                 apply_source_workaround(n)
 
 
@@ -192,7 +192,7 @@ class ExtraTranslatableNodes(Transform):
     """
     make nodes translatable
     """
-    default_priority = 10
+    default_priority = 9
 
     def apply(self):
         targets = self.document.settings.env.config.gettext_additional_targets
