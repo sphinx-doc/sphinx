@@ -29,7 +29,7 @@ from docutils.parsers.rst import convert_directive_function, \
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.roles import XRefRole
-from sphinx.config import Config, convert_numfig_format
+from sphinx.config import Config
 from sphinx.errors import SphinxError, SphinxWarning, ExtensionError, \
     VersionRequirementError, ConfigError
 from sphinx.domains import ObjType
@@ -236,7 +236,6 @@ class Sphinx(object):
         self._init_i18n()
         # check all configuration values for permissible types
         self.config.check_types(self.warn)
-        self._post_init_config()
         # set up source_parsers
         self._init_source_parsers()
         # set up the build environment
@@ -270,9 +269,6 @@ class Sphinx(object):
                 self.info('done')
             else:
                 self.info('not available for built-in messages')
-
-    def _post_init_config(self):
-        convert_numfig_format(self.config)
 
     def _init_source_parsers(self):
         for suffix, parser in iteritems(self._additional_source_parsers):

@@ -29,7 +29,7 @@ from sphinx.util import split_into
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext, traverse_parent
 from sphinx.util.template import LaTeXRenderer
-from sphinx.util.texescape import tex_escape_map, tex_replace_map, tex_pyformat_map
+from sphinx.util.texescape import tex_escape_map, tex_replace_map
 from sphinx.util.smartypants import educate_quotes_latex
 
 
@@ -610,7 +610,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def generate_numfig_format(self, builder):
         ret = []
-        figure = self.builder.config.numfig_format['figure'].split('{number}', 1)
+        figure = self.builder.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
             ret.append('\\def\\fnum@figure{%s}\n' %
                        escape_abbr(text_type(figure[0]).translate(tex_escape_map)))
@@ -623,7 +623,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                            escape_abbr(text_type(figure[1]).translate(tex_escape_map)))
                 ret.append('\\makeatother\n')
 
-        table = self.builder.config.numfig_format['table'].split('{number}', 1)
+        table = self.builder.config.numfig_format['table'].split('%s', 1)
         if len(table) == 1:
             ret.append('\\def\\fnum@table{%s}\n' %
                        escape_abbr(text_type(table[0]).translate(tex_escape_map)))
@@ -636,7 +636,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                            escape_abbr(text_type(table[1]).translate(tex_escape_map)))
                 ret.append('\\makeatother\n')
 
-        codeblock = self.builder.config.numfig_format['code-block'].split('{number}', 1)
+        codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
         if len(codeblock) == 1:
             pass  # FIXME
         else:
@@ -1789,11 +1789,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
         else:
             id = node.get('refuri', '')[1:].replace('#', ':')
 
-        title = node.get('title', '{number}').replace('%s', '{number}')
-        title = text_type(title).translate(tex_escape_map).translate(tex_pyformat_map)
-        title = title.replace('\\{{name\\}}', '{name}').replace('\\{{number\\}}', '{number}')
-        text = escape_abbr(title).format(name='\\nameref{%s}' % self.idescape(id),
-                                         number='\\ref{%s}' % self.idescape(id))
+        title = node.get('title', '%s')
+        title = text_type(title).translate(tex_escape_map).replace('\\%s', '%s')
+        if '\\{name\\}' in title or '\\{number\\}' in title:
+            # new style format (cf. "Fig.%{number}")
+            title = title.replace('\\{name\\}', '{name}').replace('\\{number\\}', '{number}')
+            text = escape_abbr(title).format(name='\\nameref{%s}' % self.idescape(id),
+                                             number='\\ref{%s}' % self.idescape(id))
+        else:
+            # old style format (cf. "Fig.%{number}")
+            text = escape_abbr(title) % ('\\ref{%s}' % self.idescape(id))
         hyperref = '\\hyperref[%s]{%s}' % (self.idescape(id), text)
         self.body.append(hyperref)
 

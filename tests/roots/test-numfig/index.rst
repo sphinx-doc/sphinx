@@ -53,5 +53,7 @@ test-tocdepth
 * Section.1 is :numref:`foo`
 * Section.2.1 is :numref:`bar_a`
 * Unnumbered section is :numref:`index`
+* Invalid numfig_format 01: :numref:`invalid <fig1>`
+* Invalid numfig_format 02: :numref:`Fig %s %s <fig1>`
 * Fig.1 is :numref:`Fig.{number} {name} <fig1>`
 * Section.1 is :numref:`Sect.{number} {name} <foo>`
