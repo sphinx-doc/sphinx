@@ -50,3 +50,10 @@ msgid ""
 msgstr ""
 ".. image:: img.png\n"
 "   :alt: I18N -> IMG"
+
+msgid "image on substitution"
+msgstr "IMAGE ON SUBSTITUTION"
+
+msgid "image under note"
+msgstr "IMAGE UNDER NOTE"
+

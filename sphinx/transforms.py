@@ -166,7 +166,7 @@ class ApplySourceWorkaround(Transform):
 
     def apply(self):
         for n in self.document.traverse():
-            if isinstance(n, nodes.TextElement):
+            if isinstance(n, (nodes.TextElement, nodes.image)):
                 apply_source_workaround(n)
 
 
