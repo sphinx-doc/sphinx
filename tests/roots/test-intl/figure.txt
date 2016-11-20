@@ -34,3 +34,20 @@ image url and alt
 .. figure:: img.png
    :alt: img
 
+
+image on substitution
+---------------------
+
+.. |sub image| image:: i18n.png
+
+image under note
+-----------------
+
+.. note::
+
+   .. image:: i18n.png
+      :alt: i18n
+
+   .. figure:: img.png
+      :alt: img
+

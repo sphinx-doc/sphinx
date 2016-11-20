@@ -6,5 +6,5 @@ keep_warnings = True
 templates_path = ['_templates']
 html_additional_pages = {'index': 'index.html'}
 release = version = '2013.120'
-gettext_additional_targets = ['index']
+gettext_additional_targets = ['index', 'image']
 exclude_patterns = ['_build']
