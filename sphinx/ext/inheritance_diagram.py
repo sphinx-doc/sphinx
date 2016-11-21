@@ -63,6 +63,52 @@ class_sig_re = re.compile(r'''^([\w.]*\.)?    # module names
                           ''', re.VERBOSE)
 
 
+def import_classes(name, currmodule):
+    """Import a class using its fully-qualified *name*."""
+    try:
+        path, base = class_sig_re.match(name).groups()
+    except (AttributeError, ValueError):
+        raise InheritanceException('Invalid class or module %r specified '
+                                   'for inheritance diagram' % name)
+
+    fullname = (path or '') + base
+    path = (path and path.rstrip('.') or '')
+
+    # two possibilities: either it is a module, then import it
+    try:
+        __import__(fullname)
+        todoc = sys.modules[fullname]
+    except ImportError:
+        # else it is a class, then import the module
+        if not path:
+            if currmodule:
+                # try the current module
+                path = currmodule
+            else:
+                raise InheritanceException(
+                    'Could not import class %r specified for '
+                    'inheritance diagram' % base)
+        try:
+            __import__(path)
+            todoc = getattr(sys.modules[path], base)
+        except (ImportError, AttributeError):
+            raise InheritanceException(
+                'Could not import class or module %r specified for '
+                'inheritance diagram' % (path + '.' + base))
+
+    # If a class, just return it
+    if inspect.isclass(todoc):
+        return [todoc]
+    elif inspect.ismodule(todoc):
+        classes = []
+        for cls in todoc.__dict__.values():
+            if inspect.isclass(cls) and cls.__module__ == todoc.__name__:
+                classes.append(cls)
+        return classes
+    raise InheritanceException('%r specified for inheritance diagram is '
+                               'not a class or module' % name)
+
+
 class InheritanceException(Exception):
     pass
 
@@ -88,56 +134,11 @@ class InheritanceGraph(object):
             raise InheritanceException('No classes found for '
                                        'inheritance diagram')
 
-    def _import_class_or_module(self, name, currmodule):
-        """Import a class using its fully-qualified *name*."""
-        try:
-            path, base = class_sig_re.match(name).groups()
-        except (AttributeError, ValueError):
-            raise InheritanceException('Invalid class or module %r specified '
-                                       'for inheritance diagram' % name)
-
-        fullname = (path or '') + base
-        path = (path and path.rstrip('.') or '')
-
-        # two possibilities: either it is a module, then import it
-        try:
-            __import__(fullname)
-            todoc = sys.modules[fullname]
-        except ImportError:
-            # else it is a class, then import the module
-            if not path:
-                if currmodule:
-                    # try the current module
-                    path = currmodule
-                else:
-                    raise InheritanceException(
-                        'Could not import class %r specified for '
-                        'inheritance diagram' % base)
-            try:
-                __import__(path)
-                todoc = getattr(sys.modules[path], base)
-            except (ImportError, AttributeError):
-                raise InheritanceException(
-                    'Could not import class or module %r specified for '
-                    'inheritance diagram' % (path + '.' + base))
-
-        # If a class, just return it
-        if inspect.isclass(todoc):
-            return [todoc]
-        elif inspect.ismodule(todoc):
-            classes = []
-            for cls in todoc.__dict__.values():
-                if inspect.isclass(cls) and cls.__module__ == todoc.__name__:
-                    classes.append(cls)
-            return classes
-        raise InheritanceException('%r specified for inheritance diagram is '
-                                   'not a class or module' % name)
-
     def _import_classes(self, class_names, currmodule):
         """Import a list of classes."""
         classes = []
         for name in class_names:
-            classes.extend(self._import_class_or_module(name, currmodule))
+            classes.extend(import_classes(name, currmodule))
         return classes
 
     def _class_info(self, classes, show_builtins, private_bases, parts):
