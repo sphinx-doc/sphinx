@@ -13,6 +13,7 @@ Bugs fixed
 * #3150: Fix query word splitter in JavaScript. It behaves as same as Python's regular expression.
 * #3093: gettext build broken on substituted images.
 * #3093: gettext build broken on image node under ``note`` directive.
+* imgmath: crashes on showing error messages if image generation failed
 
 Release 1.4.8 (released Oct 1, 2016)
 ====================================
