@@ -33,7 +33,7 @@ _google_section_regex = re.compile(r'^(\s|\w)+:\s*$')
 _google_typed_arg_regex = re.compile(r'\s*(.+?)\s*\(\s*(.*[^\s]+)\s*\)')
 _numpy_section_regex = re.compile(r'^[=\-`:\'"~^_*+#<>]{2,}\s*$')
 _single_colon_regex = re.compile(r'(?<!:):(?!:)')
-_xref_regex = re.compile(r'(:\w+:\S+:`.+?`|:\S+:`.+?`|`.+?`)')
+_xref_regex = re.compile(r'(:(?:[a-zA-Z0-9]+[\-_+:.])*[a-zA-Z0-9]+:`.+?`)')
 _bullet_list_regex = re.compile(r'^(\*|\+|\-)(\s+\S|\s*$)')
 _enumerated_list_regex = re.compile(
     r'^(?P<paren>\()?'
