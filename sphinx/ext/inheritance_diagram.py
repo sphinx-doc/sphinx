@@ -58,51 +58,57 @@ from sphinx.util import force_decode
 from sphinx.util.compat import Directive
 
 
-class_sig_re = re.compile(r'''^([\w.]*\.)?    # module names
-                          (\w+)  \s* $        # class/final module name
-                          ''', re.VERBOSE)
+module_sig_re = re.compile(r'''^(?:([\w.]*)\.)?  # module names
+                           (\w+)  \s* $          # class/final module name
+                           ''', re.VERBOSE)
+
+
+def try_import(objname):
+    """Import a object or module using *name* and *currentmodule*.
+    *name* should be a relative name from *currentmodule* or
+    a fully-qualified name.
+
+    Returns imported object or module.  If failed, returns None value.
+    """
+    try:
+        __import__(objname)
+        return sys.modules.get(objname)
+    except ImportError:
+        modname, attrname = module_sig_re.match(objname).groups()
+        if modname is None:
+            return None
+        try:
+            __import__(modname)
+            return getattr(sys.modules.get(modname), attrname, None)
+        except ImportError:
+            return None
 
 
 def import_classes(name, currmodule):
     """Import a class using its fully-qualified *name*."""
-    try:
-        path, base = class_sig_re.match(name).groups()
-    except (AttributeError, ValueError):
-        raise InheritanceException('Invalid class or module %r specified '
-                                   'for inheritance diagram' % name)
+    target = None
 
-    fullname = (path or '') + base
-    path = (path and path.rstrip('.') or '')
+    # import class or module using currmodule
+    if currmodule:
+        target = try_import(currmodule + '.' + name)
 
-    # two possibilities: either it is a module, then import it
-    try:
-        __import__(fullname)
-        todoc = sys.modules[fullname]
-    except ImportError:
-        # else it is a class, then import the module
-        if not path:
-            if currmodule:
-                # try the current module
-                path = currmodule
-            else:
-                raise InheritanceException(
-                    'Could not import class %r specified for '
-                    'inheritance diagram' % base)
-        try:
-            __import__(path)
-            todoc = getattr(sys.modules[path], base)
-        except (ImportError, AttributeError):
-            raise InheritanceException(
-                'Could not import class or module %r specified for '
-                'inheritance diagram' % (path + '.' + base))
+    # import class or module without currmodule
+    if target is None:
+        target = try_import(name)
 
-    # If a class, just return it
-    if inspect.isclass(todoc):
-        return [todoc]
-    elif inspect.ismodule(todoc):
+    if target is None:
+        raise InheritanceException(
+            'Could not import class or module %r specified for '
+            'inheritance diagram' % name)
+
+    if inspect.isclass(target):
+        # If imported object is a class, just return it
+        return [target]
+    elif inspect.ismodule(target):
+        # If imported object is a module, return classes defined on it
         classes = []
-        for cls in todoc.__dict__.values():
-            if inspect.isclass(cls) and cls.__module__ == todoc.__name__:
+        for cls in target.__dict__.values():
+            if inspect.isclass(cls) and cls.__module__ == target.__name__:
                 classes.append(cls)
         return classes
     raise InheritanceException('%r specified for inheritance diagram is '

@@ -21,9 +21,11 @@ def test_inheritance_diagram_html(app, status, warning):
 
 def test_import_classes():
     from sphinx.application import Sphinx, TemplateBridge
+    from sphinx.util.i18n import CatalogInfo
 
     try:
         sys.path.append(rootdir / 'roots/test-ext-inheritance_diagram')
+        from example.sphinx import DummyClass
 
         # got exception for unknown class or module
         raises(InheritanceException, import_classes, 'unknown', None)
@@ -48,15 +50,15 @@ def test_import_classes():
         classes = import_classes('Sphinx', 'sphinx.application')
         assert classes == [Sphinx]
 
-        # ignore current module if name include the module name
-        raises(InheritanceException, import_classes, 'i18n.CatalogInfo', 'sphinx.util')
+        # relative module name to current module
+        classes = import_classes('i18n.CatalogInfo', 'sphinx.util')
+        assert classes == [CatalogInfo]
 
         # got exception for functions
         raises(InheritanceException, import_classes, 'encode_uri', 'sphinx.util')
 
-        # try to load example.sphinx, but inheritance_diagram imports sphinx instead
-        # refs: #3164
+        # import submodule on current module (refs: #3164)
         classes = import_classes('sphinx', 'example')
-        assert classes == []
+        assert classes == [DummyClass]
     finally:
         sys.path.pop()
