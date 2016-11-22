@@ -1,0 +1,3 @@
+.. caution:: title
+
+   body

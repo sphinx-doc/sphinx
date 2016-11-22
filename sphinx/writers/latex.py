@@ -882,6 +882,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if isinstance(parent, addnodes.seealso):
             # the environment already handles this
             raise nodes.SkipNode
+        elif isinstance(parent, nodes.Admonition):
+            self.body.append('{')
+            self.context.append('}\n')
         elif self.this_is_the_title:
             if len(node.children) != 1 and not isinstance(node.children[0],
                                                           nodes.Text):
@@ -917,9 +920,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.context.append('}\n')
         elif isinstance(parent, nodes.sidebar):
             self.body.append(r'\sphinxstylesidebartitle{')
-            self.context.append('}\n')
-        elif isinstance(parent, nodes.Admonition):
-            self.body.append('{')
             self.context.append('}\n')
         elif isinstance(parent, nodes.table):
             # Redirect body output until title is finished.

@@ -1,0 +1,3 @@
+.. warning:: title
+
+   body
