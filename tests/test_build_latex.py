@@ -181,6 +181,26 @@ def test_latex_warnings(app, status, warning):
         '--- Got:\n' + warnings
 
 
+@with_app(buildername='latex', testroot='basic')
+def test_latex_title(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\title{The basic Sphinx documentation for testing}' in result
+
+
+@with_app(buildername='latex', testroot='latex-title')
+def test_latex_title_after_admonitions(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    print(result)
+    print(status.getvalue())
+    print(warning.getvalue())
+    assert '\\title{test-latex-title}' in result
+
+
 @with_app(buildername='latex', testroot='numfig',
           confoverrides={'numfig': True})
 def test_numref(app, status, warning):
