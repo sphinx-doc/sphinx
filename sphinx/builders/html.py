@@ -817,6 +817,7 @@ class StandaloneHTMLBuilder(Builder):
                     outfilename=None, event_arg=None):
         # type: (unicode, Dict, unicode, unicode, Any) -> None
         ctx = self.globalcontext.copy()
+        ctx['warn'] = self.warn
         # current_page_name is backwards compatibility
         ctx['pagename'] = ctx['current_page_name'] = pagename
         default_baseuri = self.get_target_uri(pagename)

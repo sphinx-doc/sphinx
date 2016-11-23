@@ -432,7 +432,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         self.fix_ids(doctree)
         self.add_visible_links(doctree, self.config.epub_show_urls)
-        return StandaloneHTMLBuilder.write_doc(self, docname, doctree)
+        StandaloneHTMLBuilder.write_doc(self, docname, doctree)
 
     def fix_genindex(self, tree):
         # type: (nodes.Node) -> None

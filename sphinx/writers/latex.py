@@ -113,6 +113,7 @@ ADDITIONAL_SETTINGS = {
     'xelatex': {
         'latex_engine': 'xelatex',
         'polyglossia':  '\\usepackage{polyglossia}',
+        'babel':        '',
         'fontenc':      '\\usepackage{fontspec}',
         'fontpkg':      '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
@@ -182,7 +183,7 @@ class ExtBabel(Babel):
                          'italian'):
             return '\\if\\catcode`\\"\\active\\shorthandoff{"}\\fi'
         elif shortlang in ('tr', 'turkish'):
-            return '\\shorthandoff{=}'
+            return '\\if\\catcode`\\=\\active\\shorthandoff{=}\\fi'
         return ''
 
     def uses_cyrillic(self):
@@ -396,6 +397,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # sort out some elements
         self.elements = DEFAULT_SETTINGS.copy()
         self.elements.update(ADDITIONAL_SETTINGS.get(builder.config.latex_engine, {}))
+        # allow the user to override them all
+        self.check_latex_elements()
+        self.elements.update(builder.config.latex_elements)
+
+        # but some have other interface in config file
         self.elements.update({
             'wrapperclass': self.format_docclass(document.settings.docclass),
             # if empty, the title is set to the first section title
@@ -422,7 +428,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
                                     path.basename(builder.config.latex_logo)
 
-        if builder.config.language:
+        if builder.config.language \
+           and 'fncychap' not in builder.config.latex_elements:
             # use Sonny style if any language specified
             self.elements['fncychap'] = '\\usepackage[Sonny]{fncychap}'
 
@@ -438,17 +445,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.elements['classoptions'] += ',' + self.babel.get_language()
 
         # set up multilingual module...
-        if self.elements['polyglossia']:
-            self.elements['babel'] = ''  # disable babel
-            self.elements['multilingual'] = '%s\n\\setmainlanguage{%s}' % \
-                (self.elements['polyglossia'], self.babel.get_language())
-        elif self.elements['babel']:
+        # 'babel' key is public and user setting must be obeyed
+        if self.elements['babel']:
+            # this branch is not taken for xelatex with writer default settings
             self.elements['multilingual'] = self.elements['babel']
             if builder.config.language:
                 self.elements['shorthandoff'] = self.babel.get_shorthandoff()
 
                 # Times fonts don't work with Cyrillic languages
-                if self.babel.uses_cyrillic():
+                if self.babel.uses_cyrillic() \
+                   and 'fontpkg' not in builder.config.latex_elements:
                     self.elements['fontpkg'] = ''
 
                 # pTeX (Japanese TeX) for support
@@ -460,6 +466,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     self.elements['multilingual'] = ''
                     # disable fncychap in Japanese documents
                     self.elements['fncychap'] = ''
+        elif self.elements['polyglossia']:
+            self.elements['multilingual'] = '%s\n\\setmainlanguage{%s}' % \
+                (self.elements['polyglossia'], self.babel.get_language())
 
         if getattr(builder, 'usepackages', None):
             def declare_package(packagename, options=None):
@@ -487,12 +496,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if tocdepth >= SECNUMDEPTH:
                 # Increase secnumdepth if tocdepth is depther than default SECNUMDEPTH
                 self.elements['secnumdepth'] = '\\setcounter{secnumdepth}{%d}' % tocdepth
+
         if getattr(document.settings, 'contentsname', None):
             self.elements['contentsname'] = \
                 self.babel_renewcommand('\\contentsname', document.settings.contentsname)
-        # allow the user to override them all
-        self.check_latex_elements()
-        self.elements.update(builder.config.latex_elements)
+
         if self.elements['maxlistdepth']:
             self.elements['sphinxpkgoptions'] += (',maxlistdepth=%s' %
                                                   self.elements['maxlistdepth'])
@@ -622,7 +630,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def babel_renewcommand(self, command, definition):
         # type: (unicode, unicode) -> unicode
-        if self.elements['babel']:
+        if self.elements['multilingual']:
             prefix = '\\addto\\captions%s{' % self.babel.get_language()
             suffix = '}'
         else:  # babel is disabled (mainly for Japanese environment)
@@ -882,36 +890,36 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if isinstance(parent, addnodes.seealso):
             # the environment already handles this
             raise nodes.SkipNode
-        elif self.this_is_the_title:
-            if len(node.children) != 1 and not isinstance(node.children[0],
-                                                          nodes.Text):
-                self.builder.warn('document title is not a single Text node',
-                                  (self.curfilestack[-1], node.line))
-            if not self.elements['title']:
-                # text needs to be escaped since it is inserted into
-                # the output literally
-                self.elements['title'] = node.astext().translate(tex_escape_map)
-            self.this_is_the_title = 0
-            raise nodes.SkipNode
         elif isinstance(parent, nodes.section):
-            short = ''
-            if node.traverse(nodes.image):
-                short = ('[%s]' %
-                         u' '.join(clean_astext(node).split()).translate(tex_escape_map))
+            if self.this_is_the_title:
+                if len(node.children) != 1 and not isinstance(node.children[0],
+                                                              nodes.Text):
+                    self.builder.warn('document title is not a single Text node',
+                                      (self.curfilestack[-1], node.line))
+                if not self.elements['title']:
+                    # text needs to be escaped since it is inserted into
+                    # the output literally
+                    self.elements['title'] = node.astext().translate(tex_escape_map)
+                self.this_is_the_title = 0
+                raise nodes.SkipNode
+            else:
+                short = ''
+                if node.traverse(nodes.image):
+                    short = ('[%s]' %
+                             u' '.join(clean_astext(node).split()).translate(tex_escape_map))
 
-            try:
-                self.body.append(r'\%s%s{' % (self.sectionnames[self.sectionlevel], short))
-            except IndexError:
-                # just use "subparagraph", it's not numbered anyway
-                self.body.append(r'\%s%s{' % (self.sectionnames[-1], short))
-            self.context.append('}\n')
+                try:
+                    self.body.append(r'\%s%s{' % (self.sectionnames[self.sectionlevel], short))
+                except IndexError:
+                    # just use "subparagraph", it's not numbered anyway
+                    self.body.append(r'\%s%s{' % (self.sectionnames[-1], short))
+                self.context.append('}\n')
 
-            self.restrict_footnote(node)
-            if self.next_section_ids:
-                for id in self.next_section_ids:
-                    self.context[-1] += self.hypertarget(id, anchor=False)
-                self.next_section_ids.clear()
-
+                self.restrict_footnote(node)
+                if self.next_section_ids:
+                    for id in self.next_section_ids:
+                        self.context[-1] += self.hypertarget(id, anchor=False)
+                    self.next_section_ids.clear()
         elif isinstance(parent, nodes.topic):
             self.body.append(r'\sphinxstyletopictitle{')
             self.context.append('}\n')

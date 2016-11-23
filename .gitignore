@@ -20,3 +20,4 @@ Sphinx.egg-info/
 doc/_build/
 tests/.coverage
 tests/build/
+utils/regression_test.js

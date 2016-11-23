@@ -258,10 +258,11 @@ def html_visit_displaymath(self, node):
     try:
         fname, depth = render_math(self, latex)
     except MathExtError as exc:
-        sm = nodes.system_message(str(exc), type='WARNING', level=2,
+        msg = text_type(exc)
+        sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node['latex'])
         sm.walkabout(self)
-        self.builder.warn('inline latex %r: ' % node['latex'] + str(exc))
+        self.builder.warn('inline latex %r: ' % node['latex'] + msg)
         raise nodes.SkipNode
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')

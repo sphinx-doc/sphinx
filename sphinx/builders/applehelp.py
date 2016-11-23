@@ -294,10 +294,10 @@ def setup(app):
     app.add_config_value('applehelp_title', lambda self: self.project + ' Help', 'applehelp')
     app.add_config_value('applehelp_codesign_identity',
                          lambda self: environ.get('CODE_SIGN_IDENTITY', None),
-                         'applehelp'),
+                         'applehelp')
     app.add_config_value('applehelp_codesign_flags',
                          lambda self: shlex.split(environ.get('OTHER_CODE_SIGN_FLAGS', '')),
-                         'applehelp'),
+                         'applehelp')
     app.add_config_value('applehelp_indexer_path', '/usr/bin/hiutil', 'applehelp')
     app.add_config_value('applehelp_codesign_path', '/usr/bin/codesign', 'applehelp')
     app.add_config_value('applehelp_disable_external_tools', False, None)

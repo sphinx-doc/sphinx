@@ -18,11 +18,21 @@ Release 1.5 beta2 (in development)
 Incompatible changes
 --------------------
 
+* #2986: ``themes/basic/defindex.html`` is now deprecated
+
 Features added
 --------------
 
+* #3095: Add :confval:`tls_verify` and :confval:`tls_cacerts` to support
+  self-signed HTTPS servers in linkcheck and intersphinx
+
 Bugs fixed
 ----------
+
+* #3069: Even if ``'babel'`` key is set to empty string, LaTeX output contains
+  one ``\addto\captions...``
+* #3123: user ``'babel'`` key setting is not obeyed anymore
+* #3155: Fix JavaScript for `html_sourcelink_suffix` fails with IE and Opera
 
 Release 1.5 beta1 (released Nov 6, 2016)
 ========================================
@@ -281,6 +291,12 @@ Bugs fixed
 * #3068: Allow the '=' character in the -D option of sphinx-build.py
 * #3074: ``add_source_parser()`` crashes in debug mode
 * #3135: ``sphinx.ext.autodoc`` crashes with plain Callable
+* #3150: Fix query word splitter in JavaScript. It behaves as same as Python's regular expression.
+* #3093: gettext build broken on substituted images.
+* #3093: gettext build broken on image node under ``note`` directive.
+* imgmath: crashes on showing error messages if image generation failed
+* #3117: LaTeX writer crashes if admonition is placed before first section title
+* #3164: Change search order of ``sphinx.ext.inheritance_diagram``
 
 Release 1.4.8 (released Oct 1, 2016)
 ====================================

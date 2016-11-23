@@ -545,7 +545,7 @@ class BuildEnvironment(object):
         # this cache also needs to be updated every time
         self._nitpick_ignore = set(self.config.nitpick_ignore)
 
-        app.info(bold('updating environment: '), nonl=1)
+        app.info(bold('updating environment: '), nonl=True)
 
         added, changed, removed = self.get_outdated_files(config_changed)
 

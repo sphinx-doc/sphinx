@@ -119,6 +119,9 @@ class Config(object):
                           'code-block': l_('Listing %s')},
                          'env'),
 
+        tls_verify = (True, 'env'),
+        tls_cacerts = (None, 'env'),
+
         # pre-initialized confval for HTML builder
         html_translator_class = (None, 'html', string_classes),
     )  # type: Dict[unicode, Tuple]

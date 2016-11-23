@@ -135,6 +135,7 @@ Documentation using another builtin theme
 * jsFiddle: http://doc.jsfiddle.net/ (nature)
 * libLAS: http://www.liblas.org/ (nature)
 * Linguistica: http://linguistica-uchicago.github.io/lxa5/ (sphinx_rtd_theme)
+* MoinMoin: https://moin-20.readthedocs.io/en/latest/ (sphinx_rtd_theme)
 * MPipe: http://vmlaker.github.io/mpipe/ (sphinx13)
 * pip: https://pip.pypa.io/en/latest/ (sphinx_rtd_theme)
 * Pyramid web framework:

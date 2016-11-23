@@ -266,6 +266,18 @@ def test_text_builder(app, status, warning):
               u"[image: i18n][image]\n"
               u"\n"
               u"   [image: img][image]\n"
+              u"\n"
+              u"\n"
+              u"IMAGE ON SUBSTITUTION\n"
+              u"=====================\n"
+              u"\n"
+              u"\n"
+              u"IMAGE UNDER NOTE\n"
+              u"================\n"
+              u"\n"
+              u"Note: [image: i18n under note][image]\n"
+              u"\n"
+              u"     [image: img under note][image]\n"
               )
     yield assert_equal, result, expect
 
