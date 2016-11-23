@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
 import sys
 from util import with_app, rootdir, raises
 from test_ext_graphviz import skip_if_graphviz_not_found
