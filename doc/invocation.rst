@@ -128,7 +128,10 @@ Makefile and Batchfile creation options
 
 .. option:: --use-make-mode, --no-use-make-mode
 
-   Makefile/make.bat uses (or not use) make-mode. Default is not use.
+   Makefile/make.bat uses (or not use) make-mode. Default is use.
+
+   .. versionchanged:: 1.5
+      make-mode is default.
 
 .. option:: --makefile, --no-makefile
 
