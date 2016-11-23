@@ -822,36 +822,36 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if isinstance(parent, addnodes.seealso):
             # the environment already handles this
             raise nodes.SkipNode
-        elif self.this_is_the_title:
-            if len(node.children) != 1 and not isinstance(node.children[0],
-                                                          nodes.Text):
-                self.builder.warn('document title is not a single Text node',
-                                  (self.curfilestack[-1], node.line))
-            if not self.elements['title']:
-                # text needs to be escaped since it is inserted into
-                # the output literally
-                self.elements['title'] = node.astext().translate(tex_escape_map)
-            self.this_is_the_title = 0
-            raise nodes.SkipNode
         elif isinstance(parent, nodes.section):
-            short = ''
-            if node.traverse(nodes.image):
-                short = ('[%s]' %
-                         u' '.join(clean_astext(node).split()).translate(tex_escape_map))
+            if self.this_is_the_title:
+                if len(node.children) != 1 and not isinstance(node.children[0],
+                                                              nodes.Text):
+                    self.builder.warn('document title is not a single Text node',
+                                      (self.curfilestack[-1], node.line))
+                if not self.elements['title']:
+                    # text needs to be escaped since it is inserted into
+                    # the output literally
+                    self.elements['title'] = node.astext().translate(tex_escape_map)
+                self.this_is_the_title = 0
+                raise nodes.SkipNode
+            else:
+                short = ''
+                if node.traverse(nodes.image):
+                    short = ('[%s]' %
+                             u' '.join(clean_astext(node).split()).translate(tex_escape_map))
 
-            try:
-                self.body.append(r'\%s%s{' % (self.sectionnames[self.sectionlevel], short))
-            except IndexError:
-                # just use "subparagraph", it's not numbered anyway
-                self.body.append(r'\%s%s{' % (self.sectionnames[-1], short))
-            self.context.append('}\n')
+                try:
+                    self.body.append(r'\%s%s{' % (self.sectionnames[self.sectionlevel], short))
+                except IndexError:
+                    # just use "subparagraph", it's not numbered anyway
+                    self.body.append(r'\%s%s{' % (self.sectionnames[-1], short))
+                self.context.append('}\n')
 
-            self.restrict_footnote(node)
-            if self.next_section_ids:
-                for id in self.next_section_ids:
-                    self.context[-1] += self.hypertarget(id, anchor=False)
-                self.next_section_ids.clear()
-
+                self.restrict_footnote(node)
+                if self.next_section_ids:
+                    for id in self.next_section_ids:
+                        self.context[-1] += self.hypertarget(id, anchor=False)
+                    self.next_section_ids.clear()
         elif isinstance(parent, nodes.topic):
             self.body.append(r'\sphinxstyletopictitle{')
             self.context.append('}\n')

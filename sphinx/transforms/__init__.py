@@ -129,7 +129,7 @@ class CitationReferences(Transform):
     def apply(self):
         for citnode in self.document.traverse(nodes.citation_reference):
             cittext = citnode.astext()
-            refnode = addnodes.pending_xref(cittext, refdomain='std', reftype='citation',
+            refnode = addnodes.pending_xref(cittext, reftype='citation',
                                             reftarget=cittext, refwarn=True,
                                             ids=citnode["ids"])
             refnode.source = citnode.source or citnode.parent.source
@@ -155,7 +155,7 @@ class ApplySourceWorkaround(Transform):
 
     def apply(self):
         for n in self.document.traverse():
-            if isinstance(n, nodes.TextElement):
+            if isinstance(n, (nodes.TextElement, nodes.image)):
                 apply_source_workaround(n)
 
 

@@ -112,7 +112,7 @@ msgstr "Auteur du module : "
 
 #: sphinx/directives/other.py:153
 msgid "Code author: "
-msgstr "Auteur du code :"
+msgstr "Auteur du code : "
 
 #: sphinx/directives/other.py:155
 msgid "Author: "

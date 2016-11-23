@@ -18,7 +18,7 @@ from os import path
 import sphinx
 from sphinx.util import jsdump, rpartition
 from sphinx.util.pycompat import htmlescape
-
+from sphinx.search.jssplitter import splitter_code
 
 class SearchLanguage(object):
     """
@@ -259,6 +259,7 @@ class IndexBuilder(object):
                 self.js_scorer_code = fp.read().decode('utf-8')
         else:
             self.js_scorer_code = u''
+        self.js_splitter_code = splitter_code
 
     def load(self, stream, format):
         """Reconstruct from frozen data."""
@@ -407,6 +408,7 @@ class IndexBuilder(object):
             search_language_stemming_code = self.lang.js_stemmer_code,
             search_language_stop_words = jsdump.dumps(sorted(self.lang.stopwords)),
             search_scorer_tool = self.js_scorer_code,
+            search_word_splitter_code = self.js_splitter_code,
         )
 
     def get_js_stemmer_rawcode(self):
