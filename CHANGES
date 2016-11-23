@@ -15,6 +15,7 @@ Bugs fixed
 * #3093: gettext build broken on image node under ``note`` directive.
 * imgmath: crashes on showing error messages if image generation failed
 * #3117: LaTeX writer crashes if admonition is placed before first section title
+* #3164: Change search order of ``sphinx.ext.inheritance_diagram``
 
 Release 1.4.8 (released Oct 1, 2016)
 ====================================
