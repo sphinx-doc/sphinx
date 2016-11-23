@@ -279,8 +279,15 @@ Bugs fixed
 * #2550: external links are opened in help viewer
 * #2687: Running Sphinx multiple times produces 'already registered' warnings
 
-Release 1.4.9 (in development)
-==============================
+Release 1.4.10 (in development)
+===============================
+
+Bugs fixed
+----------
+
+
+Release 1.4.9 (released Nov 23, 2016)
+=====================================
 
 Bugs fixed
 ----------
