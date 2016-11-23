@@ -4,6 +4,7 @@ Release 1.4.10 (in development)
 Bugs fixed
 ----------
 
+* #3015: fix a broken test on Windows.
 
 Release 1.4.9 (released Nov 23, 2016)
 =====================================
