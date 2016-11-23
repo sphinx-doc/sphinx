@@ -446,6 +446,11 @@ member should be included in the documentation by using the following event:
    documentation.  The member is excluded if a handler returns ``True``.  It is
    included if the handler returns ``False``.
 
+   If more than one enabled extension handles the ``autodoc-skip-member``
+   event, autodoc will use the first non-``None`` value returned by a handler.
+   Handlers should return ``None`` to fall back to the skipping behavior of
+   autodoc and other enabled extensions.
+
    :param app: the Sphinx application object
    :param what: the type of the object which the docstring belongs to (one of
       ``"module"``, ``"class"``, ``"exception"``, ``"function"``, ``"method"``,

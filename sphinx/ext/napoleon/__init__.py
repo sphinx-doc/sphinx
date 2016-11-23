@@ -464,4 +464,4 @@ def _skip_member(app, what, name, obj, skip, options):
                     (is_private and inc_private) or
                     (is_init and inc_init)):
                 return False
-    return skip
+    return None
