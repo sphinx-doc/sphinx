@@ -23,6 +23,7 @@ Bugs fixed
 * #3155: Fix JavaScript for `html_sourcelink_suffix` fails with IE and Opera
 * #3085: keep current directory after breaking build documentation. Thanks to
   Timotheus Kampik.
+* #3181: pLaTeX crashes with a section contains emdash
 
 Release 1.5 beta1 (released Nov 6, 2016)
 ========================================

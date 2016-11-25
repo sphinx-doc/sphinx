@@ -43,6 +43,7 @@ tex_replacements = [
     ('─', r'-'),
     ('⎽', r'\_'),
     ('╲', r'\textbackslash{}'),
+    ('–', r'\textemdash{}'),
     ('|', r'\textbar{}'),
     ('│', r'\textbar{}'),
     ('ℯ', r'e'),
