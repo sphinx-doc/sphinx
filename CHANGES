@@ -5,6 +5,8 @@ Incompatible changes
 --------------------
 
 * #2986: ``themes/basic/defindex.html`` is now deprecated
+* Emit several warnings that will be deprecated in Sphinx 1.6.
+  There is no way to hide the warnings.
 
 Features added
 --------------

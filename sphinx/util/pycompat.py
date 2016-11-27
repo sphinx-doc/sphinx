@@ -15,10 +15,11 @@ import codecs
 import warnings
 
 from six import class_types
+from six import PY3, text_type, exec_
 from six.moves import zip_longest
 from itertools import product
 
-from six import PY3, text_type, exec_
+from sphinx.deprecation import RemovedInSphinx16Warning
 
 NoneType = type(None)
 
@@ -138,9 +139,9 @@ class _DeprecationWrapper(object):
     def __getattr__(self, attr):
         if attr in self._deprecated:
             warnings.warn("sphinx.util.pycompat.%s is deprecated and will be "
-                          "removed in Sphinx 1.4, please use the standard "
+                          "removed in Sphinx 1.6, please use the standard "
                           "library version instead." % attr,
-                          DeprecationWarning, stacklevel=2)
+                          RemovedInSphinx16Warning, stacklevel=2)
             return self._deprecated[attr]
         return getattr(self._mod, attr)
 

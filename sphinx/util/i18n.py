@@ -22,6 +22,7 @@ from babel.messages.pofile import read_po
 from babel.messages.mofile import write_mo
 
 from sphinx.errors import SphinxError
+from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.util.osutil import walk
 from sphinx.util import SEP
 
@@ -194,8 +195,8 @@ def format_date(format, date=None, language=None, warn=None):
 
     if re.match('EEE|MMM|dd|DDD|MM|WW|medium|YY', format):
         # consider the format as babel's
-        warnings.warn('LDML format support will be dropped at Sphinx-1.5',
-                      DeprecationWarning)
+        warnings.warn('LDML format support will be dropped at Sphinx-1.6',
+                      RemovedInSphinx16Warning)
 
         return babel_format_date(date, format, locale=language, warn=warn,
                                  formatter=babel.dates.format_datetime)

@@ -17,6 +17,7 @@ import sys
 import types
 import posixpath
 import traceback
+import warnings
 from os import path
 from collections import deque
 
@@ -32,6 +33,7 @@ from sphinx.roles import XRefRole
 from sphinx.config import Config
 from sphinx.errors import SphinxError, SphinxWarning, ExtensionError, \
     VersionRequirementError, ConfigError
+from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.environment import BuildEnvironment
@@ -106,6 +108,8 @@ class Sphinx(object):
                  confoverrides=None, status=sys.stdout, warning=sys.stderr,
                  freshenv=False, warningiserror=False, tags=None, verbosity=0,
                  parallel=0):
+        warnings.filterwarnings('default', category=RemovedInSphinx16Warning,
+                                module='sphinx')
         self.verbosity = verbosity
         self.next_listener_id = 0
         self._extensions = {}
