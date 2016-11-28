@@ -851,7 +851,7 @@ msgstr "Enlace permanente a esta tabla"
 
 #: sphinx/writers/latex.py:361
 msgid "Release"
-msgstr "Publicación"
+msgstr "Versión"
 
 #: sphinx/writers/latex.py:427
 msgid "page"
