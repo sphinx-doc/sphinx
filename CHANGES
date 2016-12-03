@@ -7,6 +7,7 @@ Bugs fixed
 * #3015: fix a broken test on Windows.
 * #1843: Fix documentation of descriptor classes that have a custom metaclass.
   Thanks to Erik Bray.
+* #3190: util.split_docinfo fails to parse multi-line field bodies
 
 Release 1.4.9 (released Nov 23, 2016)
 =====================================
