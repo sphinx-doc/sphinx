@@ -26,6 +26,7 @@ Bugs fixed
 * #3181: pLaTeX crashes with a section contains emdash
 * #3180: latex: add stretch/shrink between successive singleline or
   multipleline cpp signatures (ref #3072)
+* #3128: globing images does not support .svgz file
 
 Release 1.5 beta1 (released Nov 6, 2016)
 ========================================
