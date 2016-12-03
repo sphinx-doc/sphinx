@@ -280,6 +280,9 @@ Release 1.4.10 (in development)
 Bugs fixed
 ----------
 
+* #3015: fix a broken test on Windows.
+* #1843: Fix documentation of descriptor classes that have a custom metaclass.
+  Thanks to Erik Bray.
 
 Release 1.4.9 (released Nov 23, 2016)
 =====================================
