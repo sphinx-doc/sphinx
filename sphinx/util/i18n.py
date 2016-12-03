@@ -108,10 +108,11 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
        default is False.
     :return: [CatalogInfo(), ...]
     """
-    if not locale:
-        return []  # locale is not specified
-
     catalogs = set()  # type: Set[CatalogInfo]
+
+    if not locale:
+        return catalogs  # locale is not specified
+
     for locale_dir in locale_dirs:
         if not locale_dir:
             continue  # skip system locale directory

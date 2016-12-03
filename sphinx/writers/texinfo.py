@@ -324,7 +324,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             top['node_name'] = 'Top'
         # handle the indices
         for name, content in self.indices:
-            node_menus[name] = ()
+            node_menus[name] = []
             node_menus['Top'].append(name)
 
     def collect_rellinks(self):
@@ -642,7 +642,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
     def visit_title(self, node):
         # type: (nodes.Node) -> None
         if not self.seen_title:
-            self.seen_title = 1
+            self.seen_title = True
             raise nodes.SkipNode
         parent = node.parent
         if isinstance(parent, nodes.table):

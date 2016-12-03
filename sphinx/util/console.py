@@ -36,7 +36,7 @@ def get_terminal_width():
         terminal_width = width
     except Exception:
         # FALLBACK
-        terminal_width = int(os.environ.get('COLUMNS', 80)) - 1
+        terminal_width = int(os.environ.get('COLUMNS', "80")) - 1
     return terminal_width
 
 

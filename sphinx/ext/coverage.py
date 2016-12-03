@@ -105,7 +105,7 @@ class CoverageBuilder(Builder):
                         if match:
                             name = match.groups()[0]
                             if name not in c_objects:
-                                for exp in self.c_ignorexps.get(key, ()):
+                                for exp in self.c_ignorexps.get(key, []):
                                     if exp.match(name):
                                         break
                                 else:

@@ -71,7 +71,7 @@ class Make(object):
     def build_clean(self):
         # type: () -> int
         if not path.exists(self.builddir):
-            return
+            return 0
         elif not path.isdir(self.builddir):
             print("Error: %r is not a directory!" % self.builddir)
             return 1
