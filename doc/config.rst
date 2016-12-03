@@ -232,12 +232,17 @@ General configuration
    * ref.option
    * ref.citation
    * ref.doc
+   * misc.highlighting_failure
 
    You can choose from these types.
 
    Now, this option should be considered *experimental*.
 
    .. versionadded:: 1.4
+
+   .. versionchanged:: 1.5
+
+      Added ``misc.highlighting_failure``
 
 .. confval:: needs_sphinx
 

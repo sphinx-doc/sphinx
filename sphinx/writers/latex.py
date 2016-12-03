@@ -1954,8 +1954,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 opts = {}
 
-            def warner(msg):
-                self.builder.warn(msg, (self.curfilestack[-1], node.line))
+            def warner(msg, **kwargs):
+                self.builder.warn(msg, (self.curfilestack[-1], node.line), **kwargs)
             hlcode = self.highlighter.highlight_block(code, lang, opts=opts,
                                                       warn=warner, linenos=linenos,
                                                       **highlight_args)
