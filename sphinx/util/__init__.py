@@ -545,7 +545,7 @@ def encode_uri(uri):
 
 
 def split_docinfo(text):
-    docinfo_re = re.compile('\A((?:\s*:\w+:.*?\n)+)', re.M)
+    docinfo_re = re.compile('\A((?:\s*:\w+:.*?\n(?:[ \t]+.*?\n)*)+)', re.M)
     result = docinfo_re.split(text, 1)
     if len(result) == 1:
         return '', result[0]

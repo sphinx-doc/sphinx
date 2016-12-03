@@ -41,3 +41,8 @@ def test_splitdocinfo():
     docinfo, content = split_docinfo(source)
     assert docinfo == ':author: Georg Brandl\n:title: Manual of Sphinx\n'
     assert content == '\nHello world.\n'
+
+    source = ":multiline: one\n\ttwo\n\tthree\n\nHello world.\n"
+    docinfo, content = split_docinfo(source)
+    assert docinfo == ":multiline: one\n\ttwo\n\tthree\n"
+    assert content == '\nHello world.\n'
