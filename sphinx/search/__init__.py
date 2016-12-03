@@ -287,7 +287,7 @@ class IndexBuilder(object):
         # type: (IO, Any) -> None
         """Reconstruct from frozen data."""
         if isinstance(format, string_types):
-            format = self.formats[format]
+            format = self.formats[format]  # type: ignore
         frozen = format.load(stream)
         # if an old index is present, we treat it as not existing.
         if not isinstance(frozen, dict) or \
@@ -314,7 +314,7 @@ class IndexBuilder(object):
         # type: (IO, Any) -> None
         """Dump the frozen index to a stream."""
         if isinstance(format, string_types):
-            format = self.formats[format]
+            format = self.formats[format]  # type: ignore
         format.dump(self.freeze(), stream)  # type: ignore
 
     def get_objects(self, fn2index):

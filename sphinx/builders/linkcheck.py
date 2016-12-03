@@ -43,6 +43,7 @@ if False:
     # For type annotation
     from typing import Any, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.util.requests.requests import Response  # NOQA
 
 
 class AnchorCheckParser(HTMLParser):
@@ -64,7 +65,7 @@ class AnchorCheckParser(HTMLParser):
 
 
 def check_anchor(response, anchor):
-    # type: (requests.Response, unicode) -> bool
+    # type: (Response, unicode) -> bool
     """Reads HTML data from a response object `response` searching for `anchor`.
     Returns True if anchor was found, False otherwise.
     """

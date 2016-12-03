@@ -79,9 +79,9 @@ def try_import(objname):
     """
     try:
         __import__(objname)
-        return sys.modules.get(objname)
+        return sys.modules.get(objname)  # type: ignore
     except ImportError:
-        modname, attrname = module_sig_re.match(objname).groups()
+        modname, attrname = module_sig_re.match(objname).groups()  # type: ignore
         if modname is None:
             return None
         try:
