@@ -110,3 +110,33 @@ def test_add_source_parser_conflicts_with_users_setting(app, status, warning):
     assert set(app.config.source_suffix) == set(['.rst', '.test'])
     assert set(app.config.source_parsers.keys()) == set(['.test'])
     assert app.config.source_parsers['.test'].__name__ == 'DummyTestParser'
+
+
+def _with_app_devnull(*args, **kwargs):
+    import sys
+    from functools import wraps
+    from six import StringIO
+    from util import TestApp
+    import os
+
+    def generator(func):
+        @wraps(func)
+        def deco(*args2, **kwargs2):
+            status, warning = StringIO(), StringIO()
+            devnull = open(os.devnull, "w")
+            kwargs['status'] = devnull
+            kwargs['warning'] = warning
+            app = TestApp(*args, **kwargs)
+            try:
+                func(app, status, warning, *args2, **kwargs2)
+            finally:
+                app.cleanup()
+                devnull.close()
+        return deco
+    return generator
+
+
+@_with_app_devnull(testroot='image-glob')
+def test_image_glob_intl_log(app, status, warning):
+    # roots/test-image-glob has 'testimäge.png' which might cause UnicodeEncodeError.
+    app.builder.build_all()

@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from os.path import normpath
+
 from six import BytesIO
 
 import pickle
@@ -149,16 +151,18 @@ def test_image_glob(app, status, warning):
     doctree = pickle.loads((app.doctreedir / 'subdir/index.doctree').bytes())
 
     assert isinstance(doctree[0][1], nodes.image)
-    assert doctree[0][1]['candidates'] == {'*': 'subdir/rimg.png'}
-    assert doctree[0][1]['uri'] == 'subdir/rimg.png'
+    # expected doctree[0][1]['candidates'] == {'*': 'subdir/rimg.png'}
+    assert len(doctree[0][1]['candidates']) == 1
+    assert normpath(doctree[0][1]['candidates']['*']) == normpath('subdir/rimg.png')
+    assert normpath(doctree[0][1]['uri']) == normpath('subdir/rimg.png')
 
     assert isinstance(doctree[0][2], nodes.image)
     assert doctree[0][2]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
                                            'image/svg+xml': 'subdir/svgimg.svg'}
-    assert doctree[0][2]['uri'] == 'subdir/svgimg.*'
+    assert normpath(doctree[0][2]['uri']) == normpath('subdir/svgimg.*')
 
     assert isinstance(doctree[0][3], nodes.figure)
     assert isinstance(doctree[0][3][0], nodes.image)
     assert doctree[0][3][0]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
                                               'image/svg+xml': 'subdir/svgimg.svg'}
-    assert doctree[0][3][0]['uri'] == 'subdir/svgimg.*'
+    assert normpath(doctree[0][3][0]['uri']) == normpath('subdir/svgimg.*')

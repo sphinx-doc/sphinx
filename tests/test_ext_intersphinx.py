@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from os.path import normpath
+
 import posixpath
 import unittest
 import zlib
@@ -206,16 +208,16 @@ def test_missing_reference(tempdir, app, status, warning):
 
     # check relative paths
     rn = reference_check('py', 'mod', 'py3krel:module1', 'foo')
-    assert rn['refuri'] == 'py3k/foo.html#module-module1'
+    assert normpath(rn['refuri']) == normpath('py3k/foo.html#module-module1')
 
     rn = reference_check('py', 'mod', 'py3krelparent:module1', 'foo')
-    assert rn['refuri'] == '../../py3k/foo.html#module-module1'
+    assert normpath(rn['refuri']) == normpath('../../py3k/foo.html#module-module1')
 
     rn = reference_check('py', 'mod', 'py3krel:module1', 'foo', refdoc='sub/dir/test')
-    assert rn['refuri'] == '../../py3k/foo.html#module-module1'
+    assert normpath(rn['refuri']) == normpath('../../py3k/foo.html#module-module1')
 
     rn = reference_check('py', 'mod', 'py3krelparent:module1', 'foo', refdoc='sub/dir/test')
-    assert rn['refuri'] == '../../../../py3k/foo.html#module-module1'
+    assert normpath(rn['refuri']) == normpath('../../../../py3k/foo.html#module-module1')
 
 
 @with_app()
