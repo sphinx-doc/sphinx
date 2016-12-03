@@ -363,8 +363,8 @@ class HTMLTranslator(BaseTranslator):
         else:
             opts = {}
 
-        def warner(msg):
-            self.builder.warn(msg, (self.builder.current_docname, node.line))
+        def warner(msg, **kwargs):
+            self.builder.warn(msg, (self.builder.current_docname, node.line), **kwargs)
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, warn=warner, linenos=linenos,
             **highlight_args)
