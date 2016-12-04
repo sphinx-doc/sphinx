@@ -114,6 +114,11 @@ These are the basic steps needed to start developing on Sphinx.
        pip install -r test-reqs.txt
        make test
 
+   * Again, it's useful to turn on deprecation warnings on so they're shown in
+     the test output::
+
+       PYTHONWARNINGS=all make test
+
    * Build the documentation and check the output for different builders::
 
        cd doc
@@ -272,3 +277,55 @@ Debugging Tips
 
      $ npm install
      $ node_modules/.bin/grunt build # -> dest/*.global.js
+
+Deprecating a feature
+---------------------
+
+There are a couple reasons that code in Sphinx might be deprecated:
+
+* If a feature has been improved or modified in a backwards-incompatible way,
+  the old feature or behavior will be deprecated.
+
+* Sometimes Sphinx will include a backport of a Python library that's not
+  included in a version of Python that Sphinx currently supports. When Sphinx
+  no longer needs to support the older version of Python that doesn't include
+  the library, the library will be deprecated in Sphinx.
+
+As the :ref:`deprecation-policy` describes,
+the first release of Sphinx that deprecates a feature (``A.B``) should raise a
+``RemovedInSphinxXXWarning`` (where XX is the Sphinx version where the feature
+will be removed) when the deprecated feature is invoked. Assuming we have good
+test coverage, these warnings are converted to errors when running the test
+suite with warnings enabled: ``python -Wall tests/run.py``. Thus, when adding
+a ``RemovedInSphinxXXWarning`` you need to eliminate or silence any warnings
+generated when running the tests.
+
+.. _deprecation-policy:
+
+Deprecation policy
+------------------
+
+A feature release may deprecate certain features from previous releases. If a
+feature is deprecated in feature release 1.A, it will continue to work in all
+1.A.x versions (for all versions of x) but raise warnings. Deprecated features
+will be removed in the first 1.B release, or 1.B.1 for features deprecated in
+the last 1.A.x feature release to ensure deprecations are done over at least 2
+feature releases.
+
+So, for example, if we decided to start the deprecation of a function in
+Sphinx 1.4:
+
+* Sphinx 1.4.x will contain a backwards-compatible replica of the function
+  which will raise a ``RemovedInSphinx16Warning``.
+
+* Sphinx 1.5 (the version that follows 1.4) will still contain the
+  backwards-compatible replica.
+
+* Sphinx 1.6 will remove the feature outright.
+
+The warnings are displayed by default. You can turn off display of these
+warnings with:
+
+* ``PYTHONWARNINGS= make html`` (Linux/Mac)
+* ``export PYTHONWARNINGS=`` and do ``make html`` (Linux/Mac)
+* ``set PYTHONWARNINGS=`` and do ``make html`` (Windows)

@@ -106,7 +106,8 @@ def execfile_(filepath, _globals, open=open):
     from sphinx.util.osutil import fs_encoding
     # get config source -- 'b' is a no-op under 2.x, while 'U' is
     # ignored under 3.x (but 3.x compile() accepts \r\n newlines)
-    with open(filepath, 'rbU') as f:
+    mode = 'rb' if PY3 else 'rbU'
+    with open(filepath, mode) as f:
         source = f.read()
 
     # py26 accept only LF eol instead of CRLF

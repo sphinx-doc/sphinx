@@ -73,6 +73,11 @@ Glossary
       directive" (e.g. :rst:dir:`function` or :rst:dir:`object`) creates such a
       block; and most objects can be cross-referenced to.
 
+   RemoveInSphinxXXXWarning
+      The feature which is warned will be removed in Sphinx-XXX version.
+      It usually caused from Sphinx extensions which is using deprecated.
+      See also :ref:`when-deprecation-warnings-are-displayed`.
+
    role
       A reStructuredText markup element that allows marking a piece of text.
       Like directives, roles are extensible.  The basic syntax looks like this:
