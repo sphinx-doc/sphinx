@@ -8,6 +8,8 @@ Bugs fixed
 * #1843: Fix documentation of descriptor classes that have a custom metaclass.
   Thanks to Erik Bray.
 * #3190: util.split_docinfo fails to parse multi-line field bodies
+* #3024, #3037: In Python3, application.Sphinx._log crushed when the log message cannot
+  be encoded into console encoding.
 
 Release 1.4.9 (released Nov 23, 2016)
 =====================================
