@@ -271,8 +271,8 @@ def test_numref_with_language_ja(app, status, warning):
     assert '\\hyperref[baz:table22]{Table:\\ref{baz:table22}}' in result
     assert '\\hyperref[index:code-1]{LIST \\ref{index:code-1}}' in result
     assert '\\hyperref[baz:code22]{Code-\\ref{baz:code22}}' in result
-    assert u'\\hyperref[foo:foo]{\\ref{foo:foo} \\u7ae0}' in result
-    assert u'\\hyperref[bar:bar-a]{\\ref{bar:bar-a} \\u7ae0}' in result
+    assert u'\\hyperref[foo:foo]{\\ref{foo:foo} \u7ae0}' in result
+    assert u'\\hyperref[bar:bar-a]{\\ref{bar:bar-a} \u7ae0}' in result
     assert '\\hyperref[index:fig1]{Fig.\\ref{index:fig1} \\nameref{index:fig1}}' in result
     assert '\\hyperref[foo:foo]{Sect.\\ref{foo:foo} \\nameref{foo:foo}}' in result
 
@@ -343,7 +343,7 @@ def test_babel_with_language_ru(app, status, warning):
     assert '\\addto\\captionsrussian{\\renewcommand{\\figurename}{Fig.\\@ }}\n' in result
     assert '\\addto\\captionsrussian{\\renewcommand{\\tablename}{Table.\\@ }}\n' in result
     assert (u'\\addto\\extrasrussian{\\def\\pageautorefname'
-            '{\u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430}}\n' in result)
+            u'{\u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430}}\n' in result)
     assert '\\shorthandoff' not in result
 
 
