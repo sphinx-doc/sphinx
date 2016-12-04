@@ -12,8 +12,23 @@
 # Keep this file executable as-is in Python 3!
 # (Otherwise getting the version out of it from setup.py is impossible.)
 
+from __future__ import absolute_import
+
+import os
 import sys
+import warnings
 from os import path
+
+from .deprecation import RemovedInNextVersionWarning
+
+# by default, all DeprecationWarning under sphinx package will be emit.
+# Users can avoid this by using environment variable: PYTHONWARNINGS=
+if 'PYTHONWARNINGS' not in os.environ:
+    warnings.filterwarnings('default',
+                            category=RemovedInNextVersionWarning, module='sphinx')
+# docutils.io using mode='rU' for open
+warnings.filterwarnings('ignore', "'U' mode is deprecated",
+                        DeprecationWarning, module='docutils.io')
 
 __version__  = '1.5b2'
 __released__ = '1.5b2'  # used when Sphinx builds its own docs

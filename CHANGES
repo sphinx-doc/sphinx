@@ -5,6 +5,24 @@ Incompatible changes
 --------------------
 
 * #2986: ``themes/basic/defindex.html`` is now deprecated
+* Emit warnings that will be deprecated in Sphinx 1.6 by default.
+  Users can change the behavior by setting the environment variable
+  PYTHONWARNINGS. Please refer :ref:`when-deprecation-warnings-are-displayed`.
+
+Deprecated
+----------
+
+These features are removed in Sphinx-1.6:
+
+* LDML format  support in i18n feature
+* ``sphinx.addnodes.termsep``
+* Some functions and classes in ``sphinx.util.pycompat``:
+  ``zip_longest``, ``product``, ``all``, ``any``, ``next``, ``open``,
+  ``class_types``, ``base_exception``, ``relpath``, ``StringIO``, ``BytesIO``.
+  Please use the standard library version instead;
+
+If any deprecation warning like ``RemovedInSphinxXXXWarning`` are displayed,
+please refer :ref:`when-deprecation-warnings-are-displayed`.
 
 Features added
 --------------

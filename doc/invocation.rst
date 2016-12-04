@@ -410,6 +410,23 @@ variables to customize behavior:
 
    Additional options for :program:`sphinx-build`.
 
+.. _when-deprecation-warnings-are-displayed:
+
+Deprecation Warnings
+--------------------
+
+If any deprecation warning like ``RemovedInSphinxXXXWarning`` are displayed
+when building a user's document, some Sphinx extension is using deprecated
+features. In that case, please report it to author of the extension.
+
+To disable the deprecation warnings, please set ``PYTHONWARNINGS=`` environment
+variable to your environment. For example:
+
+* ``PYTHONWARNINGS= make html`` (Linux/Mac)
+* ``export PYTHONWARNINGS=`` and do ``make html`` (Linux/Mac)
+* ``set PYTHONWARNINGS=`` and do ``make html`` (Windows)
+* modify your Makefile/make.bat and set the environment variable
+
 
 .. _invocation-apidoc:
 

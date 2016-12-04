@@ -24,6 +24,7 @@ from docutils.writers.latex2e import Babel
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.errors import SphinxError
+from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import split_into
 from sphinx.util.i18n import format_date
@@ -1339,8 +1340,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.in_term -= 1
 
     def visit_termsep(self, node):
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
-                      DeprecationWarning)
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
+                      'This warning is displayed because some Sphinx extension '
+                      'uses sphinx.addnodes.termsep. Please report it to '
+                      'author of the extension.', RemovedInSphinx16Warning)
         self.body.append(', ')
         raise nodes.SkipNode
 

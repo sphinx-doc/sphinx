@@ -20,6 +20,7 @@ from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
 from sphinx.util.images import get_image_size
 from sphinx.util.smartypants import sphinx_smarty_pants
@@ -688,8 +689,10 @@ class HTMLTranslator(BaseTranslator):
         self.body.append('</dd>\n')
 
     def visit_termsep(self, node):
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
-                      DeprecationWarning)
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
+                      'This warning is displayed because some Sphinx extension '
+                      'uses sphinx.addnodes.termsep. Please report it to '
+                      'author of the extension.', RemovedInSphinx16Warning)
         self.body.append('<br />')
         raise nodes.SkipNode
 
