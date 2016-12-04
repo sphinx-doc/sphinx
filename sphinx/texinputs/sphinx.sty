@@ -176,6 +176,18 @@
   \newcount\pdfoutput\pdfoutput=0
 \fi
 
+% FIXME: need a conditonal to distinguish pLaTeX from upLaTeX
+\ifx\kanjiskip\undefined\else
+% let u+2013 (EN DASH) be known to pLaTeX
+  \@namedef{u8\string:\string^^e2\string^^80\string^^93}{\textendash}
+  \catcode`\^^e2\active\edef^^e2{\noexpand\Sphinx@CheckUTF\string^^e2}
+  \def\Sphinx@CheckUTF #1#2#3{\expandafter\Sphinx@CheckUTF@i
+                              \csname u8\string:#1\string#2\string#3\endcsname}
+  \def\Sphinx@CheckUTF@i #1{\ifx #1\relax\PackageWarning{sphinx}
+      {ERROR: \expandafter\@gobblefour\string#1\space not setup for use}%
+                            \else\expandafter#1\fi}
+\fi
+
 % for PDF output, use colors and maximal compression
 \newif\ifsphinxpdfoutput % used in \maketitle
 \ifx\pdfoutput\undefined\else
