@@ -994,11 +994,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(hyper)
         if not node.get('is_multiline'):
             self._visit_signature_line(node)
+        else:
+            self.body.append('%\n\\pysigstartmultiline\n')
 
     def depart_desc_signature(self, node):
         # type: (nodes.Node) -> None
         if not node.get('is_multiline'):
             self._depart_signature_line(node)
+        else:
+            self.body.append('%\n\\pysigstopmultiline')
 
     def visit_desc_signature_line(self, node):
         # type: (nodes.Node) -> None
