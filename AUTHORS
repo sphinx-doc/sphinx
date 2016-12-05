@@ -20,6 +20,7 @@ Other contributors, listed alphabetically, are:
 * Henrique Bastos -- SVG support for graphviz extension
 * Daniel Bültmann -- todo extension
 * Etienne Desautels -- apidoc module
+* Emilio Dorigatti -- wikisyntax builder
 * Michael Droettboom -- inheritance_diagram extension
 * Charles Duffy -- original graphviz extension
 * Kevin Dunn -- MathJax extension
