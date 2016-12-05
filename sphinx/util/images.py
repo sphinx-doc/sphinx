@@ -24,6 +24,7 @@ except ImportError:
 mime_suffixes = {
     '.pdf': 'application/pdf',
     '.svg': 'image/svg+xml',
+    '.svgz': 'image/svg+xml',
 }
 
 

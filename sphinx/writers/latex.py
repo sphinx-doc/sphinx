@@ -24,6 +24,7 @@ from docutils.writers.latex2e import Babel
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.errors import SphinxError
+from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import split_into
 from sphinx.util.i18n import format_date
@@ -994,11 +995,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(hyper)
         if not node.get('is_multiline'):
             self._visit_signature_line(node)
+        else:
+            self.body.append('%\n\\pysigstartmultiline\n')
 
     def depart_desc_signature(self, node):
         # type: (nodes.Node) -> None
         if not node.get('is_multiline'):
             self._depart_signature_line(node)
+        else:
+            self.body.append('%\n\\pysigstopmultiline')
 
     def visit_desc_signature_line(self, node):
         # type: (nodes.Node) -> None
@@ -1469,8 +1474,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_termsep(self, node):
         # type: (nodes.Node) -> None
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
-                      DeprecationWarning)
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
+                      'This warning is displayed because some Sphinx extension '
+                      'uses sphinx.addnodes.termsep. Please report it to '
+                      'author of the extension.', RemovedInSphinx16Warning)
         self.body.append(', ')
         raise nodes.SkipNode
 
@@ -2152,9 +2159,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 opts = {}
 
-            def warner(msg):
+            def warner(msg, **kwargs):
                 # type: (unicode) -> None
-                self.builder.warn(msg, (self.curfilestack[-1], node.line))
+                self.builder.warn(msg, (self.curfilestack[-1], node.line), **kwargs)
             hlcode = self.highlighter.highlight_block(code, lang, opts=opts,
                                                       warn=warner, linenos=linenos,
                                                       **highlight_args)

@@ -158,7 +158,7 @@ else:
                             msgid = msgid[0]
                         jscatalog[msgid] = message.string
 
-                with open(js_file, 'wb') as outfile:
+                with open(js_file, 'wt') as outfile:
                     outfile.write('Documentation.addTranslations(')
                     dump(dict(
                         messages=jscatalog,

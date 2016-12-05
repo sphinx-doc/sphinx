@@ -20,6 +20,7 @@ from docutils import nodes, writers
 from docutils.utils import column_width
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
 
 if False:
@@ -772,8 +773,10 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_termsep(self, node):
         # type: (nodes.Node) -> None
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
-                      DeprecationWarning)
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
+                      'This warning is displayed because some Sphinx extension '
+                      'uses sphinx.addnodes.termsep. Please report it to '
+                      'author of the extension.', RemovedInSphinx16Warning)
         self.add_text(', ')
         raise nodes.SkipNode
 

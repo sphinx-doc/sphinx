@@ -21,6 +21,7 @@ from docutils import nodes, writers
 
 from sphinx import addnodes, __display_version__
 from sphinx.errors import ExtensionError
+from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
 from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
@@ -1069,8 +1070,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def visit_termsep(self, node):
         # type: (nodes.Node) -> None
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
-                      DeprecationWarning)
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
+                      'This warning is displayed because some Sphinx extension '
+                      'uses sphinx.addnodes.termsep. Please report it to '
+                      'author of the extension.', RemovedInSphinx16Warning)
         self.body.append('\n%s ' % self.at_item_x)
 
     def depart_termsep(self, node):
