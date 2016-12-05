@@ -18,11 +18,12 @@ from six import PY3, class_types, text_type, exec_
 from six.moves import zip_longest
 from itertools import product
 
+from sphinx.deprecation import RemovedInSphinx16Warning
+
 if False:
     # For type annotation
     from typing import Any, Callable  # NOQA
 
-from sphinx.deprecation import RemovedInSphinx16Warning
 
 NoneType = type(None)
 
