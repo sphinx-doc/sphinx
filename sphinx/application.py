@@ -532,6 +532,12 @@ class Sphinx(object):
             # special-case for compatibility
             if extension == 'rst2pdf.pdfbuilder':
                 ext_meta = {'parallel_read_safe': True}
+            elif extension in builtin_extensions:
+                ext_meta = {
+                    'version': 'builtin',
+                    'parallel_read_safe': True,
+                    'parallel_write_safe': True,
+                }
         try:
             if not ext_meta.get('version'):
                 ext_meta['version'] = 'unknown version'

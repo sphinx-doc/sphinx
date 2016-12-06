@@ -4,6 +4,7 @@ Release 1.5.1 (in development)
 Bugs fixed
 ----------
 
+* #3195: Can not build in parallel.
 
 
 Release 1.5 (released Dec 5, 2016)
