@@ -5,6 +5,7 @@ Release checklist
 * Check `git status`
 * Run `make style-check`
 * Run `tx pull -a -f` in sphinx/locale if final major release
+* Run `python setup.py compile_catalog` in project root after 'tx pull'
 * Update version info in sphinx/__init__.py
 * Update release date in CHANGES
 * `git commit -am 'Bump to x.y.z final'`

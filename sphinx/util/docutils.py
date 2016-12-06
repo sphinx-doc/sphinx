@@ -12,11 +12,19 @@ from __future__ import absolute_import
 
 from copy import copy
 from contextlib import contextmanager
+
 from docutils.parsers.rst import directives, roles
+
+if False:
+    # For type annotation
+    from typing import Any, Callable, Iterator, Tuple  # NOQA
+    from docutils import nodes  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
 
 
 @contextmanager
 def docutils_namespace():
+    # type: () -> Iterator[None]
     """Create namespace for reST parsers."""
     try:
         _directives = copy(directives._directives)
@@ -37,9 +45,10 @@ class sphinx_domains(object):
     markup takes precedence.
     """
     def __init__(self, env):
+        # type: (BuildEnvironment) -> None
         self.env = env
-        self.directive_func = None
-        self.roles_func = None
+        self.directive_func = None  # type: Callable
+        self.roles_func = None  # type: Callable
 
     def __enter__(self):
         self.enable()
@@ -59,6 +68,7 @@ class sphinx_domains(object):
         roles.role = self.role_func
 
     def lookup_domain_element(self, type, name):
+        # type: (unicode, unicode) -> Tuple[Any, List]
         """Lookup a markup element (directive or role), given its name which can
         be a full name (with domain).
         """
@@ -67,7 +77,7 @@ class sphinx_domains(object):
         if ':' in name:
             domain_name, name = name.split(':', 1)
             if domain_name in self.env.domains:
-                domain = self.env.domains[domain_name]
+                domain = self.env.get_domain(domain_name)
                 element = getattr(domain, type)(name)
                 if element is not None:
                     return element, []
@@ -80,19 +90,21 @@ class sphinx_domains(object):
                     return element, []
 
         # always look in the std domain
-        element = getattr(self.env.domains['std'], type)(name)
+        element = getattr(self.env.get_domain('std'), type)(name)
         if element is not None:
             return element, []
 
         raise ElementLookupError
 
     def lookup_directive(self, name, lang_module, document):
+        # type: (unicode, unicode, nodes.document) -> Tuple[Any, List]
         try:
             return self.lookup_domain_element('directive', name)
         except ElementLookupError:
             return self.directive_func(name, lang_module, document)
 
     def lookup_role(self, name, lang_module, lineno, reporter):
+        # type: (unicode, unicode, int, Any) -> Tuple[Any, List]
         try:
             return self.lookup_domain_element('role', name)
         except ElementLookupError:

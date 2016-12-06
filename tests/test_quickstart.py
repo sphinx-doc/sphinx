@@ -298,3 +298,16 @@ def test_default_filename(tempdir):
     assert ns['latex_documents'][0][1] == 'sphinx.tex'
     assert ns['man_pages'][0][1] == 'sphinx'
     assert ns['texinfo_documents'][0][1] == 'sphinx'
+
+
+@with_tempdir
+def test_extensions(tempdir):
+    qs.main(['sphinx-quickstart', '-q',
+             '-p', 'project_name', '-a', 'author',
+             '--extensions', 'foo,bar,baz', tempdir])
+
+    conffile = tempdir / 'conf.py'
+    assert conffile.isfile()
+    ns = {}
+    execfile_(conffile, ns)
+    assert ns['extensions'] == ['foo', 'bar', 'baz']

@@ -20,6 +20,7 @@ from subprocess import Popen, PIPE
 from hashlib import sha1
 
 from six import text_type
+
 from docutils import nodes
 
 import sphinx
@@ -29,11 +30,18 @@ from sphinx.util.osutil import ensuredir, ENOENT, cd
 from sphinx.util.pycompat import sys_encoding
 from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
 
+if False:
+    # For type annotation
+    from typing import Any, Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+    from sphinx.ext.mathbase import math as math_node, displaymath  # NOQA
+
 
 class MathExtError(SphinxError):
     category = 'Math extension error'
 
     def __init__(self, msg, stderr=None, stdout=None):
+        # type: (unicode, unicode, unicode) -> None
         if stderr:
             msg += '\n[stderr]\n' + stderr.decode(sys_encoding, 'replace')
         if stdout:
@@ -71,6 +79,7 @@ depth_re = re.compile(br'\[\d+ depth=(-?\d+)\]')
 
 
 def render_math(self, math):
+    # type: (nodes.NodeVisitor, unicode) -> Tuple[unicode, int]
     """Render the LaTeX math expression *math* using latex and dvipng.
 
     Return the filename relative to the built document and the "depth",
@@ -107,9 +116,8 @@ def render_math(self, math):
     else:
         tempdir = self.builder._mathpng_tempdir
 
-    tf = codecs.open(path.join(tempdir, 'math.tex'), 'w', 'utf-8')
-    tf.write(latex)
-    tf.close()
+    with codecs.open(path.join(tempdir, 'math.tex'), 'w', 'utf-8') as tf:  # type: ignore
+        tf.write(latex)
 
     # build latex command; old versions of latex don't have the
     # --output-directory option, so we have to manually chdir to the
@@ -171,23 +179,26 @@ def render_math(self, math):
 
 
 def cleanup_tempdir(app, exc):
+    # type: (Sphinx, Exception) -> None
     if exc:
         return
     if not hasattr(app.builder, '_mathpng_tempdir'):
         return
     try:
-        shutil.rmtree(app.builder._mathpng_tempdir)
+        shutil.rmtree(app.builder._mathpng_tempdir)  # type: ignore
     except Exception:
         pass
 
 
 def get_tooltip(self, node):
+    # type: (nodes.NodeVisitor, math_node) -> unicode
     if self.builder.config.pngmath_add_tooltips:
         return ' alt="%s"' % self.encode(node['latex']).strip()
     return ''
 
 
 def html_visit_math(self, node):
+    # type: (nodes.NodeVisitor, math_node) -> None
     try:
         fname, depth = render_math(self, '$'+node['latex']+'$')
     except MathExtError as exc:
@@ -210,6 +221,7 @@ def html_visit_math(self, node):
 
 
 def html_visit_displaymath(self, node):
+    # type: (nodes.NodeVisitor, displaymath) -> None
     if node['nowrap']:
         latex = node['latex']
     else:
@@ -218,10 +230,11 @@ def html_visit_displaymath(self, node):
     try:
         fname, depth = render_math(self, latex)
     except MathExtError as exc:
-        sm = nodes.system_message(str(exc), type='WARNING', level=2,
+        msg = text_type(exc)
+        sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node['latex'])
         sm.walkabout(self)
-        self.builder.warn('inline latex %r: ' % node['latex'] + str(exc))
+        self.builder.warn('inline latex %r: ' % node['latex'] + msg)
         raise nodes.SkipNode
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')
@@ -238,6 +251,7 @@ def html_visit_displaymath(self, node):
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.warn('sphinx.ext.pngmath has been deprecated. Please use sphinx.ext.imgmath instead.')
     try:
         mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))

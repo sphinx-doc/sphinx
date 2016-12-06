@@ -7,11 +7,13 @@ python:
   - "2.7"
   - "3.4"
   - "3.5"
-  - "3.5-dev"
+  - "nightly"
   - "pypy"
 env:
   global:
     - TEST='-v --with-timer --timer-top-n 25'
+    - PYTHONFAULTHANDLER=x
+    - PYTHONWARNINGS=all
   matrix:
     - DOCUTILS=0.11
     - DOCUTILS=0.12
@@ -23,6 +25,8 @@ addons:
     - texlive-latex-extra
     - texlive-fonts-recommended
     - texlive-fonts-extra
+    - texlive-xetex
+    - lmodern
 install:
   - pip install -U pip setuptools
   - pip install docutils==$DOCUTILS

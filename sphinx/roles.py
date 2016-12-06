@@ -175,7 +175,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner,
         typ = env.config.default_role
     else:
         typ = typ.lower()
-    has_explicit_title, title, target = split_explicit_title(text)
+    has_explicit_title, title, target = split_explicit_title(text)  # type: bool, unicode, unicode  # NOQA
     title = utils.unescape(title)
     target = utils.unescape(target)
     targetid = 'index-%s' % env.new_serialno('index')
@@ -186,7 +186,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner,
         indexnode['entries'] = [
             ('single', _('Python Enhancement Proposals; PEP %s') % target,
              targetid, '', None)]
-        anchor = ''
+        anchor = ''  # type: unicode
         anchorindex = target.find('#')
         if anchorindex > 0:
             target, anchor = target[:anchorindex], target[anchorindex:]

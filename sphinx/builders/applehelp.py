@@ -19,7 +19,7 @@ import shlex
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.config import string_classes
 from sphinx.util.osutil import copyfile, ensuredir, make_filename
-from sphinx.util.console import bold
+from sphinx.util.console import bold  # type: ignore
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.pycompat import htmlescape
 from sphinx.util.matching import Matcher
@@ -28,10 +28,13 @@ from sphinx.errors import SphinxError
 import plistlib
 import subprocess
 
+if False:
+    # For type annotation
+    from sphinx.application import Sphinx  # NOQA
 
 # Use plistlib.dump in 3.4 and above
 try:
-    write_plist = plistlib.dump
+    write_plist = plistlib.dump  # type: ignore
 except AttributeError:
     write_plist = plistlib.writePlist
 
@@ -83,6 +86,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
     search = False
 
     def init(self):
+        # type: () -> None
         super(AppleHelpBuilder, self).init()
         # the output files for HTML help must be .html only
         self.out_suffix = '.html'
@@ -101,12 +105,14 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
                                 self.config.applehelp_locale + '.lproj')
 
     def handle_finish(self):
+        # type: () -> None
         super(AppleHelpBuilder, self).handle_finish()
 
         self.finish_tasks.add_task(self.copy_localized_files)
         self.finish_tasks.add_task(self.build_helpbook)
 
     def copy_localized_files(self):
+        # type: () -> None
         source_dir = path.join(self.confdir, self.config.applehelp_locale + '.lproj')
         target_dir = self.outdir
 
@@ -120,6 +126,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
             self.info('done')
 
     def build_helpbook(self):
+        # type: () -> None
         contents_dir = path.join(self.bundle_path, 'Contents')
         resources_dir = path.join(contents_dir, 'Resources')
         language_dir = path.join(resources_dir,
@@ -264,6 +271,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
 
 def setup(app):
+    # type: (Sphinx) -> None
     app.setup_extension('sphinx.builders.html')
     app.add_builder(AppleHelpBuilder)
 
@@ -286,10 +294,10 @@ def setup(app):
     app.add_config_value('applehelp_title', lambda self: self.project + ' Help', 'applehelp')
     app.add_config_value('applehelp_codesign_identity',
                          lambda self: environ.get('CODE_SIGN_IDENTITY', None),
-                         'applehelp'),
+                         'applehelp')
     app.add_config_value('applehelp_codesign_flags',
                          lambda self: shlex.split(environ.get('OTHER_CODE_SIGN_FLAGS', '')),
-                         'applehelp'),
+                         'applehelp')
     app.add_config_value('applehelp_indexer_path', '/usr/bin/hiutil', 'applehelp')
     app.add_config_value('applehelp_codesign_path', '/usr/bin/codesign', 'applehelp')
     app.add_config_value('applehelp_disable_external_tools', False, None)

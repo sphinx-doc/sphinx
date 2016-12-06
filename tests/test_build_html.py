@@ -240,11 +240,11 @@ HTML_XPATH = {
         (".//td[@class='field-body']/ul/li/em", '^DuplicateType$'),
         (".//td[@class='field-body']/ul/li/em", tail_check(r'.* Some parameter')),
         # others
-        (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-+p']/code/span",
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-p']/code/span",
             'perl'),
-        (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-+p']/code/span",
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-p']/code/span",
             '\+p'),
-        (".//a[@class='reference internal'][@href='#cmdoption-perl--plugin.option']/code/span",
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-plugin-option']/code/span",
             '--plugin.option'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-create-auth-token']"
          "/code/span",

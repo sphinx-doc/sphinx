@@ -40,7 +40,7 @@ Important points to note:
   delete them from the namespace with ``del`` if appropriate.  Modules are
   removed automatically, so you don't need to ``del`` your imports after use.
 
-.. _conf-tags:
+  .. _conf-tags:
 
 * There is a special object named ``tags`` available in the config file.
   It can be used to query and change the tags (see :ref:`tags`).  Use
@@ -232,12 +232,17 @@ General configuration
    * ref.option
    * ref.citation
    * ref.doc
+   * misc.highlighting_failure
 
    You can choose from these types.
 
    Now, this option should be considered *experimental*.
 
    .. versionadded:: 1.4
+
+   .. versionchanged:: 1.5
+
+      Added ``misc.highlighting_failure``
 
 .. confval:: needs_sphinx
 
@@ -288,7 +293,8 @@ General configuration
 
    .. note::
 
-      LaTeX builder always assign numbers whether this option is enabled or not.
+      The LaTeX builder always assigns numbers whether this option is enabled or
+      not.
 
    .. versionadded:: 1.3
 
@@ -296,17 +302,13 @@ General configuration
 
    A dictionary mapping ``'figure'``, ``'table'``, ``'code-block'`` and
    ``'section'`` to strings that are used for format of figure numbers.
-   As a special character, `%s` and `{number}` will be replaced to figure
-   number.  `{name}` will be replaced to figure caption.
+   As a special character, `%s` will be replaced to figure number.
 
    Default is to use ``'Fig. %s'`` for ``'figure'``, ``'Table %s'`` for
    ``'table'``, ``'Listing %s'`` for ``'code-block'`` and ``'Section'`` for
    ``'section'``.
 
    .. versionadded:: 1.3
-
-   .. versionchanged:: 1.5
-      Support format of section. Allow to refer the caption of figures.
 
 .. confval:: numfig_secnum_depth
 
@@ -316,6 +318,21 @@ General configuration
    numbers like x.x.1, x.x.2, x.x.3..., and so on. Default is ``1``.
 
    .. versionadded:: 1.3
+
+.. confval:: tls_verify
+
+   If true, Sphinx verifies server certifications.  Default is ``True``.
+
+   .. versionadded:: 1.5
+
+.. confval:: tls_cacerts
+
+   A path to a certification file of CA or a path to directory which
+   contains the certificates.  This also allows a dictionary mapping
+   hostname to the path to certificate file.
+   The certificates are used to verify server certifications.
+
+   .. versionadded:: 1.5
 
 Project information
 -------------------
@@ -599,8 +616,24 @@ documentation on :ref:`intl` for details.
    The filename format for language-specific figures.  The default value is
    ``{root}.{language}{ext}``.  It will be expanded to
    ``dirname/filename.en.png`` from ``.. image:: dirname/filename.png``.
+   The available format tokens are:
+
+   * ``{root}`` - the filename, including any path component, without the file
+     extension, e.g. ``dirname/filename``
+   * ``{path}`` - the directory path component of the filename, with a trailing
+     slash if non-empty, e.g. ``dirname/``
+   * ``{basename}`` - the filename without the directory path or file extension
+     components, e.g. ``filename``
+   * ``{ext}`` - the file extension, e.g. ``.png``
+   * ``{language}`` - the translation language, e.g. ``en``
+
+   For example, setting this to ``{path}{language}/{basename}{ext}`` will
+   expand to ``dirname/en/filename.png`` instead.
 
    .. versionadded:: 1.4
+
+   .. versionchanged:: 1.5
+      Added ``{path}`` and ``{basename}`` tokens.
 
 .. _html-options:
 
@@ -1289,24 +1322,30 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    The title of the document.  It defaults to the :confval:`html_title` option
    but can be set independently for epub creation.
 
-.. confval:: epub3_description
+.. confval:: epub_description
 
    The description of the document. The default value is ``''``.
 
    .. versionadded:: 1.4
+
+   .. versionchanged:: 1.5
+      Renamed from ``epub3_description``
 
 .. confval:: epub_author
 
    The author of the document.  This is put in the Dublin Core metadata.  The
    default value is ``'unknown'``.
 
-.. confval:: epub3_contributor
+.. confval:: epub_contributor
 
    The name of a person, organization, etc. that played a secondary role in
    the creation of the content of an EPUB Publication. The default value is
    ``'unknown'``.
 
    .. versionadded:: 1.4
+
+   .. versionchanged:: 1.5
+      Renamed from ``epub3_contributor``
 
 .. confval:: epub_language
 
@@ -1467,7 +1506,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
    .. versionadded:: 1.2
 
-.. confval:: epub3_writing_mode
+.. confval:: epub_writing_mode
 
    It specifies writing direction. It can accept ``'horizontal'`` (default) and
    ``'vertical'``
@@ -1476,7 +1515,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
       :header-rows: 1
       :stub-columns: 1
 
-      - * ``epub3_writing_mode``
+      - * ``epub_writing_mode``
         * ``'horizontal'``
         * ``'vertical'``
       - * writing-mode [#]_
@@ -1503,7 +1542,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
    .. versionadded:: 1.4
 
    .. deprecated:: 1.5
-      Use ``epub3_writing_mode``.
+      Use ``epub_writing_mode`` instead.
 
 .. _latex-options:
 
@@ -1517,10 +1556,10 @@ These options influence LaTeX output. See further :doc:`latex`.
    The LaTeX engine to build the docs.  The setting can have the following
    values:
 
-   * pdflatex -- PDFLaTeX (default)
-   * xelatex -- XeLaTeX
-   * lualatex -- LuaLaTeX
-   * platex -- pLaTeX (default if `language` is 'ja')
+   * ``'pdflatex'`` -- PDFLaTeX (default)
+   * ``'xelatex'`` -- XeLaTeX
+   * ``'lualatex'`` -- LuaLaTeX
+   * ``'platex'`` -- pLaTeX (default if :confval:`language` is ``'ja'``)
 
 .. confval:: latex_documents
 
@@ -1540,11 +1579,13 @@ These options influence LaTeX output. See further :doc:`latex`.
    * *author*: Author for the LaTeX document.  The same LaTeX markup caveat as
      for *title* applies.  Use ``\and`` to separate multiple authors, as in:
      ``'John \and Sarah'``.
-   * *documentclass*: Normally, one of ``'manual'`` or ``'howto'`` (provided by
-     Sphinx).  Other document classes can be given, but they must include the
-     "sphinx" package in order to define Sphinx's custom LaTeX commands. "howto"
-     documents will not get appendices.  Also, howtos will have a simpler title
-     page.
+   * *documentclass*: Normally, one of ``'manual'`` or ``'howto'`` (provided
+     by Sphinx and based on ``'report'``, resp. ``'article'``; Japanese
+     documents use ``'jsbook'``, resp. ``'jreport'``.) "howto" (non-Japanese)
+     documents will not get appendices. Also they have a simpler title page.
+     Other document classes can be given. Independently of the document class,
+     the "sphinx" package is always loaded in order to define Sphinx's custom
+     LaTeX commands.
 
    * *toctree_only*: Must be ``True`` or ``False``.  If true, the *startdoc*
      document itself is not included in the output, only the documents
@@ -1670,8 +1711,31 @@ These options influence LaTeX output. See further :doc:`latex`.
         to use ``'47363sp'``. To obtain ``72px=1in``, use ``'1bp'``.
 
         .. versionadded:: 1.5
+     ``'sphinxsetup'``
+        A comma separated list of ``key=value`` package options for the Sphinx
+        LaTeX style, default empty. See :doc:`latex`.
+
+        .. versionadded:: 1.5
+     ``'passoptionstopackages'``
+        A string which will be positioned early in the preamble, designed to
+        contain ``\\PassOptionsToPackage{options}{foo}`` commands. Default empty.
+
+        .. versionadded:: 1.4
+     ``'geometry'``
+        "geometry" package inclusion, the default definition is:
+
+          ``'\\usepackage[margin=1in,marginparwidth=0.5in]{geometry}'``.
+
+        .. versionadded:: 1.5
      ``'babel'``
-        "babel" package inclusion, default ``'\\usepackage{babel}'``.
+        "babel" package inclusion, default ``'\\usepackage{babel}'`` (the
+        suitable document language string is passed as class option, and
+        ``english`` is used if no language.) For Japanese documents, the
+        default is the empty string.
+
+        .. versionchanged:: 1.5
+           For :confval:`latex_engine` set to ``'xelatex'``, the default
+           is ``'\\usepackage{polyglossia}\n\\setmainlanguage{<language>}'``.
      ``'fontpkg'``
         Font package inclusion, default ``'\\usepackage{times}'`` (which uses
         Times and Helvetica).  You can set this to ``''`` to use the Computer
@@ -1680,21 +1744,22 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. versionchanged:: 1.2
            Defaults to ``''`` when the :confval:`language` uses the Cyrillic
            script.
+        .. versionchanged:: 1.5
+           Defaults to ``''`` when :confval:`latex_engine` is ``'xelatex'``.
      ``'fncychap'``
         Inclusion of the "fncychap" package (which makes fancy chapter titles),
-        default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation,
+        default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation
+        (this option is slightly customized by Sphinx),
         ``'\\usepackage[Sonny]{fncychap}'`` for internationalized docs (because
         the "Bjarne" style uses numbers spelled out in English).  Other
-        "fncychap" styles you can try include "Lenny", "Glenn", "Conny" and
-        "Rejne".  You can also set this to ``''`` to disable fncychap.
-     ``'passoptionstopackages'``
-        "PassOptionsToPackage" call, default empty.
-
-        .. versionadded:: 1.4
+        "fncychap" styles you can try are "Lenny", "Glenn", "Conny", "Rejne" and
+        "Bjornstrup".  You can also set this to ``''`` to disable fncychap.
      ``'preamble'``
         Additional preamble content, default empty. See :doc:`latex`.
-     ``'postamble'``
-        Additional postamble content (before the indices), default empty.
+     ``'atendofbody'``
+        Additional document content (right before the indices), default empty.
+
+        .. versionadded:: 1.5
      ``'figure_align'``
         Latex figure float alignment, default 'htbp' (here, top, bottom, page).
         Whenever an image doesn't fit into the current page, it will be
@@ -1707,14 +1772,31 @@ These options influence LaTeX output. See further :doc:`latex`.
         Additional footer content (before the indices), default empty.
 
         .. deprecated:: 1.5
-           User ``'postamble'`` key instead.
+           Use ``'atendofbody'`` key instead.
 
    * Keys that don't need be overridden unless in special cases are:
 
+     ``'maxlistdepth'``
+        LaTeX allows by default at most 6 levels for nesting list and
+        quote-like environments, with at most 4 enumerated lists, and 4 bullet
+        lists. Setting this key for example to ``'10'`` (as a string) will
+        allow up to 10 nested levels (of all sorts). Leaving it to the empty
+        string means to obey the LaTeX default.
+
+        .. warning::
+
+           - Using this key may prove incompatible with some LaTeX packages
+             or special document classes which do their own list customization.
+
+           - The key setting is silently *ignored* if ``\usepackage{enumitem}``
+             is executed inside the document preamble. Use then rather the
+             dedicated commands of this LaTeX package.
+
+        .. versionadded:: 1.5
      ``'inputenc'``
         "inputenc" package inclusion, defaults to
         ``'\\usepackage[utf8]{inputenc}'`` when using pdflatex.
-        Otherwise unset.
+        Otherwise empty.
 
         .. versionchanged:: 1.4.3
            Previously ``'\\usepackage[utf8]{inputenc}'`` was used for all
@@ -1725,16 +1807,41 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. versionadded:: 1.2
      ``'fontenc'``
         "fontenc" package inclusion, default ``'\\usepackage[T1]{fontenc}'``.
+
+        .. versionchanged:: 1.5
+           Defaults to ``'\\usepackage{fontspec}'`` when
+           :confval:`latex_engine` is ``'xelatex'``.
+     ``'hyperref'``
+        "hyperref" package inclusion; also loads package "hypcap" and issues
+        ``\urlstyle{same}``. This is done after :file:`sphinx.sty` file is
+        loaded and before executing the contents of ``'preamble'`` key.
+
+        .. attention::
+
+           Loading of packages "hyperref" and "hypcap" is mandatory.
+
+        .. versionadded:: 1.5
+           Previously this was done from inside :file:`sphinx.sty`.
      ``'maketitle'``
-        "maketitle" call, default ``'\\maketitle'``.  Override if you want to
+        "maketitle" call, default ``'\\maketitle'`` (but it has been
+        redefined by the Sphinx ``manual`` and ``howto`` classes.) Override
+        if you want to
         generate a differently-styled title page.
      ``'releasename'``
         value that prefixes ``'release'`` element on title page, default
         ``'Release'``.
      ``'tableofcontents'``
-        "tableofcontents" call, default ``'\\tableofcontents'``.  Override if
+        "tableofcontents" call, default ``'\\sphinxtableofcontents'`` (it is a
+        wrapper of unmodified ``\tableofcontents``, which may itself be
+        customized by user loaded packages.)
+        Override if
         you want to generate a different table of contents or put content
         between the title page and the TOC.
+
+        .. versionchanged:: 1.5
+           Previously the meaning of ``\tableofcontents`` itself was modified
+           by Sphinx. This created an incompatibility with dedicated packages
+           modifying it also such as "tocloft" or "etoc".
      ``'transition'``
         Commands used to display transitions, default
         ``'\n\n\\bigskip\\hrule{}\\bigskip\n\n'``.  Override if you want to
@@ -1744,7 +1851,9 @@ These options influence LaTeX output. See further :doc:`latex`.
      ``'printindex'``
         "printindex" call, the last thing in the file, default
         ``'\\printindex'``.  Override if you want to generate the index
-        differently or append some content after the index.
+        differently or append some content after the index. For example
+        ``'\\footnotesize\\raggedright\\printindex'`` is advisable when the
+        index is full of long entries.
 
    * Keys that are set by other options and therefore should not be overridden
      are:
@@ -1769,8 +1878,8 @@ These options influence LaTeX output. See further :doc:`latex`.
 
    .. versionchanged:: 1.5
 
-      In Japanese docs(`language` is ``ja``), ``'jreport'`` is used for
-      ``'howto'`` and ``'jsbooks'`` is used for ``'manual'`` by default.
+      In Japanese docs (:confval:`language` is ``'ja'``), by default
+      ``'jreport'`` is used for ``'howto'`` and ``'jsbook'`` for ``'manual'``.
 
 .. confval:: latex_additional_files
 
@@ -2029,6 +2138,17 @@ Options for the linkcheck builder
 
    .. versionadded:: 1.2
 
+.. confval:: linkcheck_anchors_ignore
+
+   A list of regular expressions that match URIs that should skip checking
+   the validity of anchors in links. This allows skipping entire sites, where
+   anchors are used to control dynamic pages, or just specific anchors within
+   a page, where javascript is used to add anchors dynamically, or use the
+   fragment as part of to trigger an internal REST request. Default is
+   ``["/#!"]``.
+
+   .. versionadded:: 1.5
+
 
 Options for the XML builder
 ---------------------------
@@ -2076,3 +2196,8 @@ Options for the C++ domain
 
    .. versionadded:: 1.5
 
+Example of configuration file
+=============================
+
+.. literalinclude:: _static/conf.py.txt
+   :language: python

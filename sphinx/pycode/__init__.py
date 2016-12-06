@@ -24,6 +24,10 @@ from sphinx.util import get_module_source, detect_encoding
 from sphinx.util.pycompat import TextIOWrapper
 from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
+if False:
+    # For type annotation
+    from typing import Any, Tuple  # NOQA
+
 
 # load the Python grammar
 _grammarfile = path.join(package_dir, 'pycode',
@@ -35,6 +39,8 @@ pydriver = driver.Driver(pygrammar, convert=nodes.convert)
 # an object with attributes corresponding to token and symbol names
 class sym(object):
     pass
+
+
 for k, v in iteritems(pygrammar.symbol2number):
     setattr(sym, k, v)
 for k, v in iteritems(token.tok_name):
@@ -61,10 +67,10 @@ class AttrDocVisitor(nodes.NodeVisitor):
         self.scope = scope
         self.in_init = 0
         self.encoding = encoding
-        self.namespace = []
-        self.collected = {}
+        self.namespace = []  # type: List[unicode]
+        self.collected = {}  # type: Dict[Tuple[unicode, unicode], unicode]
         self.tagnumber = 0
-        self.tagorder = {}
+        self.tagorder = {}   # type: Dict[unicode, int]
 
     def add_tag(self, name):
         name = '.'.join(self.namespace + [name])
@@ -100,10 +106,10 @@ class AttrDocVisitor(nodes.NodeVisitor):
         parent = node.parent
         idx = parent.children.index(node) + 1
         while idx < len(parent):
-            if parent[idx].type == sym.SEMI:
+            if parent[idx].type == sym.SEMI:  # type: ignore
                 idx += 1
                 continue  # skip over semicolon
-            if parent[idx].type == sym.NEWLINE:
+            if parent[idx].type == sym.NEWLINE:  # type: ignore
                 prefix = parent[idx].get_prefix()
                 if not isinstance(prefix, text_type):
                     prefix = prefix.decode(self.encoding)
@@ -136,8 +142,8 @@ class AttrDocVisitor(nodes.NodeVisitor):
         prev = node.get_prev_sibling()
         if not prev:
             return
-        if prev.type == sym.simple_stmt and \
-           prev[0].type == sym.expr_stmt and _eq in prev[0].children:
+        if (prev.type == sym.simple_stmt and  # type: ignore
+           prev[0].type == sym.expr_stmt and _eq in prev[0].children):  # type: ignore
             # need to "eval" the string because it's returned in its
             # original form
             docstring = literals.evalString(node[0].value, self.encoding)
@@ -176,7 +182,7 @@ class AttrDocVisitor(nodes.NodeVisitor):
 
 class ModuleAnalyzer(object):
     # cache for analyzer objects -- caches both by module and file name
-    cache = {}
+    cache = {}  # type: Dict[Tuple[unicode, unicode], Any]
 
     @classmethod
     def for_string(cls, string, modname, srcname='<string>'):
@@ -238,14 +244,14 @@ class ModuleAnalyzer(object):
             self.source.seek(pos)
 
         # will be filled by tokenize()
-        self.tokens = None
+        self.tokens = None      # type: List[unicode]
         # will be filled by parse()
-        self.parsetree = None
+        self.parsetree = None   # type: Any
         # will be filled by find_attr_docs()
-        self.attr_docs = None
-        self.tagorder = None
+        self.attr_docs = None   # type: List[unicode]
+        self.tagorder = None    # type: Dict[unicode, int]
         # will be filled by find_tags()
-        self.tags = None
+        self.tags = None        # type: List[unicode]
 
     def tokenize(self):
         """Generate tokens from the source."""
@@ -287,8 +293,8 @@ class ModuleAnalyzer(object):
             return self.tags
         self.tokenize()
         result = {}
-        namespace = []
-        stack = []
+        namespace = []  # type: List[unicode]
+        stack = []      # type: List[Tuple[unicode, unicode, unicode, int]]
         indent = 0
         defline = False
         expect_indent = False
@@ -299,7 +305,7 @@ class ModuleAnalyzer(object):
                 if tokentup[0] not in ignore:
                     yield tokentup
         tokeniter = tokeniter()
-        for type, tok, spos, epos, line in tokeniter:
+        for type, tok, spos, epos, line in tokeniter:  # type: ignore
             if expect_indent and type != token.NL:
                 if type != token.INDENT:
                     # no suite -- one-line definition
@@ -310,7 +316,7 @@ class ModuleAnalyzer(object):
                     result[fullname] = (dtype, startline, endline - emptylines)
                 expect_indent = False
             if tok in ('def', 'class'):
-                name = next(tokeniter)[1]
+                name = next(tokeniter)[1]  # type: ignore
                 namespace.append(name)
                 fullname = '.'.join(namespace)
                 stack.append((tok, fullname, spos[0], indent))

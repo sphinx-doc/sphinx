@@ -100,6 +100,9 @@ It adds these directives:
    All three directives support a ``align`` option to align the graph horizontal.
    The values "left", "center", "right" are allowed.
 
+.. versionadded:: 1.6
+   All three directives support a ``name`` option to set the label to graph.
+
 There are also these new config values:
 
 .. confval:: graphviz_dot

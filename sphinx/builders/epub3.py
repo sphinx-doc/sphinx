@@ -111,13 +111,6 @@ class Epub3Builder(EpubBuilder):
     content_template = PACKAGE_DOC_TEMPLATE
     doctype = DOCTYPE
 
-    # Warning deprecated option
-    def init(self):
-        if self.config.epub3_page_progression_direction:
-            self.warn('epub3_page_progression_direction option is deprecated'
-                      ' from 1.5. Use epub3_writing_mode instead of this.')
-        super(Epub3Builder, self).init()
-
     # Finish by building the epub file
     def handle_finish(self):
         """Create the metainfo files and finally the epub."""
@@ -135,8 +128,8 @@ class Epub3Builder(EpubBuilder):
         """
         metadata = super(Epub3Builder, self).content_metadata(
             files, spine, guide)
-        metadata['description'] = self.esc(self.config.epub3_description)
-        metadata['contributor'] = self.esc(self.config.epub3_contributor)
+        metadata['description'] = self.esc(self.config.epub_description)
+        metadata['contributor'] = self.esc(self.config.epub_contributor)
         metadata['page_progression_direction'] = self._page_progression_direction()
         metadata['ibook_scroll_axis'] = self._ibook_scroll_axis()
         metadata['date'] = self.esc(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
@@ -144,25 +137,25 @@ class Epub3Builder(EpubBuilder):
         return metadata
 
     def _page_progression_direction(self):
-        if self.config.epub3_writing_mode == 'horizontal':
+        if self.config.epub_writing_mode == 'horizontal':
             page_progression_direction = 'ltr'
-        elif self.config.epub3_writing_mode == 'vertical':
+        elif self.config.epub_writing_mode == 'vertical':
             page_progression_direction = 'rtl'
         else:
             page_progression_direction = 'default'
         return page_progression_direction
 
     def _ibook_scroll_axis(self):
-        if self.config.epub3_writing_mode == 'horizontal':
+        if self.config.epub_writing_mode == 'horizontal':
             scroll_axis = 'vertical'
-        elif self.config.epub3_writing_mode == 'vertical':
+        elif self.config.epub_writing_mode == 'vertical':
             scroll_axis = 'horizontal'
         else:
             scroll_axis = 'default'
         return scroll_axis
 
     def _css_writing_mode(self):
-        if self.config.epub3_writing_mode == 'vertical':
+        if self.config.epub_writing_mode == 'vertical':
             editing_mode = 'vertical-rl'
         else:
             editing_mode = 'horizontal-tb'
@@ -263,11 +256,28 @@ class Epub3Builder(EpubBuilder):
             self.files.append(outname)
 
 
+def validate_config_values(app):
+    if app.config.epub3_description is not None:
+        app.warn('epub3_description is deprecated. Use epub_description instead.')
+        app.config.epub_description = app.config.epub3_description
+
+    if app.config.epub3_contributor is not None:
+        app.warn('epub3_contributor is deprecated. Use epub_contributor instead.')
+        app.config.epub_contributor = app.config.epub3_contributor
+
+    if app.config.epub3_page_progression_direction is not None:
+        app.warn('epub3_page_progression_direction option is deprecated'
+                 ' from 1.5. Use epub_writing_mode instead.')
+
+
 def setup(app):
     app.setup_extension('sphinx.builders.epub')
     app.add_builder(Epub3Builder)
+    app.connect('builder-inited', validate_config_values)
 
-    app.add_config_value('epub3_description', '', 'epub3', string_classes)
-    app.add_config_value('epub3_contributor', 'unknown', 'epub3', string_classes)
-    app.add_config_value('epub3_writing_mode', 'horizontal', 'epub3', string_classes)
-    app.add_config_value('epub3_page_progression_direction', '', 'epub3', string_classes)
+    app.add_config_value('epub_description', '', 'epub3', string_classes)
+    app.add_config_value('epub_contributor', 'unknown', 'epub3', string_classes)
+    app.add_config_value('epub_writing_mode', 'horizontal', 'epub3', string_classes)
+    app.add_config_value('epub3_description', None, 'epub3', string_classes)
+    app.add_config_value('epub3_contributor', None, 'epub3', string_classes)
+    app.add_config_value('epub3_page_progression_direction', None, 'epub3', string_classes)

@@ -16,5 +16,11 @@ Literal Includes with Line Numbers Matching
    :start-after: pass
    :lineno-match:
 
+.. literalinclude:: literal.inc
+   :language: python
+   :start-at: class Bar:
+   :end-at: pass
+   :lineno-match:
+
 .. literalinclude:: empty.inc
    :lineno-match:

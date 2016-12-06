@@ -11,16 +11,21 @@ import sys
 import codecs
 from difflib import unified_diff
 
+from six import string_types
+
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import ViewList
-
-from six import string_types
 
 from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.util import parselinenos
 from sphinx.util.nodes import set_source_info
+
+if False:
+    # For type annotation
+    from typing import Any  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 
 class Highlight(Directive):
@@ -38,6 +43,7 @@ class Highlight(Directive):
     }
 
     def run(self):
+        # type: () -> List[nodes.Node]
         if 'linenothreshold' in self.options:
             try:
                 linenothreshold = int(self.options['linenothreshold'])
@@ -50,6 +56,7 @@ class Highlight(Directive):
 
 
 def dedent_lines(lines, dedent):
+    # type: (List[unicode], int) -> List[unicode]
     if not dedent:
         return lines
 
@@ -64,6 +71,7 @@ def dedent_lines(lines, dedent):
 
 
 def container_wrapper(directive, literal_node, caption):
+    # type: (Directive, nodes.Node, unicode) -> nodes.container
     container_node = nodes.container('', literal_block=True,
                                      classes=['literal-block-wrapper'])
     parsed = nodes.Element()
@@ -101,6 +109,7 @@ class CodeBlock(Directive):
     }
 
     def run(self):
+        # type: () -> List[nodes.Node]
         code = u'\n'.join(self.content)
 
         linespec = self.options.get('emphasize-lines')
@@ -137,7 +146,7 @@ class CodeBlock(Directive):
                 literal = container_wrapper(self, literal, caption)
             except ValueError as exc:
                 document = self.state.document
-                errmsg = _('Invalid caption: %s' % exc[0][0].astext())
+                errmsg = _('Invalid caption: %s' % exc[0][0].astext())  # type: ignore
                 return [document.reporter.warning(errmsg, line=self.lineno)]
 
         # literal will be note_implicit_target that is linked from caption and numref.
@@ -170,6 +179,8 @@ class LiteralInclude(Directive):
         'lines': directives.unchanged_required,
         'start-after': directives.unchanged_required,
         'end-before': directives.unchanged_required,
+        'start-at': directives.unchanged_required,
+        'end-at': directives.unchanged_required,
         'prepend': directives.unchanged_required,
         'append': directives.unchanged_required,
         'emphasize-lines': directives.unchanged_required,
@@ -180,11 +191,12 @@ class LiteralInclude(Directive):
     }
 
     def read_with_encoding(self, filename, document, codec_info, encoding):
+        # type: (unicode, nodes.Node, Any, unicode) -> List
         try:
             with codecs.StreamReaderWriter(open(filename, 'rb'), codec_info[2],
                                            codec_info[3], 'strict') as f:
                 lines = f.readlines()
-                lines = dedent_lines(lines, self.options.get('dedent'))
+                lines = dedent_lines(lines, self.options.get('dedent'))  # type: ignore
                 return lines
         except (IOError, OSError):
             return [document.reporter.warning(
@@ -197,6 +209,7 @@ class LiteralInclude(Directive):
                 (encoding, filename))]
 
     def run(self):
+        # type: () -> List[nodes.Node]
         document = self.state.document
         if not document.settings.file_insertion_enabled:
             return [document.reporter.warning('File insertion disabled',
@@ -218,6 +231,16 @@ class LiteralInclude(Directive):
            (set(['append', 'prepend']) & set(self.options.keys())):
             return [document.reporter.warning(
                 'Cannot use "lineno-match" and "append" or "prepend"',
+                line=self.lineno)]
+
+        if 'start-after' in self.options and 'start-at' in self.options:
+            return [document.reporter.warning(
+                'Cannot use both "start-after" and "start-at" options',
+                line=self.lineno)]
+
+        if 'end-before' in self.options and 'end-at' in self.options:
+            return [document.reporter.warning(
+                'Cannot use both "end-before" and "end-at" options',
                 line=self.lineno)]
 
         encoding = self.options.get('encoding', env.config.source_encoding)
@@ -292,17 +315,29 @@ class LiteralInclude(Directive):
         else:
             hl_lines = None
 
-        startafter = self.options.get('start-after')
-        endbefore = self.options.get('end-before')
-        if startafter is not None or endbefore is not None:
-            use = not startafter
+        start_str = self.options.get('start-after')
+        start_inclusive = False
+        if self.options.get('start-at') is not None:
+            start_str = self.options.get('start-at')
+            start_inclusive = True
+        end_str = self.options.get('end-before')
+        end_inclusive = False
+        if self.options.get('end-at') is not None:
+            end_str = self.options.get('end-at')
+            end_inclusive = True
+        if start_str is not None or end_str is not None:
+            use = not start_str
             res = []
             for line_number, line in enumerate(lines):
-                if not use and startafter and startafter in line:
+                if not use and start_str and start_str in line:
                     if 'lineno-match' in self.options:
                         linenostart += line_number + 1
                     use = True
-                elif use and endbefore and endbefore in line:
+                    if start_inclusive:
+                        res.append(line)
+                elif use and end_str and end_str in line:
+                    if end_inclusive:
+                        res.append(line)
                     break
                 elif use:
                     res.append(line)
@@ -343,7 +378,7 @@ class LiteralInclude(Directive):
                 retnode = container_wrapper(self, retnode, caption)
             except ValueError as exc:
                 document = self.state.document
-                errmsg = _('Invalid caption: %s' % exc[0][0].astext())
+                errmsg = _('Invalid caption: %s' % exc[0][0].astext())  # type: ignore
                 return [document.reporter.warning(errmsg, line=self.lineno)]
 
         # retnode will be note_implicit_target that is linked from caption and numref.
@@ -354,6 +389,7 @@ class LiteralInclude(Directive):
 
 
 def setup(app):
+    # type: (Sphinx) -> None
     directives.register_directive('highlight', Highlight)
     directives.register_directive('highlightlang', Highlight)  # old
     directives.register_directive('code-block', CodeBlock)

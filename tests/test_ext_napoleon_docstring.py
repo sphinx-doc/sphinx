@@ -19,7 +19,7 @@ from unittest import TestCase
 
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
-from util import mock
+import mock
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -284,8 +284,9 @@ Construct a new XBlock.
 This class should only be used by runtimes.
 
 Arguments:
-    runtime (:class:`Runtime`): Use it to access the environment.
-        It is available in XBlock code as ``self.runtime``.
+    runtime (:class:`~typing.Dict`\[:class:`int`,:class:`str`\]): Use it to
+        access the environment. It is available in XBlock code
+        as ``self.runtime``.
 
     field_data (:class:`FieldData`): Interface used by the XBlock
         fields to access their data from wherever it is persisted.
@@ -300,9 +301,10 @@ Construct a new XBlock.
 
 This class should only be used by runtimes.
 
-:param runtime: Use it to access the environment.
-                It is available in XBlock code as ``self.runtime``.
-:type runtime: :class:`Runtime`
+:param runtime: Use it to
+                access the environment. It is available in XBlock code
+                as ``self.runtime``.
+:type runtime: :class:`~typing.Dict`\[:class:`int`,:class:`str`\]
 :param field_data: Interface used by the XBlock
                    fields to access their data from wherever it is persisted.
 :type field_data: :class:`FieldData`

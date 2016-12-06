@@ -94,6 +94,7 @@ Documentation using a customized version of the classic theme
 * NumPy: http://docs.scipy.org/doc/numpy/reference/
 * OpenCV: http://docs.opencv.org/
 * Peach^3: http://peach3.nl/doc/latest/userdoc/
+* Pygame: http://www.pygame.org/docs/
 * Sage: http://www.sagemath.org/doc/
 * SciPy: http://docs.scipy.org/doc/scipy/reference/
 * simuPOP: http://simupop.sourceforge.net/manual_release/build/userGuide.html
@@ -134,6 +135,7 @@ Documentation using another builtin theme
 * jsFiddle: http://doc.jsfiddle.net/ (nature)
 * libLAS: http://www.liblas.org/ (nature)
 * Linguistica: http://linguistica-uchicago.github.io/lxa5/ (sphinx_rtd_theme)
+* MoinMoin: https://moin-20.readthedocs.io/en/latest/ (sphinx_rtd_theme)
 * MPipe: http://vmlaker.github.io/mpipe/ (sphinx13)
 * pip: https://pip.pypa.io/en/latest/ (sphinx_rtd_theme)
 * Pyramid web framework:

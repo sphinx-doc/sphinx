@@ -12,6 +12,7 @@
 import re
 
 from docutils import nodes
+from sphinx.util.nodes import process_only_nodes
 
 from util import with_app
 
@@ -46,7 +47,7 @@ def test_sectioning(app, status, warning):
 
     app.builder.build(['only'])
     doctree = app.env.get_doctree('only')
-    app.env.process_only_nodes(doctree, app.builder)
+    process_only_nodes(doctree, app.builder.tags)
 
     parts = [getsects(n)
              for n in [_n for _n in doctree.children if isinstance(_n, nodes.section)]]

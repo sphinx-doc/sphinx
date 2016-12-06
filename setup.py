@@ -51,6 +51,7 @@ requires = [
     'alabaster>=0.7,<0.8',
     'imagesize',
     'requests',
+    'typing',
 ]
 extras_require = {
     # Environment Marker works for wheel 0.24 or later
@@ -157,7 +158,7 @@ else:
                             msgid = msgid[0]
                         jscatalog[msgid] = message.string
 
-                with open(js_file, 'wb') as outfile:
+                with open(js_file, 'wt') as outfile:
                     outfile.write('Documentation.addTranslations(')
                     dump(dict(
                         messages=jscatalog,
@@ -190,6 +191,7 @@ class CompileGrammarCommand(Command):
 
     def sub_commands(self):
         pass
+
 
 cmdclass['compile_grammar'] = CompileGrammarCommand
 

@@ -22,9 +22,13 @@ from babel.messages.pofile import read_po
 from babel.messages.mofile import write_mo
 
 from sphinx.errors import SphinxError
-from sphinx.util.osutil import walk
-from sphinx.util import SEP
+from sphinx.util.osutil import SEP, walk
+from sphinx.deprecation import RemovedInSphinx16Warning
 
+if False:
+    # For type annotation
+    from typing import Callable  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
 
 LocaleFileInfoBase = namedtuple('CatalogInfo', 'base_dir,domain,charset')
 
@@ -33,32 +37,39 @@ class CatalogInfo(LocaleFileInfoBase):
 
     @property
     def po_file(self):
+        # type: () -> unicode
         return self.domain + '.po'
 
     @property
     def mo_file(self):
+        # type: () -> unicode
         return self.domain + '.mo'
 
     @property
     def po_path(self):
+        # type: () -> unicode
         return path.join(self.base_dir, self.po_file)
 
     @property
     def mo_path(self):
+        # type: () -> unicode
         return path.join(self.base_dir, self.mo_file)
 
     def is_outdated(self):
+        # type: () -> bool
         return (
             not path.exists(self.mo_path) or
             path.getmtime(self.mo_path) < path.getmtime(self.po_path))
 
     def write_mo(self, locale):
+        # type: (unicode) -> None
         with io.open(self.po_path, 'rt', encoding=self.charset) as po:
             with io.open(self.mo_path, 'wb') as mo:
                 write_mo(mo, read_po(po, locale))
 
 
 def find_catalog(docname, compaction):
+    # type: (unicode, bool) -> unicode
     if compaction:
         ret = docname.split(SEP, 1)[0]
     else:
@@ -68,18 +79,20 @@ def find_catalog(docname, compaction):
 
 
 def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
+    # type: (unicode, unicode, List[unicode], unicode, bool) -> List[unicode]
     if not(lang and locale_dirs):
         return []
 
     domain = find_catalog(docname, compaction)
-    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])
-             for dir_ in locale_dirs]
-    files = [path.relpath(f, srcdir) for f in files if f]
-    return files
+    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])  # type: ignore
+             for dir_ in locale_dirs]  # type: ignore
+    files = [path.relpath(f, srcdir) for f in files if f]  # type: ignore
+    return files  # type: ignore
 
 
 def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact=False,
                               charset='utf-8', force_all=False):
+    # type: (List[unicode], unicode, List[unicode], bool, unicode, bool) -> Set[CatalogInfo]
     """
     :param list locale_dirs:
        list of path as `['locale_dir1', 'locale_dir2', ...]` to find
@@ -96,10 +109,11 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
        default is False.
     :return: [CatalogInfo(), ...]
     """
-    if not locale:
-        return []  # locale is not specified
+    catalogs = set()  # type: Set[CatalogInfo]
 
-    catalogs = set()
+    if not locale:
+        return catalogs  # locale is not specified
+
     for locale_dir in locale_dirs:
         if not locale_dir:
             continue  # skip system locale directory
@@ -124,6 +138,7 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
                     catalogs.add(cat)
 
     return catalogs
+
 
 # date_format mappings: ustrftime() to bable.dates.format_datetime()
 date_format_mappings = {
@@ -157,6 +172,7 @@ date_format_mappings = {
 
 
 def babel_format_date(date, format, locale, warn=None, formatter=babel.dates.format_date):
+    # type: (datetime, unicode, unicode, Callable, Callable) -> unicode
     if locale is None:
         locale = 'en'
 
@@ -179,6 +195,7 @@ def babel_format_date(date, format, locale, warn=None, formatter=babel.dates.for
 
 
 def format_date(format, date=None, language=None, warn=None):
+    # type: (str, datetime, unicode, Callable) -> unicode
     if format is None:
         format = 'medium'
 
@@ -193,8 +210,8 @@ def format_date(format, date=None, language=None, warn=None):
 
     if re.match('EEE|MMM|dd|DDD|MM|WW|medium|YY', format):
         # consider the format as babel's
-        warnings.warn('LDML format support will be dropped at Sphinx-1.5',
-                      DeprecationWarning)
+        warnings.warn('LDML format support will be dropped at Sphinx-1.6',
+                      RemovedInSphinx16Warning)
 
         return babel_format_date(date, format, locale=language, warn=warn,
                                  formatter=babel.dates.format_datetime)
@@ -225,19 +242,27 @@ def format_date(format, date=None, language=None, warn=None):
 
 
 def get_image_filename_for_language(filename, env):
+    # type: (unicode, BuildEnvironment) -> unicode
     if not env.config.language:
         return filename
 
     filename_format = env.config.figure_language_filename
-    root, ext = path.splitext(filename)
+    d = dict()
+    d['root'], d['ext'] = path.splitext(filename)
+    dirname = path.dirname(d['root'])
+    if dirname and not dirname.endswith(path.sep):
+        dirname += path.sep
+    d['path'] = dirname
+    d['basename'] = path.basename(d['root'])
+    d['language'] = env.config.language
     try:
-        return filename_format.format(root=root, ext=ext,
-                                      language=env.config.language)
+        return filename_format.format(**d)
     except KeyError as exc:
         raise SphinxError('Invalid figure_language_filename: %r' % exc)
 
 
 def search_image_for_language(filename, env):
+    # type: (unicode, BuildEnvironment) -> unicode
     if not env.config.language:
         return filename
 

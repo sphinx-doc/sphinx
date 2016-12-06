@@ -20,6 +20,7 @@ from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
 from sphinx.util.images import get_image_size
 from sphinx.util.smartypants import sphinx_smarty_pants
@@ -104,8 +105,18 @@ class HTMLTranslator(BaseTranslator):
             self.body.append('<!--[%s]-->' % node['ids'][0])
 
     def depart_desc_signature(self, node):
-        self.add_permalink_ref(node, _('Permalink to this definition'))
+        if not node.get('is_multiline'):
+            self.add_permalink_ref(node, _('Permalink to this definition'))
         self.body.append('</dt>\n')
+
+    def visit_desc_signature_line(self, node):
+        pass
+
+    def depart_desc_signature_line(self, node):
+        if node.get('add_permalink'):
+            # the permalink info is on the parent desc_signature node
+            self.add_permalink_ref(node.parent, _('Permalink to this definition'))
+        self.body.append('<br />')
 
     def visit_desc_addname(self, node):
         self.body.append(self.starttag(node, 'code', '', CLASS='descclassname'))
@@ -297,11 +308,32 @@ class HTMLTranslator(BaseTranslator):
             format = u'<a class="headerlink" href="#%s" title="%s">%s</a>'
             self.body.append(format % (node['ids'][0], title, self.permalink_text))
 
-    # overwritten to avoid emitting empty <ul></ul>
+    def generate_targets_for_listing(self, node):
+        """Generate hyperlink targets for listings.
+
+        Original visit_bullet_list(), visit_definition_list() and visit_enumerated_list()
+        generates hyperlink targets inside listing tags (<ul>, <ol> and <dl>) if multiple
+        IDs are assigned to listings.  That is invalid DOM structure.
+        (This is a bug of docutils <= 0.12)
+
+        This exports hyperlink targets before listings to make valid DOM structure.
+        """
+        for id in node['ids'][1:]:
+            self.body.append('<span id="%s"></span>' % id)
+            node['ids'].remove(id)
+
+    # overwritten
     def visit_bullet_list(self, node):
         if len(node) == 1 and node[0].tagname == 'toctree':
+            # avoid emitting empty <ul></ul>
             raise nodes.SkipNode
+        self.generate_targets_for_listing(node)
         BaseTranslator.visit_bullet_list(self, node)
+
+    # overwritten
+    def visit_enumerated_list(self, node):
+        self.generate_targets_for_listing(node)
+        BaseTranslator.visit_enumerated_list(self, node)
 
     # overwritten
     def visit_title(self, node):
@@ -332,8 +364,8 @@ class HTMLTranslator(BaseTranslator):
         else:
             opts = {}
 
-        def warner(msg):
-            self.builder.warn(msg, (self.builder.current_docname, node.line))
+        def warner(msg, **kwargs):
+            self.builder.warn(msg, (self.builder.current_docname, node.line), **kwargs)
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, warn=warner, linenos=linenos,
             **highlight_args)
@@ -648,6 +680,7 @@ class HTMLTranslator(BaseTranslator):
 
     # overwritten to do not add '</dt>' in 'visit_definition' state.
     def visit_definition(self, node):
+        self.generate_targets_for_listing(node)
         self.body.append(self.starttag(node, 'dd', ''))
         self.set_first_last(node)
 
@@ -656,8 +689,10 @@ class HTMLTranslator(BaseTranslator):
         self.body.append('</dd>\n')
 
     def visit_termsep(self, node):
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
-                      DeprecationWarning)
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
+                      'This warning is displayed because some Sphinx extension '
+                      'uses sphinx.addnodes.termsep. Please report it to '
+                      'author of the extension.', RemovedInSphinx16Warning)
         self.body.append('<br />')
         raise nodes.SkipNode
 

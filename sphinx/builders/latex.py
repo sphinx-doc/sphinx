@@ -13,6 +13,7 @@ import os
 from os import path
 
 from six import iteritems
+
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.utils import new_document
@@ -28,8 +29,13 @@ from sphinx.environment import NoUri
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import SEP, make_filename
-from sphinx.util.console import bold, darkgreen
+from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.latex import LaTeXWriter
+
+if False:
+    # For type annotation
+    from typing import Any, Iterable, Tuple, Union  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 
 class LaTeXBuilder(Builder):
@@ -41,44 +47,50 @@ class LaTeXBuilder(Builder):
     supported_image_types = ['application/pdf', 'image/png', 'image/jpeg']
 
     def init(self):
-        self.docnames = []
-        self.document_data = []
-        self.usepackages = []
+        # type: () -> None
+        self.docnames = []          # type: Iterable[unicode]
+        self.document_data = []     # type: List[Tuple[unicode, unicode, unicode, unicode, unicode, bool]]  # NOQA
+        self.usepackages = []       # type: List[unicode]
         texescape.init()
 
     def get_outdated_docs(self):
+        # type: () -> Union[unicode, List[unicode]]
         return 'all documents'  # for now
 
     def get_target_uri(self, docname, typ=None):
+        # type: (unicode, unicode) -> unicode
         if docname not in self.docnames:
             raise NoUri
         else:
             return '%' + docname
 
     def get_relative_uri(self, from_, to, typ=None):
+        # type: (unicode, unicode, unicode) -> unicode
         # ignore source path
         return self.get_target_uri(to, typ)
 
     def init_document_data(self):
+        # type: () -> None
         preliminary_document_data = [list(x) for x in self.config.latex_documents]
         if not preliminary_document_data:
             self.warn('no "latex_documents" config value found; no documents '
                       'will be written')
             return
         # assign subdirs to titles
-        self.titles = []
+        self.titles = []  # type: List[Tuple[unicode, unicode]]
         for entry in preliminary_document_data:
             docname = entry[0]
             if docname not in self.env.all_docs:
                 self.warn('"latex_documents" config value references unknown '
                           'document %s' % docname)
                 continue
-            self.document_data.append(entry)
+            self.document_data.append(entry)  # type: ignore
             if docname.endswith(SEP+'index'):
                 docname = docname[:-5]
             self.titles.append((docname, entry[2]))
 
     def write_stylesheet(self):
+        # type: () -> None
         highlighter = highlighting.PygmentsBridge(
             'latex', self.config.pygments_style, self.config.trim_doctest_flags)
         stylesheet = path.join(self.outdir, 'sphinxhighlight.sty')
@@ -89,6 +101,7 @@ class LaTeXBuilder(Builder):
             f.write(highlighter.get_stylesheet())
 
     def write(self, *ignored):
+        # type: (Any) -> None
         docwriter = LaTeXWriter(self)
         docsettings = OptionParser(
             defaults=self.env.settings,
@@ -131,6 +144,7 @@ class LaTeXBuilder(Builder):
             self.info("done")
 
     def get_contentsname(self, indexfile):
+        # type: (unicode) -> unicode
         tree = self.env.get_doctree(indexfile)
         contentsname = None
         for toctree in tree.traverse(addnodes.toctree):
@@ -141,6 +155,7 @@ class LaTeXBuilder(Builder):
         return contentsname
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
+        # type: (unicode, bool, List[unicode]) -> nodes.Node
         self.docnames = set([indexfile] + appendices)
         self.info(darkgreen(indexfile) + " ", nonl=1)
         tree = self.env.get_doctree(indexfile)
@@ -184,6 +199,7 @@ class LaTeXBuilder(Builder):
         return largetree
 
     def finish(self):
+        # type: () -> None
         # copy image files
         if self.images:
             self.info(bold('copying images...'), nonl=1)
@@ -220,17 +236,18 @@ class LaTeXBuilder(Builder):
 
 
 def validate_config_values(app):
+    # type: (Sphinx) -> None
     if app.config.latex_toplevel_sectioning not in (None, 'part', 'chapter', 'section'):
         app.warn('invalid latex_toplevel_sectioning, ignored: %s' %
                  app.config.latex_toplevel_sectioning)
-        app.config.latex_toplevel_sectioning = None
+        app.config.latex_toplevel_sectioning = None  # type: ignore
 
     if app.config.latex_use_parts:
         if app.config.latex_toplevel_sectioning:
             app.warn('latex_use_parts conflicts with latex_toplevel_sectioning, ignored.')
         else:
             app.warn('latex_use_parts is deprecated. Use latex_toplevel_sectioning instead.')
-            app.config.latex_toplevel_sectioning = 'parts'
+            app.config.latex_toplevel_sectioning = 'parts'  # type: ignore
 
     if app.config.latex_use_modindex is not True:  # changed by user
         app.warn('latex_use_modeindex is deprecated. Use latex_domain_indices instead.')
@@ -269,6 +286,7 @@ def validate_config_values(app):
 
 
 def setup(app):
+    # type: (Sphinx) -> None
     app.add_builder(LaTeXBuilder)
     app.connect('builder-inited', validate_config_values)
 

@@ -1,5 +1,7 @@
 @ECHO OFF
 
+pushd %~dp0
+
 REM Command file for Sphinx documentation
 
 if "%SPHINXBUILD%" == "" (
@@ -31,4 +33,5 @@ goto end
 %SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS%
 
 :end
+popd
 

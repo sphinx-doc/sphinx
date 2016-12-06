@@ -18,6 +18,14 @@ from sphinx.domains import Domain
 from sphinx.util.nodes import make_refnode, set_source_info
 from sphinx.util.compat import Directive
 
+if False:
+    # For type annotation
+    from typing import Any, Callable, Iterable, Tuple  # NOQA
+    from docutils.parsers.rst.states import Inliner  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+    from sphinx.builders import Builder  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
+
 
 class math(nodes.Inline, nodes.TextElement):
     pass
@@ -33,6 +41,7 @@ class eqref(nodes.Inline, nodes.TextElement):
 
 class EqXRefRole(XRefRole):
     def result_nodes(self, document, env, node, is_ref):
+        # type: (nodes.Node, BuildEnvironment, nodes.Node, bool) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
         node['refdomain'] = 'math'
         return [node], []
 
@@ -44,22 +53,25 @@ class MathDomain(Domain):
 
     initial_data = {
         'objects': {},  # labelid -> (docname, eqno)
-    }
+    }  # type: Dict[unicode, Dict[unicode, Tuple[unicode, int]]]
     dangling_warnings = {
         'eq': 'equation not found: %(target)s',
     }
 
     def clear_doc(self, docname):
+        # type: (unicode) -> None
         for labelid, (doc, eqno) in list(self.data['objects'].items()):
             if doc == docname:
                 del self.data['objects'][labelid]
 
     def merge_domaindata(self, docnames, otherdata):
+        # type: (Iterable[unicode], Dict) -> None
         for labelid, (doc, eqno) in otherdata['objects'].items():
             if doc in docnames:
                 self.data['objects'][labelid] = doc
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
         assert typ == 'eq'
         docname, number = self.data['objects'].get(target, (None, None))
         if docname:
@@ -76,6 +88,7 @@ class MathDomain(Domain):
             return None
 
     def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, nodes.Node, nodes.Node) -> List[nodes.Node]  # NOQA
         refnode = self.resolve_xref(env, fromdocname, builder, 'eq', target, node, contnode)
         if refnode is None:
             return []
@@ -83,9 +96,11 @@ class MathDomain(Domain):
             return [refnode]
 
     def get_objects(self):
+        # type: () -> List
         return []
 
     def add_equation(self, env, docname, labelid):
+        # type: (BuildEnvironment, unicode, unicode) -> int
         equations = self.data['objects']
         if labelid in equations:
             path = env.doc2path(equations[labelid][0])
@@ -97,12 +112,15 @@ class MathDomain(Domain):
             return eqno
 
     def get_next_equation_number(self, docname):
+        # type: (unicode) -> int
         targets = [eq for eq in self.data['objects'].values() if eq[0] == docname]
         return len(targets) + 1
 
 
 def wrap_displaymath(math, label, numbering):
+    # type: (unicode, unicode, bool) -> unicode
     def is_equation(part):
+        # type: (unicode) -> unicode
         return part.strip()
 
     if label is None:
@@ -137,11 +155,13 @@ def wrap_displaymath(math, label, numbering):
 
 
 def math_role(role, rawtext, text, lineno, inliner, options={}, content=[]):
+    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
     latex = utils.unescape(text, restore_backslashes=True)
     return [math(latex=latex)], []
 
 
 def is_in_section_title(node):
+    # type: (nodes.Node) -> bool
     """Determine whether the node is in a section title"""
     from sphinx.util.nodes import traverse_parent
 
@@ -165,6 +185,7 @@ class MathDirective(Directive):
     }
 
     def run(self):
+        # type: () -> List[nodes.Node]
         latex = '\n'.join(self.content)
         if self.arguments and self.arguments[0]:
             latex = self.arguments[0] + '\n\n' + latex
@@ -186,6 +207,7 @@ class MathDirective(Directive):
         return ret
 
     def add_target(self, ret):
+        # type: (List[nodes.Node]) -> None
         node = ret[0]
         env = self.state.document.settings.env
 
@@ -209,10 +231,11 @@ class MathDirective(Directive):
             self.state.document.note_explicit_target(target)
             ret.insert(0, target)
         except UserWarning as exc:
-            self.state_machine.reporter.warning(exc[0], line=self.lineno)
+            self.state_machine.reporter.warning(exc.args[0], line=self.lineno)
 
 
 def latex_visit_math(self, node):
+    # type: (nodes.NodeVisitor, math) -> None
     if is_in_section_title(node):
         protect = r'\protect'
     else:
@@ -223,6 +246,7 @@ def latex_visit_math(self, node):
 
 
 def latex_visit_displaymath(self, node):
+    # type: (nodes.NodeVisitor, displaymath) -> None
     if not node['label']:
         label = None
     else:
@@ -239,17 +263,20 @@ def latex_visit_displaymath(self, node):
 
 
 def latex_visit_eqref(self, node):
+    # type: (nodes.NodeVisitor, eqref) -> None
     label = "equation:%s:%s" % (node['docname'], node['target'])
     self.body.append('\\eqref{%s}' % label)
     raise nodes.SkipNode
 
 
 def text_visit_math(self, node):
+    # type: (nodes.NodeVisitor, math) -> None
     self.add_text(node['latex'])
     raise nodes.SkipNode
 
 
 def text_visit_displaymath(self, node):
+    # type: (nodes.NodeVisitor, displaymath) -> None
     self.new_state()
     self.add_text(node['latex'])
     self.end_state()
@@ -257,24 +284,29 @@ def text_visit_displaymath(self, node):
 
 
 def man_visit_math(self, node):
+    # type: (nodes.NodeVisitor, math) -> None
     self.body.append(node['latex'])
     raise nodes.SkipNode
 
 
 def man_visit_displaymath(self, node):
+    # type: (nodes.NodeVisitor, displaymath) -> None
     self.visit_centered(node)
 
 
 def man_depart_displaymath(self, node):
+    # type: (nodes.NodeVisitor, displaymath) -> None
     self.depart_centered(node)
 
 
 def texinfo_visit_math(self, node):
+    # type: (nodes.NodeVisitor, math) -> None
     self.body.append('@math{' + self.escape_arg(node['latex']) + '}')
     raise nodes.SkipNode
 
 
 def texinfo_visit_displaymath(self, node):
+    # type: (nodes.NodeVisitor, displaymath) -> None
     if node.get('label'):
         self.add_anchor(node['label'], node)
     self.body.append('\n\n@example\n%s\n@end example\n\n' %
@@ -282,10 +314,12 @@ def texinfo_visit_displaymath(self, node):
 
 
 def texinfo_depart_displaymath(self, node):
+    # type: (nodes.NodeVisitor, displaymath) -> None
     pass
 
 
 def setup_math(app, htmlinlinevisitors, htmldisplayvisitors):
+    # type: (Sphinx, Tuple[Callable, Any], Tuple[Callable, Any]) -> None
     app.add_config_value('math_number_all', False, 'env')
     app.add_domain(MathDomain)
     app.add_node(math, override=True,

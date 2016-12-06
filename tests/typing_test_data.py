@@ -35,16 +35,24 @@ def f5(x: int, *, y: str, z: str) -> None:
     pass
 
 
-def f6(x: int = None, y: dict = {}) -> None:
+def f6(x: int, *args, y: str, z: str) -> None:
     pass
 
 
-def f7(x: Callable[[int, str], int]) -> None:
+def f7(x: int = None, y: dict = {}) -> None:
+    pass
+
+
+def f8(x: Callable[[int, str], int]) -> None:
     # See https://github.com/ambv/typehinting/issues/149 for Callable[..., int]
     pass
 
 
-def f8(x: Tuple[int, str], y: Tuple[int, ...]) -> None:
+def f9(x: Callable) -> None:
+    pass
+
+
+def f10(x: Tuple[int, str], y: Tuple[int, ...]) -> None:
     pass
 
 
@@ -52,5 +60,6 @@ class CustomAnnotation:
     def __repr__(self):
         return 'CustomAnnotation'
 
-def f9(x: CustomAnnotation(), y: 123) -> None:
+
+def f11(x: CustomAnnotation(), y: 123) -> None:
     pass

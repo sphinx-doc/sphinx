@@ -47,6 +47,14 @@ var Scorer = {
 };
 {% endif %}
 
+{% if search_word_splitter_code %}
+{{ search_word_splitter_code }}
+{% else %}
+function splitQuery(query) {
+    return query.split(/\s+/);
+}
+{% endif %}
+
 /**
  * Search Module
  */
@@ -145,7 +153,7 @@ var Search = {
     var searchterms = [];
     var excluded = [];
     var hlterms = [];
-    var tmp = query.split(/\W+/);
+    var tmp = splitQuery(query);
     var objectterms = [];
     for (i = 0; i < tmp.length; i++) {
       if (tmp[i] !== "") {
@@ -261,7 +269,7 @@ var Search = {
           });
         } else if (DOCUMENTATION_OPTIONS.HAS_SOURCE) {
           var suffix = DOCUMENTATION_OPTIONS.SOURCELINK_SUFFIX;
-          $.ajax({url: DOCUMENTATION_OPTIONS.URL_ROOT + '_sources/' + item[5] + (item[5].endsWith(suffix) ? '' : suffix),
+          $.ajax({url: DOCUMENTATION_OPTIONS.URL_ROOT + '_sources/' + item[5] + (item[5].slice(-suffix.length) === suffix ? '' : suffix),
                   dataType: "text",
                   complete: function(jqxhr, textstatus) {
                     var data = jqxhr.responseText;

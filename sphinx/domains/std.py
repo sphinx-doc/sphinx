@@ -12,7 +12,8 @@
 import re
 import unicodedata
 
-from six import iteritems
+from six import PY3, iteritems
+
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
@@ -26,6 +27,21 @@ from sphinx.util import ws_re
 from sphinx.util.nodes import clean_astext, make_refnode
 from sphinx.util.compat import Directive
 
+if False:
+    # For type annotation
+    from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union  # NOQA
+    from docutils.parsers.rst.states import Inliner  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+    from sphinx.builders import Builder  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.util.typing import Role  # NOQA
+
+    if PY3:
+        unicode = str
+
+    RoleFunction = Callable[[unicode, unicode, unicode, int, Inliner, Dict, List[unicode]],
+                            Tuple[List[nodes.Node], List[nodes.Node]]]
+
 
 # RE for option descriptions
 option_desc_re = re.compile(r'((?:/|--|-|\+)?[-\.?@#_a-zA-Z0-9]+)(=?\s*.*)')
@@ -38,9 +54,10 @@ class GenericObject(ObjectDescription):
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
     indextemplate = ''
-    parse_node = None
+    parse_node = None  # type: Callable[[GenericObject, BuildEnvironment, unicode, addnodes.desc_signature], unicode]  # NOQA
 
     def handle_signature(self, sig, signode):
+        # type: (unicode, addnodes.desc_signature) -> unicode
         if self.parse_node:
             name = self.parse_node(self.env, sig, signode)
         else:
@@ -51,6 +68,7 @@ class GenericObject(ObjectDescription):
         return name
 
     def add_target_and_index(self, name, sig, signode):
+        # type: (unicode, unicode, addnodes.desc_signature) -> None
         targetname = '%s-%s' % (self.objtype, name)
         signode['ids'].append(targetname)
         self.state.document.note_explicit_target(signode)
@@ -78,6 +96,7 @@ class EnvVarXRefRole(XRefRole):
     """
 
     def result_nodes(self, document, env, node, is_ref):
+        # type: (nodes.Node, BuildEnvironment, nodes.Node, bool) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
         if not is_ref:
             return [node], []
         varname = node['reftarget']
@@ -102,9 +121,10 @@ class Target(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         env = self.state.document.settings.env
         # normalize whitespace in fullname like XRefRole does
         fullname = ws_re.sub(' ', self.arguments[0].strip())
@@ -136,12 +156,13 @@ class Cmdoption(ObjectDescription):
     """
 
     def handle_signature(self, sig, signode):
+        # type: (unicode, addnodes.desc_signature) -> unicode
         """Transform an option description into RST nodes."""
         count = 0
         firstname = ''
         for potential_option in sig.split(', '):
             potential_option = potential_option.strip()
-            m = option_desc_re.match(potential_option)
+            m = option_desc_re.match(potential_option)  # type: ignore
             if not m:
                 self.env.warn(
                     self.env.docname,
@@ -166,6 +187,7 @@ class Cmdoption(ObjectDescription):
         return firstname
 
     def add_target_and_index(self, firstname, sig, signode):
+        # type: (unicode, unicode, addnodes.desc_signature) -> None
         currprogram = self.env.ref_context.get('std:program')
         for optname in signode.get('allnames', []):
             targetname = optname.replace('/', '-')
@@ -174,16 +196,18 @@ class Cmdoption(ObjectDescription):
             if currprogram:
                 targetname = '-' + currprogram + targetname
             targetname = 'cmdoption' + targetname
-            signode['ids'].append(targetname)
-            self.state.document.note_explicit_target(signode)
+            signode['names'].append(targetname)
+
+        self.state.document.note_explicit_target(signode)
+        for optname in signode.get('allnames', []):
             self.env.domaindata['std']['progoptions'][currprogram, optname] = \
-                self.env.docname, targetname
+                self.env.docname, signode['ids'][0]
             # create only one index entry for the whole option
             if optname == firstname:
                 self.indexnode['entries'].append(
                     ('pair', _('%scommand line option; %s') %
                      ((currprogram and currprogram + ' ' or ''), sig),
-                     targetname, '', None))
+                     signode['ids'][0], '', None))
 
 
 class Program(Directive):
@@ -195,9 +219,10 @@ class Program(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         env = self.state.document.settings.env
         program = ws_re.sub('-', self.arguments[0].strip())
         if program == 'None':
@@ -209,17 +234,20 @@ class Program(Directive):
 
 class OptionXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
+        # type: (BuildEnvironment, nodes.Node, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
         refnode['std:program'] = env.ref_context.get('std:program')
         return title, target
 
 
 def split_term_classifiers(line):
+    # type: (unicode) -> List[Union[unicode, None]]
     # split line into a term and classifiers. if no classifier, None is used..
     parts = re.split(' +: +', line) + [None]
     return parts
 
 
 def make_glossary_term(env, textnodes, index_key, source, lineno, new_id=None):
+    # type: (BuildEnvironment, List[nodes.Node], unicode, unicode, int, unicode) -> nodes.term
     # get a text-only representation of the term and register it
     # as a cross-reference target
     term = nodes.term('', '', *textnodes)
@@ -263,6 +291,7 @@ class Glossary(Directive):
     }
 
     def run(self):
+        # type: () -> List[nodes.Node]
         env = self.state.document.settings.env
         node = addnodes.glossary()
         node.document = self.state.document
@@ -273,7 +302,7 @@ class Glossary(Directive):
         # be* a definition list.
 
         # first, collect single entries
-        entries = []
+        entries = []  # type: List[Tuple[List[Tuple[unicode, unicode, int]], ViewList]]
         in_definition = True
         was_empty = True
         messages = []
@@ -327,7 +356,7 @@ class Glossary(Directive):
         for terms, definition in entries:
             termtexts = []
             termnodes = []
-            system_messages = []
+            system_messages = []  # type: List[unicode]
             for line, source, lineno in terms:
                 parts = split_term_classifiers(line)
                 # parse the term with inline markup
@@ -363,9 +392,10 @@ class Glossary(Directive):
 
 
 def token_xrefs(text):
+    # type: (unicode) -> List[nodes.Node]
     retnodes = []
     pos = 0
-    for m in token_re.finditer(text):
+    for m in token_re.finditer(text):  # type: ignore
         if m.start() > pos:
             txt = text[pos:m.start()]
             retnodes.append(nodes.Text(txt, txt))
@@ -388,13 +418,14 @@ class ProductionList(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         env = self.state.document.settings.env
         objects = env.domaindata['std']['objects']
         node = addnodes.productionlist()
-        messages = []
+        messages = []  # type: List[nodes.Node]
         i = 0
 
         for rule in self.arguments[0].split('\n'):
@@ -435,7 +466,7 @@ class StandardDomain(Domain):
                          searchprio=-1),
         'envvar': ObjType(l_('environment variable'), 'envvar'),
         'cmdoption': ObjType(l_('program option'), 'option'),
-    }
+    }  # type: Dict[unicode, ObjType]
 
     directives = {
         'program': Program,
@@ -444,7 +475,7 @@ class StandardDomain(Domain):
         'envvar': EnvVar,
         'glossary': Glossary,
         'productionlist': ProductionList,
-    }
+    }  # type: Dict[unicode, Type[Directive]]
     roles = {
         'option':  OptionXRefRole(warn_dangling=True),
         'envvar':  EnvVarXRefRole(),
@@ -461,7 +492,7 @@ class StandardDomain(Domain):
                             warn_dangling=True),
         # links to labels, without a different title
         'keyword': XRefRole(warn_dangling=True),
-    }
+    }  # type: Dict[unicode, Union[RoleFunction, XRefRole]]
 
     initial_data = {
         'progoptions': {},  # (program, name) -> docname, labelid
@@ -493,9 +524,10 @@ class StandardDomain(Domain):
         nodes.figure: ('figure', None),
         nodes.table: ('table', None),
         nodes.container: ('code-block', None),
-    }
+    }  # type: Dict[nodes.Node, Tuple[unicode, Callable]]
 
     def clear_doc(self, docname):
+        # type: (unicode) -> None
         for key, (fn, _l) in list(self.data['progoptions'].items()):
             if fn == docname:
                 del self.data['progoptions'][key]
@@ -513,6 +545,7 @@ class StandardDomain(Domain):
                 del self.data['anonlabels'][key]
 
     def merge_domaindata(self, docnames, otherdata):
+        # type: (List[unicode], Dict) -> None
         # XXX duplicates?
         for key, data in otherdata['progoptions'].items():
             if data[0] in docnames:
@@ -531,10 +564,12 @@ class StandardDomain(Domain):
                 self.data['anonlabels'][key] = data
 
     def process_doc(self, env, docname, document):
+        # type: (BuildEnvironment, unicode, nodes.Node) -> None
         self.note_citations(env, docname, document)
         self.note_labels(env, docname, document)
 
     def note_citations(self, env, docname, document):
+        # type: (BuildEnvironment, unicode, nodes.Node) -> None
         for node in document.traverse(nodes.citation):
             label = node[0].astext()
             if label in self.data['citations']:
@@ -544,6 +579,7 @@ class StandardDomain(Domain):
             self.data['citations'][label] = (docname, node['ids'][0])
 
     def note_labels(self, env, docname, document):
+        # type: (BuildEnvironment, unicode, nodes.Node) -> None
         labels, anonlabels = self.data['labels'], self.data['anonlabels']
         for name, explicit in iteritems(document.nametypes):
             if not explicit:
@@ -583,6 +619,7 @@ class StandardDomain(Domain):
 
     def build_reference_node(self, fromdocname, builder, docname, labelid,
                              sectname, rolename, **options):
+        # type: (unicode, Builder, unicode, unicode, unicode, unicode, Any) -> nodes.Node
         nodeclass = options.pop('nodeclass', nodes.reference)
         newnode = nodeclass('', '', internal=True, **options)
         innernode = nodes.inline(sectname, sectname)
@@ -606,6 +643,7 @@ class StandardDomain(Domain):
         return newnode
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
         if typ == 'ref':
             resolver = self._resolve_ref_xref
         elif typ == 'numref':
@@ -622,6 +660,7 @@ class StandardDomain(Domain):
         return resolver(env, fromdocname, builder, typ, target, node, contnode)
 
     def _resolve_ref_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
         if node['refexplicit']:
             # reference to anonymous label; the reference uses
             # the supplied link caption
@@ -639,6 +678,7 @@ class StandardDomain(Domain):
                                          docname, labelid, sectname, 'ref')
 
     def _resolve_numref_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
         if target in self.data['labels']:
             docname, labelid, figname = self.data['labels'].get(target, ('', '', ''))
         else:
@@ -698,6 +738,7 @@ class StandardDomain(Domain):
                                          title=title)
 
     def _resolve_keyword_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
         # keywords are oddballs: they are referenced by named labels
         docname, labelid, _ = self.data['labels'].get(target, ('', '', ''))
         if not docname:
@@ -706,13 +747,14 @@ class StandardDomain(Domain):
                             labelid, contnode)
 
     def _resolve_option_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
         progname = node.get('std:program')
         target = target.strip()
         docname, labelid = self.data['progoptions'].get((progname, target), ('', ''))
         if not docname:
             commands = []
-            while ws_re.search(target):
-                subcommand, target = ws_re.split(target, 1)
+            while ws_re.search(target):  # type: ignore
+                subcommand, target = ws_re.split(target, 1)  # type: ignore
                 commands.append(subcommand)
                 progname = "-".join(commands)
 
@@ -727,6 +769,7 @@ class StandardDomain(Domain):
                             labelid, contnode)
 
     def _resolve_citation_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
         from sphinx.environment import NoUri
 
         docname, labelid = self.data['citations'].get(target, ('', ''))
@@ -749,6 +792,7 @@ class StandardDomain(Domain):
             raise
 
     def _resolve_obj_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
         objtypes = self.objtypes_for_role(typ) or []
         for objtype in objtypes:
             if (objtype, target) in self.data['objects']:
@@ -762,7 +806,8 @@ class StandardDomain(Domain):
                             labelid, contnode)
 
     def resolve_any_xref(self, env, fromdocname, builder, target, node, contnode):
-        results = []
+        # type: (BuildEnvironment, unicode, Builder, unicode, nodes.Node, nodes.Node) -> List[Tuple[unicode, nodes.Node]]  # NOQA
+        results = []  # type: List[Tuple[unicode, nodes.Node]]
         ltarget = target.lower()  # :ref: lowercases its target automatically
         for role in ('ref', 'option'):  # do not try "keyword"
             res = self.resolve_xref(env, fromdocname, builder, role,
@@ -783,6 +828,7 @@ class StandardDomain(Domain):
         return results
 
     def get_objects(self):
+        # type: () -> Iterator[Tuple[unicode, unicode, unicode, unicode, unicode, int]]
         # handle the special 'doc' reference here
         for doc in self.env.all_docs:
             yield (doc, clean_astext(self.env.titles[doc]), 'doc', doc, '', -1)
@@ -800,13 +846,16 @@ class StandardDomain(Domain):
                 yield (name, name, 'label', info[0], info[1], -1)
 
     def get_type_name(self, type, primary=False):
+        # type: (ObjType, bool) -> unicode
         # never prepend "Default"
         return type.lname
 
     def is_enumerable_node(self, node):
+        # type: (nodes.Node) -> bool
         return node.__class__ in self.enumerable_nodes
 
     def get_numfig_title(self, node):
+        # type: (nodes.Node) -> unicode
         """Get the title of enumerable nodes to refer them using its title"""
         if self.is_enumerable_node(node):
             _, title_getter = self.enumerable_nodes.get(node.__class__, (None, None))
@@ -820,6 +869,7 @@ class StandardDomain(Domain):
         return None
 
     def get_figtype(self, node):
+        # type: (nodes.Node) -> unicode
         """Get figure type of nodes."""
         def has_child(node, cls):
             return any(isinstance(child, cls) for child in node)
@@ -836,6 +886,7 @@ class StandardDomain(Domain):
             return figtype
 
     def get_fignumber(self, env, builder, figtype, docname, target_node):
+        # type: (BuildEnvironment, Builder, unicode, unicode, nodes.Node) -> Tuple[int, ...]
         if figtype == 'section':
             if builder.name == 'latex':
                 return tuple()
@@ -859,4 +910,5 @@ class StandardDomain(Domain):
 
 
 def setup(app):
+    # type: (Sphinx) -> None
     app.add_domain(StandardDomain)

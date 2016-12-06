@@ -238,9 +238,18 @@ following directive exists:
 
    By default, Sphinx uses a table layout with ``L`` for every column.
 
+   .. hint::
+
+      For columns which are known to be much narrower than the others it is
+      recommended to use the lowercase specifiers. For more information, check
+      the ``tabulary`` manual.
+
    .. versionadded:: 0.3
 
 .. warning::
+
+   Tables with more than 30 rows are rendered using ``longtable``, not
+   ``tabulary``, in order to allow pagebreaks.
 
    Tables that contain list-like elements such as object descriptions,
    blockquotes or any kind of lists cannot be set out of the box with
@@ -253,8 +262,6 @@ following directive exists:
    literal block are always set with ``tabular``.  Also, the verbatim
    environment used for literal blocks only works in ``p{width}`` columns, which
    means that by default, Sphinx generates such column specs for such tables.
-   Use the :rst:dir:`tabularcolumns` directive to get finer control over such
-   tables.
 
 .. rubric:: Footnotes
 

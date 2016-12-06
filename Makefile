@@ -1,6 +1,6 @@
 PYTHON ?= python
 
-.PHONY: all style-check clean clean-pyc clean-patchfiles clean-backupfiles \
+.PHONY: all style-check type-check clean clean-pyc clean-patchfiles clean-backupfiles \
         clean-generated pylint reindent test covertest build
 
 DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
@@ -30,12 +30,15 @@ DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
              -i sphinx/search/tr.py \
              -i .tox
 
-all: clean-pyc clean-backupfiles style-check test
+all: clean-pyc clean-backupfiles style-check type-check test
 
 style-check:
 	@$(PYTHON) utils/check_sources.py $(DONT_CHECK) .
 
-clean: clean-pyc clean-pycache clean-patchfiles clean-backupfiles clean-generated clean-testfiles
+type-check:
+	mypy sphinx/
+
+clean: clean-pyc clean-pycache clean-patchfiles clean-backupfiles clean-generated clean-testfiles clean-buildfiles
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -58,6 +61,9 @@ clean-generated:
 clean-testfiles:
 	rm -rf tests/build
 	rm -rf .tox/
+
+clean-buildfiles:
+	rm -rf build
 
 pylint:
 	@pylint --rcfile utils/pylintrc sphinx

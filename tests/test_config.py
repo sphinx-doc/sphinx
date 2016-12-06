@@ -10,7 +10,7 @@
     :license: BSD, see LICENSE for details.
 """
 from six import PY3, iteritems
-from util import mock
+import mock
 
 from util import TestApp, with_app, gen_with_app, with_tempdir, \
     raises, raises_msg, assert_in, assert_not_in

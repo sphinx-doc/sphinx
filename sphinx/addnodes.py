@@ -12,6 +12,7 @@
 import warnings
 
 from docutils import nodes
+from sphinx.deprecation import RemovedInSphinx16Warning
 
 
 class translatable(object):
@@ -76,13 +77,27 @@ class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement):
     """Node for object signatures.
 
     The "term" part of the custom Sphinx definition list.
+
+    As default the signature is a single line signature,
+    but set ``is_multiline = True`` to describe a multi-line signature.
+    In that case all child nodes must be ``desc_signature_line`` nodes.
     """
 
 
-# nodes to use within a desc_signature
+class desc_signature_line(nodes.Part, nodes.Inline, nodes.TextElement):
+    """Node for a line in a multi-line object signatures.
+
+    It should only be used in a ``desc_signature`` with ``is_multiline`` set.
+    Set ``add_permalink = True`` for the line that should get the permalink.
+    """
+
+
+# nodes to use within a desc_signature or desc_signature_line
 
 class desc_addname(nodes.Part, nodes.Inline, nodes.TextElement):
     """Node for additional name parts (module name, class name)."""
+
+
 # compatibility alias
 desc_classname = desc_addname
 
@@ -262,12 +277,12 @@ class termsep(nodes.Structural, nodes.Element):
     """Separates two terms within a <term> node.
 
     .. versionchanged:: 1.4
-       sphinx.addnodes.termsep is deprecated. It will be removed at Sphinx-1.5.
+       sphinx.addnodes.termsep is deprecated. It will be removed at Sphinx-1.6.
     """
 
     def __init__(self, *args, **kw):
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
-                      DeprecationWarning, stacklevel=2)
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6',
+                      RemovedInSphinx16Warning, stacklevel=2)
         super(termsep, self).__init__(*args, **kw)
 
 

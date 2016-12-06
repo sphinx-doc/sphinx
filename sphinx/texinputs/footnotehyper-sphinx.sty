@@ -1,0 +1,156 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{footnotehyper-sphinx}%
+ [2016/10/27 v0.9f hyperref aware footnote.sty for sphinx (JFB)]
+%%
+%% Package: footnotehyper-sphinx
+%% Version: based on footnotehyper.sty v0.9f (2016/10/03)
+%% as available at http://www.ctan.org/pkg/footnotehyper
+%% License: the one applying to Sphinx
+%%
+%% Differences from footnotehyper v0.9f (2016/10/03):
+%% 1. hyperref is assumed in use (with default hyperfootnotes=true),
+%% 2. no need to check if footnote.sty was loaded,
+%% 3. a special tabulary compatibility layer added, (partial but enough for
+%% Sphinx),
+%% 4. \sphinxfootnotemark, and use of \spx@opt@BeforeFootnote from sphinx.sty.
+%% Note: with \footnotemark[N]/\footnotetext[N] syntax, hyperref
+%% does not insert an hyperlink. This is _not_ improved here.
+%%
+\DeclareOption*{\PackageWarning{footnotehyper}{Option `\CurrentOption' is unknown}}%
+\ProcessOptions\relax
+\let\FNH@@makefntext\@makefntext\let\@makefntext\@firstofone
+\RequirePackage{footnote}
+\let\fnparbox\parbox\let\parbox\fn@parbox\let\@makefntext\FNH@@makefntext
+\let\FNH@fn@footnote    \footnote     % buggy footnote.sty's \footnote
+\let\FNH@fn@footnotetext\footnotetext % will be redefined later
+\let\footnote    \fn@latex@@footnote  % meaning of \footnote before footnote.sty
+\let\footnotetext\fn@latex@@footnotetext
+\def\fn@endnote  {\color@endgroup}%
+\AtBeginDocument {%
+    \let\fn@latex@@footnote    \footnote % meaning of \footnote at end of preamble
+    \let\fn@latex@@footnotetext\footnotetext
+    \let\fn@fntext \FNH@hyper@fntext
+    \let\spewnotes \FNH@hyper@spewnotes
+    \let\endsavenotes\spewnotes
+    \let\fn@endfntext\FNH@fixed@endfntext
+    \let\footnote    \FNH@fixed@footnote
+    \let\footnotetext\FNH@fixed@footnotetext
+    \let\endfootnote\fn@endfntext
+    \let\endfootnotetext\endfootnote
+}%
+\def\FNH@hyper@fntext {%
+%% amsmath compatibility
+  \ifx\ifmeasuring@\undefined\expandafter\@secondoftwo
+                                      \else\expandafter\@firstofone\fi
+    {\ifmeasuring@\expandafter\@gobbletwo\else\expandafter\@firstofone\fi}%
+%% partial tabulary compatibility, [N] must be used, but Sphinx does it
+    {\ifx\equation$\expandafter\@gobbletwo\fi\FNH@hyper@fntext@i }%$
+}%
+\long\def\FNH@hyper@fntext@i #1{\global\setbox\fn@notes\vbox
+     {\unvbox\fn@notes
+      \fn@startnote
+      \@makefntext
+       {\rule\z@\footnotesep\ignorespaces
+        \ifHy@nesting\expandafter\ltx@firstoftwo
+                \else\expandafter\ltx@secondoftwo
+        \fi
+        {\expandafter\hyper@@anchor\expandafter{\Hy@footnote@currentHref}{#1}}%
+        {\Hy@raisedlink
+          {\expandafter\hyper@@anchor\expandafter{\Hy@footnote@currentHref}%
+          {\relax}}%
+         \let\@currentHref\Hy@footnote@currentHref
+         \let\@currentlabelname\@empty
+         #1}%
+      \@finalstrut\strutbox }%
+      \fn@endnote }%
+}%
+\def\FNH@hyper@spewnotes {\endgroup
+    \if@savingnotes\else\ifvoid\fn@notes\else
+    \begingroup\let\@makefntext\@empty
+               \let\@finalstrut\@gobble
+               \let\rule\@gobbletwo
+               \H@@footnotetext{\unvbox\fn@notes}%
+    \endgroup\fi\fi
+}%
+\def\FNH@fixed@endfntext {%
+    \@finalstrut\strutbox
+    \fn@postfntext
+    \fn@endnote
+    \egroup\FNH@endfntext@next % will decide if link or no link
+}%
+\def\FNH@endfntext@link {\begingroup
+    \let\@makefntext\@empty\let\@finalstrut\@gobble\let\rule\@gobbletwo
+    \@footnotetext {\unvbox\z@}%
+    \endgroup
+}%
+\def\FNH@endfntext@nolink {\begingroup
+    \let\@makefntext\@empty\let\@finalstrut\@gobble
+    \let\rule\@gobbletwo
+    \if@savingnotes\expandafter\fn@fntext\else\expandafter\H@@footnotetext\fi
+    {\unvbox\z@}\endgroup
+}%
+%% \spx@opt@BeforeFootnote is defined in sphinx.sty
+\def\FNH@fixed@footnote {\spx@opt@BeforeFootnote\ifx\@currenvir\fn@footnote
+    \expandafter\FNH@footnoteenv\else\expandafter\fn@latex@@footnote\fi }%
+\def\FNH@footnoteenv {\@ifnextchar[\FNH@xfootnoteenv%]
+    {\stepcounter\@mpfn
+     \protected@xdef\@thefnmark{\thempfn}\@footnotemark
+     \def\FNH@endfntext@next{\FNH@endfntext@link}\fn@startfntext}}%
+\def\FNH@xfootnoteenv [#1]{%
+    \begingroup
+     \csname c@\@mpfn\endcsname #1\relax
+     \unrestored@protected@xdef\@thefnmark{\thempfn}%
+    \endgroup\@footnotemark\def\FNH@endfntext@next{\FNH@endfntext@link}%
+    \fn@startfntext}%
+\def\FNH@fixed@footnotetext {\ifx\@currenvir\fn@footnotetext
+  \expandafter\FNH@footnotetextenv\else\expandafter\fn@latex@@footnotetext\fi}%
+\def\FNH@footnotetextenv {\@ifnextchar[\FNH@xfootnotetextenv%]
+    {\protected@xdef\@thefnmark{\thempfn}%
+     \def\FNH@endfntext@next{\FNH@endfntext@link}\fn@startfntext}}%
+\def\FNH@xfootnotetextenv [#1]{%
+    \begingroup
+     \csname c@\@mpfn\endcsname #1\relax
+     \unrestored@protected@xdef\@thefnmark{\thempfn}%
+    \endgroup\def\FNH@endfntext@next{\FNH@endfntext@nolink}%
+    \fn@startfntext }%
+% Now some checks in case some package has modified \@makefntext.
+\AtBeginDocument
+{% compatibility with French module of LaTeX babel
+ \ifx\@makefntextFB\undefined
+                   \expandafter\@gobble\else\expandafter\@firstofone\fi
+ {\ifFBFrenchFootnotes \let\FNH@@makefntext\@makefntextFB \else
+                       \let\FNH@@makefntext\@makefntextORI\fi}%
+ \expandafter\FNH@check@a\FNH@@makefntext{1.2!3?4,}\FNH@@@1.2!3?4,\FNH@@@\relax
+}%
+\long\def\FNH@check@a #11.2!3?4,#2\FNH@@@#3%
+{%
+     \ifx\relax#3\expandafter\@firstoftwo\else\expandafter\@secondoftwo\fi
+     \FNH@bad@footnote@env
+     {\def\fn@prefntext{#1}\def\fn@postfntext{#2}\FNH@check@b}%
+}%
+\def\FNH@check@b #1\relax
+{%
+    \expandafter\expandafter\expandafter\FNH@check@c
+    \expandafter\meaning\expandafter\fn@prefntext
+                            \meaning\fn@postfntext1.2!3?4,\FNH@check@c\relax
+}%
+\def\FNH@check@c #11.2!3?4,#2#3\relax
+   {\ifx\FNH@check@c#2\expandafter\@gobble\fi\FNH@bad@footnote@env}%
+\def\FNH@bad@footnote@env
+{\PackageWarningNoLine{footnotehyper}%
+ {The footnote environment from package footnote^^J
+  will be dysfunctional, sorry (not my fault...). You may try to make a bug^^J
+  report at https://github.com/sphinx-doc/sphinx including the next lines:}%
+    \typeout{\meaning\@makefntext}%
+    \let\fn@prefntext\@empty\let\fn@postfntext\@empty
+}%
+%% \sphinxfootnotemark: usable in section titles and silently removed from
+%% TOCs.
+\def\sphinxfootnotemark [#1]%
+   {\ifx\thepage\relax\else \protect\spx@opt@BeforeFootnote
+                            \protect\footnotemark[#1]\fi}%
+\AtBeginDocument % let hyperref less complain
+   {\pdfstringdefDisableCommands{\def\sphinxfootnotemark [#1]{}}}%
+\endinput
+%%
+%% End of file `footnotehyper-sphinx.sty'.

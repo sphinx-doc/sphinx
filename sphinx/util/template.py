@@ -44,6 +44,10 @@ class SphinxRenderer(FileRenderer):
     def __init__(self):
         super(SphinxRenderer, self).__init__(os.path.join(package_dir, 'templates'))
 
+    @classmethod
+    def render_from_file(cls, filename, context):
+        return FileRenderer.render_from_file(filename, context)
+
 
 class LaTeXRenderer(SphinxRenderer):
     def __init__(self):

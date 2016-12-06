@@ -266,6 +266,18 @@ def test_text_builder(app, status, warning):
               u"[image: i18n][image]\n"
               u"\n"
               u"   [image: img][image]\n"
+              u"\n"
+              u"\n"
+              u"IMAGE ON SUBSTITUTION\n"
+              u"=====================\n"
+              u"\n"
+              u"\n"
+              u"IMAGE UNDER NOTE\n"
+              u"================\n"
+              u"\n"
+              u"Note: [image: i18n under note][image]\n"
+              u"\n"
+              u"     [image: img under note][image]\n"
               )
     yield assert_equal, result, expect
 
@@ -631,7 +643,7 @@ def test_xml_builder(app, status, warning):
     yield (assert_elem,
            para2[3],
            ['LINK TO', '--module', 'AND', '-m', '.'],
-           ['cmdoption--module', 'cmdoption-m'])
+           ['cmdoption-module', 'cmdoption-m'])
     yield (assert_elem,
            para2[4],
            ['LINK TO', 'env2', 'AND', 'env1', '.'],

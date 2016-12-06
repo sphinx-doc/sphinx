@@ -36,8 +36,9 @@ from docutils.utils import column_width
 
 from sphinx import __display_version__, package_dir
 from sphinx.util.osutil import make_filename
-from sphinx.util.console import purple, bold, red, turquoise, \
-    nocolor, color_terminal
+from sphinx.util.console import (  # type: ignore
+    purple, bold, red, turquoise, nocolor, color_terminal
+)
 from sphinx.util.template import SphinxRenderer
 from sphinx.util import texescape
 
@@ -180,6 +181,19 @@ def convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
         return rex.sub('\\1', source)
     else:
         return source
+
+
+class QuickstartRenderer(SphinxRenderer):
+    def __init__(self, templatedir):
+        self.templatedir = templatedir or ''
+        super(QuickstartRenderer, self).__init__()
+
+    def render(self, template_name, context):
+        user_template = path.join(self.templatedir, path.basename(template_name))
+        if self.templatedir and path.exists(user_template):
+            return self.render_from_file(user_template, context)
+        else:
+            return super(QuickstartRenderer, self).render(template_name, context)
 
 
 def ask_user(d):
@@ -357,9 +371,9 @@ directly.''')
     print()
 
 
-def generate(d, overwrite=True, silent=False):
+def generate(d, overwrite=True, silent=False, templatedir=None):
     """Generate project based on values in *d*."""
-    template = SphinxRenderer()
+    template = QuickstartRenderer(templatedir=templatedir)
 
     texescape.init()
     indent = ' ' * 4
@@ -375,14 +389,11 @@ def generate(d, overwrite=True, silent=False):
     d['project_manpage'] = d['project_fn'].lower()
     d['now'] = time.asctime()
     d['project_underline'] = column_width(d['project']) * '='
-    extensions = (',\n' + indent).join(
-        repr('sphinx.ext.' + name)
-        for name in EXTENSIONS
-        if d.get('ext_' + name))
-    if extensions:
-        d['extensions'] = '\n' + indent + extensions + ',\n'
-    else:
-        d['extensions'] = extensions
+    d.setdefault('extensions', [])
+    for name in EXTENSIONS:
+        if d.get('ext_' + name):
+            d['extensions'].append('sphinx.ext.' + name)
+    d['extensions'] = (',\n' + indent).join(repr(name) for name in d['extensions'])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
     d['author_texescaped'] = text_type(d['author']).\
         translate(texescape.tex_escape_map)
@@ -474,6 +485,7 @@ def usage(argv, msg=None):
     if msg:
         print(msg, file=sys.stderr)
         print(file=sys.stderr)
+
 
 USAGE = """\
 Sphinx v%s
@@ -568,6 +580,8 @@ def main(argv=sys.argv):
         group.add_option('--ext-' + ext, action='store_true',
                          dest='ext_' + ext, default=False,
                          help='enable %s extension' % ext)
+    group.add_option('--extensions', metavar='EXTENSIONS', dest='extensions',
+                     action='append', help='enable extensions')
 
     group = parser.add_option_group('Makefile and Batchfile creation')
     group.add_option('--makefile', action='store_true', dest='makefile',
@@ -587,6 +601,12 @@ def main(argv=sys.argv):
     group.add_option('-m', '--use-make-mode', action='store_true', dest='make_mode',
                      default=True,
                      help='use make-mode for Makefile/make.bat')
+
+    group = parser.add_option_group('Project templating')
+    group.add_option('-t', '--templatedir', metavar='TEMPLATEDIR', dest='templatedir',
+                     help='template directory for template files')
+    group.add_option('-d', metavar='NAME=VALUE', action='append', dest='variables',
+                     help='define a template variable')
 
     # parse options
     try:
@@ -640,7 +660,23 @@ def main(argv=sys.argv):
         if isinstance(value, binary_type):
             d[key] = term_decode(value)
 
-    generate(d)
+    # parse extensions list
+    d.setdefault('extensions', [])
+    for ext in d['extensions'][:]:
+        if ',' in ext:
+            d['extensions'].remove(ext)
+            for modname in ext.split(','):
+                d['extensions'].append(modname)
+
+    for variable in d.get('variables', []):
+        try:
+            name, value = variable.split('=')
+            d[name] = value
+        except ValueError:
+            print('Invalid template variable: %s' % variable)
+
+    generate(d, templatedir=opts.templatedir)
+
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))

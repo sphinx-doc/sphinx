@@ -14,7 +14,8 @@
 from util import TestApp, Struct, raises, SkipTest  # NOQA
 from nose.tools import with_setup, eq_
 
-from six import StringIO
+import enum
+from six import StringIO, add_metaclass
 from docutils.statemachine import ViewList
 
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
@@ -825,12 +826,45 @@ def test_generate():
     del directive.env.temp_data['autodoc:module']
     del directive.env.ref_context['py:module']
 
+    # test members with enum attributes
+    directive.env.ref_context['py:module'] = 'test_autodoc'
+    options.inherited_members = False
+    options.undoc_members = False
+    options.members = ALL
+    assert_processes([
+        ('class', 'test_autodoc.EnumCls'),
+        ('attribute', 'test_autodoc.EnumCls.val1'),
+        ('attribute', 'test_autodoc.EnumCls.val2'),
+        ('attribute', 'test_autodoc.EnumCls.val3'),
+    ], 'class', 'EnumCls')
+    assert_result_contains(
+        '   :annotation: = 12', 'attribute', 'EnumCls.val1')
+    assert_result_contains(
+        '   :annotation: = 23', 'attribute', 'EnumCls.val2')
+    assert_result_contains(
+        '   :annotation: = 34', 'attribute', 'EnumCls.val3')
+    del directive.env.temp_data['autodoc:class']
+    del directive.env.temp_data['autodoc:module']
+
     # test descriptor class documentation
-    options.members = ['CustomDataDescriptor']
+    options.members = ['CustomDataDescriptor', 'CustomDataDescriptor2']
     assert_result_contains('.. py:class:: CustomDataDescriptor(doc)',
                            'module', 'test_autodoc')
     assert_result_contains('   .. py:method:: CustomDataDescriptor.meth()',
                            'module', 'test_autodoc')
+    assert_result_contains('.. py:class:: CustomDataDescriptor2(doc)',
+                           'module', 'test_autodoc')
+
+    # test mocked module imports
+    options.members = ['TestAutodoc']
+    options.undoc_members = False
+    assert_result_contains('.. py:class:: TestAutodoc',
+                           'module', 'autodoc_missing_imports')
+    assert_result_contains('   .. py:method:: TestAutodoc.decoratedMethod()',
+                           'module', 'autodoc_missing_imports')
+    options.members = ['decoratedFunction']
+    assert_result_contains('.. py:function:: decoratedFunction()',
+                           'module', 'autodoc_missing_imports')
 
 # --- generate fodder ------------
 __all__ = ['Class']
@@ -860,6 +894,14 @@ class CustomDataDescriptor(object):
     def meth(self):
         """Function."""
         return "The Answer"
+
+
+class CustomDataDescriptorMeta(type):
+    """Descriptor metaclass docstring."""
+
+@add_metaclass(CustomDataDescriptorMeta)
+class CustomDataDescriptor2(CustomDataDescriptor):
+    """Descriptor class with custom metaclass docstring."""
 
 
 def _funky_classmethod(name, b, c, d, docstring=None):
@@ -1020,12 +1062,24 @@ class InstAttCls(object):
         """Docstring for instance attribute InstAttCls.ia2."""
 
 
+class EnumCls(enum.Enum):
+    """
+    this is enum class
+    """
+
+    #: doc for val1
+    val1 = 12
+    val2 = 23  #: doc for val2
+    val3 = 34
+    """doc for val3"""
+
+
 def test_type_hints():
     from sphinx.ext.autodoc import formatargspec
     from sphinx.util.inspect import getargspec
 
     try:
-        from typing_test_data import f0, f1, f2, f3, f4, f5, f6, f7, f8, f9
+        from typing_test_data import f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11
     except (ImportError, SyntaxError):
         raise SkipTest('Cannot import Python code with function annotations')
 
@@ -1052,15 +1106,19 @@ def test_type_hints():
     # Keyword-only arguments
     verify_arg_spec(f5, '(x: int, *, y: str, z: str) -> None')
 
+    # Keyword-only arguments with varargs
+    verify_arg_spec(f6, '(x: int, *args, y: str, z: str) -> None')
+
     # Space around '=' for defaults
-    verify_arg_spec(f6, '(x: int = None, y: dict = {}) -> None')
+    verify_arg_spec(f7, '(x: int = None, y: dict = {}) -> None')
 
     # Callable types
-    verify_arg_spec(f7, '(x: typing.Callable[[int, str], int]) -> None')
+    verify_arg_spec(f8, '(x: typing.Callable[[int, str], int]) -> None')
+    verify_arg_spec(f9, '(x: typing.Callable) -> None')
 
     # Tuple types
-    verify_arg_spec(f8, '(x: typing.Tuple[int, str],'
-                        ' y: typing.Tuple[int, ...]) -> None')
+    verify_arg_spec(f10, '(x: typing.Tuple[int, str],'
+                         ' y: typing.Tuple[int, ...]) -> None')
 
     # Instance annotations
-    verify_arg_spec(f9, '(x: CustomAnnotation, y: 123) -> None')
+    verify_arg_spec(f11, '(x: CustomAnnotation, y: 123) -> None')

@@ -13,11 +13,12 @@ from six import BytesIO
 
 import pickle
 from docutils import nodes
+import mock
 from textwrap import dedent
 from sphinx.errors import SphinxError
 import sphinx.builders.linkcheck
 
-from util import mock, with_app, with_tempdir, rootdir, tempdir, SkipTest, TestApp
+from util import with_app, with_tempdir, rootdir, tempdir, SkipTest, TestApp, path
 
 try:
     from docutils.writers.manpage import Writer as ManWriter
@@ -66,7 +67,7 @@ def test_build_all():
         )
 
     with mock.patch('sphinx.builders.linkcheck.requests') as requests:
-        requests.Session().head = request_session_head
+        requests.head = request_session_head
 
         # note: no 'html' - if it's ok with dirhtml it's ok with html
         for buildername in ['dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle',
@@ -148,16 +149,17 @@ def test_image_glob(app, status, warning):
     doctree = pickle.loads((app.doctreedir / 'subdir/index.doctree').bytes())
 
     assert isinstance(doctree[0][1], nodes.image)
-    assert doctree[0][1]['candidates'] == {'*': 'subdir/rimg.png'}
-    assert doctree[0][1]['uri'] == 'subdir/rimg.png'
+    sub = path('subdir')
+    assert doctree[0][1]['candidates'] == {'*': sub / 'rimg.png'}
+    assert doctree[0][1]['uri'] == sub / 'rimg.png'
 
     assert isinstance(doctree[0][2], nodes.image)
     assert doctree[0][2]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
                                            'image/svg+xml': 'subdir/svgimg.svg'}
-    assert doctree[0][2]['uri'] == 'subdir/svgimg.*'
+    assert doctree[0][2]['uri'] == sub / 'svgimg.*'
 
     assert isinstance(doctree[0][3], nodes.figure)
     assert isinstance(doctree[0][3][0], nodes.image)
     assert doctree[0][3][0]['candidates'] == {'application/pdf': 'subdir/svgimg.pdf',
                                               'image/svg+xml': 'subdir/svgimg.svg'}
-    assert doctree[0][3][0]['uri'] == 'subdir/svgimg.*'
+    assert doctree[0][3][0]['uri'] == sub / 'svgimg.*'

@@ -25,6 +25,8 @@ class TextBuilder(Builder):
     out_suffix = '.txt'
     allow_parallel = True
 
+    current_docname = None  # type: unicode
+
     def init(self):
         pass
 

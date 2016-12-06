@@ -48,13 +48,14 @@ epub_max_image_width = 0
 epub_show_urls = 'inline'
 epub_use_index = False
 epub_guide = (('toc', 'contents.xhtml', u'Table of Contents'),)
-epub3_description = 'Sphinx documentation generator system manual'
+epub_description = 'Sphinx documentation generator system manual'
 
 latex_documents = [('contents', 'sphinx.tex', 'Sphinx Documentation',
                     'Georg Brandl', 'manual', 1)]
 latex_logo = '_static/sphinx.png'
 latex_elements = {
     'fontpkg': '\\usepackage{palatino}',
+    'passoptionstopackages': '\\PassOptionsToPackage{svgnames}{xcolor}',
 }
 latex_show_urls = 'footnote'
 

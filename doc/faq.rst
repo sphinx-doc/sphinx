@@ -282,10 +282,6 @@ The following notes may be helpful if you want to create Texinfo files:
 
      info:Texinfo#makeinfo_options
 
-  which produces:
-
-     info:Texinfo#makeinfo_options
-
 - Inline markup
 
   The standard formatting for ``*strong*`` and ``_emphasis_`` can

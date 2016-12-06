@@ -12,3 +12,19 @@ Stemmer
 
 zfs
 findthisstemmedkey
+
+textinheading
+
+International
+
+.. toctree::
+
+   tocitem
+
+.. raw:: html
+
+   <span class="raw">rawword"</span>
+
+.. raw:: latex
+
+   latex_keyword

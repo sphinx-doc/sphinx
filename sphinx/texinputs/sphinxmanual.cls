@@ -3,13 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sphinxmanual}[2009/06/02 Document class (Sphinx manual)]
-
-\ifx\directlua\undefined\else
-% if compiling with lualatex 0.85 or later load compatibility patch issued by
-% the LaTeX team for older packages relying on \pdf<name> named primitives.
-    \IfFileExists{luatex85.sty}{\RequirePackage{luatex85}}{}
-\fi
+\ProvidesClass{sphinxmanual}[2016/10/12 v1.5 Document class (Sphinx manual)]
 
 % chapters starting at odd pages (overridden by 'openany' document option)
 \PassOptionsToClass{openright}{\sphinxdocclass}
@@ -40,6 +34,9 @@
 % ``Bjarne'' style a bit better.
 %
 \renewcommand{\maketitle}{%
+  \let\spx@tempa\relax
+  \ifHy@pageanchor\def\spx@tempa{\Hy@pageanchortrue}\fi
+  \hypersetup{pageanchor=false}% avoid duplicate destination warnings
   \begin{titlepage}%
     \let\footnotesize\small
     \let\footnoterule\relax
@@ -80,24 +77,22 @@
   \setcounter{footnote}{0}%
   \let\thanks\relax\let\maketitle\relax
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
+  \if@openright\cleardoublepage\else\clearpage\fi
+  \spx@tempa
 }
 
-\let\py@OldTableofcontents=\tableofcontents
-\renewcommand{\tableofcontents}{%
-  % before resetting page counter, let's do the right thing.
-  \if@openright\cleardoublepage\else\clearpage\fi
+\newcommand{\sphinxtableofcontents}{%
   \pagenumbering{roman}%
   \pagestyle{plain}%
   \begingroup
     \parskip \z@skip
-    \py@OldTableofcontents
+    \tableofcontents
   \endgroup
   % before resetting page counter, let's do the right thing.
   \if@openright\cleardoublepage\else\clearpage\fi
   \pagenumbering{arabic}%
   \ifdefined\fancyhf\pagestyle{normal}\fi
 }
-\pagenumbering{alph}% avoid hyperref "duplicate destination" warnings
 
 % This is needed to get the width of the section # area wide enough in the
 % library reference.  Doing it here keeps it the same for all the manuals.
@@ -108,23 +103,22 @@
 % Fix the bibliography environment to add an entry to the Table of
 % Contents.
 % For a report document class this environment is a chapter.
-\let\py@OldThebibliography=\thebibliography
-\renewcommand{\thebibliography}[1]{
+%
+% Note: \phantomsection is required for TeXLive 2009
+% http://tex.stackexchange.com/questions/44088/when-do-i-need-to-invoke-phantomsection#comment166081_44091
+\newenvironment{sphinxthebibliography}[1]{%
   \if@openright\cleardoublepage\else\clearpage\fi
   \phantomsection
-  \py@OldThebibliography{1}
-  \addcontentsline{toc}{chapter}{\bibname}
-}
+  \begin{thebibliography}{1}%
+  \addcontentsline{toc}{chapter}{\bibname}}{\end{thebibliography}}
 
 % Same for the indices.
 % The memoir class already does this, so we don't duplicate it in that case.
 %
-\@ifclassloaded{memoir}{}{
-  \let\py@OldTheindex=\theindex
-  \renewcommand{\theindex}{
+\@ifclassloaded{memoir}
+ {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}
+ {\newenvironment{sphinxtheindex}{%
     \if@openright\cleardoublepage\else\clearpage\fi
     \phantomsection
-    \py@OldTheindex
-    \addcontentsline{toc}{chapter}{\indexname}
-  }
-}
+    \begin{theindex}%
+    \addcontentsline{toc}{chapter}{\indexname}}{\end{theindex}}}

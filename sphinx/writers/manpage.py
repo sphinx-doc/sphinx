@@ -19,6 +19,7 @@ from docutils.writers.manpage import (
 )
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
 from sphinx.util.compat import docutils_version
 from sphinx.util.i18n import format_date
@@ -138,6 +139,12 @@ class ManualPageTranslator(BaseTranslator):
     def depart_desc_signature(self, node):
         self.depart_term(node)
 
+    def visit_desc_signature_line(self, node):
+        pass
+
+    def depart_desc_signature_line(self, node):
+        self.body.append(' ')
+
     def visit_desc_addname(self, node):
         pass
 
@@ -210,8 +217,10 @@ class ManualPageTranslator(BaseTranslator):
             BaseTranslator.visit_term(self, node)
 
     def visit_termsep(self, node):
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.5',
-                      DeprecationWarning)
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
+                      'This warning is displayed because some Sphinx extension '
+                      'uses sphinx.addnodes.termsep. Please report it to '
+                      'author of the extension.', RemovedInSphinx16Warning)
         self.body.append(', ')
         raise nodes.SkipNode
 

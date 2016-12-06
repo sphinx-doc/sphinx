@@ -19,6 +19,10 @@ import pickle
 # Local imports
 from sphinx.pycode.pgen2 import token
 
+if False:
+    # For type annotation
+    from typing import Tuple  # NOQA
+
 
 class Grammar(object):
     """Pgen parsing tables tables conversion class.
@@ -75,14 +79,14 @@ class Grammar(object):
     """
 
     def __init__(self):
-        self.symbol2number = {}
-        self.number2symbol = {}
-        self.states = []
-        self.dfas = {}
+        self.symbol2number = {}         # type: Dict[unicode, int]
+        self.number2symbol = {}         # type: Dict[int, unicode]
+        self.states = []                # type: List[List[List[Tuple[int, int]]]]
+        self.dfas = {}                  # type: Dict[int, Tuple[List[List[Tuple[int, int]]], unicode]]
         self.labels = [(0, "EMPTY")]
-        self.keywords = {}
-        self.tokens = {}
-        self.symbol2label = {}
+        self.keywords = {}              # type: Dict[unicode, unicode]
+        self.tokens = {}                # type: Dict[unicode, unicode]
+        self.symbol2label = {}          # type: Dict[unicode, unicode]
         self.start = 256
 
     def dump(self, filename):

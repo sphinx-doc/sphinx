@@ -22,7 +22,7 @@ from os import path
 from subprocess import call
 
 import sphinx
-from sphinx.util.console import bold, blue
+from sphinx.util.console import bold, blue  # type: ignore
 from sphinx.util.osutil import cd, rmtree
 
 proj_name = os.getenv('SPHINXPROJ', '<project>')
@@ -34,12 +34,12 @@ BUILDERS = [
     ("",      "singlehtml",  "to make a single large HTML file"),
     ("",      "pickle",      "to make pickle files"),
     ("",      "json",        "to make JSON files"),
-    ("",      "htmlhelp",    "to make HTML files and a HTML help project"),
+    ("",      "htmlhelp",    "to make HTML files and an HTML help project"),
     ("",      "qthelp",      "to make HTML files and a qthelp project"),
     ("",      "devhelp",     "to make HTML files and a Devhelp project"),
     ("",      "epub",        "to make an epub"),
     ("",      "latex",       "to make LaTeX files, you can set PAPER=a4 or PAPER=letter"),
-    ("posix", "latexpdf",    "to make LaTeX files and run them through pdflatex"),
+    ("posix", "latexpdf",    "to make LaTeX and PDF files (default pdflatex)"),
     ("posix", "latexpdfja",  "to make LaTeX files and run them through platex/dvipdfmx"),
     ("",      "text",        "to make text files"),
     ("",      "man",         "to make manual pages"),
@@ -59,16 +59,19 @@ BUILDERS = [
 class Make(object):
 
     def __init__(self, srcdir, builddir, opts):
+        # type: (unicode, unicode, List[unicode]) -> None
         self.srcdir = srcdir
         self.builddir = builddir
         self.opts = opts
 
     def builddir_join(self, *comps):
+        # type: (unicode) -> unicode
         return path.join(self.builddir, *comps)
 
     def build_clean(self):
+        # type: () -> int
         if not path.exists(self.builddir):
-            return
+            return 0
         elif not path.isdir(self.builddir):
             print("Error: %r is not a directory!" % self.builddir)
             return 1
@@ -77,19 +80,22 @@ class Make(object):
             rmtree(self.builddir_join(item))
 
     def build_help(self):
+        # type: () -> None
         print(bold("Sphinx v%s" % sphinx.__display_version__))
-        print("Please use `make %s' where %s is one of" % ((blue('target'),)*2))
+        print("Please use `make %s' where %s is one of" % ((blue('target'),)*2))  # type: ignore  # NOQA
         for osname, bname, description in BUILDERS:
             if not osname or os.name == osname:
                 print('  %s  %s' % (blue(bname.ljust(10)), description))
 
     def build_html(self):
+        # type: () -> int
         if self.run_generic_build('html') > 0:
             return 1
         print()
         print('Build finished. The HTML pages are in %s.' % self.builddir_join('html'))
 
     def build_dirhtml(self):
+        # type: () -> int
         if self.run_generic_build('dirhtml') > 0:
             return 1
         print()
@@ -97,6 +103,7 @@ class Make(object):
               self.builddir_join('dirhtml'))
 
     def build_singlehtml(self):
+        # type: () -> int
         if self.run_generic_build('singlehtml') > 0:
             return 1
         print()
@@ -104,18 +111,21 @@ class Make(object):
               self.builddir_join('singlehtml'))
 
     def build_pickle(self):
+        # type: () -> int
         if self.run_generic_build('pickle') > 0:
             return 1
         print()
         print('Build finished; now you can process the pickle files.')
 
     def build_json(self):
+        # type: () -> int
         if self.run_generic_build('json') > 0:
             return 1
         print()
         print('Build finished; now you can process the JSON files.')
 
     def build_htmlhelp(self):
+        # type: () -> int
         if self.run_generic_build('htmlhelp') > 0:
             return 1
         print()
@@ -123,6 +133,7 @@ class Make(object):
               '.hhp project file in %s.' % self.builddir_join('htmlhelp'))
 
     def build_qthelp(self):
+        # type: () -> int
         if self.run_generic_build('qthelp') > 0:
             return 1
         print()
@@ -134,6 +145,7 @@ class Make(object):
               self.builddir_join('qthelp', proj_name))
 
     def build_devhelp(self):
+        # type: () -> int
         if self.run_generic_build('devhelp') > 0:
             return 1
         print()
@@ -145,12 +157,14 @@ class Make(object):
         print("$ devhelp")
 
     def build_epub(self):
+        # type: () -> int
         if self.run_generic_build('epub') > 0:
             return 1
         print()
         print('Build finished. The ePub file is in %s.' % self.builddir_join('epub'))
 
     def build_latex(self):
+        # type: () -> int
         if self.run_generic_build('latex') > 0:
             return 1
         print("Build finished; the LaTeX files are in %s." % self.builddir_join('latex'))
@@ -159,24 +173,28 @@ class Make(object):
             print("(use `make latexpdf' here to do that automatically).")
 
     def build_latexpdf(self):
+        # type: () -> int
         if self.run_generic_build('latex') > 0:
             return 1
         with cd(self.builddir_join('latex')):
             os.system('make all-pdf')
 
     def build_latexpdfja(self):
+        # type: () -> int
         if self.run_generic_build('latex') > 0:
             return 1
         with cd(self.builddir_join('latex')):
             os.system('make all-pdf-ja')
 
     def build_text(self):
+        # type: () -> int
         if self.run_generic_build('text') > 0:
             return 1
         print()
         print('Build finished. The text files are in %s.' % self.builddir_join('text'))
 
     def build_texinfo(self):
+        # type: () -> int
         if self.run_generic_build('texinfo') > 0:
             return 1
         print("Build finished; the Texinfo files are in %s." %
@@ -186,12 +204,14 @@ class Make(object):
             print("(use `make info' here to do that automatically).")
 
     def build_info(self):
+        # type: () -> int
         if self.run_generic_build('texinfo') > 0:
             return 1
         with cd(self.builddir_join('texinfo')):
             os.system('make info')
 
     def build_gettext(self):
+        # type: () -> int
         dtdir = self.builddir_join('gettext', '.doctrees')
         if self.run_generic_build('gettext', doctreedir=dtdir) > 0:
             return 1
@@ -200,6 +220,7 @@ class Make(object):
               self.builddir_join('gettext'))
 
     def build_changes(self):
+        # type: () -> int
         if self.run_generic_build('changes') > 0:
             return 1
         print()
@@ -207,6 +228,7 @@ class Make(object):
               self.builddir_join('changes'))
 
     def build_linkcheck(self):
+        # type: () -> int
         res = self.run_generic_build('linkcheck')
         print()
         print('Link check complete; look for any errors in the above output '
@@ -214,12 +236,14 @@ class Make(object):
         return res
 
     def build_doctest(self):
+        # type: () -> int
         res = self.run_generic_build('doctest')
         print("Testing of doctests in the sources finished, look at the "
               "results in %s." % self.builddir_join('doctest', 'output.txt'))
         return res
 
     def build_coverage(self):
+        # type: () -> int
         if self.run_generic_build('coverage') > 0:
             print("Has the coverage extension been enabled?")
             return 1
@@ -228,12 +252,14 @@ class Make(object):
               "results in %s." % self.builddir_join('coverage'))
 
     def build_xml(self):
+        # type: () -> int
         if self.run_generic_build('xml') > 0:
             return 1
         print()
         print('Build finished. The XML files are in %s.' % self.builddir_join('xml'))
 
     def build_pseudoxml(self):
+        # type: () -> int
         if self.run_generic_build('pseudoxml') > 0:
             return 1
         print()
@@ -241,6 +267,7 @@ class Make(object):
               self.builddir_join('pseudoxml'))
 
     def run_generic_build(self, builder, doctreedir=None):
+        # type: (unicode, unicode) -> int
         # compatibility with old Makefile
         papersize = os.getenv('PAPER', '')
         opts = self.opts
@@ -261,11 +288,12 @@ class Make(object):
             # linux, mac: 'sphinx-build' or 'sphinx-build.py'
             cmd = [sys.executable, orig_cmd]
 
-        return call(cmd + ['-b', builder] + opts +
-                    ['-d', doctreedir, self.srcdir, self.builddir_join(builder)])
+        return call(cmd + ['-b', builder] + opts +  # type: ignore
+                    ['-d', doctreedir, self.srcdir, self.builddir_join(builder)])  # type: ignore  # NOQA
 
 
 def run_make_mode(args):
+    # type: (List[unicode]) -> int
     if len(args) < 3:
         print('Error: at least 3 arguments (builder, source '
               'dir, build dir) are required.', file=sys.stderr)
