@@ -270,7 +270,7 @@ class Toctree(EnvironmentManager):
                         # toctree originates
                         ref = toctreenode['parent']
                         if not title:
-                            title = clean_astext(self.titles[ref])
+                            title = clean_astext(self.env.titles[ref])
                         reference = nodes.reference('', '', internal=True,
                                                     refuri=ref,
                                                     anchorname='',

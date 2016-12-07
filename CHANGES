@@ -4,7 +4,8 @@ Release 1.5.1 (in development)
 Bugs fixed
 ----------
 
-* #3195: Can not build in parallel.
+* #3195: Can not build in parallel
+* #3198: AttributeError is raised when toctree has 'self'
 
 
 Release 1.5 (released Dec 5, 2016)
