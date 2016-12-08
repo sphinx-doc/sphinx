@@ -294,7 +294,7 @@ def test_numref_with_language_ja(app, status, warning):
     assert '\\renewcommand{\\tablename}{TABLE }' in result
     assert '\\renewcommand{\\literalblockname}{LIST }' in result
     assert (u'\\hyperref[\\detokenize{index:fig1}]'
-             '{\u56f3 \\ref{\\detokenize{index:fig1}}}') in result
+            u'{\u56f3 \\ref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:fig22}]'
             '{Figure\\ref{\\detokenize{baz:fig22}}}') in result
     assert ('\\hyperref[\\detokenize{index:table-1}]'
@@ -306,9 +306,9 @@ def test_numref_with_language_ja(app, status, warning):
     assert ('\\hyperref[\\detokenize{baz:code22}]'
             '{Code-\\ref{\\detokenize{baz:code22}}}') in result
     assert (u'\\hyperref[\\detokenize{foo:foo}]'
-             '{\\ref{\\detokenize{foo:foo}} \u7ae0}') in result
+            u'{\\ref{\\detokenize{foo:foo}} \u7ae0}') in result
     assert (u'\\hyperref[\\detokenize{bar:bar-a}]'
-             '{\\ref{\\detokenize{bar:bar-a}} \u7ae0}') in result
+            u'{\\ref{\\detokenize{bar:bar-a}} \u7ae0}') in result
     assert ('\\hyperref[\\detokenize{index:fig1}]{Fig.\\ref{\\detokenize{index:fig1}} '
             '\\nameref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{foo:foo}]{Sect.\\ref{\\detokenize{foo:foo}} '
