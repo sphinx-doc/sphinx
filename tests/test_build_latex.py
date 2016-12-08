@@ -117,22 +117,24 @@ def test_writer(app, status, warning):
 
     assert ('\\begin{sphinxfigure-in-table}\n\\centering\n\\capstart\n'
             '\\noindent\\sphinxincludegraphics{{img}.png}\n'
-            '\\sphinxfigcaption{figure in table}\\label{markup:id7}'
+            '\\sphinxfigcaption{figure in table}\\label{\\detokenize{markup:id7}}'
             '\\end{sphinxfigure-in-table}\\relax' in result)
 
     assert ('\\begin{wrapfigure}{r}{0pt}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
-            '\\caption{figure with align option}\\label{markup:id8}'
+            '\\caption{figure with align option}\\label{\\detokenize{markup:id8}}'
             '\\end{wrapfigure}' in result)
 
     assert ('\\begin{wrapfigure}{r}{0.500\\linewidth}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics{{rimg}.png}\n'
-            '\\caption{figure with align \\& figwidth option}\\label{markup:id9}'
+            '\\caption{figure with align \\& figwidth option}'
+            '\\label{\\detokenize{markup:id9}}'
             '\\end{wrapfigure}' in result)
 
     assert ('\\begin{wrapfigure}{r}{3cm}\n\\centering\n'
             '\\noindent\\sphinxincludegraphics[width=3cm]{{rimg}.png}\n'
-            '\\caption{figure with align \\& width option}\\label{markup:id10}'
+            '\\caption{figure with align \\& width option}'
+            '\\label{\\detokenize{markup:id10}}'
             '\\end{wrapfigure}' in result)
 
 
@@ -180,16 +182,22 @@ def test_numref(app, status, warning):
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Fig.\\@ }}' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Table }}' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\literalblockname}{Listing }}' in result
-    assert '\\hyperref[index:fig1]{Fig.\\@ \\ref{index:fig1}}' in result
-    assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
-    assert '\\hyperref[index:table-1]{Table \\ref{index:table-1}}' in result
-    assert '\\hyperref[baz:table22]{Table:\\ref{baz:table22}}' in result
-    assert '\\hyperref[index:code-1]{Listing \\ref{index:code-1}}' in result
-    assert '\\hyperref[baz:code22]{Code-\\ref{baz:code22}}' in result
-    assert '\\hyperref[foo:foo]{Section \\ref{foo:foo}}' in result
-    assert '\\hyperref[bar:bar-a]{Section \\ref{bar:bar-a}}' in result
-    assert '\\hyperref[index:fig1]{Fig.\\ref{index:fig1} \\nameref{index:fig1}}' in result
-    assert '\\hyperref[foo:foo]{Sect.\\ref{foo:foo} \\nameref{foo:foo}}' in result
+    assert ('\\hyperref[\\detokenize{index:fig1}]'
+            '{Fig.\\@ \\ref{\\detokenize{index:fig1}}}') in result
+    assert '\\hyperref[\\detokenize{baz:fig22}]{Figure\\ref{\\detokenize{baz:fig22}}}' in result
+    assert ('\\hyperref[\\detokenize{index:table-1}]'
+            '{Table \\ref{\\detokenize{index:table-1}}}') in result
+    assert ('\\hyperref[\\detokenize{baz:table22}]'
+            '{Table:\\ref{\\detokenize{baz:table22}}}') in result
+    assert ('\\hyperref[\\detokenize{index:code-1}]'
+            '{Listing \\ref{\\detokenize{index:code-1}}}') in result
+    assert '\\hyperref[\\detokenize{baz:code22}]{Code-\\ref{\\detokenize{baz:code22}}}' in result
+    assert '\\hyperref[\\detokenize{foo:foo}]{Section \\ref{\\detokenize{foo:foo}}}' in result
+    assert '\\hyperref[\\detokenize{bar:bar-a}]{Section \\ref{\\detokenize{bar:bar-a}}}' in result
+    assert ('\\hyperref[\\detokenize{index:fig1}]{Fig.\\ref{\\detokenize{index:fig1}} '
+            '\\nameref{\\detokenize{index:fig1}}}') in result
+    assert ('\\hyperref[\\detokenize{foo:foo}]{Sect.\\ref{\\detokenize{foo:foo}} '
+            '\\nameref{\\detokenize{foo:foo}}}') in result
 
 
 @with_app(buildername='latex', testroot='numfig',
@@ -207,22 +215,32 @@ def test_numref_with_prefix1(app, status, warning):
     assert '\\addto\\captionsenglish{\\renewcommand{\\figurename}{Figure:}}' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Tab\\_}}' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\literalblockname}{Code-}}' in result
-    assert '\\ref{index:fig1}' in result
-    assert '\\ref{baz:fig22}' in result
-    assert '\\ref{index:table-1}' in result
-    assert '\\ref{baz:table22}' in result
-    assert '\\ref{index:code-1}' in result
-    assert '\\ref{baz:code22}' in result
-    assert '\\hyperref[index:fig1]{Figure:\\ref{index:fig1}}' in result
-    assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
-    assert '\\hyperref[index:table-1]{Tab\\_\\ref{index:table-1}}' in result
-    assert '\\hyperref[baz:table22]{Table:\\ref{baz:table22}}' in result
-    assert '\\hyperref[index:code-1]{Code-\\ref{index:code-1}}' in result
-    assert '\\hyperref[baz:code22]{Code-\\ref{baz:code22}}' in result
-    assert '\\hyperref[foo:foo]{SECTION-\\ref{foo:foo}}' in result
-    assert '\\hyperref[bar:bar-a]{SECTION-\\ref{bar:bar-a}}' in result
-    assert '\\hyperref[index:fig1]{Fig.\\ref{index:fig1} \\nameref{index:fig1}}' in result
-    assert '\\hyperref[foo:foo]{Sect.\\ref{foo:foo} \\nameref{foo:foo}}' in result
+    assert '\\ref{\\detokenize{index:fig1}}' in result
+    assert '\\ref{\\detokenize{baz:fig22}}' in result
+    assert '\\ref{\\detokenize{index:table-1}}' in result
+    assert '\\ref{\\detokenize{baz:table22}}' in result
+    assert '\\ref{\\detokenize{index:code-1}}' in result
+    assert '\\ref{\\detokenize{baz:code22}}' in result
+    assert ('\\hyperref[\\detokenize{index:fig1}]'
+            '{Figure:\\ref{\\detokenize{index:fig1}}}') in result
+    assert ('\\hyperref[\\detokenize{baz:fig22}]'
+            '{Figure\\ref{\\detokenize{baz:fig22}}}') in result
+    assert ('\\hyperref[\\detokenize{index:table-1}]'
+            '{Tab\\_\\ref{\\detokenize{index:table-1}}}') in result
+    assert ('\\hyperref[\\detokenize{baz:table22}]'
+            '{Table:\\ref{\\detokenize{baz:table22}}}') in result
+    assert ('\\hyperref[\\detokenize{index:code-1}]'
+            '{Code-\\ref{\\detokenize{index:code-1}}}') in result
+    assert ('\\hyperref[\\detokenize{baz:code22}]'
+            '{Code-\\ref{\\detokenize{baz:code22}}}') in result
+    assert ('\\hyperref[\\detokenize{foo:foo}]'
+            '{SECTION-\\ref{\\detokenize{foo:foo}}}') in result
+    assert ('\\hyperref[\\detokenize{bar:bar-a}]'
+            '{SECTION-\\ref{\\detokenize{bar:bar-a}}}') in result
+    assert ('\\hyperref[\\detokenize{index:fig1}]{Fig.\\ref{\\detokenize{index:fig1}} '
+            '\\nameref{\\detokenize{index:fig1}}}') in result
+    assert ('\\hyperref[\\detokenize{foo:foo}]{Sect.\\ref{\\detokenize{foo:foo}} '
+            '\\nameref{\\detokenize{foo:foo}}}') in result
 
 
 @with_app(buildername='latex', testroot='numfig',
@@ -242,16 +260,26 @@ def test_numref_with_prefix2(app, status, warning):
     assert '\\addto\\captionsenglish{\\renewcommand{\\tablename}{Tab\\_}}' in result
     assert '\\def\\fnum@table{\\tablename\\thetable:}' in result
     assert '\\addto\\captionsenglish{\\renewcommand{\\literalblockname}{Code-}}' in result
-    assert '\\hyperref[index:fig1]{Figure:\\ref{index:fig1}.\\@}' in result
-    assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
-    assert '\\hyperref[index:table-1]{Tab\\_\\ref{index:table-1}:}' in result
-    assert '\\hyperref[baz:table22]{Table:\\ref{baz:table22}}' in result
-    assert '\\hyperref[index:code-1]{Code-\\ref{index:code-1} \\textbar{} }' in result
-    assert '\\hyperref[baz:code22]{Code-\\ref{baz:code22}}' in result
-    assert '\\hyperref[foo:foo]{SECTION\\_\\ref{foo:foo}\\_}' in result
-    assert '\\hyperref[bar:bar-a]{SECTION\\_\\ref{bar:bar-a}\\_}' in result
-    assert '\\hyperref[index:fig1]{Fig.\\ref{index:fig1} \\nameref{index:fig1}}' in result
-    assert '\\hyperref[foo:foo]{Sect.\\ref{foo:foo} \\nameref{foo:foo}}' in result
+    assert ('\\hyperref[\\detokenize{index:fig1}]'
+            '{Figure:\\ref{\\detokenize{index:fig1}}.\\@}') in result
+    assert ('\\hyperref[\\detokenize{baz:fig22}]'
+            '{Figure\\ref{\\detokenize{baz:fig22}}}') in result
+    assert ('\\hyperref[\\detokenize{index:table-1}]'
+            '{Tab\\_\\ref{\\detokenize{index:table-1}}:}') in result
+    assert ('\\hyperref[\\detokenize{baz:table22}]'
+            '{Table:\\ref{\\detokenize{baz:table22}}}') in result
+    assert ('\\hyperref[\\detokenize{index:code-1}]{Code-\\ref{\\detokenize{index:code-1}} '
+            '\\textbar{} }') in result
+    assert ('\\hyperref[\\detokenize{baz:code22}]'
+            '{Code-\\ref{\\detokenize{baz:code22}}}') in result
+    assert ('\\hyperref[\\detokenize{foo:foo}]'
+            '{SECTION\\_\\ref{\\detokenize{foo:foo}}\\_}') in result
+    assert ('\\hyperref[\\detokenize{bar:bar-a}]'
+            '{SECTION\\_\\ref{\\detokenize{bar:bar-a}}\\_}') in result
+    assert ('\\hyperref[\\detokenize{index:fig1}]{Fig.\\ref{\\detokenize{index:fig1}} '
+            '\\nameref{\\detokenize{index:fig1}}}') in result
+    assert ('\\hyperref[\\detokenize{foo:foo}]{Sect.\\ref{\\detokenize{foo:foo}} '
+            '\\nameref{\\detokenize{foo:foo}}}') in result
 
 
 @with_app(buildername='latex', testroot='numfig',
@@ -265,16 +293,26 @@ def test_numref_with_language_ja(app, status, warning):
     assert u'\\renewcommand{\\figurename}{\u56f3 }' in result
     assert '\\renewcommand{\\tablename}{TABLE }' in result
     assert '\\renewcommand{\\literalblockname}{LIST }' in result
-    assert u'\\hyperref[index:fig1]{\u56f3 \\ref{index:fig1}}' in result
-    assert '\\hyperref[baz:fig22]{Figure\\ref{baz:fig22}}' in result
-    assert '\\hyperref[index:table-1]{TABLE \\ref{index:table-1}}' in result
-    assert '\\hyperref[baz:table22]{Table:\\ref{baz:table22}}' in result
-    assert '\\hyperref[index:code-1]{LIST \\ref{index:code-1}}' in result
-    assert '\\hyperref[baz:code22]{Code-\\ref{baz:code22}}' in result
-    assert u'\\hyperref[foo:foo]{\\ref{foo:foo} \u7ae0}' in result
-    assert u'\\hyperref[bar:bar-a]{\\ref{bar:bar-a} \u7ae0}' in result
-    assert '\\hyperref[index:fig1]{Fig.\\ref{index:fig1} \\nameref{index:fig1}}' in result
-    assert '\\hyperref[foo:foo]{Sect.\\ref{foo:foo} \\nameref{foo:foo}}' in result
+    assert (u'\\hyperref[\\detokenize{index:fig1}]'
+             '{\u56f3 \\ref{\\detokenize{index:fig1}}}') in result
+    assert ('\\hyperref[\\detokenize{baz:fig22}]'
+            '{Figure\\ref{\\detokenize{baz:fig22}}}') in result
+    assert ('\\hyperref[\\detokenize{index:table-1}]'
+            '{TABLE \\ref{\\detokenize{index:table-1}}}') in result
+    assert ('\\hyperref[\\detokenize{baz:table22}]'
+            '{Table:\\ref{\\detokenize{baz:table22}}}') in result
+    assert ('\\hyperref[\\detokenize{index:code-1}]'
+            '{LIST \\ref{\\detokenize{index:code-1}}}') in result
+    assert ('\\hyperref[\\detokenize{baz:code22}]'
+            '{Code-\\ref{\\detokenize{baz:code22}}}') in result
+    assert (u'\\hyperref[\\detokenize{foo:foo}]'
+             '{\\ref{\\detokenize{foo:foo}} \u7ae0}') in result
+    assert (u'\\hyperref[\\detokenize{bar:bar-a}]'
+             '{\\ref{\\detokenize{bar:bar-a}} \u7ae0}') in result
+    assert ('\\hyperref[\\detokenize{index:fig1}]{Fig.\\ref{\\detokenize{index:fig1}} '
+            '\\nameref{\\detokenize{index:fig1}}}') in result
+    assert ('\\hyperref[\\detokenize{foo:foo}]{Sect.\\ref{\\detokenize{foo:foo}} '
+            '\\nameref{\\detokenize{foo:foo}}}') in result
 
 
 @with_app(buildername='latex')
@@ -420,10 +458,15 @@ def test_footnote(app, status, warning):
     assert ('\\begin{footnote}[2]\\sphinxAtStartFootnote\nauto numbered\n%\n'
             '\\end{footnote}') in result
     assert '\\begin{footnote}[3]\\sphinxAtStartFootnote\nnamed\n%\n\\end{footnote}' in result
-    assert '{\\hyperref[footnote:bar]{\\sphinxcrossref{{[}bar{]}}}}' in result
-    assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} ' in result
-    assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} \ncite' in result
-    assert '\\bibitem[bar]{bar}{\\phantomsection\\label{footnote:bar} \ncite\n}' in result
+    assert '{\\hyperref[\\detokenize{footnote:bar}]{\\sphinxcrossref{{[}bar{]}}}}' in result
+    assert ('\\bibitem[bar]{\\detokenize{bar}}'
+            '{\\phantomsection\\label{\\detokenize{footnote:bar}} ') in result
+    assert ('\\bibitem[bar]{\\detokenize{bar}}'
+            '{\\phantomsection\\label{\\detokenize{footnote:bar}} '
+            '\ncite') in result
+    assert ('\\bibitem[bar]{\\detokenize{bar}}'
+            '{\\phantomsection\\label{\\detokenize{footnote:bar}} '
+            '\ncite\n}') in result
     assert '\\caption{Table caption \\sphinxfootnotemark[4]' in result
     assert 'name \\sphinxfootnotemark[5]' in result
     assert ('\\end{threeparttable}\n\n%\n'
@@ -440,29 +483,31 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert ('\\caption{This is the figure caption with a reference to \\label{index:id2}'
-            '{\\hyperref[index:authoryear]{\\sphinxcrossref{{[}AuthorYear{]}}}}.}' in result)
+    assert ('\\caption{This is the figure caption with a reference to '
+            '\\label{\\detokenize{index:id2}}'
+            '{\\hyperref[\\detokenize{index:authoryear}]'
+            '{\\sphinxcrossref{{[}AuthorYear{]}}}}.}' in result)
     assert '\\chapter{The section with a reference to {[}AuthorYear{]}}' in result
     assert '\\caption{The table title with a reference to {[}AuthorYear{]}}' in result
     assert '\\paragraph{The rubric title with a reference to {[}AuthorYear{]}}' in result
     assert ('\\chapter{The section with a reference to \\sphinxfootnotemark[4]}\n'
-            '\\label{index:the-section-with-a-reference-to}'
+            '\\label{\\detokenize{index:the-section-with-a-reference-to}}'
             '%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'Footnote in section\n%\n\\end{footnotetext}') in result
     assert ('\\caption{This is the figure caption with a footnote to '
-            '\\sphinxfootnotemark[6].}\label{index:id27}\end{figure}\n'
+            '\\sphinxfootnotemark[6].}\label{\\detokenize{index:id27}}\end{figure}\n'
             '%\n\\begin{footnotetext}[6]\\sphinxAtStartFootnote\n'
             'Footnote in caption\n%\n\\end{footnotetext}')in result
     assert ('\\caption{footnote \\sphinxfootnotemark[7] '
-            'in caption of normal table}\\label{index:id28}') in result
+            'in caption of normal table}\\label{\\detokenize{index:id28}}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[8] '
             'in caption \sphinxfootnotemark[9] of longtable}') in result
     assert ('\end{longtable}\n\n%\n\\begin{footnotetext}[8]'
             '\sphinxAtStartFootnote\n'
             'Foot note in longtable\n%\n\\end{footnotetext}' in result)
     assert ('This is a reference to the code-block in the footnote:\n'
-            '{\hyperref[index:codeblockinfootnote]{\\sphinxcrossref{\\DUrole'
-            '{std,std-ref}{I am in a footnote}}}}') in result
+            '{\hyperref[\\detokenize{index:codeblockinfootnote}]'
+            '{\\sphinxcrossref{\\DUrole{std,std-ref}{I am in a footnote}}}}') in result
     assert ('&\nThis is one more footnote with some code in it '
             '\\sphinxfootnotemark[10].\n\\\\') in result
     assert '\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]' in result
@@ -477,16 +522,18 @@ def test_latex_show_urls_is_inline(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert ('Same footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
-            'footnote in bar\n%\n\\end{footnote} in bar.rst' in result)
+            'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
-            'footnote in baz\n%\n\\end{footnote} in baz.rst' in result)
-    assert ('\\phantomsection\\label{index:id30}{\\hyperref[index:the\\string-section'
-            '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
+            'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
+    assert ('\\phantomsection\\label{\\detokenize{index:id30}}'
+            '{\\hyperref[\\detokenize{index:the-section'
+            '-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference to '
-            '\\phantomsection\\label{index:id1}'
-            '{\\hyperref[index:authoryear]{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}' in result)
-    assert ('\\phantomsection\\label{index:id31}{\\hyperref[index:the\\string-section'
-            '\\string-with\\string-a\\string-reference\\string-to]'
+            '\\phantomsection\\label{\\detokenize{index:id1}}'
+            '{\\hyperref[\\detokenize{index:authoryear}]'
+            '{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
+    assert ('\\phantomsection\\label{\\detokenize{index:id31}}'
+            '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
            'First\n%\n\\end{footnote}') in result
@@ -496,17 +543,17 @@ def test_latex_show_urls_is_inline(app, status, warning):
     assert ('Third footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
            'Third\n%\n\\end{footnote}') in result
     assert ('\\href{http://sphinx-doc.org/~test/}{URL including tilde} '
-            '(http://sphinx-doc.org/\\textasciitilde{}test/)' in result)
-    assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term} (http://sphinx-doc.org/)}] '
-            '\\leavevmode\nDescription' in result)
+            '(http://sphinx-doc.org/\\textasciitilde{}test/)') in result
+    assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term} '
+            '(http://sphinx-doc.org/)}] \\leavevmode\nDescription' in result)
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[5]}] '
             '\\leavevmode%\n\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
-            'Footnote in term\n%\n\\end{footnotetext}\nDescription' in result)
+            'Footnote in term\n%\n\\end{footnotetext}\nDescription') in result
     assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist} '
-            '(http://sphinx-doc.org/)}] \\leavevmode\nDescription' in result)
-    assert ('\\url{https://github.com/sphinx-doc/sphinx}\n' in result)
+            '(http://sphinx-doc.org/)}] \\leavevmode\nDescription') in result
+    assert '\\url{https://github.com/sphinx-doc/sphinx}\n' in result
     assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
-            '{sphinx-dev@googlegroups.com}' in result)
+            '{sphinx-dev@googlegroups.com}') in result
 
 
 @with_app(buildername='latex', testroot='footnotes',
@@ -518,17 +565,18 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert ('Same footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
-            'footnote in bar\n%\n\\end{footnote} in bar.rst' in result)
+            'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
-            'footnote in baz\n%\n\\end{footnote} in baz.rst' in result)
-    assert ('\\phantomsection\\label{index:id30}{\\hyperref[index:the\\string-section'
-            '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
+            'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
+    assert ('\\phantomsection\\label{\\detokenize{index:id30}}'
+            '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference '
-            'to \\phantomsection\\label{index:id1}'
-            '{\\hyperref[index:authoryear]{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}' in result)
-    assert ('\\phantomsection\\label{index:id31}{\\hyperref[index:the\\string-section'
-            '\\string-with\\string-a\\string-reference\\string-to]'
-            '{\\sphinxcrossref{The section with a reference to }}}' in result)
+            'to \\phantomsection\\label{\\detokenize{index:id1}}'
+            '{\\hyperref[\\detokenize{index:authoryear}]'
+            '{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
+    assert ('\\phantomsection\\label{\\detokenize{index:id31}}'
+            '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
+            '{\\sphinxcrossref{The section with a reference to }}}') in result
     assert ('First footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
            'First\n%\n\\end{footnote}') in result
     assert ('Second footnote: %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
@@ -541,7 +589,8 @@ def test_latex_show_urls_is_footnote(app, status, warning):
     assert ('\\href{http://sphinx-doc.org/~test/}{URL including tilde}'
             '%\n\\begin{footnote}[5]\\sphinxAtStartFootnote\n'
             '\\nolinkurl{http://sphinx-doc.org/~test/}\n%\n\\end{footnote}') in result
-    assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term}\\sphinxfootnotemark[8]}] '
+    assert ('\\item[{\\href{http://sphinx-doc.org/}'
+            '{URL in term}\\sphinxfootnotemark[8]}] '
             '\\leavevmode%\n\\begin{footnotetext}[8]\\sphinxAtStartFootnote\n'
             '\\nolinkurl{http://sphinx-doc.org/}\n%\n'
             '\\end{footnotetext}\nDescription') in result
@@ -553,7 +602,7 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             '\\leavevmode%\n\\begin{footnotetext}[9]\\sphinxAtStartFootnote\n'
             '\\nolinkurl{http://sphinx-doc.org/}\n%\n'
             '\\end{footnotetext}\nDescription') in result
-    assert ('\\url{https://github.com/sphinx-doc/sphinx}\n' in result)
+    assert  '\\url{https://github.com/sphinx-doc/sphinx}\n' in result
     assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx-dev@googlegroups.com}\n') in result
 
@@ -570,13 +619,14 @@ def test_latex_show_urls_is_no(app, status, warning):
             'footnote in bar\n%\n\\end{footnote} in bar.rst') in result
     assert ('Auto footnote number %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'footnote in baz\n%\n\\end{footnote} in baz.rst') in result
-    assert ('\\phantomsection\\label{index:id30}{\\hyperref[index:the\\string-section'
-            '\\string-with\\string-a\\string-reference\\string-to\\string-authoryear]'
+    assert ('\\phantomsection\\label{\\detokenize{index:id30}}'
+            '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to-authoryear}]'
             '{\\sphinxcrossref{The section with a reference '
-            'to \\phantomsection\\label{index:id1}'
-            '{\\hyperref[index:authoryear]{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
-    assert ('\\phantomsection\\label{index:id31}{\\hyperref[index:the\\string-section'
-            '\\string-with\\string-a\\string-reference\\string-to]'
+            'to \\phantomsection\\label{\\detokenize{index:id1}}'
+            '{\\hyperref[\\detokenize{index:authoryear}]'
+            '{\\sphinxcrossref{{[}AuthorYear{]}}}}}}}') in result
+    assert ('\\phantomsection\\label{\\detokenize{index:id31}}'
+            '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
            'First\n%\n\\end{footnote}') in result
