@@ -461,8 +461,8 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
             '\sphinxAtStartFootnote\n'
             'Foot note in longtable\n%\n\\end{footnotetext}' in result)
     assert ('This is a reference to the code-block in the footnote:\n'
-            '{\hyperref[index:codeblockinfootnote]{\\sphinxcrossref{\\DUrole'
-            '{std,std-ref}{I am in a footnote}}}}') in result
+            '{\\hyperref[index:codeblockinfootnote]{\\sphinxcrossref{\\DUrole'
+            '{\\detokenize{std,std-ref}}{I am in a footnote}}}}') in result
     assert ('&\nThis is one more footnote with some code in it '
             '\\sphinxfootnotemark[10].\n\\\\') in result
     assert '\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]' in result
