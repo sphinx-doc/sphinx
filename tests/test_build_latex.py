@@ -184,16 +184,20 @@ def test_numref(app, status, warning):
     assert '\\addto\\captionsenglish{\\renewcommand{\\literalblockname}{Listing }}' in result
     assert ('\\hyperref[\\detokenize{index:fig1}]'
             '{Fig.\\@ \\ref{\\detokenize{index:fig1}}}') in result
-    assert '\\hyperref[\\detokenize{baz:fig22}]{Figure\\ref{\\detokenize{baz:fig22}}}' in result
+    assert ('\\hyperref[\\detokenize{baz:fig22}]'
+            '{Figure\\ref{\\detokenize{baz:fig22}}}') in result
     assert ('\\hyperref[\\detokenize{index:table-1}]'
             '{Table \\ref{\\detokenize{index:table-1}}}') in result
     assert ('\\hyperref[\\detokenize{baz:table22}]'
             '{Table:\\ref{\\detokenize{baz:table22}}}') in result
     assert ('\\hyperref[\\detokenize{index:code-1}]'
             '{Listing \\ref{\\detokenize{index:code-1}}}') in result
-    assert '\\hyperref[\\detokenize{baz:code22}]{Code-\\ref{\\detokenize{baz:code22}}}' in result
-    assert '\\hyperref[\\detokenize{foo:foo}]{Section \\ref{\\detokenize{foo:foo}}}' in result
-    assert '\\hyperref[\\detokenize{bar:bar-a}]{Section \\ref{\\detokenize{bar:bar-a}}}' in result
+    assert ('\\hyperref[\\detokenize{baz:code22}]'
+            '{Code-\\ref{\\detokenize{baz:code22}}}') in result
+    assert ('\\hyperref[\\detokenize{foo:foo}]'
+            '{Section \\ref{\\detokenize{foo:foo}}}') in result
+    assert ('\\hyperref[\\detokenize{bar:bar-a}]'
+            '{Section \\ref{\\detokenize{bar:bar-a}}}') in result
     assert ('\\hyperref[\\detokenize{index:fig1}]{Fig.\\ref{\\detokenize{index:fig1}} '
             '\\nameref{\\detokenize{index:fig1}}}') in result
     assert ('\\hyperref[\\detokenize{foo:foo}]{Sect.\\ref{\\detokenize{foo:foo}} '
