@@ -80,10 +80,10 @@ def test_code_block_namedlink_latex(app, status, warning):
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
     label1 = '\def\sphinxLiteralBlockLabel{\label{caption:name-test-rb}}'
     link1  = '\\hyperref[caption:name\\string-test\\string-rb]'\
-             '{\\sphinxcrossref{\\DUrole{\\detokenize{std,std-ref}}{Ruby}}'
+             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Ruby}}'
     label2 = '\def\sphinxLiteralBlockLabel{\label{namedblocks:some-ruby-code}}'
     link2  = '\\hyperref[namedblocks:some\\string-ruby\\string-code]'\
-             '{\\sphinxcrossref{\\DUrole{\\detokenize{std,std-ref}}{the ruby code}}}'
+             '{\\sphinxcrossref{\\DUrole{std,std-ref}{the ruby code}}}'
     assert label1 in latex
     assert link1 in latex
     assert label2 in latex
@@ -275,10 +275,10 @@ def test_literalinclude_namedlink_latex(app, status, warning):
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
     label1 = '\def\sphinxLiteralBlockLabel{\label{caption:name-test-py}}'
     link1  = '\\hyperref[caption:name\\string-test\\string-py]'\
-             '{\\sphinxcrossref{\\DUrole{\\detokenize{std,std-ref}}{Python}}'
+             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Python}}'
     label2 = '\def\sphinxLiteralBlockLabel{\label{namedblocks:some-python-code}}'
     link2  = '\\hyperref[namedblocks:some\\string-python\\string-code]'\
-             '{\\sphinxcrossref{\\DUrole{\\detokenize{std,std-ref}}{the python code}}}'
+             '{\\sphinxcrossref{\\DUrole{std,std-ref}{the python code}}}'
     assert label1 in latex
     assert link1 in latex
     assert label2 in latex
