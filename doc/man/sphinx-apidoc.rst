@@ -49,6 +49,7 @@ Options
 
 These options are used with ``-F``:
 
+-a              Append module_path to sys.path.
 -H <project>    Project name to put into the configuration.
 -A <author>     Author name(s) to put into the configuration.
 -V <version>    Project version.

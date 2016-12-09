@@ -13,14 +13,15 @@ include sphinx-build.py
 include sphinx-quickstart.py
 include sphinx-apidoc.py
 
+recursive-include sphinx/templates *
 recursive-include sphinx/texinputs *
 recursive-include sphinx/themes *
 recursive-include sphinx/locale *
+recursive-include sphinx/search/non-minified-js *.js
 recursive-include sphinx/ext/autosummary/templates *
 recursive-include tests *
 recursive-include utils *
-include sphinx/pycode/Grammar-py2.txt
-include sphinx/pycode/Grammar-py3.txt
+include sphinx/pycode/Grammar-py*
 
 recursive-include doc *
 prune doc/_build

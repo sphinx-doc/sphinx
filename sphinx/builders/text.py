@@ -5,7 +5,7 @@
 
     Plain-text Sphinx builder.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -24,6 +24,8 @@ class TextBuilder(Builder):
     format = 'text'
     out_suffix = '.txt'
     allow_parallel = True
+
+    current_docname = None  # type: unicode
 
     def init(self):
         pass
@@ -60,13 +62,17 @@ class TextBuilder(Builder):
         outfilename = path.join(self.outdir, os_path(docname) + self.out_suffix)
         ensuredir(path.dirname(outfilename))
         try:
-            f = codecs.open(outfilename, 'w', 'utf-8')
-            try:
+            with codecs.open(outfilename, 'w', 'utf-8') as f:
                 f.write(self.writer.output)
-            finally:
-                f.close()
         except (IOError, OSError) as err:
             self.warn("error writing file %s: %s" % (outfilename, err))
 
     def finish(self):
         pass
+
+
+def setup(app):
+    app.add_builder(TextBuilder)
+
+    app.add_config_value('text_sectionchars', '*=-~"+`', 'env')
+    app.add_config_value('text_newlines', 'unix', 'env')

@@ -5,7 +5,7 @@
 
     Test the BuildEnvironment class.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -24,7 +24,7 @@ def setup_module():
     global app, env
     app = TestApp(srcdir='root-envtest')
     env = app.env
-    env.set_warnfunc(lambda *args: warnings.append(args))
+    env.set_warnfunc(lambda *args, **kwargs: warnings.append(args))
 
 
 def teardown_module():
@@ -58,24 +58,21 @@ def test_images():
     htmlbuilder = StandaloneHTMLBuilder(app)
     htmlbuilder.imgpath = 'dummy'
     htmlbuilder.post_process_images(tree)
-    image_uri_message = "no matching candidate for image URI u'foo.*'"
-    if PY3:
-        image_uri_message = remove_unicode_literals(image_uri_message)
-    assert image_uri_message in app._warning.content[-1]
     assert set(htmlbuilder.images.keys()) == \
-        set(['subdir/img.png', 'img.png', 'subdir/simg.png', 'svgimg.svg'])
+        set(['subdir/img.png', 'img.png', 'subdir/simg.png', 'svgimg.svg',
+             'img.foo.png'])
     assert set(htmlbuilder.images.values()) == \
-        set(['img.png', 'img1.png', 'simg.png', 'svgimg.svg'])
+        set(['img.png', 'img1.png', 'simg.png', 'svgimg.svg', 'img.foo.png'])
 
     app._warning.reset()
     latexbuilder = LaTeXBuilder(app)
     latexbuilder.post_process_images(tree)
-    assert image_uri_message in app._warning.content[-1]
     assert set(latexbuilder.images.keys()) == \
         set(['subdir/img.png', 'subdir/simg.png', 'img.png', 'img.pdf',
-             'svgimg.pdf'])
+             'svgimg.pdf', 'img.foo.png'])
     assert set(latexbuilder.images.values()) == \
-        set(['img.pdf', 'img.png', 'img1.png', 'simg.png', 'svgimg.pdf'])
+        set(['img.pdf', 'img.png', 'img1.png', 'simg.png',
+             'svgimg.pdf', 'img.foo.png'])
 
 
 def test_second_update():

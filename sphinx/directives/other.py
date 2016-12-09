@@ -3,11 +3,12 @@
     sphinx.directives.other
     ~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from six.moves import range
+
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
@@ -21,8 +22,14 @@ from sphinx.util.nodes import explicit_title_re, set_source_info, \
     process_index_entry
 from sphinx.util.matching import patfilter
 
+if False:
+    # For type annotation
+    from typing import Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
 
 def int_or_nothing(argument):
+    # type: (unicode) -> int
     if not argument:
         return 999
     return int(argument)
@@ -46,20 +53,19 @@ class TocTree(Directive):
         'includehidden': directives.flag,
         'numbered': int_or_nothing,
         'titlesonly': directives.flag,
+        'reversed': directives.flag,
     }
 
     def run(self):
+        # type: () -> List[nodes.Node]
         env = self.state.document.settings.env
         suffixes = env.config.source_suffix
         glob = 'glob' in self.options
-        caption = self.options.get('caption')
-        if caption:
-            self.options.setdefault('name', nodes.fully_normalize_name(caption))
 
         ret = []
         # (title, ref) pairs, where ref may be a document, or an external link,
         # and title may be None if the document's title is to be used
-        entries = []
+        entries = []        # type: List[Tuple[unicode, unicode]]
         includefiles = []
         all_docnames = env.found_docs.copy()
         # don't add the currently visited file in catch-all patterns
@@ -109,11 +115,13 @@ class TocTree(Directive):
         subnode = addnodes.toctree()
         subnode['parent'] = env.docname
         # entries contains all entries (self references, external links etc.)
+        if 'reversed' in self.options:
+            entries.reverse()
         subnode['entries'] = entries
         # includefiles only entries that are documents
         subnode['includefiles'] = includefiles
         subnode['maxdepth'] = self.options.get('maxdepth', -1)
-        subnode['caption'] = caption
+        subnode['caption'] = self.options.get('caption')
         subnode['glob'] = glob
         subnode['hidden'] = 'hidden' in self.options
         subnode['includehidden'] = 'includehidden' in self.options
@@ -136,9 +144,10 @@ class Author(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         env = self.state.document.settings.env
         if not env.config.show_authors:
             return []
@@ -168,20 +177,21 @@ class Index(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         arguments = self.arguments[0].split('\n')
         env = self.state.document.settings.env
         targetid = 'index-%s' % env.new_serialno('index')
         targetnode = nodes.target('', '', ids=[targetid])
         self.state.document.note_explicit_target(targetnode)
         indexnode = addnodes.index()
-        indexnode['entries'] = ne = []
+        indexnode['entries'] = []
         indexnode['inline'] = False
         set_source_info(self, indexnode)
         for entry in arguments:
-            ne.extend(process_index_entry(entry, targetid))
+            indexnode['entries'].extend(process_index_entry(entry, targetid))
         return [indexnode, targetnode]
 
 
@@ -193,9 +203,10 @@ class VersionChange(Directive):
     required_arguments = 1
     optional_arguments = 1
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         node = addnodes.versionmodified()
         node.document = self.state.document
         set_source_info(self, node)
@@ -248,9 +259,10 @@ class TabularColumns(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         node = addnodes.tabular_col_spec()
         node['spec'] = self.arguments[0]
         set_source_info(self, node)
@@ -265,9 +277,10 @@ class Centered(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         if not self.arguments:
             return []
         subnode = addnodes.centered()
@@ -285,9 +298,10 @@ class Acks(Directive):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         node = addnodes.acks()
         node.document = self.state.document
         self.state.nested_parse(self.content, self.content_offset, node)
@@ -311,6 +325,7 @@ class HList(Directive):
     }
 
     def run(self):
+        # type: () -> List[nodes.Node]
         ncolumns = self.options.get('columns', 2)
         node = nodes.paragraph()
         node.document = self.state.document
@@ -342,9 +357,10 @@ class Only(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[nodes.Node]
         node = addnodes.only()
         node.document = self.state.document
         set_source_info(self, node)
@@ -398,6 +414,7 @@ class Include(BaseInclude):
     """
 
     def run(self):
+        # type: () -> List[nodes.Node]
         env = self.state.document.settings.env
         if self.arguments[0].startswith('<') and \
            self.arguments[0].endswith('>'):
@@ -405,27 +422,30 @@ class Include(BaseInclude):
             return BaseInclude.run(self)
         rel_filename, filename = env.relfn2path(self.arguments[0])
         self.arguments[0] = filename
+        env.note_included(filename)
         return BaseInclude.run(self)
 
 
-directives.register_directive('toctree', TocTree)
-directives.register_directive('sectionauthor', Author)
-directives.register_directive('moduleauthor', Author)
-directives.register_directive('codeauthor', Author)
-directives.register_directive('index', Index)
-directives.register_directive('deprecated', VersionChange)
-directives.register_directive('versionadded', VersionChange)
-directives.register_directive('versionchanged', VersionChange)
-directives.register_directive('seealso', SeeAlso)
-directives.register_directive('tabularcolumns', TabularColumns)
-directives.register_directive('centered', Centered)
-directives.register_directive('acks', Acks)
-directives.register_directive('hlist', HList)
-directives.register_directive('only', Only)
-directives.register_directive('include', Include)
+def setup(app):
+    # type: (Sphinx) -> None
+    directives.register_directive('toctree', TocTree)
+    directives.register_directive('sectionauthor', Author)
+    directives.register_directive('moduleauthor', Author)
+    directives.register_directive('codeauthor', Author)
+    directives.register_directive('index', Index)
+    directives.register_directive('deprecated', VersionChange)
+    directives.register_directive('versionadded', VersionChange)
+    directives.register_directive('versionchanged', VersionChange)
+    directives.register_directive('seealso', SeeAlso)
+    directives.register_directive('tabularcolumns', TabularColumns)
+    directives.register_directive('centered', Centered)
+    directives.register_directive('acks', Acks)
+    directives.register_directive('hlist', HList)
+    directives.register_directive('only', Only)
+    directives.register_directive('include', Include)
 
-# register the standard rst class directive under a different name
-# only for backwards compatibility now
-directives.register_directive('cssclass', Class)
-# new standard name when default-domain with "class" is in effect
-directives.register_directive('rst-class', Class)
+    # register the standard rst class directive under a different name
+    # only for backwards compatibility now
+    directives.register_directive('cssclass', Class)
+    # new standard name when default-domain with "class" is in effect
+    directives.register_directive('rst-class', Class)

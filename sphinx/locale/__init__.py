@@ -5,7 +5,7 @@
 
     Locale utilities.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,6 +13,10 @@ import gettext
 
 from six import PY3, text_type
 from six.moves import UserString
+
+if False:
+    # For type annotation
+    from typing import Any, Tuple  # NOQA
 
 
 class _TranslationProxy(UserString, object):
@@ -140,6 +144,7 @@ class _TranslationProxy(UserString, object):
 
 
 def mygettext(string):
+    # type: (unicode) -> unicode
     """Used instead of _ when creating TranslationProxies, because _ is
     not bound yet at that time.
     """
@@ -147,10 +152,12 @@ def mygettext(string):
 
 
 def lazy_gettext(string):
+    # type: (unicode) -> unicode
     """A lazy version of `gettext`."""
     # if isinstance(string, _TranslationProxy):
     #     return string
-    return _TranslationProxy(mygettext, string)
+    return _TranslationProxy(mygettext, string)  # type: ignore
+
 
 l_ = lazy_gettext
 
@@ -183,19 +190,22 @@ pairindextypes = {
     'exception': l_('exception'),
     'statement': l_('statement'),
     'builtin':   l_('built-in function'),
-}
+}  # Dict[unicode, _TranslationProxy]
 
-translators = {}
+translators = {}  # type: Dict[unicode, Any]
 
 if PY3:
     def _(message):
+        # type: (unicode) -> unicode
         return translators['sphinx'].gettext(message)
 else:
     def _(message):
+        # type: (unicode) -> unicode
         return translators['sphinx'].ugettext(message)
 
 
-def init(locale_dirs, language, catalog='sphinx', charset='utf-8'):
+def init(locale_dirs, language, catalog='sphinx'):
+    # type: (List, unicode, unicode) -> Tuple[Any, bool]
     """Look for message catalogs in `locale_dirs` and *ensure* that there is at
     least a NullTranslations catalog set in `translators`.  If called multiple
     times or if several ``.mo`` files are found, their contents are merged
@@ -209,22 +219,15 @@ def init(locale_dirs, language, catalog='sphinx', charset='utf-8'):
     # the None entry is the system's default locale path
     has_translation = True
 
-    # compile mo files if po file is updated
-    # TODO: remove circular importing
-    from sphinx.util.i18n import find_catalog_source_files
-    for catinfo in find_catalog_source_files(locale_dirs, language, domains=[catalog],
-                                             charset=charset):
-        catinfo.write_mo(language)
-
     # loading
     for dir_ in locale_dirs:
         try:
-            trans = gettext.translation(catalog, localedir=dir_,
-                                        languages=[language])
+            trans = gettext.translation(catalog, localedir=dir_,  # type: ignore
+                                        languages=[language])  # type: ignore
             if translator is None:
                 translator = trans
             else:
-                translator._catalog.update(trans._catalog)
+                translator._catalog.update(trans._catalog)  # type: ignore
         except Exception:
             # Language couldn't be found in the specified path
             pass

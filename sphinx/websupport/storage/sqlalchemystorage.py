@@ -5,14 +5,14 @@
 
     An SQLAlchemy storage backend.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from datetime import datetime
 
 import sqlalchemy
-from sqlalchemy.orm import aliased
+from sqlalchemy.orm import aliased  # type: ignore
 from sqlalchemy.sql import func
 
 from sphinx.websupport.errors import CommentNotAllowedError, \
@@ -22,7 +22,7 @@ from sphinx.websupport.storage.sqlalchemy_db import Base, Node, \
     Comment, CommentVote, Session
 from sphinx.websupport.storage.differ import CombinedHtmlDiff
 
-if sqlalchemy.__version__[:3] < '0.5':
+if sqlalchemy.__version__[:3] < '0.5':  # type: ignore
     raise ImportError('SQLAlchemy version 0.5 or greater is required for this '
                       'storage backend; you have version %s' % sqlalchemy.__version__)
 

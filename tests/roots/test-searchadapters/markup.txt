@@ -1,0 +1,447 @@
+:tocdepth: 2
+
+.. title:: set by title directive
+
+Testing various markup
+======================
+
+Meta markup
+-----------
+
+.. sectionauthor:: Georg Brandl
+.. moduleauthor:: Georg Brandl
+
+.. contents:: TOC
+
+.. meta::
+   :author: Me
+   :keywords: docs, sphinx
+
+
+Generic reST
+------------
+
+A |subst| (the definition is in rst_epilog).
+
+.. highlight:: none
+
+.. _label:
+
+::
+
+   some code
+
+Option list:
+
+-h              help
+--help          also help
+
+Line block:
+
+| line1
+|   line2
+|     line3
+|       line4
+|   line5
+| line6
+|   line7
+
+
+Body directives
+^^^^^^^^^^^^^^^
+
+.. topic:: Title
+
+   Topic body.
+
+.. sidebar:: Sidebar
+   :subtitle: Sidebar subtitle
+
+   Sidebar body.
+
+.. rubric:: Test rubric
+
+.. epigraph:: Epigraph title
+
+   Epigraph body.
+
+   -- Author
+
+.. highlights:: Highlights
+
+   Highlights body.
+
+.. pull-quote:: Pull-quote
+
+   Pull quote body.
+
+.. compound::
+
+   a
+
+   b
+
+.. parsed-literal::
+
+   with some *markup* inside
+
+
+.. _admonition-section:
+
+Admonitions
+^^^^^^^^^^^
+
+.. admonition:: My Admonition
+
+   Admonition text.
+
+.. note::
+   Note text.
+
+.. warning::
+
+   Warning text.
+
+.. _some-label:
+
+.. tip::
+   Tip text.
+
+Indirect hyperlink targets
+
+.. _other-label: some-label_
+
+Inline markup
+-------------
+
+*Generic inline markup*
+
+Adding \n to test unescaping.
+
+* :command:`command\\n`
+* :dfn:`dfn\\n`
+* :guilabel:`guilabel with &accelerator and \\n`
+* :kbd:`kbd\\n`
+* :mailheader:`mailheader\\n`
+* :makevar:`makevar\\n`
+* :manpage:`manpage\\n`
+* :mimetype:`mimetype\\n`
+* :newsgroup:`newsgroup\\n`
+* :program:`program\\n`
+* :regexp:`regexp\\n`
+* :menuselection:`File --> Close\\n`
+* :menuselection:`&File --> &Print`
+* :file:`a/{varpart}/b\\n`
+* :samp:`print {i}\\n`
+
+*Linking inline markup*
+
+* :pep:`8`
+* :pep:`Python Enhancement Proposal #8 <8>`
+* :rfc:`1`
+* :rfc:`Request for Comments #1 <1>`
+* :envvar:`HOME`
+* :keyword:`with`
+* :token:`try statement <try_stmt>`
+* :ref:`admonition-section`
+* :ref:`here <some-label>`
+* :ref:`there <other-label>`
+* :ref:`my-figure`
+* :ref:`my-figure-name`
+* :ref:`my-table`
+* :ref:`my-table-name`
+* :ref:`my-code-block`
+* :ref:`my-code-block-name`
+* :numref:`my-figure`
+* :numref:`my-figure-name`
+* :numref:`my-table`
+* :numref:`my-table-name`
+* :numref:`my-code-block`
+* :numref:`my-code-block-name`
+* :doc:`subdir/includes`
+* ``:download:`` is tested in includes.txt
+* :option:`Python -c option <python -c>`
+* This used to crash: :option:`&option`
+
+Test :abbr:`abbr (abbreviation)` and another :abbr:`abbr (abbreviation)`.
+
+Testing the :index:`index` role, also available with
+:index:`explicit <pair: title; explicit>` title.
+
+.. _with:
+
+With
+----
+
+(Empty section.)
+
+
+Tables
+------
+
+.. tabularcolumns:: |L|p{5cm}|R|
+
+.. _my-table:
+
+.. table:: my table
+   :name: my-table-name
+
+   +----+----------------+----+
+   | 1  | * Block elems  |  x |
+   |    | * In table     |    |
+   +----+----------------+----+
+   | 2  | Empty cells:   |    |
+   +----+----------------+----+
+
+.. table:: empty cell in table header
+
+   ===== ======
+   \ 
+   ===== ======
+   1     2
+   3     4
+   ===== ======
+
+Tables with multirow and multicol:
+
+.. only:: latex
+
+   +----+----------------+---------+
+   | 1  | test!          | c       |
+   +----+---------+------+         |
+   | 2  | col     | col  |         |
+   | y  +---------+------+----+----+
+   | x  | multi-column cell   | x  |
+   +----+---------------------+----+
+
+   +----+
+   | 1  |
+   +    +
+   |    |
+   +----+
+
+.. list-table::
+   :header-rows: 0
+
+   * - .. figure:: img.png
+
+          figure in table
+
+
+Figures
+-------
+
+.. _my-figure:
+
+.. figure:: img.png
+   :name: my-figure-name
+
+   My caption of the figure
+
+   My description paragraph of the figure.
+
+   Description paragraph is wraped with legend node.
+
+.. figure:: rimg.png
+   :align: right
+
+   figure with align option
+
+.. figure:: rimg.png
+   :align: right
+   :figwidth: 50%
+
+   figure with align & figwidth option
+
+.. figure:: rimg.png
+   :align: right
+   :width: 3cm
+
+   figure with align & width option
+
+Version markup
+--------------
+
+.. versionadded:: 0.6
+   Some funny **stuff**.
+
+.. versionchanged:: 0.6
+   Even more funny stuff.
+
+.. deprecated:: 0.6
+   Boring stuff.
+
+.. versionadded:: 1.2
+
+   First paragraph of versionadded.
+
+.. versionchanged:: 1.2
+   First paragraph of versionchanged.
+
+   Second paragraph of versionchanged.
+
+
+Code blocks
+-----------
+
+.. _my-code-block:
+
+.. code-block:: ruby
+   :linenos:
+   :caption: my ruby code
+   :name: my-code-block-name
+
+   def ruby?
+       false
+   end
+
+.. code-block:: c
+
+   import sys
+
+   sys.stdout.write('hello world!\n')
+
+
+Misc stuff
+----------
+
+Stuff [#]_
+
+Reference lookup: [Ref1]_ (defined in another file).
+Reference lookup underscore: [Ref_1]_
+
+.. seealso:: something, something else, something more
+
+   `Google <http://www.google.com>`_
+       For everything.
+
+.. hlist::
+   :columns: 4
+
+   * This
+   * is
+   * a horizontal
+   * list
+   * with several
+   * items
+
+.. rubric:: Side note
+
+This is a side note.
+
+This tests :CLASS:`role names in uppercase`.
+
+.. centered:: LICENSE AGREEMENT
+
+.. acks::
+
+   * Terry Pratchett
+   * J. R. R. Tolkien
+   * Monty Python
+
+.. glossary::
+   :sorted:
+
+   boson
+      Particle with integer spin.
+
+   *fermion*
+      Particle with half-integer spin.
+
+   tauon
+   myon
+   electron
+      Examples for fermions.
+
+   über
+      Gewisse
+
+   änhlich
+      Dinge
+
+.. productionlist::
+   try_stmt: `try1_stmt` | `try2_stmt`
+   try1_stmt: "try" ":" `suite`
+            : ("except" [`expression` ["," `target`]] ":" `suite`)+
+            : ["else" ":" `suite`]
+            : ["finally" ":" `suite`]
+   try2_stmt: "try" ":" `suite`
+            : "finally" ":" `suite`
+
+
+Index markup
+------------
+
+.. index::
+   single: entry
+   pair: entry; pair
+   double: entry; double
+   triple: index; entry; triple
+   keyword: with
+   see: from; to
+   seealso: fromalso; toalso
+
+Invalid index markup...
+
+.. index::
+   single:
+   pair:
+   keyword:
+
+.. index::
+   !Main, !Other
+   !single: entry; pair
+
+:index:`!Main`
+
+.. _ölabel:
+
+Ö... Some strange characters
+----------------------------
+
+Testing öäü...
+
+
+Only directive
+--------------
+
+.. only:: html
+
+   In HTML.
+
+.. only:: latex
+
+   In LaTeX.
+
+.. only:: html or latex
+
+   In both.
+
+.. only:: confpytag and (testtag or nonexisting_tag)
+
+   Always present, because set through conf.py/command line.
+
+
+Any role
+--------
+
+.. default-role:: any
+
+Test referencing to `headings <with>` and `objects <func_without_body>`.
+Also `modules <mod>` and `classes <Time>`.
+
+More domains:
+
+* `JS <bar.baz>`
+* `C <SphinxType>`
+* `myobj` (user markup)
+* `n::Array`
+* `perl -c`
+
+.. default-role::
+
+
+.. rubric:: Footnotes
+
+.. [#] Like footnotes.
+

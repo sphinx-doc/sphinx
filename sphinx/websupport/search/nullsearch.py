@@ -5,7 +5,7 @@
 
     The default search adapter, does nothing.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,7 +17,7 @@ class NullSearch(BaseSearch):
     """A search adapter that does nothing. Used when no search adapter
     is specified.
     """
-    def feed(self, pagename, title, doctree):
+    def feed(self, pagename, filename, title, doctree):
         pass
 
     def query(self, q):

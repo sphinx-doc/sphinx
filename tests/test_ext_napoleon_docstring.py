@@ -6,7 +6,7 @@
     Tests for :mod:`sphinx.ext.napoleon.docstring` module.
 
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -19,7 +19,7 @@ from unittest import TestCase
 
 from sphinx.ext.napoleon import Config
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
-from util import mock
+import mock
 
 
 class NamedtupleSubclass(namedtuple('NamedtupleSubclass', ('attr1', 'attr2'))):
@@ -222,6 +222,24 @@ class GoogleDocstringTest(BaseDocstringTest):
         """
         Single line summary
 
+        Args:
+          arg1 (list(int)): Description
+          arg2 (list[int]): Description
+          arg3 (dict(str, int)): Description
+          arg4 (dict[str, int]): Description
+        """,
+        """
+        Single line summary
+
+        :Parameters: * **arg1** (*list(int)*) -- Description
+                     * **arg2** (*list[int]*) -- Description
+                     * **arg3** (*dict(str, int)*) -- Description
+                     * **arg4** (*dict[str, int]*) -- Description
+        """
+    ), (
+        """
+        Single line summary
+
         Yield:
           str:Extended
           description of yielded value
@@ -249,7 +267,11 @@ class GoogleDocstringTest(BaseDocstringTest):
     )]
 
     def test_docstrings(self):
-        config = Config(napoleon_use_param=False, napoleon_use_rtype=False)
+        config = Config(
+            napoleon_use_param=False,
+            napoleon_use_rtype=False,
+            napoleon_use_keyword=False
+        )
         for docstring, expected in self.docstrings:
             actual = str(GoogleDocstring(dedent(docstring), config))
             expected = dedent(expected)
@@ -262,8 +284,9 @@ Construct a new XBlock.
 This class should only be used by runtimes.
 
 Arguments:
-    runtime (:class:`Runtime`): Use it to access the environment.
-        It is available in XBlock code as ``self.runtime``.
+    runtime (:class:`~typing.Dict`\[:class:`int`,:class:`str`\]): Use it to
+        access the environment. It is available in XBlock code
+        as ``self.runtime``.
 
     field_data (:class:`FieldData`): Interface used by the XBlock
         fields to access their data from wherever it is persisted.
@@ -278,16 +301,14 @@ Construct a new XBlock.
 
 This class should only be used by runtimes.
 
-:param runtime: Use it to access the environment.
-                It is available in XBlock code as ``self.runtime``.
-
-:type runtime: :class:`Runtime`
+:param runtime: Use it to
+                access the environment. It is available in XBlock code
+                as ``self.runtime``.
+:type runtime: :class:`~typing.Dict`\[:class:`int`,:class:`str`\]
 :param field_data: Interface used by the XBlock
                    fields to access their data from wherever it is persisted.
-
 :type field_data: :class:`FieldData`
 :param scope_ids: Identifiers needed to resolve scopes.
-
 :type scope_ids: :class:`ScopeIds`
 """
         self.assertEqual(expected, actual)
@@ -328,7 +349,9 @@ Returns:
         codecode
 """
         expected = """
-:returns: foo::
+:returns:
+
+          foo::
 
               codecode
               codecode
@@ -615,6 +638,285 @@ Summary line
             actual = str(GoogleDocstring(docstring))
             self.assertEqual(expected, actual)
 
+    def test_list_in_parameter_description(self):
+        docstring = """One line summary.
+
+Parameters:
+    no_list (int):
+    one_bullet_empty (int):
+        *
+    one_bullet_single_line (int):
+        - first line
+    one_bullet_two_lines (int):
+        +   first line
+            continued
+    two_bullets_single_line (int):
+        -  first line
+        -  second line
+    two_bullets_two_lines (int):
+        * first line
+          continued
+        * second line
+          continued
+    one_enumeration_single_line (int):
+        1.  first line
+    one_enumeration_two_lines (int):
+        1)   first line
+             continued
+    two_enumerations_one_line (int):
+        (iii) first line
+        (iv) second line
+    two_enumerations_two_lines (int):
+        a. first line
+           continued
+        b. second line
+           continued
+    one_definition_one_line (int):
+        item 1
+            first line
+    one_definition_two_lines (int):
+        item 1
+            first line
+            continued
+    two_definitions_one_line (int):
+        item 1
+            first line
+        item 2
+            second line
+    two_definitions_two_lines (int):
+        item 1
+            first line
+            continued
+        item 2
+            second line
+            continued
+    one_definition_blank_line (int):
+        item 1
+
+            first line
+
+            extra first line
+
+    two_definitions_blank_lines (int):
+        item 1
+
+            first line
+
+            extra first line
+
+        item 2
+
+            second line
+
+            extra second line
+
+    definition_after_inline_text (int): text line
+
+        item 1
+            first line
+
+    definition_after_normal_text (int):
+        text line
+
+        item 1
+            first line
+"""
+
+        expected = """One line summary.
+
+:param no_list:
+:type no_list: int
+:param one_bullet_empty:
+                         *
+:type one_bullet_empty: int
+:param one_bullet_single_line:
+                               - first line
+:type one_bullet_single_line: int
+:param one_bullet_two_lines:
+                             +   first line
+                                 continued
+:type one_bullet_two_lines: int
+:param two_bullets_single_line:
+                                -  first line
+                                -  second line
+:type two_bullets_single_line: int
+:param two_bullets_two_lines:
+                              * first line
+                                continued
+                              * second line
+                                continued
+:type two_bullets_two_lines: int
+:param one_enumeration_single_line:
+                                    1.  first line
+:type one_enumeration_single_line: int
+:param one_enumeration_two_lines:
+                                  1)   first line
+                                       continued
+:type one_enumeration_two_lines: int
+:param two_enumerations_one_line:
+                                  (iii) first line
+                                  (iv) second line
+:type two_enumerations_one_line: int
+:param two_enumerations_two_lines:
+                                   a. first line
+                                      continued
+                                   b. second line
+                                      continued
+:type two_enumerations_two_lines: int
+:param one_definition_one_line:
+                                item 1
+                                    first line
+:type one_definition_one_line: int
+:param one_definition_two_lines:
+                                 item 1
+                                     first line
+                                     continued
+:type one_definition_two_lines: int
+:param two_definitions_one_line:
+                                 item 1
+                                     first line
+                                 item 2
+                                     second line
+:type two_definitions_one_line: int
+:param two_definitions_two_lines:
+                                  item 1
+                                      first line
+                                      continued
+                                  item 2
+                                      second line
+                                      continued
+:type two_definitions_two_lines: int
+:param one_definition_blank_line:
+                                  item 1
+
+                                      first line
+
+                                      extra first line
+:type one_definition_blank_line: int
+:param two_definitions_blank_lines:
+                                    item 1
+
+                                        first line
+
+                                        extra first line
+
+                                    item 2
+
+                                        second line
+
+                                        extra second line
+:type two_definitions_blank_lines: int
+:param definition_after_inline_text: text line
+
+                                     item 1
+                                         first line
+:type definition_after_inline_text: int
+:param definition_after_normal_text: text line
+
+                                     item 1
+                                         first line
+:type definition_after_normal_text: int
+"""
+        config = Config(napoleon_use_param=True)
+        actual = str(GoogleDocstring(docstring, config))
+        self.assertEqual(expected, actual)
+
+        expected = """One line summary.
+
+:Parameters: * **no_list** (*int*)
+             * **one_bullet_empty** (*int*) --
+
+               *
+             * **one_bullet_single_line** (*int*) --
+
+               - first line
+             * **one_bullet_two_lines** (*int*) --
+
+               +   first line
+                   continued
+             * **two_bullets_single_line** (*int*) --
+
+               -  first line
+               -  second line
+             * **two_bullets_two_lines** (*int*) --
+
+               * first line
+                 continued
+               * second line
+                 continued
+             * **one_enumeration_single_line** (*int*) --
+
+               1.  first line
+             * **one_enumeration_two_lines** (*int*) --
+
+               1)   first line
+                    continued
+             * **two_enumerations_one_line** (*int*) --
+
+               (iii) first line
+               (iv) second line
+             * **two_enumerations_two_lines** (*int*) --
+
+               a. first line
+                  continued
+               b. second line
+                  continued
+             * **one_definition_one_line** (*int*) --
+
+               item 1
+                   first line
+             * **one_definition_two_lines** (*int*) --
+
+               item 1
+                   first line
+                   continued
+             * **two_definitions_one_line** (*int*) --
+
+               item 1
+                   first line
+               item 2
+                   second line
+             * **two_definitions_two_lines** (*int*) --
+
+               item 1
+                   first line
+                   continued
+               item 2
+                   second line
+                   continued
+             * **one_definition_blank_line** (*int*) --
+
+               item 1
+
+                   first line
+
+                   extra first line
+             * **two_definitions_blank_lines** (*int*) --
+
+               item 1
+
+                   first line
+
+                   extra first line
+
+               item 2
+
+                   second line
+
+                   extra second line
+             * **definition_after_inline_text** (*int*) -- text line
+
+               item 1
+                   first line
+             * **definition_after_normal_text** (*int*) -- text line
+
+               item 1
+                   first line
+"""
+        config = Config(napoleon_use_param=False)
+        actual = str(GoogleDocstring(docstring, config))
+        self.assertEqual(expected, actual)
+
 
 class NumpyDocstringTest(BaseDocstringTest):
     docstrings = [(
@@ -732,8 +1034,8 @@ class NumpyDocstringTest(BaseDocstringTest):
         Single line summary
 
         :Parameters: * **arg1** (*str*) -- Extended description of arg1
-                     * ***args** -- Variable length argument list.
-                     * ****kwargs** -- Arbitrary keyword arguments.
+                     * **\\*args** -- Variable length argument list.
+                     * **\\*\\*kwargs** -- Arbitrary keyword arguments.
         """
     ), (
         """
@@ -770,7 +1072,10 @@ class NumpyDocstringTest(BaseDocstringTest):
     )]
 
     def test_docstrings(self):
-        config = Config(napoleon_use_param=False, napoleon_use_rtype=False)
+        config = Config(
+            napoleon_use_param=False,
+            napoleon_use_rtype=False,
+            napoleon_use_keyword=False)
         for docstring, expected in self.docstrings:
             actual = str(NumpyDocstring(dedent(docstring), config))
             expected = dedent(expected)
@@ -1194,3 +1499,285 @@ body
         for docstring, expected in docstrings:
             actual = str(NumpyDocstring(docstring))
             self.assertEqual(expected, actual)
+
+    def test_list_in_parameter_description(self):
+        docstring = """One line summary.
+
+Parameters
+----------
+no_list : int
+one_bullet_empty : int
+    *
+one_bullet_single_line : int
+    - first line
+one_bullet_two_lines : int
+    +   first line
+        continued
+two_bullets_single_line : int
+    -  first line
+    -  second line
+two_bullets_two_lines : int
+    * first line
+      continued
+    * second line
+      continued
+one_enumeration_single_line : int
+    1.  first line
+one_enumeration_two_lines : int
+    1)   first line
+         continued
+two_enumerations_one_line : int
+    (iii) first line
+    (iv) second line
+two_enumerations_two_lines : int
+    a. first line
+       continued
+    b. second line
+       continued
+one_definition_one_line : int
+    item 1
+        first line
+one_definition_two_lines : int
+    item 1
+        first line
+        continued
+two_definitions_one_line : int
+    item 1
+        first line
+    item 2
+        second line
+two_definitions_two_lines : int
+    item 1
+        first line
+        continued
+    item 2
+        second line
+        continued
+one_definition_blank_line : int
+    item 1
+
+        first line
+
+        extra first line
+
+two_definitions_blank_lines : int
+    item 1
+
+        first line
+
+        extra first line
+
+    item 2
+
+        second line
+
+        extra second line
+
+definition_after_normal_text : int
+    text line
+
+    item 1
+        first line
+"""
+
+        expected = """One line summary.
+
+:param no_list:
+:type no_list: int
+:param one_bullet_empty:
+                         *
+:type one_bullet_empty: int
+:param one_bullet_single_line:
+                               - first line
+:type one_bullet_single_line: int
+:param one_bullet_two_lines:
+                             +   first line
+                                 continued
+:type one_bullet_two_lines: int
+:param two_bullets_single_line:
+                                -  first line
+                                -  second line
+:type two_bullets_single_line: int
+:param two_bullets_two_lines:
+                              * first line
+                                continued
+                              * second line
+                                continued
+:type two_bullets_two_lines: int
+:param one_enumeration_single_line:
+                                    1.  first line
+:type one_enumeration_single_line: int
+:param one_enumeration_two_lines:
+                                  1)   first line
+                                       continued
+:type one_enumeration_two_lines: int
+:param two_enumerations_one_line:
+                                  (iii) first line
+                                  (iv) second line
+:type two_enumerations_one_line: int
+:param two_enumerations_two_lines:
+                                   a. first line
+                                      continued
+                                   b. second line
+                                      continued
+:type two_enumerations_two_lines: int
+:param one_definition_one_line:
+                                item 1
+                                    first line
+:type one_definition_one_line: int
+:param one_definition_two_lines:
+                                 item 1
+                                     first line
+                                     continued
+:type one_definition_two_lines: int
+:param two_definitions_one_line:
+                                 item 1
+                                     first line
+                                 item 2
+                                     second line
+:type two_definitions_one_line: int
+:param two_definitions_two_lines:
+                                  item 1
+                                      first line
+                                      continued
+                                  item 2
+                                      second line
+                                      continued
+:type two_definitions_two_lines: int
+:param one_definition_blank_line:
+                                  item 1
+
+                                      first line
+
+                                      extra first line
+:type one_definition_blank_line: int
+:param two_definitions_blank_lines:
+                                    item 1
+
+                                        first line
+
+                                        extra first line
+
+                                    item 2
+
+                                        second line
+
+                                        extra second line
+:type two_definitions_blank_lines: int
+:param definition_after_normal_text: text line
+
+                                     item 1
+                                         first line
+:type definition_after_normal_text: int
+"""
+        config = Config(napoleon_use_param=True)
+        actual = str(NumpyDocstring(docstring, config))
+        self.assertEqual(expected, actual)
+
+        expected = """One line summary.
+
+:Parameters: * **no_list** (*int*)
+             * **one_bullet_empty** (*int*) --
+
+               *
+             * **one_bullet_single_line** (*int*) --
+
+               - first line
+             * **one_bullet_two_lines** (*int*) --
+
+               +   first line
+                   continued
+             * **two_bullets_single_line** (*int*) --
+
+               -  first line
+               -  second line
+             * **two_bullets_two_lines** (*int*) --
+
+               * first line
+                 continued
+               * second line
+                 continued
+             * **one_enumeration_single_line** (*int*) --
+
+               1.  first line
+             * **one_enumeration_two_lines** (*int*) --
+
+               1)   first line
+                    continued
+             * **two_enumerations_one_line** (*int*) --
+
+               (iii) first line
+               (iv) second line
+             * **two_enumerations_two_lines** (*int*) --
+
+               a. first line
+                  continued
+               b. second line
+                  continued
+             * **one_definition_one_line** (*int*) --
+
+               item 1
+                   first line
+             * **one_definition_two_lines** (*int*) --
+
+               item 1
+                   first line
+                   continued
+             * **two_definitions_one_line** (*int*) --
+
+               item 1
+                   first line
+               item 2
+                   second line
+             * **two_definitions_two_lines** (*int*) --
+
+               item 1
+                   first line
+                   continued
+               item 2
+                   second line
+                   continued
+             * **one_definition_blank_line** (*int*) --
+
+               item 1
+
+                   first line
+
+                   extra first line
+             * **two_definitions_blank_lines** (*int*) --
+
+               item 1
+
+                   first line
+
+                   extra first line
+
+               item 2
+
+                   second line
+
+                   extra second line
+             * **definition_after_normal_text** (*int*) -- text line
+
+               item 1
+                   first line
+"""
+        config = Config(napoleon_use_param=False)
+        actual = str(NumpyDocstring(docstring, config))
+        self.assertEqual(expected, actual)
+
+    def test_keywords_with_types(self):
+        docstring = """\
+Do as you please
+
+Keyword Args:
+    gotham_is_yours (None): shall interfere.
+"""
+        actual = str(GoogleDocstring(docstring))
+        expected = """\
+Do as you please
+
+:keyword gotham_is_yours: shall interfere.
+:kwtype gotham_is_yours: None
+"""
+        self.assertEqual(expected, actual)

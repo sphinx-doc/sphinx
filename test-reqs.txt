@@ -1,5 +1,6 @@
 flake8
 nose
+nose-timer
 mock
 six>=1.4
 Jinja2>=2.3
@@ -11,3 +12,8 @@ sqlalchemy>=0.9
 whoosh>=2.0
 alabaster
 sphinx_rtd_theme
+imagesize
+requests
+html5lib
+enum34
+typing

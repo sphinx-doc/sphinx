@@ -4,7 +4,7 @@
  *
  * Sphinx stylesheet -- sphinx13 theme.
  *
- * :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -384,6 +384,10 @@ div.warning ul, div.warning ol {
     padding: 0;
 }
 
+div.admonition div.highlight {
+    background: none;
+}
+
 .viewcode-back {
     font-family: 'Open Sans', 'Lucida Grande', 'Lucida Sans Unicode', 'Geneva',
                  'Verdana', sans-serif;
@@ -393,4 +397,10 @@ div.viewcode-block:target {
     background-color: #f4debf;
     border-top: 1px solid #ac9;
     border-bottom: 1px solid #ac9;
+}
+
+.contentstable {
+    margin-left: 30px;
+    margin: 0 auto;
+    table-layout: fixed;
 }

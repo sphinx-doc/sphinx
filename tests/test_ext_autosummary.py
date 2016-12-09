@@ -5,7 +5,7 @@
 
     Test the autosummary extension.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -54,7 +54,7 @@ def test_mangle_signature():
         assert res == outp, (u"'%s' -> '%s' != '%s'" % (inp, res, outp))
 
 
-@with_app(buildername='html', **default_kw)
+@with_app(buildername='dummy', **default_kw)
 def test_get_items_summary(app, status, warning):
     # monkey-patch Autosummary.get_items so we can easily get access to it's
     # results..

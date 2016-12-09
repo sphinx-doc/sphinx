@@ -1,0 +1,916 @@
+# Translations template for Sphinx.
+# Copyright (C) 2016 ORGANIZATION
+# This file is distributed under the same license as the Sphinx project.
+# 
+# Translators:
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016
+# Geraint Palmer <palmer.geraint@googlemail.com>, 2016
+msgid ""
+msgstr ""
+"Project-Id-Version: Sphinx\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2016-11-06 22:40+0900\n"
+"PO-Revision-Date: 2016-11-06 13:53+0000\n"
+"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>\n"
+"Language-Team: Welsh (http://www.transifex.com/sphinx-doc/sphinx-1/language/cy/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+"Language: cy\n"
+"Plural-Forms: nplurals=4; plural=(n==1) ? 0 : (n==2) ? 1 : (n != 8 && n != 11) ? 2 : 3;\n"
+
+#: sphinx/config.py:109
+#, python-format
+msgid "Section %s"
+msgstr ""
+
+#: sphinx/config.py:110
+#, python-format
+msgid "Fig. %s"
+msgstr "Ffig. %s"
+
+#: sphinx/config.py:111
+#, python-format
+msgid "Table %s"
+msgstr "Tabl %s"
+
+#: sphinx/config.py:112
+#, python-format
+msgid "Listing %s"
+msgstr "Listing %s"
+
+#: sphinx/roles.py:187
+#, python-format
+msgid "Python Enhancement Proposals; PEP %s"
+msgstr "Python Enhancement Proposals; PEP %s"
+
+#: sphinx/builders/changes.py:75
+msgid "Builtins"
+msgstr ""
+
+#: sphinx/builders/changes.py:77
+msgid "Module level"
+msgstr "Lefel modiwl"
+
+#: sphinx/builders/html.py:294 sphinx/transforms/__init__.py:46
+#: sphinx/writers/latex.py:393 sphinx/writers/manpage.py:100
+#: sphinx/writers/texinfo.py:221
+#, python-format
+msgid "%b %d, %Y"
+msgstr ""
+
+#: sphinx/builders/html.py:315 sphinx/themes/basic/defindex.html:30
+msgid "General Index"
+msgstr "Indecs cyffredinol"
+
+#: sphinx/builders/html.py:315
+msgid "index"
+msgstr "indecs"
+
+#: sphinx/builders/html.py:377
+msgid "next"
+msgstr "nesaf"
+
+#: sphinx/builders/html.py:386
+msgid "previous"
+msgstr "blaenorol"
+
+#: sphinx/builders/html.py:1222
+#, python-format
+msgid "%s %s documentation"
+msgstr "Dogfennaeth %s %s "
+
+#: sphinx/builders/latex.py:177 sphinx/builders/texinfo.py:199
+msgid " (in "
+msgstr " (yn "
+
+#: sphinx/directives/code.py:140 sphinx/directives/code.py:370
+#, python-format
+msgid "Invalid caption: %s"
+msgstr ""
+
+#: sphinx/directives/other.py:149
+msgid "Section author: "
+msgstr "Awdur yr adran:"
+
+#: sphinx/directives/other.py:151
+msgid "Module author: "
+msgstr "Awdur y fodiwl:"
+
+#: sphinx/directives/other.py:153
+msgid "Code author: "
+msgstr "Awdur y cod:"
+
+#: sphinx/directives/other.py:155
+msgid "Author: "
+msgstr "Awdur:"
+
+#: sphinx/domains/__init__.py:277
+#, python-format
+msgid "%s %s"
+msgstr ""
+
+#: sphinx/domains/c.py:58 sphinx/domains/cpp.py:4051
+#: sphinx/domains/python.py:149
+msgid "Parameters"
+msgstr "Paramedrau"
+
+#: sphinx/domains/c.py:61 sphinx/domains/cpp.py:4060
+#: sphinx/domains/javascript.py:128 sphinx/domains/python.py:161
+msgid "Returns"
+msgstr ""
+
+#: sphinx/domains/c.py:63 sphinx/domains/javascript.py:130
+#: sphinx/domains/python.py:163
+msgid "Return type"
+msgstr ""
+
+#: sphinx/domains/c.py:177
+#, python-format
+msgid "%s (C function)"
+msgstr ""
+
+#: sphinx/domains/c.py:179
+#, python-format
+msgid "%s (C member)"
+msgstr ""
+
+#: sphinx/domains/c.py:181
+#, python-format
+msgid "%s (C macro)"
+msgstr ""
+
+#: sphinx/domains/c.py:183
+#, python-format
+msgid "%s (C type)"
+msgstr ""
+
+#: sphinx/domains/c.py:185
+#, python-format
+msgid "%s (C variable)"
+msgstr ""
+
+#: sphinx/domains/c.py:242 sphinx/domains/cpp.py:4418
+#: sphinx/domains/javascript.py:164 sphinx/domains/python.py:614
+msgid "function"
+msgstr "ffwythiant"
+
+#: sphinx/domains/c.py:243 sphinx/domains/cpp.py:4419
+msgid "member"
+msgstr "aelod"
+
+#: sphinx/domains/c.py:244
+msgid "macro"
+msgstr ""
+
+#: sphinx/domains/c.py:245 sphinx/domains/cpp.py:4420
+msgid "type"
+msgstr ""
+
+#: sphinx/domains/c.py:246
+msgid "variable"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4054
+msgid "Template Parameters"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4057 sphinx/domains/javascript.py:125
+msgid "Throws"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4205
+#, python-format
+msgid "%s (C++ type)"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4216
+#, python-format
+msgid "%s (C++ concept)"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4227
+#, python-format
+msgid "%s (C++ member)"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4238
+#, python-format
+msgid "%s (C++ function)"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4249
+#, python-format
+msgid "%s (C++ class)"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4260
+#, python-format
+msgid "%s (C++ enum)"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4281
+#, python-format
+msgid "%s (C++ enumerator)"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4417 sphinx/domains/javascript.py:165
+#: sphinx/domains/python.py:616
+msgid "class"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4421
+msgid "concept"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4422
+msgid "enum"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4423
+msgid "enumerator"
+msgstr ""
+
+#: sphinx/domains/javascript.py:106 sphinx/domains/python.py:307
+#, python-format
+msgid "%s() (built-in function)"
+msgstr ""
+
+#: sphinx/domains/javascript.py:107 sphinx/domains/python.py:371
+#, python-format
+msgid "%s() (%s method)"
+msgstr ""
+
+#: sphinx/domains/javascript.py:109
+#, python-format
+msgid "%s() (class)"
+msgstr ""
+
+#: sphinx/domains/javascript.py:111
+#, python-format
+msgid "%s (global variable or constant)"
+msgstr "%s (newidyn byd-eang neu cysonyn)"
+
+#: sphinx/domains/javascript.py:113 sphinx/domains/python.py:409
+#, python-format
+msgid "%s (%s attribute)"
+msgstr ""
+
+#: sphinx/domains/javascript.py:122
+msgid "Arguments"
+msgstr ""
+
+#: sphinx/domains/javascript.py:166 sphinx/domains/python.py:615
+msgid "data"
+msgstr ""
+
+#: sphinx/domains/javascript.py:167 sphinx/domains/python.py:621
+msgid "attribute"
+msgstr ""
+
+#: sphinx/domains/python.py:154
+msgid "Variables"
+msgstr ""
+
+#: sphinx/domains/python.py:158
+msgid "Raises"
+msgstr ""
+
+#: sphinx/domains/python.py:308 sphinx/domains/python.py:365
+#: sphinx/domains/python.py:377 sphinx/domains/python.py:390
+#, python-format
+msgid "%s() (in module %s)"
+msgstr ""
+
+#: sphinx/domains/python.py:311
+#, python-format
+msgid "%s (built-in variable)"
+msgstr ""
+
+#: sphinx/domains/python.py:312 sphinx/domains/python.py:403
+#, python-format
+msgid "%s (in module %s)"
+msgstr ""
+
+#: sphinx/domains/python.py:328
+#, python-format
+msgid "%s (built-in class)"
+msgstr ""
+
+#: sphinx/domains/python.py:329
+#, python-format
+msgid "%s (class in %s)"
+msgstr ""
+
+#: sphinx/domains/python.py:369
+#, python-format
+msgid "%s() (%s.%s method)"
+msgstr ""
+
+#: sphinx/domains/python.py:381
+#, python-format
+msgid "%s() (%s.%s static method)"
+msgstr ""
+
+#: sphinx/domains/python.py:384
+#, python-format
+msgid "%s() (%s static method)"
+msgstr ""
+
+#: sphinx/domains/python.py:394
+#, python-format
+msgid "%s() (%s.%s class method)"
+msgstr ""
+
+#: sphinx/domains/python.py:397
+#, python-format
+msgid "%s() (%s class method)"
+msgstr ""
+
+#: sphinx/domains/python.py:407
+#, python-format
+msgid "%s (%s.%s attribute)"
+msgstr ""
+
+#: sphinx/domains/python.py:488
+#, python-format
+msgid "%s (module)"
+msgstr ""
+
+#: sphinx/domains/python.py:545
+msgid "Python Module Index"
+msgstr ""
+
+#: sphinx/domains/python.py:546
+msgid "modules"
+msgstr ""
+
+#: sphinx/domains/python.py:592
+msgid "Deprecated"
+msgstr ""
+
+#: sphinx/domains/python.py:617 sphinx/locale/__init__.py:183
+msgid "exception"
+msgstr ""
+
+#: sphinx/domains/python.py:618
+msgid "method"
+msgstr ""
+
+#: sphinx/domains/python.py:619
+msgid "class method"
+msgstr ""
+
+#: sphinx/domains/python.py:620
+msgid "static method"
+msgstr ""
+
+#: sphinx/domains/python.py:622 sphinx/locale/__init__.py:179
+msgid "module"
+msgstr "modiwl"
+
+#: sphinx/domains/python.py:787
+msgid " (deprecated)"
+msgstr ""
+
+#: sphinx/domains/rst.py:55
+#, python-format
+msgid "%s (directive)"
+msgstr ""
+
+#: sphinx/domains/rst.py:57
+#, python-format
+msgid "%s (role)"
+msgstr ""
+
+#: sphinx/domains/rst.py:106
+msgid "directive"
+msgstr ""
+
+#: sphinx/domains/rst.py:107
+msgid "role"
+msgstr ""
+
+#: sphinx/domains/std.py:72 sphinx/domains/std.py:88
+#, python-format
+msgid "environment variable; %s"
+msgstr ""
+
+#: sphinx/domains/std.py:186
+#, python-format
+msgid "%scommand line option; %s"
+msgstr ""
+
+#: sphinx/domains/std.py:434
+msgid "glossary term"
+msgstr ""
+
+#: sphinx/domains/std.py:435
+msgid "grammar token"
+msgstr ""
+
+#: sphinx/domains/std.py:436
+msgid "reference label"
+msgstr ""
+
+#: sphinx/domains/std.py:438
+msgid "environment variable"
+msgstr ""
+
+#: sphinx/domains/std.py:439
+msgid "program option"
+msgstr ""
+
+#: sphinx/domains/std.py:473 sphinx/themes/basic/genindex-single.html:30
+#: sphinx/themes/basic/genindex-single.html:55
+#: sphinx/themes/basic/genindex-split.html:11
+#: sphinx/themes/basic/genindex-split.html:14
+#: sphinx/themes/basic/genindex.html:30 sphinx/themes/basic/genindex.html:33
+#: sphinx/themes/basic/genindex.html:66 sphinx/themes/basic/layout.html:135
+#: sphinx/writers/latex.py:381 sphinx/writers/texinfo.py:480
+msgid "Index"
+msgstr "Indecs"
+
+#: sphinx/domains/std.py:474
+msgid "Module Index"
+msgstr "Indecs Modiwlau"
+
+#: sphinx/domains/std.py:475 sphinx/themes/basic/defindex.html:25
+msgid "Search Page"
+msgstr "Tudalen Chwilio"
+
+#: sphinx/environment/managers/indexentries.py:104
+#, python-format
+msgid "see %s"
+msgstr "gweler %s"
+
+#: sphinx/environment/managers/indexentries.py:108
+#, python-format
+msgid "see also %s"
+msgstr "gweler hefyd %s"
+
+#: sphinx/environment/managers/indexentries.py:168
+msgid "Symbols"
+msgstr "Symbolau"
+
+#: sphinx/ext/autodoc.py:1297
+#, python-format
+msgid "Bases: %s"
+msgstr ""
+
+#: sphinx/ext/autodoc.py:1350
+#, python-format
+msgid "alias of :class:`%s`"
+msgstr ""
+
+#: sphinx/ext/graphviz.py:331 sphinx/ext/graphviz.py:340
+#, python-format
+msgid "[graph: %s]"
+msgstr "[graff: %s]"
+
+#: sphinx/ext/graphviz.py:333 sphinx/ext/graphviz.py:342
+msgid "[graph]"
+msgstr "[graff]"
+
+#: sphinx/ext/imgmath.py:258 sphinx/ext/jsmath.py:39 sphinx/ext/mathjax.py:40
+msgid "Permalink to this equation"
+msgstr ""
+
+#: sphinx/ext/intersphinx.py:337
+#, python-format
+msgid "(in %s v%s)"
+msgstr "(yn %s v%s)"
+
+#: sphinx/ext/linkcode.py:69 sphinx/ext/viewcode.py:103
+msgid "[source]"
+msgstr "[ffynhonnell]"
+
+#: sphinx/ext/mathbase.py:92
+#, python-format
+msgid "duplicate label of equation %s, other instance in %s"
+msgstr ""
+
+#: sphinx/ext/todo.py:56
+msgid "Todo"
+msgstr "Todo"
+
+#: sphinx/ext/todo.py:134
+msgid "<<original entry>>"
+msgstr ""
+
+#: sphinx/ext/todo.py:137
+#, python-format
+msgid "(The <<original entry>> is located in %s, line %d.)"
+msgstr ""
+
+#: sphinx/ext/todo.py:146
+msgid "original entry"
+msgstr "eitem wreiddiol"
+
+#: sphinx/ext/viewcode.py:166
+msgid "[docs]"
+msgstr "[docs]"
+
+#: sphinx/ext/viewcode.py:180
+msgid "Module code"
+msgstr "Cod y modiwl"
+
+#: sphinx/ext/viewcode.py:186
+#, python-format
+msgid "<h1>Source code for %s</h1>"
+msgstr "<h1>Cod ffynhonnell ar gyfer %s</h1>"
+
+#: sphinx/ext/viewcode.py:212
+msgid "Overview: module code"
+msgstr "Trosolwg: cod y modiwl"
+
+#: sphinx/ext/viewcode.py:213
+msgid "<h1>All modules for which code is available</h1>"
+msgstr "<h1>Holl fodiwlau lle mae'r cod ar gael</h1>"
+
+#: sphinx/ext/napoleon/__init__.py:313
+msgid "Keyword Arguments"
+msgstr ""
+
+#: sphinx/locale/__init__.py:159
+msgid "Attention"
+msgstr "Sylw"
+
+#: sphinx/locale/__init__.py:160
+msgid "Caution"
+msgstr "Gofal"
+
+#: sphinx/locale/__init__.py:161
+msgid "Danger"
+msgstr "Perygl"
+
+#: sphinx/locale/__init__.py:162
+msgid "Error"
+msgstr "Gwall"
+
+#: sphinx/locale/__init__.py:163
+msgid "Hint"
+msgstr "Awgrym"
+
+#: sphinx/locale/__init__.py:164
+msgid "Important"
+msgstr "Pwysig"
+
+#: sphinx/locale/__init__.py:165
+msgid "Note"
+msgstr "Nodyn"
+
+#: sphinx/locale/__init__.py:166
+msgid "See also"
+msgstr "Gweler hefyd"
+
+#: sphinx/locale/__init__.py:167
+msgid "Tip"
+msgstr "Awgrym"
+
+#: sphinx/locale/__init__.py:168
+msgid "Warning"
+msgstr "Rhybudd"
+
+#: sphinx/locale/__init__.py:172
+#, python-format
+msgid "New in version %s"
+msgstr "Newydd yn fersiwn %s"
+
+#: sphinx/locale/__init__.py:173
+#, python-format
+msgid "Changed in version %s"
+msgstr "Wedi newid yn fersiwn %s"
+
+#: sphinx/locale/__init__.py:174
+#, python-format
+msgid "Deprecated since version %s"
+msgstr "Dibrisiwyd ers fersiwn %s"
+
+#: sphinx/locale/__init__.py:180
+msgid "keyword"
+msgstr "allweddair"
+
+#: sphinx/locale/__init__.py:181
+msgid "operator"
+msgstr "gweithredydd"
+
+#: sphinx/locale/__init__.py:182
+msgid "object"
+msgstr "gwrthrych"
+
+#: sphinx/locale/__init__.py:184
+msgid "statement"
+msgstr "datganiad"
+
+#: sphinx/locale/__init__.py:185
+msgid "built-in function"
+msgstr "ffwythiant built-in"
+
+#: sphinx/themes/agogo/layout.html:46 sphinx/themes/basic/globaltoc.html:10
+#: sphinx/themes/basic/localtoc.html:11 sphinx/themes/scrolls/layout.html:35
+msgid "Table Of Contents"
+msgstr "Tabl Cynnwys"
+
+#: sphinx/themes/agogo/layout.html:51 sphinx/themes/basic/layout.html:138
+#: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:23
+#: sphinx/themes/basic/searchresults.html:10
+msgid "Search"
+msgstr "Chwilio"
+
+#: sphinx/themes/agogo/layout.html:54 sphinx/themes/basic/searchbox.html:15
+msgid "Go"
+msgstr "Ewch"
+
+#: sphinx/themes/agogo/layout.html:81 sphinx/themes/basic/sourcelink.html:15
+msgid "Show Source"
+msgstr "Dangos Ffynhonell"
+
+#: sphinx/themes/basic/defindex.html:11
+msgid "Overview"
+msgstr "Trosolwg"
+
+#: sphinx/themes/basic/defindex.html:15
+msgid "Welcome! This is"
+msgstr "Croeso! Dyma"
+
+#: sphinx/themes/basic/defindex.html:16
+msgid "the documentation for"
+msgstr "y dogfennaeth am"
+
+#: sphinx/themes/basic/defindex.html:17
+msgid "last updated"
+msgstr "diweddarwyd yn ddiwethaf"
+
+#: sphinx/themes/basic/defindex.html:20
+msgid "Indices and tables:"
+msgstr "Indecsau a tablau:"
+
+#: sphinx/themes/basic/defindex.html:23
+msgid "Complete Table of Contents"
+msgstr "Tabl Cynnwys Llawn"
+
+#: sphinx/themes/basic/defindex.html:24
+msgid "lists all sections and subsections"
+msgstr "rhestru holl adrannau ac isadrannau"
+
+#: sphinx/themes/basic/defindex.html:26
+msgid "search this documentation"
+msgstr "chwiliwch y ddogfennaeth"
+
+#: sphinx/themes/basic/defindex.html:28
+msgid "Global Module Index"
+msgstr "Indecs Modiwl Byd-Eang"
+
+#: sphinx/themes/basic/defindex.html:29
+msgid "quick access to all modules"
+msgstr "mynediad cloi i bob modiwl"
+
+#: sphinx/themes/basic/defindex.html:31
+msgid "all functions, classes, terms"
+msgstr "holl ffwythiannau, dosbarthau a thermau"
+
+#: sphinx/themes/basic/genindex-single.html:33
+#, python-format
+msgid "Index &ndash; %(key)s"
+msgstr "Indecs &ndash; %(key)s"
+
+#: sphinx/themes/basic/genindex-single.html:61
+#: sphinx/themes/basic/genindex-split.html:24
+#: sphinx/themes/basic/genindex-split.html:38
+#: sphinx/themes/basic/genindex.html:72
+msgid "Full index on one page"
+msgstr "Indecs llawn ar un tudalen"
+
+#: sphinx/themes/basic/genindex-split.html:16
+msgid "Index pages by letter"
+msgstr "Indecs tudalennau gan lythyren"
+
+#: sphinx/themes/basic/genindex-split.html:25
+msgid "can be huge"
+msgstr "gall fod yn enfawr"
+
+#: sphinx/themes/basic/layout.html:29
+msgid "Navigation"
+msgstr "Llywio"
+
+#: sphinx/themes/basic/layout.html:123
+#, python-format
+msgid "Search within %(docstitle)s"
+msgstr "Chwilio o fewn %(docstitle)s"
+
+#: sphinx/themes/basic/layout.html:132
+msgid "About these documents"
+msgstr "Ynglŷn â'r dogfennau hyn"
+
+#: sphinx/themes/basic/layout.html:141
+msgid "Copyright"
+msgstr "Hawlfraint"
+
+#: sphinx/themes/basic/layout.html:186
+#, python-format
+msgid "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
+msgstr ""
+
+#: sphinx/themes/basic/layout.html:188
+#, python-format
+msgid "&#169; Copyright %(copyright)s."
+msgstr ""
+
+#: sphinx/themes/basic/layout.html:192
+#, python-format
+msgid "Last updated on %(last_updated)s."
+msgstr "Diweddarwyd yn ddiwethaf ar %(last_updated)s."
+
+#: sphinx/themes/basic/layout.html:195
+#, python-format
+msgid ""
+"Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
+"%(sphinx_version)s."
+msgstr "Cr谷wyd gan ddefnyddio <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s"
+
+#: sphinx/themes/basic/opensearch.xml:4
+#, python-format
+msgid "Search %(docstitle)s"
+msgstr "Chwilio %(docstitle)s"
+
+#: sphinx/themes/basic/relations.html:11
+msgid "Previous topic"
+msgstr "Pwnc blaenorol"
+
+#: sphinx/themes/basic/relations.html:13
+msgid "previous chapter"
+msgstr "pennod blaenorol"
+
+#: sphinx/themes/basic/relations.html:16
+msgid "Next topic"
+msgstr "Pwnc nesaf"
+
+#: sphinx/themes/basic/relations.html:18
+msgid "next chapter"
+msgstr "pennod nesaf"
+
+#: sphinx/themes/basic/search.html:27
+msgid ""
+"Please activate JavaScript to enable the search\n"
+"    functionality."
+msgstr "Trwoch JavaScript ymlaen i alluogi'r chwilio."
+
+#: sphinx/themes/basic/search.html:32
+msgid ""
+"From here you can search these documents. Enter your search\n"
+"    words into the box below and click \"search\". Note that the search\n"
+"    function will automatically search for all of the words. Pages\n"
+"    containing fewer words won't appear in the result list."
+msgstr "O'r fan hon gallwch chwilio'r dogfennau hyn. Rhowch eich geiriau chwilio yn y blwch isod a chliciwch \"chwilio\". Nodwch fod y ffwythiant chwilio yn chwilio am bob un o'r geiriau yn awtomatig. Ni fydd dudalennau sy'n cynnwys llai o eiriau yn ymddangos yn y rhestr canlyniadau."
+
+#: sphinx/themes/basic/search.html:39
+#: sphinx/themes/basic/searchresults.html:17
+msgid "search"
+msgstr "chwilio"
+
+#: sphinx/themes/basic/search.html:43
+#: sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/static/searchtools.js_t:287
+msgid "Search Results"
+msgstr "Canlyniadau chwilio"
+
+#: sphinx/themes/basic/search.html:45
+#: sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/static/searchtools.js_t:289
+msgid ""
+"Your search did not match any documents. Please make sure that all words are"
+" spelled correctly and that you've selected enough categories."
+msgstr "Nid yw eich chwiliad yn cyfateb unrhyw ddogfennau. Gwnewch yn siŵr fod pob gair wedi'i sillafu'n gywir, ac eich bod wedi dewis digon o gategorïau."
+
+#: sphinx/themes/basic/searchbox.html:12
+msgid "Quick search"
+msgstr "Chwilio cyflym"
+
+#: sphinx/themes/basic/sourcelink.html:12
+msgid "This Page"
+msgstr "Y Dudalen Hon"
+
+#: sphinx/themes/basic/changes/frameset.html:5
+#: sphinx/themes/basic/changes/versionchanges.html:12
+#, python-format
+msgid "Changes in Version %(version)s &#8212; %(docstitle)s"
+msgstr ""
+
+#: sphinx/themes/basic/changes/rstsource.html:5
+#, python-format
+msgid "%(filename)s &#8212; %(docstitle)s"
+msgstr ""
+
+#: sphinx/themes/basic/changes/versionchanges.html:17
+#, python-format
+msgid "Automatically generated list of changes in version %(version)s"
+msgstr "Rhestr o newidiadau yn fersiwn %(version)s wedi'i cynhyrchu'n awtomatig"
+
+#: sphinx/themes/basic/changes/versionchanges.html:18
+msgid "Library changes"
+msgstr "Newidiadau i'r llyfrgell"
+
+#: sphinx/themes/basic/changes/versionchanges.html:23
+msgid "C API changes"
+msgstr "Newidiadau i'r C-API"
+
+#: sphinx/themes/basic/changes/versionchanges.html:25
+msgid "Other changes"
+msgstr "Newidiadau arall"
+
+#: sphinx/themes/basic/static/doctools.js_t:169 sphinx/writers/html.py:708
+#: sphinx/writers/html.py:713
+msgid "Permalink to this headline"
+msgstr "Permalink i'r pennawd hwn"
+
+#: sphinx/themes/basic/static/doctools.js_t:175 sphinx/writers/html.py:108
+#: sphinx/writers/html.py:117
+msgid "Permalink to this definition"
+msgstr "Permalink i'r diffiniad hwn"
+
+#: sphinx/themes/basic/static/doctools.js_t:208
+msgid "Hide Search Matches"
+msgstr "Cuddio Canlyniadau Chwilio"
+
+#: sphinx/themes/basic/static/searchtools.js_t:121
+msgid "Searching"
+msgstr "Yn chwilio"
+
+#: sphinx/themes/basic/static/searchtools.js_t:126
+msgid "Preparing search..."
+msgstr "Paratoi chwilio..."
+
+#: sphinx/themes/basic/static/searchtools.js_t:291
+#, python-format
+msgid "Search finished, found %s page(s) matching the search query."
+msgstr "Chwiliad wedi gorffen, wedi ffeindio %s tudalen(nau) yn cyfateb a'r ymholiad chwilio."
+
+#: sphinx/themes/basic/static/searchtools.js_t:344
+msgid ", in "
+msgstr ", yn "
+
+#: sphinx/themes/classic/static/sidebar.js_t:83
+msgid "Expand sidebar"
+msgstr "Ehangu'r bar ochr"
+
+#: sphinx/themes/classic/static/sidebar.js_t:96
+#: sphinx/themes/classic/static/sidebar.js_t:124
+msgid "Collapse sidebar"
+msgstr "Cyfangu'r bar ochr"
+
+#: sphinx/themes/haiku/layout.html:24
+msgid "Contents"
+msgstr "Cynnwys"
+
+#: sphinx/writers/html.py:389
+msgid "Permalink to this code"
+msgstr "Permalink i'r cod hwn"
+
+#: sphinx/writers/html.py:393
+msgid "Permalink to this image"
+msgstr "Permalink i'r ddelwedd hon"
+
+#: sphinx/writers/html.py:395
+msgid "Permalink to this toctree"
+msgstr "Permalink i'r toctree hwn"
+
+#: sphinx/writers/html.py:717
+msgid "Permalink to this table"
+msgstr "Permalink i'r tabl hwn"
+
+#: sphinx/writers/latex.py:380
+msgid "Release"
+msgstr "Rhyddhad"
+
+#: sphinx/writers/latex.py:483
+msgid "page"
+msgstr ""
+
+#: sphinx/writers/latex.py:528
+#, python-format
+msgid "Unknown configure key: latex_elements[%r] is ignored."
+msgstr ""
+
+#: sphinx/writers/latex.py:1003 sphinx/writers/manpage.py:238
+#: sphinx/writers/texinfo.py:619
+msgid "Footnotes"
+msgstr "Troednodiadau"
+
+#: sphinx/writers/latex.py:1112
+msgid "continued from previous page"
+msgstr "wedi'i barhau o'r tudalen blaenorol"
+
+#: sphinx/writers/latex.py:1118
+msgid "Continued on next page"
+msgstr "Yn parhau ar y tudalen nesaf"
+
+#: sphinx/writers/manpage.py:287 sphinx/writers/text.py:591
+#, python-format
+msgid "[image: %s]"
+msgstr "[delwedd: %s]"
+
+#: sphinx/writers/manpage.py:288 sphinx/writers/text.py:592
+msgid "[image]"
+msgstr "[delwedd]"

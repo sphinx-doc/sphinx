@@ -21,8 +21,8 @@ an "unused" primary prompt; this is an example of what *not* to do::
    2
    >>>
 
-Syntax highlighting is done with `Pygments <http://pygments.org>`_ (if it's
-installed) and handled in a smart way:
+Syntax highlighting is done with `Pygments <http://pygments.org>`_ and handled
+in a smart way:
 
 * There is a "highlighting language" for each source file.  Per default, this is
   ``'python'`` as the majority of files will have to highlight Python snippets,
@@ -77,7 +77,7 @@ installed) and handled in a smart way:
 Line numbers
 ^^^^^^^^^^^^
 
-If installed, Pygments can generate line numbers for code blocks.  For
+Pygments can generate line numbers for code blocks.  For
 automatically-highlighted blocks (those started by ``::``), line numbers must be
 switched on in a :rst:dir:`highlight` directive, with the ``linenothreshold``
 option::
@@ -241,7 +241,7 @@ Dedent
 
 .. versionadded:: 1.3
 
-A ``dedent`` option can be given to strip a precedence characters from the code
+A ``dedent`` option can be given to strip indentation characters from the code
 block. For example::
 
    .. literalinclude:: example.rb

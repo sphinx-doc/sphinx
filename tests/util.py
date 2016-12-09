@@ -3,7 +3,7 @@
     Sphinx test suite utilities
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,7 +13,7 @@ import sys
 import tempfile
 from functools import wraps
 
-from six import StringIO
+from six import StringIO, string_types
 
 from nose import tools, SkipTest
 
@@ -26,13 +26,7 @@ from sphinx.theming import Theme
 from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
 
-from path import path
-
-try:
-    # Python >=3.3
-    from unittest import mock
-except ImportError:
-    import mock
+from path import path, repr_as  # NOQA
 
 
 __all__ = [
@@ -41,7 +35,6 @@ __all__ = [
     'ListOutput', 'TestApp', 'with_app', 'gen_with_app',
     'path', 'with_tempdir',
     'sprint', 'remove_unicode_literals',
-    'mock',
 ]
 
 
@@ -94,14 +87,45 @@ def assert_startswith(thing, prefix):
         assert False, '%r does not start with %r' % (thing, prefix)
 
 
-def assert_in(x, thing):
-    if x not in thing:
-        assert False, '%r is not in %r' % (x, thing)
+def assert_node(node, cls=None, xpath="", **kwargs):
+    if cls:
+        if isinstance(cls, list):
+            assert_node(node, cls[0], xpath=xpath, **kwargs)
+            if cls[1:]:
+                if isinstance(cls[1], tuple):
+                    assert_node(node, cls[1], xpath=xpath, **kwargs)
+                else:
+                    assert len(node) == 1, \
+                        'The node%s has %d child nodes, not one' % (xpath, len(node))
+                    assert_node(node[0], cls[1:], xpath=xpath + "[0]", **kwargs)
+        elif isinstance(cls, tuple):
+            assert len(node) == len(cls), \
+                'The node%s has %d child nodes, not %r' % (xpath, len(node), len(cls))
+            for i, nodecls in enumerate(cls):
+                path = xpath + "[%d]" % i
+                assert_node(node[i], nodecls, xpath=path, **kwargs)
+        elif isinstance(cls, string_types):
+            assert node == cls, 'The node %r is not %r: %r' % (xpath, cls, node)
+        else:
+            assert isinstance(node, cls), \
+                'The node%s is not subclass of %r: %r' % (xpath, cls, node)
+
+    for key, value in kwargs.items():
+        assert key in node, 'The node%s does not have %r attribute: %r' % (xpath, key, node)
+        assert node[key] == value, \
+            'The node%s[%s] is not %r: %r' % (xpath, key, value, node[key])
 
 
-def assert_not_in(x, thing):
-    if x in thing:
-        assert False, '%r is in %r' % (x, thing)
+try:
+    from nose.tools import assert_in, assert_not_in
+except ImportError:
+    def assert_in(x, thing, msg=''):
+        if x not in thing:
+            assert False, msg or '%r is not in %r' % (x, thing)
+
+    def assert_not_in(x, thing, msg=''):
+        if x in thing:
+            assert False, msg or '%r is in %r' % (x, thing)
 
 
 def skip_if(condition, msg=None):
@@ -297,3 +321,7 @@ def find_files(root, suffix=None):
         for f in [f for f in files if not suffix or f.endswith(suffix)]:
             fpath = dirpath / f
             yield os.path.relpath(fpath, root)
+
+
+def strip_escseq(text):
+    return re.sub('\x1b.*?m', '', text)

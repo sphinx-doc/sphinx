@@ -81,8 +81,8 @@ def sphinx_smarty_pants(t):
     t = t.replace('"', '&quot;')
     return t
 
-# Constants for quote education.
 
+# Constants for quote education.
 punct_class = r"""[!"#\$\%'()*+,-.\/:;<=>?\@\[\\\]\^_`{|}~]"""
 end_of_word_class = r"""[\s.,;:!?)]"""
 close_class = r"""[^\ \t\r\n\[\{\(\-]"""
@@ -105,7 +105,7 @@ decade_abbr_re = re.compile(r"""\b'(?=\d{2}s)""")
 opening_double_quotes_regex = re.compile(r"""
                 (
                         \s          |   # a whitespace char, or
-                        &nbsp;      |   # a non-breaking space entity, or
+                        &#160;      |   # a non-breaking space entity, or
                         --          |   # dashes, or
                         &[mn]dash;  |   # named dash entities
                         %s          |   # or decimal entities
@@ -131,7 +131,7 @@ closing_double_quotes_regex_2 = re.compile(r"""
 opening_single_quotes_regex = re.compile(r"""
                 (
                         \s          |   # a whitespace char, or
-                        &nbsp;      |   # a non-breaking space entity, or
+                        &#160;      |   # a non-breaking space entity, or
                         --          |   # dashes, or
                         &[mn]dash;  |   # named dash entities
                         %s          |   # or decimal entities

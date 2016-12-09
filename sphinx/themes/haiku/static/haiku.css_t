@@ -16,7 +16,7 @@
  *              Braden Ewing <brewin@gmail.com>
  *              Humdinger <humdingerb@gmail.com>
  *
- * :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+ * :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
  * :license: BSD, see LICENSE for details.
  *
  */
@@ -368,4 +368,9 @@ div.viewcode-block:target {
     border-bottom: 1px solid #ac9;
     margin: -1px -10px;
     padding: 0 12px;
+}
+
+/* math display */
+div.math p {
+    text-align: center;
 }

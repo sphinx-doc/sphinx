@@ -93,7 +93,7 @@ Referring to :func:`nothing <>`.
                 * expression
    :returns: a new :class:`Time` instance
    :rtype: Time
-   :raises ValueError: if the values are out of range
+   :raises Error: if the values are out of range
    :ivar int hour: like *hour*
    :ivar minute: like *minute*
    :vartype minute: int
@@ -172,9 +172,23 @@ Others
 
 .. option:: +p
 
+.. option:: --plugin.option
+
+.. option:: create-auth-token
+
 .. option:: arg
 
-Link to :option:`perl +p` and :option:`arg`.
+Link to :option:`perl +p`, :option:`--plugin.option`, :option:`create-auth-token` and :option:`arg`
+
+.. program:: hg
+
+.. option:: commit
+
+.. program:: git commit
+
+.. option:: -p
+
+Link to :option:`hg commit` and :option:`git commit -p`.
 
 
 User markup

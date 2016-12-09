@@ -6,7 +6,7 @@
     SQLAlchemy table and mapper definitions used by the
     :class:`sphinx.websupport.storage.sqlalchemystorage.SQLAlchemyStorage`.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -14,7 +14,7 @@ from datetime import datetime
 
 from sqlalchemy import Column, Integer, Text, String, Boolean, \
     ForeignKey, DateTime
-from sqlalchemy.orm import relation, sessionmaker, aliased
+from sqlalchemy.orm import relation, sessionmaker, aliased  # type: ignore
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -23,7 +23,7 @@ Session = sessionmaker()
 db_prefix = 'sphinx_'
 
 
-class Node(Base):
+class Node(Base):  # type: ignore
     """Data about a Node in a doctree."""
     __tablename__ = db_prefix + 'nodes'
 
@@ -74,7 +74,7 @@ class Node(Base):
         :param results: the flat list of comments
         :param username: the name of the user requesting the comments.
         """
-        comments = []
+        comments = []  # type: List
         list_stack = [comments]
         for r in results:
             if username:
@@ -101,7 +101,7 @@ class Node(Base):
         self.source = source
 
 
-class CommentVote(Base):
+class CommentVote(Base):  # type: ignore
     """A vote a user has made on a Comment."""
     __tablename__ = db_prefix + 'commentvote'
 
@@ -117,7 +117,7 @@ class CommentVote(Base):
         self.value = value
 
 
-class Comment(Base):
+class Comment(Base):  # type: ignore
     """An individual Comment being stored."""
     __tablename__ = db_prefix + 'comments'
 

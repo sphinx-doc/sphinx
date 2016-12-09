@@ -5,23 +5,38 @@
 
     The Sphinx documentation toolchain.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 # Keep this file executable as-is in Python 3!
 # (Otherwise getting the version out of it from setup.py is impossible.)
 
+from __future__ import absolute_import
+
+import os
 import sys
+import warnings
 from os import path
 
-__version__  = '1.4a0+'
-__released__ = '1.4a0'  # used when Sphinx builds its own docs
+from .deprecation import RemovedInNextVersionWarning
+
+# by default, all DeprecationWarning under sphinx package will be emit.
+# Users can avoid this by using environment variable: PYTHONWARNINGS=
+if 'PYTHONWARNINGS' not in os.environ:
+    warnings.filterwarnings('default',
+                            category=RemovedInNextVersionWarning, module='sphinx')
+# docutils.io using mode='rU' for open
+warnings.filterwarnings('ignore', "'U' mode is deprecated",
+                        DeprecationWarning, module='docutils.io')
+
+__version__  = '1.6'
+__released__ = '1.6+'  # used when Sphinx builds its own docs
 
 # version info for better programmatic use
 # possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
 # 'final' has 0 as the last element
-version_info = (1, 4, 0, 'alpha', 0)
+version_info = (1, 6, 0, 'beta', 1)
 
 package_dir = path.abspath(path.dirname(__file__))
 
@@ -39,7 +54,7 @@ if __version__.endswith('+'):
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = p.communicate()
         if out:
-            __display_version__ += '/' + out.decode().strip()
+            __display_version__ += '/' + out.decode().strip()  # type: ignore
     except Exception:
         pass
 
@@ -53,9 +68,9 @@ def main(argv=sys.argv):
 
 def build_main(argv=sys.argv):
     """Sphinx build "main" command-line entry."""
-    if (sys.version_info[:3] < (2, 6, 0) or
-       (3, 0, 0) <= sys.version_info[:3] < (3, 3, 0)):
-        sys.stderr.write('Error: Sphinx requires at least Python 2.6 or 3.3 to run.\n')
+    if (sys.version_info[:3] < (2, 7, 0) or
+       (3, 0, 0) <= sys.version_info[:3] < (3, 4, 0)):
+        sys.stderr.write('Error: Sphinx requires at least Python 2.7 or 3.4 to run.\n')
         return 1
     try:
         from sphinx import cmdline

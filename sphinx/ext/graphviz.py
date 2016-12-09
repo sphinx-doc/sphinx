@@ -6,7 +6,7 @@
     Allow graphviz-formatted graphs to be included in Sphinx-generated
     documents inline.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -18,6 +18,7 @@ from subprocess import Popen, PIPE
 from hashlib import sha1
 
 from six import text_type
+
 from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
@@ -25,8 +26,14 @@ from docutils.statemachine import ViewList
 import sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _
+from sphinx.util.i18n import search_image_for_language
 from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 from sphinx.util.compat import Directive
+
+if False:
+    # For type annotation
+    from typing import Any, Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 
 mapname_re = re.compile(r'<map id="(.*?)"')
@@ -36,12 +43,15 @@ class GraphvizError(SphinxError):
     category = 'Graphviz error'
 
 
-class graphviz(nodes.General, nodes.Element):
+class graphviz(nodes.General, nodes.Inline, nodes.Element):
     pass
 
 
 def figure_wrapper(directive, node, caption):
+    # type: (Directive, nodes.Node, unicode) -> nodes.figure
     figure_node = nodes.figure('', node)
+    if 'align' in node:
+        figure_node['align'] = node.attributes.pop('align')
 
     parsed = nodes.Element()
     directive.state.nested_parse(ViewList([caption], source=''),
@@ -54,6 +64,11 @@ def figure_wrapper(directive, node, caption):
     return figure_node
 
 
+def align_spec(argument):
+    # type: (Any) -> bool
+    return directives.choice(argument, ('left', 'center', 'right'))
+
+
 class Graphviz(Directive):
     """
     Directive to insert arbitrary dot markup.
@@ -64,11 +79,15 @@ class Graphviz(Directive):
     final_argument_whitespace = False
     option_spec = {
         'alt': directives.unchanged,
+        'align': align_spec,
         'inline': directives.flag,
         'caption': directives.unchanged,
+        'graphviz_dot': directives.unchanged,
+        'name': directives.unchanged,
     }
 
     def run(self):
+        # type: () -> List[nodes.Node]
         if self.arguments:
             document = self.state.document
             if self.content:
@@ -76,14 +95,12 @@ class Graphviz(Directive):
                     'Graphviz directive cannot have both content and '
                     'a filename argument', line=self.lineno)]
             env = self.state.document.settings.env
-            rel_filename, filename = env.relfn2path(self.arguments[0])
+            argument = search_image_for_language(self.arguments[0], env)
+            rel_filename, filename = env.relfn2path(argument)
             env.note_dependency(rel_filename)
             try:
-                fp = codecs.open(filename, 'r', 'utf-8')
-                try:
+                with codecs.open(filename, 'r', 'utf-8') as fp:
                     dotcode = fp.read()
-                finally:
-                    fp.close()
             except (IOError, OSError):
                 return [document.reporter.warning(
                     'External Graphviz file %r not found or reading '
@@ -96,15 +113,21 @@ class Graphviz(Directive):
                     line=self.lineno)]
         node = graphviz()
         node['code'] = dotcode
-        node['options'] = []
+        node['options'] = {}
+        if 'graphviz_dot' in self.options:
+            node['options']['graphviz_dot'] = self.options['graphviz_dot']
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
-        node['inline'] = 'inline' in self.options
+        if 'align' in self.options:
+            node['align'] = self.options['align']
+        if 'inline' in self.options:
+            node['inline'] = True
 
         caption = self.options.get('caption')
-        if caption and not node['inline']:
+        if caption:
             node = figure_wrapper(self, node, caption)
 
+        self.add_name(node)
         return [node]
 
 
@@ -118,30 +141,41 @@ class GraphvizSimple(Directive):
     final_argument_whitespace = False
     option_spec = {
         'alt': directives.unchanged,
+        'align': align_spec,
         'inline': directives.flag,
         'caption': directives.unchanged,
+        'graphviz_dot': directives.unchanged,
+        'name': directives.unchanged,
     }
 
     def run(self):
+        # type: () -> List[nodes.Node]
         node = graphviz()
         node['code'] = '%s %s {\n%s\n}\n' % \
                        (self.name, self.arguments[0], '\n'.join(self.content))
-        node['options'] = []
+        node['options'] = {}
+        if 'graphviz_dot' in self.options:
+            node['options']['graphviz_dot'] = self.options['graphviz_dot']
         if 'alt' in self.options:
             node['alt'] = self.options['alt']
-        node['inline'] = 'inline' in self.options
+        if 'align' in self.options:
+            node['align'] = self.options['align']
+        if 'inline' in self.options:
+            node['inline'] = True
 
         caption = self.options.get('caption')
-        if caption and not node['inline']:
+        if caption:
             node = figure_wrapper(self, node, caption)
 
+        self.add_name(node)
         return [node]
 
 
 def render_dot(self, code, options, format, prefix='graphviz'):
+    # type: (nodes.NodeVisitor, unicode, Dict, unicode, unicode) -> Tuple[unicode, unicode]
     """Render graphviz code into a PNG or PDF output file."""
-    hashkey = (code + str(options) +
-               str(self.builder.config.graphviz_dot) +
+    graphviz_dot = options.get('graphviz_dot', self.builder.config.graphviz_dot)
+    hashkey = (code + str(options) + str(graphviz_dot) +
                str(self.builder.config.graphviz_dot_args)).encode('utf-8')
 
     fname = '%s-%s.%s' % (prefix, sha1(hashkey).hexdigest(), format)
@@ -151,8 +185,8 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     if path.isfile(outfn):
         return relfn, outfn
 
-    if hasattr(self.builder, '_graphviz_warned_dot') or \
-       hasattr(self.builder, '_graphviz_warned_ps2pdf'):
+    if (hasattr(self.builder, '_graphviz_warned_dot') and
+       self.builder._graphviz_warned_dot.get(graphviz_dot)):
         return None, None
 
     ensuredir(path.dirname(outfn))
@@ -161,9 +195,8 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     if isinstance(code, text_type):
         code = code.encode('utf-8')
 
-    dot_args = [self.builder.config.graphviz_dot]
+    dot_args = [graphviz_dot]
     dot_args.extend(self.builder.config.graphviz_dot_args)
-    dot_args.extend(options)
     dot_args.extend(['-T' + format, '-o' + outfn])
     if format == 'png':
         dot_args.extend(['-Tcmapx', '-o%s.map' % outfn])
@@ -173,9 +206,10 @@ def render_dot(self, code, options, format, prefix='graphviz'):
         if err.errno != ENOENT:   # No such file or directory
             raise
         self.builder.warn('dot command %r cannot be run (needed for graphviz '
-                          'output), check the graphviz_dot setting' %
-                          self.builder.config.graphviz_dot)
-        self.builder._graphviz_warned_dot = True
+                          'output), check the graphviz_dot setting' % graphviz_dot)
+        if not hasattr(self.builder, '_graphviz_warned_dot'):
+            self.builder._graphviz_warned_dot = {}
+        self.builder._graphviz_warned_dot[graphviz_dot] = True
         return None, None
     try:
         # Graphviz may close standard input when an error occurs,
@@ -197,8 +231,19 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     return relfn, outfn
 
 
+def warn_for_deprecated_option(self, node):
+    # type: (nodes.NodeVisitor, graphviz) -> None
+    if hasattr(self.builder, '_graphviz_warned_inline'):
+        return
+
+    if 'inline' in node:
+        self.builder.warn(':inline: option for graphviz is deprecated since version 1.4.0.')
+        self.builder._graphviz_warned_inline = True
+
+
 def render_dot_html(self, node, code, options, prefix='graphviz',
                     imgcls=None, alt=None):
+    # type: (nodes.NodeVisitor, graphviz, unicode, Dict, unicode, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
     format = self.builder.config.graphviz_output_format
     try:
         if format not in ('png', 'svg'):
@@ -209,13 +254,6 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
 
-    inline = node.get('inline', False)
-    if inline:
-        wrapper = 'span'
-    else:
-        wrapper = 'p'
-
-    self.body.append(self.starttag(node, wrapper, CLASS='graphviz'))
     if fname is None:
         self.body.append(self.encode(code))
     else:
@@ -223,57 +261,76 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
             alt = node.get('alt', self.encode(code).strip())
         imgcss = imgcls and 'class="%s"' % imgcls or ''
         if format == 'svg':
-            svgtag = '<img src="%s" alt="%s" %s/>\n' % (fname, alt, imgcss)
+            svgtag = '''<object data="%s" type="image/svg+xml">
+            <p class="warning">%s</p></object>\n''' % (fname, alt)
             self.body.append(svgtag)
         else:
-            mapfile = open(outfn + '.map', 'rb')
-            try:
+            if 'align' in node:
+                self.body.append('<div align="%s" class="align-%s">' %
+                                 (node['align'], node['align']))
+            with open(outfn + '.map', 'rb') as mapfile:
                 imgmap = mapfile.readlines()
-            finally:
-                mapfile.close()
             if len(imgmap) == 2:
                 # nothing in image map (the lines are <map> and </map>)
                 self.body.append('<img src="%s" alt="%s" %s/>\n' %
                                  (fname, alt, imgcss))
             else:
                 # has a map: get the name of the map and connect the parts
-                mapname = mapname_re.match(imgmap[0].decode('utf-8')).group(1)
+                mapname = mapname_re.match(imgmap[0].decode('utf-8')).group(1)  # type: ignore
                 self.body.append('<img src="%s" alt="%s" usemap="#%s" %s/>\n' %
                                  (fname, alt, mapname, imgcss))
                 self.body.extend([item.decode('utf-8') for item in imgmap])
+            if 'align' in node:
+                self.body.append('</div>\n')
 
-    self.body.append('</%s>\n' % wrapper)
     raise nodes.SkipNode
 
 
 def html_visit_graphviz(self, node):
+    # type: (nodes.NodeVisitor, graphviz) -> None
+    warn_for_deprecated_option(self, node)
     render_dot_html(self, node, node['code'], node['options'])
 
 
 def render_dot_latex(self, node, code, options, prefix='graphviz'):
+    # type: (nodes.NodeVisitor, graphviz, unicode, Dict, unicode) -> None
     try:
         fname, outfn = render_dot(self, code, options, 'pdf', prefix)
     except GraphvizError as exc:
         self.builder.warn('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
 
-    inline = node.get('inline', False)
-    if inline:
+    is_inline = self.is_inline(node)
+    if is_inline:
         para_separator = ''
     else:
         para_separator = '\n'
 
     if fname is not None:
+        post = None  # type: unicode
+        if not is_inline and 'align' in node:
+            if node['align'] == 'left':
+                self.body.append('{')
+                post = '\\hspace*{\\fill}}'
+            elif node['align'] == 'right':
+                self.body.append('{\\hspace*{\\fill}')
+                post = '}'
         self.body.append('%s\\includegraphics{%s}%s' %
                          (para_separator, fname, para_separator))
+        if post:
+            self.body.append(post)
+
     raise nodes.SkipNode
 
 
 def latex_visit_graphviz(self, node):
+    # type: (nodes.NodeVisitor, graphviz) -> None
+    warn_for_deprecated_option(self, node)
     render_dot_latex(self, node, node['code'], node['options'])
 
 
 def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
+    # type: (nodes.NodeVisitor, graphviz, unicode, Dict, unicode) -> None
     try:
         fname, outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError as exc:
@@ -285,10 +342,14 @@ def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
 
 
 def texinfo_visit_graphviz(self, node):
+    # type: (nodes.NodeVisitor, graphviz) -> None
+    warn_for_deprecated_option(self, node)
     render_dot_texinfo(self, node, node['code'], node['options'])
 
 
 def text_visit_graphviz(self, node):
+    # type: (nodes.NodeVisitor, graphviz) -> None
+    warn_for_deprecated_option(self, node)
     if 'alt' in node.attributes:
         self.add_text(_('[graph: %s]') % node['alt'])
     else:
@@ -297,6 +358,8 @@ def text_visit_graphviz(self, node):
 
 
 def man_visit_graphviz(self, node):
+    # type: (nodes.NodeVisitor, graphviz) -> None
+    warn_for_deprecated_option(self, node)
     if 'alt' in node.attributes:
         self.body.append(_('[graph: %s]') % node['alt'])
     else:
@@ -305,6 +368,7 @@ def man_visit_graphviz(self, node):
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_node(graphviz,
                  html=(html_visit_graphviz, None),
                  latex=(latex_visit_graphviz, None),

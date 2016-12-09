@@ -5,15 +5,62 @@
 
     Additional docutils nodes.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
+import warnings
+
 from docutils import nodes
+from sphinx.deprecation import RemovedInSphinx16Warning
 
 
-class toctree(nodes.General, nodes.Element):
+class translatable(object):
+    """Node which supports translation.
+
+    The translation goes forward with following steps:
+
+    1. Preserve original translatable messages
+    2. Apply translated messages from message catalog
+    3. Extract preserved messages (for gettext builder)
+
+    The translatable nodes MUST preserve original messages.
+    And these messages should not be overridden at applying step.
+    Because they are used at final step; extraction.
+    """
+
+    def preserve_original_messages(self):
+        """Preserve original translatable messages."""
+        raise NotImplementedError
+
+    def apply_translated_message(self, original_message, translated_message):
+        """Apply translated message."""
+        raise NotImplementedError
+
+    def extract_original_messages(self):
+        """Extract translation messages.
+
+        :returns: list of extracted messages or messages generator
+        """
+        raise NotImplementedError
+
+
+class toctree(nodes.General, nodes.Element, translatable):
     """Node for inserting a "TOC tree"."""
+
+    def preserve_original_messages(self):
+        if 'caption' in self:
+            self['rawcaption'] = self['caption']
+
+    def apply_translated_message(self, original_message, translated_message):
+        if self.get('rawcaption') == original_message:
+            self['caption'] = translated_message
+
+    def extract_original_messages(self):
+        if 'rawcaption' in self:
+            return [self['rawcaption']]
+        else:
+            return []
 
 
 # domain-specific object descriptions (class, function etc.)
@@ -30,13 +77,27 @@ class desc_signature(nodes.Part, nodes.Inline, nodes.TextElement):
     """Node for object signatures.
 
     The "term" part of the custom Sphinx definition list.
+
+    As default the signature is a single line signature,
+    but set ``is_multiline = True`` to describe a multi-line signature.
+    In that case all child nodes must be ``desc_signature_line`` nodes.
     """
 
 
-# nodes to use within a desc_signature
+class desc_signature_line(nodes.Part, nodes.Inline, nodes.TextElement):
+    """Node for a line in a multi-line object signatures.
+
+    It should only be used in a ``desc_signature`` with ``is_multiline`` set.
+    Set ``add_permalink = True`` for the line that should get the permalink.
+    """
+
+
+# nodes to use within a desc_signature or desc_signature_line
 
 class desc_addname(nodes.Part, nodes.Inline, nodes.TextElement):
     """Node for additional name parts (module name, class name)."""
+
+
 # compatibility alias
 desc_classname = desc_addname
 
@@ -114,10 +175,14 @@ class index(nodes.Invisible, nodes.Inline, nodes.TextElement):
     """Node for index entries.
 
     This node is created by the ``index`` directive and has one attribute,
-    ``entries``.  Its value is a list of 4-tuples of ``(entrytype, entryname,
-    target, ignored)``.
+    ``entries``.  Its value is a list of 5-tuples of ``(entrytype, entryname,
+    target, ignored, key)``.
 
     *entrytype* is one of "single", "pair", "double", "triple".
+
+    *key* is categolziation characters (usually it is single character) for
+    general index page. For the detail of this, please see also:
+    :rst:dir:`glossary` and issue #2320.
     """
 
 
@@ -209,7 +274,20 @@ class abbreviation(nodes.Inline, nodes.TextElement):
 
 
 class termsep(nodes.Structural, nodes.Element):
-    """Separates two terms within a <term> node."""
+    """Separates two terms within a <term> node.
+
+    .. versionchanged:: 1.4
+       sphinx.addnodes.termsep is deprecated. It will be removed at Sphinx-1.6.
+    """
+
+    def __init__(self, *args, **kw):
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6',
+                      RemovedInSphinx16Warning, stacklevel=2)
+        super(termsep, self).__init__(*args, **kw)
+
+
+class manpage(nodes.Inline, nodes.TextElement):
+    """Node for references to manpages."""
 
 
 # make the new nodes known to docutils; needed because the HTML writer will

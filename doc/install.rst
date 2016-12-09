@@ -4,7 +4,7 @@ Installing Sphinx
 =================
 
 Since Sphinx is written in the Python language, you need to install Python
-(the required version is at least 2.6) and Sphinx.
+(the required version is at least 2.7) and Sphinx.
 
 Sphinx packages are available on the `Python Package Index
 <https://pypi.python.org/pypi/Sphinx>`_.
@@ -72,7 +72,7 @@ Install Python
 Most Windows users do not have Python, so we begin with the installation of
 Python itself.  If you have already installed Python, please skip this section.
 
-Go to http://python.org, the main download site for Python. Look at the left
+Go to https://www.python.org/, the main download site for Python. Look at the left
 sidebar and under "Quick Links", click "Windows Installer" to download.
 
 .. image:: pythonorg.png
@@ -80,8 +80,8 @@ sidebar and under "Quick Links", click "Windows Installer" to download.
 .. note::
 
    Currently, Python offers two major versions, 2.x and 3.x. Sphinx 1.3 can run
-   under Python 2.6, 2.7, 3.3, 3.4, with the recommended version being
-   2.7.  This chapter assumes you have installed Python 2.7.
+   under Python 2.7, 3.4, 3.5, with the recommended version being 2.7.  This
+   chapter assumes you have installed Python 2.7.
 
 Follow the Windows installer for Python.
 
@@ -135,7 +135,7 @@ install.
 .. note::
 
    ``pip`` has been contained in the Python official installation after version
-    of Python-3.4.0 or Python-2.7.9.
+   of Python-3.4.0 or Python-2.7.9.
 
 
 Installing Sphinx with pip

@@ -5,7 +5,7 @@
 
     Changelog builder.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,13 +15,18 @@ from os import path
 from six import iteritems
 
 from sphinx import package_dir
-from sphinx.util import copy_static_entry
 from sphinx.locale import _
 from sphinx.theming import Theme
 from sphinx.builders import Builder
 from sphinx.util.osutil import ensuredir, os_path
-from sphinx.util.console import bold
+from sphinx.util.console import bold  # type: ignore
+from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.pycompat import htmlescape
+
+if False:
+    # For type annotation
+    from typing import Any, Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 
 class ChangesBuilder(Builder):
@@ -31,6 +36,7 @@ class ChangesBuilder(Builder):
     name = 'changes'
 
     def init(self):
+        # type: () -> None
         self.create_template_bridge()
         Theme.init_themes(self.confdir, self.config.html_theme_path,
                           warn=self.warn)
@@ -38,19 +44,21 @@ class ChangesBuilder(Builder):
         self.templates.init(self, self.theme)
 
     def get_outdated_docs(self):
+        # type: () -> unicode
         return self.outdir
 
     typemap = {
         'versionadded': 'added',
         'versionchanged': 'changed',
         'deprecated': 'deprecated',
-    }
+    }  # type: Dict[unicode, unicode]
 
     def write(self, *ignored):
+        # type: (Any) -> None
         version = self.config.version
-        libchanges = {}
-        apichanges = []
-        otherchanges = {}
+        libchanges = {}     # type: Dict[unicode, List[Tuple[unicode, unicode, int]]]
+        apichanges = []     # type: List[Tuple[unicode, unicode, int]]
+        otherchanges = {}   # type: Dict[Tuple[unicode, unicode], List[Tuple[unicode, unicode, int]]]  # NOQA
         if version not in self.env.versionchanges:
             self.info(bold('no changes in version %s.' % version))
             return
@@ -101,16 +109,10 @@ class ChangesBuilder(Builder):
             'show_copyright': self.config.html_show_copyright,
             'show_sphinx': self.config.html_show_sphinx,
         }
-        f = codecs.open(path.join(self.outdir, 'index.html'), 'w', 'utf8')
-        try:
+        with codecs.open(path.join(self.outdir, 'index.html'), 'w', 'utf8') as f:  # type: ignore  # NOQA
             f.write(self.templates.render('changes/frameset.html', ctx))
-        finally:
-            f.close()
-        f = codecs.open(path.join(self.outdir, 'changes.html'), 'w', 'utf8')
-        try:
+        with codecs.open(path.join(self.outdir, 'changes.html'), 'w', 'utf8') as f:  # type: ignore  # NOQA
             f.write(self.templates.render('changes/versionchanges.html', ctx))
-        finally:
-            f.close()
 
         hltext = ['.. versionadded:: %s' % version,
                   '.. versionchanged:: %s' % version,
@@ -126,37 +128,31 @@ class ChangesBuilder(Builder):
 
         self.info(bold('copying source files...'))
         for docname in self.env.all_docs:
-            f = codecs.open(self.env.doc2path(docname), 'r',
-                            self.env.config.source_encoding)
-            try:
-                lines = f.readlines()
-            except UnicodeDecodeError:
-                self.warn('could not read %r for changelog creation' % docname)
-                continue
-            finally:
-                f.close()
+            with codecs.open(self.env.doc2path(docname), 'r',  # type: ignore
+                             self.env.config.source_encoding) as f:
+                try:
+                    lines = f.readlines()
+                except UnicodeDecodeError:
+                    self.warn('could not read %r for changelog creation' % docname)
+                    continue
             targetfn = path.join(self.outdir, 'rst', os_path(docname)) + '.html'
             ensuredir(path.dirname(targetfn))
-            f = codecs.open(targetfn, 'w', 'utf-8')
-            try:
+            with codecs.open(targetfn, 'w', 'utf-8') as f:  # type: ignore
                 text = ''.join(hl(i+1, line) for (i, line) in enumerate(lines))
                 ctx = {
                     'filename': self.env.doc2path(docname, None),
                     'text': text
                 }
                 f.write(self.templates.render('changes/rstsource.html', ctx))
-            finally:
-                f.close()
         themectx = dict(('theme_' + key, val) for (key, val) in
                         iteritems(self.theme.get_options({})))
-        copy_static_entry(path.join(package_dir, 'themes', 'default',
-                                    'static', 'default.css_t'),
-                          self.outdir, self, themectx)
-        copy_static_entry(path.join(package_dir, 'themes', 'basic',
-                                    'static', 'basic.css'),
-                          self.outdir, self)
+        copy_asset_file(path.join(package_dir, 'themes', 'default', 'static', 'default.css_t'),
+                        self.outdir, context=themectx, renderer=self.templates)
+        copy_asset_file(path.join(package_dir, 'themes', 'basic', 'static', 'basic.css'),
+                        self.outdir)
 
     def hl(self, text, version):
+        # type: (unicode, unicode) -> unicode
         text = htmlescape(text)
         for directive in ['versionchanged', 'versionadded', 'deprecated']:
             text = text.replace('.. %s:: %s' % (directive, version),
@@ -164,4 +160,10 @@ class ChangesBuilder(Builder):
         return text
 
     def finish(self):
+        # type: () -> None
         pass
+
+
+def setup(app):
+    # type: (Sphinx) -> None
+    app.add_builder(ChangesBuilder)

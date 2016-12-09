@@ -24,6 +24,10 @@ Attributes:
         one convention to document module level variables and be consistent
         with it.
 
+Todo:
+    * For module TODOs
+    * You have to also use ``sphinx.ext.todo`` extension
+
 .. _Google Python Style Guide:
    http://google.github.io/styleguide/pyguide.html
 
@@ -39,15 +43,45 @@ on the first line, separated by a colon.
 """
 
 
+def function_with_types_in_docstring(param1, param2):
+    """Example function with types documented in the docstring.
+
+    `PEP 484`_ type annotations are supported. If attribute, parameter, and
+    return types are annotated according to `PEP 484`_, they do not need to be
+    included in the docstring:
+
+    Args:
+        param1 (int): The first parameter.
+        param2 (str): The second parameter.
+
+    Returns:
+        bool: The return value. True for success, False otherwise.
+
+    .. _PEP 484:
+        https://www.python.org/dev/peps/pep-0484/
+
+    """
+
+
+def function_with_pep484_type_annotations(param1: int, param2: str) -> bool:
+    """Example function with PEP 484 type annotations.
+
+    Args:
+        param1: The first parameter.
+        param2: The second parameter.
+
+    Returns:
+        The return value. True for success, False otherwise.
+
+    """
+
+
 def module_level_function(param1, param2=None, *args, **kwargs):
     """This is an example of a module level function.
 
     Function parameters should be documented in the ``Args`` section. The name
     of each parameter is required. The type and description of each parameter
     is optional, but should be included if not obvious.
-
-    Parameter types -- if given -- should be specified according to
-    `PEP 484`_, though `PEP 484`_ conformance isn't required or enforced.
 
     If \*args or \*\*kwargs are accepted,
     they should be listed as ``*args`` and ``**kwargs``.
@@ -63,7 +97,7 @@ def module_level_function(param1, param2=None, *args, **kwargs):
 
     Args:
         param1 (int): The first parameter.
-        param2 (Optional[str]): The second parameter. Defaults to None.
+        param2 (:obj:`str`, optional): The second parameter. Defaults to None.
             Second line of description should be indented.
         *args: Variable length argument list.
         **kwargs: Arbitrary keyword arguments.
@@ -89,10 +123,6 @@ def module_level_function(param1, param2=None, *args, **kwargs):
         AttributeError: The ``Raises`` section is a list of all exceptions
             that are relevant to the interface.
         ValueError: If `param2` is equal to `param1`.
-
-
-    .. _PEP 484:
-       https://www.python.org/dev/peps/pep-0484/
 
     """
     if param1 == param2:
@@ -135,7 +165,7 @@ class ExampleError(Exception):
 
     Args:
         msg (str): Human readable string describing the exception.
-        code (Optional[int]): Error code.
+        code (:obj:`int`, optional): Error code.
 
     Attributes:
         msg (str): Human readable string describing the exception.
@@ -159,16 +189,9 @@ class ExampleClass(object):
     Properties created with the ``@property`` decorator should be documented
     in the property's getter method.
 
-    Attribute and property types -- if given -- should be specified according
-    to `PEP 484`_, though `PEP 484`_ conformance isn't required or enforced.
-
     Attributes:
         attr1 (str): Description of `attr1`.
-        attr2 (Optional[int]): Description of `attr2`.
-
-
-    .. _PEP 484:
-       https://www.python.org/dev/peps/pep-0484/
+        attr2 (:obj:`int`, optional): Description of `attr2`.
 
     """
 
@@ -186,20 +209,20 @@ class ExampleClass(object):
 
         Args:
             param1 (str): Description of `param1`.
-            param2 (Optional[int]): Description of `param2`. Multiple
+            param2 (:obj:`int`, optional): Description of `param2`. Multiple
                 lines are supported.
-            param3 (List[str]): Description of `param3`.
+            param3 (list(str)): Description of `param3`.
 
         """
         self.attr1 = param1
         self.attr2 = param2
         self.attr3 = param3  #: Doc comment *inline* with attribute
 
-        #: List[str]: Doc comment *before* attribute, with type specified
+        #: list(str): Doc comment *before* attribute, with type specified
         self.attr4 = ['attr4']
 
         self.attr5 = None
-        """Optional[str]: Docstring *after* attribute, with type specified."""
+        """str: Docstring *after* attribute, with type specified."""
 
     @property
     def readonly_property(self):
@@ -208,8 +231,8 @@ class ExampleClass(object):
 
     @property
     def readwrite_property(self):
-        """List[str]: Properties with both a getter and setter should only
-        be documented in their getter method.
+        """list(str): Properties with both a getter and setter
+        should only be documented in their getter method.
 
         If the setter method contains notable behavior, it should be
         mentioned here.
@@ -237,16 +260,17 @@ class ExampleClass(object):
         return True
 
     def __special__(self):
-        """By default special members with docstrings are included.
+        """By default special members with docstrings are not included.
 
         Special members are any methods or attributes that start with and
         end with a double underscore. Any special member with a docstring
-        will be included in the output.
+        will be included in the output, if
+        ``napoleon_include_special_with_doc`` is set to True.
 
-        This behavior can be disabled by changing the following setting in
+        This behavior can be enabled by changing the following setting in
         Sphinx's conf.py::
 
-            napoleon_include_special_with_doc = False
+            napoleon_include_special_with_doc = True
 
         """
         pass

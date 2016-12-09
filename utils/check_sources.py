@@ -7,7 +7,7 @@
     Make sure each Python file has a correct file header
     including copyright and license information.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -46,6 +46,7 @@ copyright_2_re = re.compile(r'^                %s(, %s)*[,.]$' %
                             (name_mail_re, name_mail_re))
 not_ix_re    = re.compile(r'\bnot\s+\S+?\s+i[sn]\s\S+')
 is_const_re  = re.compile(r'if.*?==\s+(None|False|True)\b')
+noqa_re      = re.compile(r'#\s+NOQA\s*$', re.I)
 
 misspellings = ["developement", "adress",  # ALLOW-MISSPELLING
                 "verificate", "informations"]  # ALLOW-MISSPELLING
@@ -81,7 +82,9 @@ def check_syntax(fn, lines):
 @checker('.py')
 def check_style(fn, lines):
     for lno, line in enumerate(lines):
-        if len(line) > 95:
+        if noqa_re.search(line):
+            continue
+        if len(line.rstrip('\n')) > 95:
             yield lno+1, "line too long"
         if line.strip().startswith('#'):
             continue
@@ -223,11 +226,8 @@ def main(argv):
                 print("Checking %s..." % fn)
 
             try:
-                f = open(fn, 'rb')
-                try:
+                with open(fn, 'rb') as f:
                     lines = list(f)
-                finally:
-                    f.close()
             except (IOError, OSError) as err:
                 print("%s: cannot open: %s" % (fn, err))
                 num += 1

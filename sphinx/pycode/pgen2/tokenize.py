@@ -183,7 +183,7 @@ def tokenize_loop(readline, tokeneater):
 class Untokenizer:
 
     def __init__(self):
-        self.tokens = []
+        self.tokens = []  # type: List[unicode]
         self.prev_row = 1
         self.prev_col = 0
 
@@ -294,17 +294,17 @@ def generate_tokens(readline):
 
         if contstr:                            # continued string
             if not line:
-                raise TokenError("EOF in multi-line string", strstart)
-            endmatch = endprog.match(line)
+                raise TokenError("EOF in multi-line string", strstart)  # type: ignore
+            endmatch = endprog.match(line)  # type: ignore
             if endmatch:
                 pos = end = endmatch.end(0)
-                yield (STRING, contstr + line[:end],
-                       strstart, (lnum, end), contline + line)
+                yield (STRING, contstr + line[:end],  # type: ignore
+                       strstart, (lnum, end), contline + line)  # type: ignore
                 contstr, needcont = '', 0
                 contline = None
             elif needcont and line[-2:] != '\\\n' and line[-3:] != '\\\r\n':
-                yield (ERRORTOKEN, contstr + line,
-                           strstart, (lnum, len(line)), contline)
+                yield (ERRORTOKEN, contstr + line,  # type: ignore
+                           strstart, (lnum, len(line)), contline)  # type: ignore
                 contstr = ''
                 contline = None
                 continue
@@ -333,7 +333,7 @@ def generate_tokens(readline):
                     yield (NL, line[nl_pos:],
                            (lnum, nl_pos), (lnum, len(line)), line)
                 else:
-                    yield ((NL, COMMENT)[line[pos] == '#'], line[pos:],
+                    yield ((NL, COMMENT)[line[pos] == '#'], line[pos:],  # type: ignore
                            (lnum, pos), (lnum, len(line)), line)
                 continue
 
@@ -359,6 +359,16 @@ def generate_tokens(readline):
                 start, end = pseudomatch.span(1)
                 spos, epos, pos = (lnum, start), (lnum, end), end
                 token, initial = line[start:end], line[start]
+
+                if end < max:
+                    next_pseudomatch = pseudoprog.match(line, end)
+                    if next_pseudomatch:
+                        n_start, n_end = next_pseudomatch.span(1)
+                        n_token  = line[n_start:n_end]
+                    else:
+                        n_token = None
+                else:
+                    n_token = None
 
                 if initial in numchars or (
                    initial == '.' and token not in ('.', '...')
@@ -396,6 +406,10 @@ def generate_tokens(readline):
                         break
                     else:                                  # ordinary string
                         yield (STRING, token, spos, epos, line)
+                elif token == 'await' and n_token:
+                    yield (AWAIT, token, spos, epos, line)
+                elif token == 'async' and n_token in ('def', 'for', 'with'):
+                    yield (ASYNC, token, spos, epos, line)
                 elif initial in namechars:                 # ordinary name
                     yield (NAME, token, spos, epos, line)
                 elif token in ('...',):                    # ordinary name

@@ -10,7 +10,7 @@ How do I...
 -----------
 
 ... create PDF files without LaTeX?
-   You can use `rst2pdf <http://rst2pdf.googlecode.com>`_ version 0.12 or
+   You can use `rst2pdf <https://github.com/rst2pdf/rst2pdf>`_ version 0.12 or
    greater which comes with built-in Sphinx integration.  See the
    :ref:`builders` section for details.
 
@@ -82,7 +82,7 @@ GitHub Pages
    Sphinx HTML output properly.
 
 MediaWiki
-   See https://bitbucket.org/kevindunn/sphinx-wiki, a project by Kevin Dunn.
+   See https://bitbucket.org/kevindunn/sphinx-wiki/wiki/Home, a project by Kevin Dunn.
 
 Google Analytics
    You can use a custom ``layout.html`` template, like this:
@@ -140,7 +140,7 @@ The following list gives some hints for the creation of epub files:
   are often cut at the right margin.  The default Courier font (or variant) is
   quite wide and you can only display up to 60 characters on a line.  If you
   replace it with a narrower font, you can get more characters on a line.  You
-  may even use `FontForge <http://fontforge.org/>`_ and create
+  may even use `FontForge <http://fontforge.github.io/>`_ and create
   narrow variants of some free font.  In my case I get up to 70 characters on a
   line.
 
@@ -149,7 +149,7 @@ The following list gives some hints for the creation of epub files:
 * Test the created epubs. You can use several alternatives.  The ones I am aware
   of are Epubcheck_, Calibre_, FBreader_ (although it does not render the CSS),
   and Bookworm_.  For bookworm you can download the source from
-  http://code.google.com/p/threepress/ and run your own local server.
+  https://code.google.com/archive/p/threepress and run your own local server.
 
 * Large floating divs are not displayed properly.
   If they cover more than one page, the div is only shown on the first page.
@@ -167,11 +167,45 @@ The following list gives some hints for the creation of epub files:
   :confval:`html_static_path` directory and reference it with its full path in
   the :confval:`epub_cover` config option.
 
-.. _Epubcheck: http://code.google.com/p/epubcheck/
-.. _Calibre: http://calibre-ebook.com/
-.. _FBreader: http://fbreader.org/
-.. _Bookworm: http://oreilly.com/bookworm/index.html
+* kindlegen_ command can convert from epub3 resulting file to ``.mobi`` file
+  for Kindle. You can get ``yourdoc.mobi`` under ``_build/epub`` after the
+  following command:
 
+  .. code-block:: bash
+
+     $ make epub
+     $ kindlegen _build/epub/yourdoc.epub
+
+  kindlegen commands doesn't accept documents that have section
+  titles surrounding ``toctree`` directive:
+
+  .. code-block:: rst
+
+     Section Title
+     =============
+
+     .. toctree::
+
+        subdocument
+
+     Section After Toc Tree
+     ======================
+
+  kindlegen assumes all documents order in line, but resulting document
+  has complecated order for kindlegen::
+
+     ``parent.xhtml`` -> ``child.xhtml`` -> ``parent.xhtml``
+
+  If you got the following error, fix document structure::
+
+     Error(prcgen):E24011: TOC section scope is not included in the parent chapter:(title)
+     Error(prcgen):E24001: The table of content could not be built.
+
+.. _Epubcheck: https://code.google.com/archive/p/epubcheck
+.. _Calibre: http://calibre-ebook.com/
+.. _FBreader: https://fbreader.org/
+.. _Bookworm: http://www.oreilly.com/bookworm/index.html
+.. _kindlegen: https://www.amazon.com/gp/feature.html?docId=1000765211
 
 .. _texinfo-faq:
 
@@ -213,7 +247,7 @@ If you want Emacs to display Info files produced by Sphinx using the value
 Info files, try adding the following Emacs Lisp code to your start-up file,
 ``~/.emacs.d/init.el``.
 
-::
+.. code-block:: elisp
 
    (defadvice info-insert-file-contents (after
                                          sphinx-info-insert-file-contents
@@ -245,10 +279,6 @@ The following notes may be helpful if you want to create Texinfo files:
 
 - Links to external Info files can be created using the somewhat official URI
   scheme ``info``.  For example::
-
-     info:Texinfo#makeinfo_options
-
-  which produces:
 
      info:Texinfo#makeinfo_options
 

@@ -5,28 +5,20 @@
 
     Highlight code blocks using Pygments.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
-import re
-import textwrap
-
-try:
-    import parser
-except ImportError:
-    # parser is not available on Jython
-    parser = None
-
-from six import PY2, text_type
+from six import text_type
 
 from sphinx.util.pycompat import htmlescape
 from sphinx.util.texescape import tex_hl_escape_map_new
 from sphinx.ext import doctest
 
 from pygments import highlight
-from pygments.lexers import PythonLexer, PythonConsoleLexer, CLexer, \
-    TextLexer, RstLexer
+from pygments.lexer import Lexer  # NOQA
+from pygments.lexers import PythonLexer, Python3Lexer, PythonConsoleLexer, \
+    CLexer, TextLexer, RstLexer
 from pygments.lexers import get_lexer_by_name, guess_lexer
 from pygments.formatters import HtmlFormatter, LatexFormatter
 from pygments.filters import ErrorToken
@@ -37,11 +29,12 @@ from sphinx.pygments_styles import SphinxStyle, NoneStyle
 lexers = dict(
     none = TextLexer(stripnl=False),
     python = PythonLexer(stripnl=False),
+    python3 = Python3Lexer(stripnl=False),
     pycon = PythonConsoleLexer(stripnl=False),
     pycon3 = PythonConsoleLexer(python3=True, stripnl=False),
     rest = RstLexer(stripnl=False),
     c = CLexer(stripnl=False),
-)
+)  # type: Dict[unicode, Lexer]
 for _lexer in lexers.values():
     _lexer.add_filter('raiseonerror')
 
@@ -99,41 +92,6 @@ class PygmentsBridge(object):
             return '\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n' + \
                    source + '\\end{Verbatim}\n'
 
-    def try_parse(self, src):
-        # Make sure it ends in a newline
-        src += '\n'
-
-        # Ignore consistent indentation.
-        if src.lstrip('\n').startswith(' '):
-            src = textwrap.dedent(src)
-
-        # Replace "..." by a mark which is also a valid python expression
-        # (Note, the highlighter gets the original source, this is only done
-        #  to allow "..." in code and still highlight it as Python code.)
-        mark = "__highlighting__ellipsis__"
-        src = src.replace("...", mark)
-
-        # lines beginning with "..." are probably placeholders for suite
-        src = re.sub(r"(?m)^(\s*)" + mark + "(.)", r"\1" + mark + r"# \2", src)
-
-        if PY2 and isinstance(src, text_type):
-            # Non-ASCII chars will only occur in string literals
-            # and comments.  If we wanted to give them to the parser
-            # correctly, we'd have to find out the correct source
-            # encoding.  Since it may not even be given in a snippet,
-            # just replace all non-ASCII characters.
-            src = src.encode('ascii', 'replace')
-
-        if parser is None:
-            return True
-
-        try:
-            parser.suite(src)
-        except (SyntaxError, UnicodeEncodeError):
-            return False
-        else:
-            return True
-
     def highlight_block(self, source, lang, opts=None, warn=None, force=False, **kwargs):
         if not isinstance(source, text_type):
             source = source.decode()
@@ -143,17 +101,13 @@ class PygmentsBridge(object):
             if source.startswith('>>>'):
                 # interactive session
                 lexer = lexers['pycon']
-            elif not force:
-                # maybe Python -- try parsing it
-                if self.try_parse(source):
-                    lexer = lexers['python']
-                else:
-                    lexer = lexers['none']
             else:
                 lexer = lexers['python']
-        elif lang in ('python3', 'py3') and source.startswith('>>>'):
-            # for py3, recognize interactive sessions, but do not try parsing...
-            lexer = lexers['pycon3']
+        elif lang in ('py3', 'python3', 'default'):
+            if source.startswith('>>>'):
+                lexer = lexers['pycon3']
+            else:
+                lexer = lexers['python3']
         elif lang == 'guess':
             try:
                 lexer = guess_lexer(source)
@@ -183,9 +137,17 @@ class PygmentsBridge(object):
         formatter = self.get_formatter(**kwargs)
         try:
             hlsource = highlight(source, lexer, formatter)
-        except ErrorToken:
+        except ErrorToken as exc:
             # this is most probably not the selected language,
             # so let it pass unhighlighted
+            if lang == 'default':
+                pass  # automatic highlighting failed.
+            elif warn:
+                warn('Could not lex literal_block as "%s". '
+                     'Highlighting skipped.' % lang,
+                     type='misc', subtype='higlighting_failure')
+            else:
+                raise exc
             hlsource = highlight(source, lexers['none'], formatter)
         if self.dest == 'html':
             return hlsource

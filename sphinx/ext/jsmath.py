@@ -6,13 +6,14 @@
     Set up everything for use of JSMath to display math in HTML
     via JavaScript.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from docutils import nodes
 
 import sphinx
+from sphinx.locale import _
 from sphinx.application import ExtensionError
 from sphinx.ext.mathbase import setup_math as mathbase_setup
 
@@ -26,7 +27,7 @@ def html_visit_math(self, node):
 def html_visit_displaymath(self, node):
     if node['nowrap']:
         self.body.append(self.starttag(node, 'div', CLASS='math'))
-        self.body.append(node['latex'])
+        self.body.append(self.encode(node['latex']))
         self.body.append('</div>')
         raise nodes.SkipNode
     for i, part in enumerate(node['latex'].split('\n\n')):
@@ -34,8 +35,9 @@ def html_visit_displaymath(self, node):
         if i == 0:
             # necessary to e.g. set the id property correctly
             if node['number']:
-                self.body.append('<span class="eqno">(%s)</span>' %
-                                 node['number'])
+                self.body.append('<span class="eqno">(%s)' % node['number'])
+                self.add_permalink_ref(node, _('Permalink to this equation'))
+                self.body.append('</span>')
             self.body.append(self.starttag(node, 'div', CLASS='math'))
         else:
             # but only once!
@@ -56,7 +58,11 @@ def builder_inited(app):
 
 
 def setup(app):
-    mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
+    try:
+        mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
+    except ExtensionError:
+        raise ExtensionError('sphinx.ext.jsmath: other math package is already loaded')
+
     app.add_config_value('jsmath_path', '', False)
     app.connect('builder-inited', builder_inited)
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}

@@ -4,14 +4,15 @@
 from __future__ import print_function
 
 from six import iteritems
-try:
-    from collections import OrderedDict
-except ImportError: # Fallback for Python 2.6
-    OrderedDict = dict
+from collections import OrderedDict
 
 # Pgen imports
-
 from sphinx.pycode.pgen2 import grammar, token, tokenize
+
+if False:
+    # For type annotation
+    from typing import Any, Tuple  # NOQA
+
 
 class PgenGrammar(grammar.Grammar):
     pass
@@ -30,7 +31,8 @@ class ParserGenerator(object):
         self.dfas, self.startsymbol = self.parse()
         if close_stream is not None:
             close_stream()
-        self.first = {} # map from symbol name to set of tokens
+        self.first = {}     # type: Dict[unicode, List[unicode]]
+                            # map from symbol name to set of tokens
         self.addfirstsets()
 
     def make_grammar(self):
@@ -45,7 +47,7 @@ class ParserGenerator(object):
             c.number2symbol[i] = name
         for name in names:
             dfa = self.dfas[name]
-            states = []
+            states = []  # type: List[List[Tuple[int, int]]]
             for state in dfa:
                 arcs = []
                 for label, next in iteritems(state.arcs):
@@ -125,7 +127,7 @@ class ParserGenerator(object):
         dfa = self.dfas[name]
         self.first[name] = None # dummy to detect left recursion
         state = dfa[0]
-        totalset = {}
+        totalset = {}  # type: Dict[unicode, int]
         overlapcheck = {}
         for label, next in iteritems(state.arcs):
             if label in self.dfas:
@@ -141,7 +143,7 @@ class ParserGenerator(object):
             else:
                 totalset[label] = 1
                 overlapcheck[label] = {label: 1}
-        inverse = {}
+        inverse = {}  # type: Dict[unicode, unicode]
         for label, itsfirst in sorted(overlapcheck.items()):
             for symbol in sorted(itsfirst):
                 if symbol in inverse:
@@ -183,7 +185,7 @@ class ParserGenerator(object):
         assert isinstance(start, NFAState)
         assert isinstance(finish, NFAState)
         def closure(state):
-            base = {}
+            base = {}  # type: Dict
             addclosure(state, base)
             return base
         def addclosure(state, base):
@@ -191,12 +193,12 @@ class ParserGenerator(object):
             if state in base:
                 return
             base[state] = 1
-            for label, next in state.arcs:
+            for label, next in state.arcs:  # type: ignore
                 if label is None:
                     addclosure(next, base)
         states = [DFAState(closure(start), finish)]
         for state in states: # NB states grows while we're iterating
-            arcs = {}
+            arcs = {}  # type: Dict[unicode, Dict]
             for nfastate in state.nfaset:
                 for label, next in nfastate.arcs:
                     if label is not None:
@@ -346,7 +348,8 @@ class ParserGenerator(object):
 class NFAState(object):
 
     def __init__(self):
-        self.arcs = [] # list of (label, NFAState) pairs
+        self.arcs = []  # type: List[Tuple[unicode, Any]]
+                        # list of (label, NFAState) pairs
 
     def addarc(self, next, label=None):
         assert label is None or isinstance(label, str)
@@ -364,7 +367,8 @@ class DFAState(object):
         assert isinstance(final, NFAState)
         self.nfaset = nfaset
         self.isfinal = final in nfaset
-        self.arcs = OrderedDict() # map from label to DFAState
+        self.arcs = OrderedDict()   # type: OrderedDict
+                                    # map from label to DFAState
 
     def __hash__(self):
         return hash(tuple(self.arcs))

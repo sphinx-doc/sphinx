@@ -5,7 +5,7 @@
 
     Handlers for additional ReST roles.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,7 +13,6 @@ import re
 
 from six import iteritems
 from docutils import nodes, utils
-from docutils.parsers.rst import roles
 
 from sphinx import addnodes
 from sphinx.locale import _
@@ -29,17 +28,12 @@ generic_docroles = {
     'kbd': nodes.literal,
     'mailheader': addnodes.literal_emphasis,
     'makevar': addnodes.literal_strong,
-    'manpage': addnodes.literal_emphasis,
+    'manpage': addnodes.manpage,
     'mimetype': addnodes.literal_emphasis,
     'newsgroup': addnodes.literal_emphasis,
     'program': addnodes.literal_strong,  # XXX should be an x-ref
     'regexp': nodes.literal,
 }
-
-for rolename, nodeclass in iteritems(generic_docroles):
-    generic = roles.GenericRole(rolename, nodeclass)
-    role = roles.CustomRole(rolename, generic, {'classes': [rolename]})
-    roles.register_local_role(rolename, role)
 
 
 # -- generic cross-reference role ----------------------------------------------
@@ -181,7 +175,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner,
         typ = env.config.default_role
     else:
         typ = typ.lower()
-    has_explicit_title, title, target = split_explicit_title(text)
+    has_explicit_title, title, target = split_explicit_title(text)  # type: bool, unicode, unicode  # NOQA
     title = utils.unescape(title)
     target = utils.unescape(target)
     targetid = 'index-%s' % env.new_serialno('index')
@@ -191,8 +185,8 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner,
     if typ == 'pep':
         indexnode['entries'] = [
             ('single', _('Python Enhancement Proposals; PEP %s') % target,
-             targetid, '')]
-        anchor = ''
+             targetid, '', None)]
+        anchor = ''  # type: unicode
         anchorindex = target.find('#')
         if anchorindex > 0:
             target, anchor = target[:anchorindex], target[anchorindex:]
@@ -212,7 +206,8 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner,
         rn += sn
         return [indexnode, targetnode, rn], []
     elif typ == 'rfc':
-        indexnode['entries'] = [('single', 'RFC; RFC %s' % target, targetid, '')]
+        indexnode['entries'] = [
+            ('single', 'RFC; RFC %s' % target, targetid, '', None)]
         anchor = ''
         anchorindex = target.find('#')
         if anchorindex > 0:
@@ -317,7 +312,7 @@ def index_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
             target = target[1:]
             title = title[1:]
             main = 'main'
-        entries = [('single', target, targetid, main)]
+        entries = [('single', target, targetid, main, None)]
     indexnode = addnodes.index()
     indexnode['entries'] = entries
     set_role_source_info(inliner, lineno, indexnode)
@@ -343,5 +338,14 @@ specific_docroles = {
     'index': index_role,
 }
 
-for rolename, func in iteritems(specific_docroles):
-    roles.register_local_role(rolename, func)
+
+def setup(app):
+    from docutils.parsers.rst import roles
+
+    for rolename, nodeclass in iteritems(generic_docroles):
+        generic = roles.GenericRole(rolename, nodeclass)
+        role = roles.CustomRole(rolename, generic, {'classes': [rolename]})
+        roles.register_local_role(rolename, role)
+
+    for rolename, func in iteritems(specific_docroles):
+        roles.register_local_role(rolename, func)

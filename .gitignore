@@ -1,8 +1,10 @@
 *.pyc
 *.egg
 *.so
+*.swp
 
 .dir-locals.el
+.mypy_cache/
 .ropeproject/
 TAGS
 .tags
@@ -18,3 +20,4 @@ Sphinx.egg-info/
 doc/_build/
 tests/.coverage
 tests/build/
+utils/regression_test.js

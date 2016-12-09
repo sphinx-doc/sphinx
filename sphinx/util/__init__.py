@@ -5,9 +5,10 @@
 
     Utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+from __future__ import absolute_import
 
 import os
 import re
@@ -18,19 +19,17 @@ import posixpath
 import traceback
 import unicodedata
 from os import path
-from codecs import open, BOM_UTF8
+from codecs import BOM_UTF8
 from collections import deque
 
 from six import iteritems, text_type, binary_type
 from six.moves import range
-import docutils
+from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 from docutils.utils import relative_path
 
-import jinja2
-
-import sphinx
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
 from sphinx.util.console import strip_colors
+from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import fs_encoding
 
 # import other utilities; partly for backwards compatibility, so don't
@@ -43,19 +42,25 @@ from sphinx.util.nodes import (   # noqa
     caption_ref_re)
 from sphinx.util.matching import patfilter  # noqa
 
+if False:
+    # For type annotation
+    from typing import Any, Callable, Iterable, Pattern, Sequence, Tuple  # NOQA
+
 # Generally useful regular expressions.
-ws_re = re.compile(r'\s+')
-url_re = re.compile(r'(?P<schema>.+)://.*')
+ws_re = re.compile(r'\s+')                      # type: Pattern
+url_re = re.compile(r'(?P<schema>.+)://.*')     # type: Pattern
 
 
 # High-level utility functions.
 
 def docname_join(basedocname, docname):
+    # type: (unicode, unicode) -> unicode
     return posixpath.normpath(
         posixpath.join('/' + basedocname, '..', docname))[1:]
 
 
 def path_stabilize(filepath):
+    # type: (unicode) -> unicode
     "normalize path separater and unicode string"
     newpath = filepath.replace(os.path.sep, SEP)
     if isinstance(newpath, text_type):
@@ -64,6 +69,7 @@ def path_stabilize(filepath):
 
 
 def get_matching_files(dirname, exclude_matchers=()):
+    # type: (unicode, Tuple[Callable[[unicode], bool], ...]) -> Iterable[unicode]
     """Get all file names in a directory, recursively.
 
     Exclude files and dirs matching some matcher in *exclude_matchers*.
@@ -76,9 +82,9 @@ def get_matching_files(dirname, exclude_matchers=()):
         relativeroot = root[dirlen:]
 
         qdirs = enumerate(path_stabilize(path.join(relativeroot, dn))
-                          for dn in dirs)
+                          for dn in dirs)  # type: Iterable[Tuple[int, unicode]]
         qfiles = enumerate(path_stabilize(path.join(relativeroot, fn))
-                           for fn in files)
+                           for fn in files)  # type: Iterable[Tuple[int, unicode]]
         for matcher in exclude_matchers:
             qdirs = [entry for entry in qdirs if not matcher(entry[1])]
             qfiles = [entry for entry in qfiles if not matcher(entry[1])]
@@ -90,6 +96,7 @@ def get_matching_files(dirname, exclude_matchers=()):
 
 
 def get_matching_docs(dirname, suffixes, exclude_matchers=()):
+    # type: (unicode, List[unicode], Tuple[Callable[[unicode], bool], ...]) -> Iterable[unicode]  # NOQA
     """Get all file names (without suffixes) matching a suffix in a directory,
     recursively.
 
@@ -98,7 +105,7 @@ def get_matching_docs(dirname, suffixes, exclude_matchers=()):
     suffixpatterns = ['*' + s for s in suffixes]
     for filename in get_matching_files(dirname, exclude_matchers):
         for suffixpattern in suffixpatterns:
-            if fnmatch.fnmatch(filename, suffixpattern):
+            if fnmatch.fnmatch(filename, suffixpattern):  # type: ignore
                 yield filename[:-len(suffixpattern)+1]
                 break
 
@@ -110,9 +117,10 @@ class FilenameUniqDict(dict):
     appear in.  Used for images and downloadable files in the environment.
     """
     def __init__(self):
-        self._existing = set()
+        self._existing = set()  # type: Set[unicode]
 
     def add_file(self, docname, newfile):
+        # type: (unicode, unicode) -> unicode
         if newfile in self:
             self[newfile][0].add(docname)
             return self[newfile][1]
@@ -127,6 +135,7 @@ class FilenameUniqDict(dict):
         return uniquename
 
     def purge_doc(self, docname):
+        # type: (unicode) -> None
         for filename, (docs, unique) in list(self.items()):
             docs.discard(docname)
             if not docs:
@@ -134,6 +143,7 @@ class FilenameUniqDict(dict):
                 self._existing.discard(unique)
 
     def merge_other(self, docnames, other):
+        # type: (List[unicode], Dict[unicode, Tuple[Set[unicode], Any]]) -> None
         for filename, (docs, unique) in other.items():
             for doc in docs & docnames:
                 self.add_file(doc, filename)
@@ -147,7 +157,8 @@ class FilenameUniqDict(dict):
 
 def copy_static_entry(source, targetdir, builder, context={},
                       exclude_matchers=(), level=0):
-    """Copy a HTML builder static_path entry from source to targetdir.
+    # type: (unicode, unicode, Any, Dict, Tuple[Callable, ...], int) -> None
+    """[DEPRECATED] Copy a HTML builder static_path entry from source to targetdir.
 
     Handles all possible cases of files, directories and subdirectories.
     """
@@ -157,16 +168,7 @@ def copy_static_entry(source, targetdir, builder, context={},
             if matcher(relpath):
                 return
     if path.isfile(source):
-        target = path.join(targetdir, path.basename(source))
-        if source.lower().endswith('_t') and builder.templates:
-            # templated!
-            fsrc = open(source, 'r', encoding='utf-8')
-            fdst = open(target[:-2], 'w', encoding='utf-8')
-            fdst.write(builder.templates.render_string(fsrc.read(), context))
-            fsrc.close()
-            fdst.close()
-        else:
-            copyfile(source, target)
+        copy_asset_file(source, targetdir, context, builder.templates)
     elif path.isdir(source):
         if not path.isdir(targetdir):
             os.mkdir(targetdir)
@@ -193,11 +195,15 @@ _DEBUG_HEADER = '''\
 
 
 def save_traceback(app):
+    # type: (Any) -> unicode
     """Save the current exception's traceback in a temporary file."""
+    import sphinx
+    import jinja2
+    import docutils
     import platform
     exc = sys.exc_info()[1]
     if isinstance(exc, SphinxParallelError):
-        exc_format = '(Error in parallel process)\n' + exc.traceback
+        exc_format = '(Error in parallel process)\n' + exc.traceback  # type: ignore
     else:
         exc_format = traceback.format_exc()
     fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
@@ -227,6 +233,7 @@ def save_traceback(app):
 
 
 def get_module_source(modname):
+    # type: (str) -> Tuple[unicode, unicode]
     """Try to find the source code for a module.
 
     Can return ('file', 'filename') in which case the source is in the given
@@ -266,6 +273,7 @@ def get_module_source(modname):
 
 
 def get_full_modname(modname, attribute):
+    # type: (str, unicode) -> unicode
     __import__(modname)
     module = sys.modules[modname]
 
@@ -284,6 +292,7 @@ _coding_re = re.compile(r'coding[:=]\s*([-\w.]+)')
 
 
 def detect_encoding(readline):
+    # type: (Callable) -> unicode
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
 
     def read_or_stop():
@@ -420,32 +429,31 @@ def split_into(n, type, value):
 
 def split_index_msg(type, value):
     # new entry types must be listed in directives/other.py!
-    result = []
-    try:
-        if type == 'single':
-            try:
-                result = split_into(2, 'single', value)
-            except ValueError:
-                result = split_into(1, 'single', value)
-        elif type == 'pair':
-            result = split_into(2, 'pair', value)
-        elif type == 'triple':
-            result = split_into(3, 'triple', value)
-        elif type == 'see':
-            result = split_into(2, 'see', value)
-        elif type == 'seealso':
-            result = split_into(2, 'see', value)
-    except ValueError:
-        pass
+    if type == 'single':
+        try:
+            result = split_into(2, 'single', value)
+        except ValueError:
+            result = split_into(1, 'single', value)
+    elif type == 'pair':
+        result = split_into(2, 'pair', value)
+    elif type == 'triple':
+        result = split_into(3, 'triple', value)
+    elif type == 'see':
+        result = split_into(2, 'see', value)
+    elif type == 'seealso':
+        result = split_into(2, 'see', value)
+    else:
+        raise ValueError('invalid %s index entry %r' % (type, value))
 
     return result
 
 
 def format_exception_cut_frames(x=1):
+    # type: (int) -> unicode
     """Format an exception with traceback, but only the last x frames."""
     typ, val, tb = sys.exc_info()
     # res = ['Traceback (most recent call last):\n']
-    res = []
+    res = []  # type: List[unicode]
     tbres = traceback.format_tb(tb)
     res += tbres[-x:]
     res += traceback.format_exception_only(typ, val)
@@ -458,7 +466,7 @@ class PeekableIterator(object):
     what's the next item.
     """
     def __init__(self, iterable):
-        self.remaining = deque()
+        self.remaining = deque()  # type: deque
         self._iterator = iter(iterable)
 
     def __iter__(self):
@@ -485,28 +493,8 @@ class PeekableIterator(object):
         return item
 
 
-def get_figtype(node):
-    """Return figtype for given node."""
-    def has_child(node, cls):
-        return any(isinstance(child, cls) for child in node)
-
-    from docutils import nodes
-    if isinstance(node, nodes.figure):
-        return 'figure'
-    elif isinstance(node, nodes.image) and isinstance(node.parent, nodes.figure):
-        # bare image node is not supported because it doesn't have caption and
-        # no-caption-target isn't a numbered figure.
-        return 'figure'
-    elif isinstance(node, nodes.table):
-        return 'table'
-    elif isinstance(node, nodes.container):
-        if has_child(node, nodes.literal_block):
-            return 'code-block'
-
-    return None
-
-
 def import_object(objname, source=None):
+    # type: (str, unicode) -> Any
     try:
         module, name = objname.rsplit('.', 1)
     except ValueError as err:
@@ -523,3 +511,24 @@ def import_object(objname, source=None):
         raise ExtensionError('Could not find %s' % objname +
                              (source and ' (needed for %s)' % source or ''),
                              err)
+
+
+def encode_uri(uri):
+    # type: (unicode) -> unicode
+    split = list(urlsplit(uri))  # type: Any
+    split[1] = split[1].encode('idna').decode('ascii')
+    split[2] = quote_plus(split[2].encode('utf-8'), '/').decode('ascii')
+    query = list((q, quote_plus(v.encode('utf-8')))
+                 for (q, v) in parse_qsl(split[3]))
+    split[3] = urlencode(query).decode('ascii')
+    return urlunsplit(split)
+
+
+def split_docinfo(text):
+    # type: (unicode) -> Sequence[unicode]
+    docinfo_re = re.compile('\A((?:\s*:\w+:.*?\n(?:[ \t]+.*?\n)*)+)', re.M)
+    result = docinfo_re.split(text, 1)  # type: ignore
+    if len(result) == 1:
+        return '', result[0]
+    else:
+        return result[1:]

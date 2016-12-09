@@ -5,7 +5,7 @@
 
     docutils writers handling Sphinx' custom nodes.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -13,22 +13,17 @@ import sys
 import posixpath
 import os
 import copy
+import warnings
 
 from six import string_types
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
+from sphinx.util.images import get_image_size
 from sphinx.util.smartypants import sphinx_smarty_pants
-
-try:
-    from PIL import Image        # check for the Python Imaging Library
-except ImportError:
-    try:
-        import Image
-    except ImportError:
-        Image = None
 
 # A good overview of the purpose behind these classes can be found here:
 # http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
@@ -75,6 +70,7 @@ class HTMLTranslator(BaseTranslator):
             builder.config.highlight_language
         self.highlightopts = builder.config.highlight_options
         self.highlightlinenothreshold = sys.maxsize
+        self.docnames = [builder.current_docname]  # for singlehtml builder
         self.protect_literal_text = 0
         self.permalink_text = builder.config.html_add_permalinks
         # support backwards-compatible setting to a bool
@@ -88,10 +84,11 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_start_of_file(self, node):
         # only occurs in the single-file builder
+        self.docnames.append(node['docname'])
         self.body.append('<span id="document-%s"></span>' % node['docname'])
 
     def depart_start_of_file(self, node):
-        pass
+        self.docnames.pop()
 
     def visit_desc(self, node):
         self.body.append(self.starttag(node, 'dl', CLASS=node['objtype']))
@@ -108,8 +105,18 @@ class HTMLTranslator(BaseTranslator):
             self.body.append('<!--[%s]-->' % node['ids'][0])
 
     def depart_desc_signature(self, node):
-        self.add_permalink_ref(node, _('Permalink to this definition'))
+        if not node.get('is_multiline'):
+            self.add_permalink_ref(node, _('Permalink to this definition'))
         self.body.append('</dt>\n')
+
+    def visit_desc_signature_line(self, node):
+        pass
+
+    def depart_desc_signature_line(self, node):
+        if node.get('add_permalink'):
+            # the permalink info is on the parent desc_signature node
+            self.add_permalink_ref(node.parent, _('Permalink to this definition'))
+        self.body.append('<br />')
 
     def visit_desc_addname(self, node):
         self.body.append(self.starttag(node, 'code', '', CLASS='descclassname'))
@@ -203,7 +210,7 @@ class HTMLTranslator(BaseTranslator):
         else:
             atts['class'] += ' external'
         if 'refuri' in node:
-            atts['href'] = node['refuri']
+            atts['href'] = node['refuri'] or '#'
             if self.settings.cloak_email_addresses and \
                atts['href'].startswith('mailto:'):
                 atts['href'] = self.cloak_mailto(atts['href'])
@@ -217,6 +224,8 @@ class HTMLTranslator(BaseTranslator):
             atts['class'] += ' image-reference'
         if 'reftitle' in node:
             atts['title'] = node['reftitle']
+        if 'target' in node:
+            atts['target'] = node['target']
         self.body.append(self.starttag(node, 'a', '', **atts))
 
         if node.get('secnumber'):
@@ -253,7 +262,7 @@ class HTMLTranslator(BaseTranslator):
                              self.secnumber_suffix)
         elif isinstance(node.parent, nodes.section):
             if self.builder.name == 'singlehtml':
-                docname = node.parent.get('docname')
+                docname = self.docnames[-1]
                 anchorname = '#' + node.parent['ids'][0]
                 if (docname, anchorname) not in self.builder.secnumbers:
                     anchorname = (docname, '')  # try first heading which has no anchor
@@ -270,36 +279,67 @@ class HTMLTranslator(BaseTranslator):
 
     def add_fignumber(self, node):
         def append_fignumber(figtype, figure_id):
-            if figure_id in self.builder.fignumbers.get(figtype, {}):
-                self.body.append('<span class="caption-number">')
-                prefix = self.builder.config.numfig_format.get(figtype, '')
-                numbers = self.builder.fignumbers[figtype][figure_id]
-                self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
-                self.body.append('</span>')
+            if self.builder.name == 'singlehtml':
+                key = (self.docnames[-1], figtype)
+            else:
+                key = figtype
 
-        if isinstance(node.parent, nodes.figure):
-            append_fignumber('figure', node.parent['ids'][0])
-        elif isinstance(node.parent, nodes.table):
-            append_fignumber('table', node.parent['ids'][0])
-        elif isinstance(node.parent, nodes.container):
-            append_fignumber('code-block', node.parent['ids'][0])
+            if figure_id in self.builder.fignumbers.get(key, {}):
+                self.body.append('<span class="caption-number">')
+                prefix = self.builder.config.numfig_format.get(figtype)
+                if prefix is None:
+                    msg = 'numfig_format is not defined for %s' % figtype
+                    self.builder.warn(msg)
+                else:
+                    numbers = self.builder.fignumbers[key][figure_id]
+                    self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
+                    self.body.append('</span>')
+
+        figtype = self.builder.env.domains['std'].get_figtype(node)
+        if figtype:
+            if len(node['ids']) == 0:
+                msg = 'Any IDs not assigned for %s node' % node.tagname
+                self.builder.env.warn_node(msg, node)
+            else:
+                append_fignumber(figtype, node['ids'][0])
 
     def add_permalink_ref(self, node, title):
         if node['ids'] and self.permalink_text and self.builder.add_permalinks:
             format = u'<a class="headerlink" href="#%s" title="%s">%s</a>'
             self.body.append(format % (node['ids'][0], title, self.permalink_text))
 
-    # overwritten to avoid emitting empty <ul></ul>
+    def generate_targets_for_listing(self, node):
+        """Generate hyperlink targets for listings.
+
+        Original visit_bullet_list(), visit_definition_list() and visit_enumerated_list()
+        generates hyperlink targets inside listing tags (<ul>, <ol> and <dl>) if multiple
+        IDs are assigned to listings.  That is invalid DOM structure.
+        (This is a bug of docutils <= 0.12)
+
+        This exports hyperlink targets before listings to make valid DOM structure.
+        """
+        for id in node['ids'][1:]:
+            self.body.append('<span id="%s"></span>' % id)
+            node['ids'].remove(id)
+
+    # overwritten
     def visit_bullet_list(self, node):
         if len(node) == 1 and node[0].tagname == 'toctree':
+            # avoid emitting empty <ul></ul>
             raise nodes.SkipNode
+        self.generate_targets_for_listing(node)
         BaseTranslator.visit_bullet_list(self, node)
+
+    # overwritten
+    def visit_enumerated_list(self, node):
+        self.generate_targets_for_listing(node)
+        BaseTranslator.visit_enumerated_list(self, node)
 
     # overwritten
     def visit_title(self, node):
         BaseTranslator.visit_title(self, node)
         self.add_secnumber(node)
-        self.add_fignumber(node)
+        self.add_fignumber(node.parent)
         if isinstance(node.parent, nodes.table):
             self.body.append('<span class="caption-text">')
 
@@ -324,8 +364,8 @@ class HTMLTranslator(BaseTranslator):
         else:
             opts = {}
 
-        def warner(msg):
-            self.builder.warn(msg, (self.builder.current_docname, node.line))
+        def warner(msg, **kwargs):
+            self.builder.warn(msg, (self.builder.current_docname, node.line), **kwargs)
         highlighted = self.highlighter.highlight_block(
             node.rawsource, lang, opts=opts, warn=warner, linenos=linenos,
             **highlight_args)
@@ -339,7 +379,7 @@ class HTMLTranslator(BaseTranslator):
             self.body.append('<div class="code-block-caption">')
         else:
             BaseTranslator.visit_caption(self, node)
-        self.add_fignumber(node)
+        self.add_fignumber(node.parent)
         self.body.append(self.starttag(node, 'span', '', CLASS='caption-text'))
 
     def depart_caption(self, node):
@@ -440,9 +480,9 @@ class HTMLTranslator(BaseTranslator):
         pass
 
     def visit_download_reference(self, node):
-        if node.hasattr('filename'):
+        if self.builder.download_support and node.hasattr('filename'):
             self.body.append(
-                '<a class="reference download internal" href="%s">' %
+                '<a class="reference download internal" href="%s" download="">' %
                 posixpath.join(self.builder.dlpath, node['filename']))
             self.context.append('</a>')
         else:
@@ -459,15 +499,14 @@ class HTMLTranslator(BaseTranslator):
             node['uri'] = posixpath.join(self.builder.imgpath,
                                          self.builder.images[olduri])
 
-        if node['uri'].lower().endswith('svg') or \
-           node['uri'].lower().endswith('svgz'):
-            atts = {'src': node['uri']}
+        uri = node['uri']
+        if uri.lower().endswith('svg') or uri.lower().endswith('svgz'):
+            atts = {'src': uri}
             if 'width' in node:
                 atts['width'] = node['width']
             if 'height' in node:
                 atts['height'] = node['height']
-            if 'alt' in node:
-                atts['alt'] = node['alt']
+            atts['alt'] = node.get('alt', uri)
             if 'align' in node:
                 self.body.append('<div align="%s" class="align-%s">' %
                                  (node['align'], node['align']))
@@ -481,21 +520,16 @@ class HTMLTranslator(BaseTranslator):
             # Try to figure out image height and width.  Docutils does that too,
             # but it tries the final file name, which does not necessarily exist
             # yet at the time the HTML file is written.
-            if Image and not ('width' in node and 'height' in node):
-                try:
-                    im = Image.open(os.path.join(self.builder.srcdir, olduri))
-                except (IOError,  # Source image can't be found or opened
-                        UnicodeError):  # PIL doesn't like Unicode paths.
-                    pass
+            if not ('width' in node and 'height' in node):
+                size = get_image_size(os.path.join(self.builder.srcdir, olduri))
+                if size is None:
+                    self.builder.env.warn_node('Could not obtain image size. '
+                                               ':scale: option is ignored.', node)
                 else:
                     if 'width' not in node:
-                        node['width'] = str(im.size[0])
+                        node['width'] = str(size[0])
                     if 'height' not in node:
-                        node['height'] = str(im.size[1])
-                    try:
-                        im.fp.close()
-                    except Exception:
-                        pass
+                        node['height'] = str(size[1])
         BaseTranslator.visit_image(self, node)
 
     def visit_toctree(self, node):
@@ -552,7 +586,7 @@ class HTMLTranslator(BaseTranslator):
                     self.body.append(token)
                 else:
                     # protect runs of multiple spaces; the last one can wrap
-                    self.body.append('&nbsp;' * (len(token)-1) + ' ')
+                    self.body.append('&#160;' * (len(token)-1) + ' ')
         else:
             if self.in_mailto and self.settings.cloak_email_addresses:
                 encoded = self.cloak_email(encoded)
@@ -636,9 +670,37 @@ class HTMLTranslator(BaseTranslator):
     def depart_abbreviation(self, node):
         self.body.append('</abbr>')
 
+    # overwritten (but not changed) to keep pair of visit/depart_term
+    def visit_term(self, node):
+        self.body.append(self.starttag(node, 'dt', ''))
+
+    # overwritten to add '</dt>' in 'depart_term' state.
+    def depart_term(self, node):
+        self.body.append('</dt>\n')
+
+    # overwritten to do not add '</dt>' in 'visit_definition' state.
+    def visit_definition(self, node):
+        self.generate_targets_for_listing(node)
+        self.body.append(self.starttag(node, 'dd', ''))
+        self.set_first_last(node)
+
+    # overwritten (but not changed) to keep pair of visit/depart_definition
+    def depart_definition(self, node):
+        self.body.append('</dd>\n')
+
     def visit_termsep(self, node):
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
+                      'This warning is displayed because some Sphinx extension '
+                      'uses sphinx.addnodes.termsep. Please report it to '
+                      'author of the extension.', RemovedInSphinx16Warning)
         self.body.append('<br />')
         raise nodes.SkipNode
+
+    def visit_manpage(self, node):
+        return self.visit_literal_emphasis(node)
+
+    def depart_manpage(self, node):
+        return self.depart_literal_emphasis(node)
 
     def depart_title(self, node):
         close_tag = self.context[-1]

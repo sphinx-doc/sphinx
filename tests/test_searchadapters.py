@@ -5,7 +5,7 @@
 
     Test the Web Support Package search adapters.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -22,7 +22,7 @@ def teardown_module():
 
 
 def search_adapter_helper(adapter):
-    settings = {'srcdir': rootdir / 'root',
+    settings = {'srcdir': rootdir / 'roots' / 'test-searchadapters',
                 'builddir': tempdir / 'websupport',
                 'status': StringIO(),
                 'warning': StringIO(),
@@ -41,7 +41,7 @@ def search_adapter_helper(adapter):
 
     # Make sure documents are properly updated by the search adapter.
     s.init_indexing(changed=['markup'])
-    s.add_document(u'markup', u'title', u'SomeLongRandomWord')
+    s.add_document(u'markup', u'filename', u'title', u'SomeLongRandomWord')
     s.finish_indexing()
     # Now a search for "Epigraph" should return zero results.
     results = s.query(u'Epigraph')

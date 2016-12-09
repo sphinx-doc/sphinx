@@ -1,13 +1,17 @@
 PYTHON ?= python
 
-.PHONY: all style-check clean clean-pyc clean-patchfiles clean-backupfiles \
+.PHONY: all style-check type-check clean clean-pyc clean-patchfiles clean-backupfiles \
         clean-generated pylint reindent test covertest build
 
 DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
              -i sphinx/pycode/pgen2 -i sphinx/util/smartypants.py \
              -i .ropeproject -i doc/_build -i tests/path.py \
-             -i tests/coverage.py -i env -i utils/convert.py \
+             -i tests/coverage.py -i utils/convert.py \
              -i tests/typing_test_data.py \
+             -i tests/test_autodoc_py35.py \
+             -i tests/roots/test-warnings/undecodable.rst \
+             -i tests/build \
+             -i tests/roots/test-warnings/undecodable.rst \
              -i sphinx/search/da.py \
              -i sphinx/search/de.py \
              -i sphinx/search/en.py \
@@ -26,16 +30,22 @@ DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
              -i sphinx/search/tr.py \
              -i .tox
 
-all: clean-pyc clean-backupfiles style-check test
+all: clean-pyc clean-backupfiles style-check type-check test
 
 style-check:
 	@$(PYTHON) utils/check_sources.py $(DONT_CHECK) .
 
-clean: clean-pyc clean-patchfiles clean-backupfiles clean-generated
+type-check:
+	mypy sphinx/
+
+clean: clean-pyc clean-pycache clean-patchfiles clean-backupfiles clean-generated clean-testfiles clean-buildfiles
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +
+
+clean-pycache:
+	find . -name __pycache__ -exec rm -rf {} +
 
 clean-patchfiles:
 	find . -name '*.orig' -exec rm -f {} +
@@ -48,6 +58,13 @@ clean-backupfiles:
 clean-generated:
 	rm -f utils/*3.py*
 
+clean-testfiles:
+	rm -rf tests/build
+	rm -rf .tox/
+
+clean-buildfiles:
+	rm -rf build
+
 pylint:
 	@pylint --rcfile utils/pylintrc sphinx
 
@@ -55,6 +72,9 @@ reindent:
 	@$(PYTHON) utils/reindent.py -r -n .
 
 test:
+	@cd tests; $(PYTHON) run.py -I py35 -d -m '^[tT]est' $(TEST)
+
+test-async:
 	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' $(TEST)
 
 covertest:

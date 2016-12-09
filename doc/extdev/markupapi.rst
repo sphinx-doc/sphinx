@@ -125,6 +125,8 @@ Both APIs parse the content into a given node. They are used like this::
 
    node = docutils.nodes.paragraph()
    # either
+   from sphinx.ext.autodoc import AutodocReporter
+   self.state.memo.reporter = AutodocReporter(self.result, self.state.memo.reporter)  # override reporter to avoid errors from "include" directive
    nested_parse_with_titles(self.state, self.result, node)
    # or
    self.state.nested_parse(self.result, 0, node)
@@ -135,5 +137,5 @@ return ``node.children`` from the Directive.
 
 .. seealso::
 
-   `Creating directives <http://docutils.sf.net/docs/howto/rst-directives.html>`_
+   `Creating directives <http://docutils.sourceforge.net/docs/howto/rst-directives.html>`_
       HOWTO of the Docutils documentation

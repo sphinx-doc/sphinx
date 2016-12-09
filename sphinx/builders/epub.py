@@ -6,7 +6,7 @@
     Build epub files.
     Originally derived from qthelp.py.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -15,6 +15,7 @@ import re
 import codecs
 import zipfile
 from os import path
+from datetime import datetime
 
 try:
     from PIL import Image
@@ -28,9 +29,14 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.util.osutil import ensuredir, copyfile, ustrftime, EEXIST
+from sphinx.util.osutil import ensuredir, copyfile, make_filename, EEXIST
 from sphinx.util.smartypants import sphinx_smarty_pants as ssp
-from sphinx.util.console import brown
+from sphinx.util.console import brown  # type: ignore
+
+if False:
+    # For type annotation
+    from typing import Any, Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 
 # (Fragment) templates from which the metainfo files content.opf, toc.ncx,
@@ -39,9 +45,9 @@ from sphinx.util.console import brown
 # output but that may be customized by (re-)setting module attributes,
 # e.g. from conf.py.
 
-_mimetype_template = 'application/epub+zip'  # no EOL!
+MIMETYPE_TEMPLATE = 'application/epub+zip'  # no EOL!
 
-_container_template = u'''\
+CONTAINER_TEMPLATE = u'''\
 <?xml version="1.0" encoding="UTF-8"?>
 <container version="1.0"
       xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
@@ -52,7 +58,7 @@ _container_template = u'''\
 </container>
 '''
 
-_toc_template = u'''\
+TOC_TEMPLATE = u'''\
 <?xml version="1.0"?>
 <ncx version="2005-1" xmlns="http://www.daisy.org/z3986/2005/ncx/">
   <head>
@@ -70,7 +76,7 @@ _toc_template = u'''\
 </ncx>
 '''
 
-_navpoint_template = u'''\
+NAVPOINT_TEMPLATE = u'''\
 %(indent)s  <navPoint id="%(navpoint)s" playOrder="%(playorder)d">
 %(indent)s    <navLabel>
 %(indent)s      <text>%(text)s</text>
@@ -78,10 +84,10 @@ _navpoint_template = u'''\
 %(indent)s    <content src="%(refuri)s" />
 %(indent)s  </navPoint>'''
 
-_navpoint_indent = '  '
-_navPoint_template = 'navPoint%d'
+NAVPOINT_INDENT = '  '
+NODE_NAVPOINT_TEMPLATE = 'navPoint%d'
 
-_content_template = u'''\
+CONTENT_TEMPLATE = u'''\
 <?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://www.idpf.org/2007/opf" version="2.0"
       unique-identifier="%(uid)s">
@@ -108,41 +114,47 @@ _content_template = u'''\
 </package>
 '''
 
-_cover_template = u'''\
+COVER_TEMPLATE = u'''\
     <meta name="cover" content="%(cover)s"/>
 '''
 
-_coverpage_name = u'epub-cover.html'
+COVERPAGE_NAME = u'epub-cover.xhtml'
 
-_file_template = u'''\
+FILE_TEMPLATE = u'''\
     <item id="%(id)s"
           href="%(href)s"
           media-type="%(media_type)s" />'''
 
-_spine_template = u'''\
+SPINE_TEMPLATE = u'''\
     <itemref idref="%(idref)s" />'''
 
-_guide_template = u'''\
+NO_LINEAR_SPINE_TEMPLATE = u'''\
+    <itemref idref="%(idref)s" linear="no" />'''
+
+GUIDE_TEMPLATE = u'''\
     <reference type="%(type)s" title="%(title)s" href="%(uri)s" />'''
 
-_toctree_template = u'toctree-l%d'
+TOCTREE_TEMPLATE = u'toctree-l%d'
 
-_link_target_template = u' [%(uri)s]'
+DOCTYPE = u'''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'''
 
-_footnote_label_template = u'#%d'
+LINK_TARGET_TEMPLATE = u' [%(uri)s]'
 
-_footnotes_rubric_name = u'Footnotes'
+FOOTNOTE_LABEL_TEMPLATE = u'#%d'
 
-_css_link_target_class = u'link-target'
+FOOTNOTES_RUBRIC_NAME = u'Footnotes'
+
+CSS_LINK_TARGET_CLASS = u'link-target'
 
 # XXX These strings should be localized according to epub_language
-_guide_titles = {
+GUIDE_TITLES = {
     'toc': u'Table of Contents',
     'cover': u'Cover'
 }
 
-_media_types = {
-    '.html': 'application/xhtml+xml',
+MEDIA_TYPES = {
+    '.xhtml': 'application/xhtml+xml',
     '.css': 'text/css',
     '.png': 'image/png',
     '.gif': 'image/gif',
@@ -151,14 +163,15 @@ _media_types = {
     '.jpeg': 'image/jpeg',
     '.otf': 'application/x-font-otf',
     '.ttf': 'application/x-font-ttf',
-}
+    '.woff': 'application/font-woff',
+}  # type: Dict[unicode, unicode]
 
-_vector_graphics_extensions = ('.svg',)
+VECTOR_GRAPHICS_EXTENSIONS = ('.svg',)
 
 # Regular expression to match colons only in local fragment identifiers.
 # If the URI contains a colon before the #,
 # it is an external link that should not change.
-_refuri_re = re.compile("([^#:]*#)(.*)")
+REFURI_RE = re.compile("([^#:]*#)(.*)")
 
 
 # The epub publisher
@@ -171,7 +184,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     META-INF/container.xml.  Afterwards, all necessary files are zipped to an
     epub file.
     """
-    name = 'epub'
+    name = 'epub2'
 
     # don't copy the reST source
     copysource = False
@@ -180,21 +193,55 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
     # don't add links
     add_permalinks = False
+    # don't use # as current path. ePub check reject it.
+    allow_sharp_as_current_path = False
     # don't add sidebar etc.
     embedded = True
+    # disable download role
+    download_support = False
+    # dont' create links to original images from images
+    html_scaled_image_link = False
+    # don't generate search index or include search page
+    search = False
+
+    mimetype_template = MIMETYPE_TEMPLATE
+    container_template = CONTAINER_TEMPLATE
+    toc_template = TOC_TEMPLATE
+    navpoint_template = NAVPOINT_TEMPLATE
+    navpoint_indent = NAVPOINT_INDENT
+    node_navpoint_template = NODE_NAVPOINT_TEMPLATE
+    content_template = CONTENT_TEMPLATE
+    cover_template = COVER_TEMPLATE
+    coverpage_name = COVERPAGE_NAME
+    file_template = FILE_TEMPLATE
+    spine_template = SPINE_TEMPLATE
+    no_linear_spine_template = NO_LINEAR_SPINE_TEMPLATE
+    guide_template = GUIDE_TEMPLATE
+    toctree_template = TOCTREE_TEMPLATE
+    doctype = DOCTYPE
+    link_target_template = LINK_TARGET_TEMPLATE
+    css_link_target_class = CSS_LINK_TARGET_CLASS
+    guide_titles = GUIDE_TITLES
+    media_types = MEDIA_TYPES
+    refuri_re = REFURI_RE
 
     def init(self):
+        # type: () -> None
         StandaloneHTMLBuilder.init(self)
         # the output files for epub must be .html only
-        self.out_suffix = '.html'
+        self.out_suffix = '.xhtml'
+        self.link_suffix = '.xhtml'
         self.playorder = 0
         self.tocid = 0
+        self.use_index = self.get_builder_config('use_index', 'epub')
 
     def get_theme_config(self):
+        # type: () -> Tuple[unicode, Dict]
         return self.config.epub_theme, self.config.epub_theme_options
 
     # generic support functions
     def make_id(self, name, id_cache={}):
+        # type: (unicode, Dict[unicode, unicode]) -> unicode
         # id_cache is intentionally mutable
         """Return a unique id for name."""
         id = id_cache.get(name)
@@ -204,6 +251,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return id
 
     def esc(self, name):
+        # type: (unicode) -> unicode
         """Replace all characters not allowed in text an attribute values."""
         # Like cgi.escape, but also replace apostrophe
         name = name.replace('&', '&amp;')
@@ -214,6 +262,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return name
 
     def get_refnodes(self, doctree, result):
+        # type: (nodes.Node, List[Dict[unicode, Any]]) -> List[Dict[unicode, Any]]
         """Collect section titles, their depth in the toc and the refuri."""
         # XXX: is there a better way than checking the attribute
         # toctree-l[1-8] on the parent node?
@@ -224,7 +273,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 return result
             classes = doctree.parent.attributes['classes']
             for level in range(8, 0, -1):  # or range(1, 8)?
-                if (_toctree_template % level) in classes:
+                if (self.toctree_template % level) in classes:
                     result.append({
                         'level': level,
                         'refuri': self.esc(refuri),
@@ -237,6 +286,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return result
 
     def get_toc(self):
+        # type: () -> None
         """Get the total table of contents, containing the master_doc
         and pre and post files not managed by sphinx.
         """
@@ -252,11 +302,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.toc_add_files(self.refnodes)
 
     def toc_add_files(self, refnodes):
+        # type: (List[nodes.Node]) -> None
         """Add the master_doc, pre and post files to a list of refnodes.
         """
         refnodes.insert(0, {
             'level': 1,
-            'refuri': self.esc(self.config.master_doc + '.html'),
+            'refuri': self.esc(self.config.master_doc + self.out_suffix),
             'text': ssp(self.esc(
                 self.env.titles[self.config.master_doc].astext()))
         })
@@ -274,10 +325,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
             })
 
     def fix_fragment(self, prefix, fragment):
+        # type: (unicode, unicode) -> unicode
         """Return a href/id attribute with colons replaced by hyphens."""
         return prefix + fragment.replace(':', '-')
 
     def fix_ids(self, tree):
+        # type: (nodes.Node) -> None
         """Replace colons with hyphens in href and id attributes.
 
         Some readers crash because they interpret the part as a
@@ -285,7 +338,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         for node in tree.traverse(nodes.reference):
             if 'refuri' in node:
-                m = _refuri_re.match(node['refuri'])
+                m = self.refuri_re.match(node['refuri'])
                 if m:
                     node['refuri'] = self.fix_fragment(m.group(1), m.group(2))
             if 'refid' in node:
@@ -298,9 +351,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
             node.attributes['ids'] = newids
 
     def add_visible_links(self, tree, show_urls='inline'):
+        # type: (nodes.Node, unicode) -> None
         """Add visible link targets for external links"""
 
         def make_footnote_ref(doc, label):
+            # type: (nodes.Node, unicode) -> nodes.footnote_reference
             """Create a footnote_reference node with children"""
             footnote_ref = nodes.footnote_reference('[#]_')
             footnote_ref.append(nodes.Text(label))
@@ -308,6 +363,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             return footnote_ref
 
         def make_footnote(doc, label, uri):
+            # type: (nodes.Node, unicode, unicode) -> nodes.footnote
             """Create a footnote node with children"""
             footnote = nodes.footnote(uri)
             para = nodes.paragraph()
@@ -318,6 +374,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             return footnote
 
         def footnote_spot(tree):
+            # type: (nodes.Node) -> Tuple[nodes.Node, int]
             """Find or create a spot to place footnotes.
 
             The function returns the tuple (parent, index)."""
@@ -331,11 +388,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 return fn.parent, fn.parent.index(fn) + 1
             for node in tree.traverse(nodes.rubric):
                 if len(node.children) == 1 and \
-                        node.children[0].astext() == _footnotes_rubric_name:
+                        node.children[0].astext() == FOOTNOTES_RUBRIC_NAME:
                     return node.parent, node.parent.index(node) + 1
             doc = tree.traverse(nodes.document)[0]
             rub = nodes.rubric()
-            rub.append(nodes.Text(_footnotes_rubric_name))
+            rub.append(nodes.Text(FOOTNOTES_RUBRIC_NAME))
             doc.append(rub)
             return doc, doc.index(rub) + 1
 
@@ -351,12 +408,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     uri.startswith('ftp:')) and uri not in node.astext():
                 idx = node.parent.index(node) + 1
                 if show_urls == 'inline':
-                    uri = _link_target_template % {'uri': uri}
+                    uri = self.link_target_template % {'uri': uri}
                     link = nodes.inline(uri, uri)
-                    link['classes'].append(_css_link_target_class)
+                    link['classes'].append(self.css_link_target_class)
                     node.parent.insert(idx, link)
                 elif show_urls == 'footnote':
-                    label = _footnote_label_template % nr
+                    label = FOOTNOTE_LABEL_TEMPLATE % nr
                     nr += 1
                     footnote_ref = make_footnote_ref(doc, label)
                     node.parent.insert(idx, footnote_ref)
@@ -367,6 +424,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     fn_idx += 1
 
     def write_doc(self, docname, doctree):
+        # type: (unicode, nodes.Node) -> None
         """Write one document file.
 
         This method is overwritten in order to fix fragment identifiers
@@ -374,32 +432,35 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """
         self.fix_ids(doctree)
         self.add_visible_links(doctree, self.config.epub_show_urls)
-        return StandaloneHTMLBuilder.write_doc(self, docname, doctree)
+        StandaloneHTMLBuilder.write_doc(self, docname, doctree)
 
     def fix_genindex(self, tree):
+        # type: (nodes.Node) -> None
         """Fix href attributes for genindex pages."""
         # XXX: modifies tree inline
         # Logic modeled from themes/basic/genindex.html
         for key, columns in tree:
-            for entryname, (links, subitems) in columns:
+            for entryname, (links, subitems, key_) in columns:
                 for (i, (ismain, link)) in enumerate(links):
-                    m = _refuri_re.match(link)
+                    m = self.refuri_re.match(link)
                     if m:
                         links[i] = (ismain,
                                     self.fix_fragment(m.group(1), m.group(2)))
                 for subentryname, subentrylinks in subitems:
                     for (i, (ismain, link)) in enumerate(subentrylinks):
-                        m = _refuri_re.match(link)
+                        m = self.refuri_re.match(link)
                         if m:
                             subentrylinks[i] = (ismain,
                                                 self.fix_fragment(m.group(1), m.group(2)))
 
     def is_vector_graphics(self, filename):
+        # type: (unicode) -> bool
         """Does the filename extension indicate a vector graphic format?"""
         ext = path.splitext(filename)[-1]
-        return ext in _vector_graphics_extensions
+        return ext in VECTOR_GRAPHICS_EXTENSIONS
 
     def copy_image_files_pil(self):
+        # type: () -> None
         """Copy images using the PIL.
         The method tries to read and write the files with the PIL,
         converting the format and resizing the image if necessary/possible.
@@ -438,6 +499,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                           (path.join(self.srcdir, src), err))
 
     def copy_image_files(self):
+        # type: () -> None
         """Copy image files to destination directory.
         This overwritten method can use the PIL to convert image files.
         """
@@ -451,20 +513,29 @@ class EpubBuilder(StandaloneHTMLBuilder):
             else:
                 super(EpubBuilder, self).copy_image_files()
 
+    def copy_download_files(self):
+        # type: () -> None
+        pass
+
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):
+        # type: (unicode, Dict, unicode, unicode, Any) -> None
         """Create a rendered page.
 
         This method is overwritten for genindex pages in order to fix href link
         attributes.
         """
         if pagename.startswith('genindex'):
+            if not self.use_index:
+                return
             self.fix_genindex(addctx['genindexentries'])
+        addctx['doctype'] = self.doctype
         StandaloneHTMLBuilder.handle_page(self, pagename, addctx, templatename,
                                           outfilename, event_arg)
 
     # Finish by building the epub file
     def handle_finish(self):
+        # type: () -> None
         """Create the metainfo files and finally the epub."""
         self.get_toc()
         self.build_mimetype(self.outdir, 'mimetype')
@@ -474,15 +545,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.build_epub(self.outdir, self.config.epub_basename + '.epub')
 
     def build_mimetype(self, outdir, outname):
+        # type: (unicode, unicode) -> None
         """Write the metainfo file mimetype."""
         self.info('writing %s file...' % outname)
-        f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
-        try:
-            f.write(_mimetype_template)
-        finally:
-            f.close()
+        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:  # type: ignore
+            f.write(self.mimetype_template)
 
     def build_container(self, outdir, outname):
+        # type: (unicode, unicode) -> None
         """Write the metainfo file META-INF/cointainer.xml."""
         self.info('writing %s file...' % outname)
         fn = path.join(outdir, outname)
@@ -491,17 +561,15 @@ class EpubBuilder(StandaloneHTMLBuilder):
         except OSError as err:
             if err.errno != EEXIST:
                 raise
-        f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
-        try:
-            f.write(_container_template)
-        finally:
-            f.close()
+        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:  # type: ignore
+            f.write(self.container_template)  # type: ignore
 
     def content_metadata(self, files, spine, guide):
+        # type: (List[unicode], Any, Any) -> Dict[unicode, Any]
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
-        metadata = {}
+        metadata = {}  # type: Dict[unicode, Any]
         metadata['title'] = self.esc(self.config.epub_title)
         metadata['author'] = self.esc(self.config.epub_author)
         metadata['uid'] = self.esc(self.config.epub_uid)
@@ -510,13 +578,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['copyright'] = self.esc(self.config.epub_copyright)
         metadata['scheme'] = self.esc(self.config.epub_scheme)
         metadata['id'] = self.esc(self.config.epub_identifier)
-        metadata['date'] = self.esc(ustrftime('%Y-%m-%d'))
+        metadata['date'] = self.esc(datetime.utcnow().strftime("%Y-%m-%d"))
         metadata['files'] = files
         metadata['spine'] = spine
         metadata['guide'] = guide
         return metadata
 
     def build_content(self, outdir, outname):
+        # type: (unicode, unicode) -> None
         """Write the metainfo file content.opf It contains bibliographic data,
         a file list and the spine (the reading order).
         """
@@ -526,53 +595,66 @@ class EpubBuilder(StandaloneHTMLBuilder):
         if not outdir.endswith(os.sep):
             outdir += os.sep
         olen = len(outdir)
-        projectfiles = []
-        self.files = []
+        projectfiles = []  # type: List[unicode]
+        self.files = []  # type: List[unicode]
         self.ignored_files = ['.buildinfo', 'mimetype', 'content.opf',
                               'toc.ncx', 'META-INF/container.xml',
+                              'Thumbs.db', 'ehthumbs.db', '.DS_Store',
                               self.config.epub_basename + '.epub'] + \
             self.config.epub_exclude_files
+        if not self.use_index:
+            self.ignored_files.append('genindex' + self.out_suffix)
         for root, dirs, files in os.walk(outdir):
             for fn in files:
                 filename = path.join(root, fn)[olen:]
                 if filename in self.ignored_files:
                     continue
                 ext = path.splitext(filename)[-1]
-                if ext not in _media_types:
+                if ext not in self.media_types:
                     # we always have JS and potentially OpenSearch files, don't
                     # always warn about them
                     if ext not in ('.js', '.xml'):
                         self.warn('unknown mimetype for %s, ignoring' % filename)
                     continue
                 filename = filename.replace(os.sep, '/')
-                projectfiles.append(_file_template % {
+                projectfiles.append(self.file_template % {
                     'href': self.esc(filename),
                     'id': self.esc(self.make_id(filename)),
-                    'media_type': self.esc(_media_types[ext])
+                    'media_type': self.esc(self.media_types[ext])
                 })
                 self.files.append(filename)
 
         # spine
         spine = []
+        spinefiles = set()
         for item in self.refnodes:
             if '#' in item['refuri']:
                 continue
             if item['refuri'] in self.ignored_files:
                 continue
-            spine.append(_spine_template % {
+            spine.append(self.spine_template % {
                 'idref': self.esc(self.make_id(item['refuri']))
             })
+            spinefiles.add(item['refuri'])
         for info in self.domain_indices:
-            spine.append(_spine_template % {
+            spine.append(self.spine_template % {
                 'idref': self.esc(self.make_id(info[0] + self.out_suffix))
             })
-        if self.get_builder_config('use_index', 'epub'):
-            spine.append(_spine_template % {
+            spinefiles.add(info[0] + self.out_suffix)
+        if self.use_index:
+            spine.append(self.spine_template % {
                 'idref': self.esc(self.make_id('genindex' + self.out_suffix))
             })
+            spinefiles.add('genindex' + self.out_suffix)
+        # add auto generated files
+        for name in self.files:
+            if name not in spinefiles and name.endswith(self.out_suffix):
+                spine.append(self.no_linear_spine_template % {
+                    'idref': self.esc(self.make_id(name))
+                })
 
         # add the optional cover
-        content_tmpl = _content_template
+        content_tmpl = self.content_template
         html_tmpl = None
         if self.config.epub_cover:
             image, html_tmpl = self.config.epub_cover
@@ -580,22 +662,23 @@ class EpubBuilder(StandaloneHTMLBuilder):
             mpos = content_tmpl.rfind('</metadata>')
             cpos = content_tmpl.rfind('\n', 0, mpos) + 1
             content_tmpl = content_tmpl[:cpos] + \
-                _cover_template % {'cover': self.esc(self.make_id(image))} + \
+                COVER_TEMPLATE % {'cover': self.esc(self.make_id(image))} + \
                 content_tmpl[cpos:]
             if html_tmpl:
-                spine.insert(0, _spine_template % {
-                    'idref': self.esc(self.make_id(_coverpage_name))})
-                if _coverpage_name not in self.files:
-                    ext = path.splitext(_coverpage_name)[-1]
-                    self.files.append(_coverpage_name)
-                    projectfiles.append(_file_template % {
-                        'href': self.esc(_coverpage_name),
-                        'id': self.esc(self.make_id(_coverpage_name)),
-                        'media_type': self.esc(_media_types[ext])
+                spine.insert(0, self.spine_template % {
+                    'idref': self.esc(self.make_id(self.coverpage_name))})
+                if self.coverpage_name not in self.files:
+                    ext = path.splitext(self.coverpage_name)[-1]
+                    self.files.append(self.coverpage_name)
+                    projectfiles.append(self.file_template % {
+                        'href': self.esc(self.coverpage_name),
+                        'id': self.esc(self.make_id(self.coverpage_name)),
+                        'media_type': self.esc(self.media_types[ext])
                     })
                 ctx = {'image': self.esc(image), 'title': self.config.project}
                 self.handle_page(
-                    path.splitext(_coverpage_name)[0], ctx, html_tmpl)
+                    path.splitext(self.coverpage_name)[0], ctx, html_tmpl)
+                spinefiles.add(self.coverpage_name)
 
         guide = []
         auto_add_cover = True
@@ -609,47 +692,46 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     auto_add_cover = False
                 if type == 'toc':
                     auto_add_toc = False
-                guide.append(_guide_template % {
+                guide.append(self.guide_template % {
                     'type': self.esc(type),
                     'title': self.esc(title),
                     'uri': self.esc(uri)
                 })
         if auto_add_cover and html_tmpl:
-            guide.append(_guide_template % {
+            guide.append(self.guide_template % {
                 'type': 'cover',
-                'title': _guide_titles['cover'],
-                'uri': self.esc(_coverpage_name)
+                'title': self.guide_titles['cover'],
+                'uri': self.esc(self.coverpage_name)
             })
         if auto_add_toc and self.refnodes:
-            guide.append(_guide_template % {
+            guide.append(self.guide_template % {
                 'type': 'toc',
-                'title': _guide_titles['toc'],
+                'title': self.guide_titles['toc'],
                 'uri': self.esc(self.refnodes[0]['refuri'])
             })
-        projectfiles = '\n'.join(projectfiles)
-        spine = '\n'.join(spine)
-        guide = '\n'.join(guide)
+        projectfiles = '\n'.join(projectfiles)  # type: ignore
+        spine = '\n'.join(spine)  # type: ignore
+        guide = '\n'.join(guide)  # type: ignore
 
         # write the project file
-        f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
-        try:
-            f.write(content_tmpl %
+        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:  # type: ignore
+            f.write(content_tmpl %  # type: ignore
                     self.content_metadata(projectfiles, spine, guide))
-        finally:
-            f.close()
 
     def new_navpoint(self, node, level, incr=True):
+        # type: (nodes.Node, int, bool) -> unicode
         """Create a new entry in the toc from the node at given level."""
         # XXX Modifies the node
         if incr:
             self.playorder += 1
         self.tocid += 1
-        node['indent'] = _navpoint_indent * level
-        node['navpoint'] = self.esc(_navPoint_template % self.tocid)
+        node['indent'] = self.navpoint_indent * level
+        node['navpoint'] = self.esc(self.node_navpoint_template % self.tocid)
         node['playorder'] = self.playorder
-        return _navpoint_template % node
+        return self.navpoint_template % node
 
     def insert_subnav(self, node, subnav):
+        # type: (nodes.Node, unicode) -> unicode
         """Insert nested navpoints for given node.
 
         The node and subnav are already rendered to text.
@@ -659,6 +741,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return '\n'.join(nlist)
 
     def build_navpoints(self, nodes):
+        # type: (nodes.Node) -> unicode
         """Create the toc navigation structure.
 
         Subelements of a node are nested inside the navpoint.  For nested nodes
@@ -702,10 +785,11 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return '\n'.join(navlist)
 
     def toc_metadata(self, level, navpoints):
+        # type: (int, List[unicode]) -> Dict[unicode, Any]
         """Create a dictionary with all metadata for the toc.ncx file
         properly escaped.
         """
-        metadata = {}
+        metadata = {}  # type: Dict[unicode, Any]
         metadata['uid'] = self.config.epub_uid
         metadata['title'] = self.config.epub_title
         metadata['level'] = level
@@ -713,6 +797,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return metadata
 
     def build_toc(self, outdir, outname):
+        # type: (unicode, unicode) -> None
         """Write the metainfo file toc.ncx."""
         self.info('writing %s file...' % outname)
 
@@ -728,26 +813,55 @@ class EpubBuilder(StandaloneHTMLBuilder):
         navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)
         level = min(level, self.config.epub_tocdepth)
-        f = codecs.open(path.join(outdir, outname), 'w', 'utf-8')
-        try:
-            f.write(_toc_template % self.toc_metadata(level, navpoints))
-        finally:
-            f.close()
+        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:  # type: ignore
+            f.write(self.toc_template % self.toc_metadata(level, navpoints))  # type: ignore
 
     def build_epub(self, outdir, outname):
+        # type: (unicode, unicode) -> None
         """Write the epub file.
 
         It is a zip file with the mimetype file stored uncompressed as the first
         entry.
         """
         self.info('writing %s file...' % outname)
-        projectfiles = ['META-INF/container.xml', 'content.opf', 'toc.ncx'] \
-            + self.files
-        epub = zipfile.ZipFile(path.join(outdir, outname), 'w',
+        projectfiles = ['META-INF/container.xml', 'content.opf', 'toc.ncx']  # type: List[unicode]  # NOQA
+        projectfiles.extend(self.files)
+        epub = zipfile.ZipFile(path.join(outdir, outname), 'w',  # type: ignore
                                zipfile.ZIP_DEFLATED)
-        epub.write(path.join(outdir, 'mimetype'), 'mimetype',
+        epub.write(path.join(outdir, 'mimetype'), 'mimetype',  # type: ignore
                    zipfile.ZIP_STORED)
         for file in projectfiles:
             fp = path.join(outdir, file)
-            epub.write(fp, file, zipfile.ZIP_DEFLATED)
+            epub.write(fp, file, zipfile.ZIP_DEFLATED)  # type: ignore
         epub.close()
+
+
+def setup(app):
+    # type: (Sphinx) -> None
+    app.setup_extension('sphinx.builders.html')
+    app.add_builder(EpubBuilder)
+
+    # config values
+    app.add_config_value('epub_basename', lambda self: make_filename(self.project), None)
+    app.add_config_value('epub_theme', 'epub', 'html')
+    app.add_config_value('epub_theme_options', {}, 'html')
+    app.add_config_value('epub_title', lambda self: self.html_title, 'html')
+    app.add_config_value('epub_author', 'unknown', 'html')
+    app.add_config_value('epub_language', lambda self: self.language or 'en', 'html')
+    app.add_config_value('epub_publisher', 'unknown', 'html')
+    app.add_config_value('epub_copyright', lambda self: self.copyright, 'html')
+    app.add_config_value('epub_identifier', 'unknown', 'html')
+    app.add_config_value('epub_scheme', 'unknown', 'html')
+    app.add_config_value('epub_uid', 'unknown', 'env')
+    app.add_config_value('epub_cover', (), 'env')
+    app.add_config_value('epub_guide', (), 'env')
+    app.add_config_value('epub_pre_files', [], 'env')
+    app.add_config_value('epub_post_files', [], 'env')
+    app.add_config_value('epub_exclude_files', [], 'env')
+    app.add_config_value('epub_tocdepth', 3, 'env')
+    app.add_config_value('epub_tocdup', True, 'env')
+    app.add_config_value('epub_tocscope', 'default', 'env')
+    app.add_config_value('epub_fix_images', False, 'env')
+    app.add_config_value('epub_max_image_width', 0, 'env')
+    app.add_config_value('epub_show_urls', 'inline', 'html')
+    app.add_config_value('epub_use_index', lambda self: self.html_use_index, 'html')

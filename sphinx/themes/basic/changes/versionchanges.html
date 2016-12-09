@@ -5,11 +5,11 @@
 {% endmacro -%}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
   "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<html{% if language is not none %} lang="{{ language }}"{% endif %}>
   <head>
     <link rel="stylesheet" href="default.css">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>{% trans version=version|e, docstitle=docstitle|e %}Changes in Version {{ version }} &mdash; {{ docstitle }}{% endtrans %}</title>
+    <title>{% trans version=version|e, docstitle=docstitle|e %}Changes in Version {{ version }} &#8212; {{ docstitle }}{% endtrans %}</title>
   </head>
   <body>
     <div class="document">

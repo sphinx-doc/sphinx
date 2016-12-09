@@ -5,7 +5,7 @@
 
     Test the build process with Text builder with the test root.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -65,7 +65,7 @@ def test_nonascii_title_line(app, status, warning):
     app.builder.build_update()
     result = (app.outdir / 'nonascii_title.txt').text(encoding='utf-8')
     expect_underline = '******'
-    result_underline = result.splitlines()[2].strip()
+    result_underline = result.splitlines()[1].strip()
     assert expect_underline == result_underline
 
 

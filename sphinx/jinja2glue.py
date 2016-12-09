@@ -5,7 +5,7 @@
 
     Glue code for the jinja2 templating engine.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -17,25 +17,58 @@ from jinja2 import FileSystemLoader, BaseLoader, TemplateNotFound, \
     contextfunction
 from jinja2.utils import open_if_exists
 from jinja2.sandbox import SandboxedEnvironment
+from typing import Any, Callable, Iterator, Tuple  # NOQA
 
 from sphinx.application import TemplateBridge
 from sphinx.util.osutil import mtimes_of_files
 
+if False:
+    # For type annotation
+    from typing import Any, Callable, Iterator, Tuple  # NOQA
+    from sphinx.builders import Builder  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.themes import Theme  # NOQA
+
 
 def _tobool(val):
+    # type: (unicode) -> bool
     if isinstance(val, string_types):
-        return val.lower() in ('true', '1', 'yes', 'on')
+        return val.lower() in ('true', '1', 'yes', 'on')  # type: ignore
     return bool(val)
 
 
 def _toint(val):
+    # type: (unicode) -> int
     try:
         return int(val)
     except ValueError:
         return 0
 
 
+def _slice_index(values, slices):
+    # type: (List, int) -> Iterator[List]
+    seq = list(values)
+    length = 0
+    for value in values:
+        length += 1 + len(value[1][1])  # count includes subitems
+    items_per_slice = length // slices
+    offset = 0
+    for slice_number in range(slices):
+        count = 0
+        start = offset
+        if slices == slice_number + 1:  # last column
+            offset = len(seq)
+        else:
+            for value in values[offset:]:
+                count += 1 + len(value[1][1])
+                offset += 1
+                if count >= items_per_slice:
+                    break
+        yield seq[start:offset]
+
+
 def accesskey(context, key):
+    # type: (Any, unicode) -> unicode
     """Helper to output each access key only once."""
     if '_accesskeys' not in context:
         context.vars['_accesskeys'] = {}
@@ -47,12 +80,15 @@ def accesskey(context, key):
 
 class idgen(object):
     def __init__(self):
+        # type: () -> None
         self.id = 0
 
     def current(self):
+        # type: () -> int
         return self.id
 
     def __next__(self):
+        # type: () -> int
         self.id += 1
         return self.id
     next = __next__  # Python 2/Jinja compatibility
@@ -65,15 +101,14 @@ class SphinxFileSystemLoader(FileSystemLoader):
     """
 
     def get_source(self, environment, template):
+        # type: (BuildEnvironment, unicode) -> Tuple[unicode, unicode, Callable]
         for searchpath in self.searchpath:
             filename = path.join(searchpath, template)
             f = open_if_exists(filename)
             if f is None:
                 continue
-            try:
+            with f:
                 contents = f.read().decode(self.encoding)
-            finally:
-                f.close()
 
             mtime = path.getmtime(filename)
 
@@ -94,6 +129,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
     # TemplateBridge interface
 
     def init(self, builder, theme=None, dirs=None):
+        # type: (Builder, Theme, List[unicode]) -> None
         # create a chain of paths to search
         if theme:
             # the theme's own dir and its bases' dirs
@@ -127,6 +163,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
                                                 extensions=extensions)
         self.environment.filters['tobool'] = _tobool
         self.environment.filters['toint'] = _toint
+        self.environment.filters['slice_index'] = _slice_index
         self.environment.globals['debug'] = contextfunction(pformat)
         self.environment.globals['accesskey'] = contextfunction(accesskey)
         self.environment.globals['idgen'] = idgen
@@ -135,17 +172,21 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
                 builder.app.translator)
 
     def render(self, template, context):
+        # type: (unicode, Dict) -> None
         return self.environment.get_template(template).render(context)
 
     def render_string(self, source, context):
+        # type: (unicode, Dict) -> unicode
         return self.environment.from_string(source).render(context)
 
     def newest_template_mtime(self):
+        # type: () -> float
         return max(mtimes_of_files(self.pathchain, '.html'))
 
     # Loader interface
 
     def get_source(self, environment, template):
+        # type: (BuildEnvironment, unicode) -> Tuple[unicode, unicode, Callable]
         loaders = self.loaders
         # exclamation mark starts search from theme
         if template.startswith('!'):

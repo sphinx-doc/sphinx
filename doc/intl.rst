@@ -63,7 +63,7 @@ be translated you need to follow these instructions:
         msgfmt "usage.po" -o "locale/es/LC_MESSAGES/usage.mo"
 
 * Set :confval:`locale_dirs` to ``["locale/"]``.
-* Set :confval:`language` to ``es`` (also possible via :option:`-D`).
+* Set :confval:`language` to ``es`` (also possible via :option:`-D <sphinx-build -D>`).
 * Run your desired build.
 
 
@@ -88,14 +88,18 @@ This section describe a easy way to translate with sphinx-intl.
    :confval:`gettext_compact` is set to `False` (the Sphinx document is
    already configured as such).
 
-#. Extract document's translatable messages into pot files::
+#. Extract document's translatable messages into pot files:
+
+   .. code-block:: console
 
       $ make gettext
 
    As a result, many pot files are generated under ``_build/locale``
    directory.
 
-#. Setup/Update your `locale_dir`::
+#. Setup/Update your `locale_dir`:
+
+   .. code-block:: console
 
       $ sphinx-intl update -p _build/locale -l de -l ja
 
@@ -106,16 +110,24 @@ This section describe a easy way to translate with sphinx-intl.
 
 #. Translate your po files under `./locale/<lang>/LC_MESSAGES/`.
 
-#. Build mo files and make translated document.
+#. make translated document.
 
    You need a :confval:`language` parameter in ``conf.py`` or you may also
-   specify the parameter on the command line::
+   specify the parameter on the command line:
 
-      $ sphinx-intl build
+   .. code-block:: console
+
       $ make -e SPHINXOPTS="-D language='de'" html
 
 Congratulations! You got the translated documentation in the ``_build/html``
 directory.
+
+.. versionadded:: 1.3
+
+   sphinx-build that is invoked by make command will build po files into mo files.
+
+   If you are using 1.2.x or earlier, please invoke ``sphinx-intl build`` command
+   before make command.
 
 
 Translating
@@ -157,7 +169,7 @@ and to apply differences to translated po files.
 In order to apply the updating difference of a pot file to po file,
 use the :command:`sphinx-intl update` command.
 
-.. code-block:: bash
+.. code-block:: console
 
    $ sphinx-intl update -p _build/locale
 
@@ -176,7 +188,7 @@ easy to fetch and push translations.
 
    You need :command:`tx` command to upload resources (pot files).
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ pip install transifex-client
 
@@ -200,7 +212,7 @@ easy to fetch and push translations.
    This process will create ``.tx/config`` in the current directory, as well as
    a ``~/.transifexrc`` file that includes auth information.
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ tx init
       Creating .tx folder...
@@ -215,7 +227,7 @@ easy to fetch and push translations.
 
    Register pot files to ``.tx/config`` file:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ cd /your/document/root
       $ sphinx-intl update-txconfig-resources --pot-dir _build/locale \
@@ -223,7 +235,7 @@ easy to fetch and push translations.
 
    and upload pot files:
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ tx push -s
       Pushing translations for resource sphinx-document-test_1_0.builders:
@@ -242,7 +254,7 @@ easy to fetch and push translations.
 
    Get translated catalogs and build mo files (ex. for 'de'):
 
-   .. code-block:: bash
+   .. code-block:: console
 
       $ cd /your/document/root
       $ tx pull -l de
@@ -251,9 +263,10 @@ easy to fetch and push translations.
       ...
       Done.
 
-   Build po files into mo and make html::
+   Invoke make html:
 
-      $ sphinx-intl build
+   .. code-block:: console
+
       $ make -e SPHINXOPTS="-D language='de'" html
 
 
@@ -297,5 +310,5 @@ There is `sphinx translation page`_ for Sphinx-1.3 documentation.
 .. _`transifex-client`: https://pypi.python.org/pypi/transifex-client
 .. _`sphinx-intl`: https://pypi.python.org/pypi/sphinx-intl
 .. _Transifex: https://www.transifex.com/
-.. _`sphinx translation page`: https://www.transifex.com/projects/p/sphinx-doc-1_3/
-.. _`Transifex Client v0.8 &mdash; Transifex documentation`: http://help.transifex.com/features/client/index.html
+.. _`sphinx translation page`: https://www.transifex.com/sphinx-doc/sphinx-doc-1_3/
+.. _`Transifex Client v0.8 &mdash; Transifex documentation`: http://docs.transifex.com/developer/client/

@@ -3,7 +3,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesClass{sphinxhowto}[2009/06/02 Document class (Sphinx HOWTO)]
+\ProvidesClass{sphinxhowto}[2016/10/12 v1.5 Document class (Sphinx HOWTO)]
 
 % 'oneside' option overriding the 'twoside' default
 \newif\if@oneside
@@ -29,30 +29,31 @@
 % Change the title page to look a bit better, and fit in with the fncychap
 % ``Bjarne'' style a bit better.
 %
-\renewcommand{\maketitle}{
-  \rule{\textwidth}{1pt}
+\renewcommand{\maketitle}{%
+  \noindent\rule{\textwidth}{1pt}\ifsphinxpdfoutput\newline\null\fi\par
   \ifsphinxpdfoutput
     \begingroup
     % These \defs are required to deal with multi-line authors; it
     % changes \\ to ', ' (comma-space), making it pass muster for
     % generating document info in the PDF file.
-    \def\\{, }
-    \def\and{and }
+    \def\\{, }%
+    \def\and{and }%
     \pdfinfo{
       /Author (\@author)
       /Title (\@title)
-    }
+    }%
     \endgroup
   \fi
   \begin{flushright}
-    \sphinxlogo%
-    {\rm\Huge\py@HeaderFamily \@title} \par
-    {\em\large\py@HeaderFamily \py@release\releaseinfo} \par
+    \sphinxlogo
+    \py@HeaderFamily
+    {\Huge \@title }\par
+    {\itshape\large \py@release \releaseinfo}\par
     \vspace{25pt}
-    {\Large\py@HeaderFamily
+    {\Large
       \begin{tabular}[t]{c}
         \@author
-      \end{tabular}} \par
+      \end{tabular}}\par
     \vspace{25pt}
     \@date \par
     \py@authoraddress \par
@@ -63,11 +64,10 @@
   %\gdef\@thanks{}\gdef\@author{}\gdef\@title{}
 }
 
-\let\py@OldTableofcontents=\tableofcontents
-\renewcommand{\tableofcontents}{
+\newcommand{\sphinxtableofcontents}{
   \begingroup
     \parskip = 0mm
-    \py@OldTableofcontents
+    \tableofcontents
   \endgroup
   \rule{\textwidth}{1pt}
   \vspace{12pt}
@@ -84,21 +84,21 @@
 % Contents.
 % For an article document class this environment is a section,
 % so no page break before it.
-\let\py@OldThebibliography=\thebibliography
-\renewcommand{\thebibliography}[1]{
+%
+% Note: \phantomsection is required for TeXLive 2009
+% http://tex.stackexchange.com/questions/44088/when-do-i-need-to-invoke-phantomsection#comment166081_44091
+\newenvironment{sphinxthebibliography}[1]{%
   \phantomsection
-  \py@OldThebibliography{1}
-  \addcontentsline{toc}{section}{\bibname}
-}
+  \begin{thebibliography}{1}%
+  \addcontentsline{toc}{section}{\ifdefined\refname\refname\else\ifdefined\bibname\bibname\fi\fi}}{\end{thebibliography}}
+
 
 % Same for the indices.
 % The memoir class already does this, so we don't duplicate it in that case.
 %
-\@ifclassloaded{memoir}{}{
-  \let\py@OldTheindex=\theindex
-  \renewcommand{\theindex}{
+\@ifclassloaded{memoir}
+ {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}
+ {\newenvironment{sphinxtheindex}{%
     \phantomsection
-    \py@OldTheindex
-    \addcontentsline{toc}{section}{\indexname}
-  }
-}
+    \begin{theindex}%
+    \addcontentsline{toc}{section}{\indexname}}{\end{theindex}}}

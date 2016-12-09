@@ -5,9 +5,11 @@
 
     Manual page writer, extended for Sphinx custom nodes.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+
+import warnings
 
 from docutils import nodes
 from docutils.writers.manpage import (
@@ -17,9 +19,10 @@ from docutils.writers.manpage import (
 )
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
-from sphinx.util.osutil import ustrftime
 from sphinx.util.compat import docutils_version
+from sphinx.util.i18n import format_date
 
 
 class ManualPageWriter(Writer):
@@ -30,10 +33,42 @@ class ManualPageWriter(Writer):
             self.builder.translator_class or ManualPageTranslator)
 
     def translate(self):
+        transform = NestedInlineTransform(self.document)
+        transform.apply()
         visitor = self.translator_class(self.builder, self.document)
         self.visitor = visitor
         self.document.walkabout(visitor)
         self.output = visitor.astext()
+
+
+class NestedInlineTransform(object):
+    """
+    Flatten nested inline nodes:
+
+    Before:
+        <strong>foo=<emphasis>1</emphasis>
+        &bar=<emphasis>2</emphasis></strong>
+    After:
+        <strong>foo=</strong><emphasis>var</emphasis>
+        <strong>&bar=</strong><emphasis>2</emphasis>
+    """
+    def __init__(self, document):
+        self.document = document
+
+    def apply(self):
+        def is_inline(node):
+            return isinstance(node, (nodes.literal, nodes.emphasis, nodes.strong))
+
+        for node in self.document.traverse(is_inline):
+            if any(is_inline(subnode) for subnode in node):
+                pos = node.parent.index(node)
+                for subnode in reversed(node[1:]):
+                    node.remove(subnode)
+                    if is_inline(subnode):
+                        node.parent.insert(pos + 1, subnode)
+                    else:
+                        newnode = node.__class__('', subnode, **node.attributes)
+                        node.parent.insert(pos + 1, newnode)
 
 
 class ManualPageTranslator(BaseTranslator):
@@ -63,8 +98,8 @@ class ManualPageTranslator(BaseTranslator):
         if builder.config.today:
             self._docinfo['date'] = builder.config.today
         else:
-            self._docinfo['date'] = ustrftime(builder.config.today_fmt or
-                                              _('%B %d, %Y'))
+            self._docinfo['date'] = format_date(builder.config.today_fmt or _('%b %d, %Y'),
+                                                language=builder.config.language)
         self._docinfo['copyright'] = builder.config.copyright
         self._docinfo['version'] = builder.config.version
         self._docinfo['manual_group'] = builder.config.project
@@ -103,6 +138,12 @@ class ManualPageTranslator(BaseTranslator):
 
     def depart_desc_signature(self, node):
         self.depart_term(node)
+
+    def visit_desc_signature_line(self, node):
+        pass
+
+    def depart_desc_signature_line(self, node):
+        self.body.append(' ')
 
     def visit_desc_addname(self, node):
         pass
@@ -168,7 +209,18 @@ class ManualPageTranslator(BaseTranslator):
     def depart_versionmodified(self, node):
         self.depart_paragraph(node)
 
+    # overwritten -- don't make whole of term bold if it includes strong node
+    def visit_term(self, node):
+        if node.traverse(nodes.strong):
+            self.body.append('\n')
+        else:
+            BaseTranslator.visit_term(self, node)
+
     def visit_termsep(self, node):
+        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
+                      'This warning is displayed because some Sphinx extension '
+                      'uses sphinx.addnodes.termsep. Please report it to '
+                      'author of the extension.', RemovedInSphinx16Warning)
         self.body.append(', ')
         raise nodes.SkipNode
 
@@ -342,6 +394,12 @@ class ManualPageTranslator(BaseTranslator):
 
     def depart_abbreviation(self, node):
         pass
+
+    def visit_manpage(self, node):
+        return self.visit_strong(node)
+
+    def depart_manpage(self, node):
+        return self.depart_strong(node)
 
     # overwritten: handle section titles better than in 0.6 release
     def visit_title(self, node):

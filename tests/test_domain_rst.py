@@ -5,14 +5,14 @@
 
     Tests the reStructuredText domain.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from sphinx.domains.rst import parse_directive
 
-def test_parse_directive():
 
+def test_parse_directive():
     s = parse_directive(u' foö  ')
     assert s == (u'foö', '')
 

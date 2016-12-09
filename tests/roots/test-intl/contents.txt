@@ -1,9 +1,14 @@
 CONTENTS
 ========
 
+.. meta::
+   :description: testdata for i18n
+   :keywords: i18n, sphinx, markup
+
 .. toctree::
    :maxdepth: 2
    :numbered:
+   :caption: Table of Contents
 
    subdir/contents
    bom

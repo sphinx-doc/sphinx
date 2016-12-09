@@ -5,7 +5,7 @@
 
     Test setup_command for distutils.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -104,6 +104,28 @@ def test_build_sphinx_return_nonzero_status(pkgroot, proc):
     srcdir = (pkgroot / 'doc')
     (srcdir / 'contents.txt').write_text(
         'http://localhost.unexistentdomain/index.html')
+    out, err = proc.communicate()
+    print(out)
+    print(err)
+    assert proc.returncode != 0, 'expect non-zero status for setup.py'
+
+
+@with_setup_command(root)
+def test_build_sphinx_warning_return_zero_status(pkgroot, proc):
+    srcdir = (pkgroot / 'doc')
+    (srcdir / 'contents.txt').write_text(
+        'See :ref:`unexisting-reference-label`')
+    out, err = proc.communicate()
+    print(out)
+    print(err)
+    assert proc.returncode == 0
+
+
+@with_setup_command(root, '--warning-is-error')
+def test_build_sphinx_warning_is_error_return_nonzero_status(pkgroot, proc):
+    srcdir = (pkgroot / 'doc')
+    (srcdir / 'contents.txt').write_text(
+        'See :ref:`unexisting-reference-label`')
     out, err = proc.communicate()
     print(out)
     print(err)

@@ -5,7 +5,7 @@
 
     Test the code-block directive.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -54,8 +54,9 @@ def test_code_block_caption_html(app, status, warning):
     app.builder.build(['caption'])
     html = (app.outdir / 'caption.html').text(encoding='utf-8')
     caption = (u'<div class="code-block-caption">'
+               u'<span class="caption-number">Listing 1 </span>'
                u'<span class="caption-text">caption <em>test</em> rb'
-               u'</span><a class="headerlink" href="#caption-test-rb" '
+               u'</span><a class="headerlink" href="#id1" '
                u'title="Permalink to this code">\xb6</a></div>')
     assert caption in html
 
@@ -64,8 +65,29 @@ def test_code_block_caption_html(app, status, warning):
 def test_code_block_caption_latex(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
-    caption = '\\caption{caption \\emph{test} rb}'
+    caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstyleemphasis{test} rb}'
+    label = '\\def\\sphinxLiteralBlockLabel{\\label{caption:id1}}'
+    link  = '\hyperref[caption:name-test-rb]' \
+            '{Listing \\ref{caption:name-test-rb}}'
     assert caption in latex
+    assert label in latex
+    assert link in latex
+
+
+@with_app('latex', testroot='directive-code')
+def test_code_block_namedlink_latex(app, status, warning):
+    app.builder.build_all()
+    latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
+    label1 = '\def\sphinxLiteralBlockLabel{\label{caption:name-test-rb}}'
+    link1  = '\\hyperref[caption:name\\string-test\\string-rb]'\
+             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Ruby}}'
+    label2 = '\def\sphinxLiteralBlockLabel{\label{namedblocks:some-ruby-code}}'
+    link2  = '\\hyperref[namedblocks:some\\string-ruby\\string-code]'\
+             '{\\sphinxcrossref{\\DUrole{std,std-ref}{the ruby code}}}'
+    assert label1 in latex
+    assert link1 in latex
+    assert label2 in latex
+    assert link2 in latex
 
 
 @with_app('xml', testroot='directive-code')
@@ -96,6 +118,30 @@ def test_literal_include_dedent(app, status, warning):
         assert (i, actual) == (i, expect)
 
     assert blocks[5].text == '\n\n'   # dedent: 1000
+
+
+@with_app('xml', testroot='directive-code')
+def test_literal_include_block_start_with_comment_or_brank(app, status, warning):
+    app.builder.build(['python'])
+    et = ElementTree.parse(app.outdir / 'python.xml')
+    secs = et.findall('./section/section')
+    literal_include = secs[0].findall('literal_block')
+    assert len(literal_include) > 0
+    actual = literal_include[0].text
+    expect = (
+        'def block_start_with_comment():\n'
+        '    # Comment\n'
+        '    return 1\n'
+    )
+    assert actual == expect
+
+    actual = literal_include[1].text
+    expect = (
+        'def block_start_with_blank():\n'
+        '\n'
+        '    return 1\n'
+    )
+    assert actual == expect
 
 
 @with_app('html', testroot='directive-code')
@@ -176,17 +222,25 @@ def test_literal_include_lineno_match(app, status, warning):
         '14</pre></div></td>')
     assert start_after in html
 
+    start_at_end_at = (
+        '<td class="linenos"><div class="linenodiv"><pre>'
+        ' 9\n'
+        '10\n'
+        '11</pre></div></td>')
+    assert start_at_end_at in html
+
 
 @with_app('latex', testroot='directive-code')
 def test_literalinclude_file_whole_of_emptyline(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8').replace('\r\n', '\n')
     includes = (
-        '\\begin{Verbatim}[commandchars=\\\\\\{\\},numbers=left,firstnumber=1,stepnumber=1]\n'
+        '\\begin{sphinxVerbatim}'
+        '[commandchars=\\\\\\{\\},numbers=left,firstnumber=1,stepnumber=1]\n'
         '\n'
         '\n'
         '\n'
-        '\\end{Verbatim}\n')
+        '\\end{sphinxVerbatim}\n')
     assert includes in latex
 
 
@@ -195,8 +249,9 @@ def test_literalinclude_caption_html(app, status, warning):
     app.builder.build('index')
     html = (app.outdir / 'caption.html').text(encoding='utf-8')
     caption = (u'<div class="code-block-caption">'
+               u'<span class="caption-number">Listing 2 </span>'
                u'<span class="caption-text">caption <strong>test</strong> py'
-               u'</span><a class="headerlink" href="#caption-test-py" '
+               u'</span><a class="headerlink" href="#id2" '
                u'title="Permalink to this code">\xb6</a></div>')
     assert caption in html
 
@@ -205,5 +260,43 @@ def test_literalinclude_caption_html(app, status, warning):
 def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
-    caption = '\\caption{caption \\textbf{test} py}'
+    caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstylestrong{test} py}'
+    label = '\\def\\sphinxLiteralBlockLabel{\\label{caption:id2}}'
+    link  = '\hyperref[caption:name-test-py]' \
+            '{Listing \\ref{caption:name-test-py}}'
     assert caption in latex
+    assert label in latex
+    assert link in latex
+
+
+@with_app('latex', testroot='directive-code')
+def test_literalinclude_namedlink_latex(app, status, warning):
+    app.builder.build('index')
+    latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
+    label1 = '\def\sphinxLiteralBlockLabel{\label{caption:name-test-py}}'
+    link1  = '\\hyperref[caption:name\\string-test\\string-py]'\
+             '{\\sphinxcrossref{\\DUrole{std,std-ref}{Python}}'
+    label2 = '\def\sphinxLiteralBlockLabel{\label{namedblocks:some-python-code}}'
+    link2  = '\\hyperref[namedblocks:some\\string-python\\string-code]'\
+             '{\\sphinxcrossref{\\DUrole{std,std-ref}{the python code}}}'
+    assert label1 in latex
+    assert link1 in latex
+    assert label2 in latex
+    assert link2 in latex
+
+
+@with_app('xml', testroot='directive-code')
+def test_literalinclude_classes(app, status, warning):
+    app.builder.build(['classes'])
+    et = ElementTree.parse(app.outdir / 'classes.xml')
+    secs = et.findall('./section/section')
+
+    code_block = secs[0].findall('literal_block')
+    assert len(code_block) > 0
+    assert 'foo bar' == code_block[0].get('classes')
+    assert 'code_block' == code_block[0].get('names')
+
+    literalinclude = secs[1].findall('literal_block')
+    assert len(literalinclude) > 0
+    assert 'bar baz' == literalinclude[0].get('classes')
+    assert 'literal_include' == literalinclude[0].get('names')

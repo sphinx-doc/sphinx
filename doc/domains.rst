@@ -359,6 +359,25 @@ single word, like this::
    :param int priority: The priority of the message, can be a number 1-5
 
 
+.. versionadded:: 1.5
+
+Container types such as lists and dictionaries can be linked automatically
+using the following syntax::
+
+   :type priorities: list(int)
+   :type priorities: list[int]
+   :type mapping: dict(str, int)
+   :type mapping: dict[str, int]
+   :type point: tuple(float, float)
+   :type point: tuple[float, float]
+
+Multiple types in a type field will be linked automatically if separated by
+the word "or"::
+
+   :type an_arg: int or None
+   :vartype a_var: str or int
+   :rtype: float or str
+
 .. _python-roles:
 
 Cross-referencing Python objects
@@ -538,17 +557,17 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
       .. cpp:class:: template<typename T, std::size_t N> std::array
 
-   or with a line beak::
+   or with a line break::
 
       .. cpp:class:: template<typename T, std::size_t N> \
                      std::array
 
    Full and partial template specialisations can be declared::
 
-      .. cpp::class:: template<> \
+      .. cpp:class:: template<> \
                       std::array<bool, 256>
 
-      .. cpp::class:: template<typename T> \
+      .. cpp:class:: template<typename T> \
                       std::array<T, 42>
 
 
@@ -594,7 +613,7 @@ a visibility statement (``public``, ``private`` or ``protected``).
 .. rst:directive:: .. cpp:member:: (member) variable declaration
                    .. cpp:var:: (member) variable declaration
 
-   Describe a varible or member variable, e.g.,::
+   Describe a variable or member variable, e.g.,::
 
       .. cpp:member:: std::string MyClass::myMember
 
@@ -629,8 +648,25 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
    A type alias can also be templated::
 
-      .. cpp:type:: template<typename T>
+      .. cpp:type:: template<typename T> \
                     MyContainer = std::vector<T>
+
+   The example are rendered as follows.
+
+   .. cpp:type:: std::vector<int> MyList
+
+      A typedef-like declaration of a type.
+
+   .. cpp:type:: MyContainer::const_iterator
+
+      Declaration of a type alias with unspecified type.
+
+   .. cpp:type:: MyType = std::unordered_map<int, std::string>
+
+      Declaration of a type alias.
+
+   .. cpp:type:: template<typename T> \
+                 MyContainer = std::vector<T>
 
 
 .. rst:directive:: .. cpp:enum:: unscoped enum declaration
@@ -663,15 +699,98 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
    Describe an enumerator, optionally with its value defined, e.g.,::
 
-      .. cpp::enumerator:: MyEnum::myEnumerator
+      .. cpp:enumerator:: MyEnum::myEnumerator
 
-      .. cpp::enumerator:: MyEnum::myOtherEnumerator = 42
+      .. cpp:enumerator:: MyEnum::myOtherEnumerator = 42
+
+
+.. rst:directive:: .. cpp:concept:: template-parameter-list name
+                   .. cpp:concept:: template-parameter-list name()
+
+   .. warning:: The support for concepts is experimental. It is based on the
+      Concepts Technical Specification, and the features may change as the TS evolves.
+
+   Describe a variable concept or a function concept. Both must have exactly 1
+   template parameter list. The name may be a nested name. Examples::
+
+      .. cpp:concept:: template<typename It> std::Iterator
+
+         Proxy to an element of a notional sequence that can be compared,
+         indirected, or incremented.
+
+      .. cpp:concept:: template<typename Cont> std::Container()
+
+         Holder of elements, to which it can provide access via
+         :cpp:concept:`Iterator` s.
+
+   They will render as follows:
+
+   .. cpp:concept:: template<typename It> std::Iterator
+
+      Proxy to an element of a notional sequence that can be compared,
+      indirected, or incremented.
+
+   .. cpp:concept:: template<typename Cont> std::Container()
+
+      Holder of elements, to which it can provide access via
+      :cpp:concept:`Iterator` s.
+
+Constrained Templates
+~~~~~~~~~~~~~~~~~~~~~
+
+.. warning:: The support for constrained templates is experimental. It is based on the
+  Concepts Technical Specification, and the features may change as the TS evolves.
+
+.. note:: Sphinx does not currently support ``requires`` clauses.
+
+Placeholders
+............
+
+Declarations may use the name of a concept to introduce constrained template
+parameters, or the keyword ``auto`` to introduce unconstrained template parameters::
+
+   .. cpp:function:: void f(auto &&arg)
+
+      A function template with a single unconstrained template parameter.
+
+   .. cpp:function:: void f(std::Iterator it)
+
+      A function template with a single template parameter, constrained by the
+      Iterator concept.
+
+Template Introductions
+......................
+
+Simple constrained function or class templates can be declared with a
+`template introduction` instead of a template parameter list::
+
+   .. cpp:function:: std::Iterator{It} void advance(It &it)
+
+       A function template with a template parameter constrained to be an Iterator.
+
+   .. cpp:class:: std::LessThanComparable{T} MySortedContainer
+
+       A class template with a template parameter constrained to be LessThanComparable.
+
+They are rendered as follows.
+
+.. cpp:function:: std::Iterator{It} void advance(It &it)
+
+   A function template with a template parameter constrained to be an Iterator.
+
+.. cpp:class:: std::LessThanComparable{T} MySortedContainer
+
+   A class template with a template parameter constrained to be LessThanComparable.
+
+Note however that no checking is performed with respect to parameter
+compatibility. E.g., ``Iterator{A, B, C}`` will be accepted as an introduction
+even though it would not be valid C++.
 
 
 Namespacing
 ~~~~~~~~~~~~~~~~~
 
-Declarations in the C++ doamin are as default placed in global scope.
+Declarations in the C++ domain are as default placed in global scope.
 The current scope can be changed using three namespace directives.
 They manage a stack declarations where ``cpp:namespace`` resets the stack and
 changes a given scope.
@@ -755,6 +874,7 @@ Info field lists
 The C++ directives support the following info fields (see also :ref:`info-field-lists`):
 
 * `param`, `parameter`, `arg`, `argument`: Description of a parameter.
+* `tparam`: Description of a template parameter.
 * `returns`, `return`: Description of a return value.
 * `throws`, `throw`, `exception`: Description of a possibly thrown exception.
 
@@ -764,7 +884,7 @@ The C++ directives support the following info fields (see also :ref:`info-field-
 Cross-referencing
 ~~~~~~~~~~~~~~~~~
 
-These roles link to the given object types:
+These roles link to the given declaration types:
 
 .. rst:role:: cpp:any
               cpp:class
@@ -772,22 +892,23 @@ These roles link to the given object types:
               cpp:member
               cpp:var
               cpp:type
+              cpp:concept
               cpp:enum
               cpp:enumerator
 
-   Reference a C++ object by name. The name must be properly qualified relative to the
-   position of the link.
+   Reference a C++ declaration by name (see below for details).
+   The name must be properly qualified relative to the position of the link.
 
-   .. note::
+.. admonition:: Note on References with Templates Parameters/Arguments
 
-      Sphinx's syntax to give references a custom title can interfere with
-      linking to template classes, if nothing follows the closing angle
-      bracket, i.e. if the link looks like this: ``:cpp:class:`MyClass<T>```.
-      This is interpreted as a link to ``T`` with a title of ``MyClass``.
-      In this case, please escape the opening angle bracket with a backslash,
-      like this: ``:cpp:class:`MyClass\<T>```.
+   Sphinx's syntax to give references a custom title can interfere with
+   linking to template classes, if nothing follows the closing angle
+   bracket, i.e. if the link looks like this: ``:cpp:class:`MyClass<int>```.
+   This is interpreted as a link to ``int`` with a title of ``MyClass``.
+   In this case, please escape the opening angle bracket with a backslash,
+   like this: ``:cpp:class:`MyClass\<int>```.
 
-.. admonition:: Note on References
+.. admonition:: Note on References to Overloaded Functions
 
    It is currently impossible to link to a specific version of an
    overloaded method.  Currently the C++ domain is the first domain
@@ -795,6 +916,85 @@ These roles link to the given object types:
    data for comparison we don't want to select a bad syntax to reference a
    specific overload.  Currently Sphinx will link to the first overloaded
    version of the method / function.
+
+Declarations without template parameters and template arguments
+.................................................................
+
+For linking to non-templated declarations the name must be a nested name,
+e.g., ``f`` or ``MyClass::f``.
+
+Templated declarations
+......................
+
+Assume the following declarations.
+
+.. cpp:class:: Wrapper
+
+   .. cpp:class:: template<typename TOuter> \
+                  Outer
+
+      .. cpp:class:: template<typename TInner> \
+                     Inner
+
+In general the reference must include the template paraemter declarations, e.g.,
+``template\<typename TOuter> Wrapper::Outer`` (:cpp:class:`template\<typename TOuter> Wrapper::Outer`).
+Currently the lookup only succeed if the template parameter identifiers are equal strings. That is,
+``template\<typename UOuter> Wrapper::Outer`` will not work.
+
+The inner template class can not be directly referenced, unless the current namespace
+is changed or the following shorthand is used.
+If a template parameter list is omitted, then the lookup will assume either a template or a non-template,
+but not a partial template specialisation.
+This means the following references work.
+
+- ``Wrapper::Outer`` (:cpp:class:`Wrapper::Outer`)
+- ``Wrapper::Outer::Inner`` (:cpp:class:`Wrapper::Outer::Inner`)
+- ``template\<typename TInner> Wrapper::Outer::Inner`` (:cpp:class:`template\<typename TInner> Wrapper::Outer::Inner`)
+
+(Full) Template Specialisations
+................................
+
+Assume the following declarations.
+
+.. cpp:class:: template<typename TOuter> \
+               Outer
+
+  .. cpp:class:: template<typename TInner> \
+                 Inner
+
+.. cpp:class:: template<> \
+               Outer<int>
+
+  .. cpp:class:: template<typename TInner> \
+                 Inner
+
+  .. cpp:class:: template<> \
+                 Inner<bool>
+
+In general the reference must include a template parameter list for each template argument list.
+The full specialisation above can therefore be referenced with ``template\<> Outer\<int>`` (:cpp:class:`template\<> Outer\<int>`)
+and ``template\<> template\<> Outer\<int>::Inner\<bool>`` (:cpp:class:`template\<> template\<> Outer\<int>::Inner\<bool>`).
+As a shorthand the empty template parameter list can be omitted, e.g., ``Outer\<int>`` (:cpp:class:`Outer\<int>`)
+and ``Outer\<int>::Inner\<bool>`` (:cpp:class:`Outer\<int>::Inner\<bool>`).
+
+
+Partial Template Specialisations
+.................................
+
+Assume the following declaration.
+
+.. cpp:class:: template<typename T> \
+               Outer<T*>
+
+References to partial specialisations must always include the template parameter lists, e.g.,
+``template\<typename T> Outer\<T*>`` (:cpp:class:`template\<typename T> Outer\<T*>`).
+Currently the lookup only succeed if the template parameter identifiers are equal strings.
+
+
+Configuration Variables
+~~~~~~~~~~~~~~~~~~~~~~~
+
+See :ref:`cpp-config`.
 
 
 The Standard Domain

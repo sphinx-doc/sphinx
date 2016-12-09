@@ -5,23 +5,30 @@
 
     Docutils-native XML and pseudo-XML writers.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from docutils import writers
 from docutils.writers.docutils_xml import Writer as BaseXMLWriter
 
+if False:
+    # For type annotation
+    from typing import Any, Tuple  # NOQA
+    from sphinx.builders import Builder  # NOQA
+
 
 class XMLWriter(BaseXMLWriter):
 
     def __init__(self, builder):
+        # type: (Builder) -> None
         BaseXMLWriter.__init__(self)
         self.builder = builder
         if self.builder.translator_class:
             self.translator_class = self.builder.translator_class
 
     def translate(self, *args, **kwargs):
+        # type: (Any, Any) -> None
         self.document.settings.newlines = \
             self.document.settings.indents = \
             self.builder.env.config.xml_pretty
@@ -36,18 +43,21 @@ class PseudoXMLWriter(writers.Writer):
     """Formats this writer supports."""
 
     config_section = 'pseudoxml writer'
-    config_section_dependencies = ('writers',)
+    config_section_dependencies = ('writers',)  # type: Tuple[unicode]
 
     output = None
     """Final translated form of `document`."""
 
     def __init__(self, builder):
+        # type: (Builder) -> None
         writers.Writer.__init__(self)
         self.builder = builder
 
     def translate(self):
+        # type: () -> None
         self.output = self.document.pformat()
 
     def supports(self, format):
+        # type: (unicode) -> bool
         """This writer supports all format-specific elements."""
         return True

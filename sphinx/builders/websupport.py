@@ -5,7 +5,7 @@
 
     Builder for the web support package.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -165,3 +165,7 @@ class WebSupportBuilder(PickleHTMLBuilder):
 
     def dump_search_index(self):
         self.indexer.finish_indexing()
+
+
+def setup(app):
+    app.add_builder(WebSupportBuilder)

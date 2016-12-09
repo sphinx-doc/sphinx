@@ -5,7 +5,7 @@
 
     Base Module for web support functions.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -66,7 +66,7 @@ class WebSupport(object):
         self._init_search(search)
         self._init_storage(storage)
 
-        self._globalcontext = None
+        self._globalcontext = None  # type: ignore
 
         self._make_base_comment_options()
 
@@ -119,7 +119,7 @@ class WebSupport(object):
             raise RuntimeError('No srcdir associated with WebSupport object')
         app = Sphinx(self.srcdir, self.srcdir, self.outdir, self.doctreedir,
                      'websupport', status=self.status, warning=self.warning)
-        app.builder.set_webinfo(self.staticdir, self.staticroot,
+        app.builder.set_webinfo(self.staticdir, self.staticroot,  # type: ignore
                                 self.search, self.storage)
 
         self.storage.pre_build()
@@ -130,11 +130,8 @@ class WebSupport(object):
         """Load and return the "global context" pickle."""
         if not self._globalcontext:
             infilename = path.join(self.datadir, 'globalcontext.pickle')
-            f = open(infilename, 'rb')
-            try:
+            with open(infilename, 'rb') as f:
                 self._globalcontext = pickle.load(f)
-            finally:
-                f.close()
         return self._globalcontext
 
     def get_document(self, docname, username='', moderator=False):
@@ -185,14 +182,11 @@ class WebSupport(object):
             infilename = docpath + '.fpickle'
 
         try:
-            f = open(infilename, 'rb')
+            with open(infilename, 'rb') as f:
+                document = pickle.load(f)
         except IOError:
             raise errors.DocumentNotFoundError(
                 'The document "%s" could not be found' % docname)
-        try:
-            document = pickle.load(f)
-        finally:
-            f.close()
 
         comment_opts = self._make_comment_options(username, moderator)
         comment_meta = self._make_metadata(
@@ -390,7 +384,7 @@ class WebSupport(object):
         that remains the same throughout the lifetime of the
         :class:`~sphinx.websupport.WebSupport` object.
         """
-        self.base_comment_opts = {}
+        self.base_comment_opts = {}  # type: Dict[unicode, unicode]
 
         if self.docroot != '':
             comment_urls = [

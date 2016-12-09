@@ -5,7 +5,7 @@
 
     Operating system-related utility functions for Sphinx.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from __future__ import print_function
@@ -17,10 +17,15 @@ import time
 import errno
 import locale
 import shutil
+import filecmp
 from os import path
 import contextlib
-
+from io import BytesIO, StringIO
 from six import PY2, text_type
+
+if False:
+    # For type annotation
+    from typing import Any, Iterator, Tuple, Union  # NOQA
 
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)
@@ -37,10 +42,18 @@ SEP = "/"
 
 
 def os_path(canonicalpath):
+    # type: (unicode) -> unicode
     return canonicalpath.replace(SEP, path.sep)
 
 
+def canon_path(nativepath):
+    # type: (unicode) -> unicode
+    """Return path in OS-independent form"""
+    return nativepath.replace(path.sep, SEP)
+
+
 def relative_uri(base, to):
+    # type: (unicode, unicode) -> unicode
     """Return a relative URL from ``base`` to ``to``."""
     if to.startswith(SEP):
         return to
@@ -64,6 +77,7 @@ def relative_uri(base, to):
 
 
 def ensuredir(path):
+    # type: (unicode) -> None
     """Ensure that a path exists."""
     try:
         os.makedirs(path)
@@ -73,10 +87,11 @@ def ensuredir(path):
             raise
 
 
-# This function is same as os.walk of Python2.6, 2.7, 3.2, 3.3 except a
-# customization that check UnicodeError.
+# This function is same as os.walk of Python2.7 except a customization
+# that check UnicodeError.
 # The customization obstacle to replace the function with the os.walk.
 def walk(top, topdown=True, followlinks=False):
+    # type: (unicode, bool, bool) -> Iterator[Tuple[unicode, List[unicode], List[unicode]]]
     """Backport of os.walk from 2.6, where the *followlinks* argument was
     added.
     """
@@ -108,6 +123,7 @@ def walk(top, topdown=True, followlinks=False):
 
 
 def mtimes_of_files(dirnames, suffix):
+    # type: (List[unicode], unicode) -> Iterator[float]
     for dirname in dirnames:
         for root, dirs, files in os.walk(dirname):
             for sfile in files:
@@ -119,6 +135,7 @@ def mtimes_of_files(dirnames, suffix):
 
 
 def movefile(source, dest):
+    # type: (unicode, unicode) -> None
     """Move a file, removing the destination if it exists."""
     if os.path.exists(dest):
         try:
@@ -129,6 +146,7 @@ def movefile(source, dest):
 
 
 def copytimes(source, dest):
+    # type: (unicode, unicode) -> None
     """Copy a file's modification times."""
     st = os.stat(source)
     if hasattr(os, 'utime'):
@@ -136,51 +154,66 @@ def copytimes(source, dest):
 
 
 def copyfile(source, dest):
-    """Copy a file and its modification times, if possible."""
-    shutil.copyfile(source, dest)
-    try:
-        # don't do full copystat because the source may be read-only
-        copytimes(source, dest)
-    except OSError:
-        pass
+    # type: (unicode, unicode) -> None
+    """Copy a file and its modification times, if possible.
+
+    Note: ``copyfile`` skips copying if the file has not been changed"""
+    if not path.exists(dest) or not filecmp.cmp(source, dest):
+        shutil.copyfile(source, dest)
+        try:
+            # don't do full copystat because the source may be read-only
+            copytimes(source, dest)
+        except OSError:
+            pass
 
 
 no_fn_re = re.compile(r'[^a-zA-Z0-9_-]')
 
 
 def make_filename(string):
+    # type: (str) -> unicode
     return no_fn_re.sub('', string) or 'sphinx'
 
 
 def ustrftime(format, *args):
-    # strftime for unicode strings
+    # type: (unicode, Any) -> unicode
+    # [DEPRECATED] strftime for unicode strings
+    # It will be removed at Sphinx-1.5
     if not args:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
         source_date_epoch = os.getenv('SOURCE_DATE_EPOCH')
         if source_date_epoch is not None:
             time_struct = time.gmtime(float(source_date_epoch))
-            args = [time_struct]
+            args = [time_struct]  # type: ignore
     if PY2:
         # if a locale is set, the time strings are encoded in the encoding
         # given by LC_TIME; if that is available, use it
         enc = locale.getlocale(locale.LC_TIME)[1] or 'utf-8'
         return time.strftime(text_type(format).encode(enc), *args).decode(enc)
-    else:
-        return time.strftime(format, *args)
+    else:  # Py3
+        # On Windows, time.strftime() and Unicode characters will raise UnicodeEncodeError.
+        # http://bugs.python.org/issue8304
+        try:
+            return time.strftime(format, *args)
+        except UnicodeEncodeError:
+            r = time.strftime(format.encode('unicode-escape').decode(), *args)
+            return r.encode().decode('unicode-escape')
 
 
 def safe_relpath(path, start=None):
+    # type: (unicode, unicode) -> unicode
     try:
         return os.path.relpath(path, start)
     except ValueError:
         return path
 
 
-fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
+fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()  # type: unicode
 
 
 def abspath(pathdir):
+    # type: (unicode) -> unicode
     pathdir = path.abspath(pathdir)
     if isinstance(pathdir, bytes):
         pathdir = pathdir.decode(fs_encoding)
@@ -188,6 +221,7 @@ def abspath(pathdir):
 
 
 def getcwd():
+    # type: () -> unicode
     if hasattr(os, 'getcwdu'):
         return os.getcwdu()
     return os.getcwd()
@@ -195,9 +229,88 @@ def getcwd():
 
 @contextlib.contextmanager
 def cd(target_dir):
+    # type: (unicode) -> Iterator[None]
     cwd = getcwd()
     try:
         os.chdir(target_dir)
         yield
     finally:
         os.chdir(cwd)
+
+
+class FileAvoidWrite(object):
+    """File-like object that buffers output and only writes if content changed.
+
+    Use this class like when writing to a file to avoid touching the original
+    file if the content hasn't changed. This is useful in scenarios where file
+    mtime is used to invalidate caches or trigger new behavior.
+
+    When writing to this file handle, all writes are buffered until the object
+    is closed.
+
+    Objects can be used as context managers.
+    """
+    def __init__(self, path):
+        # type: (unicode) -> None
+        self._path = path
+        self._io = None  # type: Union[StringIO, BytesIO]
+
+    def write(self, data):
+        # type: (Union[str, bytes]) -> None
+        if not self._io:
+            if isinstance(data, text_type):
+                self._io = StringIO()
+            else:
+                self._io = BytesIO()
+
+        self._io.write(data)
+
+    def close(self):
+        # type: () -> None
+        """Stop accepting writes and write file, if needed."""
+        if not self._io:
+            raise Exception('FileAvoidWrite does not support empty files.')
+
+        buf = self.getvalue()
+        self._io.close()
+
+        r_mode = 'r'
+        w_mode = 'w'
+        if isinstance(self._io, BytesIO):
+            r_mode = 'rb'
+            w_mode = 'wb'
+
+        old_content = None
+
+        try:
+            with open(self._path, r_mode) as old_f:
+                old_content = old_f.read()
+                if old_content == buf:
+                    return
+        except IOError:
+            pass
+
+        with open(self._path, w_mode) as f:
+            f.write(buf)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+
+    def __getattr__(self, name):
+        # Proxy to _io instance.
+        if not self._io:
+            raise Exception('Must write to FileAvoidWrite before other '
+                            'methods can be used')
+
+        return getattr(self._io, name)
+
+
+def rmtree(path):
+    # type: (unicode) -> None
+    if os.path.isdir(path):
+        shutil.rmtree(path)
+    else:
+        os.remove(path)

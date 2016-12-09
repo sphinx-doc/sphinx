@@ -52,3 +52,12 @@ y. y
 #. z
 
 #. {
+
+definition lists
+-----------------
+
+term1
+    description
+
+term2 (**stronged partially**)
+    description

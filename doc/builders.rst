@@ -23,6 +23,8 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
 .. class:: DirectoryHTMLBuilder
@@ -36,6 +38,8 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
    .. versionadded:: 0.6
@@ -47,6 +51,8 @@ The builder's "name" must be given to the **-b** command-line option of
    the master document.  No indices will be generated.
 
    .. autoattribute:: name
+
+   .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
 
@@ -61,6 +67,8 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
 .. module:: sphinx.builders.qthelp
@@ -72,9 +80,11 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
-   .. _Qt help: http://qt-project.org/doc/qt-4.8/qthelp-framework.html
+   .. _Qt help: http://doc.qt.io/qt-4.8/qthelp-framework.html
 
 .. module:: sphinx.builders.applehelp
 .. class:: AppleHelpBuilder
@@ -96,6 +106,8 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
    .. versionadded:: 1.3
@@ -109,6 +121,8 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
 .. module:: sphinx.builders.epub
@@ -117,12 +131,40 @@ The builder's "name" must be given to the **-b** command-line option of
    This builder produces the same output as the standalone HTML builder, but
    also generates an *epub* file for ebook readers.  See :ref:`epub-faq` for
    details about it.  For definition of the epub format, have a look at
-   `<http://idpf.org/epub>`_ or `<http://en.wikipedia.org/wiki/EPUB>`_.
+   `<http://idpf.org/epub>`_ or `<https://en.wikipedia.org/wiki/EPUB>`_.
    The builder creates *EPUB 2* files.
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
+
+   .. deprecated:: 1.5
+
+      Since Sphinx-1.5, the epub3 builder is used for the default builder of epub.
+      Now EpubBuilder is renamed to epub2.
+
+.. module:: sphinx.builders.epub3
+.. class:: Epub3Builder
+
+   This builder produces the same output as the standalone HTML builder, but
+   also generates an *epub* file for ebook readers.  See :ref:`epub-faq` for
+   details about it.  For definition of the epub format, have a look at
+   `<http://idpf.org/epub>`_ or `<https://en.wikipedia.org/wiki/EPUB>`_.
+   The builder creates *EPUB 3* files.
+
+   .. autoattribute:: name
+
+   .. autoattribute:: format
+
+   .. autoattribute:: supported_image_types
+
+   .. versionadded:: 1.4
+
+   .. versionchanged:: 1.5
+
+      Since Sphinx-1.5, the epub3 builder is used for the default builder of epub.
 
 .. module:: sphinx.builders.latex
 .. class:: LaTeXBuilder
@@ -145,10 +187,12 @@ The builder's "name" must be given to the **-b** command-line option of
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
 Note that a direct PDF builder using ReportLab is available in `rst2pdf
-<http://rst2pdf.googlecode.com>`_ version 0.12 or greater.  You need to add
+<https://github.com/rst2pdf/rst2pdf>`_ version 0.12 or greater.  You need to add
 ``'rst2pdf.pdfbuilder'`` to your :confval:`extensions` to enable it, its name is
 ``pdf``.  Refer to the `rst2pdf manual <http://ralsina.me/static/manual.pdf>`_
 for details.
@@ -162,6 +206,8 @@ for details.
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
    .. versionadded:: 0.4
@@ -174,6 +220,8 @@ for details.
    :confval:`man_pages` configuration value.
 
    .. autoattribute:: name
+
+   .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
 
@@ -195,6 +243,8 @@ for details.
    `<http://www.gnu.org/software/texinfo/>`_.
 
    .. autoattribute:: name
+
+   .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
 
@@ -227,8 +277,7 @@ for details.
       A module that implements `dump()`, `load()`, `dumps()` and `loads()`
       functions that conform to the functions with the same names from the
       pickle module.  Known modules implementing this interface are
-      `simplejson` (or `json` in Python 2.6), `phpserialize`, `plistlib`,
-      and others.
+      `simplejson`, `phpserialize`, `plistlib`, and others.
 
    .. attribute:: out_suffix
 
@@ -261,6 +310,8 @@ for details.
 
       The old name ``web`` still works as well.
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
    The file suffix is ``.fpickle``.  The global context is called
@@ -275,6 +326,8 @@ for details.
    See :ref:`serialization-details` for details about the output format.
 
    .. autoattribute:: name
+
+   .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
 
@@ -293,6 +346,8 @@ for details.
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
 
    .. versionadded:: 1.1
@@ -307,7 +362,21 @@ for details.
 
    .. autoattribute:: name
 
+   .. autoattribute:: format
+
    .. autoattribute:: supported_image_types
+
+.. module:: sphinx.builders.dummy
+.. class:: DummyBuilder
+
+   This builder produces no output.  The input is only parsed and checked for
+   consistency.  This is useful for linting purposes.
+
+   .. autoattribute:: name
+
+   .. autoattribute:: supported_image_types
+
+   .. versionadded:: 1.4
 
 .. module:: sphinx.builders.linkcheck
 .. class:: CheckExternalLinksBuilder
@@ -317,6 +386,8 @@ for details.
    to standard output and to :file:`output.txt` in the output directory.
 
    .. autoattribute:: name
+
+   .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
 
@@ -328,6 +399,8 @@ for details.
    final forms.
 
    .. autoattribute:: name
+
+   .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
 
@@ -342,6 +415,8 @@ for details.
    leftover "pending" elements are also given.
 
    .. autoattribute:: name
+
+   .. autoattribute:: format
 
    .. autoattribute:: supported_image_types
 

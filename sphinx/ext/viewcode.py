@@ -5,13 +5,14 @@
 
     Add links to module code in Python object descriptions.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 import traceback
 
 from six import iteritems, text_type
+
 from docutils import nodes
 
 import sphinx
@@ -20,10 +21,17 @@ from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import get_full_modname
 from sphinx.util.nodes import make_refnode
-from sphinx.util.console import blue
+from sphinx.util.console import blue  # type: ignore
+
+if False:
+    # For type annotation
+    from typing import Any, Iterable, Iterator, Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
 
 
 def _get_full_modname(app, modname, attribute):
+    # type: (Sphinx, str, unicode) -> unicode
     try:
         return get_full_modname(modname, attribute)
     except AttributeError:
@@ -43,16 +51,21 @@ def _get_full_modname(app, modname, attribute):
 
 
 def doctree_read(app, doctree):
+    # type: (Sphinx, nodes.Node) -> None
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
-        env._viewcode_modules = {}
+        env._viewcode_modules = {}  # type: ignore
+    if app.builder.name == "singlehtml":
+        return
+    if app.builder.name.startswith("epub") and not env.config.viewcode_enable_epub:
+        return
 
     def has_tag(modname, fullname, docname, refname):
-        entry = env._viewcode_modules.get(modname, None)
+        entry = env._viewcode_modules.get(modname, None)  # type: ignore
         try:
             analyzer = ModuleAnalyzer.for_module(modname)
         except Exception:
-            env._viewcode_modules[modname] = False
+            env._viewcode_modules[modname] = False  # type: ignore
             return
         if not isinstance(analyzer.code, text_type):
             code = analyzer.code.decode(analyzer.encoding)
@@ -61,7 +74,7 @@ def doctree_read(app, doctree):
         if entry is None or entry[0] != code:
             analyzer.find_tags()
             entry = code, analyzer.tags, {}, refname
-            env._viewcode_modules[modname] = entry
+            env._viewcode_modules[modname] = entry  # type: ignore
         elif entry is False:
             return
         _, tags, used, _ = entry
@@ -72,7 +85,7 @@ def doctree_read(app, doctree):
     for objnode in doctree.traverse(addnodes.desc):
         if objnode.get('domain') != 'py':
             continue
-        names = set()
+        names = set()  # type: Set[unicode]
         for signode in objnode:
             if not isinstance(signode, addnodes.desc_signature):
                 continue
@@ -102,16 +115,18 @@ def doctree_read(app, doctree):
 
 
 def env_merge_info(app, env, docnames, other):
+    # type: (Sphinx, BuildEnvironment, Iterable[unicode], BuildEnvironment) -> None
     if not hasattr(other, '_viewcode_modules'):
         return
     # create a _viewcode_modules dict on the main environment
     if not hasattr(env, '_viewcode_modules'):
-        env._viewcode_modules = {}
+        env._viewcode_modules = {}  # type: ignore
     # now merge in the information from the subprocess
-    env._viewcode_modules.update(other._viewcode_modules)
+    env._viewcode_modules.update(other._viewcode_modules)  # type: ignore
 
 
 def missing_reference(app, env, node, contnode):
+    # type: (Sphinx, BuildEnvironment, nodes.Node, nodes.Node) -> nodes.Node
     # resolve our "viewcode" reference nodes -- they need special treatment
     if node['reftype'] == 'viewcode':
         return make_refnode(app.builder, node['refdoc'], node['reftarget'],
@@ -119,27 +134,32 @@ def missing_reference(app, env, node, contnode):
 
 
 def collect_pages(app):
+    # type: (Sphinx) -> Iterator[Tuple[unicode, Dict[unicode, Any], unicode]]
     env = app.builder.env
     if not hasattr(env, '_viewcode_modules'):
         return
-    highlighter = app.builder.highlighter
+    highlighter = app.builder.highlighter  # type: ignore
     urito = app.builder.get_relative_uri
 
-    modnames = set(env._viewcode_modules)
+    modnames = set(env._viewcode_modules)  # type: ignore
 
 #    app.builder.info(' (%d module code pages)' %
 #                     len(env._viewcode_modules), nonl=1)
 
     for modname, entry in app.status_iterator(
-            iteritems(env._viewcode_modules), 'highlighting module code... ',
-            blue, len(env._viewcode_modules), lambda x: x[0]):
+            iteritems(env._viewcode_modules), 'highlighting module code... ',  # type:ignore
+            blue, len(env._viewcode_modules), lambda x: x[0]):  # type:ignore
         if not entry:
             continue
         code, tags, used, refname = entry
         # construct a page name for the highlighted source
         pagename = '_modules/' + modname.replace('.', '/')
         # highlight the source using the builder's highlighter
-        highlighted = highlighter.highlight_block(code, 'python', linenos=False)
+        if env.config.highlight_language in ('python3', 'default'):
+            lexer = env.config.highlight_language
+        else:
+            lexer = 'python'
+        highlighted = highlighter.highlight_block(code, lexer, linenos=False)
         # split the code into lines
         lines = highlighted.splitlines()
         # split off wrap markup from the first line of the actual code
@@ -177,7 +197,7 @@ def collect_pages(app):
             'title': modname,
             'body': (_('<h1>Source code for %s</h1>') % modname +
                      '\n'.join(lines)),
-        }
+        }  # type: Dict[unicode, Any]
         yield (pagename, context, 'page.html')
 
     if not modnames:
@@ -210,7 +230,9 @@ def collect_pages(app):
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_config_value('viewcode_import', True, False)
+    app.add_config_value('viewcode_enable_epub', False, False)
     app.connect('doctree-read', doctree_read)
     app.connect('env-merge-info', env_merge_info)
     app.connect('html-collect-pages', collect_pages)

@@ -5,12 +5,13 @@
 
     Test the Pygments highlighting bridge.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
 from pygments.lexer import RegexLexer
 from pygments.token import Text, Name
+from pygments.filters import ErrorToken
 from pygments.formatters.html import HtmlFormatter
 
 from sphinx.highlighting import PygmentsBridge
@@ -64,7 +65,7 @@ def test_detect_interactive():
 
 def test_lexer_options():
     bridge = PygmentsBridge('html')
-    ret = bridge.highlight_block('//comment', 'php', opts={'startinline' : True})
+    ret = bridge.highlight_block('//comment', 'php', opts={'startinline': True})
     assert '<span class="c1">//comment</span>' in ret
 
 
@@ -86,3 +87,28 @@ def test_trim_doctest_flags():
         assert ret == '>>> 1+2 \n3\n'
     finally:
         PygmentsBridge.html_formatter = HtmlFormatter
+
+
+def test_default_highlight():
+    bridge = PygmentsBridge('html')
+
+    # default: highlights as python3
+    ret = bridge.highlight_block('print "Hello sphinx world"', 'default')
+    assert ret == ('<div class="highlight"><pre><span></span><span class="nb">print</span> '
+                   '<span class="s2">&quot;Hello sphinx world&quot;</span>\n</pre></div>\n')
+
+    # default: fallbacks to none if highlighting failed
+    ret = bridge.highlight_block('reST ``like`` text', 'default')
+    assert ret == '<div class="highlight"><pre><span></span>reST ``like`` text\n</pre></div>\n'
+
+    # python3: highlights as python3
+    ret = bridge.highlight_block('print "Hello sphinx world"', 'python3')
+    assert ret == ('<div class="highlight"><pre><span></span><span class="nb">print</span> '
+                   '<span class="s2">&quot;Hello sphinx world&quot;</span>\n</pre></div>\n')
+
+    # python3: raises error if highlighting failed
+    try:
+        ret = bridge.highlight_block('reST ``like`` text', 'python3')
+        assert False, "highlight_block() does not raise any exceptions"
+    except ErrorToken:
+        pass  # raise parsing error

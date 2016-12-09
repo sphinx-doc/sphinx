@@ -6,13 +6,16 @@
     Test the sphinx.config.Config class and its handling in the
     Application class.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from six import PY2, PY3, StringIO
+from six import PY3, iteritems
+import mock
 
-from util import TestApp, with_app, with_tempdir, raises, raises_msg
+from util import TestApp, with_app, gen_with_app, with_tempdir, \
+    raises, raises_msg, assert_in, assert_not_in
 
+import sphinx
 from sphinx.config import Config
 from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
 
@@ -35,7 +38,7 @@ def test_core_config(app, status, warning):
 
     # simple default values
     assert 'locale_dirs' not in cfg.__dict__
-    assert cfg.locale_dirs == []
+    assert cfg.locale_dirs == ['locales']
     assert cfg.trim_footnote_reference_space is False
 
     # complex default values
@@ -106,8 +109,10 @@ def test_errors_warnings(dir):
         u'# -*- coding: latin-1\nproject = "fooä"\n', encoding='latin-1')
     cfg = Config(dir, 'conf.py', {}, None)
     warned = [False]
+
     def warn(msg):
         warned[0] = True
+
     cfg.check_unicode(warn)
     assert warned[0]
 
@@ -119,9 +124,31 @@ def test_errors_if_setup_is_not_callable(dir):
     raises_msg(ConfigError, 'callable', TestApp, srcdir=dir)
 
 
+@mock.patch.object(sphinx, '__display_version__', '1.3.4')
 def test_needs_sphinx():
+    # micro version
+    app = TestApp(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
+    app.cleanup()
+    app = TestApp(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
+    app.cleanup()
     raises(VersionRequirementError, TestApp,
-           confoverrides={'needs_sphinx': '9.9'})
+           confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
+
+    # minor version
+    app = TestApp(confoverrides={'needs_sphinx': '1.2'})  # OK: less
+    app.cleanup()
+    app = TestApp(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
+    app.cleanup()
+    raises(VersionRequirementError, TestApp,
+           confoverrides={'needs_sphinx': '1.4'})  # NG: greater
+
+    # major version
+    app = TestApp(confoverrides={'needs_sphinx': '0'})  # OK: less
+    app.cleanup()
+    app = TestApp(confoverrides={'needs_sphinx': '1'})  # OK: equals
+    app.cleanup()
+    raises(VersionRequirementError, TestApp,
+           confoverrides={'needs_sphinx': '2'})  # NG: greater
 
 
 @with_tempdir
@@ -135,36 +162,59 @@ def test_config_eol(tmpdir):
         assert cfg.project == u'spam'
 
 
-TYPECHECK_OVERRIDES = [
-    # configuration key, override value, should warn, default type
-    ('master_doc', 123, True, str),
-    ('man_pages', 123, True, list),  # lambda
-    ('man_pages', [], False, list),
-    ('epub_tocdepth', True, True, int),  # child type
-    ('nitpicky', 3, False, bool),  # parent type
-    ('templates_path', (), True, list),  # other sequence, also raises
-]
-if PY2:
-    # Run a check for proper sibling detection in Python 2.  Under py3k, the
-    # default types do not have any siblings.
-    TYPECHECK_OVERRIDES.append(
-            ('html_add_permalinks', 'bar', False, unicode))
+@with_app(confoverrides={'master_doc': 123,
+                         'language': 'foo',
+                         'primary_domain': None})
+def test_builtin_conf(app, status, warning):
+    warnings = warning.getvalue()
+    assert_in('master_doc', warnings,
+              'override on builtin "master_doc" should raise a type warning')
+    assert_not_in('language', warnings, 'explicitly permitted '
+                  'override on builtin "language" should NOT raise a type warning')
+    assert_not_in('primary_domain', warnings, 'override to None on builtin '
+                  '"primary_domain" should NOT raise a type warning')
 
-def test_gen_check_types():
-    for key, value, should, deftype in TYPECHECK_OVERRIDES:
-        warning = StringIO()
-        app = TestApp(confoverrides={key: value}, warning=warning)
-        app.cleanup()
 
-        real = type(value).__name__
-        msg = ("WARNING: the config value %r has type `%s',"
-               " defaults to `%s.'\n" % (key, real, deftype.__name__))
-        def test():
-            warning_list = warning.getvalue()
-            assert (msg in warning_list) == should, \
-                    "Setting %s to %r should%s raise: %s" % \
-                    (key, value, " not" if should else "", msg)
-        test.description = "test_check_type_%s_on_%s" % \
-                (real, type(Config.config_values[key][0]).__name__)
+# See roots/test-config/conf.py.
+TYPECHECK_WARNINGS = {
+    'value1': True,
+    'value2': True,
+    'value3': False,
+    'value4': True,
+    'value5': False,
+    'value6': True,
+    'value7': False,
+    'value8': False,
+    'value9': False,
+    'value10': False,
+    'value11': True,
+    'value12': False,
+    'value13': False,
+    'value14': False,
+    'value15': False,
+    'value16': False,
+}
 
-        yield test
+
+@gen_with_app(testroot='config')
+def test_gen_check_types(app, status, warning):
+    if PY3:
+        TYPECHECK_WARNINGS['value11'] = False
+
+    for key, should in iteritems(TYPECHECK_WARNINGS):
+        yield assert_in if should else assert_not_in, key, warning.getvalue(), (
+            'override on "%s" should%s raise a type warning' %
+            (key, '' if should else ' NOT')
+        )
+
+
+@with_app(testroot='config')
+def test_check_enum(app, status, warning):
+    assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
+           not in warning.getvalue()
+
+
+@with_app(testroot='config', confoverrides={'value17': 'invalid'})
+def test_check_enum_failed(app, status, warning):
+    assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
+           "but `invalid` is given." in warning.getvalue()

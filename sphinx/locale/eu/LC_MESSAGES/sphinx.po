@@ -1,5 +1,5 @@
 # Translations template for Sphinx.
-# Copyright (C) 2015 ORGANIZATION
+# Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
 # 
 # Translators:
@@ -8,61 +8,41 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-03-08 23:31+0900\n"
-"PO-Revision-Date: 2015-03-08 14:35+0000\n"
-"Last-Translator: Takayuki Shimizukawa <shimizukawa@gmail.com>\n"
-"Language-Team: Basque (http://www.transifex.com/projects/p/sphinx-1/language/eu/)\n"
+"POT-Creation-Date: 2016-11-06 22:40+0900\n"
+"PO-Revision-Date: 2016-11-06 13:53+0000\n"
+"Last-Translator: Takeshi KOMIYA <i.tkomiya@gmail.com>\n"
+"Language-Team: Basque (http://www.transifex.com/sphinx-doc/sphinx-1/language/eu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 1.3\n"
+"Generated-By: Babel 2.3.4\n"
 "Language: eu\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: sphinx/config.py:80
+#: sphinx/config.py:109
+#, python-format
+msgid "Section %s"
+msgstr ""
+
+#: sphinx/config.py:110
 #, python-format
 msgid "Fig. %s"
 msgstr ""
 
-#: sphinx/config.py:81
+#: sphinx/config.py:111
 #, python-format
 msgid "Table %s"
 msgstr ""
 
-#: sphinx/config.py:82
+#: sphinx/config.py:112
 #, python-format
 msgid "Listing %s"
 msgstr ""
 
-#: sphinx/config.py:89
-#, python-format
-msgid "%s %s documentation"
-msgstr "%s %s dokumentazioa"
-
-#: sphinx/environment.py:1880
-#, python-format
-msgid "see %s"
-msgstr "%s ikusi"
-
-#: sphinx/environment.py:1883
-#, python-format
-msgid "see also %s"
-msgstr "ikusi %s baita ere"
-
-#: sphinx/environment.py:1941
-msgid "Symbols"
-msgstr ""
-
-#: sphinx/roles.py:193
+#: sphinx/roles.py:187
 #, python-format
 msgid "Python Enhancement Proposals; PEP %s"
 msgstr "Python Hobekuntza Proposamena; PEP %s"
-
-#: sphinx/transforms.py:58 sphinx/writers/latex.py:212
-#: sphinx/writers/manpage.py:67 sphinx/writers/texinfo.py:221
-#, python-format
-msgid "%B %d, %Y"
-msgstr "%Y %B %d"
 
 #: sphinx/builders/changes.py:75
 msgid "Builtins"
@@ -72,64 +52,76 @@ msgstr ""
 msgid "Module level"
 msgstr "Modulu maila"
 
-#: sphinx/builders/html.py:291
+#: sphinx/builders/html.py:294 sphinx/transforms/__init__.py:46
+#: sphinx/writers/latex.py:393 sphinx/writers/manpage.py:100
+#: sphinx/writers/texinfo.py:221
 #, python-format
 msgid "%b %d, %Y"
-msgstr "%Y %b %d"
+msgstr ""
 
-#: sphinx/builders/html.py:310 sphinx/themes/basic/defindex.html:30
+#: sphinx/builders/html.py:315 sphinx/themes/basic/defindex.html:30
 msgid "General Index"
 msgstr "Indize orokorra"
 
-#: sphinx/builders/html.py:310
+#: sphinx/builders/html.py:315
 msgid "index"
 msgstr "indizea"
 
-#: sphinx/builders/html.py:371
+#: sphinx/builders/html.py:377
 msgid "next"
 msgstr "hurrengoa"
 
-#: sphinx/builders/html.py:380
+#: sphinx/builders/html.py:386
 msgid "previous"
 msgstr "aurrekoa"
 
-#: sphinx/builders/latex.py:144 sphinx/builders/texinfo.py:198
+#: sphinx/builders/html.py:1222
+#, python-format
+msgid "%s %s documentation"
+msgstr "%s %s dokumentazioa"
+
+#: sphinx/builders/latex.py:177 sphinx/builders/texinfo.py:199
 msgid " (in "
 msgstr " (hemen: "
 
-#: sphinx/directives/other.py:150
+#: sphinx/directives/code.py:140 sphinx/directives/code.py:370
+#, python-format
+msgid "Invalid caption: %s"
+msgstr ""
+
+#: sphinx/directives/other.py:149
 msgid "Section author: "
 msgstr "Atalaren egilea: "
 
-#: sphinx/directives/other.py:152
+#: sphinx/directives/other.py:151
 msgid "Module author: "
 msgstr "Moduluaren egilea: "
 
-#: sphinx/directives/other.py:154
+#: sphinx/directives/other.py:153
 msgid "Code author: "
 msgstr "Kodearen egilea: "
 
-#: sphinx/directives/other.py:156
+#: sphinx/directives/other.py:155
 msgid "Author: "
 msgstr "Egilea:"
 
-#: sphinx/domains/__init__.py:273
+#: sphinx/domains/__init__.py:277
 #, python-format
 msgid "%s %s"
 msgstr "%s %s"
 
-#: sphinx/domains/c.py:58 sphinx/domains/cpp.py:2408
-#: sphinx/domains/python.py:122
+#: sphinx/domains/c.py:58 sphinx/domains/cpp.py:4051
+#: sphinx/domains/python.py:149
 msgid "Parameters"
 msgstr "Parametroak"
 
-#: sphinx/domains/c.py:61 sphinx/domains/cpp.py:2414
-#: sphinx/domains/javascript.py:128 sphinx/domains/python.py:134
+#: sphinx/domains/c.py:61 sphinx/domains/cpp.py:4060
+#: sphinx/domains/javascript.py:128 sphinx/domains/python.py:161
 msgid "Returns"
 msgstr "Itzultzen du"
 
 #: sphinx/domains/c.py:63 sphinx/domains/javascript.py:130
-#: sphinx/domains/python.py:136
+#: sphinx/domains/python.py:163
 msgid "Return type"
 msgstr "Itzulketa mota"
 
@@ -158,12 +150,12 @@ msgstr "%s (C mota)"
 msgid "%s (C variable)"
 msgstr "%s (C aldagaia)"
 
-#: sphinx/domains/c.py:242 sphinx/domains/cpp.py:2680
-#: sphinx/domains/javascript.py:164 sphinx/domains/python.py:587
+#: sphinx/domains/c.py:242 sphinx/domains/cpp.py:4418
+#: sphinx/domains/javascript.py:164 sphinx/domains/python.py:614
 msgid "function"
 msgstr "funtzioa"
 
-#: sphinx/domains/c.py:243 sphinx/domains/cpp.py:2681
+#: sphinx/domains/c.py:243 sphinx/domains/cpp.py:4419
 msgid "member"
 msgstr "partaidea"
 
@@ -171,7 +163,7 @@ msgstr "partaidea"
 msgid "macro"
 msgstr "makroa"
 
-#: sphinx/domains/c.py:245 sphinx/domains/cpp.py:2682
+#: sphinx/domains/c.py:245 sphinx/domains/cpp.py:4420
 msgid "type"
 msgstr "mota"
 
@@ -179,59 +171,72 @@ msgstr "mota"
 msgid "variable"
 msgstr "aldagaia"
 
-#: sphinx/domains/cpp.py:2411 sphinx/domains/javascript.py:125
+#: sphinx/domains/cpp.py:4054
+msgid "Template Parameters"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4057 sphinx/domains/javascript.py:125
 msgid "Throws"
 msgstr "Jaurtitzen du"
 
-#: sphinx/domains/cpp.py:2518
+#: sphinx/domains/cpp.py:4205
 #, python-format
 msgid "%s (C++ type)"
 msgstr "%s (C++ mota)"
 
-#: sphinx/domains/cpp.py:2531
+#: sphinx/domains/cpp.py:4216
+#, python-format
+msgid "%s (C++ concept)"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4227
 #, python-format
 msgid "%s (C++ member)"
 msgstr "%s (C++ partaidea)"
 
-#: sphinx/domains/cpp.py:2543
+#: sphinx/domains/cpp.py:4238
 #, python-format
 msgid "%s (C++ function)"
 msgstr "%s (C++ funtzioa)"
 
-#: sphinx/domains/cpp.py:2555
+#: sphinx/domains/cpp.py:4249
 #, python-format
 msgid "%s (C++ class)"
 msgstr "%s (C++ klasea)"
 
-#: sphinx/domains/cpp.py:2579
+#: sphinx/domains/cpp.py:4260
 #, python-format
 msgid "%s (C++ enum)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:2617
+#: sphinx/domains/cpp.py:4281
 #, python-format
 msgid "%s (C++ enumerator)"
 msgstr ""
 
-#: sphinx/domains/cpp.py:2679 sphinx/domains/javascript.py:165
-#: sphinx/domains/python.py:589
+#: sphinx/domains/cpp.py:4417 sphinx/domains/javascript.py:165
+#: sphinx/domains/python.py:616
 msgid "class"
 msgstr "klasea"
 
-#: sphinx/domains/cpp.py:2683
+#: sphinx/domains/cpp.py:4421
+msgid "concept"
+msgstr ""
+
+#: sphinx/domains/cpp.py:4422
 msgid "enum"
 msgstr ""
 
-#: sphinx/domains/cpp.py:2684
+#: sphinx/domains/cpp.py:4423
 msgid "enumerator"
 msgstr ""
 
-#: sphinx/domains/javascript.py:106 sphinx/domains/python.py:280
+#: sphinx/domains/javascript.py:106 sphinx/domains/python.py:307
 #, python-format
 msgid "%s() (built-in function)"
 msgstr ""
 
-#: sphinx/domains/javascript.py:107 sphinx/domains/python.py:344
+#: sphinx/domains/javascript.py:107 sphinx/domains/python.py:371
 #, python-format
 msgid "%s() (%s method)"
 msgstr "%s() (%s metodoa)"
@@ -246,7 +251,7 @@ msgstr "%s() (klasea)"
 msgid "%s (global variable or constant)"
 msgstr "%s (aldagai globala edo konstantea)"
 
-#: sphinx/domains/javascript.py:113 sphinx/domains/python.py:382
+#: sphinx/domains/javascript.py:113 sphinx/domains/python.py:409
 #, python-format
 msgid "%s (%s attribute)"
 msgstr "%s (%s atributua)"
@@ -255,116 +260,116 @@ msgstr "%s (%s atributua)"
 msgid "Arguments"
 msgstr "Argumentuak"
 
-#: sphinx/domains/javascript.py:166 sphinx/domains/python.py:588
+#: sphinx/domains/javascript.py:166 sphinx/domains/python.py:615
 msgid "data"
 msgstr "datuak"
 
-#: sphinx/domains/javascript.py:167 sphinx/domains/python.py:594
+#: sphinx/domains/javascript.py:167 sphinx/domains/python.py:621
 msgid "attribute"
 msgstr "atributua"
 
-#: sphinx/domains/python.py:127
+#: sphinx/domains/python.py:154
 msgid "Variables"
 msgstr "Aldagaiak"
 
-#: sphinx/domains/python.py:131
+#: sphinx/domains/python.py:158
 msgid "Raises"
 msgstr "Goratzen du"
 
-#: sphinx/domains/python.py:281 sphinx/domains/python.py:338
-#: sphinx/domains/python.py:350 sphinx/domains/python.py:363
+#: sphinx/domains/python.py:308 sphinx/domains/python.py:365
+#: sphinx/domains/python.py:377 sphinx/domains/python.py:390
 #, python-format
 msgid "%s() (in module %s)"
 msgstr "%s() (%s moduluan)"
 
-#: sphinx/domains/python.py:284
+#: sphinx/domains/python.py:311
 #, python-format
 msgid "%s (built-in variable)"
 msgstr ""
 
-#: sphinx/domains/python.py:285 sphinx/domains/python.py:376
+#: sphinx/domains/python.py:312 sphinx/domains/python.py:403
 #, python-format
 msgid "%s (in module %s)"
 msgstr "%s (%s moduluan)"
 
-#: sphinx/domains/python.py:301
+#: sphinx/domains/python.py:328
 #, python-format
 msgid "%s (built-in class)"
 msgstr ""
 
-#: sphinx/domains/python.py:302
+#: sphinx/domains/python.py:329
 #, python-format
 msgid "%s (class in %s)"
 msgstr "%s (klasea %s-(e)n)"
 
-#: sphinx/domains/python.py:342
+#: sphinx/domains/python.py:369
 #, python-format
 msgid "%s() (%s.%s method)"
 msgstr "%s() (%s.%s metodoa)"
 
-#: sphinx/domains/python.py:354
+#: sphinx/domains/python.py:381
 #, python-format
 msgid "%s() (%s.%s static method)"
 msgstr "%s() (%s.%s metodo estatikoa)"
 
-#: sphinx/domains/python.py:357
+#: sphinx/domains/python.py:384
 #, python-format
 msgid "%s() (%s static method)"
 msgstr "%s() (%s metodo estatikoa)"
 
-#: sphinx/domains/python.py:367
+#: sphinx/domains/python.py:394
 #, python-format
 msgid "%s() (%s.%s class method)"
 msgstr "%s() (%s.%s klaseko metodoa)"
 
-#: sphinx/domains/python.py:370
+#: sphinx/domains/python.py:397
 #, python-format
 msgid "%s() (%s class method)"
 msgstr "%s() (%s klaseko metodoa)"
 
-#: sphinx/domains/python.py:380
+#: sphinx/domains/python.py:407
 #, python-format
 msgid "%s (%s.%s attribute)"
 msgstr "%s (%s.%s atributua)"
 
-#: sphinx/domains/python.py:461
+#: sphinx/domains/python.py:488
 #, python-format
 msgid "%s (module)"
 msgstr "%s (modulua)"
 
-#: sphinx/domains/python.py:518
+#: sphinx/domains/python.py:545
 msgid "Python Module Index"
 msgstr "Python moduluen indizea"
 
-#: sphinx/domains/python.py:519
+#: sphinx/domains/python.py:546
 msgid "modules"
 msgstr "moduluak"
 
-#: sphinx/domains/python.py:565
+#: sphinx/domains/python.py:592
 msgid "Deprecated"
 msgstr "Zaharkitua"
 
-#: sphinx/domains/python.py:590 sphinx/locale/__init__.py:181
+#: sphinx/domains/python.py:617 sphinx/locale/__init__.py:183
 msgid "exception"
 msgstr "salbuespena"
 
-#: sphinx/domains/python.py:591
+#: sphinx/domains/python.py:618
 msgid "method"
 msgstr "metodoa"
 
-#: sphinx/domains/python.py:592
+#: sphinx/domains/python.py:619
 msgid "class method"
 msgstr "klaseko metodoa"
 
-#: sphinx/domains/python.py:593
+#: sphinx/domains/python.py:620
 msgid "static method"
 msgstr "metodo estatikoa"
 
-#: sphinx/domains/python.py:595 sphinx/locale/__init__.py:177
+#: sphinx/domains/python.py:622 sphinx/locale/__init__.py:179
 msgid "module"
 msgstr "modulua"
 
-#: sphinx/domains/python.py:760
+#: sphinx/domains/python.py:787
 msgid " (deprecated)"
 msgstr " (zaharkitua)"
 
@@ -386,188 +391,219 @@ msgstr ""
 msgid "role"
 msgstr "rola"
 
-#: sphinx/domains/std.py:73 sphinx/domains/std.py:89
+#: sphinx/domains/std.py:72 sphinx/domains/std.py:88
 #, python-format
 msgid "environment variable; %s"
 msgstr "inguruneko aldagaia; %s"
 
-#: sphinx/domains/std.py:185
+#: sphinx/domains/std.py:186
 #, python-format
 msgid "%scommand line option; %s"
 msgstr "%skomando lerroko aukera; %s"
 
-#: sphinx/domains/std.py:443
+#: sphinx/domains/std.py:434
 msgid "glossary term"
 msgstr "glosarioko terminoa"
 
-#: sphinx/domains/std.py:444
+#: sphinx/domains/std.py:435
 msgid "grammar token"
 msgstr "gramatikako token-a"
 
-#: sphinx/domains/std.py:445
+#: sphinx/domains/std.py:436
 msgid "reference label"
 msgstr "erreferentzia etiketa"
 
-#: sphinx/domains/std.py:447
+#: sphinx/domains/std.py:438
 msgid "environment variable"
 msgstr "inguruneko aldagaia"
 
-#: sphinx/domains/std.py:448
+#: sphinx/domains/std.py:439
 msgid "program option"
 msgstr "programako aukera"
 
-#: sphinx/domains/std.py:481 sphinx/themes/basic/genindex-single.html:32
-#: sphinx/themes/basic/genindex-single.html:57
+#: sphinx/domains/std.py:473 sphinx/themes/basic/genindex-single.html:30
+#: sphinx/themes/basic/genindex-single.html:55
 #: sphinx/themes/basic/genindex-split.html:11
 #: sphinx/themes/basic/genindex-split.html:14
-#: sphinx/themes/basic/genindex.html:32 sphinx/themes/basic/genindex.html:35
-#: sphinx/themes/basic/genindex.html:68 sphinx/themes/basic/layout.html:134
-#: sphinx/writers/latex.py:201 sphinx/writers/texinfo.py:479
+#: sphinx/themes/basic/genindex.html:30 sphinx/themes/basic/genindex.html:33
+#: sphinx/themes/basic/genindex.html:66 sphinx/themes/basic/layout.html:135
+#: sphinx/writers/latex.py:381 sphinx/writers/texinfo.py:480
 msgid "Index"
 msgstr "Indizea"
 
-#: sphinx/domains/std.py:482
+#: sphinx/domains/std.py:474
 msgid "Module Index"
 msgstr "Moduluen indizea"
 
-#: sphinx/domains/std.py:483 sphinx/themes/basic/defindex.html:25
+#: sphinx/domains/std.py:475 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
 msgstr "Bilaketa orria"
 
-#: sphinx/ext/autodoc.py:1139
+#: sphinx/environment/managers/indexentries.py:104
 #, python-format
-msgid "   Bases: %s"
+msgid "see %s"
+msgstr "%s ikusi"
+
+#: sphinx/environment/managers/indexentries.py:108
+#, python-format
+msgid "see also %s"
+msgstr "ikusi %s baita ere"
+
+#: sphinx/environment/managers/indexentries.py:168
+msgid "Symbols"
 msgstr ""
 
-#: sphinx/ext/autodoc.py:1181
+#: sphinx/ext/autodoc.py:1297
+#, python-format
+msgid "Bases: %s"
+msgstr ""
+
+#: sphinx/ext/autodoc.py:1350
 #, python-format
 msgid "alias of :class:`%s`"
 msgstr ""
 
-#: sphinx/ext/graphviz.py:293 sphinx/ext/graphviz.py:301
+#: sphinx/ext/graphviz.py:331 sphinx/ext/graphviz.py:340
 #, python-format
 msgid "[graph: %s]"
 msgstr ""
 
-#: sphinx/ext/graphviz.py:295 sphinx/ext/graphviz.py:303
+#: sphinx/ext/graphviz.py:333 sphinx/ext/graphviz.py:342
 msgid "[graph]"
 msgstr ""
 
-#: sphinx/ext/intersphinx.py:257
+#: sphinx/ext/imgmath.py:258 sphinx/ext/jsmath.py:39 sphinx/ext/mathjax.py:40
+msgid "Permalink to this equation"
+msgstr ""
+
+#: sphinx/ext/intersphinx.py:337
 #, python-format
 msgid "(in %s v%s)"
 msgstr ""
 
-#: sphinx/ext/linkcode.py:69 sphinx/ext/viewcode.py:99
+#: sphinx/ext/linkcode.py:69 sphinx/ext/viewcode.py:103
 msgid "[source]"
 msgstr "[iturburua]"
 
-#: sphinx/ext/todo.py:43
+#: sphinx/ext/mathbase.py:92
+#, python-format
+msgid "duplicate label of equation %s, other instance in %s"
+msgstr ""
+
+#: sphinx/ext/todo.py:56
 msgid "Todo"
 msgstr "Egitekoa"
 
-#: sphinx/ext/todo.py:113
-#, python-format
-msgid "(The <<original entry>> is located in  %s, line %d.)"
+#: sphinx/ext/todo.py:134
+msgid "<<original entry>>"
 msgstr ""
 
-#: sphinx/ext/todo.py:122
+#: sphinx/ext/todo.py:137
+#, python-format
+msgid "(The <<original entry>> is located in %s, line %d.)"
+msgstr ""
+
+#: sphinx/ext/todo.py:146
 msgid "original entry"
 msgstr "jatorrizko sarrera"
 
-#: sphinx/ext/viewcode.py:158
+#: sphinx/ext/viewcode.py:166
 msgid "[docs]"
 msgstr "[dokumentazioa]"
 
-#: sphinx/ext/viewcode.py:172
+#: sphinx/ext/viewcode.py:180
 msgid "Module code"
 msgstr "Moduluko kodea"
 
-#: sphinx/ext/viewcode.py:178
+#: sphinx/ext/viewcode.py:186
 #, python-format
 msgid "<h1>Source code for %s</h1>"
 msgstr "<h1>%s(r)en iturburu kodea</h1>"
 
-#: sphinx/ext/viewcode.py:204
+#: sphinx/ext/viewcode.py:212
 msgid "Overview: module code"
 msgstr "Gainbegirada: moduluko kodea"
 
-#: sphinx/ext/viewcode.py:205
+#: sphinx/ext/viewcode.py:213
 msgid "<h1>All modules for which code is available</h1>"
 msgstr "<h1>Kodea eskuragarri duten modulu guztiak</h1>"
 
-#: sphinx/locale/__init__.py:157
+#: sphinx/ext/napoleon/__init__.py:313
+msgid "Keyword Arguments"
+msgstr ""
+
+#: sphinx/locale/__init__.py:159
 msgid "Attention"
 msgstr "Adi"
 
-#: sphinx/locale/__init__.py:158
+#: sphinx/locale/__init__.py:160
 msgid "Caution"
 msgstr "Kontuz"
 
-#: sphinx/locale/__init__.py:159
+#: sphinx/locale/__init__.py:161
 msgid "Danger"
 msgstr "Arriskua"
 
-#: sphinx/locale/__init__.py:160
+#: sphinx/locale/__init__.py:162
 msgid "Error"
 msgstr "Errorea"
 
-#: sphinx/locale/__init__.py:161
+#: sphinx/locale/__init__.py:163
 msgid "Hint"
 msgstr "Argibidea"
 
-#: sphinx/locale/__init__.py:162
+#: sphinx/locale/__init__.py:164
 msgid "Important"
 msgstr "Garrantzitsua"
 
-#: sphinx/locale/__init__.py:163
+#: sphinx/locale/__init__.py:165
 msgid "Note"
 msgstr "Nota"
 
-#: sphinx/locale/__init__.py:164
+#: sphinx/locale/__init__.py:166
 msgid "See also"
 msgstr "Ikusi baita ere"
 
-#: sphinx/locale/__init__.py:165
+#: sphinx/locale/__init__.py:167
 msgid "Tip"
 msgstr "Iradokizuna"
 
-#: sphinx/locale/__init__.py:166
+#: sphinx/locale/__init__.py:168
 msgid "Warning"
 msgstr "Kontuz"
 
-#: sphinx/locale/__init__.py:170
+#: sphinx/locale/__init__.py:172
 #, python-format
 msgid "New in version %s"
 msgstr "Berria %s bertsioan"
 
-#: sphinx/locale/__init__.py:171
+#: sphinx/locale/__init__.py:173
 #, python-format
 msgid "Changed in version %s"
 msgstr "%s bertsioan aldatuta"
 
-#: sphinx/locale/__init__.py:172
+#: sphinx/locale/__init__.py:174
 #, python-format
 msgid "Deprecated since version %s"
 msgstr "%s bertsiotik aurrera zaharkituta"
 
-#: sphinx/locale/__init__.py:178
+#: sphinx/locale/__init__.py:180
 msgid "keyword"
 msgstr "gako-hitza"
 
-#: sphinx/locale/__init__.py:179
+#: sphinx/locale/__init__.py:181
 msgid "operator"
 msgstr "eragiketa"
 
-#: sphinx/locale/__init__.py:180
+#: sphinx/locale/__init__.py:182
 msgid "object"
 msgstr "objetua"
 
-#: sphinx/locale/__init__.py:182
+#: sphinx/locale/__init__.py:184
 msgid "statement"
 msgstr "sententzia"
 
-#: sphinx/locale/__init__.py:183
+#: sphinx/locale/__init__.py:185
 msgid "built-in function"
 msgstr ""
 
@@ -576,7 +612,7 @@ msgstr ""
 msgid "Table Of Contents"
 msgstr "Eduki taula"
 
-#: sphinx/themes/agogo/layout.html:51 sphinx/themes/basic/layout.html:137
+#: sphinx/themes/agogo/layout.html:51 sphinx/themes/basic/layout.html:138
 #: sphinx/themes/basic/search.html:11 sphinx/themes/basic/search.html:23
 #: sphinx/themes/basic/searchresults.html:10
 msgid "Search"
@@ -586,11 +622,7 @@ msgstr "Bilatu"
 msgid "Go"
 msgstr "Joan"
 
-#: sphinx/themes/agogo/layout.html:59 sphinx/themes/basic/searchbox.html:20
-msgid "Enter search terms or a module, class or function name."
-msgstr "Sartu bilaketa terminoa edo modulu, klase edo funtzioaren izena."
-
-#: sphinx/themes/agogo/layout.html:84 sphinx/themes/basic/sourcelink.html:15
+#: sphinx/themes/agogo/layout.html:81 sphinx/themes/basic/sourcelink.html:15
 msgid "Show Source"
 msgstr "Iturburua ikusi"
 
@@ -638,15 +670,15 @@ msgstr "modulu guztietara atzipen azkarra"
 msgid "all functions, classes, terms"
 msgstr "funtzio, klase, termino guztiak"
 
-#: sphinx/themes/basic/genindex-single.html:35
+#: sphinx/themes/basic/genindex-single.html:33
 #, python-format
 msgid "Index &ndash; %(key)s"
 msgstr "Indizea &ndash; %(key)s"
 
-#: sphinx/themes/basic/genindex-single.html:63
+#: sphinx/themes/basic/genindex-single.html:61
 #: sphinx/themes/basic/genindex-split.html:24
 #: sphinx/themes/basic/genindex-split.html:38
-#: sphinx/themes/basic/genindex.html:74
+#: sphinx/themes/basic/genindex.html:72
 msgid "Full index on one page"
 msgstr "Indize guztia orri batean"
 
@@ -662,35 +694,35 @@ msgstr "handia izan daiteke"
 msgid "Navigation"
 msgstr "Nabigazioa"
 
-#: sphinx/themes/basic/layout.html:122
+#: sphinx/themes/basic/layout.html:123
 #, python-format
 msgid "Search within %(docstitle)s"
 msgstr "Bilatu %(docstitle)s(e)n"
 
-#: sphinx/themes/basic/layout.html:131
+#: sphinx/themes/basic/layout.html:132
 msgid "About these documents"
 msgstr "Dokumentu hauen inguruan"
 
-#: sphinx/themes/basic/layout.html:140
+#: sphinx/themes/basic/layout.html:141
 msgid "Copyright"
 msgstr "Copyright"
 
-#: sphinx/themes/basic/layout.html:189
+#: sphinx/themes/basic/layout.html:186
 #, python-format
-msgid "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
-msgstr "&copy; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
+msgid "&#169; <a href=\"%(path)s\">Copyright</a> %(copyright)s."
+msgstr ""
 
-#: sphinx/themes/basic/layout.html:191
+#: sphinx/themes/basic/layout.html:188
 #, python-format
-msgid "&copy; Copyright %(copyright)s."
-msgstr "&copy; Copyright %(copyright)s."
+msgid "&#169; Copyright %(copyright)s."
+msgstr ""
 
-#: sphinx/themes/basic/layout.html:195
+#: sphinx/themes/basic/layout.html:192
 #, python-format
 msgid "Last updated on %(last_updated)s."
 msgstr "Azken aldaketa: %(last_updated)s."
 
-#: sphinx/themes/basic/layout.html:198
+#: sphinx/themes/basic/layout.html:195
 #, python-format
 msgid ""
 "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
@@ -739,13 +771,13 @@ msgstr "bilatu"
 
 #: sphinx/themes/basic/search.html:43
 #: sphinx/themes/basic/searchresults.html:21
-#: sphinx/themes/basic/static/searchtools.js_t:281
+#: sphinx/themes/basic/static/searchtools.js_t:287
 msgid "Search Results"
 msgstr "Bilaketa emaitzak"
 
 #: sphinx/themes/basic/search.html:45
 #: sphinx/themes/basic/searchresults.html:23
-#: sphinx/themes/basic/static/searchtools.js_t:283
+#: sphinx/themes/basic/static/searchtools.js_t:289
 msgid ""
 "Your search did not match any documents. Please make sure that all words are"
 " spelled correctly and that you've selected enough categories."
@@ -762,13 +794,13 @@ msgstr "Orri hau"
 #: sphinx/themes/basic/changes/frameset.html:5
 #: sphinx/themes/basic/changes/versionchanges.html:12
 #, python-format
-msgid "Changes in Version %(version)s &mdash; %(docstitle)s"
-msgstr "%(version)s bertsioko aldaketak &mdash; %(docstitle)s"
+msgid "Changes in Version %(version)s &#8212; %(docstitle)s"
+msgstr ""
 
 #: sphinx/themes/basic/changes/rstsource.html:5
 #, python-format
-msgid "%(filename)s &mdash; %(docstitle)s"
-msgstr "%(filename)s &mdash; %(docstitle)s"
+msgid "%(filename)s &#8212; %(docstitle)s"
+msgstr ""
 
 #: sphinx/themes/basic/changes/versionchanges.html:17
 #, python-format
@@ -787,33 +819,34 @@ msgstr "C API aldaketak"
 msgid "Other changes"
 msgstr "Beste aldaketak"
 
-#: sphinx/themes/basic/static/doctools.js:166 sphinx/writers/html.py:610
-#: sphinx/writers/html.py:615
+#: sphinx/themes/basic/static/doctools.js_t:169 sphinx/writers/html.py:708
+#: sphinx/writers/html.py:713
 msgid "Permalink to this headline"
 msgstr "Goiburu honetarako esteka iraunkorra"
 
-#: sphinx/themes/basic/static/doctools.js:172 sphinx/writers/html.py:107
+#: sphinx/themes/basic/static/doctools.js_t:175 sphinx/writers/html.py:108
+#: sphinx/writers/html.py:117
 msgid "Permalink to this definition"
 msgstr "Definizio honetarako esteka iraunkorra"
 
-#: sphinx/themes/basic/static/doctools.js:205
+#: sphinx/themes/basic/static/doctools.js_t:208
 msgid "Hide Search Matches"
 msgstr "Bilaketa bat-etortzeak ezkutatu"
 
-#: sphinx/themes/basic/static/searchtools.js_t:119
+#: sphinx/themes/basic/static/searchtools.js_t:121
 msgid "Searching"
 msgstr ""
 
-#: sphinx/themes/basic/static/searchtools.js_t:124
+#: sphinx/themes/basic/static/searchtools.js_t:126
 msgid "Preparing search..."
 msgstr ""
 
-#: sphinx/themes/basic/static/searchtools.js_t:285
+#: sphinx/themes/basic/static/searchtools.js_t:291
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
 msgstr ""
 
-#: sphinx/themes/basic/static/searchtools.js_t:337
+#: sphinx/themes/basic/static/searchtools.js_t:344
 msgid ", in "
 msgstr ""
 
@@ -830,44 +863,53 @@ msgstr "Alboko barra tolestu"
 msgid "Contents"
 msgstr "Edukiak"
 
-#: sphinx/writers/html.py:334
+#: sphinx/writers/html.py:389
 msgid "Permalink to this code"
 msgstr ""
 
-#: sphinx/writers/html.py:337
+#: sphinx/writers/html.py:393
 msgid "Permalink to this image"
 msgstr ""
 
-#: sphinx/writers/html.py:339
+#: sphinx/writers/html.py:395
 msgid "Permalink to this toctree"
 msgstr ""
 
-#: sphinx/writers/html.py:619
+#: sphinx/writers/html.py:717
 msgid "Permalink to this table"
 msgstr ""
 
-#: sphinx/writers/latex.py:199
+#: sphinx/writers/latex.py:380
 msgid "Release"
 msgstr "Argitalpena"
 
-#: sphinx/writers/latex.py:697 sphinx/writers/manpage.py:177
-#: sphinx/writers/texinfo.py:616
+#: sphinx/writers/latex.py:483
+msgid "page"
+msgstr ""
+
+#: sphinx/writers/latex.py:528
+#, python-format
+msgid "Unknown configure key: latex_elements[%r] is ignored."
+msgstr ""
+
+#: sphinx/writers/latex.py:1003 sphinx/writers/manpage.py:238
+#: sphinx/writers/texinfo.py:619
 msgid "Footnotes"
 msgstr "Oin-oharrak"
 
-#: sphinx/writers/latex.py:785
+#: sphinx/writers/latex.py:1112
 msgid "continued from previous page"
 msgstr "aurreko orritik jarraitzen du"
 
-#: sphinx/writers/latex.py:791
+#: sphinx/writers/latex.py:1118
 msgid "Continued on next page"
 msgstr "Hurrengo orrian jarraitzen du"
 
-#: sphinx/writers/manpage.py:223 sphinx/writers/text.py:541
+#: sphinx/writers/manpage.py:287 sphinx/writers/text.py:591
 #, python-format
 msgid "[image: %s]"
 msgstr ""
 
-#: sphinx/writers/manpage.py:224 sphinx/writers/text.py:542
+#: sphinx/writers/manpage.py:288 sphinx/writers/text.py:592
 msgid "[image]"
 msgstr "[irudia]"

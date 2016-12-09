@@ -5,7 +5,7 @@
 
     The reStructuredText domain.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -20,6 +20,14 @@ from sphinx.directives import ObjectDescription
 from sphinx.roles import XRefRole
 from sphinx.util.nodes import make_refnode
 
+if False:
+    # For type annotation
+    from typing import Iterator, Tuple  # NOQA
+    from docutils import nodes  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+    from sphinx.builders import Builder  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
+
 
 dir_sig_re = re.compile(r'\.\. (.+?)::(.*)$')
 
@@ -30,6 +38,7 @@ class ReSTMarkup(ObjectDescription):
     """
 
     def add_target_and_index(self, name, sig, signode):
+        # type: (unicode, unicode, addnodes.desc_signature) -> None
         targetname = self.objtype + '-' + name
         if targetname not in self.state.document.ids:
             signode['names'].append(targetname)
@@ -48,9 +57,10 @@ class ReSTMarkup(ObjectDescription):
         indextext = self.get_index_text(self.objtype, name)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
-                                              targetname, ''))
+                                              targetname, '', None))
 
     def get_index_text(self, objectname, name):
+        # type: (unicode, unicode) -> unicode
         if self.objtype == 'directive':
             return _('%s (directive)') % name
         elif self.objtype == 'role':
@@ -59,6 +69,7 @@ class ReSTMarkup(ObjectDescription):
 
 
 def parse_directive(d):
+    # type: (unicode) -> Tuple[unicode, unicode]
     """Parse a directive signature.
 
     Returns (directive, arguments) string tuple.  If no arguments are given,
@@ -68,7 +79,7 @@ def parse_directive(d):
     if not dir.startswith('.'):
         # Assume it is a directive without syntax
         return (dir, '')
-    m = dir_sig_re.match(dir)
+    m = dir_sig_re.match(dir)  # type: ignore
     if not m:
         return (dir, '')
     parsed_dir, parsed_args = m.groups()
@@ -80,6 +91,7 @@ class ReSTDirective(ReSTMarkup):
     Description of a reST directive.
     """
     def handle_signature(self, sig, signode):
+        # type: (unicode, addnodes.desc_signature) -> unicode
         name, args = parse_directive(sig)
         desc_name = '.. %s::' % name
         signode += addnodes.desc_name(desc_name, desc_name)
@@ -93,6 +105,7 @@ class ReSTRole(ReSTMarkup):
     Description of a reST role.
     """
     def handle_signature(self, sig, signode):
+        # type: (unicode, addnodes.desc_signature) -> unicode
         signode += addnodes.desc_name(':%s:' % sig, ':%s:' % sig)
         return sig
 
@@ -116,14 +129,16 @@ class ReSTDomain(Domain):
     }
     initial_data = {
         'objects': {},  # fullname -> docname, objtype
-    }
+    }  # type: Dict[unicode, Dict[unicode, Tuple[unicode, ObjType]]]
 
     def clear_doc(self, docname):
+        # type: (unicode) -> None
         for (typ, name), doc in list(self.data['objects'].items()):
             if doc == docname:
                 del self.data['objects'][typ, name]
 
     def merge_domaindata(self, docnames, otherdata):
+        # type: (List[unicode], Dict) -> None
         # XXX check duplicates
         for (typ, name), doc in otherdata['objects'].items():
             if doc in docnames:
@@ -131,6 +146,7 @@ class ReSTDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node,
                      contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
         objects = self.data['objects']
         objtypes = self.objtypes_for_role(typ)
         for objtype in objtypes:
@@ -142,6 +158,7 @@ class ReSTDomain(Domain):
 
     def resolve_any_xref(self, env, fromdocname, builder, target,
                          node, contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, nodes.Node, nodes.Node) -> List[nodes.Node]  # NOQA
         objects = self.data['objects']
         results = []
         for objtype in self.object_types:
@@ -154,5 +171,11 @@ class ReSTDomain(Domain):
         return results
 
     def get_objects(self):
+        # type: () -> Iterator[Tuple[unicode, unicode, unicode, unicode, unicode, int]]
         for (typ, name), docname in iteritems(self.data['objects']):
             yield name, name, typ, docname, typ + '-' + name, 1
+
+
+def setup(app):
+    # type: (Sphinx) -> None
+    app.add_domain(ReSTDomain)

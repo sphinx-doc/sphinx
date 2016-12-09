@@ -49,7 +49,7 @@
     resolved to a Python object, and otherwise it becomes simple emphasis.
     This can be used as the default role to make links 'smart'.
 
-    :copyright: Copyright 2007-2015 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 
@@ -58,18 +58,29 @@ import re
 import sys
 import inspect
 import posixpath
+from six import string_types
 from types import ModuleType
 
 from six import text_type
+
 from docutils.parsers.rst import directives
 from docutils.statemachine import ViewList
 from docutils import nodes
 
 import sphinx
 from sphinx import addnodes
+from sphinx.util import import_object, rst
 from sphinx.util.compat import Directive
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.ext.autodoc import Options
+
+if False:
+    # For type annotation
+    from typing import Any, Tuple, Type, Union  # NOQA
+    from docutils.utils import Inliner  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.ext.autodoc import Documenter  # NOQA
 
 
 # -- autosummary_toc node ------------------------------------------------------
@@ -79,6 +90,7 @@ class autosummary_toc(nodes.comment):
 
 
 def process_autosummary_toc(app, doctree):
+    # type: (Sphinx, nodes.Node) -> None
     """Insert items described in autosummary:: to the TOC tree, but do
     not generate the toctree:: list.
     """
@@ -103,11 +115,13 @@ def process_autosummary_toc(app, doctree):
 
 
 def autosummary_toc_visit_html(self, node):
+    # type: (nodes.NodeVisitor, autosummary_toc) -> None
     """Hide autosummary toctree list in HTML output."""
     raise nodes.SkipNode
 
 
 def autosummary_noop(self, node):
+    # type: (nodes.NodeVisitor, nodes.Node) -> None
     pass
 
 
@@ -118,6 +132,7 @@ class autosummary_table(nodes.comment):
 
 
 def autosummary_table_visit_html(self, node):
+    # type: (nodes.NodeVisitor, autosummary_table) -> None
     """Make the first column of the table non-breaking."""
     try:
         tbody = node[0][0][-1]
@@ -135,12 +150,13 @@ def autosummary_table_visit_html(self, node):
 
 # -- autodoc integration -------------------------------------------------------
 
-class FakeDirective:
-    env = {}
+class FakeDirective(object):
+    env = {}  # type: Dict
     genopt = Options()
 
 
 def get_documenter(obj, parent):
+    # type: (Any, Any) -> Type[Documenter]
     """Get an autodoc.Documenter class suitable for documenting the given
     object.
 
@@ -196,13 +212,15 @@ class Autosummary(Directive):
     }
 
     def warn(self, msg):
+        # type: (unicode) -> None
         self.warnings.append(self.state.document.reporter.warning(
             msg, line=self.lineno))
 
     def run(self):
+        # type: () -> List[nodes.Node]
         self.env = env = self.state.document.settings.env
         self.genopt = Options()
-        self.warnings = []
+        self.warnings = []  # type: List[nodes.Node]
         self.result = ViewList()
 
         names = [x.strip().split()[0] for x in self.content
@@ -235,6 +253,7 @@ class Autosummary(Directive):
         return self.warnings + nodes
 
     def get_items(self, names):
+        # type: (List[unicode]) -> List[Tuple[unicode, unicode, unicode, unicode]]
         """Try to import the given names, and return a list of
         ``[(name, signature, summary_string, real_name), ...]``.
         """
@@ -242,7 +261,7 @@ class Autosummary(Directive):
 
         prefixes = get_import_prefixes_from_env(env)
 
-        items = []
+        items = []  # type: List[Tuple[unicode, unicode, unicode, unicode]]
 
         max_item_chars = 50
 
@@ -332,12 +351,13 @@ class Autosummary(Directive):
         return items
 
     def get_table(self, items):
+        # type: (List[Tuple[unicode, unicode, unicode, unicode]]) -> List[Union[addnodes.tabular_col_spec, autosummary_table]]  # NOQA
         """Generate a proper list of table nodes for autosummary:: directive.
 
         *items* is a list produced by :meth:`get_items`.
         """
         table_spec = addnodes.tabular_col_spec()
-        table_spec['spec'] = 'll'
+        table_spec['spec'] = 'p{0.5\linewidth}p{0.5\linewidth}'
 
         table = autosummary_table('')
         real_table = nodes.table('', classes=['longtable'])
@@ -350,6 +370,7 @@ class Autosummary(Directive):
         group.append(body)
 
         def append_row(*column_texts):
+            # type: (unicode) -> None
             row = nodes.row('')
             for text in column_texts:
                 node = nodes.paragraph('')
@@ -367,7 +388,7 @@ class Autosummary(Directive):
         for name, sig, summary, real_name in items:
             qualifier = 'obj'
             if 'nosignatures' not in self.options:
-                col1 = ':%s:`%s <%s>`\ %s' % (qualifier, name, real_name, sig)
+                col1 = ':%s:`%s <%s>`\ %s' % (qualifier, name, real_name, rst.escape(sig))  # type: unicode  # NOQA
             else:
                 col1 = ':%s:`%s <%s>`' % (qualifier, name, real_name)
             col2 = summary
@@ -377,6 +398,7 @@ class Autosummary(Directive):
 
 
 def mangle_signature(sig, max_chars=30):
+    # type: (unicode, int) -> unicode
     """Reformat a function signature to a more compact form."""
     s = re.sub(r"^\((.*)\)$", r"\1", sig).strip()
 
@@ -386,12 +408,12 @@ def mangle_signature(sig, max_chars=30):
     s = re.sub(r"'[^']*'", "", s)
 
     # Parse the signature to arguments + options
-    args = []
-    opts = []
+    args = []  # type: List[unicode]
+    opts = []  # type: List[unicode]
 
     opt_re = re.compile(r"^(.*, |)([a-zA-Z0-9_*]+)=")
     while s:
-        m = opt_re.search(s)
+        m = opt_re.search(s)  # type: ignore
         if not m:
             # The rest are arguments
             args = s.split(', ')
@@ -413,6 +435,7 @@ def mangle_signature(sig, max_chars=30):
 
 
 def limited_join(sep, items, max_chars=30, overflow_marker="..."):
+    # type: (unicode, List[unicode], int, unicode) -> unicode
     """Join a number of strings to one, limiting the length to *max_chars*.
 
     If the string overflows this limit, replace the last fitting item by
@@ -439,11 +462,12 @@ def limited_join(sep, items, max_chars=30, overflow_marker="..."):
 # -- Importing items -----------------------------------------------------------
 
 def get_import_prefixes_from_env(env):
+    # type: (BuildEnvironment) -> List
     """
     Obtain current Python import prefixes (for `import_by_name`)
     from ``document.env``
     """
-    prefixes = [None]
+    prefixes = [None]  # type: List
 
     currmodule = env.ref_context.get('py:module')
     if currmodule:
@@ -460,6 +484,7 @@ def get_import_prefixes_from_env(env):
 
 
 def import_by_name(name, prefixes=[None]):
+    # type: (unicode, List) -> Tuple[unicode, Any, Any, unicode]
     """Import a Python object that has the given *name*, under one of the
     *prefixes*.  The first name that succeeds is used.
     """
@@ -478,6 +503,7 @@ def import_by_name(name, prefixes=[None]):
 
 
 def _import_by_name(name):
+    # type: (str) -> Tuple[Any, Any, unicode]
     """Import a Python object given its full name."""
     try:
         name_parts = name.split('.')
@@ -522,6 +548,7 @@ def _import_by_name(name):
 
 def autolink_role(typ, rawtext, etext, lineno, inliner,
                   options={}, content=[]):
+    # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
     """Smart linking role.
 
     Expands to ':obj:`text`' if `text` is an object that can be imported;
@@ -537,12 +564,32 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
         name, obj, parent, modname = import_by_name(pnode['reftarget'], prefixes)
     except ImportError:
         content = pnode[0]
-        r[0][0] = nodes.emphasis(rawtext, content[0].astext(),
-                                 classes=content['classes'])
+        r[0][0] = nodes.emphasis(rawtext, content[0].astext(),  # type: ignore
+                                 classes=content['classes'])  # type: ignore
     return r
 
 
+def get_rst_suffix(app):
+    # type: (Sphinx) -> unicode
+    def get_supported_format(suffix):
+        # type: (unicode) -> Tuple[unicode]
+        parser_class = app.config.source_parsers.get(suffix)
+        if parser_class is None:
+            return ('restructuredtext',)
+        if isinstance(parser_class, string_types):
+            parser_class = import_object(parser_class, 'source parser')  # type: ignore
+        return parser_class.supported
+
+    suffix = None  # type: unicode
+    for suffix in app.config.source_suffix:  # type: ignore
+        if 'restructuredtext' in get_supported_format(suffix):
+            return suffix
+
+    return None
+
+
 def process_generate_options(app):
+    # type: (Sphinx) -> None
     genfiles = app.config.autosummary_generate
 
     if genfiles and not hasattr(genfiles, '__len__'):
@@ -555,16 +602,23 @@ def process_generate_options(app):
 
     from sphinx.ext.autosummary.generate import generate_autosummary_docs
 
-    ext = app.config.source_suffix[0]
-    genfiles = [genfile + (not genfile.endswith(ext) and ext or '')
+    ext = app.config.source_suffix
+    genfiles = [genfile + (not genfile.endswith(tuple(ext)) and ext[0] or '')
                 for genfile in genfiles]
 
+    suffix = get_rst_suffix(app)
+    if suffix is None:
+        app.warn('autosummary generats .rst files internally. '
+                 'But your source_suffix does not contain .rst. Skipped.')
+        return
+
     generate_autosummary_docs(genfiles, builder=app.builder,
-                              warn=app.warn, info=app.info, suffix=ext,
+                              warn=app.warn, info=app.info, suffix=suffix,
                               base_path=app.srcdir)
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     # I need autodoc
     app.setup_extension('sphinx.ext.autodoc')
     app.add_node(autosummary_toc,
@@ -583,5 +637,5 @@ def setup(app):
     app.add_role('autolink', autolink_role)
     app.connect('doctree-read', process_autosummary_toc)
     app.connect('builder-inited', process_generate_options)
-    app.add_config_value('autosummary_generate', [], True)
+    app.add_config_value('autosummary_generate', [], True, [bool])
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
