@@ -8,6 +8,7 @@ Bugs fixed
 * #3198: AttributeError is raised when toctree has 'self'
 * #3211: Remove untranslated sphinx locale catalogs (it was covered by
   untranslated it_IT)
+* #3212: HTML Builders crashes with docutils-0.13
 
 
 Release 1.5 (released Dec 5, 2016)
