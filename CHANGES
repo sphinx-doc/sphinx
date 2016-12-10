@@ -6,6 +6,8 @@ Bugs fixed
 
 * #3195: Can not build in parallel
 * #3198: AttributeError is raised when toctree has 'self'
+* #3211: Remove untranslated sphinx locale catalogs (it was covered by
+  untranslated it_IT)
 
 
 Release 1.5 (released Dec 5, 2016)
