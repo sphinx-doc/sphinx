@@ -233,7 +233,7 @@ def validate_config_values(app):
             app.config.latex_toplevel_sectioning = 'parts'
 
     if app.config.latex_use_modindex is not True:  # changed by user
-        app.warn('latex_use_modeindex is deprecated. Use latex_domain_indices instead.')
+        app.warn('latex_use_modindex is deprecated. Use latex_domain_indices instead.')
 
     if app.config.latex_preamble:
         if app.config.latex_elements.get('preamble'):
