@@ -573,7 +573,7 @@ class StandardDomain(Domain):
         for node in document.traverse(nodes.citation):
             label = node[0].astext()
             if label in self.data['citations']:
-                path = env.doc2path(self.data['citations'][0])
+                path = env.doc2path(self.data['citations'][label][0])
                 env.warn_node('duplicate citation %s, other instance in %s' %
                               (label, path), node)
             self.data['citations'][label] = (docname, node['ids'][0])
