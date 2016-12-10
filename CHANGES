@@ -1,6 +1,12 @@
 Release 1.5.1 (in development)
 ==============================
 
+Features added
+--------------
+
+* #3214: Allow to suppress "unknown mimetype" warnings from epub builder using
+  :confval:`suppress_warnings`.
+
 Bugs fixed
 ----------
 
