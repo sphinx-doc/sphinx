@@ -15,6 +15,8 @@ Bugs fixed
 * #3211: Remove untranslated sphinx locale catalogs (it was covered by
   untranslated it_IT)
 * #3212: HTML Builders crashes with docutils-0.13
+* #3207: more latex problems with references inside parsed-literal directive
+  (``\DUrole``)
 
 
 Release 1.5 (released Dec 5, 2016)
