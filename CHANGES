@@ -17,6 +17,7 @@ Bugs fixed
 * #3212: HTML Builders crashes with docutils-0.13
 * #3207: more latex problems with references inside parsed-literal directive
   (``\DUrole``)
+* #3205: sphinx.util.requests crashes with old pyOpenSSL (< 0.14)
 
 
 Release 1.5 (released Dec 5, 2016)
