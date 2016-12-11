@@ -22,7 +22,8 @@ from requests.packages.urllib3.exceptions import SSLError, InsecureRequestWarnin
 # try to load requests[security]
 try:
     pkg_resources.require(['requests[security]'])
-except pkg_resources.DistributionNotFound:
+except (pkg_resources.DistributionNotFound,
+        pkg_resources.VersionConflict):
     import ssl
     if not getattr(ssl, 'HAS_SNI', False):
         # don't complain on each url processed about the SSL issue
