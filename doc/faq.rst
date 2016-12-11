@@ -201,7 +201,7 @@ The following list gives some hints for the creation of epub files:
      Error(prcgen):E24011: TOC section scope is not included in the parent chapter:(title)
      Error(prcgen):E24001: The table of content could not be built.
 
-.. _Epubcheck: https://code.google.com/archive/p/epubcheck
+.. _Epubcheck: https://github.com/IDPF/epubcheck
 .. _Calibre: http://calibre-ebook.com/
 .. _FBreader: https://fbreader.org/
 .. _Bookworm: http://www.oreilly.com/bookworm/index.html
