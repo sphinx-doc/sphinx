@@ -18,6 +18,7 @@ Bugs fixed
 * #3207: more latex problems with references inside parsed-literal directive
   (``\DUrole``)
 * #3205: sphinx.util.requests crashes with old pyOpenSSL (< 0.14)
+* #3220: KeyError when having a duplicate citation
 
 
 Release 1.5 (released Dec 5, 2016)
