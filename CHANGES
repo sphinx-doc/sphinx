@@ -20,6 +20,7 @@ Bugs fixed
 * #3205: sphinx.util.requests crashes with old pyOpenSSL (< 0.14)
 * #3220: KeyError when having a duplicate citation
 * #3200: LaTeX: xref inside desc_name not allowed
+* #3228: ``build_sphinx`` command crashes when missing dependency
 
 
 Release 1.5 (released Dec 5, 2016)
