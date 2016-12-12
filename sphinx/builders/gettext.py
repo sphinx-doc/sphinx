@@ -256,3 +256,9 @@ def setup(app):
     app.add_config_value('gettext_uuid', False, 'gettext')
     app.add_config_value('gettext_auto_build', True, 'env')
     app.add_config_value('gettext_additional_targets', [], 'env')
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

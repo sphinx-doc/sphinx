@@ -299,3 +299,9 @@ def setup(app):
     # Anchors starting with ! are ignored since they are
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ["^!"], None)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

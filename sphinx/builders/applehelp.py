@@ -293,3 +293,9 @@ def setup(app):
     app.add_config_value('applehelp_indexer_path', '/usr/bin/hiutil', 'applehelp')
     app.add_config_value('applehelp_codesign_path', '/usr/bin/codesign', 'applehelp')
     app.add_config_value('applehelp_disable_external_tools', False, None)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

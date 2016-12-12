@@ -156,3 +156,9 @@ class ChangesBuilder(Builder):
 
 def setup(app):
     app.add_builder(ChangesBuilder)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

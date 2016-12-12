@@ -58,3 +58,9 @@ class Meta(html.Meta):
 def setup(app):
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

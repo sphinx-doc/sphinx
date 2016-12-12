@@ -312,3 +312,9 @@ def setup(app):
     app.add_builder(HTMLHelpBuilder)
 
     app.add_config_value('htmlhelp_basename', lambda self: make_filename(self.project), None)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

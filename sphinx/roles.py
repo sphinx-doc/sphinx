@@ -349,3 +349,9 @@ def setup(app):
 
     for rolename, func in iteritems(specific_docroles):
         roles.register_local_role(rolename, func)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }
