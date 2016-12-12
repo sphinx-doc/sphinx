@@ -199,6 +199,10 @@ class Sphinx(object):
         # load all user-given extension modules
         for extension in self.config.extensions:
             self.setup_extension(extension)
+
+        # preload builder module (before init config values)
+        self.preload_builder(buildername)
+
         # the config file itself can be an extension
         if self.config.setup:
             self._setting_up_extension = ['conf.py']
@@ -294,11 +298,11 @@ class Sphinx(object):
                     logger.info(_('failed: %s'), err)
                 self._init_env(freshenv=True)
 
-    def create_builder(self, buildername):
-        # type: (unicode) -> Builder
+    def preload_builder(self, buildername):
+        # type: (unicode) -> None
         if buildername is None:
-            logger.info(_('No builder selected, using default: html'))
-            buildername = 'html'
+            return
+
         if buildername not in self.builderclasses:
             entry_points = iter_entry_points('sphinx.builders', buildername)
             try:
@@ -307,8 +311,15 @@ class Sphinx(object):
                 raise SphinxError(_('Builder name %s not registered or available'
                                     ' through entry point') % buildername)
             load_extension(self, entry_point.module_name)
-        builderclass = self.builderclasses[buildername]
-        return builderclass(self)
+
+    def create_builder(self, buildername):
+        # type: (unicode) -> Builder
+        if buildername is None:
+            buildername = 'html'
+        if buildername not in self.builderclasses:
+            raise SphinxError(_('Builder name %s not registered') % buildername)
+
+        return self.builderclasses[buildername](self)
 
     def _init_builder(self):
         # type: () -> None
