@@ -23,7 +23,7 @@ Bugs fixed
 * #3228: ``build_sphinx`` command crashes when missing dependency
 * #2469: Ignore updates of catalog files for gettext builder. Thanks to
   Hiroshi Ohkubo.
-
+* #3183: Randomized jump box order in generated index page.
 
 Release 1.5 (released Dec 5, 2016)
 ==================================

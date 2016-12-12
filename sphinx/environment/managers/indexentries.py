@@ -115,7 +115,11 @@ class IndexEntries(EnvironmentManager):
         # sort the index entries; put all symbols at the front, even those
         # following the letters in ASCII, this is where the chr(127) comes from
         def keyfunc(entry, lcletters=string.ascii_lowercase + '_'):
-            lckey = unicodedata.normalize('NFD', entry[0].lower())
+            key, (void, void, category_key) = entry
+            if category_key:
+                # using specified category key to sort
+                key = category_key
+            lckey = unicodedata.normalize('NFD', key.lower())
             if lckey[0:1] in lcletters:
                 lckey = chr(127) + lckey
             # ensure a determinstic order *within* letters by also sorting on
