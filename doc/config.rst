@@ -233,6 +233,7 @@ General configuration
    * ref.citation
    * ref.doc
    * misc.highlighting_failure
+   * epub.unknown_project_files
 
    You can choose from these types.
 
@@ -243,6 +244,10 @@ General configuration
    .. versionchanged:: 1.5
 
       Added ``misc.highlighting_failure``
+
+   .. versionchanged:: 1.5.1
+
+      Added ``epub.unknown_project_files``
 
 .. confval:: needs_sphinx
 

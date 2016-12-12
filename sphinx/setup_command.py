@@ -174,6 +174,7 @@ class BuildDoc(Command):
         if self.copyright:
             confoverrides['copyright'] = self.copyright
 
+        app = None
         try:
             with docutils_namespace():
                 app = Sphinx(self.source_dir, self.config_dir,

@@ -40,7 +40,7 @@ def test_inheritance_diagram_latex(app, status, warning):
 
     pattern = ('\\\\begin{figure}\\[htbp]\n\\\\centering\n\\\\capstart\n\n'
                '\\\\includegraphics{inheritance-\\w+.pdf}\n'
-               '\\\\caption{Test Foo!}\\\\label{index:id1}\\\\end{figure}')
+               '\\\\caption{Test Foo!}\\\\label{\\\\detokenize{index:id1}}\\\\end{figure}')
     assert re.search(pattern, content, re.M)
 
 

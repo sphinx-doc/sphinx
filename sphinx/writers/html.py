@@ -22,6 +22,7 @@ from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
+import sphinx.util.docutils
 from sphinx.util.images import get_image_size
 from sphinx.util.smartypants import sphinx_smarty_pants
 
@@ -500,7 +501,7 @@ class HTMLTranslator(BaseTranslator):
                                          self.builder.images[olduri])
 
         uri = node['uri']
-        if uri.lower().endswith('svg') or uri.lower().endswith('svgz'):
+        if uri.lower().endswith(('svg', 'svgz')):
             atts = {'src': uri}
             if 'width' in node:
                 atts['width'] = node['width']
@@ -531,6 +532,16 @@ class HTMLTranslator(BaseTranslator):
                     if 'height' not in node:
                         node['height'] = str(size[1])
         BaseTranslator.visit_image(self, node)
+
+    # overwritten
+    def depart_image(self, node):
+        if sphinx.util.docutils.__version_info__ >= (0, 13):
+            # since docutils-0.13, HTMLWriter does not push context data on visit_image()
+            if node['uri'].lower().endswith(('svg', 'svgz')):
+                self.body.append(self.context.pop())
+        else:
+            # docutils-0.12 or below, HTML Writer always push context data on visit_image()
+            self.body.append(self.context.pop())
 
     def visit_toctree(self, node):
         # this only happens when formatting a toc from env.tocs -- in this

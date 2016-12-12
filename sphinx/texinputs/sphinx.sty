@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2016/10/29 v1.5 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2016/12/11 v1.5.1 LaTeX package (Sphinx markup)]
 
 % we delay handling of options to after having loaded packages, because
 % of the need to use \definecolor.
@@ -946,11 +946,11 @@
 % inline markup (custom roles)
 % \DUrole{#1}{#2} tries \DUrole#1{#2}
 \providecommand*{\DUrole}[2]{%
-  \ifcsname DUrole#1\endcsname
-    \csname DUrole#1\endcsname{#2}%
+  \ifcsname DUrole\detokenize{#1}\endcsname
+    \csname DUrole\detokenize{#1}\endcsname{#2}%
   \else% backwards compatibility: try \docutilsrole#1{#2}
-    \ifcsname docutilsrole#1\endcsname
-      \csname docutilsrole#1\endcsname{#2}%
+    \ifcsname docutilsrole\detokenize{#1}\endcsname
+      \csname docutilsrole\detokenize{#1}\endcsname{#2}%
     \else
       #2%
     \fi

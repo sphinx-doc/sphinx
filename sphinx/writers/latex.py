@@ -613,7 +613,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def hyperlink(self, id):
         # type: (unicode) -> unicode
-        return '{\\hyperref[%s]{' % self.hyperrefescape(id)
+        return '{\\hyperref[%s]{' % self.idescape(id)
 
     def hyperpageref(self, id):
         # type: (unicode) -> unicode
@@ -621,13 +621,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def idescape(self, id):
         # type: (unicode) -> unicode
-        return text_type(id).translate(tex_replace_map).\
+        return '\\detokenize{%s}' % text_type(id).translate(tex_replace_map).\
             encode('ascii', 'backslashreplace').decode('ascii').\
             replace('\\', '_')
-
-    def hyperrefescape(self, ref):
-        # type: (unicode) -> unicode
-        return self.idescape(ref).replace('-', '\\string-')
 
     def babel_renewcommand(self, command, definition):
         # type: (unicode, unicode) -> unicode

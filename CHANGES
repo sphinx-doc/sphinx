@@ -12,6 +12,30 @@ Features added
 Bugs fixed
 ----------
 
+Release 1.5.1 (in development)
+==============================
+
+Features added
+--------------
+
+* #3214: Allow to suppress "unknown mimetype" warnings from epub builder using
+  :confval:`suppress_warnings`.
+
+Bugs fixed
+----------
+
+* #3195: Can not build in parallel
+* #3198: AttributeError is raised when toctree has 'self'
+* #3211: Remove untranslated sphinx locale catalogs (it was covered by
+  untranslated it_IT)
+* #3212: HTML Builders crashes with docutils-0.13
+* #3207: more latex problems with references inside parsed-literal directive
+  (``\DUrole``)
+* #3205: sphinx.util.requests crashes with old pyOpenSSL (< 0.14)
+* #3220: KeyError when having a duplicate citation
+* #3200: LaTeX: xref inside desc_name not allowed
+* #3228: ``build_sphinx`` command crashes when missing dependency
+
 Release 1.5 (released Dec 5, 2016)
 ==================================
 

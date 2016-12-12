@@ -614,7 +614,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     # we always have JS and potentially OpenSearch files, don't
                     # always warn about them
                     if ext not in ('.js', '.xml'):
-                        self.warn('unknown mimetype for %s, ignoring' % filename)
+                        self.warn('unknown mimetype for %s, ignoring' % filename,
+                                  type='epub', subtype='unknown_project_files')
                     continue
                 filename = filename.replace(os.sep, '/')
                 projectfiles.append(self.file_template % {
