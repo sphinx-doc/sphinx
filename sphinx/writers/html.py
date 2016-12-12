@@ -16,13 +16,13 @@ import copy
 import warnings
 
 from six import string_types
-import docutils
 from docutils import nodes
 from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
+import sphinx.util.docutils
 from sphinx.util.images import get_image_size
 from sphinx.util.smartypants import sphinx_smarty_pants
 
@@ -535,7 +535,7 @@ class HTMLTranslator(BaseTranslator):
 
     # overwritten
     def depart_image(self, node):
-        if docutils.__version__ >= "0.13":
+        if sphinx.util.docutils.__version_info__ >= (0, 13):
             # since docutils-0.13, HTMLWriter does not push context data on visit_image()
             if node['uri'].lower().endswith(('svg', 'svgz')):
                 self.body.append(self.context.pop())
