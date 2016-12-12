@@ -281,3 +281,9 @@ def setup(app):
     app.add_config_value('epub3_description', None, 'epub3', string_classes)
     app.add_config_value('epub3_contributor', None, 'epub3', string_classes)
     app.add_config_value('epub3_page_progression_direction', None, 'epub3', string_classes)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

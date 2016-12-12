@@ -383,3 +383,9 @@ def setup(app):
     directives.register_directive('code-block', CodeBlock)
     directives.register_directive('sourcecode', CodeBlock)
     directives.register_directive('literalinclude', LiteralInclude)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

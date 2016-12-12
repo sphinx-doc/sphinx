@@ -1254,3 +1254,9 @@ def setup(app):
     app.add_config_value('html_search_options', {}, 'html')
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

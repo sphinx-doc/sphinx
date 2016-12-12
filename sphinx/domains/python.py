@@ -800,3 +800,9 @@ class PythonDomain(Domain):
 
 def setup(app):
     app.add_domain(PythonDomain)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

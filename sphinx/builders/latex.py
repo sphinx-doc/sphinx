@@ -304,3 +304,9 @@ def setup(app):
                          None)
     # now deprecated - use latex_elements
     app.add_config_value('latex_preamble', '', None)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }
