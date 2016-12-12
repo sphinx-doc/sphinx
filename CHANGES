@@ -21,6 +21,8 @@ Bugs fixed
 * #3220: KeyError when having a duplicate citation
 * #3200: LaTeX: xref inside desc_name not allowed
 * #3228: ``build_sphinx`` command crashes when missing dependency
+* #2469: Ignore updates of catalog files for gettext builder. Thanks to
+  Hiroshi Ohkubo.
 
 
 Release 1.5 (released Dec 5, 2016)

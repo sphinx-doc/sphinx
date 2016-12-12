@@ -281,7 +281,7 @@ class Sphinx(object):
         if freshenv:
             self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
             self.env.set_warnfunc(self.warn)
-            self.env.find_files(self.config)
+            self.env.find_files(self.config, self.buildername)
             for domain in self.domains.keys():
                 self.env.domains[domain] = self.domains[domain](self.env)
         else:
