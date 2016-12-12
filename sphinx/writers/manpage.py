@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
-
 from docutils import nodes
 from docutils.writers.manpage import (
     MACRO_DEF,
@@ -19,7 +17,6 @@ from docutils.writers.manpage import (
 )
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
 from sphinx.util.compat import docutils_version
 from sphinx.util.i18n import format_date
@@ -215,14 +212,6 @@ class ManualPageTranslator(BaseTranslator):
             self.body.append('\n')
         else:
             BaseTranslator.visit_term(self, node)
-
-    def visit_termsep(self, node):
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
-                      'This warning is displayed because some Sphinx extension '
-                      'uses sphinx.addnodes.termsep. Please report it to '
-                      'author of the extension.', RemovedInSphinx16Warning)
-        self.body.append(', ')
-        raise nodes.SkipNode
 
     # overwritten -- we don't want source comments to show up
     def visit_comment(self, node):

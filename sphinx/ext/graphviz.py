@@ -231,16 +231,6 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     return relfn, outfn
 
 
-def warn_for_deprecated_option(self, node):
-    # type: (nodes.NodeVisitor, graphviz) -> None
-    if hasattr(self.builder, '_graphviz_warned_inline'):
-        return
-
-    if 'inline' in node:
-        self.builder.warn(':inline: option for graphviz is deprecated since version 1.4.0.')
-        self.builder._graphviz_warned_inline = True
-
-
 def render_dot_html(self, node, code, options, prefix='graphviz',
                     imgcls=None, alt=None):
     # type: (nodes.NodeVisitor, graphviz, unicode, Dict, unicode, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
@@ -288,7 +278,6 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
 
 def html_visit_graphviz(self, node):
     # type: (nodes.NodeVisitor, graphviz) -> None
-    warn_for_deprecated_option(self, node)
     render_dot_html(self, node, node['code'], node['options'])
 
 
@@ -325,7 +314,6 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
 
 def latex_visit_graphviz(self, node):
     # type: (nodes.NodeVisitor, graphviz) -> None
-    warn_for_deprecated_option(self, node)
     render_dot_latex(self, node, node['code'], node['options'])
 
 
@@ -343,13 +331,11 @@ def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
 
 def texinfo_visit_graphviz(self, node):
     # type: (nodes.NodeVisitor, graphviz) -> None
-    warn_for_deprecated_option(self, node)
     render_dot_texinfo(self, node, node['code'], node['options'])
 
 
 def text_visit_graphviz(self, node):
     # type: (nodes.NodeVisitor, graphviz) -> None
-    warn_for_deprecated_option(self, node)
     if 'alt' in node.attributes:
         self.add_text(_('[graph: %s]') % node['alt'])
     else:
@@ -359,7 +345,6 @@ def text_visit_graphviz(self, node):
 
 def man_visit_graphviz(self, node):
     # type: (nodes.NodeVisitor, graphviz) -> None
-    warn_for_deprecated_option(self, node)
     if 'alt' in node.attributes:
         self.body.append(_('[graph: %s]') % node['alt'])
     else:

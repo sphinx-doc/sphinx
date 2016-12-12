@@ -22,23 +22,6 @@ def teardown_module():
     sys.path.remove(rootdir / 'roots' / 'test-api-set-translator')
 
 
-@with_app('html')
-def test_html_translator(app, status, warning):
-    # no set_translator(), no html_translator_class
-    translator_class = app.builder.translator_class
-    assert translator_class
-    assert translator_class.__name__ == 'SmartyPantsHTMLTranslator'
-
-
-@with_app('html', confoverrides={
-    'html_translator_class': 'translator.ExtHTMLTranslator'})
-def test_html_with_html_translator_class(app, status, warning):
-    # no set_translator(), but html_translator_class
-    translator_class = app.builder.translator_class
-    assert translator_class
-    assert translator_class.__name__ == 'ExtHTMLTranslator'
-
-
 @with_app('html',
           confoverrides={'html_use_smartypants': False})
 def test_html_with_smartypants(app, status, warning):
@@ -50,18 +33,6 @@ def test_html_with_smartypants(app, status, warning):
 
 @with_app('html', testroot='api-set-translator')
 def test_html_with_set_translator_for_html_(app, status, warning):
-    # use set_translator(), no html_translator_class
-    translator_class = app.builder.translator_class
-    assert translator_class
-    assert translator_class.__name__ == 'ConfHTMLTranslator'
-
-
-@with_app('html', testroot='api-set-translator',
-          confoverrides={'html_translator_class': 'translator.ExtHTMLTranslator'})
-def test_html_with_set_translator_for_html_and_html_translator_class(
-        app, status, warning):
-    # use set_translator() and html_translator_class.
-    # set_translator() is given priority over html_translator_clas.
     translator_class = app.builder.translator_class
     assert translator_class
     assert translator_class.__name__ == 'ConfHTMLTranslator'
