@@ -22,6 +22,7 @@ from six import PY2, iterkeys, iteritems, itervalues, text_type, class_types, \
 
 from docutils import nodes
 from docutils.utils import assemble_option_dict
+from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 
 import sphinx
@@ -30,7 +31,6 @@ from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
-from sphinx.util.compat import Directive
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, isenumattribute
 from sphinx.util.docstrings import prepare_docstring

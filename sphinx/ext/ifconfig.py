@@ -21,10 +21,10 @@
 """
 
 from docutils import nodes
+from docutils.parsers.rst import Directive
 
 import sphinx
 from sphinx.util.nodes import set_source_info
-from sphinx.util.compat import Directive
 
 if False:
     # For type annotation

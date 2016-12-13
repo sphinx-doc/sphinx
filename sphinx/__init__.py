@@ -99,8 +99,8 @@ def build_main(argv=sys.argv):
             return 1
         raise
 
-    from sphinx.util.compat import docutils_version
-    if docutils_version < (0, 10):
+    import sphinx.util.docutils
+    if sphinx.util.docutils.__version_info__ < (0, 10):
         sys.stderr.write('Error: Sphinx requires at least Docutils 0.10 to '
                          'run.\n')
         return 1
