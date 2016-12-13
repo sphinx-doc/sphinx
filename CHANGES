@@ -4,10 +4,6 @@ Release 1.6 (in development)
 Incompatible changes
 --------------------
 
-* ``sphinx.util.compat.Directive`` class is now deprecated. Please use instead
-  ``docutils.parsers.rsr.Directive``
-* ``sphinx.util.compat.docutils_version`` is now deprecated
-
 Features added
 --------------
 
@@ -15,6 +11,13 @@ Features added
 
 Bugs fixed
 ----------
+
+Deprecated
+----------
+
+* ``sphinx.util.compat.Directive`` class is now deprecated. Please use instead
+  ``docutils.parsers.rsr.Directive``
+* ``sphinx.util.compat.docutils_version`` is now deprecated
 
 Release 1.5.1 (in development)
 ==============================
