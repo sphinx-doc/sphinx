@@ -14,4 +14,8 @@ class RemovedInSphinx17Warning(DeprecationWarning):
     pass
 
 
+class RemovedInSphinx18Warning(PendingDeprecationWarning):
+    pass
+
+
 RemovedInNextVersionWarning = RemovedInSphinx17Warning
