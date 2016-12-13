@@ -21,7 +21,7 @@ from docutils.writers.manpage import (
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
-from sphinx.util.compat import docutils_version
+import sphinx.util.docutils
 from sphinx.util.i18n import format_date
 
 
@@ -105,7 +105,7 @@ class ManualPageTranslator(BaseTranslator):
         self._docinfo['manual_group'] = builder.config.project
 
         # In docutils < 0.11 self.append_header() was never called
-        if docutils_version < (0, 11):
+        if sphinx.util.docutils.__version_info__ < (0, 11):
             self.body.append(MACRO_DEF)
 
         # Overwrite admonition label translations with our own

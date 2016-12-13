@@ -6,6 +6,7 @@ Incompatible changes
 
 * ``sphinx.util.compat.Directive`` class is now deprecated. Please use instead
   ``docutils.parsers.rsr.Directive``
+* ``sphinx.util.compat.docutils_version`` is now deprecated
 
 Features added
 --------------
