@@ -165,17 +165,19 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                 except TemplateNotFound:
                     template = template_env.get_template('autosummary/base.rst')
 
-            def get_members(obj, typ, include_public=[]):
+            def get_members(obj, typ, include_public=[], imported=False):
                 # type: (Any, unicode, List[unicode]) -> Tuple[List[unicode], List[unicode]]
                 items = []  # type: List[unicode]
                 for name in dir(obj):
                     try:
-                        documenter = get_documenter(safe_getattr(obj, name),
-                                                    obj)
+                        value = safe_getattr(obj, name)
                     except AttributeError:
                         continue
+                    documenter = get_documenter(value, obj)
                     if documenter.objtype == typ:
-                        items.append(name)
+                        if imported or getattr(value, '__module__', None) == obj.__name__:
+
+                            items.append(name)
                 public = [x for x in items
                           if x in include_public or not x.startswith('_')]
                 return public, items
