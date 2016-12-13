@@ -55,4 +55,3 @@ You should not need to generate the nodes below in extensions.
 .. autoclass:: start_of_file
 .. autoclass:: productionlist
 .. autoclass:: production
-.. autoclass:: termsep

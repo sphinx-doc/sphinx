@@ -9,16 +9,10 @@
     :license: BSD, see LICENSE for details.
 """
 
-import io
 import sys
 import codecs
-import warnings
 
-from six import PY3, class_types, text_type, exec_
-from six.moves import zip_longest
-from itertools import product
-
-from sphinx.deprecation import RemovedInSphinx16Warning
+from six import PY3, text_type, exec_
 
 if False:
     # For type annotation
@@ -137,37 +131,3 @@ def execfile_(filepath, _globals, open=open):
         else:
             raise
     exec_(code, _globals)
-
-# ------------------------------------------------------------------------------
-# Internal module backwards-compatibility
-
-
-class _DeprecationWrapper(object):
-    def __init__(self, mod, deprecated):
-        # type: (Any, Dict) -> None
-        self._mod = mod
-        self._deprecated = deprecated
-
-    def __getattr__(self, attr):
-        if attr in self._deprecated:
-            warnings.warn("sphinx.util.pycompat.%s is deprecated and will be "
-                          "removed in Sphinx 1.6, please use the standard "
-                          "library version instead." % attr,
-                          RemovedInSphinx16Warning, stacklevel=2)
-            return self._deprecated[attr]
-        return getattr(self._mod, attr)
-
-
-sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(  # type: ignore
-    zip_longest = zip_longest,
-    product = product,
-    all = all,
-    any = any,
-    next = next,
-    open = open,
-    class_types = class_types,
-    base_exception = BaseException,
-    relpath = __import__('os').path.relpath,
-    StringIO = io.StringIO,
-    BytesIO = io.BytesIO,
-))

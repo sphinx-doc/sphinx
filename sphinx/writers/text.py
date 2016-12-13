@@ -12,7 +12,6 @@ import os
 import re
 import textwrap
 from itertools import groupby
-import warnings
 
 from six.moves import zip_longest
 
@@ -20,7 +19,6 @@ from docutils import nodes, writers
 from docutils.utils import column_width
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
 
 if False:
@@ -770,15 +768,6 @@ class TextTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         if not self._classifier_count_in_li:
             self.end_state(end=None)
-
-    def visit_termsep(self, node):
-        # type: (nodes.Node) -> None
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
-                      'This warning is displayed because some Sphinx extension '
-                      'uses sphinx.addnodes.termsep. Please report it to '
-                      'author of the extension.', RemovedInSphinx16Warning)
-        self.add_text(', ')
-        raise nodes.SkipNode
 
     def visit_classifier(self, node):
         # type: (nodes.Node) -> None

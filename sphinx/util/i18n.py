@@ -12,7 +12,6 @@ import gettext
 import io
 import os
 import re
-import warnings
 from os import path
 from datetime import datetime
 from collections import namedtuple
@@ -23,7 +22,6 @@ from babel.messages.mofile import write_mo
 
 from sphinx.errors import SphinxError
 from sphinx.util.osutil import SEP, walk
-from sphinx.deprecation import RemovedInSphinx16Warning
 
 if False:
     # For type annotation
@@ -196,9 +194,6 @@ def babel_format_date(date, format, locale, warn=None, formatter=babel.dates.for
 
 def format_date(format, date=None, language=None, warn=None):
     # type: (str, datetime, unicode, Callable) -> unicode
-    if format is None:
-        format = 'medium'
-
     if date is None:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
@@ -208,37 +203,28 @@ def format_date(format, date=None, language=None, warn=None):
         else:
             date = datetime.now()
 
-    if re.match('EEE|MMM|dd|DDD|MM|WW|medium|YY', format):
-        # consider the format as babel's
-        warnings.warn('LDML format support will be dropped at Sphinx-1.6',
-                      RemovedInSphinx16Warning)
+    result = []
+    tokens = re.split('(%.)', format)
+    for token in tokens:
+        if token in date_format_mappings:
+            babel_format = date_format_mappings.get(token, '')
 
-        return babel_format_date(date, format, locale=language, warn=warn,
-                                 formatter=babel.dates.format_datetime)
-    else:
-        # consider the format as ustrftime's and try to convert it to babel's
-        result = []
-        tokens = re.split('(%.)', format)
-        for token in tokens:
-            if token in date_format_mappings:
-                babel_format = date_format_mappings.get(token, '')
-
-                # Check if we have to use a different babel formatter then
-                # format_datetime, because we only want to format a date
-                # or a time.
-                if token == '%x':
-                    function = babel.dates.format_date
-                elif token == '%X':
-                    function = babel.dates.format_time
-                else:
-                    function = babel.dates.format_datetime
-
-                result.append(babel_format_date(date, babel_format, locale=language,
-                                                formatter=function))
+            # Check if we have to use a different babel formatter then
+            # format_datetime, because we only want to format a date
+            # or a time.
+            if token == '%x':
+                function = babel.dates.format_date
+            elif token == '%X':
+                function = babel.dates.format_time
             else:
-                result.append(token)
+                function = babel.dates.format_datetime
 
-        return "".join(result)
+            result.append(babel_format_date(date, babel_format, locale=language,
+                                            formatter=function))
+        else:
+            result.append(token)
+
+    return "".join(result)
 
 
 def get_image_filename_for_language(filename, env):

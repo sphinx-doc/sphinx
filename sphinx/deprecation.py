@@ -10,12 +10,12 @@
 """
 
 
-class RemovedInSphinx16Warning(DeprecationWarning):
+class RemovedInSphinx17Warning(DeprecationWarning):
     pass
 
 
-class RemovedInSphinx17Warning(PendingDeprecationWarning):
+class RemovedInSphinx18Warning(PendingDeprecationWarning):
     pass
 
 
-RemovedInNextVersionWarning = RemovedInSphinx16Warning
+RemovedInNextVersionWarning = RemovedInSphinx17Warning

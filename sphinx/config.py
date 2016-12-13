@@ -121,9 +121,6 @@ class Config(object):
 
         tls_verify = (True, 'env'),
         tls_cacerts = (None, 'env'),
-
-        # pre-initialized confval for HTML builder
-        html_translator_class = (None, 'html', string_classes),
     )  # type: Dict[unicode, Tuple]
 
     def __init__(self, dirname, filename, overrides, tags):
@@ -247,7 +244,7 @@ class Config(object):
     def pre_init_values(self, warn):
         # type: (Callable) -> None
         """Initialize some limited config variables before loading extensions"""
-        variables = ['needs_sphinx', 'suppress_warnings', 'html_translator_class']
+        variables = ['needs_sphinx', 'suppress_warnings']
         for name in variables:
             try:
                 if name in self.overrides:
