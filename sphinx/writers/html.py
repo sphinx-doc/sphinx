@@ -22,7 +22,6 @@ from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
-import sphinx.util.docutils
 from sphinx.util.images import get_image_size
 from sphinx.util.smartypants import sphinx_smarty_pants
 
