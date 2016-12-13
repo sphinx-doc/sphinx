@@ -176,7 +176,6 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                     documenter = get_documenter(value, obj)
                     if documenter.objtype == typ:
                         if imported or getattr(value, '__module__', None) == obj.__name__:
-
                             items.append(name)
                 public = [x for x in items
                           if x in include_public or not x.startswith('_')]

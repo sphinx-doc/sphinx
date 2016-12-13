@@ -4,6 +4,9 @@ Release 1.6 (in development)
 Incompatible changes
 --------------------
 
+* #1061, #2336, #3235: Now generation of autosummary doesn't contain imported
+  members by default. Thanks to Luc Saffre.
+
 Features added
 --------------
 
