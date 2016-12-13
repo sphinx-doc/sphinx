@@ -102,3 +102,9 @@ def setup(app):
     app.add_builder(PseudoXMLBuilder)
 
     app.add_config_value('xml_pretty', True, 'env')
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

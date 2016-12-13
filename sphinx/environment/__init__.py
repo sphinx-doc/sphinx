@@ -428,7 +428,7 @@ class BuildEnvironment(object):
             return rel_fn, path.abspath(path.join(self.srcdir, enc_rel_fn))
 
     def find_files(self, config):
-        # type: (Config) -> None
+        # type: (Config, unicode) -> None
         """Find all source files in the source dir and put them in
         self.found_docs.
         """
@@ -446,16 +446,23 @@ class BuildEnvironment(object):
             else:
                 self.warn(docname, "document not readable. Ignored.")
 
-        # add catalog mo file dependency
-        for docname in self.found_docs:
-            catalog_files = find_catalog_files(
-                docname,
-                self.srcdir,
-                self.config.locale_dirs,
-                self.config.language,
-                self.config.gettext_compact)
-            for filename in catalog_files:
-                self.dependencies.setdefault(docname, set()).add(filename)
+        # Current implementation is applying translated messages in the reading
+        # phase.Therefore, in order to apply the updated message catalog, it is
+        # necessary to re-process from the reading phase. Here, if dependency
+        # is set for the doc source and the mo file, it is processed again from
+        # the reading phase when mo is updated. In the future, we would like to
+        # move i18n process into the writing phase, and remove these lines.
+        if buildername != 'gettext':
+            # add catalog mo file dependency
+            for docname in self.found_docs:
+                catalog_files = find_catalog_files(
+                    docname,
+                    self.srcdir,
+                    self.config.locale_dirs,
+                    self.config.language,
+                    self.config.gettext_compact)
+                for filename in catalog_files:
+                    self.dependencies.setdefault(docname, set()).add(filename)
 
     def get_outdated_files(self, config_changed):
         # type: (bool) -> Tuple[Set[unicode], Set[unicode], Set[unicode]]
@@ -539,7 +546,7 @@ class BuildEnvironment(object):
         # the source and doctree directories may have been relocated
         self.srcdir = srcdir
         self.doctreedir = doctreedir
-        self.find_files(config)
+        self.find_files(config, app.buildername)
         self.config = config
 
         # this cache also needs to be updated every time

@@ -12,8 +12,17 @@ Features added
 Bugs fixed
 ----------
 
-Release 1.5.1 (in development)
-==============================
+Release 1.5.2 (in development)
+===============================
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Release 1.5.1 (released Dec 13, 2016)
+=====================================
 
 Features added
 --------------
@@ -35,6 +44,9 @@ Bugs fixed
 * #3220: KeyError when having a duplicate citation
 * #3200: LaTeX: xref inside desc_name not allowed
 * #3228: ``build_sphinx`` command crashes when missing dependency
+* #2469: Ignore updates of catalog files for gettext builder. Thanks to
+  Hiroshi Ohkubo.
+* #3183: Randomized jump box order in generated index page.
 
 Release 1.5 (released Dec 5, 2016)
 ==================================

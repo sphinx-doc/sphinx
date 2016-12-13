@@ -257,3 +257,9 @@ def setup(app):
     app.add_config_value('texinfo_domain_indices', True, None, [list])
     app.add_config_value('texinfo_show_urls', 'footnote', None)
     app.add_config_value('texinfo_no_detailmenu', False, None)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

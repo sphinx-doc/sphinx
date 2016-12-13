@@ -167,3 +167,9 @@ class ChangesBuilder(Builder):
 def setup(app):
     # type: (Sphinx) -> None
     app.add_builder(ChangesBuilder)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

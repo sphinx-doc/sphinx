@@ -325,3 +325,9 @@ def setup(app):
     app.add_config_value('qthelp_basename', lambda self: make_filename(self.project), None)
     app.add_config_value('qthelp_theme', 'nonav', 'html')
     app.add_config_value('qthelp_theme_options', {}, 'html')
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

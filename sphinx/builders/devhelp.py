@@ -137,3 +137,9 @@ def setup(app):
     app.add_builder(DevhelpBuilder)
 
     app.add_config_value('devhelp_basename', lambda self: make_filename(self.project), None)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }
