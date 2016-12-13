@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
-
 from docutils import nodes
 
 
