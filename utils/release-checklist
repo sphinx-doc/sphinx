@@ -4,8 +4,11 @@ Release checklist
 * open https://travis-ci.org/sphinx-doc/sphinx/branches and check stable branch is green
 * Check `git status`
 * Run `make style-check`
-* Run `tx pull -a -f` in sphinx/locale if final major release
-* Run `python setup.py compile_catalog` in project root after 'tx pull'
+* if final major release ...
+
+  * Run `(cd sphinx/locale; tx pull -a -f)`
+  * Run `python setup.py compile_catalog`
+
 * Update version info in sphinx/__init__.py
 * Update release date in CHANGES
 * `git commit -am 'Bump to x.y.z final'`
