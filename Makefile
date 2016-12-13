@@ -35,7 +35,7 @@ all: clean-pyc clean-backupfiles style-check test
 style-check:
 	@$(PYTHON) utils/check_sources.py $(DONT_CHECK) .
 
-clean: clean-pyc clean-pycache clean-patchfiles clean-backupfiles clean-generated clean-testfiles clean-buildfiles
+clean: clean-pyc clean-pycache clean-patchfiles clean-backupfiles clean-generated clean-testfiles clean-buildfiles clean-mypyfiles
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -61,6 +61,9 @@ clean-testfiles:
 
 clean-buildfiles:
 	rm -rf build
+
+clean-mypyfiles:
+	rm -rf .mypy_cache/
 
 pylint:
 	@pylint --rcfile utils/pylintrc sphinx
