@@ -10,7 +10,7 @@
 """
 
 
-class RemovedInSphinx17Warning(PendingDeprecationWarning):
+class RemovedInSphinx17Warning(DeprecationWarning):
     pass
 
 
