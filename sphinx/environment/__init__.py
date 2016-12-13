@@ -427,7 +427,7 @@ class BuildEnvironment(object):
             enc_rel_fn = rel_fn.encode(sys.getfilesystemencoding())
             return rel_fn, path.abspath(path.join(self.srcdir, enc_rel_fn))
 
-    def find_files(self, config):
+    def find_files(self, config, buildername):
         # type: (Config, unicode) -> None
         """Find all source files in the source dir and put them in
         self.found_docs.
