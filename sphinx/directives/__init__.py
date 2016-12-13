@@ -248,3 +248,9 @@ def setup(app):
     directives.register_directive('describe', ObjectDescription)
     # new, more consistent, name
     directives.register_directive('object', ObjectDescription)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

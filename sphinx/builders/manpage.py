@@ -111,3 +111,9 @@ def setup(app):
                                         '%s %s' % (self.project, self.release), [], 1)],
                          None)
     app.add_config_value('man_show_urls', False, None)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

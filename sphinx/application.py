@@ -295,7 +295,7 @@ class Sphinx(object):
         if freshenv:
             self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
             self.env.set_warnfunc(self.warn)
-            self.env.find_files(self.config)
+            self.env.find_files(self.config, self.buildername)
             for domain in self.domains.keys():
                 self.env.domains[domain] = self.domains[domain](self.env)
         else:
@@ -559,12 +559,6 @@ class Sphinx(object):
             # special-case for compatibility
             if extension == 'rst2pdf.pdfbuilder':
                 ext_meta = {'parallel_read_safe': True}
-            elif extension in builtin_extensions:
-                ext_meta = {
-                    'version': 'builtin',
-                    'parallel_read_safe': True,
-                    'parallel_write_safe': True,
-                }
         try:
             if not ext_meta.get('version'):
                 ext_meta['version'] = 'unknown version'

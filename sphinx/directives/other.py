@@ -449,3 +449,9 @@ def setup(app):
     directives.register_directive('cssclass', Class)
     # new standard name when default-domain with "class" is in effect
     directives.register_directive('rst-class', Class)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

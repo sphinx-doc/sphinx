@@ -367,6 +367,15 @@ def test_gettext_builder(app, status, warning):
     for expect_msg in [m for m in expect if m.id]:
         yield assert_in, expect_msg.id, [m.id for m in actual if m.id]
 
+    # --- don't rebuild by .mo mtime
+    app.builder.build_update()
+    updated = app.env.update(app.config, app.srcdir, app.doctreedir, app)
+    yield assert_equal, len(updated), 0
+
+    (app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime(None)
+    updated = app.env.update(app.config, app.srcdir, app.doctreedir, app)
+    yield assert_equal, len(updated), 0
+
 
 @gen_with_intl_app('html', freshenv=True)
 def test_html_builder(app, status, warning):

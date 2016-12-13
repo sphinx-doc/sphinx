@@ -179,3 +179,9 @@ class ReSTDomain(Domain):
 def setup(app):
     # type: (Sphinx) -> None
     app.add_domain(ReSTDomain)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }
