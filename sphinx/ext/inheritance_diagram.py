@@ -48,14 +48,13 @@ from six import text_type
 from six.moves import builtins  # type: ignore
 
 from docutils import nodes
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 
 import sphinx
 from sphinx.ext.graphviz import render_dot_html, render_dot_latex, \
     render_dot_texinfo, figure_wrapper
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.util import force_decode
-from sphinx.util.compat import Directive
 
 if False:
     # For type annotation

@@ -21,13 +21,12 @@ import doctest
 from six import itervalues, StringIO, binary_type, text_type, PY2
 
 from docutils import nodes
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 
 import sphinx
 from sphinx.builders import Builder
 from sphinx.util import force_decode
 from sphinx.util.nodes import set_source_info
-from sphinx.util.compat import Directive
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.osutil import fs_encoding
 

@@ -10,13 +10,12 @@
 """
 
 from docutils import nodes, utils
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 
 from sphinx.roles import XRefRole
 from sphinx.locale import _
 from sphinx.domains import Domain
 from sphinx.util.nodes import make_refnode, set_source_info
-from sphinx.util.compat import Directive
 
 if False:
     # For type annotation

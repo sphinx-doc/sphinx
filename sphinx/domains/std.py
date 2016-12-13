@@ -15,7 +15,7 @@ import unicodedata
 from six import PY3, iteritems
 
 from docutils import nodes
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import ViewList
 
 from sphinx import addnodes
@@ -25,7 +25,6 @@ from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
 from sphinx.util import ws_re
 from sphinx.util.nodes import clean_astext, make_refnode
-from sphinx.util.compat import Directive
 
 if False:
     # For type annotation

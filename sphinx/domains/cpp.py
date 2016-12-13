@@ -15,6 +15,7 @@ from copy import deepcopy
 from six import iteritems, text_type
 
 from docutils import nodes
+from docutils.parsers.rst import Directive
 
 from sphinx import addnodes
 from sphinx.roles import XRefRole
@@ -22,7 +23,6 @@ from sphinx.locale import l_, _
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
 from sphinx.util.nodes import make_refnode
-from sphinx.util.compat import Directive
 from sphinx.util.pycompat import UnicodeMixin
 from sphinx.util.docfields import Field, GroupedField
 

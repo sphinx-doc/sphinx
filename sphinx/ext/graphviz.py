@@ -20,7 +20,7 @@ from hashlib import sha1
 from six import text_type
 
 from docutils import nodes
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import ViewList
 
 import sphinx
@@ -28,7 +28,6 @@ from sphinx.errors import SphinxError
 from sphinx.locale import _
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
-from sphinx.util.compat import Directive
 
 if False:
     # For type annotation

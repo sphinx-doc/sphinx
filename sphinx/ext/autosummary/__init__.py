@@ -63,14 +63,13 @@ from types import ModuleType
 
 from six import text_type
 
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import ViewList
 from docutils import nodes
 
 import sphinx
 from sphinx import addnodes
 from sphinx.util import import_object, rst
-from sphinx.util.compat import Directive
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.ext.autodoc import Options
 
