@@ -4,6 +4,8 @@ Release 1.5.2 (in development)
 Features added
 --------------
 
+* #3241: emit latex warning if buggy titlesec (ref #3210)
+
 Bugs fixed
 ----------
 
