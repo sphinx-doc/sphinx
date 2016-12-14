@@ -20,9 +20,9 @@
 \RequirePackage{titlesec}
 \AtBeginDocument{\@ifpackagelater{titlesec}{2016/03/15}%
                  {\@ifpackagelater{titlesec}{2016/03/21}{}%
-                   {\PackageWarning{sphinx}{%
-******** ERROR !! PLEASE UPDATE titlesec.sty !!********^^J
-******** THIS VERSION SWALLOWS SECTION NUMBERS.********}}}{}}
+                   {\AtEndDocument{\PackageWarningNoLine{sphinx}{^^J%
+******** ERROR !! PLEASE UPDATE titlesec.sty !!********^^J%
+******** THIS VERSION SWALLOWS SECTION NUMBERS.********}}}}{}}
 \RequirePackage{tabulary}
 \RequirePackage{makeidx}
 % For framing code-blocks and warning type notices, and shadowing topics
