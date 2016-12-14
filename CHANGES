@@ -6,6 +6,8 @@ Incompatible changes
 
 * #1061, #2336, #3235: Now generation of autosummary doesn't contain imported
   members by default. Thanks to Luc Saffre.
+* LaTeX ``\includegraphics`` command isn't overloaded: only ``\sphinxincludegraphics``
+  has the custom code to fit image to available width if oversized.
 
 Features added
 --------------
