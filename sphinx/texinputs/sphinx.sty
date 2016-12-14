@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2016/12/11 v1.5.1 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2016/12/14 v1.5.2 LaTeX package (Sphinx markup)]
 
 % we delay handling of options to after having loaded packages, because
 % of the need to use \definecolor.
@@ -18,6 +18,11 @@
 \RequirePackage{amstext}
 \RequirePackage{textcomp}
 \RequirePackage{titlesec}
+\AtBeginDocument{\@ifpackagelater{titlesec}{2016/03/15}%
+                 {\@ifpackagelater{titlesec}{2016/03/21}{}%
+                   {\PackageWarning{sphinx}{%
+******** ERROR !! PLEASE UPDATE titlesec.sty !!********^^J
+******** THIS VERSION SWALLOWS SECTION NUMBERS.********}}}{}}
 \RequirePackage{tabulary}
 \RequirePackage{makeidx}
 % For framing code-blocks and warning type notices, and shadowing topics
