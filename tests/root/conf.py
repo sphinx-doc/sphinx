@@ -84,8 +84,8 @@ tags.add('confpytag')
 # -- extension API
 
 from docutils import nodes
+from docutils.parsers.rst import Directive
 from sphinx import addnodes
-from sphinx.util.compat import Directive
 
 
 def userdesc_parse(env, sig, signode):
