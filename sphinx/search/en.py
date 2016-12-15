@@ -10,13 +10,7 @@
 """
 
 from sphinx.search import SearchLanguage
-
-try:
-    from Stemmer import Stemmer as PyStemmer
-    PYSTEMMER = True
-except ImportError:
-    from sphinx.util.stemmer import PorterStemmer
-    PYSTEMMER = False
+from sphinx.util.stemmer import get_stemmer
 
 english_stopwords = set("""
 a  and  are  as  at
@@ -225,25 +219,7 @@ class SearchEnglish(SearchLanguage):
 
     def init(self, options):
         # type: (Dict) -> None
-        if PYSTEMMER:
-            class Stemmer(object):
-                def __init__(self):
-                    # type: () -> None
-                    self.stemmer = PyStemmer('porter')
-
-                def stem(self, word):
-                    # type: (unicode) -> unicode
-                    return self.stemmer.stemWord(word)
-        else:
-            class Stemmer(PorterStemmer):
-                """All those porter stemmer implementations look hideous;
-                make at least the stem method nicer.
-                """
-                def stem(self, word):
-                    # type: (unicode) -> unicode
-                    return PorterStemmer.stem(self, word, 0, len(word) - 1)
-
-        self.stemmer = Stemmer()
+        self.stemmer = get_stemmer()
 
     def stem(self, word):
         # type: (unicode) -> unicode

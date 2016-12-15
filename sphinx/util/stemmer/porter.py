@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.util.stemmer
-    ~~~~~~~~~~~~~~~~~~~
+    sphinx.util.stemmer.porter
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     Porter Stemming Algorithm
 
