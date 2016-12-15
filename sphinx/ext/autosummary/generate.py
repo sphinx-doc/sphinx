@@ -166,7 +166,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                     template = template_env.get_template('autosummary/base.rst')
 
             def get_members(obj, typ, include_public=[], imported=False):
-                # type: (Any, unicode, List[unicode], bool) -> Tuple[List[unicode], List[unicode]]
+                # type: (Any, unicode, List[unicode], bool) -> Tuple[List[unicode], List[unicode]]  # NOQA
                 items = []  # type: List[unicode]
                 for name in dir(obj):
                     try:
