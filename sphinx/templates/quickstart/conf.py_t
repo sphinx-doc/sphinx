@@ -141,7 +141,13 @@ latex_documents = [
     (master_doc, '{{ project_fn }}.tex', u'{{ project_doc_texescaped_str }}',
      u'{{ author_texescaped_str }}', 'manual'),
 ]
-
+{% if language.split('_')[0] == 'zh' %}
+# Render Chinese LaTex defaults to xelatex+ctex as it works in most cases
+# Leave it configurable here for user customization
+if language.split('_')[0] == 'zh':
+    latex_engine = 'xelatex'
+    latex_elements = {'usepackages':'\\usepackage{ctex}','polyglossia':''}
+{% endif %}
 
 # -- Options for manual page output ---------------------------------------
 
