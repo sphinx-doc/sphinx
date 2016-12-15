@@ -242,7 +242,7 @@ class TexinfoBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(TexinfoBuilder)
 
     app.add_config_value('texinfo_documents',

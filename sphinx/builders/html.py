@@ -1275,7 +1275,7 @@ def validate_config_values(app):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     # builders
     app.add_builder(StandaloneHTMLBuilder)
     app.add_builder(DirectoryHTMLBuilder)

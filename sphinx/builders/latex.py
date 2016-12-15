@@ -286,7 +286,7 @@ def validate_config_values(app):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(LaTeXBuilder)
     app.connect('builder-inited', validate_config_values)
 

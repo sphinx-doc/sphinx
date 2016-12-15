@@ -909,7 +909,7 @@ class StandardDomain(Domain):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(StandardDomain)
 
     return {

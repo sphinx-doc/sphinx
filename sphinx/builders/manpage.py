@@ -103,7 +103,7 @@ class ManualPageBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(ManualPageBuilder)
 
     app.add_config_value('man_pages',

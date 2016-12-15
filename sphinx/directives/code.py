@@ -389,7 +389,7 @@ class LiteralInclude(Directive):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     directives.register_directive('highlight', Highlight)
     directives.register_directive('highlightlang', Highlight)  # old
     directives.register_directive('code-block', CodeBlock)

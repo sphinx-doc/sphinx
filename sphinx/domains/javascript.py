@@ -20,7 +20,7 @@ from sphinx.util.docfields import Field, GroupedField, TypedField
 
 if False:
     # For type annotation
-    from typing import Iterator, Tuple  # NOQA
+    from typing import Any, Iterator, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -255,7 +255,7 @@ class JavaScriptDomain(Domain):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(JavaScriptDomain)
 
     return {

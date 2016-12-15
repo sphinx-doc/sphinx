@@ -47,7 +47,6 @@ def make_admonition(node_class, name, arguments, options, content, lineno,
 
 class _DeprecationWrapper(object):
     def __init__(self, mod, deprecated):
-        # type: (Any, Dict) -> None
         self._mod = mod
         self._deprecated = deprecated
 

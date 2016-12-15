@@ -165,7 +165,7 @@ class ChangesBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(ChangesBuilder)
 
     return {

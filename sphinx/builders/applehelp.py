@@ -30,6 +30,7 @@ import subprocess
 
 if False:
     # For type annotation
+    from typing import Any  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 # Use plistlib.dump in 3.4 and above
@@ -271,7 +272,7 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(AppleHelpBuilder)
 
