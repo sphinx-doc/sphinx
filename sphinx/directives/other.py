@@ -24,7 +24,7 @@ from sphinx.util.matching import patfilter
 
 if False:
     # For type annotation
-    from typing import Tuple  # NOQA
+    from typing import Any, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 

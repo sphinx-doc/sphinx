@@ -3315,7 +3315,7 @@ class DefinitionParser(object):
         return self.match(re.compile(r'\b%s\b' % re.escape(word)))
 
     def skip_ws(self):
-        # type: (unicode) -> bool
+        # type: () -> bool
         return self.match(_whitespace_re)
 
     def skip_word_and_ws(self, word):
