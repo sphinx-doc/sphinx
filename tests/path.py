@@ -142,7 +142,8 @@ class path(text_type):
         """
         Returns the text in the file.
         """
-        with open(self, mode='U', encoding=encoding, **kwargs) as f:
+        mode = 'rU' if PY2 else 'r'
+        with open(self, mode=mode, encoding=encoding, **kwargs) as f:
             text = f.read()
         contents = repr_as(text, '<%s contents>' % self.basename())
         return contents
