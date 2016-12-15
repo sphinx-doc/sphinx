@@ -5,6 +5,7 @@ Features added
 --------------
 
 * #3241: emit latex warning if buggy titlesec (ref #3210)
+* #3194: Refer the $MAKE environment variable to determine ``make`` command
 
 Bugs fixed
 ----------
