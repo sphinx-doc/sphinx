@@ -26,7 +26,7 @@ def skip_if_graphviz_not_found(fn):
                 dot = subprocess.Popen([graphviz_dot, '-V'],
                                        stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE)  # show version
-                dot.wait()
+                dot.communicate()
                 found = True
         except OSError:  # No such file or directory
             pass

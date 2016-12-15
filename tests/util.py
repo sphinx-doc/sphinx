@@ -11,7 +11,9 @@ import os
 import re
 import sys
 import tempfile
+import warnings
 from functools import wraps
+from xml.etree import ElementTree
 
 from six import StringIO, string_types
 
@@ -153,6 +155,12 @@ def skip_unless_importable(module, msg=None):
         return skip_if(True, msg)
     else:
         return skip_if(False, msg)
+
+
+def etree_parse(path):
+    with warnings.catch_warnings(record=False):
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
+        return ElementTree.parse(path)
 
 
 class Struct(object):
