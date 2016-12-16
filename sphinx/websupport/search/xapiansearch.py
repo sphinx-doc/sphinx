@@ -39,16 +39,16 @@ class XapianSearch(BaseSearch):
         # Ensure the db lock is removed.
         del self.database
 
-    def add_document(self, path, title, text):
+    def add_document(self, pagename, filename, title, text):
         self.database.begin_transaction()
         # sphinx_page_path is used to easily retrieve documents by path.
-        sphinx_page_path = '"sphinxpagepath%s"' % path.replace('/', '_')
+        sphinx_page_path = '"sphinxpagepath%s"' % pagename.replace('/', '_')
         # Delete the old document if it exists.
         self.database.delete_document(sphinx_page_path)
 
         doc = xapian.Document()
         doc.set_data(text)
-        doc.add_value(self.DOC_PATH, path)
+        doc.add_value(self.DOC_PATH, pagename)
         doc.add_value(self.DOC_TITLE, title)
         self.indexer.set_document(doc)
         self.indexer.index_text(text)
