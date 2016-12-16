@@ -268,13 +268,28 @@ def validate_config_values(app):
             app.config.latex_elements['postamble'] = app.config.latex_elements['footer']
 
 
+def default_latex_engine(config):
+    """ Better default latex_engine settings for specific languages. """
+    if config.language == 'ja':
+        return 'platex'
+    else:
+        return 'pdflatex'
+
+
+def default_latex_docclass(config):
+    """ Better default latex_docclass settings for specific languages. """
+    if config.language == 'ja':
+        return {'manual': 'jsbook',
+                'howto': 'jreport'}
+    else:
+        return {}
+
+
 def setup(app):
     app.add_builder(LaTeXBuilder)
     app.connect('builder-inited', validate_config_values)
 
-    app.add_config_value('latex_engine',
-                         lambda self: 'pdflatex' if self.language != 'ja' else 'platex',
-                         None,
+    app.add_config_value('latex_engine', default_latex_engine, None,
                          ENUM('pdflatex', 'xelatex', 'lualatex', 'platex'))
     app.add_config_value('latex_documents',
                          lambda self: [(self.master_doc, make_filename(self.project) + '.tex',
@@ -297,11 +312,7 @@ def setup(app):
     app.add_config_value('latex_elements', {}, None)
     app.add_config_value('latex_additional_files', [], None)
 
-    japanese_default = {'manual': 'jsbook',
-                        'howto': 'jreport'}
-    app.add_config_value('latex_docclass',
-                         lambda self: japanese_default if self.language == 'ja' else {},
-                         None)
+    app.add_config_value('latex_docclass', default_latex_docclass, None)
     # now deprecated - use latex_elements
     app.add_config_value('latex_preamble', '', None)
 
