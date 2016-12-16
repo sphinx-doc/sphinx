@@ -62,6 +62,7 @@ class Make(object):
         self.srcdir = srcdir
         self.builddir = builddir
         self.opts = opts
+        self.makecmd = os.environ.get('MAKE', 'make')  # refer $MAKE to determine make command
 
     def builddir_join(self, *comps):
         return path.join(self.builddir, *comps)
@@ -162,13 +163,13 @@ class Make(object):
         if self.run_generic_build('latex') > 0:
             return 1
         with cd(self.builddir_join('latex')):
-            os.system('make all-pdf')
+            os.system('%s all-pdf' % self.makecmd)
 
     def build_latexpdfja(self):
         if self.run_generic_build('latex') > 0:
             return 1
         with cd(self.builddir_join('latex')):
-            os.system('make all-pdf-ja')
+            os.system('%s all-pdf-ja' % self.makecmd)
 
     def build_text(self):
         if self.run_generic_build('text') > 0:
@@ -189,7 +190,7 @@ class Make(object):
         if self.run_generic_build('texinfo') > 0:
             return 1
         with cd(self.builddir_join('texinfo')):
-            os.system('make info')
+            os.system('%s info' % self.makecmd)
 
     def build_gettext(self):
         dtdir = self.builddir_join('gettext', '.doctrees')

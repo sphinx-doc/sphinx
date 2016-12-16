@@ -384,6 +384,15 @@ You can also give one or more filenames on the command line after the source and
 build directories.  Sphinx will then try to build only these output files (and
 their dependencies).
 
+Environment variables
+---------------------
+
+The :program:`sphinx-build` refers following environment variables:
+
+.. desribe:: MAKE
+
+   A path to make command.  A command name is also allowed.
+   :program:`sphinx-build` uses it to invoke sub-build process on make-mode.
 
 Makefile options
 ----------------
