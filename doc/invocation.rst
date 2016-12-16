@@ -389,7 +389,7 @@ Environment variables
 
 The :program:`sphinx-build` refers following environment variables:
 
-.. desribe:: MAKE
+.. describe:: MAKE
 
    A path to make command.  A command name is also allowed.
    :program:`sphinx-build` uses it to invoke sub-build process on make-mode.
