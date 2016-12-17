@@ -18,7 +18,6 @@ import codecs
 import fnmatch
 import warnings
 from os import path
-from glob import glob
 from collections import defaultdict
 
 from six import iteritems, itervalues, class_types, next
@@ -39,9 +38,7 @@ from sphinx.util import get_matching_docs, docname_join, FilenameUniqDict, statu
 from sphinx.util.nodes import clean_astext, WarningStream, is_translatable, \
     process_only_nodes
 from sphinx.util.osutil import SEP, getcwd, fs_encoding, ensuredir
-from sphinx.util.images import guess_mimetype
-from sphinx.util.i18n import find_catalog_files, get_image_filename_for_language, \
-    search_image_for_language
+from sphinx.util.i18n import find_catalog_files
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.matching import compile_matchers
@@ -319,8 +316,6 @@ class BuildEnvironment(object):
             self.dependencies.pop(docname, None)
             self.titles.pop(docname, None)
             self.longtitles.pop(docname, None)
-            self.images.purge_doc(docname)
-            self.dlfiles.purge_doc(docname)
 
             for version, changes in self.versionchanges.items():
                 new = [change for change in changes if change[1] != docname]
@@ -349,9 +344,6 @@ class BuildEnvironment(object):
                 self.dependencies[docname] = other.dependencies[docname]
             self.titles[docname] = other.titles[docname]
             self.longtitles[docname] = other.longtitles[docname]
-
-        self.images.merge_other(docnames, other.images)
-        self.dlfiles.merge_other(docnames, other.dlfiles)
 
         for version, changes in other.versionchanges.items():
             self.versionchanges.setdefault(version, []).extend(
@@ -737,8 +729,6 @@ class BuildEnvironment(object):
 
         # post-processing
         self.process_dependencies(docname, doctree)
-        self.process_images(docname, doctree)
-        self.process_downloads(docname, doctree)
         self.process_metadata(docname, doctree)
         self.create_title_from(docname, doctree)
         for manager in itervalues(self.managers):
@@ -883,86 +873,6 @@ class BuildEnvironment(object):
             relpath = relative_path(frompath,
                                     path.normpath(path.join(cwd, dep)))
             self.dependencies[docname].add(relpath)
-
-    def process_downloads(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
-        """Process downloadable file paths. """
-        for node in doctree.traverse(addnodes.download_reference):
-            targetname = node['reftarget']
-            rel_filename, filename = self.relfn2path(targetname, docname)
-            self.dependencies[docname].add(rel_filename)
-            if not os.access(filename, os.R_OK):
-                logger.warning('download file not readable: %s', filename,
-                               location=node)
-                continue
-            uniquename = self.dlfiles.add_file(docname, filename)
-            node['filename'] = uniquename
-
-    def process_images(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
-        """Process and rewrite image URIs."""
-        def collect_candidates(imgpath, candidates):
-            globbed = {}  # type: Dict[unicode, List[unicode]]
-            for filename in glob(imgpath):
-                new_imgpath = relative_path(path.join(self.srcdir, 'dummy'),
-                                            filename)
-                try:
-                    mimetype = guess_mimetype(filename)
-                    if mimetype not in candidates:
-                        globbed.setdefault(mimetype, []).append(new_imgpath)
-                except (OSError, IOError) as err:
-                    logger.warning('image file %s not readable: %s', filename, err,
-                                   location=node)
-            for key, files in iteritems(globbed):
-                candidates[key] = sorted(files, key=len)[0]  # select by similarity
-
-        for node in doctree.traverse(nodes.image):
-            # Map the mimetype to the corresponding image.  The writer may
-            # choose the best image from these candidates.  The special key * is
-            # set if there is only single candidate to be used by a writer.
-            # The special key ? is set for nonlocal URIs.
-            node['candidates'] = candidates = {}
-            imguri = node['uri']
-            if imguri.startswith('data:'):
-                logger.warning('image data URI found. some builders might not support',
-                               location=node, type='image', subtype='data_uri')
-                candidates['?'] = imguri
-                continue
-            elif imguri.find('://') != -1:
-                logger.warning('nonlocal image URI found: %s', imguri,
-                               location=node, type='image', subtype='nonlocal_uri')
-                candidates['?'] = imguri
-                continue
-            rel_imgpath, full_imgpath = self.relfn2path(imguri, docname)
-            if self.config.language:
-                # substitute figures (ex. foo.png -> foo.en.png)
-                i18n_full_imgpath = search_image_for_language(full_imgpath, self)
-                if i18n_full_imgpath != full_imgpath:
-                    full_imgpath = i18n_full_imgpath
-                    rel_imgpath = relative_path(path.join(self.srcdir, 'dummy'),
-                                                i18n_full_imgpath)
-            # set imgpath as default URI
-            node['uri'] = rel_imgpath
-            if rel_imgpath.endswith(os.extsep + '*'):
-                if self.config.language:
-                    # Search language-specific figures at first
-                    i18n_imguri = get_image_filename_for_language(imguri, self)
-                    _, full_i18n_imgpath = self.relfn2path(i18n_imguri, docname)
-                    collect_candidates(full_i18n_imgpath, candidates)
-
-                collect_candidates(full_imgpath, candidates)
-            else:
-                candidates['*'] = rel_imgpath
-
-            # map image paths to unique image names (so that they can be put
-            # into a single directory)
-            for imgpath in itervalues(candidates):
-                self.dependencies[docname].add(imgpath)
-                if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
-                    logger.warning('image file not readable: %s', imgpath,
-                                   location=node)
-                    continue
-                self.images.add_file(docname, imgpath)
 
     def process_metadata(self, docname, doctree):
         # type: (unicode, nodes.Node) -> None

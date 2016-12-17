@@ -55,6 +55,7 @@ if False:
     from docutils.transform import Transform  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
+    from sphinx.environment.collectors import EnvironmentCollector  # NOQA
 
 # List of all known core events. Maps name to arguments description.
 events = {
@@ -96,6 +97,7 @@ builtin_extensions = (
     'sphinx.domains.python',
     'sphinx.domains.rst',
     'sphinx.domains.std',
+    'sphinx.environment.collectors.asset',
     'sphinx.directives',
     'sphinx.directives.code',
     'sphinx.directives.other',
@@ -832,6 +834,11 @@ class Sphinx(object):
                            self._setting_up_extension[-1], suffix,
                            type='app', subtype='add_source_parser')
         self._additional_source_parsers[suffix] = parser
+
+    def add_env_collector(self, collector):
+        # type: (Type[EnvironmentCollector]) -> None
+        logger.debug('[app] adding environment collector: %r', collector)
+        collector().enable(self)
 
 
 class TemplateBridge(object):
