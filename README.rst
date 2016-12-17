@@ -1,3 +1,11 @@
+.. image:: https://img.shields.io/pypi/v/sphinx.svg
+   :target: http://pypi.python.org/pypi/sphinx
+.. image:: https://readthedocs.org/projects/sphinx/badge/
+   :target: http://www.sphinx-doc.org/
+   :alt: Documentation Status
+.. image:: https://travis-ci.org/sphinx-doc/sphinx.svg?branch=master
+   :target: https://travis-ci.org/sphinx-doc/sphinx
+
 =================
 README for Sphinx
 =================
@@ -64,10 +72,7 @@ If you want to use a different interpreter, e.g. ``python3``, use::
 
     PYTHON=python3 make test
 
-Continuous testing runs on travis:
-
-.. image:: https://travis-ci.org/sphinx-doc/sphinx.svg?branch=master
-   :target: https://travis-ci.org/sphinx-doc/sphinx
+Continuous testing runs on travis: https://travis-ci.org/sphinx-doc/sphinx
 
 
 Contributing
