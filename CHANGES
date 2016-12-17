@@ -14,6 +14,8 @@ Bugs fixed
 * #3253: In Py2 environment, building another locale with a non-captioned
   toctree produces ``None`` captions
 * #185: References to section title including raw node has broken
+* #3255: In Py3.4 environment, autodoc doesn't support documentation for
+  attributes of Enum class correctly.
 
 Release 1.5.1 (released Dec 13, 2016)
 =====================================

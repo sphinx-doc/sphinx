@@ -32,7 +32,8 @@ from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.compat import Directive
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
-    safe_getattr, object_description, is_builtin_class_method, isenumattribute
+    safe_getattr, object_description, is_builtin_class_method, \
+    isenumclass, isenumattribute
 from sphinx.util.docstrings import prepare_docstring
 
 try:
@@ -774,6 +775,14 @@ class Documenter(object):
             else:
                 members = [(mname, self.get_attr(self.object, mname, None))
                            for mname in list(iterkeys(obj_dict))]
+
+            # Py34 doesn't have enum members in __dict__.
+            if isenumclass(self.object):
+                members.extend(
+                    item for item in self.object.__members__.items()
+                    if item not in members
+                )
+
         membernames = set(m[0] for m in members)
         # add instance attributes from the analyzer
         for aname in analyzed_member_names:
