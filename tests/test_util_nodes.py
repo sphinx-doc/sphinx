@@ -15,7 +15,7 @@ from docutils.parsers import rst
 from docutils.utils import new_document
 from docutils import frontend
 
-from sphinx.util.nodes import extract_messages
+from sphinx.util.nodes import extract_messages, clean_astext
 from sphinx.transforms import ApplySourceWorkaround
 
 
@@ -150,3 +150,15 @@ def test_extract_messages_without_rawsource():
     _transform(document)
     assert_node_count(extract_messages(document), nodes.TextElement, 1)
     assert [m for n, m in extract_messages(document)][0], 'text sentence'
+
+
+def test_clean_astext():
+    node = nodes.paragraph(text='hello world')
+    assert 'hello world' == clean_astext(node)
+
+    node = nodes.image(alt='hello world')
+    assert '' == clean_astext(node)
+
+    node = nodes.paragraph(text='hello world')
+    node += nodes.raw('', 'raw text', format='html')
+    assert 'hello world' == clean_astext(node)

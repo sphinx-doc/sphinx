@@ -234,6 +234,8 @@ def clean_astext(node):
     node = node.deepcopy()
     for img in node.traverse(nodes.image):
         img['alt'] = ''
+    for raw in node.traverse(nodes.raw):
+        raw.parent.remove(raw)
     return node.astext()
 
 
