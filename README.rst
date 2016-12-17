@@ -2,7 +2,7 @@
 README for Sphinx
 =================
 
-This is the Sphinx documentation generator, see http://sphinx-doc.org/.
+This is the Sphinx documentation generator, see http://www.sphinx-doc.org/.
 
 
 Installing
@@ -44,15 +44,14 @@ Releases are signed with following keys:
 Reading the docs
 ================
 
-After installing::
+You can read them online at <http://www.sphinx-doc.org/>.
+
+Or, after installing::
 
    cd doc
    make html
 
 Then, direct your browser to ``_build/html/index.html``.
-
-Or read them online at <http://sphinx-doc.org/>.
-
 
 Testing
 =======
@@ -74,16 +73,7 @@ Continuous testing runs on travis:
 Contributing
 ============
 
-#. Check for open issues or open a fresh issue to start a discussion around a
-   feature idea or a bug.
-#. If you feel uncomfortable or uncertain about an issue or your changes, feel
-   free to email sphinx-dev@googlegroups.com.
-#. Fork the repository on GitHub https://github.com/sphinx-doc/sphinx
-   to start making your changes to the **master** branch for next major
-   version, or **stable** branch for next minor version.
-#. Write a test which shows that the bug was fixed or that the feature works
-   as expected.  Use ``make test`` to run the test suite.
-#. Send a pull request and bug the maintainer until it gets merged and
-   published.  Make sure to add yourself to AUTHORS
-   <https://github.com/sphinx-doc/sphinx/blob/master/AUTHORS> and the change to
-   CHANGES <https://github.com/sphinx-doc/sphinx/blob/master/CHANGES>.
+See `CONTRIBUTING.rst`__
+
+.. __: CONTRIBUTING.rst
+

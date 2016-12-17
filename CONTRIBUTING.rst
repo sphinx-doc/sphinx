@@ -7,6 +7,9 @@ Sphinx Developer's Guide
    system used by developers to document systems used by other developers to
    develop other systems that may also be documented using Sphinx.
 
+.. contents::
+   :local:
+
 The Sphinx source code is managed using Git and is hosted on Github.
 
     git clone git://github.com/sphinx-doc/sphinx
