@@ -46,7 +46,6 @@ from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.versioning import add_uids, merge_doctrees
-from sphinx.transforms import SphinxContentsFilter
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.managers.indexentries import IndexEntries
 from sphinx.environment.managers.toctree import Toctree
@@ -312,8 +311,6 @@ class BuildEnvironment(object):
         if docname in self.all_docs:
             self.all_docs.pop(docname, None)
             self.reread_always.discard(docname)
-            self.titles.pop(docname, None)
-            self.longtitles.pop(docname, None)
 
             for version, changes in self.versionchanges.items():
                 new = [change for change in changes if change[1] != docname]
@@ -337,8 +334,6 @@ class BuildEnvironment(object):
             self.all_docs[docname] = other.all_docs[docname]
             if docname in other.reread_always:
                 self.reread_always.add(docname)
-            self.titles[docname] = other.titles[docname]
-            self.longtitles[docname] = other.longtitles[docname]
 
         for version, changes in other.versionchanges.items():
             self.versionchanges.setdefault(version, []).extend(
@@ -723,7 +718,6 @@ class BuildEnvironment(object):
             doctree = pub.document
 
         # post-processing
-        self.create_title_from(docname, doctree)
         for manager in itervalues(self.managers):
             manager.process_doc(docname, doctree)
         for domain in itervalues(self.domains):
@@ -847,32 +841,6 @@ class BuildEnvironment(object):
             (type, self.temp_data['docname'], lineno,
              self.ref_context.get('py:module'),
              self.temp_data.get('object'), node.astext()))
-
-    # post-processing of read doctrees
-
-    def create_title_from(self, docname, document):
-        # type: (unicode, nodes.Node) -> None
-        """Add a title node to the document (just copy the first section title),
-        and store that title in the environment.
-        """
-        titlenode = nodes.title()
-        longtitlenode = titlenode
-        # explicit title set with title directive; use this only for
-        # the <title> tag in HTML output
-        if 'title' in document:
-            longtitlenode = nodes.title()
-            longtitlenode += nodes.Text(document['title'])
-        # look for first section title and use that as the title
-        for node in document.traverse(nodes.section):
-            visitor = SphinxContentsFilter(document)
-            node[0].walkabout(visitor)
-            titlenode += visitor.get_entry_text()
-            break
-        else:
-            # document has no title
-            titlenode += nodes.Text('<no title>')
-        self.titles[docname] = titlenode
-        self.longtitles[docname] = longtitlenode
 
     def note_toctree(self, docname, toctreenode):
         # type: (unicode, addnodes.toctree) -> None

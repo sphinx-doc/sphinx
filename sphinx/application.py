@@ -106,6 +106,7 @@ builtin_extensions = (
     'sphinx.environment.collectors.dependencies',
     'sphinx.environment.collectors.asset',
     'sphinx.environment.collectors.metadata',
+    'sphinx.environment.collectors.title',
 )  # type: Tuple[unicode, ...]
 
 CONFIG_FILENAME = 'conf.py'
