@@ -13,6 +13,7 @@ Bugs fixed
 * #3246: xapian search adapter crashes
 * #3253: In Py2 environment, building another locale with a non-captioned
   toctree produces ``None`` captions
+* #185: References to section title including raw node has broken
 
 Release 1.5.1 (released Dec 13, 2016)
 =====================================
