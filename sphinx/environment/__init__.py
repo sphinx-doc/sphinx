@@ -186,8 +186,8 @@ class BuildEnvironment(object):
                                     # next build
 
         # File metadata
-        self.metadata = {}          # type: Dict[unicode, Dict[unicode, Any]]
-                                    # docname -> dict of metadata items
+        self.metadata = defaultdict(dict)       # type: Dict[unicode, Dict[unicode, Any]]
+                                                # docname -> dict of metadata items
 
         # TOC inventory
         self.titles = {}            # type: Dict[unicode, nodes.Node]
@@ -312,7 +312,6 @@ class BuildEnvironment(object):
         if docname in self.all_docs:
             self.all_docs.pop(docname, None)
             self.reread_always.discard(docname)
-            self.metadata.pop(docname, None)
             self.titles.pop(docname, None)
             self.longtitles.pop(docname, None)
 
@@ -338,7 +337,6 @@ class BuildEnvironment(object):
             self.all_docs[docname] = other.all_docs[docname]
             if docname in other.reread_always:
                 self.reread_always.add(docname)
-            self.metadata[docname] = other.metadata[docname]
             self.titles[docname] = other.titles[docname]
             self.longtitles[docname] = other.longtitles[docname]
 
@@ -725,7 +723,6 @@ class BuildEnvironment(object):
             doctree = pub.document
 
         # post-processing
-        self.process_metadata(docname, doctree)
         self.create_title_from(docname, doctree)
         for manager in itervalues(self.managers):
             manager.process_doc(docname, doctree)
@@ -852,41 +849,6 @@ class BuildEnvironment(object):
              self.temp_data.get('object'), node.astext()))
 
     # post-processing of read doctrees
-
-    def process_metadata(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
-        """Process the docinfo part of the doctree as metadata.
-
-        Keep processing minimal -- just return what docutils says.
-        """
-        self.metadata[docname] = {}
-        md = self.metadata[docname]
-        try:
-            docinfo = doctree[0]
-        except IndexError:
-            # probably an empty document
-            return
-        if docinfo.__class__ is not nodes.docinfo:
-            # nothing to see here
-            return
-        for node in docinfo:
-            # nodes are multiply inherited...
-            if isinstance(node, nodes.authors):
-                md['authors'] = [author.astext() for author in node]
-            elif isinstance(node, nodes.TextElement):  # e.g. author
-                md[node.__class__.__name__] = node.astext()
-            else:
-                name, body = node
-                md[name.astext()] = body.astext()
-        for name, value in md.items():
-            if name in ('tocdepth',):
-                try:
-                    value = int(value)
-                except ValueError:
-                    value = 0
-                md[name] = value
-
-        del doctree[0]
 
     def create_title_from(self, docname, document):
         # type: (unicode, nodes.Node) -> None

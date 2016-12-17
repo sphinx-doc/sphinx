@@ -105,6 +105,7 @@ builtin_extensions = (
     # collectors should be loaded by specific order
     'sphinx.environment.collectors.dependencies',
     'sphinx.environment.collectors.asset',
+    'sphinx.environment.collectors.metadata',
 )  # type: Tuple[unicode, ...]
 
 CONFIG_FILENAME = 'conf.py'
