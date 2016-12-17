@@ -18,6 +18,7 @@ import codecs
 import fnmatch
 from os import path
 from glob import glob
+from collections import defaultdict
 
 from six import iteritems, itervalues, class_types, next
 from six.moves import cPickle as pickle
@@ -176,7 +177,7 @@ class BuildEnvironment(object):
         self.all_docs = {}          # type: Dict[unicode, float]
                                     # docname -> mtime at the time of reading
                                     # contains all read docnames
-        self.dependencies = {}      # type: Dict[unicode, Set[unicode]]
+        self.dependencies = defaultdict(set)    # type: Dict[unicode, Set[unicode]]
                                     # docname -> set of dependent file
                                     # names, relative to documentation root
         self.included = set()       # type: Set[unicode]
@@ -462,7 +463,7 @@ class BuildEnvironment(object):
                     self.config.language,
                     self.config.gettext_compact)
                 for filename in catalog_files:
-                    self.dependencies.setdefault(docname, set()).add(filename)
+                    self.dependencies[docname].add(filename)
 
     def get_outdated_files(self, config_changed):
         # type: (bool) -> Tuple[Set[unicode], Set[unicode], Set[unicode]]
@@ -497,7 +498,7 @@ class BuildEnvironment(object):
                     changed.add(docname)
                     continue
                 # finally, check the mtime of dependencies
-                for dep in self.dependencies.get(docname, ()):
+                for dep in self.dependencies[docname]:
                     try:
                         # this will do the right thing when dep is absolute too
                         deppath = path.join(self.srcdir, dep)
@@ -844,7 +845,7 @@ class BuildEnvironment(object):
 
         *filename* should be absolute or relative to the source directory.
         """
-        self.dependencies.setdefault(self.docname, set()).add(filename)
+        self.dependencies[self.docname].add(filename)
 
     def note_included(self, filename):
         # type: (unicode) -> None
@@ -887,7 +888,7 @@ class BuildEnvironment(object):
                 dep = dep.decode(fs_encoding)
             relpath = relative_path(frompath,
                                     path.normpath(path.join(cwd, dep)))
-            self.dependencies.setdefault(docname, set()).add(relpath)
+            self.dependencies[docname].add(relpath)
 
     def process_downloads(self, docname, doctree):
         # type: (unicode, nodes.Node) -> None
@@ -895,7 +896,7 @@ class BuildEnvironment(object):
         for node in doctree.traverse(addnodes.download_reference):
             targetname = node['reftarget']
             rel_filename, filename = self.relfn2path(targetname, docname)
-            self.dependencies.setdefault(docname, set()).add(rel_filename)
+            self.dependencies[docname].add(rel_filename)
             if not os.access(filename, os.R_OK):
                 self.warn_node('download file not readable: %s' % filename,
                                node)
@@ -962,7 +963,7 @@ class BuildEnvironment(object):
             # map image paths to unique image names (so that they can be put
             # into a single directory)
             for imgpath in itervalues(candidates):
-                self.dependencies.setdefault(docname, set()).add(imgpath)
+                self.dependencies[docname].add(imgpath)
                 if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
                     self.warn_node('image file not readable: %s' % imgpath,
                                    node)
