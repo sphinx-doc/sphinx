@@ -26,7 +26,7 @@ from six.moves import cPickle as pickle
 from docutils import nodes
 from docutils.io import NullOutput
 from docutils.core import Publisher
-from docutils.utils import Reporter, relative_path, get_source_line
+from docutils.utils import Reporter, get_source_line
 from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
 from docutils.frontend import OptionParser
@@ -37,7 +37,7 @@ from sphinx.util import logging
 from sphinx.util import get_matching_docs, docname_join, FilenameUniqDict, status_iterator
 from sphinx.util.nodes import clean_astext, WarningStream, is_translatable, \
     process_only_nodes
-from sphinx.util.osutil import SEP, getcwd, fs_encoding, ensuredir
+from sphinx.util.osutil import SEP, ensuredir
 from sphinx.util.i18n import find_catalog_files
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import sphinx_domains
@@ -313,7 +313,6 @@ class BuildEnvironment(object):
             self.all_docs.pop(docname, None)
             self.reread_always.discard(docname)
             self.metadata.pop(docname, None)
-            self.dependencies.pop(docname, None)
             self.titles.pop(docname, None)
             self.longtitles.pop(docname, None)
 
@@ -340,8 +339,6 @@ class BuildEnvironment(object):
             if docname in other.reread_always:
                 self.reread_always.add(docname)
             self.metadata[docname] = other.metadata[docname]
-            if docname in other.dependencies:
-                self.dependencies[docname] = other.dependencies[docname]
             self.titles[docname] = other.titles[docname]
             self.longtitles[docname] = other.longtitles[docname]
 
@@ -728,7 +725,6 @@ class BuildEnvironment(object):
             doctree = pub.document
 
         # post-processing
-        self.process_dependencies(docname, doctree)
         self.process_metadata(docname, doctree)
         self.create_title_from(docname, doctree)
         for manager in itervalues(self.managers):
@@ -856,23 +852,6 @@ class BuildEnvironment(object):
              self.temp_data.get('object'), node.astext()))
 
     # post-processing of read doctrees
-
-    def process_dependencies(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
-        """Process docutils-generated dependency info."""
-        cwd = getcwd()
-        frompath = path.join(path.normpath(self.srcdir), 'dummy')
-        deps = doctree.settings.record_dependencies
-        if not deps:
-            return
-        for dep in deps.list:
-            # the dependency path is relative to the working dir, so get
-            # one relative to the srcdir
-            if isinstance(dep, bytes):
-                dep = dep.decode(fs_encoding)
-            relpath = relative_path(frompath,
-                                    path.normpath(path.join(cwd, dep)))
-            self.dependencies[docname].add(relpath)
 
     def process_metadata(self, docname, doctree):
         # type: (unicode, nodes.Node) -> None

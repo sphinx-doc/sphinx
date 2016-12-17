@@ -97,12 +97,14 @@ builtin_extensions = (
     'sphinx.domains.python',
     'sphinx.domains.rst',
     'sphinx.domains.std',
-    'sphinx.environment.collectors.asset',
     'sphinx.directives',
     'sphinx.directives.code',
     'sphinx.directives.other',
     'sphinx.directives.patches',
     'sphinx.roles',
+    # collectors should be loaded by specific order
+    'sphinx.environment.collectors.dependencies',
+    'sphinx.environment.collectors.asset',
 )  # type: Tuple[unicode, ...]
 
 CONFIG_FILENAME = 'conf.py'
