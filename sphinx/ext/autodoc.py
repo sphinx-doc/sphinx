@@ -15,6 +15,7 @@ import re
 import sys
 import inspect
 import traceback
+import warnings
 from types import FunctionType, BuiltinFunctionType, MethodType
 
 from six import PY2, iterkeys, iteritems, itervalues, text_type, class_types, \
@@ -588,7 +589,9 @@ class Documenter(object):
             for modname in self.env.config.autodoc_mock_imports:
                 dbg('[autodoc] adding a mock module %s!', modname)
                 mock_import(modname)
-            __import__(self.modname)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=ImportWarning)
+                __import__(self.modname)
             parent = None
             obj = self.module = sys.modules[self.modname]
             dbg('[autodoc] => %r', obj)

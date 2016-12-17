@@ -31,9 +31,14 @@ Features added
 --------------
 
 * #3241: emit latex warning if buggy titlesec (ref #3210)
+* #3194: Refer the $MAKE environment variable to determine ``make`` command
 
 Bugs fixed
 ----------
+
+* #3246: xapian search adapter crashes
+* #3253: In Py2 environment, building another locale with a non-captioned
+  toctree produces `None` captions
 
 Release 1.5.1 (released Dec 13, 2016)
 =====================================

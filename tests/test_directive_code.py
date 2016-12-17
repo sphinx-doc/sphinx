@@ -9,15 +9,13 @@
     :license: BSD, see LICENSE for details.
 """
 
-from xml.etree import ElementTree
-
-from util import with_app
+from util import with_app, etree_parse
 
 
 @with_app('xml', testroot='directive-code')
 def test_code_block(app, status, warning):
     app.builder.build('index')
-    et = ElementTree.parse(app.outdir / 'index.xml')
+    et = etree_parse(app.outdir / 'index.xml')
     secs = et.findall('./section/section')
     code_block = secs[0].findall('literal_block')
     assert len(code_block) > 0
@@ -33,7 +31,7 @@ def test_code_block(app, status, warning):
 @with_app('xml', testroot='directive-code')
 def test_code_block_dedent(app, status, warning):
     app.builder.build(['dedent_code'])
-    et = ElementTree.parse(app.outdir / 'dedent_code.xml')
+    et = etree_parse(app.outdir / 'dedent_code.xml')
     blocks = et.findall('./section/section/literal_block')
 
     for i in range(5):  # 0-4
@@ -94,7 +92,7 @@ def test_code_block_namedlink_latex(app, status, warning):
 @with_app('xml', testroot='directive-code')
 def test_literal_include(app, status, warning):
     app.builder.build(['index'])
-    et = ElementTree.parse(app.outdir / 'index.xml')
+    et = etree_parse(app.outdir / 'index.xml')
     secs = et.findall('./section/section')
     literal_include = secs[1].findall('literal_block')
     literal_src = (app.srcdir / 'literal.inc').text(encoding='utf-8')
@@ -109,7 +107,7 @@ def test_literal_include_dedent(app, status, warning):
     literal_lines = [l[4:] for l in literal_src.split('\n')[9:11]]
 
     app.builder.build(['dedent'])
-    et = ElementTree.parse(app.outdir / 'dedent.xml')
+    et = etree_parse(app.outdir / 'dedent.xml')
     blocks = et.findall('./section/section/literal_block')
 
     for i in range(5):  # 0-4
@@ -124,7 +122,7 @@ def test_literal_include_dedent(app, status, warning):
 @with_app('xml', testroot='directive-code')
 def test_literal_include_block_start_with_comment_or_brank(app, status, warning):
     app.builder.build(['python'])
-    et = ElementTree.parse(app.outdir / 'python.xml')
+    et = etree_parse(app.outdir / 'python.xml')
     secs = et.findall('./section/section')
     literal_include = secs[0].findall('literal_block')
     assert len(literal_include) > 0
@@ -290,7 +288,7 @@ def test_literalinclude_namedlink_latex(app, status, warning):
 @with_app('xml', testroot='directive-code')
 def test_literalinclude_classes(app, status, warning):
     app.builder.build(['classes'])
-    et = ElementTree.parse(app.outdir / 'classes.xml')
+    et = etree_parse(app.outdir / 'classes.xml')
     secs = et.findall('./section/section')
 
     code_block = secs[0].findall('literal_block')

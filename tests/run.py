@@ -13,6 +13,7 @@ from __future__ import print_function
 
 import os
 import sys
+import warnings
 import traceback
 
 from path import path
@@ -47,5 +48,9 @@ tempdir.makedirs()
 
 print('Running Sphinx test suite (with Python %s)...' % sys.version.split()[0])
 sys.stdout.flush()
+
+# filter warnings of test dependencies
+warnings.filterwarnings('ignore', category=DeprecationWarning, module='nose.util')
+warnings.filterwarnings('ignore', category=DeprecationWarning, module='site')  # virtualenv
 
 nose.main(argv=sys.argv)

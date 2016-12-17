@@ -49,7 +49,7 @@ class toctree(nodes.General, nodes.Element, translatable):
     """Node for inserting a "TOC tree"."""
 
     def preserve_original_messages(self):
-        if 'caption' in self:
+        if self.get('caption'):
             self['rawcaption'] = self['caption']
 
     def apply_translated_message(self, original_message, translated_message):

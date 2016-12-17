@@ -16,7 +16,6 @@ import re
 import pickle
 from docutils import nodes
 from subprocess import Popen, PIPE
-from xml.etree import ElementTree
 
 from babel.messages import pofile
 from nose.tools import assert_equal
@@ -24,7 +23,7 @@ from six import string_types
 
 from util import tempdir, rootdir, path, gen_with_app, with_app, SkipTest, \
     assert_re_search, assert_not_re_search, assert_in, assert_not_in, \
-    assert_startswith, assert_node, repr_as
+    assert_startswith, assert_node, repr_as, etree_parse
 
 
 root = tempdir / 'test-intl'
@@ -502,7 +501,7 @@ def test_xml_builder(app, status, warning):
 
     # --- footnotes: regression test for fix #955, #1176
 
-    et = ElementTree.parse(app.outdir / 'footnote.xml')
+    et = etree_parse(app.outdir / 'footnote.xml')
     secs = et.findall('section')
 
     para0 = secs[0].findall('paragraph')
@@ -542,7 +541,7 @@ def test_xml_builder(app, status, warning):
 
     # --- footnote backlinks: i18n test for #1058
 
-    et = ElementTree.parse(app.outdir / 'footnote.xml')
+    et = etree_parse(app.outdir / 'footnote.xml')
     secs = et.findall('section')
 
     para0 = secs[0].findall('paragraph')
@@ -558,7 +557,7 @@ def test_xml_builder(app, status, warning):
 
     # --- refs in the Python domain
 
-    et = ElementTree.parse(app.outdir / 'refs_python_domain.xml')
+    et = etree_parse(app.outdir / 'refs_python_domain.xml')
     secs = et.findall('section')
 
     # regression test for fix #1363
@@ -570,7 +569,7 @@ def test_xml_builder(app, status, warning):
 
     # --- keep external links: regression test for #1044
 
-    et = ElementTree.parse(app.outdir / 'external_links.xml')
+    et = etree_parse(app.outdir / 'external_links.xml')
     secs = et.findall('section')
 
     para0 = secs[0].findall('paragraph')
@@ -623,7 +622,7 @@ def test_xml_builder(app, status, warning):
 
     # --- role xref: regression test for #1090, #1193
 
-    et = ElementTree.parse(app.outdir / 'role_xref.xml')
+    et = etree_parse(app.outdir / 'role_xref.xml')
     sec1, sec2 = et.findall('section')
 
     para1, = sec1.findall('paragraph')
@@ -674,7 +673,7 @@ def test_xml_builder(app, status, warning):
 
     # --- label targets: regression test for #1193, #1265
 
-    et = ElementTree.parse(app.outdir / 'label_target.xml')
+    et = etree_parse(app.outdir / 'label_target.xml')
     secs = et.findall('section')
 
     para0 = secs[0].findall('paragraph')

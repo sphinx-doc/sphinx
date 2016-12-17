@@ -318,6 +318,11 @@ are recognized and formatted nicely:
 * ``returns``, ``return``: Description of the return value.
 * ``rtype``: Return type.  Creates a link if possible.
 
+.. note::
+
+   In current release, all ``var``, ``ivar`` and ``cvar`` are represented as "Variable".
+   There is no difference at all.
+
 The field names must consist of one of these keywords and an argument (except
 for ``returns`` and ``rtype``, which do not need an argument).  This is best
 explained by an example::

@@ -46,18 +46,30 @@
 
   <h2 style="margin-bottom: 0">{%trans%}Documentation{%endtrans%}</h2>
 
-  <table class="contentstable"><tr>
-    <td>
-      <p class="biglink"><a class="biglink" href="{{ pathto("tutorial") }}">{%trans%}First steps with Sphinx{%endtrans%}</a><br/>
-         <span class="linkdescr">{%trans%}overview of basic tasks{%endtrans%}</span></p>
-      <p class="biglink"><a class="biglink" href="{{ pathto("contents") }}">{%trans%}Contents{%endtrans%}</a><br/>
-         <span class="linkdescr">{%trans%}for a complete overview{%endtrans%}</span></p>
-    </td><td>
-      {%- if hasdoc('search') %}<p class="biglink"><a class="biglink" href="{{ pathto("search") }}">{%trans%}Search page{%endtrans%}</a><br/>
-         <span class="linkdescr">{%trans%}search the documentation{%endtrans%}</span></p>{%- endif %}
-      {%- if hasdoc('genindex') %}<p class="biglink"><a class="biglink" href="{{ pathto("genindex") }}">{%trans%}General Index{%endtrans%}</a><br/>
-         <span class="linkdescr">{%trans%}all functions, classes, terms{%endtrans%}</span></p>{%- endif %}
-    </td></tr>
+  <table class="contentstable">
+    <tr>
+      <td>
+        <p class="biglink"><a class="biglink" href="{{ pathto("tutorial") }}">{%trans%}First steps with Sphinx{%endtrans%}</a><br/>
+           <span class="linkdescr">{%trans%}overview of basic tasks{%endtrans%}</span></p>
+      </td><td>
+        {%- if hasdoc('search') %}<p class="biglink"><a class="biglink" href="{{ pathto("search") }}">{%trans%}Search page{%endtrans%}</a><br/>
+           <span class="linkdescr">{%trans%}search the documentation{%endtrans%}</span></p>{%- endif %}
+      </td>
+    </tr><tr>
+      <td>
+        <p class="biglink"><a class="biglink" href="{{ pathto("contents") }}">{%trans%}Contents{%endtrans%}</a><br/>
+           <span class="linkdescr">{%trans%}for a complete overview{%endtrans%}</span></p>
+      </td><td>
+        {%- if hasdoc('genindex') %}<p class="biglink"><a class="biglink" href="{{ pathto("genindex") }}">{%trans%}General Index{%endtrans%}</a><br/>
+           <span class="linkdescr">{%trans%}all functions, classes, terms{%endtrans%}</span></p>{%- endif %}
+      </td>
+    </tr><tr>
+      <td>
+        <p class="biglink"><a class="biglink" href="{{ pathto("changes") }}">{%trans%}Changes{%endtrans%}</a><br/>
+           <span class="linkdescr">{%trans%}release history{%endtrans%}</span></p>
+      </td><td>
+      </td>
+    </tr>
   </table>
 
   <p>{%trans%}
