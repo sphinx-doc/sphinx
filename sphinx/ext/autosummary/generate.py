@@ -51,7 +51,7 @@ add_documenter(InstanceAttributeDocumenter)
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Tuple  # NOQA
+    from typing import Any, Callable, Tuple, List  # NOQA
     from sphinx import addnodes  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
