@@ -13,6 +13,8 @@ Features added
 --------------
 
 * #3136: Add ``:name:`` option to the directives in ``sphinx.ext.graphviz``
+* #2336: Add ``imported_members`` option to ``sphinx-autogen`` command to document
+  imported members.
 
 Bugs fixed
 ----------
