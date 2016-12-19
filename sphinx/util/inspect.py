@@ -26,6 +26,10 @@ inspect = __import__('inspect')
 
 memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)')
 
+def_re = re.compile("^\\s*def\\s+")
+closing_bracket_re = re.compile("\\)\\s*:\\s*$")
+between_bracket_re = re.compile(r'\((.*)\)')
+
 
 if PY3:
     from functools import partial
@@ -197,3 +201,31 @@ def is_builtin_class_method(obj, attr_name):
     if not hasattr(builtins, safe_getattr(cls, '__name__', '')):  # type: ignore
         return False
     return getattr(builtins, safe_getattr(cls, '__name__', '')) is cls  # type: ignore
+
+
+def process_signature_as_is(functional_object):
+    """
+        This function is made to preserve signatures as-is, without argument expanding
+    """
+
+    src = inspect.getsourcelines(functional_object)[0]
+
+    for i, l in enumerate(src):
+        if def_re.findall(l):
+            break
+    acc = ''
+    for l in src[i:]:
+        line_to_add = l.strip()
+        line_to_add = line_to_add.partition("#")[0]  # removing comments
+        acc += line_to_add
+        if closing_bracket_re.findall(acc):
+            break
+
+    s = between_bracket_re.findall(acc)
+    if not s:
+        return '()'
+    s = s[0]
+    for d in [r'^self,', r'^self', r'^cls,', r'^cls']:
+        s = re.sub(d, '', s)
+        s = s.strip()
+    return '(' + s + ')'

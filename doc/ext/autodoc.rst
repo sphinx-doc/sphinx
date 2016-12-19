@@ -376,6 +376,13 @@ There are also new config values that you can set:
    .. versionadded:: 1.3
 
 
+.. confval:: autodoc_signature_as_is
+
+   If set ``True``, the function or method signatures are shown in docstrings
+   as is (for example, the constant names are still the constant names, not
+   their values).
+
+
 Docstring preprocessing
 -----------------------
 

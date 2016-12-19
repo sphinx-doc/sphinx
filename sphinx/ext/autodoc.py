@@ -34,7 +34,7 @@ from sphinx.application import ExtensionError
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
-    isenumclass, isenumattribute
+    isenumclass, isenumattribute, process_signature_as_is
 from sphinx.util.docstrings import prepare_docstring
 
 if False:
@@ -1311,6 +1311,8 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
         args = formatargspec(self.object, *argspec)
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
+        if self.env.config.autodoc_signature_as_is:
+            args = process_signature_as_is(self.object)
         return args
 
     def document_members(self, all_members=False):
@@ -1367,7 +1369,11 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
             return None
         if argspec[0] and argspec[0][0] in ('cls', 'self'):
             del argspec[0][0]
-        return formatargspec(initmeth, *argspec)
+
+        if self.env.config.autodoc_signature_as_is:
+            return process_signature_as_is(initmeth)
+        else:
+            return formatargspec(*argspec)
 
     def format_signature(self):
         # type: () -> unicode
@@ -1560,6 +1566,8 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         args = formatargspec(self.object, *argspec)
         # escape backslashes for reST
         args = args.replace('\\', '\\\\')
+        if self.env.config.autodoc_signature_as_is:
+            args = process_signature_as_is(self.object)
         return args
 
     def document_members(self, all_members=False):
@@ -1814,6 +1822,7 @@ def setup(app):
     app.add_config_value('autodoc_member_order', 'alphabetic', True)
     app.add_config_value('autodoc_default_flags', [], True)
     app.add_config_value('autodoc_docstring_signature', True, True)
+    app.add_config_value('autodoc_signature_as_is', False, True)
     app.add_config_value('autodoc_mock_imports', [], True)
     app.add_event('autodoc-process-docstring')
     app.add_event('autodoc-process-signature')
