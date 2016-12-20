@@ -247,7 +247,7 @@ def validate_config_values(app):
             app.warn('latex_use_parts conflicts with latex_toplevel_sectioning, ignored.')
         else:
             app.warn('latex_use_parts is deprecated. Use latex_toplevel_sectioning instead.')
-            app.config.latex_toplevel_sectioning = 'parts'  # type: ignore
+            app.config.latex_toplevel_sectioning = 'part'  # type: ignore
 
     if app.config.latex_use_modindex is not True:  # changed by user
         app.warn('latex_use_modindex is deprecated. Use latex_domain_indices instead.')
