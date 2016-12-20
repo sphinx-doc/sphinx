@@ -17,6 +17,7 @@ Bugs fixed
 * #3255: In Py3.4 environment, autodoc doesn't support documentation for
   attributes of Enum class correctly.
 * #3261: ``latex_use_parts`` makes sphinx crash
+* The warning type ``misc.highlighting_failure`` does not work
 
 Release 1.5.1 (released Dec 13, 2016)
 =====================================
