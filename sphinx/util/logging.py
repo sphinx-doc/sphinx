@@ -44,17 +44,6 @@ class SphinxLogRecord(logging.LogRecord):
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
 
-    def warn(self, message, location=None, **kwargs):
-        """Emit a warning.
-
-        :param message: a message of warning
-        :param location: a tuple of (docname, lineno) or a string describing the location
-        """
-        if location:
-            kwargs['location'] = location
-
-        self.warning(message, **kwargs)
-
     def warn_node(self, message, node, **kwargs):
         """Emit a warning for specific node.
 
