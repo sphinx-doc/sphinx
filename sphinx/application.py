@@ -177,11 +177,11 @@ class Sphinx(object):
         self.tags = Tags(tags)
         self.config = Config(confdir, CONFIG_FILENAME,
                              confoverrides or {}, self.tags)
-        self.config.check_unicode(self.warn)
+        self.config.check_unicode()
         # defer checking types until i18n has been initialized
 
         # initialize some limited config variables before loading extensions
-        self.config.pre_init_values(self.warn)
+        self.config.pre_init_values()
 
         # check the Sphinx version if requested
         if self.config.needs_sphinx and self.config.needs_sphinx > sphinx.__display_version__:
@@ -227,7 +227,7 @@ class Sphinx(object):
                 )
 
         # now that we know all config values, collect them from conf.py
-        self.config.init_values(self.warn)
+        self.config.init_values()
 
         # check extension versions if requested
         if self.config.needs_extensions:
@@ -251,7 +251,7 @@ class Sphinx(object):
         # set up translation infrastructure
         self._init_i18n()
         # check all configuration values for permissible types
-        self.config.check_types(self.warn)
+        self.config.check_types()
         # set up source_parsers
         self._init_source_parsers()
         # set up the build environment
@@ -528,9 +528,9 @@ class Sphinx(object):
         if extension in self._extensions:
             return
         if extension in EXTENSION_BLACKLIST:
-            self.warn('the extension %r was already merged with Sphinx since version %s; '
-                      'this extension is ignored.' % (
-                          extension, EXTENSION_BLACKLIST[extension]))
+            logger.warning('the extension %r was already merged with Sphinx since version %s; '
+                           'this extension is ignored.',
+                           extension, EXTENSION_BLACKLIST[extension])
             return
         self._setting_up_extension.append(extension)
         try:
@@ -540,8 +540,8 @@ class Sphinx(object):
             raise ExtensionError('Could not import extension %s' % extension,
                                  err)
         if not hasattr(mod, 'setup'):
-            self.warn('extension %r has no setup() function; is it really '
-                      'a Sphinx extension module?' % extension)
+            logger.warning('extension %r has no setup() function; is it really '
+                           'a Sphinx extension module?', extension)
             ext_meta = None
         else:
             try:
@@ -561,9 +561,9 @@ class Sphinx(object):
             if not ext_meta.get('version'):
                 ext_meta['version'] = 'unknown version'
         except Exception:
-            self.warn('extension %r returned an unsupported object from '
-                      'its setup() function; it should return None or a '
-                      'metadata dictionary' % extension)
+            logger.warning('extension %r returned an unsupported object from '
+                           'its setup() function; it should return None or a '
+                           'metadata dictionary', extension)
             ext_meta = {'version': 'unknown version'}
         self._extensions[extension] = mod
         self._extension_metadata[extension] = ext_meta
@@ -668,10 +668,10 @@ class Sphinx(object):
         self.debug('[app] adding node: %r', (node, kwds))
         if not kwds.pop('override', False) and \
            hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
-            self.warn('while setting up extension %s: node class %r is '
-                      'already registered, its visitors will be overridden' %
-                      (self._setting_up_extension, node.__name__),
-                      type='app', subtype='add_node')
+            logger.warning('while setting up extension %s: node class %r is '
+                           'already registered, its visitors will be overridden',
+                           self._setting_up_extension, node.__name__,
+                           type='app', subtype='add_node')
         nodes._add_node_class_names([node.__name__])
         for key, val in iteritems(kwds):
             try:
@@ -722,10 +722,10 @@ class Sphinx(object):
         self.debug('[app] adding directive: %r',
                    (name, obj, content, arguments, options))
         if name in directives._directives:
-            self.warn('while setting up extension %s: directive %r is '
-                      'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], name),
-                      type='app', subtype='add_directive')
+            logger.warning('while setting up extension %s: directive %r is '
+                           'already registered, it will be overridden',
+                           self._setting_up_extension[-1], name,
+                           type='app', subtype='add_directive')
         directives.register_directive(
             name, self._directive_helper(obj, content, arguments, **options))
 
@@ -733,10 +733,10 @@ class Sphinx(object):
         # type: (unicode, Any) -> None
         self.debug('[app] adding role: %r', (name, role))
         if name in roles._roles:
-            self.warn('while setting up extension %s: role %r is '
-                      'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], name),
-                      type='app', subtype='add_role')
+            logger.warning('while setting up extension %s: role %r is '
+                           'already registered, it will be overridden',
+                           self._setting_up_extension[-1], name,
+                           type='app', subtype='add_role')
         roles.register_local_role(name, role)
 
     def add_generic_role(self, name, nodeclass):
@@ -745,10 +745,10 @@ class Sphinx(object):
         # register_canonical_role
         self.debug('[app] adding generic role: %r', (name, nodeclass))
         if name in roles._roles:
-            self.warn('while setting up extension %s: role %r is '
-                      'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], name),
-                      type='app', subtype='add_generic_role')
+            logger.warning('while setting up extension %s: role %r is '
+                           'already registered, it will be overridden',
+                           self._setting_up_extension[-1], name,
+                           type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)
         roles.register_local_role(name, role)
 
@@ -891,10 +891,10 @@ class Sphinx(object):
         # type: (unicode, Parser) -> None
         self.debug('[app] adding search source_parser: %r, %r', suffix, parser)
         if suffix in self._additional_source_parsers:
-            self.warn('while setting up extension %s: source_parser for %r is '
-                      'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], suffix),
-                      type='app', subtype='add_source_parser')
+            logger.warning('while setting up extension %s: source_parser for %r is '
+                           'already registered, it will be overridden',
+                           self._setting_up_extension[-1], suffix,
+                           type='app', subtype='add_source_parser')
         self._additional_source_parsers[suffix] = parser
 
 

@@ -364,11 +364,10 @@ class HTMLTranslator(BaseTranslator):
         else:
             opts = {}
 
-        def warner(msg, **kwargs):
-            self.builder.warn(msg, (self.builder.current_docname, node.line), **kwargs)
         highlighted = self.highlighter.highlight_block(
-            node.rawsource, lang, opts=opts, warn=warner, linenos=linenos,
-            **highlight_args)
+            node.rawsource, lang, opts=opts, linenos=linenos,
+            location=(self.builder.current_docname, node.line), **highlight_args
+        )
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s' % lang)
         self.body.append(starttag + highlighted + '</div>\n')

@@ -159,10 +159,9 @@ class StandaloneHTMLBuilder(Builder):
 
     def init_templates(self):
         # type: () -> None
-        Theme.init_themes(self.confdir, self.config.html_theme_path,
-                          warn=self.warn)
+        Theme.init_themes(self.confdir, self.config.html_theme_path)
         themename, themeoptions = self.get_theme_config()
-        self.theme = Theme(themename, warn=self.warn)
+        self.theme = Theme(themename)
         self.theme_options = themeoptions.copy()
         self.create_template_bridge()
         self.templates.init(self, self.theme)
@@ -314,8 +313,7 @@ class StandaloneHTMLBuilder(Builder):
         lufmt = self.config.html_last_updated_fmt
         if lufmt is not None:
             self.last_updated = format_date(lufmt or _('%b %d, %Y'),
-                                            language=self.config.language,
-                                            warn=self.warn)
+                                            language=self.config.language)
         else:
             self.last_updated = None
 

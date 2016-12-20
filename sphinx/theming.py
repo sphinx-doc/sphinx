@@ -26,6 +26,9 @@ except ImportError:
 
 from sphinx import package_dir
 from sphinx.errors import ThemeError
+from sphinx.util import logging
+
+logger = logging.getLogger(__name__)
 
 if False:
     # For type annotation
@@ -43,8 +46,8 @@ class Theme(object):
     themepath = []  # type: List[unicode]
 
     @classmethod
-    def init_themes(cls, confdir, theme_path, warn=None):
-        # type: (unicode, unicode, Callable) -> None
+    def init_themes(cls, confdir, theme_path):
+        # type: (unicode, unicode) -> None
         """Search all theme paths for available themes."""
         cls.themepath = list(theme_path)
         cls.themepath.append(path.join(package_dir, 'themes'))
@@ -62,9 +65,8 @@ class Theme(object):
                         tname = theme[:-4]
                         tinfo = zfile
                     except Exception:
-                        if warn:
-                            warn('file %r on theme path is not a valid '
-                                 'zipfile or contains no theme' % theme)
+                        logger.warning('file %r on theme path is not a valid '
+                                       'zipfile or contains no theme', theme)
                         continue
                 else:
                     if not path.isfile(path.join(themedir, theme, THEMECONF)):
@@ -105,8 +107,8 @@ class Theme(object):
         cls.themes[name] = (path.join(themedir, name), None)
         return
 
-    def __init__(self, name, warn=None):
-        # type: (unicode, Callable) -> None
+    def __init__(self, name):
+        # type: (unicode) -> None
         if name not in self.themes:
             self.load_extra_theme(name)
             if name not in self.themes:
@@ -162,7 +164,7 @@ class Theme(object):
             raise ThemeError('no theme named %r found, inherited by %r' %
                              (inherit, name))
         else:
-            self.base = Theme(inherit, warn=warn)
+            self.base = Theme(inherit)
 
     def get_confstr(self, section, name, default=NODEFAULT):
         # type: (unicode, unicode, Any) -> Any

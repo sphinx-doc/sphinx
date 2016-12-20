@@ -38,8 +38,7 @@ class ChangesBuilder(Builder):
     def init(self):
         # type: () -> None
         self.create_template_bridge()
-        Theme.init_themes(self.confdir, self.config.html_theme_path,
-                          warn=self.warn)
+        Theme.init_themes(self.confdir, self.config.html_theme_path)
         self.theme = Theme('default')
         self.templates.init(self, self.theme)
 

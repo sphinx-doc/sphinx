@@ -19,7 +19,7 @@ except ImportError:
 
 from docutils import nodes
 
-from sphinx.util import i18n, path_stabilize
+from sphinx.util import i18n, path_stabilize, logging
 from sphinx.util.osutil import SEP, relative_uri
 from sphinx.util.i18n import find_catalog
 from sphinx.util.console import bold, darkgreen  # type: ignore
@@ -284,13 +284,9 @@ class Builder(object):
             self.info(bold('building [%s]' % self.name) + ': ' + summary)
 
         # while reading, collect all warnings from docutils
-        warnings = []
-        self.env.set_warnfunc(lambda *args, **kwargs: warnings.append((args, kwargs)))
-        updated_docnames = set(self.env.update(self.config, self.srcdir,
-                                               self.doctreedir, self.app))
-        self.env.set_warnfunc(self.warn)
-        for warning, kwargs in warnings:
-            self.warn(*warning, **kwargs)
+        with logging.pending_logging():
+            updated_docnames = set(self.env.update(self.config, self.srcdir,
+                                                   self.doctreedir, self.app))
 
         doccount = len(updated_docnames)
         self.info(bold('looking for now-outdated files... '), nonl=1)
@@ -376,25 +372,23 @@ class Builder(object):
         self.info('done')
 
         warnings = []  # type: List[Tuple[Tuple, Dict]]
-        self.env.set_warnfunc(lambda *args, **kwargs: warnings.append((args, kwargs)))
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
             # is busy loading doctrees and doing write_doc_serialized()
+            warnings = []
             self._write_parallel(sorted(docnames), warnings,
                                  nproc=self.app.parallel - 1)
         else:
-            self._write_serial(sorted(docnames), warnings)
-        self.env.set_warnfunc(self.warn)
+            self._write_serial(sorted(docnames))
 
-    def _write_serial(self, docnames, warnings):
-        # type: (Sequence[unicode], List[Tuple[Tuple, Dict]]) -> None
-        for docname in self.app.status_iterator(
-                docnames, 'writing output... ', darkgreen, len(docnames)):
-            doctree = self.env.get_and_resolve_doctree(docname, self)
-            self.write_doc_serialized(docname, doctree)
-            self.write_doc(docname, doctree)
-        for warning, kwargs in warnings:
-            self.warn(*warning, **kwargs)
+    def _write_serial(self, docnames):
+        # type: (Sequence[unicode]) -> None
+        with logging.pending_logging():
+            for docname in self.app.status_iterator(
+                    docnames, 'writing output... ', darkgreen, len(docnames)):
+                doctree = self.env.get_and_resolve_doctree(docname, self)
+                self.write_doc_serialized(docname, doctree)
+                self.write_doc(docname, doctree)
 
     def _write_parallel(self, docnames, warnings, nproc):
         # type: (Iterable[unicode], List[Tuple[Tuple, Dict]], int) -> None

@@ -2155,12 +2155,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 opts = {}
 
-            def warner(msg, **kwargs):
-                # type: (unicode) -> None
-                self.builder.warn(msg, (self.curfilestack[-1], node.line), **kwargs)
-            hlcode = self.highlighter.highlight_block(code, lang, opts=opts,
-                                                      warn=warner, linenos=linenos,
-                                                      **highlight_args)
+            hlcode = self.highlighter.highlight_block(
+                code, lang, opts=opts, linenos=linenos,
+                location=(self.curfilestack[-1], node.line), **highlight_args
+            )
             # workaround for Unicode issue
             hlcode = hlcode.replace(u'€', u'@texteuro[]')
             if self.in_footnote:

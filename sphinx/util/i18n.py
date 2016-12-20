@@ -22,8 +22,11 @@ from babel.messages.pofile import read_po
 from babel.messages.mofile import write_mo
 
 from sphinx.errors import SphinxError
+from sphinx.util import logging
 from sphinx.util.osutil import SEP, walk
 from sphinx.deprecation import RemovedInSphinx16Warning
+
+logger = logging.getLogger(__name__)
 
 if False:
     # For type annotation
@@ -171,8 +174,8 @@ date_format_mappings = {
 }
 
 
-def babel_format_date(date, format, locale, warn=None, formatter=babel.dates.format_date):
-    # type: (datetime, unicode, unicode, Callable, Callable) -> unicode
+def babel_format_date(date, format, locale, formatter=babel.dates.format_date):
+    # type: (datetime, unicode, unicode, Callable) -> unicode
     if locale is None:
         locale = 'en'
 
@@ -187,15 +190,13 @@ def babel_format_date(date, format, locale, warn=None, formatter=babel.dates.for
         # fallback to English
         return formatter(date, format, locale='en')
     except AttributeError:
-        if warn:
-            warn('Invalid date format. Quote the string by single quote '
-                 'if you want to output it directly: %s' % format)
-
+        logger.warning('Invalid date format. Quote the string by single quote '
+                       'if you want to output it directly: %s', format)
         return format
 
 
-def format_date(format, date=None, language=None, warn=None):
-    # type: (str, datetime, unicode, Callable) -> unicode
+def format_date(format, date=None, language=None):
+    # type: (str, datetime, unicode) -> unicode
     if format is None:
         format = 'medium'
 
@@ -213,7 +214,7 @@ def format_date(format, date=None, language=None, warn=None):
         warnings.warn('LDML format support will be dropped at Sphinx-1.6',
                       RemovedInSphinx16Warning)
 
-        return babel_format_date(date, format, locale=language, warn=warn,
+        return babel_format_date(date, format, locale=language,
                                  formatter=babel.dates.format_datetime)
     else:
         # consider the format as ustrftime's and try to convert it to babel's
