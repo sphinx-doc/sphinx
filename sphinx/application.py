@@ -15,6 +15,7 @@ from __future__ import print_function
 import os
 import sys
 import types
+import warnings
 import posixpath
 import traceback
 from os import path
@@ -30,20 +31,21 @@ from docutils.parsers.rst import convert_directive_function, \
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
-from sphinx.errors import SphinxError, SphinxWarning, ExtensionError, \
-    VersionRequirementError, ConfigError
+from sphinx.errors import SphinxError, ExtensionError, VersionRequirementError, \
+    ConfigError
 from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target, StandardDomain
+from sphinx.deprecation import RemovedInSphinx17Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.io import SphinxStandaloneReader
 from sphinx.roles import XRefRole
 from sphinx.util import pycompat  # noqa: F401
 from sphinx.util import import_object
+from sphinx.util import logging
 from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT
-from sphinx.util.logging import is_suppressed_warning
 from sphinx.util.console import (  # type: ignore
-    bold, lightgray, darkgray, darkred, darkgreen, term_width_line
+    bold, lightgray, darkgray, darkgreen, term_width_line
 )
 from sphinx.util.i18n import find_catalog_source_files
 
@@ -109,6 +111,8 @@ ENV_PICKLE_FILENAME = 'environment.pickle'
 # Values are Sphinx version that merge the extension.
 EXTENSION_BLACKLIST = {"sphinxjp.themecore": "1.2"}  # type: Dict[unicode, unicode]
 
+logger = logging.getLogger(__name__)
+
 
 class Sphinx(object):
 
@@ -151,6 +155,7 @@ class Sphinx(object):
             self._warning = warning
         self._warncount = 0
         self.warningiserror = warningiserror
+        logging.setup(self, self._status, self._warning)
 
         self._events = events.copy()
         self._translators = {}              # type: Dict[unicode, nodes.GenericNodeVisitor]
@@ -385,8 +390,8 @@ class Sphinx(object):
             wfile.flush()
         self.messagelog.append(message)
 
-    def warn(self, message, location=None, prefix='WARNING: ',
-             type=None, subtype=None, colorfunc=darkred):
+    def warn(self, message, location=None, prefix=None,
+             type=None, subtype=None, colorfunc=None):
         # type: (unicode, unicode, unicode, unicode, unicode, Callable) -> None
         """Emit a warning.
 
@@ -403,21 +408,14 @@ class Sphinx(object):
            :meth:`.BuildEnvironment.warn` since that will collect all
            warnings during parsing for later output.
         """
-        if is_suppressed_warning(type, subtype, self.config.suppress_warnings):
-            return
+        if prefix:
+            warnings.warn('prefix option of warn() is now deprecated.',
+                          RemovedInSphinx17Warning)
+        if colorfunc:
+            warnings.warn('colorfunc option of warn() is now deprecated.',
+                          RemovedInSphinx17Warning)
 
-        if isinstance(location, tuple):
-            docname, lineno = location
-            if docname:
-                location = '%s:%s' % (self.env.doc2path(docname), lineno or '')
-            else:
-                location = None
-        warntext = location and '%s: %s%s\n' % (location, prefix, message) or \
-            '%s%s\n' % (prefix, message)
-        if self.warningiserror:
-            raise SphinxWarning(warntext)
-        self._warncount += 1
-        self._log(colorfunc(warntext), self._warning, True)
+        logger.warning(message, type=type, subtype=subtype, location=location)
 
     def info(self, message='', nonl=False):
         # type: (unicode, bool) -> None
