@@ -270,10 +270,13 @@ def validate_config_values(app):
 
 def default_latex_engine(config):
     """ Better default latex_engine settings for specific languages. """
-    if config.language == 'ja':
-        return 'platex'
-    elif config.language.split('_')[0] == 'zh':
-        return 'xelatex'
+    if config.language:
+        if config.language == 'ja':
+            return 'platex'
+        elif config.language.split('_')[0] == 'zh':
+            return 'xelatex'
+        else:
+            return 'pdflatex'
     else:
         return 'pdflatex'
 
@@ -289,8 +292,11 @@ def default_latex_docclass(config):
 
 def default_latex_elements(config):
     """ Better default latex_elements settings for specific languages. """
-    if config.language.split('_')[0] == 'zh':
-        return {'usepackages': '\\usepackage{ctex}'}
+    if config.language:
+        if config.language.split('_')[0] == 'zh':
+            return {'usepackages': '\\usepackage{ctex}'}
+        else:
+            return {}
     else:
         return {}
 
