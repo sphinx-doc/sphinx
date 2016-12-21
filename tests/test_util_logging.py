@@ -21,6 +21,7 @@ from util import with_app, raises, strip_escseq
 
 @with_app()
 def test_info_and_warning(app, status, warning):
+    app.verbosity = 3
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
 
@@ -41,6 +42,69 @@ def test_info_and_warning(app, status, warning):
     assert 'message3' in warning.getvalue()
     assert 'message4' in warning.getvalue()
     assert 'message5' in warning.getvalue()
+
+
+@with_app()
+def test_verbosity_filter(app, status, warning):
+    # verbosity = 0: INFO
+    app.verbosity = 0
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.info('message1')
+    logger.verbose('message2')
+    logger.debug('message3')
+    logger.debug2('message4')
+
+    assert 'message1' in status.getvalue()
+    assert 'message2' not in status.getvalue()
+    assert 'message3' not in status.getvalue()
+    assert 'message4' not in status.getvalue()
+
+    # verbosity = 1: VERBOSE
+    app.verbosity = 1
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.info('message1')
+    logger.verbose('message2')
+    logger.debug('message3')
+    logger.debug2('message4')
+
+    assert 'message1' in status.getvalue()
+    assert 'message2' in status.getvalue()
+    assert 'message3' not in status.getvalue()
+    assert 'message4' not in status.getvalue()
+
+    # verbosity = 2: DEBUG
+    app.verbosity = 2
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.info('message1')
+    logger.verbose('message2')
+    logger.debug('message3')
+    logger.debug2('message4')
+
+    assert 'message1' in status.getvalue()
+    assert 'message2' in status.getvalue()
+    assert 'message3' in status.getvalue()
+    assert 'message4' not in status.getvalue()
+
+    # verbosity = 3: DEBUG2
+    app.verbosity = 3
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.info('message1')
+    logger.verbose('message2')
+    logger.debug('message3')
+    logger.debug2('message4')
+
+    assert 'message1' in status.getvalue()
+    assert 'message2' in status.getvalue()
+    assert 'message3' in status.getvalue()
+    assert 'message4' in status.getvalue()
 
 
 @with_app()

@@ -13,6 +13,7 @@ from __future__ import absolute_import
 import logging
 import logging.handlers
 from contextlib import contextmanager
+from collections import defaultdict
 
 from six import PY2, StringIO, string_types
 from docutils.utils import get_source_line
@@ -25,6 +26,17 @@ if False:
     from typing import Any, Generator, IO, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+
+VERBOSE = 15
+DEBUG2 = 5
+VERBOSITY_MAP = defaultdict(lambda: 0)  # type: Dict[int, int]
+VERBOSITY_MAP.update({
+    0: logging.INFO,
+    1: VERBOSE,
+    2: logging.DEBUG,
+    3: DEBUG2,
+})
 
 
 def getLogger(name):
@@ -71,6 +83,14 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
             kwargs['location'] = "<unknown>:%s" % line
 
         self.warning(message, **kwargs)
+
+    def verbose(self, msg, *args, **kwargs):
+        # type: (unicode, Any, Any) -> None
+        self.log(VERBOSE, msg, *args, **kwargs)
+
+    def debug2(self, msg, *args, **kwargs):
+        # type: (unicode, Any, Any) -> None
+        self.log(DEBUG2, msg, *args, **kwargs)
 
     def process(self, msg, kwargs):  # type: ignore
         # type: (unicode, Dict) -> Tuple[unicode, Dict]
@@ -285,6 +305,7 @@ def setup(app, status, warning):
 
     info_handler = NewLineStreamHandler(status)
     info_handler.addFilter(InfoFilter())
+    info_handler.setLevel(VERBOSITY_MAP.get(app.verbosity))
 
     warning_handler = logging.StreamHandler(warning)
     warning_handler.addFilter(WarningSuppressor(app))
