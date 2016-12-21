@@ -19,6 +19,42 @@ from sphinx.util.logging import is_suppressed_warning
 from util import with_app, raises, strip_escseq
 
 
+@with_app()
+def test_info_and_warning(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.debug('message1')
+    logger.info('message2')
+    logger.warning('message3')
+    logger.critical('message4')
+    logger.error('message5')
+
+    assert 'message1' in status.getvalue()
+    assert 'message2' in status.getvalue()
+    assert 'message3' not in status.getvalue()
+    assert 'message4' not in status.getvalue()
+    assert 'message5' not in status.getvalue()
+
+    assert 'message1' not in warning.getvalue()
+    assert 'message2' not in warning.getvalue()
+    assert 'message3' in warning.getvalue()
+    assert 'message4' in warning.getvalue()
+    assert 'message5' in warning.getvalue()
+
+
+@with_app()
+def test_nonl_info_log(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    logger.info('message1', nonl=True)
+    logger.info('message2')
+    logger.info('message3')
+
+    assert 'message1message2\nmessage3' in status.getvalue()
+
+
 def test_is_suppressed_warning():
     suppress_warnings = ["ref", "files.*", "rest.duplicated_labels"]
 
@@ -36,6 +72,8 @@ def test_is_suppressed_warning():
 def test_suppress_warnings(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
+
+    app._warncount = 0  # force reset
 
     app.config.suppress_warnings = []
     warning.truncate(0)

@@ -12,8 +12,9 @@ from __future__ import absolute_import
 
 import logging
 import logging.handlers
-from six import string_types
 from contextlib import contextmanager
+
+from six import PY2, StringIO, string_types
 from docutils.utils import get_source_line
 
 from sphinx.errors import SphinxWarning
@@ -25,10 +26,10 @@ def getLogger(name):
     return SphinxLoggerAdapter(logging.getLogger(name), {})
 
 
-class SphinxLogRecord(logging.LogRecord):
+class SphinxWarningLogRecord(logging.LogRecord):
     """Log record class supporting location"""
     def getMessage(self):
-        message = super(SphinxLogRecord, self).getMessage()
+        message = super(SphinxWarningLogRecord, self).getMessage()
         if isinstance(message, string_types):
             location = getattr(self, 'location', None)
             if location:
@@ -68,8 +69,51 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
             extra['subtype'] = kwargs.pop('subtype')
         if 'location' in kwargs:
             extra['location'] = kwargs.pop('location')
+        if 'nonl' in kwargs:
+            extra['nonl'] = kwargs.pop('nonl')
 
         return msg, kwargs
+
+
+class NewLineStreamHandlerPY2(logging.StreamHandler):
+    """StreamHandler which switches line terminator by record.nonl flag."""
+
+    def emit(self, record):
+        try:
+            self.acquire()
+            stream = self.stream
+            if getattr(record, 'nonl', False):
+                # remove return code forcely when nonl=True
+                self.stream = StringIO()
+                super(NewLineStreamHandlerPY2, self).emit(record)
+                stream.write(self.stream.getvalue()[:-1])
+                stream.flush()
+            else:
+                super(NewLineStreamHandlerPY2, self).emit(record)
+        finally:
+            self.stream = stream
+            self.release()
+
+
+class NewLineStreamHandlerPY3(logging.StreamHandler):
+    """StreamHandler which switches line terminator by record.nonl flag."""
+
+    def emit(self, record):
+        try:
+            self.acquire()
+            if getattr(record, 'nonl', False):
+                # skip appending terminator when nonl=True
+                self.terminator = ''
+            super(NewLineStreamHandlerPY3, self).emit(record)
+        finally:
+            self.terminator = '\n'
+            self.release()
+
+
+if PY2:
+    NewLineStreamHandler = NewLineStreamHandlerPY2
+else:
+    NewLineStreamHandler = NewLineStreamHandlerPY3
 
 
 class MemoryHandler(logging.handlers.BufferingHandler):
@@ -112,6 +156,16 @@ def pending_logging():
             logger.addHandler(handler)
 
         memhandler.flushTo(logger)
+
+
+class InfoFilter(logging.Filter):
+    """Filter error and warning messages."""
+
+    def filter(self, record):
+        if record.levelno < logging.WARNING:
+            return True
+        else:
+            return False
 
 
 def is_suppressed_warning(type, subtype, suppress_warnings):
@@ -165,19 +219,19 @@ class WarningIsErrorFilter(logging.Filter):
             return True
 
 
-class LogRecordTranslator(logging.Filter):
+class WarningLogRecordTranslator(logging.Filter):
     """Converts a log record to one Sphinx expects
 
-    * Make a instance of SphinxLogRecord
+    * Make a instance of SphinxWarningLogRecord
     * docname to path if location given
     """
     def __init__(self, app):
         self.app = app
-        super(LogRecordTranslator, self).__init__()
+        super(WarningLogRecordTranslator, self).__init__()
 
     def filter(self, record):
         if isinstance(record, logging.LogRecord):
-            record.__class__ = SphinxLogRecord  # force subclassing to handle location
+            record.__class__ = SphinxWarningLogRecord  # force subclassing to handle location
 
         location = getattr(record, 'location', None)
         if isinstance(location, tuple):
@@ -197,14 +251,19 @@ class LogRecordTranslator(logging.Filter):
 def setup(app, status, warning):
     """Setup root logger for Sphinx"""
     logger = logging.getLogger()
+    logger.setLevel(logging.NOTSET)
 
     # clear all handlers
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
 
+    info_handler = NewLineStreamHandler(status)
+    info_handler.addFilter(InfoFilter())
+
     warning_handler = logging.StreamHandler(warning)
     warning_handler.addFilter(WarningSuppressor(app))
     warning_handler.addFilter(WarningIsErrorFilter(app))
-    warning_handler.addFilter(LogRecordTranslator(app))
+    warning_handler.addFilter(WarningLogRecordTranslator(app))
     warning_handler.setLevel(logging.WARNING)
+    logger.addHandler(info_handler)
     logger.addHandler(warning_handler)
