@@ -132,6 +132,11 @@ latex_elements = {
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
+
+    # Chinese language default package ctex
+    {% if language[:3]|lower == 'zh_' %}
+    'usepackages': '\\usepackage{ctex}',
+    {% endif %}
 }
 
 # Grouping the document tree into LaTeX files. List of tuples

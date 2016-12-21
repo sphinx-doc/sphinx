@@ -272,6 +272,8 @@ def default_latex_engine(config):
     """ Better default latex_engine settings for specific languages. """
     if config.language == 'ja':
         return 'platex'
+    elif config.language.split('_')[0] == 'zh':
+        return 'xelatex'
     else:
         return 'pdflatex'
 
@@ -281,6 +283,14 @@ def default_latex_docclass(config):
     if config.language == 'ja':
         return {'manual': 'jsbook',
                 'howto': 'jreport'}
+    else:
+        return {}
+
+
+def default_latex_elements(config):
+    """ Better default latex_elements settings for specific languages. """
+    if config.language.split('_')[0] == 'zh':
+        return {'usepackages':'\\usepackage{ctex}'}
     else:
         return {}
 
@@ -309,7 +319,7 @@ def setup(app):
     # so that you can give them easily on the command line
     app.add_config_value('latex_paper_size', 'letter', None)
     app.add_config_value('latex_font_size', '10pt', None)
-    app.add_config_value('latex_elements', {}, None)
+    app.add_config_value('latex_elements', default_latex_elements, None)
     app.add_config_value('latex_additional_files', [], None)
 
     app.add_config_value('latex_docclass', default_latex_docclass, None)

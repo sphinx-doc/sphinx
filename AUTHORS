@@ -67,6 +67,7 @@ Other contributors, listed alphabetically, are:
 * Michael Wilson -- Intersphinx HTTP basic auth support
 * Joel Wurtz -- cellspanning support in LaTeX
 * Hong Xu -- svg support in imgmath extension and various bug fixes
+* Delin Chang -- Chinese support in LaTeX generation
 
 Many thanks for all contributions!
 
