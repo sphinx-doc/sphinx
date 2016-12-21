@@ -50,7 +50,14 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
         :param message: a message of warning
         :param node: a node related with the warning
         """
-        kwargs['location'] = "%s:%s" % get_source_line(node)
+        (source, line) = get_source_line(node)
+        if source and line:
+            kwargs['location'] = "%s:%s" % (source, line)
+        elif source:
+            kwargs['location'] = "%s:" % source
+        elif line:
+            kwargs['location'] = "<unknown>:%s" % line
+
         self.warning(message, **kwargs)
 
     def process(self, msg, kwargs):
@@ -178,9 +185,11 @@ class LogRecordTranslator(logging.Filter):
             if docname and lineno:
                 record.location = '%s:%s' % (self.app.env.doc2path(docname), lineno)
             elif docname:
-                record.location = '%s' % (self.app.env.doc2path(docname))
+                record.location = '%s' % self.app.env.doc2path(docname)
             else:
                 record.location = None
+        elif location and ':' not in location:
+            record.location = '%s' % self.app.env.doc2path(location)
 
         return True
 
