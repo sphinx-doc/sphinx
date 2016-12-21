@@ -20,15 +20,25 @@ from docutils.utils import get_source_line
 from sphinx.errors import SphinxWarning
 from sphinx.util.console import darkred  # type: ignore
 
+if False:
+    # For type annotation
+    from typing import Any, Generator, IO, Tuple  # NOQA
+    from docutils import nodes  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
 
 def getLogger(name):
+    # type: (str) -> SphinxLoggerAdapter
     """Get logger wrapped by SphinxLoggerAdapter."""
     return SphinxLoggerAdapter(logging.getLogger(name), {})
 
 
 class SphinxWarningLogRecord(logging.LogRecord):
     """Log record class supporting location"""
+    location = None  # type: Any
+
     def getMessage(self):
+        # type: () -> str
         message = super(SphinxWarningLogRecord, self).getMessage()
         if isinstance(message, string_types):
             location = getattr(self, 'location', None)
@@ -46,6 +56,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
 
     def warn_node(self, message, node, **kwargs):
+        # type: (unicode, nodes.Node, Any) -> None
         """Emit a warning for specific node.
 
         :param message: a message of warning
@@ -61,7 +72,8 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
 
         self.warning(message, **kwargs)
 
-    def process(self, msg, kwargs):
+    def process(self, msg, kwargs):  # type: ignore
+        # type: (unicode, Dict) -> Tuple[unicode, Dict]
         extra = kwargs.setdefault('extra', {})
         if 'type' in kwargs:
             extra['type'] = kwargs.pop('type')
@@ -79,9 +91,10 @@ class NewLineStreamHandlerPY2(logging.StreamHandler):
     """StreamHandler which switches line terminator by record.nonl flag."""
 
     def emit(self, record):
+        # type: (logging.LogRecord) -> None
         try:
             self.acquire()
-            stream = self.stream
+            stream = self.stream  # type: ignore
             if getattr(record, 'nonl', False):
                 # remove return code forcely when nonl=True
                 self.stream = StringIO()
@@ -99,6 +112,7 @@ class NewLineStreamHandlerPY3(logging.StreamHandler):
     """StreamHandler which switches line terminator by record.nonl flag."""
 
     def emit(self, record):
+        # type: (logging.LogRecord) -> None
         try:
             self.acquire()
             if getattr(record, 'nonl', False):
@@ -123,20 +137,23 @@ class MemoryHandler(logging.handlers.BufferingHandler):
         super(MemoryHandler, self).__init__(-1)
 
     def shouldFlush(self, record):
+        # type: (logging.LogRecord) -> bool
         return False  # never flush
 
     def flushTo(self, logger):
+        # type: (logging.Logger) -> None
         self.acquire()
         try:
             for record in self.buffer:
                 logger.handle(record)
-            self.buffer = []  # type: ignore
+            self.buffer = []  # type: List[logging.LogRecord]
         finally:
             self.release()
 
 
 @contextmanager
 def pending_logging():
+    # type: () -> Generator
     """contextmanager to pend logging temporary."""
     logger = logging.getLogger()
     memhandler = MemoryHandler()
@@ -162,6 +179,7 @@ class InfoFilter(logging.Filter):
     """Filter error and warning messages."""
 
     def filter(self, record):
+        # type: (logging.LogRecord) -> bool
         if record.levelno < logging.WARNING:
             return True
         else:
@@ -169,6 +187,7 @@ class InfoFilter(logging.Filter):
 
 
 def is_suppressed_warning(type, subtype, suppress_warnings):
+    # type: (unicode, unicode, List[unicode]) -> bool
     """Check the warning is suppressed or not."""
     if type is None:
         return False
@@ -191,10 +210,12 @@ class WarningSuppressor(logging.Filter):
     """Filter logs by `suppress_warnings`."""
 
     def __init__(self, app):
+        # type: (Sphinx) -> None
         self.app = app
         super(WarningSuppressor, self).__init__()
 
     def filter(self, record):
+        # type: (logging.LogRecord) -> bool
         type = getattr(record, 'type', None)
         subtype = getattr(record, 'subtype', None)
 
@@ -209,10 +230,12 @@ class WarningIsErrorFilter(logging.Filter):
     """Raise exception if warning emitted."""
 
     def __init__(self, app):
+        # type: (Sphinx) -> None
         self.app = app
         super(WarningIsErrorFilter, self).__init__()
 
     def filter(self, record):
+        # type: (logging.LogRecord) -> bool
         if self.app.warningiserror:
             raise SphinxWarning(record.msg % record.args)
         else:
@@ -226,10 +249,12 @@ class WarningLogRecordTranslator(logging.Filter):
     * docname to path if location given
     """
     def __init__(self, app):
+        # type: (Sphinx) -> None
         self.app = app
         super(WarningLogRecordTranslator, self).__init__()
 
-    def filter(self, record):
+    def filter(self, record):  # type: ignore
+        # type: (SphinxWarningLogRecord) -> bool
         if isinstance(record, logging.LogRecord):
             record.__class__ = SphinxWarningLogRecord  # force subclassing to handle location
 
@@ -249,6 +274,7 @@ class WarningLogRecordTranslator(logging.Filter):
 
 
 def setup(app, status, warning):
+    # type: (Sphinx, IO, IO) -> None
     """Setup root logger for Sphinx"""
     logger = logging.getLogger()
     logger.setLevel(logging.NOTSET)
