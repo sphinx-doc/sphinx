@@ -448,14 +448,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
         # detect Chinese language, disable babel/polyglossia
         # give warnings when no common chinese package found in configuration
-        if builder.config.language.split('_')[0] == 'zh':
-            self.elements['babel'] = ''
-            self.elements['polyglossia'] = ''
-            if 'ctex' not in self.elements['usepackages'].lower():
-                self.builder.warn('ctex package for language %s support not found\n'
-                                  'Consider adding ctex to latex_elements in conf.py\n'
-                                  'e.g. latex_elements = '
-                                  '{\'usepackages\':\'\\\\usepackage{ctex}\'}')
+        if builder.config.language:
+            if builder.config.language.split('_')[0] == 'zh':
+                self.elements['babel'] = ''
+                self.elements['polyglossia'] = ''
+                if 'ctex' not in self.elements['usepackages'].lower():
+                    self.builder.warn('ctex package for language %s support not found\n'
+                                      'Consider adding ctex to latex_elements in conf.py\n'
+                                      'e.g. latex_elements = '
+                                      '{\'usepackages\':\'\\\\usepackage{ctex}\'}')
 
         if getattr(builder, 'usepackages', None):
             def declare_package(packagename, options=None):
