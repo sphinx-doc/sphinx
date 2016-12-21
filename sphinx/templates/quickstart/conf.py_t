@@ -134,7 +134,7 @@ latex_elements = {
     # 'figure_align': 'htbp',
 
     # Chinese language default package ctex
-    {% if language[:3]|lower == 'zh_' %}
+    {%if language!=None and language|length>2 and language[:3]|lower=='zh_' %}
     'usepackages': '\\usepackage{ctex}',
     {% endif %}
 }
