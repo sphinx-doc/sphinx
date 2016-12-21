@@ -451,7 +451,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if builder.config.language.split('_')[0] == 'zh':
             self.elements['babel'] = ''
             self.elements['polyglossia'] = ''
-            if not 'ctex' in self.elements['usepackages'].lower():
+            if 'ctex' not in self.elements['usepackages'].lower():
                 self.builder.warn('ctex package for language %s support not found\n'
                                   'Consider adding ctex to latex_elements in conf.py\n'
                                   'e.g. latex_elements = '
