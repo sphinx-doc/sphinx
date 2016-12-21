@@ -14,6 +14,7 @@ from docutils import nodes
 
 from sphinx.errors import SphinxWarning
 from sphinx.util import logging
+from sphinx.util.console import colorize
 from sphinx.util.logging import is_suppressed_warning
 
 from util import with_app, raises, strip_escseq
@@ -238,3 +239,33 @@ def test_pending_logging(app, status, warning):
 
     # actually logged as ordered
     assert 'WARNING: message2\nWARNING: message3' in strip_escseq(warning.getvalue())
+
+
+@with_app()
+def test_colored_logs(app, status, warning):
+    app.verbosity = 3
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    # default colors
+    logger.debug2('message1')
+    logger.debug('message2')
+    logger.verbose('message3')
+    logger.info('message4')
+    logger.warning('message5')
+    logger.critical('message6')
+    logger.error('message7')
+
+    assert colorize('lightgray', 'message1') in status.getvalue()
+    assert colorize('darkgray', 'message2') in status.getvalue()
+    assert 'message3\n' in status.getvalue()  # not colored
+    assert 'message4\n' in status.getvalue()  # not colored
+    assert colorize('darkred', 'WARNING: message5') in warning.getvalue()
+    assert 'WARNING: message6\n' in warning.getvalue()  # not colored
+    assert 'WARNING: message7\n' in warning.getvalue()  # not colored
+
+    # color specification
+    logger.debug('message8', color='white')
+    logger.info('message9', color='red')
+    assert colorize('white', 'message8') in status.getvalue()
+    assert colorize('red', 'message9') in status.getvalue()

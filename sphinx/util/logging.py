@@ -15,11 +15,11 @@ import logging.handlers
 from contextlib import contextmanager
 from collections import defaultdict
 
-from six import PY2, StringIO, string_types
+from six import PY2, StringIO
 from docutils.utils import get_source_line
 
 from sphinx.errors import SphinxWarning
-from sphinx.util.console import darkred  # type: ignore
+from sphinx.util.console import colorize
 
 if False:
     # For type annotation
@@ -30,12 +30,20 @@ if False:
 
 VERBOSE = 15
 DEBUG2 = 5
+
 VERBOSITY_MAP = defaultdict(lambda: 0)  # type: Dict[int, int]
 VERBOSITY_MAP.update({
     0: logging.INFO,
     1: VERBOSE,
     2: logging.DEBUG,
     3: DEBUG2,
+})
+
+COLOR_MAP = defaultdict(lambda text: text)  # type: Dict[int, unicode]
+COLOR_MAP.update({
+    logging.WARNING: 'darkred',
+    logging.DEBUG: 'darkgray',
+    DEBUG2: 'lightgray',
 })
 
 
@@ -52,16 +60,13 @@ class SphinxWarningLogRecord(logging.LogRecord):
     def getMessage(self):
         # type: () -> str
         message = super(SphinxWarningLogRecord, self).getMessage()
-        if isinstance(message, string_types):
-            location = getattr(self, 'location', None)
-            if location:
-                message = '%s: WARNING: %s' % (location, message)
-            elif 'WARNING:' not in message:
-                message = 'WARNING: %s' % message
+        location = getattr(self, 'location', None)
+        if location:
+            message = '%s: WARNING: %s' % (location, message)
+        elif 'WARNING:' not in message:
+            message = 'WARNING: %s' % message
 
-            return darkred(message)
-        else:
-            return message
+        return message
 
 
 class SphinxLoggerAdapter(logging.LoggerAdapter):
@@ -103,6 +108,8 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
             extra['location'] = kwargs.pop('location')
         if 'nonl' in kwargs:
             extra['nonl'] = kwargs.pop('nonl')
+        if 'color' in kwargs:
+            extra['color'] = kwargs.pop('color')
 
         return msg, kwargs
 
@@ -293,6 +300,19 @@ class WarningLogRecordTranslator(logging.Filter):
         return True
 
 
+class ColorizeFormatter(logging.Formatter):
+    def format(self, record):
+        message = super(ColorizeFormatter, self).format(record)
+        color = getattr(record, 'color', None)
+        if color is None:
+            color = COLOR_MAP.get(record.levelno)
+
+        if color:
+            return colorize(color, message)
+        else:
+            return message
+
+
 def setup(app, status, warning):
     # type: (Sphinx, IO, IO) -> None
     """Setup root logger for Sphinx"""
@@ -306,11 +326,13 @@ def setup(app, status, warning):
     info_handler = NewLineStreamHandler(status)
     info_handler.addFilter(InfoFilter())
     info_handler.setLevel(VERBOSITY_MAP.get(app.verbosity))
+    info_handler.setFormatter(ColorizeFormatter())
 
     warning_handler = logging.StreamHandler(warning)
     warning_handler.addFilter(WarningSuppressor(app))
     warning_handler.addFilter(WarningIsErrorFilter(app))
     warning_handler.addFilter(WarningLogRecordTranslator(app))
     warning_handler.setLevel(logging.WARNING)
+    warning_handler.setFormatter(ColorizeFormatter())
     logger.addHandler(info_handler)
     logger.addHandler(warning_handler)
