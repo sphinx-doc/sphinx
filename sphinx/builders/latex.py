@@ -290,7 +290,7 @@ def default_latex_docclass(config):
 def default_latex_elements(config):
     """ Better default latex_elements settings for specific languages. """
     if config.language.split('_')[0] == 'zh':
-        return {'usepackages':'\\usepackage{ctex}'}
+        return {'usepackages': '\\usepackage{ctex}'}
     else:
         return {}
 

@@ -452,8 +452,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements['babel'] = ''
             self.elements['polyglossia'] = ''
             if not 'ctex' in self.elements['usepackages'].lower():
-                self.builder.warn('ctex package for language %s support not found\nConsider adding ctex to latex_elements in conf.py\n'
-                                  'e.g. latex_elements = {\'usepackages\':\'\\\\usepackage{ctex}\'}')
+                self.builder.warn('ctex package for language %s support not found\n'
+                                  'Consider adding ctex to latex_elements in conf.py\n'
+                                  'e.g. latex_elements = '
+                                  '{\'usepackages\':\'\\\\usepackage{ctex}\'}')
 
         if getattr(builder, 'usepackages', None):
             def declare_package(packagename, options=None):
