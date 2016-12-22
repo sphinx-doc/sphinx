@@ -18,9 +18,13 @@ from os import path
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.util.osutil import make_filename
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.util import logging
+from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
+
+
+logger = logging.getLogger(__name__)
 
 
 # Project file (*.hhp) template.  'outname' is the file basename (like
@@ -207,12 +211,12 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         StandaloneHTMLBuilder.write_doc(self, docname, doctree)
 
     def build_hhx(self, outdir, outname):
-        self.info('dumping stopword list...')
+        logger.info('dumping stopword list...')
         with self.open_file(outdir, outname+'.stp') as f:
             for word in sorted(stopwords):
                 print(word, file=f)
 
-        self.info('writing project file...')
+        logger.info('writing project file...')
         with self.open_file(outdir, outname+'.hhp') as f:
             f.write(project_template % {
                 'outname': outname,
@@ -233,7 +237,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         print(path.join(root, fn)[olen:].replace(os.sep, '\\'),
                               file=f)
 
-        self.info('writing TOC file...')
+        logger.info('writing TOC file...')
         with self.open_file(outdir, outname+'.hhc') as f:
             f.write(contents_header)
             # special books
@@ -273,7 +277,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 write_toc(node)
             f.write(contents_footer)
 
-        self.info('writing index file...')
+        logger.info('writing index file...')
         index = self.env.create_index(self)
         with self.open_file(outdir, outname+'.hhk') as f:
             f.write('<UL>\n')

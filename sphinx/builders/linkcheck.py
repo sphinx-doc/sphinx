@@ -19,7 +19,6 @@ from requests.exceptions import HTTPError
 from six.moves import queue  # type: ignore
 from six.moves.urllib.parse import unquote
 from six.moves.html_parser import HTMLParser
-
 from docutils import nodes
 
 # 2015-06-25 barry@python.org.  This exception was deprecated in Python 3.3 and
@@ -33,7 +32,7 @@ except ImportError:
         pass
 
 from sphinx.builders import Builder
-from sphinx.util import encode_uri, requests
+from sphinx.util import encode_uri, requests, logging
 from sphinx.util.console import (  # type: ignore
     purple, red, darkgreen, darkgray, darkred, turquoise
 )
@@ -44,6 +43,9 @@ if False:
     from typing import Any, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.requests.requests import Response  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 
 class AnchorCheckParser(HTMLParser):
@@ -231,24 +233,24 @@ class CheckExternalLinksBuilder(Builder):
         if status == 'working' and info == 'old':
             return
         if lineno:
-            self.info('(line %4d) ' % lineno, nonl=1)
+            logger.info('(line %4d) ' % lineno, nonl=1)
         if status == 'ignored':
             if info:
-                self.info(darkgray('-ignored- ') + uri + ': ' + info)
+                logger.info(darkgray('-ignored- ') + uri + ': ' + info)
             else:
-                self.info(darkgray('-ignored- ') + uri)
+                logger.info(darkgray('-ignored- ') + uri)
         elif status == 'local':
-            self.info(darkgray('-local-   ') + uri)
+            logger.info(darkgray('-local-   ') + uri)
             self.write_entry('local', docname, lineno, uri)
         elif status == 'working':
-            self.info(darkgreen('ok        ')  + uri + info)
+            logger.info(darkgreen('ok        ')  + uri + info)
         elif status == 'broken':
             self.write_entry('broken', docname, lineno, uri + ': ' + info)
             if self.app.quiet or self.app.warningiserror:
                 self.warn('broken link: %s (%s)' % (uri, info),
                           '%s:%s' % (self.env.doc2path(docname), lineno))
             else:
-                self.info(red('broken    ') + uri + red(' - ' + info))
+                logger.info(red('broken    ') + uri + red(' - ' + info))
         elif status == 'redirected':
             text, color = {
                 301: ('permanently', darkred),
@@ -259,7 +261,7 @@ class CheckExternalLinksBuilder(Builder):
             }[code]
             self.write_entry('redirected ' + text, docname, lineno,
                              uri + ' to ' + info)
-            self.info(color('redirect  ') + uri + color(' - ' + text + ' to '  + info))
+            logger.info(color('redirect  ') + uri + color(' - ' + text + ' to '  + info))
 
     def get_target_uri(self, docname, typ=None):
         # type: (unicode, unicode) -> unicode
@@ -275,7 +277,7 @@ class CheckExternalLinksBuilder(Builder):
 
     def write_doc(self, docname, doctree):
         # type: (unicode, nodes.Node) -> None
-        self.info()
+        logger.info('')
         n = 0
         for node in doctree.traverse(nodes.reference):
             if 'refuri' not in node:

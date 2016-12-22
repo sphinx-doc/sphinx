@@ -28,6 +28,7 @@ from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, 
 from docutils.utils import relative_path
 
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
+from sphinx.util import logging
 from sphinx.util.console import strip_colors
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import fs_encoding
@@ -45,6 +46,9 @@ from sphinx.util.matching import patfilter  # noqa
 if False:
     # For type annotation
     from typing import Any, Callable, Iterable, Pattern, Sequence, Tuple  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 # Generally useful regular expressions.
 ws_re = re.compile(r'\s+')                      # type: Pattern
@@ -532,3 +536,12 @@ def split_docinfo(text):
         return '', result[0]
     else:
         return result[1:]
+
+
+def display_chunk(chunk):
+    # type: (Union[List, Tuple, unicode]) -> unicode
+    if isinstance(chunk, (list, tuple)):
+        if len(chunk) == 1:
+            return text_type(chunk[0])
+        return '%s .. %s' % (chunk[0], chunk[-1])
+    return text_type(chunk)

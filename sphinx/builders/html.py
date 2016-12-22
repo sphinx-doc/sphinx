@@ -28,7 +28,7 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __display_version__
-from sphinx.util import jsonimpl
+from sphinx.util import jsonimpl, logging
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
@@ -56,6 +56,8 @@ if False:
 INVENTORY_FILENAME = 'objects.inv'
 #: the filename for the "last build" file (for serializing builders)
 LAST_BUILD_FILENAME = 'last_build'
+
+logger = logging.getLogger(__name__)
 
 
 def get_stable_hash(obj):
@@ -502,7 +504,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def gen_indices(self):
         # type: () -> None
-        self.info(bold('generating indices...'), nonl=1)
+        logger.info(bold('generating indices...'), nonl=1)
 
         # the global general index
         if self.use_index:
@@ -511,7 +513,7 @@ class StandaloneHTMLBuilder(Builder):
         # the global domain-specific indices
         self.write_domain_indices()
 
-        self.info()
+        logger.info('')
 
     def gen_additional_pages(self):
         # type: () -> None
@@ -520,25 +522,25 @@ class StandaloneHTMLBuilder(Builder):
             for pagename, context, template in pagelist:
                 self.handle_page(pagename, context, template)
 
-        self.info(bold('writing additional pages...'), nonl=1)
+        logger.info(bold('writing additional pages...'), nonl=1)
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
-            self.info(' '+pagename, nonl=1)
+            logger.info(' '+pagename, nonl=1)
             self.handle_page(pagename, {}, template)
 
         # the search page
         if self.search:
-            self.info(' search', nonl=1)
+            logger.info(' search', nonl=1)
             self.handle_page('search', {}, 'search.html')
 
         # the opensearch xml file
         if self.config.html_use_opensearch and self.search:
-            self.info(' opensearch', nonl=1)
+            logger.info(' opensearch', nonl=1)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
-        self.info()
+        logger.info('')
 
     def write_genindex(self):
         # type: () -> None
@@ -555,7 +557,7 @@ class StandaloneHTMLBuilder(Builder):
             genindexcounts = indexcounts,
             split_index = self.config.html_split_index,
         )
-        self.info(' genindex', nonl=1)
+        logger.info(' genindex', nonl=1)
 
         if self.config.html_split_index:
             self.handle_page('genindex', genindexcontext,
@@ -578,7 +580,7 @@ class StandaloneHTMLBuilder(Builder):
                 content = content,
                 collapse_index = collapse,
             )
-            self.info(' ' + indexname, nonl=1)
+            logger.info(' ' + indexname, nonl=1)
             self.handle_page(indexname, indexcontext, 'domainindex.html')
 
     def copy_image_files(self):
@@ -618,7 +620,7 @@ class StandaloneHTMLBuilder(Builder):
     def copy_static_files(self):
         # type: () -> None
         # copy static files
-        self.info(bold('copying static files... '), nonl=True)
+        logger.info(bold('copying static files... '), nonl=True)
         ensuredir(path.join(self.outdir, '_static'))
         # first, create pygments style file
         with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
@@ -674,12 +676,12 @@ class StandaloneHTMLBuilder(Builder):
             elif not path.isfile(icontarget):
                 copyfile(path.join(self.confdir, self.config.html_favicon),
                          icontarget)
-        self.info('done')
+        logger.info('done')
 
     def copy_extra_files(self):
         # type: () -> None
         # copy html_extra_path files
-        self.info(bold('copying extra files... '), nonl=True)
+        logger.info(bold('copying extra files... '), nonl=True)
         excluded = Matcher(self.config.exclude_patterns)
 
         for extra_path in self.config.html_extra_path:
@@ -689,7 +691,7 @@ class StandaloneHTMLBuilder(Builder):
                 continue
 
             copy_asset(entry, self.outdir, excluded)
-        self.info('done')
+        logger.info('done')
 
     def write_buildinfo(self):
         # type: () -> None
@@ -890,7 +892,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def dump_inventory(self):
         # type: () -> None
-        self.info(bold('dumping object inventory... '), nonl=True)
+        logger.info(bold('dumping object inventory... '), nonl=True)
         with open(path.join(self.outdir, INVENTORY_FILENAME), 'wb') as f:
             f.write((u'# Sphinx inventory version 2\n'
                      u'# Project: %s\n'
@@ -913,11 +915,11 @@ class StandaloneHTMLBuilder(Builder):
                         (u'%s %s:%s %s %s %s\n' % (name, domainname, type,
                                                    prio, uri, dispname)).encode('utf-8')))
             f.write(compressor.flush())
-        self.info('done')
+        logger.info('done')
 
     def dump_search_index(self):
         # type: () -> None
-        self.info(
+        logger.info(
             bold('dumping search index in %s ... ' % self.indexer.label()),
             nonl=True)
         self.indexer.prune(self.env.all_docs)
@@ -931,7 +933,7 @@ class StandaloneHTMLBuilder(Builder):
         with f:
             self.indexer.dump(f, self.indexer_format)  # type: ignore
         movefile(searchindexfn + '.tmp', searchindexfn)
-        self.info('done')
+        logger.info('done')
 
 
 class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
@@ -1097,36 +1099,36 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         # type: (Any) -> None
         docnames = self.env.all_docs
 
-        self.info(bold('preparing documents... '), nonl=True)
+        logger.info(bold('preparing documents... '), nonl=True)
         self.prepare_writing(docnames)
-        self.info('done')
+        logger.info('done')
 
-        self.info(bold('assembling single document... '), nonl=True)
+        logger.info(bold('assembling single document... '), nonl=True)
         doctree = self.assemble_doctree()
         self.env.toc_secnumbers = self.assemble_toc_secnumbers()
         self.env.toc_fignumbers = self.assemble_toc_fignumbers()
-        self.info()
-        self.info(bold('writing... '), nonl=True)
+        logger.info('')
+        logger.info(bold('writing... '), nonl=True)
         self.write_doc_serialized(self.config.master_doc, doctree)
         self.write_doc(self.config.master_doc, doctree)
-        self.info('done')
+        logger.info('done')
 
     def finish(self):
         # type: () -> None
         # no indices or search pages are supported
-        self.info(bold('writing additional files...'), nonl=1)
+        logger.info(bold('writing additional files...'), nonl=1)
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
-            self.info(' '+pagename, nonl=1)
+            logger.info(' '+pagename, nonl=1)
             self.handle_page(pagename, {}, template)
 
         if self.config.html_use_opensearch:
-            self.info(' opensearch', nonl=1)
+            logger.info(' opensearch', nonl=1)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
-        self.info()
+        logger.info('')
 
         self.copy_image_files()
         self.copy_download_files()

@@ -40,6 +40,9 @@ if False:
     from sphinx.util.tags import Tags  # NOQA
 
 
+logger = logging.getLogger(__name__)
+
+
 class Builder(object):
     """
     Builds target formats from the reST sources.
@@ -180,7 +183,7 @@ class Builder(object):
         def cat2relpath(cat):
             return path.relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
 
-        self.info(bold('building [mo]: ') + message)
+        logger.info(bold('building [mo]: ') + message)
         for catalog in self.app.status_iterator(
                 catalogs, 'writing output... ', darkgreen, len(catalogs),
                 cat2relpath):
@@ -281,7 +284,7 @@ class Builder(object):
         First updates the environment, and then calls :meth:`write`.
         """
         if summary:
-            self.info(bold('building [%s]' % self.name) + ': ' + summary)
+            logger.info(bold('building [%s]' % self.name) + ': ' + summary)
 
         # while reading, collect all warnings from docutils
         with logging.pending_logging():
@@ -289,29 +292,29 @@ class Builder(object):
                                                    self.doctreedir, self.app))
 
         doccount = len(updated_docnames)
-        self.info(bold('looking for now-outdated files... '), nonl=1)
+        logger.info(bold('looking for now-outdated files... '), nonl=1)
         for docname in self.env.check_dependents(updated_docnames):
             updated_docnames.add(docname)
         outdated = len(updated_docnames) - doccount
         if outdated:
-            self.info('%d found' % outdated)
+            logger.info('%d found' % outdated)
         else:
-            self.info('none found')
+            logger.info('none found')
 
         if updated_docnames:
             # save the environment
             from sphinx.application import ENV_PICKLE_FILENAME
-            self.info(bold('pickling environment... '), nonl=True)
+            logger.info(bold('pickling environment... '), nonl=True)
             self.env.topickle(path.join(self.doctreedir, ENV_PICKLE_FILENAME))
-            self.info('done')
+            logger.info('done')
 
             # global actions
-            self.info(bold('checking consistency... '), nonl=True)
+            logger.info(bold('checking consistency... '), nonl=True)
             self.env.check_consistency()
-            self.info('done')
+            logger.info('done')
         else:
             if method == 'update' and not docnames:
-                self.info(bold('no targets are out of date.'))
+                logger.info(bold('no targets are out of date.'))
                 return
 
         # filter "docnames" (list of outdated files) by the updated
@@ -358,7 +361,7 @@ class Builder(object):
             docnames = set(build_docnames) | set(updated_docnames)
         else:
             docnames = set(build_docnames)
-        self.app.debug('docnames to write: %s', ', '.join(sorted(docnames)))
+        logger.debug('docnames to write: %s', ', '.join(sorted(docnames)))
 
         # add all toctree-containing files that may have changed
         for docname in list(docnames):
@@ -367,9 +370,9 @@ class Builder(object):
                     docnames.add(tocdocname)
         docnames.add(self.config.master_doc)
 
-        self.info(bold('preparing documents... '), nonl=True)
+        logger.info(bold('preparing documents... '), nonl=True)
         self.prepare_writing(docnames)
-        self.info('done')
+        logger.info('done')
 
         warnings = []  # type: List[Tuple[Tuple, Dict]]
         if self.parallel_ok:
@@ -425,7 +428,7 @@ class Builder(object):
             tasks.add_task(write_process, arg, add_warnings)
 
         # make sure all threads have finished
-        self.info(bold('waiting for workers...'))
+        logger.info(bold('waiting for workers...'))
         tasks.join()
 
         for warning, kwargs in warnings:

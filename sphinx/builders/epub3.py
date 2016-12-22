@@ -16,6 +16,10 @@ from datetime import datetime
 
 from sphinx.config import string_classes
 from sphinx.builders.epub import EpubBuilder
+from sphinx.util import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 # (Fragment) templates from which the metainfo files content.opf, toc.ncx,
@@ -235,7 +239,7 @@ class Epub3Builder(EpubBuilder):
 
     def build_navigation_doc(self, outdir, outname):
         """Write the metainfo file nav.xhtml."""
-        self.info('writing %s file...' % outname)
+        logger.info('writing %s file...' % outname)
 
         if self.config.epub_tocscope == 'default':
             doctree = self.env.get_and_resolve_doctree(

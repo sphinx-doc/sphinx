@@ -33,7 +33,7 @@ from docutils.frontend import OptionParser
 
 from sphinx import addnodes
 from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
-from sphinx.util import get_matching_docs, docname_join, FilenameUniqDict
+from sphinx.util import get_matching_docs, docname_join, FilenameUniqDict, logging
 from sphinx.util.nodes import clean_astext, WarningStream, is_translatable, \
     process_only_nodes
 from sphinx.util.osutil import SEP, getcwd, fs_encoding, ensuredir
@@ -59,6 +59,8 @@ if False:
     from sphinx.config import Config  # NOQA
     from sphinx.domains import Domain  # NOQA
     from sphinx.environment.managers import EnvironmentManager  # NOQA
+
+logger = logging.getLogger(__name__)
 
 default_settings = {
     'embed_stylesheet': False,
@@ -553,7 +555,7 @@ class BuildEnvironment(object):
         # this cache also needs to be updated every time
         self._nitpick_ignore = set(self.config.nitpick_ignore)
 
-        app.info(bold('updating environment: '), nonl=True)
+        logger.info(bold('updating environment: '), nonl=True)
 
         added, changed, removed = self.get_outdated_files(config_changed)
 
@@ -569,7 +571,7 @@ class BuildEnvironment(object):
 
         msg += '%s added, %s changed, %s removed' % (len(added), len(changed),
                                                      len(removed))
-        app.info(msg)
+        logger.info(msg)
 
         self.app = app
 
@@ -664,7 +666,7 @@ class BuildEnvironment(object):
             tasks.add_task(read_process, chunk, merge)
 
         # make sure all threads have finished
-        app.info(bold('waiting for workers...'))
+        logger.info(bold('waiting for workers...'))
         tasks.join()
 
         for warning, kwargs in warnings:

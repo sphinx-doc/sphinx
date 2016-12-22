@@ -29,6 +29,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, copyfile, make_filename, EEXIST
 from sphinx.util.smartypants import sphinx_smarty_pants as ssp
 from sphinx.util.console import brown  # type: ignore
@@ -37,6 +38,9 @@ if False:
     # For type annotation
     from typing import Any, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 
 # (Fragment) templates from which the metainfo files content.opf, toc.ncx,
@@ -547,14 +551,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def build_mimetype(self, outdir, outname):
         # type: (unicode, unicode) -> None
         """Write the metainfo file mimetype."""
-        self.info('writing %s file...' % outname)
+        logger.info('writing %s file...' % outname)
         with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:  # type: ignore
             f.write(self.mimetype_template)
 
     def build_container(self, outdir, outname):
         # type: (unicode, unicode) -> None
         """Write the metainfo file META-INF/cointainer.xml."""
-        self.info('writing %s file...' % outname)
+        logger.info('writing %s file...' % outname)
         fn = path.join(outdir, outname)
         try:
             os.mkdir(path.dirname(fn))
@@ -589,7 +593,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Write the metainfo file content.opf It contains bibliographic data,
         a file list and the spine (the reading order).
         """
-        self.info('writing %s file...' % outname)
+        logger.info('writing %s file...' % outname)
 
         # files
         if not outdir.endswith(os.sep):
@@ -800,7 +804,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def build_toc(self, outdir, outname):
         # type: (unicode, unicode) -> None
         """Write the metainfo file toc.ncx."""
-        self.info('writing %s file...' % outname)
+        logger.info('writing %s file...' % outname)
 
         if self.config.epub_tocscope == 'default':
             doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
@@ -824,7 +828,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         It is a zip file with the mimetype file stored uncompressed as the first
         entry.
         """
-        self.info('writing %s file...' % outname)
+        logger.info('writing %s file...' % outname)
         projectfiles = ['META-INF/container.xml', 'content.opf', 'toc.ncx']  # type: List[unicode]  # NOQA
         projectfiles.extend(self.files)
         epub = zipfile.ZipFile(path.join(outdir, outname), 'w',  # type: ignore

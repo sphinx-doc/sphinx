@@ -69,7 +69,7 @@ from docutils import nodes
 
 import sphinx
 from sphinx import addnodes
-from sphinx.util import import_object, rst
+from sphinx.util import import_object, rst, logging
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.ext.autodoc import Options
 
@@ -80,6 +80,8 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 # -- autosummary_toc node ------------------------------------------------------
@@ -305,8 +307,7 @@ class Autosummary(Directive):
                 # be cached anyway)
                 documenter.analyzer.find_attr_docs()
             except PycodeError as err:
-                documenter.env.app.debug(
-                    '[autodoc] module analyzer failed: %s', err)
+                logger.debug('[autodoc] module analyzer failed: %s', err)
                 # no source file -- e.g. for builtin and C modules
                 documenter.analyzer = None
 

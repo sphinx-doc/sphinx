@@ -22,6 +22,7 @@ from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
+from sphinx.util import logging
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, copyfile, make_filename
 from sphinx.util.console import bold, darkgreen  # type: ignore
@@ -32,6 +33,8 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from typing import Any, Iterable, Tuple, Union  # NOQA
 
+
+logger = logging.getLogger(__name__)
 
 TEXINFO_MAKEFILE = '''\
 # Makefile for Sphinx Texinfo output
@@ -152,11 +155,11 @@ class TexinfoBuilder(Builder):
             destination = FileOutput(
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
-            self.info("processing " + targetname + "... ", nonl=1)
+            logger.info("processing " + targetname + "... ", nonl=1)
             doctree = self.assemble_doctree(
                 docname, toctree_only,
                 appendices=(self.config.texinfo_appendices or []))
-            self.info("writing... ", nonl=1)
+            logger.info("writing... ", nonl=1)
             self.post_process_images(doctree)
             docwriter = TexinfoWriter(self)
             settings = OptionParser(
@@ -173,12 +176,12 @@ class TexinfoBuilder(Builder):
             settings.docname = docname
             doctree.settings = settings
             docwriter.write(doctree, destination)
-            self.info("done")
+            logger.info("done")
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
         # type: (unicode, bool, List[unicode]) -> nodes.Node
         self.docnames = set([indexfile] + appendices)
-        self.info(darkgreen(indexfile) + " ", nonl=1)
+        logger.info(darkgreen(indexfile) + " ", nonl=1)
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
         if toctree_only:
@@ -199,8 +202,8 @@ class TexinfoBuilder(Builder):
             appendix = self.env.get_doctree(docname)
             appendix['docname'] = docname
             largetree.append(appendix)
-        self.info()
-        self.info("resolving references...")
+        logger.info('')
+        logger.info("resolving references...")
         self.env.resolve_references(largetree, indexfile, self)
         # TODO: add support for external :ref:s
         for pendingnode in largetree.traverse(addnodes.pending_xref):
@@ -222,23 +225,23 @@ class TexinfoBuilder(Builder):
         # type: () -> None
         # copy image files
         if self.images:
-            self.info(bold('copying images...'), nonl=1)
+            logger.info(bold('copying images...'), nonl=1)
             for src, dest in iteritems(self.images):
-                self.info(' '+src, nonl=1)
+                logger.info(' '+src, nonl=1)
                 copyfile(path.join(self.srcdir, src),
                          path.join(self.outdir, dest))
-            self.info()
+            logger.info('')
 
-        self.info(bold('copying Texinfo support files... '), nonl=True)
+        logger.info(bold('copying Texinfo support files... '), nonl=True)
         # copy Makefile
         fn = path.join(self.outdir, 'Makefile')
-        self.info(fn, nonl=1)
+        logger.info(fn, nonl=1)
         try:
             with open(fn, 'w') as mkfile:
                 mkfile.write(TEXINFO_MAKEFILE)
         except (IOError, OSError) as err:
             self.warn("error writing file %s: %s" % (fn, err))
-        self.info(' done')
+        logger.info(' done')
 
 
 def setup(app):

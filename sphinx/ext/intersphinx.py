@@ -42,7 +42,7 @@ from docutils.utils import relative_path
 import sphinx
 from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
-from sphinx.util import requests
+from sphinx.util import requests, logging
 
 if False:
     # For type annotation
@@ -56,6 +56,7 @@ if False:
 
     Inventory = Dict[unicode, Dict[unicode, Tuple[unicode, unicode, unicode, unicode]]]
 
+logger = logging.getLogger(__name__)
 
 UTF8StreamReader = codecs.lookup('utf-8')[2]
 
@@ -235,7 +236,7 @@ def fetch_inventory(app, uri, inv):
         if hasattr(f, 'url'):
             newinv = f.url  # type: ignore
             if inv != newinv:
-                app.info('intersphinx inventory has moved: %s -> %s' % (inv, newinv))
+                logger.info('intersphinx inventory has moved: %s -> %s' % (inv, newinv))
 
                 if uri in (inv, path.dirname(inv), path.dirname(inv) + '/'):
                     uri = path.dirname(newinv)
@@ -294,7 +295,7 @@ def load_mappings(app):
             if '://' not in inv or uri not in cache \
                     or cache[uri][1] < cache_time:
                 safe_inv_url = _get_safe_url(inv)  # type: ignore
-                app.info(
+                logger.info(
                     'loading intersphinx inventory from %s...' % safe_inv_url)
                 invdata = fetch_inventory(app, uri, inv)
                 if invdata:

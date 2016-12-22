@@ -21,7 +21,7 @@ from uuid import uuid4
 from six import iteritems
 
 from sphinx.builders import Builder
-from sphinx.util import split_index_msg
+from sphinx.util import split_index_msg, logging
 from sphinx.util.tags import Tags
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import safe_relpath, ensuredir, canon_path
@@ -35,6 +35,9 @@ if False:
     from docutils import nodes  # NOQA
     from sphinx.util.i18n import CatalogInfo  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 POHEADER = r"""
 # SOME DESCRIPTIVE TITLE.
@@ -216,8 +219,8 @@ class MessageCatalogBuilder(I18nBuilder):
     def _extract_from_template(self):
         # type: () -> None
         files = self._collect_templates()
-        self.info(bold('building [%s]: ' % self.name), nonl=1)
-        self.info('targets for %d template files' % len(files))
+        logger.info(bold('building [%s]: ' % self.name), nonl=1)
+        logger.info('targets for %d template files' % len(files))
 
         extract_translations = self.templates.environment.extract_translations
 

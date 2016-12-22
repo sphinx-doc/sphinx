@@ -25,7 +25,7 @@ from docutils.parsers.rst import Directive, directives
 
 import sphinx
 from sphinx.builders import Builder
-from sphinx.util import force_decode
+from sphinx.util import force_decode, logging
 from sphinx.util.nodes import set_source_info
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.osutil import fs_encoding
@@ -34,6 +34,8 @@ if False:
     # For type annotation
     from typing import Any, Callable, IO, Iterable, Sequence, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+logger = logging.getLogger(__name__)
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
 doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
@@ -262,7 +264,7 @@ Results of doctest builder run on %s
 
     def _out(self, text):
         # type: (unicode) -> None
-        self.info(text, nonl=True)
+        logger.info(text, nonl=True)
         self.outfile.write(text)
 
     def _warn_out(self, text):
@@ -270,7 +272,7 @@ Results of doctest builder run on %s
         if self.app.quiet or self.app.warningiserror:
             self.warn(text)
         else:
-            self.info(text, nonl=True)
+            logger.info(text, nonl=True)
         if isinstance(text, binary_type):
             text = force_decode(text, None)
         self.outfile.write(text)
@@ -311,7 +313,7 @@ Doctest summary
         if build_docnames is None:
             build_docnames = sorted(self.env.all_docs)
 
-        self.info(bold('running tests...'))
+        logger.info(bold('running tests...'))
         for docname in build_docnames:
             # no need to resolve the doctree
             doctree = self.env.get_doctree(docname)

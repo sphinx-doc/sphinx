@@ -31,6 +31,7 @@ from sphinx.util import rpartition, force_decode
 from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.application import ExtensionError
+from sphinx.util import logging
 from sphinx.util.nodes import nested_parse_with_titles
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
     safe_getattr, object_description, is_builtin_class_method, \
@@ -51,6 +52,8 @@ try:
         typing = None  # type: ignore
 except ImportError:
     typing = None
+
+logger = logging.getLogger(__name__)
 
 # This type isn't exposed directly in any modules, but can be found
 # here in most Python versions
@@ -581,26 +584,25 @@ class Documenter(object):
 
         Returns True if successful, False if an error occurred.
         """
-        dbg = self.env.app.debug
         if self.objpath:
-            dbg('[autodoc] from %s import %s',
-                self.modname, '.'.join(self.objpath))
+            logger.debug('[autodoc] from %s import %s',
+                         self.modname, '.'.join(self.objpath))
         try:
-            dbg('[autodoc] import %s', self.modname)
+            logger.debug('[autodoc] import %s', self.modname)
             for modname in self.env.config.autodoc_mock_imports:
-                dbg('[autodoc] adding a mock module %s!', modname)
+                logger.debug('[autodoc] adding a mock module %s!', modname)
                 mock_import(modname)
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=ImportWarning)
                 __import__(self.modname)
             parent = None
             obj = self.module = sys.modules[self.modname]
-            dbg('[autodoc] => %r', obj)
+            logger.debug('[autodoc] => %r', obj)
             for part in self.objpath:
                 parent = obj
-                dbg('[autodoc] getattr(_, %r)', part)
+                logger.debug('[autodoc] getattr(_, %r)', part)
                 obj = self.get_attr(obj, part)
-                dbg('[autodoc] => %r', obj)
+                logger.debug('[autodoc] => %r', obj)
                 self.object_name = part
             self.parent = parent
             self.object = obj
@@ -622,7 +624,7 @@ class Documenter(object):
                           traceback.format_exc()
             if PY2:
                 errmsg = errmsg.decode('utf-8')  # type: ignore
-            dbg(errmsg)
+            logger.debug(errmsg)
             self.directive.warn(errmsg)
             self.env.note_reread()
             return False
@@ -1024,7 +1026,7 @@ class Documenter(object):
             # be cached anyway)
             self.analyzer.find_attr_docs()
         except PycodeError as err:
-            self.env.app.debug('[autodoc] module analyzer failed: %s', err)
+            logger.debug('[autodoc] module analyzer failed: %s', err)
             # no source file -- e.g. for builtin and C modules
             self.analyzer = None
             # at least add the module.__file__ as a dependency
@@ -1730,8 +1732,8 @@ class AutoDirective(Directive):
             source, lineno = self.reporter.get_source_and_line(self.lineno)
         except AttributeError:
             source = lineno = None
-        self.env.app.debug('[autodoc] %s:%s: input:\n%s',
-                           source, lineno, self.block_text)
+        logger.debug('[autodoc] %s:%s: input:\n%s',
+                     source, lineno, self.block_text)
 
         # find out what documenter to call
         objtype = self.name[4:]
@@ -1760,7 +1762,7 @@ class AutoDirective(Directive):
         if not self.result:
             return self.warnings
 
-        self.env.app.debug2('[autodoc] output:\n%s', '\n'.join(self.result))
+        logger.debug2('[autodoc] output:\n%s', '\n'.join(self.result))
 
         # record all filenames as dependencies -- this will at least
         # partially make automatic invalidation possible

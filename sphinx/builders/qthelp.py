@@ -21,7 +21,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.util import force_decode
+from sphinx.util import force_decode, logging
 from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
 
@@ -29,6 +29,9 @@ if False:
     # For type annotation
     from typing import Any, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 
 _idpattern = re.compile(
@@ -138,7 +141,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
     def build_qhp(self, outdir, outname):
         # type: (unicode, unicode) -> None
-        self.info('writing project file...')
+        logger.info('writing project file...')
 
         # sections
         tocdoc = self.env.get_and_resolve_doctree(self.config.master_doc, self,
@@ -216,7 +219,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             nspace, 'doc', self.get_target_uri(self.config.master_doc))
         startpage = 'qthelp://' + posixpath.join(nspace, 'doc', 'index.html')
 
-        self.info('writing collection project file...')
+        logger.info('writing collection project file...')
         with codecs.open(path.join(outdir, outname+'.qhcp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
             f.write(collection_template % {  # type: ignore
                 'outname': htmlescape(outname),
