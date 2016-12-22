@@ -53,6 +53,14 @@ def getLogger(name):
     return SphinxLoggerAdapter(logging.getLogger(name), {})
 
 
+def convert_serializable(records):
+    """Convert LogRecord serializable."""
+    for r in records:
+        # extract arguments to a message and clear them
+        r.msg = r.getMessage()
+        r.args = ()
+
+
 class SphinxWarningLogRecord(logging.LogRecord):
     """Log record class supporting location"""
     location = None  # type: Any
@@ -112,6 +120,10 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
             extra['color'] = kwargs.pop('color')
 
         return msg, kwargs
+
+    def handle(self, record):
+        # type: (logging.LogRecord) -> None
+        self.logger.handle(record)  # type: ignore
 
 
 class NewLineStreamHandlerPY2(logging.StreamHandler):
@@ -177,6 +189,11 @@ class MemoryHandler(logging.handlers.BufferingHandler):
         finally:
             self.release()
 
+    def clear(self):
+        # type: () -> List[logging.LogRecord]
+        buffer, self.buffer = self.buffer, []
+        return buffer
+
 
 @contextmanager
 def pending_logging():
@@ -192,7 +209,7 @@ def pending_logging():
             handlers.append(handler)
 
         logger.addHandler(memhandler)
-        yield
+        yield memhandler
     finally:
         logger.removeHandler(memhandler)
 
@@ -200,6 +217,18 @@ def pending_logging():
             logger.addHandler(handler)
 
         memhandler.flushTo(logger)
+
+
+class LogCollector(object):
+    def __init__(self):
+        self.logs = []  # type: logging.LogRecord
+
+    @contextmanager
+    def collect(self):
+        with pending_logging() as memhandler:
+            yield
+
+            self.logs = memhandler.clear()
 
 
 class InfoFilter(logging.Filter):

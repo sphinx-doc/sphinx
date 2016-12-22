@@ -16,6 +16,7 @@ from sphinx.errors import SphinxWarning
 from sphinx.util import logging
 from sphinx.util.console import colorize
 from sphinx.util.logging import is_suppressed_warning
+from sphinx.util.parallel import ParallelTasks
 
 from util import with_app, raises, strip_escseq
 
@@ -269,3 +270,19 @@ def test_colored_logs(app, status, warning):
     logger.info('message9', color='red')
     assert colorize('white', 'message8') in status.getvalue()
     assert colorize('red', 'message9') in status.getvalue()
+
+
+@with_app()
+def test_logging_in_ParallelTasks(app, status, warning):
+    logging.setup(app, status, warning)
+    logger = logging.getLogger(__name__)
+
+    def child_process():
+        logger.info('message1')
+        logger.warning('message2', location='index')
+
+    tasks = ParallelTasks(1)
+    tasks.add_task(child_process)
+    tasks.join()
+    assert 'message1' in status.getvalue()
+    assert 'index.txt: WARNING: message2' in warning.getvalue()
