@@ -373,6 +373,25 @@ class ColorizeFormatter(logging.Formatter):
             return message
 
 
+class SafeEncodingWriter(object):
+    """Stream writer which ignores UnicodeEncodeError silently"""
+    def __init__(self, stream):
+        self.stream = stream
+        self.encoding = getattr(stream, 'encoding', 'ascii') or 'ascii'
+
+    def write(self, data):
+        try:
+            self.stream.write(data)
+        except UnicodeEncodeError:
+            # stream accept only str, not bytes.  So, we encode and replace
+            # non-encodable characters, then decode them.
+            self.stream.write(data.encode(self.encoding, 'replace').decode(self.encoding))
+
+    def flush(self):
+        if hasattr(self.stream, 'flush'):
+            self.stream.flush()
+
+
 def setup(app, status, warning):
     # type: (Sphinx, IO, IO) -> None
     """Setup root logger for Sphinx"""
@@ -383,12 +402,12 @@ def setup(app, status, warning):
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
 
-    info_handler = NewLineStreamHandler(status)
+    info_handler = NewLineStreamHandler(SafeEncodingWriter(status))
     info_handler.addFilter(InfoFilter())
     info_handler.setLevel(VERBOSITY_MAP.get(app.verbosity))
     info_handler.setFormatter(ColorizeFormatter())
 
-    warning_handler = WarningStreamHandler(warning)
+    warning_handler = WarningStreamHandler(SafeEncodingWriter(warning))
     warning_handler.addFilter(WarningSuppressor(app))
     warning_handler.addFilter(WarningIsErrorFilter(app))
     warning_handler.addFilter(WarningLogRecordTranslator(app))

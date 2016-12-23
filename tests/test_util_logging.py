@@ -10,6 +10,7 @@
 """
 from __future__ import print_function
 
+import codecs
 from docutils import nodes
 
 from sphinx.errors import SphinxWarning
@@ -286,3 +287,18 @@ def test_logging_in_ParallelTasks(app, status, warning):
     tasks.join()
     assert 'message1' in status.getvalue()
     assert 'index.txt: WARNING: message2' in warning.getvalue()
+
+
+@with_app()
+def test_output_with_unencodable_char(app, status, warning):
+    class StreamWriter(codecs.StreamWriter):
+        def write(self, object):
+            self.stream.write(object.encode('cp1252').decode('cp1252'))
+
+    logging.setup(app, StreamWriter(status), warning)
+
+    # info with UnicodeEncodeError
+    status.truncate(0)
+    status.seek(0)
+    app.info(u"unicode \u206d...")
+    assert status.getvalue() == "unicode ?...\n"

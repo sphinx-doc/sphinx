@@ -8,7 +8,6 @@
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import codecs
 
 from docutils import nodes
 
@@ -66,22 +65,6 @@ def test_output(app, status, warning):
     app.warn("Bad news!")
     assert strip_escseq(warning.getvalue()) == "WARNING: Bad news!\n"
     assert app._warncount == old_count + 1
-
-
-@with_app()
-def test_output_with_unencodable_char(app, status, warning):
-
-    class StreamWriter(codecs.StreamWriter):
-        def write(self, object):
-            self.stream.write(object.encode('cp1252').decode('cp1252'))
-
-    app._status = StreamWriter(status)
-
-    # info with UnicodeEncodeError
-    status.truncate(0)
-    status.seek(0)
-    app.info(u"unicode \u206d...")
-    assert status.getvalue() == "unicode ?...\n"
 
 
 @with_app()
