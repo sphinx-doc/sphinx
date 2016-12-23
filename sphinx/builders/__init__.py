@@ -287,7 +287,7 @@ class Builder(object):
             logger.info(bold('building [%s]' % self.name) + ': ' + summary)
 
         # while reading, collect all warnings from docutils
-        with logging.pending_logging():
+        with logging.pending_warnings():
             updated_docnames = set(self.env.update(self.config, self.srcdir,
                                                    self.doctreedir, self.app))
 
@@ -386,7 +386,7 @@ class Builder(object):
 
     def _write_serial(self, docnames):
         # type: (Sequence[unicode]) -> None
-        with logging.pending_logging():
+        with logging.pending_warnings():
             for docname in self.app.status_iterator(
                     docnames, 'writing output... ', darkgreen, len(docnames)):
                 doctree = self.env.get_and_resolve_doctree(docname, self)

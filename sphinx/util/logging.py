@@ -126,6 +126,11 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
         self.logger.handle(record)  # type: ignore
 
 
+class WarningStreamHandler(logging.StreamHandler):
+    """StreamHandler for warnings."""
+    pass
+
+
 class NewLineStreamHandlerPY2(logging.StreamHandler):
     """StreamHandler which switches line terminator by record.nonl flag."""
 
@@ -196,9 +201,35 @@ class MemoryHandler(logging.handlers.BufferingHandler):
 
 
 @contextmanager
+def pending_warnings():
+    # type: () -> Generator
+    """contextmanager to pend logging warnings temporary."""
+    logger = logging.getLogger()
+    memhandler = MemoryHandler()
+    memhandler.setLevel(logging.WARNING)
+
+    try:
+        handlers = []
+        for handler in logger.handlers[:]:
+            if isinstance(handler, WarningStreamHandler):
+                logger.removeHandler(handler)
+                handlers.append(handler)
+
+        logger.addHandler(memhandler)
+        yield memhandler
+    finally:
+        logger.removeHandler(memhandler)
+
+        for handler in handlers:
+            logger.addHandler(handler)
+
+        memhandler.flushTo(logger)
+
+
+@contextmanager
 def pending_logging():
     # type: () -> Generator
-    """contextmanager to pend logging temporary."""
+    """contextmanager to pend logging all logs temporary."""
     logger = logging.getLogger()
     memhandler = MemoryHandler()
 
@@ -357,7 +388,7 @@ def setup(app, status, warning):
     info_handler.setLevel(VERBOSITY_MAP.get(app.verbosity))
     info_handler.setFormatter(ColorizeFormatter())
 
-    warning_handler = logging.StreamHandler(warning)
+    warning_handler = WarningStreamHandler(warning)
     warning_handler.addFilter(WarningSuppressor(app))
     warning_handler.addFilter(WarningIsErrorFilter(app))
     warning_handler.addFilter(WarningLogRecordTranslator(app))

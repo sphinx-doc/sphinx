@@ -225,12 +225,12 @@ def test_warn_node(app, status, warning):
 
 
 @with_app()
-def test_pending_logging(app, status, warning):
+def test_pending_warnings(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
 
     logger.warning('message1')
-    with logging.pending_logging():
+    with logging.pending_warnings():
         # not logged yet (bufferred) in here
         logger.warning('message2')
         logger.warning('message3')
