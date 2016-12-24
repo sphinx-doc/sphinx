@@ -732,9 +732,6 @@ def makePythonCustomIndex(objecttype='class', nameofindex='classindex',
             # sort by first letter
             sorted_content = sorted(iteritems(content))
 
-            print("For objecttype = {}, nameofindex = {}, localname = {}, shortname = {} ...".format(objecttype, nameofindex, localname, shortname))  # DEBUG
-            print("There is {} objects of that type in the new index ...".format(len(sorted_content)))  # DEBUG
-
             return sorted_content, collapse
 
     return PythonCustomIndex
@@ -754,11 +751,11 @@ PythonMethodIndex       = makePythonCustomIndex(('method'), ('methodindex'),
                                                 ('Python Method Index'), ('methods'),
                                                 lambda s: s + '()')
 PythonClassmethodIndex  = makePythonCustomIndex(('classmethod'), ('classmethodindex'),
-                                                ('Python Class Method Index'), ('classmethods'),
-                                                lambda s: s + '()')
+                                                ('Python Class Method Index'),
+                                                ('classmethods'), lambda s: s + '()')
 PythonStaticmethodIndex = makePythonCustomIndex(('staticmethod'), ('staticmethodindex'),
-                                                ('Python Static Method Index'), ('staticmethods'),
-                                                lambda s: s + '()')
+                                                ('Python Static Method Index'),
+                                                ('staticmethods'), lambda s: s + '()')
 PythonAttributeIndex    = makePythonCustomIndex(('attribute'), ('attributeindex'),
                                                 ('Python Attribute Index'), ('attributes'))
 
