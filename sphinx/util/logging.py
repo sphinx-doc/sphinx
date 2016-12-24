@@ -31,6 +31,18 @@ if False:
 VERBOSE = 15
 DEBUG2 = 5
 
+LEVEL_NAMES = defaultdict(lambda: logging.WARNING)  # type: Dict[str, int]
+LEVEL_NAMES.update({
+    'CRITICAL': logging.CRITICAL,
+    'SEVERE': logging.CRITICAL,
+    'ERROR': logging.ERROR,
+    'WARNING': logging.WARNING,
+    'INFO': logging.INFO,
+    'VERBOSE': VERBOSE,
+    'DEBUG': logging.DEBUG,
+    'DEBUG2': DEBUG2,
+})
+
 VERBOSITY_MAP = defaultdict(lambda: 0)  # type: Dict[int, int]
 VERBOSITY_MAP.update({
     0: logging.INFO,
@@ -96,6 +108,14 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
             kwargs['location'] = "<unknown>:%s" % line
 
         self.warning(message, **kwargs)
+
+    def log(self, level, msg, *args, **kwargs):
+        # type: (Union[int, str], unicode, Any, Any) -> None
+        if isinstance(level, int):
+            super(SphinxLoggerAdapter, self).log(level, msg, *args, **kwargs)
+        else:
+            levelno = LEVEL_NAMES.get(level)
+            super(SphinxLoggerAdapter, self).log(levelno, msg, *args, **kwargs)
 
     def verbose(self, msg, *args, **kwargs):
         # type: (unicode, Any, Any) -> None

@@ -124,25 +124,13 @@ class sphinx_domains(object):
 
 
 class WarningStream(object):
-    level_mapping = {
-        'DEBUG': logger.debug,
-        'INFO': logger.info,
-        'WARNING': logger.warning,
-        'ERROR': logger.error,
-        'SEVERE': logger.critical,
-    }
-
     def write(self, text):
         matched = report_re.search(text)
         if not matched:
             logger.warning(text.rstrip("\r\n"))
         else:
             location, type, level, message = matched.groups()
-            if type in self.level_mapping:
-                logger_method = self.level_mapping.get(type)
-                logger_method(message, location=location)
-            else:
-                logger.warning(text.rstrip("\r\n"))
+            logger.log(type, message, location=location)
 
 
 class LoggingReporter(Reporter):
