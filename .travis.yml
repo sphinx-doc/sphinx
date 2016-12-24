@@ -18,6 +18,16 @@ env:
   matrix:
     - DOCUTILS=0.12
     - DOCUTILS=0.13.1
+matrix:
+  exclude:
+    - python: "3.4"
+      env: DOCUTILS=0.12
+    - python: "3.5"
+      env: DOCUTILS=0.12
+    - python: nightly
+      env: DOCUTILS=0.12
+    - python: pypy
+      env: DOCUTILS=0.12
 addons:
   apt:
     packages:
