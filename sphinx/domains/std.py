@@ -498,18 +498,18 @@ class StandardDomain(Domain):
         'objects': {},      # (type, name) -> docname, labelid
         'citations': {},    # name -> docname, labelid
         'labels': {         # labelname -> docname, labelid, sectionname
-            'genindex': ('genindex', '', l_('Index')),
-            'modindex': ('py-modindex', '', l_('Module Index')),
+            'genindex':   ('genindex',      '', l_('Index')),
+            'modindex':   ('py-modindex',   '', l_('Module Index')),
             'classindex': ('py-classindex', '', l_('Class Index')),
-            'funindex': ('py-funindex', '', l_('Function Index')),
-            'search':   ('search', '', l_('Search Page')),
+            'funcindex':  ('py-funcindex',  '', l_('Function Index')),
+            'search':     ('search',        '', l_('Search Page')),
         },
         'anonlabels': {     # labelname -> docname, labelid
-            'genindex': ('genindex', ''),
-            'modindex': ('py-modindex', ''),
+            'genindex':   ('genindex',      ''),
+            'modindex':   ('py-modindex',   ''),
             'classindex': ('py-classindex', ''),
-            'funindex': ('py-funindex', ''),
-            'search':   ('search', ''),
+            'funcindex':  ('py-funcindex',  ''),
+            'search':     ('search',        ''),
         },
     }
 

@@ -104,7 +104,7 @@ class Config(object):
         suppress_warnings = ([], 'env'),
         modindex_common_prefix = ([], 'html'),
         classindex_common_prefix = ([], 'html'),
-        funindex_common_prefix = ([], 'html'),
+        funcindex_common_prefix = ([], 'html'),
         rst_epilog = (None, 'env', string_classes),
         rst_prolog = (None, 'env', string_classes),
         trim_doctest_flags = (True, 'env'),

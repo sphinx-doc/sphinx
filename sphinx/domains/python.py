@@ -714,12 +714,12 @@ class PythonClassIndex(Index):
         return sorted_content, collapse
 
 
-class PythonFunIndex(Index):
+class PythonFuncIndex(Index):
     """
     Index subfunction to provide the Python function index.
     """
 
-    name = 'funindex'
+    name = 'funcindex'
     localname = l_('Python Function Index')
     shortname = l_('functions')
 
@@ -728,7 +728,7 @@ class PythonFunIndex(Index):
         content = {}  # type: Dict[unicode, List]
         # list of prefixes to ignore
         ignores = None  # type: List[unicode]
-        ignores = self.domain.env.config['funindex_common_prefix']  # type: ignore
+        ignores = self.domain.env.config['funcindex_common_prefix']  # type: ignore
         ignores = sorted(ignores, key=len, reverse=True)
         # list of all functions, sorted by function name
         unsorted_functions = [(refname, (docname, type))
@@ -773,7 +773,7 @@ class PythonFunIndex(Index):
                 subtype = 0
 
             entries.append([stripped + functionname + '()', subtype, docname,
-                            stripped + functionname + '()', '', '', ''])
+                            stripped + functionname, '', '', ''])
             prev_functionname = functionname
 
         # apply heuristics when to collapse modindex at page load:
@@ -835,7 +835,7 @@ class PythonDomain(Domain):
     indices = [
         PythonModuleIndex,
         PythonClassIndex,
-        PythonFunIndex,
+        PythonFuncIndex,
     ]
 
     def clear_doc(self, docname):

@@ -460,7 +460,7 @@ Project information
 
    .. versionadded:: 1.6
 
-.. confval:: funindex_common_prefix
+.. confval:: funcindex_common_prefix
 
    A list of prefixes that are ignored for sorting the Python functions index
    (e.g., if this is set to ``['foo.']``, then ``foo.bar()`` is shown under ``B``,
