@@ -111,4 +111,5 @@ def test_default_highlight(logger):
     ret = bridge.highlight_block('reST ``like`` text', 'python3')
     logger.warning.assert_called_with('Could not lex literal_block as "%s". '
                                       'Highlighting skipped.', 'python3',
-                                      type='misc', subtype='highlighting_failure', location=None)
+                                      type='misc', subtype='highlighting_failure',
+                                      location=None)
