@@ -643,7 +643,7 @@ class PythonModuleIndex(Index):
 
 def makePythonCustomIndex(objecttype='class', nameofindex='classindex',
                           localname='Python Class Index', shortname='classes',
-                              changeobjectname=lambda s: s):
+                          changeobjectname=lambda s: s):
     """
     Return a class, child of Index, to provide the Python class,functions,... index.
 
