@@ -1,7 +1,7 @@
-# Translations template for Sphinx.
+# French translations for Sphinx.
 # Copyright (C) 2016 ORGANIZATION
 # This file is distributed under the same license as the Sphinx project.
-# 
+#
 # Translators:
 # Christophe CHAUVET <christophe.chauvet@gmail.com>, 2013,2015
 # Larlet David <david@larlet.fr>, 2008
@@ -16,18 +16,19 @@
 # Takeshi KOMIYA <i.tkomiya@gmail.com>, 2016
 msgid ""
 msgstr ""
-"Project-Id-Version: Sphinx\n"
+"Project-Id-Version:  Sphinx\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2016-11-06 22:40+0900\n"
 "PO-Revision-Date: 2016-11-24 12:26+0000\n"
 "Last-Translator: Pierre Grépon <pgrepon@yahoo.fr>\n"
-"Language-Team: French (http://www.transifex.com/sphinx-doc/sphinx-1/language/fr/)\n"
+"Language: fr\n"
+"Language-Team: French (http://www.transifex.com/sphinx-"
+"doc/sphinx-1/language/fr/)\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.3.4\n"
-"Language: fr\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: sphinx/config.py:109
 #, python-format
@@ -128,12 +129,12 @@ msgstr "Paramètres"
 #: sphinx/domains/c.py:61 sphinx/domains/cpp.py:4060
 #: sphinx/domains/javascript.py:128 sphinx/domains/python.py:161
 msgid "Returns"
-msgstr "Retourne"
+msgstr "Renvoie"
 
 #: sphinx/domains/c.py:63 sphinx/domains/javascript.py:130
 #: sphinx/domains/python.py:163
 msgid "Return type"
-msgstr "Type retourné"
+msgstr "Type renvoyé"
 
 #: sphinx/domains/c.py:177
 #, python-format
@@ -355,6 +356,14 @@ msgstr "Index des modules Python"
 msgid "modules"
 msgstr "modules"
 
+#: sphinx/domains/python.py:650
+msgid "Python Class Index"
+msgstr "Index des classes Python"
+
+#: sphinx/domains/python.py:723
+msgid "Python Function Index"
+msgstr "Index des fonctions Python"
+
 #: sphinx/domains/python.py:592
 msgid "Deprecated"
 msgstr "Obsolète"
@@ -441,9 +450,17 @@ msgstr "option du programme"
 msgid "Index"
 msgstr "Index"
 
-#: sphinx/domains/std.py:474
+#: sphinx/domains/std.py:502
 msgid "Module Index"
-msgstr "Index du module"
+msgstr "Index des modules"
+
+#: sphinx/domains/std.py:503
+msgid "Class Index"
+msgstr "Index des classes"
+
+#: sphinx/domains/std.py:504
+msgid "Functions Index"
+msgstr "Index des fonctions"
 
 #: sphinx/domains/std.py:475 sphinx/themes/basic/defindex.html:25
 msgid "Search Page"
@@ -737,7 +754,9 @@ msgstr "Mis à jour le %(last_updated)s."
 msgid ""
 "Created using <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
 "%(sphinx_version)s."
-msgstr "Créé avec <a href=\"http://sphinx-doc.org/\">Sphinx</a> %(sphinx_version)s."
+msgstr ""
+"Créé avec <a href=\"http://sphinx-doc.org/\">Sphinx</a> "
+"%(sphinx_version)s."
 
 #: sphinx/themes/basic/opensearch.xml:4
 #, python-format
@@ -772,26 +791,32 @@ msgid ""
 "    words into the box below and click \"search\". Note that the search\n"
 "    function will automatically search for all of the words. Pages\n"
 "    containing fewer words won't appear in the result list."
-msgstr "Vous pouvez effectuer une recherche au sein des documents. Saisissez les termes\nde votre recherche dans le champs ci-dessous et cliquez sur \"rechercher\". Notez que la fonctionnalité de recherche\nva automatiquement chercher l'ensemble des mots. Les pages\ncontenant moins de mots n'apparaîtront pas dans la liste des résultats."
+msgstr ""
+"Vous pouvez effectuer une recherche au sein des documents. Saisissez les "
+"termes\n"
+"de votre recherche dans le champs ci-dessous et cliquez sur "
+"\"rechercher\". Notez que la fonctionnalité de recherche\n"
+"va automatiquement chercher l'ensemble des mots. Les pages\n"
+"contenant moins de mots n'apparaîtront pas dans la liste des résultats."
 
-#: sphinx/themes/basic/search.html:39
-#: sphinx/themes/basic/searchresults.html:17
+#: sphinx/themes/basic/search.html:39 sphinx/themes/basic/searchresults.html:17
 msgid "search"
 msgstr "rechercher"
 
-#: sphinx/themes/basic/search.html:43
-#: sphinx/themes/basic/searchresults.html:21
+#: sphinx/themes/basic/search.html:43 sphinx/themes/basic/searchresults.html:21
 #: sphinx/themes/basic/static/searchtools.js_t:287
 msgid "Search Results"
 msgstr "Résultats de la recherche"
 
-#: sphinx/themes/basic/search.html:45
-#: sphinx/themes/basic/searchresults.html:23
+#: sphinx/themes/basic/search.html:45 sphinx/themes/basic/searchresults.html:23
 #: sphinx/themes/basic/static/searchtools.js_t:289
 msgid ""
-"Your search did not match any documents. Please make sure that all words are"
-" spelled correctly and that you've selected enough categories."
-msgstr "Votre recherche ne correspond à aucun document. Veuillez vérifier que les mots sont correctement orthographiés et que vous avez sélectionné assez de catégories."
+"Your search did not match any documents. Please make sure that all words "
+"are spelled correctly and that you've selected enough categories."
+msgstr ""
+"Votre recherche ne correspond à aucun document. Veuillez vérifier que les"
+" mots sont correctement orthographiés et que vous avez sélectionné assez "
+"de catégories."
 
 #: sphinx/themes/basic/searchbox.html:12
 msgid "Quick search"
@@ -854,7 +879,9 @@ msgstr "Préparation de la recherche..."
 #: sphinx/themes/basic/static/searchtools.js_t:291
 #, python-format
 msgid "Search finished, found %s page(s) matching the search query."
-msgstr "La recherche est finie, %s page(s) trouvée(s) qui corresponde(nt) à la recherche."
+msgstr ""
+"La recherche est finie, %s page(s) trouvée(s) qui corresponde(nt) à la "
+"recherche."
 
 #: sphinx/themes/basic/static/searchtools.js_t:344
 msgid ", in "

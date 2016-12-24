@@ -450,6 +450,26 @@ Project information
 
    .. versionadded:: 0.6
 
+.. confval:: classindex_common_prefix
+
+   A list of prefixes that are ignored for sorting the Python class index
+   (e.g., if this is set to ``['foo.']``, then ``foo.bar`` is shown under ``B``,
+   not ``F``). This can be handy if you document a project that consists of a
+   single package.  Works only for the HTML builder currently.  Default is
+   ``[]``.
+
+   .. versionadded:: 1.6
+
+.. confval:: funindex_common_prefix
+
+   A list of prefixes that are ignored for sorting the Python functions index
+   (e.g., if this is set to ``['foo.']``, then ``foo.bar()`` is shown under ``B``,
+   not ``F``). This can be handy if you document a project that consists of a
+   single package.  Works only for the HTML builder currently.  Default is
+   ``[]``.
+
+   .. versionadded:: 1.6
+
 .. confval:: trim_footnote_reference_space
 
    Trim spaces before footnote references that are necessary for the reST parser

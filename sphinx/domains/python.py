@@ -641,6 +641,152 @@ class PythonModuleIndex(Index):
         return sorted_content, collapse
 
 
+class PythonClassIndex(Index):
+    """
+    Index subclass to provide the Python class index.
+    """
+
+    name = 'classindex'
+    localname = l_('Python Class Index')
+    shortname = l_('classes')
+
+    def generate(self, docnames=None):
+        # type: (List[unicode]) -> Tuple[List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]  # NOQA
+        content = {}  # type: Dict[unicode, List]
+        # list of prefixes to ignore
+        ignores = None  # type: List[unicode]
+        ignores = self.domain.env.config['classindex_common_prefix']  # type: ignore
+        ignores = sorted(ignores, key=len, reverse=True)
+        # list of all classes, sorted by class name
+        unsorted_classes = [(refname, (docname, type))
+                            for (refname, (docname, type)) in iteritems(self.domain.data['objects'])
+                            if type == 'class']
+        classes = sorted(unsorted_classes,
+                         key=lambda x: x[0].lower())
+        # sort out collapsable classes
+        prev_classname = ''
+        num_toplevels = 0
+        for classname, (docname, type) in classes:
+            if docnames and docname not in docnames:
+                continue
+
+            for ignore in ignores:
+                if classname.startswith(ignore):
+                    classname = classname[len(ignore):]
+                    stripped = ignore
+                    break
+            else:
+                stripped = ''
+
+            # we stripped the whole class name?
+            if not classname:
+                classname, stripped = stripped, ''
+
+            entries = content.setdefault(classname[0].lower(), [])
+
+            package = classname.split('.')[0]
+            if package != classname:
+                # it's a subclass
+                if prev_classname == package:
+                    # first subclass - make parent a group head
+                    if entries:
+                        entries[-1][1] = 1
+                elif not prev_classname.startswith(package):
+                    # subclass without parent in list, add dummy entry
+                    entries.append([stripped + package, 1, '', '', '', '', ''])
+                subtype = 2
+            else:
+                num_toplevels += 1
+                subtype = 0
+
+            entries.append([stripped + classname, subtype, docname,
+                            stripped + classname, '', '', ''])
+            prev_classname = classname
+
+        # apply heuristics when to collapse modindex at page load:
+        # only collapse if number of toplevel classes is larger than
+        # number of subclasses
+        collapse = len(classes) - num_toplevels < num_toplevels
+
+        # sort by first letter
+        sorted_content = sorted(iteritems(content))
+
+        return sorted_content, collapse
+
+
+class PythonFunIndex(Index):
+    """
+    Index subfunction to provide the Python function index.
+    """
+
+    name = 'funindex'
+    localname = l_('Python Function Index')
+    shortname = l_('functions')
+
+    def generate(self, docnames=None):
+        # type: (List[unicode]) -> Tuple[List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]  # NOQA
+        content = {}  # type: Dict[unicode, List]
+        # list of prefixes to ignore
+        ignores = None  # type: List[unicode]
+        ignores = self.domain.env.config['funindex_common_prefix']  # type: ignore
+        ignores = sorted(ignores, key=len, reverse=True)
+        # list of all functions, sorted by function name
+        unsorted_functions = [(refname, (docname, type))
+                              for (refname, (docname, type)) in iteritems(self.domain.data['objects'])
+                              if type == 'function']
+        functions = sorted(unsorted_functions,
+                           key=lambda x: x[0].lower())
+        # sort out collapsable functions
+        prev_functionname = ''
+        num_toplevels = 0
+        for functionname, (docname, type) in functions:
+            if docnames and docname not in docnames:
+                continue
+
+            for ignore in ignores:
+                if functionname.startswith(ignore):
+                    functionname = functionname[len(ignore):]
+                    stripped = ignore
+                    break
+            else:
+                stripped = ''
+
+            # we stripped the whole function name?
+            if not functionname:
+                functionname, stripped = stripped, ''
+
+            entries = content.setdefault(functionname[0].lower(), [])
+
+            package = functionname.split('.')[0]
+            if package != functionname:
+                # it's a subfunction
+                if prev_functionname == package:
+                    # first subfunction - make parent a group head
+                    if entries:
+                        entries[-1][1] = 1
+                elif not prev_functionname.startswith(package):
+                    # subfunction without parent in list, add dummy entry
+                    entries.append([stripped + package, 1, '', '', '', '', ''])
+                subtype = 2
+            else:
+                num_toplevels += 1
+                subtype = 0
+
+            entries.append([stripped + functionname, subtype, docname,
+                            stripped + functionname, '', '', ''])
+            prev_functionname = functionname
+
+        # apply heuristics when to collapse modindex at page load:
+        # only collapse if number of toplevel functions is larger than
+        # number of subfunctions
+        collapse = len(functions) - num_toplevels < num_toplevels
+
+        # sort by first letter
+        sorted_content = sorted(iteritems(content))
+
+        return sorted_content, collapse
+
+
 class PythonDomain(Domain):
     """Python language domain."""
     name = 'py'
@@ -688,6 +834,8 @@ class PythonDomain(Domain):
     }  # type: Dict[unicode, Dict[unicode, Tuple[Any]]]
     indices = [
         PythonModuleIndex,
+        PythonClassIndex,
+        PythonFunIndex,
     ]
 
     def clear_doc(self, docname):

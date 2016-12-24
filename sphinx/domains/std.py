@@ -500,11 +500,15 @@ class StandardDomain(Domain):
         'labels': {         # labelname -> docname, labelid, sectionname
             'genindex': ('genindex', '', l_('Index')),
             'modindex': ('py-modindex', '', l_('Module Index')),
+            'classindex': ('py-classindex', '', l_('Class Index')),
+            'funindex': ('py-funindex', '', l_('Function Index')),
             'search':   ('search', '', l_('Search Page')),
         },
         'anonlabels': {     # labelname -> docname, labelid
             'genindex': ('genindex', ''),
             'modindex': ('py-modindex', ''),
+            'classindex': ('py-classindex', ''),
+            'funindex': ('py-funindex', ''),
             'search':   ('search', ''),
         },
     }
