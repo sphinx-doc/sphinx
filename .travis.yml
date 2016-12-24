@@ -42,8 +42,7 @@ install:
   - pip install -U pip setuptools
   - pip install docutils==$DOCUTILS
   - pip install -r test-reqs.txt
-before_script:
-  -  if [[ $TRAVIS_PYTHON_VERSION != '2.6' ]]; then flake8; fi
 script:
-  -  if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then make style-check test-async; fi
-  -  if [[ $TRAVIS_PYTHON_VERSION != '3.6' ]]; then make test; fi
+  - flake8
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then make style-check test-async; fi
+  - if [[ $TRAVIS_PYTHON_VERSION != '3.6' ]]; then make test; fi
