@@ -671,10 +671,10 @@ def makePythonCustomIndex(objecttype='class', nameofindex='classindex',
             content = {}  # type: Dict[unicode, List]
             # list of prefixes to ignore
             ignores = None  # type: List[unicode]
-            try:
+            try:  # Maybe there is no default value for this index
                 ignores = self.domain.env.config[
                     '{}_common_prefix'.format(nameofindex)]  # type: ignore
-            except AttributeError:
+            except AttributeError:  # In this case, use same value as modindex_common_prefix
                 ignores = self.domain.env.config['modindex_common_prefix']  # type: ignore
             ignores = sorted(ignores, key=len, reverse=True)
             # list of all objects, sorted by class name

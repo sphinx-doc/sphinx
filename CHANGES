@@ -12,7 +12,9 @@ Incompatible changes
 Features added
 --------------
 
-* #3178: Add ``classindex`` and ``funcindex`` indeces to the Python domain. Thanks to Lilian Besson.
+* #3178: Add ``classindex``, ``funcindex``, ``dataindex``, ``exceptionindex``,
+  ``methodindex``, ``classmethodindex``, ``staticmethodindex``, ``attributeindex``
+  indexes to the Python domain, similar to ``modindex``. Thanks to Lilian Besson.
 * #3136: Add ``:name:`` option to the directives in ``sphinx.ext.graphviz``
 * #2336: Add ``imported_members`` option to ``sphinx-autogen`` command to document
   imported members.

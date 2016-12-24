@@ -442,7 +442,7 @@ Project information
 
 .. confval:: modindex_common_prefix
 
-   A list of prefixes that are ignored for sorting the Python module index
+   A list of prefixes that are ignored for sorting the Python *module* index
    (e.g., if this is set to ``['foo.']``, then ``foo.bar`` is shown under ``B``,
    not ``F``). This can be handy if you document a project that consists of a
    single package.  Works only for the HTML builder currently.  Default is
@@ -452,7 +452,7 @@ Project information
 
 .. confval:: classindex_common_prefix
 
-   A list of prefixes that are ignored for sorting the Python class index
+   A list of prefixes that are ignored for sorting the Python *class* index
    (e.g., if this is set to ``['foo.']``, then ``foo.bar`` is shown under ``B``,
    not ``F``). This can be handy if you document a project that consists of a
    single package.  Works only for the HTML builder currently.  Default is
@@ -462,11 +462,64 @@ Project information
 
 .. confval:: funcindex_common_prefix
 
-   A list of prefixes that are ignored for sorting the Python functions index
-   (e.g., if this is set to ``['foo.']``, then ``foo.bar()`` is shown under ``B``,
-   not ``F``). This can be handy if you document a project that consists of a
-   single package.  Works only for the HTML builder currently.  Default is
-   ``[]``.
+   A list of prefixes that are ignored for sorting the Python *function* index
+   (e.g., if this is set to ``['foo.']``, then ``foo.bar()`` is shown
+   under ``B``, not ``F``).
+   Works only for the HTML builder currently.  Default is ``[]``.
+
+   .. versionadded:: 1.6
+
+.. confval:: dataindex_common_prefix
+
+   A list of prefixes that are ignored for sorting the Python *data* index
+   (e.g., if this is set to ``['foo.']``, then ``foo.x`` is shown
+   under ``X``, not ``F``).
+   Works only for the HTML builder currently.  Default is ``[]``.
+
+   .. versionadded:: 1.6
+
+.. confval:: exceptionindex_common_prefix
+
+   A list of prefixes that are ignored for sorting the Python *exception* index
+   (e.g., if this is set to ``['foo.']``, then ``foo.Exception`` is shown
+   under ``E``, not ``F``).
+   Works only for the HTML builder currently.  Default is ``[]``.
+
+   .. versionadded:: 1.6
+
+.. confval:: methodindex_common_prefix
+
+   A list of prefixes that are ignored for sorting the Python *method* index
+   (e.g., if this is set to ``['foo.Class']``, then ``foo.Class.method()``
+   is shown under ``M``, not ``F``).
+   Works only for the HTML builder currently.  Default is ``[]``.
+
+   .. versionadded:: 1.6
+
+.. confval:: classmethodindex_common_prefix
+
+   A list of prefixes that are ignored for sorting the Python *class* method index
+   (e.g., if this is set to ``['foo.Class']``, then ``foo.Class.bar()`` is shown
+   under ``B``, not ``F``).
+   Works only for the HTML builder currently.  Default is ``[]``.
+
+   .. versionadded:: 1.6
+
+.. confval:: staticmethodindex_common_prefix
+
+   A list of prefixes that are ignored for sorting the Python *static* method index
+   (e.g., if this is set to ``['foo.Class']``, then ``foo.Class.bar()`` is shown
+   under ``B``, not ``F``).
+   Works only for the HTML builder currently.  Default is ``[]``.
+
+   .. versionadded:: 1.6
+
+.. confval:: attributeindex_common_prefix
+
+   A list of prefixes that are ignored for sorting the Python *attribute* index
+   (e.g., if this is set to ``['foo.Class']``, then ``foo.Class.x`` is shown
+   under ``X``, not ``F``).
+   Works only for the HTML builder currently.  Default is ``[]``.
 
    .. versionadded:: 1.6
 
