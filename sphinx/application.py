@@ -35,7 +35,7 @@ from sphinx.errors import SphinxError, ExtensionError, VersionRequirementError, 
     ConfigError
 from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target, StandardDomain
-from sphinx.deprecation import RemovedInSphinx17Warning
+from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.io import SphinxStandaloneReader
 from sphinx.roles import XRefRole
@@ -399,6 +399,8 @@ class Sphinx(object):
             warnings.warn('colorfunc option of warn() is now deprecated.',
                           RemovedInSphinx17Warning)
 
+        warnings.warn('app.warning() is now deprecated. Use sphinx.util.logging instead.',
+                      RemovedInSphinx20Warning)
         logger.warning(message, type=type, subtype=subtype, location=location)
 
     def info(self, message='', nonl=False):
@@ -408,21 +410,29 @@ class Sphinx(object):
         If *nonl* is true, don't emit a newline at the end (which implies that
         more info output will follow soon.)
         """
+        warnings.warn('app.info() is now deprecated. Use sphinx.util.logging instead.',
+                      RemovedInSphinx20Warning)
         logger.info(message, nonl=nonl)
 
     def verbose(self, message, *args, **kwargs):
         # type: (unicode, Any, Any) -> None
         """Emit a verbose informational message."""
+        warnings.warn('app.verbose() is now deprecated. Use sphinx.util.logging instead.',
+                      RemovedInSphinx20Warning)
         logger.verbose(message, *args, **kwargs)
 
     def debug(self, message, *args, **kwargs):
         # type: (unicode, Any, Any) -> None
         """Emit a debug-level informational message."""
+        warnings.warn('app.debug() is now deprecated. Use sphinx.util.logging instead.',
+                      RemovedInSphinx20Warning)
         logger.debug(message, *args, **kwargs)
 
     def debug2(self, message, *args, **kwargs):
         # type: (unicode, Any, Any) -> None
         """Emit a lowlevel debug-level informational message."""
+        warnings.warn('app.debug2() is now deprecated. Use sphinx.util.logging instead.',
+                      RemovedInSphinx20Warning)
         logger.debug2(message, *args, **kwargs)
 
     def _display_chunk(chunk):
