@@ -447,7 +447,7 @@ class BuildEnvironment(object):
             if os.access(self.doc2path(docname), os.R_OK):
                 self.found_docs.add(docname)
             else:
-                self.warn(docname, "document not readable. Ignored.")
+                logger.warning("document not readable. Ignored.", location=docname)
 
         # Current implementation is applying translated messages in the reading
         # phase.Therefore, in order to apply the updated message catalog, it is
@@ -594,14 +594,14 @@ class BuildEnvironment(object):
                 if ext_ok:
                     continue
                 if ext_ok is None:
-                    app.warn('the %s extension does not declare if it '
-                             'is safe for parallel reading, assuming it '
-                             'isn\'t - please ask the extension author to '
-                             'check and make it explicit' % extname)
-                    app.warn('doing serial read')
+                    logger.warning('the %s extension does not declare if it '
+                                   'is safe for parallel reading, assuming it '
+                                   'isn\'t - please ask the extension author to '
+                                   'check and make it explicit', extname)
+                    logger.warning('doing serial read')
                 else:
-                    app.warn('the %s extension is not safe for parallel '
-                             'reading, doing serial read' % extname)
+                    logger.warning('the %s extension is not safe for parallel '
+                                   'reading, doing serial read', extname)
                 par_ok = False
                 break
         if par_ok:
@@ -690,11 +690,11 @@ class BuildEnvironment(object):
         if lineend == -1:
             lineend = len(error.object)
         lineno = error.object.count(b'\n', 0, error.start) + 1
-        self.warn(self.docname, 'undecodable source characters, '
-                  'replacing with "?": %r' %
-                  (error.object[linestart+1:error.start] + b'>>>' +
-                   error.object[error.start:error.end] + b'<<<' +
-                   error.object[error.end:lineend]), lineno)
+        logger.warning('undecodable source characters, replacing with "?": %r',
+                       (error.object[linestart+1:error.start] + b'>>>' +
+                        error.object[error.start:error.end] + b'<<<' +
+                        error.object[error.end:lineend]),
+                       location=(self.docname, lineno))
         return (u'?', error.end)
 
     def read_doc(self, docname, app=None):
@@ -724,8 +724,8 @@ class BuildEnvironment(object):
                 if role_fn:
                     roles._roles[''] = role_fn
                 else:
-                    self.warn(docname, 'default role %s not found' %
-                              self.config.default_role)
+                    logger.warning('default role %s not found', self.config.default_role,
+                                   location=docname)
 
             codecs.register_error('sphinx', self.warn_and_replace)  # type: ignore
 
@@ -816,16 +816,18 @@ class BuildEnvironment(object):
     def currmodule(self):
         # type () -> None
         """Backwards compatible alias.  Will be removed."""
-        self.warn(self.docname, 'env.currmodule is being referenced by an '
-                  'extension; this API will be removed in the future')
+        logger.warning('env.currmodule is being referenced by an '
+                       'extension; this API will be removed in the future',
+                       location=self.docname)
         return self.ref_context.get('py:module')
 
     @property
     def currclass(self):
         # type: () -> None
         """Backwards compatible alias.  Will be removed."""
-        self.warn(self.docname, 'env.currclass is being referenced by an '
-                  'extension; this API will be removed in the future')
+        logger.warning('env.currclass is being referenced by an '
+                       'extension; this API will be removed in the future',
+                       location=self.docname)
         return self.ref_context.get('py:class')
 
     def new_serialno(self, category=''):
@@ -900,8 +902,8 @@ class BuildEnvironment(object):
             rel_filename, filename = self.relfn2path(targetname, docname)
             self.dependencies[docname].add(rel_filename)
             if not os.access(filename, os.R_OK):
-                self.warn_node('download file not readable: %s' % filename,
-                               node)
+                logger.warn_node('download file not readable: %s' % filename,
+                                 node)
                 continue
             uniquename = self.dlfiles.add_file(docname, filename)
             node['filename'] = uniquename
@@ -919,8 +921,8 @@ class BuildEnvironment(object):
                     if mimetype not in candidates:
                         globbed.setdefault(mimetype, []).append(new_imgpath)
                 except (OSError, IOError) as err:
-                    self.warn_node('image file %s not readable: %s' %
-                                   (filename, err), node)
+                    logger.warn_node('image file %s not readable: %s' %
+                                     (filename, err), node)
             for key, files in iteritems(globbed):
                 candidates[key] = sorted(files, key=len)[0]  # select by similarity
 
@@ -932,13 +934,13 @@ class BuildEnvironment(object):
             node['candidates'] = candidates = {}
             imguri = node['uri']
             if imguri.startswith('data:'):
-                self.warn_node('image data URI found. some builders might not support', node,
-                               type='image', subtype='data_uri')
+                logger.warn_node('image data URI found. some builders might not support', node,
+                                 type='image', subtype='data_uri')
                 candidates['?'] = imguri
                 continue
             elif imguri.find('://') != -1:
-                self.warn_node('nonlocal image URI found: %s' % imguri, node,
-                               type='image', subtype='nonlocal_uri')
+                logger.warn_node('nonlocal image URI found: %s' % imguri, node,
+                                 type='image', subtype='nonlocal_uri')
                 candidates['?'] = imguri
                 continue
             rel_imgpath, full_imgpath = self.relfn2path(imguri, docname)
@@ -967,8 +969,8 @@ class BuildEnvironment(object):
             for imgpath in itervalues(candidates):
                 self.dependencies[docname].add(imgpath)
                 if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
-                    self.warn_node('image file not readable: %s' % imgpath,
-                                   node)
+                    logger.warn_node('image file not readable: %s' % imgpath,
+                                     node)
                     continue
                 self.images.add_file(docname, imgpath)
 
@@ -1152,7 +1154,7 @@ class BuildEnvironment(object):
             node.replace_self(newnode or contnode)
 
         # remove only-nodes that do not belong to our builder
-        process_only_nodes(doctree, builder.tags, warn_node=self.warn_node)
+        process_only_nodes(doctree, builder.tags)
 
         # allow custom references to be resolved
         builder.app.emit('doctree-resolved', doctree, fromdocname)
@@ -1181,7 +1183,7 @@ class BuildEnvironment(object):
                   (node['refdomain'], typ)
         else:
             msg = '%r reference target not found: %%(target)s' % typ
-        self.warn_node(msg % {'target': target}, node, type='ref', subtype=typ)
+        logger.warn_node(msg % {'target': target}, node, type='ref', subtype=typ)
 
     def _resolve_doc_reference(self, builder, refdoc, node, contnode):
         # type: (Builder, unicode, nodes.Node, nodes.Node) -> nodes.Node
@@ -1232,9 +1234,9 @@ class BuildEnvironment(object):
             return None
         if len(results) > 1:
             nice_results = ' or '.join(':%s:' % r[0] for r in results)
-            self.warn_node('more than one target found for \'any\' cross-'
-                           'reference %r: could be %s' % (target, nice_results),
-                           node)
+            logger.warn_node('more than one target found for \'any\' cross-'
+                             'reference %r: could be %s' % (target, nice_results),
+                             node)
         res_role, newnode = results[0]
         # Override "any" class with the actual role type to get the styling
         # approximately correct.
@@ -1255,7 +1257,7 @@ class BuildEnvironment(object):
 
         def traverse_toctree(parent, docname):
             if parent == docname:
-                self.warn(docname, 'self referenced toctree found. Ignored.')
+                logger.warning('self referenced toctree found. Ignored.', location=docname)
                 return
 
             # traverse toctree by pre-order
@@ -1295,4 +1297,5 @@ class BuildEnvironment(object):
                     continue
                 if 'orphan' in self.metadata[docname]:
                     continue
-                self.warn(docname, 'document isn\'t included in any toctree')
+                logger.warning('document isn\'t included in any toctree',
+                               location=docname)

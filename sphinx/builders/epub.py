@@ -477,14 +477,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 img = Image.open(path.join(self.srcdir, src))
             except IOError:
                 if not self.is_vector_graphics(src):
-                    self.warn('cannot read image file %r: copying it instead' %
-                              (path.join(self.srcdir, src), ))
+                    logger.warning('cannot read image file %r: copying it instead',
+                                   path.join(self.srcdir, src))
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, self.imagedir, dest))
                 except (IOError, OSError) as err:
-                    self.warn('cannot copy image file %r: %s' %
-                              (path.join(self.srcdir, src), err))
+                    logger.warning('cannot copy image file %r: %s',
+                                   path.join(self.srcdir, src), err)
                 continue
             if self.config.epub_fix_images:
                 if img.mode in ('P',):
@@ -499,8 +499,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
             try:
                 img.save(path.join(self.outdir, self.imagedir, dest))
             except (IOError, OSError) as err:
-                self.warn('cannot write image file %r: %s' %
-                          (path.join(self.srcdir, src), err))
+                logger.warning('cannot write image file %r: %s',
+                               path.join(self.srcdir, src), err)
 
     def copy_image_files(self):
         # type: () -> None
@@ -510,7 +510,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         if self.images:
             if self.config.epub_fix_images or self.config.epub_max_image_width:
                 if not Image:
-                    self.warn('PIL not found - copying image files')
+                    logger.warning('PIL not found - copying image files')
                     super(EpubBuilder, self).copy_image_files()
                 else:
                     self.copy_image_files_pil()
@@ -551,14 +551,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def build_mimetype(self, outdir, outname):
         # type: (unicode, unicode) -> None
         """Write the metainfo file mimetype."""
-        logger.info('writing %s file...' % outname)
+        logger.info('writing %s file...', outname)
         with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:  # type: ignore
             f.write(self.mimetype_template)
 
     def build_container(self, outdir, outname):
         # type: (unicode, unicode) -> None
         """Write the metainfo file META-INF/cointainer.xml."""
-        logger.info('writing %s file...' % outname)
+        logger.info('writing %s file...', outname)
         fn = path.join(outdir, outname)
         try:
             os.mkdir(path.dirname(fn))
@@ -593,7 +593,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         """Write the metainfo file content.opf It contains bibliographic data,
         a file list and the spine (the reading order).
         """
-        logger.info('writing %s file...' % outname)
+        logger.info('writing %s file...', outname)
 
         # files
         if not outdir.endswith(os.sep):
@@ -618,8 +618,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     # we always have JS and potentially OpenSearch files, don't
                     # always warn about them
                     if ext not in ('.js', '.xml'):
-                        self.warn('unknown mimetype for %s, ignoring' % filename,
-                                  type='epub', subtype='unknown_project_files')
+                        logger.warning('unknown mimetype for %s, ignoring', filename,
+                                       type='epub', subtype='unknown_project_files')
                     continue
                 filename = filename.replace(os.sep, '/')
                 projectfiles.append(self.file_template % {
@@ -804,7 +804,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     def build_toc(self, outdir, outname):
         # type: (unicode, unicode) -> None
         """Write the metainfo file toc.ncx."""
-        logger.info('writing %s file...' % outname)
+        logger.info('writing %s file...', outname)
 
         if self.config.epub_tocscope == 'default':
             doctree = self.env.get_and_resolve_doctree(self.config.master_doc,
@@ -828,7 +828,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         It is a zip file with the mimetype file stored uncompressed as the first
         entry.
         """
-        logger.info('writing %s file...' % outname)
+        logger.info('writing %s file...', outname)
         projectfiles = ['META-INF/container.xml', 'content.opf', 'toc.ncx']  # type: List[unicode]  # NOQA
         projectfiles.extend(self.files)
         epub = zipfile.ZipFile(path.join(outdir, outname), 'w',  # type: ignore

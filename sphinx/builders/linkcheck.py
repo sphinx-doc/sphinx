@@ -233,7 +233,7 @@ class CheckExternalLinksBuilder(Builder):
         if status == 'working' and info == 'old':
             return
         if lineno:
-            logger.info('(line %4d) ' % lineno, nonl=1)
+            logger.info('(line %4d) ', lineno, nonl=1)
         if status == 'ignored':
             if info:
                 logger.info(darkgray('-ignored- ') + uri + ': ' + info)
@@ -247,8 +247,8 @@ class CheckExternalLinksBuilder(Builder):
         elif status == 'broken':
             self.write_entry('broken', docname, lineno, uri + ': ' + info)
             if self.app.quiet or self.app.warningiserror:
-                self.warn('broken link: %s (%s)' % (uri, info),
-                          '%s:%s' % (self.env.doc2path(docname), lineno))
+                logger.warning('broken link: %s (%s)', uri, info,
+                               location=(self.env.doc2path(docname), lineno))
             else:
                 logger.info(red('broken    ') + uri + red(' - ' + info))
         elif status == 'redirected':

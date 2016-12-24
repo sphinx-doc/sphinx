@@ -136,7 +136,7 @@ class ChangesBuilder(Builder):
                 try:
                     lines = f.readlines()
                 except UnicodeDecodeError:
-                    self.warn('could not read %r for changelog creation' % docname)
+                    logger.warning('could not read %r for changelog creation', docname)
                     continue
             targetfn = path.join(self.outdir, 'rst', os_path(docname)) + '.html'
             ensuredir(path.dirname(targetfn))

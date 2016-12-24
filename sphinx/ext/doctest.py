@@ -270,7 +270,7 @@ Results of doctest builder run on %s
     def _warn_out(self, text):
         # type: (unicode) -> None
         if self.app.quiet or self.app.warningiserror:
-            self.warn(text)
+            logger.warning(text)
         else:
             logger.info(text, nonl=True)
         if isinstance(text, binary_type):
@@ -347,9 +347,9 @@ Doctest summary
         for node in doctree.traverse(condition):
             source = 'test' in node and node['test'] or node.astext()
             if not source:
-                self.warn('no code/output in %s block at %s:%s' %
-                          (node.get('testnodetype', 'doctest'),
-                           self.env.doc2path(docname), node.line))
+                logger.warning('no code/output in %s block at %s:%s',
+                               node.get('testnodetype', 'doctest'),
+                               self.env.doc2path(docname), node.line)
             code = TestCode(source, type=node.get('testnodetype', 'doctest'),
                             lineno=node.line, options=node.get('options'))
             node_groups = node.get('groups', ['default'])
@@ -442,9 +442,8 @@ Doctest summary
                         doctest_encode(code[0].code, self.env.config.source_encoding), {},  # type: ignore  # NOQA
                         group.name, filename_str, code[0].lineno)
                 except Exception:
-                    self.warn('ignoring invalid doctest code: %r' %
-                              code[0].code,
-                              '%s:%s' % (filename, code[0].lineno))
+                    logger.warning('ignoring invalid doctest code: %r', code[0].code,
+                                   location=(filename, code[0].lineno))
                     continue
                 if not test.examples:
                     continue

@@ -45,8 +45,8 @@ class ManualPageBuilder(Builder):
     def init(self):
         # type: () -> None
         if not self.config.man_pages:
-            self.warn('no "man_pages" config value found; no manual pages '
-                      'will be written')
+            logger.warning('no "man_pages" config value found; no manual pages '
+                           'will be written')
 
     def get_outdated_docs(self):
         # type: () -> Union[unicode, List[unicode]]

@@ -124,16 +124,16 @@ class TexinfoBuilder(Builder):
         # type: () -> None
         preliminary_document_data = [list(x) for x in self.config.texinfo_documents]
         if not preliminary_document_data:
-            self.warn('no "texinfo_documents" config value found; no documents '
-                      'will be written')
+            logger.warning('no "texinfo_documents" config value found; no documents '
+                           'will be written')
             return
         # assign subdirs to titles
         self.titles = []  # type: List[Tuple[unicode, unicode]]
         for entry in preliminary_document_data:
             docname = entry[0]
             if docname not in self.env.all_docs:
-                self.warn('"texinfo_documents" config value references unknown '
-                          'document %s' % docname)
+                logger.warning('"texinfo_documents" config value references unknown '
+                               'document %s', docname)
                 continue
             self.document_data.append(entry)  # type: ignore
             if docname.endswith(SEP+'index'):
@@ -240,7 +240,7 @@ class TexinfoBuilder(Builder):
             with open(fn, 'w') as mkfile:
                 mkfile.write(TEXINFO_MAKEFILE)
         except (IOError, OSError) as err:
-            self.warn("error writing file %s: %s" % (fn, err))
+            logger.warning("error writing file %s: %s", fn, err)
         logger.info(' done')
 
 

@@ -14,7 +14,7 @@ from six import iteritems
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.util import url_re
+from sphinx.util import url_re, logging
 from sphinx.util.nodes import clean_astext, process_only_nodes
 from sphinx.transforms import SphinxContentsFilter
 from sphinx.environment.managers import EnvironmentManager
@@ -24,6 +24,8 @@ if False:
     from typing import Any, Tuple  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class Toctree(EnvironmentManager):
@@ -169,7 +171,7 @@ class Toctree(EnvironmentManager):
             # the document does not exist anymore: return a dummy node that
             # renders to nothing
             return nodes.paragraph()
-        process_only_nodes(toc, builder.tags, warn_node=self.env.warn_node)
+        process_only_nodes(toc, builder.tags)
         for node in toc.traverse(nodes.reference):
             node['refuri'] = node['anchorname'] or '#'
         return toc
@@ -296,16 +298,17 @@ class Toctree(EnvironmentManager):
                         toc = nodes.bullet_list('', item)
                     else:
                         if ref in parents:
-                            self.env.warn(ref, 'circular toctree references '
-                                          'detected, ignoring: %s <- %s' %
-                                          (ref, ' <- '.join(parents)))
+                            logger.warning('circular toctree references '
+                                           'detected, ignoring: %s <- %s',
+                                           ref, ' <- '.join(parents),
+                                           location=ref)
                             continue
                         refdoc = ref
                         toc = self.tocs[ref].deepcopy()
                         maxdepth = self.env.metadata[ref].get('tocdepth', 0)
                         if ref not in toctree_ancestors or (prune and maxdepth > 0):
                             self._toctree_prune(toc, 2, maxdepth, collapse)
-                        process_only_nodes(toc, builder.tags, warn_node=self.env.warn_node)
+                        process_only_nodes(toc, builder.tags)
                         if title and toc.children and len(toc.children) == 1:
                             child = toc.children[0]
                             for refnode in child.traverse(nodes.reference):
@@ -314,13 +317,13 @@ class Toctree(EnvironmentManager):
                                     refnode.children = [nodes.Text(title)]
                     if not toc.children:
                         # empty toc means: no titles will show up in the toctree
-                        self.env.warn_node(
+                        logger.warn_node(
                             'toctree contains reference to document %r that '
                             'doesn\'t have a title: no link will be generated'
                             % ref, toctreenode)
                 except KeyError:
                     # this is raised if the included file does not exist
-                    self.env.warn_node(
+                    logger.warn_node(
                         'toctree contains reference to nonexisting document %r'
                         % ref, toctreenode)
                 else:

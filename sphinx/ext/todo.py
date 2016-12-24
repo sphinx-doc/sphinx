@@ -18,6 +18,7 @@ from docutils.parsers.rst import directives
 import sphinx
 from sphinx.locale import _
 from sphinx.environment import NoUri
+from sphinx.util import logging
 from sphinx.util.nodes import set_source_info
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
@@ -27,6 +28,8 @@ if False:
     from typing import Any, Iterable  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class todo_node(nodes.Admonition, nodes.Element):
@@ -97,7 +100,7 @@ def process_todos(app, doctree):
         })
 
         if env.config.todo_emit_warnings:
-            env.warn_node("TODO entry found: %s" % node[1].astext(), node)
+            logger.warn_node("TODO entry found: %s" % node[1].astext(), node)
 
 
 class TodoList(Directive):

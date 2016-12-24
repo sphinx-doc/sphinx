@@ -16,8 +16,11 @@ from docutils import nodes
 from docutils.io import StringOutput
 
 from sphinx.builders import Builder
+from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.xml import XMLWriter, PseudoXMLWriter
+
+logger = logging.getLogger(__name__)
 
 
 class XMLBuilder(Builder):
@@ -80,7 +83,7 @@ class XMLBuilder(Builder):
             with codecs.open(outfilename, 'w', 'utf-8') as f:
                 f.write(self.writer.output)
         except (IOError, OSError) as err:
-            self.warn("error writing file %s: %s" % (outfilename, err))
+            logger.warning("error writing file %s: %s", outfilename, err)
 
     def finish(self):
         pass

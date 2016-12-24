@@ -184,9 +184,8 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
                 logger.info('done')
             except Exception as err:
-                self.warn('cannot copy icon file %r: %s' %
-                          (path.join(self.srcdir, self.config.applehelp_icon),
-                           err))
+                logger.warning('cannot copy icon file %r: %s',
+                               path.join(self.srcdir, self.config.applehelp_icon), err)
                 del info_plist['HPDBookIconPath']
 
         # Build the access page
@@ -223,8 +222,8 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
         if self.config.applehelp_disable_external_tools:
             logger.info('skipping')
 
-            self.warn('you will need to index this help book with:\n  %s'
-                      % (' '.join([pipes.quote(arg) for arg in args])))
+            logger.warning('you will need to index this help book with:\n  %s',
+                           ' '.join([pipes.quote(arg) for arg in args]))
         else:
             try:
                 p = subprocess.Popen(args,
@@ -256,9 +255,8 @@ class AppleHelpBuilder(StandaloneHTMLBuilder):
 
             if self.config.applehelp_disable_external_tools:
                 logger.info('skipping')
-
-                self.warn('you will need to sign this help book with:\n  %s'
-                          % (' '.join([pipes.quote(arg) for arg in args])))
+                logger.warning('you will need to sign this help book with:\n  %s',
+                               ' '.join([pipes.quote(arg) for arg in args]))
             else:
                 try:
                     p = subprocess.Popen(args,

@@ -161,9 +161,8 @@ class Builder(object):
                     if candidate:
                         break
                 else:
-                    self.warn(
-                        'no matching candidate for image URI %r' % node['uri'],
-                        '%s:%s' % (node.source, getattr(node, 'line', '')))
+                    logger.warn_node('no matching candidate for image URI %r' % node['uri'],
+                                     node)
                     continue
                 node['uri'] = candidate
             else:
@@ -246,13 +245,13 @@ class Builder(object):
         for filename in filenames:
             filename = path.normpath(path.abspath(filename))
             if not filename.startswith(self.srcdir):
-                self.warn('file %r given on command line is not under the '
-                          'source directory, ignoring' % filename)
+                logger.warning('file %r given on command line is not under the '
+                               'source directory, ignoring', filename)
                 continue
             if not (path.isfile(filename) or
                     any(path.isfile(filename + suffix) for suffix in suffixes)):
-                self.warn('file %r given on command line does not exist, '
-                          'ignoring' % filename)
+                logger.warning('file %r given on command line does not exist, '
+                               'ignoring', filename)
                 continue
             filename = filename[dirlen:]
             for suffix in suffixes:
@@ -297,7 +296,7 @@ class Builder(object):
             updated_docnames.add(docname)
         outdated = len(updated_docnames) - doccount
         if outdated:
-            logger.info('%d found' % outdated)
+            logger.info('%d found', outdated)
         else:
             logger.info('none found')
 
@@ -330,8 +329,8 @@ class Builder(object):
             for extname, md in self.app._extension_metadata.items():
                 par_ok = md.get('parallel_write_safe', True)
                 if not par_ok:
-                    self.app.warn('the %s extension is not safe for parallel '
-                                  'writing, doing serial write' % extname)
+                    logger.warning('the %s extension is not safe for parallel '
+                                   'writing, doing serial write', extname)
                     self.parallel_ok = False
                     break
 
@@ -374,12 +373,10 @@ class Builder(object):
         self.prepare_writing(docnames)
         logger.info('done')
 
-        warnings = []  # type: List[Tuple[Tuple, Dict]]
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
             # is busy loading doctrees and doing write_doc_serialized()
-            warnings = []
-            self._write_parallel(sorted(docnames), warnings,
+            self._write_parallel(sorted(docnames),
                                  nproc=self.app.parallel - 1)
         else:
             self._write_serial(sorted(docnames))
@@ -393,21 +390,12 @@ class Builder(object):
                 self.write_doc_serialized(docname, doctree)
                 self.write_doc(docname, doctree)
 
-    def _write_parallel(self, docnames, warnings, nproc):
-        # type: (Iterable[unicode], List[Tuple[Tuple, Dict]], int) -> None
+    def _write_parallel(self, docnames, nproc):
+        # type: (Iterable[unicode], int) -> None
         def write_process(docs):
-            # type: (List[Tuple[unicode, nodes.Node]]) -> List[Tuple[Tuple, Dict]]
-            local_warnings = []
-
-            def warnfunc(*args, **kwargs):
-                local_warnings.append((args, kwargs))
-            self.env.set_warnfunc(warnfunc)
+            # type: (List[Tuple[unicode, nodes.Node]]) -> None
             for docname, doctree in docs:
                 self.write_doc(docname, doctree)
-            return local_warnings
-
-        def add_warnings(docs, wlist):
-            warnings.extend(wlist)
 
         # warm up caches/compile templates using the first document
         firstname, docnames = docnames[0], docnames[1:]  # type: ignore
@@ -425,14 +413,11 @@ class Builder(object):
                 doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.write_doc_serialized(docname, doctree)
                 arg.append((docname, doctree))
-            tasks.add_task(write_process, arg, add_warnings)
+            tasks.add_task(write_process, arg)
 
         # make sure all threads have finished
         logger.info(bold('waiting for workers...'))
         tasks.join()
-
-        for warning, kwargs in warnings:
-            self.warn(*warning, **kwargs)
 
     def prepare_writing(self, docnames):
         # type: (Set[unicode]) -> None

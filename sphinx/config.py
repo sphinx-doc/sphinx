@@ -219,7 +219,7 @@ class Config(object):
             if isinstance(value, binary_type) and nonascii_re.search(value):  # type: ignore
                 logger.warning('the config value %r is set to a string with non-ASCII '
                                'characters; this can lead to Unicode errors occurring. '
-                               'Please use Unicode strings, e.g. %r.' % (name, u'Content'))
+                               'Please use Unicode strings, e.g. %r.', name, u'Content')
 
     def convert_overrides(self, name, value):
         # type: (unicode, Any) -> Any
@@ -258,7 +258,7 @@ class Config(object):
                 elif name in self._raw_config:
                     self.__dict__[name] = self._raw_config[name]
             except ValueError as exc:
-                logger.warning("%s" % exc)
+                logger.warning("%s", exc)
 
     def init_values(self):
         # type: () -> None
@@ -270,14 +270,14 @@ class Config(object):
                     config.setdefault(realvalname, {})[key] = value  # type: ignore
                     continue
                 elif valname not in self.values:
-                    logger.warning('unknown config value %r in override, ignoring' % valname)
+                    logger.warning('unknown config value %r in override, ignoring', valname)
                     continue
                 if isinstance(value, string_types):
                     config[valname] = self.convert_overrides(valname, value)
                 else:
                     config[valname] = value
             except ValueError as exc:
-                logger.warning("%s" % exc)
+                logger.warning("%s", exc)
         for name in config:
             if name in self.values:
                 self.__dict__[name] = config[name]

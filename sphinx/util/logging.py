@@ -23,7 +23,7 @@ from sphinx.util.console import colorize
 
 if False:
     # For type annotation
-    from typing import Any, Generator, IO, Tuple  # NOQA
+    from typing import Any, Generator, IO, Tuple, Union  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -422,12 +422,12 @@ def setup(app, status, warning):
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
 
-    info_handler = NewLineStreamHandler(SafeEncodingWriter(status))
+    info_handler = NewLineStreamHandler(SafeEncodingWriter(status))  # type: ignore
     info_handler.addFilter(InfoFilter())
     info_handler.setLevel(VERBOSITY_MAP.get(app.verbosity))
     info_handler.setFormatter(ColorizeFormatter())
 
-    warning_handler = WarningStreamHandler(SafeEncodingWriter(warning))
+    warning_handler = WarningStreamHandler(SafeEncodingWriter(warning))  # type: ignore
     warning_handler.addFilter(WarningSuppressor(app))
     warning_handler.addFilter(WarningIsErrorFilter(app))
     warning_handler.addFilter(WarningLogRecordTranslator(app))

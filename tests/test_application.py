@@ -48,26 +48,6 @@ def test_emit_with_nonascii_name_node(app, status, warning):
 
 
 @with_app()
-def test_output(app, status, warning):
-    # info with newline
-    status.truncate(0)  # __init__ writes to status
-    status.seek(0)
-    app.info("Nothing here...")
-    assert status.getvalue() == "Nothing here...\n"
-    # info without newline
-    status.truncate(0)
-    status.seek(0)
-    app.info("Nothing here...", True)
-    assert status.getvalue() == "Nothing here..."
-
-    # warning
-    old_count = app._warncount
-    app.warn("Bad news!")
-    assert strip_escseq(warning.getvalue()) == "WARNING: Bad news!\n"
-    assert app._warncount == old_count + 1
-
-
-@with_app()
 def test_extensions(app, status, warning):
     app.setup_extension('shutil')
     assert strip_escseq(warning.getvalue()).startswith("WARNING: extension 'shutil'")

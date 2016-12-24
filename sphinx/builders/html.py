@@ -209,8 +209,8 @@ class StandaloneHTMLBuilder(Builder):
                 if tag != 'tags':
                     raise ValueError
         except ValueError:
-            self.warn('unsupported build info format in %r, building all' %
-                      path.join(self.outdir, '.buildinfo'))
+            logger.warning('unsupported build info format in %r, building all',
+                           path.join(self.outdir, '.buildinfo'))
         except Exception:
             pass
         if old_config_hash != self.config_hash or \
@@ -325,10 +325,10 @@ class StandaloneHTMLBuilder(Builder):
         favicon = self.config.html_favicon and \
             path.basename(self.config.html_favicon) or ''
         if favicon and os.path.splitext(favicon)[1] != '.ico':
-            self.warn('html_favicon is not an .ico file')
+            logger.warning('html_favicon is not an .ico file')
 
         if not isinstance(self.config.html_use_opensearch, string_types):
-            self.warn('html_use_opensearch config value must now be a string')
+            logger.warning('html_use_opensearch config value must now be a string')
 
         self.relations = self.env.collect_relations()
 
@@ -595,8 +595,8 @@ class StandaloneHTMLBuilder(Builder):
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, self.imagedir, dest))
                 except Exception as err:
-                    self.warn('cannot copy image file %r: %s' %
-                              (path.join(self.srcdir, src), err))
+                    logger.warning('cannot copy image file %r: %s',
+                                   path.join(self.srcdir, src), err)
 
     def copy_download_files(self):
         # type: () -> None
@@ -614,8 +614,8 @@ class StandaloneHTMLBuilder(Builder):
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_downloads', dest))
                 except Exception as err:
-                    self.warn('cannot copy downloadable file %r: %s' %
-                              (path.join(self.srcdir, src), err))
+                    logger.warning('cannot copy downloadable file %r: %s',
+                                   path.join(self.srcdir, src), err)
 
     def copy_static_files(self):
         # type: () -> None
@@ -655,7 +655,7 @@ class StandaloneHTMLBuilder(Builder):
         for static_path in self.config.html_static_path:
             entry = path.join(self.confdir, static_path)
             if not path.exists(entry):
-                self.warn('html_static_path entry %r does not exist' % entry)
+                logger.warning('html_static_path entry %r does not exist', entry)
                 continue
             copy_asset(entry, path.join(self.outdir, '_static'), excluded,
                        context=ctx, renderer=self.templates)
@@ -664,7 +664,7 @@ class StandaloneHTMLBuilder(Builder):
             logobase = path.basename(self.config.html_logo)
             logotarget = path.join(self.outdir, '_static', logobase)
             if not path.isfile(path.join(self.confdir, self.config.html_logo)):
-                self.warn('logo file %r does not exist' % self.config.html_logo)
+                logger.warning('logo file %r does not exist', self.config.html_logo)
             elif not path.isfile(logotarget):
                 copyfile(path.join(self.confdir, self.config.html_logo),
                          logotarget)
@@ -672,7 +672,7 @@ class StandaloneHTMLBuilder(Builder):
             iconbase = path.basename(self.config.html_favicon)
             icontarget = path.join(self.outdir, '_static', iconbase)
             if not path.isfile(path.join(self.confdir, self.config.html_favicon)):
-                self.warn('favicon file %r does not exist' % self.config.html_favicon)
+                logger.warning('favicon file %r does not exist', self.config.html_favicon)
             elif not path.isfile(icontarget):
                 copyfile(path.join(self.confdir, self.config.html_favicon),
                          icontarget)
@@ -687,7 +687,7 @@ class StandaloneHTMLBuilder(Builder):
         for extra_path in self.config.html_extra_path:
             entry = path.join(self.confdir, extra_path)
             if not path.exists(entry):
-                self.warn('html_extra_path entry %r does not exist' % entry)
+                logger.warning('html_extra_path entry %r does not exist', entry)
                 continue
 
             copy_asset(entry, self.outdir, excluded)
@@ -748,9 +748,9 @@ class StandaloneHTMLBuilder(Builder):
                 self.indexer.load(f, self.indexer_format)  # type: ignore
         except (IOError, OSError, ValueError):
             if keep:
-                self.warn('search index couldn\'t be loaded, but not all '
-                          'documents will be built: the index will be '
-                          'incomplete.')
+                logger.warning('search index couldn\'t be loaded, but not all '
+                               'documents will be built: the index will be '
+                               'incomplete.')
         # delete all entries for files that will be rebuilt
         self.indexer.prune(keep)
 
@@ -789,9 +789,9 @@ class StandaloneHTMLBuilder(Builder):
                     if has_wildcard(pattern):
                         # warn if both patterns contain wildcards
                         if has_wildcard(matched):
-                            self.warn('page %s matches two patterns in '
-                                      'html_sidebars: %r and %r' %
-                                      (pagename, matched, pattern))
+                            logger.warning('page %s matches two patterns in '
+                                           'html_sidebars: %r and %r',
+                                           pagename, matched, pattern)
                         # else the already matched pattern is more specific
                         # than the present one, because it contains no wildcard
                         continue
@@ -863,9 +863,9 @@ class StandaloneHTMLBuilder(Builder):
         try:
             output = self.templates.render(templatename, ctx)
         except UnicodeError:
-            self.warn("a Unicode error occurred when rendering the page %s. "
-                      "Please make sure all config values that contain "
-                      "non-ASCII content are Unicode strings." % pagename)
+            logger.warning("a Unicode error occurred when rendering the page %s. "
+                           "Please make sure all config values that contain "
+                           "non-ASCII content are Unicode strings.", pagename)
             return
 
         if not outfilename:
@@ -876,7 +876,7 @@ class StandaloneHTMLBuilder(Builder):
             with codecs.open(outfilename, 'w', encoding, 'xmlcharrefreplace') as f:  # type: ignore  # NOQA
                 f.write(output)
         except (IOError, OSError) as err:
-            self.warn("error writing file %s: %s" % (outfilename, err))
+            logger.warning("error writing file %s: %s", outfilename, err)
         if self.copysource and ctx.get('sourcename'):
             # copy the source file for the "show source" link
             source_name = path.join(self.outdir, '_sources',
@@ -1270,8 +1270,8 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
 def validate_config_values(app):
     # type: (Sphinx) -> None
     if app.config.html_translator_class:
-        app.warn('html_translator_class is deprecated. '
-                 'Use Sphinx.set_translator() API instead.')
+        logger.warning('html_translator_class is deprecated. '
+                       'Use Sphinx.set_translator() API instead.')
 
 
 def setup(app):

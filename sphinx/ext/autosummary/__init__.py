@@ -608,13 +608,13 @@ def process_generate_options(app):
 
     suffix = get_rst_suffix(app)
     if suffix is None:
-        app.warn('autosummary generats .rst files internally. '
-                 'But your source_suffix does not contain .rst. Skipped.')
+        logging.warning('autosummary generats .rst files internally. '
+                        'But your source_suffix does not contain .rst. Skipped.')
         return
 
     generate_autosummary_docs(genfiles, builder=app.builder,
-                              warn=app.warn, info=app.info, suffix=suffix,
-                              base_path=app.srcdir)
+                              warn=logger.warning, info=logger.info,
+                              suffix=suffix, base_path=app.srcdir)
 
 
 def setup(app):

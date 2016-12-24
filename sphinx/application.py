@@ -233,9 +233,9 @@ class Sphinx(object):
         if self.config.needs_extensions:
             for extname, needs_ver in self.config.needs_extensions.items():
                 if extname not in self._extensions:
-                    self.warn('needs_extensions config value specifies a '
-                              'version requirement for extension %s, but it is '
-                              'not loaded' % extname)
+                    logger.warning('needs_extensions config value specifies a '
+                                   'version requirement for extension %s, but it is '
+                                   'not loaded', extname)
                     continue
                 has_ver = self._extension_metadata[extname]['version']
                 if has_ver == 'unknown version' or needs_ver > has_ver:
@@ -246,7 +246,7 @@ class Sphinx(object):
 
         # check primary_domain if requested
         if self.config.primary_domain and self.config.primary_domain not in self.domains:
-            self.warn('primary_domain %r not found, ignored.' % self.config.primary_domain)
+            logger.warning('primary_domain %r not found, ignored.', self.config.primary_domain)
 
         # set up translation infrastructure
         self._init_i18n()

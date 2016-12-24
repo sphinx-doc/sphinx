@@ -296,9 +296,10 @@ def test_output_with_unencodable_char(app, status, warning):
             self.stream.write(object.encode('cp1252').decode('cp1252'))
 
     logging.setup(app, StreamWriter(status), warning)
+    logger = logging.getLogger(__name__)
 
     # info with UnicodeEncodeError
     status.truncate(0)
     status.seek(0)
-    app.info(u"unicode \u206d...")
+    logger.info(u"unicode \u206d...")
     assert status.getvalue() == "unicode ?...\n"
