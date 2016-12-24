@@ -772,8 +772,8 @@ class PythonFunIndex(Index):
                 num_toplevels += 1
                 subtype = 0
 
-            entries.append([stripped + functionname, subtype, docname,
-                            stripped + functionname, '', '', ''])
+            entries.append([stripped + functionname + '()', subtype, docname,
+                            stripped + functionname + '()', '', '', ''])
             prev_functionname = functionname
 
         # apply heuristics when to collapse modindex at page load:
