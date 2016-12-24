@@ -414,7 +414,7 @@ class IndexBuilder(object):
     def get_js_stemmer_rawcode(self):
         if self.lang.js_stemmer_rawcode:
             return path.join(
-                path.dirname(path.abspath(__file__)),
+                sphinx.package_dir, 'search',
                 'non-minified-js',
                 self.lang.js_stemmer_rawcode
             )
