@@ -16,7 +16,9 @@ from functools import wraps
 import tempfile
 import sphinx
 
-from util import rootdir, tempdir, SkipTest
+import pytest
+
+from util import rootdir, tempdir
 from path import path
 from textwrap import dedent
 
@@ -76,9 +78,9 @@ def test_build_sphinx_with_nonascii_path(pkgroot, proc):
         (srcdir / mb_name).makedirs()
     except UnicodeEncodeError:
         from path import FILESYSTEMENCODING
-        raise SkipTest(
+        pytest.skip(
             'non-ASCII filename not supported on this filesystem encoding: '
-            '%s', FILESYSTEMENCODING)
+            '%s' % FILESYSTEMENCODING)
 
     (srcdir / mb_name / (mb_name + '.txt')).write_text(dedent("""
         multi byte file name page

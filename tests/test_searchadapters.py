@@ -10,11 +10,12 @@
 """
 
 from six import StringIO
+import pytest
 
 from sphinx.websupport import WebSupport
 
 from test_websupport import sqlalchemy_missing
-from util import rootdir, tempdir, skip_if, skip_unless_importable
+from util import rootdir, tempdir, skip_unless_importable
 
 
 def teardown_module():
@@ -58,12 +59,12 @@ def search_adapter_helper(adapter):
 
 
 @skip_unless_importable('xapian', 'needs xapian bindings installed')
-@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
+@pytest.mark.skipif(sqlalchemy_missing, 'needs sqlalchemy')
 def test_xapian():
     search_adapter_helper('xapian')
 
 
 @skip_unless_importable('whoosh', 'needs whoosh package installed')
-@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
+@pytest.mark.skipif(sqlalchemy_missing, 'needs sqlalchemy')
 def test_whoosh():
     search_adapter_helper('whoosh')

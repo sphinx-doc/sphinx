@@ -14,8 +14,9 @@ import time
 
 from six import PY2, text_type, StringIO
 from six.moves import input
+import pytest
 
-from util import raises, with_tempdir, SkipTest
+from util import with_tempdir
 
 from sphinx import application
 from sphinx import quickstart as qs
@@ -107,7 +108,8 @@ def test_do_prompt():
     assert d['k4'] is True
     qs.do_prompt(d, 'k5', 'Q5', validator=qs.boolean)
     assert d['k5'] is False
-    raises(AssertionError, qs.do_prompt, d, 'k6', 'Q6', validator=qs.boolean)
+    with pytest.raises(AssertionError):
+        qs.do_prompt(d, 'k6', 'Q6', validator=qs.boolean)
 
 
 def test_do_prompt_with_nonascii():
@@ -119,8 +121,8 @@ def test_do_prompt_with_nonascii():
     try:
         qs.do_prompt(d, 'k1', 'Q1', default=u'\u65e5\u672c')
     except UnicodeEncodeError:
-        raise SkipTest(
-            'non-ASCII console input not supported on this encoding: %s',
+        pytest.skip(
+            'non-ASCII console input not supported on this encoding: %s' %
             qs.TERM_ENCODING)
     assert d['k1'] == u'\u30c9\u30a4\u30c4'
 

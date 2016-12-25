@@ -11,9 +11,10 @@
 """
 from six import PY3, iteritems
 import mock
+import pytest
 
 from util import TestApp, with_app, gen_with_app, with_tempdir, \
-    raises, raises_msg, assert_in, assert_not_in
+    assert_in, assert_not_in
 
 import sphinx
 from sphinx.config import Config
@@ -55,11 +56,14 @@ def test_core_config(app, status, warning):
     assert 'nonexisting_value' not in cfg
 
     # invalid values
-    raises(AttributeError, getattr, cfg, '_value')
-    raises(AttributeError, getattr, cfg, 'nonexisting_value')
+    with pytest.raises(AttributeError):
+        getattr(cfg, '_value')
+    with pytest.raises(AttributeError):
+        getattr(cfg, 'nonexisting_value')
 
     # non-value attributes are deleted from the namespace
-    raises(AttributeError, getattr, cfg, 'sys')
+    with pytest.raises(AttributeError):
+        getattr(cfg, 'sys')
 
     # setting attributes
     cfg.project = 'Foo'
@@ -80,17 +84,21 @@ def test_extension_values(app, status, warning):
     assert cfg.value_from_conf_py == 84
 
     # no duplicate values allowed
-    raises_msg(ExtensionError, 'already present', app.add_config_value,
-               'html_title', 'x', True)
-    raises_msg(ExtensionError, 'already present', app.add_config_value,
-               'value_from_ext', 'x', True)
+    with pytest.raises(ExtensionError) as excinfo:
+        app.add_config_value('html_title', 'x', True)
+    assert 'already present' in str(excinfo.value)
+    with pytest.raises(ExtensionError) as excinfo:
+        app.add_config_value('value_from_ext', 'x', True)
+    assert 'already present' in str(excinfo.value)
 
 
 @with_tempdir
 def test_errors_warnings(dir):
     # test the error for syntax errors in the config file
     (dir / 'conf.py').write_text(u'project = \n', encoding='ascii')
-    raises_msg(ConfigError, 'conf.py', Config, dir, 'conf.py', {}, None)
+    with pytest.raises(ConfigError) as excinfo:
+        Config(dir, 'conf.py', {}, None)
+    assert 'conf.py' in str(excinfo.value)
 
     # test the automatic conversion of 2.x only code in configs
     (dir / 'conf.py').write_text(
@@ -121,7 +129,9 @@ def test_errors_warnings(dir):
 def test_errors_if_setup_is_not_callable(dir):
     # test the error to call setup() in the config file
     (dir / 'conf.py').write_text(u'setup = 1')
-    raises_msg(ConfigError, 'callable', TestApp, srcdir=dir)
+    with pytest.raises(ConfigError) as excinfo:
+        TestApp(srcdir=dir)
+    assert 'callable' in str(excinfo.value)
 
 
 @mock.patch.object(sphinx, '__display_version__', '1.3.4')
@@ -131,24 +141,24 @@ def test_needs_sphinx():
     app.cleanup()
     app = TestApp(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
     app.cleanup()
-    raises(VersionRequirementError, TestApp,
-           confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
+    with pytest.raises(VersionRequirementError):
+        TestApp(confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
 
     # minor version
     app = TestApp(confoverrides={'needs_sphinx': '1.2'})  # OK: less
     app.cleanup()
     app = TestApp(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
     app.cleanup()
-    raises(VersionRequirementError, TestApp,
-           confoverrides={'needs_sphinx': '1.4'})  # NG: greater
+    with pytest.raises(VersionRequirementError):
+        TestApp(confoverrides={'needs_sphinx': '1.4'})  # NG: greater
 
     # major version
     app = TestApp(confoverrides={'needs_sphinx': '0'})  # OK: less
     app.cleanup()
     app = TestApp(confoverrides={'needs_sphinx': '1'})  # OK: equals
     app.cleanup()
-    raises(VersionRequirementError, TestApp,
-           confoverrides={'needs_sphinx': '2'})  # NG: greater
+    with pytest.raises(VersionRequirementError):
+        TestApp(confoverrides={'needs_sphinx': '2'})  # NG: greater
 
 
 @with_tempdir

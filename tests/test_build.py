@@ -8,22 +8,15 @@
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from six import BytesIO
-
 import pickle
 from docutils import nodes
+import pytest
 import mock
 from textwrap import dedent
 from sphinx.errors import SphinxError
 import sphinx.builders.linkcheck
 
-from util import with_app, with_tempdir, rootdir, tempdir, SkipTest, TestApp, path
-
-try:
-    from docutils.writers.manpage import Writer as ManWriter
-except ImportError:
-    ManWriter = None
+from util import rootdir, TestApp, path
 
 
 def request_session_head(url, **kwargs):
@@ -33,24 +26,23 @@ def request_session_head(url, **kwargs):
     return response
 
 
-def verify_build(buildername, srcdir):
-    if buildername == 'man' and ManWriter is None:
-        raise SkipTest('man writer is not available')
-    app = TestApp(buildername=buildername, srcdir=srcdir)
-    try:
-        app.builder.build_all()
-    finally:
-        app.cleanup()
-
-
-def test_build_all():
+@pytest.mark.parametrize(
+    "buildername",
+    [
+        # note: no 'html' - if it's ok with dirhtml it's ok with html
+        'dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle', 'json', 'text',
+        'htmlhelp', 'qthelp', 'epub2', 'epub', 'applehelp', 'changes', 'xml',
+        'pseudoxml', 'man', 'linkcheck',
+    ],
+)
+def test_build_all(tmpdir, buildername):
     # If supported, build in a non-ASCII source dir
     test_name = u'\u65e5\u672c\u8a9e'
     try:
-        srcdir = tempdir / test_name
-        (rootdir / 'root').copytree(tempdir / test_name)
+        srcdir = path(tmpdir) / test_name
+        (rootdir / 'root').copytree(srcdir)
     except UnicodeEncodeError:
-        srcdir = tempdir / 'all'
+        srcdir = path(tmpdir) / 'all'
     else:
         # add a doc with a non-ASCII file name to the source dir
         (srcdir / (test_name + '.txt')).write_text(dedent("""
@@ -68,17 +60,15 @@ def test_build_all():
 
     with mock.patch('sphinx.builders.linkcheck.requests') as requests:
         requests.head = request_session_head
-
-        # note: no 'html' - if it's ok with dirhtml it's ok with html
-        for buildername in ['dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle',
-                            'json', 'text', 'htmlhelp', 'qthelp', 'epub2', 'epub',
-                            'applehelp', 'changes', 'xml', 'pseudoxml', 'man',
-                            'linkcheck']:
-            yield verify_build, buildername, srcdir
+        app = TestApp(buildername=buildername, srcdir=srcdir)
+        try:
+            app.builder.build_all()
+        finally:
+            app.cleanup()
 
 
-@with_tempdir
 def test_master_doc_not_found(tmpdir):
+    tmpdir = path(tmpdir)
     (tmpdir / 'conf.py').write_text('master_doc = "index"')
     assert tmpdir.listdir() == ['conf.py']
 
@@ -92,10 +82,10 @@ def test_master_doc_not_found(tmpdir):
         app.cleanup()
 
 
-@with_app(buildername='text', testroot='circular')
-def test_circular_toctree(app, status, warning):
+@pytest.mark.sphinx('text', testroot='circular')
+def test_circular_toctree(app):
     app.builder.build_all()
-    warnings = warning.getvalue()
+    warnings = app.warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
         'sub <- contents <- sub') in warnings
@@ -104,10 +94,10 @@ def test_circular_toctree(app, status, warning):
         'contents <- sub <- contents') in warnings
 
 
-@with_app(buildername='text', testroot='numbered-circular')
-def test_numbered_circular_toctree(app, status, warning):
+@pytest.mark.sphinx('text', testroot='numbered-circular')
+def test_numbered_circular_toctree(app):
     app.builder.build_all()
-    warnings = warning.getvalue()
+    warnings = app.warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
         'sub <- contents <- sub') in warnings
@@ -116,8 +106,8 @@ def test_numbered_circular_toctree(app, status, warning):
         'contents <- sub <- contents') in warnings
 
 
-@with_app(buildername='dummy', testroot='image-glob')
-def test_image_glob(app, status, warning):
+@pytest.mark.sphinx('dummy', testroot='image-glob')
+def test_image_glob(app):
     app.builder.build_all()
 
     # index.rst

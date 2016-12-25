@@ -19,9 +19,10 @@ from subprocess import Popen, PIPE
 
 from babel.messages import pofile
 from nose.tools import assert_equal
+import pytest
 from six import string_types
 
-from util import tempdir, rootdir, path, gen_with_app, with_app, SkipTest, \
+from util import tempdir, rootdir, path, gen_with_app, with_app, \
     assert_re_search, assert_not_re_search, assert_in, assert_not_in, \
     assert_startswith, assert_node, repr_as, etree_parse
 
@@ -64,7 +65,7 @@ def setup_module():
                 p = Popen(['msgfmt', po, '-o', mo],
                           stdout=PIPE, stderr=PIPE)
             except OSError:
-                raise SkipTest  # most likely msgfmt was not found
+                pytest.skip()  # most likely msgfmt was not found
             else:
                 stdout, stderr = p.communicate()
                 if p.returncode != 0:

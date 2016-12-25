@@ -11,7 +11,9 @@
 
 import re
 
-from util import with_app, SkipTest
+import pytest
+
+from util import with_app
 
 
 @with_app(buildername='html', testroot='ext-math',
@@ -38,9 +40,9 @@ def test_jsmath(app, status, warning):
 def test_imgmath_png(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        raise SkipTest('LaTeX command "latex" is not available')
+        pytest.skip('LaTeX command "latex" is not available')
     if "dvipng command 'dvipng' cannot be run" in warning.getvalue():
-        raise SkipTest('dvipng command "dvipng" is not available')
+        pytest.skip('dvipng command "dvipng" is not available')
 
     content = (app.outdir / 'index.html').text()
     html = ('<div class="math">\s*<p>\s*<img src="_images/math/\w+.png"'
@@ -54,9 +56,9 @@ def test_imgmath_png(app, status, warning):
 def test_imgmath_svg(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
-        raise SkipTest('LaTeX command "latex" is not available')
+        pytest.skip('LaTeX command "latex" is not available')
     if "dvisvgm command 'dvisvgm' cannot be run" in warning.getvalue():
-        raise SkipTest('dvisvgm command "dvisvgm" is not available')
+        pytest.skip('dvisvgm command "dvisvgm" is not available')
 
     content = (app.outdir / 'index.html').text()
     html = ('<div class="math">\s*<p>\s*<img src="_images/math/\w+.svg"'

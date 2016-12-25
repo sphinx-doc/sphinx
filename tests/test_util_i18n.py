@@ -14,11 +14,12 @@ import os
 import datetime
 from os import path
 
+import pytest
 from babel.messages.mofile import read_mo
 from sphinx.util import i18n
 from sphinx.errors import SphinxError
 
-from util import TestApp, with_tempdir, raises
+from util import TestApp, with_tempdir
 
 
 def test_catalog_info_for_file_and_path():
@@ -269,4 +270,5 @@ def test_get_filename_for_language():
 
     # invalid figure_language_filename
     app.env.config.figure_language_filename = '{root}.{invalid}{ext}'
-    raises(SphinxError, i18n.get_image_filename_for_language, 'foo.png', app.env)
+    with pytest.raises(SphinxError):
+        i18n.get_image_filename_for_language('foo.png', app.env)

@@ -16,8 +16,9 @@ import gettext
 from subprocess import Popen, PIPE
 
 from nose.tools import assert_true, assert_equal
+import pytest
 
-from util import with_app, gen_with_app, SkipTest, assert_in
+from util import with_app, gen_with_app, assert_in
 
 
 @gen_with_app('gettext', srcdir='root-gettext')
@@ -44,7 +45,7 @@ def test_all(app, status, warning):
                        '--locale', 'en_US'],
                       stdout=PIPE, stderr=PIPE)
         except OSError:
-            raise SkipTest  # most likely msginit was not found
+            pytest.skip()  # most likely msginit was not found
         else:
             stdout, stderr = p.communicate()
             if p.returncode != 0:
@@ -58,7 +59,7 @@ def test_all(app, status, warning):
                        os.path.join('en', 'LC_MESSAGES', 'test_root.mo')],
                       stdout=PIPE, stderr=PIPE)
         except OSError:
-            raise SkipTest  # most likely msgfmt was not found
+            pytest.skip()  # most likely msgfmt was not found
         else:
             stdout, stderr = p.communicate()
             if p.returncode != 0:

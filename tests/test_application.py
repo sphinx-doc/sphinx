@@ -11,23 +11,25 @@
 import codecs
 
 from docutils import nodes
+import pytest
 
 from sphinx.application import ExtensionError
 from sphinx.domains import Domain
 
-from util import with_app, raises_msg, strip_escseq
+from util import strip_escseq
 
 
-@with_app()
-def test_events(app, status, warning):
+def test_events(app):
     def empty():
         pass
-    raises_msg(ExtensionError, "Unknown event name: invalid",
-               app.connect, "invalid", empty)
+    with pytest.raises(ExtensionError) as excinfo:
+        app.connect("invalid", empty)
+    assert "Unknown event name: invalid" in str(excinfo.value)
 
     app.add_event("my_event")
-    raises_msg(ExtensionError, "Event 'my_event' already present",
-               app.add_event, "my_event")
+    with pytest.raises(ExtensionError) as excinfo:
+        app.add_event("my_event")
+    assert "Event 'my_event' already present" in str(excinfo.value)
 
     def mock_callback(a_app, *args):
         assert a_app is app
@@ -42,63 +44,57 @@ def test_events(app, status, warning):
         "Callback called when disconnected"
 
 
-@with_app()
-def test_emit_with_nonascii_name_node(app, status, warning):
+def test_emit_with_nonascii_name_node(app):
     node = nodes.section(names=[u'\u65e5\u672c\u8a9e'])
     app.emit('my_event', node)
 
 
-@with_app()
-def test_output(app, status, warning):
+def test_output(app):
     # info with newline
-    status.truncate(0)  # __init__ writes to status
-    status.seek(0)
+    app.status.truncate(0)  # __init__ writes to status
+    app.status.seek(0)
     app.info("Nothing here...")
-    assert status.getvalue() == "Nothing here...\n"
+    assert app.status.getvalue() == "Nothing here...\n"
     # info without newline
-    status.truncate(0)
-    status.seek(0)
+    app.status.truncate(0)
+    app.status.seek(0)
     app.info("Nothing here...", True)
-    assert status.getvalue() == "Nothing here..."
+    assert app.status.getvalue() == "Nothing here..."
 
     # warning
     old_count = app._warncount
     app.warn("Bad news!")
-    assert strip_escseq(warning.getvalue()) == "WARNING: Bad news!\n"
+    assert strip_escseq(app.warning.getvalue()) == "WARNING: Bad news!\n"
     assert app._warncount == old_count + 1
 
 
-@with_app()
-def test_output_with_unencodable_char(app, status, warning):
+def test_output_with_unencodable_char(app):
 
     class StreamWriter(codecs.StreamWriter):
         def write(self, object):
             self.stream.write(object.encode('cp1252').decode('cp1252'))
 
-    app._status = StreamWriter(status)
+    app._status = StreamWriter(app.status)
 
     # info with UnicodeEncodeError
-    status.truncate(0)
-    status.seek(0)
+    app.status.truncate(0)
+    app.status.seek(0)
     app.info(u"unicode \u206d...")
-    assert status.getvalue() == "unicode ?...\n"
+    assert app.status.getvalue() == "unicode ?...\n"
 
 
-@with_app()
-def test_extensions(app, status, warning):
+def test_extensions(app):
     app.setup_extension('shutil')
-    assert strip_escseq(warning.getvalue()).startswith("WARNING: extension 'shutil'")
+    assert strip_escseq(app.warning.getvalue()).startswith("WARNING: extension 'shutil'")
 
 
-@with_app()
-def test_extension_in_blacklist(app, status, warning):
+def test_extension_in_blacklist(app):
     app.setup_extension('sphinxjp.themecore')
-    msg = strip_escseq(warning.getvalue())
+    msg = strip_escseq(app.warning.getvalue())
     assert msg.startswith("WARNING: the extension 'sphinxjp.themecore' was")
 
 
-@with_app()
-def test_domain_override(app, status, warning):
+def test_domain_override(app):
     class A(Domain):
         name = 'foo'
 
@@ -109,24 +105,26 @@ def test_domain_override(app, status, warning):
         name = 'foo'
 
     # No domain know named foo.
-    raises_msg(ExtensionError, 'domain foo not yet registered',
-               app.override_domain, A)
+    with pytest.raises(ExtensionError) as excinfo:
+        app.override_domain(A)
+    assert 'domain foo not yet registered' in str(excinfo.value)
     assert app.add_domain(A) is None
     assert app.override_domain(B) is None
-    raises_msg(ExtensionError, 'new domain not a subclass of registered '
-               'foo domain', app.override_domain, C)
+    with pytest.raises(ExtensionError) as excinfo:
+        app.override_domain(C)
+    assert 'new domain not a subclass of registered foo domain' in str(excinfo.value)
 
 
-@with_app(testroot='add_source_parser')
-def test_add_source_parser(app, status, warning):
+@pytest.mark.sphinx(testroot='add_source_parser')
+def test_add_source_parser(app):
     assert set(app.config.source_suffix) == set(['.rst', '.md', '.test'])
     assert set(app.config.source_parsers.keys()) == set(['.md', '.test'])
     assert app.config.source_parsers['.md'].__name__ == 'DummyMarkdownParser'
     assert app.config.source_parsers['.test'].__name__ == 'TestSourceParser'
 
 
-@with_app(testroot='add_source_parser-conflicts-with-users-setting')
-def test_add_source_parser_conflicts_with_users_setting(app, status, warning):
+@pytest.mark.sphinx(testroot='add_source_parser-conflicts-with-users-setting')
+def test_add_source_parser_conflicts_with_users_setting(app):
     assert set(app.config.source_suffix) == set(['.rst', '.test'])
     assert set(app.config.source_parsers.keys()) == set(['.test'])
     assert app.config.source_parsers['.test'].__name__ == 'DummyTestParser'

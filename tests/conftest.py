@@ -20,23 +20,23 @@ def pytest_configure(config):
 
 
 def sphinx_app_by_marker(markers):
-    if markers is not None:
-        pargs = {}
-        kwargs = {
-            'status': StringIO(),
-            'warning': StringIO(),
-        }
+    pargs = {}
+    kwargs = {
+        'status': StringIO(),
+        'warning': StringIO(),
+    }
 
+    if markers is not None:
         for info in reversed(list(markers)):
             for i, a in enumerate(info.args):
                 pargs[i] = a
             kwargs.update(info.kwargs)
-        args = [pargs[i] for i in sorted(pargs.keys())]
-        app_ = TestApp(*args, **kwargs)
-        app_.status = kwargs.get('status')
-        app_.warning = kwargs.get('warning')
-        return app_
-    return None
+
+    args = [pargs[i] for i in sorted(pargs.keys())]
+    app_ = TestApp(*args, **kwargs)
+    app_.status = kwargs.get('status')
+    app_.warning = kwargs.get('warning')
+    return app_
 
 
 ## 各テストのセットアップ時に呼ばれる

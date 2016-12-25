@@ -17,7 +17,7 @@ from xml.etree import ElementTree
 
 from six import StringIO, string_types
 
-from nose import tools, SkipTest
+import pytest
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -27,13 +27,14 @@ from sphinx.builders.latex import LaTeXBuilder
 from sphinx.theming import Theme
 from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
+from sphinx.deprecation import RemovedInSphinx17Warning
 
 from path import path, repr_as  # NOQA
 
 
 __all__ = [
-    'rootdir', 'tempdir', 'raises', 'raises_msg',
-    'skip_if', 'skip_unless', 'skip_unless_importable', 'Struct',
+    'rootdir', 'tempdir',
+    'skip_unless_importable', 'Struct',
     'ListOutput', 'TestApp', 'with_app', 'gen_with_app',
     'path', 'with_tempdir',
     'sprint', 'remove_unicode_literals',
@@ -48,30 +49,6 @@ def _excstr(exc):
     if type(exc) is tuple:
         return str(tuple(map(_excstr, exc)))
     return exc.__name__
-
-
-def raises(exc, func, *args, **kwds):
-    """Raise AssertionError if ``func(*args, **kwds)`` does not raise *exc*."""
-    try:
-        func(*args, **kwds)
-    except exc:
-        pass
-    else:
-        raise AssertionError('%s did not raise %s' %
-                             (func.__name__, _excstr(exc)))
-
-
-def raises_msg(exc, msg, func, *args, **kwds):
-    """Raise AssertionError if ``func(*args, **kwds)`` does not raise *exc*,
-    and check if the message contains *msg*.
-    """
-    try:
-        func(*args, **kwds)
-    except exc as err:
-        assert msg in str(err), "\"%s\" not in \"%s\"" % (msg, err)
-    else:
-        raise AssertionError('%s did not raise %s' %
-                             (func.__name__, _excstr(exc)))
 
 
 def assert_re_search(regex, text, flags=0):
@@ -129,19 +106,18 @@ def assert_not_in(x, thing, msg=''):
 
 def skip_if(condition, msg=None):
     """Decorator to skip test if condition is true."""
-    def deco(test):
-        @tools.make_decorator(test)
-        def skipper(*args, **kwds):
-            if condition:
-                raise SkipTest(msg or 'conditional skip')
-            return test(*args, **kwds)
-        return skipper
-    return deco
+    warnings.warn("util.skip_if is deprecated and will be removed in Sphinx "
+                  "1.7, please use pytest.skipif decorator instead.",
+                  RemovedInSphinx17Warning, stacklevel=2)
+    return pytest.mark.skipif(condition, reason=(msg or 'conditional skip'))
 
 
 def skip_unless(condition, msg=None):
     """Decorator to skip test if condition is false."""
-    return skip_if(not condition, msg)
+    warnings.warn("util.skip_unless is deprecated and will be removed in Sphinx "
+                  "1.7, please use pytest.skipif decorator instead.",
+                  RemovedInSphinx17Warning, stacklevel=2)
+    return pytest.mark.skipif(not condition, reason=(msg or 'conditional skip'))
 
 
 def skip_unless_importable(module, msg=None):
@@ -149,9 +125,9 @@ def skip_unless_importable(module, msg=None):
     try:
         __import__(module)
     except ImportError:
-        return skip_if(True, msg)
+        return pytest.mark.skipif(True, reason=(msg or 'conditional skip'))
     else:
-        return skip_if(False, msg)
+        return pytest.mark.skipif(False, reason=(msg or 'conditional skip'))
 
 
 def etree_parse(path):

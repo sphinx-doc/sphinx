@@ -17,12 +17,13 @@ from itertools import product
 from subprocess import Popen, PIPE
 
 from six import PY3
+import pytest
 
 from sphinx.errors import SphinxError
 from sphinx.util.osutil import cd, ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
-from util import SkipTest, remove_unicode_literals, with_app, strip_escseq, skip_if
+from util import remove_unicode_literals, with_app, strip_escseq
 from test_build_html import ENV_WARNINGS
 
 
@@ -72,7 +73,7 @@ def compile_latex_document(app):
                        'SphinxTests.tex'],
                       stdout=PIPE, stderr=PIPE)
         except OSError:  # most likely the latex executable was not found
-            raise SkipTest
+            pytest.skip()
         else:
             stdout, stderr = p.communicate()
             if p.returncode != 0:
@@ -84,8 +85,9 @@ def compile_latex_document(app):
 
 def skip_if_stylefiles_notfound(testfunc):
     if kpsetest(*STYLEFILES) is False:
-        return skip_if(testfunc,
-                       'not running latex, the required styles do not seem to be installed')
+        return pytest.mark.skipif(
+            True,
+            'not running latex, the required styles do not seem to be installed')
     else:
         return testfunc
 

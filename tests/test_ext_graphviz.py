@@ -13,7 +13,9 @@ import re
 import subprocess
 from functools import wraps
 
-from util import with_app, SkipTest
+import pytest
+
+from util import with_app
 
 
 def skip_if_graphviz_not_found(fn):
@@ -32,7 +34,7 @@ def skip_if_graphviz_not_found(fn):
             pass
 
         if not found:
-            raise SkipTest('graphviz "dot" is not available')
+            pytest.skip('graphviz "dot" is not available')
 
         return fn(app, *args, **kwargs)
 

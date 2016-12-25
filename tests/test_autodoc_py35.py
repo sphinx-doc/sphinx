@@ -13,7 +13,7 @@
 # "raises" imported for usage by autodoc
 import six
 import sys
-from util import TestApp, Struct, raises, SkipTest
+from util import TestApp, Struct
 from nose.tools import with_setup, eq_
 
 from six import StringIO
@@ -184,7 +184,7 @@ def test_generate():
                            'Class.meth', more_content=add_content)
 
     # test check_module
-    inst = FunctionDocumenter(directive, 'raises')
+    inst = FunctionDocumenter(directive, 'add_documenter')
     inst.generate(check_module=True)
     assert len(directive.result) == 0
 

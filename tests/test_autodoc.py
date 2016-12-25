@@ -11,8 +11,9 @@
 """
 
 # "raises" imported for usage by autodoc
-from util import TestApp, Struct, raises, SkipTest  # NOQA
+from util import TestApp, Struct  # NOQA
 from nose.tools import with_setup, eq_
+import pytest
 
 import enum
 from six import StringIO, add_metaclass
@@ -120,15 +121,16 @@ def test_parse_name():
     del _warnings[:]
 
     # for functions/classes
-    verify('function', 'util.raises', ('util', ['raises'], None, None))
-    verify('function', 'util.raises(exc) -> None',
-           ('util', ['raises'], 'exc', 'None'))
-    directive.env.temp_data['autodoc:module'] = 'util'
-    verify('function', 'raises', ('util', ['raises'], None, None))
+    verify('function', 'test_autodoc.raises',
+           ('test_autodoc', ['raises'], None, None))
+    verify('function', 'test_autodoc.raises(exc) -> None',
+           ('test_autodoc', ['raises'], 'exc', 'None'))
+    directive.env.temp_data['autodoc:module'] = 'test_autodoc'
+    verify('function', 'raises', ('test_autodoc', ['raises'], None, None))
     del directive.env.temp_data['autodoc:module']
-    directive.env.ref_context['py:module'] = 'util'
-    verify('function', 'raises', ('util', ['raises'], None, None))
-    verify('class', 'TestApp', ('util', ['TestApp'], None, None))
+    directive.env.ref_context['py:module'] = 'test_autodoc'
+    verify('function', 'raises', ('test_autodoc', ['raises'], None, None))
+    verify('class', 'Base', ('test_autodoc', ['Base'], None, None))
 
     # for members
     directive.env.ref_context['py:module'] = 'foo'
@@ -653,7 +655,7 @@ def test_generate():
                            'Class.meth', more_content=add_content)
 
     # test check_module
-    inst = FunctionDocumenter(directive, 'raises')
+    inst = FunctionDocumenter(directive, 'add_documenter')
     inst.generate(check_module=True)
     assert len(directive.result) == 0
 
@@ -873,6 +875,11 @@ __all__ = ['Class']
 integer = 1
 
 
+def raises(exc, func, *args, **kwds):
+    """Raise AssertionError if ``func(*args, **kwds)`` does not raise *exc*."""
+    pass
+
+
 class CustomEx(Exception):
     """My custom exception."""
 
@@ -1081,7 +1088,7 @@ def test_type_hints():
     try:
         from typing_test_data import f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11
     except (ImportError, SyntaxError):
-        raise SkipTest('Cannot import Python code with function annotations')
+        pytest.skip('Cannot import Python code with function annotations')
 
     def verify_arg_spec(f, expected):
         eq_(formatargspec(f, *getargspec(f)), expected)
