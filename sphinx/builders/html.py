@@ -763,7 +763,7 @@ class StandaloneHTMLBuilder(Builder):
                 self.indexer.feed(pagename, filename, title, doctree)
             except TypeError:
                 # fallback for old search-adapters
-                self.indexer.feed(pagename, title, doctree)
+                self.indexer.feed(pagename, title, doctree)  # type: ignore
 
     def _get_local_toctree(self, docname, collapse=True, **kwds):
         # type: (unicode, bool, Any) -> unicode
