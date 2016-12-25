@@ -1284,7 +1284,10 @@ class FunctionDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # typ
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        return isinstance(member, (FunctionType, BuiltinFunctionType))
+        try:
+            return isinstance(member, (FunctionType, BuiltinFunctionType))
+        except:
+            return False
 
     def format_args(self):
         # type: () -> unicode
@@ -1335,7 +1338,10 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        return isinstance(member, class_types)
+        try:
+            return isinstance(member, class_types)
+        except:
+            return False
 
     def import_object(self):
         # type: () -> Any
@@ -1472,8 +1478,11 @@ class ExceptionDocumenter(ClassDocumenter):
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        return isinstance(member, class_types) and \
-            issubclass(member, BaseException)  # type: ignore
+        try:
+            return isinstance(member, class_types) and \
+                issubclass(member, BaseException)  # type: ignore
+        except:
+            return False
 
 
 class DataDocumenter(ModuleLevelDocumenter):
@@ -1524,8 +1533,11 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
         # type: (Any, unicode, bool, Any) -> bool
-        return inspect.isroutine(member) and \
-            not isinstance(parent, ModuleDocumenter)
+        try:
+            return inspect.isroutine(member) and \
+                not isinstance(parent, ModuleDocumenter)
+        except:
+            return False
 
     def import_object(self):
         # type: () -> Any
@@ -1592,9 +1604,12 @@ class AttributeDocumenter(DocstringStripSignatureMixin, ClassLevelDocumenter):  
         # That last condition addresses an obscure case of C-defined
         # methods using a deprecated type in Python 3, that is not otherwise
         # exported anywhere by Python
-        return isdatadesc or (not isinstance(parent, ModuleDocumenter) and
-                              not inspect.isroutine(member) and
-                              not isinstance(member, class_types))
+        try:
+            return isdatadesc or (not isinstance(parent, ModuleDocumenter) and
+                                  not inspect.isroutine(member) and
+                                  not isinstance(member, class_types))
+        except:
+            return False
 
     def document_members(self, all_members=False):
         # type: (bool) -> None
