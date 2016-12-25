@@ -7,6 +7,7 @@ python:
   - "2.7"
   - "3.4"
   - "3.5"
+  - "3.6"
   - "nightly"
   - "pypy"
 env:
@@ -17,6 +18,16 @@ env:
   matrix:
     - DOCUTILS=0.12
     - DOCUTILS=0.13.1
+matrix:
+  exclude:
+    - python: "3.4"
+      env: DOCUTILS=0.12
+    - python: "3.5"
+      env: DOCUTILS=0.12
+    - python: nightly
+      env: DOCUTILS=0.12
+    - python: pypy
+      env: DOCUTILS=0.12
 addons:
   apt:
     packages:
@@ -31,8 +42,7 @@ install:
   - pip install -U pip setuptools
   - pip install docutils==$DOCUTILS
   - pip install -r test-reqs.txt
-before_script:
-  -  if [[ $TRAVIS_PYTHON_VERSION != '2.6' ]]; then flake8; fi
 script:
-  -  if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then make style-check test-async; fi
-  -  if [[ $TRAVIS_PYTHON_VERSION != '3.5' ]]; then make test; fi
+  - flake8
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then make style-check test-async; fi
+  - if [[ $TRAVIS_PYTHON_VERSION != '3.6' ]]; then make test; fi
