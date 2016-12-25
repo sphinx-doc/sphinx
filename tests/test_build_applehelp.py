@@ -13,7 +13,8 @@
 
 import plistlib
 
-from util import with_app
+import pytest
+
 from path import path
 
 # Use plistlib.load in 3.4 and above
@@ -43,10 +44,11 @@ def check_localization(outdir):
     assert (lprojdir / 'localized.txt').isfile()
 
 
-@with_app(buildername='applehelp', testroot='basic', srcdir='applehelp_output',
-          confoverrides={'applehelp_bundle_id': 'org.sphinx-doc.Sphinx.help',
-                         'applehelp_disable_external_tools': True})
-def test_applehelp_output(app, status, warning):
+@pytest.mark.sphinx(
+    buildername='applehelp', testroot='basic', srcdir='applehelp_output',
+    confoverrides={'applehelp_bundle_id': 'org.sphinx-doc.Sphinx.help',
+                   'applehelp_disable_external_tools': True})
+def test_applehelp_output(app):
     (app.srcdir / 'en.lproj').makedirs()
     (app.srcdir / 'en.lproj' / 'localized.txt').write_text('')
     app.builder.build_all()
