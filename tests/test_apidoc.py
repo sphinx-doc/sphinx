@@ -16,13 +16,12 @@ from six import PY2
 
 from sphinx import apidoc
 
-from util import with_tempdir, with_app, rootdir
+from util import with_app, rootdir, path
 
 
-@with_tempdir
-def test_simple(tempdir):
+def test_simple(tmpdir):
     codedir = rootdir / 'root'
-    outdir = tempdir / 'out'
+    outdir = path(tmpdir) / 'out'
     args = ['sphinx-apidoc', '-o', outdir, '-F', codedir]
     apidoc.main(args)
 
@@ -43,10 +42,9 @@ def test_simple(tempdir):
         sys.path.remove(codedir)
 
 
-@with_tempdir
-def test_pep_0420_enabled(tempdir):
+def test_pep_0420_enabled(tmpdir):
     codedir = rootdir / 'root' / 'pep_0420'
-    outdir = tempdir / 'out'
+    outdir = path(tmpdir) / 'out'
     args = ['sphinx-apidoc', '-o', outdir, '-F', codedir, "--implicit-namespaces"]
     apidoc.main(args)
 
@@ -79,10 +77,9 @@ def test_pep_0420_enabled(tempdir):
         sys.path.remove(codedir)
 
 
-@with_tempdir
-def test_pep_0420_disabled(tempdir):
+def test_pep_0420_disabled(tmpdir):
     codedir = rootdir / 'root' / 'pep_0420'
-    outdir = tempdir / 'out'
+    outdir = path(tmpdir) / 'out'
     args = ['sphinx-apidoc', '-o', outdir, '-F', codedir]
     apidoc.main(args)
 
@@ -102,10 +99,9 @@ def test_pep_0420_disabled(tempdir):
     finally:
         sys.path.remove(codedir)
 
-@with_tempdir
-def test_pep_0420_disabled_top_level_verify(tempdir):
+def test_pep_0420_disabled_top_level_verify(tmpdir):
     codedir = rootdir / 'root' / 'pep_0420' / 'a' / 'b'
-    outdir = tempdir / 'out'
+    outdir = path(tmpdir) / 'out'
     args = ['sphinx-apidoc', '-o', outdir, '-F', codedir]
     apidoc.main(args)
 
@@ -131,10 +127,10 @@ def test_pep_0420_disabled_top_level_verify(tempdir):
     finally:
         sys.path.remove(codedir)
 
-@with_tempdir
-def test_multibyte_parameters(tempdir):
+
+def test_multibyte_parameters(tmpdir):
     codedir = rootdir / 'root'
-    outdir = tempdir / 'out'
+    outdir = path(tmpdir) / 'out'
     args = ['sphinx-apidoc', '-o', outdir, '-F', codedir,
             '--doc-project', u'プロジェクト名'.encode('utf-8'),
             '--doc-author', u'著者名'.encode('utf-8'),

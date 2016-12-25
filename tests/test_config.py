@@ -167,12 +167,14 @@ def test_config_eol(tmpdir):
                          'primary_domain': None})
 def test_builtin_conf(app, status, warning):
     warnings = warning.getvalue()
-    assert_in('master_doc', warnings,
-              'override on builtin "master_doc" should raise a type warning')
-    assert_not_in('language', warnings, 'explicitly permitted '
-                  'override on builtin "language" should NOT raise a type warning')
-    assert_not_in('primary_domain', warnings, 'override to None on builtin '
-                  '"primary_domain" should NOT raise a type warning')
+    assert 'master_doc' in warnings, (
+        'override on builtin "master_doc" should raise a type warning')
+    assert 'language' not in warnings, (
+        'explicitly permitted override on builtin "language" should NOT raise '
+        'a type warning')
+    assert 'primary_domain' not in warnings, (
+        'override to None on builtin "primary_domain" should NOT raise a type '
+        'warning')
 
 
 # See roots/test-config/conf.py.

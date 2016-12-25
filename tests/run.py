@@ -17,7 +17,7 @@ import warnings
 import traceback
 
 from path import path
-import nose
+import pytest
 
 testroot = os.path.dirname(__file__) or '.'
 sys.path.insert(0, os.path.abspath(os.path.join(testroot, os.path.pardir)))
@@ -53,4 +53,4 @@ sys.stdout.flush()
 warnings.filterwarnings('ignore', category=DeprecationWarning, module='nose.util')
 warnings.filterwarnings('ignore', category=DeprecationWarning, module='site')  # virtualenv
 
-nose.main(argv=sys.argv)
+pytest.main()

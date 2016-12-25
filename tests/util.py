@@ -118,16 +118,13 @@ def assert_node(node, cls=None, xpath="", **kwargs):
             'The node%s[%s] is not %r: %r' % (xpath, key, value, node[key])
 
 
-try:
-    from nose.tools import assert_in, assert_not_in
-except ImportError:
-    def assert_in(x, thing, msg=''):
-        if x not in thing:
-            assert False, msg or '%r is not in %r' % (x, thing)
+def assert_in(x, thing, msg=''):
+    if x not in thing:
+        assert False, msg or '%r is not in %r' % (x, thing)
 
-    def assert_not_in(x, thing, msg=''):
-        if x in thing:
-            assert False, msg or '%r is in %r' % (x, thing)
+def assert_not_in(x, thing, msg=''):
+    if x in thing:
+        assert False, msg or '%r is in %r' % (x, thing)
 
 
 def skip_if(condition, msg=None):
