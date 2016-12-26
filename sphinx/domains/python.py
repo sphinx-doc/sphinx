@@ -746,6 +746,7 @@ def changeFuncNames(self, s):
     else:
         return s
 
+
 # FIXME bring back l_() translation support
 PythonClassIndex      = makePythonCustomIndex(('class'), ('classindex'),
                                               ('Python Class Index'), ('classes'))
