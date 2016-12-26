@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from functools import wraps
-
 from six import StringIO
 import pytest
 
@@ -30,44 +28,38 @@ except ImportError:
 from util import rootdir, tempdir
 
 
-default_settings = {'builddir': tempdir / 'websupport',
-                    'status': StringIO(),
-                    'warning': StringIO()}
-
-
-def with_support(*args, **kwargs):
+@pytest.fixture
+def support(request):
     """Make a WebSupport object and pass it the test."""
-    settings = default_settings.copy()
-    settings.update(kwargs)
+    settings = {'builddir': tempdir / 'websupport',
+                'status': StringIO(),
+                'warning': StringIO()}
+    marker = request.node.get_marker('support')
+    if marker:
+        settings.update(marker.kwargs)
 
-    def generator(func):
-        @wraps(func)
-        def new_func(*args2, **kwargs2):
-            support = WebSupport(**settings)
-            func(support, *args2, **kwargs2)
-        return new_func
-    return generator
+    support = WebSupport(**settings)
+    yield support
 
 
 class NullStorage(StorageBackend):
     pass
 
 
-@with_support(storage=NullStorage())
+@pytest.mark.support(storage=NullStorage())
 def test_no_srcdir(support):
     # make sure the correct exception is raised if srcdir is not given.
     with pytest.raises(RuntimeError):
         support.build()
 
 
-@pytest.mark.skipif(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support(srcdir=rootdir / 'root')
+@pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
+@pytest.mark.support(srcdir=rootdir / 'root')
 def test_build(support):
     support.build()
 
 
-@pytest.mark.skipif(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support()
+@pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
 def test_get_document(support):
     with pytest.raises(DocumentNotFoundError):
         support.get_document('nonexisting')
@@ -77,8 +69,7 @@ def test_get_document(support):
         and contents['sidebar'] and contents['relbar']
 
 
-@pytest.mark.skipif(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support()
+@pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
 def test_comments(support):
     session = Session()
     nodes = session.query(Node).all()
@@ -126,8 +117,7 @@ def test_comments(support):
     assert children[0]['text'] == '<p>Child test comment</p>\n'
 
 
-@pytest.mark.skipif(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support()
+@pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
 def test_voting(support):
     session = Session()
     nodes = session.query(Node).all()
@@ -162,8 +152,7 @@ def test_voting(support):
     assert comment['vote'] == 1, '%s != 1' % comment['vote']
 
 
-@pytest.mark.skipif(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support()
+@pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
 def test_proposals(support):
     session = Session()
     node = session.query(Node).first()
@@ -178,8 +167,7 @@ def test_proposals(support):
                         proposal=proposal)
 
 
-@pytest.mark.skipif(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support()
+@pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
 def test_user_delete_comments(support):
     def get_comment():
         session = Session()
@@ -199,8 +187,7 @@ def test_user_delete_comments(support):
     assert comment['text'] == '[deleted]'
 
 
-@pytest.mark.skipif(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support()
+@pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
 def test_moderator_delete_comments(support):
     def get_comment():
         session = Session()
@@ -215,8 +202,7 @@ def test_moderator_delete_comments(support):
         get_comment()
 
 
-@pytest.mark.skipif(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support()
+@pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
 def test_update_username(support):
     support.update_username('user_two', 'new_user_two')
     session = Session()
@@ -242,8 +228,8 @@ def moderation_callback(comment):
     called = True
 
 
-@pytest.mark.skipif(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support(moderation_callback=moderation_callback)
+@pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
+@pytest.mark.support(moderation_callback=moderation_callback)
 def test_moderation(support):
     session = Session()
     nodes = session.query(Node).all()

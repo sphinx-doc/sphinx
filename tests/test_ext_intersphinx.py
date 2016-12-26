@@ -20,10 +20,10 @@ import mock
 from sphinx import addnodes
 from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.ext.intersphinx import read_inventory, \
-    load_mappings, missing_reference, _strip_basic_auth, _read_from_url, \
+    load_mappings, missing_reference, _strip_basic_auth, \
     _get_safe_url, fetch_inventory, INVENTORY_FILENAME
 
-from util import with_app, with_tempdir
+from util import path
 
 
 inventory_v1 = '''\
@@ -82,10 +82,9 @@ def test_read_inventory_v2():
         '/util/glossary.html#term-a-term-including-colon'
 
 
-@with_app()
 @mock.patch('sphinx.ext.intersphinx.read_inventory')
 @mock.patch('sphinx.ext.intersphinx._read_from_url')
-def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_inventory):
+def test_fetch_inventory_redirection(_read_from_url, read_inventory, app, status):
     intersphinx_setup(app)
     _read_from_url().readline.return_value = '# Sphinx inventory version 2'.encode('utf-8')
 
@@ -127,10 +126,8 @@ def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_
     assert read_inventory.call_args[0][1] == 'http://hostname/'
 
 
-@with_app()
-@with_tempdir
-def test_missing_reference(tempdir, app, status, warning):
-    inv_file = tempdir / 'inventory'
+def test_missing_reference(tmpdir, app):
+    inv_file = path(tmpdir) / 'inventory'
     inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_mapping = {
         'https://docs.python.org/': inv_file,
@@ -218,14 +215,12 @@ def test_missing_reference(tempdir, app, status, warning):
     assert rn['refuri'] == '../../../../py3k/foo.html#module-module1'
 
 
-@with_app()
-@with_tempdir
-def test_load_mappings_warnings(tempdir, app, status, warning):
+def test_load_mappings_warnings(tmpdir, app, warning):
     """
     load_mappings issues a warning if new-style mapping
     identifiers are not string
     """
-    inv_file = tempdir / 'inventory'
+    inv_file = path(tmpdir) / 'inventory'
     inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_mapping = {
         'https://docs.python.org/': inv_file,

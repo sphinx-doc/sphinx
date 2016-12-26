@@ -59,12 +59,12 @@ def search_adapter_helper(adapter):
 
 
 @skip_unless_importable('xapian', 'needs xapian bindings installed')
-@pytest.mark.skipif(sqlalchemy_missing, 'needs sqlalchemy')
+@pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
 def test_xapian():
     search_adapter_helper('xapian')
 
 
 @skip_unless_importable('whoosh', 'needs whoosh package installed')
-@pytest.mark.skipif(sqlalchemy_missing, 'needs sqlalchemy')
+@pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
 def test_whoosh():
     search_adapter_helper('whoosh')
