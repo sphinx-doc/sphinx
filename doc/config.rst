@@ -2178,16 +2178,6 @@ Options for the XML builder
 Options for the Python domain
 -----------------------------
 
-.. confval:: py_classindex_common_prefix
-
-   A list of prefixes that are ignored for sorting the Python *class* index
-   (e.g., if this is set to ``['foo.']``, then ``foo.bar`` is shown under ``B``,
-   not ``F``). This can be handy if you document a project that consists of a
-   single package.  Works only for the HTML builder currently.  Default is ``[]``.
-   Use label name ``classindex`` to link to the Python *class* index.
-
-   .. versionadded:: 1.6
-
 .. confval:: py_funcindex_common_prefix
 
    A list of prefixes that are ignored for sorting the Python *function* index
@@ -2218,7 +2208,17 @@ Options for the Python domain
 
    .. versionadded:: 1.6
 
-.. confval:: py_methodindex_common_prefix
+.. confval:: py_classindex_common_prefix
+
+   A list of prefixes that are ignored for sorting the Python *class* index
+   (e.g., if this is set to ``['foo.']``, then ``foo.bar`` is shown under ``B``,
+   not ``F``). This can be handy if you document a project that consists of a
+   single package.  Works only for the HTML builder currently.  Default is ``[]``.
+   Use label name ``classindex`` to link to the Python *class* index.
+
+   .. versionadded:: 1.6
+
+.. confval:: py_methindex_common_prefix
 
    A list of prefixes that are ignored for sorting the Python *method* index
    (e.g., if this is set to ``['foo.Class']``, then ``foo.Class.method()`` is shown under ``M``,
