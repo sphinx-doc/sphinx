@@ -58,13 +58,22 @@ def app_params(request):
 @pytest.fixture(scope='function')
 def app(app_params, make_app):
     args, kwargs = app_params
-    coderoot = kwargs.pop('coderoot', None)
-    if coderoot:
-        sys.path.append(coderoot)
     app_ = make_app(*args, **kwargs)
     yield app_
-    if coderoot:
-        sys.path.remove(coderoot)
+
+
+@pytest.fixture
+def built_app(request, make_app, app_params):
+    args, kwargs = app_params
+    # copy srcdir if testing in parametrize and no srcdir
+    parametrized = request.node.get_marker('parametrize')
+    if parametrized and 'srcdir' not in kwargs:
+        kwargs['srcdir'] = request.node.originalname
+    app = make_app(*args, **kwargs)
+    # if listdir is not empty, we can use built cache
+    if not app.outdir.listdir():
+        app.build()
+    return app
 
 
 @pytest.fixture(scope='function')

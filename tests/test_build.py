@@ -26,23 +26,17 @@ def request_session_head(url, **kwargs):
     return response
 
 
-@pytest.mark.parametrize(
-    "buildername",
-    [
-        # note: no 'html' - if it's ok with dirhtml it's ok with html
-        'dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle', 'json', 'text',
-        'htmlhelp', 'qthelp', 'epub2', 'epub', 'applehelp', 'changes', 'xml',
-        'pseudoxml', 'man', 'linkcheck',
-    ],
-)
-def test_build_all(tmpdir, buildername):
+@pytest.fixture
+def nonascii_srcdir(request):
     # If supported, build in a non-ASCII source dir
     test_name = u'\u65e5\u672c\u8a9e'
+    basedir = path(request.node.originalname)
     try:
-        srcdir = path(tmpdir) / test_name
-        (rootdir / 'root').copytree(srcdir)
+        srcdir = basedir / test_name
+        if not srcdir.exists():
+            (rootdir / 'root').copytree(srcdir)
     except UnicodeEncodeError:
-        srcdir = path(tmpdir) / 'all'
+        srcdir = basedir / 'all'
     else:
         # add a doc with a non-ASCII file name to the source dir
         (srcdir / (test_name + '.txt')).write_text(dedent("""
@@ -56,15 +50,26 @@ def test_build_all(tmpdir, buildername):
 
                    %(test_name)s/%(test_name)s
                 """ % {'test_name': test_name})
-        )
+                              )
+    return srcdir
 
+
+@pytest.mark.parametrize(
+    "buildername",
+    [
+        # note: no 'html' - if it's ok with dirhtml it's ok with html
+        'dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle', 'json', 'text',
+        'htmlhelp', 'qthelp', 'epub2', 'epub', 'applehelp', 'changes', 'xml',
+        'pseudoxml', 'man', 'linkcheck',
+    ],
+)
+def test_build_all(make_app, nonascii_srcdir, buildername):
     with mock.patch('sphinx.builders.linkcheck.requests') as requests:
         requests.head = request_session_head
-        app = TestApp(buildername=buildername, srcdir=srcdir)
-        try:
-            app.builder.build_all()
-        finally:
-            app.cleanup()
+        app = make_app(buildername, srcdir=nonascii_srcdir)
+        # if listdir is not empty, we can use built cache
+        if not app.outdir.listdir():
+            app.build()
 
 
 def test_master_doc_not_found(tmpdir):

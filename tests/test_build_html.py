@@ -53,16 +53,6 @@ if PY3:
     HTML_WARNINGS = remove_unicode_literals(HTML_WARNINGS)
 
 
-@pytest.fixture
-def built_app(request, make_app, app_params):
-    args, kwargs = app_params
-    kwargs['srcdir'] = request.node.originalname
-    app = make_app(*args, **kwargs)
-    if not app.outdir.listdir():
-        app.build()
-    return app
-
-
 etree_cache = {}
 
 @pytest.fixture(scope='module')
