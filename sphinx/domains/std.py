@@ -573,8 +573,8 @@ class StandardDomain(Domain):
             label = node[0].astext()
             if label in self.data['citations']:
                 path = env.doc2path(self.data['citations'][label][0])
-                logger.warn_node('duplicate citation %s, other instance in %s' %
-                                 (label, path), node)
+                logger.warning('duplicate citation %s, other instance in %s', label, path,
+                               location=node)
             self.data['citations'][label] = (docname, node['ids'][0])
 
     def note_labels(self, env, docname, document):
@@ -596,8 +596,9 @@ class StandardDomain(Domain):
                 # link and object descriptions
                 continue
             if name in labels:
-                logger.warn_node('duplicate label %s, ' % name + 'other instance '
-                                 'in ' + env.doc2path(labels[name][0]), node)
+                logger.warning('duplicate label %s, ' % name + 'other instance '
+                               'in ' + env.doc2path(labels[name][0]),
+                               location=node)
             anonlabels[name] = docname, labelid
             if node.tagname == 'section':
                 sectname = clean_astext(node[0])  # node[0] == title node
@@ -688,7 +689,7 @@ class StandardDomain(Domain):
             return None
 
         if env.config.numfig is False:
-            logger.warn_node('numfig is disabled. :numref: is ignored.', node)
+            logger.warning('numfig is disabled. :numref: is ignored.', location=node)
             return contnode
 
         target_node = env.get_doctree(docname).ids.get(labelid)
@@ -701,7 +702,8 @@ class StandardDomain(Domain):
             if fignumber is None:
                 return contnode
         except ValueError:
-            logger.warn_node("no number is assigned for %s: %s" % (figtype, labelid), node)
+            logger.warning("no number is assigned for %s: %s", figtype, labelid,
+                           location=node)
             return contnode
 
         try:
@@ -711,7 +713,7 @@ class StandardDomain(Domain):
                 title = env.config.numfig_format.get(figtype, '')
 
             if figname is None and '%{name}' in title:
-                logger.warn_node('the link has no caption: %s' % title, node)
+                logger.warning('the link has no caption: %s', title, location=node)
                 return contnode
             else:
                 fignum = '.'.join(map(str, fignumber))
@@ -725,10 +727,10 @@ class StandardDomain(Domain):
                     # old style format (cf. "Fig.%s")
                     newtitle = title % fignum
         except KeyError as exc:
-            logger.warn_node('invalid numfig_format: %s (%r)' % (title, exc), node)
+            logger.warning('invalid numfig_format: %s (%r)', title, exc, location=node)
             return contnode
         except TypeError:
-            logger.warn_node('invalid numfig_format: %s' % title, node)
+            logger.warning('invalid numfig_format: %s', title, location=node)
             return contnode
 
         return self.build_reference_node(fromdocname, builder,

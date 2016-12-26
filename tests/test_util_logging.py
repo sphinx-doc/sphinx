@@ -199,30 +199,24 @@ def test_warning_location(app, status, warning):
     assert 'index.txt:10: WARNING: message2' in warning.getvalue()
 
     logger.warning('message3', location=None)
-    assert '\x1b[31mWARNING: message3' in warning.getvalue()  # \x1b[31m = darkred
-
-
-@with_app()
-def test_warn_node(app, status, warning):
-    logging.setup(app, status, warning)
-    logger = logging.getLogger(__name__)
+    assert colorize('darkred', 'WARNING: message3') in warning.getvalue()
 
     node = nodes.Node()
     node.source, node.line = ('index.txt', 10)
-    logger.warn_node('message1', node)
-    assert 'index.txt:10: WARNING: message1' in warning.getvalue()
+    logger.warning('message4', location=node)
+    assert 'index.txt:10: WARNING: message4' in warning.getvalue()
 
     node.source, node.line = ('index.txt', None)
-    logger.warn_node('message2', node)
-    assert 'index.txt:: WARNING: message2' in warning.getvalue()
+    logger.warning('message5', location=node)
+    assert 'index.txt:: WARNING: message5' in warning.getvalue()
 
     node.source, node.line = (None, 10)
-    logger.warn_node('message3', node)
-    assert '<unknown>:10: WARNING: message3' in warning.getvalue()
+    logger.warning('message6', location=node)
+    assert '<unknown>:10: WARNING: message6' in warning.getvalue()
 
     node.source, node.line = (None, None)
-    logger.warn_node('message4', node)
-    assert '\x1b[31mWARNING: message4' in warning.getvalue()  # \x1b[31m = darkred
+    logger.warning('message7', location=node)
+    assert colorize('darkred', 'WARNING: message7') in warning.getvalue()
 
 
 @with_app()

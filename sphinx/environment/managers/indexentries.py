@@ -55,7 +55,7 @@ class IndexEntries(EnvironmentManager):
                 for entry in node['entries']:
                     split_index_msg(entry[0], entry[1])
             except ValueError as exc:
-                logger.warn_node(str(exc), node)
+                logger.warning(str(exc), location=node)
                 node.parent.remove(node)
             else:
                 for entry in node['entries']:

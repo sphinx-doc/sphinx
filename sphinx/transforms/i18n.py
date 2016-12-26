@@ -274,8 +274,8 @@ class Locale(Transform):
             old_foot_refs = node.traverse(is_autonumber_footnote_ref)
             new_foot_refs = patch.traverse(is_autonumber_footnote_ref)
             if len(old_foot_refs) != len(new_foot_refs):
-                logger.warn_node('inconsistent footnote references in '
-                                 'translated message', node)
+                logger.warning('inconsistent footnote references in translated message',
+                               location=node)
             old_foot_namerefs = {}  # type: Dict[unicode, List[nodes.footnote_reference]]
             for r in old_foot_refs:
                 old_foot_namerefs.setdefault(r.get('refname'), []).append(r)
@@ -309,7 +309,8 @@ class Locale(Transform):
             old_refs = node.traverse(is_refnamed_ref)
             new_refs = patch.traverse(is_refnamed_ref)
             if len(old_refs) != len(new_refs):
-                logger.warn_node('inconsistent references in translated message', node)
+                logger.warning('inconsistent references in translated message',
+                               location=node)
             old_ref_names = [r['refname'] for r in old_refs]
             new_ref_names = [r['refname'] for r in new_refs]
             orphans = list(set(old_ref_names) - set(new_ref_names))
@@ -337,7 +338,8 @@ class Locale(Transform):
             new_refs = patch.traverse(is_refnamed_footnote_ref)
             refname_ids_map = {}
             if len(old_refs) != len(new_refs):
-                logger.warn_node('inconsistent references in translated message', node)
+                logger.warning('inconsistent references in translated message',
+                               location=node)
             for old in old_refs:
                 refname_ids_map[old["refname"]] = old["ids"]
             for new in new_refs:
@@ -352,7 +354,8 @@ class Locale(Transform):
             new_refs = patch.traverse(addnodes.pending_xref)
             xref_reftarget_map = {}
             if len(old_refs) != len(new_refs):
-                logger.warn_node('inconsistent term references in translated message', node)
+                logger.warning('inconsistent term references in translated message',
+                               location=node)
 
             def get_ref_key(node):
                 # type: (nodes.Node) -> Tuple[unicode, unicode, unicode]

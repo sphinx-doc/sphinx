@@ -362,8 +362,8 @@ def process_only_nodes(doctree, tags):
         try:
             ret = tags.eval_condition(node['expr'])
         except Exception as err:
-            logger.warn_node('exception while evaluating only '
-                             'directive expression: %s' % err, node)
+            logger.warning('exception while evaluating only directive expression: %s', err,
+                           location=node)
             node.replace_self(node.children or nodes.comment())
         else:
             if ret:

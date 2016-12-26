@@ -902,8 +902,8 @@ class BuildEnvironment(object):
             rel_filename, filename = self.relfn2path(targetname, docname)
             self.dependencies[docname].add(rel_filename)
             if not os.access(filename, os.R_OK):
-                logger.warn_node('download file not readable: %s' % filename,
-                                 node)
+                logger.warning('download file not readable: %s', filename,
+                               location=node)
                 continue
             uniquename = self.dlfiles.add_file(docname, filename)
             node['filename'] = uniquename
@@ -921,8 +921,8 @@ class BuildEnvironment(object):
                     if mimetype not in candidates:
                         globbed.setdefault(mimetype, []).append(new_imgpath)
                 except (OSError, IOError) as err:
-                    logger.warn_node('image file %s not readable: %s' %
-                                     (filename, err), node)
+                    logger.warning('image file %s not readable: %s', filename, err,
+                                   location=node)
             for key, files in iteritems(globbed):
                 candidates[key] = sorted(files, key=len)[0]  # select by similarity
 
@@ -934,13 +934,13 @@ class BuildEnvironment(object):
             node['candidates'] = candidates = {}
             imguri = node['uri']
             if imguri.startswith('data:'):
-                logger.warn_node('image data URI found. some builders might not support', node,
-                                 type='image', subtype='data_uri')
+                logger.warning('image data URI found. some builders might not support',
+                               location=node, type='image', subtype='data_uri')
                 candidates['?'] = imguri
                 continue
             elif imguri.find('://') != -1:
-                logger.warn_node('nonlocal image URI found: %s' % imguri, node,
-                                 type='image', subtype='nonlocal_uri')
+                logger.warning('nonlocal image URI found: %s', imguri,
+                               location=node, type='image', subtype='nonlocal_uri')
                 candidates['?'] = imguri
                 continue
             rel_imgpath, full_imgpath = self.relfn2path(imguri, docname)
@@ -969,8 +969,8 @@ class BuildEnvironment(object):
             for imgpath in itervalues(candidates):
                 self.dependencies[docname].add(imgpath)
                 if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
-                    logger.warn_node('image file not readable: %s' % imgpath,
-                                     node)
+                    logger.warning('image file not readable: %s', imgpath,
+                                   location=node)
                     continue
                 self.images.add_file(docname, imgpath)
 
@@ -1183,7 +1183,8 @@ class BuildEnvironment(object):
                   (node['refdomain'], typ)
         else:
             msg = '%r reference target not found: %%(target)s' % typ
-        logger.warn_node(msg % {'target': target}, node, type='ref', subtype=typ)
+        logger.warning(msg % {'target': target},
+                       location=node, type='ref', subtype=typ)
 
     def _resolve_doc_reference(self, builder, refdoc, node, contnode):
         # type: (Builder, unicode, nodes.Node, nodes.Node) -> nodes.Node
@@ -1234,9 +1235,9 @@ class BuildEnvironment(object):
             return None
         if len(results) > 1:
             nice_results = ' or '.join(':%s:' % r[0] for r in results)
-            logger.warn_node('more than one target found for \'any\' cross-'
-                             'reference %r: could be %s' % (target, nice_results),
-                             node)
+            logger.warning('more than one target found for \'any\' cross-'
+                           'reference %r: could be %s', target, nice_results,
+                           location=node)
         res_role, newnode = results[0]
         # Override "any" class with the actual role type to get the styling
         # approximately correct.

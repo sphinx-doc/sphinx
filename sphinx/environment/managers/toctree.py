@@ -317,15 +317,13 @@ class Toctree(EnvironmentManager):
                                     refnode.children = [nodes.Text(title)]
                     if not toc.children:
                         # empty toc means: no titles will show up in the toctree
-                        logger.warn_node(
-                            'toctree contains reference to document %r that '
-                            'doesn\'t have a title: no link will be generated'
-                            % ref, toctreenode)
+                        logger.warning('toctree contains reference to document %r that '
+                                       'doesn\'t have a title: no link will be generated',
+                                       ref, location=toctreenode)
                 except KeyError:
                     # this is raised if the included file does not exist
-                    logger.warn_node(
-                        'toctree contains reference to nonexisting document %r'
-                        % ref, toctreenode)
+                    logger.warning('toctree contains reference to nonexisting document %r',
+                                   ref, location=toctreenode)
                 else:
                     # if titles_only is given, only keep the main title and
                     # sub-toctrees

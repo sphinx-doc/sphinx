@@ -302,7 +302,7 @@ class HTMLTranslator(BaseTranslator):
         if figtype:
             if len(node['ids']) == 0:
                 msg = 'Any IDs not assigned for %s node' % node.tagname
-                logger.warn_node(msg, node)
+                logger.warning(msg, location=node)
             else:
                 append_fignumber(figtype, node['ids'][0])
 
@@ -525,8 +525,8 @@ class HTMLTranslator(BaseTranslator):
             if not ('width' in node and 'height' in node):
                 size = get_image_size(os.path.join(self.builder.srcdir, olduri))
                 if size is None:
-                    logger.warn_node('Could not obtain image size. '
-                                     ':scale: option is ignored.', node)
+                    logger.warning('Could not obtain image size. :scale: option is ignored.',
+                                   location=node)
                 else:
                     if 'width' not in node:
                         node['width'] = str(size[0])

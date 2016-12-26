@@ -100,7 +100,8 @@ def process_todos(app, doctree):
         })
 
         if env.config.todo_emit_warnings:
-            logger.warn_node("TODO entry found: %s" % node[1].astext(), node)
+            logger.warning("TODO entry found: %s", node[1].astext(),
+                           location=node)
 
 
 class TodoList(Directive):

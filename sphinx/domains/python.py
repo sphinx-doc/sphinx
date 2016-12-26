@@ -787,10 +787,9 @@ class PythonDomain(Domain):
         if not matches:
             return None
         elif len(matches) > 1:
-            logger.warn_node(
-                'more than one target found for cross-reference '
-                '%r: %s' % (target, ', '.join(match[0] for match in matches)),
-                node)
+            logger.warning('more than one target found for cross-reference %r: %s',
+                           target, ', '.join(match[0] for match in matches),
+                           location=node)
         name, obj = matches[0]
 
         if obj[1] == 'module':

@@ -16,6 +16,7 @@ from contextlib import contextmanager
 from collections import defaultdict
 
 from six import PY2, StringIO
+from docutils import nodes
 from docutils.utils import get_source_line
 
 from sphinx.errors import SphinxWarning
@@ -91,23 +92,6 @@ class SphinxWarningLogRecord(logging.LogRecord):
 
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
-
-    def warn_node(self, message, node, **kwargs):
-        # type: (unicode, nodes.Node, Any) -> None
-        """Emit a warning for specific node.
-
-        :param message: a message of warning
-        :param node: a node related with the warning
-        """
-        (source, line) = get_source_line(node)
-        if source and line:
-            kwargs['location'] = "%s:%s" % (source, line)
-        elif source:
-            kwargs['location'] = "%s:" % source
-        elif line:
-            kwargs['location'] = "<unknown>:%s" % line
-
-        self.warning(message, **kwargs)
 
     def log(self, level, msg, *args, **kwargs):
         # type: (Union[int, str], unicode, Any, Any) -> None
@@ -372,6 +356,16 @@ class WarningLogRecordTranslator(logging.Filter):
                 record.location = '%s:%s' % (self.app.env.doc2path(docname), lineno)
             elif docname:
                 record.location = '%s' % self.app.env.doc2path(docname)
+            else:
+                record.location = None
+        elif isinstance(location, nodes.Node):
+            (source, line) = get_source_line(location)
+            if source and line:
+                record.location = "%s:%s" % (source, line)
+            elif source:
+                record.location = "%s:" % source
+            elif line:
+                record.location = "<unknown>:%s" % line
             else:
                 record.location = None
         elif location and ':' not in location:

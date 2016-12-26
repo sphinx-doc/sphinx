@@ -161,8 +161,8 @@ class Builder(object):
                     if candidate:
                         break
                 else:
-                    logger.warn_node('no matching candidate for image URI %r' % node['uri'],
-                                     node)
+                    logger.warning('no matching candidate for image URI %r', node['uri'],
+                                   location=node)
                     continue
                 node['uri'] = candidate
             else:

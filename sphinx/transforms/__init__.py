@@ -181,7 +181,7 @@ class AutoIndexUpgrader(Transform):
             if 'entries' in node and any(len(entry) == 4 for entry in node['entries']):
                 msg = ('4 column based index found. '
                        'It might be a bug of extensions you use: %r' % node['entries'])
-                logger.warn_node(msg, node)
+                logger.warning(msg, location=node)
                 for i, entry in enumerate(node['entries']):
                     if len(entry) == 4:
                         node['entries'][i] = entry + (None,)

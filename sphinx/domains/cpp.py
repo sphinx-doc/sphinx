@@ -4885,7 +4885,7 @@ class CPPDomain(Domain):
         class Warner(object):
             def warn(self, msg):
                 if emitWarnings:
-                    logger.warn_node(msg, node)
+                    logger.warning(msg, location=node)
         warner = Warner()
         parser = DefinitionParser(target, warner, env.config)
         try:
