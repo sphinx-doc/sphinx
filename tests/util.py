@@ -236,24 +236,7 @@ class TestApp(application.Sphinx):
         return '<%s buildername=%r>' % (self.__class__.__name__, self.builder.name)
 
 
-def with_app(*args, **kwargs):
-    """
-    Make a TestApp with args and kwargs, pass it to the test and clean up
-    properly.
-    """
-    def generator(func):
-        @wraps(func)
-        def deco(*args2, **kwargs2):
-            status, warning = StringIO(), StringIO()
-            kwargs['status'] = status
-            kwargs['warning'] = warning
-            app = TestApp(*args, **kwargs)
-            try:
-                func(app, status, warning, *args2, **kwargs2)
-            finally:
-                app.cleanup()
-        return deco
-    return generator
+with_app = pytest.mark.sphinx
 
 
 def gen_with_app(*args, **kwargs):

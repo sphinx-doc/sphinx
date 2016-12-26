@@ -77,9 +77,9 @@ def test_all(app, status, warning):
     yield assert_equal, _("Testing various markup"), u"Testing various markup"
 
 
-@with_app('gettext', testroot='intl',
+@with_app('gettext', testroot='intl', srcdir='gettext',
           confoverrides={'gettext_compact': False})
-def test_gettext_index_entries(app, status, warning):
+def test_gettext_index_entries(app):
     # regression test for #976
     app.builder.build(['index_entries'])
 
@@ -124,9 +124,9 @@ def test_gettext_index_entries(app, status, warning):
     assert msgids == []
 
 
-@with_app('gettext', testroot='intl',
+@with_app('gettext', testroot='intl', srcdir='gettext',
           confoverrides={'gettext_compact': False, 'gettext_additional_targets': []})
-def test_gettext_disable_index_entries(app, status, warning):
+def test_gettext_disable_index_entries(app):
     # regression test for #976
     app.builder.build(['index_entries'])
 
@@ -156,8 +156,8 @@ def test_gettext_disable_index_entries(app, status, warning):
     assert msgids == []
 
 
-@with_app(buildername='gettext', testroot='intl')
-def test_gettext_template(app, status, warning):
+@with_app(buildername='gettext', testroot='intl', srcdir='gettext')
+def test_gettext_template(app):
     app.builder.build_all()
     assert (app.outdir / 'sphinx.pot').isfile()
 

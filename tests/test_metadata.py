@@ -12,13 +12,11 @@
 # adapted from an example of bibliographic metadata at
 # http://docutils.sourceforge.net/docs/user/rst/demo.txt
 
-from util import with_app
-
-from nose.tools import assert_equal
+import pytest
 
 
-@with_app('pseudoxml')
-def test_docinfo(app, status, warning):
+@pytest.mark.sphinx('pseudoxml')
+def test_docinfo(app):
     """
     Inspect the 'docinfo' metadata stored in the first node of the document.
     Note this doesn't give us access to data stored in subsequence blocks
@@ -53,8 +51,4 @@ def test_docinfo(app, status, warning):
         'orphan': u'',
         'nocomments': u'',
     }
-    # I like this way of comparing dicts - easier to see the error.
-    for key in exampledocinfo:
-        yield assert_equal, exampledocinfo.get(key), expecteddocinfo.get(key)
-    # but then we still have to check for missing keys
-    yield assert_equal, set(expecteddocinfo.keys()), set(exampledocinfo.keys())
+    assert exampledocinfo == expecteddocinfo
