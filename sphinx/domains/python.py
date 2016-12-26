@@ -688,27 +688,27 @@ def makePythonCustomIndex(objecttype='class', nameofindex='classindex',
             # sort out collapsable objects
             prev_classname = ''
             num_toplevels = 0
-            for classname, (docname, type) in objects:
+            for refname, (docname, type) in objects:
                 # Same code as from PythonModuleIndex
                 if docnames and docname not in docnames:
                     continue
 
                 for ignore in ignores:
-                    if classname.startswith(ignore):
-                        classname = classname[len(ignore):]
+                    if refname.startswith(ignore):
+                        refname = refname[len(ignore):]
                         stripped = ignore
                         break
                 else:
                     stripped = ''
 
                 # we stripped the whole class name?
-                if not classname:
-                    classname, stripped = stripped, ''
+                if not refname:
+                    refname, stripped = stripped, ''
 
-                entries = content.setdefault(classname[0].lower(), [])
+                entries = content.setdefault(refname[0].lower(), [])
 
-                package = classname.split('.')[0]
-                if package != classname:
+                package = refname.split('.')[0]
+                if package != refname:
                     # it's a subclass
                     if prev_classname == package:
                         # first subclass - make parent a group head
@@ -722,9 +722,9 @@ def makePythonCustomIndex(objecttype='class', nameofindex='classindex',
                     num_toplevels += 1
                     subtype = 0
 
-                entries.append([stripped + changeobjectname(self, classname),
-                                subtype, docname, stripped + classname, '', '', ''])
-                prev_classname = classname
+                entries.append([stripped + changeobjectname(self, refname),
+                                subtype, docname, stripped + refname, '', '', ''])
+                prev_classname = refname
 
             # apply heuristics when to collapse modindex at page load:
             # only collapse if number of toplevel objects is larger than
