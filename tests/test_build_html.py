@@ -53,17 +53,27 @@ if PY3:
     HTML_WARNINGS = remove_unicode_literals(HTML_WARNINGS)
 
 
-cache = {}
+@pytest.fixture
+def built_app(request, make_app, app_params):
+    args, kwargs = app_params
+    kwargs['srcdir'] = request.node.originalname
+    app = make_app(*args, **kwargs)
+    if not app.outdir.listdir():
+        app.build()
+    return app
+
+
+etree_cache = {}
 
 @pytest.fixture(scope='module')
 def cached_etree_parse():
     def parse(fname):
-        if fname in cache:
-            return cache[fname]
+        if fname in etree_cache:
+            return etree_cache[fname]
         with (fname).open('rb') as fp:
             etree = HTML_PARSER.parse(fp)
-            cache.clear()
-            cache[fname] = etree
+            etree_cache.clear()
+            etree_cache[fname] = etree
             return etree
     return parse
 
@@ -162,7 +172,7 @@ def test_html_warnings(app, warning):
     buildername='html', tags=['testtag'],
     confoverrides={'html_context.hckey_co': 'hcval_co'})
 def test_static_output(app):
-    app.builder.buld_all()
+    app.builder.build_all()
     check_static_entries(app.builder.outdir)
     check_extra_entries(app.builder.outdir)
 
@@ -436,10 +446,8 @@ def test_static_output(app):
 @pytest.mark.sphinx(
     buildername='html', tags=['testtag'],
     confoverrides={'html_context.hckey_co': 'hcval_co'})
-def test_html_output(app, cached_etree_parse, fname, expect):
-    docname = os.path.splitext(fname)[0]
-    app.builder.build([docname])
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+def test_html_output(built_app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
@@ -475,11 +483,9 @@ def test_html_output(app, cached_etree_parse, fname, expect):
     ],
 }))
 @pytest.mark.sphinx(buildername='html', testroot='tocdepth')
-def test_tocdepth(app, cached_etree_parse, fname, expect):
+def test_tocdepth(built_app, cached_etree_parse, fname, expect):
     # issue #1251
-    docname = os.path.splitext(fname)[0]
-    app.builder.build([docname])
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
@@ -510,15 +516,13 @@ def test_tocdepth(app, cached_etree_parse, fname, expect):
     ],
 }))
 @pytest.mark.sphinx(buildername='singlehtml', testroot='tocdepth')
-def test_tocdepth_singlehtml(app, cached_etree_parse, fname, expect):
-    docname = os.path.splitext(fname)[0]
-    app.builder.build([docname])
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+def test_tocdepth_singlehtml(built_app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.sphinx(buildername='html', testroot='numfig')
 def test_numfig_disabled_warn(app, warning):
-    app.builder.buld_all()
+    app.builder.build_all()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' in warnings
     assert 'index.rst:55: WARNING: no number is assigned for section: index' not in warnings
@@ -567,10 +571,8 @@ def test_numfig_disabled_warn(app, warning):
     ],
 }))
 @pytest.mark.sphinx(buildername='html', testroot='numfig')
-def test_numfig_disabled(app, cached_etree_parse, fname, expect):
-    docname = os.path.splitext(fname)[0]
-    app.builder.build([docname])
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+def test_numfig_disabled(built_app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.sphinx(
@@ -581,7 +583,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
     index = (app.srcdir / 'index.rst').text()
     index = re.sub(':numbered:.*', '', index, re.MULTILINE)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
-    app.builder.buld_all()
+    app.builder.build_all()
 
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
@@ -673,13 +675,19 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
 @pytest.mark.sphinx(
     buildername='html', testroot='numfig', freshenv=True,
     confoverrides={'numfig': True})
-def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect):
+def test_numfig_without_numbered_toctree(
+        request, make_app, app_params, cached_etree_parse, fname, expect):
+    args, kwargs = app_params
+    kwargs['srcdir'] = request.node.originalname
+    app = make_app(*args, **kwargs)
+
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').text()
     index = re.sub(':numbered:.*', '', index, re.MULTILINE)
     (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
-    docname = os.path.splitext(fname)[0]
-    app.builder.build([docname])
+
+    if not app.outdir.listdir():
+        app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
@@ -687,7 +695,7 @@ def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect)
     buildername='html', testroot='numfig',
     confoverrides={'numfig': True})
 def test_numfig_with_numbered_toctree_warn(app, warning):
-    app.builder.buld_all()
+    app.builder.build_all()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
     assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
@@ -777,10 +785,8 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
 }))
 @pytest.mark.sphinx(
     buildername='html', testroot='numfig', confoverrides={'numfig': True})
-def test_numfig_with_numbered_toctree(app, cached_etree_parse, fname, expect):
-    docname = os.path.splitext(fname)[0]
-    app.builder.build([docname])
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+def test_numfig_with_numbered_toctree(built_app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.sphinx(
@@ -791,7 +797,7 @@ def test_numfig_with_numbered_toctree(app, cached_etree_parse, fname, expect):
                                      'code-block': 'Code-%s',
                                      'section': 'SECTION-%s'}})
 def test_numfig_with_prefix_warn(app, warning):
-    app.builder.buld_all()
+    app.builder.build_all()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
     assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
@@ -886,17 +892,15 @@ def test_numfig_with_prefix_warn(app, warning):
                                      'table': 'Tab_%s',
                                      'code-block': 'Code-%s',
                                      'section': 'SECTION-%s'}})
-def test_numfig_with_prefix(app, cached_etree_parse, fname, expect):
-    docname = os.path.splitext(fname)[0]
-    app.builder.build([docname])
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+def test_numfig_with_prefix(built_app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.sphinx(
     buildername='html', testroot='numfig',
     confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
 def test_numfig_with_secnum_depth_warn(app, warning):
-    app.builder.buld_all()
+    app.builder.build_all()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
     assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
@@ -987,10 +991,8 @@ def test_numfig_with_secnum_depth_warn(app, warning):
 @pytest.mark.sphinx(
     buildername='html', testroot='numfig',
     confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
-def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
-    docname = os.path.splitext(fname)[0]
-    app.builder.build([docname])
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+def test_numfig_with_secnum_depth(built_app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
@@ -1070,10 +1072,8 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
 @pytest.mark.sphinx(
     buildername='singlehtml', testroot='numfig',
     confoverrides={'numfig': True})
-def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
-    docname = os.path.splitext(fname)[0]
-    app.builder.build([docname])
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+def test_numfig_with_singlehtml(built_app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
@@ -1094,15 +1094,13 @@ def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
     ],
 }))
 @pytest.mark.sphinx(buildername='html', testroot='add_enumerable_node')
-def test_enumerable_node(app, cached_etree_parse, fname, expect):
-    docname = os.path.splitext(fname)[0]
-    app.builder.build([docname])
-    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+def test_enumerable_node(built_app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.sphinx(buildername='html', testroot='html_assets')
 def test_html_assets(app):
-    app.builder.buld_all()
+    app.builder.build_all()
 
     # html_static_path
     assert not (app.outdir / '_static' / '.htaccess').exists()
@@ -1131,7 +1129,7 @@ def test_html_assets(app):
 @pytest.mark.sphinx(
     buildername='html', confoverrides={'html_sourcelink_suffix': ''})
 def test_html_sourcelink_suffix(app):
-    app.builder.buld_all()
+    app.builder.build_all()
     content_otherext = (app.outdir / 'otherext.html').text()
     content_images = (app.outdir / 'images.html').text()
 
