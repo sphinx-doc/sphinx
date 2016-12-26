@@ -53,4 +53,17 @@
    {%- endfor %}
    </table>
 
+   {%- if builder == "html" %}
+   <div>
+   <h4>All index pages:<a class="headerlink" href="#all-index-pages">¶</a></h4>
+   <ul>
+    {%- for rellink in rellinks %}
+      {%- if rellink[0][-5:] == 'index' %}
+      <li><a href="{{ pathto(rellink[0]) }}" title="{{ rellink[1]|striptags|e }}">{{ rellink[1] }}</a></li>
+      {%- endif %}
+    {%- endfor %}
+   </ul>
+   </div>
+   {%- endif %}
+
 {% endblock %}
