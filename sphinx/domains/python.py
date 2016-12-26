@@ -643,17 +643,18 @@ class PythonModuleIndex(Index):
 
 def makePythonCustomIndex(objecttype='class', nameofindex='classindex',
                           localname='Python Class Index', shortname='classes',
-                          changeobjectname=lambda s: s):
+                          changeobjectname=lambda self, s: s):
     """
     Return a class, child of Index, to provide the Python class,functions,... index.
 
-    - changeobjectname can be any function str -> str
+    - changeobjectname can be any function (self, str) -> str
       to change the displayed text for objects of type objecttype
       (eg. for functions, add '()' by lambda s: s + '()').
     """
     assert objecttype in ['function', 'data', 'class', 'exception', 'method',
                           'classmethod', 'staticmethod', 'attribute'], \
         "Unsupported 'objecttype' = {} for the Python domain.".format(objecttype)
+    # XXX We could add more checks
 
     _localname, _shortname = localname, shortname
 
@@ -673,7 +674,7 @@ def makePythonCustomIndex(objecttype='class', nameofindex='classindex',
             ignores = None  # type: List[unicode]
             try:  # Maybe there is no default value for this index
                 ignores = self.domain.env.config[
-                    '{}_common_prefix'.format(nameofindex)]  # type: ignore
+                    'py_{}_common_prefix'.format(nameofindex)]  # type: ignore
             except AttributeError:  # In this case, use same value as modindex_common_prefix
                 ignores = self.domain.env.config['modindex_common_prefix']  # type: ignore
             ignores = sorted(ignores, key=len, reverse=True)
@@ -688,6 +689,7 @@ def makePythonCustomIndex(objecttype='class', nameofindex='classindex',
             prev_classname = ''
             num_toplevels = 0
             for classname, (docname, type) in objects:
+                # Same code as from PythonModuleIndex
                 if docnames and docname not in docnames:
                     continue
 
@@ -720,7 +722,7 @@ def makePythonCustomIndex(objecttype='class', nameofindex='classindex',
                     num_toplevels += 1
                     subtype = 0
 
-                entries.append([stripped + changeobjectname(classname),
+                entries.append([stripped + changeobjectname(self, classname),
                                 subtype, docname, stripped + classname, '', '', ''])
                 prev_classname = classname
 
@@ -733,31 +735,38 @@ def makePythonCustomIndex(objecttype='class', nameofindex='classindex',
             sorted_content = sorted(iteritems(content))
 
             return sorted_content, collapse
-
+        # End of class PythonCustomIndex
     return PythonCustomIndex
 
 
+# Define the changeobjectname function for functions and methods
+def changeFuncNames(self, s):
+    if getattr(self.domain.env.config, 'add_function_parentheses', True):
+        return s + '()'
+    else:
+        return s
+
 # FIXME bring back l_() translation support
-PythonClassIndex        = makePythonCustomIndex(('class'), ('classindex'),
-                                                ('Python Class Index'), ('classes'))
-PythonFuncIndex         = makePythonCustomIndex(('function'), ('funcindex'),
-                                                ('Python Function Index'), ('functions'),
-                                                lambda s: s + '()')
-PythonDataIndex         = makePythonCustomIndex(('data'), ('dataindex'),
-                                                ('Python Data Index'), ('data'))
-PythonExceptionIndex    = makePythonCustomIndex(('exception'), ('exceptionindex'),
-                                                ('Python Exception Index'), ('exceptions'))
-PythonMethodIndex       = makePythonCustomIndex(('method'), ('methodindex'),
-                                                ('Python Method Index'), ('methods'),
-                                                lambda s: s + '()')
-PythonClassmethodIndex  = makePythonCustomIndex(('classmethod'), ('classmethodindex'),
-                                                ('Python Class Method Index'),
-                                                ('classmethods'), lambda s: s + '()')
-PythonStaticmethodIndex = makePythonCustomIndex(('staticmethod'), ('staticmethodindex'),
-                                                ('Python Static Method Index'),
-                                                ('staticmethods'), lambda s: s + '()')
-PythonAttributeIndex    = makePythonCustomIndex(('attribute'), ('attributeindex'),
-                                                ('Python Attribute Index'), ('attributes'))
+PythonClassIndex      = makePythonCustomIndex(('class'), ('classindex'),
+                                              ('Python Class Index'), ('classes'))
+PythonFuncIndex       = makePythonCustomIndex(('function'), ('funcindex'),
+                                              ('Python Function Index'), ('functions'),
+                                              changeFuncNames)
+PythonDataIndex       = makePythonCustomIndex(('data'), ('dataindex'),
+                                              ('Python Data Index'), ('data'))
+PythonExcIndex        = makePythonCustomIndex(('exception'), ('excindex'),
+                                              ('Python Exception Index'), ('exceptions'))
+PythonMethIndex       = makePythonCustomIndex(('method'), ('methindex'),
+                                              ('Python Method Index'), ('methods'),
+                                              changeFuncNames)
+PythonClassmethIndex  = makePythonCustomIndex(('classmethod'), ('classmethindex'),
+                                              ('Python Class Method Index'),
+                                              ('classmethods'), changeFuncNames)
+PythonStaticmethIndex = makePythonCustomIndex(('staticmethod'), ('staticmethindex'),
+                                              ('Python Static Method Index'),
+                                              ('staticmethods'), changeFuncNames)
+PythonAttrIndex       = makePythonCustomIndex(('attribute'), ('attrindex'),
+                                              ('Python Attribute Index'), ('attributes'))
 
 
 class PythonDomain(Domain):
@@ -804,17 +813,43 @@ class PythonDomain(Domain):
     initial_data = {
         'objects': {},  # fullname -> docname, objtype
         'modules': {},  # modname -> docname, synopsis, platform, deprecated
+        'labels': {         # labelname -> docname, labelid, sectionname
+            'genindex':        ('genindex',           '', l_('Index')),
+            'search':          ('search',             '', l_('Search Page')),
+            'modindex':        ('py-modindex',        '', l_('Python Module Index')),
+            'classindex':      ('py-classindex',      '', l_('Python Class Index')),
+            'funcindex':       ('py-funcindex',       '', l_('Python Function Index')),
+            'dataindex':       ('py-dataindex',       '', l_('Python Data Index')),
+            'excindex':        ('py-excindex',        '', l_('Python Exception Index')),
+            'methindex':       ('py-methindex',       '', l_('Python Method Index')),
+            'classmethindex':  ('py-classmethindex',  '', l_('Python Class Method Index')),
+            'staticmethindex': ('py-staticmethindex', '', l_('Python Static Method Index')),
+            'attrindex':       ('py-attrindex',       '', l_('Python Attribute Index')),
+        },
+        'anonlabels': {     # labelname -> docname, labelid
+            'genindex':        ('genindex',           ''),
+            'search':          ('search',             ''),
+            'modindex':        ('py-modindex',        ''),
+            'classindex':      ('py-classindex',      ''),
+            'funcindex':       ('py-funcindex',       ''),
+            'dataindex':       ('py-dataindex',       ''),
+            'excindex':        ('py-excindex',        ''),
+            'methindex':       ('py-methindex',       ''),
+            'classmethindex':  ('py-classmethindex',  ''),
+            'staticmethindex': ('py-staticmethindex', ''),
+            'attrindex':       ('py-attrindex',       ''),
+        },
     }  # type: Dict[unicode, Dict[unicode, Tuple[Any]]]
     indices = [
         PythonModuleIndex,
         PythonClassIndex,
         PythonFuncIndex,
         PythonDataIndex,
-        PythonExceptionIndex,
-        PythonMethodIndex,
-        PythonClassmethodIndex,
-        PythonStaticmethodIndex,
-        PythonAttributeIndex,
+        PythonExcIndex,
+        PythonMethIndex,
+        PythonClassmethIndex,
+        PythonStaticmethIndex,
+        PythonAttrIndex,
     ]
 
     def clear_doc(self, docname):
