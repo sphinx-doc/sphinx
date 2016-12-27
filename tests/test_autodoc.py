@@ -11,7 +11,7 @@
 """
 
 # "raises" imported for usage by autodoc
-from util import TestApp, Struct  # NOQA
+from util import SphinxTestApp, Struct  # NOQA
 from nose.tools import with_setup, eq_
 import pytest
 
@@ -27,7 +27,7 @@ app = None
 
 def setup_module():
     global app
-    app = TestApp()
+    app = SphinxTestApp()
     app.builder.env.app = app
     app.builder.env.temp_data['docname'] = 'dummy'
     app.connect('autodoc-process-docstring', process_docstring)
@@ -134,14 +134,14 @@ def test_parse_name():
 
     # for members
     directive.env.ref_context['py:module'] = 'foo'
-    verify('method', 'util.TestApp.cleanup',
-           ('util', ['TestApp', 'cleanup'], None, None))
+    verify('method', 'util.SphinxTestApp.cleanup',
+           ('util', ['SphinxTestApp', 'cleanup'], None, None))
     directive.env.ref_context['py:module'] = 'util'
     directive.env.ref_context['py:class'] = 'Foo'
-    directive.env.temp_data['autodoc:class'] = 'TestApp'
-    verify('method', 'cleanup', ('util', ['TestApp', 'cleanup'], None, None))
-    verify('method', 'TestApp.cleanup',
-           ('util', ['TestApp', 'cleanup'], None, None))
+    directive.env.temp_data['autodoc:class'] = 'SphinxTestApp'
+    verify('method', 'cleanup', ('util', ['SphinxTestApp', 'cleanup'], None, None))
+    verify('method', 'SphinxTestApp.cleanup',
+           ('util', ['SphinxTestApp', 'cleanup'], None, None))
 
     # and clean up
     del directive.env.ref_context['py:module']

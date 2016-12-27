@@ -16,7 +16,7 @@ from textwrap import dedent
 from sphinx.errors import SphinxError
 import sphinx.builders.linkcheck
 
-from util import rootdir, tempdir, TestApp, path
+from util import rootdir, tempdir, SphinxTestApp, path
 
 
 def request_session_head(url, **kwargs):
@@ -78,7 +78,7 @@ def test_master_doc_not_found(tmpdir):
     assert tmpdir.listdir() == ['conf.py']
 
     try:
-        app = TestApp(buildername='dummy', srcdir=tmpdir)
+        app = SphinxTestApp(buildername='dummy', srcdir=tmpdir)
         app.builder.build_all()
         assert False  # SphinxError not raised
     except Exception as exc:

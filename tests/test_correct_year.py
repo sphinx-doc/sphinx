@@ -10,7 +10,7 @@
 """
 import os
 
-from util import TestApp
+from util import SphinxTestApp
 
 
 def test_correct_year():
@@ -19,7 +19,7 @@ def test_correct_year():
         sde = os.environ.pop('SOURCE_DATE_EPOCH', None)
 
         # test with SOURCE_DATE_EPOCH unset: no modification
-        app = TestApp(buildername='html', testroot='correct-year')
+        app = SphinxTestApp(buildername='html', testroot='correct-year')
         app.builder.build_all()
         content = (app.outdir / 'contents.html').text()
         app.cleanup()
@@ -28,14 +28,14 @@ def test_correct_year():
         # test with SOURCE_DATE_EPOCH set: copyright year should be
         # updated
         os.environ['SOURCE_DATE_EPOCH'] = "1293840000"
-        app = TestApp(buildername='html', testroot='correct-year')
+        app = SphinxTestApp(buildername='html', testroot='correct-year')
         app.builder.build_all()
         content = (app.outdir / 'contents.html').text()
         app.cleanup()
         assert '2006-2011' in content
 
         os.environ['SOURCE_DATE_EPOCH'] = "1293839999"
-        app = TestApp(buildername='html', testroot='correct-year')
+        app = SphinxTestApp(buildername='html', testroot='correct-year')
         app.builder.build_all()
         content = (app.outdir / 'contents.html').text()
         app.cleanup()

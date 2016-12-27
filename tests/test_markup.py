@@ -21,7 +21,7 @@ from sphinx.util.docutils import sphinx_domains
 from sphinx.writers.html import HTMLWriter, SmartyPantsHTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
 
-from util import TestApp, with_app, assert_node
+from util import SphinxTestApp, with_app, assert_node
 
 
 app = settings = parser = domain_context = None
@@ -30,7 +30,7 @@ app = settings = parser = domain_context = None
 def setup_module():
     global app, settings, parser, domain_context
     texescape.init()  # otherwise done by the latex builder
-    app = TestApp()
+    app = SphinxTestApp()
     optparser = frontend.OptionParser(
         components=(rst.Parser, HTMLWriter, LaTeXWriter))
     settings = optparser.get_default_values()

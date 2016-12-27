@@ -5,7 +5,7 @@ import contextlib
 import pytest
 from six import StringIO
 
-from util import TestApp
+from util import SphinxTestApp
 
 
 @pytest.fixture
@@ -95,7 +95,7 @@ def make_app():
         status, warning = StringIO(), StringIO()
         kwargs.setdefault('status', status)
         kwargs.setdefault('warning', warning)
-        app_ = TestApp(*args, **kwargs)
+        app_ = SphinxTestApp(*args, **kwargs)
         app_.status = kwargs.get('status')
         app_.warning = kwargs.get('warning')
         apps.append(app_)

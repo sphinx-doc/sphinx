@@ -11,7 +11,7 @@
 
 from six import PY3
 
-from util import TestApp, remove_unicode_literals, path
+from util import SphinxTestApp, remove_unicode_literals, path
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
@@ -22,7 +22,7 @@ warnings = []
 
 def setup_module():
     global app, env
-    app = TestApp(srcdir='root-envtest')
+    app = SphinxTestApp(srcdir='root-envtest')
     env = app.env
     env.set_warnfunc(lambda *args, **kwargs: warnings.append(args))
 

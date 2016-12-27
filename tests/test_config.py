@@ -13,7 +13,7 @@ from six import PY3, iteritems
 import mock
 import pytest
 
-from util import TestApp, with_app, gen_with_app, with_tempdir, \
+from util import SphinxTestApp, with_app, gen_with_app, with_tempdir, \
     assert_in, assert_not_in
 
 import sphinx
@@ -130,35 +130,35 @@ def test_errors_if_setup_is_not_callable(dir):
     # test the error to call setup() in the config file
     (dir / 'conf.py').write_text(u'setup = 1')
     with pytest.raises(ConfigError) as excinfo:
-        TestApp(srcdir=dir)
+        SphinxTestApp(srcdir=dir)
     assert 'callable' in str(excinfo.value)
 
 
 @mock.patch.object(sphinx, '__display_version__', '1.3.4')
 def test_needs_sphinx():
     # micro version
-    app = TestApp(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
+    app = SphinxTestApp(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
     app.cleanup()
-    app = TestApp(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
+    app = SphinxTestApp(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
     app.cleanup()
     with pytest.raises(VersionRequirementError):
-        TestApp(confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
+        SphinxTestApp(confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
 
     # minor version
-    app = TestApp(confoverrides={'needs_sphinx': '1.2'})  # OK: less
+    app = SphinxTestApp(confoverrides={'needs_sphinx': '1.2'})  # OK: less
     app.cleanup()
-    app = TestApp(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
+    app = SphinxTestApp(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
     app.cleanup()
     with pytest.raises(VersionRequirementError):
-        TestApp(confoverrides={'needs_sphinx': '1.4'})  # NG: greater
+        SphinxTestApp(confoverrides={'needs_sphinx': '1.4'})  # NG: greater
 
     # major version
-    app = TestApp(confoverrides={'needs_sphinx': '0'})  # OK: less
+    app = SphinxTestApp(confoverrides={'needs_sphinx': '0'})  # OK: less
     app.cleanup()
-    app = TestApp(confoverrides={'needs_sphinx': '1'})  # OK: equals
+    app = SphinxTestApp(confoverrides={'needs_sphinx': '1'})  # OK: equals
     app.cleanup()
     with pytest.raises(VersionRequirementError):
-        TestApp(confoverrides={'needs_sphinx': '2'})  # NG: greater
+        SphinxTestApp(confoverrides={'needs_sphinx': '2'})  # NG: greater
 
 
 @with_tempdir

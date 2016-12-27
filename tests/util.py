@@ -35,7 +35,7 @@ from path import path, repr_as  # NOQA
 __all__ = [
     'rootdir', 'tempdir',
     'skip_unless_importable', 'Struct',
-    'ListOutput', 'TestApp', 'with_app', 'gen_with_app',
+    'ListOutput', 'SphinxTestApp', 'gen_with_app',
     'path', 'with_tempdir',
     'sprint', 'remove_unicode_literals',
 ]
@@ -156,7 +156,7 @@ class ListOutput(object):
         self.content.append(text)
 
 
-class TestApp(application.Sphinx):
+class SphinxTestApp(application.Sphinx):
     """
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
@@ -241,8 +241,8 @@ with_app = pytest.mark.sphinx
 
 def gen_with_app(*args, **kwargs):
     """
-    Decorate a test generator to pass a TestApp as the first argument to the
-    test generator when it's executed.
+    Decorate a test generator to pass a SphinxTestApp as the first argument to
+    the test generator when it's executed.
     """
     def generator(func):
         @wraps(func)
@@ -250,7 +250,7 @@ def gen_with_app(*args, **kwargs):
             status, warning = StringIO(), StringIO()
             kwargs['status'] = status
             kwargs['warning'] = warning
-            app = TestApp(*args, **kwargs)
+            app = SphinxTestApp(*args, **kwargs)
             try:
                 for item in func(app, status, warning, *args2, **kwargs2):
                     yield item
@@ -289,3 +289,25 @@ def find_files(root, suffix=None):
 
 def strip_escseq(text):
     return re.sub('\x1b.*?m', '', text)
+
+
+class _DeprecationWrapper(object):
+    def __init__(self, mod, deprecated):
+        self._mod = mod
+        self._deprecated = deprecated
+
+    def __getattr__(self, attr):
+        if attr in self._deprecated:
+            obj, instead = self._deprecated[attr]
+            warnings.warn("tests/util.py::%s is deprecated and will be "
+                          "removed in Sphinx 2.0, please use %s instead."
+                          % (attr, instead),
+                          RemovedInSphinx17Warning, stacklevel=2)
+            return obj
+        return getattr(self._mod, attr)
+
+
+sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(  # type: ignore
+    with_app=(with_app, 'pytest.mark.sphinx'),
+    TestApp=(SphinxTestApp, 'SphinxTestApp'),
+))

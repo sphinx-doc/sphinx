@@ -19,7 +19,7 @@ from babel.messages.mofile import read_mo
 from sphinx.util import i18n
 from sphinx.errors import SphinxError
 
-from util import TestApp, with_tempdir
+from util import SphinxTestApp, with_tempdir
 
 
 def test_catalog_info_for_file_and_path():
@@ -216,7 +216,7 @@ def test_format_date():
 
 
 def test_get_filename_for_language():
-    app = TestApp()
+    app = SphinxTestApp()
 
     # language is None
     app.env.config.language = None
