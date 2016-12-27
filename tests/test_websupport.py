@@ -25,7 +25,7 @@ try:
 except ImportError:
     sqlalchemy_missing = True
 
-from util import rootdir, tempdir
+from util import rootdir, tempdir, path
 
 
 @pytest.fixture
@@ -35,18 +35,52 @@ def support(request):
                 'status': StringIO(),
                 'warning': StringIO()}
     marker = request.node.get_marker('support')
+    prebuild = True
     if marker:
+        prebuild = marker.kwargs.pop('prebuild', prebuild)
         settings.update(marker.kwargs)
 
     support = WebSupport(**settings)
+    if prebuild and len(path(support.outdir).listdir()) <= 1:
+        support.build()
+
     yield support
+
+    # here, delete all of comment records
+    # FIXME: use transaction.rollback() instead.
+    if hasattr(support.storage, 'engine'):
+        s = Session()
+        s.query(Comment).delete()
+        s.query(CommentVote).delete()
+        s.commit()
+        s.close()
+
+
+@pytest.fixture
+def user_one(support):
+    session = Session()
+    node = session.query(Node).first()
+    support.add_comment('User one test comment',
+                        node_id=node.id,
+                        username='user_one')
+    session.commit()
+
+
+@pytest.fixture
+def user_two(support):
+    session = Session()
+    node = session.query(Node).first()
+    support.add_comment('User two test comment',
+                        node_id=node.id,
+                        username='user_two')
+    session.commit()
 
 
 class NullStorage(StorageBackend):
     pass
 
 
-@pytest.mark.support(storage=NullStorage())
+@pytest.mark.support(storage=NullStorage(), prebuild=False)
 def test_no_srcdir(support):
     # make sure the correct exception is raised if srcdir is not given.
     with pytest.raises(RuntimeError):
@@ -54,12 +88,13 @@ def test_no_srcdir(support):
 
 
 @pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
-@pytest.mark.support(srcdir=rootdir / 'root')
+@pytest.mark.support(srcdir=rootdir / 'root', prebuild=False)
 def test_build(support):
     support.build()
 
 
 @pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
+@pytest.mark.support(srcdir=rootdir / 'root')
 def test_get_document(support):
     with pytest.raises(DocumentNotFoundError):
         support.get_document('nonexisting')
@@ -70,6 +105,7 @@ def test_get_document(support):
 
 
 @pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
+@pytest.mark.support(srcdir=rootdir / 'root')
 def test_comments(support):
     session = Session()
     nodes = session.query(Node).all()
@@ -118,7 +154,8 @@ def test_comments(support):
 
 
 @pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
-def test_voting(support):
+@pytest.mark.support(srcdir=rootdir / 'root')
+def test_voting(support, user_one):
     session = Session()
     nodes = session.query(Node).all()
     node = nodes[0]
@@ -153,6 +190,7 @@ def test_voting(support):
 
 
 @pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
+@pytest.mark.support(srcdir=rootdir / 'root')
 def test_proposals(support):
     session = Session()
     node = session.query(Node).first()
@@ -168,7 +206,8 @@ def test_proposals(support):
 
 
 @pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
-def test_user_delete_comments(support):
+@pytest.mark.support(srcdir=rootdir / 'root')
+def test_user_delete_comments(support, user_one):
     def get_comment():
         session = Session()
         node = session.query(Node).first()
@@ -188,12 +227,13 @@ def test_user_delete_comments(support):
 
 
 @pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
-def test_moderator_delete_comments(support):
+@pytest.mark.support(srcdir=rootdir / 'root')
+def test_moderator_delete_comments(support, user_two):
     def get_comment():
         session = Session()
         node = session.query(Node).first()
         session.close()
-        return support.get_data(node.id, moderator=True)['comments'][1]
+        return support.get_data(node.id, moderator=True)['comments'][0]
 
     comment = get_comment()
     support.delete_comment(comment['id'], username='user_two',
@@ -203,7 +243,8 @@ def test_moderator_delete_comments(support):
 
 
 @pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
-def test_update_username(support):
+@pytest.mark.support(srcdir=rootdir / 'root')
+def test_update_username(support, user_two):
     support.update_username('user_two', 'new_user_two')
     session = Session()
     comments = session.query(Comment).\
@@ -229,7 +270,8 @@ def moderation_callback(comment):
 
 
 @pytest.mark.skipif(sqlalchemy_missing, reason='needs sqlalchemy')
-@pytest.mark.support(moderation_callback=moderation_callback)
+@pytest.mark.support(srcdir=rootdir / 'root',
+                     moderation_callback=moderation_callback)
 def test_moderation(support):
     session = Session()
     nodes = session.query(Node).all()
