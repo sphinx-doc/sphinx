@@ -13,8 +13,7 @@ from six import PY3, iteritems
 import mock
 import pytest
 
-from util import SphinxTestApp, with_app, gen_with_app, with_tempdir, \
-    assert_in, assert_not_in
+from util import SphinxTestApp, with_app, with_tempdir
 
 import sphinx
 from sphinx.config import Config
@@ -199,7 +198,7 @@ TYPECHECK_WARNINGS = {
     'value8': False,
     'value9': False,
     'value10': False,
-    'value11': True,
+    'value11': False if PY3 else True,
     'value12': False,
     'value13': False,
     'value14': False,
@@ -208,15 +207,17 @@ TYPECHECK_WARNINGS = {
 }
 
 
-@gen_with_app(testroot='config')
-def test_gen_check_types(app, status, warning):
-    if PY3:
-        TYPECHECK_WARNINGS['value11'] = False
-
-    for key, should in iteritems(TYPECHECK_WARNINGS):
-        yield assert_in if should else assert_not_in, key, warning.getvalue(), (
-            'override on "%s" should%s raise a type warning' %
-            (key, '' if should else ' NOT')
+@pytest.mark.parametrize("key,should", iteritems(TYPECHECK_WARNINGS))
+@pytest.mark.sphinx(testroot='config')
+def test_check_types(warning, key, should):
+    warn = warning.getvalue()
+    if should:
+        assert key in warn, (
+            'override on "%s" should raise a type warning' % key
+        )
+    else:
+        assert key not in warn, (
+            'override on "%s" should NOT raise a type warning' % key
         )
 
 
