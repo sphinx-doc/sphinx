@@ -35,7 +35,7 @@ from path import path, repr_as  # NOQA
 __all__ = [
     'rootdir', 'tempdir',
     'skip_unless_importable', 'Struct',
-    'ListOutput', 'SphinxTestApp', 'gen_with_app',
+    'ListOutput', 'SphinxTestApp',
     'path', 'with_tempdir',
     'sprint', 'remove_unicode_literals',
 ]
@@ -236,9 +236,6 @@ class SphinxTestApp(application.Sphinx):
         return '<%s buildername=%r>' % (self.__class__.__name__, self.builder.name)
 
 
-with_app = pytest.mark.sphinx
-
-
 def gen_with_app(*args, **kwargs):
     """
     Decorate a test generator to pass a SphinxTestApp as the first argument to
@@ -308,6 +305,7 @@ class _DeprecationWrapper(object):
 
 
 sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(  # type: ignore
-    with_app=(with_app, 'pytest.mark.sphinx'),
+    with_app=(pytest.mark.sphinx, 'pytest.mark.sphinx'),
     TestApp=(SphinxTestApp, 'SphinxTestApp'),
+    gen_with_app=(gen_with_app, 'pytest.mark.parametrize'),
 ))

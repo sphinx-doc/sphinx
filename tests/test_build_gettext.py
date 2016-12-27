@@ -15,31 +15,30 @@ import re
 import gettext
 from subprocess import Popen, PIPE
 
-from nose.tools import assert_true, assert_equal
 import pytest
 
-from util import with_app, gen_with_app, assert_in
+from sphinx.util.osutil import cd
 
 
-@gen_with_app('gettext', srcdir='root-gettext')
-def test_all(app, status, warning):
-    # Generic build; should fail only when the builder is horribly broken.
-    app.builder.build_all()
+@pytest.mark.sphinx('gettext', srcdir='root-gettext')
+def test_build_gettext(built_app):
+    # built_app should fail only when the builder is horribly broken.
 
     # Do messages end up in the correct location?
     # top-level documents end up in a message catalog
-    yield assert_true, (app.outdir / 'extapi.pot').isfile()
+    assert (built_app.outdir / 'extapi.pot').isfile()
     # directory items are grouped into sections
-    yield assert_true, (app.outdir / 'subdir.pot').isfile()
+    assert (built_app.outdir / 'subdir.pot').isfile()
 
     # regression test for issue #960
-    catalog = (app.outdir / 'markup.pot').text(encoding='utf-8')
-    yield assert_in, 'msgid "something, something else, something more"', catalog
+    catalog = (built_app.outdir / 'markup.pot').text(encoding='utf-8')
+    assert 'msgid "something, something else, something more"' in catalog
 
-    (app.outdir / 'en' / 'LC_MESSAGES').makedirs()
-    cwd = os.getcwd()
-    os.chdir(app.outdir)
-    try:
+
+@pytest.mark.sphinx('gettext', srcdir='root-gettext')
+def test_msgfmt(built_app):
+    (built_app.outdir / 'en' / 'LC_MESSAGES').makedirs()
+    with cd(built_app.outdir):
         try:
             p = Popen(['msginit', '--no-translator', '-i', 'markup.pot',
                        '--locale', 'en_US'],
@@ -53,7 +52,7 @@ def test_all(app, status, warning):
                 print(stderr)
                 assert False, 'msginit exited with return code %s' % \
                     p.returncode
-        yield assert_true, (app.outdir / 'en_US.po').isfile(), 'msginit failed'
+        assert (built_app.outdir / 'en_US.po').isfile(), 'msginit failed'
         try:
             p = Popen(['msgfmt', 'en_US.po', '-o',
                        os.path.join('en', 'LC_MESSAGES', 'test_root.mo')],
@@ -67,18 +66,16 @@ def test_all(app, status, warning):
                 print(stderr)
                 assert False, 'msgfmt exited with return code %s' % \
                     p.returncode
-        yield (assert_true,
-               (app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo').isfile(),
-               'msgfmt failed')
-    finally:
-        os.chdir(cwd)
+        mo = built_app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo'
+        assert mo.isfile(), 'msgfmt failed'
 
-    _ = gettext.translation('test_root', app.outdir, languages=['en']).gettext
-    yield assert_equal, _("Testing various markup"), u"Testing various markup"
+    _ = gettext.translation('test_root', built_app.outdir, languages=['en']).gettext
+    assert _("Testing various markup") == u"Testing various markup"
 
 
-@with_app('gettext', testroot='intl', srcdir='gettext',
-          confoverrides={'gettext_compact': False})
+@pytest.mark.sphinx(
+    'gettext', testroot='intl', srcdir='gettext',
+    confoverrides={'gettext_compact': False})
 def test_gettext_index_entries(app):
     # regression test for #976
     app.builder.build(['index_entries'])
@@ -124,8 +121,10 @@ def test_gettext_index_entries(app):
     assert msgids == []
 
 
-@with_app('gettext', testroot='intl', srcdir='gettext',
-          confoverrides={'gettext_compact': False, 'gettext_additional_targets': []})
+@pytest.mark.sphinx(
+    'gettext', testroot='intl', srcdir='gettext',
+    confoverrides={'gettext_compact': False,
+                   'gettext_additional_targets': []})
 def test_gettext_disable_index_entries(app):
     # regression test for #976
     app.builder.build(['index_entries'])
@@ -156,7 +155,8 @@ def test_gettext_disable_index_entries(app):
     assert msgids == []
 
 
-@with_app(buildername='gettext', testroot='intl', srcdir='gettext')
+@pytest.mark.sphinx(
+    buildername='gettext', testroot='intl', srcdir='gettext')
 def test_gettext_template(app):
     app.builder.build_all()
     assert (app.outdir / 'sphinx.pot').isfile()
