@@ -16,7 +16,7 @@ from textwrap import dedent
 from sphinx.errors import SphinxError
 import sphinx.builders.linkcheck
 
-from util import rootdir, TestApp, path
+from util import rootdir, tempdir, TestApp, path
 
 
 def request_session_head(url, **kwargs):
@@ -30,7 +30,7 @@ def request_session_head(url, **kwargs):
 def nonascii_srcdir(request):
     # If supported, build in a non-ASCII source dir
     test_name = u'\u65e5\u672c\u8a9e'
-    basedir = path(request.node.originalname)
+    basedir = tempdir / request.node.originalname
     try:
         srcdir = basedir / test_name
         if not srcdir.exists():
