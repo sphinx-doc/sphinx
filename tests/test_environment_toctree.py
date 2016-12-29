@@ -14,21 +14,27 @@ from docutils.nodes import bullet_list, list_item, caption, comment, reference
 from sphinx import addnodes
 from sphinx.addnodes import compact_paragraph, only
 from sphinx.builders.html import StandaloneHTMLBuilder
+import pytest
 
-from util import with_app, gen_with_app, assert_node
+from util import assert_node
 
 
-@gen_with_app('xml', testroot='toctree')
-def test_basic(app, status, warning):
-    app.build()
-    yield _test_process_doc, app
-    yield _test_get_toc_for, app
-    yield _test_get_toc_for_only, app
-    yield _test_get_toc_for_tocdepth, app
-    yield _test_get_toctree_for, app
-    yield _test_get_toctree_for_collapse, app
-    yield _test_get_toctree_for_maxdepth, app
-    yield _test_get_toctree_for_includehidden, app
+@pytest.mark.parametrize(
+    'target',
+    [
+        '_test_process_doc',
+        '_test_get_toc_for',
+        '_test_get_toc_for_only',
+        '_test_get_toc_for_tocdepth',
+        '_test_get_toctree_for',
+        '_test_get_toctree_for_collapse',
+        '_test_get_toctree_for_maxdepth',
+        '_test_get_toctree_for_includehidden',
+    ]
+)
+@pytest.mark.sphinx('xml', testroot='toctree')
+def test_basic(built_app, target):
+    globals()[target](built_app)
 
 
 def _test_process_doc(app):
@@ -97,8 +103,8 @@ def _test_process_doc(app):
     assert 'qux' not in app.env.toctree_includes
 
 
-@with_app('dummy', testroot='toctree-glob')
-def test_glob(app, status, warning):
+@pytest.mark.sphinx('dummy', testroot='toctree-glob')
+def test_glob(app):
     includefiles = ['foo', 'bar/index', 'bar/bar_1', 'bar/bar_2',
                     'bar/bar_3', 'baz', 'qux/index']
 
