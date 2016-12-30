@@ -33,10 +33,18 @@ def test_params(request):
     env = request.node.get_marker('testenv')
     kwargs = env.kwargs if env else {}
     result = {
-       'shared_srcdir': None,  # use specified src dir. if True, use test function name
        'build': False,  # pre build in fixture
+        'shared_srcdir': None,  # use specified src dir. if True, use test function name
+        'shared_result': None,  # if True, app object is shared in each parametrized test
     }
     result.update(kwargs)
+
+    if (result['shared_result'] and
+            not isinstance(result['shared_result'], string_types)):
+        r = result['shared_result'] = request.node.originalname or request.node.name
+
+    if result['shared_result'] and not result['shared_srcdir']:
+        result['shared_srcdir'] = result['shared_result']
 
     if (result['shared_srcdir'] and
         not isinstance(result['shared_srcdir'], string_types)):
@@ -73,10 +81,14 @@ def test_params(request):
 
 
 @pytest.fixture(scope='function')
-def app(test_params, app_params, make_app):
+def app(test_params, app_params, make_app, shared_result):
     args, kwargs = app_params
     if test_params['shared_srcdir'] and 'srcdir' not in kwargs:
         kwargs['srcdir'] = test_params['shared_srcdir']
+
+    if test_params['shared_result']:
+        restore = shared_result.restore(test_params['shared_result'])
+        kwargs.update(restore)
 
     app_ = make_app(*args, **kwargs)
 
@@ -85,6 +97,9 @@ def app(test_params, app_params, make_app):
         if not app_.outdir.listdir():
             app_.build()
     yield app_
+
+    if test_params['shared_result']:
+        shared_result.store(test_params['shared_result'], app_)
 
 
 @pytest.fixture(scope='function')
@@ -114,6 +129,38 @@ def make_app():
     yield make
     for app_ in apps:
         app_.cleanup()
+
+
+class SharedResult(object):
+    cache = {}
+
+    def store(self, key, app_):
+        if key in self.cache:
+            return
+        data = {
+            'status': app_.status.getvalue(),
+            'warning': app_.warning.getvalue(),
+        }
+        self.cache[key] = data
+
+    def restore(self, key):
+        if key not in self.cache:
+            return {}
+        data = self.cache[key]
+        return {
+            'status': StringIO(data['status']),
+            'warning': StringIO(data['warning']),
+        }
+
+
+@pytest.fixture
+def shared_result():
+    return SharedResult()
+
+
+@pytest.fixture(scope='module', autouse=True)
+def _shared_result_cache():
+    SharedResult.cache.clear()
 
 
 @pytest.fixture()

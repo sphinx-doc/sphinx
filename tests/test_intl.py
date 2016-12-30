@@ -81,133 +81,18 @@ def getwarning(warnings):
     return repr_as(w, '<warnings: %r>' % w)
 
 
-@pytest.mark.parametrize(
-    'target',
-    [
-        '_test_toctree',
-        '_test_warning_node',
-        '_test_title_underline',
-        '_test_subdirs',
-        '_test_definition_terms',
-        '_test_seealso',
-        '_test_figure_captions',
-        '_test_rubric',
-        '_test_docfields',
-        '_test_admonitions',
-    ]
-)
 @sphinx_intl
 @pytest.mark.sphinx('text')
-@pytest.mark.testenv(build=True, shared_srcdir='test_intl_basic')
-def test_text(app, target):
-    globals()[target](app)
-
-
-@pytest.mark.parametrize(
-    'target',
-    [
-        '_test_emit_warnings',
-        '_test_inconsistency_warnings',
-        '_test_literalblock_warnings',
-        '_test_glossary_term',
-        '_test_glossary_term_inconsistencies',
-        '_test_text_references',
-    ]
-)
-@sphinx_intl
-@pytest.mark.sphinx('text', freshenv=True)
-def test_text_warnings(app, warning, target):
-    app.build()
-    globals()[target](app, warning)
-
-
-@pytest.mark.parametrize(
-    'target',
-    [
-        '_test_gettext_toctree',
-        '_test_gettext_definition_terms',
-        '_test_gettext_glossary_term_inconsistencies',
-        '_test_gettext_buildr_ignores_only_directive',
-    ]
-)
-@sphinx_intl
-@pytest.mark.sphinx('gettext')
-@pytest.mark.testenv(build=True, shared_srcdir=True)
-def test_gettext(app, target):
-    globals()[target](app)
-
-
-@pytest.mark.parametrize(
-    'target',
-    [
-        '_test_gettext_glossary_terms',
-    ]
-)
-@sphinx_intl
-@pytest.mark.sphinx('gettext', freshenv=True)
-@pytest.mark.testenv(build=True, shared_srcdir=True)
-def test_gettext_warnings(app, warning, target):
-    globals()[target](app, warning)
-
-
-@pytest.mark.parametrize(
-    'target',
-    [
-        '_test_html_meta',
-        '_test_html_footnotes',
-        '_test_html_undefined_refs',
-        '_test_html_index_entries',
-        '_test_html_versionchanges',
-        '_test_html_docfields',
-        '_test_html_template',
-        '_test_html_rebuild_mo',
-        '_test_additional_targets_should_not_be_translated',
-    ]
-)
-@sphinx_intl
-@pytest.mark.sphinx('html')
-@pytest.mark.testenv(build=True, shared_srcdir='test_intl_basic')
-def test_html(app, target):
-    globals()[target](app)
-
-
-@pytest.mark.parametrize(
-    'target',
-    [
-        '_test_xml_footnote_backlinks',
-        '_test_xml_refs_in_python_domain',
-        '_test_xml_keep_external_links',
-        '_test_xml_role_xref',
-        '_test_xml_label_targets',
-    ]
-)
-@sphinx_intl
-@pytest.mark.sphinx('xml')
-@pytest.mark.testenv(build=True, shared_srcdir='test_intl_basic')
-def test_xml(app, target):
-    globals()[target](app)
-
-
-@pytest.mark.parametrize(
-    'target',
-    [
-        '_test_xml_footnotes',
-        '_test_xml_warnings',
-    ]
-)
-@sphinx_intl
-@pytest.mark.sphinx('xml', freshenv=True)
-@pytest.mark.testenv(build=True)
-def test_xml_warnings(app, warning, target):
-    globals()[target](app, warning)
-
-
-def _test_toctree(app):
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_toctree(app):
     result = (app.outdir / 'contents.txt').text(encoding='utf-8')
     assert_startswith(result, u"CONTENTS\n********\n\nTABLE OF CONTENTS\n")
 
 
-def _test_emit_warnings(app, warning):
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_emit_warnings(warning):
     # test warnings in translation
     warnings = getwarning(warning)
     warning_expr = u'.*/warnings.txt:4: ' \
@@ -215,7 +100,10 @@ def _test_emit_warnings(app, warning):
     assert_re_search(warning_expr, warnings)
 
 
-def _test_warning_node(app):
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_warning_node(app):
     # test warnings in translation
     result = (app.outdir / 'warnings.txt').text(encoding='utf-8')
     expect = (u"I18N WITH REST WARNINGS"
@@ -224,7 +112,10 @@ def _test_warning_node(app):
     assert result == expect
 
 
-def _test_title_underline(app):
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_title_underline(app):
     # --- simple translation; check title underlines
     result = (app.outdir / 'bom.txt').text(encoding='utf-8')
     expect = (u"Datei mit UTF-8"
@@ -233,13 +124,19 @@ def _test_title_underline(app):
     assert result == expect
 
 
-def _test_subdirs(app):
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_subdirs(app):
     # --- check translation in subdirs
     result = (app.outdir / 'subdir' / 'contents.txt').text(encoding='utf-8')
     assert_startswith(result, u"subdir contents\n***************\n")
 
 
-def _test_inconsistency_warnings(app, warning):
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_inconsistency_warnings(app, warning):
     # --- check warnings for inconsistency in number of references
     result = (app.outdir / 'refs_inconsistency.txt').text(encoding='utf-8')
     expect = (u"I18N WITH REFS INCONSISTENCY"
@@ -262,7 +159,10 @@ def _test_inconsistency_warnings(app, warning):
     assert_re_search(expected_warning_expr, warnings)
 
 
-def _test_literalblock_warnings(app, warning):
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_literalblock_warnings(app, warning):
     # --- check warning for literal block
     result = (app.outdir / 'literalblock.txt').text(encoding='utf-8')
     expect = (u"I18N WITH LITERAL BLOCK"
@@ -280,7 +180,10 @@ def _test_literalblock_warnings(app, warning):
     assert_re_search(expected_warning_expr, warnings)
 
 
-def _test_definition_terms(app):
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_definition_terms(app):
     # --- definition terms: regression test for #975, #2198, #2205
     result = (app.outdir / 'definition_terms.txt').text(encoding='utf-8')
     expect = (u"I18N WITH DEFINITION TERMS"
@@ -297,7 +200,10 @@ def _test_definition_terms(app):
     assert result == expect
 
 
-def _test_glossary_term(app, warning):
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_glossary_term(app, warning):
     # --- glossary terms: regression test for #1090
     result = (app.outdir / 'glossary_terms.txt').text(encoding='utf-8')
     expect = (u"I18N WITH GLOSSARY TERMS"
@@ -312,7 +218,10 @@ def _test_glossary_term(app, warning):
     assert 'term not in glossary' not in warnings
 
 
-def _test_glossary_term_inconsistencies(app, warning):
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_glossary_term_inconsistencies(app, warning):
     # --- glossary term inconsistencies: regression test for #1090
     result = (app.outdir / 'glossary_terms_inconsistency.txt').text(encoding='utf-8')
     expect = (u"I18N WITH GLOSSARY TERMS INCONSISTENCY"
@@ -327,7 +236,10 @@ def _test_glossary_term_inconsistencies(app, warning):
     assert_re_search(expected_warning_expr, warnings)
 
 
-def _test_seealso(app):
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_seealso(app):
     # --- seealso
     result = (app.outdir / 'seealso.txt').text(encoding='utf-8')
     expect = (u"I18N WITH SEEALSO"
@@ -339,7 +251,10 @@ def _test_seealso(app):
     assert result == expect
 
 
-def _test_figure_captions(app):
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_figure_captions(app):
     # --- figure captions: regression test for #940
     result = (app.outdir / 'figure.txt').text(encoding='utf-8')
     expect = (u"I18N WITH FIGURE CAPTION"
@@ -378,7 +293,10 @@ def _test_figure_captions(app):
     assert result == expect
 
 
-def _test_rubric(app):
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_rubric(app):
     # --- rubric: regression test for pull request #190
     result = (app.outdir / 'rubric.txt').text(encoding='utf-8')
     expect = (u"I18N WITH RUBRIC"
@@ -392,7 +310,10 @@ def _test_rubric(app):
     assert result == expect
 
 
-def _test_docfields(app):
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_docfields(app):
     # --- docfields
     result = (app.outdir / 'docfields.txt').text(encoding='utf-8')
     expect = (u"I18N WITH DOCFIELDS"
@@ -417,7 +338,10 @@ def _test_docfields(app):
     assert result == expect
 
 
-def _test_admonitions(app):
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_admonitions(app):
     # --- admonitions
     # #1206: gettext did not translate admonition directive's title
     # seealso: http://docutils.sourceforge.net/docs/ref/rst/directives.html#admonitions
@@ -430,7 +354,10 @@ def _test_admonitions(app):
         assert d.upper() + " BODY" in result
 
 
-def _test_gettext_toctree(app):
+@sphinx_intl
+@pytest.mark.sphinx('gettext')
+@pytest.mark.testenv(build=True, shared_result='test_intl_gettext')
+def test_gettext_toctree(app):
     # --- toctree
     expect = read_po(app.srcdir / LOCALE_PATH / 'contents.po')
     actual = read_po(app.outdir / 'contents.pot')
@@ -438,7 +365,10 @@ def _test_gettext_toctree(app):
         assert expect_msg.id in [m.id for m in actual if m.id]
 
 
-def _test_gettext_definition_terms(app):
+@sphinx_intl
+@pytest.mark.sphinx('gettext')
+@pytest.mark.testenv(build=True, shared_result='test_intl_gettext')
+def test_gettext_definition_terms(app):
     # --- definition terms: regression test for #2198, #2205
     expect = read_po(app.srcdir / LOCALE_PATH / 'definition_terms.po')
     actual = read_po(app.outdir / 'definition_terms.pot')
@@ -446,7 +376,10 @@ def _test_gettext_definition_terms(app):
         assert expect_msg.id in [m.id for m in actual if m.id]
 
 
-def _test_gettext_glossary_terms(app, warning):
+@sphinx_intl
+@pytest.mark.sphinx('gettext')
+@pytest.mark.testenv(build=True, shared_result='test_intl_gettext')
+def test_gettext_glossary_terms(app, warning):
     # --- glossary terms: regression test for #1090
     expect = read_po(app.srcdir / LOCALE_PATH / 'glossary_terms.po')
     actual = read_po(app.outdir / 'glossary_terms.pot')
@@ -456,7 +389,10 @@ def _test_gettext_glossary_terms(app, warning):
     assert 'term not in glossary' not in warnings
 
 
-def _test_gettext_glossary_term_inconsistencies(app):
+@sphinx_intl
+@pytest.mark.sphinx('gettext')
+@pytest.mark.testenv(build=True, shared_result='test_intl_gettext')
+def test_gettext_glossary_term_inconsistencies(app):
     # --- glossary term inconsistencies: regression test for #1090
     expect = read_po(app.srcdir / LOCALE_PATH / 'glossary_terms_inconsistency.po')
     actual = read_po(app.outdir / 'glossary_terms_inconsistency.pot')
@@ -464,7 +400,10 @@ def _test_gettext_glossary_term_inconsistencies(app):
         assert expect_msg.id in [m.id for m in actual if m.id]
 
 
-def _test_gettext_buildr_ignores_only_directive(app):
+@sphinx_intl
+@pytest.mark.sphinx('gettext')
+@pytest.mark.testenv(build=True, shared_result='test_intl_gettext')
+def test_gettext_buildr_ignores_only_directive(app):
     # --- gettext builder always ignores ``only`` directive
     expect = read_po(app.srcdir / LOCALE_PATH / 'only.po')
     actual = read_po(app.outdir / 'only.pot')
@@ -510,7 +449,10 @@ def test_gettext_dont_rebuild_mo(make_app, app_params):
     assert get_number_of_update_targets(app) == 0
 
 
-def _test_html_meta(app):
+@sphinx_intl
+@pytest.mark.sphinx('html')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_html_meta(app):
     # --- test for meta
     result = (app.outdir / 'contents.html').text(encoding='utf-8')
     expected_expr = '<meta content="TESTDATA FOR I18N" name="description" />'
@@ -519,13 +461,19 @@ def _test_html_meta(app):
     assert expected_expr in result
 
 
-def _test_html_footnotes(app):
+@sphinx_intl
+@pytest.mark.sphinx('html')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_html_footnotes(app):
     # --- test for #955 cant-build-html-with-footnotes-when-using
     # expect no error by build
     (app.outdir / 'footnote.html').text(encoding='utf-8')
 
 
-def _test_html_undefined_refs(app):
+@sphinx_intl
+@pytest.mark.sphinx('html')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_html_undefined_refs(app):
     # --- links to undefined reference
     result = (app.outdir / 'refs_inconsistency.html').text(encoding='utf-8')
 
@@ -543,7 +491,10 @@ def _test_html_undefined_refs(app):
     assert len(re.findall(expected_expr, result)) == 1
 
 
-def _test_html_index_entries(app):
+@sphinx_intl
+@pytest.mark.sphinx('html')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_html_index_entries(app):
     # --- index entries: regression test for #976
     result = (app.outdir / 'genindex.html').text(encoding='utf-8')
 
@@ -576,7 +527,10 @@ def _test_html_index_entries(app):
         assert_re_search(expr, result, re.M)
 
 
-def _test_html_versionchanges(app):
+@sphinx_intl
+@pytest.mark.sphinx('html')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_html_versionchanges(app):
     # --- versionchanges
     result = (app.outdir / 'versionchange.html').text(encoding='utf-8')
 
@@ -608,20 +562,29 @@ def _test_html_versionchanges(app):
     assert expect3 == matched_content
 
 
-def _test_html_docfields(app):
+@sphinx_intl
+@pytest.mark.sphinx('html')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_html_docfields(app):
     # --- docfields
     # expect no error by build
     (app.outdir / 'docfields.html').text(encoding='utf-8')
 
 
-def _test_html_template(app):
+@sphinx_intl
+@pytest.mark.sphinx('html')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_html_template(app):
     # --- gettext template
     result = (app.outdir / 'index.html').text(encoding='utf-8')
     assert "WELCOME" in result
     assert "SPHINX 2013.120" in result
 
 
-def _test_html_rebuild_mo(app):
+@sphinx_intl
+@pytest.mark.sphinx('html')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_html_rebuild_mo(app):
     # --- rebuild by .mo mtime
     app.builder.build_update()
     updated = app.env.update(app.config, app.srcdir, app.doctreedir, app)
@@ -632,7 +595,10 @@ def _test_html_rebuild_mo(app):
     assert len(updated) == 1
 
 
-def _test_xml_footnotes(app, warning):
+@sphinx_intl
+@pytest.mark.sphinx('xml')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_xml_footnotes(app, warning):
     # --- footnotes: regression test for fix #955, #1176
     et = etree_parse(app.outdir / 'footnote.xml')
     secs = et.findall('section')
@@ -673,7 +639,10 @@ def _test_xml_footnotes(app, warning):
     assert_not_re_search(warning_expr, warnings)
 
 
-def _test_xml_footnote_backlinks(app):
+@sphinx_intl
+@pytest.mark.sphinx('xml')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_xml_footnote_backlinks(app):
     # --- footnote backlinks: i18n test for #1058
     et = etree_parse(app.outdir / 'footnote.xml')
     secs = et.findall('section')
@@ -690,7 +659,10 @@ def _test_xml_footnote_backlinks(app):
         assert refid2id[ids] == backrefs
 
 
-def _test_xml_refs_in_python_domain(app):
+@sphinx_intl
+@pytest.mark.sphinx('xml')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_xml_refs_in_python_domain(app):
     # --- refs in the Python domain
     et = etree_parse(app.outdir / 'refs_python_domain.xml')
     secs = et.findall('section')
@@ -703,7 +675,10 @@ def _test_xml_refs_in_python_domain(app):
         ['sensitive.sensitive_variables'])
 
 
-def _test_xml_keep_external_links(app):
+@sphinx_intl
+@pytest.mark.sphinx('xml')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_xml_keep_external_links(app):
     # --- keep external links: regression test for #1044
     et = etree_parse(app.outdir / 'external_links.xml')
     secs = et.findall('section')
@@ -757,7 +732,10 @@ def _test_xml_keep_external_links(app):
          'http://python.org'])
 
 
-def _test_xml_role_xref(app):
+@sphinx_intl
+@pytest.mark.sphinx('xml')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_xml_role_xref(app):
     # --- role xref: regression test for #1090, #1193
     et = etree_parse(app.outdir / 'role_xref.xml')
     sec1, sec2 = et.findall('section')
@@ -803,7 +781,10 @@ def _test_xml_role_xref(app):
         ['same-type-links', 'i18n-role-xref'])
 
 
-def _test_xml_warnings(app, warning):
+@sphinx_intl
+@pytest.mark.sphinx('xml')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_xml_warnings(warning):
     # warnings
     warnings = getwarning(warning)
     assert 'term not in glossary' not in warnings
@@ -811,7 +792,10 @@ def _test_xml_warnings(app, warning):
     assert 'unknown document' not in warnings
 
 
-def _test_xml_label_targets(app):
+@sphinx_intl
+@pytest.mark.sphinx('xml')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_xml_label_targets(app):
     # --- label targets: regression test for #1193, #1265
     et = etree_parse(app.outdir / 'label_target.xml')
     secs = et.findall('section')
@@ -864,7 +848,10 @@ def _test_xml_label_targets(app):
          'section-and-label'])
 
 
-def _test_additional_targets_should_not_be_translated(app):
+@sphinx_intl
+@pytest.mark.sphinx('html')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_additional_targets_should_not_be_translated(app):
     # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
 
@@ -976,7 +963,10 @@ def test_additional_targets_should_be_translated(app):
     assert_count(expected_expr, result, 1)
 
 
-def _test_text_references(app, warning):
+@sphinx_intl
+@pytest.mark.sphinx('text')
+@pytest.mark.testenv(build=True, shared_result='test_intl_basic')
+def test_text_references(app, warning):
     app.builder.build_specific([app.srcdir / 'refs.txt'])
 
     warnings = warning.getvalue().replace(os.sep, '/')
