@@ -21,24 +21,26 @@ from sphinx.util.osutil import cd
 
 
 @pytest.mark.sphinx('gettext', srcdir='root-gettext')
-def test_build_gettext(built_app):
-    # built_app should fail only when the builder is horribly broken.
+@pytest.mark.testenv(build=True)
+def test_build_gettext(app):
+    # app should fail only when the builder is horribly broken.
 
     # Do messages end up in the correct location?
     # top-level documents end up in a message catalog
-    assert (built_app.outdir / 'extapi.pot').isfile()
+    assert (app.outdir / 'extapi.pot').isfile()
     # directory items are grouped into sections
-    assert (built_app.outdir / 'subdir.pot').isfile()
+    assert (app.outdir / 'subdir.pot').isfile()
 
     # regression test for issue #960
-    catalog = (built_app.outdir / 'markup.pot').text(encoding='utf-8')
+    catalog = (app.outdir / 'markup.pot').text(encoding='utf-8')
     assert 'msgid "something, something else, something more"' in catalog
 
 
 @pytest.mark.sphinx('gettext', srcdir='root-gettext')
-def test_msgfmt(built_app):
-    (built_app.outdir / 'en' / 'LC_MESSAGES').makedirs()
-    with cd(built_app.outdir):
+@pytest.mark.testenv(build=True)
+def test_msgfmt(app):
+    (app.outdir / 'en' / 'LC_MESSAGES').makedirs()
+    with cd(app.outdir):
         try:
             p = Popen(['msginit', '--no-translator', '-i', 'markup.pot',
                        '--locale', 'en_US'],
@@ -52,7 +54,7 @@ def test_msgfmt(built_app):
                 print(stderr)
                 assert False, 'msginit exited with return code %s' % \
                     p.returncode
-        assert (built_app.outdir / 'en_US.po').isfile(), 'msginit failed'
+        assert (app.outdir / 'en_US.po').isfile(), 'msginit failed'
         try:
             p = Popen(['msgfmt', 'en_US.po', '-o',
                        os.path.join('en', 'LC_MESSAGES', 'test_root.mo')],
@@ -66,10 +68,10 @@ def test_msgfmt(built_app):
                 print(stderr)
                 assert False, 'msgfmt exited with return code %s' % \
                     p.returncode
-        mo = built_app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo'
+        mo = app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo'
         assert mo.isfile(), 'msgfmt failed'
 
-    _ = gettext.translation('test_root', built_app.outdir, languages=['en']).gettext
+    _ = gettext.translation('test_root', app.outdir, languages=['en']).gettext
     assert _("Testing various markup") == u"Testing various markup"
 
 

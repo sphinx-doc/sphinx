@@ -33,8 +33,9 @@ from util import assert_node
     ]
 )
 @pytest.mark.sphinx('xml', testroot='toctree')
-def test_basic(built_app, target):
-    globals()[target](built_app)
+@pytest.mark.testenv(build=True, shared_srcdir=True)
+def test_basic(app, target):
+    globals()[target](app)
 
 
 def _test_process_doc(app):

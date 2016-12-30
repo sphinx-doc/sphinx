@@ -3,7 +3,7 @@ import sys
 import contextlib
 
 import pytest
-from six import StringIO
+from six import StringIO, string_types
 
 from util import SphinxTestApp
 
@@ -26,6 +26,23 @@ def app_params(request):
 
     args = [pargs[i] for i in sorted(pargs.keys())]
     return args, kwargs
+
+
+@pytest.fixture
+def test_params(request):
+    env = request.node.get_marker('testenv')
+    kwargs = env.kwargs if env else {}
+    result = {
+       'shared_srcdir': None,  # use specified src dir. if True, use test function name
+       'build': False,  # pre build in fixture
+    }
+    result.update(kwargs)
+
+    if (result['shared_srcdir'] and
+        not isinstance(result['shared_srcdir'], string_types)):
+        result['shared_srcdir'] = request.node.originalname or request.node.name
+
+    return result
 
 
 ## 各テストのセットアップ時に呼ばれる
@@ -56,24 +73,18 @@ def app_params(request):
 
 
 @pytest.fixture(scope='function')
-def app(app_params, make_app):
+def app(test_params, app_params, make_app):
     args, kwargs = app_params
+    if test_params['shared_srcdir'] and 'srcdir' not in kwargs:
+        kwargs['srcdir'] = test_params['shared_srcdir']
+
     app_ = make_app(*args, **kwargs)
+
+    if test_params['build']:
+        # if listdir is not empty, we can use built cache
+        if not app_.outdir.listdir():
+            app_.build()
     yield app_
-
-
-@pytest.fixture
-def built_app(request, make_app, app_params):
-    args, kwargs = app_params
-    # copy srcdir if testing in parametrize and no srcdir
-    parametrized = request.node.get_marker('parametrize')
-    if parametrized and 'srcdir' not in kwargs:
-        kwargs['srcdir'] = request.node.originalname
-    app = make_app(*args, **kwargs)
-    # if listdir is not empty, we can use built cache
-    if not app.outdir.listdir():
-        app.build()
-    return app
 
 
 @pytest.fixture(scope='function')

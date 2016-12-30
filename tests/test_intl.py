@@ -98,8 +98,9 @@ def getwarning(warnings):
 )
 @sphinx_intl
 @pytest.mark.sphinx('text')
-def test_text(built_app, target):
-    globals()[target](built_app)
+@pytest.mark.testenv(build=True, shared_srcdir=True)
+def test_text(app, target):
+    globals()[target](app)
 
 
 @pytest.mark.parametrize(
@@ -131,8 +132,9 @@ def test_text_warnings(app, warning, target):
 )
 @sphinx_intl
 @pytest.mark.sphinx('gettext')
-def test_gettext(built_app, target):
-    globals()[target](built_app)
+@pytest.mark.testenv(build=True, shared_srcdir=True)
+def test_gettext(app, target):
+    globals()[target](app)
 
 
 @pytest.mark.parametrize(
@@ -143,8 +145,9 @@ def test_gettext(built_app, target):
 )
 @sphinx_intl
 @pytest.mark.sphinx('gettext', freshenv=True)
-def test_gettext_warnings(built_app, warning, target):
-    globals()[target](built_app, warning)
+@pytest.mark.testenv(build=True, shared_srcdir=True)
+def test_gettext_warnings(app, warning, target):
+    globals()[target](app, warning)
 
 
 @pytest.mark.parametrize(
@@ -163,8 +166,9 @@ def test_gettext_warnings(built_app, warning, target):
 )
 @sphinx_intl
 @pytest.mark.sphinx('html')
-def test_html(built_app, target):
-    globals()[target](built_app)
+@pytest.mark.testenv(build=True, shared_srcdir=True)
+def test_html(app, target):
+    globals()[target](app)
 
 
 @pytest.mark.parametrize(
@@ -179,8 +183,9 @@ def test_html(built_app, target):
 )
 @sphinx_intl
 @pytest.mark.sphinx('xml')
-def test_xml(built_app, target):
-    globals()[target](built_app)
+@pytest.mark.testenv(build=True, shared_srcdir=True)
+def test_xml(app, target):
+    globals()[target](app)
 
 
 @pytest.mark.parametrize(
@@ -192,8 +197,9 @@ def test_xml(built_app, target):
 )
 @sphinx_intl
 @pytest.mark.sphinx('xml', freshenv=True)
-def test_xml_warnings(built_app, warning, target):
-    globals()[target](built_app, warning)
+@pytest.mark.testenv(build=True)
+def test_xml_warnings(app, warning, target):
+    globals()[target](app, warning)
 
 
 def _test_toctree(app):
@@ -920,8 +926,8 @@ def _test_additional_targets_should_not_be_translated(app):
         'image',
     ],
 })
-def test_additional_targets_should_be_translated(built_app):
-    app = built_app
+@pytest.mark.testenv(build=True)
+def test_additional_targets_should_be_translated(app):
     # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
 
@@ -982,8 +988,8 @@ def _test_text_references(app, warning):
     'dummy', testroot='image-glob',
     confoverrides={'language': 'de'}
 )
-def test_image_glob_intl(built_app):
-    app = built_app
+@pytest.mark.testenv(build=True)
+def test_image_glob_intl(app):
     # index.rst
     doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
 
@@ -1028,8 +1034,8 @@ def test_image_glob_intl(built_app):
         'figure_language_filename': u'{root}{ext}.{language}',
     }
 )
-def test_image_glob_intl_using_figure_language_filename(built_app):
-    app = built_app
+@pytest.mark.testenv(build=True)
+def test_image_glob_intl_using_figure_language_filename(app):
     # index.rst
     doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
 

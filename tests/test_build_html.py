@@ -436,8 +436,9 @@ def test_static_output(app):
 @pytest.mark.sphinx(
     buildername='html', tags=['testtag'],
     confoverrides={'html_context.hckey_co': 'hcval_co'})
-def test_html_output(built_app, cached_etree_parse, fname, expect):
-    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
+@pytest.mark.testenv(build=True, shared_srcdir=True)
+def test_html_output(app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
@@ -473,9 +474,10 @@ def test_html_output(built_app, cached_etree_parse, fname, expect):
     ],
 }))
 @pytest.mark.sphinx(buildername='html', testroot='tocdepth')
-def test_tocdepth(built_app, cached_etree_parse, fname, expect):
+@pytest.mark.testenv(build=True, shared_srcdir=True)
+def test_tocdepth(app, cached_etree_parse, fname, expect):
     # issue #1251
-    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
@@ -506,8 +508,9 @@ def test_tocdepth(built_app, cached_etree_parse, fname, expect):
     ],
 }))
 @pytest.mark.sphinx(buildername='singlehtml', testroot='tocdepth')
-def test_tocdepth_singlehtml(built_app, cached_etree_parse, fname, expect):
-    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
+@pytest.mark.testenv(build=True, shared_srcdir=True)
+def test_tocdepth_singlehtml(app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.sphinx(buildername='html', testroot='numfig')
@@ -561,8 +564,9 @@ def test_numfig_disabled_warn(app, warning):
     ],
 }))
 @pytest.mark.sphinx(buildername='html', testroot='numfig')
-def test_numfig_disabled(built_app, cached_etree_parse, fname, expect):
-    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
+@pytest.mark.testenv(build=True, shared_srcdir=True)
+def test_numfig_disabled(app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.sphinx(
@@ -775,8 +779,9 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
 }))
 @pytest.mark.sphinx(
     buildername='html', testroot='numfig', confoverrides={'numfig': True})
-def test_numfig_with_numbered_toctree(built_app, cached_etree_parse, fname, expect):
-    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
+@pytest.mark.testenv(build=True, shared_srcdir=True)
+def test_numfig_with_numbered_toctree(app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.sphinx(
@@ -882,8 +887,9 @@ def test_numfig_with_prefix_warn(app, warning):
                                      'table': 'Tab_%s',
                                      'code-block': 'Code-%s',
                                      'section': 'SECTION-%s'}})
-def test_numfig_with_prefix(built_app, cached_etree_parse, fname, expect):
-    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
+@pytest.mark.testenv(build=True, shared_srcdir=True)
+def test_numfig_with_prefix(app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.sphinx(
@@ -981,8 +987,9 @@ def test_numfig_with_secnum_depth_warn(app, warning):
 @pytest.mark.sphinx(
     buildername='html', testroot='numfig',
     confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
-def test_numfig_with_secnum_depth(built_app, cached_etree_parse, fname, expect):
-    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
+@pytest.mark.testenv(build=True, shared_srcdir=True)
+def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
@@ -1062,8 +1069,9 @@ def test_numfig_with_secnum_depth(built_app, cached_etree_parse, fname, expect):
 @pytest.mark.sphinx(
     buildername='singlehtml', testroot='numfig',
     confoverrides={'numfig': True})
-def test_numfig_with_singlehtml(built_app, cached_etree_parse, fname, expect):
-    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
+@pytest.mark.testenv(build=True, shared_srcdir=True)
+def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
@@ -1084,8 +1092,9 @@ def test_numfig_with_singlehtml(built_app, cached_etree_parse, fname, expect):
     ],
 }))
 @pytest.mark.sphinx(buildername='html', testroot='add_enumerable_node')
-def test_enumerable_node(built_app, cached_etree_parse, fname, expect):
-    check_xpath(cached_etree_parse(built_app.outdir / fname), fname, *expect)
+@pytest.mark.testenv(build=True, shared_srcdir=True)
+def test_enumerable_node(app, cached_etree_parse, fname, expect):
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.sphinx(buildername='html', testroot='html_assets')
