@@ -98,7 +98,7 @@ def getwarning(warnings):
 )
 @sphinx_intl
 @pytest.mark.sphinx('text')
-@pytest.mark.testenv(build=True, shared_srcdir=True)
+@pytest.mark.testenv(build=True, shared_srcdir='test_intl_basic')
 def test_text(app, target):
     globals()[target](app)
 
@@ -166,7 +166,7 @@ def test_gettext_warnings(app, warning, target):
 )
 @sphinx_intl
 @pytest.mark.sphinx('html')
-@pytest.mark.testenv(build=True, shared_srcdir=True)
+@pytest.mark.testenv(build=True, shared_srcdir='test_intl_basic')
 def test_html(app, target):
     globals()[target](app)
 
@@ -183,7 +183,7 @@ def test_html(app, target):
 )
 @sphinx_intl
 @pytest.mark.sphinx('xml')
-@pytest.mark.testenv(build=True, shared_srcdir=True)
+@pytest.mark.testenv(build=True, shared_srcdir='test_intl_basic')
 def test_xml(app, target):
     globals()[target](app)
 
@@ -926,7 +926,7 @@ def _test_additional_targets_should_not_be_translated(app):
         'image',
     ],
 })
-@pytest.mark.testenv(build=True)
+@pytest.mark.testenv(build=True, shared_srcdir=True)
 def test_additional_targets_should_be_translated(app):
     # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
@@ -988,7 +988,7 @@ def _test_text_references(app, warning):
     'dummy', testroot='image-glob',
     confoverrides={'language': 'de'}
 )
-@pytest.mark.testenv(build=True)
+@pytest.mark.testenv(build=True, shared_srcdir='test_intl_image_glob')
 def test_image_glob_intl(app):
     # index.rst
     doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
@@ -1034,7 +1034,7 @@ def test_image_glob_intl(app):
         'figure_language_filename': u'{root}{ext}.{language}',
     }
 )
-@pytest.mark.testenv(build=True)
+@pytest.mark.testenv(build=True, shared_srcdir='test_intl_image_glob')
 def test_image_glob_intl_using_figure_language_filename(app):
     # index.rst
     doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
