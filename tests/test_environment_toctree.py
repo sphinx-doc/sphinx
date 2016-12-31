@@ -19,26 +19,9 @@ import pytest
 from util import assert_node
 
 
-@pytest.mark.parametrize(
-    'target',
-    [
-        '_test_process_doc',
-        '_test_get_toc_for',
-        '_test_get_toc_for_only',
-        '_test_get_toc_for_tocdepth',
-        '_test_get_toctree_for',
-        '_test_get_toctree_for_collapse',
-        '_test_get_toctree_for_maxdepth',
-        '_test_get_toctree_for_includehidden',
-    ]
-)
 @pytest.mark.sphinx('xml', testroot='toctree')
-@pytest.mark.testenv(build=True, specific_srcdir=True)
-def test_basic(app, target):
-    globals()[target](app)
-
-
-def _test_process_doc(app):
+@pytest.mark.testenv(build=True, shared_result='test_environment_toctree_basic')
+def test_process_doc(app):
     # tocs
     toctree = app.env.tocs['index']
     assert_node(toctree,
@@ -150,7 +133,9 @@ def test_glob(app):
     assert app.env.numbered_toctrees == set()
 
 
-def _test_get_toc_for(app):
+@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.testenv(build=True, shared_result='test_environment_toctree_basic')
+def test_get_toc_for(app):
     toctree = app.env.get_toc_for('index', app.builder)
 
     assert_node(toctree,
@@ -173,7 +158,9 @@ def _test_get_toc_for(app):
                 [compact_paragraph, reference, "Indices and tables"])
 
 
-def _test_get_toc_for_only(app):
+@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.testenv(build=True, shared_result='test_environment_toctree_basic')
+def test_get_toc_for_only(app):
     builder = StandaloneHTMLBuilder(app)
     toctree = app.env.get_toc_for('index', builder)
 
@@ -200,7 +187,9 @@ def _test_get_toc_for_only(app):
                 [compact_paragraph, reference, "Indices and tables"])
 
 
-def _test_get_toc_for_tocdepth(app):
+@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.testenv(build=True, shared_result='test_environment_toctree_basic')
+def test_get_toc_for_tocdepth(app):
     toctree = app.env.get_toc_for('tocdepth', app.builder)
 
     assert_node(toctree,
@@ -212,7 +201,9 @@ def _test_get_toc_for_tocdepth(app):
                 [bullet_list, list_item, compact_paragraph, reference, "level 2"])
 
 
-def _test_get_toctree_for(app):
+@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.testenv(build=True, shared_result='test_environment_toctree_basic')
+def test_get_toctree_for(app):
     toctree = app.env.get_toctree_for('index', app.builder, collapse=False)
     assert_node(toctree,
                 [compact_paragraph, ([caption, "Table of Contents"],
@@ -246,7 +237,9 @@ def _test_get_toctree_for(app):
     assert_node(toctree[3][1][0][0], reference, refuri="http://python.org/")
 
 
-def _test_get_toctree_for_collapse(app):
+@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.testenv(build=True, shared_result='test_environment_toctree_basic')
+def test_get_toctree_for_collapse(app):
     toctree = app.env.get_toctree_for('index', app.builder, collapse=True)
     assert_node(toctree,
                 [compact_paragraph, ([caption, "Table of Contents"],
@@ -271,7 +264,9 @@ def _test_get_toctree_for_collapse(app):
     assert_node(toctree[3][1][0][0], reference, refuri="http://python.org/")
 
 
-def _test_get_toctree_for_maxdepth(app):
+@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.testenv(build=True, shared_result='test_environment_toctree_basic')
+def test_get_toctree_for_maxdepth(app):
     toctree = app.env.get_toctree_for('index', app.builder, collapse=False, maxdepth=3)
     assert_node(toctree,
                 [compact_paragraph, ([caption, "Table of Contents"],
@@ -310,7 +305,9 @@ def _test_get_toctree_for_maxdepth(app):
     assert_node(toctree[3][1][0][0], reference, refuri="http://python.org/")
 
 
-def _test_get_toctree_for_includehidden(app):
+@pytest.mark.sphinx('xml', testroot='toctree')
+@pytest.mark.testenv(build=True, shared_result='test_environment_toctree_basic')
+def test_get_toctree_for_includehidden(app):
     toctree = app.env.get_toctree_for('index', app.builder, collapse=False,
                                       includehidden=False)
     assert_node(toctree,
