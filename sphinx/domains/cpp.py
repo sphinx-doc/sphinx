@@ -1454,10 +1454,6 @@ class ASTFunctionParameter(ASTBase):
             self.arg.describe_signature(signode, mode, env, symbol=symbol)
 
 
-# backwards-compatible typo
-ASTFunctinoParameter = ASTFunctionParameter
-
-
 class ASTParametersQualifiers(ASTBase):
     def __init__(self, args, volatile, const, refQual, exceptionSpec, override,
                  final, initializer):
@@ -2289,10 +2285,6 @@ class ASTDeclaratorNameParamQual(ASTBase):
             op.describe_signature(signode, mode, env)
         if self.paramQual:
             self.paramQual.describe_signature(signode, mode, env, symbol)
-
-
-# backwards-compatible typo
-ASTDecleratorNameParamQual = ASTDeclaratorNameParamQual
 
 
 class ASTInitializer(ASTBase):
@@ -3971,9 +3963,6 @@ class DefinitionParser(object):
             prevErrors.append((e, "If declarator-id"))
             header = "Error in declarator or parameters and qualifiers"
             raise self._make_multi_error(prevErrors, header)
-
-    # backwards-compatible typo
-    _parse_declerator = _parse_declarator
 
     def _parse_initializer(self, outer=None):
         # type: (unicode) -> ASTInitializer
