@@ -10,11 +10,10 @@
     :license: BSD, see LICENSE for details.
 """
 
-# "raises" imported for usage by autodoc
 import six
 import sys
 from util import SphinxTestApp, Struct
-from nose.tools import with_setup, eq_
+import pytest
 
 from six import StringIO
 from docutils.statemachine import ViewList
@@ -25,24 +24,22 @@ from sphinx.ext.autodoc import AutoDirective, add_documenter, \
 app = None
 
 
-def setup_module():
-    global app
-    app = SphinxTestApp()
+@pytest.fixture(autouse=True)
+def setup_module(app):
     app.builder.env.app = app
     app.builder.env.temp_data['docname'] = 'dummy'
     app.connect('autodoc-process-docstring', process_docstring)
     app.connect('autodoc-process-signature', process_signature)
     app.connect('autodoc-skip-member', skip_member)
-
-
-def teardown_module():
+    yield app
     app.cleanup()
 
 
 directive = options = None
 
 
-def setup_test():
+@pytest.fixture
+def setup_autodoc(app):
     global options, directive
     global processed_docstrings, processed_signatures, _warnings
 
@@ -71,9 +68,16 @@ def setup_test():
         filename_set = set(),
     )
 
+    # __init__ have signature at first line of docstring
+    app.builder.env.config.autoclass_content = 'both'
+
     processed_docstrings = []
     processed_signatures = []
     _warnings = []
+
+    yield
+
+    AutoDirective._special_attrgetters.clear()
 
 
 _warnings = []
@@ -106,7 +110,7 @@ def skip_member(app, what, name, obj, skip, options):
         return True
 
 
-@with_setup(setup_test)
+@pytest.mark.usefixtures('setup_autodoc')
 def test_generate():
     def assert_warns(warn_str, objtype, name, **kw):
         inst = AutoDirective._registry[objtype](directive, name)
