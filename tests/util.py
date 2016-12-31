@@ -37,7 +37,7 @@ __all__ = [
     'skip_unless_importable', 'Struct',
     'ListOutput', 'SphinxTestApp',
     'path', 'with_tempdir',
-    'sprint', 'remove_unicode_literals',
+    'remove_unicode_literals',
 ]
 
 
@@ -93,31 +93,6 @@ def assert_node(node, cls=None, xpath="", **kwargs):
         assert key in node, 'The node%s does not have %r attribute: %r' % (xpath, key, node)
         assert node[key] == value, \
             'The node%s[%s] is not %r: %r' % (xpath, key, value, node[key])
-
-
-def assert_in(x, thing, msg=''):
-    if x not in thing:
-        assert False, msg or '%r is not in %r' % (x, thing)
-
-def assert_not_in(x, thing, msg=''):
-    if x in thing:
-        assert False, msg or '%r is in %r' % (x, thing)
-
-
-def skip_if(condition, msg=None):
-    """Decorator to skip test if condition is true."""
-    warnings.warn("util.skip_if is deprecated and will be removed in Sphinx "
-                  "1.7, please use pytest.skipif decorator instead.",
-                  RemovedInSphinx17Warning, stacklevel=2)
-    return pytest.mark.skipif(condition, reason=(msg or 'conditional skip'))
-
-
-def skip_unless(condition, msg=None):
-    """Decorator to skip test if condition is false."""
-    warnings.warn("util.skip_unless is deprecated and will be removed in Sphinx "
-                  "1.7, please use pytest.skipif decorator instead.",
-                  RemovedInSphinx17Warning, stacklevel=2)
-    return pytest.mark.skipif(not condition, reason=(msg or 'conditional skip'))
 
 
 def skip_unless_importable(module, msg=None):
@@ -236,37 +211,12 @@ class SphinxTestApp(application.Sphinx):
         return '<%s buildername=%r>' % (self.__class__.__name__, self.builder.name)
 
 
-def gen_with_app(*args, **kwargs):
-    """
-    Decorate a test generator to pass a SphinxTestApp as the first argument to
-    the test generator when it's executed.
-    """
-    def generator(func):
-        @wraps(func)
-        def deco(*args2, **kwargs2):
-            status, warning = StringIO(), StringIO()
-            kwargs['status'] = status
-            kwargs['warning'] = warning
-            app = SphinxTestApp(*args, **kwargs)
-            try:
-                for item in func(app, status, warning, *args2, **kwargs2):
-                    yield item
-            finally:
-                app.cleanup()
-        return deco
-    return generator
-
-
 def with_tempdir(func):
     def new_func(*args, **kwds):
         new_tempdir = path(tempfile.mkdtemp(dir=tempdir))
         func(new_tempdir, *args, **kwds)
     new_func.__name__ = func.__name__
     return new_func
-
-
-def sprint(*args):
-    sys.stderr.write(' '.join(map(str, args)) + '\n')
 
 
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
@@ -286,6 +236,50 @@ def find_files(root, suffix=None):
 
 def strip_escseq(text):
     return re.sub('\x1b.*?m', '', text)
+
+
+# #############################################
+# DEPRECATED implementations
+
+def gen_with_app(*args, **kwargs):
+    """
+    **DEPRECATED**: use pytest.mark.parametrize instead.
+
+    Decorate a test generator to pass a SphinxTestApp as the first argument to
+    the test generator when it's executed.
+    """
+    def generator(func):
+        @wraps(func)
+        def deco(*args2, **kwargs2):
+            status, warning = StringIO(), StringIO()
+            kwargs['status'] = status
+            kwargs['warning'] = warning
+            app = SphinxTestApp(*args, **kwargs)
+            try:
+                for item in func(app, status, warning, *args2, **kwargs2):
+                    yield item
+            finally:
+                app.cleanup()
+        return deco
+    return generator
+
+
+def skip_if(condition, msg=None):
+    """
+    **DEPRECATED**: use pytest.mark.skipif instead.
+
+    Decorator to skip test if condition is true.
+    """
+    return pytest.mark.skipif(condition, reason=(msg or 'conditional skip'))
+
+
+def skip_unless(condition, msg=None):
+    """
+    **DEPRECATED**: use pytest.mark.skipif instead.
+
+    Decorator to skip test if condition is false.
+    """
+    return pytest.mark.skipif(not condition, reason=(msg or 'conditional skip'))
 
 
 class _DeprecationWrapper(object):
@@ -308,4 +302,6 @@ sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(  # type
     with_app=(pytest.mark.sphinx, 'pytest.mark.sphinx'),
     TestApp=(SphinxTestApp, 'SphinxTestApp'),
     gen_with_app=(gen_with_app, 'pytest.mark.parametrize'),
+    skip_if=(skip_if, 'pytest.skipif'),
+    skip_unless=(skip_unless, 'pytest.skipif'),
 ))
