@@ -15,7 +15,7 @@ import re
 import pytest
 from docutils import frontend, utils, nodes
 from docutils.parsers.rst import Parser as RstParser
-from util import SphinxTestApp, with_app, assert_node
+from util import with_app, assert_node
 
 from sphinx import addnodes
 from sphinx.util import texescape

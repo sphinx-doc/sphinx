@@ -16,7 +16,7 @@ from textwrap import dedent
 from sphinx.errors import SphinxError
 import sphinx.builders.linkcheck
 
-from util import rootdir, tempdir, SphinxTestApp, path
+from util import rootdir, tempdir, path
 
 
 def request_session_head(url, **kwargs):
@@ -72,19 +72,14 @@ def test_build_all(make_app, nonascii_srcdir, buildername):
             app.build()
 
 
-def test_master_doc_not_found(tmpdir):
+def test_master_doc_not_found(tmpdir, make_app):
     tmpdir = path(tmpdir)
     (tmpdir / 'conf.py').write_text('master_doc = "index"')
     assert tmpdir.listdir() == ['conf.py']
 
-    try:
-        app = SphinxTestApp(buildername='dummy', srcdir=tmpdir)
+    app = make_app(buildername='dummy', srcdir=tmpdir)
+    with pytest.raises(SphinxError) as exc:
         app.builder.build_all()
-        assert False  # SphinxError not raised
-    except Exception as exc:
-        assert isinstance(exc, SphinxError)
-    finally:
-        app.cleanup()
 
 
 @pytest.mark.sphinx('text', testroot='circular')
