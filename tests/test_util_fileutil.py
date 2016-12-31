@@ -12,7 +12,7 @@ from sphinx.util.fileutil import copy_asset, copy_asset_file
 from sphinx.jinja2glue import BuiltinTemplateLoader
 
 import mock
-from util import with_tempdir
+from util import path
 
 
 class DummyTemplateLoader(BuiltinTemplateLoader):
@@ -24,8 +24,8 @@ class DummyTemplateLoader(BuiltinTemplateLoader):
         self.init(builder)
 
 
-@with_tempdir
 def test_copy_asset_file(tmpdir):
+    tmpdir = path(tmpdir)
     renderer = DummyTemplateLoader()
 
     # copy normal file
@@ -68,8 +68,8 @@ def test_copy_asset_file(tmpdir):
     assert (subdir2 / 'asset.txt_t').text() == '# {{var1}} data'
 
 
-@with_tempdir
 def test_copy_asset(tmpdir):
+    tmpdir = path(tmpdir)
     renderer = DummyTemplateLoader()
 
     # prepare source files

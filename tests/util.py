@@ -10,7 +10,6 @@
 import os
 import re
 import sys
-import tempfile
 import warnings
 from functools import wraps
 from xml.etree import ElementTree
@@ -36,7 +35,7 @@ __all__ = [
     'rootdir', 'tempdir',
     'skip_unless_importable', 'Struct',
     'ListOutput', 'SphinxTestApp',
-    'path', 'with_tempdir',
+    'path',
     'remove_unicode_literals',
 ]
 
@@ -205,14 +204,6 @@ class SphinxTestApp(application.Sphinx):
         return '<%s buildername=%r>' % (self.__class__.__name__, self.builder.name)
 
 
-def with_tempdir(func):
-    def new_func(*args, **kwds):
-        new_tempdir = path(tempfile.mkdtemp(dir=tempdir))
-        func(new_tempdir, *args, **kwds)
-    new_func.__name__ = func.__name__
-    return new_func
-
-
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 
 
@@ -276,6 +267,15 @@ def skip_unless(condition, msg=None):
     return pytest.mark.skipif(not condition, reason=(msg or 'conditional skip'))
 
 
+import tempfile
+def with_tempdir(func):
+    def new_func(*args, **kwds):
+        new_tempdir = path(tempfile.mkdtemp(dir=tempdir))
+        func(new_tempdir, *args, **kwds)
+    new_func.__name__ = func.__name__
+    return new_func
+
+
 class _DeprecationWrapper(object):
     def __init__(self, mod, deprecated):
         self._mod = mod
@@ -298,4 +298,5 @@ sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(  # type
     gen_with_app=(gen_with_app, 'pytest.mark.parametrize'),
     skip_if=(skip_if, 'pytest.skipif'),
     skip_unless=(skip_unless, 'pytest.skipif'),
+    with_tempdir=(with_tempdir, 'tmpdir pytest fixture'),
 ))

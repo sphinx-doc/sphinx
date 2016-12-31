@@ -13,7 +13,7 @@ from six import PY3, iteritems
 import mock
 import pytest
 
-from util import SphinxTestApp, with_app, with_tempdir
+from util import with_app, path
 
 import sphinx
 from sphinx.config import Config
@@ -23,7 +23,7 @@ from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
 @with_app(confoverrides={'master_doc': 'master', 'nonexisting_value': 'True',
                          'latex_elements.docclass': 'scrartcl',
                          'modindex_common_prefix': 'path1,path2'})
-def test_core_config(app, status, warning):
+def test_core_config(app):
     cfg = app.config
 
     # simple values
@@ -73,8 +73,7 @@ def test_core_config(app, status, warning):
     assert cfg['project'] == cfg.project == 'Sphinx Tests'
 
 
-@with_app()
-def test_extension_values(app, status, warning):
+def test_extension_values(app):
     cfg = app.config
 
     # default value
@@ -91,19 +90,19 @@ def test_extension_values(app, status, warning):
     assert 'already present' in str(excinfo.value)
 
 
-@with_tempdir
-def test_errors_warnings(dir):
+def test_errors_warnings(tmpdir):
+    tmpdir = path(tmpdir)
     # test the error for syntax errors in the config file
-    (dir / 'conf.py').write_text(u'project = \n', encoding='ascii')
+    (tmpdir / 'conf.py').write_text(u'project = \n', encoding='ascii')
     with pytest.raises(ConfigError) as excinfo:
-        Config(dir, 'conf.py', {}, None)
+        Config(tmpdir, 'conf.py', {}, None)
     assert 'conf.py' in str(excinfo.value)
 
     # test the automatic conversion of 2.x only code in configs
-    (dir / 'conf.py').write_text(
+    (tmpdir / 'conf.py').write_text(
         u'# -*- coding: utf-8\n\nproject = u"Jägermeister"\n',
         encoding='utf-8')
-    cfg = Config(dir, 'conf.py', {}, None)
+    cfg = Config(tmpdir, 'conf.py', {}, None)
     cfg.init_values(lambda warning: 1/0)
     assert cfg.project == u'Jägermeister'
 
@@ -112,9 +111,9 @@ def test_errors_warnings(dir):
     # skip the test there
     if PY3:
         return
-    (dir / 'conf.py').write_text(
+    (tmpdir / 'conf.py').write_text(
         u'# -*- coding: latin-1\nproject = "fooä"\n', encoding='latin-1')
-    cfg = Config(dir, 'conf.py', {}, None)
+    cfg = Config(tmpdir, 'conf.py', {}, None)
     warned = [False]
 
     def warn(msg):
@@ -124,44 +123,44 @@ def test_errors_warnings(dir):
     assert warned[0]
 
 
-@with_tempdir
-def test_errors_if_setup_is_not_callable(dir):
+def test_errors_if_setup_is_not_callable(tmpdir, make_app):
+    tmpdir = path(tmpdir)
     # test the error to call setup() in the config file
-    (dir / 'conf.py').write_text(u'setup = 1')
+    (tmpdir / 'conf.py').write_text(u'setup = 1')
     with pytest.raises(ConfigError) as excinfo:
-        SphinxTestApp(srcdir=dir)
+        make_app(srcdir=tmpdir)
     assert 'callable' in str(excinfo.value)
 
 
 @mock.patch.object(sphinx, '__display_version__', '1.3.4')
-def test_needs_sphinx():
+def test_needs_sphinx(make_app):
     # micro version
-    app = SphinxTestApp(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
+    app = make_app(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
     app.cleanup()
-    app = SphinxTestApp(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
+    app = make_app(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
     app.cleanup()
     with pytest.raises(VersionRequirementError):
-        SphinxTestApp(confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
+        make_app(confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
 
     # minor version
-    app = SphinxTestApp(confoverrides={'needs_sphinx': '1.2'})  # OK: less
+    app = make_app(confoverrides={'needs_sphinx': '1.2'})  # OK: less
     app.cleanup()
-    app = SphinxTestApp(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
+    app = make_app(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
     app.cleanup()
     with pytest.raises(VersionRequirementError):
-        SphinxTestApp(confoverrides={'needs_sphinx': '1.4'})  # NG: greater
+        make_app(confoverrides={'needs_sphinx': '1.4'})  # NG: greater
 
     # major version
-    app = SphinxTestApp(confoverrides={'needs_sphinx': '0'})  # OK: less
+    app = make_app(confoverrides={'needs_sphinx': '0'})  # OK: less
     app.cleanup()
-    app = SphinxTestApp(confoverrides={'needs_sphinx': '1'})  # OK: equals
+    app = make_app(confoverrides={'needs_sphinx': '1'})  # OK: equals
     app.cleanup()
     with pytest.raises(VersionRequirementError):
-        SphinxTestApp(confoverrides={'needs_sphinx': '2'})  # NG: greater
+        make_app(confoverrides={'needs_sphinx': '2'})  # NG: greater
 
 
-@with_tempdir
 def test_config_eol(tmpdir):
+    tmpdir = path(tmpdir)
     # test config file's eol patterns: LF, CRLF
     configfile = tmpdir / 'conf.py'
     for eol in (b'\n', b'\r\n'):
@@ -174,7 +173,7 @@ def test_config_eol(tmpdir):
 @with_app(confoverrides={'master_doc': 123,
                          'language': 'foo',
                          'primary_domain': None})
-def test_builtin_conf(app, status, warning):
+def test_builtin_conf(warning):
     warnings = warning.getvalue()
     assert 'master_doc' in warnings, (
         'override on builtin "master_doc" should raise a type warning')
@@ -222,12 +221,12 @@ def test_check_types(warning, key, should):
 
 
 @with_app(testroot='config')
-def test_check_enum(app, status, warning):
+def test_check_enum(warning):
     assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
            not in warning.getvalue()
 
 
 @with_app(testroot='config', confoverrides={'value17': 'invalid'})
-def test_check_enum_failed(app, status, warning):
+def test_check_enum_failed(warning):
     assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
            "but `invalid` is given." in warning.getvalue()
