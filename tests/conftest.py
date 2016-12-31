@@ -34,7 +34,7 @@ def test_params(request):
     kwargs = env.kwargs if env else {}
     result = {
        'build': False,  # pre build in fixture
-        'shared_srcdir': None,  # use specified src dir. if True, use test function name
+        'specific_srcdir': None,  # use specific src dir. if True, use test function name
         'shared_result': None,  # if True, app object is shared in each parametrized test
     }
     result.update(kwargs)
@@ -43,12 +43,12 @@ def test_params(request):
             not isinstance(result['shared_result'], string_types)):
         r = result['shared_result'] = request.node.originalname or request.node.name
 
-    if result['shared_result'] and not result['shared_srcdir']:
-        result['shared_srcdir'] = result['shared_result']
+    if result['shared_result'] and not result['specific_srcdir']:
+        result['specific_srcdir'] = result['shared_result']
 
-    if (result['shared_srcdir'] and
-        not isinstance(result['shared_srcdir'], string_types)):
-        result['shared_srcdir'] = request.node.originalname or request.node.name
+    if (result['specific_srcdir'] and
+        not isinstance(result['specific_srcdir'], string_types)):
+        result['specific_srcdir'] = request.node.originalname or request.node.name
 
     return result
 
@@ -83,8 +83,8 @@ def test_params(request):
 @pytest.fixture(scope='function')
 def app(test_params, app_params, make_app, shared_result):
     args, kwargs = app_params
-    if test_params['shared_srcdir'] and 'srcdir' not in kwargs:
-        kwargs['srcdir'] = test_params['shared_srcdir']
+    if test_params['specific_srcdir'] and 'srcdir' not in kwargs:
+        kwargs['srcdir'] = test_params['specific_srcdir']
 
     if test_params['shared_result']:
         restore = shared_result.restore(test_params['shared_result'])

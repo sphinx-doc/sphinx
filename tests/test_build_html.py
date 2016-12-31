@@ -571,7 +571,7 @@ def test_numfig_disabled(app, cached_etree_parse, fname, expect):
 
 @pytest.mark.sphinx(
     buildername='html', testroot='numfig', confoverrides={'numfig': True})
-@pytest.mark.testenv(build=True, shared_srcdir=True)
+@pytest.mark.testenv(build=True, specific_srcdir=True)
 def test_numfig_without_numbered_toctree_warn(app, warning):
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').text()
@@ -668,7 +668,7 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
 }))
 @pytest.mark.sphinx(
     buildername='html', testroot='numfig', confoverrides={'numfig': True})
-@pytest.mark.testenv(shared_srcdir=True)
+@pytest.mark.testenv(specific_srcdir=True)
 def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect):
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').text()
@@ -1086,7 +1086,7 @@ def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
     ],
 }))
 @pytest.mark.sphinx(buildername='html', testroot='add_enumerable_node')
-@pytest.mark.testenv(build=True, shared_srcdir=True)
+@pytest.mark.testenv(build=True, specific_srcdir=True)
 def test_enumerable_node(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 

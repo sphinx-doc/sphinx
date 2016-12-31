@@ -913,7 +913,7 @@ def test_additional_targets_should_not_be_translated(app):
         'image',
     ],
 })
-@pytest.mark.testenv(build=True, shared_srcdir=True)
+@pytest.mark.testenv(build=True, specific_srcdir=True)
 def test_additional_targets_should_be_translated(app):
     # [literalblock.txt]
     result = (app.outdir / 'literalblock.html').text(encoding='utf-8')
@@ -978,7 +978,7 @@ def test_text_references(app, warning):
     'dummy', testroot='image-glob',
     confoverrides={'language': 'de'}
 )
-@pytest.mark.testenv(build=True, shared_srcdir='test_intl_image_glob')
+@pytest.mark.testenv(build=True, specific_srcdir='test_intl_image_glob')
 def test_image_glob_intl(app):
     # index.rst
     doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
@@ -1024,7 +1024,7 @@ def test_image_glob_intl(app):
         'figure_language_filename': u'{root}{ext}.{language}',
     }
 )
-@pytest.mark.testenv(build=True, shared_srcdir='test_intl_image_glob')
+@pytest.mark.testenv(build=True, specific_srcdir='test_intl_image_glob')
 def test_image_glob_intl_using_figure_language_filename(app):
     # index.rst
     doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
