@@ -1453,8 +1453,10 @@ class ASTFunctionParameter(ASTBase):
         else:
             self.arg.describe_signature(signode, mode, env, symbol=symbol)
 
+
 # backwards-compatible typo
 ASTFunctinoParameter = ASTFunctionParameter
+
 
 class ASTParametersQualifiers(ASTBase):
     def __init__(self, args, volatile, const, refQual, exceptionSpec, override,
@@ -2287,6 +2289,7 @@ class ASTDeclaratorNameParamQual(ASTBase):
             op.describe_signature(signode, mode, env)
         if self.paramQual:
             self.paramQual.describe_signature(signode, mode, env, symbol)
+
 
 # backwards-compatible typo
 ASTDecleratorNameParamQual = ASTDeclaratorNameParamQual
