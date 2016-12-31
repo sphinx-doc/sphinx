@@ -10,79 +10,70 @@
     :license: BSD, see LICENSE for details.
 """
 
-import six
 import sys
-from util import SphinxTestApp, Struct
-import pytest
 
-from six import StringIO
+import pytest
+import six
 from docutils.statemachine import ViewList
+from six import StringIO
+from util import Struct
 
 from sphinx.ext.autodoc import AutoDirective, add_documenter, \
     ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
 
-app = None
-
-
-@pytest.fixture(autouse=True)
-def setup_module(app):
-    app.builder.env.app = app
-    app.builder.env.temp_data['docname'] = 'dummy'
-    app.connect('autodoc-process-docstring', process_docstring)
-    app.connect('autodoc-process-signature', process_signature)
-    app.connect('autodoc-skip-member', skip_member)
-    yield app
-    app.cleanup()
-
-
-directive = options = None
-
 
 @pytest.fixture
-def setup_autodoc(app):
-    global options, directive
-    global processed_docstrings, processed_signatures, _warnings
-
-    options = Struct(
-        inherited_members = False,
-        undoc_members = False,
-        private_members = False,
-        special_members = False,
-        imported_members = False,
-        show_inheritance = False,
-        noindex = False,
-        annotation = None,
-        synopsis = '',
-        platform = '',
-        deprecated = False,
-        members = [],
-        member_order = 'alphabetic',
-        exclude_members = set(),
+def directive(app):
+    o = Struct(
+        inherited_members=False,
+        undoc_members=False,
+        private_members=False,
+        special_members=False,
+        imported_members=False,
+        show_inheritance=False,
+        noindex=False,
+        annotation=None,
+        synopsis='',
+        platform='',
+        deprecated=False,
+        members=[],
+        member_order='alphabetic',
+        exclude_members=set(),
     )
 
-    directive = Struct(
-        env = app.builder.env,
-        genopt = options,
-        result = ViewList(),
-        warn = warnfunc,
-        filename_set = set(),
+    d = Struct(
+        env=app.builder.env,
+        genopt=o,
+        result=ViewList(),
+        warn=warnfunc,
+        filename_set=set(),
     )
-
-    # __init__ have signature at first line of docstring
-    app.builder.env.config.autoclass_content = 'both'
-
-    processed_docstrings = []
-    processed_signatures = []
-    _warnings = []
-
-    yield
-
-    AutoDirective._special_attrgetters.clear()
+    return d
 
 
 _warnings = []
 processed_docstrings = []
 processed_signatures = []
+
+
+@pytest.fixture
+def setup_autodoc(app):
+    app.builder.env.app = app
+    app.builder.env.temp_data['docname'] = 'dummy'
+    app.connect('autodoc-process-docstring', process_docstring)
+    app.connect('autodoc-process-signature', process_signature)
+    app.connect('autodoc-skip-member', skip_member)
+
+    # __init__ have signature at first line of docstring
+    app.builder.env.config.autoclass_content = 'both'
+
+    yield app
+
+    processed_docstrings[:] = []
+    processed_signatures[:] = []
+    _warnings[:] = []
+    app.cleanup()
+    AutoDirective._special_attrgetters.clear()
 
 
 def warnfunc(msg):
@@ -111,7 +102,7 @@ def skip_member(app, what, name, obj, skip, options):
 
 
 @pytest.mark.usefixtures('setup_autodoc')
-def test_generate():
+def test_generate(directive):
     def assert_warns(warn_str, objtype, name, **kw):
         inst = AutoDirective._registry[objtype](directive, name)
         inst.generate(**kw)
@@ -162,6 +153,7 @@ def test_generate():
                                ' correct order' % item)
         del directive.result[:]
 
+    options = directive.genopt
     options.members = []
 
     # no module found?

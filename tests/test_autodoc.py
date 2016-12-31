@@ -21,65 +21,58 @@ from sphinx.ext.autodoc import AutoDirective, add_documenter, \
     ModuleLevelDocumenter, FunctionDocumenter, cut_lines, between, ALL
 
 
-@pytest.fixture(autouse=True)
-def setup_module(app):
-    app.builder.env.app = app
-    app.builder.env.temp_data['docname'] = 'dummy'
-    app.connect('autodoc-process-docstring', process_docstring)
-    app.connect('autodoc-process-signature', process_signature)
-    app.connect('autodoc-skip-member', skip_member)
-    yield app
-    app.cleanup()
-
-
-directive = options = None
-
-
 @pytest.fixture
-def setup_autodoc(app):
-    global options, directive
-    global processed_docstrings, processed_signatures, _warnings
-
-    options = Struct(
-        inherited_members = False,
-        undoc_members = False,
-        private_members = False,
-        special_members = False,
-        imported_members = False,
-        show_inheritance = False,
-        noindex = False,
-        annotation = None,
-        synopsis = '',
-        platform = '',
-        deprecated = False,
-        members = [],
-        member_order = 'alphabetic',
-        exclude_members = set(),
+def directive(app):
+    o = Struct(
+        inherited_members=False,
+        undoc_members=False,
+        private_members=False,
+        special_members=False,
+        imported_members=False,
+        show_inheritance=False,
+        noindex=False,
+        annotation=None,
+        synopsis='',
+        platform='',
+        deprecated=False,
+        members=[],
+        member_order='alphabetic',
+        exclude_members=set(),
     )
 
-    directive = Struct(
-        env = app.builder.env,
-        genopt = options,
-        result = ViewList(),
-        warn = warnfunc,
-        filename_set = set(),
+    d = Struct(
+        env=app.builder.env,
+        genopt=o,
+        result=ViewList(),
+        warn=warnfunc,
+        filename_set=set(),
     )
-
-    # __init__ have signature at first line of docstring
-    app.builder.env.config.autoclass_content = 'both'
-
-    processed_docstrings = []
-    processed_signatures = []
-    _warnings = []
-
-    yield
-
-    AutoDirective._special_attrgetters.clear()
+    return d
 
 
 _warnings = []
 processed_docstrings = []
 processed_signatures = []
+
+
+@pytest.fixture
+def setup_autodoc(app):
+    app.builder.env.app = app
+    app.builder.env.temp_data['docname'] = 'dummy'
+    app.connect('autodoc-process-docstring', process_docstring)
+    app.connect('autodoc-process-signature', process_signature)
+    app.connect('autodoc-skip-member', skip_member)
+
+    # __init__ have signature at first line of docstring
+    app.builder.env.config.autoclass_content = 'both'
+
+    yield app
+
+    processed_docstrings[:] = []
+    processed_signatures[:] = []
+    _warnings[:] = []
+    app.cleanup()
+    AutoDirective._special_attrgetters.clear()
 
 
 def warnfunc(msg):
@@ -108,7 +101,7 @@ def skip_member(app, what, name, obj, skip, options):
 
 
 @pytest.mark.usefixtures('setup_autodoc')
-def test_parse_name():
+def test_parse_name(directive):
     def verify(objtype, name, result):
         inst = AutoDirective._registry[objtype](directive, name)
         assert inst.parse_name()
@@ -144,14 +137,9 @@ def test_parse_name():
     verify('method', 'SphinxTestApp.cleanup',
            ('util', ['SphinxTestApp', 'cleanup'], None, None))
 
-    # and clean up
-    del directive.env.ref_context['py:module']
-    del directive.env.ref_context['py:class']
-    del directive.env.temp_data['autodoc:class']
-
 
 @pytest.mark.usefixtures('setup_autodoc')
-def test_format_signature():
+def test_format_signature(directive):
     def formatsig(objtype, name, obj, args, retann):
         inst = AutoDirective._registry[objtype](directive, name)
         inst.fullname = name
@@ -254,7 +242,7 @@ def test_format_signature():
 
 
 @pytest.mark.usefixtures('setup_autodoc')
-def test_get_doc():
+def test_get_doc(directive):
     def getdocl(objtype, obj, encoding=None):
         inst = AutoDirective._registry[objtype](directive, 'tmp')
         inst.object = obj
@@ -424,7 +412,7 @@ def test_get_doc():
 
 
 @pytest.mark.usefixtures('setup_autodoc')
-def test_docstring_processing(app):
+def test_docstring_processing(app, directive):
     def process(objtype, name, obj):
         inst = AutoDirective._registry[objtype](directive, name)
         inst.object = obj
@@ -479,7 +467,7 @@ def test_docstring_processing(app):
 
 
 @pytest.mark.usefixtures('setup_autodoc')
-def test_docstring_property_processing():
+def test_docstring_property_processing(directive):
     def genarate_docstring(objtype, name, **kw):
         del processed_docstrings[:]
         del processed_signatures[:]
@@ -516,7 +504,7 @@ def test_docstring_property_processing():
 
 
 @pytest.mark.usefixtures('setup_autodoc')
-def test_new_documenter():
+def test_new_documenter(directive):
     class MyDocumenter(ModuleLevelDocumenter):
         objtype = 'integer'
         directivetype = 'data'
@@ -539,12 +527,12 @@ def test_new_documenter():
         assert item in directive.result
         del directive.result[:]
 
-    options.members = ['integer']
+    directive.genopt.members = ['integer']
     assert_result_contains('.. py:data:: integer', 'module', 'test_autodoc')
 
 
 @pytest.mark.usefixtures('setup_autodoc')
-def test_attrgetter_using():
+def test_attrgetter_using(directive):
     def assert_getter_works(objtype, name, obj, attrs=[], **kw):
         getattr_spy = []
 
@@ -567,6 +555,7 @@ def test_attrgetter_using():
             assert fullname not in documented_members, \
                 '%r was not hooked by special_attrgetter function' % fullname
 
+    options = directive.genopt
     options.members = ALL
     options.inherited_members = False
     assert_getter_works('class', 'test_autodoc.Class', Class, ['meth'])
@@ -576,7 +565,7 @@ def test_attrgetter_using():
 
 
 @pytest.mark.usefixtures('setup_autodoc')
-def test_generate():
+def test_generate(directive):
     def assert_warns(warn_str, objtype, name, **kw):
         inst = AutoDirective._registry[objtype](directive, name)
         inst.generate(**kw)
@@ -627,6 +616,7 @@ def test_generate():
                                ' correct order' % item)
         del directive.result[:]
 
+    options = directive.genopt
     options.members = []
 
     # no module found?
