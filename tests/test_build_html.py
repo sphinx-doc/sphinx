@@ -161,8 +161,8 @@ def test_html_warnings(app, warning):
 @pytest.mark.sphinx(
     buildername='html', tags=['testtag'],
     confoverrides={'html_context.hckey_co': 'hcval_co'})
+@pytest.mark.testenv(build=True, shared_result='test_build_html_output')
 def test_static_output(app):
-    app.builder.build_all()
     check_static_entries(app.builder.outdir)
     check_extra_entries(app.builder.outdir)
 
@@ -436,7 +436,7 @@ def test_static_output(app):
 @pytest.mark.sphinx(
     buildername='html', tags=['testtag'],
     confoverrides={'html_context.hckey_co': 'hcval_co'})
-@pytest.mark.testenv(build=True, shared_srcdir=True)
+@pytest.mark.testenv(build=True, shared_result='test_build_html_output')
 def test_html_output(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
@@ -474,7 +474,7 @@ def test_html_output(app, cached_etree_parse, fname, expect):
     ],
 }))
 @pytest.mark.sphinx(buildername='html', testroot='tocdepth')
-@pytest.mark.testenv(build=True, shared_srcdir=True)
+@pytest.mark.testenv(build=True, shared_result='test_build_html_tocdepth')
 def test_tocdepth(app, cached_etree_parse, fname, expect):
     # issue #1251
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
@@ -508,14 +508,14 @@ def test_tocdepth(app, cached_etree_parse, fname, expect):
     ],
 }))
 @pytest.mark.sphinx(buildername='singlehtml', testroot='tocdepth')
-@pytest.mark.testenv(build=True, shared_srcdir=True)
+@pytest.mark.testenv(build=True, shared_result='test_build_html_tocdepth')
 def test_tocdepth_singlehtml(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.sphinx(buildername='html', testroot='numfig')
-def test_numfig_disabled_warn(app, warning):
-    app.builder.build_all()
+@pytest.mark.testenv(build=True, shared_result='test_build_html_numfig')
+def test_numfig_disabled_warn(warning):
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' in warnings
     assert 'index.rst:55: WARNING: no number is assigned for section: index' not in warnings
@@ -564,14 +564,14 @@ def test_numfig_disabled_warn(app, warning):
     ],
 }))
 @pytest.mark.sphinx(buildername='html', testroot='numfig')
-@pytest.mark.testenv(build=True, shared_srcdir=True)
+@pytest.mark.testenv(build=True, shared_result='test_build_html_numfig')
 def test_numfig_disabled(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
 @pytest.mark.sphinx(
-    buildername='html', testroot='numfig', freshenv=True,
-    confoverrides={'numfig': True})
+    buildername='html', testroot='numfig', confoverrides={'numfig': True})
+@pytest.mark.testenv(build=True, shared_srcdir=True)
 def test_numfig_without_numbered_toctree_warn(app, warning):
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').text()
@@ -667,14 +667,9 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
     ],
 }))
 @pytest.mark.sphinx(
-    buildername='html', testroot='numfig', freshenv=True,
-    confoverrides={'numfig': True})
-def test_numfig_without_numbered_toctree(
-        request, make_app, app_params, cached_etree_parse, fname, expect):
-    args, kwargs = app_params
-    kwargs['srcdir'] = request.node.originalname
-    app = make_app(*args, **kwargs)
-
+    buildername='html', testroot='numfig', confoverrides={'numfig': True})
+@pytest.mark.testenv(shared_srcdir=True)
+def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect):
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').text()
     index = re.sub(':numbered:.*', '', index, re.MULTILINE)
@@ -686,10 +681,9 @@ def test_numfig_without_numbered_toctree(
 
 
 @pytest.mark.sphinx(
-    buildername='html', testroot='numfig',
-    confoverrides={'numfig': True})
-def test_numfig_with_numbered_toctree_warn(app, warning):
-    app.builder.build_all()
+    buildername='html', testroot='numfig', confoverrides={'numfig': True})
+@pytest.mark.testenv(build=True, shared_result='test_build_html_numfig_on')
+def test_numfig_with_numbered_toctree_warn(warning):
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
     assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
@@ -779,7 +773,7 @@ def test_numfig_with_numbered_toctree_warn(app, warning):
 }))
 @pytest.mark.sphinx(
     buildername='html', testroot='numfig', confoverrides={'numfig': True})
-@pytest.mark.testenv(build=True, shared_srcdir=True)
+@pytest.mark.testenv(build=True, shared_result='test_build_html_numfig_on')
 def test_numfig_with_numbered_toctree(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
@@ -791,8 +785,8 @@ def test_numfig_with_numbered_toctree(app, cached_etree_parse, fname, expect):
                                      'table': 'Tab_%s',
                                      'code-block': 'Code-%s',
                                      'section': 'SECTION-%s'}})
-def test_numfig_with_prefix_warn(app, warning):
-    app.builder.build_all()
+@pytest.mark.testenv(build=True, shared_result='test_build_html_numfig_format_warn')
+def test_numfig_with_prefix_warn(warning):
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
     assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
@@ -887,7 +881,7 @@ def test_numfig_with_prefix_warn(app, warning):
                                      'table': 'Tab_%s',
                                      'code-block': 'Code-%s',
                                      'section': 'SECTION-%s'}})
-@pytest.mark.testenv(build=True, shared_srcdir=True)
+@pytest.mark.testenv(build=True, shared_result='test_build_html_numfig_format_warn')
 def test_numfig_with_prefix(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
@@ -895,8 +889,8 @@ def test_numfig_with_prefix(app, cached_etree_parse, fname, expect):
 @pytest.mark.sphinx(
     buildername='html', testroot='numfig',
     confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
-def test_numfig_with_secnum_depth_warn(app, warning):
-    app.builder.build_all()
+@pytest.mark.testenv(build=True, shared_result='test_build_html_numfig_depth_2')
+def test_numfig_with_secnum_depth_warn(warning):
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
     assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
@@ -987,7 +981,7 @@ def test_numfig_with_secnum_depth_warn(app, warning):
 @pytest.mark.sphinx(
     buildername='html', testroot='numfig',
     confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
-@pytest.mark.testenv(build=True, shared_srcdir=True)
+@pytest.mark.testenv(build=True, shared_result='test_build_html_numfig_depth_2')
 def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
@@ -1069,7 +1063,7 @@ def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
 @pytest.mark.sphinx(
     buildername='singlehtml', testroot='numfig',
     confoverrides={'numfig': True})
-@pytest.mark.testenv(build=True, shared_srcdir=True)
+@pytest.mark.testenv(build=True, shared_result='test_build_html_numfig_on')
 def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
