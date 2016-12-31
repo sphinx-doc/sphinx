@@ -12,21 +12,12 @@
 from docutils.utils import column_width
 from sphinx.writers.text import MAXWIDTH
 
-from util import with_app
+import pytest
 
 
-def with_text_app(*args, **kw):
-    default_kw = {
-        'buildername': 'text',
-        'testroot': 'build-text',
-    }
-    default_kw.update(kw)
-    return with_app(*args, **default_kw)
-
-
-@with_text_app()
-def test_maxwitdh_with_prefix(app, status, warning):
-    app.builder.build_update()
+@pytest.mark.sphinx('text', testroot='build-text')
+@pytest.mark.testenv(build=True, shared_result='test_build_text')
+def test_maxwitdh_with_prefix(app):
     result = (app.outdir / 'maxwidth.txt').text(encoding='utf-8')
 
     lines = result.splitlines()
@@ -44,10 +35,10 @@ def test_maxwitdh_with_prefix(app, status, warning):
     assert lines[9].startswith('spam egg')
 
 
-@with_text_app()
-def test_lineblock(app, status, warning):
+@pytest.mark.sphinx('text', testroot='build-text')
+@pytest.mark.testenv(build=True, shared_result='test_build_text')
+def test_lineblock(app):
     # regression test for #1109: need empty line after line block
-    app.builder.build_update()
     result = (app.outdir / 'lineblock.txt').text(encoding='utf-8')
     expect = (
         u"* one\n"
@@ -60,36 +51,36 @@ def test_lineblock(app, status, warning):
     assert result == expect
 
 
-@with_text_app()
-def test_nonascii_title_line(app, status, warning):
-    app.builder.build_update()
+@pytest.mark.sphinx('text', testroot='build-text')
+@pytest.mark.testenv(build=True, shared_result='test_build_text')
+def test_nonascii_title_line(app):
     result = (app.outdir / 'nonascii_title.txt').text(encoding='utf-8')
     expect_underline = '******'
     result_underline = result.splitlines()[1].strip()
     assert expect_underline == result_underline
 
 
-@with_text_app()
-def test_nonascii_table(app, status, warning):
-    app.builder.build_update()
+@pytest.mark.sphinx('text', testroot='build-text')
+@pytest.mark.testenv(build=True, shared_result='test_build_text')
+def test_nonascii_table(app):
     result = (app.outdir / 'nonascii_table.txt').text(encoding='utf-8')
     lines = [line.strip() for line in result.splitlines() if line.strip()]
     line_widths = [column_width(line) for line in lines]
     assert len(set(line_widths)) == 1  # same widths
 
 
-@with_text_app()
-def test_nonascii_maxwidth(app, status, warning):
-    app.builder.build_update()
+@pytest.mark.sphinx('text', testroot='build-text')
+@pytest.mark.testenv(build=True, shared_result='test_build_text')
+def test_nonascii_maxwidth(app):
     result = (app.outdir / 'nonascii_maxwidth.txt').text(encoding='utf-8')
     lines = [line.strip() for line in result.splitlines() if line.strip()]
     line_widths = [column_width(line) for line in lines]
     assert max(line_widths) < MAXWIDTH
 
 
-@with_text_app()
-def test_table_with_empty_cell(app, status, warning):
-    app.builder.build_update()
+@pytest.mark.sphinx('text', testroot='build-text')
+@pytest.mark.testenv(build=True, shared_result='test_build_text')
+def test_table_with_empty_cell(app):
     result = (app.outdir / 'table.txt').text(encoding='utf-8')
     lines = [line.strip() for line in result.splitlines() if line.strip()]
     assert lines[0] == "+-------+-------+"
@@ -101,9 +92,9 @@ def test_table_with_empty_cell(app, status, warning):
     assert lines[6] == "+-------+-------+"
 
 
-@with_text_app()
-def test_list_items_in_admonition(app, status, warning):
-    app.builder.build_update()
+@pytest.mark.sphinx('text', testroot='build-text')
+@pytest.mark.testenv(build=True, shared_result='test_build_text')
+def test_list_items_in_admonition(app):
     result = (app.outdir / 'listitems.txt').text(encoding='utf-8')
     lines = [line.rstrip() for line in result.splitlines()]
     assert lines[0] == "See also:"
