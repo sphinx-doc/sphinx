@@ -45,12 +45,6 @@ rootdir = path(os.path.dirname(__file__) or '.').abspath()
 tempdir = path(os.environ['SPHINX_TEST_TEMPDIR']).abspath()
 
 
-def _excstr(exc):
-    if type(exc) is tuple:
-        return str(tuple(map(_excstr, exc)))
-    return exc.__name__
-
-
 def assert_re_search(regex, text, flags=0):
     if not re.search(regex, text, flags):
         assert False, '%r did not match %r' % (regex, text)
