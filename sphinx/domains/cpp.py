@@ -1418,7 +1418,7 @@ class ASTTrailingTypeSpecName(ASTBase):
         self.nestedName.describe_signature(signode, mode, env, symbol=symbol)
 
 
-class ASTFunctinoParameter(ASTBase):
+class ASTFunctionParameter(ASTBase):
     def __init__(self, arg, ellipsis=False):
         # type: (Any, bool) -> None
         self.arg = arg
@@ -1453,6 +1453,8 @@ class ASTFunctinoParameter(ASTBase):
         else:
             self.arg.describe_signature(signode, mode, env, symbol=symbol)
 
+# backwards-compatible typo
+ASTFunctinoParameter = ASTFunctionParameter
 
 class ASTParametersQualifiers(ASTBase):
     def __init__(self, args, volatile, const, refQual, exceptionSpec, override,
@@ -2186,7 +2188,7 @@ class ASTDeclaratorParen(ASTBase):
         self.next.describe_signature(signode, "noneIsName", env, symbol)
 
 
-class ASTDecleratorNameParamQual(ASTBase):
+class ASTDeclaratorNameParamQual(ASTBase):
     def __init__(self, declId, arrayOps, paramQual):
         # type: (Any, List[Any], Any) -> None
         self.declId = declId
@@ -2285,6 +2287,9 @@ class ASTDecleratorNameParamQual(ASTBase):
             op.describe_signature(signode, mode, env)
         if self.paramQual:
             self.paramQual.describe_signature(signode, mode, env, symbol)
+
+# backwards-compatible typo
+ASTDecleratorNameParamQual = ASTDeclaratorNameParamQual
 
 
 class ASTInitializer(ASTBase):
@@ -3644,7 +3649,7 @@ class DefinitionParser(object):
             while 1:
                 self.skip_ws()
                 if self.skip_string('...'):
-                    args.append(ASTFunctinoParameter(None, True))
+                    args.append(ASTFunctionParameter(None, True))
                     self.skip_ws()
                     if not self.skip_string(')'):
                         self.fail('Expected ")" after "..." in '
@@ -3654,7 +3659,7 @@ class DefinitionParser(object):
                 # even in function pointers and similar.
                 arg = self._parse_type_with_init(outer=None, named='single')
                 # TODO: parse default parameters # TODO: didn't we just do that?
-                args.append(ASTFunctinoParameter(arg))
+                args.append(ASTFunctionParameter(arg))
 
                 self.skip_ws()
                 if self.skip_string(','):
@@ -3824,7 +3829,7 @@ class DefinitionParser(object):
         return ASTDeclSpecs(outer, leftSpecs, rightSpecs, trailing)
 
     def _parse_declarator_name_param_qual(self, named, paramMode, typed):
-        # type: (Union[bool, unicode], unicode, bool) -> ASTDecleratorNameParamQual
+        # type: (Union[bool, unicode], unicode, bool) -> ASTDeclaratorNameParamQual
         # now we should parse the name, and then suffixes
         if named == 'maybe':
             pos = self.pos
@@ -3860,7 +3865,7 @@ class DefinitionParser(object):
             else:
                 break
         paramQual = self._parse_parameters_and_qualifiers(paramMode)
-        return ASTDecleratorNameParamQual(declId=declId, arrayOps=arrayOps,
+        return ASTDeclaratorNameParamQual(declId=declId, arrayOps=arrayOps,
                                           paramQual=paramQual)
 
     def _parse_declerator(self, named, paramMode, typed=True):
@@ -3924,7 +3929,7 @@ class DefinitionParser(object):
             if paramMode == "operatorCast":
                 # TODO: we should be able to parse cast operators which return
                 # function pointers. For now, just hax it and ignore.
-                return ASTDecleratorNameParamQual(declId=None, arrayOps=[],
+                return ASTDeclaratorNameParamQual(declId=None, arrayOps=[],
                                                   paramQual=None)
             # maybe this is the beginning of params and quals,try that first,
             # otherwise assume it's noptr->declarator > ( ptr-declarator )
