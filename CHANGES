@@ -18,6 +18,8 @@ Bugs fixed
   attributes of Enum class correctly.
 * #3261: ``latex_use_parts`` makes sphinx crash
 * The warning type ``misc.highlighting_failure`` does not work
+* #3294: ``add_latex_package()`` make crashes non-LaTeX builders
+
 
 Release 1.5.1 (released Dec 13, 2016)
 =====================================
