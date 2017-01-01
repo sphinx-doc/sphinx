@@ -359,6 +359,8 @@ class HTMLTranslator(BaseTranslator):
             elif isinstance(node.parent, nodes.table):
                 self.body.append('</span>')
                 self.add_permalink_ref(node.parent, _('Permalink to this table'))
+        elif isinstance(node.parent, nodes.table):
+            self.body.append('</span>')
 
         BaseTranslator.depart_title(self, node)
 
