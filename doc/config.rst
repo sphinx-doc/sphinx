@@ -378,18 +378,6 @@ Project information
    %Y'`` (or, if translation is enabled with :confval:`language`, an equivalent
    format for the selected locale).
 
-   .. versionchanged:: 1.4
-
-      Format specification was changed from strftime to Locale Data Markup
-      Language. strftime format is also supported for backward compatibility
-      until Sphinx-1.5.
-
-   .. versionchanged:: 1.4.1
-
-      Format specification was changed again from Locale Data Markup Language
-      to strftime.  LDML format is also supported for backward compatibility
-      until Sphinx-1.5.
-
 .. confval:: highlight_language
 
    The default language to highlight source code in.  The default is
@@ -764,19 +752,6 @@ that use Sphinx's HTMLWriter class.
    at every page bottom, using the given :func:`strftime` format.
    The empty string is equivalent to ``'%b %d, %Y'`` (or a
    locale-dependent equivalent).
-
-   .. versionchanged:: 1.4
-
-      Format specification was changed from strftime to Locale Data Markup
-      Language. strftime format is also supported for backward compatibility
-      until Sphinx-1.5.
-
-   .. versionchanged:: 1.4.1
-
-      Format specification was changed again from Locale Data Markup Language
-      to strftime.  LDML format is also supported for backward compatibility
-      until Sphinx-1.5.
-
 
 .. confval:: html_use_smartypants
 
