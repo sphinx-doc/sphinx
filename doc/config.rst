@@ -1510,20 +1510,6 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
    .. [#] https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode
 
-.. confval:: epub3_page_progression_direction
-
-   The global direction in which the content flows.
-   Allowed values are ``'ltr'`` (left-to-right), ``'rtl'`` (right-to-left) and
-   ``'default'``. The default value is ``'ltr'``.
-
-   When the ``'default'`` value is specified, the Author is expressing no
-   preference and the Reading System may chose the rendering direction.
-
-   .. versionadded:: 1.4
-
-   .. deprecated:: 1.5
-      Use ``epub_writing_mode`` instead.
-
 .. _latex-options:
 
 Options for LaTeX output
