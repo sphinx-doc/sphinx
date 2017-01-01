@@ -14,7 +14,11 @@ class RemovedInSphinx16Warning(DeprecationWarning):
     pass
 
 
-class RemovedInSphinx17Warning(PendingDeprecationWarning):
+class RemovedInSphinx17Warning(DeprecationWarning):
+    pass
+
+
+class RemovedInSphinx18Warning(PendingDeprecationWarning):
     pass
 
 
@@ -22,4 +26,4 @@ class RemovedInSphinx20Warning(PendingDeprecationWarning):
     pass
 
 
-RemovedInNextVersionWarning = RemovedInSphinx16Warning
+RemovedInNextVersionWarning = RemovedInSphinx17Warning
