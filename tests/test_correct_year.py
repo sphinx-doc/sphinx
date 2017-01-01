@@ -8,42 +8,31 @@
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import os
-
-from util import SphinxTestApp
+import pytest
 
 
-def test_correct_year():
-    try:
-        # save current value of SOURCE_DATE_EPOCH
-        sde = os.environ.pop('SOURCE_DATE_EPOCH', None)
-
+@pytest.fixture(
+    params=[
         # test with SOURCE_DATE_EPOCH unset: no modification
-        app = SphinxTestApp(buildername='html', testroot='correct-year')
-        app.builder.build_all()
-        content = (app.outdir / 'contents.html').text()
-        app.cleanup()
-        assert '2006-2009' in content
+        (None, '2006-2009'),
+        # test with SOURCE_DATE_EPOCH set: copyright year should be updated
+        ('1293840000', '2006-2011'),
+        ('1293839999', '2006-2010'),
+    ],
 
-        # test with SOURCE_DATE_EPOCH set: copyright year should be
-        # updated
-        os.environ['SOURCE_DATE_EPOCH'] = "1293840000"
-        app = SphinxTestApp(buildername='html', testroot='correct-year')
-        app.builder.build_all()
-        content = (app.outdir / 'contents.html').text()
-        app.cleanup()
-        assert '2006-2011' in content
+)
+def expect_date(request, monkeypatch):
+    sde, expect = request.param
+    if sde:
+        monkeypatch.setenv('SOURCE_DATE_EPOCH', sde)
+    else:
+        monkeypatch.delenv('SOURCE_DATE_EPOCH', raising=False)
+    yield expect
 
-        os.environ['SOURCE_DATE_EPOCH'] = "1293839999"
-        app = SphinxTestApp(buildername='html', testroot='correct-year')
-        app.builder.build_all()
-        content = (app.outdir / 'contents.html').text()
-        app.cleanup()
-        assert '2006-2010' in content
 
-    finally:
-        # Restores SOURCE_DATE_EPOCH
-        if sde is None:
-            os.environ.pop('SOURCE_DATE_EPOCH', None)
-        else:
-            os.environ['SOURCE_DATE_EPOCH'] = sde
+@pytest.mark.sphinx('html', testroot='correct-year')
+def test_correct_year(expect_date, make_app, app_params):
+    app = make_app(*app_params[0], **app_params[1])
+    app.builder.build_all()
+    content = (app.outdir / 'contents.html').text()
+    assert expect_date in content

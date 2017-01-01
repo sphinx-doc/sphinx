@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six import PY3
-
 from util import SphinxTestApp, remove_unicode_literals, path
 
 from sphinx.builders.html import StandaloneHTMLBuilder
