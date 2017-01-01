@@ -852,13 +852,6 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.0
 
-.. confval:: html_use_modindex
-
-   If true, add a module index to the HTML documents.   Default is ``True``.
-
-   .. deprecated:: 1.0
-      Use :confval:`html_domain_indices`.
-
 .. confval:: html_use_index
 
    If true, add an index to the HTML documents.  Default is ``True``.
@@ -920,20 +913,6 @@ that use Sphinx's HTMLWriter class.
    support different web server setups).
 
    .. versionadded:: 0.6
-
-.. confval:: html_translator_class
-
-   A string with the fully-qualified name of a HTML Translator class, that is, a
-   subclass of Sphinx's :class:`~sphinx.writers.html.HTMLTranslator`, that is
-   used to translate document trees to HTML.  Default is ``None`` (use the
-   builtin translator).
-
-   .. seealso::  :meth:`~sphinx.application.Sphinx.set_translator`
-
-   .. deprecated:: 1.5
-
-      Implement your translator as extension and use `Sphinx.set_translator`
-      instead.
 
 .. confval:: html_show_copyright
 

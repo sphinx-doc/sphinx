@@ -89,11 +89,6 @@ package.
    This allows extensions to use custom translator and define custom
    nodes for the translator (see :meth:`add_node`).
 
-   This is a API version of :confval:`html_translator_class` for all other
-   builders. Note that if :confval:`html_translator_class` is specified and
-   this API is called for html related builders, API overriding takes
-   precedence.
-
    .. versionadded:: 1.3
 
 .. method:: Sphinx.add_node(node, **kwds)
