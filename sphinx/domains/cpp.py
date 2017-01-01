@@ -95,9 +95,9 @@ if False:
             attribute-specifier-seq[opt] decl-specifier-seq[opt]
                 init-declarator-list[opt] ;
         # Drop the semi-colon. For now: drop the attributes (TODO).
-        # Use at most 1 init-declerator.
-        -> decl-specifier-seq init-declerator
-        -> decl-specifier-seq declerator initializer
+        # Use at most 1 init-declarator.
+        -> decl-specifier-seq init-declarator
+        -> decl-specifier-seq declarator initializer
 
         decl-specifier ->
               storage-class-specifier ->
@@ -158,22 +158,22 @@ if False:
             | template-argument-list "," template-argument "..."[opt]
         template-argument ->
               constant-expression
-            | type-specifier-seq abstract-declerator
+            | type-specifier-seq abstract-declarator
             | id-expression
 
 
-        declerator ->
-              ptr-declerator
+        declarator ->
+              ptr-declarator
             | noptr-declarator parameters-and-qualifiers trailing-return-type
               (TODO: for now we don't support trailing-eturn-type)
-        ptr-declerator ->
-              noptr-declerator
+        ptr-declarator ->
+              noptr-declarator
             | ptr-operator ptr-declarator
-        noptr-declerator ->
+        noptr-declarator ->
               declarator-id attribute-specifier-seq[opt] ->
                     "..."[opt] id-expression
                   | rest-of-trailing
-            | noptr-declerator parameters-and-qualifiers
+            | noptr-declarator parameters-and-qualifiers
             | noptr-declarator "[" constant-expression[opt] "]"
               attribute-specifier-seq[opt]
             | "(" ptr-declarator ")"
@@ -235,20 +235,20 @@ if False:
             # Drop the attributes
             -> decl-specifier-seq abstract-declarator[opt]
         grammar, typedef-like: no initilizer
-            decl-specifier-seq declerator
+            decl-specifier-seq declarator
         Can start with a templateDeclPrefix.
 
     member_object:
-        goal: as a type_object which must have a declerator, and optionally
+        goal: as a type_object which must have a declarator, and optionally
         with a initializer
         grammar:
-            decl-specifier-seq declerator initializer
+            decl-specifier-seq declarator initializer
         Can start with a templateDeclPrefix.
 
     function_object:
         goal: a function declaration, TODO: what about templates? for now: skip
         grammar: no initializer
-           decl-specifier-seq declerator
+           decl-specifier-seq declarator
         Can start with a templateDeclPrefix.
 
     class_object:
@@ -1418,7 +1418,7 @@ class ASTTrailingTypeSpecName(ASTBase):
         self.nestedName.describe_signature(signode, mode, env, symbol=symbol)
 
 
-class ASTFunctinoParameter(ASTBase):
+class ASTFunctionParameter(ASTBase):
     def __init__(self, arg, ellipsis=False):
         # type: (Any, bool) -> None
         self.arg = arg
@@ -2186,7 +2186,7 @@ class ASTDeclaratorParen(ASTBase):
         self.next.describe_signature(signode, "noneIsName", env, symbol)
 
 
-class ASTDecleratorNameParamQual(ASTBase):
+class ASTDeclaratorNameParamQual(ASTBase):
     def __init__(self, declId, arrayOps, paramQual):
         # type: (Any, List[Any], Any) -> None
         self.declId = declId
@@ -3644,7 +3644,7 @@ class DefinitionParser(object):
             while 1:
                 self.skip_ws()
                 if self.skip_string('...'):
-                    args.append(ASTFunctinoParameter(None, True))
+                    args.append(ASTFunctionParameter(None, True))
                     self.skip_ws()
                     if not self.skip_string(')'):
                         self.fail('Expected ")" after "..." in '
@@ -3654,7 +3654,7 @@ class DefinitionParser(object):
                 # even in function pointers and similar.
                 arg = self._parse_type_with_init(outer=None, named='single')
                 # TODO: parse default parameters # TODO: didn't we just do that?
-                args.append(ASTFunctinoParameter(arg))
+                args.append(ASTFunctionParameter(arg))
 
                 self.skip_ws()
                 if self.skip_string(','):
@@ -3824,7 +3824,7 @@ class DefinitionParser(object):
         return ASTDeclSpecs(outer, leftSpecs, rightSpecs, trailing)
 
     def _parse_declarator_name_param_qual(self, named, paramMode, typed):
-        # type: (Union[bool, unicode], unicode, bool) -> ASTDecleratorNameParamQual
+        # type: (Union[bool, unicode], unicode, bool) -> ASTDeclaratorNameParamQual
         # now we should parse the name, and then suffixes
         if named == 'maybe':
             pos = self.pos
@@ -3860,10 +3860,10 @@ class DefinitionParser(object):
             else:
                 break
         paramQual = self._parse_parameters_and_qualifiers(paramMode)
-        return ASTDecleratorNameParamQual(declId=declId, arrayOps=arrayOps,
+        return ASTDeclaratorNameParamQual(declId=declId, arrayOps=arrayOps,
                                           paramQual=paramQual)
 
-    def _parse_declerator(self, named, paramMode, typed=True):
+    def _parse_declarator(self, named, paramMode, typed=True):
         # type: (Union[bool, unicode], unicode, bool) -> Any
         # 'typed' here means 'parse return type stuff'
         if paramMode not in ('type', 'function', 'operatorCast'):
@@ -3885,14 +3885,14 @@ class DefinitionParser(object):
                     if const:
                         continue
                 break
-            next = self._parse_declerator(named, paramMode, typed)
+            next = self._parse_declarator(named, paramMode, typed)
             return ASTDeclaratorPtr(next=next, volatile=volatile, const=const)
         # TODO: shouldn't we parse an R-value ref here first?
         if typed and self.skip_string("&"):
-            next = self._parse_declerator(named, paramMode, typed)
+            next = self._parse_declarator(named, paramMode, typed)
             return ASTDeclaratorRef(next=next)
         if typed and self.skip_string("..."):
-            next = self._parse_declerator(named, paramMode, False)
+            next = self._parse_declarator(named, paramMode, False)
             return ASTDeclaratorParamPack(next=next)
         if typed:  # pointer to member
             pos = self.pos
@@ -3918,13 +3918,13 @@ class DefinitionParser(object):
                         if const:
                             continue
                     break
-                next = self._parse_declerator(named, paramMode, typed)
+                next = self._parse_declarator(named, paramMode, typed)
                 return ASTDeclaratorMemPtr(name, const, volatile, next=next)
         if typed and self.current_char == '(':  # note: peeking, not skipping
             if paramMode == "operatorCast":
                 # TODO: we should be able to parse cast operators which return
                 # function pointers. For now, just hax it and ignore.
-                return ASTDecleratorNameParamQual(declId=None, arrayOps=[],
+                return ASTDeclaratorNameParamQual(declId=None, arrayOps=[],
                                                   paramQual=None)
             # maybe this is the beginning of params and quals,try that first,
             # otherwise assume it's noptr->declarator > ( ptr-declarator )
@@ -3943,10 +3943,10 @@ class DefinitionParser(object):
                     # TODO: hmm, if there is a name, it must be in inner, right?
                     # TODO: hmm, if there must be parameters, they must b
                     # inside, right?
-                    inner = self._parse_declerator(named, paramMode, typed)
+                    inner = self._parse_declarator(named, paramMode, typed)
                     if not self.skip_string(')'):
                         self.fail("Expected ')' in \"( ptr-declarator )\"")
-                    next = self._parse_declerator(named=False,
+                    next = self._parse_declarator(named=False,
                                                   paramMode="type",
                                                   typed=typed)
                     return ASTDeclaratorParen(inner=inner, next=next)
@@ -4006,7 +4006,7 @@ class DefinitionParser(object):
             # first try without the type
             try:
                 declSpecs = self._parse_decl_specs(outer=outer, typed=False)
-                decl = self._parse_declerator(named=True, paramMode=outer,
+                decl = self._parse_declarator(named=True, paramMode=outer,
                                               typed=False)
                 self.assert_end()
             except DefinitionError as exUntyped:
@@ -4020,7 +4020,7 @@ class DefinitionParser(object):
                 self.pos = startPos
                 try:
                     declSpecs = self._parse_decl_specs(outer=outer)
-                    decl = self._parse_declerator(named=True, paramMode=outer)
+                    decl = self._parse_declarator(named=True, paramMode=outer)
                 except DefinitionError as exTyped:
                     self.pos = startPos
                     if outer == 'type':
@@ -4051,7 +4051,7 @@ class DefinitionParser(object):
                         self.pos = startPos
                         typed = True
                         declSpecs = self._parse_decl_specs(outer=outer, typed=typed)
-                        decl = self._parse_declerator(named=True, paramMode=outer,
+                        decl = self._parse_declarator(named=True, paramMode=outer,
                                                       typed=typed)
         else:
             paramMode = 'type'
@@ -4063,7 +4063,7 @@ class DefinitionParser(object):
             elif outer == 'templateParam':
                 named = 'single'
             declSpecs = self._parse_decl_specs(outer=outer)
-            decl = self._parse_declerator(named=named, paramMode=paramMode)
+            decl = self._parse_declarator(named=named, paramMode=paramMode)
         return ASTType(declSpecs, decl)
 
     def _parse_type_with_init(self, named, outer):
