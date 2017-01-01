@@ -211,9 +211,10 @@ def save_traceback(app):
             modfile = getattr(extmod, '__file__', 'unknown')
             if isinstance(modfile, bytes):
                 modfile = modfile.decode(fs_encoding, 'replace')
-            os.write(fd, ('#   %s (%s) from %s\n' % (
-                extname, app._extension_metadata[extname]['version'],
-                modfile)).encode('utf-8'))
+            version = app._extension_metadata[extname]['version']
+            if version != 'builtin':
+                os.write(fd, ('#   %s (%s) from %s\n' %
+                              (extname, version, modfile)).encode('utf-8'))
     os.write(fd, exc_format.encode('utf-8'))
     os.close(fd)
     return path
