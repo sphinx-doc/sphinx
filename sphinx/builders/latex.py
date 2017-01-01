@@ -245,47 +245,6 @@ def validate_config_values(app):
                        app.config.latex_toplevel_sectioning)
         app.config.latex_toplevel_sectioning = None  # type: ignore
 
-    if app.config.latex_use_parts:
-        if app.config.latex_toplevel_sectioning:
-            logger.warning('latex_use_parts conflicts with '
-                           'latex_toplevel_sectioning, ignored.')
-        else:
-            logger.warning('latex_use_parts is deprecated. '
-                           'Use latex_toplevel_sectioning instead.')
-            app.config.latex_toplevel_sectioning = 'part'  # type: ignore
-
-    if app.config.latex_use_modindex is not True:  # changed by user
-        logger.warning('latex_use_modindex is deprecated. '
-                       'Use latex_domain_indices instead.')
-
-    if app.config.latex_preamble:
-        if app.config.latex_elements.get('preamble'):
-            logger.warning("latex_preamble conflicts with "
-                           "latex_elements['preamble'], ignored.")
-        else:
-            logger.warning("latex_preamble is deprecated. "
-                           "Use latex_elements['preamble'] instead.")
-            app.config.latex_elements['preamble'] = app.config.latex_preamble
-
-    if app.config.latex_paper_size != 'letter':
-        if app.config.latex_elements.get('papersize'):
-            logger.warning("latex_paper_size conflicts with "
-                           "latex_elements['papersize'], ignored.")
-        else:
-            logger.warning("latex_paper_size is deprecated. "
-                           "Use latex_elements['papersize'] instead.")
-            if app.config.latex_paper_size:
-                app.config.latex_elements['papersize'] = app.config.latex_paper_size + 'paper'
-
-    if app.config.latex_font_size != '10pt':
-        if app.config.latex_elements.get('pointsize'):
-            logger.warning("latex_font_size conflicts with "
-                           "latex_elements['pointsize'], ignored.")
-        else:
-            logger.warning("latex_font_size is deprecated. "
-                           "Use latex_elements['pointsize'] instead.")
-            app.config.latex_elements['pointsize'] = app.config.latex_font_size
-
     if 'footer' in app.config.latex_elements:
         if 'postamble' in app.config.latex_elements:
             logger.warning("latex_elements['footer'] conflicts with "
@@ -327,23 +286,14 @@ def setup(app):
     app.add_config_value('latex_logo', None, None, string_classes)
     app.add_config_value('latex_appendices', [], None)
     app.add_config_value('latex_keep_old_macro_names', True, None)
-    # now deprecated - use latex_toplevel_sectioning
-    app.add_config_value('latex_use_parts', False, None)
     app.add_config_value('latex_toplevel_sectioning', None, None, [str])
-    app.add_config_value('latex_use_modindex', True, None)  # deprecated
     app.add_config_value('latex_domain_indices', True, None, [list])
     app.add_config_value('latex_show_urls', 'no', None)
     app.add_config_value('latex_show_pagerefs', False, None)
-    # paper_size and font_size are still separate values
-    # so that you can give them easily on the command line
-    app.add_config_value('latex_paper_size', 'letter', None)
-    app.add_config_value('latex_font_size', '10pt', None)
     app.add_config_value('latex_elements', {}, None)
     app.add_config_value('latex_additional_files', [], None)
 
     app.add_config_value('latex_docclass', default_latex_docclass, None)
-    # now deprecated - use latex_elements
-    app.add_config_value('latex_preamble', '', None)
 
     return {
         'version': 'builtin',

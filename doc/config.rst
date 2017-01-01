@@ -1581,16 +1581,6 @@ These options influence LaTeX output. See further :doc:`latex`.
 
    .. versionadded:: 1.4
 
-.. confval:: latex_use_parts
-
-   If true, the topmost sectioning unit is parts, else it is chapters.  Default:
-   ``False``.
-
-   .. versionadded:: 0.3
-
-   .. deprecated:: 1.4
-      Use :confval:`latex_toplevel_sectioning`.
-
 .. confval:: latex_appendices
 
    A list of document names to append as an appendix to all manuals.
@@ -1605,13 +1595,6 @@ These options influence LaTeX output. See further :doc:`latex`.
    like for :confval:`html_domain_indices`.
 
    .. versionadded:: 1.0
-
-.. confval:: latex_use_modindex
-
-   If true, add a module index to LaTeX documents.   Default is ``True``.
-
-   .. deprecated:: 1.0
-      Use :confval:`latex_domain_indices`.
 
 .. confval:: latex_show_pagerefs
 
@@ -1862,27 +1845,6 @@ These options influence LaTeX output. See further :doc:`latex`.
 
    .. versionchanged:: 1.2
       This overrides the files which is provided from Sphinx such as sphinx.sty.
-
-.. confval:: latex_preamble
-
-   Additional LaTeX markup for the preamble.
-
-   .. deprecated:: 0.5
-      Use the ``'preamble'`` key in the :confval:`latex_elements` value.
-
-.. confval:: latex_paper_size
-
-   The output paper size (``'letter'`` or ``'a4'``).  Default is ``'letter'``.
-
-   .. deprecated:: 0.5
-      Use the ``'papersize'`` key in the :confval:`latex_elements` value.
-
-.. confval:: latex_font_size
-
-   The font size ('10pt', '11pt' or '12pt'). Default is ``'10pt'``.
-
-   .. deprecated:: 0.5
-      Use the ``'pointsize'`` key in the :confval:`latex_elements` value.
 
 
 .. _text-options:

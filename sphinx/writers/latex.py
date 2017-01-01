@@ -719,10 +719,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
-                    # deprecated config value
-                    if indexname == 'py-modindex' and \
-                       not self.builder.config.latex_use_modindex:
-                        continue
                     content, collapsed = indexcls(domain).generate(
                         self.builder.docnames)
                     if not content:
