@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import contextlib
+import subprocess
 
 import pytest
 from six import StringIO, string_types
@@ -166,6 +167,22 @@ def syspath():
         yield syspath
         sys.path.remove(path)
     yield syspath_context
+
+
+@pytest.fixture
+def if_graphviz_found(app):
+    graphviz_dot = getattr(app.config, 'graphviz_dot', '')
+    try:
+        if graphviz_dot:
+            dot = subprocess.Popen([graphviz_dot, '-V'],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)  # show version
+            dot.communicate()
+            return
+    except OSError:  # No such file or directory
+        pass
+
+    pytest.skip('graphviz "dot" is not available')
 
 
 def pytest_addoption(parser):

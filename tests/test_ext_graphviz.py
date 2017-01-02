@@ -10,39 +10,14 @@
 """
 
 import re
-import subprocess
-from functools import wraps
 
 import pytest
 
 from util import with_app
 
 
-def skip_if_graphviz_not_found(fn):
-    @wraps(fn)
-    def decorator(app, *args, **kwargs):
-        found = False
-        graphviz_dot = getattr(app.config, 'graphviz_dot', '')
-        try:
-            if graphviz_dot:
-                dot = subprocess.Popen([graphviz_dot, '-V'],
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE)  # show version
-                dot.communicate()
-                found = True
-        except OSError:  # No such file or directory
-            pass
-
-        if not found:
-            pytest.skip('graphviz "dot" is not available')
-
-        return fn(app, *args, **kwargs)
-
-    return decorator
-
-
 @with_app('html', testroot='ext-graphviz')
-@skip_if_graphviz_not_found
+@pytest.mark.usefixtures('if_graphviz_found')
 def test_graphviz_html(app, status, warning):
     app.builder.build_all()
 
@@ -63,7 +38,7 @@ def test_graphviz_html(app, status, warning):
 
 
 @with_app('latex', testroot='ext-graphviz')
-@skip_if_graphviz_not_found
+@pytest.mark.usefixtures('if_graphviz_found')
 def test_graphviz_latex(app, status, warning):
     app.builder.build_all()
 
@@ -83,7 +58,7 @@ def test_graphviz_latex(app, status, warning):
 
 
 @with_app('html', testroot='ext-graphviz', confoverrides={'language': 'xx'})
-@skip_if_graphviz_not_found
+@pytest.mark.usefixtures('if_graphviz_found')
 def test_graphviz_i18n(app, status, warning):
     app.builder.build_all()
 
