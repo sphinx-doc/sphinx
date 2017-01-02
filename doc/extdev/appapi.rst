@@ -225,8 +225,9 @@ package.
    * If you provide *parse_node*, it must be a function that takes a string and
      a docutils node, and it must populate the node with children parsed from
      the string.  It must then return the name of the item to be used in
-     cross-referencing and index entries.  See the :file:`conf.py` file in the
-     source for this documentation for an example.
+     cross-referencing and index entries.  See the
+     :doc:`configuration file</config>` in the source for this documentation
+     for an example.
    * The *objname* (if not given, will default to *directivename*) names the
      type of object.  It is used when listing objects, e.g. in search results.
 
@@ -438,8 +439,8 @@ Sphinx core events
 
 These events are known to the core.  The arguments shown are given to the
 registered event handlers.  Use :meth:`.connect` in an extension's ``setup``
-function (note that ``conf.py`` can also have a ``setup`` function) to connect
-handlers to the events.  Example:
+function (note that the :doc:`configuration file</config>` can also have a
+``setup`` function) to connect handlers to the events.  Example:
 
 .. code-block:: python
 

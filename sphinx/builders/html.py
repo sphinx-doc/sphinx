@@ -524,7 +524,7 @@ class StandaloneHTMLBuilder(Builder):
 
         self.info(bold('writing additional pages...'), nonl=1)
 
-        # additional pages from conf.py
+        # additional pages from the config file
         for pagename, template in self.config.html_additional_pages.items():
             self.info(' '+pagename, nonl=1)
             self.handle_page(pagename, {}, template)
@@ -1118,7 +1118,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         # no indices or search pages are supported
         self.info(bold('writing additional files...'), nonl=1)
 
-        # additional pages from conf.py
+        # additional pages from the config file
         for pagename, template in self.config.html_additional_pages.items():
             self.info(' '+pagename, nonl=1)
             self.handle_page(pagename, {}, template)

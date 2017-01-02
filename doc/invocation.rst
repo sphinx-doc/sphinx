@@ -286,11 +286,12 @@ The :program:`sphinx-build` script has several options:
 
 .. option:: -c path
 
-   Don't look for the :file:`conf.py` in the source directory, but use the given
-   configuration directory instead.  Note that various other files and paths
-   given by configuration values are expected to be relative to the
-   configuration directory, so they will have to be present at this location
-   too.
+   Don't look for the :doc:`configuration file<config>` in the source
+   directory, but use the given file path instead. If the path is a directory,
+   look for a file ``conf.py`` in that directory.  Note that various other
+   files and paths given by configuration values are expected to be relative to
+   the configuration directory, so they will have to be present at this
+   location too.
 
    .. versionadded:: 0.3
 
@@ -302,8 +303,8 @@ The :program:`sphinx-build` script has several options:
 
 .. option:: -D setting=value
 
-   Override a configuration value set in the :file:`conf.py` file.  The value
-   must be a number, string, list or dictionary value.
+   Override a configuration value set in the :doc:`configuration file<config>`.
+   The value must be a number, string, list or dictionary value.
 
    For lists, you can separate elements with a comma like this: ``-D
    html_theme_path=path1,path2``.

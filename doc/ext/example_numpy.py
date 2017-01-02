@@ -327,7 +327,7 @@ class ExampleClass(object):
         ``napoleon_include_special_with_doc`` is set to True.
 
         This behavior can be enabled by changing the following setting in
-        Sphinx's conf.py::
+        Sphinx's config file::
 
             napoleon_include_special_with_doc = True
 
@@ -345,7 +345,7 @@ class ExampleClass(object):
         in the output.
 
         This behavior can be changed such that private members *are* included
-        by changing the following setting in Sphinx's conf.py::
+        by changing the following setting in Sphinx's config file::
 
             napoleon_include_private_with_doc = True
 

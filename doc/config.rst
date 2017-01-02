@@ -8,14 +8,14 @@ The build configuration file
 .. module:: conf
    :synopsis: Build configuration file.
 
-The :term:`configuration directory` must contain a file named :file:`conf.py`.
-This file (containing Python code) is called the "build configuration file" and
-contains all configuration needed to customize Sphinx input and output behavior.
+The build configuration file contains all parameters that are needed by Sphinx
+and its extensions during the documentation build process.  It is provided to
+``sphinx-build`` via the ``-c`` command line flag.  By default, Sphinx looks
+for a file named ``conf.py`` either in the :term:`configuration directory` or
+in the :term:`source directory`.
 
-The configuration file is executed as Python code at build time (using
-:func:`execfile`, and with the current directory set to its containing
-directory), and therefore can execute arbitrarily complex code.  Sphinx then
-reads simple names from the file's namespace as its configuration.
+The configuration file is executed at build time using :func:`execfile` and
+may therefore contain valid Python code of arbitrary complexity.
 
 Important points to note:
 
@@ -30,10 +30,10 @@ Important points to note:
 * Remember that document names use ``/`` as the path separator and don't contain
   the file name extension.
 
-* Since :file:`conf.py` is read as a Python file, the usual rules apply for
-  encodings and Unicode support: declare the encoding using an encoding cookie
-  (a comment like ``# -*- coding: utf-8 -*-``) and use Unicode string literals
-  when you include non-ASCII characters in configuration values.
+* Since the configuration file is read as a Python file, the usual rules apply
+  for encodings and Unicode support: declare the encoding using an encoding
+  cookie (a comment like ``# -*- coding: utf-8 -*-``) and use Unicode string
+  literals when you include non-ASCII characters in configuration values.
 
 * The contents of the config namespace are pickled (so that Sphinx can find out
   when configuration changes), so it may not contain unpickleable values --
@@ -47,8 +47,8 @@ Important points to note:
   ``tags.has('tag')`` to query, ``tags.add('tag')`` and ``tags.remove('tag')``
   to change. Only tags set via the ``-t`` command-line option or via
   ``tags.add('tag')`` can be queried using ``tags.has('tag')``.
-  Note that the current builder tag is not available in ``conf.py``, as it is
-  created *after* the builder is initialized.
+  Note that the current builder tag is not available in the config file, as it
+  is created *after* the builder is initialized.
 
 
 General configuration

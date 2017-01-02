@@ -130,9 +130,9 @@ built:
    search path.
 
    Since this setting is not portable from system to system, it is normally not
-   useful to set it in ``conf.py``; rather, giving it on the
-   :program:`sphinx-build` command line via the :option:`-D <sphinx-build -D>`
-   option should be preferable, like this::
+   useful to set it in the :doc:`configuration file</config>`; rather, giving
+   it on the :program:`sphinx-build` command line via the
+   :option:`-D <sphinx-build -D>` option should be preferable, like this::
 
       sphinx-build -b html -D imgmath_latex=C:\tex\latex.exe . _build/html
 

@@ -102,7 +102,6 @@ builtin_extensions = (
     'sphinx.roles',
 )  # type: Tuple[unicode, ...]
 
-CONFIG_FILENAME = 'conf.py'
 ENV_PICKLE_FILENAME = 'environment.pickle'
 
 # list of deprecated extensions. Keys are extension name.
@@ -113,10 +112,10 @@ EXTENSION_BLACKLIST = {"sphinxjp.themecore": "1.2"}  # type: Dict[unicode, unico
 class Sphinx(object):
 
     def __init__(self, srcdir, confdir, outdir, doctreedir, buildername,
-                 confoverrides=None, status=sys.stdout, warning=sys.stderr,
-                 freshenv=False, warningiserror=False, tags=None, verbosity=0,
-                 parallel=0):
-        # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, unicode, int, int) -> None  # NOQA
+                 conffilename, confoverrides=None, status=sys.stdout,
+                 warning=sys.stderr, freshenv=False, warningiserror=False,
+                 tags=None, verbosity=0, parallel=0):
+        # type: (unicode, unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, unicode, int, int) -> None  # NOQA
         self.verbosity = verbosity
         self.next_listener_id = 0
         self._extensions = {}                   # type: Dict[unicode, Any]
@@ -135,6 +134,7 @@ class Sphinx(object):
         self.confdir = confdir
         self.outdir = outdir
         self.doctreedir = doctreedir
+        self.conffilename = conffilename
 
         self.parallel = parallel
 
@@ -170,7 +170,7 @@ class Sphinx(object):
 
         # read config
         self.tags = Tags(tags)
-        self.config = Config(confdir, CONFIG_FILENAME,
+        self.config = Config(confdir, conffilename,
                              confoverrides or {}, self.tags)
         self.config.check_unicode(self.warn)
         # defer checking types until i18n has been initialized
@@ -200,7 +200,7 @@ class Sphinx(object):
             self.setup_extension(extension)
 
         # extension loading support for alabaster theme
-        # self.config.html_theme is not set from conf.py at here
+        # self.config.html_theme is not set from config file at here
         # for now, sphinx always load a 'alabaster' extension.
         if 'alabaster' not in self.config.extensions:
             self.config.extensions.append('alabaster')
@@ -210,18 +210,19 @@ class Sphinx(object):
             self.setup_extension(extension)
         # the config file itself can be an extension
         if self.config.setup:
-            self._setting_up_extension = ['conf.py']
+            self._setting_up_extension = [conffilename]
             # py31 doesn't have 'callable' function for below check
             if hasattr(self.config.setup, '__call__'):
                 self.config.setup(self)
             else:
                 raise ConfigError(
-                    "'setup' that is specified in the conf.py has not been " +
-                    "callable. Please provide a callable `setup` function " +
-                    "in order to behave as a sphinx extension conf.py itself."
+                    "The function 'setup' that is specified in the file "
+                    "'%s' is not callable. Please provide a callable `setup` "
+                    "function in order to make the config behave as a sphinx "
+                    "extension." % path.join(self.confdir, self.conffilename)
                 )
 
-        # now that we know all config values, collect them from conf.py
+        # now that we know all config values, collect them from config file
         self.config.init_values(self.warn)
 
         # check extension versions if requested

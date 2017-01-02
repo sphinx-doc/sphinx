@@ -15,7 +15,7 @@ Description
 :program:`sphinx-build` generates documentation from the files in
 ``<sourcedir>`` and places it in the ``<outdir>``.
 
-:program:`sphinx-build` looks for ``<sourcedir>/conf.py`` for the configuration
+:program:`sphinx-build` looks in ``<sourcedir>/conf.py`` for the configuration
 settings.  :manpage:`sphinx-quickstart(1)` may be used to generate template
 files, including ``conf.py``.
 
@@ -96,9 +96,11 @@ Options
                       from disk.
 -d <path>             Path to cached files; defaults to <outdir>/.doctrees.
 -j <N>                Build in parallel with N processes where possible.
--c <path>             Locate the conf.py file in the specified path instead of
-                      <sourcedir>.
--C                    Specify that no conf.py file at all is to be used.
+-c <file>             Use <file> as the config file.
+                      If <file> is directory, sphinx tries to load a conf.py
+                      from there.
+                      If this option is not given at all, behaviour is the same as for -c <sourcedir>.
+-C                    Specifies that no config file is used at all.
                       Configuration can only be set with the -D option.
 -D <setting=value>    Override a setting from the configuration file.
 -t <tag>              Define *tag* for use in "only" blocks.

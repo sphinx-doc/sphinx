@@ -27,11 +27,13 @@ The *latex* target does not benefit from pre-prepared themes like the
 Basic customization
 -------------------
 
-It is available from ``conf.py`` via usage of the
-:ref:`latex-options` as described in :doc:`config` (backslashes must be doubled
-in Python string literals to reach latex.) For example::
+The LaTeX extensions provides several configuration options in the :doc:`build
+configuration file <config>`.  They are described in the :ref:`LaTeX section
+<latex-options>`. When specifying LaTeX macros and commands, please remember
+that backslashes must be doubled in Python String literals. See the following
+example::
 
-    # inside conf.py
+    # inside the config file
     latex_engine = 'xelatex'
     latex_elements = {
         'fontenc': '\\usepackage{fontspec}',
@@ -342,13 +344,14 @@ Let us now list some macros from the package file
   ``optional``. By default and for backwards compatibility the ``\sphinx<foo>``
   expands to ``\<foo>`` hence the user can choose to customize rather the latter
   (the non-prefixed macros will be left undefined if option
-  :confval:`latex_keep_old_macro_names` is set to ``False`` in :file:`conf.py`.)
+  :confval:`latex_keep_old_macro_names` is set to ``False`` in the
+  :doc:`config file <config>`)
 
   .. versionchanged:: 1.4.5
      use of ``\sphinx`` prefixed macro names to limit possibilities of conflict
      with user added packages: if
      :confval:`latex_keep_old_macro_names` is set to ``False`` in
-     :file:`conf.py` only the prefixed names are defined.
+     the :doc:`config file <config>` only the prefixed names are defined.
 - more text styling commands: ``\sphinxstyle<bar>`` with ``<bar>`` one of
   ``indexentry``, ``indexextra``, ``indexpageref``, ``topictitle``,
   ``sidebartitle``, ``othertitle``, ``sidebarsubtitle``, ``thead``,

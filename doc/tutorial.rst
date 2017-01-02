@@ -24,12 +24,13 @@ Setting up the documentation sources
 
 The root directory of a Sphinx collection of reStructuredText document sources
 is called the :term:`source directory`.  This directory also contains the Sphinx
-configuration file :file:`conf.py`, where you can configure all aspects of how
-Sphinx reads your sources and builds your documentation.  [#]_
+:doc:`configuration file<config>` by default, where you can configure all
+aspects of how Sphinx reads your sources and builds your documentation.  [#]_
 
 Sphinx comes with a script called :program:`sphinx-quickstart` that sets up a
-source directory and creates a default :file:`conf.py` with the most useful
-configuration values from a few questions it asks you.  Just run ::
+source directory and creates a default :doc:`configuration file<config>`
+:file:`conf.py` with the most useful configuration values from a few questions
+it asks you.  Just run ::
 
    $ sphinx-quickstart
 
@@ -206,18 +207,19 @@ directives/roles.
 Basic configuration
 -------------------
 
-Earlier we mentioned that the :file:`conf.py` file controls how Sphinx processes
-your documents.  In that file, which is executed as a Python source file, you
-assign configuration values.  For advanced users: since it is executed by
-Sphinx, you can do non-trivial tasks in it, like extending :data:`sys.path` or
-importing a module to find out the version you are documenting.
+Earlier we mentioned that the :doc:`configuration file<config>` controls how
+Sphinx processes your documents.  In that file, which is executed as a Python
+source file, you assign configuration values.  For advanced users: since it is
+executed by Sphinx, you can do non-trivial tasks in it, like extending
+:data:`sys.path` or importing a module to find out the version you are
+documenting.
 
 The config values that you probably want to change are already put into the
-:file:`conf.py` by :program:`sphinx-quickstart` and initially commented out
-(with standard Python syntax: a ``#`` comments the rest of the line).  To change
-the default value, remove the hash sign and modify the value.  To customize a
-config value that is not automatically added by :program:`sphinx-quickstart`,
-just add an additional assignment.
+:doc:`configuration file<config>` by :program:`sphinx-quickstart` and
+initially commented out (with standard Python syntax: a ``#`` comments the
+rest of the line).  To change the default value, remove the hash sign and
+modify the value.  To customize a config value that is not automatically added
+by :program:`sphinx-quickstart`, just add an additional assignment.
 
 Keep in mind that the file uses Python syntax for strings, numbers, lists and so
 on.  The file is saved in UTF-8 by default, as indicated by the encoding
@@ -235,10 +237,10 @@ source files, in documentation strings.  Sphinx supports the inclusion of
 docstrings from your modules with an :dfn:`extension` (an extension is a Python
 module that provides additional features for Sphinx projects) called "autodoc".
 
-In order to use autodoc, you need to activate it in :file:`conf.py` by putting
-the string ``'sphinx.ext.autodoc'`` into the list assigned to the
-:confval:`extensions` config value.  Then, you have a few additional directives
-at your disposal.
+In order to use autodoc, you need to activate it in the :doc:`configuration
+file<config>` by putting the string ``'sphinx.ext.autodoc'`` into the list
+assigned to the :confval:`extensions` config value.  Then, you have a few
+additional directives at your disposal.
 
 For example, to document the function ``io.open()``, reading its
 signature and docstring from the source file, you'd write this::
@@ -253,7 +255,7 @@ options for the auto directives, like ::
 
 autodoc needs to import your modules in order to extract the docstrings.
 Therefore, you must add the appropriate path to :py:data:`sys.path` in your
-:file:`conf.py`.
+:doc:`configuration file<config>`.
 
 .. warning::
 
@@ -276,9 +278,10 @@ documentation, you can do it with :mod:`sphinx.ext.intersphinx`.
 
 .. _Python documentation: https://docs.python.org/3
 
-In order to use intersphinx, you need to activate it in :file:`conf.py` by
-putting the string ``'sphinx.ext.intersphinx'`` into the :confval:`extensions`
-list and set up the :confval:`intersphinx_mapping` config value.
+In order to use intersphinx, you need to activate it in the
+:doc:`configuration file<config>` by putting the string
+``'sphinx.ext.intersphinx'`` into the :confval:`extensions` list and set up
+the :confval:`intersphinx_mapping` config value.
 
 For example, to link to ``io.open()`` in the Python library manual, you need to
 setup your :confval:`intersphinx_mapping` like::
@@ -315,9 +318,9 @@ More topics to be covered
 
 .. rubric:: Footnotes
 
-.. [#] This is the usual layout.  However, :file:`conf.py` can also live in
-       another directory, the :term:`configuration directory`.  See
-       :ref:`invocation`.
+.. [#] This is the usual layout.  However, the
+   :doc:`configuration file<config>` can also live in any other directory.
+   See :ref:`invocation` for more details.
 
 .. |more| image:: more.png
           :align: middle

@@ -246,7 +246,7 @@ def cut_lines(pre, post=0, what=None):
     lines of every docstring.  If *what* is a sequence of strings,
     only docstrings of a type in *what* will be processed.
 
-    Use like this (e.g. in the ``setup()`` function of :file:`conf.py`)::
+    Use like this (e.g. in the ``setup()`` function of the config file)::
 
        from sphinx.ext.autodoc import cut_lines
        app.connect('autodoc-process-docstring', cut_lines(4, what=['module']))

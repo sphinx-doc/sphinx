@@ -22,7 +22,7 @@ from sphinx.builders.epub import EpubBuilder
 # mimetype, and META-INF/container.xml are created.
 # This template section also defines strings that are embedded in the html
 # output but that may be customized by (re-)setting module attributes,
-# e.g. from conf.py.
+# e.g. from the config file.
 
 NAVIGATION_DOC_TEMPLATE = u'''\
 <?xml version="1.0" encoding="UTF-8"?>

@@ -14,7 +14,7 @@
 
     The argument for ``ifconfig`` is a plain Python expression, evaluated in the
     namespace of the project configuration (that is, all variables from
-    ``conf.py`` are available.)
+    the config file are available.)
 
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.

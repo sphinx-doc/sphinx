@@ -23,12 +23,12 @@ if False:
 
 
 class Config(object):
-    """Sphinx napoleon extension settings in `conf.py`.
+    """Sphinx napoleon extension settings in the config file.
 
     Listed below are all the settings used by napoleon and their default
-    values. These settings can be changed in the Sphinx `conf.py` file. Make
+    values. These settings can be changed in the Sphinx config file. Make
     sure that both "sphinx.ext.autodoc" and "sphinx.ext.napoleon" are
-    enabled in `conf.py`::
+    enabled in the config file::
 
         # conf.py
 
@@ -332,8 +332,8 @@ def _process_docstring(app, what, name, obj, options, lines):
     of docstring lines that `_process_docstring` modifies in place to change
     what Sphinx outputs.
 
-    The following settings in conf.py control what styles of docstrings will
-    be parsed:
+    The following settings in the config file control what styles of
+    docstrings will be parsed:
 
     * ``napoleon_google_docstring`` -- parse Google style docstrings
     * ``napoleon_numpy_docstring`` -- parse NumPy style docstrings
@@ -378,8 +378,8 @@ def _skip_member(app, what, name, obj, skip, options):
     # type: (Sphinx, unicode, unicode, Any, bool, Any) -> bool
     """Determine if private and special class members are included in docs.
 
-    The following settings in conf.py determine if private and special class
-    members or init methods are included in the generated documentation:
+    The following settings in the config file determine if private and special
+    class members or init methods are included in the generated documentation:
 
     * ``napoleon_include_init_with_doc`` --
       include init methods if they have docstrings

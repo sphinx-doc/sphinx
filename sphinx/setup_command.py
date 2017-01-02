@@ -53,7 +53,7 @@ class BuildDoc(Command):
            author='Bernard Montgomery',
            version=release,
            cmdclass=cmdclass,
-           # these are optional and override conf.py settings
+           # these are optional and override config file settings
            command_options={
                'build_sphinx': {
                    'project': ('setup.py', name),

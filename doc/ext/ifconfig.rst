@@ -12,8 +12,8 @@ This extension is quite simple, and features only one directive:
 
    Include content of the directive only if the Python expression given as an
    argument is ``True``, evaluated in the namespace of the project's
-   configuration (that is, all registered variables from :file:`conf.py` are
-   available).
+   configuration (that is, all registered variables from the
+   :doc:`configuration file</config>` are available).
 
    For example, one could write ::
 
@@ -23,7 +23,7 @@ This extension is quite simple, and features only one directive:
 
    To make a custom config value known to Sphinx, use
    :func:`~sphinx.application.Sphinx.add_config_value` in the setup function in
-   :file:`conf.py`, e.g.::
+   the :doc:`configuration file</config>`, e.g.::
 
       def setup(app):
           app.add_config_value('releaselevel', '', 'env')

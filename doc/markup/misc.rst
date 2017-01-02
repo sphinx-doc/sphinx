@@ -176,7 +176,7 @@ Including content based on tags
       .. only:: html and draft
 
    Undefined tags are false, defined tags (via the ``-t`` command-line option or
-   within :file:`conf.py`, see :ref:`here <conf-tags>`) are true.  Boolean
+   within the configuration file, see :ref:`here <conf-tags>`) are true.  Boolean
    expressions, also using parentheses (like ``html and (latex or draft)``) are
    supported.
 
@@ -269,6 +269,7 @@ following directive exists:
        builders derived from the html builder distinguish between the builder
        format and the builder name.
 
-       Note that the current builder tag is not available in ``conf.py``, it is
-       only available after the builder is initialized.
+       Note that the current builder tag is not available in the
+       :doc:`configuration file</config>`, it is only available after the
+       builder is initialized.
 

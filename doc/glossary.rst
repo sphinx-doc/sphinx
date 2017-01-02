@@ -15,9 +15,9 @@ Glossary
       See :ref:`builders` for an overview over Sphinx's built-in builders.
 
    configuration directory
-      The directory containing :file:`conf.py`.  By default, this is the same as
-      the :term:`source directory`, but can be set differently with the **-c**
-      command-line option.
+      The directory containing a build configuration file. By default, Sphinx will
+      look in the :term:`source directory` for a file named :file:`conf.py`, but
+      any other path can be set by the **-c** command-line option.
 
    directive
       A reStructuredText markup element that allows marking a block of content
