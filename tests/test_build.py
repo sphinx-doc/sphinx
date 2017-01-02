@@ -83,9 +83,9 @@ def test_master_doc_not_found(tmpdir, make_app):
 
 
 @pytest.mark.sphinx('text', testroot='circular')
-def test_circular_toctree(app):
+def test_circular_toctree(app, warning):
     app.builder.build_all()
-    warnings = app.warning.getvalue()
+    warnings = warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
         'sub <- contents <- sub') in warnings
@@ -95,9 +95,9 @@ def test_circular_toctree(app):
 
 
 @pytest.mark.sphinx('text', testroot='numbered-circular')
-def test_numbered_circular_toctree(app):
+def test_numbered_circular_toctree(app, warning):
     app.builder.build_all()
-    warnings = app.warning.getvalue()
+    warnings = warning.getvalue()
     assert (
         'circular toctree references detected, ignoring: '
         'sub <- contents <- sub') in warnings

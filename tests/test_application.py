@@ -11,6 +11,7 @@
 import codecs
 
 from docutils import nodes
+from six import StringIO
 import pytest
 
 from sphinx.application import ExtensionError
@@ -49,48 +50,47 @@ def test_emit_with_nonascii_name_node(app):
     app.emit('my_event', node)
 
 
-def test_output(app):
+def test_output(app, status, warning):
     # info with newline
-    app.status.truncate(0)  # __init__ writes to status
-    app.status.seek(0)
+    status.truncate(0)  # __init__ writes to status
+    status.seek(0)
     app.info("Nothing here...")
-    assert app.status.getvalue() == "Nothing here...\n"
+    assert status.getvalue() == "Nothing here...\n"
     # info without newline
-    app.status.truncate(0)
-    app.status.seek(0)
+    status.truncate(0)
+    status.seek(0)
     app.info("Nothing here...", True)
-    assert app.status.getvalue() == "Nothing here..."
+    assert status.getvalue() == "Nothing here..."
 
     # warning
     old_count = app._warncount
     app.warn("Bad news!")
-    assert strip_escseq(app.warning.getvalue()) == "WARNING: Bad news!\n"
+    assert strip_escseq(warning.getvalue()) == "WARNING: Bad news!\n"
     assert app._warncount == old_count + 1
 
 
-def test_output_with_unencodable_char(app):
+class StreamWriter(codecs.StreamWriter):
+    def write(self, object):
+        self.stream.write(object.encode('cp1252').decode('cp1252'))
 
-    class StreamWriter(codecs.StreamWriter):
-        def write(self, object):
-            self.stream.write(object.encode('cp1252').decode('cp1252'))
 
-    app._status = StreamWriter(app.status)
-
+@pytest.mark.sphinx(status=StreamWriter(StringIO()))
+def test_output_with_unencodable_char(app, status):
     # info with UnicodeEncodeError
-    app.status.truncate(0)
-    app.status.seek(0)
+    status.truncate(0)
+    status.seek(0)
     app.info(u"unicode \u206d...")
-    assert app.status.getvalue() == "unicode ?...\n"
+    assert status.getvalue() == "unicode ?...\n"
 
 
-def test_extensions(app):
+def test_extensions(app, warning):
     app.setup_extension('shutil')
-    assert strip_escseq(app.warning.getvalue()).startswith("WARNING: extension 'shutil'")
+    assert strip_escseq(warning.getvalue()).startswith("WARNING: extension 'shutil'")
 
 
-def test_extension_in_blacklist(app):
+def test_extension_in_blacklist(app, warning):
     app.setup_extension('sphinxjp.themecore')
-    msg = strip_escseq(app.warning.getvalue())
+    msg = strip_escseq(warning.getvalue())
     assert msg.startswith("WARNING: the extension 'sphinxjp.themecore' was")
 
 

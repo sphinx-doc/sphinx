@@ -101,12 +101,12 @@ def app(test_params, app_params, make_app, shared_result):
 
 @pytest.fixture(scope='function')
 def status(app):
-    return app.status
+    return app.test_status
 
 
 @pytest.fixture(scope='function')
 def warning(app):
-    return app.warning
+    return app.test_warning
 
 
 # # テスト関数内でアプリケーションを組み立てるfixture
@@ -119,8 +119,8 @@ def make_app():
         kwargs.setdefault('status', status)
         kwargs.setdefault('warning', warning)
         app_ = SphinxTestApp(*args, **kwargs)
-        app_.status = kwargs.get('status')
-        app_.warning = kwargs.get('warning')
+        app_.test_status = kwargs.get('status')
+        app_.test_warning = kwargs.get('warning')
         apps.append(app_)
         return app_
     yield make
@@ -135,8 +135,8 @@ class SharedResult(object):
         if key in self.cache:
             return
         data = {
-            'status': app_.status.getvalue(),
-            'warning': app_.warning.getvalue(),
+            'status': app_.test_status.getvalue(),
+            'warning': app_.test_warning.getvalue(),
         }
         self.cache[key] = data
 

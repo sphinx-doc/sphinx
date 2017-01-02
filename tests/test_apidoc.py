@@ -56,8 +56,8 @@ def test_simple(make_app, apidoc, syspath):
     with syspath(apidoc.coderoot):
         app = make_app('text', srcdir=outdir)
         app.build()
-        print(app.status.getvalue())
-        print(app.warning.getvalue())
+        print(app.test_status.getvalue())
+        print(app.test_warning.getvalue())
 
 
 @pytest.mark.apidoc(
@@ -85,8 +85,8 @@ def test_pep_0420_enabled(make_app, apidoc, syspath):
     with syspath(apidoc.coderoot):
         app = make_app('text', srcdir=outdir)
         app.build()
-        print(app.status.getvalue())
-        print(app.warning.getvalue())
+        print(app.test_status.getvalue())
+        print(app.test_warning.getvalue())
 
 
 @pytest.mark.apidoc(coderoot=(rootdir / 'root' / 'pep_0420'))
@@ -99,8 +99,8 @@ def test_pep_0420_disabled(make_app, apidoc, syspath):
     with syspath(apidoc.coderoot):
         app = make_app('text', srcdir=outdir)
         app.build()
-        print(app.status.getvalue())
-        print(app.warning.getvalue())
+        print(app.test_status.getvalue())
+        print(app.test_warning.getvalue())
 
 
 @pytest.mark.apidoc(coderoot=(rootdir / 'root' / 'pep_0420' / 'a' / 'b'))
@@ -119,8 +119,8 @@ def test_pep_0420_disabled_top_level_verify(make_app, apidoc, syspath):
     with syspath(apidoc.coderoot):
         app = make_app('text', srcdir=outdir)
         app.build()
-        print(app.status.getvalue())
-        print(app.warning.getvalue())
+        print(app.test_status.getvalue())
+        print(app.test_warning.getvalue())
 
 
 @pytest.mark.apidoc(
@@ -148,5 +148,5 @@ def test_multibyte_parameters(make_app, apidoc, syspath):
     with syspath(apidoc.coderoot):
         app = make_app('text', srcdir=outdir)
         app.build()
-        print(app.status.getvalue())
-        print(app.warning.getvalue())
+        print(app.test_status.getvalue())
+        print(app.test_warning.getvalue())

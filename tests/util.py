@@ -14,7 +14,7 @@ import warnings
 from functools import wraps
 from xml.etree import ElementTree
 
-from six import StringIO, string_types
+from six import string_types
 
 import pytest
 
@@ -148,10 +148,6 @@ class SphinxTestApp(application.Sphinx):
             doctreedir.makedirs()
         if confoverrides is None:
             confoverrides = {}
-        if status is None:
-            status = StringIO()
-        if warning is None:
-            warning = StringIO()
 #        if warningiserror is None:
         warningiserror = False
 
@@ -211,6 +207,10 @@ def strip_escseq(text):
 # #############################################
 # DEPRECATED implementations
 
+import tempfile
+from six import StringIO
+
+
 def gen_with_app(*args, **kwargs):
     """
     **DEPRECATED**: use pytest.mark.parametrize instead.
@@ -252,7 +252,6 @@ def skip_unless(condition, msg=None):
     return pytest.mark.skipif(not condition, reason=(msg or 'conditional skip'))
 
 
-import tempfile
 def with_tempdir(func):
     def new_func(*args, **kwds):
         new_tempdir = path(tempfile.mkdtemp(dir=tempdir))
