@@ -1,5 +1,6 @@
 flake8
 pytest
+pytest-cov
 mock
 six>=1.4
 Jinja2>=2.3
