@@ -18,13 +18,13 @@ from sphinx.builders.latex import LaTeXBuilder
 @pytest.fixture
 def env(app):
     env = app.env
-    env.test_warnings = []
-    env.set_warnfunc(lambda *args, **kwargs: env.test_warnings.append(args))
+    env._test_warnings = []
+    env.set_warnfunc(lambda *args, **kwargs: env._test_warnings.append(args))
     yield env
 
 
 def warning_emitted(env, file, text):
-    for warning in env.test_warnings:
+    for warning in env._test_warnings:
         if len(warning) == 2 and file in warning[1] and text in warning[0]:
             return True
     return False
