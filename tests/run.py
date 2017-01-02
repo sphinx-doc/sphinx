@@ -52,4 +52,4 @@ sys.stdout.flush()
 # filter warnings of test dependencies
 warnings.filterwarnings('ignore', category=DeprecationWarning, module='site')  # virtualenv
 
-pytest.main()
+sys.exit(pytest.main())
