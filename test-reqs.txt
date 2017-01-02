@@ -1,5 +1,5 @@
 flake8
-pytest
+pytest>=3.0
 pytest-cov
 mock
 six>=1.4

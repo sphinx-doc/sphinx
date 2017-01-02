@@ -19,7 +19,14 @@ import pytest
 from babel.messages import pofile
 from docutils import nodes
 from six import string_types
-from util import assert_re_search, assert_not_re_search, assert_startswith, assert_node, repr_as, etree_parse
+from util import (
+    assert_re_search,
+    assert_not_re_search,
+    assert_startswith,
+    assert_node,
+    repr_as,
+    etree_parse,
+)
 
 
 LOCALE_PATH = 'en/LC_MESSAGES'
