@@ -9,74 +9,70 @@
     :license: BSD, see LICENSE for details.
 """
 
-from util import SphinxTestApp, remove_unicode_literals, path
+import pytest
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
 
-app = env = None
-warnings = []
 
-
-def setup_module():
-    global app, env
-    app = SphinxTestApp(srcdir='root-envtest')
+@pytest.fixture
+def env(app):
     env = app.env
-    env.set_warnfunc(lambda *args, **kwargs: warnings.append(args))
+    env.test_warnings = []
+    env.set_warnfunc(lambda *args, **kwargs: env.test_warnings.append(args))
+    yield env
 
 
-def teardown_module():
-    app.cleanup()
-
-
-def warning_emitted(file, text):
-    for warning in warnings:
+def warning_emitted(env, file, text):
+    for warning in env.test_warnings:
         if len(warning) == 2 and file in warning[1] and text in warning[0]:
             return True
     return False
 
 
-# Tests are run in the order they appear in the file, therefore we can
-# afford to not run update() in the setup but in its own test
-
-def test_first_update():
+@pytest.mark.sphinx(srcdir='root-envtest')
+def test_first_update(app, env):
     updated = env.update(app.config, app.srcdir, app.doctreedir, app)
     assert set(updated) == env.found_docs == set(env.all_docs)
     # test if exclude_patterns works ok
     assert 'subdir/excluded' not in env.found_docs
 
 
-def test_images():
-    assert warning_emitted('images', 'image file not readable: foo.png')
-    assert warning_emitted('images', 'nonlocal image URI found: '
-                           'http://www.python.org/logo.png')
+@pytest.mark.sphinx(srcdir='root-envtest')
+def test_images(app, env):
+    env.update(app.config, app.srcdir, app.doctreedir, app)
+    assert warning_emitted(
+        env, 'images', 'image file not readable: foo.png')
+    assert warning_emitted(
+        env, 'images',
+        'nonlocal image URI found: http://www.python.org/logo.png')
 
     tree = env.get_doctree('images')
-    app._warning.reset()
     htmlbuilder = StandaloneHTMLBuilder(app)
     htmlbuilder.imgpath = 'dummy'
     htmlbuilder.post_process_images(tree)
     assert set(htmlbuilder.images.keys()) == \
-        set(['subdir/img.png', 'img.png', 'subdir/simg.png', 'svgimg.svg',
-             'img.foo.png'])
+           {'subdir/img.png', 'img.png', 'subdir/simg.png', 'svgimg.svg',
+            'img.foo.png'}
     assert set(htmlbuilder.images.values()) == \
-        set(['img.png', 'img1.png', 'simg.png', 'svgimg.svg', 'img.foo.png'])
+           {'img.png', 'img1.png', 'simg.png', 'svgimg.svg', 'img.foo.png'}
 
-    app._warning.reset()
     latexbuilder = LaTeXBuilder(app)
     latexbuilder.post_process_images(tree)
     assert set(latexbuilder.images.keys()) == \
-        set(['subdir/img.png', 'subdir/simg.png', 'img.png', 'img.pdf',
-             'svgimg.pdf', 'img.foo.png'])
+           {'subdir/img.png', 'subdir/simg.png', 'img.png', 'img.pdf',
+            'svgimg.pdf', 'img.foo.png'}
     assert set(latexbuilder.images.values()) == \
-        set(['img.pdf', 'img.png', 'img1.png', 'simg.png',
-             'svgimg.pdf', 'img.foo.png'])
+           {'img.pdf', 'img.png', 'img1.png', 'simg.png',
+            'svgimg.pdf', 'img.foo.png'}
 
 
-def test_second_update():
+@pytest.mark.sphinx(srcdir='root-envtest')
+def test_second_update(app, env):
+    env.update(app.config, app.srcdir, app.doctreedir, app)
     # delete, add and "edit" (change saved mtime) some files and update again
     env.all_docs['contents'] = 0
-    root = path(app.srcdir)
+    root = app.srcdir
     # important: using "autodoc" because it is the last one to be included in
     # the contents.txt toctree; otherwise section numbers would shift
     (root / 'autodoc.txt').unlink()
@@ -85,12 +81,13 @@ def test_second_update():
     # "includes" and "images" are in there because they contain references
     # to nonexisting downloadable or image files, which are given another
     # chance to exist
-    assert set(updated) == set(['contents', 'new', 'includes', 'images'])
+    assert set(updated) == {'contents', 'new', 'includes', 'images'}
     assert 'autodoc' not in env.all_docs
     assert 'autodoc' not in env.found_docs
 
 
-def test_env_read_docs():
+@pytest.mark.sphinx(srcdir='root-envtest')
+def test_env_read_docs(app, env):
     """By default, docnames are read in alphanumeric order"""
     def on_env_read_docs_1(app, env, docnames):
         pass
@@ -109,7 +106,9 @@ def test_env_read_docs():
     assert len(read_docnames) == 2
 
 
-def test_object_inventory():
+@pytest.mark.sphinx(srcdir='root-envtest')
+def test_object_inventory(app, env):
+    env.update(app.config, app.srcdir, app.doctreedir, app)
     refs = env.domaindata['py']['objects']
 
     assert 'func_without_module' in refs

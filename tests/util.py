@@ -34,7 +34,7 @@ from path import path, repr_as  # NOQA
 __all__ = [
     'rootdir', 'tempdir',
     'skip_unless_importable', 'Struct',
-    'ListOutput', 'SphinxTestApp',
+    'SphinxTestApp',
     'path',
     'remove_unicode_literals',
 ]
@@ -109,21 +109,6 @@ class Struct(object):
         self.__dict__.update(kwds)
 
 
-class ListOutput(object):
-    """
-    File-like object that collects written text in a list.
-    """
-    def __init__(self, name):
-        self.name = name
-        self.content = []
-
-    def reset(self):
-        del self.content[:]
-
-    def write(self, text):
-        self.content.append(text)
-
-
 class SphinxTestApp(application.Sphinx):
     """
     A subclass of :class:`Sphinx` that runs on the test root, with some
@@ -166,7 +151,7 @@ class SphinxTestApp(application.Sphinx):
         if status is None:
             status = StringIO()
         if warning is None:
-            warning = ListOutput('stderr')
+            warning = StringIO()
 #        if warningiserror is None:
         warningiserror = False
 
@@ -276,6 +261,21 @@ def with_tempdir(func):
     return new_func
 
 
+class ListOutput(object):
+    """
+    File-like object that collects written text in a list.
+    """
+    def __init__(self, name):
+        self.name = name
+        self.content = []
+
+    def reset(self):
+        del self.content[:]
+
+    def write(self, text):
+        self.content.append(text)
+
+
 class _DeprecationWrapper(object):
     def __init__(self, mod, deprecated):
         self._mod = mod
@@ -299,4 +299,5 @@ sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(  # type
     skip_if=(skip_if, 'pytest.skipif'),
     skip_unless=(skip_unless, 'pytest.skipif'),
     with_tempdir=(with_tempdir, 'tmpdir pytest fixture'),
+    ListOutput=(ListOutput, 'StringIO'),
 ))

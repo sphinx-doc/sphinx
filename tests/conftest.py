@@ -12,10 +12,7 @@ from util import SphinxTestApp
 def app_params(request):
     markers = request.node.get_marker("sphinx")
     pargs = {}
-    kwargs = {
-        'status': StringIO(),
-        'warning': StringIO(),
-    }
+    kwargs = {}
 
     if markers is not None:
         # to avoid stacking positional args
