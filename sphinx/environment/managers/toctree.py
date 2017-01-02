@@ -464,10 +464,14 @@ class Toctree(EnvironmentManager):
             if depth == 0:
                 return
             for (title, ref) in toctreenode['entries']:
-                if url_re.match(ref) or ref == 'self' or ref in assigned:
+                if url_re.match(ref) or ref == 'self':
                     # don't mess with those
                     continue
-                if ref in self.tocs:
+                elif ref in assigned:
+                    self.env.warn_node('%s is already assigned section numbers '
+                                       '(nested numbered toctree?)' % ref,
+                                       toctreenode, type='toc', subtype='secnum')
+                elif ref in self.tocs:
                     secnums = self.toc_secnumbers[ref] = {}
                     assigned.add(ref)
                     _walk_toc(self.tocs[ref], secnums, depth,
