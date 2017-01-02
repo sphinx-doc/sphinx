@@ -30,20 +30,43 @@ NoneType = type(None)
 # ------------------------------------------------------------------------------
 # Python 2/3 compatibility
 
+# prefix for Unicode strings
 if PY3:
-    # Python 3
-    # prefix for Unicode strings
     u = ''
-    from io import TextIOWrapper
+else:
+    u = 'u'
 
-    # safely encode a string for printing to the terminal
+
+# TextIOWrapper
+if PY3:
+    from io import TextIOWrapper
+else:
+    def TextIOWrapper(stream, encoding):
+        # type: (file, str) -> unicode
+        return codecs.lookup(encoding or 'ascii')[2](stream)
+
+
+# sys_encoding: some kind of default system encoding; should be used with
+# a lenient error handler
+if PY3:
+    sys_encoding = sys.getdefaultencoding()
+else:
+    sys_encoding = __import__('locale').getpreferredencoding()
+
+
+# terminal_safe(): safely encode a string for printing to the terminal
+if PY3:
     def terminal_safe(s):
         # type: (unicode) -> unicode
         return s.encode('ascii', 'backslashreplace').decode('ascii')
-    # some kind of default system encoding; should be used with a lenient
-    # error handler
-    sys_encoding = sys.getdefaultencoding()
+else:
+    def terminal_safe(s):
+        # type: (unicode) -> unicode
+        return s.encode('ascii', 'backslashreplace')
 
+
+# convert_with_2to3():
+if PY3:
     # support for running 2to3 over config files
     def convert_with_2to3(filepath):
         # type: (unicode) -> unicode
@@ -60,37 +83,27 @@ if PY3:
             # try to match ParseError details with SyntaxError details
             raise SyntaxError(err.msg, (filepath, lineno, offset, err.value))
         return text_type(tree)
-    from html import escape as htmlescape  # noqa: >= Python 3.2
+else:
+    # no need to refactor on 2.x versions
+    convert_with_2to3 = None  # type: ignore
 
+
+# htmlescape()
+if PY3:
+    from html import escape as htmlescape
+else:
+    from cgi import escape as htmlescape  # NOQA
+
+
+# UnicodeMixin
+if PY3:
     class UnicodeMixin(object):
         """Mixin class to handle defining the proper __str__/__unicode__
         methods in Python 2 or 3."""
 
         def __str__(self):
             return self.__unicode__()
-
-    from textwrap import indent
-
 else:
-    # Python 2
-    u = 'u'
-    # no need to refactor on 2.x versions
-    convert_with_2to3 = None  # type: ignore
-
-    def TextIOWrapper(stream, encoding):
-        # type: (file, str) -> unicode
-        return codecs.lookup(encoding or 'ascii')[2](stream)
-
-    # safely encode a string for printing to the terminal
-    def terminal_safe(s):
-        # type: (unicode) -> unicode
-        return s.encode('ascii', 'backslashreplace')
-    # some kind of default system encoding; should be used with a lenient
-    # error handler
-    sys_encoding = __import__('locale').getpreferredencoding()
-    # use Python 3 name
-    from cgi import escape as htmlescape  # noqa: F401
-
     class UnicodeMixin(object):
         """Mixin class to handle defining the proper __str__/__unicode__
         methods in Python 2 or 3."""
@@ -98,6 +111,11 @@ else:
         def __str__(self):
             return self.__unicode__().encode('utf8')
 
+
+# indent()
+if PY3:
+    from textwrap import indent
+else:
     # backport from python3
     def indent(text, prefix, predicate=None):
         # type: (unicode, unicode, Callable) -> unicode
