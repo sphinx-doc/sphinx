@@ -8,6 +8,8 @@ Incompatible changes
   members by default. Thanks to Luc Saffre.
 * LaTeX ``\includegraphics`` command isn't overloaded: only ``\sphinxincludegraphics``
   has the custom code to fit image to available width if oversized.
+* #2367: ``Sphinx.warn()``, ``Sphinx.info()`` and other logging methods are now
+  deprecated.  Please use ``sphinx.util.logging`` (:ref:`logging-api`) instead.
 
 Features added
 --------------
