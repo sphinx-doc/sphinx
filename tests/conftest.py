@@ -50,33 +50,6 @@ def test_params(request):
     return result
 
 
-## 各テストのセットアップ時に呼ばれる
-# def pytest_runtest_setup(item):
-#     marker = item.get_marker("sphinx")
-#     # import pdb;pdb.set_trace()
-#     app = sphinx_app_by_marker(marker)
-#     # FIXME: how to call app.cleanup()?
-#     # def fin(*a, **k):
-#     #     import pdb;pdb.set_trace()
-#     #     app.cleanup()
-#     # item.addfinalizer(fin)
-
-
-# 各テストの実行時に呼ばれる
-# @pytest.hookimpl(hookwrapper=True)
-# def pytest_pyfunc_call(pyfuncitem):
-#     syspath_marker = pyfuncitem.get_marker("syspath")
-#     if syspath_marker:
-#         import pdb;pdb.set_trace()
-#         sys.path.append(syspath_marker.args[0])
-#
-#     outcome = yield
-#     # outcome.excinfo may be None or a (cls, val, tb) tuple
-#
-#     if syspath_marker:
-#         sys.path.remove(syspath_marker.args[0])
-
-
 @pytest.fixture(scope='function')
 def app(test_params, app_params, make_app, shared_result):
     args, kwargs = app_params
@@ -113,6 +86,7 @@ def warning(app):
 @pytest.fixture()
 def make_app():
     apps = []
+    syspath = sys.path[:]
 
     def make(*args, **kwargs):
         status, warning = StringIO(), StringIO()
@@ -122,6 +96,8 @@ def make_app():
         apps.append(app_)
         return app_
     yield make
+
+    sys.path[:] = syspath
     for app_ in apps:
         app_.cleanup()
 

@@ -50,7 +50,8 @@ def test_import_classes():
     from sphinx.util.i18n import CatalogInfo
 
     try:
-        sys.path.append(rootdir / 'roots/test-ext-inheritance_diagram')
+        path = rootdir / 'roots/test-ext-inheritance_diagram'
+        sys.path.append(path)
         from example.sphinx import DummyClass
 
         # got exception for unknown class or module
@@ -90,4 +91,4 @@ def test_import_classes():
         classes = import_classes('sphinx', 'example')
         assert classes == [DummyClass]
     finally:
-        sys.path.pop()
+        sys.path.remove(path)

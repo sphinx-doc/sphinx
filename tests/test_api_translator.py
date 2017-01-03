@@ -16,12 +16,12 @@ import pytest
 from util import rootdir
 
 
+@pytest.fixture(scope='module', autouse=True)
 def setup_module():
-    sys.path.insert(0, rootdir / 'roots' / 'test-api-set-translator')
-
-
-def teardown_module():
-    sys.path.remove(rootdir / 'roots' / 'test-api-set-translator')
+    path = rootdir / 'roots' / 'test-api-set-translator'
+    sys.path.insert(0, path)
+    yield
+    sys.path.remove(path)
 
 
 @pytest.mark.sphinx('html')

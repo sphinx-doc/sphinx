@@ -52,4 +52,13 @@ sys.stdout.flush()
 # filter warnings of test dependencies
 warnings.filterwarnings('ignore', category=DeprecationWarning, module='site')  # virtualenv
 
-sys.exit(pytest.main())
+# exclude 'root' and 'roots' dirs for pytest test collector
+ignore_paths = [
+    os.path.relpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), sub))
+    for sub in ('root', 'roots')
+]
+args = sys.argv[1:]
+for path in ignore_paths:
+    args.extend(['--ignore', path])
+
+sys.exit(pytest.main(args))
