@@ -14,8 +14,6 @@
 
 from util import with_app
 
-from nose.tools import assert_equal
-
 
 @with_app('pseudoxml')
 def test_docinfo(app, status, warning):
@@ -53,8 +51,4 @@ def test_docinfo(app, status, warning):
         'orphan': u'',
         'nocomments': u'',
     }
-    # I like this way of comparing dicts - easier to see the error.
-    for key in exampledocinfo:
-        yield assert_equal, exampledocinfo.get(key), expecteddocinfo.get(key)
-    # but then we still have to check for missing keys
-    yield assert_equal, set(expecteddocinfo.keys()), set(exampledocinfo.keys())
+    assert exampledocinfo == expecteddocinfo

@@ -85,7 +85,7 @@ def test_read_inventory_v2():
 @with_app()
 @mock.patch('sphinx.ext.intersphinx.read_inventory')
 @mock.patch('sphinx.ext.intersphinx._read_from_url')
-def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_inventory):
+def test_fetch_inventory_redirection(_read_from_url, read_inventory, app, status, warning):
     intersphinx_setup(app)
     _read_from_url().readline.return_value = '# Sphinx inventory version 2'.encode('utf-8')
 

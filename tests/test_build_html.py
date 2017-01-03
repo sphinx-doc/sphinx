@@ -24,10 +24,7 @@ TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
 HTML_PARSER = HTMLParser(TREE_BUILDER, namespaceHTMLElements=False)
 
 ENV_WARNINGS = """\
-(%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
-WARNING: duplicate object description of autodoc_fodder.MarkupError, other \
-instance in %(root)s/autodoc.rst, use :noindex: for one of them
-)?%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
+%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
 WARNING: Explicit markup ends without a blank line; unexpected unindent.
 %(root)s/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
 file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
@@ -36,7 +33,7 @@ file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
 %(root)s/index.rst:\\d+: WARNING: download file not readable: %(root)s/nonexisting.png
 %(root)s/index.rst:\\d+: WARNING: invalid single index entry u''
 %(root)s/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
-with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
+with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
@@ -662,7 +659,7 @@ def test_numfig_without_numbered_toctree(app, status, warning):
             yield check_xpath, etree, fname, xpath, check, be_found
 
 
-@gen_with_app(buildername='html', testroot='numfig',
+@gen_with_app(buildername='html', testroot='numfig', srcdir='test_build_html_numfig_on',
               confoverrides={'numfig': True})
 def test_numfig_with_numbered_toctree(app, status, warning):
     app.builder.build_all()
@@ -763,6 +760,7 @@ def test_numfig_with_numbered_toctree(app, status, warning):
 
 
 @gen_with_app(buildername='html', testroot='numfig',
+              srcdir='test_build_html_numfig_format_warn',
               confoverrides={'numfig': True,
                              'numfig_format': {'figure': 'Figure:%s',
                                                'table': 'Tab_%s',
@@ -867,6 +865,7 @@ def test_numfig_with_prefix(app, status, warning):
 
 
 @gen_with_app(buildername='html', testroot='numfig',
+              srcdir='test_build_html_numfig_depth_2',
               confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
 def test_numfig_with_secnum_depth(app, status, warning):
     app.builder.build_all()
@@ -967,6 +966,7 @@ def test_numfig_with_secnum_depth(app, status, warning):
 
 
 @gen_with_app(buildername='singlehtml', testroot='numfig',
+              srcdir='test_build_html_numfig_on',
               confoverrides={'numfig': True})
 def test_numfig_with_singlehtml(app, status, warning):
     app.builder.build_all()

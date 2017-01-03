@@ -11,7 +11,7 @@ class DummyTestParser(Parser):
     pass
 
 
-extensions = ['test_source_parser']
+extensions = ['source_parser']
 source_suffix = ['.rst', '.test']
 source_parsers = {
     '.test': DummyTestParser

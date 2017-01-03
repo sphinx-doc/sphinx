@@ -25,32 +25,32 @@ class DummyTemplateLoader(BuiltinTemplateLoader):
 
 
 @with_tempdir
-def test_copy_asset_file(tmpdir):
+def test_copy_asset_file(tempdir):
     renderer = DummyTemplateLoader()
 
     # copy normal file
-    src = (tmpdir / 'asset.txt')
+    src = (tempdir / 'asset.txt')
     src.write_text('# test data')
-    dest = (tmpdir / 'output.txt')
+    dest = (tempdir / 'output.txt')
 
     copy_asset_file(src, dest)
     assert dest.exists()
     assert src.text() == dest.text()
 
     # copy template file
-    src = (tmpdir / 'asset.txt_t')
+    src = (tempdir / 'asset.txt_t')
     src.write_text('# {{var1}} data')
-    dest = (tmpdir / 'output.txt_t')
+    dest = (tempdir / 'output.txt_t')
 
     copy_asset_file(src, dest, {'var1': 'template'}, renderer)
     assert not dest.exists()
-    assert (tmpdir / 'output.txt').exists()
-    assert (tmpdir / 'output.txt').text() == '# template data'
+    assert (tempdir / 'output.txt').exists()
+    assert (tempdir / 'output.txt').text() == '# template data'
 
     # copy template file to subdir
-    src = (tmpdir / 'asset.txt_t')
+    src = (tempdir / 'asset.txt_t')
     src.write_text('# {{var1}} data')
-    subdir1 = (tmpdir / 'subdir')
+    subdir1 = (tempdir / 'subdir')
     subdir1.makedirs()
 
     copy_asset_file(src, subdir1, {'var1': 'template'}, renderer)
@@ -58,8 +58,8 @@ def test_copy_asset_file(tmpdir):
     assert (subdir1 / 'asset.txt').text() == '# template data'
 
     # copy template file without context
-    src = (tmpdir / 'asset.txt_t')
-    subdir2 = (tmpdir / 'subdir2')
+    src = (tempdir / 'asset.txt_t')
+    subdir2 = (tempdir / 'subdir2')
     subdir2.makedirs()
 
     copy_asset_file(src, subdir2)
@@ -69,11 +69,11 @@ def test_copy_asset_file(tmpdir):
 
 
 @with_tempdir
-def test_copy_asset(tmpdir):
+def test_copy_asset(tempdir):
     renderer = DummyTemplateLoader()
 
     # prepare source files
-    source = (tmpdir / 'source')
+    source = (tempdir / 'source')
     source.makedirs()
     (source / 'index.rst').write_text('index.rst')
     (source / 'foo.rst_t').write_text('{{var1}}.rst')
@@ -84,13 +84,13 @@ def test_copy_asset(tmpdir):
     (source / '_templates' / 'sidebar.html_t').write_text('sidebar: {{var2}}')
 
     # copy a single file
-    assert not (tmpdir / 'test1').exists()
-    copy_asset(source / 'index.rst', tmpdir / 'test1')
-    assert (tmpdir / 'test1').exists()
-    assert (tmpdir / 'test1/index.rst').exists()
+    assert not (tempdir / 'test1').exists()
+    copy_asset(source / 'index.rst', tempdir / 'test1')
+    assert (tempdir / 'test1').exists()
+    assert (tempdir / 'test1/index.rst').exists()
 
     # copy directories
-    destdir = tmpdir / 'test2'
+    destdir = tempdir / 'test2'
     copy_asset(source, destdir, context=dict(var1='bar', var2='baz'), renderer=renderer)
     assert (destdir / 'index.rst').exists()
     assert (destdir / 'foo.rst').exists()
@@ -104,7 +104,7 @@ def test_copy_asset(tmpdir):
     def excluded(path):
         return ('sidebar.html' in path or 'basic.css' in path)
 
-    destdir = tmpdir / 'test3'
+    destdir = tempdir / 'test3'
     copy_asset(source, destdir, excluded,
                context=dict(var1='bar', var2='baz'), renderer=renderer)
     assert (destdir / 'index.rst').exists()

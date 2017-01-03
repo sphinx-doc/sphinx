@@ -12,11 +12,11 @@ from __future__ import print_function
 
 import os
 import re
-from functools import wraps
 from itertools import product
 from subprocess import Popen, PIPE
 
 from six import PY3
+import pytest
 
 from sphinx.errors import SphinxError
 from sphinx.util.osutil import cd, ensuredir
@@ -90,14 +90,13 @@ def skip_if_stylefiles_notfound(testfunc):
         return testfunc
 
 
-def test_latex():
-    for engine, docclass in product(LATEX_ENGINES, DOCCLASSES):
-        yield build_latex_doc, engine, docclass
-
-
 @skip_if_stylefiles_notfound
-@with_app(buildername='latex')
-def build_latex_doc(app, status, warning, engine, docclass):
+@pytest.mark.parametrize(
+    "engine,docclass",
+    product(LATEX_ENGINES, DOCCLASSES),
+)
+@pytest.mark.sphinx('latex')
+def test_build_latex_doc(app, status, warning, engine, docclass):
     app.config.latex_engine = engine
     app.config.latex_documents[0] = app.config.latex_documents[0][:4] + (docclass,)
 

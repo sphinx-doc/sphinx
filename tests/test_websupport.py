@@ -9,10 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from functools import wraps
-
-from six import StringIO
-
 from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import DocumentNotFoundError, \
     CommentNotAllowedError, UserNotAuthorizedError
@@ -26,26 +22,28 @@ try:
 except ImportError:
     sqlalchemy_missing = True
 
+import pytest
 from util import rootdir, tempdir, raises, skip_if
 
 
-default_settings = {'builddir': tempdir / 'websupport',
-                    'status': StringIO(),
-                    'warning': StringIO()}
+@pytest.fixture
+def support(request):
+    settings = {
+        'srcdir': rootdir / 'root',
+        # to use same directory for 'builddir' in each 'support' fixture, using
+        # 'tempdir' (static) value instead of 'tempdir' fixture value.
+        # each test expect result of db value at previous test case.
+        'builddir': tempdir / 'websupport'
+    }
+    marker = request.node.get_marker('support')
+    if marker:
+        settings.update(marker.kwargs)
+
+    support = WebSupport(**settings)
+    yield support
 
 
-def with_support(*args, **kwargs):
-    """Make a WebSupport object and pass it the test."""
-    settings = default_settings.copy()
-    settings.update(kwargs)
-
-    def generator(func):
-        @wraps(func)
-        def new_func(*args2, **kwargs2):
-            support = WebSupport(**settings)
-            func(support, *args2, **kwargs2)
-        return new_func
-    return generator
+with_support = pytest.mark.support
 
 
 class NullStorage(StorageBackend):
@@ -59,7 +57,7 @@ def test_no_srcdir(support):
 
 
 @skip_if(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support(srcdir=rootdir / 'root')
+@with_support()
 def test_build(support):
     support.build()
 
@@ -125,56 +123,6 @@ def test_comments(support):
 
 @skip_if(sqlalchemy_missing, 'needs sqlalchemy')
 @with_support()
-def test_voting(support):
-    session = Session()
-    nodes = session.query(Node).all()
-    node = nodes[0]
-
-    comment = support.get_data(node.id)['comments'][0]
-
-    def check_rating(val):
-        data = support.get_data(node.id)
-        comment = data['comments'][0]
-        assert comment['rating'] == val, '%s != %s' % (comment['rating'], val)
-
-    support.process_vote(comment['id'], 'user_one', '1')
-    support.process_vote(comment['id'], 'user_two', '1')
-    support.process_vote(comment['id'], 'user_three', '1')
-    check_rating(3)
-    support.process_vote(comment['id'], 'user_one', '-1')
-    check_rating(1)
-    support.process_vote(comment['id'], 'user_one', '0')
-    check_rating(2)
-
-    # Make sure a vote with value > 1 or < -1 can't be cast.
-    raises(ValueError, support.process_vote, comment['id'], 'user_one', '2')
-    raises(ValueError, support.process_vote, comment['id'], 'user_one', '-2')
-
-    # Make sure past voting data is associated with comments when they are
-    # fetched.
-    data = support.get_data(str(node.id), username='user_two')
-    comment = data['comments'][0]
-    assert comment['vote'] == 1, '%s != 1' % comment['vote']
-
-
-@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support()
-def test_proposals(support):
-    session = Session()
-    node = session.query(Node).first()
-
-    data = support.get_data(node.id)
-
-    source = data['source']
-    proposal = source[:5] + source[10:15] + 'asdf' + source[15:]
-
-    support.add_comment('Proposal comment',
-                        node_id=node.id,
-                        proposal=proposal)
-
-
-@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support()
 def test_user_delete_comments(support):
     def get_comment():
         session = Session()
@@ -192,6 +140,38 @@ def test_user_delete_comments(support):
     comment = get_comment()
     assert comment['username'] == '[deleted]'
     assert comment['text'] == '[deleted]'
+
+
+called = False
+
+
+def moderation_callback(comment):
+    global called
+    called = True
+
+
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
+@with_support(moderation_callback=moderation_callback)
+def test_moderation(support):
+    session = Session()
+    nodes = session.query(Node).all()
+    node = nodes[7]
+    session.close()
+    accepted = support.add_comment('Accepted Comment', node_id=node.id,
+                                   displayed=False)
+    deleted  = support.add_comment('Comment to delete', node_id=node.id,
+                                   displayed=False)
+    # Make sure the moderation_callback is called.
+    assert called
+    # Make sure the user must be a moderator.
+    raises(UserNotAuthorizedError, support.accept_comment, accepted['id'])
+    raises(UserNotAuthorizedError, support.delete_comment, deleted['id'])
+    support.accept_comment(accepted['id'], moderator=True)
+    support.delete_comment(deleted['id'], moderator=True)
+    comments = support.get_data(node.id)['comments']
+    assert len(comments) == 1
+    comments = support.get_data(node.id, moderator=True)['comments']
+    assert len(comments) == 1
 
 
 @skip_if(sqlalchemy_missing, 'needs sqlalchemy')
@@ -228,36 +208,54 @@ def test_update_username(support):
     assert len(votes) == 0
 
 
-called = False
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
+@with_support()
+def test_proposals(support):
+    session = Session()
+    node = session.query(Node).first()
 
+    data = support.get_data(node.id)
 
-def moderation_callback(comment):
-    global called
-    called = True
+    source = data['source']
+    proposal = source[:5] + source[10:15] + 'asdf' + source[15:]
+
+    support.add_comment('Proposal comment',
+                        node_id=node.id,
+                        proposal=proposal)
 
 
 @skip_if(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support(moderation_callback=moderation_callback)
-def test_moderation(support):
+@with_support()
+def test_voting(support):
     session = Session()
     nodes = session.query(Node).all()
-    node = nodes[7]
-    session.close()
-    accepted = support.add_comment('Accepted Comment', node_id=node.id,
-                                   displayed=False)
-    deleted  = support.add_comment('Comment to delete', node_id=node.id,
-                                   displayed=False)
-    # Make sure the moderation_callback is called.
-    assert called
-    # Make sure the user must be a moderator.
-    raises(UserNotAuthorizedError, support.accept_comment, accepted['id'])
-    raises(UserNotAuthorizedError, support.delete_comment, deleted['id'])
-    support.accept_comment(accepted['id'], moderator=True)
-    support.delete_comment(deleted['id'], moderator=True)
-    comments = support.get_data(node.id)['comments']
-    assert len(comments) == 1
-    comments = support.get_data(node.id, moderator=True)['comments']
-    assert len(comments) == 1
+    node = nodes[0]
+
+    comment = support.get_data(node.id)['comments'][0]
+
+    def check_rating(val):
+        data = support.get_data(node.id)
+        comment = data['comments'][0]
+        assert comment['rating'] == val, '%s != %s' % (comment['rating'], val)
+
+    support.process_vote(comment['id'], 'user_one', '1')
+    support.process_vote(comment['id'], 'user_two', '1')
+    support.process_vote(comment['id'], 'user_three', '1')
+    check_rating(3)
+    support.process_vote(comment['id'], 'user_one', '-1')
+    check_rating(1)
+    support.process_vote(comment['id'], 'user_one', '0')
+    check_rating(2)
+
+    # Make sure a vote with value > 1 or < -1 can't be cast.
+    raises(ValueError, support.process_vote, comment['id'], 'user_one', '2')
+    raises(ValueError, support.process_vote, comment['id'], 'user_one', '-2')
+
+    # Make sure past voting data is associated with comments when they are
+    # fetched.
+    data = support.get_data(str(node.id), username='user_two')
+    comment = data['comments'][0]
+    assert comment['vote'] == 1, '%s != 1' % comment['vote']
 
 
 def test_differ():

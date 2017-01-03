@@ -87,16 +87,16 @@ def test_extension_values(app, status, warning):
 
 
 @with_tempdir
-def test_errors_warnings(dir):
+def test_errors_warnings(tempdir):
     # test the error for syntax errors in the config file
-    (dir / 'conf.py').write_text(u'project = \n', encoding='ascii')
-    raises_msg(ConfigError, 'conf.py', Config, dir, 'conf.py', {}, None)
+    (tempdir / 'conf.py').write_text(u'project = \n', encoding='ascii')
+    raises_msg(ConfigError, 'conf.py', Config, tempdir, 'conf.py', {}, None)
 
     # test the automatic conversion of 2.x only code in configs
-    (dir / 'conf.py').write_text(
+    (tempdir / 'conf.py').write_text(
         u'# -*- coding: utf-8\n\nproject = u"Jägermeister"\n',
         encoding='utf-8')
-    cfg = Config(dir, 'conf.py', {}, None)
+    cfg = Config(tempdir, 'conf.py', {}, None)
     cfg.init_values(lambda warning: 1/0)
     assert cfg.project == u'Jägermeister'
 
@@ -105,9 +105,9 @@ def test_errors_warnings(dir):
     # skip the test there
     if PY3:
         return
-    (dir / 'conf.py').write_text(
+    (tempdir / 'conf.py').write_text(
         u'# -*- coding: latin-1\nproject = "fooä"\n', encoding='latin-1')
-    cfg = Config(dir, 'conf.py', {}, None)
+    cfg = Config(tempdir, 'conf.py', {}, None)
     warned = [False]
 
     def warn(msg):
@@ -118,10 +118,10 @@ def test_errors_warnings(dir):
 
 
 @with_tempdir
-def test_errors_if_setup_is_not_callable(dir):
+def test_errors_if_setup_is_not_callable(tempdir):
     # test the error to call setup() in the config file
-    (dir / 'conf.py').write_text(u'setup = 1')
-    raises_msg(ConfigError, 'callable', TestApp, srcdir=dir)
+    (tempdir / 'conf.py').write_text(u'setup = 1')
+    raises_msg(ConfigError, 'callable', TestApp, srcdir=tempdir)
 
 
 @mock.patch.object(sphinx, '__display_version__', '1.3.4')
@@ -152,12 +152,12 @@ def test_needs_sphinx():
 
 
 @with_tempdir
-def test_config_eol(tmpdir):
+def test_config_eol(tempdir):
     # test config file's eol patterns: LF, CRLF
-    configfile = tmpdir / 'conf.py'
+    configfile = tempdir / 'conf.py'
     for eol in (b'\n', b'\r\n'):
         configfile.write_bytes(b'project = "spam"' + eol)
-        cfg = Config(tmpdir, 'conf.py', {}, None)
+        cfg = Config(tempdir, 'conf.py', {}, None)
         cfg.init_values(lambda warning: 1/0)
         assert cfg.project == u'spam'
 

@@ -145,7 +145,7 @@ class path(text_type):
         mode = 'rU' if PY2 else 'r'
         with open(self, mode=mode, encoding=encoding, **kwargs) as f:
             text = f.read()
-        contents = repr_as(text, '<%s contents>' % self.basename())
+        contents = repr_as(text, '<%s contents: %r>' % (self.basename(), text))
         return contents
 
     def bytes(self):

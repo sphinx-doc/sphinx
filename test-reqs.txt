@@ -1,6 +1,6 @@
 flake8
-nose
-nose-timer
+pytest>=3.0
+pytest-cov
 mock
 six>=1.4
 Jinja2>=2.3

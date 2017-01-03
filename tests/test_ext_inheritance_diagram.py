@@ -12,12 +12,12 @@
 import re
 import sys
 from util import with_app, rootdir, raises
-from test_ext_graphviz import skip_if_graphviz_not_found
 from sphinx.ext.inheritance_diagram import InheritanceException, import_classes
+import pytest
 
 
 @with_app('html', testroot='ext-inheritance_diagram')
-@skip_if_graphviz_not_found
+@pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram_html(app, status, warning):
     app.builder.build_all()
 
@@ -32,7 +32,7 @@ def test_inheritance_diagram_html(app, status, warning):
 
 
 @with_app('latex', testroot='ext-inheritance_diagram')
-@skip_if_graphviz_not_found
+@pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram_latex(app, status, warning):
     app.builder.build_all()
 

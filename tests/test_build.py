@@ -78,12 +78,12 @@ def test_build_all():
 
 
 @with_tempdir
-def test_master_doc_not_found(tmpdir):
-    (tmpdir / 'conf.py').write_text('master_doc = "index"')
-    assert tmpdir.listdir() == ['conf.py']
+def test_master_doc_not_found(tempdir):
+    (tempdir / 'conf.py').write_text('master_doc = "index"')
+    assert tempdir.listdir() == ['conf.py']
 
     try:
-        app = TestApp(buildername='dummy', srcdir=tmpdir)
+        app = TestApp(buildername='dummy', srcdir=tempdir)
         app.builder.build_all()
         assert False  # SphinxError not raised
     except Exception as exc:

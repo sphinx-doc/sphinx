@@ -14,7 +14,7 @@
 import six
 import sys
 from util import TestApp, Struct, raises, SkipTest
-from nose.tools import with_setup, eq_
+import pytest
 
 from six import StringIO
 from docutils.statemachine import ViewList
@@ -42,6 +42,7 @@ def teardown_module():
 directive = options = None
 
 
+@pytest.fixture
 def setup_test():
     global options, directive
     global processed_docstrings, processed_signatures, _warnings
@@ -106,7 +107,7 @@ def skip_member(app, what, name, obj, skip, options):
         return True
 
 
-@with_setup(setup_test)
+@pytest.mark.usefixtures('setup_test')
 def test_generate():
     def assert_warns(warn_str, objtype, name, **kw):
         inst = AutoDirective._registry[objtype](directive, name)

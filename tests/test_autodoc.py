@@ -12,7 +12,7 @@
 
 # "raises" imported for usage by autodoc
 from util import TestApp, Struct, raises, SkipTest  # NOQA
-from nose.tools import with_setup, eq_
+import pytest
 
 import enum
 from six import StringIO, add_metaclass
@@ -41,6 +41,7 @@ def teardown_module():
 directive = options = None
 
 
+@pytest.fixture
 def setup_test():
     global options, directive
     global processed_docstrings, processed_signatures, _warnings
@@ -74,6 +75,10 @@ def setup_test():
     processed_signatures = []
     _warnings = []
 
+    yield
+
+    AutoDirective._special_attrgetters.clear()
+
 
 _warnings = []
 processed_docstrings = []
@@ -105,7 +110,7 @@ def skip_member(app, what, name, obj, skip, options):
         return True
 
 
-@with_setup(setup_test)
+@pytest.mark.usefixtures('setup_test')
 def test_parse_name():
     def verify(objtype, name, result):
         inst = AutoDirective._registry[objtype](directive, name)
@@ -147,7 +152,7 @@ def test_parse_name():
     del directive.env.temp_data['autodoc:class']
 
 
-@with_setup(setup_test)
+@pytest.mark.usefixtures('setup_test')
 def test_format_signature():
     def formatsig(objtype, name, obj, args, retann):
         inst = AutoDirective._registry[objtype](directive, name)
@@ -253,7 +258,7 @@ def test_format_signature():
         '(b, c=42, *d, **e)'
 
 
-@with_setup(setup_test)
+@pytest.mark.usefixtures('setup_test')
 def test_get_doc():
     def getdocl(objtype, obj, encoding=None):
         inst = AutoDirective._registry[objtype](directive, 'tmp')
@@ -423,7 +428,7 @@ def test_get_doc():
     assert getdocl('class', I) == ['Class docstring', '', 'New docstring']
 
 
-@with_setup(setup_test)
+@pytest.mark.usefixtures('setup_test')
 def test_docstring_processing():
     def process(objtype, name, obj):
         inst = AutoDirective._registry[objtype](directive, name)
@@ -478,7 +483,7 @@ def test_docstring_processing():
     app.disconnect(lid)
 
 
-@with_setup(setup_test)
+@pytest.mark.usefixtures('setup_test')
 def test_docstring_property_processing():
     def genarate_docstring(objtype, name, **kw):
         del processed_docstrings[:]
@@ -515,7 +520,7 @@ def test_docstring_property_processing():
     assert 'Second line of docstring' in docstrings
 
 
-@with_setup(setup_test)
+@pytest.mark.usefixtures('setup_test')
 def test_new_documenter():
     class MyDocumenter(ModuleLevelDocumenter):
         objtype = 'integer'
@@ -543,7 +548,7 @@ def test_new_documenter():
     assert_result_contains('.. py:data:: integer', 'module', 'test_autodoc')
 
 
-@with_setup(setup_test, AutoDirective._special_attrgetters.clear)
+@pytest.mark.usefixtures('setup_test')
 def test_attrgetter_using():
     def assert_getter_works(objtype, name, obj, attrs=[], **kw):
         getattr_spy = []
@@ -575,7 +580,7 @@ def test_attrgetter_using():
     assert_getter_works('class', 'test_autodoc.Class', Class, ['meth', 'inheritedmeth'])
 
 
-@with_setup(setup_test)
+@pytest.mark.usefixtures('setup_test')
 def test_generate():
     def assert_warns(warn_str, objtype, name, **kw):
         inst = AutoDirective._registry[objtype](directive, name)
@@ -1084,7 +1089,7 @@ def test_type_hints():
         raise SkipTest('Cannot import Python code with function annotations')
 
     def verify_arg_spec(f, expected):
-        eq_(formatargspec(f, *getargspec(f)), expected)
+        assert formatargspec(f, *getargspec(f)) == expected
 
     # Class annotations
     verify_arg_spec(f0, '(x: int, y: numbers.Integral) -> None')

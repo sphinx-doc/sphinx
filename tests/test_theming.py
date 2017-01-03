@@ -83,7 +83,8 @@ def test_js_source(app, status, warning):
     assert 'Underscore.js {v}'.format(v=v) in underscore_src, msg
 
 
-def test_double_inheriting_theme():
+@with_app(testroot='double-inheriting-theme')
+def test_double_inheriting_theme(make_app, app_params):
     from sphinx.theming import load_theme_plugins  # load original before patching
 
     def load_themes():
@@ -92,8 +93,6 @@ def test_double_inheriting_theme():
         for t in load_theme_plugins():
             yield t
 
-    @mock.patch('sphinx.theming.load_theme_plugins', side_effect=load_themes)
-    @with_app(testroot='double-inheriting-theme')
-    def test_double_inheriting_theme_(app, status, warning, m_):
-        pass
-    yield test_double_inheriting_theme_
+    with mock.patch('sphinx.theming.load_theme_plugins', side_effect=load_themes):
+        args, kwargs = app_params
+        make_app(*args, **kwargs)
