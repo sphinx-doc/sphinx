@@ -5,7 +5,7 @@ import subprocess
 import pytest
 from six import StringIO, string_types
 
-from util import SphinxTestApp
+from util import SphinxTestApp, path
 
 
 @pytest.fixture
@@ -189,6 +189,11 @@ def if_graphviz_found(app):
         pass
 
     pytest.skip('graphviz "dot" is not available')
+
+
+@pytest.fixture
+def tempdir(tmpdir):
+    return path(tmpdir)
 
 
 def pytest_addoption(parser):

@@ -13,7 +13,7 @@ from six import PY3, iteritems
 import mock
 import pytest
 
-from util import with_app, path
+from util import with_app
 
 import sphinx
 from sphinx.config import Config
@@ -90,19 +90,18 @@ def test_extension_values(app):
     assert 'already present' in str(excinfo.value)
 
 
-def test_errors_warnings(tmpdir):
-    tmpdir = path(tmpdir)
+def test_errors_warnings(tempdir):
     # test the error for syntax errors in the config file
-    (tmpdir / 'conf.py').write_text(u'project = \n', encoding='ascii')
+    (tempdir / 'conf.py').write_text(u'project = \n', encoding='ascii')
     with pytest.raises(ConfigError) as excinfo:
-        Config(tmpdir, 'conf.py', {}, None)
+        Config(tempdir, 'conf.py', {}, None)
     assert 'conf.py' in str(excinfo.value)
 
     # test the automatic conversion of 2.x only code in configs
-    (tmpdir / 'conf.py').write_text(
+    (tempdir / 'conf.py').write_text(
         u'# -*- coding: utf-8\n\nproject = u"Jägermeister"\n',
         encoding='utf-8')
-    cfg = Config(tmpdir, 'conf.py', {}, None)
+    cfg = Config(tempdir, 'conf.py', {}, None)
     cfg.init_values(lambda warning: 1/0)
     assert cfg.project == u'Jägermeister'
 
@@ -111,9 +110,9 @@ def test_errors_warnings(tmpdir):
     # skip the test there
     if PY3:
         return
-    (tmpdir / 'conf.py').write_text(
+    (tempdir / 'conf.py').write_text(
         u'# -*- coding: latin-1\nproject = "fooä"\n', encoding='latin-1')
-    cfg = Config(tmpdir, 'conf.py', {}, None)
+    cfg = Config(tempdir, 'conf.py', {}, None)
     warned = [False]
 
     def warn(msg):
@@ -123,12 +122,11 @@ def test_errors_warnings(tmpdir):
     assert warned[0]
 
 
-def test_errors_if_setup_is_not_callable(tmpdir, make_app):
-    tmpdir = path(tmpdir)
+def test_errors_if_setup_is_not_callable(tempdir, make_app):
     # test the error to call setup() in the config file
-    (tmpdir / 'conf.py').write_text(u'setup = 1')
+    (tempdir / 'conf.py').write_text(u'setup = 1')
     with pytest.raises(ConfigError) as excinfo:
-        make_app(srcdir=tmpdir)
+        make_app(srcdir=tempdir)
     assert 'callable' in str(excinfo.value)
 
 
@@ -159,13 +157,12 @@ def test_needs_sphinx(make_app):
         make_app(confoverrides={'needs_sphinx': '2'})  # NG: greater
 
 
-def test_config_eol(tmpdir):
-    tmpdir = path(tmpdir)
+def test_config_eol(tempdir):
     # test config file's eol patterns: LF, CRLF
-    configfile = tmpdir / 'conf.py'
+    configfile = tempdir / 'conf.py'
     for eol in (b'\n', b'\r\n'):
         configfile.write_bytes(b'project = "spam"' + eol)
-        cfg = Config(tmpdir, 'conf.py', {}, None)
+        cfg = Config(tempdir, 'conf.py', {}, None)
         cfg.init_values(lambda warning: 1/0)
         assert cfg.project == u'spam'
 

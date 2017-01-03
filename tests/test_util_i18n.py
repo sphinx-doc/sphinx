@@ -18,8 +18,6 @@ from babel.messages.mofile import read_mo
 from sphinx.util import i18n
 from sphinx.errors import SphinxError
 
-from util import path
-
 
 def test_catalog_info_for_file_and_path():
     cat = i18n.CatalogInfo('path', 'domain', 'utf-8')
@@ -37,13 +35,12 @@ def test_catalog_info_for_sub_domain_file_and_path():
     assert cat.mo_path == os.path.join('path', 'sub/domain.mo')
 
 
-def test_catalog_outdated(tmpdir):
-    tmpdir = path(tmpdir)
-    (tmpdir / 'test.po').write_text('#')
-    cat = i18n.CatalogInfo(tmpdir, 'test', 'utf-8')
+def test_catalog_outdated(tempdir):
+    (tempdir / 'test.po').write_text('#')
+    cat = i18n.CatalogInfo(tempdir, 'test', 'utf-8')
     assert cat.is_outdated()  # if mo is not exist
 
-    mo_file = (tmpdir / 'test.mo')
+    mo_file = (tempdir / 'test.mo')
     mo_file.write_text('#')
     assert not cat.is_outdated()  # if mo is exist and newer than po
 
@@ -51,31 +48,29 @@ def test_catalog_outdated(tmpdir):
     assert cat.is_outdated()  # if mo is exist and older than po
 
 
-def test_catalog_write_mo(tmpdir):
-    tmpdir = path(tmpdir)
-    (tmpdir / 'test.po').write_text('#')
-    cat = i18n.CatalogInfo(tmpdir, 'test', 'utf-8')
+def test_catalog_write_mo(tempdir):
+    (tempdir / 'test.po').write_text('#')
+    cat = i18n.CatalogInfo(tempdir, 'test', 'utf-8')
     cat.write_mo('en')
     assert os.path.exists(cat.mo_path)
     with open(cat.mo_path, 'rb') as f:
         assert read_mo(f) is not None
 
 
-def test_get_catalogs_for_xx(tmpdir):
-    tmpdir = path(tmpdir)
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test3.pot').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub').makedirs()
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.po').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test5.po').write_text('#')
-    (tmpdir / 'loc1' / 'en' / 'LC_MESSAGES').makedirs()
-    (tmpdir / 'loc1' / 'en' / 'LC_MESSAGES' / 'test6.po').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_ALL').makedirs()
-    (tmpdir / 'loc1' / 'xx' / 'LC_ALL' / 'test7.po').write_text('#')
+def test_get_catalogs_for_xx(tempdir):
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test3.pot').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub').makedirs()
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test5.po').write_text('#')
+    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES').makedirs()
+    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES' / 'test6.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_ALL').makedirs()
+    (tempdir / 'loc1' / 'xx' / 'LC_ALL' / 'test7.po').write_text('#')
 
-    catalogs = i18n.find_catalog_source_files([tmpdir / 'loc1'], 'xx', force_all=False)
+    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx', force_all=False)
     domains = set(c.domain for c in catalogs)
     assert domains == set([
         'test1',
@@ -85,24 +80,22 @@ def test_get_catalogs_for_xx(tmpdir):
     ])
 
 
-def test_get_catalogs_for_en(tmpdir):
-    tmpdir = path(tmpdir)
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'xx_dom.po').write_text('#')
-    (tmpdir / 'loc1' / 'en' / 'LC_MESSAGES').makedirs()
-    (tmpdir / 'loc1' / 'en' / 'LC_MESSAGES' / 'en_dom.po').write_text('#')
+def test_get_catalogs_for_en(tempdir):
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'xx_dom.po').write_text('#')
+    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES').makedirs()
+    (tempdir / 'loc1' / 'en' / 'LC_MESSAGES' / 'en_dom.po').write_text('#')
 
-    catalogs = i18n.find_catalog_source_files([tmpdir / 'loc1'], 'en', force_all=False)
+    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'en', force_all=False)
     domains = set(c.domain for c in catalogs)
     assert domains == set(['en_dom'])
 
 
-def test_get_catalogs_with_non_existent_locale(tmpdir):
-    tmpdir = path(tmpdir)
-    catalogs = i18n.find_catalog_source_files([tmpdir / 'loc1'], 'xx')
+def test_get_catalogs_with_non_existent_locale(tempdir):
+    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx')
     assert not catalogs
 
-    catalogs = i18n.find_catalog_source_files([tmpdir / 'loc1'], None)
+    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], None)
     assert not catalogs
 
 
@@ -111,25 +104,24 @@ def test_get_catalogs_with_non_existent_locale_dirs():
     assert not catalogs
 
 
-def test_get_catalogs_for_xx_without_outdated(tmpdir):
-    tmpdir = path(tmpdir)
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.mo').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.mo').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test3.pot').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test3.mo').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub').makedirs()
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.po').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.mo').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test5.po').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test5.mo').write_text('#')
+def test_get_catalogs_for_xx_without_outdated(tempdir):
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.mo').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.mo').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test3.pot').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test3.mo').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub').makedirs()
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.mo').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test5.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test5.mo').write_text('#')
 
-    catalogs = i18n.find_catalog_source_files([tmpdir / 'loc1'], 'xx', force_all=False)
+    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx', force_all=False)
     assert not catalogs
 
-    catalogs = i18n.find_catalog_source_files([tmpdir / 'loc1'], 'xx', force_all=True)
+    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx', force_all=True)
     domains = set(c.domain for c in catalogs)
     assert domains == set([
         'test1',
@@ -139,29 +131,27 @@ def test_get_catalogs_for_xx_without_outdated(tmpdir):
     ])
 
 
-def test_get_catalogs_from_multiple_locale_dirs(tmpdir):
-    tmpdir = path(tmpdir)
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
-    (tmpdir / 'loc2' / 'xx' / 'LC_MESSAGES').makedirs()
-    (tmpdir / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
-    (tmpdir / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#')
+def test_get_catalogs_from_multiple_locale_dirs(tempdir):
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
+    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES').makedirs()
+    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
+    (tempdir / 'loc2' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#')
 
-    catalogs = i18n.find_catalog_source_files([tmpdir / 'loc1', tmpdir / 'loc2'], 'xx')
+    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1', tempdir / 'loc2'], 'xx')
     domains = sorted(c.domain for c in catalogs)
     assert domains == ['test1', 'test1', 'test2']
 
 
-def test_get_catalogs_with_compact(tmpdir):
-    tmpdir = path(tmpdir)
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub').makedirs()
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test3.po').write_text('#')
-    (tmpdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.po').write_text('#')
+def test_get_catalogs_with_compact(tempdir):
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test2.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub').makedirs()
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test3.po').write_text('#')
+    (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'sub' / 'test4.po').write_text('#')
 
-    catalogs = i18n.find_catalog_source_files([tmpdir / 'loc1'], 'xx', gettext_compact=True)
+    catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx', gettext_compact=True)
     domains = set(c.domain for c in catalogs)
     assert domains == set(['test1', 'test2', 'sub'])
 

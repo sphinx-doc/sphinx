@@ -23,8 +23,6 @@ from sphinx.ext.intersphinx import read_inventory, \
     load_mappings, missing_reference, _strip_basic_auth, \
     _get_safe_url, fetch_inventory, INVENTORY_FILENAME
 
-from util import path
-
 
 inventory_v1 = '''\
 # Sphinx inventory version 1
@@ -126,8 +124,8 @@ def test_fetch_inventory_redirection(_read_from_url, read_inventory, app, status
     assert read_inventory.call_args[0][1] == 'http://hostname/'
 
 
-def test_missing_reference(tmpdir, app):
-    inv_file = path(tmpdir) / 'inventory'
+def test_missing_reference(tempdir, app):
+    inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_mapping = {
         'https://docs.python.org/': inv_file,
@@ -215,12 +213,12 @@ def test_missing_reference(tmpdir, app):
     assert rn['refuri'] == '../../../../py3k/foo.html#module-module1'
 
 
-def test_load_mappings_warnings(tmpdir, app, warning):
+def test_load_mappings_warnings(tempdir, app, warning):
     """
     load_mappings issues a warning if new-style mapping
     identifiers are not string
     """
-    inv_file = path(tmpdir) / 'inventory'
+    inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
     app.config.intersphinx_mapping = {
         'https://docs.python.org/': inv_file,

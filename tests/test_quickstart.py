@@ -16,8 +16,6 @@ from six import PY2, text_type, StringIO
 from six.moves import input
 import pytest
 
-from util import path
-
 from sphinx import application
 from sphinx import quickstart as qs
 from sphinx.util.console import nocolor, coloron
@@ -127,10 +125,9 @@ def test_do_prompt_with_nonascii():
     assert d['k1'] == u'\u30c9\u30a4\u30c4'
 
 
-def test_quickstart_defaults(tmpdir):
-    tmpdir = path(tmpdir)
+def test_quickstart_defaults(tempdir):
     answers = {
-        'Root path': tmpdir,
+        'Root path': tempdir,
         'Project name': 'Sphinx Test',
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
@@ -140,7 +137,7 @@ def test_quickstart_defaults(tmpdir):
     qs.ask_user(d)
     qs.generate(d)
 
-    conffile = tmpdir / 'conf.py'
+    conffile = tempdir / 'conf.py'
     assert conffile.isfile()
     ns = {}
     execfile_(conffile, ns)
@@ -158,17 +155,16 @@ def test_quickstart_defaults(tmpdir):
         ('index', 'SphinxTest.tex', 'Sphinx Test Documentation',
          'Georg Brandl', 'manual')]
 
-    assert (tmpdir / '_static').isdir()
-    assert (tmpdir / '_templates').isdir()
-    assert (tmpdir / 'index.rst').isfile()
-    assert (tmpdir / 'Makefile').isfile()
-    assert (tmpdir / 'make.bat').isfile()
+    assert (tempdir / '_static').isdir()
+    assert (tempdir / '_templates').isdir()
+    assert (tempdir / 'index.rst').isfile()
+    assert (tempdir / 'Makefile').isfile()
+    assert (tempdir / 'make.bat').isfile()
 
 
-def test_quickstart_all_answers(tmpdir):
-    tmpdir = path(tmpdir)
+def test_quickstart_all_answers(tempdir):
     answers = {
-        'Root path': tmpdir,
+        'Root path': tempdir,
         'Separate source and build': 'y',
         'Name prefix for templates': '.',
         'Project name': u'STASI™'.encode('utf-8'),
@@ -198,7 +194,7 @@ def test_quickstart_all_answers(tmpdir):
     qs.ask_user(d)
     qs.generate(d)
 
-    conffile = tmpdir / 'source' / 'conf.py'
+    conffile = tempdir / 'source' / 'conf.py'
     assert conffile.isfile()
     ns = {}
     execfile_(conffile, ns)
@@ -227,16 +223,15 @@ def test_quickstart_all_answers(tmpdir):
          u'Wolfgang Schäuble & G\'Beckstein', 'STASI',
          'One line description of project.', 'Miscellaneous')]
 
-    assert (tmpdir / 'build').isdir()
-    assert (tmpdir / 'source' / '.static').isdir()
-    assert (tmpdir / 'source' / '.templates').isdir()
-    assert (tmpdir / 'source' / 'contents.txt').isfile()
+    assert (tempdir / 'build').isdir()
+    assert (tempdir / 'source' / '.static').isdir()
+    assert (tempdir / 'source' / '.templates').isdir()
+    assert (tempdir / 'source' / 'contents.txt').isfile()
 
 
-def test_generated_files_eol(tmpdir):
-    tmpdir = path(tmpdir)
+def test_generated_files_eol(tempdir):
     answers = {
-        'Root path': tmpdir,
+        'Root path': tempdir,
         'Project name': 'Sphinx Test',
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
@@ -250,14 +245,13 @@ def test_generated_files_eol(tmpdir):
         content = filename.bytes().decode('unicode-escape')
         assert all([l[-len(eol):] == eol for l in content.splitlines(True)])
 
-    assert_eol(tmpdir / 'make.bat', '\r\n')
-    assert_eol(tmpdir / 'Makefile', '\n')
+    assert_eol(tempdir / 'make.bat', '\r\n')
+    assert_eol(tempdir / 'Makefile', '\n')
 
 
-def test_quickstart_and_build(tmpdir):
-    tmpdir = path(tmpdir)
+def test_quickstart_and_build(tempdir):
     answers = {
-        'Root path': tmpdir,
+        'Root path': tempdir,
         'Project name': u'Fullwidth characters: \u30c9\u30a4\u30c4',
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
@@ -268,10 +262,10 @@ def test_quickstart_and_build(tmpdir):
     qs.generate(d)
 
     app = application.Sphinx(
-        tmpdir,  # srcdir
-        tmpdir,  # confdir
-        (tmpdir / '_build' / 'html'),  # outdir
-        (tmpdir / '_build' / '.doctree'),  # doctreedir
+        tempdir,  # srcdir
+        tempdir,  # confdir
+        (tempdir / '_build' / 'html'),  # outdir
+        (tempdir / '_build' / '.doctree'),  # doctreedir
         'html',  # buildername
         status=StringIO(),
         warning=warnfile)
@@ -280,10 +274,9 @@ def test_quickstart_and_build(tmpdir):
     assert not warnings
 
 
-def test_default_filename(tmpdir):
-    tmpdir = path(tmpdir)
+def test_default_filename(tempdir):
     answers = {
-        'Root path': tmpdir,
+        'Root path': tempdir,
         'Project name': u'\u30c9\u30a4\u30c4',  # Fullwidth characters only
         'Author name': 'Georg Brandl',
         'Project version': '0.1',
@@ -293,7 +286,7 @@ def test_default_filename(tmpdir):
     qs.ask_user(d)
     qs.generate(d)
 
-    conffile = tmpdir / 'conf.py'
+    conffile = tempdir / 'conf.py'
     assert conffile.isfile()
     ns = {}
     execfile_(conffile, ns)
@@ -302,13 +295,12 @@ def test_default_filename(tmpdir):
     assert ns['texinfo_documents'][0][1] == 'sphinx'
 
 
-def test_extensions(tmpdir):
-    tmpdir = path(tmpdir)
+def test_extensions(tempdir):
     qs.main(['sphinx-quickstart', '-q',
              '-p', 'project_name', '-a', 'author',
-             '--extensions', 'foo,bar,baz', tmpdir])
+             '--extensions', 'foo,bar,baz', tempdir])
 
-    conffile = tmpdir / 'conf.py'
+    conffile = tempdir / 'conf.py'
     assert conffile.isfile()
     ns = {}
     execfile_(conffile, ns)

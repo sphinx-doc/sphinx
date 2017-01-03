@@ -17,14 +17,14 @@ import pytest
 
 from sphinx.apidoc import main as apidoc_main
 
-from util import rootdir, path, remove_unicode_literals
+from util import rootdir, remove_unicode_literals
 
 
 @pytest.fixture()
-def apidoc(tmpdir, apidoc_params):
+def apidoc(tempdir, apidoc_params):
     _, kwargs = apidoc_params
     coderoot = kwargs.get('coderoot', (rootdir / 'root'))
-    outdir = path(tmpdir) / 'out'
+    outdir = tempdir / 'out'
     args = ['sphinx-apidoc', '-o', outdir, '-F', coderoot] + kwargs.get('options', [])
     apidoc_main(args)
     return namedtuple('apidoc', 'coderoot,outdir')(coderoot, outdir)

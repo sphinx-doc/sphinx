@@ -19,7 +19,6 @@ import pytest
 
 from sphinx.util.osutil import cd
 from util import rootdir, tempdir
-from path import path
 from textwrap import dedent
 
 root = tempdir / 'test-setup'
@@ -31,7 +30,7 @@ def setup_module():
 
 
 @pytest.fixture
-def setup_command(request, tmpdir):
+def setup_command(request, tempdir):
     """
     Run `setup.py build_sphinx` with args and kwargs,
     pass it to the test and clean up properly.
@@ -39,7 +38,7 @@ def setup_command(request, tmpdir):
     marker = request.node.get_marker('setup_command')
     args = marker.args if marker else []
 
-    pkgrootdir = path(tmpdir) / 'root'
+    pkgrootdir = tempdir / 'root'
     root.copytree(pkgrootdir)
 
     with cd(pkgrootdir):
