@@ -10,6 +10,10 @@ from util import SphinxTestApp
 
 @pytest.fixture
 def app_params(request):
+    """
+    parameters that is specified by 'pytest.mark.sphinx' for
+    sphinx.application.Sphinx initialization
+    """
     markers = request.node.get_marker("sphinx")
     pargs = {}
     kwargs = {}
@@ -27,12 +31,32 @@ def app_params(request):
 
 @pytest.fixture
 def test_params(request):
+    """
+    test parameters that is specified by 'pytest.mark.testenv'
+
+    :param bool build:
+       If True, 'app' fixture will be build before test function is called.
+       Default is False.
+    :param Union[str, bool, None] specific_srcdir:
+       If True, testroot directory will be copied into
+       '<TMPDIR>/<TEST FUNCTION NAME>'.
+       If string is specified, it copied into '<TMPDIR>/<THE STRING>'.
+       You can used this feature for providing special crafted source
+       directory. Also you can used for sharing source directory for
+       parametrized testing and/or inter test functions. Default is None.
+    :param Union[str, bool, None] shared_result:
+       If True, app._status and app._warning objects will be shared in the
+       parametrized test functions. If string is specified, the objects will
+       be shred in the test functions that have same 'shared_result' value.
+       If you don't specify specific_srcdir, this option override
+       specific_srcdir param by 'shared_result' value. Default is None.
+    """
     env = request.node.get_marker('testenv')
     kwargs = env.kwargs if env else {}
     result = {
        'build': False,  # pre build in fixture
-        'specific_srcdir': None,  # use specific src dir. if True, use test function name
-        'shared_result': None,  # if True, app object is shared in each parametrized test
+        'specific_srcdir': None,
+        'shared_result': None,
     }
     result.update(kwargs)
 
@@ -52,6 +76,9 @@ def test_params(request):
 
 @pytest.fixture(scope='function')
 def app(test_params, app_params, make_app, shared_result):
+    """
+    provides sphinx.application.Sphinx object
+    """
     args, kwargs = app_params
     if test_params['specific_srcdir'] and 'srcdir' not in kwargs:
         kwargs['srcdir'] = test_params['specific_srcdir']
@@ -74,17 +101,27 @@ def app(test_params, app_params, make_app, shared_result):
 
 @pytest.fixture(scope='function')
 def status(app):
+    """
+    compat for testing with previous @with_app decorator
+    """
     return app._status
 
 
 @pytest.fixture(scope='function')
 def warning(app):
+    """
+    compat for testing with previous @with_app decorator
+    """
     return app._warning
 
 
-# # テスト関数内でアプリケーションを組み立てるfixture
 @pytest.fixture()
 def make_app():
+    """
+    provides make_app function to initialize SphinxTestApp instance.
+    if you want to initialize 'app' in your test function. please use this
+    instead of using SphinxTestApp class directory.
+    """
     apps = []
     syspath = sys.path[:]
 
@@ -136,6 +173,10 @@ def _shared_result_cache():
 
 @pytest.fixture
 def if_graphviz_found(app):
+    """
+    The test will be skipped when using 'if_graphviz_found' fixture and graphviz
+    dot command is not found.
+    """
     graphviz_dot = getattr(app.config, 'graphviz_dot', '')
     try:
         if graphviz_dot:
@@ -151,17 +192,29 @@ def if_graphviz_found(app):
 
 
 def pytest_addoption(parser):
+    """
+    the test that have pytest.mark.env('foobar') will be skipped when
+    '-S foobar' command-line option is provided.
+    """
     parser.addoption("-S", action="store", metavar="NAME",
-        help="skip tests matching the environment NAME.")
+                     help="skip tests matching the environment NAME.")
 
 
 def pytest_configure(config):
+    """
+    the test that have pytest.mark.env('foobar') will be skipped when
+    '-S foobar' command-line option is provided.
+    """
     # register an additional marker
     config.addinivalue_line("markers",
         "env(name): mark test to run only on named environment")
 
 
 def pytest_runtest_setup(item):
+    """
+    the test that have pytest.mark.env('foobar') will be skipped when
+    '-S foobar' command-line option is provided.
+    """
     envmarker = item.get_marker("env")
     if envmarker is not None:
         envname = envmarker.args[0]
