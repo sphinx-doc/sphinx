@@ -139,7 +139,6 @@ def test_writer(app, status, warning):
             '\\end{wrapfigure}' in result)
 
 
-@pytest.mark.env('smzkw')
 @pytest.mark.sphinx('latex', testroot='warnings', freshenv=True)
 def test_latex_warnings(app, status, warning):
     app.builder.build_all()

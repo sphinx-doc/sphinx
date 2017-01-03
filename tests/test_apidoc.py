@@ -47,24 +47,23 @@ def apidoc_params(request):
 
 
 @pytest.mark.apidoc(coderoot=(rootdir / 'root'))
-def test_simple(make_app, apidoc, syspath):
+def test_simple(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
     assert (outdir / 'autodoc_fodder.rst').isfile()
     assert (outdir / 'index.rst').isfile()
 
-    with syspath(apidoc.coderoot):
-        app = make_app('text', srcdir=outdir)
-        app.build()
-        print(app._status.getvalue())
-        print(app._warning.getvalue())
+    app = make_app('text', srcdir=outdir)
+    app.build()
+    print(app._status.getvalue())
+    print(app._warning.getvalue())
 
 
 @pytest.mark.apidoc(
     coderoot=(rootdir / 'root' / 'pep_0420'),
     options=["--implicit-namespaces"],
 )
-def test_pep_0420_enabled(make_app, apidoc, syspath):
+def test_pep_0420_enabled(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
     assert (outdir / 'a.b.c.rst').isfile()
@@ -82,29 +81,27 @@ def test_pep_0420_enabled(make_app, apidoc, syspath):
         assert "automodule:: a.b.x.y\n" in rst
         assert "automodule:: a.b.x\n" not in rst
 
-    with syspath(apidoc.coderoot):
-        app = make_app('text', srcdir=outdir)
-        app.build()
-        print(app._status.getvalue())
-        print(app._warning.getvalue())
+    app = make_app('text', srcdir=outdir)
+    app.build()
+    print(app._status.getvalue())
+    print(app._warning.getvalue())
 
 
 @pytest.mark.apidoc(coderoot=(rootdir / 'root' / 'pep_0420'))
-def test_pep_0420_disabled(make_app, apidoc, syspath):
+def test_pep_0420_disabled(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
     assert not (outdir / 'a.b.c.rst').exists()
     assert not (outdir / 'a.b.x.rst').exists()
 
-    with syspath(apidoc.coderoot):
-        app = make_app('text', srcdir=outdir)
-        app.build()
-        print(app._status.getvalue())
-        print(app._warning.getvalue())
+    app = make_app('text', srcdir=outdir)
+    app.build()
+    print(app._status.getvalue())
+    print(app._warning.getvalue())
 
 
 @pytest.mark.apidoc(coderoot=(rootdir / 'root' / 'pep_0420' / 'a' / 'b'))
-def test_pep_0420_disabled_top_level_verify(make_app, apidoc, syspath):
+def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
     assert (outdir / 'c.rst').isfile()
@@ -116,11 +113,10 @@ def test_pep_0420_disabled_top_level_verify(make_app, apidoc, syspath):
         assert "automodule:: c.d\n" in rst
         assert "automodule:: c\n" in rst
 
-    with syspath(apidoc.coderoot):
-        app = make_app('text', srcdir=outdir)
-        app.build()
-        print(app._status.getvalue())
-        print(app._warning.getvalue())
+    app = make_app('text', srcdir=outdir)
+    app.build()
+    print(app._status.getvalue())
+    print(app._warning.getvalue())
 
 
 @pytest.mark.apidoc(
@@ -132,7 +128,7 @@ def test_pep_0420_disabled_top_level_verify(make_app, apidoc, syspath):
         '--doc-release', u'リリース'.encode('utf-8'),
     ],
 )
-def test_multibyte_parameters(make_app, apidoc, syspath):
+def test_multibyte_parameters(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
     assert (outdir / 'autodoc_fodder.rst').isfile()
@@ -145,8 +141,7 @@ def test_multibyte_parameters(make_app, apidoc, syspath):
     assert u"version = 'バージョン'" in conf_py_
     assert u"release = 'リリース'" in conf_py_
 
-    with syspath(apidoc.coderoot):
-        app = make_app('text', srcdir=outdir)
-        app.build()
-        print(app._status.getvalue())
-        print(app._warning.getvalue())
+    app = make_app('text', srcdir=outdir)
+    app.build()
+    print(app._status.getvalue())
+    print(app._warning.getvalue())

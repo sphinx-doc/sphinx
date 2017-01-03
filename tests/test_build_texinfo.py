@@ -34,7 +34,6 @@ if PY3:
     TEXINFO_WARNINGS = remove_unicode_literals(TEXINFO_WARNINGS)
 
 
-@pytest.mark.env('smzkw')
 @with_app(buildername='texinfo', testroot='warnings', freshenv=True)
 def test_texinfo_warnings(app, status, warning):
     app.builder.build_all()

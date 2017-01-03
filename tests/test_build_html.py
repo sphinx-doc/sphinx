@@ -26,10 +26,7 @@ TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
 HTML_PARSER = HTMLParser(TREE_BUILDER, namespaceHTMLElements=False)
 
 ENV_WARNINGS = """\
-(%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
-WARNING: duplicate object description of autodoc_fodder.MarkupError, other \
-instance in %(root)s/autodoc.rst, use :noindex: for one of them
-)?%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
+%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
 WARNING: Explicit markup ends without a blank line; unexpected unindent.
 %(root)s/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
 file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
@@ -38,7 +35,7 @@ file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
 %(root)s/index.rst:\\d+: WARNING: download file not readable: %(root)s/nonexisting.png
 %(root)s/index.rst:\\d+: WARNING: invalid single index entry u''
 %(root)s/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
-with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
+with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
@@ -145,7 +142,6 @@ def check_extra_entries(outdir):
     assert (outdir / 'robots.txt').isfile()
 
 
-@pytest.mark.env('smzkw')
 @pytest.mark.sphinx(buildername='html', testroot='warnings', freshenv=True)
 def test_html_warnings(app, warning):
     app.builder.build_all()

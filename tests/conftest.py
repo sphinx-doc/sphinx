@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import sys
-import contextlib
 import subprocess
 
 import pytest
@@ -157,16 +156,6 @@ def shared_result():
 @pytest.fixture(scope='module', autouse=True)
 def _shared_result_cache():
     SharedResult.cache.clear()
-
-
-@pytest.fixture()
-def syspath():
-    @contextlib.contextmanager
-    def syspath_context(path):
-        sys.path.append(path)
-        yield syspath
-        sys.path.remove(path)
-    yield syspath_context
 
 
 @pytest.fixture
