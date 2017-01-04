@@ -8,8 +8,6 @@ Incompatible changes
   members by default. Thanks to Luc Saffre.
 * LaTeX ``\includegraphics`` command isn't overloaded: only ``\sphinxincludegraphics``
   has the custom code to fit image to available width if oversized.
-* #2367: ``Sphinx.warn()``, ``Sphinx.info()`` and other logging methods are now
-  deprecated.  Please use ``sphinx.util.logging`` (:ref:`logging-api`) instead.
 
 Features added
 --------------
@@ -27,6 +25,8 @@ Deprecated
 * ``sphinx.util.compat.Directive`` class is now deprecated. Please use instead
   ``docutils.parsers.rsr.Directive``
 * ``sphinx.util.compat.docutils_version`` is now deprecated
+* #2367: ``Sphinx.warn()``, ``Sphinx.info()`` and other logging methods are now
+  deprecated.  Please use ``sphinx.util.logging`` (:ref:`logging-api`) instead.
 
 Release 1.5.2 (in development)
 ===============================
