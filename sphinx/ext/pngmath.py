@@ -209,7 +209,7 @@ def html_visit_math(self, node):
         sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node['latex'])
         sm.walkabout(self)
-        logger.warning('display latex %r: ' % node['latex'] + msg)
+        logger.warning('display latex %r: %s', node['latex'], msg)
         raise nodes.SkipNode
     if fname is None:
         # something failed -- use text-only as a bad substitute
@@ -237,7 +237,7 @@ def html_visit_displaymath(self, node):
         sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node['latex'])
         sm.walkabout(self)
-        logger.warning('inline latex %r: ' % node['latex'] + msg)
+        logger.warning('inline latex %r: %s', node['latex'], msg)
         raise nodes.SkipNode
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')

@@ -47,8 +47,7 @@ def _get_full_modname(app, modname, attribute):
         # by py:function or other directives, viewcode emits a lot of warnings.
         # It should be displayed only verbose mode.
         logger.verbose(traceback.format_exc().rstrip())
-        logger.verbose('viewcode can\'t import %s, failed with error "%s"' %
-                       (modname, e))
+        logger.verbose('viewcode can\'t import %s, failed with error "%s"', modname, e)
         return None
 
 

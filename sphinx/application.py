@@ -319,7 +319,7 @@ class Sphinx(object):
                 if isinstance(err, IOError) and err.errno == ENOENT:
                     logger.info('not yet created')
                 else:
-                    logger.info('failed: %s' % err)
+                    logger.info('failed: %s', err)
                 self._init_env(freshenv=True)
 
     def _init_builder(self, buildername):

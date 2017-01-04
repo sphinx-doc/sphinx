@@ -122,7 +122,7 @@ class LaTeXBuilder(Builder):
             destination = FileOutput(
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
-            logger.info("processing " + targetname + "... ", nonl=1)
+            logger.info("processing %s...", targetname, nonl=1)
             toctrees = self.env.get_doctree(docname).traverse(addnodes.toctree)
             if toctrees:
                 if toctrees[0].get('maxdepth') > 0:
@@ -241,7 +241,7 @@ class LaTeXBuilder(Builder):
 def validate_config_values(app):
     # type: (Sphinx) -> None
     if app.config.latex_toplevel_sectioning not in (None, 'part', 'chapter', 'section'):
-        logger.warning('invalid latex_toplevel_sectioning, ignored: %s' %
+        logger.warning('invalid latex_toplevel_sectioning, ignored: %s',
                        app.config.latex_toplevel_sectioning)
         app.config.latex_toplevel_sectioning = None  # type: ignore
 
