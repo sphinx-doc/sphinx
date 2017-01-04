@@ -42,7 +42,7 @@ from docutils.utils import relative_path
 import sphinx
 from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
-from sphinx.util import requests
+from sphinx.util import requests, logging
 
 if False:
     # For type annotation
@@ -56,6 +56,7 @@ if False:
 
     Inventory = Dict[unicode, Dict[unicode, Tuple[unicode, unicode, unicode, unicode]]]
 
+logger = logging.getLogger(__name__)
 
 UTF8StreamReader = codecs.lookup('utf-8')[2]
 
@@ -228,14 +229,14 @@ def fetch_inventory(app, uri, inv):
         else:
             f = open(path.join(app.srcdir, inv), 'rb')
     except Exception as err:
-        app.warn('intersphinx inventory %r not fetchable due to '
-                 '%s: %s' % (inv, err.__class__, err))
+        logger.warning('intersphinx inventory %r not fetchable due to %s: %s',
+                       inv, err.__class__, err)
         return
     try:
         if hasattr(f, 'url'):
             newinv = f.url  # type: ignore
             if inv != newinv:
-                app.info('intersphinx inventory has moved: %s -> %s' % (inv, newinv))
+                logger.info('intersphinx inventory has moved: %s -> %s', inv, newinv)
 
                 if uri in (inv, path.dirname(inv), path.dirname(inv) + '/'):
                     uri = path.dirname(newinv)
@@ -246,8 +247,8 @@ def fetch_inventory(app, uri, inv):
             except ValueError:
                 raise ValueError('unknown or unsupported inventory version')
     except Exception as err:
-        app.warn('intersphinx inventory %r not readable due to '
-                 '%s: %s' % (inv, err.__class__.__name__, err))
+        logger.warning('intersphinx inventory %r not readable due to %s: %s',
+                       inv, err.__class__.__name__, err)
     else:
         return invdata
 
@@ -273,7 +274,7 @@ def load_mappings(app):
             # new format
             name, (uri, inv) = key, value
             if not isinstance(name, string_types):
-                app.warn('intersphinx identifier %r is not string. Ignored' % name)
+                logger.warning('intersphinx identifier %r is not string. Ignored', name)
                 continue
         else:
             # old format, no name
@@ -294,8 +295,7 @@ def load_mappings(app):
             if '://' not in inv or uri not in cache \
                     or cache[uri][1] < cache_time:
                 safe_inv_url = _get_safe_url(inv)  # type: ignore
-                app.info(
-                    'loading intersphinx inventory from %s...' % safe_inv_url)
+                logger.info('loading intersphinx inventory from %s...', safe_inv_url)
                 invdata = fetch_inventory(app, uri, inv)
                 if invdata:
                     cache[uri] = (name, now, invdata)

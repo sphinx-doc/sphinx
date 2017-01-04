@@ -24,6 +24,7 @@ from sphinx.transforms.i18n import (
     PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
 )
 from sphinx.util import import_object, split_docinfo
+from sphinx.util.docutils import LoggingReporter
 
 if False:
     # For type annotation
@@ -72,6 +73,14 @@ class SphinxBaseReader(standalone.Reader):
     def get_transforms(self):
         # type: () -> List[Transform]
         return standalone.Reader.get_transforms(self) + self.transforms
+
+    def new_document(self):
+        document = standalone.Reader.new_document(self)
+        reporter = document.reporter
+        document.reporter = LoggingReporter(reporter.source, reporter.report_level,
+                                            reporter.halt_level, reporter.debug_flag,
+                                            reporter.error_handler)
+        return document
 
 
 class SphinxStandaloneReader(SphinxBaseReader):

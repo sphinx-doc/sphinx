@@ -20,7 +20,7 @@ from docutils.utils import new_document
 from docutils.frontend import OptionParser
 
 from sphinx import package_dir, addnodes, highlighting
-from sphinx.util import texescape
+from sphinx.util import texescape, logging
 from sphinx.config import string_classes, ENUM
 from sphinx.errors import SphinxError
 from sphinx.locale import _
@@ -36,6 +36,9 @@ if False:
     # For type annotation
     from typing import Any, Iterable, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 
 class LaTeXBuilder(Builder):
@@ -73,16 +76,16 @@ class LaTeXBuilder(Builder):
         # type: () -> None
         preliminary_document_data = [list(x) for x in self.config.latex_documents]
         if not preliminary_document_data:
-            self.warn('no "latex_documents" config value found; no documents '
-                      'will be written')
+            logger.warning('no "latex_documents" config value found; no documents '
+                           'will be written')
             return
         # assign subdirs to titles
         self.titles = []  # type: List[Tuple[unicode, unicode]]
         for entry in preliminary_document_data:
             docname = entry[0]
             if docname not in self.env.all_docs:
-                self.warn('"latex_documents" config value references unknown '
-                          'document %s' % docname)
+                logger.warning('"latex_documents" config value references unknown '
+                               'document %s', docname)
                 continue
             self.document_data.append(entry)  # type: ignore
             if docname.endswith(SEP+'index'):
@@ -119,7 +122,7 @@ class LaTeXBuilder(Builder):
             destination = FileOutput(
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
-            self.info("processing " + targetname + "... ", nonl=1)
+            logger.info("processing %s...", targetname, nonl=1)
             toctrees = self.env.get_doctree(docname).traverse(addnodes.toctree)
             if toctrees:
                 if toctrees[0].get('maxdepth') > 0:
@@ -133,7 +136,7 @@ class LaTeXBuilder(Builder):
                 appendices=((docclass != 'howto') and self.config.latex_appendices or []))
             doctree['tocdepth'] = tocdepth
             self.post_process_images(doctree)
-            self.info("writing... ", nonl=1)
+            logger.info("writing... ", nonl=1)
             doctree.settings = docsettings
             doctree.settings.author = author
             doctree.settings.title = title
@@ -141,7 +144,7 @@ class LaTeXBuilder(Builder):
             doctree.settings.docname = docname
             doctree.settings.docclass = docclass
             docwriter.write(doctree, destination)
-            self.info("done")
+            logger.info("done")
 
     def get_contentsname(self, indexfile):
         # type: (unicode) -> unicode
@@ -157,7 +160,7 @@ class LaTeXBuilder(Builder):
     def assemble_doctree(self, indexfile, toctree_only, appendices):
         # type: (unicode, bool, List[unicode]) -> nodes.Node
         self.docnames = set([indexfile] + appendices)
-        self.info(darkgreen(indexfile) + " ", nonl=1)
+        logger.info(darkgreen(indexfile) + " ", nonl=1)
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
         if toctree_only:
@@ -178,8 +181,8 @@ class LaTeXBuilder(Builder):
             appendix = self.env.get_doctree(docname)
             appendix['docname'] = docname
             largetree.append(appendix)
-        self.info()
-        self.info("resolving references...")
+        logger.info('')
+        logger.info("resolving references...")
         self.env.resolve_references(largetree, indexfile, self)
         # resolve :ref:s to distant tex files -- we can't add a cross-reference,
         # but append the document name
@@ -202,16 +205,16 @@ class LaTeXBuilder(Builder):
         # type: () -> None
         # copy image files
         if self.images:
-            self.info(bold('copying images...'), nonl=1)
+            logger.info(bold('copying images...'), nonl=1)
             for src, dest in iteritems(self.images):
-                self.info(' '+src, nonl=1)
+                logger.info(' '+src, nonl=1)
                 copy_asset_file(path.join(self.srcdir, src),
                                 path.join(self.outdir, dest))
-            self.info()
+            logger.info('')
 
         # copy TeX support files from texinputs
         context = {'latex_engine': self.config.latex_engine}
-        self.info(bold('copying TeX support files...'))
+        logger.info(bold('copying TeX support files...'))
         staticdirname = path.join(package_dir, 'texinputs')
         for filename in os.listdir(staticdirname):
             if not filename.startswith('.'):
@@ -220,11 +223,11 @@ class LaTeXBuilder(Builder):
 
         # copy additional files
         if self.config.latex_additional_files:
-            self.info(bold('copying additional files...'), nonl=1)
+            logger.info(bold('copying additional files...'), nonl=1)
             for filename in self.config.latex_additional_files:
-                self.info(' '+filename, nonl=1)
+                logger.info(' '+filename, nonl=1)
                 copy_asset_file(path.join(self.confdir, filename), self.outdir)
-            self.info()
+            logger.info('')
 
         # the logo is handled differently
         if self.config.latex_logo:
@@ -232,56 +235,64 @@ class LaTeXBuilder(Builder):
                 raise SphinxError('logo file %r does not exist' % self.config.latex_logo)
             else:
                 copy_asset_file(path.join(self.confdir, self.config.latex_logo), self.outdir)
-        self.info('done')
+        logger.info('done')
 
 
 def validate_config_values(app):
     # type: (Sphinx) -> None
     if app.config.latex_toplevel_sectioning not in (None, 'part', 'chapter', 'section'):
-        app.warn('invalid latex_toplevel_sectioning, ignored: %s' %
-                 app.config.latex_toplevel_sectioning)
+        logger.warning('invalid latex_toplevel_sectioning, ignored: %s',
+                       app.config.latex_toplevel_sectioning)
         app.config.latex_toplevel_sectioning = None  # type: ignore
 
     if app.config.latex_use_parts:
         if app.config.latex_toplevel_sectioning:
-            app.warn('latex_use_parts conflicts with latex_toplevel_sectioning, ignored.')
+            logger.warning('latex_use_parts conflicts with '
+                           'latex_toplevel_sectioning, ignored.')
         else:
-            app.warn('latex_use_parts is deprecated. Use latex_toplevel_sectioning instead.')
+            logger.warning('latex_use_parts is deprecated. '
+                           'Use latex_toplevel_sectioning instead.')
             app.config.latex_toplevel_sectioning = 'part'  # type: ignore
 
     if app.config.latex_use_modindex is not True:  # changed by user
-        app.warn('latex_use_modindex is deprecated. Use latex_domain_indices instead.')
+        logger.warning('latex_use_modindex is deprecated. '
+                       'Use latex_domain_indices instead.')
 
     if app.config.latex_preamble:
         if app.config.latex_elements.get('preamble'):
-            app.warn("latex_preamble conflicts with latex_elements['preamble'], ignored.")
+            logger.warning("latex_preamble conflicts with "
+                           "latex_elements['preamble'], ignored.")
         else:
-            app.warn("latex_preamble is deprecated. Use latex_elements['preamble'] instead.")
+            logger.warning("latex_preamble is deprecated. "
+                           "Use latex_elements['preamble'] instead.")
             app.config.latex_elements['preamble'] = app.config.latex_preamble
 
     if app.config.latex_paper_size != 'letter':
         if app.config.latex_elements.get('papersize'):
-            app.warn("latex_paper_size conflicts with latex_elements['papersize'], ignored.")
+            logger.warning("latex_paper_size conflicts with "
+                           "latex_elements['papersize'], ignored.")
         else:
-            app.warn("latex_paper_size is deprecated. "
-                     "Use latex_elements['papersize'] instead.")
+            logger.warning("latex_paper_size is deprecated. "
+                           "Use latex_elements['papersize'] instead.")
             if app.config.latex_paper_size:
                 app.config.latex_elements['papersize'] = app.config.latex_paper_size + 'paper'
 
     if app.config.latex_font_size != '10pt':
         if app.config.latex_elements.get('pointsize'):
-            app.warn("latex_font_size conflicts with latex_elements['pointsize'], ignored.")
+            logger.warning("latex_font_size conflicts with "
+                           "latex_elements['pointsize'], ignored.")
         else:
-            app.warn("latex_font_size is deprecated. Use latex_elements['pointsize'] instead.")
+            logger.warning("latex_font_size is deprecated. "
+                           "Use latex_elements['pointsize'] instead.")
             app.config.latex_elements['pointsize'] = app.config.latex_font_size
 
     if 'footer' in app.config.latex_elements:
         if 'postamble' in app.config.latex_elements:
-            app.warn("latex_elements['footer'] conflicts with "
-                     "latex_elements['postamble'], ignored.")
+            logger.warning("latex_elements['footer'] conflicts with "
+                           "latex_elements['postamble'], ignored.")
         else:
-            app.warn("latex_elements['footer'] is deprecated. "
-                     "Use latex_elements['preamble'] instead.")
+            logger.warning("latex_elements['footer'] is deprecated. "
+                           "Use latex_elements['preamble'] instead.")
             app.config.latex_elements['postamble'] = app.config.latex_elements['footer']
 
 

@@ -16,7 +16,7 @@ from itertools import groupby
 
 from six import text_type
 from sphinx import addnodes
-from sphinx.util import iteritems, split_index_msg, split_into
+from sphinx.util import iteritems, split_index_msg, split_into, logging
 from sphinx.locale import _
 from sphinx.environment.managers import EnvironmentManager
 
@@ -26,6 +26,8 @@ if False:
     from docutils import nodes  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class IndexEntries(EnvironmentManager):
@@ -53,7 +55,7 @@ class IndexEntries(EnvironmentManager):
                 for entry in node['entries']:
                     split_index_msg(entry[0], entry[1])
             except ValueError as exc:
-                self.env.warn_node(exc, node)
+                logger.warning(str(exc), location=node)
                 node.parent.remove(node)
             else:
                 for entry in node['entries']:
@@ -119,9 +121,9 @@ class IndexEntries(EnvironmentManager):
                         add_entry(first, _('see also %s') % second, None,
                                   link=False, key=index_key)
                     else:
-                        self.env.warn(fn, 'unknown index entry type %r' % type)
+                        logger.warning('unknown index entry type %r', type, location=fn)
                 except ValueError as err:
-                    self.env.warn(fn, str(err))
+                    logger.warning(str(err), location=fn)
 
         # sort the index entries; put all symbols at the front, even those
         # following the letters in ASCII, this is where the chr(127) comes from

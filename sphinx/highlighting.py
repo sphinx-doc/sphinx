@@ -11,6 +11,7 @@
 
 from six import text_type
 
+from sphinx.util import logging
 from sphinx.util.pycompat import htmlescape
 from sphinx.util.texescape import tex_hl_escape_map_new
 from sphinx.ext import doctest
@@ -25,6 +26,8 @@ from pygments.filters import ErrorToken
 from pygments.styles import get_style_by_name
 from pygments.util import ClassNotFound
 from sphinx.pygments_styles import SphinxStyle, NoneStyle
+
+logger = logging.getLogger(__name__)
 
 lexers = dict(
     none = TextLexer(stripnl=False),
@@ -92,7 +95,7 @@ class PygmentsBridge(object):
             return '\\begin{Verbatim}[commandchars=\\\\\\{\\}]\n' + \
                    source + '\\end{Verbatim}\n'
 
-    def highlight_block(self, source, lang, opts=None, warn=None, force=False, **kwargs):
+    def highlight_block(self, source, lang, opts=None, location=None, force=False, **kwargs):
         if not isinstance(source, text_type):
             source = source.decode()
 
@@ -120,11 +123,9 @@ class PygmentsBridge(object):
                 try:
                     lexer = lexers[lang] = get_lexer_by_name(lang, **(opts or {}))
                 except ClassNotFound:
-                    if warn:
-                        warn('Pygments lexer name %r is not known' % lang)
-                        lexer = lexers['none']
-                    else:
-                        raise
+                    logger.warning('Pygments lexer name %r is not known', lang,
+                                   location=location)
+                    lexer = lexers['none']
                 else:
                     lexer.add_filter('raiseonerror')
 
@@ -137,17 +138,16 @@ class PygmentsBridge(object):
         formatter = self.get_formatter(**kwargs)
         try:
             hlsource = highlight(source, lexer, formatter)
-        except ErrorToken as exc:
+        except ErrorToken:
             # this is most probably not the selected language,
             # so let it pass unhighlighted
             if lang == 'default':
                 pass  # automatic highlighting failed.
-            elif warn:
-                warn('Could not lex literal_block as "%s". '
-                     'Highlighting skipped.' % lang,
-                     type='misc', subtype='highlighting_failure')
             else:
-                raise exc
+                logger.warning('Could not lex literal_block as "%s". '
+                               'Highlighting skipped.', lang,
+                               type='misc', subtype='highlighting_failure',
+                               location=location)
             hlsource = highlight(source, lexers['none'], formatter)
         if self.dest == 'html':
             return hlsource

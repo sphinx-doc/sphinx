@@ -22,11 +22,14 @@ from docutils.utils import column_width
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
+from sphinx.util import logging
 
 if False:
     # For type annotation
     from typing import Any, Callable, Tuple, Union  # NOQA
     from sphinx.builders.text import TextBuilder  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class TextWrapper(textwrap.TextWrapper):
@@ -1174,10 +1177,10 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_math(self, node):
         # type: (nodes.Node) -> None
-        self.builder.warn('using "math" markup without a Sphinx math extension '
-                          'active, please use one of the math extensions '
-                          'described at http://sphinx-doc.org/ext/math.html',
-                          (self.builder.current_docname, node.line))
+        logger.warning('using "math" markup without a Sphinx math extension '
+                       'active, please use one of the math extensions '
+                       'described at http://sphinx-doc.org/ext/math.html',
+                       location=(self.builder.current_docname, node.line))
         raise nodes.SkipNode
 
     visit_math_block = visit_math

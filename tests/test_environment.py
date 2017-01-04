@@ -9,33 +9,24 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six import PY3
+from six import StringIO
 
-from util import TestApp, remove_unicode_literals, path
+from util import TestApp, path
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
 
 app = env = None
-warnings = []
 
 
 def setup_module():
     global app, env
-    app = TestApp(srcdir='root-envtest')
+    app = TestApp(srcdir='root-envtest', warning=StringIO())
     env = app.env
-    env.set_warnfunc(lambda *args, **kwargs: warnings.append(args))
 
 
 def teardown_module():
     app.cleanup()
-
-
-def warning_emitted(file, text):
-    for warning in warnings:
-        if len(warning) == 2 and file in warning[1] and text in warning[0]:
-            return True
-    return False
 
 
 # Tests are run in the order they appear in the file, therefore we can
@@ -49,12 +40,12 @@ def test_first_update():
 
 
 def test_images():
-    assert warning_emitted('images', 'image file not readable: foo.png')
-    assert warning_emitted('images', 'nonlocal image URI found: '
-                           'http://www.python.org/logo.png')
+    assert ('image file not readable: foo.png'
+            in app._warning.getvalue())
+    assert ('nonlocal image URI found: http://www.python.org/logo.png'
+            in app._warning.getvalue())
 
     tree = env.get_doctree('images')
-    app._warning.reset()
     htmlbuilder = StandaloneHTMLBuilder(app)
     htmlbuilder.imgpath = 'dummy'
     htmlbuilder.post_process_images(tree)
@@ -64,7 +55,6 @@ def test_images():
     assert set(htmlbuilder.images.values()) == \
         set(['img.png', 'img1.png', 'simg.png', 'svgimg.svg', 'img.foo.png'])
 
-    app._warning.reset()
     latexbuilder = LaTeXBuilder(app)
     latexbuilder.post_process_images(tree)
     assert set(latexbuilder.images.keys()) == \

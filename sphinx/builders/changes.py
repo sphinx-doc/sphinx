@@ -18,6 +18,7 @@ from sphinx import package_dir
 from sphinx.locale import _
 from sphinx.theming import Theme
 from sphinx.builders import Builder
+from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.fileutil import copy_asset_file
@@ -29,6 +30,9 @@ if False:
     from sphinx.application import Sphinx  # NOQA
 
 
+logger = logging.getLogger(__name__)
+
+
 class ChangesBuilder(Builder):
     """
     Write a summary with all versionadded/changed directives.
@@ -38,8 +42,7 @@ class ChangesBuilder(Builder):
     def init(self):
         # type: () -> None
         self.create_template_bridge()
-        Theme.init_themes(self.confdir, self.config.html_theme_path,
-                          warn=self.warn)
+        Theme.init_themes(self.confdir, self.config.html_theme_path)
         self.theme = Theme('default')
         self.templates.init(self, self.theme)
 
@@ -60,9 +63,9 @@ class ChangesBuilder(Builder):
         apichanges = []     # type: List[Tuple[unicode, unicode, int]]
         otherchanges = {}   # type: Dict[Tuple[unicode, unicode], List[Tuple[unicode, unicode, int]]]  # NOQA
         if version not in self.env.versionchanges:
-            self.info(bold('no changes in version %s.' % version))
+            logger.info(bold('no changes in version %s.' % version))
             return
-        self.info(bold('writing summary file...'))
+        logger.info(bold('writing summary file...'))
         for type, docname, lineno, module, descname, content in \
                 self.env.versionchanges[version]:
             if isinstance(descname, tuple):
@@ -126,14 +129,14 @@ class ChangesBuilder(Builder):
                     break
             return line
 
-        self.info(bold('copying source files...'))
+        logger.info(bold('copying source files...'))
         for docname in self.env.all_docs:
             with codecs.open(self.env.doc2path(docname), 'r',  # type: ignore
                              self.env.config.source_encoding) as f:
                 try:
                     lines = f.readlines()
                 except UnicodeDecodeError:
-                    self.warn('could not read %r for changelog creation' % docname)
+                    logger.warning('could not read %r for changelog creation', docname)
                     continue
             targetfn = path.join(self.outdir, 'rst', os_path(docname)) + '.html'
             ensuredir(path.dirname(targetfn))

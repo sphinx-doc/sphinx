@@ -19,6 +19,7 @@ from os import path
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.util import logging
 from sphinx.util.osutil import make_filename
 from sphinx.builders.html import StandaloneHTMLBuilder
 
@@ -31,6 +32,9 @@ if False:
     # For type annotation
     from typing import Any  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 
 class DevhelpBuilder(StandaloneHTMLBuilder):
@@ -60,7 +64,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
 
     def build_devhelp(self, outdir, outname):
         # type: (unicode, unicode) -> None
-        self.info('dumping devhelp index...')
+        logger.info('dumping devhelp index...')
 
         # Basic info
         root = etree.Element('book',

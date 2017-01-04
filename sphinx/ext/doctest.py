@@ -25,7 +25,7 @@ from docutils.parsers.rst import Directive, directives
 
 import sphinx
 from sphinx.builders import Builder
-from sphinx.util import force_decode
+from sphinx.util import force_decode, logging
 from sphinx.util.nodes import set_source_info
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.osutil import fs_encoding
@@ -34,6 +34,8 @@ if False:
     # For type annotation
     from typing import Any, Callable, IO, Iterable, Sequence, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+logger = logging.getLogger(__name__)
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
 doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
@@ -262,15 +264,15 @@ Results of doctest builder run on %s
 
     def _out(self, text):
         # type: (unicode) -> None
-        self.info(text, nonl=True)
+        logger.info(text, nonl=True)
         self.outfile.write(text)
 
     def _warn_out(self, text):
         # type: (unicode) -> None
         if self.app.quiet or self.app.warningiserror:
-            self.warn(text)
+            logger.warning(text)
         else:
-            self.info(text, nonl=True)
+            logger.info(text, nonl=True)
         if isinstance(text, binary_type):
             text = force_decode(text, None)
         self.outfile.write(text)
@@ -311,7 +313,7 @@ Doctest summary
         if build_docnames is None:
             build_docnames = sorted(self.env.all_docs)
 
-        self.info(bold('running tests...'))
+        logger.info(bold('running tests...'))
         for docname in build_docnames:
             # no need to resolve the doctree
             doctree = self.env.get_doctree(docname)
@@ -345,9 +347,9 @@ Doctest summary
         for node in doctree.traverse(condition):
             source = 'test' in node and node['test'] or node.astext()
             if not source:
-                self.warn('no code/output in %s block at %s:%s' %
-                          (node.get('testnodetype', 'doctest'),
-                           self.env.doc2path(docname), node.line))
+                logger.warning('no code/output in %s block at %s:%s',
+                               node.get('testnodetype', 'doctest'),
+                               self.env.doc2path(docname), node.line)
             code = TestCode(source, type=node.get('testnodetype', 'doctest'),
                             lineno=node.line, options=node.get('options'))
             node_groups = node.get('groups', ['default'])
@@ -440,9 +442,8 @@ Doctest summary
                         doctest_encode(code[0].code, self.env.config.source_encoding), {},  # type: ignore  # NOQA
                         group.name, filename_str, code[0].lineno)
                 except Exception:
-                    self.warn('ignoring invalid doctest code: %r' %
-                              code[0].code,
-                              '%s:%s' % (filename, code[0].lineno))
+                    logger.warning('ignoring invalid doctest code: %r', code[0].code,
+                                   location=(filename, code[0].lineno))
                     continue
                 if not test.examples:
                     continue

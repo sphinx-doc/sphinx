@@ -87,7 +87,8 @@ def test_extension_values(app, status, warning):
 
 
 @with_tempdir
-def test_errors_warnings(dir):
+@mock.patch("sphinx.config.logger")
+def test_errors_warnings(dir, logger):
     # test the error for syntax errors in the config file
     (dir / 'conf.py').write_text(u'project = \n', encoding='ascii')
     raises_msg(ConfigError, 'conf.py', Config, dir, 'conf.py', {}, None)
@@ -97,8 +98,9 @@ def test_errors_warnings(dir):
         u'# -*- coding: utf-8\n\nproject = u"Jägermeister"\n',
         encoding='utf-8')
     cfg = Config(dir, 'conf.py', {}, None)
-    cfg.init_values(lambda warning: 1/0)
+    cfg.init_values()
     assert cfg.project == u'Jägermeister'
+    assert logger.called is False
 
     # test the warning for bytestrings with non-ascii content
     # bytestrings with non-ascii content are a syntax error in python3 so we
@@ -108,13 +110,10 @@ def test_errors_warnings(dir):
     (dir / 'conf.py').write_text(
         u'# -*- coding: latin-1\nproject = "fooä"\n', encoding='latin-1')
     cfg = Config(dir, 'conf.py', {}, None)
-    warned = [False]
 
-    def warn(msg):
-        warned[0] = True
-
-    cfg.check_unicode(warn)
-    assert warned[0]
+    assert logger.warning.called is False
+    cfg.check_unicode()
+    assert logger.warning.called is True
 
 
 @with_tempdir
@@ -152,14 +151,16 @@ def test_needs_sphinx():
 
 
 @with_tempdir
-def test_config_eol(tmpdir):
+@mock.patch("sphinx.config.logger")
+def test_config_eol(tmpdir, logger):
     # test config file's eol patterns: LF, CRLF
     configfile = tmpdir / 'conf.py'
     for eol in (b'\n', b'\r\n'):
         configfile.write_bytes(b'project = "spam"' + eol)
         cfg = Config(tmpdir, 'conf.py', {}, None)
-        cfg.init_values(lambda warning: 1/0)
+        cfg.init_values()
         assert cfg.project == u'spam'
+        assert logger.called is False
 
 
 @with_app(confoverrides={'master_doc': 123,

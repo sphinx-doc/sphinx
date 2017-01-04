@@ -22,8 +22,11 @@ from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
 from sphinx import addnodes
 from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
+from sphinx.util import logging
 from sphinx.util.images import get_image_size
 from sphinx.util.smartypants import sphinx_smarty_pants
+
+logger = logging.getLogger(__name__)
 
 # A good overview of the purpose behind these classes can be found here:
 # http://www.arnebrodowski.de/blog/write-your-own-restructuredtext-writer.html
@@ -289,7 +292,7 @@ class HTMLTranslator(BaseTranslator):
                 prefix = self.builder.config.numfig_format.get(figtype)
                 if prefix is None:
                     msg = 'numfig_format is not defined for %s' % figtype
-                    self.builder.warn(msg)
+                    logger.warning(msg)
                 else:
                     numbers = self.builder.fignumbers[key][figure_id]
                     self.body.append(prefix % '.'.join(map(str, numbers)) + ' ')
@@ -299,7 +302,7 @@ class HTMLTranslator(BaseTranslator):
         if figtype:
             if len(node['ids']) == 0:
                 msg = 'Any IDs not assigned for %s node' % node.tagname
-                self.builder.env.warn_node(msg, node)
+                logger.warning(msg, location=node)
             else:
                 append_fignumber(figtype, node['ids'][0])
 
@@ -364,11 +367,10 @@ class HTMLTranslator(BaseTranslator):
         else:
             opts = {}
 
-        def warner(msg, **kwargs):
-            self.builder.warn(msg, (self.builder.current_docname, node.line), **kwargs)
         highlighted = self.highlighter.highlight_block(
-            node.rawsource, lang, opts=opts, warn=warner, linenos=linenos,
-            **highlight_args)
+            node.rawsource, lang, opts=opts, linenos=linenos,
+            location=(self.builder.current_docname, node.line), **highlight_args
+        )
         starttag = self.starttag(node, 'div', suffix='',
                                  CLASS='highlight-%s' % lang)
         self.body.append(starttag + highlighted + '</div>\n')
@@ -523,8 +525,8 @@ class HTMLTranslator(BaseTranslator):
             if not ('width' in node and 'height' in node):
                 size = get_image_size(os.path.join(self.builder.srcdir, olduri))
                 if size is None:
-                    self.builder.env.warn_node('Could not obtain image size. '
-                                               ':scale: option is ignored.', node)
+                    logger.warning('Could not obtain image size. :scale: option is ignored.',
+                                   location=node)
                 else:
                     if 'width' not in node:
                         node['width'] = str(size[0])
@@ -756,10 +758,10 @@ class HTMLTranslator(BaseTranslator):
         self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
 
     def visit_math(self, node, math_env=''):
-        self.builder.warn('using "math" markup without a Sphinx math extension '
-                          'active, please use one of the math extensions '
-                          'described at http://sphinx-doc.org/ext/math.html',
-                          (self.builder.current_docname, node.line))
+        logger.warning('using "math" markup without a Sphinx math extension '
+                       'active, please use one of the math extensions '
+                       'described at http://sphinx-doc.org/ext/math.html',
+                       location=(self.builder.current_docname, node.line))
         raise nodes.SkipNode
 
     def unknown_visit(self, node):

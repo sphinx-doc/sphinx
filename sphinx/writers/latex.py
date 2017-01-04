@@ -26,7 +26,7 @@ from sphinx import highlighting
 from sphinx.errors import SphinxError
 from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
-from sphinx.util import split_into
+from sphinx.util import split_into, logging
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext, traverse_parent
 from sphinx.util.template import LaTeXRenderer
@@ -38,6 +38,7 @@ if False:
     from typing import Any, Callable, Iterator, Pattern, Tuple, Union  # NOQA
     from sphinx.builder import Builder  # NOQA
 
+logger = logging.getLogger(__name__)
 
 BEGIN_DOC = r'''
 \begin{document}
@@ -438,8 +439,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if builder.config.language and not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
-            self.builder.warn('no Babel option known for language %r' %
-                              builder.config.language)
+            logger.warning('no Babel option known for language %r',
+                           builder.config.language)
 
         # simply use babel.get_language() always, as get_language() returns
         # 'english' even if language is invalid or empty
@@ -490,7 +491,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             tocdepth = document['tocdepth'] + self.top_sectionlevel - 2
             maxdepth = len(self.sectionnames) - self.top_sectionlevel
             if tocdepth > maxdepth:
-                self.builder.warn('too large :maxdepth:, ignored.')
+                logger.warning('too large :maxdepth:, ignored.')
                 tocdepth = maxdepth
 
             self.elements['tocdepth'] = '\\setcounter{tocdepth}{%d}' % tocdepth
@@ -566,7 +567,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         for key in self.builder.config.latex_elements:
             if key not in self.elements:
                 msg = _("Unknown configure key: latex_elements[%r] is ignored.")
-                self.builder.warn(msg % key)
+                logger.warning(msg % key)
 
     def restrict_footnote(self, node):
         # type: (nodes.Node) -> None
@@ -891,8 +892,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if self.this_is_the_title:
                 if len(node.children) != 1 and not isinstance(node.children[0],
                                                               nodes.Text):
-                    self.builder.warn('document title is not a single Text node',
-                                      (self.curfilestack[-1], node.line))
+                    logger.warning('document title is not a single Text node',
+                                   location=(self.curfilestack[-1], node.line))
                 if not self.elements['title']:
                     # text needs to be escaped since it is inserted into
                     # the output literally
@@ -930,10 +931,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
             # Redirect body output until title is finished.
             self.pushbody([])
         else:
-            self.builder.warn(
-                'encountered title node not in section, topic, table, '
-                'admonition or sidebar',
-                (self.curfilestack[-1], node.line or ''))
+            logger.warning('encountered title node not in section, topic, table, '
+                           'admonition or sidebar',
+                           location=(self.curfilestack[-1], node.line or ''))
             self.body.append('\\sphinxstyleothertitle{')
             self.context.append('}\n')
         self.in_title = 1
@@ -1573,7 +1573,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         try:
             return rstdim_to_latexdim(width_str)
         except ValueError:
-            self.builder.warn('dimension unit %s is invalid. Ignored.' % width_str)
+            logger.warning('dimension unit %s is invalid. Ignored.', width_str)
 
     def is_inline(self, node):
         # type: (nodes.Node) -> bool
@@ -1886,10 +1886,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     p1, p2 = [self.encode(x) for x in split_into(2, 'seealso', string)]
                     self.body.append(r'\index{%s|see{%s}}' % (p1, p2))
                 else:
-                    self.builder.warn(
-                        'unknown index entry type %s found' % type)
+                    logger.warning('unknown index entry type %s found', type)
             except ValueError as err:
-                self.builder.warn(str(err))
+                logger.warning(str(err))
         raise nodes.SkipNode
 
     def visit_raw(self, node):
@@ -1953,8 +1952,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 else:
                     self.context.append('}}}')
         else:
-            self.builder.warn('unusable reference target found: %s' % uri,
-                              (self.curfilestack[-1], node.line))
+            logger.warning('unusable reference target found: %s', uri,
+                           location=(self.curfilestack[-1], node.line))
             self.context.append('')
 
     def depart_reference(self, node):
@@ -2155,12 +2154,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 opts = {}
 
-            def warner(msg, **kwargs):
-                # type: (unicode) -> None
-                self.builder.warn(msg, (self.curfilestack[-1], node.line), **kwargs)
-            hlcode = self.highlighter.highlight_block(code, lang, opts=opts,
-                                                      warn=warner, linenos=linenos,
-                                                      **highlight_args)
+            hlcode = self.highlighter.highlight_block(
+                code, lang, opts=opts, linenos=linenos,
+                location=(self.curfilestack[-1], node.line), **highlight_args
+            )
             # workaround for Unicode issue
             hlcode = hlcode.replace(u'€', u'@texteuro[]')
             if self.in_footnote:
@@ -2461,10 +2458,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_math(self, node):
         # type: (nodes.Node) -> None
-        self.builder.warn('using "math" markup without a Sphinx math extension '
-                          'active, please use one of the math extensions '
-                          'described at http://sphinx-doc.org/ext/math.html',
-                          (self.curfilestack[-1], node.line))
+        logger.warning('using "math" markup without a Sphinx math extension '
+                       'active, please use one of the math extensions '
+                       'described at http://sphinx-doc.org/ext/math.html',
+                       location=(self.curfilestack[-1], node.line))
         raise nodes.SkipNode
 
     visit_math_block = visit_math

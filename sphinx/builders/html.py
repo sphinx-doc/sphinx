@@ -28,7 +28,7 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __display_version__
-from sphinx.util import jsonimpl
+from sphinx.util import jsonimpl, logging
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
@@ -56,6 +56,8 @@ if False:
 INVENTORY_FILENAME = 'objects.inv'
 #: the filename for the "last build" file (for serializing builders)
 LAST_BUILD_FILENAME = 'last_build'
+
+logger = logging.getLogger(__name__)
 
 
 def get_stable_hash(obj):
@@ -159,10 +161,9 @@ class StandaloneHTMLBuilder(Builder):
 
     def init_templates(self):
         # type: () -> None
-        Theme.init_themes(self.confdir, self.config.html_theme_path,
-                          warn=self.warn)
+        Theme.init_themes(self.confdir, self.config.html_theme_path)
         themename, themeoptions = self.get_theme_config()
-        self.theme = Theme(themename, warn=self.warn)
+        self.theme = Theme(themename)
         self.theme_options = themeoptions.copy()
         self.create_template_bridge()
         self.templates.init(self, self.theme)
@@ -208,8 +209,8 @@ class StandaloneHTMLBuilder(Builder):
                 if tag != 'tags':
                     raise ValueError
         except ValueError:
-            self.warn('unsupported build info format in %r, building all' %
-                      path.join(self.outdir, '.buildinfo'))
+            logger.warning('unsupported build info format in %r, building all',
+                           path.join(self.outdir, '.buildinfo'))
         except Exception:
             pass
         if old_config_hash != self.config_hash or \
@@ -314,8 +315,7 @@ class StandaloneHTMLBuilder(Builder):
         lufmt = self.config.html_last_updated_fmt
         if lufmt is not None:
             self.last_updated = format_date(lufmt or _('%b %d, %Y'),
-                                            language=self.config.language,
-                                            warn=self.warn)
+                                            language=self.config.language)
         else:
             self.last_updated = None
 
@@ -325,10 +325,10 @@ class StandaloneHTMLBuilder(Builder):
         favicon = self.config.html_favicon and \
             path.basename(self.config.html_favicon) or ''
         if favicon and os.path.splitext(favicon)[1] != '.ico':
-            self.warn('html_favicon is not an .ico file')
+            logger.warning('html_favicon is not an .ico file')
 
         if not isinstance(self.config.html_use_opensearch, string_types):
-            self.warn('html_use_opensearch config value must now be a string')
+            logger.warning('html_use_opensearch config value must now be a string')
 
         self.relations = self.env.collect_relations()
 
@@ -504,7 +504,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def gen_indices(self):
         # type: () -> None
-        self.info(bold('generating indices...'), nonl=1)
+        logger.info(bold('generating indices...'), nonl=1)
 
         # the global general index
         if self.use_index:
@@ -513,7 +513,7 @@ class StandaloneHTMLBuilder(Builder):
         # the global domain-specific indices
         self.write_domain_indices()
 
-        self.info()
+        logger.info('')
 
     def gen_additional_pages(self):
         # type: () -> None
@@ -522,25 +522,25 @@ class StandaloneHTMLBuilder(Builder):
             for pagename, context, template in pagelist:
                 self.handle_page(pagename, context, template)
 
-        self.info(bold('writing additional pages...'), nonl=1)
+        logger.info(bold('writing additional pages...'), nonl=1)
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
-            self.info(' '+pagename, nonl=1)
+            logger.info(' '+pagename, nonl=1)
             self.handle_page(pagename, {}, template)
 
         # the search page
         if self.search:
-            self.info(' search', nonl=1)
+            logger.info(' search', nonl=1)
             self.handle_page('search', {}, 'search.html')
 
         # the opensearch xml file
         if self.config.html_use_opensearch and self.search:
-            self.info(' opensearch', nonl=1)
+            logger.info(' opensearch', nonl=1)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
-        self.info()
+        logger.info('')
 
     def write_genindex(self):
         # type: () -> None
@@ -557,7 +557,7 @@ class StandaloneHTMLBuilder(Builder):
             genindexcounts = indexcounts,
             split_index = self.config.html_split_index,
         )
-        self.info(' genindex', nonl=1)
+        logger.info(' genindex', nonl=1)
 
         if self.config.html_split_index:
             self.handle_page('genindex', genindexcontext,
@@ -580,7 +580,7 @@ class StandaloneHTMLBuilder(Builder):
                 content = content,
                 collapse_index = collapse,
             )
-            self.info(' ' + indexname, nonl=1)
+            logger.info(' ' + indexname, nonl=1)
             self.handle_page(indexname, indexcontext, 'domainindex.html')
 
     def copy_image_files(self):
@@ -595,8 +595,8 @@ class StandaloneHTMLBuilder(Builder):
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, self.imagedir, dest))
                 except Exception as err:
-                    self.warn('cannot copy image file %r: %s' %
-                              (path.join(self.srcdir, src), err))
+                    logger.warning('cannot copy image file %r: %s',
+                                   path.join(self.srcdir, src), err)
 
     def copy_download_files(self):
         # type: () -> None
@@ -614,13 +614,13 @@ class StandaloneHTMLBuilder(Builder):
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_downloads', dest))
                 except Exception as err:
-                    self.warn('cannot copy downloadable file %r: %s' %
-                              (path.join(self.srcdir, src), err))
+                    logger.warning('cannot copy downloadable file %r: %s',
+                                   path.join(self.srcdir, src), err)
 
     def copy_static_files(self):
         # type: () -> None
         # copy static files
-        self.info(bold('copying static files... '), nonl=True)
+        logger.info(bold('copying static files... '), nonl=True)
         ensuredir(path.join(self.outdir, '_static'))
         # first, create pygments style file
         with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
@@ -655,7 +655,7 @@ class StandaloneHTMLBuilder(Builder):
         for static_path in self.config.html_static_path:
             entry = path.join(self.confdir, static_path)
             if not path.exists(entry):
-                self.warn('html_static_path entry %r does not exist' % entry)
+                logger.warning('html_static_path entry %r does not exist', entry)
                 continue
             copy_asset(entry, path.join(self.outdir, '_static'), excluded,
                        context=ctx, renderer=self.templates)
@@ -664,7 +664,7 @@ class StandaloneHTMLBuilder(Builder):
             logobase = path.basename(self.config.html_logo)
             logotarget = path.join(self.outdir, '_static', logobase)
             if not path.isfile(path.join(self.confdir, self.config.html_logo)):
-                self.warn('logo file %r does not exist' % self.config.html_logo)
+                logger.warning('logo file %r does not exist', self.config.html_logo)
             elif not path.isfile(logotarget):
                 copyfile(path.join(self.confdir, self.config.html_logo),
                          logotarget)
@@ -672,26 +672,26 @@ class StandaloneHTMLBuilder(Builder):
             iconbase = path.basename(self.config.html_favicon)
             icontarget = path.join(self.outdir, '_static', iconbase)
             if not path.isfile(path.join(self.confdir, self.config.html_favicon)):
-                self.warn('favicon file %r does not exist' % self.config.html_favicon)
+                logger.warning('favicon file %r does not exist', self.config.html_favicon)
             elif not path.isfile(icontarget):
                 copyfile(path.join(self.confdir, self.config.html_favicon),
                          icontarget)
-        self.info('done')
+        logger.info('done')
 
     def copy_extra_files(self):
         # type: () -> None
         # copy html_extra_path files
-        self.info(bold('copying extra files... '), nonl=True)
+        logger.info(bold('copying extra files... '), nonl=True)
         excluded = Matcher(self.config.exclude_patterns)
 
         for extra_path in self.config.html_extra_path:
             entry = path.join(self.confdir, extra_path)
             if not path.exists(entry):
-                self.warn('html_extra_path entry %r does not exist' % entry)
+                logger.warning('html_extra_path entry %r does not exist', entry)
                 continue
 
             copy_asset(entry, self.outdir, excluded)
-        self.info('done')
+        logger.info('done')
 
     def write_buildinfo(self):
         # type: () -> None
@@ -748,9 +748,9 @@ class StandaloneHTMLBuilder(Builder):
                 self.indexer.load(f, self.indexer_format)  # type: ignore
         except (IOError, OSError, ValueError):
             if keep:
-                self.warn('search index couldn\'t be loaded, but not all '
-                          'documents will be built: the index will be '
-                          'incomplete.')
+                logger.warning('search index couldn\'t be loaded, but not all '
+                               'documents will be built: the index will be '
+                               'incomplete.')
         # delete all entries for files that will be rebuilt
         self.indexer.prune(keep)
 
@@ -789,9 +789,9 @@ class StandaloneHTMLBuilder(Builder):
                     if has_wildcard(pattern):
                         # warn if both patterns contain wildcards
                         if has_wildcard(matched):
-                            self.warn('page %s matches two patterns in '
-                                      'html_sidebars: %r and %r' %
-                                      (pagename, matched, pattern))
+                            logger.warning('page %s matches two patterns in '
+                                           'html_sidebars: %r and %r',
+                                           pagename, matched, pattern)
                         # else the already matched pattern is more specific
                         # than the present one, because it contains no wildcard
                         continue
@@ -863,9 +863,9 @@ class StandaloneHTMLBuilder(Builder):
         try:
             output = self.templates.render(templatename, ctx)
         except UnicodeError:
-            self.warn("a Unicode error occurred when rendering the page %s. "
-                      "Please make sure all config values that contain "
-                      "non-ASCII content are Unicode strings." % pagename)
+            logger.warning("a Unicode error occurred when rendering the page %s. "
+                           "Please make sure all config values that contain "
+                           "non-ASCII content are Unicode strings.", pagename)
             return
 
         if not outfilename:
@@ -876,7 +876,7 @@ class StandaloneHTMLBuilder(Builder):
             with codecs.open(outfilename, 'w', encoding, 'xmlcharrefreplace') as f:  # type: ignore  # NOQA
                 f.write(output)
         except (IOError, OSError) as err:
-            self.warn("error writing file %s: %s" % (outfilename, err))
+            logger.warning("error writing file %s: %s", outfilename, err)
         if self.copysource and ctx.get('sourcename'):
             # copy the source file for the "show source" link
             source_name = path.join(self.outdir, '_sources',
@@ -892,7 +892,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def dump_inventory(self):
         # type: () -> None
-        self.info(bold('dumping object inventory... '), nonl=True)
+        logger.info(bold('dumping object inventory... '), nonl=True)
         with open(path.join(self.outdir, INVENTORY_FILENAME), 'wb') as f:
             f.write((u'# Sphinx inventory version 2\n'
                      u'# Project: %s\n'
@@ -915,11 +915,11 @@ class StandaloneHTMLBuilder(Builder):
                         (u'%s %s:%s %s %s %s\n' % (name, domainname, type,
                                                    prio, uri, dispname)).encode('utf-8')))
             f.write(compressor.flush())
-        self.info('done')
+        logger.info('done')
 
     def dump_search_index(self):
         # type: () -> None
-        self.info(
+        logger.info(
             bold('dumping search index in %s ... ' % self.indexer.label()),
             nonl=True)
         self.indexer.prune(self.env.all_docs)
@@ -933,7 +933,7 @@ class StandaloneHTMLBuilder(Builder):
         with f:
             self.indexer.dump(f, self.indexer_format)  # type: ignore
         movefile(searchindexfn + '.tmp', searchindexfn)
-        self.info('done')
+        logger.info('done')
 
 
 class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
@@ -1099,36 +1099,36 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         # type: (Any) -> None
         docnames = self.env.all_docs
 
-        self.info(bold('preparing documents... '), nonl=True)
+        logger.info(bold('preparing documents... '), nonl=True)
         self.prepare_writing(docnames)
-        self.info('done')
+        logger.info('done')
 
-        self.info(bold('assembling single document... '), nonl=True)
+        logger.info(bold('assembling single document... '), nonl=True)
         doctree = self.assemble_doctree()
         self.env.toc_secnumbers = self.assemble_toc_secnumbers()
         self.env.toc_fignumbers = self.assemble_toc_fignumbers()
-        self.info()
-        self.info(bold('writing... '), nonl=True)
+        logger.info('')
+        logger.info(bold('writing... '), nonl=True)
         self.write_doc_serialized(self.config.master_doc, doctree)
         self.write_doc(self.config.master_doc, doctree)
-        self.info('done')
+        logger.info('done')
 
     def finish(self):
         # type: () -> None
         # no indices or search pages are supported
-        self.info(bold('writing additional files...'), nonl=1)
+        logger.info(bold('writing additional files...'), nonl=1)
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
-            self.info(' '+pagename, nonl=1)
+            logger.info(' '+pagename, nonl=1)
             self.handle_page(pagename, {}, template)
 
         if self.config.html_use_opensearch:
-            self.info(' opensearch', nonl=1)
+            logger.info(' opensearch', nonl=1)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
-        self.info()
+        logger.info('')
 
         self.copy_image_files()
         self.copy_download_files()
@@ -1270,8 +1270,8 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
 def validate_config_values(app):
     # type: (Sphinx) -> None
     if app.config.html_translator_class:
-        app.warn('html_translator_class is deprecated. '
-                 'Use Sphinx.set_translator() API instead.')
+        logger.warning('html_translator_class is deprecated. '
+                       'Use Sphinx.set_translator() API instead.')
 
 
 def setup(app):

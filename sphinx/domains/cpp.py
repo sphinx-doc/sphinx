@@ -22,6 +22,7 @@ from sphinx.roles import XRefRole
 from sphinx.locale import l_, _
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
+from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
 from sphinx.util.pycompat import UnicodeMixin
 from sphinx.util.docfields import Field, GroupedField
@@ -33,6 +34,8 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+
+logger = logging.getLogger(__name__)
 
 """
     Important note on ids
@@ -3060,7 +3063,7 @@ class Symbol(object):
                     msg = "Duplicate declaration, also defined in '%s'.\n"
                     msg += "Declaration is '%s'."
                     msg = msg % (ourChild.docname, name)
-                    env.warn(otherChild.docname, msg)
+                    logger.warning(msg, location=otherChild.docname)
                 else:
                     # Both have declarations, and in the same docname.
                     # This can apparently happen, it should be safe to
@@ -4872,7 +4875,7 @@ class CPPDomain(Domain):
                     msg = "Duplicate declaration, also defined in '%s'.\n"
                     msg += "Name of declaration is '%s'."
                     msg = msg % (ourNames[name], name)
-                    self.env.warn(docname, msg)
+                    logger.warning(msg, docname)
                 else:
                     ourNames[name] = docname
 
@@ -4882,7 +4885,7 @@ class CPPDomain(Domain):
         class Warner(object):
             def warn(self, msg):
                 if emitWarnings:
-                    env.warn_node(msg, node)
+                    logger.warning(msg, location=node)
         warner = Warner()
         parser = DefinitionParser(target, warner, env.config)
         try:

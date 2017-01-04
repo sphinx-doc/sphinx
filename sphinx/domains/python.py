@@ -21,6 +21,7 @@ from sphinx.roles import XRefRole
 from sphinx.locale import l_, _
 from sphinx.domains import Domain, ObjType, Index
 from sphinx.directives import ObjectDescription
+from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
 from sphinx.util.docfields import Field, GroupedField, TypedField
 
@@ -30,6 +31,8 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 # REs for Python signatures
@@ -784,10 +787,9 @@ class PythonDomain(Domain):
         if not matches:
             return None
         elif len(matches) > 1:
-            env.warn_node(
-                'more than one target found for cross-reference '
-                '%r: %s' % (target, ', '.join(match[0] for match in matches)),
-                node)
+            logger.warning('more than one target found for cross-reference %r: %s',
+                           target, ', '.join(match[0] for match in matches),
+                           location=node)
         name, obj = matches[0]
 
         if obj[1] == 'module':

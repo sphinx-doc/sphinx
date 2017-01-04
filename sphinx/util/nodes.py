@@ -18,12 +18,15 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.locale import pairindextypes
+from sphinx.util import logging
 
 if False:
     # For type annotation
     from typing import Any, Callable, Iterable, Tuple, Union  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.utils.tags import Tags  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class WarningStream(object):
@@ -304,15 +307,14 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed
             if includefile not in traversed:
                 try:
                     traversed.append(includefile)
-                    builder.info(colorfunc(includefile) + " ", nonl=1)
+                    logger.info(colorfunc(includefile) + " ", nonl=1)
                     subtree = inline_all_toctrees(builder, docnameset, includefile,
                                                   builder.env.get_doctree(includefile),
                                                   colorfunc, traversed)
                     docnameset.add(includefile)
                 except Exception:
-                    builder.warn('toctree contains ref to nonexisting '
-                                 'file %r' % includefile,
-                                 builder.env.doc2path(docname))
+                    logger.warning('toctree contains ref to nonexisting file %r',
+                                   includefile, location=docname)
                 else:
                     sof = addnodes.start_of_file(docname=includefile)
                     sof.children = subtree.children
@@ -350,8 +352,8 @@ def set_role_source_info(inliner, lineno, node):
     node.source, node.line = inliner.reporter.get_source_and_line(lineno)
 
 
-def process_only_nodes(doctree, tags, warn_node=None):
-    # type: (nodes.Node, Tags, Callable) -> None
+def process_only_nodes(doctree, tags):
+    # type: (nodes.Node, Tags) -> None
     # A comment on the comment() nodes being inserted: replacing by [] would
     # result in a "Losing ids" exception if there is a target node before
     # the only node, so we make sure docutils can transfer the id to
@@ -360,10 +362,8 @@ def process_only_nodes(doctree, tags, warn_node=None):
         try:
             ret = tags.eval_condition(node['expr'])
         except Exception as err:
-            if warn_node is None:
-                raise err
-            warn_node('exception while evaluating only '
-                      'directive expression: %s' % err, node)
+            logger.warning('exception while evaluating only directive expression: %s', err,
+                           location=node)
             node.replace_self(node.children or nodes.comment())
         else:
             if ret:

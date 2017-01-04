@@ -16,6 +16,7 @@ from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integ
 
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
+from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import cd
 from sphinx.util.pycompat import execfile_, NoneType
@@ -24,6 +25,8 @@ if False:
     # For type annotation
     from typing import Any, Callable, Tuple  # NOQA
     from sphinx.util.tags import Tags  # NOQA
+
+logger = logging.getLogger(__name__)
 
 nonascii_re = re.compile(br'[\x80-\xff]')
 copyright_year_re = re.compile(r'^((\d{4}-)?)(\d{4})(?=[ ,])')
@@ -166,8 +169,8 @@ class Config(object):
                     config[k] = copyright_year_re.sub('\g<1>%s' % format_date('%Y'),  # type: ignore  # NOQA
                                                       config[k])
 
-    def check_types(self, warn):
-        # type: (Callable) -> None
+    def check_types(self):
+        # type: () -> None
         # check all values for deviation from the default value's type, since
         # that can result in TypeErrors all over the place
         # NB. since config values might use l_() we have to wait with calling
@@ -186,7 +189,7 @@ class Config(object):
             current = self[name]
             if isinstance(permitted, ENUM):
                 if not permitted.match(current):
-                    warn(CONFIG_ENUM_WARNING.format(
+                    logger.warning(CONFIG_ENUM_WARNING.format(
                         name=name, current=current, candidates=permitted.candidates))
             else:
                 if type(current) is type(default):
@@ -201,22 +204,22 @@ class Config(object):
                     continue  # at least we share a non-trivial base class
 
                 if permitted:
-                    warn(CONFIG_PERMITTED_TYPE_WARNING.format(
+                    logger.warning(CONFIG_PERMITTED_TYPE_WARNING.format(
                         name=name, current=type(current),
                         permitted=str([cls.__name__ for cls in permitted])))
                 else:
-                    warn(CONFIG_TYPE_WARNING.format(
+                    logger.warning(CONFIG_TYPE_WARNING.format(
                         name=name, current=type(current), default=type(default)))
 
-    def check_unicode(self, warn):
-        # type: (Callable) -> None
+    def check_unicode(self):
+        # type: () -> None
         # check all string values for non-ASCII characters in bytestrings,
         # since that can result in UnicodeErrors all over the place
         for name, value in iteritems(self._raw_config):
             if isinstance(value, binary_type) and nonascii_re.search(value):  # type: ignore
-                warn('the config value %r is set to a string with non-ASCII '
-                     'characters; this can lead to Unicode errors occurring. '
-                     'Please use Unicode strings, e.g. %r.' % (name, u'Content'))
+                logger.warning('the config value %r is set to a string with non-ASCII '
+                               'characters; this can lead to Unicode errors occurring. '
+                               'Please use Unicode strings, e.g. %r.', name, u'Content')
 
     def convert_overrides(self, name, value):
         # type: (unicode, Any) -> Any
@@ -244,8 +247,8 @@ class Config(object):
             else:
                 return value
 
-    def pre_init_values(self, warn):
-        # type: (Callable) -> None
+    def pre_init_values(self):
+        # type: () -> None
         """Initialize some limited config variables before loading extensions"""
         variables = ['needs_sphinx', 'suppress_warnings', 'html_translator_class']
         for name in variables:
@@ -255,10 +258,10 @@ class Config(object):
                 elif name in self._raw_config:
                     self.__dict__[name] = self._raw_config[name]
             except ValueError as exc:
-                warn(exc)
+                logger.warning("%s", exc)
 
-    def init_values(self, warn):
-        # type: (Callable) -> None
+    def init_values(self):
+        # type: () -> None
         config = self._raw_config
         for valname, value in iteritems(self.overrides):
             try:
@@ -267,14 +270,14 @@ class Config(object):
                     config.setdefault(realvalname, {})[key] = value  # type: ignore
                     continue
                 elif valname not in self.values:
-                    warn('unknown config value %r in override, ignoring' % valname)
+                    logger.warning('unknown config value %r in override, ignoring', valname)
                     continue
                 if isinstance(value, string_types):
                     config[valname] = self.convert_overrides(valname, value)
                 else:
                     config[valname] = value
             except ValueError as exc:
-                warn(exc)
+                logger.warning("%s", exc)
         for name in config:
             if name in self.values:
                 self.__dict__[name] = config[name]

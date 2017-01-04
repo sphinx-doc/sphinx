@@ -19,7 +19,7 @@ import sphinx
 from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer
-from sphinx.util import get_full_modname
+from sphinx.util import get_full_modname, logging
 from sphinx.util.nodes import make_refnode
 from sphinx.util.console import blue  # type: ignore
 
@@ -29,6 +29,8 @@ if False:
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
+logger = logging.getLogger(__name__)
+
 
 def _get_full_modname(app, modname, attribute):
     # type: (Sphinx, str, unicode) -> unicode
@@ -37,16 +39,15 @@ def _get_full_modname(app, modname, attribute):
     except AttributeError:
         # sphinx.ext.viewcode can't follow class instance attribute
         # then AttributeError logging output only verbose mode.
-        app.verbose('Didn\'t find %s in %s' % (attribute, modname))
+        logger.verbose('Didn\'t find %s in %s', attribute, modname)
         return None
     except Exception as e:
         # sphinx.ext.viewcode follow python domain directives.
         # because of that, if there are no real modules exists that specified
         # by py:function or other directives, viewcode emits a lot of warnings.
         # It should be displayed only verbose mode.
-        app.verbose(traceback.format_exc().rstrip())
-        app.verbose('viewcode can\'t import %s, failed with error "%s"' %
-                    (modname, e))
+        logger.verbose(traceback.format_exc().rstrip())
+        logger.verbose('viewcode can\'t import %s, failed with error "%s"', modname, e)
         return None
 
 

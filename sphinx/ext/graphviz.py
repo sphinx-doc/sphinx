@@ -26,6 +26,7 @@ from docutils.statemachine import ViewList
 import sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _
+from sphinx.util import logging
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
 
@@ -33,6 +34,8 @@ if False:
     # For type annotation
     from typing import Any, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 mapname_re = re.compile(r'<map id="(.*?)"')
@@ -204,8 +207,8 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     except OSError as err:
         if err.errno != ENOENT:   # No such file or directory
             raise
-        self.builder.warn('dot command %r cannot be run (needed for graphviz '
-                          'output), check the graphviz_dot setting' % graphviz_dot)
+        logger.warning('dot command %r cannot be run (needed for graphviz '
+                       'output), check the graphviz_dot setting', graphviz_dot)
         if not hasattr(self.builder, '_graphviz_warned_dot'):
             self.builder._graphviz_warned_dot = {}
         self.builder._graphviz_warned_dot[graphviz_dot] = True
@@ -236,7 +239,7 @@ def warn_for_deprecated_option(self, node):
         return
 
     if 'inline' in node:
-        self.builder.warn(':inline: option for graphviz is deprecated since version 1.4.0.')
+        logger.warning(':inline: option for graphviz is deprecated since version 1.4.0.')
         self.builder._graphviz_warned_inline = True
 
 
@@ -250,7 +253,7 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
                                 "'svg', but is %r" % format)
         fname, outfn = render_dot(self, code, options, format, prefix)
     except GraphvizError as exc:
-        self.builder.warn('dot code %r: ' % code + str(exc))
+        logger.warning('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
 
     if fname is None:
@@ -296,7 +299,7 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
     try:
         fname, outfn = render_dot(self, code, options, 'pdf', prefix)
     except GraphvizError as exc:
-        self.builder.warn('dot code %r: ' % code + str(exc))
+        logger.warning('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
 
     is_inline = self.is_inline(node)
@@ -333,7 +336,7 @@ def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
     try:
         fname, outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError as exc:
-        self.builder.warn('dot code %r: ' % code + str(exc))
+        logger.warning('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
     if fname is not None:
         self.body.append('@image{%s,,,[graphviz],png}\n' % fname[:-4])

@@ -54,3 +54,4 @@ APIs used for writing extensions
    domainapi
    parserapi
    nodes
+   logging
