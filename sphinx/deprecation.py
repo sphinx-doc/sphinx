@@ -10,10 +10,6 @@
 """
 
 
-class RemovedInSphinx16Warning(DeprecationWarning):
-    pass
-
-
 class RemovedInSphinx17Warning(DeprecationWarning):
     pass
 
