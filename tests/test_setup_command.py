@@ -90,7 +90,8 @@ def nonascii_srcdir(request, setup_command):
                             ).encode('utf-8'))
 
 
-def test_build_sphinx_with_nonascii_path(setup_command, nonascii_srcdir):
+@pytest.mark.usefixtures('nonascii_srcdir')
+def test_build_sphinx_with_nonascii_path(setup_command):
     proc = setup_command.proc
     out, err = proc.communicate()
     print(out)
