@@ -21,12 +21,12 @@ from uuid import uuid4
 from six import iteritems
 
 from sphinx.builders import Builder
-from sphinx.util import split_index_msg, logging
+from sphinx.util import split_index_msg, logging, status_iterator
 from sphinx.util.tags import Tags
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import safe_relpath, ensuredir, canon_path
 from sphinx.util.i18n import find_catalog
-from sphinx.util.console import darkgreen, purple, bold  # type: ignore
+from sphinx.util.console import bold  # type: ignore
 from sphinx.locale import pairindextypes
 
 if False:
@@ -224,8 +224,8 @@ class MessageCatalogBuilder(I18nBuilder):
 
         extract_translations = self.templates.environment.extract_translations
 
-        for template in self.app.status_iterator(
-                files, 'reading templates... ', purple, len(files)):
+        for template in status_iterator(files, 'reading templates... ', "purple",
+                                        len(files), self.app.verbosity):
             with open(template, 'r', encoding='utf-8') as f:  # type: ignore
                 context = f.read()
             for line, meth, msg in extract_translations(context):
@@ -247,10 +247,11 @@ class MessageCatalogBuilder(I18nBuilder):
             ctime = datetime.fromtimestamp(  # type: ignore
                 timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
         )
-        for textdomain, catalog in self.app.status_iterator(
-                iteritems(self.catalogs), "writing message catalogs... ",
-                darkgreen, len(self.catalogs),
-                lambda textdomain__: textdomain__[0]):
+        for textdomain, catalog in status_iterator(iteritems(self.catalogs),
+                                                   "writing message catalogs... ",
+                                                   "darkgreen", len(self.catalogs),
+                                                   self.app.verbosity,
+                                                   lambda textdomain__: textdomain__[0]):
             # noop if config.gettext_compact is set
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 

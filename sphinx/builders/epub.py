@@ -30,9 +30,9 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util import logging
+from sphinx.util import status_iterator
 from sphinx.util.osutil import ensuredir, copyfile, make_filename, EEXIST
 from sphinx.util.smartypants import sphinx_smarty_pants as ssp
-from sphinx.util.console import brown  # type: ignore
 
 if False:
     # For type annotation
@@ -470,8 +470,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         converting the format and resizing the image if necessary/possible.
         """
         ensuredir(path.join(self.outdir, self.imagedir))
-        for src in self.app.status_iterator(self.images, 'copying images... ',
-                                            brown, len(self.images)):
+        for src in status_iterator(self.images, 'copying images... ', "brown",
+                                   len(self.images), self.app.verbosity):
             dest = self.images[src]
             try:
                 img = Image.open(path.join(self.srcdir, src))

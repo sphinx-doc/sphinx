@@ -19,10 +19,10 @@ except ImportError:
 
 from docutils import nodes
 
-from sphinx.util import i18n, path_stabilize, logging
+from sphinx.util import i18n, path_stabilize, logging, status_iterator
 from sphinx.util.osutil import SEP, relative_uri
 from sphinx.util.i18n import find_catalog
-from sphinx.util.console import bold, darkgreen  # type: ignore
+from sphinx.util.console import bold  # type: ignore
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
     parallel_available
 
@@ -183,9 +183,9 @@ class Builder(object):
             return path.relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
 
         logger.info(bold('building [mo]: ') + message)
-        for catalog in self.app.status_iterator(
-                catalogs, 'writing output... ', darkgreen, len(catalogs),
-                cat2relpath):
+        for catalog in status_iterator(catalogs, 'writing output... ', "darkgreen",
+                                       len(catalogs), self.app.verbosity,
+                                       stringify_func=cat2relpath):
             catalog.write_mo(self.config.language)
 
     def compile_all_catalogs(self):
@@ -384,8 +384,8 @@ class Builder(object):
     def _write_serial(self, docnames):
         # type: (Sequence[unicode]) -> None
         with logging.pending_warnings():
-            for docname in self.app.status_iterator(
-                    docnames, 'writing output... ', darkgreen, len(docnames)):
+            for docname in status_iterator(docnames, 'writing output... ', "darkgreen",
+                                           len(docnames), self.app.verbosity):
                 doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.write_doc_serialized(docname, doctree)
                 self.write_doc(docname, doctree)
@@ -406,8 +406,8 @@ class Builder(object):
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
 
-        for chunk in self.app.status_iterator(
-                chunks, 'writing output... ', darkgreen, len(chunks)):
+        for chunk in status_iterator(chunks, 'writing output... ', "darkgreen",
+                                     len(chunks), self.app.verbosity):
             arg = []
             for i, docname in enumerate(chunk):
                 doctree = self.env.get_and_resolve_doctree(docname, self)

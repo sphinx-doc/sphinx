@@ -33,14 +33,15 @@ from docutils.frontend import OptionParser
 
 from sphinx import addnodes
 from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
-from sphinx.util import get_matching_docs, docname_join, FilenameUniqDict, logging
+from sphinx.util import logging
+from sphinx.util import get_matching_docs, docname_join, FilenameUniqDict, status_iterator
 from sphinx.util.nodes import clean_astext, WarningStream, is_translatable, \
     process_only_nodes
 from sphinx.util.osutil import SEP, getcwd, fs_encoding, ensuredir
 from sphinx.util.images import guess_mimetype
 from sphinx.util.i18n import find_catalog_files, get_image_filename_for_language, \
     search_image_for_language
-from sphinx.util.console import bold, purple  # type: ignore
+from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
@@ -623,8 +624,8 @@ class BuildEnvironment(object):
 
     def _read_serial(self, docnames, app):
         # type: (List[unicode], Sphinx) -> None
-        for docname in app.status_iterator(docnames, 'reading sources... ',
-                                           purple, len(docnames)):
+        for docname in status_iterator(docnames, 'reading sources... ', "purple",
+                                       len(docnames), self.app.verbosity):
             # remove all inventory entries for that file
             app.emit('env-purge-doc', self, docname)
             self.clear_doc(docname)
@@ -661,8 +662,8 @@ class BuildEnvironment(object):
         chunks = make_chunks(docnames, nproc)
 
         warnings = []  # type: List[Tuple]
-        for chunk in app.status_iterator(
-                chunks, 'reading sources... ', purple, len(chunks)):
+        for chunk in status_iterator(chunks, 'reading sources... ', "purple",
+                                     len(chunks), self.app.verbosity):
             tasks.add_task(read_process, chunk, merge)
 
         # make sure all threads have finished

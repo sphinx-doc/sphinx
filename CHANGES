@@ -49,6 +49,8 @@ Deprecated
 * ``sphinx.util.compat.docutils_version`` is now deprecated
 * #2367: ``Sphinx.warn()``, ``Sphinx.info()`` and other logging methods are now
   deprecated.  Please use ``sphinx.util.logging`` (:ref:`logging-api`) instead.
+* ``Sphinx.status_iterator()` and ``Sphinx.old_status_iterator()`` is now
+  deprecated.  Please use ``sphinx.util:status_iterator()`` intead.
 
 Release 1.5.2 (in development)
 ===============================

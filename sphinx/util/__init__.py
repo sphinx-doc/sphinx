@@ -29,7 +29,7 @@ from docutils.utils import relative_path
 
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
 from sphinx.util import logging
-from sphinx.util.console import strip_colors
+from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import fs_encoding
 
@@ -45,7 +45,7 @@ from sphinx.util.matching import patfilter  # noqa
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, Pattern, Sequence, Tuple  # NOQA
+    from typing import Any, Callable, Iterable, Iterator, Pattern, Sequence, Tuple  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -537,3 +537,49 @@ def split_docinfo(text):
         return '', result[0]
     else:
         return result[1:]
+
+
+def display_chunk(chunk):
+    # type: (Any) -> unicode
+    if isinstance(chunk, (list, tuple)):
+        if len(chunk) == 1:
+            return text_type(chunk[0])
+        return '%s .. %s' % (chunk[0], chunk[-1])
+    return text_type(chunk)
+
+
+def old_status_iterator(iterable, summary, color="darkgreen", stringify_func=display_chunk):
+    # type: (Iterable, unicode, str, Callable[[Any], unicode]) -> Iterator
+    l = 0
+    for item in iterable:
+        if l == 0:
+            logger.info(bold(summary), nonl=True)
+            l = 1
+        logger.info(stringify_func(item), color=color, nonl=True)
+        logger.info(" ", nonl=True)
+        yield item
+    if l == 1:
+        logger.info('')
+
+
+# new version with progress info
+def status_iterator(iterable, summary, color="darkgreen", length=0, verbosity=0,
+                    stringify_func=display_chunk):
+    # type: (Iterable, unicode, str, int, int, Callable[[Any], unicode]) -> Iterable
+    if length == 0:
+        for item in old_status_iterator(iterable, summary, color, stringify_func):
+            yield item
+        return
+    l = 0
+    summary = bold(summary)
+    for item in iterable:
+        l += 1
+        s = '%s[%3d%%] %s' % (summary, 100 * l / length, colorize(color, stringify_func(item)))
+        if verbosity:
+            s += '\n'
+        else:
+            s = term_width_line(s)
+        logger.info(s, nonl=True)
+        yield item
+    if l > 0:
+        logger.info('')

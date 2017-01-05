@@ -28,7 +28,7 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __display_version__
-from sphinx.util import jsonimpl, logging
+from sphinx.util import jsonimpl, logging, status_iterator
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
@@ -42,7 +42,7 @@ from sphinx.theming import Theme
 from sphinx.builders import Builder
 from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.highlighting import PygmentsBridge
-from sphinx.util.console import bold, darkgreen, brown  # type: ignore
+from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
     SmartyPantsHTMLTranslator
 
@@ -584,8 +584,8 @@ class StandaloneHTMLBuilder(Builder):
         # copy image files
         if self.images:
             ensuredir(path.join(self.outdir, self.imagedir))
-            for src in self.app.status_iterator(self.images, 'copying images... ',
-                                                brown, len(self.images)):
+            for src in status_iterator(self.images, 'copying images... ', "brown",
+                                       len(self.images), self.app.verbosity):
                 dest = self.images[src]
                 try:
                     copyfile(path.join(self.srcdir, src),
@@ -601,10 +601,9 @@ class StandaloneHTMLBuilder(Builder):
         # copy downloadable files
         if self.env.dlfiles:
             ensuredir(path.join(self.outdir, '_downloads'))
-            for src in self.app.status_iterator(self.env.dlfiles,
-                                                'copying downloadable files... ',
-                                                brown, len(self.env.dlfiles),
-                                                stringify_func=to_relpath):
+            for src in status_iterator(self.env.dlfiles, 'copying downloadable files... ',
+                                       "brown", len(self.env.dlfiles), self.app.verbosity,
+                                       stringify_func=to_relpath):
                 dest = self.env.dlfiles[src][1]
                 try:
                     copyfile(path.join(self.srcdir, src),
