@@ -536,12 +536,3 @@ def split_docinfo(text):
         return '', result[0]
     else:
         return result[1:]
-
-
-def display_chunk(chunk):
-    # type: (Union[List, Tuple, unicode]) -> unicode
-    if isinstance(chunk, (list, tuple)):
-        if len(chunk) == 1:
-            return text_type(chunk[0])
-        return '%s .. %s' % (chunk[0], chunk[-1])
-    return text_type(chunk)
