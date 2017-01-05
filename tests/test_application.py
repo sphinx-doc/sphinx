@@ -16,18 +16,21 @@ from sphinx.application import ExtensionError
 from sphinx.domains import Domain
 
 from util import with_app, raises_msg, strip_escseq
+import pytest
 
 
 @with_app()
 def test_events(app, status, warning):
     def empty():
         pass
-    raises_msg(ExtensionError, "Unknown event name: invalid",
-               app.connect, "invalid", empty)
+    with pytest.raises(ExtensionError) as excinfo:
+        app.connect("invalid", empty)
+    assert "Unknown event name: invalid" in str(excinfo.value)
 
     app.add_event("my_event")
-    raises_msg(ExtensionError, "Event 'my_event' already present",
-               app.add_event, "my_event")
+    with pytest.raises(ExtensionError) as excinfo:
+        app.add_event("my_event")
+    assert "Event 'my_event' already present" in str(excinfo.value)
 
     def mock_callback(a_app, *args):
         assert a_app is app
@@ -109,12 +112,15 @@ def test_domain_override(app, status, warning):
         name = 'foo'
 
     # No domain know named foo.
-    raises_msg(ExtensionError, 'domain foo not yet registered',
-               app.override_domain, A)
+    with pytest.raises(ExtensionError) as excinfo:
+        app.override_domain(A)
+    assert 'domain foo not yet registered' in str(excinfo.value)
+
     assert app.add_domain(A) is None
     assert app.override_domain(B) is None
-    raises_msg(ExtensionError, 'new domain not a subclass of registered '
-               'foo domain', app.override_domain, C)
+    with pytest.raises(ExtensionError) as excinfo:
+        app.override_domain(C)
+    assert 'new domain not a subclass of registered foo domain' in str(excinfo.value)
 
 
 @with_app(testroot='add_source_parser')

@@ -13,10 +13,11 @@ import os
 import zipfile
 
 import mock
+import pytest
 
 from sphinx.theming import Theme, ThemeError
 
-from util import with_app, raises, path
+from util import with_app, path
 
 
 @with_app(confoverrides={'html_theme': 'ziptheme',
@@ -46,10 +47,12 @@ def test_theme_api(app, status, warning):
     assert theme.get_confstr('options', 'nosidebar') == 'false'
     # nonexisting setting
     assert theme.get_confstr('theme', 'foobar', 'def') == 'def'
-    raises(ThemeError, theme.get_confstr, 'theme', 'foobar')
+    with pytest.raises(ThemeError):
+        theme.get_confstr('theme', 'foobar')
 
     # options API
-    raises(ThemeError, theme.get_options, {'nonexisting': 'foo'})
+    with pytest.raises(ThemeError):
+        theme.get_options({'nonexisting': 'foo'})
     options = theme.get_options(cfg.html_theme_options)
     assert options['testopt'] == 'foo'
     assert options['nosidebar'] == 'false'

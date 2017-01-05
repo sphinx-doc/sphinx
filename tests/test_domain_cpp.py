@@ -12,8 +12,9 @@
 import re
 
 from six import text_type
+import pytest
 
-from util import raises, with_app
+from util import with_app
 
 from sphinx import addnodes
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
@@ -150,9 +151,10 @@ def test_concept_definitions():
           None, 'I0EN1A1B7ConceptE')
     check('concept', 'template<typename A, typename B, typename ...C> Foo()',
           None, 'I00DpE3Foo')
-    raises(DefinitionError, parse, 'concept', 'Foo')
-    raises(DefinitionError, parse, 'concept',
-           'template<typename T> template<typename U> Foo')
+    with pytest.raises(DefinitionError):
+        parse('concept', 'Foo')
+    with pytest.raises(DefinitionError):
+        parse('concept', 'template<typename T> template<typename U> Foo')
 
 
 def test_member_definitions():
@@ -259,9 +261,12 @@ def test_function_definitions():
           'int foo(Foo f = Foo(double(), std::make_pair(int(2), double(3.4))))',
           "foo__Foo", "3foo3Foo")
     check('function', 'int foo(A a = x(a))', "foo__A", "3foo1A")
-    raises(DefinitionError, parse, 'function', 'int foo(B b=x(a)')
-    raises(DefinitionError, parse, 'function', 'int foo)C c=x(a))')
-    raises(DefinitionError, parse, 'function', 'int foo(D d=x(a')
+    with pytest.raises(DefinitionError):
+        parse('function', 'int foo(B b=x(a)')
+    with pytest.raises(DefinitionError):
+        parse('function', 'int foo)C c=x(a))')
+    with pytest.raises(DefinitionError):
+        parse('function', 'int foo(D d=x(a')
     check('function', 'int foo(const A&... a)', "foo__ACRDp", "3fooDpRK1A")
     check('function', 'virtual void f()', "f", "1fv")
     # test for ::nestedName, from issue 1738
@@ -382,8 +387,10 @@ def test_templates():
     check('function', "template<> void A()", None, "IE1Av")
     check('member', "template<> A a", None, "IE1a")
     check('type', "template<> a = A", None, "IE1a")
-    raises(DefinitionError, parse, 'enum', "template<> A")
-    raises(DefinitionError, parse, 'enumerator', "template<> A")
+    with pytest.raises(DefinitionError):
+        parse('enum', "template<> A")
+    with pytest.raises(DefinitionError):
+        parse('enumerator', "template<> A")
     # then all the real tests
     check('class', "template<typename T1, typename T2> A", None, "I00E1A")
     check('type', "template<> a", None, "IE1a")
@@ -419,8 +426,10 @@ def test_templates():
           "RK18c_string_view_baseIK4Char6TraitsE")
 
     # template introductions
-    raises(DefinitionError, parse, 'enum', 'abc::ns::foo{id_0, id_1, id_2} A')
-    raises(DefinitionError, parse, 'enumerator', 'abc::ns::foo{id_0, id_1, id_2} A')
+    with pytest.raises(DefinitionError):
+        parse('enum', 'abc::ns::foo{id_0, id_1, id_2} A')
+    with pytest.raises(DefinitionError):
+        parse('enumerator', 'abc::ns::foo{id_0, id_1, id_2} A')
     check('class', 'abc::ns::foo{id_0, id_1, id_2} xyz::bar',
           None, 'I000EXN3abc2ns3fooEI4id_04id_14id_2EEN3xyz3barE')
     check('class', 'abc::ns::foo{id_0, id_1, ...id_2} xyz::bar',
@@ -469,12 +478,18 @@ def test_attributes():
     check('member', 'paren_attr(a) int f', 'f__i', '1f')
     check('member', 'paren_attr("") int f', 'f__i', '1f')
     check('member', 'paren_attr(()[{}][]{}) int f', 'f__i', '1f')
-    raises(DefinitionError, parse, 'member', 'paren_attr(() int f')
-    raises(DefinitionError, parse, 'member', 'paren_attr([) int f')
-    raises(DefinitionError, parse, 'member', 'paren_attr({) int f')
-    raises(DefinitionError, parse, 'member', 'paren_attr([)]) int f')
-    raises(DefinitionError, parse, 'member', 'paren_attr((])) int f')
-    raises(DefinitionError, parse, 'member', 'paren_attr({]}) int f')
+    with pytest.raises(DefinitionError):
+        parse('member', 'paren_attr(() int f')
+    with pytest.raises(DefinitionError):
+        parse('member', 'paren_attr([) int f')
+    with pytest.raises(DefinitionError):
+        parse('member', 'paren_attr({) int f')
+    with pytest.raises(DefinitionError):
+        parse('member', 'paren_attr([)]) int f')
+    with pytest.raises(DefinitionError):
+        parse('member', 'paren_attr((])) int f')
+    with pytest.raises(DefinitionError):
+        parse('member', 'paren_attr({]}) int f')
 
     # position: decl specs
     check('function', 'static inline __attribute__(()) void f()',

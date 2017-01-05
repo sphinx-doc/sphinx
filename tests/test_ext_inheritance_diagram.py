@@ -11,7 +11,7 @@
 
 import re
 import sys
-from util import with_app, rootdir, raises
+from util import with_app, rootdir
 from sphinx.ext.inheritance_diagram import InheritanceException, import_classes
 import pytest
 
@@ -53,8 +53,10 @@ def test_import_classes():
         from example.sphinx import DummyClass
 
         # got exception for unknown class or module
-        raises(InheritanceException, import_classes, 'unknown', None)
-        raises(InheritanceException, import_classes, 'unknown.Unknown', None)
+        with pytest.raises(InheritanceException):
+            import_classes('unknown', None)
+        with pytest.raises(InheritanceException):
+            import_classes('unknown.Unknown', None)
 
         # a module having no classes
         classes = import_classes('sphinx', None)
@@ -80,7 +82,8 @@ def test_import_classes():
         assert classes == [CatalogInfo]
 
         # got exception for functions
-        raises(InheritanceException, import_classes, 'encode_uri', 'sphinx.util')
+        with pytest.raises(InheritanceException):
+            import_classes('encode_uri', 'sphinx.util')
 
         # import submodule on current module (refs: #3164)
         classes = import_classes('sphinx', 'example')

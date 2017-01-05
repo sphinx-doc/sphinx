@@ -14,8 +14,9 @@ import time
 
 from six import PY2, text_type, StringIO
 from six.moves import input
+import pytest
 
-from util import raises, SkipTest
+from util import SkipTest
 
 from sphinx import application
 from sphinx import quickstart as qs
@@ -107,7 +108,8 @@ def test_do_prompt():
     assert d['k4'] is True
     qs.do_prompt(d, 'k5', 'Q5', validator=qs.boolean)
     assert d['k5'] is False
-    raises(AssertionError, qs.do_prompt, d, 'k6', 'Q6', validator=qs.boolean)
+    with pytest.raises(AssertionError):
+        qs.do_prompt(d, 'k6', 'Q6', validator=qs.boolean)
 
 
 def test_do_prompt_with_nonascii():
