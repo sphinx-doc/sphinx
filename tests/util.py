@@ -28,7 +28,7 @@ from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
 from sphinx.deprecation import RemovedInSphinx17Warning
 
-from path import path, repr_as  # NOQA
+from path import path
 
 
 __all__ = [

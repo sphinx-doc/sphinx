@@ -22,7 +22,7 @@ from six import string_types
 
 from util import tempdir, rootdir, path, gen_with_app, with_app, SkipTest, \
     assert_re_search, assert_not_re_search, assert_in, assert_not_in, \
-    assert_startswith, assert_node, repr_as, etree_parse, assert_equal
+    assert_startswith, assert_node, etree_parse, assert_equal
 
 
 root = tempdir / 'test-intl'
@@ -930,4 +930,4 @@ def test_image_glob_intl_using_figure_language_filename(app, status, warning):
 
 
 def getwarning(warnings):
-    return repr_as(warnings.getvalue().replace(os.sep, '/'), '<warnings>')
+    return warnings.getvalue().replace(os.sep, '/')
