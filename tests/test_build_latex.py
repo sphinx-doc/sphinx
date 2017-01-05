@@ -22,7 +22,7 @@ from sphinx.errors import SphinxError
 from sphinx.util.osutil import cd, ensuredir
 from sphinx.writers.latex import LaTeXTranslator
 
-from util import SkipTest, remove_unicode_literals, with_app, strip_escseq, skip_if
+from util import SkipTest, remove_unicode_literals, strip_escseq, skip_if
 from test_build_html import ENV_WARNINGS
 
 
@@ -109,7 +109,7 @@ def test_build_latex_doc(app, status, warning, engine, docclass):
     compile_latex_document(app)
 
 
-@with_app(buildername='latex')
+@pytest.mark.sphinx('latex')
 def test_writer(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')
@@ -137,7 +137,7 @@ def test_writer(app, status, warning):
             '\\end{wrapfigure}' in result)
 
 
-@with_app(buildername='latex', testroot='warnings', freshenv=True)
+@pytest.mark.sphinx('latex', testroot='warnings', freshenv=True)
 def test_latex_warnings(app, status, warning):
     app.builder.build_all()
 
@@ -150,7 +150,7 @@ def test_latex_warnings(app, status, warning):
         '--- Got:\n' + warnings
 
 
-@with_app(buildername='latex', testroot='basic')
+@pytest.mark.sphinx('latex', testroot='basic')
 def test_latex_title(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
@@ -160,7 +160,7 @@ def test_latex_title(app, status, warning):
     assert '\\title{The basic Sphinx documentation for testing}' in result
 
 
-@with_app(buildername='latex', testroot='latex-title')
+@pytest.mark.sphinx('latex', testroot='latex-title')
 def test_latex_title_after_admonitions(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
@@ -170,7 +170,7 @@ def test_latex_title_after_admonitions(app, status, warning):
     assert '\\title{test-latex-title}' in result
 
 
-@with_app(buildername='latex', testroot='numfig',
+@pytest.mark.sphinx('latex', testroot='numfig',
           confoverrides={'numfig': True})
 def test_numref(app, status, warning):
     app.builder.build_all()
@@ -203,12 +203,13 @@ def test_numref(app, status, warning):
             '\\nameref{\\detokenize{foo:foo}}}') in result
 
 
-@with_app(buildername='latex', testroot='numfig',
-          confoverrides={'numfig': True,
-                         'numfig_format': {'figure': 'Figure:%s',
-                                           'table': 'Tab_%s',
-                                           'code-block': 'Code-%s',
-                                           'section': 'SECTION-%s'}})
+@pytest.mark.sphinx(
+    'latex', testroot='numfig',
+    confoverrides={'numfig': True,
+                   'numfig_format': {'figure': 'Figure:%s',
+                                     'table': 'Tab_%s',
+                                     'code-block': 'Code-%s',
+                                     'section': 'SECTION-%s'}})
 def test_numref_with_prefix1(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -246,12 +247,13 @@ def test_numref_with_prefix1(app, status, warning):
             '\\nameref{\\detokenize{foo:foo}}}') in result
 
 
-@with_app(buildername='latex', testroot='numfig',
-          confoverrides={'numfig': True,
-                         'numfig_format': {'figure': 'Figure:%s.',
-                                           'table': 'Tab_%s:',
-                                           'code-block': 'Code-%s | ',
-                                           'section': 'SECTION_%s_'}})
+@pytest.mark.sphinx(
+    'latex', testroot='numfig',
+    confoverrides={'numfig': True,
+                   'numfig_format': {'figure': 'Figure:%s.',
+                                     'table': 'Tab_%s:',
+                                     'code-block': 'Code-%s | ',
+                                     'section': 'SECTION_%s_'}})
 def test_numref_with_prefix2(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -285,8 +287,9 @@ def test_numref_with_prefix2(app, status, warning):
             '\\nameref{\\detokenize{foo:foo}}}') in result
 
 
-@with_app(buildername='latex', testroot='numfig',
-          confoverrides={'numfig': True, 'language': 'ja'})
+@pytest.mark.sphinx(
+    'latex', testroot='numfig',
+    confoverrides={'numfig': True, 'language': 'ja'})
 def test_numref_with_language_ja(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -318,7 +321,7 @@ def test_numref_with_language_ja(app, status, warning):
             '\\nameref{\\detokenize{foo:foo}}}') in result
 
 
-@with_app(buildername='latex')
+@pytest.mark.sphinx('latex')
 def test_latex_add_latex_package(app, status, warning):
     app.add_latex_package('foo')
     app.add_latex_package('bar', 'baz')
@@ -328,7 +331,7 @@ def test_latex_add_latex_package(app, status, warning):
     assert '\\usepackage[baz]{bar}' in result
 
 
-@with_app(buildername='latex', testroot='latex-babel')
+@pytest.mark.sphinx('latex', testroot='latex-babel')
 def test_babel_with_no_language_settings(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -347,8 +350,9 @@ def test_babel_with_no_language_settings(app, status, warning):
     assert '\\shorthandoff' not in result
 
 
-@with_app(buildername='latex', testroot='latex-babel',
-          confoverrides={'language': 'de'})
+@pytest.mark.sphinx(
+    'latex', testroot='latex-babel',
+    confoverrides={'language': 'de'})
 def test_babel_with_language_de(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -367,8 +371,9 @@ def test_babel_with_language_de(app, status, warning):
     assert '\\shorthandoff{"}' in result
 
 
-@with_app(buildername='latex', testroot='latex-babel',
-          confoverrides={'language': 'ru'})
+@pytest.mark.sphinx(
+    'latex', testroot='latex-babel',
+    confoverrides={'language': 'ru'})
 def test_babel_with_language_ru(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -388,8 +393,9 @@ def test_babel_with_language_ru(app, status, warning):
     assert '\\shorthandoff' not in result
 
 
-@with_app(buildername='latex', testroot='latex-babel',
-          confoverrides={'language': 'tr'})
+@pytest.mark.sphinx(
+    'latex', testroot='latex-babel',
+    confoverrides={'language': 'tr'})
 def test_babel_with_language_tr(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -408,8 +414,9 @@ def test_babel_with_language_tr(app, status, warning):
     assert '\\shorthandoff{=}' in result
 
 
-@with_app(buildername='latex', testroot='latex-babel',
-          confoverrides={'language': 'ja'})
+@pytest.mark.sphinx(
+    'latex', testroot='latex-babel',
+    confoverrides={'language': 'ja'})
 def test_babel_with_language_ja(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -427,8 +434,9 @@ def test_babel_with_language_ja(app, status, warning):
     assert '\\shorthandoff' not in result
 
 
-@with_app(buildername='latex', testroot='latex-babel',
-          confoverrides={'language': 'unknown'})
+@pytest.mark.sphinx(
+    'latex', testroot='latex-babel',
+    confoverrides={'language': 'unknown'})
 def test_babel_with_unknown_language(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -449,7 +457,7 @@ def test_babel_with_unknown_language(app, status, warning):
     assert "WARNING: no Babel option known for language 'unknown'" in warning.getvalue()
 
 
-@with_app(buildername='latex')
+@pytest.mark.sphinx('latex')
 def test_footnote(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')
@@ -479,7 +487,7 @@ def test_footnote(app, status, warning):
             'footnotes in table\n%\n\\end{footnotetext}') in result
 
 
-@with_app(buildername='latex', testroot='footnotes')
+@pytest.mark.sphinx('latex', testroot='footnotes')
 def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -516,8 +524,9 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     assert '\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]' in result
 
 
-@with_app(buildername='latex', testroot='footnotes',
-          confoverrides={'latex_show_urls': 'inline'})
+@pytest.mark.sphinx(
+    'latex', testroot='footnotes',
+    confoverrides={'latex_show_urls': 'inline'})
 def test_latex_show_urls_is_inline(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -559,8 +568,9 @@ def test_latex_show_urls_is_inline(app, status, warning):
             '{sphinx-dev@googlegroups.com}') in result
 
 
-@with_app(buildername='latex', testroot='footnotes',
-          confoverrides={'latex_show_urls': 'footnote'})
+@pytest.mark.sphinx(
+    'latex', testroot='footnotes',
+    confoverrides={'latex_show_urls': 'footnote'})
 def test_latex_show_urls_is_footnote(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -610,8 +620,9 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             '{sphinx-dev@googlegroups.com}\n') in result
 
 
-@with_app(buildername='latex', testroot='footnotes',
-          confoverrides={'latex_show_urls': 'no'})
+@pytest.mark.sphinx(
+    'latex', testroot='footnotes',
+    confoverrides={'latex_show_urls': 'no'})
 def test_latex_show_urls_is_no(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -651,7 +662,7 @@ def test_latex_show_urls_is_no(app, status, warning):
             '{sphinx-dev@googlegroups.com}\n') in result
 
 
-@with_app(buildername='latex', testroot='image-in-section')
+@pytest.mark.sphinx('latex', testroot='image-in-section')
 def test_image_in_section(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -667,7 +678,7 @@ def test_image_in_section(app, status, warning):
     assert ('\\chapter{Another section}' in result)
 
 
-@with_app(buildername='latex', confoverrides={'latex_logo': 'notfound.jpg'})
+@pytest.mark.sphinx('latex', confoverrides={'latex_logo': 'notfound.jpg'})
 def test_latex_logo_if_not_found(app, status, warning):
     try:
         app.builder.build_all()
@@ -676,7 +687,7 @@ def test_latex_logo_if_not_found(app, status, warning):
         assert isinstance(exc, SphinxError)
 
 
-@with_app(buildername='latex', testroot='toctree-maxdepth',
+@pytest.mark.sphinx('latex', testroot='toctree-maxdepth',
           confoverrides={'latex_documents': [
               ('index', 'SphinxTests.tex', 'Sphinx Tests Documentation',
                'Georg Brandl', 'manual'),
@@ -691,11 +702,12 @@ def test_toctree_maxdepth_manual(app, status, warning):
     assert '\\setcounter{secnumdepth}' not in result
 
 
-@with_app(buildername='latex', testroot='toctree-maxdepth',
-          confoverrides={'latex_documents': [
-              ('index', 'SphinxTests.tex', 'Sphinx Tests Documentation',
-               'Georg Brandl', 'howto'),
-          ]})
+@pytest.mark.sphinx(
+    'latex', testroot='toctree-maxdepth',
+    confoverrides={'latex_documents': [
+        ('index', 'SphinxTests.tex', 'Sphinx Tests Documentation',
+         'Georg Brandl', 'howto'),
+    ]})
 def test_toctree_maxdepth_howto(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')
@@ -706,8 +718,9 @@ def test_toctree_maxdepth_howto(app, status, warning):
     assert '\\setcounter{secnumdepth}' not in result
 
 
-@with_app(buildername='latex', testroot='toctree-maxdepth',
-          confoverrides={'master_doc': 'foo'})
+@pytest.mark.sphinx(
+    'latex', testroot='toctree-maxdepth',
+    confoverrides={'master_doc': 'foo'})
 def test_toctree_not_found(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -718,8 +731,9 @@ def test_toctree_not_found(app, status, warning):
     assert '\\setcounter{secnumdepth}' not in result
 
 
-@with_app(buildername='latex', testroot='toctree-maxdepth',
-          confoverrides={'master_doc': 'bar'})
+@pytest.mark.sphinx(
+    'latex', testroot='toctree-maxdepth',
+    confoverrides={'master_doc': 'bar'})
 def test_toctree_without_maxdepth(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -730,8 +744,9 @@ def test_toctree_without_maxdepth(app, status, warning):
     assert '\\setcounter{secnumdepth}' not in result
 
 
-@with_app(buildername='latex', testroot='toctree-maxdepth',
-          confoverrides={'master_doc': 'qux'})
+@pytest.mark.sphinx(
+    'latex', testroot='toctree-maxdepth',
+    confoverrides={'master_doc': 'qux'})
 def test_toctree_with_deeper_maxdepth(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -742,8 +757,9 @@ def test_toctree_with_deeper_maxdepth(app, status, warning):
     assert '\\setcounter{secnumdepth}{3}' in result
 
 
-@with_app(buildername='latex', testroot='toctree-maxdepth',
-          confoverrides={'latex_toplevel_sectioning': None})
+@pytest.mark.sphinx(
+    'latex', testroot='toctree-maxdepth',
+    confoverrides={'latex_toplevel_sectioning': None})
 def test_latex_toplevel_sectioning_is_None(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -753,8 +769,9 @@ def test_latex_toplevel_sectioning_is_None(app, status, warning):
     assert '\\chapter{Foo}' in result
 
 
-@with_app(buildername='latex', testroot='toctree-maxdepth',
-          confoverrides={'latex_toplevel_sectioning': 'part'})
+@pytest.mark.sphinx(
+    'latex', testroot='toctree-maxdepth',
+    confoverrides={'latex_toplevel_sectioning': 'part'})
 def test_latex_toplevel_sectioning_is_part(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -764,8 +781,9 @@ def test_latex_toplevel_sectioning_is_part(app, status, warning):
     assert '\\part{Foo}' in result
 
 
-@with_app(buildername='latex', testroot='toctree-maxdepth',
-          confoverrides={'latex_toplevel_sectioning': 'chapter'})
+@pytest.mark.sphinx(
+    'latex', testroot='toctree-maxdepth',
+    confoverrides={'latex_toplevel_sectioning': 'chapter'})
 def test_latex_toplevel_sectioning_is_chapter(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -775,8 +793,9 @@ def test_latex_toplevel_sectioning_is_chapter(app, status, warning):
     assert '\\chapter{Foo}' in result
 
 
-@with_app(buildername='latex', testroot='toctree-maxdepth',
-          confoverrides={'latex_toplevel_sectioning': 'section'})
+@pytest.mark.sphinx(
+    'latex', testroot='toctree-maxdepth',
+    confoverrides={'latex_toplevel_sectioning': 'section'})
 def test_latex_toplevel_sectioning_is_section(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -786,7 +805,7 @@ def test_latex_toplevel_sectioning_is_section(app, status, warning):
     assert '\\section{Foo}' in result
 
 @skip_if_stylefiles_notfound
-@with_app(buildername='latex', testroot='maxlistdepth')
+@pytest.mark.sphinx('latex', testroot='maxlistdepth')
 def test_maxlistdepth_at_ten(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')

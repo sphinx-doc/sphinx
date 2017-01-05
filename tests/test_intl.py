@@ -19,8 +19,9 @@ from subprocess import Popen, PIPE
 
 from babel.messages import pofile
 from six import string_types
+import pytest
 
-from util import tempdir, rootdir, path, gen_with_app, with_app, SkipTest, \
+from util import tempdir, rootdir, path, gen_with_app, SkipTest, \
     assert_re_search, assert_not_re_search, assert_in, assert_not_in, \
     assert_startswith, assert_node, etree_parse, assert_equal
 
@@ -845,7 +846,7 @@ def test_references(app, status, warning):
     yield assert_count(warning_expr, warnings, 0)
 
 
-@with_app(buildername='dummy', testroot='image-glob', confoverrides={'language': 'xx'})
+@pytest.mark.sphinx('dummy', testroot='image-glob', confoverrides={'language': 'xx'})
 def test_image_glob_intl(app, status, warning):
     app.builder.build_all()
 
@@ -886,7 +887,7 @@ def test_image_glob_intl(app, status, warning):
                             'image/svg+xml': 'subdir/svgimg.xx.svg'})
 
 
-@with_app(buildername='dummy', testroot='image-glob',
+@pytest.mark.sphinx('dummy', testroot='image-glob',
           confoverrides={'language': 'xx',
                          'figure_language_filename': u'{root}{ext}.{language}'})
 def test_image_glob_intl_using_figure_language_filename(app, status, warning):

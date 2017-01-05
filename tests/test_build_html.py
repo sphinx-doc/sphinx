@@ -15,9 +15,10 @@ import re
 from six import PY3, iteritems
 
 from sphinx import __display_version__
-from util import remove_unicode_literals, gen_with_app, with_app, strip_escseq
+from util import remove_unicode_literals, gen_with_app, strip_escseq
 from etree13 import ElementTree
 from html5lib import getTreeBuilder, HTMLParser
+import pytest
 
 
 TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
@@ -384,7 +385,7 @@ def check_extra_entries(outdir):
     assert (outdir / 'robots.txt').isfile()
 
 
-@with_app(buildername='html', testroot='warnings', freshenv=True)
+@pytest.mark.sphinx('html', testroot='warnings', freshenv=True)
 def test_html_warnings(app, status, warning):
     app.builder.build_all()
     html_warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
@@ -1084,7 +1085,7 @@ def test_enumerable_node(app, status, warning):
             yield check_xpath, etree, fname, xpath, check, be_found
 
 
-@with_app(buildername='html', testroot='html_assets')
+@pytest.mark.sphinx('html', testroot='html_assets')
 def test_html_assets(app, status, warning):
     app.builder.build_all()
 
@@ -1112,7 +1113,7 @@ def test_html_assets(app, status, warning):
     assert not (app.outdir / 'subdir' / '.htpasswd').exists()
 
 
-@with_app(buildername='html', confoverrides={'html_sourcelink_suffix': ''})
+@pytest.mark.sphinx('html', confoverrides={'html_sourcelink_suffix': ''})
 def test_html_sourcelink_suffix(app, status, warning):
     app.builder.build_all()
     content_otherext = (app.outdir / 'otherext.html').text()

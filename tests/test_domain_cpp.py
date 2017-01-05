@@ -14,8 +14,6 @@ import re
 from six import text_type
 import pytest
 
-from util import with_app
-
 from sphinx import addnodes
 from sphinx.domains.cpp import DefinitionParser, DefinitionError, NoOldIdError
 from sphinx.domains.cpp import Symbol
@@ -505,7 +503,7 @@ def test_attributes():
 #     raise DefinitionError("")
 
 
-@with_app(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={'add_function_parentheses': True})
 def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, warning):
     app.builder.build_all()
 
@@ -542,7 +540,8 @@ def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, war
         check(s, t, f)
 
 
-@with_app(testroot='domain-cpp', confoverrides={'add_function_parentheses': False})
+@pytest.mark.sphinx(testroot='domain-cpp', confoverrides={
+    'add_function_parentheses': False})
 def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, warning):
     app.builder.build_all()
 

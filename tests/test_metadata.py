@@ -12,10 +12,10 @@
 # adapted from an example of bibliographic metadata at
 # http://docutils.sourceforge.net/docs/user/rst/demo.txt
 
-from util import with_app
+import pytest
 
 
-@with_app('pseudoxml')
+@pytest.mark.sphinx('pseudoxml')
 def test_docinfo(app, status, warning):
     """
     Inspect the 'docinfo' metadata stored in the first node of the document.

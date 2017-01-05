@@ -13,10 +13,8 @@ import re
 
 import pytest
 
-from util import with_app, SkipTest
 
-
-@with_app('html', testroot='ext-graphviz')
+@pytest.mark.sphinx('html', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_graphviz_html(app, status, warning):
     app.builder.build_all()
@@ -37,7 +35,7 @@ def test_graphviz_html(app, status, warning):
     assert re.search(html, content, re.S)
 
 
-@with_app('latex', testroot='ext-graphviz')
+@pytest.mark.sphinx('latex', testroot='ext-graphviz')
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_graphviz_latex(app, status, warning):
     app.builder.build_all()
@@ -57,7 +55,7 @@ def test_graphviz_latex(app, status, warning):
     assert re.search(macro, content, re.S)
 
 
-@with_app('html', testroot='ext-graphviz', confoverrides={'language': 'xx'})
+@pytest.mark.sphinx('html', testroot='ext-graphviz', confoverrides={'language': 'xx'})
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_graphviz_i18n(app, status, warning):
     app.builder.build_all()

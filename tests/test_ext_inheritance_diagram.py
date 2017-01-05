@@ -11,12 +11,12 @@
 
 import re
 import sys
-from util import with_app, rootdir
+from util import rootdir
 from sphinx.ext.inheritance_diagram import InheritanceException, import_classes
 import pytest
 
 
-@with_app('html', testroot='ext-inheritance_diagram')
+@pytest.mark.sphinx('html', testroot='ext-inheritance_diagram')
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram_html(app, status, warning):
     app.builder.build_all()
@@ -31,7 +31,7 @@ def test_inheritance_diagram_html(app, status, warning):
     assert re.search(pattern, content, re.M)
 
 
-@with_app('latex', testroot='ext-inheritance_diagram')
+@pytest.mark.sphinx('latex', testroot='ext-inheritance_diagram')
 @pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram_latex(app, status, warning):
     app.builder.build_all()

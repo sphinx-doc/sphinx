@@ -11,10 +11,10 @@
 
 import re
 
-from util import with_app
+import pytest
 
 
-@with_app(testroot='ext-viewcode')
+@pytest.mark.sphinx(testroot='ext-viewcode')
 def test_viewcode(app, status, warning):
     app.builder.build_all()
 
@@ -32,7 +32,7 @@ def test_viewcode(app, status, warning):
     assert result.count('href="_modules/spam/mod2.html#Class2"') == 2
 
 
-@with_app(testroot='ext-viewcode', tags=['test_linkcode'])
+@pytest.mark.sphinx(testroot='ext-viewcode', tags=['test_linkcode'])
 def test_linkcode(app, status, warning):
     app.builder.build(['objects'])
 

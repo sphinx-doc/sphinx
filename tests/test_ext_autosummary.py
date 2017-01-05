@@ -13,7 +13,7 @@ from six import iteritems, StringIO
 
 from sphinx.ext.autosummary import mangle_signature
 
-from util import with_app
+import pytest
 
 html_warnfile = StringIO()
 
@@ -54,7 +54,7 @@ def test_mangle_signature():
         assert res == outp, (u"'%s' -> '%s' != '%s'" % (inp, res, outp))
 
 
-@with_app(buildername='dummy', **default_kw)
+@pytest.mark.sphinx('dummy', **default_kw)
 def test_get_items_summary(app, status, warning):
     # monkey-patch Autosummary.get_items so we can easily get access to it's
     # results..

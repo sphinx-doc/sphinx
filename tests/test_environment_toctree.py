@@ -14,8 +14,9 @@ from docutils.nodes import bullet_list, list_item, caption, comment, reference
 from sphinx import addnodes
 from sphinx.addnodes import compact_paragraph, only
 from sphinx.builders.html import StandaloneHTMLBuilder
+import pytest
 
-from util import with_app, gen_with_app, assert_node
+from util import gen_with_app, assert_node
 
 
 @gen_with_app('xml', testroot='toctree')
@@ -97,7 +98,7 @@ def _test_process_doc(app):
     assert 'qux' not in app.env.toctree_includes
 
 
-@with_app('dummy', testroot='toctree-glob')
+@pytest.mark.sphinx('dummy', testroot='toctree-glob')
 def test_glob(app, status, warning):
     includefiles = ['foo', 'bar/index', 'bar/bar_1', 'bar/bar_2',
                     'bar/bar_3', 'baz', 'qux/index']

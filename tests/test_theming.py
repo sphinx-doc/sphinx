@@ -20,8 +20,9 @@ from sphinx.theming import Theme, ThemeError
 from util import with_app, path
 
 
-@with_app(confoverrides={'html_theme': 'ziptheme',
-                         'html_theme_options.testopt': 'foo'})
+@pytest.mark.sphinx(
+    confoverrides={'html_theme': 'ziptheme',
+                   'html_theme_options.testopt': 'foo'})
 def test_theme_api(app, status, warning):
     cfg = app.config
 
@@ -62,7 +63,7 @@ def test_theme_api(app, status, warning):
     assert not os.path.exists(themedir)
 
 
-@with_app(testroot='tocdepth')  # a minimal root
+@pytest.mark.sphinx(testroot='tocdepth')  # a minimal root
 def test_js_source(app, status, warning):
     # Now sphinx provides non-minified JS files for jquery.js and underscore.js
     # to clarify the source of the minified files. see also #1434.
@@ -86,7 +87,7 @@ def test_js_source(app, status, warning):
     assert 'Underscore.js {v}'.format(v=v) in underscore_src, msg
 
 
-@with_app(testroot='double-inheriting-theme')
+@pytest.mark.sphinx(testroot='double-inheriting-theme')
 def test_double_inheriting_theme(make_app, app_params):
     from sphinx.theming import load_theme_plugins  # load original before patching
 

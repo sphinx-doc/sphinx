@@ -12,7 +12,7 @@ import shutil
 
 import pytest
 
-from util import with_app, find_files, rootdir, tempdir
+from util import find_files, rootdir, tempdir
 
 root = tempdir / 'test-intl'
 build_dir = root / '_build'
@@ -37,8 +37,9 @@ def setup_test():
 
 
 @pytest.mark.usefixtures('setup_test')
-@with_app(buildername='html', testroot='intl',
-          confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
+@pytest.mark.sphinx(
+    'html', testroot='intl',
+    confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
 def test_compile_all_catalogs(app, status, warning):
     app.builder.compile_all_catalogs()
 
@@ -53,8 +54,9 @@ def test_compile_all_catalogs(app, status, warning):
 
 
 @pytest.mark.usefixtures('setup_test')
-@with_app(buildername='html',  testroot='intl',
-          confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
+@pytest.mark.sphinx(
+    'html',  testroot='intl',
+    confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
 def test_compile_specific_catalogs(app, status, warning):
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
 
@@ -68,8 +70,9 @@ def test_compile_specific_catalogs(app, status, warning):
 
 
 @pytest.mark.usefixtures('setup_test')
-@with_app(buildername='html',  testroot='intl',
-          confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
+@pytest.mark.sphinx(
+    'html',  testroot='intl',
+    confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
 def test_compile_update_catalogs(app, status, warning):
     app.builder.compile_update_catalogs()
 

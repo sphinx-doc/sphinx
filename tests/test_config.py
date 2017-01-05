@@ -13,7 +13,7 @@ from six import PY3, iteritems
 import pytest
 import mock
 
-from util import TestApp, with_app, gen_with_app, \
+from util import TestApp, gen_with_app, \
     assert_in, assert_not_in
 
 import sphinx
@@ -21,9 +21,11 @@ from sphinx.config import Config
 from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
 
 
-@with_app(confoverrides={'master_doc': 'master', 'nonexisting_value': 'True',
-                         'latex_elements.docclass': 'scrartcl',
-                         'modindex_common_prefix': 'path1,path2'})
+@pytest.mark.sphinx(confoverrides={
+    'master_doc': 'master',
+    'nonexisting_value': 'True',
+    'latex_elements.docclass': 'scrartcl',
+    'modindex_common_prefix': 'path1,path2'})
 def test_core_config(app, status, warning):
     cfg = app.config
 
@@ -74,7 +76,7 @@ def test_core_config(app, status, warning):
     assert cfg['project'] == cfg.project == 'Sphinx Tests'
 
 
-@with_app()
+@pytest.mark.sphinx()
 def test_extension_values(app, status, warning):
     cfg = app.config
 
@@ -169,7 +171,7 @@ def test_config_eol(tempdir):
         assert cfg.project == u'spam'
 
 
-@with_app(confoverrides={'master_doc': 123,
+@pytest.mark.sphinx(confoverrides={'master_doc': 123,
                          'language': 'foo',
                          'primary_domain': None})
 def test_builtin_conf(app, status, warning):
@@ -215,13 +217,13 @@ def test_gen_check_types(app, status, warning):
         )
 
 
-@with_app(testroot='config')
+@pytest.mark.sphinx(testroot='config')
 def test_check_enum(app, status, warning):
     assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
            not in warning.getvalue()
 
 
-@with_app(testroot='config', confoverrides={'value17': 'invalid'})
+@pytest.mark.sphinx(testroot='config', confoverrides={'value17': 'invalid'})
 def test_check_enum_failed(app, status, warning):
     assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
            "but `invalid` is given." in warning.getvalue()
