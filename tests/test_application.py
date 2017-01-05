@@ -15,7 +15,7 @@ from docutils import nodes
 from sphinx.application import ExtensionError
 from sphinx.domains import Domain
 
-from util import with_app, raises_msg, strip_escseq
+from util import with_app, strip_escseq
 import pytest
 
 
