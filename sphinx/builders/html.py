@@ -301,10 +301,6 @@ class StandaloneHTMLBuilder(Builder):
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
-                    # deprecated config value
-                    if indexname == 'py-modindex' and \
-                       not self.config.html_use_modindex:
-                        continue
                     content, collapse = indexcls(domain).generate()
                     if content:
                         self.domain_indices.append(
@@ -1267,13 +1263,6 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
         SerializingHTMLBuilder.init(self)
 
 
-def validate_config_values(app):
-    # type: (Sphinx) -> None
-    if app.config.html_translator_class:
-        logger.warning('html_translator_class is deprecated. '
-                       'Use Sphinx.set_translator() API instead.')
-
-
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     # builders
@@ -1282,8 +1271,6 @@ def setup(app):
     app.add_builder(SingleFileHTMLBuilder)
     app.add_builder(PickleHTMLBuilder)
     app.add_builder(JSONHTMLBuilder)
-
-    app.connect('builder-inited', validate_config_values)
 
     # config values
     app.add_config_value('html_theme', 'alabaster', 'html')
@@ -1302,7 +1289,6 @@ def setup(app):
     app.add_config_value('html_use_smartypants', True, 'html')
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
-    app.add_config_value('html_use_modindex', True, 'html')  # deprecated
     app.add_config_value('html_domain_indices', True, 'html', [list])
     app.add_config_value('html_add_permalinks', u'\u00B6', 'html')
     app.add_config_value('html_use_index', True, 'html')

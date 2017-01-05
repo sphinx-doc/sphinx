@@ -15,7 +15,6 @@
 import re
 import sys
 from os import path
-import warnings
 
 from six import itervalues, text_type
 from docutils import nodes, writers
@@ -24,7 +23,6 @@ from docutils.writers.latex2e import Babel
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.errors import SphinxError
-from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import split_into, logging
 from sphinx.util.i18n import format_date
@@ -721,10 +719,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
-                    # deprecated config value
-                    if indexname == 'py-modindex' and \
-                       not self.builder.config.latex_use_modindex:
-                        continue
                     content, collapsed = indexcls(domain).generate(
                         self.builder.docnames)
                     if not content:
@@ -1467,15 +1461,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(self.context.pop())
         self.unrestrict_footnote(node)
         self.in_term -= 1
-
-    def visit_termsep(self, node):
-        # type: (nodes.Node) -> None
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
-                      'This warning is displayed because some Sphinx extension '
-                      'uses sphinx.addnodes.termsep. Please report it to '
-                      'author of the extension.', RemovedInSphinx16Warning)
-        self.body.append(', ')
-        raise nodes.SkipNode
 
     def visit_classifier(self, node):
         # type: (nodes.Node) -> None

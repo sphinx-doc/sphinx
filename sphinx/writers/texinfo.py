@@ -12,7 +12,6 @@
 import re
 import textwrap
 from os import path
-import warnings
 
 from six import itervalues
 from six.moves import range
@@ -21,7 +20,6 @@ from docutils import nodes, writers
 
 from sphinx import addnodes, __display_version__
 from sphinx.errors import ExtensionError
-from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
@@ -1068,18 +1066,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.at_item_x = '@itemx'
 
     def depart_term(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
-    def visit_termsep(self, node):
-        # type: (nodes.Node) -> None
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
-                      'This warning is displayed because some Sphinx extension '
-                      'uses sphinx.addnodes.termsep. Please report it to '
-                      'author of the extension.', RemovedInSphinx16Warning)
-        self.body.append('\n%s ' % self.at_item_x)
-
-    def depart_termsep(self, node):
         # type: (nodes.Node) -> None
         pass
 

@@ -77,20 +77,8 @@ It adds these directives:
    the graphviz code.
 
 .. versionadded:: 1.1
-   All three directives support an ``inline`` flag that controls paragraph
-   breaks in the output.  When set, the graph is inserted into the current
-   paragraph.  If the flag is not given, paragraph breaks are introduced before
-   and after the image (the default).
-
-.. versionadded:: 1.1
    All three directives support a ``caption`` option that can be used to give a
-   caption to the diagram.  Naturally, diagrams marked as "inline" cannot have a
-   caption.
-
-.. deprecated:: 1.4
-   ``inline`` option is deprecated.
-   All three directives generate inline node by default. If ``caption`` is given,
-   these generate block node instead.
+   caption to the diagram.
 
 .. versionchanged:: 1.4
    All three directives support a ``graphviz_dot`` option that can be switch the

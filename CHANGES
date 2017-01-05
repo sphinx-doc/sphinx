@@ -9,6 +9,28 @@ Incompatible changes
 * LaTeX ``\includegraphics`` command isn't overloaded: only ``\sphinxincludegraphics``
   has the custom code to fit image to available width if oversized.
 
+Features removed
+----------------
+
+* Configuration variables
+
+  - epub3_contributor
+  - epub3_description
+  - epub3_page_progression_direction
+  - html_translator_class
+  - html_use_modindex
+  - latex_font_size
+  - latex_paper_size
+  - latex_preamble
+  - latex_use_modindex
+  - latex_use_parts
+
+* ``termsep`` node
+* defindex.html template
+* LDML format support in `today`, `today_fmt` and `html_last_updated_fmt`
+* ``:inline:`` option for the directives of sphinx.ext.graphviz extension
+* sphinx.ext.pngmath extension
+
 Features added
 --------------
 
@@ -124,7 +146,7 @@ Incompatible changes
 * Fix ``genindex.html``, Sphinx's document template, link address to itself to satisfy xhtml standard.
 * Use epub3 builder by default.  And the old epub builder is renamed to epub2.
 * Fix ``epub`` and ``epub3`` builders that contained links to ``genindex`` even if ``epub_use_index = False``.
-* `html_translator_class` is now deprecated.
+* ``html_translator_class`` is now deprecated.
   Use `Sphinx.set_translator()` API instead.
 * Drop python 2.6 and 3.3 support
 * Drop epub3 builder's ``epub3_page_progression_direction`` option (use ``epub3_writing_mode``).

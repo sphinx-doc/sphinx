@@ -9,10 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
-
 from docutils import nodes
-from sphinx.deprecation import RemovedInSphinx16Warning
 
 
 class translatable(object):
@@ -271,19 +268,6 @@ class literal_strong(nodes.strong):
 
 class abbreviation(nodes.Inline, nodes.TextElement):
     """Node for abbreviations with explanations."""
-
-
-class termsep(nodes.Structural, nodes.Element):
-    """Separates two terms within a <term> node.
-
-    .. versionchanged:: 1.4
-       sphinx.addnodes.termsep is deprecated. It will be removed at Sphinx-1.6.
-    """
-
-    def __init__(self, *args, **kw):
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6',
-                      RemovedInSphinx16Warning, stacklevel=2)
-        super(termsep, self).__init__(*args, **kw)
 
 
 class manpage(nodes.Inline, nodes.TextElement):

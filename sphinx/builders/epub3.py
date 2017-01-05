@@ -260,31 +260,13 @@ class Epub3Builder(EpubBuilder):
             self.files.append(outname)
 
 
-def validate_config_values(app):
-    if app.config.epub3_description is not None:
-        logger.warning('epub3_description is deprecated. Use epub_description instead.')
-        app.config.epub_description = app.config.epub3_description
-
-    if app.config.epub3_contributor is not None:
-        logger.warning('epub3_contributor is deprecated. Use epub_contributor instead.')
-        app.config.epub_contributor = app.config.epub3_contributor
-
-    if app.config.epub3_page_progression_direction is not None:
-        logger.warning('epub3_page_progression_direction option is deprecated'
-                       ' from 1.5. Use epub_writing_mode instead.')
-
-
 def setup(app):
     app.setup_extension('sphinx.builders.epub')
     app.add_builder(Epub3Builder)
-    app.connect('builder-inited', validate_config_values)
 
     app.add_config_value('epub_description', '', 'epub3', string_classes)
     app.add_config_value('epub_contributor', 'unknown', 'epub3', string_classes)
     app.add_config_value('epub_writing_mode', 'horizontal', 'epub3', string_classes)
-    app.add_config_value('epub3_description', None, 'epub3', string_classes)
-    app.add_config_value('epub3_contributor', None, 'epub3', string_classes)
-    app.add_config_value('epub3_page_progression_direction', None, 'epub3', string_classes)
 
     return {
         'version': 'builtin',
