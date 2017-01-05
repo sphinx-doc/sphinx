@@ -12,7 +12,6 @@ from sphinx.util.fileutil import copy_asset, copy_asset_file
 from sphinx.jinja2glue import BuiltinTemplateLoader
 
 import mock
-from util import with_tempdir
 
 
 class DummyTemplateLoader(BuiltinTemplateLoader):
@@ -24,7 +23,6 @@ class DummyTemplateLoader(BuiltinTemplateLoader):
         self.init(builder)
 
 
-@with_tempdir
 def test_copy_asset_file(tempdir):
     renderer = DummyTemplateLoader()
 
@@ -68,7 +66,6 @@ def test_copy_asset_file(tempdir):
     assert (subdir2 / 'asset.txt_t').text() == '# {{var1}} data'
 
 
-@with_tempdir
 def test_copy_asset(tempdir):
     renderer = DummyTemplateLoader()
 

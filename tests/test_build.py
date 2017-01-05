@@ -18,7 +18,7 @@ from textwrap import dedent
 from sphinx.errors import SphinxError
 import sphinx.builders.linkcheck
 
-from util import with_app, with_tempdir, rootdir, tempdir, SkipTest, TestApp, path
+from util import with_app, rootdir, tempdir, SkipTest, TestApp, path
 
 try:
     from docutils.writers.manpage import Writer as ManWriter
@@ -77,7 +77,6 @@ def test_build_all():
             yield verify_build, buildername, srcdir
 
 
-@with_tempdir
 def test_master_doc_not_found(tempdir):
     (tempdir / 'conf.py').write_text('master_doc = "index"')
     assert tempdir.listdir() == ['conf.py']

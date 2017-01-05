@@ -12,7 +12,7 @@
 from six import PY3, iteritems
 import mock
 
-from util import TestApp, with_app, gen_with_app, with_tempdir, \
+from util import TestApp, with_app, gen_with_app, \
     raises, raises_msg, assert_in, assert_not_in
 
 import sphinx
@@ -86,7 +86,6 @@ def test_extension_values(app, status, warning):
                'value_from_ext', 'x', True)
 
 
-@with_tempdir
 def test_errors_warnings(tempdir):
     # test the error for syntax errors in the config file
     (tempdir / 'conf.py').write_text(u'project = \n', encoding='ascii')
@@ -117,7 +116,6 @@ def test_errors_warnings(tempdir):
     assert warned[0]
 
 
-@with_tempdir
 def test_errors_if_setup_is_not_callable(tempdir):
     # test the error to call setup() in the config file
     (tempdir / 'conf.py').write_text(u'setup = 1')
@@ -151,7 +149,6 @@ def test_needs_sphinx():
            confoverrides={'needs_sphinx': '2'})  # NG: greater
 
 
-@with_tempdir
 def test_config_eol(tempdir):
     # test config file's eol patterns: LF, CRLF
     configfile = tempdir / 'conf.py'

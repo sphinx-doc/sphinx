@@ -23,7 +23,7 @@ from sphinx.ext.intersphinx import read_inventory, \
     load_mappings, missing_reference, _strip_basic_auth, _read_from_url, \
     _get_safe_url, fetch_inventory, INVENTORY_FILENAME
 
-from util import with_app, with_tempdir
+from util import with_app
 
 
 inventory_v1 = '''\
@@ -128,7 +128,6 @@ def test_fetch_inventory_redirection(_read_from_url, read_inventory, app, status
 
 
 @with_app()
-@with_tempdir
 def test_missing_reference(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
@@ -219,7 +218,6 @@ def test_missing_reference(tempdir, app, status, warning):
 
 
 @with_app()
-@with_tempdir
 def test_load_mappings_warnings(tempdir, app, status, warning):
     """
     load_mappings issues a warning if new-style mapping

@@ -18,7 +18,7 @@ from babel.messages.mofile import read_mo
 from sphinx.util import i18n
 from sphinx.errors import SphinxError
 
-from util import TestApp, with_tempdir, raises
+from util import TestApp, raises
 
 
 def test_catalog_info_for_file_and_path():
@@ -37,7 +37,6 @@ def test_catalog_info_for_sub_domain_file_and_path():
     assert cat.mo_path == path.join('path', 'sub/domain.mo')
 
 
-@with_tempdir
 def test_catalog_outdated(tempdir):
     (tempdir / 'test.po').write_text('#')
     cat = i18n.CatalogInfo(tempdir, 'test', 'utf-8')
@@ -51,7 +50,6 @@ def test_catalog_outdated(tempdir):
     assert cat.is_outdated()  # if mo is exist and older than po
 
 
-@with_tempdir
 def test_catalog_write_mo(tempdir):
     (tempdir / 'test.po').write_text('#')
     cat = i18n.CatalogInfo(tempdir, 'test', 'utf-8')
@@ -61,7 +59,6 @@ def test_catalog_write_mo(tempdir):
         assert read_mo(f) is not None
 
 
-@with_tempdir
 def test_get_catalogs_for_xx(tempdir):
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
@@ -85,7 +82,6 @@ def test_get_catalogs_for_xx(tempdir):
     ])
 
 
-@with_tempdir
 def test_get_catalogs_for_en(tempdir):
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'xx_dom.po').write_text('#')
@@ -97,7 +93,6 @@ def test_get_catalogs_for_en(tempdir):
     assert domains == set(['en_dom'])
 
 
-@with_tempdir
 def test_get_catalogs_with_non_existent_locale(tempdir):
     catalogs = i18n.find_catalog_source_files([tempdir / 'loc1'], 'xx')
     assert not catalogs
@@ -111,7 +106,6 @@ def test_get_catalogs_with_non_existent_locale_dirs():
     assert not catalogs
 
 
-@with_tempdir
 def test_get_catalogs_for_xx_without_outdated(tempdir):
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
@@ -139,7 +133,6 @@ def test_get_catalogs_for_xx_without_outdated(tempdir):
     ])
 
 
-@with_tempdir
 def test_get_catalogs_from_multiple_locale_dirs(tempdir):
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
@@ -152,7 +145,6 @@ def test_get_catalogs_from_multiple_locale_dirs(tempdir):
     assert domains == ['test1', 'test1', 'test2']
 
 
-@with_tempdir
 def test_get_catalogs_with_compact(tempdir):
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES').makedirs()
     (tempdir / 'loc1' / 'xx' / 'LC_MESSAGES' / 'test1.po').write_text('#')
