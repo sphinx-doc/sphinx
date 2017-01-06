@@ -14,8 +14,9 @@ import time
 
 from six import PY2, text_type, StringIO
 from six.moves import input
+import pytest
 
-from util import raises, with_tempdir, SkipTest
+from util import SkipTest
 
 from sphinx import application
 from sphinx import quickstart as qs
@@ -107,7 +108,8 @@ def test_do_prompt():
     assert d['k4'] is True
     qs.do_prompt(d, 'k5', 'Q5', validator=qs.boolean)
     assert d['k5'] is False
-    raises(AssertionError, qs.do_prompt, d, 'k6', 'Q6', validator=qs.boolean)
+    with pytest.raises(AssertionError):
+        qs.do_prompt(d, 'k6', 'Q6', validator=qs.boolean)
 
 
 def test_do_prompt_with_nonascii():
@@ -125,7 +127,6 @@ def test_do_prompt_with_nonascii():
     assert d['k1'] == u'\u30c9\u30a4\u30c4'
 
 
-@with_tempdir
 def test_quickstart_defaults(tempdir):
     answers = {
         'Root path': tempdir,
@@ -163,7 +164,6 @@ def test_quickstart_defaults(tempdir):
     assert (tempdir / 'make.bat').isfile()
 
 
-@with_tempdir
 def test_quickstart_all_answers(tempdir):
     answers = {
         'Root path': tempdir,
@@ -231,7 +231,6 @@ def test_quickstart_all_answers(tempdir):
     assert (tempdir / 'source' / 'contents.txt').isfile()
 
 
-@with_tempdir
 def test_generated_files_eol(tempdir):
     answers = {
         'Root path': tempdir,
@@ -252,7 +251,6 @@ def test_generated_files_eol(tempdir):
     assert_eol(tempdir / 'Makefile', '\n')
 
 
-@with_tempdir
 def test_quickstart_and_build(tempdir):
     answers = {
         'Root path': tempdir,
@@ -278,7 +276,6 @@ def test_quickstart_and_build(tempdir):
     assert not warnings
 
 
-@with_tempdir
 def test_default_filename(tempdir):
     answers = {
         'Root path': tempdir,
@@ -300,7 +297,6 @@ def test_default_filename(tempdir):
     assert ns['texinfo_documents'][0][1] == 'sphinx'
 
 
-@with_tempdir
 def test_extensions(tempdir):
     qs.main(['sphinx-quickstart', '-q',
              '-p', 'project_name', '-a', 'author',

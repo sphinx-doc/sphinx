@@ -11,7 +11,7 @@ class DummyMarkdownParser(Parser):
     pass
 
 
-extensions = ['test_source_parser']
+extensions = ['source_parser']
 source_suffix = ['.rst', '.md']
 source_parsers = {
     '.md': DummyMarkdownParser

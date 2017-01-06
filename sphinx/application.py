@@ -812,7 +812,8 @@ class Sphinx(object):
     def add_latex_package(self, packagename, options=None):
         # type: (unicode, unicode) -> None
         logger.debug('[app] adding latex package: %r', packagename)
-        self.builder.usepackages.append((packagename, options))
+        if hasattr(self.builder, 'usepackages'):  # only for LaTeX builder
+            self.builder.usepackages.append((packagename, options))
 
     def add_lexer(self, alias, lexer):
         # type: (unicode, Any) -> None

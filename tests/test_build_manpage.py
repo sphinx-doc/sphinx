@@ -10,10 +10,10 @@
 """
 from __future__ import print_function
 
-from util import with_app
+import pytest
 
 
-@with_app(buildername='man')
+@pytest.mark.sphinx('man')
 def test_all(app, status, warning):
     app.builder.build_all()
     assert (app.outdir / 'SphinxTests.1').exists()

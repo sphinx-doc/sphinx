@@ -12,7 +12,7 @@ import sys
 import shutil
 from io import open
 
-from six import PY2, text_type, binary_type
+from six import PY2, text_type
 
 
 FILESYSTEMENCODING = sys.getfilesystemencoding() or sys.getdefaultencoding()
@@ -144,9 +144,7 @@ class path(text_type):
         """
         mode = 'rU' if PY2 else 'r'
         with open(self, mode=mode, encoding=encoding, **kwargs) as f:
-            text = f.read()
-        contents = repr_as(text, '<%s contents>' % self.basename())
-        return contents
+            return f.read()
 
     def bytes(self):
         """
@@ -201,21 +199,3 @@ class path(text_type):
 
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__, text_type.__repr__(self))
-
-
-# Lives here only to avoid circular references;  use it from util.py!
-class _repr_text(text_type):
-    def __repr__(self):
-        return self._repr
-
-
-class _repr_bin(binary_type):
-    def __repr__(self):
-        return self._repr
-
-
-def repr_as(string, repr_):
-    wrapper = _repr_text if isinstance(string, text_type) else _repr_bin
-    proxy = wrapper(string)
-    proxy._repr = repr_
-    return proxy

@@ -9,10 +9,10 @@
     :license: BSD, see LICENSE for details.
 """
 
-from util import with_app
+import pytest
 
 
-@with_app(buildername='text', testroot='ext-ifconfig')
+@pytest.mark.sphinx('text', testroot='ext-ifconfig')
 def test_ifconfig(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'index.txt').text()

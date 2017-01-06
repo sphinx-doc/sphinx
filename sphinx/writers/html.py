@@ -344,6 +344,27 @@ class HTMLTranslator(BaseTranslator):
         if isinstance(node.parent, nodes.table):
             self.body.append('<span class="caption-text">')
 
+    def depart_title(self, node):
+        close_tag = self.context[-1]
+        if (self.permalink_text and self.builder.add_permalinks and
+           node.parent.hasattr('ids') and node.parent['ids']):
+            # add permalink anchor
+            if close_tag.startswith('</h'):
+                self.add_permalink_ref(node.parent, _('Permalink to this headline'))
+            elif close_tag.startswith('</a></h'):
+                self.body.append(u'</a><a class="headerlink" href="#%s" ' %
+                                 node.parent['ids'][0] +
+                                 u'title="%s">%s' % (
+                                     _('Permalink to this headline'),
+                                     self.permalink_text))
+            elif isinstance(node.parent, nodes.table):
+                self.body.append('</span>')
+                self.add_permalink_ref(node.parent, _('Permalink to this table'))
+        elif isinstance(node.parent, nodes.table):
+            self.body.append('</span>')
+
+        BaseTranslator.depart_title(self, node)
+
     # overwritten
     def visit_literal_block(self, node):
         if node.rawsource != node.astext():
@@ -700,25 +721,6 @@ class HTMLTranslator(BaseTranslator):
 
     def depart_manpage(self, node):
         return self.depart_literal_emphasis(node)
-
-    def depart_title(self, node):
-        close_tag = self.context[-1]
-        if (self.permalink_text and self.builder.add_permalinks and
-           node.parent.hasattr('ids') and node.parent['ids']):
-            # add permalink anchor
-            if close_tag.startswith('</h'):
-                self.add_permalink_ref(node.parent, _('Permalink to this headline'))
-            elif close_tag.startswith('</a></h'):
-                self.body.append(u'</a><a class="headerlink" href="#%s" ' %
-                                 node.parent['ids'][0] +
-                                 u'title="%s">%s' % (
-                                     _('Permalink to this headline'),
-                                     self.permalink_text))
-            elif isinstance(node.parent, nodes.table):
-                self.body.append('</span>')
-                self.add_permalink_ref(node.parent, _('Permalink to this table'))
-
-        BaseTranslator.depart_title(self, node)
 
     # overwritten to add even/odd classes
 

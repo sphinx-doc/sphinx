@@ -15,10 +15,11 @@ import re
 from subprocess import Popen, PIPE
 
 from six import PY3
+import pytest
 
 from sphinx.writers.texinfo import TexinfoTranslator
 
-from util import SkipTest, remove_unicode_literals, with_app, strip_escseq
+from util import SkipTest, remove_unicode_literals, strip_escseq
 from test_build_html import ENV_WARNINGS
 
 
@@ -33,7 +34,7 @@ if PY3:
     TEXINFO_WARNINGS = remove_unicode_literals(TEXINFO_WARNINGS)
 
 
-@with_app(buildername='texinfo', testroot='warnings', freshenv=True)
+@pytest.mark.sphinx('texinfo', testroot='warnings', freshenv=True)
 def test_texinfo_warnings(app, status, warning):
     app.builder.build_all()
     warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
@@ -45,7 +46,7 @@ def test_texinfo_warnings(app, status, warning):
         '--- Got:\n' + warnings
 
 
-@with_app(buildername='texinfo')
+@pytest.mark.sphinx('texinfo')
 def test_texinfo(app, status, warning):
     TexinfoTranslator.ignore_missing_images = True
     app.builder.build_all()

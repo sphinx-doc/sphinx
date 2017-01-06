@@ -9,10 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-from functools import wraps
-
-from six import StringIO
-
 from sphinx.websupport import WebSupport
 from sphinx.websupport.errors import DocumentNotFoundError, \
     CommentNotAllowedError, UserNotAuthorizedError
@@ -26,26 +22,28 @@ try:
 except ImportError:
     sqlalchemy_missing = True
 
-from util import rootdir, tempdir, raises, skip_if
+import pytest
+from util import rootdir, tempdir, skip_if
 
 
-default_settings = {'builddir': tempdir / 'websupport',
-                    'status': StringIO(),
-                    'warning': StringIO()}
+@pytest.fixture
+def support(request):
+    settings = {
+        'srcdir': rootdir / 'root',
+        # to use same directory for 'builddir' in each 'support' fixture, using
+        # 'tempdir' (static) value instead of 'tempdir' fixture value.
+        # each test expect result of db value at previous test case.
+        'builddir': tempdir / 'websupport'
+    }
+    marker = request.node.get_marker('support')
+    if marker:
+        settings.update(marker.kwargs)
+
+    support = WebSupport(**settings)
+    yield support
 
 
-def with_support(*args, **kwargs):
-    """Make a WebSupport object and pass it the test."""
-    settings = default_settings.copy()
-    settings.update(kwargs)
-
-    def generator(func):
-        @wraps(func)
-        def new_func(*args2, **kwargs2):
-            support = WebSupport(**settings)
-            func(support, *args2, **kwargs2)
-        return new_func
-    return generator
+with_support = pytest.mark.support
 
 
 class NullStorage(StorageBackend):
@@ -55,11 +53,12 @@ class NullStorage(StorageBackend):
 @with_support(storage=NullStorage())
 def test_no_srcdir(support):
     # make sure the correct exception is raised if srcdir is not given.
-    raises(RuntimeError, support.build)
+    with pytest.raises(RuntimeError):
+        support.build()
 
 
 @skip_if(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support(srcdir=rootdir / 'root')
+@with_support()
 def test_build(support):
     support.build()
 
@@ -67,7 +66,8 @@ def test_build(support):
 @skip_if(sqlalchemy_missing, 'needs sqlalchemy')
 @with_support()
 def test_get_document(support):
-    raises(DocumentNotFoundError, support.get_document, 'nonexisting')
+    with pytest.raises(DocumentNotFoundError):
+        support.get_document('nonexisting')
 
     contents = support.get_document('contents')
     assert contents['title'] and contents['body'] \
@@ -92,8 +92,8 @@ def test_comments(support):
     # Make sure that comments can't be added to a comment where
     # displayed == False, since it could break the algorithm that
     # converts a nodes comments to a tree.
-    raises(CommentNotAllowedError, support.add_comment, 'Not allowed',
-           parent_id=str(hidden_comment['id']))
+    with pytest.raises(CommentNotAllowedError):
+        support.add_comment('Not allowed', parent_id=str(hidden_comment['id']))
     # Add a displayed and not displayed child to the displayed comment.
     support.add_comment('Child test comment', parent_id=str(comment['id']),
                         username='user_one')
@@ -125,56 +125,6 @@ def test_comments(support):
 
 @skip_if(sqlalchemy_missing, 'needs sqlalchemy')
 @with_support()
-def test_voting(support):
-    session = Session()
-    nodes = session.query(Node).all()
-    node = nodes[0]
-
-    comment = support.get_data(node.id)['comments'][0]
-
-    def check_rating(val):
-        data = support.get_data(node.id)
-        comment = data['comments'][0]
-        assert comment['rating'] == val, '%s != %s' % (comment['rating'], val)
-
-    support.process_vote(comment['id'], 'user_one', '1')
-    support.process_vote(comment['id'], 'user_two', '1')
-    support.process_vote(comment['id'], 'user_three', '1')
-    check_rating(3)
-    support.process_vote(comment['id'], 'user_one', '-1')
-    check_rating(1)
-    support.process_vote(comment['id'], 'user_one', '0')
-    check_rating(2)
-
-    # Make sure a vote with value > 1 or < -1 can't be cast.
-    raises(ValueError, support.process_vote, comment['id'], 'user_one', '2')
-    raises(ValueError, support.process_vote, comment['id'], 'user_one', '-2')
-
-    # Make sure past voting data is associated with comments when they are
-    # fetched.
-    data = support.get_data(str(node.id), username='user_two')
-    comment = data['comments'][0]
-    assert comment['vote'] == 1, '%s != 1' % comment['vote']
-
-
-@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support()
-def test_proposals(support):
-    session = Session()
-    node = session.query(Node).first()
-
-    data = support.get_data(node.id)
-
-    source = data['source']
-    proposal = source[:5] + source[10:15] + 'asdf' + source[15:]
-
-    support.add_comment('Proposal comment',
-                        node_id=node.id,
-                        proposal=proposal)
-
-
-@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support()
 def test_user_delete_comments(support):
     def get_comment():
         session = Session()
@@ -185,47 +135,13 @@ def test_user_delete_comments(support):
     comment = get_comment()
     assert comment['username'] == 'user_one'
     # Make sure other normal users can't delete someone elses comments.
-    raises(UserNotAuthorizedError, support.delete_comment,
-           comment['id'], username='user_two')
+    with pytest.raises(UserNotAuthorizedError):
+        support.delete_comment(comment['id'], username='user_two')
     # Now delete the comment using the correct username.
     support.delete_comment(comment['id'], username='user_one')
     comment = get_comment()
     assert comment['username'] == '[deleted]'
     assert comment['text'] == '[deleted]'
-
-
-@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support()
-def test_moderator_delete_comments(support):
-    def get_comment():
-        session = Session()
-        node = session.query(Node).first()
-        session.close()
-        return support.get_data(node.id, moderator=True)['comments'][1]
-
-    comment = get_comment()
-    support.delete_comment(comment['id'], username='user_two',
-                           moderator=True)
-    raises(IndexError, get_comment)
-
-
-@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
-@with_support()
-def test_update_username(support):
-    support.update_username('user_two', 'new_user_two')
-    session = Session()
-    comments = session.query(Comment).\
-        filter(Comment.username == 'user_two').all()
-    assert len(comments) == 0
-    votes = session.query(CommentVote).\
-        filter(CommentVote.username == 'user_two').all()
-    assert len(votes) == 0
-    comments = session.query(Comment).\
-        filter(Comment.username == 'new_user_two').all()
-    assert len(comments) == 1
-    votes = session.query(CommentVote).\
-        filter(CommentVote.username == 'new_user_two').all()
-    assert len(votes) == 0
 
 
 called = False
@@ -250,14 +166,103 @@ def test_moderation(support):
     # Make sure the moderation_callback is called.
     assert called
     # Make sure the user must be a moderator.
-    raises(UserNotAuthorizedError, support.accept_comment, accepted['id'])
-    raises(UserNotAuthorizedError, support.delete_comment, deleted['id'])
+    with pytest.raises(UserNotAuthorizedError):
+        support.accept_comment(accepted['id'])
+    with pytest.raises(UserNotAuthorizedError):
+        support.delete_comment(deleted['id'])
     support.accept_comment(accepted['id'], moderator=True)
     support.delete_comment(deleted['id'], moderator=True)
     comments = support.get_data(node.id)['comments']
     assert len(comments) == 1
     comments = support.get_data(node.id, moderator=True)['comments']
     assert len(comments) == 1
+
+
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
+@with_support()
+def test_moderator_delete_comments(support):
+    def get_comment():
+        session = Session()
+        node = session.query(Node).first()
+        session.close()
+        return support.get_data(node.id, moderator=True)['comments'][1]
+
+    comment = get_comment()
+    support.delete_comment(comment['id'], username='user_two',
+                           moderator=True)
+    with pytest.raises(IndexError):
+        get_comment()
+
+
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
+@with_support()
+def test_update_username(support):
+    support.update_username('user_two', 'new_user_two')
+    session = Session()
+    comments = session.query(Comment).\
+        filter(Comment.username == 'user_two').all()
+    assert len(comments) == 0
+    votes = session.query(CommentVote).\
+        filter(CommentVote.username == 'user_two').all()
+    assert len(votes) == 0
+    comments = session.query(Comment).\
+        filter(Comment.username == 'new_user_two').all()
+    assert len(comments) == 1
+    votes = session.query(CommentVote).\
+        filter(CommentVote.username == 'new_user_two').all()
+    assert len(votes) == 0
+
+
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
+@with_support()
+def test_proposals(support):
+    session = Session()
+    node = session.query(Node).first()
+
+    data = support.get_data(node.id)
+
+    source = data['source']
+    proposal = source[:5] + source[10:15] + 'asdf' + source[15:]
+
+    support.add_comment('Proposal comment',
+                        node_id=node.id,
+                        proposal=proposal)
+
+
+@skip_if(sqlalchemy_missing, 'needs sqlalchemy')
+@with_support()
+def test_voting(support):
+    session = Session()
+    nodes = session.query(Node).all()
+    node = nodes[0]
+
+    comment = support.get_data(node.id)['comments'][0]
+
+    def check_rating(val):
+        data = support.get_data(node.id)
+        comment = data['comments'][0]
+        assert comment['rating'] == val, '%s != %s' % (comment['rating'], val)
+
+    support.process_vote(comment['id'], 'user_one', '1')
+    support.process_vote(comment['id'], 'user_two', '1')
+    support.process_vote(comment['id'], 'user_three', '1')
+    check_rating(3)
+    support.process_vote(comment['id'], 'user_one', '-1')
+    check_rating(1)
+    support.process_vote(comment['id'], 'user_one', '0')
+    check_rating(2)
+
+    # Make sure a vote with value > 1 or < -1 can't be cast.
+    with pytest.raises(ValueError):
+        support.process_vote(comment['id'], 'user_one', '2')
+    with pytest.raises(ValueError):
+        support.process_vote(comment['id'], 'user_one', '-2')
+
+    # Make sure past voting data is associated with comments when they are
+    # fetched.
+    data = support.get_data(str(node.id), username='user_two')
+    comment = data['comments'][0]
+    assert comment['vote'] == 1, '%s != 1' % comment['vote']
 
 
 def test_differ():

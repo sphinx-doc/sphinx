@@ -16,8 +16,6 @@ from pygments.formatters.html import HtmlFormatter
 
 from sphinx.highlighting import PygmentsBridge
 
-from util import with_app
-
 
 class MyLexer(RegexLexer):
     name = 'testlexer'
@@ -41,7 +39,6 @@ class ComplainOnUnhighlighted(PygmentsBridge):
         raise AssertionError("should highlight %r" % source)
 
 
-@with_app()
 def test_add_lexer(app, status, warning):
     app.add_lexer('test', MyLexer())
 

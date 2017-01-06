@@ -9,16 +9,15 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six import BytesIO
-
 import pickle
 from docutils import nodes
 import mock
+import pytest
 from textwrap import dedent
 from sphinx.errors import SphinxError
 import sphinx.builders.linkcheck
 
-from util import with_app, with_tempdir, rootdir, tempdir, SkipTest, TestApp, path
+from util import rootdir, tempdir, SkipTest, TestApp, path
 
 try:
     from docutils.writers.manpage import Writer as ManWriter
@@ -77,13 +76,12 @@ def test_build_all():
             yield verify_build, buildername, srcdir
 
 
-@with_tempdir
-def test_master_doc_not_found(tmpdir):
-    (tmpdir / 'conf.py').write_text('master_doc = "index"')
-    assert tmpdir.listdir() == ['conf.py']
+def test_master_doc_not_found(tempdir):
+    (tempdir / 'conf.py').write_text('master_doc = "index"')
+    assert tempdir.listdir() == ['conf.py']
 
     try:
-        app = TestApp(buildername='dummy', srcdir=tmpdir)
+        app = TestApp(buildername='dummy', srcdir=tempdir)
         app.builder.build_all()
         assert False  # SphinxError not raised
     except Exception as exc:
@@ -92,7 +90,7 @@ def test_master_doc_not_found(tmpdir):
         app.cleanup()
 
 
-@with_app(buildername='text', testroot='circular')
+@pytest.mark.sphinx(buildername='text', testroot='circular')
 def test_circular_toctree(app, status, warning):
     app.builder.build_all()
     warnings = warning.getvalue()
@@ -104,7 +102,7 @@ def test_circular_toctree(app, status, warning):
         'contents <- sub <- contents') in warnings
 
 
-@with_app(buildername='text', testroot='numbered-circular')
+@pytest.mark.sphinx(buildername='text', testroot='numbered-circular')
 def test_numbered_circular_toctree(app, status, warning):
     app.builder.build_all()
     warnings = warning.getvalue()
@@ -116,7 +114,7 @@ def test_numbered_circular_toctree(app, status, warning):
         'contents <- sub <- contents') in warnings
 
 
-@with_app(buildername='dummy', testroot='image-glob')
+@pytest.mark.sphinx(buildername='dummy', testroot='image-glob')
 def test_image_glob(app, status, warning):
     app.builder.build_all()
 
