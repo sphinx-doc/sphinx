@@ -16,7 +16,7 @@ from docutils.parsers.rst.directives.html import MetaBody
 from sphinx import addnodes
 from sphinx.versioning import add_uids, merge_doctrees, get_ratio
 
-from util import TestApp
+from util import SphinxTestApp
 
 
 app = original = original_uids = None
@@ -24,7 +24,7 @@ app = original = original_uids = None
 
 def setup_module():
     global app, original, original_uids
-    app = TestApp(testroot='versioning')
+    app = SphinxTestApp(testroot='versioning')
     app.builder.env.app = app
     app.connect('doctree-resolved', on_doctree_resolved)
     app.build()

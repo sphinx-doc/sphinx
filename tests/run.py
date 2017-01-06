@@ -17,10 +17,14 @@ import warnings
 import traceback
 
 from path import path
-import pytest
 
 testroot = os.path.dirname(__file__) or '.'
 sys.path.insert(0, os.path.abspath(os.path.join(testroot, os.path.pardir)))
+
+# filter warnings of test dependencies
+warnings.filterwarnings('ignore', category=DeprecationWarning, module='site')  # virtualenv
+warnings.filterwarnings('ignore', category=ImportWarning, module='backports')
+warnings.filterwarnings('ignore', category=PendingDeprecationWarning, module=r'_pytest\..*')
 
 # check dependencies before testing
 print('Checking dependencies...')
@@ -49,9 +53,6 @@ tempdir.makedirs()
 print('Running Sphinx test suite (with Python %s)...' % sys.version.split()[0])
 sys.stdout.flush()
 
-# filter warnings of test dependencies
-warnings.filterwarnings('ignore', category=DeprecationWarning, module='site')  # virtualenv
-
 # exclude 'root' and 'roots' dirs for pytest test collector
 ignore_paths = [
     os.path.relpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), sub))
@@ -61,4 +62,5 @@ args = sys.argv[1:]
 for path in ignore_paths:
     args.extend(['--ignore', path])
 
+import pytest
 sys.exit(pytest.main(args))

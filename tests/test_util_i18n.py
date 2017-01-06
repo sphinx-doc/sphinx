@@ -12,30 +12,27 @@ from __future__ import print_function
 
 import os
 import datetime
-from os import path
 
+import pytest
 from babel.messages.mofile import read_mo
 from sphinx.util import i18n
 from sphinx.errors import SphinxError
-import pytest
-
-from util import TestApp
 
 
 def test_catalog_info_for_file_and_path():
     cat = i18n.CatalogInfo('path', 'domain', 'utf-8')
     assert cat.po_file == 'domain.po'
     assert cat.mo_file == 'domain.mo'
-    assert cat.po_path == path.join('path', 'domain.po')
-    assert cat.mo_path == path.join('path', 'domain.mo')
+    assert cat.po_path == os.path.join('path', 'domain.po')
+    assert cat.mo_path == os.path.join('path', 'domain.mo')
 
 
 def test_catalog_info_for_sub_domain_file_and_path():
     cat = i18n.CatalogInfo('path', 'sub/domain', 'utf-8')
     assert cat.po_file == 'sub/domain.po'
     assert cat.mo_file == 'sub/domain.mo'
-    assert cat.po_path == path.join('path', 'sub/domain.po')
-    assert cat.mo_path == path.join('path', 'sub/domain.mo')
+    assert cat.po_path == os.path.join('path', 'sub/domain.po')
+    assert cat.mo_path == os.path.join('path', 'sub/domain.mo')
 
 
 def test_catalog_outdated(tempdir):
@@ -55,7 +52,7 @@ def test_catalog_write_mo(tempdir):
     (tempdir / 'test.po').write_text('#')
     cat = i18n.CatalogInfo(tempdir, 'test', 'utf-8')
     cat.write_mo('en')
-    assert path.exists(cat.mo_path)
+    assert os.path.exists(cat.mo_path)
     with open(cat.mo_path, 'rb') as f:
         assert read_mo(f) is not None
 
@@ -207,9 +204,7 @@ def test_format_date():
     assert i18n.format_date(format, date=date) == 'Feb 7, 2016'
 
 
-def test_get_filename_for_language():
-    app = TestApp()
-
+def test_get_filename_for_language(app):
     # language is None
     app.env.config.language = None
     assert app.env.config.language is None

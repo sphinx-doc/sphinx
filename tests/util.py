@@ -207,7 +207,6 @@ def strip_escseq(text):
 # #############################################
 # DEPRECATED implementations
 
-import tempfile
 from six import StringIO
 
 
