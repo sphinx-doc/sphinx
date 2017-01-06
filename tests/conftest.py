@@ -36,7 +36,7 @@ def app(app_params, make_app):
     """
     args, kwargs = app_params
     app_ = make_app(*args, **kwargs)
-    yield app_
+    return app_
 
 
 @pytest.fixture(scope='function')
