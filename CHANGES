@@ -6,6 +6,7 @@ Features added
 
 * #3241: emit latex warning if buggy titlesec (ref #3210)
 * #3194: Refer the $MAKE environment variable to determine ``make`` command
+* Emit warning for nested numbered toctrees (refs: #3142)
 
 Bugs fixed
 ----------
@@ -17,6 +18,10 @@ Bugs fixed
 * #3255: In Py3.4 environment, autodoc doesn't support documentation for
   attributes of Enum class correctly.
 * #3261: ``latex_use_parts`` makes sphinx crash
+* The warning type ``misc.highlighting_failure`` does not work
+* #3294: ``add_latex_package()`` make crashes non-LaTeX builders
+* The caption of table are rendered as invalid HTML (refs: #3287)
+
 
 Release 1.5.1 (released Dec 13, 2016)
 =====================================

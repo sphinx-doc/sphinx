@@ -233,6 +233,7 @@ General configuration
    * ref.citation
    * ref.doc
    * misc.highlighting_failure
+   * toc.secnum
    * epub.unknown_project_files
 
    You can choose from these types.

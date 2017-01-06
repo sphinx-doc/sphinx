@@ -144,7 +144,7 @@ class PygmentsBridge(object):
             elif warn:
                 warn('Could not lex literal_block as "%s". '
                      'Highlighting skipped.' % lang,
-                     type='misc', subtype='higlighting_failure')
+                     type='misc', subtype='highlighting_failure')
             else:
                 raise exc
             hlsource = highlight(source, lexers['none'], formatter)

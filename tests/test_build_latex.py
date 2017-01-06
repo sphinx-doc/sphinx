@@ -50,7 +50,7 @@ def kpsetest(*filenames):
     except OSError:
         # no kpsewhich... either no tex distribution is installed or it is
         # a "strange" one -- don't bother running latex
-        return None
+        return False
     else:
         p.communicate()
         if p.returncode != 0:
@@ -84,8 +84,8 @@ def compile_latex_document(app):
 
 def skip_if_stylefiles_notfound(testfunc):
     if kpsetest(*STYLEFILES) is False:
-        return skip_if(testfunc,
-                       'not running latex, the required styles do not seem to be installed')
+        msg = 'not running latex, the required styles do not seem to be installed'
+        return skip_if(True, msg)(testfunc)
     else:
         return testfunc
 

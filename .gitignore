@@ -4,6 +4,7 @@
 *.swp
 
 .dir-locals.el
+.mypy_cache/
 .ropeproject/
 TAGS
 .tags
