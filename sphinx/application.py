@@ -55,7 +55,7 @@ if False:
     from docutils.parsers import Parser  # NOQA
     from docutils.transform import Transform  # NOQA
     from sphinx.builders import Builder  # NOQA
-    from sphinx.domains import Domain  # NOQA
+    from sphinx.domains import Domain, Index  # NOQA
 
 # List of all known core events. Maps name to arguments description.
 events = {
@@ -430,7 +430,7 @@ class Sphinx(object):
         logger.debug2(message, *args, **kwargs)
 
     def _display_chunk(chunk):
-        # type: (Union[List, Tuple, unicode]) -> unicode
+        # type: (Any) -> unicode
         if isinstance(chunk, (list, tuple)):
             if len(chunk) == 1:
                 return text_type(chunk[0])
@@ -742,7 +742,7 @@ class Sphinx(object):
         self.domains[domain].roles[name] = role
 
     def add_index_to_domain(self, domain, index):
-        # type: (unicode, unicode) -> None
+        # type: (unicode, Type[Index]) -> None
         logger.debug('[app] adding index to domain: %r', (domain, index))
         if domain not in self.domains:
             raise ExtensionError('domain %s not yet registered' % domain)

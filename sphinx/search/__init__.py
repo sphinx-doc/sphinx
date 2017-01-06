@@ -431,7 +431,7 @@ class IndexBuilder(object):
             # again, stemmer must not remove words from search index
             if not _filter(stemmed_word) and _filter(word):
                 stemmed_word = word
-            already_indexed = docname in self._title_mapping.get(stemmed_word, [])
+            already_indexed = docname in self._title_mapping.get(stemmed_word, set())
             if _filter(stemmed_word) and not already_indexed:
                 self._mapping.setdefault(stemmed_word, set()).add(docname)
 

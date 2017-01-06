@@ -816,6 +816,7 @@ class StandaloneHTMLBuilder(Builder):
         ctx['warn'] = self.warn
         # current_page_name is backwards compatibility
         ctx['pagename'] = ctx['current_page_name'] = pagename
+        ctx['encoding'] = self.config.html_output_encoding
         default_baseuri = self.get_target_uri(pagename)
         # in the singlehtml builder, default_baseuri still contains an #anchor
         # part, which relative_uri doesn't really like...
@@ -843,14 +844,11 @@ class StandaloneHTMLBuilder(Builder):
             return False
         ctx['hasdoc'] = hasdoc
 
-        if self.name != 'htmlhelp':
-            ctx['encoding'] = encoding = self.config.html_output_encoding
-        else:
-            ctx['encoding'] = encoding = self.encoding
         ctx['toctree'] = lambda **kw: self._get_local_toctree(pagename, **kw)
         self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
 
+        self.update_page_context(pagename, templatename, ctx, event_arg)
         newtmpl = self.app.emit_firstresult('html-page-context', pagename,
                                             templatename, ctx, event_arg)
         if newtmpl:
@@ -869,7 +867,7 @@ class StandaloneHTMLBuilder(Builder):
         # outfilename's path is in general different from self.outdir
         ensuredir(path.dirname(outfilename))
         try:
-            with codecs.open(outfilename, 'w', encoding, 'xmlcharrefreplace') as f:  # type: ignore  # NOQA
+            with codecs.open(outfilename, 'w', ctx['encoding'], 'xmlcharrefreplace') as f:  # type: ignore  # NOQA
                 f.write(output)
         except (IOError, OSError) as err:
             logger.warning("error writing file %s: %s", outfilename, err)
@@ -879,6 +877,9 @@ class StandaloneHTMLBuilder(Builder):
                                     os_path(ctx['sourcename']))
             ensuredir(path.dirname(source_name))
             copyfile(self.env.doc2path(pagename), source_name)
+
+    def update_page_context(self, pagename, templatename, ctx, event_arg):
+        pass
 
     def handle_finish(self):
         # type: () -> None

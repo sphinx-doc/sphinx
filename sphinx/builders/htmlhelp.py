@@ -199,6 +199,9 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         return codecs.open(path.join(outdir, basename), mode,
                            self.encoding, 'xmlcharrefreplace')
 
+    def update_page_context(self, pagename, templatename, ctx, event_arg):
+        ctx['encoding'] = self.encoding
+
     def handle_finish(self):
         self.build_hhx(self.outdir, self.config.htmlhelp_basename)
 
