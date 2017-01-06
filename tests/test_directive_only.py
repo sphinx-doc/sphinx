@@ -13,11 +13,10 @@ import re
 
 from docutils import nodes
 from sphinx.util.nodes import process_only_nodes
+import pytest
 
-from util import with_app
 
-
-@with_app('text', testroot='directive-only')
+@pytest.mark.sphinx('text', testroot='directive-only')
 def test_sectioning(app, status, warning):
 
     def getsects(section):

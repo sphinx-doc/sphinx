@@ -9,10 +9,10 @@
     :license: BSD, see LICENSE for details.
 """
 
-from util import with_app
+import pytest
 
 
-@with_app('html', testroot='ext-githubpages')
+@pytest.mark.sphinx('html', testroot='ext-githubpages')
 def test_githubpages(app, status, warning):
     app.builder.build_all()
     assert (app.outdir / '.nojekyll').exists()

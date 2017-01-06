@@ -72,14 +72,13 @@ reindent:
 	@$(PYTHON) utils/reindent.py -r -n .
 
 test:
-	@cd tests; $(PYTHON) run.py -I py35 -d -m '^[tT]est' $(TEST)
+	@cd tests; $(PYTHON) run.py --ignore py35 -v $(TEST)
 
 test-async:
-	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' $(TEST)
+	@cd tests; $(PYTHON) run.py -v $(TEST)
 
 covertest:
-	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' --with-coverage \
-		--cover-package=sphinx $(TEST)
+	@cd tests; $(PYTHON) run.py -v --cov=sphinx --junitxml=.junit.xml $(TEST)
 
 build:
 	@$(PYTHON) setup.py build

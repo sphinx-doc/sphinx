@@ -54,7 +54,6 @@ def test_images():
                            'http://www.python.org/logo.png')
 
     tree = env.get_doctree('images')
-    app._warning.reset()
     htmlbuilder = StandaloneHTMLBuilder(app)
     htmlbuilder.imgpath = 'dummy'
     htmlbuilder.post_process_images(tree)
@@ -64,7 +63,6 @@ def test_images():
     assert set(htmlbuilder.images.values()) == \
         set(['img.png', 'img1.png', 'simg.png', 'svgimg.svg', 'img.foo.png'])
 
-    app._warning.reset()
     latexbuilder = LaTeXBuilder(app)
     latexbuilder.post_process_images(tree)
     assert set(latexbuilder.images.keys()) == \

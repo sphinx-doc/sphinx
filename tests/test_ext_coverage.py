@@ -11,10 +11,10 @@
 
 import pickle
 
-from util import with_app
+import pytest
 
 
-@with_app(buildername='coverage')
+@pytest.mark.sphinx('coverage')
 def test_build(app, status, warning):
     app.builder.build_all()
 

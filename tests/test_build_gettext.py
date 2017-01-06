@@ -15,9 +15,11 @@ import re
 import gettext
 from subprocess import Popen, PIPE
 
-from nose.tools import assert_true, assert_equal
+import pytest
 
-from util import with_app, gen_with_app, SkipTest, assert_in
+from util import (
+    gen_with_app, SkipTest, assert_in, assert_true, assert_equal
+)
 
 
 @gen_with_app('gettext', srcdir='root-gettext')
@@ -76,8 +78,9 @@ def test_all(app, status, warning):
     yield assert_equal, _("Testing various markup"), u"Testing various markup"
 
 
-@with_app('gettext', testroot='intl',
-          confoverrides={'gettext_compact': False})
+@pytest.mark.sphinx(
+    'gettext', testroot='intl', srcdir='gettext',
+    confoverrides={'gettext_compact': False})
 def test_gettext_index_entries(app, status, warning):
     # regression test for #976
     app.builder.build(['index_entries'])
@@ -123,8 +126,9 @@ def test_gettext_index_entries(app, status, warning):
     assert msgids == []
 
 
-@with_app('gettext', testroot='intl',
-          confoverrides={'gettext_compact': False, 'gettext_additional_targets': []})
+@pytest.mark.sphinx(
+    'gettext', testroot='intl', srcdir='gettext',
+    confoverrides={'gettext_compact': False, 'gettext_additional_targets': []})
 def test_gettext_disable_index_entries(app, status, warning):
     # regression test for #976
     app.builder.build(['index_entries'])
@@ -155,7 +159,7 @@ def test_gettext_disable_index_entries(app, status, warning):
     assert msgids == []
 
 
-@with_app(buildername='gettext', testroot='intl')
+@pytest.mark.sphinx('gettext', testroot='intl', srcdir='gettext')
 def test_gettext_template(app, status, warning):
     app.builder.build_all()
     assert (app.outdir / 'sphinx.pot').isfile()

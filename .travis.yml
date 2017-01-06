@@ -12,7 +12,7 @@ python:
   - "pypy"
 env:
   global:
-    - TEST='-v --with-timer --timer-top-n 25'
+    - TEST='-v --durations 25'
     - PYTHONFAULTHANDLER=x
     - PYTHONWARNINGS=all
   matrix:

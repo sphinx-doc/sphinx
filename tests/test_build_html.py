@@ -15,19 +15,17 @@ import re
 from six import PY3, iteritems
 
 from sphinx import __display_version__
-from util import remove_unicode_literals, gen_with_app, with_app, strip_escseq
+from util import remove_unicode_literals, gen_with_app, strip_escseq
 from etree13 import ElementTree
 from html5lib import getTreeBuilder, HTMLParser
+import pytest
 
 
 TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
 HTML_PARSER = HTMLParser(TREE_BUILDER, namespaceHTMLElements=False)
 
 ENV_WARNINGS = """\
-(%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
-WARNING: duplicate object description of autodoc_fodder.MarkupError, other \
-instance in %(root)s/autodoc.rst, use :noindex: for one of them
-)?%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
+%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
 WARNING: Explicit markup ends without a blank line; unexpected unindent.
 %(root)s/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
 file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
@@ -36,7 +34,7 @@ file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
 %(root)s/index.rst:\\d+: WARNING: download file not readable: %(root)s/nonexisting.png
 %(root)s/index.rst:\\d+: WARNING: invalid single index entry u''
 %(root)s/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
-with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
+with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
@@ -387,7 +385,7 @@ def check_extra_entries(outdir):
     assert (outdir / 'robots.txt').isfile()
 
 
-@with_app(buildername='html', testroot='warnings', freshenv=True)
+@pytest.mark.sphinx('html', testroot='warnings', freshenv=True)
 def test_html_warnings(app, status, warning):
     app.builder.build_all()
     html_warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
@@ -662,7 +660,7 @@ def test_numfig_without_numbered_toctree(app, status, warning):
             yield check_xpath, etree, fname, xpath, check, be_found
 
 
-@gen_with_app(buildername='html', testroot='numfig',
+@gen_with_app(buildername='html', testroot='numfig', srcdir='test_build_html_numfig_on',
               confoverrides={'numfig': True})
 def test_numfig_with_numbered_toctree(app, status, warning):
     app.builder.build_all()
@@ -763,6 +761,7 @@ def test_numfig_with_numbered_toctree(app, status, warning):
 
 
 @gen_with_app(buildername='html', testroot='numfig',
+              srcdir='test_build_html_numfig_format_warn',
               confoverrides={'numfig': True,
                              'numfig_format': {'figure': 'Figure:%s',
                                                'table': 'Tab_%s',
@@ -867,6 +866,7 @@ def test_numfig_with_prefix(app, status, warning):
 
 
 @gen_with_app(buildername='html', testroot='numfig',
+              srcdir='test_build_html_numfig_depth_2',
               confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
 def test_numfig_with_secnum_depth(app, status, warning):
     app.builder.build_all()
@@ -967,6 +967,7 @@ def test_numfig_with_secnum_depth(app, status, warning):
 
 
 @gen_with_app(buildername='singlehtml', testroot='numfig',
+              srcdir='test_build_html_numfig_on',
               confoverrides={'numfig': True})
 def test_numfig_with_singlehtml(app, status, warning):
     app.builder.build_all()
@@ -1084,7 +1085,7 @@ def test_enumerable_node(app, status, warning):
             yield check_xpath, etree, fname, xpath, check, be_found
 
 
-@with_app(buildername='html', testroot='html_assets')
+@pytest.mark.sphinx('html', testroot='html_assets')
 def test_html_assets(app, status, warning):
     app.builder.build_all()
 
@@ -1112,7 +1113,7 @@ def test_html_assets(app, status, warning):
     assert not (app.outdir / 'subdir' / '.htpasswd').exists()
 
 
-@with_app(buildername='html', confoverrides={'html_sourcelink_suffix': ''})
+@pytest.mark.sphinx('html', confoverrides={'html_sourcelink_suffix': ''})
 def test_html_sourcelink_suffix(app, status, warning):
     app.builder.build_all()
     content_otherext = (app.outdir / 'otherext.html').text()

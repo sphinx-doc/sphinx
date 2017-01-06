@@ -10,14 +10,13 @@
 import os
 import re
 import sys
-import tempfile
 import warnings
 from functools import wraps
 from xml.etree import ElementTree
 
-from six import StringIO, string_types
+from six import string_types
 
-from nose import tools, SkipTest
+import pytest
 
 from docutils import nodes
 from docutils.parsers.rst import directives, roles
@@ -27,51 +26,22 @@ from sphinx.builders.latex import LaTeXBuilder
 from sphinx.theming import Theme
 from sphinx.ext.autodoc import AutoDirective
 from sphinx.pycode import ModuleAnalyzer
+from sphinx.deprecation import RemovedInSphinx17Warning
 
-from path import path, repr_as  # NOQA
+from path import path
 
 
 __all__ = [
-    'rootdir', 'tempdir', 'raises', 'raises_msg',
-    'skip_if', 'skip_unless', 'skip_unless_importable', 'Struct',
-    'ListOutput', 'TestApp', 'with_app', 'gen_with_app',
-    'path', 'with_tempdir',
-    'sprint', 'remove_unicode_literals',
+    'rootdir', 'tempdir',
+    'skip_unless_importable', 'Struct',
+    'SphinxTestApp',
+    'path',
+    'remove_unicode_literals',
 ]
 
 
 rootdir = path(os.path.dirname(__file__) or '.').abspath()
 tempdir = path(os.environ['SPHINX_TEST_TEMPDIR']).abspath()
-
-
-def _excstr(exc):
-    if type(exc) is tuple:
-        return str(tuple(map(_excstr, exc)))
-    return exc.__name__
-
-
-def raises(exc, func, *args, **kwds):
-    """Raise AssertionError if ``func(*args, **kwds)`` does not raise *exc*."""
-    try:
-        func(*args, **kwds)
-    except exc:
-        pass
-    else:
-        raise AssertionError('%s did not raise %s' %
-                             (func.__name__, _excstr(exc)))
-
-
-def raises_msg(exc, msg, func, *args, **kwds):
-    """Raise AssertionError if ``func(*args, **kwds)`` does not raise *exc*,
-    and check if the message contains *msg*.
-    """
-    try:
-        func(*args, **kwds)
-    except exc as err:
-        assert msg in str(err), "\"%s\" not in \"%s\"" % (msg, err)
-    else:
-        raise AssertionError('%s did not raise %s' %
-                             (func.__name__, _excstr(exc)))
 
 
 def assert_re_search(regex, text, flags=0):
@@ -118,43 +88,14 @@ def assert_node(node, cls=None, xpath="", **kwargs):
             'The node%s[%s] is not %r: %r' % (xpath, key, value, node[key])
 
 
-try:
-    from nose.tools import assert_in, assert_not_in
-except ImportError:
-    def assert_in(x, thing, msg=''):
-        if x not in thing:
-            assert False, msg or '%r is not in %r' % (x, thing)
-
-    def assert_not_in(x, thing, msg=''):
-        if x in thing:
-            assert False, msg or '%r is in %r' % (x, thing)
-
-
-def skip_if(condition, msg=None):
-    """Decorator to skip test if condition is true."""
-    def deco(test):
-        @tools.make_decorator(test)
-        def skipper(*args, **kwds):
-            if condition:
-                raise SkipTest(msg or 'conditional skip')
-            return test(*args, **kwds)
-        return skipper
-    return deco
-
-
-def skip_unless(condition, msg=None):
-    """Decorator to skip test if condition is false."""
-    return skip_if(not condition, msg)
-
-
 def skip_unless_importable(module, msg=None):
     """Decorator to skip test if module is not importable."""
     try:
         __import__(module)
     except ImportError:
-        return skip_if(True, msg)
+        return pytest.mark.skipif(True, reason=(msg or 'conditional skip'))
     else:
-        return skip_if(False, msg)
+        return pytest.mark.skipif(False, reason=(msg or 'conditional skip'))
 
 
 def etree_parse(path):
@@ -168,22 +109,7 @@ class Struct(object):
         self.__dict__.update(kwds)
 
 
-class ListOutput(object):
-    """
-    File-like object that collects written text in a list.
-    """
-    def __init__(self, name):
-        self.name = name
-        self.content = []
-
-    def reset(self):
-        del self.content[:]
-
-    def write(self, text):
-        self.content.append(text)
-
-
-class TestApp(application.Sphinx):
+class SphinxTestApp(application.Sphinx):
     """
     A subclass of :class:`Sphinx` that runs on the test root, with some
     better default values for the initialization parameters.
@@ -222,10 +148,6 @@ class TestApp(application.Sphinx):
             doctreedir.makedirs()
         if confoverrides is None:
             confoverrides = {}
-        if status is None:
-            status = StringIO()
-        if warning is None:
-            warning = ListOutput('stderr')
 #        if warningiserror is None:
         warningiserror = False
 
@@ -263,59 +185,6 @@ class TestApp(application.Sphinx):
         return '<%s buildername=%r>' % (self.__class__.__name__, self.builder.name)
 
 
-def with_app(*args, **kwargs):
-    """
-    Make a TestApp with args and kwargs, pass it to the test and clean up
-    properly.
-    """
-    def generator(func):
-        @wraps(func)
-        def deco(*args2, **kwargs2):
-            status, warning = StringIO(), StringIO()
-            kwargs['status'] = status
-            kwargs['warning'] = warning
-            app = TestApp(*args, **kwargs)
-            try:
-                func(app, status, warning, *args2, **kwargs2)
-            finally:
-                app.cleanup()
-        return deco
-    return generator
-
-
-def gen_with_app(*args, **kwargs):
-    """
-    Decorate a test generator to pass a TestApp as the first argument to the
-    test generator when it's executed.
-    """
-    def generator(func):
-        @wraps(func)
-        def deco(*args2, **kwargs2):
-            status, warning = StringIO(), StringIO()
-            kwargs['status'] = status
-            kwargs['warning'] = warning
-            app = TestApp(*args, **kwargs)
-            try:
-                for item in func(app, status, warning, *args2, **kwargs2):
-                    yield item
-            finally:
-                app.cleanup()
-        return deco
-    return generator
-
-
-def with_tempdir(func):
-    def new_func(*args, **kwds):
-        new_tempdir = path(tempfile.mkdtemp(dir=tempdir))
-        func(new_tempdir, *args, **kwds)
-    new_func.__name__ = func.__name__
-    return new_func
-
-
-def sprint(*args):
-    sys.stderr.write(' '.join(map(str, args)) + '\n')
-
-
 _unicode_literals_re = re.compile(r'u(".*?")|u(\'.*?\')')
 
 
@@ -333,3 +202,163 @@ def find_files(root, suffix=None):
 
 def strip_escseq(text):
     return re.sub('\x1b.*?m', '', text)
+
+
+# #############################################
+# DEPRECATED implementations
+
+import tempfile
+from six import StringIO
+
+
+def gen_with_app(*args, **kwargs):
+    """
+    **DEPRECATED**: use pytest.mark.parametrize instead.
+
+    Decorate a test generator to pass a SphinxTestApp as the first argument to
+    the test generator when it's executed.
+    """
+    def generator(func):
+        @wraps(func)
+        def deco(*args2, **kwargs2):
+            status, warning = StringIO(), StringIO()
+            kwargs['status'] = status
+            kwargs['warning'] = warning
+            app = SphinxTestApp(*args, **kwargs)
+            try:
+                for item in func(app, status, warning, *args2, **kwargs2):
+                    yield item
+            finally:
+                app.cleanup()
+        return deco
+    return generator
+
+
+def skip_if(condition, msg=None):
+    """
+    **DEPRECATED**: use pytest.mark.skipif instead.
+
+    Decorator to skip test if condition is true.
+    """
+    return pytest.mark.skipif(condition, reason=(msg or 'conditional skip'))
+
+
+def skip_unless(condition, msg=None):
+    """
+    **DEPRECATED**: use pytest.mark.skipif instead.
+
+    Decorator to skip test if condition is false.
+    """
+    return pytest.mark.skipif(not condition, reason=(msg or 'conditional skip'))
+
+
+def with_tempdir(func):
+    """
+    **DEPRECATED**: use tempdir fixture instead.
+    """
+    return func
+
+
+def raises(exc, func, *args, **kwds):
+    """
+    **DEPRECATED**: use pytest.raises instead.
+
+    Raise AssertionError if ``func(*args, **kwds)`` does not raise *exc*.
+    """
+    with pytest.raises(exc):
+        func(*args, **kwds)
+
+
+def raises_msg(exc, msg, func, *args, **kwds):
+    """
+    **DEPRECATED**: use pytest.raises instead.
+
+    Raise AssertionError if ``func(*args, **kwds)`` does not raise *exc*,
+    and check if the message contains *msg*.
+    """
+    with pytest.raises(exc) as excinfo:
+        func(*args, **kwds)
+    assert msg in str(excinfo.value)
+
+
+def assert_true(v1, msg=''):
+    """
+    **DEPRECATED**: use assert instead.
+    """
+    assert v1, msg
+
+
+def assert_equal(v1, v2, msg=''):
+    """
+    **DEPRECATED**: use assert instead.
+    """
+    assert v1 == v2, msg
+
+
+def assert_in(x, thing, msg=''):
+    """
+    **DEPRECATED**: use assert instead.
+    """
+    if x not in thing:
+        assert False, msg or '%r is not in %r' % (x, thing)
+
+
+def assert_not_in(x, thing, msg=''):
+    """
+    **DEPRECATED**: use assert instead.
+    """
+    if x in thing:
+        assert False, msg or '%r is in %r' % (x, thing)
+
+
+class ListOutput(object):
+    """
+    File-like object that collects written text in a list.
+    """
+    def __init__(self, name):
+        self.name = name
+        self.content = []
+
+    def reset(self):
+        del self.content[:]
+
+    def write(self, text):
+        self.content.append(text)
+
+
+# **DEPRECATED**: use pytest.skip instead.
+SkipTest = pytest.skip.Exception
+
+
+class _DeprecationWrapper(object):
+    def __init__(self, mod, deprecated):
+        self._mod = mod
+        self._deprecated = deprecated
+
+    def __getattr__(self, attr):
+        if attr in self._deprecated:
+            obj, instead = self._deprecated[attr]
+            warnings.warn("tests/util.py::%s is deprecated and will be "
+                          "removed in Sphinx 1.7, please use %s instead."
+                          % (attr, instead),
+                          RemovedInSphinx17Warning, stacklevel=2)
+            return obj
+        return getattr(self._mod, attr)
+
+
+sys.modules[__name__] = _DeprecationWrapper(sys.modules[__name__], dict(  # type: ignore
+    with_app=(pytest.mark.sphinx, 'pytest.mark.sphinx'),
+    TestApp=(SphinxTestApp, 'SphinxTestApp'),
+    gen_with_app=(gen_with_app, 'pytest.mark.parametrize'),
+    skip_if=(skip_if, 'pytest.skipif'),
+    skip_unless=(skip_unless, 'pytest.skipif'),
+    with_tempdir=(with_tempdir, 'tmpdir pytest fixture'),
+    raises=(raises, 'pytest.raises'),
+    raises_msg=(raises_msg, 'pytest.raises'),
+    assert_true=(assert_true, 'assert'),
+    assert_equal=(assert_equal, 'assert'),
+    assert_in=(assert_in, 'assert'),
+    assert_not_in=(assert_not_in, 'assert'),
+    ListOutput=(ListOutput, 'StringIO'),
+    SkipTest=(SkipTest, 'pytest.skip'),
+))

@@ -20,8 +20,9 @@ from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
 from sphinx.writers.html import HTMLWriter, SmartyPantsHTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
+import pytest
 
-from util import TestApp, with_app, assert_node
+from util import TestApp, assert_node
 
 
 app = settings = parser = domain_context = None
@@ -152,7 +153,7 @@ def test_latex_escaping():
            r'\\href{http://example.com/~me/}{test}.*')
 
 
-@with_app(buildername='dummy', testroot='prolog')
+@pytest.mark.sphinx('dummy', testroot='prolog')
 def test_rst_prolog(app, status, warning):
     app.builder.build_all()
     rst = pickle.loads((app.doctreedir / 'restructuredtext.doctree').bytes())
@@ -176,7 +177,7 @@ def test_rst_prolog(app, status, warning):
     assert not md.rawsource.endswith('*Good-bye world*.\n')
 
 
-@with_app(buildername='dummy', testroot='keep_warnings')
+@pytest.mark.sphinx('dummy', testroot='keep_warnings')
 def test_keep_warnings_is_True(app, status, warning):
     app.builder.build_all()
     doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
@@ -185,7 +186,7 @@ def test_keep_warnings_is_True(app, status, warning):
     assert_node(doctree[0][1], nodes.system_message)
 
 
-@with_app(buildername='dummy', testroot='keep_warnings',
+@pytest.mark.sphinx('dummy', testroot='keep_warnings',
           confoverrides={'keep_warnings': False})
 def test_keep_warnings_is_False(app, status, warning):
     app.builder.build_all()
@@ -194,7 +195,7 @@ def test_keep_warnings_is_False(app, status, warning):
     assert len(doctree[0]) == 1
 
 
-@with_app(buildername='dummy', testroot='refonly_bullet_list')
+@pytest.mark.sphinx('dummy', testroot='refonly_bullet_list')
 def test_compact_refonly_bullet_list(app, status, warning):
     app.builder.build_all()
     doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())

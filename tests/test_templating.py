@@ -9,10 +9,10 @@
     :license: BSD, see LICENSE for details.
 """
 
-from util import with_app
+import pytest
 
 
-@with_app('html', testroot='templating')
+@pytest.mark.sphinx('html', testroot='templating')
 def test_layout_overloading(app, status, warning):
     app.builder.build_update()
 
@@ -21,7 +21,7 @@ def test_layout_overloading(app, status, warning):
     assert '<!-- layout overloading -->' in result
 
 
-@with_app('html', testroot='templating')
+@pytest.mark.sphinx('html', testroot='templating')
 def test_autosummary_class_template_overloading(app, status, warning):
     app.builder.build_update()
 
