@@ -16,7 +16,7 @@ import copy
 
 from six import string_types
 from docutils import nodes
-from docutils.writers.html4css1 import Writer, HTMLTranslator as BaseTranslator
+from sphinx.util.compat_docutils import Writer, HTMLTranslator as BaseTranslator
 
 from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
@@ -82,6 +82,10 @@ class HTMLTranslator(BaseTranslator):
         self.param_separator = ''
         self.optional_param_level = 0
         self._table_row_index = 0
+
+    def set_first_last(self, node):
+        self.set_class_on_child(node, 'first', 0)
+        self.set_class_on_child(node, 'last', -1)
 
     def visit_start_of_file(self, node):
         # only occurs in the single-file builder
@@ -531,6 +535,10 @@ class HTMLTranslator(BaseTranslator):
                     if 'height' not in node:
                         node['height'] = str(size[1])
         BaseTranslator.visit_image(self, node)
+        self.context.append('')
+
+    def depart_image(self, node):
+        self.body.append(self.context.pop())
 
     # overwritten
     def depart_image(self, node):
@@ -724,7 +732,13 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_table(self, node):
         self._table_row_index = 0
-        return BaseTranslator.visit_table(self, node)
+        classes = [cls.strip(u' \t\n')
+                   for cls in self.settings.table_style.split(',')]
+        classes.insert(0, "docutils")  # compat
+        if 'align' in node:
+            classes.append('align-%s' % node['align'])
+        tag = self.starttag(node, 'table', CLASS=' '.join(classes))
+        self.body.append(tag)
 
     def visit_row(self, node):
         self._table_row_index += 1
@@ -745,7 +759,7 @@ class HTMLTranslator(BaseTranslator):
             node['classes'].append('field-even')
         else:
             node['classes'].append('field-odd')
-        self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
+        return node
 
     def visit_math(self, node, math_env=''):
         logger.warning('using "math" markup without a Sphinx math extension '

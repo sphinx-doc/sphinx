@@ -132,14 +132,14 @@ HTML_XPATH = {
         (".//p[@class='last']", 'Note text.'),
         (".//p[@class='last']", 'Warning text.'),
         # inline markup
-        (".//li/strong", r'^command\\n$'),
-        (".//li/strong", r'^program\\n$'),
-        (".//li/em", r'^dfn\\n$'),
-        (".//li/code/span[@class='pre']", r'^kbd\\n$'),
-        (".//li/span", u'File \N{TRIANGULAR BULLET} Close'),
-        (".//li/code/span[@class='pre']", '^a/$'),
-        (".//li/code/em/span[@class='pre']", '^varpart$'),
-        (".//li/code/em/span[@class='pre']", '^i$'),
+        (".//li/p/strong", r'^command\\n$'),
+        (".//li/p/strong", r'^program\\n$'),
+        (".//li/p/em", r'^dfn\\n$'),
+        (".//li/p/code/span[@class='pre']", r'^kbd\\n$'),
+        (".//li/p/span", u'File \N{TRIANGULAR BULLET} Close'),
+        (".//li/p/code/span[@class='pre']", '^a/$'),
+        (".//li/p/code/em/span[@class='pre']", '^varpart$'),
+        (".//li/p/code/em/span[@class='pre']", '^i$'),
         (".//a[@href='https://www.python.org/dev/peps/pep-0008']"
             "[@class='pep reference external']/strong", 'PEP 8'),
         (".//a[@href='https://www.python.org/dev/peps/pep-0008']"
@@ -172,13 +172,13 @@ HTML_XPATH = {
         (".//div[@class='versionchanged']/p",
          'Second paragraph of versionchanged'),
         # footnote reference
-        (".//a[@class='footnote-reference']", r'\[1\]'),
+        (".//a[@class='footnote-reference brackets']", r'1'),
         # created by reference lookup
         (".//a[@href='contents.html#ref1']", ''),
         # ``seealso`` directive
         (".//div/p[@class='first admonition-title']", 'See also'),
         # a ``hlist`` directive
-        (".//table[@class='hlist']/tbody/tr/td/ul/li", '^This$'),
+        (".//table[@class='hlist']/tbody/tr/td/ul/li/p", '^This$'),
         # a ``centered`` directive
         (".//p[@class='centered']/strong", 'LICENSE'),
         # a glossary
@@ -221,24 +221,24 @@ HTML_XPATH = {
         (".//li[@class='toctree-l1']/a[@href='markup.html']",
             'Testing various markup'),
         # test unknown field names
-        (".//th[@class='field-name']", 'Field_name:'),
-        (".//th[@class='field-name']", 'Field_name all lower:'),
-        (".//th[@class='field-name']", 'FIELD_NAME:'),
-        (".//th[@class='field-name']", 'FIELD_NAME ALL CAPS:'),
-        (".//th[@class='field-name']", 'Field_Name:'),
-        (".//th[@class='field-name']", 'Field_Name All Word Caps:'),
-        (".//th[@class='field-name']", 'Field_name:'),
-        (".//th[@class='field-name']", 'Field_name First word cap:'),
-        (".//th[@class='field-name']", 'FIELd_name:'),
-        (".//th[@class='field-name']", 'FIELd_name PARTial caps:'),
+        (".//dt[@class='field-odd']", 'Field_name'),
+        (".//dt[@class='field-even']", 'Field_name all lower'),
+        (".//dt[@class='field-odd']", 'FIELD_NAME'),
+        (".//dt[@class='field-even']", 'FIELD_NAME ALL CAPS'),
+        (".//dt[@class='field-odd']", 'Field_Name'),
+        (".//dt[@class='field-even']", 'Field_Name All Word Caps'),
+        (".//dt[@class='field-odd']", 'Field_name'),
+        (".//dt[@class='field-even']", 'Field_name First word cap'),
+        (".//dt[@class='field-odd']", 'FIELd_name'),
+        (".//dt[@class='field-even']", 'FIELd_name PARTial caps'),
         # custom sidebar
         (".//h4", 'Custom sidebar'),
         # docfields
-        (".//td[@class='field-body']/strong", '^moo$'),
-        (".//td[@class='field-body']/strong", tail_check(r'\(Moo\) .* Moo')),
-        (".//td[@class='field-body']/ul/li/strong", '^hour$'),
-        (".//td[@class='field-body']/ul/li/em", '^DuplicateType$'),
-        (".//td[@class='field-body']/ul/li/em", tail_check(r'.* Some parameter')),
+        (".//dd[@class='field-odd']/p/strong", '^moo$'),
+        (".//dd[@class='field-odd']/p/strong", tail_check(r'\(Moo\) .* Moo')),
+        (".//dd[@class='field-odd']/ul/li/p/strong", '^hour$'),
+        (".//dd[@class='field-odd']/ul/li/p/em", '^DuplicateType$'),
+        (".//dd[@class='field-odd']/ul/li/p/em", tail_check(r'.* Some parameter')),
         # others
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-p']/code/span",
             'perl'),
@@ -266,17 +266,17 @@ HTML_XPATH = {
         (".//meta[@name='hc'][@content='hcval']", ''),
         (".//meta[@name='hc_co'][@content='hcval_co']", ''),
         (".//meta[@name='testopt'][@content='testoverride']", ''),
-        (".//td[@class='label']", r'\[Ref1\]'),
-        (".//td[@class='label']", ''),
+        (".//dt[@class='label']/span[@class='brackets']", r'Ref1'),
+        (".//dt[@class='label']", ''),
         (".//li[@class='toctree-l1']/a", 'Testing various markup'),
         (".//li[@class='toctree-l2']/a", 'Inline markup'),
         (".//title", 'Sphinx <Tests>'),
         (".//div[@class='footer']", 'Georg Brandl & Team'),
         (".//a[@href='http://python.org/']"
             "[@class='reference external']", ''),
-        (".//li/a[@href='genindex.html']/span", 'Index'),
-        (".//li/a[@href='py-modindex.html']/span", 'Module Index'),
-        (".//li/a[@href='search.html']/span", 'Search Page'),
+        (".//li/p/a[@href='genindex.html']/span", 'Index'),
+        (".//li/p/a[@href='py-modindex.html']/span", 'Module Index'),
+        (".//li/p/a[@href='search.html']/span", 'Search Page'),
         # custom sidebar only for contents
         (".//h4", 'Contents sidebar'),
         # custom JavaScript
@@ -310,25 +310,24 @@ HTML_XPATH = {
         (".//li/a", "double"),
     ],
     'footnote.html': [
-        (".//a[@class='footnote-reference'][@href='#id7'][@id='id1']", r"\[1\]"),
-        (".//a[@class='footnote-reference'][@href='#id8'][@id='id2']", r"\[2\]"),
-        (".//a[@class='footnote-reference'][@href='#foo'][@id='id3']", r"\[3\]"),
-        (".//a[@class='reference internal'][@href='#bar'][@id='id4']", r"\[bar\]"),
-        (".//a[@class='footnote-reference'][@href='#id9'][@id='id5']", r"\[4\]"),
-        (".//a[@class='footnote-reference'][@href='#id10'][@id='id6']", r"\[5\]"),
-        (".//a[@class='fn-backref'][@href='#id1']", r"\[1\]"),
-        (".//a[@class='fn-backref'][@href='#id2']", r"\[2\]"),
-        (".//a[@class='fn-backref'][@href='#id3']", r"\[3\]"),
-        (".//a[@class='fn-backref'][@href='#id4']", r"\[bar\]"),
-        (".//a[@class='fn-backref'][@href='#id5']", r"\[4\]"),
-        (".//a[@class='fn-backref'][@href='#id6']", r"\[5\]"),
+        (".//a[@class='footnote-reference brackets'][@href='#id7'][@id='id1']", r"1"),
+        (".//a[@class='footnote-reference brackets'][@href='#id8'][@id='id2']", r"2"),
+        (".//a[@class='footnote-reference brackets'][@href='#foo'][@id='id3']", r"3"),
+        (".//a[@class='reference internal'][@href='#bar'][@id='id4']", r"bar"),
+        (".//a[@class='footnote-reference brackets'][@href='#id9'][@id='id5']", r"4"),
+        (".//a[@class='footnote-reference brackets'][@href='#id10'][@id='id6']", r"5"),
+        (".//a[@class='fn-backref'][@href='#id1']", r"1"),
+        (".//a[@class='fn-backref'][@href='#id2']", r"2"),
+        (".//a[@class='fn-backref'][@href='#id3']", r"3"),
+        (".//a[@class='fn-backref'][@href='#id4']", r"bar"),
+        (".//a[@class='fn-backref'][@href='#id5']", r"4"),
+        (".//a[@class='fn-backref'][@href='#id6']", r"5"),
     ],
     'otherext.html': [
         (".//h1", "Generated section"),
         (".//a[@href='_sources/otherext.foo.txt']", ''),
     ]
 }
-
 
 def check_xpath(etree, fname, path, check, be_found=True):
     nodes = list(etree.findall(path))
@@ -352,6 +351,8 @@ def check_xpath(etree, fname, path, check, be_found=True):
                 # Since pygments-2.1.1, empty <span> tag is inserted at top of
                 # highlighting block
                 if len(node) == 1 and node[0].tag == 'span' and node[0].text is None:
+                    if node[0].tail is None:
+                        return ''
                     return node[0].tail
                 else:
                     return ''
@@ -516,16 +517,16 @@ def test_numfig_disabled(app, status, warning):
             (".//table/caption/span[@class='caption-number']", None, True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", None, True),
-            (".//li/code/span", '^fig1$', True),
-            (".//li/code/span", '^Figure%s$', True),
-            (".//li/code/span", '^table-1$', True),
-            (".//li/code/span", '^Table:%s$', True),
-            (".//li/code/span", '^CODE_1$', True),
-            (".//li/code/span", '^Code-%s$', True),
-            (".//li/code/span", '^foo$', True),
-            (".//li/code/span", '^bar_a$', True),
-            (".//li/code/span", '^Fig.{number}$', True),
-            (".//li/code/span", '^Sect.{number}$', True),
+            (".//li/p/code/span", '^fig1$', True),
+            (".//li/p/code/span", '^Figure%s$', True),
+            (".//li/p/code/span", '^table-1$', True),
+            (".//li/p/code/span", '^Table:%s$', True),
+            (".//li/p/code/span", '^CODE_1$', True),
+            (".//li/p/code/span", '^Code-%s$', True),
+            (".//li/p/code/span", '^foo$', True),
+            (".//li/p/code/span", '^bar_a$', True),
+            (".//li/p/code/span", '^Fig.{number}$', True),
+            (".//li/p/code/span", '^Sect.{number}$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -587,16 +588,16 @@ def test_numfig_without_numbered_toctree(app, status, warning):
              "span[@class='caption-number']", '^Listing 9 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Listing 10 $', True),
-            (".//li/a/span", '^Fig. 9$', True),
-            (".//li/a/span", '^Figure6$', True),
-            (".//li/a/span", '^Table 9$', True),
-            (".//li/a/span", '^Table:6$', True),
-            (".//li/a/span", '^Listing 9$', True),
-            (".//li/a/span", '^Code-6$', True),
-            (".//li/code/span", '^foo$', True),
-            (".//li/code/span", '^bar_a$', True),
-            (".//li/a/span", '^Fig.9 should be Fig.1$', True),
-            (".//li/code/span", '^Sect.{number}$', True),
+            (".//li/p/a/span", '^Fig. 9$', True),
+            (".//li/p/a/span", '^Figure6$', True),
+            (".//li/p/a/span", '^Table 9$', True),
+            (".//li/p/a/span", '^Table:6$', True),
+            (".//li/p/a/span", '^Listing 9$', True),
+            (".//li/p/a/span", '^Code-6$', True),
+            (".//li/p/code/span", '^foo$', True),
+            (".//li/p/code/span", '^bar_a$', True),
+            (".//li/p/a/span", '^Fig.9 should be Fig.1$', True),
+            (".//li/p/code/span", '^Sect.{number}$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -687,16 +688,16 @@ def test_numfig_with_numbered_toctree(app, status, warning):
              "span[@class='caption-number']", '^Listing 1 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Listing 2 $', True),
-            (".//li/a/span", '^Fig. 1$', True),
-            (".//li/a/span", '^Figure2.2$', True),
-            (".//li/a/span", '^Table 1$', True),
-            (".//li/a/span", '^Table:2.2$', True),
-            (".//li/a/span", '^Listing 1$', True),
-            (".//li/a/span", '^Code-2.2$', True),
-            (".//li/a/span", '^Section.1$', True),
-            (".//li/a/span", '^Section.2.1$', True),
-            (".//li/a/span", '^Fig.1 should be Fig.1$', True),
-            (".//li/a/span", '^Sect.1 Foo$', True),
+            (".//li/p/a/span", '^Fig. 1$', True),
+            (".//li/p/a/span", '^Figure2.2$', True),
+            (".//li/p/a/span", '^Table 1$', True),
+            (".//li/p/a/span", '^Table:2.2$', True),
+            (".//li/p/a/span", '^Listing 1$', True),
+            (".//li/p/a/span", '^Code-2.2$', True),
+            (".//li/p/a/span", '^Section.1$', True),
+            (".//li/p/a/span", '^Section.2.1$', True),
+            (".//li/p/a/span", '^Fig.1 should be Fig.1$', True),
+            (".//li/p/a/span", '^Sect.1 Foo$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -791,16 +792,16 @@ def test_numfig_with_prefix(app, status, warning):
              "span[@class='caption-number']", '^Code-1 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Code-2 $', True),
-            (".//li/a/span", '^Figure:1$', True),
-            (".//li/a/span", '^Figure2.2$', True),
-            (".//li/a/span", '^Tab_1$', True),
-            (".//li/a/span", '^Table:2.2$', True),
-            (".//li/a/span", '^Code-1$', True),
-            (".//li/a/span", '^Code-2.2$', True),
-            (".//li/a/span", '^SECTION-1$', True),
-            (".//li/a/span", '^SECTION-2.1$', True),
-            (".//li/a/span", '^Fig.1 should be Fig.1$', True),
-            (".//li/a/span", '^Sect.1 Foo$', True),
+            (".//li/p/a/span", '^Figure:1$', True),
+            (".//li/p/a/span", '^Figure2.2$', True),
+            (".//li/p/a/span", '^Tab_1$', True),
+            (".//li/p/a/span", '^Table:2.2$', True),
+            (".//li/p/a/span", '^Code-1$', True),
+            (".//li/p/a/span", '^Code-2.2$', True),
+            (".//li/p/a/span", '^SECTION-1$', True),
+            (".//li/p/a/span", '^SECTION-2.1$', True),
+            (".//li/p/a/span", '^Fig.1 should be Fig.1$', True),
+            (".//li/p/a/span", '^Sect.1 Foo$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -891,16 +892,16 @@ def test_numfig_with_secnum_depth(app, status, warning):
              "span[@class='caption-number']", '^Listing 1 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Listing 2 $', True),
-            (".//li/a/span", '^Fig. 1$', True),
-            (".//li/a/span", '^Figure2.1.2$', True),
-            (".//li/a/span", '^Table 1$', True),
-            (".//li/a/span", '^Table:2.1.2$', True),
-            (".//li/a/span", '^Listing 1$', True),
-            (".//li/a/span", '^Code-2.1.2$', True),
-            (".//li/a/span", '^Section.1$', True),
-            (".//li/a/span", '^Section.2.1$', True),
-            (".//li/a/span", '^Fig.1 should be Fig.1$', True),
-            (".//li/a/span", '^Sect.1 Foo$', True),
+            (".//li/p/a/span", '^Fig. 1$', True),
+            (".//li/p/a/span", '^Figure2.1.2$', True),
+            (".//li/p/a/span", '^Table 1$', True),
+            (".//li/p/a/span", '^Table:2.1.2$', True),
+            (".//li/p/a/span", '^Listing 1$', True),
+            (".//li/p/a/span", '^Code-2.1.2$', True),
+            (".//li/p/a/span", '^Section.1$', True),
+            (".//li/p/a/span", '^Section.2.1$', True),
+            (".//li/p/a/span", '^Fig.1 should be Fig.1$', True),
+            (".//li/p/a/span", '^Sect.1 Foo$', True),
         ],
         'foo.html': [
             (".//div[@class='figure']/p[@class='caption']/"
@@ -985,16 +986,16 @@ def test_numfig_with_singlehtml(app, status, warning):
              "span[@class='caption-number']", '^Listing 1 $', True),
             (".//div[@class='code-block-caption']/"
              "span[@class='caption-number']", '^Listing 2 $', True),
-            (".//li/a/span", '^Fig. 1$', True),
-            (".//li/a/span", '^Figure2.2$', True),
-            (".//li/a/span", '^Table 1$', True),
-            (".//li/a/span", '^Table:2.2$', True),
-            (".//li/a/span", '^Listing 1$', True),
-            (".//li/a/span", '^Code-2.2$', True),
-            (".//li/a/span", '^Section.1$', True),
-            (".//li/a/span", '^Section.2.1$', True),
-            (".//li/a/span", '^Fig.1 should be Fig.1$', True),
-            (".//li/a/span", '^Sect.1 Foo$', True),
+            (".//li/p/a/span", '^Fig. 1$', True),
+            (".//li/p/a/span", '^Figure2.2$', True),
+            (".//li/p/a/span", '^Table 1$', True),
+            (".//li/p/a/span", '^Table:2.2$', True),
+            (".//li/p/a/span", '^Listing 1$', True),
+            (".//li/p/a/span", '^Code-2.2$', True),
+            (".//li/p/a/span", '^Section.1$', True),
+            (".//li/p/a/span", '^Section.2.1$', True),
+            (".//li/p/a/span", '^Fig.1 should be Fig.1$', True),
+            (".//li/p/a/span", '^Sect.1 Foo$', True),
             (".//div[@class='figure']/p[@class='caption']/"
              "span[@class='caption-number']", '^Fig. 1.1 $', True),
             (".//div[@class='figure']/p[@class='caption']/"
@@ -1049,7 +1050,6 @@ def test_numfig_with_singlehtml(app, status, warning):
     for fname, paths in iteritems(expects):
         with (app.outdir / fname).open('rb') as fp:
             etree = HTML_PARSER.parse(fp)
-
         for xpath, check, be_found in paths:
             yield check_xpath, etree, fname, xpath, check, be_found
 
@@ -1068,11 +1068,11 @@ def test_enumerable_node(app, status, warning):
              "Fig. 3", True),
             (".//div//span[@class='caption-number']", "No.1 ", True),
             (".//div//span[@class='caption-number']", "No.2 ", True),
-            (".//li/a/span", 'Fig. 1', True),
-            (".//li/a/span", 'Fig. 2', True),
-            (".//li/a/span", 'Fig. 3', True),
-            (".//li/a/span", 'No.1', True),
-            (".//li/a/span", 'No.2', True),
+            (".//li/p/a/span", 'Fig. 1', True),
+            (".//li/p/a/span", 'Fig. 2', True),
+            (".//li/p/a/span", 'Fig. 3', True),
+            (".//li/p/a/span", 'No.1', True),
+            (".//li/p/a/span", 'No.2', True),
         ],
     }
 
