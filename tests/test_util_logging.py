@@ -19,10 +19,10 @@ from sphinx.util.console import colorize
 from sphinx.util.logging import is_suppressed_warning
 from sphinx.util.parallel import ParallelTasks
 
-from util import with_app, raises, strip_escseq
+import pytest
+from util import strip_escseq
 
 
-@with_app()
 def test_info_and_warning(app, status, warning):
     app.verbosity = 3
     logging.setup(app, status, warning)
@@ -47,7 +47,6 @@ def test_info_and_warning(app, status, warning):
     assert 'message5' in warning.getvalue()
 
 
-@with_app()
 def test_verbosity_filter(app, status, warning):
     # verbosity = 0: INFO
     app.verbosity = 0
@@ -110,7 +109,6 @@ def test_verbosity_filter(app, status, warning):
     assert 'message4' in status.getvalue()
 
 
-@with_app()
 def test_nonl_info_log(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
@@ -135,7 +133,6 @@ def test_is_suppressed_warning():
     assert is_suppressed_warning("rest", "duplicated_labels", suppress_warnings) is True
 
 
-@with_app()
 def test_suppress_warnings(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
@@ -173,7 +170,6 @@ def test_suppress_warnings(app, status, warning):
     assert app._warncount == 6
 
 
-@with_app()
 def test_warningiserror(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
@@ -184,10 +180,10 @@ def test_warningiserror(app, status, warning):
 
     # if True, warning raises SphinxWarning exception
     app.warningiserror = True
-    raises(SphinxWarning, logger.warning, 'message')
+    with pytest.raises(SphinxWarning):
+        logger.warning('message')
 
 
-@with_app()
 def test_warning_location(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
@@ -219,7 +215,6 @@ def test_warning_location(app, status, warning):
     assert colorize('darkred', 'WARNING: message7') in warning.getvalue()
 
 
-@with_app()
 def test_pending_warnings(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
@@ -237,7 +232,6 @@ def test_pending_warnings(app, status, warning):
     assert 'WARNING: message2\nWARNING: message3' in strip_escseq(warning.getvalue())
 
 
-@with_app()
 def test_colored_logs(app, status, warning):
     app.verbosity = 3
     logging.setup(app, status, warning)
@@ -267,7 +261,6 @@ def test_colored_logs(app, status, warning):
     assert colorize('red', 'message9') in status.getvalue()
 
 
-@with_app()
 def test_logging_in_ParallelTasks(app, status, warning):
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
@@ -283,7 +276,6 @@ def test_logging_in_ParallelTasks(app, status, warning):
     assert 'index.txt: WARNING: message2' in warning.getvalue()
 
 
-@with_app()
 def test_output_with_unencodable_char(app, status, warning):
     class StreamWriter(codecs.StreamWriter):
         def write(self, object):
