@@ -47,7 +47,6 @@ Logging API
    .. method:: SphinxLoggerAdapter.info(level, msg, *args, **kwargs)
    .. method:: SphinxLoggerAdapter.verbose(level, msg, *args, **kwargs)
    .. method:: SphinxLoggerAdapter.debug(level, msg, *args, **kwargs)
-   .. method:: SphinxLoggerAdapter.debug2(level, msg, *args, **kwargs)
 
       Logs a message with specified level on this logger.
       Basically, the arguments are same as python's logging module.

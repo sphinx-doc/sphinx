@@ -415,6 +415,10 @@ The application object also provides support for emitting leveled messages.
    the build; just raise an exception (:exc:`sphinx.errors.SphinxError` or a
    custom subclass) to do that.
 
+.. deprecated:: 1.6
+
+   Please use :ref:`logging-api` instead.
+
 .. automethod:: Sphinx.warn
 
 .. automethod:: Sphinx.info
