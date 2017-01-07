@@ -325,7 +325,7 @@ Bugs fixed
 * `sphinx.ext.autodoc` crashes if target code imports * from mock modules
   by `autodoc_mock_imports`.
 * #1953: ``Sphinx.add_node`` does not add handlers the translator installed by
-  `html_translator_class`
+  ``html_translator_class``
 * #1797: text builder inserts blank line on top
 * #2894: quickstart main() doesn't use argv argument
 * #2874: gettext builder could not extract all text under the ``only``
@@ -1295,7 +1295,7 @@ Features added
   for the ids defined on the node. Thanks to Olivier Heurtier.
 * PR#229: Allow registration of other translators. Thanks to Russell Sim.
 * Add app.set_translator() API to register or override a Docutils translator
-  class like `html_translator_class`.
+  class like ``html_translator_class``.
 * PR#267, #1134: add 'diff' parameter to literalinclude. Thanks to Richard Wall
   and WAKAYAMA shirou.
 * PR#272: Added 'bizstyle' theme. Thanks to Shoji KUMAGAI.
