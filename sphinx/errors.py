@@ -10,8 +10,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import traceback
-
 
 class SphinxError(Exception):
     """
