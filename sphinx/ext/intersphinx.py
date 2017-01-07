@@ -221,8 +221,8 @@ def fetch_inventory(app, uri, inv):
             try:
                 join = localuri and path.join or posixpath.join
                 invdata = read_inventory(f, uri, join)
-            except ValueError:
-                raise ValueError('unknown or unsupported inventory version')
+            except ValueError as exc:
+                raise ValueError('unknown or unsupported inventory version: %r' % exc)
     except Exception as err:
         app.warn('intersphinx inventory %r not readable due to '
                  '%s: %s' % (inv, err.__class__.__name__, err))
