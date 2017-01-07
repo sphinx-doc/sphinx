@@ -98,7 +98,7 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
         if isinstance(level, int):
             super(SphinxLoggerAdapter, self).log(level, msg, *args, **kwargs)
         else:
-            levelno = LEVEL_NAMES.get(level)
+            levelno = LEVEL_NAMES[level]
             super(SphinxLoggerAdapter, self).log(levelno, msg, *args, **kwargs)
 
     def verbose(self, msg, *args, **kwargs):
@@ -418,7 +418,7 @@ def setup(app, status, warning):
 
     info_handler = NewLineStreamHandler(SafeEncodingWriter(status))  # type: ignore
     info_handler.addFilter(InfoFilter())
-    info_handler.setLevel(VERBOSITY_MAP.get(app.verbosity))
+    info_handler.setLevel(VERBOSITY_MAP[app.verbosity])
     info_handler.setFormatter(ColorizeFormatter())
 
     warning_handler = WarningStreamHandler(SafeEncodingWriter(warning))  # type: ignore
