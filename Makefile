@@ -61,6 +61,7 @@ clean-generated:
 clean-testfiles:
 	rm -rf tests/build
 	rm -rf .tox/
+	rm -rf .cache/
 
 clean-buildfiles:
 	rm -rf build

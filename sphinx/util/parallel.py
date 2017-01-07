@@ -88,7 +88,8 @@ class ParallelTasks(object):
             failed = False
         except BaseException as err:
             failed = True
-            ret = (err, traceback.format_exc())
+            errmsg = traceback.format_exception_only(err.__class__, err)[0].strip()
+            ret = (errmsg, traceback.format_exc())
         logging.convert_serializable(collector.logs)
         pipe.send((failed, collector.logs, ret))
 
