@@ -1,6 +1,11 @@
 Release 1.5.2 (in development)
 ===============================
 
+Incompatible changes
+--------------------
+
+* Dependency requirement updates: requests 2.4.0 or above (refs: #3268, #3310)
+
 Features added
 --------------
 
