@@ -73,7 +73,8 @@ class ParallelTasks(object):
                 ret = func(arg)
             pipe.send((False, ret))
         except BaseException as err:
-            pipe.send((True, (err, traceback.format_exc())))
+            errmsg = traceback.format_exception_only(err.__class__, err)[0].strip()
+            pipe.send((True, (errmsg, traceback.format_exc())))
 
     def add_task(self, task_func, arg=None, result_func=None):
         tid = self._taskid
