@@ -50,7 +50,7 @@ requires = [
     'babel>=1.3,!=2.0',
     'alabaster>=0.7,<0.8',
     'imagesize',
-    'requests',
+    'requests>=2.4.0',
     'typing',
 ]
 extras_require = {

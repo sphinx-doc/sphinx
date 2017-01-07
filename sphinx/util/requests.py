@@ -17,7 +17,12 @@ import pkg_resources
 
 from six import string_types
 from six.moves.urllib.parse import urlsplit
-from requests.packages.urllib3.exceptions import SSLError, InsecureRequestWarning
+try:
+    from requests.packages.urllib3.exceptions import SSLError, InsecureRequestWarning
+except ImportError:
+    # python-requests package in Debian jessie does not provide ``requests.packages.urllib3``.
+    # So try to import the exceptions from urllib3 package.
+    from urllib3.exceptions import SSLError, InsecureRequestWarning
 
 # try to load requests[security]
 try:

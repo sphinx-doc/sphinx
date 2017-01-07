@@ -53,6 +53,11 @@ Deprecated
 Release 1.5.2 (in development)
 ===============================
 
+Incompatible changes
+--------------------
+
+* Dependency requirement updates: requests 2.4.0 or above (refs: #3268, #3310)
+
 Features added
 --------------
 
@@ -73,6 +78,7 @@ Bugs fixed
 * The warning type ``misc.highlighting_failure`` does not work
 * #3294: ``add_latex_package()`` make crashes non-LaTeX builders
 * The caption of table are rendered as invalid HTML (refs: #3287)
+* #3268: Sphinx crashes with requests package from Debian jessie
 
 
 Release 1.5.1 (released Dec 13, 2016)
