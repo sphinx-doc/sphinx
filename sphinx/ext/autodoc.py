@@ -1762,7 +1762,7 @@ class AutoDirective(Directive):
         if not self.result:
             return self.warnings
 
-        logger.debug2('[autodoc] output:\n%s', '\n'.join(self.result))
+        logger.debug('[autodoc] output:\n%s', '\n'.join(self.result))
 
         # record all filenames as dependencies -- this will at least
         # partially make automatic invalidation possible

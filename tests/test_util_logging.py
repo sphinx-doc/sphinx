@@ -24,7 +24,7 @@ from util import strip_escseq
 
 
 def test_info_and_warning(app, status, warning):
-    app.verbosity = 3
+    app.verbosity = 2
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
 
@@ -56,7 +56,6 @@ def test_verbosity_filter(app, status, warning):
     logger.info('message1')
     logger.verbose('message2')
     logger.debug('message3')
-    logger.debug2('message4')
 
     assert 'message1' in status.getvalue()
     assert 'message2' not in status.getvalue()
@@ -71,7 +70,6 @@ def test_verbosity_filter(app, status, warning):
     logger.info('message1')
     logger.verbose('message2')
     logger.debug('message3')
-    logger.debug2('message4')
 
     assert 'message1' in status.getvalue()
     assert 'message2' in status.getvalue()
@@ -86,27 +84,11 @@ def test_verbosity_filter(app, status, warning):
     logger.info('message1')
     logger.verbose('message2')
     logger.debug('message3')
-    logger.debug2('message4')
 
     assert 'message1' in status.getvalue()
     assert 'message2' in status.getvalue()
     assert 'message3' in status.getvalue()
     assert 'message4' not in status.getvalue()
-
-    # verbosity = 3: DEBUG2
-    app.verbosity = 3
-    logging.setup(app, status, warning)
-    logger = logging.getLogger(__name__)
-
-    logger.info('message1')
-    logger.verbose('message2')
-    logger.debug('message3')
-    logger.debug2('message4')
-
-    assert 'message1' in status.getvalue()
-    assert 'message2' in status.getvalue()
-    assert 'message3' in status.getvalue()
-    assert 'message4' in status.getvalue()
 
 
 def test_nonl_info_log(app, status, warning):
@@ -233,32 +215,30 @@ def test_pending_warnings(app, status, warning):
 
 
 def test_colored_logs(app, status, warning):
-    app.verbosity = 3
+    app.verbosity = 2
     logging.setup(app, status, warning)
     logger = logging.getLogger(__name__)
 
     # default colors
-    logger.debug2('message1')
-    logger.debug('message2')
-    logger.verbose('message3')
-    logger.info('message4')
-    logger.warning('message5')
-    logger.critical('message6')
-    logger.error('message7')
+    logger.debug('message1')
+    logger.verbose('message2')
+    logger.info('message3')
+    logger.warning('message4')
+    logger.critical('message5')
+    logger.error('message6')
 
-    assert colorize('lightgray', 'message1') in status.getvalue()
-    assert colorize('darkgray', 'message2') in status.getvalue()
+    assert colorize('darkgray', 'message1') in status.getvalue()
+    assert 'message2\n' in status.getvalue()  # not colored
     assert 'message3\n' in status.getvalue()  # not colored
-    assert 'message4\n' in status.getvalue()  # not colored
-    assert colorize('darkred', 'WARNING: message5') in warning.getvalue()
+    assert colorize('darkred', 'WARNING: message4') in warning.getvalue()
+    assert 'WARNING: message5\n' in warning.getvalue()  # not colored
     assert 'WARNING: message6\n' in warning.getvalue()  # not colored
-    assert 'WARNING: message7\n' in warning.getvalue()  # not colored
 
     # color specification
-    logger.debug('message8', color='white')
-    logger.info('message9', color='red')
-    assert colorize('white', 'message8') in status.getvalue()
-    assert colorize('red', 'message9') in status.getvalue()
+    logger.debug('message7', color='white')
+    logger.info('message8', color='red')
+    assert colorize('white', 'message7') in status.getvalue()
+    assert colorize('red', 'message8') in status.getvalue()
 
 
 def test_logging_in_ParallelTasks(app, status, warning):

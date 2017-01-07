@@ -30,7 +30,6 @@ if False:
 
 
 VERBOSE = 15
-DEBUG2 = 5
 
 LEVEL_NAMES = defaultdict(lambda: logging.WARNING)  # type: Dict[str, int]
 LEVEL_NAMES.update({
@@ -41,7 +40,6 @@ LEVEL_NAMES.update({
     'INFO': logging.INFO,
     'VERBOSE': VERBOSE,
     'DEBUG': logging.DEBUG,
-    'DEBUG2': DEBUG2,
 })
 
 VERBOSITY_MAP = defaultdict(lambda: 0)  # type: Dict[int, int]
@@ -49,14 +47,12 @@ VERBOSITY_MAP.update({
     0: logging.INFO,
     1: VERBOSE,
     2: logging.DEBUG,
-    3: DEBUG2,
 })
 
 COLOR_MAP = defaultdict(lambda text: text)  # type: Dict[int, unicode]
 COLOR_MAP.update({
     logging.WARNING: 'darkred',
     logging.DEBUG: 'darkgray',
-    DEBUG2: 'lightgray',
 })
 
 
@@ -104,10 +100,6 @@ class SphinxLoggerAdapter(logging.LoggerAdapter):
     def verbose(self, msg, *args, **kwargs):
         # type: (unicode, Any, Any) -> None
         self.log(VERBOSE, msg, *args, **kwargs)
-
-    def debug2(self, msg, *args, **kwargs):
-        # type: (unicode, Any, Any) -> None
-        self.log(DEBUG2, msg, *args, **kwargs)
 
     def process(self, msg, kwargs):  # type: ignore
         # type: (unicode, Dict) -> Tuple[unicode, Dict]

@@ -425,9 +425,9 @@ class Sphinx(object):
     def debug2(self, message, *args, **kwargs):
         # type: (unicode, Any, Any) -> None
         """Emit a lowlevel debug-level informational message."""
-        warnings.warn('app.debug2() is now deprecated. Use sphinx.util.logging instead.',
+        warnings.warn('app.debug2() is now deprecated. Use debug() instead.',
                       RemovedInSphinx20Warning)
-        logger.debug2(message, *args, **kwargs)
+        logger.debug(message, *args, **kwargs)
 
     def _display_chunk(chunk):
         # type: (Any) -> unicode
