@@ -10,6 +10,7 @@
 """
 
 import os
+import warnings
 from os import path
 
 from six import iteritems
@@ -20,6 +21,7 @@ from docutils.utils import new_document
 from docutils.frontend import OptionParser
 
 from sphinx import package_dir, addnodes, highlighting
+from sphinx.deprecation import RemovedInSphinx17Warning
 from sphinx.util import texescape, logging
 from sphinx.config import string_classes, ENUM
 from sphinx.errors import SphinxError
@@ -250,8 +252,9 @@ def validate_config_values(app):
             logger.warning("latex_elements['footer'] conflicts with "
                            "latex_elements['postamble'], ignored.")
         else:
-            logger.warning("latex_elements['footer'] is deprecated. "
-                           "Use latex_elements['preamble'] instead.")
+            warnings.warn("latex_elements['footer'] is deprecated. "
+                          "Use latex_elements['preamble'] instead.",
+                          RemovedInSphinx17Warning)
             app.config.latex_elements['postamble'] = app.config.latex_elements['footer']
 
 
