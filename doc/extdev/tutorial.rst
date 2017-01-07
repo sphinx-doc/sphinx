@@ -246,7 +246,6 @@ todolist directive has neither content nor arguments that need to be handled.
 
 The ``todo`` directive function looks like this::
 
-   from sphinx.util.compat import make_admonition
    from sphinx.locale import _
 
    class TodoDirective(Directive):
@@ -260,20 +259,20 @@ The ``todo`` directive function looks like this::
            targetid = "todo-%d" % env.new_serialno('todo')
            targetnode = nodes.target('', '', ids=[targetid])
 
-           ad = make_admonition(todo, self.name, [_('Todo')], self.options,
-                                self.content, self.lineno, self.content_offset,
-                                self.block_text, self.state, self.state_machine)
+           todo_node = todo('\n'.join(self.content))
+           todo_node += nodes.title(_('Todo'), _('Todo'))
+           self.state.nested_parse(self.content, self.content_offset, todo_node)
 
            if not hasattr(env, 'todo_all_todos'):
                env.todo_all_todos = []
            env.todo_all_todos.append({
                'docname': env.docname,
                'lineno': self.lineno,
-               'todo': ad[0].deepcopy(),
+               'todo': todo_node.deepcopy(),
                'target': targetnode,
            })
 
-           return [targetnode] + ad
+           return [targetnode, todo_node]
 
 Several important things are covered here. First, as you can see, you can refer
 to the build environment instance using ``self.state.document.settings.env``.
@@ -285,11 +284,10 @@ returns a new unique integer on each call and therefore leads to unique target
 names.  The target node is instantiated without any text (the first two
 arguments).
 
-An admonition is created using a standard docutils function (wrapped in Sphinx
-for docutils cross-version compatibility).  The first argument gives the node
-class, in our case ``todo``.  The third argument gives the admonition title (use
-``arguments`` here to let the user specify the title).  A list of nodes is
-returned from ``make_admonition``.
+On creating admonition node, the content body of the directive are parsed using
+``self.state.nested_parse``.  The first argument gives the content body, and
+the second one gives content offset.  The third argument gives the parent node
+of parsed result, in our case the ``todo`` node.
 
 Then, the todo node is added to the environment.  This is needed to be able to
 create a list of all todo entries throughout the documentation, in the place
