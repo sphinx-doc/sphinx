@@ -732,7 +732,8 @@ Incompatible changes
   ``"MMMM dd, YYYY"`` is default format for `today_fmt` and `html_last_updated_fmt`.
   However strftime format like ``"%B %d, %Y"`` is also supported for backward
   compatibility until Sphinx-1.5. Later format will be disabled from Sphinx-1.5.
-* #2327: `latex_use_parts` is deprecated now. Use `latex_toplevel_sectioning` instead.
+* #2327: ``latex_use_parts`` is deprecated now. Use `latex_toplevel_sectioning`
+  instead.
 * #2337: Use ``\url{URL}`` macro instead of ``\href{URL}{URL}`` in LaTeX writer.
 * #1498: manpage writer: don't make whole of item in definition list bold if it includes strong node.
 * #582: Remove hint message from quick search box for html output.
