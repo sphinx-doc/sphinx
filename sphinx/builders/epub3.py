@@ -60,42 +60,6 @@ NAVLIST_TEMPLATE_END_BLOCK = u'''%(indent)s        </ol>
 %(indent)s      </li>'''
 NAVLIST_INDENT = '  '
 
-PACKAGE_DOC_TEMPLATE = u'''\
-<?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://www.idpf.org/2007/opf" version="3.0" xml:lang="%(lang)s"
- unique-identifier="%(uid)s"
- prefix="ibooks: http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/">
-  <metadata xmlns:opf="http://www.idpf.org/2007/opf"
-        xmlns:dc="http://purl.org/dc/elements/1.1/">
-    <dc:language>%(lang)s</dc:language>
-    <dc:title>%(title)s</dc:title>
-    <dc:description>%(description)s</dc:description>
-    <dc:creator>%(author)s</dc:creator>
-    <dc:contributor>%(contributor)s</dc:contributor>
-    <dc:publisher>%(publisher)s</dc:publisher>
-    <dc:rights>%(copyright)s</dc:rights>
-    <dc:identifier id="%(uid)s">%(id)s</dc:identifier>
-    <dc:date>%(date)s</dc:date>
-    <meta property="dcterms:modified">%(date)s</meta>
-    <meta property="ibooks:version">%(version)s</meta>
-    <meta property="ibooks:specified-fonts">true</meta>
-    <meta property="ibooks:binding">true</meta>
-    <meta property="ibooks:scroll-axis">%(ibook_scroll_axis)s</meta>
-  </metadata>
-  <manifest>
-    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
-    <item id="nav" href="nav.xhtml"\
- media-type="application/xhtml+xml" properties="nav"/>
-%(files)s
-  </manifest>
-  <spine toc="ncx" page-progression-direction="%(page_progression_direction)s">
-%(spine)s
-  </spine>
-  <guide>
-%(guide)s
-  </guide>
-</package>
-'''
 
 DOCTYPE = u'''<!DOCTYPE html>'''
 
@@ -120,7 +84,6 @@ class Epub3Builder(EpubBuilder):
     navlist_template_begin_block = NAVLIST_TEMPLATE_BEGIN_BLOCK
     navlist_template_end_block = NAVLIST_TEMPLATE_END_BLOCK
     navlist_indent = NAVLIST_INDENT
-    content_template = PACKAGE_DOC_TEMPLATE
     doctype = DOCTYPE
 
     # Finish by building the epub file
@@ -135,13 +98,12 @@ class Epub3Builder(EpubBuilder):
         self.build_toc(self.outdir, 'toc.ncx')
         self.build_epub(self.outdir, self.config.epub_basename + '.epub')
 
-    def content_metadata(self, files, spine, guide):
-        # type: (List[unicode], List[unicode], List[unicode]) -> Dict
+    def content_metadata(self):
+        # type: () -> Dict
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
-        metadata = super(Epub3Builder, self).content_metadata(
-            files, spine, guide)
+        metadata = super(Epub3Builder, self).content_metadata()
         metadata['description'] = self.esc(self.config.epub_description)
         metadata['contributor'] = self.esc(self.config.epub_contributor)
         metadata['page_progression_direction'] = self._page_progression_direction()

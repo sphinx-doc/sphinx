@@ -16,6 +16,7 @@ import codecs
 import zipfile
 from os import path
 from datetime import datetime
+from collections import namedtuple
 
 try:
     from PIL import Image
@@ -80,52 +81,7 @@ NAVPOINT_TEMPLATE = u'''\
 NAVPOINT_INDENT = '  '
 NODE_NAVPOINT_TEMPLATE = 'navPoint%d'
 
-CONTENT_TEMPLATE = u'''\
-<?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://www.idpf.org/2007/opf" version="2.0"
-      unique-identifier="%(uid)s">
-  <metadata xmlns:opf="http://www.idpf.org/2007/opf"
-        xmlns:dc="http://purl.org/dc/elements/1.1/">
-    <dc:language>%(lang)s</dc:language>
-    <dc:title>%(title)s</dc:title>
-    <dc:creator opf:role="aut">%(author)s</dc:creator>
-    <dc:publisher>%(publisher)s</dc:publisher>
-    <dc:rights>%(copyright)s</dc:rights>
-    <dc:identifier id="%(uid)s" opf:scheme="%(scheme)s">%(id)s</dc:identifier>
-    <dc:date>%(date)s</dc:date>
-  </metadata>
-  <manifest>
-    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
-%(files)s
-  </manifest>
-  <spine toc="ncx">
-%(spine)s
-  </spine>
-  <guide>
-%(guide)s
-  </guide>
-</package>
-'''
-
-COVER_TEMPLATE = u'''\
-    <meta name="cover" content="%(cover)s"/>
-'''
-
 COVERPAGE_NAME = u'epub-cover.xhtml'
-
-FILE_TEMPLATE = u'''\
-    <item id="%(id)s"
-          href="%(href)s"
-          media-type="%(media_type)s" />'''
-
-SPINE_TEMPLATE = u'''\
-    <itemref idref="%(idref)s" />'''
-
-NO_LINEAR_SPINE_TEMPLATE = u'''\
-    <itemref idref="%(idref)s" linear="no" />'''
-
-GUIDE_TEMPLATE = u'''\
-    <reference type="%(type)s" title="%(title)s" href="%(uri)s" />'''
 
 TOCTREE_TEMPLATE = u'toctree-l%d'
 
@@ -167,6 +123,11 @@ VECTOR_GRAPHICS_EXTENSIONS = ('.svg',)
 REFURI_RE = re.compile("([^#:]*#)(.*)")
 
 
+ManifestItem = namedtuple('ManifestItem', ['href', 'id', 'media_type'])
+Spine = namedtuple('Spine', ['idref', 'linear'])
+Guide = namedtuple('Guide', ['type', 'title', 'uri'])
+
+
 # The epub publisher
 
 class EpubBuilder(StandaloneHTMLBuilder):
@@ -203,13 +164,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
     navpoint_template = NAVPOINT_TEMPLATE
     navpoint_indent = NAVPOINT_INDENT
     node_navpoint_template = NODE_NAVPOINT_TEMPLATE
-    content_template = CONTENT_TEMPLATE
-    cover_template = COVER_TEMPLATE
     coverpage_name = COVERPAGE_NAME
-    file_template = FILE_TEMPLATE
-    spine_template = SPINE_TEMPLATE
-    no_linear_spine_template = NO_LINEAR_SPINE_TEMPLATE
-    guide_template = GUIDE_TEMPLATE
     toctree_template = TOCTREE_TEMPLATE
     doctype = DOCTYPE
     link_target_template = LINK_TARGET_TEMPLATE
@@ -552,8 +507,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         ensuredir(path.dirname(filename))
         copy_asset_file(path.join(self.template_dir, 'container.xml'), filename)
 
-    def content_metadata(self, files, spine, guide):
-        # type: (List[unicode], List[unicode], List[unicode]) -> Dict[unicode, Any]
+    def content_metadata(self):
+        # type: () -> Dict[unicode, Any]
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
@@ -567,9 +522,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         metadata['scheme'] = self.esc(self.config.epub_scheme)
         metadata['id'] = self.esc(self.config.epub_identifier)
         metadata['date'] = self.esc(datetime.utcnow().strftime("%Y-%m-%d"))
-        metadata['files'] = files
-        metadata['spine'] = spine
-        metadata['guide'] = guide
+        metadata['manifest_items'] = []
+        metadata['spines'] = []
+        metadata['guides'] = []
         return metadata
 
     def build_content(self, outdir, outname):
@@ -578,12 +533,12 @@ class EpubBuilder(StandaloneHTMLBuilder):
         a file list and the spine (the reading order).
         """
         logger.info('writing %s file...', outname)
+        metadata = self.content_metadata()
 
         # files
         if not outdir.endswith(os.sep):
             outdir += os.sep
         olen = len(outdir)
-        projectfiles = []  # type: List[unicode]
         self.files = []  # type: List[unicode]
         self.ignored_files = ['.buildinfo', 'mimetype', 'content.opf',
                               'toc.ncx', 'META-INF/container.xml',
@@ -606,70 +561,57 @@ class EpubBuilder(StandaloneHTMLBuilder):
                                        type='epub', subtype='unknown_project_files')
                     continue
                 filename = filename.replace(os.sep, '/')
-                projectfiles.append(self.file_template % {
-                    'href': self.esc(filename),
-                    'id': self.esc(self.make_id(filename)),
-                    'media_type': self.esc(self.media_types[ext])
-                })
+                item = ManifestItem(self.esc(filename),
+                                    self.esc(self.make_id(filename)),
+                                    self.esc(self.media_types[ext]))
+                metadata['manifest_items'].append(item)
                 self.files.append(filename)
 
         # spine
-        spine = []
         spinefiles = set()
         for item in self.refnodes:
             if '#' in item['refuri']:
                 continue
             if item['refuri'] in self.ignored_files:
                 continue
-            spine.append(self.spine_template % {
-                'idref': self.esc(self.make_id(item['refuri']))
-            })
+            spine = Spine(self.esc(self.make_id(item['refuri'])), True)
+            metadata['spines'].append(spine)
             spinefiles.add(item['refuri'])
         for info in self.domain_indices:
-            spine.append(self.spine_template % {
-                'idref': self.esc(self.make_id(info[0] + self.out_suffix))
-            })
+            spine = Spine(self.esc(self.make_id(info[0] + self.out_suffix)), True)
+            metadata['spines'].append(spine)
             spinefiles.add(info[0] + self.out_suffix)
         if self.use_index:
-            spine.append(self.spine_template % {
-                'idref': self.esc(self.make_id('genindex' + self.out_suffix))
-            })
+            spine = Spine(self.esc(self.make_id('genindex' + self.out_suffix)), True)
+            metadata['spines'].append(spine)
             spinefiles.add('genindex' + self.out_suffix)
         # add auto generated files
         for name in self.files:
             if name not in spinefiles and name.endswith(self.out_suffix):
-                spine.append(self.no_linear_spine_template % {
-                    'idref': self.esc(self.make_id(name))
-                })
+                spine = Spine(self.esc(self.make_id(name)), False)
+                metadata['spines'].append(spine)
 
         # add the optional cover
-        content_tmpl = self.content_template
         html_tmpl = None
         if self.config.epub_cover:
             image, html_tmpl = self.config.epub_cover
             image = image.replace(os.sep, '/')
-            mpos = content_tmpl.rfind('</metadata>')
-            cpos = content_tmpl.rfind('\n', 0, mpos) + 1
-            content_tmpl = content_tmpl[:cpos] + \
-                COVER_TEMPLATE % {'cover': self.esc(self.make_id(image))} + \
-                content_tmpl[cpos:]
+            metadata['cover'] = self.esc(self.make_id(image))
             if html_tmpl:
                 spine.insert(0, self.spine_template % {
                     'idref': self.esc(self.make_id(self.coverpage_name))})
                 if self.coverpage_name not in self.files:
                     ext = path.splitext(self.coverpage_name)[-1]
                     self.files.append(self.coverpage_name)
-                    projectfiles.append(self.file_template % {
-                        'href': self.esc(self.coverpage_name),
-                        'id': self.esc(self.make_id(self.coverpage_name)),
-                        'media_type': self.esc(self.media_types[ext])
-                    })
+                    item = ManifestItem(self.esc(filename),
+                                        self.esc(self.make_id(filename)),
+                                        self.esc(self.media_types[ext]))
+                    metadata['manifest_items'].append(item)
                 ctx = {'image': self.esc(image), 'title': self.config.project}
                 self.handle_page(
                     path.splitext(self.coverpage_name)[0], ctx, html_tmpl)
                 spinefiles.add(self.coverpage_name)
 
-        guide = []
         auto_add_cover = True
         auto_add_toc = True
         if self.config.epub_guide:
@@ -681,31 +623,22 @@ class EpubBuilder(StandaloneHTMLBuilder):
                     auto_add_cover = False
                 if type == 'toc':
                     auto_add_toc = False
-                guide.append(self.guide_template % {
-                    'type': self.esc(type),
-                    'title': self.esc(title),
-                    'uri': self.esc(uri)
-                })
+                metadata['guides'].append(Guide(self.esc(type),
+                                                self.esc(title),
+                                                self.esc(uri)))
         if auto_add_cover and html_tmpl:
-            guide.append(self.guide_template % {
-                'type': 'cover',
-                'title': self.guide_titles['cover'],
-                'uri': self.esc(self.coverpage_name)
-            })
+            metadata['guides'].append(Guide('cover',
+                                            self.guide_titles['cover'],
+                                            self.esc(self.coverpage_name)))
         if auto_add_toc and self.refnodes:
-            guide.append(self.guide_template % {
-                'type': 'toc',
-                'title': self.guide_titles['toc'],
-                'uri': self.esc(self.refnodes[0]['refuri'])
-            })
-        projectfiles = '\n'.join(projectfiles)  # type: ignore
-        spine = '\n'.join(spine)  # type: ignore
-        guide = '\n'.join(guide)  # type: ignore
+            metadata['guides'].append(Guide('toc',
+                                            self.guide_titles['toc'],
+                                            self.esc(self.refnodes[0]['refuri'])))
 
         # write the project file
-        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:  # type: ignore
-            f.write(content_tmpl %  # type: ignore
-                    self.content_metadata(projectfiles, spine, guide))
+        copy_asset_file(path.join(self.template_dir, 'content.opf_t'),
+                        path.join(outdir, outname),
+                        metadata)
 
     def new_navpoint(self, node, level, incr=True):
         # type: (nodes.Node, int, bool) -> unicode
