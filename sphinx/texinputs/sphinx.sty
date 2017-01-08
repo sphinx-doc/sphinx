@@ -786,10 +786,7 @@
                      \csname\@backslashchar color@#2\endcsname }
 
 % the main dispatch for all types of notices
-\newenvironment{sphinxadmonition}{\begin{notice}}{\end{notice}}
-% use of ``notice'' is for backwards compatibility and will be removed in
-% future release; sphinxadmonition environment will be defined directly.
-\newenvironment{notice}[2]{% #1=type, #2=heading
+\newenvironment{sphinxadmonition}[2]{% #1=type, #2=heading
   % can't use #1 directly in definition of end part
   \def\spx@noticetype {#1}%
   % set parameters of heavybox/lightbox
@@ -800,6 +797,16 @@
   \begin{sphinx#1}{#2}}
   % in end part, need to go around a LaTeX's "feature"
  {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
+% use of ``notice'' is for backwards compatibility and will be removed in
+% Sphinx 1.7.
+\newenvironment{notice}
+  {\AtEndDocument{\typeout
+{**** DEPRECATION WARNING:^^J
+This document was probably built with a Sphinx extension using ``notice''^^J
+environment. At Sphinx 1.7, ``notice'' environment will be removed. Please^^J
+report to extension author to use ``sphinxadmonition'' instead.^^J%
+****}}%
+   \begin{sphinxadmonition}}{\end{sphinxadmonition}}
 
 % Allow the release number to be specified independently of the
 % \date{}.  This allows the date to reflect the document's date and
