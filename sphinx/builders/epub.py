@@ -28,10 +28,12 @@ except ImportError:
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx import package_dir
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.util import logging
 from sphinx.util import status_iterator
-from sphinx.util.osutil import ensuredir, copyfile, make_filename, EEXIST
+from sphinx.util.osutil import ensuredir, copyfile, make_filename
+from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.smartypants import sphinx_smarty_pants as ssp
 
 if False:
@@ -43,24 +45,11 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-# (Fragment) templates from which the metainfo files content.opf, toc.ncx,
-# mimetype, and META-INF/container.xml are created.
+# (Fragment) templates from which the metainfo files content.opf and
+# toc.ncx are created.
 # This template section also defines strings that are embedded in the html
 # output but that may be customized by (re-)setting module attributes,
 # e.g. from conf.py.
-
-MIMETYPE_TEMPLATE = 'application/epub+zip'  # no EOL!
-
-CONTAINER_TEMPLATE = u'''\
-<?xml version="1.0" encoding="UTF-8"?>
-<container version="1.0"
-      xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
-  <rootfiles>
-    <rootfile full-path="content.opf"
-        media-type="application/oebps-package+xml"/>
-  </rootfiles>
-</container>
-'''
 
 TOC_TEMPLATE = u'''\
 <?xml version="1.0"?>
@@ -190,6 +179,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
     """
     name = 'epub2'
 
+    template_dir = path.join(package_dir, 'templates', 'epub2')
+
     # don't copy the reST source
     copysource = False
     supported_image_types = ['image/svg+xml', 'image/png', 'image/gif',
@@ -208,8 +199,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
     # don't generate search index or include search page
     search = False
 
-    mimetype_template = MIMETYPE_TEMPLATE
-    container_template = CONTAINER_TEMPLATE
     toc_template = TOC_TEMPLATE
     navpoint_template = NAVPOINT_TEMPLATE
     navpoint_indent = NAVPOINT_INDENT
@@ -552,21 +541,16 @@ class EpubBuilder(StandaloneHTMLBuilder):
         # type: (unicode, unicode) -> None
         """Write the metainfo file mimetype."""
         logger.info('writing %s file...', outname)
-        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:  # type: ignore
-            f.write(self.mimetype_template)
+        copy_asset_file(path.join(self.template_dir, 'mimetype'),
+                        path.join(outdir, outname))
 
     def build_container(self, outdir, outname):
         # type: (unicode, unicode) -> None
-        """Write the metainfo file META-INF/cointainer.xml."""
+        """Write the metainfo file META-INF/container.xml."""
         logger.info('writing %s file...', outname)
-        fn = path.join(outdir, outname)
-        try:
-            os.mkdir(path.dirname(fn))
-        except OSError as err:
-            if err.errno != EEXIST:
-                raise
-        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:  # type: ignore
-            f.write(self.container_template)  # type: ignore
+        filename = path.join(outdir, outname)
+        ensuredir(path.dirname(filename))
+        copy_asset_file(path.join(self.template_dir, 'container.xml'), filename)
 
     def content_metadata(self, files, spine, guide):
         # type: (List[unicode], List[unicode], List[unicode]) -> Dict[unicode, Any]

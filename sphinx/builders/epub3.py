@@ -14,6 +14,7 @@ import codecs
 from os import path
 from datetime import datetime
 
+from sphinx import package_dir
 from sphinx.config import string_classes
 from sphinx.builders.epub import EpubBuilder
 from sphinx.util import logging
@@ -110,6 +111,8 @@ class Epub3Builder(EpubBuilder):
     an epub file.
     """
     name = 'epub'
+
+    template_dir = path.join(package_dir, 'templates', 'epub3')
 
     navigation_doc_template = NAVIGATION_DOC_TEMPLATE
     navlist_template = NAVLIST_TEMPLATE
