@@ -139,3 +139,34 @@ def test_epub_cover(app):
     cover = opf.find("./idpf:metadata/idpf:meta[@name='cover']")
     assert cover
     assert cover.get('content') == cover_image.get('id')
+
+
+@pytest.mark.sphinx('epub', testroot='toctree')
+def test_nested_toc(app):
+    app.build()
+
+    # toc.ncx
+    toc = EPUBElementTree.fromstring((app.outdir / 'toc.ncx').text())
+    assert toc.find("./ncx:docTitle/ncx:text").text == 'Python  documentation'
+
+    # toc.ncx / navPoint
+    def navinfo(elem):
+        label = elem.find("./ncx:navLabel/ncx:text")
+        content = elem.find("./ncx:content")
+        return (elem.get('id'), elem.get('playOrder'),
+                content.get('src'), label.text)
+
+    navpoints = toc.findall("./ncx:navMap/ncx:navPoint")
+    assert len(navpoints) == 4
+    assert navinfo(navpoints[0]) == ('navPoint9', '1', 'index.xhtml',
+                                     "Welcome to Sphinx Tests's documentation!")
+    assert navpoints[0].findall("./ncx:navPoint") == []
+
+    # toc.ncx / nested navPoints
+    assert navinfo(navpoints[1]) == ('navPoint10', '2', 'foo.xhtml', 'foo')
+    navchildren = navpoints[1].findall("./ncx:navPoint")
+    assert len(navchildren) == 4
+    assert navinfo(navchildren[0]) == ('navPoint11', '2', 'foo.xhtml', 'foo')
+    assert navinfo(navchildren[1]) == ('navPoint12', '3', 'quux.xhtml', 'quux')
+    assert navinfo(navchildren[2]) == ('navPoint13', '4', 'foo.xhtml#foo-1', 'foo.1')
+    assert navinfo(navchildren[3]) == ('navPoint16', '6', 'foo.xhtml#foo-2', 'foo.2')

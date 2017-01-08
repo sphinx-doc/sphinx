@@ -12,7 +12,6 @@
 
 import os
 import re
-import codecs
 import zipfile
 from os import path
 from datetime import datetime
@@ -51,35 +50,6 @@ logger = logging.getLogger(__name__)
 # This template section also defines strings that are embedded in the html
 # output but that may be customized by (re-)setting module attributes,
 # e.g. from conf.py.
-
-TOC_TEMPLATE = u'''\
-<?xml version="1.0"?>
-<ncx version="2005-1" xmlns="http://www.daisy.org/z3986/2005/ncx/">
-  <head>
-    <meta name="dtb:uid" content="%(uid)s"/>
-    <meta name="dtb:depth" content="%(level)d"/>
-    <meta name="dtb:totalPageCount" content="0"/>
-    <meta name="dtb:maxPageNumber" content="0"/>
-  </head>
-  <docTitle>
-    <text>%(title)s</text>
-  </docTitle>
-  <navMap>
-%(navpoints)s
-  </navMap>
-</ncx>
-'''
-
-NAVPOINT_TEMPLATE = u'''\
-%(indent)s  <navPoint id="%(navpoint)s" playOrder="%(playorder)d">
-%(indent)s    <navLabel>
-%(indent)s      <text>%(text)s</text>
-%(indent)s    </navLabel>
-%(indent)s    <content src="%(refuri)s" />
-%(indent)s  </navPoint>'''
-
-NAVPOINT_INDENT = '  '
-NODE_NAVPOINT_TEMPLATE = 'navPoint%d'
 
 COVERPAGE_NAME = u'epub-cover.xhtml'
 
@@ -126,6 +96,7 @@ REFURI_RE = re.compile("([^#:]*#)(.*)")
 ManifestItem = namedtuple('ManifestItem', ['href', 'id', 'media_type'])
 Spine = namedtuple('Spine', ['idref', 'linear'])
 Guide = namedtuple('Guide', ['type', 'title', 'uri'])
+NavPoint = namedtuple('NavPoint', ['navpoint', 'playorder', 'text', 'refuri', 'children'])
 
 
 # The epub publisher
@@ -160,10 +131,6 @@ class EpubBuilder(StandaloneHTMLBuilder):
     # don't generate search index or include search page
     search = False
 
-    toc_template = TOC_TEMPLATE
-    navpoint_template = NAVPOINT_TEMPLATE
-    navpoint_indent = NAVPOINT_INDENT
-    node_navpoint_template = NODE_NAVPOINT_TEMPLATE
     coverpage_name = COVERPAGE_NAME
     toctree_template = TOCTREE_TEMPLATE
     doctype = DOCTYPE
@@ -647,20 +614,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
         if incr:
             self.playorder += 1
         self.tocid += 1
-        node['indent'] = self.navpoint_indent * level
-        node['navpoint'] = self.esc(self.node_navpoint_template % self.tocid)
-        node['playorder'] = self.playorder
-        return self.navpoint_template % node
-
-    def insert_subnav(self, node, subnav):
-        # type: (nodes.Node, unicode) -> unicode
-        """Insert nested navpoints for given node.
-
-        The node and subnav are already rendered to text.
-        """
-        nlist = node.rsplit('\n', 1)
-        nlist.insert(-1, subnav)
-        return '\n'.join(nlist)
+        return NavPoint(self.esc('navPoint%d' % self.tocid), self.playorder,
+                        node['text'], node['refuri'], [])
 
     def build_navpoints(self, nodes):
         # type: (nodes.Node) -> unicode
@@ -669,9 +624,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         Subelements of a node are nested inside the navpoint.  For nested nodes
         the parent node is reinserted in the subnav.
         """
-        navstack = []
-        navlist = []
-        level = 1
+        navstack = []  # type: List[NavPoint]
+        navstack.append(NavPoint('dummy', '', '', '', []))
+        level = 0
         lastnode = None
         for node in nodes:
             if not node['text']:
@@ -682,29 +637,30 @@ class EpubBuilder(StandaloneHTMLBuilder):
             if node['level'] > self.config.epub_tocdepth:
                 continue
             if node['level'] == level:
-                navlist.append(self.new_navpoint(node, level))
+                navpoint = self.new_navpoint(node, level)
+                navstack.pop()
+                navstack[-1].children.append(navpoint)
+                navstack.append(navpoint)
             elif node['level'] == level + 1:
-                navstack.append(navlist)
-                navlist = []
                 level += 1
                 if lastnode and self.config.epub_tocdup:
                     # Insert starting point in subtoc with same playOrder
-                    navlist.append(self.new_navpoint(lastnode, level, False))
-                navlist.append(self.new_navpoint(node, level))
+                    navstack[-1].children.append(self.new_navpoint(lastnode, level, False))
+                navpoint = self.new_navpoint(node, level)
+                navstack[-1].children.append(navpoint)
+                navstack.append(navpoint)
+            elif node['level'] < level:
+                while node['level'] < len(navstack):
+                    navstack.pop()
+                level = node['level']
+                navpoint = self.new_navpoint(node, level)
+                navstack[-1].children.append(navpoint)
+                navstack.append(navpoint)
             else:
-                while node['level'] < level:
-                    subnav = '\n'.join(navlist)
-                    navlist = navstack.pop()
-                    navlist[-1] = self.insert_subnav(navlist[-1], subnav)
-                    level -= 1
-                navlist.append(self.new_navpoint(node, level))
+                raise
             lastnode = node
-        while level != 1:
-            subnav = '\n'.join(navlist)
-            navlist = navstack.pop()
-            navlist[-1] = self.insert_subnav(navlist[-1], subnav)
-            level -= 1
-        return '\n'.join(navlist)
+
+        return navstack[0].children
 
     def toc_metadata(self, level, navpoints):
         # type: (int, List[unicode]) -> Dict[unicode, Any]
@@ -735,8 +691,9 @@ class EpubBuilder(StandaloneHTMLBuilder):
         navpoints = self.build_navpoints(refnodes)
         level = max(item['level'] for item in self.refnodes)
         level = min(level, self.config.epub_tocdepth)
-        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:  # type: ignore
-            f.write(self.toc_template % self.toc_metadata(level, navpoints))  # type: ignore
+        copy_asset_file(path.join(self.template_dir, 'toc.ncx_t'),
+                        path.join(outdir, outname),
+                        self.toc_metadata(level, navpoints))
 
     def build_epub(self, outdir, outname):
         # type: (unicode, unicode) -> None
