@@ -242,7 +242,7 @@ def load_mappings(app):
     cache = env.intersphinx_cache
     update = False
     for key, value in iteritems(app.config.intersphinx_mapping):
-        if isinstance(value, tuple):
+        if isinstance(value, (list, tuple)):
             # new format
             name, (uri, inv) = key, value
             if not isinstance(name, string_types):
