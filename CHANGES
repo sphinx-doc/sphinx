@@ -30,6 +30,7 @@ Bugs fixed
 * #3268: Sphinx crashes with requests package from Debian jessie
 * #3284: Sphinx crashes on parallel build with an extension which raises
   unserializable exception
+* #3315: Bibliography crashes on latex build with docclass 'memoir'
 
 
 Release 1.5.1 (released Dec 13, 2016)
