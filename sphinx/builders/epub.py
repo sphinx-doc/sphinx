@@ -536,14 +536,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
 
         # spine
         spinefiles = set()
-        for item in self.refnodes:
-            if '#' in item['refuri']:
+        for refnode in self.refnodes:
+            if '#' in refnode['refuri']:
                 continue
-            if item['refuri'] in self.ignored_files:
+            if refnode['refuri'] in self.ignored_files:
                 continue
-            spine = Spine(self.esc(self.make_id(item['refuri'])), True)
+            spine = Spine(self.esc(self.make_id(refnode['refuri'])), True)
             metadata['spines'].append(spine)
-            spinefiles.add(item['refuri'])
+            spinefiles.add(refnode['refuri'])
         for info in self.domain_indices:
             spine = Spine(self.esc(self.make_id(info[0] + self.out_suffix)), True)
             metadata['spines'].append(spine)
@@ -565,8 +565,8 @@ class EpubBuilder(StandaloneHTMLBuilder):
             image = image.replace(os.sep, '/')
             metadata['cover'] = self.esc(self.make_id(image))
             if html_tmpl:
-                spine.insert(0, self.spine_template % {
-                    'idref': self.esc(self.make_id(self.coverpage_name))})
+                spine = Spine(self.esc(self.make_id(self.coverpage_name)), True)
+                metadata['spines'].insert(0, spine)
                 if self.coverpage_name not in self.files:
                     ext = path.splitext(self.coverpage_name)[-1]
                     self.files.append(self.coverpage_name)
@@ -608,7 +608,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                         metadata)
 
     def new_navpoint(self, node, level, incr=True):
-        # type: (nodes.Node, int, bool) -> unicode
+        # type: (nodes.Node, int, bool) -> NavPoint
         """Create a new entry in the toc from the node at given level."""
         # XXX Modifies the node
         if incr:
@@ -618,7 +618,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
                         node['text'], node['refuri'], [])
 
     def build_navpoints(self, nodes):
-        # type: (nodes.Node) -> unicode
+        # type: (nodes.Node) -> List[NavPoint]
         """Create the toc navigation structure.
 
         Subelements of a node are nested inside the navpoint.  For nested nodes
@@ -663,7 +663,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return navstack[0].children
 
     def toc_metadata(self, level, navpoints):
-        # type: (int, List[unicode]) -> Dict[unicode, Any]
+        # type: (int, List[NavPoint]) -> Dict[unicode, Any]
         """Create a dictionary with all metadata for the toc.ncx file
         properly escaped.
         """
