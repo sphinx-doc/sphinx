@@ -49,6 +49,9 @@ Deprecated
 * ``sphinx.util.compat.docutils_version`` is now deprecated
 * #2367: ``Sphinx.warn()``, ``Sphinx.info()`` and other logging methods are now
   deprecated.  Please use ``sphinx.util.logging`` (:ref:`logging-api`) instead.
+* #3318: ``notice`` is now deprecated as LaTeX environment name and will be
+  removed at Sphinx 1.7. Extension authors please use ``sphinxadmonition``
+  instead (as Sphinx does since 1.5.)
 
 Release 1.5.2 (in development)
 ===============================
