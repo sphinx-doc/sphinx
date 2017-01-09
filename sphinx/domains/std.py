@@ -673,13 +673,13 @@ class StandardDomain(Domain):
             else:
                 title = env.config.numfig_format.get(figtype, '')
 
-            if figname is None and '%{name}' in title:
+            if figname is None and '{name}' in title:
                 env.warn_node('the link has no caption: %s' % title, node)
                 return contnode
             else:
                 fignum = '.'.join(map(str, fignumber))
                 if '{name}' in title or 'number' in title:
-                    # new style format (cf. "Fig.%{number}")
+                    # new style format (cf. "Fig.{number}")
                     if figname:
                         newtitle = title.format(name=figname, number=fignum)
                     else:
