@@ -13,7 +13,7 @@
 # "raises" imported for usage by autodoc
 import six
 import sys
-from util import TestApp, Struct, raises, SkipTest
+from util import SphinxTestApp, Struct
 import pytest
 
 from six import StringIO
@@ -27,7 +27,7 @@ app = None
 
 def setup_module():
     global app
-    app = TestApp()
+    app = SphinxTestApp()
     app.builder.env.app = app
     app.builder.env.temp_data['docname'] = 'dummy'
     app.connect('autodoc-process-docstring', process_docstring)
@@ -185,7 +185,7 @@ def test_generate():
                            'Class.meth', more_content=add_content)
 
     # test check_module
-    inst = FunctionDocumenter(directive, 'raises')
+    inst = FunctionDocumenter(directive, 'add_documenter')
     inst.generate(check_module=True)
     assert len(directive.result) == 0
 
