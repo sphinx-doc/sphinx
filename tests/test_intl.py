@@ -970,18 +970,21 @@ def test_additional_targets_should_not_be_translated(app):
 
 
 @sphinx_intl
-@pytest.mark.sphinx('html', confoverrides={
-    'language': 'xx', 'locale_dirs': ['.'],
-    'gettext_compact': False,
-    'gettext_additional_targets': [
-        'index',
-        'literal-block',
-        'doctest-block',
-        'raw',
-        'image',
-    ],
-})
-@pytest.mark.test_params(specific_srcdir=True)
+@pytest.mark.sphinx(
+    'html',
+    srcdir='test_additional_targets_should_be_translated',
+    confoverrides={
+        'language': 'xx', 'locale_dirs': ['.'],
+        'gettext_compact': False,
+        'gettext_additional_targets': [
+            'index',
+            'literal-block',
+            'doctest-block',
+            'raw',
+            'image',
+        ],
+    }
+)
 def test_additional_targets_should_be_translated(app):
     app.build()
     # [literalblock.txt]
@@ -1045,9 +1048,9 @@ def test_text_references(app, warning):
 
 @pytest.mark.sphinx(
     'dummy', testroot='image-glob',
+    srcdir='test_intl_image_glob',
     confoverrides={'language': 'xx'}
 )
-@pytest.mark.test_params(specific_srcdir='test_intl_image_glob')
 def test_image_glob_intl(app):
     app.build()
     # index.rst
@@ -1089,12 +1092,12 @@ def test_image_glob_intl(app):
 
 @pytest.mark.sphinx(
     'dummy', testroot='image-glob',
+    srcdir='test_intl_image_glob',
     confoverrides={
         'language': 'xx',
         'figure_language_filename': u'{root}{ext}.{language}',
     }
 )
-@pytest.mark.test_params(specific_srcdir='test_intl_image_glob')
 def test_image_glob_intl_using_figure_language_filename(app):
     app.build()
     # index.rst

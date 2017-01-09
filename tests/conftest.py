@@ -35,10 +35,11 @@ def app_params(request, test_params, shared_result):
 
     # ##### process pytest.mark.test_params
 
-    if test_params['specific_srcdir'] and 'srcdir' not in kwargs:
-        kwargs['srcdir'] = test_params['specific_srcdir']
-
     if test_params['shared_result']:
+        if 'srcdir' in kwargs:
+            raise pytest.Exception('You can not spcify shared_result and '
+                                   'srcdir in same time.')
+        kwargs['srcdir'] = test_params['shared_result']
         restore = shared_result.restore(test_params['shared_result'])
         kwargs.update(restore)
 
@@ -66,43 +67,27 @@ def test_params(request):
     """
     test parameters that is specified by 'pytest.mark.test_params'
 
-    :param Union[str, bool, None] specific_srcdir:
-       If True, testroot directory will be copied into
-       '<TMPDIR>/<TEST FUNCTION NAME>'.
-       If string is specified, it copied into '<TMPDIR>/<THE STRING>'.
-       You can used this feature for providing special crafted source
-       directory. Also you can used for sharing source directory for
-       parametrized testing and/or inter test functions. Default is None.
-    :param Union[str, bool, None] shared_result:
-       If True, app._status and app._warning objects will be shared in the
-       parametrized test functions. If string is specified, the objects will
-       be shred in the test functions that have same 'shared_result' value.
-       If you don't specify specific_srcdir, this option override
-       specific_srcdir param by 'shared_result' value. Default is None.
+    :param Union[str] shared_result:
+       If the value is provided, app._status and app._warning objects will be
+       shared in the parametrized test functions and/or test functions that
+       have same 'shared_result' value.
+       **NOTE**: You can not specify shared_result and srcdir in same time.
     """
     env = request.node.get_marker('test_params')
     kwargs = env.kwargs if env else {}
     result = {
-        'specific_srcdir': None,
         'shared_result': None,
     }
     result.update(kwargs)
 
     if (result['shared_result'] and
             not isinstance(result['shared_result'], string_types)):
-        result['shared_result'] = request.node.originalname or request.node.name
-
-    if result['shared_result'] and not result['specific_srcdir']:
-        result['specific_srcdir'] = result['shared_result']
-
-    if (result['specific_srcdir'] and
-        not isinstance(result['specific_srcdir'], string_types)):
-        result['specific_srcdir'] = request.node.originalname or request.node.name
-
+        raise pytest.Exception('You can only provide a string type of value '
+                               'for "shared_result" ')
     return result
 
 
-class AppWrapper(object):
+class SphinxTestAppWrapperForSkipBuilding(object):
     """
     This class is a wrapper for SphinxTestApp to speed up the test by skipping
     `app.build` process if it is already built and there is even one output
@@ -175,7 +160,7 @@ def make_app(test_params):
         app_ = util.SphinxTestApp(*args, **kwargs)
         apps.append(app_)
         if test_params['shared_result']:
-            app_ = AppWrapper(app_)
+            app_ = SphinxTestAppWrapperForSkipBuilding(app_)
         return app_
     yield make
 

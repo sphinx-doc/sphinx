@@ -570,8 +570,10 @@ def test_numfig_disabled(app, cached_etree_parse, fname, expect):
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@pytest.mark.sphinx('html', testroot='numfig', confoverrides={'numfig': True})
-@pytest.mark.test_params(specific_srcdir=True)
+@pytest.mark.sphinx(
+    'html', testroot='numfig',
+    srcdir='test_numfig_without_numbered_toctree_warn',
+    confoverrides={'numfig': True})
 def test_numfig_without_numbered_toctree_warn(app, warning):
     app.build()
     # remove :numbered: option
@@ -667,8 +669,10 @@ def test_numfig_without_numbered_toctree_warn(app, warning):
          "span[@class='caption-number']", '^Listing 6 $', True),
     ],
 }))
-@pytest.mark.sphinx('html', testroot='numfig', confoverrides={'numfig': True})
-@pytest.mark.test_params(specific_srcdir=True)
+@pytest.mark.sphinx(
+    'html', testroot='numfig',
+    srcdir='test_numfig_without_numbered_toctree',
+    confoverrides={'numfig': True})
 def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect):
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').text()
@@ -1085,8 +1089,10 @@ def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
         (".//li/a/span", 'No.2', True),
     ],
 }))
-@pytest.mark.sphinx('html', testroot='add_enumerable_node')
-@pytest.mark.test_params(specific_srcdir=True)
+@pytest.mark.sphinx(
+    'html', testroot='add_enumerable_node',
+    srcdir='test_enumerable_node',
+)
 def test_enumerable_node(app, cached_etree_parse, fname, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
