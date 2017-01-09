@@ -17,36 +17,36 @@ from subprocess import Popen, PIPE
 
 import pytest
 
-from util import (
-    gen_with_app, SkipTest, assert_in, assert_true, assert_equal
-)
+from sphinx.util.osutil import cd
 
 
-@gen_with_app('gettext', srcdir='root-gettext')
-def test_all(app, status, warning):
+@pytest.mark.sphinx('gettext', srcdir='root-gettext')
+def test_build_gettext(app):
     # Generic build; should fail only when the builder is horribly broken.
     app.builder.build_all()
 
     # Do messages end up in the correct location?
     # top-level documents end up in a message catalog
-    yield assert_true, (app.outdir / 'extapi.pot').isfile()
+    assert (app.outdir / 'extapi.pot').isfile()
     # directory items are grouped into sections
-    yield assert_true, (app.outdir / 'subdir.pot').isfile()
+    assert (app.outdir / 'subdir.pot').isfile()
 
     # regression test for issue #960
     catalog = (app.outdir / 'markup.pot').text(encoding='utf-8')
-    yield assert_in, 'msgid "something, something else, something more"', catalog
+    assert 'msgid "something, something else, something more"' in catalog
 
+
+@pytest.mark.sphinx('gettext', srcdir='root-gettext')
+def test_msgfmt(app):
+    app.builder.build_all()
     (app.outdir / 'en' / 'LC_MESSAGES').makedirs()
-    cwd = os.getcwd()
-    os.chdir(app.outdir)
-    try:
+    with cd(app.outdir):
         try:
             p = Popen(['msginit', '--no-translator', '-i', 'markup.pot',
                        '--locale', 'en_US'],
                       stdout=PIPE, stderr=PIPE)
         except OSError:
-            raise SkipTest  # most likely msginit was not found
+            pytest.skip()  # most likely msginit was not found
         else:
             stdout, stderr = p.communicate()
             if p.returncode != 0:
@@ -54,13 +54,13 @@ def test_all(app, status, warning):
                 print(stderr)
                 assert False, 'msginit exited with return code %s' % \
                     p.returncode
-        yield assert_true, (app.outdir / 'en_US.po').isfile(), 'msginit failed'
+        assert (app.outdir / 'en_US.po').isfile(), 'msginit failed'
         try:
             p = Popen(['msgfmt', 'en_US.po', '-o',
                        os.path.join('en', 'LC_MESSAGES', 'test_root.mo')],
                       stdout=PIPE, stderr=PIPE)
         except OSError:
-            raise SkipTest  # most likely msgfmt was not found
+            pytest.skip()  # most likely msgfmt was not found
         else:
             stdout, stderr = p.communicate()
             if p.returncode != 0:
@@ -68,20 +68,17 @@ def test_all(app, status, warning):
                 print(stderr)
                 assert False, 'msgfmt exited with return code %s' % \
                     p.returncode
-        yield (assert_true,
-               (app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo').isfile(),
-               'msgfmt failed')
-    finally:
-        os.chdir(cwd)
+        mo = app.outdir / 'en' / 'LC_MESSAGES' / 'test_root.mo'
+        assert mo.isfile(), 'msgfmt failed'
 
     _ = gettext.translation('test_root', app.outdir, languages=['en']).gettext
-    yield assert_equal, _("Testing various markup"), u"Testing various markup"
+    assert _("Testing various markup") == u"Testing various markup"
 
 
 @pytest.mark.sphinx(
     'gettext', testroot='intl', srcdir='gettext',
     confoverrides={'gettext_compact': False})
-def test_gettext_index_entries(app, status, warning):
+def test_gettext_index_entries(app):
     # regression test for #976
     app.builder.build(['index_entries'])
 
@@ -128,8 +125,9 @@ def test_gettext_index_entries(app, status, warning):
 
 @pytest.mark.sphinx(
     'gettext', testroot='intl', srcdir='gettext',
-    confoverrides={'gettext_compact': False, 'gettext_additional_targets': []})
-def test_gettext_disable_index_entries(app, status, warning):
+    confoverrides={'gettext_compact': False,
+                   'gettext_additional_targets': []})
+def test_gettext_disable_index_entries(app):
     # regression test for #976
     app.builder.build(['index_entries'])
 
@@ -160,7 +158,7 @@ def test_gettext_disable_index_entries(app, status, warning):
 
 
 @pytest.mark.sphinx('gettext', testroot='intl', srcdir='gettext')
-def test_gettext_template(app, status, warning):
+def test_gettext_template(app):
     app.builder.build_all()
     assert (app.outdir / 'sphinx.pot').isfile()
 

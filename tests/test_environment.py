@@ -9,9 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six import StringIO
-
-from util import TestApp, path
+from util import SphinxTestApp, path
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
@@ -21,7 +19,7 @@ app = env = None
 
 def setup_module():
     global app, env
-    app = TestApp(srcdir='root-envtest', warning=StringIO())
+    app = SphinxTestApp(srcdir='root-envtest')
     env = app.env
 
 

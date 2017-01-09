@@ -1082,8 +1082,14 @@
 
 % make commands known to non-Sphinx document classes
 \providecommand*{\sphinxtableofcontents}{\tableofcontents}
-\providecommand*{\sphinxthebibliography}{\thebibliography}
-\providecommand*{\sphinxtheindex}{\theindex}
+\spx@ifundefined{sphinxthebibliography}
+ {\newenvironment
+  {sphinxthebibliography}{\begin{thebibliography}}{\end{thebibliography}}%
+ }
+ {}% else clause of ifundefined
+\spx@ifundefined{sphinxtheindex}
+ {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}%
+ {}% else clause of ifundefined
 
 % remove LaTeX's cap on nesting depth if 'maxlistdepth' key used.
 % This is a hack, which works with the standard classes: it assumes \@toodeep
