@@ -3,7 +3,7 @@ pytest>=3.0
 pytest-cov
 mock
 six>=1.4
-Jinja2>=2.3,<2.9
+Jinja2>=2.3
 Pygments>=2.0
 docutils>=0.11
 snowballstemmer>=1.1
