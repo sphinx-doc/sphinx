@@ -21,7 +21,7 @@ from six import string_types
 import pytest
 
 from util import tempdir, rootdir, path, assert_re_search, \
-    assert_not_re_search, assert_startswith, assert_node, etree_parse
+    assert_not_re_search, assert_startswith, assert_node, etree_parse, strip_escseq
 
 
 sphinx_intl = pytest.mark.sphinx(
