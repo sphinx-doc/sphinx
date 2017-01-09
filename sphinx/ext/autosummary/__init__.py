@@ -69,6 +69,7 @@ from docutils import nodes
 
 import sphinx
 from sphinx import addnodes
+from sphinx.environment.adapters.toctree import TocTree
 from sphinx.util import import_object, rst, logging
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.ext.autodoc import Options
@@ -104,7 +105,7 @@ def process_autosummary_toc(app, doctree):
             try:
                 if (isinstance(subnode, autosummary_toc) and
                         isinstance(subnode[0], addnodes.toctree)):
-                    env.note_toctree(env.docname, subnode[0])
+                    TocTree(env).note(env.docname, subnode[0])
                     continue
             except IndexError:
                 continue

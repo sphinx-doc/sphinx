@@ -47,6 +47,7 @@ from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.environment.adapters.toctree import TocTree
 from sphinx.environment.managers.indexentries import IndexEntries
 from sphinx.environment.managers.toctree import Toctree
 
@@ -847,17 +848,26 @@ class BuildEnvironment(object):
         """Note a TOC tree directive in a document and gather information about
         file relations from it.
         """
-        self.toctree.note_toctree(docname, toctreenode)  # type: ignore
+        warnings.warn('env.note_toctree() is deprecated. '
+                      'Use sphinx.environment.adapters.toctre.TocTree instead.',
+                      RemovedInSphinx20Warning)
+        TocTree(self).note(docname, toctreenode)
 
     def get_toc_for(self, docname, builder):
-        # type: (unicode, Builder) -> addnodes.toctree
+        # type: (unicode, Builder) -> Dict[unicode, nodes.Node]
         """Return a TOC nodetree -- for use on the same page only!"""
-        return self.toctree.get_toc_for(docname, builder)  # type: ignore
+        warnings.warn('env.get_toc_for() is deprecated. '
+                      'Use sphinx.environment.adapters.toctre.TocTree instead.',
+                      RemovedInSphinx20Warning)
+        return TocTree(self).get_toc_for(docname, builder)
 
     def get_toctree_for(self, docname, builder, collapse, **kwds):
         # type: (unicode, Builder, bool, Any) -> addnodes.toctree
         """Return the global TOC nodetree."""
-        return self.toctree.get_toctree_for(docname, builder, collapse, **kwds)  # type: ignore
+        warnings.warn('env.get_toctree_for() is deprecated. '
+                      'Use sphinx.environment.adapters.toctre.TocTree instead.',
+                      RemovedInSphinx20Warning)
+        return TocTree(self).get_toctree_for(docname, builder, collapse, **kwds)
 
     def get_domain(self, domainname):
         # type: (unicode) -> Domain
@@ -897,9 +907,9 @@ class BuildEnvironment(object):
 
         # now, resolve all toctree nodes
         for toctreenode in doctree.traverse(addnodes.toctree):
-            result = self.resolve_toctree(docname, builder, toctreenode,
-                                          prune=prune_toctrees,
-                                          includehidden=includehidden)
+            result = TocTree(self).resolve(docname, builder, toctreenode,
+                                           prune=prune_toctrees,
+                                           includehidden=includehidden)
             if result is None:
                 toctreenode.replace_self([])
             else:
@@ -921,9 +931,9 @@ class BuildEnvironment(object):
         If *collapse* is True, all branches not containing docname will
         be collapsed.
         """
-        return self.toctree.resolve_toctree(docname, builder, toctree, prune,  # type: ignore
-                                            maxdepth, titles_only, collapse,
-                                            includehidden)
+        return TocTree(self).resolve(docname, builder, toctree, prune,
+                                     maxdepth, titles_only, collapse,
+                                     includehidden)
 
     def resolve_references(self, doctree, fromdocname, builder):
         # type: (nodes.Node, unicode, Builder) -> None

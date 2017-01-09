@@ -45,6 +45,7 @@ from sphinx.highlighting import PygmentsBridge
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
     SmartyPantsHTMLTranslator
+from sphinx.environment.adapters.toctree import TocTree
 
 if False:
     # For type annotation
@@ -439,7 +440,7 @@ class StandaloneHTMLBuilder(Builder):
         meta = self.env.metadata.get(docname)
 
         # local TOC and global TOC tree
-        self_toc = self.env.get_toc_for(docname, self)
+        self_toc = TocTree(self.env).get_toc_for(docname, self)
         toc = self.render_partial(self_toc)['fragment']
 
         return dict(
@@ -763,7 +764,7 @@ class StandaloneHTMLBuilder(Builder):
         # type: (unicode, bool, Any) -> unicode
         if 'includehidden' not in kwds:
             kwds['includehidden'] = False
-        return self.render_partial(self.env.get_toctree_for(
+        return self.render_partial(TocTree(self.env).get_toctree_for(
             docname, self, collapse, **kwds))['fragment']
 
     def get_outfilename(self, pagename):
@@ -1010,7 +1011,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         # type: (unicode, bool, Any) -> unicode
         if 'includehidden' not in kwds:
             kwds['includehidden'] = False
-        toctree = self.env.get_toctree_for(docname, self, collapse, **kwds)
+        toctree = TocTree(self.env).get_toctree_for(docname, self, collapse, **kwds)
         self.fix_refuris(toctree)
         return self.render_partial(toctree)['fragment']
 
@@ -1066,7 +1067,8 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     def get_doc_context(self, docname, body, metatags):
         # type: (unicode, unicode, Dict) -> Dict
         # no relation links...
-        toc = self.env.get_toctree_for(self.config.master_doc, self, False)  # type: Any
+        toc = TocTree(self.env).get_toctree_for(self.config.master_doc,
+                                                self, False)
         # if there is no toctree, toc is None
         if toc:
             self.fix_refuris(toc)
