@@ -732,7 +732,7 @@ class StandaloneHTMLBuilder(Builder):
                 reference.append(node)
 
     def load_indexer(self, docnames):
-        # type: (Set[unicode]) -> None
+        # type: (Iterable[unicode]) -> None
         keep = set(self.env.all_docs) - set(docnames)
         try:
             searchindexfn = path.join(self.outdir, self.searchindex_filename)

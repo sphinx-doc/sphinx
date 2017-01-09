@@ -27,7 +27,7 @@ from sphinx.util.docfields import Field, GroupedField, TypedField
 
 if False:
     # For type annotation
-    from typing import Any, Iterator, Tuple, Union  # NOQA
+    from typing import Any, Iterable, Iterator, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -582,7 +582,7 @@ class PythonModuleIndex(Index):
     shortname = l_('modules')
 
     def generate(self, docnames=None):
-        # type: (List[unicode]) -> Tuple[List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]  # NOQA
+        # type: (Iterable[unicode]) -> Tuple[List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]  # NOQA
         content = {}  # type: Dict[unicode, List]
         # list of prefixes to ignore
         ignores = None  # type: List[unicode]

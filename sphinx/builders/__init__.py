@@ -391,7 +391,7 @@ class Builder(object):
                 self.write_doc(docname, doctree)
 
     def _write_parallel(self, docnames, nproc):
-        # type: (Iterable[unicode], int) -> None
+        # type: (Sequence[unicode], int) -> None
         def write_process(docs):
             # type: (List[Tuple[unicode, nodes.Node]]) -> None
             for docname, doctree in docs:
