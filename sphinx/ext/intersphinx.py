@@ -270,7 +270,7 @@ def load_mappings(app):
         uri = None   # type: unicode
         inv = None   # type: Union[unicode, Tuple[unicode, ...]]
 
-        if isinstance(value, tuple):
+        if isinstance(value, (list, tuple)):
             # new format
             name, (uri, inv) = key, value
             if not isinstance(name, string_types):
