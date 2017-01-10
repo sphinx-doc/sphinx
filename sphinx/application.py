@@ -61,6 +61,7 @@ if False:
 events = {
     'builder-inited': '',
     'env-get-outdated': 'env, added, changed, removed',
+    'env-get-updated': 'env',
     'env-purge-doc': 'env, docname',
     'env-before-read-docs': 'env, docnames',
     'source-read': 'docname, source text',
@@ -107,6 +108,7 @@ builtin_extensions = (
     'sphinx.environment.collectors.asset',
     'sphinx.environment.collectors.metadata',
     'sphinx.environment.collectors.title',
+    'sphinx.environment.collectors.toctree',
 )  # type: Tuple[unicode, ...]
 
 CONFIG_FILENAME = 'conf.py'

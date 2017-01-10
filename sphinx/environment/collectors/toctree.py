@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.environment.managers.toctree
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    sphinx.environment.collectors.toctree
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Toctree manager for sphinx.environment.
+    Toctree collector for sphinx.environment.
 
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -16,67 +16,54 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx.util import url_re, logging
 from sphinx.transforms import SphinxContentsFilter
-from sphinx.environment.adapters.toctree import TocTree as TocTreeAdapter
-from sphinx.environment.managers import EnvironmentManager
+from sphinx.environment.adapters.toctree import TocTree
+from sphinx.environment.collectors import EnvironmentCollector
 
 if False:
     # For type annotation
     from typing import Any, Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
 logger = logging.getLogger(__name__)
 
 
-class Toctree(EnvironmentManager):
-    name = 'toctree'
+class TocTreeCollector(EnvironmentCollector):
+    def clear_doc(self, app, env, docname):
+        # type: (Sphinx, BuildEnvironment, unicode) -> None
+        env.tocs.pop(docname, None)
+        env.toc_secnumbers.pop(docname, None)
+        env.toc_fignumbers.pop(docname, None)
+        env.toc_num_entries.pop(docname, None)
+        env.toctree_includes.pop(docname, None)
+        env.glob_toctrees.discard(docname)
+        env.numbered_toctrees.discard(docname)
 
-    def __init__(self, env):
-        # type: (BuildEnvironment) -> None
-        super(Toctree, self).__init__(env)
-
-        self.tocs = env.tocs
-        self.toc_num_entries = env.toc_num_entries
-        self.toc_secnumbers = env.toc_secnumbers
-        self.toc_fignumbers = env.toc_fignumbers
-        self.toctree_includes = env.toctree_includes
-        self.files_to_rebuild = env.files_to_rebuild
-        self.glob_toctrees = env.glob_toctrees
-        self.numbered_toctrees = env.numbered_toctrees
-
-    def clear_doc(self, docname):
-        # type: (unicode) -> None
-        self.tocs.pop(docname, None)
-        self.toc_secnumbers.pop(docname, None)
-        self.toc_fignumbers.pop(docname, None)
-        self.toc_num_entries.pop(docname, None)
-        self.toctree_includes.pop(docname, None)
-        self.glob_toctrees.discard(docname)
-        self.numbered_toctrees.discard(docname)
-
-        for subfn, fnset in list(self.files_to_rebuild.items()):
+        for subfn, fnset in list(env.files_to_rebuild.items()):
             fnset.discard(docname)
             if not fnset:
-                del self.files_to_rebuild[subfn]
+                del env.files_to_rebuild[subfn]
 
-    def merge_other(self, docnames, other):
-        # type: (List[unicode], BuildEnvironment) -> None
+    def merge_other(self, app, env, docnames, other):
+        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
         for docname in docnames:
-            self.tocs[docname] = other.tocs[docname]
-            self.toc_num_entries[docname] = other.toc_num_entries[docname]
+            env.tocs[docname] = other.tocs[docname]
+            env.toc_num_entries[docname] = other.toc_num_entries[docname]
             if docname in other.toctree_includes:
-                self.toctree_includes[docname] = other.toctree_includes[docname]
+                env.toctree_includes[docname] = other.toctree_includes[docname]
             if docname in other.glob_toctrees:
-                self.glob_toctrees.add(docname)
+                env.glob_toctrees.add(docname)
             if docname in other.numbered_toctrees:
-                self.numbered_toctrees.add(docname)
+                env.numbered_toctrees.add(docname)
 
         for subfn, fnset in other.files_to_rebuild.items():
-            self.files_to_rebuild.setdefault(subfn, set()).update(fnset & set(docnames))
+            env.files_to_rebuild.setdefault(subfn, set()).update(fnset & set(docnames))
 
-    def process_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
+    def process_doc(self, app, doctree):
+        # type: (Sphinx, nodes.Node) -> None
         """Build a TOC from the doctree and store it in the inventory."""
+        docname = app.env.docname
         numentries = [0]  # nonlocal again...
 
         def traverse_in_section(node, cls):
@@ -109,7 +96,7 @@ class Toctree(EnvironmentManager):
                         item = toctreenode.copy()
                         entries.append(item)
                         # important: do the inventory stuff
-                        self.note_toctree(docname, toctreenode)
+                        TocTree(app.env).note(docname, toctreenode)
                     continue
                 title = sectionnode[0]
                 # copy the contents of the section title, but without references
@@ -139,47 +126,24 @@ class Toctree(EnvironmentManager):
             return []
         toc = build_toc(doctree)
         if toc:
-            self.tocs[docname] = toc
+            app.env.tocs[docname] = toc
         else:
-            self.tocs[docname] = nodes.bullet_list('')
-        self.toc_num_entries[docname] = numentries[0]
+            app.env.tocs[docname] = nodes.bullet_list('')
+        app.env.toc_num_entries[docname] = numentries[0]
 
-    def get_updated_docs(self):
-        # type: () -> List[unicode]
-        return self.assign_section_numbers() + self.assign_figure_numbers()
+    def get_updated_docs(self, app, env):
+        # type: (Sphinx, BuildEnvironment) -> List[unicode]
+        return self.assign_section_numbers(env) + self.assign_figure_numbers(env)
 
-    def note_toctree(self, docname, toctreenode):
-        # type: (unicode, addnodes.toctree) -> None
-        """Note a TOC tree directive in a document and gather information about
-        file relations from it.
-        """
-        TocTreeAdapter(self.env).note(docname, toctreenode)
-
-    def get_toc_for(self, docname, builder):
-        # type: (unicode, Builder) -> Dict[unicode, nodes.Node]
-        """Return a TOC nodetree -- for use on the same page only!"""
-        return TocTreeAdapter(self.env).get_toc_for(docname, builder)
-
-    def get_toctree_for(self, docname, builder, collapse, **kwds):
-        # type: (unicode, Builder, bool, Any) -> nodes.Node
-        """Return the global TOC nodetree."""
-        return TocTreeAdapter(self.env).get_toctree_for(docname, builder, collapse, **kwds)
-
-    def resolve_toctree(self, docname, builder, toctree, prune=True, maxdepth=0,
-                        titles_only=False, collapse=False, includehidden=False):
-        # type: (unicode, Builder, addnodes.toctree, bool, int, bool, bool, bool) -> nodes.Node
-        return TocTreeAdapter(self.env).resolve(docname, builder, toctree, prune, maxdepth,
-                                                titles_only, collapse, includehidden)
-
-    def assign_section_numbers(self):
-        # type: () -> List[unicode]
+    def assign_section_numbers(self, env):
+        # type: (BuildEnvironment) -> List[unicode]
         """Assign a section number to each heading under a numbered toctree."""
         # a list of all docnames whose section numbers changed
         rewrite_needed = []
 
         assigned = set()  # type: Set[unicode]
-        old_secnumbers = self.toc_secnumbers
-        self.toc_secnumbers = self.env.toc_secnumbers = {}
+        old_secnumbers = env.toc_secnumbers
+        env.toc_secnumbers = {}
 
         def _walk_toc(node, secnums, depth, titlenode=None):
             # titlenode is the title of the document, it will get assigned a
@@ -224,17 +188,17 @@ class Toctree(EnvironmentManager):
                     logger.warning('%s is already assigned section numbers '
                                    '(nested numbered toctree?)', ref,
                                    location=toctreenode, type='toc', subtype='secnum')
-                elif ref in self.tocs:
-                    secnums = self.toc_secnumbers[ref] = {}
+                elif ref in env.tocs:
+                    secnums = env.toc_secnumbers[ref] = {}
                     assigned.add(ref)
-                    _walk_toc(self.tocs[ref], secnums, depth,
-                              self.env.titles.get(ref))
+                    _walk_toc(env.tocs[ref], secnums, depth,
+                              env.titles.get(ref))
                     if secnums != old_secnumbers.get(ref):
                         rewrite_needed.append(ref)
 
-        for docname in self.numbered_toctrees:
+        for docname in env.numbered_toctrees:
             assigned.add(docname)
-            doctree = self.env.get_doctree(docname)
+            doctree = env.get_doctree(docname)
             for toctreenode in doctree.traverse(addnodes.toctree):
                 depth = toctreenode.get('numbered', 0)
                 if depth:
@@ -244,20 +208,20 @@ class Toctree(EnvironmentManager):
 
         return rewrite_needed
 
-    def assign_figure_numbers(self):
-        # type: () -> List[unicode]
+    def assign_figure_numbers(self, env):
+        # type: (BuildEnvironment) -> List[unicode]
         """Assign a figure number to each figure under a numbered toctree."""
 
         rewrite_needed = []
 
         assigned = set()  # type: Set[unicode]
-        old_fignumbers = self.toc_fignumbers
-        self.toc_fignumbers = self.env.toc_fignumbers = {}
+        old_fignumbers = env.toc_fignumbers
+        env.toc_fignumbers = {}
         fignum_counter = {}  # type: Dict[unicode, Dict[Tuple[int], int]]
 
         def get_section_number(docname, section):
             anchorname = '#' + section['ids'][0]
-            secnumbers = self.toc_secnumbers.get(docname, {})
+            secnumbers = env.toc_secnumbers.get(docname, {})
             if anchorname in secnumbers:
                 secnum = secnumbers.get(anchorname)
             else:
@@ -268,13 +232,13 @@ class Toctree(EnvironmentManager):
         def get_next_fignumber(figtype, secnum):
             counter = fignum_counter.setdefault(figtype, {})
 
-            secnum = secnum[:self.env.config.numfig_secnum_depth]
+            secnum = secnum[:env.config.numfig_secnum_depth]
             counter[secnum] = counter.get(secnum, 0) + 1
             return secnum + (counter[secnum],)
 
         def register_fignumber(docname, secnum, figtype, fignode):
-            self.toc_fignumbers.setdefault(docname, {})
-            fignumbers = self.toc_fignumbers[docname].setdefault(figtype, {})
+            env.toc_fignumbers.setdefault(docname, {})
+            fignumbers = env.toc_fignumbers[docname].setdefault(figtype, {})
             figure_id = fignode['ids'][0]
 
             fignumbers[figure_id] = get_next_fignumber(figtype, secnum)
@@ -298,7 +262,7 @@ class Toctree(EnvironmentManager):
 
                     continue
 
-                figtype = self.env.get_domain('std').get_figtype(subnode)  # type: ignore
+                figtype = env.get_domain('std').get_figtype(subnode)  # type: ignore
                 if figtype and subnode['ids']:
                     register_fignumber(docname, secnum, figtype, subnode)
 
@@ -307,13 +271,18 @@ class Toctree(EnvironmentManager):
         def _walk_doc(docname, secnum):
             if docname not in assigned:
                 assigned.add(docname)
-                doctree = self.env.get_doctree(docname)
+                doctree = env.get_doctree(docname)
                 _walk_doctree(docname, doctree, secnum)
 
-        if self.env.config.numfig:
-            _walk_doc(self.env.config.master_doc, tuple())
-            for docname, fignums in iteritems(self.toc_fignumbers):
+        if env.config.numfig:
+            _walk_doc(env.config.master_doc, tuple())
+            for docname, fignums in iteritems(env.toc_fignumbers):
                 if fignums != old_fignumbers.get(docname):
                     rewrite_needed.append(docname)
 
         return rewrite_needed
+
+
+def setup(app):
+    # type: (Sphinx) -> None
+    app.add_env_collector(TocTreeCollector)

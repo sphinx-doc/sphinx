@@ -49,7 +49,6 @@ from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.toctree import TocTree
 from sphinx.environment.managers.indexentries import IndexEntries
-from sphinx.environment.managers.toctree import Toctree
 
 if False:
     # For type annotation
@@ -248,7 +247,7 @@ class BuildEnvironment(object):
         # type: () -> None
         managers = {}
         manager_class = None  # type: Type[EnvironmentManager]
-        for manager_class in [IndexEntries, Toctree]:  # type: ignore
+        for manager_class in [IndexEntries]:  # type: ignore
             managers[manager_class.name] = manager_class(self)
         self.attach_managers(managers)
 
@@ -645,11 +644,13 @@ class BuildEnvironment(object):
         logger.info(bold('waiting for workers...'))
         tasks.join()
 
-    def check_dependents(self, already):
-        # type: (Set[unicode]) -> Iterator[unicode]
+    def check_dependents(self, app, already):
+        # type: (Sphinx, Set[unicode]) -> Iterator[unicode]
         to_rewrite = []
         for manager in itervalues(self.managers):
             to_rewrite.extend(manager.get_updated_docs())
+        for docnames in app.emit('env-get-updated', self):
+            to_rewrite.extend(docnames)
         for docname in set(to_rewrite):
             if docname not in already:
                 yield docname
