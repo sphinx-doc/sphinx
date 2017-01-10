@@ -109,6 +109,7 @@ builtin_extensions = (
     'sphinx.environment.collectors.metadata',
     'sphinx.environment.collectors.title',
     'sphinx.environment.collectors.toctree',
+    'sphinx.environment.collectors.indexentries',
 )  # type: Tuple[unicode, ...]
 
 CONFIG_FILENAME = 'conf.py'
@@ -308,7 +309,6 @@ class Sphinx(object):
                 logger.info(bold('loading pickled environment... '), nonl=True)
                 self.env = BuildEnvironment.frompickle(
                     self.srcdir, self.config, path.join(self.doctreedir, ENV_PICKLE_FILENAME))
-                self.env.init_managers()
                 self.env.domains = {}
                 for domain in self.domains.keys():
                     # this can raise if the data version doesn't fit

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.environment.managers.indexentries
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    sphinx.environment.collectors.indexentries
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Index entries manager for sphinx.environment.
+    Index entries collector for sphinx.environment.
 
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -11,36 +11,33 @@
 
 from sphinx import addnodes
 from sphinx.util import split_index_msg, logging
-from sphinx.environment.managers import EnvironmentManager
+from sphinx.environment.collectors import EnvironmentCollector
 
 if False:
     # For type annotation
     from docutils import nodes  # NOQA
+    from sphinx.applicatin import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
 logger = logging.getLogger(__name__)
 
 
-class IndexEntries(EnvironmentManager):
+class IndexEntriesCollector(EnvironmentCollector):
     name = 'indices'
 
-    def __init__(self, env):
-        # type: (BuildEnvironment) -> None
-        super(IndexEntries, self).__init__(env)
-        self.data = env.indexentries
+    def clear_doc(self, app, env, docname):
+        # type: (Sphinx, BuildEnvironment, unicode) -> None
+        env.indexentries.pop(docname, None)
 
-    def clear_doc(self, docname):
-        # type: (unicode) -> None
-        self.data.pop(docname, None)
-
-    def merge_other(self, docnames, other):
-        # type: (List[unicode], BuildEnvironment) -> None
+    def merge_other(self, app, env, docnames, other):
+        # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
         for docname in docnames:
-            self.data[docname] = other.indexentries[docname]
+            env.indexentries[docname] = other.indexentries[docname]
 
-    def process_doc(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
-        entries = self.data[docname] = []
+    def process_doc(self, app, doctree):
+        # type: (Sphinx, nodes.Node) -> None
+        docname = app.env.docname
+        entries = app.env.indexentries[docname] = []
         for node in doctree.traverse(addnodes.index):
             try:
                 for entry in node['entries']:
@@ -56,6 +53,7 @@ class IndexEntries(EnvironmentManager):
                     else:
                         entries.append(entry + (None,))
 
-    def get_updated_docs(self):
-        # type: () -> List[unicode]
-        return []
+
+def setup(app):
+    # type: (Sphinx) -> None
+    app.add_env_collector(IndexEntriesCollector)

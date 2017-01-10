@@ -20,7 +20,7 @@ import warnings
 from os import path
 from collections import defaultdict
 
-from six import iteritems, itervalues, class_types, next
+from six import itervalues, class_types, next
 from six.moves import cPickle as pickle
 
 from docutils import nodes
@@ -49,7 +49,6 @@ from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.environment.managers.indexentries import IndexEntries as IndexEntriesManager
 
 if False:
     # For type annotation
@@ -58,7 +57,6 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.domains import Domain  # NOQA
-    from sphinx.environment.managers import EnvironmentManager  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -125,7 +123,6 @@ class BuildEnvironment(object):
         del self.config.values
         domains = self.domains
         del self.domains
-        managers = self.detach_managers()
         # remove potentially pickling-problematic values from config
         for key, val in list(vars(self.config).items()):
             if key.startswith('_') or \
@@ -136,7 +133,6 @@ class BuildEnvironment(object):
         with open(filename, 'wb') as picklefile:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
         # reset attributes
-        self.attach_managers(managers)
         self.domains = domains
         self.config.values = values
 
@@ -241,31 +237,6 @@ class BuildEnvironment(object):
         # attributes of "any" cross references
         self.ref_context = {}       # type: Dict[unicode, Any]
 
-        self.managers = {}          # type: Dict[unicode, EnvironmentManager]
-        self.init_managers()
-
-    def init_managers(self):
-        # type: () -> None
-        managers = {}
-        manager_class = None  # type: Type[EnvironmentManager]
-        for manager_class in [IndexEntriesManager]:  # type: ignore
-            managers[manager_class.name] = manager_class(self)
-        self.attach_managers(managers)
-
-    def attach_managers(self, managers):
-        # type: (Dict[unicode, EnvironmentManager]) -> None
-        for name, manager in iteritems(managers):
-            self.managers[name] = manager
-            manager.attach(self)
-
-    def detach_managers(self):
-        # type: () -> Dict[unicode, EnvironmentManager]
-        managers = self.managers
-        self.managers = {}
-        for _, manager in iteritems(managers):
-            manager.detach(self)
-        return managers
-
     def set_warnfunc(self, func):
         # type: (Callable) -> None
         warnings.warn('env.set_warnfunc() is now deprecated. Use sphinx.util.logging instead.',
@@ -317,9 +288,6 @@ class BuildEnvironment(object):
                 new = [change for change in changes if change[1] != docname]
                 changes[:] = new
 
-        for manager in itervalues(self.managers):
-            manager.clear_doc(docname)
-
         for domain in self.domains.values():
             domain.clear_doc(docname)
 
@@ -340,8 +308,6 @@ class BuildEnvironment(object):
             self.versionchanges.setdefault(version, []).extend(
                 change for change in changes if change[1] in docnames)
 
-        for manager in itervalues(self.managers):
-            manager.merge_other(docnames, other)
         for domainname, domain in self.domains.items():
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         app.emit('env-merge-info', self, docnames, other)
@@ -647,9 +613,7 @@ class BuildEnvironment(object):
 
     def check_dependents(self, app, already):
         # type: (Sphinx, Set[unicode]) -> Iterator[unicode]
-        to_rewrite = []
-        for manager in itervalues(self.managers):
-            to_rewrite.extend(manager.get_updated_docs())
+        to_rewrite = []  # type: List[unicode]
         for docnames in app.emit('env-get-updated', self):
             to_rewrite.extend(docnames)
         for docname in set(to_rewrite):
@@ -722,8 +686,6 @@ class BuildEnvironment(object):
             doctree = pub.document
 
         # post-processing
-        for manager in itervalues(self.managers):
-            manager.process_doc(docname, doctree)
         for domain in itervalues(self.domains):
             domain.process_doc(self, docname, doctree)
 
