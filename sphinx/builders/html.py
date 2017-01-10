@@ -46,6 +46,7 @@ from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
     SmartyPantsHTMLTranslator
 from sphinx.environment.adapters.toctree import TocTree
+from sphinx.environment.adapters.indexentries import IndexEntries
 
 if False:
     # For type annotation
@@ -542,7 +543,7 @@ class StandaloneHTMLBuilder(Builder):
         # type: () -> None
         # the total count of lines for each index letter, used to distribute
         # the entries into two columns
-        genindex = self.env.create_index(self)
+        genindex = IndexEntries(self.env).create_index(self)
         indexcounts = []
         for _k, entries in genindex:
             indexcounts.append(sum(1 + len(subitems)

@@ -47,8 +47,9 @@ from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
-from sphinx.environment.managers.indexentries import IndexEntries
+from sphinx.environment.managers.indexentries import IndexEntries as IndexEntriesManager
 
 if False:
     # For type annotation
@@ -247,7 +248,7 @@ class BuildEnvironment(object):
         # type: () -> None
         managers = {}
         manager_class = None  # type: Type[EnvironmentManager]
-        for manager_class in [IndexEntries]:  # type: ignore
+        for manager_class in [IndexEntriesManager]:  # type: ignore
             managers[manager_class.name] = manager_class(self)
         self.attach_managers(managers)
 
@@ -1070,8 +1071,13 @@ class BuildEnvironment(object):
 
     def create_index(self, builder, group_entries=True,
                      _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
-        # type: (Builder, bool, Pattern) -> Any
-        return self.indices.create_index(builder, group_entries=group_entries, _fixre=_fixre)  # type: ignore  # NOQA
+        # type: (Builder, bool, Pattern) -> List[Tuple[unicode, List[Tuple[unicode, List[unicode]]]]]  # NOQA
+        warnings.warn('env.create_index() is deprecated. '
+                      'Use sphinx.environment.adapters.indexentreis.IndexEntries instead.',
+                      RemovedInSphinx20Warning)
+        return IndexEntries(self).create_index(builder,
+                                               group_entries=group_entries,
+                                               _fixre=_fixre)
 
     def collect_relations(self):
         # type: () -> Dict[unicode, List[unicode]]

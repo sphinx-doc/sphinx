@@ -11,7 +11,7 @@
 
 from collections import namedtuple
 from sphinx import locale
-from sphinx.environment.managers.indexentries import IndexEntries
+from sphinx.environment.adapters.indexentries import IndexEntries
 
 import mock
 
