@@ -144,6 +144,10 @@ class Toctree(EnvironmentManager):
             self.tocs[docname] = nodes.bullet_list('')
         self.toc_num_entries[docname] = numentries[0]
 
+    def get_updated_docs(self):
+        # type: () -> List[unicode]
+        return self.assign_section_numbers() + self.assign_figure_numbers()
+
     def note_toctree(self, docname, toctreenode):
         # type: (unicode, addnodes.toctree) -> None
         """Note a TOC tree directive in a document and gather information about

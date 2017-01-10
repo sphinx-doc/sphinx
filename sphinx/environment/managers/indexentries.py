@@ -65,6 +65,10 @@ class IndexEntries(EnvironmentManager):
                     else:
                         entries.append(entry + (None,))
 
+    def get_updated_docs(self):
+        # type: () -> List[unicode]
+        return []
+
     def create_index(self, builder, group_entries=True,
                      _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
         # type: (Builder, bool, Pattern) -> List[Tuple[unicode, List[Tuple[unicode, List[unicode]]]]]  # NOQA

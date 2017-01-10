@@ -48,3 +48,7 @@ class EnvironmentManager(object):
     def process_doc(self, docname, doctree):
         # type: (unicode, nodes.Node) -> None
         raise NotImplementedError
+
+    def get_updated_docs(self):
+        # type: () -> List[unicode]
+        raise NotImplementedError

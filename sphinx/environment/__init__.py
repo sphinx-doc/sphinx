@@ -647,8 +647,9 @@ class BuildEnvironment(object):
 
     def check_dependents(self, already):
         # type: (Set[unicode]) -> Iterator[unicode]
-        to_rewrite = (self.toctree.assign_section_numbers() +  # type: ignore
-                      self.toctree.assign_figure_numbers())  # type: ignore
+        to_rewrite = []
+        for manager in itervalues(self.managers):
+            to_rewrite.extend(manager.get_updated_docs())
         for docname in set(to_rewrite):
             if docname not in already:
                 yield docname
