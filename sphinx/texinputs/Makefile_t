@@ -8,7 +8,7 @@ ALLPS  = $(addsuffix .ps,$(ALLDOCS))
 # Prefix for archive names
 ARCHIVEPRREFIX =
 # Additional LaTeX options
-LATEXOPTS = -interaction batchmode
+LATEXOPTS = -halt-on-error -interaction batchmode
 # format: pdf or dvi
 FMT = pdf
 
