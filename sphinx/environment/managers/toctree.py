@@ -417,7 +417,7 @@ class Toctree(EnvironmentManager):
                         subnode.parent.remove(subnode)
                     else:
                         # recurse on visible children
-                        self._toctree_prune(subnode, depth+1, maxdepth,  collapse)
+                        self._toctree_prune(subnode, depth+1, maxdepth, collapse)
 
     def assign_section_numbers(self):
         """Assign a section number to each heading under a numbered toctree."""
