@@ -25,6 +25,7 @@ from fnmatch import fnmatch
 
 from sphinx.util.osutil import FileAvoidWrite, walk
 from sphinx import __display_version__
+from sphinx.quickstart import EXTENSIONS
 
 if False:
     # For type annotation
@@ -346,7 +347,6 @@ Note: By default this script will not overwrite already created files.""")
                       'defaults to --doc-version')
     parser.add_option('--version', action='store_true', dest='show_version',
                       help='Show version information and exit')
-    from sphinx.quickstart import EXTENSIONS
     group = parser.add_option_group('Extension options')
     for ext in EXTENSIONS:
         group.add_option('--ext-' + ext, action='store_true',
