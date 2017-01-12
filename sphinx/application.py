@@ -632,9 +632,9 @@ class Sphinx(object):
             else:
                 # ignore invalid keys for compatibility
                 continue
-            setattr(translator, 'visit_'+node.__name__, visit)
+            setattr(translator, 'visit_' + node.__name__, visit)
             if depart:
-                setattr(translator, 'depart_'+node.__name__, depart)
+                setattr(translator, 'depart_' + node.__name__, depart)
 
     def add_enumerable_node(self, node, figtype, title_getter=None, **kwds):
         # type: (nodes.Node, unicode, Callable, Any) -> None

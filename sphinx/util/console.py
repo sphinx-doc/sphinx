@@ -123,8 +123,8 @@ _colors = [
 ]
 
 for i, (dark, light) in enumerate(_colors):
-    codes[dark] = '\x1b[%im' % (i+30)
-    codes[light] = '\x1b[%i;01m' % (i+30)
+    codes[dark] = '\x1b[%im' % (i + 30)
+    codes[light] = '\x1b[%i;01m' % (i + 30)
 
 _orig_codes = codes.copy()
 

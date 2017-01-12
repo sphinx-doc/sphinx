@@ -302,11 +302,11 @@ document is a custom template, you can also set this to another filename.''')
         do_prompt(d, 'master', 'Name of your master document (without suffix)',
                   'index')
 
-    while path.isfile(path.join(d['path'], d['master']+d['suffix'])) or \
-            path.isfile(path.join(d['path'], 'source', d['master']+d['suffix'])):
+    while path.isfile(path.join(d['path'], d['master'] + d['suffix'])) or \
+            path.isfile(path.join(d['path'], 'source', d['master'] + d['suffix'])):
         print()
         print(bold('Error: the master file %s has already been found in the '
-                   'selected root path.' % (d['master']+d['suffix'])))
+                   'selected root path.' % (d['master'] + d['suffix'])))
         print('sphinx-quickstart will not overwrite the existing file.')
         print()
         do_prompt(d, 'master', 'Please enter a new file name, or rename the '
@@ -633,7 +633,7 @@ def main(argv=sys.argv):
             d.setdefault('version', '')
             d.setdefault('release', d['version'])
             d2 = DEFAULT_VALUE.copy()
-            d2.update(dict(("ext_"+ext, False) for ext in EXTENSIONS))
+            d2.update(dict(("ext_" + ext, False) for ext in EXTENSIONS))
             d2.update(d)
             d = d2
             if 'no_makefile' in d:

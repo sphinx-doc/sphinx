@@ -123,7 +123,7 @@ class Locale(Transform):
             # literalblock need literal block notation to avoid it become
             # paragraph.
             if isinstance(node, LITERAL_TYPE_NODES):
-                msgstr = '::\n\n' + indent(msgstr, ' '*3)
+                msgstr = '::\n\n' + indent(msgstr, ' ' * 3)
 
             patch = publish_msgstr(
                 env.app, msgstr, source, node.line, env.config, settings)
@@ -249,7 +249,7 @@ class Locale(Transform):
             # literalblock need literal block notation to avoid it become
             # paragraph.
             if isinstance(node, LITERAL_TYPE_NODES):
-                msgstr = '::\n\n' + indent(msgstr, ' '*3)
+                msgstr = '::\n\n' + indent(msgstr, ' ' * 3)
 
             patch = publish_msgstr(
                 env.app, msgstr, source, node.line, env.config, settings)

@@ -231,7 +231,7 @@ def get_tooltip(self, node):
 def html_visit_math(self, node):
     # type: (nodes.NodeVisitor, math_node) -> None
     try:
-        fname, depth = render_math(self, '$'+node['latex']+'$')
+        fname, depth = render_math(self, '$' + node['latex'] + '$')
     except MathExtError as exc:
         msg = text_type(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,

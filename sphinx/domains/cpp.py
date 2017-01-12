@@ -3198,14 +3198,14 @@ class Symbol(object):
 
     def to_string(self, indent):
         # type: (int) -> unicode
-        res = ['\t'*indent]  # type: List[unicode]
+        res = ['\t' * indent]  # type: List[unicode]
         if not self.parent:
             res.append('::')
         else:
             if self.templateParams:
                 res.append(text_type(self.templateParams))
                 res.append('\n')
-                res.append('\t'*indent)
+                res.append('\t' * indent)
             if self.identifier:
                 res.append(text_type(self.identifier))
             else:

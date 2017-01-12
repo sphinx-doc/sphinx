@@ -215,12 +215,12 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
     def build_hhx(self, outdir, outname):
         logger.info('dumping stopword list...')
-        with self.open_file(outdir, outname+'.stp') as f:
+        with self.open_file(outdir, outname + '.stp') as f:
             for word in sorted(stopwords):
                 print(word, file=f)
 
         logger.info('writing project file...')
-        with self.open_file(outdir, outname+'.hhp') as f:
+        with self.open_file(outdir, outname + '.hhp') as f:
             f.write(project_template % {
                 'outname': outname,
                 'title': self.config.html_title,
@@ -241,7 +241,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                               file=f)
 
         logger.info('writing TOC file...')
-        with self.open_file(outdir, outname+'.hhc') as f:
+        with self.open_file(outdir, outname + '.hhc') as f:
             f.write(contents_header)
             # special books
             f.write('<LI> ' + object_sitemap % (self.config.html_short_title,
@@ -266,7 +266,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                     if ullevel != 0:
                         f.write('<UL>\n')
                     for subnode in node:
-                        write_toc(subnode, ullevel+1)
+                        write_toc(subnode, ullevel + 1)
                     if ullevel != 0:
                         f.write('</UL>\n')
                 elif isinstance(node, addnodes.compact_paragraph):
@@ -282,7 +282,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
         logger.info('writing index file...')
         index = self.env.create_index(self)
-        with self.open_file(outdir, outname+'.hhk') as f:
+        with self.open_file(outdir, outname + '.hhk') as f:
             f.write('<UL>\n')
 
             def write_index(title, refs, subitems):

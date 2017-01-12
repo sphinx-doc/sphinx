@@ -83,7 +83,7 @@ class Make(object):
     def build_help(self):
         # type: () -> None
         print(bold("Sphinx v%s" % sphinx.__display_version__))
-        print("Please use `make %s' where %s is one of" % ((blue('target'),)*2))  # type: ignore  # NOQA
+        print("Please use `make %s' where %s is one of" % ((blue('target'),) * 2))  # type: ignore  # NOQA
         for osname, bname, description in BUILDERS:
             if not osname or os.name == osname:
                 print('  %s  %s' % (blue(bname.ljust(10)), description))

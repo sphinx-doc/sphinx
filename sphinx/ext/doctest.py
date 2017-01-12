@@ -260,7 +260,7 @@ class DocTestBuilder(Builder):
         self.outfile.write('''\
 Results of doctest builder run on %s
 ==================================%s
-''' % (date, '='*len(date)))
+''' % (date, '=' * len(date)))
 
     def _out(self, text):
         # type: (unicode) -> None
@@ -377,7 +377,7 @@ Doctest summary
             return
 
         self._out('\nDocument: %s\n----------%s\n' %
-                  (docname, '-'*len(docname)))
+                  (docname, '-' * len(docname)))
         for group in itervalues(groups):
             self.test_group(group, self.env.doc2path(docname, base=None))
         # Separately count results from setup code

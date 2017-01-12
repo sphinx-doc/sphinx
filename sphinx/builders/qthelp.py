@@ -98,7 +98,7 @@ project_template = u'''\
 '''
 
 section_template = '<section title="%(title)s" ref="%(ref)s"/>'
-file_template = ' '*12 + '<file>%(filename)s</file>'
+file_template = ' ' * 12 + '<file>%(filename)s</file>'
 
 
 class QtHelpBuilder(StandaloneHTMLBuilder):
@@ -203,7 +203,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         nspace = nspace.lower()
 
         # write the project file
-        with codecs.open(path.join(outdir, outname+'.qhp'), 'w', 'utf-8') as f:  # type: ignore
+        with codecs.open(path.join(outdir, outname + '.qhp'), 'w', 'utf-8') as f:  # type: ignore
             f.write(project_template % {  # type: ignore
                 'outname': htmlescape(outname),
                 'title': htmlescape(self.config.html_title),
@@ -220,7 +220,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         startpage = 'qthelp://' + posixpath.join(nspace, 'doc', 'index.html')
 
         logger.info('writing collection project file...')
-        with codecs.open(path.join(outdir, outname+'.qhcp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
+        with codecs.open(path.join(outdir, outname + '.qhcp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
             f.write(collection_template % {  # type: ignore
                 'outname': htmlescape(outname),
                 'title': htmlescape(self.config.html_short_title),
@@ -251,10 +251,10 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             title = htmlescape(refnode.astext()).replace('"', '&quot;')
             item = '<section title="%(title)s" ref="%(ref)s">' % \
                 {'title': title, 'ref': link}
-            parts.append(' '*4*indentlevel + item)
+            parts.append(' ' * 4 * indentlevel + item)
             for subnode in node.children[1]:
-                parts.extend(self.write_toc(subnode, indentlevel+1))
-            parts.append(' '*4*indentlevel + '</section>')
+                parts.extend(self.write_toc(subnode, indentlevel + 1))
+            parts.append(' ' * 4 * indentlevel + '</section>')
         elif isinstance(node, nodes.list_item):
             for subnode in node:
                 parts.extend(self.write_toc(subnode, indentlevel))
@@ -288,10 +288,10 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             id = None
 
         if id:
-            item = ' '*12 + '<keyword name="%s" id="%s" ref="%s"/>' % (
+            item = ' ' * 12 + '<keyword name="%s" id="%s" ref="%s"/>' % (
                 name, id, ref[1])
         else:
-            item = ' '*12 + '<keyword name="%s" ref="%s"/>' % (name, ref[1])
+            item = ' ' * 12 + '<keyword name="%s" ref="%s"/>' % (name, ref[1])
         item.encode('ascii', 'xmlcharrefreplace')
         return item
 

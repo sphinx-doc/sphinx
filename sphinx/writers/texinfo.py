@@ -345,10 +345,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
             for i, id in enumerate(entries):
                 # First child's prev is empty
                 if i != 0:
-                    rellinks[id][1] = entries[i-1]
+                    rellinks[id][1] = entries[i - 1]
                 # Last child's next is empty
                 if i != len(entries) - 1:
-                    rellinks[id][0] = entries[i+1]
+                    rellinks[id][0] = entries[i + 1]
         # top's next is its first child
         try:
             first = node_menus['Top'][0]
@@ -416,7 +416,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             s = '* %s: %s. ' % (name, node_name)
         offset = max((24, (len(name) + 4) % 78))
         wdesc = '\n'.join(' ' * offset + l for l in
-                          textwrap.wrap(desc, width=78-offset))
+                          textwrap.wrap(desc, width=78 - offset))
         return s + wdesc.strip() + '\n'
 
     def add_menu_entries(self, entries, reg=re.compile(r'\s+---?\s+')):
@@ -698,7 +698,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         parindex = node.parent.index(node)
         try:
             try:
-                next = node.parent[parindex+1]
+                next = node.parent[parindex + 1]
             except IndexError:
                 # last node in parent, look at next after parent
                 # (for section of equal level)
@@ -1110,7 +1110,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             return
         self.body.append('\n\n@multitable ')
         for i, n in enumerate(self.colwidths):
-            self.body.append('{%s} ' % ('x' * (n+2)))
+            self.body.append('{%s} ' % ('x' * (n + 2)))
 
     def depart_colspec(self, node):
         # type: (nodes.Node) -> None
@@ -1450,7 +1450,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                     self.add_anchor(id, production)
                 s = production['tokenname'].ljust(maxlen) + ' ::='
             else:
-                s = '%s    ' % (' '*maxlen)
+                s = '%s    ' % (' ' * maxlen)
             self.body.append(self.escape(s))
             self.body.append(self.escape(production.astext() + '\n'))
         self.depart_literal_block(None)

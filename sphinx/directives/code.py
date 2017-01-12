@@ -116,7 +116,7 @@ class CodeBlock(Directive):
         if linespec:
             try:
                 nlines = len(self.content)
-                hl_lines = [x+1 for x in parselinenos(linespec, nlines)]
+                hl_lines = [x + 1 for x in parselinenos(linespec, nlines)]
             except ValueError as err:
                 document = self.state.document
                 return [document.reporter.warning(str(err), line=self.lineno)]
@@ -277,7 +277,7 @@ class LiteralInclude(Directive):
                     'Object named %r not found in include file %r' %
                     (objectname, filename), line=self.lineno)]
             else:
-                lines = lines[tags[objectname][1]-1: tags[objectname][2]-1]
+                lines = lines[tags[objectname][1] - 1: tags[objectname][2] - 1]
                 if 'lineno-match' in self.options:
                     linenostart = tags[objectname][1]
 
@@ -309,7 +309,7 @@ class LiteralInclude(Directive):
         linespec = self.options.get('emphasize-lines')
         if linespec:
             try:
-                hl_lines = [x+1 for x in parselinenos(linespec, len(lines))]
+                hl_lines = [x + 1 for x in parselinenos(linespec, len(lines))]
             except ValueError as err:
                 return [document.reporter.warning(str(err), line=self.lineno)]
         else:

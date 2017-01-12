@@ -241,11 +241,11 @@ class Toctree(EnvironmentManager):
                 if isinstance(subnode, (addnodes.compact_paragraph,
                                         nodes.list_item)):
                     # for <p> and <li>, indicate the depth level and recurse
-                    subnode['classes'].append('toctree-l%d' % (depth-1))
+                    subnode['classes'].append('toctree-l%d' % (depth - 1))
                     _toctree_add_classes(subnode, depth)
                 elif isinstance(subnode, nodes.bullet_list):
                     # for <ul>, just recurse
-                    _toctree_add_classes(subnode, depth+1)
+                    _toctree_add_classes(subnode, depth + 1)
                 elif isinstance(subnode, nodes.reference):
                     # for <a>, identify which entries point to the current
                     # document and therefore may not be collapsed
@@ -435,7 +435,7 @@ class Toctree(EnvironmentManager):
                         subnode.parent.remove(subnode)
                     else:
                         # recurse on visible children
-                        self._toctree_prune(subnode, depth+1, maxdepth,  collapse)
+                        self._toctree_prune(subnode, depth + 1, maxdepth, collapse)
 
     def assign_section_numbers(self):
         # type: () -> List[unicode]
@@ -453,7 +453,7 @@ class Toctree(EnvironmentManager):
             for subnode in node.children:
                 if isinstance(subnode, nodes.bullet_list):
                     numstack.append(0)
-                    _walk_toc(subnode, secnums, depth-1, titlenode)
+                    _walk_toc(subnode, secnums, depth - 1, titlenode)
                     numstack.pop()
                     titlenode = None
                 elif isinstance(subnode, nodes.list_item):

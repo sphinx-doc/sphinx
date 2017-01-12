@@ -30,7 +30,7 @@ if False:
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)
 ENOENT = getattr(errno, 'ENOENT', 0)
-EPIPE  = getattr(errno, 'EPIPE', 0)
+EPIPE = getattr(errno, 'EPIPE', 0)
 EINVAL = getattr(errno, 'EINVAL', 0)
 
 # SEP separates path elements in the canonical file names
@@ -73,7 +73,7 @@ def relative_uri(base, to):
         # Special case: relative_uri('f/index.html','f/') should
         # return './', not ''
         return '.' + SEP
-    return ('..' + SEP) * (len(b2)-1) + SEP.join(t2)
+    return ('..' + SEP) * (len(b2) - 1) + SEP.join(t2)
 
 
 def ensuredir(path):

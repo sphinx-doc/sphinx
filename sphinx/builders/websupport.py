@@ -141,7 +141,7 @@ class WebSupportBuilder(PickleHTMLBuilder):
         # "show source" link
         if ctx.get('sourcename'):
             source_name = path.join(self.staticdir,
-                                    '_sources',  os_path(ctx['sourcename']))
+                                    '_sources', os_path(ctx['sourcename']))
             ensuredir(path.dirname(source_name))
             copyfile(self.env.doc2path(pagename), source_name)
 

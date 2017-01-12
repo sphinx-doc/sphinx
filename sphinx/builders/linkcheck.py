@@ -243,7 +243,7 @@ class CheckExternalLinksBuilder(Builder):
             logger.info(darkgray('-local-   ') + uri)
             self.write_entry('local', docname, lineno, uri)
         elif status == 'working':
-            logger.info(darkgreen('ok        ')  + uri + info)
+            logger.info(darkgreen('ok        ') + uri + info)
         elif status == 'broken':
             self.write_entry('broken', docname, lineno, uri + ': ' + info)
             if self.app.quiet or self.app.warningiserror:
@@ -261,7 +261,7 @@ class CheckExternalLinksBuilder(Builder):
             }[code]
             self.write_entry('redirected ' + text, docname, lineno,
                              uri + ' to ' + info)
-            logger.info(color('redirect  ') + uri + color(' - ' + text + ' to '  + info))
+            logger.info(color('redirect  ') + uri + color(' - ' + text + ' to ' + info))
 
     def get_target_uri(self, docname, typ=None):
         # type: (unicode, unicode) -> unicode

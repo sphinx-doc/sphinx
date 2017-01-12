@@ -20,8 +20,8 @@ if False:
     # For type annotation
     from typing import Any, IO, Union  # NOQA
 
-_str_re  = re.compile(r'"(\\\\|\\"|[^"])*"')
-_int_re  = re.compile(r'\d+')
+_str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
+_int_re = re.compile(r'\d+')
 _name_re = re.compile(r'[a-zA-Z_]\w*')
 _nameonly_re = re.compile(r'[a-zA-Z_][a-zA-Z0-9_]*$')
 

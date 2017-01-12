@@ -368,4 +368,4 @@ if __name__ == '__main__':
     pprint.pprint(ma.find_tags())
     x3 = time.time()
     # print nodes.nice_repr(ma.parsetree, number2name)
-    print("tokenizing %.4f, parsing %.4f, finding %.4f" % (x1-x0, x2-x1, x3-x2))
+    print("tokenizing %.4f, parsing %.4f, finding %.4f" % (x1 - x0, x2 - x1, x3 - x2))

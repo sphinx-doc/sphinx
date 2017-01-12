@@ -98,7 +98,7 @@ class TextWrapper(textwrap.TextWrapper):
         for i, c in enumerate(word):
             total += column_width(c)
             if total > space_left:
-                return word[:i-1], word[i-1:]
+                return word[:i - 1], word[i - 1:]
         return word, ''
 
     def _split(self, text):
@@ -213,7 +213,7 @@ class TextTranslator(nodes.NodeVisitor):
             if not toformat:
                 return
             if wrap:
-                res = my_wrap(''.join(toformat), width=MAXWIDTH-maxindent)
+                res = my_wrap(''.join(toformat), width=MAXWIDTH - maxindent)
             else:
                 res = ''.join(toformat).splitlines()
             if end:
@@ -246,7 +246,7 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_document(self, node):
         # type: (nodes.Node) -> None
         self.end_state()
-        self.body = self.nl.join(line and (' '*indent + line)
+        self.body = self.nl.join(line and (' ' * indent + line)
                                  for indent, lines in self.states[0]
                                  for line in lines)
         # XXX header/footer?
@@ -304,7 +304,7 @@ class TextTranslator(nodes.NodeVisitor):
     def visit_title(self, node):
         # type: (nodes.Node) -> None
         if isinstance(node.parent, nodes.Admonition):
-            self.add_text(node.astext()+': ')
+            self.add_text(node.astext() + ': ')
             raise nodes.SkipNode
         self.new_state(0)
 
@@ -468,7 +468,7 @@ class TextTranslator(nodes.NodeVisitor):
                 self.add_text(production['tokenname'].ljust(maxlen) + ' ::=')
                 lastname = production['tokenname']
             elif lastname is not None:
-                self.add_text('%s    ' % (' '*len(lastname)))
+                self.add_text('%s    ' % (' ' * len(lastname)))
             self.add_text(production.astext() + self.nl)
         self.end_state(wrap=False)
         raise nodes.SkipNode
@@ -657,7 +657,7 @@ class TextTranslator(nodes.NodeVisitor):
             # type: (unicode) -> None
             out = ['+']  # type: List[unicode]
             for width in realwidths:
-                out.append(char * (width+2))
+                out.append(char * (width + 2))
                 out.append('+')
             self.add_text(''.join(out) + self.nl)
 
