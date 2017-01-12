@@ -55,9 +55,9 @@ if sys.version_info >= (3, 0):
 else:
     tokens = tokenize.tokenize
 
-verbose    = 0
-recurse    = 0
-dryrun     = 0
+verbose = 0
+recurse = 0
+dryrun = 0
 makebackup = True
 
 
@@ -160,7 +160,7 @@ def _rstrip(line, JUNK='\n \t'):
     """
 
     i = len(line)
-    while i > 0 and line[i-1] in JUNK:
+    while i > 0 and line[i - 1] in JUNK:
         i -= 1
     return line[:i]
 
@@ -204,9 +204,9 @@ class Reindenter:
         # we see a line with *something* on it.
         i = stats[0][0]
         after.extend(lines[1:i])
-        for i in range(len(stats)-1):
+        for i in range(len(stats) - 1):
             thisstmt, thislevel = stats[i]
-            nextstmt = stats[i+1][0]
+            nextstmt = stats[i + 1][0]
             have = getlspace(lines[thisstmt])
             want = thislevel * 4
             if want < 0:
@@ -218,7 +218,7 @@ class Reindenter:
                     want = have2want.get(have, -1)
                     if want < 0:
                         # Then it probably belongs to the next real stmt.
-                        for j in range(i+1, len(stats)-1):
+                        for j in range(i + 1, len(stats) - 1):
                             jline, jlevel = stats[j]
                             if jlevel >= 0:
                                 if have == getlspace(lines[jline]):
@@ -228,10 +228,10 @@ class Reindenter:
                                         # comment like this one,
                         # in which case we should shift it like its base
                         # line got shifted.
-                        for j in range(i-1, -1, -1):
+                        for j in range(i - 1, -1, -1):
                             jline, jlevel = stats[j]
                             if jlevel >= 0:
-                                want = (have + getlspace(after[jline-1]) -
+                                want = (have + getlspace(after[jline - 1]) -
                                         getlspace(lines[jline]))
                                 break
                     if want < 0:
