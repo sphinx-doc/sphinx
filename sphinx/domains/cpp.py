@@ -2885,14 +2885,14 @@ class Symbol(object):
         assert False  # should have returned in the loop
 
     def to_string(self, indent):
-        res = ['\t'*indent]
+        res = ['\t' * indent]
         if not self.parent:
             res.append('::')
         else:
             if self.templateParams:
                 res.append(text_type(self.templateParams))
                 res.append('\n')
-                res.append('\t'*indent)
+                res.append('\t' * indent)
             if self.identifier:
                 res.append(text_type(self.identifier))
             else:

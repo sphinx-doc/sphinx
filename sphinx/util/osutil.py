@@ -67,7 +67,7 @@ def relative_uri(base, to):
         # Special case: relative_uri('f/index.html','f/') should
         # return './', not ''
         return '.' + SEP
-    return ('..' + SEP) * (len(b2)-1) + SEP.join(t2)
+    return ('..' + SEP) * (len(b2) - 1) + SEP.join(t2)
 
 
 def ensuredir(path):

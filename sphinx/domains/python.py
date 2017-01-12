@@ -527,7 +527,7 @@ class PyXRefRole(XRefRole):
                 title = title[1:]
                 dot = title.rfind('.')
                 if dot != -1:
-                    title = title[dot+1:]
+                    title = title[dot + 1:]
         # if the first character is a dot, search more specific namespaces first
         # else search builtins first
         if target[0:1] == '.':

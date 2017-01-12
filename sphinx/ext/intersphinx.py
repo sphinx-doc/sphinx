@@ -68,7 +68,7 @@ def read_inventory_v1(f, uri, join):
     return invdata
 
 
-def read_inventory_v2(f, uri, join, bufsize=16*1024):
+def read_inventory_v2(f, uri, join, bufsize=16 * 1024):
     invdata = {}
     line = f.readline()
     projname = line.rstrip()[11:].decode('utf-8')
@@ -91,7 +91,7 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
             lineend = buf.find(b'\n')
             while lineend != -1:
                 yield buf[:lineend].decode('utf-8')
-                buf = buf[lineend+1:]
+                buf = buf[lineend + 1:]
                 lineend = buf.find(b'\n')
         assert not buf
 
@@ -116,7 +116,7 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
     return invdata
 
 
-def read_inventory(f, uri, join, bufsize=16*1024):
+def read_inventory(f, uri, join, bufsize=16 * 1024):
     line = f.readline().rstrip().decode('utf-8')
     if line == '# Sphinx inventory version 1':
         return read_inventory_v1(f, uri, join)
@@ -342,9 +342,9 @@ def missing_reference(app, env, node, contnode):
                     (domain == 'std' and node['reftype'] == 'keyword'):
                 # use whatever title was given, but strip prefix
                 title = contnode.astext()
-                if in_set and title.startswith(in_set+':'):
-                    newnode.append(contnode.__class__(title[len(in_set)+1:],
-                                                      title[len(in_set)+1:]))
+                if in_set and title.startswith(in_set + ':'):
+                    newnode.append(contnode.__class__(title[len(in_set) + 1:],
+                                                      title[len(in_set) + 1:]))
                 else:
                     newnode.append(contnode)
             else:

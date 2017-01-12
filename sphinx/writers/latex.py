@@ -1641,7 +1641,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         parindex = node.parent.index(node)
         try:
             try:
-                next = node.parent[parindex+1]
+                next = node.parent[parindex + 1]
             except IndexError:
                 # last node in parent, look at next after parent
                 # (for section of equal level) if it exists

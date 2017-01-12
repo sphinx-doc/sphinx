@@ -138,7 +138,7 @@ def process_todo_nodes(app, doctree, fromdocname):
                     (todo_info['source'], todo_info['lineno'])
                 )
             desc1 = description[:description.find('<<')]
-            desc2 = description[description.find('>>')+2:]
+            desc2 = description[description.find('>>') + 2:]
             para += nodes.Text(desc1, desc1)
 
             # Create a reference

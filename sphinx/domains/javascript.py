@@ -148,7 +148,7 @@ class JSXRefRole(XRefRole):
                 title = title[1:]
                 dot = title.rfind('.')
                 if dot != -1:
-                    title = title[dot+1:]
+                    title = title[dot + 1:]
         if target[0:1] == '.':
             target = target[1:]
             refnode['refspecific'] = True
