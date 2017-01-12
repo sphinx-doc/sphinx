@@ -368,8 +368,8 @@ Note: By default this script will not overwrite already created files.""")
             text += '   %s\n' % module
         d = dict(
             path = opts.destdir,
-            sep  = False,
-            dot  = '_',
+            sep = False,
+            dot = '_',
             project = opts.header,
             author = opts.author or 'Author',
             version = opts.version or '',
