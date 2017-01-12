@@ -30,6 +30,7 @@ Features removed
 * LDML format support in `today`, `today_fmt` and `html_last_updated_fmt`
 * ``:inline:`` option for the directives of sphinx.ext.graphviz extension
 * sphinx.ext.pngmath extension
+* ``sphinx.util.compat.make_admonition()``
 
 Features added
 --------------
