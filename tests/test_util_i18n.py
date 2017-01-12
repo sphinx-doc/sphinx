@@ -51,7 +51,7 @@ def test_catalog_outdated(tempdir):
 def test_catalog_write_mo(tempdir):
     (tempdir / 'test.po').write_text('#')
     cat = i18n.CatalogInfo(tempdir, 'test', 'utf-8')
-    cat.write_mo('en')
+    cat.write_mo('en', lambda *a, *kw: None)
     assert os.path.exists(cat.mo_path)
     with open(cat.mo_path, 'rb') as f:
         assert read_mo(f) is not None

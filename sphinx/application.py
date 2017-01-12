@@ -258,7 +258,7 @@ class Sphinx(object):
             for catinfo in find_catalog_source_files(
                     user_locale_dirs, self.config.language, domains=['sphinx'],
                     charset=self.config.source_encoding):
-                catinfo.write_mo(self.config.language)
+                catinfo.write_mo(self.config.language, self.warn)
             locale_dirs = [None, path.join(package_dir, 'locale')] + user_locale_dirs
         else:
             locale_dirs = []
