@@ -566,7 +566,7 @@ class StandardDomain(Domain):
                 env.warn_node('duplicate label %s, ' % name + 'other instance '
                               'in ' + env.doc2path(labels[name][0]), node)
             anonlabels[name] = docname, labelid
-            if node.tagname == 'section':
+            if node.tagname in ('section', 'rubric'):
                 sectname = clean_astext(node[0])  # node[0] == title node
             elif self.is_enumerable_node(node):
                 sectname = self.get_numfig_title(node)
