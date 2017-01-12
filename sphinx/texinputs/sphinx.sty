@@ -1127,7 +1127,7 @@ report to extension author to use ``sphinxadmonition'' instead.^^J%
        \expandafter\let
          \csname @list\romannumeral\the\count@\expandafter\endcsname
          \csname @list\romannumeral\the\numexpr\count@-\@ne\endcsname
-       % higher \leftmargin... needed to fix issue with babel-french (v2.6--...)
+       % work around 2.6--3.2d babel-french issue (fixed in 3.2e; no change needed)
        \spx@ifundefined{leftmargin\romannumeral\the\count@}
        {\expandafter\let
          \csname leftmargin\romannumeral\the\count@\expandafter\endcsname
