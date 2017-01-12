@@ -410,8 +410,8 @@ Note: By default this script will not overwrite already created files.""")
             module_path = rootpath,
             append_syspath = opts.append_syspath,
         )
-        enabled_exts = {'ext_'+ext: getattr(opts, 'ext_'+ext)
-                        for ext in EXTENSIONS if getattr(opts, 'ext_'+ext)}
+        enabled_exts = {'ext_' + ext: getattr(opts, 'ext_' + ext)
+                        for ext in EXTENSIONS if getattr(opts, 'ext_' + ext)}
         d.update(enabled_exts)
 
         if isinstance(opts.header, binary_type):

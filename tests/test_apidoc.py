@@ -158,8 +158,3 @@ def test_extension_parsed(make_app, apidoc):
     with open(outdir / 'conf.py') as f:
         rst = f.read()
         assert "sphinx.ext.mathjax" in rst
-
-    app = make_app('text', srcdir=outdir)
-    app.build()
-    print(app._status.getvalue())
-    print(app._warning.getvalue())
