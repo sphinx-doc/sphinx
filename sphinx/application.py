@@ -21,7 +21,7 @@ import traceback
 from os import path
 from collections import deque
 
-from six import iteritems, itervalues, text_type
+from six import iteritems, itervalues
 from six.moves import cStringIO
 
 from docutils import nodes
@@ -42,11 +42,10 @@ from sphinx.roles import XRefRole
 from sphinx.util import pycompat  # noqa: F401
 from sphinx.util import import_object
 from sphinx.util import logging
+from sphinx.util import status_iterator, old_status_iterator, display_chunk
 from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT
-from sphinx.util.console import (  # type: ignore
-    bold, darkgreen, term_width_line
-)
+from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.util.i18n import find_catalog_source_files
 
 if False:
@@ -431,48 +430,31 @@ class Sphinx(object):
 
     def _display_chunk(chunk):
         # type: (Any) -> unicode
-        if isinstance(chunk, (list, tuple)):
-            if len(chunk) == 1:
-                return text_type(chunk[0])
-            return '%s .. %s' % (chunk[0], chunk[-1])
-        return text_type(chunk)
+        warnings.warn('app._display_chunk() is now deprecated. '
+                      'Use sphinx.util.display_chunk() instead.',
+                      RemovedInSphinx17Warning)
+        return display_chunk(chunk)
 
     def old_status_iterator(self, iterable, summary, colorfunc=darkgreen,
-                            stringify_func=_display_chunk):
+                            stringify_func=display_chunk):
         # type: (Iterable, unicode, Callable, Callable[[Any], unicode]) -> Iterator
-        l = 0
-        for item in iterable:
-            if l == 0:
-                logger.info(bold(summary), nonl=True)
-                l = 1
-            logger.info(colorfunc(stringify_func(item)) + ' ', nonl=True)
+        warnings.warn('app.old_status_iterator() is now deprecated. '
+                      'Use sphinx.util.status_iterator() instead.',
+                      RemovedInSphinx17Warning)
+        for item in old_status_iterator(iterable, summary,
+                                        color="darkgreen", stringify_func=stringify_func):
             yield item
-        if l == 1:
-            logger.info('')
 
     # new version with progress info
     def status_iterator(self, iterable, summary, colorfunc=darkgreen, length=0,
                         stringify_func=_display_chunk):
         # type: (Iterable, unicode, Callable, int, Callable[[Any], unicode]) -> Iterable
-        if length == 0:
-            for item in self.old_status_iterator(iterable, summary, colorfunc,
-                                                 stringify_func):
-                yield item
-            return
-        l = 0
-        summary = bold(summary)
-        for item in iterable:
-            l += 1
-            s = '%s[%3d%%] %s' % (summary, 100*l/length,
-                                  colorfunc(stringify_func(item)))
-            if self.verbosity:
-                s += '\n'
-            else:
-                s = term_width_line(s)
-            logger.info(s, nonl=True)
+        warnings.warn('app.status_iterator() is now deprecated. '
+                      'Use sphinx.util.status_iterator() instead.',
+                      RemovedInSphinx17Warning)
+        for item in status_iterator(iterable, summary, length=length, verbosity=self.verbosity,
+                                    color="darkgreen", stringify_func=stringify_func):
             yield item
-        if l > 0:
-            logger.info('')
 
     # ---- general extensibility interface -------------------------------------
 

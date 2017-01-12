@@ -83,7 +83,7 @@ def coloron():
 
 
 def colorize(name, text):
-    # type: (str, str) -> str
+    # type: (str, unicode) -> unicode
     return codes.get(name, '') + text + codes.get('reset', '')
 
 
