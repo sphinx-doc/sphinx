@@ -94,14 +94,14 @@ This section describe a easy way to translate with sphinx-intl.
 
       $ make gettext
 
-   As a result, many pot files are generated under ``_build/locale``
+   As a result, many pot files are generated under ``_build/gettext``
    directory.
 
 #. Setup/Update your `locale_dir`:
 
    .. code-block:: console
 
-      $ sphinx-intl update -p _build/locale -l de -l ja
+      $ sphinx-intl update -p _build/gettext -l de -l ja
 
    Done. You got these directories that contain po files:
 
