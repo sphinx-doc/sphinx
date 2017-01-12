@@ -25,6 +25,7 @@ from fnmatch import fnmatch
 
 from sphinx.util.osutil import FileAvoidWrite, walk
 from sphinx import __display_version__
+from sphinx.quickstart import EXTENSIONS
 
 if False:
     # For type annotation
@@ -346,6 +347,11 @@ Note: By default this script will not overwrite already created files.""")
                       'defaults to --doc-version')
     parser.add_option('--version', action='store_true', dest='show_version',
                       help='Show version information and exit')
+    group = parser.add_option_group('Extension options')
+    for ext in EXTENSIONS:
+        group.add_option('--ext-' + ext, action='store_true',
+                         dest='ext_' + ext, default=False,
+                         help='enable %s extension' % ext)
 
     (opts, args) = parser.parse_args(argv[1:])
 
@@ -404,6 +410,10 @@ Note: By default this script will not overwrite already created files.""")
             module_path = rootpath,
             append_syspath = opts.append_syspath,
         )
+        enabled_exts = {'ext_' + ext: getattr(opts, 'ext_' + ext)
+                        for ext in EXTENSIONS if getattr(opts, 'ext_' + ext)}
+        d.update(enabled_exts)
+
         if isinstance(opts.header, binary_type):
             d['project'] = d['project'].decode('utf-8')
         if isinstance(opts.author, binary_type):
