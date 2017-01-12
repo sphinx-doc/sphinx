@@ -79,7 +79,7 @@ class Index(object):
         self.domain = domain
 
     def generate(self, docnames=None):
-        # type: (List[unicode]) -> Tuple[List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]  # NOQA
+        # type: (Iterable[unicode]) -> Tuple[List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]  # NOQA
         """Return entries for the index given by *name*.  If *docnames* is
         given, restrict to entries referring to these docnames.
 
@@ -107,7 +107,7 @@ class Index(object):
 
         Qualifier and description are not rendered e.g. in LaTeX output.
         """
-        return []
+        return tuple()
 
 
 class Domain(object):

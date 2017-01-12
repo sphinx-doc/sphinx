@@ -10,8 +10,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import traceback
-
 
 class SphinxError(Exception):
     """
@@ -71,10 +69,9 @@ class SphinxParallelError(SphinxError):
 
     category = 'Sphinx parallel build error'
 
-    def __init__(self, orig_exc, traceback):
-        self.orig_exc = orig_exc
+    def __init__(self, message, traceback):
+        self.message = message
         self.traceback = traceback
 
     def __str__(self):
-        return traceback.format_exception_only(
-            self.orig_exc.__class__, self.orig_exc)[0].strip()
+        return self.message

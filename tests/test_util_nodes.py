@@ -17,6 +17,7 @@ from docutils import frontend
 
 from sphinx.util.nodes import extract_messages, clean_astext
 from sphinx.transforms import ApplySourceWorkaround
+import pytest
 
 
 def _transform(doctree):
@@ -49,84 +50,63 @@ def assert_node_count(messages, node_type, expect_count):
         % (node_type, node_list, count, expect_count))
 
 
-def test_extract_messages():
-    text = dedent(
-        """
-        .. admonition:: admonition title
+@pytest.mark.parametrize(
+    'rst,node_cls,count',
+    [
+        (
+            """
+           .. admonition:: admonition title
 
-           admonition body
-        """
-    )
-    yield (
-        assert_node_count,
-        extract_messages(_get_doctree(text)),
-        nodes.title, 1,
-    )
+              admonition body
+           """,
+            nodes.title, 1
+        ),
+        (
+            """
+           .. figure:: foo.jpg
 
-    text = dedent(
-        """
-        .. figure:: foo.jpg
+              this is title
+           """,
+            nodes.caption, 1,
+        ),
+        (
+            """
+           .. rubric:: spam
+           """,
+            nodes.rubric, 1,
+        ),
+        (
+            """
+           | spam
+           | egg
+           """,
+            nodes.line, 2,
+        ),
+        (
+            """
+           section
+           =======
 
-           this is title
-        """
-    )
-    yield (
-        assert_node_count,
-        extract_messages(_get_doctree(text)),
-        nodes.caption, 1,
-    )
+           +----------------+
+           | | **Title 1**  |
+           | | Message 1    |
+           +----------------+
+           """,
+            nodes.line, 2,
+        ),
+        (
+            """
+           * | **Title 1**
+             | Message 1
+           """,
+            nodes.line, 2,
 
-    text = dedent(
-        """
-        .. rubric:: spam
-        """
-    )
-    yield (
-        assert_node_count,
-        extract_messages(_get_doctree(text)),
-        nodes.rubric, 1,
-    )
-
-    text = dedent(
-        """
-        | spam
-        | egg
-        """
-    )
-    yield (
-        assert_node_count,
-        extract_messages(_get_doctree(text)),
-        nodes.line, 2,
-    )
-
-    text = dedent(
-        """
-        section
-        =======
-
-        +----------------+
-        | | **Title 1**  |
-        | | Message 1    |
-        +----------------+
-        """
-    )
-    yield (
-        assert_node_count,
-        extract_messages(_get_doctree(text)),
-        nodes.line, 2,
-    )
-
-    text = dedent(
-        """
-        * | **Title 1**
-          | Message 1
-        """
-    )
-    yield (
-        assert_node_count,
-        extract_messages(_get_doctree(text)),
-        nodes.line, 2,
-    )
+        ),
+    ]
+)
+def test_extract_messages(rst, node_cls, count):
+    msg = extract_messages(_get_doctree(dedent(rst)))
+    assert_node_count(msg, node_cls, count)
 
 
 def test_extract_messages_without_rawsource():

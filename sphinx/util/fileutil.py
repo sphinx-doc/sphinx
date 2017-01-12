@@ -41,7 +41,9 @@ def copy_asset_file(source, destination, context=None, renderer=None):
             renderer = SphinxRenderer()
 
         with codecs.open(source, 'r', encoding='utf-8') as fsrc:
-            with codecs.open(destination[:-2], 'w', encoding='utf-8') as fdst:
+            if destination.lower().endswith('_t'):
+                destination = destination[:-2]
+            with codecs.open(destination, 'w', encoding='utf-8') as fdst:
                 fdst.write(renderer.render_string(fsrc.read(), context))
     else:
         copyfile(source, destination)

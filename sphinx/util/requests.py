@@ -22,7 +22,7 @@ try:
 except ImportError:
     # python-requests package in Debian jessie does not provide ``requests.packages.urllib3``.
     # So try to import the exceptions from urllib3 package.
-    from urllib3.exceptions import SSLError, InsecureRequestWarning
+    from urllib3.exceptions import SSLError, InsecureRequestWarning  # type: ignore
 
 # try to load requests[security]
 try:

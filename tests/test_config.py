@@ -13,9 +13,6 @@ from six import PY3, iteritems
 import pytest
 import mock
 
-from util import TestApp, gen_with_app, \
-    assert_in, assert_not_in
-
 import sphinx
 from sphinx.config import Config
 from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
@@ -76,7 +73,6 @@ def test_core_config(app, status, warning):
     assert cfg['project'] == cfg.project == 'Sphinx Tests'
 
 
-@pytest.mark.sphinx()
 def test_extension_values(app, status, warning):
     cfg = app.config
 
@@ -125,39 +121,39 @@ def test_errors_warnings(logger, tempdir):
     assert logger.warning.called is True
 
 
-def test_errors_if_setup_is_not_callable(tempdir):
+def test_errors_if_setup_is_not_callable(tempdir, make_app):
     # test the error to call setup() in the config file
     (tempdir / 'conf.py').write_text(u'setup = 1')
     with pytest.raises(ConfigError) as excinfo:
-        TestApp(srcdir=tempdir)
+        make_app(srcdir=tempdir)
     assert 'callable' in str(excinfo.value)
 
 
 @mock.patch.object(sphinx, '__display_version__', '1.3.4')
-def test_needs_sphinx():
+def test_needs_sphinx(make_app):
     # micro version
-    app = TestApp(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
+    app = make_app(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
     app.cleanup()
-    app = TestApp(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
+    app = make_app(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
     app.cleanup()
     with pytest.raises(VersionRequirementError):
-        TestApp(confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
+        make_app(confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
 
     # minor version
-    app = TestApp(confoverrides={'needs_sphinx': '1.2'})  # OK: less
+    app = make_app(confoverrides={'needs_sphinx': '1.2'})  # OK: less
     app.cleanup()
-    app = TestApp(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
+    app = make_app(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
     app.cleanup()
     with pytest.raises(VersionRequirementError):
-        TestApp(confoverrides={'needs_sphinx': '1.4'})  # NG: greater
+        make_app(confoverrides={'needs_sphinx': '1.4'})  # NG: greater
 
     # major version
-    app = TestApp(confoverrides={'needs_sphinx': '0'})  # OK: less
+    app = make_app(confoverrides={'needs_sphinx': '0'})  # OK: less
     app.cleanup()
-    app = TestApp(confoverrides={'needs_sphinx': '1'})  # OK: equals
+    app = make_app(confoverrides={'needs_sphinx': '1'})  # OK: equals
     app.cleanup()
     with pytest.raises(VersionRequirementError):
-        TestApp(confoverrides={'needs_sphinx': '2'})  # NG: greater
+        make_app(confoverrides={'needs_sphinx': '2'})  # NG: greater
 
 
 @mock.patch("sphinx.config.logger")
@@ -177,12 +173,14 @@ def test_config_eol(logger, tempdir):
                          'primary_domain': None})
 def test_builtin_conf(app, status, warning):
     warnings = warning.getvalue()
-    assert_in('master_doc', warnings,
-              'override on builtin "master_doc" should raise a type warning')
-    assert_not_in('language', warnings, 'explicitly permitted '
-                  'override on builtin "language" should NOT raise a type warning')
-    assert_not_in('primary_domain', warnings, 'override to None on builtin '
-                  '"primary_domain" should NOT raise a type warning')
+    assert 'master_doc' in warnings, (
+        'override on builtin "master_doc" should raise a type warning')
+    assert 'language' not in warnings, (
+        'explicitly permitted override on builtin "language" should NOT raise '
+        'a type warning')
+    assert 'primary_domain' not in warnings, (
+        'override to None on builtin "primary_domain" should NOT raise a type '
+        'warning')
 
 
 # See roots/test-config/conf.py.
@@ -197,7 +195,7 @@ TYPECHECK_WARNINGS = {
     'value8': False,
     'value9': False,
     'value10': False,
-    'value11': True,
+    'value11': False if PY3 else True,
     'value12': False,
     'value13': False,
     'value14': False,
@@ -206,15 +204,17 @@ TYPECHECK_WARNINGS = {
 }
 
 
-@gen_with_app(testroot='config')
-def test_gen_check_types(app, status, warning):
-    if PY3:
-        TYPECHECK_WARNINGS['value11'] = False
-
-    for key, should in iteritems(TYPECHECK_WARNINGS):
-        yield assert_in if should else assert_not_in, key, warning.getvalue(), (
-            'override on "%s" should%s raise a type warning' %
-            (key, '' if should else ' NOT')
+@pytest.mark.parametrize("key,should", iteritems(TYPECHECK_WARNINGS))
+@pytest.mark.sphinx(testroot='config')
+def test_check_types(warning, key, should):
+    warn = warning.getvalue()
+    if should:
+        assert key in warn, (
+            'override on "%s" should raise a type warning' % key
+        )
+    else:
+        assert key not in warn, (
+            'override on "%s" should NOT raise a type warning' % key
         )
 
 

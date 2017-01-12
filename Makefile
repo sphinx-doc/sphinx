@@ -6,7 +6,7 @@ PYTHON ?= python
 DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
              -i sphinx/pycode/pgen2 -i sphinx/util/smartypants.py \
              -i .ropeproject -i doc/_build -i tests/path.py \
-             -i tests/coverage.py -i utils/convert.py \
+             -i utils/convert.py \
              -i tests/typing_test_data.py \
              -i tests/test_autodoc_py35.py \
              -i tests/roots/test-warnings/undecodable.rst \
@@ -61,6 +61,7 @@ clean-generated:
 clean-testfiles:
 	rm -rf tests/build
 	rm -rf .tox/
+	rm -rf .cache/
 
 clean-buildfiles:
 	rm -rf build

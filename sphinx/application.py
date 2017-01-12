@@ -546,7 +546,7 @@ class Sphinx(object):
     def emit(self, event, *args):
         # type: (unicode, Any) -> List
         try:
-            logger.debug2('[app] emitting event: %r%s', event, repr(args)[:100])
+            logger.debug('[app] emitting event: %r%s', event, repr(args)[:100])
         except Exception:
             # not every object likes to be repr()'d (think
             # random stuff coming via autodoc)

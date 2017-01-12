@@ -49,6 +49,9 @@ Deprecated
 * ``sphinx.util.compat.docutils_version`` is now deprecated
 * #2367: ``Sphinx.warn()``, ``Sphinx.info()`` and other logging methods are now
   deprecated.  Please use ``sphinx.util.logging`` (:ref:`logging-api`) instead.
+* #3318: ``notice`` is now deprecated as LaTeX environment name and will be
+  removed at Sphinx 1.7. Extension authors please use ``sphinxadmonition``
+  instead (as Sphinx does since 1.5.)
 * ``Sphinx.status_iterator()` and ``Sphinx.old_status_iterator()`` is now
   deprecated.  Please use ``sphinx.util:status_iterator()`` intead.
 
@@ -66,6 +69,7 @@ Features added
 * #3241: emit latex warning if buggy titlesec (ref #3210)
 * #3194: Refer the $MAKE environment variable to determine ``make`` command
 * Emit warning for nested numbered toctrees (refs: #3142)
+* #978: `intersphinx_mapping` also allows a list as a parameter
 
 Bugs fixed
 ----------
@@ -81,6 +85,9 @@ Bugs fixed
 * #3294: ``add_latex_package()`` make crashes non-LaTeX builders
 * The caption of table are rendered as invalid HTML (refs: #3287)
 * #3268: Sphinx crashes with requests package from Debian jessie
+* #3284: Sphinx crashes on parallel build with an extension which raises
+  unserializable exception
+* #3315: Bibliography crashes on latex build with docclass 'memoir'
 
 
 Release 1.5.1 (released Dec 13, 2016)
@@ -734,7 +741,8 @@ Incompatible changes
   ``"MMMM dd, YYYY"`` is default format for `today_fmt` and `html_last_updated_fmt`.
   However strftime format like ``"%B %d, %Y"`` is also supported for backward
   compatibility until Sphinx-1.5. Later format will be disabled from Sphinx-1.5.
-* #2327: `latex_use_parts` is deprecated now. Use `latex_toplevel_sectioning` instead.
+* #2327: ``latex_use_parts`` is deprecated now. Use `latex_toplevel_sectioning`
+  instead.
 * #2337: Use ``\url{URL}`` macro instead of ``\href{URL}{URL}`` in LaTeX writer.
 * #1498: manpage writer: don't make whole of item in definition list bold if it includes strong node.
 * #582: Remove hint message from quick search box for html output.
