@@ -203,7 +203,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         nspace = nspace.lower()
 
         # write the project file
-        with codecs.open(path.join(outdir, outname + '.qhp'), 'w', 'utf-8') as f:  # type: ignore
+        with codecs.open(path.join(outdir, outname + '.qhp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
             f.write(project_template % {  # type: ignore
                 'outname': htmlescape(outname),
                 'title': htmlescape(self.config.html_title),
