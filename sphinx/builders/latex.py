@@ -74,7 +74,7 @@ class LaTeXBuilder(Builder):
                           'document %s' % docname)
                 continue
             self.document_data.append(entry)
-            if docname.endswith(SEP+'index'):
+            if docname.endswith(SEP + 'index'):
                 docname = docname[:-5]
             self.titles.append((docname, entry[2]))
 
@@ -188,7 +188,7 @@ class LaTeXBuilder(Builder):
         if self.images:
             self.info(bold('copying images...'), nonl=1)
             for src, dest in iteritems(self.images):
-                self.info(' '+src, nonl=1)
+                self.info(' ' + src, nonl=1)
                 copy_asset_file(path.join(self.srcdir, src),
                                 path.join(self.outdir, dest))
             self.info()
@@ -206,7 +206,7 @@ class LaTeXBuilder(Builder):
         if self.config.latex_additional_files:
             self.info(bold('copying additional files...'), nonl=1)
             for filename in self.config.latex_additional_files:
-                self.info(' '+filename, nonl=1)
+                self.info(' ' + filename, nonl=1)
                 copy_asset_file(path.join(self.confdir, filename), self.outdir)
             self.info()
 

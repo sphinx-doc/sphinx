@@ -58,7 +58,7 @@ class GenericObject(ObjectDescription):
             colon = self.indextemplate.find(':')
             if colon != -1:
                 indextype = self.indextemplate[:colon].strip()
-                indexentry = self.indextemplate[colon+1:].strip() % (name,)
+                indexentry = self.indextemplate[colon + 1:].strip() % (name,)
             else:
                 indextype = 'single'
                 indexentry = self.indextemplate % (name,)
@@ -118,7 +118,7 @@ class Target(Directive):
             colon = indexentry.find(':')
             if colon != -1:
                 indextype = indexentry[:colon].strip()
-                indexentry = indexentry[colon+1:].strip()
+                indexentry = indexentry[colon + 1:].strip()
             inode = addnodes.index(entries=[(indextype, indexentry,
                                              targetname, '', None)])
             ret.insert(0, inode)

@@ -100,7 +100,7 @@ def process_autosummary_toc(app, doctree):
             if not isinstance(subnode, nodes.section):
                 continue
             if subnode not in crawled:
-                crawl_toc(subnode, depth+1)
+                crawl_toc(subnode, depth + 1)
     crawl_toc(doctree)
 
 
@@ -266,7 +266,7 @@ class Autosummary(Directive):
             if not isinstance(obj, ModuleType):
                 # give explicitly separated module name, so that members
                 # of inner classes can be documented
-                full_name = modname + '::' + full_name[len(modname)+1:]
+                full_name = modname + '::' + full_name[len(modname) + 1:]
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
             documenter = get_documenter(obj, parent)(self, full_name)
@@ -403,13 +403,13 @@ def mangle_signature(sig, max_chars=30):
         s = m.group(1)[:-2]
 
     # Produce a more compact signature
-    sig = limited_join(", ", args, max_chars=max_chars-2)
+    sig = limited_join(", ", args, max_chars=max_chars - 2)
     if opts:
         if not sig:
-            sig = "[%s]" % limited_join(", ", opts, max_chars=max_chars-4)
+            sig = "[%s]" % limited_join(", ", opts, max_chars=max_chars - 4)
         elif len(sig) < max_chars - 4 - 2 - 3:
             sig += "[, %s]" % limited_join(", ", opts,
-                                           max_chars=max_chars-len(sig)-4-2)
+                                           max_chars=max_chars - len(sig) - 4 - 2)
 
     return u"(%s)" % sig
 
@@ -497,7 +497,7 @@ def _import_by_name(name):
         # ... then as MODNAME, MODNAME.OBJ1, MODNAME.OBJ1.OBJ2, ...
         last_j = 0
         modname = None
-        for j in reversed(range(1, len(name_parts)+1)):
+        for j in reversed(range(1, len(name_parts) + 1)):
             last_j = j
             modname = '.'.join(name_parts[:j])
             try:

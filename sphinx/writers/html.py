@@ -454,7 +454,7 @@ class HTMLTranslator(BaseTranslator):
                 self.body.append(self.starttag(production, 'strong', ''))
                 self.body.append(lastname + '</strong> ::= ')
             elif lastname is not None:
-                self.body.append('%s     ' % (' '*len(lastname)))
+                self.body.append('%s     ' % (' ' * len(lastname)))
             production.walkabout(self)
             self.body.append('\n')
         self.body.append('</pre>\n')
@@ -614,7 +614,7 @@ class HTMLTranslator(BaseTranslator):
                     self.body.append(token)
                 else:
                     # protect runs of multiple spaces; the last one can wrap
-                    self.body.append('&#160;' * (len(token)-1) + ' ')
+                    self.body.append('&#160;' * (len(token) - 1) + ' ')
         else:
             if self.in_mailto and self.settings.cloak_email_addresses:
                 encoded = self.cloak_email(encoded)

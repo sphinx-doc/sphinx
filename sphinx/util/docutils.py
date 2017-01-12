@@ -16,7 +16,7 @@ import docutils
 from docutils.parsers.rst import directives, roles
 
 
-__version_info__  = tuple(map(int, docutils.__version__.split('.')))
+__version_info__ = tuple(map(int, docutils.__version__.split('.')))
 
 
 @contextmanager

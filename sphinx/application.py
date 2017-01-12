@@ -484,7 +484,7 @@ class Sphinx(object):
         summary = bold(summary)
         for item in iterable:
             l += 1
-            s = '%s[%3d%%] %s' % (summary, 100*l/length,
+            s = '%s[%3d%%] %s' % (summary, 100 * l / length,
                                   colorfunc(stringify_func(item)))
             if self.verbosity:
                 s += '\n'
@@ -660,9 +660,9 @@ class Sphinx(object):
             else:
                 # ignore invalid keys for compatibility
                 continue
-            setattr(translator, 'visit_'+node.__name__, visit)
+            setattr(translator, 'visit_' + node.__name__, visit)
             if depart:
-                setattr(translator, 'depart_'+node.__name__, depart)
+                setattr(translator, 'depart_' + node.__name__, depart)
 
     def add_enumerable_node(self, node, figtype, title_getter=None, **kwds):
         self.enumerable_nodes[node] = (figtype, title_getter)

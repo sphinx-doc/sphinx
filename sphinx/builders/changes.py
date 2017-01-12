@@ -130,7 +130,7 @@ class ChangesBuilder(Builder):
             targetfn = path.join(self.outdir, 'rst', os_path(docname)) + '.html'
             ensuredir(path.dirname(targetfn))
             with codecs.open(targetfn, 'w', 'utf-8') as f:
-                text = ''.join(hl(i+1, line) for (i, line) in enumerate(lines))
+                text = ''.join(hl(i + 1, line) for (i, line) in enumerate(lines))
                 ctx = {
                     'filename': self.env.doc2path(docname, None),
                     'text': text

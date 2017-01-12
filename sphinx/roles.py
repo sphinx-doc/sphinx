@@ -201,7 +201,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner,
             return [prb], [msg]
         ref = inliner.document.settings.pep_base_url + 'pep-%04d' % pepnum
         sn = nodes.strong(title, title)
-        rn = nodes.reference('', '', internal=False, refuri=ref+anchor,
+        rn = nodes.reference('', '', internal=False, refuri=ref + anchor,
                              classes=[typ])
         rn += sn
         return [indexnode, targetnode, rn], []
@@ -223,7 +223,7 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner,
             return [prb], [msg]
         ref = inliner.document.settings.rfc_base_url + inliner.rfc_url % rfcnum
         sn = nodes.strong(title, title)
-        rn = nodes.reference('', '', internal=False, refuri=ref+anchor,
+        rn = nodes.reference('', '', internal=False, refuri=ref + anchor,
                              classes=[typ])
         rn += sn
         return [indexnode, targetnode, rn], []

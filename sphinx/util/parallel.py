@@ -117,11 +117,11 @@ def make_chunks(arguments, nproc, maxbatch=10):
     chunksize = nargs // nproc
     if chunksize >= maxbatch:
         # try to improve batch size vs. number of batches
-        chunksize = int(sqrt(nargs/nproc * maxbatch))
+        chunksize = int(sqrt(nargs / nproc * maxbatch))
     if chunksize == 0:
         chunksize = 1
     nchunks, rest = divmod(nargs, chunksize)
     if rest:
         nchunks += 1
     # partition documents in "chunks" that will be written by one Process
-    return [arguments[i*chunksize:(i+1)*chunksize] for i in range(nchunks)]
+    return [arguments[i * chunksize:(i + 1) * chunksize] for i in range(nchunks)]
