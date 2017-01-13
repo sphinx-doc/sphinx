@@ -53,10 +53,19 @@ class CatalogInfo(LocaleFileInfoBase):
             not path.exists(self.mo_path) or
             path.getmtime(self.mo_path) < path.getmtime(self.po_path))
 
-    def write_mo(self, locale):
-        with io.open(self.po_path, 'rt', encoding=self.charset) as po:
-            with io.open(self.mo_path, 'wb') as mo:
-                write_mo(mo, read_po(po, locale))
+    def write_mo(self, locale, warnfunc):
+        with io.open(self.po_path, 'rt', encoding=self.charset) as file_po:
+            try:
+                po = read_po(file_po, locale)
+            except Exception:
+                warnfunc('reading error: %s' % self.po_path)
+                return
+
+        with io.open(self.mo_path, 'wb') as file_mo:
+            try:
+                write_mo(file_mo, po)
+            except Exception:
+                warnfunc('writing error: %s' % self.mo_path)
 
 
 def find_catalog(docname, compaction):

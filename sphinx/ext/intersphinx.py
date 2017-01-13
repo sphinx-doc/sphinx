@@ -68,7 +68,7 @@ def read_inventory_v1(f, uri, join):
     return invdata
 
 
-def read_inventory_v2(f, uri, join, bufsize=16*1024):
+def read_inventory_v2(f, uri, join, bufsize=16 * 1024):
     invdata = {}
     line = f.readline()
     projname = line.rstrip()[11:].decode('utf-8')
@@ -91,7 +91,7 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
             lineend = buf.find(b'\n')
             while lineend != -1:
                 yield buf[:lineend].decode('utf-8')
-                buf = buf[lineend+1:]
+                buf = buf[lineend + 1:]
                 lineend = buf.find(b'\n')
         assert not buf
 
@@ -116,7 +116,7 @@ def read_inventory_v2(f, uri, join, bufsize=16*1024):
     return invdata
 
 
-def read_inventory(f, uri, join, bufsize=16*1024):
+def read_inventory(f, uri, join, bufsize=16 * 1024):
     line = f.readline().rstrip().decode('utf-8')
     if line == '# Sphinx inventory version 1':
         return read_inventory_v1(f, uri, join)
@@ -221,8 +221,8 @@ def fetch_inventory(app, uri, inv):
             try:
                 join = localuri and path.join or posixpath.join
                 invdata = read_inventory(f, uri, join)
-            except ValueError:
-                raise ValueError('unknown or unsupported inventory version')
+            except ValueError as exc:
+                raise ValueError('unknown or unsupported inventory version: %r' % exc)
     except Exception as err:
         app.warn('intersphinx inventory %r not readable due to '
                  '%s: %s' % (inv, err.__class__.__name__, err))
@@ -242,7 +242,7 @@ def load_mappings(app):
     cache = env.intersphinx_cache
     update = False
     for key, value in iteritems(app.config.intersphinx_mapping):
-        if isinstance(value, tuple):
+        if isinstance(value, (list, tuple)):
             # new format
             name, (uri, inv) = key, value
             if not isinstance(name, string_types):
@@ -342,9 +342,9 @@ def missing_reference(app, env, node, contnode):
                     (domain == 'std' and node['reftype'] == 'keyword'):
                 # use whatever title was given, but strip prefix
                 title = contnode.astext()
-                if in_set and title.startswith(in_set+':'):
-                    newnode.append(contnode.__class__(title[len(in_set)+1:],
-                                                      title[len(in_set)+1:]))
+                if in_set and title.startswith(in_set + ':'):
+                    newnode.append(contnode.__class__(title[len(in_set) + 1:],
+                                                      title[len(in_set) + 1:]))
                 else:
                     newnode.append(contnode)
             else:

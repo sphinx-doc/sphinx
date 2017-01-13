@@ -77,7 +77,7 @@ class CObject(ObjectDescription):
         # add cross-ref nodes for all words
         for part in [_f for _f in wsplit_re.split(ctype) if _f]:
             tnode = nodes.Text(part, part)
-            if part[0] in string.ascii_letters+'_' and \
+            if part[0] in string.ascii_letters + '_' and \
                part not in self.stopwords:
                 pnode = addnodes.pending_xref(
                     '', refdomain='c', reftype='type', reftarget=part,
@@ -162,7 +162,7 @@ class CObject(ObjectDescription):
                     ctype, argname = arg.rsplit(' ', 1)
                     self._parse_type(param, ctype)
                     # separate by non-breaking space in the output
-                    param += nodes.emphasis(' '+argname, u'\xa0'+argname)
+                    param += nodes.emphasis(' ' + argname, u'\xa0' + argname)
             except ValueError:
                 # no argument name given, only the type
                 self._parse_type(param, arg)
@@ -230,7 +230,7 @@ class CXRefRole(XRefRole):
                 title = title[1:]
                 dot = title.rfind('.')
                 if dot != -1:
-                    title = title[dot+1:]
+                    title = title[dot + 1:]
         return title, target
 
 

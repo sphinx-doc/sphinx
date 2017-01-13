@@ -167,7 +167,7 @@ class Builder(object):
         for catalog in self.app.status_iterator(
                 catalogs, 'writing output... ', darkgreen, len(catalogs),
                 cat2relpath):
-            catalog.write_mo(self.config.language)
+            catalog.write_mo(self.config.language, self.warn)
 
     def compile_all_catalogs(self):
         catalogs = i18n.find_catalog_source_files(

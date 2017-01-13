@@ -98,7 +98,7 @@ def get_matching_docs(dirname, suffixes, exclude_matchers=()):
     for filename in get_matching_files(dirname, exclude_matchers):
         for suffixpattern in suffixpatterns:
             if fnmatch.fnmatch(filename, suffixpattern):
-                yield filename[:-len(suffixpattern)+1]
+                yield filename[:-len(suffixpattern) + 1]
                 break
 
 
@@ -167,7 +167,7 @@ def copy_static_entry(source, targetdir, builder, context={},
             if path.isdir(path.join(source, entry)):
                 newtarget = path.join(targetdir, entry)
             copy_static_entry(path.join(source, entry), newtarget,
-                              builder, context, level=level+1,
+                              builder, context, level=level + 1,
                               exclude_matchers=exclude_matchers)
 
 
@@ -360,9 +360,9 @@ def parselinenos(spec, total):
             if len(begend) > 2:
                 raise ValueError
             if len(begend) == 1:
-                items.append(int(begend[0])-1)
+                items.append(int(begend[0]) - 1)
             else:
-                start = (begend[0] == '') and 0 or int(begend[0])-1
+                start = (begend[0] == '') and 0 or int(begend[0]) - 1
                 end = (begend[1] == '') and total or int(begend[1])
                 items.extend(range(start, end))
         except Exception:
@@ -400,13 +400,13 @@ def rpartition(s, t):
     """Similar to str.rpartition from 2.5, but doesn't return the separator."""
     i = s.rfind(t)
     if i != -1:
-        return s[:i], s[i+len(t):]
+        return s[:i], s[i + len(t):]
     return '', s
 
 
 def split_into(n, type, value):
     """Split an index entry into a given number of parts at semicolons."""
-    parts = [x.strip() for x in value.split(';', n-1)]
+    parts = [x.strip() for x in value.split(';', n - 1)]
     if sum(1 for part in parts if part) < n:
         raise ValueError('invalid %s index entry %r' % (type, value))
     return parts

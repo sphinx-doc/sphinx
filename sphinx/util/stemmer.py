@@ -107,7 +107,7 @@ class PorterStemmer(object):
         """doublec(j) is TRUE <=> j,(j-1) contain a double consonant."""
         if j < (self.k0 + 1):
             return 0
-        if (self.b[j] != self.b[j-1]):
+        if (self.b[j] != self.b[j - 1]):
             return 0
         return self.cons(j)
 
@@ -120,8 +120,8 @@ class PorterStemmer(object):
            cav(e), lov(e), hop(e), crim(e), but
            snow, box, tray.
         """
-        if i < (self.k0 + 2) or not self.cons(i) or self.cons(i-1) \
-           or not self.cons(i-2):
+        if i < (self.k0 + 2) or not self.cons(i) or self.cons(i - 1) \
+           or not self.cons(i - 2):
             return 0
         ch = self.b[i]
         if ch == 'w' or ch == 'x' or ch == 'y':
@@ -135,7 +135,7 @@ class PorterStemmer(object):
             return 0
         if length > (self.k - self.k0 + 1):
             return 0
-        if self.b[self.k-length+1:self.k+1] != s:
+        if self.b[self.k - length + 1:self.k + 1] != s:
             return 0
         self.j = self.k - length
         return 1
@@ -144,7 +144,7 @@ class PorterStemmer(object):
         """setto(s) sets (j+1),...k to the characters in the string s,
         readjusting k."""
         length = len(s)
-        self.b = self.b[:self.j+1] + s + self.b[self.j+length+1:]
+        self.b = self.b[:self.j + 1] + s + self.b[self.j + length + 1:]
         self.k = self.j + length
 
     def r(self, s):
@@ -203,7 +203,7 @@ class PorterStemmer(object):
         """step1c() turns terminal y to i when there is another vowel in
         the stem."""
         if (self.ends("y") and self.vowelinstem()):
-            self.b = self.b[:self.k] + 'i' + self.b[self.k+1:]
+            self.b = self.b[:self.k] + 'i' + self.b[self.k + 1:]
 
     def step2(self):
         """step2() maps double suffices to single ones.
@@ -376,7 +376,7 @@ class PorterStemmer(object):
         self.j = self.k
         if self.b[self.k] == 'e':
             a = self.m()
-            if a > 1 or (a == 1 and not self.cvc(self.k-1)):
+            if a > 1 or (a == 1 and not self.cvc(self.k - 1)):
                 self.k = self.k - 1
         if self.b[self.k] == 'l' and self.doublec(self.k) and self.m() > 1:
             self.k = self.k - 1
@@ -408,4 +408,4 @@ class PorterStemmer(object):
         self.step3()
         self.step4()
         self.step5()
-        return self.b[self.k0:self.k+1]
+        return self.b[self.k0:self.k + 1]

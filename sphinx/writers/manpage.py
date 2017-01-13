@@ -271,7 +271,7 @@ class ManualPageTranslator(BaseTranslator):
                 self.body.append(self.defs['strong'][1])
                 self.body.append(' ::= ')
             elif lastname is not None:
-                self.body.append('%s     ' % (' '*len(lastname)))
+                self.body.append('%s     ' % (' ' * len(lastname)))
             production.walkabout(self)
             self.body.append('\n')
         self.body.append('\n.fi\n')

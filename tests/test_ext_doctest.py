@@ -8,13 +8,12 @@
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-
-from util import with_app
+import pytest
 
 cleanup_called = 0
 
 
-@with_app(buildername='doctest', testroot='doctest')
+@pytest.mark.sphinx('doctest', testroot='doctest')
 def test_build(app, status, warning):
     global cleanup_called
     cleanup_called = 0

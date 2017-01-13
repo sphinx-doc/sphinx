@@ -1641,7 +1641,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         parindex = node.parent.index(node)
         try:
             try:
-                next = node.parent[parindex+1]
+                next = node.parent[parindex + 1]
             except IndexError:
                 # last node in parent, look at next after parent
                 # (for section of equal level) if it exists
@@ -1700,14 +1700,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 elif type == 'pair':
                     p1, p2 = [self.encode(x) for x in split_into(2, 'pair', string)]
                     self.body.append(r'\index{%s!%s%s}\index{%s!%s%s}' %
-                                     (p1, p2, m,  p2, p1, m))
+                                     (p1, p2, m, p2, p1, m))
                 elif type == 'triple':
                     p1, p2, p3 = [self.encode(x)
                                   for x in split_into(3, 'triple', string)]
                     self.body.append(
                         r'\index{%s!%s %s%s}\index{%s!%s, %s%s}'
                         r'\index{%s!%s %s%s}' %
-                        (p1, p2, p3, m,  p2, p3, p1, m,  p3, p1, p2, m))
+                        (p1, p2, p3, m, p2, p3, p1, m, p3, p1, p2, m))
                 elif type == 'see':
                     p1, p2 = [self.encode(x) for x in split_into(2, 'see', string)]
                     self.body.append(r'\index{%s|see{%s}}' % (p1, p2))

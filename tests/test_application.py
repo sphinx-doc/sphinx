@@ -15,19 +15,21 @@ from docutils import nodes
 from sphinx.application import ExtensionError
 from sphinx.domains import Domain
 
-from util import with_app, raises_msg, strip_escseq
+from util import strip_escseq
+import pytest
 
 
-@with_app()
 def test_events(app, status, warning):
     def empty():
         pass
-    raises_msg(ExtensionError, "Unknown event name: invalid",
-               app.connect, "invalid", empty)
+    with pytest.raises(ExtensionError) as excinfo:
+        app.connect("invalid", empty)
+    assert "Unknown event name: invalid" in str(excinfo.value)
 
     app.add_event("my_event")
-    raises_msg(ExtensionError, "Event 'my_event' already present",
-               app.add_event, "my_event")
+    with pytest.raises(ExtensionError) as excinfo:
+        app.add_event("my_event")
+    assert "Event 'my_event' already present" in str(excinfo.value)
 
     def mock_callback(a_app, *args):
         assert a_app is app
@@ -42,13 +44,11 @@ def test_events(app, status, warning):
         "Callback called when disconnected"
 
 
-@with_app()
 def test_emit_with_nonascii_name_node(app, status, warning):
     node = nodes.section(names=[u'\u65e5\u672c\u8a9e'])
     app.emit('my_event', node)
 
 
-@with_app()
 def test_output(app, status, warning):
     # info with newline
     status.truncate(0)  # __init__ writes to status
@@ -68,7 +68,6 @@ def test_output(app, status, warning):
     assert app._warncount == old_count + 1
 
 
-@with_app()
 def test_output_with_unencodable_char(app, status, warning):
 
     class StreamWriter(codecs.StreamWriter):
@@ -84,20 +83,17 @@ def test_output_with_unencodable_char(app, status, warning):
     assert status.getvalue() == "unicode ?...\n"
 
 
-@with_app()
 def test_extensions(app, status, warning):
     app.setup_extension('shutil')
     assert strip_escseq(warning.getvalue()).startswith("WARNING: extension 'shutil'")
 
 
-@with_app()
 def test_extension_in_blacklist(app, status, warning):
     app.setup_extension('sphinxjp.themecore')
     msg = strip_escseq(warning.getvalue())
     assert msg.startswith("WARNING: the extension 'sphinxjp.themecore' was")
 
 
-@with_app()
 def test_domain_override(app, status, warning):
     class A(Domain):
         name = 'foo'
@@ -109,15 +105,18 @@ def test_domain_override(app, status, warning):
         name = 'foo'
 
     # No domain know named foo.
-    raises_msg(ExtensionError, 'domain foo not yet registered',
-               app.override_domain, A)
+    with pytest.raises(ExtensionError) as excinfo:
+        app.override_domain(A)
+    assert 'domain foo not yet registered' in str(excinfo.value)
+
     assert app.add_domain(A) is None
     assert app.override_domain(B) is None
-    raises_msg(ExtensionError, 'new domain not a subclass of registered '
-               'foo domain', app.override_domain, C)
+    with pytest.raises(ExtensionError) as excinfo:
+        app.override_domain(C)
+    assert 'new domain not a subclass of registered foo domain' in str(excinfo.value)
 
 
-@with_app(testroot='add_source_parser')
+@pytest.mark.sphinx(testroot='add_source_parser')
 def test_add_source_parser(app, status, warning):
     assert set(app.config.source_suffix) == set(['.rst', '.md', '.test'])
     assert set(app.config.source_parsers.keys()) == set(['.md', '.test'])
@@ -125,7 +124,7 @@ def test_add_source_parser(app, status, warning):
     assert app.config.source_parsers['.test'].__name__ == 'TestSourceParser'
 
 
-@with_app(testroot='add_source_parser-conflicts-with-users-setting')
+@pytest.mark.sphinx(testroot='add_source_parser-conflicts-with-users-setting')
 def test_add_source_parser_conflicts_with_users_setting(app, status, warning):
     assert set(app.config.source_suffix) == set(['.rst', '.test'])
     assert set(app.config.source_parsers.keys()) == set(['.test'])

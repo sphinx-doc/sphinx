@@ -10,15 +10,16 @@
 """
 import shutil
 
-from nose.tools import with_setup
+import pytest
 
-from util import with_app, find_files, rootdir, tempdir
+from util import find_files, rootdir, tempdir
 
 root = tempdir / 'test-intl'
 build_dir = root / '_build'
 locale_dir = build_dir / 'locale'
 
 
+@pytest.fixture
 def setup_test():
     # delete remnants left over after failed build
     root.rmtree(True)
@@ -30,14 +31,15 @@ def setup_test():
             copy_po.parent.makedirs()
         shutil.copy(root / po, copy_po)
 
+    yield
 
-def teardown_test():
     build_dir.rmtree(True)
 
 
-@with_setup(setup_test, teardown_test)
-@with_app(buildername='html', testroot='intl',
-          confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
+@pytest.mark.usefixtures('setup_test')
+@pytest.mark.sphinx(
+    'html', testroot='intl',
+    confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
 def test_compile_all_catalogs(app, status, warning):
     app.builder.compile_all_catalogs()
 
@@ -51,9 +53,10 @@ def test_compile_all_catalogs(app, status, warning):
     assert actual == expect
 
 
-@with_setup(setup_test, teardown_test)
-@with_app(buildername='html',  testroot='intl',
-          confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
+@pytest.mark.usefixtures('setup_test')
+@pytest.mark.sphinx(
+    'html',  testroot='intl',
+    confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
 def test_compile_specific_catalogs(app, status, warning):
     catalog_dir = locale_dir / app.config.language / 'LC_MESSAGES'
 
@@ -66,9 +69,10 @@ def test_compile_specific_catalogs(app, status, warning):
     assert actual == set(['admonitions.mo'])
 
 
-@with_setup(setup_test, teardown_test)
-@with_app(buildername='html',  testroot='intl',
-          confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
+@pytest.mark.usefixtures('setup_test')
+@pytest.mark.sphinx(
+    'html',  testroot='intl',
+    confoverrides={'language': 'en', 'locale_dirs': [locale_dir]})
 def test_compile_update_catalogs(app, status, warning):
     app.builder.compile_update_catalogs()
 

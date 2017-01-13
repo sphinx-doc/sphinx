@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2016/12/14 v1.5.2 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/01/09 v1.5.2 LaTeX package (Sphinx markup)]
 
 % we delay handling of options to after having loaded packages, because
 % of the need to use \definecolor.
@@ -1090,8 +1090,14 @@
 
 % make commands known to non-Sphinx document classes
 \providecommand*{\sphinxtableofcontents}{\tableofcontents}
-\providecommand*{\sphinxthebibliography}{\thebibliography}
-\providecommand*{\sphinxtheindex}{\theindex}
+\spx@ifundefined{sphinxthebibliography}
+ {\newenvironment
+  {sphinxthebibliography}{\begin{thebibliography}}{\end{thebibliography}}%
+ }
+ {}% else clause of ifundefined
+\spx@ifundefined{sphinxtheindex}
+ {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}%
+ {}% else clause of ifundefined
 
 % remove LaTeX's cap on nesting depth if 'maxlistdepth' key used.
 % This is a hack, which works with the standard classes: it assumes \@toodeep
@@ -1122,7 +1128,7 @@
        \expandafter\let
          \csname @list\romannumeral\the\count@\expandafter\endcsname
          \csname @list\romannumeral\the\numexpr\count@-\@ne\endcsname
-       % higher \leftmargin... needed to fix issue with babel-french (v2.6--...)
+       % work around 2.6--3.2d babel-french issue (fixed in 3.2e; no change needed)
        \spx@ifundefined{leftmargin\romannumeral\the\count@}
        {\expandafter\let
          \csname leftmargin\romannumeral\the\count@\expandafter\endcsname

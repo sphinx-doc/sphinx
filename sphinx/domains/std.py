@@ -58,7 +58,7 @@ class GenericObject(ObjectDescription):
             colon = self.indextemplate.find(':')
             if colon != -1:
                 indextype = self.indextemplate[:colon].strip()
-                indexentry = self.indextemplate[colon+1:].strip() % (name,)
+                indexentry = self.indextemplate[colon + 1:].strip() % (name,)
             else:
                 indextype = 'single'
                 indexentry = self.indextemplate % (name,)
@@ -118,7 +118,7 @@ class Target(Directive):
             colon = indexentry.find(':')
             if colon != -1:
                 indextype = indexentry[:colon].strip()
-                indexentry = indexentry[colon+1:].strip()
+                indexentry = indexentry[colon + 1:].strip()
             inode = addnodes.index(entries=[(indextype, indexentry,
                                              targetname, '', None)])
             ret.insert(0, inode)
@@ -566,7 +566,7 @@ class StandardDomain(Domain):
                 env.warn_node('duplicate label %s, ' % name + 'other instance '
                               'in ' + env.doc2path(labels[name][0]), node)
             anonlabels[name] = docname, labelid
-            if node.tagname == 'section':
+            if node.tagname in ('section', 'rubric'):
                 sectname = clean_astext(node[0])  # node[0] == title node
             elif self.is_enumerable_node(node):
                 sectname = self.get_numfig_title(node)
@@ -673,13 +673,13 @@ class StandardDomain(Domain):
             else:
                 title = env.config.numfig_format.get(figtype, '')
 
-            if figname is None and '%{name}' in title:
+            if figname is None and '{name}' in title:
                 env.warn_node('the link has no caption: %s' % title, node)
                 return contnode
             else:
                 fignum = '.'.join(map(str, fignumber))
                 if '{name}' in title or 'number' in title:
-                    # new style format (cf. "Fig.%{number}")
+                    # new style format (cf. "Fig.{number}")
                     if figname:
                         newtitle = title.format(name=figname, number=fignum)
                     else:

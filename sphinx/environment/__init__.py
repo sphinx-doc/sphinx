@@ -632,7 +632,7 @@ class BuildEnvironment(object):
         lineno = error.object.count(b'\n', 0, error.start) + 1
         self.warn(self.docname, 'undecodable source characters, '
                   'replacing with "?": %r' %
-                  (error.object[linestart+1:error.start] + b'>>>' +
+                  (error.object[linestart + 1:error.start] + b'>>>' +
                    error.object[error.start:error.end] + b'<<<' +
                    error.object[error.end:lineend]), lineno)
         return (u'?', error.end)

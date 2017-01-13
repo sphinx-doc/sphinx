@@ -9,9 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six import PY3
-
-from util import TestApp, remove_unicode_literals, path
+from util import SphinxTestApp, path
 
 from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
@@ -22,7 +20,7 @@ warnings = []
 
 def setup_module():
     global app, env
-    app = TestApp(srcdir='root-envtest')
+    app = SphinxTestApp(srcdir='root-envtest')
     env = app.env
     env.set_warnfunc(lambda *args, **kwargs: warnings.append(args))
 
@@ -54,7 +52,6 @@ def test_images():
                            'http://www.python.org/logo.png')
 
     tree = env.get_doctree('images')
-    app._warning.reset()
     htmlbuilder = StandaloneHTMLBuilder(app)
     htmlbuilder.imgpath = 'dummy'
     htmlbuilder.post_process_images(tree)
@@ -64,7 +61,6 @@ def test_images():
     assert set(htmlbuilder.images.values()) == \
         set(['img.png', 'img1.png', 'simg.png', 'svgimg.svg', 'img.foo.png'])
 
-    app._warning.reset()
     latexbuilder = LaTeXBuilder(app)
     latexbuilder.post_process_images(tree)
     assert set(latexbuilder.images.keys()) == \

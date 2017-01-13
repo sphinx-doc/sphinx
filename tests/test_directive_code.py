@@ -9,10 +9,12 @@
     :license: BSD, see LICENSE for details.
 """
 
-from util import with_app, etree_parse
+import pytest
+
+from util import etree_parse
 
 
-@with_app('xml', testroot='directive-code')
+@pytest.mark.sphinx('xml', testroot='directive-code')
 def test_code_block(app, status, warning):
     app.builder.build('index')
     et = etree_parse(app.outdir / 'index.xml')
@@ -28,7 +30,7 @@ def test_code_block(app, status, warning):
     assert actual == expect
 
 
-@with_app('xml', testroot='directive-code')
+@pytest.mark.sphinx('xml', testroot='directive-code')
 def test_code_block_dedent(app, status, warning):
     app.builder.build(['dedent_code'])
     et = etree_parse(app.outdir / 'dedent_code.xml')
@@ -47,7 +49,7 @@ def test_code_block_dedent(app, status, warning):
     assert blocks[5].text == '\n\n'   # dedent: 1000
 
 
-@with_app('html', testroot='directive-code')
+@pytest.mark.sphinx('html', testroot='directive-code')
 def test_code_block_caption_html(app, status, warning):
     app.builder.build(['caption'])
     html = (app.outdir / 'caption.html').text(encoding='utf-8')
@@ -59,7 +61,7 @@ def test_code_block_caption_html(app, status, warning):
     assert caption in html
 
 
-@with_app('latex', testroot='directive-code')
+@pytest.mark.sphinx('latex', testroot='directive-code')
 def test_code_block_caption_latex(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
@@ -72,7 +74,7 @@ def test_code_block_caption_latex(app, status, warning):
     assert link in latex
 
 
-@with_app('latex', testroot='directive-code')
+@pytest.mark.sphinx('latex', testroot='directive-code')
 def test_code_block_namedlink_latex(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
@@ -89,7 +91,7 @@ def test_code_block_namedlink_latex(app, status, warning):
     assert link2 in latex
 
 
-@with_app('xml', testroot='directive-code')
+@pytest.mark.sphinx('xml', testroot='directive-code')
 def test_literal_include(app, status, warning):
     app.builder.build(['index'])
     et = etree_parse(app.outdir / 'index.xml')
@@ -101,7 +103,7 @@ def test_literal_include(app, status, warning):
     assert actual == literal_src
 
 
-@with_app('xml', testroot='directive-code')
+@pytest.mark.sphinx('xml', testroot='directive-code')
 def test_literal_include_dedent(app, status, warning):
     literal_src = (app.srcdir / 'literal.inc').text(encoding='utf-8')
     literal_lines = [l[4:] for l in literal_src.split('\n')[9:11]]
@@ -119,7 +121,7 @@ def test_literal_include_dedent(app, status, warning):
     assert blocks[5].text == '\n\n'   # dedent: 1000
 
 
-@with_app('xml', testroot='directive-code')
+@pytest.mark.sphinx('xml', testroot='directive-code')
 def test_literal_include_block_start_with_comment_or_brank(app, status, warning):
     app.builder.build(['python'])
     et = etree_parse(app.outdir / 'python.xml')
@@ -143,7 +145,7 @@ def test_literal_include_block_start_with_comment_or_brank(app, status, warning)
     assert actual == expect
 
 
-@with_app('html', testroot='directive-code')
+@pytest.mark.sphinx('html', testroot='directive-code')
 def test_literal_include_linenos(app, status, warning):
     app.builder.build(['linenos'])
     html = (app.outdir / 'linenos.html').text(encoding='utf-8')
@@ -166,7 +168,7 @@ def test_literal_include_linenos(app, status, warning):
     assert linenos in html
 
 
-@with_app('html', testroot='directive-code')
+@pytest.mark.sphinx('html', testroot='directive-code')
 def test_literal_include_lineno_start(app, status, warning):
     app.builder.build(['lineno_start'])
     html = (app.outdir / 'lineno_start.html').text(encoding='utf-8')
@@ -189,7 +191,7 @@ def test_literal_include_lineno_start(app, status, warning):
     assert linenos in html
 
 
-@with_app('html', testroot='directive-code')
+@pytest.mark.sphinx('html', testroot='directive-code')
 def test_literal_include_lineno_match(app, status, warning):
     app.builder.build(['lineno_match'])
     html = (app.outdir / 'lineno_match.html').text(encoding='utf-8')
@@ -229,7 +231,7 @@ def test_literal_include_lineno_match(app, status, warning):
     assert start_at_end_at in html
 
 
-@with_app('latex', testroot='directive-code')
+@pytest.mark.sphinx('latex', testroot='directive-code')
 def test_literalinclude_file_whole_of_emptyline(app, status, warning):
     app.builder.build_all()
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8').replace('\r\n', '\n')
@@ -243,7 +245,7 @@ def test_literalinclude_file_whole_of_emptyline(app, status, warning):
     assert includes in latex
 
 
-@with_app('html', testroot='directive-code')
+@pytest.mark.sphinx('html', testroot='directive-code')
 def test_literalinclude_caption_html(app, status, warning):
     app.builder.build('index')
     html = (app.outdir / 'caption.html').text(encoding='utf-8')
@@ -255,7 +257,7 @@ def test_literalinclude_caption_html(app, status, warning):
     assert caption in html
 
 
-@with_app('latex', testroot='directive-code')
+@pytest.mark.sphinx('latex', testroot='directive-code')
 def test_literalinclude_caption_latex(app, status, warning):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
@@ -268,7 +270,7 @@ def test_literalinclude_caption_latex(app, status, warning):
     assert link in latex
 
 
-@with_app('latex', testroot='directive-code')
+@pytest.mark.sphinx('latex', testroot='directive-code')
 def test_literalinclude_namedlink_latex(app, status, warning):
     app.builder.build('index')
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
@@ -285,7 +287,7 @@ def test_literalinclude_namedlink_latex(app, status, warning):
     assert link2 in latex
 
 
-@with_app('xml', testroot='directive-code')
+@pytest.mark.sphinx('xml', testroot='directive-code')
 def test_literalinclude_classes(app, status, warning):
     app.builder.build(['classes'])
     et = etree_parse(app.outdir / 'classes.xml')

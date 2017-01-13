@@ -13,8 +13,8 @@
 # "raises" imported for usage by autodoc
 import six
 import sys
-from util import TestApp, Struct, raises, SkipTest
-from nose.tools import with_setup, eq_
+from util import SphinxTestApp, Struct
+import pytest
 
 from six import StringIO
 from docutils.statemachine import ViewList
@@ -27,7 +27,7 @@ app = None
 
 def setup_module():
     global app
-    app = TestApp()
+    app = SphinxTestApp()
     app.builder.env.app = app
     app.builder.env.temp_data['docname'] = 'dummy'
     app.connect('autodoc-process-docstring', process_docstring)
@@ -42,6 +42,7 @@ def teardown_module():
 directive = options = None
 
 
+@pytest.fixture
 def setup_test():
     global options, directive
     global processed_docstrings, processed_signatures, _warnings
@@ -106,7 +107,7 @@ def skip_member(app, what, name, obj, skip, options):
         return True
 
 
-@with_setup(setup_test)
+@pytest.mark.usefixtures('setup_test')
 def test_generate():
     def assert_warns(warn_str, objtype, name, **kw):
         inst = AutoDirective._registry[objtype](directive, name)
@@ -184,7 +185,7 @@ def test_generate():
                            'Class.meth', more_content=add_content)
 
     # test check_module
-    inst = FunctionDocumenter(directive, 'raises')
+    inst = FunctionDocumenter(directive, 'add_documenter')
     inst.generate(check_module=True)
     assert len(directive.result) == 0
 

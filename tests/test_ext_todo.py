@@ -10,10 +10,11 @@
 """
 
 import re
-from util import with_app
+
+import pytest
 
 
-@with_app('html', testroot='ext-todo', freshenv=True,
+@pytest.mark.sphinx('html', testroot='ext-todo', freshenv=True,
           confoverrides={'todo_include_todos': True, 'todo_emit_warnings': True})
 def test_todo(app, status, warning):
     todos = []
@@ -49,7 +50,7 @@ def test_todo(app, status, warning):
     assert set(todo[1].astext() for todo in todos) == set(['todo in foo', 'todo in bar'])
 
 
-@with_app('html', testroot='ext-todo', freshenv=True,
+@pytest.mark.sphinx('html', testroot='ext-todo', freshenv=True,
           confoverrides={'todo_include_todos': False, 'todo_emit_warnings': True})
 def test_todo_not_included(app, status, warning):
     todos = []

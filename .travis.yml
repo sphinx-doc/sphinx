@@ -4,15 +4,15 @@ cache:
   directories:
     - $HOME/.cache/pip
 python:
+  - "pypy"
   - "2.7"
   - "3.4"
   - "3.5"
   - "3.6"
   - "nightly"
-  - "pypy"
 env:
   global:
-    - TEST='-v --with-timer --timer-top-n 25'
+    - TEST='-v --durations 25'
     - PYTHONFAULTHANDLER=x
     - PYTHONWARNINGS=all
   matrix:

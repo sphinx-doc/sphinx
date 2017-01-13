@@ -11,13 +11,13 @@
 
 import re
 import sys
-from util import with_app, rootdir, raises
-from test_ext_graphviz import skip_if_graphviz_not_found
+from util import rootdir
 from sphinx.ext.inheritance_diagram import InheritanceException, import_classes
+import pytest
 
 
-@with_app('html', testroot='ext-inheritance_diagram')
-@skip_if_graphviz_not_found
+@pytest.mark.sphinx('html', testroot='ext-inheritance_diagram')
+@pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram_html(app, status, warning):
     app.builder.build_all()
 
@@ -31,8 +31,8 @@ def test_inheritance_diagram_html(app, status, warning):
     assert re.search(pattern, content, re.M)
 
 
-@with_app('latex', testroot='ext-inheritance_diagram')
-@skip_if_graphviz_not_found
+@pytest.mark.sphinx('latex', testroot='ext-inheritance_diagram')
+@pytest.mark.usefixtures('if_graphviz_found')
 def test_inheritance_diagram_latex(app, status, warning):
     app.builder.build_all()
 
@@ -53,8 +53,10 @@ def test_import_classes():
         from example.sphinx import DummyClass
 
         # got exception for unknown class or module
-        raises(InheritanceException, import_classes, 'unknown', None)
-        raises(InheritanceException, import_classes, 'unknown.Unknown', None)
+        with pytest.raises(InheritanceException):
+            import_classes('unknown', None)
+        with pytest.raises(InheritanceException):
+            import_classes('unknown.Unknown', None)
 
         # a module having no classes
         classes = import_classes('sphinx', None)
@@ -80,7 +82,8 @@ def test_import_classes():
         assert classes == [CatalogInfo]
 
         # got exception for functions
-        raises(InheritanceException, import_classes, 'encode_uri', 'sphinx.util')
+        with pytest.raises(InheritanceException):
+            import_classes('encode_uri', 'sphinx.util')
 
         # import submodule on current module (refs: #3164)
         classes = import_classes('sphinx', 'example')

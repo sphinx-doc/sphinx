@@ -10,19 +10,19 @@
     :license: BSD, see LICENSE for details.
 """
 from six import PY3, iteritems
+import pytest
 import mock
-
-from util import TestApp, with_app, gen_with_app, with_tempdir, \
-    raises, raises_msg, assert_in, assert_not_in
 
 import sphinx
 from sphinx.config import Config
 from sphinx.errors import ExtensionError, ConfigError, VersionRequirementError
 
 
-@with_app(confoverrides={'master_doc': 'master', 'nonexisting_value': 'True',
-                         'latex_elements.docclass': 'scrartcl',
-                         'modindex_common_prefix': 'path1,path2'})
+@pytest.mark.sphinx(confoverrides={
+    'master_doc': 'master',
+    'nonexisting_value': 'True',
+    'latex_elements.docclass': 'scrartcl',
+    'modindex_common_prefix': 'path1,path2'})
 def test_core_config(app, status, warning):
     cfg = app.config
 
@@ -55,11 +55,14 @@ def test_core_config(app, status, warning):
     assert 'nonexisting_value' not in cfg
 
     # invalid values
-    raises(AttributeError, getattr, cfg, '_value')
-    raises(AttributeError, getattr, cfg, 'nonexisting_value')
+    with pytest.raises(AttributeError):
+        getattr(cfg, '_value')
+    with pytest.raises(AttributeError):
+        getattr(cfg, 'nonexisting_value')
 
     # non-value attributes are deleted from the namespace
-    raises(AttributeError, getattr, cfg, 'sys')
+    with pytest.raises(AttributeError):
+        getattr(cfg, 'sys')
 
     # setting attributes
     cfg.project = 'Foo'
@@ -70,7 +73,6 @@ def test_core_config(app, status, warning):
     assert cfg['project'] == cfg.project == 'Sphinx Tests'
 
 
-@with_app()
 def test_extension_values(app, status, warning):
     cfg = app.config
 
@@ -80,23 +82,26 @@ def test_extension_values(app, status, warning):
     assert cfg.value_from_conf_py == 84
 
     # no duplicate values allowed
-    raises_msg(ExtensionError, 'already present', app.add_config_value,
-               'html_title', 'x', True)
-    raises_msg(ExtensionError, 'already present', app.add_config_value,
-               'value_from_ext', 'x', True)
+    with pytest.raises(ExtensionError) as excinfo:
+        app.add_config_value('html_title', 'x', True)
+    assert 'already present' in str(excinfo.value)
+    with pytest.raises(ExtensionError) as excinfo:
+        app.add_config_value('value_from_ext', 'x', True)
+    assert 'already present' in str(excinfo.value)
 
 
-@with_tempdir
-def test_errors_warnings(dir):
+def test_errors_warnings(tempdir):
     # test the error for syntax errors in the config file
-    (dir / 'conf.py').write_text(u'project = \n', encoding='ascii')
-    raises_msg(ConfigError, 'conf.py', Config, dir, 'conf.py', {}, None)
+    (tempdir / 'conf.py').write_text(u'project = \n', encoding='ascii')
+    with pytest.raises(ConfigError) as excinfo:
+        Config(tempdir, 'conf.py', {}, None)
+    assert 'conf.py' in str(excinfo.value)
 
     # test the automatic conversion of 2.x only code in configs
-    (dir / 'conf.py').write_text(
+    (tempdir / 'conf.py').write_text(
         u'# -*- coding: utf-8\n\nproject = u"Jägermeister"\n',
         encoding='utf-8')
-    cfg = Config(dir, 'conf.py', {}, None)
+    cfg = Config(tempdir, 'conf.py', {}, None)
     cfg.init_values(lambda warning: 1/0)
     assert cfg.project == u'Jägermeister'
 
@@ -105,9 +110,9 @@ def test_errors_warnings(dir):
     # skip the test there
     if PY3:
         return
-    (dir / 'conf.py').write_text(
+    (tempdir / 'conf.py').write_text(
         u'# -*- coding: latin-1\nproject = "fooä"\n', encoding='latin-1')
-    cfg = Config(dir, 'conf.py', {}, None)
+    cfg = Config(tempdir, 'conf.py', {}, None)
     warned = [False]
 
     def warn(msg):
@@ -117,62 +122,64 @@ def test_errors_warnings(dir):
     assert warned[0]
 
 
-@with_tempdir
-def test_errors_if_setup_is_not_callable(dir):
+def test_errors_if_setup_is_not_callable(tempdir, make_app):
     # test the error to call setup() in the config file
-    (dir / 'conf.py').write_text(u'setup = 1')
-    raises_msg(ConfigError, 'callable', TestApp, srcdir=dir)
+    (tempdir / 'conf.py').write_text(u'setup = 1')
+    with pytest.raises(ConfigError) as excinfo:
+        make_app(srcdir=tempdir)
+    assert 'callable' in str(excinfo.value)
 
 
 @mock.patch.object(sphinx, '__display_version__', '1.3.4')
-def test_needs_sphinx():
+def test_needs_sphinx(make_app):
     # micro version
-    app = TestApp(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
+    app = make_app(confoverrides={'needs_sphinx': '1.3.3'})  # OK: less
     app.cleanup()
-    app = TestApp(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
+    app = make_app(confoverrides={'needs_sphinx': '1.3.4'})  # OK: equals
     app.cleanup()
-    raises(VersionRequirementError, TestApp,
-           confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
+    with pytest.raises(VersionRequirementError):
+        make_app(confoverrides={'needs_sphinx': '1.3.5'})  # NG: greater
 
     # minor version
-    app = TestApp(confoverrides={'needs_sphinx': '1.2'})  # OK: less
+    app = make_app(confoverrides={'needs_sphinx': '1.2'})  # OK: less
     app.cleanup()
-    app = TestApp(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
+    app = make_app(confoverrides={'needs_sphinx': '1.3'})  # OK: equals
     app.cleanup()
-    raises(VersionRequirementError, TestApp,
-           confoverrides={'needs_sphinx': '1.4'})  # NG: greater
+    with pytest.raises(VersionRequirementError):
+        make_app(confoverrides={'needs_sphinx': '1.4'})  # NG: greater
 
     # major version
-    app = TestApp(confoverrides={'needs_sphinx': '0'})  # OK: less
+    app = make_app(confoverrides={'needs_sphinx': '0'})  # OK: less
     app.cleanup()
-    app = TestApp(confoverrides={'needs_sphinx': '1'})  # OK: equals
+    app = make_app(confoverrides={'needs_sphinx': '1'})  # OK: equals
     app.cleanup()
-    raises(VersionRequirementError, TestApp,
-           confoverrides={'needs_sphinx': '2'})  # NG: greater
+    with pytest.raises(VersionRequirementError):
+        make_app(confoverrides={'needs_sphinx': '2'})  # NG: greater
 
 
-@with_tempdir
-def test_config_eol(tmpdir):
+def test_config_eol(tempdir):
     # test config file's eol patterns: LF, CRLF
-    configfile = tmpdir / 'conf.py'
+    configfile = tempdir / 'conf.py'
     for eol in (b'\n', b'\r\n'):
         configfile.write_bytes(b'project = "spam"' + eol)
-        cfg = Config(tmpdir, 'conf.py', {}, None)
+        cfg = Config(tempdir, 'conf.py', {}, None)
         cfg.init_values(lambda warning: 1/0)
         assert cfg.project == u'spam'
 
 
-@with_app(confoverrides={'master_doc': 123,
+@pytest.mark.sphinx(confoverrides={'master_doc': 123,
                          'language': 'foo',
                          'primary_domain': None})
 def test_builtin_conf(app, status, warning):
     warnings = warning.getvalue()
-    assert_in('master_doc', warnings,
-              'override on builtin "master_doc" should raise a type warning')
-    assert_not_in('language', warnings, 'explicitly permitted '
-                  'override on builtin "language" should NOT raise a type warning')
-    assert_not_in('primary_domain', warnings, 'override to None on builtin '
-                  '"primary_domain" should NOT raise a type warning')
+    assert 'master_doc' in warnings, (
+        'override on builtin "master_doc" should raise a type warning')
+    assert 'language' not in warnings, (
+        'explicitly permitted override on builtin "language" should NOT raise '
+        'a type warning')
+    assert 'primary_domain' not in warnings, (
+        'override to None on builtin "primary_domain" should NOT raise a type '
+        'warning')
 
 
 # See roots/test-config/conf.py.
@@ -187,7 +194,7 @@ TYPECHECK_WARNINGS = {
     'value8': False,
     'value9': False,
     'value10': False,
-    'value11': True,
+    'value11': False if PY3 else True,
     'value12': False,
     'value13': False,
     'value14': False,
@@ -196,25 +203,27 @@ TYPECHECK_WARNINGS = {
 }
 
 
-@gen_with_app(testroot='config')
-def test_gen_check_types(app, status, warning):
-    if PY3:
-        TYPECHECK_WARNINGS['value11'] = False
-
-    for key, should in iteritems(TYPECHECK_WARNINGS):
-        yield assert_in if should else assert_not_in, key, warning.getvalue(), (
-            'override on "%s" should%s raise a type warning' %
-            (key, '' if should else ' NOT')
+@pytest.mark.parametrize("key,should", iteritems(TYPECHECK_WARNINGS))
+@pytest.mark.sphinx(testroot='config')
+def test_check_types(warning, key, should):
+    warn = warning.getvalue()
+    if should:
+        assert key in warn, (
+            'override on "%s" should raise a type warning' % key
+        )
+    else:
+        assert key not in warn, (
+            'override on "%s" should NOT raise a type warning' % key
         )
 
 
-@with_app(testroot='config')
+@pytest.mark.sphinx(testroot='config')
 def test_check_enum(app, status, warning):
     assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
            not in warning.getvalue()
 
 
-@with_app(testroot='config', confoverrides={'value17': 'invalid'})
+@pytest.mark.sphinx(testroot='config', confoverrides={'value17': 'invalid'})
 def test_check_enum_failed(app, status, warning):
     assert "The config value `value17` has to be a one of ('default', 'one', 'two'), " \
            "but `invalid` is given." in warning.getvalue()

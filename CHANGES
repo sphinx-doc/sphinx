@@ -1,12 +1,18 @@
 Release 1.5.2 (in development)
 ===============================
 
+Incompatible changes
+--------------------
+
+* Dependency requirement updates: requests 2.4.0 or above (refs: #3268, #3310)
+
 Features added
 --------------
 
 * #3241: emit latex warning if buggy titlesec (ref #3210)
 * #3194: Refer the $MAKE environment variable to determine ``make`` command
 * Emit warning for nested numbered toctrees (refs: #3142)
+* #978: `intersphinx_mapping` also allows a list as a parameter
 
 Bugs fixed
 ----------
@@ -21,6 +27,12 @@ Bugs fixed
 * The warning type ``misc.highlighting_failure`` does not work
 * #3294: ``add_latex_package()`` make crashes non-LaTeX builders
 * The caption of table are rendered as invalid HTML (refs: #3287)
+* #3268: Sphinx crashes with requests package from Debian jessie
+* #3284: Sphinx crashes on parallel build with an extension which raises
+  unserializable exception
+* #3315: Bibliography crashes on latex build with docclass 'memoir'
+* #3328: Could not refer rubric implicitly
+* #3329: emit warnings if po file is invalid and can't read it. Also writing mo too.
 
 
 Release 1.5.1 (released Dec 13, 2016)
