@@ -15,6 +15,7 @@ import re
 import sys
 import time
 import codecs
+import platform
 from os import path
 import doctest
 
@@ -22,6 +23,8 @@ from six import itervalues, StringIO, binary_type, text_type, PY2
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
+
+from distutils.version import StrictVersion as V
 
 import sphinx
 from sphinx.builders import Builder
@@ -103,10 +106,40 @@ class TestDirective(Directive):
             for option in option_strings:
                 if (option[0] not in '+-' or option[1:] not in
                         doctest.OPTIONFLAGS_BY_NAME):  # type: ignore
-                    # XXX warn?
+                    self.state.document.reporter.warning(
+                            "missing '+' or '-' in '%s' option." % option, 
+                            line=self.lineno)
                     continue
                 flag = doctest.OPTIONFLAGS_BY_NAME[option[1:]]  # type: ignore
                 node['options'][flag] = (option[0] == '+')
+        if self.name == 'doctest' and 'pyversion' in self.options:
+            try:
+                option = self.options['pyversion']
+                option_strings = option.split()
+                # :pyversion: >= 3.6   -->   op='>=', version='3.6'
+                operand, version = [item.strip() for item in option_strings]
+                operands = ('<=', '<', '==', '>=', '>')
+                if operand not in operands:
+                    self.state.document.reporter.warning(
+                            "'%s' is not a valid pyversion operand.\n" 
+                            "Avaliable operands: %s" % (operand, operands), 
+                            line=self.lineno)
+                else:
+                    rv = V(platform.python_version())  # Running version
+                    sv = V(version)  # Specified version
+                    skip = ((operand == '<=' and not (rv <= sv)) or
+                            (operand == '<'  and not (rv < sv)) or
+                            (operand == '==' and not (rv == sv)) or
+                            (operand == '>=' and not (rv >= sv)) or
+                            (operand == '>'  and not (rv > sv)))
+                    if skip:
+                        flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']
+                        node['options'][flag] = True
+            except ValueError:
+                self.state.document.reporter.warning(
+                        "'%s' is not a valid pyversion value" % option, 
+                        line=self.lineno)
+
         return [node]
 
 
@@ -122,12 +155,14 @@ class DoctestDirective(TestDirective):
     option_spec = {
         'hide': directives.flag,
         'options': directives.unchanged,
+        'pyversion': directives.unchanged_required,
     }
 
 
 class TestcodeDirective(TestDirective):
     option_spec = {
         'hide': directives.flag,
+        'pyversion': directives.unchanged_required,
     }
 
 
@@ -135,6 +170,7 @@ class TestoutputDirective(TestDirective):
     option_spec = {
         'hide': directives.flag,
         'options': directives.unchanged,
+        'pyversion': directives.unchanged_required,
     }
 
 
