@@ -545,6 +545,10 @@ The C++ Domain
 
 The C++ domain (name **cpp**) supports documenting C++ projects.
 
+
+Directives
+~~~~~~~~~~
+
 The following directives are available. All declarations can start with
 a visibility statement (``public``, ``private`` or ``protected``).
 
@@ -739,6 +743,16 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
       Holder of elements, to which it can provide access via
       :cpp:concept:`Iterator` s.
+
+Options
+.......
+
+Some directives support options:
+
+- ``:noindex:``, see :ref:`basic-domain-markup`.
+- ``:tparam-line-spec:``, for templated declarations.
+  If specified, each template parameter will be rendered on a separate line.
+
 
 Constrained Templates
 ~~~~~~~~~~~~~~~~~~~~~

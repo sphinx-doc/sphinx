@@ -56,7 +56,7 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
     parentNode = addnodes.desc()
     signode = addnodes.desc_signature(input, '')
     parentNode += signode
-    ast.describe_signature(signode, 'lastIsName', symbol)
+    ast.describe_signature(signode, 'lastIsName', symbol, options={})
 
     if idv2output:
         idv2output = "_CPPv2" + idv2output

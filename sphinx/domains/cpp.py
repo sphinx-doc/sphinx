@@ -15,7 +15,7 @@ from copy import deepcopy
 from six import iteritems, text_type
 
 from docutils import nodes
-from docutils.parsers.rst import Directive
+from docutils.parsers.rst import Directive, directives
 
 from sphinx import addnodes
 from sphinx.roles import XRefRole
@@ -53,13 +53,17 @@ logger = logging.getLogger(__name__)
     the index. All of the versions should work as permalinks.
 
 
-    Tagnames
+    Signature Nodes and Tagnames
     ----------------------------------------------------------------------------
 
-    Each desc_signature node will have the attribute 'sphinx_cpp_tagname' set to
-    - 'templateParams', if the line is on the form 'template<...>',
-    - 'templateIntroduction, if the line is on the form 'conceptName{...}'
+    Each signature is in a desc_signature node, where all children are
+    desc_signature_line nodes. Each of these lines will have the attribute
+    'sphinx_cpp_tagname' set to one of the following (prioritized):
     - 'declarator', if the line contains the name of the declared object.
+    - 'templateParams', if the line starts a template parameter list,
+    - 'templateParams', if the line has template parameters
+      Note: such lines might get a new tag in the future.
+    - 'templateIntroduction, if the line is on the form 'conceptName{...}'
     No other desc_signature nodes should exist (so far).
 
 
@@ -892,6 +896,7 @@ class ASTTemplateParams(ASTBase):
         # type: (Any) -> None
         assert params is not None
         self.params = params
+        self.isNested = False  # whether it's a template template param
 
     def get_id_v2(self):
         # type: () -> unicode
@@ -910,17 +915,30 @@ class ASTTemplateParams(ASTBase):
         res.append(u"> ")
         return ''.join(res)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, parentNode, mode, env, symbol, lineSpec=None):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
-        signode.sphinx_cpp_tagname = 'templateParams'
-        signode += nodes.Text("template<")
+        # 'lineSpec' is defaulted becuase of template template parameters
+        def makeLine(parentNode=parentNode):
+            signode = addnodes.desc_signature_line()
+            parentNode += signode
+            signode.sphinx_cpp_tagname = 'templateParams'
+            return signode
+        if self.isNested:
+            lineNode = parentNode
+        else:
+            lineNode = makeLine()
+        lineNode += nodes.Text("template<")
         first = True
         for param in self.params:
             if not first:
-                signode += nodes.Text(", ")
+                lineNode += nodes.Text(", ")
             first = False
-            param.describe_signature(signode, mode, env, symbol)
-        signode += nodes.Text(">")
+            if lineSpec:
+                lineNode = makeLine()
+            param.describe_signature(lineNode, mode, env, symbol)
+        if lineSpec and not first:
+            lineNode = makeLine()
+        lineNode += nodes.Text(">")
 
 
 class ASTTemplateIntroductionParameter(ASTBase):
@@ -1005,8 +1023,11 @@ class ASTTemplateIntroduction(ASTBase):
         res.append('} ')
         return ''.join(res)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, parentNode, mode, env, symbol, lineSpec):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
+        # Note: 'lineSpec' has no effect on template introductions.
+        signode = addnodes.desc_signature_line()
+        parentNode += signode
         signode.sphinx_cpp_tagname = 'templateIntroduction'
         self.concept.describe_signature(signode, 'markType', env, symbol)
         signode += nodes.Text('{')
@@ -1043,13 +1064,11 @@ class ASTTemplateDeclarationPrefix(ASTBase):
             res.append(text_type(t))
         return u''.join(res)
 
-    def describe_signature(self, signode, mode, env, symbol):
+    def describe_signature(self, signode, mode, env, symbol, lineSpec):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
         _verify_description_mode(mode)
         for t in self.templates:
-            templateNode = addnodes.desc_signature_line()
-            t.describe_signature(templateNode, 'lastIsName', env, symbol)
-            signode += templateNode
+            t.describe_signature(signode, 'lastIsName', env, symbol, lineSpec)
 
 
 class ASTOperatorBuildIn(ASTBase):
@@ -2722,7 +2741,7 @@ class ASTDeclaration(ASTBase):
         res.append(text_type(self.declaration))
         return u''.join(res)
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, options):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment) -> None
         _verify_description_mode(mode)
         # The caller of the domain added a desc_signature node.
@@ -2736,7 +2755,8 @@ class ASTDeclaration(ASTBase):
         assert self.symbol
         if self.templatePrefix:
             self.templatePrefix.describe_signature(signode, mode, env,
-                                                   symbol=self.symbol)
+                                                   symbol=self.symbol,
+                                                   lineSpec=options.get('tparam-line-spec'))
         signode += mainDeclNode
         if self.visibility and self.visibility != "public":
             mainDeclNode += addnodes.desc_annotation(self.visibility + " ",
@@ -4170,6 +4190,7 @@ class DefinitionParser(object):
             if self.skip_word('template'):
                 # declare a tenplate template parameter
                 nestedParams = self._parse_template_parameter_list()
+                nestedParams.isNested = True
             else:
                 nestedParams = None
             self.skip_ws()
@@ -4420,6 +4441,9 @@ class CPPObject(ObjectDescription):
               names=('returns', 'return')),
     ]
 
+    option_spec = dict(ObjectDescription.option_spec)
+    option_spec['tparam-line-spec'] = directives.flag
+
     def warn(self, msg):
         # type: (unicode) -> None
         self.state_machine.reporter.warning(msg, line=self.lineno)
@@ -4517,9 +4541,9 @@ class CPPObject(ObjectDescription):
         # type: (Any) -> Any
         raise NotImplementedError()
 
-    def describe_signature(self, signode, ast, parentScope):
-        # type: (addnodes.desc_signature, Any, Any) -> None
-        raise NotImplementedError()
+    def describe_signature(self, signode, ast, options):  # type: ignore
+        # type: (addnodes.desc_signature, Any) -> None
+        ast.describe_signature(signode, 'lastIsName', self.env, options)
 
     def handle_signature(self, sig, signode):
         # type: (unicode, addnodes.desc_signature) -> Any
@@ -4552,7 +4576,8 @@ class CPPObject(ObjectDescription):
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
 
-        self.describe_signature(signode, ast)
+        self.options['tparam-line-spec'] = 'tparam-line-spec' in self.options
+        self.describe_signature(signode, ast, self.options)
         return ast
 
     def before_content(self):
@@ -4576,10 +4601,6 @@ class CPPTypeObject(CPPObject):
         # type: (Any) -> Any
         return parser.parse_declaration("type")
 
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
-
 
 class CPPConceptObject(CPPObject):
     def get_index_text(self, name):
@@ -4589,10 +4610,6 @@ class CPPConceptObject(CPPObject):
     def parse_definition(self, parser):
         # type: (Any) -> Any
         return parser.parse_declaration("concept")
-
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
 
 
 class CPPMemberObject(CPPObject):
@@ -4604,10 +4621,6 @@ class CPPMemberObject(CPPObject):
         # type: (Any) -> Any
         return parser.parse_declaration("member")
 
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
-
 
 class CPPFunctionObject(CPPObject):
     def get_index_text(self, name):
@@ -4618,10 +4631,6 @@ class CPPFunctionObject(CPPObject):
         # type: (Any) -> Any
         return parser.parse_declaration("function")
 
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
-
 
 class CPPClassObject(CPPObject):
     def get_index_text(self, name):
@@ -4631,10 +4640,6 @@ class CPPClassObject(CPPObject):
     def parse_definition(self, parser):
         # type: (Any) -> Any
         return parser.parse_declaration("class")
-
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
 
 
 class CPPEnumObject(CPPObject):
@@ -4656,10 +4661,6 @@ class CPPEnumObject(CPPObject):
             assert False
         return ast
 
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
-
 
 class CPPEnumeratorObject(CPPObject):
     def get_index_text(self, name):
@@ -4669,10 +4670,6 @@ class CPPEnumeratorObject(CPPObject):
     def parse_definition(self, parser):
         # type: (Any) -> Any
         return parser.parse_declaration("enumerator")
-
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
 
 
 class CPPNamespaceObject(Directive):
