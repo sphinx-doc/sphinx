@@ -1030,14 +1030,20 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('%%\n\\begin{footnotetext}[%s]'
                              '\\sphinxAtStartFootnote\n' % node['number'])
         else:
-            self.body.append('%%\n\\begin{footnote}[%s]'
-                             '\\sphinxAtStartFootnote\n' % node['number'])
+            if self.in_parsed_literal:
+                self.body.append('\\begin{footnote}[%s]' % node['number'])
+            else:
+                self.body.append('%%\n\\begin{footnote}[%s]' % node['number'])
+            self.body.append('\\sphinxAtStartFootnote\n')
 
     def depart_collected_footnote(self, node):
         if 'footnotetext' in node:
             self.body.append('%\n\\end{footnotetext}')
         else:
-            self.body.append('%\n\\end{footnote}')
+            if self.in_parsed_literal:
+                self.body.append('\\end{footnote}')
+            else:
+                self.body.append('%\n\\end{footnote}')
         self.in_footnote -= 1
 
     def visit_label(self, node):
@@ -1434,6 +1440,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         attrs = node.attributes
         pre = []                        # in reverse order
         post = []
+        if self.in_parsed_literal:
+            pre = ['\\begingroup\\sphinxunactivateextrasandspace\\relax ']
+            post = ['\\endgroup ']
         include_graphics_options = []
         is_inline = self.is_inline(node)
         if 'width' in attrs:

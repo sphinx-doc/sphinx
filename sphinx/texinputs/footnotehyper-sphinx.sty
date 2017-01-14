@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{footnotehyper-sphinx}%
- [2016/10/27 v0.9f hyperref aware footnote.sty for sphinx (JFB)]
+ [2017/01/14 v1.5.2 hyperref aware footnote.sty for sphinx (JFB)]
 %%
 %% Package: footnotehyper-sphinx
 %% Version: based on footnotehyper.sty v0.9f (2016/10/03)
@@ -15,6 +15,7 @@
 %% 4. \sphinxfootnotemark, and use of \spx@opt@BeforeFootnote from sphinx.sty.
 %% Note: with \footnotemark[N]/\footnotetext[N] syntax, hyperref
 %% does not insert an hyperlink. This is _not_ improved here.
+%% 5. use of \sphinxunactivateextrasandspace for parsed literals
 %%
 \DeclareOption*{\PackageWarning{footnotehyper}{Option `\CurrentOption' is unknown}}%
 \ProcessOptions\relax
@@ -92,7 +93,7 @@
 %% \spx@opt@BeforeFootnote is defined in sphinx.sty
 \def\FNH@fixed@footnote {\spx@opt@BeforeFootnote\ifx\@currenvir\fn@footnote
     \expandafter\FNH@footnoteenv\else\expandafter\fn@latex@@footnote\fi }%
-\def\FNH@footnoteenv {\@ifnextchar[\FNH@xfootnoteenv%]
+\def\FNH@footnoteenv {\sphinxunactivateextrasandspace\@ifnextchar[\FNH@xfootnoteenv%]
     {\stepcounter\@mpfn
      \protected@xdef\@thefnmark{\thempfn}\@footnotemark
      \def\FNH@endfntext@next{\FNH@endfntext@link}\fn@startfntext}}%
