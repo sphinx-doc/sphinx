@@ -355,7 +355,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.this_is_the_title = 1
         self.literal_whitespace = 0
         self.no_contractions = 0
-        self.is_parsed_literal = 0
+        self.in_parsed_literal = 0
         self.compact_list = 0
         self.first_param = 0
         self.remember_multirow = {}
@@ -1928,7 +1928,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_literal_block(self, node):
         if node.rawsource != node.astext():
             # most probably a parsed-literal block -- don't highlight
-            self.is_parsed_literal +=1
+            self.in_parsed_literal += 1
             self.body.append('\\begin{alltt}\n')
         else:
             ids = ''
@@ -1990,7 +1990,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def depart_literal_block(self, node):
         self.body.append('\n\\end{alltt}\n')
-        self.is_parsed_literal -=1
+        self.in_parsed_literal -= 1
     visit_doctest_block = visit_literal_block
     depart_doctest_block = depart_literal_block
 
@@ -2193,7 +2193,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_Text(self, node):
         text = self.encode(node.astext())
-        if not self.no_contractions and not self.is_parsed_literal:
+        if not self.no_contractions and not self.in_parsed_literal:
             text = educate_quotes_latex(text)
         self.body.append(text)
 
