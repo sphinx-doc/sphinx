@@ -1929,7 +1929,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if node.rawsource != node.astext():
             # most probably a parsed-literal block -- don't highlight
             self.in_parsed_literal += 1
-            self.body.append('\\begin{alltt}\n')
+            self.body.append('\\begin{sphinxalltt}\n')
         else:
             ids = ''
             for id in self.pop_hyperlink_ids('code-block'):
@@ -1989,7 +1989,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             raise nodes.SkipNode
 
     def depart_literal_block(self, node):
-        self.body.append('\n\\end{alltt}\n')
+        self.body.append('\n\\end{sphinxalltt}\n')
         self.in_parsed_literal -= 1
     visit_doctest_block = visit_literal_block
     depart_doctest_block = depart_literal_block

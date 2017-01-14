@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/01/09 v1.5.2 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/01/14 v1.5.2 LaTeX package (Sphinx markup)]
 
 % we delay handling of options to after having loaded packages, because
 % of the need to use \definecolor.
@@ -91,6 +91,8 @@
 \DeclareBoolOption[true]{verbatimwithframe}
 \DeclareBoolOption[true]{verbatimwrapslines}
 \DeclareBoolOption[true]{inlineliteralwraps}
+% parsed literal
+\DeclareBoolOption[true]{parsedliteralwraps}
 % \textvisiblespace for compatibility with fontspec+XeTeX/LuaTeX
 \DeclareStringOption[\textcolor{red}{\textvisiblespace}]{verbatimvisiblespace}
 \DeclareStringOption % must use braces to hide the brackets
@@ -534,6 +536,66 @@
    \def\sphinxVerbatimEnvironment{\gdef\FV@EnvironName{sphinxVerbatimintable}}%
    \begin{sphinxVerbatim}}
   {\end{sphinxVerbatim}}
+
+% Parsed literal: allow long lines to wrap like they do in code-blocks
+
+% this should be kept in sync with definitions in sphinx.util.texescape
+\newcommand*\sphinxbreaksattexescapedchars{%
+  \def\do##1##2% put potential break point before character
+     {\def##1{\discretionary{}{\sphinxafterbreak\char`##2}{\char`##2}}}%
+  \do\{\{\do\textless\<\do\#\#\do\%\%\do\$\$% {, <, #, %, $
+  \def\do##1##2% put potential break point after character
+     {\def##1{\discretionary{\char`##2}{\sphinxafterbreak}{\char`##2}}}%
+  \do\_\_\do\}\}\do\textasciicircum\^\do\&\&% _, }, ^, &,
+  \do\textgreater\>\do\textasciitilde\~% >, ~
+}
+\newcommand*\sphinxbreaksviaactiveinparsedliteral{%
+  \sphinxbreaksviaactive % by default handles . , ; ? ! /
+  \do\-% we need also the hyphen character
+  \lccode`\~`\~ %
+  % update \dospecials as it is used by \url
+  % but deactivation will already have been done hence commented out
+  %  \expandafter\def\expandafter\dospecials\expandafter{\dospecials
+  %   \sphinxbreaksbeforeactivelist\sphinxbreaksafteractivelist\do\-}%
+}
+\newcommand*\sphinxbreaksatspaceinparsedliteral{%
+  \lccode`~32 \lowercase{\def~}{\leavevmode
+       \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
+       \discretionary{\copy\sphinxvisiblespacebox}{\sphinxafterbreak}
+                     {\kern\fontdimen2\font}%
+       }\lccode`\~`\~
+}
+% now the hack for \url to work (hyperref is required dependency):
+% the aim it to deactivate - . , ; ? ! / in \url's argument
+\def\spx@hack@hyper@normalise {%
+  \expandafter\spx@hack@hyper@normalise@aux\hyper@normalise
+              \spx@hack@hyper@normalise@aux\hyper@n@rmalise\relax\spx@undefined
+}%
+\long\def\spx@hack@hyper@normalise@aux#1\hyper@n@rmalise#2#3\spx@undefined{%
+  \ifx\spx@hack@hyper@normalise@aux#2%
+      \def\hyper@normalise
+       {#1\let\do\@makeother
+        \sphinxbreaksbeforeactivelist\sphinxbreaksafteractivelist\do\-%
+        \hyper@n@rmalise}%
+  \else
+      \PackageWarning{sphinx}{Could not patch \string\url\space command.%
+      ^^J    Not using active characters in alltt environment}%
+      \let\do\@makeother
+      \sphinxbreaksbeforeactivelist\sphinxbreaksafteractivelist\do\-%
+  \fi
+}%
+% now for the modified alltt environment
+\newenvironment{sphinxalltt}
+{\begin{alltt}%
+ \ifspx@opt@parsedliteralwraps
+   \sbox\sphinxcontinuationbox {\spx@opt@verbatimcontinued}%
+   \sbox\sphinxvisiblespacebox {\spx@opt@verbatimvisiblespace}%
+   \sphinxbreaksattexescapedchars
+   \sphinxbreaksviaactiveinparsedliteral
+   \sphinxbreaksatspaceinparsedliteral
+   \spx@hack@hyper@normalise
+ \fi }
+{\end{alltt}}% \end{alltt} (<-- only to fix Emacs/AUCTeX fontification issue)
 
 % Topic boxes
 
