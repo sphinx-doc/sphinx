@@ -35,6 +35,7 @@ Bugs fixed
 * #3329: emit warnings if po file is invalid and can't read it. Also writing mo too
 * #3337: Ugly rendering of definition list term's classifier
 * #3335: gettext does not extract field_name of a field in a field_list
+* #2952: C++, fix refs to operator() functions.
 
 
 Release 1.5.1 (released Dec 13, 2016)

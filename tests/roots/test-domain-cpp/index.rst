@@ -38,9 +38,10 @@ directives
 
 
 .. cpp:function:: void paren_1(int, float)
-
 .. cpp:function:: void paren_2(int, float)
-
 .. cpp:function:: void paren_3(int, float)
-
 .. cpp:function:: void paren_4(int, float)
+.. cpp:function:: void paren_5::operator()(int)
+.. cpp:function:: void paren_6::operator()(int)
+.. cpp:function:: void paren_7::operator()(int)
+.. cpp:function:: void paren_8::operator()(int)
