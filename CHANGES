@@ -13,6 +13,8 @@ Features added
 * #3194: Refer the $MAKE environment variable to determine ``make`` command
 * Emit warning for nested numbered toctrees (refs: #3142)
 * #978: `intersphinx_mapping` also allows a list as a parameter
+* #3340: (LaTeX) long lines in :dudir:`parsed-literal` are wrapped like in
+  :rst:dir:`code-block`, inline math and footnotes are fully functional.
 
 Bugs fixed
 ----------
@@ -42,6 +44,15 @@ Bugs fixed
   (ref #3341)
 * #3234: intersphinx failed for encoded inventories
 * #3158: too much space after captions in PDF output
+* #3317: An URL in parsed-literal contents gets wrongly rendered in PDF if
+   with hyphen
+* LaTeX crash if the filename of an image inserted in :dudir:`parsed-literal`
+  via a substitution contains an hyphen (ref #3340)
+* LaTeX rendering of inserted footnotes in :dudir:`parsed-literal` is wrong
+  (ref #3340)
+* Inline math in :dudir:`parsed-literal` is not rendered well by LaTeX
+  (ref #3340)
+* #3308: Parsed-literals don't wrap very long lines with pdf builder (ref #3340)
 
 
 Release 1.5.1 (released Dec 13, 2016)
