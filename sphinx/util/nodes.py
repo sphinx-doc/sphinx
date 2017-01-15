@@ -64,8 +64,6 @@ def apply_source_workaround(node):
 
     # workaround: some docutils nodes doesn't have source, line.
     if (isinstance(node, (
-            nodes.caption,  # figure caption: sf.net/p/docutils/patches/100/ fixed@du11
-            nodes.title,  # admonition title: sf.net/p/docutils/patches/108/ fixed@du11
             nodes.rubric,  # #1305 rubric directive
             nodes.line,  # #1477 line node
             nodes.image,  # #3093 image directive in substitution
