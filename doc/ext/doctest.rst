@@ -80,7 +80,9 @@ a comma-separated list of group names.
          .. doctest::
             :pyversion: > 3.3
  
-     The supported operands are ``<``, ``<=``, ``==``, ``>=``, and ``>``.
+     The supported operands are ``<``, ``<=``, ``==``, ``>=``, ``>``, and
+     comparison is performed by `distutils.version.LooseVersion
+     <https://www.python.org/dev/peps/pep-0386/#distutils>`__.
 
      .. versionadded:: 1.5
 

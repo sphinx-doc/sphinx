@@ -20,7 +20,7 @@ from os import path
 import doctest
 
 from six import itervalues, StringIO, binary_type, text_type, PY2
-from distutils.version import StrictVersion
+from distutils.version import LooseVersion
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -70,8 +70,8 @@ def compare_version(ver1, ver2, operand):
     """
     if operand not in ('<=', '<', '==', '>=', '>'):
         raise ValueError("'%s' is not a valid operand.")
-    v1 = StrictVersion(ver1)
-    v2 = StrictVersion(ver2)
+    v1 = LooseVersion(ver1)
+    v2 = LooseVersion(ver2)
     return ((operand == '<=' and (v1 <= v2)) or
             (operand == '<' and (v1 < v2)) or
             (operand == '==' and (v1 == v2)) or
