@@ -10,7 +10,7 @@
 """
 import platform
 import pytest
-from sphinx.ext.doctest import TestDirective as _TestDirective
+from sphinx.ext.doctest import compare_version
 
 cleanup_called = 0
 
@@ -27,19 +27,19 @@ def test_build(app, status, warning):
     assert cleanup_called == 3, 'testcleanup did not get executed enough times'
 
 
-def test_pyversion(monkeypatch):
-    monkeypatch.setattr(platform, 'python_version', lambda: '3.3')
-    td = _TestDirective(*([None] * 9))
-    assert td.proper_pyversion('<', '3.4') is True
-    assert td.proper_pyversion('<', '3.2') is False
-    assert td.proper_pyversion('<=', '3.4') is True
-    assert td.proper_pyversion('<=', '3.3') is True
-    assert td.proper_pyversion('==', '3.3') is True
-    assert td.proper_pyversion('>=', '3.4') is False
-    assert td.proper_pyversion('>=', '3.2') is True
-    assert td.proper_pyversion('>', '3.4') is False
-    assert td.proper_pyversion('>', '3.2') is True
-    assert td.proper_pyversion('>', '3.3a0') is True
+def test_compare_version():
+    assert compare_version('3.3', '3.4', '<') is True
+    assert compare_version('3.3', '3.2', '<') is False
+    assert compare_version('3.3', '3.4', '<=') is True
+    assert compare_version('3.3', '3.2', '<=') is False
+    assert compare_version('3.3', '3.3', '==') is True
+    assert compare_version('3.3', '3.4', '==') is False
+    assert compare_version('3.3', '3.2', '>=') is True
+    assert compare_version('3.3', '3.4', '>=') is False
+    assert compare_version('3.3', '3.2', '>') is True
+    assert compare_version('3.3', '3.4', '>') is False
+    with pytest.raises(ValueError):
+        compare_version('3.3', '3.4', '+')
 
 
 def cleanup_call():

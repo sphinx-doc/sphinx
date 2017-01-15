@@ -56,6 +56,29 @@ else:
         return text
 
 
+def compare_version(ver1, ver2, operand):
+    """Compare `ver1` to `ver2`, relying on `operand`.
+
+    Some examples:
+
+        >>> compare_version('3.3', '3.5', '<=')
+        True
+        >>> compare_version('3.3', '3.2', '<=')
+        False
+        >>> compare_version('3.3a0', '3.3', '<=')
+        True
+    """
+    if operand not in ('<=', '<', '==', '>=', '>'):
+        raise ValueError("'%s' is not a valid operand.")
+    v1 = StrictVersion(ver1)
+    v2 = StrictVersion(ver2)
+    return ((operand == '<=' and (v1 <= v2)) or
+            (operand == '<' and (v1 < v2)) or
+            (operand == '==' and (v1 == v2)) or
+            (operand == '>=' and (v1 >= v2)) or
+            (operand == '>' and (v1 > v2)))
+
+
 # set up the necessary directives
 
 class TestDirective(Directive):
@@ -114,43 +137,17 @@ class TestDirective(Directive):
         if self.name == 'doctest' and 'pyversion' in self.options:
             try:
                 option = self.options['pyversion']
-                option_strings = option.split()
-                # :pyversion: >= 3.6   -->   operand='>=', version='3.6'
-                operand, version = [item.strip() for item in option_strings]
-                if not self.proper_pyversion(operand, version):
+                # :pyversion: >= 3.6   -->   operand='>=', option_version='3.6'
+                operand, option_version = [item.strip() for item in option.split()]
+                running_version = platform.python_version()
+                if not compare_version(running_version, option_version, operand):
                     flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']
                     node['options'][flag] = True  # Skip the test
             except ValueError:
                 self.state.document.reporter.warning(
-                    "'%s' is not a valid pyversion value" % option,
+                    "'%s' is not a valid pyversion option" % option,
                     line=self.lineno)
-
         return [node]
-
-    def proper_pyversion(self, operand, version):
-        """Compare `version` to the Python version, relying on `operand`.
-
-        This function is meant to be used to evaluate the doctest :pyversion:
-        option. For instance, if the doctest directive provides the option
-        :pyversion: >= 3.3, then we have to check if the running Python version
-        is greather or equal than 3.3. In that case, operand will be the string
-        '>=' and version the string '3.3'. proper_pyversion() will return True
-        if the running Python version is >= 3.3, False otherwise.
-        """
-        operands = ('<=', '<', '==', '>=', '>')
-        if operand not in operands:
-            self.document.reporter.warning(
-                "'%s' is not a valid pyversion operand.\n"
-                "Avaliable operands: %s" % (operand, operands),
-                line=self.lineno)
-            return True  # Be defensive, making the doctest to be executed
-        rv = StrictVersion(platform.python_version())  # Running version
-        sv = StrictVersion(version)  # Specified version
-        return ((operand == '<=' and (rv <= sv)) or
-                (operand == '<' and (rv < sv)) or
-                (operand == '==' and (rv == sv)) or
-                (operand == '>=' and (rv >= sv)) or
-                (operand == '>' and (rv > sv)))
 
 
 class TestsetupDirective(TestDirective):

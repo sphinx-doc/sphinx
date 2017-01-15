@@ -79,9 +79,9 @@ a comma-separated list of group names.
 
          .. doctest::
             :pyversion: > 3.3
-             
+ 
      The supported operands are ``<``, ``<=``, ``==``, ``>=``, and ``>``.
-     
+
      .. versionadded:: 1.5
 
    Note that like with standard doctests, you have to use ``<BLANKLINE>`` to
