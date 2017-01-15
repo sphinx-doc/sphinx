@@ -143,13 +143,20 @@ Here are the currently available options together with their default values.
        LaTeX requires ``true`` or ``false`` to be specified in *lowercase*.
 
 ``verbatimwrapslines``
-    default ``true``. Tells whether long lines in :rst:dir:`code-block`\ s
-    should be wrapped.
+    default ``true``. Tells whether long lines in :rst:dir:`code-block`\ 's
+    contents should wrap.
 
     .. (comment) It is theoretically possible to customize this even
        more and decide at which characters a line-break can occur and whether
        before or after, but this is accessible currently only by re-defining some
        macros with complicated LaTeX syntax from :file:`sphinx.sty`.
+
+``parsedliteralwraps``
+    default ``true``. Tells whether long lines in :dudir:`parsed-literal`\ 's
+    contents should wrap.
+
+    .. versionadded:: 1.5.2
+       set this option value to ``false`` to recover former behaviour.
 
 ``inlineliteralwraps``
     default ``true``. Allows linebreaks inside inline literals: but extra
@@ -160,7 +167,7 @@ Here are the currently available options together with their default values.
     (or shrinked) in order to accomodate the linebreak.
 
     .. versionadded:: 1.5
-       set this option to ``false`` to recover former behaviour.
+       set this option value to ``false`` to recover former behaviour.
 
 ``verbatimvisiblespace``
     default ``\textcolor{red}{\textvisiblespace}``. When a long code line is
