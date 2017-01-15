@@ -62,17 +62,13 @@ def apply_source_workaround(node):
     if node.source and node.rawsource:
         return
 
-    # workaround: docutils-0.10.0 or older's nodes.caption for nodes.figure
-    # and nodes.title for nodes.admonition doesn't have source, line.
-    # this issue was filed to Docutils tracker:
-    # sf.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
-    # sourceforge.net/p/docutils/patches/108/
+    # workaround: some docutils nodes doesn't have source, line.
     if (isinstance(node, (
-            nodes.caption,
-            nodes.title,
-            nodes.rubric,
-            nodes.line,
-            nodes.image,
+            nodes.caption,  # figure caption: sf.net/p/docutils/patches/100/ fixed@du11
+            nodes.title,  # admonition title: sf.net/p/docutils/patches/108/ fixed@du11
+            nodes.rubric,  # #1305 rubric directive
+            nodes.line,  # #1477 line node
+            nodes.image,  # #3093 image directive in substitution
     ))):
         node.source = find_source_node(node)
         node.line = 0  # need fix docutils to get `node.line`
