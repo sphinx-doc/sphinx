@@ -40,6 +40,7 @@ Bugs fixed
   :dudir:`parsed-literal` LaTeX output (ref #3342)
 * LaTeX writer: leave ``"`` character inside :dudir:`parsed-literal` as is
   (ref #3341)
+* #3234: intersphinx failed for encoded inventories
 
 
 Release 1.5.1 (released Dec 13, 2016)

@@ -29,6 +29,7 @@ from __future__ import print_function
 import time
 import zlib
 import codecs
+import functools
 import posixpath
 from os import path
 import re
@@ -164,6 +165,9 @@ def _read_from_url(url, config=None):
     r = requests.get(url, stream=True, config=config, timeout=config.intersphinx_timeout)
     r.raise_for_status()
     r.raw.url = r.url
+    # decode content-body based on the header.
+    # ref: https://github.com/kennethreitz/requests/issues/2155
+    r.raw.read = functools.partial(r.raw.read, decode_content=True)
     return r.raw
 
 
