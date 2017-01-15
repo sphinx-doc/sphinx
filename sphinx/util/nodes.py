@@ -67,6 +67,7 @@ def apply_source_workaround(node):
             nodes.rubric,  # #1305 rubric directive
             nodes.line,  # #1477 line node
             nodes.image,  # #3093 image directive in substitution
+            nodes.field_name,  # #3335 field list syntax
     ))):
         node.source = find_source_node(node)
         node.line = 0  # need fix docutils to get `node.line`
