@@ -612,34 +612,34 @@ class LaTeXTranslator(nodes.NodeVisitor):
         figure = self.builder.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
             ret.append('\\def\\fnum@figure{%s}\n' %
-                       escape_abbr(text_type(figure[0]).translate(tex_escape_map)))
+                       text_type(figure[0]).strip().translate(tex_escape_map))
         else:
-            definition = escape_abbr(text_type(figure[0]).translate(tex_escape_map))
+            definition = text_type(figure[0]).strip().translate(tex_escape_map)
             ret.append(self.babel_renewcommand('\\figurename', definition))
             if figure[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@figure{\\figurename\\thefigure%s}\n' %
-                           escape_abbr(text_type(figure[1]).translate(tex_escape_map)))
+                           text_type(figure[1]).strip().translate(tex_escape_map))
                 ret.append('\\makeatother\n')
 
         table = self.builder.config.numfig_format['table'].split('%s', 1)
         if len(table) == 1:
             ret.append('\\def\\fnum@table{%s}\n' %
-                       escape_abbr(text_type(table[0]).translate(tex_escape_map)))
+                       text_type(table[0]).strip().translate(tex_escape_map))
         else:
-            definition = escape_abbr(text_type(table[0]).translate(tex_escape_map))
+            definition = text_type(table[0]).strip().translate(tex_escape_map)
             ret.append(self.babel_renewcommand('\\tablename', definition))
             if table[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@table{\\tablename\\thetable%s}\n' %
-                           escape_abbr(text_type(table[1]).translate(tex_escape_map)))
+                           text_type(table[1]).strip().translate(tex_escape_map))
                 ret.append('\\makeatother\n')
 
         codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
         if len(codeblock) == 1:
             pass  # FIXME
         else:
-            definition = escape_abbr(text_type(codeblock[0]).translate(tex_escape_map))
+            definition = text_type(codeblock[0]).strip().translate(tex_escape_map)
             ret.append(self.babel_renewcommand('\\literalblockname', definition))
             if codeblock[1]:
                 pass  # FIXME

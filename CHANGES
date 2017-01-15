@@ -41,6 +41,7 @@ Bugs fixed
 * LaTeX writer: leave ``"`` character inside :dudir:`parsed-literal` as is
   (ref #3341)
 * #3234: intersphinx failed for encoded inventories
+* #3158: too much space after captions in PDF output
 
 
 Release 1.5.1 (released Dec 13, 2016)
