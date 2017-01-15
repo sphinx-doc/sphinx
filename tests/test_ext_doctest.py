@@ -28,9 +28,7 @@ def test_build(app, status, warning):
 
 
 def test_pyversion(monkeypatch):
-    def python_version():
-        return '3.3'
-    monkeypatch.setattr(platform, 'python_version', python_version)
+    monkeypatch.setattr(platform, 'python_version', lambda: '3.3')
     td = _TestDirective(*([None] * 9))
     assert td.proper_pyversion('<', '3.4') is True
     assert td.proper_pyversion('<', '3.2') is False

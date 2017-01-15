@@ -133,7 +133,7 @@ class TestDirective(Directive):
         This function is meant to be used to evaluate the doctest :pyversion:
         option. For instance, if the doctest directive provides the option
         :pyversion: >= 3.3, then we have to check if the running Python version
-        is greather or equal to 3.3. In that case, operand will be the string
+        is greather or equal than 3.3. In that case, operand will be the string
         '>=' and version the string '3.3'. proper_pyversion() will return True
         if the running Python version is >= 3.3, False otherwise.
         """
