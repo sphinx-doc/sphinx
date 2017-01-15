@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/01/14 v1.5.2 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/01/16 v1.5.2 LaTeX package (Sphinx markup)]
 
 % we delay handling of options to after having loaded packages, because
 % of the need to use \definecolor.
@@ -399,6 +399,7 @@
 \def\sphinx@verbatim@nolig@list {\do \`}%
 % Some characters . , ; ? ! / are not pygmentized.
 % This macro makes them "active" and they will insert potential linebreaks
+% In math mode, the characters are de-activated.
 \newcommand*\sphinxbreaksbeforeactivelist {}% none
 \newcommand*\sphinxbreaksafteractivelist  {\do\.\do\,\do\;\do\?\do\!\do\/}
 \newcommand*\sphinxbreaksviaactive {%
@@ -412,6 +413,15 @@
    \sphinxbreaksafteractivelist
    \lccode`\~`\~
 }
+
+% If the linebreak is at a space, the latter will be displayed as visible
+% space at end of first line, and a continuation symbol starts next line.
+% Stretch/shrink are however usually zero for typewriter font.
+\def\spx@verbatim@space {%
+     \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
+     \discretionary{\copy\sphinxvisiblespacebox}{\sphinxafterbreak}
+                   {\kern\fontdimen2\font}%
+}%
 
 % needed to create wrapper environments of fancyvrb's Verbatim
 \newcommand*{\sphinxVerbatimEnvironment}{\gdef\FV@EnvironName{sphinxVerbatim}}
@@ -468,14 +478,7 @@
                 \doublehyphendemerits\z@\finalhyphendemerits\z@
                 \strut ##1\strut}%
           }%
-  % If the linebreak is at a space, the latter will be displayed as visible
-  % space at end of first line, and a continuation symbol starts next line.
-  % Stretch/shrink are however usually zero for typewriter font.
-  \def\FV@Space {%
-       \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
-       \discretionary{\copy\sphinxvisiblespacebox}{\sphinxafterbreak}
-                     {\kern\fontdimen2\font}%
-       }%
+  \let\FV@Space\spx@verbatim@space
   % Allow breaks at special characters using \PYG... macros.
   \sphinxbreaksatspecials
   % Breaks at punctuation characters . , ; ? ! and / (needs catcode activation)
@@ -559,11 +562,7 @@
   %   \sphinxbreaksbeforeactivelist\sphinxbreaksafteractivelist\do\-}%
 }
 \newcommand*\sphinxbreaksatspaceinparsedliteral{%
-  \lccode`~32 \lowercase{\def~}{\ifmmode\@xobeysp\else\leavevmode
-       \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
-       \discretionary{\copy\sphinxvisiblespacebox}{\sphinxafterbreak}
-                     {\kern\fontdimen2\font}\fi
-       }\lccode`\~`\~
+  \lccode`~32 \lowercase{\let~}\spx@verbatim@space\lccode`\~`\~
 }
 % now the hack for \url to work (hyperref is required dependency):
 % the aim it to deactivate - . , ; ? ! / in \url's argument
@@ -573,7 +572,7 @@
 }%
 \long\def\spx@hack@hyper@normalise@aux#1\hyper@n@rmalise#2#3\spx@undefined{%
   \ifx\spx@hack@hyper@normalise@aux#2%
-      \def\hyper@normalise{#1\sphinxunactivateextras\hyper@n@rmalise}%
+      \def\hyper@normalise{#1\sphinxunactivateextrasandspace\hyper@n@rmalise}%
   \else
       \PackageWarning{sphinx}{Could not patch \string\url\space command.%
       ^^J    Not using extra active characters in alltt environment}%
@@ -582,7 +581,7 @@
 }%
 \newcommand*{\sphinxunactivateextras}{\let\do\@makeother
       \sphinxbreaksbeforeactivelist\sphinxbreaksafteractivelist\do\-}%
-\newcommand*{\sphinxunactivateextrasandspace}{\catcode13=5\catcode32=10\relax
+\newcommand*{\sphinxunactivateextrasandspace}{\catcode32=10\relax
       \sphinxunactivateextras}%
 % now for the modified alltt environment
 \newenvironment{sphinxalltt}
@@ -595,8 +594,11 @@
    \sphinxbreaksviaactiveinparsedliteral
    \sphinxbreaksatspaceinparsedliteral
    \spx@hack@hyper@normalise
-   \everymath\expandafter{\the\everymath\catcode`\^=7\catcode`\_=8 }%
-   \everydisplay\expandafter{\the\everydisplay\catcode`\^=7\catcode`\_=8 }%
+% alltt takes care of the ' as derivative ("prime") in math mode
+   \everymath\expandafter{\the\everymath\sphinxunactivateextrasandspace
+             \catcode`\<=12\catcode`\>=12\catcode`\^=7\catcode`\_=8 }%
+   \everydisplay\expandafter{\the\everydisplay\sphinxunactivateextrasandspace
+             \catcode`\<=12\catcode`\>=12\catcode`\^=7\catcode`\_=8 }%
  \fi }
 {\end{alltt}}
 

@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{footnotehyper-sphinx}%
- [2017/01/14 v1.5.2 hyperref aware footnote.sty for sphinx (JFB)]
+ [2017/01/16 v1.5.2 hyperref aware footnote.sty for sphinx (JFB)]
 %%
 %% Package: footnotehyper-sphinx
 %% Version: based on footnotehyper.sty v0.9f (2016/10/03)
@@ -93,7 +93,8 @@
 %% \spx@opt@BeforeFootnote is defined in sphinx.sty
 \def\FNH@fixed@footnote {\spx@opt@BeforeFootnote\ifx\@currenvir\fn@footnote
     \expandafter\FNH@footnoteenv\else\expandafter\fn@latex@@footnote\fi }%
-\def\FNH@footnoteenv {\sphinxunactivateextrasandspace\@ifnextchar[\FNH@xfootnoteenv%]
+\def\FNH@footnoteenv {\catcode13=5\sphinxunactivateextrasandspace
+    \@ifnextchar[\FNH@xfootnoteenv%]
     {\stepcounter\@mpfn
      \protected@xdef\@thefnmark{\thempfn}\@footnotemark
      \def\FNH@endfntext@next{\FNH@endfntext@link}\fn@startfntext}}%
