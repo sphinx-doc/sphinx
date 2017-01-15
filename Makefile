@@ -54,11 +54,18 @@ clean-patchfiles:
 clean-backupfiles:
 	find . -name '*~' -exec rm -f {} +
 	find . -name '*.bak' -exec rm -f {} +
+	find . -name '*.swp' -exec rm -f {} +
+	find . -name '*.swo' -exec rm -f {} +
 
 clean-generated:
+	find . -name '.DS_Store' -exec rm -f {} +
+	rm -f doc/_build/
+	rm -f sphinx/pycode/*.pickle
 	rm -f utils/*3.py*
+	rm -f utils/regression_test.js
 
 clean-testfiles:
+	rm -rf tests/.coverage
 	rm -rf tests/build
 	rm -rf .tox/
 	rm -rf .cache/

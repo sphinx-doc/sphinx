@@ -92,7 +92,16 @@ Bugs fixed
   unserializable exception
 * #3315: Bibliography crashes on latex build with docclass 'memoir'
 * #3328: Could not refer rubric implicitly
-* #3329: emit warnings if po file is invalid and can't read it. Also writing mo too.
+* #3329: emit warnings if po file is invalid and can't read it. Also writing mo too
+* #3337: Ugly rendering of definition list term's classifier
+* #3335: gettext does not extract field_name of a field in a field_list
+* #2952: C++, fix refs to operator() functions.
+* Fix Unicode super- and subscript digits in :rst:dir:`code-block` and
+  :dudir:`parsed-literal` LaTeX output (ref #3342)
+* LaTeX writer: leave ``"`` character inside :dudir:`parsed-literal` as is
+  (ref #3341)
+* #3234: intersphinx failed for encoded inventories
+* #3158: too much space after captions in PDF output
 
 
 Release 1.5.1 (released Dec 13, 2016)

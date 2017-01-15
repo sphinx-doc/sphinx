@@ -379,6 +379,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.this_is_the_title = 1
         self.literal_whitespace = 0
         self.no_contractions = 0
+        self.in_parsed_literal = 0
         self.compact_list = 0
         self.first_param = 0
         self.remember_multirow = {}     # type: Dict[int, int]
@@ -652,34 +653,34 @@ class LaTeXTranslator(nodes.NodeVisitor):
         figure = self.builder.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
             ret.append('\\def\\fnum@figure{%s}\n' %
-                       escape_abbr(text_type(figure[0]).translate(tex_escape_map)))
+                       text_type(figure[0]).strip().translate(tex_escape_map))
         else:
-            definition = escape_abbr(text_type(figure[0]).translate(tex_escape_map))
+            definition = text_type(figure[0]).strip().translate(tex_escape_map)
             ret.append(self.babel_renewcommand('\\figurename', definition))
             if figure[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@figure{\\figurename\\thefigure%s}\n' %
-                           escape_abbr(text_type(figure[1]).translate(tex_escape_map)))
+                           text_type(figure[1]).strip().translate(tex_escape_map))
                 ret.append('\\makeatother\n')
 
         table = self.builder.config.numfig_format['table'].split('%s', 1)
         if len(table) == 1:
             ret.append('\\def\\fnum@table{%s}\n' %
-                       escape_abbr(text_type(table[0]).translate(tex_escape_map)))
+                       text_type(table[0]).strip().translate(tex_escape_map))
         else:
-            definition = escape_abbr(text_type(table[0]).translate(tex_escape_map))
+            definition = text_type(table[0]).strip().translate(tex_escape_map)
             ret.append(self.babel_renewcommand('\\tablename', definition))
             if table[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@table{\\tablename\\thetable%s}\n' %
-                           escape_abbr(text_type(table[1]).translate(tex_escape_map)))
+                           text_type(table[1]).strip().translate(tex_escape_map))
                 ret.append('\\makeatother\n')
 
         codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
         if len(codeblock) == 1:
             pass  # FIXME
         else:
-            definition = escape_abbr(text_type(codeblock[0]).translate(tex_escape_map))
+            definition = text_type(codeblock[0]).strip().translate(tex_escape_map)
             ret.append(self.babel_renewcommand('\\literalblockname', definition))
             if codeblock[1]:
                 pass  # FIXME
@@ -2112,6 +2113,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         if node.rawsource != node.astext():
             # most probably a parsed-literal block -- don't highlight
+            self.in_parsed_literal += 1
             self.body.append('\\begin{alltt}\n')
         else:
             ids = ''  # type: unicode
@@ -2173,6 +2175,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_literal_block(self, node):
         # type: (nodes.Node) -> None
         self.body.append('\n\\end{alltt}\n')
+        self.in_parsed_literal -= 1
     visit_doctest_block = visit_literal_block
     depart_doctest_block = depart_literal_block
 
@@ -2416,7 +2419,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_Text(self, node):
         # type: (nodes.Node) -> None
         text = self.encode(node.astext())
-        if not self.no_contractions:
+        if not self.no_contractions and not self.in_parsed_literal:
             text = educate_quotes_latex(text)
         self.body.append(text)
 

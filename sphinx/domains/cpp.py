@@ -4411,6 +4411,9 @@ class DefinitionParser(object):
         # type: () -> ASTNamespace
         templatePrefix = self._parse_template_declaration_prefix(objectType="xref")
         name = self._parse_nested_name()
+        # if there are '()' left, just skip them
+        self.skip_ws()
+        self.skip_string('()')
         templatePrefix = self._check_template_consistency(name, templatePrefix,
                                                           fullSpecShorthand=True)
         res = ASTNamespace(name, templatePrefix)
@@ -4884,10 +4887,12 @@ class CPPDomain(Domain):
                 if emitWarnings:
                     logger.warning(msg, location=node)
         warner = Warner()
+        # add parens again for those that could be functions
+        if typ == 'any' or typ == 'func':
+            target += '()'
         parser = DefinitionParser(target, warner, env.config)
         try:
             ast = parser.parse_xref_object()
-            parser.skip_ws()
             parser.assert_end()
         except DefinitionError as e:
             warner.warn('Unparseable C++ cross-reference: %r\n%s'
@@ -4947,11 +4952,26 @@ class CPPDomain(Domain):
         name = text_type(fullNestedName).lstrip(':')
         docname = s.docname
         assert docname
-        if typ == 'any' and declaration.objectType == 'function':
-            if env.config.add_function_parentheses:
-                if not node['refexplicit']:
-                    title = contnode.pop(0).astext()
-                    contnode += nodes.Text(title + '()')
+        # If it's operator(), we need to add '()' if explicit function parens
+        # are requested. Then the Sphinx machinery will add another pair.
+        # Also, if it's an 'any' ref that resolves to a function, we need to add
+        # parens as well.
+        addParen = 0
+        if not node['refexplicit'] and declaration.objectType == 'function':
+            # this is just the normal haxing for 'any' roles
+            if env.config.add_function_parentheses and typ == 'any':
+                addParen += 1
+            # and now this stuff for operator()
+            if (env.config.add_function_parentheses and typ == 'function' and
+                    contnode[-1].astext().endswith('operator()')):
+                addParen += 1
+            if ((typ == 'any' or typ == 'function') and
+                    contnode[-1].astext().endswith('operator') and
+                    name.endswith('operator()')):
+                addParen += 1
+        if addParen > 0:
+            title = contnode.pop(0).astext()
+            contnode += nodes.Text(title + '()' * addParen)
         return make_refnode(builder, fromdocname, docname,
                             declaration.get_newest_id(), contnode, name
                             ), declaration.objectType

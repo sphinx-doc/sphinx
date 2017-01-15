@@ -698,24 +698,6 @@ class HTMLTranslator(BaseTranslator):
     def depart_abbreviation(self, node):
         self.body.append('</abbr>')
 
-    # overwritten (but not changed) to keep pair of visit/depart_term
-    def visit_term(self, node):
-        self.body.append(self.starttag(node, 'dt', ''))
-
-    # overwritten to add '</dt>' in 'depart_term' state.
-    def depart_term(self, node):
-        self.body.append('</dt>\n')
-
-    # overwritten to do not add '</dt>' in 'visit_definition' state.
-    def visit_definition(self, node):
-        self.generate_targets_for_listing(node)
-        self.body.append(self.starttag(node, 'dd', ''))
-        self.set_first_last(node)
-
-    # overwritten (but not changed) to keep pair of visit/depart_definition
-    def depart_definition(self, node):
-        self.body.append('</dd>\n')
-
     def visit_manpage(self, node):
         return self.visit_literal_emphasis(node)
 
