@@ -33,6 +33,7 @@ Bugs fixed
 * #3315: Bibliography crashes on latex build with docclass 'memoir'
 * #3328: Could not refer rubric implicitly
 * #3329: emit warnings if po file is invalid and can't read it. Also writing mo too.
+* #3337: Ugly rendering of definition list term's classifier.
 
 
 Release 1.5.1 (released Dec 13, 2016)
