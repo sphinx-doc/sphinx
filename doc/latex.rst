@@ -326,9 +326,10 @@ Here are the currently available options together with their default values.
     (non-breakable) space.
 
     .. versionadded:: 1.5
-       formerly, footnotes from explicit mark-up were
-       preceded by a space (hence a linebreak there was possible), but
-       automatically generated footnotes had no such space.
+       formerly, footnotes from explicit mark-up (but not automatically
+       generated ones) were preceded by a space in the output ``.tex`` file
+       hence a linebreak in PDF was possible. To avoid insertion of this space
+       one could use ``foo\ [#f1]`` mark-up, but this impacts all builders.
 
 ``HeaderFamily``
     default ``\sffamily\bfseries``. Sets the font used by headings.
