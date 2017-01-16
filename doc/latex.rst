@@ -132,15 +132,16 @@ Here are the currently available options together with their default values.
    rendering by Sphinx; if in future Sphinx offers various *themes* for LaTeX,
    the interface may change.
 
+.. attention::
+
+   LaTeX requires for keys with Boolean values to use **lowercase** ``true`` or
+   ``false``.
+
 ``verbatimwithframe``
     default ``true``. Boolean to specify if :rst:dir:`code-block`\ s and literal
     includes are framed. Setting it to ``false`` does not deactivate use of
     package "framed", because it is still in use for the optional background
     colour (see below).
-
-    .. attention::
-
-       LaTeX requires ``true`` or ``false`` to be specified in *lowercase*.
 
 ``verbatimwrapslines``
     default ``true``. Tells whether long lines in :rst:dir:`code-block`\ 's
