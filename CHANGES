@@ -45,7 +45,7 @@ Bugs fixed
 * #3234: intersphinx failed for encoded inventories
 * #3158: too much space after captions in PDF output
 * #3317: An URL in parsed-literal contents gets wrongly rendered in PDF if
-   with hyphen
+  with hyphen
 * LaTeX crash if the filename of an image inserted in :dudir:`parsed-literal`
   via a substitution contains an hyphen (ref #3340)
 * LaTeX rendering of inserted footnotes in :dudir:`parsed-literal` is wrong
