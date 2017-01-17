@@ -4957,7 +4957,7 @@ class CPPDomain(Domain):
         # Also, if it's an 'any' ref that resolves to a function, we need to add
         # parens as well.
         addParen = 0
-        if not node['refexplicit'] and declaration.objectType == 'function':
+        if not node.get('refexplicit', False) and declaration.objectType == 'function':
             # this is just the normal haxing for 'any' roles
             if env.config.add_function_parentheses and typ == 'any':
                 addParen += 1
