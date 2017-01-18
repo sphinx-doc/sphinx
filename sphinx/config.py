@@ -13,7 +13,7 @@ import re
 from os import path, getenv
 
 from six import PY2, PY3, iteritems, string_types, binary_type, text_type, integer_types
-from typing import Any, NamedTuple
+from typing import Any, NamedTuple, Union
 
 from sphinx.errors import ConfigError
 from sphinx.locale import l_
@@ -24,7 +24,7 @@ from sphinx.util.pycompat import execfile_, NoneType
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Generator, Iterator, Tuple  # NOQA
+    from typing import Any, Callable, Iterable, Iterator, Tuple  # NOQA
     from sphinx.util.tags import Tags  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ CONFIG_TYPE_WARNING = "The config value `{name}' has type `{current.__name__}', 
 
 ConfigValue = NamedTuple('ConfigValue', [('name', str),
                                          ('value', Any),
-                                         ('rebuild', str)])
+                                         ('rebuild', Union[bool, unicode])])
 
 
 class ENUM(object):
@@ -314,12 +314,12 @@ class Config(object):
         return name in self.values
 
     def __iter__(self):
-        # type: () -> Iterator[ConfigValue]
+        # type: () -> Iterable[ConfigValue]
         for name, value in iteritems(self.values):
             yield ConfigValue(name, getattr(self, name), value[1])  # type: ignore
 
     def add(self, name, default, rebuild, types):
-        # type: (str, Any, str, Any) -> None
+        # type: (unicode, Any, Union[bool, unicode], Any) -> None
         self.values[name] = (default, rebuild, types)
 
     def filter(self, rebuild):

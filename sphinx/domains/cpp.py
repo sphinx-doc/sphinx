@@ -916,7 +916,7 @@ class ASTTemplateParams(ASTBase):
         return ''.join(res)
 
     def describe_signature(self, parentNode, mode, env, symbol, lineSpec=None):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol, bool) -> None
         # 'lineSpec' is defaulted becuase of template template parameters
         def makeLine(parentNode=parentNode):
             signode = addnodes.desc_signature_line()
@@ -1024,7 +1024,7 @@ class ASTTemplateIntroduction(ASTBase):
         return ''.join(res)
 
     def describe_signature(self, parentNode, mode, env, symbol, lineSpec):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol, bool) -> None
         # Note: 'lineSpec' has no effect on template introductions.
         signode = addnodes.desc_signature_line()
         parentNode += signode
@@ -1065,7 +1065,7 @@ class ASTTemplateDeclarationPrefix(ASTBase):
         return u''.join(res)
 
     def describe_signature(self, signode, mode, env, symbol, lineSpec):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol, bool) -> None
         _verify_description_mode(mode)
         for t in self.templates:
             t.describe_signature(signode, 'lastIsName', env, symbol, lineSpec)
@@ -2742,7 +2742,7 @@ class ASTDeclaration(ASTBase):
         return u''.join(res)
 
     def describe_signature(self, signode, mode, env, options):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment) -> None
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Dict) -> None
         _verify_description_mode(mode)
         # The caller of the domain added a desc_signature node.
         # Always enable multiline:
@@ -4545,7 +4545,7 @@ class CPPObject(ObjectDescription):
         raise NotImplementedError()
 
     def describe_signature(self, signode, ast, options):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
+        # type: (addnodes.desc_signature, Any, Dict) -> None
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 
     def handle_signature(self, sig, signode):

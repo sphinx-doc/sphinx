@@ -1575,8 +1575,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_image(self, node):
         # type: (nodes.Node) -> None
         attrs = node.attributes
-        pre = []                        # in reverse order
-        post = []
+        pre = []    # type: List[unicode]
+                    # in reverse order
+        post = []   # type: List[unicode]
         if self.in_parsed_literal:
             pre = ['\\begingroup\\sphinxunactivateextrasandspace\\relax ']
             post = ['\\endgroup ']
