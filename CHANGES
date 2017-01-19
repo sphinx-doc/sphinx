@@ -92,8 +92,8 @@ Incompatible changes
 * latex, package ifthen is not any longer a dependency of sphinx.sty
 * latex, style file does not modify fancyvrb's Verbatim (also available as
   OriginalVerbatim) but uses sphinxVerbatim for name of custom wrapper.
-* latex, package newfloat is no longer a dependency of sphinx.sty (ref #2660;
-  it was shipped with Sphinx since 1.3.4).
+* latex, package newfloat is not used (and not included) anymore (ref #2660;
+  it was used since 1.3.4 and shipped with Sphinx since 1.4).
 * latex, literal blocks in tables do not use OriginalVerbatim but
   sphinxVerbatimintable which handles captions and wraps lines(ref #2704).
 * latex, replace ``pt`` by TeX equivalent ``bp`` if found in ``width`` or
