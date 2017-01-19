@@ -143,13 +143,14 @@ class StandaloneHTMLBuilder(Builder):
 
     def _get_translations_js(self):
         # type: () -> unicode
-        candidates = [path.join(package_dir, 'locale', self.config.language,
+        candidates = [path.join(dir, self.config.language,
+                                'LC_MESSAGES', 'sphinx.js')
+                      for dir in self.config.locale_dirs] + \
+                     [path.join(package_dir, 'locale', self.config.language,
                                 'LC_MESSAGES', 'sphinx.js'),
                       path.join(sys.prefix, 'share/sphinx/locale',
-                                self.config.language, 'sphinx.js')] + \
-                     [path.join(dir, self.config.language,
-                                'LC_MESSAGES', 'sphinx.js')
-                      for dir in self.config.locale_dirs]
+                                self.config.language, 'sphinx.js')]
+
         for jsfile in candidates:
             if path.isfile(jsfile):
                 return jsfile
