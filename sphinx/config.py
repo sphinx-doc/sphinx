@@ -44,6 +44,9 @@ CONFIG_PERMITTED_TYPE_WARNING = "The config value `{name}' has type `{current.__
 CONFIG_TYPE_WARNING = "The config value `{name}' has type `{current.__name__}', " \
                       "defaults to `{default.__name__}'."
 
+if PY3:
+    unicode = str  # special alias for static typing...
+
 ConfigValue = NamedTuple('ConfigValue', [('name', str),
                                          ('value', Any),
                                          ('rebuild', Union[bool, unicode])])
