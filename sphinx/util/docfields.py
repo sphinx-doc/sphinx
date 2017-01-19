@@ -299,6 +299,7 @@ class DocFieldTransformer(object):
 
             translatable_content = nodes.inline(fieldbody.rawsource,
                                                 translatable=True)
+            translatable_content.document = fieldbody.parent.document
             translatable_content.source = fieldbody.parent.source
             translatable_content.line = fieldbody.parent.line
             translatable_content += content
