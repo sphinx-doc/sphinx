@@ -50,6 +50,7 @@ Bugs fixed
 * LaTeX rendering of inserted footnotes in parsed-literal is wrong (ref #3340)
 * Inline math in parsed-literal is not rendered well by LaTeX (ref #3340)
 * #3308: Parsed-literals don't wrap very long lines with pdf builder (ref #3340)
+* #3295: Could not import extension sphinx.builders.linkcheck
 
 
 Release 1.5.1 (released Dec 13, 2016)

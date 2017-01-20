@@ -16,9 +16,8 @@ import threading
 from os import path
 
 from requests.exceptions import HTTPError
-from six.moves import queue
+from six.moves import queue, html_parser
 from six.moves.urllib.parse import unquote
-from six.moves.html_parser import HTMLParser
 from docutils import nodes
 
 # 2015-06-25 barry@python.org.  This exception was deprecated in Python 3.3 and
@@ -38,11 +37,11 @@ from sphinx.util.console import purple, red, darkgreen, darkgray, \
 from sphinx.util.requests import is_ssl_error
 
 
-class AnchorCheckParser(HTMLParser):
+class AnchorCheckParser(html_parser.HTMLParser):
     """Specialized HTML parser that looks for a specific anchor."""
 
     def __init__(self, search_anchor):
-        HTMLParser.__init__(self)
+        html_parser.HTMLParser.__init__(self)
 
         self.search_anchor = search_anchor
         self.found = False
