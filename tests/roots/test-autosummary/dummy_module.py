@@ -71,5 +71,5 @@ class C:
         '''
 
 
-def func(arg_):
+def func(arg_, *args, **kwargs):
     """Test function take an argument ended with underscore."""
