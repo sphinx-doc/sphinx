@@ -58,7 +58,6 @@ class AnchorCheckParser(html_parser.HTMLParser):
         self.found = False
 
     def handle_starttag(self, tag, attrs):
-        # type: (Any, Dict[unicode, unicode]) -> None
         for key, value in attrs:
             if key in ('id', 'name') and value == self.search_anchor:
                 self.found = True
