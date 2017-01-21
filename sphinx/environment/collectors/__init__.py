@@ -19,7 +19,13 @@ if False:
 
 
 class EnvironmentCollector(object):
-    """Base class of data collector for sphinx.environment."""
+    """An EnvironmentCollector is a specific data collector from each document.
+
+    It gathers data and stores :py:class:`BuildEnvironment
+    <sphinx.environment.BuildEnvironment>` as a database.  Examples of specific
+    data would be images, download files, section titles, metadatas, index
+    entries and toctrees, etc.
+    """
 
     listener_ids = None  # type: Dict[unicode, int]
 
@@ -43,20 +49,36 @@ class EnvironmentCollector(object):
 
     def clear_doc(self, app, env, docname):
         # type: (Sphinx, BuildEnvironment, unicode) -> None
+        """Remove specified data of a document.
+
+        This method is called on the removal of the document."""
         raise NotImplementedError
 
     def merge_other(self, app, env, docnames, other):
         # type: (Sphinx, BuildEnvironment, Set[unicode], BuildEnvironment) -> None
+        """Merge in specified data regarding docnames from a different `BuildEnvironment`
+        object which coming from a subprocess in parallel builds."""
         raise NotImplementedError
 
     def process_doc(self, app, doctree):
         # type: (Sphinx, nodes.Node) -> None
+        """Process a document and gather specific data from it.
+
+        This method is called after the document is read."""
         raise NotImplementedError
 
     def get_updated_docs(self, app, env):
         # type: (Sphinx, BuildEnvironment) -> List[unicode]
+        """Return a list of docnames to re-read.
+
+        This methods is called after reading the whole of documents (experimental).
+        """
         return []
 
     def get_outdated_docs(self, app, env, added, changed, removed):
         # type: (Sphinx, BuildEnvironment, unicode, Set[unicode], Set[unicode], Set[unicode]) -> List[unicode]  # NOQA
+        """Return a list of docnames to re-read.
+
+        This methods is called before reading the documents.
+        """
         return []
