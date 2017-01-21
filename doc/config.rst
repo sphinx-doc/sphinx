@@ -1523,8 +1523,8 @@ These options influence LaTeX output. See further :doc:`latex`.
      backslash or ampersand must be represented by the proper LaTeX commands if
      they are to be inserted literally.
    * *author*: Author for the LaTeX document.  The same LaTeX markup caveat as
-     for *title* applies.  Use ``\and`` to separate multiple authors, as in:
-     ``'John \and Sarah'``.
+     for *title* applies.  Use ``\\and`` to separate multiple authors, as in:
+     ``'John \\and Sarah'`` (backslashes must be Python-escaped to reach LaTeX).
    * *documentclass*: Normally, one of ``'manual'`` or ``'howto'`` (provided
      by Sphinx and based on ``'report'``, resp. ``'article'``; Japanese
      documents use ``'jsbook'``, resp. ``'jreport'``.) "howto" (non-Japanese)
@@ -1656,6 +1656,11 @@ These options influence LaTeX output. See further :doc:`latex`.
           ``'\\usepackage[margin=1in,marginparwidth=0.5in]{geometry}'``.
 
         .. versionadded:: 1.5
+
+        .. versionchanged:: 1.5.2
+           For Japanese documents also ``dvipdfm`` option is passed to
+           ``geometry``.
+
      ``'babel'``
         "babel" package inclusion, default ``'\\usepackage{babel}'`` (the
         suitable document language string is passed as class option, and

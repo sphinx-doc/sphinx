@@ -126,6 +126,8 @@ ADDITIONAL_SETTINGS = {
     },
     'platex': {
         'latex_engine': 'platex',
+        'geometry': ('\\usepackage[margin=1in,marginparwidth=0.5in,dvipdfm]'
+                     '{geometry}'),
     },
 }  # type: Dict[unicode, Dict[unicode, unicode]]
 

@@ -95,3 +95,11 @@ def test_get_items_summary(app, status, warning):
     for key, expected in iteritems(expected_values):
         assert autosummary_items[key][2] == expected, 'Summary for %s was %r -'\
             ' expected %r' % (key, autosummary_items[key], expected)
+
+    # check an item in detail
+    assert 'func' in autosummary_items
+    func_attrs = ('func',
+                  '(arg_, *args, **kwargs)',
+                  'Test function take an argument ended with underscore.',
+                  'dummy_module.func')
+    assert autosummary_items['func'] == func_attrs
