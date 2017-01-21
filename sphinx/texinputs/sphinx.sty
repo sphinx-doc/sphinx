@@ -120,7 +120,7 @@
 % some font styling.
 \DeclareStringOption[\sffamily\bfseries]{HeaderFamily}
 % colours
-% same problems as for dimensions: we want the key handler to use \definecolor
+% same problems as for dimensions: we want the key handler to use \definecolor.
 % first, some colours with no prefix, for backwards compatibility
 \newcommand*{\sphinxDeclareColorOption}[2]{%
    \definecolor{#1}#2%
@@ -162,8 +162,8 @@
 % user interface: options can be changed midway in a document!
 \newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
 
-% this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
-% hyperref.sty, but we need it before, and the first release of
+% this is the \ltx@ifundefined of ltxcmds.sty, which was loaded by
+% kvoptions already, (and later by hyperref), but the first release of
 % ltxcmds.sty as in TL2009/Debian has wrong definition.
 \newcommand{\spx@ifundefined}[1]{%
     \ifcsname #1\endcsname
@@ -211,7 +211,8 @@
 
 \pagestyle{empty}               % start this way
 
-% Use this to set the font family for headers and other decor:
+% Since Sphinx 1.5, users should use HeaderFamily key to 'sphinxsetup' rather
+% than defining their own \py@HeaderFamily command (which is still possible).
 \newcommand{\py@HeaderFamily}{\spx@opt@HeaderFamily}
 
 % Redefine the 'normal' header/footer style when using "fancyhdr" package:
@@ -287,9 +288,9 @@
 % - with possibly of a top caption, non-separable by pagebreak.
 % - and usable inside tables or footnotes ("footnotehyper-sphinx").
 
-% For maintaining compatibility with Sphinx < 1.5, we define and use these
-% when (unmodified) Verbatim will be needed. But Sphinx >= 1.5 does not modify
-% original Verbatim anyhow.
+% For extensions which use \OriginalVerbatim and compatibility with Sphinx <
+% 1.5, we define and use these when (unmodified) Verbatim will be needed. But
+% Sphinx >= 1.5 does not modify the \Verbatim macro anymore.
 \let\OriginalVerbatim   \Verbatim
 \let\endOriginalVerbatim\endVerbatim
 
@@ -376,7 +377,7 @@
 %        {, <, #, %, $, ' and ": go to next line.
 %        _, }, ^, &, >, - and ~: stay at end of broken line.
 % Use of \textquotesingle for straight quote.
-% FIXME: convert this to package options
+% FIXME: convert this to package options ?
 \newcommand*\sphinxbreaksbeforelist {%
     \do\PYGZob\{\do\PYGZlt\<\do\PYGZsh\#\do\PYGZpc\%% {, <, #, %,
     \do\PYGZdl\$\do\PYGZdq\"% $, "
@@ -398,8 +399,8 @@
 
 \def\sphinx@verbatim@nolig@list {\do \`}%
 % Some characters . , ; ? ! / are not pygmentized.
-% This macro makes them "active" and they will insert potential linebreaks
-% In math mode, the characters are de-activated.
+% This macro makes them "active" and they will insert potential linebreaks.
+% Not compatible with math mode (cf \sphinxunactivateextras).
 \newcommand*\sphinxbreaksbeforeactivelist {}% none
 \newcommand*\sphinxbreaksafteractivelist  {\do\.\do\,\do\;\do\?\do\!\do\/}
 \newcommand*\sphinxbreaksviaactive {%
@@ -554,18 +555,19 @@
 }
 \newcommand*\sphinxbreaksviaactiveinparsedliteral{%
   \sphinxbreaksviaactive % by default handles . , ; ? ! /
-  \do\-% we need also the hyphen character
+  \do\-% we need also the hyphen character (ends up "as is" in parsed-literal)
   \lccode`\~`\~ %
   % update \dospecials as it is used by \url
-  % but deactivation will already have been done hence commented out
+  % but deactivation will already have been done hence this is unneeded:
   %  \expandafter\def\expandafter\dospecials\expandafter{\dospecials
   %   \sphinxbreaksbeforeactivelist\sphinxbreaksafteractivelist\do\-}%
 }
 \newcommand*\sphinxbreaksatspaceinparsedliteral{%
   \lccode`~32 \lowercase{\let~}\spx@verbatim@space\lccode`\~`\~
 }
-% now the hack for \url to work (hyperref is required dependency):
-% the aim it to deactivate - . , ; ? ! / in \url's argument
+% now the hack for \url to work (hyperref is assumed in use):
+% the aim it to deactivate - . , ; ? ! / in \url's argument.
+% also the space token, but not end of lines which we assume don't arise there.
 \def\spx@hack@hyper@normalise {%
   \expandafter\spx@hack@hyper@normalise@aux\hyper@normalise
               \spx@hack@hyper@normalise@aux\hyper@n@rmalise\relax\spx@undefined
@@ -581,6 +583,7 @@
 }%
 \newcommand*{\sphinxunactivateextras}{\let\do\@makeother
       \sphinxbreaksbeforeactivelist\sphinxbreaksafteractivelist\do\-}%
+% the \catcode13=5\relax (deactivate end of input lines) is left to callers
 \newcommand*{\sphinxunactivateextrasandspace}{\catcode32=10\relax
       \sphinxunactivateextras}%
 % now for the modified alltt environment
@@ -597,7 +600,9 @@
 % alltt takes care of the ' as derivative ("prime") in math mode
    \everymath\expandafter{\the\everymath\sphinxunactivateextrasandspace
              \catcode`\<=12\catcode`\>=12\catcode`\^=7\catcode`\_=8 }%
-   \everydisplay\expandafter{\the\everydisplay\sphinxunactivateextrasandspace
+% not sure if displayed math (align,...) can end up in parsed-literal, anyway
+   \everydisplay\expandafter{\the\everydisplay
+             \catcode13=5\sphinxunactivateextrasandspace
              \catcode`\<=12\catcode`\>=12\catcode`\^=7\catcode`\_=8 }%
  \fi }
 {\end{alltt}}
