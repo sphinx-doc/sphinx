@@ -157,7 +157,7 @@ def test_latex_title(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\title{The basic Sphinx documentation for testing}' in result
+    assert '\\title{The basic Le\\_Sphinx documentation for testing}' in result
 
 
 @pytest.mark.sphinx('latex', testroot='latex-title')
