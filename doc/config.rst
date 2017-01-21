@@ -1733,6 +1733,11 @@ These options influence LaTeX output. See further :doc:`latex`.
           ``'\\usepackage[margin=1in,marginparwidth=0.5in]{geometry}'``.
 
         .. versionadded:: 1.5
+
+        .. versionchanged:: 1.5.2
+           For Japanese documents also ``dvipdfm`` option is passed to
+           ``geometry``.
+
      ``'babel'``
         "babel" package inclusion, default ``'\\usepackage{babel}'`` (the
         suitable document language string is passed as class option, and
