@@ -58,8 +58,26 @@ Deprecated
 * ``Sphinx.status_iterator()` and ``Sphinx.old_status_iterator()`` is now
   deprecated.  Please use ``sphinx.util:status_iterator()`` intead.
 
-Release 1.5.2 (in development)
-===============================
+Release 1.5.3 (in development)
+==============================
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.5.2 (released Jan 22, 2017)
+=====================================
 
 Incompatible changes
 --------------------
