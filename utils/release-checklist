@@ -15,7 +15,7 @@ Release checklist
 * `make clean`
 * `python setup.py compile_grammar`
 * `python setup.py release bdist_wheel sdist upload --identity=[your key]`
-* Check PyPI release page for obvious errors
+* open https://pypi.python.org/pypi/Sphinx and check there are no obvious errors
 * `git tag x.y.z` with version number
 * Merge default into stable if final major release
 * `git push origin stable --tags`
