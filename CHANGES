@@ -57,6 +57,7 @@ Deprecated
   instead (as Sphinx does since 1.5.)
 * ``Sphinx.status_iterator()` and ``Sphinx.old_status_iterator()`` is now
   deprecated.  Please use ``sphinx.util:status_iterator()`` intead.
+* ``BuildEnvironment.set_warnfunc()`` is now deprecated
 
 Release 1.5.3 (in development)
 ==============================

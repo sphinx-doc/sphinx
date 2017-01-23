@@ -16,6 +16,7 @@ import time
 import types
 import codecs
 import fnmatch
+import warnings
 from os import path
 from glob import glob
 from collections import defaultdict
@@ -49,6 +50,7 @@ from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.transforms import SphinxContentsFilter
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.managers.indexentries import IndexEntries
 from sphinx.environment.managers.toctree import Toctree
 
@@ -122,8 +124,6 @@ class BuildEnvironment(object):
     def topickle(self, filename):
         # type: (unicode) -> None
         # remove unpicklable attributes
-        warnfunc = self._warnfunc
-        self.set_warnfunc(None)
         values = self.config.values
         del self.config.values
         domains = self.domains
@@ -142,7 +142,6 @@ class BuildEnvironment(object):
         self.attach_managers(managers)
         self.domains = domains
         self.config.values = values
-        self.set_warnfunc(warnfunc)
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
@@ -272,8 +271,8 @@ class BuildEnvironment(object):
 
     def set_warnfunc(self, func):
         # type: (Callable) -> None
-        self._warnfunc = func
-        self.settings['warning_stream'] = WarningStream(func)
+        warnings.warn('env.set_warnfunc() is now deprecated. Use sphinx.util.logging instead.',
+                      RemovedInSphinx20Warning)
 
     def set_versioning_method(self, method, compare):
         # type: (unicode, bool) -> None
@@ -639,12 +638,9 @@ class BuildEnvironment(object):
         def read_process(docs):
             # type: (List[unicode]) -> BuildEnvironment
             self.app = app
-            self.warnings = []  # type: List[Tuple]
-            self.set_warnfunc(lambda *args, **kwargs: self.warnings.append((args, kwargs)))
             for docname in docs:
                 self.read_doc(docname, app)
             # allow pickling self to send it back
-            self.set_warnfunc(None)
             del self.app
             del self.domains
             del self.config.values
@@ -653,13 +649,11 @@ class BuildEnvironment(object):
 
         def merge(docs, otherenv):
             # type: (List[unicode], BuildEnvironment) -> None
-            warnings.extend(otherenv.warnings)
             self.merge_info_from(docs, otherenv, app)
 
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
 
-        warnings = []  # type: List[Tuple]
         for chunk in status_iterator(chunks, 'reading sources... ', "purple",
                                      len(chunks), self.app.verbosity):
             tasks.add_task(read_process, chunk, merge)
@@ -667,9 +661,6 @@ class BuildEnvironment(object):
         # make sure all threads have finished
         logger.info(bold('waiting for workers...'))
         tasks.join()
-
-        for warning, kwargs in warnings:
-            self._warnfunc(*warning, **kwargs)
 
     def check_dependents(self, already):
         # type: (Set[unicode]) -> Iterator[unicode]
