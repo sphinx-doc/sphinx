@@ -569,7 +569,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
             f.write(self.container_template)  # type: ignore
 
     def content_metadata(self, files, spine, guide):
-        # type: (List[unicode], Any, Any) -> Dict[unicode, Any]
+        # type: (List[unicode], List[unicode], List[unicode]) -> Dict[unicode, Any]
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
