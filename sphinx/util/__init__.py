@@ -149,7 +149,7 @@ class FilenameUniqDict(dict):
     def merge_other(self, docnames, other):
         # type: (List[unicode], Dict[unicode, Tuple[Set[unicode], Any]]) -> None
         for filename, (docs, unique) in other.items():
-            for doc in docs & docnames:
+            for doc in docs & set(docnames):
                 self.add_file(doc, filename)
 
     def __getstate__(self):

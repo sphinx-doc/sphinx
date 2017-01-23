@@ -72,7 +72,7 @@ class Toctree(EnvironmentManager):
                 self.numbered_toctrees.add(docname)
 
         for subfn, fnset in other.files_to_rebuild.items():
-            self.files_to_rebuild.setdefault(subfn, set()).update(fnset & docnames)
+            self.files_to_rebuild.setdefault(subfn, set()).update(fnset & set(docnames))
 
     def process_doc(self, docname, doctree):
         # type: (unicode, nodes.Node) -> None
