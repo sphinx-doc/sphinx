@@ -20,8 +20,8 @@ Other contributors, listed alphabetically, are:
 * Jakob Lykke Andersen -- Rewritten C++ domain
 * Henrique Bastos -- SVG support for graphviz extension
 * Daniel Bültmann -- todo extension
-* Marco Buttu -- doctest extension (pyversion option)
 * Jean-François Burnol -- LaTeX improvements
+* Marco Buttu -- doctest extension (pyversion option)
 * Etienne Desautels -- apidoc module
 * Michael Droettboom -- inheritance_diagram extension
 * Charles Duffy -- original graphviz extension
