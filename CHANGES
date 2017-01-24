@@ -73,6 +73,8 @@ Deprecated
 Features added
 --------------
 
+* #3303: Added ``:pyversion:`` option to the doctest directive
+
 Bugs fixed
 ----------
 
