@@ -8,6 +8,8 @@ Incompatible changes
   members by default. Thanks to Luc Saffre.
 * LaTeX ``\includegraphics`` command isn't overloaded: only ``\sphinxincludegraphics``
   has the custom code to fit image to available width if oversized.
+* The subclasses of ``sphinx.domains.Index`` should override ``generate()``
+  method.  The default implementation raises NotImplmentedError
 
 Features removed
 ----------------
@@ -38,6 +40,8 @@ Features added
 * #3136: Add ``:name:`` option to the directives in ``sphinx.ext.graphviz``
 * #2336: Add ``imported_members`` option to ``sphinx-autogen`` command to document
   imported members.
+* C++, add ``:tparam-line-spec:`` option to templated declarations.
+  When specified, each template parameter will be rendered on a separate line.
 
 Bugs fixed
 ----------
@@ -55,9 +59,28 @@ Deprecated
   instead (as Sphinx does since 1.5.)
 * ``Sphinx.status_iterator()` and ``Sphinx.old_status_iterator()`` is now
   deprecated.  Please use ``sphinx.util:status_iterator()`` intead.
+* ``BuildEnvironment.set_warnfunc()`` is now deprecated
 
-Release 1.5.2 (in development)
-===============================
+Release 1.5.3 (in development)
+==============================
+
+Incompatible changes
+--------------------
+
+Deprecated
+----------
+
+Features added
+--------------
+
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.5.2 (released Jan 22, 2017)
+=====================================
 
 Incompatible changes
 --------------------
@@ -71,6 +94,8 @@ Features added
 * #3194: Refer the $MAKE environment variable to determine ``make`` command
 * Emit warning for nested numbered toctrees (refs: #3142)
 * #978: `intersphinx_mapping` also allows a list as a parameter
+* #3340: (LaTeX) long lines in :dudir:`parsed-literal` are wrapped like in
+  :rst:dir:`code-block`, inline math and footnotes are fully functional.
 
 Bugs fixed
 ----------
@@ -90,7 +115,25 @@ Bugs fixed
   unserializable exception
 * #3315: Bibliography crashes on latex build with docclass 'memoir'
 * #3328: Could not refer rubric implicitly
-* #3329: emit warnings if po file is invalid and can't read it. Also writing mo too.
+* #3329: emit warnings if po file is invalid and can't read it. Also writing mo too
+* #3337: Ugly rendering of definition list term's classifier
+* #3335: gettext does not extract field_name of a field in a field_list
+* #2952: C++, fix refs to operator() functions.
+* Fix Unicode super- and subscript digits in :rst:dir:`code-block` and
+  parsed-literal LaTeX output (ref #3342)
+* LaTeX writer: leave ``"`` character inside parsed-literal as is (ref #3341)
+* #3234: intersphinx failed for encoded inventories
+* #3158: too much space after captions in PDF output
+* #3317: An URL in parsed-literal contents gets wrongly rendered in PDF if
+  with hyphen
+* LaTeX crash if the filename of an image inserted in parsed-literal
+  via a substitution contains an hyphen (ref #3340)
+* LaTeX rendering of inserted footnotes in parsed-literal is wrong (ref #3340)
+* Inline math in parsed-literal is not rendered well by LaTeX (ref #3340)
+* #3308: Parsed-literals don't wrap very long lines with pdf builder (ref #3340)
+* #3295: Could not import extension sphinx.builders.linkcheck
+* #3285: autosummary: asterisks are escaped twice
+* LaTeX, pass dvipdfm option to geometry package for Japanese documents (ref #3363)
 
 
 Release 1.5.1 (released Dec 13, 2016)
@@ -133,8 +176,8 @@ Incompatible changes
 * latex, package ifthen is not any longer a dependency of sphinx.sty
 * latex, style file does not modify fancyvrb's Verbatim (also available as
   OriginalVerbatim) but uses sphinxVerbatim for name of custom wrapper.
-* latex, package newfloat is no longer a dependency of sphinx.sty (ref #2660;
-  it was shipped with Sphinx since 1.3.4).
+* latex, package newfloat is not used (and not included) anymore (ref #2660;
+  it was used since 1.3.4 and shipped with Sphinx since 1.4).
 * latex, literal blocks in tables do not use OriginalVerbatim but
   sphinxVerbatimintable which handles captions and wraps lines(ref #2704).
 * latex, replace ``pt`` by TeX equivalent ``bp`` if found in ``width`` or

@@ -126,6 +126,8 @@ ADDITIONAL_SETTINGS = {
     },
     'platex': {
         'latex_engine': 'platex',
+        'geometry': ('\\usepackage[margin=1in,marginparwidth=0.5in,dvipdfm]'
+                     '{geometry}'),
     },
 }  # type: Dict[unicode, Dict[unicode, unicode]]
 
@@ -379,6 +381,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.this_is_the_title = 1
         self.literal_whitespace = 0
         self.no_contractions = 0
+        self.in_parsed_literal = 0
         self.compact_list = 0
         self.first_param = 0
         self.remember_multirow = {}     # type: Dict[int, int]
@@ -652,34 +655,34 @@ class LaTeXTranslator(nodes.NodeVisitor):
         figure = self.builder.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
             ret.append('\\def\\fnum@figure{%s}\n' %
-                       escape_abbr(text_type(figure[0]).translate(tex_escape_map)))
+                       text_type(figure[0]).strip().translate(tex_escape_map))
         else:
-            definition = escape_abbr(text_type(figure[0]).translate(tex_escape_map))
+            definition = text_type(figure[0]).strip().translate(tex_escape_map)
             ret.append(self.babel_renewcommand('\\figurename', definition))
             if figure[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@figure{\\figurename\\thefigure%s}\n' %
-                           escape_abbr(text_type(figure[1]).translate(tex_escape_map)))
+                           text_type(figure[1]).strip().translate(tex_escape_map))
                 ret.append('\\makeatother\n')
 
         table = self.builder.config.numfig_format['table'].split('%s', 1)
         if len(table) == 1:
             ret.append('\\def\\fnum@table{%s}\n' %
-                       escape_abbr(text_type(table[0]).translate(tex_escape_map)))
+                       text_type(table[0]).strip().translate(tex_escape_map))
         else:
-            definition = escape_abbr(text_type(table[0]).translate(tex_escape_map))
+            definition = text_type(table[0]).strip().translate(tex_escape_map)
             ret.append(self.babel_renewcommand('\\tablename', definition))
             if table[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@table{\\tablename\\thetable%s}\n' %
-                           escape_abbr(text_type(table[1]).translate(tex_escape_map)))
+                           text_type(table[1]).strip().translate(tex_escape_map))
                 ret.append('\\makeatother\n')
 
         codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
         if len(codeblock) == 1:
             pass  # FIXME
         else:
-            definition = escape_abbr(text_type(codeblock[0]).translate(tex_escape_map))
+            definition = text_type(codeblock[0]).strip().translate(tex_escape_map)
             ret.append(self.babel_renewcommand('\\literalblockname', definition))
             if codeblock[1]:
                 pass  # FIXME
@@ -1125,15 +1128,21 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('%%\n\\begin{footnotetext}[%s]'
                              '\\sphinxAtStartFootnote\n' % node['number'])
         else:
-            self.body.append('%%\n\\begin{footnote}[%s]'
-                             '\\sphinxAtStartFootnote\n' % node['number'])
+            if self.in_parsed_literal:
+                self.body.append('\\begin{footnote}[%s]' % node['number'])
+            else:
+                self.body.append('%%\n\\begin{footnote}[%s]' % node['number'])
+            self.body.append('\\sphinxAtStartFootnote\n')
 
     def depart_collected_footnote(self, node):
         # type: (nodes.Node) -> None
         if 'footnotetext' in node:
             self.body.append('%\n\\end{footnotetext}')
         else:
-            self.body.append('%\n\\end{footnote}')
+            if self.in_parsed_literal:
+                self.body.append('\\end{footnote}')
+            else:
+                self.body.append('%\n\\end{footnote}')
         self.in_footnote -= 1
 
     def visit_label(self, node):
@@ -1568,8 +1577,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_image(self, node):
         # type: (nodes.Node) -> None
         attrs = node.attributes
-        pre = []                        # in reverse order
-        post = []
+        pre = []    # type: List[unicode]
+                    # in reverse order
+        post = []   # type: List[unicode]
+        if self.in_parsed_literal:
+            pre = ['\\begingroup\\sphinxunactivateextrasandspace\\relax ']
+            post = ['\\endgroup ']
         include_graphics_options = []
         is_inline = self.is_inline(node)
         if 'width' in attrs:
@@ -2112,7 +2125,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         if node.rawsource != node.astext():
             # most probably a parsed-literal block -- don't highlight
-            self.body.append('\\begin{alltt}\n')
+            self.in_parsed_literal += 1
+            self.body.append('\\begin{sphinxalltt}\n')
         else:
             ids = ''  # type: unicode
             for id in self.pop_hyperlink_ids('code-block'):
@@ -2172,7 +2186,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def depart_literal_block(self, node):
         # type: (nodes.Node) -> None
-        self.body.append('\n\\end{alltt}\n')
+        self.body.append('\n\\end{sphinxalltt}\n')
+        self.in_parsed_literal -= 1
     visit_doctest_block = visit_literal_block
     depart_doctest_block = depart_literal_block
 
@@ -2416,7 +2431,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_Text(self, node):
         # type: (nodes.Node) -> None
         text = self.encode(node.astext())
-        if not self.no_contractions:
+        if not self.no_contractions and not self.in_parsed_literal:
             text = educate_quotes_latex(text)
         self.body.append(text)
 

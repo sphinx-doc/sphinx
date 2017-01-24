@@ -57,7 +57,7 @@ class IfConfig(Directive):
 
 def process_ifconfig_nodes(app, doctree, docname):
     # type: (Sphinx, nodes.Node, unicode) -> None
-    ns = dict((k, app.config[k]) for k in app.config.values)
+    ns = dict((confval.name, confval.value) for confval in app.config)  # type: ignore
     ns.update(app.config.__dict__.copy())
     ns['builder'] = app.builder.name
     for node in doctree.traverse(ifconfig):

@@ -45,7 +45,7 @@ from sphinx.util.matching import patfilter  # noqa
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, Iterator, Pattern, Sequence, Tuple  # NOQA
+    from typing import Any, Callable, Iterable, Iterator, Pattern, Sequence, Tuple, Union  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -149,7 +149,7 @@ class FilenameUniqDict(dict):
     def merge_other(self, docnames, other):
         # type: (List[unicode], Dict[unicode, Tuple[Set[unicode], Any]]) -> None
         for filename, (docs, unique) in other.items():
-            for doc in docs & docnames:
+            for doc in docs & set(docnames):
                 self.add_file(doc, filename)
 
     def __getstate__(self):
@@ -565,7 +565,7 @@ def old_status_iterator(iterable, summary, color="darkgreen", stringify_func=dis
 # new version with progress info
 def status_iterator(iterable, summary, color="darkgreen", length=0, verbosity=0,
                     stringify_func=display_chunk):
-    # type: (Iterable, unicode, str, int, int, Callable[[Any], unicode]) -> Iterable
+    # type: (Iterable, unicode, str, int, int, Callable[[Any], unicode]) -> Iterable  # NOQA
     if length == 0:
         for item in old_status_iterator(iterable, summary, color, stringify_func):
             yield item

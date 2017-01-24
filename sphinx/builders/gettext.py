@@ -224,7 +224,7 @@ class MessageCatalogBuilder(I18nBuilder):
 
         extract_translations = self.templates.environment.extract_translations
 
-        for template in status_iterator(files, 'reading templates... ', "purple",
+        for template in status_iterator(files, 'reading templates... ', "purple",  # type: ignore  # NOQA
                                         len(files), self.app.verbosity):
             with open(template, 'r', encoding='utf-8') as f:  # type: ignore
                 context = f.read()
@@ -247,7 +247,7 @@ class MessageCatalogBuilder(I18nBuilder):
             ctime = datetime.fromtimestamp(  # type: ignore
                 timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
         )
-        for textdomain, catalog in status_iterator(iteritems(self.catalogs),
+        for textdomain, catalog in status_iterator(iteritems(self.catalogs),  # type: ignore
                                                    "writing message catalogs... ",
                                                    "darkgreen", len(self.catalogs),
                                                    self.app.verbosity,

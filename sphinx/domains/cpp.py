@@ -15,7 +15,7 @@ from copy import deepcopy
 from six import iteritems, text_type
 
 from docutils import nodes
-from docutils.parsers.rst import Directive
+from docutils.parsers.rst import Directive, directives
 
 from sphinx import addnodes
 from sphinx.roles import XRefRole
@@ -53,13 +53,17 @@ logger = logging.getLogger(__name__)
     the index. All of the versions should work as permalinks.
 
 
-    Tagnames
+    Signature Nodes and Tagnames
     ----------------------------------------------------------------------------
 
-    Each desc_signature node will have the attribute 'sphinx_cpp_tagname' set to
-    - 'templateParams', if the line is on the form 'template<...>',
-    - 'templateIntroduction, if the line is on the form 'conceptName{...}'
+    Each signature is in a desc_signature node, where all children are
+    desc_signature_line nodes. Each of these lines will have the attribute
+    'sphinx_cpp_tagname' set to one of the following (prioritized):
     - 'declarator', if the line contains the name of the declared object.
+    - 'templateParams', if the line starts a template parameter list,
+    - 'templateParams', if the line has template parameters
+      Note: such lines might get a new tag in the future.
+    - 'templateIntroduction, if the line is on the form 'conceptName{...}'
     No other desc_signature nodes should exist (so far).
 
 
@@ -892,6 +896,7 @@ class ASTTemplateParams(ASTBase):
         # type: (Any) -> None
         assert params is not None
         self.params = params
+        self.isNested = False  # whether it's a template template param
 
     def get_id_v2(self):
         # type: () -> unicode
@@ -910,17 +915,30 @@ class ASTTemplateParams(ASTBase):
         res.append(u"> ")
         return ''.join(res)
 
-    def describe_signature(self, signode, mode, env, symbol):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
-        signode.sphinx_cpp_tagname = 'templateParams'
-        signode += nodes.Text("template<")
+    def describe_signature(self, parentNode, mode, env, symbol, lineSpec=None):
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol, bool) -> None
+        # 'lineSpec' is defaulted becuase of template template parameters
+        def makeLine(parentNode=parentNode):
+            signode = addnodes.desc_signature_line()
+            parentNode += signode
+            signode.sphinx_cpp_tagname = 'templateParams'
+            return signode
+        if self.isNested:
+            lineNode = parentNode
+        else:
+            lineNode = makeLine()
+        lineNode += nodes.Text("template<")
         first = True
         for param in self.params:
             if not first:
-                signode += nodes.Text(", ")
+                lineNode += nodes.Text(", ")
             first = False
-            param.describe_signature(signode, mode, env, symbol)
-        signode += nodes.Text(">")
+            if lineSpec:
+                lineNode = makeLine()
+            param.describe_signature(lineNode, mode, env, symbol)
+        if lineSpec and not first:
+            lineNode = makeLine()
+        lineNode += nodes.Text(">")
 
 
 class ASTTemplateIntroductionParameter(ASTBase):
@@ -1005,8 +1023,11 @@ class ASTTemplateIntroduction(ASTBase):
         res.append('} ')
         return ''.join(res)
 
-    def describe_signature(self, signode, mode, env, symbol):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
+    def describe_signature(self, parentNode, mode, env, symbol, lineSpec):
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol, bool) -> None
+        # Note: 'lineSpec' has no effect on template introductions.
+        signode = addnodes.desc_signature_line()
+        parentNode += signode
         signode.sphinx_cpp_tagname = 'templateIntroduction'
         self.concept.describe_signature(signode, 'markType', env, symbol)
         signode += nodes.Text('{')
@@ -1043,13 +1064,11 @@ class ASTTemplateDeclarationPrefix(ASTBase):
             res.append(text_type(t))
         return u''.join(res)
 
-    def describe_signature(self, signode, mode, env, symbol):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
+    def describe_signature(self, signode, mode, env, symbol, lineSpec):
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol, bool) -> None
         _verify_description_mode(mode)
         for t in self.templates:
-            templateNode = addnodes.desc_signature_line()
-            t.describe_signature(templateNode, 'lastIsName', env, symbol)
-            signode += templateNode
+            t.describe_signature(signode, 'lastIsName', env, symbol, lineSpec)
 
 
 class ASTOperatorBuildIn(ASTBase):
@@ -2722,8 +2741,8 @@ class ASTDeclaration(ASTBase):
         res.append(text_type(self.declaration))
         return u''.join(res)
 
-    def describe_signature(self, signode, mode, env):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment) -> None
+    def describe_signature(self, signode, mode, env, options):
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Dict) -> None
         _verify_description_mode(mode)
         # The caller of the domain added a desc_signature node.
         # Always enable multiline:
@@ -2736,7 +2755,8 @@ class ASTDeclaration(ASTBase):
         assert self.symbol
         if self.templatePrefix:
             self.templatePrefix.describe_signature(signode, mode, env,
-                                                   symbol=self.symbol)
+                                                   symbol=self.symbol,
+                                                   lineSpec=options.get('tparam-line-spec'))
         signode += mainDeclNode
         if self.visibility and self.visibility != "public":
             mainDeclNode += addnodes.desc_annotation(self.visibility + " ",
@@ -4170,6 +4190,7 @@ class DefinitionParser(object):
             if self.skip_word('template'):
                 # declare a tenplate template parameter
                 nestedParams = self._parse_template_parameter_list()
+                nestedParams.isNested = True
             else:
                 nestedParams = None
             self.skip_ws()
@@ -4390,6 +4411,9 @@ class DefinitionParser(object):
         # type: () -> ASTNamespace
         templatePrefix = self._parse_template_declaration_prefix(objectType="xref")
         name = self._parse_nested_name()
+        # if there are '()' left, just skip them
+        self.skip_ws()
+        self.skip_string('()')
         templatePrefix = self._check_template_consistency(name, templatePrefix,
                                                           fullSpecShorthand=True)
         res = ASTNamespace(name, templatePrefix)
@@ -4419,6 +4443,9 @@ class CPPObject(ObjectDescription):
         Field('returnvalue', label=l_('Returns'), has_arg=False,
               names=('returns', 'return')),
     ]
+
+    option_spec = dict(ObjectDescription.option_spec)
+    option_spec['tparam-line-spec'] = directives.flag
 
     def warn(self, msg):
         # type: (unicode) -> None
@@ -4517,9 +4544,9 @@ class CPPObject(ObjectDescription):
         # type: (Any) -> Any
         raise NotImplementedError()
 
-    def describe_signature(self, signode, ast, parentScope):
-        # type: (addnodes.desc_signature, Any, Any) -> None
-        raise NotImplementedError()
+    def describe_signature(self, signode, ast, options):  # type: ignore
+        # type: (addnodes.desc_signature, Any, Dict) -> None
+        ast.describe_signature(signode, 'lastIsName', self.env, options)
 
     def handle_signature(self, sig, signode):
         # type: (unicode, addnodes.desc_signature) -> Any
@@ -4552,7 +4579,8 @@ class CPPObject(ObjectDescription):
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
 
-        self.describe_signature(signode, ast)
+        self.options['tparam-line-spec'] = 'tparam-line-spec' in self.options
+        self.describe_signature(signode, ast, self.options)
         return ast
 
     def before_content(self):
@@ -4576,10 +4604,6 @@ class CPPTypeObject(CPPObject):
         # type: (Any) -> Any
         return parser.parse_declaration("type")
 
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
-
 
 class CPPConceptObject(CPPObject):
     def get_index_text(self, name):
@@ -4589,10 +4613,6 @@ class CPPConceptObject(CPPObject):
     def parse_definition(self, parser):
         # type: (Any) -> Any
         return parser.parse_declaration("concept")
-
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
 
 
 class CPPMemberObject(CPPObject):
@@ -4604,10 +4624,6 @@ class CPPMemberObject(CPPObject):
         # type: (Any) -> Any
         return parser.parse_declaration("member")
 
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
-
 
 class CPPFunctionObject(CPPObject):
     def get_index_text(self, name):
@@ -4618,10 +4634,6 @@ class CPPFunctionObject(CPPObject):
         # type: (Any) -> Any
         return parser.parse_declaration("function")
 
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
-
 
 class CPPClassObject(CPPObject):
     def get_index_text(self, name):
@@ -4631,10 +4643,6 @@ class CPPClassObject(CPPObject):
     def parse_definition(self, parser):
         # type: (Any) -> Any
         return parser.parse_declaration("class")
-
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
 
 
 class CPPEnumObject(CPPObject):
@@ -4656,10 +4664,6 @@ class CPPEnumObject(CPPObject):
             assert False
         return ast
 
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
-
 
 class CPPEnumeratorObject(CPPObject):
     def get_index_text(self, name):
@@ -4669,10 +4673,6 @@ class CPPEnumeratorObject(CPPObject):
     def parse_definition(self, parser):
         # type: (Any) -> Any
         return parser.parse_declaration("enumerator")
-
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
 
 
 class CPPNamespaceObject(Directive):
@@ -4887,10 +4887,12 @@ class CPPDomain(Domain):
                 if emitWarnings:
                     logger.warning(msg, location=node)
         warner = Warner()
+        # add parens again for those that could be functions
+        if typ == 'any' or typ == 'func':
+            target += '()'
         parser = DefinitionParser(target, warner, env.config)
         try:
             ast = parser.parse_xref_object()
-            parser.skip_ws()
             parser.assert_end()
         except DefinitionError as e:
             warner.warn('Unparseable C++ cross-reference: %r\n%s'
@@ -4950,11 +4952,26 @@ class CPPDomain(Domain):
         name = text_type(fullNestedName).lstrip(':')
         docname = s.docname
         assert docname
-        if typ == 'any' and declaration.objectType == 'function':
-            if env.config.add_function_parentheses:
-                if not node['refexplicit']:
-                    title = contnode.pop(0).astext()
-                    contnode += nodes.Text(title + '()')
+        # If it's operator(), we need to add '()' if explicit function parens
+        # are requested. Then the Sphinx machinery will add another pair.
+        # Also, if it's an 'any' ref that resolves to a function, we need to add
+        # parens as well.
+        addParen = 0
+        if not node.get('refexplicit', False) and declaration.objectType == 'function':
+            # this is just the normal haxing for 'any' roles
+            if env.config.add_function_parentheses and typ == 'any':
+                addParen += 1
+            # and now this stuff for operator()
+            if (env.config.add_function_parentheses and typ == 'function' and
+                    contnode[-1].astext().endswith('operator()')):
+                addParen += 1
+            if ((typ == 'any' or typ == 'function') and
+                    contnode[-1].astext().endswith('operator') and
+                    name.endswith('operator()')):
+                addParen += 1
+        if addParen > 0:
+            title = contnode.pop(0).astext()
+            contnode += nodes.Text(title + '()' * addParen)
         return make_refnode(builder, fromdocname, docname,
                             declaration.get_newest_id(), contnode, name
                             ), declaration.objectType

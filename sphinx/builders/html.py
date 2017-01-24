@@ -48,7 +48,7 @@ from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
 
 if False:
     # For type annotation
-    from typing import Any, Iterable, Iterator, Tuple, Union  # NOQA
+    from typing import Any, Iterable, Iterator, Type, Tuple, Union  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -105,7 +105,7 @@ class StandaloneHTMLBuilder(Builder):
     css_files = []  # type: List[unicode]
 
     imgpath = None          # type: unicode
-    domain_indices = []     # type: List[Tuple[unicode, Index, unicode, bool]]
+    domain_indices = []     # type: List[Tuple[unicode, Type[Index], List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]]  # NOQA
 
     default_sidebars = ['localtoc.html', 'relations.html',
                         'sourcelink.html', 'searchbox.html']
@@ -190,9 +190,7 @@ class StandaloneHTMLBuilder(Builder):
 
     def get_outdated_docs(self):  # type: ignore
         # type: () -> Iterator[unicode]
-        cfgdict = dict((name, self.config[name])
-                       for (name, desc) in iteritems(self.config.values)
-                       if desc[1] == 'html')
+        cfgdict = dict((confval.name, confval.value) for confval in self.config.filter('html'))
         self.config_hash = get_stable_hash(cfgdict)
         self.tags_hash = get_stable_hash(sorted(self.tags))  # type: ignore
         old_config_hash = old_tags_hash = ''
@@ -297,7 +295,7 @@ class StandaloneHTMLBuilder(Builder):
                 domain = None  # type: Domain
                 domain = self.env.domains[domain_name]
                 for indexcls in domain.indices:
-                    indexname = '%s-%s' % (domain.name, indexcls.name)
+                    indexname = '%s-%s' % (domain.name, indexcls.name)  # type: unicode
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
@@ -328,10 +326,10 @@ class StandaloneHTMLBuilder(Builder):
 
         self.relations = self.env.collect_relations()
 
-        rellinks = []
+        rellinks = []  # type: List[Tuple[unicode, unicode, unicode, unicode]]
         if self.use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
-        for indexname, indexcls, content, collapse in self.domain_indices:  # type: ignore
+        for indexname, indexcls, content, collapse in self.domain_indices:
             # if it has a short name
             if indexcls.shortname:
                 rellinks.append((indexname, indexcls.localname,

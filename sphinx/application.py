@@ -292,7 +292,6 @@ class Sphinx(object):
         # type: (bool) -> None
         if freshenv:
             self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
-            self.env.set_warnfunc(self.warn)
             self.env.find_files(self.config, self.buildername)
             for domain in self.domains.keys():
                 self.env.domains[domain] = self.domains[domain](self.env)
@@ -301,7 +300,6 @@ class Sphinx(object):
                 logger.info(bold('loading pickled environment... '), nonl=True)
                 self.env = BuildEnvironment.frompickle(
                     self.srcdir, self.config, path.join(self.doctreedir, ENV_PICKLE_FILENAME))
-                self.env.set_warnfunc(self.warn)
                 self.env.init_managers()
                 self.env.domains = {}
                 for domain in self.domains.keys():
@@ -582,11 +580,11 @@ class Sphinx(object):
         # type: (unicode, Any, Union[bool, unicode], Any) -> None
         logger.debug('[app] adding config value: %r',
                      (name, default, rebuild) + ((types,) if types else ()))  # type: ignore
-        if name in self.config.values:
+        if name in self.config:
             raise ExtensionError('Config value %r already present' % name)
         if rebuild in (False, True):
             rebuild = rebuild and 'env' or ''
-        self.config.values[name] = (default, rebuild, types)
+        self.config.add(name, default, rebuild, types)
 
     def add_event(self, name):
         # type: (unicode) -> None

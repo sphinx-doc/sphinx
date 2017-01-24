@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/01/09 v1.6 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/01/16 v1.6 LaTeX package (Sphinx markup)]
 
 % we delay handling of options to after having loaded packages, because
 % of the need to use \definecolor.
@@ -91,6 +91,8 @@
 \DeclareBoolOption[true]{verbatimwithframe}
 \DeclareBoolOption[true]{verbatimwrapslines}
 \DeclareBoolOption[true]{inlineliteralwraps}
+% parsed literal
+\DeclareBoolOption[true]{parsedliteralwraps}
 % \textvisiblespace for compatibility with fontspec+XeTeX/LuaTeX
 \DeclareStringOption[\textcolor{red}{\textvisiblespace}]{verbatimvisiblespace}
 \DeclareStringOption % must use braces to hide the brackets
@@ -118,7 +120,7 @@
 % some font styling.
 \DeclareStringOption[\sffamily\bfseries]{HeaderFamily}
 % colours
-% same problems as for dimensions: we want the key handler to use \definecolor
+% same problems as for dimensions: we want the key handler to use \definecolor.
 % first, some colours with no prefix, for backwards compatibility
 \newcommand*{\sphinxDeclareColorOption}[2]{%
    \definecolor{#1}#2%
@@ -160,8 +162,8 @@
 % user interface: options can be changed midway in a document!
 \newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
 
-% this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
-% hyperref.sty, but we need it before, and the first release of
+% this is the \ltx@ifundefined of ltxcmds.sty, which was loaded by
+% kvoptions already, (and later by hyperref), but the first release of
 % ltxcmds.sty as in TL2009/Debian has wrong definition.
 \newcommand{\spx@ifundefined}[1]{%
     \ifcsname #1\endcsname
@@ -209,7 +211,8 @@
 
 \pagestyle{empty}               % start this way
 
-% Use this to set the font family for headers and other decor:
+% Since Sphinx 1.5, users should use HeaderFamily key to 'sphinxsetup' rather
+% than defining their own \py@HeaderFamily command (which is still possible).
 \newcommand{\py@HeaderFamily}{\spx@opt@HeaderFamily}
 
 % Redefine the 'normal' header/footer style when using "fancyhdr" package:
@@ -285,9 +288,9 @@
 % - with possibly of a top caption, non-separable by pagebreak.
 % - and usable inside tables or footnotes ("footnotehyper-sphinx").
 
-% For maintaining compatibility with Sphinx < 1.5, we define and use these
-% when (unmodified) Verbatim will be needed. But Sphinx >= 1.5 does not modify
-% original Verbatim anyhow.
+% For extensions which use \OriginalVerbatim and compatibility with Sphinx <
+% 1.5, we define and use these when (unmodified) Verbatim will be needed. But
+% Sphinx >= 1.5 does not modify the \Verbatim macro anymore.
 \let\OriginalVerbatim   \Verbatim
 \let\endOriginalVerbatim\endVerbatim
 
@@ -374,7 +377,7 @@
 %        {, <, #, %, $, ' and ": go to next line.
 %        _, }, ^, &, >, - and ~: stay at end of broken line.
 % Use of \textquotesingle for straight quote.
-% FIXME: convert this to package options
+% FIXME: convert this to package options ?
 \newcommand*\sphinxbreaksbeforelist {%
     \do\PYGZob\{\do\PYGZlt\<\do\PYGZsh\#\do\PYGZpc\%% {, <, #, %,
     \do\PYGZdl\$\do\PYGZdq\"% $, "
@@ -396,7 +399,8 @@
 
 \def\sphinx@verbatim@nolig@list {\do \`}%
 % Some characters . , ; ? ! / are not pygmentized.
-% This macro makes them "active" and they will insert potential linebreaks
+% This macro makes them "active" and they will insert potential linebreaks.
+% Not compatible with math mode (cf \sphinxunactivateextras).
 \newcommand*\sphinxbreaksbeforeactivelist {}% none
 \newcommand*\sphinxbreaksafteractivelist  {\do\.\do\,\do\;\do\?\do\!\do\/}
 \newcommand*\sphinxbreaksviaactive {%
@@ -410,6 +414,15 @@
    \sphinxbreaksafteractivelist
    \lccode`\~`\~
 }
+
+% If the linebreak is at a space, the latter will be displayed as visible
+% space at end of first line, and a continuation symbol starts next line.
+% Stretch/shrink are however usually zero for typewriter font.
+\def\spx@verbatim@space {%
+     \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
+     \discretionary{\copy\sphinxvisiblespacebox}{\sphinxafterbreak}
+                   {\kern\fontdimen2\font}%
+}%
 
 % needed to create wrapper environments of fancyvrb's Verbatim
 \newcommand*{\sphinxVerbatimEnvironment}{\gdef\FV@EnvironName{sphinxVerbatim}}
@@ -466,14 +479,7 @@
                 \doublehyphendemerits\z@\finalhyphendemerits\z@
                 \strut ##1\strut}%
           }%
-  % If the linebreak is at a space, the latter will be displayed as visible
-  % space at end of first line, and a continuation symbol starts next line.
-  % Stretch/shrink are however usually zero for typewriter font.
-  \def\FV@Space {%
-       \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
-       \discretionary{\copy\sphinxvisiblespacebox}{\sphinxafterbreak}
-                     {\kern\fontdimen2\font}%
-       }%
+  \let\FV@Space\spx@verbatim@space
   % Allow breaks at special characters using \PYG... macros.
   \sphinxbreaksatspecials
   % Breaks at punctuation characters . , ; ? ! and / (needs catcode activation)
@@ -534,6 +540,72 @@
    \def\sphinxVerbatimEnvironment{\gdef\FV@EnvironName{sphinxVerbatimintable}}%
    \begin{sphinxVerbatim}}
   {\end{sphinxVerbatim}}
+
+% Parsed literal: allow long lines to wrap like they do in code-blocks
+
+% this should be kept in sync with definitions in sphinx.util.texescape
+\newcommand*\sphinxbreaksattexescapedchars{%
+  \def\do##1##2% put potential break point before character
+     {\def##1{\discretionary{}{\sphinxafterbreak\char`##2}{\char`##2}}}%
+  \do\{\{\do\textless\<\do\#\#\do\%\%\do\$\$% {, <, #, %, $
+  \def\do##1##2% put potential break point after character
+     {\def##1{\discretionary{\char`##2}{\sphinxafterbreak}{\char`##2}}}%
+  \do\_\_\do\}\}\do\textasciicircum\^\do\&\&% _, }, ^, &,
+  \do\textgreater\>\do\textasciitilde\~% >, ~
+}
+\newcommand*\sphinxbreaksviaactiveinparsedliteral{%
+  \sphinxbreaksviaactive % by default handles . , ; ? ! /
+  \do\-% we need also the hyphen character (ends up "as is" in parsed-literal)
+  \lccode`\~`\~ %
+  % update \dospecials as it is used by \url
+  % but deactivation will already have been done hence this is unneeded:
+  %  \expandafter\def\expandafter\dospecials\expandafter{\dospecials
+  %   \sphinxbreaksbeforeactivelist\sphinxbreaksafteractivelist\do\-}%
+}
+\newcommand*\sphinxbreaksatspaceinparsedliteral{%
+  \lccode`~32 \lowercase{\let~}\spx@verbatim@space\lccode`\~`\~
+}
+% now the hack for \url to work (hyperref is assumed in use):
+% the aim it to deactivate - . , ; ? ! / in \url's argument.
+% also the space token, but not end of lines which we assume don't arise there.
+\def\spx@hack@hyper@normalise {%
+  \expandafter\spx@hack@hyper@normalise@aux\hyper@normalise
+              \spx@hack@hyper@normalise@aux\hyper@n@rmalise\relax\spx@undefined
+}%
+\long\def\spx@hack@hyper@normalise@aux#1\hyper@n@rmalise#2#3\spx@undefined{%
+  \ifx\spx@hack@hyper@normalise@aux#2%
+      \def\hyper@normalise{#1\sphinxunactivateextrasandspace\hyper@n@rmalise}%
+  \else
+      \PackageWarning{sphinx}{Could not patch \string\url\space command.%
+      ^^J    Not using extra active characters in alltt environment}%
+      \sphinxunactivateextras
+  \fi
+}%
+\newcommand*{\sphinxunactivateextras}{\let\do\@makeother
+      \sphinxbreaksbeforeactivelist\sphinxbreaksafteractivelist\do\-}%
+% the \catcode13=5\relax (deactivate end of input lines) is left to callers
+\newcommand*{\sphinxunactivateextrasandspace}{\catcode32=10\relax
+      \sphinxunactivateextras}%
+% now for the modified alltt environment
+\newenvironment{sphinxalltt}
+{% at start of next line to work around Emacs/AUCTeX issue with this file
+\begin{alltt}%
+ \ifspx@opt@parsedliteralwraps
+   \sbox\sphinxcontinuationbox {\spx@opt@verbatimcontinued}%
+   \sbox\sphinxvisiblespacebox {\spx@opt@verbatimvisiblespace}%
+   \sphinxbreaksattexescapedchars
+   \sphinxbreaksviaactiveinparsedliteral
+   \sphinxbreaksatspaceinparsedliteral
+   \spx@hack@hyper@normalise
+% alltt takes care of the ' as derivative ("prime") in math mode
+   \everymath\expandafter{\the\everymath\sphinxunactivateextrasandspace
+             \catcode`\<=12\catcode`\>=12\catcode`\^=7\catcode`\_=8 }%
+% not sure if displayed math (align,...) can end up in parsed-literal, anyway
+   \everydisplay\expandafter{\the\everydisplay
+             \catcode13=5\sphinxunactivateextrasandspace
+             \catcode`\<=12\catcode`\>=12\catcode`\^=7\catcode`\_=8 }%
+ \fi }
+{\end{alltt}}
 
 % Topic boxes
 

@@ -132,24 +132,32 @@ Here are the currently available options together with their default values.
    rendering by Sphinx; if in future Sphinx offers various *themes* for LaTeX,
    the interface may change.
 
+.. attention::
+
+   LaTeX requires for keys with Boolean values to use **lowercase** ``true`` or
+   ``false``.
+
 ``verbatimwithframe``
     default ``true``. Boolean to specify if :rst:dir:`code-block`\ s and literal
     includes are framed. Setting it to ``false`` does not deactivate use of
     package "framed", because it is still in use for the optional background
     colour (see below).
 
-    .. attention::
-
-       LaTeX requires ``true`` or ``false`` to be specified in *lowercase*.
-
 ``verbatimwrapslines``
-    default ``true``. Tells whether long lines in :rst:dir:`code-block`\ s
-    should be wrapped.
+    default ``true``. Tells whether long lines in :rst:dir:`code-block`\ 's
+    contents should wrap.
 
     .. (comment) It is theoretically possible to customize this even
        more and decide at which characters a line-break can occur and whether
        before or after, but this is accessible currently only by re-defining some
        macros with complicated LaTeX syntax from :file:`sphinx.sty`.
+
+``parsedliteralwraps``
+    default ``true``. Tells whether long lines in :dudir:`parsed-literal`\ 's
+    contents should wrap.
+
+    .. versionadded:: 1.5.2
+       set this option value to ``false`` to recover former behaviour.
 
 ``inlineliteralwraps``
     default ``true``. Allows linebreaks inside inline literals: but extra
@@ -160,7 +168,7 @@ Here are the currently available options together with their default values.
     (or shrinked) in order to accomodate the linebreak.
 
     .. versionadded:: 1.5
-       set this option to ``false`` to recover former behaviour.
+       set this option value to ``false`` to recover former behaviour.
 
 ``verbatimvisiblespace``
     default ``\textcolor{red}{\textvisiblespace}``. When a long code line is
@@ -319,9 +327,10 @@ Here are the currently available options together with their default values.
     (non-breakable) space.
 
     .. versionadded:: 1.5
-       formerly, footnotes from explicit mark-up were
-       preceded by a space (hence a linebreak there was possible), but
-       automatically generated footnotes had no such space.
+       formerly, footnotes from explicit mark-up (but not automatically
+       generated ones) were preceded by a space in the output ``.tex`` file
+       hence a linebreak in PDF was possible. To avoid insertion of this space
+       one could use ``foo\ [#f1]`` mark-up, but this impacts all builders.
 
 ``HeaderFamily``
     default ``\sffamily\bfseries``. Sets the font used by headings.

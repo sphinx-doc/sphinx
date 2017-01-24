@@ -107,7 +107,7 @@ class Index(object):
 
         Qualifier and description are not rendered e.g. in LaTeX output.
         """
-        return tuple()
+        raise NotImplementedError
 
 
 class Domain(object):
