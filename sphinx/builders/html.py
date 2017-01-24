@@ -1027,7 +1027,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         return tree
 
     def assemble_toc_secnumbers(self):
-        # type: () -> Dict[unicode, Dict[Tuple[unicode, unicode], Tuple[int, ...]]]
+        # type: () -> Dict[unicode, Dict[unicode, Tuple[int, ...]]]
         # Assemble toc_secnumbers to resolve section numbers on SingleHTML.
         # Merge all secnumbers to single secnumber.
         #
@@ -1037,15 +1037,16 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         #
         #       There are related codes in inline_all_toctres() and
         #       HTMLTranslter#add_secnumber().
-        new_secnumbers = {}
+        new_secnumbers = {}  # type: Dict[unicode, Tuple[int, ...]]
         for docname, secnums in iteritems(self.env.toc_secnumbers):
             for id, secnum in iteritems(secnums):
-                new_secnumbers[(docname, id)] = secnum
+                alias = "%s/%s" % (docname, id)
+                new_secnumbers[alias] = secnum
 
         return {self.config.master_doc: new_secnumbers}
 
     def assemble_toc_fignumbers(self):
-        # type: () -> Dict[unicode, Dict[Tuple[unicode, unicode], Dict[unicode, Tuple[int, ...]]]]  # NOQA
+        # type: () -> Dict[unicode, Dict[unicode, Dict[unicode, Tuple[int, ...]]]]  # NOQA
         # Assemble toc_fignumbers to resolve figure numbers on SingleHTML.
         # Merge all fignumbers to single fignumber.
         #
@@ -1055,13 +1056,14 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         #
         #       There are related codes in inline_all_toctres() and
         #       HTMLTranslter#add_fignumber().
-        new_fignumbers = {}  # type: Dict[Tuple[unicode, unicode], Dict[unicode, Tuple[int, ...]]]  # NOQA
+        new_fignumbers = {}  # type: Dict[unicode, Dict[unicode, Tuple[int, ...]]]
         # {u'foo': {'figure': {'id2': (2,), 'id1': (1,)}}, u'bar': {'figure': {'id1': (3,)}}}
         for docname, fignumlist in iteritems(self.env.toc_fignumbers):
             for figtype, fignums in iteritems(fignumlist):
-                new_fignumbers.setdefault((docname, figtype), {})
+                alias = "%s/%s" % (docname, figtype)
+                new_fignumbers.setdefault(alias, {})
                 for id, fignum in iteritems(fignums):
-                    new_fignumbers[(docname, figtype)][id] = fignum
+                    new_fignumbers[alias][id] = fignum
 
         return {self.config.master_doc: new_fignumbers}
 
