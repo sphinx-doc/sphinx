@@ -126,10 +126,15 @@ class TestDirective(Directive):
             # parse doctest-like output comparison flags
             option_strings = self.options['options'].replace(',', ' ').split()
             for option in option_strings:
-                if (option[0] not in '+-' or option[1:] not in
-                        doctest.OPTIONFLAGS_BY_NAME):  # type: ignore
+                on_or_off, option_name = option[0], option[1:]
+                if on_or_off not in '+-':  # type: ignore
                     self.state.document.reporter.warning(
                         "missing '+' or '-' in '%s' option." % option,
+                        line=self.lineno)
+                    continue
+                if option_name not in doctest.OPTIONFLAGS_BY_NAME:  # type: ignore
+                    self.state.document.reporter.warning(
+                        "'%s' is not a valid option." % option_name,
                         line=self.lineno)
                     continue
                 flag = doctest.OPTIONFLAGS_BY_NAME[option[1:]]  # type: ignore
