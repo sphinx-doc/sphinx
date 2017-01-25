@@ -871,6 +871,7 @@ def test_generate():
     assert_result_contains('.. py:function:: decoratedFunction()',
                            'module', 'autodoc_missing_imports')
 
+
 # --- generate fodder ------------
 __all__ = ['Class']
 
@@ -908,6 +909,7 @@ class CustomDataDescriptor(object):
 
 class CustomDataDescriptorMeta(type):
     """Descriptor metaclass docstring."""
+
 
 @add_metaclass(CustomDataDescriptorMeta)
 class CustomDataDescriptor2(CustomDataDescriptor):

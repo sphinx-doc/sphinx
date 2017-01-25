@@ -59,8 +59,8 @@ ignore_paths = [
     for sub in ('root', 'roots')
 ]
 args = sys.argv[1:]
-for path in ignore_paths:
-    args.extend(['--ignore', path])
+for ignore_path in ignore_paths:
+    args.extend(['--ignore', ignore_path])
 
-import pytest
+import pytest  # NOQA
 sys.exit(pytest.main(args))

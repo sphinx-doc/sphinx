@@ -15,7 +15,7 @@ import pytest
 
 
 @pytest.mark.sphinx('html', testroot='ext-todo', freshenv=True,
-          confoverrides={'todo_include_todos': True, 'todo_emit_warnings': True})
+                    confoverrides={'todo_include_todos': True, 'todo_emit_warnings': True})
 def test_todo(app, status, warning):
     todos = []
 
@@ -51,7 +51,7 @@ def test_todo(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='ext-todo', freshenv=True,
-          confoverrides={'todo_include_todos': False, 'todo_emit_warnings': True})
+                    confoverrides={'todo_include_todos': False, 'todo_emit_warnings': True})
 def test_todo_not_included(app, status, warning):
     todos = []
 

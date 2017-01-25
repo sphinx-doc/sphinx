@@ -36,7 +36,7 @@ def test_jsmath(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='ext-math-simple',
-          confoverrides = {'extensions': ['sphinx.ext.imgmath']})
+                    confoverrides = {'extensions': ['sphinx.ext.imgmath']})
 def test_imgmath_png(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
@@ -51,8 +51,8 @@ def test_imgmath_png(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='ext-math-simple',
-          confoverrides={'extensions': ['sphinx.ext.imgmath'],
-                         'imgmath_image_format': 'svg'})
+                    confoverrides={'extensions': ['sphinx.ext.imgmath'],
+                                   'imgmath_image_format': 'svg'})
 def test_imgmath_svg(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
@@ -67,7 +67,7 @@ def test_imgmath_svg(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',
-          confoverrides={'extensions': ['sphinx.ext.mathjax']})
+                    confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_mathjax_align(app, status, warning):
     app.builder.build_all()
 
@@ -79,8 +79,8 @@ def test_mathjax_align(app, status, warning):
 
 
 @pytest.mark.sphinx('html', testroot='ext-math',
-          confoverrides={'math_number_all': True,
-                         'extensions': ['sphinx.ext.mathjax']})
+                    confoverrides={'math_number_all': True,
+                                   'extensions': ['sphinx.ext.mathjax']})
 def test_math_number_all_mathjax(app, status, warning):
     app.builder.build_all()
 
@@ -91,7 +91,7 @@ def test_math_number_all_mathjax(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='ext-math',
-          confoverrides={'extensions': ['sphinx.ext.mathjax']})
+                    confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_math_number_all_latex(app, status, warning):
     app.builder.build_all()
 

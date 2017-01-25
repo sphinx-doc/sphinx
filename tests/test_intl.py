@@ -20,8 +20,9 @@ from babel.messages import pofile, mofile
 from six import string_types
 import pytest
 
-from util import tempdir, rootdir, path, assert_re_search, \
-    assert_not_re_search, assert_startswith, assert_node, etree_parse
+from util import (
+    path, assert_re_search, assert_not_re_search, assert_startswith, assert_node, etree_parse
+)
 
 
 sphinx_intl = pytest.mark.sphinx(
@@ -559,6 +560,7 @@ def test_html_index_entries(app):
         start_tag = "<%s[^>]*>" % tag
         end_tag = "</%s>" % tag
         return r"%s\s*%s\s*%s" % (start_tag, keyword, end_tag)
+
     def wrap_nest(parenttag, childtag, keyword):
         start_tag1 = "<%s[^>]*>" % parenttag
         start_tag2 = "<%s[^>]*>" % childtag
@@ -781,9 +783,9 @@ def test_xml_keep_external_links(app):
         ['http://example.com/external2',
          'http://example.com/external1'])
     assert_elem(
-           para1[1],
-           ['LINK TO', 'THE PYTHON SITE', 'AND', 'THE SPHINX SITE', '.'],
-           ['http://python.org', 'http://sphinx-doc.org'])
+        para1[1],
+        ['LINK TO', 'THE PYTHON SITE', 'AND', 'THE SPHINX SITE', '.'],
+        ['http://python.org', 'http://sphinx-doc.org'])
 
     # multiple references in the same line
     para2 = secs[2].findall('paragraph')

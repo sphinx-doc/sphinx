@@ -31,7 +31,7 @@ def parse(name, string):
     if not parser.eof:
         print("Parsing stopped at", parser.pos)
         print(string)
-        print('-'*parser.pos + '^')
+        print('-' * parser.pos + '^')
         raise DefinitionError("")
     # The scopedness would usually have been set by CPPEnumObject
     if name == "enum":
@@ -493,7 +493,6 @@ def test_attributes():
     check('function', 'static inline __attribute__(()) void f()',
           'f', '1fv',
           output='__attribute__(()) static inline void f()')
-
 
 
 # def test_print():

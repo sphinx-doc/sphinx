@@ -8,7 +8,6 @@
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-import os
 
 from docutils import frontend, utils
 from docutils.parsers import rst

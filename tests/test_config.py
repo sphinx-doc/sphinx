@@ -102,7 +102,7 @@ def test_errors_warnings(tempdir):
         u'# -*- coding: utf-8\n\nproject = u"Jägermeister"\n',
         encoding='utf-8')
     cfg = Config(tempdir, 'conf.py', {}, None)
-    cfg.init_values(lambda warning: 1/0)
+    cfg.init_values(lambda warning: 1 / 0)
     assert cfg.project == u'Jägermeister'
 
     # test the warning for bytestrings with non-ascii content
@@ -163,13 +163,13 @@ def test_config_eol(tempdir):
     for eol in (b'\n', b'\r\n'):
         configfile.write_bytes(b'project = "spam"' + eol)
         cfg = Config(tempdir, 'conf.py', {}, None)
-        cfg.init_values(lambda warning: 1/0)
+        cfg.init_values(lambda warning: 1 / 0)
         assert cfg.project == u'spam'
 
 
 @pytest.mark.sphinx(confoverrides={'master_doc': 123,
-                         'language': 'foo',
-                         'primary_domain': None})
+                                   'language': 'foo',
+                                   'primary_domain': None})
 def test_builtin_conf(app, status, warning):
     warnings = warning.getvalue()
     assert 'master_doc' in warnings, (

@@ -83,11 +83,10 @@ def nonascii_srcdir(request, setup_command):
 
     master_doc = srcdir / 'contents.txt'
     master_doc.write_bytes((master_doc.text() + dedent("""
-            .. toctree::
+                            .. toctree::
 
-               %(mb_name)s/%(mb_name)s
-            """ % locals())
-                            ).encode('utf-8'))
+                               %(mb_name)s/%(mb_name)s
+                            """ % locals())).encode('utf-8'))
 
 
 @pytest.mark.usefixtures('nonascii_srcdir')
