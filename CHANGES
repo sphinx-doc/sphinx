@@ -13,6 +13,8 @@ Features added
 Bugs fixed
 ----------
 
+* #3370: the caption of code-block is not picked up for translation
+
 Testing
 --------
 

@@ -455,6 +455,22 @@ def test_gettext_glossary_term_inconsistencies(app):
 @sphinx_intl
 @pytest.mark.sphinx('gettext')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
+def test_gettext_literalblock(app):
+    app.build()
+    # --- gettext builder always ignores ``only`` directive
+    expect = read_po(app.srcdir / 'literalblock.po')
+    actual = read_po(app.outdir / 'literalblock.pot')
+    for expect_msg in [m for m in expect if m.id]:
+        if len(expect_msg.id.splitlines()) == 1:
+            # compare tranlsations only labels
+            assert expect_msg.id in [m.id for m in actual if m.id]
+        else:
+            pass  # skip code-blocks and literalblocks
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext')
+@pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_buildr_ignores_only_directive(app):
     app.build()
     # --- gettext builder always ignores ``only`` directive

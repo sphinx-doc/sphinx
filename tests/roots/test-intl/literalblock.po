@@ -28,6 +28,9 @@ msgstr "MISSING LITERAL BLOCK::"
 msgid "That's all."
 msgstr "THAT'S ALL."
 
+msgid "included raw.txt"
+msgstr "INCLUDED RAW.TXT"
+
 msgid "code blocks"
 msgstr "CODE-BLOCKS"
 
@@ -39,6 +42,9 @@ msgstr ""
 "def main\n"
 "   'RESULT'\n"
 "end"
+
+msgid "example of C language"
+msgstr "EXAMPLE OF C LANGUAGE"
 
 msgid ""
 "#include <stdlib.h>\n"
