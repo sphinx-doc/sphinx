@@ -84,7 +84,7 @@ a comma-separated list of group names.
      comparison is performed by `distutils.version.LooseVersion
      <https://www.python.org/dev/peps/pep-0386/#distutils>`__.
 
-     .. versionadded:: 1.5
+     .. versionadded:: 1.6
 
    Note that like with standard doctests, you have to use ``<BLANKLINE>`` to
    signal a blank line in the expected output.  The ``<BLANKLINE>`` is removed

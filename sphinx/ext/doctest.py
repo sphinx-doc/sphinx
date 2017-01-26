@@ -31,6 +31,7 @@ from sphinx.util import force_decode, logging
 from sphinx.util.nodes import set_source_info
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.osutil import fs_encoding
+from sphinx.locale import _
 
 if False:
     # For type annotation
@@ -126,15 +127,15 @@ class TestDirective(Directive):
             # parse doctest-like output comparison flags
             option_strings = self.options['options'].replace(',', ' ').split()
             for option in option_strings:
-                on_or_off, option_name = option[0], option[1:]
-                if on_or_off not in '+-':  # type: ignore
+                prefix, option_name = option[0], option[1:]
+                if prefix not in '+-':  # type: ignore
                     self.state.document.reporter.warning(
-                        "missing '+' or '-' in '%s' option." % option,
+                        _("missing '+' or '-' in '%s' option.") % option,
                         line=self.lineno)
                     continue
                 if option_name not in doctest.OPTIONFLAGS_BY_NAME:  # type: ignore
                     self.state.document.reporter.warning(
-                        "'%s' is not a valid option." % option_name,
+                        _("'%s' is not a valid option.") % option_name,
                         line=self.lineno)
                     continue
                 flag = doctest.OPTIONFLAGS_BY_NAME[option[1:]]  # type: ignore
@@ -150,7 +151,7 @@ class TestDirective(Directive):
                     node['options'][flag] = True  # Skip the test
             except ValueError:
                 self.state.document.reporter.warning(
-                    "'%s' is not a valid pyversion option" % option,
+                    _("'%s' is not a valid pyversion option") % option,
                     line=self.lineno)
         return [node]
 

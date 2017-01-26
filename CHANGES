@@ -42,6 +42,7 @@ Features added
   imported members.
 * C++, add ``:tparam-line-spec:`` option to templated declarations.
   When specified, each template parameter will be rendered on a separate line.
+* #3303: Add ``:pyversion:`` option to the doctest directive.
 
 Bugs fixed
 ----------
@@ -72,8 +73,6 @@ Deprecated
 
 Features added
 --------------
-
-* #3303: Added ``:pyversion:`` option to the doctest directive
 
 Bugs fixed
 ----------
