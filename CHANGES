@@ -14,6 +14,7 @@ Bugs fixed
 ----------
 
 * #3370: the caption of code-block is not picked up for translation
+* LaTeX: :confval:`release` is not escaped (refs: #3362)
 
 Testing
 --------
