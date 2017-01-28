@@ -147,7 +147,7 @@ class TestDirective(Directive):
                 operand, option_version = [item.strip() for item in option.split()]
                 running_version = platform.python_version()
                 if not compare_version(running_version, option_version, operand):
-                    flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']
+                    flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']  # type: ignore
                     node['options'][flag] = True  # Skip the test
             except ValueError:
                 self.state.document.reporter.warning(
