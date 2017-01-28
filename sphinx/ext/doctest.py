@@ -15,10 +15,12 @@ import re
 import sys
 import time
 import codecs
+import platform
 from os import path
 import doctest
 
 from six import itervalues, StringIO, binary_type, text_type, PY2
+from distutils.version import LooseVersion
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -29,6 +31,7 @@ from sphinx.util import force_decode, logging
 from sphinx.util.nodes import set_source_info
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.osutil import fs_encoding
+from sphinx.locale import _
 
 if False:
     # For type annotation
@@ -52,6 +55,29 @@ else:
     def doctest_encode(text, encoding):
         # type: (unicode, unicode) -> unicode
         return text
+
+
+def compare_version(ver1, ver2, operand):
+    """Compare `ver1` to `ver2`, relying on `operand`.
+
+    Some examples:
+
+        >>> compare_version('3.3', '3.5', '<=')
+        True
+        >>> compare_version('3.3', '3.2', '<=')
+        False
+        >>> compare_version('3.3a0', '3.3', '<=')
+        True
+    """
+    if operand not in ('<=', '<', '==', '>=', '>'):
+        raise ValueError("'%s' is not a valid operand.")
+    v1 = LooseVersion(ver1)
+    v2 = LooseVersion(ver2)
+    return ((operand == '<=' and (v1 <= v2)) or
+            (operand == '<' and (v1 < v2)) or
+            (operand == '==' and (v1 == v2)) or
+            (operand == '>=' and (v1 >= v2)) or
+            (operand == '>' and (v1 > v2)))
 
 
 # set up the necessary directives
@@ -101,12 +127,32 @@ class TestDirective(Directive):
             # parse doctest-like output comparison flags
             option_strings = self.options['options'].replace(',', ' ').split()
             for option in option_strings:
-                if (option[0] not in '+-' or option[1:] not in
-                        doctest.OPTIONFLAGS_BY_NAME):  # type: ignore
-                    # XXX warn?
+                prefix, option_name = option[0], option[1:]
+                if prefix not in '+-':  # type: ignore
+                    self.state.document.reporter.warning(
+                        _("missing '+' or '-' in '%s' option.") % option,
+                        line=self.lineno)
+                    continue
+                if option_name not in doctest.OPTIONFLAGS_BY_NAME:  # type: ignore
+                    self.state.document.reporter.warning(
+                        _("'%s' is not a valid option.") % option_name,
+                        line=self.lineno)
                     continue
                 flag = doctest.OPTIONFLAGS_BY_NAME[option[1:]]  # type: ignore
                 node['options'][flag] = (option[0] == '+')
+        if self.name == 'doctest' and 'pyversion' in self.options:
+            try:
+                option = self.options['pyversion']
+                # :pyversion: >= 3.6   -->   operand='>=', option_version='3.6'
+                operand, option_version = [item.strip() for item in option.split()]
+                running_version = platform.python_version()
+                if not compare_version(running_version, option_version, operand):
+                    flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']
+                    node['options'][flag] = True  # Skip the test
+            except ValueError:
+                self.state.document.reporter.warning(
+                    _("'%s' is not a valid pyversion option") % option,
+                    line=self.lineno)
         return [node]
 
 
@@ -122,12 +168,14 @@ class DoctestDirective(TestDirective):
     option_spec = {
         'hide': directives.flag,
         'options': directives.unchanged,
+        'pyversion': directives.unchanged_required,
     }
 
 
 class TestcodeDirective(TestDirective):
     option_spec = {
         'hide': directives.flag,
+        'pyversion': directives.unchanged_required,
     }
 
 
@@ -135,6 +183,7 @@ class TestoutputDirective(TestDirective):
     option_spec = {
         'hide': directives.flag,
         'options': directives.unchanged,
+        'pyversion': directives.unchanged_required,
     }
 
 

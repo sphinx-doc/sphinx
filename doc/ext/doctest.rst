@@ -63,7 +63,7 @@ a comma-separated list of group names.
    default set of flags is specified by the :confval:`doctest_default_flags`
    configuration variable.
 
-   This directive supports two options:
+   This directive supports three options:
 
    * ``hide``, a flag option, hides the doctest block in other builders.  By
      default it is shown as a highlighted doctest block.
@@ -72,6 +72,19 @@ a comma-separated list of group names.
      doctest flags that apply to each example in the tests.  (You still can give
      explicit flags per example, with doctest comments, but they will show up in
      other builders too.)
+
+   * ``pyversion``, a string option, can be used to specify the required Python
+     version for the example to be tested. For instance, in the following case
+     the example will be tested only for Python versions greather than 3.3::
+
+         .. doctest::
+            :pyversion: > 3.3
+
+     The supported operands are ``<``, ``<=``, ``==``, ``>=``, ``>``, and
+     comparison is performed by `distutils.version.LooseVersion
+     <https://www.python.org/dev/peps/pep-0386/#distutils>`__.
+
+     .. versionadded:: 1.6
 
    Note that like with standard doctests, you have to use ``<BLANKLINE>`` to
    signal a blank line in the expected output.  The ``<BLANKLINE>`` is removed

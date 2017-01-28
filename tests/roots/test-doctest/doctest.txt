@@ -69,7 +69,7 @@ Special directives
   >>> squared(2)
   4
 
-* options for testcode/testoutput blocks
+* options for doctest/testcode/testoutput blocks
 
   .. testcode::
      :hide:
@@ -81,6 +81,20 @@ Special directives
      :options: +NORMALIZE_WHITESPACE
 
      Output text.
+
+  .. doctest::
+     :pyversion: >= 2.0
+
+     >>> a = 3
+     >>> a
+     3
+
+  .. doctest::
+     :pyversion: < 2.0
+
+     >>> a = 3
+     >>> a
+     4
 
 * grouping
 
