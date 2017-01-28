@@ -42,6 +42,7 @@ Features added
   imported members.
 * C++, add ``:tparam-line-spec:`` option to templated declarations.
   When specified, each template parameter will be rendered on a separate line.
+* #3359: Allow sphinx.js in a user locale dir to override sphinx.js from Sphinx
 
 Bugs fixed
 ----------
