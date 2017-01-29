@@ -885,6 +885,16 @@ class PythonDomain(Domain):
             if type != 'module':  # modules are already handled
                 yield (refname, refname, type, docname, refname, 1)
 
+    def get_full_qualified_name(self, node):
+        # type: (nodes.Node) -> unicode
+        modname = node.get('py:module')
+        clsname = node.get('py:class')
+        target = node.get('reftarget')
+        if target is None:
+            return None
+        else:
+            return '.'.join(filter(None, [modname, clsname, target]))
+
 
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
