@@ -10,6 +10,8 @@ Deprecated
 Features added
 --------------
 
+* Support requests-2.0.0 (experimental) (refs: #3367)
+
 Bugs fixed
 ----------
 
