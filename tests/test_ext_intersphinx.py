@@ -20,7 +20,7 @@ import mock
 from sphinx import addnodes
 from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.ext.intersphinx import read_inventory, \
-    load_mappings, missing_reference, _strip_basic_auth, _read_from_url, \
+    load_mappings, missing_reference, _strip_basic_auth, \
     _get_safe_url, fetch_inventory, INVENTORY_FILENAME
 
 

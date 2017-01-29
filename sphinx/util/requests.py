@@ -11,18 +11,30 @@
 
 from __future__ import absolute_import
 
-import requests
 import warnings
+from contextlib import contextmanager
+
+import requests
 import pkg_resources
 
 from six import string_types
 from six.moves.urllib.parse import urlsplit
 try:
-    from requests.packages.urllib3.exceptions import SSLError, InsecureRequestWarning
+    from requests.packages.urllib3.exceptions import SSLError
 except ImportError:
     # python-requests package in Debian jessie does not provide ``requests.packages.urllib3``.
     # So try to import the exceptions from urllib3 package.
-    from urllib3.exceptions import SSLError, InsecureRequestWarning  # type: ignore
+    from urllib3.exceptions import SSLError  # type: ignore
+
+try:
+    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+except ImportError:
+    try:
+        # for Debian-jessie
+        from urllib3.exceptions import InsecureRequestWarning  # type: ignore
+    except ImportError:
+        # for requests < 2.4.0
+        InsecureRequestWarning = None
 
 # try to load requests[security]
 try:
@@ -65,6 +77,15 @@ def is_ssl_error(exc):
             return False
 
 
+@contextmanager
+def ignore_insecure_warning(**kwargs):
+    with warnings.catch_warnings():
+        if not kwargs.get('verify') and InsecureRequestWarning:
+            # ignore InsecureRequestWarning if verify=False
+            warnings.filterwarnings("ignore", category=InsecureRequestWarning)
+        yield
+
+
 def _get_tls_cacert(url, config):
     """Get addiotinal CA cert for a specific URL.
 
@@ -96,10 +117,7 @@ def get(url, **kwargs):
     if config:
         kwargs.setdefault('verify', _get_tls_cacert(url, config))
 
-    with warnings.catch_warnings():
-        if not kwargs.get('verify'):
-            # ignore InsecureRequestWarning if verify=False
-            warnings.filterwarnings("ignore", category=InsecureRequestWarning)
+    with ignore_insecure_warning(**kwargs):
         return requests.get(url, **kwargs)
 
 
@@ -112,8 +130,5 @@ def head(url, **kwargs):
     if config:
         kwargs.setdefault('verify', _get_tls_cacert(url, config))
 
-    with warnings.catch_warnings():
-        if not kwargs.get('verify'):
-            # ignore InsecureRequestWarning if verify=False
-            warnings.filterwarnings("ignore", category=InsecureRequestWarning)
+    with ignore_insecure_warning(**kwargs):
         return requests.get(url, **kwargs)

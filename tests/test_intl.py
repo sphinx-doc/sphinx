@@ -20,8 +20,10 @@ from babel.messages import pofile, mofile
 from six import string_types
 import pytest
 
-from util import tempdir, rootdir, path, assert_re_search, \
-    assert_not_re_search, assert_startswith, assert_node, etree_parse, strip_escseq
+from util import (
+    path, etree_parse, strip_escseq,
+    assert_re_search, assert_not_re_search, assert_startswith, assert_node
+)
 
 
 sphinx_intl = pytest.mark.sphinx(
@@ -454,6 +456,22 @@ def test_gettext_glossary_term_inconsistencies(app):
 @sphinx_intl
 @pytest.mark.sphinx('gettext')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
+def test_gettext_literalblock(app):
+    app.build()
+    # --- gettext builder always ignores ``only`` directive
+    expect = read_po(app.srcdir / 'literalblock.po')
+    actual = read_po(app.outdir / 'literalblock.pot')
+    for expect_msg in [m for m in expect if m.id]:
+        if len(expect_msg.id.splitlines()) == 1:
+            # compare tranlsations only labels
+            assert expect_msg.id in [m.id for m in actual if m.id]
+        else:
+            pass  # skip code-blocks and literalblocks
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext')
+@pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_buildr_ignores_only_directive(app):
     app.build()
     # --- gettext builder always ignores ``only`` directive
@@ -559,6 +577,7 @@ def test_html_index_entries(app):
         start_tag = "<%s[^>]*>" % tag
         end_tag = "</%s>" % tag
         return r"%s\s*%s\s*%s" % (start_tag, keyword, end_tag)
+
     def wrap_nest(parenttag, childtag, keyword):
         start_tag1 = "<%s[^>]*>" % parenttag
         start_tag2 = "<%s[^>]*>" % childtag
@@ -781,9 +800,9 @@ def test_xml_keep_external_links(app):
         ['http://example.com/external2',
          'http://example.com/external1'])
     assert_elem(
-           para1[1],
-           ['LINK TO', 'THE PYTHON SITE', 'AND', 'THE SPHINX SITE', '.'],
-           ['http://python.org', 'http://sphinx-doc.org'])
+        para1[1],
+        ['LINK TO', 'THE PYTHON SITE', 'AND', 'THE SPHINX SITE', '.'],
+        ['http://python.org', 'http://sphinx-doc.org'])
 
     # multiple references in the same line
     para2 = secs[2].findall('paragraph')

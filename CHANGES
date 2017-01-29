@@ -75,8 +75,14 @@ Deprecated
 Features added
 --------------
 
+* Support requests-2.0.0 (experimental) (refs: #3367)
+
 Bugs fixed
 ----------
+
+* #3370: the caption of code-block is not picked up for translation
+* LaTeX: :confval:`release` is not escaped (refs: #3362)
+* #3364: sphinx-quickstart prompts overflow on Console with 80 chars width
 
 Testing
 --------

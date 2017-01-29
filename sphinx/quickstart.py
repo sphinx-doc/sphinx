@@ -44,9 +44,6 @@ from sphinx.util import texescape
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
-# function to get input from terminal -- overridden by the test suite
-term_input = input
-
 DEFAULT_VALUE = {
     'path': '.',
     'sep': False,
@@ -72,6 +69,12 @@ def mkdir_p(dir):
     if path.isdir(dir):
         return
     os.makedirs(dir)
+
+
+# function to get input from terminal -- overridden by the test suite
+def term_input(prompt):
+    sys.stdout.write(prompt)
+    return input('')
 
 
 class ValidationError(Exception):

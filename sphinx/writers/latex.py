@@ -408,9 +408,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.elements.update({
             'wrapperclass': self.format_docclass(document.settings.docclass),
             # if empty, the title is set to the first section title
-            'title':        document.settings.title,
-            'release':      builder.config.release,
-            'author':       document.settings.author,
+            'title':        document.settings.title,    # treat as a raw LaTeX code
+            'release':      self.encode(builder.config.release),
+            'author':       document.settings.author,   # treat as a raw LaTeX code
             'releasename':  _('Release'),
             'indexname':    _('Index'),
         })

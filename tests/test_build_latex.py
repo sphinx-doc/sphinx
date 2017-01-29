@@ -171,7 +171,7 @@ def test_latex_title_after_admonitions(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='numfig',
-          confoverrides={'numfig': True})
+                    confoverrides={'numfig': True})
 def test_numref(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
@@ -548,12 +548,12 @@ def test_latex_show_urls_is_inline(app, status, warning):
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
-           'First\n%\n\\end{footnote}') in result
+            'First\n%\n\\end{footnote}') in result
     assert ('Second footnote: %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
-           'Second\n%\n\\end{footnote}') in result
+            'Second\n%\n\\end{footnote}') in result
     assert '\\href{http://sphinx-doc.org/}{Sphinx} (http://sphinx-doc.org/)' in result
     assert ('Third footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
-           'Third\n%\n\\end{footnote}') in result
+            'Third\n%\n\\end{footnote}') in result
     assert ('\\href{http://sphinx-doc.org/~test/}{URL including tilde} '
             '(http://sphinx-doc.org/\\textasciitilde{}test/)') in result
     assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term} '
@@ -591,9 +591,9 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}') in result
     assert ('First footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
-           'First\n%\n\\end{footnote}') in result
+            'First\n%\n\\end{footnote}') in result
     assert ('Second footnote: %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
-           'Second\n%\n\\end{footnote}') in result
+            'Second\n%\n\\end{footnote}') in result
     assert ('\\href{http://sphinx-doc.org/}{Sphinx}'
             '%\n\\begin{footnote}[4]\\sphinxAtStartFootnote\n'
             '\\nolinkurl{http://sphinx-doc.org/}\n%\n\\end{footnote}') in result
@@ -615,7 +615,7 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             '\\leavevmode%\n\\begin{footnotetext}[9]\\sphinxAtStartFootnote\n'
             '\\nolinkurl{http://sphinx-doc.org/}\n%\n'
             '\\end{footnotetext}\nDescription') in result
-    assert  '\\url{https://github.com/sphinx-doc/sphinx}\n' in result
+    assert ('\\url{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx-dev@googlegroups.com}\n') in result
 
@@ -643,12 +643,12 @@ def test_latex_show_urls_is_no(app, status, warning):
             '{\\hyperref[\\detokenize{index:the-section-with-a-reference-to}]'
             '{\\sphinxcrossref{The section with a reference to }}}' in result)
     assert ('First footnote: %\n\\begin{footnote}[2]\\sphinxAtStartFootnote\n'
-           'First\n%\n\\end{footnote}') in result
+            'First\n%\n\\end{footnote}') in result
     assert ('Second footnote: %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
-           'Second\n%\n\\end{footnote}') in result
+            'Second\n%\n\\end{footnote}') in result
     assert '\\href{http://sphinx-doc.org/}{Sphinx}' in result
     assert ('Third footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
-           'Third\n%\n\\end{footnote}') in result
+            'Third\n%\n\\end{footnote}') in result
     assert '\\href{http://sphinx-doc.org/~test/}{URL including tilde}' in result
     assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term}}] '
             '\\leavevmode\nDescription') in result
@@ -688,10 +688,10 @@ def test_latex_logo_if_not_found(app, status, warning):
 
 
 @pytest.mark.sphinx('latex', testroot='toctree-maxdepth',
-          confoverrides={'latex_documents': [
-              ('index', 'SphinxTests.tex', 'Sphinx Tests Documentation',
-               'Georg Brandl', 'manual'),
-          ]})
+                    confoverrides={'latex_documents': [
+                        ('index', 'SphinxTests.tex', 'Sphinx Tests Documentation',
+                         'Georg Brandl', 'manual'),
+                    ]})
 def test_toctree_maxdepth_manual(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'SphinxTests.tex').text(encoding='utf8')
@@ -803,6 +803,7 @@ def test_latex_toplevel_sectioning_is_section(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     assert '\\section{Foo}' in result
+
 
 @skip_if_stylefiles_notfound
 @pytest.mark.sphinx('latex', testroot='maxlistdepth')

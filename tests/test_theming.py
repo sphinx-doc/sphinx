@@ -17,7 +17,7 @@ import pytest
 
 from sphinx.theming import Theme, ThemeError
 
-from util import with_app, path
+from util import path
 
 
 @pytest.mark.sphinx(

@@ -10,6 +10,7 @@
 """
 import pytest
 
+
 @pytest.mark.sphinx(testroot='toctree-glob')
 def test_relations(app, status, warning):
     app.builder.build_all()

@@ -119,6 +119,7 @@ def get_verifier(verify, verify_re):
         'verify': verify,
         'verify_re': verify_re,
     }
+
     def get(name):
         return v[name]
     return get
@@ -258,7 +259,7 @@ def test_keep_warnings_is_True(app, status, warning):
 
 
 @pytest.mark.sphinx('dummy', testroot='keep_warnings',
-          confoverrides={'keep_warnings': False})
+                    confoverrides={'keep_warnings': False})
 def test_keep_warnings_is_False(app, status, warning):
     app.builder.build_all()
     doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())

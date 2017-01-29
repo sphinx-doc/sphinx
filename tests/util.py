@@ -15,6 +15,7 @@ from functools import wraps
 from xml.etree import ElementTree
 
 from six import string_types
+from six import StringIO
 
 import pytest
 
@@ -206,8 +207,6 @@ def strip_escseq(text):
 
 # #############################################
 # DEPRECATED implementations
-
-from six import StringIO
 
 
 def gen_with_app(*args, **kwargs):

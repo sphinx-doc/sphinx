@@ -169,8 +169,8 @@ def test_config_eol(logger, tempdir):
 
 
 @pytest.mark.sphinx(confoverrides={'master_doc': 123,
-                         'language': 'foo',
-                         'primary_domain': None})
+                                   'language': 'foo',
+                                   'primary_domain': None})
 def test_builtin_conf(app, status, warning):
     warnings = warning.getvalue()
     assert 'master_doc' in warnings, (

@@ -161,8 +161,8 @@ def test_moderation(support):
     session.close()
     accepted = support.add_comment('Accepted Comment', node_id=node.id,
                                    displayed=False)
-    deleted  = support.add_comment('Comment to delete', node_id=node.id,
-                                   displayed=False)
+    deleted = support.add_comment('Comment to delete', node_id=node.id,
+                                  displayed=False)
     # Make sure the moderation_callback is called.
     assert called
     # Make sure the user must be a moderator.

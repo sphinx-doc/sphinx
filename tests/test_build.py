@@ -46,11 +46,10 @@ def nonascii_srcdir(request):
 
         master_doc = srcdir / 'contents.txt'
         master_doc.write_text(master_doc.text() + dedent(u"""
-                .. toctree::
+                              .. toctree::
 
-                   %(test_name)s/%(test_name)s
-                """ % {'test_name': test_name})
-                              )
+                                 %(test_name)s/%(test_name)s
+                              """ % {'test_name': test_name}))
     return srcdir
 
 

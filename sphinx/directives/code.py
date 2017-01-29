@@ -81,8 +81,8 @@ def container_wrapper(directive, literal_node, caption):
         raise ValueError(parsed[0])
     caption_node = nodes.caption(parsed[0].rawsource, '',
                                  *parsed[0].children)
-    caption_node.source = parsed[0].source
-    caption_node.line = parsed[0].line
+    caption_node.source = literal_node.source
+    caption_node.line = literal_node.line
     container_node += caption_node
     container_node += literal_node
     return container_node

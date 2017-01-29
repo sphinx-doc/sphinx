@@ -52,6 +52,7 @@ if PY3:
 
 etree_cache = {}
 
+
 @pytest.fixture(scope='module')
 def cached_etree_parse():
     def parse(fname):
