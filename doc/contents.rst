@@ -19,6 +19,7 @@ Sphinx documentation contents
    theming
    templating
    latex
+   markdown
    extensions
    extdev/index
    websupport
