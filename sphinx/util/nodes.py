@@ -325,11 +325,14 @@ def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
     # type: (Builder, unicode, unicode, unicode, nodes.Node, unicode) -> nodes.reference
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)
-    if fromdocname == todocname:
+    if fromdocname == todocname and targetid:
         node['refid'] = targetid
     else:
-        node['refuri'] = (builder.get_relative_uri(fromdocname, todocname) +
-                          '#' + targetid)
+        if targetid:
+            node['refuri'] = (builder.get_relative_uri(fromdocname, todocname) +
+                              '#' + targetid)
+        else:
+            node['refuri'] = builder.get_relative_uri(fromdocname, todocname)
     if title:
         node['reftitle'] = title
     node.append(child)
