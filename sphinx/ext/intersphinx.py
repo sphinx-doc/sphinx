@@ -62,6 +62,37 @@ logger = logging.getLogger(__name__)
 UTF8StreamReader = codecs.lookup('utf-8')[2]
 
 
+class InventoryAdapter(object):
+    """Inventory adapter for environment"""
+
+    def __init__(self, env):
+        self.env = env
+
+        if not hasattr(env, 'intersphinx_cache'):
+            self.env.intersphinx_cache = {}  # type: ignore
+            self.env.intersphinx_inventory = {}  # type: ignore
+            self.env.intersphinx_named_inventory = {}  # type: ignore
+
+    @property
+    def cache(self):
+        # type: () -> Dict[unicode, Tuple[unicode, int, Inventory]]
+        return self.env.intersphinx_cache  # type: ignore
+
+    @property
+    def main_inventory(self):
+        # type: () -> Inventory
+        return self.env.intersphinx_inventory  # type: ignore
+
+    @property
+    def named_inventory(self):
+        # type: () -> Dict[unicode, Inventory]
+        return self.env.intersphinx_named_inventory
+
+    def clear(self):
+        self.env.intersphinx_inventory.clear()
+        self.env.intersphinx_named_inventory.clear()
+
+
 def read_inventory_v1(f, uri, join):
     # type: (IO, unicode, Callable) -> Inventory
     f = UTF8StreamReader(f)
@@ -262,12 +293,7 @@ def load_mappings(app):
     """Load all intersphinx mappings into the environment."""
     now = int(time.time())
     cache_time = now - app.config.intersphinx_cache_limit * 86400
-    env = app.builder.env
-    if not hasattr(env, 'intersphinx_cache'):
-        env.intersphinx_cache = {}  # type: ignore
-        env.intersphinx_inventory = {}  # type: ignore
-        env.intersphinx_named_inventory = {}  # type: ignore
-    cache = env.intersphinx_cache  # type: ignore
+    inventories = InventoryAdapter(app.builder.env)
     update = False
     for key, value in iteritems(app.config.intersphinx_mapping):
         name = None  # type: unicode
@@ -296,19 +322,19 @@ def load_mappings(app):
                 inv = posixpath.join(uri, INVENTORY_FILENAME)
             # decide whether the inventory must be read: always read local
             # files; remote ones only if the cache time is expired
-            if '://' not in inv or uri not in cache \
-                    or cache[uri][1] < cache_time:
+            if '://' not in inv or uri not in inventories.cache \
+                    or inventories.cache[uri][1] < cache_time:
                 safe_inv_url = _get_safe_url(inv)  # type: ignore
                 logger.info('loading intersphinx inventory from %s...', safe_inv_url)
                 invdata = fetch_inventory(app, uri, inv)
                 if invdata:
-                    cache[uri] = (name, now, invdata)
+                    inventories.cache[uri] = (name, now, invdata)
                     update = True
                     break
 
     if update:
-        env.intersphinx_inventory = {}  # type: ignore
-        env.intersphinx_named_inventory = {}  # type: ignore
+        inventories.clear()
+
         # Duplicate values in different inventories will shadow each
         # other; which one will override which can vary between builds
         # since they are specified using an unordered dict.  To make
@@ -316,21 +342,21 @@ def load_mappings(app):
         # add the unnamed inventories last.  This means that the
         # unnamed inventories will shadow the named ones but the named
         # ones can still be accessed when the name is specified.
-        cached_vals = list(cache.values())
+        cached_vals = list(inventories.cache.values())
         named_vals = sorted(v for v in cached_vals if v[0])
         unnamed_vals = [v for v in cached_vals if not v[0]]
         for name, _x, invdata in named_vals + unnamed_vals:
             if name:
-                env.intersphinx_named_inventory[name] = invdata  # type: ignore
+                inventories.named_inventory[name] = invdata
             for type, objects in iteritems(invdata):
-                env.intersphinx_inventory.setdefault(  # type: ignore
-                    type, {}).update(objects)
+                inventories.main_inventory.setdefault(type, {}).update(objects)
 
 
 def missing_reference(app, env, node, contnode):
     # type: (Sphinx, BuildEnvironment, nodes.Node, nodes.Node) -> None
     """Attempt to resolve a missing reference via intersphinx references."""
     target = node['reftarget']
+    inventories = InventoryAdapter(env)
     objtypes = None  # type: List[unicode]
     if node['reftype'] == 'any':
         # we search anything!
@@ -347,14 +373,14 @@ def missing_reference(app, env, node, contnode):
         if not objtypes:
             return
         objtypes = ['%s:%s' % (domain, objtype) for objtype in objtypes]
-    to_try = [(env.intersphinx_inventory, target)]  # type: ignore
+    to_try = [(inventories.main_inventory, target)]
     in_set = None
     if ':' in target:
         # first part may be the foreign doc set name
         setname, newtarget = target.split(':', 1)
-        if setname in env.intersphinx_named_inventory:  # type: ignore
+        if setname in inventories.named_inventory:
             in_set = setname
-            to_try.append((env.intersphinx_named_inventory[setname], newtarget))  # type: ignore  # NOQA
+            to_try.append((inventories.named_inventory[setname], newtarget))
     for inventory, target in to_try:
         for objtype in objtypes:
             if objtype not in inventory or target not in inventory[objtype]:
