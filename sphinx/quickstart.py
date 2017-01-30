@@ -72,7 +72,7 @@ def mkdir_p(dir):
 
 # function to get input from terminal -- overridden by the test suite
 def term_input(prompt):
-    sys.stdout.write(prompt)
+    print(prompt, end='')
     return input('')
 
 
