@@ -359,6 +359,12 @@ package.
 
    .. versionadded:: 1.4
 
+.. method:: Sphinx.add_env_collector(collector)
+
+   Register a environment collector class (refs: :ref:`collector-api`)
+
+   .. versionadded:: 1.6
+
 .. method:: Sphinx.require_sphinx(version)
 
    Compare *version* (which must be a ``major.minor`` version string,

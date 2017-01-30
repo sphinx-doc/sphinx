@@ -19,6 +19,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.util import logging
 from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
@@ -281,7 +282,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             f.write(contents_footer)
 
         logger.info('writing index file...')
-        index = self.env.create_index(self)
+        index = IndexEntries(self.env).create_index(self)
         with self.open_file(outdir, outname + '.hhk') as f:
             f.write('<UL>\n')
 

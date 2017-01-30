@@ -22,6 +22,7 @@ from sphinx import addnodes
 from sphinx.util import logging
 from sphinx.util.osutil import make_filename
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.environment.adapters.indexentries import IndexEntries
 
 try:
     import xml.etree.ElementTree as etree
@@ -104,7 +105,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
 
         # Index
         functions = etree.SubElement(root, 'functions')
-        index = self.env.create_index(self)
+        index = IndexEntries(self.env).create_index(self)
 
         def write_index(title, refs, subitems):
             # type: (unicode, List[Any], Any) -> None

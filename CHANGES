@@ -62,6 +62,14 @@ Deprecated
 * ``Sphinx.status_iterator()` and ``Sphinx.old_status_iterator()`` is now
   deprecated.  Please use ``sphinx.util:status_iterator()`` intead.
 * ``BuildEnvironment.set_warnfunc()`` is now deprecated
+* Following methods of ``BuildEnvironment`` is now deprecated.
+
+  - ``BuildEnvironment.note_toctree()``
+  - ``BuildEnvironment.get_toc_for()``
+  - ``BuildEnvironment.get_toctree_for()``
+  - ``BuildEnvironment.create_index()``
+
+  Please use ``sphinx.environment.adapters`` modules instead.
 
 Release 1.5.3 (in development)
 ==============================
