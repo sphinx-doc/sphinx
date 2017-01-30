@@ -55,11 +55,13 @@ if False:
     from docutils.transform import Transform  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
+    from sphinx.environment.collectors import EnvironmentCollector  # NOQA
 
 # List of all known core events. Maps name to arguments description.
 events = {
     'builder-inited': '',
     'env-get-outdated': 'env, added, changed, removed',
+    'env-get-updated': 'env',
     'env-purge-doc': 'env, docname',
     'env-before-read-docs': 'env, docnames',
     'source-read': 'docname, source text',
@@ -101,6 +103,13 @@ builtin_extensions = (
     'sphinx.directives.other',
     'sphinx.directives.patches',
     'sphinx.roles',
+    # collectors should be loaded by specific order
+    'sphinx.environment.collectors.dependencies',
+    'sphinx.environment.collectors.asset',
+    'sphinx.environment.collectors.metadata',
+    'sphinx.environment.collectors.title',
+    'sphinx.environment.collectors.toctree',
+    'sphinx.environment.collectors.indexentries',
 )  # type: Tuple[unicode, ...]
 
 CONFIG_FILENAME = 'conf.py'
@@ -300,7 +309,6 @@ class Sphinx(object):
                 logger.info(bold('loading pickled environment... '), nonl=True)
                 self.env = BuildEnvironment.frompickle(
                     self.srcdir, self.config, path.join(self.doctreedir, ENV_PICKLE_FILENAME))
-                self.env.init_managers()
                 self.env.domains = {}
                 for domain in self.domains.keys():
                     # this can raise if the data version doesn't fit
@@ -832,6 +840,11 @@ class Sphinx(object):
                            self._setting_up_extension[-1], suffix,
                            type='app', subtype='add_source_parser')
         self._additional_source_parsers[suffix] = parser
+
+    def add_env_collector(self, collector):
+        # type: (Type[EnvironmentCollector]) -> None
+        logger.debug('[app] adding environment collector: %r', collector)
+        collector().enable(self)
 
 
 class TemplateBridge(object):

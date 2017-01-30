@@ -50,6 +50,7 @@ APIs used for writing extensions
    appapi
    envapi
    builderapi
+   collectorapi
    markupapi
    domainapi
    parserapi

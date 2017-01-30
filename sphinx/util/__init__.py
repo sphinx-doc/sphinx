@@ -147,7 +147,7 @@ class FilenameUniqDict(dict):
                 self._existing.discard(unique)
 
     def merge_other(self, docnames, other):
-        # type: (List[unicode], Dict[unicode, Tuple[Set[unicode], Any]]) -> None
+        # type: (Set[unicode], Dict[unicode, Tuple[Set[unicode], Any]]) -> None
         for filename, (docs, unique) in other.items():
             for doc in docs & set(docnames):
                 self.add_file(doc, filename)

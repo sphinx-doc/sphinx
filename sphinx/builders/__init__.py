@@ -292,7 +292,7 @@ class Builder(object):
 
         doccount = len(updated_docnames)
         logger.info(bold('looking for now-outdated files... '), nonl=1)
-        for docname in self.env.check_dependents(updated_docnames):
+        for docname in self.env.check_dependents(self.app, updated_docnames):
             updated_docnames.add(docname)
         outdated = len(updated_docnames) - doccount
         if outdated:

@@ -21,6 +21,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.util import force_decode, logging
 from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
@@ -170,7 +171,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
         # keywords
         keywords = []
-        index = self.env.create_index(self, group_entries=False)
+        index = IndexEntries(self.env).create_index(self, group_entries=False)
         for (key, group) in index:
             for title, (refs, subitems, key_) in group:
                 keywords.extend(self.build_keywords(title, refs, subitems))
