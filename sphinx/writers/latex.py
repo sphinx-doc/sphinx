@@ -321,6 +321,7 @@ class Table(object):
         self.col = 0
         self.colcount = 0
         self.colspec = None             # type: unicode
+        self.colwidths = []             # type: List[int]
         self.rowcount = 0
         self.had_head = False
         self.has_problematic = False
@@ -1203,6 +1204,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             endmacro = '\\end{tabulary}\n\n'
         if self.table.colspec:
             self.body.append(self.table.colspec)
+        elif self.table.colwidths:
+            total = sum(self.table.colwidths)
+            colspec = ['p{\\dimexpr(\\linewidth-\\arrayrulewidth)*%d/%d'
+                       '-2\\tabcolsep-\\arrayrulewidth\\relax}' % (width, total)
+                       for width in self.table.colwidths]
+            self.body.append('{|%s|}\n' % '|'.join(colspec))
         else:
             if self.table.has_problematic:
                 colspec = ('*{%d}{p{\\dimexpr(\\linewidth-\\arrayrulewidth)/%d'
@@ -1252,6 +1259,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_colspec(self, node):
         # type: (nodes.Node) -> None
         self.table.colcount += 1
+        if 'colwidth' in node:
+            self.table.colwidths.append(node['colwidth'])
 
     def depart_colspec(self, node):
         # type: (nodes.Node) -> None
