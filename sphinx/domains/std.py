@@ -23,7 +23,7 @@ from sphinx.roles import XRefRole
 from sphinx.locale import l_, _
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
-from sphinx.util import ws_re, logging
+from sphinx.util import ws_re, logging, docname_join
 from sphinx.util.nodes import clean_astext, make_refnode
 
 if False:
@@ -465,6 +465,7 @@ class StandardDomain(Domain):
                          searchprio=-1),
         'envvar': ObjType(l_('environment variable'), 'envvar'),
         'cmdoption': ObjType(l_('program option'), 'option'),
+        'doc': ObjType(l_('document'), 'doc', searchprio=-1)
     }  # type: Dict[unicode, ObjType]
 
     directives = {
@@ -491,6 +492,8 @@ class StandardDomain(Domain):
                             warn_dangling=True),
         # links to labels, without a different title
         'keyword': XRefRole(warn_dangling=True),
+        # links to documents
+        'doc':     XRefRole(warn_dangling=True, innernodeclass=nodes.inline),
     }  # type: Dict[unicode, Union[RoleFunction, XRefRole]]
 
     initial_data = {
@@ -515,6 +518,7 @@ class StandardDomain(Domain):
                 'the label must precede a section header)',
         'numref':  'undefined label: %(target)s',
         'keyword': 'unknown keyword: %(target)s',
+        'doc': 'unknown document: %(target)s',
         'option': 'unknown option: %(target)s',
         'citation': 'citation not found: %(target)s',
     }
@@ -650,6 +654,8 @@ class StandardDomain(Domain):
             resolver = self._resolve_numref_xref
         elif typ == 'keyword':
             resolver = self._resolve_keyword_xref
+        elif typ == 'doc':
+            resolver = self._resolve_doc_xref
         elif typ == 'option':
             resolver = self._resolve_option_xref
         elif typ == 'citation':
@@ -746,6 +752,22 @@ class StandardDomain(Domain):
             return None
         return make_refnode(builder, fromdocname, docname,
                             labelid, contnode)
+
+    def _resolve_doc_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+        # directly reference to document by source name; can be absolute or relative
+        refdoc = node.get('refdoc', fromdocname)
+        docname = docname_join(refdoc, node['reftarget'])
+        if docname not in env.all_docs:
+            return None
+        else:
+            if node['refexplicit']:
+                # reference with explicit title
+                caption = node.astext()
+            else:
+                caption = clean_astext(env.titles[docname])
+            innernode = nodes.inline(caption, caption, classes=['doc'])
+            return make_refnode(builder, fromdocname, docname, None, innernode)
 
     def _resolve_option_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
