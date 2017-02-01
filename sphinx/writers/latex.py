@@ -1206,14 +1206,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append(self.table.colspec)
         elif self.table.colwidths:
             total = sum(self.table.colwidths)
-            colspec = ['p{\\dimexpr(\\linewidth-\\arrayrulewidth)*%d/%d'
-                       '-2\\tabcolsep-\\arrayrulewidth\\relax}' % (width, total)
+            colspec = ['\\X{%d}{%d}' % (width, total)
                        for width in self.table.colwidths]
             self.body.append('{|%s|}\n' % '|'.join(colspec))
         else:
             if self.table.has_problematic:
-                colspec = ('*{%d}{p{\\dimexpr(\\linewidth-\\arrayrulewidth)/%d'
-                           '-2\\tabcolsep-\\arrayrulewidth\\relax}|}' %
+                colspec = ('*{%d}{\\X{1}{%d}|}' %
                            (self.table.colcount, self.table.colcount))
                 self.body.append('{|' + colspec + '}\n')
             elif self.table.longtable:
