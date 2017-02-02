@@ -1194,9 +1194,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif self.table.has_verbatim:
             self.body.append('\n\\noindent\\begin{tabular}')
             endmacro = '\\end{tabular}\n\n'
-        elif self.table.has_problematic and not self.table.colspec:
-            # if the user has given us tabularcolumns, accept them and use
-            # tabulary nevertheless
+        elif self.table.colspec:
+            self.body.append('\n\\noindent\\begin{tabulary}{\\linewidth}')
+            endmacro = '\\end{tabulary}\n\n'
+        elif self.table.has_problematic or self.table.colwidths:
             self.body.append('\n\\noindent\\begin{tabular}')
             endmacro = '\\end{tabular}\n\n'
         else:
@@ -1209,15 +1210,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
             colspec = ['\\X{%d}{%d}' % (width, total)
                        for width in self.table.colwidths]
             self.body.append('{|%s|}\n' % '|'.join(colspec))
+        elif self.table.has_problematic:
+            colspec = ('*{%d}{\\X{1}{%d}|}' %
+                       (self.table.colcount, self.table.colcount))
+            self.body.append('{|' + colspec + '}\n')
+        elif self.table.longtable:
+            self.body.append('{|' + ('l|' * self.table.colcount) + '}\n')
         else:
-            if self.table.has_problematic:
-                colspec = ('*{%d}{\\X{1}{%d}|}' %
-                           (self.table.colcount, self.table.colcount))
-                self.body.append('{|' + colspec + '}\n')
-            elif self.table.longtable:
-                self.body.append('{|' + ('l|' * self.table.colcount) + '}\n')
-            else:
-                self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
+            self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
         if self.table.longtable and self.table.caption is not None:
             self.body.append(u'\\caption{')
             for caption in self.table.caption:
