@@ -101,10 +101,13 @@ General configuration
    suffix that is not in the dictionary will be parsed with the default
    reStructuredText parser.
 
-
    For example::
 
-      source_parsers = {'.md': 'some.markdown.module.Parser'}
+      source_parsers = {'.md': 'recommonmark.parser.CommonMarkParser'}
+
+   .. note::
+
+      Read more about how to use Markdown with Sphinx at :ref:`markdown`.
 
    .. versionadded:: 1.3
 
