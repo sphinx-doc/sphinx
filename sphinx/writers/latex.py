@@ -57,8 +57,7 @@ DEFAULT_SETTINGS = {
     'sphinxpkgoptions':     '',
     'sphinxsetup':     '',
     'passoptionstopackages': '',
-    'geometry':       ('\\usepackage[margin=1in,marginparwidth=0.5in]'
-                       '{geometry}'),
+    'geometry':        '\\usepackage{geometry}',
     'inputenc':        '',
     'utf8extra':       '',
     'cmappkg':         '\\usepackage{cmap}',
@@ -122,8 +121,7 @@ ADDITIONAL_SETTINGS = {
     },
     'platex': {
         'latex_engine': 'platex',
-        'geometry': ('\\usepackage[margin=1in,marginparwidth=0.5in,dvipdfm]'
-                     '{geometry}'),
+        'geometry':     '\\usepackage[dvipdfm]{geometry}',
     },
 }
 
@@ -438,6 +436,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
                 # pTeX (Japanese TeX) for support
                 if builder.config.language == 'ja':
+                    # if document uses Japanese standard document classes, then
+                    # geometry package needs truedimen as initial *class* option
+                    if docclass[:2] == 'js':
+                        self.elements['papersize'] = ('truedimen,' +
+                                                      self.elements['papersize'])
                     # use dvipdfmx as default class option in Japanese
                     self.elements['classoptions'] = ',dvipdfmx'
                     # disable babel which has not publishing quality in Japanese

@@ -137,6 +137,55 @@ Here are the currently available options together with their default values.
    LaTeX requires for keys with Boolean values to use **lowercase** ``true`` or
    ``false``.
 
+``hmargin``
+    The dimensions of the horizontal margins. Legacy Sphinx default value is
+    ``1in`` (which stands for ``{1in,1in}``.) It is passed over as ``hmargin``
+    option to ``geometry`` package.
+
+    Here is an example for non-Japanese documents of use of this key::
+
+      'sphinxsetup': 'hmargin={2in,1.5in}, vmargin={1.5in,2in}, marginpar=1in',
+
+    Japanese documents currently accept only the form with only one dimension.
+    This option is handled then in a special manner in order for ``geometry``
+    package to set the text width to an exact multiple of the *zenkaku* width
+    of the base document font.
+
+    .. attention::
+
+       For a ``'manual'`` type document, which by default uses the ``jsbook``
+       LaTeX document class, the dimension units must be so-called "true"
+       units:
+
+         'sphinxsetup': 'hmargin=1.5truein, vmargin=1.5truein, marginpar=2zw'
+
+       This is due to ``jsbook`` LaTeX class way of handling the pointsize
+       when it is not ``10pt``.
+
+       To the contrary, the ``jreport`` class, which is used for ``'howto'``
+       document must be configured with "normal" units.
+
+    .. versionadded:: 1.5.3
+
+``vmargin``
+    The dimension of the vertical margins. Legacy Sphinx default value is
+    ``1in`` (or ``{1in,1in}``.) Passed over as ``vmargin`` option to
+    ``geometry``.
+
+    Japanese documents will arrange for the text height to be an integer
+    multiple of the baselineskip, taking the closest match suitable for the
+    asked-for vertical margin. It can then be only one dimension. See notice
+    above.
+
+    .. versionadded:: 1.5.3
+
+``marginpar``
+    The ``\marginparwidth`` LaTeX dimension, defaults to ``0.5in``. For Japanese
+    documents, the value is modified to be the closest integer multiple of the
+    *zenkaku* width.
+
+    .. versionadded:: 1.5.3
+
 ``verbatimwithframe``
     default ``true``. Boolean to specify if :rst:dir:`code-block`\ s and literal
     includes are framed. Setting it to ``false`` does not deactivate use of
