@@ -18,6 +18,8 @@ Bugs fixed
 * #3370: the caption of code-block is not picked up for translation
 * LaTeX: :confval:`release` is not escaped (refs: #3362)
 * #3364: sphinx-quickstart prompts overflow on Console with 80 chars width
+* since 1.5, PDF's TOC and bookmarks lack an entry for general Index
+  (refs: #3383)
 
 Testing
 --------
