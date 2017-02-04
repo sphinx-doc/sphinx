@@ -34,3 +34,9 @@ def test_autosectionlabel_html(app, status, warning):
     html = ('<li><a class="reference internal" href="#for-unix-users">'
             '<span class="std std-ref">For UNIX users</span></a></li>')
     assert re.search(html, content, re.S)
+
+
+# Re-use test definition from above, just change the test root directory
+@pytest.mark.sphinx('html', testroot='ext-autosectionlabel-prefix-document')
+def test_autosectionlabel_prefix_document_html(app, status, warning):
+    return test_autosectionlabel_html(app, status, warning)

@@ -22,4 +22,18 @@ For example::
 
 
 Internally, this extension generates the labels for each section.  If same
-section names are used in whole of document, any one is used for a target.
+section names are used in whole of document, any one is used for a target by
+default. The ``autosectionlabel_prefix_document`` configuration variable can be
+used to make headings which appear multiple times but in different documents
+unique.
+
+Configuration
+-------------
+
+.. confval:: autosectionlabel_prefix_document
+
+   True to prefix each section label with the name of the document it is in,
+   followed by a colon. For example, ``index:Introduction`` for a section
+   called ``Introduction`` that appears in document ``index.rst``.  Useful for
+   avoiding ambiguity when the same section heading appears in different
+   documents.
