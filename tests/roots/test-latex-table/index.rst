@@ -26,6 +26,19 @@ table having :widths: option
    cell3-1 cell3-2
    ======= =======
 
+table with tabularcolumn
+------------------------
+
+.. tabularcolumns:: |c|c|
+
+======= =======
+header1 header2
+======= =======
+cell1-1 cell1-2
+cell2-1 cell2-2
+cell3-1 cell3-2
+======= =======
+
 table having caption
 --------------------
 
@@ -112,6 +125,22 @@ longtable having :widths: option
 .. table::
    :class: longtable
    :widths: 30,70
+
+   ======= =======
+   header1 header2
+   ======= =======
+   cell1-1 cell1-2
+   cell2-1 cell2-2
+   cell3-1 cell3-2
+   ======= =======
+
+longtable with tabularcolumn
+----------------------------
+
+.. tabularcolumns:: |c|c|
+
+.. table::
+   :class: longtable
 
    ======= =======
    header1 header2

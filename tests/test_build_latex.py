@@ -841,15 +841,18 @@ def test_latex_table(app, status, warning):
 
     # table having :widths: option
     table = tables['table having :widths: option']
-    assert ('\\noindent\\begin{tabulary}{\\linewidth}'
-            '{|\\X{30}{100}|\\X{70}{100}|}' in table)
+    assert ('\\noindent\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
     assert ('\\hline\n'
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
             '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in table)
     assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
     assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
     assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
-    assert ('\\hline\\end{tabulary}' in table)
+    assert ('\\hline\\end{tabular}' in table)
+
+    # table with tabularcolumn
+    table = tables['table with tabularcolumn']
+    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|c|c|}' in table)
 
     # table having caption
     table = tables['table having caption']
@@ -901,6 +904,10 @@ def test_latex_table(app, status, warning):
     # longtable having :widths: option
     table = tables['longtable having :widths: option']
     assert ('\\begin{longtable}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+
+    # longtable with tabularcolumn
+    table = tables['longtable with tabularcolumn']
+    assert ('\\begin{longtable}{|c|c|}' in table)
 
     # longtable having caption
     table = tables['longtable having caption']

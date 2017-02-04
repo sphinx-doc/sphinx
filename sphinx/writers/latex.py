@@ -339,7 +339,9 @@ class Table(object):
             return 'longtable'
         elif self.has_verbatim:
             return 'tabular'
-        elif self.has_problematic and not self.colspec:
+        elif self.colspec:
+            return 'tabulary'
+        elif self.has_problematic or (self.colwidths and 'colwidths-given' in self.classes):
             return 'tabular'
         else:
             return 'tabulary'
