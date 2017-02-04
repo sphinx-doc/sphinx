@@ -14,12 +14,14 @@ from jinja2.sandbox import SandboxedEnvironment
 
 from sphinx import package_dir
 from sphinx.jinja2glue import SphinxFileSystemLoader
+from sphinx.locale import get_translator
 
 
 class BaseRenderer(object):
     def __init__(self, loader=None):
-        self.env = SandboxedEnvironment(loader=loader)
+        self.env = SandboxedEnvironment(loader=loader, extensions=['jinja2.ext.i18n'])
         self.env.filters['repr'] = repr
+        self.env.install_gettext_translations(get_translator())
 
     def render(self, template_name, context):
         return self.env.get_template(template_name).render(context)
