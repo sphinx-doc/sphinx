@@ -481,7 +481,7 @@ def test_footnote(app, status, warning):
             '\ncite\n}') in result
     assert '\\caption{Table caption \\sphinxfootnotemark[4]' in result
     assert 'name \\sphinxfootnotemark[5]' in result
-    assert ('\\end{threeparttable}\n\n%\n'
+    assert ('\\end{threeparttable}\n%\n'
             '\\begin{footnotetext}[4]\sphinxAtStartFootnote\n'
             'footnotes in table caption\n%\n\\end{footnotetext}%\n'
             '\\begin{footnotetext}[5]\sphinxAtStartFootnote\n'
@@ -514,7 +514,7 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
             'in caption of normal table}\\label{\\detokenize{index:id28}}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[8] '
             'in caption \sphinxfootnotemark[9] of longtable}') in result
-    assert ('\end{longtable}\n\n%\n\\begin{footnotetext}[8]'
+    assert ('\end{longtable}\n%\n\\begin{footnotetext}[8]'
             '\sphinxAtStartFootnote\n'
             'Foot note in longtable\n%\n\\end{footnotetext}' in result)
     assert ('This is a reference to the code-block in the footnote:\n'
@@ -837,7 +837,7 @@ def test_latex_table(app, status, warning):
     assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
     assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
     assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
-    assert ('\\hline\\end{tabulary}' in table)
+    assert ('\\hline\n\\end{tabulary}' in table)
 
     # table having :widths: option
     table = tables['table having :widths: option']
@@ -848,7 +848,7 @@ def test_latex_table(app, status, warning):
     assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
     assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
     assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
-    assert ('\\hline\\end{tabular}' in table)
+    assert ('\\hline\n\\end{tabular}' in table)
 
     # table with tabularcolumn
     table = tables['table with tabularcolumn']
@@ -865,7 +865,7 @@ def test_latex_table(app, status, warning):
     assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
     assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
     assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
-    assert ('\\hline\\end{tabulary}' in table)
+    assert ('\\hline\n\\end{tabulary}' in table)
     assert ('\\end{threeparttable}' in table)
 
     # table having verbatim
@@ -886,20 +886,20 @@ def test_latex_table(app, status, warning):
     assert ('\\hline\n'
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
             '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax \\\\\n'
-            '\\hline\\endfirsthead' in table)
+            '\\hline\n\\endfirsthead' in table)
     assert ('\\multicolumn{2}{c}%\n'
             '{{\\tablecontinued{\\tablename\\ \\thetable{} -- '
             'continued from previous page}}} \\\\\n\\hline\n'
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
             '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax \\\\\n'
-            '\\hline\\endhead' in table)
-    assert ('\\hline \\multicolumn{2}{|r|}'
-            '{{\\tablecontinued{Continued on next page}}} \\\\ \\hline\n'
-            '\\endfoot\n\n\\endlastfoot' in table)
+            '\\hline\n\\endhead' in table)
+    assert ('\\hline\n\\multicolumn{2}{|r|}'
+            '{{\\tablecontinued{Continued on next page}}} \\\\\n'
+            '\\hline\n\\endfoot\n\n\\endlastfoot' in table)
     assert ('\ncell1-1\n&\ncell1-2\n\\\\' in table)
     assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
     assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
-    assert ('\\hline\\end{longtable}' in table)
+    assert ('\\hline\n\\end{longtable}' in table)
 
     # longtable having :widths: option
     table = tables['longtable having :widths: option']

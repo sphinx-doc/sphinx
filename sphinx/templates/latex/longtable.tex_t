@@ -3,19 +3,21 @@
 \caption{<%= ''.join(table.caption) %>}<%= labels %>\\
 <% endif -%>
 \hline
-<%= ''.join(table.header) -%>
+<%= ''.join(table.header) %>
 \endfirsthead
 
 \multicolumn{<%= table.colcount %>}{c}%
 {{\tablecontinued{\tablename\ \thetable{} -- <%= _('continued from previous page') %>}}} \\
 \hline
-<%= ''.join(table.header) -%>
+<%= ''.join(table.header) %>
 \endhead
 
-\hline \multicolumn{<%= table.colcount %>}{|r|}{{\tablecontinued{<%= _('Continued on next page') %>}}} \\ \hline
+\hline
+\multicolumn{<%= table.colcount %>}{|r|}{{\tablecontinued{<%= _('Continued on next page') %>}}} \\
+\hline
 \endfoot
 
 \endlastfoot
 
-<%= ''.join(table.body) -%>
+<%= ''.join(table.body) %>
 \end{longtable}
