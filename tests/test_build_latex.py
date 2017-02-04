@@ -829,26 +829,60 @@ def test_latex_table(app, status, warning):
         tables[sectname[1:]] = content.strip()
 
     # simple_table
-    simple_table = tables['simple table']
-    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|L|L|}' in simple_table)
+    table = tables['simple table']
+    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
     assert ('\\hline\n'
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
-            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in simple_table)
-    assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in simple_table)
-    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in simple_table)
-    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in simple_table)
-    assert ('\\hline\\end{tabulary}' in simple_table)
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in table)
+    assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
+    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
+    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
+    assert ('\\hline\\end{tabulary}' in table)
 
     # table having :widths: option
-    widths_table = tables['table having :widths: option']
+    table = tables['table having :widths: option']
     assert ('\\noindent\\begin{tabulary}{\\linewidth}{'
             '|p{\\dimexpr(\\linewidth-\\arrayrulewidth)*30/100-2\\tabcolsep-\\arrayrulewidth\\relax}'
             '|p{\\dimexpr(\\linewidth-\\arrayrulewidth)*70/100-2\\tabcolsep-\\arrayrulewidth\\relax}|}'
-            in widths_table)
+            in table)
     assert ('\\hline\n'
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
-            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in widths_table)
-    assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in widths_table)
-    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in widths_table)
-    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in widths_table)
-    assert ('\\hline\\end{tabulary}' in widths_table)
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in table)
+    assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
+    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
+    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
+    assert ('\\hline\\end{tabulary}' in table)
+
+    # table having caption
+    table = tables['table having caption']
+    assert ('\\begin{threeparttable}\n\\capstart\\caption{caption for table}'
+            '\\label{\\detokenize{index:id1}}' in table)
+    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
+    assert ('\\hline\n'
+            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in table)
+    assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
+    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
+    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
+    assert ('\\hline\\end{tabulary}' in table)
+
+    # longtable
+    table = tables['longtable']
+    assert ('\\begin{longtable}{|l|l|}\n\\hline' in table)
+    assert ('\\hline\n'
+            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax \\\\\n'
+            '\\hline\\endfirsthead' in table)
+    assert ('\\multicolumn{2}{c}%\n'
+            '{{\\tablecontinued{\\tablename\\ \\thetable{} -- '
+            'continued from previous page}}} \\\\\n\\hline\n'
+            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax \\\\\n'
+            '\\hline\\endhead' in table)
+    assert ('\\hline \\multicolumn{2}{|r|}'
+            '{{\\tablecontinued{Continued on next page}}} \\\\ \\hline\n'
+            '\\endfoot\n\n\\endlastfoot' in table)
+    assert ('\ncell1-1\n&\ncell1-2\n\\\\' in table)
+    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
+    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
+    assert ('\\hline\\end{longtable}' in table)
