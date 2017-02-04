@@ -44,7 +44,8 @@ Features added
   When specified, each template parameter will be rendered on a separate line.
 * #3359: Allow sphinx.js in a user locale dir to override sphinx.js from Sphinx
 * #3303: Add ``:pyversion:`` option to the doctest directive.
-* #3378: latex: Support ``:widths:`` option of table directives
+* #3378: (latex) support for ``:widths:`` option of table directives
+  (refs: #3379, #3381)
 
 Bugs fixed
 ----------
