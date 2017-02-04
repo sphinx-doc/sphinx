@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/01/16 v1.6 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/02/01 v1.6 LaTeX package (Sphinx markup)]
 
 % we delay handling of options to after having loaded packages, because
 % of the need to use \definecolor.
@@ -24,6 +24,9 @@
 ******** ERROR !! PLEASE UPDATE titlesec.sty !!********^^J%
 ******** THIS VERSION SWALLOWS SECTION NUMBERS.********}}}}{}
 \RequirePackage{tabulary}
+% use of \X to minimize possibility of conflict with one-character column types
+\newcolumntype{\X}[2]{p{\dimexpr
+      (\linewidth-\arrayrulewidth)*#1/#2-\tw@\tabcolsep-\arrayrulewidth\relax}}
 \RequirePackage{makeidx}
 % For framing code-blocks and warning type notices, and shadowing topics
 \RequirePackage{framed}
