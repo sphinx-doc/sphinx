@@ -9,7 +9,7 @@ Incompatible changes
 * LaTeX ``\includegraphics`` command isn't overloaded: only ``\sphinxincludegraphics``
   has the custom code to fit image to available width if oversized.
 * The subclasses of ``sphinx.domains.Index`` should override ``generate()``
-  method.  The default implementation raises NotImplmentedError
+  method.  The default implementation raises NotImplementedError
 
 Features removed
 ----------------
