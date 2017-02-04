@@ -1,0 +1,12 @@
+<%- if table.caption -%>
+\begin{threeparttable}
+\capstart\caption{<%= ''.join(table.caption) %>}<%= labels %>
+<%- endif %>
+\noindent\begin{tabular}<%= table.get_colspec() -%>
+\hline
+<%= ''.join(table.header) -%>
+<%= ''.join(table.body) -%>
+\end{tabular}
+<%- if table.caption -%>
+\end{threeparttable}
+<%- endif -%>

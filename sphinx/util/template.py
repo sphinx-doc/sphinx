@@ -43,8 +43,10 @@ class FileRenderer(BaseRenderer):
 
 
 class SphinxRenderer(FileRenderer):
-    def __init__(self):
-        super(SphinxRenderer, self).__init__(os.path.join(package_dir, 'templates'))
+    def __init__(self, template_path=None):
+        if template_path is None:
+            template_path = os.path.join(package_dir, 'templates')
+        super(SphinxRenderer, self).__init__(template_path)
 
     @classmethod
     def render_from_file(cls, filename, context):
@@ -53,7 +55,8 @@ class SphinxRenderer(FileRenderer):
 
 class LaTeXRenderer(SphinxRenderer):
     def __init__(self):
-        super(LaTeXRenderer, self).__init__()
+        template_path = os.path.join(package_dir, 'templates', 'latex')
+        super(LaTeXRenderer, self).__init__(template_path)
 
         # use JSP/eRuby like tagging instead because curly bracket; the default
         # tagging of jinja2 is not good for LaTeX sources.
