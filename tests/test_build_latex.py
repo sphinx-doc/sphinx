@@ -20,6 +20,7 @@ import pytest
 
 from sphinx.errors import SphinxError
 from sphinx.util.osutil import cd, ensuredir
+from sphinx.util import docutils
 from sphinx.writers.latex import LaTeXTranslator
 
 from util import SkipTest, remove_unicode_literals, strip_escseq, skip_if
@@ -814,3 +815,113 @@ def test_maxlistdepth_at_ten(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     compile_latex_document(app)
+
+
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
+@pytest.mark.sphinx('latex', testroot='latex-table')
+def test_latex_table(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    tables = {}
+    for chap in re.split(r'\\chapter(?={.*})', result)[1:]:
+        sectname, content = chap.split('}', 1)
+        tables[sectname[1:]] = content.strip()
+
+    # simple_table
+    table = tables['simple table']
+    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
+    assert ('\\hline\n'
+            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in table)
+    assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
+    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
+    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
+    assert ('\\hline\\end{tabulary}' in table)
+
+    # table having :widths: option
+    table = tables['table having :widths: option']
+    assert ('\\noindent\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+    assert ('\\hline\n'
+            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in table)
+    assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
+    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
+    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
+    assert ('\\hline\\end{tabular}' in table)
+
+    # table with tabularcolumn
+    table = tables['table with tabularcolumn']
+    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|c|c|}' in table)
+
+    # table having caption
+    table = tables['table having caption']
+    assert ('\\begin{threeparttable}\n\\capstart\\caption{caption for table}'
+            '\\label{\\detokenize{index:id1}}' in table)
+    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
+    assert ('\\hline\n'
+            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in table)
+    assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
+    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
+    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
+    assert ('\\hline\\end{tabulary}' in table)
+    assert ('\\end{threeparttable}' in table)
+
+    # table having verbatim
+    table = tables['table having verbatim']
+    assert ('\\noindent\\begin{tabular}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+
+    # table having problematic cell
+    table = tables['table having problematic cell']
+    assert ('\\noindent\\begin{tabular}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+
+    # table having both :widths: and problematic cell
+    table = tables['table having both :widths: and problematic cell']
+    assert ('\\noindent\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+
+    # longtable
+    table = tables['longtable']
+    assert ('\\begin{longtable}{|l|l|}\n\\hline' in table)
+    assert ('\\hline\n'
+            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax \\\\\n'
+            '\\hline\\endfirsthead' in table)
+    assert ('\\multicolumn{2}{c}%\n'
+            '{{\\tablecontinued{\\tablename\\ \\thetable{} -- '
+            'continued from previous page}}} \\\\\n\\hline\n'
+            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax \\\\\n'
+            '\\hline\\endhead' in table)
+    assert ('\\hline \\multicolumn{2}{|r|}'
+            '{{\\tablecontinued{Continued on next page}}} \\\\ \\hline\n'
+            '\\endfoot\n\n\\endlastfoot' in table)
+    assert ('\ncell1-1\n&\ncell1-2\n\\\\' in table)
+    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
+    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
+    assert ('\\hline\\end{longtable}' in table)
+
+    # longtable having :widths: option
+    table = tables['longtable having :widths: option']
+    assert ('\\begin{longtable}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+
+    # longtable with tabularcolumn
+    table = tables['longtable with tabularcolumn']
+    assert ('\\begin{longtable}{|c|c|}' in table)
+
+    # longtable having caption
+    table = tables['longtable having caption']
+    assert ('\\begin{longtable}{|l|l|}\n\\caption{caption for longtable}'
+            '\\label{\\detokenize{index:id2}}\\\\\n\\hline' in table)
+
+    # longtable having verbatim
+    table = tables['longtable having verbatim']
+    assert ('\\begin{longtable}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+
+    # longtable having problematic cell
+    table = tables['longtable having problematic cell']
+    assert ('\\begin{longtable}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+
+    # longtable having both :widths: and problematic cell
+    table = tables['longtable having both :widths: and problematic cell']
+    assert ('\\begin{longtable}{|\\X{30}{100}|\\X{70}{100}|}' in table)

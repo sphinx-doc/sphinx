@@ -46,7 +46,6 @@ BEGIN_DOC = r'''
 '''
 
 
-DEFAULT_TEMPLATE = 'latex/content.tex_t'
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 SECNUMDEPTH = 3
 
@@ -316,18 +315,51 @@ class ShowUrlsTransform(object):
 
 
 class Table(object):
-    def __init__(self):
-        # type: () -> None
+    def __init__(self, node):
+        # type: (nodes.table) -> None
+        self.header = []                        # type: List[unicode]
+        self.body = []                          # type: List[unicode]
+        self.classes = node.get('classes', [])  # type: List[unicode]
         self.col = 0
         self.colcount = 0
-        self.colspec = None             # type: unicode
-        self.colwidths = []             # type: List[int]
+        self.colspec = None                     # type: unicode
+        self.colwidths = []                     # type: List[int]
         self.rowcount = 0
-        self.had_head = False
         self.has_problematic = False
         self.has_verbatim = False
-        self.caption = None             # type: List[unicode]
-        self.longtable = False
+        self.caption = None                     # type: List[unicode]
+
+    def is_longtable(self):
+        # type: () -> bool
+        return self.rowcount > 30 or 'longtable' in self.classes
+
+    def get_table_type(self):
+        # type: () -> unicode
+        if self.is_longtable():
+            return 'longtable'
+        elif self.has_verbatim:
+            return 'tabular'
+        elif self.colspec:
+            return 'tabulary'
+        elif self.has_problematic or (self.colwidths and 'colwidths-given' in self.classes):
+            return 'tabular'
+        else:
+            return 'tabulary'
+
+    def get_colspec(self):
+        # type: () -> unicode
+        if self.colspec:
+            return self.colspec
+        elif self.colwidths and 'colwidths-given' in self.classes:
+            total = sum(self.colwidths)
+            colspecs = ['\\X{%d}{%d}' % (width, total) for width in self.colwidths]
+            return '{|%s|}\n' % '|'.join(colspecs)
+        elif self.has_problematic:
+            return '{|*{%d}{\\X{1}{%d}|}}\n' % (self.colcount, self.colcount)
+        elif self.get_table_type() == 'tabulary':
+            return '{|' + ('L|' * self.colcount) + '}\n'
+        else:
+            return '{|' + ('l|' * self.colcount) + '}\n'
 
 
 def escape_abbr(text):
@@ -605,7 +637,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if path.exists(template_path):
             return LaTeXRenderer().render(template_path, self.elements)
         else:
-            return LaTeXRenderer().render(DEFAULT_TEMPLATE, self.elements)
+            return LaTeXRenderer().render('content.tex_t', self.elements)
 
     def hypertarget(self, id, withdoc=True, anchor=True):
         # type: (unicode, bool, bool) -> unicode
@@ -1165,94 +1197,29 @@ class LaTeXTranslator(nodes.NodeVisitor):
             raise UnsupportedError(
                 '%s:%s: nested tables are not yet implemented.' %
                 (self.curfilestack[-1], node.line or ''))
-        self.table = Table()
-        self.table.longtable = 'longtable' in node['classes']
-        self.tablebody = []     # type: List[unicode]
-        self.tableheaders = []  # type: List[unicode]
-        # Redirect body output until table is finished.
-        self.pushbody(self.tablebody)
+        self.table = Table(node)
+        if self.next_table_colspec:
+            self.table.colspec = '{%s}\n' % self.next_table_colspec
+        self.next_table_colspec = None
         self.restrict_footnote(node)
 
     def depart_table(self, node):
         # type: (nodes.Node) -> None
-        if self.table.rowcount > 30:
-            self.table.longtable = True
-        self.popbody()
-        if not self.table.longtable and self.table.caption is not None:
-            self.body.append('\n\n\\begin{threeparttable}\n'
-                             '\\capstart\\caption{')
-            for caption in self.table.caption:
-                self.body.append(caption)
-            self.body.append('}')
-            for id in self.pop_hyperlink_ids('table'):
-                self.body.append(self.hypertarget(id, anchor=False))
-            if node['ids']:
-                self.body.append(self.hypertarget(node['ids'][0], anchor=False))
-        if self.table.longtable:
-            self.body.append('\n\\begin{longtable}')
-            endmacro = '\\end{longtable}\n\n'
-        elif self.table.has_verbatim:
-            self.body.append('\n\\noindent\\begin{tabular}')
-            endmacro = '\\end{tabular}\n\n'
-        elif self.table.colspec:
-            self.body.append('\n\\noindent\\begin{tabulary}{\\linewidth}')
-            endmacro = '\\end{tabulary}\n\n'
-        elif self.table.has_problematic or self.table.colwidths:
-            self.body.append('\n\\noindent\\begin{tabular}')
-            endmacro = '\\end{tabular}\n\n'
-        else:
-            self.body.append('\n\\noindent\\begin{tabulary}{\\linewidth}')
-            endmacro = '\\end{tabulary}\n\n'
-        if self.table.colspec:
-            self.body.append(self.table.colspec)
-        elif self.table.colwidths:
-            total = sum(self.table.colwidths)
-            colspec = ['\\X{%d}{%d}' % (width, total)
-                       for width in self.table.colwidths]
-            self.body.append('{|%s|}\n' % '|'.join(colspec))
-        elif self.table.has_problematic:
-            colspec = ('*{%d}{\\X{1}{%d}|}' %
-                       (self.table.colcount, self.table.colcount))
-            self.body.append('{|' + colspec + '}\n')
-        elif self.table.longtable:
-            self.body.append('{|' + ('l|' * self.table.colcount) + '}\n')
-        else:
-            self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
-        if self.table.longtable and self.table.caption is not None:
-            self.body.append(u'\\caption{')
-            for caption in self.table.caption:
-                self.body.append(caption)
-            self.body.append('}')
-            for id in self.pop_hyperlink_ids('table'):
-                self.body.append(self.hypertarget(id, anchor=False))
-            if node['ids']:
-                self.body.append(self.hypertarget(node['ids'][0], anchor=False))
-            self.body.append(u'\\\\\n')
-        if self.table.longtable:
-            self.body.append('\\hline\n')
-            self.body.extend(self.tableheaders)
-            self.body.append('\\endfirsthead\n\n')
-            self.body.append('\\multicolumn{%s}{c}%%\n' % self.table.colcount)
-            self.body.append(r'{{\tablecontinued{\tablename\ \thetable{} -- %s}}} \\'
-                             % _('continued from previous page'))
-            self.body.append('\n\\hline\n')
-            self.body.extend(self.tableheaders)
-            self.body.append('\\endhead\n\n')
-            self.body.append(r'\hline \multicolumn{%s}{|r|}{{\tablecontinued{%s}}} \\ \hline'
-                             % (self.table.colcount,
-                                _('Continued on next page')))
-            self.body.append('\n\\endfoot\n\n')
-            self.body.append('\\endlastfoot\n\n')
-        else:
-            self.body.append('\\hline\n')
-            self.body.extend(self.tableheaders)
-        self.body.extend(self.tablebody)
-        self.body.append(endmacro)
-        if not self.table.longtable and self.table.caption is not None:
-            self.body.append('\\end{threeparttable}\n\n')
+        labels = ''  # type: unicode
+        for labelid in self.pop_hyperlink_ids('table'):
+            labels += self.hypertarget(labelid, anchor=False)
+        if node['ids']:
+            labels += self.hypertarget(node['ids'][0], anchor=False)
+
+        table_type = self.table.get_table_type()
+        table = LaTeXRenderer().render(table_type + '.tex_t',
+                                       dict(table=self.table, labels=labels))
+        self.body.append("\n\n")
+        self.body.append(table)
+        self.body.append("\n\n")
+
         self.unrestrict_footnote(node)
         self.table = None
-        self.tablebody = None
 
     def visit_colspec(self, node):
         # type: (nodes.Node) -> None
@@ -1274,25 +1241,19 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_thead(self, node):
         # type: (nodes.Node) -> None
-        self.table.had_head = True
-        if self.next_table_colspec:
-            self.table.colspec = '{%s}\n' % self.next_table_colspec
-        self.next_table_colspec = None
-        # Redirect head output until header is finished. see visit_tbody.
-        self.body = self.tableheaders
+        self.pushbody(self.table.header)  # Redirect head output until header is finished.
 
     def depart_thead(self, node):
         # type: (nodes.Node) -> None
-        pass
+        self.popbody()
 
     def visit_tbody(self, node):
         # type: (nodes.Node) -> None
-        if not self.table.had_head:
-            self.visit_thead(node)
-        self.body = self.tablebody
+        self.pushbody(self.table.body)  # Redirect body output until table is finished.
 
     def depart_tbody(self, node):
         # type: (nodes.Node) -> None
+        self.popbody()
         self.remember_multirow = {}
         self.remember_multirowcol = {}
 

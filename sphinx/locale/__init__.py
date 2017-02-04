@@ -239,3 +239,13 @@ def init(locale_dirs, language, catalog='sphinx'):
     if hasattr(translator, 'ugettext'):
         translator.gettext = translator.ugettext
     return translator, has_translation
+
+
+def get_translator(catalog='sphinx'):
+    global translators
+    translator = translators.get(catalog)
+    if translator is None:
+        translator = gettext.NullTranslations()
+    if hasattr(translator, 'ugettext'):
+        translator.gettext = translator.ugettext
+    return translator
