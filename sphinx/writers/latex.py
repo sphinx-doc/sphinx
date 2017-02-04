@@ -354,10 +354,10 @@ class Table(object):
             return '{|%s|}\n' % '|'.join(colspecs)
         elif self.has_problematic:
             return '{|*{%d}{\\X{1}{%d}|}}\n' % (self.colcount, self.colcount)
-        elif self.is_longtable():
-            return '{|' + ('l|' * self.colcount) + '}\n'
-        else:
+        elif self.get_table_type() == 'tabulary':
             return '{|' + ('L|' * self.colcount) + '}\n'
+        else:
+            return '{|' + ('l|' * self.colcount) + '}\n'
 
 
 def escape_abbr(text):
