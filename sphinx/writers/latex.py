@@ -318,6 +318,7 @@ class ShowUrlsTransform(object):
 class Table(object):
     def __init__(self):
         # type: () -> None
+        self.classes = []
         self.col = 0
         self.colcount = 0
         self.colspec = None             # type: unicode
@@ -1166,6 +1167,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 '%s:%s: nested tables are not yet implemented.' %
                 (self.curfilestack[-1], node.line or ''))
         self.table = Table()
+        self.table.classes = node['classes']
         self.table.longtable = 'longtable' in node['classes']
         self.tablebody = []     # type: List[unicode]
         self.tableheaders = []  # type: List[unicode]
@@ -1205,7 +1207,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             endmacro = '\\end{tabulary}\n\n'
         if self.table.colspec:
             self.body.append(self.table.colspec)
-        elif self.table.colwidths:
+        elif self.table.colwidths and 'colwidths-given' in self.table.classes:
             total = sum(self.table.colwidths)
             colspec = ['\\X{%d}{%d}' % (width, total)
                        for width in self.table.colwidths]
