@@ -839,6 +839,23 @@ def test_latex_table(app, status, warning):
     assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
     assert ('\\hline\n\\end{tabulary}' in table)
 
+    # grid table
+    table = tables['grid table']
+    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|L|L|L|}' in table)
+    assert ('\\hline\n'
+            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader3\n\\unskip}\\relax \\\\' in table)
+    assert ('\\hline\ncell1-1\n&\\multirow{2}{*}{\\relax \ncell1-2\n\\unskip}\\relax &\n'
+            'cell1-3\n\\\\' in table)
+    assert ('\\cline{1-1}\\cline{3-3}\\multirow{2}{*}{\\relax \ncell2-1\n\\unskip}\\relax &&\n'
+            'cell2-2\n\\\\' in table)
+    assert ('\\cline{2-3}&\\multicolumn{2}{l|}{\\relax \\multirow{2}{*}{\\relax \n'
+            'cell3-2\n\\unskip}\\relax \\unskip}\\relax \\\\' in table)
+    assert ('\\cline{1-1}\ncell4-1\n&\\multicolumn{2}{l|}{}\\relax \\\\' in table)
+    assert ('\\hline\\multicolumn{3}{|l|}{\\relax \ncell5-1\n\\unskip}\\relax \\\\\n'
+            '\\hline\n\\end{tabulary}' in table)
+
     # table having :widths: option
     table = tables['table having :widths: option']
     assert ('\\noindent\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
