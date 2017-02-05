@@ -1733,11 +1733,15 @@ These options influence LaTeX output. See further :doc:`latex`.
      ``'geometry'``
         "geometry" package inclusion, the default definition is:
 
-          ``'\\usepackage{geometry}'`` (with ``[dvipdfm]`` for Japanese documents)
+          ``'\\usepackage{geometry}'``
 
-        and :file:`sphinx.sty` executes a ``\PassOptionsToPackages`` with
-        ``hmargin=1in,vmargin=1in,marginparwidth=0.5in``. See :doc:`latex`
-        for the corresponding ``'sphinxsetup'`` options.
+        with an additional ``[dvipdfm]`` for Japanese documents.
+        The Sphinx LaTeX style file executes:
+
+          ``\PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}``
+
+        which can be customized via corresponding ``'sphinxsetup'`` options.
+        See :doc:`latex`.
 
         .. versionadded:: 1.5
 
@@ -1745,24 +1749,20 @@ These options influence LaTeX output. See further :doc:`latex`.
            ``dvipdfm`` option if :confval:`latex_engine` is ``'platex'``.
 
         .. versionadded:: 1.5.3
-           The ``'sphinxsetup'`` margin keys. See :doc:`latex`.
+           The ``'sphinxsetup'`` keys for ``hmargin, ...``.
 
         .. versionchanged:: 1.5.3
-           The key is executed after the  ``\sphinxsetup`` which follows
+           The execution has been moved to after the  ``\sphinxsetup`` which follows
            immediately the loading of :file:`sphinx.sty`. This is in order
            to handle the paper layout options in a special way for Japanese
            documents: the text width will be set to an integer multiple of the
            *zenkaku* width, and the text height to an integer multiple
            of the baseline.
 
-           Further, as the ``jsbook`` Japanese standard document class handles
-           pointsize other than ``10pt`` in a special manner, Sphinx uses then
-           as first document class option ``truedimen``: this will be received
-           by ``geometry`` package and help it interpret correctly further
-           class options such as ``letterpaper`` or ``a4paper``.
-
-           For ``jreport`` (Japanese ``'howto'`` documents), the situation is
-           otherwise, and the ``truedimen`` must not be used for ``geometry``.
+           For Japanese ``'manual'`` documents, Sphinx passes additionally to
+           ``geometry`` the ``truedimen`` option for compatibility with the way
+           the ``jsbook`` class handles dimensions when the pointsize is not
+           ``10pt``.
 
      ``'babel'``
         "babel" package inclusion, default ``'\\usepackage{babel}'`` (the

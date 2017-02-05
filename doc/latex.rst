@@ -14,13 +14,19 @@ The *latex* target does not benefit from pre-prepared themes like the
 .. raw:: latex
 
    \begingroup
-   \sphinxsetup{verbatimwithframe=false,%
-                VerbatimColor={named}{OldLace}, TitleColor={named}{DarkGoldenrod},%
-                hintBorderColor={named}{LightCoral}, attentionBgColor={named}{LightPink},%
-                attentionborder=3pt,  attentionBorderColor={named}{Crimson},%
-                noteBorderColor={named}{Olive}, noteborder=2pt,%
-                cautionBorderColor={named}{Cyan}, cautionBgColor={named}{LightCyan},%
-                cautionborder=3pt}
+   \sphinxsetup{%
+         verbatimwithframe=false,
+         VerbatimColor={named}{OldLace},
+         TitleColor={named}{DarkGoldenrod},
+         hintBorderColor={named}{LightCoral},
+         attentionborder=3pt,
+         attentionBorderColor={named}{Crimson},
+         attentionBgColor={named}{FloralWhite},
+         noteborder=2pt,
+         noteBorderColor={named}{Olive},
+         cautionborder=3pt,
+         cautionBorderColor={named}{Cyan},
+         cautionBgColor={named}{LightCyan}}
    \relax
 
 
@@ -109,13 +115,19 @@ If non-empty, it will be passed as argument to the ``\sphinxsetup`` command::
      dynamically the option values: this is actually what we did for the
      duration of this chapter for the PDF output, which is styled using::
 
+       \sphinxsetup{%
          verbatimwithframe=false,
-         VerbatimColor={named}{OldLace}, TitleColor={named}{DarkGoldenrod},
-         hintBorderColor={named}{LightCoral}, attentionBgColor={named}{LightPink},
-         attentionborder=3pt,  attentionBorderColor={named}{Crimson},
-         noteBorderColor={named}{Olive}, noteborder=2pt,
-         cautionBorderColor={named}{Cyan}, cautionBgColor={named}{LightCyan},
-         cautionborder=3pt
+         VerbatimColor={named}{OldLace},
+         TitleColor={named}{DarkGoldenrod},
+         hintBorderColor={named}{LightCoral},
+         attentionborder=3pt,
+         attentionBorderColor={named}{Crimson},
+         attentionBgColor={named}{FloralWhite},
+         noteborder=2pt,
+         noteBorderColor={named}{Olive},
+         cautionborder=3pt,
+         cautionBorderColor={named}{Cyan},
+         cautionBgColor={named}{LightCyan}}
 
      and with the ``svgnames`` option having been passed to "xcolor" package::
 
@@ -155,15 +167,15 @@ Here are the currently available options together with their default values.
 
        For a ``'manual'`` type document, which by default uses the ``jsbook``
        LaTeX document class, the dimension units must be so-called "true"
-       units:
+       units::
 
-         'sphinxsetup': 'hmargin=1.5truein, vmargin=1.5truein, marginpar=2zw'
+         'sphinxsetup': 'hmargin=1.5truein, vmargin=1.5truein, marginpar=5zw',
 
-       This is due to ``jsbook`` LaTeX class way of handling the pointsize
-       when it is not ``10pt``.
+       This is due to the LaTeX class ``jsbook``'s way of handling the
+       pointsize when it is not ``10pt``.
 
        To the contrary, the ``jreport`` class, which is used for ``'howto'``
-       document must be configured with "normal" units.
+       documents, must be configured with "normal" units.
 
     .. versionadded:: 1.5.3
 

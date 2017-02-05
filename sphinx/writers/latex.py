@@ -436,11 +436,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
                 # pTeX (Japanese TeX) for support
                 if builder.config.language == 'ja':
-                    # if document uses Japanese standard document classes, then
-                    # geometry package needs truedimen as initial *class* option
-                    if docclass[:2] == 'js':
-                        self.elements['papersize'] = ('truedimen,' +
-                                                      self.elements['papersize'])
                     # use dvipdfmx as default class option in Japanese
                     self.elements['classoptions'] = ',dvipdfmx'
                     # disable babel which has not publishing quality in Japanese

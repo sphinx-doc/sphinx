@@ -423,7 +423,7 @@ def test_babel_with_language_ja(app, status, warning):
     print(result)
     print(status.getvalue())
     print(warning.getvalue())
-    assert '\\documentclass[truedimen,letterpaper,10pt,dvipdfmx]{sphinxmanual}' in result
+    assert '\\documentclass[letterpaper,10pt,dvipdfmx]{sphinxmanual}' in result
     assert '\\usepackage{babel}' not in result
     assert '\\usepackage{times}' in result
     assert '\\usepackage[Sonny]{fncychap}' not in result
