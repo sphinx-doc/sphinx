@@ -1089,7 +1089,9 @@
  \ifx\@jsc@uplatextrue\undefined\else
  % the way we found in order for the papersize special written by
  % geometry in the dvi file to be correct in case of jsbook class
-   \PassOptionsToPackage{truedimen}{geometry}%
+   \ifnum\mag=\@m\else
+     \PassOptionsToPackage{truedimen}{geometry}%
+   \fi
  \fi
  \PassOptionsToPackage{%
     hmarginratio={1:1},%
