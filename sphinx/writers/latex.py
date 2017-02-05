@@ -1216,7 +1216,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                        dict(table=self.table, labels=labels))
         self.body.append("\n\n")
         self.body.append(table)
-        self.body.append("\n\n")
+        self.body.append("\n")
 
         self.unrestrict_footnote(node)
         self.table = None
