@@ -1843,7 +1843,8 @@ These options influence LaTeX output. See further :doc:`latex`.
         generate a differently-styled title page.
      ``'releasename'``
         value that prefixes ``'release'`` element on title page, default
-        ``'Release'``.
+        ``'Release'``. As for *title* and *author* used in the tuples of
+        :confval:`latex_documents`, it is inserted as LaTeX markup.
      ``'tableofcontents'``
         "tableofcontents" call, default ``'\\sphinxtableofcontents'`` (it is a
         wrapper of unmodified ``\tableofcontents``, which may itself be
