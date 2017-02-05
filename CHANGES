@@ -20,6 +20,7 @@ Bugs fixed
 * #3364: sphinx-quickstart prompts overflow on Console with 80 chars width
 * since 1.5, PDF's TOC and bookmarks lack an entry for general Index
   (refs: #3383)
+* #3392: ``'releasename'`` in :confval:`latex_elements` is not working
 
 Testing
 --------
