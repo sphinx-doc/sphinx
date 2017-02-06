@@ -11,6 +11,7 @@ Features added
 --------------
 
 * Support requests-2.0.0 (experimental) (refs: #3367)
+* (latex) PDF page margin dimensions may be customized (refs: #3387)
 
 Bugs fixed
 ----------
