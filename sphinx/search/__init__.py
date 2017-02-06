@@ -315,7 +315,7 @@ class IndexBuilder(object):
         """Dump the frozen index to a stream."""
         if isinstance(format, string_types):
             format = self.formats[format]  # type: ignore
-        format.dump(self.freeze(), stream)  # type: ignore
+        format.dump(self.freeze(), stream)
 
     def get_objects(self, fn2index):
         # type: (Dict[unicode, int]) -> Dict[unicode, Dict[unicode, Tuple[int, int, int, unicode]]]  # NOQA

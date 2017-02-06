@@ -776,8 +776,8 @@ class StandardDomain(Domain):
         docname, labelid = self.data['progoptions'].get((progname, target), ('', ''))
         if not docname:
             commands = []
-            while ws_re.search(target):  # type: ignore
-                subcommand, target = ws_re.split(target, 1)  # type: ignore
+            while ws_re.search(target):
+                subcommand, target = ws_re.split(target, 1)
                 commands.append(subcommand)
                 progname = "-".join(commands)
 

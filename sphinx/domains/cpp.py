@@ -4544,7 +4544,7 @@ class CPPObject(ObjectDescription):
         # type: (Any) -> Any
         raise NotImplementedError()
 
-    def describe_signature(self, signode, ast, options):  # type: ignore
+    def describe_signature(self, signode, ast, options):
         # type: (addnodes.desc_signature, Any, Dict) -> None
         ast.describe_signature(signode, 'lastIsName', self.env, options)
 

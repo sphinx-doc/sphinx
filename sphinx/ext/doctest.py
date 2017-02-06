@@ -128,7 +128,7 @@ class TestDirective(Directive):
             option_strings = self.options['options'].replace(',', ' ').split()
             for option in option_strings:
                 prefix, option_name = option[0], option[1:]
-                if prefix not in '+-':  # type: ignore
+                if prefix not in '+-':
                     self.state.document.reporter.warning(
                         _("missing '+' or '-' in '%s' option.") % option,
                         line=self.lineno)

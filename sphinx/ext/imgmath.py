@@ -128,7 +128,7 @@ def render_math(self, math):
     else:
         tempdir = self.builder._imgmath_tempdir
 
-    with codecs.open(path.join(tempdir, 'math.tex'), 'w', 'utf-8') as tf:  # type: ignore
+    with codecs.open(path.join(tempdir, 'math.tex'), 'w', 'utf-8') as tf:
         tf.write(latex)
 
     # build latex command; old versions of latex don't have the

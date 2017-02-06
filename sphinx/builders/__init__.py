@@ -398,7 +398,7 @@ class Builder(object):
                 self.write_doc(docname, doctree)
 
         # warm up caches/compile templates using the first document
-        firstname, docnames = docnames[0], docnames[1:]  # type: ignore
+        firstname, docnames = docnames[0], docnames[1:]
         doctree = self.env.get_and_resolve_doctree(firstname, self)
         self.write_doc_serialized(firstname, doctree)
         self.write_doc(firstname, doctree)

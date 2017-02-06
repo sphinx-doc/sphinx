@@ -171,8 +171,7 @@ class Config(object):
         if getenv('SOURCE_DATE_EPOCH') is not None:
             for k in ('copyright', 'epub_copyright'):
                 if k in config:
-                    config[k] = copyright_year_re.sub('\g<1>%s' % format_date('%Y'),  # type: ignore  # NOQA
-                                                      config[k])
+                    config[k] = copyright_year_re.sub('\g<1>%s' % format_date('%Y'), config[k])
 
     def check_types(self):
         # type: () -> None
@@ -221,7 +220,7 @@ class Config(object):
         # check all string values for non-ASCII characters in bytestrings,
         # since that can result in UnicodeErrors all over the place
         for name, value in iteritems(self._raw_config):
-            if isinstance(value, binary_type) and nonascii_re.search(value):  # type: ignore
+            if isinstance(value, binary_type) and nonascii_re.search(value):
                 logger.warning('the config value %r is set to a string with non-ASCII '
                                'characters; this can lead to Unicode errors occurring. '
                                'Please use Unicode strings, e.g. %r.', name, u'Content')
@@ -272,7 +271,7 @@ class Config(object):
             try:
                 if '.' in valname:
                     realvalname, key = valname.split('.', 1)
-                    config.setdefault(realvalname, {})[key] = value  # type: ignore
+                    config.setdefault(realvalname, {})[key] = value
                     continue
                 elif valname not in self.values:
                     logger.warning('unknown config value %r in override, ignoring', valname)

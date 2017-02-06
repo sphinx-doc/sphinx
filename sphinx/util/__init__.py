@@ -207,7 +207,7 @@ def save_traceback(app):
     import platform
     exc = sys.exc_info()[1]
     if isinstance(exc, SphinxParallelError):
-        exc_format = '(Error in parallel process)\n' + exc.traceback  # type: ignore
+        exc_format = '(Error in parallel process)\n' + exc.traceback
     else:
         exc_format = traceback.format_exc()
     fd, path = tempfile.mkstemp('.log', 'sphinx-err-')

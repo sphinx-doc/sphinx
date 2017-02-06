@@ -69,19 +69,19 @@ class InventoryAdapter(object):
         self.env = env
 
         if not hasattr(env, 'intersphinx_cache'):
-            self.env.intersphinx_cache = {}  # type: ignore
-            self.env.intersphinx_inventory = {}  # type: ignore
-            self.env.intersphinx_named_inventory = {}  # type: ignore
+            self.env.intersphinx_cache = {}
+            self.env.intersphinx_inventory = {}
+            self.env.intersphinx_named_inventory = {}
 
     @property
     def cache(self):
         # type: () -> Dict[unicode, Tuple[unicode, int, Inventory]]
-        return self.env.intersphinx_cache  # type: ignore
+        return self.env.intersphinx_cache
 
     @property
     def main_inventory(self):
         # type: () -> Inventory
-        return self.env.intersphinx_inventory  # type: ignore
+        return self.env.intersphinx_inventory
 
     @property
     def named_inventory(self):

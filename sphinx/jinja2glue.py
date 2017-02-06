@@ -33,7 +33,7 @@ if False:
 def _tobool(val):
     # type: (unicode) -> bool
     if isinstance(val, string_types):
-        return val.lower() in ('true', '1', 'yes', 'on')  # type: ignore
+        return val.lower() in ('true', '1', 'yes', 'on')
     return bool(val)
 
 

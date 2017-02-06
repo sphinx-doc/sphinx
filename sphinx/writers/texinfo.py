@@ -248,7 +248,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         title = None  # type: unicode
         title = elements['title']  # type: ignore
         if not title:
-            title = self.document.next_node(nodes.title)  # type: ignore
+            title = self.document.next_node(nodes.title)
             title = (title and title.astext()) or '<untitled>'  # type: ignore
         elements['title'] = self.escape_id(title) or '<untitled>'
         # filename

@@ -191,7 +191,7 @@ class PyObject(ObjectDescription):
         """
         return False
 
-    def handle_signature(self, sig, signode):  # type: ignore
+    def handle_signature(self, sig, signode):
         # type: (unicode, addnodes.desc_signature) -> Tuple[unicode, unicode]
         """Transform a Python signature into RST nodes.
 

@@ -290,8 +290,7 @@ def setup(app):
 
     """
     if not isinstance(app, Sphinx):
-        return  # type: ignore
-                # probably called by tests
+        return  # probably called by tests
 
     _patch_python_domain()
 
@@ -311,7 +310,7 @@ def _patch_python_domain():
         pass
     else:
         import sphinx.domains.python
-        import sphinx.locale  # type: ignore
+        import sphinx.locale
         l_ = sphinx.locale.lazy_gettext
         for doc_field in sphinx.domains.python.PyObject.doc_field_types:
             if doc_field.name == 'parameter':

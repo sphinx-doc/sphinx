@@ -121,7 +121,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
                                      link=ref[1])
 
             if subitems:
-                parent_title = re.sub(r'\s*\(.*\)\s*$', '', title)  # type: ignore
+                parent_title = re.sub(r'\s*\(.*\)\s*$', '', title)
                 for subitem in subitems:
                     write_index("%s %s" % (parent_title, subitem[0]),
                                 subitem[1], [])

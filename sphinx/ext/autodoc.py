@@ -1538,11 +1538,11 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         # to distinguish classmethod/staticmethod
         obj = self.parent.__dict__.get(self.object_name)
 
-        if isinstance(obj, classmethod):  # type: ignore
+        if isinstance(obj, classmethod):
             self.directivetype = 'classmethod'
             # document class and static members before ordinary ones
             self.member_order = self.member_order - 1
-        elif isinstance(obj, staticmethod):  # type: ignore
+        elif isinstance(obj, staticmethod):
             self.directivetype = 'staticmethod'
             # document class and static members before ordinary ones
             self.member_order = self.member_order - 1

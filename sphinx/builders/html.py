@@ -191,7 +191,7 @@ class StandaloneHTMLBuilder(Builder):
             else:
                 self.translator_class = HTMLTranslator
 
-    def get_outdated_docs(self):  # type: ignore
+    def get_outdated_docs(self):
         # type: () -> Iterator[unicode]
         cfgdict = dict((confval.name, confval.value) for confval in self.config.filter('html'))
         self.config_hash = get_stable_hash(cfgdict)

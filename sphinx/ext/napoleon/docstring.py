@@ -128,7 +128,7 @@ class GoogleDocstring(UnicodeMixin):
         self._obj = obj
         self._opt = options
         if isinstance(docstring, string_types):
-            docstring = docstring.splitlines()  # type: ignore
+            docstring = docstring.splitlines()
         self._lines = docstring
         self._line_iter = modify_iter(docstring, modifier=lambda s: s.rstrip())
         self._parsed_lines = []  # type: List[unicode]
