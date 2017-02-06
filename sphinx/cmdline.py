@@ -116,9 +116,6 @@ def handle_exception(app, opts, exception, stderr=sys.stderr):
 
 def main(argv):
     # type: (List[unicode]) -> int
-    if not color_terminal():
-        nocolor()
-
     parser = optparse.OptionParser(USAGE, epilog=EPILOG, formatter=MyFormatter())
     parser.add_option('--version', action='store_true', dest='version',
                       help='show version information and exit')
@@ -167,8 +164,12 @@ def main(argv):
                      help='no output on stdout, just warnings on stderr')
     group.add_option('-Q', action='store_true', dest='really_quiet',
                      help='no output at all, not even warnings')
+    group.add_option('--color', type='choice', action='store', default='auto',
+                     choices=['yes', 'no', 'auto'],
+                     help='color terminal output (yes/no/auto)')
     group.add_option('-N', action='store_true', dest='nocolor',
-                     help='do not emit colored output')
+                     help='do not emit colored output (deprecated, '
+                          'please use "--color=no")')
     group.add_option('-w', metavar='FILE', dest='warnfile',
                      help='write warnings (and errors) to given file')
     group.add_option('-W', action='store_true', dest='warningiserror',
@@ -239,6 +240,8 @@ def main(argv):
         return 1
 
     if opts.nocolor:
+        opts.color = 'no'
+    if opts.color == 'no' or (opts.color == 'auto' and not color_terminal()):
         nocolor()
 
     doctreedir = abspath(opts.doctreedir or path.join(outdir, '.doctrees'))
