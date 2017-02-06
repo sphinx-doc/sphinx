@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/02/03 v1.5.3 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/02/06 v1.5.3 LaTeX package (Sphinx markup)]
 
 % we delay handling of options to after having loaded packages, because
 % of the need to use \definecolor.
@@ -1078,18 +1078,18 @@
  \newcommand*\sphinxtextwidthja[1]{%
     \if@twocolumn\tw@\fi
     \dimexpr
-       \numexpr\dimexpr\paperwidth-\dimexpr#1+#1\relax\relax/
+       \numexpr\dimexpr\paperwidth-\tw@\dimexpr#1\relax\relax/
                \dimexpr\if@twocolumn\tw@\else\@ne\fi zw\relax
     zw\relax}%
  \newcommand*\sphinxmarginparwidthja[1]{%
     \dimexpr\numexpr\dimexpr#1\relax/\dimexpr1zw\relax zw\relax}%
  \newcommand*\sphinxtextlinesja[1]{%
-    \numexpr\@ne+\dimexpr\paperheight-\topskip-\dimexpr#1+#1\relax\relax/
+    \numexpr\@ne+\dimexpr\paperheight-\topskip-\tw@\dimexpr#1\relax\relax/
                  \baselineskip\relax}%
  \ifx\@jsc@uplatextrue\undefined\else
  % the way we found in order for the papersize special written by
  % geometry in the dvi file to be correct in case of jsbook class
-   \ifnum\mag=\@m\else
+   \ifnum\mag=\@m\else % do nothing special if nomag class option or 10pt
      \PassOptionsToPackage{truedimen}{geometry}%
    \fi
  \fi
@@ -1105,7 +1105,8 @@
 
 % fix fncychap's bug which uses prematurely the \textwidth value
 \@ifpackagewith{fncychap}{Bjornstrup}
-               {\AtBeginDocument{\mylen\textwidth\advance\mylen-2\myhi}}%
+ {\AtBeginDocument{\mylen\textwidth\advance\mylen-2\myhi}}%
+ {}% <-- "false" clause of \@ifpackagewith
 
 \ifx\@jsc@uplatextrue\undefined\else
   \PassOptionsToPackage{setpagesize=false}{hyperref}
