@@ -84,7 +84,7 @@ DEFAULT_SETTINGS = {
     'release':         '',
     'author':          '',
     'logo':            '',
-    'releasename':     'Release',
+    'releasename':     '',
     'makeindex':       '\\makeindex',
     'shorthandoff':    '',
     'maketitle':       '\\maketitle',
@@ -385,9 +385,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'title':        document.settings.title,    # treat as a raw LaTeX code
             'release':      self.encode(builder.config.release),
             'author':       document.settings.author,   # treat as a raw LaTeX code
-            'releasename':  _('Release'),
             'indexname':    _('Index'),
         })
+        if not self.elements['releasename']:
+            self.elements.update({
+                'releasename':  _('Release'),
+            })
         if not builder.config.latex_keep_old_macro_names:
             self.elements['sphinxpkgoptions'] = 'dontkeepoldnames'
         if document.settings.docclass == 'howto':
