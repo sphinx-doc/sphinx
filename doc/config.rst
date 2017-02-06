@@ -1740,8 +1740,8 @@ These options influence LaTeX output. See further :doc:`latex`.
 
           ``\PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}``
 
-        which can be customized via corresponding ``'sphinxsetup'`` options.
-        See :doc:`latex`.
+        which can be customized via corresponding :ref:`'sphinxsetup' options
+        <latexsphinxsetup>`.
 
         .. versionadded:: 1.5
 
@@ -1749,20 +1749,17 @@ These options influence LaTeX output. See further :doc:`latex`.
            ``dvipdfm`` option if :confval:`latex_engine` is ``'platex'``.
 
         .. versionadded:: 1.5.3
-           The ``'sphinxsetup'`` keys for ``hmargin, ...``.
+           The :ref:`'sphinxsetup' keys for the margins
+           <latexsphinxsetuphmargin>`.
 
         .. versionchanged:: 1.5.3
-           The execution has been moved to after the  ``\sphinxsetup`` which follows
-           immediately the loading of :file:`sphinx.sty`. This is in order
-           to handle the paper layout options in a special way for Japanese
-           documents: the text width will be set to an integer multiple of the
-           *zenkaku* width, and the text height to an integer multiple
-           of the baseline.
-
-           For Japanese ``'manual'`` documents, Sphinx passes additionally to
-           ``geometry`` the ``truedimen`` option for compatibility with the way
-           the ``jsbook`` class handles dimensions when the pointsize is not
-           ``10pt``.
+           The location in the LaTeX file has been moved to after
+           ``\usepackage{sphinx}`` and ``\sphinxsetup{..}``, hence also after
+           insertion of ``'fontpkg'`` key. This is in order to handle the paper
+           layout options in a special way for Japanese documents: the text
+           width will be set to an integer multiple of the *zenkaku* width, and
+           the text height to an integer multiple of the baseline. See the
+           :ref:`hmargin <latexsphinxsetuphmargin>` documentation for more.
 
      ``'babel'``
         "babel" package inclusion, default ``'\\usepackage{babel}'`` (the

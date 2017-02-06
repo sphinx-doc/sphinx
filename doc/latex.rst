@@ -81,6 +81,8 @@ configured, for example::
 
     latex_additional_files = ["mystyle.sty"]
 
+.. _latexsphinxsetup:
+
 The Sphinx LaTeX style package options
 --------------------------------------
 
@@ -149,6 +151,8 @@ Here are the currently available options together with their default values.
    LaTeX requires for keys with Boolean values to use **lowercase** ``true`` or
    ``false``.
 
+.. _latexsphinxsetuphmargin:
+
 ``hmargin``
     The dimensions of the horizontal margins. Legacy Sphinx default value is
     ``1in`` (which stands for ``{1in,1in}``.) It is passed over as ``hmargin``
@@ -172,7 +176,7 @@ Here are the currently available options together with their default values.
 
          'sphinxsetup': 'hmargin=1.5truein, vmargin=1.5truein, marginpar=5zw',
 
-       This is due to the way the LaTeX class ``jsbook``'s handles the
+       This is due to the way the LaTeX class ``jsbook`` handles the
        pointsize.
 
        Or, one uses regular units but with ``nomag`` as document class option.
