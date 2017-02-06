@@ -57,8 +57,7 @@ DEFAULT_SETTINGS = {
     'sphinxpkgoptions':     '',
     'sphinxsetup':     '',
     'passoptionstopackages': '',
-    'geometry':       ('\\usepackage[margin=1in,marginparwidth=0.5in]'
-                       '{geometry}'),
+    'geometry':        '\\usepackage{geometry}',
     'inputenc':        '',
     'utf8extra':       '',
     'cmappkg':         '\\usepackage{cmap}',
@@ -122,8 +121,7 @@ ADDITIONAL_SETTINGS = {
     },
     'platex': {
         'latex_engine': 'platex',
-        'geometry': ('\\usepackage[margin=1in,marginparwidth=0.5in,dvipdfm]'
-                     '{geometry}'),
+        'geometry':     '\\usepackage[dvipdfm]{geometry}',
     },
 }
 

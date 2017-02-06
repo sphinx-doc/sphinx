@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/01/16 v1.5.2 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/02/06 v1.5.3 LaTeX package (Sphinx markup)]
 
 % we delay handling of options to after having loaded packages, because
 % of the need to use \definecolor.
@@ -60,6 +60,18 @@
 % Handle options via "kvoptions" (later loaded by hyperref anyhow)
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{prefix=spx@opt@} % use \spx@opt@ prefix
+
+% Sphinx legacy text layout: 1in margins on all four sides
+\ifx\@jsc@uplatextrue\undefined
+\DeclareStringOption[1in]{hmargin}
+\DeclareStringOption[1in]{vmargin}
+\DeclareStringOption[.5in]{marginpar}
+\else
+% Japanese standard document classes handle \mag in a special way
+\DeclareStringOption[\inv@mag in]{hmargin}
+\DeclareStringOption[\inv@mag in]{vmargin}
+\DeclareStringOption[.5\dimexpr\inv@mag in\relax]{marginpar}
+\fi
 
 \DeclareBoolOption{dontkeepoldnames} % \ifspx@opt@dontkeepoldnames = \iffalse
 \DeclareStringOption[0]{maxlistdepth}% \newcommand*\spx@opt@maxlistdepth{0}
@@ -1052,13 +1064,52 @@
   {\endlist}
 \fi
 
-% adjust the margins for footer,
-% this works with the jsclasses only (Japanese standard document classes)
-% FIXME: rather, pass options to "geometry".
+\ifx\kanjiskip\undefined
+  \PassOptionsToPackage{%
+     hmargin={\unexpanded{\spx@opt@hmargin}},%
+     vmargin={\unexpanded{\spx@opt@vmargin}},%
+     marginpar=\unexpanded{\spx@opt@marginpar}}
+  {geometry}
+\else
+ % set text width for Japanese documents to be integer multiple of 1zw
+ % and text height to be integer multiple of \baselineskip
+ % the execution is delayed to \sphinxsetup then geometry.sty
+ \normalsize\normalfont
+ \newcommand*\sphinxtextwidthja[1]{%
+    \if@twocolumn\tw@\fi
+    \dimexpr
+       \numexpr\dimexpr\paperwidth-\tw@\dimexpr#1\relax\relax/
+               \dimexpr\if@twocolumn\tw@\else\@ne\fi zw\relax
+    zw\relax}%
+ \newcommand*\sphinxmarginparwidthja[1]{%
+    \dimexpr\numexpr\dimexpr#1\relax/\dimexpr1zw\relax zw\relax}%
+ \newcommand*\sphinxtextlinesja[1]{%
+    \numexpr\@ne+\dimexpr\paperheight-\topskip-\tw@\dimexpr#1\relax\relax/
+                 \baselineskip\relax}%
+ \ifx\@jsc@uplatextrue\undefined\else
+ % the way we found in order for the papersize special written by
+ % geometry in the dvi file to be correct in case of jsbook class
+   \ifnum\mag=\@m\else % do nothing special if nomag class option or 10pt
+     \PassOptionsToPackage{truedimen}{geometry}%
+   \fi
+ \fi
+ \PassOptionsToPackage{%
+    hmarginratio={1:1},%
+    textwidth=\unexpanded{\sphinxtextwidthja{\spx@opt@hmargin}},%
+    vmarginratio={1:1},%
+    lines=\unexpanded{\sphinxtextlinesja{\spx@opt@vmargin}},%
+    marginpar=\unexpanded{\sphinxmarginparwidthja{\spx@opt@marginpar}},%
+    footskip=2\baselineskip,%
+  }{geometry}%
+\fi
+
+% fix fncychap's bug which uses prematurely the \textwidth value
+\@ifpackagewith{fncychap}{Bjornstrup}
+ {\AtBeginDocument{\mylen\textwidth\advance\mylen-2\myhi}}%
+ {}% <-- "false" clause of \@ifpackagewith
+
 \ifx\@jsc@uplatextrue\undefined\else
   \PassOptionsToPackage{setpagesize=false}{hyperref}
-  \setlength\footskip{2\baselineskip}
-  \addtolength{\textheight}{-2\baselineskip}
 \fi
 
 % fix the double index and bibliography on the table of contents

@@ -14,13 +14,19 @@ The *latex* target does not benefit from pre-prepared themes like the
 .. raw:: latex
 
    \begingroup
-   \sphinxsetup{verbatimwithframe=false,%
-                VerbatimColor={named}{OldLace}, TitleColor={named}{DarkGoldenrod},%
-                hintBorderColor={named}{LightCoral}, attentionBgColor={named}{LightPink},%
-                attentionborder=3pt,  attentionBorderColor={named}{Crimson},%
-                noteBorderColor={named}{Olive}, noteborder=2pt,%
-                cautionBorderColor={named}{Cyan}, cautionBgColor={named}{LightCyan},%
-                cautionborder=3pt}
+   \sphinxsetup{%
+         verbatimwithframe=false,
+         VerbatimColor={named}{OldLace},
+         TitleColor={named}{DarkGoldenrod},
+         hintBorderColor={named}{LightCoral},
+         attentionborder=3pt,
+         attentionBorderColor={named}{Crimson},
+         attentionBgColor={named}{FloralWhite},
+         noteborder=2pt,
+         noteBorderColor={named}{Olive},
+         cautionborder=3pt,
+         cautionBorderColor={named}{Cyan},
+         cautionBgColor={named}{LightCyan}}
    \relax
 
 
@@ -75,6 +81,8 @@ configured, for example::
 
     latex_additional_files = ["mystyle.sty"]
 
+.. _latexsphinxsetup:
+
 The Sphinx LaTeX style package options
 --------------------------------------
 
@@ -109,13 +117,19 @@ If non-empty, it will be passed as argument to the ``\sphinxsetup`` command::
      dynamically the option values: this is actually what we did for the
      duration of this chapter for the PDF output, which is styled using::
 
+       \sphinxsetup{%
          verbatimwithframe=false,
-         VerbatimColor={named}{OldLace}, TitleColor={named}{DarkGoldenrod},
-         hintBorderColor={named}{LightCoral}, attentionBgColor={named}{LightPink},
-         attentionborder=3pt,  attentionBorderColor={named}{Crimson},
-         noteBorderColor={named}{Olive}, noteborder=2pt,
-         cautionBorderColor={named}{Cyan}, cautionBgColor={named}{LightCyan},
-         cautionborder=3pt
+         VerbatimColor={named}{OldLace},
+         TitleColor={named}{DarkGoldenrod},
+         hintBorderColor={named}{LightCoral},
+         attentionborder=3pt,
+         attentionBorderColor={named}{Crimson},
+         attentionBgColor={named}{FloralWhite},
+         noteborder=2pt,
+         noteBorderColor={named}{Olive},
+         cautionborder=3pt,
+         cautionBorderColor={named}{Cyan},
+         cautionBgColor={named}{LightCyan}}
 
      and with the ``svgnames`` option having been passed to "xcolor" package::
 
@@ -136,6 +150,62 @@ Here are the currently available options together with their default values.
 
    LaTeX requires for keys with Boolean values to use **lowercase** ``true`` or
    ``false``.
+
+.. _latexsphinxsetuphmargin:
+
+``hmargin``
+    The dimensions of the horizontal margins. Legacy Sphinx default value is
+    ``1in`` (which stands for ``{1in,1in}``.) It is passed over as ``hmargin``
+    option to ``geometry`` package.
+
+    Here is an example for non-Japanese documents of use of this key::
+
+      'sphinxsetup': 'hmargin={2in,1.5in}, vmargin={1.5in,2in}, marginpar=1in',
+
+    Japanese documents currently accept only the form with only one dimension.
+    This option is handled then in a special manner in order for ``geometry``
+    package to set the text width to an exact multiple of the *zenkaku* width
+    of the base document font.
+
+    .. hint::
+
+       For a ``'manual'`` type document with :confval:`language` set to
+       ``'ja'``, which by default uses the ``jsbook`` LaTeX document class, the
+       dimension units, when the pointsize isn't ``10pt``, must be so-called TeX
+       "true" units::
+
+         'sphinxsetup': 'hmargin=1.5truein, vmargin=1.5truein, marginpar=5zw',
+
+       This is due to the way the LaTeX class ``jsbook`` handles the
+       pointsize.
+
+       Or, one uses regular units but with ``nomag`` as document class option.
+       This can be achieved for example via::
+
+         'pointsize': 'nomag,12pt',
+
+       in the :confval:`latex_elements` configuration variable.
+
+    .. versionadded:: 1.5.3
+
+``vmargin``
+    The dimension of the vertical margins. Legacy Sphinx default value is
+    ``1in`` (or ``{1in,1in}``.) Passed over as ``vmargin`` option to
+    ``geometry``.
+
+    Japanese documents will arrange for the text height to be an integer
+    multiple of the baselineskip, taking the closest match suitable for the
+    asked-for vertical margin. It can then be only one dimension. See notice
+    above.
+
+    .. versionadded:: 1.5.3
+
+``marginpar``
+    The ``\marginparwidth`` LaTeX dimension, defaults to ``0.5in``. For Japanese
+    documents, the value is modified to be the closest integer multiple of the
+    *zenkaku* width.
+
+    .. versionadded:: 1.5.3
 
 ``verbatimwithframe``
     default ``true``. Boolean to specify if :rst:dir:`code-block`\ s and literal

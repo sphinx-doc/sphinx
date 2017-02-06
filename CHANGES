@@ -21,6 +21,9 @@ Bugs fixed
 * since 1.5, PDF's TOC and bookmarks lack an entry for general Index
   (refs: #3383)
 * #3392: ``'releasename'`` in :confval:`latex_elements` is not working
+* #3356: Page layout for Japanese ``'manual'`` docclass has a shorter text area
+* #3394: When ``'pointsize'`` is not ``10pt``, Japanese ``'manual'`` document
+  gets wrong PDF page dimensions
 
 Testing
 --------
