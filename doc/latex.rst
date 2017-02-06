@@ -163,19 +163,24 @@ Here are the currently available options together with their default values.
     package to set the text width to an exact multiple of the *zenkaku* width
     of the base document font.
 
-    .. attention::
+    .. hint::
 
-       For a ``'manual'`` type document, which by default uses the ``jsbook``
-       LaTeX document class, the dimension units must be so-called "true"
-       units::
+       For a ``'manual'`` type document with :confval:`language` set to
+       ``'ja'``, which by default uses the ``jsbook`` LaTeX document class, the
+       dimension units, when the pointsize isn't ``10pt``, must be so-called TeX
+       "true" units::
 
          'sphinxsetup': 'hmargin=1.5truein, vmargin=1.5truein, marginpar=5zw',
 
-       This is due to the LaTeX class ``jsbook``'s way of handling the
-       pointsize when it is not ``10pt``.
+       This is due to the way the LaTeX class ``jsbook``'s handles the
+       pointsize.
 
-       To the contrary, the ``jreport`` class, which is used for ``'howto'``
-       documents, must be configured with "normal" units.
+       Or, one uses regular units but with ``nomag`` as document class option.
+       This can be achieved for example via::
+
+         'pointsize': 'nomag,12pt',
+
+       in the :confval:`latex_elements` configuration variable.
 
     .. versionadded:: 1.5.3
 
