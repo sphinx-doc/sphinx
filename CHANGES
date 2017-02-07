@@ -25,6 +25,7 @@ Bugs fixed
 * #3356: Page layout for Japanese ``'manual'`` docclass has a shorter text area
 * #3394: When ``'pointsize'`` is not ``10pt``, Japanese ``'manual'`` document
   gets wrong PDF page dimensions
+* #3399: quickstart: conf.py was not overwritten by template
 
 Testing
 --------
