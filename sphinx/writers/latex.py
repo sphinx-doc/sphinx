@@ -389,12 +389,14 @@ class TableCell(object):
 
         self.table = table
         self.cell_id = table.cells[(row, col)]
-        for n in range(row + 1):
-            if table.cells[(row - n, col)] == self.cell_id:
-                self.row = row - n
-        for n in range(col + 1):
-            if table.cells[(row, col - n)] == self.cell_id:
-                self.col = col - n
+        self.row = row
+        self.col = col
+
+        # adjust position for multirow/multicol cell
+        while table.cells[(self.row - 1, self.col)] == self.cell_id:
+            self.row -= 1
+        while table.cells[(self.row, self.col - 1)] == self.cell_id:
+            self.col -= 1
 
     @property
     def width(self):
