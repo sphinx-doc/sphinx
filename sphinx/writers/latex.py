@@ -399,10 +399,10 @@ class Table(object):
                 self.cells[(self.row + row, self.col + col)] = self.cell_id
 
     def cell(self, row=None, col=None):
-        """Returns a cell object (i.e. rectangular area) containing given position: (``row``, ``col``)
+        """Returns a cell object (i.e. rectangular area) containing given position.
 
-        If no ``row`` or ``col`` are given, the current position; ``self.row`` and
-        ``self.col`` are used to get a cell object by default.
+        If no option arguments: ``row`` or ``col`` are given, the current position;
+        ``self.row`` and ``self.col`` are used to get a cell object by default.
         """
         try:
             if row is None:
