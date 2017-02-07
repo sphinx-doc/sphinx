@@ -1101,6 +1101,14 @@
     marginpar=\unexpanded{\sphinxmarginparwidthja{\spx@opt@marginpar}},%
     footskip=2\baselineskip,%
   }{geometry}%
+ \AtBeginDocument
+ {% update a dimension used by the jsclasses
+  \ifx\@jsc@uplatextrue\undefined\else\fullwidth\textwidth\fi
+  % for some reason, jreport normalizes all dimensions with \@settopoint
+  \@ifclassloaded{jreport}
+    {\@settopoint\textwidth\@settopoint\textheight\@settopoint\marginparwidth}
+    {}% <-- "false" clause of \@ifclassloaded
+  }%
 \fi
 
 % fix fncychap's bug which uses prematurely the \textwidth value
