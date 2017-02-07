@@ -824,9 +824,9 @@ def test_latex_table(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
     tables = {}
-    for chap in re.split(r'\\chapter(?={.*})', result)[1:]:
+    for chap in re.split(r'\\section{', result)[1:]:
         sectname, content = chap.split('}', 1)
-        tables[sectname[1:]] = content.strip()
+        tables[sectname] = content.strip()
 
     # simple_table
     table = tables['simple table']
@@ -874,7 +874,7 @@ def test_latex_table(app, status, warning):
     # table having caption
     table = tables['table having caption']
     assert ('\\begin{threeparttable}\n\\capstart\\caption{caption for table}'
-            '\\label{\\detokenize{index:id1}}' in table)
+            '\\label{\\detokenize{tabular:id1}}' in table)
     assert ('\\noindent\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
     assert ('\\hline\n'
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
@@ -929,7 +929,7 @@ def test_latex_table(app, status, warning):
     # longtable having caption
     table = tables['longtable having caption']
     assert ('\\begin{longtable}{|l|l|}\n\\caption{caption for longtable}'
-            '\\label{\\detokenize{index:id2}}\\\\\n\\hline' in table)
+            '\\label{\\detokenize{longtable:id1}}\\\\\n\\hline' in table)
 
     # longtable having verbatim
     table = tables['longtable having verbatim']
