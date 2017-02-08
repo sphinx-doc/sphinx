@@ -862,6 +862,17 @@ def test_latex_table_tabulars(app, status, warning):
     assert ('\\noindent\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
     assert ('\\hline\n\\end{tabular}' in table)
 
+    # table having :align: option (tabulary)
+    table = tables['table having :align: option (tabulary)']
+    assert ('\\begin{center}\\noindent\\begin{tabulary}{\\linewidth}{|L|L|}\n' in table)
+    assert ('\\hline\n\\end{tabulary}\\end{center}' in table)
+
+    # table having :align: option (tabular)
+    table = tables['table having :align: option (tabular)']
+    assert ('\\begin{flushleft}'
+            '\\noindent\\begin{tabular}{|\X{30}{100}|\X{70}{100}|}\n' in table)
+    assert ('\\hline\n\\end{tabular}\\end{flushleft}' in table)
+
     # table with tabularcolumn
     table = tables['table with tabularcolumn']
     assert ('\\noindent\\begin{tabulary}{\\linewidth}{|c|c|}' in table)
@@ -922,6 +933,11 @@ def test_latex_table_longtable(app, status, warning):
     # longtable having :widths: option
     table = tables['longtable having :widths: option']
     assert ('\\begin{longtable}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+
+    # longtable having :align: option
+    table = tables['longtable having :align: option']
+    assert ('\\begin{longtable}[r]{|l|l|}\n' in table)
+    assert ('\\hline\n\\end{longtable}' in table)
 
     # longtable with tabularcolumn
     table = tables['longtable with tabularcolumn']

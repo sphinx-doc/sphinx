@@ -1,4 +1,12 @@
-\begin{longtable}<%= table.get_colspec() %>
+\begin{longtable}
+<%- if table.align == 'center' -%>
+  [c]
+<%- elif table.align == 'left' -%>
+  [l]
+<%- elif table.align == 'right' -%>
+  [r]
+<%- endif -%>
+<%= table.get_colspec() %>
 <%- if table.caption -%>
 \caption{<%= ''.join(table.caption) %>}<%= labels %>\\
 <% endif -%>
