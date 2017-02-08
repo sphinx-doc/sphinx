@@ -361,7 +361,7 @@ package.
 
 .. method:: Sphinx.add_env_collector(collector)
 
-   Register a environment collector class (refs: :ref:`collector-api`)
+   Register an environment collector class (refs: :ref:`collector-api`)
 
    .. versionadded:: 1.6
 
