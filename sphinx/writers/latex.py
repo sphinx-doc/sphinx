@@ -15,6 +15,7 @@
 import re
 import sys
 from os import path
+from collections import defaultdict
 
 from six import itervalues, text_type
 from docutils import nodes, writers
@@ -315,25 +316,44 @@ class ShowUrlsTransform(object):
 
 
 class Table(object):
+    """A table data"""
+
     def __init__(self, node):
         # type: (nodes.table) -> None
         self.header = []                        # type: List[unicode]
         self.body = []                          # type: List[unicode]
-        self.classes = node.get('classes', [])  # type: List[unicode]
-        self.col = 0
         self.colcount = 0
         self.colspec = None                     # type: unicode
         self.colwidths = []                     # type: List[int]
-        self.rowcount = 0
         self.has_problematic = False
         self.has_verbatim = False
         self.caption = None                     # type: List[unicode]
 
+        # current position
+        self.col = 0
+        self.row = 0
+
+        # for internal use
+        self.classes = node.get('classes', [])  # type: List[unicode]
+        self.cells = defaultdict(int)           # type: Dict[Tuple[int, int], int]
+                                                # it maps table location to cell_id
+                                                # (cell = rectangular area)
+        self.cell_id = 0                        # last assigned cell_id
+
     def is_longtable(self):
+        """True if and only if table uses longtable environment."""
         # type: () -> bool
-        return self.rowcount > 30 or 'longtable' in self.classes
+        return self.row > 30 or 'longtable' in self.classes
 
     def get_table_type(self):
+        """Returns the LaTeX environment name for the table.
+
+        The class currently supports:
+
+        * longtable
+        * tabular
+        * taburary
+        """
         # type: () -> unicode
         if self.is_longtable():
             return 'longtable'
@@ -347,6 +367,12 @@ class Table(object):
             return 'tabulary'
 
     def get_colspec(self):
+        """Returns a column spec of table.
+
+        This is what LaTeX calls the 'preamble argument' of the used table environment.
+
+        .. note:: the ``\X`` column type specifier is defined in ``sphinx.sty``.
+        """
         # type: () -> unicode
         if self.colspec:
             return self.colspec
@@ -360,6 +386,67 @@ class Table(object):
             return '{|' + ('L|' * self.colcount) + '}\n'
         else:
             return '{|' + ('l|' * self.colcount) + '}\n'
+
+    def add_cell(self, height, width):
+        """Adds a new cell to a table.
+
+        It will be located at current position: (``self.row``, ``self.col``).
+        """
+        self.cell_id += 1
+        for col in range(width):
+            for row in range(height):
+                assert self.cells[(self.row + row, self.col + col)] == 0
+                self.cells[(self.row + row, self.col + col)] = self.cell_id
+
+    def cell(self, row=None, col=None):
+        """Returns a cell object (i.e. rectangular area) containing given position.
+
+        If no option arguments: ``row`` or ``col`` are given, the current position;
+        ``self.row`` and ``self.col`` are used to get a cell object by default.
+        """
+        try:
+            if row is None:
+                row = self.row
+            if col is None:
+                col = self.col
+            return TableCell(self, row, col)
+        except IndexError:
+            return None
+
+
+class TableCell(object):
+    """A cell data of tables."""
+
+    def __init__(self, table, row, col):
+        if table.cells[(row, col)] == 0:
+            raise IndexError
+
+        self.table = table
+        self.cell_id = table.cells[(row, col)]
+        self.row = row
+        self.col = col
+
+        # adjust position for multirow/multicol cell
+        while table.cells[(self.row - 1, self.col)] == self.cell_id:
+            self.row -= 1
+        while table.cells[(self.row, self.col - 1)] == self.cell_id:
+            self.col -= 1
+
+    @property
+    def width(self):
+        """Returns the cell width."""
+        width = 0
+        while self.table.cells[(self.row, self.col + width)] == self.cell_id:
+            width += 1
+        return width
+
+    @property
+    def height(self):
+        """Returns the cell height."""
+        height = 0
+        while self.table.cells[(self.row + height, self.col)] == self.cell_id:
+            height += 1
+        return height
 
 
 def escape_abbr(text):
@@ -417,8 +504,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.in_parsed_literal = 0
         self.compact_list = 0
         self.first_param = 0
-        self.remember_multirow = {}     # type: Dict[int, int]
-        self.remember_multirowcol = {}  # type: Dict[int, int]
 
         # determine top section level
         if builder.config.latex_toplevel_sectioning:
@@ -1254,72 +1339,53 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_tbody(self, node):
         # type: (nodes.Node) -> None
         self.popbody()
-        self.remember_multirow = {}
-        self.remember_multirowcol = {}
 
     def visit_row(self, node):
         # type: (nodes.Node) -> None
         self.table.col = 0
-        for key, value in self.remember_multirow.items():
-            if not value and key in self.remember_multirowcol:
-                del self.remember_multirowcol[key]
+
+        # fill column if first one is a wide-multirow
+        cell = self.table.cell(self.table.row, 0)
+        if cell and cell.row != self.table.row:  # bottom part of multirow cell
+            self.table.col += cell.width
+            if cell.width > 1:  # use \multicolumn for wide multirow cell
+                self.body.append('\\multicolumn{%d}{|l|}{}\\relax ' % cell.width)
 
     def depart_row(self, node):
         # type: (nodes.Node) -> None
         self.body.append('\\\\\n')
-        if any(self.remember_multirow.values()):
-            linestart = 1
-            col = self.table.colcount
-            for col in range(1, self.table.col + 1):
-                if self.remember_multirow.get(col):
-                    if linestart != col:
-                        linerange = str(linestart) + '-' + str(col - 1)
-                        self.body.append('\\cline{' + linerange + '}')
-                    linestart = col + 1
-                    if self.remember_multirowcol.get(col, 0):
-                        linestart += self.remember_multirowcol[col]
-            if linestart <= col:
-                linerange = str(linestart) + '-' + str(col)
-                self.body.append('\\cline{' + linerange + '}')
-        else:
+        cells = [self.table.cell(self.table.row, i) for i in range(self.table.colcount)]
+        underlined = [cell.row + cell.height == self.table.row + 1 for cell in cells]
+        if all(underlined):
             self.body.append('\\hline')
-        self.table.rowcount += 1
+        else:
+            i = 0
+            underlined.extend([False])  # sentinel
+            while i < len(underlined):
+                if underlined[i] is True:
+                    j = underlined[i:].index(False)
+                    self.body.append('\\cline{%d-%d}' % (i + 1, i + j))
+                    i += j
+                i += 1
+        self.table.row += 1
 
     def visit_entry(self, node):
         # type: (nodes.Node) -> None
-        if self.table.col == 0:
-            while self.remember_multirow.get(self.table.col + 1, 0):
-                self.table.col += 1
-                self.remember_multirow[self.table.col] -= 1
-                if self.remember_multirowcol.get(self.table.col, 0):
-                    extracols = self.remember_multirowcol[self.table.col]
-                    self.body.append('\\multicolumn{')
-                    self.body.append(str(extracols + 1))
-                    self.body.append('}{|l|}{}\\relax ')
-                    self.table.col += extracols
-                self.body.append('&')
-        else:
+        if self.table.col > 0:
             self.body.append('&')
-        self.table.col += 1
+        self.table.add_cell(node.get('morerows', 0) + 1, node.get('morecols', 0) + 1)
+        cell = self.table.cell()
         context = ''
-        if 'morecols' in node:
-            self.body.append('\\multicolumn{')
-            self.body.append(str(node.get('morecols') + 1))
-            if self.table.col == 1:
-                self.body.append('}{|l|}{\\relax ')
+        if cell.width > 1:
+            self.body.append('\\multicolumn{%d}' % cell.width)
+            if self.table.col == 0:
+                self.body.append('{|l|}{\\relax ')
             else:
-                self.body.append('}{l|}{\\relax ')
+                self.body.append('{l|}{\\relax ')
             context += '\\unskip}\\relax '
-        if 'morerows' in node:
-            self.body.append('\\multirow{')
-            self.body.append(str(node.get('morerows') + 1))
-            self.body.append('}{*}{\\relax ')
+        if cell.height > 1:
+            self.body.append('\\multirow{%d}{*}{\\relax ' % cell.height)
             context += '\\unskip}\\relax '
-            self.remember_multirow[self.table.col] = node.get('morerows')
-        if 'morecols' in node:
-            if 'morerows' in node:
-                self.remember_multirowcol[self.table.col] = node.get('morecols')
-            self.table.col += node.get('morecols')
         if (('morecols' in node or 'morerows' in node) and
            (len(node) > 2 or len(node.astext().split('\n')) > 2)):
             self.in_merged_cell = 1
@@ -1333,16 +1399,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 self.body.append('\\sphinxstylethead{\\relax ')
                 context += '\\unskip}\\relax '
-        while self.remember_multirow.get(self.table.col + 1, 0):
-            self.table.col += 1
-            self.remember_multirow[self.table.col] -= 1
-            context += '&'
-            if self.remember_multirowcol.get(self.table.col, 0):
-                extracols = self.remember_multirowcol[self.table.col]
-                context += '\\multicolumn{'
-                context += str(extracols + 1)
-                context += '}{l|}{}\\relax '
-                self.table.col += extracols
         if len(node.traverse(nodes.paragraph)) >= 2:
             self.table.has_problematic = True
         self.context.append(context)
@@ -1360,6 +1416,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 line = re.sub(u'(?<!~\\\\\\\\)\n', u'~\\\\\\\\\n', line)  # escape return code
                 self.body.append(line)
         self.body.append(self.context.pop())  # header
+
+        cell = self.table.cell()
+        self.table.col += cell.width
+
+        # fill column if next one is a wide-multirow
+        nextcell = self.table.cell()
+        if nextcell and nextcell.row != self.table.row:  # bottom part of multirow cell
+            self.table.col += nextcell.width
+            self.body.append('&')
+            if nextcell.width > 1:  # use \multicolumn for wide multirow cell
+                self.body.append('\\multicolumn{%d}{l|}{}\\relax ' % nextcell.width)
 
     def visit_acks(self, node):
         # type: (nodes.Node) -> None
