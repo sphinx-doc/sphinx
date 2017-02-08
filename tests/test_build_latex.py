@@ -820,7 +820,8 @@ def test_maxlistdepth_at_ten(app, status, warning):
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
                     reason='docutils-0.13 or above is required')
 @pytest.mark.sphinx('latex', testroot='latex-table')
-def test_latex_table(app, status, warning):
+@pytest.mark.test_params(shared_result='test_latex_table')
+def test_latex_table_tabulars(app, status, warning):
     app.builder.build_all()
     result = (app.outdir / 'test.tex').text(encoding='utf8')
     tables = {}
@@ -859,12 +860,6 @@ def test_latex_table(app, status, warning):
     # table having :widths: option
     table = tables['table having :widths: option']
     assert ('\\noindent\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
-    assert ('\\hline\n'
-            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
-            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in table)
-    assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
-    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
-    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
     assert ('\\hline\n\\end{tabular}' in table)
 
     # table with tabularcolumn
@@ -876,14 +871,7 @@ def test_latex_table(app, status, warning):
     assert ('\\begin{threeparttable}\n\\capstart\\caption{caption for table}'
             '\\label{\\detokenize{tabular:id1}}' in table)
     assert ('\\noindent\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
-    assert ('\\hline\n'
-            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
-            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in table)
-    assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
-    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
-    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
-    assert ('\\hline\n\\end{tabulary}' in table)
-    assert ('\\end{threeparttable}' in table)
+    assert ('\\hline\n\\end{tabulary}\n\\end{threeparttable}' in table)
 
     # table having verbatim
     table = tables['table having verbatim']
@@ -896,6 +884,19 @@ def test_latex_table(app, status, warning):
     # table having both :widths: and problematic cell
     table = tables['table having both :widths: and problematic cell']
     assert ('\\noindent\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+
+
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
+@pytest.mark.sphinx('latex', testroot='latex-table')
+@pytest.mark.test_params(shared_result='test_latex_table')
+def test_latex_table_longtable(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    tables = {}
+    for chap in re.split(r'\\section{', result)[1:]:
+        sectname, content = chap.split('}', 1)
+        tables[sectname] = content.strip()
 
     # longtable
     table = tables['longtable']
