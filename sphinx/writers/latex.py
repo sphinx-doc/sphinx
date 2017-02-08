@@ -341,11 +341,12 @@ class Table(object):
         self.cell_id = 0                        # last assigned cell_id
 
     def is_longtable(self):
-        """True if and only if table uses longtable environment."""
         # type: () -> bool
+        """True if and only if table uses longtable environment."""
         return self.row > 30 or 'longtable' in self.classes
 
     def get_table_type(self):
+        # type: () -> unicode
         """Returns the LaTeX environment name for the table.
 
         The class currently supports:
@@ -354,7 +355,6 @@ class Table(object):
         * tabular
         * taburary
         """
-        # type: () -> unicode
         if self.is_longtable():
             return 'longtable'
         elif self.has_verbatim:
@@ -367,13 +367,13 @@ class Table(object):
             return 'tabulary'
 
     def get_colspec(self):
+        # type: () -> unicode
         """Returns a column spec of table.
 
         This is what LaTeX calls the 'preamble argument' of the used table environment.
 
         .. note:: the ``\X`` column type specifier is defined in ``sphinx.sty``.
         """
-        # type: () -> unicode
         if self.colspec:
             return self.colspec
         elif self.colwidths and 'colwidths-given' in self.classes:
@@ -388,6 +388,7 @@ class Table(object):
             return '{|' + ('l|' * self.colcount) + '}\n'
 
     def add_cell(self, height, width):
+        # type: (int, int) -> None
         """Adds a new cell to a table.
 
         It will be located at current position: (``self.row``, ``self.col``).
@@ -399,6 +400,7 @@ class Table(object):
                 self.cells[(self.row + row, self.col + col)] = self.cell_id
 
     def cell(self, row=None, col=None):
+        # type: (int, int) -> TableCell
         """Returns a cell object (i.e. rectangular area) containing given position.
 
         If no option arguments: ``row`` or ``col`` are given, the current position;
@@ -418,6 +420,7 @@ class TableCell(object):
     """A cell data of tables."""
 
     def __init__(self, table, row, col):
+        # type: (Table, int, int) -> None
         if table.cells[(row, col)] == 0:
             raise IndexError
 
@@ -434,6 +437,7 @@ class TableCell(object):
 
     @property
     def width(self):
+        # type: () -> int
         """Returns the cell width."""
         width = 0
         while self.table.cells[(self.row, self.col + width)] == self.cell_id:
@@ -442,6 +446,7 @@ class TableCell(object):
 
     @property
     def height(self):
+        # type: () -> int
         """Returns the cell height."""
         height = 0
         while self.table.cells[(self.row + height, self.col)] == self.cell_id:
