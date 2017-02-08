@@ -95,6 +95,7 @@ def strip_colors(s):
 def create_color_func(name):
     # type: (str) -> None
     def inner(text):
+        # type: (unicode) -> unicode
         return colorize(name, text)
     globals()[name] = inner
 

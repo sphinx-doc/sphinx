@@ -63,6 +63,7 @@ def getLogger(name):
 
 
 def convert_serializable(records):
+    # type: (List[logging.LogRecord]) -> None
     """Convert LogRecord serializable."""
     for r in records:
         # extract arguments to a message and clear them
@@ -174,6 +175,7 @@ class MemoryHandler(logging.handlers.BufferingHandler):
     """Handler buffering all logs."""
 
     def __init__(self):
+        # type: () -> None
         super(MemoryHandler, self).__init__(-1)
 
     def shouldFlush(self, record):
@@ -248,10 +250,12 @@ def pending_logging():
 
 class LogCollector(object):
     def __init__(self):
-        self.logs = []  # type: logging.LogRecord
+        # type: () -> None
+        self.logs = []  # type: List[logging.LogRecord]
 
     @contextmanager
     def collect(self):
+        # type: () -> Generator
         with pending_logging() as memhandler:
             yield
 
@@ -368,13 +372,14 @@ class WarningLogRecordTranslator(logging.Filter):
 
 class ColorizeFormatter(logging.Formatter):
     def format(self, record):
+        # type: (logging.LogRecord) -> str
         message = super(ColorizeFormatter, self).format(record)
         color = getattr(record, 'color', None)
         if color is None:
             color = COLOR_MAP.get(record.levelno)
 
         if color:
-            return colorize(color, message)
+            return colorize(color, message)  # type: ignore
         else:
             return message
 
@@ -382,10 +387,12 @@ class ColorizeFormatter(logging.Formatter):
 class SafeEncodingWriter(object):
     """Stream writer which ignores UnicodeEncodeError silently"""
     def __init__(self, stream):
+        # type: (IO) -> None
         self.stream = stream
         self.encoding = getattr(stream, 'encoding', 'ascii') or 'ascii'
 
     def write(self, data):
+        # type: (unicode) -> None
         try:
             self.stream.write(data)
         except UnicodeEncodeError:
@@ -394,6 +401,7 @@ class SafeEncodingWriter(object):
             self.stream.write(data.encode(self.encoding, 'replace').decode(self.encoding))
 
     def flush(self):
+        # type: () -> None
         if hasattr(self.stream, 'flush'):
             self.stream.flush()
 

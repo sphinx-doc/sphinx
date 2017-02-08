@@ -63,12 +63,15 @@ class sphinx_domains(object):
         self.roles_func = None  # type: Callable
 
     def __enter__(self):
+        # type: () -> None
         self.enable()
 
     def __exit__(self, type, value, traceback):
+        # type: (unicode, unicode, unicode) -> None
         self.disable()
 
     def enable(self):
+        # type: () -> None
         self.directive_func = directives.directive
         self.role_func = roles.role
 
@@ -76,6 +79,7 @@ class sphinx_domains(object):
         roles.role = self.lookup_role
 
     def disable(self):
+        # type: () -> None
         directives.directive = self.directive_func
         roles.role = self.role_func
 
@@ -125,7 +129,8 @@ class sphinx_domains(object):
 
 class WarningStream(object):
     def write(self, text):
-        matched = report_re.search(text)
+        # type: (unicode) -> None
+        matched = report_re.search(text)  # type: ignore
         if not matched:
             logger.warning(text.rstrip("\r\n"))
         else:
@@ -136,9 +141,11 @@ class WarningStream(object):
 class LoggingReporter(Reporter):
     def __init__(self, source, report_level, halt_level,
                  debug=False, error_handler='backslashreplace'):
+        # type: (unicode, int, int, bool, unicode) -> None
         stream = WarningStream()
         Reporter.__init__(self, source, report_level, halt_level,
                           stream, debug, error_handler=error_handler)
 
     def set_conditions(self, category, report_level, halt_level, debug=False):
+        # type: (unicode, int, int, bool) -> None
         Reporter.set_conditions(self, category, report_level, halt_level, debug=debug)

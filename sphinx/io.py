@@ -28,7 +28,7 @@ from sphinx.util.docutils import LoggingReporter
 
 if False:
     # For type annotation
-    from typing import Any, Union  # NOQA
+    from typing import Any, Tuple, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA
@@ -75,6 +75,7 @@ class SphinxBaseReader(standalone.Reader):
         return standalone.Reader.get_transforms(self) + self.transforms
 
     def new_document(self):
+        # type: () -> nodes.document
         document = standalone.Reader.new_document(self)
         reporter = document.reporter
         document.reporter = LoggingReporter(reporter.source, reporter.report_level,
@@ -122,6 +123,7 @@ class SphinxI18nReader(SphinxBaseReader):
         reporter = document.reporter
 
         def get_source_and_line(lineno=None):
+            # type: (int) -> Tuple[unicode, int]
             return reporter.source, self.lineno
 
         reporter.get_source_and_line = get_source_and_line
@@ -153,6 +155,7 @@ class SphinxFileInput(FileInput):
     def read(self):
         # type: () -> unicode
         def get_parser_type(source_path):
+            # type: (unicode) -> Tuple[unicode]
             for suffix in self.env.config.source_parsers:
                 if source_path.endswith(suffix):
                     parser_class = self.env.config.source_parsers[suffix]

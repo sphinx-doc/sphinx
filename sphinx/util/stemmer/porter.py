@@ -32,6 +32,7 @@
 class PorterStemmer(object):
 
     def __init__(self):
+        # type: () -> None
         """The main part of the stemming algorithm starts here.
         b is a buffer holding a word to be stemmed. The letters are in b[k0],
         b[k0+1] ... ending at b[k]. In fact k0 = 0 in this demo program. k is
@@ -42,12 +43,14 @@ class PorterStemmer(object):
         should be done before stem(...) is called.
         """
 
-        self.b = ""  # buffer for word to be stemmed
+        self.b = ""     # type: unicode
+                        # buffer for word to be stemmed
         self.k = 0
         self.k0 = 0
-        self.j = 0   # j is a general offset into the string
+        self.j = 0      # j is a general offset into the string
 
     def cons(self, i):
+        # type: (int) -> int
         """cons(i) is TRUE <=> b[i] is a consonant."""
         if self.b[i] == 'a' or self.b[i] == 'e' or self.b[i] == 'i' \
            or self.b[i] == 'o' or self.b[i] == 'u':
@@ -60,6 +63,7 @@ class PorterStemmer(object):
         return 1
 
     def m(self):
+        # type: () -> int
         """m() measures the number of consonant sequences between k0 and j.
         if c is a consonant sequence and v a vowel sequence, and <..>
         indicates arbitrary presence,
@@ -97,6 +101,7 @@ class PorterStemmer(object):
             i = i + 1
 
     def vowelinstem(self):
+        # type: () -> int
         """vowelinstem() is TRUE <=> k0,...j contains a vowel"""
         for i in range(self.k0, self.j + 1):
             if not self.cons(i):
@@ -104,6 +109,7 @@ class PorterStemmer(object):
         return 0
 
     def doublec(self, j):
+        # type: (int) -> int
         """doublec(j) is TRUE <=> j,(j-1) contain a double consonant."""
         if j < (self.k0 + 1):
             return 0
@@ -112,6 +118,7 @@ class PorterStemmer(object):
         return self.cons(j)
 
     def cvc(self, i):
+        # type: (int) -> int
         """cvc(i) is TRUE <=> i-2,i-1,i has the form
              consonant - vowel - consonant
         and also if the second c is not w,x or y. this is used when trying to
@@ -129,6 +136,7 @@ class PorterStemmer(object):
         return 1
 
     def ends(self, s):
+        # type: (unicode) -> int
         """ends(s) is TRUE <=> k0,...k ends with the string s."""
         length = len(s)
         if s[length - 1] != self.b[self.k]:  # tiny speed-up
@@ -141,6 +149,7 @@ class PorterStemmer(object):
         return 1
 
     def setto(self, s):
+        # type: (unicode) -> None
         """setto(s) sets (j+1),...k to the characters in the string s,
         readjusting k."""
         length = len(s)
@@ -148,11 +157,13 @@ class PorterStemmer(object):
         self.k = self.j + length
 
     def r(self, s):
+        # type: (unicode) -> None
         """r(s) is used further down."""
         if self.m() > 0:
             self.setto(s)
 
     def step1ab(self):
+        # type: () -> None
         """step1ab() gets rid of plurals and -ed or -ing. e.g.
 
            caresses  ->  caress
@@ -200,12 +211,14 @@ class PorterStemmer(object):
                 self.setto("e")
 
     def step1c(self):
+        # type: () -> None
         """step1c() turns terminal y to i when there is another vowel in
         the stem."""
         if (self.ends("y") and self.vowelinstem()):
             self.b = self.b[:self.k] + 'i' + self.b[self.k + 1:]
 
     def step2(self):
+        # type: () -> None
         """step2() maps double suffices to single ones.
         so -ization ( = -ize plus -ation) maps to -ize etc. note that the
         string before the suffix must give m() > 0.
@@ -265,6 +278,7 @@ class PorterStemmer(object):
         # To match the published algorithm, delete this phrase
 
     def step3(self):
+        # type: () -> None
         """step3() dels with -ic-, -full, -ness etc. similar strategy
         to step2."""
         if self.b[self.k] == 'e':
@@ -287,6 +301,7 @@ class PorterStemmer(object):
                 self.r("")
 
     def step4(self):
+        # type: () -> None
         """step4() takes off -ant, -ence etc., in context <c>vcvc<v>."""
         if self.b[self.k - 1] == 'a':
             if self.ends("al"):
@@ -370,6 +385,7 @@ class PorterStemmer(object):
             self.k = self.j
 
     def step5(self):
+        # type: () -> None
         """step5() removes a final -e if m() > 1, and changes -ll to -l if
         m() > 1.
         """
@@ -382,6 +398,7 @@ class PorterStemmer(object):
             self.k = self.k - 1
 
     def stem(self, p, i, j):
+        # type: (unicode, int, int) -> unicode
         """In stem(p,i,j), p is a char pointer, and the string to be stemmed
         is from p[i] to p[j] inclusive. Typically i is zero and j is the
         offset to the last character of a string, (p[j+1] == '\0'). The

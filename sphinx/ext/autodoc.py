@@ -1193,7 +1193,7 @@ class ClassLevelDocumenter(Documenter):
                 # ... if still None, there's no way to know
                 if mod_cls is None:
                     return None, []
-            modname, cls = rpartition(mod_cls, '.')
+            modname, cls = rpartition(mod_cls, '.')  # type: ignore
             parents = [cls]
             # if the module name is still missing, get it like above
             if not modname:

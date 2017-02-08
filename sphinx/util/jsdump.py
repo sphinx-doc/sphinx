@@ -18,7 +18,7 @@ from sphinx.util.pycompat import u
 
 if False:
     # For type annotation
-    from typing import Any, IO, Union  # NOQA
+    from typing import Any, IO, Match, Union  # NOQA
 
 _str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
 _int_re = re.compile(r'\d+')
@@ -43,6 +43,7 @@ ESCAPED = re.compile(r'\\u.{4}|\\.')
 def encode_string(s):
     # type: (str) -> str
     def replace(match):
+        # type: (Match) -> unicode
         s = match.group(0)
         try:
             return ESCAPE_DICT[s]
@@ -56,7 +57,7 @@ def encode_string(s):
                 s1 = 0xd800 | ((n >> 10) & 0x3ff)
                 s2 = 0xdc00 | (n & 0x3ff)
                 return '\\u%04x\\u%04x' % (s1, s2)
-    return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'
+    return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'  # type: ignore
 
 
 def decode_string(s):

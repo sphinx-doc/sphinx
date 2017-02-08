@@ -122,6 +122,7 @@ class ChangesBuilder(Builder):
                   '.. deprecated:: %s' % version]
 
         def hl(no, line):
+            # type: (int, unicode) -> unicode
             line = '<a name="L%s"> </a>' % no + htmlescape(line)
             for x in hltext:
                 if x in line:

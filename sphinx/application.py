@@ -128,7 +128,7 @@ class Sphinx(object):
                  confoverrides=None, status=sys.stdout, warning=sys.stderr,
                  freshenv=False, warningiserror=False, tags=None, verbosity=0,
                  parallel=0):
-        # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, unicode, int, int) -> None  # NOQA
+        # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, List[unicode], int, int) -> None  # NOQA
         self.verbosity = verbosity
         self.next_listener_id = 0
         self._extensions = {}                   # type: Dict[unicode, Any]

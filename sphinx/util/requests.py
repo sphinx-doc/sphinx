@@ -61,11 +61,17 @@ except pkg_resources.UnknownExtra:
         'install requests-2.4.1+.'
     )
 
+if False:
+    # For type annotation
+    from typing import Any, Generator, Union  # NOQA
+    from sphinx.config import Config  # NOQA
+
 useragent_header = [('User-Agent',
                      'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0')]
 
 
 def is_ssl_error(exc):
+    # type: (Exception) -> bool
     """Check an exception is SSLError."""
     if isinstance(exc, SSLError):
         return True
@@ -79,6 +85,7 @@ def is_ssl_error(exc):
 
 @contextmanager
 def ignore_insecure_warning(**kwargs):
+    # type: (Any) -> Generator
     with warnings.catch_warnings():
         if not kwargs.get('verify') and InsecureRequestWarning:
             # ignore InsecureRequestWarning if verify=False
@@ -87,6 +94,7 @@ def ignore_insecure_warning(**kwargs):
 
 
 def _get_tls_cacert(url, config):
+    # type: (unicode, Config) -> Union[str, bool]
     """Get addiotinal CA cert for a specific URL.
 
     This also returns ``False`` if verification is disabled.
@@ -99,7 +107,7 @@ def _get_tls_cacert(url, config):
     if not certs:
         return True
     elif isinstance(certs, (string_types, tuple)):  # type: ignore
-        return certs
+        return certs  # type: ignore
     else:
         hostname = urlsplit(url)[1]
         if '@' in hostname:
@@ -109,6 +117,7 @@ def _get_tls_cacert(url, config):
 
 
 def get(url, **kwargs):
+    # type: (unicode, Any) -> requests.Response
     """Sends a GET request like requests.get().
 
     This sets up User-Agent header and TLS verification automatically."""
@@ -122,6 +131,7 @@ def get(url, **kwargs):
 
 
 def head(url, **kwargs):
+    # type: (unicode, Any) -> requests.Response
     """Sends a HEAD request like requests.head().
 
     This sets up User-Agent header and TLS verification automatically."""

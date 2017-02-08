@@ -598,6 +598,7 @@ class StandaloneHTMLBuilder(Builder):
     def copy_download_files(self):
         # type: () -> None
         def to_relpath(f):
+            # type: (unicode) -> unicode
             return relative_path(self.srcdir, f)
         # copy downloadable files
         if self.env.dlfiles:
@@ -775,6 +776,7 @@ class StandaloneHTMLBuilder(Builder):
     def add_sidebars(self, pagename, ctx):
         # type: (unicode, Dict) -> None
         def has_wildcard(pattern):
+            # type: (unicode) -> bool
             return any(char in pattern for char in '*?[')
         sidebars = None
         matched = None
@@ -823,6 +825,7 @@ class StandaloneHTMLBuilder(Builder):
         default_baseuri = default_baseuri.rsplit('#', 1)[0]
 
         def pathto(otheruri, resource=False, baseuri=default_baseuri):
+            # type: (unicode, bool, unicode) -> unicode
             if resource and '://' in otheruri:
                 # allow non-local resources given by scheme
                 return otheruri
@@ -835,6 +838,7 @@ class StandaloneHTMLBuilder(Builder):
         ctx['pathto'] = pathto
 
         def hasdoc(name):
+            # type: (unicode) -> bool
             if name in self.env.all_docs:
                 return True
             elif name == 'search' and self.search:
@@ -879,6 +883,7 @@ class StandaloneHTMLBuilder(Builder):
             copyfile(self.env.doc2path(pagename), source_name)
 
     def update_page_context(self, pagename, templatename, ctx, event_arg):
+        # type: (unicode, unicode, Dict, Any) -> None
         pass
 
     def handle_finish(self):

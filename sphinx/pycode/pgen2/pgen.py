@@ -193,7 +193,7 @@ class ParserGenerator(object):
             if state in base:
                 return
             base[state] = 1
-            for label, next in state.arcs:  # type: ignore
+            for label, next in state.arcs:
                 if label is None:
                     addclosure(next, base)
         states = [DFAState(closure(start), finish)]

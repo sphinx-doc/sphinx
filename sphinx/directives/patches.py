@@ -13,6 +13,10 @@ from docutils.parsers.rst.directives import images, html
 
 from sphinx import addnodes
 
+if False:
+    # For type annotation
+    from sphinx.application import Sphinx  # NOQA
+
 
 class Figure(images.Figure):
     """The figure directive which applies `:name:` option to the figure node
@@ -20,6 +24,7 @@ class Figure(images.Figure):
     """
 
     def run(self):
+        # type: () -> List[nodes.Node]
         name = self.options.pop('name', None)
         result = images.Figure.run(self)
         if len(result) == 2 or isinstance(result[0], nodes.system_message):
@@ -39,6 +44,7 @@ class Figure(images.Figure):
 
 class Meta(html.Meta):
     def run(self):
+        # type: () -> List[nodes.Node]
         env = self.state.document.settings.env
         result = html.Meta.run(self)
         for node in result:
@@ -56,6 +62,7 @@ class Meta(html.Meta):
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
 

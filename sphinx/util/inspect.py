@@ -18,7 +18,7 @@ from sphinx.util import force_decode
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Tuple  # NOQA
+    from typing import Any, Callable, Tuple, Type  # NOQA
 
 # this imports the standard library inspect module without resorting to
 # relatively import this module
@@ -68,6 +68,7 @@ else:  # 2.7
     from functools import partial
 
     def getargspec(func):
+        # type: (Any) -> Any
         """Like inspect.getargspec but supports functools.partial as well."""
         if inspect.ismethod(func):
             func = func.__func__
@@ -105,6 +106,7 @@ except ImportError:
 
 
 def isenumclass(x):
+    # type: (Type) -> bool
     """Check if the object is subclass of enum."""
     if enum is None:
         return False
@@ -174,7 +176,7 @@ def object_description(object):
     except Exception:
         raise ValueError
     if isinstance(s, binary_type):
-        s = force_decode(s, None)
+        s = force_decode(s, None)  # type: ignore
     # Strip non-deterministic memory addresses such as
     # ``<__main__.A at 0x7f68cb685710>``
     s = memory_address_re.sub('', s)

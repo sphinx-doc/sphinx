@@ -149,6 +149,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                                                   prune_toctrees=False)
 
         def istoctree(node):
+            # type: (nodes.Node) -> bool
             return isinstance(node, addnodes.compact_paragraph) and \
                 'toctree' in node
         sections = []

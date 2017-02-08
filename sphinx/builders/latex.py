@@ -38,6 +38,7 @@ if False:
     # For type annotation
     from typing import Any, Iterable, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -259,6 +260,7 @@ def validate_config_values(app):
 
 
 def default_latex_engine(config):
+    # type: (Config) -> unicode
     """ Better default latex_engine settings for specific languages. """
     if config.language == 'ja':
         return 'platex'
@@ -267,6 +269,7 @@ def default_latex_engine(config):
 
 
 def default_latex_docclass(config):
+    # type: (Config) -> Dict[unicode, unicode]
     """ Better default latex_docclass settings for specific languages. """
     if config.language == 'ja':
         return {'manual': 'jsbook',

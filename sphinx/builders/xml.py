@@ -20,6 +20,11 @@ from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.writers.xml import XMLWriter, PseudoXMLWriter
 
+if False:
+    # For type annotation
+    from typing import Any, Iterator  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
 logger = logging.getLogger(__name__)
 
 
@@ -35,9 +40,11 @@ class XMLBuilder(Builder):
     _writer_class = XMLWriter
 
     def init(self):
+        # type: () -> None
         pass
 
     def get_outdated_docs(self):
+        # type: () -> Iterator[unicode]
         for docname in self.env.found_docs:
             if docname not in self.env.all_docs:
                 yield docname
@@ -57,12 +64,15 @@ class XMLBuilder(Builder):
                 pass
 
     def get_target_uri(self, docname, typ=None):
+        # type: (unicode, unicode) -> unicode
         return docname
 
     def prepare_writing(self, docnames):
+        # type: (Set[unicode]) -> None
         self.writer = self._writer_class(self)
 
     def write_doc(self, docname, doctree):
+        # type: (unicode, nodes.Node) -> None
         # work around multiple string % tuple issues in docutils;
         # replace tuples in attribute values with lists
         doctree = doctree.deepcopy()
@@ -80,12 +90,13 @@ class XMLBuilder(Builder):
         outfilename = path.join(self.outdir, os_path(docname) + self.out_suffix)
         ensuredir(path.dirname(outfilename))
         try:
-            with codecs.open(outfilename, 'w', 'utf-8') as f:
+            with codecs.open(outfilename, 'w', 'utf-8') as f:  # type: ignore
                 f.write(self.writer.output)
         except (IOError, OSError) as err:
             logger.warning("error writing file %s: %s", outfilename, err)
 
     def finish(self):
+        # type: () -> None
         pass
 
 
@@ -101,6 +112,7 @@ class PseudoXMLBuilder(XMLBuilder):
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(XMLBuilder)
     app.add_builder(PseudoXMLBuilder)
 

@@ -16,7 +16,7 @@ from six import PY3, text_type, exec_
 
 if False:
     # For type annotation
-    from typing import Any, Callable  # NOQA
+    from typing import Any, Callable, Generator  # NOQA
 
 
 NoneType = type(None)
@@ -103,7 +103,8 @@ else:
         methods in Python 2 or 3."""
 
         def __str__(self):
-            return self.__unicode__().encode('utf8')
+            # type: () -> str
+            return self.__unicode__().encode('utf8')  # type: ignore
 
 
 # indent()
@@ -115,9 +116,11 @@ else:
         # type: (unicode, unicode, Callable) -> unicode
         if predicate is None:
             def predicate(line):
+                # type: (unicode) -> unicode
                 return line.strip()
 
         def prefixed_lines():
+            # type: () -> Generator
             for line in text.splitlines(True):
                 yield (prefix + line if predicate(line) else line)
         return ''.join(prefixed_lines())

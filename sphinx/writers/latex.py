@@ -2472,7 +2472,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         text = self.encode(node.astext())
         if not self.no_contractions and not self.in_parsed_literal:
-            text = educate_quotes_latex(text)
+            text = educate_quotes_latex(text)  # type: ignore
         self.body.append(text)
 
     def depart_Text(self, node):

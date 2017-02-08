@@ -45,7 +45,7 @@ from sphinx.util.matching import patfilter  # noqa
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, Iterator, Pattern, Sequence, Tuple, Union  # NOQA
+    from typing import Any, Callable, IO, Iterable, Iterator, Pattern, Sequence, Tuple, Union  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -121,6 +121,7 @@ class FilenameUniqDict(dict):
     appear in.  Used for images and downloadable files in the environment.
     """
     def __init__(self):
+        # type: () -> None
         self._existing = set()  # type: Set[unicode]
 
     def add_file(self, docname, newfile):
@@ -153,9 +154,11 @@ class FilenameUniqDict(dict):
                 self.add_file(doc, filename)
 
     def __getstate__(self):
+        # type: () -> Set[unicode]
         return self._existing
 
     def __setstate__(self, state):
+        # type: (Set[unicode]) -> None
         self._existing = state
 
 
@@ -214,7 +217,7 @@ def save_traceback(app):
     last_msgs = ''
     if app is not None:
         last_msgs = '\n'.join(
-            '#   %s' % strip_colors(force_decode(s, 'utf-8')).strip()
+            '#   %s' % strip_colors(force_decode(s, 'utf-8')).strip()  # type: ignore
             for s in app.messagelog)
     os.write(fd, (_DEBUG_HEADER %
                   (sphinx.__display_version__,
@@ -301,12 +304,14 @@ def detect_encoding(readline):
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
 
     def read_or_stop():
+        # type: () -> unicode
         try:
             return readline()
         except StopIteration:
             return None
 
     def get_normal_name(orig_enc):
+        # type: (str) -> str
         """Imitates get_normal_name in tokenizer.c."""
         # Only care about the first 12 characters.
         enc = orig_enc[:12].lower().replace('_', '-')
@@ -318,12 +323,13 @@ def detect_encoding(readline):
         return orig_enc
 
     def find_cookie(line):
+        # type: (unicode) -> unicode
         try:
             line_string = line.decode('ascii')
         except UnicodeDecodeError:
             return None
 
-        matches = _coding_re.findall(line_string)
+        matches = _coding_re.findall(line_string)  # type: ignore
         if not matches:
             return None
         return get_normal_name(matches[0])
@@ -354,14 +360,17 @@ class Tee(object):
     File-like object writing to two streams.
     """
     def __init__(self, stream1, stream2):
+        # type: (IO, IO) -> None
         self.stream1 = stream1
         self.stream2 = stream2
 
     def write(self, text):
+        # type: (unicode) -> None
         self.stream1.write(text)
         self.stream2.write(text)
 
     def flush(self):
+        # type: () -> None
         if hasattr(self.stream1, 'flush'):
             self.stream1.flush()
         if hasattr(self.stream2, 'flush'):
@@ -369,6 +378,7 @@ class Tee(object):
 
 
 def parselinenos(spec, total):
+    # type: (unicode, int) -> List[int]
     """Parse a line number spec (such as "1,2,4-6") and return a list of
     wanted line numbers.
     """
@@ -391,6 +401,7 @@ def parselinenos(spec, total):
 
 
 def force_decode(string, encoding):
+    # type: (unicode, unicode) -> unicode
     """Forcibly get a unicode string out of a bytestring."""
     if isinstance(string, binary_type):
         try:
@@ -407,16 +418,20 @@ def force_decode(string, encoding):
 
 class attrdict(dict):
     def __getattr__(self, key):
+        # type: (unicode) -> unicode
         return self[key]
 
     def __setattr__(self, key, val):
+        # type: (unicode, unicode) -> None
         self[key] = val
 
     def __delattr__(self, key):
+        # type: (unicode) -> None
         del self[key]
 
 
 def rpartition(s, t):
+    # type: (unicode, unicode) -> Tuple[unicode, unicode]
     """Similar to str.rpartition from 2.5, but doesn't return the separator."""
     i = s.rfind(t)
     if i != -1:
@@ -425,6 +440,7 @@ def rpartition(s, t):
 
 
 def split_into(n, type, value):
+    # type: (int, unicode, unicode) -> List[unicode]
     """Split an index entry into a given number of parts at semicolons."""
     parts = [x.strip() for x in value.split(';', n - 1)]
     if sum(1 for part in parts if part) < n:
@@ -433,6 +449,7 @@ def split_into(n, type, value):
 
 
 def split_index_msg(type, value):
+    # type: (unicode, unicode) -> List[unicode]
     # new entry types must be listed in directives/other.py!
     if type == 'single':
         try:
@@ -471,13 +488,16 @@ class PeekableIterator(object):
     what's the next item.
     """
     def __init__(self, iterable):
+        # type: (Iterable) -> None
         self.remaining = deque()  # type: deque
         self._iterator = iter(iterable)
 
     def __iter__(self):
+        # type: () -> PeekableIterator
         return self
 
     def __next__(self):
+        # type: () -> Any
         """Return the next item from the iterator."""
         if self.remaining:
             return self.remaining.popleft()
@@ -486,14 +506,16 @@ class PeekableIterator(object):
     next = __next__  # Python 2 compatibility
 
     def push(self, item):
+        # type: (Any) -> None
         """Push the `item` on the internal stack, it will be returned on the
         next :meth:`next` call.
         """
         self.remaining.append(item)
 
     def peek(self):
+        # type: () -> Any
         """Return the next item without changing the state of the iterator."""
-        item = next(self)
+        item = next(self)  # type: ignore
         self.push(item)
         return item
 
