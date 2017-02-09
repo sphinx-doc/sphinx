@@ -1655,37 +1655,6 @@ These options influence LaTeX output. See further :doc:`latex`.
         contain ``\\PassOptionsToPackage{options}{foo}`` commands. Default empty.
 
         .. versionadded:: 1.4
-     ``'geometry'``
-        "geometry" package inclusion, the default definition is:
-
-          ``'\\usepackage{geometry}'``
-
-        with an additional ``[dvipdfm]`` for Japanese documents.
-        The Sphinx LaTeX style file executes:
-
-          ``\PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}``
-
-        which can be customized via corresponding :ref:`'sphinxsetup' options
-        <latexsphinxsetup>`.
-
-        .. versionadded:: 1.5
-
-        .. versionchanged:: 1.5.2
-           ``dvipdfm`` option if :confval:`latex_engine` is ``'platex'``.
-
-        .. versionadded:: 1.5.3
-           The :ref:`'sphinxsetup' keys for the margins
-           <latexsphinxsetuphmargin>`.
-
-        .. versionchanged:: 1.5.3
-           The location in the LaTeX file has been moved to after
-           ``\usepackage{sphinx}`` and ``\sphinxsetup{..}``, hence also after
-           insertion of ``'fontpkg'`` key. This is in order to handle the paper
-           layout options in a special way for Japanese documents: the text
-           width will be set to an integer multiple of the *zenkaku* width, and
-           the text height to an integer multiple of the baseline. See the
-           :ref:`hmargin <latexsphinxsetuphmargin>` documentation for more.
-
      ``'babel'``
         "babel" package inclusion, default ``'\\usepackage{babel}'`` (the
         suitable document language string is passed as class option, and
@@ -1733,7 +1702,7 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. deprecated:: 1.5
            Use ``'atendofbody'`` key instead.
 
-   * Keys that don't need be overridden unless in special cases are:
+   * Keys that don't need to be overridden unless in special cases are:
 
      ``'maxlistdepth'``
         LaTeX allows by default at most 6 levels for nesting list and
@@ -1770,6 +1739,36 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. versionchanged:: 1.5
            Defaults to ``'\\usepackage{fontspec}'`` when
            :confval:`latex_engine` is ``'xelatex'``.
+     ``'geometry'``
+        "geometry" package inclusion, the default definition is:
+
+          ``'\\usepackage{geometry}'``
+
+        with an additional ``[dvipdfm]`` for Japanese documents.
+        The Sphinx LaTeX style file executes:
+
+          ``\PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}``
+
+        which can be customized via corresponding :ref:`'sphinxsetup' options
+        <latexsphinxsetup>`.
+
+        .. versionadded:: 1.5
+
+        .. versionchanged:: 1.5.2
+           ``dvipdfm`` option if :confval:`latex_engine` is ``'platex'``.
+
+        .. versionadded:: 1.5.3
+           The :ref:`'sphinxsetup' keys for the margins
+           <latexsphinxsetuphmargin>`.
+
+        .. versionchanged:: 1.5.3
+           The location in the LaTeX file has been moved to after
+           ``\usepackage{sphinx}`` and ``\sphinxsetup{..}``, hence also after
+           insertion of ``'fontpkg'`` key. This is in order to handle the paper
+           layout options in a special way for Japanese documents: the text
+           width will be set to an integer multiple of the *zenkaku* width, and
+           the text height to an integer multiple of the baseline. See the
+           :ref:`hmargin <latexsphinxsetuphmargin>` documentation for more.
      ``'hyperref'``
         "hyperref" package inclusion; also loads package "hypcap" and issues
         ``\urlstyle{same}``. This is done after :file:`sphinx.sty` file is
