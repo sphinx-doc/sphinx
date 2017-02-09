@@ -96,7 +96,7 @@ class ImageCollector(EnvironmentCollector):
                 app.env.dependencies[docname].add(imgpath)
                 if not os.access(path.join(app.srcdir, imgpath), os.R_OK):
                     logger.warning('image file not readable: %s' % imgpath,
-                                   location=node)
+                                   location=node, type='image', subtype='not_readable')
                     continue
                 app.env.images.add_file(docname, imgpath)
 
@@ -112,7 +112,7 @@ class ImageCollector(EnvironmentCollector):
                     globbed.setdefault(mimetype, []).append(new_imgpath)
             except (OSError, IOError) as err:
                 logger.warning('image file %s not readable: %s' % (filename, err),
-                               location=node)
+                               location=node, type='image', subtype='not_readable')
         for key, files in iteritems(globbed):
             candidates[key] = sorted(files, key=len)[0]  # select by similarity
 
@@ -137,7 +137,7 @@ class DownloadFileCollector(EnvironmentCollector):
             app.env.dependencies[app.env.docname].add(rel_filename)
             if not os.access(filename, os.R_OK):
                 logger.warning('download file not readable: %s' % filename,
-                               location=node)
+                               location=node, type='download', subtype='not_readable')
                 continue
             node['filename'] = app.env.dlfiles.add_file(app.env.docname, filename)
 

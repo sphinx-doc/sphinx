@@ -46,6 +46,8 @@ Features added
 * #3303: Add ``:pyversion:`` option to the doctest directive.
 * #3378: (latex) support for ``:widths:`` option of table directives
   (refs: #3379, #3381)
+* #3402: Allow to suppress "download file not readable" warnings using
+  :confval:`suppress_warnings`.
 
 Bugs fixed
 ----------
