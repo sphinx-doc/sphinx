@@ -1658,13 +1658,33 @@ These options influence LaTeX output. See further :doc:`latex`.
      ``'geometry'``
         "geometry" package inclusion, the default definition is:
 
-          ``'\\usepackage[margin=1in,marginparwidth=0.5in]{geometry}'``.
+          ``'\\usepackage{geometry}'``
+
+        with an additional ``[dvipdfm]`` for Japanese documents.
+        The Sphinx LaTeX style file executes:
+
+          ``\PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}``
+
+        which can be customized via corresponding :ref:`'sphinxsetup' options
+        <latexsphinxsetup>`.
 
         .. versionadded:: 1.5
 
         .. versionchanged:: 1.5.2
-           For Japanese documents also ``dvipdfm`` option is passed to
-           ``geometry``.
+           ``dvipdfm`` option if :confval:`latex_engine` is ``'platex'``.
+
+        .. versionadded:: 1.5.3
+           The :ref:`'sphinxsetup' keys for the margins
+           <latexsphinxsetuphmargin>`.
+
+        .. versionchanged:: 1.5.3
+           The location in the LaTeX file has been moved to after
+           ``\usepackage{sphinx}`` and ``\sphinxsetup{..}``, hence also after
+           insertion of ``'fontpkg'`` key. This is in order to handle the paper
+           layout options in a special way for Japanese documents: the text
+           width will be set to an integer multiple of the *zenkaku* width, and
+           the text height to an integer multiple of the baseline. See the
+           :ref:`hmargin <latexsphinxsetuphmargin>` documentation for more.
 
      ``'babel'``
         "babel" package inclusion, default ``'\\usepackage{babel}'`` (the
@@ -1768,7 +1788,8 @@ These options influence LaTeX output. See further :doc:`latex`.
         generate a differently-styled title page.
      ``'releasename'``
         value that prefixes ``'release'`` element on title page, default
-        ``'Release'``.
+        ``'Release'``. As for *title* and *author* used in the tuples of
+        :confval:`latex_documents`, it is inserted as LaTeX markup.
      ``'tableofcontents'``
         "tableofcontents" call, default ``'\\sphinxtableofcontents'`` (it is a
         wrapper of unmodified ``\tableofcontents``, which may itself be

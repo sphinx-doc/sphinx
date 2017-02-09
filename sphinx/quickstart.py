@@ -73,7 +73,7 @@ def mkdir_p(dir):
 
 # function to get input from terminal -- overridden by the test suite
 def term_input(prompt):
-    sys.stdout.write(prompt)
+    print(prompt, end='')
     return input('')
 
 
@@ -439,7 +439,10 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
         else:
             print('File %s already exists, skipping.' % fpath)
 
-    with open(os.path.join(package_dir, 'templates', 'quickstart', 'conf.py_t')) as f:
+    conf_path = os.path.join(templatedir, 'conf.py_t') if templatedir else None
+    if not conf_path or not path.isfile(conf_path):
+        conf_path = os.path.join(package_dir, 'templates', 'quickstart', 'conf.py_t')
+    with open(conf_path) as f:
         conf_text = convert_python_source(f.read())
 
     write_file(path.join(srcdir, 'conf.py'), template.render_string(conf_text, d))

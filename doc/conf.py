@@ -56,6 +56,7 @@ latex_logo = '_static/sphinx.png'
 latex_elements = {
     'fontpkg': '\\usepackage{palatino}',
     'passoptionstopackages': '\\PassOptionsToPackage{svgnames}{xcolor}',
+    'printindex': '\\footnotesize\\raggedright\\printindex',
 }
 latex_show_urls = 'footnote'
 

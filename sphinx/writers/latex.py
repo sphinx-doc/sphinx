@@ -61,8 +61,7 @@ DEFAULT_SETTINGS = {
     'sphinxpkgoptions':     '',
     'sphinxsetup':     '',
     'passoptionstopackages': '',
-    'geometry':       ('\\usepackage[margin=1in,marginparwidth=0.5in]'
-                       '{geometry}'),
+    'geometry':        '\\usepackage{geometry}',
     'inputenc':        '',
     'utf8extra':       '',
     'cmappkg':         '\\usepackage{cmap}',
@@ -89,7 +88,7 @@ DEFAULT_SETTINGS = {
     'release':         '',
     'author':          '',
     'logo':            '',
-    'releasename':     'Release',
+    'releasename':     '',
     'makeindex':       '\\makeindex',
     'shorthandoff':    '',
     'maketitle':       '\\maketitle',
@@ -126,8 +125,7 @@ ADDITIONAL_SETTINGS = {
     },
     'platex': {
         'latex_engine': 'platex',
-        'geometry': ('\\usepackage[margin=1in,marginparwidth=0.5in,dvipdfm]'
-                     '{geometry}'),
+        'geometry':     '\\usepackage[dvipdfm]{geometry}',
     },
 }  # type: Dict[unicode, Dict[unicode, unicode]]
 
@@ -534,9 +532,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'title':        document.settings.title,    # treat as a raw LaTeX code
             'release':      self.encode(builder.config.release),
             'author':       document.settings.author,   # treat as a raw LaTeX code
-            'releasename':  _('Release'),
             'indexname':    _('Index'),
         })
+        if not self.elements['releasename']:
+            self.elements.update({
+                'releasename':  _('Release'),
+            })
         if not builder.config.latex_keep_old_macro_names:
             self.elements['sphinxpkgoptions'] = 'dontkeepoldnames'
         if document.settings.docclass == 'howto':
