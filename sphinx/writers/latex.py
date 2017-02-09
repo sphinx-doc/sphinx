@@ -50,7 +50,7 @@ DEFAULT_SETTINGS = {
     'latex_engine':    'pdflatex',
     'papersize':       'letterpaper',
     'pointsize':       '10pt',
-    'pxunit':          '49336sp',
+    'pxunit':          '.75bp',
     'classoptions':    '',
     'extraclassoptions': '',
     'maxlistdepth':    '',
