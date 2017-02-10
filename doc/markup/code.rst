@@ -187,11 +187,6 @@ Includes
    With lines selected this way it is still possible to use ``lines``, the
    numbers being now interpreted relative to the already selected lines.
 
-   .. versionchanged:: 1.5.3
-      Formerly, ``lines`` still referred to the included file, and it was
-      needed that those lines containing the requested strings were among
-      the allowed ones.
-
    When lines have been selected in any of the ways described above, the
    line numbers in ``emphasize-lines`` refer to the selection, with the
    line count starting at ``1``.
