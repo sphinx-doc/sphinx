@@ -256,6 +256,8 @@ class LiteralInclude(Directive):
             lines = list(diff)
 
         linenostart = self.options.get('lineno-start', 1)
+        if 'lineno-match' in self.options:
+            linenostart = 1
         objectname = self.options.get('pyobject')
         if objectname is not None:
             from sphinx.pycode import ModuleAnalyzer
@@ -294,12 +296,12 @@ class LiteralInclude(Directive):
             res = []
             for line_number, line in enumerate(lines):
                 if not use and start_str and start_str in line:
-                    if 'lineno-match' in self.options:
-                        linenostart = line_number + 1
                     if start_inclusive:
                         res.append(line)
-                    else:
-                        linenostart +=1
+                    if 'lineno-match' in self.options:
+                        linenostart = line_number + 1
+                        if not start_inclusive:
+                            linenostart += 1
                     use = True
                 elif use and end_str and end_str in line:
                     if end_inclusive:
