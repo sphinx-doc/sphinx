@@ -3,7 +3,7 @@ Literal Includes with Line Numbers Matching
 
 .. literalinclude:: literal.inc
    :language: python
-   :pyobject: Bar
+   :pyobject: Foo
    :lineno-match:
 
 .. literalinclude:: literal.inc
