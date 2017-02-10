@@ -182,7 +182,9 @@ Includes
    ``start-after`` is given as a string option, only lines that follow the first
    line containing that string are included.  If ``end-before`` is given as a
    string option, only lines that precede the first lines containing that string
-   are included.
+   are included. If used in combination with ``lines``, make sure the latter
+   allows the lines (whose count start at ``1`` at top of file) containing the
+   looked-for strings.
 
    When specifying particular parts of a file to display, it can be useful to
    display exactly which lines are being presented.
