@@ -223,6 +223,12 @@ def test_literal_include_lineno_match(app, status, warning):
         '14</pre></div></td>')
     assert start_after in html
 
+    start_after_with_lines = (
+        '<td class="linenos"><div class="linenodiv"><pre>'
+        '2\n'
+        '3</pre></div></td>')
+    assert start_after_with_lines in html
+
     start_at_end_at = (
         '<td class="linenos"><div class="linenodiv"><pre>'
         ' 9\n'

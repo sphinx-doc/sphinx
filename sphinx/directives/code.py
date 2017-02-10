@@ -270,31 +270,6 @@ class LiteralInclude(Directive):
                 if 'lineno-match' in self.options:
                     linenostart = tags[objectname][1]
 
-        linespec = self.options.get('lines')
-        if linespec:
-            try:
-                linelist = parselinenos(linespec, len(lines))
-            except ValueError as err:
-                return [document.reporter.warning(str(err), line=self.lineno)]
-
-            if 'lineno-match' in self.options:
-                # make sure the line list is not "disjoint".
-                previous = linelist[0]
-                for line_number in linelist[1:]:
-                    if line_number == previous + 1:
-                        previous = line_number
-                        continue
-                    return [document.reporter.warning(
-                        'Cannot use "lineno-match" with a disjoint set of '
-                        '"lines"', line=self.lineno)]
-                linenostart = linelist[0] + 1
-            # just ignore non-existing lines
-            lines = [lines[i] for i in linelist if i < len(lines)]
-            if not lines:
-                return [document.reporter.warning(
-                    'Line spec %r: no lines pulled from include file %r' %
-                    (linespec, filename), line=self.lineno)]
-
         linespec = self.options.get('emphasize-lines')
         if linespec:
             try:
@@ -320,10 +295,12 @@ class LiteralInclude(Directive):
             for line_number, line in enumerate(lines):
                 if not use and start_str and start_str in line:
                     if 'lineno-match' in self.options:
-                        linenostart += line_number + 1
-                    use = True
+                        linenostart = line_number + 1
                     if start_inclusive:
                         res.append(line)
+                    else:
+                        linenostart +=1
+                    use = True
                 elif use and end_str and end_str in line:
                     if end_inclusive:
                         res.append(line)
@@ -331,6 +308,31 @@ class LiteralInclude(Directive):
                 elif use:
                     res.append(line)
             lines = res
+
+        linespec = self.options.get('lines')
+        if linespec:
+            try:
+                linelist = parselinenos(linespec, len(lines))
+            except ValueError as err:
+                return [document.reporter.warning(str(err), line=self.lineno)]
+
+            if 'lineno-match' in self.options:
+                # make sure the line list is not "disjoint".
+                previous = linelist[0]
+                for line_number in linelist[1:]:
+                    if line_number == previous + 1:
+                        previous = line_number
+                        continue
+                    return [document.reporter.warning(
+                        'Cannot use "lineno-match" with a disjoint set of '
+                        '"lines"', line=self.lineno)]
+                linenostart += linelist[0]
+            # just ignore non-existing lines
+            lines = [lines[i] for i in linelist if i < len(lines)]
+            if not lines:
+                return [document.reporter.warning(
+                    'Line spec %r: no lines pulled from include file %r' %
+                    (linespec, filename), line=self.lineno)]
 
         prepend = self.options.get('prepend')
         if prepend:
