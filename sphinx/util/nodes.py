@@ -239,9 +239,9 @@ def clean_astext(node):
 
 
 def split_explicit_title(text):
-    # type: (str) -> Tuple[bool, unicode, unicode]
+    # type: (unicode) -> Tuple[bool, unicode, unicode]
     """Split role content into title and target, if given."""
-    match = explicit_title_re.match(text)
+    match = explicit_title_re.match(text)  # type: ignore
     if match:
         return True, match.group(1), match.group(2)
     return False, text, text

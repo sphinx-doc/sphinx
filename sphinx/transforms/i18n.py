@@ -304,6 +304,7 @@ class Locale(Transform):
             # * use translated refname for section refname.
             # * inline reference "`Python <...>`_" has no 'refname'.
             def is_refnamed_ref(node):
+                # type: (nodes.Node) -> bool
                 return isinstance(node, nodes.reference) and  \
                     'refname' in node
             old_refs = node.traverse(is_refnamed_ref)

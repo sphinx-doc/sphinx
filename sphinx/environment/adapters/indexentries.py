@@ -42,6 +42,7 @@ class IndexEntries(object):
         new = {}  # type: Dict[unicode, List]
 
         def add_entry(word, subword, main, link=True, dic=new, key=None):
+            # type: (unicode, unicode, unicode, bool, Dict, unicode) -> None
             # Force the word to be unicode if it's a ASCII bytestring.
             # This will solve problems with unicode normalization later.
             # For instance the RFC role will add bytestrings at the moment
@@ -96,6 +97,7 @@ class IndexEntries(object):
         # sort the index entries; put all symbols at the front, even those
         # following the letters in ASCII, this is where the chr(127) comes from
         def keyfunc(entry, lcletters=string.ascii_lowercase + '_'):
+            # type: (Tuple[unicode, List], unicode) -> Tuple[unicode, unicode]
             key, (void, void, category_key) = entry
             if category_key:
                 # using specified category key to sort
@@ -140,6 +142,7 @@ class IndexEntries(object):
 
         # group the entries by letter
         def keyfunc2(item, letters=string.ascii_uppercase + '_'):
+            # type: (Tuple[unicode, List], unicode) -> unicode
             # hack: mutating the subitems dicts to a list in the keyfunc
             k, v = item
             v[1] = sorted((si, se) for (si, (se, void, void)) in iteritems(v[1]))

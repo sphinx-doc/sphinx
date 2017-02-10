@@ -85,6 +85,7 @@ class TocTree(object):
         toctree_ancestors = self.get_toctree_ancestors(docname)
 
         def _toctree_add_classes(node, depth):
+            # type: (nodes.Node, int) -> None
             """Add 'toctree-l%d' and 'current' classes to the toctree."""
             for subnode in node.children:
                 if isinstance(subnode, (addnodes.compact_paragraph,
@@ -114,8 +115,8 @@ class TocTree(object):
                             subnode['iscurrent'] = True
                             subnode = subnode.parent
 
-        def _entries_from_toctree(toctreenode, parents,
-                                  separate=False, subtree=False):
+        def _entries_from_toctree(toctreenode, parents, separate=False, subtree=False):
+            # type: (addnodes.toctree, List[nodes.Node], bool, bool) -> List[nodes.Node]
             """Return TOC entries for a toctree node."""
             refs = [(e[0], e[1]) for e in toctreenode['entries']]
             entries = []

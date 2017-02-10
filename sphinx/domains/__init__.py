@@ -21,6 +21,7 @@ if False:
     # For type annotation
     from typing import Any, Callable, Iterable, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
+    from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
@@ -189,8 +190,8 @@ class Domain(object):
             return None
         fullname = '%s:%s' % (self.name, name)
 
-        def role_adapter(typ, rawtext, text, lineno, inliner,
-                         options={}, content=[]):
+        def role_adapter(typ, rawtext, text, lineno, inliner, options={}, content=[]):
+            # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> nodes.Node  # NOQA
             return self.roles[name](fullname, rawtext, text, lineno,
                                     inliner, options, content)
         self._role_cache[name] = role_adapter
@@ -210,6 +211,7 @@ class Domain(object):
 
         class DirectiveAdapter(BaseDirective):  # type: ignore
             def run(self):
+                # type: () -> List[nodes.Node]
                 self.name = fullname
                 return BaseDirective.run(self)
         self._directive_cache[name] = DirectiveAdapter

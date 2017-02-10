@@ -975,6 +975,7 @@ class Documenter(object):
             tagorder = self.analyzer.tagorder
 
             def keyfunc(entry):
+                # type: (Tuple[Documenter, bool]) -> int
                 fullname = entry[0].name.split('::')[1]
                 return tagorder.get(fullname, len(tagorder))
             memberdocumenters.sort(key=keyfunc)
@@ -1828,7 +1829,9 @@ class testcls:
     """test doc string"""
 
     def __getattr__(self, x):
+        # type: (Any) -> Any
         return x
 
     def __setattr__(self, x, y):
+        # type: (Any, Any) -> None
         """Attr setter."""

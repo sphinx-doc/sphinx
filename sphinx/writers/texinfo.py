@@ -1055,6 +1055,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         pass
 
     def visit_term(self, node):
+        # type: (nodes.Node) -> None
         for id in node.get('ids'):
             self.add_anchor(id, node)
         # anchors and indexes need to go in front
@@ -1209,6 +1210,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                          '@end cartouche\n')
 
     def _make_visit_admonition(name):
+        # type: (unicode) -> Callable[[TexinfoTranslator, nodes.Node], None]
         def visit(self, node):
             # type: (nodes.Node) -> None
             self.visit_admonition(node, admonitionlabels[name])

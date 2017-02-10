@@ -60,6 +60,7 @@ if __version__.endswith('+'):
 
 
 def main(argv=sys.argv):
+    # type: (List[str]) -> None
     if sys.argv[1:2] == ['-M']:
         sys.exit(make_main(argv))
     else:
@@ -67,6 +68,7 @@ def main(argv=sys.argv):
 
 
 def build_main(argv=sys.argv):
+    # type: (List[str]) -> int
     """Sphinx build "main" command-line entry."""
     if (sys.version_info[:3] < (2, 7, 0) or
        (3, 0, 0) <= sys.version_info[:3] < (3, 4, 0)):
@@ -104,14 +106,15 @@ def build_main(argv=sys.argv):
         sys.stderr.write('Error: Sphinx requires at least Docutils 0.10 to '
                          'run.\n')
         return 1
-    return cmdline.main(argv)
+    return cmdline.main(argv)  # type: ignore
 
 
 def make_main(argv=sys.argv):
+    # type: (List[str]) -> int
     """Sphinx build "make mode" entry."""
     from sphinx import make_mode
-    return make_mode.run_make_mode(argv[2:])
+    return make_mode.run_make_mode(argv[2:])  # type: ignore
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    sys.exit(main(sys.argv))  # type: ignore

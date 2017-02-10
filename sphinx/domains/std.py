@@ -895,6 +895,7 @@ class StandardDomain(Domain):
         # type: (nodes.Node) -> unicode
         """Get figure type of nodes."""
         def has_child(node, cls):
+            # type: (nodes.Node, Type) -> bool
             return any(isinstance(child, cls) for child in node)
 
         if isinstance(node, nodes.section):

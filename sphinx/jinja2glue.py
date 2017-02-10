@@ -113,6 +113,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
             mtime = path.getmtime(filename)
 
             def uptodate():
+                # type: () -> bool
                 try:
                     return path.getmtime(filename) == mtime
                 except OSError:

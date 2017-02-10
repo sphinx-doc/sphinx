@@ -1794,6 +1794,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\\end{sphinxadmonition}\n')
 
     def _make_visit_admonition(name):
+        # type: (unicode) -> Callable[[LaTeXTranslator, nodes.Node], None]
         def visit_admonition(self, node):
             # type: (nodes.Node) -> None
             self.body.append(u'\n\\begin{sphinxadmonition}{%s}{%s:}' %

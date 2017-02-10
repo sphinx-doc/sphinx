@@ -621,7 +621,7 @@ class StandaloneHTMLBuilder(Builder):
         ensuredir(path.join(self.outdir, '_static'))
         # first, create pygments style file
         with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
-            f.write(self.highlighter.get_stylesheet())
+            f.write(self.highlighter.get_stylesheet())  # type: ignore
         # then, copy translations JavaScript file
         if self.config.language is not None:
             jsfile = self._get_translations_js()

@@ -863,6 +863,7 @@ class TextTranslator(nodes.NodeVisitor):
             self.add_text(self.nl)
 
     def _make_depart_admonition(name):
+        # type: (unicode) -> Callable[[TextTranslator, nodes.Node], None]
         def depart_admonition(self, node):
             # type: (nodes.NodeVisitor, nodes.Node) -> None
             self.end_state(first=admonitionlabels[name] + ': ')

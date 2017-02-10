@@ -746,7 +746,7 @@ class BuildEnvironment(object):
 
     @property
     def currmodule(self):
-        # type () -> None
+        # type: () -> None
         """Backwards compatible alias.  Will be removed."""
         logger.warning('env.currmodule is being referenced by an '
                        'extension; this API will be removed in the future',
@@ -1024,6 +1024,7 @@ class BuildEnvironment(object):
         traversed = set()
 
         def traverse_toctree(parent, docname):
+            # type: (unicode, unicode) -> Iterator[Tuple[unicode, unicode]]
             if parent == docname:
                 logger.warning('self referenced toctree found. Ignored.', location=docname)
                 return

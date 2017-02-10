@@ -58,6 +58,7 @@ else:
 
 
 def compare_version(ver1, ver2, operand):
+    # type: (unicode, unicode, unicode) -> bool
     """Compare `ver1` to `ver2`, relying on `operand`.
 
     Some examples:
