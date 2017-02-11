@@ -12,8 +12,8 @@
 
 import os
 import re
-import zipfile
 from os import path
+from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 from datetime import datetime
 from collections import namedtuple
 
@@ -703,16 +703,13 @@ class EpubBuilder(StandaloneHTMLBuilder):
         entry.
         """
         logger.info('writing %s file...', outname)
-        projectfiles = ['META-INF/container.xml', 'content.opf', 'toc.ncx']  # type: List[unicode]  # NOQA
-        projectfiles.extend(self.files)
-        epub = zipfile.ZipFile(path.join(outdir, outname), 'w',  # type: ignore
-                               zipfile.ZIP_DEFLATED)
-        epub.write(path.join(outdir, 'mimetype'), 'mimetype',  # type: ignore
-                   zipfile.ZIP_STORED)
-        for file in projectfiles:
-            fp = path.join(outdir, file)
-            epub.write(fp, file, zipfile.ZIP_DEFLATED)  # type: ignore
-        epub.close()
+        epub_filename = path.join(outdir, outname)
+        with ZipFile(epub_filename, 'w', ZIP_DEFLATED) as epub:  # type: ignore
+            epub.write(path.join(outdir, 'mimetype'), 'mimetype', ZIP_STORED)  # type: ignore
+            for filename in [u'META-INF/container.xml', u'content.opf', u'toc.ncx']:
+                epub.write(path.join(outdir, filename), filename, ZIP_DEFLATED)  # type: ignore
+            for filename in self.files:
+                epub.write(path.join(outdir, filename), filename, ZIP_DEFLATED)  # type: ignore
 
 
 def setup(app):
