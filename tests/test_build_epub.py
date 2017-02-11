@@ -210,3 +210,38 @@ def test_nested_toc(app):
     grandchild = tocchildren[1].findall("./xhtml:ol/xhtml:li")
     assert len(grandchild) == 1
     assert navinfo(grandchild[0]) == ('foo.xhtml#foo-1-1', 'foo.1-1')
+
+
+@pytest.mark.sphinx('epub', testroot='basic')
+def test_epub_writing_mode(app):
+    # horizontal (default)
+    app.build()
+
+    # horizontal / page-progression-direction
+    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').text())
+    assert opf.find("./idpf:spine").get('page-progression-direction') == 'ltr'
+
+    # horizontal / ibooks:scroll-axis
+    metadata = opf.find("./idpf:metadata")
+    assert metadata.find("./idpf:meta[@property='ibooks:scroll-axis']").text == 'vertical'
+
+    # horizontal / writing-mode (CSS)
+    css = (app.outdir / '_static' / 'epub.css').text()
+    assert 'writing-mode: horizontal-tb;' in css
+
+    # vertical
+    app.config.epub_writing_mode = 'vertical'
+    (app.outdir / 'index.xhtml').unlink()  # forcely rebuild
+    app.build()
+
+    # vertical / page-progression-direction
+    opf = EPUBElementTree.fromstring((app.outdir / 'content.opf').text())
+    assert opf.find("./idpf:spine").get('page-progression-direction') == 'rtl'
+
+    # vertical / ibooks:scroll-axis
+    metadata = opf.find("./idpf:metadata")
+    assert metadata.find("./idpf:meta[@property='ibooks:scroll-axis']").text == 'horizontal'
+
+    # vertical / writing-mode (CSS)
+    css = (app.outdir / '_static' / 'epub.css').text()
+    assert 'writing-mode: vertical-rl;' in css

@@ -15,7 +15,7 @@ from datetime import datetime
 from collections import namedtuple
 
 from sphinx import package_dir
-from sphinx.config import string_classes
+from sphinx.config import string_classes, ENUM
 from sphinx.builders.epub import EpubBuilder
 from sphinx.util import logging
 from sphinx.util.fileutil import copy_asset_file
@@ -31,9 +31,21 @@ logger = logging.getLogger(__name__)
 
 NavPoint = namedtuple('NavPoint', ['text', 'refuri', 'children'])
 
-DOCTYPE = u'''<!DOCTYPE html>'''
+# writing modes
+PAGE_PROGRESSION_DIRECTIONS = {
+    'horizontal': 'ltr',
+    'vertical': 'rtl',
+}
+IBOOK_SCROLL_AXIS = {
+    'horizontal': 'vertical',
+    'vertical': 'horizontal',
+}
+THEME_WRITING_MODES = {
+    'vertical': 'vertical-rl',
+    'horizontal': 'horizontal-tb',
+}
 
-# The epub3 publisher
+DOCTYPE = u'''<!DOCTYPE html>'''
 
 
 class Epub3Builder(EpubBuilder):
@@ -66,47 +78,23 @@ class Epub3Builder(EpubBuilder):
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
+        writing_mode = self.config.epub_writing_mode
+
         metadata = super(Epub3Builder, self).content_metadata()
         metadata['description'] = self.esc(self.config.epub_description)
         metadata['contributor'] = self.esc(self.config.epub_contributor)
-        metadata['page_progression_direction'] = self._page_progression_direction()
-        metadata['ibook_scroll_axis'] = self._ibook_scroll_axis()
+        metadata['page_progression_direction'] = PAGE_PROGRESSION_DIRECTIONS.get(writing_mode)
+        metadata['ibook_scroll_axis'] = IBOOK_SCROLL_AXIS.get(writing_mode)
         metadata['date'] = self.esc(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"))
         metadata['version'] = self.esc(self.config.version)
         return metadata
 
-    def _page_progression_direction(self):
-        # type: () -> unicode
-        if self.config.epub_writing_mode == 'horizontal':
-            page_progression_direction = 'ltr'
-        elif self.config.epub_writing_mode == 'vertical':
-            page_progression_direction = 'rtl'
-        else:
-            page_progression_direction = 'default'
-        return page_progression_direction
-
-    def _ibook_scroll_axis(self):
-        # type: () -> unicode
-        if self.config.epub_writing_mode == 'horizontal':
-            scroll_axis = 'vertical'
-        elif self.config.epub_writing_mode == 'vertical':
-            scroll_axis = 'horizontal'
-        else:
-            scroll_axis = 'default'
-        return scroll_axis
-
-    def _css_writing_mode(self):
-        # type: () -> unicode
-        if self.config.epub_writing_mode == 'vertical':
-            editing_mode = 'vertical-rl'
-        else:
-            editing_mode = 'horizontal-tb'
-        return editing_mode
-
     def prepare_writing(self, docnames):
         # type: (Iterable[unicode]) -> None
         super(Epub3Builder, self).prepare_writing(docnames)
-        self.globalcontext['theme_writing_mode'] = self._css_writing_mode()
+
+        writing_mode = self.config.epub_writing_mode
+        self.globalcontext['theme_writing_mode'] = THEME_WRITING_MODES.get(writing_mode)
 
     def build_navlist(self, navnodes):
         # type: (List[nodes.Node]) -> List[NavPoint]
@@ -193,7 +181,8 @@ def setup(app):
 
     app.add_config_value('epub_description', '', 'epub3', string_classes)
     app.add_config_value('epub_contributor', 'unknown', 'epub3', string_classes)
-    app.add_config_value('epub_writing_mode', 'horizontal', 'epub3', string_classes)
+    app.add_config_value('epub_writing_mode', 'horizontal', 'epub3',
+                         ENUM('horizontal', 'vertical'))
 
     return {
         'version': 'builtin',
