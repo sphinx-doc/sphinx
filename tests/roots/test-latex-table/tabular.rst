@@ -30,7 +30,7 @@ table having :align: option (tabulary)
 --------------------------------------
 
 .. table::
-   :align: center
+   :align: right
 
    ======= =======
    header1 header2

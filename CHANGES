@@ -10,6 +10,9 @@ Incompatible changes
   has the custom code to fit image to available width if oversized.
 * The subclasses of ``sphinx.domains.Index`` should override ``generate()``
   method.  The default implementation raises NotImplementedError
+* LaTeX positioned long tables horizontally centered, and short ones
+  flushed left (no text flow around table.) The position now defaults to center in
+  both cases, and it will obey Docutils 0.13 ``:align:`` option (refs #3415, #3377)
 
 Features removed
 ----------------
@@ -49,6 +52,7 @@ Features added
 * #3402: Allow to suppress "download file not readable" warnings using
   :confval:`suppress_warnings`.
 * #3377: latex: Add support for Docutils 0.13 ``:align:`` option for tables
+  (but does not implement text flow around table).
 
 Bugs fixed
 ----------
