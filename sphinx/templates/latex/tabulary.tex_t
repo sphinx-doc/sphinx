@@ -14,6 +14,9 @@
 <%= ''.join(table.header) %>
 <%=- ''.join(table.body) %>
 \end{tabulary}
+<%- if table.caption %>
+\end{threeparttable}
+<%- endif %>
 <%- if table.align %>
   <%- if table.align == 'center' -%>
     \end{center}
@@ -21,6 +24,3 @@
     \end{flush<%= table.align%>}
   <% endif -%>
 <% endif -%>
-<%- if table.caption %>
-\end{threeparttable}
-<%- endif %>
