@@ -5,3 +5,4 @@ test-latex-table
 
    tabular
    longtable
+   complex

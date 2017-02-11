@@ -1351,12 +1351,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         self.table.col = 0
 
-        # fill column if first one is a wide-multirow
-        cell = self.table.cell(self.table.row, 0)
-        if cell and cell.row != self.table.row:  # bottom part of multirow cell
-            self.table.col += cell.width
-            if cell.width > 1:  # use \multicolumn for wide multirow cell
-                self.body.append('\\multicolumn{%d}{|l|}{}\\relax ' % cell.width)
+        # fill columns if the row starts with the bottom of multirow cell
+        while True:
+            cell = self.table.cell(self.table.row, self.table.col)
+            if cell is None:  # not a bottom of multirow cell
+                break
+            else:  # a bottom of multirow cell
+                self.table.col += cell.width
+                if cell.col != 0:
+                    self.body.append('&')
+                if cell.width > 1:  # use \multicolumn for wide multirow cell
+                    self.body.append('\\multicolumn{%d}{|l|}{}\\relax ' % cell.width)
 
     def depart_row(self, node):
         # type: (nodes.Node) -> None
@@ -1427,13 +1432,16 @@ class LaTeXTranslator(nodes.NodeVisitor):
         cell = self.table.cell()
         self.table.col += cell.width
 
-        # fill column if next one is a wide-multirow
-        nextcell = self.table.cell()
-        if nextcell and nextcell.row != self.table.row:  # bottom part of multirow cell
-            self.table.col += nextcell.width
-            self.body.append('&')
-            if nextcell.width > 1:  # use \multicolumn for wide multirow cell
-                self.body.append('\\multicolumn{%d}{l|}{}\\relax ' % nextcell.width)
+        # fill columns if next ones are a bottom of wide-multirow cell
+        while True:
+            nextcell = self.table.cell()
+            if nextcell is None:  # not a bottom of multirow cell
+                break
+            else:  # a bottom part of multirow cell
+                self.table.col += nextcell.width
+                self.body.append('&')
+                if nextcell.width > 1:  # use \multicolumn for wide multirow cell
+                    self.body.append('\\multicolumn{%d}{l|}{}\\relax ' % nextcell.width)
 
     def visit_acks(self, node):
         # type: (nodes.Node) -> None

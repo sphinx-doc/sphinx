@@ -840,23 +840,6 @@ def test_latex_table_tabulars(app, status, warning):
     assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
     assert ('\\hline\n\\end{tabulary}' in table)
 
-    # grid table
-    table = tables['grid table']
-    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|L|L|L|}' in table)
-    assert ('\\hline\n'
-            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
-            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax &'
-            '\\sphinxstylethead{\\relax \nheader3\n\\unskip}\\relax \\\\' in table)
-    assert ('\\hline\ncell1-1\n&\\multirow{2}{*}{\\relax \ncell1-2\n\\unskip}\\relax &\n'
-            'cell1-3\n\\\\' in table)
-    assert ('\\cline{1-1}\\cline{3-3}\\multirow{2}{*}{\\relax \ncell2-1\n\\unskip}\\relax &&\n'
-            'cell2-2\n\\\\' in table)
-    assert ('\\cline{2-3}&\\multicolumn{2}{l|}{\\relax \\multirow{2}{*}{\\relax \n'
-            'cell3-2\n\\unskip}\\relax \\unskip}\\relax \\\\' in table)
-    assert ('\\cline{1-1}\ncell4-1\n&\\multicolumn{2}{l|}{}\\relax \\\\' in table)
-    assert ('\\hline\\multicolumn{3}{|l|}{\\relax \ncell5-1\n\\unskip}\\relax \\\\\n'
-            '\\hline\n\\end{tabulary}' in table)
-
     # table having :widths: option
     table = tables['table having :widths: option']
     assert ('\\noindent\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
@@ -959,3 +942,49 @@ def test_latex_table_longtable(app, status, warning):
     # longtable having both :widths: and problematic cell
     table = tables['longtable having both :widths: and problematic cell']
     assert ('\\begin{longtable}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+
+
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
+@pytest.mark.sphinx('latex', testroot='latex-table')
+@pytest.mark.test_params(shared_result='test_latex_table')
+def test_latex_table_complex_tables(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    tables = {}
+    for chap in re.split(r'\\section{', result)[1:]:
+        sectname, content = chap.split('}', 1)
+        tables[sectname] = content.strip()
+
+    # grid table
+    table = tables['grid table']
+    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|L|L|L|}' in table)
+    assert ('\\hline\n'
+            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader3\n\\unskip}\\relax \\\\' in table)
+    assert ('\\hline\ncell1-1\n&\\multirow{2}{*}{\\relax \ncell1-2\n\\unskip}\\relax &\n'
+            'cell1-3\n\\\\' in table)
+    assert ('\\cline{1-1}\\cline{3-3}\\multirow{2}{*}{\\relax \ncell2-1\n\\unskip}\\relax &&\n'
+            'cell2-3\n\\\\' in table)
+    assert ('\\cline{2-3}&\\multicolumn{2}{l|}{\\relax \\multirow{2}{*}{\\relax \n'
+            'cell3-2\n\\unskip}\\relax \\unskip}\\relax \\\\' in table)
+    assert ('\\cline{1-1}\ncell4-1\n&\\multicolumn{2}{l|}{}\\relax \\\\' in table)
+    assert ('\\hline\\multicolumn{3}{|l|}{\\relax \ncell5-1\n\\unskip}\\relax \\\\\n'
+            '\\hline\n\\end{tabulary}' in table)
+
+    # complex spanning cell
+    table = tables['complex spanning cell']
+    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|L|L|L|L|L|}' in table)
+    assert ('\\hline\n'
+            '\\multirow{3}{*}{\\relax \ncell1-1\n\\unskip}\\relax &'
+            '\\multirow{3}{*}{\\relax \ncell1-2\n\\unskip}\\relax &'
+            '\ncell1-3\n&'
+            '\\multirow{3}{*}{\\relax \ncell1-4\n\\unskip}\\relax &'
+            '\\multirow{2}{*}{\\relax \ncell1-5\n\\unskip}\\relax \\\\\n'
+            in table)
+    assert ('\\cline{3-3}&&'
+            '\\multirow{2}{*}{\\relax \ncell2-3\n\\unskip}\\relax &&\\\\\n'
+            in table)
+    assert ('\\cline{5-5}&&&&\ncell3-5\n\\\\\n' in table)
+    assert ('\\hline\n\\end{tabulary}' in table)
