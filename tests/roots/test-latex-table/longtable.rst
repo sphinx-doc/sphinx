@@ -30,6 +30,21 @@ longtable having :widths: option
    cell3-1 cell3-2
    ======= =======
 
+longtable having :align: option
+-------------------------------
+
+.. table::
+   :align: right
+   :class: longtable
+
+   ======= =======
+   header1 header2
+   ======= =======
+   cell1-1 cell1-2
+   cell2-1 cell2-2
+   cell3-1 cell3-2
+   ======= =======
+
 longtable with tabularcolumn
 ----------------------------
 

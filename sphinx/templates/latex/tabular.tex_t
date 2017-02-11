@@ -1,3 +1,10 @@
+<%- if table.align %>
+  <%- if table.align == 'center' -%>
+    \begin{center}
+  <%- elif table.align in ('left', 'right') -%>
+    \begin{flush<%= table.align%>}
+  <%- endif -%>
+<% endif -%>
 <%- if table.caption -%>
 \begin{threeparttable}
 \capstart\caption{<%= ''.join(table.caption) %>}<%= labels %>
@@ -10,3 +17,10 @@
 <%- if table.caption %>
 \end{threeparttable}
 <%- endif %>
+<%- if table.align %>
+  <%- if table.align == 'center' -%>
+    \end{center}
+  <%- elif table.align in ('left', 'right') -%>
+    \end{flush<%= table.align%>}
+  <% endif -%>
+<% endif -%>

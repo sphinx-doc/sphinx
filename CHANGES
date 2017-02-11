@@ -48,6 +48,7 @@ Features added
   (refs: #3379, #3381)
 * #3402: Allow to suppress "download file not readable" warnings using
   :confval:`suppress_warnings`.
+* #3377: latex: Add support for Docutils 0.13 ``:align:`` option for tables
 
 Bugs fixed
 ----------

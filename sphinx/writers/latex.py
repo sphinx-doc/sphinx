@@ -320,6 +320,7 @@ class Table(object):
         # type: (nodes.table) -> None
         self.header = []                        # type: List[unicode]
         self.body = []                          # type: List[unicode]
+        self.align = node.get('align')
         self.colcount = 0
         self.colspec = None                     # type: unicode
         self.colwidths = []                     # type: List[int]
