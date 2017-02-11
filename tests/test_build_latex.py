@@ -831,23 +831,24 @@ def test_latex_table_tabulars(app, status, warning):
 
     # simple_table
     table = tables['simple table']
-    assert ('\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
+    assert ('\\begingroup\n\\centering\n\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
     assert ('\\hline\n'
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
             '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in table)
     assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
     assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
     assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
-    assert ('\\hline\n\\end{tabulary}' in table)
+    assert ('\\hline\n\\end{tabulary}\n\\par\n\\endgroup' in table)
 
     # table having :widths: option
     table = tables['table having :widths: option']
-    assert ('\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
-    assert ('\\hline\n\\end{tabular}' in table)
+    assert ('\\begingroup\n\\centering\n'
+            '\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+    assert ('\\hline\n\\end{tabular}\n\\par\n\\endgroup' in table)
 
     # table having :align: option (tabulary)
     table = tables['table having :align: option (tabulary)']
-    assert ('\\begingroup\n\\centering\n'
+    assert ('\\begingroup\n\\raggedleft\n'
             '\\begin{tabulary}{\\linewidth}{|L|L|}\n' in table)
     assert ('\\hline\n\\end{tabulary}\n\\par\n\\endgroup' in table)
 
@@ -863,10 +864,12 @@ def test_latex_table_tabulars(app, status, warning):
 
     # table having caption
     table = tables['table having caption']
-    assert ('\\begin{threeparttable}\n\\capstart\\caption{caption for table}'
+    assert ('\\begingroup\n\\centering\n'
+            '\\begin{threeparttable}\n\\capstart\\caption{caption for table}'
             '\\label{\\detokenize{tabular:id1}}' in table)
     assert ('\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
-    assert ('\\hline\n\\end{tabulary}\n\\end{threeparttable}' in table)
+    assert ('\\hline\n\\end{tabulary}\n\\end{threeparttable}'
+            '\n\\par\n\\endgroup' in table)
 
     # table having verbatim
     table = tables['table having verbatim']
