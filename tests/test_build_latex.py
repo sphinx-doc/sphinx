@@ -481,7 +481,7 @@ def test_footnote(app, status, warning):
             '\ncite\n}') in result
     assert '\\caption{Table caption \\sphinxfootnotemark[4]' in result
     assert 'name \\sphinxfootnotemark[5]' in result
-    assert ('\\end{threeparttable}\n%\n'
+    assert ('\\end{threeparttable}\n\\par\n\\endgroup\n%\n'
             '\\begin{footnotetext}[4]\sphinxAtStartFootnote\n'
             'footnotes in table caption\n%\n\\end{footnotetext}%\n'
             '\\begin{footnotetext}[5]\sphinxAtStartFootnote\n'
@@ -831,7 +831,7 @@ def test_latex_table_tabulars(app, status, warning):
 
     # simple_table
     table = tables['simple table']
-    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
+    assert ('\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
     assert ('\\hline\n'
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
             '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in table)
@@ -842,42 +842,43 @@ def test_latex_table_tabulars(app, status, warning):
 
     # table having :widths: option
     table = tables['table having :widths: option']
-    assert ('\\noindent\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+    assert ('\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
     assert ('\\hline\n\\end{tabular}' in table)
 
     # table having :align: option (tabulary)
     table = tables['table having :align: option (tabulary)']
-    assert ('\\begin{center}\\noindent\\begin{tabulary}{\\linewidth}{|L|L|}\n' in table)
-    assert ('\\hline\n\\end{tabulary}\\end{center}' in table)
+    assert ('\\begingroup\n\\centering\n'
+            '\\begin{tabulary}{\\linewidth}{|L|L|}\n' in table)
+    assert ('\\hline\n\\end{tabulary}\n\\par\n\\endgroup' in table)
 
     # table having :align: option (tabular)
     table = tables['table having :align: option (tabular)']
-    assert ('\\begin{flushleft}'
-            '\\noindent\\begin{tabular}{|\X{30}{100}|\X{70}{100}|}\n' in table)
-    assert ('\\hline\n\\end{tabular}\\end{flushleft}' in table)
+    assert ('\\begingroup\n\\raggedright\n'
+            '\\begin{tabular}{|\X{30}{100}|\X{70}{100}|}\n' in table)
+    assert ('\\hline\n\\end{tabular}\n\\par\n\\endgroup' in table)
 
     # table with tabularcolumn
     table = tables['table with tabularcolumn']
-    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|c|c|}' in table)
+    assert ('\\begin{tabulary}{\\linewidth}{|c|c|}' in table)
 
     # table having caption
     table = tables['table having caption']
     assert ('\\begin{threeparttable}\n\\capstart\\caption{caption for table}'
             '\\label{\\detokenize{tabular:id1}}' in table)
-    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
+    assert ('\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
     assert ('\\hline\n\\end{tabulary}\n\\end{threeparttable}' in table)
 
     # table having verbatim
     table = tables['table having verbatim']
-    assert ('\\noindent\\begin{tabular}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+    assert ('\\begin{tabular}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
 
     # table having problematic cell
     table = tables['table having problematic cell']
-    assert ('\\noindent\\begin{tabular}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+    assert ('\\begin{tabular}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
 
     # table having both :widths: and problematic cell
     table = tables['table having both :widths: and problematic cell']
-    assert ('\\noindent\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+    assert ('\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
 
 
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
@@ -958,7 +959,7 @@ def test_latex_table_complex_tables(app, status, warning):
 
     # grid table
     table = tables['grid table']
-    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|L|L|L|}' in table)
+    assert ('\\begin{tabulary}{\\linewidth}{|L|L|L|}' in table)
     assert ('\\hline\n'
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
             '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax &'
@@ -975,7 +976,7 @@ def test_latex_table_complex_tables(app, status, warning):
 
     # complex spanning cell
     table = tables['complex spanning cell']
-    assert ('\\noindent\\begin{tabulary}{\\linewidth}{|L|L|L|L|L|}' in table)
+    assert ('\\begin{tabulary}{\\linewidth}{|L|L|L|L|L|}' in table)
     assert ('\\hline\n'
             '\\multirow{3}{*}{\\relax \ncell1-1\n\\unskip}\\relax &'
             '\\multirow{3}{*}{\\relax \ncell1-2\n\\unskip}\\relax &'
