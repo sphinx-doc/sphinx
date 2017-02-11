@@ -23,8 +23,8 @@ complex spanning cell
 
 table having ...
 
-* consecutive multicol at top of row (1-1 and 1-2)
-* consecutive multicol at end of row (1-4 and 1-5)
+* consecutive multirow at top of row (1-1 and 1-2)
+* consecutive multirow at end of row (1-4 and 1-5)
 
 +-----------+-----------+-----------+-----------+-----------+
 |           |           |  cell1-3  |           |           |
