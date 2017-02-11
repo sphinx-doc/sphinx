@@ -8,7 +8,12 @@
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
-from sphinx.util import encode_uri, split_docinfo
+
+import pytest
+
+from sphinx.util import (
+    encode_uri, parselinenos, split_docinfo
+)
 
 
 def test_encode_uri():
@@ -46,3 +51,17 @@ def test_splitdocinfo():
     docinfo, content = split_docinfo(source)
     assert docinfo == ":multiline: one\n\ttwo\n\tthree\n"
     assert content == '\nHello world.\n'
+
+
+def test_parselinenos():
+    assert parselinenos('1,2,3', 10) == [0, 1, 2]
+    assert parselinenos('4, 5, 6', 10) == [3, 4, 5]
+    assert parselinenos('7-9', 10) == [6, 7, 8]
+    assert parselinenos('7-', 10) == [6, 7, 8, 9]
+    assert parselinenos('1,7-', 10) == [0, 6, 7, 8, 9]
+    with pytest.raises(ValueError):
+        parselinenos('1-2-3', 10)
+    with pytest.raises(ValueError):
+        parselinenos('abc-def', 10)
+    with pytest.raises(ValueError):
+        parselinenos('-', 10)
