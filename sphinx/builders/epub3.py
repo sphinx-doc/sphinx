@@ -10,14 +10,15 @@
     :license: BSD, see LICENSE for details.
 """
 
-import codecs
 from os import path
 from datetime import datetime
+from collections import namedtuple
 
 from sphinx import package_dir
 from sphinx.config import string_classes
 from sphinx.builders.epub import EpubBuilder
 from sphinx.util import logging
+from sphinx.util.fileutil import copy_asset_file
 
 if False:
     # For type annotation
@@ -28,38 +29,7 @@ if False:
 logger = logging.getLogger(__name__)
 
 
-# (Fragment) templates from which the metainfo files content.opf, toc.ncx,
-# mimetype, and META-INF/container.xml are created.
-# This template section also defines strings that are embedded in the html
-# output but that may be customized by (re-)setting module attributes,
-# e.g. from conf.py.
-
-NAVIGATION_DOC_TEMPLATE = u'''\
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"\
- xmlns:epub="http://www.idpf.org/2007/ops" lang="%(lang)s" xml:lang="%(lang)s">
-  <head>
-    <title>%(toc_locale)s</title>
-  </head>
-  <body>
-    <nav epub:type="toc">
-      <h1>%(toc_locale)s</h1>
-      <ol>
-%(navlist)s
-      </ol>
-    </nav>
-  </body>
-</html>
-'''
-
-NAVLIST_TEMPLATE = u'''%(indent)s      <li><a href="%(refuri)s">%(text)s</a></li>'''
-NAVLIST_TEMPLATE_HAS_CHILD = u'''%(indent)s      <li><a href="%(refuri)s">%(text)s</a>'''
-NAVLIST_TEMPLATE_BEGIN_BLOCK = u'''%(indent)s        <ol>'''
-NAVLIST_TEMPLATE_END_BLOCK = u'''%(indent)s        </ol>
-%(indent)s      </li>'''
-NAVLIST_INDENT = '  '
-
+NavPoint = namedtuple('NavPoint', ['text', 'refuri', 'children'])
 
 DOCTYPE = u'''<!DOCTYPE html>'''
 
@@ -77,13 +47,6 @@ class Epub3Builder(EpubBuilder):
     name = 'epub'
 
     template_dir = path.join(package_dir, 'templates', 'epub3')
-
-    navigation_doc_template = NAVIGATION_DOC_TEMPLATE
-    navlist_template = NAVLIST_TEMPLATE
-    navlist_template_has_child = NAVLIST_TEMPLATE_HAS_CHILD
-    navlist_template_begin_block = NAVLIST_TEMPLATE_BEGIN_BLOCK
-    navlist_template_end_block = NAVLIST_TEMPLATE_END_BLOCK
-    navlist_indent = NAVLIST_INDENT
     doctype = DOCTYPE
 
     # Finish by building the epub file
@@ -145,28 +108,8 @@ class Epub3Builder(EpubBuilder):
         super(Epub3Builder, self).prepare_writing(docnames)
         self.globalcontext['theme_writing_mode'] = self._css_writing_mode()
 
-    def new_navlist(self, node, level, has_child):
-        # type: (nodes.Node, int, bool) -> unicode
-        """Create a new entry in the toc from the node at given level."""
-        # XXX Modifies the node
-        node['indent'] = self.navlist_indent * level
-        if has_child:
-            return self.navlist_template_has_child % node
-        else:
-            return self.navlist_template % node
-
-    def begin_navlist_block(self, level):
-        # type: (int) -> unicode
-        return self.navlist_template_begin_block % {
-            "indent": self.navlist_indent * level
-        }
-
-    def end_navlist_block(self, level):
-        # type: (int) -> unicode
-        return self.navlist_template_end_block % {"indent": self.navlist_indent * level}
-
     def build_navlist(self, navnodes):
-        # type: (List[nodes.Node]) -> unicode
+        # type: (List[nodes.Node]) -> List[NavPoint]
         """Create the toc navigation structure.
 
         This method is almost same as build_navpoints method in epub.py.
@@ -176,9 +119,9 @@ class Epub3Builder(EpubBuilder):
         The difference from build_navpoints method is templates which are used
         when generating navigation documents.
         """
-        navlist = []
-        level = 1
-        usenodes = []
+        navstack = []  # type: List[NavPoint]
+        navstack.append(NavPoint('', '', []))
+        level = 0
         for node in navnodes:
             if not node['text']:
                 continue
@@ -187,31 +130,33 @@ class Epub3Builder(EpubBuilder):
                 continue
             if node['level'] > self.config.epub_tocdepth:
                 continue
-            usenodes.append(node)
-        for i, node in enumerate(usenodes):
-            curlevel = node['level']
-            if curlevel == level + 1:
-                navlist.append(self.begin_navlist_block(level))
-            while curlevel < level:
-                level -= 1
-                navlist.append(self.end_navlist_block(level))
-            level = curlevel
-            if i != len(usenodes) - 1 and usenodes[i + 1]['level'] > level:
-                has_child = True
+
+            navpoint = NavPoint(node['text'], node['refuri'], [])
+            if node['level'] == level:
+                navstack.pop()
+                navstack[-1].children.append(navpoint)
+                navstack.append(navpoint)
+            elif node['level'] == level + 1:
+                level += 1
+                navstack[-1].children.append(navpoint)
+                navstack.append(navpoint)
+            elif node['level'] < level:
+                while node['level'] < len(navstack):
+                    navstack.pop()
+                level = node['level']
+                navstack[-1].children.append(navpoint)
+                navstack.append(navpoint)
             else:
-                has_child = False
-            navlist.append(self.new_navlist(node, level, has_child))
-        while level != 1:
-            level -= 1
-            navlist.append(self.end_navlist_block(level))
-        return '\n'.join(navlist)
+                raise
+
+        return navstack[0].children
 
     def navigation_doc_metadata(self, navlist):
-        # type: (unicode) -> Dict
+        # type: (List[NavPoint]) -> Dict
         """Create a dictionary with all metadata for the nav.xhtml file
         properly escaped.
         """
-        metadata = {}
+        metadata = {}  # type: Dict
         metadata['lang'] = self.esc(self.config.epub_language)
         metadata['toc_locale'] = self.esc(self.guide_titles['toc'])
         metadata['navlist'] = navlist
@@ -232,9 +177,9 @@ class Epub3Builder(EpubBuilder):
             # 'includehidden'
             refnodes = self.refnodes
         navlist = self.build_navlist(refnodes)
-        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:  # type: ignore
-            f.write(self.navigation_doc_template %  # type: ignore
-                    self.navigation_doc_metadata(navlist))
+        copy_asset_file(path.join(self.template_dir, 'nav.xhtml_t'),
+                        path.join(outdir, outname),
+                        self.navigation_doc_metadata(navlist))
 
         # Add nav.xhtml to epub file
         if outname not in self.files:
