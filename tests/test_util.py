@@ -56,6 +56,7 @@ def test_splitdocinfo():
 def test_parselinenos():
     assert parselinenos('1,2,3', 10) == [0, 1, 2]
     assert parselinenos('4, 5, 6', 10) == [3, 4, 5]
+    assert parselinenos('-4', 10) == [0, 1, 2, 3]
     assert parselinenos('7-9', 10) == [6, 7, 8]
     assert parselinenos('7-', 10) == [6, 7, 8, 9]
     assert parselinenos('1,7-', 10) == [0, 6, 7, 8, 9]

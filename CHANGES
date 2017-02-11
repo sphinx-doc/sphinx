@@ -85,6 +85,7 @@ Bugs fixed
 * #3295: Could not import extension sphinx.builders.linkcheck
 * #3285: autosummary: asterisks are escaped twice
 * LaTeX, pass dvipdfm option to geometry package for Japanese documents (ref #3363)
+* Fix parselinenos() could not parse left half open range (cf. "-4")
 
 
 Release 1.5.1 (released Dec 13, 2016)

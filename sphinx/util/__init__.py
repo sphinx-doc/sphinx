@@ -357,14 +357,17 @@ def parselinenos(spec, total):
     for part in parts:
         try:
             begend = part.strip().split('-')
-            if len(begend) > 2:
+            if ['', ''] == begend:
                 raise ValueError
-            if len(begend) == 1:
+            elif len(begend) == 1:
                 items.append(int(begend[0]) - 1)
+            elif len(begend) == 2:
+                start, end = begend
+                start = start or 1  # left half open (cf. -10)
+                end = end or total  # right half open (cf. 10-)
+                items.extend(range(int(start) - 1, int(end)))
             else:
-                start = (begend[0] == '') and 0 or int(begend[0]) - 1
-                end = (begend[1] == '') and total or int(begend[1])
-                items.extend(range(start, end))
+                raise ValueError
         except Exception:
             raise ValueError('invalid line number spec: %r' % spec)
     return items
