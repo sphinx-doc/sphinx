@@ -11,7 +11,7 @@
 
 import re
 
-symbols_re = re.compile('([!-/:-@\[-`{-~])')
+symbols_re = re.compile('([!-\)\+-/:-@\[-`{-~])')
 
 
 def escape(text):
