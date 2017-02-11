@@ -21,6 +21,8 @@ class EPUBElementTree(object):
         'dc': 'http://purl.org/dc/elements/1.1/',
         'ibooks': 'http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/',
         'ncx': 'http://www.daisy.org/z3986/2005/ncx/',
+        'xhtml': 'http://www.w3.org/1999/xhtml',
+        'epub': 'http://www.idpf.org/2007/ops'
     }
 
     def __init__(self, tree):
@@ -69,7 +71,7 @@ def test_build_epub(app):
     # toc.ncx / navMap
     navpoints = toc.findall("./ncx:navMap/ncx:navPoint")
     assert len(navpoints) == 1
-    assert navpoints[0].attrib == {'id': 'navPoint2', 'playOrder': '1'}
+    assert navpoints[0].attrib == {'id': 'navPoint1', 'playOrder': '1'}
     assert navpoints[0].find("./ncx:content").attrib == {'src': 'index.xhtml'}
 
     navlabel = navpoints[0].find("./ncx:navLabel/ncx:text")
@@ -127,6 +129,20 @@ def test_build_epub(app):
     assert reference.get('title') == 'Table of Contents'
     assert reference.get('href') == 'index.xhtml'
 
+    # nav.xhtml
+    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').text())
+    assert nav.attrib == {'lang': 'en',
+                          '{http://www.w3.org/XML/1998/namespace}lang': 'en'}
+    assert nav.find("./xhtml:head/xhtml:title").text == 'Table of Contents'
+
+    # nav.xhtml / nav
+    navlist = nav.find("./xhtml:body/xhtml:nav")
+    toc = navlist.findall("./xhtml:ol/xhtml:li")
+    assert navlist.find("./xhtml:h1").text == 'Table of Contents'
+    assert len(toc) == 1
+    assert toc[0].find("./xhtml:a").get("href") == 'index.xhtml'
+    assert toc[0].find("./xhtml:a").text == 'The basic Sphinx documentation for testing'
+
 
 @pytest.mark.sphinx('epub', testroot='footnotes',
                     confoverrides={'epub_cover': ('_images/rimg.png', None)})
@@ -158,15 +174,39 @@ def test_nested_toc(app):
 
     navpoints = toc.findall("./ncx:navMap/ncx:navPoint")
     assert len(navpoints) == 4
-    assert navinfo(navpoints[0]) == ('navPoint9', '1', 'index.xhtml',
+    assert navinfo(navpoints[0]) == ('navPoint1', '1', 'index.xhtml',
                                      "Welcome to Sphinx Tests's documentation!")
     assert navpoints[0].findall("./ncx:navPoint") == []
 
     # toc.ncx / nested navPoints
-    assert navinfo(navpoints[1]) == ('navPoint10', '2', 'foo.xhtml', 'foo')
+    assert navinfo(navpoints[1]) == ('navPoint2', '2', 'foo.xhtml', 'foo')
     navchildren = navpoints[1].findall("./ncx:navPoint")
     assert len(navchildren) == 4
-    assert navinfo(navchildren[0]) == ('navPoint11', '2', 'foo.xhtml', 'foo')
-    assert navinfo(navchildren[1]) == ('navPoint12', '3', 'quux.xhtml', 'quux')
-    assert navinfo(navchildren[2]) == ('navPoint13', '4', 'foo.xhtml#foo-1', 'foo.1')
-    assert navinfo(navchildren[3]) == ('navPoint16', '6', 'foo.xhtml#foo-2', 'foo.2')
+    assert navinfo(navchildren[0]) == ('navPoint3', '2', 'foo.xhtml', 'foo')
+    assert navinfo(navchildren[1]) == ('navPoint4', '3', 'quux.xhtml', 'quux')
+    assert navinfo(navchildren[2]) == ('navPoint5', '4', 'foo.xhtml#foo-1', 'foo.1')
+    assert navinfo(navchildren[3]) == ('navPoint8', '6', 'foo.xhtml#foo-2', 'foo.2')
+
+    # nav.xhtml / nav
+    def navinfo(elem):
+        anchor = elem.find("./xhtml:a")
+        return (anchor.get('href'), anchor.text)
+
+    nav = EPUBElementTree.fromstring((app.outdir / 'nav.xhtml').text())
+    toc = nav.findall("./xhtml:body/xhtml:nav/xhtml:ol/xhtml:li")
+    assert len(toc) == 4
+    assert navinfo(toc[0]) == ('index.xhtml',
+                               "Welcome to Sphinx Tests's documentation!")
+    assert toc[0].findall("./xhtml:ol") == []
+
+    # nav.xhtml / nested toc
+    assert navinfo(toc[1]) == ('foo.xhtml', 'foo')
+    tocchildren = toc[1].findall("./xhtml:ol/xhtml:li")
+    assert len(tocchildren) == 3
+    assert navinfo(tocchildren[0]) == ('quux.xhtml', 'quux')
+    assert navinfo(tocchildren[1]) == ('foo.xhtml#foo-1', 'foo.1')
+    assert navinfo(tocchildren[2]) == ('foo.xhtml#foo-2', 'foo.2')
+
+    grandchild = tocchildren[1].findall("./xhtml:ol/xhtml:li")
+    assert len(grandchild) == 1
+    assert navinfo(grandchild[0]) == ('foo.xhtml#foo-1-1', 'foo.1-1')

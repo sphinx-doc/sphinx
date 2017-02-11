@@ -149,7 +149,6 @@ class Epub3Builder(EpubBuilder):
         # type: (nodes.Node, int, bool) -> unicode
         """Create a new entry in the toc from the node at given level."""
         # XXX Modifies the node
-        self.tocid += 1
         node['indent'] = self.navlist_indent * level
         if has_child:
             return self.navlist_template_has_child % node
