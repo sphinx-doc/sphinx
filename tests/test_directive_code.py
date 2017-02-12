@@ -67,7 +67,7 @@ def test_code_block_caption_latex(app, status, warning):
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstyleemphasis{test} rb}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:id1}}}'
-    link = '\hyperref[\\detokenize{caption:name-test-rb}]' \
+    link = '\\hyperref[\\detokenize{caption:name-test-rb}]' \
            '{Listing \\ref{\\detokenize{caption:name-test-rb}}}'
     assert caption in latex
     assert label in latex
@@ -263,7 +263,7 @@ def test_literalinclude_caption_latex(app, status, warning):
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstylestrong{test} py}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:id2}}}'
-    link = '\hyperref[\\detokenize{caption:name-test-py}]' \
+    link = '\\hyperref[\\detokenize{caption:name-test-py}]' \
            '{Listing \\ref{\\detokenize{caption:name-test-py}}}'
     assert caption in latex
     assert label in latex

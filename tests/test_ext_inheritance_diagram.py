@@ -24,7 +24,7 @@ def test_inheritance_diagram_html(app, status, warning):
     content = (app.outdir / 'index.html').text()
 
     pattern = ('<div class="figure" id="id1">\n'
-               '<img src="_images/inheritance-\w+.png" alt="Inheritance diagram of test.Foo" '
+               '<img src="_images/inheritance-\\w+.png" alt="Inheritance diagram of test.Foo" '
                'class="inheritance"/>\n<p class="caption"><span class="caption-text">'
                'Test Foo!</span><a class="headerlink" href="#id1" '
                'title="Permalink to this image">\xb6</a></p>')

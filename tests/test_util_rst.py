@@ -12,5 +12,5 @@ from sphinx.util.rst import escape
 
 
 def test_escape():
-    assert escape(':ref:`id`') == '\:ref\:\`id\`'
-    assert escape('footnote [#]_') == 'footnote \[\#\]\_'
+    assert escape(':ref:`id`') == r'\:ref\:\`id\`'
+    assert escape('footnote [#]_') == r'footnote \[\#\]\_'

@@ -45,8 +45,8 @@ def test_imgmath_png(app, status, warning):
         raise SkipTest('dvipng command "dvipng" is not available')
 
     content = (app.outdir / 'index.html').text()
-    html = ('<div class="math">\s*<p>\s*<img src="_images/math/\w+.png"'
-            '\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
+    html = (r'<div class="math">\s*<p>\s*<img src="_images/math/\w+.png"'
+            r'\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
     assert re.search(html, content, re.S)
 
 
@@ -61,8 +61,8 @@ def test_imgmath_svg(app, status, warning):
         raise SkipTest('dvisvgm command "dvisvgm" is not available')
 
     content = (app.outdir / 'index.html').text()
-    html = ('<div class="math">\s*<p>\s*<img src="_images/math/\w+.svg"'
-            '\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
+    html = (r'<div class="math">\s*<p>\s*<img src="_images/math/\w+.svg"'
+            r'\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
     assert re.search(html, content, re.S)
 
 

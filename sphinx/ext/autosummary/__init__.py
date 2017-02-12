@@ -357,7 +357,7 @@ class Autosummary(Directive):
         *items* is a list produced by :meth:`get_items`.
         """
         table_spec = addnodes.tabular_col_spec()
-        table_spec['spec'] = 'p{0.5\linewidth}p{0.5\linewidth}'
+        table_spec['spec'] = r'p{0.5\linewidth}p{0.5\linewidth}'
 
         table = autosummary_table('')
         real_table = nodes.table('', classes=['longtable'])
@@ -388,7 +388,7 @@ class Autosummary(Directive):
         for name, sig, summary, real_name in items:
             qualifier = 'obj'
             if 'nosignatures' not in self.options:
-                col1 = ':%s:`%s <%s>`\ %s' % (qualifier, name, real_name, rst.escape(sig))  # type: unicode  # NOQA
+                col1 = ':%s:`%s <%s>`\\ %s' % (qualifier, name, real_name, rst.escape(sig))  # type: unicode  # NOQA
             else:
                 col1 = ':%s:`%s <%s>`' % (qualifier, name, real_name)
             col2 = summary

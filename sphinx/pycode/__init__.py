@@ -52,7 +52,7 @@ number2name.update(token.tok_name)
 
 _eq = nodes.Leaf(token.EQUAL, '=')
 
-emptyline_re = re.compile('^\s*(#.*)?$')
+emptyline_re = re.compile(r'^\s*(#.*)?$')
 
 
 class AttrDocVisitor(nodes.NodeVisitor):
