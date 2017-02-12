@@ -1,15 +1,20 @@
-<%- if table.align %>
+\begingroup
+<% if table.align -%>
   <%- if table.align == 'center' -%>
-    \begin{center}
-  <%- elif table.align in ('left', 'right') -%>
-    \begin{flush<%= table.align%>}
-  <%- endif -%>
-<% endif -%>
-<%- if table.caption -%>
+  \centering
+  <%- elif table.align == 'left' -%>
+  \raggedright
+  <%- else -%>
+  \raggedleft
+  <%- endif %>
+<%- else -%>
+  \centering
+<%- endif %>
+<% if table.caption -%>
 \begin{threeparttable}
 \capstart\caption{<%= ''.join(table.caption) %>}<%= labels %>
 <% endif -%>
-\noindent\begin{tabular}<%= table.get_colspec() -%>
+\begin{tabular}<%= table.get_colspec() -%>
 \hline
 <%= ''.join(table.header) %>
 <%=- ''.join(table.body) %>
@@ -17,10 +22,5 @@
 <%- if table.caption %>
 \end{threeparttable}
 <%- endif %>
-<%- if table.align %>
-  <%- if table.align == 'center' -%>
-    \end{center}
-  <%- elif table.align in ('left', 'right') -%>
-    \end{flush<%= table.align%>}
-  <% endif -%>
-<% endif -%>
+\par
+\endgroup
