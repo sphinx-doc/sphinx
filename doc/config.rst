@@ -1638,11 +1638,12 @@ These options influence LaTeX output. See further :doc:`latex`.
         ``'12pt'``), default ``'10pt'``.
      ``'pxunit'``
         the value of the ``px`` when used in image attributes ``width`` and
-        ``height``. The default value is ``'49336sp'`` which achieves
-        ``96px=1in`` (``1in = 72.27*65536 = 4736286.72sp``, and all dimensions
-        in TeX are internally integer multiples of ``sp``). To obtain for
-        example ``100px=1in``, one can use ``'0.01in'`` but it is more precise
-        to use ``'47363sp'``. To obtain ``72px=1in``, use ``'1bp'``.
+        ``height``. The default value is ``'0.75bp'`` which achieves
+        ``96px=1in`` (in TeX ``1in = 72bp = 72.27pt``.) To obtain for
+        example ``100px=1in`` use ``'0.01in'`` or ``'0.7227pt'`` (the latter
+        leads to TeX computing a more precise value, due to the smaller unit
+        used in the specification); for ``72px=1in``,
+        simply use ``'1bp'``; for ``90px=1in``, use ``'0.8bp'`` or ``'0.803pt'``.
 
         .. versionadded:: 1.5
      ``'sphinxsetup'``

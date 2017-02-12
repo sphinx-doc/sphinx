@@ -12,10 +12,12 @@
 import pytest
 from mock import patch
 
-from sphinx.util import display_chunk, encode_uri, split_docinfo, status_iterator
 from sphinx.util import logging
+from sphinx.util import (
+    display_chunk, encode_uri, parselinenos, split_docinfo, status_iterator
+)
 
-from util import with_app, strip_escseq
+from util import strip_escseq
 
 
 def test_encode_uri():
@@ -94,3 +96,18 @@ def test_status_iterator(app, status, warning):
     assert 'testing ... [ 66%] sphinx\n' in output
     assert 'testing ... [100%] world\n\n' in output
     assert yields == ['hello', 'sphinx', 'world']
+
+
+def test_parselinenos():
+    assert parselinenos('1,2,3', 10) == [0, 1, 2]
+    assert parselinenos('4, 5, 6', 10) == [3, 4, 5]
+    assert parselinenos('-4', 10) == [0, 1, 2, 3]
+    assert parselinenos('7-9', 10) == [6, 7, 8]
+    assert parselinenos('7-', 10) == [6, 7, 8, 9]
+    assert parselinenos('1,7-', 10) == [0, 6, 7, 8, 9]
+    with pytest.raises(ValueError):
+        parselinenos('1-2-3', 10)
+    with pytest.raises(ValueError):
+        parselinenos('abc-def', 10)
+    with pytest.raises(ValueError):
+        parselinenos('-', 10)
