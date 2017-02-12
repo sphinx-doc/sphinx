@@ -114,3 +114,5 @@ def test_parselinenos():
         parselinenos('-', 10)
     with pytest.raises(ValueError):
         parselinenos('3-1', 10)
+    with pytest.raises(ValueError):
+        parselinenos('11-', 10)

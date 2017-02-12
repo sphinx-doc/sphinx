@@ -266,11 +266,7 @@ class LiteralIncludeReader(object):
                     raise ValueError(_('Cannot use "lineno-match" with a disjoint '
                                        'set of "lines"'))
 
-            # just ignore non-existing lines
-            lines = [lines[n] for n in linelist if n < len(lines)]
-            if not lines:
-                raise ValueError(_('Line spec %r: no lines pulled from include file %r') %
-                                 (linespec, self.filename))
+            lines = [lines[n] for n in linelist]
 
         return lines
 

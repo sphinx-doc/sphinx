@@ -394,7 +394,7 @@ def parselinenos(spec, total):
             elif len(begend) == 2:
                 start, end = begend
                 start = int(start or 1)  # left half open (cf. -10)
-                end = int(end or total)  # right half open (cf. 10-)
+                end = int(end or max(start, total))  # right half open (cf. 10-)
                 if start > end:  # invalid range (cf. 10-1)
                     raise ValueError
                 items.extend(range(start - 1, end))
@@ -402,6 +402,9 @@ def parselinenos(spec, total):
                 raise ValueError
         except Exception:
             raise ValueError('invalid line number spec: %r' % spec)
+
+    if any(i >= total for i in items):
+        raise ValueError('line number spec is out of range(0-%d): %r' % (total, spec))
     return items
 
 
