@@ -11,7 +11,179 @@
 
 import pytest
 
-from util import etree_parse
+from sphinx.config import Config
+from sphinx.directives.code import LiteralIncludeReader
+from util import etree_parse, rootdir
+
+TESTROOT_PATH = rootdir / 'roots' / 'test-directive-code'
+LITERAL_INC_PATH = TESTROOT_PATH / 'literal.inc'
+DUMMY_CONFIG = Config(None, None, {}, '')
+
+
+def test_LiteralIncludeReader():
+    options = {}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == LITERAL_INC_PATH.text()
+    assert lines == 14
+
+
+def test_LiteralIncludeReader_pyobject1():
+    options = {'pyobject': 'Foo'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("class Foo:\n"
+                       "    pass\n")
+
+
+def test_LiteralIncludeReader_pyobject2():
+    options = {'pyobject': 'Bar'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("class Bar:\n"
+                       "    def baz():\n"
+                       "        pass\n")
+
+
+def test_LiteralIncludeReader_pyobject3():
+    options = {'pyobject': 'Bar.baz'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("    def baz():\n"
+                       "        pass\n")
+
+
+def test_LiteralIncludeReader_lines1():
+    options = {'lines': '1-4'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == (u"# Literally included file using Python highlighting\n"
+                       u"# -*- coding: utf-8 -*-\n"
+                       u"\n"
+                       u"foo = \"Including Unicode characters: üöä\"\n")
+
+
+def test_LiteralIncludeReader_lines2():
+    options = {'lines': '1,4,6'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == (u"# Literally included file using Python highlighting\n"
+                       u"foo = \"Including Unicode characters: üöä\"\n"
+                       u"class Foo:\n")
+
+
+@pytest.mark.sphinx()  # init locale for errors
+def test_LiteralIncludeReader_lines_and_lineno_match1(app, status, warning):
+    options = {'lines': '1,4,6', 'lineno-match': True}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    with pytest.raises(ValueError):
+        content, lines = reader.read()
+
+
+@pytest.mark.sphinx()  # init locale for errors
+def test_LiteralIncludeReader_lines_and_lineno_match2(app, status, warning):
+    options = {'lines': '100-', 'lineno-match': True}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    with pytest.raises(ValueError):
+        content, lines = reader.read()
+
+
+def test_LiteralIncludeReader_start_at():
+    options = {'start-at': 'Foo', 'end-at': 'Bar'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("class Foo:\n"
+                       "    pass\n"
+                       "\n"
+                       "class Bar:\n")
+
+
+def test_LiteralIncludeReader_start_after():
+    options = {'start-after': 'Foo', 'end-before': 'Bar'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("    pass\n"
+                       "\n")
+
+
+def test_LiteralIncludeReader_prepend():
+    options = {'lines': '1', 'prepend': 'Hello', 'append': 'Sphinx'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("Hello\n"
+                       "# Literally included file using Python highlighting\n"
+                       "Sphinx\n")
+
+
+def test_LiteralIncludeReader_dedent():
+    # dedent: 2
+    options = {'lines': '10-12', 'dedent': 2}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("  def baz():\n"
+                       "      pass\n"
+                       "\n")
+
+    # dedent: 4
+    options = {'lines': '10-12', 'dedent': 4}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("def baz():\n"
+                       "    pass\n"
+                       "\n")
+
+    # dedent: 6
+    options = {'lines': '10-12', 'dedent': 6}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("f baz():\n"
+                       "  pass\n"
+                       "\n")
+
+
+def test_LiteralIncludeReader_tabwidth():
+    # tab-width: 4
+    options = {'tab-width': 4, 'pyobject': 'Qux'}
+    reader = LiteralIncludeReader(TESTROOT_PATH / 'target.py', options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("class Qux:\n"
+                       "    def quux(self):\n"
+                       "        pass\n")
+
+    # tab-width: 8
+    options = {'tab-width': 8, 'pyobject': 'Qux'}
+    reader = LiteralIncludeReader(TESTROOT_PATH / 'target.py', options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("class Qux:\n"
+                       "        def quux(self):\n"
+                       "                pass\n")
+
+
+def test_LiteralIncludeReader_tabwidth_dedent():
+    options = {'tab-width': 4, 'dedent': 4, 'pyobject': 'Qux.quux'}
+    reader = LiteralIncludeReader(TESTROOT_PATH / 'target.py', options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("def quux(self):\n"
+                       "    pass\n")
+
+
+def test_LiteralIncludeReader_diff():
+    options = {'diff': TESTROOT_PATH / 'literal-diff.inc'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("--- " + TESTROOT_PATH + "/literal-diff.inc\n"
+                       "+++ " + TESTROOT_PATH + "/literal.inc\n"
+                       "@@ -7,8 +7,8 @@\n"
+                       "     pass\n"
+                       " \n"
+                       " class Bar:\n"
+                       "-    def baz(self):\n"
+                       "+    def baz():\n"
+                       "         pass\n"
+                       " \n"
+                       "-# comment after Bar class\n"
+                       "+# comment after Bar class definition\n"
+                       " def bar(): pass\n")
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
