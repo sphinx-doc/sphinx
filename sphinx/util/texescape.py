@@ -126,6 +126,7 @@ tex_hl_escape_map_new = {}
 
 
 def init():
+    # type: () -> None
     for a, b in tex_replacements:
         tex_escape_map[ord(a)] = b
         tex_replace_map[ord(a)] = '_'

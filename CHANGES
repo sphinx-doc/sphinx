@@ -1,3 +1,85 @@
+Release 1.6 (in development)
+============================
+
+Incompatible changes
+--------------------
+
+* #1061, #2336, #3235: Now generation of autosummary doesn't contain imported
+  members by default. Thanks to Luc Saffre.
+* LaTeX ``\includegraphics`` command isn't overloaded: only ``\sphinxincludegraphics``
+  has the custom code to fit image to available width if oversized.
+* The subclasses of ``sphinx.domains.Index`` should override ``generate()``
+  method.  The default implementation raises NotImplementedError
+* LaTeX positioned long tables horizontally centered, and short ones
+  flushed left (no text flow around table.) The position now defaults to center in
+  both cases, and it will obey Docutils 0.13 ``:align:`` option (refs #3415, #3377)
+
+Features removed
+----------------
+
+* Configuration variables
+
+  - epub3_contributor
+  - epub3_description
+  - epub3_page_progression_direction
+  - html_translator_class
+  - html_use_modindex
+  - latex_font_size
+  - latex_paper_size
+  - latex_preamble
+  - latex_use_modindex
+  - latex_use_parts
+
+* ``termsep`` node
+* defindex.html template
+* LDML format support in `today`, `today_fmt` and `html_last_updated_fmt`
+* ``:inline:`` option for the directives of sphinx.ext.graphviz extension
+* sphinx.ext.pngmath extension
+* ``sphinx.util.compat.make_admonition()``
+
+Features added
+--------------
+
+* #3136: Add ``:name:`` option to the directives in ``sphinx.ext.graphviz``
+* #2336: Add ``imported_members`` option to ``sphinx-autogen`` command to document
+  imported members.
+* C++, add ``:tparam-line-spec:`` option to templated declarations.
+  When specified, each template parameter will be rendered on a separate line.
+* #3359: Allow sphinx.js in a user locale dir to override sphinx.js from Sphinx
+* #3303: Add ``:pyversion:`` option to the doctest directive.
+* #3378: (latex) support for ``:widths:`` option of table directives
+  (refs: #3379, #3381)
+* #3402: Allow to suppress "download file not readable" warnings using
+  :confval:`suppress_warnings`.
+* #3377: latex: Add support for Docutils 0.13 ``:align:`` option for tables
+  (but does not implement text flow around table).
+
+Bugs fixed
+----------
+
+Deprecated
+----------
+
+* ``sphinx.util.compat.Directive`` class is now deprecated. Please use instead
+  ``docutils.parsers.rsr.Directive``
+* ``sphinx.util.compat.docutils_version`` is now deprecated
+* #2367: ``Sphinx.warn()``, ``Sphinx.info()`` and other logging methods are now
+  deprecated.  Please use ``sphinx.util.logging`` (:ref:`logging-api`) instead.
+* #3318: ``notice`` is now deprecated as LaTeX environment name and will be
+  removed at Sphinx 1.7. Extension authors please use ``sphinxadmonition``
+  instead (as Sphinx does since 1.5.)
+* ``Sphinx.status_iterator()` and ``Sphinx.old_status_iterator()`` is now
+  deprecated.  Please use ``sphinx.util:status_iterator()`` intead.
+* ``BuildEnvironment.set_warnfunc()`` is now deprecated
+* Following methods of ``BuildEnvironment`` is now deprecated.
+
+  - ``BuildEnvironment.note_toctree()``
+  - ``BuildEnvironment.get_toc_for()``
+  - ``BuildEnvironment.get_toctree_for()``
+  - ``BuildEnvironment.create_index()``
+
+  Please use ``sphinx.environment.adapters`` modules instead.
+
 Release 1.5.3 (in development)
 ==============================
 
@@ -85,6 +167,7 @@ Bugs fixed
 * #3295: Could not import extension sphinx.builders.linkcheck
 * #3285: autosummary: asterisks are escaped twice
 * LaTeX, pass dvipdfm option to geometry package for Japanese documents (ref #3363)
+* Fix parselinenos() could not parse left half open range (cf. "-4")
 
 
 Release 1.5.1 (released Dec 13, 2016)
@@ -162,7 +245,7 @@ Incompatible changes
 * Fix ``genindex.html``, Sphinx's document template, link address to itself to satisfy xhtml standard.
 * Use epub3 builder by default.  And the old epub builder is renamed to epub2.
 * Fix ``epub`` and ``epub3`` builders that contained links to ``genindex`` even if ``epub_use_index = False``.
-* `html_translator_class` is now deprecated.
+* ``html_translator_class`` is now deprecated.
   Use `Sphinx.set_translator()` API instead.
 * Drop python 2.6 and 3.3 support
 * Drop epub3 builder's ``epub3_page_progression_direction`` option (use ``epub3_writing_mode``).
@@ -331,7 +414,7 @@ Bugs fixed
 * `sphinx.ext.autodoc` crashes if target code imports * from mock modules
   by `autodoc_mock_imports`.
 * #1953: ``Sphinx.add_node`` does not add handlers the translator installed by
-  `html_translator_class`
+  ``html_translator_class``
 * #1797: text builder inserts blank line on top
 * #2894: quickstart main() doesn't use argv argument
 * #2874: gettext builder could not extract all text under the ``only``
@@ -738,7 +821,8 @@ Incompatible changes
   ``"MMMM dd, YYYY"`` is default format for `today_fmt` and `html_last_updated_fmt`.
   However strftime format like ``"%B %d, %Y"`` is also supported for backward
   compatibility until Sphinx-1.5. Later format will be disabled from Sphinx-1.5.
-* #2327: `latex_use_parts` is deprecated now. Use `latex_toplevel_sectioning` instead.
+* #2327: ``latex_use_parts`` is deprecated now. Use `latex_toplevel_sectioning`
+  instead.
 * #2337: Use ``\url{URL}`` macro instead of ``\href{URL}{URL}`` in LaTeX writer.
 * #1498: manpage writer: don't make whole of item in definition list bold if it includes strong node.
 * #582: Remove hint message from quick search box for html output.
@@ -1301,7 +1385,7 @@ Features added
   for the ids defined on the node. Thanks to Olivier Heurtier.
 * PR#229: Allow registration of other translators. Thanks to Russell Sim.
 * Add app.set_translator() API to register or override a Docutils translator
-  class like `html_translator_class`.
+  class like ``html_translator_class``.
 * PR#267, #1134: add 'diff' parameter to literalinclude. Thanks to Richard Wall
   and WAKAYAMA shirou.
 * PR#272: Added 'bizstyle' theme. Thanks to Shoji KUMAGAI.

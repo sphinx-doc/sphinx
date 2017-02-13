@@ -13,19 +13,31 @@ from __future__ import absolute_import
 import re
 
 from six import text_type
+
 from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.locale import pairindextypes
+from sphinx.util import logging
+
+if False:
+    # For type annotation
+    from typing import Any, Callable, Iterable, Tuple, Union  # NOQA
+    from sphinx.builders import Builder  # NOQA
+    from sphinx.utils.tags import Tags  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class WarningStream(object):
 
     def __init__(self, warnfunc):
+        # type: (Callable) -> None
         self.warnfunc = warnfunc
         self._re = re.compile(r'\((DEBUG|INFO|WARNING|ERROR|SEVERE)/[0-4]\)')
 
     def write(self, text):
+        # type: (str) -> None
         text = text.strip()
         if text:
             self.warnfunc(self._re.sub(r'\1:', text), None, '')
@@ -37,6 +49,7 @@ caption_ref_re = explicit_title_re  # b/w compat alias
 
 
 def apply_source_workaround(node):
+    # type: (nodes.Node) -> None
     # workaround: nodes.term have wrong rawsource if classifier is specified.
     # The behavior of docutils-0.11, 0.12 is:
     # * when ``term text : classifier1 : classifier2`` is specified,
@@ -85,6 +98,7 @@ IGNORED_NODES = (
 
 
 def is_pending_meta(node):
+    # type: (nodes.Node) -> bool
     if (isinstance(node, nodes.pending) and
        isinstance(node.details.get('nodes', [None])[0], addnodes.meta)):
         return True
@@ -93,6 +107,7 @@ def is_pending_meta(node):
 
 
 def is_translatable(node):
+    # type: (nodes.Node) -> bool
     if isinstance(node, addnodes.translatable):
         return True
 
@@ -135,6 +150,7 @@ META_TYPE_NODES = (
 
 
 def extract_messages(doctree):
+    # type: (nodes.Node) -> Iterable[Tuple[nodes.Node, unicode]]
     """Extract translatable messages from a document tree."""
     for node in doctree.traverse(is_translatable):
         if isinstance(node, addnodes.translatable):
@@ -162,12 +178,14 @@ def extract_messages(doctree):
 
 
 def find_source_node(node):
+    # type: (nodes.Node) -> unicode
     for pnode in traverse_parent(node):
         if pnode.source:
             return pnode.source
 
 
 def traverse_parent(node, cls=None):
+    # type: (nodes.Node, Any) -> Iterable[nodes.Node]
     while node:
         if cls is None or isinstance(node, cls):
             yield node
@@ -175,8 +193,10 @@ def traverse_parent(node, cls=None):
 
 
 def traverse_translatable_index(doctree):
+    # type: (nodes.Node) -> Iterable[Tuple[nodes.Node, List[unicode]]]
     """Traverse translatable index node from a document tree."""
     def is_block_index(node):
+        # type: (nodes.Node) -> bool
         return isinstance(node, addnodes.index) and  \
             node.get('inline') is False
     for node in doctree.traverse(is_block_index):
@@ -188,6 +208,7 @@ def traverse_translatable_index(doctree):
 
 
 def nested_parse_with_titles(state, content, node):
+    # type: (Any, List[unicode], nodes.Node) -> unicode
     """Version of state.nested_parse() that allows titles and does not require
     titles to have the same decoration as the calling document.
 
@@ -207,6 +228,7 @@ def nested_parse_with_titles(state, content, node):
 
 
 def clean_astext(node):
+    # type: (nodes.Node) -> unicode
     """Like node.astext(), but ignore images."""
     node = node.deepcopy()
     for img in node.traverse(nodes.image):
@@ -217,8 +239,9 @@ def clean_astext(node):
 
 
 def split_explicit_title(text):
+    # type: (unicode) -> Tuple[bool, unicode, unicode]
     """Split role content into title and target, if given."""
-    match = explicit_title_re.match(text)
+    match = explicit_title_re.match(text)  # type: ignore
     if match:
         return True, match.group(1), match.group(2)
     return False, text, text
@@ -230,7 +253,8 @@ indextypes = [
 
 
 def process_index_entry(entry, targetid):
-    indexentries = []
+    # type: (unicode, unicode) -> List[Tuple[unicode, unicode, unicode, unicode, unicode]]
+    indexentries = []  # type: List[Tuple[unicode, unicode, unicode, unicode, unicode]]
     entry = entry.strip()
     oentry = entry
     main = ''
@@ -266,6 +290,7 @@ def process_index_entry(entry, targetid):
 
 
 def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed):
+    # type: (Builder, Set[unicode], unicode, nodes.Node, Callable, nodes.Node) -> nodes.Node
     """Inline all toctrees in the *tree*.
 
     Record all docnames in *docnameset*, and output docnames with *colorfunc*.
@@ -278,15 +303,14 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed
             if includefile not in traversed:
                 try:
                     traversed.append(includefile)
-                    builder.info(colorfunc(includefile) + " ", nonl=1)
+                    logger.info(colorfunc(includefile) + " ", nonl=1)
                     subtree = inline_all_toctrees(builder, docnameset, includefile,
                                                   builder.env.get_doctree(includefile),
                                                   colorfunc, traversed)
                     docnameset.add(includefile)
                 except Exception:
-                    builder.warn('toctree contains ref to nonexisting '
-                                 'file %r' % includefile,
-                                 builder.env.doc2path(docname))
+                    logger.warning('toctree contains ref to nonexisting file %r',
+                                   includefile, location=docname)
                 else:
                     sof = addnodes.start_of_file(docname=includefile)
                     sof.children = subtree.children
@@ -299,13 +323,17 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed
 
 
 def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
+    # type: (Builder, unicode, unicode, unicode, nodes.Node, unicode) -> nodes.reference
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)
-    if fromdocname == todocname:
+    if fromdocname == todocname and targetid:
         node['refid'] = targetid
     else:
-        node['refuri'] = (builder.get_relative_uri(fromdocname, todocname) +
-                          '#' + targetid)
+        if targetid:
+            node['refuri'] = (builder.get_relative_uri(fromdocname, todocname) +
+                              '#' + targetid)
+        else:
+            node['refuri'] = builder.get_relative_uri(fromdocname, todocname)
     if title:
         node['reftitle'] = title
     node.append(child)
@@ -313,15 +341,18 @@ def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
 
 
 def set_source_info(directive, node):
+    # type: (Any, nodes.Node) -> None
     node.source, node.line = \
         directive.state_machine.get_source_and_line(directive.lineno)
 
 
 def set_role_source_info(inliner, lineno, node):
+    # type: (Any, unicode, nodes.Node) -> None
     node.source, node.line = inliner.reporter.get_source_and_line(lineno)
 
 
-def process_only_nodes(doctree, tags, warn_node=None):
+def process_only_nodes(doctree, tags):
+    # type: (nodes.Node, Tags) -> None
     # A comment on the comment() nodes being inserted: replacing by [] would
     # result in a "Losing ids" exception if there is a target node before
     # the only node, so we make sure docutils can transfer the id to
@@ -330,10 +361,8 @@ def process_only_nodes(doctree, tags, warn_node=None):
         try:
             ret = tags.eval_condition(node['expr'])
         except Exception as err:
-            if warn_node is None:
-                raise err
-            warn_node('exception while evaluating only '
-                      'directive expression: %s' % err, node)
+            logger.warning('exception while evaluating only directive expression: %s', err,
+                           location=node)
             node.replace_self(node.children or nodes.comment())
         else:
             if ret:
@@ -345,6 +374,7 @@ def process_only_nodes(doctree, tags, warn_node=None):
 # monkey-patch Element.copy to copy the rawsource and line
 
 def _new_copy(self):
+    # type: (nodes.Node) -> nodes.Node
     newnode = self.__class__(self.rawsource, **self.attributes)
     if isinstance(self, nodes.Element):
         newnode.source = self.source

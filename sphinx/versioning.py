@@ -16,6 +16,11 @@ from itertools import product
 from six import iteritems
 from six.moves import range, zip_longest
 
+if False:
+    # For type annotation
+    from typing import Any, Iterator  # NOQA
+    from docutils import nodes  # NOQA
+
 try:
     import Levenshtein
     IS_SPEEDUP = True
@@ -27,6 +32,7 @@ VERSIONING_RATIO = 65
 
 
 def add_uids(doctree, condition):
+    # type: (nodes.Node, Any) -> Iterator[nodes.Node]
     """Add a unique id to every node in the `doctree` which matches the
     condition and yield the nodes.
 
@@ -42,6 +48,7 @@ def add_uids(doctree, condition):
 
 
 def merge_doctrees(old, new, condition):
+    # type: (nodes.Node, nodes.Node, Any) -> Iterator[nodes.Node]
     """Merge the `old` doctree with the `new` one while looking at nodes
     matching the `condition`.
 
@@ -90,7 +97,7 @@ def merge_doctrees(old, new, condition):
     # choose the old node with the best ratio for each new node and set the uid
     # as long as the ratio is under a certain value, in which case we consider
     # them not changed but different
-    ratios = sorted(iteritems(ratios), key=itemgetter(1))
+    ratios = sorted(iteritems(ratios), key=itemgetter(1))  # type: ignore
     for (old_node, new_node), ratio in ratios:
         if new_node in seen:
             continue
@@ -109,6 +116,7 @@ def merge_doctrees(old, new, condition):
 
 
 def get_ratio(old, new):
+    # type: (unicode, unicode) -> float
     """Return a "similiarity ratio" (in percent) representing the similarity
     between the two strings where 0 is equal and anything above less than equal.
     """
@@ -122,6 +130,7 @@ def get_ratio(old, new):
 
 
 def levenshtein_distance(a, b):
+    # type: (unicode, unicode) -> int
     """Return the Levenshtein edit distance between two strings *a* and *b*."""
     if a == b:
         return 0
@@ -137,5 +146,5 @@ def levenshtein_distance(a, b):
             deletions = current_row[j] + 1
             substitutions = previous_row[j] + (column1 != column2)
             current_row.append(min(insertions, deletions, substitutions))
-        previous_row = current_row
+        previous_row = current_row  # type: ignore
     return previous_row[-1]

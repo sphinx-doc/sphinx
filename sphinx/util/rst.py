@@ -15,4 +15,5 @@ symbols_re = re.compile('([!-/:-@\[-`{-~])')
 
 
 def escape(text):
-    return symbols_re.sub(r'\\\1', text)
+    # type: (unicode) -> unicode
+    return symbols_re.sub(r'\\\1', text)  # type: ignore

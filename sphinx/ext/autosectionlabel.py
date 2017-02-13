@@ -10,7 +10,10 @@
 """
 
 from docutils import nodes
+from sphinx.util import logging
 from sphinx.util.nodes import clean_astext
+
+logger = logging.getLogger(__name__)
 
 
 def register_sections_as_label(app, document):
@@ -23,8 +26,9 @@ def register_sections_as_label(app, document):
         sectname = clean_astext(node[0])
 
         if name in labels:
-            app.env.warn_node('duplicate label %s, ' % name + 'other instance '
-                              'in ' + app.env.doc2path(labels[name][0]), node)
+            logger.warning('duplicate label %s, ' % name + 'other instance '
+                           'in ' + app.env.doc2path(labels[name][0]),
+                           location=node)
 
         anonlabels[name] = docname, labelid
         labels[name] = docname, labelid, sectname

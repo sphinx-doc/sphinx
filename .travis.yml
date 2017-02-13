@@ -1,10 +1,11 @@
 language: python
 sudo: false
+dist: trusty
 cache:
   directories:
     - $HOME/.cache/pip
 python:
-  - "pypy"
+  - "pypy-5.4.1"
   - "2.7"
   - "3.4"
   - "3.5"
@@ -26,7 +27,7 @@ matrix:
       env: DOCUTILS=0.12
     - python: nightly
       env: DOCUTILS=0.12
-    - python: pypy
+    - python: "pypy-5.4.1"
       env: DOCUTILS=0.12
 addons:
   apt:

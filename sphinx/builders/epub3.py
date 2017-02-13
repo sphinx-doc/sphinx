@@ -16,6 +16,15 @@ from datetime import datetime
 
 from sphinx.config import string_classes
 from sphinx.builders.epub import EpubBuilder
+from sphinx.util import logging
+
+if False:
+    # For type annotation
+    from typing import Any, Iterable  # NOQA
+    from docutils import nodes  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 # (Fragment) templates from which the metainfo files content.opf, toc.ncx,
@@ -113,6 +122,7 @@ class Epub3Builder(EpubBuilder):
 
     # Finish by building the epub file
     def handle_finish(self):
+        # type: () -> None
         """Create the metainfo files and finally the epub."""
         self.get_toc()
         self.build_mimetype(self.outdir, 'mimetype')
@@ -123,6 +133,7 @@ class Epub3Builder(EpubBuilder):
         self.build_epub(self.outdir, self.config.epub_basename + '.epub')
 
     def content_metadata(self, files, spine, guide):
+        # type: (List[unicode], List[unicode], List[unicode]) -> Dict
         """Create a dictionary with all metadata for the content.opf
         file properly escaped.
         """
@@ -137,6 +148,7 @@ class Epub3Builder(EpubBuilder):
         return metadata
 
     def _page_progression_direction(self):
+        # type: () -> unicode
         if self.config.epub_writing_mode == 'horizontal':
             page_progression_direction = 'ltr'
         elif self.config.epub_writing_mode == 'vertical':
@@ -146,6 +158,7 @@ class Epub3Builder(EpubBuilder):
         return page_progression_direction
 
     def _ibook_scroll_axis(self):
+        # type: () -> unicode
         if self.config.epub_writing_mode == 'horizontal':
             scroll_axis = 'vertical'
         elif self.config.epub_writing_mode == 'vertical':
@@ -155,6 +168,7 @@ class Epub3Builder(EpubBuilder):
         return scroll_axis
 
     def _css_writing_mode(self):
+        # type: () -> unicode
         if self.config.epub_writing_mode == 'vertical':
             editing_mode = 'vertical-rl'
         else:
@@ -162,10 +176,12 @@ class Epub3Builder(EpubBuilder):
         return editing_mode
 
     def prepare_writing(self, docnames):
+        # type: (Iterable[unicode]) -> None
         super(Epub3Builder, self).prepare_writing(docnames)
         self.globalcontext['theme_writing_mode'] = self._css_writing_mode()
 
     def new_navlist(self, node, level, has_child):
+        # type: (nodes.Node, int, bool) -> unicode
         """Create a new entry in the toc from the node at given level."""
         # XXX Modifies the node
         self.tocid += 1
@@ -176,14 +192,17 @@ class Epub3Builder(EpubBuilder):
             return self.navlist_template % node
 
     def begin_navlist_block(self, level):
+        # type: (int) -> unicode
         return self.navlist_template_begin_block % {
             "indent": self.navlist_indent * level
         }
 
     def end_navlist_block(self, level):
+        # type: (int) -> unicode
         return self.navlist_template_end_block % {"indent": self.navlist_indent * level}
 
-    def build_navlist(self, nodes):
+    def build_navlist(self, navnodes):
+        # type: (List[nodes.Node]) -> unicode
         """Create the toc navigation structure.
 
         This method is almost same as build_navpoints method in epub.py.
@@ -196,7 +215,7 @@ class Epub3Builder(EpubBuilder):
         navlist = []
         level = 1
         usenodes = []
-        for node in nodes:
+        for node in navnodes:
             if not node['text']:
                 continue
             file = node['refuri'].split('#')[0]
@@ -224,6 +243,7 @@ class Epub3Builder(EpubBuilder):
         return '\n'.join(navlist)
 
     def navigation_doc_metadata(self, navlist):
+        # type: (unicode) -> Dict
         """Create a dictionary with all metadata for the nav.xhtml file
         properly escaped.
         """
@@ -234,8 +254,9 @@ class Epub3Builder(EpubBuilder):
         return metadata
 
     def build_navigation_doc(self, outdir, outname):
+        # type: (unicode, unicode) -> None
         """Write the metainfo file nav.xhtml."""
-        self.info('writing %s file...' % outname)
+        logger.info('writing %s file...', outname)
 
         if self.config.epub_tocscope == 'default':
             doctree = self.env.get_and_resolve_doctree(
@@ -247,8 +268,8 @@ class Epub3Builder(EpubBuilder):
             # 'includehidden'
             refnodes = self.refnodes
         navlist = self.build_navlist(refnodes)
-        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:
-            f.write(self.navigation_doc_template %
+        with codecs.open(path.join(outdir, outname), 'w', 'utf-8') as f:  # type: ignore
+            f.write(self.navigation_doc_template %  # type: ignore
                     self.navigation_doc_metadata(navlist))
 
         # Add nav.xhtml to epub file
@@ -256,31 +277,14 @@ class Epub3Builder(EpubBuilder):
             self.files.append(outname)
 
 
-def validate_config_values(app):
-    if app.config.epub3_description is not None:
-        app.warn('epub3_description is deprecated. Use epub_description instead.')
-        app.config.epub_description = app.config.epub3_description
-
-    if app.config.epub3_contributor is not None:
-        app.warn('epub3_contributor is deprecated. Use epub_contributor instead.')
-        app.config.epub_contributor = app.config.epub3_contributor
-
-    if app.config.epub3_page_progression_direction is not None:
-        app.warn('epub3_page_progression_direction option is deprecated'
-                 ' from 1.5. Use epub_writing_mode instead.')
-
-
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.setup_extension('sphinx.builders.epub')
     app.add_builder(Epub3Builder)
-    app.connect('builder-inited', validate_config_values)
 
     app.add_config_value('epub_description', '', 'epub3', string_classes)
     app.add_config_value('epub_contributor', 'unknown', 'epub3', string_classes)
     app.add_config_value('epub_writing_mode', 'horizontal', 'epub3', string_classes)
-    app.add_config_value('epub3_description', None, 'epub3', string_classes)
-    app.add_config_value('epub3_contributor', None, 'epub3', string_classes)
-    app.add_config_value('epub3_page_progression_direction', None, 'epub3', string_classes)
 
     return {
         'version': 'builtin',

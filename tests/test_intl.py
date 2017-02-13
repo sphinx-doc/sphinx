@@ -21,7 +21,8 @@ from six import string_types
 import pytest
 
 from util import (
-    path, assert_re_search, assert_not_re_search, assert_startswith, assert_node, etree_parse
+    path, etree_parse, strip_escseq,
+    assert_re_search, assert_not_re_search, assert_startswith, assert_node
 )
 
 
@@ -1156,4 +1157,4 @@ def test_image_glob_intl_using_figure_language_filename(app):
 
 
 def getwarning(warnings):
-    return warnings.getvalue().replace(os.sep, '/')
+    return strip_escseq(warnings.getvalue().replace(os.sep, '/'))

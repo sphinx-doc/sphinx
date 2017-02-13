@@ -240,7 +240,7 @@ For example::
 
 
 :rst:dir:`literalinclude` also supports the ``caption`` and ``name`` option.
-``caption`` has a additional feature that if you leave the value empty, the shown
+``caption`` has an additional feature that if you leave the value empty, the shown
 filename will be exactly the one given as an argument.
 
 

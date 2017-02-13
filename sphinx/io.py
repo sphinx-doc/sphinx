@@ -12,6 +12,7 @@ from docutils.io import FileInput
 from docutils.readers import standalone
 from docutils.writers import UnfilteredWriter
 from six import string_types, text_type
+from typing import Any, Union  # NOQA
 
 from sphinx.transforms import (
     ApplySourceWorkaround, ExtraTranslatableNodes, CitationReferences,
@@ -23,6 +24,18 @@ from sphinx.transforms.i18n import (
     PreserveTranslatableMessages, Locale, RemoveTranslatableInline,
 )
 from sphinx.util import import_object, split_docinfo
+from sphinx.util.docutils import LoggingReporter
+
+if False:
+    # For type annotation
+    from typing import Any, Tuple, Union  # NOQA
+    from docutils import nodes  # NOQA
+    from docutils.io import Input  # NOQA
+    from docutils.parsers import Parser  # NOQA
+    from docutils.transforms import Transform  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+    from sphinx.builders import Builder  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
 
 
 class SphinxBaseReader(standalone.Reader):
@@ -30,17 +43,19 @@ class SphinxBaseReader(standalone.Reader):
     Add our source parsers
     """
     def __init__(self, app, parsers={}, *args, **kwargs):
+        # type: (Sphinx, Dict[unicode, Parser], Any, Any) -> None
         standalone.Reader.__init__(self, *args, **kwargs)
-        self.parser_map = {}
+        self.parser_map = {}  # type: Dict[unicode, Parser]
         for suffix, parser_class in parsers.items():
             if isinstance(parser_class, string_types):
-                parser_class = import_object(parser_class, 'source parser')
+                parser_class = import_object(parser_class, 'source parser')  # type: ignore
             parser = parser_class()
             if hasattr(parser, 'set_application'):
                 parser.set_application(app)
             self.parser_map[suffix] = parser
 
     def read(self, source, parser, settings):
+        # type: (Input, Parser, Dict) -> nodes.document
         self.source = source
 
         for suffix in self.parser_map:
@@ -56,7 +71,17 @@ class SphinxBaseReader(standalone.Reader):
         return self.document
 
     def get_transforms(self):
+        # type: () -> List[Transform]
         return standalone.Reader.get_transforms(self) + self.transforms
+
+    def new_document(self):
+        # type: () -> nodes.document
+        document = standalone.Reader.new_document(self)
+        reporter = document.reporter
+        document.reporter = LoggingReporter(reporter.source, reporter.report_level,
+                                            reporter.halt_level, reporter.debug_flag,
+                                            reporter.error_handler)
+        return document
 
 
 class SphinxStandaloneReader(SphinxBaseReader):
@@ -84,17 +109,21 @@ class SphinxI18nReader(SphinxBaseReader):
                   FilterSystemMessages, RefOnlyBulletListTransform]
 
     def __init__(self, *args, **kwargs):
+        # type: (Any, Any) -> None
         SphinxBaseReader.__init__(self, *args, **kwargs)
-        self.lineno = None
+        self.lineno = None  # type: int
 
     def set_lineno_for_reporter(self, lineno):
+        # type: (int) -> None
         self.lineno = lineno
 
     def new_document(self):
+        # type: () -> nodes.document
         document = SphinxBaseReader.new_document(self)
         reporter = document.reporter
 
         def get_source_and_line(lineno=None):
+            # type: (int) -> Tuple[unicode, int]
             return reporter.source, self.lineno
 
         reporter.get_source_and_line = get_source_and_line
@@ -105,28 +134,33 @@ class SphinxDummyWriter(UnfilteredWriter):
     supported = ('html',)  # needed to keep "meta" nodes
 
     def translate(self):
+        # type: () -> None
         pass
 
 
 class SphinxFileInput(FileInput):
     def __init__(self, app, env, *args, **kwds):
+        # type: (Sphinx, BuildEnvironment, Any, Any) -> None
         self.app = app
         self.env = env
         kwds['error_handler'] = 'sphinx'  # py3: handle error on open.
         FileInput.__init__(self, *args, **kwds)
 
     def decode(self, data):
+        # type: (Union[unicode, bytes]) -> unicode
         if isinstance(data, text_type):  # py3: `data` already decoded.
             return data
         return data.decode(self.encoding, 'sphinx')  # py2: decoding
 
     def read(self):
+        # type: () -> unicode
         def get_parser_type(source_path):
+            # type: (unicode) -> Tuple[unicode]
             for suffix in self.env.config.source_parsers:
                 if source_path.endswith(suffix):
                     parser_class = self.env.config.source_parsers[suffix]
                     if isinstance(parser_class, string_types):
-                        parser_class = import_object(parser_class, 'source parser')
+                        parser_class = import_object(parser_class, 'source parser')  # type: ignore  # NOQA
                     return parser_class.supported
             else:
                 return ('restructuredtext',)

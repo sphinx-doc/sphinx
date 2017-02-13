@@ -13,6 +13,10 @@
 
 import collections
 
+if False:
+    # For type annotation
+    from typing import Any, Iterable  # NOQA
+
 
 class peek_iter(object):
     """An iterator object that supports peeking ahead.
@@ -48,34 +52,39 @@ class peek_iter(object):
 
     """
     def __init__(self, *args):
+        # type: (Any) -> None
         """__init__(o, sentinel=None)"""
-        self._iterable = iter(*args)
-        self._cache = collections.deque()
+        self._iterable = iter(*args)        # type: Iterable
+        self._cache = collections.deque()   # type: collections.deque
         if len(args) == 2:
             self.sentinel = args[1]
         else:
             self.sentinel = object()
 
     def __iter__(self):
+        # type: () -> peek_iter
         return self
 
     def __next__(self, n=None):
+        # type: (int) -> Any
         # note: prevent 2to3 to transform self.next() in next(self) which
         # causes an infinite loop !
         return getattr(self, 'next')(n)
 
     def _fillcache(self, n):
+        # type: (int) -> None
         """Cache `n` items. If `n` is 0 or None, then 1 item is cached."""
         if not n:
             n = 1
         try:
             while len(self._cache) < n:
-                self._cache.append(next(self._iterable))
+                self._cache.append(next(self._iterable))  # type: ignore
         except StopIteration:
             while len(self._cache) < n:
                 self._cache.append(self.sentinel)
 
     def has_next(self):
+        # type: () -> bool
         """Determine if iterator is exhausted.
 
         Returns
@@ -91,6 +100,7 @@ class peek_iter(object):
         return self.peek() != self.sentinel
 
     def next(self, n=None):
+        # type: (int) -> Any
         """Get the next item or `n` items of the iterator.
 
         Parameters
@@ -126,6 +136,7 @@ class peek_iter(object):
         return result
 
     def peek(self, n=None):
+        # type: (int) -> Any
         """Preview the next item or `n` items of the iterator.
 
         The iterator is not advanced when peek is called.
@@ -209,6 +220,7 @@ class modify_iter(peek_iter):
 
     """
     def __init__(self, *args, **kwargs):
+        # type: (Any, Any) -> None
         """__init__(o, sentinel=None, modifier=lambda x: x)"""
         if 'modifier' in kwargs:
             self.modifier = kwargs['modifier']
@@ -223,6 +235,7 @@ class modify_iter(peek_iter):
         super(modify_iter, self).__init__(*args)
 
     def _fillcache(self, n):
+        # type: (int) -> None
         """Cache `n` modified items. If `n` is 0 or None, 1 item is cached.
 
         Each item returned by the iterator is passed through the
@@ -233,7 +246,7 @@ class modify_iter(peek_iter):
             n = 1
         try:
             while len(self._cache) < n:
-                self._cache.append(self.modifier(next(self._iterable)))
+                self._cache.append(self.modifier(next(self._iterable)))  # type: ignore
         except StopIteration:
             while len(self._cache) < n:
                 self._cache.append(self.sentinel)

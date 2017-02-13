@@ -43,6 +43,7 @@ module2 py:module 0 foo.html#module-$ -
 module1.func py:function 1 sub/foo.html#$ -
 CFunc c:function 2 cfunc.html#CFunc -
 a term std:term -1 glossary.html#term-a-term -
+docname std:doc -1 docname.html -
 a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
 '''.encode('utf-8'))
 
@@ -211,6 +212,10 @@ def test_missing_reference(tempdir, app, status, warning):
 
     rn = reference_check('py', 'mod', 'py3krelparent:module1', 'foo', refdoc='sub/dir/test')
     assert rn['refuri'] == '../../../../py3k/foo.html#module-module1'
+
+    # check refs of standard domain
+    rn = reference_check('std', 'doc', 'docname', 'docname')
+    assert rn['refuri'] == 'https://docs.python.org/docname.html'
 
 
 def test_load_mappings_warnings(tempdir, app, status, warning):

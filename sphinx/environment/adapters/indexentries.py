@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.environment.managers.indexentries
+    sphinx.environment.adapters.indexentries
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Index entries manager for sphinx.environment.
+    Index entries adapters for sphinx.environment.
 
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
@@ -16,51 +16,33 @@ from itertools import groupby
 
 from six import text_type
 
-from sphinx import addnodes
-from sphinx.util import iteritems, split_index_msg, split_into
 from sphinx.locale import _
-from sphinx.environment.managers import EnvironmentManager
+from sphinx.util import iteritems, split_into, logging
+
+if False:
+    # For type annotation
+    from typing import Any, Pattern, Tuple  # NOQA
+    from sphinx.builders import Builder  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
-class IndexEntries(EnvironmentManager):
-    name = 'indices'
-
+class IndexEntries(object):
     def __init__(self, env):
-        super(IndexEntries, self).__init__(env)
-        self.data = env.indexentries
-
-    def clear_doc(self, docname):
-        self.data.pop(docname, None)
-
-    def merge_other(self, docnames, other):
-        for docname in docnames:
-            self.data[docname] = other.indexentries[docname]
-
-    def process_doc(self, docname, doctree):
-        entries = self.data[docname] = []
-        for node in doctree.traverse(addnodes.index):
-            try:
-                for entry in node['entries']:
-                    split_index_msg(entry[0], entry[1])
-            except ValueError as exc:
-                self.env.warn_node(exc, node)
-                node.parent.remove(node)
-            else:
-                for entry in node['entries']:
-                    if len(entry) == 5:
-                        # Since 1.4: new index structure including index_key (5th column)
-                        entries.append(entry)
-                    else:
-                        entries.append(entry + (None,))
+        # type: (BuildEnvironment) -> None
+        self.env = env
 
     def create_index(self, builder, group_entries=True,
                      _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
+        # type: (Builder, bool, Pattern) -> List[Tuple[unicode, List[Tuple[unicode, Any]]]]  # NOQA
         """Create the real index from the collected index entries."""
         from sphinx.environment import NoUri
 
-        new = {}
+        new = {}  # type: Dict[unicode, List]
 
         def add_entry(word, subword, main, link=True, dic=new, key=None):
+            # type: (unicode, unicode, unicode, bool, Dict, unicode) -> None
             # Force the word to be unicode if it's a ASCII bytestring.
             # This will solve problems with unicode normalization later.
             # For instance the RFC role will add bytestrings at the moment
@@ -79,7 +61,7 @@ class IndexEntries(EnvironmentManager):
                     # maintain links in sorted/deterministic order
                     bisect.insort(entry[0], (main, uri))
 
-        for fn, entries in iteritems(self.data):
+        for fn, entries in iteritems(self.env.indexentries):
             # new entry types must be listed in directives/other.py!
             for type, value, tid, main, index_key in entries:
                 try:
@@ -108,13 +90,14 @@ class IndexEntries(EnvironmentManager):
                         add_entry(first, _('see also %s') % second, None,
                                   link=False, key=index_key)
                     else:
-                        self.env.warn(fn, 'unknown index entry type %r' % type)
+                        logger.warning('unknown index entry type %r', type, location=fn)
                 except ValueError as err:
-                    self.env.warn(fn, str(err))
+                    logger.warning(str(err), location=fn)
 
         # sort the index entries; put all symbols at the front, even those
         # following the letters in ASCII, this is where the chr(127) comes from
         def keyfunc(entry, lcletters=string.ascii_lowercase + '_'):
+            # type: (Tuple[unicode, List], unicode) -> Tuple[unicode, unicode]
             key, (void, void, category_key) = entry
             if category_key:
                 # using specified category key to sort
@@ -135,8 +118,8 @@ class IndexEntries(EnvironmentManager):
             #   func()
             #     (in module foo)
             #     (in module bar)
-            oldkey = ''
-            oldsubitems = None
+            oldkey = ''  # type: unicode
+            oldsubitems = None  # type: Dict[unicode, List]
             i = 0
             while i < len(newlist):
                 key, (targets, subitems, _key) = newlist[i]
@@ -159,6 +142,7 @@ class IndexEntries(EnvironmentManager):
 
         # group the entries by letter
         def keyfunc2(item, letters=string.ascii_uppercase + '_'):
+            # type: (Tuple[unicode, List], unicode) -> unicode
             # hack: mutating the subitems dicts to a list in the keyfunc
             k, v = item
             v[1] = sorted((si, se) for (si, (se, void, void)) in iteritems(v[1]))

@@ -25,19 +25,10 @@ def teardown_module():
 
 @pytest.mark.sphinx('html')
 def test_html_translator(app, status, warning):
-    # no set_translator(), no html_translator_class
+    # no set_translator()
     translator_class = app.builder.translator_class
     assert translator_class
     assert translator_class.__name__ == 'SmartyPantsHTMLTranslator'
-
-
-@pytest.mark.sphinx('html', confoverrides={
-    'html_translator_class': 'translator.ExtHTMLTranslator'})
-def test_html_with_html_translator_class(app, status, warning):
-    # no set_translator(), but html_translator_class
-    translator_class = app.builder.translator_class
-    assert translator_class
-    assert translator_class.__name__ == 'ExtHTMLTranslator'
 
 
 @pytest.mark.sphinx('html', confoverrides={
@@ -51,18 +42,7 @@ def test_html_with_smartypants(app, status, warning):
 
 @pytest.mark.sphinx('html', testroot='api-set-translator')
 def test_html_with_set_translator_for_html_(app, status, warning):
-    # use set_translator(), no html_translator_class
-    translator_class = app.builder.translator_class
-    assert translator_class
-    assert translator_class.__name__ == 'ConfHTMLTranslator'
-
-
-@pytest.mark.sphinx('html', testroot='api-set-translator', confoverrides={
-    'html_translator_class': 'translator.ExtHTMLTranslator'})
-def test_html_with_set_translator_for_html_and_html_translator_class(
-        app, status, warning):
-    # use set_translator() and html_translator_class.
-    # set_translator() is given priority over html_translator_clas.
+    # use set_translator()
     translator_class = app.builder.translator_class
     assert translator_class
     assert translator_class.__name__ == 'ConfHTMLTranslator'

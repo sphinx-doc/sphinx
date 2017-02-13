@@ -36,10 +36,15 @@ from docutils.utils import column_width
 
 from sphinx import __display_version__, package_dir
 from sphinx.util.osutil import make_filename
-from sphinx.util.console import purple, bold, red, turquoise, \
-    nocolor, color_terminal
+from sphinx.util.console import (  # type: ignore
+    purple, bold, red, turquoise, nocolor, color_terminal
+)
 from sphinx.util.template import SphinxRenderer
 from sphinx.util import texescape
+
+if False:
+    # For type annotation
+    from typing import Any, Callable, Pattern  # NOQA
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
@@ -65,6 +70,7 @@ PROMPT_PREFIX = '> '
 
 
 def mkdir_p(dir):
+    # type: (unicode) -> None
     if path.isdir(dir):
         return
     os.makedirs(dir)
@@ -72,6 +78,7 @@ def mkdir_p(dir):
 
 # function to get input from terminal -- overridden by the test suite
 def term_input(prompt):
+    # type: (unicode) -> unicode
     print(prompt, end='')
     return input('')
 
@@ -81,6 +88,7 @@ class ValidationError(Exception):
 
 
 def is_path(x):
+    # type: (unicode) -> unicode
     x = path.expanduser(x)
     if path.exists(x) and not path.isdir(x):
         raise ValidationError("Please enter a valid path name.")
@@ -88,30 +96,36 @@ def is_path(x):
 
 
 def allow_empty(x):
+    # type: (unicode) -> unicode
     return x
 
 
 def nonempty(x):
+    # type: (unicode) -> unicode
     if not x:
         raise ValidationError("Please enter some text.")
     return x
 
 
 def choice(*l):
+    # type: (List[unicode]) -> Callable[[unicode], unicode]
     def val(x):
+        # type: (unicode) -> unicode
         if x not in l:
-            raise ValidationError('Please enter one of %s.' % ', '.join(l))
+            raise ValidationError('Please enter one of %s.' % ', '.join(l))  # type: ignore
         return x
     return val
 
 
 def boolean(x):
+    # type: (unicode) -> bool
     if x.upper() not in ('Y', 'YES', 'N', 'NO'):
         raise ValidationError("Please enter either 'y' or 'n'.")
     return x.upper() in ('Y', 'YES')
 
 
 def suffix(x):
+    # type: (unicode) -> unicode
     if not (x[0:1] == '.' and len(x) > 1):
         raise ValidationError("Please enter a file suffix, "
                               "e.g. '.rst' or '.txt'.")
@@ -119,10 +133,12 @@ def suffix(x):
 
 
 def ok(x):
+    # type: (unicode) -> unicode
     return x
 
 
 def term_decode(text):
+    # type: (unicode) -> unicode
     if isinstance(text, text_type):
         return text
 
@@ -144,9 +160,10 @@ def term_decode(text):
 
 
 def do_prompt(d, key, text, default=None, validator=nonempty):
+    # type: (Dict, unicode, unicode, unicode, Callable[[unicode], Any]) -> None
     while True:
         if default is not None:
-            prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)
+            prompt = PROMPT_PREFIX + '%s [%s]: ' % (text, default)  # type: unicode
         else:
             prompt = PROMPT_PREFIX + text + ': '
         if PY2:
@@ -178,6 +195,7 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
 
 
 def convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
+    # type: (unicode, Pattern) -> unicode
     # remove Unicode literal prefixes
     if PY3:
         return rex.sub('\\1', source)
@@ -187,10 +205,12 @@ def convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
 
 class QuickstartRenderer(SphinxRenderer):
     def __init__(self, templatedir):
+        # type: (unicode) -> None
         self.templatedir = templatedir or ''
         super(QuickstartRenderer, self).__init__()
 
     def render(self, template_name, context):
+        # type: (unicode, Dict) -> unicode
         user_template = path.join(self.templatedir, path.basename(template_name))
         if self.templatedir and path.exists(user_template):
             return self.render_from_file(user_template, context)
@@ -199,6 +219,7 @@ class QuickstartRenderer(SphinxRenderer):
 
 
 def ask_user(d):
+    # type: (Dict) -> None
     """Ask the user for quickstart values missing from *d*.
 
     Values are:
@@ -374,6 +395,7 @@ directly.''')
 
 
 def generate(d, overwrite=True, silent=False, templatedir=None):
+    # type: (Dict, bool, bool, unicode) -> None
     """Generate project based on values in *d*."""
     template = QuickstartRenderer(templatedir=templatedir)
 
@@ -431,6 +453,7 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))
 
     def write_file(fpath, content, newline=None):
+        # type: (unicode, unicode, unicode) -> None
         if overwrite or not path.isfile(fpath):
             print('Creating file %s.' % fpath)
             with open(fpath, 'wt', encoding='utf-8', newline=newline) as f:
@@ -487,6 +510,7 @@ where "builder" is one of the supported builders, e.g. html, latex or linkcheck.
 
 
 def usage(argv, msg=None):
+    # type: (List[unicode], unicode) -> None
     if msg:
         print(msg, file=sys.stderr)
         print(file=sys.stderr)
@@ -503,6 +527,7 @@ For more information, visit <http://sphinx-doc.org/>.
 
 
 def valid_dir(d):
+    # type: (Dict) -> bool
     dir = d['path']
     if not path.exists(dir):
         return True
@@ -533,6 +558,7 @@ def valid_dir(d):
 
 class MyFormatter(optparse.IndentedHelpFormatter):
     def format_usage(self, usage):
+        # type: (str) -> str
         return usage
 
     def format_help(self, formatter):
@@ -545,6 +571,7 @@ class MyFormatter(optparse.IndentedHelpFormatter):
 
 
 def main(argv=sys.argv):
+    # type: (List[str]) -> int
     if not color_terminal():
         nocolor()
 

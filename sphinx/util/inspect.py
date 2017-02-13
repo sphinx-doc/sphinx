@@ -12,9 +12,13 @@
 import re
 
 from six import PY3, binary_type
-from six.moves import builtins
+from six.moves import builtins  # type: ignore
 
 from sphinx.util import force_decode
+
+if False:
+    # For type annotation
+    from typing import Any, Callable, Tuple, Type  # NOQA
 
 # this imports the standard library inspect module without resorting to
 # relatively import this module
@@ -64,10 +68,11 @@ else:  # 2.7
     from functools import partial
 
     def getargspec(func):
+        # type: (Any) -> Any
         """Like inspect.getargspec but supports functools.partial as well."""
         if inspect.ismethod(func):
             func = func.__func__
-        parts = 0, ()
+        parts = 0, ()  # type: Tuple[int, Tuple[unicode, ...]]
         if type(func) is partial:
             keywords = func.keywords
             if keywords is None:
@@ -101,6 +106,7 @@ except ImportError:
 
 
 def isenumclass(x):
+    # type: (Type) -> bool
     """Check if the object is subclass of enum."""
     if enum is None:
         return False
@@ -108,6 +114,7 @@ def isenumclass(x):
 
 
 def isenumattribute(x):
+    # type: (Any) -> bool
     """Check if the object is attribute of enum."""
     if enum is None:
         return False
@@ -115,6 +122,7 @@ def isenumattribute(x):
 
 
 def isdescriptor(x):
+    # type: (Any) -> bool
     """Check if the object is some kind of descriptor."""
     for item in '__get__', '__set__', '__delete__':
         if hasattr(safe_getattr(x, item, None), '__call__'):
@@ -123,6 +131,7 @@ def isdescriptor(x):
 
 
 def safe_getattr(obj, name, *defargs):
+    # type: (Any, unicode, unicode) -> object
     """A getattr() that turns all exceptions into AttributeErrors."""
     try:
         return getattr(obj, name, *defargs)
@@ -145,8 +154,9 @@ def safe_getattr(obj, name, *defargs):
 
 
 def safe_getmembers(object, predicate=None, attr_getter=safe_getattr):
+    # type: (Any, Callable[[unicode], bool], Callable) -> List[Tuple[unicode, Any]]
     """A version of inspect.getmembers() that uses safe_getattr()."""
-    results = []
+    results = []  # type: List[Tuple[unicode, Any]]
     for key in dir(object):
         try:
             value = attr_getter(object, key, None)
@@ -159,13 +169,14 @@ def safe_getmembers(object, predicate=None, attr_getter=safe_getattr):
 
 
 def object_description(object):
+    # type: (Any) -> unicode
     """A repr() implementation that returns text safe to use in reST context."""
     try:
         s = repr(object)
     except Exception:
         raise ValueError
     if isinstance(s, binary_type):
-        s = force_decode(s, None)
+        s = force_decode(s, None)  # type: ignore
     # Strip non-deterministic memory addresses such as
     # ``<__main__.A at 0x7f68cb685710>``
     s = memory_address_re.sub('', s)
@@ -173,6 +184,7 @@ def object_description(object):
 
 
 def is_builtin_class_method(obj, attr_name):
+    # type: (Any, unicode) -> bool
     """If attr_name is implemented at builtin class, return True.
 
         >>> is_builtin_class_method(int, '__init__')
@@ -184,6 +196,6 @@ def is_builtin_class_method(obj, attr_name):
     classes = [c for c in inspect.getmro(obj) if attr_name in c.__dict__]
     cls = classes[0] if classes else object
 
-    if not hasattr(builtins, safe_getattr(cls, '__name__', '')):
+    if not hasattr(builtins, safe_getattr(cls, '__name__', '')):  # type: ignore
         return False
-    return getattr(builtins, safe_getattr(cls, '__name__', '')) is cls
+    return getattr(builtins, safe_getattr(cls, '__name__', '')) is cls  # type: ignore

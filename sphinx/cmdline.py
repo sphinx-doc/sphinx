@@ -16,16 +16,21 @@ import traceback
 from os import path
 
 from six import text_type, binary_type
+
 from docutils.utils import SystemMessage
 
 from sphinx import __display_version__
 from sphinx.errors import SphinxError
 from sphinx.application import Sphinx
 from sphinx.util import Tee, format_exception_cut_frames, save_traceback
-from sphinx.util.console import red, nocolor, color_terminal
+from sphinx.util.console import red, nocolor, color_terminal  # type: ignore
 from sphinx.util.docutils import docutils_namespace
 from sphinx.util.osutil import abspath, fs_encoding
 from sphinx.util.pycompat import terminal_safe
+
+if False:
+    # For type annotation
+    from typing import Any, IO, Union  # NOQA
 
 
 USAGE = """\
@@ -45,18 +50,21 @@ For more information, visit <http://sphinx-doc.org/>.
 
 class MyFormatter(optparse.IndentedHelpFormatter):
     def format_usage(self, usage):
+        # type: (Any) -> Any
         return usage
 
     def format_help(self, formatter):
-        result = []
-        if self.description:
+        # type: (Any) -> unicode
+        result = []  # type: List[unicode]
+        if self.description:  # type: ignore
             result.append(self.format_description(formatter))
-        if self.option_list:
-            result.append(self.format_option_help(formatter))
+        if self.option_list:  # type: ignore
+            result.append(self.format_option_help(formatter))  # type: ignore
         return "\n".join(result)
 
 
 def handle_exception(app, opts, exception, stderr=sys.stderr):
+    # type: (Sphinx, Any, Union[Exception, KeyboardInterrupt], IO) -> None
     if opts.pdb:
         import pdb
         print(red('Exception occurred while building, starting debugger:'),
@@ -107,9 +115,7 @@ def handle_exception(app, opts, exception, stderr=sys.stderr):
 
 
 def main(argv):
-    if not color_terminal():
-        nocolor()
-
+    # type: (List[unicode]) -> int
     parser = optparse.OptionParser(USAGE, epilog=EPILOG, formatter=MyFormatter())
     parser.add_option('--version', action='store_true', dest='version',
                       help='show version information and exit')
@@ -158,8 +164,12 @@ def main(argv):
                      help='no output on stdout, just warnings on stderr')
     group.add_option('-Q', action='store_true', dest='really_quiet',
                      help='no output at all, not even warnings')
-    group.add_option('-N', action='store_true', dest='nocolor',
-                     help='do not emit colored output')
+    group.add_option('--color', dest='color',
+                     action='store_const', const='yes', default='auto',
+                     help='Do emit colored output (default: auto-detect)')
+    group.add_option('-N', '--no-color', dest='color',
+                     action='store_const', const='no',
+                     help='Do not emit colored output (default: auot-detect)')
     group.add_option('-w', metavar='FILE', dest='warnfile',
                      help='write warnings (and errors) to given file')
     group.add_option('-W', action='store_true', dest='warningiserror',
@@ -210,11 +220,11 @@ def main(argv):
 
     # handle remaining filename arguments
     filenames = args[2:]
-    err = 0
+    err = 0  # type: ignore
     for filename in filenames:
         if not path.isfile(filename):
             print('Error: Cannot find file %r.' % filename, file=sys.stderr)
-            err = 1
+            err = 1  # type: ignore
     if err:
         return 1
 
@@ -229,7 +239,7 @@ def main(argv):
         print('Error: Cannot combine -a option and filenames.', file=sys.stderr)
         return 1
 
-    if opts.nocolor:
+    if opts.color == 'no' or (opts.color == 'auto' and not color_terminal()):
         nocolor()
 
     doctreedir = abspath(opts.doctreedir or path.join(outdir, '.doctrees'))
@@ -249,7 +259,7 @@ def main(argv):
             print('Error: Cannot open warning file %r: %s' %
                   (opts.warnfile, exc), file=sys.stderr)
             sys.exit(1)
-        warning = Tee(warning, warnfp)
+        warning = Tee(warning, warnfp)  # type: ignore
         error = warning
 
     confoverrides = {}

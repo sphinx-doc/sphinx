@@ -46,6 +46,7 @@ copyright_2_re = re.compile(r'^                %s(, %s)*[,.]$' %
                             (name_mail_re, name_mail_re))
 not_ix_re = re.compile(r'\bnot\s+\S+?\s+i[sn]\s\S+')
 is_const_re = re.compile(r'if.*?==\s+(None|False|True)\b')
+noqa_re = re.compile(r'#\s+NOQA\s*$', re.I)
 
 misspellings = ["developement", "adress",  # ALLOW-MISSPELLING
                 "verificate", "informations"]  # ALLOW-MISSPELLING
@@ -81,6 +82,8 @@ def check_syntax(fn, lines):
 @checker('.py')
 def check_style(fn, lines):
     for lno, line in enumerate(lines):
+        if noqa_re.search(line):
+            continue
         if len(line.rstrip('\n')) > 95:
             yield lno + 1, "line too long"
         if line.strip().startswith('#'):

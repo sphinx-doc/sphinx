@@ -12,7 +12,6 @@ import gettext
 import io
 import os
 import re
-import warnings
 from os import path
 from datetime import datetime
 from collections import namedtuple
@@ -22,10 +21,15 @@ from babel.messages.pofile import read_po
 from babel.messages.mofile import write_mo
 
 from sphinx.errors import SphinxError
-from sphinx.deprecation import RemovedInSphinx16Warning
-from sphinx.util.osutil import walk
-from sphinx.util import SEP
+from sphinx.util import logging
+from sphinx.util.osutil import SEP, walk
 
+logger = logging.getLogger(__name__)
+
+if False:
+    # For type annotation
+    from typing import Callable  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
 
 LocaleFileInfoBase = namedtuple('CatalogInfo', 'base_dir,domain,charset')
 
@@ -34,41 +38,48 @@ class CatalogInfo(LocaleFileInfoBase):
 
     @property
     def po_file(self):
+        # type: () -> unicode
         return self.domain + '.po'
 
     @property
     def mo_file(self):
+        # type: () -> unicode
         return self.domain + '.mo'
 
     @property
     def po_path(self):
+        # type: () -> unicode
         return path.join(self.base_dir, self.po_file)
 
     @property
     def mo_path(self):
+        # type: () -> unicode
         return path.join(self.base_dir, self.mo_file)
 
     def is_outdated(self):
+        # type: () -> bool
         return (
             not path.exists(self.mo_path) or
             path.getmtime(self.mo_path) < path.getmtime(self.po_path))
 
-    def write_mo(self, locale, warnfunc):
+    def write_mo(self, locale):
+        # type: (unicode) -> None
         with io.open(self.po_path, 'rt', encoding=self.charset) as file_po:
             try:
                 po = read_po(file_po, locale)
             except Exception:
-                warnfunc('reading error: %s' % self.po_path)
+                logger.warning('reading error: %s', self.po_path)
                 return
 
         with io.open(self.mo_path, 'wb') as file_mo:
             try:
                 write_mo(file_mo, po)
             except Exception:
-                warnfunc('writing error: %s' % self.mo_path)
+                logger.warning('writing error: %s', self.mo_path)
 
 
 def find_catalog(docname, compaction):
+    # type: (unicode, bool) -> unicode
     if compaction:
         ret = docname.split(SEP, 1)[0]
     else:
@@ -78,18 +89,20 @@ def find_catalog(docname, compaction):
 
 
 def find_catalog_files(docname, srcdir, locale_dirs, lang, compaction):
+    # type: (unicode, unicode, List[unicode], unicode, bool) -> List[unicode]
     if not(lang and locale_dirs):
         return []
 
     domain = find_catalog(docname, compaction)
-    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])
+    files = [gettext.find(domain, path.join(srcdir, dir_), [lang])  # type: ignore
              for dir_ in locale_dirs]
-    files = [path.relpath(f, srcdir) for f in files if f]
-    return files
+    files = [path.relpath(f, srcdir) for f in files if f]  # type: ignore
+    return files  # type: ignore
 
 
 def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact=False,
                               charset='utf-8', force_all=False):
+    # type: (List[unicode], unicode, List[unicode], bool, unicode, bool) -> Set[CatalogInfo]
     """
     :param list locale_dirs:
        list of path as `['locale_dir1', 'locale_dir2', ...]` to find
@@ -106,10 +119,11 @@ def find_catalog_source_files(locale_dirs, locale, domains=None, gettext_compact
        default is False.
     :return: [CatalogInfo(), ...]
     """
-    if not locale:
-        return []  # locale is not specified
+    catalogs = set()  # type: Set[CatalogInfo]
 
-    catalogs = set()
+    if not locale:
+        return catalogs  # locale is not specified
+
     for locale_dir in locale_dirs:
         if not locale_dir:
             continue  # skip system locale directory
@@ -167,7 +181,8 @@ date_format_mappings = {
 }
 
 
-def babel_format_date(date, format, locale, warn=None, formatter=babel.dates.format_date):
+def babel_format_date(date, format, locale, formatter=babel.dates.format_date):
+    # type: (datetime, unicode, unicode, Callable) -> unicode
     if locale is None:
         locale = 'en'
 
@@ -182,17 +197,13 @@ def babel_format_date(date, format, locale, warn=None, formatter=babel.dates.for
         # fallback to English
         return formatter(date, format, locale='en')
     except AttributeError:
-        if warn:
-            warn('Invalid date format. Quote the string by single quote '
-                 'if you want to output it directly: %s' % format)
-
+        logger.warning('Invalid date format. Quote the string by single quote '
+                       'if you want to output it directly: %s', format)
         return format
 
 
-def format_date(format, date=None, language=None, warn=None):
-    if format is None:
-        format = 'medium'
-
+def format_date(format, date=None, language=None):
+    # type: (str, datetime, unicode) -> unicode
     if date is None:
         # If time is not specified, try to use $SOURCE_DATE_EPOCH variable
         # See https://wiki.debian.org/ReproducibleBuilds/TimestampsProposal
@@ -202,40 +213,32 @@ def format_date(format, date=None, language=None, warn=None):
         else:
             date = datetime.now()
 
-    if re.match('EEE|MMM|dd|DDD|MM|WW|medium|YY', format):
-        # consider the format as babel's
-        warnings.warn('LDML format support will be dropped at Sphinx-1.6',
-                      RemovedInSphinx16Warning)
+    result = []
+    tokens = re.split('(%.)', format)
+    for token in tokens:
+        if token in date_format_mappings:
+            babel_format = date_format_mappings.get(token, '')
 
-        return babel_format_date(date, format, locale=language, warn=warn,
-                                 formatter=babel.dates.format_datetime)
-    else:
-        # consider the format as ustrftime's and try to convert it to babel's
-        result = []
-        tokens = re.split('(%.)', format)
-        for token in tokens:
-            if token in date_format_mappings:
-                babel_format = date_format_mappings.get(token, '')
-
-                # Check if we have to use a different babel formatter then
-                # format_datetime, because we only want to format a date
-                # or a time.
-                if token == '%x':
-                    function = babel.dates.format_date
-                elif token == '%X':
-                    function = babel.dates.format_time
-                else:
-                    function = babel.dates.format_datetime
-
-                result.append(babel_format_date(date, babel_format, locale=language,
-                                                formatter=function))
+            # Check if we have to use a different babel formatter then
+            # format_datetime, because we only want to format a date
+            # or a time.
+            if token == '%x':
+                function = babel.dates.format_date
+            elif token == '%X':
+                function = babel.dates.format_time
             else:
-                result.append(token)
+                function = babel.dates.format_datetime
 
-        return "".join(result)
+            result.append(babel_format_date(date, babel_format, locale=language,
+                                            formatter=function))
+        else:
+            result.append(token)
+
+    return "".join(result)
 
 
 def get_image_filename_for_language(filename, env):
+    # type: (unicode, BuildEnvironment) -> unicode
     if not env.config.language:
         return filename
 
@@ -255,6 +258,7 @@ def get_image_filename_for_language(filename, env):
 
 
 def search_image_for_language(filename, env):
+    # type: (unicode, BuildEnvironment) -> unicode
     if not env.config.language:
         return filename
 

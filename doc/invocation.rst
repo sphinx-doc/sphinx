@@ -404,7 +404,7 @@ variables to customize behavior:
 
 .. describe:: PAPER
 
-   The value for :confval:`latex_paper_size`.
+   The value for '"papersize"` key of :confval:`latex_elements`.
 
 .. describe:: SPHINXBUILD
 

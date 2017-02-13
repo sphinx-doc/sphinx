@@ -12,6 +12,7 @@
 from os import path
 
 from six import iteritems
+
 from docutils import nodes
 from docutils.io import FileOutput
 from docutils.utils import new_document
@@ -21,11 +22,19 @@ from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
+from sphinx.util import logging
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import SEP, copyfile, make_filename
-from sphinx.util.console import bold, darkgreen
+from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.texinfo import TexinfoWriter
 
+if False:
+    # For type annotation
+    from sphinx.application import Sphinx  # NOQA
+    from typing import Any, Iterable, Tuple, Union  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 TEXINFO_MAKEFILE = '''\
 # Makefile for Sphinx Texinfo output
@@ -91,47 +100,53 @@ class TexinfoBuilder(Builder):
                              'image/gif']
 
     def init(self):
-        self.docnames = []
-        self.document_data = []
+        # type: () -> None
+        self.docnames = []       # type: Iterable[unicode]
+        self.document_data = []  # type: List[Tuple[unicode, unicode, unicode, unicode, unicode, unicode, unicode, bool]]  # NOQA
 
     def get_outdated_docs(self):
+        # type: () -> Union[unicode, List[unicode]]
         return 'all documents'  # for now
 
     def get_target_uri(self, docname, typ=None):
+        # type: (unicode, unicode) -> unicode
         if docname not in self.docnames:
             raise NoUri
         else:
             return '%' + docname
 
     def get_relative_uri(self, from_, to, typ=None):
+        # type: (unicode, unicode, unicode) -> unicode
         # ignore source path
         return self.get_target_uri(to, typ)
 
     def init_document_data(self):
+        # type: () -> None
         preliminary_document_data = [list(x) for x in self.config.texinfo_documents]
         if not preliminary_document_data:
-            self.warn('no "texinfo_documents" config value found; no documents '
-                      'will be written')
+            logger.warning('no "texinfo_documents" config value found; no documents '
+                           'will be written')
             return
         # assign subdirs to titles
-        self.titles = []
+        self.titles = []  # type: List[Tuple[unicode, unicode]]
         for entry in preliminary_document_data:
             docname = entry[0]
             if docname not in self.env.all_docs:
-                self.warn('"texinfo_documents" config value references unknown '
-                          'document %s' % docname)
+                logger.warning('"texinfo_documents" config value references unknown '
+                               'document %s', docname)
                 continue
-            self.document_data.append(entry)
+            self.document_data.append(entry)  # type: ignore
             if docname.endswith(SEP + 'index'):
                 docname = docname[:-5]
             self.titles.append((docname, entry[2]))
 
     def write(self, *ignored):
+        # type: (Any) -> None
         self.init_document_data()
         for entry in self.document_data:
             docname, targetname, title, author = entry[:4]
             targetname += '.texi'
-            direntry = description = category = ''
+            direntry = description = category = ''  # type: unicode
             if len(entry) > 6:
                 direntry, description, category = entry[4:7]
             toctree_only = False
@@ -140,11 +155,11 @@ class TexinfoBuilder(Builder):
             destination = FileOutput(
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
-            self.info("processing " + targetname + "... ", nonl=1)
+            logger.info("processing " + targetname + "... ", nonl=1)
             doctree = self.assemble_doctree(
                 docname, toctree_only,
                 appendices=(self.config.texinfo_appendices or []))
-            self.info("writing... ", nonl=1)
+            logger.info("writing... ", nonl=1)
             self.post_process_images(doctree)
             docwriter = TexinfoWriter(self)
             settings = OptionParser(
@@ -161,11 +176,12 @@ class TexinfoBuilder(Builder):
             settings.docname = docname
             doctree.settings = settings
             docwriter.write(doctree, destination)
-            self.info("done")
+            logger.info("done")
 
     def assemble_doctree(self, indexfile, toctree_only, appendices):
+        # type: (unicode, bool, List[unicode]) -> nodes.Node
         self.docnames = set([indexfile] + appendices)
-        self.info(darkgreen(indexfile) + " ", nonl=1)
+        logger.info(darkgreen(indexfile) + " ", nonl=1)
         tree = self.env.get_doctree(indexfile)
         tree['docname'] = indexfile
         if toctree_only:
@@ -186,8 +202,8 @@ class TexinfoBuilder(Builder):
             appendix = self.env.get_doctree(docname)
             appendix['docname'] = docname
             largetree.append(appendix)
-        self.info()
-        self.info("resolving references...")
+        logger.info('')
+        logger.info("resolving references...")
         self.env.resolve_references(largetree, indexfile, self)
         # TODO: add support for external :ref:s
         for pendingnode in largetree.traverse(addnodes.pending_xref):
@@ -206,28 +222,30 @@ class TexinfoBuilder(Builder):
         return largetree
 
     def finish(self):
+        # type: () -> None
         # copy image files
         if self.images:
-            self.info(bold('copying images...'), nonl=1)
+            logger.info(bold('copying images...'), nonl=1)
             for src, dest in iteritems(self.images):
-                self.info(' ' + src, nonl=1)
+                logger.info(' ' + src, nonl=1)
                 copyfile(path.join(self.srcdir, src),
                          path.join(self.outdir, dest))
-            self.info()
+            logger.info('')
 
-        self.info(bold('copying Texinfo support files... '), nonl=True)
+        logger.info(bold('copying Texinfo support files... '), nonl=True)
         # copy Makefile
         fn = path.join(self.outdir, 'Makefile')
-        self.info(fn, nonl=1)
+        logger.info(fn, nonl=1)
         try:
             with open(fn, 'w') as mkfile:
                 mkfile.write(TEXINFO_MAKEFILE)
         except (IOError, OSError) as err:
-            self.warn("error writing file %s: %s" % (fn, err))
-        self.info(' done')
+            logger.warning("error writing file %s: %s", fn, err)
+        logger.info(' done')
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(TexinfoBuilder)
 
     app.add_config_value('texinfo_documents',

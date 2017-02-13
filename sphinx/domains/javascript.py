@@ -18,6 +18,14 @@ from sphinx.domains.python import _pseudo_parse_arglist
 from sphinx.util.nodes import make_refnode
 from sphinx.util.docfields import Field, GroupedField, TypedField
 
+if False:
+    # For type annotation
+    from typing import Any, Iterator, Tuple  # NOQA
+    from docutils import nodes  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+    from sphinx.builders import Builder  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
+
 
 class JSObject(ObjectDescription):
     """
@@ -28,9 +36,10 @@ class JSObject(ObjectDescription):
     has_arguments = False
 
     #: what is displayed right before the documentation entry
-    display_prefix = None
+    display_prefix = None  # type: unicode
 
     def handle_signature(self, sig, signode):
+        # type: (unicode, addnodes.desc_signature) -> Tuple[unicode, unicode]
         sig = sig.strip()
         if '(' in sig and sig[-1:] == ')':
             prefix, arglist = sig.split('(', 1)
@@ -76,6 +85,7 @@ class JSObject(ObjectDescription):
         return fullname, nameprefix
 
     def add_target_and_index(self, name_obj, sig, signode):
+        # type: (Tuple[unicode, unicode], unicode, addnodes.desc_signature) -> None
         objectname = self.options.get(
             'object', self.env.ref_context.get('js:object'))
         fullname = name_obj[0]
@@ -100,6 +110,7 @@ class JSObject(ObjectDescription):
                                               '', None))
 
     def get_index_text(self, objectname, name_obj):
+        # type: (unicode, Tuple[unicode, unicode]) -> unicode
         name, obj = name_obj
         if self.objtype == 'function':
             if not obj:
@@ -139,6 +150,7 @@ class JSConstructor(JSCallable):
 
 class JSXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
+        # type: (BuildEnvironment, nodes.Node, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
         # basically what sphinx.domains.python.PyXRefRole does
         refnode['js:object'] = env.ref_context.get('js:object')
         if not has_explicit_title:
@@ -180,20 +192,23 @@ class JavaScriptDomain(Domain):
     }
     initial_data = {
         'objects': {},  # fullname -> docname, objtype
-    }
+    }  # type: Dict[unicode, Dict[unicode, Tuple[unicode, unicode]]]
 
     def clear_doc(self, docname):
+        # type: (unicode) -> None
         for fullname, (fn, _l) in list(self.data['objects'].items()):
             if fn == docname:
                 del self.data['objects'][fullname]
 
     def merge_domaindata(self, docnames, otherdata):
+        # type: (List[unicode], Dict) -> None
         # XXX check duplicates
         for fullname, (fn, objtype) in otherdata['objects'].items():
             if fn in docnames:
                 self.data['objects'][fullname] = (fn, objtype)
 
     def find_obj(self, env, obj, name, typ, searchorder=0):
+        # type: (BuildEnvironment, unicode, unicode, unicode, int) -> Tuple[unicode, Tuple[unicode, unicode]]  # NOQA
         if name[-2:] == '()':
             name = name[:-2]
         objects = self.data['objects']
@@ -212,6 +227,7 @@ class JavaScriptDomain(Domain):
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node,
                      contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
         objectname = node.get('js:object')
         searchorder = node.hasattr('refspecific') and 1 or 0
         name, obj = self.find_obj(env, objectname, target, typ, searchorder)
@@ -222,6 +238,7 @@ class JavaScriptDomain(Domain):
 
     def resolve_any_xref(self, env, fromdocname, builder, target, node,
                          contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, nodes.Node, nodes.Node) -> List[Tuple[unicode, nodes.Node]]  # NOQA
         objectname = node.get('js:object')
         name, obj = self.find_obj(env, objectname, target, None, 1)
         if not obj:
@@ -231,12 +248,14 @@ class JavaScriptDomain(Domain):
                               name.replace('$', '_S_'), contnode, name))]
 
     def get_objects(self):
+        # type: () -> Iterator[Tuple[unicode, unicode, unicode, unicode, unicode, int]]
         for refname, (docname, type) in list(self.data['objects'].items()):
             yield refname, refname, type, docname, \
                 refname.replace('$', '_S_'), 1
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(JavaScriptDomain)
 
     return {

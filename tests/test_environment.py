@@ -15,25 +15,16 @@ from sphinx.builders.html import StandaloneHTMLBuilder
 from sphinx.builders.latex import LaTeXBuilder
 
 app = env = None
-warnings = []
 
 
 def setup_module():
     global app, env
     app = SphinxTestApp(srcdir='root-envtest')
     env = app.env
-    env.set_warnfunc(lambda *args, **kwargs: warnings.append(args))
 
 
 def teardown_module():
     app.cleanup()
-
-
-def warning_emitted(file, text):
-    for warning in warnings:
-        if len(warning) == 2 and file in warning[1] and text in warning[0]:
-            return True
-    return False
 
 
 # Tests are run in the order they appear in the file, therefore we can
@@ -47,9 +38,10 @@ def test_first_update():
 
 
 def test_images():
-    assert warning_emitted('images', 'image file not readable: foo.png')
-    assert warning_emitted('images', 'nonlocal image URI found: '
-                           'http://www.python.org/logo.png')
+    assert ('image file not readable: foo.png'
+            in app._warning.getvalue())
+    assert ('nonlocal image URI found: http://www.python.org/logo.png'
+            in app._warning.getvalue())
 
     tree = env.get_doctree('images')
     htmlbuilder = StandaloneHTMLBuilder(app)

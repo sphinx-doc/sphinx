@@ -19,6 +19,7 @@ from hashlib import md5
 
 from six import iteritems, text_type, string_types
 from six.moves import cPickle as pickle
+
 from docutils import nodes
 from docutils.io import DocTreeInput, StringOutput
 from docutils.core import Publisher
@@ -27,7 +28,7 @@ from docutils.frontend import OptionParser
 from docutils.readers.doctree import Reader as DoctreeReader
 
 from sphinx import package_dir, __display_version__
-from sphinx.util import jsonimpl
+from sphinx.util import jsonimpl, logging, status_iterator
 from sphinx.util.i18n import format_date
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
@@ -41,17 +42,28 @@ from sphinx.theming import Theme
 from sphinx.builders import Builder
 from sphinx.application import ENV_PICKLE_FILENAME
 from sphinx.highlighting import PygmentsBridge
-from sphinx.util.console import bold, darkgreen, brown
+from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
     SmartyPantsHTMLTranslator
+from sphinx.environment.adapters.toctree import TocTree
+from sphinx.environment.adapters.indexentries import IndexEntries
+
+if False:
+    # For type annotation
+    from typing import Any, Iterable, Iterator, Type, Tuple, Union  # NOQA
+    from sphinx.domains import Domain, Index  # NOQA
+    from sphinx.application import Sphinx  # NOQA
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
 #: the filename for the "last build" file (for serializing builders)
 LAST_BUILD_FILENAME = 'last_build'
 
+logger = logging.getLogger(__name__)
+
 
 def get_stable_hash(obj):
+    # type: (Any) -> unicode
     """
     Return a stable hash for a Python data structure.  We can't just use
     the md5 of str(obj) since for example dictionary items are enumerated
@@ -85,13 +97,17 @@ class StandaloneHTMLBuilder(Builder):
     allow_sharp_as_current_path = True
     embedded = False  # for things like HTML help or Qt help: suppresses sidebar
     search = True  # for things like HTML help and Apple help: suppress search
+    use_index = False
     download_support = True  # enable download role
 
     # This is a class attribute because it is mutated by Sphinx.add_javascript.
     script_files = ['_static/jquery.js', '_static/underscore.js',
-                    '_static/doctools.js']
+                    '_static/doctools.js']  # type: List[unicode]
     # Dito for this one.
-    css_files = []
+    css_files = []  # type: List[unicode]
+
+    imgpath = None          # type: unicode
+    domain_indices = []     # type: List[Tuple[unicode, Type[Index], List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]]  # NOQA
 
     default_sidebars = ['localtoc.html', 'relations.html',
                         'sourcelink.html', 'searchbox.html']
@@ -100,15 +116,16 @@ class StandaloneHTMLBuilder(Builder):
     _publisher = None
 
     def init(self):
+        # type: () -> None
         # a hash of all config values that, if changed, cause a full rebuild
-        self.config_hash = ''
-        self.tags_hash = ''
+        self.config_hash = ''  # type: unicode
+        self.tags_hash = ''  # type: unicode
         # basename of images directory
         self.imagedir = '_images'
         # section numbers for headings in the currently visited document
-        self.secnumbers = {}
+        self.secnumbers = {}  # type: Dict[unicode, Tuple[int, ...]]
         # currently written docname
-        self.current_docname = None
+        self.current_docname = None  # type: unicode
 
         self.init_templates()
         self.init_highlighter()
@@ -127,31 +144,35 @@ class StandaloneHTMLBuilder(Builder):
         self.use_index = self.get_builder_config('use_index', 'html')
 
     def _get_translations_js(self):
-        candidates = [path.join(package_dir, 'locale', self.config.language,
+        # type: () -> unicode
+        candidates = [path.join(dir, self.config.language,
+                                'LC_MESSAGES', 'sphinx.js')
+                      for dir in self.config.locale_dirs] + \
+                     [path.join(package_dir, 'locale', self.config.language,
                                 'LC_MESSAGES', 'sphinx.js'),
                       path.join(sys.prefix, 'share/sphinx/locale',
-                                self.config.language, 'sphinx.js')] + \
-                     [path.join(dir, self.config.language,
-                                'LC_MESSAGES', 'sphinx.js')
-                      for dir in self.config.locale_dirs]
+                                self.config.language, 'sphinx.js')]
+
         for jsfile in candidates:
             if path.isfile(jsfile):
                 return jsfile
         return None
 
     def get_theme_config(self):
+        # type: () -> Tuple[unicode, Dict]
         return self.config.html_theme, self.config.html_theme_options
 
     def init_templates(self):
-        Theme.init_themes(self.confdir, self.config.html_theme_path,
-                          warn=self.warn)
+        # type: () -> None
+        Theme.init_themes(self.confdir, self.config.html_theme_path)
         themename, themeoptions = self.get_theme_config()
-        self.theme = Theme(themename, warn=self.warn)
+        self.theme = Theme(themename)
         self.theme_options = themeoptions.copy()
         self.create_template_bridge()
         self.templates.init(self, self.theme)
 
     def init_highlighter(self):
+        # type: () -> None
         # determine Pygments style and create the highlighter
         if self.config.pygments_style is not None:
             style = self.config.pygments_style
@@ -163,6 +184,7 @@ class StandaloneHTMLBuilder(Builder):
                                           self.config.trim_doctest_flags)
 
     def init_translator_class(self):
+        # type: () -> None
         if self.translator_class is None:
             if self.config.html_use_smartypants:
                 self.translator_class = SmartyPantsHTMLTranslator
@@ -170,11 +192,10 @@ class StandaloneHTMLBuilder(Builder):
                 self.translator_class = HTMLTranslator
 
     def get_outdated_docs(self):
-        cfgdict = dict((name, self.config[name])
-                       for (name, desc) in iteritems(self.config.values)
-                       if desc[1] == 'html')
+        # type: () -> Iterator[unicode]
+        cfgdict = dict((confval.name, confval.value) for confval in self.config.filter('html'))
         self.config_hash = get_stable_hash(cfgdict)
-        self.tags_hash = get_stable_hash(sorted(self.tags))
+        self.tags_hash = get_stable_hash(sorted(self.tags))  # type: ignore
         old_config_hash = old_tags_hash = ''
         try:
             with open(path.join(self.outdir, '.buildinfo')) as fp:
@@ -189,8 +210,8 @@ class StandaloneHTMLBuilder(Builder):
                 if tag != 'tags':
                     raise ValueError
         except ValueError:
-            self.warn('unsupported build info format in %r, building all' %
-                      path.join(self.outdir, '.buildinfo'))
+            logger.warning('unsupported build info format in %r, building all',
+                           path.join(self.outdir, '.buildinfo'))
         except Exception:
             pass
         if old_config_hash != self.config_hash or \
@@ -222,6 +243,7 @@ class StandaloneHTMLBuilder(Builder):
                 pass
 
     def render_partial(self, node):
+        # type: (nodes.Nodes) -> Dict[unicode, unicode]
         """Utility: Render a lone doctree node."""
         if node is None:
             return {'fragment': ''}
@@ -247,6 +269,7 @@ class StandaloneHTMLBuilder(Builder):
         return pub.writer.parts
 
     def prepare_writing(self, docnames):
+        # type: (Iterable[unicode]) -> nodes.Node
         # create the search indexer
         self.indexer = None
         if self.search:
@@ -272,16 +295,13 @@ class StandaloneHTMLBuilder(Builder):
         indices_config = self.config.html_domain_indices
         if indices_config:
             for domain_name in sorted(self.env.domains):
+                domain = None  # type: Domain
                 domain = self.env.domains[domain_name]
                 for indexcls in domain.indices:
-                    indexname = '%s-%s' % (domain.name, indexcls.name)
+                    indexname = '%s-%s' % (domain.name, indexcls.name)  # type: unicode
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
-                    # deprecated config value
-                    if indexname == 'py-modindex' and \
-                       not self.config.html_use_modindex:
-                        continue
                     content, collapse = indexcls(domain).generate()
                     if content:
                         self.domain_indices.append(
@@ -292,8 +312,7 @@ class StandaloneHTMLBuilder(Builder):
         lufmt = self.config.html_last_updated_fmt
         if lufmt is not None:
             self.last_updated = format_date(lufmt or _('%b %d, %Y'),
-                                            language=self.config.language,
-                                            warn=self.warn)
+                                            language=self.config.language)
         else:
             self.last_updated = None
 
@@ -303,14 +322,14 @@ class StandaloneHTMLBuilder(Builder):
         favicon = self.config.html_favicon and \
             path.basename(self.config.html_favicon) or ''
         if favicon and os.path.splitext(favicon)[1] != '.ico':
-            self.warn('html_favicon is not an .ico file')
+            logger.warning('html_favicon is not an .ico file')
 
         if not isinstance(self.config.html_use_opensearch, string_types):
-            self.warn('html_use_opensearch config value must now be a string')
+            logger.warning('html_use_opensearch config value must now be a string')
 
         self.relations = self.env.collect_relations()
 
-        rellinks = []
+        rellinks = []  # type: List[Tuple[unicode, unicode, unicode, unicode]]
         if self.use_index:
             rellinks.append(('genindex', _('General Index'), 'I', _('index')))
         for indexname, indexcls, content, collapse in self.domain_indices:
@@ -353,7 +372,7 @@ class StandaloneHTMLBuilder(Builder):
             parents = [],
             logo = logo,
             favicon = favicon,
-        )
+        )  # type: Dict[unicode, Any]
         if self.theme:
             self.globalcontext.update(
                 ('theme_' + key, val) for (key, val) in
@@ -361,6 +380,7 @@ class StandaloneHTMLBuilder(Builder):
         self.globalcontext.update(self.config.html_context)
 
     def get_doc_context(self, docname, body, metatags):
+        # type: (unicode, unicode, Dict) -> Dict[unicode, Any]
         """Collect items for the template context of a page."""
         # find out relations
         prev = next = None
@@ -421,7 +441,7 @@ class StandaloneHTMLBuilder(Builder):
         meta = self.env.metadata.get(docname)
 
         # local TOC and global TOC tree
-        self_toc = self.env.get_toc_for(docname, self)
+        self_toc = TocTree(self.env).get_toc_for(docname, self)
         toc = self.render_partial(self_toc)['fragment']
 
         return dict(
@@ -441,6 +461,7 @@ class StandaloneHTMLBuilder(Builder):
         )
 
     def write_doc(self, docname, doctree):
+        # type: (unicode, nodes.Node) -> None
         destination = StringOutput(encoding='utf-8')
         doctree.settings = self.docsettings
 
@@ -458,6 +479,7 @@ class StandaloneHTMLBuilder(Builder):
         self.handle_page(docname, ctx, event_arg=doctree)
 
     def write_doc_serialized(self, docname, doctree):
+        # type: (unicode, nodes.Node) -> None
         self.imgpath = relative_uri(self.get_target_uri(docname), self.imagedir)
         self.post_process_images(doctree)
         title = self.env.longtitles.get(docname)
@@ -465,6 +487,7 @@ class StandaloneHTMLBuilder(Builder):
         self.index_page(docname, doctree, title)
 
     def finish(self):
+        # type: () -> None
         self.finish_tasks.add_task(self.gen_indices)
         self.finish_tasks.add_task(self.gen_additional_pages)
         self.finish_tasks.add_task(self.copy_image_files)
@@ -477,7 +500,8 @@ class StandaloneHTMLBuilder(Builder):
         self.handle_finish()
 
     def gen_indices(self):
-        self.info(bold('generating indices...'), nonl=1)
+        # type: () -> None
+        logger.info(bold('generating indices...'), nonl=1)
 
         # the global general index
         if self.use_index:
@@ -486,15 +510,16 @@ class StandaloneHTMLBuilder(Builder):
         # the global domain-specific indices
         self.write_domain_indices()
 
-        self.info()
+        logger.info('')
 
     def gen_additional_pages(self):
+        # type: () -> None
         # pages from extensions
         for pagelist in self.app.emit('html-collect-pages'):
             for pagename, context, template in pagelist:
                 self.handle_page(pagename, context, template)
 
-        self.info(bold('writing additional pages...'), nonl=1)
+        logger.info(bold('writing additional pages...'), nonl=1)
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
@@ -503,21 +528,22 @@ class StandaloneHTMLBuilder(Builder):
 
         # the search page
         if self.search:
-            self.info(' search', nonl=1)
+            logger.info(' search', nonl=1)
             self.handle_page('search', {}, 'search.html')
 
         # the opensearch xml file
         if self.config.html_use_opensearch and self.search:
-            self.info(' opensearch', nonl=1)
+            logger.info(' opensearch', nonl=1)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
-        self.info()
+        logger.info('')
 
     def write_genindex(self):
+        # type: () -> None
         # the total count of lines for each index letter, used to distribute
         # the entries into two columns
-        genindex = self.env.create_index(self)
+        genindex = IndexEntries(self.env).create_index(self)
         indexcounts = []
         for _k, entries in genindex:
             indexcounts.append(sum(1 + len(subitems)
@@ -528,7 +554,7 @@ class StandaloneHTMLBuilder(Builder):
             genindexcounts = indexcounts,
             split_index = self.config.html_split_index,
         )
-        self.info(' genindex', nonl=1)
+        logger.info(' genindex', nonl=1)
 
         if self.config.html_split_index:
             self.handle_page('genindex', genindexcontext,
@@ -544,54 +570,58 @@ class StandaloneHTMLBuilder(Builder):
             self.handle_page('genindex', genindexcontext, 'genindex.html')
 
     def write_domain_indices(self):
+        # type: () -> None
         for indexname, indexcls, content, collapse in self.domain_indices:
             indexcontext = dict(
                 indextitle = indexcls.localname,
                 content = content,
                 collapse_index = collapse,
             )
-            self.info(' ' + indexname, nonl=1)
+            logger.info(' ' + indexname, nonl=1)
             self.handle_page(indexname, indexcontext, 'domainindex.html')
 
     def copy_image_files(self):
+        # type: () -> None
         # copy image files
         if self.images:
             ensuredir(path.join(self.outdir, self.imagedir))
-            for src in self.app.status_iterator(self.images, 'copying images... ',
-                                                brown, len(self.images)):
+            for src in status_iterator(self.images, 'copying images... ', "brown",
+                                       len(self.images), self.app.verbosity):
                 dest = self.images[src]
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, self.imagedir, dest))
                 except Exception as err:
-                    self.warn('cannot copy image file %r: %s' %
-                              (path.join(self.srcdir, src), err))
+                    logger.warning('cannot copy image file %r: %s',
+                                   path.join(self.srcdir, src), err)
 
     def copy_download_files(self):
+        # type: () -> None
         def to_relpath(f):
+            # type: (unicode) -> unicode
             return relative_path(self.srcdir, f)
         # copy downloadable files
         if self.env.dlfiles:
             ensuredir(path.join(self.outdir, '_downloads'))
-            for src in self.app.status_iterator(self.env.dlfiles,
-                                                'copying downloadable files... ',
-                                                brown, len(self.env.dlfiles),
-                                                stringify_func=to_relpath):
+            for src in status_iterator(self.env.dlfiles, 'copying downloadable files... ',
+                                       "brown", len(self.env.dlfiles), self.app.verbosity,
+                                       stringify_func=to_relpath):
                 dest = self.env.dlfiles[src][1]
                 try:
                     copyfile(path.join(self.srcdir, src),
                              path.join(self.outdir, '_downloads', dest))
                 except Exception as err:
-                    self.warn('cannot copy downloadable file %r: %s' %
-                              (path.join(self.srcdir, src), err))
+                    logger.warning('cannot copy downloadable file %r: %s',
+                                   path.join(self.srcdir, src), err)
 
     def copy_static_files(self):
+        # type: () -> None
         # copy static files
-        self.info(bold('copying static files... '), nonl=True)
+        logger.info(bold('copying static files... '), nonl=True)
         ensuredir(path.join(self.outdir, '_static'))
         # first, create pygments style file
         with open(path.join(self.outdir, '_static', 'pygments.css'), 'w') as f:
-            f.write(self.highlighter.get_stylesheet())
+            f.write(self.highlighter.get_stylesheet())  # type: ignore
         # then, copy translations JavaScript file
         if self.config.language is not None:
             jsfile = self._get_translations_js()
@@ -622,7 +652,7 @@ class StandaloneHTMLBuilder(Builder):
         for static_path in self.config.html_static_path:
             entry = path.join(self.confdir, static_path)
             if not path.exists(entry):
-                self.warn('html_static_path entry %r does not exist' % entry)
+                logger.warning('html_static_path entry %r does not exist', entry)
                 continue
             copy_asset(entry, path.join(self.outdir, '_static'), excluded,
                        context=ctx, renderer=self.templates)
@@ -631,7 +661,7 @@ class StandaloneHTMLBuilder(Builder):
             logobase = path.basename(self.config.html_logo)
             logotarget = path.join(self.outdir, '_static', logobase)
             if not path.isfile(path.join(self.confdir, self.config.html_logo)):
-                self.warn('logo file %r does not exist' % self.config.html_logo)
+                logger.warning('logo file %r does not exist', self.config.html_logo)
             elif not path.isfile(logotarget):
                 copyfile(path.join(self.confdir, self.config.html_logo),
                          logotarget)
@@ -639,27 +669,29 @@ class StandaloneHTMLBuilder(Builder):
             iconbase = path.basename(self.config.html_favicon)
             icontarget = path.join(self.outdir, '_static', iconbase)
             if not path.isfile(path.join(self.confdir, self.config.html_favicon)):
-                self.warn('favicon file %r does not exist' % self.config.html_favicon)
+                logger.warning('favicon file %r does not exist', self.config.html_favicon)
             elif not path.isfile(icontarget):
                 copyfile(path.join(self.confdir, self.config.html_favicon),
                          icontarget)
-        self.info('done')
+        logger.info('done')
 
     def copy_extra_files(self):
+        # type: () -> None
         # copy html_extra_path files
-        self.info(bold('copying extra files... '), nonl=True)
+        logger.info(bold('copying extra files... '), nonl=True)
         excluded = Matcher(self.config.exclude_patterns)
 
         for extra_path in self.config.html_extra_path:
             entry = path.join(self.confdir, extra_path)
             if not path.exists(entry):
-                self.warn('html_extra_path entry %r does not exist' % entry)
+                logger.warning('html_extra_path entry %r does not exist', entry)
                 continue
 
             copy_asset(entry, self.outdir, excluded)
-        self.info('done')
+        logger.info('done')
 
     def write_buildinfo(self):
+        # type: () -> None
         # write build info file
         with open(path.join(self.outdir, '.buildinfo'), 'w') as fp:
             fp.write('# Sphinx build info version 1\n'
@@ -669,11 +701,13 @@ class StandaloneHTMLBuilder(Builder):
                      (self.config_hash, self.tags_hash))
 
     def cleanup(self):
+        # type: () -> None
         # clean up theme stuff
         if self.theme:
             self.theme.cleanup()
 
     def post_process_images(self, doctree):
+        # type: (nodes.Node) -> None
         """Pick the best candidate for an image and link down-scaled images to
         their high res version.
         """
@@ -699,24 +733,26 @@ class StandaloneHTMLBuilder(Builder):
                 reference.append(node)
 
     def load_indexer(self, docnames):
+        # type: (Iterable[unicode]) -> None
         keep = set(self.env.all_docs) - set(docnames)
         try:
             searchindexfn = path.join(self.outdir, self.searchindex_filename)
             if self.indexer_dumps_unicode:
-                f = codecs.open(searchindexfn, 'r', encoding='utf-8')
+                f = codecs.open(searchindexfn, 'r', encoding='utf-8')  # type: ignore
             else:
-                f = open(searchindexfn, 'rb')
+                f = open(searchindexfn, 'rb')  # type: ignore
             with f:
-                self.indexer.load(f, self.indexer_format)
+                self.indexer.load(f, self.indexer_format)  # type: ignore
         except (IOError, OSError, ValueError):
             if keep:
-                self.warn('search index couldn\'t be loaded, but not all '
-                          'documents will be built: the index will be '
-                          'incomplete.')
+                logger.warning('search index couldn\'t be loaded, but not all '
+                               'documents will be built: the index will be '
+                               'incomplete.')
         # delete all entries for files that will be rebuilt
         self.indexer.prune(keep)
 
     def index_page(self, pagename, doctree, title):
+        # type: (unicode, nodes.Node, unicode) -> None
         # only index pages with title
         if self.indexer is not None and title:
             filename = self.env.doc2path(pagename, base=None)
@@ -724,19 +760,23 @@ class StandaloneHTMLBuilder(Builder):
                 self.indexer.feed(pagename, filename, title, doctree)
             except TypeError:
                 # fallback for old search-adapters
-                self.indexer.feed(pagename, title, doctree)
+                self.indexer.feed(pagename, title, doctree)  # type: ignore
 
     def _get_local_toctree(self, docname, collapse=True, **kwds):
+        # type: (unicode, bool, Any) -> unicode
         if 'includehidden' not in kwds:
             kwds['includehidden'] = False
-        return self.render_partial(self.env.get_toctree_for(
+        return self.render_partial(TocTree(self.env).get_toctree_for(
             docname, self, collapse, **kwds))['fragment']
 
     def get_outfilename(self, pagename):
+        # type: (unicode) -> unicode
         return path.join(self.outdir, os_path(pagename) + self.out_suffix)
 
     def add_sidebars(self, pagename, ctx):
+        # type: (unicode, Dict) -> None
         def has_wildcard(pattern):
+            # type: (unicode) -> bool
             return any(char in pattern for char in '*?[')
         sidebars = None
         matched = None
@@ -747,9 +787,9 @@ class StandaloneHTMLBuilder(Builder):
                     if has_wildcard(pattern):
                         # warn if both patterns contain wildcards
                         if has_wildcard(matched):
-                            self.warn('page %s matches two patterns in '
-                                      'html_sidebars: %r and %r' %
-                                      (pagename, matched, pattern))
+                            logger.warning('page %s matches two patterns in '
+                                           'html_sidebars: %r and %r',
+                                           pagename, matched, pattern)
                         # else the already matched pattern is more specific
                         # than the present one, because it contains no wildcard
                         continue
@@ -768,20 +808,24 @@ class StandaloneHTMLBuilder(Builder):
     # --------- these are overwritten by the serialization builder
 
     def get_target_uri(self, docname, typ=None):
+        # type: (unicode, unicode) -> unicode
         return docname + self.link_suffix
 
     def handle_page(self, pagename, addctx, templatename='page.html',
                     outfilename=None, event_arg=None):
+        # type: (unicode, Dict, unicode, unicode, Any) -> None
         ctx = self.globalcontext.copy()
         ctx['warn'] = self.warn
         # current_page_name is backwards compatibility
         ctx['pagename'] = ctx['current_page_name'] = pagename
+        ctx['encoding'] = self.config.html_output_encoding
         default_baseuri = self.get_target_uri(pagename)
         # in the singlehtml builder, default_baseuri still contains an #anchor
         # part, which relative_uri doesn't really like...
         default_baseuri = default_baseuri.rsplit('#', 1)[0]
 
         def pathto(otheruri, resource=False, baseuri=default_baseuri):
+            # type: (unicode, bool, unicode) -> unicode
             if resource and '://' in otheruri:
                 # allow non-local resources given by scheme
                 return otheruri
@@ -794,6 +838,7 @@ class StandaloneHTMLBuilder(Builder):
         ctx['pathto'] = pathto
 
         def hasdoc(name):
+            # type: (unicode) -> bool
             if name in self.env.all_docs:
                 return True
             elif name == 'search' and self.search:
@@ -803,14 +848,11 @@ class StandaloneHTMLBuilder(Builder):
             return False
         ctx['hasdoc'] = hasdoc
 
-        if self.name != 'htmlhelp':
-            ctx['encoding'] = encoding = self.config.html_output_encoding
-        else:
-            ctx['encoding'] = encoding = self.encoding
         ctx['toctree'] = lambda **kw: self._get_local_toctree(pagename, **kw)
         self.add_sidebars(pagename, ctx)
         ctx.update(addctx)
 
+        self.update_page_context(pagename, templatename, ctx, event_arg)
         newtmpl = self.app.emit_firstresult('html-page-context', pagename,
                                             templatename, ctx, event_arg)
         if newtmpl:
@@ -819,9 +861,9 @@ class StandaloneHTMLBuilder(Builder):
         try:
             output = self.templates.render(templatename, ctx)
         except UnicodeError:
-            self.warn("a Unicode error occurred when rendering the page %s. "
-                      "Please make sure all config values that contain "
-                      "non-ASCII content are Unicode strings." % pagename)
+            logger.warning("a Unicode error occurred when rendering the page %s. "
+                           "Please make sure all config values that contain "
+                           "non-ASCII content are Unicode strings.", pagename)
             return
 
         if not outfilename:
@@ -829,10 +871,10 @@ class StandaloneHTMLBuilder(Builder):
         # outfilename's path is in general different from self.outdir
         ensuredir(path.dirname(outfilename))
         try:
-            with codecs.open(outfilename, 'w', encoding, 'xmlcharrefreplace') as f:
+            with codecs.open(outfilename, 'w', ctx['encoding'], 'xmlcharrefreplace') as f:  # type: ignore  # NOQA
                 f.write(output)
         except (IOError, OSError) as err:
-            self.warn("error writing file %s: %s" % (outfilename, err))
+            logger.warning("error writing file %s: %s", outfilename, err)
         if self.copysource and ctx.get('sourcename'):
             # copy the source file for the "show source" link
             source_name = path.join(self.outdir, '_sources',
@@ -840,13 +882,19 @@ class StandaloneHTMLBuilder(Builder):
             ensuredir(path.dirname(source_name))
             copyfile(self.env.doc2path(pagename), source_name)
 
+    def update_page_context(self, pagename, templatename, ctx, event_arg):
+        # type: (unicode, unicode, Dict, Any) -> None
+        pass
+
     def handle_finish(self):
+        # type: () -> None
         if self.indexer:
             self.finish_tasks.add_task(self.dump_search_index)
         self.finish_tasks.add_task(self.dump_inventory)
 
     def dump_inventory(self):
-        self.info(bold('dumping object inventory... '), nonl=True)
+        # type: () -> None
+        logger.info(bold('dumping object inventory... '), nonl=True)
         with open(path.join(self.outdir, INVENTORY_FILENAME), 'wb') as f:
             f.write((u'# Sphinx inventory version 2\n'
                      u'# Project: %s\n'
@@ -869,10 +917,11 @@ class StandaloneHTMLBuilder(Builder):
                         (u'%s %s:%s %s %s %s\n' % (name, domainname, type,
                                                    prio, uri, dispname)).encode('utf-8')))
             f.write(compressor.flush())
-        self.info('done')
+        logger.info('done')
 
     def dump_search_index(self):
-        self.info(
+        # type: () -> None
+        logger.info(
             bold('dumping search index in %s ... ' % self.indexer.label()),
             nonl=True)
         self.indexer.prune(self.env.all_docs)
@@ -880,13 +929,13 @@ class StandaloneHTMLBuilder(Builder):
         # first write to a temporary file, so that if dumping fails,
         # the existing index won't be overwritten
         if self.indexer_dumps_unicode:
-            f = codecs.open(searchindexfn + '.tmp', 'w', encoding='utf-8')
+            f = codecs.open(searchindexfn + '.tmp', 'w', encoding='utf-8')  # type: ignore
         else:
-            f = open(searchindexfn + '.tmp', 'wb')
+            f = open(searchindexfn + '.tmp', 'wb')  # type: ignore
         with f:
-            self.indexer.dump(f, self.indexer_format)
+            self.indexer.dump(f, self.indexer_format)  # type: ignore
         movefile(searchindexfn + '.tmp', searchindexfn)
-        self.info('done')
+        logger.info('done')
 
 
 class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
@@ -898,6 +947,7 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
     name = 'dirhtml'
 
     def get_target_uri(self, docname, typ=None):
+        # type: (unicode, unicode) -> unicode
         if docname == 'index':
             return ''
         if docname.endswith(SEP + 'index'):
@@ -905,6 +955,7 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
         return docname + SEP
 
     def get_outfilename(self, pagename):
+        # type: (unicode) -> unicode
         if pagename == 'index' or pagename.endswith(SEP + 'index'):
             outfilename = path.join(self.outdir, os_path(pagename) +
                                     self.out_suffix)
@@ -915,6 +966,7 @@ class DirectoryHTMLBuilder(StandaloneHTMLBuilder):
         return outfilename
 
     def prepare_writing(self, docnames):
+        # type: (Iterable[unicode]) -> None
         StandaloneHTMLBuilder.prepare_writing(self, docnames)
         self.globalcontext['no_search_suffix'] = True
 
@@ -927,10 +979,12 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
     name = 'singlehtml'
     copysource = False
 
-    def get_outdated_docs(self):
+    def get_outdated_docs(self):  # type: ignore
+        # type: () -> Union[unicode, List[unicode]]
         return 'all documents'
 
     def get_target_uri(self, docname, typ=None):
+        # type: (unicode, unicode) -> unicode
         if docname in self.env.all_docs:
             # all references are on the same page...
             return self.config.master_doc + self.out_suffix + \
@@ -940,10 +994,12 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             return docname + self.out_suffix
 
     def get_relative_uri(self, from_, to, typ=None):
+        # type: (unicode, unicode, unicode) -> unicode
         # ignore source
         return self.get_target_uri(to, typ)
 
     def fix_refuris(self, tree):
+        # type: (nodes.Node) -> None
         # fix refuris with double anchor
         fname = self.config.master_doc + self.out_suffix
         for refnode in tree.traverse(nodes.reference):
@@ -958,13 +1014,15 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
                 refnode['refuri'] = fname + refuri[hashindex:]
 
     def _get_local_toctree(self, docname, collapse=True, **kwds):
+        # type: (unicode, bool, Any) -> unicode
         if 'includehidden' not in kwds:
             kwds['includehidden'] = False
-        toctree = self.env.get_toctree_for(docname, self, collapse, **kwds)
+        toctree = TocTree(self.env).get_toctree_for(docname, self, collapse, **kwds)
         self.fix_refuris(toctree)
         return self.render_partial(toctree)['fragment']
 
     def assemble_doctree(self):
+        # type: () -> nodes.Node
         master = self.config.master_doc
         tree = self.env.get_doctree(master)
         tree = inline_all_toctrees(self, set(), master, tree, darkgreen, [master])
@@ -974,6 +1032,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         return tree
 
     def assemble_toc_secnumbers(self):
+        # type: () -> Dict[unicode, Dict[Tuple[unicode, unicode], Tuple[int, ...]]]
         # Assemble toc_secnumbers to resolve section numbers on SingleHTML.
         # Merge all secnumbers to single secnumber.
         #
@@ -991,6 +1050,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         return {self.config.master_doc: new_secnumbers}
 
     def assemble_toc_fignumbers(self):
+        # type: () -> Dict[unicode, Dict[Tuple[unicode, unicode], Dict[unicode, Tuple[int, ...]]]]  # NOQA
         # Assemble toc_fignumbers to resolve figure numbers on SingleHTML.
         # Merge all fignumbers to single fignumber.
         #
@@ -1000,7 +1060,7 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         #
         #       There are related codes in inline_all_toctres() and
         #       HTMLTranslter#add_fignumber().
-        new_fignumbers = {}
+        new_fignumbers = {}  # type: Dict[Tuple[unicode, unicode], Dict[unicode, Tuple[int, ...]]]  # NOQA
         # {u'foo': {'figure': {'id2': (2,), 'id1': (1,)}}, u'bar': {'figure': {'id1': (3,)}}}
         for docname, fignumlist in iteritems(self.env.toc_fignumbers):
             for figtype, fignums in iteritems(fignumlist):
@@ -1011,8 +1071,10 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         return {self.config.master_doc: new_fignumbers}
 
     def get_doc_context(self, docname, body, metatags):
+        # type: (unicode, unicode, Dict) -> Dict
         # no relation links...
-        toc = self.env.get_toctree_for(self.config.master_doc, self, False)
+        toc = TocTree(self.env).get_toctree_for(self.config.master_doc,
+                                                self, False)
         # if there is no toctree, toc is None
         if toc:
             self.fix_refuris(toc)
@@ -1037,25 +1099,27 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         )
 
     def write(self, *ignored):
+        # type: (Any) -> None
         docnames = self.env.all_docs
 
-        self.info(bold('preparing documents... '), nonl=True)
+        logger.info(bold('preparing documents... '), nonl=True)
         self.prepare_writing(docnames)
-        self.info('done')
+        logger.info('done')
 
-        self.info(bold('assembling single document... '), nonl=True)
+        logger.info(bold('assembling single document... '), nonl=True)
         doctree = self.assemble_doctree()
         self.env.toc_secnumbers = self.assemble_toc_secnumbers()
         self.env.toc_fignumbers = self.assemble_toc_fignumbers()
-        self.info()
-        self.info(bold('writing... '), nonl=True)
+        logger.info('')
+        logger.info(bold('writing... '), nonl=True)
         self.write_doc_serialized(self.config.master_doc, doctree)
         self.write_doc(self.config.master_doc, doctree)
-        self.info('done')
+        logger.info('done')
 
     def finish(self):
+        # type: () -> None
         # no indices or search pages are supported
-        self.info(bold('writing additional files...'), nonl=1)
+        logger.info(bold('writing additional files...'), nonl=1)
 
         # additional pages from conf.py
         for pagename, template in self.config.html_additional_pages.items():
@@ -1063,11 +1127,11 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
             self.handle_page(pagename, {}, template)
 
         if self.config.html_use_opensearch:
-            self.info(' opensearch', nonl=1)
+            logger.info(' opensearch', nonl=1)
             fn = path.join(self.outdir, '_static', 'opensearch.xml')
             self.handle_page('opensearch', {}, 'opensearch.xml', outfilename=fn)
 
-        self.info()
+        logger.info('')
 
         self.copy_image_files()
         self.copy_download_files()
@@ -1084,18 +1148,19 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     #: the serializing implementation to use.  Set this to a module that
     #: implements a `dump`, `load`, `dumps` and `loads` functions
     #: (pickle, simplejson etc.)
-    implementation = None
+    implementation = None  # type: Any
     implementation_dumps_unicode = False
     #: additional arguments for dump()
     additional_dump_args = ()
 
     #: the filename for the global context file
-    globalcontext_filename = None
+    globalcontext_filename = None  # type: unicode
 
     supported_image_types = ['image/svg+xml', 'image/png',
                              'image/gif', 'image/jpeg']
 
     def init(self):
+        # type: () -> None
         self.config_hash = ''
         self.tags_hash = ''
         self.imagedir = '_images'
@@ -1108,6 +1173,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         self.use_index = self.get_builder_config('use_index', 'html')
 
     def get_target_uri(self, docname, typ=None):
+        # type: (unicode, unicode) -> unicode
         if docname == 'index':
             return ''
         if docname.endswith(SEP + 'index'):
@@ -1115,15 +1181,17 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
         return docname + SEP
 
     def dump_context(self, context, filename):
+        # type: (Dict, unicode) -> None
         if self.implementation_dumps_unicode:
-            f = codecs.open(filename, 'w', encoding='utf-8')
+            f = codecs.open(filename, 'w', encoding='utf-8')  # type: ignore
         else:
-            f = open(filename, 'wb')
+            f = open(filename, 'wb')  # type: ignore
         with f:
             self.implementation.dump(context, f, *self.additional_dump_args)
 
     def handle_page(self, pagename, ctx, templatename='page.html',
                     outfilename=None, event_arg=None):
+        # type: (unicode, Dict, unicode, unicode, Any) -> None
         ctx['current_page_name'] = pagename
         self.add_sidebars(pagename, ctx)
 
@@ -1147,6 +1215,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
             copyfile(self.env.doc2path(pagename), source_name)
 
     def handle_finish(self):
+        # type: () -> None
         # dump the global context
         outfilename = path.join(self.outdir, self.globalcontext_filename)
         self.dump_context(self.globalcontext, outfilename)
@@ -1197,24 +1266,18 @@ class JSONHTMLBuilder(SerializingHTMLBuilder):
     searchindex_filename = 'searchindex.json'
 
     def init(self):
+        # type: () -> None
         SerializingHTMLBuilder.init(self)
 
 
-def validate_config_values(app):
-    if app.config.html_translator_class:
-        app.warn('html_translator_class is deprecated. '
-                 'Use Sphinx.set_translator() API instead.')
-
-
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     # builders
     app.add_builder(StandaloneHTMLBuilder)
     app.add_builder(DirectoryHTMLBuilder)
     app.add_builder(SingleFileHTMLBuilder)
     app.add_builder(PickleHTMLBuilder)
     app.add_builder(JSONHTMLBuilder)
-
-    app.connect('builder-inited', validate_config_values)
 
     # config values
     app.add_config_value('html_theme', 'alabaster', 'html')
@@ -1233,7 +1296,6 @@ def setup(app):
     app.add_config_value('html_use_smartypants', True, 'html')
     app.add_config_value('html_sidebars', {}, 'html')
     app.add_config_value('html_additional_pages', {}, 'html')
-    app.add_config_value('html_use_modindex', True, 'html')  # deprecated
     app.add_config_value('html_domain_indices', True, 'html', [list])
     app.add_config_value('html_add_permalinks', u'\u00B6', 'html')
     app.add_config_value('html_use_index', True, 'html')

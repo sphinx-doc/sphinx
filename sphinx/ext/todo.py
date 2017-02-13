@@ -18,9 +18,18 @@ from docutils.parsers.rst import directives
 import sphinx
 from sphinx.locale import _
 from sphinx.environment import NoUri
+from sphinx.util import logging
 from sphinx.util.nodes import set_source_info
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
+
+if False:
+    # For type annotation
+    from typing import Any, Iterable  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class todo_node(nodes.Admonition, nodes.Element):
@@ -46,6 +55,7 @@ class Todo(BaseAdmonition):
     }
 
     def run(self):
+        # type: () -> List[nodes.Node]
         if not self.options.get('class'):
             self.options['class'] = ['admonition-todo']
 
@@ -63,12 +73,13 @@ class Todo(BaseAdmonition):
 
 
 def process_todos(app, doctree):
+    # type: (Sphinx, nodes.Node) -> None
     # collect all todos in the environment
     # this is not done in the directive itself because it some transformations
     # must have already been run, e.g. substitutions
     env = app.builder.env
     if not hasattr(env, 'todo_all_todos'):
-        env.todo_all_todos = []
+        env.todo_all_todos = []  # type: ignore
     for node in doctree.traverse(todo_node):
         app.emit('todo-defined', node)
 
@@ -80,7 +91,7 @@ def process_todos(app, doctree):
             targetnode = None
         newnode = node.deepcopy()
         del newnode['ids']
-        env.todo_all_todos.append({
+        env.todo_all_todos.append({  # type: ignore
             'docname': env.docname,
             'source': node.source or env.doc2path(env.docname),
             'lineno': node.line,
@@ -89,7 +100,8 @@ def process_todos(app, doctree):
         })
 
         if env.config.todo_emit_warnings:
-            env.warn_node("TODO entry found: %s" % node[1].astext(), node)
+            logger.warning("TODO entry found: %s", node[1].astext(),
+                           location=node)
 
 
 class TodoList(Directive):
@@ -101,15 +113,17 @@ class TodoList(Directive):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {}
+    option_spec = {}  # type: Dict
 
     def run(self):
+        # type: () -> List[todolist]
         # Simply insert an empty todolist node which will be replaced later
         # when process_todo_nodes is called
         return [todolist('')]
 
 
 def process_todo_nodes(app, doctree, fromdocname):
+    # type: (Sphinx, nodes.Node, unicode) -> None
     if not app.config['todo_include_todos']:
         for node in doctree.traverse(todo_node):
             node.parent.remove(node)
@@ -119,7 +133,7 @@ def process_todo_nodes(app, doctree, fromdocname):
     env = app.builder.env
 
     if not hasattr(env, 'todo_all_todos'):
-        env.todo_all_todos = []
+        env.todo_all_todos = []  # type: ignore
 
     for node in doctree.traverse(todolist):
         if not app.config['todo_include_todos']:
@@ -128,7 +142,7 @@ def process_todo_nodes(app, doctree, fromdocname):
 
         content = []
 
-        for todo_info in env.todo_all_todos:
+        for todo_info in env.todo_all_todos:  # type: ignore
             para = nodes.paragraph(classes=['todo-source'])
             if app.config['todo_link_only']:
                 description = _('<<original entry>>')
@@ -168,30 +182,35 @@ def process_todo_nodes(app, doctree, fromdocname):
 
 
 def purge_todos(app, env, docname):
+    # type: (Sphinx, BuildEnvironment, unicode) -> None
     if not hasattr(env, 'todo_all_todos'):
         return
-    env.todo_all_todos = [todo for todo in env.todo_all_todos
+    env.todo_all_todos = [todo for todo in env.todo_all_todos  # type: ignore
                           if todo['docname'] != docname]
 
 
 def merge_info(app, env, docnames, other):
+    # type: (Sphinx, BuildEnvironment, Iterable[unicode], BuildEnvironment) -> None
     if not hasattr(other, 'todo_all_todos'):
         return
     if not hasattr(env, 'todo_all_todos'):
-        env.todo_all_todos = []
-    env.todo_all_todos.extend(other.todo_all_todos)
+        env.todo_all_todos = []  # type: ignore
+    env.todo_all_todos.extend(other.todo_all_todos)  # type: ignore
 
 
 def visit_todo_node(self, node):
+    # type: (nodes.NodeVisitor, todo_node) -> None
     self.visit_admonition(node)
     # self.visit_admonition(node, 'todo')
 
 
 def depart_todo_node(self, node):
+    # type: (nodes.NodeVisitor, todo_node) -> None
     self.depart_admonition(node)
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_event('todo-defined')
     app.add_config_value('todo_include_todos', False, 'html')
     app.add_config_value('todo_link_only', False, 'html')

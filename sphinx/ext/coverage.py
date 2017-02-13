@@ -20,22 +20,32 @@ from six.moves import cPickle as pickle
 
 import sphinx
 from sphinx.builders import Builder
+from sphinx.util import logging
 from sphinx.util.inspect import safe_getattr
+
+if False:
+    # For type annotation
+    from typing import Any, Callable, IO, Pattern, Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 # utility
 def write_header(f, text, char='-'):
+    # type:(IO, unicode, unicode) -> None
     f.write(text + '\n')
     f.write(char * len(text) + '\n')
 
 
-def compile_regex_list(name, exps, warnfunc):
+def compile_regex_list(name, exps):
+    # type: (unicode, unicode) -> List[Pattern]
     lst = []
     for exp in exps:
         try:
             lst.append(re.compile(exp))
         except Exception:
-            warnfunc('invalid regex %r in %s' % (exp, name))
+            logger.warning('invalid regex %r in %s', exp, name)
     return lst
 
 
@@ -44,45 +54,46 @@ class CoverageBuilder(Builder):
     name = 'coverage'
 
     def init(self):
-        self.c_sourcefiles = []
+        # type: () -> None
+        self.c_sourcefiles = []  # type: List[unicode]
         for pattern in self.config.coverage_c_path:
             pattern = path.join(self.srcdir, pattern)
             self.c_sourcefiles.extend(glob.glob(pattern))
 
-        self.c_regexes = []
+        self.c_regexes = []  # type: List[Tuple[unicode, Pattern]]
         for (name, exp) in self.config.coverage_c_regexes.items():
             try:
                 self.c_regexes.append((name, re.compile(exp)))
             except Exception:
-                self.warn('invalid regex %r in coverage_c_regexes' % exp)
+                logger.warning('invalid regex %r in coverage_c_regexes', exp)
 
-        self.c_ignorexps = {}
+        self.c_ignorexps = {}  # type: Dict[unicode, List[Pattern]]
         for (name, exps) in iteritems(self.config.coverage_ignore_c_items):
-            self.c_ignorexps[name] = compile_regex_list(
-                'coverage_ignore_c_items', exps, self.warn)
-        self.mod_ignorexps = compile_regex_list(
-            'coverage_ignore_modules', self.config.coverage_ignore_modules,
-            self.warn)
-        self.cls_ignorexps = compile_regex_list(
-            'coverage_ignore_classes', self.config.coverage_ignore_classes,
-            self.warn)
-        self.fun_ignorexps = compile_regex_list(
-            'coverage_ignore_functions', self.config.coverage_ignore_functions,
-            self.warn)
+            self.c_ignorexps[name] = compile_regex_list('coverage_ignore_c_items',
+                                                        exps)
+        self.mod_ignorexps = compile_regex_list('coverage_ignore_modules',
+                                                self.config.coverage_ignore_modules)
+        self.cls_ignorexps = compile_regex_list('coverage_ignore_classes',
+                                                self.config.coverage_ignore_classes)
+        self.fun_ignorexps = compile_regex_list('coverage_ignore_functions',
+                                                self.config.coverage_ignore_functions)
 
     def get_outdated_docs(self):
+        # type: () -> unicode
         return 'coverage overview'
 
     def write(self, *ignored):
-        self.py_undoc = {}
+        # type: (Any) -> None
+        self.py_undoc = {}  # type: Dict[unicode, Dict[unicode, Any]]
         self.build_py_coverage()
         self.write_py_coverage()
 
-        self.c_undoc = {}
+        self.c_undoc = {}  # type: Dict[unicode, Set[Tuple[unicode, unicode]]]
         self.build_c_coverage()
         self.write_c_coverage()
 
     def build_c_coverage(self):
+        # type: () -> None
         # Fetch all the info from the header files
         c_objects = self.env.domaindata['c']['objects']
         for filename in self.c_sourcefiles:
@@ -94,7 +105,7 @@ class CoverageBuilder(Builder):
                         if match:
                             name = match.groups()[0]
                             if name not in c_objects:
-                                for exp in self.c_ignorexps.get(key, ()):
+                                for exp in self.c_ignorexps.get(key, []):
                                     if exp.match(name):
                                         break
                                 else:
@@ -104,6 +115,7 @@ class CoverageBuilder(Builder):
                 self.c_undoc[filename] = undoc
 
     def write_c_coverage(self):
+        # type: () -> None
         output_file = path.join(self.outdir, 'c.txt')
         with open(output_file, 'w') as op:
             if self.config.coverage_write_headline:
@@ -117,6 +129,7 @@ class CoverageBuilder(Builder):
                 op.write('\n')
 
     def build_py_coverage(self):
+        # type: () -> None
         objects = self.env.domaindata['py']['objects']
         modules = self.env.domaindata['py']['modules']
 
@@ -134,13 +147,12 @@ class CoverageBuilder(Builder):
             try:
                 mod = __import__(mod_name, fromlist=['foo'])
             except ImportError as err:
-                self.warn('module %s could not be imported: %s' %
-                          (mod_name, err))
+                logger.warning('module %s could not be imported: %s', mod_name, err)
                 self.py_undoc[mod_name] = {'error': err}
                 continue
 
             funcs = []
-            classes = {}
+            classes = {}  # type: Dict[unicode, List[unicode]]
 
             for name, obj in inspect.getmembers(mod):
                 # diverse module attributes are ignored:
@@ -177,7 +189,7 @@ class CoverageBuilder(Builder):
                             classes[name] = []
                             continue
 
-                        attrs = []
+                        attrs = []  # type: List[unicode]
 
                         for attr_name in dir(obj):
                             if attr_name not in obj.__dict__:
@@ -207,6 +219,7 @@ class CoverageBuilder(Builder):
             self.py_undoc[mod_name] = {'funcs': funcs, 'classes': classes}
 
     def write_py_coverage(self):
+        # type: () -> None
         output_file = path.join(self.outdir, 'python.txt')
         failed = []
         with open(output_file, 'w') as op:
@@ -242,6 +255,7 @@ class CoverageBuilder(Builder):
                 op.writelines(' * %s -- %s\n' % x for x in failed)
 
     def finish(self):
+        # type: () -> None
         # dump the coverage data to a pickle file too
         picklepath = path.join(self.outdir, 'undoc.pickle')
         with open(picklepath, 'wb') as dumpfile:
@@ -249,6 +263,7 @@ class CoverageBuilder(Builder):
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(CoverageBuilder)
     app.add_config_value('coverage_ignore_modules', [], False)
     app.add_config_value('coverage_ignore_functions', [], False)

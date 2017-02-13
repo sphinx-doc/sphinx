@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/02/06 v1.5.3 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/02/06 v1.6 LaTeX package (Sphinx markup)]
 
 % we delay handling of options to after having loaded packages, because
 % of the need to use \definecolor.
@@ -24,6 +24,9 @@
 ******** ERROR !! PLEASE UPDATE titlesec.sty !!********^^J%
 ******** THIS VERSION SWALLOWS SECTION NUMBERS.********}}}}{}
 \RequirePackage{tabulary}
+% use of \X to minimize possibility of conflict with one-character column types
+\newcolumntype{\X}[2]{p{\dimexpr
+      (\linewidth-\arrayrulewidth)*#1/#2-\tw@\tabcolsep-\arrayrulewidth\relax}}
 \RequirePackage{makeidx}
 % For framing code-blocks and warning type notices, and shadowing topics
 \RequirePackage{framed}
@@ -870,10 +873,7 @@
                      \csname\@backslashchar color@#2\endcsname }
 
 % the main dispatch for all types of notices
-\newenvironment{sphinxadmonition}{\begin{notice}}{\end{notice}}
-% use of ``notice'' is for backwards compatibility and will be removed in
-% future release; sphinxadmonition environment will be defined directly.
-\newenvironment{notice}[2]{% #1=type, #2=heading
+\newenvironment{sphinxadmonition}[2]{% #1=type, #2=heading
   % can't use #1 directly in definition of end part
   \def\spx@noticetype {#1}%
   % set parameters of heavybox/lightbox
@@ -884,6 +884,16 @@
   \begin{sphinx#1}{#2}}
   % in end part, need to go around a LaTeX's "feature"
  {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
+% use of ``notice'' is for backwards compatibility and will be removed in
+% Sphinx 1.7.
+\newenvironment{notice}
+  {\AtEndDocument{\typeout
+{**** DEPRECATION WARNING:^^J
+This document was probably built with a Sphinx extension using ``notice''^^J
+environment. At Sphinx 1.7, ``notice'' environment will be removed. Please^^J
+report to extension author to use ``sphinxadmonition'' instead.^^J%
+****}}%
+   \begin{sphinxadmonition}}{\end{sphinxadmonition}}
 
 % Allow the release number to be specified independently of the
 % \date{}.  This allows the date to reflect the document's date and
@@ -978,33 +988,25 @@
  \raggedright}
 {\end{list}}
 
-% Redefine \includegraphics to resize images larger than the line width,
+% \sphinxincludegraphics defined to resize images larger than the line width,
 % except if height or width option present.
 %
 % If scale is present, rescale before fitting to line width. (since 1.5)
-%
-% Warning: future version of Sphinx will not modify original \includegraphics,
-% below code will be definition only of \sphinxincludegraphics.
-\let\py@Oldincludegraphics\includegraphics
 \newbox\spx@image@box
-\renewcommand*{\includegraphics}[2][]{%
+\newcommand*{\sphinxincludegraphics}[2][]{%
   \in@{height}{#1}\ifin@\else\in@{width}{#1}\fi
   \ifin@ % height or width present
-    \py@Oldincludegraphics[#1]{#2}%
+    \includegraphics[#1]{#2}%
   \else % no height nor width (but #1 may be "scale=...")
-    \setbox\spx@image@box\hbox{\py@Oldincludegraphics[#1,draft]{#2}}%
+    \setbox\spx@image@box\hbox{\includegraphics[#1,draft]{#2}}%
     \ifdim \wd\spx@image@box>\linewidth
       \setbox\spx@image@box\box\voidb@x % clear memory
-      \py@Oldincludegraphics[#1,width=\linewidth]{#2}%
+      \includegraphics[#1,width=\linewidth]{#2}%
     \else
-      \py@Oldincludegraphics[#1]{#2}%
+      \includegraphics[#1]{#2}%
     \fi
   \fi
 }
-% Writer will put \sphinxincludegraphics in LaTeX source, and with this,
-% documents which used their own modified \includegraphics will compile
-% as before. But see warning above.
-\newcommand*{\sphinxincludegraphics}{\includegraphics}
 
 % to make pdf with correct encoded bookmarks in Japanese
 % this should precede the hyperref package

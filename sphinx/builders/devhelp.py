@@ -19,13 +19,23 @@ from os import path
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.util import logging
 from sphinx.util.osutil import make_filename
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.environment.adapters.indexentries import IndexEntries
 
 try:
     import xml.etree.ElementTree as etree
 except ImportError:
-    import lxml.etree as etree
+    import lxml.etree as etree  # type: ignore
+
+if False:
+    # For type annotation
+    from typing import Any  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 
 class DevhelpBuilder(StandaloneHTMLBuilder):
@@ -44,15 +54,18 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
     embedded = True
 
     def init(self):
+        # type: () -> None
         StandaloneHTMLBuilder.init(self)
         self.out_suffix = '.html'
         self.link_suffix = '.html'
 
     def handle_finish(self):
+        # type: () -> None
         self.build_devhelp(self.outdir, self.config.devhelp_basename)
 
     def build_devhelp(self, outdir, outname):
-        self.info('dumping devhelp index...')
+        # type: (unicode, unicode) -> None
+        logger.info('dumping devhelp index...')
 
         # Basic info
         root = etree.Element('book',
@@ -69,6 +82,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
             self.config.master_doc, self, prune_toctrees=False)
 
         def write_toc(node, parent):
+            # type: (nodes.Node, nodes.Node) -> None
             if isinstance(node, addnodes.compact_paragraph) or \
                isinstance(node, nodes.bullet_list):
                 for subnode in node:
@@ -82,6 +96,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
                 parent.attrib['name'] = node.astext()
 
         def istoctree(node):
+            # type: (nodes.Node) -> bool
             return isinstance(node, addnodes.compact_paragraph) and \
                 'toctree' in node
 
@@ -90,9 +105,10 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
 
         # Index
         functions = etree.SubElement(root, 'functions')
-        index = self.env.create_index(self)
+        index = IndexEntries(self.env).create_index(self)
 
         def write_index(title, refs, subitems):
+            # type: (unicode, List[Any], Any) -> None
             if len(refs) == 0:
                 pass
             elif len(refs) == 1:
@@ -116,11 +132,12 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
 
         # Dump the XML file
         xmlfile = path.join(outdir, outname + '.devhelp.gz')
-        with gzip.open(xmlfile, 'w') as f:
+        with gzip.open(xmlfile, 'w') as f:  # type: ignore
             tree.write(f, 'utf-8')
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(DevhelpBuilder)
 

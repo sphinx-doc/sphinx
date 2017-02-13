@@ -11,15 +11,20 @@
 
 import re
 
+if False:
+    # For type annotation
+    from typing import Callable, Match, Pattern  # NOQA
+
 
 def _translate_pattern(pat):
+    # type: (unicode) -> unicode
     """Translate a shell-style glob pattern to a regular expression.
 
     Adapted from the fnmatch module, but enhanced so that single stars don't
     match slashes.
     """
     i, n = 0, len(pat)
-    res = ''
+    res = ''  # type: unicode
     while i < n:
         c = pat[i]
         i += 1
@@ -59,6 +64,7 @@ def _translate_pattern(pat):
 
 
 def compile_matchers(patterns):
+    # type: (List[unicode]) -> List[Callable[[unicode], Match[unicode]]]
     return [re.compile(_translate_pattern(pat)).match for pat in patterns]
 
 
@@ -70,23 +76,27 @@ class Matcher(object):
     """
 
     def __init__(self, patterns):
+        # type: (List[unicode]) -> None
         expanded = [pat[3:] for pat in patterns if pat.startswith('**/')]
         self.patterns = compile_matchers(patterns + expanded)
 
     def __call__(self, string):
+        # type: (unicode) -> bool
         return self.match(string)
 
     def match(self, string):
+        # type: (unicode) -> bool
         return any(pat(string) for pat in self.patterns)
 
 
 DOTFILES = Matcher(['**/.*'])
 
 
-_pat_cache = {}
+_pat_cache = {}  # type: Dict[unicode, Pattern]
 
 
 def patmatch(name, pat):
+    # type: (unicode, unicode) -> re.Match
     """Return if name matches pat.  Adapted from fnmatch module."""
     if pat not in _pat_cache:
         _pat_cache[pat] = re.compile(_translate_pattern(pat))
@@ -94,6 +104,7 @@ def patmatch(name, pat):
 
 
 def patfilter(names, pat):
+    # type: (List[unicode], unicode) -> List[unicode]
     """Return the subset of the list NAMES that match PAT.
 
     Adapted from fnmatch module.

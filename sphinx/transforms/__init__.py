@@ -15,8 +15,12 @@ from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
 from sphinx.locale import _
+from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround
+
+
+logger = logging.getLogger(__name__)
 
 default_substitutions = set([
     'version',
@@ -33,7 +37,7 @@ class DefaultSubstitutions(Transform):
     default_priority = 210
 
     def apply(self):
-        env = self.document.settings.env
+        # type: () -> None
         config = self.document.settings.env.config
         # only handle those not otherwise defined in the document
         to_handle = default_substitutions - set(self.document.substitution_defs)
@@ -44,7 +48,7 @@ class DefaultSubstitutions(Transform):
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
                     text = format_date(config.today_fmt or _('%b %d, %Y'),
-                                       language=config.language, warn=env.warn)
+                                       language=config.language)
                 ref.replace_self(nodes.Text(text, text))
 
 
@@ -58,6 +62,7 @@ class MoveModuleTargets(Transform):
     default_priority = 210
 
     def apply(self):
+        # type: () -> None
         for node in self.document.traverse(nodes.target):
             if not node['ids']:
                 continue
@@ -76,6 +81,7 @@ class HandleCodeBlocks(Transform):
     default_priority = 210
 
     def apply(self):
+        # type: () -> None
         # move doctest blocks out of blockquotes
         for node in self.document.traverse(nodes.block_quote):
             if all(isinstance(child, nodes.doctest_block) for child
@@ -100,7 +106,8 @@ class AutoNumbering(Transform):
     default_priority = 210
 
     def apply(self):
-        domain = self.document.settings.env.domains['std']
+        # type: () -> None
+        domain = self.document.settings.env.get_domain('std')
 
         for node in self.document.traverse(nodes.Element):
             if domain.is_enumerable_node(node) and domain.get_numfig_title(node) is not None:
@@ -114,6 +121,7 @@ class SortIds(Transform):
     default_priority = 261
 
     def apply(self):
+        # type: () -> None
         for node in self.document.traverse(nodes.section):
             if len(node['ids']) > 1 and node['ids'][0].startswith('id'):
                 node['ids'] = node['ids'][1:] + [node['ids'][0]]
@@ -127,6 +135,7 @@ class CitationReferences(Transform):
     default_priority = 619
 
     def apply(self):
+        # type: () -> None
         for citnode in self.document.traverse(nodes.citation_reference):
             cittext = citnode.astext()
             refnode = addnodes.pending_xref(cittext, refdomain='std', reftype='citation',
@@ -154,6 +163,7 @@ class ApplySourceWorkaround(Transform):
     default_priority = 10
 
     def apply(self):
+        # type: () -> None
         for n in self.document.traverse():
             if isinstance(n, (nodes.TextElement, nodes.image)):
                 apply_source_workaround(n)
@@ -166,12 +176,12 @@ class AutoIndexUpgrader(Transform):
     default_priority = 210
 
     def apply(self):
-        env = self.document.settings.env
+        # type: () -> None
         for node in self.document.traverse(addnodes.index):
             if 'entries' in node and any(len(entry) == 4 for entry in node['entries']):
                 msg = ('4 column based index found. '
                        'It might be a bug of extensions you use: %r' % node['entries'])
-                env.warn_node(msg, node)
+                logger.warning(msg, location=node)
                 for i, entry in enumerate(node['entries']):
                     if len(entry) == 4:
                         node['entries'][i] = entry + (None,)
@@ -184,12 +194,14 @@ class ExtraTranslatableNodes(Transform):
     default_priority = 10
 
     def apply(self):
+        # type: () -> None
         targets = self.document.settings.env.config.gettext_additional_targets
         target_nodes = [v for k, v in TRANSLATABLE_NODES.items() if k in targets]
         if not target_nodes:
             return
 
         def is_translatable_node(node):
+            # type: (nodes.Node) -> bool
             return isinstance(node, tuple(target_nodes))
 
         for node in self.document.traverse(is_translatable_node):
@@ -201,11 +213,12 @@ class FilterSystemMessages(Transform):
     default_priority = 999
 
     def apply(self):
+        # type: () -> None
         env = self.document.settings.env
         filterlevel = env.config.keep_warnings and 2 or 5
         for node in self.document.traverse(nodes.system_message):
             if node['level'] < filterlevel:
-                env.app.debug('%s [filtered system message]', node.astext())
+                logger.debug('%s [filtered system message]', node.astext())
                 node.parent.remove(node)
 
 
@@ -215,9 +228,11 @@ class SphinxContentsFilter(ContentsFilter):
     within table-of-contents link nodes.
     """
     def visit_pending_xref(self, node):
+        # type: (nodes.Node) -> None
         text = node.astext()
         self.parent.append(nodes.literal(text, text))
         raise nodes.SkipNode
 
     def visit_image(self, node):
+        # type: (nodes.Node) -> None
         raise nodes.SkipNode

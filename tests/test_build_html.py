@@ -39,10 +39,10 @@ with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
-%(root)s/index.rst:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 %(root)s/index.rst:\\d+: WARNING: unknown option: &option
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
+%(root)s/index.rst:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
+%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 """
 
 if PY3:

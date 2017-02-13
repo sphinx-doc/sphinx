@@ -9,8 +9,6 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
-
 from docutils import nodes
 from docutils.writers.manpage import (
     MACRO_DEF,
@@ -19,20 +17,29 @@ from docutils.writers.manpage import (
 )
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
-from sphinx.util.compat import docutils_version
+from sphinx.util import logging
+import sphinx.util.docutils
 from sphinx.util.i18n import format_date
+
+if False:
+    # For type annotation
+    from typing import Any  # NOQA
+    from sphinx.builders import Builder  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class ManualPageWriter(Writer):
     def __init__(self, builder):
+        # type: (Builder) -> None
         Writer.__init__(self)
         self.builder = builder
         self.translator_class = (
             self.builder.translator_class or ManualPageTranslator)
 
     def translate(self):
+        # type: () -> None
         transform = NestedInlineTransform(self.document)
         transform.apply()
         visitor = self.translator_class(self.builder, self.document)
@@ -53,10 +60,13 @@ class NestedInlineTransform(object):
         <strong>&bar=</strong><emphasis>2</emphasis>
     """
     def __init__(self, document):
+        # type: (nodes.document) -> None
         self.document = document
 
     def apply(self):
+        # type: () -> None
         def is_inline(node):
+            # type: (nodes.Node) -> bool
             return isinstance(node, (nodes.literal, nodes.emphasis, nodes.strong))
 
         for node in self.document.traverse(is_inline):
@@ -77,6 +87,7 @@ class ManualPageTranslator(BaseTranslator):
     """
 
     def __init__(self, builder, *args, **kwds):
+        # type: (Builder, Any, Any) -> None
         BaseTranslator.__init__(self, *args, **kwds)
         self.builder = builder
 
@@ -105,7 +116,7 @@ class ManualPageTranslator(BaseTranslator):
         self._docinfo['manual_group'] = builder.config.project
 
         # In docutils < 0.11 self.append_header() was never called
-        if docutils_version < (0, 11):
+        if sphinx.util.docutils.__version_info__ < (0, 11):
             self.body.append(MACRO_DEF)
 
         # Overwrite admonition label translations with our own
@@ -114,6 +125,7 @@ class ManualPageTranslator(BaseTranslator):
 
     # overwritten -- added quotes around all .TH arguments
     def header(self):
+        # type: () -> unicode
         tmpl = (".TH \"%(title_upper)s\" \"%(manual_section)s\""
                 " \"%(date)s\" \"%(version)s\" \"%(manual_group)s\"\n"
                 ".SH NAME\n"
@@ -121,120 +133,144 @@ class ManualPageTranslator(BaseTranslator):
         return tmpl % self._docinfo
 
     def visit_start_of_file(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def depart_start_of_file(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_desc(self, node):
+        # type: (nodes.Node) -> None
         self.visit_definition_list(node)
 
     def depart_desc(self, node):
+        # type: (nodes.Node) -> None
         self.depart_definition_list(node)
 
     def visit_desc_signature(self, node):
+        # type: (nodes.Node) -> None
         self.visit_definition_list_item(node)
         self.visit_term(node)
 
     def depart_desc_signature(self, node):
+        # type: (nodes.Node) -> None
         self.depart_term(node)
 
     def visit_desc_signature_line(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def depart_desc_signature_line(self, node):
+        # type: (nodes.Node) -> None
         self.body.append(' ')
 
     def visit_desc_addname(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def depart_desc_addname(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_desc_type(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def depart_desc_type(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_desc_returns(self, node):
+        # type: (nodes.Node) -> None
         self.body.append(' -> ')
 
     def depart_desc_returns(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_desc_name(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def depart_desc_name(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_desc_parameterlist(self, node):
+        # type: (nodes.Node) -> None
         self.body.append('(')
         self.first_param = 1
 
     def depart_desc_parameterlist(self, node):
+        # type: (nodes.Node) -> None
         self.body.append(')')
 
     def visit_desc_parameter(self, node):
+        # type: (nodes.Node) -> None
         if not self.first_param:
             self.body.append(', ')
         else:
             self.first_param = 0
 
     def depart_desc_parameter(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_desc_optional(self, node):
+        # type: (nodes.Node) -> None
         self.body.append('[')
 
     def depart_desc_optional(self, node):
+        # type: (nodes.Node) -> None
         self.body.append(']')
 
     def visit_desc_annotation(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def depart_desc_annotation(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_desc_content(self, node):
+        # type: (nodes.Node) -> None
         self.visit_definition(node)
 
     def depart_desc_content(self, node):
+        # type: (nodes.Node) -> None
         self.depart_definition(node)
 
     def visit_versionmodified(self, node):
+        # type: (nodes.Node) -> None
         self.visit_paragraph(node)
 
     def depart_versionmodified(self, node):
+        # type: (nodes.Node) -> None
         self.depart_paragraph(node)
 
     # overwritten -- don't make whole of term bold if it includes strong node
     def visit_term(self, node):
+        # type: (nodes.Node) -> None
         if node.traverse(nodes.strong):
             self.body.append('\n')
         else:
             BaseTranslator.visit_term(self, node)
 
-    def visit_termsep(self, node):
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
-                      'This warning is displayed because some Sphinx extension '
-                      'uses sphinx.addnodes.termsep. Please report it to '
-                      'author of the extension.', RemovedInSphinx16Warning)
-        self.body.append(', ')
-        raise nodes.SkipNode
-
     # overwritten -- we don't want source comments to show up
     def visit_comment(self, node):
+        # type: (nodes.Node) -> None
         raise nodes.SkipNode
 
     # overwritten -- added ensure_eol()
     def visit_footnote(self, node):
+        # type: (nodes.Node) -> None
         self.ensure_eol()
         BaseTranslator.visit_footnote(self, node)
 
     # overwritten -- handle footnotes rubric
     def visit_rubric(self, node):
+        # type: (nodes.Node) -> None
         self.ensure_eol()
         if len(node.children) == 1:
             rubtitle = node.children[0].astext()
@@ -246,15 +282,19 @@ class ManualPageTranslator(BaseTranslator):
             self.body.append('.sp\n')
 
     def depart_rubric(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_seealso(self, node):
+        # type: (nodes.Node) -> None
         self.visit_admonition(node, 'seealso')
 
     def depart_seealso(self, node):
+        # type: (nodes.Node) -> None
         self.depart_admonition(node)
 
     def visit_productionlist(self, node):
+        # type: (nodes.Node) -> None
         self.ensure_eol()
         names = []
         self.in_productionlist += 1
@@ -279,13 +319,16 @@ class ManualPageTranslator(BaseTranslator):
         raise nodes.SkipNode
 
     def visit_production(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def depart_production(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     # overwritten -- don't emit a warning for images
     def visit_image(self, node):
+        # type: (nodes.Node) -> None
         if 'alt' in node.attributes:
             self.body.append(_('[image: %s]') % node['alt'] + '\n')
         self.body.append(_('[image]') + '\n')
@@ -293,6 +336,7 @@ class ManualPageTranslator(BaseTranslator):
 
     # overwritten -- don't visit inner marked up nodes
     def visit_reference(self, node):
+        # type: (nodes.Node) -> None
         self.body.append(self.defs['reference'][0])
         # avoid repeating escaping code... fine since
         # visit_Text calls astext() and only works on that afterwards
@@ -314,51 +358,66 @@ class ManualPageTranslator(BaseTranslator):
         raise nodes.SkipNode
 
     def visit_number_reference(self, node):
+        # type: (nodes.Node) -> None
         text = nodes.Text(node.get('title', '#'))
         self.visit_Text(text)
         raise nodes.SkipNode
 
     def visit_centered(self, node):
+        # type: (nodes.Node) -> None
         self.ensure_eol()
         self.body.append('.sp\n.ce\n')
 
     def depart_centered(self, node):
+        # type: (nodes.Node) -> None
         self.body.append('\n.ce 0\n')
 
     def visit_compact_paragraph(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def depart_compact_paragraph(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_highlightlang(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def depart_highlightlang(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_download_reference(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def depart_download_reference(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_toctree(self, node):
+        # type: (nodes.Node) -> None
         raise nodes.SkipNode
 
     def visit_index(self, node):
+        # type: (nodes.Node) -> None
         raise nodes.SkipNode
 
     def visit_tabular_col_spec(self, node):
+        # type: (nodes.Node) -> None
         raise nodes.SkipNode
 
     def visit_glossary(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def depart_glossary(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_acks(self, node):
+        # type: (nodes.Node) -> None
         self.ensure_eol()
         self.body.append(', '.join(n.astext()
                                    for n in node.children[0].children) + '.')
@@ -366,43 +425,56 @@ class ManualPageTranslator(BaseTranslator):
         raise nodes.SkipNode
 
     def visit_hlist(self, node):
+        # type: (nodes.Node) -> None
         self.visit_bullet_list(node)
 
     def depart_hlist(self, node):
+        # type: (nodes.Node) -> None
         self.depart_bullet_list(node)
 
     def visit_hlistcol(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def depart_hlistcol(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_literal_emphasis(self, node):
+        # type: (nodes.Node) -> None
         return self.visit_emphasis(node)
 
     def depart_literal_emphasis(self, node):
+        # type: (nodes.Node) -> None
         return self.depart_emphasis(node)
 
     def visit_literal_strong(self, node):
+        # type: (nodes.Node) -> None
         return self.visit_strong(node)
 
     def depart_literal_strong(self, node):
+        # type: (nodes.Node) -> None
         return self.depart_strong(node)
 
     def visit_abbreviation(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def depart_abbreviation(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_manpage(self, node):
+        # type: (nodes.Node) -> None
         return self.visit_strong(node)
 
     def depart_manpage(self, node):
+        # type: (nodes.Node) -> None
         return self.depart_strong(node)
 
     # overwritten: handle section titles better than in 0.6 release
     def visit_title(self, node):
+        # type: (nodes.Node) -> None
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('.IP "')
             return
@@ -417,32 +489,39 @@ class ManualPageTranslator(BaseTranslator):
         return BaseTranslator.visit_title(self, node)
 
     def depart_title(self, node):
+        # type: (nodes.Node) -> None
         if isinstance(node.parent, addnodes.seealso):
             self.body.append('"\n')
             return
         return BaseTranslator.depart_title(self, node)
 
     def visit_raw(self, node):
+        # type: (nodes.Node) -> None
         if 'manpage' in node.get('format', '').split():
             self.body.append(node.astext())
         raise nodes.SkipNode
 
     def visit_meta(self, node):
+        # type: (nodes.Node) -> None
         raise nodes.SkipNode
 
     def visit_inline(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def depart_inline(self, node):
+        # type: (nodes.Node) -> None
         pass
 
     def visit_math(self, node):
-        self.builder.warn('using "math" markup without a Sphinx math extension '
-                          'active, please use one of the math extensions '
-                          'described at http://sphinx-doc.org/ext/math.html')
+        # type: (nodes.Node) -> None
+        logger.warning('using "math" markup without a Sphinx math extension '
+                       'active, please use one of the math extensions '
+                       'described at http://sphinx-doc.org/ext/math.html')
         raise nodes.SkipNode
 
     visit_math_block = visit_math
 
     def unknown_visit(self, node):
+        # type: (nodes.Node) -> None
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
