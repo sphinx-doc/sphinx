@@ -148,6 +148,7 @@ class EpubBuilder(StandaloneHTMLBuilder):
         self.link_suffix = '.xhtml'
         self.playorder = 0
         self.tocid = 0
+        self.id_cache = {}  # type: Dict[unicode, unicode]
         self.use_index = self.get_builder_config('use_index', 'epub')
 
     def get_theme_config(self):
@@ -155,14 +156,14 @@ class EpubBuilder(StandaloneHTMLBuilder):
         return self.config.epub_theme, self.config.epub_theme_options
 
     # generic support functions
-    def make_id(self, name, id_cache={}):
-        # type: (unicode, Dict[unicode, unicode]) -> unicode
+    def make_id(self, name):
+        # type: (unicode) -> unicode
         # id_cache is intentionally mutable
         """Return a unique id for name."""
-        id = id_cache.get(name)
+        id = self.id_cache.get(name)
         if not id:
             id = 'epub-%d' % self.env.new_serialno('epub')
-            id_cache[name] = id
+            self.id_cache[name] = id
         return id
 
     def esc(self, name):
