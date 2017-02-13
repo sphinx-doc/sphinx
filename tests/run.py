@@ -24,6 +24,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(testroot, os.path.pardir)))
 # filter warnings of test dependencies
 warnings.filterwarnings('ignore', category=DeprecationWarning, module='site')  # virtualenv
 warnings.filterwarnings('ignore', category=ImportWarning, module='backports')
+warnings.filterwarnings('ignore', category=ImportWarning, module='pytest_cov')
 warnings.filterwarnings('ignore', category=PendingDeprecationWarning, module=r'_pytest\..*')
 
 # check dependencies before testing
