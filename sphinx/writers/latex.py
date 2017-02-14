@@ -1262,7 +1262,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def depart_collected_footnote(self, node):
         # type: (nodes.Node) -> None
         if 'footnotetext' in node:
-            self.body.append('%\n\\end{footnotetext}')
+            # the \ignorespaces in particular for after table header use
+            self.body.append('%\n\\end{footnotetext}\\ignorespaces ')
         else:
             if self.in_parsed_literal:
                 self.body.append('\\end{footnote}')
@@ -1310,7 +1311,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(table)
         self.body.append("\n")
 
-        self.unrestrict_footnote(node)
         self.table = None
 
     def visit_colspec(self, node):
@@ -1342,6 +1342,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_tbody(self, node):
         # type: (nodes.Node) -> None
         self.pushbody(self.table.body)  # Redirect body output until table is finished.
+        if self.footnote_restricted:
+            # releases footnotetexts from header in first non header cell
+            self.unrestrict_footnote(node.parent.parent)
 
     def depart_tbody(self, node):
         # type: (nodes.Node) -> None
@@ -2244,7 +2247,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_line(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(r'\item[] ')
+        self.body.append('\\item[] ')
 
     def depart_line(self, node):
         # type: (nodes.Node) -> None

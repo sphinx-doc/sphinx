@@ -56,6 +56,7 @@ Features added
   :confval:`suppress_warnings`.
 * #3377: latex: Add support for Docutils 0.13 ``:align:`` option for tables
   (but does not implement text flow around table).
+* (latex) footnotes from inside tables are hyperlinked (except inside headers).
 
 Bugs fixed
 ----------
@@ -82,6 +83,10 @@ Deprecated
   - ``BuildEnvironment.create_index()``
 
   Please use ``sphinx.environment.adapters`` modules instead.
+* The LaTeX package ``footnote.sty`` will not be loaded anymore at Sphinx 1.7,
+  as Sphinx's ``footnotehyper-sphinx.sty`` will define all macros rather than
+  patch them. In particular the ``\makesavenoteenv`` macro is not in use anymore
+  and its definition will be removed at Sphinx 1.7.
 
 Release 1.5.3 (in development)
 ==============================

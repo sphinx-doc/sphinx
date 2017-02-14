@@ -1,4 +1,4 @@
-\begin{longtable}
+\begin{savenotes}\begin{longtable}
 <%- if table.align == 'center' -%>
   [c]
 <%- elif table.align == 'left' -%>
@@ -28,4 +28,4 @@
 \endlastfoot
 
 <%= ''.join(table.body) %>
-\end{longtable}
+\end{longtable}\end{savenotes}

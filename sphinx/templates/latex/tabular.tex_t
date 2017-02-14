@@ -1,4 +1,4 @@
-\begingroup
+\begin{savenotes}
 <% if table.align -%>
   <%- if table.align == 'center' -%>
   \centering
@@ -23,4 +23,4 @@
 \end{threeparttable}
 <%- endif %>
 \par
-\endgroup
+\end{savenotes}
