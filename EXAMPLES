@@ -12,58 +12,43 @@ interesting examples.
 Documentation using the alabaster theme
 ---------------------------------------
 
+* CodePy: https://documen.tician.de/codepy/
+* MeshPy: https://documen.tician.de/meshpy/
+* PyCuda: https://documen.tician.de/pycuda/
 * PyLangAcq: http://pylangacq.org/
 
 Documentation using the classic theme
 -------------------------------------
 
-* APSW: http://apidoc.apsw.googlecode.com/hg/index.html
-* ASE: https://wiki.fysik.dtu.dk/ase/
+* APSW: https://rogerbinns.github.io/apsw/
 * Calibre: http://manual.calibre-ebook.com/
-* CodePy: https://documen.tician.de/codepy/
 * Cython: http://docs.cython.org/
 * Cormoran: http://cormoran.nhopkg.org/docs/
 * Director: http://pythonhosted.org/director/
-* Dirigible: http://www.projectdirigible.com/
 * F2py: http://f2py.sourceforge.net/docs/
-* GeoDjango: https://docs.djangoproject.com/en/dev/ref/contrib/gis/
 * Genomedata:
   http://noble.gs.washington.edu/proj/genomedata/doc/1.2.2/genomedata.html
-* gevent: http://www.gevent.org/
-* Google Wave API:
-  http://wave-robot-python-client.googlecode.com/svn/trunk/pydocs/index.html
 * GSL Shell: http://www.nongnu.org/gsl-shell/
-* Heapkeeper: http://heapkeeper.org/
 * Hands-on Python Tutorial:
   http://anh.cs.luc.edu/python/hands-on/3.1/handsonHtml/
 * Hedge: https://documen.tician.de/hedge/
 * Leo: http://leoeditor.com/
 * Lino: http://www.lino-framework.org/
-* MeshPy: https://documen.tician.de/meshpy/
-* mpmath: http://mpmath.googlecode.com/svn/trunk/doc/build/index.html
+* mpmath: http://mpmath.org/doc/current/
 * OpenEXR: http://excamera.com/articles/26/doc/index.html
 * OpenGDA: http://www.opengda.org/gdadoc/html/
 * openWNS: http://docs.openwns.org/
-* Paste: http://pythonpaste.org/script/
-* Paver: http://paver.github.io/paver/
 * Pioneers and Prominent Men of Utah: http://pioneers.rstebbing.com/
 * PyCantonese: http://pycantonese.org/
-* Pyccuracy: https://github.com/heynemann/pyccuracy/wiki/
-* PyCuda: https://documen.tician.de/pycuda/
 * Pyevolve: http://pyevolve.sourceforge.net/
-* Pylo: https://documen.tician.de/pylo/
 * PyMQI: http://pythonhosted.org/pymqi/
-* PyPubSub: http://pubsub.sourceforge.net/
 * pySPACE: http://pyspace.github.io/pyspace/
 * Python: https://docs.python.org/3/
 * python-apt: http://apt.alioth.debian.org/python-apt-doc/
 * PyUblas: https://documen.tician.de/pyublas/
-* Quex: http://quex.sourceforge.net/doc/html/main.html
 * Ring programming language: http://ring-lang.sourceforge.net/doc/index.html
 * Scapy: http://www.secdev.org/projects/scapy/doc/
-* Seaborn: https://stanford.edu/~mwaskom/software/seaborn/
 * Segway: http://noble.gs.washington.edu/proj/segway/doc/1.1.0/segway.html
-* SimPy: http://simpy.readthedocs.org/en/latest/
 * SymPy: http://docs.sympy.org/
 * WTForms: http://wtforms.simplecodes.com/docs/
 * z3c: http://www.ibiblio.org/paulcarduner/z3ctutorial/
@@ -129,6 +114,7 @@ Documentation using the sphinxdoc theme
 Documentation using another builtin theme
 -----------------------------------------
 
+* ASE: https://wiki.fysik.dtu.dk/ase/ (sphinx_rtd_theme)
 * C/C++ Development with Eclipse: http://eclipsebook.in/ (agogo)
 * ESWP3 (http://eswp3.org) (sphinx_rtd_theme)
 * Jinja: http://jinja.pocoo.org/ (scrolls)
@@ -137,13 +123,17 @@ Documentation using another builtin theme
 * Linguistica: http://linguistica-uchicago.github.io/lxa5/ (sphinx_rtd_theme)
 * MoinMoin: https://moin-20.readthedocs.io/en/latest/ (sphinx_rtd_theme)
 * MPipe: http://vmlaker.github.io/mpipe/ (sphinx13)
+* Paver: http://paver.readthedocs.io/en/latest/
 * pip: https://pip.pypa.io/en/latest/ (sphinx_rtd_theme)
-* Pyramid web framework:
-  http://docs.pylonsproject.org/projects/pyramid/en/latest/ (pyramid)
 * Programmieren mit PyGTK und Glade (German):
   http://www.florian-diesch.de/doc/python-und-glade/online/ (agogo)
+* PyPubSub: http://pypubsub.readthedocs.io/ (bizstyle)
+* Pyramid web framework:
+  http://docs.pylonsproject.org/projects/pyramid/en/latest/ (pyramid)
+* Quex: http://quex.sourceforge.net/doc/html/main.html
 * Satchmo: http://docs.satchmoproject.com/en/latest/ (sphinx_rtd_theme)
 * Setuptools: http://pythonhosted.org/setuptools/ (nature)
+* SimPy: http://simpy.readthedocs.org/en/latest/
 * Spring Python: http://docs.spring.io/spring-python/1.2.x/sphinx/html/ (nature)
 * sqlparse: http://python-sqlparse.googlecode.com/svn/docs/api/index.html
   (agogo)
@@ -169,6 +159,7 @@ Documentation using a custom theme/integrated in a site
 * Flask-OpenID: http://pythonhosted.org/Flask-OpenID/
 * Gameduino: http://excamera.com/sphinx/gameduino/
 * GeoServer: http://docs.geoserver.org/
+* gevent: http://www.gevent.org/
 * GHC - Glasgow Haskell Compiler: http://downloads.haskell.org/~ghc/master/users-guide/
 * Glashammer: http://glashammer.org/
 * Istihza (Turkish Python documentation project): http://belgeler.istihza.com/py2/
@@ -194,6 +185,7 @@ Documentation using a custom theme/integrated in a site
 * QGIS: http://qgis.org/en/docs/index.html
 * qooxdoo: http://manual.qooxdoo.org/current/
 * Roundup: http://www.roundup-tracker.org/
+* Seaborn: https://stanford.edu/~mwaskom/software/seaborn/
 * Selenium: http://docs.seleniumhq.org/docs/
 * Self: http://www.selflanguage.org/
 * Substance D: http://docs.pylonsproject.org/projects/substanced/en/latest/
