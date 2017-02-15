@@ -10,6 +10,7 @@
 """
 
 import os
+import re
 import sys
 import zlib
 import codecs
@@ -49,6 +50,8 @@ from sphinx.writers.html import HTMLWriter, HTMLTranslator, \
 INVENTORY_FILENAME = 'objects.inv'
 #: the filename for the "last build" file (for serializing builders)
 LAST_BUILD_FILENAME = 'last_build'
+
+return_codes_re = re.compile('[\r\n]+')
 
 
 def get_stable_hash(obj):
@@ -329,7 +332,7 @@ class StandaloneHTMLBuilder(Builder):
         self.globalcontext = dict(
             embedded = self.embedded,
             project = self.config.project,
-            release = self.config.release,
+            release = return_codes_re.sub('', self.config.release),
             version = self.config.version,
             last_updated = self.last_updated,
             copyright = self.config.copyright,
