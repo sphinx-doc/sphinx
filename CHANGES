@@ -27,6 +27,7 @@ Bugs fixed
   gets wrong PDF page dimensions
 * #3399: quickstart: conf.py was not overwritten by template
 * #3366: option directive does not allow punctuations
+* #3421: Could not translate a caption of tables
 
 Testing
 --------
