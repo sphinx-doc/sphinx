@@ -346,7 +346,7 @@ def test_static_output(app):
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-p']/code/span",
          'perl'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-p']/code/span",
-         '\+p'),
+         '\\+p'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-objc']/code/span",
          '--ObjC\\+\\+'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-plugin-option']/code/span",

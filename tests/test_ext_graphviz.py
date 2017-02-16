@@ -20,8 +20,8 @@ def test_graphviz_html(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'index.html').text()
-    html = ('<div class="figure" .*?>\s*<img .*?/>\s*<p class="caption">'
-            '<span class="caption-text">caption of graph</span>.*</p>\s*</div>')
+    html = (r'<div class="figure" .*?>\s*<img .*?/>\s*<p class="caption">'
+            r'<span class="caption-text">caption of graph</span>.*</p>\s*</div>')
     assert re.search(html, content, re.S)
 
     html = 'Hello <img .*?/>\n graphviz world'
@@ -30,8 +30,8 @@ def test_graphviz_html(app, status, warning):
     html = '<img src=".*?" alt="digraph {\n  bar -&gt; baz\n}" />'
     assert re.search(html, content, re.M)
 
-    html = ('<div class="figure align-right" .*?>\s*<img .*?/>\s*<p class="caption">'
-            '<span class="caption-text">on right</span>.*</p>\s*</div>')
+    html = (r'<div class="figure align-right" .*?>\s*<img .*?/>\s*<p class="caption">'
+            r'<span class="caption-text">on right</span>.*</p>\s*</div>')
     assert re.search(html, content, re.S)
 
 
@@ -41,16 +41,16 @@ def test_graphviz_latex(app, status, warning):
     app.builder.build_all()
 
     content = (app.outdir / 'SphinxTests.tex').text()
-    macro = ('\\\\begin{figure}\[htbp\]\n\\\\centering\n\\\\capstart\n\n'
-             '\\\\includegraphics{graphviz-\w+.pdf}\n'
+    macro = ('\\\\begin{figure}\\[htbp\\]\n\\\\centering\n\\\\capstart\n\n'
+             '\\\\includegraphics{graphviz-\\w+.pdf}\n'
              '\\\\caption{caption of graph}\\\\label{.*}\\\\end{figure}')
     assert re.search(macro, content, re.S)
 
-    macro = 'Hello \\\\includegraphics{graphviz-\w+.pdf} graphviz world'
+    macro = 'Hello \\\\includegraphics{graphviz-\\w+.pdf} graphviz world'
     assert re.search(macro, content, re.S)
 
     macro = ('\\\\begin{wrapfigure}{r}{0pt}\n\\\\centering\n'
-             '\\\\includegraphics{graphviz-\w+.pdf}\n'
+             '\\\\includegraphics{graphviz-\\w+.pdf}\n'
              '\\\\caption{on right}\\\\label{.*}\\\\end{wrapfigure}')
     assert re.search(macro, content, re.S)
 

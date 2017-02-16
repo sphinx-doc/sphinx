@@ -171,7 +171,8 @@ class Config(object):
         if getenv('SOURCE_DATE_EPOCH') is not None:
             for k in ('copyright', 'epub_copyright'):
                 if k in config:
-                    config[k] = copyright_year_re.sub('\g<1>%s' % format_date('%Y'), config[k])
+                    config[k] = copyright_year_re.sub(r'\g<1>%s' % format_date('%Y'),
+                                                      config[k])
 
     def check_types(self):
         # type: () -> None

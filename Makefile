@@ -33,7 +33,7 @@ DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
 all: clean-pyc clean-backupfiles style-check type-check test
 
 style-check:
-	@$(PYTHON) utils/check_sources.py $(DONT_CHECK) .
+	@PYTHONWARNINGS=all $(PYTHON) utils/check_sources.py $(DONT_CHECK) .
 
 type-check:
 	mypy sphinx/

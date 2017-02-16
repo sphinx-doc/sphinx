@@ -21,7 +21,8 @@ from docutils.parsers.rst import directives, roles
 from sphinx.util import logging
 
 logger = logging.getLogger(__name__)
-report_re = re.compile('^(.+?:\d+): \((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\d+)?\) (.+?)\n?$')
+report_re = re.compile('^(.+?:\\d+): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) '
+                       '(.+?)\n?$')
 
 
 if False:

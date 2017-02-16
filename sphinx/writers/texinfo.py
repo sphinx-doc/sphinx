@@ -469,7 +469,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def tex_image_length(self, width_str):
         # type: (unicode) -> unicode
-        match = re.match('(\d*\.?\d*)\s*(\S*)', width_str)
+        match = re.match(r'(\d*\.?\d*)\s*(\S*)', width_str)
         if not match:
             # fallback
             return width_str
