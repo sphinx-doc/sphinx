@@ -14,6 +14,8 @@ Incompatible changes
   flushed left (no text flow around table.) The position now defaults to center in
   both cases, and it will obey Docutils 0.13 ``:align:`` option (refs #3415, #3377)
 * option directive also allows all punctuations for the option name (refs: #3366)
+* #3413: if :rst:dir:`literalinclude`'s ``:start-after:`` is used, make ``:lines:``
+  relative (refs #3412)
 
 Features removed
 ----------------

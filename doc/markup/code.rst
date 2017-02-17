@@ -184,12 +184,12 @@ Includes
    string option, only lines that precede the first lines containing that string
    are included.
 
-   With lines selected this way it is still possible to use ``lines``, the
-   numbers being now interpreted relative to the already selected lines.
+   With lines selected using ``start-after`` it is still possible to use
+   ``lines``, the first allowed line having by convention the line number ``1``.
 
    When lines have been selected in any of the ways described above, the
-   line numbers in ``emphasize-lines`` refer to the selection, with the
-   line count starting at ``1``.
+   line numbers in ``emphasize-lines`` also refer to the selection, with the
+   first selected line having number ``1``.
 
    When specifying particular parts of a file to display, it can be useful to
    display the original line numbers. This can be done using the
@@ -220,7 +220,9 @@ Includes
    .. versionadded:: 1.3
       The ``diff`` option.
       The ``lineno-match`` option.
-
+   .. versionchanged:: 1.6
+      With both ``start-after`` and ``lines`` in use, the first line as per
+      ``start-after`` is considered to be with line number ``1`` for ``lines``.
 
 Caption and name
 ^^^^^^^^^^^^^^^^
