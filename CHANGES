@@ -28,6 +28,8 @@ Bugs fixed
 * #3399: quickstart: conf.py was not overwritten by template
 * #3366: option directive does not allow punctuations
 * #3410: return code in :confval:`release` breaks html search
+* #3427: autodoc: memory addresses are not stripped on Windows
+
 
 Testing
 --------
