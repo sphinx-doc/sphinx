@@ -56,6 +56,8 @@ Features added
   :confval:`suppress_warnings`.
 * #3377: latex: Add support for Docutils 0.13 ``:align:`` option for tables
   (but does not implement text flow around table).
+* Emit warning if over dedent has detected on ``literalinclude`` directive
+  (refs: #3416)
 
 Bugs fixed
 ----------

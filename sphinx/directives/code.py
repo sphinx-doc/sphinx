@@ -17,6 +17,7 @@ from docutils.statemachine import ViewList
 
 from sphinx import addnodes
 from sphinx.locale import _
+from sphinx.util import logging
 from sphinx.util import parselinenos
 from sphinx.util.nodes import set_source_info
 
@@ -25,6 +26,8 @@ if False:
     from typing import Any, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class Highlight(Directive):
@@ -54,10 +57,13 @@ class Highlight(Directive):
                                        linenothreshold=linenothreshold)]
 
 
-def dedent_lines(lines, dedent):
-    # type: (List[unicode], int) -> List[unicode]
+def dedent_lines(lines, dedent, location=None):
+    # type: (List[unicode], int, Any) -> List[unicode]
     if not dedent:
         return lines
+
+    if any(s[:dedent].strip() for s in lines):
+        logger.warning(_('Over dedent has detected'), location=location)
 
     new_lines = []
     for line in lines:
@@ -124,8 +130,9 @@ class CodeBlock(Directive):
             hl_lines = None
 
         if 'dedent' in self.options:
+            location = self.state_machine.get_source_and_line(self.lineno)
             lines = code.split('\n')
-            lines = dedent_lines(lines, self.options['dedent'])
+            lines = dedent_lines(lines, self.options['dedent'], location=location)
             code = '\n'.join(lines)
 
         literal = nodes.literal_block(code, code)
@@ -188,8 +195,8 @@ class LiteralIncludeReader(object):
                 raise ValueError(_('Cannot use both "%s" and "%s" options') %
                                  (option1, option2))
 
-    def read_file(self, filename):
-        # type: (unicode) -> List[unicode]
+    def read_file(self, filename, location=None):
+        # type: (unicode, Any) -> List[unicode]
         try:
             with codecs.open(filename, 'r', self.encoding, errors='strict') as f:  # type: ignore  # NOQA
                 text = f.read()  # type: unicode
@@ -198,7 +205,7 @@ class LiteralIncludeReader(object):
 
                 lines = text.splitlines(True)
                 if 'dedent' in self.options:
-                    return dedent_lines(lines, self.options.get('dedent'))
+                    return dedent_lines(lines, self.options.get('dedent'), location=location)
                 else:
                     return lines
         except (IOError, OSError) as exc:
@@ -208,8 +215,8 @@ class LiteralIncludeReader(object):
                                  'be wrong, try giving an :encoding: option') %
                                (self.encoding, filename))
 
-    def read(self):
-        # type: () -> Tuple[unicode, int]
+    def read(self, location=None):
+        # type: (Any) -> Tuple[unicode, int]
         if 'diff' in self.options:
             lines = self.show_diff()
         else:
@@ -219,7 +226,7 @@ class LiteralIncludeReader(object):
                        self.lines_filter,
                        self.prepend_filter,
                        self.append_filter]
-            lines = self.read_file(self.filename)
+            lines = self.read_file(self.filename, location=location)
             for func in filters:
                 lines = func(lines)
 
@@ -386,11 +393,12 @@ class LiteralInclude(Directive):
             self.options['diff'] = path
 
         try:
+            location = self.state_machine.get_source_and_line(self.lineno)
             rel_filename, filename = env.relfn2path(self.arguments[0])
             env.note_dependency(rel_filename)
 
             reader = LiteralIncludeReader(filename, self.options, env.config)
-            text, lines = reader.read()
+            text, lines = reader.read(location=location)
 
             retnode = nodes.literal_block(text, text, source=filename)
             set_source_info(self, retnode)
