@@ -208,7 +208,7 @@ class LiteralIncludeReader(object):
                     return dedent_lines(lines, self.options.get('dedent'), location=location)
                 else:
                     return lines
-        except (IOError, OSError) as exc:
+        except (IOError, OSError):
             raise IOError(_('Include file %r not found or reading it failed') % filename)
         except UnicodeError:
             raise UnicodeError(_('Encoding %r used for reading included file %r seems to '
