@@ -261,7 +261,7 @@ class LiteralIncludeReader(object):
                 # make sure the line list is not "disjoint".
                 first = linelist[0]
                 if all(first + i == n for i, n in enumerate(linelist)):
-                    self.lineno_start = linelist[0] + 1
+                    self.lineno_start += linelist[0]
                 else:
                     raise ValueError(_('Cannot use "lineno-match" with a disjoint '
                                        'set of "lines"'))
@@ -284,12 +284,15 @@ class LiteralIncludeReader(object):
         if start:
             for lineno, line in enumerate(lines):
                 if start in line:
-                    if 'lineno-match' in self.options:
-                        self.lineno_start += lineno + 1
-
                     if inclusive:
+                        if 'lineno-match' in self.options:
+                            self.lineno_start += lineno + 1
+
                         return lines[lineno + 1:]
                     else:
+                        if 'lineno-match' in self.options:
+                            self.lineno_start += lineno
+
                         return lines[lineno:]
 
         return lines
@@ -308,9 +311,6 @@ class LiteralIncludeReader(object):
         if end:
             for lineno, line in enumerate(lines):
                 if end in line:
-                    if 'lineno-match' in self.options:
-                        self.lineno_start += lineno + 1
-
                     if inclusive:
                         return lines[:lineno + 1]
                     else:

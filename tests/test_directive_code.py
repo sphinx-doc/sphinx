@@ -21,19 +21,30 @@ DUMMY_CONFIG = Config(None, None, {}, '')
 
 
 def test_LiteralIncludeReader():
-    options = {}
+    options = {'lineno-match': True}
     reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == LITERAL_INC_PATH.text()
     assert lines == 14
+    assert reader.lineno_start == 1
+
+
+def test_LiteralIncludeReader_lineno_start():
+    options = {'lineno-start': 5}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == LITERAL_INC_PATH.text()
+    assert lines == 14
+    assert reader.lineno_start == 5
 
 
 def test_LiteralIncludeReader_pyobject1():
-    options = {'pyobject': 'Foo'}
+    options = {'lineno-match': True, 'pyobject': 'Foo'}
     reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == ("class Foo:\n"
                        "    pass\n")
+    assert reader.lineno_start == 6
 
 
 def test_LiteralIncludeReader_pyobject2():
@@ -43,6 +54,7 @@ def test_LiteralIncludeReader_pyobject2():
     assert content == ("class Bar:\n"
                        "    def baz():\n"
                        "        pass\n")
+    assert reader.lineno_start == 1  # no lineno-match
 
 
 def test_LiteralIncludeReader_pyobject3():
@@ -72,8 +84,18 @@ def test_LiteralIncludeReader_lines2():
                        u"class Foo:\n")
 
 
+def test_LiteralIncludeReader_lines_and_lineno_match1():
+    options = {'lines': '4-6', 'lineno-match': True}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == (u"foo = \"Including Unicode characters: üöä\"\n"
+                       u"\n"
+                       u"class Foo:\n")
+    assert reader.lineno_start == 4
+
+
 @pytest.mark.sphinx()  # init locale for errors
-def test_LiteralIncludeReader_lines_and_lineno_match1(app, status, warning):
+def test_LiteralIncludeReader_lines_and_lineno_match2(app, status, warning):
     options = {'lines': '1,4,6', 'lineno-match': True}
     reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
     with pytest.raises(ValueError):
@@ -81,7 +103,7 @@ def test_LiteralIncludeReader_lines_and_lineno_match1(app, status, warning):
 
 
 @pytest.mark.sphinx()  # init locale for errors
-def test_LiteralIncludeReader_lines_and_lineno_match2(app, status, warning):
+def test_LiteralIncludeReader_lines_and_lineno_match3(app, status, warning):
     options = {'lines': '100-', 'lineno-match': True}
     reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
     with pytest.raises(ValueError):
@@ -89,21 +111,23 @@ def test_LiteralIncludeReader_lines_and_lineno_match2(app, status, warning):
 
 
 def test_LiteralIncludeReader_start_at():
-    options = {'start-at': 'Foo', 'end-at': 'Bar'}
+    options = {'lineno-match': True, 'start-at': 'Foo', 'end-at': 'Bar'}
     reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == ("class Foo:\n"
                        "    pass\n"
                        "\n"
                        "class Bar:\n")
+    assert reader.lineno_start == 6
 
 
 def test_LiteralIncludeReader_start_after():
-    options = {'start-after': 'Foo', 'end-before': 'Bar'}
+    options = {'lineno-match': True, 'start-after': 'Foo', 'end-before': 'Bar'}
     reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
     content, lines = reader.read()
     assert content == ("    pass\n"
                        "\n")
+    assert reader.lineno_start == 7
 
 
 def test_LiteralIncludeReader_prepend():
