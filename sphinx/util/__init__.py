@@ -392,9 +392,10 @@ def parselinenos(spec, total):
             elif len(begend) == 1:
                 items.append(int(begend[0]) - 1)
             elif len(begend) == 2:
-                start, end = begend
-                start = int(start or 1)  # left half open (cf. -10)
-                end = int(end or max(start, total))  # right half open (cf. 10-)
+                start = int(begend[0] or 1)     # type: ignore
+                                                # left half open (cf. -10)
+                end = int(begend[1] or max(start, total))   # type: ignore
+                                                            # right half open (cf. 10-)
                 if start > end:  # invalid range (cf. 10-1)
                     raise ValueError
                 items.extend(range(start - 1, end))
