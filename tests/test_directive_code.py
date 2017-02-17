@@ -226,25 +226,6 @@ def test_code_block(app, status, warning):
     assert actual == expect
 
 
-@pytest.mark.sphinx('xml', testroot='directive-code')
-def test_code_block_dedent(app, status, warning):
-    app.builder.build(['dedent_code'])
-    et = etree_parse(app.outdir / 'dedent_code.xml')
-    blocks = et.findall('./section/section/literal_block')
-
-    for i in range(5):  # 0-4
-        actual = blocks[i].text
-        indent = " " * (4 - i)
-        expect = (
-            indent + "def ruby?\n" +
-            indent + "    false\n" +
-            indent + "end"
-        )
-        assert (i, actual) == (i, expect)
-
-    assert blocks[5].text == '\n\n'   # dedent: 1000
-
-
 @pytest.mark.sphinx('html', testroot='directive-code')
 def test_code_block_caption_html(app, status, warning):
     app.builder.build(['caption'])
@@ -300,24 +281,6 @@ def test_literal_include(app, status, warning):
 
 
 @pytest.mark.sphinx('xml', testroot='directive-code')
-def test_literal_include_dedent(app, status, warning):
-    literal_src = (app.srcdir / 'literal.inc').text(encoding='utf-8')
-    literal_lines = [l[4:] for l in literal_src.split('\n')[9:11]]
-
-    app.builder.build(['dedent'])
-    et = etree_parse(app.outdir / 'dedent.xml')
-    blocks = et.findall('./section/section/literal_block')
-
-    for i in range(5):  # 0-4
-        actual = blocks[i].text
-        indent = ' ' * (4 - i)
-        expect = '\n'.join(indent + l for l in literal_lines) + '\n'
-        assert (i, actual) == (i, expect)
-
-    assert blocks[5].text == '\n\n'   # dedent: 1000
-
-
-@pytest.mark.sphinx('xml', testroot='directive-code')
 def test_literal_include_block_start_with_comment_or_brank(app, status, warning):
     app.builder.build(['python'])
     et = etree_parse(app.outdir / 'python.xml')
@@ -345,91 +308,48 @@ def test_literal_include_block_start_with_comment_or_brank(app, status, warning)
 def test_literal_include_linenos(app, status, warning):
     app.builder.build(['linenos'])
     html = (app.outdir / 'linenos.html').text(encoding='utf-8')
-    linenos = (
-        '<td class="linenos"><div class="linenodiv"><pre>'
-        ' 1\n'
-        ' 2\n'
-        ' 3\n'
-        ' 4\n'
-        ' 5\n'
-        ' 6\n'
-        ' 7\n'
-        ' 8\n'
-        ' 9\n'
-        '10\n'
-        '11\n'
-        '12\n'
-        '13\n'
-        '14</pre></div></td>')
-    assert linenos in html
 
+    # :linenos:
+    assert ('<td class="linenos"><div class="linenodiv"><pre>'
+            ' 1\n'
+            ' 2\n'
+            ' 3\n'
+            ' 4\n'
+            ' 5\n'
+            ' 6\n'
+            ' 7\n'
+            ' 8\n'
+            ' 9\n'
+            '10\n'
+            '11\n'
+            '12\n'
+            '13\n'
+            '14</pre></div></td>' in html)
 
-@pytest.mark.sphinx('html', testroot='directive-code')
-def test_literal_include_lineno_start(app, status, warning):
-    app.builder.build(['lineno_start'])
-    html = (app.outdir / 'lineno_start.html').text(encoding='utf-8')
-    linenos = (
-        '<td class="linenos"><div class="linenodiv"><pre>'
-        '200\n'
-        '201\n'
-        '202\n'
-        '203\n'
-        '204\n'
-        '205\n'
-        '206\n'
-        '207\n'
-        '208\n'
-        '209\n'
-        '210\n'
-        '211\n'
-        '212\n'
-        '213</pre></div></td>')
-    assert linenos in html
+    # :lineno-start:
+    assert ('<td class="linenos"><div class="linenodiv"><pre>'
+            '200\n'
+            '201\n'
+            '202\n'
+            '203\n'
+            '204\n'
+            '205\n'
+            '206\n'
+            '207\n'
+            '208\n'
+            '209\n'
+            '210\n'
+            '211\n'
+            '212\n'
+            '213</pre></div></td>' in html)
 
-
-@pytest.mark.sphinx('html', testroot='directive-code')
-def test_literal_include_lineno_match(app, status, warning):
-    app.builder.build(['lineno_match'])
-    html = (app.outdir / 'lineno_match.html').text(encoding='utf-8')
-    pyobject = (
-        '<td class="linenos"><div class="linenodiv"><pre>'
-        '6\n'
-        '7</pre></div></td>')
-
-    assert pyobject in html
-
-    lines = (
-        '<td class="linenos"><div class="linenodiv"><pre>'
-        '5\n'
-        '6\n'
-        '7\n'
-        '8\n'
-        '9</pre></div></td>')
-    assert lines in html
-
-    start_after = (
-        '<td class="linenos"><div class="linenodiv"><pre>'
-        ' 8\n'
-        ' 9\n'
-        '10\n'
-        '11\n'
-        '12\n'
-        '13\n'
-        '14</pre></div></td>')
-    assert start_after in html
-
-    start_after_with_lines = (
-        '<td class="linenos"><div class="linenodiv"><pre>'
-        '2\n'
-        '3</pre></div></td>')
-    assert start_after_with_lines in html
-
-    start_at_end_at = (
-        '<td class="linenos"><div class="linenodiv"><pre>'
-        ' 9\n'
-        '10\n'
-        '11</pre></div></td>')
-    assert start_at_end_at in html
+    # :lineno-match:
+    assert ('<td class="linenos"><div class="linenodiv"><pre>'
+            '5\n'
+            '6\n'
+            '7\n'
+            '8\n'
+            '9</pre></div></td>' in html)
 
 
 @pytest.mark.sphinx('latex', testroot='directive-code')
