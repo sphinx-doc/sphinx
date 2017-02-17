@@ -327,6 +327,8 @@ class Table(object):
         self.has_problematic = False
         self.has_verbatim = False
         self.caption = None                     # type: List[unicode]
+        self.caption_footnotetexts = []         # type: List[unicode]
+        self.header_footnotetexts = []          # type: List[unicode]
 
         # current position
         self.col = 0
@@ -1052,6 +1054,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif isinstance(parent, nodes.table):
             # Redirect body output until title is finished.
             self.pushbody([])
+            self.restrict_footnote(node)
         else:
             logger.warning('encountered title node not in section, topic, table, '
                            'admonition or sidebar',
@@ -1065,9 +1068,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.in_title = 0
         if isinstance(node.parent, nodes.table):
             self.table.caption = self.popbody()
+            # temporary buffer for footnotes from caption
+            self.pushbody([])
+            self.unrestrict_footnote(node)
+            # the footnote texts from caption
+            self.table.caption_footnotetexts = self.popbody()
         else:
             self.body.append(self.context.pop())
-        self.unrestrict_footnote(node)
+            self.unrestrict_footnote(node)
 
     def visit_subtitle(self, node):
         # type: (nodes.Node) -> None
@@ -1294,7 +1302,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if self.next_table_colspec:
             self.table.colspec = '{%s}\n' % self.next_table_colspec
         self.next_table_colspec = None
-        self.restrict_footnote(node)
 
     def depart_table(self, node):
         # type: (nodes.Node) -> None
@@ -1333,18 +1340,27 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_thead(self, node):
         # type: (nodes.Node) -> None
-        self.pushbody(self.table.header)  # Redirect head output until header is finished.
+        # Redirect head output until header is finished.
+        self.pushbody(self.table.header)
+        # footnotes in longtable header must be restricted
+        self.restrict_footnote(node)
 
     def depart_thead(self, node):
         # type: (nodes.Node) -> None
         self.popbody()
+        # temporary buffer for footnotes from table header
+        self.pushbody([])
+        self.unrestrict_footnote(node)
+        # the footnote texts from header
+        self.table.header_footnotetexts = self.popbody()
 
     def visit_tbody(self, node):
         # type: (nodes.Node) -> None
-        self.pushbody(self.table.body)  # Redirect body output until table is finished.
-        if self.footnote_restricted:
-            # releases footnotetexts from header in first non header cell
-            self.unrestrict_footnote(node.parent.parent)
+        # Redirect body output until table is finished.
+        self.pushbody(self.table.body)
+        # insert footnotetexts from header at start of body (due to longtable)
+        # those from caption are handled by templates (to allow caption at foot)
+        self.body.extend(self.table.header_footnotetexts)
 
     def depart_tbody(self, node):
         # type: (nodes.Node) -> None

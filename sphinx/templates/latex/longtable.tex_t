@@ -26,6 +26,8 @@
 \endfoot
 
 \endlastfoot
-
+<% if table.caption_footnotetexts -%>
+<%= ''.join(table.caption_footnotetexts) %>
+<% endif -%>
 <%= ''.join(table.body) %>
 \end{longtable}\end{savenotes}
