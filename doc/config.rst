@@ -1617,6 +1617,10 @@ These options influence LaTeX output. See further :doc:`latex`.
 
    .. versionadded:: 1.4.5
 
+   .. versionchanged:: 1.6
+
+      For ``'xelatex'`` engine, the default is ``False`` because LaTeX package
+      ``fontspec v2.6`` defines its own ``\strong`` macro.
 
 .. confval:: latex_elements
 

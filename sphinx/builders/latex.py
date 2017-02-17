@@ -258,6 +258,11 @@ def validate_config_values(app):
                           RemovedInSphinx17Warning)
             app.config.latex_elements['postamble'] = app.config.latex_elements['footer']
 
+    if app.config.latex_keep_old_macro_names:
+        warnings.warn("latex_keep_old_macro_names is deprecated. "
+                      "LaTeX markup since Sphinx 1.4.5 uses only prefixed macro names.",
+                      RemovedInSphinx17Warning)
+
 
 def default_latex_engine(config):
     # type: (Config) -> unicode
@@ -291,7 +296,7 @@ def setup(app):
                          None)
     app.add_config_value('latex_logo', None, None, string_classes)
     app.add_config_value('latex_appendices', [], None)
-    app.add_config_value('latex_keep_old_macro_names', True, None)
+    app.add_config_value('latex_keep_old_macro_names', False, None)
     app.add_config_value('latex_toplevel_sectioning', None, None, [str])
     app.add_config_value('latex_domain_indices', True, None, [list])
     app.add_config_value('latex_show_urls', 'no', None)
