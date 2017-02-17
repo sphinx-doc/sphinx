@@ -203,7 +203,7 @@ class LiteralIncludeReader(object):
                     return lines
         except (IOError, OSError) as exc:
             raise IOError(_('Include file %r not found or reading it failed') % filename)
-        except UnicodeError as exc:
+        except UnicodeError:
             raise UnicodeError(_('Encoding %r used for reading included file %r seems to '
                                  'be wrong, try giving an :encoding: option') %
                                (self.encoding, filename))
