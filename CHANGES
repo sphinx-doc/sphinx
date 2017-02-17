@@ -14,6 +14,8 @@ Incompatible changes
   flushed left (no text flow around table.) The position now defaults to center in
   both cases, and it will obey Docutils 0.13 ``:align:`` option (refs #3415, #3377)
 * option directive also allows all punctuations for the option name (refs: #3366)
+* ``literalinclude`` directive does not allow the combination of ``:diff:``
+  option and other options (refs: #3416)
 
 Features removed
 ----------------
@@ -57,6 +59,8 @@ Features added
 
 Bugs fixed
 ----------
+
+* ``literalinclude`` directive expands tabs after dedent-ing (refs: #3416)
 
 Deprecated
 ----------
