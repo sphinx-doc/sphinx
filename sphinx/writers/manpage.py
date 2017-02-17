@@ -129,7 +129,7 @@ class ManualPageTranslator(BaseTranslator):
         tmpl = (".TH \"%(title_upper)s\" \"%(manual_section)s\""
                 " \"%(date)s\" \"%(version)s\" \"%(manual_group)s\"\n"
                 ".SH NAME\n"
-                "%(title)s \- %(subtitle)s\n")
+                "%(title)s \\- %(subtitle)s\n")
         return tmpl % self._docinfo
 
     def visit_start_of_file(self, node):

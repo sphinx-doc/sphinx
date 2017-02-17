@@ -29,9 +29,9 @@ def bump_version(path, version_info):
 
     with open(path, 'r+') as f:
         body = f.read()
-        body = re.sub("(?<=__version__ = ')[^']+", version, body)
-        body = re.sub("(?<=__released__ = ')[^']+", release, body)
-        body = re.sub("(?<=version_info = )\(.*\)", str(version_info), body)
+        body = re.sub(r"(?<=__version__ = ')[^']+", version, body)
+        body = re.sub(r"(?<=__released__ = ')[^']+", release, body)
+        body = re.sub(r"(?<=version_info = )\(.*\)", str(version_info), body)
 
         f.seek(0)
         f.truncate(0)
@@ -39,23 +39,23 @@ def bump_version(path, version_info):
 
 
 def parse_version(version):
-    matched = re.search('^(\d+)\.(\d+)$', version)
+    matched = re.search(r'^(\d+)\.(\d+)$', version)
     if matched:
         major, minor = matched.groups()
         return (int(major), int(minor), 0, 'final', 0)
 
-    matched = re.search('^(\d+)\.(\d+)\.(\d+)$', version)
+    matched = re.search(r'^(\d+)\.(\d+)\.(\d+)$', version)
     if matched:
         major, minor, rev = matched.groups()
         return (int(major), int(minor), int(rev), 'final', 0)
 
-    matched = re.search('^(\d+)\.(\d+)\s*(a|b|alpha|beta)(\d+)$', version)
+    matched = re.search(r'^(\d+)\.(\d+)\s*(a|b|alpha|beta)(\d+)$', version)
     if matched:
         major, minor, typ, relver = matched.groups()
         release = RELEASE_TYPE.get(typ, typ)
         return (int(major), int(minor), 0, release, int(relver))
 
-    matched = re.search('^(\d+)\.(\d+)\.(\d+)\s*(a|b|alpha|beta)(\d+)$', version)
+    matched = re.search(r'^(\d+)\.(\d+)\.(\d+)\s*(a|b|alpha|beta)(\d+)$', version)
     if matched:
         major, minor, rev, typ, relver = matched.groups()
         release = RELEASE_TYPE.get(typ, typ)
@@ -90,7 +90,7 @@ class Changes(object):
     def fetch_version(self):
         with open(self.path) as f:
             version = f.readline().strip()
-            matched = re.search('^Release (.*) \((.*)\)$', version)
+            matched = re.search(r'^Release (.*) \((.*)\)$', version)
             if matched is None:
                 raise RuntimeError('Unknown CHANGES format: %s' % version)
 

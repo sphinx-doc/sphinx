@@ -214,9 +214,9 @@ class LiteralIncludeReader(object):
             lines = self.show_diff()
         else:
             filters = [self.pyobject_filter,
-                       self.lines_filter,
                        self.start_filter,
                        self.end_filter,
+                       self.lines_filter,
                        self.prepend_filter,
                        self.append_filter]
             lines = self.read_file(self.filename)

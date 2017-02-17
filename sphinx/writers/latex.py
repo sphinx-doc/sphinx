@@ -371,7 +371,7 @@ class Table(object):
 
         This is what LaTeX calls the 'preamble argument' of the used table environment.
 
-        .. note:: the ``\X`` column type specifier is defined in ``sphinx.sty``.
+        .. note:: the ``\\X`` column type specifier is defined in ``sphinx.sty``.
         """
         if self.colspec:
             return self.colspec
@@ -456,13 +456,13 @@ class TableCell(object):
 def escape_abbr(text):
     # type: (unicode) -> unicode
     """Adjust spacing after abbreviations."""
-    return re.sub('\.(?=\s|$)', '.\\@', text)
+    return re.sub(r'\.(?=\s|$)', r'.\@', text)
 
 
 def rstdim_to_latexdim(width_str):
     # type: (unicode) -> unicode
     """Convert `width_str` with rst length to LaTeX length."""
-    match = re.match('^(\d*\.?\d*)\s*(\S*)$', width_str)
+    match = re.match(r'^(\d*\.?\d*)\s*(\S*)$', width_str)
     if not match:
         raise ValueError
     res = width_str
@@ -2244,7 +2244,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_line(self, node):
         # type: (nodes.Node) -> None
-        self.body.append('\item[] ')
+        self.body.append(r'\item[] ')
 
     def depart_line(self, node):
         # type: (nodes.Node) -> None

@@ -226,7 +226,7 @@ as long as the text::
 
 Normally, there are no heading levels assigned to certain characters as the
 structure is determined from the succession of headings.  However, this
-convention is used in `Python's Style Guide for documentating
+convention is used in `Python's Style Guide for documenting
 <https://docs.python.org/devguide/documenting.html#style-guide>`_ which you may
 follow:
 

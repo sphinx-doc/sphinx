@@ -482,9 +482,9 @@ def test_footnote(app, status, warning):
     assert '\\caption{Table caption \\sphinxfootnotemark[4]' in result
     assert 'name \\sphinxfootnotemark[5]' in result
     assert ('\\end{threeparttable}\n\\par\n\\endgroup\n%\n'
-            '\\begin{footnotetext}[4]\sphinxAtStartFootnote\n'
+            '\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'footnotes in table caption\n%\n\\end{footnotetext}%\n'
-            '\\begin{footnotetext}[5]\sphinxAtStartFootnote\n'
+            '\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
             'footnotes in table\n%\n\\end{footnotetext}') in result
 
 
@@ -507,18 +507,18 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
             '%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'Footnote in section\n%\n\\end{footnotetext}') in result
     assert ('\\caption{This is the figure caption with a footnote to '
-            '\\sphinxfootnotemark[6].}\label{\\detokenize{index:id27}}\end{figure}\n'
+            '\\sphinxfootnotemark[6].}\\label{\\detokenize{index:id27}}\\end{figure}\n'
             '%\n\\begin{footnotetext}[6]\\sphinxAtStartFootnote\n'
             'Footnote in caption\n%\n\\end{footnotetext}')in result
     assert ('\\caption{footnote \\sphinxfootnotemark[7] '
             'in caption of normal table}\\label{\\detokenize{index:id28}}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[8] '
-            'in caption \sphinxfootnotemark[9] of longtable}') in result
-    assert ('\end{longtable}\n%\n\\begin{footnotetext}[8]'
-            '\sphinxAtStartFootnote\n'
+            'in caption \\sphinxfootnotemark[9] of longtable}') in result
+    assert ('\\end{longtable}\n%\n\\begin{footnotetext}[8]'
+            '\\sphinxAtStartFootnote\n'
             'Foot note in longtable\n%\n\\end{footnotetext}' in result)
     assert ('This is a reference to the code-block in the footnote:\n'
-            '{\hyperref[\\detokenize{index:codeblockinfootnote}]'
+            '{\\hyperref[\\detokenize{index:codeblockinfootnote}]'
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{I am in a footnote}}}}') in result
     assert ('&\nThis is one more footnote with some code in it '
             '\\sphinxfootnotemark[10].\n\\\\') in result
@@ -855,7 +855,7 @@ def test_latex_table_tabulars(app, status, warning):
     # table having :align: option (tabular)
     table = tables['table having :align: option (tabular)']
     assert ('\\begingroup\n\\raggedright\n'
-            '\\begin{tabular}{|\X{30}{100}|\X{70}{100}|}\n' in table)
+            '\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}\n' in table)
     assert ('\\hline\n\\end{tabular}\n\\par\n\\endgroup' in table)
 
     # table with tabularcolumn

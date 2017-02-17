@@ -263,7 +263,7 @@ def test_code_block_caption_latex(app, status, warning):
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstyleemphasis{test} rb}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:id1}}}'
-    link = '\hyperref[\\detokenize{caption:name-test-rb}]' \
+    link = '\\hyperref[\\detokenize{caption:name-test-rb}]' \
            '{Listing \\ref{\\detokenize{caption:name-test-rb}}}'
     assert caption in latex
     assert label in latex
@@ -393,9 +393,8 @@ def test_literal_include_lineno_match(app, status, warning):
     html = (app.outdir / 'lineno_match.html').text(encoding='utf-8')
     pyobject = (
         '<td class="linenos"><div class="linenodiv"><pre>'
-        ' 9\n'
-        '10\n'
-        '11</pre></div></td>')
+        '6\n'
+        '7</pre></div></td>')
 
     assert pyobject in html
 
@@ -418,6 +417,12 @@ def test_literal_include_lineno_match(app, status, warning):
         '13\n'
         '14</pre></div></td>')
     assert start_after in html
+
+    start_after_with_lines = (
+        '<td class="linenos"><div class="linenodiv"><pre>'
+        '2\n'
+        '3</pre></div></td>')
+    assert start_after_with_lines in html
 
     start_at_end_at = (
         '<td class="linenos"><div class="linenodiv"><pre>'
@@ -459,7 +464,7 @@ def test_literalinclude_caption_latex(app, status, warning):
     latex = (app.outdir / 'Python.tex').text(encoding='utf-8')
     caption = '\\sphinxSetupCaptionForVerbatim{caption \\sphinxstylestrong{test} py}'
     label = '\\def\\sphinxLiteralBlockLabel{\\label{\\detokenize{caption:id2}}}'
-    link = '\hyperref[\\detokenize{caption:name-test-py}]' \
+    link = '\\hyperref[\\detokenize{caption:name-test-py}]' \
            '{Listing \\ref{\\detokenize{caption:name-test-py}}}'
     assert caption in latex
     assert label in latex
