@@ -197,9 +197,8 @@ def test_literal_include_lineno_match(app, status, warning):
     html = (app.outdir / 'lineno_match.html').text(encoding='utf-8')
     pyobject = (
         '<td class="linenos"><div class="linenodiv"><pre>'
-        ' 9\n'
-        '10\n'
-        '11</pre></div></td>')
+        '6\n'
+        '7</pre></div></td>')
 
     assert pyobject in html
 
@@ -222,6 +221,12 @@ def test_literal_include_lineno_match(app, status, warning):
         '13\n'
         '14</pre></div></td>')
     assert start_after in html
+
+    start_after_with_lines = (
+        '<td class="linenos"><div class="linenodiv"><pre>'
+        '2\n'
+        '3</pre></div></td>')
+    assert start_after_with_lines in html
 
     start_at_end_at = (
         '<td class="linenos"><div class="linenodiv"><pre>'

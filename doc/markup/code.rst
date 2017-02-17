@@ -184,9 +184,17 @@ Includes
    string option, only lines that precede the first lines containing that string
    are included.
 
+   With lines selected this way it is still possible to use ``lines``, the
+   numbers being now interpreted relative to the already selected lines.
+
+   When lines have been selected in any of the ways described above, the
+   line numbers in ``emphasize-lines`` refer to the selection, with the
+   line count starting at ``1``.
+
    When specifying particular parts of a file to display, it can be useful to
-   display exactly which lines are being presented.
-   This can be done using the ``lineno-match`` option.
+   display the original line numbers. This can be done using the
+   ``lineno-match`` option, which is however allowed only when the selection
+   consists of contiguous lines.
 
    You can prepend and/or append a line to the included code, using the
    ``prepend`` and ``append`` option, respectively.  This is useful e.g. for
