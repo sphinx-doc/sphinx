@@ -63,6 +63,7 @@ LAST_BUILD_FILENAME = 'last_build'
 logger = logging.getLogger(__name__)
 return_codes_re = re.compile('[\r\n]+')
 
+
 def get_stable_hash(obj):
     # type: (Any) -> unicode
     """
