@@ -143,7 +143,7 @@ def test_LiteralIncludeReader_start_after_and_lines():
     assert reader.lineno_start == 8
 
 
-def test_LiteralIncludeReader_start_at_and_lines2():
+def test_LiteralIncludeReader_start_at_and_lines():
     options = {'lines': '2, 3, 5', 'start-at': 'foo', 'end-before': '#'}
     reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
     content, lines = reader.read()
