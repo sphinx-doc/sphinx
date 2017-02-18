@@ -130,6 +130,29 @@ def test_LiteralIncludeReader_start_after():
     assert reader.lineno_start == 7
 
 
+def test_LiteralIncludeReader_start_after_and_lines():
+    options = {'lineno-match': True, 'lines': '6-',
+               'start-after': 'coding', 'end-before': 'comment'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("\n"
+                       "class Bar:\n"
+                       "    def baz():\n"
+                       "        pass\n"
+                       "\n")
+    assert reader.lineno_start == 8
+
+
+def test_LiteralIncludeReader_start_at_and_lines2():
+    options = {'lines': '2, 3, 5', 'start-at': 'foo', 'end-before': '#'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("\n"
+                       "class Foo:\n"
+                       "\n")
+    assert reader.lineno_start == 1
+
+
 def test_LiteralIncludeReader_prepend():
     options = {'lines': '1', 'prepend': 'Hello', 'append': 'Sphinx'}
     reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
