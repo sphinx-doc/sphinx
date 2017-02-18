@@ -6,7 +6,22 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/02/06 v1.6 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/02/18 v1.6 LaTeX package (Sphinx markup)]
+
+%% for deprecation warnings
+\newcommand\sphinxdeprecationwarning[4]{% #1 the deprecated macro or name,
+% #2 = version when deprecated, #3 = version when removed, #4 = message
+  \edef\spx@tempa{\detokenize{#1}}%
+  \spx@ifundefined{sphinx_depr_\spx@tempa}{%
+     \global\expandafter\let\csname sphinx_depr_\spx@tempa\endcsname\spx@tempa
+     \expandafter\AtEndDocument\expandafter{\expandafter\let\expandafter
+         \sphinxdeprecatedmacro\csname sphinx_depr_\spx@tempa\endcsname
+         \PackageWarningNoLine{sphinx}{^^J**** SPHINX DEPRECATION WARNING:^^J
+         \sphinxdeprecatedmacro\space will be (or has been)
+         deprecated at Sphinx #2^^J and will be removed at Sphinx #3.^^J
+         #4^^J****}}%
+  }{% warning already emitted (at end of latex log), don't repeat
+  }}
 
 % we delay handling of options to after having loaded packages, because
 % of the need to use \definecolor.
@@ -1183,22 +1198,34 @@ report to extension author to use ``sphinxadmonition'' instead.^^J%
        \firstchoice@false\else\firstchoice@true\fi
    \spx@originalcaption }
 
-% by default, also define macros with the no-prefix names
 \ifspx@opt@dontkeepoldnames\else
+  \let\spx@alreadydefinedlist\@empty
   \typeout{** (sphinx) defining (legacy) text style macros without \string\sphinx\space prefix}
   \typeout{** if clashes with packages, set latex_keep_old_macro_names=False
     in conf.py}
   \@for\@tempa:=code,strong,bfcode,email,tablecontinued,titleref,%
                 menuselection,accelerator,crossref,termref,optional\do
-{% first, check if command with no prefix already exists
-  \expandafter\newcommand\csname\@tempa\endcsname{}%
+ {% first, check if command with no prefix already exists
+  \spx@ifundefined{\@tempa}{%
   % give it the meaning defined so far with \sphinx prefix
   \expandafter\let\csname\@tempa\expandafter\endcsname
                   \csname sphinx\@tempa\endcsname
   % redefine the \sphinx prefixed macro to expand to non-prefixed one
   \expandafter\def\csname sphinx\@tempa\expandafter\endcsname
                   \expandafter{\csname\@tempa\endcsname}%
-}%
+  }{\edef\spx@alreadydefinedlist{\spx@alreadydefinedlist{\@tempa}}}%
+ }%
+  \ifx\spx@alreadydefinedlist\@empty\else
+    \expandafter\@tfor\expandafter\@tempa\expandafter:\expandafter=\spx@alreadydefinedlist\do
+    {% emit warning now
+     \PackageWarning{sphinx}{not redefining already existing \@backslashchar\@tempa\space!^^J%
+        Anyhow, Sphinx mark-up uses only \string\sphinx\@tempa.}%
+     % and also at end of log for better visibility
+     \expandafter\sphinxdeprecationwarning\expandafter{\csname\@tempa\endcsname}{1.6}{1.7}
+       {\sphinxdeprecatedmacro\space already existed at Sphinx loading time! Not redefined!^^J
+         Sphinx mark-up uses only \string\sphinx\expandafter\@gobble\sphinxdeprecatedmacro.}%
+    }%
+  \fi
 \fi
 
 % additional customizable styling
