@@ -517,7 +517,7 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
             'in caption of normal table}\\label{\\detokenize{index:id28}}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[8] '
             'in caption \\sphinxfootnotemark[9] of longtable}') in result
-    assert ('\\begin{footnotetext}[8]\\sphinxAtStartFootnote\n'
+    assert ('\\endlastfoot\n%\n\\begin{footnotetext}[8]\\sphinxAtStartFootnote\n'
             'Foot note in longtable\n%\n\\end{footnotetext}\\ignorespaces %\n'
             '\\begin{footnotetext}[9]\\sphinxAtStartFootnote\n'
             'Second footnote in caption of longtable\n') in result
