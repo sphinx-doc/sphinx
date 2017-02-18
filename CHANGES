@@ -14,6 +14,8 @@ Incompatible changes
   flushed left (no text flow around table.) The position now defaults to center in
   both cases, and it will obey Docutils 0.13 ``:align:`` option (refs #3415, #3377)
 * option directive also allows all punctuations for the option name (refs: #3366)
+* #3413: if :rst:dir:`literalinclude`'s ``:start-after:`` is used, make ``:lines:``
+  relative (refs #3412)
 * ``literalinclude`` directive does not allow the combination of ``:diff:``
   option and other options (refs: #3416)
 
@@ -116,6 +118,9 @@ Bugs fixed
   gets wrong PDF page dimensions
 * #3399: quickstart: conf.py was not overwritten by template
 * #3366: option directive does not allow punctuations
+* #3410: return code in :confval:`release` breaks html search
+* #3427: autodoc: memory addresses are not stripped on Windows
+* #3428: xetex build tests fail due to fontspec v2.6 defining ``\strong``
 
 Testing
 --------

@@ -24,7 +24,7 @@ if False:
 # relatively import this module
 inspect = __import__('inspect')
 
-memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)')
+memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)
 
 
 if PY3:

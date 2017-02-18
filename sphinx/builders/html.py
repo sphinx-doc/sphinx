@@ -10,6 +10,7 @@
 """
 
 import os
+import re
 import sys
 import zlib
 import codecs
@@ -60,6 +61,7 @@ INVENTORY_FILENAME = 'objects.inv'
 LAST_BUILD_FILENAME = 'last_build'
 
 logger = logging.getLogger(__name__)
+return_codes_re = re.compile('[\r\n]+')
 
 
 def get_stable_hash(obj):
@@ -348,7 +350,7 @@ class StandaloneHTMLBuilder(Builder):
         self.globalcontext = dict(
             embedded = self.embedded,
             project = self.config.project,
-            release = self.config.release,
+            release = return_codes_re.sub('', self.config.release),
             version = self.config.version,
             last_updated = self.last_updated,
             copyright = self.config.copyright,
