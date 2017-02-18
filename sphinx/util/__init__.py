@@ -405,7 +405,7 @@ def parselinenos(spec, total):
             raise ValueError('invalid line number spec: %r' % spec)
 
     if any(i >= total for i in items):
-        raise ValueError('line number spec is out of range(0-%d): %r' % (total, spec))
+        raise ValueError('line number spec is out of range(1-%d): %r' % (total, spec))
     return items
 
 
