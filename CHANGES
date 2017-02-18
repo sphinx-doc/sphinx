@@ -29,6 +29,7 @@ Bugs fixed
 * #3366: option directive does not allow punctuations
 * #3410: return code in :confval:`release` breaks html search
 * #3427: autodoc: memory addresses are not stripped on Windows
+* #3428: xetex build tests fail due to fontspec v2.6 defining ``\strong``
 
 
 Testing
