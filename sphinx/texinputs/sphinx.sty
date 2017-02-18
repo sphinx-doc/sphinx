@@ -902,13 +902,11 @@
 % use of ``notice'' is for backwards compatibility and will be removed in
 % Sphinx 1.7.
 \newenvironment{notice}
-  {\AtEndDocument{\typeout
-{**** DEPRECATION WARNING:^^J
-This document was probably built with a Sphinx extension using ``notice''^^J
-environment. At Sphinx 1.7, ``notice'' environment will be removed. Please^^J
-report to extension author to use ``sphinxadmonition'' instead.^^J%
-****}}%
-   \begin{sphinxadmonition}}{\end{sphinxadmonition}}
+  {\sphinxdeprecationwarning {notice}{1.6}{1.7}{%
+  This document was probably built with a Sphinx extension using ``notice''^^J
+  environment. At Sphinx 1.7, ``notice'' environment will be removed. Please^^J
+  report to extension author to use ``sphinxadmonition'' instead.^^J%
+  ****}\begin{sphinxadmonition}}{\end{sphinxadmonition}}
 
 % Allow the release number to be specified independently of the
 % \date{}.  This allows the date to reflect the document's date and
