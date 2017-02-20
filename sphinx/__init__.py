@@ -60,11 +60,11 @@ if __version__.endswith('+'):
 
 
 def main(argv=sys.argv):
-    # type: (List[str]) -> None
+    # type: (List[str]) -> int
     if sys.argv[1:2] == ['-M']:
-        sys.exit(make_main(argv))
+        return make_main(argv)
     else:
-        sys.exit(build_main(argv))
+        return build_main(argv)
 
 
 def build_main(argv=sys.argv):
@@ -117,4 +117,4 @@ def make_main(argv=sys.argv):
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))  # type: ignore
+    sys.exit(main(sys.argv))
