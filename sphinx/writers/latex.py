@@ -378,7 +378,7 @@ class Table(object):
 
         This is what LaTeX calls the 'preamble argument' of the used table environment.
 
-        .. note:: the ``\\X`` column type specifier is defined in ``sphinx.sty``.
+        .. note:: the ``\\X`` and ``T`` column type specifiers are defined in ``sphinx.sty``.
         """
         if self.colspec:
             return self.colspec
@@ -389,7 +389,8 @@ class Table(object):
         elif self.has_problematic:
             return '{|*{%d}{\\X{1}{%d}|}}\n' % (self.colcount, self.colcount)
         elif self.get_table_type() == 'tabulary':
-            return '{|' + ('L|' * self.colcount) + '}\n'
+            # sphinx.sty sets T to be J by default.
+            return '{|' + ('T|' * self.colcount) + '}\n'
         else:
             return '{|' + ('l|' * self.colcount) + '}\n'
 
@@ -506,7 +507,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.in_caption = 0
         self.in_container_literal_block = 0
         self.in_term = 0
-        self.in_merged_cell = 0
+        self.needs_linetrimming = 0
         self.in_minipage = 0
         self.first_document = 1
         self.this_is_the_title = 1
@@ -1382,10 +1383,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 break
             else:  # a bottom of multirow cell
                 self.table.col += cell.width
-                if cell.col != 0:
+                if cell.col:
                     self.body.append('&')
-                if cell.width > 1:  # use \multicolumn for wide multirow cell
-                    self.body.append('\\multicolumn{%d}{|l|}{}\\relax ' % cell.width)
+                if cell.width == 1:
+                    # insert suitable strut for equalizing row heights in given multirow
+                    self.body.append('\\sphinxtablestrut{%d}' % cell.cell_id)
+                else:  # use \multicolumn for wide multirow cell
+                    self.body.append('\\multicolumn{%d}{|l|}'
+                                     '{\\sphinxtablestrut{%d}}' %
+                                     (cell.width, cell.cell_id))
 
     def depart_row(self, node):
         # type: (nodes.Node) -> None
@@ -1413,45 +1419,48 @@ class LaTeXTranslator(nodes.NodeVisitor):
         cell = self.table.cell()
         context = ''
         if cell.width > 1:
-            self.body.append('\\multicolumn{%d}' % cell.width)
-            if self.table.col == 0:
-                self.body.append('{|l|}{\\relax ')
+            if self.builder.config.latex_use_latex_multicolumn:
+                if self.table.col == 0:
+                    self.body.append('\\multicolumn{%d}{|l|}{%%\n' % cell.width)
+                else:
+                    self.body.append('\\multicolumn{%d}{l|}{%%\n' % cell.width)
+                context = '}%\n'
             else:
-                self.body.append('{l|}{\\relax ')
-            context += '\\unskip}\\relax '
+                self.body.append('\\sphinxstartmulticolumn{%d}%%\n' % cell.width)
+                context = '\\sphinxstopmulticolumn\n'
         if cell.height > 1:
-            self.body.append('\\multirow{%d}{*}{\\relax ' % cell.height)
-            context += '\\unskip}\\relax '
-        if (('morecols' in node or 'morerows' in node) and
-           (len(node) > 2 or len(node.astext().split('\n')) > 2)):
-            self.in_merged_cell = 1
-            self.literal_whitespace += 1
-            self.body.append('\\eqparbox{%d}{\\vspace{.5\\baselineskip}\n' % id(node))
-            self.pushbody([])
-            context += '}'
+            # \sphinxmultirow 2nd arg "cell_id" will serve as id for LaTeX macros as well
+            self.body.append('\\sphinxmultirow{%d}{%d}{%%\n' % (cell.height, cell.cell_id))
+            context = '}%\n' + context
+        if cell.width > 1 or cell.height > 1:
+            self.body.append('\\begin{varwidth}[t]{\\sphinxcolwidth{%d}{%d}}\n'
+                             % (cell.width, self.table.colcount))
+            context = ('\\par\n\\vskip-\\baselineskip\\strut\\end{varwidth}%\n') + context
+            self.needs_linetrimming = 1
+        if len(node) > 2 and len(node.astext().split('\n')) > 2:
+            self.needs_linetrimming = 1
         if isinstance(node.parent.parent, nodes.thead):
             if len(node) == 1 and isinstance(node[0], nodes.paragraph) and node.astext() == '':
                 pass
             else:
                 self.body.append('\\sphinxstylethead{\\relax ')
-                context += '\\unskip}\\relax '
-        if len(node.traverse(nodes.paragraph)) >= 2:
-            self.table.has_problematic = True
+                context = '\\unskip}\\relax ' + context
+        if self.needs_linetrimming:
+            self.pushbody([])
         self.context.append(context)
 
     def depart_entry(self, node):
         # type: (nodes.Node) -> None
-        if self.in_merged_cell:
-            self.in_merged_cell = 0
-            self.literal_whitespace -= 1
+        if self.needs_linetrimming:
+            self.needs_linetrimming = 0
             body = self.popbody()
+
             # Remove empty lines from top of merged cell
             while body and body[0] == "\n":
                 body.pop(0)
-            for line in body:
-                line = re.sub(u'(?<!~\\\\\\\\)\n', u'~\\\\\\\\\n', line)  # escape return code
-                self.body.append(line)
-        self.body.append(self.context.pop())  # header
+            self.body.extend(body)
+
+        self.body.append(self.context.pop())
 
         cell = self.table.cell()
         self.table.col += cell.width
@@ -1464,8 +1473,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:  # a bottom part of multirow cell
                 self.table.col += nextcell.width
                 self.body.append('&')
-                if nextcell.width > 1:  # use \multicolumn for wide multirow cell
-                    self.body.append('\\multicolumn{%d}{l|}{}\\relax ' % nextcell.width)
+                if nextcell.width == 1:
+                    # insert suitable strut for equalizing row heights in multirow
+                    self.body.append('\\sphinxtablestrut{%d}' % nextcell.cell_id)
+                else:
+                    # use \multicolumn for wide multirow cell
+                    self.body.append('\\multicolumn{%d}{l|}'
+                                     '{\\sphinxtablestrut{%d}}' %
+                                     (nextcell.width, nextcell.cell_id))
 
     def visit_acks(self, node):
         # type: (nodes.Node) -> None

@@ -27,7 +27,15 @@
 <%= sphinxsetup %>
 <%= geometry %>
 \usepackage{multirow}
+\let\originalmutirow\multirow\protected\def\multirow{%
+  \sphinxdeprecationwarning{\multirow}{1.6}{1.7}
+  {Sphinx does not use package multirow. Its loading will be removed at 1.7.}%
+  \originalmultirow}%
 \usepackage{eqparbox}
+\let\originaleqparbox\eqparbox\protected\def\eqparbox{%
+  \sphinxdeprecationwarning{\eqparbox}{1.6}{1.7}
+  {Sphinx does not use package eqparbox. Its loading will be removed at 1.7.}%
+  \originaleqparbox}%
 <%= usepackages %>
 <%= hyperref %>
 <%= contentsname %>

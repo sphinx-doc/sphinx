@@ -846,7 +846,7 @@ def test_latex_table_tabulars(app, status, warning):
     # simple_table
     table = tables['simple table']
     assert ('\\begin{savenotes}\n\\centering\n'
-            '\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
+            '\\begin{tabulary}{\\linewidth}{|T|T|}' in table)
     assert ('\\hline\n'
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
             '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in table)
@@ -864,7 +864,7 @@ def test_latex_table_tabulars(app, status, warning):
     # table having :align: option (tabulary)
     table = tables['table having :align: option (tabulary)']
     assert ('\\begin{savenotes}\n\\raggedleft\n'
-            '\\begin{tabulary}{\\linewidth}{|L|L|}\n' in table)
+            '\\begin{tabulary}{\\linewidth}{|T|T|}\n' in table)
     assert ('\\hline\n\\end{tabulary}\n\\par\n\\end{savenotes}' in table)
 
     # table having :align: option (tabular)
@@ -882,7 +882,7 @@ def test_latex_table_tabulars(app, status, warning):
     assert ('\\begin{savenotes}\n\\centering\n'
             '\\begin{threeparttable}\n\\capstart\\caption{caption for table}'
             '\\label{\\detokenize{tabular:id1}}' in table)
-    assert ('\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
+    assert ('\\begin{tabulary}{\\linewidth}{|T|T|}' in table)
     assert ('\\hline\n\\end{tabulary}\n\\end{threeparttable}'
             '\n\\par\n\\end{savenotes}' in table)
 
@@ -977,33 +977,46 @@ def test_latex_table_complex_tables(app, status, warning):
 
     # grid table
     table = tables['grid table']
-    assert ('\\begin{tabulary}{\\linewidth}{|L|L|L|}' in table)
+    assert ('\\begin{tabulary}{\\linewidth}{|T|T|T|}' in table)
     assert ('\\hline\n'
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
             '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax &'
             '\\sphinxstylethead{\\relax \nheader3\n\\unskip}\\relax \\\\' in table)
-    assert ('\\hline\ncell1-1\n&\\multirow{2}{*}{\\relax \ncell1-2\n\\unskip}\\relax &\n'
-            'cell1-3\n\\\\' in table)
-    assert ('\\cline{1-1}\\cline{3-3}\\multirow{2}{*}{\\relax \ncell2-1\n\\unskip}\\relax &&\n'
-            'cell2-3\n\\\\' in table)
-    assert ('\\cline{2-3}&\\multicolumn{2}{l|}{\\relax \\multirow{2}{*}{\\relax \n'
-            'cell3-2\n\\unskip}\\relax \\unskip}\\relax \\\\' in table)
-    assert ('\\cline{1-1}\ncell4-1\n&\\multicolumn{2}{l|}{}\\relax \\\\' in table)
-    assert ('\\hline\\multicolumn{3}{|l|}{\\relax \ncell5-1\n\\unskip}\\relax \\\\\n'
-            '\\hline\n\\end{tabulary}' in table)
+    assert ('\\hline\ncell1-1\n&\\sphinxmultirow{2}{5}{%\n\\begin{varwidth}[t]'
+            '{\\sphinxcolwidth{1}{3}}\n'
+            'cell1-2\n\\par\n' in table)
+    assert ('\\cline{1-1}\\cline{3-3}\\sphinxmultirow{2}{7}{%\n' in table)
+    assert ('&\\sphinxtablestrut{5}&\ncell2-3\n\\\\\n'
+            '\\cline{2-3}\\sphinxtablestrut{7}&\\sphinxstartmulticolumn{2}%\n'
+            '\\sphinxmultirow{2}{9}{%\n\\begin{varwidth}' in table)
+    assert ('\\cline{1-1}\ncell4-1\n&\\multicolumn{2}{l|}'
+            '{\\sphinxtablestrut{9}}\\\\' in table)
+    assert ('\\hline\\sphinxstartmulticolumn{3}%\n'
+            in table)
 
     # complex spanning cell
     table = tables['complex spanning cell']
-    assert ('\\begin{tabulary}{\\linewidth}{|L|L|L|L|L|}' in table)
-    assert ('\\hline\n'
-            '\\multirow{3}{*}{\\relax \ncell1-1\n\\unskip}\\relax &'
-            '\\multirow{3}{*}{\\relax \ncell1-2\n\\unskip}\\relax &'
-            '\ncell1-3\n&'
-            '\\multirow{3}{*}{\\relax \ncell1-4\n\\unskip}\\relax &'
-            '\\multirow{2}{*}{\\relax \ncell1-5\n\\unskip}\\relax \\\\\n'
+    assert ('\\begin{tabulary}{\\linewidth}{|T|T|T|T|T|}' in table)
+    assert ('\\sphinxmultirow{3}{1}{%\n'
+            '\\begin{varwidth}[t]{\\sphinxcolwidth{1}{5}}\n'
+            'cell1-1\n\\par\n\\vskip-\\baselineskip\\strut\\end{varwidth}%\n'
+            '}%\n'
+            '&\\sphinxmultirow{3}{2}{%\n'
+            '\\begin{varwidth}[t]{\\sphinxcolwidth{1}{5}}\n'
+            'cell1-2\n\\par\n\\vskip-\\baselineskip\\strut\\end{varwidth}%\n'
+            '}%\n&\ncell1-3\n&\\sphinxmultirow{3}{4}{%\n'
+            '\\begin{varwidth}[t]{\\sphinxcolwidth{1}{5}}\n'
+            'cell1-4\n\\par\n\\vskip-\\baselineskip\\strut\\end{varwidth}%\n'
+            '}%\n'
+            '&\\sphinxmultirow{2}{5}{%\n'
+            '\\begin{varwidth}[t]{\\sphinxcolwidth{1}{5}}\n'
+            'cell1-5\n'
             in table)
-    assert ('\\cline{3-3}&&'
-            '\\multirow{2}{*}{\\relax \ncell2-3\n\\unskip}\\relax &&\\\\\n'
+    assert ('\\cline{3-3}\\sphinxtablestrut{1}&\\sphinxtablestrut{2}&'
+            '\\sphinxmultirow{2}{6}{%\n'
             in table)
-    assert ('\\cline{5-5}&&&&\ncell3-5\n\\\\\n' in table)
-    assert ('\\hline\n\\end{tabulary}' in table)
+    assert ('&\\sphinxtablestrut{4}&\\sphinxtablestrut{5}\\\\\n'
+            '\\cline{5-5}\\sphinxtablestrut{1}&\\sphinxtablestrut{2}&'
+            '\\sphinxtablestrut{6}&\\sphinxtablestrut{4}&\ncell3-5\n'
+            '\\\\\n\\hline\n\\end{tabulary}\n'
+            in table)
