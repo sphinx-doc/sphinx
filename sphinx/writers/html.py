@@ -327,7 +327,7 @@ class HTMLTranslator(BaseTranslator):
         def append_fignumber(figtype, figure_id):
             # type: (unicode, unicode) -> None
             if self.builder.name == 'singlehtml':
-                key = "%s/%s" % (self.docnames[-1], figtype)
+                key = u"%s/%s" % (self.docnames[-1], figtype)
             else:
                 key = figtype
 
