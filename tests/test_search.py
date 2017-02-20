@@ -184,16 +184,21 @@ def test_IndexBuilder():
     index2.load(stream, 'pickle')
 
     assert index2._titles == index._titles
-    assert index2._filenames == {}
+    assert index2._filenames == index._filenames
     assert index2._mapping == index._mapping
     assert index2._title_mapping == index._title_mapping
     assert index2._objtypes == {}
     assert index2._objnames == {}
 
+    # freeze after load
+    assert index2.freeze() == index.freeze()
+    assert index2._objtypes == index._objtypes
+    assert index2._objnames == index._objnames
+
     # prune
     index.prune(['docname2'])
     assert index._titles == {'docname2': 'title2'}
-    assert index._filenames == {'docname': 'filename', 'docname2': 'filename2'}
+    assert index._filenames == {'docname2': 'filename2'}
     assert index._mapping == {
         'fermion': {'docname2'},
         'comment': {'docname2'},
@@ -202,5 +207,24 @@ def test_IndexBuilder():
         'test': {'docname2'}
     }
     assert index._title_mapping == {'section_titl': {'docname2'}}
+    assert index._objtypes == {('dummy', 'objtype'): 0}
+    assert index._objnames == {0: ('dummy', 'objtype', 'objtype')}
+
+    # freeze after prune
+    assert index.freeze() == {
+        'docnames': ('docname2',),
+        'envversion': '1.0',
+        'filenames': ['filename2'],
+        'objects': {},
+        'objnames': {0: ('dummy', 'objtype', 'objtype')},
+        'objtypes': {0: 'dummy:objtype'},
+        'terms': {'comment': 0,
+                  'fermion': 0,
+                  'index': 0,
+                  'non': 0,
+                  'test': 0},
+        'titles': ('title2',),
+        'titleterms': {'section_titl': 0}
+    }
     assert index._objtypes == {('dummy', 'objtype'): 0}
     assert index._objnames == {0: ('dummy', 'objtype', 'objtype')}

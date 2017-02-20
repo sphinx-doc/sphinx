@@ -271,6 +271,7 @@ class IndexBuilder(object):
            frozen.get('envversion') != self.env.version:
             raise ValueError('old format')
         index2fn = frozen['docnames']
+        self._filenames = dict(zip(index2fn, frozen['filenames']))
         self._titles = dict(zip(index2fn, frozen['titles']))
 
         def load_terms(mapping):
@@ -361,10 +362,13 @@ class IndexBuilder(object):
     def prune(self, docnames):
         """Remove data for all docnames not in the list."""
         new_titles = {}
+        new_filenames = {}
         for docname in docnames:
             if docname in self._titles:
                 new_titles[docname] = self._titles[docname]
+                new_filenames[docname] = self._filenames[docname]
         self._titles = new_titles
+        self._filenames = new_filenames
         for wordnames in itervalues(self._mapping):
             wordnames.intersection_update(docnames)
         for wordnames in itervalues(self._title_mapping):
