@@ -270,7 +270,7 @@ class IndexBuilder(object):
         if not isinstance(frozen, dict) or \
            frozen.get('envversion') != self.env.version:
             raise ValueError('old format')
-        index2fn = frozen['filenames']
+        index2fn = frozen['docnames']
         self._titles = dict(zip(index2fn, frozen['titles']))
 
         def load_terms(mapping):
