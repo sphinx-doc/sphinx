@@ -358,17 +358,17 @@ class IndexBuilder(object):
     def label(self):
         return "%s (code: %s)" % (self.lang.language_name, self.lang.lang)
 
-    def prune(self, filenames):
-        """Remove data for all filenames not in the list."""
+    def prune(self, docnames):
+        """Remove data for all docnames not in the list."""
         new_titles = {}
-        for filename in filenames:
-            if filename in self._titles:
-                new_titles[filename] = self._titles[filename]
+        for docname in docnames:
+            if docname in self._titles:
+                new_titles[docname] = self._titles[docname]
         self._titles = new_titles
         for wordnames in itervalues(self._mapping):
-            wordnames.intersection_update(filenames)
+            wordnames.intersection_update(docnames)
         for wordnames in itervalues(self._title_mapping):
-            wordnames.intersection_update(filenames)
+            wordnames.intersection_update(docnames)
 
     def feed(self, docname, filename, title, doctree):
         """Feed a doctree to the index."""
