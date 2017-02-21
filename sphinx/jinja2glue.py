@@ -25,8 +25,8 @@ from sphinx.util.osutil import mtimes_of_files
 if False:
     # For type annotation
     from typing import Any, Callable, Iterator, Tuple  # NOQA
+    from jinja2.environment import Environment  # NOQA
     from sphinx.builders import Builder  # NOQA
-    from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.themes import Theme  # NOQA
 
 
@@ -101,7 +101,7 @@ class SphinxFileSystemLoader(FileSystemLoader):
     """
 
     def get_source(self, environment, template):
-        # type: (BuildEnvironment, unicode) -> Tuple[unicode, unicode, Callable]
+        # type: (Environment, unicode) -> Tuple[unicode, unicode, Callable]
         for searchpath in self.searchpath:
             filename = path.join(searchpath, template)
             f = open_if_exists(filename)
@@ -169,12 +169,11 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
         self.environment.globals['accesskey'] = contextfunction(accesskey)
         self.environment.globals['idgen'] = idgen
         if use_i18n:
-            self.environment.install_gettext_translations(
-                builder.app.translator)
+            self.environment.install_gettext_translations(builder.app.translator)  # type: ignore  # NOQA
 
     def render(self, template, context):
         # type: (unicode, Dict) -> None
-        return self.environment.get_template(template).render(context)
+        self.environment.get_template(template).render(context)
 
     def render_string(self, source, context):
         # type: (unicode, Dict) -> unicode
@@ -187,7 +186,7 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
     # Loader interface
 
     def get_source(self, environment, template):
-        # type: (BuildEnvironment, unicode) -> Tuple[unicode, unicode, Callable]
+        # type: (Environment, unicode) -> Tuple[unicode, unicode, Callable]
         loaders = self.loaders
         # exclamation mark starts search from theme
         if template.startswith('!'):

@@ -52,6 +52,7 @@ add_documenter(InstanceAttributeDocumenter)
 if False:
     # For type annotation
     from typing import Any, Callable, Tuple, List  # NOQA
+    from jinja2 import BaseLoader  # NOQA
     from sphinx import addnodes  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -118,6 +119,8 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
     template_dirs = None  # type: List[unicode]
     template_dirs = [os.path.join(package_dir, 'ext',
                                   'autosummary', 'templates')]
+
+    template_loader = None  # type: BaseLoader
     if builder is not None:
         # allow the user to override the templates
         template_loader = BuiltinTemplateLoader()
@@ -125,7 +128,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
     else:
         if template_dir:
             template_dirs.insert(0, template_dir)
-        template_loader = FileSystemLoader(template_dirs)
+        template_loader = FileSystemLoader(template_dirs)  # type: ignore
     template_env = SandboxedEnvironment(loader=template_loader)
 
     # read
@@ -221,7 +224,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             ns['underline'] = len(name) * '='
 
             rendered = template.render(**ns)
-            f.write(rendered)
+            f.write(rendered)  # type: ignore
 
     # descend recursively to new files
     if new_files:
