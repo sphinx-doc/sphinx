@@ -49,7 +49,7 @@ VERBOSITY_MAP.update({
     2: logging.DEBUG,
 })
 
-COLOR_MAP = defaultdict(lambda text: text)  # type: Dict[int, unicode]
+COLOR_MAP = defaultdict(lambda: 'blue')  # type: Dict[int, unicode]
 COLOR_MAP.update({
     logging.WARNING: 'darkred',
     logging.DEBUG: 'darkgray',
@@ -90,7 +90,7 @@ class SphinxWarningLogRecord(logging.LogRecord):
 class SphinxLoggerAdapter(logging.LoggerAdapter):
     """LoggerAdapter allowing ``type`` and ``subtype`` keywords."""
 
-    def log(self, level, msg, *args, **kwargs):
+    def log(self, level, msg, *args, **kwargs):  # type: ignore
         # type: (Union[int, str], unicode, Any, Any) -> None
         if isinstance(level, int):
             super(SphinxLoggerAdapter, self).log(level, msg, *args, **kwargs)

@@ -293,7 +293,8 @@ class IndexBuilder(object):
         if not isinstance(frozen, dict) or \
            frozen.get('envversion') != self.env.version:
             raise ValueError('old format')
-        index2fn = frozen['filenames']
+        index2fn = frozen['docnames']
+        self._filenames = dict(zip(index2fn, frozen['filenames']))
         self._titles = dict(zip(index2fn, frozen['titles']))
 
         def load_terms(mapping):
@@ -387,18 +388,21 @@ class IndexBuilder(object):
         # type: () -> unicode
         return "%s (code: %s)" % (self.lang.language_name, self.lang.lang)
 
-    def prune(self, filenames):
+    def prune(self, docnames):
         # type: (Iterable[unicode]) -> None
-        """Remove data for all filenames not in the list."""
+        """Remove data for all docnames not in the list."""
         new_titles = {}
-        for filename in filenames:
-            if filename in self._titles:
-                new_titles[filename] = self._titles[filename]
+        new_filenames = {}
+        for docname in docnames:
+            if docname in self._titles:
+                new_titles[docname] = self._titles[docname]
+                new_filenames[docname] = self._filenames[docname]
         self._titles = new_titles
+        self._filenames = new_filenames
         for wordnames in itervalues(self._mapping):
-            wordnames.intersection_update(filenames)
+            wordnames.intersection_update(docnames)
         for wordnames in itervalues(self._title_mapping):
-            wordnames.intersection_update(filenames)
+            wordnames.intersection_update(docnames)
 
     def feed(self, docname, filename, title, doctree):
         # type: (unicode, unicode, unicode, nodes.Node) -> None

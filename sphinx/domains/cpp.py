@@ -4404,7 +4404,7 @@ class DefinitionParser(object):
         templatePrefix = self._check_template_consistency(name, templatePrefix,
                                                           fullSpecShorthand=False)
         res = ASTNamespace(name, templatePrefix)
-        res.objectType = 'namespace'
+        res.objectType = 'namespace'  # type: ignore
         return res
 
     def parse_xref_object(self):
@@ -4417,7 +4417,7 @@ class DefinitionParser(object):
         templatePrefix = self._check_template_consistency(name, templatePrefix,
                                                           fullSpecShorthand=True)
         res = ASTNamespace(name, templatePrefix)
-        res.objectType = 'xref'
+        res.objectType = 'xref'  # type: ignore
         return res
 
 
@@ -4729,7 +4729,7 @@ class CPPNamespacePushObject(Directive):
         # type: () -> List[nodes.Node]
         env = self.state.document.settings.env
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
-            return
+            return []
         parser = DefinitionParser(self.arguments[0], self, env.config)
         try:
             ast = parser.parse_namespace_object()

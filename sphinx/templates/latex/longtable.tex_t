@@ -1,4 +1,4 @@
-\begin{longtable}
+\begin{savenotes}\begin{longtable}
 <%- if table.align == 'center' -%>
   [c]
 <%- elif table.align == 'left' -%>
@@ -26,6 +26,8 @@
 \endfoot
 
 \endlastfoot
-
+<% if table.caption_footnotetexts -%>
+<%= ''.join(table.caption_footnotetexts) %>
+<% endif -%>
 <%= ''.join(table.body) %>
-\end{longtable}
+\end{longtable}\end{savenotes}
