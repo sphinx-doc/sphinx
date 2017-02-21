@@ -118,12 +118,19 @@ class CodeBlock(Directive):
         # type: () -> List[nodes.Node]
         document = self.state.document
         code = u'\n'.join(self.content)
+        location = self.state_machine.get_source_and_line(self.lineno)
 
         linespec = self.options.get('emphasize-lines')
         if linespec:
             try:
                 nlines = len(self.content)
-                hl_lines = [x + 1 for x in parselinenos(linespec, nlines)]
+                hl_lines = parselinenos(linespec, nlines)
+                if any(i >= nlines for i in hl_lines):
+                    logger.warning('line number spec is out of range(1-%d): %r' %
+                                   (nlines, self.options['emphasize_lines']),
+                                   location=location)
+
+                hl_lines = [x + 1 for x in hl_lines if x < nlines]
             except ValueError as err:
                 return [document.reporter.warning(str(err), line=self.lineno)]
         else:
@@ -228,20 +235,20 @@ class LiteralIncludeReader(object):
                        self.append_filter]
             lines = self.read_file(self.filename, location=location)
             for func in filters:
-                lines = func(lines)
+                lines = func(lines, location=location)
 
         return ''.join(lines), len(lines)
 
-    def show_diff(self):
-        # type: () -> List[unicode]
+    def show_diff(self, location=None):
+        # type: (Any) -> List[unicode]
         new_lines = self.read_file(self.filename)
         old_filename = self.options.get('diff')
         old_lines = self.read_file(old_filename)
         diff = unified_diff(old_lines, new_lines, old_filename, self.filename)  # type: ignore
         return list(diff)
 
-    def pyobject_filter(self, lines):
-        # type: (List[unicode]) -> List[unicode]
+    def pyobject_filter(self, lines, location=None):
+        # type: (List[unicode], Any) -> List[unicode]
         pyobject = self.options.get('pyobject')
         if pyobject:
             from sphinx.pycode import ModuleAnalyzer
@@ -259,11 +266,15 @@ class LiteralIncludeReader(object):
 
         return lines
 
-    def lines_filter(self, lines):
-        # type: (List[unicode]) -> List[unicode]
+    def lines_filter(self, lines, location=None):
+        # type: (List[unicode], Any) -> List[unicode]
         linespec = self.options.get('lines')
         if linespec:
             linelist = parselinenos(linespec, len(lines))
+            if any(i >= len(lines) for i in linelist):
+                logger.warning('line number spec is out of range(1-%d): %r' %
+                               (len(lines), linespec), location=location)
+
             if 'lineno-match' in self.options:
                 # make sure the line list is not "disjoint".
                 first = linelist[0]
@@ -273,12 +284,15 @@ class LiteralIncludeReader(object):
                     raise ValueError(_('Cannot use "lineno-match" with a disjoint '
                                        'set of "lines"'))
 
-            lines = [lines[n] for n in linelist]
+            lines = [lines[n] for n in linelist if n < len(lines)]
+            if lines == []:
+                raise ValueError(_('Line spec %r: no lines pulled from include file %r') %
+                                 (linespec, self.filename))
 
         return lines
 
-    def start_filter(self, lines):
-        # type: (List[unicode]) -> List[unicode]
+    def start_filter(self, lines, location=None):
+        # type: (List[unicode], Any) -> List[unicode]
         if 'start-at' in self.options:
             start = self.options.get('start-at')
             inclusive = False
@@ -304,8 +318,8 @@ class LiteralIncludeReader(object):
 
         return lines
 
-    def end_filter(self, lines):
-        # type: (List[unicode]) -> List[unicode]
+    def end_filter(self, lines, location=None):
+        # type: (List[unicode], Any) -> List[unicode]
         if 'end-at' in self.options:
             end = self.options.get('end-at')
             inclusive = True
@@ -328,16 +342,16 @@ class LiteralIncludeReader(object):
 
         return lines
 
-    def prepend_filter(self, lines):
-        # type: (List[unicode]) -> List[unicode]
+    def prepend_filter(self, lines, location=None):
+        # type: (List[unicode], Any) -> List[unicode]
         prepend = self.options.get('prepend')
         if prepend:
             lines.insert(0, prepend + '\n')
 
         return lines
 
-    def append_filter(self, lines):
-        # type: (List[unicode]) -> List[unicode]
+    def append_filter(self, lines, location=None):
+        # type: (List[unicode], Any) -> List[unicode]
         append = self.options.get('append')
         if append:
             lines.append(append + '\n')
@@ -413,7 +427,11 @@ class LiteralInclude(Directive):
             extra_args = retnode['highlight_args'] = {}
             if 'empahsize-lines' in self.options:
                 hl_lines = parselinenos(self.options['emphasize-lines'], lines)
-                extra_args['hl_lines'] = [x + 1 for x in hl_lines]
+                if any(i >= lines for i in hl_lines):
+                    logger.warning('line number spec is out of range(1-%d): %r' %
+                                   (lines, self.options['emphasize_lines']),
+                                   location=location)
+                extra_args['hl_lines'] = [x + 1 for x in hl_lines if x < len(lines)]
             extra_args['linenostart'] = reader.lineno_start
 
             if 'caption' in self.options:

@@ -106,6 +106,7 @@ def test_parselinenos():
     assert parselinenos('7-', 10) == [6, 7, 8, 9]
     assert parselinenos('1,7-', 10) == [0, 6, 7, 8, 9]
     assert parselinenos('7-7', 10) == [6]
+    assert parselinenos('11-', 10) == [10]
     with pytest.raises(ValueError):
         parselinenos('1-2-3', 10)
     with pytest.raises(ValueError):
@@ -114,5 +115,3 @@ def test_parselinenos():
         parselinenos('-', 10)
     with pytest.raises(ValueError):
         parselinenos('3-1', 10)
-    with pytest.raises(ValueError):
-        parselinenos('11-', 10)
