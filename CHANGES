@@ -109,6 +109,8 @@ Features added
 
 * Support requests-2.0.0 (experimental) (refs: #3367)
 * (latex) PDF page margin dimensions may be customized (refs: #3387)
+* ``literalinclude`` directive allows combination of ``:pyobject:`` and
+  ``:lines:`` options (refs: #3416)
 
 Bugs fixed
 ----------

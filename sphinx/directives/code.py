@@ -170,7 +170,6 @@ class CodeBlock(Directive):
 
 class LiteralIncludeReader(object):
     INVALID_OPTIONS_PAIR = [
-        ('pyobject', 'lines'),
         ('lineno-match', 'lineno-start'),
         ('lineno-match', 'append'),
         ('lineno-match', 'prepend'),

@@ -65,6 +65,14 @@ def test_LiteralIncludeReader_pyobject3():
                        "        pass\n")
 
 
+def test_LiteralIncludeReader_pyobject_and_lines():
+    options = {'pyobject': 'Bar', 'lines': '2-'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    content, lines = reader.read()
+    assert content == ("    def baz():\n"
+                       "        pass\n")
+
+
 def test_LiteralIncludeReader_lines1():
     options = {'lines': '1-4'}
     reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
