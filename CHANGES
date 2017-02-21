@@ -56,7 +56,8 @@ Features added
   :confval:`suppress_warnings`.
 * #3377: latex: Add support for Docutils 0.13 ``:align:`` option for tables
   (but does not implement text flow around table).
-* (latex) footnotes from inside tables are hyperlinked (except inside headers).
+* latex: footnotes from inside tables are hyperlinked (except from captions or
+  headers) (refs: #3422)
 
 Bugs fixed
 ----------
