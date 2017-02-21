@@ -172,8 +172,8 @@ class BuiltinTemplateLoader(TemplateBridge, BaseLoader):
             self.environment.install_gettext_translations(builder.app.translator)  # type: ignore  # NOQA
 
     def render(self, template, context):
-        # type: (unicode, Dict) -> None
-        self.environment.get_template(template).render(context)
+        # type: (unicode, Dict) -> unicode
+        return self.environment.get_template(template).render(context)
 
     def render_string(self, source, context):
         # type: (unicode, Dict) -> unicode
