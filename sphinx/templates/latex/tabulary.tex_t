@@ -1,4 +1,4 @@
-\begingroup
+\begin{savenotes}
 <% if table.align -%>
   <%- if table.align == 'center' -%>
   \centering
@@ -17,10 +17,13 @@
 \begin{tabulary}{\linewidth}<%= table.get_colspec() -%>
 \hline
 <%= ''.join(table.header) %>
+<%- if table.caption_footnotetexts -%>
+<%= ''.join(table.caption_footnotetexts) -%>
+<%- endif -%>
 <%=- ''.join(table.body) %>
 \end{tabulary}
 <%- if table.caption %>
 \end{threeparttable}
 <%- endif %>
 \par
-\endgroup
+\end{savenotes}

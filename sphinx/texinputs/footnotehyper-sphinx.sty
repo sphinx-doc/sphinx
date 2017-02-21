@@ -1,6 +1,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{footnotehyper-sphinx}%
- [2017/01/16 v1.5.2 hyperref aware footnote.sty for sphinx (JFB)]
+ [2017/02/15 v1.6 hyperref aware footnote.sty for sphinx (JFB)]
 %%
 %% Package: footnotehyper-sphinx
 %% Version: based on footnotehyper.sty v0.9f (2016/10/03)
@@ -10,13 +10,14 @@
 %% Differences from footnotehyper v0.9f (2016/10/03):
 %% 1. hyperref is assumed in use (with default hyperfootnotes=true),
 %% 2. no need to check if footnote.sty was loaded,
-%% 3. a special tabulary compatibility layer added, (partial but enough for
-%% Sphinx),
-%% 4. \sphinxfootnotemark, and use of \spx@opt@BeforeFootnote from sphinx.sty.
-%% Note: with \footnotemark[N]/\footnotetext[N] syntax, hyperref
-%% does not insert an hyperlink. This is _not_ improved here.
+%% 3. a tabulary compatibility layer added, (partial but enough for Sphinx),
+%% 4. \sphinxfootnotemark, and use of \spx@opt@BeforeFootnote from sphinx.sty,
 %% 5. use of \sphinxunactivateextrasandspace for parsed literals
-%%
+%% 6. macro \sphinxlongtablepatch
+%% 7. some import from future footnotehyper v0.99 (\FNH@fn@fntext)
+%% 8. deprecation of \makesavenoteenv.
+%% Future version of footnotehyper will not load footnote.sty and it will define
+%% all macros rather than adding hyperref awareness and fixing bugs.
 \DeclareOption*{\PackageWarning{footnotehyper}{Option `\CurrentOption' is unknown}}%
 \ProcessOptions\relax
 \let\FNH@@makefntext\@makefntext\let\@makefntext\@firstofone
@@ -31,6 +32,7 @@
     \let\fn@latex@@footnote    \footnote % meaning of \footnote at end of preamble
     \let\fn@latex@@footnotetext\footnotetext
     \let\fn@fntext \FNH@hyper@fntext
+    \let\savenotes \FNH@savenotes
     \let\spewnotes \FNH@hyper@spewnotes
     \let\endsavenotes\spewnotes
     \let\fn@endfntext\FNH@fixed@endfntext
@@ -39,13 +41,33 @@
     \let\endfootnote\fn@endfntext
     \let\endfootnotetext\endfootnote
 }%
-\def\FNH@hyper@fntext {%
+%% patch \savenotes for good functioning of \footnotetext[N]{..} syntax even
+%% though Sphinx now uses only environment form. In future, will simply copy
+%% over full footnotehyper v0.99.
+\toks@\expandafter\expandafter\expandafter{\expandafter\@gobble\savenotes}%
+\edef\FNH@savenotes{\begingroup
+      \unexpanded{\if@savingnotes\else\let\H@@mpfootnotetext\FNH@fn@fntext\fi}%
+      \the\toks@ }%
+\def\FNH@fn@fntext   {\FNH@fntext\FNH@fn@fntext@i}%
+\def\FNH@hyper@fntext{\FNH@fntext\FNH@hyper@fntext@i}%
+\def\FNH@fntext #1{%
 %% amsmath compatibility
   \ifx\ifmeasuring@\undefined\expandafter\@secondoftwo
                                       \else\expandafter\@firstofone\fi
     {\ifmeasuring@\expandafter\@gobbletwo\else\expandafter\@firstofone\fi}%
 %% partial tabulary compatibility, [N] must be used, but Sphinx does it
-    {\ifx\equation$\expandafter\@gobbletwo\fi\FNH@hyper@fntext@i }%$
+    {\ifx\equation$\expandafter\@gobbletwo\fi #1}%$
+}%
+%% footnote.sty's replacement for \@footnotetext
+\long\def\FNH@fn@fntext@i #1{\global\setbox\fn@notes\vbox
+     {\unvbox\fn@notes
+      \fn@startnote
+      \@makefntext
+       {\rule\z@\footnotesep\ignorespaces
+        #1%
+        \@finalstrut\strutbox
+       }%
+      \fn@endnote }%
 }%
 \long\def\FNH@hyper@fntext@i #1{\global\setbox\fn@notes\vbox
      {\unvbox\fn@notes
@@ -62,7 +84,8 @@
          \let\@currentHref\Hy@footnote@currentHref
          \let\@currentlabelname\@empty
          #1}%
-      \@finalstrut\strutbox }%
+        \@finalstrut\strutbox
+       }%
       \fn@endnote }%
 }%
 \def\FNH@hyper@spewnotes {\endgroup
@@ -87,7 +110,7 @@
 \def\FNH@endfntext@nolink {\begingroup
     \let\@makefntext\@empty\let\@finalstrut\@gobble
     \let\rule\@gobbletwo
-    \if@savingnotes\expandafter\fn@fntext\else\expandafter\H@@footnotetext\fi
+    \if@savingnotes\expandafter\FNH@fn@fntext\else\expandafter\H@@footnotetext\fi
     {\unvbox\z@}\endgroup
 }%
 %% \spx@opt@BeforeFootnote is defined in sphinx.sty
@@ -139,12 +162,13 @@
 \def\FNH@check@c #11.2!3?4,#2#3\relax
    {\ifx\FNH@check@c#2\expandafter\@gobble\fi\FNH@bad@footnote@env}%
 \def\FNH@bad@footnote@env
-{\PackageWarningNoLine{footnotehyper}%
- {The footnote environment from package footnote^^J
-  will be dysfunctional, sorry (not my fault...). You may try to make a bug^^J
-  report at https://github.com/sphinx-doc/sphinx including the next lines:}%
+{\PackageWarningNoLine{footnotehyper-sphinx}%
+ {Footnotes will be sub-optimal, sorry. This is due to the class or^^J
+  some package modifying macro \string\@makefntext.^^J
+  You can try to report this incompatibility at^^J
+  https://github.com/sphinx-doc/sphinx with this info:}%
     \typeout{\meaning\@makefntext}%
-    \let\fn@prefntext\@empty\let\fn@postfntext\@empty
+  \let\fn@prefntext\@empty\let\fn@postfntext\@empty
 }%
 %% \sphinxfootnotemark: usable in section titles and silently removed from
 %% TOCs.
@@ -153,6 +177,19 @@
                             \protect\footnotemark[#1]\fi}%
 \AtBeginDocument % let hyperref less complain
    {\pdfstringdefDisableCommands{\def\sphinxfootnotemark [#1]{}}}%
+% to obtain hyperlinked footnotes in longtable environment we must replace
+% hyperref's patch of longtable's patch of \@footnotetext by our own
+\def\sphinxlongtablepatch {% only for longtable wrapped in "savenotes"
+    \let\LT@p@ftntext\FNH@hyper@fntext
+}%
+%% deprecate \makesavenoteenv
+\def\makesavenoteenv{%
+    \AtEndDocument{\PackageWarning{footnotehyper-sphinx}
+    {^^J^^J^^J!\@spaces**** SPHINX DEPRECATION WARNING ****^^J!^^J%
+     !\@spaces\string\makesavenoteenv\space from footnote.sty is deprecated^^J%
+     !\@spaces and will be removed at Sphinx 1.7 !^^J^^J^^J}}%
+  \@ifnextchar[\fn@msne@ii\fn@msne@i%]
+}%
 \endinput
 %%
 %% End of file `footnotehyper-sphinx.sty'.
