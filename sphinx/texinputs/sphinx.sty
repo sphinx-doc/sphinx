@@ -8,6 +8,21 @@
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
 \ProvidesPackage{sphinx}[2017/02/17 v1.5.3 LaTeX package (Sphinx markup)]
 
+% this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
+% kvoptions (and later by hyperref), but the first release of
+% ltxcmds.sty as in TL2009/Debian has wrong definition.
+\newcommand{\spx@ifundefined}[1]{%
+    \ifcsname #1\endcsname
+      \expandafter\ifx\csname #1\endcsname\relax
+        \expandafter\expandafter\expandafter\@firstoftwo
+      \else
+        \expandafter\expandafter\expandafter\@secondoftwo
+      \fi
+    \else
+      \expandafter\@firstoftwo
+    \fi
+}
+
 %% for deprecation warnings
 \newcommand\sphinxdeprecationwarning[4]{% #1 the deprecated macro or name,
 % #2 = version when deprecated, #3 = version when removed, #4 = message
@@ -189,20 +204,6 @@
 % user interface: options can be changed midway in a document!
 \newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
 
-% this is the \ltx@ifundefined of ltxcmds.sty, which was loaded by
-% kvoptions already, (and later by hyperref), but the first release of
-% ltxcmds.sty as in TL2009/Debian has wrong definition.
-\newcommand{\spx@ifundefined}[1]{%
-    \ifcsname #1\endcsname
-      \expandafter\ifx\csname #1\endcsname\relax
-        \expandafter\expandafter\expandafter\@firstoftwo
-      \else
-        \expandafter\expandafter\expandafter\@secondoftwo
-      \fi
-    \else
-      \expandafter\@firstoftwo
-    \fi
-}
 % FIXME: the reasons might be obsolete (better color drivers now?)
 % use pdfoutput for pTeX and dvipdfmx
 % when pTeX (\kanjiskip is defined), set pdfoutput to evade \include{pdfcolor}
