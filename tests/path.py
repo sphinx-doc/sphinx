@@ -123,6 +123,12 @@ class path(text_type):
         """
         os.unlink(self)
 
+    def stat(self):
+        """
+        Returns a stat of the file.
+        """
+        return os.stat(self)
+
     def utime(self, arg):
         os.utime(self, arg)
 

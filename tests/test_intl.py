@@ -500,7 +500,8 @@ def test_gettext_dont_rebuild_mo(make_app, app_params, build_mo):
     assert get_number_of_update_targets(app0) == 0
     # When rewriting the timestamp of mo file, the number of documents to be
     # updated will be changed.
-    (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime(None)
+    mtime = (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').stat().st_mtime
+    (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime((mtime + 5, mtime + 5))
     assert get_number_of_update_targets(app0) == 1
 
     # Because doctree for gettext builder can not be shared with other builders,
@@ -515,7 +516,7 @@ def test_gettext_dont_rebuild_mo(make_app, app_params, build_mo):
     assert get_number_of_update_targets(app) == 0
     # Even if the timestamp of the mo file is updated, the number of documents
     # to be updated is 0. gettext builder does not rebuild because of mo update.
-    (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime(None)
+    (app0.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime((mtime + 10, mtime + 10))
     assert get_number_of_update_targets(app) == 0
 
 
@@ -669,7 +670,8 @@ def test_html_rebuild_mo(app):
     updated = app.env.update(app.config, app.srcdir, app.doctreedir, app)
     assert len(updated) == 0
 
-    (app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime(None)
+    mtime = (app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').stat().st_mtime
+    (app.srcdir / 'xx' / 'LC_MESSAGES' / 'bom.mo').utime((mtime + 5, mtime + 5))
     updated = app.env.update(app.config, app.srcdir, app.doctreedir, app)
     assert len(updated) == 1
 
