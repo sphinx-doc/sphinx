@@ -330,6 +330,7 @@ class Table(object):
         self.colspec = None                     # type: unicode
         self.colwidths = []                     # type: List[int]
         self.has_problematic = False
+        self.has_oldproblematic = False
         self.has_verbatim = False
         self.caption = None                     # type: List[unicode]
         self.caption_footnotetexts = []         # type: List[unicode]
@@ -391,6 +392,8 @@ class Table(object):
         elif self.get_table_type() == 'tabulary':
             # sphinx.sty sets T to be J by default.
             return '{|' + ('T|' * self.colcount) + '}\n'
+        elif self.has_oldproblematic:
+            return '{|*{%d}{\\X{1}{%d}|}}\n' % (self.colcount, self.colcount)
         else:
             return '{|' + ('l|' * self.colcount) + '}\n'
 
@@ -1439,6 +1442,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.needs_linetrimming = 1
         if len(node) > 2 and len(node.astext().split('\n')) > 2:
             self.needs_linetrimming = 1
+        if len(node.traverse(nodes.paragraph)) >= 2:
+            self.table.has_oldproblematic = True
         if isinstance(node.parent.parent, nodes.thead):
             if len(node) == 1 and isinstance(node[0], nodes.paragraph) and node.astext() == '':
                 pass
