@@ -595,6 +595,10 @@ class HTMLTranslator(BaseTranslator):
     def depart_hlistcol(self, node):
         self.body.append('</td>')
 
+    def visit_option_group(self, node):
+        BaseTranslator.visit_option_group(self, node)
+        self.context[-2] = self.context[-2].replace('&nbsp;', '&#160;')
+
     def bulk_text_processor(self, text):
         return text
 
@@ -831,10 +835,6 @@ class SmartyPantsHTMLTranslator(HTMLTranslator):
     def depart_option(self, node):
         self.no_smarty -= 1
         HTMLTranslator.depart_option(self, node)
-
-    def visit_option_group(self, node):
-        HTMLTranslator.visit_option_group(self, node)
-        self.context[-2] = self.context[-2].replace('&nbsp;', '&#160;')
 
     def bulk_text_processor(self, text):
         if self.no_smarty <= 0:
