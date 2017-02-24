@@ -13,10 +13,15 @@ from unittest import TestCase
 from six import PY3
 import functools
 from textwrap import dedent
+import pytest
 
 from sphinx.util import inspect
 
 class TestGetArgSpec(TestCase):
+    def test_getargspec_builtin_type(self):
+        with pytest.raises(TypeError):
+            inspect.getargspec(int)
+
     def test_getargspec_partial(self):
         def fun(a, b, c=1, d=2):
             pass

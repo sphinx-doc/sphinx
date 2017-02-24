@@ -40,6 +40,15 @@ if PY3:
     def getargspec(func):
         """Like inspect.getfullargspec but supports bound methods, and wrapped
         methods."""
+        # On 3.5+, signature(int) or similar raises ValueError. On 3.4, it
+        # succeeds with a bogus signature. We want a TypeError uniformly, to
+        # match historical behavior.
+        if (isinstance(func, type)
+              and is_builtin_class_method(func, "__new__")
+              and is_builtin_class_method(func, "__init__")):
+            raise TypeError(
+                "can't compute signature for built-in type {}".format(func))
+
         sig = inspect.signature(func)
 
         args = []
