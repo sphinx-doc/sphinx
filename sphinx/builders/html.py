@@ -34,6 +34,7 @@ from sphinx.util.i18n import format_date
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
 from sphinx.util.nodes import inline_all_toctrees
+from sphinx.util.docutils import is_html5_writer_available, __version_info__
 from sphinx.util.fileutil import copy_asset
 from sphinx.util.matching import patmatch, Matcher, DOTFILES
 from sphinx.config import string_classes
@@ -54,6 +55,13 @@ if False:
     from typing import Any, Iterable, Iterator, Type, Tuple, Union  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+# Experimental HTML5 Writer
+if is_html5_writer_available():
+    from sphinx.writers.html5 import HTML5Translator, SmartyPantsHTML5Translator
+    html5_ready = True
+else:
+    html5_ready = False
 
 #: the filename for the inventory of objects
 INVENTORY_FILENAME = 'objects.inv'
@@ -145,6 +153,12 @@ class StandaloneHTMLBuilder(Builder):
                 self.script_files.append('_static/translations.js')
         self.use_index = self.get_builder_config('use_index', 'html')
 
+        if self.config.html_experimental_html5_writer and not html5_ready:
+            self.app.warn(' '.join((
+                'html_experimental_html5_writer is set, but current version is old.',
+                'Docutils\' version should be or newer than 0.13, but %s.',
+            )) % '.'.join(map(str, __version_info__)))
+
     def _get_translations_js(self):
         # type: () -> unicode
         candidates = [path.join(dir, self.config.language,
@@ -188,10 +202,16 @@ class StandaloneHTMLBuilder(Builder):
     def init_translator_class(self):
         # type: () -> None
         if self.translator_class is None:
-            if self.config.html_use_smartypants:
-                self.translator_class = SmartyPantsHTMLTranslator
+            if self.config.html_experimental_html5_writer and html5_ready:
+                if self.config.html_use_smartypants:
+                    self.translator_class = SmartyPantsHTML5Translator
+                else:
+                    self.translator_class = HTML5Translator
             else:
-                self.translator_class = HTMLTranslator
+                if self.config.html_use_smartypants:
+                    self.translator_class = SmartyPantsHTMLTranslator
+                else:
+                    self.translator_class = HTMLTranslator
 
     def get_outdated_docs(self):
         # type: () -> Iterator[unicode]
@@ -374,6 +394,7 @@ class StandaloneHTMLBuilder(Builder):
             parents = [],
             logo = logo,
             favicon = favicon,
+            html5_doctype = self.config.html_experimental_html5_writer and html5_ready,
         )  # type: Dict[unicode, Any]
         if self.theme:
             self.globalcontext.update(
@@ -1320,6 +1341,7 @@ def setup(app):
     app.add_config_value('html_search_options', {}, 'html')
     app.add_config_value('html_search_scorer', '', None)
     app.add_config_value('html_scaled_image_link', True, 'html')
+    app.add_config_value('html_experimental_html5_writer', False, 'html')
 
     return {
         'version': 'builtin',

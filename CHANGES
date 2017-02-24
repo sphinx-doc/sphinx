@@ -77,6 +77,8 @@ Features added
 * #3476: setuptools: Support multiple builders
 * latex: merged cells in LaTeX tables allow code-blocks, lists, blockquotes...
   as do normal cells (refs: #3435)
+* HTML buildre uses experimental HTML5 writer if ``html_experimental_html5_builder`` is True
+  and docutils 0.13 and newer is installed.
 
 Bugs fixed
 ----------

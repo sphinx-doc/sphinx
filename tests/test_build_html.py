@@ -109,9 +109,9 @@ def check_xpath(etree, fname, path, check, be_found=True):
                 # Since pygments-2.1.1, empty <span> tag is inserted at top of
                 # highlighting block
                 if len(node) == 1 and node[0].tag == 'span' and node[0].text is None:
-                    return node[0].tail
-                else:
-                    return ''
+                    if node[0].tail is not None:
+                        return node[0].tail
+                return ''
 
         rex = re.compile(check)
         if be_found:
