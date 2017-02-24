@@ -10,7 +10,62 @@
 """
 from unittest import TestCase
 
+from six import PY3
+import functools
+from textwrap import dedent
+
 from sphinx.util import inspect
+
+class TestGetArgSpec(TestCase):
+    def test_getargspec_partial(self):
+        def fun(a, b, c=1, d=2):
+            pass
+        p = functools.partial(fun, 10, c=11)
+
+        if PY3:
+            # Python 3's partial is rather cleverer than Python 2's, and we
+            # have to jump through some hoops to define an equivalent function
+            # in a way that won't confuse Python 2's parser:
+            ns = {}
+            exec(dedent("""
+                def f_expected(b, *, c=11, d=2):
+                        pass
+            """), ns)
+            f_expected = ns["f_expected"]
+        else:
+            def f_expected(b, d=2):
+                pass
+        expected = inspect.getargspec(f_expected)
+
+        assert expected == inspect.getargspec(p)
+
+    def test_getargspec_bound_methods(self):
+        def f_expected_unbound(self, arg1, **kwargs):
+            pass
+        expected_unbound = inspect.getargspec(f_expected_unbound)
+
+        def f_expected_bound(arg1, **kwargs):
+            pass
+        expected_bound = inspect.getargspec(f_expected_bound)
+
+        class Foo:
+            def method(self, arg1, **kwargs):
+                pass
+
+        bound_method = Foo().method
+
+        @functools.wraps(bound_method)
+        def wrapped_bound_method(*args, **kwargs):
+            pass
+
+        assert expected_unbound == inspect.getargspec(Foo.method)
+        if PY3:
+            # On py2, the inspect functions don't properly handle bound
+            # methods (they include a spurious 'self' argument)
+            assert expected_bound == inspect.getargspec(bound_method)
+            # On py2, the inspect functions can't properly handle wrapped
+            # functions (no __wrapped__ support)
+            assert expected_bound == inspect.getargspec(wrapped_bound_method)
 
 
 class TestSafeGetAttr(TestCase):
