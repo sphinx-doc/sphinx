@@ -131,7 +131,7 @@ class HTMLTranslator(BaseTranslator):
         pass
 
     def visit_desc_returns(self, node):
-        self.body.append(' &rarr; ')
+        self.body.append(' &#x2192; ')
 
     def depart_desc_returns(self, node):
         pass
@@ -727,6 +727,11 @@ class HTMLTranslator(BaseTranslator):
         self.body.append(self.starttag(node, 'tr', ''))
         node.column = 0
 
+    def visit_entry(self, node):
+        BaseTranslator.visit_entry(self, node)
+        if self.body[-1] == '&nbsp;':
+            self.body[-1] = '&#160;'
+
     def visit_field_list(self, node):
         self._fieldlist_row_index = 0
         return BaseTranslator.visit_field_list(self, node)
@@ -738,6 +743,12 @@ class HTMLTranslator(BaseTranslator):
         else:
             node['classes'].append('field-odd')
         self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
+
+    def visit_field_name(self, node):
+        context_count = len(self.context)
+        BaseTranslator.visit_field_name(self, node)
+        if context_count != len(self.context):
+            self.context[-1] = self.context[-1].replace('&nbsp;', '&#160;')
 
     def visit_math(self, node, math_env=''):
         self.builder.warn('using "math" markup without a Sphinx math extension '
@@ -820,6 +831,10 @@ class SmartyPantsHTMLTranslator(HTMLTranslator):
     def depart_option(self, node):
         self.no_smarty -= 1
         HTMLTranslator.depart_option(self, node)
+
+    def visit_option_group(self, node):
+        HTMLTranslator.visit_option_group(self, node)
+        self.context[-2] = self.context[-2].replace('&nbsp;', '&#160;')
 
     def bulk_text_processor(self, text):
         if self.no_smarty <= 0:
