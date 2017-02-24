@@ -10,6 +10,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+from six import PY3
+
 from util import SphinxTestApp, Struct  # NOQA
 import pytest
 
@@ -752,6 +754,10 @@ def test_generate():
 
     # test autodoc_member_order == 'source'
     directive.env.ref_context['py:module'] = 'test_autodoc'
+    if PY3:
+        roger_line = '   .. py:classmethod:: Class.roger(a, *, b=2, c=3, d=4, e=5, f=6)'
+    else:
+        roger_line = '   .. py:classmethod:: Class.roger(a, e=5, f=6)'
     assert_order(['.. py:class:: Class(arg)',
                   '   .. py:attribute:: Class.descr',
                   '   .. py:method:: Class.meth()',
@@ -761,7 +767,7 @@ def test_generate():
                   '   .. py:attribute:: Class.docattr',
                   '   .. py:attribute:: Class.udocattr',
                   '   .. py:attribute:: Class.mdocattr',
-                  '   .. py:classmethod:: Class.roger(a, e=5, f=6)',
+                  roger_line,
                   '   .. py:classmethod:: Class.moore(a, e, f) -> happiness',
                   '   .. py:attribute:: Class.inst_attr_comment',
                   '   .. py:attribute:: Class.inst_attr_string',
