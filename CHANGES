@@ -90,10 +90,9 @@ Deprecated
   - ``BuildEnvironment.create_index()``
 
   Please use ``sphinx.environment.adapters`` modules instead.
-* The LaTeX package ``footnote.sty`` will not be loaded anymore at Sphinx 1.7,
-  as Sphinx's ``footnotehyper-sphinx.sty`` will define all macros rather than
-  patch them. In particular the ``\makesavenoteenv`` macro is not in use anymore
-  and its definition will be removed at Sphinx 1.7.
+* latex package  ``footnote`` is not loaded anymore by its bundled replacement
+  ``footnotehyper-sphinx``. The redefined macros keep the same names as in the
+   original package.
 
 Release 1.5.3 (in development)
 ==============================
@@ -289,6 +288,8 @@ Incompatible changes
   The non-modified package is used.
 * #3057: By default, footnote marks in latex PDF output are not preceded by a
   space anymore, ``\sphinxBeforeFootnote`` allows user customization if needed.
+* LaTeX target requires that option ``hyperfootnotes`` of package ``hyperref``
+  be left unchanged to its default (i.e. ``true``) (refs: #3022)
 
 1.5 final
 

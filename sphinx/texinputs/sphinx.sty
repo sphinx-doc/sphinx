@@ -74,7 +74,6 @@
 % For hyperlinked footnotes in tables; also for gathering footnotes from
 % topic and warning blocks. Also to allow code-blocks in footnotes.
 \RequirePackage{footnotehyper-sphinx}
-\AtBeginDocument{\@ifpackageloaded{longtable}{\sphinxlongtablepatch}{}}%
 % For the H specifier. Do not \restylefloat{figure}, it breaks Sphinx code
 % for allowing figures in tables.
 \RequirePackage{float}
