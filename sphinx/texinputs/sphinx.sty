@@ -1142,7 +1142,7 @@
     {\end{theindex}}
 
   \renewenvironment{sphinxthebibliography}[1]
-    {\cleardoublepage\phantomsection
+    {\cleardoublepage% \phantomsection % not needed here since TeXLive 2010's hyperref
      \begin{thebibliography}{1}}
     {\end{thebibliography}}
 \fi
