@@ -12,6 +12,7 @@ Features added
 
 * Support requests-2.0.0 (experimental) (refs: #3367)
 * (latex) PDF page margin dimensions may be customized (refs: #3387)
+* #3400: make-mode doesn't use subprocess on building docs
 
 Bugs fixed
 ----------
