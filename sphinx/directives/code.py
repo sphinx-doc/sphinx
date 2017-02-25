@@ -430,7 +430,7 @@ class LiteralInclude(Directive):
                     logger.warning('line number spec is out of range(1-%d): %r' %
                                    (lines, self.options['emphasize_lines']),
                                    location=location)
-                extra_args['hl_lines'] = [x + 1 for x in hl_lines if x < len(lines)]
+                extra_args['hl_lines'] = [x + 1 for x in hl_lines if x < lines]
             extra_args['linenostart'] = reader.lineno_start
 
             if 'caption' in self.options:
