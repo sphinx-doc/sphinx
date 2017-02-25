@@ -65,7 +65,7 @@ class Builder(object):
                                        self.versioning_compare)
         self.srcdir = app.srcdir
         self.confdir = app.confdir
-        self.outdir = app.outdir
+        self.outdir = "build/{:}".format(self.name)
         self.doctreedir = app.doctreedir
         if not path.isdir(self.doctreedir):
             os.makedirs(self.doctreedir)
