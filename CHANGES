@@ -122,6 +122,8 @@ Bugs fixed
 * #3427: autodoc: memory addresses are not stripped on Windows
 * #3428: xetex build tests fail due to fontspec v2.6 defining ``\strong``
 * #3349: Result of ``IndexBuilder.load()`` is broken
+* #3450: &nbsp is appeared in EPUB docs
+* #3418: Search button is misaligned in nature and pyramid theme
 
 Testing
 --------

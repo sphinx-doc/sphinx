@@ -233,8 +233,9 @@ following directive exists:
    |``J``| justified column with automatic width    |
    +-----+------------------------------------------+
 
-   The automatic width is determined by rendering the content in the table, and
-   scaling them according to their share of the total width.
+   The automatic widths of the ``LRCJ`` columns are attributed by ``tabulary``
+   in proportion to the observed shares in a first pass where the table cells
+   are rendered at their natural "horizontal" widths.
 
    By default, Sphinx uses a table layout with ``L`` for every column.
 

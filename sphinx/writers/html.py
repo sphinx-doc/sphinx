@@ -155,7 +155,7 @@ class HTMLTranslator(BaseTranslator):
 
     def visit_desc_returns(self, node):
         # type: (nodes.Node) -> None
-        self.body.append(' &rarr; ')
+        self.body.append(' &#x2192; ')
 
     def depart_desc_returns(self, node):
         # type: (nodes.Node) -> None
@@ -835,6 +835,11 @@ class HTMLTranslator(BaseTranslator):
         self.body.append(self.starttag(node, 'tr', ''))
         node.column = 0
 
+    def visit_entry(self, node):
+        BaseTranslator.visit_entry(self, node)
+        if self.body[-1] == '&nbsp;':
+            self.body[-1] = '&#160;'
+
     def visit_field_list(self, node):
         # type: (nodes.Node) -> None
         self._fieldlist_row_index = 0
@@ -848,6 +853,12 @@ class HTMLTranslator(BaseTranslator):
         else:
             node['classes'].append('field-odd')
         self.body.append(self.starttag(node, 'tr', '', CLASS='field'))
+
+    def visit_field_name(self, node):
+        context_count = len(self.context)
+        BaseTranslator.visit_field_name(self, node)
+        if context_count != len(self.context):
+            self.context[-1] = self.context[-1].replace('&nbsp;', '&#160;')
 
     def visit_math(self, node, math_env=''):
         # type: (nodes.Node, unicode) -> None
@@ -945,6 +956,10 @@ class SmartyPantsHTMLTranslator(HTMLTranslator):
         # type: (nodes.Node) -> None
         self.no_smarty -= 1
         HTMLTranslator.depart_option(self, node)
+
+    def visit_option_group(self, node):
+        HTMLTranslator.visit_option_group(self, node)
+        self.context[-2] = self.context[-2].replace('&nbsp;', '&#160;')
 
     def bulk_text_processor(self, text):
         # type: (unicode) -> unicode
