@@ -17,6 +17,7 @@ Sphinx documentation contents
    config
    intl
    theming
+   setuptools
    templating
    latex
    markdown
