@@ -18,6 +18,9 @@ Incompatible changes
   relative (refs #3412)
 * ``literalinclude`` directive does not allow the combination of ``:diff:``
   option and other options (refs: #3416)
+* Default config for LuaLaTeX engine uses ``fontspec`` hence needs TeXLive 2013
+  or more recent TeX installation for compatibility. This also means that the
+  fonts used by default have changed to the defaults as chosen by ``fontspec``.
 
 Features removed
 ----------------
@@ -62,6 +65,8 @@ Features added
   headers) (refs: #3422)
 * Emit warning if over dedent has detected on ``literalinclude`` directive
   (refs: #3416)
+* Use for LuaLaTeX same default settings as for XeLaTeX (i.e. ``fontspec`` and
+  ``polyglossia``).
 
 Bugs fixed
 ----------

@@ -120,6 +120,10 @@ ADDITIONAL_SETTINGS = {
     },
     'lualatex': {
         'latex_engine': 'lualatex',
+        'polyglossia':  '\\usepackage{polyglossia}',
+        'babel':        '',
+        'fontenc':      '\\usepackage{fontspec}',
+        'fontpkg':      '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
                         '{\\leavevmode\\nobreak\\ }'),
     },
@@ -577,7 +581,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # set up multilingual module...
         # 'babel' key is public and user setting must be obeyed
         if self.elements['babel']:
-            # this branch is not taken for xelatex with writer default settings
+            # this branch is not taken for xelatex/lualatex if default settings
             self.elements['multilingual'] = self.elements['babel']
             if builder.config.language:
                 self.elements['shorthandoff'] = self.babel.get_shorthandoff()

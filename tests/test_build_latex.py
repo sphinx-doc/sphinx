@@ -14,6 +14,7 @@ import os
 import re
 from itertools import product
 from subprocess import Popen, PIPE
+from shutil import copyfile
 
 from six import PY3
 import pytest
@@ -67,6 +68,9 @@ def compile_latex_document(app):
     with cd(app.outdir):
         try:
             ensuredir(app.config.latex_engine)
+            # keep a copy of latex file for this engine in case test fails
+            copyfile('SphinxTests.tex',
+                     app.config.latex_engine + '/SphinxTests.tex')
             p = Popen([app.config.latex_engine,
                        '--interaction=nonstopmode',
                        '-output-directory=%s' % app.config.latex_engine,
