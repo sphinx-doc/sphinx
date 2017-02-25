@@ -79,6 +79,7 @@ class Builder(object):
         self.tags.add(self.name)
         self.tags.add("format_%s" % self.format)
         self.tags.add("builder_%s" % self.name)
+        self.writing = "writing {:}... ".format(self.name)
         # compatibility aliases
         self.status_iterator = app.status_iterator
         self.old_status_iterator = app.old_status_iterator
@@ -184,7 +185,7 @@ class Builder(object):
             return path.relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
 
         logger.info(bold('building [mo]: ') + message)
-        for catalog in status_iterator(catalogs, 'writing output... ', "darkgreen",
+        for catalog in status_iterator(catalogs, self.writing, "darkgreen",
                                        len(catalogs), self.app.verbosity,
                                        stringify_func=cat2relpath):
             catalog.write_mo(self.config.language)
@@ -386,7 +387,7 @@ class Builder(object):
     def _write_serial(self, docnames):
         # type: (Sequence[unicode]) -> None
         with logging.pending_warnings():
-            for docname in status_iterator(docnames, 'writing output... ', "darkgreen",
+            for docname in status_iterator(docnames, self.writing, "darkgreen",
                                            len(docnames), self.app.verbosity):
                 doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.write_doc_serialized(docname, doctree)
@@ -408,7 +409,7 @@ class Builder(object):
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
 
-        for chunk in status_iterator(chunks, 'writing output... ', "darkgreen",
+        for chunk in status_iterator(chunks, self.writing, "darkgreen",
                                      len(chunks), self.app.verbosity):
             arg = []
             for i, docname in enumerate(chunk):

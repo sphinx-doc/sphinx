@@ -72,7 +72,7 @@ events = {
     'env-updated': 'env',
     'html-collect-pages': 'builder',
     'html-page-context': 'pagename, context, doctree or None',
-    'build-finished': 'exception',
+    'build-finished': 'exception'
 }  # type: Dict[unicode, unicode]
 builtin_extensions = (
     'sphinx.builders.applehelp',
@@ -124,7 +124,7 @@ logger = logging.getLogger(__name__)
 
 class Sphinx(object):
 
-    def __init__(self, srcdir, confdir, outdir, doctreedir, buildername,
+    def __init__(self, srcdir, confdir, outdir, doctreedir, buildernames,
                  confoverrides=None, status=sys.stdout, warning=sys.stderr,
                  freshenv=False, warningiserror=False, tags=None, verbosity=0,
                  parallel=0):
@@ -137,8 +137,9 @@ class Sphinx(object):
         self._listeners = {}                    # type: Dict[unicode, Dict[int, Callable]]
         self._setting_up_extension = ['?']      # type: List[unicode]
         self.domains = {}                       # type: Dict[unicode, Type[Domain]]
-        self.buildername = buildername
+        self.buildernames = buildernames        # type: List[unicode]
         self.builderclasses = {}                # type: Dict[unicode, Type[Builder]]
+        self.builders = {}                      # type: Dict[unicode, Builder]
         self.builder = None                     # type: Builder
         self.env = None                         # type: BuildEnvironment
         self.enumerable_nodes = {}              # type: Dict[nodes.Node, Tuple[unicode, Callable]]  # NOQA
@@ -259,7 +260,7 @@ class Sphinx(object):
         # set up the build environment
         self._init_env(freshenv)
         # set up the builder
-        self._init_builder(self.buildername)
+        self._init_builders(self.buildernames)
         # set up the enumerable nodes
         self._init_enumerable_nodes()
 
@@ -301,7 +302,7 @@ class Sphinx(object):
         # type: (bool) -> None
         if freshenv:
             self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
-            self.env.find_files(self.config, self.buildername)
+            self.env.find_files(self.config, self.buildernames)
             for domain in self.domains.keys():
                 self.env.domains[domain] = self.domains[domain](self.env)
         else:
@@ -321,16 +322,20 @@ class Sphinx(object):
                     logger.info('failed: %s', err)
                 self._init_env(freshenv=True)
 
-    def _init_builder(self, buildername):
+    def _init_builders(self, buildernames):
         # type: (unicode) -> None
-        if buildername is None:
+        if not len(buildernames):
             print('No builder selected, using default: html', file=self._status)
-            buildername = 'html'
-        if buildername not in self.builderclasses:
-            raise SphinxError('Builder name %s not registered' % buildername)
+            buildernames.append('html')
 
-        builderclass = self.builderclasses[buildername]
-        self.builder = builderclass(self)
+        for builder in buildernames:
+            if builder not in self.builderclasses:
+                raise SphinxError('Builder name %s not registered' % builder)
+
+            builderclass = self.builderclasses[builder]
+            self.builders[builder] = builderclass(self)
+
+        self.builder = self.builders[buildernames[0]]
         self.emit('builder-inited')
 
     def _init_enumerable_nodes(self):
@@ -342,35 +347,37 @@ class Sphinx(object):
 
     def build(self, force_all=False, filenames=None):
         # type: (bool, List[unicode]) -> None
-        try:
-            if force_all:
-                self.builder.compile_all_catalogs()
-                self.builder.build_all()
-            elif filenames:
-                self.builder.compile_specific_catalogs(filenames)
-                self.builder.build_specific(filenames)
-            else:
-                self.builder.compile_update_catalogs()
-                self.builder.build_update()
+        for builder in self.builders.values():
+            self.builder = builder
+            try:
+                if force_all:
+                    builder.compile_all_catalogs()
+                    builder.build_all()
+                elif filenames:
+                    builder.compile_specific_catalogs(filenames)
+                    builder.build_specific(filenames)
+                else:
+                    builder.compile_update_catalogs()
+                    builder.build_update()
 
-            status = (self.statuscode == 0 and
-                      'succeeded' or 'finished with problems')
-            if self._warncount:
-                logger.info(bold('build %s, %s warning%s.' %
-                                 (status, self._warncount,
-                                  self._warncount != 1 and 's' or '')))
-            else:
-                logger.info(bold('build %s.' % status))
-        except Exception as err:
-            # delete the saved env to force a fresh build next time
-            envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
-            if path.isfile(envfile):
-                os.unlink(envfile)
-            self.emit('build-finished', err)
-            raise
-        else:
-            self.emit('build-finished', None)
-        self.builder.cleanup()
+                status = (self.statuscode == 0 and
+                          'succeeded' or 'finished with problems')
+                if self._warncount:
+                    logger.info(bold('build %s, %s warning%s.' %
+                                     (status, self._warncount,
+                                      self._warncount != 1 and 's' or '')))
+                else:
+                    logger.info(bold('build %s.' % status))
+            except Exception as err:
+                # delete the saved env to force a fresh build next time
+                envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
+                if path.isfile(envfile):
+                    os.unlink(envfile)
+                self.emit('build-finished', err)
+                raise
+            builder.cleanup()
+
+        self.emit('build-finished', None)
 
     # ---- logging handling ----------------------------------------------------
     def warn(self, message, location=None, prefix=None,
@@ -800,8 +807,8 @@ class Sphinx(object):
     def add_latex_package(self, packagename, options=None):
         # type: (unicode, unicode) -> None
         logger.debug('[app] adding latex package: %r', packagename)
-        if hasattr(self.builder, 'usepackages'):  # only for LaTeX builder
-            self.builder.usepackages.append((packagename, options))  # type: ignore
+        if "latex" in self.builders:  # only for LaTeX builder
+            self.builders["latex"].usepackages.append((packagename, options))  # type: ignore
 
     def add_lexer(self, alias, lexer):
         # type: (unicode, Any) -> None
