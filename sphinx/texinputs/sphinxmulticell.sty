@@ -128,7 +128,7 @@
     \xdef\sphinx@multiwidth
            {\the\dimexpr\sphinx@multiwidth+\sphinx@tempb+\tw@\tabcolsep+\arrayrulewidth}%
     % hack the \vline and the colortbl macros
-    \aftergroup\sphinx@hack@vline\aftergroup\sphinx@hack@CT&\relax
+    \sphinx@hack@vline\sphinx@hack@CT&\relax
     % repeat
     \expandafter\sphinx@multispan\expandafter{\the\numexpr#1-\@ne}%
 }%
@@ -210,13 +210,23 @@
 % standard \multirow
 % 1. does not allow verbatim contents,
 % 2. does not allow blank lines in its argument,
-% 3. requires manual intervention if the contents is too long to fit
+% 3. its * specifier means to typeset "horizontally" which is very
+%    bad for paragraph content. 2016 version has = specifier but it
+%    must be used with p type columns only, else results are bad,
+% 4. it requires manual intervention if the contents is too long to fit
 %    in the asked-for number of rows.
+% 5. colour panels (either from \rowcolor or \columncolor) will hide
+%    the bottom part of multirow text, hence manual tuning is needed
+%    to put the multirow insertion at the _bottom_.
+%
 % The Sphinx solution consists in always having contents wrapped
 % in a varwidth environment so that it makes sense to estimate how many
 % lines it will occupy, and then ensure by insertion of suitable struts
 % that the table rows have the needed height. The needed mark-up is done
 % by LaTeX writer, which has its own id for the merged cells.
+%
+% The colour issue is solved by clearing colour panels in all cells,
+% whether or not the multirow is single-column or multi-column.
 %
 % In passing we obtain baseline alignements across rows (only if
 % \arraylinestretch is 1, as LaTeX's does not obey \arraylinestretch in "p"
@@ -299,6 +309,8 @@
         \@depth\dimexpr\count@\ht\@arstrutbox+\count@\dp\@arstrutbox-\ht\@arstrutbox\relax
         \@width\z@
   \endgroup
+  % we need this to avoid colour panels hiding bottom parts of multirow text
+  \sphinx@hack@CT
 }%
 \endinput
 %%

@@ -1480,6 +1480,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 self.body.append('&')
                 if nextcell.width == 1:
                     # insert suitable strut for equalizing row heights in multirow
+                    # they also serve to clear colour panels which would hide the text
                     self.body.append('\\sphinxtablestrut{%d}' % nextcell.cell_id)
                 else:
                     # use \multicolumn for wide multirow cell
