@@ -25,13 +25,13 @@
     {%- if spine.linear %}
     <itemref idref="{{ spine.idref }}" />
     {%- else %}
-    <itemref idref="{{ spine.idref }}" linear="no" />'''
+    <itemref idref="{{ spine.idref }}" linear="no" />
     {%- endif %}
     {%- endfor %}
   </spine>
   <guide>
     {%- for guide in guides %}
-    <reference type="{{ guide.type }}" title="{{ guide.title }}" href="{{ guide.uri }}" />'''
+    <reference type="{{ guide.type }}" title="{{ guide.title }}" href="{{ guide.uri }}" />
     {%- endfor %}
   </guide>
 </package>
