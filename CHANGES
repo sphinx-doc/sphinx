@@ -16,6 +16,8 @@ Incompatible changes
 * option directive also allows all punctuations for the option name (refs: #3366)
 * #3413: if :rst:dir:`literalinclude`'s ``:start-after:`` is used, make ``:lines:``
   relative (refs #3412)
+* ``literalinclude`` directive does not allow the combination of ``:diff:``
+  option and other options (refs: #3416)
 
 Features removed
 ----------------
@@ -58,9 +60,13 @@ Features added
   (but does not implement text flow around table).
 * latex: footnotes from inside tables are hyperlinked (except from captions or
   headers) (refs: #3422)
+* Emit warning if over dedent has detected on ``literalinclude`` directive
+  (refs: #3416)
 
 Bugs fixed
 ----------
+
+* ``literalinclude`` directive expands tabs after dedent-ing (refs: #3416)
 
 Deprecated
 ----------
@@ -103,6 +109,8 @@ Features added
 
 * Support requests-2.0.0 (experimental) (refs: #3367)
 * (latex) PDF page margin dimensions may be customized (refs: #3387)
+* ``literalinclude`` directive allows combination of ``:pyobject:`` and
+  ``:lines:`` options (refs: #3416)
 
 Bugs fixed
 ----------
