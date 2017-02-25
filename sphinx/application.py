@@ -72,7 +72,7 @@ events = {
     'env-updated': 'env',
     'html-collect-pages': 'builder',
     'html-page-context': 'pagename, context, doctree or None',
-    'build-finished': 'exception'
+    'build-finished': 'exception',
 }  # type: Dict[unicode, unicode]
 builtin_extensions = (
     'sphinx.builders.applehelp',
