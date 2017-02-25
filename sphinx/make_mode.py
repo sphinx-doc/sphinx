@@ -19,9 +19,9 @@ from __future__ import print_function
 import os
 import sys
 from os import path
-from subprocess import call
 
 import sphinx
+from sphinx import cmdline
 from sphinx.util.console import bold, blue
 from sphinx.util.osutil import cd, rmtree
 
@@ -250,20 +250,12 @@ class Make(object):
         if doctreedir is None:
             doctreedir = self.builddir_join('doctrees')
 
-        orig_cmd = sys.argv[0]
-        if sys.platform == 'win32' and orig_cmd.endswith('.exe'):
-            # win32: 'sphinx-build.exe'
-            cmd = [orig_cmd]
-        elif sys.platform == 'win32' and os.path.splitext(orig_cmd)[1] == '':
-            # win32: 'sphinx-build'  without extension
-            cmd = [orig_cmd + '.exe']
-        else:
-            # win32: 'sphinx-build.py'
-            # linux, mac: 'sphinx-build' or 'sphinx-build.py'
-            cmd = [sys.executable, orig_cmd]
-
-        return call(cmd + ['-b', builder] + opts +
-                    ['-d', doctreedir, self.srcdir, self.builddir_join(builder)])
+        args = [sys.argv[0],
+                '-b', builder,
+                '-d', doctreedir,
+                self.srcdir,
+                self.builddir_join(builder)]
+        return cmdline.main(args + opts)
 
 
 def run_make_mode(args):
