@@ -33,31 +33,16 @@ def test_build_domain_py_xrefs_resolve_correctly(app, status, warning):
     calls_expected = {
         (None, u'TopLevel', u'class'): (u'TopLevel', (u'roles', u'class')),
         (None, u'top_level', u'func'): (u'top_level', (u'roles', u'function')),
-        (None, u'NestedParentA.NestedChildA', u'class'): (None, None),
-        (None, u'NestedChildA.subchild_1', u'func'): (None, None),
+        (None, u'child_1', u'func'): (u'child_1', (u'roles', u'function')),
+        (None, u'NestedChildA.subchild_2', u'func'): (None, None),
+        (None, u'child_2', u'func'): (u'child_2', (u'roles', u'function')),
+        (None, u'any_child', None): (u'any_child', (u'roles', u'function')),
+        (None, u'NestedChildA', u'class'): (u'NestedChildA', (u'roles', u'class')),
         (None, u'subchild_2', u'func'): (u'subchild_2', (u'roles', u'function')),
         (None, u'NestedParentA.child_1', u'func'): (None, None),
-        (None, u'NestedChildA.subchild_2', u'func'): (None, None),
-        (None, u'NestedChildA', u'class'): (u'NestedChildA', (u'roles', u'class')),
+        (None, u'NestedChildA.subchild_1', u'func'): (None, None),
         (None, u'NestedParentB', u'class'): (u'NestedParentB', (u'roles', u'class')),
-        (None, u'any_child', None): (u'any_child', (u'roles', u'function')),
-        (None, u'child_1', u'func'): (u'child_1', (u'roles', u'function')),
-        (None, u'child_2', u'func'): (u'child_2', (u'roles', u'function'))
+        (None, u'NestedParentA.NestedChildA', u'class'): (None, None),
     }
 
     assert calls_expected == calls
-
-    with pytest.raises(KeyError):
-        assert (calls[('NestedParentA.NestedChildA', 'subchild_2',
-                       'func')] \
-                == ('NestedParentA.NestedChildA.subchild_2',
-                    ('roles', 'function')))
-    with pytest.raises(KeyError):
-        assert (calls[('NestedParentA.NestedChildA',
-                       'NestedParentA.child_1', 'func')] \
-                == ('NestedParentA.child_1', ('roles', 'function')))
-    with pytest.raises(KeyError):
-        assert (calls[('NestedParentA', 'NestedChildA.subchild_2',
-                       'func')] \
-                == ('NestedParentA.NestedChildA.subchild_2',
-                    ('roles', 'function')))

@@ -66,39 +66,31 @@ def test_build_domain_py_xrefs_resolve_correctly(app, status, warning):
     app.builder.build_all()
 
     calls_expected = {
-        (None, u'NestedChildA.subchild_1', u'meth'): [],
-        (u'NestedParentA', u'NestedChildA.subchild_2', u'meth'): [
-            (u'NestedParentA.NestedChildA.subchild_2', (u'roles', u'method'))
-        ],
-        (u'NestedParentA.NestedChildA', u'subchild_2', u'meth'): [
-            (u'NestedParentA.NestedChildA.subchild_2', (u'roles', u'method'))
-        ],
-        (None, u'TopLevel', u'class'): [(u'TopLevel', (u'roles', u'class'))],
-        (u'NestedParentA.NestedChildA', u'NestedParentA.child_1', u'meth'): [
-            (u'NestedParentA.child_1', (u'roles', u'method'))
-        ],
-        (None, u'NestedParentA.NestedChildA', u'class'): [
-            (u'NestedParentA.NestedChildA', (u'roles', u'class'))
-        ],
-        (None, u'top_level', u'meth'): [(u'top_level', (u'roles', u'method'))],
-        (u'NestedParentA', u'child_2', u'meth'): [
-            (u'child_2', (u'roles', u'method'))
-        ],
-        (u'NestedParentA', u'NestedChildA', u'class'): [
-            (u'NestedParentA.NestedChildA', (u'roles', u'class'))
-        ],
-        (u'NestedParentA', u'any_child', None): [
-            (u'NestedParentA.any_child', (u'roles', u'method'))
-        ],
+        (None, u'TopLevel', u'class'): [
+            (u'TopLevel', (u'roles', u'class'))],
+        (None, u'top_level', u'meth'): [
+            (u'top_level', (u'roles', u'method'))],
         (u'NestedParentA', u'child_1', u'meth'): [
-            (u'NestedParentA.child_1', (u'roles', u'method'))
-        ],
-        (u'NestedParentB', u'NestedParentB', u'class'): [
-            (u'NestedParentB', (u'roles', u'class'))
-        ],
+            (u'NestedParentA.child_1', (u'roles', u'method'))],
+        (u'NestedParentA', u'NestedChildA.subchild_2', u'meth'): [
+            (u'NestedParentA.NestedChildA.subchild_2', (u'roles', u'method'))],
+        (u'NestedParentA', u'child_2', u'meth'): [
+            (u'child_2', (u'roles', u'method'))],
+        (u'NestedParentA', u'any_child', None): [
+            (u'NestedParentA.any_child', (u'roles', u'method'))],
+        (u'NestedParentA', u'NestedChildA', u'class'): [
+            (u'NestedParentA.NestedChildA', (u'roles', u'class'))],
+        (u'NestedParentA.NestedChildA', u'subchild_2', u'meth'): [
+            (u'NestedParentA.NestedChildA.subchild_2', (u'roles', u'method'))],
+        (u'NestedParentA.NestedChildA', u'NestedParentA.child_1', u'meth'): [
+            (u'NestedParentA.child_1', (u'roles', u'method'))],
+        (None, u'NestedChildA.subchild_1', u'meth'): [],
         (u'NestedParentB', u'child_1', u'meth'): [
-            (u'NestedParentB.child_1', (u'roles', u'method'))
-        ]
+            (u'NestedParentB.child_1', (u'roles', u'method'))],
+        (u'NestedParentB', u'NestedParentB', u'class'): [
+            (u'NestedParentB', (u'roles', u'class'))],
+        (None, u'NestedParentA.NestedChildA', u'class'): [
+            (u'NestedParentA.NestedChildA', (u'roles', u'class'))],
     }
 
     assert calls_expected == calls
