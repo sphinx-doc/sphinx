@@ -13,6 +13,9 @@ Features added
 Bugs fixed
 ----------
 
+* #3445: setting ``'inputenc'`` key to ``\\usepackage[utf8x]{inputenc}`` leads
+  to failed PDF build
+
 Testing
 --------
 
