@@ -62,7 +62,7 @@ extras_require = {
         'whoosh>=2.0',
     ],
     'test': [
-        'nose',
+        'pytest',
         'mock',  # it would be better for 'test:python_version in 2.7'
         'simplejson',  # better: 'test:platform_python_implementation=="PyPy"'
         'html5lib',
