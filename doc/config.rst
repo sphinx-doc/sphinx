@@ -1289,7 +1289,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
 .. confval:: epub_description
 
-   The description of the document. The default value is ``''``.
+   The description of the document. The default value is ``'unknown'``.
 
    .. versionadded:: 1.4
 

@@ -65,6 +65,7 @@ class Epub3Builder(EpubBuilder):
     def handle_finish(self):
         # type: () -> None
         """Create the metainfo files and finally the epub."""
+        self.validate_config_value()
         self.get_toc()
         self.build_mimetype(self.outdir, 'mimetype')
         self.build_container(self.outdir, 'META-INF/container.xml')
@@ -72,6 +73,44 @@ class Epub3Builder(EpubBuilder):
         self.build_navigation_doc(self.outdir, 'nav.xhtml')
         self.build_toc(self.outdir, 'toc.ncx')
         self.build_epub(self.outdir, self.config.epub_basename + '.epub')
+
+    def validate_config_value(self):
+        # <package> lang attribute, dc:language
+        if not self.app.config.epub_language:
+            self.app.warn(
+                'conf value "epub_language" (or "language") '
+                'should not be empty for EPUB3')
+        # <package> unique-identifier attribute
+        if not self.app.config.epub_uid:
+            self.app.warn('conf value "epub_uid" should not be empty for EPUB3')
+        # dc:title
+        if not self.app.config.epub_title:
+            self.app.warn(
+                'conf value "epub_title" (or "html_title") '
+                'should not be empty for EPUB3')
+        # dc:creator
+        if not self.app.config.epub_author:
+            self.app.warn('conf value "epub_author" should not be empty for EPUB3')
+        # dc:contributor
+        if not self.app.config.epub_contributor:
+            self.app.warn('conf value "epub_contributor" should not be empty for EPUB3')
+        # dc:description
+        if not self.app.config.epub_description:
+            self.app.warn('conf value "epub_description" should not be empty for EPUB3')
+        # dc:publisher
+        if not self.app.config.epub_publisher:
+            self.app.warn('conf value "epub_publisher" should not be empty for EPUB3')
+        # dc:rights
+        if not self.app.config.epub_copyright:
+            self.app.warn(
+                'conf value "epub_copyright" (or "copyright")'
+                'should not be empty for EPUB3')
+        # dc:identifier
+        if not self.app.config.epub_identifier:
+            self.app.warn('conf value "epub_identifier" should not be empty for EPUB3')
+        # meta ibooks:version
+        if not self.app.config.version:
+            self.app.warn('conf value "version" should not be empty for EPUB3')
 
     def content_metadata(self):
         # type: () -> Dict
@@ -179,7 +218,7 @@ def setup(app):
     app.setup_extension('sphinx.builders.epub')
     app.add_builder(Epub3Builder)
 
-    app.add_config_value('epub_description', '', 'epub3', string_classes)
+    app.add_config_value('epub_description', 'unknown', 'epub3', string_classes)
     app.add_config_value('epub_contributor', 'unknown', 'epub3', string_classes)
     app.add_config_value('epub_writing_mode', 'horizontal', 'epub3',
                          ENUM('horizontal', 'vertical'))

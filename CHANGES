@@ -71,6 +71,8 @@ Features added
   (refs: #3416)
 * Use for LuaLaTeX same default settings as for XeLaTeX (i.e. ``fontspec`` and
   ``polyglossia``). (refs: #3070, #3466)
+* #3463: Add warning messages for required EPUB3 metadata. Add default value to
+  ``epub_description`` to avoid warning like other settings.
 
 Bugs fixed
 ----------
