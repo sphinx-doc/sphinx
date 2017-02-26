@@ -37,6 +37,7 @@ addons:
     - texlive-latex-extra
     - texlive-fonts-recommended
     - texlive-fonts-extra
+    - texlive-luatex
     - texlive-xetex
     - lmodern
 install:
