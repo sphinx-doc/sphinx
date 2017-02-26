@@ -92,7 +92,7 @@ Deprecated
   Please use ``sphinx.environment.adapters`` modules instead.
 * latex package  ``footnote`` is not loaded anymore by its bundled replacement
   ``footnotehyper-sphinx``. The redefined macros keep the same names as in the
-   original package.
+  original package.
 
 Release 1.5.4 (in development)
 ==============================
