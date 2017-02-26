@@ -181,19 +181,15 @@ The builder's "name" must be given to the **-b** command-line option of
       present in a "minimal" TeX distribution installation.  For TeXLive,
       the following packages need to be installed:
 
-      * latex-recommended
-      * fonts-recommended
-      * latex-extra
+      * texlive-latex-recommended
+      * texlive-fonts-recommended
+      * texlive-latex-extra
 
-      Only those LaTeX packages from latex-extra are needed:
+      You may also need latex-xcolor, but Sphinx does not require it (and
+      recent distributions have ``xcolor.sty`` included in latex-recommended).
 
-        capt-of, fncychap, framed, needspace, tabulary, threeparttable,
-        titlesec, upquote, wrapfig, eqparbox, multirow
-
-      Unicode engines will need their respective packages luatex or xetex.
-
-      Sphinx uses by default document classes *article*, *report* and, for
-      Japanese language *jreport*, *jsbook*.
+      Unicode engines will need their respective packages texlive-luatex or
+      texlive-xetex.
 
       The testing of Sphinx LaTeX is done on Ubuntu trusty with the above
       texlive packages. They are from a `TeXLive 2013 snapshot dated
