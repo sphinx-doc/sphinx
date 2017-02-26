@@ -110,8 +110,8 @@ If non-empty, it will be passed as argument to the ``\sphinxsetup`` command::
      the whole ``'sphinxsetup'`` string is passed as argument to
      ``\sphinxsetup``.
 
-   - As an alternative to the ``'sphinxsetup'`` key, it is possibly
-     to insert explicitely the ``\\sphinxsetup{key=value,..}`` inside the
+   - As an alternative to the ``'sphinxsetup'`` key, it is possible
+     to insert the ``\\sphinxsetup{key=value,..}`` inside the
      ``'preamble'`` key. It is even possible to use the ``\sphinxsetup`` in
      the body of the document, via the :rst:dir:`raw` directive, to modify
      dynamically the option values: this is actually what we did for the
