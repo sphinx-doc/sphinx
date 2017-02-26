@@ -182,8 +182,28 @@ The builder's "name" must be given to the **-b** command-line option of
       the following packages need to be installed:
 
       * latex-recommended
-      * latex-extra
       * fonts-recommended
+      * latex-extra
+
+      Only those LaTeX packages from latex-extra are needed:
+
+        capt-of, fncychap, framed, needspace, tabulary, threeparttable,
+        titlesec, upquote, wrapfig, eqparbox, multirow
+
+      Unicode engines will need their respective packages luatex or xetex.
+
+      Sphinx uses by default document classes *article*, *report* and, for
+      Japanese language *jreport*, *jsbook*.
+
+      The testing of Sphinx LaTeX is done on Ubuntu trusty with the above
+      texlive packages. They are from a `TeXLive 2013 snapshot dated
+      20140215`__.
+
+      __ http://packages.ubuntu.com/trusty/texlive-latex-recommended
+
+      .. versionchanged::
+         1.6 Formerly, testing was done for some years on Ubuntu precise
+         (based on TeXLive 2009).
 
    .. autoattribute:: name
 
