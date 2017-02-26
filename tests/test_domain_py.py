@@ -100,6 +100,7 @@ def test_domain_py_objects(app, status, warning):
     assert objects['module_a.submodule.ModTopLevel'] == ('module', 'class')
     assert objects['module_a.submodule.ModTopLevel.mod_child_1'] == ('module', 'method')
     assert objects['module_a.submodule.ModTopLevel.mod_child_2'] == ('module', 'method')
+    assert 'ModTopLevel.ModNoModule' not in objects
     assert objects['ModNoModule'] == ('module', 'class')
     assert objects['module_b.submodule.ModTopLevel'] == ('module', 'class')
 
