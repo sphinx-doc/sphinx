@@ -9,9 +9,10 @@
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.parsers.rst.directives import images, html
+from docutils.parsers.rst.directives import images, html, tables
 
 from sphinx import addnodes
+from sphinx.util.nodes import set_source_info
 
 if False:
     # For type annotation
@@ -61,10 +62,46 @@ class Meta(html.Meta):
         return result
 
 
+class RSTTable(tables.RSTTable):
+    """The table directive which sets source and line information to its caption."""
+
+    def make_title(self):
+        title, message = tables.RSTTable.make_title(self)
+        if title:
+            set_source_info(self, title)
+
+        return title, message
+
+
+class CSVTable(tables.CSVTable):
+    """The csv-table directive which sets source and line information to its caption."""
+
+    def make_title(self):
+        title, message = tables.CSVTable.make_title(self)
+        if title:
+            set_source_info(self, title)
+
+        return title, message
+
+
+class ListTable(tables.ListTable):
+    """The list-table directive which sets source and line information to its caption."""
+
+    def make_title(self):
+        title, message = tables.ListTable.make_title(self)
+        if title:
+            set_source_info(self, title)
+
+        return title, message
+
+
 def setup(app):
     # type: (Sphinx) -> Dict
     directives.register_directive('figure', Figure)
     directives.register_directive('meta', Meta)
+    directives.register_directive('table', RSTTable)
+    directives.register_directive('csv-table', CSVTable)
+    directives.register_directive('list-table', ListTable)
 
     return {
         'version': 'builtin',

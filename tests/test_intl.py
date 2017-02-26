@@ -418,6 +418,18 @@ def test_gettext_toctree(app):
 @sphinx_intl
 @pytest.mark.sphinx('gettext')
 @pytest.mark.test_params(shared_result='test_intl_gettext')
+def test_gettext_table(app):
+    app.build()
+    # --- toctree
+    expect = read_po(app.srcdir / 'table.po')
+    actual = read_po(app.outdir / 'table.pot')
+    for expect_msg in [m for m in expect if m.id]:
+        assert expect_msg.id in [m.id for m in actual if m.id]
+
+
+@sphinx_intl
+@pytest.mark.sphinx('gettext')
+@pytest.mark.test_params(shared_result='test_intl_gettext')
 def test_gettext_definition_terms(app):
     app.build()
     # --- definition terms: regression test for #2198, #2205

@@ -132,6 +132,7 @@ Bugs fixed
 * #3349: Result of ``IndexBuilder.load()`` is broken
 * #3450: &nbsp is appeared in EPUB docs
 * #3418: Search button is misaligned in nature and pyramid theme
+* #3421: Could not translate a caption of tables
 
 Testing
 --------
