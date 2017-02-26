@@ -13,24 +13,34 @@ import pytest
 
 
 @pytest.mark.sphinx(testroot='domain-js')
-def test_build_domain_py_xrefs_resolve_correctly(app, status, warning):
-    from sphinx.domains.javascript import JavaScriptDomain
+def test_domain_js_objects(app, status, warning):
+    app.builder.build_all()
 
-    calls = {}
+    objects = app.env.domains['js'].data['objects']
 
-    def wrapped_find_obj(fn):
-        def wrapped(*args):
-            ret = fn(*args)
-            # args = [domain, env, env object, role text, role type, order]
-            calls[args[2:-1]] = ret
-            return ret
-        return wrapped
+    assert objects['TopLevel'] == ('roles', 'class')
+    assert objects['top_level'] == ('roles', 'function')
+    assert objects['NestedParentA'] == ('roles', 'class')
+    assert objects['child_1'] == ('roles', 'function')
+    assert objects['any_child'] == ('roles', 'function')
+    assert objects['NestedChildA'] == ('roles', 'class')
+    assert objects['subchild_1'] == ('roles', 'function')
+    assert objects['subchild_2'] == ('roles', 'function')
+    assert objects['child_2'] == ('roles', 'function')
+    assert objects['NestedParentB'] == ('roles', 'class')
 
-    JavaScriptDomain.find_obj = wrapped_find_obj(JavaScriptDomain.find_obj)
+
+@pytest.mark.sphinx(testroot='domain-js')
+def test_domain_js_find_obj(app, status, warning):
+
+    def find_obj(prefix, obj_name, obj_type, searchmode=0):
+        return app.env.domains['js'].find_obj(
+            app.env, prefix, obj_name, obj_type, searchmode)
 
     app.builder.build_all()
 
-    calls_expected = {
+    xrefs = {
+        (None, u'NONEXISTANT', u'class'): (None, None),
         (None, u'TopLevel', u'class'): (u'TopLevel', (u'roles', u'class')),
         (None, u'top_level', u'func'): (u'top_level', (u'roles', u'function')),
         (None, u'child_1', u'func'): (u'child_1', (u'roles', u'function')),
@@ -45,4 +55,5 @@ def test_build_domain_py_xrefs_resolve_correctly(app, status, warning):
         (None, u'NestedParentA.NestedChildA', u'class'): (None, None),
     }
 
-    assert calls_expected == calls
+    for (search, found) in xrefs.items():
+        assert find_obj(*search) == found

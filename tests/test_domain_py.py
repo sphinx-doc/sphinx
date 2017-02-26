@@ -48,24 +48,46 @@ def test_function_signatures():
 
 
 @pytest.mark.sphinx(testroot='domain-py')
-def test_build_domain_py_xrefs_resolve_correctly(app, status, warning):
-    from sphinx.domains.python import PythonDomain
+def test_domain_py_objects(app, status, warning):
+    app.builder.build_all()
 
-    calls = {}
+    modules = app.env.domains['py'].data['modules']
+    objects = app.env.domains['py'].data['objects']
 
-    def wrapped_find_obj(fn):
-        def wrapped(*args):
-            ret = fn(*args)
-            # args = [domain, env, ??, env object, role text, role type, order]
-            calls[args[3:-1]] = ret
-            return ret
-        return wrapped
+    assert 'module_a.submodule' in modules
+    assert 'module_a.submodule' in objects
+    assert 'module_b.submodule' in modules
+    assert 'module_b.submodule' in objects
 
-    PythonDomain.find_obj = wrapped_find_obj(PythonDomain.find_obj)
+    assert objects['module_a.submodule.ModTopLevel'] == ('module', 'class')
+    assert objects['module_a.submodule.ModTopLevel.mod_child_1'] == ('module', 'method')
+    assert objects['module_a.submodule.ModTopLevel.mod_child_2'] == ('module', 'method')
+    assert objects['ModNoModule'] == ('module', 'class')
+    assert objects['module_b.submodule.ModTopLevel'] == ('module', 'class')
+
+    assert objects['TopLevel'] == ('roles', 'class')
+    assert objects['top_level'] == ('roles', 'method')
+    assert objects['NestedParentA'] == ('roles', 'class')
+    assert objects['NestedParentA.child_1'] == ('roles', 'method')
+    assert objects['NestedParentA.any_child'] == ('roles', 'method')
+    assert objects['NestedParentA.NestedChildA'] == ('roles', 'class')
+    assert objects['NestedParentA.NestedChildA.subchild_1'] == ('roles', 'method')
+    assert objects['NestedParentA.NestedChildA.subchild_2'] == ('roles', 'method')
+    assert objects['child_2'] == ('roles', 'method')
+    assert objects['NestedParentB'] == ('roles', 'class')
+    assert objects['NestedParentB.child_1'] == ('roles', 'method')
+
+
+@pytest.mark.sphinx(testroot='domain-py')
+def test_domain_py_find_obj(app, status, warning):
+
+    def find_obj(prefix, obj_name, obj_type, modname=None, searchmode=0):
+        return app.env.domains['py'].find_obj(
+            app.env, modname, prefix, obj_name, obj_type, searchmode)
 
     app.builder.build_all()
 
-    calls_expected = {
+    xrefs = {
         (None, u'TopLevel', u'class'): [
             (u'TopLevel', (u'roles', u'class'))],
         (None, u'top_level', u'meth'): [
@@ -93,4 +115,5 @@ def test_build_domain_py_xrefs_resolve_correctly(app, status, warning):
             (u'NestedParentA.NestedChildA', (u'roles', u'class'))],
     }
 
-    assert calls_expected == calls
+    for (search, found) in xrefs.items():
+        assert find_obj(*search) == found
