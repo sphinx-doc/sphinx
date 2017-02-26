@@ -1,12 +1,6 @@
 Release 1.5.3 (in development)
 ==============================
 
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
 Features added
 --------------
 
@@ -35,9 +29,6 @@ Bugs fixed
 * #3450: &nbsp is appeared in EPUB docs
 * #3418: Search button is misaligned in nature and pyramid theme
 * #3421: Could not translate a caption of tables
-
-Testing
---------
 
 Release 1.5.2 (released Jan 22, 2017)
 =====================================
