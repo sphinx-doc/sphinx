@@ -11,6 +11,7 @@
 
 from six import text_type
 import pytest
+import mock
 
 from sphinx import addnodes
 from sphinx.domains.python import py_sig_re, _pseudo_parse_arglist
@@ -48,6 +49,47 @@ def test_function_signatures():
 
 
 @pytest.mark.sphinx(testroot='domain-py')
+def test_domain_py_xrefs(app, status, warning):
+    """Domain objects have correct prefixes when looking up xrefs"""
+    find_obj = app.env.domains['py'].find_obj
+    app.env.domains['py'].find_obj = mock.Mock(wraps=find_obj)
+    app.builder.build_all()
+
+    def assert_called(mod_name, prefix, obj_name, obj_type, searchmode=0):
+        app.env.domains['py'].find_obj.assert_any_call(
+            app.env, mod_name, prefix, obj_name, obj_type, searchmode)
+
+    assert_called(None, None, u'TopLevel', u'class')
+    assert_called(None, None, u'top_level', u'meth')
+    assert_called(None, u'NestedParentA', u'child_1', u'meth')
+    assert_called(None, u'NestedParentA', u'NestedChildA.subchild_2', u'meth')
+    assert_called(None, u'NestedParentA', u'child_2', u'meth')
+    assert_called(None, u'NestedParentA', u'any_child', None, 1)
+    assert_called(None, u'NestedParentA', u'NestedChildA', u'class')
+    assert_called(None, u'NestedParentA.NestedChildA', u'subchild_2', u'meth')
+    assert_called(None, u'NestedParentA.NestedChildA', u'NestedParentA.child_1',
+                  u'meth')
+    assert_called(None, None, u'NestedChildA.subchild_1', u'meth')
+    assert_called(None, u'NestedParentB', u'child_1', u'meth')
+    assert_called(None, u'NestedParentB', u'NestedParentB', u'class')
+    assert_called(None, None, u'NestedParentA.NestedChildA', u'class')
+
+    assert_called('module_a.submodule', 'ModTopLevel', 'mod_child_1', 'meth')
+    assert_called('module_a.submodule', 'ModTopLevel',
+                  'ModTopLevel.mod_child_1', 'meth')
+    assert_called('module_a.submodule', 'ModTopLevel', 'mod_child_2', 'meth')
+    assert_called('module_a.submodule', 'ModTopLevel',
+                  'module_a.submodule.ModTopLevel.mod_child_1', 'meth')
+
+    with pytest.raises(AssertionError):
+        assert_called('module_a.submodule', None, 'ModTopLevel', 'class')
+    with pytest.raises(AssertionError):
+        assert_called('module_b.submodule', None, 'ModTopLevel', 'class')
+    with pytest.raises(AssertionError):
+        assert_called('module_b.submodule', 'ModTopLevel', 'ModNoModule', 'class')
+
+
+@pytest.mark.sphinx(testroot='domain-py')
 def test_domain_py_objects(app, status, warning):
     app.builder.build_all()
 
@@ -81,39 +123,22 @@ def test_domain_py_objects(app, status, warning):
 @pytest.mark.sphinx(testroot='domain-py')
 def test_domain_py_find_obj(app, status, warning):
 
-    def find_obj(prefix, obj_name, obj_type, modname=None, searchmode=0):
+    def find_obj(modname, prefix, obj_name, obj_type, searchmode=0):
         return app.env.domains['py'].find_obj(
             app.env, modname, prefix, obj_name, obj_type, searchmode)
 
     app.builder.build_all()
 
-    xrefs = {
-        (None, u'TopLevel', u'class'): [
-            (u'TopLevel', (u'roles', u'class'))],
-        (None, u'top_level', u'meth'): [
-            (u'top_level', (u'roles', u'method'))],
-        (u'NestedParentA', u'child_1', u'meth'): [
-            (u'NestedParentA.child_1', (u'roles', u'method'))],
-        (u'NestedParentA', u'NestedChildA.subchild_2', u'meth'): [
-            (u'NestedParentA.NestedChildA.subchild_2', (u'roles', u'method'))],
-        (u'NestedParentA', u'child_2', u'meth'): [
-            (u'child_2', (u'roles', u'method'))],
-        (u'NestedParentA', u'any_child', None): [
-            (u'NestedParentA.any_child', (u'roles', u'method'))],
-        (u'NestedParentA', u'NestedChildA', u'class'): [
-            (u'NestedParentA.NestedChildA', (u'roles', u'class'))],
-        (u'NestedParentA.NestedChildA', u'subchild_2', u'meth'): [
-            (u'NestedParentA.NestedChildA.subchild_2', (u'roles', u'method'))],
-        (u'NestedParentA.NestedChildA', u'NestedParentA.child_1', u'meth'): [
-            (u'NestedParentA.child_1', (u'roles', u'method'))],
-        (None, u'NestedChildA.subchild_1', u'meth'): [],
-        (u'NestedParentB', u'child_1', u'meth'): [
-            (u'NestedParentB.child_1', (u'roles', u'method'))],
-        (u'NestedParentB', u'NestedParentB', u'class'): [
-            (u'NestedParentB', (u'roles', u'class'))],
-        (None, u'NestedParentA.NestedChildA', u'class'): [
-            (u'NestedParentA.NestedChildA', (u'roles', u'class'))],
-    }
-
-    for (search, found) in xrefs.items():
-        assert find_obj(*search) == found
+    assert find_obj(None, None, u'NONEXISTANT', u'class') == []
+    assert find_obj(None, None, u'NestedParentA', u'class') == [(
+        u'NestedParentA', (u'roles', u'class'))]
+    assert find_obj(None, None, u'NestedParentA.NestedChildA', u'class') == [(
+        u'NestedParentA.NestedChildA', (u'roles', u'class'))]
+    assert find_obj(None, 'NestedParentA', u'NestedChildA', u'class') == [(
+        u'NestedParentA.NestedChildA', (u'roles', u'class'))]
+    assert find_obj(None, None, u'NestedParentA.NestedChildA.subchild_1', u'meth') == [(
+        u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'method'))]
+    assert find_obj(None, u'NestedParentA', u'NestedChildA.subchild_1', u'meth') == [(
+        u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'method'))]
+    assert find_obj(None, u'NestedParentA.NestedChildA', u'subchild_1', u'meth') == [(
+        u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'method'))]
