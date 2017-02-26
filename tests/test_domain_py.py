@@ -69,24 +69,20 @@ def test_domain_py_xrefs(app, status, warning):
     assert_called(None, u'NestedParentA.NestedChildA', u'subchild_2', u'meth')
     assert_called(None, u'NestedParentA.NestedChildA', u'NestedParentA.child_1',
                   u'meth')
-    assert_called(None, None, u'NestedChildA.subchild_1', u'meth')
+    assert_called(None, u'NestedParentA', u'NestedChildA.subchild_1', u'meth')
     assert_called(None, u'NestedParentB', u'child_1', u'meth')
     assert_called(None, u'NestedParentB', u'NestedParentB', u'class')
     assert_called(None, None, u'NestedParentA.NestedChildA', u'class')
 
+    assert_called('module_a.submodule', None, 'ModTopLevel', 'class')
     assert_called('module_a.submodule', 'ModTopLevel', 'mod_child_1', 'meth')
     assert_called('module_a.submodule', 'ModTopLevel',
                   'ModTopLevel.mod_child_1', 'meth')
     assert_called('module_a.submodule', 'ModTopLevel', 'mod_child_2', 'meth')
     assert_called('module_a.submodule', 'ModTopLevel',
                   'module_a.submodule.ModTopLevel.mod_child_1', 'meth')
-
-    with pytest.raises(AssertionError):
-        assert_called('module_a.submodule', None, 'ModTopLevel', 'class')
-    with pytest.raises(AssertionError):
-        assert_called('module_b.submodule', None, 'ModTopLevel', 'class')
-    with pytest.raises(AssertionError):
-        assert_called('module_b.submodule', 'ModTopLevel', 'ModNoModule', 'class')
+    assert_called('module_b.submodule', None, 'ModTopLevel', 'class')
+    assert_called('module_b.submodule', 'ModTopLevel', 'ModNoModule', 'class')
 
 
 @pytest.mark.sphinx(testroot='domain-py')
@@ -115,7 +111,7 @@ def test_domain_py_objects(app, status, warning):
     assert objects['NestedParentA.NestedChildA'] == ('roles', 'class')
     assert objects['NestedParentA.NestedChildA.subchild_1'] == ('roles', 'method')
     assert objects['NestedParentA.NestedChildA.subchild_2'] == ('roles', 'method')
-    assert objects['child_2'] == ('roles', 'method')
+    assert objects['NestedParentA.child_2'] == ('roles', 'method')
     assert objects['NestedParentB'] == ('roles', 'class')
     assert objects['NestedParentB.child_1'] == ('roles', 'method')
 

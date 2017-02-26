@@ -3,7 +3,7 @@ module
 
 .. py:module:: module_a.submodule
 
-* Link to :py:cls:`ModTopLevel`
+* Link to :py:class:`ModTopLevel`
 
 .. py:class:: ModTopLevel
 
@@ -24,8 +24,8 @@ module
 
 .. py:module:: module_b.submodule
 
-* Link to :py:cls:`ModTopLevel`
+* Link to :py:class:`ModTopLevel`
 
 .. py:class:: ModTopLevel
 
-    * Link to :py:cls:`ModNoModule`
+    * Link to :py:class:`ModNoModule`

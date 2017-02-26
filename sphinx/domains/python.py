@@ -302,16 +302,6 @@ class PyObject(ObjectDescription):
             self.indexnode['entries'].append(('single', indextext,
                                               fullname, '', None))
 
-    def before_content(self):
-        # type: () -> None
-        # needed for automatic qualification of members (reset in subclasses)
-        self.clsname_set = False
-
-    def after_content(self):
-        # type: () -> None
-        if self.clsname_set:
-            self.env.ref_context.pop('py:class', None)
-
 
 class PyModulelevel(PyObject):
     """
@@ -360,8 +350,23 @@ class PyClasslike(PyObject):
         # type: () -> None
         PyObject.before_content(self)
         if self.names:
-            self.env.ref_context['py:class'] = self.names[0][0]
-            self.clsname_set = True
+            (cls_name, cls_name_prefix) = self.names.pop()
+            try:
+                self.env.ref_context['py:classes'].append(cls_name)
+            except (AttributeError, KeyError):
+                self.env.ref_context['py:classes'] = [cls_name]
+            finally:
+                self.env.ref_context['py:class'] = cls_name
+
+    def after_content(self):
+        # type: () -> None
+        try:
+            self.env.ref_context['py:classes'].pop()
+            cls_name = self.env.ref_context['py:classes'][-1]
+            self.env.ref_context['py:class'] = cls_name
+        except (KeyError, IndexError):
+            self.env.ref_context['py:classes'] = []
+            self.env.ref_context['py:class'] = None
 
 
 class PyClassmember(PyObject):
@@ -443,8 +448,8 @@ class PyClassmember(PyObject):
         PyObject.before_content(self)
         lastname = self.names and self.names[-1][1]
         if lastname and not self.env.ref_context.get('py:class'):
-            self.env.ref_context['py:class'] = lastname.strip('.')
-            self.clsname_set = True
+            lastname = lastname.strip('.')
+            self.env.ref_context['py:class'] = lastname
 
 
 class PyDecoratorMixin(object):
