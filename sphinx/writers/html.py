@@ -681,6 +681,10 @@ class HTMLTranslator(BaseTranslator):
         # type: (nodes.Node) -> None
         self.body.append('</td>')
 
+    def visit_option_group(self, node):
+        BaseTranslator.visit_option_group(self, node)
+        self.context[-2] = self.context[-2].replace('&nbsp;', '&#160;')
+
     def bulk_text_processor(self, text):
         # type: (unicode) -> unicode
         return text
@@ -956,10 +960,6 @@ class SmartyPantsHTMLTranslator(HTMLTranslator):
         # type: (nodes.Node) -> None
         self.no_smarty -= 1
         HTMLTranslator.depart_option(self, node)
-
-    def visit_option_group(self, node):
-        HTMLTranslator.visit_option_group(self, node)
-        self.context[-2] = self.context[-2].replace('&nbsp;', '&#160;')
 
     def bulk_text_processor(self, text):
         # type: (unicode) -> unicode

@@ -1140,3 +1140,12 @@ def test_html_sourcelink_suffix(app):
     assert '<a href="_sources/images.txt"' in content_images
     assert (app.outdir / '_sources' / 'otherext.foo').exists()
     assert (app.outdir / '_sources' / 'images.txt').exists()
+
+
+@pytest.mark.sphinx('html', testroot='html_entity')
+def test_html_entity(app):
+    app.builder.build_all()
+    valid_entities = {'amp', 'lt', 'gt', 'quot', 'apos'}
+    content = (app.outdir / 'index.html').text()
+    for entity in re.findall(r'&([a-z]+);', content, re.M):
+        assert entity not in valid_entities

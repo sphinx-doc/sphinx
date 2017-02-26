@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Release 1.6 (in development)
 ============================
 
@@ -95,7 +96,7 @@ Deprecated
   patch them. In particular the ``\makesavenoteenv`` macro is not in use anymore
   and its definition will be removed at Sphinx 1.7.
 
-Release 1.5.3 (in development)
+Release 1.5.4 (in development)
 ==============================
 
 Incompatible changes
@@ -107,10 +108,23 @@ Deprecated
 Features added
 --------------
 
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.5.3 (released Feb 26, 2017)
+=====================================
+
+Features added
+--------------
+
 * Support requests-2.0.0 (experimental) (refs: #3367)
 * (latex) PDF page margin dimensions may be customized (refs: #3387)
 * ``literalinclude`` directive allows combination of ``:pyobject:`` and
   ``:lines:`` options (refs: #3416)
+* #3400: make-mode doesn't use subprocess on building docs
 
 Bugs fixed
 ----------
@@ -133,9 +147,6 @@ Bugs fixed
 * #3450: &nbsp is appeared in EPUB docs
 * #3418: Search button is misaligned in nature and pyramid theme
 * #3421: Could not translate a caption of tables
-
-Testing
---------
 
 Release 1.5.2 (released Jan 22, 2017)
 =====================================
