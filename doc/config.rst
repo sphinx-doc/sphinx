@@ -1500,37 +1500,6 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 Options for LaTeX output
 ------------------------
 
-.. note::
-
-   Apart from the ``pdflatex`` (``lualatex``, ``xelatex``) and ``makeindex``
-   binaries (``platex``, ``dvipdfmx``, ``mendex`` for Japanese) these LaTeX
-   "packages" are required (their dependencies are not listed because they
-   should be included in the TeX installation if the package itself is):
-
-     alltt amsmath amssymb amstext babel capt-of cmap color fancyhdr fancyvrb
-     float fncychap fontenc fontspec (Unicode engines) framed geometry
-     graphicx hypcap hyperref inputenc kvoptions longtable makeidx needspace
-     parskip polyglossia (Unicode engines) tabulary textcomp threeparttable
-     times titlesec upquote wrapfig xcolor eqparbox multirow
-
-   Many are already in the quasi-minimal TeXLive install consisting of its
-   collections ``latexrecommended`` and ``fontsrecommended`` and their
-   automatic dependencies. Those in collection ``latexextra`` are:
-
-      capt-of fncychap framed needspace tabulary threeparttable titlesec
-      upquote wrapfig eqparbox multirow
-
-   .. comment I am listing the latter two last because they will be deprecated
-      at Sphinx 1.6 and removed at 1.7
-
-   Sphinx uses document classes ``article``, ``report`` and ``jreport``,
-   ``jsbook`` for Japanese.
-
-   The testing of Sphinx LaTeX is done using Debian/TeXLive 2013.
-
-   .. versionchanged:: 1.6
-      Formerly, testing was done on Debian/TeXLive 2009.
-
 These options influence LaTeX output. See further :doc:`latex`.
 
 .. confval:: latex_engine
