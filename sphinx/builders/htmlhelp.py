@@ -18,9 +18,19 @@ from os import path
 from docutils import nodes
 
 from sphinx import addnodes
-from sphinx.util.osutil import make_filename
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.environment.adapters.indexentries import IndexEntries
+from sphinx.util import logging
+from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
+
+if False:
+    # For type annotation
+    from typing import Any, IO, Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 
 # Project file (*.hhp) template.  'outname' is the file basename (like
@@ -181,6 +191,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
     encoding = 'cp1252'
 
     def init(self):
+        # type: () -> None
         StandaloneHTMLBuilder.init(self)
         # the output files for HTML help must be .html only
         self.out_suffix = '.html'
@@ -191,14 +202,21 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
             self.lcid, self.encoding = locale
 
     def open_file(self, outdir, basename, mode='w'):
+        # type: (unicode, unicode, unicode) -> IO
         # open a file with the correct encoding for the selected language
-        return codecs.open(path.join(outdir, basename), mode,
+        return codecs.open(path.join(outdir, basename), mode,  # type: ignore
                            self.encoding, 'xmlcharrefreplace')
 
+    def update_page_context(self, pagename, templatename, ctx, event_arg):
+        # type: (unicode, unicode, Dict, unicode) -> None
+        ctx['encoding'] = self.encoding
+
     def handle_finish(self):
+        # type: () -> None
         self.build_hhx(self.outdir, self.config.htmlhelp_basename)
 
     def write_doc(self, docname, doctree):
+        # type: (unicode, nodes.Node) -> None
         for node in doctree.traverse(nodes.reference):
             # add ``target=_blank`` attributes to external links
             if node.get('internal') is None and 'refuri' in node:
@@ -207,12 +225,13 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
         StandaloneHTMLBuilder.write_doc(self, docname, doctree)
 
     def build_hhx(self, outdir, outname):
-        self.info('dumping stopword list...')
+        # type: (unicode, unicode) -> None
+        logger.info('dumping stopword list...')
         with self.open_file(outdir, outname + '.stp') as f:
             for word in sorted(stopwords):
                 print(word, file=f)
 
-        self.info('writing project file...')
+        logger.info('writing project file...')
         with self.open_file(outdir, outname + '.hhp') as f:
             f.write(project_template % {
                 'outname': outname,
@@ -233,7 +252,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         print(path.join(root, fn)[olen:].replace(os.sep, '\\'),
                               file=f)
 
-        self.info('writing TOC file...')
+        logger.info('writing TOC file...')
         with self.open_file(outdir, outname + '.hhc') as f:
             f.write(contents_header)
             # special books
@@ -247,6 +266,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                 self.config.master_doc, self, prune_toctrees=False)
 
             def write_toc(node, ullevel=0):
+                # type: (nodes.Node, int) -> None
                 if isinstance(node, nodes.list_item):
                     f.write('<LI> ')
                     for subnode in node:
@@ -267,19 +287,22 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
                         write_toc(subnode, ullevel)
 
             def istoctree(node):
+                # type: (nodes.Node) -> bool
                 return isinstance(node, addnodes.compact_paragraph) and \
                     'toctree' in node
             for node in tocdoc.traverse(istoctree):
                 write_toc(node)
             f.write(contents_footer)
 
-        self.info('writing index file...')
-        index = self.env.create_index(self)
+        logger.info('writing index file...')
+        index = IndexEntries(self.env).create_index(self)
         with self.open_file(outdir, outname + '.hhk') as f:
             f.write('<UL>\n')
 
             def write_index(title, refs, subitems):
+                # type: (unicode, List[Tuple[unicode, unicode]], List[Tuple[unicode, List[Tuple[unicode, unicode]]]]) -> None  # NOQA
                 def write_param(name, value):
+                    # type: (unicode, unicode) -> None
                     item = '    <param name="%s" value="%s">\n' % \
                         (name, value)
                     f.write(item)
@@ -308,6 +331,7 @@ class HTMLHelpBuilder(StandaloneHTMLBuilder):
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(HTMLHelpBuilder)
 

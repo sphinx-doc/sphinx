@@ -56,7 +56,7 @@ def check(name, input, idv1output=None, idv2output=None, output=None):
     parentNode = addnodes.desc()
     signode = addnodes.desc_signature(input, '')
     parentNode += signode
-    ast.describe_signature(signode, 'lastIsName', symbol)
+    ast.describe_signature(signode, 'lastIsName', symbol, options={})
 
     if idv2output:
         idv2output = "_CPPv2" + idv2output
@@ -520,12 +520,12 @@ def test_build_domain_cpp_with_add_function_parentheses_is_True(app, status, war
         ('', 'MyEnum')
     ]
     parenPatterns = [
-        ('ref function without parens ', 'paren_1\(\)'),
-        ('ref function with parens ', 'paren_2\(\)'),
+        ('ref function without parens ', r'paren_1\(\)'),
+        ('ref function with parens ', r'paren_2\(\)'),
         ('ref function without parens, explicit title ', 'paren_3_title'),
         ('ref function with parens, explicit title ', 'paren_4_title'),
-        ('ref op call without parens ', 'paren_5::operator\(\)\(\)'),
-        ('ref op call with parens ', 'paren_6::operator\(\)\(\)'),
+        ('ref op call without parens ', r'paren_5::operator\(\)\(\)'),
+        ('ref op call with parens ', r'paren_6::operator\(\)\(\)'),
         ('ref op call without parens, explicit title ', 'paren_7_title'),
         ('ref op call with parens, explicit title ', 'paren_8_title')
     ]
@@ -566,8 +566,8 @@ def test_build_domain_cpp_with_add_function_parentheses_is_False(app, status, wa
         ('ref function with parens ', 'paren_2'),
         ('ref function without parens, explicit title ', 'paren_3_title'),
         ('ref function with parens, explicit title ', 'paren_4_title'),
-        ('ref op call without parens ', 'paren_5::operator\(\)'),
-        ('ref op call with parens ', 'paren_6::operator\(\)'),
+        ('ref op call without parens ', r'paren_5::operator\(\)'),
+        ('ref op call with parens ', r'paren_6::operator\(\)'),
         ('ref op call without parens, explicit title ', 'paren_7_title'),
         ('ref op call with parens, explicit title ', 'paren_8_title')
     ]

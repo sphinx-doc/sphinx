@@ -15,8 +15,14 @@ from docutils import nodes
 
 from sphinx import addnodes
 
+if False:
+    # For type annotation
+    from typing import Any, Tuple  # NOQA
+    from sphinx.domains import Domain  # NOQA
+
 
 def _is_single_paragraph(node):
+    # type: (nodes.Node) -> bool
     """True if the node only contains one paragraph (and system messages)."""
     if len(node) == 0:
         return False
@@ -47,6 +53,7 @@ class Field(object):
 
     def __init__(self, name, names=(), label=None, has_arg=True, rolename=None,
                  bodyrolename=None):
+        # type: (unicode, Tuple[unicode, ...], unicode, bool, unicode, unicode) -> None
         self.name = name
         self.names = names
         self.label = label
@@ -56,6 +63,7 @@ class Field(object):
 
     def make_xref(self, rolename, domain, target,
                   innernode=addnodes.literal_emphasis, contnode=None):
+        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node
         if not rolename:
             return contnode or innernode(target, target)
         refnode = addnodes.pending_xref('', refdomain=domain, refexplicit=False,
@@ -65,12 +73,15 @@ class Field(object):
 
     def make_xrefs(self, rolename, domain, target,
                    innernode=addnodes.literal_emphasis, contnode=None):
+        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node) -> List[nodes.Node]
         return [self.make_xref(rolename, domain, target, innernode, contnode)]
 
     def make_entry(self, fieldarg, content):
+        # type: (List, unicode) -> Tuple[List, unicode]
         return (fieldarg, content)
 
     def make_field(self, types, domain, item):
+        # type: (Dict[unicode, List[nodes.Node]], unicode, Tuple) -> nodes.field
         fieldarg, content = item
         fieldname = nodes.field_name('', self.label)
         if fieldarg:
@@ -106,10 +117,12 @@ class GroupedField(Field):
 
     def __init__(self, name, names=(), label=None, rolename=None,
                  can_collapse=False):
+        # type: (unicode, Tuple[unicode, ...], unicode, unicode, bool) -> None
         Field.__init__(self, name, names, label, True, rolename)
         self.can_collapse = can_collapse
 
     def make_field(self, types, domain, items):
+        # type: (Dict[unicode, List[nodes.Node]], unicode, Tuple) -> nodes.field
         fieldname = nodes.field_name('', self.label)
         listnode = self.list_type()
         for fieldarg, content in items:
@@ -151,12 +164,15 @@ class TypedField(GroupedField):
 
     def __init__(self, name, names=(), typenames=(), label=None,
                  rolename=None, typerolename=None, can_collapse=False):
+        # type: (unicode, Tuple[unicode, ...], Tuple[unicode, ...], unicode, unicode, unicode, bool) -> None  # NOQA
         GroupedField.__init__(self, name, names, label, rolename, can_collapse)
         self.typenames = typenames
         self.typerolename = typerolename
 
     def make_field(self, types, domain, items):
+        # type: (Dict[unicode, List[nodes.Node]], unicode, Tuple) -> nodes.field
         def handle_item(fieldarg, content):
+            # type: (unicode, unicode) -> nodes.paragraph
             par = nodes.paragraph()
             par.extend(self.make_xrefs(self.rolename, domain, fieldarg,
                                        addnodes.literal_strong))
@@ -196,6 +212,7 @@ class DocFieldTransformer(object):
     """
 
     def __init__(self, directive):
+        # type: (Any) -> None
         self.domain = directive.domain
         if '_doc_field_type_map' not in directive.__class__.__dict__:
             directive.__class__._doc_field_type_map = \
@@ -203,6 +220,7 @@ class DocFieldTransformer(object):
         self.typemap = directive._doc_field_type_map
 
     def preprocess_fieldtypes(self, types):
+        # type: (List) -> Dict[unicode, Tuple[Any, bool]]
         typemap = {}
         for fieldtype in types:
             for name in fieldtype.names:
@@ -213,6 +231,7 @@ class DocFieldTransformer(object):
         return typemap
 
     def transform_all(self, node):
+        # type: (nodes.Node) -> None
         """Transform all field list children of a node."""
         # don't traverse, only handle field lists that are immediate children
         for child in node:
@@ -220,12 +239,13 @@ class DocFieldTransformer(object):
                 self.transform(child)
 
     def transform(self, node):
+        # type: (nodes.Node) -> None
         """Transform a single field list *node*."""
         typemap = self.typemap
 
         entries = []
-        groupindices = {}
-        types = {}
+        groupindices = {}  # type: Dict[unicode, int]
+        types = {}  # type: Dict[unicode, Dict]
 
         # step 1: traverse all fields and collect field types and content
         for field in node:
@@ -280,6 +300,7 @@ class DocFieldTransformer(object):
 
             translatable_content = nodes.inline(fieldbody.rawsource,
                                                 translatable=True)
+            translatable_content.document = fieldbody.parent.document
             translatable_content.source = fieldbody.parent.source
             translatable_content.line = fieldbody.parent.line
             translatable_content += content

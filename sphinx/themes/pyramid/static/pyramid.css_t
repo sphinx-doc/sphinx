@@ -152,6 +152,10 @@ div.sphinxsidebar input[type=text]{
     margin-left: 20px;
 }
 
+div.sphinxsidebar input[type=submit]{
+    margin-left: 20px;
+}
+
 /* -- sidebars -------------------------------------------------------------- */
 
 div.sidebar {

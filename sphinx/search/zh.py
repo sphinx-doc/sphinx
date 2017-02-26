@@ -13,13 +13,7 @@ import os
 import re
 
 from sphinx.search import SearchLanguage
-
-try:
-    from Stemmer import Stemmer as PyStemmer
-    PYSTEMMER = True
-except ImportError:
-    from sphinx.util.stemmer import PorterStemmer
-    PYSTEMMER = False
+from sphinx.util.stemmer import get_stemmer
 
 try:
     import jieba
@@ -238,38 +232,27 @@ class SearchChinese(SearchLanguage):
     latin1_letters = re.compile(r'\w+(?u)[\u0000-\u00ff]')
 
     def init(self, options):
+        # type: (Dict) -> None
         if JIEBA:
             dict_path = options.get('dict')
             if dict_path and os.path.isfile(dict_path):
                 jieba.set_dictionary(dict_path)
 
-        if PYSTEMMER:
-            class Stemmer(object):
-                def __init__(self):
-                    self.stemmer = PyStemmer('porter')
-
-                def stem(self, word):
-                    return self.stemmer.stemWord(word)
-        else:
-            class Stemmer(PorterStemmer):
-                """All those porter stemmer implementations look hideous;
-                make at least the stem method nicer.
-                """
-                def stem(self, word):
-                    return PorterStemmer.stem(self, word, 0, len(word) - 1)
-
-        self.stemmer = Stemmer()
+        self.stemmer = get_stemmer()
 
     def split(self, input):
-        chinese = []
+        # type: (unicode) -> List[unicode]
+        chinese = []  # type: List[unicode]
         if JIEBA:
             chinese = list(jieba.cut_for_search(input))
 
-        latin1 = self.latin1_letters.findall(input)
+        latin1 = self.latin1_letters.findall(input)  # type: ignore
         return chinese + latin1
 
     def word_filter(self, stemmed_word):
+        # type: (unicode) -> bool
         return len(stemmed_word) > 1
 
     def stem(self, word):
+        # type: (unicode) -> unicode
         return self.stemmer.stem(word)

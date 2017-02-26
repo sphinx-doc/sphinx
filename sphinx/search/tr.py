@@ -24,10 +24,12 @@ class SearchTurkish(SearchLanguage):
     language_name = 'Turkish'
     js_stemmer_rawcode = 'turkish-stemmer.js'
     js_stemmer_code = js_stemmer
-    stopwords = []
+    stopwords = []  # type: List[unicode]
 
     def init(self, options):
+        # type: (Dict) -> None
         self.stemmer = snowballstemmer.stemmer('turkish')
 
     def stem(self, word):
+        # type: (unicode) -> unicode
         return self.stemmer.stemWord(word)

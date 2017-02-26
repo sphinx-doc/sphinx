@@ -30,19 +30,19 @@ if 'PYTHONWARNINGS' not in os.environ:
 warnings.filterwarnings('ignore', "'U' mode is deprecated",
                         DeprecationWarning, module='docutils.io')
 
-__version__ = '1.5.3+'
-__released__ = '1.5.3'  # used when Sphinx builds its own docs
+__version__ = '1.6'
+__released__ = '1.6+'  # used when Sphinx builds its own docs
 
 # version info for better programmatic use
 # possible values for 3rd element: 'alpha', 'beta', 'rc', 'final'
 # 'final' has 0 as the last element
-version_info = (1, 5, 3, 'beta', 0)
+version_info = (1, 6, 0, 'beta', 1)
 
 package_dir = path.abspath(path.dirname(__file__))
 
 __display_version__ = __version__  # used for command line version
 if __version__.endswith('+'):
-    # try to find out the changeset hash if checked out from hg, and append
+    # try to find out the commit hash if checked out from git, and append
     # it to __version__ (since we use this value from setup.py, it gets
     # automatically propagated to an installed copy as well)
     __display_version__ = __version__
@@ -54,19 +54,21 @@ if __version__.endswith('+'):
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = p.communicate()
         if out:
-            __display_version__ += '/' + out.decode().strip()
+            __display_version__ += '/' + out.decode().strip()  # type: ignore
     except Exception:
         pass
 
 
 def main(argv=sys.argv):
+    # type: (List[str]) -> int
     if sys.argv[1:2] == ['-M']:
-        sys.exit(make_main(argv))
+        return make_main(argv)
     else:
-        sys.exit(build_main(argv))
+        return build_main(argv)
 
 
 def build_main(argv=sys.argv):
+    # type: (List[str]) -> int
     """Sphinx build "main" command-line entry."""
     if (sys.version_info[:3] < (2, 7, 0) or
        (3, 0, 0) <= sys.version_info[:3] < (3, 4, 0)):
@@ -99,18 +101,19 @@ def build_main(argv=sys.argv):
             return 1
         raise
 
-    from sphinx.util.compat import docutils_version
-    if docutils_version < (0, 10):
+    import sphinx.util.docutils
+    if sphinx.util.docutils.__version_info__ < (0, 10):
         sys.stderr.write('Error: Sphinx requires at least Docutils 0.10 to '
                          'run.\n')
         return 1
-    return cmdline.main(argv)
+    return cmdline.main(argv)  # type: ignore
 
 
 def make_main(argv=sys.argv):
+    # type: (List[str]) -> int
     """Sphinx build "make mode" entry."""
     from sphinx import make_mode
-    return make_mode.run_make_mode(argv[2:])
+    return make_mode.run_make_mode(argv[2:])  # type: ignore
 
 
 if __name__ == '__main__':

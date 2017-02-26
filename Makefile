@@ -1,17 +1,14 @@
 PYTHON ?= python
 
-.PHONY: all style-check clean clean-pyc clean-patchfiles clean-backupfiles \
+.PHONY: all style-check type-check clean clean-pyc clean-patchfiles clean-backupfiles \
         clean-generated pylint reindent test covertest build
 
-DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
-             -i sphinx/pycode/pgen2 -i sphinx/util/smartypants.py \
-             -i .ropeproject -i doc/_build -i tests/path.py \
-             -i utils/convert.py \
-             -i tests/typing_test_data.py \
-             -i tests/test_autodoc_py35.py \
-             -i tests/roots/test-warnings/undecodable.rst \
-             -i tests/build \
-             -i tests/roots/test-warnings/undecodable.rst \
+DONT_CHECK = -i .ropeproject \
+             -i .tox \
+             -i build \
+             -i dist \
+             -i doc/_build \
+             -i sphinx/pycode/pgen2 \
              -i sphinx/search/da.py \
              -i sphinx/search/de.py \
              -i sphinx/search/en.py \
@@ -28,12 +25,23 @@ DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
              -i sphinx/search/ru.py \
              -i sphinx/search/sv.py \
              -i sphinx/search/tr.py \
-             -i .tox
+             -i sphinx/style/jquery.js \
+             -i sphinx/util/smartypants.py \
+             -i tests/build \
+             -i tests/path.py \
+             -i tests/roots/test-directive-code/target.py \
+             -i tests/roots/test-warnings/undecodable.rst \
+             -i tests/test_autodoc_py35.py \
+             -i tests/typing_test_data.py \
+             -i utils/convert.py
 
-all: clean-pyc clean-backupfiles style-check test
+all: clean-pyc clean-backupfiles style-check type-check test
 
 style-check:
-	@$(PYTHON) utils/check_sources.py $(DONT_CHECK) .
+	@PYTHONWARNINGS=all $(PYTHON) utils/check_sources.py $(DONT_CHECK) .
+
+type-check:
+	mypy sphinx/
 
 clean: clean-pyc clean-pycache clean-patchfiles clean-backupfiles clean-generated clean-testfiles clean-buildfiles clean-mypyfiles
 
@@ -56,7 +64,7 @@ clean-backupfiles:
 
 clean-generated:
 	find . -name '.DS_Store' -exec rm -f {} +
-	rm -f doc/_build/
+	rm -rf doc/_build/
 	rm -f sphinx/pycode/*.pickle
 	rm -f utils/*3.py*
 	rm -f utils/regression_test.js

@@ -9,12 +9,26 @@
     :license: BSD, see LICENSE for details.
 """
 
+from collections import namedtuple
+
+from six import BytesIO
 from docutils import frontend, utils
 from docutils.parsers import rst
 
 from sphinx.search import IndexBuilder
 from sphinx.util import jsdump
 import pytest
+
+DummyEnvironment = namedtuple('DummyEnvironment', ['version', 'domains'])
+
+
+class DummyDomain(object):
+    def __init__(self, data):
+        self.data = data
+        self.object_types = {}
+
+    def get_objects(self):
+        return self.data
 
 
 settings = parser = None
@@ -39,21 +53,13 @@ def is_registered_term(index, keyword):
 
 
 FILE_CONTENTS = '''\
+section_title
+=============
+
 .. test that comments are not indexed: boson
 
 test that non-comments are indexed: fermion
 '''
-
-
-def test_wordcollector():
-    doc = utils.new_document(b'test data', settings)
-    doc['file'] = 'dummy'
-    parser.parse(FILE_CONTENTS, doc)
-
-    ix = IndexBuilder(None, 'en', {}, None)
-    ix.feed('docname', 'filename', 'title', doc)
-    assert 'boson' not in ix._mapping
-    assert 'fermion' in ix._mapping
 
 
 @pytest.mark.sphinx(testroot='ext-viewcode')
@@ -123,3 +129,102 @@ def test_term_in_raw_directive(app, status, warning):
     assert not is_registered_term(searchindex, 'raw')
     assert is_registered_term(searchindex, 'rawword')
     assert not is_registered_term(searchindex, 'latex_keyword')
+
+
+def test_IndexBuilder():
+    domain = DummyDomain([('objname', 'objdispname', 'objtype', 'docname', '#anchor', 1),
+                          ('objname2', 'objdispname2', 'objtype2', 'docname2', '', -1)])
+    env = DummyEnvironment('1.0', {'dummy': domain})
+    doc = utils.new_document(b'test data', settings)
+    doc['file'] = 'dummy'
+    parser.parse(FILE_CONTENTS, doc)
+
+    # feed
+    index = IndexBuilder(env, 'en', {}, None)
+    index.feed('docname', 'filename', 'title', doc)
+    index.feed('docname2', 'filename2', 'title2', doc)
+    assert index._titles == {'docname': 'title', 'docname2': 'title2'}
+    assert index._filenames == {'docname': 'filename', 'docname2': 'filename2'}
+    assert index._mapping == {
+        'fermion': {'docname', 'docname2'},
+        'comment': {'docname', 'docname2'},
+        'non': {'docname', 'docname2'},
+        'index': {'docname', 'docname2'},
+        'test': {'docname', 'docname2'}
+    }
+    assert index._title_mapping == {'section_titl': {'docname', 'docname2'}}
+    assert index._objtypes == {}
+    assert index._objnames == {}
+
+    # freeze
+    assert index.freeze() == {
+        'docnames': ('docname', 'docname2'),
+        'envversion': '1.0',
+        'filenames': ['filename', 'filename2'],
+        'objects': {'': {'objname': (0, 0, 1, '#anchor')}},
+        'objnames': {0: ('dummy', 'objtype', 'objtype')},
+        'objtypes': {0: 'dummy:objtype'},
+        'terms': {'comment': [0, 1],
+                  'fermion': [0, 1],
+                  'index': [0, 1],
+                  'non': [0, 1],
+                  'test': [0, 1]},
+        'titles': ('title', 'title2'),
+        'titleterms': {'section_titl': [0, 1]}
+    }
+    assert index._objtypes == {('dummy', 'objtype'): 0}
+    assert index._objnames == {0: ('dummy', 'objtype', 'objtype')}
+
+    # dump / load
+    stream = BytesIO()
+    index.dump(stream, 'pickle')
+    stream.seek(0)
+
+    index2 = IndexBuilder(env, 'en', {}, None)
+    index2.load(stream, 'pickle')
+
+    assert index2._titles == index._titles
+    assert index2._filenames == index._filenames
+    assert index2._mapping == index._mapping
+    assert index2._title_mapping == index._title_mapping
+    assert index2._objtypes == {}
+    assert index2._objnames == {}
+
+    # freeze after load
+    assert index2.freeze() == index.freeze()
+    assert index2._objtypes == index._objtypes
+    assert index2._objnames == index._objnames
+
+    # prune
+    index.prune(['docname2'])
+    assert index._titles == {'docname2': 'title2'}
+    assert index._filenames == {'docname2': 'filename2'}
+    assert index._mapping == {
+        'fermion': {'docname2'},
+        'comment': {'docname2'},
+        'non': {'docname2'},
+        'index': {'docname2'},
+        'test': {'docname2'}
+    }
+    assert index._title_mapping == {'section_titl': {'docname2'}}
+    assert index._objtypes == {('dummy', 'objtype'): 0}
+    assert index._objnames == {0: ('dummy', 'objtype', 'objtype')}
+
+    # freeze after prune
+    assert index.freeze() == {
+        'docnames': ('docname2',),
+        'envversion': '1.0',
+        'filenames': ['filename2'],
+        'objects': {},
+        'objnames': {0: ('dummy', 'objtype', 'objtype')},
+        'objtypes': {0: 'dummy:objtype'},
+        'terms': {'comment': 0,
+                  'fermion': 0,
+                  'index': 0,
+                  'non': 0,
+                  'test': 0},
+        'titles': ('title2',),
+        'titleterms': {'section_titl': 0}
+    }
+    assert index._objtypes == {('dummy', 'objtype'): 0}
+    assert index._objnames == {0: ('dummy', 'objtype', 'objtype')}

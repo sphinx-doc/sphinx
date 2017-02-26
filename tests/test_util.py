@@ -10,10 +10,14 @@
 """
 
 import pytest
+from mock import patch
 
+from sphinx.util import logging
 from sphinx.util import (
-    encode_uri, parselinenos, split_docinfo
+    display_chunk, encode_uri, parselinenos, split_docinfo, status_iterator
 )
+
+from util import strip_escseq
 
 
 def test_encode_uri():
@@ -53,6 +57,47 @@ def test_splitdocinfo():
     assert content == '\nHello world.\n'
 
 
+def test_display_chunk():
+    assert display_chunk('hello') == 'hello'
+    assert display_chunk(['hello']) == 'hello'
+    assert display_chunk(['hello', 'sphinx', 'world']) == 'hello .. world'
+    assert display_chunk(('hello',)) == 'hello'
+    assert display_chunk(('hello', 'sphinx', 'world')) == 'hello .. world'
+
+
+@pytest.mark.sphinx('dummy')
+@patch('sphinx.util.console._tw', 40)  # terminal width = 40
+def test_status_iterator(app, status, warning):
+    logging.setup(app, status, warning)
+
+    # test for old_status_iterator
+    status.truncate(0)
+    yields = list(status_iterator(['hello', 'sphinx', 'world'], 'testing ... '))
+    output = strip_escseq(status.getvalue())
+    assert 'testing ... hello sphinx world \n' in output
+    assert yields == ['hello', 'sphinx', 'world']
+
+    # test for status_iterator (verbosity=0)
+    status.truncate(0)
+    yields = list(status_iterator(['hello', 'sphinx', 'world'], 'testing ... ',
+                                  length=3, verbosity=0))
+    output = strip_escseq(status.getvalue())
+    assert 'testing ... [ 33%] hello                \r' in output
+    assert 'testing ... [ 66%] sphinx               \r' in output
+    assert 'testing ... [100%] world                \r\n' in output
+    assert yields == ['hello', 'sphinx', 'world']
+
+    # test for status_iterator (verbosity=1)
+    status.truncate(0)
+    yields = list(status_iterator(['hello', 'sphinx', 'world'], 'testing ... ',
+                                  length=3, verbosity=1))
+    output = strip_escseq(status.getvalue())
+    assert 'testing ... [ 33%] hello\n' in output
+    assert 'testing ... [ 66%] sphinx\n' in output
+    assert 'testing ... [100%] world\n\n' in output
+    assert yields == ['hello', 'sphinx', 'world']
+
+
 def test_parselinenos():
     assert parselinenos('1,2,3', 10) == [0, 1, 2]
     assert parselinenos('4, 5, 6', 10) == [3, 4, 5]
@@ -60,9 +105,13 @@ def test_parselinenos():
     assert parselinenos('7-9', 10) == [6, 7, 8]
     assert parselinenos('7-', 10) == [6, 7, 8, 9]
     assert parselinenos('1,7-', 10) == [0, 6, 7, 8, 9]
+    assert parselinenos('7-7', 10) == [6]
+    assert parselinenos('11-', 10) == [10]
     with pytest.raises(ValueError):
         parselinenos('1-2-3', 10)
     with pytest.raises(ValueError):
         parselinenos('abc-def', 10)
     with pytest.raises(ValueError):
         parselinenos('-', 10)
+    with pytest.raises(ValueError):
+        parselinenos('3-1', 10)

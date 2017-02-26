@@ -21,13 +21,23 @@ from uuid import uuid4
 from six import iteritems
 
 from sphinx.builders import Builder
-from sphinx.util import split_index_msg
+from sphinx.util import split_index_msg, logging, status_iterator
 from sphinx.util.tags import Tags
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import safe_relpath, ensuredir, canon_path
 from sphinx.util.i18n import find_catalog
-from sphinx.util.console import darkgreen, purple, bold
+from sphinx.util.console import bold  # type: ignore
 from sphinx.locale import pairindextypes
+
+if False:
+    # For type annotation
+    from typing import Any, Iterable, Tuple  # NOQA
+    from docutils import nodes  # NOQA
+    from sphinx.util.i18n import CatalogInfo  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 POHEADER = r"""
 # SOME DESCRIPTIVE TITLE.
@@ -55,10 +65,14 @@ class Catalog(object):
     """Catalog of translatable messages."""
 
     def __init__(self):
-        self.messages = []  # retain insertion order, a la OrderedDict
-        self.metadata = {}  # msgid -> file, line, uid
+        # type: () -> None
+        self.messages = []  # type: List[unicode]
+                            # retain insertion order, a la OrderedDict
+        self.metadata = {}  # type: Dict[unicode, List[Tuple[unicode, int, unicode]]]
+                            # msgid -> file, line, uid
 
     def add(self, msg, origin):
+        # type: (unicode, MsgOrigin) -> None
         if not hasattr(origin, 'uid'):
             # Nodes that are replicated like todo don't have a uid,
             # however i18n is also unnecessary.
@@ -75,6 +89,7 @@ class MsgOrigin(object):
     """
 
     def __init__(self, source, line):
+        # type: (unicode, int) -> None
         self.source = source
         self.line = line
         self.uid = uuid4().hex
@@ -87,6 +102,7 @@ class I18nTags(Tags):
     always returns True value even if no tags are defined.
     """
     def eval_condition(self, condition):
+        # type: (Any) -> bool
         return True
 
 
@@ -99,27 +115,34 @@ class I18nBuilder(Builder):
     versioning_compare = None  # be set by `gettext_uuid`
 
     def __init__(self, app):
+        # type: (Sphinx) -> None
         self.versioning_compare = app.env.config.gettext_uuid
         super(I18nBuilder, self).__init__(app)
 
     def init(self):
+        # type: () -> None
         Builder.init(self)
         self.tags = I18nTags()
-        self.catalogs = defaultdict(Catalog)
+        self.catalogs = defaultdict(Catalog)  # type: defaultdict[unicode, Catalog]
 
     def get_target_uri(self, docname, typ=None):
+        # type: (unicode, unicode) -> unicode
         return ''
 
     def get_outdated_docs(self):
+        # type: () -> Set[unicode]
         return self.env.found_docs
 
     def prepare_writing(self, docnames):
+        # type: (Set[unicode]) -> None
         return
 
     def compile_catalogs(self, catalogs, message):
+        # type: (Set[CatalogInfo], unicode) -> None
         return
 
     def write_doc(self, docname, doctree):
+        # type: (unicode, nodes.Node) -> None
         catalog = self.catalogs[find_catalog(docname,
                                              self.config.gettext_compact)]
 
@@ -153,13 +176,16 @@ if source_date_epoch is not None:
 class LocalTimeZone(tzinfo):
 
     def __init__(self, *args, **kw):
-        super(LocalTimeZone, self).__init__(*args, **kw)
+        # type: (Any, Any) -> None
+        super(LocalTimeZone, self).__init__(*args, **kw)  # type: ignore
         self.tzdelta = tzdelta
 
     def utcoffset(self, dt):
+        # type: (datetime) -> timedelta
         return self.tzdelta
 
     def dst(self, dt):
+        # type: (datetime) -> timedelta
         return timedelta(0)
 
 
@@ -173,11 +199,13 @@ class MessageCatalogBuilder(I18nBuilder):
     name = 'gettext'
 
     def init(self):
+        # type: () -> None
         I18nBuilder.init(self)
         self.create_template_bridge()
         self.templates.init(self)
 
     def _collect_templates(self):
+        # type: () -> Set[unicode]
         template_files = set()
         for template_path in self.config.templates_path:
             tmpl_abs_path = path.join(self.app.srcdir, template_path)
@@ -189,66 +217,71 @@ class MessageCatalogBuilder(I18nBuilder):
         return template_files
 
     def _extract_from_template(self):
+        # type: () -> None
         files = self._collect_templates()
-        self.info(bold('building [%s]: ' % self.name), nonl=1)
-        self.info('targets for %d template files' % len(files))
+        logger.info(bold('building [%s]: ' % self.name), nonl=1)
+        logger.info('targets for %d template files', len(files))
 
         extract_translations = self.templates.environment.extract_translations
 
-        for template in self.app.status_iterator(
-                files, 'reading templates... ', purple, len(files)):
-            with open(template, 'r', encoding='utf-8') as f:
+        for template in status_iterator(files, 'reading templates... ', "purple",  # type: ignore  # NOQA
+                                        len(files), self.app.verbosity):
+            with open(template, 'r', encoding='utf-8') as f:  # type: ignore
                 context = f.read()
             for line, meth, msg in extract_translations(context):
                 origin = MsgOrigin(template, line)
                 self.catalogs['sphinx'].add(msg, origin)
 
     def build(self, docnames, summary=None, method='update'):
+        # type: (Iterable[unicode], unicode, unicode) -> None
         self._extract_from_template()
         I18nBuilder.build(self, docnames, summary, method)
 
     def finish(self):
+        # type: () -> None
         I18nBuilder.finish(self)
         data = dict(
             version = self.config.version,
             copyright = self.config.copyright,
             project = self.config.project,
-            ctime = datetime.fromtimestamp(
+            ctime = datetime.fromtimestamp(  # type: ignore
                 timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
         )
-        for textdomain, catalog in self.app.status_iterator(
-                iteritems(self.catalogs), "writing message catalogs... ",
-                darkgreen, len(self.catalogs),
-                lambda textdomain__: textdomain__[0]):
+        for textdomain, catalog in status_iterator(iteritems(self.catalogs),  # type: ignore
+                                                   "writing message catalogs... ",
+                                                   "darkgreen", len(self.catalogs),
+                                                   self.app.verbosity,
+                                                   lambda textdomain__: textdomain__[0]):
             # noop if config.gettext_compact is set
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
             pofn = path.join(self.outdir, textdomain + '.pot')
-            with open(pofn, 'w', encoding='utf-8') as pofile:
-                pofile.write(POHEADER % data)
+            with open(pofn, 'w', encoding='utf-8') as pofile:  # type: ignore
+                pofile.write(POHEADER % data)  # type: ignore
 
                 for message in catalog.messages:
                     positions = catalog.metadata[message]
 
                     if self.config.gettext_location:
                         # generate "#: file1:line1\n#: file2:line2 ..."
-                        pofile.write("#: %s\n" % "\n#: ".join(
+                        pofile.write("#: %s\n" % "\n#: ".join(  # type: ignore
                             "%s:%s" % (canon_path(
                                 safe_relpath(source, self.outdir)), line)
                             for source, line, _ in positions))
                     if self.config.gettext_uuid:
                         # generate "# uuid1\n# uuid2\n ..."
-                        pofile.write("# %s\n" % "\n# ".join(
+                        pofile.write("# %s\n" % "\n# ".join(  # type: ignore
                             uid for _, _, uid in positions))
 
                     # message contains *one* line of text ready for translation
                     message = message.replace('\\', r'\\'). \
                         replace('"', r'\"'). \
                         replace('\n', '\\n"\n"')
-                    pofile.write('msgid "%s"\nmsgstr ""\n\n' % message)
+                    pofile.write('msgid "%s"\nmsgstr ""\n\n' % message)  # type: ignore
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(MessageCatalogBuilder)
 
     app.add_config_value('gettext_compact', True, 'gettext')

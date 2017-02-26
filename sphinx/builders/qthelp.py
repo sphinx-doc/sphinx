@@ -16,13 +16,23 @@ import posixpath
 from os import path
 
 from six import text_type
+
 from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.util import force_decode
+from sphinx.environment.adapters.indexentries import IndexEntries
+from sphinx.util import force_decode, logging
 from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
+
+if False:
+    # For type annotation
+    from typing import Any, Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 
 _idpattern = re.compile(
@@ -115,6 +125,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
     search = False
 
     def init(self):
+        # type: () -> None
         StandaloneHTMLBuilder.init(self)
         # the output files for HTML help must be .html only
         self.out_suffix = '.html'
@@ -122,19 +133,23 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         # self.config.html_style = 'traditional.css'
 
     def get_theme_config(self):
+        # type: () -> Tuple[unicode, Dict]
         return self.config.qthelp_theme, self.config.qthelp_theme_options
 
     def handle_finish(self):
+        # type: () -> None
         self.build_qhp(self.outdir, self.config.qthelp_basename)
 
     def build_qhp(self, outdir, outname):
-        self.info('writing project file...')
+        # type: (unicode, unicode) -> None
+        logger.info('writing project file...')
 
         # sections
         tocdoc = self.env.get_and_resolve_doctree(self.config.master_doc, self,
                                                   prune_toctrees=False)
 
         def istoctree(node):
+            # type: (nodes.Node) -> bool
             return isinstance(node, addnodes.compact_paragraph) and \
                 'toctree' in node
         sections = []
@@ -153,15 +168,15 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                 new_sections.append(force_decode(section, None))
             else:
                 new_sections.append(section)
-        sections = u'\n'.join(new_sections)
+        sections = u'\n'.join(new_sections)  # type: ignore
 
         # keywords
         keywords = []
-        index = self.env.create_index(self, group_entries=False)
+        index = IndexEntries(self.env).create_index(self, group_entries=False)
         for (key, group) in index:
             for title, (refs, subitems, key_) in group:
                 keywords.extend(self.build_keywords(title, refs, subitems))
-        keywords = u'\n'.join(keywords)
+        keywords = u'\n'.join(keywords)  # type: ignore
 
         # files
         if not outdir.endswith(os.sep):
@@ -179,7 +194,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
                     filename = path.join(root, fn)[olen:]
                     projectfiles.append(file_template %
                                         {'filename': htmlescape(filename)})
-        projectfiles = '\n'.join(projectfiles)
+        projectfiles = '\n'.join(projectfiles)  # type: ignore
 
         # it seems that the "namespace" may not contain non-alphanumeric
         # characters, and more than one successive dot, or leading/trailing
@@ -190,8 +205,8 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         nspace = nspace.lower()
 
         # write the project file
-        with codecs.open(path.join(outdir, outname + '.qhp'), 'w', 'utf-8') as f:
-            f.write(project_template % {
+        with codecs.open(path.join(outdir, outname + '.qhp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
+            f.write(project_template % {  # type: ignore
                 'outname': htmlescape(outname),
                 'title': htmlescape(self.config.html_title),
                 'version': htmlescape(self.config.version),
@@ -206,15 +221,16 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             nspace, 'doc', self.get_target_uri(self.config.master_doc))
         startpage = 'qthelp://' + posixpath.join(nspace, 'doc', 'index.html')
 
-        self.info('writing collection project file...')
-        with codecs.open(path.join(outdir, outname + '.qhcp'), 'w', 'utf-8') as f:
-            f.write(collection_template % {
+        logger.info('writing collection project file...')
+        with codecs.open(path.join(outdir, outname + '.qhcp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
+            f.write(collection_template % {  # type: ignore
                 'outname': htmlescape(outname),
                 'title': htmlescape(self.config.html_short_title),
                 'homepage': htmlescape(homepage),
                 'startpage': htmlescape(startpage)})
 
     def isdocnode(self, node):
+        # type: (nodes.Node) -> bool
         if not isinstance(node, nodes.list_item):
             return False
         if len(node.children) != 2:
@@ -228,8 +244,9 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         return True
 
     def write_toc(self, node, indentlevel=4):
+        # type: (nodes.Node, int) -> List[unicode]
         # XXX this should return a Unicode string, not a bytestring
-        parts = []
+        parts = []  # type: List[unicode]
         if self.isdocnode(node):
             refnode = node.children[0][0]
             link = refnode['refuri']
@@ -247,7 +264,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             link = node['refuri']
             title = htmlescape(node.astext()).replace('"', '&quot;')
             item = section_template % {'title': title, 'ref': link}
-            item = u' ' * 4 * indentlevel + item
+            item = u' ' * 4 * indentlevel + item  # type: ignore
             parts.append(item.encode('ascii', 'xmlcharrefreplace'))
         elif isinstance(node, nodes.bullet_list):
             for subnode in node:
@@ -259,7 +276,8 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         return parts
 
     def keyword_item(self, name, ref):
-        matchobj = _idpattern.match(name)
+        # type: (unicode, Any) -> unicode
+        matchobj = _idpattern.match(name)  # type: ignore
         if matchobj:
             groupdict = matchobj.groupdict()
             shortname = groupdict['title']
@@ -280,7 +298,8 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         return item
 
     def build_keywords(self, title, refs, subitems):
-        keywords = []
+        # type: (unicode, List[Any], Any) -> List[unicode]
+        keywords = []  # type: List[unicode]
 
         title = htmlescape(title)
         # if len(refs) == 0: # XXX
@@ -304,6 +323,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(QtHelpBuilder)
 

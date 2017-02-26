@@ -66,7 +66,7 @@ class WebSupport(object):
         self._init_search(search)
         self._init_storage(storage)
 
-        self._globalcontext = None
+        self._globalcontext = None  # type: ignore
 
         self._make_base_comment_options()
 
@@ -119,7 +119,7 @@ class WebSupport(object):
             raise RuntimeError('No srcdir associated with WebSupport object')
         app = Sphinx(self.srcdir, self.srcdir, self.outdir, self.doctreedir,
                      'websupport', status=self.status, warning=self.warning)
-        app.builder.set_webinfo(self.staticdir, self.staticroot,
+        app.builder.set_webinfo(self.staticdir, self.staticroot,  # type: ignore
                                 self.search, self.storage)
 
         self.storage.pre_build()
@@ -384,7 +384,7 @@ class WebSupport(object):
         that remains the same throughout the lifetime of the
         :class:`~sphinx.websupport.WebSupport` object.
         """
-        self.base_comment_opts = {}
+        self.base_comment_opts = {}  # type: Dict[unicode, unicode]
 
         if self.docroot != '':
             comment_urls = [

@@ -1,14 +1,15 @@
 language: python
 sudo: false
+dist: trusty
 cache:
   directories:
     - $HOME/.cache/pip
 python:
-  - "pypy"
-  - "2.7"
-  - "3.4"
-  - "3.5"
+  - "pypy-5.4.1"
   - "3.6"
+  - "3.5"
+  - "3.4"
+  - "2.7"
   - "nightly"
 env:
   global:
@@ -26,7 +27,7 @@ matrix:
       env: DOCUTILS=0.12
     - python: nightly
       env: DOCUTILS=0.12
-    - python: pypy
+    - python: "pypy-5.4.1"
       env: DOCUTILS=0.12
 addons:
   apt:
@@ -42,7 +43,8 @@ install:
   - pip install -U pip setuptools
   - pip install docutils==$DOCUTILS
   - pip install -r test-reqs.txt
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then python3.6 -m pip install mypy 'typed-ast<1.0'; fi
 script:
   - flake8
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then make style-check test-async; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then make style-check type-check test-async; fi
   - if [[ $TRAVIS_PYTHON_VERSION != '3.6' ]]; then make test; fi

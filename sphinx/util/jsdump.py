@@ -16,6 +16,10 @@ from six import iteritems, integer_types, string_types
 
 from sphinx.util.pycompat import u
 
+if False:
+    # For type annotation
+    from typing import Any, IO, Match, Union  # NOQA
+
 _str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
 _int_re = re.compile(r'\d+')
 _name_re = re.compile(r'[a-zA-Z_]\w*')
@@ -37,7 +41,9 @@ ESCAPED = re.compile(r'\\u.{4}|\\.')
 
 
 def encode_string(s):
+    # type: (str) -> str
     def replace(match):
+        # type: (Match) -> unicode
         s = match.group(0)
         try:
             return ESCAPE_DICT[s]
@@ -51,10 +57,11 @@ def encode_string(s):
                 s1 = 0xd800 | ((n >> 10) & 0x3ff)
                 s2 = 0xdc00 | (n & 0x3ff)
                 return '\\u%04x\\u%04x' % (s1, s2)
-    return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'
+    return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'  # type: ignore
 
 
 def decode_string(s):
+    # type: (str) -> str
     return ESCAPED.sub(lambda m: eval(u + '"' + m.group() + '"'), s)
 
 
@@ -77,6 +84,7 @@ double   in   super""".split())
 
 
 def dumps(obj, key=False):
+    # type: (Any, bool) -> str
     if key:
         if not isinstance(obj, string_types):
             obj = str(obj)
@@ -88,7 +96,7 @@ def dumps(obj, key=False):
         return 'null'
     elif obj is True or obj is False:
         return obj and 'true' or 'false'
-    elif isinstance(obj, integer_types + (float,)):
+    elif isinstance(obj, integer_types + (float,)):  # type: ignore
         return str(obj)
     elif isinstance(obj, dict):
         return '{%s}' % ','.join(sorted('%s:%s' % (
@@ -100,20 +108,22 @@ def dumps(obj, key=False):
     elif isinstance(obj, (tuple, list)):
         return '[%s]' % ','.join(dumps(x) for x in obj)
     elif isinstance(obj, string_types):
-        return encode_string(obj)
+        return encode_string(obj)  # type: ignore
     raise TypeError(type(obj))
 
 
 def dump(obj, f):
+    # type: (Any, IO) -> None
     f.write(dumps(obj))
 
 
 def loads(x):
+    # type: (str) -> Any
     """Loader that can read the JS subset the indexer produces."""
     nothing = object()
     i = 0
     n = len(x)
-    stack = []
+    stack = []  # type: List[Union[List, Dict]]
     obj = nothing
     key = False
     keys = []
@@ -164,6 +174,7 @@ def loads(x):
                 raise ValueError("multiple values")
             key = False
         else:
+            y = None  # type: Any
             m = _str_re.match(x, i)
             if m:
                 y = decode_string(m.group()[1:-1])
@@ -193,11 +204,12 @@ def loads(x):
                     obj[keys[-1]] = y
                     key = False
             else:
-                obj.append(y)
+                obj.append(y)  # type: ignore
     if obj is nothing:
         raise ValueError("nothing loaded from string")
     return obj
 
 
 def load(f):
+    # type: (IO) -> Any
     return loads(f.read())

@@ -14,7 +14,12 @@ import sys
 from six import PY2, iteritems
 
 import sphinx
+from sphinx.application import Sphinx
 from sphinx.ext.napoleon.docstring import GoogleDocstring, NumpyDocstring
+
+if False:
+    # For type annotation
+    from typing import Any  # NOQA
 
 
 class Config(object):
@@ -254,6 +259,7 @@ class Config(object):
     }
 
     def __init__(self, **settings):
+        # type: (Any) -> None
         for name, (default, rebuild) in iteritems(self._config_values):
             setattr(self, name, default)
         for name, value in iteritems(settings):
@@ -261,6 +267,7 @@ class Config(object):
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     """Sphinx extension setup function.
 
     When the extension is loaded, Sphinx imports this module and executes
@@ -282,7 +289,6 @@ def setup(app):
     `The Extension API <http://sphinx-doc.org/extdev/appapi.html>`_
 
     """
-    from sphinx.application import Sphinx
     if not isinstance(app, Sphinx):
         return  # probably called by tests
 
@@ -297,6 +303,7 @@ def setup(app):
 
 
 def _patch_python_domain():
+    # type: () -> None
     try:
         from sphinx.domains.python import PyTypedField
     except ImportError:
@@ -317,6 +324,7 @@ def _patch_python_domain():
 
 
 def _process_docstring(app, what, name, obj, options, lines):
+    # type: (Sphinx, unicode, unicode, Any, Any, List[unicode]) -> None
     """Process the docstring for a given python object.
 
     Called when autodoc has read and processed a docstring. `lines` is a list
@@ -353,6 +361,7 @@ def _process_docstring(app, what, name, obj, options, lines):
 
     """
     result_lines = lines
+    docstring = None  # type: GoogleDocstring
     if app.config.napoleon_numpy_docstring:
         docstring = NumpyDocstring(result_lines, app.config, app, what, name,
                                    obj, options)
@@ -365,6 +374,7 @@ def _process_docstring(app, what, name, obj, options, lines):
 
 
 def _skip_member(app, what, name, obj, skip, options):
+    # type: (Sphinx, unicode, unicode, Any, bool, Any) -> bool
     """Determine if private and special class members are included in docs.
 
     The following settings in conf.py determine if private and special class
@@ -453,4 +463,4 @@ def _skip_member(app, what, name, obj, skip, options):
                     (is_private and inc_private) or
                     (is_init and inc_init)):
                 return False
-    return skip
+    return None

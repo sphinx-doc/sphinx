@@ -90,7 +90,8 @@ def test_extension_values(app, status, warning):
     assert 'already present' in str(excinfo.value)
 
 
-def test_errors_warnings(tempdir):
+@mock.patch("sphinx.config.logger")
+def test_errors_warnings(logger, tempdir):
     # test the error for syntax errors in the config file
     (tempdir / 'conf.py').write_text(u'project = \n', encoding='ascii')
     with pytest.raises(ConfigError) as excinfo:
@@ -102,8 +103,9 @@ def test_errors_warnings(tempdir):
         u'# -*- coding: utf-8\n\nproject = u"Jägermeister"\n',
         encoding='utf-8')
     cfg = Config(tempdir, 'conf.py', {}, None)
-    cfg.init_values(lambda warning: 1 / 0)
+    cfg.init_values()
     assert cfg.project == u'Jägermeister'
+    assert logger.called is False
 
     # test the warning for bytestrings with non-ascii content
     # bytestrings with non-ascii content are a syntax error in python3 so we
@@ -113,13 +115,10 @@ def test_errors_warnings(tempdir):
     (tempdir / 'conf.py').write_text(
         u'# -*- coding: latin-1\nproject = "fooä"\n', encoding='latin-1')
     cfg = Config(tempdir, 'conf.py', {}, None)
-    warned = [False]
 
-    def warn(msg):
-        warned[0] = True
-
-    cfg.check_unicode(warn)
-    assert warned[0]
+    assert logger.warning.called is False
+    cfg.check_unicode()
+    assert logger.warning.called is True
 
 
 def test_errors_if_setup_is_not_callable(tempdir, make_app):
@@ -157,14 +156,16 @@ def test_needs_sphinx(make_app):
         make_app(confoverrides={'needs_sphinx': '2'})  # NG: greater
 
 
-def test_config_eol(tempdir):
+@mock.patch("sphinx.config.logger")
+def test_config_eol(logger, tempdir):
     # test config file's eol patterns: LF, CRLF
     configfile = tempdir / 'conf.py'
     for eol in (b'\n', b'\r\n'):
         configfile.write_bytes(b'project = "spam"' + eol)
         cfg = Config(tempdir, 'conf.py', {}, None)
-        cfg.init_values(lambda warning: 1 / 0)
+        cfg.init_values()
         assert cfg.project == u'spam'
+        assert logger.called is False
 
 
 @pytest.mark.sphinx(confoverrides={'master_doc': 123,

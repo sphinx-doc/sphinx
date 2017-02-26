@@ -19,21 +19,32 @@ from subprocess import Popen, PIPE
 from hashlib import sha1
 
 from six import text_type
+
 from docutils import nodes
 
 import sphinx
 from sphinx.locale import _
 from sphinx.errors import SphinxError, ExtensionError
+from sphinx.util import logging
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.osutil import ensuredir, ENOENT, cd
 from sphinx.util.pycompat import sys_encoding
 from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
+
+if False:
+    # For type annotation
+    from typing import Any, Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+    from sphinx.ext.mathbase import math as math_node, displaymath  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class MathExtError(SphinxError):
     category = 'Math extension error'
 
     def __init__(self, msg, stderr=None, stdout=None):
+        # type: (unicode, unicode, unicode) -> None
         if stderr:
             msg += '\n[stderr]\n' + stderr.decode(sys_encoding, 'replace')
         if stdout:
@@ -72,6 +83,7 @@ depth_re = re.compile(br'\[\d+ depth=(-?\d+)\]')
 
 
 def render_math(self, math):
+    # type: (nodes.NodeVisitor, unicode) -> Tuple[unicode, int]
     """Render the LaTeX math expression *math* using latex and dvipng or
     dvisvgm.
 
@@ -116,9 +128,8 @@ def render_math(self, math):
     else:
         tempdir = self.builder._imgmath_tempdir
 
-    tf = codecs.open(path.join(tempdir, 'math.tex'), 'w', 'utf-8')
-    tf.write(latex)
-    tf.close()
+    with codecs.open(path.join(tempdir, 'math.tex'), 'w', 'utf-8') as tf:
+        tf.write(latex)
 
     # build latex command; old versions of latex don't have the
     # --output-directory option, so we have to manually chdir to the
@@ -134,9 +145,9 @@ def render_math(self, math):
         except OSError as err:
             if err.errno != ENOENT:   # No such file or directory
                 raise
-            self.builder.warn('LaTeX command %r cannot be run (needed for math '
-                              'display), check the imgmath_latex setting' %
-                              self.builder.config.imgmath_latex)
+            logger.warning('LaTeX command %r cannot be run (needed for math '
+                           'display), check the imgmath_latex setting',
+                           self.builder.config.imgmath_latex)
             self.builder._imgmath_warned_latex = True
             return None, None
 
@@ -175,10 +186,10 @@ def render_math(self, math):
     except OSError as err:
         if err.errno != ENOENT:   # No such file or directory
             raise
-        self.builder.warn('%s command %r cannot be run (needed for math '
-                          'display), check the imgmath_%s setting' %
-                          (image_translator, image_translator_executable,
-                           image_translator))
+        logger.warning('%s command %r cannot be run (needed for math '
+                       'display), check the imgmath_%s setting',
+                       image_translator, image_translator_executable,
+                       image_translator)
         self.builder._imgmath_warned_image_translator = True
         return None, None
 
@@ -199,23 +210,26 @@ def render_math(self, math):
 
 
 def cleanup_tempdir(app, exc):
+    # type: (Sphinx, Exception) -> None
     if exc:
         return
     if not hasattr(app.builder, '_imgmath_tempdir'):
         return
     try:
-        shutil.rmtree(app.builder._mathpng_tempdir)
+        shutil.rmtree(app.builder._mathpng_tempdir)  # type: ignore
     except Exception:
         pass
 
 
 def get_tooltip(self, node):
+    # type: (nodes.NodeVisitor, math_node) -> unicode
     if self.builder.config.imgmath_add_tooltips:
         return ' alt="%s"' % self.encode(node['latex']).strip()
     return ''
 
 
 def html_visit_math(self, node):
+    # type: (nodes.NodeVisitor, math_node) -> None
     try:
         fname, depth = render_math(self, '$' + node['latex'] + '$')
     except MathExtError as exc:
@@ -223,7 +237,7 @@ def html_visit_math(self, node):
         sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node['latex'])
         sm.walkabout(self)
-        self.builder.warn('display latex %r: ' % node['latex'] + msg)
+        logger.warning('display latex %r: %s', node['latex'], msg)
         raise nodes.SkipNode
     if fname is None:
         # something failed -- use text-only as a bad substitute
@@ -238,6 +252,7 @@ def html_visit_math(self, node):
 
 
 def html_visit_displaymath(self, node):
+    # type: (nodes.NodeVisitor, displaymath) -> None
     if node['nowrap']:
         latex = node['latex']
     else:
@@ -250,7 +265,7 @@ def html_visit_displaymath(self, node):
         sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node['latex'])
         sm.walkabout(self)
-        self.builder.warn('inline latex %r: ' % node['latex'] + msg)
+        logger.warning('inline latex %r: %s', node['latex'], msg)
         raise nodes.SkipNode
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')
@@ -269,6 +284,7 @@ def html_visit_displaymath(self, node):
 
 
 def setup(app):
+    # type: (Sphinx) -> Dict[unicode, Any]
     try:
         mathbase_setup(app, (html_visit_math, None), (html_visit_displaymath, None))
     except ExtensionError:

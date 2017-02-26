@@ -20,6 +20,7 @@ import pytest
 
 from sphinx.errors import SphinxError
 from sphinx.util.osutil import cd, ensuredir
+from sphinx.util import docutils
 from sphinx.writers.latex import LaTeXTranslator
 
 from util import SkipTest, remove_unicode_literals, strip_escseq, skip_if
@@ -479,12 +480,15 @@ def test_footnote(app, status, warning):
             '{\\phantomsection\\label{\\detokenize{footnote:bar}} '
             '\ncite\n}') in result
     assert '\\caption{Table caption \\sphinxfootnotemark[4]' in result
-    assert 'name \\sphinxfootnotemark[5]' in result
-    assert ('\\end{threeparttable}\n\n%\n'
-            '\\begin{footnotetext}[4]\sphinxAtStartFootnote\n'
-            'footnotes in table caption\n%\n\\end{footnotetext}%\n'
-            '\\begin{footnotetext}[5]\sphinxAtStartFootnote\n'
-            'footnotes in table\n%\n\\end{footnotetext}') in result
+    assert ('\\hline%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
+            'footnote in table caption\n%\n\\end{footnotetext}\\ignorespaces %\n'
+            '\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
+            'footnote in table header\n%\n\\end{footnotetext}\\ignorespaces \n'
+            'VIDIOC\\_CROPCAP\n&\n') in result
+    assert ('Information about VIDIOC\\_CROPCAP %\n'
+            '\\begin{footnote}[6]\\sphinxAtStartFootnote\n'
+            'footnote in table not in header\n%\n\\end{footnote}\n\\\\\n\hline\n'
+            '\\end{tabulary}\n\\end{threeparttable}\n\\par\n\\end{savenotes}\n') in result
 
 
 @pytest.mark.sphinx('latex', testroot='footnotes')
@@ -506,21 +510,25 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
             '%\n\\begin{footnotetext}[4]\\sphinxAtStartFootnote\n'
             'Footnote in section\n%\n\\end{footnotetext}') in result
     assert ('\\caption{This is the figure caption with a footnote to '
-            '\\sphinxfootnotemark[6].}\label{\\detokenize{index:id27}}\end{figure}\n'
+            '\\sphinxfootnotemark[6].}\\label{\\detokenize{index:id27}}\\end{figure}\n'
             '%\n\\begin{footnotetext}[6]\\sphinxAtStartFootnote\n'
             'Footnote in caption\n%\n\\end{footnotetext}')in result
     assert ('\\caption{footnote \\sphinxfootnotemark[7] '
             'in caption of normal table}\\label{\\detokenize{index:id28}}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[8] '
-            'in caption \sphinxfootnotemark[9] of longtable}') in result
-    assert ('\end{longtable}\n\n%\n\\begin{footnotetext}[8]'
-            '\sphinxAtStartFootnote\n'
-            'Foot note in longtable\n%\n\\end{footnotetext}' in result)
+            'in caption \\sphinxfootnotemark[9] of longtable}') in result
+    assert ('\\endlastfoot\n%\n\\begin{footnotetext}[8]\\sphinxAtStartFootnote\n'
+            'Foot note in longtable\n%\n\\end{footnotetext}\\ignorespaces %\n'
+            '\\begin{footnotetext}[9]\\sphinxAtStartFootnote\n'
+            'Second footnote in caption of longtable\n') in result
     assert ('This is a reference to the code-block in the footnote:\n'
-            '{\hyperref[\\detokenize{index:codeblockinfootnote}]'
+            '{\\hyperref[\\detokenize{index:codeblockinfootnote}]'
             '{\\sphinxcrossref{\\DUrole{std,std-ref}{I am in a footnote}}}}') in result
-    assert ('&\nThis is one more footnote with some code in it '
-            '\\sphinxfootnotemark[10].\n\\\\') in result
+    assert ('&\nThis is one more footnote with some code in it %\n'
+            '\\begin{footnote}[10]\\sphinxAtStartFootnote\n'
+            'Third footnote in longtable\n') in result
+    assert ('\\end{sphinxVerbatim}\n\\let\\sphinxVerbatimTitle\\empty\n'
+            '\\let\\sphinxLiteralBlockLabel\\empty\n%\n\\end{footnote}.\n') in result
     assert '\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]' in result
 
 
@@ -560,7 +568,8 @@ def test_latex_show_urls_is_inline(app, status, warning):
             '(http://sphinx-doc.org/)}] \\leavevmode\nDescription' in result)
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[5]}] '
             '\\leavevmode%\n\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
-            'Footnote in term\n%\n\\end{footnotetext}\nDescription') in result
+            'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
+            'Description') in result
     assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist} '
             '(http://sphinx-doc.org/)}] \\leavevmode\nDescription') in result
     assert '\\url{https://github.com/sphinx-doc/sphinx}\n' in result
@@ -606,15 +615,16 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             '{URL in term}\\sphinxfootnotemark[8]}] '
             '\\leavevmode%\n\\begin{footnotetext}[8]\\sphinxAtStartFootnote\n'
             '\\nolinkurl{http://sphinx-doc.org/}\n%\n'
-            '\\end{footnotetext}\nDescription') in result
+            '\\end{footnotetext}\\ignorespaces \nDescription') in result
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[10]}] '
             '\\leavevmode%\n\\begin{footnotetext}[10]\\sphinxAtStartFootnote\n'
-            'Footnote in term\n%\n\\end{footnotetext}\nDescription') in result
+            'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
+            'Description') in result
     assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}'
             '\\sphinxfootnotemark[9]}] '
             '\\leavevmode%\n\\begin{footnotetext}[9]\\sphinxAtStartFootnote\n'
             '\\nolinkurl{http://sphinx-doc.org/}\n%\n'
-            '\\end{footnotetext}\nDescription') in result
+            '\\end{footnotetext}\\ignorespaces \nDescription') in result
     assert ('\\url{https://github.com/sphinx-doc/sphinx}\n' in result)
     assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx-dev@googlegroups.com}\n') in result
@@ -654,7 +664,8 @@ def test_latex_show_urls_is_no(app, status, warning):
             '\\leavevmode\nDescription') in result
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[5]}] '
             '\\leavevmode%\n\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
-            'Footnote in term\n%\n\\end{footnotetext}\nDescription') in result
+            'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
+            'Description') in result
     assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}}] '
             '\\leavevmode\nDescription') in result
     assert ('\\url{https://github.com/sphinx-doc/sphinx}\n' in result)
@@ -814,3 +825,181 @@ def test_maxlistdepth_at_ten(app, status, warning):
     print(status.getvalue())
     print(warning.getvalue())
     compile_latex_document(app)
+
+
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
+@pytest.mark.sphinx('latex', testroot='latex-table')
+@pytest.mark.test_params(shared_result='test_latex_table')
+def test_latex_table_tabulars(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    tables = {}
+    for chap in re.split(r'\\section{', result)[1:]:
+        sectname, content = chap.split('}', 1)
+        tables[sectname] = content.strip()
+
+    # simple_table
+    table = tables['simple table']
+    assert ('\\begin{savenotes}\n\\centering\n'
+            '\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
+    assert ('\\hline\n'
+            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in table)
+    assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
+    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
+    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
+    assert ('\\hline\n\\end{tabulary}\n\\par\n\\end{savenotes}' in table)
+
+    # table having :widths: option
+    table = tables['table having :widths: option']
+    assert ('\\begin{savenotes}\n\\centering\n'
+            '\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+    assert ('\\hline\n\\end{tabular}\n\\par\n\\end{savenotes}' in table)
+
+    # table having :align: option (tabulary)
+    table = tables['table having :align: option (tabulary)']
+    assert ('\\begin{savenotes}\n\\raggedleft\n'
+            '\\begin{tabulary}{\\linewidth}{|L|L|}\n' in table)
+    assert ('\\hline\n\\end{tabulary}\n\\par\n\\end{savenotes}' in table)
+
+    # table having :align: option (tabular)
+    table = tables['table having :align: option (tabular)']
+    assert ('\\begin{savenotes}\n\\raggedright\n'
+            '\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}\n' in table)
+    assert ('\\hline\n\\end{tabular}\n\\par\n\\end{savenotes}' in table)
+
+    # table with tabularcolumn
+    table = tables['table with tabularcolumn']
+    assert ('\\begin{tabulary}{\\linewidth}{|c|c|}' in table)
+
+    # table having caption
+    table = tables['table having caption']
+    assert ('\\begin{savenotes}\n\\centering\n'
+            '\\begin{threeparttable}\n\\capstart\\caption{caption for table}'
+            '\\label{\\detokenize{tabular:id1}}' in table)
+    assert ('\\begin{tabulary}{\\linewidth}{|L|L|}' in table)
+    assert ('\\hline\n\\end{tabulary}\n\\end{threeparttable}'
+            '\n\\par\n\\end{savenotes}' in table)
+
+    # table having verbatim
+    table = tables['table having verbatim']
+    assert ('\\begin{tabular}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+
+    # table having problematic cell
+    table = tables['table having problematic cell']
+    assert ('\\begin{tabular}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+
+    # table having both :widths: and problematic cell
+    table = tables['table having both :widths: and problematic cell']
+    assert ('\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+
+
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
+@pytest.mark.sphinx('latex', testroot='latex-table')
+@pytest.mark.test_params(shared_result='test_latex_table')
+def test_latex_table_longtable(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    tables = {}
+    for chap in re.split(r'\\section{', result)[1:]:
+        sectname, content = chap.split('}', 1)
+        tables[sectname] = content.strip()
+
+    # longtable
+    table = tables['longtable']
+    assert ('\\begin{savenotes}\\begin{longtable}{|l|l|}\n\\hline' in table)
+    assert ('\\hline\n'
+            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax \\\\\n'
+            '\\hline\n\\endfirsthead' in table)
+    assert ('\\multicolumn{2}{c}%\n'
+            '{{\\tablecontinued{\\tablename\\ \\thetable{} -- '
+            'continued from previous page}}} \\\\\n\\hline\n'
+            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax \\\\\n'
+            '\\hline\n\\endhead' in table)
+    assert ('\\hline\n\\multicolumn{2}{|r|}'
+            '{{\\tablecontinued{Continued on next page}}} \\\\\n'
+            '\\hline\n\\endfoot\n\n\\endlastfoot' in table)
+    assert ('\ncell1-1\n&\ncell1-2\n\\\\' in table)
+    assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
+    assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
+    assert ('\\hline\n\\end{longtable}\\end{savenotes}' in table)
+
+    # longtable having :widths: option
+    table = tables['longtable having :widths: option']
+    assert ('\\begin{longtable}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+
+    # longtable having :align: option
+    table = tables['longtable having :align: option']
+    assert ('\\begin{longtable}[r]{|l|l|}\n' in table)
+    assert ('\\hline\n\\end{longtable}' in table)
+
+    # longtable with tabularcolumn
+    table = tables['longtable with tabularcolumn']
+    assert ('\\begin{longtable}{|c|c|}' in table)
+
+    # longtable having caption
+    table = tables['longtable having caption']
+    assert ('\\begin{longtable}{|l|l|}\n\\caption{caption for longtable}'
+            '\\label{\\detokenize{longtable:id1}}\\\\\n\\hline' in table)
+
+    # longtable having verbatim
+    table = tables['longtable having verbatim']
+    assert ('\\begin{longtable}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+
+    # longtable having problematic cell
+    table = tables['longtable having problematic cell']
+    assert ('\\begin{longtable}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+
+    # longtable having both :widths: and problematic cell
+    table = tables['longtable having both :widths: and problematic cell']
+    assert ('\\begin{longtable}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+
+
+@pytest.mark.skipif(docutils.__version_info__ < (0, 13),
+                    reason='docutils-0.13 or above is required')
+@pytest.mark.sphinx('latex', testroot='latex-table')
+@pytest.mark.test_params(shared_result='test_latex_table')
+def test_latex_table_complex_tables(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'test.tex').text(encoding='utf8')
+    tables = {}
+    for chap in re.split(r'\\section{', result)[1:]:
+        sectname, content = chap.split('}', 1)
+        tables[sectname] = content.strip()
+
+    # grid table
+    table = tables['grid table']
+    assert ('\\begin{tabulary}{\\linewidth}{|L|L|L|}' in table)
+    assert ('\\hline\n'
+            '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax &'
+            '\\sphinxstylethead{\\relax \nheader3\n\\unskip}\\relax \\\\' in table)
+    assert ('\\hline\ncell1-1\n&\\multirow{2}{*}{\\relax \ncell1-2\n\\unskip}\\relax &\n'
+            'cell1-3\n\\\\' in table)
+    assert ('\\cline{1-1}\\cline{3-3}\\multirow{2}{*}{\\relax \ncell2-1\n\\unskip}\\relax &&\n'
+            'cell2-3\n\\\\' in table)
+    assert ('\\cline{2-3}&\\multicolumn{2}{l|}{\\relax \\multirow{2}{*}{\\relax \n'
+            'cell3-2\n\\unskip}\\relax \\unskip}\\relax \\\\' in table)
+    assert ('\\cline{1-1}\ncell4-1\n&\\multicolumn{2}{l|}{}\\relax \\\\' in table)
+    assert ('\\hline\\multicolumn{3}{|l|}{\\relax \ncell5-1\n\\unskip}\\relax \\\\\n'
+            '\\hline\n\\end{tabulary}' in table)
+
+    # complex spanning cell
+    table = tables['complex spanning cell']
+    assert ('\\begin{tabulary}{\\linewidth}{|L|L|L|L|L|}' in table)
+    assert ('\\hline\n'
+            '\\multirow{3}{*}{\\relax \ncell1-1\n\\unskip}\\relax &'
+            '\\multirow{3}{*}{\\relax \ncell1-2\n\\unskip}\\relax &'
+            '\ncell1-3\n&'
+            '\\multirow{3}{*}{\\relax \ncell1-4\n\\unskip}\\relax &'
+            '\\multirow{2}{*}{\\relax \ncell1-5\n\\unskip}\\relax \\\\\n'
+            in table)
+    assert ('\\cline{3-3}&&'
+            '\\multirow{2}{*}{\\relax \ncell2-3\n\\unskip}\\relax &&\\\\\n'
+            in table)
+    assert ('\\cline{5-5}&&&&\ncell3-5\n\\\\\n' in table)
+    assert ('\\hline\n\\end{tabulary}' in table)

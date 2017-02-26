@@ -74,7 +74,7 @@ Quick guide
 ^^^^^^^^^^^
 
 `sphinx-intl`_ is a useful tool to work with Sphinx translation flow.
-This section describe a easy way to translate with sphinx-intl.
+This section describe an easy way to translate with sphinx-intl.
 
 #. Install `sphinx-intl`_ by :command:`pip install sphinx-intl` or
    :command:`easy_install sphinx-intl`.

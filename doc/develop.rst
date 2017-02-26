@@ -55,17 +55,17 @@ This is the current list of contributed extensions in that repository:
 - hyphenator: client-side hyphenation of HTML using hyphenator_
 - inlinesyntaxhighlight_: inline syntax highlighting
 - lassodomain: a domain for documenting Lasso_ source code
-- libreoffice: an extension to include any drawing supported by LibreOffice (e.g. odg, vsd...).
+- libreoffice: an extension to include any drawing supported by LibreOffice (e.g. odg, vsd, ...).
 - lilypond: an extension inserting music scripts from Lilypond_ in PNG format.
 - makedomain_: a domain for `GNU Make`_
 - matlabdomain: document MATLAB_ code.
 - mockautodoc: mock imports.
 - mscgen: embed mscgen-formatted MSC (Message Sequence Chart)s.
 - napoleon: supports `Google style`_ and `NumPy style`_ docstrings.
-- nicoviceo: embed videos from nicovideo
+- nicovideo: embed videos from nicovideo
 - nwdiag: embed network diagrams by using nwdiag_
 - omegat: support tools to collaborate with OmegaT_ (Sphinx 1.1 needed)
-- osaka: convert standard Japanese doc to Osaka dialect (it is joke extension)
+- osaka: convert standard Japanese doc to Osaka dialect (this is a joke extension)
 - paverutils: an alternate integration of Sphinx with Paver_.
 - phpdomain: an extension for PHP support
 - plantuml: embed UML diagram by using PlantUML_
@@ -113,7 +113,7 @@ own extensions.
 .. _Google Analytics: http://www.google.com/analytics/
 .. _Google Chart: https://developers.google.com/chart/
 .. _Google Maps: https://www.google.com/maps
-.. _Google style: http://google-styleguide.googlecode.com/svn/trunk/pyguide.html
+.. _Google style: https://google.github.io/styleguide/pyguide.html
 .. _NumPy style: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 .. _hyphenator: https://github.com/mnater/hyphenator
 .. _exceltable: http://pythonhosted.org/sphinxcontrib-exceltable/

@@ -9,10 +9,11 @@
     :license: BSD, see LICENSE for details.
 """
 
-import warnings
-
 from docutils import nodes
-from sphinx.deprecation import RemovedInSphinx16Warning
+
+if False:
+    # For type annotation
+    from typing import Sequence  # NOQA
 
 
 class translatable(object):
@@ -30,14 +31,17 @@ class translatable(object):
     """
 
     def preserve_original_messages(self):
+        # type: () -> None
         """Preserve original translatable messages."""
         raise NotImplementedError
 
     def apply_translated_message(self, original_message, translated_message):
+        # type: (unicode, unicode) -> None
         """Apply translated message."""
         raise NotImplementedError
 
     def extract_original_messages(self):
+        # type: () -> Sequence[unicode]
         """Extract translation messages.
 
         :returns: list of extracted messages or messages generator
@@ -49,14 +53,17 @@ class toctree(nodes.General, nodes.Element, translatable):
     """Node for inserting a "TOC tree"."""
 
     def preserve_original_messages(self):
+        # type: () -> None
         if self.get('caption'):
             self['rawcaption'] = self['caption']
 
     def apply_translated_message(self, original_message, translated_message):
+        # type: (unicode, unicode) -> None
         if self.get('rawcaption') == original_message:
             self['caption'] = translated_message
 
     def extract_original_messages(self):
+        # type: () -> List[unicode]
         if 'rawcaption' in self:
             return [self['rawcaption']]
         else:
@@ -109,6 +116,7 @@ class desc_type(nodes.Part, nodes.Inline, nodes.TextElement):
 class desc_returns(desc_type):
     """Node for a "returns" annotation (a la -> in Python)."""
     def astext(self):
+        # type: () -> unicode
         return ' -> ' + nodes.TextElement.astext(self)
 
 
@@ -130,6 +138,7 @@ class desc_optional(nodes.Part, nodes.Inline, nodes.TextElement):
     child_text_separator = ', '
 
     def astext(self):
+        # type: () -> unicode
         return '[' + nodes.TextElement.astext(self) + ']'
 
 
@@ -271,19 +280,6 @@ class literal_strong(nodes.strong):
 
 class abbreviation(nodes.Inline, nodes.TextElement):
     """Node for abbreviations with explanations."""
-
-
-class termsep(nodes.Structural, nodes.Element):
-    """Separates two terms within a <term> node.
-
-    .. versionchanged:: 1.4
-       sphinx.addnodes.termsep is deprecated. It will be removed at Sphinx-1.6.
-    """
-
-    def __init__(self, *args, **kw):
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6',
-                      RemovedInSphinx16Warning, stacklevel=2)
-        super(termsep, self).__init__(*args, **kw)
 
 
 class manpage(nodes.Inline, nodes.TextElement):

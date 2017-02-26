@@ -13,6 +13,10 @@ how this parsing engine works.
 # Local imports
 from sphinx.pycode.pgen2 import token
 
+if False:
+    # For type annotation
+    from typing import Any, Tuple  # NOQA
+
 class ParseError(Exception):
     """Exception to signal the parser is stuck."""
 
@@ -104,11 +108,12 @@ class Parser(object):
         # Each stack entry is a tuple: (dfa, state, node).
         # A node is a tuple: (type, value, context, children),
         # where children is a list of nodes or None, and context may be None.
-        newnode = (start, None, None, [])
+        newnode = (start, None, None, [])  # type: Tuple[unicode, unicode, unicode, List]
         stackentry = (self.grammar.dfas[start], 0, newnode)
         self.stack = [stackentry]
-        self.rootnode = None
-        self.used_names = set() # Aliased to self.rootnode.used_names in pop()
+        self.rootnode = None        # type: Any
+        self.used_names = set()     # type: Set[unicode]
+                                    # Aliased to self.rootnode.used_names in pop()
 
     def addtoken(self, type, value, context):
         """Add a token; return True iff this is the end of the program."""
@@ -175,7 +180,7 @@ class Parser(object):
     def shift(self, type, value, newstate, context):
         """Shift a token.  (Internal)"""
         dfa, state, node = self.stack[-1]
-        newnode = (type, value, context, None)
+        newnode = (type, value, context, None)  # type: Tuple[unicode, unicode, unicode, List]
         newnode = self.convert(self.grammar, newnode)
         if newnode is not None:
             node[-1].append(newnode)
@@ -184,7 +189,7 @@ class Parser(object):
     def push(self, type, newdfa, newstate, context):
         """Push a nonterminal.  (Internal)"""
         dfa, state, node = self.stack[-1]
-        newnode = (type, None, context, [])
+        newnode = (type, None, context, [])  # type: Tuple[unicode, unicode, unicode, List]
         self.stack[-1] = (dfa, newstate, node)
         self.stack.append((newdfa, 0, newnode))
 

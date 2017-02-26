@@ -145,3 +145,16 @@ def test_multibyte_parameters(make_app, apidoc):
     app.build()
     print(app._status.getvalue())
     print(app._warning.getvalue())
+
+
+@pytest.mark.apidoc(
+    coderoot=(rootdir / 'root'),
+    options=['--ext-mathjax'],
+)
+def test_extension_parsed(make_app, apidoc):
+    outdir = apidoc.outdir
+    assert (outdir / 'conf.py').isfile()
+
+    with open(outdir / 'conf.py') as f:
+        rst = f.read()
+        assert "sphinx.ext.mathjax" in rst

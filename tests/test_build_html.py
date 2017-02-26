@@ -39,10 +39,10 @@ with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
-%(root)s/index.rst:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 %(root)s/index.rst:\\d+: WARNING: unknown option: &option
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
+%(root)s/index.rst:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
+%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 """
 
 if PY3:
@@ -346,7 +346,7 @@ def test_static_output(app):
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-p']/code/span",
          'perl'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-p']/code/span",
-         '\+p'),
+         '\\+p'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-objc']/code/span",
          '--ObjC\\+\\+'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-plugin-option']/code/span",
@@ -415,18 +415,19 @@ def test_static_output(app):
         (".//li/a", "double"),
     ],
     'footnote.html': [
-        (".//a[@class='footnote-reference'][@href='#id7'][@id='id1']", r"\[1\]"),
-        (".//a[@class='footnote-reference'][@href='#id8'][@id='id2']", r"\[2\]"),
+        (".//a[@class='footnote-reference'][@href='#id8'][@id='id1']", r"\[1\]"),
+        (".//a[@class='footnote-reference'][@href='#id9'][@id='id2']", r"\[2\]"),
         (".//a[@class='footnote-reference'][@href='#foo'][@id='id3']", r"\[3\]"),
         (".//a[@class='reference internal'][@href='#bar'][@id='id4']", r"\[bar\]"),
-        (".//a[@class='footnote-reference'][@href='#id9'][@id='id5']", r"\[4\]"),
-        (".//a[@class='footnote-reference'][@href='#id10'][@id='id6']", r"\[5\]"),
+        (".//a[@class='footnote-reference'][@href='#id10'][@id='id5']", r"\[4\]"),
+        (".//a[@class='footnote-reference'][@href='#id11'][@id='id6']", r"\[5\]"),
         (".//a[@class='fn-backref'][@href='#id1']", r"\[1\]"),
         (".//a[@class='fn-backref'][@href='#id2']", r"\[2\]"),
         (".//a[@class='fn-backref'][@href='#id3']", r"\[3\]"),
         (".//a[@class='fn-backref'][@href='#id4']", r"\[bar\]"),
         (".//a[@class='fn-backref'][@href='#id5']", r"\[4\]"),
         (".//a[@class='fn-backref'][@href='#id6']", r"\[5\]"),
+        (".//a[@class='fn-backref'][@href='#id7']", r"\[6\]"),
     ],
     'otherext.html': [
         (".//h1", "Generated section"),

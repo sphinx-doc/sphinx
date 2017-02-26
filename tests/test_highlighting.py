@@ -9,9 +9,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+import mock
 from pygments.lexer import RegexLexer
 from pygments.token import Text, Name
-from pygments.filters import ErrorToken
 from pygments.formatters.html import HtmlFormatter
 
 from sphinx.highlighting import PygmentsBridge
@@ -86,7 +86,8 @@ def test_trim_doctest_flags():
         PygmentsBridge.html_formatter = HtmlFormatter
 
 
-def test_default_highlight():
+@mock.patch('sphinx.highlighting.logger')
+def test_default_highlight(logger):
     bridge = PygmentsBridge('html')
 
     # default: highlights as python3
@@ -104,8 +105,8 @@ def test_default_highlight():
                    '<span class="s2">&quot;Hello sphinx world&quot;</span>\n</pre></div>\n')
 
     # python3: raises error if highlighting failed
-    try:
-        ret = bridge.highlight_block('reST ``like`` text', 'python3')
-        assert False, "highlight_block() does not raise any exceptions"
-    except ErrorToken:
-        pass  # raise parsing error
+    ret = bridge.highlight_block('reST ``like`` text', 'python3')
+    logger.warning.assert_called_with('Could not lex literal_block as "%s". '
+                                      'Highlighting skipped.', 'python3',
+                                      type='misc', subtype='highlighting_failure',
+                                      location=None)

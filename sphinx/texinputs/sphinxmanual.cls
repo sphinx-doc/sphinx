@@ -104,11 +104,9 @@
 % Contents.
 % For a report document class this environment is a chapter.
 %
-% Note: \phantomsection is required for TeXLive 2009
-% http://tex.stackexchange.com/questions/44088/when-do-i-need-to-invoke-phantomsection#comment166081_44091
 \newenvironment{sphinxthebibliography}[1]{%
   \if@openright\cleardoublepage\else\clearpage\fi
-  \phantomsection
+  % \phantomsection % not needed here since TeXLive 2010's hyperref
   \begin{thebibliography}{1}%
   \addcontentsline{toc}{chapter}{\bibname}}{\end{thebibliography}}
 
@@ -119,6 +117,6 @@
  {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}
  {\newenvironment{sphinxtheindex}{%
     \if@openright\cleardoublepage\else\clearpage\fi
-    \phantomsection
+    \phantomsection % needed as no chapter, section, ... created
     \begin{theindex}%
     \addcontentsline{toc}{chapter}{\indexname}}{\end{theindex}}}

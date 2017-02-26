@@ -226,8 +226,10 @@ General configuration
    * app.add_role
    * app.add_generic_role
    * app.add_source_parser
+   * download.not_readable
    * image.data_uri
    * image.nonlocal_uri
+   * image.not_readable
    * ref.term
    * ref.ref
    * ref.numref
@@ -381,18 +383,6 @@ Project information
    The default is no :confval:`today` and a :confval:`today_fmt` of ``'%B %d,
    %Y'`` (or, if translation is enabled with :confval:`language`, an equivalent
    format for the selected locale).
-
-   .. versionchanged:: 1.4
-
-      Format specification was changed from strftime to Locale Data Markup
-      Language. strftime format is also supported for backward compatibility
-      until Sphinx-1.5.
-
-   .. versionchanged:: 1.4.1
-
-      Format specification was changed again from Locale Data Markup Language
-      to strftime.  LDML format is also supported for backward compatibility
-      until Sphinx-1.5.
 
 .. confval:: highlight_language
 
@@ -769,19 +759,6 @@ that use Sphinx's HTMLWriter class.
    The empty string is equivalent to ``'%b %d, %Y'`` (or a
    locale-dependent equivalent).
 
-   .. versionchanged:: 1.4
-
-      Format specification was changed from strftime to Locale Data Markup
-      Language. strftime format is also supported for backward compatibility
-      until Sphinx-1.5.
-
-   .. versionchanged:: 1.4.1
-
-      Format specification was changed again from Locale Data Markup Language
-      to strftime.  LDML format is also supported for backward compatibility
-      until Sphinx-1.5.
-
-
 .. confval:: html_use_smartypants
 
    If true, `SmartyPants <http://daringfireball.net/projects/smartypants/>`_
@@ -881,13 +858,6 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.0
 
-.. confval:: html_use_modindex
-
-   If true, add a module index to the HTML documents.   Default is ``True``.
-
-   .. deprecated:: 1.0
-      Use :confval:`html_domain_indices`.
-
 .. confval:: html_use_index
 
    If true, add an index to the HTML documents.  Default is ``True``.
@@ -949,20 +919,6 @@ that use Sphinx's HTMLWriter class.
    support different web server setups).
 
    .. versionadded:: 0.6
-
-.. confval:: html_translator_class
-
-   A string with the fully-qualified name of a HTML Translator class, that is, a
-   subclass of Sphinx's :class:`~sphinx.writers.html.HTMLTranslator`, that is
-   used to translate document trees to HTML.  Default is ``None`` (use the
-   builtin translator).
-
-   .. seealso::  :meth:`~sphinx.application.Sphinx.set_translator`
-
-   .. deprecated:: 1.5
-
-      Implement your translator as extension and use `Sphinx.set_translator`
-      instead.
 
 .. confval:: html_show_copyright
 
@@ -1539,24 +1495,41 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
    .. [#] https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode
 
-.. confval:: epub3_page_progression_direction
-
-   The global direction in which the content flows.
-   Allowed values are ``'ltr'`` (left-to-right), ``'rtl'`` (right-to-left) and
-   ``'default'``. The default value is ``'ltr'``.
-
-   When the ``'default'`` value is specified, the Author is expressing no
-   preference and the Reading System may chose the rendering direction.
-
-   .. versionadded:: 1.4
-
-   .. deprecated:: 1.5
-      Use ``epub_writing_mode`` instead.
-
 .. _latex-options:
 
 Options for LaTeX output
 ------------------------
+
+.. note::
+
+   Apart from the ``pdflatex`` (``lualatex``, ``xelatex``) and ``makeindex``
+   binaries (``platex``, ``dvipdfmx``, ``mendex`` for Japanese) these LaTeX
+   "packages" are required (their dependencies are not listed because they
+   should be included in the TeX installation if the package itself is):
+
+     alltt amsmath amssymb amstext babel capt-of cmap color fancyhdr fancyvrb
+     float fncychap fontenc fontspec (Unicode engines) framed geometry
+     graphicx hypcap hyperref inputenc kvoptions longtable makeidx needspace
+     parskip polyglossia (Unicode engines) tabulary textcomp threeparttable
+     times titlesec upquote wrapfig xcolor eqparbox multirow
+
+   Many are already in the quasi-minimal TeXLive install consisting of its
+   collections ``latexrecommended`` and ``fontsrecommended`` and their
+   automatic dependencies. Those in collection ``latexextra`` are:
+
+      capt-of fncychap framed needspace tabulary threeparttable titlesec
+      upquote wrapfig eqparbox multirow
+
+   .. comment I am listing the latter two last because they will be deprecated
+      at Sphinx 1.6 and removed at 1.7
+
+   Sphinx uses document classes ``article``, ``report`` and ``jreport``,
+   ``jsbook`` for Japanese.
+
+   The testing of Sphinx LaTeX is done using Debian/TeXLive 2013.
+
+   .. versionchanged:: 1.6
+      Formerly, testing was done on Debian/TeXLive 2009.
 
 These options influence LaTeX output. See further :doc:`latex`.
 
@@ -1624,16 +1597,6 @@ These options influence LaTeX output. See further :doc:`latex`.
 
    .. versionadded:: 1.4
 
-.. confval:: latex_use_parts
-
-   If true, the topmost sectioning unit is parts, else it is chapters.  Default:
-   ``False``.
-
-   .. versionadded:: 0.3
-
-   .. deprecated:: 1.4
-      Use :confval:`latex_toplevel_sectioning`.
-
 .. confval:: latex_appendices
 
    A list of document names to append as an appendix to all manuals.
@@ -1648,13 +1611,6 @@ These options influence LaTeX output. See further :doc:`latex`.
    like for :confval:`html_domain_indices`.
 
    .. versionadded:: 1.0
-
-.. confval:: latex_use_modindex
-
-   If true, add a module index to LaTeX documents.   Default is ``True``.
-
-   .. deprecated:: 1.0
-      Use :confval:`latex_domain_indices`.
 
 .. confval:: latex_show_pagerefs
 
@@ -1931,27 +1887,6 @@ These options influence LaTeX output. See further :doc:`latex`.
 
    .. versionchanged:: 1.2
       This overrides the files which is provided from Sphinx such as sphinx.sty.
-
-.. confval:: latex_preamble
-
-   Additional LaTeX markup for the preamble.
-
-   .. deprecated:: 0.5
-      Use the ``'preamble'`` key in the :confval:`latex_elements` value.
-
-.. confval:: latex_paper_size
-
-   The output paper size (``'letter'`` or ``'a4'``).  Default is ``'letter'``.
-
-   .. deprecated:: 0.5
-      Use the ``'papersize'`` key in the :confval:`latex_elements` value.
-
-.. confval:: latex_font_size
-
-   The font size ('10pt', '11pt' or '12pt'). Default is ``'10pt'``.
-
-   .. deprecated:: 0.5
-      Use the ``'pointsize'`` key in the :confval:`latex_elements` value.
 
 
 .. _text-options:

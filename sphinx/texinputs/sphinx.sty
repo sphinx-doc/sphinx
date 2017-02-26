@@ -6,7 +6,37 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/02/06 v1.5.3 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/02/18 v1.6 LaTeX package (Sphinx markup)]
+
+% this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
+% kvoptions (and later by hyperref), but the first release of
+% ltxcmds.sty as in TL2009/Debian has wrong definition.
+\newcommand{\spx@ifundefined}[1]{%
+    \ifcsname #1\endcsname
+      \expandafter\ifx\csname #1\endcsname\relax
+        \expandafter\expandafter\expandafter\@firstoftwo
+      \else
+        \expandafter\expandafter\expandafter\@secondoftwo
+      \fi
+    \else
+      \expandafter\@firstoftwo
+    \fi
+}
+
+%% for deprecation warnings
+\newcommand\sphinxdeprecationwarning[4]{% #1 the deprecated macro or name,
+% #2 = version when deprecated, #3 = version when removed, #4 = message
+  \edef\spx@tempa{\detokenize{#1}}%
+  \spx@ifundefined{sphinx_depr_\spx@tempa}{%
+     \global\expandafter\let\csname sphinx_depr_\spx@tempa\endcsname\spx@tempa
+     \expandafter\AtEndDocument\expandafter{\expandafter\let\expandafter
+         \sphinxdeprecatedmacro\csname sphinx_depr_\spx@tempa\endcsname
+         \PackageWarningNoLine{sphinx}{^^J**** SPHINX DEPRECATION WARNING:^^J
+         \sphinxdeprecatedmacro\space will be (or has been)
+         deprecated at Sphinx #2^^J and will be removed at Sphinx #3.^^J
+         #4^^J****}}%
+  }{% warning already emitted (at end of latex log), don't repeat
+  }}
 
 % we delay handling of options to after having loaded packages, because
 % of the need to use \definecolor.
@@ -24,6 +54,9 @@
 ******** ERROR !! PLEASE UPDATE titlesec.sty !!********^^J%
 ******** THIS VERSION SWALLOWS SECTION NUMBERS.********}}}}{}
 \RequirePackage{tabulary}
+% use of \X to minimize possibility of conflict with one-character column types
+\newcolumntype{\X}[2]{p{\dimexpr
+      (\linewidth-\arrayrulewidth)*#1/#2-\tw@\tabcolsep-\arrayrulewidth\relax}}
 \RequirePackage{makeidx}
 % For framing code-blocks and warning type notices, and shadowing topics
 \RequirePackage{framed}
@@ -41,10 +74,7 @@
 % For hyperlinked footnotes in tables; also for gathering footnotes from
 % topic and warning blocks. Also to allow code-blocks in footnotes.
 \RequirePackage{footnotehyper-sphinx}
-\makesavenoteenv{tabulary}
-\makesavenoteenv{tabular}
-\makesavenoteenv{threeparttable}
-% (longtable is hyperref compatible and needs no special treatment here.)
+\AtBeginDocument{\@ifpackageloaded{longtable}{\sphinxlongtablepatch}{}}%
 % For the H specifier. Do not \restylefloat{figure}, it breaks Sphinx code
 % for allowing figures in tables.
 \RequirePackage{float}
@@ -174,20 +204,6 @@
 % user interface: options can be changed midway in a document!
 \newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
 
-% this is the \ltx@ifundefined of ltxcmds.sty, which was loaded by
-% kvoptions already, (and later by hyperref), but the first release of
-% ltxcmds.sty as in TL2009/Debian has wrong definition.
-\newcommand{\spx@ifundefined}[1]{%
-    \ifcsname #1\endcsname
-      \expandafter\ifx\csname #1\endcsname\relax
-        \expandafter\expandafter\expandafter\@firstoftwo
-      \else
-        \expandafter\expandafter\expandafter\@secondoftwo
-      \fi
-    \else
-      \expandafter\@firstoftwo
-    \fi
-}
 % FIXME: the reasons might be obsolete (better color drivers now?)
 % use pdfoutput for pTeX and dvipdfmx
 % when pTeX (\kanjiskip is defined), set pdfoutput to evade \include{pdfcolor}
@@ -870,10 +886,7 @@
                      \csname\@backslashchar color@#2\endcsname }
 
 % the main dispatch for all types of notices
-\newenvironment{sphinxadmonition}{\begin{notice}}{\end{notice}}
-% use of ``notice'' is for backwards compatibility and will be removed in
-% future release; sphinxadmonition environment will be defined directly.
-\newenvironment{notice}[2]{% #1=type, #2=heading
+\newenvironment{sphinxadmonition}[2]{% #1=type, #2=heading
   % can't use #1 directly in definition of end part
   \def\spx@noticetype {#1}%
   % set parameters of heavybox/lightbox
@@ -884,6 +897,14 @@
   \begin{sphinx#1}{#2}}
   % in end part, need to go around a LaTeX's "feature"
  {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
+% use of ``notice'' is for backwards compatibility and will be removed in
+% Sphinx 1.7.
+\newenvironment{notice}
+  {\sphinxdeprecationwarning {notice}{1.6}{1.7}{%
+  This document was probably built with a Sphinx extension using ``notice''^^J
+  environment. At Sphinx 1.7, ``notice'' environment will be removed. Please^^J
+  report to extension author to use ``sphinxadmonition'' instead.^^J%
+  ****}\begin{sphinxadmonition}}{\end{sphinxadmonition}}
 
 % Allow the release number to be specified independently of the
 % \date{}.  This allows the date to reflect the document's date and
@@ -978,33 +999,25 @@
  \raggedright}
 {\end{list}}
 
-% Redefine \includegraphics to resize images larger than the line width,
+% \sphinxincludegraphics defined to resize images larger than the line width,
 % except if height or width option present.
 %
 % If scale is present, rescale before fitting to line width. (since 1.5)
-%
-% Warning: future version of Sphinx will not modify original \includegraphics,
-% below code will be definition only of \sphinxincludegraphics.
-\let\py@Oldincludegraphics\includegraphics
 \newbox\spx@image@box
-\renewcommand*{\includegraphics}[2][]{%
+\newcommand*{\sphinxincludegraphics}[2][]{%
   \in@{height}{#1}\ifin@\else\in@{width}{#1}\fi
   \ifin@ % height or width present
-    \py@Oldincludegraphics[#1]{#2}%
+    \includegraphics[#1]{#2}%
   \else % no height nor width (but #1 may be "scale=...")
-    \setbox\spx@image@box\hbox{\py@Oldincludegraphics[#1,draft]{#2}}%
+    \setbox\spx@image@box\hbox{\includegraphics[#1,draft]{#2}}%
     \ifdim \wd\spx@image@box>\linewidth
       \setbox\spx@image@box\box\voidb@x % clear memory
-      \py@Oldincludegraphics[#1,width=\linewidth]{#2}%
+      \includegraphics[#1,width=\linewidth]{#2}%
     \else
-      \py@Oldincludegraphics[#1]{#2}%
+      \includegraphics[#1]{#2}%
     \fi
   \fi
 }
-% Writer will put \sphinxincludegraphics in LaTeX source, and with this,
-% documents which used their own modified \includegraphics will compile
-% as before. But see warning above.
-\newcommand*{\sphinxincludegraphics}{\includegraphics}
 
 % to make pdf with correct encoded bookmarks in Japanese
 % this should precede the hyperref package
@@ -1129,7 +1142,7 @@
     {\end{theindex}}
 
   \renewenvironment{sphinxthebibliography}[1]
-    {\cleardoublepage\phantomsection
+    {\cleardoublepage% \phantomsection % not needed here since TeXLive 2010's hyperref
      \begin{thebibliography}{1}}
     {\end{thebibliography}}
 \fi
@@ -1181,22 +1194,34 @@
        \firstchoice@false\else\firstchoice@true\fi
    \spx@originalcaption }
 
-% by default, also define macros with the no-prefix names
 \ifspx@opt@dontkeepoldnames\else
+  \let\spx@alreadydefinedlist\@empty
   \typeout{** (sphinx) defining (legacy) text style macros without \string\sphinx\space prefix}
   \typeout{** if clashes with packages, set latex_keep_old_macro_names=False
     in conf.py}
   \@for\@tempa:=code,strong,bfcode,email,tablecontinued,titleref,%
                 menuselection,accelerator,crossref,termref,optional\do
-{% first, check if command with no prefix already exists
-  \expandafter\newcommand\csname\@tempa\endcsname{}%
+ {% first, check if command with no prefix already exists
+  \spx@ifundefined{\@tempa}{%
   % give it the meaning defined so far with \sphinx prefix
   \expandafter\let\csname\@tempa\expandafter\endcsname
                   \csname sphinx\@tempa\endcsname
   % redefine the \sphinx prefixed macro to expand to non-prefixed one
   \expandafter\def\csname sphinx\@tempa\expandafter\endcsname
                   \expandafter{\csname\@tempa\endcsname}%
-}%
+  }{\edef\spx@alreadydefinedlist{\spx@alreadydefinedlist{\@tempa}}}%
+ }%
+  \ifx\spx@alreadydefinedlist\@empty\else
+    \expandafter\@tfor\expandafter\@tempa\expandafter:\expandafter=\spx@alreadydefinedlist\do
+    {% emit warning now
+     \PackageWarning{sphinx}{not redefining already existing \@backslashchar\@tempa\space!^^J%
+        Anyhow, Sphinx mark-up uses only \string\sphinx\@tempa.}%
+     % and also at end of log for better visibility
+     \expandafter\sphinxdeprecationwarning\expandafter{\csname\@tempa\endcsname}{1.6}{1.7}
+       {\sphinxdeprecatedmacro\space already existed at Sphinx loading time! Not redefined!^^J
+         Sphinx mark-up uses only \string\sphinx\expandafter\@gobble\sphinxdeprecatedmacro.}%
+    }%
+  \fi
 \fi
 
 % additional customizable styling
