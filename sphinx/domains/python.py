@@ -308,6 +308,7 @@ class PyObject(ObjectDescription):
                                               fullname, '', None))
 
     def before_content(self):
+        # type: () -> None
         """Handle object nesting before content
 
         If this class is a nestable object, such as a class object, build up a
@@ -319,7 +320,6 @@ class PyObject(ObjectDescription):
         :py:meth:`after_content`, and is not added to the list of nested
         classes.
         """
-        # type: () -> None
         prefix = None
         if self.names:
             (cls_name, cls_name_prefix) = self.names.pop()
@@ -335,6 +335,7 @@ class PyObject(ObjectDescription):
                     self.env.ref_context['py:classes'] = [prefix]
 
     def after_content(self):
+        # type: () -> None
         """Handle object de-nesting after content
 
         If this class is a nestable object, removing the last nested class prefix
@@ -344,7 +345,6 @@ class PyObject(ObjectDescription):
         be altered as we didn't affect the nesting levels in
         :py:meth:`before_content`.
         """
-        # type: () -> None
         if self.allow_nesting:
             try:
                 self.env.ref_context['py:classes'].pop()
