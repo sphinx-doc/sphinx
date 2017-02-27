@@ -1196,7 +1196,7 @@
 \ifspx@opt@dontkeepoldnames\else
   \let\spx@alreadydefinedlist\@empty
   \typeout{** (sphinx) defining (legacy) text style macros without \string\sphinx\space prefix}
-  \typeout{** if clashes with packages, set latex_keep_old_macro_names=False
+  \typeout{** if clashes with packages, do not set latex_keep_old_macro_names=True
     in conf.py}
   \@for\@tempa:=code,strong,bfcode,email,tablecontinued,titleref,%
                 menuselection,accelerator,crossref,termref,optional\do
@@ -1221,6 +1221,7 @@
          Sphinx mark-up uses only \string\sphinx\expandafter\@gobble\sphinxdeprecatedmacro.}%
     }%
   \fi
+  \sphinxdeprecationwarning{latex_keep_old_macro_names=True}{1.6}{1.7}{}%
 \fi
 
 % additional customizable styling

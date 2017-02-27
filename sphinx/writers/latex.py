@@ -58,7 +58,7 @@ DEFAULT_SETTINGS = {
     'classoptions':    '',
     'extraclassoptions': '',
     'maxlistdepth':    '',
-    'sphinxpkgoptions':     '',
+    'sphinxpkgoptions':     'dontkeepoldnames',
     'sphinxsetup':     '',
     'passoptionstopackages': '',
     'geometry':        '\\usepackage{geometry}',
@@ -545,8 +545,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.elements.update({
                 'releasename':  _('Release'),
             })
-        if not builder.config.latex_keep_old_macro_names:
-            self.elements['sphinxpkgoptions'] = 'dontkeepoldnames'
+        if builder.config.latex_keep_old_macro_names:
+            self.elements['sphinxpkgoptions'] = ''
         if document.settings.docclass == 'howto':
             docclass = builder.config.latex_docclass.get('howto', 'article')
         else:

@@ -1605,18 +1605,23 @@ These options influence LaTeX output. See further :doc:`latex`.
 
 .. confval:: latex_keep_old_macro_names
 
-   If ``True`` (default) the ``\strong``, ``\code``, ``\bfcode``, ``\email``,
+   If ``True`` the ``\strong``, ``\code``, ``\bfcode``, ``\email``,
    ``\tablecontinued``, ``\titleref``, ``\menuselection``, ``\accelerator``,
    ``\crossref``, ``\termref``, and ``\optional`` text styling macros are
    pre-defined by Sphinx and may be user-customized by some
    ``\renewcommand``'s inserted either via ``'preamble'`` key or :dudir:`raw
    <raw-data-pass-through>` directive. If ``False``, only ``\sphinxstrong``,
-   etc... macros are defined (and may be redefined by user). Setting to
-   ``False`` may help solve macro name conflicts caused by user-added latex
-   packages.
+   etc... macros are defined (and may be redefined by user).
+
+   The default is ``False`` as it solves macro name conflicts caused by
+   user-added latex packages. For example ``fontspec v2.6`` defines its own
+   ``\strong`` macro.
 
    .. versionadded:: 1.4.5
-
+   .. versionchanged:: 1.6
+      Default was changed from ``True`` to ``False``.
+   .. deprecated:: 1.6
+      This setting will be removed at Sphinx 1.7.
 
 .. confval:: latex_elements
 
