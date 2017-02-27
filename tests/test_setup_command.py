@@ -64,6 +64,24 @@ def test_build_sphinx(setup_command):
     assert proc.returncode == 0
 
 
+@pytest.mark.setup_command('-b', 'html,man')
+def test_build_sphinx_multiple_builders(setup_command):
+    proc = setup_command.proc
+    out, err = proc.communicate()
+    print(out)
+    print(err)
+    assert proc.returncode == 0
+
+
+@pytest.mark.setup_command('-b', 'html,bar')
+def test_build_sphinx_multiple_invalid_builders(setup_command):
+    proc = setup_command.proc
+    out, err = proc.communicate()
+    print(out)
+    print(err)
+    assert proc.returncode == 1
+
+
 @pytest.fixture
 def nonascii_srcdir(request, setup_command):
     mb_name = u'\u65e5\u672c\u8a9e'
