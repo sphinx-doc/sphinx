@@ -1665,6 +1665,8 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. versionchanged:: 1.5
            For :confval:`latex_engine` set to ``'xelatex'``, the default
            is ``'\\usepackage{polyglossia}\n\\setmainlanguage{<language>}'``.
+        .. versionchanged:: 1.6
+           ``'lualatex'`` uses same default setting as ``'xelatex'``
      ``'fontpkg'``
         Font package inclusion, default ``'\\usepackage{times}'`` (which uses
         Times and Helvetica).  You can set this to ``''`` to use the Computer
@@ -1675,6 +1677,8 @@ These options influence LaTeX output. See further :doc:`latex`.
            script.
         .. versionchanged:: 1.5
            Defaults to ``''`` when :confval:`latex_engine` is ``'xelatex'``.
+        .. versionchanged:: 1.6
+           Defaults to ``''`` also with ``'lualatex'``.
      ``'fncychap'``
         Inclusion of the "fncychap" package (which makes fancy chapter titles),
         default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation
@@ -1740,6 +1744,8 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. versionchanged:: 1.5
            Defaults to ``'\\usepackage{fontspec}'`` when
            :confval:`latex_engine` is ``'xelatex'``.
+        .. versionchanged:: 1.6
+           ``'lualatex'`` also uses ``fontspec`` per default.
      ``'geometry'``
         "geometry" package inclusion, the default definition is:
 
