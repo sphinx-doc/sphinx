@@ -445,9 +445,8 @@
 
 % If the linebreak is at a space, the latter will be displayed as visible
 % space at end of first line, and a continuation symbol starts next line.
-% Stretch/shrink are however usually zero for typewriter font.
 \def\spx@verbatim@space {%
-     \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
+     \nobreak\hskip\z@skip
      \discretionary{\copy\sphinxvisiblespacebox}{\sphinxafterbreak}
                    {\kern\fontdimen2\font}%
 }%
