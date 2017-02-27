@@ -1613,9 +1613,9 @@ These options influence LaTeX output. See further :doc:`latex`.
    <raw-data-pass-through>` directive. If ``False``, only ``\sphinxstrong``,
    etc... macros are defined (and may be redefined by user).
 
-   The default is ``False`` as it solves macro name conflicts caused by
-   user-added latex packages. For example ``fontspec v2.6`` defines its own
-   ``\strong`` macro.
+   The default is ``False`` as it prevents macro name conflicts caused by
+   latex packages. For example (``lualatex`` or ``xelatex``) ``fontspec v2.6``
+   has its own ``\strong`` macro.
 
    .. versionadded:: 1.4.5
    .. versionchanged:: 1.6
