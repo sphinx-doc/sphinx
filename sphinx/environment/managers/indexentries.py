@@ -119,6 +119,8 @@ class IndexEntries(EnvironmentManager):
                 # using specified category key to sort
                 key = category_key
             lckey = unicodedata.normalize('NFD', key.lower())
+            if lckey.startswith(u'\N{RIGHT-TO-LEFT MARK}'):
+                lckey = lckey[1:]
             if lckey[0:1].isalpha() or lckey.startswith('_'):
                 lckey = chr(127) + lckey
             # ensure a determinstic order *within* letters by also sorting on
@@ -163,6 +165,8 @@ class IndexEntries(EnvironmentManager):
             v[1] = sorted((si, se) for (si, (se, void, void)) in iteritems(v[1]))
             if v[2] is None:
                 # now calculate the key
+                if k.startswith(u'\N{RIGHT-TO-LEFT MARK}'):
+                    k = k[1:]
                 letter = unicodedata.normalize('NFD', k[0])[0].upper()
                 if letter.isalpha() or letter == '_':
                     return letter
