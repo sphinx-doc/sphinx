@@ -21,6 +21,7 @@ Incompatible changes
 * Default config for LuaLaTeX engine uses ``fontspec`` hence needs TeXLive 2013
   or more recent TeX installation for compatibility. This also means that the
   fonts used by default have changed to the defaults as chosen by ``fontspec``.
+  (refs #3070, #3466)
 
 Features removed
 ----------------
@@ -66,7 +67,7 @@ Features added
 * Emit warning if over dedent has detected on ``literalinclude`` directive
   (refs: #3416)
 * Use for LuaLaTeX same default settings as for XeLaTeX (i.e. ``fontspec`` and
-  ``polyglossia``).
+  ``polyglossia``). (refs: #3070, #3466)
 
 Bugs fixed
 ----------
