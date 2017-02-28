@@ -1714,6 +1714,14 @@ These options influence LaTeX output. See further :doc:`latex`.
 
    * Keys that don't need to be overridden unless in special cases are:
 
+     ``'extraclassoptions'``
+        The default is the empty string. Example: ``'extraclassoptions':
+        'openany'`` will allow chapters (for documents of the ``'manual'``
+        type) to start on any page.
+
+        .. versionadded:: 1.2
+        .. versionchanged:: 1.6
+           Added this documentation.
      ``'maxlistdepth'``
         LaTeX allows by default at most 6 levels for nesting list and
         quote-like environments, with at most 4 enumerated lists, and 4 bullet
