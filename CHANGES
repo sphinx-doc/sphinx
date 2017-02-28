@@ -72,6 +72,8 @@ Features added
 * Use for LuaLaTeX same default settings as for XeLaTeX (i.e. ``fontspec`` and
   ``polyglossia``). (refs: #3070, #3466)
 * Make ``'extraclassoptions'`` key of ``latex_elements`` public (refs #3480)
+* #3463: Add warning messages for required EPUB3 metadata. Add default value to
+  ``epub_description`` to avoid warning like other settings.
 
 Bugs fixed
 ----------

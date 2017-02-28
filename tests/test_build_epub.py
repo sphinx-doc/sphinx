@@ -84,7 +84,7 @@ def test_build_epub(app):
     metadata = opf.find("./idpf:metadata")
     assert metadata.find("./dc:language").text == 'en'
     assert metadata.find("./dc:title").text == 'Python  documentation'
-    assert metadata.find("./dc:description").text is None
+    assert metadata.find("./dc:description").text == 'unknown'
     assert metadata.find("./dc:creator").text == 'unknown'
     assert metadata.find("./dc:contributor").text == 'unknown'
     assert metadata.find("./dc:publisher").text == 'unknown'
