@@ -25,6 +25,8 @@ matrix:
       env: DOCUTILS=0.12
     - python: "3.5"
       env: DOCUTILS=0.12
+    - python: "3.6"
+      env: DOCUTILS=0.12
     - python: nightly
       env: DOCUTILS=0.12
     - python: "pypy-5.4.1"
