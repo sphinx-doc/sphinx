@@ -91,7 +91,7 @@ DEFAULT_SETTINGS = {
     'tableofcontents': '\\sphinxtableofcontents',
     'atendofbody':     '',
     'printindex':      '\\printindex',
-    'transition':      '\n\n\\bigskip\\hrule{}\\bigskip\n\n',
+    'transition':      '\n\n\\bigskip\\hrule\\bigskip\n\n',
     'figure_align':    'htbp',
     'tocdepth':        '',
     'secnumdepth':     '',
