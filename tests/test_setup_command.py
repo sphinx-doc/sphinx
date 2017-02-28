@@ -149,3 +149,21 @@ def test_build_sphinx_warning_is_error_return_nonzero_status(setup_command):
     print(out)
     print(err)
     assert proc.returncode != 0, 'expect non-zero status for setup.py'
+
+
+@pytest.mark.setup_command('--apidoc')
+def test_build_sphinx_with_apidoc_minimal(setup_command):
+    proc = setup_command.proc
+    out, err = proc.communicate()
+    print(out)
+    print(err)
+    assert proc.returncode == 0, 'expect zero status for setup.py'
+
+
+@pytest.mark.setup_command('--apidoc', '--apidoc-exclude', 'setup.py,sphinx')
+def test_build_sphinx_with_apidoc_excludes(setup_command):
+    proc = setup_command.proc
+    out, err = proc.communicate()
+    print(out)
+    print(err)
+    assert proc.returncode == 0, 'expect zero status for setup.py'

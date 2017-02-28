@@ -20,6 +20,7 @@ from six import StringIO, string_types
 from distutils.cmd import Command
 from distutils.errors import DistutilsOptionError, DistutilsExecError  # type: ignore
 
+from sphinx import apidoc
 from sphinx.application import Sphinx
 from sphinx.cmdline import handle_exception
 from sphinx.util.console import nocolor, color_terminal
@@ -79,6 +80,11 @@ class BuildDoc(Command):
         ('builder=', 'b', 'The builder (or builders) to use. Can be a comma- '
          'or space-separated list. Defaults to "html"'),
         ('warning-is-error', 'W', 'Turn warning into errors'),
+        ('apidoc', None, 'Build API documentation before main documentation'),
+        ('apidoc-dir=', None, 'API documentation output directory. Defaults '
+         'to "$source_dir/api"'),
+        ('apidoc-exclude=', None, 'File and/or directory patterns to be '
+         'ignored if apidoc generation is enabled. Defaults to ["setup.py"]'),
         ('project=', None, 'The documented project\'s name'),
         ('version=', None, 'The short X.Y version'),
         ('release=', None, 'The full version, including alpha/beta/rc tags'),
@@ -88,7 +94,7 @@ class BuildDoc(Command):
         ('copyright', None, 'The copyright string'),
         ('pdb', None, 'Start pdb on exception'),
     ]
-    boolean_options = ['fresh-env', 'all-files', 'warning-is-error',
+    boolean_options = ['fresh-env', 'all-files', 'warning-is-error', 'apidoc',
                        'link-index']
 
     def initialize_options(self):
@@ -98,6 +104,9 @@ class BuildDoc(Command):
         self.source_dir = self.build_dir = None  # type: unicode
         self.builder = 'html'
         self.warning_is_error = False
+        self.apidoc = False
+        self.apidoc_dir = None  # type: unicode
+        self.apidoc_exclude = ['setup.py']  # type: List[unicode]
         self.project = ''
         self.version = ''
         self.release = ''
@@ -159,6 +168,10 @@ class BuildDoc(Command):
         for _, builder_target_dir in self.builder_target_dirs:
             self.mkpath(builder_target_dir)  # type: ignore
 
+        if self.apidoc_dir is None:
+            self.apidoc_dir = os.path.join(abspath(self.source_dir), 'api')
+        self.ensure_string_list('apidoc_exclude')  # type: ignore
+
     def run(self):
         # type: () -> None
         if not color_terminal():
@@ -178,6 +191,11 @@ class BuildDoc(Command):
             confoverrides['today'] = self.today
         if self.copyright:
             confoverrides['copyright'] = self.copyright
+
+        if self.apidoc:
+            cmd = ['apidoc', '.', '-o', self.apidoc_dir]  # type: List[unicode]
+            cmd += self.apidoc_exclude
+            apidoc.main(cmd)  # type: ignore
 
         for builder, builder_target_dir in self.builder_target_dirs:
             app = None

@@ -127,6 +127,28 @@ Options for setuptools integration
 
    .. versionadded:: 1.5
 
+.. confval:: apidoc
+
+   A boolean that ensures the ``sphinx-apidoc`` command is called before
+   building documentation. Default is false.
+
+   .. versionadded:: 1.6
+
+.. confval:: apidoc-dir
+
+   The target build directory for API documentation. This can be relative to
+   the ``setup.py`` or ``setup.cfg`` file, or it can be absolute. Default is
+   ``$source_dir/api``.
+
+   .. versionadded:: 1.6
+
+.. confval:: apidoc-exclude
+
+   A list of modules to ignore if building API documentation. Default is
+   ``['setup.py']``.
+
+  .. versionadded:: 1.6
+
 .. confval:: project
 
    The documented project's name. Default is ``''``.
