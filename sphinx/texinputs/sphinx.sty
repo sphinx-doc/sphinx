@@ -6,28 +6,19 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/02/18 v1.6 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/02/28 v1.6 LaTeX package (Sphinx markup)]
 
-% this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
-% kvoptions (and later by hyperref), but the first release of
-% ltxcmds.sty as in TL2009/Debian has wrong definition.
-\newcommand{\spx@ifundefined}[1]{%
-    \ifcsname #1\endcsname
-      \expandafter\ifx\csname #1\endcsname\relax
-        \expandafter\expandafter\expandafter\@firstoftwo
-      \else
-        \expandafter\expandafter\expandafter\@secondoftwo
-      \fi
-    \else
-      \expandafter\@firstoftwo
-    \fi
-}
+% provides \ltx@ifundefined
+% (many packages load ltxcmds: graphicx does for pdftex and lualatex but
+% not xelatex, and anyhow kvoptions does, but it may be needed in future to
+% use \sphinxdeprecationwarning earlier, and it needs \ltx@ifundefined)
+\RequirePackage{ltxcmds}
 
 %% for deprecation warnings
 \newcommand\sphinxdeprecationwarning[4]{% #1 the deprecated macro or name,
 % #2 = version when deprecated, #3 = version when removed, #4 = message
   \edef\spx@tempa{\detokenize{#1}}%
-  \spx@ifundefined{sphinx_depr_\spx@tempa}{%
+  \ltx@ifundefined{sphinx_depr_\spx@tempa}{%
      \global\expandafter\let\csname sphinx_depr_\spx@tempa\endcsname\spx@tempa
      \expandafter\AtEndDocument\expandafter{\expandafter\let\expandafter
          \sphinxdeprecatedmacro\csname sphinx_depr_\spx@tempa\endcsname
@@ -243,7 +234,7 @@
 \newcommand{\py@HeaderFamily}{\spx@opt@HeaderFamily}
 
 % Redefine the 'normal' header/footer style when using "fancyhdr" package:
-\spx@ifundefined{fancyhf}{}{
+\ltx@ifundefined{fancyhf}{}{
   % Use \pagestyle{normal} as the primary pagestyle for text.
   \fancypagestyle{normal}{
     \fancyhf{}
@@ -254,7 +245,7 @@
     \renewcommand{\headrulewidth}{0.4pt}
     \renewcommand{\footrulewidth}{0.4pt}
     % define chaptermark with \@chappos when \@chappos is available for Japanese
-    \spx@ifundefined{@chappos}{}
+    \ltx@ifundefined{@chappos}{}
       {\def\chaptermark##1{\markboth{\@chapapp\space\thechapter\space\@chappos\space ##1}{}}}
   }
   % Update the plain style so we get the page number & footer line,
@@ -674,7 +665,7 @@
 \newenvironment{sphinxShadowBox}
   {\def\FrameCommand {\spx@ShadowFBox }%
    % configure framed.sty not to add extra vertical spacing
-   \spx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
+   \ltx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
    % the \trivlist will add the vertical spacing on top and bottom which is
    % typical of center environment as used in Sphinx <= 1.4.1
    % the \noindent has the effet of an extra blank line on top, to
@@ -829,7 +820,7 @@
    % configure framed.sty's parameters to obtain same vertical spacing
    % as for "light" boxes. We need for this to manually insert parskip glue and
    % revert a skip done by framed before the frame.
-    \spx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
+    \ltx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
     \vspace{\FrameHeightAdjust}
    % copied/adapted from framed.sty's snugshade
    \def\FrameCommand##1{\hskip\@totalleftmargin
@@ -1158,7 +1149,7 @@
 % for captions of literal blocks
 % with `\theH...` macros for hyperref
 \newcounter{literalblock}
-\spx@ifundefined{c@chapter}
+\ltx@ifundefined{c@chapter}
   {\@addtoreset{literalblock}{section}
   \def\theliteralblock {\ifnum\c@section>\z@ \thesection.\fi\arabic{literalblock}}
   \def\theHliteralblock {\theHsection.\arabic{literalblock}}}
@@ -1201,7 +1192,7 @@
   \@for\@tempa:=code,strong,bfcode,email,tablecontinued,titleref,%
                 menuselection,accelerator,crossref,termref,optional\do
  {% first, check if command with no prefix already exists
-  \spx@ifundefined{\@tempa}{%
+  \ltx@ifundefined{\@tempa}{%
   % give it the meaning defined so far with \sphinx prefix
   \expandafter\let\csname\@tempa\expandafter\endcsname
                   \csname sphinx\@tempa\endcsname
@@ -1246,12 +1237,12 @@
 
 % make commands known to non-Sphinx document classes
 \providecommand*{\sphinxtableofcontents}{\tableofcontents}
-\spx@ifundefined{sphinxthebibliography}
+\ltx@ifundefined{sphinxthebibliography}
  {\newenvironment
   {sphinxthebibliography}{\begin{thebibliography}}{\end{thebibliography}}%
  }
  {}% else clause of ifundefined
-\spx@ifundefined{sphinxtheindex}
+\ltx@ifundefined{sphinxtheindex}
  {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}%
  {}% else clause of ifundefined
 
@@ -1276,7 +1267,7 @@
 % define all missing \@list... macros
   \count@\@ne
   \loop
-     \spx@ifundefined{@list\romannumeral\the\count@}
+     \ltx@ifundefined{@list\romannumeral\the\count@}
        {\iffalse}{\iftrue\advance\count@\@ne}%
   \repeat
   \loop
@@ -1285,7 +1276,7 @@
          \csname @list\romannumeral\the\count@\expandafter\endcsname
          \csname @list\romannumeral\the\numexpr\count@-\@ne\endcsname
        % work around 2.6--3.2d babel-french issue (fixed in 3.2e; no change needed)
-       \spx@ifundefined{leftmargin\romannumeral\the\count@}
+       \ltx@ifundefined{leftmargin\romannumeral\the\count@}
        {\expandafter\let
          \csname leftmargin\romannumeral\the\count@\expandafter\endcsname
          \csname leftmargin\romannumeral\the\numexpr\count@-\@ne\endcsname}{}%
@@ -1294,7 +1285,7 @@
 % define all missing enum... counters and \labelenum... macros and \p@enum..
   \count@\@ne
   \loop
-     \spx@ifundefined{c@enum\romannumeral\the\count@}
+     \ltx@ifundefined{c@enum\romannumeral\the\count@}
        {\iffalse}{\iftrue\advance\count@\@ne}%
   \repeat
   \loop
@@ -1314,7 +1305,7 @@
 % define all missing labelitem... macros
   \count@\@ne
   \loop
-     \spx@ifundefined{labelitem\romannumeral\the\count@}
+     \ltx@ifundefined{labelitem\romannumeral\the\count@}
      {\iffalse}{\iftrue\advance\count@\@ne}%
   \repeat
   \loop
