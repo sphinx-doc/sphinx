@@ -11,7 +11,6 @@
 import re
 import bisect
 import unicodedata
-import string
 from itertools import groupby
 
 from six import text_type
@@ -114,13 +113,15 @@ class IndexEntries(EnvironmentManager):
 
         # sort the index entries; put all symbols at the front, even those
         # following the letters in ASCII, this is where the chr(127) comes from
-        def keyfunc(entry, lcletters=string.ascii_lowercase + '_'):
+        def keyfunc(entry):
             key, (void, void, category_key) = entry
             if category_key:
                 # using specified category key to sort
                 key = category_key
             lckey = unicodedata.normalize('NFD', key.lower())
-            if lckey[0:1] in lcletters:
+            if lckey.startswith(u'\N{RIGHT-TO-LEFT MARK}'):
+                lckey = lckey[1:]
+            if lckey[0:1].isalpha() or lckey.startswith('_'):
                 lckey = chr(127) + lckey
             # ensure a determinstic order *within* letters by also sorting on
             # the entry itself
@@ -158,14 +159,16 @@ class IndexEntries(EnvironmentManager):
                 i += 1
 
         # group the entries by letter
-        def keyfunc2(item, letters=string.ascii_uppercase + '_'):
+        def keyfunc2(item):
             # hack: mutating the subitems dicts to a list in the keyfunc
             k, v = item
             v[1] = sorted((si, se) for (si, (se, void, void)) in iteritems(v[1]))
             if v[2] is None:
                 # now calculate the key
+                if k.startswith(u'\N{RIGHT-TO-LEFT MARK}'):
+                    k = k[1:]
                 letter = unicodedata.normalize('NFD', k[0])[0].upper()
-                if letter in letters:
+                if letter.isalpha() or letter == '_':
                     return letter
                 else:
                     # get all other symbols under one heading
