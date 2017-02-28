@@ -179,12 +179,8 @@ Here are the currently available options together with their default values.
        This is due to the way the LaTeX class ``jsbook`` handles the
        pointsize.
 
-       Or, one uses regular units but with ``nomag`` as document class option.
-       This can be achieved for example via::
-
-         'pointsize': 'nomag,12pt',
-
-       in the :confval:`latex_elements` configuration variable.
+       Or, one uses regular units but with ``nomag`` as extra document class
+       option (cf. ``'extraclassoptions'`` key of :confval:`latex_elements`.)
 
     .. versionadded:: 1.5.3
 
