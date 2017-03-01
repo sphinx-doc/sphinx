@@ -45,9 +45,30 @@
 ******** ERROR !! PLEASE UPDATE titlesec.sty !!********^^J%
 ******** THIS VERSION SWALLOWS SECTION NUMBERS.********}}}}{}
 \RequirePackage{tabulary}
-% use of \X to minimize possibility of conflict with one-character column types
+% tabulary has a bug with its re-definition of \multicolumn in its first pass
+% which is not \long. But now Sphinx does not use LaTeX's \multicolumn but its
+% own macro. Hence we don't even need to patch tabulary. See sphinxmulticell.sty
+% X or S (Sphinx) may have meanings if some table package is loaded hence
+% \X was chosen to avoid possibility of conflict
 \newcolumntype{\X}[2]{p{\dimexpr
       (\linewidth-\arrayrulewidth)*#1/#2-\tw@\tabcolsep-\arrayrulewidth\relax}}
+\newcolumntype{\Y}[1]{p{\dimexpr
+      #1\dimexpr\linewidth-\arrayrulewidth\relax-\tw@\tabcolsep-\arrayrulewidth\relax}}
+% using here T (for Tabulary) feels less of a problem than the X could be
+\newcolumntype{T}{J}%
+% varwidth is crucial for our handling of general contents in merged cells
+\RequirePackage{varwidth}
+% but addition of a compatibility patch with hyperref is needed
+% (tested with varwidth v 0.92  Mar 2009)
+\AtBeginDocument {%
+    \let\@@vwid@Hy@raisedlink\Hy@raisedlink
+    \long\def\@vwid@Hy@raisedlink#1{\@vwid@wrap{\@@vwid@Hy@raisedlink{#1}}}%
+    \edef\@vwid@setup{%
+      \let\noexpand\Hy@raisedlink\noexpand\@vwid@Hy@raisedlink % HYPERREF !
+      \unexpanded\expandafter{\@vwid@setup}}%
+}%
+% Homemade package to handle merged cells
+\RequirePackage{sphinxmulticell}
 \RequirePackage{makeidx}
 % For framing code-blocks and warning type notices, and shadowing topics
 \RequirePackage{framed}
