@@ -103,13 +103,16 @@ Options for setuptools integration
 
 .. confval:: builder
 
-   The builder to use. Defaults is ``html``.
+   The builder or list of builders to use. Default is ``html``.
 
    This can also be set by passing the `-b` flag to ``setup.py``:
 
    .. code-block:: bash
 
-      $ python setup.py build_sphinx -b
+      $ python setup.py build_sphinx -b $BUILDER
+
+   .. versionchanged:: 1.6
+      This can now be a comma- or space-separated list of builders
 
 .. confval:: warning-is-error
 
