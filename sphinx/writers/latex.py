@@ -95,7 +95,7 @@ DEFAULT_SETTINGS = {
     'tableofcontents': '\\sphinxtableofcontents',
     'atendofbody':     '',
     'printindex':      '\\printindex',
-    'transition':      '\n\n\\bigskip\\hrule{}\\bigskip\n\n',
+    'transition':      '\n\n\\bigskip\\hrule\\bigskip\n\n',
     'figure_align':    'htbp',
     'tocdepth':        '',
     'secnumdepth':     '',
@@ -106,8 +106,9 @@ ADDITIONAL_SETTINGS = {
     'pdflatex': {
         'inputenc':     '\\usepackage[utf8]{inputenc}',
         'utf8extra':   ('\\ifdefined\\DeclareUnicodeCharacter\n'
+                        ' \\ifdefined\\DeclareUnicodeCharacterAsOptional\\else\n'
                         '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'
-                        '\\fi'),
+                        '\\fi\\fi'),
     },
     'xelatex': {
         'latex_engine': 'xelatex',

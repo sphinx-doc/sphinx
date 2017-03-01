@@ -63,7 +63,9 @@ class Meta(html.Meta):
 
 
 class RSTTable(tables.RSTTable):
-    """The table directive which sets source and line information to its caption."""
+    """The table directive which sets source and line information to its caption.
+
+    Only for docutils-0.13 or older version."""
 
     def make_title(self):
         title, message = tables.RSTTable.make_title(self)
@@ -74,7 +76,9 @@ class RSTTable(tables.RSTTable):
 
 
 class CSVTable(tables.CSVTable):
-    """The csv-table directive which sets source and line information to its caption."""
+    """The csv-table directive which sets source and line information to its caption.
+
+    Only for docutils-0.13 or older version."""
 
     def make_title(self):
         title, message = tables.CSVTable.make_title(self)
@@ -85,7 +89,9 @@ class CSVTable(tables.CSVTable):
 
 
 class ListTable(tables.ListTable):
-    """The list-table directive which sets source and line information to its caption."""
+    """The list-table directive which sets source and line information to its caption.
+
+    Only for docutils-0.13 or older version."""
 
     def make_title(self):
         title, message = tables.ListTable.make_title(self)

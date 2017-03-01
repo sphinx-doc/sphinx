@@ -30,15 +30,25 @@ def test_create_single_index():
             ('single', 'pip; install', 'id3', '', None),
             ('single', 'pip; upgrade', 'id4', '', None),
             ('single', 'Sphinx', 'id5', '', None),
+            ('single', u'Ель', 'id6', '', None),
+            ('single', u'ёлка', 'id7', '', None),
+            ('single', u'‏תירבע‎', 'id8', '', None),
+            ('single', u'9-symbol', 'id9', '', None),
+            ('single', u'&-symbol', 'id10', '', None),
         ],
     })
     index = IndexEntries(env).create_index(dummy_builder)
-    assert len(index) == 3
-    assert index[0] == (u'D', [(u'docutils', [[('', '#id1')], [], None])])
-    assert index[1] == (u'P', [(u'pip', [[], [(u'install', [('', '#id3')]),
+    assert len(index) == 6
+    assert index[0] == (u'Symbols', [(u'&-symbol', [[('', '#id10')], [], None]),
+                                     (u'9-symbol', [[('', '#id9')], [], None])])
+    assert index[1] == (u'D', [(u'docutils', [[('', '#id1')], [], None])])
+    assert index[2] == (u'P', [(u'pip', [[], [(u'install', [('', '#id3')]),
                                               (u'upgrade', [('', '#id4')])], None]),
                                (u'Python', [[('', '#id2')], [], None])])
-    assert index[2] == (u'S', [(u'Sphinx', [[('', '#id5')], [], None])])
+    assert index[3] == (u'S', [(u'Sphinx', [[('', '#id5')], [], None])])
+    assert index[4] == (u'Е', [(u'ёлка', [[('', '#id7')], [], None]),
+                               (u'Ель', [[('', '#id6')], [], None])])
+    assert index[5] == (u'ת', [(u'‏תירבע‎', [[('', '#id8')], [], None])])
 
 
 def test_create_pair_index():

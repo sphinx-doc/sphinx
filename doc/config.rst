@@ -1823,10 +1823,12 @@ These options influence LaTeX output. See further :doc:`latex`.
            modifying it also such as "tocloft" or "etoc".
      ``'transition'``
         Commands used to display transitions, default
-        ``'\n\n\\bigskip\\hrule{}\\bigskip\n\n'``.  Override if you want to
+        ``'\n\n\\bigskip\\hrule\\bigskip\n\n'``.  Override if you want to
         display transitions differently.
 
         .. versionadded:: 1.2
+        .. versionchanged:: 1.6
+           Remove unneeded ``{}`` after ``\\hrule``.
      ``'printindex'``
         "printindex" call, the last thing in the file, default
         ``'\\printindex'``.  Override if you want to generate the index
