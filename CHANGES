@@ -74,6 +74,7 @@ Features added
 * Make ``'extraclassoptions'`` key of ``latex_elements`` public (refs #3480)
 * #3463: Add warning messages for required EPUB3 metadata. Add default value to
   ``epub_description`` to avoid warning like other settings.
+* #3476: setuptools: Support multiple builders
 
 Bugs fixed
 ----------
