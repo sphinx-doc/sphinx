@@ -88,7 +88,12 @@ def tail_check(check):
 
 
 def check_xpath(etree, fname, path, check, be_found=True):
-    nodes = list(etree.findall(path))
+    if type(path) is tuple:
+        nodes = []
+        for path_candidate in path:
+            nodes += list(etree.findall(path_candidate))
+    else:
+        nodes = list(etree.findall(path))
     if check is None:
         assert nodes == [], ('found any nodes matching xpath '
                              '%r in file %s' % (path, fname))
@@ -190,7 +195,7 @@ def test_static_output(app):
         (".//a[@href='_downloads/img1.png']", ''),
         (".//pre/span", u'"quotes"'),
         (".//pre/span", u"'included'"),
-        (".//pre/span[@class='s2']", u'üöä'),
+        ((".//pre/span[@class='s2']", ".//pre/span[@class='s']"), u'üöä'),
         (".//div[@class='inc-pyobj1 highlight-text']//pre",
          r'^class Foo:\n    pass\n\s*$'),
         (".//div[@class='inc-pyobj2 highlight-text']//pre",

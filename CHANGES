@@ -23,6 +23,8 @@ Bugs fixed
   return code
 * #2073, #3443, #3490: gettext builder that writes pot files unless the content
   are same without creation date. Thanks to Yoshiki Shibukawa.
+* #2268: Fix test code to support Pygments 2.0
+  (Now Sphinx is compatible with 2.0, 2.1, 2.2)
 
 Testing
 --------
