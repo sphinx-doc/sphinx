@@ -75,11 +75,15 @@ Features added
 * #3463: Add warning messages for required EPUB3 metadata. Add default value to
   ``epub_description`` to avoid warning like other settings.
 * #3476: setuptools: Support multiple builders
+* latex: merged cells in LaTeX tables allow code-blocks, lists, blockquotes...
+  as do normal cells (refs: #3435)
 
 Bugs fixed
 ----------
 
 * ``literalinclude`` directive expands tabs after dedent-ing (refs: #3416)
+* #1574: Paragraphs in table cell doesn't work in Latex output
+* #3288: Table with merged headers not wrapping text
 
 Deprecated
 ----------
