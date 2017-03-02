@@ -59,25 +59,19 @@ def test_read_inventory_v1():
 
 def test_read_inventory_v2():
     f = BytesIO(inventory_v2)
-    invdata1 = read_inventory(f, '/util', posixpath.join)
+    invdata = read_inventory(f, '/util', posixpath.join)
 
-    # try again with a small buffer size to test the chunking algorithm
-    f = BytesIO(inventory_v2)
-    invdata2 = read_inventory(f, '/util', posixpath.join, bufsize=5)
-
-    assert invdata1 == invdata2
-
-    assert len(invdata1['py:module']) == 2
-    assert invdata1['py:module']['module1'] == \
+    assert len(invdata['py:module']) == 2
+    assert invdata['py:module']['module1'] == \
         ('foo', '2.0', '/util/foo.html#module-module1', 'Long Module desc')
-    assert invdata1['py:module']['module2'] == \
+    assert invdata['py:module']['module2'] == \
         ('foo', '2.0', '/util/foo.html#module-module2', '-')
-    assert invdata1['py:function']['module1.func'][2] == \
+    assert invdata['py:function']['module1.func'][2] == \
         '/util/sub/foo.html#module1.func'
-    assert invdata1['c:function']['CFunc'][2] == '/util/cfunc.html#CFunc'
-    assert invdata1['std:term']['a term'][2] == \
+    assert invdata['c:function']['CFunc'][2] == '/util/cfunc.html#CFunc'
+    assert invdata['std:term']['a term'][2] == \
         '/util/glossary.html#term-a-term'
-    assert invdata1['std:term']['a term including:colon'][2] == \
+    assert invdata['std:term']['a term including:colon'][2] == \
         '/util/glossary.html#term-a-term-including-colon'
 
 
