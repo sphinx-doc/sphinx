@@ -124,7 +124,7 @@ def read_inventory_v2(f, uri, join, bufsize=16 * 1024):
     version = line.rstrip()[11:].decode('utf-8')
     line = f.readline().decode('utf-8')
     if 'zlib' not in line:
-        raise ValueError
+        raise ValueError('invalid inventory header (not compressed): %s' % line)
 
     def read_chunks():
         # type: () -> Iterator[bytes]
@@ -173,6 +173,8 @@ def read_inventory(f, uri, join, bufsize=16 * 1024):
         return read_inventory_v1(f, uri, join)
     elif line == '# Sphinx inventory version 2':
         return read_inventory_v2(f, uri, join, bufsize=bufsize)
+    else:
+        raise ValueError('invalid inventory header: %s' % line)
 
 
 def _strip_basic_auth(url):
