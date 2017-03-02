@@ -969,15 +969,15 @@ def test_additional_targets_should_not_be_translated(app):
     assert_count(expected_expr, result, 1)
 
     # C code block with lang should not be translated but be *C* highlighted
-    expected_expr = ("""<span class="cp">#include</span> """
-                     """<span class="cpf">&lt;stdio.h&gt;</span>""")
+    expected_expr = ("""<span class="cp">#include(</span>)? """
+                     """(<span class="cpf">)?&lt;stdio.h&gt;</span>""")
     assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
         """<span class="kn">import</span> <span class="nn">sys</span>  """
-        """<span class="c1"># sys importing</span>""")
+        """<span class="c1?"># sys importing</span>""")
     assert_count(expected_expr, result, 1)
 
     # [raw.txt]
@@ -1035,15 +1035,15 @@ def test_additional_targets_should_be_translated(app):
     assert_count(expected_expr, result, 1)
 
     # C code block with lang should be translated and be *C* highlighted
-    expected_expr = ("""<span class="cp">#include</span> """
-                     """<span class="cpf">&lt;STDIO.H&gt;</span>""")
+    expected_expr = ("""<span class="cp">#include(</span>)? """
+                     """(<span class="cpf">)?&lt;STDIO.H&gt;</span>""")
     assert_count(expected_expr, result, 1)
 
     # doctest block should not be translated but be highlighted
     expected_expr = (
         """<span class="gp">&gt;&gt;&gt; </span>"""
         """<span class="kn">import</span> <span class="nn">sys</span>  """
-        """<span class="c1"># SYS IMPORTING</span>""")
+        """<span class="c1?"># SYS IMPORTING</span>""")
     assert_count(expected_expr, result, 1)
 
     # [raw.txt]

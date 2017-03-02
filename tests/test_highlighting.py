@@ -9,6 +9,7 @@
     :license: BSD, see LICENSE for details.
 """
 
+import re
 from pygments.lexer import RegexLexer
 from pygments.token import Text, Name
 from pygments.filters import ErrorToken
@@ -91,17 +92,20 @@ def test_default_highlight():
 
     # default: highlights as python3
     ret = bridge.highlight_block('print "Hello sphinx world"', 'default')
-    assert ret == ('<div class="highlight"><pre><span></span><span class="nb">print</span> '
-                   '<span class="s2">&quot;Hello sphinx world&quot;</span>\n</pre></div>\n')
+    assert re.match(
+        '<div class="highlight"><pre>(<span></span>)?<span class="nb">print</span> '
+        '<span class="s2?">&quot;Hello sphinx world&quot;</span>\n</pre></div>\n', ret)
 
     # default: fallbacks to none if highlighting failed
     ret = bridge.highlight_block('reST ``like`` text', 'default')
-    assert ret == '<div class="highlight"><pre><span></span>reST ``like`` text\n</pre></div>\n'
+    assert re.match(
+        '<div class="highlight"><pre>(<span></span>)?reST ``like`` text\n</pre></div>\n', ret)
 
     # python3: highlights as python3
     ret = bridge.highlight_block('print "Hello sphinx world"', 'python3')
-    assert ret == ('<div class="highlight"><pre><span></span><span class="nb">print</span> '
-                   '<span class="s2">&quot;Hello sphinx world&quot;</span>\n</pre></div>\n')
+    assert re.match(
+        '<div class="highlight"><pre>(<span></span>)?<span class="nb">print</span> '
+        '<span class="s2?">&quot;Hello sphinx world&quot;</span>\n</pre></div>\n', ret)
 
     # python3: raises error if highlighting failed
     try:
