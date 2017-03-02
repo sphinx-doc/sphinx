@@ -19,7 +19,7 @@ import mock
 
 from sphinx import addnodes
 from sphinx.ext.intersphinx import setup as intersphinx_setup
-from sphinx.ext.intersphinx import read_inventory, \
+from sphinx.ext.intersphinx import InventoryFile, \
     load_mappings, missing_reference, _strip_basic_auth, \
     _get_safe_url, fetch_inventory, INVENTORY_FILENAME
 
@@ -50,7 +50,7 @@ a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
 
 def test_read_inventory_v1():
     f = BytesIO(inventory_v1)
-    invdata = read_inventory(f, '/util', posixpath.join)
+    invdata = InventoryFile.load(f, '/util', posixpath.join)
     assert invdata['py:module']['module'] == \
         ('foo', '1.0', '/util/foo.html#module-module', '-')
     assert invdata['py:class']['module.cls'] == \
@@ -59,7 +59,7 @@ def test_read_inventory_v1():
 
 def test_read_inventory_v2():
     f = BytesIO(inventory_v2)
-    invdata = read_inventory(f, '/util', posixpath.join)
+    invdata = InventoryFile.load(f, '/util', posixpath.join)
 
     assert len(invdata['py:module']) == 2
     assert invdata['py:module']['module1'] == \
@@ -75,9 +75,9 @@ def test_read_inventory_v2():
         '/util/glossary.html#term-a-term-including-colon'
 
 
-@mock.patch('sphinx.ext.intersphinx.read_inventory')
+@mock.patch('sphinx.ext.intersphinx.InventoryFile')
 @mock.patch('sphinx.ext.intersphinx._read_from_url')
-def test_fetch_inventory_redirection(_read_from_url, read_inventory, app, status, warning):
+def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status, warning):
     intersphinx_setup(app)
     _read_from_url().readline.return_value = '# Sphinx inventory version 2'.encode('utf-8')
 
@@ -85,7 +85,7 @@ def test_fetch_inventory_redirection(_read_from_url, read_inventory, app, status
     _read_from_url().url = 'http://hostname/' + INVENTORY_FILENAME
     fetch_inventory(app, 'http://hostname/', 'http://hostname/' + INVENTORY_FILENAME)
     assert 'intersphinx inventory has moved' not in status.getvalue()
-    assert read_inventory.call_args[0][1] == 'http://hostname/'
+    assert InventoryFile.load.call_args[0][1] == 'http://hostname/'
 
     # same uri and inv, redirected
     status.seek(0)
@@ -96,7 +96,7 @@ def test_fetch_inventory_redirection(_read_from_url, read_inventory, app, status
     assert status.getvalue() == ('intersphinx inventory has moved: '
                                  'http://hostname/%s -> http://hostname/new/%s\n' %
                                  (INVENTORY_FILENAME, INVENTORY_FILENAME))
-    assert read_inventory.call_args[0][1] == 'http://hostname/new'
+    assert InventoryFile.load.call_args[0][1] == 'http://hostname/new'
 
     # different uri and inv, not redirected
     status.seek(0)
@@ -105,7 +105,7 @@ def test_fetch_inventory_redirection(_read_from_url, read_inventory, app, status
 
     fetch_inventory(app, 'http://hostname/', 'http://hostname/new/' + INVENTORY_FILENAME)
     assert 'intersphinx inventory has moved' not in status.getvalue()
-    assert read_inventory.call_args[0][1] == 'http://hostname/'
+    assert InventoryFile.load.call_args[0][1] == 'http://hostname/'
 
     # different uri and inv, redirected
     status.seek(0)
@@ -116,7 +116,7 @@ def test_fetch_inventory_redirection(_read_from_url, read_inventory, app, status
     assert status.getvalue() == ('intersphinx inventory has moved: '
                                  'http://hostname/new/%s -> http://hostname/other/%s\n' %
                                  (INVENTORY_FILENAME, INVENTORY_FILENAME))
-    assert read_inventory.call_args[0][1] == 'http://hostname/'
+    assert InventoryFile.load.call_args[0][1] == 'http://hostname/'
 
 
 def test_missing_reference(tempdir, app, status, warning):

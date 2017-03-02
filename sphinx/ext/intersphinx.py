@@ -126,65 +126,67 @@ class ZlibReader(object):
         return iter(self)  # type: ignore
 
 
-def read_inventory_v1(f, uri, join):
-    # type: (IO, unicode, Callable) -> Inventory
-    f = UTF8StreamReader(f)
-    invdata = {}  # type: Inventory
-    projname = f.readline().rstrip()[11:]
-    version = f.readline().rstrip()[11:]
-    for line in f:
-        name, type, location = line.rstrip().split(None, 2)
-        location = join(uri, location)
-        # version 1 did not add anchors to the location
-        if type == 'mod':
-            type = 'py:module'
-            location += '#module-' + name
+class InventoryFile(object):
+    @classmethod
+    def load(cls, stream, uri, joinfunc):
+        # type: (IO, unicode, Callable) -> Inventory
+        line = stream.readline().rstrip().decode('utf-8')
+        if line == '# Sphinx inventory version 1':
+            return cls.load_v1(stream, uri, joinfunc)
+        elif line == '# Sphinx inventory version 2':
+            return cls.load_v2(stream, uri, joinfunc)
         else:
-            type = 'py:' + type
-            location += '#' + name
-        invdata.setdefault(type, {})[name] = (projname, version, location, '-')
-    return invdata
+            raise ValueError('invalid inventory header: %s' % line)
 
+    @classmethod
+    def load_v1(cls, stream, uri, join):
+        # type: (IO, unicode, Callable) -> Inventory
+        stream = UTF8StreamReader(stream)
+        invdata = {}  # type: Inventory
+        projname = stream.readline().rstrip()[11:]
+        version = stream.readline().rstrip()[11:]
+        for line in stream:
+            name, type, location = line.rstrip().split(None, 2)
+            location = join(uri, location)
+            # version 1 did not add anchors to the location
+            if type == 'mod':
+                type = 'py:module'
+                location += '#module-' + name
+            else:
+                type = 'py:' + type
+                location += '#' + name
+            invdata.setdefault(type, {})[name] = (projname, version, location, '-')
+        return invdata
 
-def read_inventory_v2(f, uri, join):
-    # type: (IO, unicode, Callable) -> Inventory
-    invdata = {}  # type: Inventory
-    projname = f.readline().decode('utf-8').rstrip()[11:]
-    version = f.readline().decode('utf-8').rstrip()[11:]
-    line = f.readline().decode('utf-8')
-    if 'zlib' not in line:
-        raise ValueError('invalid inventory header (not compressed): %s' % line)
+    @classmethod
+    def load_v2(cls, stream, uri, join):
+        # type: (IO, unicode, Callable) -> Inventory
+        invdata = {}  # type: Inventory
+        projname = stream.readline().decode('utf-8').rstrip()[11:]
+        version = stream.readline().decode('utf-8').rstrip()[11:]
+        line = stream.readline().decode('utf-8')
+        if 'zlib' not in line:
+            raise ValueError('invalid inventory header (not compressed): %s' % line)
 
-    for line in ZlibReader(f).readlines():
-        # be careful to handle names with embedded spaces correctly
-        m = re.match(r'(?x)(.+?)\s+(\S*:\S*)\s+(-?\d+)\s+(\S+)\s+(.*)',
-                     line.rstrip())
-        if not m:
-            continue
-        name, type, prio, location, dispname = m.groups()
-        if type == 'py:module' and type in invdata and \
-                name in invdata[type]:  # due to a bug in 1.1 and below,
-                                        # two inventory entries are created
-                                        # for Python modules, and the first
-                                        # one is correct
-            continue
-        if location.endswith(u'$'):
-            location = location[:-1] + name
-        location = join(uri, location)
-        invdata.setdefault(type, {})[name] = (projname, version,
-                                              location, dispname)
-    return invdata
-
-
-def read_inventory(f, uri, join):
-    # type: (IO, unicode, Callable, int) -> Inventory
-    line = f.readline().rstrip().decode('utf-8')
-    if line == '# Sphinx inventory version 1':
-        return read_inventory_v1(f, uri, join)
-    elif line == '# Sphinx inventory version 2':
-        return read_inventory_v2(f, uri, join)
-    else:
-        raise ValueError('invalid inventory header: %s' % line)
+        for line in ZlibReader(stream).readlines():
+            # be careful to handle names with embedded spaces correctly
+            m = re.match(r'(?x)(.+?)\s+(\S*:\S*)\s+(-?\d+)\s+(\S+)\s+(.*)',
+                         line.rstrip())
+            if not m:
+                continue
+            name, type, prio, location, dispname = m.groups()
+            if type == 'py:module' and type in invdata and \
+                    name in invdata[type]:  # due to a bug in 1.1 and below,
+                                            # two inventory entries are created
+                                            # for Python modules, and the first
+                                            # one is correct
+                continue
+            if location.endswith(u'$'):
+                location = location[:-1] + name
+            location = join(uri, location)
+            invdata.setdefault(type, {})[name] = (projname, version,
+                                                  location, dispname)
+        return invdata
 
 
 def _strip_basic_auth(url):
@@ -290,7 +292,7 @@ def fetch_inventory(app, uri, inv):
         with f:
             try:
                 join = localuri and path.join or posixpath.join
-                invdata = read_inventory(f, uri, join)
+                invdata = InventoryFile.load(f, uri, join)
             except ValueError as exc:
                 raise ValueError('unknown or unsupported inventory version: %r' % exc)
     except Exception as err:
