@@ -321,6 +321,9 @@ def missing_reference(app, env, node, contnode):
         if not objtypes:
             return
         objtypes = ['%s:%s' % (domain, objtype) for objtype in objtypes]
+    if 'std:cmdoption' in objtypes:
+        # until Sphinx-1.6, cmdoptions are stored as std:option
+        objtypes.append('std:option')
     to_try = [(env.intersphinx_inventory, target)]
     in_set = None
     if ':' in target:
