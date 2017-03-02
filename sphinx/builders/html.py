@@ -896,13 +896,17 @@ class StandaloneHTMLBuilder(Builder):
 
     def dump_inventory(self):
         # type: () -> None
+        def safe_name(string):
+            return re.sub("\s+", " ", string)
+
         logger.info(bold('dumping object inventory... '), nonl=True)
         with open(path.join(self.outdir, INVENTORY_FILENAME), 'wb') as f:
             f.write((u'# Sphinx inventory version 2\n'
                      u'# Project: %s\n'
                      u'# Version: %s\n'
                      u'# The remainder of this file is compressed using zlib.\n'
-                     % (self.config.project, self.config.version)).encode('utf-8'))
+                     % (safe_name(self.config.project),
+                        safe_name(self.config.version))).encode('utf-8'))
             compressor = zlib.compressobj(9)
             for domainname, domain in sorted(self.env.domains.items()):
                 for name, dispname, type, docname, anchor, prio in \
