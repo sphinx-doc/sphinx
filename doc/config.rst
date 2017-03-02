@@ -988,9 +988,10 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_compact_lists
 
-   If true, list items containing only a single paragraph will not be rendered
-   with a ``<p>`` element.  This is standard docutils behavior.  Default:
-   ``True``.
+   If true, a list all whose items consist of a single paragraph and/or a
+   sub-list all whose items etc... (recursive definition) will not use the
+   ``<p>`` element for any of its items. This is standard docutils behavior.
+   Default: ``True``.
 
    .. versionadded:: 1.0
 
