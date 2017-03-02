@@ -46,6 +46,7 @@ from sphinx.util import status_iterator, old_status_iterator, display_chunk
 from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT
 from sphinx.util.console import bold, darkgreen  # type: ignore
+from sphinx.util.docutils import is_html5_writer_available
 from sphinx.util.i18n import find_catalog_source_files
 
 if False:
@@ -623,24 +624,32 @@ class Sphinx(object):
                 raise ExtensionError('Value for key %r must be a '
                                      '(visit, depart) function tuple' % key)
             translator = self._translators.get(key)
+            translators = []
             if translator is not None:
-                pass
+                translators.append(translator)
             elif key == 'html':
-                from sphinx.writers.html import HTMLTranslator as translator  # type: ignore
+                from sphinx.writers.html import HTMLTranslator
+                translators.append(HTMLTranslator)
+                if is_html5_writer_available():
+                    from sphinx.writers.html5 import HTML5Translator
+                    translators.append(HTML5Translator)
             elif key == 'latex':
-                from sphinx.writers.latex import LaTeXTranslator as translator  # type: ignore
+                from sphinx.writers.latex import LaTeXTranslator
+                translators.append(LaTeXTranslator)
             elif key == 'text':
-                from sphinx.writers.text import TextTranslator as translator  # type: ignore
+                from sphinx.writers.text import TextTranslator
+                translators.append(TextTranslator)
             elif key == 'man':
-                from sphinx.writers.manpage import ManualPageTranslator as translator  # type: ignore  # NOQA
+                from sphinx.writers.manpage import ManualPageTranslator
+                translators.append(ManualPageTranslator)
             elif key == 'texinfo':
-                from sphinx.writers.texinfo import TexinfoTranslator as translator  # type: ignore  # NOQA
-            else:
-                # ignore invalid keys for compatibility
-                continue
-            setattr(translator, 'visit_' + node.__name__, visit)
-            if depart:
-                setattr(translator, 'depart_' + node.__name__, depart)
+                from sphinx.writers.texinfo import TexinfoTranslator
+                translators.append(TexinfoTranslator)
+
+            for translator in translators:
+                setattr(translator, 'visit_' + node.__name__, visit)
+                if depart:
+                    setattr(translator, 'depart_' + node.__name__, depart)
 
     def add_enumerable_node(self, node, figtype, title_getter=None, **kwds):
         # type: (nodes.Node, unicode, Callable, Any) -> None
