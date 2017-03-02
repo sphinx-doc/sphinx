@@ -31,6 +31,7 @@ from docutils.readers.doctree import Reader as DoctreeReader
 from sphinx import package_dir, __display_version__
 from sphinx.util import jsonimpl, logging, status_iterator
 from sphinx.util.i18n import format_date
+from sphinx.util.inventory import InventoryFile
 from sphinx.util.osutil import SEP, os_path, relative_uri, ensuredir, \
     movefile, copyfile
 from sphinx.util.nodes import inline_all_toctrees
@@ -896,33 +897,8 @@ class StandaloneHTMLBuilder(Builder):
 
     def dump_inventory(self):
         # type: () -> None
-        def safe_name(string):
-            return re.sub("\s+", " ", string)
-
         logger.info(bold('dumping object inventory... '), nonl=True)
-        with open(path.join(self.outdir, INVENTORY_FILENAME), 'wb') as f:
-            f.write((u'# Sphinx inventory version 2\n'
-                     u'# Project: %s\n'
-                     u'# Version: %s\n'
-                     u'# The remainder of this file is compressed using zlib.\n'
-                     % (safe_name(self.config.project),
-                        safe_name(self.config.version))).encode('utf-8'))
-            compressor = zlib.compressobj(9)
-            for domainname, domain in sorted(self.env.domains.items()):
-                for name, dispname, type, docname, anchor, prio in \
-                        sorted(domain.get_objects()):
-                    if anchor.endswith(name):
-                        # this can shorten the inventory by as much as 25%
-                        anchor = anchor[:-len(name)] + '$'
-                    uri = self.get_target_uri(docname)
-                    if anchor:
-                        uri += '#' + anchor
-                    if dispname == name:
-                        dispname = u'-'
-                    f.write(compressor.compress(
-                        (u'%s %s:%s %s %s %s\n' % (name, domainname, type,
-                                                   prio, uri, dispname)).encode('utf-8')))
-            f.write(compressor.flush())
+        InventoryFile.dump(path.join(self.outdir, INVENTORY_FILENAME), self.env, self)
         logger.info('done')
 
     def dump_search_index(self):

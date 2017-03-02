@@ -16,6 +16,8 @@ from itertools import cycle, chain
 from six import PY3
 
 from sphinx import __display_version__
+from sphinx.util.inventory import InventoryFile
+
 from util import remove_unicode_literals, strip_escseq
 import xml.etree.cElementTree as ElementTree
 from html5lib import getTreeBuilder, HTMLParser
@@ -1149,3 +1151,29 @@ def test_html_entity(app):
     content = (app.outdir / 'index.html').text()
     for entity in re.findall(r'&([a-z]+);', content, re.M):
         assert entity not in valid_entities
+
+
+@pytest.mark.sphinx('html', testroot='basic')
+def test_html_inventory(app):
+    app.builder.build_all()
+    with open(app.outdir / 'objects.inv') as f:
+        invdata = InventoryFile.load(f, 'http://example.com', os.path.join)
+    assert invdata.keys() == ['std:label', 'std:doc']
+    assert invdata['std:label'].keys() == ['modindex', 'genindex', 'search']
+    assert invdata['std:label']['modindex'] == ('Python',
+                                                '',
+                                                'http://example.com/py-modindex.html',
+                                                'Module Index')
+    assert invdata['std:label']['genindex'] == ('Python',
+                                                '',
+                                                'http://example.com/genindex.html',
+                                                'Index')
+    assert invdata['std:label']['search'] == ('Python',
+                                              '',
+                                              'http://example.com/search.html',
+                                              'Search Page')
+    assert invdata['std:doc'].keys() == ['index']
+    assert invdata['std:doc']['index'] == ('Python',
+                                           '',
+                                           'http://example.com/index.html',
+                                           'The basic Sphinx documentation for testing')

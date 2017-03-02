@@ -9,10 +9,13 @@
     :license: BSD, see LICENSE for details.
 """
 import re
+import os
 import zlib
 import codecs
 
 from six import PY3
+
+from sphinx.util import logging
 
 if False:
     # For type annotation
@@ -26,6 +29,8 @@ if False:
 
 BUFSIZE = 16 * 1024
 UTF8StreamReader = codecs.lookup('utf-8')[2]
+
+logger = logging.getLogger(__name__)
 
 
 class ZlibReader(object):
@@ -121,3 +126,35 @@ class InventoryFile(object):
             invdata.setdefault(type, {})[name] = (projname, version,
                                                   location, dispname)
         return invdata
+
+    @classmethod
+    def dump(cls, filename, env, builder):
+        # type: (unicode, BuildEnvironment, Builder) -> None
+        def escape(string):
+            # type: (unicode) -> unicode
+            return re.sub("\s+", " ", string).encode('utf-8')
+
+        with open(os.path.join(filename), 'wb') as f:
+            # header
+            f.write('# Sphinx inventory version 2\n')
+            f.write('# Project: %s\n' % escape(env.config.project))
+            f.write('# Version: %s\n' % escape(env.config.version))
+            f.write('# The remainder of this file is compressed using zlib.\n')
+
+            # body
+            compressor = zlib.compressobj(9)
+            for domainname, domain in sorted(env.domains.items()):
+                for name, dispname, typ, docname, anchor, prio in \
+                        sorted(domain.get_objects()):
+                    if anchor.endswith(name):
+                        # this can shorten the inventory by as much as 25%
+                        anchor = anchor[:-len(name)] + '$'
+                    uri = builder.get_target_uri(docname)
+                    if anchor:
+                        uri += '#' + anchor
+                    if dispname == name:
+                        dispname = u'-'
+                    entry = (u'%s %s:%s %s %s %s\n' %
+                             (name, domainname, typ, prio, uri, dispname))
+                    f.write(compressor.compress(entry.encode('utf-8')))
+            f.write(compressor.flush())
