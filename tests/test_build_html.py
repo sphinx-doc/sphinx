@@ -1159,7 +1159,7 @@ def test_html_inventory(app):
     with open(app.outdir / 'objects.inv') as f:
         invdata = InventoryFile.load(f, 'http://example.com', os.path.join)
     assert invdata.keys() == ['std:label', 'std:doc']
-    assert invdata['std:label'].keys() == ['modindex', 'genindex', 'search']
+    assert set(invdata['std:label'].keys()) == {'modindex', 'genindex', 'search'}
     assert invdata['std:label']['modindex'] == ('Python',
                                                 '',
                                                 'http://example.com/py-modindex.html',
