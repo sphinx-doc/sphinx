@@ -919,13 +919,13 @@ def test_latex_table_longtable(app, status, warning):
             '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax \\\\\n'
             '\\hline\n\\endfirsthead' in table)
     assert ('\\multicolumn{2}{c}%\n'
-            '{{\\sphinxtablecontinued{\\tablename\\ \\thetable{} -- '
-            'continued from previous page}}} \\\\\n\\hline\n'
+            '{\\makebox[0pt]{\\sphinxtablecontinued{\\tablename\\ \\thetable{} -- '
+            'continued from previous page}}}\\\\\n\\hline\n'
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
             '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax \\\\\n'
             '\\hline\n\\endhead' in table)
     assert ('\\hline\n\\multicolumn{2}{|r|}'
-            '{{\\sphinxtablecontinued{Continued on next page}}} \\\\\n'
+            '{\\makebox[0pt][r]{\\sphinxtablecontinued{Continued on next page}}}\\\\\n'
             '\\hline\n\\endfoot\n\n\\endlastfoot' in table)
     assert ('\ncell1-1\n&\ncell1-2\n\\\\' in table)
     assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
