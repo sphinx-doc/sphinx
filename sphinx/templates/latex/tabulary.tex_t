@@ -1,4 +1,4 @@
-\begin{savenotes}
+\begin{savenotes}\sphinxattablestart
 <% if table.align -%>
   <%- if table.align == 'center' -%>
   \centering
@@ -14,7 +14,7 @@
 \begin{threeparttable}
 \capstart\caption{<%= ''.join(table.caption) %>}<%= labels %>
 <% endif -%>
-\begin{tabulary}{\linewidth}<%= table.get_colspec() -%>
+\begin{tabulary}{\linewidth}[t]<%= table.get_colspec() -%>
 \hline
 <%= ''.join(table.header) %>
 <%- if table.caption_footnotetexts -%>
@@ -26,4 +26,4 @@
 \end{threeparttable}
 <%- endif %>
 \par
-\end{savenotes}
+\sphinxattableend\end{savenotes}

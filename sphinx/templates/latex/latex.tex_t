@@ -22,7 +22,6 @@
 <%= multilingual %>
 <%= fontpkg %>
 <%= fncychap %>
-<%= longtable %>
 \usepackage<%= sphinxpkgoptions %>{sphinx}
 <%= sphinxsetup %>
 <%= geometry %>

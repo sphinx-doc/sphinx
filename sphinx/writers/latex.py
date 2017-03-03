@@ -72,7 +72,6 @@ DEFAULT_SETTINGS = {
     'polyglossia':     '',
     'fontpkg':         '\\usepackage{times}',
     'fncychap':        '\\usepackage[Bjarne]{fncychap}',
-    'longtable':       '\\usepackage{longtable}',
     'hyperref':        ('% Include hyperref last.\n'
                         '\\usepackage{hyperref}\n'
                         '% Fix anchor placement for figures with captions.\n'
@@ -360,7 +359,7 @@ class Table(object):
 
         * longtable
         * tabular
-        * taburary
+        * tabulary
         """
         if self.is_longtable():
             return 'longtable'

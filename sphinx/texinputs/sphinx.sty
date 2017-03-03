@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/02/28 v1.6 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/03/03 v1.6 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -56,6 +56,33 @@
       #1\dimexpr\linewidth-\arrayrulewidth\relax-\tw@\tabcolsep-\arrayrulewidth\relax}}
 % using here T (for Tabulary) feels less of a problem than the X could be
 \newcolumntype{T}{J}%
+\RequirePackage{longtable}
+% fixing the LaTeX mess of vertical spaces with threeparttable and longtable
+% user interface:
+\newcommand*\sphinxtablepre {0pt}%
+\newcommand*\sphinxtablepost{\bigskipamount}%
+% can not use \baselineskip inside longtable (as it is zero there)
+\newcommand*\sphinxbelowtablecaptionskip{.5\sphinxbaselineskip}%
+% helper macros
+\def\sphinxbaselineskip{\baselineskip}%
+\def\sphinxatlongtablestart
+    {\par
+     \vskip-\dimexpr\baselineskip+\parskip\relax
+     \leavevmode\null\par
+     \vskip\dimexpr\baselineskip+\parskip\relax
+     \vskip\dimexpr\sphinxtablepre\relax
+     \LTpre\z@skip\LTpost\z@skip
+     \edef\sphinxbaselineskip{\dimexpr\the\dimexpr\baselineskip\relax\relax}}%
+\def\sphinxattablestart{\par\vskip\dimexpr\sphinxtablepre\relax}%
+\def\sphinxatlongtableend{\vskip\sphinxtablepost\relax}%
+\def\sphinxattableend{\prevdepth\z@\vskip\sphinxtablepost\relax}%
+\def\sphinxafterLTcaptionskip
+   {\dimexpr-\dp\strutbox-\sphinxbaselineskip
+            +\sphinxbelowtablecaptionskip\relax}%
+\def\sphinxafterTPTcaption % will be injected in a threeparttable macro
+   {\vskip\dimexpr-\dp\strutbox-1.2\baselineskip
+                  +\sphinxbelowtablecaptionskip\relax
+    \prevdepth\z@}%
 % varwidth is crucial for our handling of general contents in merged cells
 \RequirePackage{varwidth}
 % but addition of a compatibility patch with hyperref is needed
@@ -83,6 +110,15 @@
 \fvset{fontsize=\small}
 % For table captions.
 \RequirePackage{threeparttable}
+% need to hack into threeparttable to control below caption skip
+% captions contain an ending \strut
+\def\TPT@caption#1[#2]#3{\gdef\TPT@docapt
+ {\par\global\let\TPT@docapt\@undefined \TPT@LA@caption{#1}[{#2}]%
+   {\strut\ignorespaces#3\ifhmode\unskip\@finalstrut\strutbox\fi}%
+  \sphinxafterTPTcaption
+ }%
+ \ifx\TPT@hsize\@empty \let\label\TPT@gatherlabel \abovecaptionskip\z@skip
+ \else \TPT@docapt \fi \ignorespaces}%
 % For hyperlinked footnotes in tables; also for gathering footnotes from
 % topic and warning blocks. Also to allow code-blocks in footnotes.
 \RequirePackage{footnotehyper-sphinx}
