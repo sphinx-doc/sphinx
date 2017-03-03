@@ -284,7 +284,7 @@ Construct a new XBlock.
 This class should only be used by runtimes.
 
 Arguments:
-    runtime (:class:`~typing.Dict`\[:class:`int`,:class:`str`\]): Use it to
+    runtime (:class:`~typing.Dict`\\[:class:`int`,:class:`str`\\]): Use it to
         access the environment. It is available in XBlock code
         as ``self.runtime``.
 
@@ -304,7 +304,7 @@ This class should only be used by runtimes.
 :param runtime: Use it to
                 access the environment. It is available in XBlock code
                 as ``self.runtime``.
-:type runtime: :class:`~typing.Dict`\[:class:`int`,:class:`str`\]
+:type runtime: :class:`~typing.Dict`\\[:class:`int`,:class:`str`\\]
 :param field_data: Interface used by the XBlock
                    fields to access their data from wherever it is persisted.
 :type field_data: :class:`FieldData`

@@ -491,7 +491,7 @@ def test_footnote(app, status, warning):
             'VIDIOC\\_CROPCAP\n&\n') in result
     assert ('Information about VIDIOC\\_CROPCAP %\n'
             '\\begin{footnote}[6]\\sphinxAtStartFootnote\n'
-            'footnote in table not in header\n%\n\\end{footnote}\n\\\\\n\hline\n'
+            'footnote in table not in header\n%\n\\end{footnote}\n\\\\\n\\hline\n'
             '\\end{tabulary}\n\\end{threeparttable}\n\\par\n\\end{savenotes}\n') in result
 
 
