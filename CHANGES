@@ -25,6 +25,7 @@ Incompatible changes
 * :confval:`latex_keep_old_macro_names` default value has been changed from
   ``True`` to ``False``. This means that some LaTeX macros for styling are
   by default defined only with ``\sphinx..`` prefixed names. (refs: #3429)
+* Footer "Continued on next page" of LaTeX longtable's now not framed (refs: #3497)
 
 Features removed
 ----------------
@@ -77,6 +78,8 @@ Features added
 * #3476: setuptools: Support multiple builders
 * latex: merged cells in LaTeX tables allow code-blocks, lists, blockquotes...
   as do normal cells (refs: #3435)
+* HTML buildre uses experimental HTML5 writer if ``html_experimental_html5_builder`` is True
+  and docutils 0.13 and newer is installed.
 
 Bugs fixed
 ----------
@@ -137,6 +140,10 @@ Bugs fixed
   except first time build
 * #3488: objects.inv has broken when ``release`` or ``version`` contain
   return code
+* #2073, #3443, #3490: gettext builder that writes pot files unless the content
+  are same without creation date. Thanks to Yoshiki Shibukawa.
+* #3487: intersphinx: failed to refer options
+* #3496: latex longtable's last column may be much wider than its contents
 
 Testing
 --------

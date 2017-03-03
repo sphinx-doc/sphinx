@@ -150,3 +150,8 @@ class LoggingReporter(Reporter):
     def set_conditions(self, category, report_level, halt_level, debug=False):
         # type: (unicode, int, int, bool) -> None
         Reporter.set_conditions(self, category, report_level, halt_level, debug=debug)
+
+
+def is_html5_writer_available():
+    # type: () -> bool
+    return __version_info__ > (0, 13, 0)

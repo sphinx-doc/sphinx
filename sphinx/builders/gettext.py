@@ -18,7 +18,7 @@ from datetime import datetime, tzinfo, timedelta
 from collections import defaultdict
 from uuid import uuid4
 
-from six import iteritems
+from six import iteritems, StringIO
 
 from sphinx.builders import Builder
 from sphinx.util import split_index_msg, logging, status_iterator
@@ -192,6 +192,20 @@ class LocalTimeZone(tzinfo):
 ltz = LocalTimeZone()
 
 
+def should_write(filepath, new_content):
+    if not path.exists(filepath):
+        return True
+    with open(filepath, 'r', encoding='utf-8') as oldpot:  # type: ignore
+        old_content = oldpot.read()
+        old_header_index = old_content.index('"POT-Creation-Date:')
+        new_header_index = old_content.index('"POT-Creation-Date:')
+        old_body_index = old_content.index('"PO-Revision-Date:')
+        new_body_index = new_content.index('"PO-Revision-Date:')
+        return ((old_content[:old_header_index] != new_content[:new_header_index]) or
+                (new_content[new_body_index:] != old_content[old_body_index:]))
+    return True
+
+
 class MessageCatalogBuilder(I18nBuilder):
     """
     Builds gettext-style message catalogs (.pot files).
@@ -256,28 +270,34 @@ class MessageCatalogBuilder(I18nBuilder):
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
             pofn = path.join(self.outdir, textdomain + '.pot')
-            with open(pofn, 'w', encoding='utf-8') as pofile:  # type: ignore
-                pofile.write(POHEADER % data)  # type: ignore
+            output = StringIO()
+            output.write(POHEADER % data)  # type: ignore
 
-                for message in catalog.messages:
-                    positions = catalog.metadata[message]
+            for message in catalog.messages:
+                positions = catalog.metadata[message]
 
-                    if self.config.gettext_location:
-                        # generate "#: file1:line1\n#: file2:line2 ..."
-                        pofile.write("#: %s\n" % "\n#: ".join(  # type: ignore
-                            "%s:%s" % (canon_path(
-                                safe_relpath(source, self.outdir)), line)
-                            for source, line, _ in positions))
-                    if self.config.gettext_uuid:
-                        # generate "# uuid1\n# uuid2\n ..."
-                        pofile.write("# %s\n" % "\n# ".join(  # type: ignore
-                            uid for _, _, uid in positions))
+                if self.config.gettext_location:
+                    # generate "#: file1:line1\n#: file2:line2 ..."
+                    output.write("#: %s\n" % "\n#: ".join(  # type: ignore
+                        "%s:%s" % (canon_path(
+                            safe_relpath(source, self.outdir)), line)
+                        for source, line, _ in positions))
+                if self.config.gettext_uuid:
+                    # generate "# uuid1\n# uuid2\n ..."
+                    output.write("# %s\n" % "\n# ".join(  # type: ignore
+                        uid for _, _, uid in positions))
 
-                    # message contains *one* line of text ready for translation
-                    message = message.replace('\\', r'\\'). \
-                        replace('"', r'\"'). \
-                        replace('\n', '\\n"\n"')
-                    pofile.write('msgid "%s"\nmsgstr ""\n\n' % message)  # type: ignore
+                # message contains *one* line of text ready for translation
+                message = message.replace('\\', r'\\'). \
+                    replace('"', r'\"'). \
+                    replace('\n', '\\n"\n"')
+                output.write('msgid "%s"\nmsgstr ""\n\n' % message)  # type: ignore
+
+            content = output.getvalue()
+
+            if should_write(pofn, content):
+                with open(pofn, 'w', encoding='utf-8') as pofile:  # type: ignore
+                    pofile.write(content)
 
 
 def setup(app):

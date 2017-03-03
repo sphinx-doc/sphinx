@@ -106,7 +106,7 @@ def module_level_function(param1, param2=None, *args, **kwargs):
     The name of each parameter is required. The type and description of each
     parameter is optional, but should be included if not obvious.
 
-    If \*args or \*\*kwargs are accepted,
+    If ``*args`` or ``**kwargs`` are accepted,
     they should be listed as ``*args`` and ``**kwargs``.
 
     The format for a parameter is::

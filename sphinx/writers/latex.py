@@ -735,12 +735,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'body': u''.join(self.body),
             'indices': self.generate_indices()
         })
-
-        template_path = path.join(self.builder.srcdir, '_templates', 'latex.tex_t')
-        if path.exists(template_path):
-            return LaTeXRenderer().render(template_path, self.elements)
-        else:
-            return LaTeXRenderer().render('content.tex_t', self.elements)
+        return self.render('latex.tex_t', self.elements)
 
     def hypertarget(self, id, withdoc=True, anchor=True):
         # type: (unicode, bool, bool) -> unicode
@@ -867,6 +862,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     generate(content, collapsed)
 
         return ''.join(ret)
+
+    def render(self, template_name, variables):
+        # type: (unicode, Dict) -> unicode
+        template_path = path.join(self.builder.srcdir, '_templates', template_name)
+        if path.exists(template_path):
+            return LaTeXRenderer().render(template_path, variables)
+        else:
+            return LaTeXRenderer().render(template_name, variables)
 
     def visit_document(self, node):
         # type: (nodes.Node) -> None
@@ -1321,8 +1324,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             labels += self.hypertarget(node['ids'][0], anchor=False)
 
         table_type = self.table.get_table_type()
-        table = LaTeXRenderer().render(table_type + '.tex_t',
-                                       dict(table=self.table, labels=labels))
+        table = self.render(table_type + '.tex_t',
+                            dict(table=self.table, labels=labels))
         self.body.append("\n\n")
         self.body.append(table)
         self.body.append("\n")

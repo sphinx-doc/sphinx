@@ -944,9 +944,10 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_compact_lists
 
-   If true, list items containing only a single paragraph will not be rendered
-   with a ``<p>`` element.  This is standard docutils behavior.  Default:
-   ``True``.
+   If true, a list all whose items consist of a single paragraph and/or a
+   sub-list all whose items etc... (recursive definition) will not use the
+   ``<p>`` element for any of its items. This is standard docutils behavior.
+   Default: ``True``.
 
    .. versionadded:: 1.0
 
@@ -1088,6 +1089,11 @@ that use Sphinx's HTMLWriter class.
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.
 
+.. confval:: html_experimental_html5_writer
+
+   Output is processed with HTML5 writer.  This feature needs docutils 0.13 or newer.  Default is ``False``.
+
+   .. versionadded:: 1.6
 
 .. _applehelp-options:
 
