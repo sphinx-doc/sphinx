@@ -25,6 +25,7 @@ Incompatible changes
 * :confval:`latex_keep_old_macro_names` default value has been changed from
   ``True`` to ``False``. This means that some LaTeX macros for styling are
   by default defined only with ``\sphinx..`` prefixed names. (refs: #3429)
+* Footer "Continued on next page" of LaTeX longtable's now not framed (refs: #3497)
 
 Features removed
 ----------------

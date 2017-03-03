@@ -924,9 +924,9 @@ def test_latex_table_longtable(app, status, warning):
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
             '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax \\\\\n'
             '\\hline\n\\endhead' in table)
-    assert ('\\hline\n\\multicolumn{2}{|r|}'
+    assert ('\\hline\n\\multicolumn{2}{r}'
             '{\\makebox[0pt][r]{\\sphinxtablecontinued{Continued on next page}}}\\\\\n'
-            '\\hline\n\\endfoot\n\n\\endlastfoot' in table)
+            '\\endfoot\n\n\\endlastfoot' in table)
     assert ('\ncell1-1\n&\ncell1-2\n\\\\' in table)
     assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
     assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)

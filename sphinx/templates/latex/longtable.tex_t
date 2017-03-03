@@ -21,8 +21,7 @@
 \endhead
 
 \hline
-\multicolumn{<%= table.colcount %>}{|r|}{\makebox[0pt][r]{\sphinxtablecontinued{<%= _('Continued on next page') %>}}}\\
-\hline
+\multicolumn{<%= table.colcount %>}{r}{\makebox[0pt][r]{\sphinxtablecontinued{<%= _('Continued on next page') %>}}}\\
 \endfoot
 
 \endlastfoot
