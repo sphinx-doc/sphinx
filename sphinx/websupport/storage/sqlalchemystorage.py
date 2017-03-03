@@ -12,7 +12,7 @@
 from datetime import datetime
 
 import sqlalchemy
-from sqlalchemy.orm import aliased  # type: ignore
+from sqlalchemy.orm import aliased
 from sqlalchemy.sql import func
 
 from sphinx.websupport.errors import CommentNotAllowedError, \

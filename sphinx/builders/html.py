@@ -52,7 +52,7 @@ from sphinx.environment.adapters.indexentries import IndexEntries
 
 if False:
     # For type annotation
-    from typing import Any, Iterable, Iterator, Type, Tuple, Union  # NOQA
+    from typing import Any, Dict, Iterable, Iterator, List, Type, Tuple, Union  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
@@ -96,7 +96,7 @@ class StandaloneHTMLBuilder(Builder):
     allow_parallel = True
     out_suffix = '.html'
     link_suffix = '.html'  # defaults to matching out_suffix
-    indexer_format = js_index
+    indexer_format = js_index  # type: Any
     indexer_dumps_unicode = True
     # create links to original images from images [True/False]
     html_scaled_image_link = True
@@ -1155,7 +1155,7 @@ class SerializingHTMLBuilder(StandaloneHTMLBuilder):
     implementation = None  # type: Any
     implementation_dumps_unicode = False
     #: additional arguments for dump()
-    additional_dump_args = ()
+    additional_dump_args = ()  # type: Tuple
 
     #: the filename for the global context file
     globalcontext_filename = None  # type: unicode

@@ -18,7 +18,7 @@ from sphinx.errors import SphinxError
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import Any, Dict, Set  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 

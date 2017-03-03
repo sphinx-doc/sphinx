@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 if False:
     # For type annotation
-    from typing import Callable  # NOQA
+    from typing import Callable, List, Set  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
 LocaleFileInfoBase = namedtuple('CatalogInfo', 'base_dir,domain,charset')

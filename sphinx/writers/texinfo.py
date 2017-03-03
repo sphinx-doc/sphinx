@@ -27,7 +27,7 @@ from sphinx.writers.latex import collected_footnote
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterator, Pattern, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Pattern, Set, Tuple, Union  # NOQA
     from sphinx.builders.texinfo import TexinfoBuilder  # NOQA
 
 logger = logging.getLogger(__name__)

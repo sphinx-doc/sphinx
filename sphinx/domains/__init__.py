@@ -19,11 +19,13 @@ from sphinx.locale import _
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterable, List, Tuple, Type, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+    from sphinx.roles import XRefRole  # NOQA
+    from sphinx.util.typing import RoleFunction  # NOQA
 
 
 class ObjType(object):
@@ -143,7 +145,7 @@ class Domain(object):
     #: directive name -> directive class
     directives = {}         # type: Dict[unicode, Any]
     #: role name -> role callable
-    roles = {}              # type: Dict[unicode, Callable]
+    roles = {}              # type: Dict[unicode, Union[RoleFunction, XRefRole]]
     #: a list of Index subclasses
     indices = []            # type: List[Type[Index]]
     #: role name -> a warning message if reference is missing

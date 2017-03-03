@@ -24,7 +24,7 @@ from sphinx.util.docfields import Field, TypedField
 
 if False:
     # For type annotation
-    from typing import Any, Iterator, Tuple  # NOQA
+    from typing import Any, Dict, Iterator, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

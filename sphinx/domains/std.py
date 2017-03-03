@@ -12,7 +12,7 @@
 import re
 import unicodedata
 
-from six import PY3, iteritems
+from six import iteritems
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -29,17 +29,10 @@ from sphinx.util.nodes import clean_astext, make_refnode
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union  # NOQA
-    from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import Role  # NOQA
-
-    if PY3:
-        unicode = str
-
-    RoleFunction = Callable[[unicode, unicode, unicode, int, Inliner, Dict, List[unicode]],
-                            Tuple[List[nodes.Node], List[nodes.Node]]]
+    from sphinx.util.typing import RoleFunction  # NOQA
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +47,7 @@ class GenericObject(ObjectDescription):
     """
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
-    indextemplate = ''
+    indextemplate = ''  # type: unicode
     parse_node = None  # type: Callable[[GenericObject, BuildEnvironment, unicode, addnodes.desc_signature], unicode]  # NOQA
 
     def handle_signature(self, sig, signode):

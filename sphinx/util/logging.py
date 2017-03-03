@@ -24,7 +24,7 @@ from sphinx.util.console import colorize
 
 if False:
     # For type annotation
-    from typing import Any, Generator, IO, Tuple, Union  # NOQA
+    from typing import Any, Dict, Generator, IO, List, Tuple, Union  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

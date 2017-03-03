@@ -37,6 +37,10 @@ from six import PY3
 from sphinx.pycode.pgen2.token import *
 from sphinx.pycode.pgen2 import token
 
+if False:
+    # For type annotation
+    from typing import List  # NOQA
+
 __all__ = [x for x in dir(token) if x[0] != '_'] + ["tokenize",
            "generate_tokens", "untokenize"]
 del token

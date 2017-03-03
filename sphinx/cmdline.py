@@ -30,7 +30,7 @@ from sphinx.util.pycompat import terminal_safe
 
 if False:
     # For type annotation
-    from typing import Any, IO, Union  # NOQA
+    from typing import Any, IO, List, Union  # NOQA
 
 
 USAGE = """\
@@ -220,12 +220,12 @@ def main(argv):
 
     # handle remaining filename arguments
     filenames = args[2:]
-    err = 0  # type: ignore
+    errored = False
     for filename in filenames:
         if not path.isfile(filename):
             print('Error: Cannot find file %r.' % filename, file=sys.stderr)
-            err = 1  # type: ignore
-    if err:
+            errored = True
+    if errored:
         return 1
 
     # likely encoding used for command-line arguments

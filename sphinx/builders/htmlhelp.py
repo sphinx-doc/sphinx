@@ -26,7 +26,7 @@ from sphinx.util.pycompat import htmlescape
 
 if False:
     # For type annotation
-    from typing import Any, IO, Tuple  # NOQA
+    from typing import Any, Dict, IO, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 

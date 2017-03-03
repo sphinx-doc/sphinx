@@ -26,7 +26,7 @@ from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
 
 
 # load the Python grammar

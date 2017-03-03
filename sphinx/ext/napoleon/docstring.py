@@ -23,7 +23,7 @@ from sphinx.util.pycompat import UnicodeMixin
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config as SphinxConfig  # NOQA
 
@@ -234,9 +234,9 @@ class GoogleDocstring(UnicodeMixin):
         if prefer_type and not _type:
             _type, _name = _name, _type
         indent = self._get_indent(line) + 1
-        _desc = [_desc] + self._dedent(self._consume_indented_block(indent))  # type: ignore
-        _desc = self.__class__(_desc, self._config).lines()
-        return _name, _type, _desc  # type: ignore
+        _descs = [_desc] + self._dedent(self._consume_indented_block(indent))
+        _descs = self.__class__(_descs, self._config).lines()
+        return _name, _type, _descs
 
     def _consume_fields(self, parse_type=True, prefer_type=False):
         # type: (bool, bool) -> List[Tuple[unicode, unicode, List[unicode]]]
@@ -254,9 +254,9 @@ class GoogleDocstring(UnicodeMixin):
         _type, colon, _desc = self._partition_field_on_colon(line)
         if not colon:
             _type, _desc = _desc, _type
-        _desc = [_desc] + self._dedent(self._consume_to_end())  # type: ignore
-        _desc = self.__class__(_desc, self._config).lines()
-        return _type, _desc  # type: ignore
+        _descs = [_desc] + self._dedent(self._consume_to_end())
+        _descs = self.__class__(_descs, self._config).lines()
+        return _type, _descs
 
     def _consume_returns_section(self):
         # type: () -> List[Tuple[unicode, unicode, List[unicode]]]
@@ -326,13 +326,13 @@ class GoogleDocstring(UnicodeMixin):
     def _fix_field_desc(self, desc):
         # type: (List[unicode]) -> List[unicode]
         if self._is_list(desc):
-            desc = [''] + desc  # type: ignore
+            desc = [u''] + desc
         elif desc[0].endswith('::'):
             desc_block = desc[1:]
             indent = self._get_indent(desc[0])
             block_indent = self._get_initial_indent(desc_block)
             if block_indent > indent:
-                desc = [''] + desc  # type: ignore
+                desc = [u''] + desc
             else:
                 desc = ['', desc[0]] + self._indent(desc_block, 4)
         return desc
@@ -344,9 +344,9 @@ class GoogleDocstring(UnicodeMixin):
             return ['.. %s:: %s' % (admonition, lines[0].strip()), '']
         elif lines:
             lines = self._indent(self._dedent(lines), 3)
-            return ['.. %s::' % admonition, ''] + lines + ['']  # type: ignore
+            return [u'.. %s::' % admonition, u''] + lines + [u'']
         else:
-            return ['.. %s::' % admonition, '']
+            return [u'.. %s::' % admonition, u'']
 
     def _format_block(self, prefix, lines, padding=None):
         # type: (unicode, List[unicode], unicode) -> List[unicode]
@@ -566,8 +566,8 @@ class GoogleDocstring(UnicodeMixin):
                     lines.append(':vartype %s: %s' % (_name, _type))
             else:
                 lines.extend(['.. attribute:: ' + _name, ''])
-                field = self._format_field('', _type, _desc)  # type: ignore
-                lines.extend(self._indent(field, 3))  # type: ignore
+                fields = self._format_field('', _type, _desc)
+                lines.extend(self._indent(fields, 3))
                 lines.append('')
         if self._config.napoleon_use_ivar:
             lines.append('')
@@ -617,7 +617,7 @@ class GoogleDocstring(UnicodeMixin):
         for _name, _, _desc in self._consume_fields(parse_type=False):
             lines.append('.. method:: %s' % _name)
             if _desc:
-                lines.extend([''] + self._indent(_desc, 3))  # type: ignore
+                lines.extend([u''] + self._indent(_desc, 3))
             lines.append('')
         return lines
 

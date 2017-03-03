@@ -22,7 +22,7 @@ from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, Tuple, Union  # NOQA
+    from typing import Any, Callable, Iterable, List, Set, Tuple, Union  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.utils.tags import Tags  # NOQA
 
@@ -182,6 +182,7 @@ def find_source_node(node):
     for pnode in traverse_parent(node):
         if pnode.source:
             return pnode.source
+    return None
 
 
 def traverse_parent(node, cls=None):

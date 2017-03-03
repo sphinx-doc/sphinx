@@ -34,7 +34,7 @@ from sphinx.util.smartypants import educate_quotes_latex
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterator, Pattern, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Pattern, Tuple, Set, Union  # NOQA
     from sphinx.builder import Builder  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -823,7 +823,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def generate_indices(self):
         # type: (Builder) -> unicode
         def generate(content, collapsed):
-            # type: (List[Tuple[unicode, List[Tuple[unicode, unicode, unicode, unicode, unicode]]]], bool) -> unicode  # NOQA
+            # type: (List[Tuple[unicode, List[Tuple[unicode, unicode, unicode, unicode, unicode]]]], bool) -> None  # NOQA
             ret.append('\\begin{sphinxtheindex}\n')
             ret.append('\\def\\bigletter#1{{\\Large\\sffamily#1}'
                        '\\nopagebreak\\vspace{1mm}}\n')
@@ -1666,6 +1666,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             return rstdim_to_latexdim(width_str)
         except ValueError:
             logger.warning('dimension unit %s is invalid. Ignored.', width_str)
+            return None
 
     def is_inline(self, node):
         # type: (nodes.Node) -> bool

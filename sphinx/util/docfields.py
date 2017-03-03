@@ -17,7 +17,7 @@ from sphinx import addnodes
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.domains import Domain  # NOQA
 
 

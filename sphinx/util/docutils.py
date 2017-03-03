@@ -24,10 +24,9 @@ logger = logging.getLogger(__name__)
 report_re = re.compile('^(.+?:\\d+): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) '
                        '(.+?)\n?$')
 
-
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterator, Tuple  # NOQA
+    from typing import Any, Callable, Iterator, List, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 

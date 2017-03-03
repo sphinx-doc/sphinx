@@ -28,7 +28,7 @@ from sphinx.util.docutils import LoggingReporter
 
 if False:
     # For type annotation
-    from typing import Any, Tuple, Union  # NOQA
+    from typing import Any, Dict, List, Tuple, Union  # NOQA
     from docutils import nodes  # NOQA
     from docutils.io import Input  # NOQA
     from docutils.parsers import Parser  # NOQA

@@ -31,7 +31,7 @@ import subprocess
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 

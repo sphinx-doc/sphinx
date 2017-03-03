@@ -31,7 +31,7 @@ from sphinx.locale import pairindextypes
 
 if False:
     # For type annotation
-    from typing import Any, Iterable, Tuple  # NOQA
+    from typing import Any, Dict, Iterable, List, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.util.i18n import CatalogInfo  # NOQA
     from sphinx.application import Sphinx  # NOQA
@@ -258,7 +258,7 @@ class MessageCatalogBuilder(I18nBuilder):
             version = self.config.version,
             copyright = self.config.copyright,
             project = self.config.project,
-            ctime = datetime.fromtimestamp(  # type: ignore
+            ctime = datetime.fromtimestamp(
                 timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
         )
         for textdomain, catalog in status_iterator(iteritems(self.catalogs),  # type: ignore

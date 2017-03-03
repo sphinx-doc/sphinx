@@ -28,7 +28,7 @@ from sphinx.util.osutil import abspath
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, List, Tuple  # NOQA
 
 
 class BuildDoc(Command):

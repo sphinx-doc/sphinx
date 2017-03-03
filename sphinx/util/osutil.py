@@ -25,7 +25,7 @@ from six import PY2, PY3, text_type
 
 if False:
     # For type annotation
-    from typing import Any, Iterator, Tuple, Union  # NOQA
+    from typing import Any, Iterator, List, Tuple, Union  # NOQA
 
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)
