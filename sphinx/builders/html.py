@@ -918,7 +918,7 @@ class StandaloneHTMLBuilder(Builder):
     def dump_inventory(self):
         # type: () -> None
         def safe_name(string):
-            return re.sub("\s+", " ", string)
+            return re.sub(r"\s+", " ", string)
 
         logger.info(bold('dumping object inventory... '), nonl=True)
         with open(path.join(self.outdir, INVENTORY_FILENAME), 'wb') as f:
