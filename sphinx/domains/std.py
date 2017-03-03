@@ -12,7 +12,7 @@
 import re
 import unicodedata
 
-from six import PY3, iteritems
+from six import iteritems
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
