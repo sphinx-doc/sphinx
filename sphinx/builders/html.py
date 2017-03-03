@@ -12,7 +12,6 @@
 import os
 import re
 import sys
-import zlib
 import codecs
 import posixpath
 from os import path
