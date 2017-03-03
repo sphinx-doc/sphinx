@@ -25,7 +25,7 @@ from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Sequence  # NOQA
+    from typing import Any, Callable, Dict, List, Sequence  # NOQA
 
 logger = logging.getLogger(__name__)
 

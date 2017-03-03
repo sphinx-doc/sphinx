@@ -23,7 +23,7 @@ except ImportError:
 
 if False:
     # For type annotation
-    from typing import Tuple  # NOQA
+    from typing import Dict, List, Tuple  # NOQA
 
 mime_suffixes = {
     '.pdf': 'application/pdf',

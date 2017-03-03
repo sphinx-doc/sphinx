@@ -45,7 +45,7 @@ except ImportError:
     from md5 import md5  # type: ignore
 
 from six import text_type
-from six.moves import builtins  # type: ignore
+from six.moves import builtins
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -58,7 +58,7 @@ from sphinx.util import force_decode
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 

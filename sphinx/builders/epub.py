@@ -38,7 +38,7 @@ from sphinx.util.smartypants import sphinx_smarty_pants as ssp
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 

@@ -29,7 +29,7 @@ from sphinx.pygments_styles import SphinxStyle, NoneStyle
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import Any, Dict  # NOQA
     from pygments.formatter import Formatter  # NOQA
 
 

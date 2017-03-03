@@ -44,7 +44,7 @@ from sphinx.util import texescape
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Pattern  # NOQA
+    from typing import Any, Callable, Dict, List, Pattern  # NOQA
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
@@ -108,11 +108,11 @@ def nonempty(x):
 
 
 def choice(*l):
-    # type: (List[unicode]) -> Callable[[unicode], unicode]
+    # type: (unicode) -> Callable[[unicode], unicode]
     def val(x):
         # type: (unicode) -> unicode
         if x not in l:
-            raise ValidationError('Please enter one of %s.' % ', '.join(l))  # type: ignore
+            raise ValidationError('Please enter one of %s.' % ', '.join(l))
         return x
     return val
 
@@ -708,6 +708,7 @@ def main(argv=sys.argv):
             print('Invalid template variable: %s' % variable)
 
     generate(d, templatedir=opts.templatedir)
+    return 0
 
 
 if __name__ == '__main__':

@@ -23,7 +23,7 @@ from sphinx.search.jssplitter import splitter_code
 
 if False:
     # For type annotation
-    from typing import Any, IO, Iterable, Tuple, Type  # NOQA
+    from typing import Any, Dict, IO, Iterable, List, Tuple, Type, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
@@ -63,7 +63,7 @@ var Stemmer = function() {
     return w;
   }
 }
-"""
+"""                             # type: unicode
 
     _word_re = re.compile(r'\w+(?u)')
 
@@ -287,7 +287,7 @@ class IndexBuilder(object):
         # type: (IO, Any) -> None
         """Reconstruct from frozen data."""
         if isinstance(format, string_types):
-            format = self.formats[format]  # type: ignore
+            format = self.formats[format]
         frozen = format.load(stream)
         # if an old index is present, we treat it as not existing.
         if not isinstance(frozen, dict) or \
@@ -315,7 +315,7 @@ class IndexBuilder(object):
         # type: (IO, Any) -> None
         """Dump the frozen index to a stream."""
         if isinstance(format, string_types):
-            format = self.formats[format]  # type: ignore
+            format = self.formats[format]
         format.dump(self.freeze(), stream)
 
     def get_objects(self, fn2index):
@@ -456,3 +456,5 @@ class IndexBuilder(object):
                 'non-minified-js',
                 self.lang.js_stemmer_rawcode
             )
+        else:
+            return None

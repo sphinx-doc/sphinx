@@ -24,7 +24,7 @@ from sphinx.util.pycompat import execfile_, NoneType
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, Iterator, Tuple  # NOQA
+    from typing import Any, Callable, Dict, Iterable, Iterator, List, Tuple  # NOQA
     from sphinx.util.tags import Tags  # NOQA
 
 logger = logging.getLogger(__name__)
@@ -237,10 +237,10 @@ class Config(object):
                                  'ignoring (use %r to set individual elements)' %
                                  (name, name + '.key=value'))
             elif isinstance(defvalue, list):
-                return value.split(',')  # type: ignore
+                return value.split(',')
             elif isinstance(defvalue, integer_types):
                 try:
-                    return int(value)  # type: ignore
+                    return int(value)
                 except ValueError:
                     raise ValueError('invalid number %r for config value %r, ignoring' %
                                      (value, name))

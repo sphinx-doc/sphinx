@@ -28,7 +28,7 @@ from sphinx.util.nodes import set_source_info
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 

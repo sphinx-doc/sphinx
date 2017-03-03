@@ -27,7 +27,7 @@ from sphinx.writers.manpage import ManualPageWriter
 
 if False:
     # For type annotation
-    from typing import Any, Union  # NOQA
+    from typing import Any, Dict, List, Set, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 

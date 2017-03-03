@@ -26,7 +26,7 @@ from sphinx.util.images import guess_mimetype
 
 if False:
     # For type annotation
-    from typing import Tuple  # NOQA
+    from typing import Dict, List, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.sphinx import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA

@@ -11,7 +11,7 @@ from sphinx.pycode.pgen2 import grammar, token, tokenize
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
 
 
 class PgenGrammar(grammar.Grammar):

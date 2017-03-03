@@ -16,7 +16,7 @@ env = Environment()
 
 if False:
     # For type annotation
-    from typing import Iterator  # NOQA
+    from typing import Iterator, List  # NOQA
 
 
 class BooleanParser(Parser):

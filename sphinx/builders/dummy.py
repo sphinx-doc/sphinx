@@ -14,7 +14,7 @@ from sphinx.builders import Builder
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import Any, Dict, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

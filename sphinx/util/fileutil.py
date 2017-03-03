@@ -18,7 +18,7 @@ from sphinx.util.osutil import copyfile, ensuredir, walk
 
 if False:
     # For type annotation
-    from typing import Callable, Union  # NOQA
+    from typing import Callable, Dict, Union  # NOQA
     from sphinx.util.matching import Matcher  # NOQA
     from sphinx.util.template import BaseRenderer  # NOQA
 

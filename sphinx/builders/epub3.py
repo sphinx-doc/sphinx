@@ -22,7 +22,7 @@ from sphinx.util.fileutil import copy_asset_file
 
 if False:
     # For type annotation
-    from typing import Any, Iterable  # NOQA
+    from typing import Any, Dict, Iterable, List  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

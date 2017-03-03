@@ -39,6 +39,10 @@ from sphinx.errors import SphinxError, ExtensionError
 from sphinx.search import SearchLanguage
 from sphinx.util import import_object
 
+if False:
+    # For type annotation
+    from typing import Dict, List  # NOQA
+
 
 class BaseSplitter(object):
 

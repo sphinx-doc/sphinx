@@ -12,13 +12,13 @@
 import re
 
 from six import PY3, binary_type
-from six.moves import builtins  # type: ignore
+from six.moves import builtins
 
 from sphinx.util import force_decode
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Tuple, Type  # NOQA
+    from typing import Any, Callable, List, Tuple, Type  # NOQA
 
 # this imports the standard library inspect module without resorting to
 # relatively import this module

@@ -20,7 +20,7 @@ from sphinx.util import iteritems, split_into, logging
 
 if False:
     # For type annotation
-    from typing import Any, Pattern, Tuple  # NOQA
+    from typing import Any, Dict, Pattern, List, Tuple  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 

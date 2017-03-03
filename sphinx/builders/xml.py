@@ -22,7 +22,7 @@ from sphinx.writers.xml import XMLWriter, PseudoXMLWriter
 
 if False:
     # For type annotation
-    from typing import Any, Iterator  # NOQA
+    from typing import Any, Dict, Iterator, Set  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 logger = logging.getLogger(__name__)

@@ -21,6 +21,10 @@ from os import path
 
 from .deprecation import RemovedInNextVersionWarning
 
+if False:
+    # For type annotation
+    from typing import List  # NOQA
+
 # by default, all DeprecationWarning under sphinx package will be emit.
 # Users can avoid this by using environment variable: PYTHONWARNINGS=
 if 'PYTHONWARNINGS' not in os.environ:

@@ -13,7 +13,7 @@ from docutils import nodes
 
 if False:
     # For type annotation
-    from typing import Sequence  # NOQA
+    from typing import List, Sequence  # NOQA
 
 
 class translatable(object):

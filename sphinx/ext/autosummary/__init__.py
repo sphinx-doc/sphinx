@@ -76,7 +76,7 @@ from sphinx.ext.autodoc import Options
 
 if False:
     # For type annotation
-    from typing import Any, Tuple, Type, Union  # NOQA
+    from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
     from docutils.utils import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -546,8 +546,7 @@ def _import_by_name(name):
 
 # -- :autolink: (smart default role) -------------------------------------------
 
-def autolink_role(typ, rawtext, etext, lineno, inliner,
-                  options={}, content=[]):
+def autolink_role(typ, rawtext, etext, lineno, inliner, options={}, content=[]):
     # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
     """Smart linking role.
 
@@ -555,6 +554,7 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
     otherwise expands to '*text*'.
     """
     env = inliner.document.settings.env
+    r = None  # type: Tuple[List[nodes.Node], List[nodes.Node]]
     r = env.get_domain('py').role('obj')(
         'obj', rawtext, etext, lineno, inliner, options, content)
     pnode = r[0][0]
@@ -563,9 +563,9 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
     try:
         name, obj, parent, modname = import_by_name(pnode['reftarget'], prefixes)
     except ImportError:
-        content = pnode[0]
-        r[0][0] = nodes.emphasis(rawtext, content[0].astext(),  # type: ignore
-                                 classes=content['classes'])  # type: ignore
+        content_node = pnode[0]
+        r[0][0] = nodes.emphasis(rawtext, content_node[0].astext(),
+                                 classes=content_node['classes'])
     return r
 
 
@@ -581,7 +581,7 @@ def get_rst_suffix(app):
         return parser_class.supported
 
     suffix = None  # type: unicode
-    for suffix in app.config.source_suffix:  # type: ignore
+    for suffix in app.config.source_suffix:
         if 'restructuredtext' in get_supported_format(suffix):
             return suffix
 

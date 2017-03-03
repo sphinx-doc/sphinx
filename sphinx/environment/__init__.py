@@ -51,7 +51,7 @@ from sphinx.environment.adapters.toctree import TocTree
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterator, Pattern, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Pattern, Set, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
@@ -320,8 +320,8 @@ class BuildEnvironment(object):
         if filename.startswith(self.srcdir):
             filename = filename[len(self.srcdir) + 1:]
         for suffix in self.config.source_suffix:
-            if fnmatch.fnmatch(filename, '*' + suffix):  # type: ignore
-                return filename[:-len(suffix)]  # type: ignore
+            if fnmatch.fnmatch(filename, '*' + suffix):
+                return filename[:-len(suffix)]
         else:
             # the file does not have docname
             return None
@@ -338,14 +338,14 @@ class BuildEnvironment(object):
         docname = docname.replace(SEP, path.sep)
         if suffix is None:
             candidate_suffix = None  # type: unicode
-            for candidate_suffix in self.config.source_suffix:  # type: ignore
+            for candidate_suffix in self.config.source_suffix:
                 if path.isfile(path.join(self.srcdir, docname) +
                                candidate_suffix):
                     suffix = candidate_suffix
                     break
             else:
                 # document does not exist
-                suffix = self.config.source_suffix[0]  # type: ignore
+                suffix = self.config.source_suffix[0]
         if base is True:
             return path.join(self.srcdir, docname) + suffix
         elif base is None:

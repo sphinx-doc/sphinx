@@ -25,7 +25,7 @@ from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
 if False:
     # For type annotation
-    from typing import Any, Iterable  # NOQA
+    from typing import Any, Dict, Iterable, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 

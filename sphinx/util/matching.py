@@ -13,7 +13,7 @@ import re
 
 if False:
     # For type annotation
-    from typing import Callable, Match, Pattern  # NOQA
+    from typing import Callable, Dict, List, Match, Pattern  # NOQA
 
 
 def _translate_pattern(pat):

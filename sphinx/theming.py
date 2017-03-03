@@ -16,8 +16,7 @@ import tempfile
 from os import path
 
 from six import string_types, iteritems
-from six.moves import configparser  # type: ignore
-from typing import Any, Callable, Tuple  # NOQA
+from six.moves import configparser
 
 try:
     import pkg_resources
@@ -32,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Tuple  # NOQA
+    from typing import Any, Callable, Dict, List, Tuple  # NOQA
 
 NODEFAULT = object()
 THEMECONF = 'theme.conf'
@@ -148,7 +147,7 @@ class Theme(object):
                     fp.write(tinfo.read(name))
 
         self.themeconf = configparser.RawConfigParser()
-        self.themeconf.read(path.join(self.themedir, THEMECONF))
+        self.themeconf.read(path.join(self.themedir, THEMECONF))  # type: ignore
 
         try:
             inherit = self.themeconf.get('theme', 'inherit')
@@ -172,7 +171,7 @@ class Theme(object):
         base theme chain.
         """
         try:
-            return self.themeconf.get(section, name)
+            return self.themeconf.get(section, name)  # type: ignore
         except (configparser.NoOptionError, configparser.NoSectionError):
             if self.base is not None:
                 return self.base.get_confstr(section, name, default)
@@ -245,7 +244,7 @@ def load_theme_plugins():
             path = func_or_path
 
         if isinstance(path, string_types):
-            theme_paths.append(path)  # type: ignore
+            theme_paths.append(path)
         else:
             raise ThemeError('Plugin %r does not response correctly.' %
                              plugin.module_name)
