@@ -134,14 +134,16 @@ class InventoryFile(object):
         # type: (unicode, BuildEnvironment, Builder) -> None
         def escape(string):
             # type: (unicode) -> unicode
-            return re.sub("\s+", " ", string).encode('utf-8')
+            return re.sub("\\s+", " ", string)
 
         with open(os.path.join(filename), 'wb') as f:
             # header
-            f.write('# Sphinx inventory version 2\n')
-            f.write('# Project: %s\n' % escape(env.config.project))
-            f.write('# Version: %s\n' % escape(env.config.version))
-            f.write('# The remainder of this file is compressed using zlib.\n')
+            f.write((u'# Sphinx inventory version 2\n'
+                     u'# Project: %s\n'
+                     u'# Version: %s\n'
+                     u'# The remainder of this file is compressed using zlib.\n' %
+                     (escape(env.config.project),
+                      escape(env.config.version))).encode('utf-8'))
 
             # body
             compressor = zlib.compressobj(9)

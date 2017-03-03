@@ -1156,9 +1156,9 @@ def test_html_entity(app):
 @pytest.mark.sphinx('html', testroot='basic')
 def test_html_inventory(app):
     app.builder.build_all()
-    with open(app.outdir / 'objects.inv') as f:
+    with open(app.outdir / 'objects.inv', 'rb') as f:
         invdata = InventoryFile.load(f, 'http://example.com', os.path.join)
-    assert invdata.keys() == ['std:label', 'std:doc']
+    assert set(invdata.keys()) == {'std:label', 'std:doc'}
     assert set(invdata['std:label'].keys()) == {'modindex', 'genindex', 'search'}
     assert invdata['std:label']['modindex'] == ('Python',
                                                 '',
@@ -1172,7 +1172,7 @@ def test_html_inventory(app):
                                               '',
                                               'http://example.com/search.html',
                                               'Search Page')
-    assert invdata['std:doc'].keys() == ['index']
+    assert set(invdata['std:doc'].keys()) == {'index'}
     assert invdata['std:doc']['index'] == ('Python',
                                            '',
                                            'http://example.com/index.html',
