@@ -27,12 +27,9 @@
 from __future__ import print_function
 
 import time
-import zlib
-import codecs
 import functools
 import posixpath
 from os import path
-import re
 
 from six import PY3, iteritems, string_types
 from six.moves.urllib.parse import urlsplit, urlunsplit
@@ -44,10 +41,11 @@ import sphinx
 from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
 from sphinx.util import requests, logging
+from sphinx.util.inventory import InventoryFile
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterator, List, Tuple, Union  # NOQA
+    from typing import Any, Dict, IO, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -58,8 +56,6 @@ if False:
     Inventory = Dict[unicode, Dict[unicode, Tuple[unicode, unicode, unicode, unicode]]]
 
 logger = logging.getLogger(__name__)
-
-UTF8StreamReader = codecs.lookup('utf-8')[2]
 
 
 class InventoryAdapter(object):
@@ -91,90 +87,6 @@ class InventoryAdapter(object):
     def clear(self):
         self.env.intersphinx_inventory.clear()
         self.env.intersphinx_named_inventory.clear()
-
-
-def read_inventory_v1(f, uri, join):
-    # type: (IO, unicode, Callable) -> Inventory
-    f = UTF8StreamReader(f)
-    invdata = {}  # type: Inventory
-    line = next(f)
-    projname = line.rstrip()[11:]
-    line = next(f)
-    version = line.rstrip()[11:]
-    for line in f:
-        name, type, location = line.rstrip().split(None, 2)
-        location = join(uri, location)
-        # version 1 did not add anchors to the location
-        if type == 'mod':
-            type = 'py:module'
-            location += '#module-' + name
-        else:
-            type = 'py:' + type
-            location += '#' + name
-        invdata.setdefault(type, {})[name] = (projname, version, location, '-')
-    return invdata
-
-
-def read_inventory_v2(f, uri, join, bufsize=16 * 1024):
-    # type: (IO, unicode, Callable, int) -> Inventory
-    invdata = {}  # type: Inventory
-    line = f.readline()
-    projname = line.rstrip()[11:].decode('utf-8')
-    line = f.readline()
-    version = line.rstrip()[11:].decode('utf-8')
-    line = f.readline().decode('utf-8')
-    if 'zlib' not in line:
-        raise ValueError
-
-    def read_chunks():
-        # type: () -> Iterator[bytes]
-        decompressor = zlib.decompressobj()
-        for chunk in iter(lambda: f.read(bufsize), b''):
-            yield decompressor.decompress(chunk)
-        yield decompressor.flush()
-
-    def split_lines(iter):
-        # type: (Iterator[bytes]) -> Iterator[unicode]
-        buf = b''
-        for chunk in iter:
-            buf += chunk
-            lineend = buf.find(b'\n')
-            while lineend != -1:
-                yield buf[:lineend].decode('utf-8')
-                buf = buf[lineend + 1:]
-                lineend = buf.find(b'\n')
-        assert not buf
-
-    for line in split_lines(read_chunks()):
-        # be careful to handle names with embedded spaces correctly
-        m = re.match(r'(?x)(.+?)\s+(\S*:\S*)\s+(-?\d+)\s+(\S+)\s+(.*)',
-                     line.rstrip())
-        if not m:
-            continue
-        name, type, prio, location, dispname = m.groups()
-        if type == 'py:module' and type in invdata and \
-                name in invdata[type]:  # due to a bug in 1.1 and below,
-                                        # two inventory entries are created
-                                        # for Python modules, and the first
-                                        # one is correct
-            continue
-        if location.endswith(u'$'):
-            location = location[:-1] + name
-        location = join(uri, location)
-        invdata.setdefault(type, {})[name] = (projname, version,
-                                              location, dispname)
-    return invdata
-
-
-def read_inventory(f, uri, join, bufsize=16 * 1024):
-    # type: (IO, unicode, Callable, int) -> Inventory
-    line = f.readline().rstrip().decode('utf-8')
-    if line == '# Sphinx inventory version 1':
-        return read_inventory_v1(f, uri, join)
-    elif line == '# Sphinx inventory version 2':
-        return read_inventory_v2(f, uri, join, bufsize=bufsize)
-    else:
-        raise ValueError('unknown inventory header: %s' % line)
 
 
 def _strip_basic_auth(url):
@@ -280,7 +192,7 @@ def fetch_inventory(app, uri, inv):
         with f:
             try:
                 join = localuri and path.join or posixpath.join
-                invdata = read_inventory(f, uri, join)
+                invdata = InventoryFile.load(f, uri, join)
             except ValueError as exc:
                 raise ValueError('unknown or unsupported inventory version: %r' % exc)
     except Exception as err:
