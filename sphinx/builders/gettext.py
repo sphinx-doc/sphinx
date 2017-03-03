@@ -195,7 +195,7 @@ ltz = LocalTimeZone()
 def should_write(filepath, new_content):
     if not path.exists(filepath):
         return True
-    with open(filepath, 'r', encoding='utf-8') as oldpot:
+    with open(filepath, 'r', encoding='utf-8') as oldpot:  # type: ignore
         old_content = oldpot.read()
         old_header_index = old_content.index('"POT-Creation-Date:')
         new_header_index = old_content.index('"POT-Creation-Date:')
@@ -271,32 +271,32 @@ class MessageCatalogBuilder(I18nBuilder):
 
             pofn = path.join(self.outdir, textdomain + '.pot')
             output = StringIO()
-            output.write(POHEADER % data)
+            output.write(POHEADER % data)  # type: ignore
 
             for message in catalog.messages:
                 positions = catalog.metadata[message]
 
                 if self.config.gettext_location:
                     # generate "#: file1:line1\n#: file2:line2 ..."
-                    output.write("#: %s\n" % "\n#: ".join(
+                    output.write("#: %s\n" % "\n#: ".join(  # type: ignore
                         "%s:%s" % (canon_path(
                             safe_relpath(source, self.outdir)), line)
                         for source, line, _ in positions))
                 if self.config.gettext_uuid:
                     # generate "# uuid1\n# uuid2\n ..."
-                    output.write("# %s\n" % "\n# ".join(
+                    output.write("# %s\n" % "\n# ".join(  # type: ignore
                         uid for _, _, uid in positions))
 
                 # message contains *one* line of text ready for translation
                 message = message.replace('\\', r'\\'). \
                     replace('"', r'\"'). \
                     replace('\n', '\\n"\n"')
-                output.write('msgid "%s"\nmsgstr ""\n\n' % message)
+                output.write('msgid "%s"\nmsgstr ""\n\n' % message)  # type: ignore
 
             content = output.getvalue()
 
             if should_write(pofn, content):
-                with open(pofn, 'w', encoding='utf-8') as pofile:
+                with open(pofn, 'w', encoding='utf-8') as pofile:  # type: ignore
                     pofile.write(content)
 
 
