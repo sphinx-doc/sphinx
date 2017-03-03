@@ -24,6 +24,7 @@ Bugs fixed
 * #2073, #3443, #3490: gettext builder that writes pot files unless the content
   are same without creation date. Thanks to Yoshiki Shibukawa.
 * #3487: intersphinx: failed to refer options
+* #3496: latex longtable's last column may be much wider than its contents
 
 Testing
 --------
