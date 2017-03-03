@@ -204,7 +204,7 @@ def loads(x):
                     obj[keys[-1]] = y
                     key = False
             else:
-                obj.append(y)  # type: ignore
+                obj.append(y)
     if obj is nothing:
         raise ValueError("nothing loaded from string")
     return obj
