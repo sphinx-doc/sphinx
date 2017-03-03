@@ -29,7 +29,7 @@ from sphinx.quickstart import EXTENSIONS
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, List, Tuple  # NOQA
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
@@ -274,7 +274,7 @@ def is_excluded(root, excludes):
           e.g. an exlude "foo" also accidentally excluding "foobar".
     """
     for exclude in excludes:
-        if fnmatch(root, exclude):  # type: ignore
+        if fnmatch(root, exclude):
             return True
     return False
 
@@ -427,6 +427,7 @@ Note: By default this script will not overwrite already created files.""")
             qs.generate(d, silent=True, overwrite=opts.force)
     elif not opts.notoc:
         create_modules_toc_file(modules, opts)
+    return 0
 
 
 # So program can be started with "python -m sphinx.apidoc ..."

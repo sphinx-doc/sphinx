@@ -29,7 +29,7 @@ class SphinxJSONEncoder(json.JSONEncoder):
 
 
 def dump(obj, fp, *args, **kwds):
-    # type: (Any, IO, Any, Any) -> unicode
+    # type: (Any, IO, Any, Any) -> None
     kwds['cls'] = SphinxJSONEncoder
     json.dump(obj, fp, *args, **kwds)
 

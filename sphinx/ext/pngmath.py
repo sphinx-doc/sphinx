@@ -33,7 +33,7 @@ from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, Dict, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.ext.mathbase import math as math_node, displaymath  # NOQA
 

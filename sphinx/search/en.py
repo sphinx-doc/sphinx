@@ -12,7 +12,11 @@
 from sphinx.search import SearchLanguage
 from sphinx.util.stemmer import get_stemmer
 
-english_stopwords = set("""
+if False:
+    # For type annotation
+    from typing import Dict  # NOQA
+
+english_stopwords = set(u"""
 a  and  are  as  at
 be  but  by
 for

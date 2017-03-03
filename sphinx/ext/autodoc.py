@@ -40,7 +40,7 @@ from sphinx.util.docstrings import prepare_docstring
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterator, Sequence, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union  # NOQA
     from types import ModuleType  # NOQA
     from docutils.utils import Reporter  # NOQA
     from sphinx.application import Sphinx  # NOQA
@@ -482,7 +482,7 @@ class Documenter(object):
     #: true if the generated content may contain titles
     titles_allowed = False
 
-    option_spec = {'noindex': bool_option}
+    option_spec = {'noindex': bool_option}  # type: Dict[unicode, Callable]
 
     @staticmethod
     def get_attr(obj, name, *defargs):
@@ -1081,7 +1081,7 @@ class ModuleDocumenter(Documenter):
         'member-order': identity, 'exclude-members': members_set_option,
         'private-members': bool_option, 'special-members': members_option,
         'imported-members': bool_option,
-    }
+    }  # type: Dict[unicode, Callable]
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
@@ -1333,7 +1333,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'show-inheritance': bool_option, 'member-order': identity,
         'exclude-members': members_set_option,
         'private-members': bool_option, 'special-members': members_option,
-    }
+    }  # type: Dict[unicode, Callable]
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):

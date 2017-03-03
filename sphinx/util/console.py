@@ -19,6 +19,11 @@ try:
 except ImportError:
     colorama = None
 
+if False:
+    # For type annotation
+    from typing import Dict  # NOQA
+
+
 _ansi_re = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
 codes = {}  # type: Dict[str, str]
 

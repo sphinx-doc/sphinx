@@ -31,7 +31,7 @@ from sphinx.writers.texinfo import TexinfoWriter
 if False:
     # For type annotation
     from sphinx.application import Sphinx  # NOQA
-    from typing import Any, Iterable, Tuple, Union  # NOQA
+    from typing import Any, Dict, Iterable, List, Tuple, Union  # NOQA
 
 
 logger = logging.getLogger(__name__)

@@ -29,7 +29,7 @@ from sphinx.util.docfields import Field, GroupedField
 
 if False:
     # For type annotation
-    from typing import Any, Iterator, Match, Pattern, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Match, Pattern, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
@@ -539,7 +539,7 @@ class ASTBase(UnicodeMixin):
         # type: (Any) -> bool
         return not self.__eq__(other)
 
-    __hash__ = None  # type: None
+    __hash__ = None  # type: Callable[[], int]
 
     def clone(self):
         # type: () -> ASTBase
@@ -3292,7 +3292,7 @@ class DefinitionParser(object):
         return DefinitionError(''.join(result))
 
     def status(self, msg):
-        # type: (unicode) -> unicode
+        # type: (unicode) -> None
         # for debugging
         indicator = '-' * self.pos + '^'
         print("%s\n%s\n%s" % (msg, self.definition, indicator))
@@ -3373,6 +3373,8 @@ class DefinitionParser(object):
         # type: () -> unicode
         if self.last_match is not None:
             return self.last_match.group()
+        else:
+            return None
 
     def read_rest(self):
         # type: () -> unicode

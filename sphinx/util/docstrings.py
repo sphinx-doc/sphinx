@@ -11,6 +11,10 @@
 
 import sys
 
+if False:
+    # For type annotation
+    from typing import List  # NOQA
+
 
 def prepare_docstring(s, ignore=1):
     # type: (unicode, int) -> List[unicode]

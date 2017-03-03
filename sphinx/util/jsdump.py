@@ -18,7 +18,7 @@ from sphinx.util.pycompat import u
 
 if False:
     # For type annotation
-    from typing import Any, IO, Match, Union  # NOQA
+    from typing import Any, Dict, IO, List, Match, Union  # NOQA
 
 _str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
 _int_re = re.compile(r'\d+')
@@ -124,7 +124,7 @@ def loads(x):
     i = 0
     n = len(x)
     stack = []  # type: List[Union[List, Dict]]
-    obj = nothing
+    obj = nothing  # type: Any
     key = False
     keys = []
     while i < n:

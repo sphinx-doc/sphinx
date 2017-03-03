@@ -19,7 +19,7 @@ from sphinx.util.nodes import clean_astext, process_only_nodes
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import Any, Dict, List  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 

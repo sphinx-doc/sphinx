@@ -23,7 +23,7 @@ from sphinx.util.nodes import split_explicit_title, process_index_entry, \
 
 if False:
     # For type annotation
-    from typing import Any, Tuple, Type  # NOQA
+    from typing import Any, Dict, List, Tuple, Type  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -180,8 +180,7 @@ class AnyXRefRole(XRefRole):
         return result
 
 
-def indexmarkup_role(typ, rawtext, text, lineno, inliner,
-                     options={}, content=[]):
+def indexmarkup_role(typ, rawtext, text, lineno, inliner, options={}, content=[]):
     # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
     """Role for PEP/RFC references that generate an index entry."""
     env = inliner.document.settings.env
@@ -241,6 +240,8 @@ def indexmarkup_role(typ, rawtext, text, lineno, inliner,
                              classes=[typ])
         rn += sn
         return [indexnode, targetnode, rn], []
+    else:
+        raise ValueError('unknown role type: %s' % typ)
 
 
 _amp_re = re.compile(r'(?<!&)&(?![&\s])')

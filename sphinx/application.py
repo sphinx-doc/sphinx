@@ -51,7 +51,7 @@ from sphinx.util.i18n import find_catalog_source_files
 
 if False:
     # For type annotation
-    from typing import Any, Callable, IO, Iterable, Iterator, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Tuple, Type, Union  # NOQA
     from docutils.parsers import Parser  # NOQA
     from docutils.transform import Transform  # NOQA
     from sphinx.builders import Builder  # NOQA

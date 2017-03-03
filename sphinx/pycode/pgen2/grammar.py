@@ -21,7 +21,7 @@ from sphinx.pycode.pgen2 import token
 
 if False:
     # For type annotation
-    from typing import Tuple  # NOQA
+    from typing import Dict, List, Tuple  # NOQA
 
 
 class Grammar(object):

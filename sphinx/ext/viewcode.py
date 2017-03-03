@@ -24,7 +24,7 @@ from sphinx.util.nodes import make_refnode
 
 if False:
     # For type annotation
-    from typing import Any, Iterable, Iterator, Tuple  # NOQA
+    from typing import Any, Dict, Iterable, Iterator, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 

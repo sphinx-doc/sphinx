@@ -22,7 +22,7 @@ from sphinx.writers.websupport import WebSupportTranslator
 
 if False:
     # For type annotation
-    from typing import Any, Iterable, Tuple  # NOQA
+    from typing import Any, Dict, Iterable, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
 

@@ -22,7 +22,7 @@ docutils_version = tuple(int(x) for x in _du_version.split('.')[:2])
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import Any, Dict  # NOQA
 
 
 class _DeprecationWrapper(object):

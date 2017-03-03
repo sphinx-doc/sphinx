@@ -45,7 +45,7 @@ from sphinx.util.matching import patfilter  # noqa
 
 if False:
     # For type annotation
-    from typing import Any, Callable, IO, Iterable, Iterator, Pattern, Sequence, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Sequence, Set, Tuple, Union  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -109,7 +109,7 @@ def get_matching_docs(dirname, suffixes, exclude_matchers=()):
     suffixpatterns = ['*' + s for s in suffixes]
     for filename in get_matching_files(dirname, exclude_matchers):
         for suffixpattern in suffixpatterns:
-            if fnmatch.fnmatch(filename, suffixpattern):  # type: ignore
+            if fnmatch.fnmatch(filename, suffixpattern):
                 yield filename[:-len(suffixpattern) + 1]
                 break
 

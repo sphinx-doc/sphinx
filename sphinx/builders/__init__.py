@@ -32,7 +32,7 @@ from sphinx import directives  # noqa
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, Sequence, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -49,11 +49,11 @@ class Builder(object):
     """
 
     # builder's name, for the -b command line options
-    name = ''
+    name = ''  # type: unicode
     # builder's output format, or '' if no document output is produced
-    format = ''
+    format = ''  # type: unicode
     # doctree versioning method
-    versioning_method = 'none'
+    versioning_method = 'none'  # type: unicode
     versioning_compare = False
     # allow parallel write_doc() calls
     allow_parallel = False
@@ -88,7 +88,7 @@ class Builder(object):
         # basename of images directory
         self.imagedir = ""
         # relative path to image directory from current docname (used at writing docs)
-        self.imgpath = ""
+        self.imgpath = ""  # type: unicode
 
         # these get set later
         self.parallel_ok = False

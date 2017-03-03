@@ -18,6 +18,7 @@ from sphinx.locale import get_translator
 
 if False:
     # For type annotation
+    from typing import Dict  # NOQA
     from jinja2.loaders import BaseLoader  # NOQA
 
 

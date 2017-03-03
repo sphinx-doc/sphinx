@@ -16,7 +16,7 @@ from six.moves import UserString
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterator, Tuple  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Tuple  # NOQA
 
 
 class _TranslationProxy(UserString, object):

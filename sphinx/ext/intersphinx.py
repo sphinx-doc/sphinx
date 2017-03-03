@@ -47,7 +47,7 @@ from sphinx.util import requests, logging
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterator, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterator, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -173,6 +173,8 @@ def read_inventory(f, uri, join, bufsize=16 * 1024):
         return read_inventory_v1(f, uri, join)
     elif line == '# Sphinx inventory version 2':
         return read_inventory_v2(f, uri, join, bufsize=bufsize)
+    else:
+        raise ValueError('unknown inventory header: %s' % line)
 
 
 def _strip_basic_auth(url):
