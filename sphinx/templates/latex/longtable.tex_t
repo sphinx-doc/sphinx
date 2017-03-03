@@ -15,13 +15,13 @@
 \endfirsthead
 
 \multicolumn{<%= table.colcount %>}{c}%
-{{\sphinxtablecontinued{\tablename\ \thetable{} -- <%= _('continued from previous page') %>}}} \\
+{\makebox[0pt]{\sphinxtablecontinued{\tablename\ \thetable{} -- <%= _('continued from previous page') %>}}}\\
 \hline
 <%= ''.join(table.header) %>
 \endhead
 
 \hline
-\multicolumn{<%= table.colcount %>}{|r|}{{\sphinxtablecontinued{<%= _('Continued on next page') %>}}} \\
+\multicolumn{<%= table.colcount %>}{|r|}{\makebox[0pt][r]{\sphinxtablecontinued{<%= _('Continued on next page') %>}}}\\
 \hline
 \endfoot
 

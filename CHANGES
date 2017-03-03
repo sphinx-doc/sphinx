@@ -139,6 +139,9 @@ Bugs fixed
   except first time build
 * #3488: objects.inv has broken when ``release`` or ``version`` contain
   return code
+* #2073, #3443, #3490: gettext builder that writes pot files unless the content
+  are same without creation date. Thanks to Yoshiki Shibukawa.
+* #3487: intersphinx: failed to refer options
 
 Testing
 --------
