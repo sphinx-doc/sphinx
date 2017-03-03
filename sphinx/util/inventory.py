@@ -20,6 +20,8 @@ from sphinx.util import logging
 if False:
     # For type annotation
     from typing import Callable, Dict, IO, Iterator, Tuple  # NOQA
+    from sphinx.builders import Builder  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
 
     if PY3:
         unicode = str
