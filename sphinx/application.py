@@ -800,7 +800,7 @@ class Sphinx(object):
         # type: (unicode, unicode, unicode) -> None
         logger.debug('[app] adding stylesheet: %r', filename)
         from sphinx.builders.html import StandaloneHTMLBuilder
-        props = {} # type: Dict[unicode, Union[unicode, bool]]
+        props = {}  # type: Dict[unicode, Union[unicode, bool]]
         if alternate is not None:
             props['alternate'] = bool(alternate)
         if title is not None:
