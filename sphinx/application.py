@@ -797,7 +797,7 @@ class Sphinx(object):
                 posixpath.join('_static', filename))
 
     def add_stylesheet(self, filename, alternate=None, title=None):
-        # type: (unicode) -> None
+        # type: (unicode, unicode, unicode) -> None
         logger.debug('[app] adding stylesheet: %r', filename)
         from sphinx.builders.html import StandaloneHTMLBuilder
         props = {}
