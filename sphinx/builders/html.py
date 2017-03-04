@@ -115,7 +115,7 @@ class StandaloneHTMLBuilder(Builder):
                     '_static/doctools.js']  # type: List[unicode]
     # Ditto for these ones (Sphinx.add_stylesheet).
     css_files = []  # type: List[unicode]
-    css_props = {}  # type: Dict[unicode, unicode/bool]
+    css_props = {}  # type: Dict[unicode, Union[unicode, bool]]
 
     imgpath = None          # type: unicode
     domain_indices = []     # type: List[Tuple[unicode, Type[Index], List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]]  # NOQA
