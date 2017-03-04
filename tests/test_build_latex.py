@@ -492,7 +492,8 @@ def test_footnote(app, status, warning):
     assert ('Information about VIDIOC\\_CROPCAP %\n'
             '\\begin{footnote}[6]\\sphinxAtStartFootnote\n'
             'footnote in table not in header\n%\n\\end{footnote}\n\\\\\n\\hline\n'
-            '\\end{tabulary}\n\\end{threeparttable}\n\\par\n\\end{savenotes}\n') in result
+            '\\end{tabulary}\n\\end{threeparttable}\n'
+            '\\par\n\\sphinxattableend\\end{savenotes}\n') in result
 
 
 @pytest.mark.sphinx('latex', testroot='footnotes')
@@ -520,7 +521,7 @@ def test_reference_in_caption_and_codeblock_in_footnote(app, status, warning):
     assert ('\\caption{footnote \\sphinxfootnotemark[7] '
             'in caption of normal table}\\label{\\detokenize{index:id28}}') in result
     assert ('\\caption{footnote \\sphinxfootnotemark[8] '
-            'in caption \\sphinxfootnotemark[9] of longtable}') in result
+            'in caption \\sphinxfootnotemark[9] of longtable\\strut}') in result
     assert ('\\endlastfoot\n%\n\\begin{footnotetext}[8]\\sphinxAtStartFootnote\n'
             'Foot note in longtable\n%\n\\end{footnotetext}\\ignorespaces %\n'
             '\\begin{footnotetext}[9]\\sphinxAtStartFootnote\n'
@@ -845,58 +846,62 @@ def test_latex_table_tabulars(app, status, warning):
 
     # simple_table
     table = tables['simple table']
-    assert ('\\begin{savenotes}\n\\centering\n'
-            '\\begin{tabulary}{\\linewidth}{|T|T|}' in table)
+    assert ('\\begin{savenotes}\\sphinxattablestart\n\\centering\n'
+            '\\begin{tabulary}{\\linewidth}[t]{|T|T|}' in table)
     assert ('\\hline\n'
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
             '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax' in table)
     assert ('\\hline\ncell1-1\n&\ncell1-2\n\\\\' in table)
     assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
     assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
-    assert ('\\hline\n\\end{tabulary}\n\\par\n\\end{savenotes}' in table)
+    assert ('\\hline\n\\end{tabulary}\n\\par\n'
+            '\\sphinxattableend\\end{savenotes}' in table)
 
     # table having :widths: option
     table = tables['table having :widths: option']
-    assert ('\\begin{savenotes}\n\\centering\n'
-            '\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
-    assert ('\\hline\n\\end{tabular}\n\\par\n\\end{savenotes}' in table)
+    assert ('\\begin{savenotes}\\sphinxattablestart\n\\centering\n'
+            '\\begin{tabular}[t]{|\\X{30}{100}|\\X{70}{100}|}' in table)
+    assert ('\\hline\n\\end{tabular}\n\\par\n'
+            '\\sphinxattableend\\end{savenotes}' in table)
 
     # table having :align: option (tabulary)
     table = tables['table having :align: option (tabulary)']
-    assert ('\\begin{savenotes}\n\\raggedleft\n'
-            '\\begin{tabulary}{\\linewidth}{|T|T|}\n' in table)
-    assert ('\\hline\n\\end{tabulary}\n\\par\n\\end{savenotes}' in table)
+    assert ('\\begin{savenotes}\\sphinxattablestart\n\\raggedleft\n'
+            '\\begin{tabulary}{\\linewidth}[t]{|T|T|}\n' in table)
+    assert ('\\hline\n\\end{tabulary}\n\\par\n'
+            '\\sphinxattableend\\end{savenotes}' in table)
 
     # table having :align: option (tabular)
     table = tables['table having :align: option (tabular)']
-    assert ('\\begin{savenotes}\n\\raggedright\n'
-            '\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}\n' in table)
-    assert ('\\hline\n\\end{tabular}\n\\par\n\\end{savenotes}' in table)
+    assert ('\\begin{savenotes}\\sphinxattablestart\n\\raggedright\n'
+            '\\begin{tabular}[t]{|\\X{30}{100}|\\X{70}{100}|}\n' in table)
+    assert ('\\hline\n\\end{tabular}\n\\par\n'
+            '\\sphinxattableend\\end{savenotes}' in table)
 
     # table with tabularcolumn
     table = tables['table with tabularcolumn']
-    assert ('\\begin{tabulary}{\\linewidth}{|c|c|}' in table)
+    assert ('\\begin{tabulary}{\\linewidth}[t]{|c|c|}' in table)
 
     # table having caption
     table = tables['table having caption']
-    assert ('\\begin{savenotes}\n\\centering\n'
+    assert ('\\begin{savenotes}\\sphinxattablestart\n\\centering\n'
             '\\begin{threeparttable}\n\\capstart\\caption{caption for table}'
             '\\label{\\detokenize{tabular:id1}}' in table)
-    assert ('\\begin{tabulary}{\\linewidth}{|T|T|}' in table)
+    assert ('\\begin{tabulary}{\\linewidth}[t]{|T|T|}' in table)
     assert ('\\hline\n\\end{tabulary}\n\\end{threeparttable}'
-            '\n\\par\n\\end{savenotes}' in table)
+            '\n\\par\n\\sphinxattableend\\end{savenotes}' in table)
 
     # table having verbatim
     table = tables['table having verbatim']
-    assert ('\\begin{tabular}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+    assert ('\\begin{tabular}[t]{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
 
     # table having problematic cell
     table = tables['table having problematic cell']
-    assert ('\\begin{tabular}{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
+    assert ('\\begin{tabular}[t]{|*{2}{\\X{1}{2}|}}\n\\hline' in table)
 
     # table having both :widths: and problematic cell
     table = tables['table having both :widths: and problematic cell']
-    assert ('\\begin{tabular}{|\\X{30}{100}|\\X{70}{100}|}' in table)
+    assert ('\\begin{tabular}[t]{|\\X{30}{100}|\\X{70}{100}|}' in table)
 
 
 @pytest.mark.skipif(docutils.__version_info__ < (0, 13),
@@ -913,7 +918,8 @@ def test_latex_table_longtable(app, status, warning):
 
     # longtable
     table = tables['longtable']
-    assert ('\\begin{savenotes}\\begin{longtable}{|l|l|}\n\\hline' in table)
+    assert ('\\begin{savenotes}\\sphinxatlongtablestart'
+            '\\begin{longtable}{|l|l|}\n\\hline' in table)
     assert ('\\hline\n'
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
             '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax \\\\\n'
@@ -930,7 +936,7 @@ def test_latex_table_longtable(app, status, warning):
     assert ('\ncell1-1\n&\ncell1-2\n\\\\' in table)
     assert ('\\hline\ncell2-1\n&\ncell2-2\n\\\\' in table)
     assert ('\\hline\ncell3-1\n&\ncell3-2\n\\\\' in table)
-    assert ('\\hline\n\\end{longtable}\\end{savenotes}' in table)
+    assert ('\\hline\n\\end{longtable}\\sphinxatlongtableend\\end{savenotes}' in table)
 
     # longtable having :widths: option
     table = tables['longtable having :widths: option']
@@ -947,8 +953,9 @@ def test_latex_table_longtable(app, status, warning):
 
     # longtable having caption
     table = tables['longtable having caption']
-    assert ('\\begin{longtable}{|l|l|}\n\\caption{caption for longtable}'
-            '\\label{\\detokenize{longtable:id1}}\\\\\n\\hline' in table)
+    assert ('\\begin{longtable}{|l|l|}\n\\caption{caption for longtable\\strut}'
+            '\\label{\\detokenize{longtable:id1}}'
+            '\\\\*[\sphinxlongtablecapskipadjust]\n\\hline' in table)
 
     # longtable having verbatim
     table = tables['longtable having verbatim']
@@ -977,7 +984,7 @@ def test_latex_table_complex_tables(app, status, warning):
 
     # grid table
     table = tables['grid table']
-    assert ('\\begin{tabulary}{\\linewidth}{|T|T|T|}' in table)
+    assert ('\\begin{tabulary}{\\linewidth}[t]{|T|T|T|}' in table)
     assert ('\\hline\n'
             '\\sphinxstylethead{\\relax \nheader1\n\\unskip}\\relax &'
             '\\sphinxstylethead{\\relax \nheader2\n\\unskip}\\relax &'
@@ -996,7 +1003,7 @@ def test_latex_table_complex_tables(app, status, warning):
 
     # complex spanning cell
     table = tables['complex spanning cell']
-    assert ('\\begin{tabulary}{\\linewidth}{|T|T|T|T|T|}' in table)
+    assert ('\\begin{tabulary}{\\linewidth}[t]{|T|T|T|T|T|}' in table)
     assert ('\\sphinxmultirow{3}{1}{%\n'
             '\\begin{varwidth}[t]{\\sphinxcolwidth{1}{5}}\n'
             'cell1-1\n\\par\n\\vskip-\\baselineskip\\strut\\end{varwidth}%\n'

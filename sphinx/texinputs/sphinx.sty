@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/02/28 v1.6 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/03/04 v1.6 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -56,6 +56,40 @@
       #1\dimexpr\linewidth-\arrayrulewidth\relax-\tw@\tabcolsep-\arrayrulewidth\relax}}
 % using here T (for Tabulary) feels less of a problem than the X could be
 \newcolumntype{T}{J}%
+\RequirePackage{longtable}
+% For table captions.
+\RequirePackage{threeparttable}
+% fixing the LaTeX mess of vertical spaces with threeparttable and longtable
+% The user interface:
+\newcommand*\sphinxtablepre {0pt}%
+\newcommand*\sphinxtablepost{\medskipamount}%
+% as one can not use \baselineskip from inside longtable (it is zero there)
+% we need \sphinxbaselineskip, which defaults to \baselineskip
+\newcommand*\sphinxbelowcaptionspace{.5\sphinxbaselineskip}%
+\def\sphinxbaselineskip{\baselineskip}%
+% Helper macros, not a priori for user customization
+\def\sphinxatlongtablestart
+   {\par
+    \vskip\parskip
+    \vskip\dimexpr\sphinxtablepre\relax % adjust vertical position
+    \vbox{}% get correct baseline from above
+    \LTpre\z@skip\LTpost\z@skip % set to zero longtable's own skips
+    \edef\sphinxbaselineskip{\dimexpr\the\dimexpr\baselineskip\relax\relax}}%
+\def\sphinxatlongtableend{\prevdepth\z@\vskip\sphinxtablepost\relax}%
+% the longtable template inserts a \strut at caption's end
+\def\sphinxlongtablecapskipadjust
+   {\dimexpr-\dp\strutbox-\sphinxbaselineskip
+            +\sphinxbelowcaptionspace\relax}%
+% tabular(y) with or without threeparttable
+\def\sphinxattablestart
+   {\par
+    \vskip\dimexpr\sphinxtablepre\relax
+    \belowcaptionskip\sphinx@TPTbelowcaptionskip}%
+\let\sphinxattableend\sphinxatlongtableend
+% the tabular(y) templates use [t] vertical placement parameter
+\def\sphinx@TPTbelowcaptionskip
+   {\dimexpr-1.2\baselineskip % .2\baselineskip hardcoded in threeparttable
+            +\sphinxbelowcaptionspace\relax }%
 % varwidth is crucial for our handling of general contents in merged cells
 \RequirePackage{varwidth}
 % but addition of a compatibility patch with hyperref is needed
@@ -81,8 +115,6 @@
 % For highlighted code.
 \RequirePackage{fancyvrb}
 \fvset{fontsize=\small}
-% For table captions.
-\RequirePackage{threeparttable}
 % For hyperlinked footnotes in tables; also for gathering footnotes from
 % topic and warning blocks. Also to allow code-blocks in footnotes.
 \RequirePackage{footnotehyper-sphinx}
