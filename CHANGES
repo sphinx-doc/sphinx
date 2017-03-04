@@ -80,6 +80,7 @@ Features added
   as do normal cells (refs: #3435)
 * HTML buildre uses experimental HTML5 writer if ``html_experimental_html5_builder`` is True
   and docutils 0.13 and newer is installed.
+* LaTeX macros to customize space before and after tables in PDF output (refs #3504)
 
 Bugs fixed
 ----------
@@ -87,6 +88,7 @@ Bugs fixed
 * ``literalinclude`` directive expands tabs after dedent-ing (refs: #3416)
 * #1574: Paragraphs in table cell doesn't work in Latex output
 * #3288: Table with merged headers not wrapping text
+* #3491: Inconsistent vertical space around table and longtable in PDF
 
 Deprecated
 ----------
