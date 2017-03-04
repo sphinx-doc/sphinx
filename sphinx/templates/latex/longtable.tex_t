@@ -8,7 +8,7 @@
 <%- endif -%>
 <%= table.get_colspec() %>
 <%- if table.caption -%>
-\caption{<%= ''.join(table.caption) %>\strut}<%= labels %>\\*[\sphinxafterLTcaptionskip]
+\caption{<%= ''.join(table.caption) %>\strut}<%= labels %>\\*[\sphinxlongtablecapskipadjust]
 <% endif -%>
 \hline
 <%= ''.join(table.header) %>
