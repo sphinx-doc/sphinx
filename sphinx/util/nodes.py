@@ -18,12 +18,15 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.locale import pairindextypes
+from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, Tuple, Union  # NOQA
+    from typing import Any, Callable, Iterable, List, Set, Tuple, Union  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.utils.tags import Tags  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class WarningStream(object):
@@ -62,8 +65,8 @@ def apply_source_workaround(node):
     if isinstance(node, nodes.term):
         # strip classifier from rawsource of term
         for classifier in reversed(node.parent.traverse(nodes.classifier)):
-            node.rawsource = re.sub(
-                '\s*:\s*%s' % re.escape(classifier.astext()), '', node.rawsource)
+            node.rawsource = re.sub(r'\s*:\s*%s' % re.escape(classifier.astext()),
+                                    '', node.rawsource)
 
     # workaround: recommonmark-0.2.0 doesn't set rawsource attribute
     if not node.rawsource:
@@ -72,17 +75,12 @@ def apply_source_workaround(node):
     if node.source and node.rawsource:
         return
 
-    # workaround: docutils-0.10.0 or older's nodes.caption for nodes.figure
-    # and nodes.title for nodes.admonition doesn't have source, line.
-    # this issue was filed to Docutils tracker:
-    # sf.net/tracker/?func=detail&aid=3599485&group_id=38414&atid=422032
-    # sourceforge.net/p/docutils/patches/108/
+    # workaround: some docutils nodes doesn't have source, line.
     if (isinstance(node, (
-            nodes.caption,
-            nodes.title,
-            nodes.rubric,
-            nodes.line,
-            nodes.image,
+            nodes.rubric,  # #1305 rubric directive
+            nodes.line,  # #1477 line node
+            nodes.image,  # #3093 image directive in substitution
+            nodes.field_name,  # #3335 field list syntax
     ))):
         node.source = find_source_node(node)
         node.line = 0  # need fix docutils to get `node.line`
@@ -184,6 +182,7 @@ def find_source_node(node):
     for pnode in traverse_parent(node):
         if pnode.source:
             return pnode.source
+    return None
 
 
 def traverse_parent(node, cls=None):
@@ -198,6 +197,7 @@ def traverse_translatable_index(doctree):
     # type: (nodes.Node) -> Iterable[Tuple[nodes.Node, List[unicode]]]
     """Traverse translatable index node from a document tree."""
     def is_block_index(node):
+        # type: (nodes.Node) -> bool
         return isinstance(node, addnodes.index) and  \
             node.get('inline') is False
     for node in doctree.traverse(is_block_index):
@@ -234,13 +234,15 @@ def clean_astext(node):
     node = node.deepcopy()
     for img in node.traverse(nodes.image):
         img['alt'] = ''
+    for raw in node.traverse(nodes.raw):
+        raw.parent.remove(raw)
     return node.astext()
 
 
 def split_explicit_title(text):
-    # type: (str) -> Tuple[bool, unicode, unicode]
+    # type: (unicode) -> Tuple[bool, unicode, unicode]
     """Split role content into title and target, if given."""
-    match = explicit_title_re.match(text)
+    match = explicit_title_re.match(text)  # type: ignore
     if match:
         return True, match.group(1), match.group(2)
     return False, text, text
@@ -261,15 +263,15 @@ def process_index_entry(entry, targetid):
         main = 'main'
         entry = entry[1:].lstrip()
     for type in pairindextypes:
-        if entry.startswith(type+':'):
-            value = entry[len(type)+1:].strip()
+        if entry.startswith(type + ':'):
+            value = entry[len(type) + 1:].strip()
             value = pairindextypes[type] + '; ' + value
             indexentries.append(('pair', value, targetid, main, None))
             break
     else:
         for type in indextypes:
-            if entry.startswith(type+':'):
-                value = entry[len(type)+1:].strip()
+            if entry.startswith(type + ':'):
+                value = entry[len(type) + 1:].strip()
                 if type == 'double':
                     type = 'pair'
                 indexentries.append((type, value, targetid, main, None))
@@ -302,15 +304,14 @@ def inline_all_toctrees(builder, docnameset, docname, tree, colorfunc, traversed
             if includefile not in traversed:
                 try:
                     traversed.append(includefile)
-                    builder.info(colorfunc(includefile) + " ", nonl=1)
+                    logger.info(colorfunc(includefile) + " ", nonl=1)
                     subtree = inline_all_toctrees(builder, docnameset, includefile,
                                                   builder.env.get_doctree(includefile),
                                                   colorfunc, traversed)
                     docnameset.add(includefile)
                 except Exception:
-                    builder.warn('toctree contains ref to nonexisting '
-                                 'file %r' % includefile,
-                                 builder.env.doc2path(docname))
+                    logger.warning('toctree contains ref to nonexisting file %r',
+                                   includefile, location=docname)
                 else:
                     sof = addnodes.start_of_file(docname=includefile)
                     sof.children = subtree.children
@@ -326,11 +327,14 @@ def make_refnode(builder, fromdocname, todocname, targetid, child, title=None):
     # type: (Builder, unicode, unicode, unicode, nodes.Node, unicode) -> nodes.reference
     """Shortcut to create a reference node."""
     node = nodes.reference('', '', internal=True)
-    if fromdocname == todocname:
+    if fromdocname == todocname and targetid:
         node['refid'] = targetid
     else:
-        node['refuri'] = (builder.get_relative_uri(fromdocname, todocname) +
-                          '#' + targetid)
+        if targetid:
+            node['refuri'] = (builder.get_relative_uri(fromdocname, todocname) +
+                              '#' + targetid)
+        else:
+            node['refuri'] = builder.get_relative_uri(fromdocname, todocname)
     if title:
         node['reftitle'] = title
     node.append(child)
@@ -348,8 +352,8 @@ def set_role_source_info(inliner, lineno, node):
     node.source, node.line = inliner.reporter.get_source_and_line(lineno)
 
 
-def process_only_nodes(doctree, tags, warn_node=None):
-    # type: (nodes.Node, Tags, Callable) -> None
+def process_only_nodes(doctree, tags):
+    # type: (nodes.Node, Tags) -> None
     # A comment on the comment() nodes being inserted: replacing by [] would
     # result in a "Losing ids" exception if there is a target node before
     # the only node, so we make sure docutils can transfer the id to
@@ -358,10 +362,8 @@ def process_only_nodes(doctree, tags, warn_node=None):
         try:
             ret = tags.eval_condition(node['expr'])
         except Exception as err:
-            if warn_node is None:
-                raise err
-            warn_node('exception while evaluating only '
-                      'directive expression: %s' % err, node)
+            logger.warning('exception while evaluating only directive expression: %s', err,
+                           location=node)
             node.replace_self(node.children or nodes.comment())
         else:
             if ret:

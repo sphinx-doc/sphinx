@@ -11,8 +11,13 @@
 
 import sys
 
+if False:
+    # For type annotation
+    from typing import List  # NOQA
+
 
 def prepare_docstring(s, ignore=1):
+    # type: (unicode, int) -> List[unicode]
     """Convert a docstring into lines of parseable reST.  Remove common leading
     indentation, where the indentation of a given number of lines (usually just
     one) is ignored.
@@ -46,6 +51,7 @@ def prepare_docstring(s, ignore=1):
 
 
 def prepare_commentdoc(s):
+    # type: (unicode) -> List[unicode]
     """Extract documentation comment lines (starting with #:) and return them
     as a list of lines.  Returns an empty list if there is no documentation.
     """

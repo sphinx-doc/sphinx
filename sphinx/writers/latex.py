@@ -15,7 +15,7 @@
 import re
 import sys
 from os import path
-import warnings
+from collections import defaultdict
 
 from six import itervalues, text_type
 from docutils import nodes, writers
@@ -24,9 +24,8 @@ from docutils.writers.latex2e import Babel
 from sphinx import addnodes
 from sphinx import highlighting
 from sphinx.errors import SphinxError
-from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
-from sphinx.util import split_into
+from sphinx.util import split_into, logging
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import clean_astext, traverse_parent
 from sphinx.util.template import LaTeXRenderer
@@ -35,9 +34,10 @@ from sphinx.util.smartypants import educate_quotes_latex
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterator, Pattern, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Pattern, Tuple, Set, Union  # NOQA
     from sphinx.builder import Builder  # NOQA
 
+logger = logging.getLogger(__name__)
 
 BEGIN_DOC = r'''
 \begin{document}
@@ -47,7 +47,6 @@ BEGIN_DOC = r'''
 '''
 
 
-DEFAULT_TEMPLATE = 'latex/content.tex_t'
 URI_SCHEMES = ('mailto:', 'http:', 'https:', 'ftp:')
 SECNUMDEPTH = 3
 
@@ -55,15 +54,14 @@ DEFAULT_SETTINGS = {
     'latex_engine':    'pdflatex',
     'papersize':       'letterpaper',
     'pointsize':       '10pt',
-    'pxunit':          '49336sp',
+    'pxunit':          '.75bp',
     'classoptions':    '',
     'extraclassoptions': '',
     'maxlistdepth':    '',
-    'sphinxpkgoptions':     '',
+    'sphinxpkgoptions':     'dontkeepoldnames',
     'sphinxsetup':     '',
     'passoptionstopackages': '',
-    'geometry':       ('\\usepackage[margin=1in,marginparwidth=0.5in]'
-                       '{geometry}'),
+    'geometry':        '\\usepackage{geometry}',
     'inputenc':        '',
     'utf8extra':       '',
     'cmappkg':         '\\usepackage{cmap}',
@@ -90,14 +88,14 @@ DEFAULT_SETTINGS = {
     'release':         '',
     'author':          '',
     'logo':            '',
-    'releasename':     'Release',
+    'releasename':     '',
     'makeindex':       '\\makeindex',
     'shorthandoff':    '',
     'maketitle':       '\\maketitle',
     'tableofcontents': '\\sphinxtableofcontents',
     'atendofbody':     '',
     'printindex':      '\\printindex',
-    'transition':      '\n\n\\bigskip\\hrule{}\\bigskip\n\n',
+    'transition':      '\n\n\\bigskip\\hrule\\bigskip\n\n',
     'figure_align':    'htbp',
     'tocdepth':        '',
     'secnumdepth':     '',
@@ -108,8 +106,9 @@ ADDITIONAL_SETTINGS = {
     'pdflatex': {
         'inputenc':     '\\usepackage[utf8]{inputenc}',
         'utf8extra':   ('\\ifdefined\\DeclareUnicodeCharacter\n'
+                        ' \\ifdefined\\DeclareUnicodeCharacterAsOptional\\else\n'
                         '  \\DeclareUnicodeCharacter{00A0}{\\nobreakspace}\n'
-                        '\\fi'),
+                        '\\fi\\fi'),
     },
     'xelatex': {
         'latex_engine': 'xelatex',
@@ -122,11 +121,16 @@ ADDITIONAL_SETTINGS = {
     },
     'lualatex': {
         'latex_engine': 'lualatex',
+        'polyglossia':  '\\usepackage{polyglossia}',
+        'babel':        '',
+        'fontenc':      '\\usepackage{fontspec}',
+        'fontpkg':      '',
         'utf8extra':   ('\\catcode`^^^^00a0\\active\\protected\\def^^^^00a0'
                         '{\\leavevmode\\nobreak\\ }'),
     },
     'platex': {
         'latex_engine': 'platex',
+        'geometry':     '\\usepackage[dvipdfm]{geometry}',
     },
 }  # type: Dict[unicode, Dict[unicode, unicode]]
 
@@ -315,29 +319,161 @@ class ShowUrlsTransform(object):
 
 
 class Table(object):
-    def __init__(self):
-        # type: () -> None
-        self.col = 0
+    """A table data"""
+
+    def __init__(self, node):
+        # type: (nodes.table) -> None
+        self.header = []                        # type: List[unicode]
+        self.body = []                          # type: List[unicode]
+        self.align = node.get('align')
         self.colcount = 0
-        self.colspec = None             # type: unicode
-        self.rowcount = 0
-        self.had_head = False
+        self.colspec = None                     # type: unicode
+        self.colwidths = []                     # type: List[int]
         self.has_problematic = False
+        self.has_oldproblematic = False
         self.has_verbatim = False
-        self.caption = None             # type: List[unicode]
-        self.longtable = False
+        self.caption = None                     # type: List[unicode]
+        self.caption_footnotetexts = []         # type: List[unicode]
+        self.header_footnotetexts = []          # type: List[unicode]
+
+        # current position
+        self.col = 0
+        self.row = 0
+
+        # for internal use
+        self.classes = node.get('classes', [])  # type: List[unicode]
+        self.cells = defaultdict(int)           # type: Dict[Tuple[int, int], int]
+                                                # it maps table location to cell_id
+                                                # (cell = rectangular area)
+        self.cell_id = 0                        # last assigned cell_id
+
+    def is_longtable(self):
+        # type: () -> bool
+        """True if and only if table uses longtable environment."""
+        return self.row > 30 or 'longtable' in self.classes
+
+    def get_table_type(self):
+        # type: () -> unicode
+        """Returns the LaTeX environment name for the table.
+
+        The class currently supports:
+
+        * longtable
+        * tabular
+        * taburary
+        """
+        if self.is_longtable():
+            return 'longtable'
+        elif self.has_verbatim:
+            return 'tabular'
+        elif self.colspec:
+            return 'tabulary'
+        elif self.has_problematic or (self.colwidths and 'colwidths-given' in self.classes):
+            return 'tabular'
+        else:
+            return 'tabulary'
+
+    def get_colspec(self):
+        # type: () -> unicode
+        """Returns a column spec of table.
+
+        This is what LaTeX calls the 'preamble argument' of the used table environment.
+
+        .. note:: the ``\\X`` and ``T`` column type specifiers are defined in ``sphinx.sty``.
+        """
+        if self.colspec:
+            return self.colspec
+        elif self.colwidths and 'colwidths-given' in self.classes:
+            total = sum(self.colwidths)
+            colspecs = ['\\X{%d}{%d}' % (width, total) for width in self.colwidths]
+            return '{|%s|}\n' % '|'.join(colspecs)
+        elif self.has_problematic:
+            return '{|*{%d}{\\X{1}{%d}|}}\n' % (self.colcount, self.colcount)
+        elif self.get_table_type() == 'tabulary':
+            # sphinx.sty sets T to be J by default.
+            return '{|' + ('T|' * self.colcount) + '}\n'
+        elif self.has_oldproblematic:
+            return '{|*{%d}{\\X{1}{%d}|}}\n' % (self.colcount, self.colcount)
+        else:
+            return '{|' + ('l|' * self.colcount) + '}\n'
+
+    def add_cell(self, height, width):
+        # type: (int, int) -> None
+        """Adds a new cell to a table.
+
+        It will be located at current position: (``self.row``, ``self.col``).
+        """
+        self.cell_id += 1
+        for col in range(width):
+            for row in range(height):
+                assert self.cells[(self.row + row, self.col + col)] == 0
+                self.cells[(self.row + row, self.col + col)] = self.cell_id
+
+    def cell(self, row=None, col=None):
+        # type: (int, int) -> TableCell
+        """Returns a cell object (i.e. rectangular area) containing given position.
+
+        If no option arguments: ``row`` or ``col`` are given, the current position;
+        ``self.row`` and ``self.col`` are used to get a cell object by default.
+        """
+        try:
+            if row is None:
+                row = self.row
+            if col is None:
+                col = self.col
+            return TableCell(self, row, col)
+        except IndexError:
+            return None
+
+
+class TableCell(object):
+    """A cell data of tables."""
+
+    def __init__(self, table, row, col):
+        # type: (Table, int, int) -> None
+        if table.cells[(row, col)] == 0:
+            raise IndexError
+
+        self.table = table
+        self.cell_id = table.cells[(row, col)]
+        self.row = row
+        self.col = col
+
+        # adjust position for multirow/multicol cell
+        while table.cells[(self.row - 1, self.col)] == self.cell_id:
+            self.row -= 1
+        while table.cells[(self.row, self.col - 1)] == self.cell_id:
+            self.col -= 1
+
+    @property
+    def width(self):
+        # type: () -> int
+        """Returns the cell width."""
+        width = 0
+        while self.table.cells[(self.row, self.col + width)] == self.cell_id:
+            width += 1
+        return width
+
+    @property
+    def height(self):
+        # type: () -> int
+        """Returns the cell height."""
+        height = 0
+        while self.table.cells[(self.row + height, self.col)] == self.cell_id:
+            height += 1
+        return height
 
 
 def escape_abbr(text):
     # type: (unicode) -> unicode
     """Adjust spacing after abbreviations."""
-    return re.sub('\.(?=\s|$)', '.\\@', text)
+    return re.sub(r'\.(?=\s|$)', r'.\@', text)
 
 
 def rstdim_to_latexdim(width_str):
     # type: (unicode) -> unicode
     """Convert `width_str` with rst length to LaTeX length."""
-    match = re.match('^(\d*\.?\d*)\s*(\S*)$', width_str)
+    match = re.match(r'^(\d*\.?\d*)\s*(\S*)$', width_str)
     if not match:
         raise ValueError
     res = width_str
@@ -374,16 +510,15 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.in_caption = 0
         self.in_container_literal_block = 0
         self.in_term = 0
-        self.in_merged_cell = 0
+        self.needs_linetrimming = 0
         self.in_minipage = 0
         self.first_document = 1
         self.this_is_the_title = 1
         self.literal_whitespace = 0
         self.no_contractions = 0
+        self.in_parsed_literal = 0
         self.compact_list = 0
         self.first_param = 0
-        self.remember_multirow = {}     # type: Dict[int, int]
-        self.remember_multirowcol = {}  # type: Dict[int, int]
 
         # determine top section level
         if builder.config.latex_toplevel_sectioning:
@@ -406,14 +541,17 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.elements.update({
             'wrapperclass': self.format_docclass(document.settings.docclass),
             # if empty, the title is set to the first section title
-            'title':        document.settings.title,
-            'release':      builder.config.release,
-            'author':       document.settings.author,
-            'releasename':  _('Release'),
+            'title':        document.settings.title,    # treat as a raw LaTeX code
+            'release':      self.encode(builder.config.release),
+            'author':       document.settings.author,   # treat as a raw LaTeX code
             'indexname':    _('Index'),
         })
-        if not builder.config.latex_keep_old_macro_names:
-            self.elements['sphinxpkgoptions'] = 'dontkeepoldnames'
+        if not self.elements['releasename']:
+            self.elements.update({
+                'releasename':  _('Release'),
+            })
+        if builder.config.latex_keep_old_macro_names:
+            self.elements['sphinxpkgoptions'] = ''
         if document.settings.docclass == 'howto':
             docclass = builder.config.latex_docclass.get('howto', 'article')
         else:
@@ -438,8 +576,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         if builder.config.language and not self.babel.is_supported_language():
             # emit warning if specified language is invalid
             # (only emitting, nothing changed to processing)
-            self.builder.warn('no Babel option known for language %r' %
-                              builder.config.language)
+            logger.warning('no Babel option known for language %r',
+                           builder.config.language)
 
         # simply use babel.get_language() always, as get_language() returns
         # 'english' even if language is invalid or empty
@@ -448,7 +586,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # set up multilingual module...
         # 'babel' key is public and user setting must be obeyed
         if self.elements['babel']:
-            # this branch is not taken for xelatex with writer default settings
+            # this branch is not taken for xelatex/lualatex if default settings
             self.elements['multilingual'] = self.elements['babel']
             if builder.config.language:
                 self.elements['shorthandoff'] = self.babel.get_shorthandoff()
@@ -490,7 +628,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             tocdepth = document['tocdepth'] + self.top_sectionlevel - 2
             maxdepth = len(self.sectionnames) - self.top_sectionlevel
             if tocdepth > maxdepth:
-                self.builder.warn('too large :maxdepth:, ignored.')
+                logger.warning('too large :maxdepth:, ignored.')
                 tocdepth = maxdepth
 
             self.elements['tocdepth'] = '\\setcounter{tocdepth}{%d}' % tocdepth
@@ -566,7 +704,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         for key in self.builder.config.latex_elements:
             if key not in self.elements:
                 msg = _("Unknown configure key: latex_elements[%r] is ignored.")
-                self.builder.warn(msg % key)
+                logger.warning(msg % key)
 
     def restrict_footnote(self, node):
         # type: (nodes.Node) -> None
@@ -597,12 +735,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
             'body': u''.join(self.body),
             'indices': self.generate_indices()
         })
-
-        template_path = path.join(self.builder.srcdir, '_templates', 'latex.tex_t')
-        if path.exists(template_path):
-            return LaTeXRenderer().render(template_path, self.elements)
-        else:
-            return LaTeXRenderer().render(DEFAULT_TEMPLATE, self.elements)
+        return self.render('latex.tex_t', self.elements)
 
     def hypertarget(self, id, withdoc=True, anchor=True):
         # type: (unicode, bool, bool) -> unicode
@@ -613,7 +746,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def hyperlink(self, id):
         # type: (unicode) -> unicode
-        return '{\\hyperref[%s]{' % self.hyperrefescape(id)
+        return '{\\hyperref[%s]{' % self.idescape(id)
 
     def hyperpageref(self, id):
         # type: (unicode) -> unicode
@@ -621,13 +754,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def idescape(self, id):
         # type: (unicode) -> unicode
-        return text_type(id).translate(tex_replace_map).\
+        return '\\detokenize{%s}' % text_type(id).translate(tex_replace_map).\
             encode('ascii', 'backslashreplace').decode('ascii').\
             replace('\\', '_')
-
-    def hyperrefescape(self, ref):
-        # type: (unicode) -> unicode
-        return self.idescape(ref).replace('-', '\\string-')
 
     def babel_renewcommand(self, command, definition):
         # type: (unicode, unicode) -> unicode
@@ -657,34 +786,34 @@ class LaTeXTranslator(nodes.NodeVisitor):
         figure = self.builder.config.numfig_format['figure'].split('%s', 1)
         if len(figure) == 1:
             ret.append('\\def\\fnum@figure{%s}\n' %
-                       escape_abbr(text_type(figure[0]).translate(tex_escape_map)))
+                       text_type(figure[0]).strip().translate(tex_escape_map))
         else:
-            definition = escape_abbr(text_type(figure[0]).translate(tex_escape_map))
+            definition = text_type(figure[0]).strip().translate(tex_escape_map)
             ret.append(self.babel_renewcommand('\\figurename', definition))
             if figure[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@figure{\\figurename\\thefigure%s}\n' %
-                           escape_abbr(text_type(figure[1]).translate(tex_escape_map)))
+                           text_type(figure[1]).strip().translate(tex_escape_map))
                 ret.append('\\makeatother\n')
 
         table = self.builder.config.numfig_format['table'].split('%s', 1)
         if len(table) == 1:
             ret.append('\\def\\fnum@table{%s}\n' %
-                       escape_abbr(text_type(table[0]).translate(tex_escape_map)))
+                       text_type(table[0]).strip().translate(tex_escape_map))
         else:
-            definition = escape_abbr(text_type(table[0]).translate(tex_escape_map))
+            definition = text_type(table[0]).strip().translate(tex_escape_map)
             ret.append(self.babel_renewcommand('\\tablename', definition))
             if table[1]:
                 ret.append('\\makeatletter\n')
                 ret.append('\\def\\fnum@table{\\tablename\\thetable%s}\n' %
-                           escape_abbr(text_type(table[1]).translate(tex_escape_map)))
+                           text_type(table[1]).strip().translate(tex_escape_map))
                 ret.append('\\makeatother\n')
 
         codeblock = self.builder.config.numfig_format['code-block'].split('%s', 1)
         if len(codeblock) == 1:
             pass  # FIXME
         else:
-            definition = escape_abbr(text_type(codeblock[0]).translate(tex_escape_map))
+            definition = text_type(codeblock[0]).strip().translate(tex_escape_map)
             ret.append(self.babel_renewcommand('\\literalblockname', definition))
             if codeblock[1]:
                 pass  # FIXME
@@ -694,7 +823,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def generate_indices(self):
         # type: (Builder) -> unicode
         def generate(content, collapsed):
-            # type: (List[Tuple[unicode, List[Tuple[unicode, unicode, unicode, unicode, unicode]]]], bool) -> unicode  # NOQA
+            # type: (List[Tuple[unicode, List[Tuple[unicode, unicode, unicode, unicode, unicode]]]], bool) -> None  # NOQA
             ret.append('\\begin{sphinxtheindex}\n')
             ret.append('\\def\\bigletter#1{{\\Large\\sffamily#1}'
                        '\\nopagebreak\\vspace{1mm}}\n')
@@ -724,10 +853,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     if isinstance(indices_config, list):
                         if indexname not in indices_config:
                             continue
-                    # deprecated config value
-                    if indexname == 'py-modindex' and \
-                       not self.builder.config.latex_use_modindex:
-                        continue
                     content, collapsed = indexcls(domain).generate(
                         self.builder.docnames)
                     if not content:
@@ -737,6 +862,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     generate(content, collapsed)
 
         return ''.join(ret)
+
+    def render(self, template_name, variables):
+        # type: (unicode, Dict) -> unicode
+        template_path = path.join(self.builder.srcdir, '_templates', template_name)
+        if path.exists(template_path):
+            return LaTeXRenderer().render(template_path, variables)
+        else:
+            return LaTeXRenderer().render(template_name, variables)
 
     def visit_document(self, node):
         # type: (nodes.Node) -> None
@@ -895,8 +1028,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
             if self.this_is_the_title:
                 if len(node.children) != 1 and not isinstance(node.children[0],
                                                               nodes.Text):
-                    self.builder.warn('document title is not a single Text node',
-                                      (self.curfilestack[-1], node.line))
+                    logger.warning('document title is not a single Text node',
+                                   location=(self.curfilestack[-1], node.line))
                 if not self.elements['title']:
                     # text needs to be escaped since it is inserted into
                     # the output literally
@@ -933,11 +1066,11 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif isinstance(parent, nodes.table):
             # Redirect body output until title is finished.
             self.pushbody([])
+            self.restrict_footnote(node)
         else:
-            self.builder.warn(
-                'encountered title node not in section, topic, table, '
-                'admonition or sidebar',
-                (self.curfilestack[-1], node.line or ''))
+            logger.warning('encountered title node not in section, topic, table, '
+                           'admonition or sidebar',
+                           location=(self.curfilestack[-1], node.line or ''))
             self.body.append('\\sphinxstyleothertitle{')
             self.context.append('}\n')
         self.in_title = 1
@@ -947,9 +1080,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.in_title = 0
         if isinstance(node.parent, nodes.table):
             self.table.caption = self.popbody()
+            # temporary buffer for footnotes from caption
+            self.pushbody([])
+            self.unrestrict_footnote(node)
+            # the footnote texts from caption
+            self.table.caption_footnotetexts = self.popbody()
         else:
             self.body.append(self.context.pop())
-        self.unrestrict_footnote(node)
+            self.unrestrict_footnote(node)
 
     def visit_subtitle(self, node):
         # type: (nodes.Node) -> None
@@ -1135,15 +1273,22 @@ class LaTeXTranslator(nodes.NodeVisitor):
             self.body.append('%%\n\\begin{footnotetext}[%s]'
                              '\\sphinxAtStartFootnote\n' % node['number'])
         else:
-            self.body.append('%%\n\\begin{footnote}[%s]'
-                             '\\sphinxAtStartFootnote\n' % node['number'])
+            if self.in_parsed_literal:
+                self.body.append('\\begin{footnote}[%s]' % node['number'])
+            else:
+                self.body.append('%%\n\\begin{footnote}[%s]' % node['number'])
+            self.body.append('\\sphinxAtStartFootnote\n')
 
     def depart_collected_footnote(self, node):
         # type: (nodes.Node) -> None
         if 'footnotetext' in node:
-            self.body.append('%\n\\end{footnotetext}')
+            # the \ignorespaces in particular for after table header use
+            self.body.append('%\n\\end{footnotetext}\\ignorespaces ')
         else:
-            self.body.append('%\n\\end{footnote}')
+            if self.in_parsed_literal:
+                self.body.append('\\end{footnote}')
+            else:
+                self.body.append('%\n\\end{footnote}')
         self.in_footnote -= 1
 
     def visit_label(self, node):
@@ -1165,94 +1310,33 @@ class LaTeXTranslator(nodes.NodeVisitor):
             raise UnsupportedError(
                 '%s:%s: nested tables are not yet implemented.' %
                 (self.curfilestack[-1], node.line or ''))
-        self.table = Table()
-        self.table.longtable = 'longtable' in node['classes']
-        self.tablebody = []     # type: List[unicode]
-        self.tableheaders = []  # type: List[unicode]
-        # Redirect body output until table is finished.
-        self.pushbody(self.tablebody)
-        self.restrict_footnote(node)
+        self.table = Table(node)
+        if self.next_table_colspec:
+            self.table.colspec = '{%s}\n' % self.next_table_colspec
+        self.next_table_colspec = None
 
     def depart_table(self, node):
         # type: (nodes.Node) -> None
-        if self.table.rowcount > 30:
-            self.table.longtable = True
-        self.popbody()
-        if not self.table.longtable and self.table.caption is not None:
-            self.body.append('\n\n\\begin{threeparttable}\n'
-                             '\\capstart\\caption{')
-            for caption in self.table.caption:
-                self.body.append(caption)
-            self.body.append('}')
-            for id in self.pop_hyperlink_ids('table'):
-                self.body.append(self.hypertarget(id, anchor=False))
-            if node['ids']:
-                self.body.append(self.hypertarget(node['ids'][0], anchor=False))
-        if self.table.longtable:
-            self.body.append('\n\\begin{longtable}')
-            endmacro = '\\end{longtable}\n\n'
-        elif self.table.has_verbatim:
-            self.body.append('\n\\noindent\\begin{tabular}')
-            endmacro = '\\end{tabular}\n\n'
-        elif self.table.has_problematic and not self.table.colspec:
-            # if the user has given us tabularcolumns, accept them and use
-            # tabulary nevertheless
-            self.body.append('\n\\noindent\\begin{tabular}')
-            endmacro = '\\end{tabular}\n\n'
-        else:
-            self.body.append('\n\\noindent\\begin{tabulary}{\\linewidth}')
-            endmacro = '\\end{tabulary}\n\n'
-        if self.table.colspec:
-            self.body.append(self.table.colspec)
-        else:
-            if self.table.has_problematic:
-                colspec = ('*{%d}{p{\\dimexpr(\\linewidth-\\arrayrulewidth)/%d'
-                           '-2\\tabcolsep-\\arrayrulewidth\\relax}|}' %
-                           (self.table.colcount, self.table.colcount))
-                self.body.append('{|' + colspec + '}\n')
-            elif self.table.longtable:
-                self.body.append('{|' + ('l|' * self.table.colcount) + '}\n')
-            else:
-                self.body.append('{|' + ('L|' * self.table.colcount) + '}\n')
-        if self.table.longtable and self.table.caption is not None:
-            self.body.append(u'\\caption{')
-            for caption in self.table.caption:
-                self.body.append(caption)
-            self.body.append('}')
-            for id in self.pop_hyperlink_ids('table'):
-                self.body.append(self.hypertarget(id, anchor=False))
-            if node['ids']:
-                self.body.append(self.hypertarget(node['ids'][0], anchor=False))
-            self.body.append(u'\\\\\n')
-        if self.table.longtable:
-            self.body.append('\\hline\n')
-            self.body.extend(self.tableheaders)
-            self.body.append('\\endfirsthead\n\n')
-            self.body.append('\\multicolumn{%s}{c}%%\n' % self.table.colcount)
-            self.body.append(r'{{\tablecontinued{\tablename\ \thetable{} -- %s}}} \\'
-                             % _('continued from previous page'))
-            self.body.append('\n\\hline\n')
-            self.body.extend(self.tableheaders)
-            self.body.append('\\endhead\n\n')
-            self.body.append(r'\hline \multicolumn{%s}{|r|}{{\tablecontinued{%s}}} \\ \hline'
-                             % (self.table.colcount,
-                                _('Continued on next page')))
-            self.body.append('\n\\endfoot\n\n')
-            self.body.append('\\endlastfoot\n\n')
-        else:
-            self.body.append('\\hline\n')
-            self.body.extend(self.tableheaders)
-        self.body.extend(self.tablebody)
-        self.body.append(endmacro)
-        if not self.table.longtable and self.table.caption is not None:
-            self.body.append('\\end{threeparttable}\n\n')
-        self.unrestrict_footnote(node)
+        labels = ''  # type: unicode
+        for labelid in self.pop_hyperlink_ids('table'):
+            labels += self.hypertarget(labelid, anchor=False)
+        if node['ids']:
+            labels += self.hypertarget(node['ids'][0], anchor=False)
+
+        table_type = self.table.get_table_type()
+        table = self.render(table_type + '.tex_t',
+                            dict(table=self.table, labels=labels))
+        self.body.append("\n\n")
+        self.body.append(table)
+        self.body.append("\n")
+
         self.table = None
-        self.tablebody = None
 
     def visit_colspec(self, node):
         # type: (nodes.Node) -> None
         self.table.colcount += 1
+        if 'colwidth' in node:
+            self.table.colwidths.append(node['colwidth'])
 
     def depart_colspec(self, node):
         # type: (nodes.Node) -> None
@@ -1268,131 +1352,144 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_thead(self, node):
         # type: (nodes.Node) -> None
-        self.table.had_head = True
-        if self.next_table_colspec:
-            self.table.colspec = '{%s}\n' % self.next_table_colspec
-        self.next_table_colspec = None
-        # Redirect head output until header is finished. see visit_tbody.
-        self.body = self.tableheaders
+        # Redirect head output until header is finished.
+        self.pushbody(self.table.header)
+        # footnotes in longtable header must be restricted
+        self.restrict_footnote(node)
 
     def depart_thead(self, node):
         # type: (nodes.Node) -> None
-        pass
+        self.popbody()
+        # temporary buffer for footnotes from table header
+        self.pushbody([])
+        self.unrestrict_footnote(node)
+        # the footnote texts from header
+        self.table.header_footnotetexts = self.popbody()
 
     def visit_tbody(self, node):
         # type: (nodes.Node) -> None
-        if not self.table.had_head:
-            self.visit_thead(node)
-        self.body = self.tablebody
+        # Redirect body output until table is finished.
+        self.pushbody(self.table.body)
+        # insert footnotetexts from header at start of body (due to longtable)
+        # those from caption are handled by templates (to allow caption at foot)
+        self.body.extend(self.table.header_footnotetexts)
 
     def depart_tbody(self, node):
         # type: (nodes.Node) -> None
-        self.remember_multirow = {}
-        self.remember_multirowcol = {}
+        self.popbody()
 
     def visit_row(self, node):
         # type: (nodes.Node) -> None
         self.table.col = 0
-        for key, value in self.remember_multirow.items():
-            if not value and key in self.remember_multirowcol:
-                del self.remember_multirowcol[key]
+
+        # fill columns if the row starts with the bottom of multirow cell
+        while True:
+            cell = self.table.cell(self.table.row, self.table.col)
+            if cell is None:  # not a bottom of multirow cell
+                break
+            else:  # a bottom of multirow cell
+                self.table.col += cell.width
+                if cell.col:
+                    self.body.append('&')
+                if cell.width == 1:
+                    # insert suitable strut for equalizing row heights in given multirow
+                    self.body.append('\\sphinxtablestrut{%d}' % cell.cell_id)
+                else:  # use \multicolumn for wide multirow cell
+                    self.body.append('\\multicolumn{%d}{|l|}'
+                                     '{\\sphinxtablestrut{%d}}' %
+                                     (cell.width, cell.cell_id))
 
     def depart_row(self, node):
         # type: (nodes.Node) -> None
         self.body.append('\\\\\n')
-        if any(self.remember_multirow.values()):
-            linestart = 1
-            col = self.table.colcount
-            for col in range(1, self.table.col + 1):
-                if self.remember_multirow.get(col):
-                    if linestart != col:
-                        linerange = str(linestart) + '-' + str(col - 1)
-                        self.body.append('\\cline{' + linerange + '}')
-                    linestart = col + 1
-                    if self.remember_multirowcol.get(col, 0):
-                        linestart += self.remember_multirowcol[col]
-            if linestart <= col:
-                linerange = str(linestart) + '-' + str(col)
-                self.body.append('\\cline{' + linerange + '}')
-        else:
+        cells = [self.table.cell(self.table.row, i) for i in range(self.table.colcount)]
+        underlined = [cell.row + cell.height == self.table.row + 1 for cell in cells]
+        if all(underlined):
             self.body.append('\\hline')
-        self.table.rowcount += 1
+        else:
+            i = 0
+            underlined.extend([False])  # sentinel
+            while i < len(underlined):
+                if underlined[i] is True:
+                    j = underlined[i:].index(False)
+                    self.body.append('\\cline{%d-%d}' % (i + 1, i + j))
+                    i += j
+                i += 1
+        self.table.row += 1
 
     def visit_entry(self, node):
         # type: (nodes.Node) -> None
-        if self.table.col == 0:
-            while self.remember_multirow.get(self.table.col + 1, 0):
-                self.table.col += 1
-                self.remember_multirow[self.table.col] -= 1
-                if self.remember_multirowcol.get(self.table.col, 0):
-                    extracols = self.remember_multirowcol[self.table.col]
-                    self.body.append('\\multicolumn{')
-                    self.body.append(str(extracols + 1))
-                    self.body.append('}{|l|}{}\\relax ')
-                    self.table.col += extracols
-                self.body.append('&')
-        else:
+        if self.table.col > 0:
             self.body.append('&')
-        self.table.col += 1
+        self.table.add_cell(node.get('morerows', 0) + 1, node.get('morecols', 0) + 1)
+        cell = self.table.cell()
         context = ''
-        if 'morecols' in node:
-            self.body.append('\\multicolumn{')
-            self.body.append(str(node.get('morecols') + 1))
-            if self.table.col == 1:
-                self.body.append('}{|l|}{\\relax ')
+        if cell.width > 1:
+            if self.builder.config.latex_use_latex_multicolumn:
+                if self.table.col == 0:
+                    self.body.append('\\multicolumn{%d}{|l|}{%%\n' % cell.width)
+                else:
+                    self.body.append('\\multicolumn{%d}{l|}{%%\n' % cell.width)
+                context = '}%\n'
             else:
-                self.body.append('}{l|}{\\relax ')
-            context += '\\unskip}\\relax '
-        if 'morerows' in node:
-            self.body.append('\\multirow{')
-            self.body.append(str(node.get('morerows') + 1))
-            self.body.append('}{*}{\\relax ')
-            context += '\\unskip}\\relax '
-            self.remember_multirow[self.table.col] = node.get('morerows')
-        if 'morecols' in node:
-            if 'morerows' in node:
-                self.remember_multirowcol[self.table.col] = node.get('morecols')
-            self.table.col += node.get('morecols')
-        if (('morecols' in node or 'morerows' in node) and
-           (len(node) > 2 or len(node.astext().split('\n')) > 2)):
-            self.in_merged_cell = 1
-            self.literal_whitespace += 1
-            self.body.append('\\eqparbox{%d}{\\vspace{.5\\baselineskip}\n' % id(node))
-            self.pushbody([])
-            context += '}'
+                self.body.append('\\sphinxstartmulticolumn{%d}%%\n' % cell.width)
+                context = '\\sphinxstopmulticolumn\n'
+        if cell.height > 1:
+            # \sphinxmultirow 2nd arg "cell_id" will serve as id for LaTeX macros as well
+            self.body.append('\\sphinxmultirow{%d}{%d}{%%\n' % (cell.height, cell.cell_id))
+            context = '}%\n' + context
+        if cell.width > 1 or cell.height > 1:
+            self.body.append('\\begin{varwidth}[t]{\\sphinxcolwidth{%d}{%d}}\n'
+                             % (cell.width, self.table.colcount))
+            context = ('\\par\n\\vskip-\\baselineskip\\strut\\end{varwidth}%\n') + context
+            self.needs_linetrimming = 1
+        if len(node) > 2 and len(node.astext().split('\n')) > 2:
+            self.needs_linetrimming = 1
+        if len(node.traverse(nodes.paragraph)) >= 2:
+            self.table.has_oldproblematic = True
         if isinstance(node.parent.parent, nodes.thead):
             if len(node) == 1 and isinstance(node[0], nodes.paragraph) and node.astext() == '':
                 pass
             else:
                 self.body.append('\\sphinxstylethead{\\relax ')
-                context += '\\unskip}\\relax '
-        while self.remember_multirow.get(self.table.col + 1, 0):
-            self.table.col += 1
-            self.remember_multirow[self.table.col] -= 1
-            context += '&'
-            if self.remember_multirowcol.get(self.table.col, 0):
-                extracols = self.remember_multirowcol[self.table.col]
-                context += '\\multicolumn{'
-                context += str(extracols + 1)
-                context += '}{l|}{}\\relax '
-                self.table.col += extracols
-        if len(node.traverse(nodes.paragraph)) >= 2:
-            self.table.has_problematic = True
+                context = '\\unskip}\\relax ' + context
+        if self.needs_linetrimming:
+            self.pushbody([])
         self.context.append(context)
 
     def depart_entry(self, node):
         # type: (nodes.Node) -> None
-        if self.in_merged_cell:
-            self.in_merged_cell = 0
-            self.literal_whitespace -= 1
+        if self.needs_linetrimming:
+            self.needs_linetrimming = 0
             body = self.popbody()
+
             # Remove empty lines from top of merged cell
             while body and body[0] == "\n":
                 body.pop(0)
-            for line in body:
-                line = re.sub(u'(?<!~\\\\\\\\)\n', u'~\\\\\\\\\n', line)  # escape return code
-                self.body.append(line)
-        self.body.append(self.context.pop())  # header
+            self.body.extend(body)
+
+        self.body.append(self.context.pop())
+
+        cell = self.table.cell()
+        self.table.col += cell.width
+
+        # fill columns if next ones are a bottom of wide-multirow cell
+        while True:
+            nextcell = self.table.cell()
+            if nextcell is None:  # not a bottom of multirow cell
+                break
+            else:  # a bottom part of multirow cell
+                self.table.col += nextcell.width
+                self.body.append('&')
+                if nextcell.width == 1:
+                    # insert suitable strut for equalizing row heights in multirow
+                    # they also serve to clear colour panels which would hide the text
+                    self.body.append('\\sphinxtablestrut{%d}' % nextcell.cell_id)
+                else:
+                    # use \multicolumn for wide multirow cell
+                    self.body.append('\\multicolumn{%d}{l|}'
+                                     '{\\sphinxtablestrut{%d}}' %
+                                     (nextcell.width, nextcell.cell_id))
 
     def visit_acks(self, node):
         # type: (nodes.Node) -> None
@@ -1471,15 +1568,6 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append(self.context.pop())
         self.unrestrict_footnote(node)
         self.in_term -= 1
-
-    def visit_termsep(self, node):
-        # type: (nodes.Node) -> None
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
-                      'This warning is displayed because some Sphinx extension '
-                      'uses sphinx.addnodes.termsep. Please report it to '
-                      'author of the extension.', RemovedInSphinx16Warning)
-        self.body.append(', ')
-        raise nodes.SkipNode
 
     def visit_classifier(self, node):
         # type: (nodes.Node) -> None
@@ -1577,7 +1665,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         try:
             return rstdim_to_latexdim(width_str)
         except ValueError:
-            self.builder.warn('dimension unit %s is invalid. Ignored.' % width_str)
+            logger.warning('dimension unit %s is invalid. Ignored.', width_str)
+            return None
 
     def is_inline(self, node):
         # type: (nodes.Node) -> bool
@@ -1587,8 +1676,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_image(self, node):
         # type: (nodes.Node) -> None
         attrs = node.attributes
-        pre = []                        # in reverse order
-        post = []
+        pre = []    # type: List[unicode]
+                    # in reverse order
+        post = []   # type: List[unicode]
+        if self.in_parsed_literal:
+            pre = ['\\begingroup\\sphinxunactivateextrasandspace\\relax ']
+            post = ['\\endgroup ']
         include_graphics_options = []
         is_inline = self.is_inline(node)
         if 'width' in attrs:
@@ -1759,6 +1852,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         self.body.append('\\end{sphinxadmonition}\n')
 
     def _make_visit_admonition(name):
+        # type: (unicode) -> Callable[[LaTeXTranslator, nodes.Node], None]
         def visit_admonition(self, node):
             # type: (nodes.Node) -> None
             self.body.append(u'\n\\begin{sphinxadmonition}{%s}{%s:}' %
@@ -1812,7 +1906,7 @@ class LaTeXTranslator(nodes.NodeVisitor):
         parindex = node.parent.index(node)
         try:
             try:
-                next = node.parent[parindex+1]
+                next = node.parent[parindex + 1]
             except IndexError:
                 # last node in parent, look at next after parent
                 # (for section of equal level) if it exists
@@ -1875,14 +1969,14 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 elif type == 'pair':
                     p1, p2 = [self.encode(x) for x in split_into(2, 'pair', string)]
                     self.body.append(r'\index{%s!%s%s}\index{%s!%s%s}' %
-                                     (p1, p2, m,  p2, p1, m))
+                                     (p1, p2, m, p2, p1, m))
                 elif type == 'triple':
                     p1, p2, p3 = [self.encode(x)
                                   for x in split_into(3, 'triple', string)]
                     self.body.append(
                         r'\index{%s!%s %s%s}\index{%s!%s, %s%s}'
                         r'\index{%s!%s %s%s}' %
-                        (p1, p2, p3, m,  p2, p3, p1, m,  p3, p1, p2, m))
+                        (p1, p2, p3, m, p2, p3, p1, m, p3, p1, p2, m))
                 elif type == 'see':
                     p1, p2 = [self.encode(x) for x in split_into(2, 'see', string)]
                     self.body.append(r'\index{%s|see{%s}}' % (p1, p2))
@@ -1890,10 +1984,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
                     p1, p2 = [self.encode(x) for x in split_into(2, 'seealso', string)]
                     self.body.append(r'\index{%s|see{%s}}' % (p1, p2))
                 else:
-                    self.builder.warn(
-                        'unknown index entry type %s found' % type)
+                    logger.warning('unknown index entry type %s found', type)
             except ValueError as err:
-                self.builder.warn(str(err))
+                logger.warning(str(err))
         raise nodes.SkipNode
 
     def visit_raw(self, node):
@@ -1957,8 +2050,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                 else:
                     self.context.append('}}}')
         else:
-            self.builder.warn('unusable reference target found: %s' % uri,
-                              (self.curfilestack[-1], node.line))
+            logger.warning('unusable reference target found: %s', uri,
+                           location=(self.curfilestack[-1], node.line))
             self.context.append('')
 
     def depart_reference(self, node):
@@ -2132,7 +2225,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         if node.rawsource != node.astext():
             # most probably a parsed-literal block -- don't highlight
-            self.body.append('\\begin{alltt}\n')
+            self.in_parsed_literal += 1
+            self.body.append('\\begin{sphinxalltt}\n')
         else:
             ids = ''  # type: unicode
             for id in self.pop_hyperlink_ids('code-block'):
@@ -2159,12 +2253,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
             else:
                 opts = {}
 
-            def warner(msg, **kwargs):
-                # type: (unicode) -> None
-                self.builder.warn(msg, (self.curfilestack[-1], node.line), **kwargs)
-            hlcode = self.highlighter.highlight_block(code, lang, opts=opts,
-                                                      warn=warner, linenos=linenos,
-                                                      **highlight_args)
+            hlcode = self.highlighter.highlight_block(
+                code, lang, opts=opts, linenos=linenos,
+                location=(self.curfilestack[-1], node.line), **highlight_args
+            )
             # workaround for Unicode issue
             hlcode = hlcode.replace(u'€', u'@texteuro[]')
             if self.in_footnote:
@@ -2183,23 +2275,25 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                         '\\begin{sphinxVerbatim}')
             # get consistent trailer
             hlcode = hlcode.rstrip()[:-14]  # strip \end{Verbatim}
-            self.body.append('\n' + hlcode + '\\end{sphinxVerbatim')
             if self.table and not self.in_footnote:
-                self.body.append('intable')
-            self.body.append('}\n')
+                hlcode += '\\end{sphinxVerbatimintable}'
+            else:
+                hlcode += '\\end{sphinxVerbatim}'
+            self.body.append('\n' + hlcode + '\n')
             if ids:
                 self.body.append('\\let\\sphinxLiteralBlockLabel\\empty\n')
             raise nodes.SkipNode
 
     def depart_literal_block(self, node):
         # type: (nodes.Node) -> None
-        self.body.append('\n\\end{alltt}\n')
+        self.body.append('\n\\end{sphinxalltt}\n')
+        self.in_parsed_literal -= 1
     visit_doctest_block = visit_literal_block
     depart_doctest_block = depart_literal_block
 
     def visit_line(self, node):
         # type: (nodes.Node) -> None
-        self.body.append('\item[] ')
+        self.body.append('\\item[] ')
 
     def depart_line(self, node):
         # type: (nodes.Node) -> None
@@ -2437,8 +2531,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_Text(self, node):
         # type: (nodes.Node) -> None
         text = self.encode(node.astext())
-        if not self.no_contractions:
-            text = educate_quotes_latex(text)
+        if not self.no_contractions and not self.in_parsed_literal:
+            text = educate_quotes_latex(text)  # type: ignore
         self.body.append(text)
 
     def depart_Text(self, node):
@@ -2464,10 +2558,10 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_math(self, node):
         # type: (nodes.Node) -> None
-        self.builder.warn('using "math" markup without a Sphinx math extension '
-                          'active, please use one of the math extensions '
-                          'described at http://sphinx-doc.org/ext/math.html',
-                          (self.curfilestack[-1], node.line))
+        logger.warning('using "math" markup without a Sphinx math extension '
+                       'active, please use one of the math extensions '
+                       'described at http://sphinx-doc.org/ext/math.html',
+                       location=(self.curfilestack[-1], node.line))
         raise nodes.SkipNode
 
     visit_math_block = visit_math

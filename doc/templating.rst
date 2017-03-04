@@ -307,30 +307,11 @@ in the future.
 
    The value of :confval:`master_doc`, for usage with :func:`pathto`.
 
-.. data:: next
-
-   The next document for the navigation.  This variable is either false or has
-   two attributes `link` and `title`.  The title contains HTML markup.  For
-   example, to generate a link to the next page, you can use this snippet::
-
-      {% if next %}
-      <a href="{{ next.link|e }}">{{ next.title }}</a>
-      {% endif %}
-
 .. data:: pagename
 
    The "page name" of the current file, i.e. either the document name if the
    file is generated from a reST source, or the equivalent hierarchical name
    relative to the output directory (``[directory/]filename_without_extension``).
-
-.. data:: parents
-
-   A list of parent documents for navigation, structured like the :data:`next`
-   item.
-
-.. data:: prev
-
-   Like :data:`next`, but for the previous page.
 
 .. data:: project
 
@@ -385,15 +366,57 @@ In documents that are created from source files (as opposed to
 automatically-generated files like the module index, or documents that already
 are in HTML form), these variables are also available:
 
+.. data:: body
+
+   A string containing the content of the page in HTML form as produced by the HTML builder,
+   before the theme is applied.
+
+.. data:: display_toc
+
+   A boolean that is True if the toc contains more than one entry.
+
 .. data:: meta
 
    Document metadata (a dictionary), see :ref:`metadata`.
+
+.. data:: metatags
+
+   A string containing the page's HTML :dudir:`meta` tags.
+
+.. data:: next
+
+   The next document for the navigation.  This variable is either false or has
+   two attributes `link` and `title`.  The title contains HTML markup.  For
+   example, to generate a link to the next page, you can use this snippet::
+
+      {% if next %}
+      <a href="{{ next.link|e }}">{{ next.title }}</a>
+      {% endif %}
+
+
+.. data:: page_source_suffix
+
+   The suffix of the file that was rendered. Since we support a list of :confval:`source_suffix`,
+   this will allow you to properly link to the original source file.
+
+.. data:: parents
+
+   A list of parent documents for navigation, structured like the :data:`next`
+   item.
+
+.. data:: prev
+
+   Like :data:`next`, but for the previous page.
 
 .. data:: sourcename
 
    The name of the copied source file for the current document.  This is only
    nonempty if the :confval:`html_copy_source` value is ``True``.
    This has empty value on creating automatically-generated files.
+
+.. data:: title
+
+   The page title.
 
 .. data:: toc
 
@@ -417,7 +440,4 @@ are in HTML form), these variables are also available:
    * ``includehidden`` (``False`` by default): if true, the TOC tree will also
      contain hidden entries.
 
-.. data:: page_source_suffix
 
-   The suffix of the file that was rendered. Since we support a list of :confval:`source_suffix`,
-   this will allow you to properly link to the original source file.

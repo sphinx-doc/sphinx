@@ -16,48 +16,48 @@ import time
 import types
 import codecs
 import fnmatch
+import warnings
 from os import path
-from glob import glob
+from collections import defaultdict
 
-from six import iteritems, itervalues, class_types, next
+from six import itervalues, class_types, next
 from six.moves import cPickle as pickle
 
 from docutils import nodes
 from docutils.io import NullOutput
 from docutils.core import Publisher
-from docutils.utils import Reporter, relative_path, get_source_line
+from docutils.utils import Reporter, get_source_line
 from docutils.parsers.rst import roles
 from docutils.parsers.rst.languages import en as english
 from docutils.frontend import OptionParser
 
 from sphinx import addnodes
 from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
-from sphinx.util import get_matching_docs, docname_join, FilenameUniqDict
-from sphinx.util.nodes import clean_astext, WarningStream, is_translatable, \
-    process_only_nodes
-from sphinx.util.osutil import SEP, getcwd, fs_encoding, ensuredir
-from sphinx.util.images import guess_mimetype
-from sphinx.util.i18n import find_catalog_files, get_image_filename_for_language, \
-    search_image_for_language
-from sphinx.util.console import bold, purple  # type: ignore
+from sphinx.util import logging
+from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
+from sphinx.util.nodes import WarningStream, is_translatable, process_only_nodes
+from sphinx.util.osutil import SEP, ensuredir
+from sphinx.util.i18n import find_catalog_files
+from sphinx.util.console import bold  # type: ignore
 from sphinx.util.docutils import sphinx_domains
 from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.versioning import add_uids, merge_doctrees
-from sphinx.transforms import SphinxContentsFilter
-from sphinx.environment.managers.indexentries import IndexEntries
-from sphinx.environment.managers.toctree import Toctree
+from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.environment.adapters.indexentries import IndexEntries
+from sphinx.environment.adapters.toctree import TocTree
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterator, Pattern, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Pattern, Set, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.domains import Domain  # NOQA
-    from sphinx.environment.managers import EnvironmentManager  # NOQA
+
+logger = logging.getLogger(__name__)
 
 default_settings = {
     'embed_stylesheet': False,
@@ -75,7 +75,7 @@ default_settings = {
 # or changed to properly invalidate pickle files.
 #
 # NOTE: increase base version by 2 to have distinct numbers for Py2 and 3
-ENV_VERSION = 50 + (sys.version_info[0] - 2)
+ENV_VERSION = 51 + (sys.version_info[0] - 2)
 
 
 dummy_reporter = Reporter('', 4, 4)
@@ -118,13 +118,10 @@ class BuildEnvironment(object):
     def topickle(self, filename):
         # type: (unicode) -> None
         # remove unpicklable attributes
-        warnfunc = self._warnfunc
-        self.set_warnfunc(None)
         values = self.config.values
         del self.config.values
         domains = self.domains
         del self.domains
-        managers = self.detach_managers()
         # remove potentially pickling-problematic values from config
         for key, val in list(vars(self.config).items()):
             if key.startswith('_') or \
@@ -135,10 +132,8 @@ class BuildEnvironment(object):
         with open(filename, 'wb') as picklefile:
             pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
         # reset attributes
-        self.attach_managers(managers)
         self.domains = domains
         self.config.values = values
-        self.set_warnfunc(warnfunc)
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
@@ -176,7 +171,7 @@ class BuildEnvironment(object):
         self.all_docs = {}          # type: Dict[unicode, float]
                                     # docname -> mtime at the time of reading
                                     # contains all read docnames
-        self.dependencies = {}      # type: Dict[unicode, Set[unicode]]
+        self.dependencies = defaultdict(set)    # type: Dict[unicode, Set[unicode]]
                                     # docname -> set of dependent file
                                     # names, relative to documentation root
         self.included = set()       # type: Set[unicode]
@@ -186,8 +181,8 @@ class BuildEnvironment(object):
                                     # next build
 
         # File metadata
-        self.metadata = {}          # type: Dict[unicode, Dict[unicode, Any]]
-                                    # docname -> dict of metadata items
+        self.metadata = defaultdict(dict)       # type: Dict[unicode, Dict[unicode, Any]]
+                                                # docname -> dict of metadata items
 
         # TOC inventory
         self.titles = {}            # type: Dict[unicode, nodes.Node]
@@ -241,35 +236,10 @@ class BuildEnvironment(object):
         # attributes of "any" cross references
         self.ref_context = {}       # type: Dict[unicode, Any]
 
-        self.managers = {}          # type: Dict[unicode, EnvironmentManager]
-        self.init_managers()
-
-    def init_managers(self):
-        # type: () -> None
-        managers = {}
-        manager_class = None  # type: Type[EnvironmentManager]
-        for manager_class in [IndexEntries, Toctree]:  # type: ignore
-            managers[manager_class.name] = manager_class(self)
-        self.attach_managers(managers)
-
-    def attach_managers(self, managers):
-        # type: (Dict[unicode, EnvironmentManager]) -> None
-        for name, manager in iteritems(managers):
-            self.managers[name] = manager
-            manager.attach(self)
-
-    def detach_managers(self):
-        # type: () -> Dict[unicode, EnvironmentManager]
-        managers = self.managers
-        self.managers = {}
-        for _, manager in iteritems(managers):
-            manager.detach(self)
-        return managers
-
     def set_warnfunc(self, func):
         # type: (Callable) -> None
-        self._warnfunc = func
-        self.settings['warning_stream'] = WarningStream(func)
+        warnings.warn('env.set_warnfunc() is now deprecated. Use sphinx.util.logging instead.',
+                      RemovedInSphinx20Warning)
 
     def set_versioning_method(self, method, compare):
         # type: (unicode, bool) -> None
@@ -312,19 +282,10 @@ class BuildEnvironment(object):
         if docname in self.all_docs:
             self.all_docs.pop(docname, None)
             self.reread_always.discard(docname)
-            self.metadata.pop(docname, None)
-            self.dependencies.pop(docname, None)
-            self.titles.pop(docname, None)
-            self.longtitles.pop(docname, None)
-            self.images.purge_doc(docname)
-            self.dlfiles.purge_doc(docname)
 
             for version, changes in self.versionchanges.items():
                 new = [change for change in changes if change[1] != docname]
                 changes[:] = new
-
-        for manager in itervalues(self.managers):
-            manager.clear_doc(docname)
 
         for domain in self.domains.values():
             domain.clear_doc(docname)
@@ -341,21 +302,11 @@ class BuildEnvironment(object):
             self.all_docs[docname] = other.all_docs[docname]
             if docname in other.reread_always:
                 self.reread_always.add(docname)
-            self.metadata[docname] = other.metadata[docname]
-            if docname in other.dependencies:
-                self.dependencies[docname] = other.dependencies[docname]
-            self.titles[docname] = other.titles[docname]
-            self.longtitles[docname] = other.longtitles[docname]
-
-        self.images.merge_other(docnames, other.images)
-        self.dlfiles.merge_other(docnames, other.dlfiles)
 
         for version, changes in other.versionchanges.items():
             self.versionchanges.setdefault(version, []).extend(
                 change for change in changes if change[1] in docnames)
 
-        for manager in itervalues(self.managers):
-            manager.merge_other(docnames, other)
         for domainname, domain in self.domains.items():
             domain.merge_domaindata(docnames, other.domaindata[domainname])
         app.emit('env-merge-info', self, docnames, other)
@@ -369,8 +320,8 @@ class BuildEnvironment(object):
         if filename.startswith(self.srcdir):
             filename = filename[len(self.srcdir) + 1:]
         for suffix in self.config.source_suffix:
-            if fnmatch.fnmatch(filename, '*' + suffix):  # type: ignore
-                return filename[:-len(suffix)]  # type: ignore
+            if fnmatch.fnmatch(filename, '*' + suffix):
+                return filename[:-len(suffix)]
         else:
             # the file does not have docname
             return None
@@ -387,14 +338,14 @@ class BuildEnvironment(object):
         docname = docname.replace(SEP, path.sep)
         if suffix is None:
             candidate_suffix = None  # type: unicode
-            for candidate_suffix in self.config.source_suffix:  # type: ignore
+            for candidate_suffix in self.config.source_suffix:
                 if path.isfile(path.join(self.srcdir, docname) +
                                candidate_suffix):
                     suffix = candidate_suffix
                     break
             else:
                 # document does not exist
-                suffix = self.config.source_suffix[0]  # type: ignore
+                suffix = self.config.source_suffix[0]
         if base is True:
             return path.join(self.srcdir, docname) + suffix
         elif base is None:
@@ -427,8 +378,8 @@ class BuildEnvironment(object):
             enc_rel_fn = rel_fn.encode(sys.getfilesystemencoding())
             return rel_fn, path.abspath(path.join(self.srcdir, enc_rel_fn))
 
-    def find_files(self, config):
-        # type: (Config) -> None
+    def find_files(self, config, buildername):
+        # type: (Config, unicode) -> None
         """Find all source files in the source dir and put them in
         self.found_docs.
         """
@@ -444,18 +395,25 @@ class BuildEnvironment(object):
             if os.access(self.doc2path(docname), os.R_OK):
                 self.found_docs.add(docname)
             else:
-                self.warn(docname, "document not readable. Ignored.")
+                logger.warning("document not readable. Ignored.", location=docname)
 
-        # add catalog mo file dependency
-        for docname in self.found_docs:
-            catalog_files = find_catalog_files(
-                docname,
-                self.srcdir,
-                self.config.locale_dirs,
-                self.config.language,
-                self.config.gettext_compact)
-            for filename in catalog_files:
-                self.dependencies.setdefault(docname, set()).add(filename)
+        # Current implementation is applying translated messages in the reading
+        # phase.Therefore, in order to apply the updated message catalog, it is
+        # necessary to re-process from the reading phase. Here, if dependency
+        # is set for the doc source and the mo file, it is processed again from
+        # the reading phase when mo is updated. In the future, we would like to
+        # move i18n process into the writing phase, and remove these lines.
+        if buildername != 'gettext':
+            # add catalog mo file dependency
+            for docname in self.found_docs:
+                catalog_files = find_catalog_files(
+                    docname,
+                    self.srcdir,
+                    self.config.locale_dirs,
+                    self.config.language,
+                    self.config.gettext_compact)
+                for filename in catalog_files:
+                    self.dependencies[docname].add(filename)
 
     def get_outdated_files(self, config_changed):
         # type: (bool) -> Tuple[Set[unicode], Set[unicode], Set[unicode]]
@@ -490,7 +448,7 @@ class BuildEnvironment(object):
                     changed.add(docname)
                     continue
                 # finally, check the mtime of dependencies
-                for dep in self.dependencies.get(docname, ()):
+                for dep in self.dependencies[docname]:
                     try:
                         # this will do the right thing when dep is absolute too
                         deppath = path.join(self.srcdir, dep)
@@ -522,10 +480,8 @@ class BuildEnvironment(object):
         else:
             # check if a config value was changed that affects how
             # doctrees are read
-            for key, descr in iteritems(config.values):
-                if descr[1] != 'env':
-                    continue
-                if self.config[key] != config[key]:
+            for confval in config.filter('env'):
+                if self.config[confval.name] != confval.value:
                     msg = '[config changed] '
                     config_changed = True
                     break
@@ -539,13 +495,13 @@ class BuildEnvironment(object):
         # the source and doctree directories may have been relocated
         self.srcdir = srcdir
         self.doctreedir = doctreedir
-        self.find_files(config)
+        self.find_files(config, app.buildername)
         self.config = config
 
         # this cache also needs to be updated every time
         self._nitpick_ignore = set(self.config.nitpick_ignore)
 
-        app.info(bold('updating environment: '), nonl=True)
+        logger.info(bold('updating environment: '), nonl=True)
 
         added, changed, removed = self.get_outdated_files(config_changed)
 
@@ -561,7 +517,7 @@ class BuildEnvironment(object):
 
         msg += '%s added, %s changed, %s removed' % (len(added), len(changed),
                                                      len(removed))
-        app.info(msg)
+        logger.info(msg)
 
         self.app = app
 
@@ -584,14 +540,14 @@ class BuildEnvironment(object):
                 if ext_ok:
                     continue
                 if ext_ok is None:
-                    app.warn('the %s extension does not declare if it '
-                             'is safe for parallel reading, assuming it '
-                             'isn\'t - please ask the extension author to '
-                             'check and make it explicit' % extname)
-                    app.warn('doing serial read')
+                    logger.warning('the %s extension does not declare if it '
+                                   'is safe for parallel reading, assuming it '
+                                   'isn\'t - please ask the extension author to '
+                                   'check and make it explicit', extname)
+                    logger.warning('doing serial read')
                 else:
-                    app.warn('the %s extension is not safe for parallel '
-                             'reading, doing serial read' % extname)
+                    logger.warning('the %s extension is not safe for parallel '
+                                   'reading, doing serial read', extname)
                 par_ok = False
                 break
         if par_ok:
@@ -613,8 +569,8 @@ class BuildEnvironment(object):
 
     def _read_serial(self, docnames, app):
         # type: (List[unicode], Sphinx) -> None
-        for docname in app.status_iterator(docnames, 'reading sources... ',
-                                           purple, len(docnames)):
+        for docname in status_iterator(docnames, 'reading sources... ', "purple",
+                                       len(docnames), self.app.verbosity):
             # remove all inventory entries for that file
             app.emit('env-purge-doc', self, docname)
             self.clear_doc(docname)
@@ -630,12 +586,9 @@ class BuildEnvironment(object):
         def read_process(docs):
             # type: (List[unicode]) -> BuildEnvironment
             self.app = app
-            self.warnings = []  # type: List[Tuple]
-            self.set_warnfunc(lambda *args, **kwargs: self.warnings.append((args, kwargs)))
             for docname in docs:
                 self.read_doc(docname, app)
             # allow pickling self to send it back
-            self.set_warnfunc(None)
             del self.app
             del self.domains
             del self.config.values
@@ -644,28 +597,24 @@ class BuildEnvironment(object):
 
         def merge(docs, otherenv):
             # type: (List[unicode], BuildEnvironment) -> None
-            warnings.extend(otherenv.warnings)
             self.merge_info_from(docs, otherenv, app)
 
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
 
-        warnings = []  # type: List[Tuple]
-        for chunk in app.status_iterator(
-                chunks, 'reading sources... ', purple, len(chunks)):
+        for chunk in status_iterator(chunks, 'reading sources... ', "purple",
+                                     len(chunks), self.app.verbosity):
             tasks.add_task(read_process, chunk, merge)
 
         # make sure all threads have finished
-        app.info(bold('waiting for workers...'))
+        logger.info(bold('waiting for workers...'))
         tasks.join()
 
-        for warning, kwargs in warnings:
-            self._warnfunc(*warning, **kwargs)
-
-    def check_dependents(self, already):
-        # type: (Set[unicode]) -> Iterator[unicode]
-        to_rewrite = (self.toctree.assign_section_numbers() +  # type: ignore
-                      self.toctree.assign_figure_numbers())  # type: ignore
+    def check_dependents(self, app, already):
+        # type: (Sphinx, Set[unicode]) -> Iterator[unicode]
+        to_rewrite = []  # type: List[unicode]
+        for docnames in app.emit('env-get-updated', self):
+            to_rewrite.extend(docnames)
         for docname in set(to_rewrite):
             if docname not in already:
                 yield docname
@@ -680,11 +629,11 @@ class BuildEnvironment(object):
         if lineend == -1:
             lineend = len(error.object)
         lineno = error.object.count(b'\n', 0, error.start) + 1
-        self.warn(self.docname, 'undecodable source characters, '
-                  'replacing with "?": %r' %
-                  (error.object[linestart+1:error.start] + b'>>>' +
-                   error.object[error.start:error.end] + b'<<<' +
-                   error.object[error.end:lineend]), lineno)
+        logger.warning('undecodable source characters, replacing with "?": %r',
+                       (error.object[linestart + 1:error.start] + b'>>>' +
+                        error.object[error.start:error.end] + b'<<<' +
+                        error.object[error.end:lineend]),
+                       location=(self.docname, lineno))
         return (u'?', error.end)
 
     def read_doc(self, docname, app=None):
@@ -714,8 +663,8 @@ class BuildEnvironment(object):
                 if role_fn:
                     roles._roles[''] = role_fn
                 else:
-                    self.warn(docname, 'default role %s not found' %
-                              self.config.default_role)
+                    logger.warning('default role %s not found', self.config.default_role,
+                                   location=docname)
 
             codecs.register_error('sphinx', self.warn_and_replace)  # type: ignore
 
@@ -736,13 +685,6 @@ class BuildEnvironment(object):
             doctree = pub.document
 
         # post-processing
-        self.process_dependencies(docname, doctree)
-        self.process_images(docname, doctree)
-        self.process_downloads(docname, doctree)
-        self.process_metadata(docname, doctree)
-        self.create_title_from(docname, doctree)
-        for manager in itervalues(self.managers):
-            manager.process_doc(docname, doctree)
         for domain in itervalues(self.domains):
             domain.process_doc(self, docname, doctree)
 
@@ -804,18 +746,20 @@ class BuildEnvironment(object):
 
     @property
     def currmodule(self):
-        # type () -> None
+        # type: () -> None
         """Backwards compatible alias.  Will be removed."""
-        self.warn(self.docname, 'env.currmodule is being referenced by an '
-                  'extension; this API will be removed in the future')
+        logger.warning('env.currmodule is being referenced by an '
+                       'extension; this API will be removed in the future',
+                       location=self.docname)
         return self.ref_context.get('py:module')
 
     @property
     def currclass(self):
         # type: () -> None
         """Backwards compatible alias.  Will be removed."""
-        self.warn(self.docname, 'env.currclass is being referenced by an '
-                  'extension; this API will be removed in the future')
+        logger.warning('env.currclass is being referenced by an '
+                       'extension; this API will be removed in the future',
+                       location=self.docname)
         return self.ref_context.get('py:class')
 
     def new_serialno(self, category=''):
@@ -837,7 +781,7 @@ class BuildEnvironment(object):
 
         *filename* should be absolute or relative to the source directory.
         """
-        self.dependencies.setdefault(self.docname, set()).add(filename)
+        self.dependencies[self.docname].add(filename)
 
     def note_included(self, filename):
         # type: (unicode) -> None
@@ -863,180 +807,31 @@ class BuildEnvironment(object):
              self.ref_context.get('py:module'),
              self.temp_data.get('object'), node.astext()))
 
-    # post-processing of read doctrees
-
-    def process_dependencies(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
-        """Process docutils-generated dependency info."""
-        cwd = getcwd()
-        frompath = path.join(path.normpath(self.srcdir), 'dummy')
-        deps = doctree.settings.record_dependencies
-        if not deps:
-            return
-        for dep in deps.list:
-            # the dependency path is relative to the working dir, so get
-            # one relative to the srcdir
-            if isinstance(dep, bytes):
-                dep = dep.decode(fs_encoding)
-            relpath = relative_path(frompath,
-                                    path.normpath(path.join(cwd, dep)))
-            self.dependencies.setdefault(docname, set()).add(relpath)
-
-    def process_downloads(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
-        """Process downloadable file paths. """
-        for node in doctree.traverse(addnodes.download_reference):
-            targetname = node['reftarget']
-            rel_filename, filename = self.relfn2path(targetname, docname)
-            self.dependencies.setdefault(docname, set()).add(rel_filename)
-            if not os.access(filename, os.R_OK):
-                self.warn_node('download file not readable: %s' % filename,
-                               node)
-                continue
-            uniquename = self.dlfiles.add_file(docname, filename)
-            node['filename'] = uniquename
-
-    def process_images(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
-        """Process and rewrite image URIs."""
-        def collect_candidates(imgpath, candidates):
-            globbed = {}  # type: Dict[unicode, List[unicode]]
-            for filename in glob(imgpath):
-                new_imgpath = relative_path(path.join(self.srcdir, 'dummy'),
-                                            filename)
-                try:
-                    mimetype = guess_mimetype(filename)
-                    if mimetype not in candidates:
-                        globbed.setdefault(mimetype, []).append(new_imgpath)
-                except (OSError, IOError) as err:
-                    self.warn_node('image file %s not readable: %s' %
-                                   (filename, err), node)
-            for key, files in iteritems(globbed):
-                candidates[key] = sorted(files, key=len)[0]  # select by similarity
-
-        for node in doctree.traverse(nodes.image):
-            # Map the mimetype to the corresponding image.  The writer may
-            # choose the best image from these candidates.  The special key * is
-            # set if there is only single candidate to be used by a writer.
-            # The special key ? is set for nonlocal URIs.
-            node['candidates'] = candidates = {}
-            imguri = node['uri']
-            if imguri.startswith('data:'):
-                self.warn_node('image data URI found. some builders might not support', node,
-                               type='image', subtype='data_uri')
-                candidates['?'] = imguri
-                continue
-            elif imguri.find('://') != -1:
-                self.warn_node('nonlocal image URI found: %s' % imguri, node,
-                               type='image', subtype='nonlocal_uri')
-                candidates['?'] = imguri
-                continue
-            rel_imgpath, full_imgpath = self.relfn2path(imguri, docname)
-            if self.config.language:
-                # substitute figures (ex. foo.png -> foo.en.png)
-                i18n_full_imgpath = search_image_for_language(full_imgpath, self)
-                if i18n_full_imgpath != full_imgpath:
-                    full_imgpath = i18n_full_imgpath
-                    rel_imgpath = relative_path(path.join(self.srcdir, 'dummy'),
-                                                i18n_full_imgpath)
-            # set imgpath as default URI
-            node['uri'] = rel_imgpath
-            if rel_imgpath.endswith(os.extsep + '*'):
-                if self.config.language:
-                    # Search language-specific figures at first
-                    i18n_imguri = get_image_filename_for_language(imguri, self)
-                    _, full_i18n_imgpath = self.relfn2path(i18n_imguri, docname)
-                    collect_candidates(full_i18n_imgpath, candidates)
-
-                collect_candidates(full_imgpath, candidates)
-            else:
-                candidates['*'] = rel_imgpath
-
-            # map image paths to unique image names (so that they can be put
-            # into a single directory)
-            for imgpath in itervalues(candidates):
-                self.dependencies.setdefault(docname, set()).add(imgpath)
-                if not os.access(path.join(self.srcdir, imgpath), os.R_OK):
-                    self.warn_node('image file not readable: %s' % imgpath,
-                                   node)
-                    continue
-                self.images.add_file(docname, imgpath)
-
-    def process_metadata(self, docname, doctree):
-        # type: (unicode, nodes.Node) -> None
-        """Process the docinfo part of the doctree as metadata.
-
-        Keep processing minimal -- just return what docutils says.
-        """
-        self.metadata[docname] = {}
-        md = self.metadata[docname]
-        try:
-            docinfo = doctree[0]
-        except IndexError:
-            # probably an empty document
-            return
-        if docinfo.__class__ is not nodes.docinfo:
-            # nothing to see here
-            return
-        for node in docinfo:
-            # nodes are multiply inherited...
-            if isinstance(node, nodes.authors):
-                md['authors'] = [author.astext() for author in node]
-            elif isinstance(node, nodes.TextElement):  # e.g. author
-                md[node.__class__.__name__] = node.astext()
-            else:
-                name, body = node
-                md[name.astext()] = body.astext()
-        for name, value in md.items():
-            if name in ('tocdepth',):
-                try:
-                    value = int(value)
-                except ValueError:
-                    value = 0
-                md[name] = value
-
-        del doctree[0]
-
-    def create_title_from(self, docname, document):
-        # type: (unicode, nodes.Node) -> None
-        """Add a title node to the document (just copy the first section title),
-        and store that title in the environment.
-        """
-        titlenode = nodes.title()
-        longtitlenode = titlenode
-        # explicit title set with title directive; use this only for
-        # the <title> tag in HTML output
-        if 'title' in document:
-            longtitlenode = nodes.title()
-            longtitlenode += nodes.Text(document['title'])
-        # look for first section title and use that as the title
-        for node in document.traverse(nodes.section):
-            visitor = SphinxContentsFilter(document)
-            node[0].walkabout(visitor)
-            titlenode += visitor.get_entry_text()
-            break
-        else:
-            # document has no title
-            titlenode += nodes.Text('<no title>')
-        self.titles[docname] = titlenode
-        self.longtitles[docname] = longtitlenode
-
     def note_toctree(self, docname, toctreenode):
         # type: (unicode, addnodes.toctree) -> None
         """Note a TOC tree directive in a document and gather information about
         file relations from it.
         """
-        self.toctree.note_toctree(docname, toctreenode)  # type: ignore
+        warnings.warn('env.note_toctree() is deprecated. '
+                      'Use sphinx.environment.adapters.toctre.TocTree instead.',
+                      RemovedInSphinx20Warning)
+        TocTree(self).note(docname, toctreenode)
 
     def get_toc_for(self, docname, builder):
-        # type: (unicode, Builder) -> addnodes.toctree
+        # type: (unicode, Builder) -> Dict[unicode, nodes.Node]
         """Return a TOC nodetree -- for use on the same page only!"""
-        return self.toctree.get_toc_for(docname, builder)  # type: ignore
+        warnings.warn('env.get_toc_for() is deprecated. '
+                      'Use sphinx.environment.adapters.toctre.TocTree instead.',
+                      RemovedInSphinx20Warning)
+        return TocTree(self).get_toc_for(docname, builder)
 
     def get_toctree_for(self, docname, builder, collapse, **kwds):
         # type: (unicode, Builder, bool, Any) -> addnodes.toctree
         """Return the global TOC nodetree."""
-        return self.toctree.get_toctree_for(docname, builder, collapse, **kwds)  # type: ignore
+        warnings.warn('env.get_toctree_for() is deprecated. '
+                      'Use sphinx.environment.adapters.toctre.TocTree instead.',
+                      RemovedInSphinx20Warning)
+        return TocTree(self).get_toctree_for(docname, builder, collapse, **kwds)
 
     def get_domain(self, domainname):
         # type: (unicode) -> Domain
@@ -1076,9 +871,9 @@ class BuildEnvironment(object):
 
         # now, resolve all toctree nodes
         for toctreenode in doctree.traverse(addnodes.toctree):
-            result = self.resolve_toctree(docname, builder, toctreenode,
-                                          prune=prune_toctrees,
-                                          includehidden=includehidden)
+            result = TocTree(self).resolve(docname, builder, toctreenode,
+                                           prune=prune_toctrees,
+                                           includehidden=includehidden)
             if result is None:
                 toctreenode.replace_self([])
             else:
@@ -1100,9 +895,9 @@ class BuildEnvironment(object):
         If *collapse* is True, all branches not containing docname will
         be collapsed.
         """
-        return self.toctree.resolve_toctree(docname, builder, toctree, prune,  # type: ignore
-                                            maxdepth, titles_only, collapse,
-                                            includehidden)
+        return TocTree(self).resolve(docname, builder, toctree, prune,
+                                     maxdepth, titles_only, collapse,
+                                     includehidden)
 
     def resolve_references(self, doctree, fromdocname, builder):
         # type: (nodes.Node, unicode, Builder) -> None
@@ -1127,8 +922,6 @@ class BuildEnvironment(object):
                 # really hardwired reference types
                 elif typ == 'any':
                     newnode = self._resolve_any_reference(builder, refdoc, node, contnode)
-                elif typ == 'doc':
-                    newnode = self._resolve_doc_reference(builder, refdoc, node, contnode)
                 # no new node found? try the missing-reference event
                 if newnode is None:
                     newnode = builder.app.emit_firstresult(
@@ -1142,7 +935,7 @@ class BuildEnvironment(object):
             node.replace_self(newnode or contnode)
 
         # remove only-nodes that do not belong to our builder
-        process_only_nodes(doctree, builder.tags, warn_node=self.warn_node)
+        process_only_nodes(doctree, builder.tags)
 
         # allow custom references to be resolved
         builder.app.emit('doctree-resolved', doctree, fromdocname)
@@ -1164,32 +957,13 @@ class BuildEnvironment(object):
             return
         if domain and typ in domain.dangling_warnings:
             msg = domain.dangling_warnings[typ]
-        elif typ == 'doc':
-            msg = 'unknown document: %(target)s'
         elif node.get('refdomain', 'std') not in ('', 'std'):
             msg = '%s:%s reference target not found: %%(target)s' % \
                   (node['refdomain'], typ)
         else:
             msg = '%r reference target not found: %%(target)s' % typ
-        self.warn_node(msg % {'target': target}, node, type='ref', subtype=typ)
-
-    def _resolve_doc_reference(self, builder, refdoc, node, contnode):
-        # type: (Builder, unicode, nodes.Node, nodes.Node) -> nodes.Node
-        # directly reference to document by source name;
-        # can be absolute or relative
-        docname = docname_join(refdoc, node['reftarget'])
-        if docname in self.all_docs:
-            if node['refexplicit']:
-                # reference with explicit title
-                caption = node.astext()
-            else:
-                caption = clean_astext(self.titles[docname])
-            innernode = nodes.inline(caption, caption)
-            innernode['classes'].append('doc')
-            newnode = nodes.reference('', '', internal=True)
-            newnode['refuri'] = builder.get_relative_uri(refdoc, docname)
-            newnode.append(innernode)
-            return newnode
+        logger.warning(msg % {'target': target},
+                       location=node, type='ref', subtype=typ)
 
     def _resolve_any_reference(self, builder, refdoc, node, contnode):
         # type: (Builder, unicode, nodes.Node, nodes.Node) -> nodes.Node
@@ -1197,7 +971,8 @@ class BuildEnvironment(object):
         target = node['reftarget']
         results = []  # type: List[Tuple[unicode, nodes.Node]]
         # first, try resolving as :doc:
-        doc_ref = self._resolve_doc_reference(builder, refdoc, node, contnode)
+        doc_ref = self.domains['std'].resolve_xref(self, refdoc, builder, 'doc',
+                                                   target, node, contnode)
         if doc_ref:
             results.append(('doc', doc_ref))
         # next, do the standard domain (makes this a priority)
@@ -1222,9 +997,9 @@ class BuildEnvironment(object):
             return None
         if len(results) > 1:
             nice_results = ' or '.join(':%s:' % r[0] for r in results)
-            self.warn_node('more than one target found for \'any\' cross-'
-                           'reference %r: could be %s' % (target, nice_results),
-                           node)
+            logger.warning('more than one target found for \'any\' cross-'
+                           'reference %r: could be %s', target, nice_results,
+                           location=node)
         res_role, newnode = results[0]
         # Override "any" class with the actual role type to get the styling
         # approximately correct.
@@ -1236,16 +1011,22 @@ class BuildEnvironment(object):
 
     def create_index(self, builder, group_entries=True,
                      _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
-        # type: (Builder, bool, Pattern) -> Any
-        return self.indices.create_index(builder, group_entries=group_entries, _fixre=_fixre)  # type: ignore  # NOQA
+        # type: (Builder, bool, Pattern) -> List[Tuple[unicode, List[Tuple[unicode, List[unicode]]]]]  # NOQA
+        warnings.warn('env.create_index() is deprecated. '
+                      'Use sphinx.environment.adapters.indexentreis.IndexEntries instead.',
+                      RemovedInSphinx20Warning)
+        return IndexEntries(self).create_index(builder,
+                                               group_entries=group_entries,
+                                               _fixre=_fixre)
 
     def collect_relations(self):
         # type: () -> Dict[unicode, List[unicode]]
         traversed = set()
 
         def traverse_toctree(parent, docname):
+            # type: (unicode, unicode) -> Iterator[Tuple[unicode, unicode]]
             if parent == docname:
-                self.warn(docname, 'self referenced toctree found. Ignored.')
+                logger.warning('self referenced toctree found. Ignored.', location=docname)
                 return
 
             # traverse toctree by pre-order
@@ -1285,4 +1066,5 @@ class BuildEnvironment(object):
                     continue
                 if 'orphan' in self.metadata[docname]:
                     continue
-                self.warn(docname, 'document isn\'t included in any toctree')
+                logger.warning('document isn\'t included in any toctree',
+                               location=docname)

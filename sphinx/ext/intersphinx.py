@@ -27,11 +27,9 @@
 from __future__ import print_function
 
 import time
-import zlib
-import codecs
+import functools
 import posixpath
 from os import path
-import re
 
 from six import PY3, iteritems, string_types
 from six.moves.urllib.parse import urlsplit, urlunsplit
@@ -42,11 +40,12 @@ from docutils.utils import relative_path
 import sphinx
 from sphinx.locale import _
 from sphinx.builders.html import INVENTORY_FILENAME
-from sphinx.util import requests
+from sphinx.util import requests, logging
+from sphinx.util.inventory import InventoryFile
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, IO, Iterator, Tuple, Union  # NOQA
+    from typing import Any, Dict, IO, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -56,90 +55,38 @@ if False:
 
     Inventory = Dict[unicode, Dict[unicode, Tuple[unicode, unicode, unicode, unicode]]]
 
-
-UTF8StreamReader = codecs.lookup('utf-8')[2]
-
-
-def read_inventory_v1(f, uri, join):
-    # type: (IO, unicode, Callable) -> Inventory
-    f = UTF8StreamReader(f)
-    invdata = {}  # type: Inventory
-    line = next(f)
-    projname = line.rstrip()[11:]
-    line = next(f)
-    version = line.rstrip()[11:]
-    for line in f:
-        name, type, location = line.rstrip().split(None, 2)
-        location = join(uri, location)
-        # version 1 did not add anchors to the location
-        if type == 'mod':
-            type = 'py:module'
-            location += '#module-' + name
-        else:
-            type = 'py:' + type
-            location += '#' + name
-        invdata.setdefault(type, {})[name] = (projname, version, location, '-')
-    return invdata
+logger = logging.getLogger(__name__)
 
 
-def read_inventory_v2(f, uri, join, bufsize=16*1024):
-    # type: (IO, unicode, Callable, int) -> Inventory
-    invdata = {}  # type: Inventory
-    line = f.readline()
-    projname = line.rstrip()[11:].decode('utf-8')
-    line = f.readline()
-    version = line.rstrip()[11:].decode('utf-8')
-    line = f.readline().decode('utf-8')
-    if 'zlib' not in line:
-        raise ValueError
+class InventoryAdapter(object):
+    """Inventory adapter for environment"""
 
-    def read_chunks():
-        # type: () -> Iterator[bytes]
-        decompressor = zlib.decompressobj()
-        for chunk in iter(lambda: f.read(bufsize), b''):
-            yield decompressor.decompress(chunk)
-        yield decompressor.flush()
+    def __init__(self, env):
+        self.env = env
 
-    def split_lines(iter):
-        # type: (Iterator[bytes]) -> Iterator[unicode]
-        buf = b''
-        for chunk in iter:
-            buf += chunk
-            lineend = buf.find(b'\n')
-            while lineend != -1:
-                yield buf[:lineend].decode('utf-8')
-                buf = buf[lineend+1:]
-                lineend = buf.find(b'\n')
-        assert not buf
+        if not hasattr(env, 'intersphinx_cache'):
+            self.env.intersphinx_cache = {}
+            self.env.intersphinx_inventory = {}
+            self.env.intersphinx_named_inventory = {}
 
-    for line in split_lines(read_chunks()):
-        # be careful to handle names with embedded spaces correctly
-        m = re.match(r'(?x)(.+?)\s+(\S*:\S*)\s+(-?\d+)\s+(\S+)\s+(.*)',
-                     line.rstrip())
-        if not m:
-            continue
-        name, type, prio, location, dispname = m.groups()
-        if type == 'py:module' and type in invdata and \
-                name in invdata[type]:  # due to a bug in 1.1 and below,
-                                        # two inventory entries are created
-                                        # for Python modules, and the first
-                                        # one is correct
-            continue
-        if location.endswith(u'$'):
-            location = location[:-1] + name
-        location = join(uri, location)
-        invdata.setdefault(type, {})[name] = (projname, version,
-                                              location, dispname)
-    return invdata
+    @property
+    def cache(self):
+        # type: () -> Dict[unicode, Tuple[unicode, int, Inventory]]
+        return self.env.intersphinx_cache
 
+    @property
+    def main_inventory(self):
+        # type: () -> Inventory
+        return self.env.intersphinx_inventory
 
-def read_inventory(f, uri, join, bufsize=16*1024):
-    # type: (IO, unicode, Callable, int) -> Inventory
-    line = f.readline().rstrip().decode('utf-8')
-    if line == '# Sphinx inventory version 1':
-        return read_inventory_v1(f, uri, join)
-    elif line == '# Sphinx inventory version 2':
-        return read_inventory_v2(f, uri, join, bufsize=bufsize)
+    @property
+    def named_inventory(self):
+        # type: () -> Dict[unicode, Inventory]
+        return self.env.intersphinx_named_inventory
+
+    def clear(self):
+        self.env.intersphinx_inventory.clear()
+        self.env.intersphinx_named_inventory.clear()
 
 
 def _strip_basic_auth(url):
@@ -184,6 +131,9 @@ def _read_from_url(url, config=None):
     r = requests.get(url, stream=True, config=config, timeout=config.intersphinx_timeout)
     r.raise_for_status()
     r.raw.url = r.url
+    # decode content-body based on the header.
+    # ref: https://github.com/kennethreitz/requests/issues/2155
+    r.raw.read = functools.partial(r.raw.read, decode_content=True)
     return r.raw
 
 
@@ -228,26 +178,26 @@ def fetch_inventory(app, uri, inv):
         else:
             f = open(path.join(app.srcdir, inv), 'rb')
     except Exception as err:
-        app.warn('intersphinx inventory %r not fetchable due to '
-                 '%s: %s' % (inv, err.__class__, err))
+        logger.warning('intersphinx inventory %r not fetchable due to %s: %s',
+                       inv, err.__class__, err)
         return
     try:
         if hasattr(f, 'url'):
             newinv = f.url  # type: ignore
             if inv != newinv:
-                app.info('intersphinx inventory has moved: %s -> %s' % (inv, newinv))
+                logger.info('intersphinx inventory has moved: %s -> %s', inv, newinv)
 
                 if uri in (inv, path.dirname(inv), path.dirname(inv) + '/'):
                     uri = path.dirname(newinv)
         with f:
             try:
                 join = localuri and path.join or posixpath.join
-                invdata = read_inventory(f, uri, join)
-            except ValueError:
-                raise ValueError('unknown or unsupported inventory version')
+                invdata = InventoryFile.load(f, uri, join)
+            except ValueError as exc:
+                raise ValueError('unknown or unsupported inventory version: %r' % exc)
     except Exception as err:
-        app.warn('intersphinx inventory %r not readable due to '
-                 '%s: %s' % (inv, err.__class__.__name__, err))
+        logger.warning('intersphinx inventory %r not readable due to %s: %s',
+                       inv, err.__class__.__name__, err)
     else:
         return invdata
 
@@ -257,23 +207,18 @@ def load_mappings(app):
     """Load all intersphinx mappings into the environment."""
     now = int(time.time())
     cache_time = now - app.config.intersphinx_cache_limit * 86400
-    env = app.builder.env
-    if not hasattr(env, 'intersphinx_cache'):
-        env.intersphinx_cache = {}  # type: ignore
-        env.intersphinx_inventory = {}  # type: ignore
-        env.intersphinx_named_inventory = {}  # type: ignore
-    cache = env.intersphinx_cache  # type: ignore
+    inventories = InventoryAdapter(app.builder.env)
     update = False
     for key, value in iteritems(app.config.intersphinx_mapping):
         name = None  # type: unicode
         uri = None   # type: unicode
         inv = None   # type: Union[unicode, Tuple[unicode, ...]]
 
-        if isinstance(value, tuple):
+        if isinstance(value, (list, tuple)):
             # new format
-            name, (uri, inv) = key, value
+            name, (uri, inv) = key, value  # type: ignore
             if not isinstance(name, string_types):
-                app.warn('intersphinx identifier %r is not string. Ignored' % name)
+                logger.warning('intersphinx identifier %r is not string. Ignored', name)
                 continue
         else:
             # old format, no name
@@ -291,20 +236,19 @@ def load_mappings(app):
                 inv = posixpath.join(uri, INVENTORY_FILENAME)
             # decide whether the inventory must be read: always read local
             # files; remote ones only if the cache time is expired
-            if '://' not in inv or uri not in cache \
-                    or cache[uri][1] < cache_time:
+            if '://' not in inv or uri not in inventories.cache \
+                    or inventories.cache[uri][1] < cache_time:
                 safe_inv_url = _get_safe_url(inv)  # type: ignore
-                app.info(
-                    'loading intersphinx inventory from %s...' % safe_inv_url)
+                logger.info('loading intersphinx inventory from %s...', safe_inv_url)
                 invdata = fetch_inventory(app, uri, inv)
                 if invdata:
-                    cache[uri] = (name, now, invdata)
+                    inventories.cache[uri] = (name, now, invdata)
                     update = True
                     break
 
     if update:
-        env.intersphinx_inventory = {}  # type: ignore
-        env.intersphinx_named_inventory = {}  # type: ignore
+        inventories.clear()
+
         # Duplicate values in different inventories will shadow each
         # other; which one will override which can vary between builds
         # since they are specified using an unordered dict.  To make
@@ -312,21 +256,21 @@ def load_mappings(app):
         # add the unnamed inventories last.  This means that the
         # unnamed inventories will shadow the named ones but the named
         # ones can still be accessed when the name is specified.
-        cached_vals = list(cache.values())
+        cached_vals = list(inventories.cache.values())
         named_vals = sorted(v for v in cached_vals if v[0])
         unnamed_vals = [v for v in cached_vals if not v[0]]
         for name, _x, invdata in named_vals + unnamed_vals:
             if name:
-                env.intersphinx_named_inventory[name] = invdata  # type: ignore
+                inventories.named_inventory[name] = invdata
             for type, objects in iteritems(invdata):
-                env.intersphinx_inventory.setdefault(  # type: ignore
-                    type, {}).update(objects)
+                inventories.main_inventory.setdefault(type, {}).update(objects)
 
 
 def missing_reference(app, env, node, contnode):
     # type: (Sphinx, BuildEnvironment, nodes.Node, nodes.Node) -> None
     """Attempt to resolve a missing reference via intersphinx references."""
     target = node['reftarget']
+    inventories = InventoryAdapter(env)
     objtypes = None  # type: List[unicode]
     if node['reftype'] == 'any':
         # we search anything!
@@ -334,9 +278,6 @@ def missing_reference(app, env, node, contnode):
                     for domain in env.domains.values()
                     for objtype in domain.object_types]
         domain = None
-    elif node['reftype'] == 'doc':
-        domain = 'std'  # special case
-        objtypes = ['std:doc']
     else:
         domain = node.get('refdomain')
         if not domain:
@@ -346,14 +287,17 @@ def missing_reference(app, env, node, contnode):
         if not objtypes:
             return
         objtypes = ['%s:%s' % (domain, objtype) for objtype in objtypes]
-    to_try = [(env.intersphinx_inventory, target)]  # type: ignore
+    if 'std:cmdoption' in objtypes:
+        # until Sphinx-1.6, cmdoptions are stored as std:option
+        objtypes.append('std:option')
+    to_try = [(inventories.main_inventory, target)]
     in_set = None
     if ':' in target:
         # first part may be the foreign doc set name
         setname, newtarget = target.split(':', 1)
-        if setname in env.intersphinx_named_inventory:  # type: ignore
+        if setname in inventories.named_inventory:
             in_set = setname
-            to_try.append((env.intersphinx_named_inventory[setname], newtarget))  # type: ignore  # NOQA
+            to_try.append((inventories.named_inventory[setname], newtarget))
     for inventory, target in to_try:
         for objtype in objtypes:
             if objtype not in inventory or target not in inventory[objtype]:
@@ -371,9 +315,9 @@ def missing_reference(app, env, node, contnode):
                     (domain == 'std' and node['reftype'] == 'keyword'):
                 # use whatever title was given, but strip prefix
                 title = contnode.astext()
-                if in_set and title.startswith(in_set+':'):
-                    newnode.append(contnode.__class__(title[len(in_set)+1:],
-                                                      title[len(in_set)+1:]))
+                if in_set and title.startswith(in_set + ':'):
+                    newnode.append(contnode.__class__(title[len(in_set) + 1:],
+                                                      title[len(in_set) + 1:]))
                 else:
                     newnode.append(contnode)
             else:

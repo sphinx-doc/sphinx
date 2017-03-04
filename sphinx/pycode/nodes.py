@@ -9,6 +9,10 @@
     :license: BSD, see LICENSE for details.
 """
 
+if False:
+    # For type annotation
+    from typing import Callable  # NOQA
+
 
 class BaseNode(object):
     """
@@ -29,7 +33,7 @@ class BaseNode(object):
             return NotImplemented
         return not self._eq(other)
 
-    __hash__ = None  # type: str
+    __hash__ = None  # type: Callable[[object], int]
 
     def get_prev_sibling(self):
         """Return previous child in parent's children, or None."""
@@ -39,7 +43,7 @@ class BaseNode(object):
             if child is self:
                 if i == 0:
                     return None
-                return self.parent.children[i-1]
+                return self.parent.children[i - 1]
 
     def get_next_sibling(self):
         """Return next child in parent's children, or None."""
@@ -48,7 +52,7 @@ class BaseNode(object):
         for i, child in enumerate(self.parent.children):
             if child is self:
                 try:
-                    return self.parent.children[i+1]
+                    return self.parent.children[i + 1]
                 except IndexError:
                     return None
 

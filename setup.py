@@ -50,7 +50,7 @@ requires = [
     'babel>=1.3,!=2.0',
     'alabaster>=0.7,<0.8',
     'imagesize',
-    'requests',
+    'requests>=2.0.0',
     'typing',
 ]
 extras_require = {
@@ -63,7 +63,7 @@ extras_require = {
         'whoosh>=2.0',
     ],
     'test': [
-        'nose',
+        'pytest',
         'mock',  # it would be better for 'test:python_version in 2.7'
         'simplejson',  # better: 'test:platform_python_implementation=="PyPy"'
         'html5lib',

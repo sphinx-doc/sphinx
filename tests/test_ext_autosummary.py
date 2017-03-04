@@ -13,7 +13,7 @@ from six import iteritems, StringIO
 
 from sphinx.ext.autosummary import mangle_signature
 
-from util import with_app
+import pytest
 
 html_warnfile = StringIO()
 
@@ -54,7 +54,7 @@ def test_mangle_signature():
         assert res == outp, (u"'%s' -> '%s' != '%s'" % (inp, res, outp))
 
 
-@with_app(buildername='dummy', **default_kw)
+@pytest.mark.sphinx('dummy', **default_kw)
 def test_get_items_summary(app, status, warning):
     # monkey-patch Autosummary.get_items so we can easily get access to it's
     # results..
@@ -95,3 +95,11 @@ def test_get_items_summary(app, status, warning):
     for key, expected in iteritems(expected_values):
         assert autosummary_items[key][2] == expected, 'Summary for %s was %r -'\
             ' expected %r' % (key, autosummary_items[key], expected)
+
+    # check an item in detail
+    assert 'func' in autosummary_items
+    func_attrs = ('func',
+                  '(arg_, *args, **kwargs)',
+                  'Test function take an argument ended with underscore.',
+                  'dummy_module.func')
+    assert autosummary_items['func'] == func_attrs

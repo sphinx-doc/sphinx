@@ -10,12 +10,11 @@
 """
 
 import pickle
-from docutils import nodes
+import pytest
 from sphinx import addnodes
-from util import with_app
 
 
-@with_app(buildername='dummy', testroot='ext-autodoc')
+@pytest.mark.sphinx('dummy', testroot='ext-autodoc')
 def test_autodoc(app, status, warning):
     app.builder.build_all()
 

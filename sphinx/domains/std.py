@@ -12,10 +12,10 @@
 import re
 import unicodedata
 
-from six import PY3, iteritems
+from six import iteritems
 
 from docutils import nodes
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import ViewList
 
 from sphinx import addnodes
@@ -23,37 +23,31 @@ from sphinx.roles import XRefRole
 from sphinx.locale import l_, _
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
-from sphinx.util import ws_re
+from sphinx.util import ws_re, logging, docname_join
 from sphinx.util.nodes import clean_astext, make_refnode
-from sphinx.util.compat import Directive
 
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Tuple, Type, Union  # NOQA
-    from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
-    from sphinx.util.typing import Role  # NOQA
+    from sphinx.util.typing import RoleFunction  # NOQA
 
-    if PY3:
-        unicode = str
-
-    RoleFunction = Callable[[unicode, unicode, unicode, int, Inliner, Dict, List[unicode]],
-                            Tuple[List[nodes.Node], List[nodes.Node]]]
+logger = logging.getLogger(__name__)
 
 
 # RE for option descriptions
-option_desc_re = re.compile(r'((?:/|--|-|\+)?[-\.?@#_a-zA-Z0-9]+)(=?\s*.*)')
+option_desc_re = re.compile(r'((?:/|--|-|\+)?[^\s=]+)(=?\s*.*)')
 # RE for grammar tokens
-token_re = re.compile('`(\w+)`', re.U)
+token_re = re.compile(r'`(\w+)`', re.U)
 
 
 class GenericObject(ObjectDescription):
     """
     A generic x-ref directive registered with Sphinx.add_object_type().
     """
-    indextemplate = ''
+    indextemplate = ''  # type: unicode
     parse_node = None  # type: Callable[[GenericObject, BuildEnvironment, unicode, addnodes.desc_signature], unicode]  # NOQA
 
     def handle_signature(self, sig, signode):
@@ -76,7 +70,7 @@ class GenericObject(ObjectDescription):
             colon = self.indextemplate.find(':')
             if colon != -1:
                 indextype = self.indextemplate[:colon].strip()
-                indexentry = self.indextemplate[colon+1:].strip() % (name,)
+                indexentry = self.indextemplate[colon + 1:].strip() % (name,)
             else:
                 indextype = 'single'
                 indexentry = self.indextemplate % (name,)
@@ -138,7 +132,7 @@ class Target(Directive):
             colon = indexentry.find(':')
             if colon != -1:
                 indextype = indexentry[:colon].strip()
-                indexentry = indexentry[colon+1:].strip()
+                indexentry = indexentry[colon + 1:].strip()
             inode = addnodes.index(entries=[(indextype, indexentry,
                                              targetname, '', None)])
             ret.insert(0, inode)
@@ -164,12 +158,10 @@ class Cmdoption(ObjectDescription):
             potential_option = potential_option.strip()
             m = option_desc_re.match(potential_option)  # type: ignore
             if not m:
-                self.env.warn(
-                    self.env.docname,
-                    'Malformed option description %r, should '
-                    'look like "opt", "-opt args", "--opt args", '
-                    '"/opt args" or "+opt args"' % potential_option,
-                    self.lineno)
+                logger.warning('Malformed option description %r, should '
+                               'look like "opt", "-opt args", "--opt args", '
+                               '"/opt args" or "+opt args"', potential_option,
+                               location=(self.env.docname, self.lineno))
                 continue
             optname, args = m.groups()
             if count:
@@ -466,6 +458,7 @@ class StandardDomain(Domain):
                          searchprio=-1),
         'envvar': ObjType(l_('environment variable'), 'envvar'),
         'cmdoption': ObjType(l_('program option'), 'option'),
+        'doc': ObjType(l_('document'), 'doc', searchprio=-1)
     }  # type: Dict[unicode, ObjType]
 
     directives = {
@@ -492,6 +485,8 @@ class StandardDomain(Domain):
                             warn_dangling=True),
         # links to labels, without a different title
         'keyword': XRefRole(warn_dangling=True),
+        # links to documents
+        'doc':     XRefRole(warn_dangling=True, innernodeclass=nodes.inline),
     }  # type: Dict[unicode, Union[RoleFunction, XRefRole]]
 
     initial_data = {
@@ -516,6 +511,7 @@ class StandardDomain(Domain):
                 'the label must precede a section header)',
         'numref':  'undefined label: %(target)s',
         'keyword': 'unknown keyword: %(target)s',
+        'doc': 'unknown document: %(target)s',
         'option': 'unknown option: %(target)s',
         'citation': 'citation not found: %(target)s',
     }
@@ -573,9 +569,9 @@ class StandardDomain(Domain):
         for node in document.traverse(nodes.citation):
             label = node[0].astext()
             if label in self.data['citations']:
-                path = env.doc2path(self.data['citations'][0])
-                env.warn_node('duplicate citation %s, other instance in %s' %
-                              (label, path), node)
+                path = env.doc2path(self.data['citations'][label][0])
+                logger.warning('duplicate citation %s, other instance in %s', label, path,
+                               location=node)
             self.data['citations'][label] = (docname, node['ids'][0])
 
     def note_labels(self, env, docname, document):
@@ -597,10 +593,11 @@ class StandardDomain(Domain):
                 # link and object descriptions
                 continue
             if name in labels:
-                env.warn_node('duplicate label %s, ' % name + 'other instance '
-                              'in ' + env.doc2path(labels[name][0]), node)
+                logger.warning('duplicate label %s, ' % name + 'other instance '
+                               'in ' + env.doc2path(labels[name][0]),
+                               location=node)
             anonlabels[name] = docname, labelid
-            if node.tagname == 'section':
+            if node.tagname in ('section', 'rubric'):
                 sectname = clean_astext(node[0])  # node[0] == title node
             elif self.is_enumerable_node(node):
                 sectname = self.get_numfig_title(node)
@@ -650,6 +647,8 @@ class StandardDomain(Domain):
             resolver = self._resolve_numref_xref
         elif typ == 'keyword':
             resolver = self._resolve_keyword_xref
+        elif typ == 'doc':
+            resolver = self._resolve_doc_xref
         elif typ == 'option':
             resolver = self._resolve_option_xref
         elif typ == 'citation':
@@ -689,7 +688,7 @@ class StandardDomain(Domain):
             return None
 
         if env.config.numfig is False:
-            env.warn_node('numfig is disabled. :numref: is ignored.', node)
+            logger.warning('numfig is disabled. :numref: is ignored.', location=node)
             return contnode
 
         target_node = env.get_doctree(docname).ids.get(labelid)
@@ -702,7 +701,8 @@ class StandardDomain(Domain):
             if fignumber is None:
                 return contnode
         except ValueError:
-            env.warn_node("no number is assigned for %s: %s" % (figtype, labelid), node)
+            logger.warning("no number is assigned for %s: %s", figtype, labelid,
+                           location=node)
             return contnode
 
         try:
@@ -711,13 +711,13 @@ class StandardDomain(Domain):
             else:
                 title = env.config.numfig_format.get(figtype, '')
 
-            if figname is None and '%{name}' in title:
-                env.warn_node('the link has no caption: %s' % title, node)
+            if figname is None and '{name}' in title:
+                logger.warning('the link has no caption: %s', title, location=node)
                 return contnode
             else:
                 fignum = '.'.join(map(str, fignumber))
                 if '{name}' in title or 'number' in title:
-                    # new style format (cf. "Fig.%{number}")
+                    # new style format (cf. "Fig.{number}")
                     if figname:
                         newtitle = title.format(name=figname, number=fignum)
                     else:
@@ -726,10 +726,10 @@ class StandardDomain(Domain):
                     # old style format (cf. "Fig.%s")
                     newtitle = title % fignum
         except KeyError as exc:
-            env.warn_node('invalid numfig_format: %s (%r)' % (title, exc), node)
+            logger.warning('invalid numfig_format: %s (%r)', title, exc, location=node)
             return contnode
         except TypeError:
-            env.warn_node('invalid numfig_format: %s' % title, node)
+            logger.warning('invalid numfig_format: %s', title, location=node)
             return contnode
 
         return self.build_reference_node(fromdocname, builder,
@@ -746,6 +746,22 @@ class StandardDomain(Domain):
         return make_refnode(builder, fromdocname, docname,
                             labelid, contnode)
 
+    def _resolve_doc_xref(self, env, fromdocname, builder, typ, target, node, contnode):
+        # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
+        # directly reference to document by source name; can be absolute or relative
+        refdoc = node.get('refdoc', fromdocname)
+        docname = docname_join(refdoc, node['reftarget'])
+        if docname not in env.all_docs:
+            return None
+        else:
+            if node['refexplicit']:
+                # reference with explicit title
+                caption = node.astext()
+            else:
+                caption = clean_astext(env.titles[docname])
+            innernode = nodes.inline(caption, caption, classes=['doc'])
+            return make_refnode(builder, fromdocname, docname, None, innernode)
+
     def _resolve_option_xref(self, env, fromdocname, builder, typ, target, node, contnode):
         # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
         progname = node.get('std:program')
@@ -753,8 +769,8 @@ class StandardDomain(Domain):
         docname, labelid = self.data['progoptions'].get((progname, target), ('', ''))
         if not docname:
             commands = []
-            while ws_re.search(target):  # type: ignore
-                subcommand, target = ws_re.split(target, 1)  # type: ignore
+            while ws_re.search(target):
+                subcommand, target = ws_re.split(target, 1)
                 commands.append(subcommand)
                 progname = "-".join(commands)
 
@@ -833,7 +849,7 @@ class StandardDomain(Domain):
         for doc in self.env.all_docs:
             yield (doc, clean_astext(self.env.titles[doc]), 'doc', doc, '', -1)
         for (prog, option), info in iteritems(self.data['progoptions']):
-            yield (option, option, 'option', info[0], info[1], 1)
+            yield (option, option, 'cmdoption', info[0], info[1], 1)
         for (type, name), info in iteritems(self.data['objects']):
             yield (name, name, type, info[0], info[1],
                    self.object_types[type].attrs['searchprio'])
@@ -872,6 +888,7 @@ class StandardDomain(Domain):
         # type: (nodes.Node) -> unicode
         """Get figure type of nodes."""
         def has_child(node, cls):
+            # type: (nodes.Node, Type) -> bool
             return any(isinstance(child, cls) for child in node)
 
         if isinstance(node, nodes.section):
@@ -910,5 +927,11 @@ class StandardDomain(Domain):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(StandardDomain)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

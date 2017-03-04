@@ -10,7 +10,9 @@
     :license: BSD, see LICENSE for details.
 """
 
-import traceback
+if False:
+    # For type annotation
+    from typing import Any  # NOQA
 
 
 class SphinxError(Exception):
@@ -31,16 +33,19 @@ class ExtensionError(SphinxError):
     category = 'Extension error'
 
     def __init__(self, message, orig_exc=None):
+        # type: (unicode, Exception) -> None
         SphinxError.__init__(self, message)
         self.orig_exc = orig_exc
 
     def __repr__(self):
+        # type: () -> str
         if self.orig_exc:
             return '%s(%r, %r)' % (self.__class__.__name__,
                                    self.message, self.orig_exc)
         return '%s(%r)' % (self.__class__.__name__, self.message)
 
     def __str__(self):
+        # type: () -> str
         parent_str = SphinxError.__str__(self)
         if self.orig_exc:
             return '%s (exception: %s)' % (parent_str, self.orig_exc)
@@ -61,6 +66,7 @@ class VersionRequirementError(SphinxError):
 
 class PycodeError(Exception):
     def __str__(self):
+        # type: () -> str
         res = self.args[0]
         if len(self.args) > 1:
             res += ' (exception was: %r)' % self.args[1]
@@ -71,10 +77,11 @@ class SphinxParallelError(SphinxError):
 
     category = 'Sphinx parallel build error'
 
-    def __init__(self, orig_exc, traceback):
-        self.orig_exc = orig_exc
+    def __init__(self, message, traceback):
+        # type: (str, Any) -> None
+        self.message = message
         self.traceback = traceback
 
     def __str__(self):
-        return traceback.format_exception_only(
-            self.orig_exc.__class__, self.orig_exc)[0].strip()
+        # type: () -> str
+        return self.message

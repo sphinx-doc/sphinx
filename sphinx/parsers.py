@@ -11,6 +11,10 @@
 
 import docutils.parsers
 
+if False:
+    # For type annotation
+    from sphinx.application import Sphinx  # NOQA
+
 
 class Parser(docutils.parsers.Parser):
     """
@@ -33,6 +37,7 @@ class Parser(docutils.parsers.Parser):
     """
 
     def set_application(self, app):
+        # type: (Sphinx) -> None
         """set_application will be called from Sphinx to set app and other instance variables
 
         :param sphinx.application.Sphinx app: Sphinx application object

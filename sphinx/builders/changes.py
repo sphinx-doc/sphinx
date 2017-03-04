@@ -18,6 +18,7 @@ from sphinx import package_dir
 from sphinx.locale import _
 from sphinx.theming import Theme
 from sphinx.builders import Builder
+from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.fileutil import copy_asset_file
@@ -25,8 +26,11 @@ from sphinx.util.pycompat import htmlescape
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 
 class ChangesBuilder(Builder):
@@ -38,8 +42,7 @@ class ChangesBuilder(Builder):
     def init(self):
         # type: () -> None
         self.create_template_bridge()
-        Theme.init_themes(self.confdir, self.config.html_theme_path,
-                          warn=self.warn)
+        Theme.init_themes(self.confdir, self.config.html_theme_path)
         self.theme = Theme('default')
         self.templates.init(self, self.theme)
 
@@ -60,9 +63,9 @@ class ChangesBuilder(Builder):
         apichanges = []     # type: List[Tuple[unicode, unicode, int]]
         otherchanges = {}   # type: Dict[Tuple[unicode, unicode], List[Tuple[unicode, unicode, int]]]  # NOQA
         if version not in self.env.versionchanges:
-            self.info(bold('no changes in version %s.' % version))
+            logger.info(bold('no changes in version %s.' % version))
             return
-        self.info(bold('writing summary file...'))
+        logger.info(bold('writing summary file...'))
         for type, docname, lineno, module, descname, content in \
                 self.env.versionchanges[version]:
             if isinstance(descname, tuple):
@@ -119,6 +122,7 @@ class ChangesBuilder(Builder):
                   '.. deprecated:: %s' % version]
 
         def hl(no, line):
+            # type: (int, unicode) -> unicode
             line = '<a name="L%s"> </a>' % no + htmlescape(line)
             for x in hltext:
                 if x in line:
@@ -126,19 +130,19 @@ class ChangesBuilder(Builder):
                     break
             return line
 
-        self.info(bold('copying source files...'))
+        logger.info(bold('copying source files...'))
         for docname in self.env.all_docs:
             with codecs.open(self.env.doc2path(docname), 'r',  # type: ignore
                              self.env.config.source_encoding) as f:
                 try:
                     lines = f.readlines()
                 except UnicodeDecodeError:
-                    self.warn('could not read %r for changelog creation' % docname)
+                    logger.warning('could not read %r for changelog creation', docname)
                     continue
             targetfn = path.join(self.outdir, 'rst', os_path(docname)) + '.html'
             ensuredir(path.dirname(targetfn))
             with codecs.open(targetfn, 'w', 'utf-8') as f:  # type: ignore
-                text = ''.join(hl(i+1, line) for (i, line) in enumerate(lines))
+                text = ''.join(hl(i + 1, line) for (i, line) in enumerate(lines))
                 ctx = {
                     'filename': self.env.doc2path(docname, None),
                     'text': text
@@ -165,5 +169,11 @@ class ChangesBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(ChangesBuilder)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

@@ -20,20 +20,22 @@ from hashlib import sha1
 from six import text_type
 
 from docutils import nodes
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import ViewList
 
 import sphinx
 from sphinx.errors import SphinxError
 from sphinx.locale import _
+from sphinx.util import logging
 from sphinx.util.i18n import search_image_for_language
 from sphinx.util.osutil import ensuredir, ENOENT, EPIPE, EINVAL
-from sphinx.util.compat import Directive
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 mapname_re = re.compile(r'<map id="(.*?)"')
@@ -80,7 +82,6 @@ class Graphviz(Directive):
     option_spec = {
         'alt': directives.unchanged,
         'align': align_spec,
-        'inline': directives.flag,
         'caption': directives.unchanged,
         'graphviz_dot': directives.unchanged,
         'name': directives.unchanged,
@@ -120,8 +121,6 @@ class Graphviz(Directive):
             node['alt'] = self.options['alt']
         if 'align' in self.options:
             node['align'] = self.options['align']
-        if 'inline' in self.options:
-            node['inline'] = True
 
         caption = self.options.get('caption')
         if caption:
@@ -142,7 +141,6 @@ class GraphvizSimple(Directive):
     option_spec = {
         'alt': directives.unchanged,
         'align': align_spec,
-        'inline': directives.flag,
         'caption': directives.unchanged,
         'graphviz_dot': directives.unchanged,
         'name': directives.unchanged,
@@ -160,8 +158,6 @@ class GraphvizSimple(Directive):
             node['alt'] = self.options['alt']
         if 'align' in self.options:
             node['align'] = self.options['align']
-        if 'inline' in self.options:
-            node['inline'] = True
 
         caption = self.options.get('caption')
         if caption:
@@ -205,8 +201,8 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     except OSError as err:
         if err.errno != ENOENT:   # No such file or directory
             raise
-        self.builder.warn('dot command %r cannot be run (needed for graphviz '
-                          'output), check the graphviz_dot setting' % graphviz_dot)
+        logger.warning('dot command %r cannot be run (needed for graphviz '
+                       'output), check the graphviz_dot setting', graphviz_dot)
         if not hasattr(self.builder, '_graphviz_warned_dot'):
             self.builder._graphviz_warned_dot = {}
         self.builder._graphviz_warned_dot[graphviz_dot] = True
@@ -231,16 +227,6 @@ def render_dot(self, code, options, format, prefix='graphviz'):
     return relfn, outfn
 
 
-def warn_for_deprecated_option(self, node):
-    # type: (nodes.NodeVisitor, graphviz) -> None
-    if hasattr(self.builder, '_graphviz_warned_inline'):
-        return
-
-    if 'inline' in node:
-        self.builder.warn(':inline: option for graphviz is deprecated since version 1.4.0.')
-        self.builder._graphviz_warned_inline = True
-
-
 def render_dot_html(self, node, code, options, prefix='graphviz',
                     imgcls=None, alt=None):
     # type: (nodes.NodeVisitor, graphviz, unicode, Dict, unicode, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
@@ -251,7 +237,7 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
                                 "'svg', but is %r" % format)
         fname, outfn = render_dot(self, code, options, format, prefix)
     except GraphvizError as exc:
-        self.builder.warn('dot code %r: ' % code + str(exc))
+        logger.warning('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
 
     if fname is None:
@@ -288,7 +274,6 @@ def render_dot_html(self, node, code, options, prefix='graphviz',
 
 def html_visit_graphviz(self, node):
     # type: (nodes.NodeVisitor, graphviz) -> None
-    warn_for_deprecated_option(self, node)
     render_dot_html(self, node, node['code'], node['options'])
 
 
@@ -297,7 +282,7 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
     try:
         fname, outfn = render_dot(self, code, options, 'pdf', prefix)
     except GraphvizError as exc:
-        self.builder.warn('dot code %r: ' % code + str(exc))
+        logger.warning('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
 
     is_inline = self.is_inline(node)
@@ -325,7 +310,6 @@ def render_dot_latex(self, node, code, options, prefix='graphviz'):
 
 def latex_visit_graphviz(self, node):
     # type: (nodes.NodeVisitor, graphviz) -> None
-    warn_for_deprecated_option(self, node)
     render_dot_latex(self, node, node['code'], node['options'])
 
 
@@ -334,7 +318,7 @@ def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
     try:
         fname, outfn = render_dot(self, code, options, 'png', prefix)
     except GraphvizError as exc:
-        self.builder.warn('dot code %r: ' % code + str(exc))
+        logger.warning('dot code %r: ' % code + str(exc))
         raise nodes.SkipNode
     if fname is not None:
         self.body.append('@image{%s,,,[graphviz],png}\n' % fname[:-4])
@@ -343,13 +327,11 @@ def render_dot_texinfo(self, node, code, options, prefix='graphviz'):
 
 def texinfo_visit_graphviz(self, node):
     # type: (nodes.NodeVisitor, graphviz) -> None
-    warn_for_deprecated_option(self, node)
     render_dot_texinfo(self, node, node['code'], node['options'])
 
 
 def text_visit_graphviz(self, node):
     # type: (nodes.NodeVisitor, graphviz) -> None
-    warn_for_deprecated_option(self, node)
     if 'alt' in node.attributes:
         self.add_text(_('[graph: %s]') % node['alt'])
     else:
@@ -359,7 +341,6 @@ def text_visit_graphviz(self, node):
 
 def man_visit_graphviz(self, node):
     # type: (nodes.NodeVisitor, graphviz) -> None
-    warn_for_deprecated_option(self, node)
     if 'alt' in node.attributes:
         self.body.append(_('[graph: %s]') % node['alt'])
     else:

@@ -79,7 +79,7 @@ language = None
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-# This patterns also effect to html_static_path and html_extra_path
+# These patterns also affect html_static_path and html_extra_path
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The reST default role (used for this markup: `text`) to use for all
@@ -267,11 +267,6 @@ latex_documents = [
 # the title page.
 #
 # latex_logo = None
-
-# For "manual" documents, if this is true, then toplevel headings are parts,
-# not chapters.
-#
-# latex_use_parts = False
 
 # If true, show page references after internal links.
 #

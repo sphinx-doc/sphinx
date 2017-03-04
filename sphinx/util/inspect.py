@@ -12,19 +12,19 @@
 import re
 
 from six import PY3, binary_type
-from six.moves import builtins  # type: ignore
+from six.moves import builtins
 
 from sphinx.util import force_decode
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Tuple  # NOQA
+    from typing import Any, Callable, List, Tuple, Type  # NOQA
 
 # this imports the standard library inspect module without resorting to
 # relatively import this module
 inspect = __import__('inspect')
 
-memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)')
+memory_address_re = re.compile(r' at 0x[0-9a-f]{8,16}(?=>)', re.IGNORECASE)
 
 
 if PY3:
@@ -68,6 +68,7 @@ else:  # 2.7
     from functools import partial
 
     def getargspec(func):
+        # type: (Any) -> Any
         """Like inspect.getargspec but supports functools.partial as well."""
         if inspect.ismethod(func):
             func = func.__func__
@@ -102,6 +103,14 @@ try:
     import enum
 except ImportError:
     enum = None
+
+
+def isenumclass(x):
+    # type: (Type) -> bool
+    """Check if the object is subclass of enum."""
+    if enum is None:
+        return False
+    return issubclass(x, enum.Enum)
 
 
 def isenumattribute(x):
@@ -167,7 +176,7 @@ def object_description(object):
     except Exception:
         raise ValueError
     if isinstance(s, binary_type):
-        s = force_decode(s, None)
+        s = force_decode(s, None)  # type: ignore
     # Strip non-deterministic memory addresses such as
     # ``<__main__.A at 0x7f68cb685710>``
     s = memory_address_re.sub('', s)

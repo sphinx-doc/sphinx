@@ -11,23 +11,24 @@
 
 import os
 import re
+from itertools import cycle, chain
 
-from six import PY3, iteritems
+from six import PY3
 
 from sphinx import __display_version__
-from util import remove_unicode_literals, gen_with_app, with_app, strip_escseq
-from etree13 import ElementTree
+from sphinx.util.inventory import InventoryFile
+
+from util import remove_unicode_literals, strip_escseq
+import xml.etree.cElementTree as ElementTree
 from html5lib import getTreeBuilder, HTMLParser
+import pytest
 
 
 TREE_BUILDER = getTreeBuilder('etree', implementation=ElementTree)
 HTML_PARSER = HTMLParser(TREE_BUILDER, namespaceHTMLElements=False)
 
 ENV_WARNINGS = """\
-(%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
-WARNING: duplicate object description of autodoc_fodder.MarkupError, other \
-instance in %(root)s/autodoc.rst, use :noindex: for one of them
-)?%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
+%(root)s/autodoc_fodder.py:docstring of autodoc_fodder.MarkupError:\\d+: \
 WARNING: Explicit markup ends without a blank line; unexpected unindent.
 %(root)s/index.rst:\\d+: WARNING: Encoding 'utf-8-sig' used for reading included \
 file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
@@ -36,19 +37,45 @@ file u'%(root)s/wrongenc.inc' seems to be wrong, try giving an :encoding: option
 %(root)s/index.rst:\\d+: WARNING: download file not readable: %(root)s/nonexisting.png
 %(root)s/index.rst:\\d+: WARNING: invalid single index entry u''
 %(root)s/undecodable.rst:\\d+: WARNING: undecodable source characters, replacing \
-with "\\?": b?'here: >>>(\\\\|/)xbb<<<'
+with "\\?": b?'here: >>>(\\\\|/)xbb<<<((\\\\|/)r)?'
 """
 
 HTML_WARNINGS = ENV_WARNINGS + """\
-%(root)s/index.rst:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
-%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 %(root)s/index.rst:\\d+: WARNING: unknown option: &option
 %(root)s/index.rst:\\d+: WARNING: citation not found: missing
+%(root)s/index.rst:\\d+: WARNING: no matching candidate for image URI u'foo.\\*'
+%(root)s/index.rst:\\d+: WARNING: Could not lex literal_block as "c". Highlighting skipped.
 """
 
 if PY3:
     ENV_WARNINGS = remove_unicode_literals(ENV_WARNINGS)
     HTML_WARNINGS = remove_unicode_literals(HTML_WARNINGS)
+
+
+etree_cache = {}
+
+
+@pytest.fixture(scope='module')
+def cached_etree_parse():
+    def parse(fname):
+        if fname in etree_cache:
+            return etree_cache[fname]
+        with (fname).open('rb') as fp:
+            etree = HTML_PARSER.parse(fp)
+            etree_cache.clear()
+            etree_cache[fname] = etree
+            return etree
+    yield parse
+    etree_cache.clear()
+
+
+def flat_dict(d):
+    return chain.from_iterable(
+        [
+            zip(cycle([fname]), values)
+            for fname, values in d.items()
+        ]
+    )
 
 
 def tail_check(check):
@@ -62,7 +89,85 @@ def tail_check(check):
     return checker
 
 
-HTML_XPATH = {
+def check_xpath(etree, fname, path, check, be_found=True):
+    nodes = list(etree.findall(path))
+    if check is None:
+        assert nodes == [], ('found any nodes matching xpath '
+                             '%r in file %s' % (path, fname))
+        return
+    else:
+        assert nodes != [], ('did not find any node matching xpath '
+                             '%r in file %s' % (path, fname))
+    if hasattr(check, '__call__'):
+        check(nodes)
+    elif not check:
+        # only check for node presence
+        pass
+    else:
+        def get_text(node):
+            if node.text is not None:
+                return node.text
+            else:
+                # Since pygments-2.1.1, empty <span> tag is inserted at top of
+                # highlighting block
+                if len(node) == 1 and node[0].tag == 'span' and node[0].text is None:
+                    if node[0].tail is not None:
+                        return node[0].tail
+                return ''
+
+        rex = re.compile(check)
+        if be_found:
+            if any(rex.search(get_text(node)) for node in nodes):
+                return
+        else:
+            if all(not rex.search(get_text(node)) for node in nodes):
+                return
+
+        assert False, ('%r not found in any node matching '
+                       'path %s in %s: %r' % (check, path, fname,
+                                              [node.text for node in nodes]))
+
+
+def check_static_entries(outdir):
+    staticdir = outdir / '_static'
+    assert staticdir.isdir()
+    # a file from a directory entry in html_static_path
+    assert (staticdir / 'README').isfile()
+    # a directory from a directory entry in html_static_path
+    assert (staticdir / 'subdir' / 'foo.css').isfile()
+    # a file from a file entry in html_static_path
+    assert (staticdir / 'templated.css').isfile()
+    assert (staticdir / 'templated.css').text().splitlines()[1] == __display_version__
+    # a file from _static, but matches exclude_patterns
+    assert not (staticdir / 'excluded.css').exists()
+
+
+def check_extra_entries(outdir):
+    assert (outdir / 'robots.txt').isfile()
+
+
+@pytest.mark.sphinx('html', testroot='warnings')
+def test_html_warnings(app, warning):
+    app.build()
+    html_warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
+    html_warnings_exp = HTML_WARNINGS % {
+        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
+    assert re.match(html_warnings_exp + '$', html_warnings), \
+        'Warnings don\'t match:\n' + \
+        '--- Expected (regex):\n' + html_warnings_exp + \
+        '--- Got:\n' + html_warnings
+
+
+@pytest.mark.sphinx('html', tags=['testtag'], confoverrides={
+    'html_context.hckey_co': 'hcval_co'})
+@pytest.mark.test_params(shared_result='test_build_html_output')
+def test_static_output(app):
+    app.build()
+    check_static_entries(app.builder.outdir)
+    check_extra_entries(app.builder.outdir)
+
+
+@pytest.mark.parametrize("fname,expect", flat_dict({
     'images.html': [
         (".//img[@src='_images/img.png']", ''),
         (".//img[@src='_images/img1.png']", ''),
@@ -89,21 +194,21 @@ HTML_XPATH = {
         (".//pre/span", u"'included'"),
         (".//pre/span[@class='s2']", u'üöä'),
         (".//div[@class='inc-pyobj1 highlight-text']//pre",
-            r'^class Foo:\n    pass\n\s*$'),
+         r'^class Foo:\n    pass\n\s*$'),
         (".//div[@class='inc-pyobj2 highlight-text']//pre",
-            r'^    def baz\(\):\n        pass\n\s*$'),
+         r'^    def baz\(\):\n        pass\n\s*$'),
         (".//div[@class='inc-lines highlight-text']//pre",
-            r'^class Foo:\n    pass\nclass Bar:\n$'),
+         r'^class Foo:\n    pass\nclass Bar:\n$'),
         (".//div[@class='inc-startend highlight-text']//pre",
-            u'^foo = "Including Unicode characters: üöä"\\n$'),
+         u'^foo = "Including Unicode characters: üöä"\\n$'),
         (".//div[@class='inc-preappend highlight-text']//pre",
-            r'(?m)^START CODE$'),
+         r'(?m)^START CODE$'),
         (".//div[@class='inc-pyobj-dedent highlight-python']//span",
-            r'def'),
+         r'def'),
         (".//div[@class='inc-tab3 highlight-text']//pre",
-            r'-| |-'),
+         r'-| |-'),
         (".//div[@class='inc-tab8 highlight-python']//pre/span",
-            r'-|      |-'),
+         r'-|      |-'),
     ],
     'autodoc.html': [
         (".//dt[@id='test_autodoc.Class']", ''),
@@ -141,26 +246,26 @@ HTML_XPATH = {
         (".//li/code/em/span[@class='pre']", '^varpart$'),
         (".//li/code/em/span[@class='pre']", '^i$'),
         (".//a[@href='https://www.python.org/dev/peps/pep-0008']"
-            "[@class='pep reference external']/strong", 'PEP 8'),
+         "[@class='pep reference external']/strong", 'PEP 8'),
         (".//a[@href='https://www.python.org/dev/peps/pep-0008']"
-            "[@class='pep reference external']/strong",
-            'Python Enhancement Proposal #8'),
+         "[@class='pep reference external']/strong",
+         'Python Enhancement Proposal #8'),
         (".//a[@href='https://tools.ietf.org/html/rfc1.html']"
-            "[@class='rfc reference external']/strong", 'RFC 1'),
+         "[@class='rfc reference external']/strong", 'RFC 1'),
         (".//a[@href='https://tools.ietf.org/html/rfc1.html']"
-            "[@class='rfc reference external']/strong", 'Request for Comments #1'),
+         "[@class='rfc reference external']/strong", 'Request for Comments #1'),
         (".//a[@href='objects.html#envvar-HOME']"
-            "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
+         "[@class='reference internal']/code/span[@class='pre']", 'HOME'),
         (".//a[@href='#with']"
-            "[@class='reference internal']/code/span[@class='pre']", '^with$'),
+         "[@class='reference internal']/code/span[@class='pre']", '^with$'),
         (".//a[@href='#grammar-token-try_stmt']"
-            "[@class='reference internal']/code/span", '^statement$'),
+         "[@class='reference internal']/code/span", '^statement$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^here$'),
         (".//a[@href='#some-label'][@class='reference internal']/span", '^there$'),
         (".//a[@href='subdir/includes.html']"
-            "[@class='reference internal']/span", 'Including in subdir'),
+         "[@class='reference internal']/span", 'Including in subdir'),
         (".//a[@href='objects.html#cmdoption-python-c']"
-            "[@class='reference internal']/code/span[@class='pre']", '-c'),
+         "[@class='reference internal']/code/span[@class='pre']", '-c'),
         # abbreviations
         (".//abbr[@title='abbreviation']", '^abbr$'),
         # version stuff
@@ -217,9 +322,9 @@ HTML_XPATH = {
         (".//a[@href='#c.sphinx_global']", ''),
         # test global TOC created by toctree()
         (".//ul[@class='current']/li[@class='toctree-l1 current']/a[@href='#']",
-            'Testing object descriptions'),
+         'Testing object descriptions'),
         (".//li[@class='toctree-l1']/a[@href='markup.html']",
-            'Testing various markup'),
+         'Testing various markup'),
         # test unknown field names
         (".//th[@class='field-name']", 'Field_name:'),
         (".//th[@class='field-name']", 'Field_name all lower:'),
@@ -241,26 +346,28 @@ HTML_XPATH = {
         (".//td[@class='field-body']/ul/li/em", tail_check(r'.* Some parameter')),
         # others
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-p']/code/span",
-            'perl'),
+         'perl'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-p']/code/span",
-            '\+p'),
+         '\\+p'),
+        (".//a[@class='reference internal'][@href='#cmdoption-perl-objc']/code/span",
+         '--ObjC\\+\\+'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-plugin-option']/code/span",
-            '--plugin.option'),
+         '--plugin.option'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-create-auth-token']"
          "/code/span",
-            'create-auth-token'),
+         'create-auth-token'),
         (".//a[@class='reference internal'][@href='#cmdoption-perl-arg-arg']/code/span",
-            'arg'),
+         'arg'),
         (".//a[@class='reference internal'][@href='#cmdoption-hg-arg-commit']/code/span",
-            'hg'),
+         'hg'),
         (".//a[@class='reference internal'][@href='#cmdoption-hg-arg-commit']/code/span",
-            'commit'),
+         'commit'),
         (".//a[@class='reference internal'][@href='#cmdoption-git-commit-p']/code/span",
-            'git'),
+         'git'),
         (".//a[@class='reference internal'][@href='#cmdoption-git-commit-p']/code/span",
-            'commit'),
+         'commit'),
         (".//a[@class='reference internal'][@href='#cmdoption-git-commit-p']/code/span",
-            '-p'),
+         '-p'),
     ],
     'contents.html': [
         (".//meta[@name='hc'][@content='hcval']", ''),
@@ -273,7 +380,7 @@ HTML_XPATH = {
         (".//title", 'Sphinx <Tests>'),
         (".//div[@class='footer']", 'Georg Brandl & Team'),
         (".//a[@href='http://python.org/']"
-            "[@class='reference external']", ''),
+         "[@class='reference external']", ''),
         (".//li/a[@href='genindex.html']/span", 'Index'),
         (".//li/a[@href='py-modindex.html']/span", 'Module Index'),
         (".//li/a[@href='search.html']/span", 'Search Page'),
@@ -310,257 +417,171 @@ HTML_XPATH = {
         (".//li/a", "double"),
     ],
     'footnote.html': [
-        (".//a[@class='footnote-reference'][@href='#id7'][@id='id1']", r"\[1\]"),
-        (".//a[@class='footnote-reference'][@href='#id8'][@id='id2']", r"\[2\]"),
+        (".//a[@class='footnote-reference'][@href='#id8'][@id='id1']", r"\[1\]"),
+        (".//a[@class='footnote-reference'][@href='#id9'][@id='id2']", r"\[2\]"),
         (".//a[@class='footnote-reference'][@href='#foo'][@id='id3']", r"\[3\]"),
         (".//a[@class='reference internal'][@href='#bar'][@id='id4']", r"\[bar\]"),
-        (".//a[@class='footnote-reference'][@href='#id9'][@id='id5']", r"\[4\]"),
-        (".//a[@class='footnote-reference'][@href='#id10'][@id='id6']", r"\[5\]"),
+        (".//a[@class='footnote-reference'][@href='#id10'][@id='id5']", r"\[4\]"),
+        (".//a[@class='footnote-reference'][@href='#id11'][@id='id6']", r"\[5\]"),
         (".//a[@class='fn-backref'][@href='#id1']", r"\[1\]"),
         (".//a[@class='fn-backref'][@href='#id2']", r"\[2\]"),
         (".//a[@class='fn-backref'][@href='#id3']", r"\[3\]"),
         (".//a[@class='fn-backref'][@href='#id4']", r"\[bar\]"),
         (".//a[@class='fn-backref'][@href='#id5']", r"\[4\]"),
         (".//a[@class='fn-backref'][@href='#id6']", r"\[5\]"),
+        (".//a[@class='fn-backref'][@href='#id7']", r"\[6\]"),
     ],
     'otherext.html': [
         (".//h1", "Generated section"),
         (".//a[@href='_sources/otherext.foo.txt']", ''),
     ]
-}
+}))
+@pytest.mark.sphinx('html', tags=['testtag'], confoverrides={
+    'html_context.hckey_co': 'hcval_co'})
+@pytest.mark.test_params(shared_result='test_build_html_output')
+def test_html_output(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-def check_xpath(etree, fname, path, check, be_found=True):
-    nodes = list(etree.findall(path))
-    if check is None:
-        assert nodes == [], ('found any nodes matching xpath '
-                             '%r in file %s' % (path, fname))
-        return
-    else:
-        assert nodes != [], ('did not find any node matching xpath '
-                             '%r in file %s' % (path, fname))
-    if hasattr(check, '__call__'):
-        check(nodes)
-    elif not check:
-        # only check for node presence
-        pass
-    else:
-        def get_text(node):
-            if node.text is not None:
-                return node.text
-            else:
-                # Since pygments-2.1.1, empty <span> tag is inserted at top of
-                # highlighting block
-                if len(node) == 1 and node[0].tag == 'span' and node[0].text is None:
-                    return node[0].tail
-                else:
-                    return ''
-
-        rex = re.compile(check)
-        if be_found:
-            if any(rex.search(get_text(node)) for node in nodes):
-                return
-        else:
-            if all(not rex.search(get_text(node)) for node in nodes):
-                return
-
-        assert False, ('%r not found in any node matching '
-                       'path %s in %s: %r' % (check, path, fname,
-                                              [node.text for node in nodes]))
-
-
-def check_static_entries(outdir):
-    staticdir = outdir / '_static'
-    assert staticdir.isdir()
-    # a file from a directory entry in html_static_path
-    assert (staticdir / 'README').isfile()
-    # a directory from a directory entry in html_static_path
-    assert (staticdir / 'subdir' / 'foo.css').isfile()
-    # a file from a file entry in html_static_path
-    assert (staticdir / 'templated.css').isfile()
-    assert (staticdir / 'templated.css').text().splitlines()[1] == __display_version__
-    # a file from _static, but matches exclude_patterns
-    assert not (staticdir / 'excluded.css').exists()
-
-
-def check_extra_entries(outdir):
-    assert (outdir / 'robots.txt').isfile()
-
-
-@with_app(buildername='html', testroot='warnings', freshenv=True)
-def test_html_warnings(app, status, warning):
-    app.builder.build_all()
-    html_warnings = strip_escseq(warning.getvalue().replace(os.sep, '/'))
-    html_warnings_exp = HTML_WARNINGS % {
-        'root': re.escape(app.srcdir.replace(os.sep, '/'))}
-    assert re.match(html_warnings_exp + '$', html_warnings), \
-        'Warnings don\'t match:\n' + \
-        '--- Expected (regex):\n' + html_warnings_exp + \
-        '--- Got:\n' + html_warnings
-
-
-@gen_with_app(buildername='html', tags=['testtag'],
-              confoverrides={'html_context.hckey_co': 'hcval_co'})
-def test_html_output(app, status, warning):
-    app.builder.build_all()
-    for fname, paths in iteritems(HTML_XPATH):
-        with (app.outdir / fname).open('rb') as fp:
-            etree = HTML_PARSER.parse(fp)
-        for path, check in paths:
-            yield check_xpath, etree, fname, path, check
-
-    check_static_entries(app.builder.outdir)
-    check_extra_entries(app.builder.outdir)
-
-
-@gen_with_app(buildername='html', testroot='tocdepth')
-def test_tocdepth(app, status, warning):
+@pytest.mark.parametrize("fname,expect", flat_dict({
+    'index.html': [
+        (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
+        (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
+        (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
+        (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
+    ],
+    'foo.html': [
+        (".//h1", '1. Foo', True),
+        (".//h2", '1.1. Foo A', True),
+        (".//h3", '1.1.1. Foo A1', True),
+        (".//h2", '1.2. Foo B', True),
+        (".//h3", '1.2.1. Foo B1', True),
+        (".//div[@class='sphinxsidebarwrapper']//li/a", '1.1. Foo A', True),
+        (".//div[@class='sphinxsidebarwrapper']//li/a", '1.1.1. Foo A1', True),
+        (".//div[@class='sphinxsidebarwrapper']//li/a", '1.2. Foo B', True),
+        (".//div[@class='sphinxsidebarwrapper']//li/a", '1.2.1. Foo B1', True),
+    ],
+    'bar.html': [
+        (".//h1", '2. Bar', True),
+        (".//h2", '2.1. Bar A', True),
+        (".//h2", '2.2. Bar B', True),
+        (".//h3", '2.2.1. Bar B1', True),
+        (".//div[@class='sphinxsidebarwrapper']//li/a", '2. Bar', True),
+        (".//div[@class='sphinxsidebarwrapper']//li/a", '2.1. Bar A', True),
+        (".//div[@class='sphinxsidebarwrapper']//li/a", '2.2. Bar B', True),
+        (".//div[@class='sphinxsidebarwrapper']//li/a", '2.2.1. Bar B1', False),
+    ],
+    'baz.html': [
+        (".//h1", '2.1.1. Baz A', True),
+    ],
+}))
+@pytest.mark.sphinx('html', testroot='tocdepth')
+@pytest.mark.test_params(shared_result='test_build_html_tocdepth')
+def test_tocdepth(app, cached_etree_parse, fname, expect):
+    app.build()
     # issue #1251
-    app.builder.build_all()
-
-    expects = {
-        'index.html': [
-            (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
-            (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
-            (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
-            (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
-        ],
-        'foo.html': [
-            (".//h1", '1. Foo', True),
-            (".//h2", '1.1. Foo A', True),
-            (".//h3", '1.1.1. Foo A1', True),
-            (".//h2", '1.2. Foo B', True),
-            (".//h3", '1.2.1. Foo B1', True),
-            (".//div[@class='sphinxsidebarwrapper']//li/a", '1.1. Foo A', True),
-            (".//div[@class='sphinxsidebarwrapper']//li/a", '1.1.1. Foo A1', True),
-            (".//div[@class='sphinxsidebarwrapper']//li/a", '1.2. Foo B', True),
-            (".//div[@class='sphinxsidebarwrapper']//li/a", '1.2.1. Foo B1', True),
-        ],
-        'bar.html': [
-            (".//h1", '2. Bar', True),
-            (".//h2", '2.1. Bar A', True),
-            (".//h2", '2.2. Bar B', True),
-            (".//h3", '2.2.1. Bar B1', True),
-            (".//div[@class='sphinxsidebarwrapper']//li/a", '2. Bar', True),
-            (".//div[@class='sphinxsidebarwrapper']//li/a", '2.1. Bar A', True),
-            (".//div[@class='sphinxsidebarwrapper']//li/a", '2.2. Bar B', True),
-            (".//div[@class='sphinxsidebarwrapper']//li/a", '2.2.1. Bar B1', False),
-        ],
-        'baz.html': [
-            (".//h1", '2.1.1. Baz A', True),
-        ],
-    }
-
-    for fname, paths in iteritems(expects):
-        with (app.outdir / fname).open('rb') as fp:
-            etree = HTML_PARSER.parse(fp)
-
-        for xpath, check, be_found in paths:
-            yield check_xpath, etree, fname, xpath, check, be_found
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@gen_with_app(buildername='singlehtml', testroot='tocdepth')
-def test_tocdepth_singlehtml(app, status, warning):
-    app.builder.build_all()
+@pytest.mark.parametrize("fname,expect", flat_dict({
+    'index.html': [
+        (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
+        (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
+        (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
+        (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
 
-    expects = {
-        'index.html': [
-            (".//li[@class='toctree-l3']/a", '1.1.1. Foo A1', True),
-            (".//li[@class='toctree-l3']/a", '1.2.1. Foo B1', True),
-            (".//li[@class='toctree-l3']/a", '2.1.1. Bar A1', False),
-            (".//li[@class='toctree-l3']/a", '2.2.1. Bar B1', False),
+        # index.rst
+        (".//h1", 'test-tocdepth', True),
 
-            # index.rst
-            (".//h1", 'test-tocdepth', True),
+        # foo.rst
+        (".//h2", '1. Foo', True),
+        (".//h3", '1.1. Foo A', True),
+        (".//h4", '1.1.1. Foo A1', True),
+        (".//h3", '1.2. Foo B', True),
+        (".//h4", '1.2.1. Foo B1', True),
 
-            # foo.rst
-            (".//h2", '1. Foo', True),
-            (".//h3", '1.1. Foo A', True),
-            (".//h4", '1.1.1. Foo A1', True),
-            (".//h3", '1.2. Foo B', True),
-            (".//h4", '1.2.1. Foo B1', True),
+        # bar.rst
+        (".//h2", '2. Bar', True),
+        (".//h3", '2.1. Bar A', True),
+        (".//h3", '2.2. Bar B', True),
+        (".//h4", '2.2.1. Bar B1', True),
 
-            # bar.rst
-            (".//h2", '2. Bar', True),
-            (".//h3", '2.1. Bar A', True),
-            (".//h3", '2.2. Bar B', True),
-            (".//h4", '2.2.1. Bar B1', True),
-
-            # baz.rst
-            (".//h4", '2.1.1. Baz A', True),
-        ],
-    }
-
-    for fname, paths in iteritems(expects):
-        with (app.outdir / fname).open('rb') as fp:
-            etree = HTML_PARSER.parse(fp)
-
-        for xpath, check, be_found in paths:
-            yield check_xpath, etree, fname, xpath, check, be_found
+        # baz.rst
+        (".//h4", '2.1.1. Baz A', True),
+    ],
+}))
+@pytest.mark.sphinx('singlehtml', testroot='tocdepth')
+@pytest.mark.test_params(shared_result='test_build_html_tocdepth')
+def test_tocdepth_singlehtml(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@gen_with_app(buildername='html', testroot='numfig')
-def test_numfig_disabled(app, status, warning):
-    app.builder.build_all()
-
+@pytest.mark.sphinx('html', testroot='numfig')
+@pytest.mark.test_params(shared_result='test_build_html_numfig')
+def test_numfig_disabled_warn(app, warning):
+    app.build()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' in warnings
     assert 'index.rst:55: WARNING: no number is assigned for section: index' not in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' not in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' not in warnings
 
-    expects = {
-        'index.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", None, True),
-            (".//table/caption/span[@class='caption-number']", None, True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", None, True),
-            (".//li/code/span", '^fig1$', True),
-            (".//li/code/span", '^Figure%s$', True),
-            (".//li/code/span", '^table-1$', True),
-            (".//li/code/span", '^Table:%s$', True),
-            (".//li/code/span", '^CODE_1$', True),
-            (".//li/code/span", '^Code-%s$', True),
-            (".//li/code/span", '^foo$', True),
-            (".//li/code/span", '^bar_a$', True),
-            (".//li/code/span", '^Fig.{number}$', True),
-            (".//li/code/span", '^Sect.{number}$', True),
-        ],
-        'foo.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", None, True),
-            (".//table/caption/span[@class='caption-number']", None, True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", None, True),
-        ],
-        'bar.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", None, True),
-            (".//table/caption/span[@class='caption-number']", None, True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", None, True),
-        ],
-        'baz.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", None, True),
-            (".//table/caption/span[@class='caption-number']", None, True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", None, True),
-        ],
-    }
 
-    for fname, paths in iteritems(expects):
-        with (app.outdir / fname).open('rb') as fp:
-            etree = HTML_PARSER.parse(fp)
+@pytest.mark.parametrize("fname,expect", flat_dict({
+    'index.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", None, True),
+        (".//table/caption/span[@class='caption-number']", None, True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", None, True),
+        (".//li/code/span", '^fig1$', True),
+        (".//li/code/span", '^Figure%s$', True),
+        (".//li/code/span", '^table-1$', True),
+        (".//li/code/span", '^Table:%s$', True),
+        (".//li/code/span", '^CODE_1$', True),
+        (".//li/code/span", '^Code-%s$', True),
+        (".//li/code/span", '^foo$', True),
+        (".//li/code/span", '^bar_a$', True),
+        (".//li/code/span", '^Fig.{number}$', True),
+        (".//li/code/span", '^Sect.{number}$', True),
+    ],
+    'foo.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", None, True),
+        (".//table/caption/span[@class='caption-number']", None, True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", None, True),
+    ],
+    'bar.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", None, True),
+        (".//table/caption/span[@class='caption-number']", None, True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", None, True),
+    ],
+    'baz.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", None, True),
+        (".//table/caption/span[@class='caption-number']", None, True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", None, True),
+    ],
+}))
+@pytest.mark.sphinx('html', testroot='numfig')
+@pytest.mark.test_params(shared_result='test_build_html_numfig')
+def test_numfig_disabled(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
-        for xpath, check, be_found in paths:
-            yield check_xpath, etree, fname, xpath, check, be_found
 
-
-@gen_with_app(buildername='html', testroot='numfig', freshenv=True,
-              confoverrides={'numfig': True})
-def test_numfig_without_numbered_toctree(app, status, warning):
+@pytest.mark.sphinx(
+    'html', testroot='numfig',
+    srcdir='test_numfig_without_numbered_toctree_warn',
+    confoverrides={'numfig': True})
+def test_numfig_without_numbered_toctree_warn(app, warning):
+    app.build()
     # remove :numbered: option
     index = (app.srcdir / 'index.rst').text()
     index = re.sub(':numbered:.*', '', index, re.MULTILINE)
@@ -573,519 +594,518 @@ def test_numfig_without_numbered_toctree(app, status, warning):
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
-    expects = {
-        'index.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 9 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 10 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 9 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 10 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 9 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 10 $', True),
-            (".//li/a/span", '^Fig. 9$', True),
-            (".//li/a/span", '^Figure6$', True),
-            (".//li/a/span", '^Table 9$', True),
-            (".//li/a/span", '^Table:6$', True),
-            (".//li/a/span", '^Listing 9$', True),
-            (".//li/a/span", '^Code-6$', True),
-            (".//li/code/span", '^foo$', True),
-            (".//li/code/span", '^bar_a$', True),
-            (".//li/a/span", '^Fig.9 should be Fig.1$', True),
-            (".//li/code/span", '^Sect.{number}$', True),
-        ],
-        'foo.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 3 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 4 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 3 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 4 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 3 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 4 $', True),
-        ],
-        'bar.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 5 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 7 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 8 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 5 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 7 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 8 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 5 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 7 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 8 $', True),
-        ],
-        'baz.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 6 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 6 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 6 $', True),
-        ],
-    }
 
-    for fname, paths in iteritems(expects):
-        with (app.outdir / fname).open('rb') as fp:
-            etree = HTML_PARSER.parse(fp)
+@pytest.mark.parametrize("fname,expect", flat_dict({
+    'index.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 9 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 10 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 9 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 10 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 9 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 10 $', True),
+        (".//li/a/span", '^Fig. 9$', True),
+        (".//li/a/span", '^Figure6$', True),
+        (".//li/a/span", '^Table 9$', True),
+        (".//li/a/span", '^Table:6$', True),
+        (".//li/a/span", '^Listing 9$', True),
+        (".//li/a/span", '^Code-6$', True),
+        (".//li/code/span", '^foo$', True),
+        (".//li/code/span", '^bar_a$', True),
+        (".//li/a/span", '^Fig.9 should be Fig.1$', True),
+        (".//li/code/span", '^Sect.{number}$', True),
+    ],
+    'foo.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 3 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 4 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 3 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 4 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 3 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 4 $', True),
+    ],
+    'bar.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 5 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 7 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 8 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 5 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 7 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 8 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 5 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 7 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 8 $', True),
+    ],
+    'baz.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 6 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 6 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 6 $', True),
+    ],
+}))
+@pytest.mark.sphinx(
+    'html', testroot='numfig',
+    srcdir='test_numfig_without_numbered_toctree',
+    confoverrides={'numfig': True})
+def test_numfig_without_numbered_toctree(app, cached_etree_parse, fname, expect):
+    # remove :numbered: option
+    index = (app.srcdir / 'index.rst').text()
+    index = re.sub(':numbered:.*', '', index, re.MULTILINE)
+    (app.srcdir / 'index.rst').write_text(index, encoding='utf-8')
 
-        for xpath, check, be_found in paths:
-            yield check_xpath, etree, fname, xpath, check, be_found
+    if not app.outdir.listdir():
+        app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@gen_with_app(buildername='html', testroot='numfig',
-              confoverrides={'numfig': True})
-def test_numfig_with_numbered_toctree(app, status, warning):
-    app.builder.build_all()
-
+@pytest.mark.sphinx('html', testroot='numfig', confoverrides={'numfig': True})
+@pytest.mark.test_params(shared_result='test_build_html_numfig_on')
+def test_numfig_with_numbered_toctree_warn(app, warning):
+    app.build()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
     assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
-    expects = {
-        'index.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2 $', True),
-            (".//li/a/span", '^Fig. 1$', True),
-            (".//li/a/span", '^Figure2.2$', True),
-            (".//li/a/span", '^Table 1$', True),
-            (".//li/a/span", '^Table:2.2$', True),
-            (".//li/a/span", '^Listing 1$', True),
-            (".//li/a/span", '^Code-2.2$', True),
-            (".//li/a/span", '^Section.1$', True),
-            (".//li/a/span", '^Section.2.1$', True),
-            (".//li/a/span", '^Fig.1 should be Fig.1$', True),
-            (".//li/a/span", '^Sect.1 Foo$', True),
-        ],
-        'foo.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1.1 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1.2 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1.3 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1.4 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1.1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1.2 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1.3 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1.4 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1.1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1.2 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1.3 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1.4 $', True),
-        ],
-        'bar.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2.1 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2.3 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2.4 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2.1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2.3 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2.4 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2.1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2.3 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2.4 $', True),
-        ],
-        'baz.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2.2 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2.2 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2.2 $', True),
-        ],
-    }
 
-    for fname, paths in iteritems(expects):
-        with (app.outdir / fname).open('rb') as fp:
-            etree = HTML_PARSER.parse(fp)
+@pytest.mark.parametrize("fname,expect", flat_dict({
+    'index.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2 $', True),
+        (".//li/a/span", '^Fig. 1$', True),
+        (".//li/a/span", '^Figure2.2$', True),
+        (".//li/a/span", '^Table 1$', True),
+        (".//li/a/span", '^Table:2.2$', True),
+        (".//li/a/span", '^Listing 1$', True),
+        (".//li/a/span", '^Code-2.2$', True),
+        (".//li/a/span", '^Section.1$', True),
+        (".//li/a/span", '^Section.2.1$', True),
+        (".//li/a/span", '^Fig.1 should be Fig.1$', True),
+        (".//li/a/span", '^Sect.1 Foo$', True),
+    ],
+    'foo.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1.1 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1.2 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1.3 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1.4 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1.1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1.2 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1.3 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1.4 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1.1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1.2 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1.3 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1.4 $', True),
+    ],
+    'bar.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2.1 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2.3 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2.4 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2.1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2.3 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2.4 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2.1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2.3 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2.4 $', True),
+    ],
+    'baz.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2.2 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2.2 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2.2 $', True),
+    ],
+}))
+@pytest.mark.sphinx('html', testroot='numfig', confoverrides={'numfig': True})
+@pytest.mark.test_params(shared_result='test_build_html_numfig_on')
+def test_numfig_with_numbered_toctree(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
-        for xpath, check, be_found in paths:
-            yield check_xpath, etree, fname, xpath, check, be_found
 
-
-@gen_with_app(buildername='html', testroot='numfig',
-              confoverrides={'numfig': True,
-                             'numfig_format': {'figure': 'Figure:%s',
-                                               'table': 'Tab_%s',
-                                               'code-block': 'Code-%s',
-                                               'section': 'SECTION-%s'}})
-def test_numfig_with_prefix(app, status, warning):
-    app.builder.build_all()
-
+@pytest.mark.sphinx('html', testroot='numfig', confoverrides={
+    'numfig': True,
+    'numfig_format': {'figure': 'Figure:%s',
+                      'table': 'Tab_%s',
+                      'code-block': 'Code-%s',
+                      'section': 'SECTION-%s'}})
+@pytest.mark.test_params(shared_result='test_build_html_numfig_format_warn')
+def test_numfig_with_prefix_warn(app, warning):
+    app.build()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
     assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
-    expects = {
-        'index.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Figure:1 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Figure:2 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Tab_1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Tab_2 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Code-1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Code-2 $', True),
-            (".//li/a/span", '^Figure:1$', True),
-            (".//li/a/span", '^Figure2.2$', True),
-            (".//li/a/span", '^Tab_1$', True),
-            (".//li/a/span", '^Table:2.2$', True),
-            (".//li/a/span", '^Code-1$', True),
-            (".//li/a/span", '^Code-2.2$', True),
-            (".//li/a/span", '^SECTION-1$', True),
-            (".//li/a/span", '^SECTION-2.1$', True),
-            (".//li/a/span", '^Fig.1 should be Fig.1$', True),
-            (".//li/a/span", '^Sect.1 Foo$', True),
-        ],
-        'foo.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Figure:1.1 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Figure:1.2 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Figure:1.3 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Figure:1.4 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Tab_1.1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Tab_1.2 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Tab_1.3 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Tab_1.4 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Code-1.1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Code-1.2 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Code-1.3 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Code-1.4 $', True),
-        ],
-        'bar.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Figure:2.1 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Figure:2.3 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Figure:2.4 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Tab_2.1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Tab_2.3 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Tab_2.4 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Code-2.1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Code-2.3 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Code-2.4 $', True),
-        ],
-        'baz.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Figure:2.2 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Tab_2.2 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Code-2.2 $', True),
-        ],
-    }
 
-    for fname, paths in iteritems(expects):
-        with (app.outdir / fname).open('rb') as fp:
-            etree = HTML_PARSER.parse(fp)
+@pytest.mark.parametrize("fname,expect", flat_dict({
+    'index.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Figure:1 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Figure:2 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Tab_1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Tab_2 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Code-1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Code-2 $', True),
+        (".//li/a/span", '^Figure:1$', True),
+        (".//li/a/span", '^Figure2.2$', True),
+        (".//li/a/span", '^Tab_1$', True),
+        (".//li/a/span", '^Table:2.2$', True),
+        (".//li/a/span", '^Code-1$', True),
+        (".//li/a/span", '^Code-2.2$', True),
+        (".//li/a/span", '^SECTION-1$', True),
+        (".//li/a/span", '^SECTION-2.1$', True),
+        (".//li/a/span", '^Fig.1 should be Fig.1$', True),
+        (".//li/a/span", '^Sect.1 Foo$', True),
+    ],
+    'foo.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Figure:1.1 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Figure:1.2 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Figure:1.3 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Figure:1.4 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Tab_1.1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Tab_1.2 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Tab_1.3 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Tab_1.4 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Code-1.1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Code-1.2 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Code-1.3 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Code-1.4 $', True),
+    ],
+    'bar.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Figure:2.1 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Figure:2.3 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Figure:2.4 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Tab_2.1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Tab_2.3 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Tab_2.4 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Code-2.1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Code-2.3 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Code-2.4 $', True),
+    ],
+    'baz.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Figure:2.2 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Tab_2.2 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Code-2.2 $', True),
+    ],
+}))
+@pytest.mark.sphinx('html', testroot='numfig', confoverrides={
+    'numfig': True,
+    'numfig_format': {'figure': 'Figure:%s',
+                      'table': 'Tab_%s',
+                      'code-block': 'Code-%s',
+                      'section': 'SECTION-%s'}})
+@pytest.mark.test_params(shared_result='test_build_html_numfig_format_warn')
+def test_numfig_with_prefix(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
-        for xpath, check, be_found in paths:
-            yield check_xpath, etree, fname, xpath, check, be_found
 
-
-@gen_with_app(buildername='html', testroot='numfig',
-              confoverrides={'numfig': True, 'numfig_secnum_depth': 2})
-def test_numfig_with_secnum_depth(app, status, warning):
-    app.builder.build_all()
-
+@pytest.mark.sphinx('html', testroot='numfig', confoverrides={
+    'numfig': True, 'numfig_secnum_depth': 2})
+@pytest.mark.test_params(shared_result='test_build_html_numfig_depth_2')
+def test_numfig_with_secnum_depth_warn(app, warning):
+    app.build()
     warnings = warning.getvalue()
     assert 'index.rst:47: WARNING: numfig is disabled. :numref: is ignored.' not in warnings
     assert 'index.rst:55: WARNING: no number is assigned for section: index' in warnings
     assert 'index.rst:56: WARNING: invalid numfig_format: invalid' in warnings
     assert 'index.rst:57: WARNING: invalid numfig_format: Fig %s %s' in warnings
 
-    expects = {
-        'index.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2 $', True),
-            (".//li/a/span", '^Fig. 1$', True),
-            (".//li/a/span", '^Figure2.1.2$', True),
-            (".//li/a/span", '^Table 1$', True),
-            (".//li/a/span", '^Table:2.1.2$', True),
-            (".//li/a/span", '^Listing 1$', True),
-            (".//li/a/span", '^Code-2.1.2$', True),
-            (".//li/a/span", '^Section.1$', True),
-            (".//li/a/span", '^Section.2.1$', True),
-            (".//li/a/span", '^Fig.1 should be Fig.1$', True),
-            (".//li/a/span", '^Sect.1 Foo$', True),
-        ],
-        'foo.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1.1 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1.1.1 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1.1.2 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1.2.1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1.1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1.1.1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1.1.2 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1.2.1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1.1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1.1.1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1.1.2 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1.2.1 $', True),
-        ],
-        'bar.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2.1.1 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2.1.3 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2.2.1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2.1.1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2.1.3 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2.2.1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2.1.1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2.1.3 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2.2.1 $', True),
-        ],
-        'baz.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2.1.2 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2.1.2 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2.1.2 $', True),
-        ],
-    }
 
-    for fname, paths in iteritems(expects):
-        with (app.outdir / fname).open('rb') as fp:
-            etree = HTML_PARSER.parse(fp)
-
-        for xpath, check, be_found in paths:
-            yield check_xpath, etree, fname, xpath, check, be_found
-
-
-@gen_with_app(buildername='singlehtml', testroot='numfig',
-              confoverrides={'numfig': True})
-def test_numfig_with_singlehtml(app, status, warning):
-    app.builder.build_all()
-
-    expects = {
-        'index.html': [
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2 $', True),
-            (".//li/a/span", '^Fig. 1$', True),
-            (".//li/a/span", '^Figure2.2$', True),
-            (".//li/a/span", '^Table 1$', True),
-            (".//li/a/span", '^Table:2.2$', True),
-            (".//li/a/span", '^Listing 1$', True),
-            (".//li/a/span", '^Code-2.2$', True),
-            (".//li/a/span", '^Section.1$', True),
-            (".//li/a/span", '^Section.2.1$', True),
-            (".//li/a/span", '^Fig.1 should be Fig.1$', True),
-            (".//li/a/span", '^Sect.1 Foo$', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1.1 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1.2 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1.3 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 1.4 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1.1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1.2 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1.3 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 1.4 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1.1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1.2 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1.3 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 1.4 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2.1 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2.3 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2.4 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2.1 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2.3 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2.4 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2.1 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2.3 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2.4 $', True),
-            (".//div[@class='figure']/p[@class='caption']/"
-             "span[@class='caption-number']", '^Fig. 2.2 $', True),
-            (".//table/caption/span[@class='caption-number']",
-             '^Table 2.2 $', True),
-            (".//div[@class='code-block-caption']/"
-             "span[@class='caption-number']", '^Listing 2.2 $', True),
-        ],
-    }
-
-    for fname, paths in iteritems(expects):
-        with (app.outdir / fname).open('rb') as fp:
-            etree = HTML_PARSER.parse(fp)
-
-        for xpath, check, be_found in paths:
-            yield check_xpath, etree, fname, xpath, check, be_found
+@pytest.mark.parametrize("fname,expect", flat_dict({
+    'index.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2 $', True),
+        (".//li/a/span", '^Fig. 1$', True),
+        (".//li/a/span", '^Figure2.1.2$', True),
+        (".//li/a/span", '^Table 1$', True),
+        (".//li/a/span", '^Table:2.1.2$', True),
+        (".//li/a/span", '^Listing 1$', True),
+        (".//li/a/span", '^Code-2.1.2$', True),
+        (".//li/a/span", '^Section.1$', True),
+        (".//li/a/span", '^Section.2.1$', True),
+        (".//li/a/span", '^Fig.1 should be Fig.1$', True),
+        (".//li/a/span", '^Sect.1 Foo$', True),
+    ],
+    'foo.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1.1 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1.1.1 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1.1.2 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1.2.1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1.1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1.1.1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1.1.2 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1.2.1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1.1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1.1.1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1.1.2 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1.2.1 $', True),
+    ],
+    'bar.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2.1.1 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2.1.3 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2.2.1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2.1.1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2.1.3 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2.2.1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2.1.1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2.1.3 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2.2.1 $', True),
+    ],
+    'baz.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2.1.2 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2.1.2 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2.1.2 $', True),
+    ],
+}))
+@pytest.mark.sphinx('html', testroot='numfig', confoverrides={
+    'numfig': True, 'numfig_secnum_depth': 2})
+@pytest.mark.test_params(shared_result='test_build_html_numfig_depth_2')
+def test_numfig_with_secnum_depth(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
 
-@gen_with_app(buildername='html', testroot='add_enumerable_node')
-def test_enumerable_node(app, status, warning):
-    app.builder.build_all()
+@pytest.mark.parametrize("fname,expect", flat_dict({
+    'index.html': [
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2 $', True),
+        (".//li/a/span", '^Fig. 1$', True),
+        (".//li/a/span", '^Figure2.2$', True),
+        (".//li/a/span", '^Table 1$', True),
+        (".//li/a/span", '^Table:2.2$', True),
+        (".//li/a/span", '^Listing 1$', True),
+        (".//li/a/span", '^Code-2.2$', True),
+        (".//li/a/span", '^Section.1$', True),
+        (".//li/a/span", '^Section.2.1$', True),
+        (".//li/a/span", '^Fig.1 should be Fig.1$', True),
+        (".//li/a/span", '^Sect.1 Foo$', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1.1 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1.2 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1.3 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 1.4 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1.1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1.2 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1.3 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 1.4 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1.1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1.2 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1.3 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 1.4 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2.1 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2.3 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2.4 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2.1 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2.3 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2.4 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2.1 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2.3 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2.4 $', True),
+        (".//div[@class='figure']/p[@class='caption']/"
+         "span[@class='caption-number']", '^Fig. 2.2 $', True),
+        (".//table/caption/span[@class='caption-number']",
+         '^Table 2.2 $', True),
+        (".//div[@class='code-block-caption']/"
+         "span[@class='caption-number']", '^Listing 2.2 $', True),
+    ],
+}))
+@pytest.mark.sphinx('singlehtml', testroot='numfig', confoverrides={
+    'numfig': True})
+@pytest.mark.test_params(shared_result='test_build_html_numfig_on')
+def test_numfig_with_singlehtml(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
-    expects = {
-        'index.html': [
-            (".//div[@class='figure']/p[@class='caption']/span[@class='caption-number']",
-             "Fig. 1", True),
-            (".//div[@class='figure']/p[@class='caption']/span[@class='caption-number']",
-             "Fig. 2", True),
-            (".//div[@class='figure']/p[@class='caption']/span[@class='caption-number']",
-             "Fig. 3", True),
-            (".//div//span[@class='caption-number']", "No.1 ", True),
-            (".//div//span[@class='caption-number']", "No.2 ", True),
-            (".//li/a/span", 'Fig. 1', True),
-            (".//li/a/span", 'Fig. 2', True),
-            (".//li/a/span", 'Fig. 3', True),
-            (".//li/a/span", 'No.1', True),
-            (".//li/a/span", 'No.2', True),
-        ],
-    }
 
-    for fname, paths in iteritems(expects):
-        with (app.outdir / fname).open('rb') as fp:
-            etree = HTML_PARSER.parse(fp)
+@pytest.mark.parametrize("fname,expect", flat_dict({
+    'index.html': [
+        (".//div[@class='figure']/p[@class='caption']/span[@class='caption-number']",
+         "Fig. 1", True),
+        (".//div[@class='figure']/p[@class='caption']/span[@class='caption-number']",
+         "Fig. 2", True),
+        (".//div[@class='figure']/p[@class='caption']/span[@class='caption-number']",
+         "Fig. 3", True),
+        (".//div//span[@class='caption-number']", "No.1 ", True),
+        (".//div//span[@class='caption-number']", "No.2 ", True),
+        (".//li/a/span", 'Fig. 1', True),
+        (".//li/a/span", 'Fig. 2', True),
+        (".//li/a/span", 'Fig. 3', True),
+        (".//li/a/span", 'No.1', True),
+        (".//li/a/span", 'No.2', True),
+    ],
+}))
+@pytest.mark.sphinx(
+    'html', testroot='add_enumerable_node',
+    srcdir='test_enumerable_node',
+)
+def test_enumerable_node(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
-        for xpath, check, be_found in paths:
-            yield check_xpath, etree, fname, xpath, check, be_found
 
-
-@with_app(buildername='html', testroot='html_assets')
-def test_html_assets(app, status, warning):
+@pytest.mark.sphinx('html', testroot='html_assets')
+def test_html_assets(app):
     app.builder.build_all()
 
     # html_static_path
@@ -1112,8 +1132,8 @@ def test_html_assets(app, status, warning):
     assert not (app.outdir / 'subdir' / '.htpasswd').exists()
 
 
-@with_app(buildername='html', confoverrides={'html_sourcelink_suffix': ''})
-def test_html_sourcelink_suffix(app, status, warning):
+@pytest.mark.sphinx('html', confoverrides={'html_sourcelink_suffix': ''})
+def test_html_sourcelink_suffix(app):
     app.builder.build_all()
     content_otherext = (app.outdir / 'otherext.html').text()
     content_images = (app.outdir / 'images.html').text()
@@ -1124,41 +1144,67 @@ def test_html_sourcelink_suffix(app, status, warning):
     assert (app.outdir / '_sources' / 'images.txt').exists()
 
 
-@gen_with_app(buildername='html', testroot='stylesheets')
-def test_alternate_stylesheets(app, status, warning):
+@pytest.mark.sphinx('html', testroot='html_entity')
+def test_html_entity(app):
     app.builder.build_all()
+    valid_entities = {'amp', 'lt', 'gt', 'quot', 'apos'}
+    content = (app.outdir / 'index.html').text()
+    for entity in re.findall(r'&([a-z]+);', content, re.M):
+        assert entity not in valid_entities
 
-    expects = {
-        'index.html': [
-            (".//link[@href='_static/persistent.css']"
-                    "[@rel='stylesheet']", '', True),
-            (".//link[@href='_static/default.css']"
-                    "[@rel='stylesheet']"
-                    "[@title='Default']", '', True),
-            (".//link[@href='_static/alternate1.css']"
-                    "[@rel='alternate stylesheet']"
-                    "[@title='Alternate']", '', True),
-            (".//link[@href='_static/alternate2.css']"
-                    "[@rel='alternate stylesheet']", '', True),
-            (".//link[@href='_static/more_persistent.css']"
-                    "[@rel='stylesheet']", '', True),
-            (".//link[@href='_static/more_persistent2.css']"
-                    "[@rel='stylesheet']", '', True),
-            (".//link[@href='_static/more_default.css']"
-                    "[@rel='stylesheet']"
-                    "[@title='Default']", '', True),
-            (".//link[@href='_static/more_alternate1.css']"
-                    "[@rel='alternate stylesheet']"
-                    "[@title='Alternate']", '', True),
-            (".//link[@href='_static/more_alternate2.css']"
-                    "[@rel='alternate stylesheet']", '', True),
-        ],
-    }
 
-    for fname, paths in iteritems(expects):
-        with (app.outdir / fname).open('rb') as fp:
-            etree = HTML_PARSER.parse(fp)
+@pytest.mark.sphinx('html', testroot='basic')
+def test_html_inventory(app):
+    app.builder.build_all()
+    with open(app.outdir / 'objects.inv', 'rb') as f:
+        invdata = InventoryFile.load(f, 'http://example.com', os.path.join)
+    assert set(invdata.keys()) == {'std:label', 'std:doc'}
+    assert set(invdata['std:label'].keys()) == {'modindex', 'genindex', 'search'}
+    assert invdata['std:label']['modindex'] == ('Python',
+                                                '',
+                                                'http://example.com/py-modindex.html',
+                                                'Module Index')
+    assert invdata['std:label']['genindex'] == ('Python',
+                                                '',
+                                                'http://example.com/genindex.html',
+                                                'Index')
+    assert invdata['std:label']['search'] == ('Python',
+                                              '',
+                                              'http://example.com/search.html',
+                                              'Search Page')
+    assert set(invdata['std:doc'].keys()) == {'index'}
+    assert invdata['std:doc']['index'] == ('Python',
+                                           '',
+                                           'http://example.com/index.html',
+                                           'The basic Sphinx documentation for testing')
 
-        for xpath, check, be_found in paths:
-            yield check_xpath, etree, fname, xpath, check, be_found
-
+@pytest.mark.parametrize("fname,expect", flat_dict({
+    'index.html': [
+        (".//link[@href='_static/persistent.css']"
+                "[@rel='stylesheet']", '', True),
+        (".//link[@href='_static/default.css']"
+                "[@rel='stylesheet']"
+                "[@title='Default']", '', True),
+        (".//link[@href='_static/alternate1.css']"
+                "[@rel='alternate stylesheet']"
+                "[@title='Alternate']", '', True),
+        (".//link[@href='_static/alternate2.css']"
+                "[@rel='alternate stylesheet']", '', True),
+        (".//link[@href='_static/more_persistent.css']"
+                "[@rel='stylesheet']", '', True),
+        (".//link[@href='_static/more_persistent2.css']"
+                "[@rel='stylesheet']", '', True),
+        (".//link[@href='_static/more_default.css']"
+                "[@rel='stylesheet']"
+                "[@title='Default']", '', True),
+        (".//link[@href='_static/more_alternate1.css']"
+                "[@rel='alternate stylesheet']"
+                "[@title='Alternate']", '', True),
+        (".//link[@href='_static/more_alternate2.css']"
+                "[@rel='alternate stylesheet']", '', True),
+    ],
+}))
+@pytest.mark.sphinx('html', testroot='stylesheets')
+def test_alternate_stylesheets(app, cached_etree_parse, fname, expect):
+    app.build()
+    check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)

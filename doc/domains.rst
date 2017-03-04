@@ -318,6 +318,11 @@ are recognized and formatted nicely:
 * ``returns``, ``return``: Description of the return value.
 * ``rtype``: Return type.  Creates a link if possible.
 
+.. note::
+
+   In current release, all ``var``, ``ivar`` and ``cvar`` are represented as "Variable".
+   There is no difference at all.
+
 The field names must consist of one of these keywords and an argument (except
 for ``returns`` and ``rtype``, which do not need an argument).  This is best
 explained by an example::
@@ -540,6 +545,10 @@ The C++ Domain
 
 The C++ domain (name **cpp**) supports documenting C++ projects.
 
+
+Directives
+~~~~~~~~~~
+
 The following directives are available. All declarations can start with
 a visibility statement (``public``, ``private`` or ``protected``).
 
@@ -734,6 +743,16 @@ a visibility statement (``public``, ``private`` or ``protected``).
 
       Holder of elements, to which it can provide access via
       :cpp:concept:`Iterator` s.
+
+Options
+.......
+
+Some directives support options:
+
+- ``:noindex:``, see :ref:`basic-domain-markup`.
+- ``:tparam-line-spec:``, for templated declarations.
+  If specified, each template parameter will be rendered on a separate line.
+
 
 Constrained Templates
 ~~~~~~~~~~~~~~~~~~~~~

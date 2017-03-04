@@ -37,6 +37,10 @@ from six import PY3
 from sphinx.pycode.pgen2.token import *
 from sphinx.pycode.pgen2 import token
 
+if False:
+    # For type annotation
+    from typing import List  # NOQA
+
 __all__ = [x for x in dir(token) if x[0] != '_'] + ["tokenize",
            "generate_tokens", "untokenize"]
 del token
@@ -298,12 +302,12 @@ def generate_tokens(readline):
             endmatch = endprog.match(line)  # type: ignore
             if endmatch:
                 pos = end = endmatch.end(0)
-                yield (STRING, contstr + line[:end],  # type: ignore
+                yield (STRING, contstr + line[:end],
                        strstart, (lnum, end), contline + line)  # type: ignore
                 contstr, needcont = '', 0
                 contline = None
             elif needcont and line[-2:] != '\\\n' and line[-3:] != '\\\r\n':
-                yield (ERRORTOKEN, contstr + line,  # type: ignore
+                yield (ERRORTOKEN, contstr + line,
                            strstart, (lnum, len(line)), contline)  # type: ignore
                 contstr = ''
                 contline = None

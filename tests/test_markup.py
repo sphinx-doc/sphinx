@@ -13,37 +13,44 @@ import re
 import pickle
 
 from docutils import frontend, utils, nodes
-from docutils.parsers import rst
+from docutils.parsers.rst import Parser as RstParser
 
 from sphinx import addnodes
 from sphinx.util import texescape
 from sphinx.util.docutils import sphinx_domains
 from sphinx.writers.html import HTMLWriter, SmartyPantsHTMLTranslator
 from sphinx.writers.latex import LaTeXWriter, LaTeXTranslator
+import pytest
 
-from util import TestApp, with_app, assert_node
-
-
-app = settings = parser = domain_context = None
+from util import assert_node
 
 
-def setup_module():
-    global app, settings, parser, domain_context
+@pytest.fixture
+def settings(app):
     texescape.init()  # otherwise done by the latex builder
-    app = TestApp()
     optparser = frontend.OptionParser(
-        components=(rst.Parser, HTMLWriter, LaTeXWriter))
+        components=(RstParser, HTMLWriter, LaTeXWriter))
     settings = optparser.get_default_values()
     settings.env = app.builder.env
     settings.env.temp_data['docname'] = 'dummy'
-    parser = rst.Parser()
     domain_context = sphinx_domains(settings.env)
     domain_context.enable()
-
-
-def teardown_module():
-    app.cleanup()
+    yield settings
     domain_context.disable()
+
+
+@pytest.fixture
+def parse(settings):
+    def parse_(rst):
+        document = utils.new_document(b'test data', settings)
+        document['file'] = 'dummy'
+        parser = RstParser()
+        parser.parse(rst, document)
+        for msg in document.traverse(nodes.system_message):
+            if msg['level'] == 1:
+                msg.replace_self([])
+        return document
+    return parse_
 
 
 # since we're not resolving the markup afterwards, these nodes may remain
@@ -63,96 +70,162 @@ class ForgivingLaTeXTranslator(LaTeXTranslator, ForgivingTranslator):
     pass
 
 
-def verify_re(rst, html_expected, latex_expected):
-    document = utils.new_document(b'test data', settings)
-    document['file'] = 'dummy'
-    parser.parse(rst, document)
-    for msg in document.traverse(nodes.system_message):
-        if msg['level'] == 1:
-            msg.replace_self([])
-
-    if html_expected:
+@pytest.fixture
+def verify_re_html(app, parse):
+    def verify(rst, html_expected):
+        document = parse(rst)
         html_translator = ForgivingHTMLTranslator(app.builder, document)
         document.walkabout(html_translator)
         html_translated = ''.join(html_translator.fragment).strip()
         assert re.match(html_expected, html_translated), 'from ' + rst
+    return verify
 
-    if latex_expected:
+
+@pytest.fixture
+def verify_re_latex(app, parse):
+    def verify(rst, latex_expected):
+        document = parse(rst)
         latex_translator = ForgivingLaTeXTranslator(document, app.builder)
         latex_translator.first_document = -1  # don't write \begin{document}
         document.walkabout(latex_translator)
         latex_translated = ''.join(latex_translator.body).strip()
         assert re.match(latex_expected, latex_translated), 'from ' + repr(rst)
+    return verify
 
 
-def verify(rst, html_expected, latex_expected):
-    if html_expected:
-        html_expected = re.escape(html_expected) + '$'
-    if latex_expected:
-        latex_expected = re.escape(latex_expected) + '$'
-    verify_re(rst, html_expected, latex_expected)
+@pytest.fixture
+def verify_re(verify_re_html, verify_re_latex):
+    def verify_re_(rst, html_expected, latex_expected):
+        if html_expected:
+            return verify_re_html(rst, html_expected)
+        if latex_expected:
+            return verify_re_latex(rst, latex_expected)
+    return verify_re_
 
 
-def test_inline():
-    # correct interpretation of code with whitespace
-    _html = ('<p><code class="(samp )?docutils literal"><span class="pre">'
-             'code</span>&#160;&#160; <span class="pre">sample</span></code></p>')
-    yield verify_re, '``code   sample``', _html, r'\\sphinxcode{code   sample}'
-    yield verify_re, ':samp:`code   sample`', _html, r'\\sphinxcode{code   sample}'
-
-    # interpolation of braces in samp and file roles (HTML only)
-    yield (verify, ':samp:`a{b}c`',
-           '<p><code class="samp docutils literal"><span class="pre">a</span>'
-           '<em><span class="pre">b</span></em>'
-           '<span class="pre">c</span></code></p>',
-           '\\sphinxcode{a\\sphinxstyleemphasis{b}c}')
-
-    # interpolation of arrows in menuselection
-    yield (verify, ':menuselection:`a --> b`',
-           u'<p><span class="menuselection">a \N{TRIANGULAR BULLET} b</span></p>',
-           '\\sphinxmenuselection{a \\(\\rightarrow\\) b}')
-
-    # interpolation of ampersands in guilabel/menuselection
-    yield (verify, ':guilabel:`&Foo -&&- &Bar`',
-           u'<p><span class="guilabel"><span class="accelerator">F</span>oo '
-           '-&amp;- <span class="accelerator">B</span>ar</span></p>',
-           r'\sphinxmenuselection{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}')
-
-    # non-interpolation of dashes in option role
-    yield (verify_re, ':option:`--with-option`',
-           '<p><code( class="xref std std-option docutils literal")?>'
-           '<span class="pre">--with-option</span></code></p>$',
-           r'\\sphinxcode{-{-}with-option}$')
-
-    # verify smarty-pants quotes
-    yield verify, '"John"', '<p>&#8220;John&#8221;</p>', "``John''"
-    # ... but not in literal text
-    yield (verify, '``"John"``',
-           '<p><code class="docutils literal"><span class="pre">'
-           '&quot;John&quot;</span></code></p>',
-           '\\sphinxcode{"John"}')
-
-    # verify classes for inline roles
-    yield (verify, ':manpage:`mp(1)`',
-           '<p><em class="manpage">mp(1)</em></p>',
-           '\\sphinxstyleliteralemphasis{mp(1)}')
+@pytest.fixture
+def verify(verify_re_html, verify_re_latex):
+    def verify_(rst, html_expected, latex_expected):
+        if html_expected:
+            return verify_re_html(rst, re.escape(html_expected) + '$')
+        if latex_expected:
+            return verify_re_latex(rst, re.escape(latex_expected) + '$')
+    return verify_
 
 
-def test_latex_escaping():
-    # correct escaping in normal mode
-    yield (verify, u'Γ\\\\∞$', None,
-           r'\(\Gamma\)\textbackslash{}\(\infty\)\$')
-    # in verbatim code fragments
-    yield (verify, u'::\n\n @Γ\\∞${}', None,
-           u'\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
-           u'@\\(\\Gamma\\)\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
-           u'\\end{sphinxVerbatim}')
-    # in URIs
-    yield (verify_re, u'`test <http://example.com/~me/>`_', None,
-           r'\\href{http://example.com/~me/}{test}.*')
+@pytest.fixture
+def get_verifier(verify, verify_re):
+    v = {
+        'verify': verify,
+        'verify_re': verify_re,
+    }
+
+    def get(name):
+        return v[name]
+    return get
 
 
-@with_app(buildername='dummy', testroot='prolog')
+@pytest.mark.parametrize('type,rst,html_expected,latex_expected', [
+    (
+        # correct interpretation of code with whitespace
+        'verify_re',
+        '``code   sample``',
+        ('<p><code class="(samp )?docutils literal"><span class="pre">'
+         'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
+        r'\\sphinxcode{code   sample}',
+    ),
+    (
+        # correct interpretation of code with whitespace
+        'verify_re',
+        ':samp:`code   sample`',
+        ('<p><code class="(samp )?docutils literal"><span class="pre">'
+         'code</span>&#160;&#160; <span class="pre">sample</span></code></p>'),
+        r'\\sphinxcode{code   sample}',
+    ),
+    (
+        # interpolation of braces in samp and file roles (HTML only)
+        'verify',
+        ':samp:`a{b}c`',
+        ('<p><code class="samp docutils literal"><span class="pre">a</span>'
+         '<em><span class="pre">b</span></em>'
+         '<span class="pre">c</span></code></p>'),
+        '\\sphinxcode{a\\sphinxstyleemphasis{b}c}',
+    ),
+    (
+        # interpolation of arrows in menuselection
+        'verify',
+        ':menuselection:`a --> b`',
+        (u'<p><span class="menuselection">a \N{TRIANGULAR BULLET} b</span></p>'),
+        '\\sphinxmenuselection{a \\(\\rightarrow\\) b}',
+    ),
+    (
+        # interpolation of ampersands in guilabel/menuselection
+        'verify',
+        ':guilabel:`&Foo -&&- &Bar`',
+        (u'<p><span class="guilabel"><span class="accelerator">F</span>oo '
+         '-&amp;- <span class="accelerator">B</span>ar</span></p>'),
+        r'\sphinxmenuselection{\sphinxaccelerator{F}oo -\&- \sphinxaccelerator{B}ar}',
+    ),
+    (
+        # non-interpolation of dashes in option role
+        'verify_re',
+        ':option:`--with-option`',
+        ('<p><code( class="xref std std-option docutils literal")?>'
+         '<span class="pre">--with-option</span></code></p>$'),
+        r'\\sphinxcode{-{-}with-option}$',
+    ),
+    (
+        # verify smarty-pants quotes
+        'verify',
+        '"John"',
+        '<p>&#8220;John&#8221;</p>',
+        "``John''",
+    ),
+    (
+        # ... but not in literal text
+        'verify',
+        '``"John"``',
+        ('<p><code class="docutils literal"><span class="pre">'
+         '&quot;John&quot;</span></code></p>'),
+        '\\sphinxcode{"John"}',
+    ),
+    (
+        # verify classes for inline roles
+        'verify',
+        ':manpage:`mp(1)`',
+        '<p><em class="manpage">mp(1)</em></p>',
+        '\\sphinxstyleliteralemphasis{mp(1)}',
+    ),
+    (
+        # correct escaping in normal mode
+        'verify',
+        u'Γ\\\\∞$',
+        None,
+        r'\(\Gamma\)\textbackslash{}\(\infty\)\$',
+    ),
+    (
+        # in verbatim code fragments
+        'verify',
+        u'::\n\n @Γ\\∞${}',
+        None,
+        (u'\\begin{sphinxVerbatim}[commandchars=\\\\\\{\\}]\n'
+         u'@\\(\\Gamma\\)\\PYGZbs{}\\(\\infty\\)\\PYGZdl{}\\PYGZob{}\\PYGZcb{}\n'
+         u'\\end{sphinxVerbatim}'),
+    ),
+    (
+        # in URIs
+        'verify_re',
+        u'`test <http://example.com/~me/>`_',
+        None,
+        r'\\href{http://example.com/~me/}{test}.*',
+    ),
+])
+def test_inline(get_verifier, type, rst, html_expected, latex_expected):
+    verifier = get_verifier(type)
+    verifier(rst, html_expected, latex_expected)
+
+
+@pytest.mark.sphinx('dummy', testroot='prolog')
 def test_rst_prolog(app, status, warning):
     app.builder.build_all()
     rst = pickle.loads((app.doctreedir / 'restructuredtext.doctree').bytes())
@@ -176,7 +249,7 @@ def test_rst_prolog(app, status, warning):
     assert not md.rawsource.endswith('*Good-bye world*.\n')
 
 
-@with_app(buildername='dummy', testroot='keep_warnings')
+@pytest.mark.sphinx('dummy', testroot='keep_warnings')
 def test_keep_warnings_is_True(app, status, warning):
     app.builder.build_all()
     doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
@@ -185,8 +258,8 @@ def test_keep_warnings_is_True(app, status, warning):
     assert_node(doctree[0][1], nodes.system_message)
 
 
-@with_app(buildername='dummy', testroot='keep_warnings',
-          confoverrides={'keep_warnings': False})
+@pytest.mark.sphinx('dummy', testroot='keep_warnings',
+                    confoverrides={'keep_warnings': False})
 def test_keep_warnings_is_False(app, status, warning):
     app.builder.build_all()
     doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())
@@ -194,7 +267,7 @@ def test_keep_warnings_is_False(app, status, warning):
     assert len(doctree[0]) == 1
 
 
-@with_app(buildername='dummy', testroot='refonly_bullet_list')
+@pytest.mark.sphinx('dummy', testroot='refonly_bullet_list')
 def test_compact_refonly_bullet_list(app, status, warning):
     app.builder.build_all()
     doctree = pickle.loads((app.doctreedir / 'index.doctree').bytes())

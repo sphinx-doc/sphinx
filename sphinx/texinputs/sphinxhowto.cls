@@ -85,10 +85,8 @@
 % For an article document class this environment is a section,
 % so no page break before it.
 %
-% Note: \phantomsection is required for TeXLive 2009
-% http://tex.stackexchange.com/questions/44088/when-do-i-need-to-invoke-phantomsection#comment166081_44091
 \newenvironment{sphinxthebibliography}[1]{%
-  \phantomsection
+  % \phantomsection % not needed here since TeXLive 2010's hyperref
   \begin{thebibliography}{1}%
   \addcontentsline{toc}{section}{\ifdefined\refname\refname\else\ifdefined\bibname\bibname\fi\fi}}{\end{thebibliography}}
 
@@ -99,6 +97,6 @@
 \@ifclassloaded{memoir}
  {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}
  {\newenvironment{sphinxtheindex}{%
-    \phantomsection
+    \phantomsection % needed because no chapter, section, ... is created by theindex
     \begin{theindex}%
     \addcontentsline{toc}{section}{\indexname}}{\end{theindex}}}

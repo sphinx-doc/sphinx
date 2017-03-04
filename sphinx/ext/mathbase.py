@@ -10,17 +10,16 @@
 """
 
 from docutils import nodes, utils
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 
 from sphinx.roles import XRefRole
 from sphinx.locale import _
 from sphinx.domains import Domain
 from sphinx.util.nodes import make_refnode, set_source_info
-from sphinx.util.compat import Directive
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, Tuple  # NOQA
+    from typing import Any, Callable, Dict, Iterable, List, Tuple  # NOQA
     from docutils.parsers.rst.states import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA

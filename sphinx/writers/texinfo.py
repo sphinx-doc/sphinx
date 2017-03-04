@@ -12,7 +12,6 @@
 import re
 import textwrap
 from os import path
-import warnings
 
 from six import itervalues
 from six.moves import range
@@ -21,15 +20,17 @@ from docutils import nodes, writers
 
 from sphinx import addnodes, __display_version__
 from sphinx.errors import ExtensionError
-from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
+from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterator, Pattern, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Pattern, Set, Tuple, Union  # NOQA
     from sphinx.builders.texinfo import TexinfoBuilder  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 COPYING = """\
@@ -247,7 +248,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         title = None  # type: unicode
         title = elements['title']  # type: ignore
         if not title:
-            title = self.document.next_node(nodes.title)  # type: ignore
+            title = self.document.next_node(nodes.title)
             title = (title and title.astext()) or '<untitled>'  # type: ignore
         elements['title'] = self.escape_id(title) or '<untitled>'
         # filename
@@ -344,10 +345,10 @@ class TexinfoTranslator(nodes.NodeVisitor):
             for i, id in enumerate(entries):
                 # First child's prev is empty
                 if i != 0:
-                    rellinks[id][1] = entries[i-1]
+                    rellinks[id][1] = entries[i - 1]
                 # Last child's next is empty
                 if i != len(entries) - 1:
-                    rellinks[id][0] = entries[i+1]
+                    rellinks[id][0] = entries[i + 1]
         # top's next is its first child
         try:
             first = node_menus['Top'][0]
@@ -415,7 +416,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             s = '* %s: %s. ' % (name, node_name)
         offset = max((24, (len(name) + 4) % 78))
         wdesc = '\n'.join(' ' * offset + l for l in
-                          textwrap.wrap(desc, width=78-offset))
+                          textwrap.wrap(desc, width=78 - offset))
         return s + wdesc.strip() + '\n'
 
     def add_menu_entries(self, entries, reg=re.compile(r'\s+---?\s+')):
@@ -468,7 +469,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def tex_image_length(self, width_str):
         # type: (unicode) -> unicode
-        match = re.match('(\d*\.?\d*)\s*(\S*)', width_str)
+        match = re.match(r'(\d*\.?\d*)\s*(\S*)', width_str)
         if not match:
             # fallback
             return width_str
@@ -651,9 +652,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
         if isinstance(parent, (nodes.Admonition, nodes.sidebar, nodes.topic)):
             raise nodes.SkipNode
         elif not isinstance(parent, nodes.section):
-            self.builder.warn(
-                'encountered title node not in section, topic, table, '
-                'admonition or sidebar', (self.curfilestack[-1], node.line))
+            logger.warning('encountered title node not in section, topic, table, '
+                           'admonition or sidebar',
+                           location=(self.curfilestack[-1], node.line))
             self.visit_rubric(node)
         else:
             try:
@@ -697,7 +698,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         parindex = node.parent.index(node)
         try:
             try:
-                next = node.parent[parindex+1]
+                next = node.parent[parindex + 1]
             except IndexError:
                 # last node in parent, look at next after parent
                 # (for section of equal level)
@@ -1054,6 +1055,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         pass
 
     def visit_term(self, node):
+        # type: (nodes.Node) -> None
         for id in node.get('ids'):
             self.add_anchor(id, node)
         # anchors and indexes need to go in front
@@ -1065,18 +1067,6 @@ class TexinfoTranslator(nodes.NodeVisitor):
         self.at_item_x = '@itemx'
 
     def depart_term(self, node):
-        # type: (nodes.Node) -> None
-        pass
-
-    def visit_termsep(self, node):
-        # type: (nodes.Node) -> None
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
-                      'This warning is displayed because some Sphinx extension '
-                      'uses sphinx.addnodes.termsep. Please report it to '
-                      'author of the extension.', RemovedInSphinx16Warning)
-        self.body.append('\n%s ' % self.at_item_x)
-
-    def depart_termsep(self, node):
         # type: (nodes.Node) -> None
         pass
 
@@ -1121,7 +1111,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
             return
         self.body.append('\n\n@multitable ')
         for i, n in enumerate(self.colwidths):
-            self.body.append('{%s} ' % ('x' * (n+2)))
+            self.body.append('{%s} ' % ('x' * (n + 2)))
 
     def depart_colspec(self, node):
         # type: (nodes.Node) -> None
@@ -1220,6 +1210,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                          '@end cartouche\n')
 
     def _make_visit_admonition(name):
+        # type: (unicode) -> Callable[[TexinfoTranslator, nodes.Node], None]
         def visit(self, node):
             # type: (nodes.Node) -> None
             self.visit_admonition(node, admonitionlabels[name])
@@ -1331,8 +1322,8 @@ class TexinfoTranslator(nodes.NodeVisitor):
                 node.parent.get('literal_block'))):
             self.body.append('\n@caption{')
         else:
-            self.builder.warn('caption not inside a figure.',
-                              (self.curfilestack[-1], node.line))
+            logger.warning('caption not inside a figure.',
+                           location=(self.curfilestack[-1], node.line))
 
     def depart_caption(self, node):
         # type: (nodes.Node) -> None
@@ -1434,13 +1425,13 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def unimplemented_visit(self, node):
         # type: (nodes.Node) -> None
-        self.builder.warn("unimplemented node type: %r" % node,
-                          (self.curfilestack[-1], node.line))
+        logger.warning("unimplemented node type: %r", node,
+                       location=(self.curfilestack[-1], node.line))
 
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
-        self.builder.warn("unknown node type: %r" % node,
-                          (self.curfilestack[-1], node.line))
+        logger.warning("unknown node type: %r", node,
+                       location=(self.curfilestack[-1], node.line))
 
     def unknown_departure(self, node):
         # type: (nodes.Node) -> None
@@ -1461,7 +1452,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
                     self.add_anchor(id, production)
                 s = production['tokenname'].ljust(maxlen) + ' ::='
             else:
-                s = '%s    ' % (' '*maxlen)
+                s = '%s    ' % (' ' * maxlen)
             self.body.append(self.escape(s))
             self.body.append(self.escape(production.astext() + '\n'))
         self.depart_literal_block(None)
@@ -1756,9 +1747,9 @@ class TexinfoTranslator(nodes.NodeVisitor):
 
     def visit_math(self, node):
         # type: (nodes.Node) -> None
-        self.builder.warn('using "math" markup without a Sphinx math extension '
-                          'active, please use one of the math extensions '
-                          'described at http://sphinx-doc.org/ext/math.html')
+        logger.warning('using "math" markup without a Sphinx math extension '
+                       'active, please use one of the math extensions '
+                       'described at http://sphinx-doc.org/ext/math.html')
         raise nodes.SkipNode
 
     visit_math_block = visit_math

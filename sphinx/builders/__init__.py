@@ -19,10 +19,10 @@ except ImportError:
 
 from docutils import nodes
 
-from sphinx.util import i18n, path_stabilize
+from sphinx.util import i18n, path_stabilize, logging, status_iterator
 from sphinx.util.osutil import SEP, relative_uri
 from sphinx.util.i18n import find_catalog
-from sphinx.util.console import bold, darkgreen  # type: ignore
+from sphinx.util.console import bold  # type: ignore
 from sphinx.util.parallel import ParallelTasks, SerialTasks, make_chunks, \
     parallel_available
 
@@ -32,12 +32,15 @@ from sphinx import directives  # noqa
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, Sequence, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterable, List, Sequence, Set, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.util.i18n import CatalogInfo  # NOQA
     from sphinx.util.tags import Tags  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 
 class Builder(object):
@@ -46,11 +49,11 @@ class Builder(object):
     """
 
     # builder's name, for the -b command line options
-    name = ''
+    name = ''  # type: unicode
     # builder's output format, or '' if no document output is produced
-    format = ''
+    format = ''  # type: unicode
     # doctree versioning method
-    versioning_method = 'none'
+    versioning_method = 'none'  # type: unicode
     versioning_compare = False
     # allow parallel write_doc() calls
     allow_parallel = False
@@ -85,7 +88,7 @@ class Builder(object):
         # basename of images directory
         self.imagedir = ""
         # relative path to image directory from current docname (used at writing docs)
-        self.imgpath = ""
+        self.imgpath = ""  # type: unicode
 
         # these get set later
         self.parallel_ok = False
@@ -158,9 +161,8 @@ class Builder(object):
                     if candidate:
                         break
                 else:
-                    self.warn(
-                        'no matching candidate for image URI %r' % node['uri'],
-                        '%s:%s' % (node.source, getattr(node, 'line', '')))
+                    logger.warning('no matching candidate for image URI %r', node['uri'],
+                                   location=node)
                     continue
                 node['uri'] = candidate
             else:
@@ -178,12 +180,13 @@ class Builder(object):
             return
 
         def cat2relpath(cat):
+            # type: (CatalogInfo) -> unicode
             return path.relpath(cat.mo_path, self.env.srcdir).replace(path.sep, SEP)
 
-        self.info(bold('building [mo]: ') + message)
-        for catalog in self.app.status_iterator(
-                catalogs, 'writing output... ', darkgreen, len(catalogs),
-                cat2relpath):
+        logger.info(bold('building [mo]: ') + message)
+        for catalog in status_iterator(catalogs, 'writing output... ', "darkgreen",
+                                       len(catalogs), self.app.verbosity,
+                                       stringify_func=cat2relpath):
             catalog.write_mo(self.config.language)
 
     def compile_all_catalogs(self):
@@ -200,6 +203,7 @@ class Builder(object):
     def compile_specific_catalogs(self, specified_files):
         # type: (List[unicode]) -> None
         def to_domain(fpath):
+            # type: (unicode) -> unicode
             docname, _ = path.splitext(path_stabilize(fpath))
             dom = find_catalog(docname, self.config.gettext_compact)
             return dom
@@ -243,13 +247,13 @@ class Builder(object):
         for filename in filenames:
             filename = path.normpath(path.abspath(filename))
             if not filename.startswith(self.srcdir):
-                self.warn('file %r given on command line is not under the '
-                          'source directory, ignoring' % filename)
+                logger.warning('file %r given on command line is not under the '
+                               'source directory, ignoring', filename)
                 continue
             if not (path.isfile(filename) or
                     any(path.isfile(filename + suffix) for suffix in suffixes)):
-                self.warn('file %r given on command line does not exist, '
-                          'ignoring' % filename)
+                logger.warning('file %r given on command line does not exist, '
+                               'ignoring', filename)
                 continue
             filename = filename[dirlen:]
             for suffix in suffixes:
@@ -281,41 +285,37 @@ class Builder(object):
         First updates the environment, and then calls :meth:`write`.
         """
         if summary:
-            self.info(bold('building [%s]' % self.name) + ': ' + summary)
+            logger.info(bold('building [%s]' % self.name) + ': ' + summary)
 
         # while reading, collect all warnings from docutils
-        warnings = []
-        self.env.set_warnfunc(lambda *args, **kwargs: warnings.append((args, kwargs)))
-        updated_docnames = set(self.env.update(self.config, self.srcdir,
-                                               self.doctreedir, self.app))
-        self.env.set_warnfunc(self.warn)
-        for warning, kwargs in warnings:
-            self.warn(*warning, **kwargs)
+        with logging.pending_warnings():
+            updated_docnames = set(self.env.update(self.config, self.srcdir,
+                                                   self.doctreedir, self.app))
 
         doccount = len(updated_docnames)
-        self.info(bold('looking for now-outdated files... '), nonl=1)
-        for docname in self.env.check_dependents(updated_docnames):
+        logger.info(bold('looking for now-outdated files... '), nonl=1)
+        for docname in self.env.check_dependents(self.app, updated_docnames):
             updated_docnames.add(docname)
         outdated = len(updated_docnames) - doccount
         if outdated:
-            self.info('%d found' % outdated)
+            logger.info('%d found', outdated)
         else:
-            self.info('none found')
+            logger.info('none found')
 
         if updated_docnames:
             # save the environment
             from sphinx.application import ENV_PICKLE_FILENAME
-            self.info(bold('pickling environment... '), nonl=True)
+            logger.info(bold('pickling environment... '), nonl=True)
             self.env.topickle(path.join(self.doctreedir, ENV_PICKLE_FILENAME))
-            self.info('done')
+            logger.info('done')
 
             # global actions
-            self.info(bold('checking consistency... '), nonl=True)
+            logger.info(bold('checking consistency... '), nonl=True)
             self.env.check_consistency()
-            self.info('done')
+            logger.info('done')
         else:
             if method == 'update' and not docnames:
-                self.info(bold('no targets are out of date.'))
+                logger.info(bold('no targets are out of date.'))
                 return
 
         # filter "docnames" (list of outdated files) by the updated
@@ -331,8 +331,8 @@ class Builder(object):
             for extname, md in self.app._extension_metadata.items():
                 par_ok = md.get('parallel_write_safe', True)
                 if not par_ok:
-                    self.app.warn('the %s extension is not safe for parallel '
-                                  'writing, doing serial write' % extname)
+                    logger.warning('the %s extension is not safe for parallel '
+                                   'writing, doing serial write', extname)
                     self.parallel_ok = False
                     break
 
@@ -362,58 +362,45 @@ class Builder(object):
             docnames = set(build_docnames) | set(updated_docnames)
         else:
             docnames = set(build_docnames)
-        self.app.debug('docnames to write: %s', ', '.join(sorted(docnames)))
+        logger.debug('docnames to write: %s', ', '.join(sorted(docnames)))
 
         # add all toctree-containing files that may have changed
         for docname in list(docnames):
-            for tocdocname in self.env.files_to_rebuild.get(docname, []):
+            for tocdocname in self.env.files_to_rebuild.get(docname, set()):
                 if tocdocname in self.env.found_docs:
                     docnames.add(tocdocname)
         docnames.add(self.config.master_doc)
 
-        self.info(bold('preparing documents... '), nonl=True)
+        logger.info(bold('preparing documents... '), nonl=True)
         self.prepare_writing(docnames)
-        self.info('done')
+        logger.info('done')
 
-        warnings = []  # type: List[Tuple[Tuple, Dict]]
-        self.env.set_warnfunc(lambda *args, **kwargs: warnings.append((args, kwargs)))
         if self.parallel_ok:
             # number of subprocesses is parallel-1 because the main process
             # is busy loading doctrees and doing write_doc_serialized()
-            self._write_parallel(sorted(docnames), warnings,
+            self._write_parallel(sorted(docnames),
                                  nproc=self.app.parallel - 1)
         else:
-            self._write_serial(sorted(docnames), warnings)
-        self.env.set_warnfunc(self.warn)
+            self._write_serial(sorted(docnames))
 
-    def _write_serial(self, docnames, warnings):
-        # type: (Sequence[unicode], List[Tuple[Tuple, Dict]]) -> None
-        for docname in self.app.status_iterator(
-                docnames, 'writing output... ', darkgreen, len(docnames)):
-            doctree = self.env.get_and_resolve_doctree(docname, self)
-            self.write_doc_serialized(docname, doctree)
-            self.write_doc(docname, doctree)
-        for warning, kwargs in warnings:
-            self.warn(*warning, **kwargs)
+    def _write_serial(self, docnames):
+        # type: (Sequence[unicode]) -> None
+        with logging.pending_warnings():
+            for docname in status_iterator(docnames, 'writing output... ', "darkgreen",
+                                           len(docnames), self.app.verbosity):
+                doctree = self.env.get_and_resolve_doctree(docname, self)
+                self.write_doc_serialized(docname, doctree)
+                self.write_doc(docname, doctree)
 
-    def _write_parallel(self, docnames, warnings, nproc):
-        # type: (Iterable[unicode], List[Tuple[Tuple, Dict]], int) -> None
+    def _write_parallel(self, docnames, nproc):
+        # type: (Sequence[unicode], int) -> None
         def write_process(docs):
-            # type: (List[Tuple[unicode, nodes.Node]]) -> List[Tuple[Tuple, Dict]]
-            local_warnings = []
-
-            def warnfunc(*args, **kwargs):
-                local_warnings.append((args, kwargs))
-            self.env.set_warnfunc(warnfunc)
+            # type: (List[Tuple[unicode, nodes.Node]]) -> None
             for docname, doctree in docs:
                 self.write_doc(docname, doctree)
-            return local_warnings
-
-        def add_warnings(docs, wlist):
-            warnings.extend(wlist)
 
         # warm up caches/compile templates using the first document
-        firstname, docnames = docnames[0], docnames[1:]  # type: ignore
+        firstname, docnames = docnames[0], docnames[1:]
         doctree = self.env.get_and_resolve_doctree(firstname, self)
         self.write_doc_serialized(firstname, doctree)
         self.write_doc(firstname, doctree)
@@ -421,21 +408,18 @@ class Builder(object):
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
 
-        for chunk in self.app.status_iterator(
-                chunks, 'writing output... ', darkgreen, len(chunks)):
+        for chunk in status_iterator(chunks, 'writing output... ', "darkgreen",
+                                     len(chunks), self.app.verbosity):
             arg = []
             for i, docname in enumerate(chunk):
                 doctree = self.env.get_and_resolve_doctree(docname, self)
                 self.write_doc_serialized(docname, doctree)
                 arg.append((docname, doctree))
-            tasks.add_task(write_process, arg, add_warnings)
+            tasks.add_task(write_process, arg)
 
         # make sure all threads have finished
-        self.info(bold('waiting for workers...'))
+        logger.info(bold('waiting for workers...'))
         tasks.join()
-
-        for warning, kwargs in warnings:
-            self.warn(*warning, **kwargs)
 
     def prepare_writing(self, docnames):
         # type: (Set[unicode]) -> None

@@ -31,7 +31,7 @@ from sphinx.directives.patches import (  # noqa
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
@@ -242,9 +242,15 @@ class DefaultDomain(Directive):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     directives.register_directive('default-role', DefaultRole)
     directives.register_directive('default-domain', DefaultDomain)
     directives.register_directive('describe', ObjectDescription)
     # new, more consistent, name
     directives.register_directive('object', ObjectDescription)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

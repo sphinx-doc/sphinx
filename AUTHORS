@@ -21,6 +21,7 @@ Other contributors, listed alphabetically, are:
 * Henrique Bastos -- SVG support for graphviz extension
 * Daniel Bültmann -- todo extension
 * Jean-François Burnol -- LaTeX improvements
+* Marco Buttu -- doctest extension (pyversion option)
 * Etienne Desautels -- apidoc module
 * Michael Droettboom -- inheritance_diagram extension
 * Charles Duffy -- original graphviz extension
@@ -67,6 +68,7 @@ Other contributors, listed alphabetically, are:
 * Michael Wilson -- Intersphinx HTTP basic auth support
 * Joel Wurtz -- cellspanning support in LaTeX
 * Hong Xu -- svg support in imgmath extension and various bug fixes
+* Stephen Finucane -- setup command improvements and documentation
 
 Many thanks for all contributions!
 

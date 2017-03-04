@@ -4,14 +4,14 @@
 
 <h3>Download</h3>
 {% if version.endswith('a0') %}
-<p>{%trans%}This documentation is for version <b>{{ version }}</b>, which is
+<p>{%trans%}This documentation is for version <b><a href="changes.html">{{ version }}</a></b>, which is
   not released yet.{%endtrans%}</p>
 <p>{%trans%}You can use it from the
   <a href="https://github.com/sphinx-doc/sphinx/">Git repo</a> or look for
   released versions in the <a href="https://pypi.python.org/pypi/Sphinx">Python
     Package Index</a>.{%endtrans%}</p>
 {% else %}
-<p>{%trans%}Current version: <b>{{ version }}</b>{%endtrans%}</p>
+<p>{%trans%}Current version: <b><a href="changes.html">{{ version }}</a></b>{%endtrans%}</p>
 <p>{%trans%}Get Sphinx from the <a href="https://pypi.python.org/pypi/Sphinx">Python Package
 Index</a>, or install it with:{%endtrans%}</p>
 <pre>pip install -U Sphinx</pre>

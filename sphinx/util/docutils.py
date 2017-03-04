@@ -10,16 +10,28 @@
 """
 from __future__ import absolute_import
 
+import re
 from copy import copy
 from contextlib import contextmanager
 
+import docutils
+from docutils.utils import Reporter
 from docutils.parsers.rst import directives, roles
+
+from sphinx.util import logging
+
+logger = logging.getLogger(__name__)
+report_re = re.compile('^(.+?:\\d+): \\((DEBUG|INFO|WARNING|ERROR|SEVERE)/(\\d+)?\\) '
+                       '(.+?)\n?$')
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterator, Tuple  # NOQA
+    from typing import Any, Callable, Iterator, List, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+
+
+__version_info__ = tuple(map(int, docutils.__version__.split('.')))
 
 
 @contextmanager
@@ -51,12 +63,15 @@ class sphinx_domains(object):
         self.roles_func = None  # type: Callable
 
     def __enter__(self):
+        # type: () -> None
         self.enable()
 
     def __exit__(self, type, value, traceback):
+        # type: (unicode, unicode, unicode) -> None
         self.disable()
 
     def enable(self):
+        # type: () -> None
         self.directive_func = directives.directive
         self.role_func = roles.role
 
@@ -64,6 +79,7 @@ class sphinx_domains(object):
         roles.role = self.lookup_role
 
     def disable(self):
+        # type: () -> None
         directives.directive = self.directive_func
         roles.role = self.role_func
 
@@ -109,3 +125,32 @@ class sphinx_domains(object):
             return self.lookup_domain_element('role', name)
         except ElementLookupError:
             return self.role_func(name, lang_module, lineno, reporter)
+
+
+class WarningStream(object):
+    def write(self, text):
+        # type: (unicode) -> None
+        matched = report_re.search(text)  # type: ignore
+        if not matched:
+            logger.warning(text.rstrip("\r\n"))
+        else:
+            location, type, level, message = matched.groups()
+            logger.log(type, message, location=location)
+
+
+class LoggingReporter(Reporter):
+    def __init__(self, source, report_level, halt_level,
+                 debug=False, error_handler='backslashreplace'):
+        # type: (unicode, int, int, bool, unicode) -> None
+        stream = WarningStream()
+        Reporter.__init__(self, source, report_level, halt_level,
+                          stream, debug, error_handler=error_handler)
+
+    def set_conditions(self, category, report_level, halt_level, debug=False):
+        # type: (unicode, int, int, bool) -> None
+        Reporter.set_conditions(self, category, report_level, halt_level, debug=debug)
+
+
+def is_html5_writer_available():
+    # type: () -> bool
+    return __version_info__ > (0, 13, 0)

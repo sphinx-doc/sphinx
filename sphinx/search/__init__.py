@@ -23,7 +23,7 @@ from sphinx.search.jssplitter import splitter_code
 
 if False:
     # For type annotation
-    from typing import Any, IO, Iterable, Tuple, Type  # NOQA
+    from typing import Any, Dict, IO, Iterable, List, Tuple, Type, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
 
@@ -63,7 +63,7 @@ var Stemmer = function() {
     return w;
   }
 }
-"""
+"""                             # type: unicode
 
     _word_re = re.compile(r'\w+(?u)')
 
@@ -287,13 +287,14 @@ class IndexBuilder(object):
         # type: (IO, Any) -> None
         """Reconstruct from frozen data."""
         if isinstance(format, string_types):
-            format = self.formats[format]  # type: ignore
+            format = self.formats[format]
         frozen = format.load(stream)
         # if an old index is present, we treat it as not existing.
         if not isinstance(frozen, dict) or \
            frozen.get('envversion') != self.env.version:
             raise ValueError('old format')
-        index2fn = frozen['filenames']
+        index2fn = frozen['docnames']
+        self._filenames = dict(zip(index2fn, frozen['filenames']))
         self._titles = dict(zip(index2fn, frozen['titles']))
 
         def load_terms(mapping):
@@ -314,8 +315,8 @@ class IndexBuilder(object):
         # type: (IO, Any) -> None
         """Dump the frozen index to a stream."""
         if isinstance(format, string_types):
-            format = self.formats[format]  # type: ignore
-        format.dump(self.freeze(), stream)  # type: ignore
+            format = self.formats[format]
+        format.dump(self.freeze(), stream)
 
     def get_objects(self, fn2index):
         # type: (Dict[unicode, int]) -> Dict[unicode, Dict[unicode, Tuple[int, int, int, unicode]]]  # NOQA
@@ -387,18 +388,21 @@ class IndexBuilder(object):
         # type: () -> unicode
         return "%s (code: %s)" % (self.lang.language_name, self.lang.lang)
 
-    def prune(self, filenames):
+    def prune(self, docnames):
         # type: (Iterable[unicode]) -> None
-        """Remove data for all filenames not in the list."""
+        """Remove data for all docnames not in the list."""
         new_titles = {}
-        for filename in filenames:
-            if filename in self._titles:
-                new_titles[filename] = self._titles[filename]
+        new_filenames = {}
+        for docname in docnames:
+            if docname in self._titles:
+                new_titles[docname] = self._titles[docname]
+                new_filenames[docname] = self._filenames[docname]
         self._titles = new_titles
+        self._filenames = new_filenames
         for wordnames in itervalues(self._mapping):
-            wordnames.intersection_update(filenames)
+            wordnames.intersection_update(docnames)
         for wordnames in itervalues(self._title_mapping):
-            wordnames.intersection_update(filenames)
+            wordnames.intersection_update(docnames)
 
     def feed(self, docname, filename, title, doctree):
         # type: (unicode, unicode, unicode, nodes.Node) -> None
@@ -431,7 +435,7 @@ class IndexBuilder(object):
             # again, stemmer must not remove words from search index
             if not _filter(stemmed_word) and _filter(word):
                 stemmed_word = word
-            already_indexed = docname in self._title_mapping.get(stemmed_word, [])
+            already_indexed = docname in self._title_mapping.get(stemmed_word, set())
             if _filter(stemmed_word) and not already_indexed:
                 self._mapping.setdefault(stemmed_word, set()).add(docname)
 
@@ -448,7 +452,9 @@ class IndexBuilder(object):
         # type: () -> unicode
         if self.lang.js_stemmer_rawcode:
             return path.join(
-                path.dirname(path.abspath(__file__)),
+                sphinx.package_dir, 'search',
                 'non-minified-js',
                 self.lang.js_stemmer_rawcode
             )
+        else:
+            return None

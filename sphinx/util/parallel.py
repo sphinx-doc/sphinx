@@ -21,10 +21,14 @@ except ImportError:
     multiprocessing = None
 
 from sphinx.errors import SphinxParallelError
+from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Sequence  # NOQA
+    from typing import Any, Callable, Dict, List, Sequence  # NOQA
+
+logger = logging.getLogger(__name__)
+
 
 # our parallel functionality only works for the forking Process
 parallel_available = multiprocessing and (os.name == 'posix')
@@ -75,19 +79,25 @@ class ParallelTasks(object):
     def _process(self, pipe, func, arg):
         # type: (Any, Callable, Any) -> None
         try:
-            if arg is None:
-                ret = func()
-            else:
-                ret = func(arg)
-            pipe.send((False, ret))
+            collector = logging.LogCollector()
+            with collector.collect():
+                if arg is None:
+                    ret = func()
+                else:
+                    ret = func(arg)
+            failed = False
         except BaseException as err:
-            pipe.send((True, (err, traceback.format_exc())))
+            failed = True
+            errmsg = traceback.format_exception_only(err.__class__, err)[0].strip()  # type: ignore  # NOQA
+            ret = (errmsg, traceback.format_exc())
+        logging.convert_serializable(collector.logs)
+        pipe.send((failed, collector.logs, ret))
 
     def add_task(self, task_func, arg=None, result_func=None):
         # type: (Callable, Any, Callable) -> None
         tid = self._taskid
         self._taskid += 1
-        self._result_funcs[tid] = result_func or (lambda arg: None)
+        self._result_funcs[tid] = result_func or (lambda arg, result: None)
         self._args[tid] = arg
         precv, psend = multiprocessing.Pipe(False)
         proc = multiprocessing.Process(target=self._process,
@@ -105,9 +115,11 @@ class ParallelTasks(object):
         # type: () -> None
         for tid, pipe in iteritems(self._precvs):
             if pipe.poll():
-                exc, result = pipe.recv()
+                exc, logs, result = pipe.recv()
                 if exc:
                     raise SphinxParallelError(*result)
+                for log in logs:
+                    logger.handle(log)
                 self._result_funcs.pop(tid)(self._args.pop(tid), result)
                 self._procs[tid].join()
                 self._pworking -= 1
@@ -128,11 +140,11 @@ def make_chunks(arguments, nproc, maxbatch=10):
     chunksize = nargs // nproc
     if chunksize >= maxbatch:
         # try to improve batch size vs. number of batches
-        chunksize = int(sqrt(nargs/nproc * maxbatch))
+        chunksize = int(sqrt(nargs / nproc * maxbatch))
     if chunksize == 0:
         chunksize = 1
     nchunks, rest = divmod(nargs, chunksize)
     if rest:
         nchunks += 1
     # partition documents in "chunks" that will be written by one Process
-    return [arguments[i*chunksize:(i+1)*chunksize] for i in range(nchunks)]
+    return [arguments[i * chunksize:(i + 1) * chunksize] for i in range(nchunks)]

@@ -6,7 +6,28 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2016/10/29 v1.5 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/02/28 v1.6 LaTeX package (Sphinx markup)]
+
+% provides \ltx@ifundefined
+% (many packages load ltxcmds: graphicx does for pdftex and lualatex but
+% not xelatex, and anyhow kvoptions does, but it may be needed in future to
+% use \sphinxdeprecationwarning earlier, and it needs \ltx@ifundefined)
+\RequirePackage{ltxcmds}
+
+%% for deprecation warnings
+\newcommand\sphinxdeprecationwarning[4]{% #1 the deprecated macro or name,
+% #2 = version when deprecated, #3 = version when removed, #4 = message
+  \edef\spx@tempa{\detokenize{#1}}%
+  \ltx@ifundefined{sphinx_depr_\spx@tempa}{%
+     \global\expandafter\let\csname sphinx_depr_\spx@tempa\endcsname\spx@tempa
+     \expandafter\AtEndDocument\expandafter{\expandafter\let\expandafter
+         \sphinxdeprecatedmacro\csname sphinx_depr_\spx@tempa\endcsname
+         \PackageWarningNoLine{sphinx}{^^J**** SPHINX DEPRECATION WARNING:^^J
+         \sphinxdeprecatedmacro\space will be (or has been)
+         deprecated at Sphinx #2^^J and will be removed at Sphinx #3.^^J
+         #4^^J****}}%
+  }{% warning already emitted (at end of latex log), don't repeat
+  }}
 
 % we delay handling of options to after having loaded packages, because
 % of the need to use \definecolor.
@@ -18,7 +39,36 @@
 \RequirePackage{amstext}
 \RequirePackage{textcomp}
 \RequirePackage{titlesec}
+\@ifpackagelater{titlesec}{2016/03/15}%
+ {\@ifpackagelater{titlesec}{2016/03/21}{}%
+  {\AtEndDocument{\PackageWarningNoLine{sphinx}{^^J%
+******** ERROR !! PLEASE UPDATE titlesec.sty !!********^^J%
+******** THIS VERSION SWALLOWS SECTION NUMBERS.********}}}}{}
 \RequirePackage{tabulary}
+% tabulary has a bug with its re-definition of \multicolumn in its first pass
+% which is not \long. But now Sphinx does not use LaTeX's \multicolumn but its
+% own macro. Hence we don't even need to patch tabulary. See sphinxmulticell.sty
+% X or S (Sphinx) may have meanings if some table package is loaded hence
+% \X was chosen to avoid possibility of conflict
+\newcolumntype{\X}[2]{p{\dimexpr
+      (\linewidth-\arrayrulewidth)*#1/#2-\tw@\tabcolsep-\arrayrulewidth\relax}}
+\newcolumntype{\Y}[1]{p{\dimexpr
+      #1\dimexpr\linewidth-\arrayrulewidth\relax-\tw@\tabcolsep-\arrayrulewidth\relax}}
+% using here T (for Tabulary) feels less of a problem than the X could be
+\newcolumntype{T}{J}%
+% varwidth is crucial for our handling of general contents in merged cells
+\RequirePackage{varwidth}
+% but addition of a compatibility patch with hyperref is needed
+% (tested with varwidth v 0.92  Mar 2009)
+\AtBeginDocument {%
+    \let\@@vwid@Hy@raisedlink\Hy@raisedlink
+    \long\def\@vwid@Hy@raisedlink#1{\@vwid@wrap{\@@vwid@Hy@raisedlink{#1}}}%
+    \edef\@vwid@setup{%
+      \let\noexpand\Hy@raisedlink\noexpand\@vwid@Hy@raisedlink % HYPERREF !
+      \unexpanded\expandafter{\@vwid@setup}}%
+}%
+% Homemade package to handle merged cells
+\RequirePackage{sphinxmulticell}
 \RequirePackage{makeidx}
 % For framing code-blocks and warning type notices, and shadowing topics
 \RequirePackage{framed}
@@ -36,10 +86,6 @@
 % For hyperlinked footnotes in tables; also for gathering footnotes from
 % topic and warning blocks. Also to allow code-blocks in footnotes.
 \RequirePackage{footnotehyper-sphinx}
-\makesavenoteenv{tabulary}
-\makesavenoteenv{tabular}
-\makesavenoteenv{threeparttable}
-% (longtable is hyperref compatible and needs no special treatment here.)
 % For the H specifier. Do not \restylefloat{figure}, it breaks Sphinx code
 % for allowing figures in tables.
 \RequirePackage{float}
@@ -55,6 +101,18 @@
 % Handle options via "kvoptions" (later loaded by hyperref anyhow)
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{prefix=spx@opt@} % use \spx@opt@ prefix
+
+% Sphinx legacy text layout: 1in margins on all four sides
+\ifx\@jsc@uplatextrue\undefined
+\DeclareStringOption[1in]{hmargin}
+\DeclareStringOption[1in]{vmargin}
+\DeclareStringOption[.5in]{marginpar}
+\else
+% Japanese standard document classes handle \mag in a special way
+\DeclareStringOption[\inv@mag in]{hmargin}
+\DeclareStringOption[\inv@mag in]{vmargin}
+\DeclareStringOption[.5\dimexpr\inv@mag in\relax]{marginpar}
+\fi
 
 \DeclareBoolOption{dontkeepoldnames} % \ifspx@opt@dontkeepoldnames = \iffalse
 \DeclareStringOption[0]{maxlistdepth}% \newcommand*\spx@opt@maxlistdepth{0}
@@ -86,6 +144,8 @@
 \DeclareBoolOption[true]{verbatimwithframe}
 \DeclareBoolOption[true]{verbatimwrapslines}
 \DeclareBoolOption[true]{inlineliteralwraps}
+% parsed literal
+\DeclareBoolOption[true]{parsedliteralwraps}
 % \textvisiblespace for compatibility with fontspec+XeTeX/LuaTeX
 \DeclareStringOption[\textcolor{red}{\textvisiblespace}]{verbatimvisiblespace}
 \DeclareStringOption % must use braces to hide the brackets
@@ -113,7 +173,7 @@
 % some font styling.
 \DeclareStringOption[\sffamily\bfseries]{HeaderFamily}
 % colours
-% same problems as for dimensions: we want the key handler to use \definecolor
+% same problems as for dimensions: we want the key handler to use \definecolor.
 % first, some colours with no prefix, for backwards compatibility
 \newcommand*{\sphinxDeclareColorOption}[2]{%
    \definecolor{#1}#2%
@@ -155,20 +215,6 @@
 % user interface: options can be changed midway in a document!
 \newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
 
-% this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
-% hyperref.sty, but we need it before, and the first release of
-% ltxcmds.sty as in TL2009/Debian has wrong definition.
-\newcommand{\spx@ifundefined}[1]{%
-    \ifcsname #1\endcsname
-      \expandafter\ifx\csname #1\endcsname\relax
-        \expandafter\expandafter\expandafter\@firstoftwo
-      \else
-        \expandafter\expandafter\expandafter\@secondoftwo
-      \fi
-    \else
-      \expandafter\@firstoftwo
-    \fi
-}
 % FIXME: the reasons might be obsolete (better color drivers now?)
 % use pdfoutput for pTeX and dvipdfmx
 % when pTeX (\kanjiskip is defined), set pdfoutput to evade \include{pdfcolor}
@@ -204,11 +250,12 @@
 
 \pagestyle{empty}               % start this way
 
-% Use this to set the font family for headers and other decor:
+% Since Sphinx 1.5, users should use HeaderFamily key to 'sphinxsetup' rather
+% than defining their own \py@HeaderFamily command (which is still possible).
 \newcommand{\py@HeaderFamily}{\spx@opt@HeaderFamily}
 
 % Redefine the 'normal' header/footer style when using "fancyhdr" package:
-\spx@ifundefined{fancyhf}{}{
+\ltx@ifundefined{fancyhf}{}{
   % Use \pagestyle{normal} as the primary pagestyle for text.
   \fancypagestyle{normal}{
     \fancyhf{}
@@ -219,7 +266,7 @@
     \renewcommand{\headrulewidth}{0.4pt}
     \renewcommand{\footrulewidth}{0.4pt}
     % define chaptermark with \@chappos when \@chappos is available for Japanese
-    \spx@ifundefined{@chappos}{}
+    \ltx@ifundefined{@chappos}{}
       {\def\chaptermark##1{\markboth{\@chapapp\space\thechapter\space\@chappos\space ##1}{}}}
   }
   % Update the plain style so we get the page number & footer line,
@@ -280,9 +327,9 @@
 % - with possibly of a top caption, non-separable by pagebreak.
 % - and usable inside tables or footnotes ("footnotehyper-sphinx").
 
-% For maintaining compatibility with Sphinx < 1.5, we define and use these
-% when (unmodified) Verbatim will be needed. But Sphinx >= 1.5 does not modify
-% original Verbatim anyhow.
+% For extensions which use \OriginalVerbatim and compatibility with Sphinx <
+% 1.5, we define and use these when (unmodified) Verbatim will be needed. But
+% Sphinx >= 1.5 does not modify the \Verbatim macro anymore.
 \let\OriginalVerbatim   \Verbatim
 \let\endOriginalVerbatim\endVerbatim
 
@@ -369,7 +416,7 @@
 %        {, <, #, %, $, ' and ": go to next line.
 %        _, }, ^, &, >, - and ~: stay at end of broken line.
 % Use of \textquotesingle for straight quote.
-% FIXME: convert this to package options
+% FIXME: convert this to package options ?
 \newcommand*\sphinxbreaksbeforelist {%
     \do\PYGZob\{\do\PYGZlt\<\do\PYGZsh\#\do\PYGZpc\%% {, <, #, %,
     \do\PYGZdl\$\do\PYGZdq\"% $, "
@@ -391,7 +438,8 @@
 
 \def\sphinx@verbatim@nolig@list {\do \`}%
 % Some characters . , ; ? ! / are not pygmentized.
-% This macro makes them "active" and they will insert potential linebreaks
+% This macro makes them "active" and they will insert potential linebreaks.
+% Not compatible with math mode (cf \sphinxunactivateextras).
 \newcommand*\sphinxbreaksbeforeactivelist {}% none
 \newcommand*\sphinxbreaksafteractivelist  {\do\.\do\,\do\;\do\?\do\!\do\/}
 \newcommand*\sphinxbreaksviaactive {%
@@ -405,6 +453,14 @@
    \sphinxbreaksafteractivelist
    \lccode`\~`\~
 }
+
+% If the linebreak is at a space, the latter will be displayed as visible
+% space at end of first line, and a continuation symbol starts next line.
+\def\spx@verbatim@space {%
+     \nobreak\hskip\z@skip
+     \discretionary{\copy\sphinxvisiblespacebox}{\sphinxafterbreak}
+                   {\kern\fontdimen2\font}%
+}%
 
 % needed to create wrapper environments of fancyvrb's Verbatim
 \newcommand*{\sphinxVerbatimEnvironment}{\gdef\FV@EnvironName{sphinxVerbatim}}
@@ -461,14 +517,7 @@
                 \doublehyphendemerits\z@\finalhyphendemerits\z@
                 \strut ##1\strut}%
           }%
-  % If the linebreak is at a space, the latter will be displayed as visible
-  % space at end of first line, and a continuation symbol starts next line.
-  % Stretch/shrink are however usually zero for typewriter font.
-  \def\FV@Space {%
-       \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
-       \discretionary{\copy\sphinxvisiblespacebox}{\sphinxafterbreak}
-                     {\kern\fontdimen2\font}%
-       }%
+  \let\FV@Space\spx@verbatim@space
   % Allow breaks at special characters using \PYG... macros.
   \sphinxbreaksatspecials
   % Breaks at punctuation characters . , ; ? ! and / (needs catcode activation)
@@ -530,6 +579,72 @@
    \begin{sphinxVerbatim}}
   {\end{sphinxVerbatim}}
 
+% Parsed literal: allow long lines to wrap like they do in code-blocks
+
+% this should be kept in sync with definitions in sphinx.util.texescape
+\newcommand*\sphinxbreaksattexescapedchars{%
+  \def\do##1##2% put potential break point before character
+     {\def##1{\discretionary{}{\sphinxafterbreak\char`##2}{\char`##2}}}%
+  \do\{\{\do\textless\<\do\#\#\do\%\%\do\$\$% {, <, #, %, $
+  \def\do##1##2% put potential break point after character
+     {\def##1{\discretionary{\char`##2}{\sphinxafterbreak}{\char`##2}}}%
+  \do\_\_\do\}\}\do\textasciicircum\^\do\&\&% _, }, ^, &,
+  \do\textgreater\>\do\textasciitilde\~% >, ~
+}
+\newcommand*\sphinxbreaksviaactiveinparsedliteral{%
+  \sphinxbreaksviaactive % by default handles . , ; ? ! /
+  \do\-% we need also the hyphen character (ends up "as is" in parsed-literal)
+  \lccode`\~`\~ %
+  % update \dospecials as it is used by \url
+  % but deactivation will already have been done hence this is unneeded:
+  %  \expandafter\def\expandafter\dospecials\expandafter{\dospecials
+  %   \sphinxbreaksbeforeactivelist\sphinxbreaksafteractivelist\do\-}%
+}
+\newcommand*\sphinxbreaksatspaceinparsedliteral{%
+  \lccode`~32 \lowercase{\let~}\spx@verbatim@space\lccode`\~`\~
+}
+% now the hack for \url to work (hyperref is assumed in use):
+% the aim it to deactivate - . , ; ? ! / in \url's argument.
+% also the space token, but not end of lines which we assume don't arise there.
+\def\spx@hack@hyper@normalise {%
+  \expandafter\spx@hack@hyper@normalise@aux\hyper@normalise
+              \spx@hack@hyper@normalise@aux\hyper@n@rmalise\relax\spx@undefined
+}%
+\long\def\spx@hack@hyper@normalise@aux#1\hyper@n@rmalise#2#3\spx@undefined{%
+  \ifx\spx@hack@hyper@normalise@aux#2%
+      \def\hyper@normalise{#1\sphinxunactivateextrasandspace\hyper@n@rmalise}%
+  \else
+      \PackageWarning{sphinx}{Could not patch \string\url\space command.%
+      ^^J    Not using extra active characters in alltt environment}%
+      \sphinxunactivateextras
+  \fi
+}%
+\newcommand*{\sphinxunactivateextras}{\let\do\@makeother
+      \sphinxbreaksbeforeactivelist\sphinxbreaksafteractivelist\do\-}%
+% the \catcode13=5\relax (deactivate end of input lines) is left to callers
+\newcommand*{\sphinxunactivateextrasandspace}{\catcode32=10\relax
+      \sphinxunactivateextras}%
+% now for the modified alltt environment
+\newenvironment{sphinxalltt}
+{% at start of next line to work around Emacs/AUCTeX issue with this file
+\begin{alltt}%
+ \ifspx@opt@parsedliteralwraps
+   \sbox\sphinxcontinuationbox {\spx@opt@verbatimcontinued}%
+   \sbox\sphinxvisiblespacebox {\spx@opt@verbatimvisiblespace}%
+   \sphinxbreaksattexescapedchars
+   \sphinxbreaksviaactiveinparsedliteral
+   \sphinxbreaksatspaceinparsedliteral
+   \spx@hack@hyper@normalise
+% alltt takes care of the ' as derivative ("prime") in math mode
+   \everymath\expandafter{\the\everymath\sphinxunactivateextrasandspace
+             \catcode`\<=12\catcode`\>=12\catcode`\^=7\catcode`\_=8 }%
+% not sure if displayed math (align,...) can end up in parsed-literal, anyway
+   \everydisplay\expandafter{\the\everydisplay
+             \catcode13=5\sphinxunactivateextrasandspace
+             \catcode`\<=12\catcode`\>=12\catcode`\^=7\catcode`\_=8 }%
+ \fi }
+{\end{alltt}}
+
 % Topic boxes
 
 % Again based on use of "framed.sty", this allows breakable framed boxes.
@@ -570,7 +685,7 @@
 \newenvironment{sphinxShadowBox}
   {\def\FrameCommand {\spx@ShadowFBox }%
    % configure framed.sty not to add extra vertical spacing
-   \spx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
+   \ltx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
    % the \trivlist will add the vertical spacing on top and bottom which is
    % typical of center environment as used in Sphinx <= 1.4.1
    % the \noindent has the effet of an extra blank line on top, to
@@ -643,7 +758,7 @@
                  \let\makelabel=\py@itemnewline}
 }{\end{list}}
 
-% \optional is used for ``[, arg]``, i.e. desc_optional nodes.
+% \sphinxoptional is used for ``[, arg]``, i.e. desc_optional nodes.
 \newcommand{\sphinxoptional}[1]{%
   {\textnormal{\Large[}}{#1}\hspace{0.5mm}{\textnormal{\Large]}}}
 
@@ -725,7 +840,7 @@
    % configure framed.sty's parameters to obtain same vertical spacing
    % as for "light" boxes. We need for this to manually insert parskip glue and
    % revert a skip done by framed before the frame.
-    \spx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
+    \ltx@ifundefined{OuterFrameSep}{}{\OuterFrameSep\z@skip}%
     \vspace{\FrameHeightAdjust}
    % copied/adapted from framed.sty's snugshade
    \def\FrameCommand##1{\hskip\@totalleftmargin
@@ -781,10 +896,7 @@
                      \csname\@backslashchar color@#2\endcsname }
 
 % the main dispatch for all types of notices
-\newenvironment{sphinxadmonition}{\begin{notice}}{\end{notice}}
-% use of ``notice'' is for backwards compatibility and will be removed in
-% future release; sphinxadmonition environment will be defined directly.
-\newenvironment{notice}[2]{% #1=type, #2=heading
+\newenvironment{sphinxadmonition}[2]{% #1=type, #2=heading
   % can't use #1 directly in definition of end part
   \def\spx@noticetype {#1}%
   % set parameters of heavybox/lightbox
@@ -795,6 +907,14 @@
   \begin{sphinx#1}{#2}}
   % in end part, need to go around a LaTeX's "feature"
  {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
+% use of ``notice'' is for backwards compatibility and will be removed in
+% Sphinx 1.7.
+\newenvironment{notice}
+  {\sphinxdeprecationwarning {notice}{1.6}{1.7}{%
+  This document was probably built with a Sphinx extension using ``notice''^^J
+  environment. At Sphinx 1.7, ``notice'' environment will be removed. Please^^J
+  report to extension author to use ``sphinxadmonition'' instead.^^J%
+  ****}\begin{sphinxadmonition}}{\end{sphinxadmonition}}
 
 % Allow the release number to be specified independently of the
 % \date{}.  This allows the date to reflect the document's date and
@@ -889,33 +1009,25 @@
  \raggedright}
 {\end{list}}
 
-% Redefine \includegraphics to resize images larger than the line width,
+% \sphinxincludegraphics defined to resize images larger than the line width,
 % except if height or width option present.
 %
 % If scale is present, rescale before fitting to line width. (since 1.5)
-%
-% Warning: future version of Sphinx will not modify original \includegraphics,
-% below code will be definition only of \sphinxincludegraphics.
-\let\py@Oldincludegraphics\includegraphics
 \newbox\spx@image@box
-\renewcommand*{\includegraphics}[2][]{%
+\newcommand*{\sphinxincludegraphics}[2][]{%
   \in@{height}{#1}\ifin@\else\in@{width}{#1}\fi
   \ifin@ % height or width present
-    \py@Oldincludegraphics[#1]{#2}%
+    \includegraphics[#1]{#2}%
   \else % no height nor width (but #1 may be "scale=...")
-    \setbox\spx@image@box\hbox{\py@Oldincludegraphics[#1,draft]{#2}}%
+    \setbox\spx@image@box\hbox{\includegraphics[#1,draft]{#2}}%
     \ifdim \wd\spx@image@box>\linewidth
       \setbox\spx@image@box\box\voidb@x % clear memory
-      \py@Oldincludegraphics[#1,width=\linewidth]{#2}%
+      \includegraphics[#1,width=\linewidth]{#2}%
     \else
-      \py@Oldincludegraphics[#1]{#2}%
+      \includegraphics[#1]{#2}%
     \fi
   \fi
 }
-% Writer will put \sphinxincludegraphics in LaTeX source, and with this,
-% documents which used their own modified \includegraphics will compile
-% as before. But see warning above.
-\newcommand*{\sphinxincludegraphics}{\includegraphics}
 
 % to make pdf with correct encoded bookmarks in Japanese
 % this should precede the hyperref package
@@ -946,11 +1058,11 @@
 % inline markup (custom roles)
 % \DUrole{#1}{#2} tries \DUrole#1{#2}
 \providecommand*{\DUrole}[2]{%
-  \ifcsname DUrole#1\endcsname
-    \csname DUrole#1\endcsname{#2}%
+  \ifcsname DUrole\detokenize{#1}\endcsname
+    \csname DUrole\detokenize{#1}\endcsname{#2}%
   \else% backwards compatibility: try \docutilsrole#1{#2}
-    \ifcsname docutilsrole#1\endcsname
-      \csname docutilsrole#1\endcsname{#2}%
+    \ifcsname docutilsrole\detokenize{#1}\endcsname
+      \csname docutilsrole\detokenize{#1}\endcsname{#2}%
     \else
       #2%
     \fi
@@ -975,13 +1087,60 @@
   {\endlist}
 \fi
 
-% adjust the margins for footer,
-% this works with the jsclasses only (Japanese standard document classes)
-% FIXME: rather, pass options to "geometry".
+\ifx\kanjiskip\undefined
+  \PassOptionsToPackage{%
+     hmargin={\unexpanded{\spx@opt@hmargin}},%
+     vmargin={\unexpanded{\spx@opt@vmargin}},%
+     marginpar=\unexpanded{\spx@opt@marginpar}}
+  {geometry}
+\else
+ % set text width for Japanese documents to be integer multiple of 1zw
+ % and text height to be integer multiple of \baselineskip
+ % the execution is delayed to \sphinxsetup then geometry.sty
+ \normalsize\normalfont
+ \newcommand*\sphinxtextwidthja[1]{%
+    \if@twocolumn\tw@\fi
+    \dimexpr
+       \numexpr\dimexpr\paperwidth-\tw@\dimexpr#1\relax\relax/
+               \dimexpr\if@twocolumn\tw@\else\@ne\fi zw\relax
+    zw\relax}%
+ \newcommand*\sphinxmarginparwidthja[1]{%
+    \dimexpr\numexpr\dimexpr#1\relax/\dimexpr1zw\relax zw\relax}%
+ \newcommand*\sphinxtextlinesja[1]{%
+    \numexpr\@ne+\dimexpr\paperheight-\topskip-\tw@\dimexpr#1\relax\relax/
+                 \baselineskip\relax}%
+ \ifx\@jsc@uplatextrue\undefined\else
+ % the way we found in order for the papersize special written by
+ % geometry in the dvi file to be correct in case of jsbook class
+   \ifnum\mag=\@m\else % do nothing special if nomag class option or 10pt
+     \PassOptionsToPackage{truedimen}{geometry}%
+   \fi
+ \fi
+ \PassOptionsToPackage{%
+    hmarginratio={1:1},%
+    textwidth=\unexpanded{\sphinxtextwidthja{\spx@opt@hmargin}},%
+    vmarginratio={1:1},%
+    lines=\unexpanded{\sphinxtextlinesja{\spx@opt@vmargin}},%
+    marginpar=\unexpanded{\sphinxmarginparwidthja{\spx@opt@marginpar}},%
+    footskip=2\baselineskip,%
+  }{geometry}%
+ \AtBeginDocument
+ {% update a dimension used by the jsclasses
+  \ifx\@jsc@uplatextrue\undefined\else\fullwidth\textwidth\fi
+  % for some reason, jreport normalizes all dimensions with \@settopoint
+  \@ifclassloaded{jreport}
+    {\@settopoint\textwidth\@settopoint\textheight\@settopoint\marginparwidth}
+    {}% <-- "false" clause of \@ifclassloaded
+  }%
+\fi
+
+% fix fncychap's bug which uses prematurely the \textwidth value
+\@ifpackagewith{fncychap}{Bjornstrup}
+ {\AtBeginDocument{\mylen\textwidth\advance\mylen-2\myhi}}%
+ {}% <-- "false" clause of \@ifpackagewith
+
 \ifx\@jsc@uplatextrue\undefined\else
   \PassOptionsToPackage{setpagesize=false}{hyperref}
-  \setlength\footskip{2\baselineskip}
-  \addtolength{\textheight}{-2\baselineskip}
 \fi
 
 % fix the double index and bibliography on the table of contents
@@ -993,7 +1152,7 @@
     {\end{theindex}}
 
   \renewenvironment{sphinxthebibliography}[1]
-    {\cleardoublepage\phantomsection
+    {\cleardoublepage% \phantomsection % not needed here since TeXLive 2010's hyperref
      \begin{thebibliography}{1}}
     {\end{thebibliography}}
 \fi
@@ -1010,7 +1169,7 @@
 % for captions of literal blocks
 % with `\theH...` macros for hyperref
 \newcounter{literalblock}
-\spx@ifundefined{c@chapter}
+\ltx@ifundefined{c@chapter}
   {\@addtoreset{literalblock}{section}
   \def\theliteralblock {\ifnum\c@section>\z@ \thesection.\fi\arabic{literalblock}}
   \def\theHliteralblock {\theHsection.\arabic{literalblock}}}
@@ -1045,22 +1204,35 @@
        \firstchoice@false\else\firstchoice@true\fi
    \spx@originalcaption }
 
-% by default, also define macros with the no-prefix names
 \ifspx@opt@dontkeepoldnames\else
+  \let\spx@alreadydefinedlist\@empty
   \typeout{** (sphinx) defining (legacy) text style macros without \string\sphinx\space prefix}
-  \typeout{** if clashes with packages, set latex_keep_old_macro_names=False
+  \typeout{** if clashes with packages, do not set latex_keep_old_macro_names=True
     in conf.py}
   \@for\@tempa:=code,strong,bfcode,email,tablecontinued,titleref,%
                 menuselection,accelerator,crossref,termref,optional\do
-{% first, check if command with no prefix already exists
-  \expandafter\newcommand\csname\@tempa\endcsname{}%
+ {% first, check if command with no prefix already exists
+  \ltx@ifundefined{\@tempa}{%
   % give it the meaning defined so far with \sphinx prefix
   \expandafter\let\csname\@tempa\expandafter\endcsname
                   \csname sphinx\@tempa\endcsname
   % redefine the \sphinx prefixed macro to expand to non-prefixed one
   \expandafter\def\csname sphinx\@tempa\expandafter\endcsname
                   \expandafter{\csname\@tempa\endcsname}%
-}%
+  }{\edef\spx@alreadydefinedlist{\spx@alreadydefinedlist{\@tempa}}}%
+ }%
+  \ifx\spx@alreadydefinedlist\@empty\else
+    \expandafter\@tfor\expandafter\@tempa\expandafter:\expandafter=\spx@alreadydefinedlist\do
+    {% emit warning now
+     \PackageWarning{sphinx}{not redefining already existing \@backslashchar\@tempa\space!^^J%
+        Anyhow, Sphinx mark-up uses only \string\sphinx\@tempa.}%
+     % and also at end of log for better visibility
+     \expandafter\sphinxdeprecationwarning\expandafter{\csname\@tempa\endcsname}{1.6}{1.7}
+       {\sphinxdeprecatedmacro\space already existed at Sphinx loading time! Not redefined!^^J
+         Sphinx mark-up uses only \string\sphinx\expandafter\@gobble\sphinxdeprecatedmacro.}%
+    }%
+  \fi
+  \sphinxdeprecationwarning{latex_keep_old_macro_names=True}{1.6}{1.7}{}%
 \fi
 
 % additional customizable styling
@@ -1085,8 +1257,14 @@
 
 % make commands known to non-Sphinx document classes
 \providecommand*{\sphinxtableofcontents}{\tableofcontents}
-\providecommand*{\sphinxthebibliography}{\thebibliography}
-\providecommand*{\sphinxtheindex}{\theindex}
+\ltx@ifundefined{sphinxthebibliography}
+ {\newenvironment
+  {sphinxthebibliography}{\begin{thebibliography}}{\end{thebibliography}}%
+ }
+ {}% else clause of ifundefined
+\ltx@ifundefined{sphinxtheindex}
+ {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}%
+ {}% else clause of ifundefined
 
 % remove LaTeX's cap on nesting depth if 'maxlistdepth' key used.
 % This is a hack, which works with the standard classes: it assumes \@toodeep
@@ -1109,7 +1287,7 @@
 % define all missing \@list... macros
   \count@\@ne
   \loop
-     \spx@ifundefined{@list\romannumeral\the\count@}
+     \ltx@ifundefined{@list\romannumeral\the\count@}
        {\iffalse}{\iftrue\advance\count@\@ne}%
   \repeat
   \loop
@@ -1117,8 +1295,8 @@
        \expandafter\let
          \csname @list\romannumeral\the\count@\expandafter\endcsname
          \csname @list\romannumeral\the\numexpr\count@-\@ne\endcsname
-       % higher \leftmargin... needed to fix issue with babel-french (v2.6--...)
-       \spx@ifundefined{leftmargin\romannumeral\the\count@}
+       % work around 2.6--3.2d babel-french issue (fixed in 3.2e; no change needed)
+       \ltx@ifundefined{leftmargin\romannumeral\the\count@}
        {\expandafter\let
          \csname leftmargin\romannumeral\the\count@\expandafter\endcsname
          \csname leftmargin\romannumeral\the\numexpr\count@-\@ne\endcsname}{}%
@@ -1127,7 +1305,7 @@
 % define all missing enum... counters and \labelenum... macros and \p@enum..
   \count@\@ne
   \loop
-     \spx@ifundefined{c@enum\romannumeral\the\count@}
+     \ltx@ifundefined{c@enum\romannumeral\the\count@}
        {\iffalse}{\iftrue\advance\count@\@ne}%
   \repeat
   \loop
@@ -1147,7 +1325,7 @@
 % define all missing labelitem... macros
   \count@\@ne
   \loop
-     \spx@ifundefined{labelitem\romannumeral\the\count@}
+     \ltx@ifundefined{labelitem\romannumeral\the\count@}
      {\iffalse}{\iftrue\advance\count@\@ne}%
   \repeat
   \loop

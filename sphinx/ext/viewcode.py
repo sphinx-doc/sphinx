@@ -19,15 +19,16 @@ import sphinx
 from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer
-from sphinx.util import get_full_modname
+from sphinx.util import get_full_modname, logging, status_iterator
 from sphinx.util.nodes import make_refnode
-from sphinx.util.console import blue  # type: ignore
 
 if False:
     # For type annotation
-    from typing import Any, Iterable, Iterator, Tuple  # NOQA
+    from typing import Any, Dict, Iterable, Iterator, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 def _get_full_modname(app, modname, attribute):
@@ -37,16 +38,15 @@ def _get_full_modname(app, modname, attribute):
     except AttributeError:
         # sphinx.ext.viewcode can't follow class instance attribute
         # then AttributeError logging output only verbose mode.
-        app.verbose('Didn\'t find %s in %s' % (attribute, modname))
+        logger.verbose('Didn\'t find %s in %s', attribute, modname)
         return None
     except Exception as e:
         # sphinx.ext.viewcode follow python domain directives.
         # because of that, if there are no real modules exists that specified
         # by py:function or other directives, viewcode emits a lot of warnings.
         # It should be displayed only verbose mode.
-        app.verbose(traceback.format_exc().rstrip())
-        app.verbose('viewcode can\'t import %s, failed with error "%s"' %
-                    (modname, e))
+        logger.verbose(traceback.format_exc().rstrip())
+        logger.verbose('viewcode can\'t import %s, failed with error "%s"', modname, e)
         return None
 
 
@@ -146,9 +146,10 @@ def collect_pages(app):
 #    app.builder.info(' (%d module code pages)' %
 #                     len(env._viewcode_modules), nonl=1)
 
-    for modname, entry in app.status_iterator(
-            iteritems(env._viewcode_modules), 'highlighting module code... ',  # type:ignore
-            blue, len(env._viewcode_modules), lambda x: x[0]):  # type:ignore
+    for modname, entry in status_iterator(iteritems(env._viewcode_modules),  # type: ignore
+                                          'highlighting module code... ', "blue",
+                                          len(env._viewcode_modules),  # type: ignore
+                                          app.verbosity, lambda x: x[0]):
         if not entry:
             continue
         code, tags, used, refname = entry

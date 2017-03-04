@@ -35,8 +35,8 @@ def fold(jsonData, splitter):
             lines.append('        ' + code)
             break
         index = code.index(splitter, 70)
-        lines.append('        ' + code[:index+len(splitter)])
-        code = code[index+len(splitter):]
+        lines.append('        ' + code[:index + len(splitter)])
+        code = code[index + len(splitter):]
     lines[0] = lines[0][8:]
     return '\n'.join(lines)
 

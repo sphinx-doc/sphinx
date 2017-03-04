@@ -14,13 +14,19 @@ The *latex* target does not benefit from pre-prepared themes like the
 .. raw:: latex
 
    \begingroup
-   \sphinxsetup{verbatimwithframe=false,%
-                VerbatimColor={named}{OldLace}, TitleColor={named}{DarkGoldenrod},%
-                hintBorderColor={named}{LightCoral}, attentionBgColor={named}{LightPink},%
-                attentionborder=3pt,  attentionBorderColor={named}{Crimson},%
-                noteBorderColor={named}{Olive}, noteborder=2pt,%
-                cautionBorderColor={named}{Cyan}, cautionBgColor={named}{LightCyan},%
-                cautionborder=3pt}
+   \sphinxsetup{%
+         verbatimwithframe=false,
+         VerbatimColor={named}{OldLace},
+         TitleColor={named}{DarkGoldenrod},
+         hintBorderColor={named}{LightCoral},
+         attentionborder=3pt,
+         attentionBorderColor={named}{Crimson},
+         attentionBgColor={named}{FloralWhite},
+         noteborder=2pt,
+         noteBorderColor={named}{Olive},
+         cautionborder=3pt,
+         cautionBorderColor={named}{Cyan},
+         cautionBgColor={named}{LightCyan}}
    \relax
 
 
@@ -75,6 +81,8 @@ configured, for example::
 
     latex_additional_files = ["mystyle.sty"]
 
+.. _latexsphinxsetup:
+
 The Sphinx LaTeX style package options
 --------------------------------------
 
@@ -102,20 +110,26 @@ If non-empty, it will be passed as argument to the ``\sphinxsetup`` command::
      the whole ``'sphinxsetup'`` string is passed as argument to
      ``\sphinxsetup``.
 
-   - As an alternative to the ``'sphinxsetup'`` key, it is possibly
-     to insert explicitely the ``\\sphinxsetup{key=value,..}`` inside the
+   - As an alternative to the ``'sphinxsetup'`` key, it is possible
+     to insert the ``\\sphinxsetup{key=value,..}`` inside the
      ``'preamble'`` key. It is even possible to use the ``\sphinxsetup`` in
      the body of the document, via the :rst:dir:`raw` directive, to modify
      dynamically the option values: this is actually what we did for the
      duration of this chapter for the PDF output, which is styled using::
 
+       \sphinxsetup{%
          verbatimwithframe=false,
-         VerbatimColor={named}{OldLace}, TitleColor={named}{DarkGoldenrod},
-         hintBorderColor={named}{LightCoral}, attentionBgColor={named}{LightPink},
-         attentionborder=3pt,  attentionBorderColor={named}{Crimson},
-         noteBorderColor={named}{Olive}, noteborder=2pt,
-         cautionBorderColor={named}{Cyan}, cautionBgColor={named}{LightCyan},
-         cautionborder=3pt
+         VerbatimColor={named}{OldLace},
+         TitleColor={named}{DarkGoldenrod},
+         hintBorderColor={named}{LightCoral},
+         attentionborder=3pt,
+         attentionBorderColor={named}{Crimson},
+         attentionBgColor={named}{FloralWhite},
+         noteborder=2pt,
+         noteBorderColor={named}{Olive},
+         cautionborder=3pt,
+         cautionBorderColor={named}{Cyan},
+         cautionBgColor={named}{LightCyan}}
 
      and with the ``svgnames`` option having been passed to "xcolor" package::
 
@@ -132,24 +146,84 @@ Here are the currently available options together with their default values.
    rendering by Sphinx; if in future Sphinx offers various *themes* for LaTeX,
    the interface may change.
 
+.. attention::
+
+   LaTeX requires for keys with Boolean values to use **lowercase** ``true`` or
+   ``false``.
+
+.. _latexsphinxsetuphmargin:
+
+``hmargin``
+    The dimensions of the horizontal margins. Legacy Sphinx default value is
+    ``1in`` (which stands for ``{1in,1in}``.) It is passed over as ``hmargin``
+    option to ``geometry`` package.
+
+    Here is an example for non-Japanese documents of use of this key::
+
+      'sphinxsetup': 'hmargin={2in,1.5in}, vmargin={1.5in,2in}, marginpar=1in',
+
+    Japanese documents currently accept only the form with only one dimension.
+    This option is handled then in a special manner in order for ``geometry``
+    package to set the text width to an exact multiple of the *zenkaku* width
+    of the base document font.
+
+    .. hint::
+
+       For a ``'manual'`` type document with :confval:`language` set to
+       ``'ja'``, which by default uses the ``jsbook`` LaTeX document class, the
+       dimension units, when the pointsize isn't ``10pt``, must be so-called TeX
+       "true" units::
+
+         'sphinxsetup': 'hmargin=1.5truein, vmargin=1.5truein, marginpar=5zw',
+
+       This is due to the way the LaTeX class ``jsbook`` handles the
+       pointsize.
+
+       Or, one uses regular units but with ``nomag`` as extra document class
+       option (cf. ``'extraclassoptions'`` key of :confval:`latex_elements`.)
+
+    .. versionadded:: 1.5.3
+
+``vmargin``
+    The dimension of the vertical margins. Legacy Sphinx default value is
+    ``1in`` (or ``{1in,1in}``.) Passed over as ``vmargin`` option to
+    ``geometry``.
+
+    Japanese documents will arrange for the text height to be an integer
+    multiple of the baselineskip, taking the closest match suitable for the
+    asked-for vertical margin. It can then be only one dimension. See notice
+    above.
+
+    .. versionadded:: 1.5.3
+
+``marginpar``
+    The ``\marginparwidth`` LaTeX dimension, defaults to ``0.5in``. For Japanese
+    documents, the value is modified to be the closest integer multiple of the
+    *zenkaku* width.
+
+    .. versionadded:: 1.5.3
+
 ``verbatimwithframe``
     default ``true``. Boolean to specify if :rst:dir:`code-block`\ s and literal
     includes are framed. Setting it to ``false`` does not deactivate use of
     package "framed", because it is still in use for the optional background
     colour (see below).
 
-    .. attention::
-
-       LaTeX requires ``true`` or ``false`` to be specified in *lowercase*.
-
 ``verbatimwrapslines``
-    default ``true``. Tells whether long lines in :rst:dir:`code-block`\ s
-    should be wrapped.
+    default ``true``. Tells whether long lines in :rst:dir:`code-block`\ 's
+    contents should wrap.
 
     .. (comment) It is theoretically possible to customize this even
        more and decide at which characters a line-break can occur and whether
        before or after, but this is accessible currently only by re-defining some
        macros with complicated LaTeX syntax from :file:`sphinx.sty`.
+
+``parsedliteralwraps``
+    default ``true``. Tells whether long lines in :dudir:`parsed-literal`\ 's
+    contents should wrap.
+
+    .. versionadded:: 1.5.2
+       set this option value to ``false`` to recover former behaviour.
 
 ``inlineliteralwraps``
     default ``true``. Allows linebreaks inside inline literals: but extra
@@ -160,7 +234,7 @@ Here are the currently available options together with their default values.
     (or shrinked) in order to accomodate the linebreak.
 
     .. versionadded:: 1.5
-       set this option to ``false`` to recover former behaviour.
+       set this option value to ``false`` to recover former behaviour.
 
 ``verbatimvisiblespace``
     default ``\textcolor{red}{\textvisiblespace}``. When a long code line is
@@ -319,9 +393,10 @@ Here are the currently available options together with their default values.
     (non-breakable) space.
 
     .. versionadded:: 1.5
-       formerly, footnotes from explicit mark-up were
-       preceded by a space (hence a linebreak there was possible), but
-       automatically generated footnotes had no such space.
+       formerly, footnotes from explicit mark-up (but not automatically
+       generated ones) were preceded by a space in the output ``.tex`` file
+       hence a linebreak in PDF was possible. To avoid insertion of this space
+       one could use ``foo\ [#f1]`` mark-up, but this impacts all builders.
 
 ``HeaderFamily``
     default ``\sffamily\bfseries``. Sets the font used by headings.
@@ -339,16 +414,20 @@ Let us now list some macros from the package file
 - text styling commands (they have one argument): ``\sphinx<foo>`` with
   ``<foo>`` being one of ``strong``, ``bfcode``, ``email``, ``tablecontinued``,
   ``titleref``, ``menuselection``, ``accelerator``, ``crossref``, ``termref``,
-  ``optional``. By default and for backwards compatibility the ``\sphinx<foo>``
-  expands to ``\<foo>`` hence the user can choose to customize rather the latter
-  (the non-prefixed macros will be left undefined if option
-  :confval:`latex_keep_old_macro_names` is set to ``False`` in :file:`conf.py`.)
+  ``optional``. The non-prefixed macros will still be defined if option
+  :confval:`latex_keep_old_macro_names` has been set to ``True`` (default is
+  ``False``), in which case the prefixed macros expand to the
+  non-prefixed ones.
 
-  .. versionchanged:: 1.4.5
-     use of ``\sphinx`` prefixed macro names to limit possibilities of conflict
-     with user added packages: if
-     :confval:`latex_keep_old_macro_names` is set to ``False`` in
-     :file:`conf.py` only the prefixed names are defined.
+  .. versionadded:: 1.4.5
+     Use of ``\sphinx`` prefixed macro names to limit possibilities of conflict
+     with LaTeX packages.
+  .. versionchanged:: 1.6
+     The default value of :confval:`latex_keep_old_macro_names` changes to
+     ``False``, and even if set to ``True``, if a non-prefixed macro
+     already exists at ``sphinx.sty`` loading time, only the ``\sphinx``
+     prefixed one will be defined. The setting will be removed at 1.7.
+
 - more text styling commands: ``\sphinxstyle<bar>`` with ``<bar>`` one of
   ``indexentry``, ``indexextra``, ``indexpageref``, ``topictitle``,
   ``sidebartitle``, ``othertitle``, ``sidebarsubtitle``, ``thead``,

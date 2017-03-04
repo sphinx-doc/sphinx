@@ -20,3 +20,8 @@ def block_start_with_comment():
 def block_start_with_blank():
 
     return 1
+
+
+class Qux:
+	def quux(self):
+		pass

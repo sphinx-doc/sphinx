@@ -9,21 +9,14 @@
     :license: BSD, see LICENSE for details.
 """
 
-from six import BytesIO
-
 import pickle
 from docutils import nodes
 import mock
+import pytest
 from textwrap import dedent
 from sphinx.errors import SphinxError
-import sphinx.builders.linkcheck
 
-from util import with_app, with_tempdir, rootdir, tempdir, SkipTest, TestApp, path
-
-try:
-    from docutils.writers.manpage import Writer as ManWriter
-except ImportError:
-    ManWriter = None
+from util import rootdir, tempdir, path
 
 
 def request_session_head(url, **kwargs):
@@ -33,24 +26,17 @@ def request_session_head(url, **kwargs):
     return response
 
 
-def verify_build(buildername, srcdir):
-    if buildername == 'man' and ManWriter is None:
-        raise SkipTest('man writer is not available')
-    app = TestApp(buildername=buildername, srcdir=srcdir)
-    try:
-        app.builder.build_all()
-    finally:
-        app.cleanup()
-
-
-def test_build_all():
+@pytest.fixture
+def nonascii_srcdir(request):
     # If supported, build in a non-ASCII source dir
     test_name = u'\u65e5\u672c\u8a9e'
+    basedir = tempdir / request.node.originalname
     try:
-        srcdir = tempdir / test_name
-        (rootdir / 'root').copytree(tempdir / test_name)
+        srcdir = basedir / test_name
+        if not srcdir.exists():
+            (rootdir / 'root').copytree(srcdir)
     except UnicodeEncodeError:
-        srcdir = tempdir / 'all'
+        srcdir = basedir / 'all'
     else:
         # add a doc with a non-ASCII file name to the source dir
         (srcdir / (test_name + '.txt')).write_text(dedent("""
@@ -60,39 +46,39 @@ def test_build_all():
 
         master_doc = srcdir / 'contents.txt'
         master_doc.write_text(master_doc.text() + dedent(u"""
-                .. toctree::
+                              .. toctree::
 
-                   %(test_name)s/%(test_name)s
-                """ % {'test_name': test_name})
-        )
+                                 %(test_name)s/%(test_name)s
+                              """ % {'test_name': test_name}))
+    return srcdir
 
-    with mock.patch('sphinx.builders.linkcheck.requests') as requests:
-        requests.head = request_session_head
 
+@pytest.mark.parametrize(
+    "buildername",
+    [
         # note: no 'html' - if it's ok with dirhtml it's ok with html
-        for buildername in ['dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle',
-                            'json', 'text', 'htmlhelp', 'qthelp', 'epub2', 'epub',
-                            'applehelp', 'changes', 'xml', 'pseudoxml', 'man',
-                            'linkcheck']:
-            yield verify_build, buildername, srcdir
+        'dirhtml', 'singlehtml', 'latex', 'texinfo', 'pickle', 'json', 'text',
+        'htmlhelp', 'qthelp', 'epub2', 'epub', 'applehelp', 'changes', 'xml',
+        'pseudoxml', 'man', 'linkcheck',
+    ],
+)
+@mock.patch('sphinx.builders.linkcheck.requests.head',
+            side_effect=request_session_head)
+def test_build_all(requests_head, make_app, nonascii_srcdir, buildername):
+    app = make_app(buildername, srcdir=nonascii_srcdir)
+    app.build()
 
 
-@with_tempdir
-def test_master_doc_not_found(tmpdir):
-    (tmpdir / 'conf.py').write_text('master_doc = "index"')
-    assert tmpdir.listdir() == ['conf.py']
+def test_master_doc_not_found(tempdir, make_app):
+    (tempdir / 'conf.py').write_text('master_doc = "index"')
+    assert tempdir.listdir() == ['conf.py']
 
-    try:
-        app = TestApp(buildername='dummy', srcdir=tmpdir)
+    app = make_app('dummy', srcdir=tempdir)
+    with pytest.raises(SphinxError):
         app.builder.build_all()
-        assert False  # SphinxError not raised
-    except Exception as exc:
-        assert isinstance(exc, SphinxError)
-    finally:
-        app.cleanup()
 
 
-@with_app(buildername='text', testroot='circular')
+@pytest.mark.sphinx(buildername='text', testroot='circular')
 def test_circular_toctree(app, status, warning):
     app.builder.build_all()
     warnings = warning.getvalue()
@@ -104,7 +90,7 @@ def test_circular_toctree(app, status, warning):
         'contents <- sub <- contents') in warnings
 
 
-@with_app(buildername='text', testroot='numbered-circular')
+@pytest.mark.sphinx(buildername='text', testroot='numbered-circular')
 def test_numbered_circular_toctree(app, status, warning):
     app.builder.build_all()
     warnings = warning.getvalue()
@@ -116,7 +102,7 @@ def test_numbered_circular_toctree(app, status, warning):
         'contents <- sub <- contents') in warnings
 
 
-@with_app(buildername='dummy', testroot='image-glob')
+@pytest.mark.sphinx(buildername='dummy', testroot='image-glob')
 def test_image_glob(app, status, warning):
     app.builder.build_all()
 

@@ -30,7 +30,7 @@ from sphinx.util.pycompat import terminal_safe
 
 if False:
     # For type annotation
-    from typing import Any, IO, Union  # NOQA
+    from typing import Any, IO, List, Union  # NOQA
 
 
 USAGE = """\
@@ -116,9 +116,6 @@ def handle_exception(app, opts, exception, stderr=sys.stderr):
 
 def main(argv):
     # type: (List[unicode]) -> int
-    if not color_terminal():
-        nocolor()
-
     parser = optparse.OptionParser(USAGE, epilog=EPILOG, formatter=MyFormatter())
     parser.add_option('--version', action='store_true', dest='version',
                       help='show version information and exit')
@@ -167,8 +164,12 @@ def main(argv):
                      help='no output on stdout, just warnings on stderr')
     group.add_option('-Q', action='store_true', dest='really_quiet',
                      help='no output at all, not even warnings')
-    group.add_option('-N', action='store_true', dest='nocolor',
-                     help='do not emit colored output')
+    group.add_option('--color', dest='color',
+                     action='store_const', const='yes', default='auto',
+                     help='Do emit colored output (default: auto-detect)')
+    group.add_option('-N', '--no-color', dest='color',
+                     action='store_const', const='no',
+                     help='Do not emit colored output (default: auot-detect)')
     group.add_option('-w', metavar='FILE', dest='warnfile',
                      help='write warnings (and errors) to given file')
     group.add_option('-W', action='store_true', dest='warningiserror',
@@ -219,12 +220,12 @@ def main(argv):
 
     # handle remaining filename arguments
     filenames = args[2:]
-    err = 0  # type: ignore
+    errored = False
     for filename in filenames:
         if not path.isfile(filename):
             print('Error: Cannot find file %r.' % filename, file=sys.stderr)
-            err = 1  # type: ignore
-    if err:
+            errored = True
+    if errored:
         return 1
 
     # likely encoding used for command-line arguments
@@ -238,7 +239,7 @@ def main(argv):
         print('Error: Cannot combine -a option and filenames.', file=sys.stderr)
         return 1
 
-    if opts.nocolor:
+    if opts.color == 'no' or (opts.color == 'auto' and not color_terminal()):
         nocolor()
 
     doctreedir = abspath(opts.doctreedir or path.join(outdir, '.doctrees'))

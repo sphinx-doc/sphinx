@@ -308,6 +308,7 @@ More topics to be covered
   * ...
 - Static files
 - :doc:`Selecting a theme <theming>`
+- :doc:`setuptools`
 - :ref:`Templating <templating>`
 - Using extensions
 - :ref:`Writing extensions <dev-extensions>`

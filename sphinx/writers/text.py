@@ -12,7 +12,6 @@ import os
 import re
 import textwrap
 from itertools import groupby
-import warnings
 
 from six.moves import zip_longest
 
@@ -20,13 +19,15 @@ from docutils import nodes, writers
 from docutils.utils import column_width
 
 from sphinx import addnodes
-from sphinx.deprecation import RemovedInSphinx16Warning
 from sphinx.locale import admonitionlabels, _
+from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, List, Tuple, Union  # NOQA
     from sphinx.builders.text import TextBuilder  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class TextWrapper(textwrap.TextWrapper):
@@ -97,7 +98,7 @@ class TextWrapper(textwrap.TextWrapper):
         for i, c in enumerate(word):
             total += column_width(c)
             if total > space_left:
-                return word[:i-1], word[i-1:]
+                return word[:i - 1], word[i - 1:]
         return word, ''
 
     def _split(self, text):
@@ -212,7 +213,7 @@ class TextTranslator(nodes.NodeVisitor):
             if not toformat:
                 return
             if wrap:
-                res = my_wrap(''.join(toformat), width=MAXWIDTH-maxindent)
+                res = my_wrap(''.join(toformat), width=MAXWIDTH - maxindent)
             else:
                 res = ''.join(toformat).splitlines()
             if end:
@@ -245,7 +246,7 @@ class TextTranslator(nodes.NodeVisitor):
     def depart_document(self, node):
         # type: (nodes.Node) -> None
         self.end_state()
-        self.body = self.nl.join(line and (' '*indent + line)
+        self.body = self.nl.join(line and (' ' * indent + line)
                                  for indent, lines in self.states[0]
                                  for line in lines)
         # XXX header/footer?
@@ -303,7 +304,7 @@ class TextTranslator(nodes.NodeVisitor):
     def visit_title(self, node):
         # type: (nodes.Node) -> None
         if isinstance(node.parent, nodes.Admonition):
-            self.add_text(node.astext()+': ')
+            self.add_text(node.astext() + ': ')
             raise nodes.SkipNode
         self.new_state(0)
 
@@ -467,7 +468,7 @@ class TextTranslator(nodes.NodeVisitor):
                 self.add_text(production['tokenname'].ljust(maxlen) + ' ::=')
                 lastname = production['tokenname']
             elif lastname is not None:
-                self.add_text('%s    ' % (' '*len(lastname)))
+                self.add_text('%s    ' % (' ' * len(lastname)))
             self.add_text(production.astext() + self.nl)
         self.end_state(wrap=False)
         raise nodes.SkipNode
@@ -656,7 +657,7 @@ class TextTranslator(nodes.NodeVisitor):
             # type: (unicode) -> None
             out = ['+']  # type: List[unicode]
             for width in realwidths:
-                out.append(char * (width+2))
+                out.append(char * (width + 2))
                 out.append('+')
             self.add_text(''.join(out) + self.nl)
 
@@ -771,15 +772,6 @@ class TextTranslator(nodes.NodeVisitor):
         if not self._classifier_count_in_li:
             self.end_state(end=None)
 
-    def visit_termsep(self, node):
-        # type: (nodes.Node) -> None
-        warnings.warn('sphinx.addnodes.termsep will be removed at Sphinx-1.6. '
-                      'This warning is displayed because some Sphinx extension '
-                      'uses sphinx.addnodes.termsep. Please report it to '
-                      'author of the extension.', RemovedInSphinx16Warning)
-        self.add_text(', ')
-        raise nodes.SkipNode
-
     def visit_classifier(self, node):
         # type: (nodes.Node) -> None
         self.add_text(' : ')
@@ -871,6 +863,7 @@ class TextTranslator(nodes.NodeVisitor):
             self.add_text(self.nl)
 
     def _make_depart_admonition(name):
+        # type: (unicode) -> Callable[[TextTranslator, nodes.Node], None]
         def depart_admonition(self, node):
             # type: (nodes.NodeVisitor, nodes.Node) -> None
             self.end_state(first=admonitionlabels[name] + ': ')
@@ -1174,10 +1167,10 @@ class TextTranslator(nodes.NodeVisitor):
 
     def visit_math(self, node):
         # type: (nodes.Node) -> None
-        self.builder.warn('using "math" markup without a Sphinx math extension '
-                          'active, please use one of the math extensions '
-                          'described at http://sphinx-doc.org/ext/math.html',
-                          (self.builder.current_docname, node.line))
+        logger.warning('using "math" markup without a Sphinx math extension '
+                       'active, please use one of the math extensions '
+                       'described at http://sphinx-doc.org/ext/math.html',
+                       location=(self.builder.current_docname, node.line))
         raise nodes.SkipNode
 
     visit_math_block = visit_math

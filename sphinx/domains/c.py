@@ -24,7 +24,7 @@ from sphinx.util.docfields import Field, TypedField
 
 if False:
     # For type annotation
-    from typing import Any, Iterator, Tuple  # NOQA
+    from typing import Any, Dict, Iterator, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -85,7 +85,7 @@ class CObject(ObjectDescription):
         # add cross-ref nodes for all words
         for part in [_f for _f in wsplit_re.split(ctype) if _f]:  # type: ignore
             tnode = nodes.Text(part, part)
-            if part[0] in string.ascii_letters+'_' and \
+            if part[0] in string.ascii_letters + '_' and \
                part not in self.stopwords:
                 pnode = addnodes.pending_xref(
                     '', refdomain='c', reftype='type', reftarget=part,
@@ -172,7 +172,7 @@ class CObject(ObjectDescription):
                     ctype, argname = arg.rsplit(' ', 1)
                     self._parse_type(param, ctype)
                     # separate by non-breaking space in the output
-                    param += nodes.emphasis(' '+argname, u'\xa0'+argname)
+                    param += nodes.emphasis(' ' + argname, u'\xa0' + argname)
             except ValueError:
                 # no argument name given, only the type
                 self._parse_type(param, arg)
@@ -245,7 +245,7 @@ class CXRefRole(XRefRole):
                 title = title[1:]
                 dot = title.rfind('.')
                 if dot != -1:
-                    title = title[dot+1:]
+                    title = title[dot + 1:]
         return title, target
 
 
@@ -325,5 +325,11 @@ class CDomain(Domain):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(CDomain)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

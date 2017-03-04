@@ -74,7 +74,7 @@ Quick guide
 ^^^^^^^^^^^
 
 `sphinx-intl`_ is a useful tool to work with Sphinx translation flow.
-This section describe a easy way to translate with sphinx-intl.
+This section describe an easy way to translate with sphinx-intl.
 
 #. Install `sphinx-intl`_ by :command:`pip install sphinx-intl` or
    :command:`easy_install sphinx-intl`.
@@ -94,14 +94,14 @@ This section describe a easy way to translate with sphinx-intl.
 
       $ make gettext
 
-   As a result, many pot files are generated under ``_build/locale``
+   As a result, many pot files are generated under ``_build/gettext``
    directory.
 
 #. Setup/Update your `locale_dir`:
 
    .. code-block:: console
 
-      $ sphinx-intl update -p _build/locale -l de -l ja
+      $ sphinx-intl update -p _build/gettext -l de -l ja
 
    Done. You got these directories that contain po files:
 

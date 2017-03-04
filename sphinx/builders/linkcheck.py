@@ -16,10 +16,8 @@ import threading
 from os import path
 
 from requests.exceptions import HTTPError
-from six.moves import queue  # type: ignore
+from six.moves import queue, html_parser  # type: ignore
 from six.moves.urllib.parse import unquote
-from six.moves.html_parser import HTMLParser
-
 from docutils import nodes
 
 # 2015-06-25 barry@python.org.  This exception was deprecated in Python 3.3 and
@@ -33,7 +31,7 @@ except ImportError:
         pass
 
 from sphinx.builders import Builder
-from sphinx.util import encode_uri, requests
+from sphinx.util import encode_uri, requests, logging
 from sphinx.util.console import (  # type: ignore
     purple, red, darkgreen, darkgray, darkred, turquoise
 )
@@ -41,23 +39,25 @@ from sphinx.util.requests import is_ssl_error
 
 if False:
     # For type annotation
-    from typing import Any, Tuple, Union  # NOQA
+    from typing import Any, Dict, List, Set, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.util.requests.requests import Response  # NOQA
 
 
-class AnchorCheckParser(HTMLParser):
+logger = logging.getLogger(__name__)
+
+
+class AnchorCheckParser(html_parser.HTMLParser):
     """Specialized HTML parser that looks for a specific anchor."""
 
     def __init__(self, search_anchor):
         # type: (unicode) -> None
-        HTMLParser.__init__(self)
+        html_parser.HTMLParser.__init__(self)
 
         self.search_anchor = search_anchor
         self.found = False
 
     def handle_starttag(self, tag, attrs):
-        # type: (Any, Dict[unicode, unicode]) -> None
         for key, value in attrs:
             if key in ('id', 'name') and value == self.search_anchor:
                 self.found = True
@@ -231,24 +231,24 @@ class CheckExternalLinksBuilder(Builder):
         if status == 'working' and info == 'old':
             return
         if lineno:
-            self.info('(line %4d) ' % lineno, nonl=1)
+            logger.info('(line %4d) ', lineno, nonl=1)
         if status == 'ignored':
             if info:
-                self.info(darkgray('-ignored- ') + uri + ': ' + info)
+                logger.info(darkgray('-ignored- ') + uri + ': ' + info)
             else:
-                self.info(darkgray('-ignored- ') + uri)
+                logger.info(darkgray('-ignored- ') + uri)
         elif status == 'local':
-            self.info(darkgray('-local-   ') + uri)
+            logger.info(darkgray('-local-   ') + uri)
             self.write_entry('local', docname, lineno, uri)
         elif status == 'working':
-            self.info(darkgreen('ok        ')  + uri + info)
+            logger.info(darkgreen('ok        ') + uri + info)
         elif status == 'broken':
             self.write_entry('broken', docname, lineno, uri + ': ' + info)
             if self.app.quiet or self.app.warningiserror:
-                self.warn('broken link: %s (%s)' % (uri, info),
-                          '%s:%s' % (self.env.doc2path(docname), lineno))
+                logger.warning('broken link: %s (%s)', uri, info,
+                               location=(self.env.doc2path(docname), lineno))
             else:
-                self.info(red('broken    ') + uri + red(' - ' + info))
+                logger.info(red('broken    ') + uri + red(' - ' + info))
         elif status == 'redirected':
             text, color = {
                 301: ('permanently', darkred),
@@ -259,7 +259,7 @@ class CheckExternalLinksBuilder(Builder):
             }[code]
             self.write_entry('redirected ' + text, docname, lineno,
                              uri + ' to ' + info)
-            self.info(color('redirect  ') + uri + color(' - ' + text + ' to '  + info))
+            logger.info(color('redirect  ') + uri + color(' - ' + text + ' to ' + info))
 
     def get_target_uri(self, docname, typ=None):
         # type: (unicode, unicode) -> unicode
@@ -275,7 +275,7 @@ class CheckExternalLinksBuilder(Builder):
 
     def write_doc(self, docname, doctree):
         # type: (unicode, nodes.Node) -> None
-        self.info()
+        logger.info('')
         n = 0
         for node in doctree.traverse(nodes.reference):
             if 'refuri' not in node:
@@ -310,7 +310,7 @@ class CheckExternalLinksBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(CheckExternalLinksBuilder)
 
     app.add_config_value('linkcheck_ignore', [], None)
@@ -321,3 +321,9 @@ def setup(app):
     # Anchors starting with ! are ignored since they are
     # commonly used for dynamic pages
     app.add_config_value('linkcheck_anchors_ignore', ["^!"], None)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

@@ -11,8 +11,8 @@ set BUILDDIR={{ rbuilddir }}
 set ALLSPHINXOPTS=-d %BUILDDIR%/doctrees %SPHINXOPTS% {{ rsrcdir }}
 set I18NSPHINXOPTS=%SPHINXOPTS% {{ rsrcdir }}
 if NOT "%PAPER%" == "" (
-	set ALLSPHINXOPTS=-D latex_paper_size=%PAPER% %ALLSPHINXOPTS%
-	set I18NSPHINXOPTS=-D latex_paper_size=%PAPER% %I18NSPHINXOPTS%
+	set ALLSPHINXOPTS=-D latex_elements.papersize=%PAPER% %ALLSPHINXOPTS%
+	set I18NSPHINXOPTS=-D latex_elements.papersize=%PAPER% %I18NSPHINXOPTS%
 )
 
 if "%1" == "" goto help

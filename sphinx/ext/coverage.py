@@ -20,12 +20,15 @@ from six.moves import cPickle as pickle
 
 import sphinx
 from sphinx.builders import Builder
+from sphinx.util import logging
 from sphinx.util.inspect import safe_getattr
 
 if False:
     # For type annotation
-    from typing import Any, Callable, IO, Pattern, Tuple  # NOQA
+    from typing import Any, Callable, Dict, IO, List, Pattern, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 # utility
@@ -35,14 +38,14 @@ def write_header(f, text, char='-'):
     f.write(char * len(text) + '\n')
 
 
-def compile_regex_list(name, exps, warnfunc):
-    # type: (unicode, unicode, Callable) -> List[Pattern]
+def compile_regex_list(name, exps):
+    # type: (unicode, unicode) -> List[Pattern]
     lst = []
     for exp in exps:
         try:
             lst.append(re.compile(exp))
         except Exception:
-            warnfunc('invalid regex %r in %s' % (exp, name))
+            logger.warning('invalid regex %r in %s', exp, name)
     return lst
 
 
@@ -62,21 +65,18 @@ class CoverageBuilder(Builder):
             try:
                 self.c_regexes.append((name, re.compile(exp)))
             except Exception:
-                self.warn('invalid regex %r in coverage_c_regexes' % exp)
+                logger.warning('invalid regex %r in coverage_c_regexes', exp)
 
         self.c_ignorexps = {}  # type: Dict[unicode, List[Pattern]]
         for (name, exps) in iteritems(self.config.coverage_ignore_c_items):
-            self.c_ignorexps[name] = compile_regex_list(
-                'coverage_ignore_c_items', exps, self.warn)
-        self.mod_ignorexps = compile_regex_list(
-            'coverage_ignore_modules', self.config.coverage_ignore_modules,
-            self.warn)
-        self.cls_ignorexps = compile_regex_list(
-            'coverage_ignore_classes', self.config.coverage_ignore_classes,
-            self.warn)
-        self.fun_ignorexps = compile_regex_list(
-            'coverage_ignore_functions', self.config.coverage_ignore_functions,
-            self.warn)
+            self.c_ignorexps[name] = compile_regex_list('coverage_ignore_c_items',
+                                                        exps)
+        self.mod_ignorexps = compile_regex_list('coverage_ignore_modules',
+                                                self.config.coverage_ignore_modules)
+        self.cls_ignorexps = compile_regex_list('coverage_ignore_classes',
+                                                self.config.coverage_ignore_classes)
+        self.fun_ignorexps = compile_regex_list('coverage_ignore_functions',
+                                                self.config.coverage_ignore_functions)
 
     def get_outdated_docs(self):
         # type: () -> unicode
@@ -147,8 +147,7 @@ class CoverageBuilder(Builder):
             try:
                 mod = __import__(mod_name, fromlist=['foo'])
             except ImportError as err:
-                self.warn('module %s could not be imported: %s' %
-                          (mod_name, err))
+                logger.warning('module %s could not be imported: %s', mod_name, err)
                 self.py_undoc[mod_name] = {'error': err}
                 continue
 

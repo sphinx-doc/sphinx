@@ -20,7 +20,7 @@ from sphinx.util.docfields import Field, GroupedField, TypedField
 
 if False:
     # For type annotation
-    from typing import Iterator, Tuple  # NOQA
+    from typing import Any, Dict, Iterator, List, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -160,7 +160,7 @@ class JSXRefRole(XRefRole):
                 title = title[1:]
                 dot = title.rfind('.')
                 if dot != -1:
-                    title = title[dot+1:]
+                    title = title[dot + 1:]
         if target[0:1] == '.':
             target = target[1:]
             refnode['refspecific'] = True
@@ -255,5 +255,11 @@ class JavaScriptDomain(Domain):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(JavaScriptDomain)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

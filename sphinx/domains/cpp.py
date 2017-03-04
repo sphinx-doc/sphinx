@@ -15,24 +15,27 @@ from copy import deepcopy
 from six import iteritems, text_type
 
 from docutils import nodes
+from docutils.parsers.rst import Directive, directives
 
 from sphinx import addnodes
 from sphinx.roles import XRefRole
 from sphinx.locale import l_, _
 from sphinx.domains import Domain, ObjType
 from sphinx.directives import ObjectDescription
+from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
-from sphinx.util.compat import Directive
 from sphinx.util.pycompat import UnicodeMixin
 from sphinx.util.docfields import Field, GroupedField
 
 if False:
     # For type annotation
-    from typing import Any, Iterator, Match, Pattern, Tuple, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Match, Pattern, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+
+logger = logging.getLogger(__name__)
 
 """
     Important note on ids
@@ -50,13 +53,17 @@ if False:
     the index. All of the versions should work as permalinks.
 
 
-    Tagnames
+    Signature Nodes and Tagnames
     ----------------------------------------------------------------------------
 
-    Each desc_signature node will have the attribute 'sphinx_cpp_tagname' set to
-    - 'templateParams', if the line is on the form 'template<...>',
-    - 'templateIntroduction, if the line is on the form 'conceptName{...}'
+    Each signature is in a desc_signature node, where all children are
+    desc_signature_line nodes. Each of these lines will have the attribute
+    'sphinx_cpp_tagname' set to one of the following (prioritized):
     - 'declarator', if the line contains the name of the declared object.
+    - 'templateParams', if the line starts a template parameter list,
+    - 'templateParams', if the line has template parameters
+      Note: such lines might get a new tag in the future.
+    - 'templateIntroduction, if the line is on the form 'conceptName{...}'
     No other desc_signature nodes should exist (so far).
 
 
@@ -95,9 +102,9 @@ if False:
             attribute-specifier-seq[opt] decl-specifier-seq[opt]
                 init-declarator-list[opt] ;
         # Drop the semi-colon. For now: drop the attributes (TODO).
-        # Use at most 1 init-declerator.
-        -> decl-specifier-seq init-declerator
-        -> decl-specifier-seq declerator initializer
+        # Use at most 1 init-declarator.
+        -> decl-specifier-seq init-declarator
+        -> decl-specifier-seq declarator initializer
 
         decl-specifier ->
               storage-class-specifier ->
@@ -158,22 +165,22 @@ if False:
             | template-argument-list "," template-argument "..."[opt]
         template-argument ->
               constant-expression
-            | type-specifier-seq abstract-declerator
+            | type-specifier-seq abstract-declarator
             | id-expression
 
 
-        declerator ->
-              ptr-declerator
+        declarator ->
+              ptr-declarator
             | noptr-declarator parameters-and-qualifiers trailing-return-type
               (TODO: for now we don't support trailing-eturn-type)
-        ptr-declerator ->
-              noptr-declerator
+        ptr-declarator ->
+              noptr-declarator
             | ptr-operator ptr-declarator
-        noptr-declerator ->
+        noptr-declarator ->
               declarator-id attribute-specifier-seq[opt] ->
                     "..."[opt] id-expression
                   | rest-of-trailing
-            | noptr-declerator parameters-and-qualifiers
+            | noptr-declarator parameters-and-qualifiers
             | noptr-declarator "[" constant-expression[opt] "]"
               attribute-specifier-seq[opt]
             | "(" ptr-declarator ")"
@@ -235,20 +242,20 @@ if False:
             # Drop the attributes
             -> decl-specifier-seq abstract-declarator[opt]
         grammar, typedef-like: no initilizer
-            decl-specifier-seq declerator
+            decl-specifier-seq declarator
         Can start with a templateDeclPrefix.
 
     member_object:
-        goal: as a type_object which must have a declerator, and optionally
+        goal: as a type_object which must have a declarator, and optionally
         with a initializer
         grammar:
-            decl-specifier-seq declerator initializer
+            decl-specifier-seq declarator initializer
         Can start with a templateDeclPrefix.
 
     function_object:
         goal: a function declaration, TODO: what about templates? for now: skip
         grammar: no initializer
-           decl-specifier-seq declerator
+           decl-specifier-seq declarator
         Can start with a templateDeclPrefix.
 
     class_object:
@@ -532,7 +539,7 @@ class ASTBase(UnicodeMixin):
         # type: (Any) -> bool
         return not self.__eq__(other)
 
-    __hash__ = None  # type: None
+    __hash__ = None  # type: Callable[[], int]
 
     def clone(self):
         # type: () -> ASTBase
@@ -889,6 +896,7 @@ class ASTTemplateParams(ASTBase):
         # type: (Any) -> None
         assert params is not None
         self.params = params
+        self.isNested = False  # whether it's a template template param
 
     def get_id_v2(self):
         # type: () -> unicode
@@ -907,17 +915,30 @@ class ASTTemplateParams(ASTBase):
         res.append(u"> ")
         return ''.join(res)
 
-    def describe_signature(self, signode, mode, env, symbol):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
-        signode.sphinx_cpp_tagname = 'templateParams'
-        signode += nodes.Text("template<")
+    def describe_signature(self, parentNode, mode, env, symbol, lineSpec=None):
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol, bool) -> None
+        # 'lineSpec' is defaulted becuase of template template parameters
+        def makeLine(parentNode=parentNode):
+            signode = addnodes.desc_signature_line()
+            parentNode += signode
+            signode.sphinx_cpp_tagname = 'templateParams'
+            return signode
+        if self.isNested:
+            lineNode = parentNode
+        else:
+            lineNode = makeLine()
+        lineNode += nodes.Text("template<")
         first = True
         for param in self.params:
             if not first:
-                signode += nodes.Text(", ")
+                lineNode += nodes.Text(", ")
             first = False
-            param.describe_signature(signode, mode, env, symbol)
-        signode += nodes.Text(">")
+            if lineSpec:
+                lineNode = makeLine()
+            param.describe_signature(lineNode, mode, env, symbol)
+        if lineSpec and not first:
+            lineNode = makeLine()
+        lineNode += nodes.Text(">")
 
 
 class ASTTemplateIntroductionParameter(ASTBase):
@@ -1002,8 +1023,11 @@ class ASTTemplateIntroduction(ASTBase):
         res.append('} ')
         return ''.join(res)
 
-    def describe_signature(self, signode, mode, env, symbol):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
+    def describe_signature(self, parentNode, mode, env, symbol, lineSpec):
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol, bool) -> None
+        # Note: 'lineSpec' has no effect on template introductions.
+        signode = addnodes.desc_signature_line()
+        parentNode += signode
         signode.sphinx_cpp_tagname = 'templateIntroduction'
         self.concept.describe_signature(signode, 'markType', env, symbol)
         signode += nodes.Text('{')
@@ -1040,13 +1064,11 @@ class ASTTemplateDeclarationPrefix(ASTBase):
             res.append(text_type(t))
         return u''.join(res)
 
-    def describe_signature(self, signode, mode, env, symbol):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
+    def describe_signature(self, signode, mode, env, symbol, lineSpec):
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol, bool) -> None
         _verify_description_mode(mode)
         for t in self.templates:
-            templateNode = addnodes.desc_signature_line()
-            t.describe_signature(templateNode, 'lastIsName', env, symbol)
-            signode += templateNode
+            t.describe_signature(signode, 'lastIsName', env, symbol, lineSpec)
 
 
 class ASTOperatorBuildIn(ASTBase):
@@ -1418,7 +1440,7 @@ class ASTTrailingTypeSpecName(ASTBase):
         self.nestedName.describe_signature(signode, mode, env, symbol=symbol)
 
 
-class ASTFunctinoParameter(ASTBase):
+class ASTFunctionParameter(ASTBase):
     def __init__(self, arg, ellipsis=False):
         # type: (Any, bool) -> None
         self.arg = arg
@@ -2186,7 +2208,7 @@ class ASTDeclaratorParen(ASTBase):
         self.next.describe_signature(signode, "noneIsName", env, symbol)
 
 
-class ASTDecleratorNameParamQual(ASTBase):
+class ASTDeclaratorNameParamQual(ASTBase):
     def __init__(self, declId, arrayOps, paramQual):
         # type: (Any, List[Any], Any) -> None
         self.declId = declId
@@ -2719,8 +2741,8 @@ class ASTDeclaration(ASTBase):
         res.append(text_type(self.declaration))
         return u''.join(res)
 
-    def describe_signature(self, signode, mode, env):
-        # type: (addnodes.desc_signature, unicode, BuildEnvironment) -> None
+    def describe_signature(self, signode, mode, env, options):
+        # type: (addnodes.desc_signature, unicode, BuildEnvironment, Dict) -> None
         _verify_description_mode(mode)
         # The caller of the domain added a desc_signature node.
         # Always enable multiline:
@@ -2733,7 +2755,8 @@ class ASTDeclaration(ASTBase):
         assert self.symbol
         if self.templatePrefix:
             self.templatePrefix.describe_signature(signode, mode, env,
-                                                   symbol=self.symbol)
+                                                   symbol=self.symbol,
+                                                   lineSpec=options.get('tparam-line-spec'))
         signode += mainDeclNode
         if self.visibility and self.visibility != "public":
             mainDeclNode += addnodes.desc_annotation(self.visibility + " ",
@@ -3060,7 +3083,7 @@ class Symbol(object):
                     msg = "Duplicate declaration, also defined in '%s'.\n"
                     msg += "Declaration is '%s'."
                     msg = msg % (ourChild.docname, name)
-                    env.warn(otherChild.docname, msg)
+                    logger.warning(msg, location=otherChild.docname)
                 else:
                     # Both have declarations, and in the same docname.
                     # This can apparently happen, it should be safe to
@@ -3195,14 +3218,14 @@ class Symbol(object):
 
     def to_string(self, indent):
         # type: (int) -> unicode
-        res = ['\t'*indent]  # type: List[unicode]
+        res = ['\t' * indent]  # type: List[unicode]
         if not self.parent:
             res.append('::')
         else:
             if self.templateParams:
                 res.append(text_type(self.templateParams))
                 res.append('\n')
-                res.append('\t'*indent)
+                res.append('\t' * indent)
             if self.identifier:
                 res.append(text_type(self.identifier))
             else:
@@ -3269,7 +3292,7 @@ class DefinitionParser(object):
         return DefinitionError(''.join(result))
 
     def status(self, msg):
-        # type: (unicode) -> unicode
+        # type: (unicode) -> None
         # for debugging
         indicator = '-' * self.pos + '^'
         print("%s\n%s\n%s" % (msg, self.definition, indicator))
@@ -3315,7 +3338,7 @@ class DefinitionParser(object):
         return self.match(re.compile(r'\b%s\b' % re.escape(word)))
 
     def skip_ws(self):
-        # type: (unicode) -> bool
+        # type: () -> bool
         return self.match(_whitespace_re)
 
     def skip_word_and_ws(self, word):
@@ -3350,6 +3373,8 @@ class DefinitionParser(object):
         # type: () -> unicode
         if self.last_match is not None:
             return self.last_match.group()
+        else:
+            return None
 
     def read_rest(self):
         # type: () -> unicode
@@ -3644,7 +3669,7 @@ class DefinitionParser(object):
             while 1:
                 self.skip_ws()
                 if self.skip_string('...'):
-                    args.append(ASTFunctinoParameter(None, True))
+                    args.append(ASTFunctionParameter(None, True))
                     self.skip_ws()
                     if not self.skip_string(')'):
                         self.fail('Expected ")" after "..." in '
@@ -3654,7 +3679,7 @@ class DefinitionParser(object):
                 # even in function pointers and similar.
                 arg = self._parse_type_with_init(outer=None, named='single')
                 # TODO: parse default parameters # TODO: didn't we just do that?
-                args.append(ASTFunctinoParameter(arg))
+                args.append(ASTFunctionParameter(arg))
 
                 self.skip_ws()
                 if self.skip_string(','):
@@ -3824,7 +3849,7 @@ class DefinitionParser(object):
         return ASTDeclSpecs(outer, leftSpecs, rightSpecs, trailing)
 
     def _parse_declarator_name_param_qual(self, named, paramMode, typed):
-        # type: (Union[bool, unicode], unicode, bool) -> ASTDecleratorNameParamQual
+        # type: (Union[bool, unicode], unicode, bool) -> ASTDeclaratorNameParamQual
         # now we should parse the name, and then suffixes
         if named == 'maybe':
             pos = self.pos
@@ -3860,10 +3885,10 @@ class DefinitionParser(object):
             else:
                 break
         paramQual = self._parse_parameters_and_qualifiers(paramMode)
-        return ASTDecleratorNameParamQual(declId=declId, arrayOps=arrayOps,
+        return ASTDeclaratorNameParamQual(declId=declId, arrayOps=arrayOps,
                                           paramQual=paramQual)
 
-    def _parse_declerator(self, named, paramMode, typed=True):
+    def _parse_declarator(self, named, paramMode, typed=True):
         # type: (Union[bool, unicode], unicode, bool) -> Any
         # 'typed' here means 'parse return type stuff'
         if paramMode not in ('type', 'function', 'operatorCast'):
@@ -3885,14 +3910,14 @@ class DefinitionParser(object):
                     if const:
                         continue
                 break
-            next = self._parse_declerator(named, paramMode, typed)
+            next = self._parse_declarator(named, paramMode, typed)
             return ASTDeclaratorPtr(next=next, volatile=volatile, const=const)
         # TODO: shouldn't we parse an R-value ref here first?
         if typed and self.skip_string("&"):
-            next = self._parse_declerator(named, paramMode, typed)
+            next = self._parse_declarator(named, paramMode, typed)
             return ASTDeclaratorRef(next=next)
         if typed and self.skip_string("..."):
-            next = self._parse_declerator(named, paramMode, False)
+            next = self._parse_declarator(named, paramMode, False)
             return ASTDeclaratorParamPack(next=next)
         if typed:  # pointer to member
             pos = self.pos
@@ -3918,13 +3943,13 @@ class DefinitionParser(object):
                         if const:
                             continue
                     break
-                next = self._parse_declerator(named, paramMode, typed)
+                next = self._parse_declarator(named, paramMode, typed)
                 return ASTDeclaratorMemPtr(name, const, volatile, next=next)
         if typed and self.current_char == '(':  # note: peeking, not skipping
             if paramMode == "operatorCast":
                 # TODO: we should be able to parse cast operators which return
                 # function pointers. For now, just hax it and ignore.
-                return ASTDecleratorNameParamQual(declId=None, arrayOps=[],
+                return ASTDeclaratorNameParamQual(declId=None, arrayOps=[],
                                                   paramQual=None)
             # maybe this is the beginning of params and quals,try that first,
             # otherwise assume it's noptr->declarator > ( ptr-declarator )
@@ -3943,10 +3968,10 @@ class DefinitionParser(object):
                     # TODO: hmm, if there is a name, it must be in inner, right?
                     # TODO: hmm, if there must be parameters, they must b
                     # inside, right?
-                    inner = self._parse_declerator(named, paramMode, typed)
+                    inner = self._parse_declarator(named, paramMode, typed)
                     if not self.skip_string(')'):
                         self.fail("Expected ')' in \"( ptr-declarator )\"")
-                    next = self._parse_declerator(named=False,
+                    next = self._parse_declarator(named=False,
                                                   paramMode="type",
                                                   typed=typed)
                     return ASTDeclaratorParen(inner=inner, next=next)
@@ -4006,7 +4031,7 @@ class DefinitionParser(object):
             # first try without the type
             try:
                 declSpecs = self._parse_decl_specs(outer=outer, typed=False)
-                decl = self._parse_declerator(named=True, paramMode=outer,
+                decl = self._parse_declarator(named=True, paramMode=outer,
                                               typed=False)
                 self.assert_end()
             except DefinitionError as exUntyped:
@@ -4020,7 +4045,7 @@ class DefinitionParser(object):
                 self.pos = startPos
                 try:
                     declSpecs = self._parse_decl_specs(outer=outer)
-                    decl = self._parse_declerator(named=True, paramMode=outer)
+                    decl = self._parse_declarator(named=True, paramMode=outer)
                 except DefinitionError as exTyped:
                     self.pos = startPos
                     if outer == 'type':
@@ -4051,7 +4076,7 @@ class DefinitionParser(object):
                         self.pos = startPos
                         typed = True
                         declSpecs = self._parse_decl_specs(outer=outer, typed=typed)
-                        decl = self._parse_declerator(named=True, paramMode=outer,
+                        decl = self._parse_declarator(named=True, paramMode=outer,
                                                       typed=typed)
         else:
             paramMode = 'type'
@@ -4063,7 +4088,7 @@ class DefinitionParser(object):
             elif outer == 'templateParam':
                 named = 'single'
             declSpecs = self._parse_decl_specs(outer=outer)
-            decl = self._parse_declerator(named=named, paramMode=paramMode)
+            decl = self._parse_declarator(named=named, paramMode=paramMode)
         return ASTType(declSpecs, decl)
 
     def _parse_type_with_init(self, named, outer):
@@ -4167,6 +4192,7 @@ class DefinitionParser(object):
             if self.skip_word('template'):
                 # declare a tenplate template parameter
                 nestedParams = self._parse_template_parameter_list()
+                nestedParams.isNested = True
             else:
                 nestedParams = None
             self.skip_ws()
@@ -4380,17 +4406,20 @@ class DefinitionParser(object):
         templatePrefix = self._check_template_consistency(name, templatePrefix,
                                                           fullSpecShorthand=False)
         res = ASTNamespace(name, templatePrefix)
-        res.objectType = 'namespace'
+        res.objectType = 'namespace'  # type: ignore
         return res
 
     def parse_xref_object(self):
         # type: () -> ASTNamespace
         templatePrefix = self._parse_template_declaration_prefix(objectType="xref")
         name = self._parse_nested_name()
+        # if there are '()' left, just skip them
+        self.skip_ws()
+        self.skip_string('()')
         templatePrefix = self._check_template_consistency(name, templatePrefix,
                                                           fullSpecShorthand=True)
         res = ASTNamespace(name, templatePrefix)
-        res.objectType = 'xref'
+        res.objectType = 'xref'  # type: ignore
         return res
 
 
@@ -4416,6 +4445,9 @@ class CPPObject(ObjectDescription):
         Field('returnvalue', label=l_('Returns'), has_arg=False,
               names=('returns', 'return')),
     ]
+
+    option_spec = dict(ObjectDescription.option_spec)
+    option_spec['tparam-line-spec'] = directives.flag
 
     def warn(self, msg):
         # type: (unicode) -> None
@@ -4514,9 +4546,9 @@ class CPPObject(ObjectDescription):
         # type: (Any) -> Any
         raise NotImplementedError()
 
-    def describe_signature(self, signode, ast, parentScope):
-        # type: (addnodes.desc_signature, Any, Any) -> None
-        raise NotImplementedError()
+    def describe_signature(self, signode, ast, options):
+        # type: (addnodes.desc_signature, Any, Dict) -> None
+        ast.describe_signature(signode, 'lastIsName', self.env, options)
 
     def handle_signature(self, sig, signode):
         # type: (unicode, addnodes.desc_signature) -> Any
@@ -4549,7 +4581,8 @@ class CPPObject(ObjectDescription):
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
 
-        self.describe_signature(signode, ast)
+        self.options['tparam-line-spec'] = 'tparam-line-spec' in self.options
+        self.describe_signature(signode, ast, self.options)
         return ast
 
     def before_content(self):
@@ -4573,10 +4606,6 @@ class CPPTypeObject(CPPObject):
         # type: (Any) -> Any
         return parser.parse_declaration("type")
 
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
-
 
 class CPPConceptObject(CPPObject):
     def get_index_text(self, name):
@@ -4586,10 +4615,6 @@ class CPPConceptObject(CPPObject):
     def parse_definition(self, parser):
         # type: (Any) -> Any
         return parser.parse_declaration("concept")
-
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
 
 
 class CPPMemberObject(CPPObject):
@@ -4601,10 +4626,6 @@ class CPPMemberObject(CPPObject):
         # type: (Any) -> Any
         return parser.parse_declaration("member")
 
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
-
 
 class CPPFunctionObject(CPPObject):
     def get_index_text(self, name):
@@ -4615,10 +4636,6 @@ class CPPFunctionObject(CPPObject):
         # type: (Any) -> Any
         return parser.parse_declaration("function")
 
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
-
 
 class CPPClassObject(CPPObject):
     def get_index_text(self, name):
@@ -4628,10 +4645,6 @@ class CPPClassObject(CPPObject):
     def parse_definition(self, parser):
         # type: (Any) -> Any
         return parser.parse_declaration("class")
-
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
 
 
 class CPPEnumObject(CPPObject):
@@ -4653,10 +4666,6 @@ class CPPEnumObject(CPPObject):
             assert False
         return ast
 
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
-
 
 class CPPEnumeratorObject(CPPObject):
     def get_index_text(self, name):
@@ -4666,10 +4675,6 @@ class CPPEnumeratorObject(CPPObject):
     def parse_definition(self, parser):
         # type: (Any) -> Any
         return parser.parse_declaration("enumerator")
-
-    def describe_signature(self, signode, ast):  # type: ignore
-        # type: (addnodes.desc_signature, Any) -> None
-        ast.describe_signature(signode, 'lastIsName', self.env)
 
 
 class CPPNamespaceObject(Directive):
@@ -4726,7 +4731,7 @@ class CPPNamespacePushObject(Directive):
         # type: () -> List[nodes.Node]
         env = self.state.document.settings.env
         if self.arguments[0].strip() in ('NULL', '0', 'nullptr'):
-            return
+            return []
         parser = DefinitionParser(self.arguments[0], self, env.config)
         try:
             ast = parser.parse_namespace_object()
@@ -4872,7 +4877,7 @@ class CPPDomain(Domain):
                     msg = "Duplicate declaration, also defined in '%s'.\n"
                     msg += "Name of declaration is '%s'."
                     msg = msg % (ourNames[name], name)
-                    self.env.warn(docname, msg)
+                    logger.warning(msg, docname)
                 else:
                     ourNames[name] = docname
 
@@ -4882,12 +4887,14 @@ class CPPDomain(Domain):
         class Warner(object):
             def warn(self, msg):
                 if emitWarnings:
-                    env.warn_node(msg, node)
+                    logger.warning(msg, location=node)
         warner = Warner()
+        # add parens again for those that could be functions
+        if typ == 'any' or typ == 'func':
+            target += '()'
         parser = DefinitionParser(target, warner, env.config)
         try:
             ast = parser.parse_xref_object()
-            parser.skip_ws()
             parser.assert_end()
         except DefinitionError as e:
             warner.warn('Unparseable C++ cross-reference: %r\n%s'
@@ -4947,11 +4954,26 @@ class CPPDomain(Domain):
         name = text_type(fullNestedName).lstrip(':')
         docname = s.docname
         assert docname
-        if typ == 'any' and declaration.objectType == 'function':
-            if env.config.add_function_parentheses:
-                if not node['refexplicit']:
-                    title = contnode.pop(0).astext()
-                    contnode += nodes.Text(title + '()')
+        # If it's operator(), we need to add '()' if explicit function parens
+        # are requested. Then the Sphinx machinery will add another pair.
+        # Also, if it's an 'any' ref that resolves to a function, we need to add
+        # parens as well.
+        addParen = 0
+        if not node.get('refexplicit', False) and declaration.objectType == 'function':
+            # this is just the normal haxing for 'any' roles
+            if env.config.add_function_parentheses and typ == 'any':
+                addParen += 1
+            # and now this stuff for operator()
+            if (env.config.add_function_parentheses and typ == 'function' and
+                    contnode[-1].astext().endswith('operator()')):
+                addParen += 1
+            if ((typ == 'any' or typ == 'function') and
+                    contnode[-1].astext().endswith('operator') and
+                    name.endswith('operator()')):
+                addParen += 1
+        if addParen > 0:
+            title = contnode.pop(0).astext()
+            contnode += nodes.Text(title + '()' * addParen)
         return make_refnode(builder, fromdocname, docname,
                             declaration.get_newest_id(), contnode, name
                             ), declaration.objectType
@@ -4987,8 +5009,14 @@ class CPPDomain(Domain):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(CPPDomain)
     app.add_config_value("cpp_index_common_prefix", [], 'env')
     app.add_config_value("cpp_id_attributes", [], 'env')
     app.add_config_value("cpp_paren_attributes", [], 'env')
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

@@ -24,7 +24,7 @@ from sphinx.util.matching import patfilter
 
 if False:
     # For type annotation
-    from typing import Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 
@@ -215,7 +215,7 @@ class VersionChange(Directive):
         text = versionlabels[self.name] % self.arguments[0]
         if len(self.arguments) == 2:
             inodes, messages = self.state.inline_text(self.arguments[1],
-                                                      self.lineno+1)
+                                                      self.lineno + 1)
             para = nodes.paragraph(self.arguments[1], '', *inodes, translatable=False)
             set_source_info(self, para)
             node.append(para)
@@ -340,7 +340,7 @@ class HList(Directive):
         index = 0
         newnode = addnodes.hlist()
         for column in range(ncolumns):
-            endindex = index + (column < nmore and (npercol+1) or npercol)
+            endindex = index + (column < nmore and (npercol + 1) or npercol)
             col = addnodes.hlistcol()
             col += nodes.bullet_list()
             col[0] += fulllist.children[index:endindex]
@@ -427,7 +427,7 @@ class Include(BaseInclude):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     directives.register_directive('toctree', TocTree)
     directives.register_directive('sectionauthor', Author)
     directives.register_directive('moduleauthor', Author)
@@ -449,3 +449,9 @@ def setup(app):
     directives.register_directive('cssclass', Class)
     # new standard name when default-domain with "class" is in effect
     directives.register_directive('rst-class', Class)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

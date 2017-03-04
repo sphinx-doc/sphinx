@@ -16,8 +16,7 @@ import tempfile
 from os import path
 
 from six import string_types, iteritems
-from six.moves import configparser  # type: ignore
-from typing import Any, Callable, Tuple  # NOQA
+from six.moves import configparser
 
 try:
     import pkg_resources
@@ -26,10 +25,13 @@ except ImportError:
 
 from sphinx import package_dir
 from sphinx.errors import ThemeError
+from sphinx.util import logging
+
+logger = logging.getLogger(__name__)
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Tuple  # NOQA
+    from typing import Any, Callable, Dict, List, Tuple  # NOQA
 
 NODEFAULT = object()
 THEMECONF = 'theme.conf'
@@ -43,8 +45,8 @@ class Theme(object):
     themepath = []  # type: List[unicode]
 
     @classmethod
-    def init_themes(cls, confdir, theme_path, warn=None):
-        # type: (unicode, unicode, Callable) -> None
+    def init_themes(cls, confdir, theme_path):
+        # type: (unicode, unicode) -> None
         """Search all theme paths for available themes."""
         cls.themepath = list(theme_path)
         cls.themepath.append(path.join(package_dir, 'themes'))
@@ -62,9 +64,8 @@ class Theme(object):
                         tname = theme[:-4]
                         tinfo = zfile
                     except Exception:
-                        if warn:
-                            warn('file %r on theme path is not a valid '
-                                 'zipfile or contains no theme' % theme)
+                        logger.warning('file %r on theme path is not a valid '
+                                       'zipfile or contains no theme', theme)
                         continue
                 else:
                     if not path.isfile(path.join(themedir, theme, THEMECONF)):
@@ -105,8 +106,8 @@ class Theme(object):
         cls.themes[name] = (path.join(themedir, name), None)
         return
 
-    def __init__(self, name, warn=None):
-        # type: (unicode, Callable) -> None
+    def __init__(self, name):
+        # type: (unicode) -> None
         if name not in self.themes:
             self.load_extra_theme(name)
             if name not in self.themes:
@@ -146,7 +147,7 @@ class Theme(object):
                     fp.write(tinfo.read(name))
 
         self.themeconf = configparser.RawConfigParser()
-        self.themeconf.read(path.join(self.themedir, THEMECONF))
+        self.themeconf.read(path.join(self.themedir, THEMECONF))  # type: ignore
 
         try:
             inherit = self.themeconf.get('theme', 'inherit')
@@ -162,7 +163,7 @@ class Theme(object):
             raise ThemeError('no theme named %r found, inherited by %r' %
                              (inherit, name))
         else:
-            self.base = Theme(inherit, warn=warn)
+            self.base = Theme(inherit)
 
     def get_confstr(self, section, name, default=NODEFAULT):
         # type: (unicode, unicode, Any) -> Any
@@ -170,7 +171,7 @@ class Theme(object):
         base theme chain.
         """
         try:
-            return self.themeconf.get(section, name)
+            return self.themeconf.get(section, name)  # type: ignore
         except (configparser.NoOptionError, configparser.NoSectionError):
             if self.base is not None:
                 return self.base.get_confstr(section, name, default)
@@ -243,7 +244,7 @@ def load_theme_plugins():
             path = func_or_path
 
         if isinstance(path, string_types):
-            theme_paths.append(path)  # type: ignore
+            theme_paths.append(path)
         else:
             raise ThemeError('Plugin %r does not response correctly.' %
                              plugin.module_name)

@@ -19,8 +19,10 @@ from os import path
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.util import logging
 from sphinx.util.osutil import make_filename
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.environment.adapters.indexentries import IndexEntries
 
 try:
     import xml.etree.ElementTree as etree
@@ -29,8 +31,11 @@ except ImportError:
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 
 class DevhelpBuilder(StandaloneHTMLBuilder):
@@ -60,7 +65,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
 
     def build_devhelp(self, outdir, outname):
         # type: (unicode, unicode) -> None
-        self.info('dumping devhelp index...')
+        logger.info('dumping devhelp index...')
 
         # Basic info
         root = etree.Element('book',
@@ -100,7 +105,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
 
         # Index
         functions = etree.SubElement(root, 'functions')
-        index = self.env.create_index(self)
+        index = IndexEntries(self.env).create_index(self)
 
         def write_index(title, refs, subitems):
             # type: (unicode, List[Any], Any) -> None
@@ -116,7 +121,7 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
                                      link=ref[1])
 
             if subitems:
-                parent_title = re.sub(r'\s*\(.*\)\s*$', '', title)  # type: ignore
+                parent_title = re.sub(r'\s*\(.*\)\s*$', '', title)
                 for subitem in subitems:
                     write_index("%s %s" % (parent_title, subitem[0]),
                                 subitem[1], [])
@@ -132,8 +137,14 @@ class DevhelpBuilder(StandaloneHTMLBuilder):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(DevhelpBuilder)
 
     app.add_config_value('devhelp_basename', lambda self: make_filename(self.project), None)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

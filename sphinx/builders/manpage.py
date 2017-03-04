@@ -19,6 +19,7 @@ from docutils.frontend import OptionParser
 from sphinx import addnodes
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
+from sphinx.util import logging
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import make_filename
 from sphinx.util.console import bold, darkgreen  # type: ignore
@@ -26,8 +27,11 @@ from sphinx.writers.manpage import ManualPageWriter
 
 if False:
     # For type annotation
-    from typing import Any, Union  # NOQA
+    from typing import Any, Dict, List, Set, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 
 class ManualPageBuilder(Builder):
@@ -41,8 +45,8 @@ class ManualPageBuilder(Builder):
     def init(self):
         # type: () -> None
         if not self.config.man_pages:
-            self.warn('no "man_pages" config value found; no manual pages '
-                      'will be written')
+            logger.warning('no "man_pages" config value found; no manual pages '
+                           'will be written')
 
     def get_outdated_docs(self):
         # type: () -> Union[unicode, List[unicode]]
@@ -62,7 +66,7 @@ class ManualPageBuilder(Builder):
             components=(docwriter,),
             read_config_files=True).get_default_values()
 
-        self.info(bold('writing... '), nonl=True)
+        logger.info(bold('writing... '), nonl=True)
 
         for info in self.config.man_pages:
             docname, name, description, authors, section = info
@@ -73,7 +77,7 @@ class ManualPageBuilder(Builder):
                     authors = []
 
             targetname = '%s.%s' % (name, section)
-            self.info(darkgreen(targetname) + ' { ', nonl=True)
+            logger.info(darkgreen(targetname) + ' { ', nonl=True)
             destination = FileOutput(
                 destination_path=path.join(self.outdir, targetname),
                 encoding='utf-8')
@@ -82,7 +86,7 @@ class ManualPageBuilder(Builder):
             docnames = set()  # type: Set[unicode]
             largetree = inline_all_toctrees(self, docnames, docname, tree,
                                             darkgreen, [docname])
-            self.info('} ', nonl=True)
+            logger.info('} ', nonl=True)
             self.env.resolve_references(largetree, docname, self)
             # remove pending_xref nodes
             for pendingnode in largetree.traverse(addnodes.pending_xref):
@@ -95,7 +99,7 @@ class ManualPageBuilder(Builder):
             largetree.settings.section = section
 
             docwriter.write(largetree, destination)
-        self.info()
+        logger.info('')
 
     def finish(self):
         # type: () -> None
@@ -103,7 +107,7 @@ class ManualPageBuilder(Builder):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(ManualPageBuilder)
 
     app.add_config_value('man_pages',
@@ -111,3 +115,9 @@ def setup(app):
                                         '%s %s' % (self.project, self.release), [], 1)],
                          None)
     app.add_config_value('man_show_urls', False, None)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

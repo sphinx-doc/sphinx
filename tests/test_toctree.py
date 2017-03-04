@@ -8,11 +8,10 @@
     :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
+import pytest
 
-from util import with_app
 
-
-@with_app(testroot='toctree-glob')
+@pytest.mark.sphinx(testroot='toctree-glob')
 def test_relations(app, status, warning):
     app.builder.build_all()
     assert app.builder.relations['index'] == [None, None, 'foo']

@@ -19,6 +19,11 @@ try:
 except ImportError:
     colorama = None
 
+if False:
+    # For type annotation
+    from typing import Dict  # NOQA
+
+
 _ansi_re = re.compile('\x1b\\[(\\d\\d;){0,2}\\d\\dm')
 codes = {}  # type: Dict[str, str]
 
@@ -83,7 +88,7 @@ def coloron():
 
 
 def colorize(name, text):
-    # type: (str, str) -> str
+    # type: (str, unicode) -> unicode
     return codes.get(name, '') + text + codes.get('reset', '')
 
 
@@ -95,6 +100,7 @@ def strip_colors(s):
 def create_color_func(name):
     # type: (str) -> None
     def inner(text):
+        # type: (unicode) -> unicode
         return colorize(name, text)
     globals()[name] = inner
 
@@ -123,8 +129,8 @@ _colors = [
 ]
 
 for i, (dark, light) in enumerate(_colors):
-    codes[dark] = '\x1b[%im' % (i+30)
-    codes[light] = '\x1b[%i;01m' % (i+30)
+    codes[dark] = '\x1b[%im' % (i + 30)
+    codes[light] = '\x1b[%i;01m' % (i + 30)
 
 _orig_codes = codes.copy()
 

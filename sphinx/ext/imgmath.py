@@ -25,6 +25,7 @@ from docutils import nodes
 import sphinx
 from sphinx.locale import _
 from sphinx.errors import SphinxError, ExtensionError
+from sphinx.util import logging
 from sphinx.util.png import read_png_depth, write_png_depth
 from sphinx.util.osutil import ensuredir, ENOENT, cd
 from sphinx.util.pycompat import sys_encoding
@@ -32,9 +33,11 @@ from sphinx.ext.mathbase import setup_math as mathbase_setup, wrap_displaymath
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, Dict, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.ext.mathbase import math as math_node, displaymath  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class MathExtError(SphinxError):
@@ -125,7 +128,7 @@ def render_math(self, math):
     else:
         tempdir = self.builder._imgmath_tempdir
 
-    with codecs.open(path.join(tempdir, 'math.tex'), 'w', 'utf-8') as tf:  # type: ignore
+    with codecs.open(path.join(tempdir, 'math.tex'), 'w', 'utf-8') as tf:
         tf.write(latex)
 
     # build latex command; old versions of latex don't have the
@@ -142,9 +145,9 @@ def render_math(self, math):
         except OSError as err:
             if err.errno != ENOENT:   # No such file or directory
                 raise
-            self.builder.warn('LaTeX command %r cannot be run (needed for math '
-                              'display), check the imgmath_latex setting' %
-                              self.builder.config.imgmath_latex)
+            logger.warning('LaTeX command %r cannot be run (needed for math '
+                           'display), check the imgmath_latex setting',
+                           self.builder.config.imgmath_latex)
             self.builder._imgmath_warned_latex = True
             return None, None
 
@@ -183,10 +186,10 @@ def render_math(self, math):
     except OSError as err:
         if err.errno != ENOENT:   # No such file or directory
             raise
-        self.builder.warn('%s command %r cannot be run (needed for math '
-                          'display), check the imgmath_%s setting' %
-                          (image_translator, image_translator_executable,
-                           image_translator))
+        logger.warning('%s command %r cannot be run (needed for math '
+                       'display), check the imgmath_%s setting',
+                       image_translator, image_translator_executable,
+                       image_translator)
         self.builder._imgmath_warned_image_translator = True
         return None, None
 
@@ -228,13 +231,13 @@ def get_tooltip(self, node):
 def html_visit_math(self, node):
     # type: (nodes.NodeVisitor, math_node) -> None
     try:
-        fname, depth = render_math(self, '$'+node['latex']+'$')
+        fname, depth = render_math(self, '$' + node['latex'] + '$')
     except MathExtError as exc:
         msg = text_type(exc)
         sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node['latex'])
         sm.walkabout(self)
-        self.builder.warn('display latex %r: ' % node['latex'] + msg)
+        logger.warning('display latex %r: %s', node['latex'], msg)
         raise nodes.SkipNode
     if fname is None:
         # something failed -- use text-only as a bad substitute
@@ -262,7 +265,7 @@ def html_visit_displaymath(self, node):
         sm = nodes.system_message(msg, type='WARNING', level=2,
                                   backrefs=[], source=node['latex'])
         sm.walkabout(self)
-        self.builder.warn('inline latex %r: ' % node['latex'] + msg)
+        logger.warning('inline latex %r: %s', node['latex'], msg)
         raise nodes.SkipNode
     self.body.append(self.starttag(node, 'div', CLASS='math'))
     self.body.append('<p>')

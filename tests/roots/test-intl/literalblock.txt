@@ -12,6 +12,9 @@ Missing literal block::
 
 That's all.
 
+.. literalinclude:: raw.txt
+   :caption: included raw.txt
+
 code blocks
 ==============
 
@@ -32,6 +35,7 @@ code blocks
    }
 
 .. code-block:: c
+   :caption: example of C language
 
    #include <stdio.h>
    int main(int argc, char** argv)

@@ -21,17 +21,20 @@ import filecmp
 from os import path
 import contextlib
 from io import BytesIO, StringIO
-from six import PY2, text_type
+from six import PY2, PY3, text_type
 
 if False:
     # For type annotation
-    from typing import Any, Iterator, Tuple, Union  # NOQA
+    from typing import Any, Iterator, List, Tuple, Union  # NOQA
 
 # Errnos that we need.
 EEXIST = getattr(errno, 'EEXIST', 0)
 ENOENT = getattr(errno, 'ENOENT', 0)
-EPIPE  = getattr(errno, 'EPIPE', 0)
+EPIPE = getattr(errno, 'EPIPE', 0)
 EINVAL = getattr(errno, 'EINVAL', 0)
+
+if PY3:
+    unicode = str  # special alias for static typing...
 
 # SEP separates path elements in the canonical file names
 #
@@ -73,7 +76,7 @@ def relative_uri(base, to):
         # Special case: relative_uri('f/index.html','f/') should
         # return './', not ''
         return '.' + SEP
-    return ('..' + SEP) * (len(b2)-1) + SEP.join(t2)
+    return ('..' + SEP) * (len(b2) - 1) + SEP.join(t2)
 
 
 def ensuredir(path):
@@ -256,14 +259,14 @@ class FileAvoidWrite(object):
         self._io = None  # type: Union[StringIO, BytesIO]
 
     def write(self, data):
-        # type: (Union[str, bytes]) -> None
+        # type: (Union[str, unicode]) -> None
         if not self._io:
             if isinstance(data, text_type):
                 self._io = StringIO()
             else:
                 self._io = BytesIO()
 
-        self._io.write(data)
+        self._io.write(data)  # type: ignore
 
     def close(self):
         # type: () -> None
@@ -294,12 +297,15 @@ class FileAvoidWrite(object):
             f.write(buf)
 
     def __enter__(self):
+        # type: () -> FileAvoidWrite
         return self
 
     def __exit__(self, type, value, traceback):
+        # type: (unicode, unicode, unicode) -> None
         self.close()
 
     def __getattr__(self, name):
+        # type: (str) -> Any
         # Proxy to _io instance.
         if not self._io:
             raise Exception('Must write to FileAvoidWrite before other '

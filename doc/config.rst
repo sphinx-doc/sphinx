@@ -101,10 +101,13 @@ General configuration
    suffix that is not in the dictionary will be parsed with the default
    reStructuredText parser.
 
-
    For example::
 
-      source_parsers = {'.md': 'some.markdown.module.Parser'}
+      source_parsers = {'.md': 'recommonmark.parser.CommonMarkParser'}
+
+   .. note::
+
+      Read more about how to use Markdown with Sphinx at :ref:`markdown`.
 
    .. versionadded:: 1.3
 
@@ -223,8 +226,10 @@ General configuration
    * app.add_role
    * app.add_generic_role
    * app.add_source_parser
+   * download.not_readable
    * image.data_uri
    * image.nonlocal_uri
+   * image.not_readable
    * ref.term
    * ref.ref
    * ref.numref
@@ -233,6 +238,8 @@ General configuration
    * ref.citation
    * ref.doc
    * misc.highlighting_failure
+   * toc.secnum
+   * epub.unknown_project_files
 
    You can choose from these types.
 
@@ -243,6 +250,10 @@ General configuration
    .. versionchanged:: 1.5
 
       Added ``misc.highlighting_failure``
+
+   .. versionchanged:: 1.5.1
+
+      Added ``epub.unknown_project_files``
 
 .. confval:: needs_sphinx
 
@@ -372,18 +383,6 @@ Project information
    The default is no :confval:`today` and a :confval:`today_fmt` of ``'%B %d,
    %Y'`` (or, if translation is enabled with :confval:`language`, an equivalent
    format for the selected locale).
-
-   .. versionchanged:: 1.4
-
-      Format specification was changed from strftime to Locale Data Markup
-      Language. strftime format is also supported for backward compatibility
-      until Sphinx-1.5.
-
-   .. versionchanged:: 1.4.1
-
-      Format specification was changed again from Locale Data Markup Language
-      to strftime.  LDML format is also supported for backward compatibility
-      until Sphinx-1.5.
 
 .. confval:: highlight_language
 
@@ -760,19 +759,6 @@ that use Sphinx's HTMLWriter class.
    The empty string is equivalent to ``'%b %d, %Y'`` (or a
    locale-dependent equivalent).
 
-   .. versionchanged:: 1.4
-
-      Format specification was changed from strftime to Locale Data Markup
-      Language. strftime format is also supported for backward compatibility
-      until Sphinx-1.5.
-
-   .. versionchanged:: 1.4.1
-
-      Format specification was changed again from Locale Data Markup Language
-      to strftime.  LDML format is also supported for backward compatibility
-      until Sphinx-1.5.
-
-
 .. confval:: html_use_smartypants
 
    If true, `SmartyPants <http://daringfireball.net/projects/smartypants/>`_
@@ -872,13 +858,6 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 1.0
 
-.. confval:: html_use_modindex
-
-   If true, add a module index to the HTML documents.   Default is ``True``.
-
-   .. deprecated:: 1.0
-      Use :confval:`html_domain_indices`.
-
 .. confval:: html_use_index
 
    If true, add an index to the HTML documents.  Default is ``True``.
@@ -941,20 +920,6 @@ that use Sphinx's HTMLWriter class.
 
    .. versionadded:: 0.6
 
-.. confval:: html_translator_class
-
-   A string with the fully-qualified name of a HTML Translator class, that is, a
-   subclass of Sphinx's :class:`~sphinx.writers.html.HTMLTranslator`, that is
-   used to translate document trees to HTML.  Default is ``None`` (use the
-   builtin translator).
-
-   .. seealso::  :meth:`~sphinx.application.Sphinx.set_translator`
-
-   .. deprecated:: 1.5
-
-      Implement your translator as extension and use `Sphinx.set_translator`
-      instead.
-
 .. confval:: html_show_copyright
 
    If true, "(C) Copyright ..." is shown in the HTML footer. Default is
@@ -979,9 +944,10 @@ that use Sphinx's HTMLWriter class.
 
 .. confval:: html_compact_lists
 
-   If true, list items containing only a single paragraph will not be rendered
-   with a ``<p>`` element.  This is standard docutils behavior.  Default:
-   ``True``.
+   If true, a list all whose items consist of a single paragraph and/or a
+   sub-list all whose items etc... (recursive definition) will not use the
+   ``<p>`` element for any of its items. This is standard docutils behavior.
+   Default: ``True``.
 
    .. versionadded:: 1.0
 
@@ -1123,6 +1089,11 @@ that use Sphinx's HTMLWriter class.
 
    Output file base name for HTML help builder.  Default is ``'pydoc'``.
 
+.. confval:: html_experimental_html5_writer
+
+   Output is processed with HTML5 writer.  This feature needs docutils 0.13 or newer.  Default is ``False``.
+
+   .. versionadded:: 1.6
 
 .. _applehelp-options:
 
@@ -1324,7 +1295,7 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
 .. confval:: epub_description
 
-   The description of the document. The default value is ``''``.
+   The description of the document. The default value is ``'unknown'``.
 
    .. versionadded:: 1.4
 
@@ -1530,20 +1501,6 @@ the `Dublin Core metadata <http://dublincore.org/>`_.
 
    .. [#] https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode
 
-.. confval:: epub3_page_progression_direction
-
-   The global direction in which the content flows.
-   Allowed values are ``'ltr'`` (left-to-right), ``'rtl'`` (right-to-left) and
-   ``'default'``. The default value is ``'ltr'``.
-
-   When the ``'default'`` value is specified, the Author is expressing no
-   preference and the Reading System may chose the rendering direction.
-
-   .. versionadded:: 1.4
-
-   .. deprecated:: 1.5
-      Use ``epub_writing_mode`` instead.
-
 .. _latex-options:
 
 Options for LaTeX output
@@ -1577,8 +1534,8 @@ These options influence LaTeX output. See further :doc:`latex`.
      backslash or ampersand must be represented by the proper LaTeX commands if
      they are to be inserted literally.
    * *author*: Author for the LaTeX document.  The same LaTeX markup caveat as
-     for *title* applies.  Use ``\and`` to separate multiple authors, as in:
-     ``'John \and Sarah'``.
+     for *title* applies.  Use ``\\and`` to separate multiple authors, as in:
+     ``'John \\and Sarah'`` (backslashes must be Python-escaped to reach LaTeX).
    * *documentclass*: Normally, one of ``'manual'`` or ``'howto'`` (provided
      by Sphinx and based on ``'report'``, resp. ``'article'``; Japanese
      documents use ``'jsbook'``, resp. ``'jreport'``.) "howto" (non-Japanese)
@@ -1615,16 +1572,6 @@ These options influence LaTeX output. See further :doc:`latex`.
 
    .. versionadded:: 1.4
 
-.. confval:: latex_use_parts
-
-   If true, the topmost sectioning unit is parts, else it is chapters.  Default:
-   ``False``.
-
-   .. versionadded:: 0.3
-
-   .. deprecated:: 1.4
-      Use :confval:`latex_toplevel_sectioning`.
-
 .. confval:: latex_appendices
 
    A list of document names to append as an appendix to all manuals.
@@ -1639,13 +1586,6 @@ These options influence LaTeX output. See further :doc:`latex`.
    like for :confval:`html_domain_indices`.
 
    .. versionadded:: 1.0
-
-.. confval:: latex_use_modindex
-
-   If true, add a module index to LaTeX documents.   Default is ``True``.
-
-   .. deprecated:: 1.0
-      Use :confval:`latex_domain_indices`.
 
 .. confval:: latex_show_pagerefs
 
@@ -1671,18 +1611,39 @@ These options influence LaTeX output. See further :doc:`latex`.
 
 .. confval:: latex_keep_old_macro_names
 
-   If ``True`` (default) the ``\strong``, ``\code``, ``\bfcode``, ``\email``,
+   If ``True`` the ``\strong``, ``\code``, ``\bfcode``, ``\email``,
    ``\tablecontinued``, ``\titleref``, ``\menuselection``, ``\accelerator``,
    ``\crossref``, ``\termref``, and ``\optional`` text styling macros are
    pre-defined by Sphinx and may be user-customized by some
    ``\renewcommand``'s inserted either via ``'preamble'`` key or :dudir:`raw
    <raw-data-pass-through>` directive. If ``False``, only ``\sphinxstrong``,
-   etc... macros are defined (and may be redefined by user). Setting to
-   ``False`` may help solve macro name conflicts caused by user-added latex
-   packages.
+   etc... macros are defined (and may be redefined by user).
+
+   The default is ``False`` as it prevents macro name conflicts caused by
+   latex packages. For example (``lualatex`` or ``xelatex``) ``fontspec v2.6``
+   has its own ``\strong`` macro.
 
    .. versionadded:: 1.4.5
+   .. versionchanged:: 1.6
+      Default was changed from ``True`` to ``False``.
+   .. deprecated:: 1.6
+      This setting will be removed at Sphinx 1.7.
 
+.. confval:: latex_use_latex_multicolumn
+
+   If ``False`` (default), the LaTeX writer uses for merged cells in grid
+   tables Sphinx's own macros. They have the advantage to allow the same
+   contents as in non-merged cells (inclusive of literal blocks, lists,
+   blockquotes, ...). But they assume that the columns are separated by the
+   standard vertical rule. Further, in case the :rst:dir:`tabularcolumns`
+   directive was employed to inject more macros (using LaTeX's mark-up of the
+   type ``>{..}``, ``<{..}``, ``@{..}``) the multicolumn cannot ignore these
+   extra macros, contrarily to LaTeX's own ``\multicolumn``; but Sphinx's
+   version does arrange for ignoring ``\columncolor`` like the standard
+   ``\multicolumn`` does. Setting to ``True`` means to use LaTeX's standard
+   ``\multicolumn`` macro.
+
+   .. versionadded:: 1.6
 
 .. confval:: latex_elements
 
@@ -1704,11 +1665,12 @@ These options influence LaTeX output. See further :doc:`latex`.
         ``'12pt'``), default ``'10pt'``.
      ``'pxunit'``
         the value of the ``px`` when used in image attributes ``width`` and
-        ``height``. The default value is ``'49336sp'`` which achieves
-        ``96px=1in`` (``1in = 72.27*65536 = 4736286.72sp``, and all dimensions
-        in TeX are internally integer multiples of ``sp``). To obtain for
-        example ``100px=1in``, one can use ``'0.01in'`` but it is more precise
-        to use ``'47363sp'``. To obtain ``72px=1in``, use ``'1bp'``.
+        ``height``. The default value is ``'0.75bp'`` which achieves
+        ``96px=1in`` (in TeX ``1in = 72bp = 72.27pt``.) To obtain for
+        example ``100px=1in`` use ``'0.01in'`` or ``'0.7227pt'`` (the latter
+        leads to TeX computing a more precise value, due to the smaller unit
+        used in the specification); for ``72px=1in``,
+        simply use ``'1bp'``; for ``90px=1in``, use ``'0.8bp'`` or ``'0.803pt'``.
 
         .. versionadded:: 1.5
      ``'sphinxsetup'``
@@ -1721,12 +1683,6 @@ These options influence LaTeX output. See further :doc:`latex`.
         contain ``\\PassOptionsToPackage{options}{foo}`` commands. Default empty.
 
         .. versionadded:: 1.4
-     ``'geometry'``
-        "geometry" package inclusion, the default definition is:
-
-          ``'\\usepackage[margin=1in,marginparwidth=0.5in]{geometry}'``.
-
-        .. versionadded:: 1.5
      ``'babel'``
         "babel" package inclusion, default ``'\\usepackage{babel}'`` (the
         suitable document language string is passed as class option, and
@@ -1736,6 +1692,8 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. versionchanged:: 1.5
            For :confval:`latex_engine` set to ``'xelatex'``, the default
            is ``'\\usepackage{polyglossia}\n\\setmainlanguage{<language>}'``.
+        .. versionchanged:: 1.6
+           ``'lualatex'`` uses same default setting as ``'xelatex'``
      ``'fontpkg'``
         Font package inclusion, default ``'\\usepackage{times}'`` (which uses
         Times and Helvetica).  You can set this to ``''`` to use the Computer
@@ -1746,6 +1704,8 @@ These options influence LaTeX output. See further :doc:`latex`.
            script.
         .. versionchanged:: 1.5
            Defaults to ``''`` when :confval:`latex_engine` is ``'xelatex'``.
+        .. versionchanged:: 1.6
+           Defaults to ``''`` also with ``'lualatex'``.
      ``'fncychap'``
         Inclusion of the "fncychap" package (which makes fancy chapter titles),
         default ``'\\usepackage[Bjarne]{fncychap}'`` for English documentation
@@ -1774,8 +1734,16 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. deprecated:: 1.5
            Use ``'atendofbody'`` key instead.
 
-   * Keys that don't need be overridden unless in special cases are:
+   * Keys that don't need to be overridden unless in special cases are:
 
+     ``'extraclassoptions'``
+        The default is the empty string. Example: ``'extraclassoptions':
+        'openany'`` will allow chapters (for documents of the ``'manual'``
+        type) to start on any page.
+
+        .. versionadded:: 1.2
+        .. versionchanged:: 1.6
+           Added this documentation.
      ``'maxlistdepth'``
         LaTeX allows by default at most 6 levels for nesting list and
         quote-like environments, with at most 4 enumerated lists, and 4 bullet
@@ -1811,6 +1779,38 @@ These options influence LaTeX output. See further :doc:`latex`.
         .. versionchanged:: 1.5
            Defaults to ``'\\usepackage{fontspec}'`` when
            :confval:`latex_engine` is ``'xelatex'``.
+        .. versionchanged:: 1.6
+           ``'lualatex'`` also uses ``fontspec`` per default.
+     ``'geometry'``
+        "geometry" package inclusion, the default definition is:
+
+          ``'\\usepackage{geometry}'``
+
+        with an additional ``[dvipdfm]`` for Japanese documents.
+        The Sphinx LaTeX style file executes:
+
+          ``\PassOptionsToPackage{hmargin=1in,vmargin=1in,marginpar=0.5in}{geometry}``
+
+        which can be customized via corresponding :ref:`'sphinxsetup' options
+        <latexsphinxsetup>`.
+
+        .. versionadded:: 1.5
+
+        .. versionchanged:: 1.5.2
+           ``dvipdfm`` option if :confval:`latex_engine` is ``'platex'``.
+
+        .. versionadded:: 1.5.3
+           The :ref:`'sphinxsetup' keys for the margins
+           <latexsphinxsetuphmargin>`.
+
+        .. versionchanged:: 1.5.3
+           The location in the LaTeX file has been moved to after
+           ``\usepackage{sphinx}`` and ``\sphinxsetup{..}``, hence also after
+           insertion of ``'fontpkg'`` key. This is in order to handle the paper
+           layout options in a special way for Japanese documents: the text
+           width will be set to an integer multiple of the *zenkaku* width, and
+           the text height to an integer multiple of the baseline. See the
+           :ref:`hmargin <latexsphinxsetuphmargin>` documentation for more.
      ``'hyperref'``
         "hyperref" package inclusion; also loads package "hypcap" and issues
         ``\urlstyle{same}``. This is done after :file:`sphinx.sty` file is
@@ -1829,7 +1829,8 @@ These options influence LaTeX output. See further :doc:`latex`.
         generate a differently-styled title page.
      ``'releasename'``
         value that prefixes ``'release'`` element on title page, default
-        ``'Release'``.
+        ``'Release'``. As for *title* and *author* used in the tuples of
+        :confval:`latex_documents`, it is inserted as LaTeX markup.
      ``'tableofcontents'``
         "tableofcontents" call, default ``'\\sphinxtableofcontents'`` (it is a
         wrapper of unmodified ``\tableofcontents``, which may itself be
@@ -1844,10 +1845,12 @@ These options influence LaTeX output. See further :doc:`latex`.
            modifying it also such as "tocloft" or "etoc".
      ``'transition'``
         Commands used to display transitions, default
-        ``'\n\n\\bigskip\\hrule{}\\bigskip\n\n'``.  Override if you want to
+        ``'\n\n\\bigskip\\hrule\\bigskip\n\n'``.  Override if you want to
         display transitions differently.
 
         .. versionadded:: 1.2
+        .. versionchanged:: 1.6
+           Remove unneeded ``{}`` after ``\\hrule``.
      ``'printindex'``
         "printindex" call, the last thing in the file, default
         ``'\\printindex'``.  Override if you want to generate the index
@@ -1896,27 +1899,6 @@ These options influence LaTeX output. See further :doc:`latex`.
 
    .. versionchanged:: 1.2
       This overrides the files which is provided from Sphinx such as sphinx.sty.
-
-.. confval:: latex_preamble
-
-   Additional LaTeX markup for the preamble.
-
-   .. deprecated:: 0.5
-      Use the ``'preamble'`` key in the :confval:`latex_elements` value.
-
-.. confval:: latex_paper_size
-
-   The output paper size (``'letter'`` or ``'a4'``).  Default is ``'letter'``.
-
-   .. deprecated:: 0.5
-      Use the ``'papersize'`` key in the :confval:`latex_elements` value.
-
-.. confval:: latex_font_size
-
-   The font size ('10pt', '11pt' or '12pt'). Default is ``'10pt'``.
-
-   .. deprecated:: 0.5
-      Use the ``'pointsize'`` key in the :confval:`latex_elements` value.
 
 
 .. _text-options:

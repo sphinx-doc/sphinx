@@ -26,7 +26,7 @@ from sphinx.util.docstrings import prepare_docstring, prepare_commentdoc
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
 
 
 # load the Python grammar
@@ -52,7 +52,7 @@ number2name.update(token.tok_name)
 
 _eq = nodes.Leaf(token.EQUAL, '=')
 
-emptyline_re = re.compile('^\s*(#.*)?$')
+emptyline_re = re.compile(r'^\s*(#.*)?$')
 
 
 class AttrDocVisitor(nodes.NodeVisitor):
@@ -368,4 +368,4 @@ if __name__ == '__main__':
     pprint.pprint(ma.find_tags())
     x3 = time.time()
     # print nodes.nice_repr(ma.parsetree, number2name)
-    print("tokenizing %.4f, parsing %.4f, finding %.4f" % (x1-x0, x2-x1, x3-x2))
+    print("tokenizing %.4f, parsing %.4f, finding %.4f" % (x1 - x0, x2 - x1, x3 - x2))

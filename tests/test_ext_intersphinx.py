@@ -9,83 +9,23 @@
     :license: BSD, see LICENSE for details.
 """
 
-import posixpath
 import unittest
-import zlib
 
-from six import BytesIO
 from docutils import nodes
 import mock
 
 from sphinx import addnodes
 from sphinx.ext.intersphinx import setup as intersphinx_setup
-from sphinx.ext.intersphinx import read_inventory, \
-    load_mappings, missing_reference, _strip_basic_auth, _read_from_url, \
+from sphinx.ext.intersphinx import (
+    load_mappings, missing_reference, _strip_basic_auth,
     _get_safe_url, fetch_inventory, INVENTORY_FILENAME
-
-from util import with_app, with_tempdir
-
-
-inventory_v1 = '''\
-# Sphinx inventory version 1
-# Project: foo
-# Version: 1.0
-module mod foo.html
-module.cls class foo.html
-'''.encode('utf-8')
-
-inventory_v2 = '''\
-# Sphinx inventory version 2
-# Project: foo
-# Version: 2.0
-# The remainder of this file is compressed with zlib.
-'''.encode('utf-8') + zlib.compress('''\
-module1 py:module 0 foo.html#module-module1 Long Module desc
-module2 py:module 0 foo.html#module-$ -
-module1.func py:function 1 sub/foo.html#$ -
-CFunc c:function 2 cfunc.html#CFunc -
-a term std:term -1 glossary.html#term-a-term -
-a term including:colon std:term -1 glossary.html#term-a-term-including-colon -
-'''.encode('utf-8'))
+)
+from test_util_inventory import inventory_v2
 
 
-def test_read_inventory_v1():
-    f = BytesIO(inventory_v1)
-    invdata = read_inventory(f, '/util', posixpath.join)
-    assert invdata['py:module']['module'] == \
-        ('foo', '1.0', '/util/foo.html#module-module', '-')
-    assert invdata['py:class']['module.cls'] == \
-        ('foo', '1.0', '/util/foo.html#module.cls', '-')
-
-
-def test_read_inventory_v2():
-    f = BytesIO(inventory_v2)
-    invdata1 = read_inventory(f, '/util', posixpath.join)
-
-    # try again with a small buffer size to test the chunking algorithm
-    f = BytesIO(inventory_v2)
-    invdata2 = read_inventory(f, '/util', posixpath.join, bufsize=5)
-
-    assert invdata1 == invdata2
-
-    assert len(invdata1['py:module']) == 2
-    assert invdata1['py:module']['module1'] == \
-        ('foo', '2.0', '/util/foo.html#module-module1', 'Long Module desc')
-    assert invdata1['py:module']['module2'] == \
-        ('foo', '2.0', '/util/foo.html#module-module2', '-')
-    assert invdata1['py:function']['module1.func'][2] == \
-        '/util/sub/foo.html#module1.func'
-    assert invdata1['c:function']['CFunc'][2] == '/util/cfunc.html#CFunc'
-    assert invdata1['std:term']['a term'][2] == \
-        '/util/glossary.html#term-a-term'
-    assert invdata1['std:term']['a term including:colon'][2] == \
-        '/util/glossary.html#term-a-term-including-colon'
-
-
-@with_app()
-@mock.patch('sphinx.ext.intersphinx.read_inventory')
+@mock.patch('sphinx.ext.intersphinx.InventoryFile')
 @mock.patch('sphinx.ext.intersphinx._read_from_url')
-def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_inventory):
+def test_fetch_inventory_redirection(_read_from_url, InventoryFile, app, status, warning):
     intersphinx_setup(app)
     _read_from_url().readline.return_value = '# Sphinx inventory version 2'.encode('utf-8')
 
@@ -93,7 +33,7 @@ def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_
     _read_from_url().url = 'http://hostname/' + INVENTORY_FILENAME
     fetch_inventory(app, 'http://hostname/', 'http://hostname/' + INVENTORY_FILENAME)
     assert 'intersphinx inventory has moved' not in status.getvalue()
-    assert read_inventory.call_args[0][1] == 'http://hostname/'
+    assert InventoryFile.load.call_args[0][1] == 'http://hostname/'
 
     # same uri and inv, redirected
     status.seek(0)
@@ -104,7 +44,7 @@ def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_
     assert status.getvalue() == ('intersphinx inventory has moved: '
                                  'http://hostname/%s -> http://hostname/new/%s\n' %
                                  (INVENTORY_FILENAME, INVENTORY_FILENAME))
-    assert read_inventory.call_args[0][1] == 'http://hostname/new'
+    assert InventoryFile.load.call_args[0][1] == 'http://hostname/new'
 
     # different uri and inv, not redirected
     status.seek(0)
@@ -113,7 +53,7 @@ def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_
 
     fetch_inventory(app, 'http://hostname/', 'http://hostname/new/' + INVENTORY_FILENAME)
     assert 'intersphinx inventory has moved' not in status.getvalue()
-    assert read_inventory.call_args[0][1] == 'http://hostname/'
+    assert InventoryFile.load.call_args[0][1] == 'http://hostname/'
 
     # different uri and inv, redirected
     status.seek(0)
@@ -124,11 +64,9 @@ def test_fetch_inventory_redirection(app, status, warning, _read_from_url, read_
     assert status.getvalue() == ('intersphinx inventory has moved: '
                                  'http://hostname/new/%s -> http://hostname/other/%s\n' %
                                  (INVENTORY_FILENAME, INVENTORY_FILENAME))
-    assert read_inventory.call_args[0][1] == 'http://hostname/'
+    assert InventoryFile.load.call_args[0][1] == 'http://hostname/'
 
 
-@with_app()
-@with_tempdir
 def test_missing_reference(tempdir, app, status, warning):
     inv_file = tempdir / 'inventory'
     inv_file.write_bytes(inventory_v2)
@@ -217,9 +155,11 @@ def test_missing_reference(tempdir, app, status, warning):
     rn = reference_check('py', 'mod', 'py3krelparent:module1', 'foo', refdoc='sub/dir/test')
     assert rn['refuri'] == '../../../../py3k/foo.html#module-module1'
 
+    # check refs of standard domain
+    rn = reference_check('std', 'doc', 'docname', 'docname')
+    assert rn['refuri'] == 'https://docs.python.org/docname.html'
 
-@with_app()
-@with_tempdir
+
 def test_load_mappings_warnings(tempdir, app, status, warning):
     """
     load_mappings issues a warning if new-style mapping

@@ -21,14 +21,19 @@ except ImportError:
     except ImportError:
         Image = None
 
+if False:
+    # For type annotation
+    from typing import Dict, List, Tuple  # NOQA
+
 mime_suffixes = {
     '.pdf': 'application/pdf',
     '.svg': 'image/svg+xml',
     '.svgz': 'image/svg+xml',
-}
+}  # type: Dict[unicode, unicode]
 
 
 def get_image_size(filename):
+    # type: (unicode) -> Tuple[int, int]
     try:
         size = imagesize.get(filename)
         if size[0] == -1:
@@ -48,6 +53,7 @@ def get_image_size(filename):
 
 
 def guess_mimetype(filename):
+    # type: (unicode) -> unicode
     _, ext = path.splitext(filename)
     if ext in mime_suffixes:
         return mime_suffixes[ext]

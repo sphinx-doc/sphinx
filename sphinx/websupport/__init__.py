@@ -26,6 +26,10 @@ from sphinx.websupport import errors
 from sphinx.websupport.search import BaseSearch, SEARCH_ADAPTERS
 from sphinx.websupport.storage import StorageBackend
 
+if False:
+    # For type annotation
+    from typing import Dict  # NOQA
+
 
 class WebSupport(object):
     """The main API class for the web support package. All interactions

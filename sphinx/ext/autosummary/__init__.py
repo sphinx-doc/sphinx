@@ -63,24 +63,26 @@ from types import ModuleType
 
 from six import text_type
 
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 from docutils.statemachine import ViewList
 from docutils import nodes
 
 import sphinx
 from sphinx import addnodes
-from sphinx.util import import_object, rst
-from sphinx.util.compat import Directive
+from sphinx.environment.adapters.toctree import TocTree
+from sphinx.util import import_object, rst, logging
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.ext.autodoc import Options
 
 if False:
     # For type annotation
-    from typing import Any, Tuple, Type, Union  # NOQA
+    from typing import Any, Dict, List, Tuple, Type, Union  # NOQA
     from docutils.utils import Inliner  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
     from sphinx.ext.autodoc import Documenter  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 # -- autosummary_toc node ------------------------------------------------------
@@ -103,14 +105,14 @@ def process_autosummary_toc(app, doctree):
             try:
                 if (isinstance(subnode, autosummary_toc) and
                         isinstance(subnode[0], addnodes.toctree)):
-                    env.note_toctree(env.docname, subnode[0])
+                    TocTree(env).note(env.docname, subnode[0])
                     continue
             except IndexError:
                 continue
             if not isinstance(subnode, nodes.section):
                 continue
             if subnode not in crawled:
-                crawl_toc(subnode, depth+1)
+                crawl_toc(subnode, depth + 1)
     crawl_toc(doctree)
 
 
@@ -283,7 +285,7 @@ class Autosummary(Directive):
             if not isinstance(obj, ModuleType):
                 # give explicitly separated module name, so that members
                 # of inner classes can be documented
-                full_name = modname + '::' + full_name[len(modname)+1:]
+                full_name = modname + '::' + full_name[len(modname) + 1:]
             # NB. using full_name here is important, since Documenters
             #     handle module prefixes slightly differently
             documenter = get_documenter(obj, parent)(self, full_name)
@@ -306,8 +308,7 @@ class Autosummary(Directive):
                 # be cached anyway)
                 documenter.analyzer.find_attr_docs()
             except PycodeError as err:
-                documenter.env.app.debug(
-                    '[autodoc] module analyzer failed: %s', err)
+                logger.debug('[autodoc] module analyzer failed: %s', err)
                 # no source file -- e.g. for builtin and C modules
                 documenter.analyzer = None
 
@@ -319,7 +320,6 @@ class Autosummary(Directive):
             else:
                 max_chars = max(10, max_item_chars - len(display_name))
                 sig = mangle_signature(sig, max_chars=max_chars)
-                sig = sig.replace('*', r'\*')
 
             # -- Grab the summary
 
@@ -357,7 +357,7 @@ class Autosummary(Directive):
         *items* is a list produced by :meth:`get_items`.
         """
         table_spec = addnodes.tabular_col_spec()
-        table_spec['spec'] = 'p{0.5\linewidth}p{0.5\linewidth}'
+        table_spec['spec'] = r'p{0.5\linewidth}p{0.5\linewidth}'
 
         table = autosummary_table('')
         real_table = nodes.table('', classes=['longtable'])
@@ -388,7 +388,7 @@ class Autosummary(Directive):
         for name, sig, summary, real_name in items:
             qualifier = 'obj'
             if 'nosignatures' not in self.options:
-                col1 = ':%s:`%s <%s>`\ %s' % (qualifier, name, real_name, rst.escape(sig))  # type: unicode  # NOQA
+                col1 = ':%s:`%s <%s>`\\ %s' % (qualifier, name, real_name, rst.escape(sig))  # type: unicode  # NOQA
             else:
                 col1 = ':%s:`%s <%s>`' % (qualifier, name, real_name)
             col2 = summary
@@ -423,13 +423,13 @@ def mangle_signature(sig, max_chars=30):
         s = m.group(1)[:-2]
 
     # Produce a more compact signature
-    sig = limited_join(", ", args, max_chars=max_chars-2)
+    sig = limited_join(", ", args, max_chars=max_chars - 2)
     if opts:
         if not sig:
-            sig = "[%s]" % limited_join(", ", opts, max_chars=max_chars-4)
+            sig = "[%s]" % limited_join(", ", opts, max_chars=max_chars - 4)
         elif len(sig) < max_chars - 4 - 2 - 3:
             sig += "[, %s]" % limited_join(", ", opts,
-                                           max_chars=max_chars-len(sig)-4-2)
+                                           max_chars=max_chars - len(sig) - 4 - 2)
 
     return u"(%s)" % sig
 
@@ -521,7 +521,7 @@ def _import_by_name(name):
         # ... then as MODNAME, MODNAME.OBJ1, MODNAME.OBJ1.OBJ2, ...
         last_j = 0
         modname = None
-        for j in reversed(range(1, len(name_parts)+1)):
+        for j in reversed(range(1, len(name_parts) + 1)):
             last_j = j
             modname = '.'.join(name_parts[:j])
             try:
@@ -546,8 +546,7 @@ def _import_by_name(name):
 
 # -- :autolink: (smart default role) -------------------------------------------
 
-def autolink_role(typ, rawtext, etext, lineno, inliner,
-                  options={}, content=[]):
+def autolink_role(typ, rawtext, etext, lineno, inliner, options={}, content=[]):
     # type: (unicode, unicode, unicode, int, Inliner, Dict, List[unicode]) -> Tuple[List[nodes.Node], List[nodes.Node]]  # NOQA
     """Smart linking role.
 
@@ -555,6 +554,7 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
     otherwise expands to '*text*'.
     """
     env = inliner.document.settings.env
+    r = None  # type: Tuple[List[nodes.Node], List[nodes.Node]]
     r = env.get_domain('py').role('obj')(
         'obj', rawtext, etext, lineno, inliner, options, content)
     pnode = r[0][0]
@@ -563,9 +563,9 @@ def autolink_role(typ, rawtext, etext, lineno, inliner,
     try:
         name, obj, parent, modname = import_by_name(pnode['reftarget'], prefixes)
     except ImportError:
-        content = pnode[0]
-        r[0][0] = nodes.emphasis(rawtext, content[0].astext(),  # type: ignore
-                                 classes=content['classes'])  # type: ignore
+        content_node = pnode[0]
+        r[0][0] = nodes.emphasis(rawtext, content_node[0].astext(),
+                                 classes=content_node['classes'])
     return r
 
 
@@ -581,7 +581,7 @@ def get_rst_suffix(app):
         return parser_class.supported
 
     suffix = None  # type: unicode
-    for suffix in app.config.source_suffix:  # type: ignore
+    for suffix in app.config.source_suffix:
         if 'restructuredtext' in get_supported_format(suffix):
             return suffix
 
@@ -608,13 +608,13 @@ def process_generate_options(app):
 
     suffix = get_rst_suffix(app)
     if suffix is None:
-        app.warn('autosummary generats .rst files internally. '
-                 'But your source_suffix does not contain .rst. Skipped.')
+        logger.warning('autosummary generats .rst files internally. '
+                       'But your source_suffix does not contain .rst. Skipped.')
         return
 
     generate_autosummary_docs(genfiles, builder=app.builder,
-                              warn=app.warn, info=app.info, suffix=suffix,
-                              base_path=app.srcdir)
+                              warn=logger.warning, info=logger.info,
+                              suffix=suffix, base_path=app.srcdir)
 
 
 def setup(app):

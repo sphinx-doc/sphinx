@@ -11,18 +11,36 @@
 
 from __future__ import absolute_import
 
-import requests
 import warnings
+from contextlib import contextmanager
+
+import requests
 import pkg_resources
 
 from six import string_types
 from six.moves.urllib.parse import urlsplit
-from requests.packages.urllib3.exceptions import SSLError, InsecureRequestWarning
+try:
+    from requests.packages.urllib3.exceptions import SSLError
+except ImportError:
+    # python-requests package in Debian jessie does not provide ``requests.packages.urllib3``.
+    # So try to import the exceptions from urllib3 package.
+    from urllib3.exceptions import SSLError  # type: ignore
+
+try:
+    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+except ImportError:
+    try:
+        # for Debian-jessie
+        from urllib3.exceptions import InsecureRequestWarning  # type: ignore
+    except ImportError:
+        # for requests < 2.4.0
+        InsecureRequestWarning = None
 
 # try to load requests[security]
 try:
     pkg_resources.require(['requests[security]'])
-except pkg_resources.DistributionNotFound:
+except (pkg_resources.DistributionNotFound,
+        pkg_resources.VersionConflict):
     import ssl
     if not getattr(ssl, 'HAS_SNI', False):
         # don't complain on each url processed about the SSL issue
@@ -43,11 +61,17 @@ except pkg_resources.UnknownExtra:
         'install requests-2.4.1+.'
     )
 
+if False:
+    # For type annotation
+    from typing import Any, Generator, Union  # NOQA
+    from sphinx.config import Config  # NOQA
+
 useragent_header = [('User-Agent',
                      'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0')]
 
 
 def is_ssl_error(exc):
+    # type: (Exception) -> bool
     """Check an exception is SSLError."""
     if isinstance(exc, SSLError):
         return True
@@ -59,7 +83,18 @@ def is_ssl_error(exc):
             return False
 
 
+@contextmanager
+def ignore_insecure_warning(**kwargs):
+    # type: (Any) -> Generator
+    with warnings.catch_warnings():
+        if not kwargs.get('verify') and InsecureRequestWarning:
+            # ignore InsecureRequestWarning if verify=False
+            warnings.filterwarnings("ignore", category=InsecureRequestWarning)
+        yield
+
+
 def _get_tls_cacert(url, config):
+    # type: (unicode, Config) -> Union[str, bool]
     """Get addiotinal CA cert for a specific URL.
 
     This also returns ``False`` if verification is disabled.
@@ -72,7 +107,7 @@ def _get_tls_cacert(url, config):
     if not certs:
         return True
     elif isinstance(certs, (string_types, tuple)):  # type: ignore
-        return certs
+        return certs  # type: ignore
     else:
         hostname = urlsplit(url)[1]
         if '@' in hostname:
@@ -82,6 +117,7 @@ def _get_tls_cacert(url, config):
 
 
 def get(url, **kwargs):
+    # type: (unicode, Any) -> requests.Response
     """Sends a GET request like requests.get().
 
     This sets up User-Agent header and TLS verification automatically."""
@@ -90,14 +126,12 @@ def get(url, **kwargs):
     if config:
         kwargs.setdefault('verify', _get_tls_cacert(url, config))
 
-    with warnings.catch_warnings():
-        if not kwargs.get('verify'):
-            # ignore InsecureRequestWarning if verify=False
-            warnings.filterwarnings("ignore", category=InsecureRequestWarning)
+    with ignore_insecure_warning(**kwargs):
         return requests.get(url, **kwargs)
 
 
 def head(url, **kwargs):
+    # type: (unicode, Any) -> requests.Response
     """Sends a HEAD request like requests.head().
 
     This sets up User-Agent header and TLS verification automatically."""
@@ -106,8 +140,5 @@ def head(url, **kwargs):
     if config:
         kwargs.setdefault('verify', _get_tls_cacert(url, config))
 
-    with warnings.catch_warnings():
-        if not kwargs.get('verify'):
-            # ignore InsecureRequestWarning if verify=False
-            warnings.filterwarnings("ignore", category=InsecureRequestWarning)
+    with ignore_insecure_warning(**kwargs):
         return requests.get(url, **kwargs)

@@ -15,12 +15,13 @@ from __future__ import print_function
 import os
 import sys
 import types
+import warnings
 import posixpath
 import traceback
 from os import path
 from collections import deque
 
-from six import iteritems, itervalues, text_type
+from six import iteritems, itervalues
 from six.moves import cStringIO
 
 from docutils import nodes
@@ -30,35 +31,38 @@ from docutils.parsers.rst import convert_directive_function, \
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
-from sphinx.errors import SphinxError, SphinxWarning, ExtensionError, \
-    VersionRequirementError, ConfigError
+from sphinx.errors import SphinxError, ExtensionError, VersionRequirementError, \
+    ConfigError
 from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target, StandardDomain
+from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.io import SphinxStandaloneReader
 from sphinx.roles import XRefRole
 from sphinx.util import pycompat  # noqa: F401
 from sphinx.util import import_object
+from sphinx.util import logging
+from sphinx.util import status_iterator, old_status_iterator, display_chunk
 from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT
-from sphinx.util.logging import is_suppressed_warning
-from sphinx.util.console import (  # type: ignore
-    bold, lightgray, darkgray, darkred, darkgreen, term_width_line
-)
+from sphinx.util.console import bold, darkgreen  # type: ignore
+from sphinx.util.docutils import is_html5_writer_available
 from sphinx.util.i18n import find_catalog_source_files
 
 if False:
     # For type annotation
-    from typing import Any, Callable, IO, Iterable, Iterator, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Tuple, Type, Union  # NOQA
     from docutils.parsers import Parser  # NOQA
     from docutils.transform import Transform  # NOQA
     from sphinx.builders import Builder  # NOQA
-    from sphinx.domains import Domain  # NOQA
+    from sphinx.domains import Domain, Index  # NOQA
+    from sphinx.environment.collectors import EnvironmentCollector  # NOQA
 
 # List of all known core events. Maps name to arguments description.
 events = {
     'builder-inited': '',
     'env-get-outdated': 'env, added, changed, removed',
+    'env-get-updated': 'env',
     'env-purge-doc': 'env, docname',
     'env-before-read-docs': 'env, docnames',
     'source-read': 'docname, source text',
@@ -100,6 +104,13 @@ builtin_extensions = (
     'sphinx.directives.other',
     'sphinx.directives.patches',
     'sphinx.roles',
+    # collectors should be loaded by specific order
+    'sphinx.environment.collectors.dependencies',
+    'sphinx.environment.collectors.asset',
+    'sphinx.environment.collectors.metadata',
+    'sphinx.environment.collectors.title',
+    'sphinx.environment.collectors.toctree',
+    'sphinx.environment.collectors.indexentries',
 )  # type: Tuple[unicode, ...]
 
 CONFIG_FILENAME = 'conf.py'
@@ -109,6 +120,8 @@ ENV_PICKLE_FILENAME = 'environment.pickle'
 # Values are Sphinx version that merge the extension.
 EXTENSION_BLACKLIST = {"sphinxjp.themecore": "1.2"}  # type: Dict[unicode, unicode]
 
+logger = logging.getLogger(__name__)
+
 
 class Sphinx(object):
 
@@ -116,7 +129,7 @@ class Sphinx(object):
                  confoverrides=None, status=sys.stdout, warning=sys.stderr,
                  freshenv=False, warningiserror=False, tags=None, verbosity=0,
                  parallel=0):
-        # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, unicode, int, int) -> None  # NOQA
+        # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, List[unicode], int, int) -> None  # NOQA
         self.verbosity = verbosity
         self.next_listener_id = 0
         self._extensions = {}                   # type: Dict[unicode, Any]
@@ -151,6 +164,7 @@ class Sphinx(object):
             self._warning = warning
         self._warncount = 0
         self.warningiserror = warningiserror
+        logging.setup(self, self._status, self._warning)
 
         self._events = events.copy()
         self._translators = {}              # type: Dict[unicode, nodes.GenericNodeVisitor]
@@ -159,36 +173,30 @@ class Sphinx(object):
         self.messagelog = deque(maxlen=10)  # type: deque
 
         # say hello to the world
-        self.info(bold('Running Sphinx v%s' % sphinx.__display_version__))
+        logger.info(bold('Running Sphinx v%s' % sphinx.__display_version__))
 
         # status code for command-line application
         self.statuscode = 0
 
         if not path.isdir(outdir):
-            self.info('making output directory...')
+            logger.info('making output directory...')
             os.makedirs(outdir)
 
         # read config
         self.tags = Tags(tags)
         self.config = Config(confdir, CONFIG_FILENAME,
                              confoverrides or {}, self.tags)
-        self.config.check_unicode(self.warn)
+        self.config.check_unicode()
         # defer checking types until i18n has been initialized
 
         # initialize some limited config variables before loading extensions
-        self.config.pre_init_values(self.warn)
+        self.config.pre_init_values()
 
         # check the Sphinx version if requested
         if self.config.needs_sphinx and self.config.needs_sphinx > sphinx.__display_version__:
             raise VersionRequirementError(
                 'This project needs at least Sphinx v%s and therefore cannot '
                 'be built with this version.' % self.config.needs_sphinx)
-
-        # force preload html_translator_class
-        if self.config.html_translator_class:
-            translator_class = self.import_object(self.config.html_translator_class,
-                                                  'html_translator_class setting')
-            self.set_translator('html', translator_class)
 
         # set confdir to srcdir if -C given (!= no confdir); a few pieces
         # of code expect a confdir to be set
@@ -222,15 +230,15 @@ class Sphinx(object):
                 )
 
         # now that we know all config values, collect them from conf.py
-        self.config.init_values(self.warn)
+        self.config.init_values()
 
         # check extension versions if requested
         if self.config.needs_extensions:
             for extname, needs_ver in self.config.needs_extensions.items():
                 if extname not in self._extensions:
-                    self.warn('needs_extensions config value specifies a '
-                              'version requirement for extension %s, but it is '
-                              'not loaded' % extname)
+                    logger.warning('needs_extensions config value specifies a '
+                                   'version requirement for extension %s, but it is '
+                                   'not loaded', extname)
                     continue
                 has_ver = self._extension_metadata[extname]['version']
                 if has_ver == 'unknown version' or needs_ver > has_ver:
@@ -241,12 +249,12 @@ class Sphinx(object):
 
         # check primary_domain if requested
         if self.config.primary_domain and self.config.primary_domain not in self.domains:
-            self.warn('primary_domain %r not found, ignored.' % self.config.primary_domain)
+            logger.warning('primary_domain %r not found, ignored.', self.config.primary_domain)
 
         # set up translation infrastructure
         self._init_i18n()
         # check all configuration values for permissible types
-        self.config.check_types(self.warn)
+        self.config.check_types()
         # set up source_parsers
         self._init_source_parsers()
         # set up the build environment
@@ -262,8 +270,8 @@ class Sphinx(object):
         the configuration.
         """
         if self.config.language is not None:
-            self.info(bold('loading translations [%s]... ' %
-                           self.config.language), nonl=True)
+            logger.info(bold('loading translations [%s]... ' % self.config.language),
+                        nonl=True)
             user_locale_dirs = [
                 path.join(self.srcdir, x) for x in self.config.locale_dirs]
             # compile mo files if sphinx.po file in user locale directories are updated
@@ -278,9 +286,9 @@ class Sphinx(object):
         if self.config.language is not None:
             if has_translation or self.config.language == 'en':
                 # "en" never needs to be translated
-                self.info('done')
+                logger.info('done')
             else:
-                self.info('not available for built-in messages')
+                logger.info('not available for built-in messages')
 
     def _init_source_parsers(self):
         # type: () -> None
@@ -294,27 +302,24 @@ class Sphinx(object):
         # type: (bool) -> None
         if freshenv:
             self.env = BuildEnvironment(self.srcdir, self.doctreedir, self.config)
-            self.env.set_warnfunc(self.warn)
-            self.env.find_files(self.config)
+            self.env.find_files(self.config, self.buildername)
             for domain in self.domains.keys():
                 self.env.domains[domain] = self.domains[domain](self.env)
         else:
             try:
-                self.info(bold('loading pickled environment... '), nonl=True)
+                logger.info(bold('loading pickled environment... '), nonl=True)
                 self.env = BuildEnvironment.frompickle(
                     self.srcdir, self.config, path.join(self.doctreedir, ENV_PICKLE_FILENAME))
-                self.env.set_warnfunc(self.warn)
-                self.env.init_managers()
                 self.env.domains = {}
                 for domain in self.domains.keys():
                     # this can raise if the data version doesn't fit
                     self.env.domains[domain] = self.domains[domain](self.env)
-                self.info('done')
+                logger.info('done')
             except Exception as err:
                 if isinstance(err, IOError) and err.errno == ENOENT:
-                    self.info('not yet created')
+                    logger.info('not yet created')
                 else:
-                    self.info('failed: %s' % err)
+                    logger.info('failed: %s', err)
                 self._init_env(freshenv=True)
 
     def _init_builder(self, buildername):
@@ -352,11 +357,11 @@ class Sphinx(object):
             status = (self.statuscode == 0 and
                       'succeeded' or 'finished with problems')
             if self._warncount:
-                self.info(bold('build %s, %s warning%s.' %
-                               (status, self._warncount,
-                                self._warncount != 1 and 's' or '')))
+                logger.info(bold('build %s, %s warning%s.' %
+                                 (status, self._warncount,
+                                  self._warncount != 1 and 's' or '')))
             else:
-                self.info(bold('build %s.' % status))
+                logger.info(bold('build %s.' % status))
         except Exception as err:
             # delete the saved env to force a fresh build next time
             envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
@@ -369,24 +374,8 @@ class Sphinx(object):
         self.builder.cleanup()
 
     # ---- logging handling ----------------------------------------------------
-
-    def _log(self, message, wfile, nonl=False):
-        # type: (unicode, IO, bool) -> None
-        try:
-            wfile.write(message)
-        except UnicodeEncodeError:
-            encoding = getattr(wfile, 'encoding', 'ascii') or 'ascii'
-            # wfile.write accept only str, not bytes.So, we encode and replace
-            # non-encodable characters, then decode them.
-            wfile.write(message.encode(encoding, 'replace').decode(encoding))
-        if not nonl:
-            wfile.write('\n')
-        if hasattr(wfile, 'flush'):
-            wfile.flush()
-        self.messagelog.append(message)
-
-    def warn(self, message, location=None, prefix='WARNING: ',
-             type=None, subtype=None, colorfunc=darkred):
+    def warn(self, message, location=None, prefix=None,
+             type=None, subtype=None, colorfunc=None):
         # type: (unicode, unicode, unicode, unicode, unicode, Callable) -> None
         """Emit a warning.
 
@@ -403,21 +392,16 @@ class Sphinx(object):
            :meth:`.BuildEnvironment.warn` since that will collect all
            warnings during parsing for later output.
         """
-        if is_suppressed_warning(type, subtype, self.config.suppress_warnings):
-            return
+        if prefix:
+            warnings.warn('prefix option of warn() is now deprecated.',
+                          RemovedInSphinx17Warning)
+        if colorfunc:
+            warnings.warn('colorfunc option of warn() is now deprecated.',
+                          RemovedInSphinx17Warning)
 
-        if isinstance(location, tuple):
-            docname, lineno = location
-            if docname:
-                location = '%s:%s' % (self.env.doc2path(docname), lineno or '')
-            else:
-                location = None
-        warntext = location and '%s: %s%s\n' % (location, prefix, message) or \
-            '%s%s\n' % (prefix, message)
-        if self.warningiserror:
-            raise SphinxWarning(warntext)
-        self._warncount += 1
-        self._log(colorfunc(warntext), self._warning, True)
+        warnings.warn('app.warning() is now deprecated. Use sphinx.util.logging instead.',
+                      RemovedInSphinx20Warning)
+        logger.warning(message, type=type, subtype=subtype, location=location)
 
     def info(self, message='', nonl=False):
         # type: (unicode, bool) -> None
@@ -426,124 +410,82 @@ class Sphinx(object):
         If *nonl* is true, don't emit a newline at the end (which implies that
         more info output will follow soon.)
         """
-        self._log(message, self._status, nonl)
+        warnings.warn('app.info() is now deprecated. Use sphinx.util.logging instead.',
+                      RemovedInSphinx20Warning)
+        logger.info(message, nonl=nonl)
 
     def verbose(self, message, *args, **kwargs):
         # type: (unicode, Any, Any) -> None
-        """Emit a verbose informational message.
-
-        The message will only be emitted for verbosity levels >= 1 (i.e. at
-        least one ``-v`` option was given).
-
-        The message can contain %-style interpolation placeholders, which is
-        formatted with either the ``*args`` or ``**kwargs`` when output.
-        """
-        if self.verbosity < 1:
-            return
-        if args or kwargs:
-            message = message % (args or kwargs)
-        self._log(message, self._status)
+        """Emit a verbose informational message."""
+        warnings.warn('app.verbose() is now deprecated. Use sphinx.util.logging instead.',
+                      RemovedInSphinx20Warning)
+        logger.verbose(message, *args, **kwargs)
 
     def debug(self, message, *args, **kwargs):
         # type: (unicode, Any, Any) -> None
-        """Emit a debug-level informational message.
-
-        The message will only be emitted for verbosity levels >= 2 (i.e. at
-        least two ``-v`` options were given).
-
-        The message can contain %-style interpolation placeholders, which is
-        formatted with either the ``*args`` or ``**kwargs`` when output.
-        """
-        if self.verbosity < 2:
-            return
-        if args or kwargs:
-            message = message % (args or kwargs)
-        self._log(darkgray(message), self._status)
+        """Emit a debug-level informational message."""
+        warnings.warn('app.debug() is now deprecated. Use sphinx.util.logging instead.',
+                      RemovedInSphinx20Warning)
+        logger.debug(message, *args, **kwargs)
 
     def debug2(self, message, *args, **kwargs):
         # type: (unicode, Any, Any) -> None
-        """Emit a lowlevel debug-level informational message.
-
-        The message will only be emitted for verbosity level 3 (i.e. three
-        ``-v`` options were given).
-
-        The message can contain %-style interpolation placeholders, which is
-        formatted with either the ``*args`` or ``**kwargs`` when output.
-        """
-        if self.verbosity < 3:
-            return
-        if args or kwargs:
-            message = message % (args or kwargs)
-        self._log(lightgray(message), self._status)
+        """Emit a lowlevel debug-level informational message."""
+        warnings.warn('app.debug2() is now deprecated. Use debug() instead.',
+                      RemovedInSphinx20Warning)
+        logger.debug(message, *args, **kwargs)
 
     def _display_chunk(chunk):
         # type: (Any) -> unicode
-        if isinstance(chunk, (list, tuple)):
-            if len(chunk) == 1:
-                return text_type(chunk[0])
-            return '%s .. %s' % (chunk[0], chunk[-1])
-        return text_type(chunk)
+        warnings.warn('app._display_chunk() is now deprecated. '
+                      'Use sphinx.util.display_chunk() instead.',
+                      RemovedInSphinx17Warning)
+        return display_chunk(chunk)
 
     def old_status_iterator(self, iterable, summary, colorfunc=darkgreen,
-                            stringify_func=_display_chunk):
-        # type: (Iterable, unicode, Callable, Callable) -> Iterator
-        l = 0
-        for item in iterable:
-            if l == 0:
-                self.info(bold(summary), nonl=True)
-                l = 1
-            self.info(colorfunc(stringify_func(item)) + ' ', nonl=True)
+                            stringify_func=display_chunk):
+        # type: (Iterable, unicode, Callable, Callable[[Any], unicode]) -> Iterator
+        warnings.warn('app.old_status_iterator() is now deprecated. '
+                      'Use sphinx.util.status_iterator() instead.',
+                      RemovedInSphinx17Warning)
+        for item in old_status_iterator(iterable, summary,
+                                        color="darkgreen", stringify_func=stringify_func):
             yield item
-        if l == 1:
-            self.info()
 
     # new version with progress info
     def status_iterator(self, iterable, summary, colorfunc=darkgreen, length=0,
                         stringify_func=_display_chunk):
-        # type: (Iterable, unicode, Callable, int, Callable) -> Iterable
-        if length == 0:
-            for item in self.old_status_iterator(iterable, summary, colorfunc,
-                                                 stringify_func):
-                yield item
-            return
-        l = 0
-        summary = bold(summary)
-        for item in iterable:
-            l += 1
-            s = '%s[%3d%%] %s' % (summary, 100*l/length,
-                                  colorfunc(stringify_func(item)))
-            if self.verbosity:
-                s += '\n'
-            else:
-                s = term_width_line(s)
-            self.info(s, nonl=True)
+        # type: (Iterable, unicode, Callable, int, Callable[[Any], unicode]) -> Iterable
+        warnings.warn('app.status_iterator() is now deprecated. '
+                      'Use sphinx.util.status_iterator() instead.',
+                      RemovedInSphinx17Warning)
+        for item in status_iterator(iterable, summary, length=length, verbosity=self.verbosity,
+                                    color="darkgreen", stringify_func=stringify_func):
             yield item
-        if l > 0:
-            self.info()
 
     # ---- general extensibility interface -------------------------------------
 
     def setup_extension(self, extension):
         # type: (unicode) -> None
         """Import and setup a Sphinx extension module. No-op if called twice."""
-        self.debug('[app] setting up extension: %r', extension)
+        logger.debug('[app] setting up extension: %r', extension)
         if extension in self._extensions:
             return
         if extension in EXTENSION_BLACKLIST:
-            self.warn('the extension %r was already merged with Sphinx since version %s; '
-                      'this extension is ignored.' % (
-                          extension, EXTENSION_BLACKLIST[extension]))
+            logger.warning('the extension %r was already merged with Sphinx since version %s; '
+                           'this extension is ignored.',
+                           extension, EXTENSION_BLACKLIST[extension])
             return
         self._setting_up_extension.append(extension)
         try:
             mod = __import__(extension, None, None, ['setup'])
         except ImportError as err:
-            self.verbose('Original exception:\n' + traceback.format_exc())
+            logger.verbose('Original exception:\n' + traceback.format_exc())
             raise ExtensionError('Could not import extension %s' % extension,
                                  err)
         if not hasattr(mod, 'setup'):
-            self.warn('extension %r has no setup() function; is it really '
-                      'a Sphinx extension module?' % extension)
+            logger.warning('extension %r has no setup() function; is it really '
+                           'a Sphinx extension module?', extension)
             ext_meta = None
         else:
             try:
@@ -563,9 +505,9 @@ class Sphinx(object):
             if not ext_meta.get('version'):
                 ext_meta['version'] = 'unknown version'
         except Exception:
-            self.warn('extension %r returned an unsupported object from '
-                      'its setup() function; it should return None or a '
-                      'metadata dictionary' % extension)
+            logger.warning('extension %r returned an unsupported object from '
+                           'its setup() function; it should return None or a '
+                           'metadata dictionary', extension)
             ext_meta = {'version': 'unknown version'}
         self._extensions[extension] = mod
         self._extension_metadata[extension] = ext_meta
@@ -598,20 +540,20 @@ class Sphinx(object):
         else:
             self._listeners[event][listener_id] = callback
         self.next_listener_id += 1
-        self.debug('[app] connecting event %r: %r [id=%s]',
-                   event, callback, listener_id)
+        logger.debug('[app] connecting event %r: %r [id=%s]',
+                     event, callback, listener_id)
         return listener_id
 
     def disconnect(self, listener_id):
         # type: (int) -> None
-        self.debug('[app] disconnecting event: [id=%s]', listener_id)
+        logger.debug('[app] disconnecting event: [id=%s]', listener_id)
         for event in itervalues(self._listeners):
             event.pop(listener_id, None)
 
     def emit(self, event, *args):
         # type: (unicode, Any) -> List
         try:
-            self.debug2('[app] emitting event: %r%s', event, repr(args)[:100])
+            logger.debug('[app] emitting event: %r%s', event, repr(args)[:100])
         except Exception:
             # not every object likes to be repr()'d (think
             # random stuff coming via autodoc)
@@ -633,7 +575,7 @@ class Sphinx(object):
 
     def add_builder(self, builder):
         # type: (Type[Builder]) -> None
-        self.debug('[app] adding builder: %r', builder)
+        logger.debug('[app] adding builder: %r', builder)
         if not hasattr(builder, 'name'):
             raise ExtensionError('Builder class %s has no "name" attribute'
                                  % builder)
@@ -645,35 +587,35 @@ class Sphinx(object):
 
     def add_config_value(self, name, default, rebuild, types=()):
         # type: (unicode, Any, Union[bool, unicode], Any) -> None
-        self.debug('[app] adding config value: %r',
-                   (name, default, rebuild) + ((types,) if types else ()))  # type: ignore
-        if name in self.config.values:
+        logger.debug('[app] adding config value: %r',
+                     (name, default, rebuild) + ((types,) if types else ()))  # type: ignore
+        if name in self.config:
             raise ExtensionError('Config value %r already present' % name)
         if rebuild in (False, True):
             rebuild = rebuild and 'env' or ''
-        self.config.values[name] = (default, rebuild, types)
+        self.config.add(name, default, rebuild, types)
 
     def add_event(self, name):
         # type: (unicode) -> None
-        self.debug('[app] adding event: %r', name)
+        logger.debug('[app] adding event: %r', name)
         if name in self._events:
             raise ExtensionError('Event %r already present' % name)
         self._events[name] = ''
 
     def set_translator(self, name, translator_class):
         # type: (unicode, Any) -> None
-        self.info(bold('A Translator for the %s builder is changed.' % name))
+        logger.info(bold('A Translator for the %s builder is changed.' % name))
         self._translators[name] = translator_class
 
     def add_node(self, node, **kwds):
         # type: (nodes.Node, Any) -> None
-        self.debug('[app] adding node: %r', (node, kwds))
+        logger.debug('[app] adding node: %r', (node, kwds))
         if not kwds.pop('override', False) and \
            hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
-            self.warn('while setting up extension %s: node class %r is '
-                      'already registered, its visitors will be overridden' %
-                      (self._setting_up_extension, node.__name__),
-                      type='app', subtype='add_node')
+            logger.warning('while setting up extension %s: node class %r is '
+                           'already registered, its visitors will be overridden',
+                           self._setting_up_extension, node.__name__,
+                           type='app', subtype='add_node')
         nodes._add_node_class_names([node.__name__])
         for key, val in iteritems(kwds):
             try:
@@ -682,24 +624,32 @@ class Sphinx(object):
                 raise ExtensionError('Value for key %r must be a '
                                      '(visit, depart) function tuple' % key)
             translator = self._translators.get(key)
+            translators = []
             if translator is not None:
-                pass
+                translators.append(translator)
             elif key == 'html':
-                from sphinx.writers.html import HTMLTranslator as translator  # type: ignore
+                from sphinx.writers.html import HTMLTranslator
+                translators.append(HTMLTranslator)
+                if is_html5_writer_available():
+                    from sphinx.writers.html5 import HTML5Translator
+                    translators.append(HTML5Translator)
             elif key == 'latex':
-                from sphinx.writers.latex import LaTeXTranslator as translator  # type: ignore
+                from sphinx.writers.latex import LaTeXTranslator
+                translators.append(LaTeXTranslator)
             elif key == 'text':
-                from sphinx.writers.text import TextTranslator as translator  # type: ignore
+                from sphinx.writers.text import TextTranslator
+                translators.append(TextTranslator)
             elif key == 'man':
-                from sphinx.writers.manpage import ManualPageTranslator as translator  # type: ignore  # NOQA
+                from sphinx.writers.manpage import ManualPageTranslator
+                translators.append(ManualPageTranslator)
             elif key == 'texinfo':
-                from sphinx.writers.texinfo import TexinfoTranslator as translator  # type: ignore  # NOQA
-            else:
-                # ignore invalid keys for compatibility
-                continue
-            setattr(translator, 'visit_'+node.__name__, visit)
-            if depart:
-                setattr(translator, 'depart_'+node.__name__, depart)
+                from sphinx.writers.texinfo import TexinfoTranslator
+                translators.append(TexinfoTranslator)
+
+            for translator in translators:
+                setattr(translator, 'visit_' + node.__name__, visit)
+                if depart:
+                    setattr(translator, 'depart_' + node.__name__, depart)
 
     def add_enumerable_node(self, node, figtype, title_getter=None, **kwds):
         # type: (nodes.Node, unicode, Callable, Any) -> None
@@ -721,49 +671,49 @@ class Sphinx(object):
 
     def add_directive(self, name, obj, content=None, arguments=None, **options):
         # type: (unicode, Any, unicode, Any, Any) -> None
-        self.debug('[app] adding directive: %r',
-                   (name, obj, content, arguments, options))
+        logger.debug('[app] adding directive: %r',
+                     (name, obj, content, arguments, options))
         if name in directives._directives:
-            self.warn('while setting up extension %s: directive %r is '
-                      'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], name),
-                      type='app', subtype='add_directive')
+            logger.warning('while setting up extension %s: directive %r is '
+                           'already registered, it will be overridden',
+                           self._setting_up_extension[-1], name,
+                           type='app', subtype='add_directive')
         directives.register_directive(
             name, self._directive_helper(obj, content, arguments, **options))
 
     def add_role(self, name, role):
         # type: (unicode, Any) -> None
-        self.debug('[app] adding role: %r', (name, role))
+        logger.debug('[app] adding role: %r', (name, role))
         if name in roles._roles:
-            self.warn('while setting up extension %s: role %r is '
-                      'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], name),
-                      type='app', subtype='add_role')
+            logger.warning('while setting up extension %s: role %r is '
+                           'already registered, it will be overridden',
+                           self._setting_up_extension[-1], name,
+                           type='app', subtype='add_role')
         roles.register_local_role(name, role)
 
     def add_generic_role(self, name, nodeclass):
         # type: (unicode, Any) -> None
         # don't use roles.register_generic_role because it uses
         # register_canonical_role
-        self.debug('[app] adding generic role: %r', (name, nodeclass))
+        logger.debug('[app] adding generic role: %r', (name, nodeclass))
         if name in roles._roles:
-            self.warn('while setting up extension %s: role %r is '
-                      'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], name),
-                      type='app', subtype='add_generic_role')
+            logger.warning('while setting up extension %s: role %r is '
+                           'already registered, it will be overridden',
+                           self._setting_up_extension[-1], name,
+                           type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)
         roles.register_local_role(name, role)
 
     def add_domain(self, domain):
         # type: (Type[Domain]) -> None
-        self.debug('[app] adding domain: %r', domain)
+        logger.debug('[app] adding domain: %r', domain)
         if domain.name in self.domains:
             raise ExtensionError('domain %s already registered' % domain.name)
         self.domains[domain.name] = domain
 
     def override_domain(self, domain):
         # type: (Type[Domain]) -> None
-        self.debug('[app] overriding domain: %r', domain)
+        logger.debug('[app] overriding domain: %r', domain)
         if domain.name not in self.domains:
             raise ExtensionError('domain %s not yet registered' % domain.name)
         if not issubclass(domain, self.domains[domain.name]):
@@ -774,8 +724,8 @@ class Sphinx(object):
     def add_directive_to_domain(self, domain, name, obj,
                                 content=None, arguments=None, **options):
         # type: (unicode, unicode, Any, unicode, Any, Any) -> None
-        self.debug('[app] adding directive to domain: %r',
-                   (domain, name, obj, content, arguments, options))
+        logger.debug('[app] adding directive to domain: %r',
+                     (domain, name, obj, content, arguments, options))
         if domain not in self.domains:
             raise ExtensionError('domain %s not yet registered' % domain)
         self.domains[domain].directives[name] = \
@@ -783,14 +733,14 @@ class Sphinx(object):
 
     def add_role_to_domain(self, domain, name, role):
         # type: (unicode, unicode, Any) -> None
-        self.debug('[app] adding role to domain: %r', (domain, name, role))
+        logger.debug('[app] adding role to domain: %r', (domain, name, role))
         if domain not in self.domains:
             raise ExtensionError('domain %s not yet registered' % domain)
         self.domains[domain].roles[name] = role
 
     def add_index_to_domain(self, domain, index):
-        # type: (unicode, unicode) -> None
-        self.debug('[app] adding index to domain: %r', (domain, index))
+        # type: (unicode, Type[Index]) -> None
+        logger.debug('[app] adding index to domain: %r', (domain, index))
         if domain not in self.domains:
             raise ExtensionError('domain %s not yet registered' % domain)
         self.domains[domain].indices.append(index)
@@ -799,9 +749,9 @@ class Sphinx(object):
                         parse_node=None, ref_nodeclass=None, objname='',
                         doc_field_types=[]):
         # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List) -> None
-        self.debug('[app] adding object type: %r',
-                   (directivename, rolename, indextemplate, parse_node,
-                    ref_nodeclass, objname, doc_field_types))
+        logger.debug('[app] adding object type: %r',
+                     (directivename, rolename, indextemplate, parse_node,
+                      ref_nodeclass, objname, doc_field_types))
         StandardDomain.object_types[directivename] = \
             ObjType(objname or directivename, rolename)
         # create a subclass of GenericObject as the new directive
@@ -819,9 +769,9 @@ class Sphinx(object):
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname=''):
         # type: (unicode, unicode, unicode, nodes.Node, unicode) -> None
-        self.debug('[app] adding crossref type: %r',
-                   (directivename, rolename, indextemplate, ref_nodeclass,
-                    objname))
+        logger.debug('[app] adding crossref type: %r',
+                     (directivename, rolename, indextemplate, ref_nodeclass,
+                      objname))
         StandardDomain.object_types[directivename] = \
             ObjType(objname or directivename, rolename)
         # create a subclass of Target as the new directive
@@ -833,12 +783,12 @@ class Sphinx(object):
 
     def add_transform(self, transform):
         # type: (Transform) -> None
-        self.debug('[app] adding transform: %r', transform)
+        logger.debug('[app] adding transform: %r', transform)
         SphinxStandaloneReader.transforms.append(transform)
 
     def add_javascript(self, filename):
         # type: (unicode) -> None
-        self.debug('[app] adding javascript: %r', filename)
+        logger.debug('[app] adding javascript: %r', filename)
         from sphinx.builders.html import StandaloneHTMLBuilder
         if '://' in filename:
             StandaloneHTMLBuilder.script_files.append(filename)
@@ -848,7 +798,7 @@ class Sphinx(object):
 
     def add_stylesheet(self, filename, alternate=None, title=None):
         # type: (unicode) -> None
-        self.debug('[app] adding stylesheet: %r', filename)
+        logger.debug('[app] adding stylesheet: %r', filename)
         from sphinx.builders.html import StandaloneHTMLBuilder
         props = {}
         if alternate is not None:
@@ -864,12 +814,13 @@ class Sphinx(object):
 
     def add_latex_package(self, packagename, options=None):
         # type: (unicode, unicode) -> None
-        self.debug('[app] adding latex package: %r', packagename)
-        self.builder.usepackages.append((packagename, options))
+        logger.debug('[app] adding latex package: %r', packagename)
+        if hasattr(self.builder, 'usepackages'):  # only for LaTeX builder
+            self.builder.usepackages.append((packagename, options))  # type: ignore
 
     def add_lexer(self, alias, lexer):
         # type: (unicode, Any) -> None
-        self.debug('[app] adding lexer: %r', (alias, lexer))
+        logger.debug('[app] adding lexer: %r', (alias, lexer))
         from sphinx.highlighting import lexers
         if lexers is None:
             return
@@ -877,33 +828,38 @@ class Sphinx(object):
 
     def add_autodocumenter(self, cls):
         # type: (Any) -> None
-        self.debug('[app] adding autodocumenter: %r', cls)
+        logger.debug('[app] adding autodocumenter: %r', cls)
         from sphinx.ext import autodoc
         autodoc.add_documenter(cls)
         self.add_directive('auto' + cls.objtype, autodoc.AutoDirective)
 
     def add_autodoc_attrgetter(self, type, getter):
         # type: (Any, Callable) -> None
-        self.debug('[app] adding autodoc attrgetter: %r', (type, getter))
+        logger.debug('[app] adding autodoc attrgetter: %r', (type, getter))
         from sphinx.ext import autodoc
         autodoc.AutoDirective._special_attrgetters[type] = getter
 
     def add_search_language(self, cls):
         # type: (Any) -> None
-        self.debug('[app] adding search language: %r', cls)
+        logger.debug('[app] adding search language: %r', cls)
         from sphinx.search import languages, SearchLanguage
         assert issubclass(cls, SearchLanguage)
         languages[cls.lang] = cls
 
     def add_source_parser(self, suffix, parser):
         # type: (unicode, Parser) -> None
-        self.debug('[app] adding search source_parser: %r, %r', suffix, parser)
+        logger.debug('[app] adding search source_parser: %r, %r', suffix, parser)
         if suffix in self._additional_source_parsers:
-            self.warn('while setting up extension %s: source_parser for %r is '
-                      'already registered, it will be overridden' %
-                      (self._setting_up_extension[-1], suffix),
-                      type='app', subtype='add_source_parser')
+            logger.warning('while setting up extension %s: source_parser for %r is '
+                           'already registered, it will be overridden',
+                           self._setting_up_extension[-1], suffix,
+                           type='app', subtype='add_source_parser')
         self._additional_source_parsers[suffix] = parser
+
+    def add_env_collector(self, collector):
+        # type: (Type[EnvironmentCollector]) -> None
+        logger.debug('[app] adding environment collector: %r', collector)
+        collector().enable(self)
 
 
 class TemplateBridge(object):

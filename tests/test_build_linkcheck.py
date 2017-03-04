@@ -10,10 +10,10 @@
 """
 from __future__ import print_function
 
-from util import with_app
+import pytest
 
 
-@with_app('linkcheck', testroot='linkcheck', freshenv=True)
+@pytest.mark.sphinx('linkcheck', testroot='linkcheck', freshenv=True)
 def test_defaults(app, status, warning):
     app.builder.build_all()
 
@@ -26,8 +26,9 @@ def test_defaults(app, status, warning):
     assert len(content.splitlines()) == 1
 
 
-@with_app('linkcheck', testroot='linkcheck', freshenv=True,
-          confoverrides={'linkcheck_anchors_ignore': ["^!", "^top$"]})
+@pytest.mark.sphinx(
+    'linkcheck', testroot='linkcheck', freshenv=True,
+    confoverrides={'linkcheck_anchors_ignore': ["^!", "^top$"]})
 def test_anchors_ignored(app, status, warning):
     app.builder.build_all()
 

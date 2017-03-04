@@ -17,7 +17,7 @@ from docutils.utils import relative_path
 from docutils.transforms import Transform
 
 from sphinx import addnodes
-from sphinx.util import split_index_msg
+from sphinx.util import split_index_msg, logging
 from sphinx.util.i18n import find_catalog
 from sphinx.util.nodes import (
     LITERAL_TYPE_NODES, IMAGE_TYPE_NODES,
@@ -29,9 +29,11 @@ from sphinx.domains.std import make_glossary_term, split_term_classifiers
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.config import Config  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 def publish_msgstr(app, source, source_path, source_line, config, settings):
@@ -121,7 +123,7 @@ class Locale(Transform):
             # literalblock need literal block notation to avoid it become
             # paragraph.
             if isinstance(node, LITERAL_TYPE_NODES):
-                msgstr = '::\n\n' + indent(msgstr, ' '*3)
+                msgstr = '::\n\n' + indent(msgstr, ' ' * 3)
 
             patch = publish_msgstr(
                 env.app, msgstr, source, node.line, env.config, settings)
@@ -247,7 +249,7 @@ class Locale(Transform):
             # literalblock need literal block notation to avoid it become
             # paragraph.
             if isinstance(node, LITERAL_TYPE_NODES):
-                msgstr = '::\n\n' + indent(msgstr, ' '*3)
+                msgstr = '::\n\n' + indent(msgstr, ' ' * 3)
 
             patch = publish_msgstr(
                 env.app, msgstr, source, node.line, env.config, settings)
@@ -272,8 +274,8 @@ class Locale(Transform):
             old_foot_refs = node.traverse(is_autonumber_footnote_ref)
             new_foot_refs = patch.traverse(is_autonumber_footnote_ref)
             if len(old_foot_refs) != len(new_foot_refs):
-                env.warn_node('inconsistent footnote references in '
-                              'translated message', node)
+                logger.warning('inconsistent footnote references in translated message',
+                               location=node)
             old_foot_namerefs = {}  # type: Dict[unicode, List[nodes.footnote_reference]]
             for r in old_foot_refs:
                 old_foot_namerefs.setdefault(r.get('refname'), []).append(r)
@@ -302,13 +304,14 @@ class Locale(Transform):
             # * use translated refname for section refname.
             # * inline reference "`Python <...>`_" has no 'refname'.
             def is_refnamed_ref(node):
+                # type: (nodes.Node) -> bool
                 return isinstance(node, nodes.reference) and  \
                     'refname' in node
             old_refs = node.traverse(is_refnamed_ref)
             new_refs = patch.traverse(is_refnamed_ref)
             if len(old_refs) != len(new_refs):
-                env.warn_node('inconsistent references in '
-                              'translated message', node)
+                logger.warning('inconsistent references in translated message',
+                               location=node)
             old_ref_names = [r['refname'] for r in old_refs]
             new_ref_names = [r['refname'] for r in new_refs]
             orphans = list(set(old_ref_names) - set(new_ref_names))
@@ -336,8 +339,8 @@ class Locale(Transform):
             new_refs = patch.traverse(is_refnamed_footnote_ref)
             refname_ids_map = {}
             if len(old_refs) != len(new_refs):
-                env.warn_node('inconsistent references in '
-                              'translated message', node)
+                logger.warning('inconsistent references in translated message',
+                               location=node)
             for old in old_refs:
                 refname_ids_map[old["refname"]] = old["ids"]
             for new in new_refs:
@@ -352,8 +355,8 @@ class Locale(Transform):
             new_refs = patch.traverse(addnodes.pending_xref)
             xref_reftarget_map = {}
             if len(old_refs) != len(new_refs):
-                env.warn_node('inconsistent term references in '
-                              'translated message', node)
+                logger.warning('inconsistent term references in translated message',
+                               location=node)
 
             def get_ref_key(node):
                 # type: (nodes.Node) -> Tuple[unicode, unicode, unicode]

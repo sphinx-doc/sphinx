@@ -18,10 +18,10 @@ from sphinx.util.pycompat import u
 
 if False:
     # For type annotation
-    from typing import Any, IO, Union  # NOQA
+    from typing import Any, Dict, IO, List, Match, Union  # NOQA
 
-_str_re  = re.compile(r'"(\\\\|\\"|[^"])*"')
-_int_re  = re.compile(r'\d+')
+_str_re = re.compile(r'"(\\\\|\\"|[^"])*"')
+_int_re = re.compile(r'\d+')
 _name_re = re.compile(r'[a-zA-Z_]\w*')
 _nameonly_re = re.compile(r'[a-zA-Z_][a-zA-Z0-9_]*$')
 
@@ -43,6 +43,7 @@ ESCAPED = re.compile(r'\\u.{4}|\\.')
 def encode_string(s):
     # type: (str) -> str
     def replace(match):
+        # type: (Match) -> unicode
         s = match.group(0)
         try:
             return ESCAPE_DICT[s]
@@ -56,7 +57,7 @@ def encode_string(s):
                 s1 = 0xd800 | ((n >> 10) & 0x3ff)
                 s2 = 0xdc00 | (n & 0x3ff)
                 return '\\u%04x\\u%04x' % (s1, s2)
-    return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'
+    return '"' + str(ESCAPE_ASCII.sub(replace, s)) + '"'  # type: ignore
 
 
 def decode_string(s):
@@ -123,7 +124,7 @@ def loads(x):
     i = 0
     n = len(x)
     stack = []  # type: List[Union[List, Dict]]
-    obj = nothing
+    obj = nothing  # type: Any
     key = False
     keys = []
     while i < n:
@@ -203,7 +204,7 @@ def loads(x):
                     obj[keys[-1]] = y
                     key = False
             else:
-                obj.append(y)  # type: ignore
+                obj.append(y)
     if obj is nothing:
         raise ValueError("nothing loaded from string")
     return obj

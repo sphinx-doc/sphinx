@@ -21,14 +21,14 @@
 """
 
 from docutils import nodes
+from docutils.parsers.rst import Directive
 
 import sphinx
 from sphinx.util.nodes import set_source_info
-from sphinx.util.compat import Directive
 
 if False:
     # For type annotation
-    from typing import Any  # NOQA
+    from typing import Any, Dict, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
 
 
@@ -57,12 +57,12 @@ class IfConfig(Directive):
 
 def process_ifconfig_nodes(app, doctree, docname):
     # type: (Sphinx, nodes.Node, unicode) -> None
-    ns = dict((k, app.config[k]) for k in app.config.values)
+    ns = dict((confval.name, confval.value) for confval in app.config)  # type: ignore
     ns.update(app.config.__dict__.copy())
     ns['builder'] = app.builder.name
     for node in doctree.traverse(ifconfig):
         try:
-            res = eval(node['expr'], ns)  # type: ignore
+            res = eval(node['expr'], ns)
         except Exception as err:
             # handle exceptions in a clean fashion
             from traceback import format_exception_only

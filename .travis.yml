@@ -1,22 +1,36 @@
 language: python
 sudo: false
+dist: trusty
 cache:
   directories:
     - $HOME/.cache/pip
 python:
-  - "2.7"
-  - "3.4"
+  - "pypy-5.4.1"
+  - "3.6"
   - "3.5"
+  - "3.4"
+  - "2.7"
   - "nightly"
-  - "pypy"
 env:
   global:
-    - TEST='-v --with-timer --timer-top-n 25'
+    - TEST='-v --durations 25'
     - PYTHONFAULTHANDLER=x
     - PYTHONWARNINGS=all
   matrix:
-    - DOCUTILS=0.11
     - DOCUTILS=0.12
+    - DOCUTILS=0.13.1
+matrix:
+  exclude:
+    - python: "3.4"
+      env: DOCUTILS=0.12
+    - python: "3.5"
+      env: DOCUTILS=0.12
+    - python: "3.6"
+      env: DOCUTILS=0.12
+    - python: nightly
+      env: DOCUTILS=0.12
+    - python: "pypy-5.4.1"
+      env: DOCUTILS=0.12
 addons:
   apt:
     packages:
@@ -25,14 +39,15 @@ addons:
     - texlive-latex-extra
     - texlive-fonts-recommended
     - texlive-fonts-extra
+    - texlive-luatex
     - texlive-xetex
     - lmodern
 install:
   - pip install -U pip setuptools
   - pip install docutils==$DOCUTILS
   - pip install -r test-reqs.txt
-before_script:
-  -  if [[ $TRAVIS_PYTHON_VERSION != '2.6' ]]; then flake8; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then python3.6 -m pip install mypy typed-ast; fi
 script:
-  -  if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then make style-check test-async; fi
-  -  if [[ $TRAVIS_PYTHON_VERSION != '3.5' ]]; then make test; fi
+  - flake8
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.6' ]]; then make style-check type-check test-async; fi
+  - if [[ $TRAVIS_PYTHON_VERSION != '3.6' ]]; then make test; fi

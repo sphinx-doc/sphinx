@@ -33,7 +33,7 @@ footnotes in table
     * - name [#]_
       - desription
     * - VIDIOC_CROPCAP
-      - Information about VIDIOC_CROPCAP
+      - Information about VIDIOC_CROPCAP [#]_
 
 footenotes
 --------------------
@@ -50,6 +50,8 @@ footenotes
 
 .. [bar] cite
 
-.. [#] footnotes in table caption
+.. [#] footnote in table caption
 
-.. [#] footnotes in table
+.. [#] footnote in table header
+
+.. [#] footnote in table not in header

@@ -18,15 +18,18 @@ from docutils.parsers.rst import directives
 import sphinx
 from sphinx.locale import _
 from sphinx.environment import NoUri
+from sphinx.util import logging
 from sphinx.util.nodes import set_source_info
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
 if False:
     # For type annotation
-    from typing import Any, Iterable  # NOQA
+    from typing import Any, Dict, Iterable, List  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 class todo_node(nodes.Admonition, nodes.Element):
@@ -97,7 +100,8 @@ def process_todos(app, doctree):
         })
 
         if env.config.todo_emit_warnings:
-            env.warn_node("TODO entry found: %s" % node[1].astext(), node)
+            logger.warning("TODO entry found: %s", node[1].astext(),
+                           location=node)
 
 
 class TodoList(Directive):
@@ -148,7 +152,7 @@ def process_todo_nodes(app, doctree, fromdocname):
                     (todo_info['source'], todo_info['lineno'])
                 )
             desc1 = description[:description.find('<<')]
-            desc2 = description[description.find('>>')+2:]
+            desc2 = description[description.find('>>') + 2:]
             para += nodes.Text(desc1, desc1)
 
             # Create a reference

@@ -21,14 +21,18 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.builders.html import StandaloneHTMLBuilder
-from sphinx.util import force_decode
+from sphinx.environment.adapters.indexentries import IndexEntries
+from sphinx.util import force_decode, logging
 from sphinx.util.osutil import make_filename
 from sphinx.util.pycompat import htmlescape
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 
 _idpattern = re.compile(
@@ -95,7 +99,7 @@ project_template = u'''\
 '''
 
 section_template = '<section title="%(title)s" ref="%(ref)s"/>'
-file_template = ' '*12 + '<file>%(filename)s</file>'
+file_template = ' ' * 12 + '<file>%(filename)s</file>'
 
 
 class QtHelpBuilder(StandaloneHTMLBuilder):
@@ -138,13 +142,14 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
     def build_qhp(self, outdir, outname):
         # type: (unicode, unicode) -> None
-        self.info('writing project file...')
+        logger.info('writing project file...')
 
         # sections
         tocdoc = self.env.get_and_resolve_doctree(self.config.master_doc, self,
                                                   prune_toctrees=False)
 
         def istoctree(node):
+            # type: (nodes.Node) -> bool
             return isinstance(node, addnodes.compact_paragraph) and \
                 'toctree' in node
         sections = []
@@ -167,7 +172,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
         # keywords
         keywords = []
-        index = self.env.create_index(self, group_entries=False)
+        index = IndexEntries(self.env).create_index(self, group_entries=False)
         for (key, group) in index:
             for title, (refs, subitems, key_) in group:
                 keywords.extend(self.build_keywords(title, refs, subitems))
@@ -200,7 +205,7 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
         nspace = nspace.lower()
 
         # write the project file
-        with codecs.open(path.join(outdir, outname+'.qhp'), 'w', 'utf-8') as f:  # type: ignore
+        with codecs.open(path.join(outdir, outname + '.qhp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
             f.write(project_template % {  # type: ignore
                 'outname': htmlescape(outname),
                 'title': htmlescape(self.config.html_title),
@@ -216,8 +221,8 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             nspace, 'doc', self.get_target_uri(self.config.master_doc))
         startpage = 'qthelp://' + posixpath.join(nspace, 'doc', 'index.html')
 
-        self.info('writing collection project file...')
-        with codecs.open(path.join(outdir, outname+'.qhcp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
+        logger.info('writing collection project file...')
+        with codecs.open(path.join(outdir, outname + '.qhcp'), 'w', 'utf-8') as f:  # type: ignore  # NOQA
             f.write(collection_template % {  # type: ignore
                 'outname': htmlescape(outname),
                 'title': htmlescape(self.config.html_short_title),
@@ -248,10 +253,10 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             title = htmlescape(refnode.astext()).replace('"', '&quot;')
             item = '<section title="%(title)s" ref="%(ref)s">' % \
                 {'title': title, 'ref': link}
-            parts.append(' '*4*indentlevel + item)
+            parts.append(' ' * 4 * indentlevel + item)
             for subnode in node.children[1]:
-                parts.extend(self.write_toc(subnode, indentlevel+1))
-            parts.append(' '*4*indentlevel + '</section>')
+                parts.extend(self.write_toc(subnode, indentlevel + 1))
+            parts.append(' ' * 4 * indentlevel + '</section>')
         elif isinstance(node, nodes.list_item):
             for subnode in node:
                 parts.extend(self.write_toc(subnode, indentlevel))
@@ -285,10 +290,10 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
             id = None
 
         if id:
-            item = ' '*12 + '<keyword name="%s" id="%s" ref="%s"/>' % (
+            item = ' ' * 12 + '<keyword name="%s" id="%s" ref="%s"/>' % (
                 name, id, ref[1])
         else:
-            item = ' '*12 + '<keyword name="%s" ref="%s"/>' % (name, ref[1])
+            item = ' ' * 12 + '<keyword name="%s" ref="%s"/>' % (name, ref[1])
         item.encode('ascii', 'xmlcharrefreplace')
         return item
 
@@ -318,10 +323,16 @@ class QtHelpBuilder(StandaloneHTMLBuilder):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(QtHelpBuilder)
 
     app.add_config_value('qthelp_basename', lambda self: make_filename(self.project), None)
     app.add_config_value('qthelp_theme', 'nonav', 'html')
     app.add_config_value('qthelp_theme_options', {}, 'html')
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

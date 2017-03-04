@@ -15,8 +15,12 @@ from docutils.transforms.parts import ContentsFilter
 
 from sphinx import addnodes
 from sphinx.locale import _
+from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround
+
+
+logger = logging.getLogger(__name__)
 
 default_substitutions = set([
     'version',
@@ -34,7 +38,6 @@ class DefaultSubstitutions(Transform):
 
     def apply(self):
         # type: () -> None
-        env = self.document.settings.env
         config = self.document.settings.env.config
         # only handle those not otherwise defined in the document
         to_handle = default_substitutions - set(self.document.substitution_defs)
@@ -45,7 +48,7 @@ class DefaultSubstitutions(Transform):
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
                     text = format_date(config.today_fmt or _('%b %d, %Y'),
-                                       language=config.language, warn=env.warn)
+                                       language=config.language)
                 ref.replace_self(nodes.Text(text, text))
 
 
@@ -174,12 +177,11 @@ class AutoIndexUpgrader(Transform):
 
     def apply(self):
         # type: () -> None
-        env = self.document.settings.env
         for node in self.document.traverse(addnodes.index):
             if 'entries' in node and any(len(entry) == 4 for entry in node['entries']):
                 msg = ('4 column based index found. '
                        'It might be a bug of extensions you use: %r' % node['entries'])
-                env.warn_node(msg, node)
+                logger.warning(msg, location=node)
                 for i, entry in enumerate(node['entries']):
                     if len(entry) == 4:
                         node['entries'][i] = entry + (None,)
@@ -216,7 +218,7 @@ class FilterSystemMessages(Transform):
         filterlevel = env.config.keep_warnings and 2 or 5
         for node in self.document.traverse(nodes.system_message):
             if node['level'] < filterlevel:
-                env.app.debug('%s [filtered system message]', node.astext())
+                logger.debug('%s [filtered system message]', node.astext())
                 node.parent.remove(node)
 
 

@@ -51,7 +51,8 @@ add_documenter(InstanceAttributeDocumenter)
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Tuple  # NOQA
+    from typing import Any, Callable, Dict, Tuple, List  # NOQA
+    from jinja2 import BaseLoader  # NOQA
     from sphinx import addnodes  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -70,6 +71,9 @@ def main(argv=sys.argv):
     p.add_option("-t", "--templates", action="store", type="string",
                  dest="templates", default=None,
                  help="Custom template directory (default: %default)")
+    p.add_option("-i", "--imported-members", action="store_true",
+                 dest="imported_members", default=False,
+                 help="Document imported members (default: %default)")
     options, args = p.parse_args(argv[1:])
 
     if len(args) < 1:
@@ -77,7 +81,8 @@ def main(argv=sys.argv):
 
     generate_autosummary_docs(args, options.output_dir,
                               "." + options.suffix,
-                              template_dir=options.templates)
+                              template_dir=options.templates,
+                              imported_members=options.imported_members)
 
 
 def _simple_info(msg):
@@ -94,8 +99,9 @@ def _simple_warn(msg):
 
 def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                               warn=_simple_warn, info=_simple_info,
-                              base_path=None, builder=None, template_dir=None):
-    # type: (List[unicode], unicode, unicode, Callable, Callable, unicode, Builder, unicode) -> None  # NOQA
+                              base_path=None, builder=None, template_dir=None,
+                              imported_members=False):
+    # type: (List[unicode], unicode, unicode, Callable, Callable, unicode, Builder, unicode, bool) -> None  # NOQA
 
     showed_sources = list(sorted(sources))
     if len(showed_sources) > 20:
@@ -113,6 +119,8 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
     template_dirs = None  # type: List[unicode]
     template_dirs = [os.path.join(package_dir, 'ext',
                                   'autosummary', 'templates')]
+
+    template_loader = None  # type: BaseLoader
     if builder is not None:
         # allow the user to override the templates
         template_loader = BuiltinTemplateLoader()
@@ -120,7 +128,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
     else:
         if template_dir:
             template_dirs.insert(0, template_dir)
-        template_loader = FileSystemLoader(template_dirs)
+        template_loader = FileSystemLoader(template_dirs)  # type: ignore
     template_env = SandboxedEnvironment(loader=template_loader)
 
     # read
@@ -165,17 +173,18 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
                 except TemplateNotFound:
                     template = template_env.get_template('autosummary/base.rst')
 
-            def get_members(obj, typ, include_public=[]):
-                # type: (Any, unicode, List[unicode]) -> Tuple[List[unicode], List[unicode]]
+            def get_members(obj, typ, include_public=[], imported=False):
+                # type: (Any, unicode, List[unicode], bool) -> Tuple[List[unicode], List[unicode]]  # NOQA
                 items = []  # type: List[unicode]
                 for name in dir(obj):
                     try:
-                        documenter = get_documenter(safe_getattr(obj, name),
-                                                    obj)
+                        value = safe_getattr(obj, name)
                     except AttributeError:
                         continue
+                    documenter = get_documenter(value, obj)
                     if documenter.objtype == typ:
-                        items.append(name)
+                        if imported or getattr(value, '__module__', None) == obj.__name__:
+                            items.append(name)
                 public = [x for x in items
                           if x in include_public or not x.startswith('_')]
                 return public, items
@@ -185,17 +194,17 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             if doc.objtype == 'module':
                 ns['members'] = dir(obj)
                 ns['functions'], ns['all_functions'] = \
-                    get_members(obj, 'function')
+                    get_members(obj, 'function', imported=imported_members)
                 ns['classes'], ns['all_classes'] = \
-                    get_members(obj, 'class')
+                    get_members(obj, 'class', imported=imported_members)
                 ns['exceptions'], ns['all_exceptions'] = \
-                    get_members(obj, 'exception')
+                    get_members(obj, 'exception', imported=imported_members)
             elif doc.objtype == 'class':
                 ns['members'] = dir(obj)
                 ns['methods'], ns['all_methods'] = \
-                    get_members(obj, 'method', ['__init__'])
+                    get_members(obj, 'method', ['__init__'], imported=imported_members)
                 ns['attributes'], ns['all_attributes'] = \
-                    get_members(obj, 'attribute')
+                    get_members(obj, 'attribute', imported=imported_members)
 
             parts = name.split('.')
             if doc.objtype in ('method', 'attribute'):
@@ -215,7 +224,7 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             ns['underline'] = len(name) * '='
 
             rendered = template.render(**ns)
-            f.write(rendered)
+            f.write(rendered)  # type: ignore
 
     # descend recursively to new files
     if new_files:

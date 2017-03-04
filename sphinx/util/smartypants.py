@@ -73,11 +73,16 @@ smartypants.py license::
 
 import re
 
+if False:
+    # For type annotation
+    from typing import Tuple  # NOQA
+
 
 def sphinx_smarty_pants(t):
+    # type: (unicode) -> unicode
     t = t.replace('&quot;', '"')
     t = educate_dashes_oldschool(t)
-    t = educate_quotes(t)
+    t = educate_quotes(t)  # type: ignore
     t = t.replace('"', '&quot;')
     return t
 
@@ -155,6 +160,7 @@ closing_single_quotes_regex_2 = re.compile(r"""
 
 
 def educate_quotes(s):
+    # type: (str) -> str
     """
     Parameter:  String.
 
@@ -194,6 +200,7 @@ def educate_quotes(s):
 
 
 def educate_quotes_latex(s, dquotes=("``", "''")):
+    # type: (str, Tuple[str, str]) -> unicode
     """
     Parameter:  String.
 
@@ -237,6 +244,7 @@ def educate_quotes_latex(s, dquotes=("``", "''")):
 
 
 def educate_backticks(s):
+    # type: (unicode) -> unicode
     """
     Parameter:  String.
     Returns:    The string, with ``backticks'' -style double quotes
@@ -248,6 +256,7 @@ def educate_backticks(s):
 
 
 def educate_single_backticks(s):
+    # type: (unicode) -> unicode
     """
     Parameter:  String.
     Returns:    The string, with `backticks' -style single quotes
@@ -260,6 +269,7 @@ def educate_single_backticks(s):
 
 
 def educate_dashes_oldschool(s):
+    # type: (unicode) -> unicode
     """
     Parameter:  String.
 
@@ -271,6 +281,7 @@ def educate_dashes_oldschool(s):
 
 
 def educate_dashes_oldschool_inverted(s):
+    # type: (unicode) -> unicode
     """
     Parameter:  String.
 
@@ -289,6 +300,7 @@ def educate_dashes_oldschool_inverted(s):
 
 
 def educate_ellipses(s):
+    # type: (unicode) -> unicode
     """
     Parameter:  String.
     Returns:    The string, with each instance of "..." translated to

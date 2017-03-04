@@ -28,7 +28,8 @@ from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, 
 from docutils.utils import relative_path
 
 from sphinx.errors import PycodeError, SphinxParallelError, ExtensionError
-from sphinx.util.console import strip_colors
+from sphinx.util import logging
+from sphinx.util.console import strip_colors, colorize, bold, term_width_line  # type: ignore
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.osutil import fs_encoding
 
@@ -44,7 +45,10 @@ from sphinx.util.matching import patfilter  # noqa
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterable, Pattern, Sequence, Tuple  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterable, Iterator, List, Pattern, Sequence, Set, Tuple, Union  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 # Generally useful regular expressions.
 ws_re = re.compile(r'\s+')                      # type: Pattern
@@ -105,8 +109,8 @@ def get_matching_docs(dirname, suffixes, exclude_matchers=()):
     suffixpatterns = ['*' + s for s in suffixes]
     for filename in get_matching_files(dirname, exclude_matchers):
         for suffixpattern in suffixpatterns:
-            if fnmatch.fnmatch(filename, suffixpattern):  # type: ignore
-                yield filename[:-len(suffixpattern)+1]
+            if fnmatch.fnmatch(filename, suffixpattern):
+                yield filename[:-len(suffixpattern) + 1]
                 break
 
 
@@ -117,6 +121,7 @@ class FilenameUniqDict(dict):
     appear in.  Used for images and downloadable files in the environment.
     """
     def __init__(self):
+        # type: () -> None
         self._existing = set()  # type: Set[unicode]
 
     def add_file(self, docname, newfile):
@@ -143,15 +148,17 @@ class FilenameUniqDict(dict):
                 self._existing.discard(unique)
 
     def merge_other(self, docnames, other):
-        # type: (List[unicode], Dict[unicode, Tuple[Set[unicode], Any]]) -> None
+        # type: (Set[unicode], Dict[unicode, Tuple[Set[unicode], Any]]) -> None
         for filename, (docs, unique) in other.items():
-            for doc in docs & docnames:
+            for doc in docs & set(docnames):
                 self.add_file(doc, filename)
 
     def __getstate__(self):
+        # type: () -> Set[unicode]
         return self._existing
 
     def __setstate__(self, state):
+        # type: (Set[unicode]) -> None
         self._existing = state
 
 
@@ -179,7 +186,7 @@ def copy_static_entry(source, targetdir, builder, context={},
             if path.isdir(path.join(source, entry)):
                 newtarget = path.join(targetdir, entry)
             copy_static_entry(path.join(source, entry), newtarget,
-                              builder, context, level=level+1,
+                              builder, context, level=level + 1,
                               exclude_matchers=exclude_matchers)
 
 
@@ -203,30 +210,31 @@ def save_traceback(app):
     import platform
     exc = sys.exc_info()[1]
     if isinstance(exc, SphinxParallelError):
-        exc_format = '(Error in parallel process)\n' + exc.traceback  # type: ignore
+        exc_format = '(Error in parallel process)\n' + exc.traceback
     else:
         exc_format = traceback.format_exc()
     fd, path = tempfile.mkstemp('.log', 'sphinx-err-')
     last_msgs = ''
     if app is not None:
         last_msgs = '\n'.join(
-            '#   %s' % strip_colors(force_decode(s, 'utf-8')).strip()
+            '#   %s' % strip_colors(force_decode(s, 'utf-8')).strip()  # type: ignore
             for s in app.messagelog)
     os.write(fd, (_DEBUG_HEADER %
                   (sphinx.__display_version__,
                    platform.python_version(),
                    platform.python_implementation(),
                    docutils.__version__, docutils.__version_details__,
-                   jinja2.__version__,
+                   jinja2.__version__,  # type: ignore
                    last_msgs)).encode('utf-8'))
     if app is not None:
         for extname, extmod in iteritems(app._extensions):
             modfile = getattr(extmod, '__file__', 'unknown')
             if isinstance(modfile, bytes):
                 modfile = modfile.decode(fs_encoding, 'replace')
-            os.write(fd, ('#   %s (%s) from %s\n' % (
-                extname, app._extension_metadata[extname]['version'],
-                modfile)).encode('utf-8'))
+            version = app._extension_metadata[extname]['version']
+            if version != 'builtin':
+                os.write(fd, ('#   %s (%s) from %s\n' %
+                              (extname, version, modfile)).encode('utf-8'))
     os.write(fd, exc_format.encode('utf-8'))
     os.close(fd)
     return path
@@ -296,12 +304,14 @@ def detect_encoding(readline):
     """Like tokenize.detect_encoding() from Py3k, but a bit simplified."""
 
     def read_or_stop():
+        # type: () -> unicode
         try:
             return readline()
         except StopIteration:
             return None
 
     def get_normal_name(orig_enc):
+        # type: (str) -> str
         """Imitates get_normal_name in tokenizer.c."""
         # Only care about the first 12 characters.
         enc = orig_enc[:12].lower().replace('_', '-')
@@ -313,12 +323,13 @@ def detect_encoding(readline):
         return orig_enc
 
     def find_cookie(line):
+        # type: (unicode) -> unicode
         try:
             line_string = line.decode('ascii')
         except UnicodeDecodeError:
             return None
 
-        matches = _coding_re.findall(line_string)
+        matches = _coding_re.findall(line_string)  # type: ignore
         if not matches:
             return None
         return get_normal_name(matches[0])
@@ -349,14 +360,17 @@ class Tee(object):
     File-like object writing to two streams.
     """
     def __init__(self, stream1, stream2):
+        # type: (IO, IO) -> None
         self.stream1 = stream1
         self.stream2 = stream2
 
     def write(self, text):
+        # type: (unicode) -> None
         self.stream1.write(text)
         self.stream2.write(text)
 
     def flush(self):
+        # type: () -> None
         if hasattr(self.stream1, 'flush'):
             self.stream1.flush()
         if hasattr(self.stream2, 'flush'):
@@ -364,6 +378,7 @@ class Tee(object):
 
 
 def parselinenos(spec, total):
+    # type: (unicode, int) -> List[int]
     """Parse a line number spec (such as "1,2,4-6") and return a list of
     wanted line numbers.
     """
@@ -372,20 +387,28 @@ def parselinenos(spec, total):
     for part in parts:
         try:
             begend = part.strip().split('-')
-            if len(begend) > 2:
+            if ['', ''] == begend:
                 raise ValueError
-            if len(begend) == 1:
-                items.append(int(begend[0])-1)
+            elif len(begend) == 1:
+                items.append(int(begend[0]) - 1)
+            elif len(begend) == 2:
+                start = int(begend[0] or 1)     # type: ignore
+                                                # left half open (cf. -10)
+                end = int(begend[1] or max(start, total))   # type: ignore
+                                                            # right half open (cf. 10-)
+                if start > end:  # invalid range (cf. 10-1)
+                    raise ValueError
+                items.extend(range(start - 1, end))
             else:
-                start = (begend[0] == '') and 0 or int(begend[0])-1
-                end = (begend[1] == '') and total or int(begend[1])
-                items.extend(range(start, end))
+                raise ValueError
         except Exception:
             raise ValueError('invalid line number spec: %r' % spec)
+
     return items
 
 
 def force_decode(string, encoding):
+    # type: (unicode, unicode) -> unicode
     """Forcibly get a unicode string out of a bytestring."""
     if isinstance(string, binary_type):
         try:
@@ -402,32 +425,38 @@ def force_decode(string, encoding):
 
 class attrdict(dict):
     def __getattr__(self, key):
+        # type: (unicode) -> unicode
         return self[key]
 
     def __setattr__(self, key, val):
+        # type: (unicode, unicode) -> None
         self[key] = val
 
     def __delattr__(self, key):
+        # type: (unicode) -> None
         del self[key]
 
 
 def rpartition(s, t):
+    # type: (unicode, unicode) -> Tuple[unicode, unicode]
     """Similar to str.rpartition from 2.5, but doesn't return the separator."""
     i = s.rfind(t)
     if i != -1:
-        return s[:i], s[i+len(t):]
+        return s[:i], s[i + len(t):]
     return '', s
 
 
 def split_into(n, type, value):
+    # type: (int, unicode, unicode) -> List[unicode]
     """Split an index entry into a given number of parts at semicolons."""
-    parts = [x.strip() for x in value.split(';', n-1)]
+    parts = [x.strip() for x in value.split(';', n - 1)]
     if sum(1 for part in parts if part) < n:
         raise ValueError('invalid %s index entry %r' % (type, value))
     return parts
 
 
 def split_index_msg(type, value):
+    # type: (unicode, unicode) -> List[unicode]
     # new entry types must be listed in directives/other.py!
     if type == 'single':
         try:
@@ -466,13 +495,16 @@ class PeekableIterator(object):
     what's the next item.
     """
     def __init__(self, iterable):
+        # type: (Iterable) -> None
         self.remaining = deque()  # type: deque
         self._iterator = iter(iterable)
 
     def __iter__(self):
+        # type: () -> PeekableIterator
         return self
 
     def __next__(self):
+        # type: () -> Any
         """Return the next item from the iterator."""
         if self.remaining:
             return self.remaining.popleft()
@@ -481,14 +513,16 @@ class PeekableIterator(object):
     next = __next__  # Python 2 compatibility
 
     def push(self, item):
+        # type: (Any) -> None
         """Push the `item` on the internal stack, it will be returned on the
         next :meth:`next` call.
         """
         self.remaining.append(item)
 
     def peek(self):
+        # type: () -> Any
         """Return the next item without changing the state of the iterator."""
-        item = next(self)
+        item = next(self)  # type: ignore
         self.push(item)
         return item
 
@@ -526,9 +560,55 @@ def encode_uri(uri):
 
 def split_docinfo(text):
     # type: (unicode) -> Sequence[unicode]
-    docinfo_re = re.compile('\A((?:\s*:\w+:.*?\n(?:[ \t]+.*?\n)*)+)', re.M)
+    docinfo_re = re.compile('\\A((?:\\s*:\\w+:.*?\n(?:[ \\t]+.*?\n)*)+)', re.M)
     result = docinfo_re.split(text, 1)  # type: ignore
     if len(result) == 1:
         return '', result[0]
     else:
         return result[1:]
+
+
+def display_chunk(chunk):
+    # type: (Any) -> unicode
+    if isinstance(chunk, (list, tuple)):
+        if len(chunk) == 1:
+            return text_type(chunk[0])
+        return '%s .. %s' % (chunk[0], chunk[-1])
+    return text_type(chunk)
+
+
+def old_status_iterator(iterable, summary, color="darkgreen", stringify_func=display_chunk):
+    # type: (Iterable, unicode, str, Callable[[Any], unicode]) -> Iterator
+    l = 0
+    for item in iterable:
+        if l == 0:
+            logger.info(bold(summary), nonl=True)
+            l = 1
+        logger.info(stringify_func(item), color=color, nonl=True)
+        logger.info(" ", nonl=True)
+        yield item
+    if l == 1:
+        logger.info('')
+
+
+# new version with progress info
+def status_iterator(iterable, summary, color="darkgreen", length=0, verbosity=0,
+                    stringify_func=display_chunk):
+    # type: (Iterable, unicode, str, int, int, Callable[[Any], unicode]) -> Iterable  # NOQA
+    if length == 0:
+        for item in old_status_iterator(iterable, summary, color, stringify_func):
+            yield item
+        return
+    l = 0
+    summary = bold(summary)
+    for item in iterable:
+        l += 1
+        s = '%s[%3d%%] %s' % (summary, 100 * l / length, colorize(color, stringify_func(item)))
+        if verbosity:
+            s += '\n'
+        else:
+            s = term_width_line(s)
+        logger.info(s, nonl=True)
+        yield item
+    if l > 0:
+        logger.info('')

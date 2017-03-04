@@ -17,7 +17,7 @@ from sphinx import addnodes
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.domains import Domain  # NOQA
 
 
@@ -81,7 +81,7 @@ class Field(object):
         return (fieldarg, content)
 
     def make_field(self, types, domain, item):
-        # type: (List, unicode, Tuple) -> nodes.field
+        # type: (Dict[unicode, List[nodes.Node]], unicode, Tuple) -> nodes.field
         fieldarg, content = item
         fieldname = nodes.field_name('', self.label)
         if fieldarg:
@@ -122,7 +122,7 @@ class GroupedField(Field):
         self.can_collapse = can_collapse
 
     def make_field(self, types, domain, items):
-        # type: (List, unicode, Tuple) -> nodes.field
+        # type: (Dict[unicode, List[nodes.Node]], unicode, Tuple) -> nodes.field
         fieldname = nodes.field_name('', self.label)
         listnode = self.list_type()
         for fieldarg, content in items:
@@ -170,8 +170,9 @@ class TypedField(GroupedField):
         self.typerolename = typerolename
 
     def make_field(self, types, domain, items):
-        # type: (List, unicode, Tuple) -> nodes.field
+        # type: (Dict[unicode, List[nodes.Node]], unicode, Tuple) -> nodes.field
         def handle_item(fieldarg, content):
+            # type: (unicode, unicode) -> nodes.paragraph
             par = nodes.paragraph()
             par.extend(self.make_xrefs(self.rolename, domain, fieldarg,
                                        addnodes.literal_strong))
@@ -299,6 +300,7 @@ class DocFieldTransformer(object):
 
             translatable_content = nodes.inline(fieldbody.rawsource,
                                                 translatable=True)
+            translatable_content.document = fieldbody.parent.document
             translatable_content.source = fieldbody.parent.source
             translatable_content.line = fieldbody.parent.line
             translatable_content += content

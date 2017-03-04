@@ -15,26 +15,30 @@ import re
 import sys
 import time
 import codecs
+import platform
 from os import path
 import doctest
 
 from six import itervalues, StringIO, binary_type, text_type, PY2
+from distutils.version import LooseVersion
 
 from docutils import nodes
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 
 import sphinx
 from sphinx.builders import Builder
-from sphinx.util import force_decode
+from sphinx.util import force_decode, logging
 from sphinx.util.nodes import set_source_info
-from sphinx.util.compat import Directive
 from sphinx.util.console import bold  # type: ignore
 from sphinx.util.osutil import fs_encoding
+from sphinx.locale import _
 
 if False:
     # For type annotation
-    from typing import Any, Callable, IO, Iterable, Sequence, Tuple  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterable, List, Sequence, Set, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+logger = logging.getLogger(__name__)
 
 blankline_re = re.compile(r'^\s*<BLANKLINE>', re.MULTILINE)
 doctestopt_re = re.compile(r'#\s*doctest:.+$', re.MULTILINE)
@@ -51,6 +55,30 @@ else:
     def doctest_encode(text, encoding):
         # type: (unicode, unicode) -> unicode
         return text
+
+
+def compare_version(ver1, ver2, operand):
+    # type: (unicode, unicode, unicode) -> bool
+    """Compare `ver1` to `ver2`, relying on `operand`.
+
+    Some examples:
+
+        >>> compare_version('3.3', '3.5', '<=')
+        True
+        >>> compare_version('3.3', '3.2', '<=')
+        False
+        >>> compare_version('3.3a0', '3.3', '<=')
+        True
+    """
+    if operand not in ('<=', '<', '==', '>=', '>'):
+        raise ValueError("'%s' is not a valid operand.")
+    v1 = LooseVersion(ver1)
+    v2 = LooseVersion(ver2)
+    return ((operand == '<=' and (v1 <= v2)) or
+            (operand == '<' and (v1 < v2)) or
+            (operand == '==' and (v1 == v2)) or
+            (operand == '>=' and (v1 >= v2)) or
+            (operand == '>' and (v1 > v2)))
 
 
 # set up the necessary directives
@@ -100,12 +128,32 @@ class TestDirective(Directive):
             # parse doctest-like output comparison flags
             option_strings = self.options['options'].replace(',', ' ').split()
             for option in option_strings:
-                if (option[0] not in '+-' or option[1:] not in
-                        doctest.OPTIONFLAGS_BY_NAME):  # type: ignore
-                    # XXX warn?
+                prefix, option_name = option[0], option[1:]
+                if prefix not in '+-':
+                    self.state.document.reporter.warning(
+                        _("missing '+' or '-' in '%s' option.") % option,
+                        line=self.lineno)
+                    continue
+                if option_name not in doctest.OPTIONFLAGS_BY_NAME:  # type: ignore
+                    self.state.document.reporter.warning(
+                        _("'%s' is not a valid option.") % option_name,
+                        line=self.lineno)
                     continue
                 flag = doctest.OPTIONFLAGS_BY_NAME[option[1:]]  # type: ignore
                 node['options'][flag] = (option[0] == '+')
+        if self.name == 'doctest' and 'pyversion' in self.options:
+            try:
+                option = self.options['pyversion']
+                # :pyversion: >= 3.6   -->   operand='>=', option_version='3.6'
+                operand, option_version = [item.strip() for item in option.split()]
+                running_version = platform.python_version()
+                if not compare_version(running_version, option_version, operand):
+                    flag = doctest.OPTIONFLAGS_BY_NAME['SKIP']  # type: ignore
+                    node['options'][flag] = True  # Skip the test
+            except ValueError:
+                self.state.document.reporter.warning(
+                    _("'%s' is not a valid pyversion option") % option,
+                    line=self.lineno)
         return [node]
 
 
@@ -121,12 +169,14 @@ class DoctestDirective(TestDirective):
     option_spec = {
         'hide': directives.flag,
         'options': directives.unchanged,
+        'pyversion': directives.unchanged_required,
     }
 
 
 class TestcodeDirective(TestDirective):
     option_spec = {
         'hide': directives.flag,
+        'pyversion': directives.unchanged_required,
     }
 
 
@@ -134,6 +184,7 @@ class TestoutputDirective(TestDirective):
     option_spec = {
         'hide': directives.flag,
         'options': directives.unchanged,
+        'pyversion': directives.unchanged_required,
     }
 
 
@@ -256,22 +307,21 @@ class DocTestBuilder(Builder):
         self.outfile = None  # type: IO
         self.outfile = codecs.open(path.join(self.outdir, 'output.txt'),  # type: ignore
                                    'w', encoding='utf-8')
-        self.outfile.write('''\
-Results of doctest builder run on %s
-==================================%s
-''' % (date, '='*len(date)))
+        self.outfile.write(('Results of doctest builder run on %s\n'  # type: ignore
+                            '==================================%s\n') %
+                           (date, '=' * len(date)))
 
     def _out(self, text):
         # type: (unicode) -> None
-        self.info(text, nonl=True)
+        logger.info(text, nonl=True)
         self.outfile.write(text)
 
     def _warn_out(self, text):
         # type: (unicode) -> None
         if self.app.quiet or self.app.warningiserror:
-            self.warn(text)
+            logger.warning(text)
         else:
-            self.info(text, nonl=True)
+            logger.info(text, nonl=True)
         if isinstance(text, binary_type):
             text = force_decode(text, None)
         self.outfile.write(text)
@@ -312,7 +362,7 @@ Doctest summary
         if build_docnames is None:
             build_docnames = sorted(self.env.all_docs)
 
-        self.info(bold('running tests...'))
+        logger.info(bold('running tests...'))
         for docname in build_docnames:
             # no need to resolve the doctree
             doctree = self.env.get_doctree(docname)
@@ -346,9 +396,9 @@ Doctest summary
         for node in doctree.traverse(condition):
             source = 'test' in node and node['test'] or node.astext()
             if not source:
-                self.warn('no code/output in %s block at %s:%s' %
-                          (node.get('testnodetype', 'doctest'),
-                           self.env.doc2path(docname), node.line))
+                logger.warning('no code/output in %s block at %s:%s',
+                               node.get('testnodetype', 'doctest'),
+                               self.env.doc2path(docname), node.line)
             code = TestCode(source, type=node.get('testnodetype', 'doctest'),
                             lineno=node.line, options=node.get('options'))
             node_groups = node.get('groups', ['default'])
@@ -376,7 +426,7 @@ Doctest summary
             return
 
         self._out('\nDocument: %s\n----------%s\n' %
-                  (docname, '-'*len(docname)))
+                  (docname, '-' * len(docname)))
         for group in itervalues(groups):
             self.test_group(group, self.env.doc2path(docname, base=None))
         # Separately count results from setup code
@@ -441,9 +491,8 @@ Doctest summary
                         doctest_encode(code[0].code, self.env.config.source_encoding), {},  # type: ignore  # NOQA
                         group.name, filename_str, code[0].lineno)
                 except Exception:
-                    self.warn('ignoring invalid doctest code: %r' %
-                              code[0].code,
-                              '%s:%s' % (filename, code[0].lineno))
+                    logger.warning('ignoring invalid doctest code: %r', code[0].code,
+                                   location=(filename, code[0].lineno))
                     continue
                 if not test.examples:
                     continue

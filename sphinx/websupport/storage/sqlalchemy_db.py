@@ -14,8 +14,12 @@ from datetime import datetime
 
 from sqlalchemy import Column, Integer, Text, String, Boolean, \
     ForeignKey, DateTime
-from sqlalchemy.orm import relation, sessionmaker, aliased  # type: ignore
+from sqlalchemy.orm import relation, sessionmaker, aliased
 from sqlalchemy.ext.declarative import declarative_base
+
+if False:
+    # For type annotation
+    from typing import List  # NOQA
 
 Base = declarative_base()
 Session = sessionmaker()

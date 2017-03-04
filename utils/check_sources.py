@@ -34,7 +34,7 @@ def checker(*suffixes, **kwds):
 
 
 # this one is a byte regex since it is applied before decoding
-coding_re    = re.compile(br'coding[:=]\s*([-\w.]+)')
+coding_re = re.compile(br'coding[:=]\s*([-\w.]+)')
 
 uni_coding_re = re.compile(r'^#.*coding[:=]\s*([-\w.]+).*')
 name_mail_re = r'[\w ]+(<.*?>)?'
@@ -44,9 +44,9 @@ copyright_re = re.compile(r'^    :copyright: Copyright 200\d(-20\d\d)? '
 license_re = re.compile(r"    :license: (.*?).\n")
 copyright_2_re = re.compile(r'^                %s(, %s)*[,.]$' %
                             (name_mail_re, name_mail_re))
-not_ix_re    = re.compile(r'\bnot\s+\S+?\s+i[sn]\s\S+')
-is_const_re  = re.compile(r'if.*?==\s+(None|False|True)\b')
-noqa_re      = re.compile(r'#\s+NOQA\s*$', re.I)
+not_ix_re = re.compile(r'\bnot\s+\S+?\s+i[sn]\s\S+')
+is_const_re = re.compile(r'if.*?==\s+(None|False|True)\b')
+noqa_re = re.compile(r'#\s+NOQA\s*$', re.I)
 
 misspellings = ["developement", "adress",  # ALLOW-MISSPELLING
                 "verificate", "informations"]  # ALLOW-MISSPELLING
@@ -64,7 +64,7 @@ def decode_source(fn, lines):
             decoded_lines.append(line.decode(encoding))
         except UnicodeDecodeError as err:
             raise UnicodeError("%s:%d: not decodable: %s\n   Line: %r" %
-                               (fn, lno+1, err, line))
+                               (fn, lno + 1, err, line))
         except LookupError as err:
             raise LookupError("unknown encoding: %s" % encoding)
     return decoded_lines
@@ -85,14 +85,14 @@ def check_style(fn, lines):
         if noqa_re.search(line):
             continue
         if len(line.rstrip('\n')) > 95:
-            yield lno+1, "line too long"
+            yield lno + 1, "line too long"
         if line.strip().startswith('#'):
             continue
         # m = not_ix_re.search(line)
         # if m:
         #     yield lno+1, '"' + m.group() + '"'
         if is_const_re.search(line):
-            yield lno+1, 'using == None/True/False'
+            yield lno + 1, 'using == None/True/False'
 
 
 @checker('.py', only_pkg=True)
@@ -119,11 +119,11 @@ def check_fileheader(fn, lines):
             if l == '"""\n':
                 # end of docstring
                 if lno <= 4:
-                    yield lno+c, "missing module name in docstring"
+                    yield lno + c, "missing module name in docstring"
                 break
 
             if l != '\n' and l[:4] != '    ' and docopen:
-                yield lno+c, "missing correct docstring indentation"
+                yield lno + c, "missing correct docstring indentation"
 
             if lno == 2:
                 # if not in package, don't check the module name
@@ -148,10 +148,10 @@ def check_fileheader(fn, lines):
         yield 0, "no correct license info"
 
     ci = -3
-    copyright = llist[ci:ci+1]
+    copyright = llist[ci:ci + 1]
     while copyright and copyright_2_re.match(copyright[0]):
         ci -= 1
-        copyright = llist[ci:ci+1]
+        copyright = llist[ci:ci + 1]
     if not copyright or not copyright_re.match(copyright[0]):
         yield 0, "no correct copyright info"
 
@@ -160,12 +160,12 @@ def check_fileheader(fn, lines):
 def check_whitespace_and_spelling(fn, lines):
     for lno, line in enumerate(lines):
         if '\t' in line:
-            yield lno+1, "OMG TABS!!!1 "
+            yield lno + 1, "OMG TABS!!!1 "
         if line[:-1].rstrip(' \t') != line[:-1]:
-            yield lno+1, "trailing whitespace"
+            yield lno + 1, "trailing whitespace"
         for word in misspellings:
             if word in line and 'ALLOW-MISSPELLING' not in line:
-                yield lno+1, '"%s" used' % word
+                yield lno + 1, '"%s" used' % word
 
 
 bad_tags = ['<u>', '<s>', '<strike>', '<center>', '<font']
@@ -176,7 +176,7 @@ def check_xhtml(fn, lines):
     for lno, line in enumerate(lines):
         for bad_tag in bad_tags:
             if bad_tag in line:
-                yield lno+1, "used " + bad_tag
+                yield lno + 1, "used " + bad_tag
 
 
 def main(argv):

@@ -15,7 +15,7 @@ from sphinx.pycode.pgen2 import token
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, List, Set, Tuple  # NOQA
 
 class ParseError(Exception):
     """Exception to signal the parser is stuck."""

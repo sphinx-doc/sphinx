@@ -22,7 +22,7 @@ from sphinx.util.nodes import make_refnode
 
 if False:
     # For type annotation
-    from typing import Iterator, Tuple  # NOQA
+    from typing import Any, Dict, Iterator, List, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
@@ -177,5 +177,11 @@ class ReSTDomain(Domain):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(ReSTDomain)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

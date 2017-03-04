@@ -3,15 +3,12 @@ PYTHON ?= python
 .PHONY: all style-check type-check clean clean-pyc clean-patchfiles clean-backupfiles \
         clean-generated pylint reindent test covertest build
 
-DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
-             -i sphinx/pycode/pgen2 -i sphinx/util/smartypants.py \
-             -i .ropeproject -i doc/_build -i tests/path.py \
-             -i tests/coverage.py -i utils/convert.py \
-             -i tests/typing_test_data.py \
-             -i tests/test_autodoc_py35.py \
-             -i tests/roots/test-warnings/undecodable.rst \
-             -i tests/build \
-             -i tests/roots/test-warnings/undecodable.rst \
+DONT_CHECK = -i .ropeproject \
+             -i .tox \
+             -i build \
+             -i dist \
+             -i doc/_build \
+             -i sphinx/pycode/pgen2 \
              -i sphinx/search/da.py \
              -i sphinx/search/de.py \
              -i sphinx/search/en.py \
@@ -28,17 +25,25 @@ DONT_CHECK = -i build -i dist -i sphinx/style/jquery.js \
              -i sphinx/search/ru.py \
              -i sphinx/search/sv.py \
              -i sphinx/search/tr.py \
-             -i .tox
+             -i sphinx/style/jquery.js \
+             -i sphinx/util/smartypants.py \
+             -i tests/build \
+             -i tests/path.py \
+             -i tests/roots/test-directive-code/target.py \
+             -i tests/roots/test-warnings/undecodable.rst \
+             -i tests/test_autodoc_py35.py \
+             -i tests/typing_test_data.py \
+             -i utils/convert.py
 
 all: clean-pyc clean-backupfiles style-check type-check test
 
 style-check:
-	@$(PYTHON) utils/check_sources.py $(DONT_CHECK) .
+	@PYTHONWARNINGS=all $(PYTHON) utils/check_sources.py $(DONT_CHECK) .
 
 type-check:
 	mypy sphinx/
 
-clean: clean-pyc clean-pycache clean-patchfiles clean-backupfiles clean-generated clean-testfiles clean-buildfiles
+clean: clean-pyc clean-pycache clean-patchfiles clean-backupfiles clean-generated clean-testfiles clean-buildfiles clean-mypyfiles
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -54,16 +59,27 @@ clean-patchfiles:
 clean-backupfiles:
 	find . -name '*~' -exec rm -f {} +
 	find . -name '*.bak' -exec rm -f {} +
+	find . -name '*.swp' -exec rm -f {} +
+	find . -name '*.swo' -exec rm -f {} +
 
 clean-generated:
+	find . -name '.DS_Store' -exec rm -f {} +
+	rm -rf doc/_build/
+	rm -f sphinx/pycode/*.pickle
 	rm -f utils/*3.py*
+	rm -f utils/regression_test.js
 
 clean-testfiles:
+	rm -rf tests/.coverage
 	rm -rf tests/build
 	rm -rf .tox/
+	rm -rf .cache/
 
 clean-buildfiles:
 	rm -rf build
+
+clean-mypyfiles:
+	rm -rf .mypy_cache/
 
 pylint:
 	@pylint --rcfile utils/pylintrc sphinx
@@ -72,14 +88,13 @@ reindent:
 	@$(PYTHON) utils/reindent.py -r -n .
 
 test:
-	@cd tests; $(PYTHON) run.py -I py35 -d -m '^[tT]est' $(TEST)
+	@cd tests; $(PYTHON) run.py --ignore py35 -v $(TEST)
 
 test-async:
-	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' $(TEST)
+	@cd tests; $(PYTHON) run.py -v $(TEST)
 
 covertest:
-	@cd tests; $(PYTHON) run.py -d -m '^[tT]est' --with-coverage \
-		--cover-package=sphinx $(TEST)
+	@cd tests; $(PYTHON) run.py -v --cov=sphinx --junitxml=.junit.xml $(TEST)
 
 build:
 	@$(PYTHON) setup.py build

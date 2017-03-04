@@ -11,11 +11,13 @@
 
 import re
 
-from util import with_app, SkipTest
+import pytest
+from util import SkipTest
 
 
-@with_app(buildername='html', testroot='ext-math',
-          confoverrides = {'extensions': ['sphinx.ext.jsmath'], 'jsmath_path': 'dummy.js'})
+@pytest.mark.sphinx(
+    'html', testroot='ext-math',
+    confoverrides = {'extensions': ['sphinx.ext.jsmath'], 'jsmath_path': 'dummy.js'})
 def test_jsmath(app, status, warning):
     app.builder.build_all()
     content = (app.outdir / 'math.html').text()
@@ -33,8 +35,8 @@ def test_jsmath(app, status, warning):
     assert '<div class="math">\na + 1 &lt; b</div>' in content
 
 
-@with_app('html', testroot='ext-math-simple',
-          confoverrides = {'extensions': ['sphinx.ext.imgmath']})
+@pytest.mark.sphinx('html', testroot='ext-math-simple',
+                    confoverrides = {'extensions': ['sphinx.ext.imgmath']})
 def test_imgmath_png(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
@@ -43,14 +45,14 @@ def test_imgmath_png(app, status, warning):
         raise SkipTest('dvipng command "dvipng" is not available')
 
     content = (app.outdir / 'index.html').text()
-    html = ('<div class="math">\s*<p>\s*<img src="_images/math/\w+.png"'
-            '\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
+    html = (r'<div class="math">\s*<p>\s*<img src="_images/math/\w+.png"'
+            r'\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
     assert re.search(html, content, re.S)
 
 
-@with_app('html', testroot='ext-math-simple',
-          confoverrides={'extensions': ['sphinx.ext.imgmath'],
-                         'imgmath_image_format': 'svg'})
+@pytest.mark.sphinx('html', testroot='ext-math-simple',
+                    confoverrides={'extensions': ['sphinx.ext.imgmath'],
+                                   'imgmath_image_format': 'svg'})
 def test_imgmath_svg(app, status, warning):
     app.builder.build_all()
     if "LaTeX command 'latex' cannot be run" in warning.getvalue():
@@ -59,13 +61,13 @@ def test_imgmath_svg(app, status, warning):
         raise SkipTest('dvisvgm command "dvisvgm" is not available')
 
     content = (app.outdir / 'index.html').text()
-    html = ('<div class="math">\s*<p>\s*<img src="_images/math/\w+.svg"'
-            '\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
+    html = (r'<div class="math">\s*<p>\s*<img src="_images/math/\w+.svg"'
+            r'\s*alt="a\^2\+b\^2=c\^2"/>\s*</p>\s*</div>')
     assert re.search(html, content, re.S)
 
 
-@with_app('html', testroot='ext-math',
-          confoverrides={'extensions': ['sphinx.ext.mathjax']})
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_mathjax_align(app, status, warning):
     app.builder.build_all()
 
@@ -76,9 +78,9 @@ def test_mathjax_align(app, status, warning):
     assert re.search(html, content, re.S)
 
 
-@with_app('html', testroot='ext-math',
-          confoverrides={'math_number_all': True,
-                         'extensions': ['sphinx.ext.mathjax']})
+@pytest.mark.sphinx('html', testroot='ext-math',
+                    confoverrides={'math_number_all': True,
+                                   'extensions': ['sphinx.ext.mathjax']})
 def test_math_number_all_mathjax(app, status, warning):
     app.builder.build_all()
 
@@ -88,8 +90,8 @@ def test_math_number_all_mathjax(app, status, warning):
     assert re.search(html, content, re.S)
 
 
-@with_app('latex', testroot='ext-math',
-          confoverrides={'extensions': ['sphinx.ext.mathjax']})
+@pytest.mark.sphinx('latex', testroot='ext-math',
+                    confoverrides={'extensions': ['sphinx.ext.mathjax']})
 def test_math_number_all_latex(app, status, warning):
     app.builder.build_all()
 

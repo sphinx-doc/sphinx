@@ -89,11 +89,6 @@ package.
    This allows extensions to use custom translator and define custom
    nodes for the translator (see :meth:`add_node`).
 
-   This is a API version of :confval:`html_translator_class` for all other
-   builders. Note that if :confval:`html_translator_class` is specified and
-   this API is called for html related builders, API overriding takes
-   precedence.
-
    .. versionadded:: 1.3
 
 .. method:: Sphinx.add_node(node, **kwds)
@@ -368,6 +363,12 @@ package.
 
    .. versionadded:: 1.4
 
+.. method:: Sphinx.add_env_collector(collector)
+
+   Register an environment collector class (refs: :ref:`collector-api`)
+
+   .. versionadded:: 1.6
+
 .. method:: Sphinx.require_sphinx(version)
 
    Compare *version* (which must be a ``major.minor`` version string,
@@ -423,6 +424,10 @@ The application object also provides support for emitting leveled messages.
    There is no "error" call: in Sphinx, errors are defined as things that stop
    the build; just raise an exception (:exc:`sphinx.errors.SphinxError` or a
    custom subclass) to do that.
+
+.. deprecated:: 1.6
+
+   Please use :ref:`logging-api` instead.
 
 .. automethod:: Sphinx.warn
 

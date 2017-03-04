@@ -15,6 +15,7 @@ import re
 import sys
 import inspect
 import traceback
+import warnings
 from types import FunctionType, BuiltinFunctionType, MethodType
 
 from six import PY2, iterkeys, iteritems, itervalues, text_type, class_types, \
@@ -22,6 +23,7 @@ from six import PY2, iterkeys, iteritems, itervalues, text_type, class_types, \
 
 from docutils import nodes
 from docutils.utils import assemble_option_dict
+from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 
 import sphinx
@@ -29,15 +31,16 @@ from sphinx.util import rpartition, force_decode
 from sphinx.locale import _
 from sphinx.pycode import ModuleAnalyzer, PycodeError
 from sphinx.application import ExtensionError
+from sphinx.util import logging
 from sphinx.util.nodes import nested_parse_with_titles
-from sphinx.util.compat import Directive
 from sphinx.util.inspect import getargspec, isdescriptor, safe_getmembers, \
-    safe_getattr, object_description, is_builtin_class_method, isenumattribute
+    safe_getattr, object_description, is_builtin_class_method, \
+    isenumclass, isenumattribute
 from sphinx.util.docstrings import prepare_docstring
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Iterator, Sequence, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, Iterator, List, Sequence, Set, Tuple, Type, Union  # NOQA
     from types import ModuleType  # NOQA
     from docutils.utils import Reporter  # NOQA
     from sphinx.application import Sphinx  # NOQA
@@ -49,6 +52,8 @@ try:
         typing = None  # type: ignore
 except ImportError:
     typing = None
+
+logger = logging.getLogger(__name__)
 
 # This type isn't exposed directly in any modules, but can be found
 # here in most Python versions
@@ -477,7 +482,7 @@ class Documenter(object):
     #: true if the generated content may contain titles
     titles_allowed = False
 
-    option_spec = {'noindex': bool_option}
+    option_spec = {'noindex': bool_option}  # type: Dict[unicode, Callable]
 
     @staticmethod
     def get_attr(obj, name, *defargs):
@@ -579,24 +584,25 @@ class Documenter(object):
 
         Returns True if successful, False if an error occurred.
         """
-        dbg = self.env.app.debug
         if self.objpath:
-            dbg('[autodoc] from %s import %s',
-                self.modname, '.'.join(self.objpath))
+            logger.debug('[autodoc] from %s import %s',
+                         self.modname, '.'.join(self.objpath))
         try:
-            dbg('[autodoc] import %s', self.modname)
+            logger.debug('[autodoc] import %s', self.modname)
             for modname in self.env.config.autodoc_mock_imports:
-                dbg('[autodoc] adding a mock module %s!', modname)
+                logger.debug('[autodoc] adding a mock module %s!', modname)
                 mock_import(modname)
-            __import__(self.modname)
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=ImportWarning)
+                __import__(self.modname)
             parent = None
             obj = self.module = sys.modules[self.modname]
-            dbg('[autodoc] => %r', obj)
+            logger.debug('[autodoc] => %r', obj)
             for part in self.objpath:
                 parent = obj
-                dbg('[autodoc] getattr(_, %r)', part)
+                logger.debug('[autodoc] getattr(_, %r)', part)
                 obj = self.get_attr(obj, part)
-                dbg('[autodoc] => %r', obj)
+                logger.debug('[autodoc] => %r', obj)
                 self.object_name = part
             self.parent = parent
             self.object = obj
@@ -618,7 +624,7 @@ class Documenter(object):
                           traceback.format_exc()
             if PY2:
                 errmsg = errmsg.decode('utf-8')  # type: ignore
-            dbg(errmsg)
+            logger.debug(errmsg)
             self.directive.warn(errmsg)
             self.env.note_reread()
             return False
@@ -826,6 +832,14 @@ class Documenter(object):
             else:
                 members = [(mname, self.get_attr(self.object, mname, None))
                            for mname in list(iterkeys(obj_dict))]
+
+            # Py34 doesn't have enum members in __dict__.
+            if isenumclass(self.object):
+                members.extend(
+                    item for item in self.object.__members__.items()
+                    if item not in members
+                )
+
         membernames = set(m[0] for m in members)
         # add instance attributes from the analyzer
         for aname in analyzed_member_names:
@@ -961,6 +975,7 @@ class Documenter(object):
             tagorder = self.analyzer.tagorder
 
             def keyfunc(entry):
+                # type: (Tuple[Documenter, bool]) -> int
                 fullname = entry[0].name.split('::')[1]
                 return tagorder.get(fullname, len(tagorder))
             memberdocumenters.sort(key=keyfunc)
@@ -1012,7 +1027,7 @@ class Documenter(object):
             # be cached anyway)
             self.analyzer.find_attr_docs()
         except PycodeError as err:
-            self.env.app.debug('[autodoc] module analyzer failed: %s', err)
+            logger.debug('[autodoc] module analyzer failed: %s', err)
             # no source file -- e.g. for builtin and C modules
             self.analyzer = None
             # at least add the module.__file__ as a dependency
@@ -1066,7 +1081,7 @@ class ModuleDocumenter(Documenter):
         'member-order': identity, 'exclude-members': members_set_option,
         'private-members': bool_option, 'special-members': members_option,
         'imported-members': bool_option,
-    }
+    }  # type: Dict[unicode, Callable]
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
@@ -1179,7 +1194,7 @@ class ClassLevelDocumenter(Documenter):
                 # ... if still None, there's no way to know
                 if mod_cls is None:
                     return None, []
-            modname, cls = rpartition(mod_cls, '.')
+            modname, cls = rpartition(mod_cls, '.')  # type: ignore
             parents = [cls]
             # if the module name is still missing, get it like above
             if not modname:
@@ -1318,7 +1333,7 @@ class ClassDocumenter(DocstringSignatureMixin, ModuleLevelDocumenter):  # type: 
         'show-inheritance': bool_option, 'member-order': identity,
         'exclude-members': members_set_option,
         'private-members': bool_option, 'special-members': members_option,
-    }
+    }  # type: Dict[unicode, Callable]
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
@@ -1524,11 +1539,11 @@ class MethodDocumenter(DocstringSignatureMixin, ClassLevelDocumenter):  # type: 
         # to distinguish classmethod/staticmethod
         obj = self.parent.__dict__.get(self.object_name)
 
-        if isinstance(obj, classmethod):  # type: ignore
+        if isinstance(obj, classmethod):
             self.directivetype = 'classmethod'
             # document class and static members before ordinary ones
             self.member_order = self.member_order - 1
-        elif isinstance(obj, staticmethod):  # type: ignore
+        elif isinstance(obj, staticmethod):
             self.directivetype = 'staticmethod'
             # document class and static members before ordinary ones
             self.member_order = self.member_order - 1
@@ -1718,8 +1733,8 @@ class AutoDirective(Directive):
             source, lineno = self.reporter.get_source_and_line(self.lineno)
         except AttributeError:
             source = lineno = None
-        self.env.app.debug('[autodoc] %s:%s: input:\n%s',
-                           source, lineno, self.block_text)
+        logger.debug('[autodoc] %s:%s: input:\n%s',
+                     source, lineno, self.block_text)
 
         # find out what documenter to call
         objtype = self.name[4:]
@@ -1748,7 +1763,7 @@ class AutoDirective(Directive):
         if not self.result:
             return self.warnings
 
-        self.env.app.debug2('[autodoc] output:\n%s', '\n'.join(self.result))
+        logger.debug('[autodoc] output:\n%s', '\n'.join(self.result))
 
         # record all filenames as dependencies -- this will at least
         # partially make automatic invalidation possible
@@ -1814,7 +1829,9 @@ class testcls:
     """test doc string"""
 
     def __getattr__(self, x):
+        # type: (Any) -> Any
         return x
 
     def __setattr__(self, x, y):
+        # type: (Any, Any) -> None
         """Attr setter."""

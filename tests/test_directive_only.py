@@ -13,11 +13,10 @@ import re
 
 from docutils import nodes
 from sphinx.util.nodes import process_only_nodes
+import pytest
 
-from util import with_app
 
-
-@with_app('text', testroot='directive-only')
+@pytest.mark.sphinx('text', testroot='directive-only')
 def test_sectioning(app, status, warning):
 
     def getsects(section):
@@ -43,7 +42,7 @@ def test_sectioning(app, status, warning):
             num = subsect[0].split()[0]
             assert re.match('[0-9]+[.0-9]*[.]', num), \
                 'Unnumbered section: %r' % subsect[0]
-            testsects(prefix + str(i+1) + '.', subsect, indent+4)
+            testsects(prefix + str(i + 1) + '.', subsect, indent + 4)
 
     app.builder.build(['only'])
     doctree = app.env.get_doctree('only')
@@ -52,6 +51,6 @@ def test_sectioning(app, status, warning):
     parts = [getsects(n)
              for n in [_n for _n in doctree.children if isinstance(_n, nodes.section)]]
     for i, s in enumerate(parts):
-        testsects(str(i+1) + '.', s, 4)
+        testsects(str(i + 1) + '.', s, 4)
     assert len(parts) == 4, 'Expected 4 document level headings, got:\n%s' % \
         '\n'.join([p[0] for p in parts])

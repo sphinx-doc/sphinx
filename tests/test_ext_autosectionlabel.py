@@ -11,10 +11,10 @@
 
 import re
 
-from util import with_app
+import pytest
 
 
-@with_app('html', testroot='ext-autosectionlabel')
+@pytest.mark.sphinx('html', testroot='ext-autosectionlabel')
 def test_autosectionlabel_html(app, status, warning):
     app.builder.build_all()
 

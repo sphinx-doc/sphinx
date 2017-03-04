@@ -41,7 +41,7 @@ tables of contents.  The ``toctree`` directive is the central element.
    * Tables of contents from all those documents are inserted, with a maximum
      depth of two, that means one nested heading.  ``toctree`` directives in
      those documents are also taken into account.
-   * Sphinx knows that the relative order of the documents ``intro``,
+   * Sphinx knows the relative order of the documents ``intro``,
      ``strings`` and so forth, and it knows that they are children of the shown
      document, the library index.  From this information it generates "next
      chapter", "previous chapter" and "parent chapter" links.

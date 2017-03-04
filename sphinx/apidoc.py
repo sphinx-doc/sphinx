@@ -25,10 +25,11 @@ from fnmatch import fnmatch
 
 from sphinx.util.osutil import FileAvoidWrite, walk
 from sphinx import __display_version__
+from sphinx.quickstart import EXTENSIONS
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, List, Tuple  # NOQA
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
@@ -273,7 +274,7 @@ def is_excluded(root, excludes):
           e.g. an exlude "foo" also accidentally excluding "foobar".
     """
     for exclude in excludes:
-        if fnmatch(root, exclude):  # type: ignore
+        if fnmatch(root, exclude):
             return True
     return False
 
@@ -346,6 +347,11 @@ Note: By default this script will not overwrite already created files.""")
                       'defaults to --doc-version')
     parser.add_option('--version', action='store_true', dest='show_version',
                       help='Show version information and exit')
+    group = parser.add_option_group('Extension options')
+    for ext in EXTENSIONS:
+        group.add_option('--ext-' + ext, action='store_true',
+                         dest='ext_' + ext, default=False,
+                         help='enable %s extension' % ext)
 
     (opts, args) = parser.parse_args(argv[1:])
 
@@ -384,8 +390,8 @@ Note: By default this script will not overwrite already created files.""")
             text += '   %s\n' % module
         d = dict(
             path = opts.destdir,
-            sep  = False,
-            dot  = '_',
+            sep = False,
+            dot = '_',
             project = opts.header,
             author = opts.author or 'Author',
             version = opts.version or '',
@@ -404,6 +410,10 @@ Note: By default this script will not overwrite already created files.""")
             module_path = rootpath,
             append_syspath = opts.append_syspath,
         )
+        enabled_exts = {'ext_' + ext: getattr(opts, 'ext_' + ext)
+                        for ext in EXTENSIONS if getattr(opts, 'ext_' + ext)}
+        d.update(enabled_exts)
+
         if isinstance(opts.header, binary_type):
             d['project'] = d['project'].decode('utf-8')
         if isinstance(opts.author, binary_type):
@@ -417,6 +427,7 @@ Note: By default this script will not overwrite already created files.""")
             qs.generate(d, silent=True, overwrite=opts.force)
     elif not opts.notoc:
         create_modules_toc_file(modules, opts)
+    return 0
 
 
 # So program can be started with "python -m sphinx.apidoc ..."

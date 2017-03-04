@@ -11,7 +11,7 @@ from sphinx.pycode.pgen2 import grammar, token, tokenize
 
 if False:
     # For type annotation
-    from typing import Any, Tuple  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
 
 
 class PgenGrammar(grammar.Grammar):
@@ -193,7 +193,7 @@ class ParserGenerator(object):
             if state in base:
                 return
             base[state] = 1
-            for label, next in state.arcs:  # type: ignore
+            for label, next in state.arcs:
                 if label is None:
                     addclosure(next, base)
         states = [DFAState(closure(start), finish)]

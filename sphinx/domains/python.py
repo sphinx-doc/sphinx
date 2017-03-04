@@ -14,23 +14,25 @@ import re
 from six import iteritems
 
 from docutils import nodes
-from docutils.parsers.rst import directives
+from docutils.parsers.rst import Directive, directives
 
 from sphinx import addnodes
 from sphinx.roles import XRefRole
 from sphinx.locale import l_, _
 from sphinx.domains import Domain, ObjType, Index
 from sphinx.directives import ObjectDescription
+from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
-from sphinx.util.compat import Directive
 from sphinx.util.docfields import Field, GroupedField, TypedField
 
 if False:
     # For type annotation
-    from typing import Any, Iterator, Tuple, Union  # NOQA
+    from typing import Any, Dict, Iterable, Iterator, List, Tuple, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
+
+logger = logging.getLogger(__name__)
 
 
 # REs for Python signatures
@@ -114,7 +116,7 @@ class PyXrefMixin(object):
     def make_xrefs(self, rolename, domain, target, innernode=nodes.emphasis,
                    contnode=None):
         # type: (unicode, unicode, unicode, nodes.Node, nodes.Node) -> List[nodes.Node]
-        delims = '(\s*[\[\]\(\),](?:\s*or\s)?\s*|\s+or\s+)'
+        delims = r'(\s*[\[\]\(\),](?:\s*or\s)?\s*|\s+or\s+)'
         delims_re = re.compile(delims)
         sub_targets = re.split(delims, target)
 
@@ -189,7 +191,7 @@ class PyObject(ObjectDescription):
         """
         return False
 
-    def handle_signature(self, sig, signode):  # type: ignore
+    def handle_signature(self, sig, signode):
         # type: (unicode, addnodes.desc_signature) -> Tuple[unicode, unicode]
         """Transform a Python signature into RST nodes.
 
@@ -561,7 +563,7 @@ class PyXRefRole(XRefRole):
                 title = title[1:]
                 dot = title.rfind('.')
                 if dot != -1:
-                    title = title[dot+1:]
+                    title = title[dot + 1:]
         # if the first character is a dot, search more specific namespaces first
         # else search builtins first
         if target[0:1] == '.':
@@ -580,7 +582,7 @@ class PythonModuleIndex(Index):
     shortname = l_('modules')
 
     def generate(self, docnames=None):
-        # type: (List[unicode]) -> Tuple[List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]  # NOQA
+        # type: (Iterable[unicode]) -> Tuple[List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]  # NOQA
         content = {}  # type: Dict[unicode, List]
         # list of prefixes to ignore
         ignores = None  # type: List[unicode]
@@ -785,10 +787,9 @@ class PythonDomain(Domain):
         if not matches:
             return None
         elif len(matches) > 1:
-            env.warn_node(
-                'more than one target found for cross-reference '
-                '%r: %s' % (target, ', '.join(match[0] for match in matches)),
-                node)
+            logger.warning('more than one target found for cross-reference %r: %s',
+                           target, ', '.join(match[0] for match in matches),
+                           location=node)
         name, obj = matches[0]
 
         if obj[1] == 'module':
@@ -842,5 +843,11 @@ class PythonDomain(Domain):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_domain(PythonDomain)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

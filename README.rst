@@ -1,8 +1,16 @@
+.. image:: https://img.shields.io/pypi/v/sphinx.svg
+   :target: http://pypi.python.org/pypi/sphinx
+.. image:: https://readthedocs.org/projects/sphinx/badge/
+   :target: http://www.sphinx-doc.org/
+   :alt: Documentation Status
+.. image:: https://travis-ci.org/sphinx-doc/sphinx.svg?branch=master
+   :target: https://travis-ci.org/sphinx-doc/sphinx
+
 =================
 README for Sphinx
 =================
 
-This is the Sphinx documentation generator, see http://sphinx-doc.org/.
+This is the Sphinx documentation generator, see http://www.sphinx-doc.org/.
 
 
 Installing
@@ -36,21 +44,22 @@ Install from cloned source as editable::
 Release signatures
 ==================
 
-Releases are signed with `498D6B9E <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x102C2C17498D6B9E>`_
+Releases are signed with following keys:
 
+* `498D6B9E <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x102C2C17498D6B9E>`_
+* `5EBA0E07 <https://pgp.mit.edu/pks/lookup?op=vindex&search=0x1425F8CE5EBA0E07>`_
 
 Reading the docs
 ================
 
-After installing::
+You can read them online at <http://www.sphinx-doc.org/>.
+
+Or, after installing::
 
    cd doc
    make html
 
 Then, direct your browser to ``_build/html/index.html``.
-
-Or read them online at <http://sphinx-doc.org/>.
-
 
 Testing
 =======
@@ -63,25 +72,13 @@ If you want to use a different interpreter, e.g. ``python3``, use::
 
     PYTHON=python3 make test
 
-Continuous testing runs on travis:
-
-.. image:: https://travis-ci.org/sphinx-doc/sphinx.svg?branch=master
-   :target: https://travis-ci.org/sphinx-doc/sphinx
+Continuous testing runs on travis: https://travis-ci.org/sphinx-doc/sphinx
 
 
 Contributing
 ============
 
-#. Check for open issues or open a fresh issue to start a discussion around a
-   feature idea or a bug.
-#. If you feel uncomfortable or uncertain about an issue or your changes, feel
-   free to email sphinx-dev@googlegroups.com.
-#. Fork the repository on GitHub https://github.com/sphinx-doc/sphinx
-   to start making your changes to the **master** branch for next major
-   version, or **stable** branch for next minor version.
-#. Write a test which shows that the bug was fixed or that the feature works
-   as expected.  Use ``make test`` to run the test suite.
-#. Send a pull request and bug the maintainer until it gets merged and
-   published.  Make sure to add yourself to AUTHORS
-   <https://github.com/sphinx-doc/sphinx/blob/master/AUTHORS> and the change to
-   CHANGES <https://github.com/sphinx-doc/sphinx/blob/master/CHANGES>.
+See `CONTRIBUTING.rst`__
+
+.. __: CONTRIBUTING.rst
+

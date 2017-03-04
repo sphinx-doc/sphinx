@@ -8,9 +8,9 @@ Invocation of sphinx-quickstart
 The :program:`sphinx-quickstart` script generates a Sphinx documentation set.
 It is called like this:
 
-   .. code-block:: console
+.. code-block:: console
 
-     $ sphinx-quickstart [options] [projectdir]
+   $ sphinx-quickstart [options] [projectdir]
 
 where *projectdir* is the Sphinx documentation set directory in which you want
 to place. If you omit *projectdir*, files are generated into current directory
@@ -180,7 +180,7 @@ called like this:
 
 .. code-block:: console
 
-    $ sphinx-build [options] sourcedir builddir [filenames]
+   $ sphinx-build [options] sourcedir builddir [filenames]
 
 where *sourcedir* is the :term:`source directory`, and *builddir* is the
 directory in which you want to place the built documentation.  Most of the time,
@@ -384,6 +384,15 @@ You can also give one or more filenames on the command line after the source and
 build directories.  Sphinx will then try to build only these output files (and
 their dependencies).
 
+Environment variables
+---------------------
+
+The :program:`sphinx-build` refers following environment variables:
+
+.. describe:: MAKE
+
+   A path to make command.  A command name is also allowed.
+   :program:`sphinx-build` uses it to invoke sub-build process on make-mode.
 
 Makefile options
 ----------------
@@ -395,7 +404,7 @@ variables to customize behavior:
 
 .. describe:: PAPER
 
-   The value for :confval:`latex_paper_size`.
+   The value for '"papersize"` key of :confval:`latex_elements`.
 
 .. describe:: SPHINXBUILD
 
@@ -438,7 +447,7 @@ for a Python package.  It is called like this:
 
 .. code-block:: console
 
-    $ sphinx-apidoc [options] -o outputdir packagedir [pathnames]
+   $ sphinx-apidoc [options] -o outputdir packagedir [pathnames]
 
 where *packagedir* is the path to the package to document, and *outputdir* is
 the directory where the generated sources are placed.  Any *pathnames* given

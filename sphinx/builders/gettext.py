@@ -18,23 +18,26 @@ from datetime import datetime, tzinfo, timedelta
 from collections import defaultdict
 from uuid import uuid4
 
-from six import iteritems
+from six import iteritems, StringIO
 
 from sphinx.builders import Builder
-from sphinx.util import split_index_msg
+from sphinx.util import split_index_msg, logging, status_iterator
 from sphinx.util.tags import Tags
 from sphinx.util.nodes import extract_messages, traverse_translatable_index
 from sphinx.util.osutil import safe_relpath, ensuredir, canon_path
 from sphinx.util.i18n import find_catalog
-from sphinx.util.console import darkgreen, purple, bold  # type: ignore
+from sphinx.util.console import bold  # type: ignore
 from sphinx.locale import pairindextypes
 
 if False:
     # For type annotation
-    from typing import Any, Iterable, Tuple  # NOQA
+    from typing import Any, Dict, Iterable, List, Set, Tuple  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.util.i18n import CatalogInfo  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 POHEADER = r"""
 # SOME DESCRIPTIVE TITLE.
@@ -189,6 +192,20 @@ class LocalTimeZone(tzinfo):
 ltz = LocalTimeZone()
 
 
+def should_write(filepath, new_content):
+    if not path.exists(filepath):
+        return True
+    with open(filepath, 'r', encoding='utf-8') as oldpot:  # type: ignore
+        old_content = oldpot.read()
+        old_header_index = old_content.index('"POT-Creation-Date:')
+        new_header_index = old_content.index('"POT-Creation-Date:')
+        old_body_index = old_content.index('"PO-Revision-Date:')
+        new_body_index = new_content.index('"PO-Revision-Date:')
+        return ((old_content[:old_header_index] != new_content[:new_header_index]) or
+                (new_content[new_body_index:] != old_content[old_body_index:]))
+    return True
+
+
 class MessageCatalogBuilder(I18nBuilder):
     """
     Builds gettext-style message catalogs (.pot files).
@@ -216,13 +233,13 @@ class MessageCatalogBuilder(I18nBuilder):
     def _extract_from_template(self):
         # type: () -> None
         files = self._collect_templates()
-        self.info(bold('building [%s]: ' % self.name), nonl=1)
-        self.info('targets for %d template files' % len(files))
+        logger.info(bold('building [%s]: ' % self.name), nonl=1)
+        logger.info('targets for %d template files', len(files))
 
         extract_translations = self.templates.environment.extract_translations
 
-        for template in self.app.status_iterator(
-                files, 'reading templates... ', purple, len(files)):
+        for template in status_iterator(files, 'reading templates... ', "purple",  # type: ignore  # NOQA
+                                        len(files), self.app.verbosity):
             with open(template, 'r', encoding='utf-8') as f:  # type: ignore
                 context = f.read()
             for line, meth, msg in extract_translations(context):
@@ -241,43 +258,50 @@ class MessageCatalogBuilder(I18nBuilder):
             version = self.config.version,
             copyright = self.config.copyright,
             project = self.config.project,
-            ctime = datetime.fromtimestamp(  # type: ignore
+            ctime = datetime.fromtimestamp(
                 timestamp, ltz).strftime('%Y-%m-%d %H:%M%z'),
         )
-        for textdomain, catalog in self.app.status_iterator(
-                iteritems(self.catalogs), "writing message catalogs... ",
-                darkgreen, len(self.catalogs),
-                lambda textdomain__: textdomain__[0]):
+        for textdomain, catalog in status_iterator(iteritems(self.catalogs),  # type: ignore
+                                                   "writing message catalogs... ",
+                                                   "darkgreen", len(self.catalogs),
+                                                   self.app.verbosity,
+                                                   lambda textdomain__: textdomain__[0]):
             # noop if config.gettext_compact is set
             ensuredir(path.join(self.outdir, path.dirname(textdomain)))
 
             pofn = path.join(self.outdir, textdomain + '.pot')
-            with open(pofn, 'w', encoding='utf-8') as pofile:  # type: ignore
-                pofile.write(POHEADER % data)  # type: ignore
+            output = StringIO()
+            output.write(POHEADER % data)  # type: ignore
 
-                for message in catalog.messages:
-                    positions = catalog.metadata[message]
+            for message in catalog.messages:
+                positions = catalog.metadata[message]
 
-                    if self.config.gettext_location:
-                        # generate "#: file1:line1\n#: file2:line2 ..."
-                        pofile.write("#: %s\n" % "\n#: ".join(  # type: ignore
-                            "%s:%s" % (canon_path(
-                                safe_relpath(source, self.outdir)), line)
-                            for source, line, _ in positions))
-                    if self.config.gettext_uuid:
-                        # generate "# uuid1\n# uuid2\n ..."
-                        pofile.write("# %s\n" % "\n# ".join(  # type: ignore
-                            uid for _, _, uid in positions))
+                if self.config.gettext_location:
+                    # generate "#: file1:line1\n#: file2:line2 ..."
+                    output.write("#: %s\n" % "\n#: ".join(  # type: ignore
+                        "%s:%s" % (canon_path(
+                            safe_relpath(source, self.outdir)), line)
+                        for source, line, _ in positions))
+                if self.config.gettext_uuid:
+                    # generate "# uuid1\n# uuid2\n ..."
+                    output.write("# %s\n" % "\n# ".join(  # type: ignore
+                        uid for _, _, uid in positions))
 
-                    # message contains *one* line of text ready for translation
-                    message = message.replace('\\', r'\\'). \
-                        replace('"', r'\"'). \
-                        replace('\n', '\\n"\n"')
-                    pofile.write('msgid "%s"\nmsgstr ""\n\n' % message)  # type: ignore
+                # message contains *one* line of text ready for translation
+                message = message.replace('\\', r'\\'). \
+                    replace('"', r'\"'). \
+                    replace('\n', '\\n"\n"')
+                output.write('msgid "%s"\nmsgstr ""\n\n' % message)  # type: ignore
+
+            content = output.getvalue()
+
+            if should_write(pofn, content):
+                with open(pofn, 'w', encoding='utf-8') as pofile:  # type: ignore
+                    pofile.write(content)
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict[unicode, Any]
     app.add_builder(MessageCatalogBuilder)
 
     app.add_config_value('gettext_compact', True, 'gettext')
@@ -285,3 +309,9 @@ def setup(app):
     app.add_config_value('gettext_uuid', False, 'gettext')
     app.add_config_value('gettext_auto_build', True, 'env')
     app.add_config_value('gettext_additional_targets', [], 'env')
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }
