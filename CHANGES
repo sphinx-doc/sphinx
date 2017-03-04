@@ -89,6 +89,7 @@ Bugs fixed
 * #1574: Paragraphs in table cell doesn't work in Latex output
 * #3288: Table with merged headers not wrapping text
 * #3491: Inconsistent vertical space around table and longtable in PDF
+* #3506: Depart functions for all admonitions in HTML writer now properly pass ``node`` to ``depart_admonition``.
 
 Deprecated
 ----------
