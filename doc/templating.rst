@@ -208,7 +208,7 @@ Overriding works like this::
 
 .. data:: css_props
 
-   .. versionadded:: 1.4
+   .. versionadded:: 1.6
 
    An optional dict where you can specify ``alternate`` and/or ``title``
    attributes for the css files. The keys are the css filenames, the values

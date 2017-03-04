@@ -1192,8 +1192,6 @@ def test_html_inventory(app):
                 "[@rel='alternate stylesheet']", '', True),
         (".//link[@href='_static/more_persistent.css']"
                 "[@rel='stylesheet']", '', True),
-        (".//link[@href='_static/more_persistent2.css']"
-                "[@rel='stylesheet']", '', True),
         (".//link[@href='_static/more_default.css']"
                 "[@rel='stylesheet']"
                 "[@title='Default']", '', True),
