@@ -23,7 +23,7 @@ class ConfHTMLTranslator(HTMLTranslator):
     def depart_admonition(self, node=None):
         if node is not None:
             self.depart_with_node += 1
-        super().depart_admonition(node)
+        super(self.__class__, self).depart_admonition(node)
 
 
 # class ConfDirHTMLTranslator(HTMLTranslator):
