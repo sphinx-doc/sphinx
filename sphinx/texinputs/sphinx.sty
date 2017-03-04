@@ -65,7 +65,7 @@
 \newcommand*\sphinxtablepost{\medskipamount}%
 % as one can not use \baselineskip from inside longtable (it is zero there)
 % we need \sphinxbaselineskip, which defaults to \baselineskip
-\newcommand*\sphinxbelowcaptionskip{.5\sphinxbaselineskip}%
+\newcommand*\sphinxbelowcaptionspace{.5\sphinxbaselineskip}%
 \def\sphinxbaselineskip{\baselineskip}%
 % Helper macros, not a priori for user customization
 \def\sphinxatlongtablestart
@@ -79,7 +79,7 @@
 % the longtable template inserts a \strut at caption's end
 \def\sphinxlongtablecapskipadjust
    {\dimexpr-\dp\strutbox-\sphinxbaselineskip
-            +\sphinxbelowcaptionskip\relax}%
+            +\sphinxbelowcaptionspace\relax}%
 % tabular(y) with or without threeparttable
 \def\sphinxattablestart
    {\par
@@ -89,7 +89,7 @@
 % the tabular(y) templates use [t] vertical placement parameter
 \def\sphinx@TPTbelowcaptionskip
    {\dimexpr-1.2\baselineskip % .2\baselineskip hardcoded in threeparttable
-            +\sphinxbelowcaptionskip\relax }%
+            +\sphinxbelowcaptionspace\relax }%
 % varwidth is crucial for our handling of general contents in merged cells
 \RequirePackage{varwidth}
 % but addition of a compatibility patch with hyperref is needed
