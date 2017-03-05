@@ -20,7 +20,7 @@ import warnings
 from os import path
 from collections import defaultdict
 
-from six import itervalues, class_types, next
+from six import StringIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
 
 from docutils import nodes
@@ -51,7 +51,7 @@ from sphinx.environment.adapters.toctree import TocTree
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, Iterator, List, Pattern, Set, Tuple, Type, Union  # NOQA
+    from typing import Any, Callable, Dict, IO, Iterator, List, Pattern, Set, Tuple, Type, Union  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
@@ -104,36 +104,60 @@ class BuildEnvironment(object):
     # --------- ENVIRONMENT PERSISTENCE ----------------------------------------
 
     @staticmethod
-    def frompickle(srcdir, config, filename):
-        # type: (unicode, Config, unicode) -> BuildEnvironment
-        with open(filename, 'rb') as picklefile:
-            env = pickle.load(picklefile)
+    def load(f, srcdir=None, config=None):
+        # type: (IO, unicode, Config) -> BuildEnvironment
+        env = pickle.load(f)
         if env.version != ENV_VERSION:
             raise IOError('build environment version not current')
-        if env.srcdir != srcdir:
+        if srcdir and env.srcdir != srcdir:
             raise IOError('source directory has changed')
-        env.config.values = config.values
+        if config:
+            env.config.values = config.values
         return env
 
-    def topickle(self, filename):
-        # type: (unicode) -> None
+    @classmethod
+    def loads(cls, string, srcdir=None, config=None):
+        # type: (unicode, unicode, Config) -> BuildEnvironment
+        io = StringIO(string)
+        return cls.load(io)
+
+    @classmethod
+    def frompickle(cls, srcdir, config, filename):
+        # type: (unicode, Config, unicode) -> BuildEnvironment
+        with open(filename, 'rb') as f:
+            return cls.load(f, srcdir, config)
+
+    @staticmethod
+    def dump(env, f):
+        # type: (BuildEnvironment, IO) -> None
         # remove unpicklable attributes
-        values = self.config.values
-        del self.config.values
-        domains = self.domains
-        del self.domains
+        values = env.config.values
+        del env.config.values
+        domains = env.domains
+        del env.domains
         # remove potentially pickling-problematic values from config
-        for key, val in list(vars(self.config).items()):
+        for key, val in list(vars(env.config).items()):
             if key.startswith('_') or \
                isinstance(val, types.ModuleType) or \
                isinstance(val, types.FunctionType) or \
                isinstance(val, class_types):
-                del self.config[key]
-        with open(filename, 'wb') as picklefile:
-            pickle.dump(self, picklefile, pickle.HIGHEST_PROTOCOL)
+                del env.config[key]
+        pickle.dump(env, f, pickle.HIGHEST_PROTOCOL)
         # reset attributes
-        self.domains = domains
-        self.config.values = values
+        env.domains = domains
+        env.config.values = values
+
+    @classmethod
+    def dumps(cls, env):
+        # type: (BuildEnvironment) -> unicode
+        io = StringIO()
+        cls.dump(env, io)
+        return io.getvalue()
+
+    def topickle(self, filename):
+        # type: (unicode) -> None
+        with open(filename, 'wb') as f:
+            self.dump(self, f)
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
