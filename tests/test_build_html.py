@@ -442,8 +442,7 @@ def test_html_output(app, cached_etree_parse, fname, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
-@pytest.mark.sphinx('html', testroot='build-html-translator', tags=['testtag'], confoverrides={
-    'html_context.hckey_co': 'hcval_co'})
+@pytest.mark.sphinx('html', testroot='build-html-translator')
 def test_html_translator(app):
     app.build()
     assert app.builder.docwriter.visitor.depart_with_node == 10
