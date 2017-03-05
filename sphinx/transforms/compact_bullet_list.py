@@ -10,9 +10,9 @@
 """
 
 from docutils import nodes
-from docutils.transforms import Transform
 
 from sphinx import addnodes
+from sphinx.transforms import SphinxTransform
 
 
 class RefOnlyListChecker(nodes.GenericNodeVisitor):
@@ -53,7 +53,7 @@ class RefOnlyListChecker(nodes.GenericNodeVisitor):
         pass
 
 
-class RefOnlyBulletListTransform(Transform):
+class RefOnlyBulletListTransform(SphinxTransform):
     """Change refonly bullet lists to use compact_paragraphs.
 
     Specifically implemented for 'Indices and Tables' section, which looks
@@ -63,8 +63,7 @@ class RefOnlyBulletListTransform(Transform):
 
     def apply(self):
         # type: () -> None
-        env = self.document.settings.env
-        if env.config.html_compact_lists:
+        if self.config.html_compact_lists:
             return
 
         def check_refonly_list(node):
