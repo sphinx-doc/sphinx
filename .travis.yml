@@ -42,6 +42,7 @@ addons:
     - texlive-luatex
     - texlive-xetex
     - lmodern
+    - latex-xcolor
 install:
   - pip install -U pip setuptools
   - pip install docutils==$DOCUTILS
