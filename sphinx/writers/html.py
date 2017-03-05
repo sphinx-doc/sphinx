@@ -736,7 +736,7 @@ class HTMLTranslator(BaseTranslator):
 
     def depart_attention(self, node):
         # type: (nodes.Node) -> None
-        self.depart_admonition()
+        self.depart_admonition(node)
 
     def visit_caution(self, node):
         # type: (nodes.Node) -> None
@@ -744,7 +744,7 @@ class HTMLTranslator(BaseTranslator):
 
     def depart_caution(self, node):
         # type: (nodes.Node) -> None
-        self.depart_admonition()
+        self.depart_admonition(node)
 
     def visit_danger(self, node):
         # type: (nodes.Node) -> None
@@ -752,7 +752,7 @@ class HTMLTranslator(BaseTranslator):
 
     def depart_danger(self, node):
         # type: (nodes.Node) -> None
-        self.depart_admonition()
+        self.depart_admonition(node)
 
     def visit_error(self, node):
         # type: (nodes.Node) -> None
@@ -760,7 +760,7 @@ class HTMLTranslator(BaseTranslator):
 
     def depart_error(self, node):
         # type: (nodes.Node) -> None
-        self.depart_admonition()
+        self.depart_admonition(node)
 
     def visit_hint(self, node):
         # type: (nodes.Node) -> None
@@ -768,7 +768,7 @@ class HTMLTranslator(BaseTranslator):
 
     def depart_hint(self, node):
         # type: (nodes.Node) -> None
-        self.depart_admonition()
+        self.depart_admonition(node)
 
     def visit_important(self, node):
         # type: (nodes.Node) -> None
@@ -776,7 +776,7 @@ class HTMLTranslator(BaseTranslator):
 
     def depart_important(self, node):
         # type: (nodes.Node) -> None
-        self.depart_admonition()
+        self.depart_admonition(node)
 
     def visit_tip(self, node):
         # type: (nodes.Node) -> None
@@ -784,7 +784,7 @@ class HTMLTranslator(BaseTranslator):
 
     def depart_tip(self, node):
         # type: (nodes.Node) -> None
-        self.depart_admonition()
+        self.depart_admonition(node)
 
     # these are only handled specially in the SmartyPantsHTMLTranslator
     def visit_literal_emphasis(self, node):

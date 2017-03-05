@@ -17,7 +17,6 @@ from six import PY3
 
 from sphinx import __display_version__
 from sphinx.util.inventory import InventoryFile
-
 from util import remove_unicode_literals, strip_escseq
 import xml.etree.cElementTree as ElementTree
 from html5lib import getTreeBuilder, HTMLParser
@@ -443,6 +442,10 @@ def test_html_output(app, cached_etree_parse, fname, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
 
+@pytest.mark.sphinx('html', testroot='build-html-translator')
+def test_html_translator(app):
+    app.build()
+    assert app.builder.docwriter.visitor.depart_with_node == 10
 
 @pytest.mark.parametrize("fname,expect", flat_dict({
     'index.html': [
