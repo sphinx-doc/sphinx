@@ -144,6 +144,7 @@ class Sphinx(object):
         self.builder = None                     # type: Builder
         self.env = None                         # type: BuildEnvironment
         self.enumerable_nodes = {}              # type: Dict[nodes.Node, Tuple[unicode, Callable]]  # NOQA
+        self.post_transforms = []               # type: List[Transform]
 
         self.srcdir = srcdir
         self.confdir = confdir
@@ -785,9 +786,14 @@ class Sphinx(object):
         StandardDomain.roles[rolename] = XRefRole(innernodeclass=ref_nodeclass)
 
     def add_transform(self, transform):
-        # type: (Transform) -> None
+        # type: (Type[Transform]) -> None
         logger.debug('[app] adding transform: %r', transform)
         SphinxStandaloneReader.transforms.append(transform)
+
+    def add_post_transform(self, transform):
+        # type: (Type[Transform]) -> None
+        logger.debug('[app] adding post transform: %r', transform)
+        self.post_transforms.append(transform)
 
     def add_javascript(self, filename):
         # type: (unicode) -> None
