@@ -968,7 +968,8 @@ class SingleFileHTMLBuilder(StandaloneHTMLBuilder):
         if 'includehidden' not in kwds:
             kwds['includehidden'] = False
         toctree = self.env.get_toctree_for(docname, self, collapse, **kwds)
-        self.fix_refuris(toctree)
+        if toctree is not None:
+            self.fix_refuris(toctree)
         return self.render_partial(toctree)['fragment']
 
     def assemble_doctree(self):
