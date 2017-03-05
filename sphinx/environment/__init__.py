@@ -104,33 +104,36 @@ class BuildEnvironment(object):
     # --------- ENVIRONMENT PERSISTENCE ----------------------------------------
 
     @staticmethod
-    def load(f, srcdir=None, config=None):
-        # type: (IO, unicode, Config) -> BuildEnvironment
+    def load(f, app=None):
+        # type: (IO, Sphinx) -> BuildEnvironment
         env = pickle.load(f)
         if env.version != ENV_VERSION:
             raise IOError('build environment version not current')
-        if srcdir and env.srcdir != srcdir:
-            raise IOError('source directory has changed')
-        if config:
-            env.config.values = config.values
+        if app:
+            env.app = app
+            env.config.values = app.config.values
+            if env.srcdir != app.srcdir:
+                raise IOError('source directory has changed')
         return env
 
     @classmethod
-    def loads(cls, string, srcdir=None, config=None):
-        # type: (unicode, unicode, Config) -> BuildEnvironment
+    def loads(cls, string, app=None):
+        # type: (unicode, Sphinx) -> BuildEnvironment
         io = StringIO(string)
-        return cls.load(io)
+        return cls.load(io, app)
 
     @classmethod
-    def frompickle(cls, srcdir, config, filename):
-        # type: (unicode, Config, unicode) -> BuildEnvironment
+    def frompickle(cls, filename, app):
+        # type: (unicode, Sphinx) -> BuildEnvironment
         with open(filename, 'rb') as f:
-            return cls.load(f, srcdir, config)
+            return cls.load(f, app)
 
     @staticmethod
     def dump(env, f):
         # type: (BuildEnvironment, IO) -> None
         # remove unpicklable attributes
+        app = env.app
+        del env.app
         values = env.config.values
         del env.config.values
         domains = env.domains
@@ -146,6 +149,7 @@ class BuildEnvironment(object):
         # reset attributes
         env.domains = domains
         env.config.values = values
+        env.app = app
 
     @classmethod
     def dumps(cls, env):
@@ -161,18 +165,16 @@ class BuildEnvironment(object):
 
     # --------- ENVIRONMENT INITIALIZATION -------------------------------------
 
-    def __init__(self, srcdir, doctreedir, config):
-        # type: (unicode, unicode, Config) -> None
-        self.doctreedir = doctreedir
-        self.srcdir = srcdir  # type: unicode
-        self.config = config  # type: Config
+    def __init__(self, app):
+        # type: (Sphinx) -> None
+        self.app = app
+        self.doctreedir = app.doctreedir
+        self.srcdir = app.srcdir
+        self.config = app.config
 
         # the method of doctree versioning; see set_versioning_method
         self.versioning_condition = None  # type: Union[bool, Callable]
         self.versioning_compare = None  # type: bool
-
-        # the application object; only set while update() runs
-        self.app = None  # type: Sphinx
 
         # all the registered domains, set by the application
         self.domains = {}
@@ -490,8 +492,8 @@ class BuildEnvironment(object):
 
         return added, changed, removed
 
-    def update(self, config, srcdir, doctreedir, app):
-        # type: (Config, unicode, unicode, Sphinx) -> List[unicode]
+    def update(self, config, srcdir, doctreedir):
+        # type: (Config, unicode, unicode) -> List[unicode]
         """(Re-)read all files new or changed since last update.
 
         Store all environment docnames in the canonical format (ie using SEP as
@@ -519,7 +521,7 @@ class BuildEnvironment(object):
         # the source and doctree directories may have been relocated
         self.srcdir = srcdir
         self.doctreedir = doctreedir
-        self.find_files(config, app.buildername)
+        self.find_files(config, self.app.buildername)
         self.config = config
 
         # this cache also needs to be updated every time
@@ -530,7 +532,7 @@ class BuildEnvironment(object):
         added, changed, removed = self.get_outdated_files(config_changed)
 
         # allow user intervention as well
-        for docs in app.emit('env-get-outdated', self, added, changed, removed):
+        for docs in self.app.emit('env-get-outdated', self, added, changed, removed):
             changed.update(set(docs) & self.found_docs)
 
         # if files were added or removed, all documents with globbed toctrees
@@ -543,23 +545,21 @@ class BuildEnvironment(object):
                                                      len(removed))
         logger.info(msg)
 
-        self.app = app
-
         # clear all files no longer present
         for docname in removed:
-            app.emit('env-purge-doc', self, docname)
+            self.app.emit('env-purge-doc', self, docname)
             self.clear_doc(docname)
 
         # read all new and changed files
         docnames = sorted(added | changed)
         # allow changing and reordering the list of docs to read
-        app.emit('env-before-read-docs', self, docnames)
+        self.app.emit('env-before-read-docs', self, docnames)
 
         # check if we should do parallel or serial read
         par_ok = False
-        if parallel_available and len(docnames) > 5 and app.parallel > 1:
+        if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
             par_ok = True
-            for extname, md in app._extension_metadata.items():
+            for extname, md in self.app._extension_metadata.items():
                 ext_ok = md.get('parallel_read_safe')
                 if ext_ok:
                     continue
@@ -575,17 +575,15 @@ class BuildEnvironment(object):
                 par_ok = False
                 break
         if par_ok:
-            self._read_parallel(docnames, app, nproc=app.parallel)
+            self._read_parallel(docnames, self.app, nproc=self.app.parallel)
         else:
-            self._read_serial(docnames, app)
+            self._read_serial(docnames, self.app)
 
         if config.master_doc not in self.all_docs:
             raise SphinxError('master file %s not found' %
                               self.doc2path(config.master_doc))
 
-        self.app = None
-
-        for retval in app.emit('env-updated', self):
+        for retval in self.app.emit('env-updated', self):
             if retval is not None:
                 docnames.extend(retval)
 
@@ -608,20 +606,17 @@ class BuildEnvironment(object):
             self.clear_doc(docname)
 
         def read_process(docs):
-            # type: (List[unicode]) -> BuildEnvironment
+            # type: (List[unicode]) -> unicode
             self.app = app
             for docname in docs:
                 self.read_doc(docname, app)
             # allow pickling self to send it back
-            del self.app
-            del self.domains
-            del self.config.values
-            del self.config
-            return self
+            return BuildEnvironment.dumps(self)
 
         def merge(docs, otherenv):
-            # type: (List[unicode], BuildEnvironment) -> None
-            self.merge_info_from(docs, otherenv, app)
+            # type: (List[unicode], unicode) -> None
+            env = BuildEnvironment.loads(otherenv)
+            self.merge_info_from(docs, env, app)
 
         tasks = ParallelTasks(nproc)
         chunks = make_chunks(docnames, nproc)
