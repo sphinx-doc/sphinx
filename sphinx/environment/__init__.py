@@ -35,7 +35,7 @@ from sphinx import addnodes
 from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
 from sphinx.util import logging
 from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
-from sphinx.util.nodes import WarningStream, is_translatable, process_only_nodes
+from sphinx.util.nodes import WarningStream, is_translatable
 from sphinx.util.osutil import SEP, ensuredir
 from sphinx.util.i18n import find_catalog_files
 from sphinx.util.console import bold  # type: ignore
@@ -46,7 +46,7 @@ from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.transforms import SphinxTransformer
 from sphinx.versioning import add_uids, merge_doctrees
-from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
 
@@ -921,10 +921,18 @@ class BuildEnvironment(object):
 
     def resolve_references(self, doctree, fromdocname, builder):
         # type: (nodes.Node, unicode, Builder) -> None
-        # apply all post-transforms
+        warnings.warn('env.resolve_references() is deprecated. '
+                      'Use apply_post_transforms() instead.',
+                      RemovedInSphinx17Warning)
+
+        self.apply_post_transforms(doctree, fromdocname)
+
+    def apply_post_transforms(self, doctree, docname):
+        # type: (nodes.Node, unicode) -> None
+        """Apply all post-transforms."""
         try:
             # set env.docname during applying post-transforms
-            self.temp_data['docname'] = fromdocname
+            self.temp_data['docname'] = docname
 
             transformer = SphinxTransformer(doctree)
             transformer.add_transforms(self.app.post_transforms)
@@ -932,11 +940,8 @@ class BuildEnvironment(object):
         finally:
             self.temp_data.clear()
 
-        # remove only-nodes that do not belong to our builder
-        process_only_nodes(doctree, builder.tags)
-
         # allow custom references to be resolved
-        builder.app.emit('doctree-resolved', doctree, fromdocname)
+        self.app.emit('doctree-resolved', doctree, docname)
 
     def _warn_missing_reference(self, refdoc, typ, target, node, domain):
         # type: (unicode, unicode, unicode, nodes.Node, Domain) -> None

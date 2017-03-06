@@ -15,7 +15,7 @@ from docutils import nodes
 
 from sphinx import addnodes
 from sphinx.util import url_re, logging
-from sphinx.util.nodes import clean_astext, process_only_nodes
+from sphinx.util.nodes import clean_astext
 
 if False:
     # For type annotation
@@ -158,7 +158,7 @@ class TocTree(object):
                         maxdepth = self.env.metadata[ref].get('tocdepth', 0)
                         if ref not in toctree_ancestors or (prune and maxdepth > 0):
                             self._toctree_prune(toc, 2, maxdepth, collapse)
-                        process_only_nodes(toc, builder.tags)
+                        self.process_only_nodes(toc)
                         if title and toc.children and len(toc.children) == 1:
                             child = toc.children[0]
                             for refnode in child.traverse(nodes.reference):
@@ -298,7 +298,7 @@ class TocTree(object):
             # the document does not exist anymore: return a dummy node that
             # renders to nothing
             return nodes.paragraph()
-        process_only_nodes(toc, builder.tags)
+        self.process_only_nodes(toc)
         for node in toc.traverse(nodes.reference):
             node['refuri'] = node['anchorname'] or '#'
         return toc
@@ -323,3 +323,14 @@ class TocTree(object):
         for toctree in toctrees[1:]:
             result.extend(toctree.children)
         return result
+
+    def process_only_nodes(self, doctree):
+        # type: (nodes.Node) -> None
+        # Lazy loading
+        from sphinx.transforms import SphinxTransformer
+        from sphinx.transforms.post_transforms import OnlyNodeTransform
+
+        transformer = SphinxTransformer(doctree)
+        transformer.set_environment(self.env)
+        transformer.add_transform(OnlyNodeTransform)
+        transformer.apply_transforms()

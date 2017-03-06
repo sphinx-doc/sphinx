@@ -76,6 +76,11 @@ class SphinxTransformer(Transformer):
     """
 
     document = None  # type: nodes.Node
+    env = None  # type: BuildEnvironment
+
+    def set_environment(self, env):
+        # type: (BuildEnvironment) -> None
+        self.env = env
 
     def apply_transforms(self):
         # type: () -> None
@@ -85,6 +90,8 @@ class SphinxTransformer(Transformer):
             # wrap the target node by document node during transforming
             try:
                 document = new_document('')
+                if self.env:
+                    document.settings.env = self.env
                 document += self.document
                 self.document = document
                 Transformer.apply_transforms(self)

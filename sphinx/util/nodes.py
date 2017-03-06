@@ -11,12 +11,14 @@
 from __future__ import absolute_import
 
 import re
+import warnings
 
 from six import text_type
 
 from docutils import nodes
 
 from sphinx import addnodes
+from sphinx.deprecation import RemovedInSphinx17Warning
 from sphinx.locale import pairindextypes
 from sphinx.util import logging
 
@@ -358,6 +360,10 @@ def process_only_nodes(doctree, tags):
     # result in a "Losing ids" exception if there is a target node before
     # the only node, so we make sure docutils can transfer the id to
     # something, even if it's just a comment and will lose the id anyway...
+    warnings.warn('process_only_nodes() is deprecated. '
+                  'Use sphinx.environment.apply_post_transforms() instead.',
+                  RemovedInSphinx17Warning)
+
     for node in doctree.traverse(addnodes.only):
         try:
             ret = tags.eval_condition(node['expr'])

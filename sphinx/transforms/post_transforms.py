@@ -9,14 +9,20 @@
     :license: BSD, see LICENSE for details.
 """
 
+from docutils import nodes
+
 from sphinx import addnodes
 from sphinx.environment import NoUri
 from sphinx.transforms import SphinxTransform
+from sphinx.util import logging
 
 if False:
     # For type annotation
     from typing import Any, Dict  # NOQA
     from sphinx.application import Sphinx  # NOQA
+
+
+logger = logging.getLogger(__name__)
 
 
 class ReferencesResolver(SphinxTransform):
@@ -63,9 +69,33 @@ class ReferencesResolver(SphinxTransform):
             node.replace_self(newnode or contnode)
 
 
+class OnlyNodeTransform(SphinxTransform):
+    default_priority = 50
+
+    def apply(self):
+        # type: () -> None
+        # A comment on the comment() nodes being inserted: replacing by [] would
+        # result in a "Losing ids" exception if there is a target node before
+        # the only node, so we make sure docutils can transfer the id to
+        # something, even if it's just a comment and will lose the id anyway...
+        for node in self.document.traverse(addnodes.only):
+            try:
+                ret = self.app.builder.tags.eval_condition(node['expr'])
+            except Exception as err:
+                logger.warning('exception while evaluating only directive expression: %s', err,
+                               location=node)
+                node.replace_self(node.children or nodes.comment())
+            else:
+                if ret:
+                    node.replace_self(node.children or nodes.comment())
+                else:
+                    node.replace_self(nodes.comment())
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_post_transform(ReferencesResolver)
+    app.add_post_transform(OnlyNodeTransform)
 
     return {
         'version': 'builtin',
