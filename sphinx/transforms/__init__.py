@@ -10,8 +10,9 @@
 """
 
 from docutils import nodes
-from docutils.transforms import Transform
+from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
+from docutils.utils import new_document
 
 from sphinx import addnodes
 from sphinx.locale import _
@@ -67,6 +68,28 @@ class SphinxTransform(Transform):
     def config(self):
         # type: () -> Config
         return self.document.settings.env.config
+
+
+class SphinxTransformer(Transformer):
+    """
+    A transformer for Sphinx.
+    """
+
+    document = None  # type: nodes.Node
+
+    def apply_transforms(self):
+        # type: () -> None
+        if isinstance(self.document, nodes.document):
+            Transformer.apply_transforms(self)
+        else:
+            # wrap the target node by document node during transforming
+            try:
+                document = new_document('')
+                document += self.document
+                self.document = document
+                Transformer.apply_transforms(self)
+            finally:
+                self.document = self.document[0]
 
 
 class DefaultSubstitutions(SphinxTransform):

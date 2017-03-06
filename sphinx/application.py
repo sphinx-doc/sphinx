@@ -105,6 +105,7 @@ builtin_extensions = (
     'sphinx.directives.other',
     'sphinx.directives.patches',
     'sphinx.roles',
+    'sphinx.transforms.post_transforms',
     # collectors should be loaded by specific order
     'sphinx.environment.collectors.dependencies',
     'sphinx.environment.collectors.asset',

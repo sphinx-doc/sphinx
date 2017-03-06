@@ -44,6 +44,7 @@ from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
+from sphinx.transforms import SphinxTransformer
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -920,38 +921,16 @@ class BuildEnvironment(object):
 
     def resolve_references(self, doctree, fromdocname, builder):
         # type: (nodes.Node, unicode, Builder) -> None
-        for node in doctree.traverse(addnodes.pending_xref):
-            contnode = node[0].deepcopy()
-            newnode = None
+        # apply all post-transforms
+        try:
+            # set env.docname during applying post-transforms
+            self.temp_data['docname'] = fromdocname
 
-            typ = node['reftype']
-            target = node['reftarget']
-            refdoc = node.get('refdoc', fromdocname)
-            domain = None
-
-            try:
-                if 'refdomain' in node and node['refdomain']:
-                    # let the domain try to resolve the reference
-                    try:
-                        domain = self.domains[node['refdomain']]
-                    except KeyError:
-                        raise NoUri
-                    newnode = domain.resolve_xref(self, refdoc, builder,
-                                                  typ, target, node, contnode)
-                # really hardwired reference types
-                elif typ == 'any':
-                    newnode = self._resolve_any_reference(builder, refdoc, node, contnode)
-                # no new node found? try the missing-reference event
-                if newnode is None:
-                    newnode = builder.app.emit_firstresult(
-                        'missing-reference', self, node, contnode)
-                    # still not found? warn if node wishes to be warned about or
-                    # we are in nit-picky mode
-                    if newnode is None:
-                        self._warn_missing_reference(refdoc, typ, target, node, domain)
-            except NoUri:
-                newnode = contnode
-            node.replace_self(newnode or contnode)
+            transformer = SphinxTransformer(doctree)
+            transformer.add_transforms(self.app.post_transforms)
+            transformer.apply_transforms()
+        finally:
+            self.temp_data.clear()
 
         # remove only-nodes that do not belong to our builder
         process_only_nodes(doctree, builder.tags)
