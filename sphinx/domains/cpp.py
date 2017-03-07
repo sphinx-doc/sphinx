@@ -4499,8 +4499,21 @@ class CPPDomain(Domain):
             ast = parser.parse_xref_object()
             parser.assert_end()
         except DefinitionError as e:
+            def findWarning():
+                if typ != 'any' and typ != 'func':
+                    return target, e
+                # hax on top of the paren hax to try to get correct errors
+                parser2 = DefinitionParser(target[:-2], warner, env.config)
+                try:
+                    parser2.parse_xref_object()
+                    parser2.assert_end()
+                except DefinitionError as e2:
+                    return target[:-2], e2
+                # strange, that we don't get the error now, use the original
+                return target, e
+            t, ex = findWarning()
             warner.warn('Unparseable C++ cross-reference: %r\n%s'
-                        % (target, text_type(e.description)))
+                        % (t, text_type(ex.description)))
             return None, None
         parentKey = node.get("cpp:parent_key", None)
         rootSymbol = self.data['root_symbol']
