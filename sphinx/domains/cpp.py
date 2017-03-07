@@ -4499,7 +4499,7 @@ class CPPDomain(Domain):
             ast = parser.parse_xref_object()
             parser.assert_end()
         except DefinitionError as e:
-            def findWarning():
+            def findWarning(e):  # as arg to stop flake8 from complaining
                 if typ != 'any' and typ != 'func':
                     return target, e
                 # hax on top of the paren hax to try to get correct errors
@@ -4511,7 +4511,7 @@ class CPPDomain(Domain):
                     return target[:-2], e2
                 # strange, that we don't get the error now, use the original
                 return target, e
-            t, ex = findWarning()
+            t, ex = findWarning(e)
             warner.warn('Unparseable C++ cross-reference: %r\n%s'
                         % (t, text_type(ex.description)))
             return None, None
