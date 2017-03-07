@@ -136,6 +136,105 @@ class DataURIExtractor(BaseImageConverter):
         self.app.env.images.add_file(self.env.docname, path)
 
 
+def get_filename_for(filename, mimetype):
+    # type: (unicode, unicode) -> unicode
+    basename = os.path.basename(filename)
+    return os.path.splitext(basename)[0] + get_image_extension(mimetype)
+
+
+class ImageConverter(BaseImageConverter):
+    """A base class images converter.
+
+    The concrete image converters should derive this class and
+    overrides the following methods and attributes:
+
+    * default_priority (if needed)
+    * conversion_rules
+    * is_available()
+    * convert()
+    """
+    default_priority = 200
+
+    #: A conversion rules between two mimetypes which this converters supports
+    conversion_rules = []
+
+    def __init__(self, *args, **kwargs):
+        # type: (Any, Any) -> None
+        self.available = None  # not checked yet
+        BaseImageConverter.__init__(self, *args, **kwargs)
+
+    def match(self, node):
+        # type: (nodes.Node) -> bool
+        if self.available is None:
+            self.available = self.is_available()
+
+        if not self.available:
+            return False
+        elif set(node['candidates']) & set(self.app.builder.supported_image_types):
+            # builder supports the image; no need to convert
+            return False
+        else:
+            rule = self.get_conversion_rule(node)
+            if rule:
+                return True
+            else:
+                return False
+
+    def get_conversion_rule(self, node):
+        # type: (nodes.Node) -> Tuple[unicode, unicode]
+        for candidate in self.guess_mimetypes(node):
+            for supported in self.app.builder.supported_image_types:
+                rule = (candidate, supported)
+                if rule in self.conversion_rules:
+                    return rule
+
+        return None
+
+    def is_available(self):
+        # type: () -> bool
+        """Confirms the converter is available or not."""
+        raise NotImplemented
+
+    def guess_mimetypes(self, node):
+        # type: (nodes.Node) -> unicode
+        if '?' in node['candidates']:
+            return []
+        elif '*' in node['candidates']:
+            from sphinx.util.images import guess_mimetype
+            return [guess_mimetype(node['uri'])]
+        else:
+            return node['candidates'].keys()
+
+    def handle(self, node):
+        # type: (nodes.Node) -> None
+        _from, _to = self.get_conversion_rule(node)
+
+        if _from in node['candidates']:
+            srcpath = node['candidates'][_from]
+        else:
+            srcpath = node['candidates']['*']
+
+        filename = get_filename_for(srcpath, _to)
+        ensuredir(self.imagedir)
+        destpath = os.path.join(self.imagedir, filename)
+
+        abs_srcpath = os.path.join(self.app.srcdir, srcpath)
+        if self.convert(abs_srcpath, destpath):
+            if '*' in node['candidates']:
+                node['candidates']['*'] = destpath
+            else:
+                node['candidates'][_to] = destpath
+            node['uri'] = destpath
+
+            self.env.original_image_uri[destpath] = srcpath
+            self.env.images.add_file(self.env.docname, destpath)
+
+    def convert(self, _from, _to):
+        # type: (unicode, unicode) -> None
+        """Converts the image to expected one."""
+        raise NotImplemented
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.add_post_transform(ImageDownloader)

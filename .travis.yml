@@ -43,6 +43,7 @@ addons:
     - texlive-xetex
     - lmodern
     - latex-xcolor
+    - imagemagick
 install:
   - pip install -U pip setuptools
   - pip install docutils==$DOCUTILS
