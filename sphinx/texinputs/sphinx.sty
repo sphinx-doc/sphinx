@@ -1243,6 +1243,10 @@
 \protected\def\sphinxstyleabbreviation   {\textsc}
 \protected\def\sphinxstyleliteralintitle {\sphinxcode}
 
+% LaTeX writer uses macros to hide double quotes from \sphinxcode's \@noligs
+\protected\def\sphinxquotedblleft{``}
+\protected\def\sphinxquotedblright{''}
+
 % stylesheet for highlighting with pygments
 \RequirePackage{sphinxhighlight}
 
