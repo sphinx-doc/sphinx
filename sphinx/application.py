@@ -372,7 +372,6 @@ class Sphinx(object):
         else:
             self.emit('build-finished', None)
         self.builder.cleanup()
-        self.env = None  # clear environment
 
     # ---- logging handling ----------------------------------------------------
     def warn(self, message, location=None, prefix=None,
