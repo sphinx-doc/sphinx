@@ -259,6 +259,8 @@ class LiteralIncludeReader(object):
             else:
                 start = tags[pyobject][1]
                 end = tags[pyobject][2]
+                extra = self.options.get('decorator-lines', 0)
+                start = max(start - extra, 1)
                 lines = lines[start - 1:end - 1]
                 if 'lineno-match' in self.options:
                     self.lineno_start = start
@@ -378,6 +380,7 @@ class LiteralInclude(Directive):
         'language': directives.unchanged_required,
         'encoding': directives.encoding,
         'pyobject': directives.unchanged_required,
+        'decorator-lines': int,
         'lines': directives.unchanged_required,
         'start-after': directives.unchanged_required,
         'end-before': directives.unchanged_required,
