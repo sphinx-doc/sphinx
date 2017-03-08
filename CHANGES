@@ -25,6 +25,7 @@ Bugs fixed
   are same without creation date. Thanks to Yoshiki Shibukawa.
 * #3487: intersphinx: failed to refer options
 * #3496: latex longtable's last column may be much wider than its contents
+* #2665, #2607: Link names in C++ docfields, and make it possible for other domains.
 
 Testing
 --------

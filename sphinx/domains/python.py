@@ -85,9 +85,9 @@ def _pseudo_parse_arglist(signode, arglist):
 # This override allows our inline type specifiers to behave like :class: link
 # when it comes to handling "." and "~" prefixes.
 class PyXrefMixin(object):
-    def make_xref(self, rolename, domain, target, innernode=nodes.emphasis,
+    def make_xref(self, env, rolename, domain, target, innernode=nodes.emphasis,
                   contnode=None):
-        result = super(PyXrefMixin, self).make_xref(rolename, domain, target,
+        result = super(PyXrefMixin, self).make_xref(env, rolename, domain, target,
                                                     innernode, contnode)
         result['refspecific'] = True
         if target.startswith(('.', '~')):
@@ -101,7 +101,7 @@ class PyXrefMixin(object):
                 break
         return result
 
-    def make_xrefs(self, rolename, domain, target, innernode=nodes.emphasis,
+    def make_xrefs(self, env, rolename, domain, target, innernode=nodes.emphasis,
                    contnode=None):
         delims = '(\s*[\[\]\(\),](?:\s*or\s)?\s*|\s+or\s+)'
         delims_re = re.compile(delims)
@@ -117,7 +117,7 @@ class PyXrefMixin(object):
             if delims_re.match(sub_target):
                 results.append(contnode or innernode(sub_target, sub_target))
             else:
-                results.append(self.make_xref(rolename, domain, sub_target,
+                results.append(self.make_xref(env, rolename, domain, sub_target,
                                               innernode, contnode))
 
         return results
