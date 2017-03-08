@@ -26,19 +26,18 @@ from six.moves import cStringIO
 from docutils import nodes
 from docutils.parsers.rst import convert_directive_function, \
     directives, roles
-from pkg_resources import iter_entry_points
 
 import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
-from sphinx.errors import SphinxError, ExtensionError, VersionRequirementError, \
-    ConfigError
+from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
 from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
 from sphinx.extension import load_extension, verify_required_extensions
+from sphinx.factory import SphinxFactory
 from sphinx.io import SphinxStandaloneReader
 from sphinx.locale import _
 from sphinx.roles import XRefRole
@@ -124,9 +123,9 @@ class Sphinx(object):
         self._additional_source_parsers = {}    # type: Dict[unicode, Parser]
         self._setting_up_extension = ['?']      # type: List[unicode]
         self.domains = {}                       # type: Dict[unicode, Type[Domain]]
-        self.builderclasses = {}                # type: Dict[unicode, Type[Builder]]
         self.builder = None                     # type: Builder
         self.env = None                         # type: BuildEnvironment
+        self.factory = SphinxFactory()
         self.enumerable_nodes = {}              # type: Dict[nodes.Node, Tuple[unicode, Callable]]  # NOQA
         self.post_transforms = []               # type: List[Transform]
         self.html_themes = {}                   # type: Dict[unicode, unicode]
@@ -301,28 +300,17 @@ class Sphinx(object):
                     logger.info(_('failed: %s'), err)
                 self._init_env(freshenv=True)
 
-    def preload_builder(self, buildername):
+    def preload_builder(self, name):
         # type: (unicode) -> None
-        if buildername is None:
-            return
+        self.factory.preload_builder(self, name)
 
-        if buildername not in self.builderclasses:
-            entry_points = iter_entry_points('sphinx.builders', buildername)
-            try:
-                entry_point = next(entry_points)
-            except StopIteration:
-                raise SphinxError(_('Builder name %s not registered or available'
-                                    ' through entry point') % buildername)
-            load_extension(self, entry_point.module_name)
-
-    def create_builder(self, buildername):
+    def create_builder(self, name):
         # type: (unicode) -> Builder
-        if buildername is None:
-            buildername = 'html'
-        if buildername not in self.builderclasses:
-            raise SphinxError(_('Builder name %s not registered') % buildername)
+        if name is None:
+            logger.info(_('No builder selected, using default: html'))
+            name = 'html'
 
-        return self.builderclasses[buildername](self)
+        return self.factory.create_builder(self, name)
 
     def _init_builder(self):
         # type: () -> None
@@ -516,13 +504,7 @@ class Sphinx(object):
     def add_builder(self, builder):
         # type: (Type[Builder]) -> None
         logger.debug('[app] adding builder: %r', builder)
-        if not hasattr(builder, 'name'):
-            raise ExtensionError(_('Builder class %s has no "name" attribute')
-                                 % builder)
-        if builder.name in self.builderclasses:
-            raise ExtensionError(_('Builder %r already exists (in module %s)') %
-                                 (builder.name, self.builderclasses[builder.name].__module__))
-        self.builderclasses[builder.name] = builder
+        self.factory.add_builder(builder)
 
     def add_config_value(self, name, default, rebuild, types=()):
         # type: (unicode, Any, Union[bool, unicode], Any) -> None
