@@ -121,7 +121,7 @@ def main(argv):
                       help='show version information and exit')
 
     group = parser.add_option_group('General options')
-    group.add_option('-b', metavar='BUILDER', dest='builder', default='html',
+    group.add_option('-b', action='append', metavar='BUILDER', dest='builder', default=[],
                      help='builder to use; default is html')
     group.add_option('-a', action='store_true', dest='force_all',
                      help='write all files; default is to only write new and '

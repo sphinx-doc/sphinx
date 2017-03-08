@@ -378,7 +378,7 @@ class BuildEnvironment(object):
             enc_rel_fn = rel_fn.encode(sys.getfilesystemencoding())
             return rel_fn, path.abspath(path.join(self.srcdir, enc_rel_fn))
 
-    def find_files(self, config, buildername):
+    def find_files(self, config, buildernames):
         # type: (Config, unicode) -> None
         """Find all source files in the source dir and put them in
         self.found_docs.
@@ -403,7 +403,7 @@ class BuildEnvironment(object):
         # is set for the doc source and the mo file, it is processed again from
         # the reading phase when mo is updated. In the future, we would like to
         # move i18n process into the writing phase, and remove these lines.
-        if buildername != 'gettext':
+        if buildernames != ['gettext']:
             # add catalog mo file dependency
             for docname in self.found_docs:
                 catalog_files = find_catalog_files(
@@ -495,7 +495,7 @@ class BuildEnvironment(object):
         # the source and doctree directories may have been relocated
         self.srcdir = srcdir
         self.doctreedir = doctreedir
-        self.find_files(config, app.buildername)
+        self.find_files(config, app.buildernames)
         self.config = config
 
         # this cache also needs to be updated every time
