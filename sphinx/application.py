@@ -29,8 +29,6 @@ import sphinx
 from sphinx import package_dir, locale
 from sphinx.config import Config
 from sphinx.errors import ConfigError, ExtensionError, VersionRequirementError
-from sphinx.domains import ObjType
-from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
@@ -38,7 +36,6 @@ from sphinx.extension import load_extension, verify_required_extensions
 from sphinx.factory import SphinxFactory
 from sphinx.io import SphinxStandaloneReader
 from sphinx.locale import _
-from sphinx.roles import XRefRole
 from sphinx.util import pycompat  # noqa: F401
 from sphinx.util import import_object
 from sphinx.util import logging
@@ -120,7 +117,6 @@ class Sphinx(object):
         self.extensions = {}                    # type: Dict[unicode, Extension]
         self._additional_source_parsers = {}    # type: Dict[unicode, Parser]
         self._setting_up_extension = ['?']      # type: List[unicode]
-        self.domains = {}                       # type: Dict[unicode, Type[Domain]]
         self.builder = None                     # type: Builder
         self.env = None                         # type: BuildEnvironment
         self.factory = SphinxFactory()
@@ -223,9 +219,9 @@ class Sphinx(object):
         verify_required_extensions(self, self.config.needs_extensions)
 
         # check primary_domain if requested
-        if self.config.primary_domain and self.config.primary_domain not in self.domains:
-            logger.warning(_('primary_domain %r not found, ignored.'),
-                           self.config.primary_domain)
+        primary_domain = self.config.primary_domain
+        if primary_domain and not self.factory.has_domain(primary_domain):
+            logger.warning(_('primary_domain %r not found, ignored.'), primary_domain)
 
         # create the builder
         self.builder = self.create_builder(buildername)
@@ -279,17 +275,17 @@ class Sphinx(object):
         if freshenv:
             self.env = BuildEnvironment(self)
             self.env.find_files(self.config, self.builder)
-            for domain in self.domains.keys():
-                self.env.domains[domain] = self.domains[domain](self.env)
+            for domain in self.factory.create_domains(self.env):
+                self.env.domains[domain.name] = domain
         else:
             try:
                 logger.info(bold(_('loading pickled environment... ')), nonl=True)
                 filename = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
                 self.env = BuildEnvironment.frompickle(filename, self)
                 self.env.domains = {}
-                for domain in self.domains.keys():
+                for domain in self.factory.create_domains(self.env):
                     # this can raise if the data version doesn't fit
-                    self.env.domains[domain] = self.domains[domain](self.env)
+                    self.env.domains[domain.name] = domain
                 logger.info(_('done'))
             except Exception as err:
                 if isinstance(err, IOError) and err.errno == ENOENT:
@@ -618,43 +614,30 @@ class Sphinx(object):
     def add_domain(self, domain):
         # type: (Type[Domain]) -> None
         logger.debug('[app] adding domain: %r', domain)
-        if domain.name in self.domains:
-            raise ExtensionError(_('domain %s already registered') % domain.name)
-        self.domains[domain.name] = domain
+        self.factory.add_domain(domain)
 
     def override_domain(self, domain):
         # type: (Type[Domain]) -> None
         logger.debug('[app] overriding domain: %r', domain)
-        if domain.name not in self.domains:
-            raise ExtensionError(_('domain %s not yet registered') % domain.name)
-        if not issubclass(domain, self.domains[domain.name]):
-            raise ExtensionError(_('new domain not a subclass of registered %s '
-                                   'domain') % domain.name)
-        self.domains[domain.name] = domain
+        self.factory.override_domain(domain)
 
     def add_directive_to_domain(self, domain, name, obj,
                                 has_content=None, argument_spec=None, **option_spec):
         # type: (unicode, unicode, Any, bool, Any, Any) -> None
         logger.debug('[app] adding directive to domain: %r',
                      (domain, name, obj, has_content, argument_spec, option_spec))
-        if domain not in self.domains:
-            raise ExtensionError(_('domain %s not yet registered') % domain)
-        self.domains[domain].directives[name] = \
-            directive_helper(obj, has_content, argument_spec, **option_spec)
+        self.factory.add_directive_to_domain(domain, name, obj,
+                                             has_content, argument_spec, **option_spec)
 
     def add_role_to_domain(self, domain, name, role):
         # type: (unicode, unicode, Any) -> None
         logger.debug('[app] adding role to domain: %r', (domain, name, role))
-        if domain not in self.domains:
-            raise ExtensionError(_('domain %s not yet registered') % domain)
-        self.domains[domain].roles[name] = role
+        self.factory.add_role_to_domain(domain, name, role)
 
     def add_index_to_domain(self, domain, index):
         # type: (unicode, Type[Index]) -> None
         logger.debug('[app] adding index to domain: %r', (domain, index))
-        if domain not in self.domains:
-            raise ExtensionError(_('domain %s not yet registered') % domain)
-        self.domains[domain].indices.append(index)
+        self.factory.add_index_to_domain(domain, index)
 
     def add_object_type(self, directivename, rolename, indextemplate='',
                         parse_node=None, ref_nodeclass=None, objname='',
@@ -663,19 +646,18 @@ class Sphinx(object):
         logger.debug('[app] adding object type: %r',
                      (directivename, rolename, indextemplate, parse_node,
                       ref_nodeclass, objname, doc_field_types))
-        StandardDomain.object_types[directivename] = \
-            ObjType(objname or directivename, rolename)
-        # create a subclass of GenericObject as the new directive
-        new_directive = type(directivename, (GenericObject, object),  # type: ignore
-                             {'indextemplate': indextemplate,
-                              'parse_node': staticmethod(parse_node),  # type: ignore
-                              'doc_field_types': doc_field_types})
-        StandardDomain.directives[directivename] = new_directive
-        # XXX support more options?
-        StandardDomain.roles[rolename] = XRefRole(innernodeclass=ref_nodeclass)
+        self.factory.add_object_type(directivename, rolename, indextemplate, parse_node,
+                                     ref_nodeclass, objname, doc_field_types)
 
-    # backwards compatible alias
-    add_description_unit = add_object_type
+    def add_description_unit(self, directivename, rolename, indextemplate='',
+                             parse_node=None, ref_nodeclass=None, objname='',
+                             doc_field_types=[]):
+        # type: (unicode, unicode, unicode, Callable, nodes.Node, unicode, List) -> None
+        warnings.warn('app.add_description_unit() is now deprecated. '
+                      'Use app.add_object_type() instead.',
+                      RemovedInSphinx20Warning)
+        self.add_object_type(directivename, rolename, indextemplate, parse_node,
+                             ref_nodeclass, objname, doc_field_types)
 
     def add_crossref_type(self, directivename, rolename, indextemplate='',
                           ref_nodeclass=None, objname=''):
@@ -683,14 +665,8 @@ class Sphinx(object):
         logger.debug('[app] adding crossref type: %r',
                      (directivename, rolename, indextemplate, ref_nodeclass,
                       objname))
-        StandardDomain.object_types[directivename] = \
-            ObjType(objname or directivename, rolename)
-        # create a subclass of Target as the new directive
-        new_directive = type(directivename, (Target, object),  # type: ignore
-                             {'indextemplate': indextemplate})
-        StandardDomain.directives[directivename] = new_directive
-        # XXX support more options?
-        StandardDomain.roles[rolename] = XRefRole(innernodeclass=ref_nodeclass)
+        self.factory.add_crossref_type(directivename, rolename,
+                                       indextemplate, ref_nodeclass, objname)
 
     def add_transform(self, transform):
         # type: (Type[Transform]) -> None
