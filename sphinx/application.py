@@ -14,7 +14,6 @@ from __future__ import print_function
 
 import os
 import sys
-import types
 import warnings
 import posixpath
 from os import path
@@ -24,8 +23,7 @@ from six import iteritems
 from six.moves import cStringIO
 
 from docutils import nodes
-from docutils.parsers.rst import convert_directive_function, \
-    directives, roles
+from docutils.parsers.rst import directives, roles
 
 import sphinx
 from sphinx import package_dir, locale
@@ -48,7 +46,7 @@ from sphinx.util import status_iterator, old_status_iterator, display_chunk
 from sphinx.util.tags import Tags
 from sphinx.util.osutil import ENOENT
 from sphinx.util.console import bold, darkgreen  # type: ignore
-from sphinx.util.docutils import is_html5_writer_available
+from sphinx.util.docutils import is_html5_writer_available, directive_helper
 from sphinx.util.i18n import find_catalog_source_files
 
 if False:
@@ -575,21 +573,15 @@ class Sphinx(object):
         self.enumerable_nodes[node] = (figtype, title_getter)
         self.add_node(node, **kwds)
 
-    def _directive_helper(self, obj, content=None, arguments=None, **options):
-        # type: (Any, unicode, Any, Any) -> Any
-        if isinstance(obj, (types.FunctionType, types.MethodType)):
-            obj.content = content                       # type: ignore
-            obj.arguments = arguments or (0, 0, False)  # type: ignore
-            obj.options = options                       # type: ignore
-            return convert_directive_function(obj)
-        else:
-            if content or arguments or options:
-                raise ExtensionError(_('when adding directive classes, no '
-                                       'additional arguments may be given'))
-            return obj
+    def _directive_helper(self, obj, has_content=None, argument_spec=None, **option_spec):
+        # type: (Any, bool, Tuple[int, int, bool], Any) -> Any
+        warnings.warn('_directive_helper() is now deprecated. '
+                      'Please use sphinx.util.docutils.directive_helper() instead.',
+                      RemovedInSphinx17Warning)
+        return directive_helper(obj, has_content, argument_spec, **option_spec)
 
     def add_directive(self, name, obj, content=None, arguments=None, **options):
-        # type: (unicode, Any, unicode, Any, Any) -> None
+        # type: (unicode, Any, bool, Tuple[int, int, bool], Any) -> None
         logger.debug('[app] adding directive: %r',
                      (name, obj, content, arguments, options))
         if name in directives._directives:
@@ -597,8 +589,8 @@ class Sphinx(object):
                              'already registered, it will be overridden'),
                            self._setting_up_extension[-1], name,
                            type='app', subtype='add_directive')
-        directives.register_directive(
-            name, self._directive_helper(obj, content, arguments, **options))
+        directive = directive_helper(obj, content, arguments, **options)
+        directives.register_directive(name, directive)
 
     def add_role(self, name, role):
         # type: (unicode, Any) -> None
@@ -641,14 +633,14 @@ class Sphinx(object):
         self.domains[domain.name] = domain
 
     def add_directive_to_domain(self, domain, name, obj,
-                                content=None, arguments=None, **options):
-        # type: (unicode, unicode, Any, unicode, Any, Any) -> None
+                                has_content=None, argument_spec=None, **option_spec):
+        # type: (unicode, unicode, Any, bool, Any, Any) -> None
         logger.debug('[app] adding directive to domain: %r',
-                     (domain, name, obj, content, arguments, options))
+                     (domain, name, obj, has_content, argument_spec, option_spec))
         if domain not in self.domains:
             raise ExtensionError(_('domain %s not yet registered') % domain)
         self.domains[domain].directives[name] = \
-            self._directive_helper(obj, content, arguments, **options)
+            directive_helper(obj, has_content, argument_spec, **option_spec)
 
     def add_role_to_domain(self, domain, name, role):
         # type: (unicode, unicode, Any) -> None

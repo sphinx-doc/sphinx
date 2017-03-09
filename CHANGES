@@ -146,6 +146,8 @@ Deprecated
   instead (as Sphinx does since 1.5.)
 * ``Sphinx.status_iterator()`` and ``Sphinx.old_status_iterator()`` is now
   deprecated.  Please use ``sphinx.util:status_iterator()`` intead.
+* ``Sphinx._directive_helper()`` is deprecated. Please use
+  ``sphinx.util.docutils.directive_helper()`` instead.
 * ``BuildEnvironment.set_warnfunc()`` is now deprecated
 * Following methods of ``BuildEnvironment`` is now deprecated.
 
