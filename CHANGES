@@ -24,6 +24,7 @@ Incompatible changes
   ``True`` to ``False``. This means that some LaTeX macros for styling are
   by default defined only with ``\sphinx..`` prefixed names. (refs: #3429)
 * Footer "Continued on next page" of LaTeX longtable's now not framed (refs: #3497)
+* #3529: The arguments of ``BuildEnvironment.__init__`` is changed
 
 Features removed
 ----------------

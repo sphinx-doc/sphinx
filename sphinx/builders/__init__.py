@@ -289,8 +289,7 @@ class Builder(object):
 
         # while reading, collect all warnings from docutils
         with logging.pending_warnings():
-            updated_docnames = set(self.env.update(self.config, self.srcdir,
-                                                   self.doctreedir, self.app))
+            updated_docnames = set(self.env.update(self.config, self.srcdir, self.doctreedir))
 
         doccount = len(updated_docnames)
         logger.info(bold('looking for now-outdated files... '), nonl=1)
