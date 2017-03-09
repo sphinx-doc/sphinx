@@ -691,7 +691,8 @@ class BuildEnvironment(object):
             codecs.register_error('sphinx', self.warn_and_replace)  # type: ignore
 
             # publish manually
-            reader = SphinxStandaloneReader(self.app, parsers=self.config.source_parsers)
+            reader = SphinxStandaloneReader(self.app,
+                                            parsers=self.app.factory.get_source_parsers())
             pub = Publisher(reader=reader,
                             writer=SphinxDummyWriter(),
                             destination_class=NullOutput)

@@ -115,7 +115,6 @@ class Sphinx(object):
         # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, List[unicode], int, int) -> None  # NOQA
         self.verbosity = verbosity
         self.extensions = {}                    # type: Dict[unicode, Extension]
-        self._additional_source_parsers = {}    # type: Dict[unicode, Parser]
         self._setting_up_extension = ['?']      # type: List[unicode]
         self.builder = None                     # type: Builder
         self.env = None                         # type: BuildEnvironment
@@ -264,11 +263,11 @@ class Sphinx(object):
 
     def _init_source_parsers(self):
         # type: () -> None
-        for suffix, parser in iteritems(self._additional_source_parsers):
+        for suffix, parser in iteritems(self.config.source_parsers):
+            self.add_source_parser(suffix, parser)
+        for suffix, parser in iteritems(self.factory.get_source_parsers()):
             if suffix not in self.config.source_suffix:
                 self.config.source_suffix.append(suffix)
-            if suffix not in self.config.source_parsers:
-                self.config.source_parsers[suffix] = parser
 
     def _init_env(self, freshenv):
         # type: (bool) -> None
@@ -738,12 +737,7 @@ class Sphinx(object):
     def add_source_parser(self, suffix, parser):
         # type: (unicode, Parser) -> None
         logger.debug('[app] adding search source_parser: %r, %r', suffix, parser)
-        if suffix in self._additional_source_parsers:
-            logger.warning(_('while setting up extension %s: source_parser for %r is '
-                             'already registered, it will be overridden'),
-                           self._setting_up_extension[-1], suffix,
-                           type='app', subtype='add_source_parser')
-        self._additional_source_parsers[suffix] = parser
+        self.factory.add_source_parser(suffix, parser)
 
     def add_env_collector(self, collector):
         # type: (Type[EnvironmentCollector]) -> None

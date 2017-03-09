@@ -27,6 +27,7 @@ if False:
     # For type annotation
     from typing import Any, Callable, Dict, Iterator, List, Type  # NOQA
     from docutils import nodes  # NOQA
+    from docutils.parsers import Parser  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
@@ -35,8 +36,9 @@ if False:
 
 class SphinxFactory(object):
     def __init__(self):
-        self.builders = {}  # type: Dict[unicode, Type[Builder]]
-        self.domains = {}   # type: Dict[unicode, Type[Domain]]
+        self.builders = {}          # type: Dict[unicode, Type[Builder]]
+        self.domains = {}           # type: Dict[unicode, Type[Domain]]
+        self.source_parsers = {}    # type: Dict[unicode, Parser]
 
     def add_builder(self, builder):
         # type: (Type[Builder]) -> None
@@ -140,3 +142,13 @@ class SphinxFactory(object):
         stddomain.directives[directivename] = directive
         stddomain.roles[rolename] = XRefRole(innernodeclass=ref_nodeclass)
         stddomain.object_types[directivename] = ObjType(objname or directivename, rolename)
+
+    def add_source_parser(self, suffix, parser):
+        # type: (unicode, Parser) -> None
+        if suffix in self.source_parsers:
+            raise ExtensionError(_('source_parser for %r is already registered') % suffix)
+        self.source_parsers[suffix] = parser
+
+    def get_source_parsers(self):
+        # type: () -> Dict[unicode, Parser]
+        return self.source_parsers

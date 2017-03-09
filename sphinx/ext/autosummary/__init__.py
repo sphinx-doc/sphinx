@@ -573,7 +573,7 @@ def get_rst_suffix(app):
     # type: (Sphinx) -> unicode
     def get_supported_format(suffix):
         # type: (unicode) -> Tuple[unicode]
-        parser_class = app.config.source_parsers.get(suffix)
+        parser_class = app.factory.get_source_parsers().get(suffix)
         if parser_class is None:
             return ('restructuredtext',)
         if isinstance(parser_class, string_types):

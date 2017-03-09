@@ -85,13 +85,6 @@ def test_domain_override(app, status, warning):
 @pytest.mark.sphinx(testroot='add_source_parser')
 def test_add_source_parser(app, status, warning):
     assert set(app.config.source_suffix) == set(['.rst', '.md', '.test'])
-    assert set(app.config.source_parsers.keys()) == set(['.md', '.test'])
-    assert app.config.source_parsers['.md'].__name__ == 'DummyMarkdownParser'
-    assert app.config.source_parsers['.test'].__name__ == 'TestSourceParser'
-
-
-@pytest.mark.sphinx(testroot='add_source_parser-conflicts-with-users-setting')
-def test_add_source_parser_conflicts_with_users_setting(app, status, warning):
-    assert set(app.config.source_suffix) == set(['.rst', '.test'])
-    assert set(app.config.source_parsers.keys()) == set(['.test'])
-    assert app.config.source_parsers['.test'].__name__ == 'DummyTestParser'
+    assert set(app.factory.get_source_parsers().keys()) == set(['.md', '.test'])
+    assert app.factory.get_source_parsers()['.md'].__name__ == 'DummyMarkdownParser'
+    assert app.factory.get_source_parsers()['.test'].__name__ == 'TestSourceParser'

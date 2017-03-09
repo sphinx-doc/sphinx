@@ -11,7 +11,7 @@
 from docutils.io import FileInput
 from docutils.readers import standalone
 from docutils.writers import UnfilteredWriter
-from six import string_types, text_type
+from six import string_types, text_type, iteritems
 from typing import Any, Union  # NOQA
 
 from sphinx.transforms import (
@@ -158,9 +158,8 @@ class SphinxFileInput(FileInput):
         # type: () -> unicode
         def get_parser_type(source_path):
             # type: (unicode) -> Tuple[unicode]
-            for suffix in self.env.config.source_parsers:
+            for suffix, parser_class in iteritems(self.app.factory.get_source_parsers()):
                 if source_path.endswith(suffix):
-                    parser_class = self.env.config.source_parsers[suffix]
                     if isinstance(parser_class, string_types):
                         parser_class = import_object(parser_class, 'source parser')  # type: ignore  # NOQA
                     return parser_class.supported
