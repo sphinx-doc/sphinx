@@ -38,6 +38,7 @@ from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.io import SphinxStandaloneReader
+from sphinx.locale import _
 from sphinx.roles import XRefRole
 from sphinx.util import pycompat  # noqa: F401
 from sphinx.util import import_object
@@ -189,14 +190,18 @@ class Sphinx(object):
         self.config.check_unicode()
         # defer checking types until i18n has been initialized
 
-        # initialize some limited config variables before loading extensions
+        # initialize some limited config variables before initialize i18n and loading
+        # extensions
         self.config.pre_init_values()
+
+        # set up translation infrastructure
+        self._init_i18n()
 
         # check the Sphinx version if requested
         if self.config.needs_sphinx and self.config.needs_sphinx > sphinx.__display_version__:
             raise VersionRequirementError(
-                'This project needs at least Sphinx v%s and therefore cannot '
-                'be built with this version.' % self.config.needs_sphinx)
+                _('This project needs at least Sphinx v%s and therefore cannot '
+                  'be built with this version.') % self.config.needs_sphinx)
 
         # set confdir to srcdir if -C given (!= no confdir); a few pieces
         # of code expect a confdir to be set
@@ -224,9 +229,9 @@ class Sphinx(object):
                 self.config.setup(self)
             else:
                 raise ConfigError(
-                    "'setup' that is specified in the conf.py has not been " +
-                    "callable. Please provide a callable `setup` function " +
-                    "in order to behave as a sphinx extension conf.py itself."
+                    _("'setup' that is specified in the conf.py has not been "
+                      "callable. Please provide a callable `setup` function "
+                      "in order to behave as a sphinx extension conf.py itself.")
                 )
 
         # now that we know all config values, collect them from conf.py
@@ -236,23 +241,22 @@ class Sphinx(object):
         if self.config.needs_extensions:
             for extname, needs_ver in self.config.needs_extensions.items():
                 if extname not in self._extensions:
-                    logger.warning('needs_extensions config value specifies a '
-                                   'version requirement for extension %s, but it is '
-                                   'not loaded', extname)
+                    logger.warning(_('needs_extensions config value specifies a '
+                                     'version requirement for extension %s, but it is '
+                                     'not loaded'), extname)
                     continue
                 has_ver = self._extension_metadata[extname]['version']
                 if has_ver == 'unknown version' or needs_ver > has_ver:
                     raise VersionRequirementError(
-                        'This project needs the extension %s at least in '
-                        'version %s and therefore cannot be built with the '
-                        'loaded version (%s).' % (extname, needs_ver, has_ver))
+                        _('This project needs the extension %s at least in '
+                          'version %s and therefore cannot be built with the '
+                          'loaded version (%s).') % (extname, needs_ver, has_ver))
 
         # check primary_domain if requested
         if self.config.primary_domain and self.config.primary_domain not in self.domains:
-            logger.warning('primary_domain %r not found, ignored.', self.config.primary_domain)
+            logger.warning(_('primary_domain %r not found, ignored.'),
+                           self.config.primary_domain)
 
-        # set up translation infrastructure
-        self._init_i18n()
         # check all configuration values for permissible types
         self.config.check_types()
         # set up source_parsers
@@ -286,7 +290,7 @@ class Sphinx(object):
         if self.config.language is not None:
             if has_translation or self.config.language == 'en':
                 # "en" never needs to be translated
-                logger.info('done')
+                logger.info(_('done'))
             else:
                 logger.info('not available for built-in messages')
 
@@ -307,28 +311,28 @@ class Sphinx(object):
                 self.env.domains[domain] = self.domains[domain](self.env)
         else:
             try:
-                logger.info(bold('loading pickled environment... '), nonl=True)
+                logger.info(bold(_('loading pickled environment... ')), nonl=True)
                 self.env = BuildEnvironment.frompickle(
                     self.srcdir, self.config, path.join(self.doctreedir, ENV_PICKLE_FILENAME))
                 self.env.domains = {}
                 for domain in self.domains.keys():
                     # this can raise if the data version doesn't fit
                     self.env.domains[domain] = self.domains[domain](self.env)
-                logger.info('done')
+                logger.info(_('done'))
             except Exception as err:
                 if isinstance(err, IOError) and err.errno == ENOENT:
-                    logger.info('not yet created')
+                    logger.info(_('not yet created'))
                 else:
-                    logger.info('failed: %s', err)
+                    logger.info(_('failed: %s'), err)
                 self._init_env(freshenv=True)
 
     def _init_builder(self, buildername):
         # type: (unicode) -> None
         if buildername is None:
-            print('No builder selected, using default: html', file=self._status)
+            logger.info(_('No builder selected, using default: html'))
             buildername = 'html'
         if buildername not in self.builderclasses:
-            raise SphinxError('Builder name %s not registered' % buildername)
+            raise SphinxError(_('Builder name %s not registered') % buildername)
 
         builderclass = self.builderclasses[buildername]
         self.builder = builderclass(self)
@@ -355,13 +359,13 @@ class Sphinx(object):
                 self.builder.build_update()
 
             status = (self.statuscode == 0 and
-                      'succeeded' or 'finished with problems')
+                      _('succeeded') or _('finished with problems'))
             if self._warncount:
-                logger.info(bold('build %s, %s warning%s.' %
+                logger.info(bold(_('build %s, %s warning%s.') %
                                  (status, self._warncount,
                                   self._warncount != 1 and 's' or '')))
             else:
-                logger.info(bold('build %s.' % status))
+                logger.info(bold(_('build %s.') % status))
         except Exception as err:
             # delete the saved env to force a fresh build next time
             envfile = path.join(self.doctreedir, ENV_PICKLE_FILENAME)
@@ -472,20 +476,20 @@ class Sphinx(object):
         if extension in self._extensions:
             return
         if extension in EXTENSION_BLACKLIST:
-            logger.warning('the extension %r was already merged with Sphinx since version %s; '
-                           'this extension is ignored.',
+            logger.warning(_('the extension %r was already merged with Sphinx since '
+                             'version %s; this extension is ignored.'),
                            extension, EXTENSION_BLACKLIST[extension])
             return
         self._setting_up_extension.append(extension)
         try:
             mod = __import__(extension, None, None, ['setup'])
         except ImportError as err:
-            logger.verbose('Original exception:\n' + traceback.format_exc())
-            raise ExtensionError('Could not import extension %s' % extension,
+            logger.verbose(_('Original exception:\n') + traceback.format_exc())
+            raise ExtensionError(_('Could not import extension %s') % extension,
                                  err)
         if not hasattr(mod, 'setup'):
-            logger.warning('extension %r has no setup() function; is it really '
-                           'a Sphinx extension module?', extension)
+            logger.warning(_('extension %r has no setup() function; is it really '
+                             'a Sphinx extension module?'), extension)
             ext_meta = None
         else:
             try:
@@ -493,9 +497,9 @@ class Sphinx(object):
             except VersionRequirementError as err:
                 # add the extension name to the version required
                 raise VersionRequirementError(
-                    'The %s extension used by this project needs at least '
-                    'Sphinx v%s; it therefore cannot be built with this '
-                    'version.' % (extension, err))
+                    _('The %s extension used by this project needs at least '
+                      'Sphinx v%s; it therefore cannot be built with this '
+                      'version.') % (extension, err))
         if ext_meta is None:
             ext_meta = {}
             # special-case for compatibility
@@ -505,9 +509,9 @@ class Sphinx(object):
             if not ext_meta.get('version'):
                 ext_meta['version'] = 'unknown version'
         except Exception:
-            logger.warning('extension %r returned an unsupported object from '
-                           'its setup() function; it should return None or a '
-                           'metadata dictionary', extension)
+            logger.warning(_('extension %r returned an unsupported object from '
+                             'its setup() function; it should return None or a '
+                             'metadata dictionary'), extension)
             ext_meta = {'version': 'unknown version'}
         self._extensions[extension] = mod
         self._extension_metadata[extension] = ext_meta
@@ -529,7 +533,7 @@ class Sphinx(object):
     def _validate_event(self, event):
         # type: (unicode) -> None
         if event not in self._events:
-            raise ExtensionError('Unknown event name: %s' % event)
+            raise ExtensionError(_('Unknown event name: %s') % event)
 
     def connect(self, event, callback):
         # type: (unicode, Callable) -> int
@@ -560,7 +564,7 @@ class Sphinx(object):
             pass
         results = []
         if event in self._listeners:
-            for _, callback in iteritems(self._listeners[event]):
+            for listener_id, callback in iteritems(self._listeners[event]):
                 results.append(callback(self, *args))
         return results
 
@@ -577,12 +581,11 @@ class Sphinx(object):
         # type: (Type[Builder]) -> None
         logger.debug('[app] adding builder: %r', builder)
         if not hasattr(builder, 'name'):
-            raise ExtensionError('Builder class %s has no "name" attribute'
+            raise ExtensionError(_('Builder class %s has no "name" attribute')
                                  % builder)
         if builder.name in self.builderclasses:
-            raise ExtensionError(
-                'Builder %r already exists (in module %s)' % (
-                    builder.name, self.builderclasses[builder.name].__module__))
+            raise ExtensionError(_('Builder %r already exists (in module %s)') %
+                                 (builder.name, self.builderclasses[builder.name].__module__))
         self.builderclasses[builder.name] = builder
 
     def add_config_value(self, name, default, rebuild, types=()):
@@ -590,7 +593,7 @@ class Sphinx(object):
         logger.debug('[app] adding config value: %r',
                      (name, default, rebuild) + ((types,) if types else ()))  # type: ignore
         if name in self.config:
-            raise ExtensionError('Config value %r already present' % name)
+            raise ExtensionError(_('Config value %r already present') % name)
         if rebuild in (False, True):
             rebuild = rebuild and 'env' or ''
         self.config.add(name, default, rebuild, types)
@@ -604,7 +607,7 @@ class Sphinx(object):
 
     def set_translator(self, name, translator_class):
         # type: (unicode, Any) -> None
-        logger.info(bold('A Translator for the %s builder is changed.' % name))
+        logger.info(bold(_('A Translator for the %s builder is changed.') % name))
         self._translators[name] = translator_class
 
     def add_node(self, node, **kwds):
@@ -612,8 +615,8 @@ class Sphinx(object):
         logger.debug('[app] adding node: %r', (node, kwds))
         if not kwds.pop('override', False) and \
            hasattr(nodes.GenericNodeVisitor, 'visit_' + node.__name__):
-            logger.warning('while setting up extension %s: node class %r is '
-                           'already registered, its visitors will be overridden',
+            logger.warning(_('while setting up extension %s: node class %r is '
+                             'already registered, its visitors will be overridden'),
                            self._setting_up_extension, node.__name__,
                            type='app', subtype='add_node')
         nodes._add_node_class_names([node.__name__])
@@ -621,8 +624,8 @@ class Sphinx(object):
             try:
                 visit, depart = val
             except ValueError:
-                raise ExtensionError('Value for key %r must be a '
-                                     '(visit, depart) function tuple' % key)
+                raise ExtensionError(_('Value for key %r must be a '
+                                       '(visit, depart) function tuple') % key)
             translator = self._translators.get(key)
             translators = []
             if translator is not None:
@@ -665,8 +668,8 @@ class Sphinx(object):
             return convert_directive_function(obj)
         else:
             if content or arguments or options:
-                raise ExtensionError('when adding directive classes, no '
-                                     'additional arguments may be given')
+                raise ExtensionError(_('when adding directive classes, no '
+                                       'additional arguments may be given'))
             return obj
 
     def add_directive(self, name, obj, content=None, arguments=None, **options):
@@ -674,8 +677,8 @@ class Sphinx(object):
         logger.debug('[app] adding directive: %r',
                      (name, obj, content, arguments, options))
         if name in directives._directives:
-            logger.warning('while setting up extension %s: directive %r is '
-                           'already registered, it will be overridden',
+            logger.warning(_('while setting up extension %s: directive %r is '
+                             'already registered, it will be overridden'),
                            self._setting_up_extension[-1], name,
                            type='app', subtype='add_directive')
         directives.register_directive(
@@ -685,8 +688,8 @@ class Sphinx(object):
         # type: (unicode, Any) -> None
         logger.debug('[app] adding role: %r', (name, role))
         if name in roles._roles:
-            logger.warning('while setting up extension %s: role %r is '
-                           'already registered, it will be overridden',
+            logger.warning(_('while setting up extension %s: role %r is '
+                             'already registered, it will be overridden'),
                            self._setting_up_extension[-1], name,
                            type='app', subtype='add_role')
         roles.register_local_role(name, role)
@@ -697,8 +700,8 @@ class Sphinx(object):
         # register_canonical_role
         logger.debug('[app] adding generic role: %r', (name, nodeclass))
         if name in roles._roles:
-            logger.warning('while setting up extension %s: role %r is '
-                           'already registered, it will be overridden',
+            logger.warning(_('while setting up extension %s: role %r is '
+                             'already registered, it will be overridden'),
                            self._setting_up_extension[-1], name,
                            type='app', subtype='add_generic_role')
         role = roles.GenericRole(name, nodeclass)
@@ -708,17 +711,17 @@ class Sphinx(object):
         # type: (Type[Domain]) -> None
         logger.debug('[app] adding domain: %r', domain)
         if domain.name in self.domains:
-            raise ExtensionError('domain %s already registered' % domain.name)
+            raise ExtensionError(_('domain %s already registered') % domain.name)
         self.domains[domain.name] = domain
 
     def override_domain(self, domain):
         # type: (Type[Domain]) -> None
         logger.debug('[app] overriding domain: %r', domain)
         if domain.name not in self.domains:
-            raise ExtensionError('domain %s not yet registered' % domain.name)
+            raise ExtensionError(_('domain %s not yet registered') % domain.name)
         if not issubclass(domain, self.domains[domain.name]):
-            raise ExtensionError('new domain not a subclass of registered %s '
-                                 'domain' % domain.name)
+            raise ExtensionError(_('new domain not a subclass of registered %s '
+                                   'domain') % domain.name)
         self.domains[domain.name] = domain
 
     def add_directive_to_domain(self, domain, name, obj,
@@ -727,7 +730,7 @@ class Sphinx(object):
         logger.debug('[app] adding directive to domain: %r',
                      (domain, name, obj, content, arguments, options))
         if domain not in self.domains:
-            raise ExtensionError('domain %s not yet registered' % domain)
+            raise ExtensionError(_('domain %s not yet registered') % domain)
         self.domains[domain].directives[name] = \
             self._directive_helper(obj, content, arguments, **options)
 
@@ -735,14 +738,14 @@ class Sphinx(object):
         # type: (unicode, unicode, Any) -> None
         logger.debug('[app] adding role to domain: %r', (domain, name, role))
         if domain not in self.domains:
-            raise ExtensionError('domain %s not yet registered' % domain)
+            raise ExtensionError(_('domain %s not yet registered') % domain)
         self.domains[domain].roles[name] = role
 
     def add_index_to_domain(self, domain, index):
         # type: (unicode, Type[Index]) -> None
         logger.debug('[app] adding index to domain: %r', (domain, index))
         if domain not in self.domains:
-            raise ExtensionError('domain %s not yet registered' % domain)
+            raise ExtensionError(_('domain %s not yet registered') % domain)
         self.domains[domain].indices.append(index)
 
     def add_object_type(self, directivename, rolename, indextemplate='',
@@ -844,8 +847,8 @@ class Sphinx(object):
         # type: (unicode, Parser) -> None
         logger.debug('[app] adding search source_parser: %r, %r', suffix, parser)
         if suffix in self._additional_source_parsers:
-            logger.warning('while setting up extension %s: source_parser for %r is '
-                           'already registered, it will be overridden',
+            logger.warning(_('while setting up extension %s: source_parser for %r is '
+                             'already registered, it will be overridden'),
                            self._setting_up_extension[-1], suffix,
                            type='app', subtype='add_source_parser')
         self._additional_source_parsers[suffix] = parser
