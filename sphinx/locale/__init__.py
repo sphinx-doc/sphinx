@@ -229,11 +229,17 @@ translators = {}  # type: Dict[unicode, Any]
 if PY3:
     def _(message):
         # type: (unicode) -> unicode
-        return translators['sphinx'].gettext(message)
+        try:
+            return translators['sphinx'].gettext(message)
+        except KeyError:
+            return message
 else:
     def _(message):
         # type: (unicode) -> unicode
-        return translators['sphinx'].ugettext(message)
+        try:
+            return translators['sphinx'].ugettext(message)
+        except KeyError:
+            return message
 
 
 def init(locale_dirs, language, catalog='sphinx'):
