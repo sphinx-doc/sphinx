@@ -281,7 +281,11 @@ def get_module_source(modname):
 
 
 def get_full_modname(modname, attribute):
-    # type: (str, unicode) -> unicode
+    # type: (str, unicode) -> Union[unicode, NoneType]
+    if modname is None:
+        # Prevents a TypeError: if the last getattr() call will return None
+        # then it's better to return it directly
+        return None
     __import__(modname)
     module = sys.modules[modname]
 
