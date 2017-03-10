@@ -921,10 +921,6 @@ class BuildEnvironment(object):
 
     def resolve_references(self, doctree, fromdocname, builder):
         # type: (nodes.Node, unicode, Builder) -> None
-        warnings.warn('env.resolve_references() is deprecated. '
-                      'Use env.apply_post_transforms() instead.',
-                      RemovedInSphinx17Warning)
-
         self.apply_post_transforms(doctree, fromdocname)
 
     def apply_post_transforms(self, doctree, docname):
