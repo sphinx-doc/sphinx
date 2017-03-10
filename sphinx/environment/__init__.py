@@ -887,7 +887,7 @@ class BuildEnvironment(object):
             doctree = self.get_doctree(docname)
 
         # resolve all pending cross-references
-        self.resolve_references(doctree, docname, builder)
+        self.apply_post_transforms(doctree, docname)
 
         # now, resolve all toctree nodes
         for toctreenode in doctree.traverse(addnodes.toctree):
@@ -922,7 +922,7 @@ class BuildEnvironment(object):
     def resolve_references(self, doctree, fromdocname, builder):
         # type: (nodes.Node, unicode, Builder) -> None
         warnings.warn('env.resolve_references() is deprecated. '
-                      'Use apply_post_transforms() instead.',
+                      'Use env.apply_post_transforms() instead.',
                       RemovedInSphinx17Warning)
 
         self.apply_post_transforms(doctree, fromdocname)
