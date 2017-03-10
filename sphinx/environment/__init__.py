@@ -23,7 +23,6 @@ from collections import defaultdict
 from six import StringIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
 
-from docutils import nodes
 from docutils.io import NullOutput
 from docutils.core import Publisher
 from docutils.utils import Reporter, get_source_line
@@ -46,7 +45,7 @@ from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.transforms import SphinxTransformer
 from sphinx.versioning import add_uids, merge_doctrees
-from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
 
