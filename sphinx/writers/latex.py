@@ -1755,12 +1755,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif uri.startswith(URI_SCHEMES):
             if len(node) == 1 and uri == node[0]:
                 if node.get('nolinkurl'):
-                    self.body.append('\\nolinkurl{%s}' % self.encode_uri(uri))
+                    self.body.append('\\sphinxnolinkurl{%s}' % self.encode_uri(uri))
                 else:
-                    self.body.append('\\url{%s}' % self.encode_uri(uri))
+                    self.body.append('\\sphinxurl{%s}' % self.encode_uri(uri))
                 raise nodes.SkipNode
             else:
-                self.body.append('\\href{%s}{' % self.encode_uri(uri))
+                self.body.append('\\sphinxhref{%s}{' % self.encode_uri(uri))
                 self.context.append('}')
         elif uri.startswith('#'):
             # references to labels in the same document
