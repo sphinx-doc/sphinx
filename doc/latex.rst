@@ -438,6 +438,14 @@ Let us now list some macros from the package file
      the new macros are wrappers of the formerly hard-coded ``\texttt``,
      ``\emph``, ... The default definitions can be found in
      :file:`sphinx.sty`.
+- macros for directional double quotes: pairs of straight double quote ``"``
+  in reST source are converted into LaTeX mark-up
+  ``\sphinxquotedblleft{}`` and ``\sphinxquotedblright{}`` which default to
+  `````\ ````` and ``''`` (i.e. the TeX mark-up for directional double
+  quotes via font ligaturing mechanism.)
+
+  .. versionadded:: 1.5.4
+     Formerly, produced TeX was directly with `````\ ````` and ``''``.
 - paragraph level environments: for each admonition type ``<foo>``, the
   used environment is named ``sphinx<foo>``. They may be ``\renewenvironment``
   'd individually, and must then be defined with one argument (it is the heading

@@ -2209,7 +2209,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
     def visit_Text(self, node):
         text = self.encode(node.astext())
         if not self.no_contractions and not self.in_parsed_literal:
-            text = educate_quotes_latex(text)
+            text = educate_quotes_latex(text,
+                                        dquotes=("\\sphinxquotedblleft{}",
+                                                 "\\sphinxquotedblright{}"))
         self.body.append(text)
 
     def depart_Text(self, node):
