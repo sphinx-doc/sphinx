@@ -296,6 +296,7 @@ class ModuleAnalyzer(object):
         namespace = []  # type: List[unicode]
         stack = []      # type: List[Tuple[unicode, unicode, unicode, int]]
         indent = 0
+        decopos = None
         defline = False
         expect_indent = False
         emptylines = 0
@@ -319,8 +320,12 @@ class ModuleAnalyzer(object):
                 name = next(tokeniter)[1]  # type: ignore
                 namespace.append(name)
                 fullname = '.'.join(namespace)
-                stack.append((tok, fullname, spos[0], indent))
+                stack.append((tok, fullname, decopos or spos[0], indent))
                 defline = True
+                decopos = None
+            elif type == token.OP and tok == '@':
+                if decopos is None:
+                    decopos = spos[0]
             elif type == token.INDENT:
                 expect_indent = False
                 indent += 1

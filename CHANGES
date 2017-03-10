@@ -80,6 +80,7 @@ Features added
 * HTML buildre uses experimental HTML5 writer if ``html_experimental_html5_builder`` is True
   and docutils 0.13 and newer is installed.
 * LaTeX macros to customize space before and after tables in PDF output (refs #3504)
+* #3348: Show decorators in literalinclude and viewcode directives
 
 Bugs fixed
 ----------
