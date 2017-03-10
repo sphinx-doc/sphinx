@@ -178,28 +178,29 @@ The builder's "name" must be given to the **-b** command-line option of
    .. note::
 
       The produced LaTeX file uses several LaTeX packages that may not be
-      present in a "minimal" TeX distribution installation.  For TeXLive,
-      the following packages need to be installed:
+      present in a "minimal" TeX distribution installation. For example, on
+      Ubuntu, the following packages need to be installed for successful PDF
+      builds:
 
       * texlive-latex-recommended
       * texlive-fonts-recommended
       * texlive-latex-extra
+      * latexmk (for ``make latexpdf``)
 
-      You may also need latex-xcolor, but Sphinx does not require it (and
-      recent distributions have ``xcolor.sty`` included in latex-recommended).
-
-      Unicode engines will need their respective packages texlive-luatex or
+      Sphinx will use ``xcolor.sty`` if present: recent Ubuntu distributions
+      have ``xcolor.sty`` included in latex-recommended, earlier ones have it
+      in latex-xcolor. Unicode engines will need texlive-luatex or
       texlive-xetex.
 
       The testing of Sphinx LaTeX is done on Ubuntu trusty with the above
-      texlive packages. They are from a `TeXLive 2013 snapshot dated
-      20140215`__.
+      mentioned packages, which are from a TeXLive 2013 snapshot dated
+      February 2014.
 
-      __ http://packages.ubuntu.com/trusty/texlive-latex-recommended
-
-      .. versionchanged::
-         1.6 Formerly, testing was done for some years on Ubuntu precise
+      .. versionchanged:: 1.6
+         Formerly, testing had been done for some years on Ubuntu precise
          (based on TeXLive 2009).
+      .. versionchanged:: 1.6
+         Use of ``latexmk`` on GNU/Linux or Mac OS X.
 
    .. autoattribute:: name
 
