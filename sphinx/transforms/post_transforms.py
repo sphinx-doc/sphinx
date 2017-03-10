@@ -19,8 +19,9 @@ from sphinx.util import logging
 
 if False:
     # For type annotation
-    from typing import Any, Dict  # NOQA
+    from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.application import Sphinx  # NOQA
+    from sphinx.domains import Domain  # NOQA
 
 
 logger = logging.getLogger(__name__)
