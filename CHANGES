@@ -11,6 +11,7 @@ Features added
 --------------
 
 * #3470: Make genindex support all kinds of letters, not only Latin ones
+* latex macros for directional double quotes (refs #3527)
 
 Bugs fixed
 ----------
@@ -25,6 +26,7 @@ Bugs fixed
   are same without creation date. Thanks to Yoshiki Shibukawa.
 * #3487: intersphinx: failed to refer options
 * #3496: latex longtable's last column may be much wider than its contents
+* #3507: wrong quotes in latex output for productionlist directive
 
 Testing
 --------
