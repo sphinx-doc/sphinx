@@ -602,7 +602,7 @@ class Sphinx(object):
         # type: (unicode) -> None
         logger.debug('[app] adding event: %r', name)
         if name in self._events:
-            raise ExtensionError('Event %r already present' % name)
+            raise ExtensionError(_('Event %r already present') % name)
         self._events[name] = ''
 
     def set_translator(self, name, translator_class):
