@@ -943,31 +943,6 @@ class BuildEnvironment(object):
         # allow custom references to be resolved
         self.app.emit('doctree-resolved', doctree, docname)
 
-    def _warn_missing_reference(self, refdoc, typ, target, node, domain):
-        # type: (unicode, unicode, unicode, nodes.Node, Domain) -> None
-        warn = node.get('refwarn')
-        if self.config.nitpicky:
-            warn = True
-            if self._nitpick_ignore:
-                dtype = domain and '%s:%s' % (domain.name, typ) or typ
-                if (dtype, target) in self._nitpick_ignore:
-                    warn = False
-                # for "std" types also try without domain name
-                if (not domain or domain.name == 'std') and \
-                   (typ, target) in self._nitpick_ignore:
-                    warn = False
-        if not warn:
-            return
-        if domain and typ in domain.dangling_warnings:
-            msg = domain.dangling_warnings[typ]
-        elif node.get('refdomain', 'std') not in ('', 'std'):
-            msg = '%s:%s reference target not found: %%(target)s' % \
-                  (node['refdomain'], typ)
-        else:
-            msg = '%r reference target not found: %%(target)s' % typ
-        logger.warning(msg % {'target': target},
-                       location=node, type='ref', subtype=typ)
-
     def create_index(self, builder, group_entries=True,
                      _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
         # type: (Builder, bool, Pattern) -> List[Tuple[unicode, List[Tuple[unicode, List[unicode]]]]]  # NOQA

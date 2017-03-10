@@ -63,7 +63,7 @@ class ReferencesResolver(SphinxTransform):
                     # still not found? warn if node wishes to be warned about or
                     # we are in nit-picky mode
                     if newnode is None:
-                        self.env._warn_missing_reference(refdoc, typ, target, node, domain)
+                        self.warn_missing_reference(refdoc, typ, target, node, domain)
             except NoUri:
                 newnode = contnode
             node.replace_self(newnode or contnode)
@@ -112,6 +112,31 @@ class ReferencesResolver(SphinxTransform):
             newnode[0]['classes'].append(res_domain)
             newnode[0]['classes'].append(res_role.replace(':', '-'))
         return newnode
+
+    def warn_missing_reference(self, refdoc, typ, target, node, domain):
+        # type: (unicode, unicode, unicode, nodes.Node, Domain) -> None
+        warn = node.get('refwarn')
+        if self.config.nitpicky:
+            warn = True
+            if self._nitpick_ignore:
+                dtype = domain and '%s:%s' % (domain.name, typ) or typ
+                if (dtype, target) in self._nitpick_ignore:
+                    warn = False
+                # for "std" types also try without domain name
+                if (not domain or domain.name == 'std') and \
+                   (typ, target) in self._nitpick_ignore:
+                    warn = False
+        if not warn:
+            return
+        if domain and typ in domain.dangling_warnings:
+            msg = domain.dangling_warnings[typ]
+        elif node.get('refdomain', 'std') not in ('', 'std'):
+            msg = (_('%s:%s reference target not found: %%(target)s') %
+                   (node['refdomain'], typ))
+        else:
+            msg = _('%r reference target not found: %%(target)s') % typ
+        logger.warning(msg % {'target': target},
+                       location=node, type='ref', subtype=typ)
 
 
 class OnlyNodeTransform(SphinxTransform):
