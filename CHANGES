@@ -4,7 +4,7 @@ Release 1.6 (in development)
 Dependencies
 ------------
 
-* (udpated) latex output is tested with Ubuntu trusty's texlive packages (Feb.
+* (updated) latex output is tested with Ubuntu trusty's texlive packages (Feb.
   2014) and earlier tex installations may not be fully compliant, particularly
   regarding Unicode engines xelatex and lualatex
 * (added) latexmk is requirement for ``make latexpdf`` on Unix-like platforms
