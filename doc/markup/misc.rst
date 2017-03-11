@@ -201,6 +201,11 @@ Including content based on tags
    .. versionchanged:: 1.2
       Added the name of the builder and the prefixes.
 
+   .. warning::
+
+      This directive is designed to control only content of document.  It could
+      not control sections, labels and so on.
+
 
 Tables
 ------
