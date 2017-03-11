@@ -25,6 +25,8 @@ Incompatible changes
   by default defined only with ``\sphinx..`` prefixed names. (refs: #3429)
 * Footer "Continued on next page" of LaTeX longtable's now not framed (refs: #3497)
 * #3529: The arguments of ``BuildEnvironment.__init__`` is changed
+* PDF builds via latex (``make latexpdf``) use latexmk on unix-like platforms,
+  which is thus new Sphinx requirement (refs #3082)
 
 Features removed
 ----------------
