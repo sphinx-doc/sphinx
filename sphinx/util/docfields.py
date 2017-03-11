@@ -54,37 +54,38 @@ class Field(object):
         self.rolename = rolename
         self.bodyrolename = bodyrolename
 
-    def make_xref(self, env, rolename, domain, target,
-                  innernode=addnodes.literal_emphasis, contnode=None):
+    def make_xref(self, rolename, domain, target,
+                  innernode=addnodes.literal_emphasis, contnode=None, env=None):
         if not rolename:
             return contnode or innernode(target, target)
         refnode = addnodes.pending_xref('', refdomain=domain, refexplicit=False,
                                         reftype=rolename, reftarget=target)
         refnode += contnode or innernode(target, target)
-        env.domains[domain].process_field_xref(refnode)
+        if env:
+            env.domains[domain].process_field_xref(refnode)
         return refnode
 
-    def make_xrefs(self, env, rolename, domain, target,
-                   innernode=addnodes.literal_emphasis, contnode=None):
-        return [self.make_xref(env, rolename, domain, target, innernode, contnode)]
+    def make_xrefs(self, rolename, domain, target,
+                   innernode=addnodes.literal_emphasis, contnode=None, env=None):
+        return [self.make_xref(rolename, domain, target, innernode, contnode, env)]
 
     def make_entry(self, fieldarg, content):
         return (fieldarg, content)
 
-    def make_field(self, env, types, domain, item):
+    def make_field(self, types, domain, item, env=None):
         fieldarg, content = item
         fieldname = nodes.field_name('', self.label)
         if fieldarg:
             fieldname += nodes.Text(' ')
-            fieldname.extend(self.make_xrefs(env, self.rolename, domain,
-                                             fieldarg, nodes.Text))
+            fieldname.extend(self.make_xrefs(self.rolename, domain,
+                                             fieldarg, nodes.Text, env=env))
 
         if len(content) == 1 and (
                 isinstance(content[0], nodes.Text) or
                 (isinstance(content[0], nodes.inline) and len(content[0]) == 1 and
                  isinstance(content[0][0], nodes.Text))):
-            content = self.make_xrefs(env, self.bodyrolename, domain,
-                                      content[0].astext(), contnode=content[0])
+            content = self.make_xrefs(self.bodyrolename, domain,
+                                      content[0].astext(), contnode=content[0], env=env)
         fieldbody = nodes.field_body('', nodes.paragraph('', '', *content))
         return nodes.field('', fieldname, fieldbody)
 
@@ -110,13 +111,13 @@ class GroupedField(Field):
         Field.__init__(self, name, names, label, True, rolename)
         self.can_collapse = can_collapse
 
-    def make_field(self, env, types, domain, items):
+    def make_field(self, types, domain, items, env=None):
         fieldname = nodes.field_name('', self.label)
         listnode = self.list_type()
         for fieldarg, content in items:
             par = nodes.paragraph()
-            par.extend(self.make_xrefs(env, self.rolename, domain, fieldarg,
-                                       addnodes.literal_strong))
+            par.extend(self.make_xrefs(self.rolename, domain, fieldarg,
+                                       addnodes.literal_strong, env=env))
             par += nodes.Text(' -- ')
             par += content
             listnode += nodes.list_item('', par)
@@ -156,11 +157,11 @@ class TypedField(GroupedField):
         self.typenames = typenames
         self.typerolename = typerolename
 
-    def make_field(self, env, types, domain, items):
+    def make_field(self, types, domain, items, env=None):
         def handle_item(fieldarg, content):
             par = nodes.paragraph()
-            par.extend(self.make_xrefs(env, self.rolename, domain, fieldarg,
-                                       addnodes.literal_strong))
+            par.extend(self.make_xrefs(self.rolename, domain, fieldarg,
+                                       addnodes.literal_strong, env=env))
             if fieldarg in types:
                 par += nodes.Text(' (')
                 # NOTE: using .pop() here to prevent a single type node to be
@@ -169,8 +170,8 @@ class TypedField(GroupedField):
                 fieldtype = types.pop(fieldarg)
                 if len(fieldtype) == 1 and isinstance(fieldtype[0], nodes.Text):
                     typename = u''.join(n.astext() for n in fieldtype)
-                    par.extend(self.make_xrefs(env, self.typerolename, domain,
-                                               typename, addnodes.literal_emphasis))
+                    par.extend(self.make_xrefs(self.typerolename, domain, typename,
+                                               addnodes.literal_emphasis, env=env))
                 else:
                     par += fieldtype
                 par += nodes.Text(')')
@@ -309,7 +310,7 @@ class DocFieldTransformer(object):
             else:
                 fieldtype, content = entry
                 fieldtypes = types.get(fieldtype.name, {})
-                new_list += fieldtype.make_field(self.directive.env, fieldtypes,
-                                                 self.directive.domain, content)
+                new_list += fieldtype.make_field(fieldtypes, self.directive.domain,
+                                                 content, env=self.directive.env)
 
         node.replace_self(new_list)
