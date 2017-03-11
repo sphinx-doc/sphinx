@@ -288,6 +288,11 @@ package.
    Add the standard docutils :class:`Transform` subclass *transform* to the list
    of transforms that are applied after Sphinx parses a reST document.
 
+.. method:: Sphinx.add_post_transform(transform)
+
+   Add the standard docutils :class:`Transform` subclass *transform* to the list
+   of transforms that are applied before Sphinx writes a document.
+
 .. method:: Sphinx.add_javascript(filename)
 
    Add *filename* to the list of JavaScript files that the default HTML template

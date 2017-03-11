@@ -10,14 +10,22 @@
 """
 
 from docutils import nodes
-from docutils.transforms import Transform
+from docutils.transforms import Transform, Transformer
 from docutils.transforms.parts import ContentsFilter
+from docutils.utils import new_document
 
 from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.util import logging
 from sphinx.util.i18n import format_date
 from sphinx.util.nodes import apply_source_workaround
+
+if False:
+    # For type annotation
+    from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
+    from sphinx.domain.std import StandardDomain  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
 
 
 logger = logging.getLogger(__name__)
@@ -29,7 +37,69 @@ default_substitutions = set([
 ])
 
 
-class DefaultSubstitutions(Transform):
+class SphinxTransform(Transform):
+    """
+    A base class of Transforms.
+
+    Compared with ``docutils.transforms.Transform``, this class improves accessibility to
+    Sphinx APIs.
+
+    The subclasses can access following objects and functions:
+
+    self.app
+        The application object (:class:`sphinx.application.Sphinx`)
+    self.config
+        The config object (:class:`sphinx.config.Config`)
+    self.env
+        The environment object (:class:`sphinx.environment.BuildEnvironment`)
+    """
+
+    @property
+    def app(self):
+        # type: () -> Sphinx
+        return self.document.settings.env.app
+
+    @property
+    def env(self):
+        # type: () -> BuildEnvironment
+        return self.document.settings.env
+
+    @property
+    def config(self):
+        # type: () -> Config
+        return self.document.settings.env.config
+
+
+class SphinxTransformer(Transformer):
+    """
+    A transformer for Sphinx.
+    """
+
+    document = None  # type: nodes.Node
+    env = None  # type: BuildEnvironment
+
+    def set_environment(self, env):
+        # type: (BuildEnvironment) -> None
+        self.env = env
+
+    def apply_transforms(self):
+        # type: () -> None
+        if isinstance(self.document, nodes.document):
+            Transformer.apply_transforms(self)
+        else:
+            # wrap the target node by document node during transforming
+            try:
+                document = new_document('')
+                if self.env:
+                    document.settings.env = self.env
+                document += self.document
+                self.document = document
+                Transformer.apply_transforms(self)
+            finally:
+                self.document = self.document[0]
+
+
+class DefaultSubstitutions(SphinxTransform):
     """
     Replace some substitutions if they aren't defined in the document.
     """
@@ -38,21 +108,20 @@ class DefaultSubstitutions(Transform):
 
     def apply(self):
         # type: () -> None
-        config = self.document.settings.env.config
         # only handle those not otherwise defined in the document
         to_handle = default_substitutions - set(self.document.substitution_defs)
         for ref in self.document.traverse(nodes.substitution_reference):
             refname = ref['refname']
             if refname in to_handle:
-                text = config[refname]
+                text = self.config[refname]
                 if refname == 'today' and not text:
                     # special handling: can also specify a strftime format
-                    text = format_date(config.today_fmt or _('%b %d, %Y'),
-                                       language=config.language)
+                    text = format_date(self.config.today_fmt or _('%b %d, %Y'),
+                                       language=self.config.language)
                 ref.replace_self(nodes.Text(text, text))
 
 
-class MoveModuleTargets(Transform):
+class MoveModuleTargets(SphinxTransform):
     """
     Move module targets that are the first thing in a section to the section
     title.
@@ -74,7 +143,7 @@ class MoveModuleTargets(Transform):
                 node.parent.remove(node)
 
 
-class HandleCodeBlocks(Transform):
+class HandleCodeBlocks(SphinxTransform):
     """
     Several code block related transformations.
     """
@@ -99,7 +168,7 @@ class HandleCodeBlocks(Transform):
         #        del node.parent[parindex+1]
 
 
-class AutoNumbering(Transform):
+class AutoNumbering(SphinxTransform):
     """
     Register IDs of tables, figures and literal_blocks to assign numbers.
     """
@@ -107,14 +176,14 @@ class AutoNumbering(Transform):
 
     def apply(self):
         # type: () -> None
-        domain = self.document.settings.env.get_domain('std')
+        domain = self.env.get_domain('std')  # type: StandardDomain
 
         for node in self.document.traverse(nodes.Element):
             if domain.is_enumerable_node(node) and domain.get_numfig_title(node) is not None:
                 self.document.note_implicit_target(node)
 
 
-class SortIds(Transform):
+class SortIds(SphinxTransform):
     """
     Sort secion IDs so that the "id[0-9]+" one comes last.
     """
@@ -127,7 +196,7 @@ class SortIds(Transform):
                 node['ids'] = node['ids'][1:] + [node['ids'][0]]
 
 
-class CitationReferences(Transform):
+class CitationReferences(SphinxTransform):
     """
     Replace citation references by pending_xref nodes before the default
     docutils transform tries to resolve them.
@@ -156,7 +225,7 @@ TRANSLATABLE_NODES = {
 }
 
 
-class ApplySourceWorkaround(Transform):
+class ApplySourceWorkaround(SphinxTransform):
     """
     update source and rawsource attributes
     """
@@ -169,7 +238,7 @@ class ApplySourceWorkaround(Transform):
                 apply_source_workaround(n)
 
 
-class AutoIndexUpgrader(Transform):
+class AutoIndexUpgrader(SphinxTransform):
     """
     Detect old style; 4 column based indices and automatically upgrade to new style.
     """
@@ -187,7 +256,7 @@ class AutoIndexUpgrader(Transform):
                         node['entries'][i] = entry + (None,)
 
 
-class ExtraTranslatableNodes(Transform):
+class ExtraTranslatableNodes(SphinxTransform):
     """
     make nodes translatable
     """
@@ -195,7 +264,7 @@ class ExtraTranslatableNodes(Transform):
 
     def apply(self):
         # type: () -> None
-        targets = self.document.settings.env.config.gettext_additional_targets
+        targets = self.config.gettext_additional_targets
         target_nodes = [v for k, v in TRANSLATABLE_NODES.items() if k in targets]
         if not target_nodes:
             return
@@ -208,14 +277,13 @@ class ExtraTranslatableNodes(Transform):
             node['translatable'] = True
 
 
-class FilterSystemMessages(Transform):
+class FilterSystemMessages(SphinxTransform):
     """Filter system messages from a doctree."""
     default_priority = 999
 
     def apply(self):
         # type: () -> None
-        env = self.document.settings.env
-        filterlevel = env.config.keep_warnings and 2 or 5
+        filterlevel = self.config.keep_warnings and 2 or 5
         for node in self.document.traverse(nodes.system_message):
             if node['level'] < filterlevel:
                 logger.debug('%s [filtered system message]', node.astext())

@@ -105,6 +105,7 @@ builtin_extensions = (
     'sphinx.directives.other',
     'sphinx.directives.patches',
     'sphinx.roles',
+    'sphinx.transforms.post_transforms',
     # collectors should be loaded by specific order
     'sphinx.environment.collectors.dependencies',
     'sphinx.environment.collectors.asset',
@@ -144,6 +145,7 @@ class Sphinx(object):
         self.builder = None                     # type: Builder
         self.env = None                         # type: BuildEnvironment
         self.enumerable_nodes = {}              # type: Dict[nodes.Node, Tuple[unicode, Callable]]  # NOQA
+        self.post_transforms = []               # type: List[Transform]
 
         self.srcdir = srcdir
         self.confdir = confdir
@@ -602,7 +604,7 @@ class Sphinx(object):
         # type: (unicode) -> None
         logger.debug('[app] adding event: %r', name)
         if name in self._events:
-            raise ExtensionError('Event %r already present' % name)
+            raise ExtensionError(_('Event %r already present') % name)
         self._events[name] = ''
 
     def set_translator(self, name, translator_class):
@@ -785,9 +787,14 @@ class Sphinx(object):
         StandardDomain.roles[rolename] = XRefRole(innernodeclass=ref_nodeclass)
 
     def add_transform(self, transform):
-        # type: (Transform) -> None
+        # type: (Type[Transform]) -> None
         logger.debug('[app] adding transform: %r', transform)
         SphinxStandaloneReader.transforms.append(transform)
+
+    def add_post_transform(self, transform):
+        # type: (Type[Transform]) -> None
+        logger.debug('[app] adding post transform: %r', transform)
+        self.post_transforms.append(transform)
 
     def add_javascript(self, filename):
         # type: (unicode) -> None

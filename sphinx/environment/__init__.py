@@ -23,7 +23,6 @@ from collections import defaultdict
 from six import StringIO, itervalues, class_types, next
 from six.moves import cPickle as pickle
 
-from docutils import nodes
 from docutils.io import NullOutput
 from docutils.core import Publisher
 from docutils.utils import Reporter, get_source_line
@@ -35,7 +34,7 @@ from sphinx import addnodes
 from sphinx.io import SphinxStandaloneReader, SphinxDummyWriter, SphinxFileInput
 from sphinx.util import logging
 from sphinx.util import get_matching_docs, FilenameUniqDict, status_iterator
-from sphinx.util.nodes import WarningStream, is_translatable, process_only_nodes
+from sphinx.util.nodes import WarningStream, is_translatable
 from sphinx.util.osutil import SEP, ensuredir
 from sphinx.util.i18n import find_catalog_files
 from sphinx.util.console import bold  # type: ignore
@@ -44,6 +43,7 @@ from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
+from sphinx.transforms import SphinxTransformer
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.deprecation import RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
@@ -52,6 +52,7 @@ from sphinx.environment.adapters.toctree import TocTree
 if False:
     # For type annotation
     from typing import Any, Callable, Dict, IO, Iterator, List, Pattern, Set, Tuple, Type, Union  # NOQA
+    from docutils import nodes  # NOQA
     from sphinx.application import Sphinx  # NOQA
     from sphinx.builders import Builder  # NOQA
     from sphinx.config import Config  # NOQA
@@ -886,7 +887,7 @@ class BuildEnvironment(object):
             doctree = self.get_doctree(docname)
 
         # resolve all pending cross-references
-        self.resolve_references(doctree, docname, builder)
+        self.apply_post_transforms(doctree, docname)
 
         # now, resolve all toctree nodes
         for toctreenode in doctree.traverse(addnodes.toctree):
@@ -920,113 +921,23 @@ class BuildEnvironment(object):
 
     def resolve_references(self, doctree, fromdocname, builder):
         # type: (nodes.Node, unicode, Builder) -> None
-        for node in doctree.traverse(addnodes.pending_xref):
-            contnode = node[0].deepcopy()
-            newnode = None
+        self.apply_post_transforms(doctree, fromdocname)
 
-            typ = node['reftype']
-            target = node['reftarget']
-            refdoc = node.get('refdoc', fromdocname)
-            domain = None
+    def apply_post_transforms(self, doctree, docname):
+        # type: (nodes.Node, unicode) -> None
+        """Apply all post-transforms."""
+        try:
+            # set env.docname during applying post-transforms
+            self.temp_data['docname'] = docname
 
-            try:
-                if 'refdomain' in node and node['refdomain']:
-                    # let the domain try to resolve the reference
-                    try:
-                        domain = self.domains[node['refdomain']]
-                    except KeyError:
-                        raise NoUri
-                    newnode = domain.resolve_xref(self, refdoc, builder,
-                                                  typ, target, node, contnode)
-                # really hardwired reference types
-                elif typ == 'any':
-                    newnode = self._resolve_any_reference(builder, refdoc, node, contnode)
-                # no new node found? try the missing-reference event
-                if newnode is None:
-                    newnode = builder.app.emit_firstresult(
-                        'missing-reference', self, node, contnode)
-                    # still not found? warn if node wishes to be warned about or
-                    # we are in nit-picky mode
-                    if newnode is None:
-                        self._warn_missing_reference(refdoc, typ, target, node, domain)
-            except NoUri:
-                newnode = contnode
-            node.replace_self(newnode or contnode)
-
-        # remove only-nodes that do not belong to our builder
-        process_only_nodes(doctree, builder.tags)
+            transformer = SphinxTransformer(doctree)
+            transformer.add_transforms(self.app.post_transforms)
+            transformer.apply_transforms()
+        finally:
+            self.temp_data.clear()
 
         # allow custom references to be resolved
-        builder.app.emit('doctree-resolved', doctree, fromdocname)
-
-    def _warn_missing_reference(self, refdoc, typ, target, node, domain):
-        # type: (unicode, unicode, unicode, nodes.Node, Domain) -> None
-        warn = node.get('refwarn')
-        if self.config.nitpicky:
-            warn = True
-            if self._nitpick_ignore:
-                dtype = domain and '%s:%s' % (domain.name, typ) or typ
-                if (dtype, target) in self._nitpick_ignore:
-                    warn = False
-                # for "std" types also try without domain name
-                if (not domain or domain.name == 'std') and \
-                   (typ, target) in self._nitpick_ignore:
-                    warn = False
-        if not warn:
-            return
-        if domain and typ in domain.dangling_warnings:
-            msg = domain.dangling_warnings[typ]
-        elif node.get('refdomain', 'std') not in ('', 'std'):
-            msg = '%s:%s reference target not found: %%(target)s' % \
-                  (node['refdomain'], typ)
-        else:
-            msg = '%r reference target not found: %%(target)s' % typ
-        logger.warning(msg % {'target': target},
-                       location=node, type='ref', subtype=typ)
-
-    def _resolve_any_reference(self, builder, refdoc, node, contnode):
-        # type: (Builder, unicode, nodes.Node, nodes.Node) -> nodes.Node
-        """Resolve reference generated by the "any" role."""
-        target = node['reftarget']
-        results = []  # type: List[Tuple[unicode, nodes.Node]]
-        # first, try resolving as :doc:
-        doc_ref = self.domains['std'].resolve_xref(self, refdoc, builder, 'doc',
-                                                   target, node, contnode)
-        if doc_ref:
-            results.append(('doc', doc_ref))
-        # next, do the standard domain (makes this a priority)
-        results.extend(self.domains['std'].resolve_any_xref(
-            self, refdoc, builder, target, node, contnode))
-        for domain in self.domains.values():
-            if domain.name == 'std':
-                continue  # we did this one already
-            try:
-                results.extend(domain.resolve_any_xref(self, refdoc, builder,
-                                                       target, node, contnode))
-            except NotImplementedError:
-                # the domain doesn't yet support the new interface
-                # we have to manually collect possible references (SLOW)
-                for role in domain.roles:
-                    res = domain.resolve_xref(self, refdoc, builder, role, target,
-                                              node, contnode)
-                    if res and isinstance(res[0], nodes.Element):
-                        results.append(('%s:%s' % (domain.name, role), res))
-        # now, see how many matches we got...
-        if not results:
-            return None
-        if len(results) > 1:
-            nice_results = ' or '.join(':%s:' % r[0] for r in results)
-            logger.warning('more than one target found for \'any\' cross-'
-                           'reference %r: could be %s', target, nice_results,
-                           location=node)
-        res_role, newnode = results[0]
-        # Override "any" class with the actual role type to get the styling
-        # approximately correct.
-        res_domain = res_role.split(':')[0]
-        if newnode and newnode[0].get('classes'):
-            newnode[0]['classes'].append(res_domain)
-            newnode[0]['classes'].append(res_role.replace(':', '-'))
-        return newnode
+        self.app.emit('doctree-resolved', doctree, docname)
 
     def create_index(self, builder, group_entries=True,
                      _fixre=re.compile(r'(.*) ([(][^()]*[)])')):
