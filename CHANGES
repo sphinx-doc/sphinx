@@ -1,6 +1,15 @@
 Release 1.6 (in development)
 ============================
 
+Dependencies
+------------
+
+* (udpated) latex output is tested with Ubuntu trusty's texlive packages (Feb.
+  2014) and earlier tex installations may not be fully compliant, particularly
+  regarding Unicode engines xelatex and lualatex
+* (added) latexmk is requirement for ``make latexpdf`` on Unix-like platforms
+  (refs: #3082)
+
 Incompatible changes
 --------------------
 
@@ -25,8 +34,7 @@ Incompatible changes
   by default defined only with ``\sphinx..`` prefixed names. (refs: #3429)
 * Footer "Continued on next page" of LaTeX longtable's now not framed (refs: #3497)
 * #3529: The arguments of ``BuildEnvironment.__init__`` is changed
-* PDF builds via latex (``make latexpdf``) use latexmk on unix-like platforms,
-  which is thus new Sphinx requirement (refs #3082)
+* #3082: Use latexmk for pdf (and dvi) targets (Unix-like platforms only)
 
 Features removed
 ----------------
