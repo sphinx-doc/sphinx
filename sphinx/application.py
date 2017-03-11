@@ -21,7 +21,7 @@ import traceback
 from os import path
 from collections import deque
 
-from six import iteritems, itervalues
+from six import iteritems
 from six.moves import cStringIO
 
 from docutils import nodes
@@ -37,6 +37,7 @@ from sphinx.domains import ObjType
 from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
+from sphinx.events import EventManager
 from sphinx.io import SphinxStandaloneReader
 from sphinx.locale import _
 from sphinx.roles import XRefRole
@@ -59,23 +60,6 @@ if False:
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment.collectors import EnvironmentCollector  # NOQA
 
-# List of all known core events. Maps name to arguments description.
-events = {
-    'builder-inited': '',
-    'env-get-outdated': 'env, added, changed, removed',
-    'env-get-updated': 'env',
-    'env-purge-doc': 'env, docname',
-    'env-before-read-docs': 'env, docnames',
-    'source-read': 'docname, source text',
-    'doctree-read': 'the doctree before being pickled',
-    'env-merge-info': 'env, read docnames, other env instance',
-    'missing-reference': 'env, node, contnode',
-    'doctree-resolved': 'doctree, docname',
-    'env-updated': 'env',
-    'html-collect-pages': 'builder',
-    'html-page-context': 'pagename, context, doctree or None',
-    'build-finished': 'exception',
-}  # type: Dict[unicode, unicode]
 builtin_extensions = (
     'sphinx.builders.applehelp',
     'sphinx.builders.changes',
@@ -133,7 +117,6 @@ class Sphinx(object):
                  parallel=0):
         # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, List[unicode], int, int) -> None  # NOQA
         self.verbosity = verbosity
-        self.next_listener_id = 0
         self._extensions = {}                   # type: Dict[unicode, Any]
         self._extension_metadata = {}           # type: Dict[unicode, Dict[unicode, Any]]
         self._additional_source_parsers = {}    # type: Dict[unicode, Parser]
@@ -169,7 +152,7 @@ class Sphinx(object):
         self.warningiserror = warningiserror
         logging.setup(self, self._status, self._warning)
 
-        self._events = events.copy()
+        self.events = EventManager()
         self._translators = {}              # type: Dict[unicode, nodes.GenericNodeVisitor]
 
         # keep last few messages for traceback
@@ -531,30 +514,16 @@ class Sphinx(object):
         return import_object(objname, source=None)
 
     # event interface
-
-    def _validate_event(self, event):
-        # type: (unicode) -> None
-        if event not in self._events:
-            raise ExtensionError(_('Unknown event name: %s') % event)
-
     def connect(self, event, callback):
         # type: (unicode, Callable) -> int
-        self._validate_event(event)
-        listener_id = self.next_listener_id
-        if event not in self._listeners:
-            self._listeners[event] = {listener_id: callback}
-        else:
-            self._listeners[event][listener_id] = callback
-        self.next_listener_id += 1
-        logger.debug('[app] connecting event %r: %r [id=%s]',
-                     event, callback, listener_id)
+        listener_id = self.events.connect(event, callback)
+        logger.debug('[app] connecting event %r: %r', event, callback, listener_id)
         return listener_id
 
     def disconnect(self, listener_id):
         # type: (int) -> None
         logger.debug('[app] disconnecting event: [id=%s]', listener_id)
-        for event in itervalues(self._listeners):
-            event.pop(listener_id, None)
+        self.events.disconnect(listener_id)
 
     def emit(self, event, *args):
         # type: (unicode, Any) -> List
@@ -564,18 +533,11 @@ class Sphinx(object):
             # not every object likes to be repr()'d (think
             # random stuff coming via autodoc)
             pass
-        results = []
-        if event in self._listeners:
-            for listener_id, callback in iteritems(self._listeners[event]):
-                results.append(callback(self, *args))
-        return results
+        return self.events.emit(event, self, *args)
 
     def emit_firstresult(self, event, *args):
         # type: (unicode, Any) -> Any
-        for result in self.emit(event, *args):
-            if result is not None:
-                return result
-        return None
+        return self.events.emit_firstresult(event, self, *args)
 
     # registering addon parts
 
@@ -603,9 +565,7 @@ class Sphinx(object):
     def add_event(self, name):
         # type: (unicode) -> None
         logger.debug('[app] adding event: %r', name)
-        if name in self._events:
-            raise ExtensionError(_('Event %r already present') % name)
-        self._events[name] = ''
+        self.events.add(name)
 
     def set_translator(self, name, translator_class):
         # type: (unicode, Any) -> None
