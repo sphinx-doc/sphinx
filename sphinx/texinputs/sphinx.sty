@@ -1290,14 +1290,14 @@
 %
 % Some custom font markup commands.
 % *** the macros without \sphinx prefix are still defined farther down ***
-\long\protected\def\sphinxstrong#1{{\textbf{#1}}}
+\protected\def\sphinxstrong#1{{\textbf{#1}}}
 % to obtain straight quotes we execute \@noligs as patched by upquote, and
 % \scantokens is needed in cases where it would be too late for the macro to
 % first set catcodes and then fetch its argument. We also make the contents
 % breakable at non-escaped . , ; ? ! / using \sphinxbreaksviaactive.
 % the macro must be protected if it ends up used in moving arguments,
 % in 'alltt' \@noligs is done already, and the \scantokens must be avoided.
-\long\protected\def\sphinxcode#1{{\def\@tempa{alltt}%
+\protected\def\sphinxcode#1{{\def\@tempa{alltt}%
   \ifx\@tempa\@currenvir\else
    \ifspx@opt@inlineliteralwraps
       \sphinxbreaksviaactive\let\sphinxafterbreak\empty
@@ -1313,16 +1313,16 @@
     \lowercase{\endgroup\def~{\leavevmode\kern\z@\char`#1 }}}
 \def\sphinx@literal@nolig@list {\do\`\do\<\do\>\do\'\do\-}%
 
-\long\protected\def\sphinxbfcode#1{\sphinxcode{\bfseries#1}}
-\long\protected\def\sphinxemail#1{\textsf{#1}}
-\long\protected\def\sphinxtablecontinued#1{\textsf{#1}}
-\long\protected\def\sphinxtitleref#1{\emph{#1}}
-\long\protected\def\sphinxmenuselection#1{\emph{#1}}
-\long\protected\def\sphinxaccelerator#1{\underline{#1}}
-\long\protected\def\sphinxcrossref#1{\emph{#1}}
-\long\protected\def\sphinxtermref#1{\emph{#1}}
+\protected\def\sphinxbfcode#1{\sphinxcode{\bfseries#1}}
+\protected\def\sphinxemail#1{\textsf{#1}}
+\protected\def\sphinxtablecontinued#1{\textsf{#1}}
+\protected\def\sphinxtitleref#1{\emph{#1}}
+\protected\def\sphinxmenuselection#1{\emph{#1}}
+\protected\def\sphinxaccelerator#1{\underline{#1}}
+\protected\def\sphinxcrossref#1{\emph{#1}}
+\protected\def\sphinxtermref#1{\emph{#1}}
 % \optional is used for ``[, arg]``, i.e. desc_optional nodes.
-\newcommand{\sphinxoptional}[1]{%
+\long\protected\def\sphinxoptional#1{%
   {\textnormal{\Large[}}{#1}\hspace{0.5mm}{\textnormal{\Large]}}}
 
 \ifspx@opt@dontkeepoldnames\else
@@ -1358,15 +1358,15 @@
 % additional customizable styling
 % FIXME: convert this to package options ?
 \protected\def\sphinxstyleindexentry     {\texttt}
-\long\protected\def\sphinxstyleindexextra #1{ \emph{(#1)}}
+\protected\def\sphinxstyleindexextra #1{ \emph{(#1)}}
 \protected\def\sphinxstyleindexpageref   {, \pageref}
-\long\protected\def\sphinxstyletopictitle #1{\textbf{#1}\par\medskip}
+\protected\def\sphinxstyletopictitle #1{\textbf{#1}\par\medskip}
 \let\sphinxstylesidebartitle\sphinxstyletopictitle
 \protected\def\sphinxstyleothertitle     {\textbf}
-\long\protected\def\sphinxstylesidebarsubtitle #1{~\\\textbf{#1} \smallskip}
+\protected\def\sphinxstylesidebarsubtitle #1{~\\\textbf{#1} \smallskip}
 \protected\def\sphinxstylethead          {\textsf}
 \protected\def\sphinxstyleemphasis       {\emph}
-\long\protected\def\sphinxstyleliteralemphasis#1{\emph{\sphinxcode{#1}}}
+\protected\def\sphinxstyleliteralemphasis#1{\emph{\sphinxcode{#1}}}
 \protected\def\sphinxstylestrong         {\textbf}
 \protected\def\sphinxstyleliteralstrong  {\sphinxbfcode}
 \protected\def\sphinxstyleabbreviation   {\textsc}
