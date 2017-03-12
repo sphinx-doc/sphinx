@@ -142,10 +142,10 @@ class GroupedField(Field):
         self.can_collapse = can_collapse
 
     def make_field(self,
-                   types,    # type: Dict[unicode, List[nodes.Node]]
-                   domain,   # type: unicode
-                   items,    # type: Tuple
-                   env=None, # type: BuildEnvironment
+                   types,     # type: Dict[unicode, List[nodes.Node]]
+                   domain,    # type: unicode
+                   items,     # type: Tuple
+                   env=None,  # type: BuildEnvironment
                    ):
         # type: (...) -> nodes.field
         fieldname = nodes.field_name('', self.label)
