@@ -39,6 +39,7 @@ class SphinxFactory(object):
         self.builders = {}          # type: Dict[unicode, Type[Builder]]
         self.domains = {}           # type: Dict[unicode, Type[Domain]]
         self.source_parsers = {}    # type: Dict[unicode, Parser]
+        self.translators = {}       # type: Dict[unicode, nodes.NodeVisitor]
 
     def add_builder(self, builder):
         # type: (Type[Builder]) -> None
@@ -152,3 +153,17 @@ class SphinxFactory(object):
     def get_source_parsers(self):
         # type: () -> Dict[unicode, Parser]
         return self.source_parsers
+
+    def add_translator(self, name, translator):
+        # type: (unicode, Type[nodes.NodeVisitor]) -> None
+        self.translators[name] = translator
+
+    def get_translator_class(self, builder):
+        # type: (Builder) -> Type[nodes.NodeVisitor]
+        return self.translators.get(builder.name,
+                                    builder.default_translator_class)
+
+    def create_translator(self, builder, document):
+        # type: (Builder, nodes.Node) -> nodes.NodeVisitor
+        translator_class = self.get_translator_class(builder)
+        return translator_class(builder, document)

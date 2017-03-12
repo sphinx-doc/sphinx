@@ -35,14 +35,12 @@ class ManualPageWriter(Writer):
         # type: (Builder) -> None
         Writer.__init__(self)
         self.builder = builder
-        self.translator_class = (
-            self.builder.translator_class or ManualPageTranslator)
 
     def translate(self):
         # type: () -> None
         transform = NestedInlineTransform(self.document)
         transform.apply()
-        visitor = self.translator_class(self.builder, self.document)
+        visitor = self.builder.create_translator(self.builder, self.document)
         self.visitor = visitor
         self.document.walkabout(visitor)
         self.output = visitor.astext()

@@ -52,8 +52,8 @@ class HTMLWriter(Writer):
     def translate(self):
         # type: () -> None
         # sadly, this is mostly copied from parent class
-        self.visitor = visitor = self.builder.translator_class(self.builder,
-                                                               self.document)
+        self.visitor = visitor = self.builder.create_translator(self.builder,
+                                                                self.document)
         self.document.walkabout(visitor)
         self.output = visitor.astext()
         for attr in ('head_prefix', 'stylesheet', 'head', 'body_prefix',

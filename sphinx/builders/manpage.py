@@ -23,7 +23,7 @@ from sphinx.util import logging
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.osutil import make_filename
 from sphinx.util.console import bold, darkgreen  # type: ignore
-from sphinx.writers.manpage import ManualPageWriter
+from sphinx.writers.manpage import ManualPageWriter, ManualPageTranslator
 
 if False:
     # For type annotation
@@ -40,6 +40,7 @@ class ManualPageBuilder(Builder):
     """
     name = 'man'
     format = 'man'
+    default_translator_class = ManualPageTranslator
     supported_image_types = []  # type: List[unicode]
 
     def init(self):

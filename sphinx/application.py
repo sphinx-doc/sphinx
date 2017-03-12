@@ -146,7 +146,6 @@ class Sphinx(object):
         logging.setup(self, self._status, self._warning)
 
         self.events = EventManager()
-        self._translators = {}              # type: Dict[unicode, nodes.GenericNodeVisitor]
 
         # keep last few messages for traceback
         # This will be filled by sphinx.util.logging.LastMessagesWriter
@@ -515,9 +514,9 @@ class Sphinx(object):
         self.events.add(name)
 
     def set_translator(self, name, translator_class):
-        # type: (unicode, Any) -> None
+        # type: (unicode, Type[nodes.NodeVisitor]) -> None
         logger.info(bold(_('A Translator for the %s builder is changed.') % name))
-        self._translators[name] = translator_class
+        self.factory.add_translator(name, translator_class)
 
     def add_node(self, node, **kwds):
         # type: (nodes.Node, Any) -> None
@@ -535,7 +534,7 @@ class Sphinx(object):
             except ValueError:
                 raise ExtensionError(_('Value for key %r must be a '
                                        '(visit, depart) function tuple') % key)
-            translator = self._translators.get(key)
+            translator = self.factory.translators.get(key)
             translators = []
             if translator is not None:
                 translators.append(translator)

@@ -17,7 +17,7 @@ from docutils.io import StringOutput
 from sphinx.builders import Builder
 from sphinx.util import logging
 from sphinx.util.osutil import ensuredir, os_path
-from sphinx.writers.text import TextWriter
+from sphinx.writers.text import TextWriter, TextTranslator
 
 if False:
     # For type annotation
@@ -33,6 +33,7 @@ class TextBuilder(Builder):
     format = 'text'
     out_suffix = '.txt'
     allow_parallel = True
+    default_translator_class = TextTranslator
 
     current_docname = None  # type: unicode
 
