@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/02/17 v1.5.3 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/03/12 v1.5.4 LaTeX package (Sphinx markup)]
 
 % this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
 % kvoptions (and later by hyperref), but the first release of
@@ -38,12 +38,13 @@
   }{% warning already emitted (at end of latex log), don't repeat
   }}
 
+
+%% PACKAGES
+%
 % we delay handling of options to after having loaded packages, because
 % of the need to use \definecolor.
-
 \RequirePackage{graphicx}
 \@ifclassloaded{memoir}{}{\RequirePackage{fancyhdr}}
-
 % for \text macro and \iffirstchoice@ conditional even if amsmath not loaded
 \RequirePackage{amstext}
 \RequirePackage{textcomp}
@@ -86,7 +87,45 @@
 \RequirePackage{alltt}
 % Display "real" single quotes in literal blocks.
 \RequirePackage{upquote}
+% control caption around literal-block
+\RequirePackage{capt-of}
+\RequirePackage{needspace}
 
+% to make pdf with correct encoded bookmarks in Japanese
+% this should precede the hyperref package
+\ifx\kanjiskip\undefined
+% for non-Japanese: make sure bookmarks are ok also with lualatex
+  \PassOptionsToPackage{pdfencoding=unicode}{hyperref}
+\else
+  \RequirePackage{atbegshi}
+  \ifx\ucs\undefined
+    \ifnum 42146=\euc"A4A2
+      \AtBeginShipoutFirst{\special{pdf:tounicode EUC-UCS2}}
+    \else
+      \AtBeginShipoutFirst{\special{pdf:tounicode 90ms-RKSJ-UCS2}}
+    \fi
+  \else
+    \AtBeginShipoutFirst{\special{pdf:tounicode UTF8-UCS2}}
+  \fi
+\fi
+
+\ifx\@jsc@uplatextrue\undefined\else
+  \PassOptionsToPackage{setpagesize=false}{hyperref}
+\fi
+
+% These options can be overriden inside  'hyperref' key
+% or by later use of \hypersetup.
+\PassOptionsToPackage{colorlinks,breaklinks,%
+ linkcolor=InnerLinkColor,filecolor=OuterLinkColor,%
+ menucolor=OuterLinkColor,urlcolor=OuterLinkColor,%
+ citecolor=InnerLinkColor}{hyperref}
+
+% stylesheet for highlighting with pygments
+\RequirePackage{sphinxhighlight}
+
+
+%% OPTIONS
+%
 % Handle options via "kvoptions" (later loaded by hyperref anyhow)
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{prefix=spx@opt@} % use \spx@opt@ prefix
@@ -204,6 +243,122 @@
 % user interface: options can be changed midway in a document!
 \newcommand\sphinxsetup[1]{\setkeys{sphinx}{#1}}
 
+
+%% MAXLISTDEPTH
+%
+% remove LaTeX's cap on nesting depth if 'maxlistdepth' key used.
+% This is a hack, which works with the standard classes: it assumes \@toodeep
+% is always used in "true" branches: "\if ... \@toodeep \else .. \fi."
+
+% will force use the "false" branch (if there is one)
+\def\spx@toodeep@hack{\fi\iffalse}
+
+% do nothing if 'maxlistdepth' key not used or if package enumitem loaded.
+\ifnum\spx@opt@maxlistdepth=\z@\expandafter\@gobbletwo\fi
+\AtBeginDocument{%
+\@ifpackageloaded{enumitem}{\remove@to@nnil}{}%
+  \let\spx@toodeepORI\@toodeep
+  \def\@toodeep{%
+    \ifnum\@listdepth<\spx@opt@maxlistdepth\relax
+      \expandafter\spx@toodeep@hack
+    \else
+      \expandafter\spx@toodeepORI
+    \fi}%
+% define all missing \@list... macros
+  \count@\@ne
+  \loop
+     \spx@ifundefined{@list\romannumeral\the\count@}
+       {\iffalse}{\iftrue\advance\count@\@ne}%
+  \repeat
+  \loop
+     \ifnum\count@>\spx@opt@maxlistdepth\relax\else
+       \expandafter\let
+         \csname @list\romannumeral\the\count@\expandafter\endcsname
+         \csname @list\romannumeral\the\numexpr\count@-\@ne\endcsname
+       % work around 2.6--3.2d babel-french issue (fixed in 3.2e; no change needed)
+       \spx@ifundefined{leftmargin\romannumeral\the\count@}
+       {\expandafter\let
+         \csname leftmargin\romannumeral\the\count@\expandafter\endcsname
+         \csname leftmargin\romannumeral\the\numexpr\count@-\@ne\endcsname}{}%
+     \advance\count@\@ne
+  \repeat
+% define all missing enum... counters and \labelenum... macros and \p@enum..
+  \count@\@ne
+  \loop
+     \spx@ifundefined{c@enum\romannumeral\the\count@}
+       {\iffalse}{\iftrue\advance\count@\@ne}%
+  \repeat
+  \loop
+     \ifnum\count@>\spx@opt@maxlistdepth\relax\else
+       \newcounter{enum\romannumeral\the\count@}%
+       \expandafter\def
+         \csname labelenum\romannumeral\the\count@\expandafter\endcsname
+         \expandafter
+         {\csname theenum\romannumeral\the\numexpr\count@\endcsname.}%
+       \expandafter\def
+         \csname p@enum\romannumeral\the\count@\expandafter\endcsname
+         \expandafter
+         {\csname p@enum\romannumeral\the\numexpr\count@-\@ne\expandafter
+          \endcsname\csname theenum\romannumeral\the\numexpr\count@-\@ne\endcsname.}%
+     \advance\count@\@ne
+  \repeat
+% define all missing labelitem... macros
+  \count@\@ne
+  \loop
+     \spx@ifundefined{labelitem\romannumeral\the\count@}
+     {\iffalse}{\iftrue\advance\count@\@ne}%
+  \repeat
+  \loop
+     \ifnum\count@>\spx@opt@maxlistdepth\relax\else
+       \expandafter\let
+         \csname labelitem\romannumeral\the\count@\expandafter\endcsname
+         \csname labelitem\romannumeral\the\numexpr\count@-\@ne\endcsname
+     \advance\count@\@ne
+  \repeat
+  \PackageInfo{sphinx}{maximal list depth extended to \spx@opt@maxlistdepth}%
+\@gobble\@nnil
+}
+
+
+%% INDEX, BIBLIOGRAPHY, APPENDIX, TABLE OF CONTENTS
+%
+% fix the double index and bibliography on the table of contents
+% in jsclasses (Japanese standard document classes)
+\ifx\@jsc@uplatextrue\undefined\else
+  \renewenvironment{sphinxtheindex}
+    {\cleardoublepage\phantomsection
+     \begin{theindex}}
+    {\end{theindex}}
+
+  \renewenvironment{sphinxthebibliography}[1]
+    {\cleardoublepage\phantomsection
+     \begin{thebibliography}{1}}
+    {\end{thebibliography}}
+\fi
+
+% disable \@chappos in Appendix in pTeX
+\ifx\kanjiskip\undefined\else
+  \let\py@OldAppendix=\appendix
+  \renewcommand{\appendix}{
+    \py@OldAppendix
+    \gdef\@chappos{}
+  }
+\fi
+
+% make commands known to non-Sphinx document classes
+\providecommand*{\sphinxtableofcontents}{\tableofcontents}
+\spx@ifundefined{sphinxthebibliography}
+ {\newenvironment
+  {sphinxthebibliography}{\begin{thebibliography}}{\end{thebibliography}}%
+ }
+ {}% else clause of ifundefined
+\spx@ifundefined{sphinxtheindex}
+ {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}%
+ {}% else clause of ifundefined
+
+
+%% COLOR (general)
+%
 % FIXME: the reasons might be obsolete (better color drivers now?)
 % use pdfoutput for pTeX and dvipdfmx
 % when pTeX (\kanjiskip is defined), set pdfoutput to evade \include{pdfcolor}
@@ -232,6 +387,9 @@
   \def\py@TitleColor{\color{TitleColor}}
 \fi
 
+
+%% PAGE STYLING
+%
 % Style parameters and macros used by most documents here
 \raggedbottom
 \sloppy
@@ -239,15 +397,13 @@
 
 \pagestyle{empty}               % start this way
 
-% Since Sphinx 1.5, users should use HeaderFamily key to 'sphinxsetup' rather
-% than defining their own \py@HeaderFamily command (which is still possible).
-\newcommand{\py@HeaderFamily}{\spx@opt@HeaderFamily}
-
 % Redefine the 'normal' header/footer style when using "fancyhdr" package:
+% Note: this presupposes "twoside". If "oneside" class option, there will be warnings.
 \spx@ifundefined{fancyhf}{}{
   % Use \pagestyle{normal} as the primary pagestyle for text.
   \fancypagestyle{normal}{
     \fancyhf{}
+% (for \py@HeaderFamily cf "TITLES")
     \fancyfoot[LE,RO]{{\py@HeaderFamily\thepage}}
     \fancyfoot[LO]{{\py@HeaderFamily\nouppercase{\rightmark}}}
     \fancyfoot[RE]{{\py@HeaderFamily\nouppercase{\leftmark}}}
@@ -269,47 +425,162 @@
   }
 }
 
-% Some custom font markup commands.
-% *** the macros without \sphinx prefix are still defined near end of file ***
-\long\protected\def\sphinxstrong#1{{\textbf{#1}}}
-% to obtain straight quotes we execute \@noligs as patched by upquote, and
-% \scantokens is needed in cases where it would be too late for the macro to
-% first set catcodes and then fetch its argument. We also make the contents
-% breakable at non-escaped . , ; ? ! / using \sphinxbreaksviaactive.
-% the macro must be protected if it ends up used in moving arguments,
-% in 'alltt' \@noligs is done already, and the \scantokens must be avoided.
-\long\protected\def\sphinxcode#1{{\def\@tempa{alltt}%
-  \ifx\@tempa\@currenvir\else
-   \ifspx@opt@inlineliteralwraps
-      \sphinxbreaksviaactive\let\sphinxafterbreak\empty
-      % do not overwrite the comma set-up
-      \let\verbatim@nolig@list\sphinx@literal@nolig@list
+% geometry
+\ifx\kanjiskip\undefined
+  \PassOptionsToPackage{%
+     hmargin={\unexpanded{\spx@opt@hmargin}},%
+     vmargin={\unexpanded{\spx@opt@vmargin}},%
+     marginpar=\unexpanded{\spx@opt@marginpar}}
+  {geometry}
+\else
+ % set text width for Japanese documents to be integer multiple of 1zw
+ % and text height to be integer multiple of \baselineskip
+ % the execution is delayed to \sphinxsetup then geometry.sty
+ \normalsize\normalfont
+ \newcommand*\sphinxtextwidthja[1]{%
+    \if@twocolumn\tw@\fi
+    \dimexpr
+       \numexpr\dimexpr\paperwidth-\tw@\dimexpr#1\relax\relax/
+               \dimexpr\if@twocolumn\tw@\else\@ne\fi zw\relax
+    zw\relax}%
+ \newcommand*\sphinxmarginparwidthja[1]{%
+    \dimexpr\numexpr\dimexpr#1\relax/\dimexpr1zw\relax zw\relax}%
+ \newcommand*\sphinxtextlinesja[1]{%
+    \numexpr\@ne+\dimexpr\paperheight-\topskip-\tw@\dimexpr#1\relax\relax/
+                 \baselineskip\relax}%
+ \ifx\@jsc@uplatextrue\undefined\else
+ % the way we found in order for the papersize special written by
+ % geometry in the dvi file to be correct in case of jsbook class
+   \ifnum\mag=\@m\else % do nothing special if nomag class option or 10pt
+     \PassOptionsToPackage{truedimen}{geometry}%
    \fi
-   % fix a space-gobbling issue due to LaTeX's original \do@noligs
-   \let\do@noligs\sphinx@do@noligs
-   \@noligs\endlinechar\m@ne
-   \expandafter\scantokens
-  \fi {\texttt{#1}}}}
-\def\sphinx@do@noligs #1{\catcode`#1\active\begingroup\lccode`\~`#1\relax
-    \lowercase{\endgroup\def~{\leavevmode\kern\z@\char`#1 }}}
-\def\sphinx@literal@nolig@list {\do\`\do\<\do\>\do\'\do\-}%
+ \fi
+ \PassOptionsToPackage{%
+    hmarginratio={1:1},%
+    textwidth=\unexpanded{\sphinxtextwidthja{\spx@opt@hmargin}},%
+    vmarginratio={1:1},%
+    lines=\unexpanded{\sphinxtextlinesja{\spx@opt@vmargin}},%
+    marginpar=\unexpanded{\sphinxmarginparwidthja{\spx@opt@marginpar}},%
+    footskip=2\baselineskip,%
+  }{geometry}%
+ \AtBeginDocument
+ {% update a dimension used by the jsclasses
+  \ifx\@jsc@uplatextrue\undefined\else\fullwidth\textwidth\fi
+  % for some reason, jreport normalizes all dimensions with \@settopoint
+  \@ifclassloaded{jreport}
+    {\@settopoint\textwidth\@settopoint\textheight\@settopoint\marginparwidth}
+    {}% <-- "false" clause of \@ifclassloaded
+  }%
+\fi
 
-\long\protected\def\sphinxbfcode#1{\sphinxcode{\bfseries#1}}
-\long\protected\def\sphinxemail#1{\textsf{#1}}
-\long\protected\def\sphinxtablecontinued#1{\textsf{#1}}
-\long\protected\def\sphinxtitleref#1{\emph{#1}}
-\long\protected\def\sphinxmenuselection#1{\emph{#1}}
-\long\protected\def\sphinxaccelerator#1{\underline{#1}}
-\long\protected\def\sphinxcrossref#1{\emph{#1}}
-\long\protected\def\sphinxtermref#1{\emph{#1}}
+% fix fncychap's bug which uses prematurely the \textwidth value
+\@ifpackagewith{fncychap}{Bjornstrup}
+ {\AtBeginDocument{\mylen\textwidth\advance\mylen-2\myhi}}%
+ {}% <-- "false" clause of \@ifpackagewith
 
+
+%% TITLES
+%
+% Since Sphinx 1.5, users should use HeaderFamily key to 'sphinxsetup' rather
+% than defining their own \py@HeaderFamily command (which is still possible).
+% Memo: \py@HeaderFamily is also used by \maketitle as defined in
+% sphinxmanual.cls/sphinxhowto.cls
+\newcommand{\py@HeaderFamily}{\spx@opt@HeaderFamily}
+
+% This sets up the fancy chapter headings that make the documents look
+% at least a little better than the usual LaTeX output.
+\@ifpackagewith{fncychap}{Bjarne}{
+  \ChNameVar {\raggedleft\normalsize \py@HeaderFamily}
+  \ChNumVar  {\raggedleft\Large      \py@HeaderFamily}
+  \ChTitleVar{\raggedleft\Large      \py@HeaderFamily}
+  % This creates (numbered) chapter heads without the leading \vspace*{}:
+  \def\@makechapterhead#1{%
+    {\parindent \z@ \raggedright \normalfont
+      \ifnum \c@secnumdepth >\m@ne
+        \if@mainmatter
+          \DOCH
+        \fi
+      \fi
+      \interlinepenalty\@M
+      \if@mainmatter
+        \DOTI{#1}%
+      \else%
+        \DOTIS{#1}%
+      \fi
+    }}
+}{}% <-- "false" clause of \@ifpackagewith
+
+% Augment the sectioning commands used to get our own font family in place,
+% and reset some internal data items (\titleformat from titlesec package)
+\titleformat{\section}{\Large\py@HeaderFamily}%
+            {\py@TitleColor\thesection}{0.5em}{\py@TitleColor}{\py@NormalColor}
+\titleformat{\subsection}{\large\py@HeaderFamily}%
+            {\py@TitleColor\thesubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
+\titleformat{\subsubsection}{\py@HeaderFamily}%
+            {\py@TitleColor\thesubsubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
+% By default paragraphs (and subsubsections) will not be numbered because
+% sphinxmanual.cls and sphinxhowto.cls set secnumdepth to 2
+\titleformat{\paragraph}{\py@HeaderFamily}%
+            {\py@TitleColor\theparagraph}{0.5em}{\py@TitleColor}{\py@NormalColor}
+\titleformat{\subparagraph}{\py@HeaderFamily}%
+            {\py@TitleColor\thesubparagraph}{0.5em}{\py@TitleColor}{\py@NormalColor}
+
+
+%% GRAPHICS
+%
+% Redefine \includegraphics to resize images larger than the line width,
+% except if height or width option present.
+%
+% If scale is present, rescale before fitting to line width. (since 1.5)
+%
+% Warning: future version of Sphinx will not modify original \includegraphics,
+% below code will be definition only of \sphinxincludegraphics.
+\let\py@Oldincludegraphics\includegraphics
+\newbox\spx@image@box
+\renewcommand*{\includegraphics}[2][]{%
+  \in@{height}{#1}\ifin@\else\in@{width}{#1}\fi
+  \ifin@ % height or width present
+    \py@Oldincludegraphics[#1]{#2}%
+  \else % no height nor width (but #1 may be "scale=...")
+    \setbox\spx@image@box\hbox{\py@Oldincludegraphics[#1,draft]{#2}}%
+    \ifdim \wd\spx@image@box>\linewidth
+      \setbox\spx@image@box\box\voidb@x % clear memory
+      \py@Oldincludegraphics[#1,width=\linewidth]{#2}%
+    \else
+      \py@Oldincludegraphics[#1]{#2}%
+    \fi
+  \fi
+}
+% Writer will put \sphinxincludegraphics in LaTeX source, and with this,
+% documents which used their own modified \includegraphics will compile
+% as before. But see warning above.
+\newcommand*{\sphinxincludegraphics}{\includegraphics}
+
+
+%% FIGURE IN TABLE
+%
+\newenvironment{sphinxfigure-in-table}[1][\linewidth]{%
+  \def\@captype{figure}%
+  \begin{minipage}{#1}%
+}{\end{minipage}}
+% store original \caption macro for use with figures in longtable and tabulary
+\AtBeginDocument{\let\spx@originalcaption\caption}
+\newcommand*\sphinxfigcaption
+  {\ifx\equation$%$% this is trick to identify tabulary first pass
+       \firstchoice@false\else\firstchoice@true\fi
+   \spx@originalcaption }
+
+
+%% FOOTNOTES
+%
 % Support large numbered footnotes in minipage
 % But now obsolete due to systematic use of \savenotes/\spewnotes
 % when minipages are in use in the various macro definitions next.
 \def\thempfootnote{\arabic{mpfootnote}}
 
-% Code-blocks
 
+%% LITERAL BLOCKS
+%
 % Based on use of "fancyvrb.sty"'s Verbatim.
 % - with framing allowing page breaks ("framed.sty")
 % - with breaking of long lines (exploits Pygments mark-up),
@@ -322,21 +593,28 @@
 \let\OriginalVerbatim   \Verbatim
 \let\endOriginalVerbatim\endVerbatim
 
-\newif\ifspx@inframed % flag set if we are already in a framed environment
-% if forced use of minipage encapsulation is needed (e.g. table cells)
-\newif\ifsphinxverbatimwithminipage   \sphinxverbatimwithminipagefalse
-\newcommand\spx@colorbox [2]{%
-% #1 will be \fcolorbox or, for first part of frame: \spx@fcolorbox
-% let the framing obey the current indentation (adapted from framed.sty's code).
-  \hskip\@totalleftmargin
-  \hskip-\fboxsep\hskip-\fboxrule
-  #1{VerbatimBorderColor}{VerbatimColor}{#2}%
-  \hskip-\fboxsep\hskip-\fboxrule
-  \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
-}
-% use of \color@b@x here is compatible with both xcolor.sty and color.sty
-\def\spx@fcolorbox #1#2%
-  {\color@b@x {\fboxsep\z@\color{#1}\spx@VerbatimFBox}{\color{#2}}}%
+% if the available space on page is less than \literalblockneedspace, insert pagebreak
+\newcommand{\sphinxliteralblockneedspace}{5\baselineskip}
+\newcommand{\sphinxliteralblockwithoutcaptionneedspace}{1.5\baselineskip}
+
+% for captions of literal blocks
+% also define `\theH...` macros for hyperref
+\newcounter{literalblock}
+\spx@ifundefined{c@chapter}
+  {\@addtoreset{literalblock}{section}
+  \def\theliteralblock {\ifnum\c@section>\z@ \thesection.\fi\arabic{literalblock}}
+  \def\theHliteralblock {\theHsection.\arabic{literalblock}}}
+  {\@addtoreset{literalblock}{chapter}
+  \def\theliteralblock {\ifnum\c@chapter>\z@ \thechapter.\fi\arabic{literalblock}}
+  \def\theHliteralblock {\theHchapter.\arabic{literalblock}}}
+% at start of caption title
+\newcommand*{\fnum@literalblock}{\literalblockname\nobreakspace\theliteralblock}
+% this will be overwritten in document preamble by Babel translation
+\newcommand*{\literalblockname}{Listing }
+% file extension needed for \caption's good functioning, the file is created
+% only if a \listof{literalblock}{foo} command is encountered, which is
+% analogous to \listoffigures, but for the code listings (foo = chosen title.)
+\newcommand*{\ext@literalblock}{lol}
 
 % The title (caption) is specified from outside as macro \sphinxVerbatimTitle.
 % \sphinxVerbatimTitle is reset to empty after each use of Verbatim.
@@ -362,6 +640,22 @@
   % we counteract float.sty's \caption which does \@normalsize
   \let\normalsize\footnotesize\let\@parboxrestore\relax
   \abovecaptionskip \smallskipamount \belowcaptionskip \z@skip}
+
+\newif\ifspx@inframed % flag set if we are already in a framed environment
+% if forced use of minipage encapsulation is needed (e.g. table cells)
+\newif\ifsphinxverbatimwithminipage   \sphinxverbatimwithminipagefalse
+\newcommand\spx@colorbox [2]{%
+% #1 will be \fcolorbox or, for first part of frame: \spx@fcolorbox
+% let the framing obey the current indentation (adapted from framed.sty's code).
+  \hskip\@totalleftmargin
+  \hskip-\fboxsep\hskip-\fboxrule
+  #1{VerbatimBorderColor}{VerbatimColor}{#2}%
+  \hskip-\fboxsep\hskip-\fboxrule
+  \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth
+}
+% use of \color@b@x here is compatible with both xcolor.sty and color.sty
+\def\spx@fcolorbox #1#2%
+  {\color@b@x {\fboxsep\z@\color{#1}\spx@VerbatimFBox}{\color{#2}}}%
 
 % Inspired and adapted from framed.sty's \CustomFBox with extra handling
 % of a non separable by pagebreak caption.
@@ -568,7 +862,9 @@
    \begin{sphinxVerbatim}}
   {\end{sphinxVerbatim}}
 
-% Parsed literal: allow long lines to wrap like they do in code-blocks
+
+%% PARSED LITERALS
+% allow long lines to wrap like they do in code-blocks
 
 % this should be kept in sync with definitions in sphinx.util.texescape
 \newcommand*\sphinxbreaksattexescapedchars{%
@@ -634,8 +930,9 @@
     \endlinechar\m@ne\scantokens{\nolinkurl{#1}}%
 }}
 
-% Topic boxes
 
+%% TOPIC AND CONTENTS BOXES
+%
 % Again based on use of "framed.sty", this allows breakable framed boxes.
 \long\def\spx@ShadowFBox#1{%
   \leavevmode\begingroup
@@ -712,78 +1009,8 @@
   }
 
 
-% \moduleauthor{name}{email}
-\newcommand{\moduleauthor}[2]{}
-
-% \sectionauthor{name}{email}
-\newcommand{\sectionauthor}[2]{}
-
-% Augment the sectioning commands used to get our own font family in place,
-% and reset some internal data items:
-\titleformat{\section}{\Large\py@HeaderFamily}%
-            {\py@TitleColor\thesection}{0.5em}{\py@TitleColor}{\py@NormalColor}
-\titleformat{\subsection}{\large\py@HeaderFamily}%
-            {\py@TitleColor\thesubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
-\titleformat{\subsubsection}{\py@HeaderFamily}%
-            {\py@TitleColor\thesubsubsection}{0.5em}{\py@TitleColor}{\py@NormalColor}
-% By default paragraphs (and subsubsections) will not be numbered because
-% sphinxmanual.cls and sphinxhowto.cls set secnumdepth to 2
-\titleformat{\paragraph}{\py@HeaderFamily}%
-            {\py@TitleColor\theparagraph}{0.5em}{\py@TitleColor}{\py@NormalColor}
-\titleformat{\subparagraph}{\py@HeaderFamily}%
-            {\py@TitleColor\thesubparagraph}{0.5em}{\py@TitleColor}{\py@NormalColor}
-
-% {fulllineitems} is the main environment for object descriptions.
+%% NOTICES AND ADMONITIONS
 %
-\newcommand{\py@itemnewline}[1]{%
-  \@tempdima\linewidth
-  \advance\@tempdima \leftmargin\makebox[\@tempdima][l]{#1}%
-}
-
-\newenvironment{fulllineitems}{
-  \begin{list}{}{\labelwidth \leftmargin \labelsep \z@
-                 \rightmargin \z@ \topsep -\parskip \partopsep \parskip
-                 \itemsep -\parsep
-                 \let\makelabel=\py@itemnewline}
-}{\end{list}}
-
-% \optional is used for ``[, arg]``, i.e. desc_optional nodes.
-\newcommand{\sphinxoptional}[1]{%
-  {\textnormal{\Large[}}{#1}\hspace{0.5mm}{\textnormal{\Large]}}}
-
-\newlength{\py@argswidth}
-\newcommand{\py@sigparams}[2]{%
-  \parbox[t]{\py@argswidth}{#1\sphinxcode{)}#2}}
-\newcommand{\pysigline}[1]{\item[{#1}]}
-\newcommand{\pysiglinewithargsret}[3]{%
-  \settowidth{\py@argswidth}{#1\sphinxcode{(}}%
-  \addtolength{\py@argswidth}{-2\py@argswidth}%
-  \addtolength{\py@argswidth}{\linewidth}%
-  \item[{#1\sphinxcode{(}\py@sigparams{#2}{#3}}]}
-\newcommand{\pysigstartmultiline}{%
- \def\pysigstartmultiline{\vskip\smallskipamount\parskip\z@skip\itemsep\z@skip}%
- \edef\pysigstopmultiline
-     {\noexpand\leavevmode\parskip\the\parskip\relax\itemsep\the\itemsep\relax}%
- \parskip\z@skip\itemsep\z@skip
-}
-
-% Production lists
-%
-\newenvironment{productionlist}{%
-%  \def\sphinxoptional##1{{\Large[}##1{\Large]}}
-  \def\production##1##2{\\\sphinxcode{##1}&::=&\sphinxcode{##2}}%
-  \def\productioncont##1{\\& &\sphinxcode{##1}}%
-  \parindent=2em
-  \indent
-  \setlength{\LTpre}{0pt}%
-  \setlength{\LTpost}{0pt}%
-  \begin{longtable}[l]{lcl}
-}{%
-  \end{longtable}
-}
-
-% Notices / Admonitions
-
 % Some are quite plain
 % the spx@notice@bordercolor etc are set in the sphinxadmonition environment
 \newenvironment{sphinxlightbox}{%
@@ -900,6 +1127,16 @@
   % in end part, need to go around a LaTeX's "feature"
  {\edef\spx@temp{\noexpand\end{sphinx\spx@noticetype}}\spx@temp}
 
+
+%% PYTHON DOCS MACROS AND ENVIRONMENTS
+%  (some macros here used by \maketitle in sphinxmanual.cls and sphinxhowto.cls)
+
+% \moduleauthor{name}{email}
+\newcommand{\moduleauthor}[2]{}
+
+% \sectionauthor{name}{email}
+\newcommand{\sectionauthor}[2]{}
+
 % Allow the release number to be specified independently of the
 % \date{}.  This allows the date to reflect the document's date and
 % release to specify the release that is documented.
@@ -924,37 +1161,61 @@
 \newcommand{\py@authoraddress}{}
 \newcommand{\authoraddress}[1]{\renewcommand{\py@authoraddress}{#1}}
 
-% This sets up the fancy chapter headings that make the documents look
-% at least a little better than the usual LaTeX output.
+% {fulllineitems} is the main environment for object descriptions.
 %
-\@ifpackagewith{fncychap}{Bjarne}{
-  \ChNameVar {\raggedleft\normalsize \py@HeaderFamily}
-  \ChNumVar  {\raggedleft\Large      \py@HeaderFamily}
-  \ChTitleVar{\raggedleft\Large      \py@HeaderFamily}
-  % This creates (numbered) chapter heads without the leading \vspace*{}:
-  \def\@makechapterhead#1{%
-    {\parindent \z@ \raggedright \normalfont
-      \ifnum \c@secnumdepth >\m@ne
-        \if@mainmatter
-          \DOCH
-        \fi
-      \fi
-      \interlinepenalty\@M
-      \if@mainmatter
-        \DOTI{#1}%
-      \else%
-        \DOTIS{#1}%
-      \fi
-    }}
-}{}% <-- "false" clause of \@ifpackagewith
+\newcommand{\py@itemnewline}[1]{%
+  \@tempdima\linewidth
+  \advance\@tempdima \leftmargin\makebox[\@tempdima][l]{#1}%
+}
+
+\newenvironment{fulllineitems}{
+  \begin{list}{}{\labelwidth \leftmargin \labelsep \z@
+                 \rightmargin \z@ \topsep -\parskip \partopsep \parskip
+                 \itemsep -\parsep
+                 \let\makelabel=\py@itemnewline}
+}{\end{list}}
 
 % Redefine description environment so that it is usable inside fulllineitems.
 %
+% FIXME: use sphinxdescription, do not redefine description environment!
 \renewcommand{\description}{%
   \list{}{\labelwidth\z@
           \itemindent-\leftmargin
 	  \labelsep5pt\relax
           \let\makelabel=\descriptionlabel}}
+
+% Signatures, possibly multi-line
+%
+\newlength{\py@argswidth}
+\newcommand{\py@sigparams}[2]{%
+  \parbox[t]{\py@argswidth}{#1\sphinxcode{)}#2}}
+\newcommand{\pysigline}[1]{\item[{#1}]}
+\newcommand{\pysiglinewithargsret}[3]{%
+  \settowidth{\py@argswidth}{#1\sphinxcode{(}}%
+  \addtolength{\py@argswidth}{-2\py@argswidth}%
+  \addtolength{\py@argswidth}{\linewidth}%
+  \item[{#1\sphinxcode{(}\py@sigparams{#2}{#3}}]}
+\newcommand{\pysigstartmultiline}{%
+ \def\pysigstartmultiline{\vskip\smallskipamount\parskip\z@skip\itemsep\z@skip}%
+ \edef\pysigstopmultiline
+     {\noexpand\leavevmode\parskip\the\parskip\relax\itemsep\the\itemsep\relax}%
+ \parskip\z@skip\itemsep\z@skip
+}
+
+% Production lists
+%
+\newenvironment{productionlist}{%
+%  \def\sphinxoptional##1{{\Large[}##1{\Large]}}
+  \def\production##1##2{\\\sphinxcode{##1}&::=&\sphinxcode{##2}}%
+  \def\productioncont##1{\\& &\sphinxcode{##1}}%
+  \parindent=2em
+  \indent
+  \setlength{\LTpre}{0pt}%
+  \setlength{\LTpost}{0pt}%
+  \begin{longtable}[l]{lcl}
+}{%
+  \end{longtable}
+}
 
 % Definition lists; requested by AMK for HOWTO documents.  Probably useful
 % elsewhere as well, so keep in in the general style support.
@@ -966,9 +1227,8 @@
   \end{description}%
 }
 
-% Tell TeX about pathological hyphenation cases:
-\hyphenation{Base-HTTP-Re-quest-Hand-ler}
-
+%% FROM DOCTUTILS LATEX WRITER
+%
 % The following is stuff copied from docutils' latex writer.
 %
 \newcommand{\optionlistlabel}[1]{\normalfont\bfseries #1 \hfill}% \bf deprecated
@@ -992,59 +1252,6 @@
    \leftmargin#1\relax}
  \raggedright}
 {\end{list}}
-
-% Redefine \includegraphics to resize images larger than the line width,
-% except if height or width option present.
-%
-% If scale is present, rescale before fitting to line width. (since 1.5)
-%
-% Warning: future version of Sphinx will not modify original \includegraphics,
-% below code will be definition only of \sphinxincludegraphics.
-\let\py@Oldincludegraphics\includegraphics
-\newbox\spx@image@box
-\renewcommand*{\includegraphics}[2][]{%
-  \in@{height}{#1}\ifin@\else\in@{width}{#1}\fi
-  \ifin@ % height or width present
-    \py@Oldincludegraphics[#1]{#2}%
-  \else % no height nor width (but #1 may be "scale=...")
-    \setbox\spx@image@box\hbox{\py@Oldincludegraphics[#1,draft]{#2}}%
-    \ifdim \wd\spx@image@box>\linewidth
-      \setbox\spx@image@box\box\voidb@x % clear memory
-      \py@Oldincludegraphics[#1,width=\linewidth]{#2}%
-    \else
-      \py@Oldincludegraphics[#1]{#2}%
-    \fi
-  \fi
-}
-% Writer will put \sphinxincludegraphics in LaTeX source, and with this,
-% documents which used their own modified \includegraphics will compile
-% as before. But see warning above.
-\newcommand*{\sphinxincludegraphics}{\includegraphics}
-
-% to make pdf with correct encoded bookmarks in Japanese
-% this should precede the hyperref package
-\ifx\kanjiskip\undefined
-% for non-Japanese: make sure bookmarks are ok also with lualatex
-  \PassOptionsToPackage{pdfencoding=unicode}{hyperref}
-\else
-  \usepackage{atbegshi}
-  \ifx\ucs\undefined
-    \ifnum 42146=\euc"A4A2
-      \AtBeginShipoutFirst{\special{pdf:tounicode EUC-UCS2}}
-    \else
-      \AtBeginShipoutFirst{\special{pdf:tounicode 90ms-RKSJ-UCS2}}
-    \fi
-  \else
-    \AtBeginShipoutFirst{\special{pdf:tounicode UTF8-UCS2}}
-  \fi
-\fi
-
-% These options can be overriden inside  'hyperref' key
-% or by later use of \hypersetup.
-\PassOptionsToPackage{colorlinks,breaklinks,%
- linkcolor=InnerLinkColor,filecolor=OuterLinkColor,%
- menucolor=OuterLinkColor,urlcolor=OuterLinkColor,%
- citecolor=InnerLinkColor}{hyperref}
 
 % From docutils.writers.latex2e
 % inline markup (custom roles)
@@ -1079,122 +1286,44 @@
   {\endlist}
 \fi
 
-\ifx\kanjiskip\undefined
-  \PassOptionsToPackage{%
-     hmargin={\unexpanded{\spx@opt@hmargin}},%
-     vmargin={\unexpanded{\spx@opt@vmargin}},%
-     marginpar=\unexpanded{\spx@opt@marginpar}}
-  {geometry}
-\else
- % set text width for Japanese documents to be integer multiple of 1zw
- % and text height to be integer multiple of \baselineskip
- % the execution is delayed to \sphinxsetup then geometry.sty
- \normalsize\normalfont
- \newcommand*\sphinxtextwidthja[1]{%
-    \if@twocolumn\tw@\fi
-    \dimexpr
-       \numexpr\dimexpr\paperwidth-\tw@\dimexpr#1\relax\relax/
-               \dimexpr\if@twocolumn\tw@\else\@ne\fi zw\relax
-    zw\relax}%
- \newcommand*\sphinxmarginparwidthja[1]{%
-    \dimexpr\numexpr\dimexpr#1\relax/\dimexpr1zw\relax zw\relax}%
- \newcommand*\sphinxtextlinesja[1]{%
-    \numexpr\@ne+\dimexpr\paperheight-\topskip-\tw@\dimexpr#1\relax\relax/
-                 \baselineskip\relax}%
- \ifx\@jsc@uplatextrue\undefined\else
- % the way we found in order for the papersize special written by
- % geometry in the dvi file to be correct in case of jsbook class
-   \ifnum\mag=\@m\else % do nothing special if nomag class option or 10pt
-     \PassOptionsToPackage{truedimen}{geometry}%
+%% TEXT STYLING
+%
+% Some custom font markup commands.
+% *** the macros without \sphinx prefix are still defined farther down ***
+\protected\def\sphinxstrong#1{{\textbf{#1}}}
+% to obtain straight quotes we execute \@noligs as patched by upquote, and
+% \scantokens is needed in cases where it would be too late for the macro to
+% first set catcodes and then fetch its argument. We also make the contents
+% breakable at non-escaped . , ; ? ! / using \sphinxbreaksviaactive.
+% the macro must be protected if it ends up used in moving arguments,
+% in 'alltt' \@noligs is done already, and the \scantokens must be avoided.
+\protected\def\sphinxcode#1{{\def\@tempa{alltt}%
+  \ifx\@tempa\@currenvir\else
+   \ifspx@opt@inlineliteralwraps
+      \sphinxbreaksviaactive\let\sphinxafterbreak\empty
+      % do not overwrite the comma set-up
+      \let\verbatim@nolig@list\sphinx@literal@nolig@list
    \fi
- \fi
- \PassOptionsToPackage{%
-    hmarginratio={1:1},%
-    textwidth=\unexpanded{\sphinxtextwidthja{\spx@opt@hmargin}},%
-    vmarginratio={1:1},%
-    lines=\unexpanded{\sphinxtextlinesja{\spx@opt@vmargin}},%
-    marginpar=\unexpanded{\sphinxmarginparwidthja{\spx@opt@marginpar}},%
-    footskip=2\baselineskip,%
-  }{geometry}%
- \AtBeginDocument
- {% update a dimension used by the jsclasses
-  \ifx\@jsc@uplatextrue\undefined\else\fullwidth\textwidth\fi
-  % for some reason, jreport normalizes all dimensions with \@settopoint
-  \@ifclassloaded{jreport}
-    {\@settopoint\textwidth\@settopoint\textheight\@settopoint\marginparwidth}
-    {}% <-- "false" clause of \@ifclassloaded
-  }%
-\fi
+   % fix a space-gobbling issue due to LaTeX's original \do@noligs
+   \let\do@noligs\sphinx@do@noligs
+   \@noligs\endlinechar\m@ne
+   \expandafter\scantokens
+  \fi {\texttt{#1}}}}
+\def\sphinx@do@noligs #1{\catcode`#1\active\begingroup\lccode`\~`#1\relax
+    \lowercase{\endgroup\def~{\leavevmode\kern\z@\char`#1 }}}
+\def\sphinx@literal@nolig@list {\do\`\do\<\do\>\do\'\do\-}%
 
-% fix fncychap's bug which uses prematurely the \textwidth value
-\@ifpackagewith{fncychap}{Bjornstrup}
- {\AtBeginDocument{\mylen\textwidth\advance\mylen-2\myhi}}%
- {}% <-- "false" clause of \@ifpackagewith
-
-\ifx\@jsc@uplatextrue\undefined\else
-  \PassOptionsToPackage{setpagesize=false}{hyperref}
-\fi
-
-% fix the double index and bibliography on the table of contents
-% in jsclasses (Japanese standard document classes)
-\ifx\@jsc@uplatextrue\undefined\else
-  \renewenvironment{sphinxtheindex}
-    {\cleardoublepage\phantomsection
-     \begin{theindex}}
-    {\end{theindex}}
-
-  \renewenvironment{sphinxthebibliography}[1]
-    {\cleardoublepage\phantomsection
-     \begin{thebibliography}{1}}
-    {\end{thebibliography}}
-\fi
-
-% disable \@chappos in Appendix in pTeX
-\ifx\kanjiskip\undefined\else
-  \let\py@OldAppendix=\appendix
-  \renewcommand{\appendix}{
-    \py@OldAppendix
-    \gdef\@chappos{}
-  }
-\fi
-
-% for captions of literal blocks
-% with `\theH...` macros for hyperref
-\newcounter{literalblock}
-\spx@ifundefined{c@chapter}
-  {\@addtoreset{literalblock}{section}
-  \def\theliteralblock {\ifnum\c@section>\z@ \thesection.\fi\arabic{literalblock}}
-  \def\theHliteralblock {\theHsection.\arabic{literalblock}}}
-  {\@addtoreset{literalblock}{chapter}
-  \def\theliteralblock {\ifnum\c@chapter>\z@ \thechapter.\fi\arabic{literalblock}}
-  \def\theHliteralblock {\theHchapter.\arabic{literalblock}}}
-% at start of caption title
-\newcommand*{\fnum@literalblock}{\literalblockname\nobreakspace\theliteralblock}
-% this will be overwritten in document preamble by Babel translation
-\newcommand*{\literalblockname}{Listing }
-% file extension needed for \caption's good functioning, the file is created
-% only if a \listof{literalblock}{foo} command is encountered, which is
-% analogous to \listoffigures, but for the code listings (foo = chosen title.)
-\newcommand*{\ext@literalblock}{lol}
-
-% control caption around literal-block
-\RequirePackage{capt-of}
-\RequirePackage{needspace}
-% if the left page space is less than \literalblockneedspace, insert page-break
-\newcommand{\sphinxliteralblockneedspace}{5\baselineskip}
-\newcommand{\sphinxliteralblockwithoutcaptionneedspace}{1.5\baselineskip}
-
-% figure in table
-\newenvironment{sphinxfigure-in-table}[1][\linewidth]{%
-  \def\@captype{figure}%
-  \begin{minipage}{#1}%
-}{\end{minipage}}
-% store original \caption macro for use with figures in longtable and tabulary
-\AtBeginDocument{\let\spx@originalcaption\caption}
-\newcommand*\sphinxfigcaption
-  {\ifx\equation$%$% this is trick to identify tabulary first pass
-       \firstchoice@false\else\firstchoice@true\fi
-   \spx@originalcaption }
+\protected\def\sphinxbfcode#1{\sphinxcode{\bfseries#1}}
+\protected\def\sphinxemail#1{\textsf{#1}}
+\protected\def\sphinxtablecontinued#1{\textsf{#1}}
+\protected\def\sphinxtitleref#1{\emph{#1}}
+\protected\def\sphinxmenuselection#1{\emph{#1}}
+\protected\def\sphinxaccelerator#1{\underline{#1}}
+\protected\def\sphinxcrossref#1{\emph{#1}}
+\protected\def\sphinxtermref#1{\emph{#1}}
+% \optional is used for ``[, arg]``, i.e. desc_optional nodes.
+\long\protected\def\sphinxoptional#1{%
+  {\textnormal{\Large[}}{#1}\hspace{0.5mm}{\textnormal{\Large]}}}
 
 \ifspx@opt@dontkeepoldnames\else
   \let\spx@alreadydefinedlist\@empty
@@ -1229,15 +1358,15 @@
 % additional customizable styling
 % FIXME: convert this to package options ?
 \protected\def\sphinxstyleindexentry     {\texttt}
-\long\protected\def\sphinxstyleindexextra #1{ \emph{(#1)}}
+\protected\def\sphinxstyleindexextra #1{ \emph{(#1)}}
 \protected\def\sphinxstyleindexpageref   {, \pageref}
-\long\protected\def\sphinxstyletopictitle #1{\textbf{#1}\par\medskip}
+\protected\def\sphinxstyletopictitle #1{\textbf{#1}\par\medskip}
 \let\sphinxstylesidebartitle\sphinxstyletopictitle
 \protected\def\sphinxstyleothertitle     {\textbf}
-\long\protected\def\sphinxstylesidebarsubtitle #1{~\\\textbf{#1} \smallskip}
+\protected\def\sphinxstylesidebarsubtitle #1{~\\\textbf{#1} \smallskip}
 \protected\def\sphinxstylethead          {\textsf}
 \protected\def\sphinxstyleemphasis       {\emph}
-\long\protected\def\sphinxstyleliteralemphasis#1{\emph{\sphinxcode{#1}}}
+\protected\def\sphinxstyleliteralemphasis#1{\emph{\sphinxcode{#1}}}
 \protected\def\sphinxstylestrong         {\textbf}
 \protected\def\sphinxstyleliteralstrong  {\sphinxbfcode}
 \protected\def\sphinxstyleabbreviation   {\textsc}
@@ -1247,89 +1376,6 @@
 \protected\def\sphinxquotedblleft{``}
 \protected\def\sphinxquotedblright{''}
 
-% stylesheet for highlighting with pygments
-\RequirePackage{sphinxhighlight}
+% Tell TeX about pathological hyphenation cases:
+\hyphenation{Base-HTTP-Re-quest-Hand-ler}
 
-% make commands known to non-Sphinx document classes
-\providecommand*{\sphinxtableofcontents}{\tableofcontents}
-\spx@ifundefined{sphinxthebibliography}
- {\newenvironment
-  {sphinxthebibliography}{\begin{thebibliography}}{\end{thebibliography}}%
- }
- {}% else clause of ifundefined
-\spx@ifundefined{sphinxtheindex}
- {\newenvironment{sphinxtheindex}{\begin{theindex}}{\end{theindex}}}%
- {}% else clause of ifundefined
-
-% remove LaTeX's cap on nesting depth if 'maxlistdepth' key used.
-% This is a hack, which works with the standard classes: it assumes \@toodeep
-% is always used in "true" branches: "\if ... \@toodeep \else .. \fi."
-
-% will force use the "false" branch (if there is one)
-\def\spx@toodeep@hack{\fi\iffalse}
-
-% do nothing if 'maxlistdepth' key not used or if package enumitem loaded.
-\ifnum\spx@opt@maxlistdepth=\z@\expandafter\@gobbletwo\fi
-\AtBeginDocument{%
-\@ifpackageloaded{enumitem}{\remove@to@nnil}{}%
-  \let\spx@toodeepORI\@toodeep
-  \def\@toodeep{%
-    \ifnum\@listdepth<\spx@opt@maxlistdepth\relax
-      \expandafter\spx@toodeep@hack
-    \else
-      \expandafter\spx@toodeepORI
-    \fi}%
-% define all missing \@list... macros
-  \count@\@ne
-  \loop
-     \spx@ifundefined{@list\romannumeral\the\count@}
-       {\iffalse}{\iftrue\advance\count@\@ne}%
-  \repeat
-  \loop
-     \ifnum\count@>\spx@opt@maxlistdepth\relax\else
-       \expandafter\let
-         \csname @list\romannumeral\the\count@\expandafter\endcsname
-         \csname @list\romannumeral\the\numexpr\count@-\@ne\endcsname
-       % work around 2.6--3.2d babel-french issue (fixed in 3.2e; no change needed)
-       \spx@ifundefined{leftmargin\romannumeral\the\count@}
-       {\expandafter\let
-         \csname leftmargin\romannumeral\the\count@\expandafter\endcsname
-         \csname leftmargin\romannumeral\the\numexpr\count@-\@ne\endcsname}{}%
-     \advance\count@\@ne
-  \repeat
-% define all missing enum... counters and \labelenum... macros and \p@enum..
-  \count@\@ne
-  \loop
-     \spx@ifundefined{c@enum\romannumeral\the\count@}
-       {\iffalse}{\iftrue\advance\count@\@ne}%
-  \repeat
-  \loop
-     \ifnum\count@>\spx@opt@maxlistdepth\relax\else
-       \newcounter{enum\romannumeral\the\count@}%
-       \expandafter\def
-         \csname labelenum\romannumeral\the\count@\expandafter\endcsname
-         \expandafter
-         {\csname theenum\romannumeral\the\numexpr\count@\endcsname.}%
-       \expandafter\def
-         \csname p@enum\romannumeral\the\count@\expandafter\endcsname
-         \expandafter
-         {\csname p@enum\romannumeral\the\numexpr\count@-\@ne\expandafter
-          \endcsname\csname theenum\romannumeral\the\numexpr\count@-\@ne\endcsname.}%
-     \advance\count@\@ne
-  \repeat
-% define all missing labelitem... macros
-  \count@\@ne
-  \loop
-     \spx@ifundefined{labelitem\romannumeral\the\count@}
-     {\iffalse}{\iftrue\advance\count@\@ne}%
-  \repeat
-  \loop
-     \ifnum\count@>\spx@opt@maxlistdepth\relax\else
-       \expandafter\let
-         \csname labelitem\romannumeral\the\count@\expandafter\endcsname
-         \csname labelitem\romannumeral\the\numexpr\count@-\@ne\endcsname
-     \advance\count@\@ne
-  \repeat
-  \PackageInfo{sphinx}{maximal list depth extended to \spx@opt@maxlistdepth}%
-\@gobble\@nnil
-}
