@@ -217,7 +217,7 @@ def get_verifier(verify, verify_re):
         'verify_re',
         u'`test <http://example.com/~me/>`_',
         None,
-        r'\\href{http://example.com/~me/}{test}.*',
+        r'\\sphinxhref{http://example.com/~me/}{test}.*',
     ),
 ])
 def test_inline(get_verifier, type, rst, html_expected, latex_expected):

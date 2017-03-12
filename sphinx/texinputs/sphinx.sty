@@ -287,7 +287,7 @@
    \fi
    % fix a space-gobbling issue due to LaTeX's original \do@noligs
    \let\do@noligs\sphinx@do@noligs
-   \@noligs\endlinechar\m@ne\everyeof{\noexpand}%
+   \@noligs\endlinechar\m@ne
    \expandafter\scantokens
   \fi {\texttt{#1}}}}
 \def\sphinx@do@noligs #1{\catcode`#1\active\begingroup\lccode`\~`#1\relax
@@ -592,22 +592,6 @@
 \newcommand*\sphinxbreaksatspaceinparsedliteral{%
   \lccode`~32 \lowercase{\let~}\spx@verbatim@space\lccode`\~`\~
 }
-% now the hack for \url to work (hyperref is assumed in use):
-% the aim it to deactivate - . , ; ? ! / in \url's argument.
-% also the space token, but not end of lines which we assume don't arise there.
-\def\spx@hack@hyper@normalise {%
-  \expandafter\spx@hack@hyper@normalise@aux\hyper@normalise
-              \spx@hack@hyper@normalise@aux\hyper@n@rmalise\relax\spx@undefined
-}%
-\long\def\spx@hack@hyper@normalise@aux#1\hyper@n@rmalise#2#3\spx@undefined{%
-  \ifx\spx@hack@hyper@normalise@aux#2%
-      \def\hyper@normalise{#1\sphinxunactivateextrasandspace\hyper@n@rmalise}%
-  \else
-      \PackageWarning{sphinx}{Could not patch \string\url\space command.%
-      ^^J    Not using extra active characters in alltt environment}%
-      \sphinxunactivateextras
-  \fi
-}%
 \newcommand*{\sphinxunactivateextras}{\let\do\@makeother
       \sphinxbreaksbeforeactivelist\sphinxbreaksafteractivelist\do\-}%
 % the \catcode13=5\relax (deactivate end of input lines) is left to callers
@@ -623,16 +607,32 @@
    \sphinxbreaksattexescapedchars
    \sphinxbreaksviaactiveinparsedliteral
    \sphinxbreaksatspaceinparsedliteral
-   \spx@hack@hyper@normalise
 % alltt takes care of the ' as derivative ("prime") in math mode
    \everymath\expandafter{\the\everymath\sphinxunactivateextrasandspace
              \catcode`\<=12\catcode`\>=12\catcode`\^=7\catcode`\_=8 }%
 % not sure if displayed math (align,...) can end up in parsed-literal, anyway
    \everydisplay\expandafter{\the\everydisplay
-             \catcode13=5\sphinxunactivateextrasandspace
+             \catcode13=5 \sphinxunactivateextrasandspace
              \catcode`\<=12\catcode`\>=12\catcode`\^=7\catcode`\_=8 }%
  \fi }
 {\end{alltt}}
+
+% Protect \href's first argument in contexts such as sphinxalltt (or
+% \sphinxcode). Sphinx uses \#, \%, \& ... always inside \sphinxhref.
+\protected\def\sphinxhref#1#2{{%
+    \sphinxunactivateextrasandspace % never do \scantokens with active space!
+    \endlinechar\m@ne\everyeof{{#2}}% keep catcode regime for #2
+    \scantokens{\href{#1}}% normalise it for #1 during \href expansion
+}}
+% Same for \url. And also \nolinkurl for coherence.
+\protected\def\sphinxurl#1{{%
+    \sphinxunactivateextrasandspace
+    \endlinechar\m@ne\scantokens{\url{#1}}%
+}}
+\protected\def\sphinxnolinkurl#1{{%
+    \sphinxunactivateextrasandspace
+    \endlinechar\m@ne\scantokens{\nolinkurl{#1}}%
+}}
 
 % Topic boxes
 
@@ -1242,6 +1242,10 @@
 \protected\def\sphinxstyleliteralstrong  {\sphinxbfcode}
 \protected\def\sphinxstyleabbreviation   {\textsc}
 \protected\def\sphinxstyleliteralintitle {\sphinxcode}
+
+% LaTeX writer uses macros to hide double quotes from \sphinxcode's \@noligs
+\protected\def\sphinxquotedblleft{``}
+\protected\def\sphinxquotedblright{''}
 
 % stylesheet for highlighting with pygments
 \RequirePackage{sphinxhighlight}

@@ -11,6 +11,7 @@ Features added
 --------------
 
 * #3470: Make genindex support all kinds of letters, not only Latin ones
+* latex macros for directional double quotes (refs #3527)
 
 Bugs fixed
 ----------
@@ -25,6 +26,9 @@ Bugs fixed
   are same without creation date. Thanks to Yoshiki Shibukawa.
 * #3487: intersphinx: failed to refer options
 * #3496: latex longtable's last column may be much wider than its contents
+* #3507: wrong quotes in latex output for productionlist directive
+* #3533: Moving from Sphinx 1.3.1 to 1.5.3 breaks LaTeX compilation of links
+  rendered as code
 * #2665, #2607: Link names in C++ docfields, and make it possible for other domains.
 
 Testing
