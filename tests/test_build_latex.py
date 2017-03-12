@@ -564,21 +564,21 @@ def test_latex_show_urls_is_inline(app, status, warning):
             'First\n%\n\\end{footnote}') in result
     assert ('Second footnote: %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'Second\n%\n\\end{footnote}') in result
-    assert '\\href{http://sphinx-doc.org/}{Sphinx} (http://sphinx-doc.org/)' in result
+    assert '\\sphinxhref{http://sphinx-doc.org/}{Sphinx} (http://sphinx-doc.org/)' in result
     assert ('Third footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
             'Third\n%\n\\end{footnote}') in result
-    assert ('\\href{http://sphinx-doc.org/~test/}{URL including tilde} '
+    assert ('\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde} '
             '(http://sphinx-doc.org/\\textasciitilde{}test/)') in result
-    assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term} '
+    assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{URL in term} '
             '(http://sphinx-doc.org/)}] \\leavevmode\nDescription' in result)
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[5]}] '
             '\\leavevmode%\n\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
             'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
             'Description') in result
-    assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist} '
+    assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist} '
             '(http://sphinx-doc.org/)}] \\leavevmode\nDescription') in result
-    assert '\\url{https://github.com/sphinx-doc/sphinx}\n' in result
-    assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
+    assert '\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result
+    assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx-dev@googlegroups.com}') in result
 
 
@@ -608,30 +608,30 @@ def test_latex_show_urls_is_footnote(app, status, warning):
             'First\n%\n\\end{footnote}') in result
     assert ('Second footnote: %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'Second\n%\n\\end{footnote}') in result
-    assert ('\\href{http://sphinx-doc.org/}{Sphinx}'
+    assert ('\\sphinxhref{http://sphinx-doc.org/}{Sphinx}'
             '%\n\\begin{footnote}[4]\\sphinxAtStartFootnote\n'
-            '\\nolinkurl{http://sphinx-doc.org/}\n%\n\\end{footnote}') in result
+            '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n\\end{footnote}') in result
     assert ('Third footnote: %\n\\begin{footnote}[6]\\sphinxAtStartFootnote\n'
             'Third\n%\n\\end{footnote}') in result
-    assert ('\\href{http://sphinx-doc.org/~test/}{URL including tilde}'
+    assert ('\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde}'
             '%\n\\begin{footnote}[5]\\sphinxAtStartFootnote\n'
-            '\\nolinkurl{http://sphinx-doc.org/~test/}\n%\n\\end{footnote}') in result
-    assert ('\\item[{\\href{http://sphinx-doc.org/}'
+            '\\sphinxnolinkurl{http://sphinx-doc.org/~test/}\n%\n\\end{footnote}') in result
+    assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}'
             '{URL in term}\\sphinxfootnotemark[8]}] '
             '\\leavevmode%\n\\begin{footnotetext}[8]\\sphinxAtStartFootnote\n'
-            '\\nolinkurl{http://sphinx-doc.org/}\n%\n'
+            '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n'
             '\\end{footnotetext}\\ignorespaces \nDescription') in result
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[10]}] '
             '\\leavevmode%\n\\begin{footnotetext}[10]\\sphinxAtStartFootnote\n'
             'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
             'Description') in result
-    assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}'
+    assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist}'
             '\\sphinxfootnotemark[9]}] '
             '\\leavevmode%\n\\begin{footnotetext}[9]\\sphinxAtStartFootnote\n'
-            '\\nolinkurl{http://sphinx-doc.org/}\n%\n'
+            '\\sphinxnolinkurl{http://sphinx-doc.org/}\n%\n'
             '\\end{footnotetext}\\ignorespaces \nDescription') in result
-    assert ('\\url{https://github.com/sphinx-doc/sphinx}\n' in result)
-    assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
+    assert ('\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result)
+    assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx-dev@googlegroups.com}\n') in result
 
 
@@ -661,20 +661,20 @@ def test_latex_show_urls_is_no(app, status, warning):
             'First\n%\n\\end{footnote}') in result
     assert ('Second footnote: %\n\\begin{footnote}[1]\\sphinxAtStartFootnote\n'
             'Second\n%\n\\end{footnote}') in result
-    assert '\\href{http://sphinx-doc.org/}{Sphinx}' in result
+    assert '\\sphinxhref{http://sphinx-doc.org/}{Sphinx}' in result
     assert ('Third footnote: %\n\\begin{footnote}[3]\\sphinxAtStartFootnote\n'
             'Third\n%\n\\end{footnote}') in result
-    assert '\\href{http://sphinx-doc.org/~test/}{URL including tilde}' in result
-    assert ('\\item[{\\href{http://sphinx-doc.org/}{URL in term}}] '
+    assert '\\sphinxhref{http://sphinx-doc.org/~test/}{URL including tilde}' in result
+    assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{URL in term}}] '
             '\\leavevmode\nDescription') in result
     assert ('\\item[{Footnote in term \\sphinxfootnotemark[5]}] '
             '\\leavevmode%\n\\begin{footnotetext}[5]\\sphinxAtStartFootnote\n'
             'Footnote in term\n%\n\\end{footnotetext}\\ignorespaces \n'
             'Description') in result
-    assert ('\\item[{\\href{http://sphinx-doc.org/}{Term in deflist}}] '
+    assert ('\\item[{\\sphinxhref{http://sphinx-doc.org/}{Term in deflist}}] '
             '\\leavevmode\nDescription') in result
-    assert ('\\url{https://github.com/sphinx-doc/sphinx}\n' in result)
-    assert ('\\href{mailto:sphinx-dev@googlegroups.com}'
+    assert ('\\sphinxurl{https://github.com/sphinx-doc/sphinx}\n' in result)
+    assert ('\\sphinxhref{mailto:sphinx-dev@googlegroups.com}'
             '{sphinx-dev@googlegroups.com}\n') in result
 
 

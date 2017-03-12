@@ -19,6 +19,7 @@ if False:
     # For type annotation
     from typing import Any, Dict, List, Tuple  # NOQA
     from sphinx.domains import Domain  # NOQA
+    from sphinx.environment import BuildEnvironment  # NOQA
 
 
 def _is_single_paragraph(node):
@@ -62,39 +63,41 @@ class Field(object):
         self.bodyrolename = bodyrolename
 
     def make_xref(self, rolename, domain, target,
-                  innernode=addnodes.literal_emphasis, contnode=None):
-        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node
+                  innernode=addnodes.literal_emphasis, contnode=None, env=None):
+        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node, BuildEnvironment) -> nodes.Node
         if not rolename:
             return contnode or innernode(target, target)
         refnode = addnodes.pending_xref('', refdomain=domain, refexplicit=False,
                                         reftype=rolename, reftarget=target)
         refnode += contnode or innernode(target, target)
+        if env:
+            env.domains[domain].process_field_xref(refnode)
         return refnode
 
     def make_xrefs(self, rolename, domain, target,
-                   innernode=addnodes.literal_emphasis, contnode=None):
-        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node) -> List[nodes.Node]
-        return [self.make_xref(rolename, domain, target, innernode, contnode)]
+                   innernode=addnodes.literal_emphasis, contnode=None, env=None):
+        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node, BuildEnvironment) -> List[nodes.Node]
+        return [self.make_xref(rolename, domain, target, innernode, contnode, env)]
 
     def make_entry(self, fieldarg, content):
         # type: (List, unicode) -> Tuple[List, unicode]
         return (fieldarg, content)
 
-    def make_field(self, types, domain, item):
-        # type: (Dict[unicode, List[nodes.Node]], unicode, Tuple) -> nodes.field
+    def make_field(self, types, domain, item, env=None):
+        # type: (Dict[unicode, List[nodes.Node]], unicode, Tuple, BuildEnvironment) -> nodes.field
         fieldarg, content = item
         fieldname = nodes.field_name('', self.label)
         if fieldarg:
             fieldname += nodes.Text(' ')
             fieldname.extend(self.make_xrefs(self.rolename, domain,
-                                             fieldarg, nodes.Text))
+                                             fieldarg, nodes.Text, env=env))
 
         if len(content) == 1 and (
                 isinstance(content[0], nodes.Text) or
                 (isinstance(content[0], nodes.inline) and len(content[0]) == 1 and
                  isinstance(content[0][0], nodes.Text))):
             content = self.make_xrefs(self.bodyrolename, domain,
-                                      content[0].astext(), contnode=content[0])
+                                      content[0].astext(), contnode=content[0], env=env)
         fieldbody = nodes.field_body('', nodes.paragraph('', '', *content))
         return nodes.field('', fieldname, fieldbody)
 
@@ -121,14 +124,14 @@ class GroupedField(Field):
         Field.__init__(self, name, names, label, True, rolename)
         self.can_collapse = can_collapse
 
-    def make_field(self, types, domain, items):
-        # type: (Dict[unicode, List[nodes.Node]], unicode, Tuple) -> nodes.field
+    def make_field(self, types, domain, items, env=None):
+        # type: (Dict[unicode, List[nodes.Node]], unicode, Tuple, BuildEnvironment) -> nodes.field
         fieldname = nodes.field_name('', self.label)
         listnode = self.list_type()
         for fieldarg, content in items:
             par = nodes.paragraph()
             par.extend(self.make_xrefs(self.rolename, domain, fieldarg,
-                                       addnodes.literal_strong))
+                                       addnodes.literal_strong, env=env))
             par += nodes.Text(' -- ')
             par += content
             listnode += nodes.list_item('', par)
@@ -169,13 +172,13 @@ class TypedField(GroupedField):
         self.typenames = typenames
         self.typerolename = typerolename
 
-    def make_field(self, types, domain, items):
-        # type: (Dict[unicode, List[nodes.Node]], unicode, Tuple) -> nodes.field
+    def make_field(self, types, domain, items, env=None):
+        # type: (Dict[unicode, List[nodes.Node]], unicode, Tuple, BuildEnvironment) -> nodes.field
         def handle_item(fieldarg, content):
             # type: (unicode, unicode) -> nodes.paragraph
             par = nodes.paragraph()
             par.extend(self.make_xrefs(self.rolename, domain, fieldarg,
-                                       addnodes.literal_strong))
+                                       addnodes.literal_strong, env=env))
             if fieldarg in types:
                 par += nodes.Text(' (')
                 # NOTE: using .pop() here to prevent a single type node to be
@@ -185,7 +188,7 @@ class TypedField(GroupedField):
                 if len(fieldtype) == 1 and isinstance(fieldtype[0], nodes.Text):
                     typename = u''.join(n.astext() for n in fieldtype)
                     par.extend(self.make_xrefs(self.typerolename, domain, typename,
-                                               addnodes.literal_emphasis))
+                                               addnodes.literal_emphasis, env=env))
                 else:
                     par += fieldtype
                 par += nodes.Text(')')
@@ -213,7 +216,7 @@ class DocFieldTransformer(object):
 
     def __init__(self, directive):
         # type: (Any) -> None
-        self.domain = directive.domain
+        self.directive = directive
         if '_doc_field_type_map' not in directive.__class__.__dict__:
             directive.__class__._doc_field_type_map = \
                 self.preprocess_fieldtypes(directive.__class__.doc_field_types)
@@ -329,7 +332,7 @@ class DocFieldTransformer(object):
             else:
                 fieldtype, content = entry
                 fieldtypes = types.get(fieldtype.name, {})
-                new_list += fieldtype.make_field(fieldtypes, self.domain,
-                                                 content)
+                new_list += fieldtype.make_field(fieldtypes, self.directive.domain,
+                                                 content, env=self.directive.env)
 
         node.replace_self(new_list)

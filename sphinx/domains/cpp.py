@@ -3480,7 +3480,7 @@ class DefinitionParser(object):
             value = self.matched_text
         else:
             # TODO: add handling of more bracket-like things, and quote handling
-            brackets = {'(': ')', '[': ']'}  # type: Dict[unicode, unicode]
+            brackets = {'(': ')', '[': ']', '<': '>'}  # type: Dict[unicode, unicode]
             symbols = []  # type: List[unicode]
             while not self.eof:
                 if (len(symbols) == 0 and self.current_char in end):
@@ -4865,6 +4865,13 @@ class CPPDomain(Domain):
         # print(docname)
         # print(self.data['root_symbol'].dump(0))
         pass
+
+    def process_field_xref(self, pnode):
+        # type: (nodes.Node) -> None
+        symbol = self.env.ref_context['cpp:parent_symbol']
+        key = symbol.get_lookup_key()
+        assert key
+        pnode['cpp:parent_key'] = key
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[unicode], Dict) -> None

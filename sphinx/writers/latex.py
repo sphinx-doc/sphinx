@@ -2008,12 +2008,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
         elif uri.startswith(URI_SCHEMES):
             if len(node) == 1 and uri == node[0]:
                 if node.get('nolinkurl'):
-                    self.body.append('\\nolinkurl{%s}' % self.encode_uri(uri))
+                    self.body.append('\\sphinxnolinkurl{%s}' % self.encode_uri(uri))
                 else:
-                    self.body.append('\\url{%s}' % self.encode_uri(uri))
+                    self.body.append('\\sphinxurl{%s}' % self.encode_uri(uri))
                 raise nodes.SkipNode
             else:
-                self.body.append('\\href{%s}{' % self.encode_uri(uri))
+                self.body.append('\\sphinxhref{%s}{' % self.encode_uri(uri))
                 self.context.append('}')
         elif uri.startswith('#'):
             # references to labels in the same document
@@ -2531,7 +2531,9 @@ class LaTeXTranslator(nodes.NodeVisitor):
         # type: (nodes.Node) -> None
         text = self.encode(node.astext())
         if not self.no_contractions and not self.in_parsed_literal:
-            text = educate_quotes_latex(text)  # type: ignore
+            text = educate_quotes_latex(text,  # type: ignore
+                                        dquotes=("\\sphinxquotedblleft{}",
+                                                 "\\sphinxquotedblright{}"))
         self.body.append(text)
 
     def depart_Text(self, node):

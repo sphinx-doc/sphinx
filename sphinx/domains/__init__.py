@@ -240,6 +240,13 @@ class Domain(object):
         """Process a document after it is read by the environment."""
         pass
 
+    def process_field_xref(self, pnode):
+        # type: (nodes.Node) -> None
+        """Process a pending xref created in a doc field.
+        For example, attach information about the current scope.
+        """
+        pass
+
     def resolve_xref(self, env, fromdocname, builder,
                      typ, target, node, contnode):
         # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
