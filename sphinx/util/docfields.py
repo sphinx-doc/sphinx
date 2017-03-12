@@ -62,9 +62,15 @@ class Field(object):
         self.rolename = rolename
         self.bodyrolename = bodyrolename
 
-    def make_xref(self, rolename, domain, target,
-                  innernode=addnodes.literal_emphasis, contnode=None, env=None):
-        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node, BuildEnvironment) -> nodes.Node
+    def make_xref(self,
+                  rolename,       # type: unicode
+                  domain,         # type: unicode
+                  target,         # type: unicode
+                  innernode=addnodes.literal_emphasis,  # type: nodes.Node
+                  contnode=None,  # type: nodes.Node
+                  env=None,       # type: BuildEnvironment
+                  ):
+        # type: (...) -> nodes.Node
         if not rolename:
             return contnode or innernode(target, target)
         refnode = addnodes.pending_xref('', refdomain=domain, refexplicit=False,
@@ -74,17 +80,28 @@ class Field(object):
             env.domains[domain].process_field_xref(refnode)
         return refnode
 
-    def make_xrefs(self, rolename, domain, target,
-                   innernode=addnodes.literal_emphasis, contnode=None, env=None):
-        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node, BuildEnvironment) -> List[nodes.Node]
+    def make_xrefs(self,
+                   rolename,       # type: unicode
+                   domain,         # type: unicode
+                   target,         # type: unicode
+                   innernode=addnodes.literal_emphasis,  # type: nodes.Node
+                   contnode=None,  # type: nodes.Node
+                   env=None,       # type: BuildEnvironment
+                   ):
+        # type: (...) -> List[nodes.Node]
         return [self.make_xref(rolename, domain, target, innernode, contnode, env)]
 
     def make_entry(self, fieldarg, content):
         # type: (List, unicode) -> Tuple[List, unicode]
         return (fieldarg, content)
 
-    def make_field(self, types, domain, item, env=None):
-        # type: (Dict[unicode, List[nodes.Node]], unicode, Tuple, BuildEnvironment) -> nodes.field
+    def make_field(self,
+                   types,     # type: Dict[unicode, List[nodes.Node]]
+                   domain,    # type: unicode
+                   item,      # type: Tuple
+                   env=None,  # type: BuildEnvironment
+                   ):
+        # type: (...) -> nodes.field
         fieldarg, content = item
         fieldname = nodes.field_name('', self.label)
         if fieldarg:
@@ -124,8 +141,13 @@ class GroupedField(Field):
         Field.__init__(self, name, names, label, True, rolename)
         self.can_collapse = can_collapse
 
-    def make_field(self, types, domain, items, env=None):
-        # type: (Dict[unicode, List[nodes.Node]], unicode, Tuple, BuildEnvironment) -> nodes.field
+    def make_field(self,
+                   types,    # type: Dict[unicode, List[nodes.Node]]
+                   domain,   # type: unicode
+                   items,    # type: Tuple
+                   env=None, # type: BuildEnvironment
+                   ):
+        # type: (...) -> nodes.field
         fieldname = nodes.field_name('', self.label)
         listnode = self.list_type()
         for fieldarg, content in items:
@@ -172,8 +194,13 @@ class TypedField(GroupedField):
         self.typenames = typenames
         self.typerolename = typerolename
 
-    def make_field(self, types, domain, items, env=None):
-        # type: (Dict[unicode, List[nodes.Node]], unicode, Tuple, BuildEnvironment) -> nodes.field
+    def make_field(self,
+                   types,     # type: Dict[unicode, List[nodes.Node]]
+                   domain,    # type: unicode
+                   items,     # type: Tuple
+                   env=None,  # type: BuildEnvironment
+                   ):
+        # type: (...) -> nodes.field
         def handle_item(fieldarg, content):
             # type: (unicode, unicode) -> nodes.paragraph
             par = nodes.paragraph()

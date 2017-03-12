@@ -96,9 +96,15 @@ def _pseudo_parse_arglist(signode, arglist):
 # This override allows our inline type specifiers to behave like :class: link
 # when it comes to handling "." and "~" prefixes.
 class PyXrefMixin(object):
-    def make_xref(self, rolename, domain, target, innernode=nodes.emphasis,
-                  contnode=None, env=None):
-        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node, BuildEnvironment) -> nodes.Node
+    def make_xref(self,
+                  rolename,                  # type: unicode
+                  domain,                    # type: unicode
+                  target,                    # type: unicode
+                  innernode=nodes.emphasis,  # type: nodes.Node
+                  contnode=None,             # type: nodes.Node
+                  env=None,                  # type: BuildEnvironment
+                  ):
+        # type: (...) -> nodes.Node
         result = super(PyXrefMixin, self).make_xref(rolename, domain, target,  # type: ignore
                                                     innernode, contnode, env)
         result['refspecific'] = True
@@ -113,9 +119,15 @@ class PyXrefMixin(object):
                 break
         return result
 
-    def make_xrefs(self, rolename, domain, target, innernode=nodes.emphasis,
-                   contnode=None, env=None):
-        # type: (unicode, unicode, unicode, nodes.Node, nodes.Node, BuildEnvironment) -> List[nodes.Node]
+    def make_xrefs(self,
+                   rolename,                  # type: unicode
+                   domain,                    # type: unicode
+                   target,                    # type: unicode
+                   innernode=nodes.emphasis,  # type: nodes.Node
+                   contnode=None,             # type: nodes.Node
+                   env=None,                  # type: BuildEnvironment
+                   ):
+        # type: (...) -> List[nodes.Node]
         delims = r'(\s*[\[\]\(\),](?:\s*or\s)?\s*|\s+or\s+)'
         delims_re = re.compile(delims)
         sub_targets = re.split(delims, target)
