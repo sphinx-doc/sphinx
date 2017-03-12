@@ -4470,6 +4470,12 @@ class CPPDomain(Domain):
         # print(self.data['root_symbol'].dump(0))
         pass
 
+    def process_field_xref(self, pnode):
+        symbol = self.env.ref_context['cpp:parent_symbol']
+        key = symbol.get_lookup_key()
+        assert key
+        pnode['cpp:parent_key'] = key
+
     def merge_domaindata(self, docnames, otherdata):
         self.data['root_symbol'].merge_with(otherdata['root_symbol'],
                                             docnames, self.env)

@@ -86,9 +86,9 @@ def _pseudo_parse_arglist(signode, arglist):
 # when it comes to handling "." and "~" prefixes.
 class PyXrefMixin(object):
     def make_xref(self, rolename, domain, target, innernode=nodes.emphasis,
-                  contnode=None):
+                  contnode=None, env=None):
         result = super(PyXrefMixin, self).make_xref(rolename, domain, target,
-                                                    innernode, contnode)
+                                                    innernode, contnode, env)
         result['refspecific'] = True
         if target.startswith(('.', '~')):
             prefix, result['reftarget'] = target[0], target[1:]
@@ -102,7 +102,7 @@ class PyXrefMixin(object):
         return result
 
     def make_xrefs(self, rolename, domain, target, innernode=nodes.emphasis,
-                   contnode=None):
+                   contnode=None, env=None):
         delims = '(\s*[\[\]\(\),](?:\s*or\s)?\s*|\s+or\s+)'
         delims_re = re.compile(delims)
         sub_targets = re.split(delims, target)
@@ -118,7 +118,7 @@ class PyXrefMixin(object):
                 results.append(contnode or innernode(sub_target, sub_target))
             else:
                 results.append(self.make_xref(rolename, domain, sub_target,
-                                              innernode, contnode))
+                                              innernode, contnode, env))
 
         return results
 
