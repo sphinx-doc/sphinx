@@ -454,3 +454,45 @@ def test_literalinclude_classes(app, status, warning):
     assert len(literalinclude) > 0
     assert 'bar baz' == literalinclude[0].get('classes')
     assert 'literal_include' == literalinclude[0].get('names')
+
+
+@pytest.mark.sphinx('xml', testroot='directive-code')
+def test_literalinclude_pydecorators(app, status, warning):
+    app.builder.build(['py-decorators'])
+    et = etree_parse(app.outdir / 'py-decorators.xml')
+    secs = et.findall('./section/section')
+
+    literal_include = secs[0].findall('literal_block')
+    assert len(literal_include) == 3
+
+    actual = literal_include[0].text
+    expect = (
+        '@class_decorator\n'
+        '@other_decorator()\n'
+        'class TheClass(object):\n'
+        '\n'
+        '    @method_decorator\n'
+        '    @other_decorator()\n'
+        '    def the_method():\n'
+        '        pass\n'
+    )
+    assert actual == expect
+
+    actual = literal_include[1].text
+    expect = (
+        '    @method_decorator\n'
+        '    @other_decorator()\n'
+        '    def the_method():\n'
+        '        pass\n'
+    )
+    assert actual == expect
+
+    actual = literal_include[2].text
+    expect = (
+        '@function_decorator\n'
+        '@other_decorator()\n'
+        'def the_function():\n'
+        '    pass\n'
+    )
+    assert actual == expect
+
