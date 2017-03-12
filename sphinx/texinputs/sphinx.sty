@@ -402,33 +402,15 @@
 
 %% COLOR (general)
 %
-% FIXME: the reasons might be obsolete (better color drivers now?)
-% use pdfoutput for pTeX and dvipdfmx
-% when pTeX (\kanjiskip is defined), set pdfoutput to evade \include{pdfcolor}
-\ifx\kanjiskip\undefined\else
-  \newcount\pdfoutput\pdfoutput=0
-\fi
-
-% for PDF output, use colors and maximal compression
-\newif\ifsphinxpdfoutput % used in \maketitle
-\ifx\pdfoutput\undefined\else
- \ifnum\pdfoutput=\z@
-  \let\py@NormalColor\relax
-  \let\py@TitleColor\relax
- \else
-  \sphinxpdfoutputtrue
-  \input{pdfcolor}
-  \def\py@NormalColor{\color[rgb]{0.0,0.0,0.0}}
-  \def\py@TitleColor{\color{TitleColor}}
-  \pdfcompresslevel=9
- \fi
-\fi
-
-% XeLaTeX can do colors, too
-\ifx\XeTeXrevision\undefined\else
-  \def\py@NormalColor{\color[rgb]{0.0,0.0,0.0}}
-  \def\py@TitleColor{\color{TitleColor}}
-\fi
+% FIXME: \normalcolor should probably be used in place of \py@NormalColor
+% elsewhere, and \py@NormalColor shoudl never be defined. \normalcolor
+% switches to the colour from last \color call in preamble.
+\def\py@NormalColor{\color{black}}
+% FIXME: it is probably better to use \color{TitleColor}, as TitleColor
+% can be customized from 'sphinxsetup', and drop usage of \py@TitleColor
+\def\py@TitleColor{\color{TitleColor}}
+% FIXME: this line should be dropped, as "9" is default anyhow.
+\ifdefined\pdfcompresslevel\pdfcompresslevel = 9 \fi
 
 
 %% PAGE STYLING
