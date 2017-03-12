@@ -40,7 +40,7 @@
   \begin{titlepage}%
     \let\footnotesize\small
     \let\footnoterule\relax
-    \noindent\rule{\textwidth}{1pt}\ifsphinxpdfoutput\newline\null\fi\par
+    \noindent\rule{\textwidth}{1pt}\newline\null\par
     \ifsphinxpdfoutput
       \begingroup
       % These \defs are required to deal with multi-line authors; it
