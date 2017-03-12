@@ -3124,7 +3124,7 @@ class DefinitionParser(object):
             value = self.matched_text
         else:
             # TODO: add handling of more bracket-like things, and quote handling
-            brackets = {'(': ')', '[': ']'}
+            brackets = {'(': ')', '[': ']', '<': '>'}
             symbols = []
             while not self.eof:
                 if (len(symbols) == 0 and self.current_char in end):
