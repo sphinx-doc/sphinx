@@ -120,7 +120,6 @@ class Sphinx(object):
         self._extensions = {}                   # type: Dict[unicode, Any]
         self._extension_metadata = {}           # type: Dict[unicode, Dict[unicode, Any]]
         self._additional_source_parsers = {}    # type: Dict[unicode, Parser]
-        self._listeners = {}                    # type: Dict[unicode, Dict[int, Callable]]
         self._setting_up_extension = ['?']      # type: List[unicode]
         self.domains = {}                       # type: Dict[unicode, Type[Domain]]
         self.buildername = buildername
