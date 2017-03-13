@@ -30,7 +30,7 @@
 % ``Bjarne'' style a bit better.
 %
 \renewcommand{\maketitle}{%
-  \noindent\rule{\textwidth}{1pt}\newline\null\par
+  \noindent\rule{\textwidth}{1pt}\par
   % FIXME: use \hypersetup{pdfauthor={\@author}, pdftitle={\@title}}
   \ifdefined\pdfinfo
     \begingroup
