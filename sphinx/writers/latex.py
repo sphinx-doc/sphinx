@@ -86,7 +86,7 @@ DEFAULT_SETTINGS = {
     'date':            '',
     'release':         '',
     'author':          '',
-    'logo':            '',
+    'logo':            '\\vbox{}',
     'releasename':     '',
     'makeindex':       '\\makeindex',
     'shorthandoff':    '',
