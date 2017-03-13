@@ -15,7 +15,7 @@ from sphinx.environment.collectors import EnvironmentCollector
 
 if False:
     # For type annotation
-    from typing import Set  # NOQA
+    from typing import Dict, Set  # NOQA
     from docutils import nodes  # NOQA
     from sphinx.sphinx import Sphinx  # NOQA
     from sphinx.environment import BuildEnvironment  # NOQA
@@ -69,5 +69,11 @@ class MetadataCollector(EnvironmentCollector):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict
     app.add_env_collector(MetadataCollector)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }

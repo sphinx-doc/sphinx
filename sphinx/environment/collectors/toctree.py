@@ -284,5 +284,11 @@ class TocTreeCollector(EnvironmentCollector):
 
 
 def setup(app):
-    # type: (Sphinx) -> None
+    # type: (Sphinx) -> Dict
     app.add_env_collector(TocTreeCollector)
+
+    return {
+        'version': 'builtin',
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+    }
