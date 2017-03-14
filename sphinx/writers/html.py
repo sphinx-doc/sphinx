@@ -22,7 +22,6 @@ from sphinx import addnodes
 from sphinx.locale import admonitionlabels, _
 from sphinx.util import logging
 from sphinx.util.images import get_image_size
-from sphinx.util.smartypants import sphinx_smarty_pants
 
 if False:
     # For type annotation
@@ -74,7 +73,6 @@ class HTMLTranslator(BaseTranslator):
         # type: (StandaloneHTMLBuilder, Any, Any) -> None
         BaseTranslator.__init__(self, *args, **kwds)
         self.highlighter = builder.highlighter
-        self.no_smarty = 0
         self.builder = builder
         self.highlightlang = self.highlightlang_base = \
             builder.config.highlight_language
@@ -786,7 +784,6 @@ class HTMLTranslator(BaseTranslator):
         # type: (nodes.Node) -> None
         self.depart_admonition(node)
 
-    # these are only handled specially in the SmartyPantsHTMLTranslator
     def visit_literal_emphasis(self, node):
         # type: (nodes.Node) -> None
         return self.visit_emphasis(node)
@@ -875,94 +872,3 @@ class HTMLTranslator(BaseTranslator):
     def unknown_visit(self, node):
         # type: (nodes.Node) -> None
         raise NotImplementedError('Unknown node: ' + node.__class__.__name__)
-
-
-class SmartyPantsHTMLTranslator(HTMLTranslator):
-    """
-    Handle ordinary text via smartypants, converting quotes and dashes
-    to the correct entities.
-    """
-
-    def __init__(self, *args, **kwds):
-        # type: (Any, Any) -> None
-        self.no_smarty = 0
-        HTMLTranslator.__init__(self, *args, **kwds)
-
-    def visit_literal(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty += 1
-        try:
-            # this raises SkipNode
-            HTMLTranslator.visit_literal(self, node)
-        finally:
-            self.no_smarty -= 1
-
-    def visit_literal_block(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty += 1
-        try:
-            HTMLTranslator.visit_literal_block(self, node)
-        except nodes.SkipNode:
-            # HTMLTranslator raises SkipNode for simple literal blocks,
-            # but not for parsed literal blocks
-            self.no_smarty -= 1
-            raise
-
-    def depart_literal_block(self, node):
-        # type: (nodes.Node) -> None
-        HTMLTranslator.depart_literal_block(self, node)
-        self.no_smarty -= 1
-
-    def visit_literal_emphasis(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty += 1
-        self.visit_emphasis(node)
-
-    def depart_literal_emphasis(self, node):
-        # type: (nodes.Node) -> None
-        self.depart_emphasis(node)
-        self.no_smarty -= 1
-
-    def visit_literal_strong(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty += 1
-        self.visit_strong(node)
-
-    def depart_literal_strong(self, node):
-        # type: (nodes.Node) -> None
-        self.depart_strong(node)
-        self.no_smarty -= 1
-
-    def visit_desc_signature(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty += 1
-        HTMLTranslator.visit_desc_signature(self, node)
-
-    def depart_desc_signature(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty -= 1
-        HTMLTranslator.depart_desc_signature(self, node)
-
-    def visit_productionlist(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty += 1
-        try:
-            HTMLTranslator.visit_productionlist(self, node)
-        finally:
-            self.no_smarty -= 1
-
-    def visit_option(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty += 1
-        HTMLTranslator.visit_option(self, node)
-
-    def depart_option(self, node):
-        # type: (nodes.Node) -> None
-        self.no_smarty -= 1
-        HTMLTranslator.depart_option(self, node)
-
-    def bulk_text_processor(self, text):
-        # type: (unicode) -> unicode
-        if self.no_smarty <= 0:
-            return sphinx_smarty_pants(text)
-        return text
