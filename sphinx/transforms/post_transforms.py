@@ -119,13 +119,13 @@ class ReferencesResolver(SphinxTransform):
         warn = node.get('refwarn')
         if self.config.nitpicky:
             warn = True
-            if self._nitpick_ignore:
+            if self.env._nitpick_ignore:
                 dtype = domain and '%s:%s' % (domain.name, typ) or typ
-                if (dtype, target) in self._nitpick_ignore:
+                if (dtype, target) in self.env._nitpick_ignore:
                     warn = False
                 # for "std" types also try without domain name
                 if (not domain or domain.name == 'std') and \
-                   (typ, target) in self._nitpick_ignore:
+                   (typ, target) in self.env._nitpick_ignore:
                     warn = False
         if not warn:
             return
