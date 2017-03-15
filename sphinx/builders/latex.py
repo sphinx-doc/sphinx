@@ -30,7 +30,7 @@ from sphinx.builders import Builder
 from sphinx.environment import NoUri
 from sphinx.util.nodes import inline_all_toctrees
 from sphinx.util.fileutil import copy_asset_file
-from sphinx.util.osutil import SEP, make_filename
+from sphinx.util.osutil import SEP, make_filename, ensuredir
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.latex import LaTeXWriter
 
@@ -211,6 +211,11 @@ class LaTeXBuilder(Builder):
             logger.info(bold('copying images...'), nonl=1)
             for src, dest in iteritems(self.images):
                 logger.info(' ' + src, nonl=1)
+                subdir, _filename = path.split(dest)
+                if subdir:
+                    # We have added a file with path subdirX/basename to avoid
+                    # file name collisions. Make sure subdirX exist
+                    ensuredir(path.join(self.outdir, subdir))
                 copy_asset_file(path.join(self.srcdir, src),
                                 path.join(self.outdir, dest))
             logger.info('')

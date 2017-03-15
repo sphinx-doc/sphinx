@@ -130,11 +130,11 @@ class FilenameUniqDict(dict):
             self[newfile][0].add(docname)
             return self[newfile][1]
         uniquename = path.basename(newfile)
-        base, ext = path.splitext(uniquename)
         i = 0
         while uniquename in self._existing:
             i += 1
-            uniquename = '%s%s%s' % (base, i, ext)
+            # Make file name unique while leaving basename intact
+            uniquename = path.join('subdir%s' % i, path.basename(newfile))
         self[newfile] = (set([docname]), uniquename)
         self._existing.add(uniquename)
         return uniquename

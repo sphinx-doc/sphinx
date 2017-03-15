@@ -9,6 +9,8 @@
     :license: BSD, see LICENSE for details.
 """
 
+import os
+
 from util import SphinxTestApp, path
 
 from sphinx.builders.html import StandaloneHTMLBuilder
@@ -51,7 +53,7 @@ def test_images():
         set(['subdir/img.png', 'img.png', 'subdir/simg.png', 'svgimg.svg',
              'img.foo.png'])
     assert set(htmlbuilder.images.values()) == \
-        set(['img.png', 'img1.png', 'simg.png', 'svgimg.svg', 'img.foo.png'])
+        set(['img.png', os.path.join('subdir1', 'img.png'), 'simg.png', 'svgimg.svg', 'img.foo.png'])
 
     latexbuilder = LaTeXBuilder(app)
     latexbuilder.post_process_images(tree)
@@ -59,7 +61,7 @@ def test_images():
         set(['subdir/img.png', 'subdir/simg.png', 'img.png', 'img.pdf',
              'svgimg.pdf', 'img.foo.png'])
     assert set(latexbuilder.images.values()) == \
-        set(['img.pdf', 'img.png', 'img1.png', 'simg.png',
+        set(['img.pdf', 'img.png', os.path.join('subdir1', 'img.png'), 'simg.png',
              'svgimg.pdf', 'img.foo.png'])
 
 
