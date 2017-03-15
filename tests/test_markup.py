@@ -179,7 +179,7 @@ def get_verifier(verify, verify_re):
         'verify',
         '"John"',
         '<p>&#8220;John&#8221;</p>',
-        "``John''",
+        r'\sphinxquotedblleft{}John\sphinxquotedblright{}',
     ),
     (
         # ... but not in literal text
