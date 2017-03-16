@@ -955,7 +955,7 @@ def test_latex_table_longtable(app, status, warning):
     table = tables['longtable having caption']
     assert ('\\begin{longtable}{|l|l|}\n\\caption{caption for longtable\\strut}'
             '\\label{\\detokenize{longtable:id1}}'
-            '\\\\*[\sphinxlongtablecapskipadjust]\n\\hline' in table)
+            '\\\\*[\\sphinxlongtablecapskipadjust]\n\\hline' in table)
 
     # longtable having verbatim
     table = tables['longtable having verbatim']
