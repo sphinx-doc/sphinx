@@ -142,14 +142,14 @@ class JSObject(ObjectDescription):
         # type: () -> None
         """Handle object nesting before content
 
-        If this class is a nestable object, such as a class object, build up a
-        representation of the nesting heirarchy so that de-nesting multiple
-        levels works correctly.
+        :py:class:`PyObject` represents Python language constructs. For
+        constructs that are nestable, such as a Python classes, this method will
+        build up a stack of the nesting heirarchy so that it can be later
+        de-nested correctly, in :py:meth:`after_content`.
 
-        If this class isn't a nestable object, just set the current object
-        prefix using the object name. This prefix will be removed with
-        :py:meth:`after_content`, and is not added to the list of nested
-        object prefixes.
+        For constructs that aren't nestable, the stack is bypassed, and instead
+        only the most recent object is tracked. This object prefix name will be
+        removed with :py:meth:`after_content`.
 
         The following keys are used in ``self.env.ref_context``:
 
@@ -172,10 +172,8 @@ class JSObject(ObjectDescription):
         if prefix:
             self.env.ref_context['js:object'] = prefix
             if self.allow_nesting:
-                try:
-                    self.env.ref_context['js:objects'].append(prefix)
-                except (AttributeError, KeyError):
-                    self.env.ref_context['js:objects'] = [prefix]
+                objects = self.env.ref_context.setdefault('js:objects', [])
+                objects.append(prefix)
 
     def after_content(self):
         # type: () -> None
@@ -188,17 +186,14 @@ class JSObject(ObjectDescription):
         be altered as we didn't affect the nesting levels in
         :py:meth:`before_content`.
         """
+        objects = self.env.ref_context.setdefault('js:objects', [])
         if self.allow_nesting:
             try:
-                self.env.ref_context['js:objects'].pop()
-            except (KeyError, IndexError):
-                self.env.ref_context['js:objects'] = []
-        try:
-            prefix = self.env.ref_context.get('js:objects', [])[-1]
-        except IndexError:
-            prefix = None
-        finally:
-            self.env.ref_context['js:object'] = prefix
+                objects.pop()
+            except IndexError:
+                pass
+        self.env.ref_context['js:object'] = (objects[-1] if len(objects) > 0
+                                             else None)
 
 
 class JSCallable(JSObject):
