@@ -293,28 +293,32 @@ class PyObject(ObjectDescription):
         # type: () -> None
         """Handle object nesting before content
 
-        If this class is a nestable object, such as a class object, build up a
-        representation of the nesting heirarchy so that de-nesting multiple
-        levels works correctly.
+        :py:class:`PyObject` represents Python language constructs. For
+        constructs that are nestable, such as a Python classes, this method will
+        build up a stack of the nesting heirarchy so that it can be later
+        de-nested correctly, in :py:meth:`after_content`.
 
-        If this class isn't a nestable object, just set the current class name
-        using the object prefix, if any. This class name will be removed with
-        :py:meth:`after_content`, and is not added to the list of nested
-        classes.
+        For constructs that aren't nestable, the stack is bypassed, and instead
+        only the most recent object is tracked. This object prefix name will be
+        removed with :py:meth:`after_content`.
         """
-        prefix = None
         if self.names:
-            (cls_name, cls_name_prefix) = self.names.pop()
-            prefix = cls_name_prefix.strip('.') if cls_name_prefix else None
+            # fullname and name_prefix come from the `handle_signature` method.
+            # fullname represents the full object name that is constructed using
+            # object nesting and explicit prefixes. `name_prefix` is the
+            # explicit prefix given in a signature
+            (fullname, name_prefix) = self.names[-1]
             if self.allow_nesting:
-                prefix = cls_name
+                prefix = fullname
+            elif name_prefix:
+                prefix = name_prefix.strip('.')
+            else:
+                prefix = None
         if prefix:
             self.env.ref_context['py:class'] = prefix
             if self.allow_nesting:
-                try:
-                    self.env.ref_context['py:classes'].append(prefix)
-                except (AttributeError, KeyError):
-                    self.env.ref_context['py:classes'] = [prefix]
+                classes = self.env.ref_context.setdefault('py:classes', [])
+                classes.append(prefix)
 
     def after_content(self):
         # type: () -> None
@@ -327,17 +331,14 @@ class PyObject(ObjectDescription):
         be altered as we didn't affect the nesting levels in
         :py:meth:`before_content`.
         """
+        classes = self.env.ref_context.setdefault('py:classes', [])
         if self.allow_nesting:
             try:
-                self.env.ref_context['py:classes'].pop()
-            except (KeyError, IndexError):
-                self.env.ref_context['py:classes'] = []
-        try:
-            cls_name = self.env.ref_context.get('py:classes', [])[-1]
-        except IndexError:
-            cls_name = None
-        finally:
-            self.env.ref_context['py:class'] = cls_name
+                classes.pop()
+            except IndexError:
+                pass
+        self.env.ref_context['py:class'] = (classes[-1] if len(classes) > 0
+                                            else None)
 
 
 class PyModulelevel(PyObject):
