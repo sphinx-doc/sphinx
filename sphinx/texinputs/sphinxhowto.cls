@@ -30,8 +30,9 @@
 % ``Bjarne'' style a bit better.
 %
 \renewcommand{\maketitle}{%
-  \noindent\rule{\textwidth}{1pt}\ifsphinxpdfoutput\newline\null\fi\par
-  \ifsphinxpdfoutput
+  \noindent\rule{\textwidth}{1pt}\par
+  % FIXME: use \hypersetup{pdfauthor={\@author}, pdftitle={\@title}}
+  \ifdefined\pdfinfo
     \begingroup
     % These \defs are required to deal with multi-line authors; it
     % changes \\ to ', ' (comma-space), making it pass muster for
