@@ -138,6 +138,9 @@ class PyTypedField(PyXrefMixin, TypedField):
 class PyObject(ObjectDescription):
     """
     Description of a general Python object.
+
+    :cvar allow_nesting: Class is an object that allows for nested namespaces
+    :vartype allow_nesting: bool
     """
     option_spec = {
         'noindex': directives.flag,
@@ -163,6 +166,8 @@ class PyObject(ObjectDescription):
         PyField('returntype', label=l_('Return type'), has_arg=False,
                 names=('rtype',), bodyrolename='obj'),
     ]
+
+    allow_nesting = False
 
     def get_signature_prefix(self, sig):
         """May return a prefix to put before the object name in the
@@ -285,12 +290,55 @@ class PyObject(ObjectDescription):
                                               fullname, '', None))
 
     def before_content(self):
-        # needed for automatic qualification of members (reset in subclasses)
-        self.clsname_set = False
+        # type: () -> None
+        """Handle object nesting before content
+
+        :py:class:`PyObject` represents Python language constructs. For
+        constructs that are nestable, such as a Python classes, this method will
+        build up a stack of the nesting heirarchy so that it can be later
+        de-nested correctly, in :py:meth:`after_content`.
+
+        For constructs that aren't nestable, the stack is bypassed, and instead
+        only the most recent object is tracked. This object prefix name will be
+        removed with :py:meth:`after_content`.
+        """
+        if self.names:
+            # fullname and name_prefix come from the `handle_signature` method.
+            # fullname represents the full object name that is constructed using
+            # object nesting and explicit prefixes. `name_prefix` is the
+            # explicit prefix given in a signature
+            (fullname, name_prefix) = self.names[-1]
+            if self.allow_nesting:
+                prefix = fullname
+            elif name_prefix:
+                prefix = name_prefix.strip('.')
+            else:
+                prefix = None
+        if prefix:
+            self.env.ref_context['py:class'] = prefix
+            if self.allow_nesting:
+                classes = self.env.ref_context.setdefault('py:classes', [])
+                classes.append(prefix)
 
     def after_content(self):
-        if self.clsname_set:
-            self.env.ref_context.pop('py:class', None)
+        # type: () -> None
+        """Handle object de-nesting after content
+
+        If this class is a nestable object, removing the last nested class prefix
+        ends further nesting in the object.
+
+        If this class is not a nestable object, the list of classes should not
+        be altered as we didn't affect the nesting levels in
+        :py:meth:`before_content`.
+        """
+        classes = self.env.ref_context.setdefault('py:classes', [])
+        if self.allow_nesting:
+            try:
+                classes.pop()
+            except IndexError:
+                pass
+        self.env.ref_context['py:class'] = (classes[-1] if len(classes) > 0
+                                            else None)
 
 
 class PyModulelevel(PyObject):
@@ -319,6 +367,8 @@ class PyClasslike(PyObject):
     Description of a class-like object (classes, interfaces, exceptions).
     """
 
+    allow_nesting = True
+
     def get_signature_prefix(self, sig):
         return self.objtype + ' '
 
@@ -331,12 +381,6 @@ class PyClasslike(PyObject):
             return name_cls[0]
         else:
             return ''
-
-    def before_content(self):
-        PyObject.before_content(self)
-        if self.names:
-            self.env.ref_context['py:class'] = self.names[0][0]
-            self.clsname_set = True
 
 
 class PyClassmember(PyObject):
@@ -409,13 +453,6 @@ class PyClassmember(PyObject):
                 return _('%s (%s attribute)') % (attrname, clsname)
         else:
             return ''
-
-    def before_content(self):
-        PyObject.before_content(self)
-        lastname = self.names and self.names[-1][1]
-        if lastname and not self.env.ref_context.get('py:class'):
-            self.env.ref_context['py:class'] = lastname.strip('.')
-            self.clsname_set = True
 
 
 class PyDecoratorMixin(object):
