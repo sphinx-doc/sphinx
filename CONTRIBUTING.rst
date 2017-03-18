@@ -1,3 +1,5 @@
+.. highlight:: console
+
 Sphinx Developer's Guide
 ========================
 
@@ -127,10 +129,11 @@ These are the basic steps needed to start developing on Sphinx.
        cd doc
        make clean html latexpdf
 
-   * Run code style checks and type checks (type checks require mypy)::
+   * Run code style checks and type checks (type checks require ``mypy`` and are
+     currently done for commits to ``master`` only)::
 
-      make style-check
-      make type-check
+       make style-check
+       make type-check
 
    * Run the unit tests under different Python environments using
      :program:`tox`::
@@ -279,9 +282,7 @@ Debugging Tips
   `modified snowballcode generator <https://github.com/shibukawa/snowball>`_.
   Generated `JSX <http://jsx.github.io/>`_ files are
   in `this repository <https://github.com/shibukawa/snowball-stemmer.jsx>`_.
-  You can get the resulting JavaScript files using the following command:
-
-  .. code-block:: bash
+  You can get the resulting JavaScript files using the following command::
 
      $ npm install
      $ node_modules/.bin/grunt build # -> dest/*.global.js
