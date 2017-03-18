@@ -35,6 +35,11 @@ Incompatible changes
 * Footer "Continued on next page" of LaTeX longtable's now not framed (refs: #3497)
 * #3529: The arguments of ``BuildEnvironment.__init__`` is changed
 * #3082: Use latexmk for pdf (and dvi) targets (Unix-like platforms only)
+* latex made available (non documented) colour macros from a file distributed
+  with pdftex engine for Plain TeX. This is removed in order to provide better
+  support for multiple TeX engines. Only interface from ``color`` or
+  ``xcolor`` packages should be used by extensions of Sphinx latex writer.
+  (refs #3550)
 
 Features removed
 ----------------
@@ -100,6 +105,8 @@ Bugs fixed
 * #3288: Table with merged headers not wrapping text
 * #3491: Inconsistent vertical space around table and longtable in PDF
 * #3506: Depart functions for all admonitions in HTML writer now properly pass ``node`` to ``depart_admonition``.
+* #2693: Sphinx latex style file wrongly inhibits colours for section headings
+  for latex+dvi(ps,pdf,pdfmx)
 
 Deprecated
 ----------
