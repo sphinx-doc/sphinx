@@ -35,6 +35,8 @@ Incompatible changes
 * Footer "Continued on next page" of LaTeX longtable's now not framed (refs: #3497)
 * #3529: The arguments of ``BuildEnvironment.__init__`` is changed
 * #3082: Use latexmk for pdf (and dvi) targets (Unix-like platforms only)
+* #3558: Emit warnings if footnotes and citations are not referenced.  The
+  warnings can be suppressed by ``suppress_warnings``.
 
 Features removed
 ----------------
