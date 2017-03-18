@@ -163,6 +163,7 @@ Bugs fixed
   rendered as code
 * #2665, #2607: Link names in C++ docfields, and make it possible for other domains.
 * #3542: C++, fix parsing error of non-type template argument with template.
+* #3065, #3520: python domain fails to recognize nested class
 
 Testing
 --------
@@ -200,6 +201,7 @@ Bugs fixed
 * #3450: &nbsp is appeared in EPUB docs
 * #3418: Search button is misaligned in nature and pyramid theme
 * #3421: Could not translate a caption of tables
+* #3552: linkcheck raises UnboundLocalError
 
 Release 1.5.2 (released Jan 22, 2017)
 =====================================
