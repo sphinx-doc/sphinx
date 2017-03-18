@@ -53,7 +53,7 @@ def test_images():
         set(['subdir/img.png', 'img.png', 'subdir/simg.png', 'svgimg.svg',
              'img.foo.png'])
     assert set(htmlbuilder.images.values()) == \
-        set(['img.png', os.path.join('subdir1', 'img.png'),
+        set(['img.png', 'subdir1/img.png',
              'simg.png', 'svgimg.svg', 'img.foo.png'])
 
     latexbuilder = LaTeXBuilder(app)
@@ -62,7 +62,7 @@ def test_images():
         set(['subdir/img.png', 'subdir/simg.png', 'img.png', 'img.pdf',
              'svgimg.pdf', 'img.foo.png'])
     assert set(latexbuilder.images.values()) == \
-        set(['img.pdf', 'img.png', os.path.join('subdir1', 'img.png'),
+        set(['img.pdf', 'img.png', 'subdir1/img.png',
              'simg.png', 'svgimg.pdf', 'img.foo.png'])
 
 

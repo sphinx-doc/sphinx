@@ -611,7 +611,7 @@ class StandaloneHTMLBuilder(Builder):
             for src in status_iterator(self.images, 'copying images... ', "brown",
                                        len(self.images), self.app.verbosity):
                 dest = self.images[src]
-                subdir, _filename = path.split(dest)
+                subdir = path.dirname(dest)
                 if subdir:
                     # We have added a file with path subdirX/basename to avoid
                     # file name collisions. Make sure subdirX exist
@@ -635,7 +635,7 @@ class StandaloneHTMLBuilder(Builder):
                                        "brown", len(self.env.dlfiles), self.app.verbosity,
                                        stringify_func=to_relpath):
                 dest = self.env.dlfiles[src][1]
-                subdir, _filename = path.split(dest)
+                subdir = path.dirname(dest)
                 if subdir:
                     # We have added a file with path subdirX/basename to avoid
                     # file name collisions. Make sure subdirX exist

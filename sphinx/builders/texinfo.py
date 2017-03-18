@@ -22,9 +22,9 @@ from sphinx import addnodes
 from sphinx.locale import _
 from sphinx.builders import Builder
 from sphinx.environment import NoUri
-from sphinx.util import logging
+from sphinx.util import logging, flat_file_name
 from sphinx.util.nodes import inline_all_toctrees
-from sphinx.util.osutil import SEP, copyfile, make_filename, ensuredir
+from sphinx.util.osutil import SEP, copyfile, make_filename
 from sphinx.util.console import bold, darkgreen  # type: ignore
 from sphinx.writers.texinfo import TexinfoWriter
 
@@ -228,11 +228,7 @@ class TexinfoBuilder(Builder):
             logger.info(bold('copying images...'), nonl=1)
             for src, dest in iteritems(self.images):
                 logger.info(' ' + src, nonl=1)
-                subdir, _filename = path.split(dest)
-                if subdir:
-                    # We have added a file with path subdirX/basename to avoid
-                    # file name collisions. Make sure subdirX exist
-                    ensuredir(path.join(self.outdir, subdir))
+                dest = flat_file_name(dest)
                 copyfile(path.join(self.srcdir, src),
                          path.join(self.outdir, dest))
             logger.info('')

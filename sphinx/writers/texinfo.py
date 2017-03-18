@@ -21,7 +21,7 @@ from docutils import nodes, writers
 from sphinx import addnodes, __display_version__
 from sphinx.errors import ExtensionError
 from sphinx.locale import admonitionlabels, _
-from sphinx.util import logging
+from sphinx.util import logging, flat_file_name
 from sphinx.util.i18n import format_date
 from sphinx.writers.latex import collected_footnote
 
@@ -1344,6 +1344,7 @@ class TexinfoTranslator(nodes.NodeVisitor):
         if uri.find('://') != -1:
             # ignore remote images
             return
+        uri = flat_file_name(uri)
         name, ext = path.splitext(uri)
         attrs = node.attributes
         # width and height ignored in non-tex output
