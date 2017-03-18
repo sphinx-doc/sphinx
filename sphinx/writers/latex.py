@@ -563,9 +563,8 @@ class LaTeXTranslator(nodes.NodeVisitor):
                                                 language=builder.config.language)
         if builder.config.latex_logo:
             # no need for \\noindent here, used in flushright
-            self.elements['logo'] = ('{\\parskip0pt \\nointerlineskip\n'
-                                     '\\sphinxincludegraphics{%s}\\par}' %
-                                     path.basename(builder.config.latex_logo))
+            self.elements['logo'] = '\\sphinxincludegraphics{%s}\\par' % \
+                                    path.basename(builder.config.latex_logo)
 
         if builder.config.language \
            and 'fncychap' not in builder.config.latex_elements:
