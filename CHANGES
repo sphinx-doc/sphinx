@@ -67,6 +67,7 @@ Bugs fixed
 * #3450: &nbsp is appeared in EPUB docs
 * #3418: Search button is misaligned in nature and pyramid theme
 * #3421: Could not translate a caption of tables
+* #3552: linkcheck raises UnboundLocalError
 
 Release 1.5.2 (released Jan 22, 2017)
 =====================================

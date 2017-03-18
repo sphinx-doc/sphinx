@@ -167,7 +167,9 @@ class CheckExternalLinksBuilder(Builder):
                 # history contains any redirects, get last
                 if response.history:
                     code = response.history[-1].status_code
-                return 'redirected', new_url, code
+                    return 'redirected', new_url, code
+                else:
+                    return 'redirected', new_url, 0
 
         def check():
             # check for various conditions without bothering the network
