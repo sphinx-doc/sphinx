@@ -45,6 +45,8 @@ def test_images():
 
     tree = env.get_doctree('images')
     htmlbuilder = StandaloneHTMLBuilder(app)
+    htmlbuilder.set_environment(app.env)
+    htmlbuilder.init()
     htmlbuilder.imgpath = 'dummy'
     htmlbuilder.post_process_images(tree)
     assert set(htmlbuilder.images.keys()) == \
@@ -54,6 +56,8 @@ def test_images():
         set(['img.png', 'img1.png', 'simg.png', 'svgimg.svg', 'img.foo.png'])
 
     latexbuilder = LaTeXBuilder(app)
+    latexbuilder.set_environment(app.env)
+    latexbuilder.init()
     latexbuilder.post_process_images(tree)
     assert set(latexbuilder.images.keys()) == \
         set(['subdir/img.png', 'subdir/simg.png', 'img.png', 'img.pdf',

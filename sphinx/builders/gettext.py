@@ -114,14 +114,11 @@ class I18nBuilder(Builder):
     versioning_method = 'text'
     versioning_compare = None  # be set by `gettext_uuid`
 
-    def __init__(self, app):
-        # type: (Sphinx) -> None
-        self.versioning_compare = app.env.config.gettext_uuid
-        super(I18nBuilder, self).__init__(app)
-
     def init(self):
         # type: () -> None
         Builder.init(self)
+        self.env.set_versioning_method(self.versioning_method,
+                                       self.env.config.gettext_uuid)
         self.tags = I18nTags()
         self.catalogs = defaultdict(Catalog)  # type: defaultdict[unicode, Catalog]
 
