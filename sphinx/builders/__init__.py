@@ -57,6 +57,8 @@ class Builder(object):
     versioning_compare = False
     # allow parallel write_doc() calls
     allow_parallel = False
+    # support translation
+    use_message_catalog = True
 
     def __init__(self, app):
         # type: (Sphinx) -> None

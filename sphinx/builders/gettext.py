@@ -113,6 +113,7 @@ class I18nBuilder(Builder):
     name = 'i18n'
     versioning_method = 'text'
     versioning_compare = None  # be set by `gettext_uuid`
+    use_message_catalog = False
 
     def init(self):
         # type: () -> None
