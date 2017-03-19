@@ -149,6 +149,11 @@ class Builder(object):
         """
         raise NotImplementedError
 
+    def get_asset_paths(self):
+        # type: () -> List[unicode]
+        """Return list of paths for assets (ex. templates, CSS, etc.)."""
+        return []
+
     supported_image_types = []  # type: List[unicode]
 
     def post_process_images(self, doctree):
