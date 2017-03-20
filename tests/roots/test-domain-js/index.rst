@@ -4,4 +4,4 @@ test-domain-js
 .. toctree::
 
     roles
-    package
+    module

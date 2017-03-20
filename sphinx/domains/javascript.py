@@ -142,10 +142,10 @@ class JSObject(ObjectDescription):
         # type: () -> None
         """Handle object nesting before content
 
-        :py:class:`PyObject` represents Python language constructs. For
-        constructs that are nestable, such as a Python classes, this method will
-        build up a stack of the nesting heirarchy so that it can be later
-        de-nested correctly, in :py:meth:`after_content`.
+        :py:class:`JSObject` represents JavaScript language constructs. For
+        constructs that are nestable, this method will build up a stack of the
+        nesting heirarchy so that it can be later de-nested correctly, in
+        :py:meth:`after_content`.
 
         For constructs that aren't nestable, the stack is bypassed, and instead
         only the most recent object is tracked. This object prefix name will be
