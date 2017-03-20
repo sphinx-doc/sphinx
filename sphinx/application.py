@@ -336,7 +336,8 @@ class Sphinx(object):
     @property
     def buildername(self):
         # type: () -> unicode
-        warnings.warn('app.buildername is deprecated.', RemovedInSphinx17Warning)
+        warnings.warn('app.buildername is deprecated. Please use app.builder.name instead',
+                      RemovedInSphinx17Warning)
         return self.builder.name
 
     # ---- main "build" method -------------------------------------------------
