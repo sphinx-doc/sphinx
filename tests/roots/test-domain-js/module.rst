@@ -18,16 +18,10 @@ module
 
     * Link to :js:meth:`module_a.submodule.ModTopLevel.mod_child_1`
 
-.. js:module:: null
-    :noindex:
-
-.. js:class:: ModNoModule
-
 .. js:module:: module_b.submodule
 
 * Link to :js:class:`ModTopLevel`
 
 .. js:class:: ModTopLevel
 
-    * Link to :js:class:`ModNoModule`
     * Link to :js:mod:`module_a.submodule`

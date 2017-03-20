@@ -72,10 +72,8 @@ def test_domain_js_xrefs(app, status, warning):
     assert_refnode(refnodes[5], 'module_b.submodule', None, 'ModTopLevel',
                    'class')
     assert_refnode(refnodes[6], 'module_b.submodule', 'ModTopLevel',
-                   'ModNoModule', 'class')
-    assert_refnode(refnodes[7], 'module_b.submodule', 'ModTopLevel',
                    'module_a.submodule', 'mod')
-    assert len(refnodes) == 8
+    assert len(refnodes) == 7
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
@@ -93,7 +91,6 @@ def test_domain_js_objects(app, status, warning):
     assert objects['module_a.submodule.ModTopLevel'] == ('module', 'class')
     assert objects['module_a.submodule.ModTopLevel.mod_child_1'] == ('module', 'method')
     assert objects['module_a.submodule.ModTopLevel.mod_child_2'] == ('module', 'method')
-    assert objects['ModNoModule'] == ('module', 'class')
     assert objects['module_b.submodule.ModTopLevel'] == ('module', 'class')
 
     assert objects['TopLevel'] == ('roles', 'class')

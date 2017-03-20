@@ -236,8 +236,7 @@ class JSModule(Directive):
         is useful for splitting up the module definition across multiple
         sections or files.
 
-    :param mod_name: Module name. If the module name is ``nul``, or ``None``,
-                     the module name will be cleared for objects that follow.
+    :param mod_name: Module name
     """
 
     has_content = False
@@ -252,9 +251,6 @@ class JSModule(Directive):
         # type: () -> List[nodes.Node]
         env = self.state.document.settings.env
         mod_name = self.arguments[0].strip()
-        if mod_name in ['null', 'None']:
-            env.ref_context.pop('js:module', None)
-            return []
         env.ref_context['js:module'] = mod_name
         noindex = 'noindex' in self.options
         ret = []
