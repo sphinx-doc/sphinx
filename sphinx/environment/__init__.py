@@ -756,24 +756,12 @@ class BuildEnvironment(object):
                 list(merge_doctrees(
                     old_doctree, doctree, self.versioning_condition))
 
-        # make it picklable
-        doctree.reporter = None
-        doctree.transformer = None
-        doctree.settings.warning_stream = None
-        doctree.settings.env = None
-        doctree.settings.record_dependencies = None
-
         # cleanup
         self.temp_data.clear()
         self.ref_context.clear()
         roles._roles.pop('', None)  # if a document has set a local default role
 
-        # save the parsed doctree
-        doctree_filename = self.doc2path(docname, self.doctreedir,
-                                         '.doctree')
-        ensuredir(path.dirname(doctree_filename))
-        with open(doctree_filename, 'wb') as f:
-            pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
+        self.write_doctree(docname, doctree)
 
     # utilities to use while reading a document
 
@@ -876,6 +864,21 @@ class BuildEnvironment(object):
         doctree.settings.env = self
         doctree.reporter = Reporter(self.doc2path(docname), 2, 5, stream=WarningStream())
         return doctree
+
+    def write_doctree(self, docname, doctree):
+        # type: (unicode, nodes.Node) -> None
+        """Write the doctree to a file."""
+        # make it picklable
+        doctree.reporter = None
+        doctree.transformer = None
+        doctree.settings.warning_stream = None
+        doctree.settings.env = None
+        doctree.settings.record_dependencies = None
+
+        doctree_filename = self.doc2path(docname, self.doctreedir, '.doctree')
+        ensuredir(path.dirname(doctree_filename))
+        with open(doctree_filename, 'wb') as f:
+            pickle.dump(doctree, f, pickle.HIGHEST_PROTOCOL)
 
     def get_and_resolve_doctree(self, docname, builder, doctree=None,
                                 prune_toctrees=True, includehidden=False):
