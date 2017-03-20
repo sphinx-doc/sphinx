@@ -236,7 +236,8 @@ class JSModule(Directive):
         is useful for splitting up the module definition across multiple
         sections or files.
 
-    :param mod_name: Module name
+    :param mod_name: Module name. If the module name is ``null``, or ``None``,
+                     the module name will be cleared for objects that follow.
     """
 
     has_content = False
