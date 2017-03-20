@@ -45,7 +45,7 @@ from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
 from sphinx.transforms import SphinxTransformer
 from sphinx.versioning import add_uids, merge_doctrees
-from sphinx.deprecation import RemovedInSphinx20Warning
+from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
 from sphinx.environment.adapters.indexentries import IndexEntries
 from sphinx.environment.adapters.toctree import TocTree
 
@@ -768,18 +768,18 @@ class BuildEnvironment(object):
     def currmodule(self):
         # type: () -> None
         """Backwards compatible alias.  Will be removed."""
-        logger.warning('env.currmodule is being referenced by an '
-                       'extension; this API will be removed in the future',
-                       location=self.docname)
+        warnings.warn('env.currmodule is deprecated. '
+                      'Use env.ref_context["py:module"] instead.',
+                      RemovedInSphinx17Warning)
         return self.ref_context.get('py:module')
 
     @property
     def currclass(self):
         # type: () -> None
         """Backwards compatible alias.  Will be removed."""
-        logger.warning('env.currclass is being referenced by an '
-                       'extension; this API will be removed in the future',
-                       location=self.docname)
+        warnings.warn('env.currclass is deprecated. '
+                      'Use env.ref_context["py:class"] instead.',
+                      RemovedInSphinx17Warning)
         return self.ref_context.get('py:class')
 
     def new_serialno(self, category=''):
