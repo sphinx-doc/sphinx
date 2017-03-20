@@ -26,11 +26,7 @@ def parse(name, string):
         cpp_paren_attributes = ["paren_attr"]
     parser = DefinitionParser(string, None, Config())
     ast = parser.parse_declaration(name)
-    if not parser.eof:
-        print("Parsing stopped at", parser.pos)
-        print(string)
-        print('-' * parser.pos + '^')
-        raise DefinitionError("")
+    parser.assert_end()
     # The scopedness would usually have been set by CPPEnumObject
     if name == "enum":
         ast.scoped = None  # simulate unscoped enum
@@ -105,6 +101,92 @@ def test_fundamental_types():
                 id = "NSt9nullptr_tE"
             return "1f%s" % id
         check("function", "void f(%s arg)" % t, {1: makeIdV1(), 2:makeIdV2()})
+
+
+def test_expressions():
+    def exprCheck(expr, id):
+        ids = 'IE1CIA%s_1aE'
+        check('class', 'template<> C<a[%s]>' % expr, {2:ids % expr, 3:ids % id})
+    # primary
+    exprCheck('nullptr', 'LDnE')
+    exprCheck('true', 'L1E')
+    exprCheck('false', 'L0E')
+    exprCheck('5', 'L5E')
+    exprCheck('5.0', 'L5.0E')
+    exprCheck('"abc\\"cba"', 'LA8_KcE')
+    # TODO: test the rest
+    exprCheck('(... + Ns)', '(... + Ns)')
+    exprCheck('(5)', 'L5E')
+    exprCheck('C', '1C')
+    # postfix
+    exprCheck('A(2)', 'cl1AL2EE')
+    exprCheck('A[2]', 'ix1AL2E')
+    exprCheck('a.b.c', 'dtdt1a1b1c')
+    exprCheck('a->b->c', 'ptpt1a1b1c')
+    exprCheck('i++', 'pp1i')
+    exprCheck('i--', 'mm1i')
+    # TODO, those with prefixes
+    # unary
+    exprCheck('++5', 'pp_L5E')
+    exprCheck('--5', 'mm_L5E')
+    exprCheck('*5', 'deL5E')
+    exprCheck('&5', 'adL5E')
+    exprCheck('+5', 'psL5E')
+    exprCheck('-5', 'ngL5E')
+    exprCheck('!5', 'ntL5E')
+    exprCheck('~5', 'coL5E')
+    # cast
+    exprCheck('(int)2', 'cviL2E')
+    # binary op
+    exprCheck('5 || 42', 'ooL5EL42E')
+    exprCheck('5 && 42', 'aaL5EL42E')
+    exprCheck('5 | 42', 'orL5EL42E')
+    exprCheck('5 ^ 42', 'eoL5EL42E')
+    exprCheck('5 & 42', 'anL5EL42E')
+    # ['==', '!=']
+    exprCheck('5 == 42', 'eqL5EL42E')
+    exprCheck('5 != 42', 'neL5EL42E')
+    # ['<=', '>=', '<', '>']
+    exprCheck('5 <= 42', 'leL5EL42E')
+    exprCheck('5 >= 42', 'geL5EL42E')
+    exprCheck('5 < 42', 'ltL5EL42E')
+    exprCheck('5 > 42', 'gtL5EL42E')
+    # ['<<', '>>']
+    exprCheck('5 << 42', 'lsL5EL42E')
+    exprCheck('5 >> 42', 'rsL5EL42E')
+    # ['+', '-']
+    exprCheck('5 + 42', 'plL5EL42E')
+    exprCheck('5 - 42', 'miL5EL42E')
+    # ['*', '/', '%']
+    exprCheck('5 * 42', 'mlL5EL42E')
+    exprCheck('5 / 42', 'dvL5EL42E')
+    exprCheck('5 % 42', 'rmL5EL42E')
+    # ['.*', '->*']
+    exprCheck('5 .* 42', 'dsL5EL42E')
+    exprCheck('5 ->* 42', 'pmL5EL42E')
+    # conditional
+    # TODO
+    # assignment
+    exprCheck('a = 5', 'aS1aL5E')
+    exprCheck('a *= 5', 'mL1aL5E')
+    exprCheck('a /= 5', 'dV1aL5E')
+    exprCheck('a %= 5', 'rM1aL5E')
+    exprCheck('a += 5', 'pL1aL5E')
+    exprCheck('a -= 5', 'mI1aL5E')
+    exprCheck('a >>= 5', 'rS1aL5E')
+    exprCheck('a <<= 5', 'lS1aL5E')
+    exprCheck('a &= 5', 'aN1aL5E')
+    exprCheck('a ^= 5', 'eO1aL5E')
+    exprCheck('a |= 5', 'oR1aL5E')
+
+    # Additional tests
+    # a < expression that starts with something that could be a template
+    exprCheck('A < 42', 'lt1AL42E')
+    check('function', 'template<> void f(A<B, 2> &v)',
+          {2:"IE1fR1AI1BX2EE", 3:"IE1fR1AI1BXL2EEE"})
+    exprCheck('A<1>::value', {2:'N1AIXL1EEE5valueE'})
+    check('class', "template<int T = 42> A", {2:"I_iE1A"})
+    check('enumerator', 'A = std::numeric_limits<unsigned long>::max()', {2:"1A"})
 
 
 def test_type_definitions():
@@ -451,16 +533,18 @@ def test_templates():
     check('concept', 'template<typename ...Pack> Numerics = (... && Numeric<Pack>)',
           {2:'IDpE8Numerics'})
 
+
 def test_template_args():
     # from breathe#218
     check('function',
           "template<typename F> "
-          "void allow(F *f, typename func<F, B, G!=1>::type tt)",
-          {2:"I0E5allowP1FN4funcI1F1BXG!=1EE4typeE"})
+          "void allow(F *f, typename func<F, B, G != 1>::type tt)",
+          {2:"I0E5allowP1FN4funcI1F1BXG != 1EE4typeE"})
     # from #3542
     check('type', "template<typename T> "
           "enable_if_not_array_t = std::enable_if_t<!is_array<T>::value, int>",
           {2:"I0E21enable_if_not_array_t"})
+
 
 def test_attributes():
     # style: C++

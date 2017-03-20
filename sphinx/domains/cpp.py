@@ -94,7 +94,7 @@ logger = logging.getLogger(__name__)
                 "class"  "..."[opt] identifier[opt]
             | "template" "<" template-parameter-list ">"
                 "class"             identifier[opt] "=" id-expression
-            # also, from C++17 we can have "typname" in template templates
+            # also, from C++17 we can have "typename" in template templates
         templateDeclPrefix ->
             "template" "<" template-parameter-list ">"
 
@@ -288,6 +288,9 @@ logger = logging.getLogger(__name__)
             nested-name
 """
 
+# TODO: support hex, oct, etc. work
+_integer_literal_re = re.compile(r'-?[1-9][0-9]*')
+_float_literal_re = re.compile(r'[+-]?[0-9]*\.[0-9]+')
 _identifier_re = re.compile(r'(~?\b[a-zA-Z_][a-zA-Z0-9_]*)\b')
 _whitespace_re = re.compile(r'\s+(?u)')
 _string_re = re.compile(r"[LuU8]?('([^'\\]*(?:\\.[^'\\]*)*)'"
@@ -300,6 +303,12 @@ _operator_re = re.compile(r'''(?x)
     |   ->\*? | \,
     |   (<<|>>)=? | && | \|\|
     |   [!<>=/*%+|&^~-]=?
+''')
+_fold_operator_re = re.compile(r'''(?x)
+        ->\*    |    \.\*    |    \,
+    |   (<<|>>)=?    |    &&    |    \|\|
+    |   !=
+    |   [<>=/*%+|&^~-]=?
 ''')
 # see http://en.cppreference.com/w/cpp/keyword
 _keywords = [
@@ -445,6 +454,7 @@ _id_operator_v2 = {
     'delete': 'dl',
     'delete[]': 'da',
     # the arguments will make the difference between unary and binary
+    # in operator definitions
     # '+(unary)' : 'ps',
     # '-(unary)' : 'ng',
     # '&(unary)' : 'ad',
@@ -486,8 +496,36 @@ _id_operator_v2 = {
     '->*': 'pm',
     '->': 'pt',
     '()': 'cl',
-    '[]': 'ix'
+    '[]': 'ix',
+    '.*': 'ds'  # this one is not overloadable, but we need it for expressions
 }  # type: Dict[unicode, unicode]
+_id_operator_unary_v2 = {
+    '++': 'pp_',
+    '--': 'mm_',
+    '*': 'de',
+    '&': 'ad',
+    '+': 'ps',
+    '-': 'ng',
+    '!': 'nt',
+    '~': 'co'
+}
+# these are ordered by preceedence
+_expression_bin_ops = [
+    ['||'],
+    ['&&'],
+    ['|'],
+    ['^'],
+    ['&'],
+    ['==', '!='],
+    ['<=', '>=', '<', '>'],
+    ['<<', '>>'],
+    ['+', '-'],
+    ['*', '/', '%'],
+    ['.*', '->*']
+]
+_expression_unary_ops = ["++", "--", "*", "&", "+", "-", "!", "~"]
+_expression_assignment_ops = ["=", "*=", "/=", "%=", "+=", "-=",
+                              ">>=", "<<=", "&=", "^=", "|="]
 
 
 class NoOldIdError(UnicodeMixin, Exception):
@@ -581,6 +619,10 @@ def _verify_description_mode(mode):
         raise Exception("Description mode '%s' is invalid." % mode)
 
 
+################################################################################
+# Attributes
+################################################################################
+
 class ASTCPPAttribute(ASTBase):
     def __init__(self, arg):
         # type: (unicode) -> None
@@ -668,6 +710,368 @@ class ASTParenAttribute(ASTBase):
         txt = text_type(self)
         signode.append(nodes.Text(txt, txt))
 
+
+################################################################################
+# Expressions and Literals
+################################################################################
+
+class ASTPointerLiteral(ASTBase):
+    def __unicode__(self):
+        return u'nullptr'
+
+    def get_id_v2(self):
+        return 'LDnE'
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('nullptr'))
+
+
+class ASTBooleanLiteral(ASTBase):
+    def __init__(self, value):
+        self.value = value
+
+    def __unicode__(self):
+        if self.value:
+            return u'true'
+        else:
+            return u'false'
+
+    def get_id_v2(self):
+        if self.value:
+            return 'L1E'
+        else:
+            return 'L0E'
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text(text_type(self)))
+
+
+class ASTNumberLiteral(ASTBase):
+    def __init__(self, data):
+        # type: (unicode) -> None
+        self.data = data
+
+    def __unicode__(self):
+        return self.data
+
+    def get_id_v2(self):
+        return "L%sE" % self.data
+
+    def describe_signature(self, signode, mode, env, symbol):
+        txt = text_type(self)
+        signode.append(nodes.Text(txt, txt))
+
+
+class ASTStringLiteral(ASTBase):
+    def __init__(self, data):
+        # type: (unicode) -> None
+        self.data = data
+
+    def __unicode__(self):
+        return self.data
+
+    def get_id_v2(self):
+        # note: the length is not really correct with escaping
+        return "LA%d_KcE" % (len(self.data) - 2)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        txt = text_type(self)
+        signode.append(nodes.Text(txt, txt))
+
+
+class ASTParenExpr(ASTBase):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def __unicode__(self):
+        return '(' + text_type(self.expr) + ')'
+
+    def get_id_v2(self):
+        return self.expr.get_id_v2()
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('(', '('))
+        self.expr.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')', ')'))
+
+
+class ASTFoldExpr(ASTBase):
+    def __init__(self, leftExpr, op, rightExpr):
+        assert leftExpr is not None or rightExpr is not None
+        self.leftExpr = leftExpr
+        self.op = op
+        self.rightExpr = rightExpr
+
+    def __unicode__(self):
+        res = ['(']
+        if self.leftExpr:
+            res.append(text_type(self.leftExpr))
+            res.append(' ')
+            res.append(text_type(self.op))
+            res.append(' ')
+        res.append('...')
+        if self.rightExpr:
+            res.append(' ')
+            res.append(text_type(self.op))
+            res.append(' ')
+            res.append(text_type(self.rightExpr))
+        res.append(')')
+        return u''.join(res)
+
+    def get_id_v2(self):
+        # TODO: find the right mangling scheme
+        return text_type(self)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('('))
+        if self.leftExpr:
+            self.leftExpr.describe_signature(signode, mode, env, symbol)
+            signode.append(nodes.Text(' '))
+            signode.append(nodes.Text(self.op))
+            signode.append(nodes.Text(' '))
+        signode.append(nodes.Text('...'))
+        if self.rightExpr:
+            signode.append(nodes.Text(' '))
+            signode.append(nodes.Text(self.op))
+            signode.append(nodes.Text(' '))
+            self.rightExpr.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')'))
+
+
+class ASTBinOpExpr(ASTBase):
+    def __init__(self, exprs, ops):
+        assert len(exprs) > 0
+        assert len(exprs) == len(ops) + 1
+        self.exprs = exprs
+        self.ops = ops
+
+    def __unicode__(self):
+        res = []
+        res.append(text_type(self.exprs[0]))
+        for i in range(1, len(self.exprs)):
+            res.append(' ')
+            res.append(self.ops[i - 1])
+            res.append(' ')
+            res.append(text_type(self.exprs[i]))
+        return u''.join(res)
+
+    def get_id_v2(self):
+        res = []
+        for i in range(len(self.ops)):
+            res.append(_id_operator_v2[self.ops[i]])
+            res.append(self.exprs[i].get_id_v2())
+        res.append(self.exprs[-1].get_id_v2())
+        return u''.join(res)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        self.exprs[0].describe_signature(signode, mode, env, symbol)
+        for i in range(1, len(self.exprs)):
+            signode.append(nodes.Text(' '))
+            signode.append(nodes.Text(self.ops[i - 1]))
+            signode.append(nodes.Text(' '))
+            self.exprs[i].describe_signature(signode, mode, env, symbol)
+
+
+class ASTAssignmentExpr(ASTBase):
+    def __init__(self, exprs, ops):
+        assert len(exprs) > 0
+        assert len(exprs) == len(ops) + 1
+        self.exprs = exprs
+        self.ops = ops
+
+    def __unicode__(self):
+        res = []
+        res.append(text_type(self.exprs[0]))
+        for i in range(1, len(self.exprs)):
+            res.append(' ')
+            res.append(self.ops[i - 1])
+            res.append(' ')
+            res.append(text_type(self.exprs[i]))
+        return u''.join(res)
+
+    def get_id(self, version):
+        res = []
+        for i in range(len(self.ops)):
+            res.append(_id_operator_v2[self.ops[i]])
+            res.append(self.exprs[i].get_id(version))
+        res.append(self.exprs[-1].get_id(version))
+        return u''.join(res)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        self.exprs[0].describe_signature(signode, mode, env, symbol)
+        for i in range(1, len(self.exprs)):
+            signode.append(nodes.Text(' '))
+            signode.append(nodes.Text(self.ops[i - 1]))
+            signode.append(nodes.Text(' '))
+            self.exprs[i].describe_signature(signode, mode, env, symbol)
+
+
+class ASTCastExpr(ASTBase):
+    def __init__(self, typ, expr):
+        self.typ = typ
+        self.expr = expr
+
+    def __unicode__(self):
+        res = ['(']
+        res.append(text_type(self.typ))
+        res.append(')')
+        res.append(text_type(self.expr))
+        return u''.join(res)
+
+    def get_id(self, version):
+        return 'cv' + self.typ.get_id(version) + self.expr.get_id(version)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('('))
+        self.typ.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')'))
+        self.expr.describe_signature(signode, mode, env, symbol)
+
+
+class ASTUnaryOpExpr(ASTBase):
+    def __init__(self, op, expr):
+        self.op = op
+        self.expr = expr
+
+    def __unicode__(self):
+        return text_type(self.op) + text_type(self.expr)
+
+    def get_id_v2(self):
+        return _id_operator_unary_v2[self.op] + self.expr.get_id_v2()
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text(self.op))
+        self.expr.describe_signature(signode, mode, env, symbol)
+
+
+class ASTPostfixCallExpr(ASTBase):
+    def __init__(self, exprs):
+        self.exprs = exprs
+
+    def __unicode__(self):
+        res = ['(']
+        first = True
+        for e in self.exprs:
+            if not first:
+                res.append(', ')
+            first = False
+            res.append(text_type(e))
+        res.append(')')
+        return u''.join(res)
+
+    def get_id_v2(self, idPrefix):
+        res = ['cl', idPrefix]
+        for e in self.exprs:
+            res.append(e.get_id_v2())
+        res.append('E')
+        return u''.join(res)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('('))
+        first = True
+        for e in self.exprs:
+            if not first:
+                signode.append(nodes.Text(', '))
+            first = False
+            e.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(')'))
+
+
+class ASTPostfixArray(ASTBase):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def __unicode__(self):
+        return u'[' + text_type(self.expr) + ']'
+
+    def get_id_v2(self, idPrefix):
+        return 'ix' + idPrefix + self.expr.get_id_v2()
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('['))
+        self.expr.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text(']'))
+
+
+class ASTPostfixInc(ASTBase):
+    def __unicode__(self):
+        return u'++'
+
+    def get_id(self, idPrefix, version):
+        return 'pp' + idPrefix
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('++'))
+
+
+class ASTPostfixDec(ASTBase):
+    def __unicode__(self):
+        return u'--'
+
+    def get_id(self, idPrefix, version):
+        return 'mm' + idPrefix
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('--'))
+
+
+class ASTPostfixMember(ASTBase):
+    def __init__(self, name):
+        self.name = name
+
+    def __unicode__(self):
+        return u'.' + text_type(self.name)
+
+    def get_id(self, idPrefix, version):
+        return 'dt' + idPrefix + self.name.get_id(version)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('.'))
+        self.name.describe_signature(signode, 'noneIsName', env, symbol)
+
+
+class ASTPostfixMemberOfPointer(ASTBase):
+    def __init__(self, name):
+        self.name = name
+
+    def __unicode__(self):
+        return u'->' + text_type(self.name)
+
+    def get_id(self, idPrefix, version):
+        return 'pt' + idPrefix + self.name.get_id(version)
+
+    def describe_signature(self, signode, mode, env, symbol):
+        signode.append(nodes.Text('->'))
+        self.name.describe_signature(signode, 'noneIsName', env, symbol)
+
+
+class ASTPostfixExpr(ASTBase):
+    def __init__(self, prefix, postFixes):
+        assert len(postFixes) > 0
+        self.prefix = prefix
+        self.postFixes = postFixes
+
+    def __unicode__(self):
+        res = [text_type(self.prefix)]
+        for p in self.postFixes:
+            res.append(text_type(p))
+        return u''.join(res)
+
+    def get_id_v2(self):
+        id = self.prefix.get_id_v2()
+        for p in self.postFixes:
+            id = p.get_id_v2(id)
+        return id
+
+    def describe_signature(self, signode, mode, env, symbol):
+        self.prefix.describe_signature(signode, mode, env, symbol)
+        for p in self.postFixes:
+            p.describe_signature(signode, mode, env, symbol)
+
+
+################################################################################
+# The Rest
+################################################################################
 
 class ASTIdentifier(ASTBase):
     def __init__(self, identifier):
@@ -1186,15 +1590,13 @@ class ASTTemplateArgConstant(ASTBase):
         if version == 1:
             return text_type(self).replace(u' ', u'-')
         if version == 2:
-            # TODO: doing this properly needs parsing of expressions, let's just
-            # use it verbatim for now
             return u'X' + text_type(self) + u'E'
-        assert False
+        return u'X' + self.value.get_id_v2() + u'E'
 
     def describe_signature(self, signode, mode, env, symbol):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
         _verify_description_mode(mode)
-        signode += nodes.Text(text_type(self))
+        self.value.describe_signature(signode, mode, env, symbol)
 
 
 class ASTTemplateArgs(ASTBase):
@@ -1740,20 +2142,31 @@ class ASTArray(ASTBase):
 
     def __unicode__(self):
         # type: () -> unicode
-        return u''.join(['[', text_type(self.size), ']'])
+        if self.size:
+            return u''.join(['[', text_type(self.size), ']'])
+        else:
+            return u'[]'
 
     def get_id(self, version):
         # type: (int) -> unicode
         if version == 1:
             return u'A'
         if version == 2:
-            # TODO: this should maybe be done differently
-            return u'A' + text_type(self.size) + u'_'
-        assert False
+            if self.size:
+                return u'A' + text_type(self.size) + u'_'
+            else:
+                return u'A_'
+        if self.size:
+            return u'A' + self.size.get_id_v2() + u'_'
+        else:
+            return u'A_'
 
-    def describe_signature(self, signode, mode, env):
+    def describe_signature(self, signode, mode, env, symbol):
         _verify_description_mode(mode)
-        signode += nodes.Text(text_type(self))
+        signode.append(nodes.Text("["))
+        if self.size:
+            self.size.describe_signature(signode, mode, env, symbol)
+        signode.append(nodes.Text("]"))
 
 
 class ASTDeclaratorPtr(ASTBase):
@@ -2187,7 +2600,7 @@ class ASTDeclaratorNameParamQual(ASTBase):
         if self.declId:
             self.declId.describe_signature(signode, mode, env, symbol)
         for op in self.arrayOps:
-            op.describe_signature(signode, mode, env)
+            op.describe_signature(signode, mode, env, symbol)
         if self.paramQual:
             self.paramQual.describe_signature(signode, mode, env, symbol)
 
@@ -2201,10 +2614,11 @@ class ASTInitializer(ASTBase):
         # type: () -> unicode
         return u''.join([' = ', text_type(self.value)])
 
-    def describe_signature(self, signode, mode):
+    def describe_signature(self, signode, mode, env, symbol):
         # type: (addnodes.desc_signature, unicode) -> None
         _verify_description_mode(mode)
-        signode += nodes.Text(text_type(self))
+        signode.append(nodes.Text(' = '))
+        self.value.describe_signature(signode, 'markType', env, symbol)
 
 
 class ASTType(ASTBase):
@@ -2324,9 +2738,9 @@ class ASTTypeWithInit(ASTBase):
     def describe_signature(self, signode, mode, env, symbol):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
         _verify_description_mode(mode)
-        self.type.describe_signature(signode, mode, env, symbol=symbol)
+        self.type.describe_signature(signode, mode, env, symbol)
         if self.init:
-            self.init.describe_signature(signode, mode)
+            self.init.describe_signature(signode, mode, env, symbol)
 
 
 class ASTTypeUsing(ASTBase):
@@ -2397,7 +2811,7 @@ class ASTConcept(ASTBase):
         if self.isFunction:
             signode += nodes.Text("()")
         if self.initializer:
-            self.initializer.describe_signature(signode, mode)
+            self.initializer.describe_signature(signode, mode, env, symbol)
 
 
 class ASTBaseClass(ASTBase):
@@ -2537,9 +2951,9 @@ class ASTEnumerator(ASTBase):
     def describe_signature(self, signode, mode, env, symbol):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
         _verify_description_mode(mode)
-        self.name.describe_signature(signode, mode, env, symbol=symbol)
+        self.name.describe_signature(signode, mode, env, symbol)
         if self.init:
-            self.init.describe_signature(signode, 'noneIsName')
+            self.init.describe_signature(signode, 'markType', env, symbol)
 
 
 class ASTDeclaration(ASTBase):
@@ -2646,8 +3060,7 @@ class ASTDeclaration(ASTBase):
             mainDeclNode += addnodes.desc_annotation('enumerator ', 'enumerator ')
         else:
             assert False
-        self.declaration.describe_signature(mainDeclNode, mode, env,
-                                            symbol=self.symbol)
+        self.declaration.describe_signature(mainDeclNode, mode, env, self.symbol)
 
 
 class ASTNamespace(ASTBase):
@@ -3130,6 +3543,7 @@ class DefinitionParser(object):
         self.end = len(self.definition)
         self.last_match = None  # type: Match
         self._previous_state = (0, None)  # type: Tuple[int, Match]
+        self.otherErrors = []  # type: List[DefinitionError]
 
         self.warnEnv = warnEnv
         self.config = config
@@ -3137,7 +3551,10 @@ class DefinitionParser(object):
     def _make_multi_error(self, errors, header):
         # type: (List[Any], unicode) -> DefinitionError
         if len(errors) == 1:
-            return DefinitionError(header + '\n' + errors[0][0].description)
+            if len(header) > 0:
+                return DefinitionError(header + '\n' + errors[0][0].description)
+            else:
+                return DefinitionError(errors[0][0].description)
         result = [header, '\n']
         for e in errors:
             if len(e[1]) > 0:
@@ -3162,10 +3579,16 @@ class DefinitionParser(object):
 
     def fail(self, msg):
         # type: (unicode) -> None
+        errors = []
         indicator = '-' * self.pos + '^'
-        raise DefinitionError(
+        exMain = DefinitionError(
             'Invalid definition: %s [error at %d]\n  %s\n  %s' %
             (msg, self.pos, self.definition, indicator))
+        errors.append((exMain, "Main error"))
+        for err in self.otherErrors:
+            errors.append((err, "Potential other error"))
+        self.otherErrors = []
+        raise self._make_multi_error(errors, '')
 
     def warn(self, msg):
         # type: (unicode) -> None
@@ -3251,6 +3674,25 @@ class DefinitionParser(object):
         if not self.eof:
             self.fail('Expected end of definition.')
 
+    def _parse_string(self):
+        if self.current_char != '"':
+            return None
+        startPos = self.pos
+        self.pos += 1
+        escape = False
+        while True:
+            if self.eof:
+                self.fail("Unexpected end during inside string.")
+            elif self.current_char == '"' and not escape:
+                self.pos += 1
+                break
+            elif self.current_char == '\\':
+                escape = True
+            else:
+                escape = False
+            self.pos += 1
+        return self.definition[startPos:self.pos]
+
     def _parse_balanced_token_seq(self, end):
         # type: (List[unicode]) -> unicode
         # TODO: add handling of string literals and similar
@@ -3332,11 +3774,332 @@ class DefinitionParser(object):
 
         return None
 
-    def _parse_expression(self, end):
+    def _parse_literal(self):
+        # -> integer-literal
+        #  | character-literal
+        #  | floating-literal
+        #  | string-literal
+        #  | boolean-literal -> "false" | "true"
+        #  | pointer-literal -> "nullptr"
+        #  | user-defined-literal
+        self.skip_ws()
+        if self.skip_word('nullptr'):
+            return ASTPointerLiteral()
+        if self.skip_word('true'):
+            return ASTBooleanLiteral(True)
+        if self.skip_word('false'):
+            return ASTBooleanLiteral(False)
+        if self.match(_float_literal_re):
+            return ASTNumberLiteral(self.matched_text)
+        if self.match(_integer_literal_re):
+            return ASTNumberLiteral(self.matched_text)
+        string = self._parse_string()
+        if string is not None:
+            return ASTStringLiteral(string)
+        # TODO: char lit
+        # TODO: user-defined lit
+        return None
+
+    def _parse_fold_or_paren_expression(self):
+        # "(" expression ")"
+        # fold-expression
+        # -> ( cast-expression fold-operator ... )
+        #  | ( ... fold-operator cast-expression )
+        #  | ( cast-expression fold-operator ... fold-operator cast-expression
+        if self.current_char != '(':
+            return None
+        self.pos += 1
+        self.skip_ws()
+        if self.skip_string_and_ws("..."):
+            # ( ... fold-operator cast-expression )
+            if not self.match(_fold_operator_re):
+                self.fail("Expected fold operator after '...' in fold expression.")
+            op = self.matched_text
+            rightExpr = self._parse_cast_expression()
+            if not self.skip_string(')'):
+                self.fail("Expected ')' in end of fold expression.")
+            return ASTFoldExpr(None, op, rightExpr)
+        # TODO: actually try to parse fold expression
+        # fall back to a paren expression
+        res = self._parse_expression(inTemplate=False)
+        self.skip_ws()
+        if not self.skip_string(')'):
+            self.fail("Expected ')' in end of fold expression or parenthesized expression.")
+        return ASTParenExpr(res)
+
+    def _parse_primary_expression(self):
+        # literal
+        # "this"
+        # lambda-expression
+        # "(" expression ")"
+        # fold-expression
+        # id-expression -> we parse this with _parse_nested_name
+        self.skip_ws()
+        res = self._parse_literal()
+        if res is not None:
+            return res
+        # TODO: try 'this' and lambda expression
+        res = self._parse_fold_or_paren_expression()
+        if res is not None:
+            return res
+        return self._parse_nested_name()
+
+    def _parse_postfix_expression(self):
+        # -> primary
+        #  | postfix "[" expression "]"
+        #  | postfix "[" braced-init-list [opt] "]"
+        #  | postfix "(" expression-list [opt] ")"
+        #  | postfix "." "template" [opt] id-expression
+        #  | postfix "->" "template" [opt] id-expression
+        #  | postfix "." pseudo-destructor-name
+        #  | postfix "->" pseudo-destructor-name
+        #  | postfix "++"
+        #  | postfix "--"
+        #  | simple-type-specifier "(" expression-list [opt] ")"
+        #  | simple-type-specifier braced-init-list
+        #  | typename-specifier "(" expression-list [opt] ")"
+        #  | typename-specifier braced-init-list
+        #  | "dynamic_cast" "<" type-id ">" "(" expression ")"
+        #  | "static_cast" "<" type-id ">" "(" expression ")"
+        #  | "reinterpret_cast" "<" type-id ">" "(" expression ")"
+        #  | "const_cast" "<" type-id ">" "(" expression ")"
+        #  | "typeid" "(" expression ")"
+        #  | "typeid" "(" type-id ")"
+
+        # TODO: try the productions with prefixes:
+        #     dynamic_cast, static_cast, reinterpret_cast, const_cast, typeid
+        prefixType = None
+        pos = self.pos
+        try:
+            prefix = self._parse_primary_expression()
+            prefixType = 'expr'
+        except DefinitionError as eOuter:
+            self.pos = pos
+            try:
+                # we are potentially casting, so save parens for us
+                # TODO: hmm, would we need to try both with operatorCast and with None?
+                prefix = self._parse_type(False, 'operatorCast')
+                prefixType = 'typeOperatorCast'
+            except DefinitionError as eInner:
+                self.pos = pos
+                header = "Error in postfix expression, expected primary expression or type."
+                errors = []
+                errors.append((eOuter, "If primary expression"))
+                errors.append((eInner, "If type"))
+                raise self._make_multi_error(errors, header)
+        # and now parse postfixes
+        postFixes = []
+        while True:
+            self.skip_ws()
+            if prefixType == 'expr':
+                if self.skip_string_and_ws('['):
+                    expr = self._parse_expression(inTemplate=False)
+                    self.skip_ws()
+                    if not self.skip_string(']'):
+                        self.fail("Expected ']' in end of postfix expression.")
+                    postFixes.append(ASTPostfixArray(expr))
+                    continue
+                if self.skip_string('.'):
+                    if self.skip_string('*'):
+                        # don't steal the dot
+                        self.pos -= 2
+                    else:
+                        name = self._parse_nested_name()
+                        postFixes.append(ASTPostfixMember(name))
+                        continue
+                if self.skip_string('->'):
+                    if self.skip_string('*'):
+                        # don't steal the arrow
+                        self.pos -= 3
+                    else:
+                        name = self._parse_nested_name()
+                        postFixes.append(ASTPostfixMemberOfPointer(name))
+                        continue
+                if self.skip_string('++'):
+                    postFixes.append(ASTPostfixInc())
+                    continue
+                if self.skip_string('--'):
+                    postFixes.append(ASTPostfixDec())
+                    continue
+            if self.skip_string_and_ws('('):
+                # TODO: handled braced init
+                exprs = []
+                self.skip_ws()
+                if not self.skip_string(')'):
+                    while True:
+                        self.skip_ws()
+                        expr = self._parse_expression(inTemplate=False)
+                        exprs.append(expr)
+                        self.skip_ws()
+                        if self.skip_string(')'):
+                            break
+                        if not self.skip_string(','):
+                            self.fail("Error in cast or call, expected ',' or ')'.")
+                postFixes.append(ASTPostfixCallExpr(exprs))
+                continue
+            break
+        if len(postFixes) == 0:
+            return prefix
+        else:
+            return ASTPostfixExpr(prefix, postFixes)
+
+    def _parse_unary_expression(self):
+        # -> postfix
+        #  | "++" cast
+        #  | "--" cast
+        #  | unary-operator cast -> (* | & | + | - | ! | ~) cast
+        #  | "sizeof" unary
+        #  | "sizeof" "(" type-id ")"
+        #  | "sizeof" "..." "(" identifier ")"
+        #  | "alignof" "(" type-id ")"
+        #  | noexcept-expression -> noexcept "(" expression ")"
+        #  | new-expression
+        #  | delete-expression
+        self.skip_ws()
+        for op in _expression_unary_ops:
+            # TODO: hmm, should we be able to backtrack here?
+            if self.skip_string(op):
+                expr = self._parse_cast_expression()
+                return ASTUnaryOpExpr(op, expr)
+        # TODO: the rest
+        return self._parse_postfix_expression()
+
+    def _parse_cast_expression(self):
+        # -> unary  | "(" type-id ")" cast
+        pos = self.pos
+        self.skip_ws()
+        if self.skip_string('('):
+            try:
+                typ = self._parse_type(False)
+                if not self.skip_string(')'):
+                    raise DefinitionError("Expected ')' in cast expression.")
+                expr = self._parse_cast_expression()
+                return ASTCastExpr(typ, expr)
+            except DefinitionError as exCast:
+                self.pos = pos
+                try:
+                    return self._parse_unary_expression()
+                except DefinitionError as exUnary:
+                    errs = []
+                    errs.append((exCast, "If type cast expression"))
+                    errs.append((exUnary, "If unary expression"))
+                    raise self._make_multi_error(errs, "Error in cast expression.")
+        else:
+            return self._parse_unary_expression()
+
+    def _parse_logical_or_expression(self, inTemplate):
+        # logical-or     = logical-and      ||
+        # logical-and    = inclusive-or     &&
+        # inclusive-or   = exclusive-or     |
+        # exclusive-or   = and              ^
+        # and            = equality         &
+        # equality       = relational       ==, !=
+        # relational     = shift            <, >, <=, >=
+        # shift          = additive         <<, >>
+        # additive       = multiplicative   +, -
+        # multiplicative = pm               *, /, %
+        # pm             = cast             .*, ->*
+        def _parse_bin_op_expr(self, opId, inTemplate):
+            if opId + 1 == len(_expression_bin_ops):
+                def parser(inTemplate):
+                    return self._parse_cast_expression()
+            else:
+                def parser(inTemplate):
+                    return _parse_bin_op_expr(self, opId + 1, inTemplate=inTemplate)
+            exprs = []
+            ops = []
+            exprs.append(parser(inTemplate=inTemplate))
+            while True:
+                self.skip_ws()
+                if inTemplate and self.current_char == '>':
+                    break
+                pos = self.pos
+                oneMore = False
+                for op in _expression_bin_ops[opId]:
+                    if not self.skip_string(op):
+                        continue
+                    if op == '&' and self.current_char == '&':
+                        # don't split the && 'token'
+                        self.pos -= 1
+                        # and btw. && has lower precedence, so we are done
+                        break
+                    try:
+                        expr = parser(inTemplate=inTemplate)
+                        exprs.append(expr)
+                        ops.append(op)
+                        oneMore = True
+                        break
+                    except DefinitionError:
+                        self.pos = pos
+                if not oneMore:
+                    break
+            return ASTBinOpExpr(exprs, ops)
+        return _parse_bin_op_expr(self, 0, inTemplate=inTemplate)
+
+    def _parse_conditional_expression_tail(self, orExprHead):
+        # -> "?" expression ":" assignment-expression
+        return None
+
+    def _parse_assignment_expression(self, inTemplate):
+        # -> conditional-expression
+        #  | logical-or-expression assignment-operator initializer-clause
+        #  | throw-expression
+        # TODO: parse throw-expression: "throw" assignment-expression [opt]
+        # if not a throw expression, then:
+        # -> conditional-expression ->
+        #     logical-or-expression
+        #   | logical-or-expression "?" expression ":" assignment-expression
+        #   | logical-or-expression assignment-operator initializer-clause
+        exprs = []
+        ops = []
+        orExpr = self._parse_logical_or_expression(inTemplate=inTemplate)
+        exprs.append(orExpr)
+        # TODO: handle ternary with _parse_conditional_expression_tail
+        while True:
+            oneMore = False
+            self.skip_ws()
+            for op in _expression_assignment_ops:
+                if not self.skip_string(op):
+                    continue
+                expr = self._parse_logical_or_expression(False)
+                exprs.append(expr)
+                ops.append(op)
+                oneMore = True
+            if not oneMore:
+                break
+        if len(ops) == 0:
+            return orExpr
+        else:
+            return ASTAssignmentExpr(exprs, ops)
+
+    def _parse_constant_expression(self, inTemplate):
+        # -> conditional-expression
+        orExpr = self._parse_logical_or_expression(inTemplate=inTemplate)
+        # TODO: use _parse_conditional_expression_tail
+        return orExpr
+
+    def _parse_expression(self, inTemplate):
+        # -> assignment-expression
+        #  | expression "," assignment-expresion
+        # TODO: actually parse the second production
+        return self._parse_assignment_expression(inTemplate=inTemplate)
+
+    def _parse_expression_fallback(self, end, parser):
         # type: (List[unicode]) -> unicode
         # Stupidly "parse" an expression.
         # 'end' should be a list of characters which ends the expression.
-        assert end
+
+        # first try to use the provided parser
+        prevPos = self.pos
+        try:
+            return parser()
+        except DefinitionError as e:
+            raise
+            self.warn("Parsing of expression failed. Using fallback parser."
+                      " Error was:\n%s" % e.description)
+            self.pos = prevPos
+        # and then the fallback scanning
+        assert end is not None
         self.skip_ws()
         startPos = self.pos
         if self.match(_string_re):
@@ -3353,7 +4116,7 @@ class DefinitionParser(object):
                 elif len(symbols) > 0 and self.current_char == symbols[-1]:
                     symbols.pop()
                 self.pos += 1
-            if self.eof:
+            if len(end) > 0 and self.eof:
                 self.fail("Could not find end of expression starting at %d."
                           % startPos)
             value = self.definition[startPos:self.pos].strip()
@@ -3417,7 +4180,9 @@ class DefinitionParser(object):
                 prevErrors.append((e, "If type argument"))
                 self.pos = pos
                 try:
-                    value = self._parse_expression(end=[',', '>'])
+                    def parser():
+                        return self._parse_constant_expression(inTemplate=True)
+                    value = self._parse_expression_fallback([',', '>'], parser)
                     self.skip_ws()
                     if self.skip_string('>'):
                         parsedEnd = True
@@ -3461,7 +4226,15 @@ class DefinitionParser(object):
                 if identifier in _keywords:
                     self.fail("Expected identifier in nested name, "
                               "got keyword: %s" % identifier)
-                templateArgs = self._parse_template_argument_list()
+                # try greedily to get template parameters,
+                # but otherwise a < might be because we are in an expression
+                pos = self.pos
+                try:
+                    templateArgs = self._parse_template_argument_list()
+                except DefinitionError as ex:
+                    self.pos = pos
+                    templateArgs = None
+                    self.otherErrors.append(ex)
                 identifier = ASTIdentifier(identifier)  # type: ignore
                 names.append(ASTNestedNameElement(identifier, templateArgs))
 
@@ -3747,9 +4520,16 @@ class DefinitionParser(object):
         while 1:
             self.skip_ws()
             if typed and self.skip_string('['):
-                value = self._parse_expression(end=[']'])
-                res = self.skip_string(']')
-                assert res
+                self.skip_ws()
+                if self.skip_string(']'):
+                    arrayOps.append(ASTArray(None))
+                    continue
+
+                def parser():
+                    return self._parse_expression(inTemplate=False)
+                value = self._parse_expression_fallback([']'], parser)
+                if not self.skip_string(']'):
+                    self.fail("Expected ']' in end of array operator.")
                 arrayOps.append(ASTArray(value))
                 continue
             else:
@@ -3867,11 +4647,17 @@ class DefinitionParser(object):
             return None
         else:
             if outer == 'member':
-                value = self.read_rest().strip()  # type: unicode
+                def parser():
+                    return self._parse_assignment_expression(inTemplate=False)
+                value = self._parse_expression_fallback([], parser)
             elif outer == 'templateParam':
-                value = self._parse_expression(end=[',', '>'])
+                def parser():
+                    return self._parse_assignment_expression(inTemplate=True)
+                value = self._parse_expression_fallback([',', '>'], parser)
             elif outer is None:  # function parameter
-                value = self._parse_expression(end=[',', ')'])
+                def parser():
+                    return self._parse_assignment_expression(inTemplate=False)
+                value = self._parse_expression_fallback([',', ')'], parser)
             else:
                 self.fail("Internal error, initializer for outer '%s' not "
                           "implemented." % outer)
@@ -4045,7 +4831,10 @@ class DefinitionParser(object):
         init = None
         if self.skip_string('='):
             self.skip_ws()
-            init = ASTInitializer(self.read_rest())
+
+            def parser():
+                return self._parse_constant_expression(inTemplate=False)
+            init = ASTInitializer(self._parse_expression_fallback([], parser))
         return ASTEnumerator(name, init)
 
     def _parse_template_parameter_list(self):
@@ -4680,6 +5469,27 @@ class CPPXRefRole(XRefRole):
                 if dcolon != -1:
                     title = title[dcolon + 2:]
         return title, target
+
+
+class CPPExprRole(object):
+    def __call__(self, typ, rawtext, text, lineno, inliner, options={}, content=[]):
+        class Warner(object):
+            def warn(self, msg):
+                inliner.reporter.warning(msg, line=lineno)
+        env = inliner.document.settings.env
+        parser = DefinitionParser(text, Warner(), env.config)
+        try:
+            ast = parser.parse_expression()
+        except DefinitionError as ex:
+            Warner().warn('Unparseable C++ expression: %r\n%s'
+                          % (text, text_type(ex.description)))
+            return [nodes.literal(text)], []
+        parentSymbol = env.temp_data.get('cpp:parent_symbol', None)
+        if parentSymbol is None:
+            parentSymbol = env.domaindata['cpp']['root_symbol']
+        p = nodes.literal()
+        ast.describe_signature(p, 'markType', env, parentSymbol)
+        return [p], []
 
 
 class CPPDomain(Domain):
