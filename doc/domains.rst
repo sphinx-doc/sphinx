@@ -77,8 +77,8 @@ directive name.
 .. rubric:: Default Domain
 
 For documentation describing objects from solely one domain, authors will not
-have to state again the domain name at each directive, role, etc... after
-having specified a *default domain.* This can be done either via the config
+have to state again itsn name at each directive, role, etc... after
+having specified a default. This can be done either via the config
 value :confval:`primary_domain` or via this directive:
 
 .. rst:directive:: .. default-domain:: name
