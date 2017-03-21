@@ -13,12 +13,16 @@ import unittest
 
 from docutils import nodes
 import mock
+import pytest
+import requests
+from io import BytesIO
 
 from sphinx import addnodes
 from sphinx.ext.intersphinx import setup as intersphinx_setup
 from sphinx.ext.intersphinx import (
     load_mappings, missing_reference, _strip_basic_auth,
-    _get_safe_url, fetch_inventory, INVENTORY_FILENAME
+    _get_safe_url, fetch_inventory, INVENTORY_FILENAME,
+    debug
 )
 from test_util_inventory import inventory_v2
 
@@ -229,3 +233,53 @@ def test_getsafeurl_unauthed():
     expected = 'https://domain.com/project/objects.inv'
     actual = _get_safe_url(url)
     assert expected == actual
+
+
+def test_debug_noargs(capsys):
+    """debug interface, without arguments"""
+    with pytest.raises(SystemExit):
+        debug(['sphinx/ext/intersphinx.py'])
+
+    expected = (
+        "Print out an inventory file.\n"
+        "Error: must specify local path or URL to an inventory file."
+    )
+    stdout, stderr = capsys.readouterr()
+    assert stdout == ""
+    assert stderr == expected + "\n"
+
+
+def test_debug_file(capsys, tempdir):
+    """debug interface, with file argument"""
+    inv_file = tempdir / 'inventory'
+    inv_file.write_bytes(inventory_v2)
+
+    debug(['sphinx/ext/intersphinx.py', str(inv_file)])
+
+    stdout, stderr = capsys.readouterr()
+    assert stdout.startswith("c:function\n")
+    assert stderr == ""
+
+
+@mock.patch('requests.get')
+def test_debug_url(fake_get, capsys):
+    """debug interface, with url argument"""
+    raw = BytesIO(inventory_v2)
+    real_read = raw.read
+
+    def fake_read(*args, **kwargs):
+        return real_read()
+
+    raw.read = fake_read
+    url = 'http://hostname/' + INVENTORY_FILENAME
+    resp = requests.Response()
+    resp.status_code = 200
+    resp.url = url
+    resp.raw = raw
+    fake_get.return_value = resp
+
+    debug(['sphinx/ext/intersphinx.py', url])
+
+    stdout, stderr = capsys.readouterr()
+    assert stdout.startswith("c:function\n")
+    assert stderr == ""
