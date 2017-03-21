@@ -32,6 +32,8 @@ Bugs fixed
 * #2665, #2607: Link names in C++ docfields, and make it possible for other domains.
 * #3542: C++, fix parsing error of non-type template argument with template.
 * #3065, #3520: python domain fails to recognize nested class
+* #3575: Problems with pdflatex in a Turkish document built with sphinx has
+  reappeared (refs #2997, #2397)
 
 Testing
 --------
