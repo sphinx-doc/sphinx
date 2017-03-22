@@ -207,11 +207,15 @@ class Sphinx(object):
         # the config file itself can be an extension
         if self.config.setup:
             self._setting_up_extension = ['conf.py']
-            raise ConfigError(
-                _("'setup' that is specified in the conf.py has not been "
-                  "callable. Please provide a callable `setup` function "
-                  "in order to behave as a sphinx extension conf.py itself.")
-            )
+            # py31 doesn't have 'callable' function for below check
+            if hasattr(self.config.setup, '__call__'):
+                self.config.setup(self)
+            else:
+                raise ConfigError(
+                    _("'setup' that is specified in the conf.py has not been "
+                      "callable. Please provide a callable `setup` function "
+                      "in order to behave as a sphinx extension conf.py itself.")
+                )
 
         # now that we know all config values, collect them from conf.py
         self.config.init_values()
