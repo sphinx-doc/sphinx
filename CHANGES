@@ -108,6 +108,7 @@ Bugs fixed
 * #3506: Depart functions for all admonitions in HTML writer now properly pass ``node`` to ``depart_admonition``.
 * #2693: Sphinx latex style file wrongly inhibits colours for section headings
   for latex+dvi(ps,pdf,pdfmx)
+* C++, properly look up ``any`` references.
 
 Deprecated
 ----------

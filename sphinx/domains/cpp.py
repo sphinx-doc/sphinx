@@ -4552,10 +4552,11 @@ class CPPObject(ObjectDescription):
 
     def handle_signature(self, sig, signode):
         # type: (unicode, addnodes.desc_signature) -> Any
-        if 'cpp:parent_symbol' not in self.env.ref_context:
+        if 'cpp:parent_symbol' not in self.env.temp_data:
             root = self.env.domaindata['cpp']['root_symbol']
-            self.env.ref_context['cpp:parent_symbol'] = root
-        parentSymbol = self.env.ref_context['cpp:parent_symbol']
+            self.env.temp_data['cpp:parent_symbol'] = root
+            self.env.ref_context['cpp:parent_key'] = root.get_lookup_key()
+        parentSymbol = self.env.temp_data['cpp:parent_symbol']
 
         parser = DefinitionParser(sig, self, self.env.config)
         try:
@@ -4567,16 +4568,16 @@ class CPPObject(ObjectDescription):
             # the possibly inner declarations.
             name = _make_phony_error_name()
             symbol = parentSymbol.add_name(name)
-            self.env.ref_context['cpp:last_symbol'] = symbol
+            self.env.temp_data['cpp:last_symbol'] = symbol
             raise ValueError
 
         try:
             symbol = parentSymbol.add_declaration(ast, docname=self.env.docname)
-            self.env.ref_context['cpp:last_symbol'] = symbol
+            self.env.temp_data['cpp:last_symbol'] = symbol
         except _DuplicateSymbolError as e:
             # Assume we are actually in the old symbol,
             # instead of the newly created duplicate.
-            self.env.ref_context['cpp:last_symbol'] = e.symbol
+            self.env.temp_data['cpp:last_symbol'] = e.symbol
 
         if ast.objectType == 'enumerator':
             self._add_enumerator_to_parent(ast)
@@ -4587,14 +4588,17 @@ class CPPObject(ObjectDescription):
 
     def before_content(self):
         # type: () -> None
-        lastSymbol = self.env.ref_context['cpp:last_symbol']
+        lastSymbol = self.env.temp_data['cpp:last_symbol']
         assert lastSymbol
-        self.oldParentSymbol = self.env.ref_context['cpp:parent_symbol']
-        self.env.ref_context['cpp:parent_symbol'] = lastSymbol
+        self.oldParentSymbol = self.env.temp_data['cpp:parent_symbol']
+        self.oldParentKey = self.env.ref_context['cpp:parent_key']
+        self.env.temp_data['cpp:parent_symbol'] = lastSymbol
+        self.env.ref_context['cpp:parent_key'] = lastSymbol.get_lookup_key()
 
     def after_content(self):
         # type: () -> None
-        self.env.ref_context['cpp:parent_symbol'] = self.oldParentSymbol
+        self.env.temp_data['cpp:parent_symbol'] = self.oldParentSymbol
+        self.env.ref_context['cpp:parent_key'] = self.oldParentKey
 
 
 class CPPTypeObject(CPPObject):
@@ -4711,8 +4715,9 @@ class CPPNamespaceObject(Directive):
                 ast = ASTNamespace(name, None)
             symbol = rootSymbol.add_name(ast.nestedName, ast.templatePrefix)
             stack = [symbol]
-        env.ref_context['cpp:parent_symbol'] = symbol
+        env.temp_data['cpp:parent_symbol'] = symbol
         env.temp_data['cpp:namespace_stack'] = stack
+        env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
         return []
 
 
@@ -4740,14 +4745,15 @@ class CPPNamespacePushObject(Directive):
             self.warn(e.description)
             name = _make_phony_error_name()
             ast = ASTNamespace(name, None)
-        oldParent = env.ref_context.get('cpp:parent_symbol', None)
+        oldParent = env.temp_data.get('cpp:parent_symbol', None)
         if not oldParent:
             oldParent = env.domaindata['cpp']['root_symbol']
         symbol = oldParent.add_name(ast.nestedName, ast.templatePrefix)
         stack = env.temp_data.get('cpp:namespace_stack', [])
         stack.append(symbol)
-        env.ref_context['cpp:parent_symbol'] = symbol
+        env.temp_data['cpp:parent_symbol'] = symbol
         env.temp_data['cpp:namespace_stack'] = stack
+        env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
         return []
 
 
@@ -4775,17 +4781,16 @@ class CPPNamespacePopObject(Directive):
             symbol = stack[-1]
         else:
             symbol = env.domaindata['cpp']['root_symbol']
-        env.ref_context['cpp:parent_symbol'] = symbol
+        env.temp_data['cpp:parent_symbol'] = symbol
         env.temp_data['cpp:namespace_stack'] = stack
+        env.ref_context['cpp:parent_key'] = symbol.get_lookup_key()
         return []
 
 
 class CPPXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
         # type: (BuildEnvironment, nodes.Node, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
-        parent = env.ref_context.get('cpp:parent_symbol', None)
-        if parent:
-            refnode['cpp:parent_key'] = parent.get_lookup_key()
+        refnode.attributes.update(env.ref_context)
         if refnode['reftype'] == 'any':
             # Assume the removal part of fix_parens for :any: refs.
             # The addition part is done with the reference is resolved.
@@ -4868,10 +4873,7 @@ class CPPDomain(Domain):
 
     def process_field_xref(self, pnode):
         # type: (nodes.Node) -> None
-        symbol = self.env.ref_context['cpp:parent_symbol']
-        key = symbol.get_lookup_key()
-        assert key
-        pnode['cpp:parent_key'] = key
+        pnode.attributes.update(self.env.ref_context)
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[unicode], Dict) -> None
@@ -5011,7 +5013,10 @@ class CPPDomain(Domain):
                                                  'any', target, node, contnode,
                                                  emitWarnings=False)
         if node:
-            return [('cpp:' + self.role_for_objtype(objtype), node)]
+            if objtype == 'templateParam':
+                return [('cpp:templateParam', node)]
+            else:
+                return [('cpp:' + self.role_for_objtype(objtype), node)]
         return []
 
     def get_objects(self):
