@@ -122,7 +122,6 @@ class Sphinx(object):
         self._additional_source_parsers = {}    # type: Dict[unicode, Parser]
         self._setting_up_extension = ['?']      # type: List[unicode]
         self.domains = {}                       # type: Dict[unicode, Type[Domain]]
-        self.buildername = buildername
         self.builderclasses = {}                # type: Dict[unicode, Type[Builder]]
         self.builder = None                     # type: Builder
         self.env = None                         # type: BuildEnvironment
@@ -241,6 +240,8 @@ class Sphinx(object):
             logger.warning(_('primary_domain %r not found, ignored.'),
                            self.config.primary_domain)
 
+        # create the builder
+        self.builder = self.create_builder(buildername)
         # check all configuration values for permissible types
         self.config.check_types()
         # set up source_parsers
@@ -248,7 +249,7 @@ class Sphinx(object):
         # set up the build environment
         self._init_env(freshenv)
         # set up the builder
-        self._init_builder(self.buildername)
+        self._init_builder()
         # set up the enumerable nodes
         self._init_enumerable_nodes()
 
@@ -290,7 +291,7 @@ class Sphinx(object):
         # type: (bool) -> None
         if freshenv:
             self.env = BuildEnvironment(self)
-            self.env.find_files(self.config, self.buildername)
+            self.env.find_files(self.config, self.builder)
             for domain in self.domains.keys():
                 self.env.domains[domain] = self.domains[domain](self.env)
         else:
@@ -310,8 +311,8 @@ class Sphinx(object):
                     logger.info(_('failed: %s'), err)
                 self._init_env(freshenv=True)
 
-    def _init_builder(self, buildername):
-        # type: (unicode) -> None
+    def create_builder(self, buildername):
+        # type: (unicode) -> Builder
         if buildername is None:
             logger.info(_('No builder selected, using default: html'))
             buildername = 'html'
@@ -319,13 +320,25 @@ class Sphinx(object):
             raise SphinxError(_('Builder name %s not registered') % buildername)
 
         builderclass = self.builderclasses[buildername]
-        self.builder = builderclass(self)
+        return builderclass(self)
+
+    def _init_builder(self):
+        # type: () -> None
+        self.builder.set_environment(self.env)
+        self.builder.init()
         self.emit('builder-inited')
 
     def _init_enumerable_nodes(self):
         # type: () -> None
         for node, settings in iteritems(self.enumerable_nodes):
             self.env.get_domain('std').enumerable_nodes[node] = settings  # type: ignore
+
+    @property
+    def buildername(self):
+        # type: () -> unicode
+        warnings.warn('app.buildername is deprecated. Please use app.builder.name instead',
+                      RemovedInSphinx17Warning)
+        return self.builder.name
 
     # ---- main "build" method -------------------------------------------------
 

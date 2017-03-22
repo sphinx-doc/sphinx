@@ -40,6 +40,7 @@ Incompatible changes
   support for multiple TeX engines. Only interface from ``color`` or
   ``xcolor`` packages should be used by extensions of Sphinx latex writer.
   (refs #3550)
+* ``Builder.env`` is not filled at instantiation
 
 Features removed
 ----------------

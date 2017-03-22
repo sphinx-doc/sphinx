@@ -57,12 +57,11 @@ class Builder(object):
     versioning_compare = False
     # allow parallel write_doc() calls
     allow_parallel = False
+    # support translation
+    use_message_catalog = True
 
     def __init__(self, app):
         # type: (Sphinx) -> None
-        self.env = app.env          # type: BuildEnvironment
-        self.env.set_versioning_method(self.versioning_method,
-                                       self.versioning_compare)
         self.srcdir = app.srcdir
         self.confdir = app.confdir
         self.outdir = app.outdir
@@ -71,6 +70,7 @@ class Builder(object):
             os.makedirs(self.doctreedir)
 
         self.app = app              # type: Sphinx
+        self.env = None             # type: BuildEnvironment
         self.warn = app.warn        # type: Callable
         self.info = app.info        # type: Callable
         self.config = app.config    # type: Config
@@ -97,7 +97,12 @@ class Builder(object):
         # load default translator class
         self.translator_class = app._translators.get(self.name)
 
-        self.init()
+    def set_environment(self, env):
+        # type: (BuildEnvironment) -> None
+        """Store BuildEnvironment object."""
+        self.env = env
+        self.env.set_versioning_method(self.versioning_method,
+                                       self.versioning_compare)
 
     # helper methods
     def init(self):
@@ -145,6 +150,11 @@ class Builder(object):
         of those files that need to be written.
         """
         raise NotImplementedError
+
+    def get_asset_paths(self):
+        # type: () -> List[unicode]
+        """Return list of paths for assets (ex. templates, CSS, etc.)."""
+        return []
 
     supported_image_types = []  # type: List[unicode]
 
