@@ -58,6 +58,7 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment.collectors import EnvironmentCollector  # NOQA
+    from sphinx.extensions import Extension  # NOQA
 
 builtin_extensions = (
     'sphinx.builders.applehelp',
@@ -112,8 +113,7 @@ class Sphinx(object):
                  parallel=0):
         # type: (unicode, unicode, unicode, unicode, unicode, Dict, IO, IO, bool, bool, List[unicode], int, int) -> None  # NOQA
         self.verbosity = verbosity
-        self._extensions = {}                   # type: Dict[unicode, Any]
-        self._extension_metadata = {}           # type: Dict[unicode, Dict[unicode, Any]]
+        self.extensions = {}                    # type: Dict[unicode, Extension]
         self._additional_source_parsers = {}    # type: Dict[unicode, Parser]
         self._setting_up_extension = ['?']      # type: List[unicode]
         self.domains = {}                       # type: Dict[unicode, Type[Domain]]

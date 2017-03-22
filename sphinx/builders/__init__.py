@@ -17,6 +17,7 @@ try:
 except ImportError:
     multiprocessing = None
 
+from six import itervalues
 from docutils import nodes
 
 from sphinx.util import i18n, path_stabilize, logging, status_iterator
@@ -337,11 +338,10 @@ class Builder(object):
         self.parallel_ok = False
         if parallel_available and self.app.parallel > 1 and self.allow_parallel:
             self.parallel_ok = True
-            for extname, md in self.app._extension_metadata.items():
-                par_ok = md.get('parallel_write_safe', True)
-                if not par_ok:
+            for extension in itervalues(self.app.extensions):
+                if not extension.parallel_write_safe:
                     logger.warning('the %s extension is not safe for parallel '
-                                   'writing, doing serial write', extname)
+                                   'writing, doing serial write', extension.name)
                     self.parallel_ok = False
                     break
 

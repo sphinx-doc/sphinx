@@ -33,11 +33,20 @@ EXTENSION_BLACKLIST = {
 }  # type: Dict[unicode, unicode]
 
 
+class Extension(object):
+    def __init__(self, name, module, **kwargs):
+        self.name = name
+        self.module = module
+        self.version = kwargs.pop('version', 'unknown version')
+        self.parallel_read_safe = kwargs.pop('parallel_read_safe', None)
+        self.parallel_write_safe = kwargs.pop('parallel_read_safe', True)
+        self.metadata = kwargs
+
+
 def load(app, extname):
     # type: (Sphinx, unicode) -> None
     """Load a Sphinx extension."""
-    if extname in app._extensions:
-        # alread loaded
+    if extname in app.extensions:  # alread loaded
         return
     if extname in EXTENSION_BLACKLIST:
         logger.warning(_('the extension %r was already merged with Sphinx since '
@@ -78,9 +87,7 @@ def load(app, extname):
                          'its setup() function; it should return None or a '
                          'metadata dictionary'), extname)
 
-    metadata.setdefault('version', 'unknown version')
-    app._extensions[extname] = mod
-    app._extension_metadata[extname] = metadata
+    app.extensions[extname] = Extension(extname, mod, **metadata)
     app._setting_up_extension.pop()
 
 
@@ -91,15 +98,15 @@ def confirm(app, requirements):
         return
 
     for extname, reqversion in iteritems(requirements):
-        if extname not in app._extensions:
+        extension = app.extensions.get(extname)
+        if extension is None:
             logger.warning(_('needs_extensions config value specifies a '
                              'version requirement for extension %s, but it is '
                              'not loaded'), extname)
             continue
 
-        extversion = app._extension_metadata[extname].get('version')
-        if extversion == 'unknown version' or reqversion > extversion:
+        if extension.version == 'unknown version' or reqversion > extension.version:
             raise VersionRequirementError(_('This project needs the extension %s at least in '
                                             'version %s and therefore cannot be built with '
                                             'the loaded version (%s).') %
-                                          (extname, reqversion, extversion))
+                                          (extname, reqversion, extension.version))
