@@ -185,9 +185,10 @@ class ExtBabel(Babel):
         if shortlang in ('de', 'ngerman', 'sl', 'slovene', 'pt', 'portuges',
                          'es', 'spanish', 'nl', 'dutch', 'pl', 'polish', 'it',
                          'italian'):
-            return '\\if\\catcode`\\"\\active\\shorthandoff{"}\\fi'
+            return '\\ifnum\\catcode`\\"=\\active\\shorthandoff{"}\\fi'
         elif shortlang in ('tr', 'turkish'):
-            return '\\if\\catcode`\\=\\active\\shorthandoff{=}\\fi'
+            # memo: if ever Sphinx starts supporting 'Latin', do as for Turkish
+            return '\\ifnum\\catcode`\\=\\string=\\active\\shorthandoff{=}\\fi'
         return ''
 
     def uses_cyrillic(self):

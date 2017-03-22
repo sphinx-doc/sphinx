@@ -26,6 +26,7 @@
 
 from __future__ import print_function
 
+import sys
 import time
 import functools
 import posixpath
@@ -340,17 +341,27 @@ def setup(app):
     return {'version': sphinx.__display_version__, 'parallel_read_safe': True}
 
 
-if __name__ == '__main__':
-    # debug functionality to print out an inventory
-    import sys
+def debug(argv):
+    # type: (List[unicode]) -> None
+    """Debug functionality to print out an inventory"""
+    if len(argv) < 2:
+        print("Print out an inventory file.\n"
+              "Error: must specify local path or URL to an inventory file.",
+              file=sys.stderr)
+        sys.exit(1)
+
+    class MockConfig(object):
+        intersphinx_timeout = None  # type: int
+        tls_verify = False
 
     class MockApp(object):
         srcdir = ''
+        config = MockConfig()
 
         def warn(self, msg):
             print(msg, file=sys.stderr)
 
-    filename = sys.argv[1]
+    filename = argv[1]
     invdata = fetch_inventory(MockApp(), '', filename)  # type: ignore
     for key in sorted(invdata or {}):
         print(key)
@@ -358,3 +369,7 @@ if __name__ == '__main__':
             print('\t%-40s %s%s' % (entry,
                                     einfo[3] != '-' and '%-40s: ' % einfo[3] or '',
                                     einfo[2]))
+
+
+if __name__ == '__main__':
+    debug(argv=sys.argv)  # type: ignore

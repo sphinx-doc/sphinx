@@ -76,9 +76,10 @@ directive name.
 
 .. rubric:: Default Domain
 
-To avoid having to writing the domain name all the time when you e.g. only
-describe Python objects, a default domain can be selected with either the config
-value :confval:`primary_domain` or this directive:
+For documentation describing objects from solely one domain, authors will not
+have to state again its name at each directive, role, etc... after
+having specified a default. This can be done either via the config
+value :confval:`primary_domain` or via this directive:
 
 .. rst:directive:: .. default-domain:: name
 

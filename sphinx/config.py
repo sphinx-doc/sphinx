@@ -56,7 +56,7 @@ class ENUM(object):
     """represents the config value should be a one of candidates.
 
     Example:
-        app.add_config_value('latex_show_urls', 'no', ENUM('no', 'footnote', 'inline'))
+        app.add_config_value('latex_show_urls', 'no', None, ENUM('no', 'footnote', 'inline'))
     """
     def __init__(self, *candidates):
         # type: (unicode) -> None
