@@ -97,6 +97,9 @@ builtin_extensions = (
     'sphinx.environment.collectors.title',
     'sphinx.environment.collectors.toctree',
     'sphinx.environment.collectors.indexentries',
+    # Strictly, alabaster theme is not a builtin extension,
+    # but it is loaded automatically to use it as default theme.
+    'alabaster',
 )  # type: Tuple[unicode, ...]
 
 CONFIG_FILENAME = 'conf.py'
@@ -189,12 +192,6 @@ class Sphinx(object):
         # load all built-in extension modules
         for extension in builtin_extensions:
             self.setup_extension(extension)
-
-        # extension loading support for alabaster theme
-        # self.config.html_theme is not set from conf.py at here
-        # for now, sphinx always load a 'alabaster' extension.
-        if 'alabaster' not in self.config.extensions:
-            self.config.extensions.append('alabaster')
 
         # load all user-given extension modules
         for extension in self.config.extensions:
