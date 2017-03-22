@@ -34,6 +34,7 @@ Bugs fixed
 * #3065, #3520: python domain fails to recognize nested class
 * #3575: Problems with pdflatex in a Turkish document built with sphinx has
   reappeared (refs #2997, #2397)
+* #3577: Fix intersphinx debug tool
 
 Testing
 --------
