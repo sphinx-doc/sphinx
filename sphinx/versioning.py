@@ -6,7 +6,7 @@
     Implements the low-level algorithms Sphinx uses for the versioning of
     doctrees.
 
-    :copyright: Copyright 2007-2016 by the Sphinx team, see AUTHORS.
+    :copyright: Copyright 2007-2017 by the Sphinx team, see AUTHORS.
     :license: BSD, see LICENSE for details.
 """
 from uuid import uuid4
