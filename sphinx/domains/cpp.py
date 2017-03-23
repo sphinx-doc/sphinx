@@ -18,6 +18,7 @@ from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 
 from sphinx import addnodes
+from sphinx.environment import NoUri
 from sphinx.roles import XRefRole
 from sphinx.locale import l_, _
 from sphinx.domains import Domain, ObjType
@@ -26,6 +27,7 @@ from sphinx.util import logging
 from sphinx.util.nodes import make_refnode
 from sphinx.util.pycompat import UnicodeMixin
 from sphinx.util.docfields import Field, GroupedField
+
 
 if False:
     # For type annotation
@@ -1108,11 +1110,10 @@ class ASTIdentifier(ASTBase):
         if mode == 'markType':
             targetText = prefix + self.identifier
             pnode = addnodes.pending_xref('', refdomain='cpp',
-                                          reftype='typeOrConcept',
+                                          reftype='identifier',
                                           reftarget=targetText, modname=None,
                                           classname=None)
             key = symbol.get_lookup_key()
-            assert key
             pnode['cpp:parent_key'] = key
             pnode += nodes.Text(self.identifier)
             signode += pnode
@@ -3159,9 +3160,6 @@ class Symbol(object):
 
     def get_lookup_key(self):
         # type: () -> List[Tuple[ASTNestedNameElement, Any]]
-        if not self.parent:
-            # specialise for the root
-            return None
         symbols = []
         s = self
         while s.parent:
@@ -5085,6 +5083,26 @@ class DefinitionParser(object):
         res.objectType = 'xref'  # type: ignore
         return res
 
+    def parse_expression(self):
+        pos = self.pos
+        try:
+            expr = self._parse_expression(False)
+            self.skip_ws()
+            self.assert_end()
+        except DefinitionError as exExpr:
+            self.pos = pos
+            try:
+                expr = self._parse_type(False)
+                self.skip_ws()
+                self.assert_end()
+            except DefinitionError as exType:
+                header = "Error when parsing (type) expression."
+                errs = []
+                errs.append((exExpr, "If expression:"))
+                errs.append((exType, "If type:"))
+                raise self._make_multi_error(errs, header)
+        return expr
+
 
 def _make_phony_error_name():
     # type: () -> ASTNestedName
@@ -5480,6 +5498,7 @@ class CPPExprRole(object):
         class Warner(object):
             def warn(self, msg):
                 inliner.reporter.warning(msg, line=lineno)
+
         env = inliner.document.settings.env
         parser = DefinitionParser(text, Warner(), env.config)
         try:
@@ -5534,7 +5553,8 @@ class CPPDomain(Domain):
         'type': CPPXRefRole(),
         'concept': CPPXRefRole(),
         'enum': CPPXRefRole(),
-        'enumerator': CPPXRefRole()
+        'enumerator': CPPXRefRole(),
+        'expr': CPPExprRole()
     }
     initial_data = {
         'root_symbol': Symbol(None, None, None, None, None, None),
@@ -5627,6 +5647,9 @@ class CPPDomain(Domain):
                                    templateShorthand=True,
                                    matchSelf=True)
         if s is None or s.declaration is None:
+            txtName = text_type(name)
+            if txtName.startswith('std::') or txtName == 'std':
+                raise NoUri()
             return None, None
 
         if typ.startswith('cpp:'):
@@ -5636,7 +5659,7 @@ class CPPDomain(Domain):
         declTyp = s.declaration.objectType
 
         def checkType():
-            if typ == 'any':
+            if typ == 'any' or typ == 'identifier':
                 return True
             if declTyp == 'templateParam':
                 return True
