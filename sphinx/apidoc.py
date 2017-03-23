@@ -25,6 +25,7 @@ from fnmatch import fnmatch
 
 from sphinx.util.osutil import FileAvoidWrite, walk
 from sphinx import __display_version__
+from sphinx.util import rst
 
 # automodule options
 if 'SPHINX_APIDOC_OPTIONS' in os.environ:
@@ -67,8 +68,10 @@ def write_file(name, text, opts):
             f.write(text)
 
 
-def format_heading(level, text):
+def format_heading(level, text, escape=True):
     """Create a heading of <level> [1, 2 or 3 supported]."""
+    if escape:
+        text = rst.escape(text)
     underlining = ['=', '-', '~', ][level - 1] * len(text)
     return '%s\n%s\n\n' % (text, underlining)
 
@@ -149,7 +152,7 @@ def create_package_file(root, master_package, subroot, py_files, opts, subs, is_
 
 def create_modules_toc_file(modules, opts, name='modules'):
     """Create the module's index."""
-    text = format_heading(1, '%s' % opts.header)
+    text = format_heading(1, '%s' % opts.header, escape=False)
     text += '.. toctree::\n'
     text += '   :maxdepth: %s\n\n' % opts.maxdepth
 

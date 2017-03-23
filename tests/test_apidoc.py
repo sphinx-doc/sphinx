@@ -19,6 +19,8 @@ from sphinx.apidoc import main as apidoc_main
 
 from util import rootdir, remove_unicode_literals
 
+from sphinx.util.rst import escape as rst_escape
+
 
 @pytest.fixture()
 def apidoc(tempdir, apidoc_params):
@@ -71,13 +73,13 @@ def test_pep_0420_enabled(make_app, apidoc):
 
     with open(outdir / 'a.b.c.rst') as f:
         rst = f.read()
-        assert "a.b.c package\n" in rst
+        assert rst_escape("a.b.c package\n") in rst
         assert "automodule:: a.b.c.d\n" in rst
         assert "automodule:: a.b.c\n" in rst
 
     with open(outdir / 'a.b.x.rst') as f:
         rst = f.read()
-        assert "a.b.x namespace\n" in rst
+        assert rst_escape("a.b.x namespace\n") in rst
         assert "automodule:: a.b.x.y\n" in rst
         assert "automodule:: a.b.x\n" not in rst
 
@@ -118,6 +120,15 @@ def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
     print(app._status.getvalue())
     print(app._warning.getvalue())
 
+@pytest.mark.apidoc(coderoot=(rootdir / 'root' / 'trailing_underscore'))
+def test_trailing_underscore(make_app, apidoc):
+    outdir = apidoc.outdir
+    assert (outdir / 'conf.py').isfile()
+    assert (outdir / 'package_.rst').isfile()
+    with open(outdir / 'package_.rst') as f:
+        rst = f.read()
+        assert rst_escape("package_ package\n") in rst
+        assert rst_escape("package_.module_ module\n") in rst
 
 @pytest.mark.apidoc(
     coderoot=(rootdir / 'root'),
