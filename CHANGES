@@ -176,6 +176,8 @@ Bugs fixed
 * #3575: Problems with pdflatex in a Turkish document built with sphinx has
   reappeared (refs #2997, #2397)
 * #3577: Fix intersphinx debug tool
+* A LaTeX command such as ``\\large`` inserted in the title items of
+  :confval:`latex_documents` causes failed PDF build (refs #3551, #3567)
 
 Testing
 --------
