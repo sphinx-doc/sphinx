@@ -109,6 +109,7 @@ Bugs fixed
 * #2693: Sphinx latex style file wrongly inhibits colours for section headings
   for latex+dvi(ps,pdf,pdfmx)
 * C++, properly look up ``any`` references.
+* #3551: PDF information dictionary is lacking author and title data
 
 Deprecated
 ----------
