@@ -62,7 +62,7 @@ def test_simple(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot=(rootdir / 'root' / 'pep_0420'),
+    coderoot=(rootdir / 'roots' / 'test-apidoc-pep420'),
     options=["--implicit-namespaces"],
 )
 def test_pep_0420_enabled(make_app, apidoc):
@@ -89,7 +89,7 @@ def test_pep_0420_enabled(make_app, apidoc):
     print(app._warning.getvalue())
 
 
-@pytest.mark.apidoc(coderoot=(rootdir / 'root' / 'pep_0420'))
+@pytest.mark.apidoc(coderoot=(rootdir / 'roots' / 'test-apidoc-pep420'))
 def test_pep_0420_disabled(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
@@ -102,7 +102,8 @@ def test_pep_0420_disabled(make_app, apidoc):
     print(app._warning.getvalue())
 
 
-@pytest.mark.apidoc(coderoot=(rootdir / 'root' / 'pep_0420' / 'a' / 'b'))
+@pytest.mark.apidoc(
+    coderoot=(rootdir / 'roots' / 'test-apidoc-pep420' / 'a' / 'b'))
 def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
@@ -120,7 +121,8 @@ def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
     print(app._status.getvalue())
     print(app._warning.getvalue())
 
-@pytest.mark.apidoc(coderoot=(rootdir / 'root' / 'trailing_underscore'))
+@pytest.mark.apidoc(
+    coderoot=(rootdir / 'roots' / 'test-apidoc-trailing-underscore'))
 def test_trailing_underscore(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
