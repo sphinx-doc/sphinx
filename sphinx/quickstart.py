@@ -11,7 +11,6 @@
 from __future__ import print_function
 from __future__ import absolute_import
 
-import re
 import os
 import sys
 import optparse
@@ -44,7 +43,7 @@ from sphinx.util import texescape
 
 if False:
     # For type annotation
-    from typing import Any, Callable, Dict, List, Pattern  # NOQA
+    from typing import Any, Callable, Dict, List  # NOQA
 
 TERM_ENCODING = getattr(sys.stdin, 'encoding', None)
 
@@ -192,15 +191,6 @@ def do_prompt(d, key, text, default=None, validator=nonempty):
             continue
         break
     d[key] = x
-
-
-def convert_python_source(source, rex=re.compile(r"[uU]('.*?')")):
-    # type: (unicode, Pattern) -> unicode
-    # remove Unicode literal prefixes
-    if PY3:
-        return rex.sub('\\1', source)
-    else:
-        return source
 
 
 class QuickstartRenderer(SphinxRenderer):
@@ -417,20 +407,12 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     for name in EXTENSIONS:
         if d.get('ext_' + name):
             d['extensions'].append('sphinx.ext.' + name)
-    d['extensions'] = (',\n' + indent).join(repr(name) for name in d['extensions'])
     d['copyright'] = time.strftime('%Y') + ', ' + d['author']
     d['author_texescaped'] = text_type(d['author']).\
         translate(texescape.tex_escape_map)
     d['project_doc'] = d['project'] + ' Documentation'
     d['project_doc_texescaped'] = text_type(d['project'] + ' Documentation').\
         translate(texescape.tex_escape_map)
-
-    # escape backslashes and single quotes in strings that are put into
-    # a Python string literal
-    for key in ('project', 'project_doc', 'project_doc_texescaped',
-                'author', 'author_texescaped', 'copyright',
-                'version', 'release', 'master'):
-        d[key + '_str'] = d[key].replace('\\', '\\\\').replace("'", "\\'")
 
     if not path.isdir(d['path']):
         mkdir_p(d['path'])
@@ -443,11 +425,10 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
         d['exclude_patterns'] = ''
     else:
         builddir = path.join(srcdir, d['dot'] + 'build')
-        exclude_patterns = map(repr, [
+        d['exclude_patterns'] = [
             d['dot'] + 'build',
             'Thumbs.db', '.DS_Store',
-        ])
-        d['exclude_patterns'] = ', '.join(exclude_patterns)
+        ]
     mkdir_p(builddir)
     mkdir_p(path.join(srcdir, d['dot'] + 'templates'))
     mkdir_p(path.join(srcdir, d['dot'] + 'static'))
@@ -464,8 +445,8 @@ def generate(d, overwrite=True, silent=False, templatedir=None):
     conf_path = os.path.join(templatedir, 'conf.py_t') if templatedir else None
     if not conf_path or not path.isfile(conf_path):
         conf_path = os.path.join(package_dir, 'templates', 'quickstart', 'conf.py_t')
-    with open(conf_path) as f:
-        conf_text = convert_python_source(f.read())
+    with open(conf_path, 'rt', encoding='utf-8') as f:
+        conf_text = f.read()
 
     write_file(path.join(srcdir, 'conf.py'), template.render_string(conf_text, d))
 
