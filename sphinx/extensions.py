@@ -37,10 +37,18 @@ class Extension(object):
     def __init__(self, name, module, **kwargs):
         self.name = name
         self.module = module
-        self.version = kwargs.pop('version', 'unknown version')
-        self.parallel_read_safe = kwargs.pop('parallel_read_safe', None)
-        self.parallel_write_safe = kwargs.pop('parallel_read_safe', True)
         self.metadata = kwargs
+        self.version = kwargs.pop('version', 'unknown version')
+
+        # The extension supports parallel read or not.  The default value
+        # is ``None``.  It means the extension does not tell the status.
+        # It will be warned on parallel reading.
+        self.parallel_read_safe = kwargs.pop('parallel_read_safe', None)
+
+        # The extension supports parallel write or not.  The default value
+        # is ``True``.  Sphinx writes parallelly documents even if
+        # the extension does not tell its status.
+        self.parallel_write_safe = kwargs.pop('parallel_read_safe', True)
 
 
 def load(app, extname):
