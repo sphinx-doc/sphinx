@@ -34,6 +34,7 @@ from sphinx.ext.autosummary import import_by_name, get_documenter
 from sphinx.jinja2glue import BuiltinTemplateLoader
 from sphinx.util.osutil import ensuredir
 from sphinx.util.inspect import safe_getattr
+from sphinx.util.rst import escape as rst_escape
 
 # Add documenters to AutoDirective registry
 from sphinx.ext.autodoc import add_documenter, \
@@ -80,6 +81,12 @@ def _simple_warn(msg):
     print('WARNING: ' + msg, file=sys.stderr)
 
 
+def _underline(title, line='='):
+    if '\n' in title:
+        raise ValueError('Can only underline single lines')
+    return title + '\n' + line * len(title)
+
+
 # -- Generating output ---------------------------------------------------------
 
 def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
@@ -110,6 +117,11 @@ def generate_autosummary_docs(sources, output_dir=None, suffix='.rst',
             template_dirs.insert(0, template_dir)
         template_loader = FileSystemLoader(template_dirs)
     template_env = SandboxedEnvironment(loader=template_loader)
+    template_env.filters['underline'] = _underline
+
+    # replace the builtin html filters
+    template_env.filters['escape'] = rst_escape
+    template_env.filters['e'] = rst_escape
 
     # read
     items = find_autosummary_in_files(sources)
