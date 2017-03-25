@@ -60,7 +60,7 @@ def test_simple(make_app, apidoc):
 
 
 @pytest.mark.apidoc(
-    coderoot=(rootdir / 'root' / 'pep_0420'),
+    coderoot=(rootdir / 'roots' / 'test-apidoc-pep420'),
     options=["--implicit-namespaces"],
 )
 def test_pep_0420_enabled(make_app, apidoc):
@@ -71,13 +71,11 @@ def test_pep_0420_enabled(make_app, apidoc):
 
     with open(outdir / 'a.b.c.rst') as f:
         rst = f.read()
-        assert "a.b.c package\n" in rst
         assert "automodule:: a.b.c.d\n" in rst
         assert "automodule:: a.b.c\n" in rst
 
     with open(outdir / 'a.b.x.rst') as f:
         rst = f.read()
-        assert "a.b.x namespace\n" in rst
         assert "automodule:: a.b.x.y\n" in rst
         assert "automodule:: a.b.x\n" not in rst
 
@@ -86,8 +84,20 @@ def test_pep_0420_enabled(make_app, apidoc):
     print(app._status.getvalue())
     print(app._warning.getvalue())
 
+    builddir = outdir / '_build' / 'text'
+    assert (builddir / 'a.b.c.txt').isfile()
+    assert (builddir / 'a.b.x.txt').isfile()
 
-@pytest.mark.apidoc(coderoot=(rootdir / 'root' / 'pep_0420'))
+    with open(builddir / 'a.b.c.txt') as f:
+        txt = f.read()
+        assert "a.b.c package\n" in txt
+
+    with open(builddir / 'a.b.x.txt') as f:
+        txt = f.read()
+        assert "a.b.x namespace\n" in txt
+
+
+@pytest.mark.apidoc(coderoot=(rootdir / 'roots' / 'test-apidoc-pep420'))
 def test_pep_0420_disabled(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
@@ -100,7 +110,8 @@ def test_pep_0420_disabled(make_app, apidoc):
     print(app._warning.getvalue())
 
 
-@pytest.mark.apidoc(coderoot=(rootdir / 'root' / 'pep_0420' / 'a' / 'b'))
+@pytest.mark.apidoc(
+    coderoot=(rootdir / 'roots' / 'test-apidoc-pep420' / 'a' / 'b'))
 def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
     outdir = apidoc.outdir
     assert (outdir / 'conf.py').isfile()
@@ -118,6 +129,23 @@ def test_pep_0420_disabled_top_level_verify(make_app, apidoc):
     print(app._status.getvalue())
     print(app._warning.getvalue())
 
+@pytest.mark.apidoc(
+    coderoot=(rootdir / 'roots' / 'test-apidoc-trailing-underscore'))
+def test_trailing_underscore(make_app, apidoc):
+    outdir = apidoc.outdir
+    assert (outdir / 'conf.py').isfile()
+    assert (outdir / 'package_.rst').isfile()
+
+    app = make_app('text', srcdir=outdir)
+    app.build()
+    print(app._status.getvalue())
+    print(app._warning.getvalue())
+
+    builddir = outdir / '_build' / 'text'
+    with open(builddir / 'package_.txt') as f:
+        rst = f.read()
+        assert "package_ package\n" in rst
+        assert "package_.module_ module\n" in rst
 
 @pytest.mark.apidoc(
     coderoot=(rootdir / 'root'),
