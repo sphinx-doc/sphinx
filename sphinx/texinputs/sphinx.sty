@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/03/12 v1.6 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/03/26 v1.6 LaTeX package (Sphinx markup)]
 
 % provides \ltx@ifundefined
 % (many packages load ltxcmds: graphicx does for pdftex and lualatex but
@@ -939,11 +939,11 @@
 }}
 % Same for \url. And also \nolinkurl for coherence.
 \protected\def\sphinxurl#1{{%
-    \sphinxunactivateextrasandspace
+    \sphinxunactivateextrasandspace\everyeof{}% (<- precaution for \scantokens)
     \endlinechar\m@ne\scantokens{\url{#1}}%
 }}
 \protected\def\sphinxnolinkurl#1{{%
-    \sphinxunactivateextrasandspace
+    \sphinxunactivateextrasandspace\everyeof{}%
     \endlinechar\m@ne\scantokens{\nolinkurl{#1}}%
 }}
 
@@ -1328,7 +1328,7 @@
    \fi
    % fix a space-gobbling issue due to LaTeX's original \do@noligs
    \let\do@noligs\sphinx@do@noligs
-   \@noligs\endlinechar\m@ne
+   \@noligs\endlinechar\m@ne\everyeof{}% (<- in case inside \sphinxhref)
    \expandafter\scantokens
   \fi {\texttt{#1}}}}
 \def\sphinx@do@noligs #1{\catcode`#1\active\begingroup\lccode`\~`#1\relax
