@@ -1306,7 +1306,7 @@
    \fi
    % fix a space-gobbling issue due to LaTeX's original \do@noligs
    \let\do@noligs\sphinx@do@noligs
-   \@noligs\endlinechar\m@ne
+   \@noligs\endlinechar\m@ne\everyeof{}% (<- in case inside \sphinxhref)
    \expandafter\scantokens
   \fi {\texttt{#1}}}}
 \def\sphinx@do@noligs #1{\catcode`#1\active\begingroup\lccode`\~`#1\relax
