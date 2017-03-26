@@ -6,7 +6,7 @@
 %
 
 \NeedsTeXFormat{LaTeX2e}[1995/12/01]
-\ProvidesPackage{sphinx}[2017/03/12 v1.5.4 LaTeX package (Sphinx markup)]
+\ProvidesPackage{sphinx}[2017/03/26 v1.5.4 LaTeX package (Sphinx markup)]
 
 % this is the \ltx@ifundefined of ltxcmds.sty, which is loaded by
 % kvoptions (and later by hyperref), but the first release of
@@ -922,11 +922,11 @@
 }}
 % Same for \url. And also \nolinkurl for coherence.
 \protected\def\sphinxurl#1{{%
-    \sphinxunactivateextrasandspace
+    \sphinxunactivateextrasandspace\everyeof{}% (<- precaution for \scantokens)
     \endlinechar\m@ne\scantokens{\url{#1}}%
 }}
 \protected\def\sphinxnolinkurl#1{{%
-    \sphinxunactivateextrasandspace
+    \sphinxunactivateextrasandspace\everyeof{}%
     \endlinechar\m@ne\scantokens{\nolinkurl{#1}}%
 }}
 
