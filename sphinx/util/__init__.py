@@ -22,7 +22,7 @@ from os import path
 from codecs import BOM_UTF8
 from collections import deque
 
-from six import text_type, binary_type
+from six import text_type, binary_type, itervalues
 from six.moves import range
 from six.moves.urllib.parse import urlsplit, urlunsplit, quote_plus, parse_qsl, urlencode
 from docutils.utils import relative_path
@@ -227,7 +227,7 @@ def save_traceback(app):
                    jinja2.__version__,  # type: ignore
                    last_msgs)).encode('utf-8'))
     if app is not None:
-        for ext in app.extensions:
+        for ext in itervalues(app.extensions):
             modfile = getattr(ext.module, '__file__', 'unknown')
             if isinstance(modfile, bytes):
                 modfile = modfile.decode(fs_encoding, 'replace')
