@@ -97,6 +97,8 @@ Features added
   and docutils 0.13 and newer is installed.
 * LaTeX macros to customize space before and after tables in PDF output (refs #3504)
 * #3348: Show decorators in literalinclude and viewcode directives
+* #3108: Show warning if :start-at: and other literalinclude options does not
+  match to the text
 
 Bugs fixed
 ----------

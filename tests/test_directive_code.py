@@ -161,6 +161,28 @@ def test_LiteralIncludeReader_start_at_and_lines():
     assert reader.lineno_start == 1
 
 
+def test_LiteralIncludeReader_missing_start_and_end():
+    options = {'start-at': 'NOTHING'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    with pytest.raises(ValueError):
+        content, lines = reader.read()
+
+    options = {'end-at': 'NOTHING'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    with pytest.raises(ValueError):
+        content, lines = reader.read()
+
+    options = {'start-after': 'NOTHING'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    with pytest.raises(ValueError):
+        content, lines = reader.read()
+
+    options = {'end-before': 'NOTHING'}
+    reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
+    with pytest.raises(ValueError):
+        content, lines = reader.read()
+
+
 def test_LiteralIncludeReader_prepend():
     options = {'lines': '1', 'prepend': 'Hello', 'append': 'Sphinx'}
     reader = LiteralIncludeReader(LITERAL_INC_PATH, options, DUMMY_CONFIG)
