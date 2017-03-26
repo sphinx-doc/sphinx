@@ -138,6 +138,7 @@ Deprecated
 * #3429: deprecate config setting ``latex_keep_old_macro_names``. It will be
   removed at 1.7, and already its default value has changed from ``True`` to
   ``False``.
+* #3221: epub2 builder is deprecated
 
 Release 1.5.4 (in development)
 ==============================
