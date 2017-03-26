@@ -13,10 +13,10 @@ import bisect
 import unicodedata
 from itertools import groupby
 
-from six import text_type
+from six import text_type, iteritems
 
 from sphinx.locale import _
-from sphinx.util import iteritems, split_into, logging
+from sphinx.util import split_into, logging
 
 if False:
     # For type annotation

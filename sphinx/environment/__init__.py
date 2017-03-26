@@ -43,6 +43,7 @@ from sphinx.util.matching import compile_matchers
 from sphinx.util.parallel import ParallelTasks, parallel_available, make_chunks
 from sphinx.util.websupport import is_commentable
 from sphinx.errors import SphinxError, ExtensionError
+from sphinx.locale import _
 from sphinx.transforms import SphinxTransformer
 from sphinx.versioning import add_uids, merge_doctrees
 from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
@@ -559,22 +560,20 @@ class BuildEnvironment(object):
         # check if we should do parallel or serial read
         par_ok = False
         if parallel_available and len(docnames) > 5 and self.app.parallel > 1:
-            par_ok = True
-            for extname, md in self.app._extension_metadata.items():
-                ext_ok = md.get('parallel_read_safe')
-                if ext_ok:
-                    continue
-                if ext_ok is None:
-                    logger.warning('the %s extension does not declare if it '
-                                   'is safe for parallel reading, assuming it '
-                                   'isn\'t - please ask the extension author to '
-                                   'check and make it explicit', extname)
+            for ext in itervalues(self.app.extensions):
+                if ext.parallel_read_safe is None:
+                    logger.warning(_('the %s extension does not declare if it is safe '
+                                     'for parallel reading, assuming it isn\'t - please '
+                                     'ask the extension author to check and make it '
+                                     'explicit'), ext.name)
                     logger.warning('doing serial read')
-                else:
-                    logger.warning('the %s extension is not safe for parallel '
-                                   'reading, doing serial read', extname)
-                par_ok = False
-                break
+                    break
+                elif ext.parallel_read_safe is False:
+                    break
+            else:
+                # all extensions support parallel-read
+                par_ok = True
+
         if par_ok:
             self._read_parallel(docnames, self.app, nproc=self.app.parallel)
         else:
