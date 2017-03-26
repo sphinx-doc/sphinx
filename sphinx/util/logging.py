@@ -409,7 +409,7 @@ class SafeEncodingWriter(object):
 class LastMessagesWriter(object):
     """Stream writer which memories last 10 messages to save trackback"""
     def __init__(self, app, stream):
-        # type: (IO) -> None
+        # type: (Sphinx, IO) -> None
         self.app = app
 
     def write(self, data):
@@ -439,7 +439,7 @@ def setup(app, status, warning):
     warning_handler.setLevel(logging.WARNING)
     warning_handler.setFormatter(ColorizeFormatter())
 
-    messagelog_handler = logging.StreamHandler(LastMessagesWriter(app, status))
+    messagelog_handler = logging.StreamHandler(LastMessagesWriter(app, status))  # type: ignore
     messagelog_handler.addFilter(InfoFilter())
     messagelog_handler.setLevel(VERBOSITY_MAP[app.verbosity])
     messagelog_handler.setFormatter(ColorizeFormatter())
