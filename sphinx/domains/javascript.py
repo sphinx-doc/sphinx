@@ -9,6 +9,9 @@
     :license: BSD, see LICENSE for details.
 """
 
+from docutils import nodes
+from docutils.parsers.rst import Directive, directives
+
 from sphinx import addnodes
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import l_, _
@@ -38,57 +41,68 @@ class JSObject(ObjectDescription):
     #: what is displayed right before the documentation entry
     display_prefix = None  # type: unicode
 
+    #: If ``allow_nesting`` is ``True``, the object prefixes will be accumulated
+    #: based on directive nesting
+    allow_nesting = False
+
     def handle_signature(self, sig, signode):
         # type: (unicode, addnodes.desc_signature) -> Tuple[unicode, unicode]
+        """Breaks down construct signatures
+
+        Parses out prefix and argument list from construct definition. The
+        namespace and class will be determined by the nesting of domain
+        directives.
+        """
         sig = sig.strip()
         if '(' in sig and sig[-1:] == ')':
-            prefix, arglist = sig.split('(', 1)
-            prefix = prefix.strip()
+            member, arglist = sig.split('(', 1)
+            member = member.strip()
             arglist = arglist[:-1].strip()
         else:
-            prefix = sig
+            member = sig
             arglist = None
-        if '.' in prefix:
-            nameprefix, name = prefix.rsplit('.', 1)
-        else:
-            nameprefix = None
-            name = prefix
+        # If construct is nested, prefix the current prefix
+        prefix = self.env.ref_context.get('js:object', None)
+        mod_name = self.env.ref_context.get('js:module')
+        name = member
+        try:
+            member_prefix, member_name = member.rsplit('.', 1)
+        except ValueError:
+            member_name = name
+            member_prefix = ''
+        finally:
+            name = member_name
+            if prefix and member_prefix:
+                prefix = '.'.join([prefix, member_prefix])
+            elif prefix is None and member_prefix:
+                prefix = member_prefix
+        fullname = name
+        if prefix:
+            fullname = '.'.join([prefix, name])
 
-        objectname = self.env.ref_context.get('js:object')
-        if nameprefix:
-            if objectname:
-                # someone documenting the method of an attribute of the current
-                # object? shouldn't happen but who knows...
-                nameprefix = objectname + '.' + nameprefix
-            fullname = nameprefix + '.' + name
-        elif objectname:
-            fullname = objectname + '.' + name
-        else:
-            # just a function or constructor
-            objectname = ''
-            fullname = name
-
-        signode['object'] = objectname
+        signode['module'] = mod_name
+        signode['object'] = prefix
         signode['fullname'] = fullname
 
         if self.display_prefix:
             signode += addnodes.desc_annotation(self.display_prefix,
                                                 self.display_prefix)
-        if nameprefix:
-            signode += addnodes.desc_addname(nameprefix + '.', nameprefix + '.')
+        if prefix:
+            signode += addnodes.desc_addname(prefix + '.', prefix + '.')
+        elif mod_name:
+            signode += addnodes.desc_addname(mod_name + '.', mod_name + '.')
         signode += addnodes.desc_name(name, name)
         if self.has_arguments:
             if not arglist:
                 signode += addnodes.desc_parameterlist()
             else:
                 _pseudo_parse_arglist(signode, arglist)
-        return fullname, nameprefix
+        return fullname, prefix
 
     def add_target_and_index(self, name_obj, sig, signode):
         # type: (Tuple[unicode, unicode], unicode, addnodes.desc_signature) -> None
-        objectname = self.options.get(
-            'object', self.env.ref_context.get('js:object'))
-        fullname = name_obj[0]
+        mod_name = self.env.ref_context.get('js:module')
+        fullname = (mod_name and mod_name + '.' or '') + name_obj[0]
         if fullname not in self.state.document.ids:
             signode['names'].append(fullname)
             signode['ids'].append(fullname.replace('$', '_S_'))
@@ -103,7 +117,7 @@ class JSObject(ObjectDescription):
                     line=self.lineno)
             objects[fullname] = self.env.docname, self.objtype
 
-        indextext = self.get_index_text(objectname, name_obj)
+        indextext = self.get_index_text(mod_name, name_obj)
         if indextext:
             self.indexnode['entries'].append(('single', indextext,
                                               fullname.replace('$', '_S_'),
@@ -123,6 +137,63 @@ class JSObject(ObjectDescription):
         elif self.objtype == 'attribute':
             return _('%s (%s attribute)') % (name, obj)
         return ''
+
+    def before_content(self):
+        # type: () -> None
+        """Handle object nesting before content
+
+        :py:class:`JSObject` represents JavaScript language constructs. For
+        constructs that are nestable, this method will build up a stack of the
+        nesting heirarchy so that it can be later de-nested correctly, in
+        :py:meth:`after_content`.
+
+        For constructs that aren't nestable, the stack is bypassed, and instead
+        only the most recent object is tracked. This object prefix name will be
+        removed with :py:meth:`after_content`.
+
+        The following keys are used in ``self.env.ref_context``:
+
+            js:objects
+                Stores the object prefix history. With each nested element, we
+                add the object prefix to this list. When we exit that object's
+                nesting level, :py:meth:`after_content` is triggered and the
+                prefix is removed from the end of the list.
+
+            js:object
+                Current object prefix. This should generally reflect the last
+                element in the prefix history
+        """
+        prefix = None
+        if self.names:
+            (obj_name, obj_name_prefix) = self.names.pop()
+            prefix = obj_name_prefix.strip('.') if obj_name_prefix else None
+            if self.allow_nesting:
+                prefix = obj_name
+        if prefix:
+            self.env.ref_context['js:object'] = prefix
+            if self.allow_nesting:
+                objects = self.env.ref_context.setdefault('js:objects', [])
+                objects.append(prefix)
+
+    def after_content(self):
+        # type: () -> None
+        """Handle object de-nesting after content
+
+        If this class is a nestable object, removing the last nested class prefix
+        ends further nesting in the object.
+
+        If this class is not a nestable object, the list of classes should not
+        be altered as we didn't affect the nesting levels in
+        :py:meth:`before_content`.
+        """
+        objects = self.env.ref_context.setdefault('js:objects', [])
+        if self.allow_nesting:
+            try:
+                objects.pop()
+            except IndexError:
+                pass
+        self.env.ref_context['js:object'] = (objects[-1] if len(objects) > 0
+                                             else None)
 
 
 class JSCallable(JSObject):
@@ -146,6 +217,57 @@ class JSCallable(JSObject):
 class JSConstructor(JSCallable):
     """Like a callable but with a different prefix."""
     display_prefix = 'class '
+    allow_nesting = True
+
+
+class JSModule(Directive):
+    """
+    Directive to mark description of a new JavaScript module.
+
+    This directive specifies the module name that will be used by objects that
+    follow this directive.
+
+    Options
+    -------
+
+    noindex
+        If the ``noindex`` option is specified, no linkable elements will be
+        created, and the module won't be added to the global module index. This
+        is useful for splitting up the module definition across multiple
+        sections or files.
+
+    :param mod_name: Module name
+    """
+
+    has_content = False
+    required_arguments = 1
+    optional_arguments = 0
+    final_argument_whitespace = False
+    option_spec = {
+        'noindex': directives.flag
+    }
+
+    def run(self):
+        # type: () -> List[nodes.Node]
+        env = self.state.document.settings.env
+        mod_name = self.arguments[0].strip()
+        env.ref_context['js:module'] = mod_name
+        noindex = 'noindex' in self.options
+        ret = []
+        if not noindex:
+            env.domaindata['js']['modules'][mod_name] = env.docname
+            # Make a duplicate entry in 'objects' to facilitate searching for
+            # the module in JavaScriptDomain.find_obj()
+            env.domaindata['js']['objects'][mod_name] = (env.docname, 'module')
+            targetnode = nodes.target('', '', ids=['module-' + mod_name],
+                                      ismod=True)
+            self.state.document.note_explicit_target(targetnode)
+            ret.append(targetnode)
+            indextext = _('%s (module)') % mod_name
+            inode = addnodes.index(entries=[('single', indextext,
+                                             'module-' + mod_name, '', None)])
+            ret.append(inode)
+        return ret
 
 
 class JSXRefRole(XRefRole):
@@ -153,6 +275,7 @@ class JSXRefRole(XRefRole):
         # type: (BuildEnvironment, nodes.Node, bool, unicode, unicode) -> Tuple[unicode, unicode]  # NOQA
         # basically what sphinx.domains.python.PyXRefRole does
         refnode['js:object'] = env.ref_context.get('js:object')
+        refnode['js:module'] = env.ref_context.get('js:module')
         if not has_explicit_title:
             title = title.lstrip('.')
             target = target.lstrip('~')
@@ -174,31 +297,41 @@ class JavaScriptDomain(Domain):
     # if you add a new object type make sure to edit JSObject.get_index_string
     object_types = {
         'function':  ObjType(l_('function'),  'func'),
+        'method':    ObjType(l_('method'),    'meth'),
         'class':     ObjType(l_('class'),     'class'),
         'data':      ObjType(l_('data'),      'data'),
         'attribute': ObjType(l_('attribute'), 'attr'),
+        'module':    ObjType(l_('module'),    'mod'),
     }
     directives = {
         'function':  JSCallable,
+        'method':    JSCallable,
         'class':     JSConstructor,
         'data':      JSObject,
         'attribute': JSObject,
+        'module':    JSModule,
     }
     roles = {
         'func':  JSXRefRole(fix_parens=True),
+        'meth':  JSXRefRole(fix_parens=True),
         'class': JSXRefRole(fix_parens=True),
         'data':  JSXRefRole(),
         'attr':  JSXRefRole(),
+        'mod':   JSXRefRole(),
     }
     initial_data = {
         'objects': {},  # fullname -> docname, objtype
+        'modules': {},  # mod_name -> docname
     }  # type: Dict[unicode, Dict[unicode, Tuple[unicode, unicode]]]
 
     def clear_doc(self, docname):
         # type: (unicode) -> None
-        for fullname, (fn, _l) in list(self.data['objects'].items()):
-            if fn == docname:
+        for fullname, (pkg_docname, _l) in list(self.data['objects'].items()):
+            if pkg_docname == docname:
                 del self.data['objects'][fullname]
+        for mod_name, pkg_docname in list(self.data['modules'].items()):
+            if pkg_docname == docname:
+                del self.data['modules'][mod_name]
 
     def merge_domaindata(self, docnames, otherdata):
         # type: (List[unicode], Dict) -> None
@@ -206,31 +339,42 @@ class JavaScriptDomain(Domain):
         for fullname, (fn, objtype) in otherdata['objects'].items():
             if fn in docnames:
                 self.data['objects'][fullname] = (fn, objtype)
+        for mod_name, pkg_docname in otherdata['modules'].items():
+            if pkg_docname in docnames:
+                self.data['modules'][mod_name] = pkg_docname
 
-    def find_obj(self, env, obj, name, typ, searchorder=0):
-        # type: (BuildEnvironment, unicode, unicode, unicode, int) -> Tuple[unicode, Tuple[unicode, unicode]]  # NOQA
+    def find_obj(self, env, mod_name, prefix, name, typ, searchorder=0):
+        # type: (BuildEnvironment, unicode, unicode, unicode, unicode, int) -> Tuple[unicode, Tuple[unicode, unicode]]  # NOQA
         if name[-2:] == '()':
             name = name[:-2]
         objects = self.data['objects']
+
+        searches = []
+        if mod_name and prefix:
+            searches.append('.'.join([mod_name, prefix, name]))
+        if mod_name:
+            searches.append('.'.join([mod_name, name]))
+        if prefix:
+            searches.append('.'.join([prefix, name]))
+        searches.append(name)
+
+        if searchorder == 0:
+            searches.reverse()
+
         newname = None
-        if searchorder == 1:
-            if obj and obj + '.' + name in objects:
-                newname = obj + '.' + name
-            else:
-                newname = name
-        else:
-            if name in objects:
-                newname = name
-            elif obj and obj + '.' + name in objects:
-                newname = obj + '.' + name
+        for search_name in searches:
+            if search_name in objects:
+                newname = search_name
+
         return newname, objects.get(newname)
 
     def resolve_xref(self, env, fromdocname, builder, typ, target, node,
                      contnode):
         # type: (BuildEnvironment, unicode, Builder, unicode, unicode, nodes.Node, nodes.Node) -> nodes.Node  # NOQA
-        objectname = node.get('js:object')
+        mod_name = node.get('js:module')
+        prefix = node.get('js:object')
         searchorder = node.hasattr('refspecific') and 1 or 0
-        name, obj = self.find_obj(env, objectname, target, typ, searchorder)
+        name, obj = self.find_obj(env, mod_name, prefix, target, typ, searchorder)
         if not obj:
             return None
         return make_refnode(builder, fromdocname, obj[0],
@@ -239,8 +383,9 @@ class JavaScriptDomain(Domain):
     def resolve_any_xref(self, env, fromdocname, builder, target, node,
                          contnode):
         # type: (BuildEnvironment, unicode, Builder, unicode, nodes.Node, nodes.Node) -> List[Tuple[unicode, nodes.Node]]  # NOQA
-        objectname = node.get('js:object')
-        name, obj = self.find_obj(env, objectname, target, None, 1)
+        mod_name = node.get('js:module')
+        prefix = node.get('js:object')
+        name, obj = self.find_obj(env, mod_name, prefix, target, None, 1)
         if not obj:
             return []
         return [('js:' + self.role_for_objtype(obj[1]),

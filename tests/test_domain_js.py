@@ -20,7 +20,7 @@ def test_domain_js_xrefs(app, status, warning):
     """Domain objects have correct prefixes when looking up xrefs"""
     app.builder.build_all()
 
-    def assert_refnode(node, class_name, target, reftype=None,
+    def assert_refnode(node, mod_name, prefix, target, reftype=None,
                        domain='js'):
         attributes = {
             'refdomain': domain,
@@ -28,60 +28,108 @@ def test_domain_js_xrefs(app, status, warning):
         }
         if reftype is not None:
             attributes['reftype'] = reftype
-        if class_name is not False:
-            attributes['js:class'] = class_name
+        if mod_name is not False:
+            attributes['js:module'] = mod_name
+        if prefix is not False:
+            attributes['js:object'] = prefix
         assert_node(node, **attributes)
 
     doctree = app.env.get_doctree('roles')
     refnodes = list(doctree.traverse(addnodes.pending_xref))
-    assert_refnode(refnodes[0], False, u'TopLevel', u'class')
-    assert_refnode(refnodes[1], False, u'top_level', u'func')
-    assert_refnode(refnodes[2], False, u'child_1', u'func')
-    assert_refnode(refnodes[3], False, u'NestedChildA.subchild_2', u'func')
-    assert_refnode(refnodes[4], False, u'child_2', u'func')
-    assert_refnode(refnodes[5], False, u'any_child', domain='')
-    assert_refnode(refnodes[6], False, u'NestedChildA', u'class')
-    assert_refnode(refnodes[7], False, u'subchild_2', u'func')
-    assert_refnode(refnodes[8], False, u'NestedParentA.child_1', u'func')
-    assert_refnode(refnodes[9], False, u'NestedChildA.subchild_1', u'func')
-    assert_refnode(refnodes[10], False, u'child_1', u'func')
-    assert_refnode(refnodes[11], False, u'NestedParentB', u'class')
-    assert_refnode(refnodes[12], False, u'NestedParentA.NestedChildA', u'class')
+    assert_refnode(refnodes[0], None, None, u'TopLevel', u'class')
+    assert_refnode(refnodes[1], None, None, u'top_level', u'func')
+    assert_refnode(refnodes[2], None, u'NestedParentA', u'child_1', u'func')
+    assert_refnode(refnodes[3], None, u'NestedParentA',
+                   u'NestedChildA.subchild_2', u'func')
+    assert_refnode(refnodes[4], None, u'NestedParentA', u'child_2', u'func')
+    assert_refnode(refnodes[5], False, u'NestedParentA', u'any_child', domain='')
+    assert_refnode(refnodes[6], None, u'NestedParentA', u'NestedChildA', u'class')
+    assert_refnode(refnodes[7], None, u'NestedParentA.NestedChildA',
+                   u'subchild_2', u'func')
+    assert_refnode(refnodes[8], None, u'NestedParentA.NestedChildA',
+                   u'NestedParentA.child_1', u'func')
+    assert_refnode(refnodes[9], None, u'NestedParentA',
+                   u'NestedChildA.subchild_1', u'func')
+    assert_refnode(refnodes[10], None, u'NestedParentB', u'child_1', u'func')
+    assert_refnode(refnodes[11], None, u'NestedParentB', u'NestedParentB',
+                   u'class')
+    assert_refnode(refnodes[12], None, None, u'NestedParentA.NestedChildA',
+                   u'class')
     assert len(refnodes) == 13
+
+    doctree = app.env.get_doctree('module')
+    refnodes = list(doctree.traverse(addnodes.pending_xref))
+    assert_refnode(refnodes[0], 'module_a.submodule', None, 'ModTopLevel',
+                   'class')
+    assert_refnode(refnodes[1], 'module_a.submodule', 'ModTopLevel',
+                   'mod_child_1', 'meth')
+    assert_refnode(refnodes[2], 'module_a.submodule', 'ModTopLevel',
+                   'ModTopLevel.mod_child_1', 'meth')
+    assert_refnode(refnodes[3], 'module_a.submodule', 'ModTopLevel',
+                   'mod_child_2', 'meth')
+    assert_refnode(refnodes[4], 'module_a.submodule', 'ModTopLevel',
+                   'module_a.submodule.ModTopLevel.mod_child_1', 'meth')
+    assert_refnode(refnodes[5], 'module_b.submodule', None, 'ModTopLevel',
+                   'class')
+    assert_refnode(refnodes[6], 'module_b.submodule', 'ModTopLevel',
+                   'module_a.submodule', 'mod')
+    assert len(refnodes) == 7
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
 def test_domain_js_objects(app, status, warning):
     app.builder.build_all()
 
+    modules = app.env.domains['js'].data['modules']
     objects = app.env.domains['js'].data['objects']
+
+    assert 'module_a.submodule' in modules
+    assert 'module_a.submodule' in objects
+    assert 'module_b.submodule' in modules
+    assert 'module_b.submodule' in objects
+
+    assert objects['module_a.submodule.ModTopLevel'] == ('module', 'class')
+    assert objects['module_a.submodule.ModTopLevel.mod_child_1'] == ('module', 'method')
+    assert objects['module_a.submodule.ModTopLevel.mod_child_2'] == ('module', 'method')
+    assert objects['module_b.submodule.ModTopLevel'] == ('module', 'class')
 
     assert objects['TopLevel'] == ('roles', 'class')
     assert objects['top_level'] == ('roles', 'function')
     assert objects['NestedParentA'] == ('roles', 'class')
-    assert objects['child_1'] == ('roles', 'function')
-    assert objects['any_child'] == ('roles', 'function')
-    assert objects['NestedChildA'] == ('roles', 'class')
-    assert objects['subchild_1'] == ('roles', 'function')
-    assert objects['subchild_2'] == ('roles', 'function')
-    assert objects['child_2'] == ('roles', 'function')
+    assert objects['NestedParentA.child_1'] == ('roles', 'function')
+    assert objects['NestedParentA.any_child'] == ('roles', 'function')
+    assert objects['NestedParentA.NestedChildA'] == ('roles', 'class')
+    assert objects['NestedParentA.NestedChildA.subchild_1'] == ('roles', 'function')
+    assert objects['NestedParentA.NestedChildA.subchild_2'] == ('roles', 'function')
+    assert objects['NestedParentA.child_2'] == ('roles', 'function')
     assert objects['NestedParentB'] == ('roles', 'class')
+    assert objects['NestedParentB.child_1'] == ('roles', 'function')
 
 
 @pytest.mark.sphinx('dummy', testroot='domain-js')
 def test_domain_js_find_obj(app, status, warning):
 
-    def find_obj(prefix, obj_name, obj_type, searchmode=0):
+    def find_obj(mod_name, prefix, obj_name, obj_type, searchmode=0):
         return app.env.domains['js'].find_obj(
-            app.env, prefix, obj_name, obj_type, searchmode)
+            app.env, mod_name, prefix, obj_name, obj_type, searchmode)
 
     app.builder.build_all()
 
-    assert (find_obj(None, u'NONEXISTANT', u'class') ==
+    assert (find_obj(None, None, u'NONEXISTANT', u'class') ==
             (None, None))
-    assert (find_obj(None, u'TopLevel', u'class') ==
-            (u'TopLevel', (u'roles', u'class')))
-    assert (find_obj(None, u'NestedParentA.NestedChildA', u'class') ==
-            (None, None))
-    assert (find_obj(None, u'subchild_2', u'func') ==
-            (u'subchild_2', (u'roles', u'function')))
+    assert (find_obj(None, None, u'NestedParentA', u'class') ==
+            ( u'NestedParentA', (u'roles', u'class')))
+    assert (find_obj(None, None, u'NestedParentA.NestedChildA', u'class') ==
+            ( u'NestedParentA.NestedChildA', (u'roles', u'class')))
+    assert (find_obj(None, 'NestedParentA', u'NestedChildA', u'class') ==
+            ( u'NestedParentA.NestedChildA', (u'roles', u'class')))
+    assert (find_obj(None, None, u'NestedParentA.NestedChildA.subchild_1', u'func') ==
+            ( u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'function')))
+    assert (find_obj(None, u'NestedParentA', u'NestedChildA.subchild_1', u'func') ==
+            ( u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'function')))
+    assert (find_obj(None, u'NestedParentA.NestedChildA', u'subchild_1', u'func') ==
+            ( u'NestedParentA.NestedChildA.subchild_1', (u'roles', u'function')))
+    assert (find_obj(u'module_a.submodule', u'ModTopLevel', u'mod_child_2', u'meth') ==
+            ( u'module_a.submodule.ModTopLevel.mod_child_2', (u'module', u'method')))
+    assert (find_obj(u'module_b.submodule', u'ModTopLevel', u'module_a.submodule', u'mod') ==
+            ( u'module_a.submodule', (u'module', u'module')))

@@ -1104,6 +1104,22 @@ The JavaScript Domain
 
 The JavaScript domain (name **js**) provides the following directives:
 
+.. rst:directive:: .. js:module:: name
+
+   This directive sets the module name for object declarations that follow
+   after. The module name is used in the global module index and in cross
+   references. This directive does not create an object heading like
+   :rst:dir:`py:class` would, for example.
+
+   By default, this directive will create a linkable entity and will cause an
+   entry in the global module index, unless the ``noindex`` option is specified.
+   If this option is specified, the directive will only update the current
+   module name.
+
+   To clear the current module, set the module name to ``null`` or ``None``
+
+   .. versionadded:: 1.6
+
 .. rst:directive:: .. js:function:: name(signature)
 
    Describes a JavaScript function or method.  If you want to describe
@@ -1136,6 +1152,13 @@ The JavaScript domain (name **js**) provides the following directives:
         :throws SomeError: For whatever reason in that case.
         :returns: Something.
 
+.. rst:directive:: .. js:method:: name(signature)
+
+   This directive is an alias for :rst:dir:`js:function`, however it describes a
+   function that is implemented as a method on a class object.
+
+   .. versionadded:: 1.6
+
 .. rst:directive:: .. js:class:: name
 
    Describes a constructor that creates an object.  This is basically like
@@ -1165,7 +1188,9 @@ The JavaScript domain (name **js**) provides the following directives:
 
 These roles are provided to refer to the described objects:
 
-.. rst:role:: js:func
+.. rst:role:: js:mod
+          js:func
+          js:meth
           js:class
           js:data
           js:attr
