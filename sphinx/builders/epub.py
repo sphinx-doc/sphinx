@@ -12,6 +12,7 @@
 
 import os
 import re
+import warnings
 from os import path
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 from datetime import datetime
@@ -30,6 +31,7 @@ from docutils import nodes
 from sphinx import addnodes
 from sphinx import package_dir
 from sphinx.builders.html import StandaloneHTMLBuilder
+from sphinx.deprecation import RemovedInSphinx17Warning
 from sphinx.util import logging
 from sphinx.util import status_iterator
 from sphinx.util.osutil import ensuredir, copyfile, make_filename
@@ -713,10 +715,18 @@ class EpubBuilder(StandaloneHTMLBuilder):
                 epub.write(path.join(outdir, filename), filename, ZIP_DEFLATED)  # type: ignore
 
 
+def emit_deprecation_warning(app):
+    # type: (Sphinx) -> None
+    if app.builder.__class__ is EpubBuilder:
+        warnings.warn('epub2 builder is deprecated.  Please use epub3 builder instead.',
+                      RemovedInSphinx17Warning)
+
+
 def setup(app):
     # type: (Sphinx) -> Dict[unicode, Any]
     app.setup_extension('sphinx.builders.html')
     app.add_builder(EpubBuilder)
+    app.connect('builder-inited', emit_deprecation_warning)
 
     # config values
     app.add_config_value('epub_basename', lambda self: make_filename(self.project), None)
