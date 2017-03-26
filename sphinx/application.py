@@ -153,6 +153,7 @@ class Sphinx(object):
         self._translators = {}              # type: Dict[unicode, nodes.GenericNodeVisitor]
 
         # keep last few messages for traceback
+        # This will be filled by sphinx.util.logging.LastMessagesWriter
         self.messagelog = deque(maxlen=10)  # type: deque
 
         # say hello to the world
