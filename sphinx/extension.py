@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-    sphinx.extensions
-    ~~~~~~~~~~~~~~~~~
+    sphinx.extension
+    ~~~~~~~~~~~~~~~~
 
     Utilities for Sphinx extensions.
 
@@ -51,7 +51,7 @@ class Extension(object):
         self.parallel_write_safe = kwargs.pop('parallel_read_safe', True)
 
 
-def load(app, extname):
+def load_extension(app, extname):
     # type: (Sphinx, unicode) -> None
     """Load a Sphinx extension."""
     if extname in app.extensions:  # alread loaded
@@ -99,9 +99,9 @@ def load(app, extname):
     app._setting_up_extension.pop()
 
 
-def confirm(app, requirements):
+def verify_required_extensions(app, requirements):
     # type: (Sphinx, Dict[unicode, unicode]) -> None
-    """Confirm the expected Sphinx extensions are loaded."""
+    """Verify the required Sphinx extensions are loaded."""
     if requirements is None:
         return
 

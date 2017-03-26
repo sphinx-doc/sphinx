@@ -28,7 +28,7 @@ from docutils.parsers.rst import convert_directive_function, \
     directives, roles
 
 import sphinx
-from sphinx import package_dir, locale, extensions
+from sphinx import package_dir, locale
 from sphinx.config import Config
 from sphinx.errors import SphinxError, ExtensionError, VersionRequirementError, \
     ConfigError
@@ -37,6 +37,7 @@ from sphinx.domains.std import GenericObject, Target, StandardDomain
 from sphinx.deprecation import RemovedInSphinx17Warning, RemovedInSphinx20Warning
 from sphinx.environment import BuildEnvironment
 from sphinx.events import EventManager
+from sphinx.extension import load_extension, verify_required_extensions
 from sphinx.io import SphinxStandaloneReader
 from sphinx.locale import _
 from sphinx.roles import XRefRole
@@ -58,7 +59,7 @@ if False:
     from sphinx.builders import Builder  # NOQA
     from sphinx.domains import Domain, Index  # NOQA
     from sphinx.environment.collectors import EnvironmentCollector  # NOQA
-    from sphinx.extensions import Extension  # NOQA
+    from sphinx.extension import Extension  # NOQA
 
 builtin_extensions = (
     'sphinx.builders.applehelp',
@@ -213,7 +214,7 @@ class Sphinx(object):
         self.config.init_values()
 
         # check extension versions if requested
-        extensions.confirm(self, self.config.needs_extensions)
+        verify_required_extensions(self, self.config.needs_extensions)
 
         # check primary_domain if requested
         if self.config.primary_domain and self.config.primary_domain not in self.domains:
@@ -446,11 +447,11 @@ class Sphinx(object):
 
     # ---- general extensibility interface -------------------------------------
 
-    def setup_extension(self, extension):
+    def setup_extension(self, extname):
         # type: (unicode) -> None
         """Import and setup a Sphinx extension module. No-op if called twice."""
-        logger.debug('[app] setting up extension: %r', extension)
-        extensions.load(self, extension)
+        logger.debug('[app] setting up extension: %r', extname)
+        load_extension(self, extname)
 
     def require_sphinx(self, version):
         # type: (unicode) -> None
