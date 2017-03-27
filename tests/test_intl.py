@@ -1080,8 +1080,8 @@ def test_text_references(app, warning):
 
 
 @pytest.mark.sphinx(
-    'dummy', testroot='image-glob',
-    srcdir='test_intl_image_glob',
+    'dummy', testroot='images',
+    srcdir='test_intl_images',
     confoverrides={'language': 'xx'}
 )
 def test_image_glob_intl(app):
@@ -1124,8 +1124,8 @@ def test_image_glob_intl(app):
 
 
 @pytest.mark.sphinx(
-    'dummy', testroot='image-glob',
-    srcdir='test_intl_image_glob',
+    'dummy', testroot='images',
+    srcdir='test_intl_images',
     confoverrides={
         'language': 'xx',
         'figure_language_filename': u'{root}{ext}.{language}',

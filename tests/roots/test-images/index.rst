@@ -1,5 +1,5 @@
-test-image-glob
-===============
+test-image
+==========
 
 .. image:: rimg.png
 
