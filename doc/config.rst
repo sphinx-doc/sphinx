@@ -228,7 +228,6 @@ General configuration
    * app.add_source_parser
    * download.not_readable
    * image.data_uri
-   * image.nonlocal_uri
    * image.not_readable
    * ref.term
    * ref.ref
