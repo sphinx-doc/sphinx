@@ -16,7 +16,7 @@ Sphinx image handling
 .. image:: img.*
 
 .. a non-local image URI
-.. image:: http://www.python.org/logo.png
+.. image:: https://www.python.org/static/img/python-logo.png
 
 .. an image with subdir and unspecified extension
 .. image:: subdir/simg.*

@@ -51,6 +51,7 @@ class LaTeXBuilder(Builder):
     name = 'latex'
     format = 'latex'
     supported_image_types = ['application/pdf', 'image/png', 'image/jpeg']
+    supported_remote_images = False
 
     def init(self):
         # type: () -> None

@@ -1042,3 +1042,12 @@ def test_latex_raw_directive(app, status, warning):
     # with substitution
     assert 'HTML: abc  ghi' in result
     assert 'LaTeX: abc def ghi' in result
+
+
+@pytest.mark.sphinx('latex', testroot='images')
+def test_latex_remote_images(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'Python.tex').text(encoding='utf8')
+    assert '\\sphinxincludegraphics{{python-logo}.png}' in result
+    assert (app.outdir / 'python-logo.png').exists()

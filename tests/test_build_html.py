@@ -1224,3 +1224,13 @@ def test_html_raw_directive(app, status, warning):
 def test_alternate_stylesheets(app, cached_etree_parse, fname, expect):
     app.build()
     check_xpath(cached_etree_parse(app.outdir / fname), fname, *expect)
+
+
+@pytest.mark.sphinx('html', testroot='images')
+def test_html_remote_images(app, status, warning):
+    app.builder.build_all()
+
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+    assert ('<img alt="https://www.python.org/static/img/python-logo.png" '
+            'src="https://www.python.org/static/img/python-logo.png" />' in result)
+    assert not (app.outdir / 'python-logo.png').exists()

@@ -14,3 +14,6 @@ test-image
    The caption of img
 
 .. image:: testimäge.png
+
+.. a remote image
+.. image:: https://www.python.org/static/img/python-logo.png
