@@ -11,6 +11,7 @@
 
 import os
 
+from six import text_type
 from docutils import nodes
 
 from sphinx.transforms import SphinxTransform
@@ -62,14 +63,22 @@ class ImageDownloader(BaseImageConverter):
                                                              ord("&"): u"/"})
         ensuredir(os.path.join(imgdir, dirname))
         path = os.path.join(imgdir, dirname, basename)
-        with open(path, 'wb') as f:
+        try:
             r = requests.get(node['uri'])
-            f.write(r.content)
+            if r.status_code != 200:
+                logger.warning('Could not fetch remote image: %s [%d]' %
+                               (node['uri'], r.status_code))
+            else:
+                with open(path, 'wb') as f:
+                    f.write(r.content)
 
-        node['candidates'].pop('?')
-        node['candidates']['*'] = path
-        node['uri'] = path
-        self.app.env.images.add_file(self.env.docname, path)
+                node['candidates'].pop('?')
+                node['candidates']['*'] = path
+                node['uri'] = path
+                self.app.env.images.add_file(self.env.docname, path)
+        except Exception as exc:
+            logger.warning('Could not fetch remote image: %s [%s]' %
+                           (node['uri'], text_type(exc)))
 
 
 def setup(app):

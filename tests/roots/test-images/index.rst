@@ -17,3 +17,6 @@ test-image
 
 .. a remote image
 .. image:: https://www.python.org/static/img/python-logo.png
+
+.. non-exist remote image
+.. image:: http://example.com/NOT_EXIST.PNG

@@ -1051,3 +1051,6 @@ def test_latex_remote_images(app, status, warning):
     result = (app.outdir / 'Python.tex').text(encoding='utf8')
     assert '\\sphinxincludegraphics{{python-logo}.png}' in result
     assert (app.outdir / 'python-logo.png').exists()
+    assert '\\sphinxincludegraphics{{NOT_EXIST}.PNG}' not in result
+    assert ('WARNING: Could not fetch remote image: '
+            'http://example.com/NOT_EXIST.PNG [404]' in warning.getvalue())
