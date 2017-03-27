@@ -119,9 +119,6 @@ class StandaloneHTMLBuilder(Builder):
     imgpath = None          # type: unicode
     domain_indices = []     # type: List[Tuple[unicode, Type[Index], List[Tuple[unicode, List[List[Union[unicode, int]]]]], bool]]  # NOQA
 
-    default_sidebars = ['localtoc.html', 'relations.html',
-                        'sourcelink.html', 'searchbox.html']
-
     # cached publisher object for snippets
     _publisher = None
 
