@@ -327,8 +327,8 @@ _keywords = [
     'while', 'xor', 'xor_eq'
 ]
 
-_max_id = 2
-_id_prefix = [None, '', '_CPPv2']
+_max_id = 3
+_id_prefix = [None, '', '_CPPv2', '_CPPv3']
 
 # ------------------------------------------------------------------------------
 # Id v1 constants
@@ -719,7 +719,7 @@ class ASTPointerLiteral(ASTBase):
     def __unicode__(self):
         return u'nullptr'
 
-    def get_id_v2(self):
+    def get_id(self, version):
         return 'LDnE'
 
     def describe_signature(self, signode, mode, env, symbol):
@@ -736,7 +736,7 @@ class ASTBooleanLiteral(ASTBase):
         else:
             return u'false'
 
-    def get_id_v2(self):
+    def get_id(self, version):
         if self.value:
             return 'L1E'
         else:
@@ -754,7 +754,7 @@ class ASTNumberLiteral(ASTBase):
     def __unicode__(self):
         return self.data
 
-    def get_id_v2(self):
+    def get_id(self, version):
         return "L%sE" % self.data
 
     def describe_signature(self, signode, mode, env, symbol):
@@ -770,7 +770,7 @@ class ASTStringLiteral(ASTBase):
     def __unicode__(self):
         return self.data
 
-    def get_id_v2(self):
+    def get_id(self, version):
         # note: the length is not really correct with escaping
         return "LA%d_KcE" % (len(self.data) - 2)
 
@@ -786,8 +786,8 @@ class ASTParenExpr(ASTBase):
     def __unicode__(self):
         return '(' + text_type(self.expr) + ')'
 
-    def get_id_v2(self):
-        return self.expr.get_id_v2()
+    def get_id(self, version):
+        return self.expr.get_id(version)
 
     def describe_signature(self, signode, mode, env, symbol):
         signode.append(nodes.Text('(', '('))
@@ -818,9 +818,12 @@ class ASTFoldExpr(ASTBase):
         res.append(')')
         return u''.join(res)
 
-    def get_id_v2(self):
+    def get_id(self, version):
+        assert version >= 3
+        if version == 3:
+            return text_type(self)
         # TODO: find the right mangling scheme
-        return text_type(self)
+        assert False
 
     def describe_signature(self, signode, mode, env, symbol):
         signode.append(nodes.Text('('))
@@ -855,12 +858,13 @@ class ASTBinOpExpr(ASTBase):
             res.append(text_type(self.exprs[i]))
         return u''.join(res)
 
-    def get_id_v2(self):
+    def get_id(self, version):
+        assert version >= 2
         res = []
         for i in range(len(self.ops)):
             res.append(_id_operator_v2[self.ops[i]])
-            res.append(self.exprs[i].get_id_v2())
-        res.append(self.exprs[-1].get_id_v2())
+            res.append(self.exprs[i].get_id(version))
+        res.append(self.exprs[-1].get_id(version))
         return u''.join(res)
 
     def describe_signature(self, signode, mode, env, symbol):
@@ -936,8 +940,8 @@ class ASTUnaryOpExpr(ASTBase):
     def __unicode__(self):
         return text_type(self.op) + text_type(self.expr)
 
-    def get_id_v2(self):
-        return _id_operator_unary_v2[self.op] + self.expr.get_id_v2()
+    def get_id(self, version):
+        return _id_operator_unary_v2[self.op] + self.expr.get_id(version)
 
     def describe_signature(self, signode, mode, env, symbol):
         signode.append(nodes.Text(self.op))
@@ -959,10 +963,10 @@ class ASTPostfixCallExpr(ASTBase):
         res.append(')')
         return u''.join(res)
 
-    def get_id_v2(self, idPrefix):
+    def get_id(self, idPrefix, version):
         res = ['cl', idPrefix]
         for e in self.exprs:
-            res.append(e.get_id_v2())
+            res.append(e.get_id(version))
         res.append('E')
         return u''.join(res)
 
@@ -984,8 +988,8 @@ class ASTPostfixArray(ASTBase):
     def __unicode__(self):
         return u'[' + text_type(self.expr) + ']'
 
-    def get_id_v2(self, idPrefix):
-        return 'ix' + idPrefix + self.expr.get_id_v2()
+    def get_id(self, idPrefix, version):
+        return 'ix' + idPrefix + self.expr.get_id(version)
 
     def describe_signature(self, signode, mode, env, symbol):
         signode.append(nodes.Text('['))
@@ -1057,10 +1061,10 @@ class ASTPostfixExpr(ASTBase):
             res.append(text_type(p))
         return u''.join(res)
 
-    def get_id_v2(self):
-        id = self.prefix.get_id_v2()
+    def get_id(self, version):
+        id = self.prefix.get_id(version)
         for p in self.postFixes:
-            id = p.get_id_v2(id)
+            id = p.get_id(id, version)
         return id
 
     def describe_signature(self, signode, mode, env, symbol):
@@ -1591,7 +1595,7 @@ class ASTTemplateArgConstant(ASTBase):
             return text_type(self).replace(u' ', u'-')
         if version == 2:
             return u'X' + text_type(self) + u'E'
-        return u'X' + self.value.get_id_v2() + u'E'
+        return u'X' + self.value.get_id(version) + u'E'
 
     def describe_signature(self, signode, mode, env, symbol):
         # type: (addnodes.desc_signature, unicode, BuildEnvironment, Symbol) -> None
@@ -2157,7 +2161,7 @@ class ASTArray(ASTBase):
             else:
                 return u'A_'
         if self.size:
-            return u'A' + self.size.get_id_v2() + u'_'
+            return u'A' + self.size.get_id(version) + u'_'
         else:
             return u'A_'
 

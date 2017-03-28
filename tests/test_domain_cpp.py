@@ -184,7 +184,7 @@ def test_expressions():
     exprCheck('A < 42', 'lt1AL42E')
     check('function', 'template<> void f(A<B, 2> &v)',
           {2:"IE1fR1AI1BX2EE", 3:"IE1fR1AI1BXL2EEE"})
-    exprCheck('A<1>::value', {2:'N1AIXL1EEE5valueE'})
+    exprCheck('A<1>::value', 'N1AIXL1EEE5valueE')
     check('class', "template<int T = 42> A", {2:"I_iE1A"})
     check('enumerator', 'A = std::numeric_limits<unsigned long>::max()', {2:"1A"})
 
@@ -293,11 +293,13 @@ def test_function_definitions():
     check('function',
           'void operator()(const boost::array<VertexID, 2> &v) const',
           {1:"call-operator__boost::array:VertexID.2:CRC",
-          2:"NKclERKN5boost5arrayI8VertexIDX2EEE"})
+           2:"NKclERKN5boost5arrayI8VertexIDX2EEE",
+           3:"NKclERKN5boost5arrayI8VertexIDXL2EEEE"})
     check('function',
           'void operator()(const boost::array<VertexID, 2, "foo,  bar"> &v) const',
           {1:'call-operator__boost::array:VertexID.2."foo,--bar":CRC',
-          2:'NKclERKN5boost5arrayI8VertexIDX2EX"foo,  bar"EEE'})
+           2:'NKclERKN5boost5arrayI8VertexIDX2EX"foo,  bar"EEE',
+           3:'NKclERKN5boost5arrayI8VertexIDXL2EEXLA9_KcEEEE'})
     check('function', 'MyClass::MyClass(MyClass::MyClass&&)',
           {1:"MyClass::MyClass__MyClass::MyClassRR",
           2:"N7MyClass7MyClassERRN7MyClass7MyClassE"})
@@ -340,7 +342,8 @@ def test_function_definitions():
     x = 'std::vector<std::pair<std::string, int>> &module::test(register int ' \
         'foo, bar[n], std::string baz = "foobar, blah, bleh") const = 0'
     check('function', x, {1:"module::test__i.barA.ssC",
-          2:"NK6module4testEiAn_3barNSt6stringE"})
+                          2:"NK6module4testEiAn_3barNSt6stringE",
+                          3:"NK6module4testEiA1n_3barNSt6stringE"})
     check('function',
           'int foo(Foo f = Foo(double(), std::make_pair(int(2), double(3.4))))',
           {1:"foo__Foo", 2:"3foo3Foo"})
@@ -358,8 +361,8 @@ def test_function_definitions():
           {1:"result__i.std::error_categoryCR", 2:"6resultiRNSt14error_categoryE"})
     check("function", "int *f()", {1:"f", 2:"1fv"})
     # tests derived from issue #1753 (skip to keep sanity)
-    check("function", "f(int (&array)[10])", {2:"1fRA10_i"})
-    check("function", "void f(int (&array)[10])", {2:"1fRA10_i"})
+    check("function", "f(int (&array)[10])", {2:"1fRA10_i", 3:"1fRAL10E_i"})
+    check("function", "void f(int (&array)[10])", {2:"1fRA10_i", 3:"1fRAL10E_i"})
     check("function", "void f(float *q(double))", {2:"1fFPfdE"})
     check("function", "void f(float *(*q)(double))", {2:"1fPFPfdE"})
     check("function", "void f(float (*q)(double))", {2:"1fPFfdE"})
@@ -539,7 +542,8 @@ def test_template_args():
     check('function',
           "template<typename F> "
           "void allow(F *f, typename func<F, B, G != 1>::type tt)",
-          {2:"I0E5allowP1FN4funcI1F1BXG != 1EE4typeE"})
+          {2:"I0E5allowP1FN4funcI1F1BXG != 1EE4typeE",
+           3:"I0E5allowP1FN4funcI1F1BXne1GL1EEE4typeE"})
     # from #3542
     check('type', "template<typename T> "
           "enable_if_not_array_t = std::enable_if_t<!is_array<T>::value, int>",
