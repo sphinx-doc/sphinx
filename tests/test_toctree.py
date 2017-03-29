@@ -30,7 +30,6 @@ def test_relations(app, status, warning):
 
 @pytest.mark.sphinx('singlehtml', testroot='toctree-empty')
 def test_singlehtml_toctree(app, status, warning):
-    docname = 'index'
     app.builder.build_all()
     try:
         app.builder._get_local_toctree('index')
