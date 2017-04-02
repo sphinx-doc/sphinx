@@ -142,7 +142,7 @@ Deprecated
   ``False``.
 * #3221: epub2 builder is deprecated
 
-Release 1.5.4 (in development)
+Release 1.5.5 (in development)
 ==============================
 
 Incompatible changes
@@ -154,8 +154,19 @@ Deprecated
 Features added
 --------------
 
+Bugs fixed
+----------
+
+Testing
+--------
+
+Release 1.5.4 (released Apr 02, 2017)
+=====================================
+
+Features added
+--------------
+
 * #3470: Make genindex support all kinds of letters, not only Latin ones
-* latex macros for directional double quotes (refs #3527)
 
 Bugs fixed
 ----------
@@ -181,9 +192,6 @@ Bugs fixed
 * #3577: Fix intersphinx debug tool
 * A LaTeX command such as ``\\large`` inserted in the title items of
   :confval:`latex_documents` causes failed PDF build (refs #3551, #3567)
-
-Testing
---------
 
 Release 1.5.3 (released Feb 26, 2017)
 =====================================

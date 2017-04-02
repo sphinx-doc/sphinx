@@ -26,3 +26,12 @@ def test_relations(app, status, warning):
     assert app.builder.relations['qux/qux_1'] == ['qux/index', 'qux/index', 'qux/qux_2']
     assert app.builder.relations['qux/qux_2'] == ['qux/index', 'qux/qux_1', None]
     assert 'quux' not in app.builder.relations
+
+
+@pytest.mark.sphinx('singlehtml', testroot='toctree-empty')
+def test_singlehtml_toctree(app, status, warning):
+    app.builder.build_all()
+    try:
+        app.builder._get_local_toctree('index')
+    except AttributeError:
+        pytest.fail('Unexpected AttributeError in app.builder.fix_refuris')

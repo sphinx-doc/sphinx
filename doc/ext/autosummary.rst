@@ -158,7 +158,7 @@ is not supported.)
    may indicate that it's a better idea to write custom narrative documentation
    instead.
 
-Autosummary uses the following template files:
+Autosummary uses the following Jinja template files:
 
 - :file:`autosummary/base.rst` -- fallback template
 - :file:`autosummary/module.rst` -- template for modules
@@ -194,7 +194,8 @@ The following variables available in the templates:
 
 .. data:: underline
 
-   A string containing ``len(full_name) * '='``.
+   A string containing ``len(full_name) * '='``. Use the ``underline`` filter
+   instead.
 
 .. data:: members
 
@@ -227,7 +228,25 @@ The following variables available in the templates:
    List containing names of "public" attributes in the class.  Only available
    for classes.
 
+
+Additionally, the following filters are available
+
+.. function:: escape(s)
+
+   Escape any special characters in the text to be used in formatting RST
+   contexts. For instance, this prevents asterisks making things bolt. This
+   replaces the builtin Jinja `escape filter`_ that does html-escaping.
+
+.. function:: underline(s, line='=')
+
+   Add a title underline to a piece of text.
+
+For instance, ``{{ fullname | escape | underline }}`` should be used to produce
+the title of a page.
+
 .. note::
 
    You can use the :rst:dir:`autosummary` directive in the stub pages.
    Stub pages are generated also based on these directives.
+
+.. _`escape filter`: http://jinja.pocoo.org/docs/2.9/templates/#escape
