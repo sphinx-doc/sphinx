@@ -13,6 +13,8 @@ Features added
 Bugs fixed
 ----------
 
+* #3597: python domain raises UnboundLocalError if invalid name given
+
 Testing
 --------
 
