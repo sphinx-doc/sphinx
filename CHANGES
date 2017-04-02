@@ -1,11 +1,5 @@
-Release 1.5.4 (in development)
-==============================
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
+Release 1.5.4 (released Apr 02, 2017)
+=====================================
 
 Features added
 --------------
@@ -36,9 +30,6 @@ Bugs fixed
 * #3577: Fix intersphinx debug tool
 * A LaTeX command such as ``\\large`` inserted in the title items of
   :confval:`latex_documents` causes failed PDF build (refs #3551, #3567)
-
-Testing
---------
 
 Release 1.5.3 (released Feb 26, 2017)
 =====================================
