@@ -1,23 +1,11 @@
-Release 1.5.5 (in development)
-==============================
-
-Incompatible changes
---------------------
-
-Deprecated
-----------
-
-Features added
---------------
+Release 1.5.5 (released Apr 03, 2017)
+=====================================
 
 Bugs fixed
 ----------
 
 * #3597: python domain raises UnboundLocalError if invalid name given
 * #3599: Move to new Mathjax CDN
-
-Testing
---------
 
 Release 1.5.4 (released Apr 02, 2017)
 =====================================
