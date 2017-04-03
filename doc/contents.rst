@@ -36,6 +36,8 @@ Sphinx documentation contents
    authors
    code_of_conduct
 
+   reference/index
+
 
 
 Indices and tables
