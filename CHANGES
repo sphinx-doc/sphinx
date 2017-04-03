@@ -14,6 +14,7 @@ Bugs fixed
 ----------
 
 * #3597: python domain raises UnboundLocalError if invalid name given
+* #3599: Move to new Mathjax CDN
 
 Testing
 --------
