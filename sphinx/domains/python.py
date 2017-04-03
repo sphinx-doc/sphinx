@@ -344,11 +344,12 @@ class PyObject(ObjectDescription):
                 prefix = name_prefix.strip('.')
             else:
                 prefix = None
-        if prefix:
-            self.env.ref_context['py:class'] = prefix
-            if self.allow_nesting:
-                classes = self.env.ref_context.setdefault('py:classes', [])
-                classes.append(prefix)
+
+            if prefix:
+                self.env.ref_context['py:class'] = prefix
+                if self.allow_nesting:
+                    classes = self.env.ref_context.setdefault('py:classes', [])
+                    classes.append(prefix)
 
     def after_content(self):
         # type: () -> None
