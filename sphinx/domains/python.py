@@ -332,6 +332,7 @@ class PyObject(ObjectDescription):
         only the most recent object is tracked. This object prefix name will be
         removed with :py:meth:`after_content`.
         """
+        prefix = None
         if self.names:
             # fullname and name_prefix come from the `handle_signature` method.
             # fullname represents the full object name that is constructed using
@@ -342,8 +343,6 @@ class PyObject(ObjectDescription):
                 prefix = fullname
             elif name_prefix:
                 prefix = name_prefix.strip('.')
-            else:
-                prefix = None
         if prefix:
             self.env.ref_context['py:class'] = prefix
             if self.allow_nesting:

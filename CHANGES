@@ -142,7 +142,7 @@ Deprecated
   ``False``.
 * #3221: epub2 builder is deprecated
 
-Release 1.5.5 (in development)
+Release 1.5.6 (in development)
 ==============================
 
 Incompatible changes
@@ -159,6 +159,15 @@ Bugs fixed
 
 Testing
 --------
+
+Release 1.5.5 (released Apr 03, 2017)
+=====================================
+
+Bugs fixed
+----------
+
+* #3597: python domain raises UnboundLocalError if invalid name given
+* #3599: Move to new Mathjax CDN
 
 Release 1.5.4 (released Apr 02, 2017)
 =====================================
