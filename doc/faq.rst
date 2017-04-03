@@ -148,6 +148,43 @@ Google Search
 .. _xhtml to reST: http://docutils.sourceforge.net/sandbox/xhtml2rest/xhtml2rest.py
 
 
+Sphinx vs. Docutils
+-------------------
+
+tl;dr: *docutils* converts reStructuredText to multiple output formats. Sphinx
+builds upon docutils to allow construction of cross-referenced and indexed
+bodies of documentation.
+
+`docutils`__ is a text processing system for converting plain text
+documentation into other, richer formats. As noted in the `docutils
+documentation`__, docutils uses *readers* to read a document, *parsers* for
+parsing plain text formats into an internal tree representation made up of
+different types of *nodes*, and *writers* to output this tree in various
+document formats.  docutils provides parsers for one plain text format -
+`reStructuredText`__ - though other, *out-of-tree* parsers have been
+implemented including Sphinx's :doc:`Markdown parser </usage/markdown>`. On the
+other hand, it provides writers for many different formats including HTML,
+LaTeX, man pages, Open Document Format and XML.
+
+docutils exposes all of its functionality through a variety of `front-end
+tools`__, such as ``rst2html``, ``rst2odt`` and ``rst2xml``. Crucially though,
+all of these tools, and docutils itself, are concerned with individual
+documents.  They don't support concepts such as cross-referencing, indexing of
+documents, or the construction of a document hierarchy (typically manifesting
+in a table of contents).
+
+Sphinx builds upon docutils by harnessing docutils' readers and parsers and
+providing its own :doc:`/usage/builders/index`. As a result, Sphinx wraps some
+of the *writers* provided by docutils. This allows Sphinx to provide many
+features that would simply not be possible with docutils, such as those
+outlined above.
+
+__ http://docutils.sourceforge.io/
+__ http://docutils.sourceforge.io/docs/dev/hacking.html
+__ http://docutils.sourceforge.io/rst.html
+__ http://docutils.sourceforge.net/docs/user/tools.html
+
+
 .. _epub-faq:
 
 Epub info
