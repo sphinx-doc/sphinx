@@ -1180,3 +1180,17 @@ def test_html_inventory(app):
                                            '',
                                            'http://example.com/index.html',
                                            'The basic Sphinx documentation for testing')
+
+
+@pytest.mark.sphinx('html', testroot='directives-raw')
+def test_html_raw_directive(app, status, warning):
+    app.builder.build_all()
+    result = (app.outdir / 'index.html').text(encoding='utf8')
+
+    # standard case
+    assert 'standalone raw directive (HTML)' in result
+    assert 'standalone raw directive (LaTeX)' not in result
+
+    # with substitution
+    assert '<p>HTML: abc def ghi</p>' in result
+    assert '<p>LaTeX: abc  ghi</p>' in result
