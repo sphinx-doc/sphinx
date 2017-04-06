@@ -56,6 +56,7 @@ clean-backupfiles:
 
 clean-generated:
 	find . -name '.DS_Store' -exec rm -f {} +
+	rm -rf Sphinx.egg-info/
 	rm -rf doc/_build/
 	rm -f sphinx/pycode/*.pickle
 	rm -f utils/*3.py*
