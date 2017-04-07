@@ -99,6 +99,8 @@ Features added
 * #3348: Show decorators in literalinclude and viewcode directives
 * #3108: Show warning if :start-at: and other literalinclude options does not
   match to the text
+* #3609: Allow to suppress "duplicate citation" warnings using
+  ``suppress_warnings``
 
 Bugs fixed
 ----------
