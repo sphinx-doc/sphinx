@@ -1991,8 +1991,12 @@ class LaTeXTranslator(nodes.NodeVisitor):
 
     def visit_raw(self, node):
         # type: (nodes.Node) -> None
+        if not self.is_inline(node):
+            self.body.append('\n')
         if 'latex' in node.get('format', '').split():
             self.body.append(node.astext())
+        if not self.is_inline(node):
+            self.body.append('\n')
         raise nodes.SkipNode
 
     def visit_reference(self, node):
