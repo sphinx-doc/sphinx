@@ -41,7 +41,7 @@ Incompatible changes
   ``xcolor`` packages should be used by extensions of Sphinx latex writer.
   (refs #3550)
 * ``Builder.env`` is not filled at instantiation
-* #3594: LaTeX: single raw directive has been considereed as block level element
+* #3594: LaTeX: single raw directive has been considered as block level element
 
 Features removed
 ----------------
