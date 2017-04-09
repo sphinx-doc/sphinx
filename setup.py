@@ -51,6 +51,7 @@ requires = [
     'alabaster>=0.7,<0.8',
     'imagesize',
     'requests>=2.0.0',
+    'sphinxcontrib-websupport',
     'typing',
     'setuptools',
 ]
@@ -58,10 +59,6 @@ extras_require = {
     # Environment Marker works for wheel 0.24 or later
     ':sys_platform=="win32"': [
         'colorama>=0.3.5',
-    ],
-    'websupport': [
-        'sqlalchemy>=0.9',
-        'whoosh>=2.0',
     ],
     'test': [
         'pytest',
