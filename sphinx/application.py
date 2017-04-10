@@ -310,8 +310,7 @@ class Sphinx(object):
                                   ' through entry point' % buildername)
             else:
                 builderclass = entry_point.load()
-                extension_module = sys.modules[builderclass.__module__]
-                extension_module.setup(self)
+                load_extension(self, builderclass.__module__)
         return builderclass(self)
 
     def _init_builder(self):
