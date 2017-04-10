@@ -1,0 +1,11 @@
+environment:
+  matrix:
+    - PYTHON: 36-x64
+
+install:
+  - pip install -U pip setuptools
+  - pip install -r test-reqs.txt
+
+test_script:
+  - tox -e py36 -- -vvv
+
