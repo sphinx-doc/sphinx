@@ -247,7 +247,7 @@ def get_image_filename_for_language(filename, env):
     d['root'], d['ext'] = path.splitext(filename)
     dirname = path.dirname(d['root'])
     if dirname and not dirname.endswith(path.sep):
-        dirname += path.sep
+        dirname += '/'
     d['path'] = dirname
     d['basename'] = path.basename(d['root'])
     d['language'] = env.config.language
