@@ -380,10 +380,19 @@ def formatargspec(function, args, varargs=None, varkw=None, defaults=None,
 
     for i, arg in enumerate(args):
         arg_fd = StringIO()
-        arg_fd.write(format_arg_with_annotation(arg))
-        if defaults and i >= defaults_start:
-            arg_fd.write(' = ' if arg in annotations else '=')
-            arg_fd.write(object_description(defaults[i - defaults_start]))
+        if isinstance(arg, list):
+            # support tupled arguments list (only for py2): def foo((x, y))
+            arg_fd.write('(')
+            arg_fd.write(format_arg_with_annotation(arg[0]))
+            for param in arg[1:]:
+                arg_fd.write(', ')
+                arg_fd.write(format_arg_with_annotation(param))
+            arg_fd.write(')')
+        else:
+            arg_fd.write(format_arg_with_annotation(arg))
+            if defaults and i >= defaults_start:
+                arg_fd.write(' = ' if arg in annotations else '=')
+                arg_fd.write(object_description(defaults[i - defaults_start]))
         formatted.append(arg_fd.getvalue())
 
     if varargs:
