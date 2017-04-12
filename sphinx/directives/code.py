@@ -434,7 +434,7 @@ class LiteralInclude(Directive):
                                   'lineno-match' in self.options)
             retnode['classes'] += self.options.get('class', [])
             extra_args = retnode['highlight_args'] = {}
-            if 'empahsize-lines' in self.options:
+            if 'emphasize-lines' in self.options:
                 hl_lines = parselinenos(self.options['emphasize-lines'], lines)
                 if any(i >= lines for i in hl_lines):
                     logger.warning('line number spec is out of range(1-%d): %r' %
