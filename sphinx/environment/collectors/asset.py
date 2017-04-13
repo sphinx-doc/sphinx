@@ -95,7 +95,7 @@ class ImageCollector(EnvironmentCollector):
             # into a single directory)
             for imgpath in itervalues(candidates):
                 app.env.dependencies[docname].add(imgpath)
-                if not os.access(posixpath.join(app.srcdir, imgpath), os.R_OK):
+                if not os.access(path.join(app.srcdir, imgpath), os.R_OK):
                     logger.warning('image file not readable: %s' % imgpath,
                                    location=node, type='image', subtype='not_readable')
                     continue
