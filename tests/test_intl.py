@@ -151,7 +151,7 @@ def test_text_warning_node(app):
 
 
 @sphinx_intl
-@pytest.mark.skipif(platform.system() == 'Windows', reason='Skipped on windows')
+@pytest.mark.xfail(platform.system() == 'Windows', reason='Skipped on windows')
 @pytest.mark.sphinx('text')
 @pytest.mark.test_params(shared_result='test_intl_basic')
 def test_text_title_underline(app):
