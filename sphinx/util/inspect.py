@@ -60,7 +60,7 @@ if PY3:
                                        kwodefs, argspec[6])
         while hasattr(func, '__wrapped__'):
             func = func.__wrapped__
-        if not inspect.isfunction(func):
+        if not hasattr(func, '__code__'):
             raise TypeError('%r is not a Python function' % func)
         return inspect.getfullargspec(func)
 
@@ -79,7 +79,7 @@ else:  # 2.7
                 keywords = {}
             parts = len(func.args), keywords.keys()
             func = func.func
-        if not inspect.isfunction(func):
+        if not hasattr(func, '__code__'):
             raise TypeError('%r is not a Python function' % func)
         args, varargs, varkw = inspect.getargs(func.__code__)
         func_defaults = func.__defaults__
@@ -126,6 +126,17 @@ def isdescriptor(x):
     """Check if the object is some kind of descriptor."""
     for item in '__get__', '__set__', '__delete__':
         if hasattr(safe_getattr(x, item, None), '__call__'):
+            return True
+    return False
+
+
+def isfunction(x):
+    # type: (Any) -> bool
+    """Check if the object is some kind of function."""
+    if inspect.isbuiltin(x):
+        return True
+    for cls in inspect.getmro(type(x)):
+        if "__code__" in cls.__dict__:
             return True
     return False
 
