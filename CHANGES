@@ -102,6 +102,7 @@ Features added
   match to the text
 * #3609: Allow to suppress "duplicate citation" warnings using
   ``suppress_warnings``
+* #2803: Discovery of builders by entry point
 
 Bugs fixed
 ----------
