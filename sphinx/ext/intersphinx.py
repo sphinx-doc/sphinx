@@ -372,4 +372,7 @@ def debug(argv):
 
 
 if __name__ == '__main__':
+    import logging  # type: ignore
+    logging.basicConfig()
+
     debug(argv=sys.argv)  # type: ignore
